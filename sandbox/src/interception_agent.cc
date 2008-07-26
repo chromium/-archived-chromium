@@ -1,0 +1,240 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// For information about interceptions as a whole see
+// http://wiki/Main/ChromeSandboxInterceptionDesign
+
+#include "sandbox/src/interception_agent.h"
+
+#include "sandbox/src/interception_internal.h"
+#include "sandbox/src/eat_resolver.h"
+#include "sandbox/src/sidestep_resolver.h"
+#include "sandbox/src/sandbox_nt_util.h"
+
+namespace {
+
+// Returns true if target lies between base and base + range.
+bool IsWithinRange(const void* base, size_t range, const void* target) {
+  const char* end = reinterpret_cast<const char*>(base) + range;
+  return reinterpret_cast<const char*>(target) < end;
+}
+
+}  // namespace
+
+namespace sandbox {
+
+// This is the list of all imported symbols from ntdll.dll.
+SANDBOX_INTERCEPT NtExports g_nt;
+
+// Memory buffer mapped from the parent, with the list of interceptions.
+SANDBOX_INTERCEPT SharedMemory* g_interceptions = NULL;
+
+InterceptionAgent* InterceptionAgent::GetInterceptionAgent() {
+  static InterceptionAgent* s_singleton_pointer = NULL;
+  if (!s_singleton_pointer) {
+    if (!g_interceptions)
+      return NULL;
+
+    size_t object_bytes = g_interceptions->num_intercepted_dlls * sizeof(void*);
+    s_singleton_pointer = reinterpret_cast<InterceptionAgent*>(
+                              new(NT_ALLOC) char[object_bytes]);
+
+    bool success = s_singleton_pointer->Init(g_interceptions);
+    if (!success) {
+      operator delete(s_singleton_pointer, NT_ALLOC);
+      s_singleton_pointer = NULL;
+    }
+  }
+  return s_singleton_pointer;
+}
+
+bool InterceptionAgent::Init(SharedMemory* shared_memory) {
+  interceptions_ = shared_memory;
+  for (int i = 0 ; i < shared_memory->num_intercepted_dlls; i++)
+    dlls_[i] = NULL;
+  return true;
+}
+
+bool InterceptionAgent::DllMatch(const UNICODE_STRING* full_path,
+                                 const UNICODE_STRING* name,
+                                 const DllPatchInfo* dll_info) {
+  UNICODE_STRING current_name;
+  current_name.Length = static_cast<USHORT>(g_nt.wcslen(dll_info->dll_name) *
+                                            sizeof(wchar_t));
+  current_name.MaximumLength = current_name.Length;
+  current_name.Buffer = const_cast<wchar_t*>(dll_info->dll_name);
+
+  BOOLEAN case_insensitive = TRUE;
+  if (full_path &&
+      !g_nt.RtlCompareUnicodeString(&current_name, full_path, case_insensitive))
+    return true;
+
+  if (!g_nt.RtlCompareUnicodeString(&current_name, name, case_insensitive))
+    return true;
+
+  return false;
+}
+
+void InterceptionAgent::OnDllLoad(const UNICODE_STRING* full_path,
+                                  const UNICODE_STRING* name,
+                                  void* base_address) {
+  DllPatchInfo* dll_info = interceptions_->dll_list;
+  int i = 0;
+  for (; i < interceptions_->num_intercepted_dlls; i++) {
+    if (DllMatch(full_path, name, dll_info))
+      break;
+
+    dll_info = reinterpret_cast<DllPatchInfo*>(
+                   reinterpret_cast<char*>(dll_info) + dll_info->record_bytes);
+  }
+  if (i == interceptions_->num_intercepted_dlls)
+    return;
+
+  // Purify causes this condition to trigger.
+  if (dlls_[i])
+    return;
+
+  size_t buffer_bytes = offsetof(DllInterceptionData, thunks) +
+                        dll_info->num_functions * sizeof(ThunkData);
+  dlls_[i] = reinterpret_cast<DllInterceptionData*>(
+                 new(NT_PAGE) char[buffer_bytes]);
+
+  DCHECK_NT(dlls_[i]);
+  if (!dlls_[i])
+    return;
+
+  dlls_[i]->data_bytes = buffer_bytes;
+  dlls_[i]->num_thunks = 0;
+  dlls_[i]->base = base_address;
+  dlls_[i]->used_bytes = offsetof(DllInterceptionData, thunks);
+
+  VERIFY(PatchDll(dll_info, dlls_[i]));
+
+  ULONG old_protect;
+  SIZE_T real_size = buffer_bytes;
+  void* to_protect = dlls_[i];
+  VERIFY_SUCCESS(g_nt.ProtectVirtualMemory(NtCurrentProcess, &to_protect,
+                                           &real_size, PAGE_EXECUTE_READ,
+                                           &old_protect));
+}
+
+void InterceptionAgent::OnDllUnload(void* base_address) {
+  for (int i = 0; i < interceptions_->num_intercepted_dlls; i++) {
+    if (dlls_[i] && dlls_[i]->base == base_address) {
+      operator delete(dlls_[i], NT_PAGE);
+      dlls_[i] = NULL;
+      break;
+    }
+  }
+}
+
+// TODO(rvargas): We have to deal with prebinded dlls. I see two options: change
+// the timestamp of the patched dll, or modify the info on the prebinded dll.
+// the first approach messes matching of debug symbols, the second one is more
+// complicated.
+bool InterceptionAgent::PatchDll(const DllPatchInfo* dll_info,
+                                 DllInterceptionData* thunks) {
+  DCHECK_NT(NULL != thunks);
+  DCHECK_NT(NULL != dll_info);
+
+  const FunctionInfo* function = reinterpret_cast<const FunctionInfo*>(
+      reinterpret_cast<const char*>(dll_info) + dll_info->offset_to_functions);
+
+  for (int i = 0; i < dll_info->num_functions; i++) {
+    if (!IsWithinRange(dll_info, dll_info->record_bytes, function->function)) {
+      NOTREACHED_NT();
+      return false;
+    }
+
+    ResolverThunk* resolver = GetResolver(function->type);
+    if (!resolver)
+      return false;
+
+    const char* interceptor = function->function +
+                              g_nt.strlen(function->function) + 1;
+
+    if (!IsWithinRange(function, function->record_bytes, interceptor) ||
+        !IsWithinRange(dll_info, dll_info->record_bytes, interceptor)) {
+      NOTREACHED_NT();
+      return false;
+    }
+
+    NTSTATUS ret = resolver->Setup(thunks->base,
+                                   interceptions_->interceptor_base,
+                                   function->function,
+                                   interceptor,
+                                   function->interceptor_address,
+                                   &thunks->thunks[i],
+                                   sizeof(ThunkData),
+                                   NULL);
+    if (!NT_SUCCESS(ret)) {
+      NOTREACHED_NT();
+      return false;
+    }
+
+    thunks->num_thunks++;
+    thunks->used_bytes += sizeof(ThunkData);
+
+    function = reinterpret_cast<const FunctionInfo*>(
+        reinterpret_cast<const char*>(function) + function->record_bytes);
+  }
+
+  return true;
+}
+
+// This method is called from within the loader lock
+ResolverThunk* InterceptionAgent::GetResolver(InterceptionType type) {
+  static EatResolverThunk* eat_resolver = NULL;
+  static SidestepResolverThunk* sidestep_resolver = NULL;
+  static SmartSidestepResolverThunk* smart_sidestep_resolver = NULL;
+
+  if (!eat_resolver)
+    eat_resolver = new(NT_ALLOC) EatResolverThunk;
+
+  if (!sidestep_resolver)
+    sidestep_resolver = new(NT_ALLOC) SidestepResolverThunk;
+
+  if (!smart_sidestep_resolver)
+    smart_sidestep_resolver = new(NT_ALLOC) SmartSidestepResolverThunk;
+
+  switch (type) {
+    case INTERCEPTION_EAT:
+      return eat_resolver;
+    case INTERCEPTION_SIDESTEP:
+      return sidestep_resolver;
+    case INTERCEPTION_SMART_SIDESTEP:
+      return smart_sidestep_resolver;
+    default:
+      NOTREACHED_NT();
+  }
+
+  return NULL;
+}
+
+}  // namespace sandbox

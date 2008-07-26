@@ -1,0 +1,247 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#include <string>
+
+#include "sandbox/src/registry_policy.h"
+
+#include "base/logging.h"
+#include "base/scoped_handle.h"
+#include "sandbox/src/ipc_tags.h"
+#include "sandbox/src/policy_engine_opcodes.h"
+#include "sandbox/src/policy_params.h"
+#include "sandbox/src/sandbox_utils.h"
+#include "sandbox/src/sandbox_types.h"
+#include "sandbox/src/win_utils.h"
+
+namespace {
+
+static const DWORD kAllowedRegFlags = KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS |
+                                      KEY_NOTIFY | KEY_READ | GENERIC_READ |
+                                      GENERIC_EXECUTE | READ_CONTROL;
+
+// Opens the key referenced by |obj_attributes| with |access| and
+// checks what permission was given. Remove the WRITE flags and update
+// |access| with the new value.
+NTSTATUS TranslateMaximumAllowed(OBJECT_ATTRIBUTES* obj_attributes,
+                                 DWORD* access) {
+  NtOpenKeyFunction NtOpenKey = NULL;
+  ResolveNTFunctionPtr("NtOpenKey", &NtOpenKey);
+
+  NtCloseFunction NtClose = NULL;
+  ResolveNTFunctionPtr("NtClose", &NtClose);
+
+  NtQueryObjectFunction NtQueryObject = NULL;
+  ResolveNTFunctionPtr("NtQueryObject", &NtQueryObject);
+
+  // Open the key.
+  HANDLE handle;
+  NTSTATUS status = NtOpenKey(&handle, *access, obj_attributes);
+  if (!NT_SUCCESS(status))
+    return status;
+
+  OBJECT_BASIC_INFORMATION info = {0};
+  status = NtQueryObject(handle, ObjectBasicInformation, &info, sizeof(info),
+                         NULL);
+  NtClose(handle);
+  if (!NT_SUCCESS(status))
+    return status;
+
+  *access = info.GrantedAccess & kAllowedRegFlags;
+  return STATUS_SUCCESS;
+}
+
+NTSTATUS NtCreateKeyInTarget(HANDLE* target_key_handle,
+                             ACCESS_MASK desired_access,
+                             OBJECT_ATTRIBUTES* obj_attributes,
+                             ULONG title_index,
+                             UNICODE_STRING* class_name,
+                             ULONG create_options,
+                             ULONG* disposition,
+                             HANDLE target_process) {
+  NtCreateKeyFunction NtCreateKey = NULL;
+  ResolveNTFunctionPtr("NtCreateKey", &NtCreateKey);
+
+  if (MAXIMUM_ALLOWED & desired_access) {
+    NTSTATUS status = TranslateMaximumAllowed(obj_attributes, &desired_access);
+    if (!NT_SUCCESS(status))
+      return STATUS_ACCESS_DENIED;
+  }
+
+  HANDLE local_handle = INVALID_HANDLE_VALUE;
+  NTSTATUS status = NtCreateKey(&local_handle, desired_access, obj_attributes,
+                                title_index, class_name, create_options,
+                                disposition);
+  if (!NT_SUCCESS(status))
+    return status;
+
+  if (!::DuplicateHandle(::GetCurrentProcess(), local_handle,
+                         target_process, target_key_handle, 0, FALSE,
+                         DUPLICATE_CLOSE_SOURCE | DUPLICATE_SAME_ACCESS)) {
+    ::CloseHandle(local_handle);
+    return STATUS_ACCESS_DENIED;
+  }
+  return STATUS_SUCCESS;
+}
+
+NTSTATUS NtOpenKeyInTarget(HANDLE* target_key_handle,
+                           ACCESS_MASK desired_access,
+                           OBJECT_ATTRIBUTES* obj_attributes,
+                           HANDLE target_process) {
+  NtOpenKeyFunction NtOpenKey = NULL;
+  ResolveNTFunctionPtr("NtOpenKey", &NtOpenKey);
+
+  if (MAXIMUM_ALLOWED & desired_access) {
+    NTSTATUS status = TranslateMaximumAllowed(obj_attributes, &desired_access);
+    if (!NT_SUCCESS(status))
+      return STATUS_ACCESS_DENIED;
+  }
+
+  HANDLE local_handle = INVALID_HANDLE_VALUE;
+  NTSTATUS status = NtOpenKey(&local_handle, desired_access, obj_attributes);
+
+  if (!NT_SUCCESS(status))
+    return status;
+
+  if (!::DuplicateHandle(::GetCurrentProcess(), local_handle,
+                         target_process, target_key_handle, 0, FALSE,
+                         DUPLICATE_CLOSE_SOURCE | DUPLICATE_SAME_ACCESS)) {
+    ::CloseHandle(local_handle);
+    return STATUS_ACCESS_DENIED;
+  }
+  return STATUS_SUCCESS;
+}
+
+}
+
+namespace sandbox {
+
+bool RegistryPolicy::GenerateRules(const wchar_t* name,
+                                   TargetPolicy::Semantics semantics,
+                                   LowLevelPolicy* policy) {
+  std::wstring resovled_name(name);
+  if (resovled_name.empty()) {
+    return false;
+  }
+
+  if (!ResolveRegistryName(resovled_name, &resovled_name))
+    return false;
+
+  name = resovled_name.c_str();
+
+  EvalResult result = ASK_BROKER;
+
+  PolicyRule open(result);
+  PolicyRule create(result);
+
+  switch (semantics) {
+    case TargetPolicy::REG_ALLOW_READONLY: {
+      // We consider all flags that are not known to be readonly as potentially
+      // used for write. Here we also support MAXIMUM_ALLOWED, but we are going
+      // to expand it to read-only before the call.
+      DWORD restricted_flags = ~(kAllowedRegFlags | MAXIMUM_ALLOWED);
+      open.AddNumberMatch(IF_NOT, OpenKey::ACCESS, restricted_flags, AND);
+      create.AddNumberMatch(IF_NOT, OpenKey::ACCESS, restricted_flags, AND);
+      break;
+    }
+    case TargetPolicy::REG_ALLOW_ANY: {
+      break;
+    }
+    default: {
+      NOTREACHED();
+      return false;
+    }
+  }
+
+  if (!create.AddStringMatch(IF, OpenKey::NAME, name, CASE_INSENSITIVE) ||
+      !policy->AddRule(IPC_NTCREATEKEY_TAG, &create)) {
+    return false;
+  }
+
+  if (!open.AddStringMatch(IF, OpenKey::NAME, name, CASE_INSENSITIVE) ||
+      !policy->AddRule(IPC_NTOPENKEY_TAG, &open)) {
+    return false;
+  }
+
+  return true;
+}
+
+bool RegistryPolicy::CreateKeyAction(EvalResult eval_result,
+                                     const ClientInfo& client_info,
+                                     const std::wstring &key,
+                                     uint32 attributes,
+                                     HANDLE root_directory,
+                                     uint32 desired_access,
+                                     uint32 title_index,
+                                     uint32 create_options,
+                                     HANDLE* handle,
+                                     NTSTATUS* nt_status,
+                                     ULONG* disposition) {
+  // The only action supported is ASK_BROKER which means create the requested
+  // file as specified.
+  if (ASK_BROKER != eval_result) {
+    *nt_status = STATUS_ACCESS_DENIED;
+    return false;
+  }
+
+  UNICODE_STRING uni_name = {0};
+  OBJECT_ATTRIBUTES obj_attributes = {0};
+  InitObjectAttribs(key, attributes, root_directory, &obj_attributes,
+                    &uni_name);
+  *nt_status = NtCreateKeyInTarget(handle, desired_access, &obj_attributes,
+                                   title_index, NULL, create_options,
+                                   disposition, client_info.process);
+  return true;
+}
+
+bool RegistryPolicy::OpenKeyAction(EvalResult eval_result,
+                                   const ClientInfo& client_info,
+                                   const std::wstring &key,
+                                   uint32 attributes,
+                                   HANDLE root_directory,
+                                   uint32 desired_access,
+                                   HANDLE* handle,
+                                   NTSTATUS* nt_status) {
+  // The only action supported is ASK_BROKER which means open the requested
+  // file as specified.
+  if (ASK_BROKER != eval_result) {
+    *nt_status = STATUS_ACCESS_DENIED;
+    return true;
+  }
+
+  UNICODE_STRING uni_name = {0};
+  OBJECT_ATTRIBUTES obj_attributes = {0};
+  InitObjectAttribs(key, attributes, root_directory, &obj_attributes,
+                    &uni_name);
+  *nt_status = NtOpenKeyInTarget(handle, desired_access, &obj_attributes,
+                                client_info.process);
+  return true;
+}
+
+}  // namespace sandbox
