@@ -1,0 +1,171 @@
+// Copyright 2006 Google Inc. All Rights Reserved.
+//
+// Author: Vivek Rao - vivekrao@google.com
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+  object,
+  uuid(8905383F-CD19-4160-8DA0-55FDCFE34F4A),
+  oleautomation,
+  nonextensible,
+  pointer_default(unique)
+]
+interface IBrowserHttpRequest : IUnknown {
+  // This method will send request/data from the browser process.
+  // @param url                     URL where request will be send.
+  // @param post_data               POST data, if any. Can be NULL.
+  // @param request_headers         HTTP request headers, if any. Can be NULL.
+  // @param response_headers_needed HTTP response headers that are needed.
+  //                                Should be one of the values listed here:
+  //                                    http://go/queryinfoflags
+  //                                The input is a SAFEARRAY of DWORD. Can be a
+  //                                VT_EMPTY.
+  // @param response_headers        HTTP response headers, returned as SAFEARRAY
+  //                                of BSTR. The values corresponding one-to-one
+  //                                with the response_headers_needed values. Can
+  //                                be NULL if response_headers_needed==VT_EMPTY
+  // @param response_code           HTTP response code.
+  // @param cache_filename          Cache file that contains the response data.
+  HRESULT Send([in] BSTR url,
+               [in] BSTR post_data,
+               [in] BSTR request_headers,
+               [in] VARIANT response_headers_needed,
+               [out] VARIANT* response_headers,
+               [out] DWORD* response_code,
+               [out] BSTR* cache_filename);
+};
+
+[
+  object,
+  oleautomation,
+  uuid(738B2CC4-F187-48e2-A7A7-C1F0A464C8BE),
+  helpstring("Google Update IBrowserLauncher Interface"),
+  pointer_default(unique)
+]
+interface IBrowserLauncher : IUnknown {
+  // @param browser_type The browser to start.
+  // @param url The url to launch the browser with.
+  HRESULT LaunchBrowser([in] DWORD browser_type,
+                        [in, string] const WCHAR* url);
+};
+
+typedef enum {
+  COMPLETION_CODE_SUCCESS = 1,
+  COMPLETION_CODE_SUCCESS_CLOSE_UI,
+  COMPLETION_CODE_ERROR,
+  COMPLETION_CODE_RESTART_BROWSERS,
+  COMPLETION_CODE_REBOOT,
+} CompletionCodes;
+
+[
+  object,
+  oleautomation,
+  uuid(1C642CED-CA3B-4013-A9DF-CA6CE5FF6503),
+  helpstring("GoogleUpdate UI-specific events Interface"),
+  pointer_default(unique)
+]
+interface IProgressWndEvents : IUnknown {
+  // The UI is closing down. The user has clicked on either the "X" or the
+  // other buttons of the UI to close the window.
+  HRESULT DoClose();
+
+  // Pause has been clicked on.
+  HRESULT DoPause();
+
+  // Resume has been clicked on.
+  HRESULT DoResume();
+
+  // RestartBrowsers button has been clicked on.
+  HRESULT DoRestartBrowsers();
+
+  // Reboot button has been clicked on.
+  HRESULT DoReboot();
+
+  // Launch Browser.
+  HRESULT DoLaunchBrowser([in, string] const WCHAR* url);
+};
+
+
+[
+  object,
+  oleautomation,
+  uuid(49D7563B-2DDB-4831-88C8-768A53833837),
+  helpstring("IJobObserver Interface"),
+  pointer_default(unique)
+]
+interface IJobObserver : IUnknown {
+  HRESULT OnShow();
+  HRESULT OnCheckingForUpdate();
+  HRESULT OnUpdateAvailable([in, string] const WCHAR* version_string);
+  HRESULT OnWaitingToDownload();
+  HRESULT OnDownloading([in] int time_remaining_ms, [in] int pos);
+  HRESULT OnWaitingToInstall();
+  HRESULT OnInstalling();
+  HRESULT OnPause();
+  HRESULT OnComplete([in] CompletionCodes code, [in, string] const WCHAR* text);
+  HRESULT SetEventSink([in] IProgressWndEvents* ui_sink);
+};
+
+// TODO(ganesh): Component story.
+// TODO(ganesh): Should CheckForUpdate be synchronous? We can avoid the
+// observer. However, it may block the UI.
+// TODO(ganesh): On-Demand Installs.
+[
+  object,
+  oleautomation,
+  uuid(31AC3F11-E5EA-4a85-8A3D-8E095A39C27B),
+  helpstring("IGoogleUpdate Interface"),
+  pointer_default(unique)
+]
+interface IGoogleUpdate : IUnknown {
+  // @param guid The guid for the app to be updated.
+  // @param observer The eventing interface.
+  HRESULT CheckForUpdate([in, string] const WCHAR* guid,
+                         [in] IJobObserver* observer);
+
+  // @param guid The guid for the app to be updated.
+  // @param observer The eventing interface.
+  HRESULT Update([in, string] const WCHAR* guid,
+                 [in] IJobObserver* observer);
+};
+
+[
+  uuid(7E6CD20B-8688-4960-96D9-B979471577B8),
+  version(1.0),
+  helpstring("Google Update Browser Launcher 1.0 Type Library")
+]
+library GoogleUpdateLib {
+  importlib("stdole2.tlb");
+  [
+    uuid(D21E601A-3017-4d61-9315-F2880EBD196F),
+    helpstring("BrowserLauncherClass Class")
+  ]
+  coclass BrowserLauncherClass {
+    [default] interface IBrowserLauncher;
+  }
+
+  // This coclass declaration exists only for the purpose of forcing
+  // ::RegisterTypeLib() to register the interfaces within. This is
+  // required so that we can marshal/unmarshal the interfaces using the TypeLib
+  // marshaler.
+  [
+    uuid(9564861C-3469-4c9a-956A-74D5690790E6),
+    helpstring("InterfaceRegistrar Class")
+  ]
+  coclass InterfaceRegistrar {
+    [default] interface IBrowserHttpRequest;
+    interface IJobObserver;
+    interface IProgressWndEvents;
+  }
+
+  [
+    uuid(2F0E2680-9FF5-43c0-B76E-114A56E93598),
+    helpstring("OnDemand Class")
+  ]
+  coclass OnDemandClass {
+    [default] interface IGoogleUpdate;
+  }
+};
+
