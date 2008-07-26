@@ -1,0 +1,8 @@
+CoTaskMemAlloc [OLE32.DLL]
+Alloc Location
+   ...  
+   base/wmi_util.cc  WMIUtil::CreateLocalConnection(bool)
+   base/wmi_util.cc  WMIProcessUtil::Launch(class std::basic_string const &,int *)
+   base/wmi_util_unittest.cc  WMIUtilTest_TestLaunchProcess_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  

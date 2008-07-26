@@ -1,0 +1,9 @@
+EXPORTS
+	SingletonInt1
+	SingletonInt2
+	SingletonInt3
+	SingletonInt4
+	SingletonInt5
+	SingletonNoLeak
+	SingletonLeak
+	GetLeakySingleton

@@ -1,0 +1,209 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// A StatsTable is a table of statistics.  It can be used across multiple
+// processes and threads, maintaining cheap statistics counters without
+// locking.
+//
+// The goal is to make it very cheap and easy for developers to add
+// counters to code, without having to build one-off utilities or mechanisms
+// to track the counters, and also to allow a single "view" to display
+// the contents of all counters.
+//
+// To achieve this, StatsTable creates a shared memory segment to store
+// the data for the counters.  Upon creation, it has a specific size
+// which governs the maximum number of counters and concurrent
+// threads/processes which can use it.
+//
+
+#ifndef BASE_STATS_TABLE_H__
+#define BASE_STATS_TABLE_H__
+
+#include <string>
+#include "base/basictypes.h"
+#include "base/hash_tables.h"
+#include "base/lock.h"
+#include "base/shared_memory.h"
+#include "base/thread_local_storage.h"
+
+class StatsTablePrivate;
+
+namespace {
+struct StatsTableTLSData;
+}
+
+class StatsTable {
+ public:
+  // Create a new StatsTable.
+  // If a StatsTable already exists with the specified name, this StatsTable
+  // will use the same shared memory segment as the original.  Otherwise,
+  // a new StatsTable is created and all counters are zeroed.
+  //
+  // name is the name of the StatsTable to use.
+  //
+  // max_threads is the maximum number of threads the table will support.
+  // If the StatsTable already exists, this number is ignored.
+  //
+  // max_counters is the maximum number of counters the table will support.
+  // If the StatsTable already exists, this number is ignored.
+  StatsTable(const std::wstring& name, int max_threads, int max_counters);
+
+  // Destroys the StatsTable.  When the last StatsTable is destroyed
+  // (across all processes), the StatsTable is removed from disk.
+  ~StatsTable();
+
+  // For convenience, we create a static table.  This is generally
+  // used automatically by the counters.
+  static StatsTable* current() { return global_table_; }
+
+  // Set the global table for use in this process.
+  static void set_current(StatsTable* value) { global_table_ = value; }
+
+  // Get the slot id for the calling thread. Returns 0 if no
+  // slot is assigned.
+  int GetSlot() const;
+
+  // All threads that contribute data to the table must register with the
+  // table first.  This function will set thread local storage for the
+  // thread containing the location in the table where this thread will
+  // write its counter data.
+  //
+  // name is just a debugging tag to label the thread, and it does not
+  // need to be unique.  It will be truncated to kMaxThreadNameLength-1
+  // characters.
+  //
+  // On success, returns the slot id for this thread.  On failure,
+  // returns 0.
+  int RegisterThread(const std::wstring& name);
+
+  // Returns the space occupied by a thread in the table.  Generally used
+  // if a thread terminates but the process continues.  This function
+  // does not zero out the thread's counters.
+  void UnregisterThread();
+
+  // Returns the number of threads currently registered.  This is really not
+  // useful except for diagnostics and debugging.
+  int CountThreadsRegistered() const;
+
+  // Find a counter in the StatsTable.
+  //
+  // Returns an id for the counter which can be used to call GetLocation().
+  // If the counter does not exist, attempts to create a row for the new
+  // counter.  If there is no space in the table for the new counter,
+  // returns 0.
+  int FindCounter(const std::wstring& name);
+
+  // TODO(mbelshe): implement RemoveCounter.
+
+  // Gets the location of a particular value in the table based on
+  // the counter id and slot id.
+  int* GetLocation(int counter_id, int slot_id) const;
+
+  // Gets the counter name at a particular row.  If the row is empty,
+  // returns NULL.
+  const wchar_t* GetRowName(int index) const;
+
+  // Gets the sum of the values for a particular row.
+  int GetRowValue(int index) const;
+
+  // Gets the sum of the values for a particular row for a given pid.
+  int GetRowValue(int index, int pid) const;
+
+  // Gets the sum of the values for a particular counter.  If the counter
+  // does not exist, creates the counter.
+  int GetCounterValue(const std::wstring& name);
+
+  // Gets the sum of the values for a particular counter for a given pid.
+  // If the counter does not exist, creates the counter.
+  int GetCounterValue(const std::wstring& name, int pid);
+
+  // The maxinum number of counters/rows in the table.
+  int GetMaxCounters() const;
+
+  // The maxinum number of threads/columns in the table.
+  int GetMaxThreads() const;
+
+  // The maximum length (in characters) of a Thread's name including
+  // null terminator, as stored in the shared memory.
+  static const int kMaxThreadNameLength = 32;
+
+  // The maximum length (in characters) of a Counter's name including
+  // null terminator, as stored in the shared memory.
+  static const int kMaxCounterNameLength = 32;
+
+  // Convenience function to lookup a counter location for a
+  // counter by name for the calling thread.  Will register
+  // the thread if it is not already registered.
+  static int* FindLocation(const wchar_t *name);
+
+ private:
+  // Locates a free slot in the table.  Returns a number > 0 on success,
+  // or 0 on failure.  The caller must hold the shared_memory lock when
+  // calling this function.
+  int FindEmptyThread() const;
+
+  // Locates a counter in the table or finds an empty row.  Returns a
+  // number > 0 on success, or 0 on failure.  The caller must hold the
+  // shared_memory_lock when calling this function.
+  int FindCounterOrEmptyRow(const std::wstring& name) const;
+
+  // Internal function to add a counter to the StatsTable.  Assumes that
+  // the counter does not already exist in the table.
+  //
+  // name is a unique identifier for this counter, and will be truncated
+  // to kMaxCounterNameLength-1 characters.
+  //
+  // On success, returns the counter_id for the newly added counter.
+  // On failure, returns 0.
+  int AddCounter(const std::wstring& name);
+
+  // Get the TLS data for the calling thread.  Returns NULL if none is
+  // initialized.
+  StatsTableTLSData* GetTLSData() const;
+
+  typedef base::hash_map<std::wstring, int> CountersMap;
+
+  bool                opened_;
+  SharedMemory        shared_memory_;
+  StatsTablePrivate*  impl_;
+  // The counters_lock_ protects the counters_ hash table.
+  Lock                counters_lock_;
+  // The counters_ hash map is an in-memory hash of the counters.
+  // It is used for quick lookup of counters, but is cannot be used
+  // as a substitute for what is in the shared memory.  Even though
+  // we don't have a counter in our hash table, another process may
+  // have created it.
+  CountersMap         counters_;
+  TLSSlot             tls_index_;
+
+  static StatsTable*  global_table_;
+  DISALLOW_EVIL_CONSTRUCTORS(StatsTable);
+};
+
+#endif  // BASE_STATS_TABLE_H__
