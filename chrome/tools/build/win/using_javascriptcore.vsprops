@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="using_javascriptcore"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="&quot;$(SolutionDir)\third_party\webkit\src\JavaScriptCore\bindings&quot;;&quot;$(SolutionDir)\third_party\webkit\src\JavaScriptCore&quot;;&quot;$(SolutionDir)\third_party\webkit\src\JavaScriptCore\os-win32&quot;;&quot;$(SolutionDir)webkit\pending&quot;;&quot;$(SolutionDir)webkit\pending\wtf&quot;"
+	/>
+</VisualStudioPropertySheet>

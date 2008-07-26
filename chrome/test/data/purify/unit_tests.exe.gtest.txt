@@ -1,0 +1,2 @@
+# bug 1178136
+ImporterTest.Firefox3Importer

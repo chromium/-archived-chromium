@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="Resource text file copy"
+	Version="8.00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="Resource text file copy"
+			CommandLine="xcopy /Y /D /Q $(InputPath) $(OutDir)\resources"
+			Outputs="$(OutDir)\Resources\$(InputFileName)"
+			FileExtensions="*.html;*.js;*.gif"
+			ExecutionDescription="Copying resource file..."
+			>
+			<Properties>
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>

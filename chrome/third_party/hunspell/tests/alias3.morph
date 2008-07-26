@@ -1,0 +1,8 @@
+> ouro
+[stem_1]ouro
+> metouro
+affix_2/ouro[stem_1]
+> tekmetouro
+affix_1/affix_2/ouro[stem_1]
+> ouro_test_
+[stem_1]/suffix_1

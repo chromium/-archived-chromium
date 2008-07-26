@@ -1,0 +1,499 @@
+# Copyright 2008, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import os
+
+Import(['env'])
+
+env_res = env.Clone()
+env_test = env.Clone()
+env = env.Clone()
+
+
+
+install_targets = []
+
+
+env.Prepend(
+    CPPPATH = [
+        Dir('app'),
+        #Dir('third_party/wtl/include'),
+        Dir('#/../chrome/third_party/wtl/include'),
+    ],
+)
+
+
+env_res.Append(
+    CPPPATH = [
+        '.',
+        '#/../chrome/Debug/obj/chrome_dll',
+        '#/..',
+        '#/../chrome/Debug/obj',
+    ],
+    RCFLAGS = [
+        ['/l', '0x409'],
+    ],
+)
+
+browser_res = env_res.RES('browser/browser_resources.rc')
+chrome_dll_res = env_res.RES('app/chrome_dll.rc')
+common_res = env_res.RES('common/common_resources.rc')
+renderer_res = env_res.RES('renderer/renderer_resources.rc')
+test_data_res = env_res.RES('test/data/resource.rc')
+webkit_res = env_res.RES('$WEBKIT_DIR/glue/webkit_resources.rc')
+
+net_res = '$NET_DIR/net_resources.res'
+
+dll_resources = [
+    browser_res,
+    chrome_dll_res,
+    common_res,
+    net_res,
+    renderer_res,
+    webkit_res,
+]
+
+env_test['BROWSER_RES'] = browser_res[0]
+env_test['TEST_DATA_RES'] = test_data_res[0]
+
+env_dll = env.Clone()
+
+env_dll.Prepend(
+    CPPPATH = [
+        "..",
+    ],
+    CPPDEFINES = [
+        'U_STATIC_IMPLEMENTATION',
+        'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
+        'WIN32_LEAN_AND_MEAN',
+
+        'PNG_USER_CONFIG',
+        'CHROME_PNG_WRITE_SUPPORT',
+        'LIBXSLT_STATIC',
+        'LIBXML_STATIC',
+        '_WINDLL',
+    ],
+    CCFLAGS = [
+        '/TP',
+
+        '/Wp64',
+
+        '/wd4503',
+        '/wd4819',
+    ],
+)
+
+env_dll.Append(
+    CPPPATH = [
+        #/I '../chrome/Debug/webkit'
+        #/I '../third_party/webkit/out'
+
+        Dir('#../chrome/app'),
+        #Dir('#../chrome/Debug/obj/generated_resources'),
+        Dir('#../chrome/Debug/obj/localized_strings'),
+        Dir('#../third_party/libpng'),
+        Dir('#../skia/include'),
+        Dir('#../skia/include/corecg'),
+        Dir('#../skia/platform'),
+        Dir('#../third_party/libxslt'),
+        Dir('#../third_party/libxml/include'),
+        Dir('#../breakpad/src'),
+    ],
+    LIBS = [
+        'DelayImp.lib',
+        'advapi32.lib',
+        'comctl32.lib',
+        'comdlg32.lib',
+        'delayimp.lib',
+        'dwmapi.lib',
+        'gdi32.lib',
+        'kernel32.lib',
+        'msimg32.lib',
+        'odbc32.lib',
+        'odbccp32.lib',
+        'ole32.lib',
+        'oleaut32.lib',
+        'psapi.lib',
+        'rpcrt4.lib',
+        'shell32.lib',
+        'shlwapi.lib',
+        'user32.lib',
+        'usp10.lib',
+        'uuid.lib',
+        'version.lib',
+        'wininet.lib',
+        'wininet.lib',
+        'winmm.lib',
+        'winspool.lib',
+        'ws2_32.lib',
+        'wsock32.lib',
+
+        env.File('$BASE_DIR/base.lib'),
+        env.File('$BASE_DIR/gfx/base_gfx.lib'),
+        env.File('$BREAKPAD_DIR/breakpad_handler.lib'),
+        env.File('browser/browser.lib'),
+        env.File('browser/debugger/debugger.lib'),
+        env.File('common/common.lib'),
+        env.File('installer/util/util.lib'),
+        env.File('libjscre.lib'),
+        env.File('plugin/plugin.lib'),
+        env.File('renderer/renderer.lib'),
+        env.File('third_party/hunspell/hunspell.lib'),
+        env.File('third_party/sqlite/sqlite.lib'),
+        env.File('views/views.lib'),
+        env.File('$NET_DIR/net.lib'),
+        env.File('$SKIA_DIR/skia.lib'),
+        env.File('$BZIP2_DIR/bzip2.lib'),
+        env.File('$ICU38_DIR/icuuc.lib'),
+        env.File('$LIBJPEG_DIR/libjpeg.lib'),
+        env.File('$LIBPNG_DIR/libpng.lib'),
+        env.File('$LIBXML_DIR/libxml.lib'),
+        env.File('$LIBXSLT_DIR/libxslt.lib'),
+        env.File('$MODP_B64_DIR/modp_b64.lib'),
+        env.File('$ZLIB_DIR/zlib.lib'),
+        env.File('$V8_DIR/v8.lib'),
+        env.File('$V8_DIR/snapshot-empty.obj'),
+        env.File('$WEBKIT_DIR/activex_shim/activex_shim.lib'),
+        env.File('$WEBKIT_DIR/build/JavaScriptCore/WTF.lib'),
+        env.File('$WEBKIT_DIR/build/V8Bindings/V8Bindings.lib'),
+        env.File('$WEBKIT_DIR/build/WebCore/WebCore.lib'),
+        env.File('$WEBKIT_DIR/default_plugin/default_plugin.lib'),
+        env.File('$WEBKIT_DIR/glue/Glue.lib'),
+        env.File('$GOOGLEURL_DIR/googleurl.lib'),
+        env.File('$WEBKIT_DIR/JavaScriptCore_pcre.lib'),
+        env.File('$WEBKIT_DIR/Port.lib'),
+    ],
+    LINKFLAGS = [
+        '/INCREMENTAL',
+        '/DEBUG',
+
+        '/DELAYLOAD:"comdlg32.dll"',
+        '/DELAYLOAD:"crypt32.dll"',
+        '/DELAYLOAD:"cryptui.dll"',
+        '/DELAYLOAD:"dwmapi.dll"',
+        '/DELAYLOAD:"imagehlp.dll"',
+        '/DELAYLOAD:"imm32.dll"',
+        '/DELAYLOAD:"oleacc.dll"',
+        '/DELAYLOAD:"oleaut32.dll"',
+        '/DELAYLOAD:"psapi.dll"',
+        '/DELAYLOAD:"urlmon.dll"',
+        '/DELAYLOAD:"uxtheme.dll"',
+        '/DELAYLOAD:"winhttp.dll"',
+        '/DELAYLOAD:"wininet.dll"',
+        '/DELAYLOAD:"winspool.drv"',
+        '/DELAYLOAD:"ws2_32.dll"',
+        '/DELAYLOAD:"wsock32.dll"',
+
+        '/SUBSYSTEM:WINDOWS',
+        '/BASE:"0x01000000"',
+        '/MACHINE:X86',
+        '/FIXED:No',
+
+        '/safeseh',
+        '/dynamicbase',
+        '/ignore:4199',
+        '/nxcompat',
+
+        '/PDB:${TARGETS[1]}',
+        '/IMPLIB:${TARGETS[2]}',
+    ],
+)
+
+input_files = [
+    'app/chrome_main.cc',
+]
+
+dll_targets = env_dll.SharedLibrary(['chrome',
+                                     'chrome_dll.pdb',
+                                     'chrome_dll.lib'],
+                                    dll_resources + input_files)
+
+install_targets.extend(dll_targets)
+
+
+
+import os
+import sys
+sys.path.append(Dir('#/../tools/grit').abspath)
+env_grd = env.Clone()
+env_grd.Tool('scons', toolpath=['#/../tools/grit/grit'])
+# NOTE: generated_target is fake, to cause a different target.
+generated = env_grd.GRIT('app/resources/generated_target',
+                         '#/../chrome/app/generated_resources.grd')
+for g in [ g for g in generated if str(g).endswith('.rc') ]:
+    env_res.RES(g)
+
+
+
+env_version = env.Clone(
+    VERSION_BAT = File('#/../chrome/tools/build/win/version.bat'),
+    CHROMEDIR = Dir('#/../chrome'),
+    PWD = Dir('.'),
+)
+
+env_version['ENV']['PROGRAMFILES'] = os.environ['PROGRAMFILES']
+env_version['ENV']['SystemDrive'] = os.environ['SystemDrive']
+env_version['ENV']['USERPROFILE'] = os.environ['USERPROFILE']
+env_version['ENV']['PATH'] = os.environ['PATH']
+
+
+chrome_exe_version_rc = env_version.Command(
+    'chrome_exe_version.rc',
+    ['app/chrome_exe_version.rc.version',
+    '$CHROMEDIR/VERSION',
+    '$CHROMEDIR/BRANDING'],
+    '$VERSION_BAT $SOURCE $CHROMEDIR $PWD $TARGET')
+
+chrome_dll_version_rc = env_version.Command(
+    'chrome_dll_version.rc',
+    [
+        'app/chrome_dll_version.rc.version',
+        '$CHROMEDIR/VERSION',
+       '$CHROMEDIR/BRANDING',
+    ],
+    '$VERSION_BAT $SOURCE $CHROMEDIR $PWD $TARGET')
+
+Depends(chrome_dll_res, chrome_dll_version_rc)
+
+chrome_exe_version_res = env_res.RES(chrome_exe_version_rc)
+chrome_dll_version_res = env_res.RES(chrome_dll_version_rc)
+
+install_targets.extend(chrome_exe_version_rc)
+install_targets.extend(chrome_exe_version_res)
+
+install_targets.extend(chrome_dll_version_rc)
+install_targets.extend(chrome_dll_version_res)
+
+
+
+env_exe = env.Clone()
+env_exe.Prepend(
+    CPPPATH = [
+        '..',
+        Dir('#../breakpad/src'),
+    ],
+    CPPDEFINES = [
+        'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
+        'WIN32_LEAN_AND_MEAN',
+    ],
+)
+env_exe.Append(
+    LINKFLAGS = [
+        '/INCREMENTAL',
+
+        '/DELAYLOAD:"dwmapi.dll"',
+        '/DELAYLOAD:"uxtheme.dll"',
+
+        '/SUBSYSTEM:WINDOWS',
+        '/MACHINE:X86',
+        '/FIXED:No',
+
+        '/safeseh',
+        '/dynamicbase',
+        '/ignore:4199',
+        '/nxcompat',
+
+        '/PDB:${TARGETS[1]}',
+        '/IMPLIB:${TARGETS[2]}',
+    ],
+    LIBS = [
+        'DelayImp.lib',
+        'advapi32.lib',
+        'comdlg32.lib',
+        'gdi32.lib',
+        'kernel32.lib',
+        'msimg32.lib',
+        'odbc32.lib',
+        'odbccp32.lib',
+        'ole32.lib',
+        'oleaut32.lib',
+        'psapi.lib',
+        'shell32.lib',
+        'user32.lib',
+        'usp10.lib',
+        'uuid.lib',
+        'version.lib',
+        'wininet.lib',
+        'winspool.lib',
+        'ws2_32.lib',
+
+        env.File('common/common.lib'),
+        env.File('$CHROME_DIR/chrome_dll.lib'),
+        env.File('$BREAKPAD_DIR/breakpad_handler.lib'),
+        env.File('$SANDBOX_DIR/src/sandbox.lib'),
+        env.File('$BASE_DIR/base.lib'),
+        env.File('$ICU38_DIR/icuuc.lib'),
+    ],
+)
+
+chrome_exe = env_exe.Program(
+    ['chrome.exe',
+     'chrome_exe.pdb',
+     'chrome_exe_implib.lib'],
+    [
+        env_res.RES('app/chrome_exe.rc'),
+        'app/breakpad.cc',
+        'app/main.cc',
+        'app/google_update_client.cc',
+        'app/google_update_settings.cc',
+    ]
+)
+
+install_targets.extend(chrome_exe)
+env.Requires(chrome_exe[0], ['$TARGET_ROOT/chrome.dll',
+                             '$TARGET_ROOT/icudt38.dll',
+                             '$TARGET_ROOT/rlz.dll'])
+
+
+env_snapshot = env.Clone()
+
+env_snapshot.Prepend(
+    CPPPATH = [
+        '$V8_DIR/src',
+        '$V8_DIR/src/pcre/jscre',
+        #"C:\src\trunk-vs\chrome\\third_party\webkit\src\JavaScriptCore\os-win32"
+        #"C:\src\trunk-vs\chrome\Debug\obj\snapshotv8\DerivedSources"
+        '..',
+    ],
+    CPPDEFINES = [
+        'ENABLE_DISASSEMBLER',
+    ],
+    CCFLAGS = [
+        '/wd4099',
+        '/wd4355',
+        '/wd4800',
+        '/wd4503',
+        '/wd4819',
+    ],
+)
+
+env_snapshot.StaticLibrary('snapshotv8', 'snapshot.cc')
+
+env_snapshot.Command('snapshot.cc', '#/../v8/bin/debug/mksnapshot.exe',
+                     '$SOURCE $TARGET')
+
+
+
+env_flat = env.Clone(
+    BROWSER_RESOURCES = Dir('browser_resources'),
+    HTML_INLINE = File('#/../chrome/tools/build/win/html_inline.py'),
+    FLATTEN_HTML_COM = '$PYTHON $HTML_INLINE $SOURCE $TARGET',
+)
+
+flats = [
+    'about_memory',
+    'incognito_tab',
+    'new_tab',
+    'safe_browsing_malware_block',
+    'safe_browsing_phishing_block',
+    'ssl_error',
+]
+
+flats_out = []
+for i in flats:
+  flats_out += env_flat.Command(
+      '$BROWSER_RESOURCES/' + i + '_flat.html',
+      'browser/resources/' + i + '.html', '$FLATTEN_HTML_COM')
+
+flats_out += env_flat.Command(
+    '$BROWSER_RESOURCES/ssl_roadblock_flat.html',
+    'browser/security/resources/ssl_roadblock.html', '$FLATTEN_HTML_COM')
+
+env_flat.Depends(browser_res, flats_out)
+
+
+
+env_test.Object('test/test_file_util.cc',
+                CPPPATH=['..'] + env['CPPPATH'])
+
+test_sconscript_files = [
+    'SConscript.automated_ui_tests',
+    'SConscript.unit_tests',
+    'SConscript.ui_tests',
+]
+
+env.SConscript(test_sconscript_files, exports=['env_test'])
+
+
+sconscript_files = [
+    'app/resources/SConscript',
+    'app/theme/SConscript',
+    'browser/SConscript',
+    'common/SConscript',
+    'installer/mini_installer/SConscript',
+    'installer/setup/SConscript',
+    'installer/util/SConscript',
+    'plugin/SConscript',
+    'renderer/SConscript',
+    'test/activex_test_control/SConscript',
+    'test/automation/SConscript',
+    'test/chrome_plugin/SConscript',
+    'test/interactive_ui/SConscript',
+    'test/mini_installer_test/SConscript',
+    'test/page_cycler/SConscript',
+    'test/plugin/SConscript',
+    'test/reliability/SConscript',
+    'test/security_tests/SConscript',
+    'test/selenium/SConscript',
+    'test/startup/SConscript',
+    'test/tab_switching/SConscript',
+    'tools/crash_service/SConscript',
+    'tools/perf/flush_cache/SConscript',
+    'tools/test/image_diff/SConscript',
+    'third_party/hunspell/SConscript',
+    'third_party/sqlite/SConscript',
+    'views/SConscript',
+]
+
+env.SConscript(sconscript_files, exports=['env', 'env_res', 'env_test'])
+
+
+env.InstallAs('libjscre.lib', '$WEBKIT_DIR/JavaScriptCore_pcre.lib')
+
+
+i = env.Install('$TARGET_ROOT', install_targets)
+env.Alias('chrome', i)
+
+
+gears_plugins = [
+    '$GEARS_DIR/binaries/gears.dll',
+    '$GEARS_DIR/binaries/gears.pdb',
+]
+
+i = env.Install('$TARGET_ROOT/plugins/gears', gears_plugins)
+env.Alias('chrome', i)
+
+
+i = env.Command('$TARGET_ROOT/resources/inspector',
+            '#/../webkit/port/page/inspector',
+            Copy('$TARGET', '$SOURCE'),
+            source_scanner=DirScanner)
+env.Alias('chrome', i)
+
+env.Alias('chrome', env.Alias('webkit'))

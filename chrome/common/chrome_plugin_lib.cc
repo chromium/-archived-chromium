@@ -1,0 +1,278 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#include "chrome/common/chrome_plugin_lib.h"
+
+#include "base/command_line.h"
+#include "base/histogram.h"
+#include "base/path_service.h"
+#include "base/perftimer.h"
+#include "base/registry.h"
+#include "base/string_util.h"
+#include "chrome/common/chrome_counters.h"
+#include "chrome/common/chrome_switches.h"
+#include "chrome/common/notification_service.h"
+#include "chrome/common/chrome_paths.h"
+#include "webkit/glue/plugins/plugin_list.h"
+
+const TCHAR ChromePluginLib::kRegistryChromePlugins[] =
+    _T("Software\\Google\\Chrome\\Plugins");
+static const TCHAR kRegistryLoadOnStartup[] = _T("LoadOnStartup");
+static const TCHAR kRegistryPath[] = _T("Path");
+
+typedef stdext::hash_map<std::wstring, scoped_refptr<ChromePluginLib> >
+    PluginMap;
+
+// A map of all the instantiated plugins.
+static PluginMap* g_loaded_libs;
+
+// The thread plugins are loaded and used in, lazily initialized upon
+// the first creation call.
+static DWORD g_plugin_thread_id = 0;
+
+static bool IsSingleProcessMode() {
+  // We don't support ChromePlugins in single-process mode.
+  CommandLine command_line;
+  return command_line.HasSwitch(switches::kSingleProcess);
+}
+
+// static
+ChromePluginLib* ChromePluginLib::Create(const std::wstring& filename,
+                                         const CPBrowserFuncs* bfuncs) {
+  // Keep a map of loaded plugins to ensure we only load each library once.
+  if (!g_loaded_libs) {
+    g_loaded_libs = new PluginMap();
+    g_plugin_thread_id = ::GetCurrentThreadId();
+  }
+  DCHECK(IsPluginThread());
+
+  // Lower case to match how PluginList::LoadPlugin stores the path.
+  std::wstring filename_lc = StringToLowerASCII(filename);
+
+  PluginMap::const_iterator iter = g_loaded_libs->find(filename_lc);
+  if (iter != g_loaded_libs->end())
+    return iter->second;
+
+  scoped_refptr<ChromePluginLib> plugin(new ChromePluginLib(filename_lc));
+  if (!plugin->CP_Initialize(bfuncs))
+    return NULL;
+
+  (*g_loaded_libs)[filename_lc] = plugin;
+  return plugin;
+}
+
+// static
+ChromePluginLib* ChromePluginLib::Find(const std::wstring& filename) {
+  if (g_loaded_libs) {
+    PluginMap::const_iterator iter = g_loaded_libs->find(filename);
+    if (iter != g_loaded_libs->end())
+      return iter->second;
+  }
+  return NULL;
+}
+
+// static
+void ChromePluginLib::Destroy(const std::wstring& filename) {
+  DCHECK(g_loaded_libs);
+  PluginMap::iterator iter = g_loaded_libs->find(filename);
+  if (iter != g_loaded_libs->end()) {
+    iter->second->Unload();
+    g_loaded_libs->erase(iter);
+  }
+}
+
+// static
+bool ChromePluginLib::IsPluginThread() {
+  return ::GetCurrentThreadId() == g_plugin_thread_id;
+}
+
+// static
+void ChromePluginLib::RegisterPluginsWithNPAPI() {
+  // We don't support ChromePlugins in single-process mode.
+  if (IsSingleProcessMode())
+    return;
+
+  std::wstring path;
+  if (!PathService::Get(chrome::FILE_GEARS_PLUGIN, &path))
+    return;
+  // Note: we can only access the NPAPI list because the PluginService has done
+  // the locking for us.  We should not touch it anywhere else.
+  NPAPI::PluginList::AddExtraPluginPath(path);
+}
+
+static void LogPluginLoadTime(const TimeDelta &time) {
+  UMA_HISTOGRAM_TIMES(L"Gears.LoadTime", time);
+}
+
+// static
+void ChromePluginLib::LoadChromePlugins(const CPBrowserFuncs* bfuncs) {
+  static bool loaded = false;
+  if (loaded)
+    return;
+  loaded = true;
+
+  // We don't support ChromePlugins in single-process mode.
+  if (IsSingleProcessMode())
+    return;
+
+  std::wstring path;
+  if (!PathService::Get(chrome::FILE_GEARS_PLUGIN, &path))
+    return;
+
+  PerfTimer timer;
+  ChromePluginLib::Create(path, bfuncs);
+  LogPluginLoadTime(timer.Elapsed());
+
+  // TODO(mpcomplete): disabled loading of plugins from the registry until we
+  // phase out registry keys from the gears installer.
+#if 0
+  for (RegistryKeyIterator iter(HKEY_CURRENT_USER, kRegistryChromePlugins);
+       iter.Valid(); ++iter) {
+    // Use the registry to gather plugin across the file system.
+    std::wstring reg_path = kRegistryChromePlugins;
+    reg_path.append(L"\\");
+    reg_path.append(iter.Name());
+    RegKey key(HKEY_CURRENT_USER, reg_path.c_str());
+
+    DWORD is_persistent;
+    if (key.ReadValueDW(kRegistryLoadOnStartup, &is_persistent) &&
+        is_persistent) {
+      std::wstring path;
+      if (key.ReadValue(kRegistryPath, &path)) {
+        ChromePluginLib::Create(path, bfuncs);
+      }
+    }
+  }
+#endif
+}
+
+// static
+void ChromePluginLib::UnloadAllPlugins() {
+  if (g_loaded_libs) {
+    PluginMap::iterator it;
+    for (PluginMap::iterator it = g_loaded_libs->begin();
+         it != g_loaded_libs->end(); ++it) {
+      it->second->Unload();
+    }
+    delete g_loaded_libs;
+    g_loaded_libs = NULL;
+  }
+}
+
+ChromePluginLib::ChromePluginLib(const std::wstring& filename)
+    : filename_(filename),
+      module_(0),
+      initialized_(false),
+      CP_VersionNegotiate_(NULL),
+      CP_Initialize_(NULL) {
+  memset((void*)&plugin_funcs_, 0, sizeof(plugin_funcs_));
+}
+
+ChromePluginLib::~ChromePluginLib() {
+}
+
+bool ChromePluginLib::CP_Initialize(const CPBrowserFuncs* bfuncs) {
+  if (initialized_)
+    return true;
+
+  if (!Load())
+    return false;
+
+  if (CP_VersionNegotiate_) {
+    uint16 selected_version = 0;
+    CPError rv = CP_VersionNegotiate_(CP_VERSION, CP_VERSION,
+                                      &selected_version);
+    if ( (rv != CPERR_SUCCESS) || (selected_version != CP_VERSION))
+      return false;
+  }
+
+  plugin_funcs_.size = sizeof(plugin_funcs_);
+  CPError rv = CP_Initialize_(cpid(), bfuncs, &plugin_funcs_);
+  initialized_ = (rv == CPERR_SUCCESS) &&
+      (CP_GET_MAJOR_VERSION(plugin_funcs_.version) == CP_MAJOR_VERSION) &&
+      (CP_GET_MINOR_VERSION(plugin_funcs_.version) <= CP_MINOR_VERSION);
+
+  return initialized_;
+}
+
+void ChromePluginLib::CP_Shutdown() {
+  DCHECK(initialized_);
+  functions().shutdown();
+  initialized_ = false;
+  memset((void*)&plugin_funcs_, 0, sizeof(plugin_funcs_));
+}
+
+int ChromePluginLib::CP_Test(void* param) {
+  DCHECK(initialized_);
+  if (!CP_Test_)
+    return -1;
+  return CP_Test_(param);
+}
+
+bool ChromePluginLib::Load() {
+  DCHECK(module_ == 0);
+  module_ = LoadLibrary(filename_.c_str());
+  if (module_ == 0)
+    return false;
+
+  // required initialization function
+  CP_Initialize_ = reinterpret_cast<CP_InitializeFunc>
+      (GetProcAddress(module_, "CP_Initialize"));
+
+  if (!CP_Initialize_) {
+    FreeLibrary(module_);
+    module_ = 0;
+    return false;
+  }
+
+  // optional version negotiation function
+  CP_VersionNegotiate_ = reinterpret_cast<CP_VersionNegotiateFunc>
+      (GetProcAddress(module_, "CP_VersionNegotiate"));
+
+  // optional test function
+  CP_Test_ = reinterpret_cast<CP_TestFunc>
+      (GetProcAddress(module_, "CP_Test"));
+
+  return true;
+}
+
+void ChromePluginLib::Unload() {
+  NotificationService::current()->Notify(
+      NOTIFY_CHROME_PLUGIN_UNLOADED,
+      Source<ChromePluginLib>(this),
+      NotificationService::NoDetails());
+
+  if (initialized_)
+    CP_Shutdown();
+
+  if (module_) {
+    FreeLibrary(module_);
+    module_ = 0;
+  }
+}

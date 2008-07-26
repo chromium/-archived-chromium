@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="installer archive"
+	Version="8.00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="create installer archive"
+			DisplayName="create installer archive"
+			CommandLine="$(SolutionDir)..\third_party\python_24\python.exe $(SolutionDir)tools\build\win\create_installer_archive.py --output_dir=&quot;$(OutDir)&quot; --input_file=&quot;$(InputPath)&quot; [LastChromeInstaller] [LastChromeVersion] [RebuildArchive]"
+			Outputs="$(OutDir)/$(InputName).7z;$(OutDir)/packed_files.txt;"
+			AdditionalDependencies="$(SolutionDir)\tools\build\win\create_installer_archive.py;$(OutDir)\chrome.exe;$(OutDir)\crash_reporter.exe;$(OutDir)\chrome.dll;$(OutDir)\locales\en-US.dll;$(OutDir)\icudt38.dll"
+			FileExtensions="*.release"
+			ExecutionDescription="create installer archive"
+			>
+			<Properties>
+				<StringProperty
+					Name="LastChromeInstaller"
+					DisplayName="Last Chrome Installer Directory"
+					Description="Directory where old version of installer is present (setup.exe and chrome.7z)"
+					Switch="--last_chrome_installer=&quot;[value]&quot;"
+				/>
+				<StringProperty
+					Name="LastChromeVersion"
+					DisplayName="Last Chrome Version"
+					Description="Last released version of Chrome (used to name the patch file)"
+					Switch="--last_chrome_version=&quot;[value]&quot;"
+				/>
+				<BooleanProperty
+					Name="RebuildArchive"
+					DisplayName="Rebuild Archive"
+					Description="Rebuilds chrome.7z even if already exists"
+					Switch="--rebuild_archive"
+				/>
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>

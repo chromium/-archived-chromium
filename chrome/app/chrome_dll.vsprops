@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="chrome_dll"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\breakpad\using_breakpad.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\libxslt\build\using_libxslt.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;..\tools\build\win\using_generated_strings.vsprops;.\chrome_link.vsprops;$(SolutionDir)third_party\wtl\using_wtl.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="&quot;$(OutDir)\webkit&quot;;..\third_party\webkit\out"
+		PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		DelayLoadDLLs="crypt32.dll;cryptui.dll;winhttp.dll;wininet.dll;wsock32.dll;winspool.drv;comdlg32.dll;imagehlp.dll;psapi.dll;urlmon.dll;imm32.dll"
+		ProgramDatabaseFile="$(OutDir)\$(ProjectName).pdb"
+		SubSystem="2"
+		BaseAddress="0x01000000"
+	/>
+	<Tool
+		Name="VCResourceCompilerTool"
+		AdditionalIncludeDirectories="&quot;$(IntDir)&quot;;&quot;$(SolutionDir)&quot;;&quot;$(IntDir)\..\&quot;"
+	/>
+</VisualStudioPropertySheet>

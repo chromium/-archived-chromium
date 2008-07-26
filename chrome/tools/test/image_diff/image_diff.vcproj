@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="image_diff"
+	ProjectGUID="{50B079C7-CD01-42D3-B8C4-9F8D9322E822}"
+	RootNamespace="image_diff"
+	Keyword="Win32Proj"
+	>
+	<Platforms>
+		<Platform
+			Name="Win32"
+		/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops"
+			>
+			<Tool
+				Name="VCLinkerTool"
+				SubSystem="1"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops"
+			>
+			<Tool
+				Name="VCLinkerTool"
+				SubSystem="1"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+			/>
+		</Configuration>
+	</Configurations>
+	<Files>
+		<File
+			RelativePath=".\image_diff.cc"
+			>
+		</File>
+	</Files>
+</VisualStudioProject>

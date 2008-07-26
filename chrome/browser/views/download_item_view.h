@@ -1,0 +1,222 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// A ChromeView that implements one download on the Download shelf.
+// Each DownloadItemView contains an application icon, a text label
+// indicating the download's file name, a text label indicating the
+// download's status (such as the number of bytes downloaded so far)
+// and a button for canceling an in progress download, or opening
+// the completed download.
+//
+// The DownloadItemView lives in the Browser, and has a corresponding
+// DownloadController that receives / writes data which lives in the
+// Renderer.
+
+#ifndef CHROME_BROWSER_VIEWS_DOWNLOAD_ITEM_VIEW_H__
+#define CHROME_BROWSER_VIEWS_DOWNLOAD_ITEM_VIEW_H__
+
+#include <string>
+
+#include "base/basictypes.h"
+#include "base/scoped_ptr.h"
+#include "chrome/common/slide_animation.h"
+#include "chrome/browser/cancelable_request.h"
+#include "chrome/browser/download_manager.h"
+#include "chrome/browser/icon_manager.h"
+#include "chrome/views/event.h"
+#include "chrome/views/view.h"
+#include "chrome/views/label.h"
+
+class DownloadShelfView;
+class SkBitmap;
+class Task;
+class Timer;
+
+class DownloadItemView : public ChromeViews::View,
+                         public DownloadItem::Observer,
+                         public AnimationDelegate {
+ public:
+  // This class provides functions which have different behaviors between
+  // download and saving page.
+  class BaseDownloadItemModel {
+   public:
+    // Cancel the task corresponding to the item.
+    virtual void CancelTask() = 0;
+
+    // Get the status text to display.
+    virtual std::wstring GetStatusText() = 0;
+  };
+
+  DownloadItemView(DownloadItem* download,
+                   DownloadShelfView* parent,
+                   BaseDownloadItemModel* model);
+  virtual ~DownloadItemView();
+
+  // DownloadObserver method
+  virtual void OnDownloadUpdated(DownloadItem* download);
+
+  // View overrides
+  virtual void Paint(ChromeCanvas* canvas);
+  virtual void GetPreferredSize(CSize *out);
+  virtual void OnMouseExited(const ChromeViews::MouseEvent& event);
+  virtual void OnMouseMoved(const ChromeViews::MouseEvent& event);
+  virtual bool OnMousePressed(const ChromeViews::MouseEvent& event);
+  virtual void OnMouseReleased(const ChromeViews::MouseEvent& event,
+                               bool canceled);
+  virtual bool OnMouseDragged(const ChromeViews::MouseEvent& event);
+
+  // AnimationDelegate implementation.
+  virtual void AnimationProgressed(const Animation* animation);
+
+  // Timer callback for handling animations
+  void UpdateDownloadProgress();
+  void StartDownloadProgress();
+  void StopDownloadProgress();
+
+  // IconManager::Client interface.
+  void OnExtractIconComplete(IconManager::Handle handle, SkBitmap* icon_bitmap);
+
+ private:
+  enum State {
+    NORMAL = 0,
+    HOT,
+    PUSHED,
+  };
+
+  // The image set associated with the part containing the icon and text.
+  struct BodyImageSet {
+    SkBitmap* top_left;
+    SkBitmap* left;
+    SkBitmap* bottom_left;
+    SkBitmap* top;
+    SkBitmap* center;
+    SkBitmap* bottom;
+    SkBitmap* top_right;
+    SkBitmap* right;
+    SkBitmap* bottom_right;
+  };
+
+  // The image set associated with the drop-down button on the right.
+  struct DropDownImageSet {
+    SkBitmap* top;
+    SkBitmap* center;
+    SkBitmap* bottom;
+  };
+
+  void OpenDownload();
+
+  void LoadIcon();
+
+  // Convenience method to paint the 3 vertical bitmaps (bottom, middle, top)
+  // that form the background.
+  void PaintBitmaps(ChromeCanvas* canvas,
+                    const SkBitmap* top_bitmap,
+                    const SkBitmap* center_bitmap,
+                    const SkBitmap* bottom_bitmap,
+                    int x,
+                    int y,
+                    int height,
+                    int width);
+
+  // Sets the state and triggers a repaint.
+  void SetState(State body_state, State drop_down_state);
+
+  // The different images used for the background.
+  BodyImageSet normal_body_image_set_;
+  BodyImageSet hot_body_image_set_;
+  BodyImageSet pushed_body_image_set_;
+  DropDownImageSet normal_drop_down_image_set_;
+  DropDownImageSet hot_drop_down_image_set_;
+  DropDownImageSet pushed_drop_down_image_set_;
+
+  // The model we query for display information
+  DownloadItem* download_;
+
+  // Our parent view that owns us.
+  DownloadShelfView* parent_;
+
+  // Elements of our particular download
+  std::wstring file_name_;
+  std::wstring status_text_;
+  bool show_status_text_;
+
+  // The font used to print the file name and status.
+  ChromeFont font_;
+
+  // The current state (normal, hot or pushed) of the body and drop-down.
+  State body_state_;
+  State drop_down_state_;
+
+  // In degrees, for downloads with no known total size.
+  int progress_angle_;
+
+  // The x coordinate at which the drop-down button starts.
+  int drop_down_x_;
+
+  // Used when we are showing the menu to show the drop-down as pressed.
+  bool drop_down_pressed_;
+
+  // The height of the box formed by the background images and its labels.
+  int box_height_;
+
+  // The y coordinate of the box formed by the background images and its labels.
+  int box_y_;
+
+  // Whether we are dragging the download button.
+  bool dragging_;
+
+  // Whether we are tracking a possible drag.
+  bool starting_drag_;
+
+  // Position that a possible drag started at.
+  gfx::Point drag_start_point_;
+
+  // For canceling an in progress icon request.
+  CancelableRequestConsumerT<int, 0> icon_consumer_;
+
+  // A model class to control the status text we display and the cancel
+  // behavior.
+  // This class owns the pointer.
+  scoped_ptr<BaseDownloadItemModel> model_;
+
+  // Hover animations for our body and drop buttons.
+  scoped_ptr<SlideAnimation> body_hover_animation_;
+  scoped_ptr<SlideAnimation> drop_hover_animation_;
+
+  // Animation for download complete.
+  scoped_ptr<SlideAnimation> complete_animation_;
+
+  // Progress animation
+  Timer* progress_timer_;
+  Task* progress_task_;
+
+  DISALLOW_EVIL_CONSTRUCTORS(DownloadItemView);
+};
+
+#endif  // CHROME_BROWSER_VIEWS_DOWNLOAD_ITEM_VIEW_H__

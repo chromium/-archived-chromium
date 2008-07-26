@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<!--
+about:version template page
+-->
+
+<html id="t">
+<head>
+<title jscontent="title"></title>
+<style type="text/css">
+body {
+  background-color: Window;
+  color: WindowText;
+  font: message-box;
+}
+#outer {
+  text-align: left;
+}
+#name {
+  font-weight: bold;
+  font-size: 1.2em;
+}
+#logo {
+  float: left;
+  padding-right: 20px;
+  padding-bottom: 200px;
+}
+#useragent {
+  white-space: nowrap;
+  font-face: fixed;
+  font-size: 0.8em;
+}
+</style>
+</head>
+<body>
+<!-- TODO: figure out a way to embed a real image -->
+<img id="logo" src="http://www.google.com/intl/en_ALL/images/logo.gif" />
+<div id="outer">
+<div id="name" jscontent="name"></div>
+<div id="version"><span jscontent="version"></span> (<span jscontent="cl"></span>)</div>
+<div id="official" jscontent="official"></div>
+<div id="company" jscontent="company"></div>
+<div id="copyright" jscontent="copyright"></div>
+<div id="useragent" jscontent="useragent"></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,153 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#ifndef CHROME_COMMON_VISITEDLINK_COMMON_H__
+#define CHROME_COMMON_VISITEDLINK_COMMON_H__
+
+#include <string>
+
+#include "base/basictypes.h"
+#include "base/logging.h"
+#include "googleurl/src/gurl.h"
+
+// number of bytes in the salt
+#define LINK_SALT_LENGTH 8
+
+// A multiprocess-safe database of the visited links for the browser. There
+// should be exactly one process that has write access (implemented by
+// VisitedLinkMaster), while all other processes should be read-only
+// (implemented by VisitedLinkSlave). These other processes add links by calling
+// the writer process to add them for it. The writer may also notify the readers
+// to replace their table when the table is resized.
+//
+// IPC is not implemented in these classes. This is done through callback
+// functions supplied by the creator of these objects to allow more flexibility,
+// especially for testing.
+//
+// This class defines the common base for these others. We implement accessors
+// for looking things up in the hash table, and for computing hash values and
+// fingerprints. Both the master and the slave inherit from this, and add their
+// own code to set up and change these values as their design requires. The
+// slave pretty much just sets up the shared memory and saves the pointer. The
+// master does a lot of work to manage the table, reading and writing it to and
+// from disk, and resizing it when it gets too full.
+//
+// To ask whether a page is in history, we compute a 64-bit fingerprint of the
+// URL. This URL is hashed and we see if it is in the URL hashtable. If it is,
+// we consider it visited. Otherwise, it is unvisited. Note that it is possible
+// to get collisions, which is the penalty for not storing all URL strings in
+// memory (which could get to be more than we want to have in memory). We use
+// a salt value for the links on one computer so that an attacker can not
+// manually create a link that causes a collision.
+class VisitedLinkCommon {
+ public:
+  // A number that identifies the URL.
+  typedef uint64 Fingerprint;
+
+  // A hash value of a fingerprint
+  typedef int32 Hash;
+
+  // A fingerprint or hash value that does not exist
+  static const Fingerprint null_fingerprint_;
+  static const Hash null_hash_;
+
+  VisitedLinkCommon();
+  virtual ~VisitedLinkCommon();
+
+  // Computes the fingerprint of the key and looks it up in the table. We
+  // return true if found. Does not modify the hastable. The input should be
+  // the canonical 16-bit URL.
+  bool IsVisited(const char* canonical_url, size_t url_len) const;
+  bool IsVisited(const GURL& url) const {
+    return IsVisited(url.spec().data(), url.spec().size());
+  }
+
+#ifdef UNIT_TEST
+  // Returns statistics about DB usage
+  void GetUsageStatistics(int32* table_size,
+                          VisitedLinkCommon::Fingerprint** fingerprints) {
+    *table_size = table_length_;
+    *fingerprints = hash_table_;
+  }
+#endif
+
+ protected:
+  // This structure is at the beginning of the shared memory so that the slaves
+  // can get stats on the table
+  struct SharedHeader {
+    // see goes into table_length_
+    uint32 length;
+
+    // goes into salt_
+    uint8 salt[LINK_SALT_LENGTH];
+  };
+
+  // Returns the fingerprint at the given index into the URL table. This
+  // function should be called instead of accessing the table directly to contain
+  // endian issues.
+  Fingerprint FingerprintAt(int32 table_offset) const {
+    DCHECK(hash_table_);
+    if (!hash_table_)
+      return 0;
+    return hash_table_[table_offset];
+  }
+
+  // Returns true if the given fingerprint is in the table.
+  bool IsVisited(Fingerprint fingerprint) const;
+
+  // Computes the fingerprint of the given canonical URL. It is static so the
+  // same algorithm can be re-used by the table rebuilder, so you will have to
+  // pass the salt as a parameter.
+  static Fingerprint ComputeURLFingerprint(const char* canonical_url,
+                                           size_t url_len,
+                                           const uint8 salt[LINK_SALT_LENGTH]);
+
+  // Computes the hash value of the given fingerprint, this is used as a lookup
+  // into the hashtable.
+  static Hash HashFingerprint(Fingerprint fingerprint, int32 table_length) {
+    return static_cast<Hash>(fingerprint % table_length);
+  }
+  Hash HashFingerprint(Fingerprint fingerprint) const { // uses the current hashtable
+    return HashFingerprint(fingerprint, table_length_);
+  }
+
+  // pointer to the first item
+  VisitedLinkCommon::Fingerprint* hash_table_;
+
+  // the number of items in the hash table
+  int32 table_length_;
+
+  // salt used for each URL when computing the fingerprint
+  uint8 salt_[LINK_SALT_LENGTH];
+
+ private:
+  DISALLOW_EVIL_CONSTRUCTORS(VisitedLinkCommon);
+};
+
+#endif // WIN_COMMON_VISITEDLINK_COMMON_H__

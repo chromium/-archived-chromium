@@ -1,0 +1,381 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#ifndef CHROME_BROWSER_IMPORTER_H_
+#define CHROME_BROWSER_IMPORTER_H_
+
+#include <set>
+#include <vector>
+
+#include "base/basictypes.h"
+#include "base/message_loop.h"
+#include "base/ref_counted.h"
+#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/history/history_types.h"
+#include "chrome/browser/ie7_password.h"
+#include "chrome/browser/profile.h"
+#include "chrome/browser/template_url.h"
+#include "chrome/browser/views/importer_lock_view.h"
+#include "chrome/common/notification_service.h"
+#include "googleurl/src/gurl.h"
+#include "webkit/glue/password_form.h"
+
+// An enumeration of the type of browsers that we support to import
+// settings and data from them.
+enum ProfileType {
+  MS_IE = 0,
+  FIREFOX2,
+  FIREFOX3
+};
+
+// An enumeration of the type of data we want to import.
+enum ImportItem {
+  NONE           = 0x0000,
+  HISTORY        = 0x0001,
+  FAVORITES      = 0x0002,
+  COOKIES        = 0x0004,  // not supported yet.
+  PASSWORDS      = 0x0008,
+  SEARCH_ENGINES = 0x0010,
+  HOME_PAGE      = 0x0020,
+};
+
+typedef struct {
+  std::wstring description;
+  ProfileType browser_type;
+  std::wstring source_path;
+  std::wstring app_path;
+} ProfileInfo;
+
+class FirefoxProfileLock;
+class Importer;
+
+// ProfileWriter encapsulates profile for writing entries into it.
+// This object must be invoked on UI thread.
+class ProfileWriter : public base::RefCounted<ProfileWriter> {
+ public:
+  explicit ProfileWriter(Profile* profile) : profile_(profile) { }
+  virtual ~ProfileWriter() { }
+
+  // Methods for monitoring BookmarkBarModel status.
+  virtual bool BookmarkBarModelIsLoaded() const;
+  virtual void AddBookmarkBarModelObserver(
+      BookmarkBarModelObserver* observer);
+
+  // Methods for monitoring TemplateURLModel status.
+  virtual bool TemplateURLModelIsLoaded() const;
+  virtual void AddTemplateURLModelObserver(
+      NotificationObserver* observer);
+
+  // A bookmark entry.
+  struct BookmarkEntry {
+    bool in_toolbar;
+    GURL url;
+    std::vector<std::wstring> path;
+    std::wstring title;
+    Time creation_time;
+
+    BookmarkEntry() : in_toolbar(false) {}
+  };
+
+  // Helper methods for adding data to local stores.
+  virtual void AddPasswordForm(const PasswordForm& form);
+  virtual void AddIE7PasswordInfo(const IE7PasswordInfo& info);
+  virtual void AddHistoryPage(const std::vector<history::URLRow>& page);
+  virtual void AddHomepage(const GURL& homepage);
+  virtual void AddBookmarkEntry(const std::vector<BookmarkEntry>& bookmark);
+  virtual void AddFavicons(
+      const std::vector<history::ImportedFavIconUsage>& favicons);
+  // Add the TemplateURLs in |template_urls| to the local store and make the
+  // TemplateURL at |default_keyword_index| the default keyword (does not set
+  // a default keyword if it is -1).  The local store becomes the owner of the
+  // TemplateURLs.  Some TemplateURLs in |template_urls| may conflict (same
+  // keyword or same host name in the URL) with existing TemplateURLs in the
+  // local store, in which case the existing ones takes precedence and the
+  // duplicate in |template_urls| are deleted.
+  // If unique_on_host_and_path a TemplateURL is only added if there is not an
+  // existing TemplateURL that has a replaceable search url with the same
+  // host+path combination.
+  virtual void AddKeywords(const std::vector<TemplateURL*>& template_urls,
+                           int default_keyword_index,
+                           bool unique_on_host_and_path);
+
+  // Shows the bookmarks toolbar.
+  void ShowBookmarkBar();
+
+ private:
+  Profile* profile_;
+
+  DISALLOW_EVIL_CONSTRUCTORS(ProfileWriter);
+};
+
+// This class hosts the importers. It enumerates profiles from other
+// browsers dynamically, and controls the process of importing. When
+// the import process is done, ImporterHost deletes itself.
+class ImporterHost : public base::RefCounted<ImporterHost>,
+                     public BookmarkBarModelObserver,
+                     public NotificationObserver {
+ public:
+  ImporterHost();
+  ~ImporterHost();
+
+  // This constructor only be used by unit-tests, where file thread does not
+  // exist.
+  explicit ImporterHost(MessageLoop* file_loop);
+
+  // BookmarkBarModelObserver methods.
+  virtual void Loaded(BookmarkBarModel* model);
+  virtual void BookmarkNodeMoved(BookmarkBarModel* model,
+                                 BookmarkBarNode* old_parent,
+                                 int old_index,
+                                 BookmarkBarNode* new_parent,
+                                 int new_index) {}
+  virtual void BookmarkNodeAdded(BookmarkBarModel* model,
+                                 BookmarkBarNode* parent,
+                                 int index) {}
+  virtual void BookmarkNodeRemoved(BookmarkBarModel* model,
+                                   BookmarkBarNode* parent,
+                                   int index) {}
+  virtual void BookmarkNodeChanged(BookmarkBarModel* model,
+                                   BookmarkBarNode* node) {}
+  virtual void BookmarkNodeFavIconLoaded(BookmarkBarModel* model,
+                                         BookmarkBarNode* node) {}
+
+  // NotificationObserver method. Called when TemplateURLModel has been loaded.
+  void Observe(NotificationType type,
+               const NotificationSource& source,
+               const NotificationDetails& details);
+
+  // ShowWarningDialog() asks user to close the application that is owning the
+  // lock. They can retry or skip the importing process.
+  void ShowWarningDialog();
+
+  // OnLockViewEnd() is called when user end the dialog by clicking a push
+  // button. |is_continue| is true when user clicked the "Continue" button.
+  void OnLockViewEnd(bool is_continue);
+
+  // Starts the process of importing the settings and data depending
+  // on what the user selected.
+  void StartImportSettings(const ProfileInfo& profile_info,
+                           uint16 items,
+                           ProfileWriter* writer,
+                           bool first_run);
+
+  // Cancel
+  void Cancel();
+
+  // An interface which an object can implement to be notified of events during
+  // the import process.
+  class Observer {
+   public:
+     virtual ~Observer() {}
+    // Invoked when data for the specified item is about to be collected.
+    virtual void ImportItemStarted(ImportItem item) = 0;
+
+    // Invoked when data for the specified item has been collected from the
+    // source profile and is now ready for further processing.
+    virtual void ImportItemEnded(ImportItem item) = 0;
+
+    // Invoked when the import begins.
+    virtual void ImportStarted() = 0;
+
+    // Invoked when the source profile has been imported.
+    virtual void ImportEnded() = 0;
+  };
+  void SetObserver(Observer* observer);
+
+  // A series of functions invoked at the start, during and end of the end
+  // of the import process. The middle functions are notifications that the
+  // harvesting of a particular source of data (specified by |item|) is under
+  // way.
+  void ImportStarted();
+  void ImportItemStarted(ImportItem item);
+  void ImportItemEnded(ImportItem item);
+  void ImportEnded();
+
+  Importer* CreateImporterByType(ProfileType type);
+
+  // Returns the number of different browser profiles you can import from.
+  int GetAvailableProfileCount();
+
+  // Returns the name of the profile at the 'index' slot. The profiles are
+  // ordered such that the profile at index 0 is the likely default browser.
+  std::wstring GetSourceProfileNameAt(int index) const;
+
+  // Returns the ProfileInfo at the specified index.  The ProfileInfo should be
+  // passed to StartImportSettings().
+  const ProfileInfo& GetSourceProfileInfoAt(int index) const;
+
+ private:
+  // If we're not waiting on any model to finish loading, invokes the task_.
+  void InvokeTaskIfDone();
+
+  // Detects the installed browsers and their associated profiles, then
+  // stores their information in a list. It returns the list of description
+  // of all profiles.
+  void DetectSourceProfiles();
+
+  // Helper methods for detecting available profiles.
+  void DetectIEProfiles();
+  void DetectFirefoxProfiles();
+
+  // The list of profiles with the default one first.
+  std::vector<ProfileInfo*> source_profiles_;
+
+  Observer* observer_;
+  scoped_refptr<ProfileWriter> writer_;
+
+  // The task is the process of importing settings from other browsers.
+  Task* task_;
+
+  // The importer used in the task;
+  Importer* importer_;
+
+  // The message loop for reading the source profiles.
+  MessageLoop* file_loop_;
+
+  // True if we're waiting for the model to finish loading.
+  bool waiting_for_bookmarkbar_model_;
+  bool waiting_for_template_url_model_;
+
+  // True if source profile is readable.
+  bool is_source_readable_;
+
+  // Firefox profile lock.
+  scoped_ptr<FirefoxProfileLock> firefox_lock_;
+
+  DISALLOW_EVIL_CONSTRUCTORS(ImporterHost);
+};
+
+// The base class of all importers.
+class Importer : public base::RefCounted<Importer> {
+ public:
+  virtual ~Importer() { }
+
+  // All importers should implement this method by adding their
+  // import logic. And it will be run in file thread by ImporterHost.
+  //
+  // Since we do async import, the importer should invoke
+  // ImporterHost::Finished() to notify its host that import
+  // stuff have been finished.
+  virtual void StartImport(ProfileInfo profile_info,
+                           uint16 items,
+                           ProfileWriter* writer,
+                           ImporterHost* host) = 0;
+
+  // Cancels the import process.
+  void Cancel() { cancelled_ = true; }
+
+  void set_first_run(bool first_run) { first_run_ = first_run; }
+
+ protected:
+  Importer()
+      : main_loop_(MessageLoop::current()),
+        importer_host_(NULL),
+        cancelled_(false) {}
+
+  // Notifies the coordinator that the collection of data for the specified
+  // item has begun.
+  void NotifyItemStarted(ImportItem item) {
+    main_loop_->PostTask(FROM_HERE, NewRunnableMethod(importer_host_,
+        &ImporterHost::ImportItemStarted, item));
+  }
+
+  // Notifies the coordinator that the collection of data for the specified
+  // item has completed.
+  void NotifyItemEnded(ImportItem item) {
+    main_loop_->PostTask(FROM_HERE, NewRunnableMethod(importer_host_,
+        &ImporterHost::ImportItemEnded, item));
+  }
+
+  // Notifies the coordinator that the import operation has begun.
+  void NotifyStarted() {
+    main_loop_->PostTask(FROM_HERE, NewRunnableMethod(importer_host_,
+        &ImporterHost::ImportStarted));
+  }
+
+  // Notifies the coordinator that the entire import operation has completed.
+  void NotifyEnded() {
+    main_loop_->PostTask(FROM_HERE,
+        NewRunnableMethod(importer_host_, &ImporterHost::ImportEnded));
+  }
+
+  // Given raw image data, decodes the icon, re-sampling to the correct size as
+  // necessary, and re-encodes as PNG data in the given output vector. Returns
+  // true on success.
+  static bool ReencodeFavicon(const unsigned char* src_data, size_t src_len,
+                              std::vector<unsigned char>* png_data);
+
+  bool cancelled() const { return cancelled_; }
+
+  bool first_run() const { return first_run_; }
+
+  // The importer should know the main thread so that ProfileWriter
+  // will be invoked in thread instead.
+  MessageLoop* main_loop_;
+
+  // The coordinator host for this importer.
+  ImporterHost* importer_host_;
+
+ private:
+  // True if the caller cancels the import process.
+  bool cancelled_;
+
+  // True if the importer is created in the first run UI.
+  bool first_run_;
+
+  DISALLOW_EVIL_CONSTRUCTORS(Importer);
+};
+
+// An interface an object that calls StartImportingWithUI can call to be
+// notified about the state of the import operation.
+class ImportObserver {
+ public:
+  virtual ~ImportObserver() {}
+  // The import operation was canceled by the user.
+  virtual void ImportCanceled() = 0;
+
+  // The import operation was completed successfully.
+  virtual void ImportComplete() = 0;
+};
+
+
+// Shows a UI for importing and begins importing the specified items from
+// source_profile to target_profile. observer is notified when the process is
+// complete, can be NULL. parent is the window to parent the UI to, can be NULL
+// if there's nothing to parent to. first_run is true if it's invoked in the
+// first run UI.
+void StartImportingWithUI(HWND parent_window,
+                          int16 items,
+                          ImporterHost* coordinator,
+                          const ProfileInfo& source_profile,
+                          Profile* target_profile,
+                          ImportObserver* observer,
+                          bool first_run);
+
+#endif  // CHROME_BROWSER_IMPORTER_H__

@@ -1,0 +1,10 @@
+# HTTP Cookie File
+# http://www.netscape.com/newsref/std/cookie_spec.html
+# This is a generated file!  Do not edit.
+# To delete cookies, use the Cookie Manager.
+
+www.google.com	FALSE	/calendar/	FALSE	1237629519	S	dasher_cpanel=sRewracv:calendar=_9TWj_US
+.domain	TRUE	/path/sub_path/	FALSE	1221083160	name	value
+#HttpOnly_.en.site.com	TRUE	/	FALSE	1269432000	KEY	KEY=KEY
+.~~local~~	TRUE	/C:/code-chrome-new/data/page_cycler/intl1/fc2.com/	FALSE	1490482342	cnt_7081_nv	1
+	FALSE	/C:/Documents%20and%20Settings/filecookie/	FALSE	1211314466	AAA2	ZZZZZZZZZZZZ

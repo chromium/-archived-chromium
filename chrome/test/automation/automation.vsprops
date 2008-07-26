@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="automation"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\skia\using_skia.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+	/>
+</VisualStudioPropertySheet>

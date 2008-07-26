@@ -1,0 +1,201 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#ifndef CHROME_BROWSER_RENDERER_RESOURCE_MSG_FILTER_H__
+#define CHROME_BROWSER_RENDERER_RESOURCE_MSG_FILTER_H__
+
+#include "base/gfx/rect.h"
+#include "base/ref_counted.h"
+#include "chrome/browser/resource_dispatcher_host.h"
+#include "chrome/common/ipc_channel_proxy.h"
+#include "webkit/glue/cache_manager.h"
+
+class ClipboardService;
+class Profile;
+class RenderWidgetHelper;
+class SpellChecker;
+struct WebPluginInfo;
+
+namespace printing {
+class PrinterQuery;
+class PrintJobManager;
+}
+
+// This class filters out incoming IPC messages for network requests and
+// processes them on the IPC thread.  As a result, network requests are not
+// delayed by costly UI processing that may be occuring on the main thread of
+// the browser.  It also means that any hangs in starting a network request
+// will not interfere with browser UI.
+
+class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
+                              public ResourceDispatcherHost::Receiver {
+ public:
+  // Create the filter.
+  // Note:  because the lifecycle of the ResourceMessageFilter is not
+  //        tied to the lifecycle of the object which created it, the
+  //        ResourceMessageFilter is 'given' ownership of the spellcker
+  //        object and must clean it up on exit.
+  ResourceMessageFilter(ResourceDispatcherHost* resource_dispatcher_host,
+                        PluginService* plugin_service,
+                        printing::PrintJobManager* print_job_manager,
+                        int render_process_host_id,
+                        Profile* profile,
+                        RenderWidgetHelper* render_widget_helper,
+                        SpellChecker* spellchecker);
+  virtual ~ResourceMessageFilter();
+
+  // IPC::ChannelProxy::MessageFilter methods:
+  virtual void OnFilterAdded(IPC::Channel* channel);
+  virtual void OnChannelConnected(int32 peer_pid);
+  virtual void OnChannelClosing();
+  virtual bool OnMessageReceived(const IPC::Message& message);
+
+  // ResourceDispatcherHost::Receiver methods:
+  virtual bool Send(IPC::Message* message);
+
+  // Access to the spell checker.
+  SpellChecker* spellchecker() { return spellchecker_.get(); }
+
+  int render_process_host_id() const { return render_process_host_id_;}
+
+  HANDLE renderer_handle() const { return render_handle_;}
+
+ private:
+  void OnMsgCreateView(int opener_id, bool user_gesture, int* route_id,
+                       HANDLE* modal_dialog_event);
+  void OnMsgCreateWidget(int opener_id, int* route_id);
+  void OnRequestResource(const IPC::Message& msg, int request_id,
+                         const ViewHostMsg_Resource_Request& request);
+  void OnCancelRequest(int request_id);
+  void OnClosePageACK(int new_render_process_host_id, int new_request_id,
+                      bool is_closing_browser);
+  void OnDataReceivedACK(int request_id);
+  void OnUploadProgressACK(int request_id);
+  void OnSyncLoad(int request_id,
+                  const ViewHostMsg_Resource_Request& request,
+                  IPC::Message* result_message);
+  void OnSetCookie(const GURL& url, const GURL& policy_url,
+                   const std::string& cookie);
+  void OnGetCookies(const GURL& url, const GURL& policy_url,
+                    std::string* cookies);
+  // Cache fonts for the renderer. See ResourceMessageFilter::OnLoadFont
+  // implementation for more details
+  void OnLoadFont(LOGFONT font);
+  void OnGetMonitorInfoForWindow(HWND window, MONITORINFOEX* monitor_info);
+  void OnGetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins);
+  void OnGetPluginPath(const GURL& url,
+                       const std::string& mime_type,
+                       const std::string& clsid,
+                       std::wstring* filename,
+                       std::string* actual_mime_type);
+  void OnOpenChannelToPlugin(const GURL& url,
+                             const std::string& mime_type,
+                             const std::string& clsid,
+                             const std::wstring& locale,
+                             IPC::Message* reply_msg);
+  void OnDownloadUrl(const IPC::Message& message,
+                     const GURL& url,
+                     const GURL& referrer);
+  void OnSpellCheck(const std::wstring& word,
+                    IPC::Message* reply_msg);
+  void OnDnsPrefetch(const std::vector<std::string>& hostnames);
+  void OnReceiveContextMenuMsg(const IPC::Message& msg);
+  // Clipboard messages
+  void OnClipboardWriteHTML(const std::wstring& markup, const GURL& src_url);
+  void OnClipboardWriteBookmark(const std::wstring& title, const GURL& url);
+  void OnClipboardWriteBitmap(SharedMemoryHandle bitmap, gfx::Size size);
+  void OnClipboardIsFormatAvailable(unsigned int format, bool* result);
+  void OnClipboardReadText(std::wstring* result);
+  void OnClipboardReadAsciiText(std::string* result);
+  void OnClipboardReadHTML(std::wstring* markup, GURL* src_url);
+  void OnGetWindowRect(HWND window, gfx::Rect *rect);
+  void OnGetMimeTypeFromExtension(const std::wstring& ext,
+                                  std::string* mime_type);
+  void OnGetMimeTypeFromFile(const std::wstring& file_path,
+                             std::string* mime_type);
+  void OnGetPreferredExtensionForMimeType(const std::string& mime_type,
+                                          std::wstring* ext);
+  void OnGetCPBrowsingContext(uint32* context);
+  void OnDuplicateSection(SharedMemoryHandle renderer_handle,
+                          SharedMemoryHandle* browser_handle);
+  void OnResourceTypeStats(const CacheManager::ResourceTypeStats& stats);
+
+  // A javascript code requested to print the current page. This is done in two
+  // steps and this is the first step. Get the print setting right here
+  // synchronously. It will hang the I/O completely.
+  void OnGetDefaultPrintSettings(IPC::Message* reply_msg);
+  void OnGetDefaultPrintSettingsReply(
+      scoped_refptr<printing::PrinterQuery> printer_query,
+      IPC::Message* reply_msg);
+  // A javascript code requested to print the current page. The renderer host
+  // have to show to the user the print dialog and returns the selected print
+  // settings.
+  void OnScriptedPrint(HWND host_window,
+                       int cookie,
+                       int expected_pages_count,
+                       IPC::Message* reply_msg);
+  void OnScriptedPrintReply(
+      scoped_refptr<printing::PrinterQuery> printer_query,
+      IPC::Message* reply_msg);
+
+  // We have our own clipboard service because we want to access the clipboard
+  // on the IO thread instead of forwarding (possibly synchronous) messages to
+  // the UI thread.
+  // This instance of the clipboard service should be accessed only on the IO
+  // thread.
+  static ClipboardService* GetClipboardService();
+
+  IPC::Channel* channel_;
+
+  // Cached resource request dispatcher host and plugin service, guaranteed to
+  // be non-null if Init succeeds. We do not own the objects, they are managed
+  // by the BrowserProcess, which has a wider scope than we do.
+  ResourceDispatcherHost* resource_dispatcher_host_;
+  PluginService* plugin_service_;
+  printing::PrintJobManager* print_job_manager_;
+
+  // ID for the RenderProcessHost that corresponds to this channel.  This is
+  // used by the ResourceDispatcherHost to look up the TabContents that
+  // originated URLRequest.  Since the RenderProcessHost can be destroyed
+  // before this object, we only hold an ID for lookup.
+  int render_process_host_id_;
+
+  // Our spellchecker object.
+  scoped_refptr<SpellChecker> spellchecker_;
+
+  HANDLE render_handle_;
+
+  // Contextual information to be used for requests created here.
+  scoped_refptr<URLRequestContext> request_context_;
+
+  scoped_refptr<RenderWidgetHelper> render_widget_helper_;
+};
+
+#endif // CHROME_BROWSER_RENDERER_RESOURCE_MSG_FILTER_H__
+

@@ -1,0 +1,59 @@
+Import('env')
+
+env = env.Clone()
+
+
+
+env.Prepend(
+    CPPPATH = [
+        Dir("#/.."),
+    ],
+    CPPDEFINES = [
+        "CERT_CHAIN_PARA_HAS_EXTRA_FIELDS",
+        "WIN32_LEAN_AND_MEAN",
+        "LIBXML_STATIC",
+        "U_STATIC_IMPLEMENTATION",
+        "PNG_USER_CONFIG",
+        "CHROME_PNG_WRITE_SUPPORT",
+    ],
+    CCFLAGS = [
+        '/TP',
+
+        #'/Wp64',
+
+        '/wd4503',
+        '/wd4819',
+    ],
+)
+
+env.Append(
+    CPPPATH = [
+        #"C:\src\trunk\chrome\Debug\webkit"
+        Dir("#/../chrome/third_party/webkit/out"),
+
+        Dir("#/../chrome/third_party/wtl/include"),
+        Dir("#/../third_party/npapi"),
+        Dir("#/../third_party/libxml/include"),
+        Dir("#/../third_party/icu38/public/common"),
+        Dir("#/../third_party/icu38/public/i18n"),
+        Dir("#/../chrome/app"),         #Dir("#/../chrome/generated_resources"),
+        #Dir("Debug/obj/localized_strings"),
+        Dir("#/../third_party/zlib"),
+        Dir("#/../skia/include"),
+        Dir("#/../skia/include/corecg"),
+        Dir("#/../skia/platform"),
+        Dir("#/../third_party/libpng"),
+        Dir("#/../breakpad/src"),
+    ],
+)
+
+input_files = [
+  "debugger_shell.cc",
+  "debugger_io_socket.cc",
+  "debugger_node.cc",
+  "debugger_view.cc",
+  "debugger_window.cc",
+  "debugger_wrapper.cc",
+]
+
+env.StaticLibrary('debugger', input_files)

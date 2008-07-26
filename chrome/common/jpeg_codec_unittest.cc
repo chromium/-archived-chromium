@@ -1,0 +1,172 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#include <math.h>
+
+#include "chrome/common/jpeg_codec.h"
+#include "testing/gtest/include/gtest/gtest.h"
+
+// out of 100, this indicates how compressed it will be, this should be changed
+// with jpeg equality threshold
+// static int jpeg_quality = 75;  // FIXME(brettw)
+static int jpeg_quality = 100;
+
+// The threshold of average color differences where we consider two images
+// equal. This number was picked to be a little above the observed difference
+// using the above quality.
+static double jpeg_equality_threshold = 1.0;
+
+// Computes the average difference between each value in a and b. A and b
+// should be the same size. Used to see if two images are approximately equal
+// in the presence of compression.
+static double AveragePixelDelta(const std::vector<unsigned char>& a,
+                                const std::vector<unsigned char>& b) {
+  // if the sizes are different, say the average difference is the maximum
+  if (a.size() != b.size())
+    return 255.0;
+  if (a.size() == 0)
+    return 0;  // prevent divide by 0 below
+
+  double acc = 0.0;
+  for (size_t i = 0; i < a.size(); i++)
+    acc += fabs(static_cast<double>(a[i]) - static_cast<double>(b[i]));
+
+  return acc / static_cast<double>(a.size());
+}
+
+static void MakeRGBImage(int w, int h, std::vector<unsigned char>* dat) {
+  dat->resize(w * h * 3);
+  for (int y = 0; y < h; y++) {
+    for (int x = 0; x < w; x++) {
+      unsigned char* org_px = &(*dat)[(y * w + x) * 3];
+      org_px[0] = x * 3;      // r
+      org_px[1] = x * 3 + 1;  // g
+      org_px[2] = x * 3 + 2;  // b
+    }
+  }
+}
+
+TEST(JPEGCodec, EncodeDecodeRGB) {
+  int w = 20, h = 20;
+
+  // create an image with known values
+  std::vector<unsigned char> original;
+  MakeRGBImage(w, h, &original);
+
+  // encode, making sure it was compressed some
+  std::vector<unsigned char> encoded;
+  EXPECT_TRUE(JPEGCodec::Encode(&original[0], JPEGCodec::FORMAT_RGB, w, h,
+                                w * 3, jpeg_quality, &encoded));
+  EXPECT_GT(original.size(), encoded.size());
+
+  // decode, it should have the same size as the original
+  std::vector<unsigned char> decoded;
+  int outw, outh;
+  EXPECT_TRUE(JPEGCodec::Decode(&encoded[0], encoded.size(),
+                                JPEGCodec::FORMAT_RGB, &decoded,
+                                &outw, &outh));
+  ASSERT_EQ(w, outw);
+  ASSERT_EQ(h, outh);
+  ASSERT_EQ(original.size(), decoded.size());
+
+  // Images must be approximately equal (compression will have introduced some
+  // minor artifacts).
+  ASSERT_GE(jpeg_equality_threshold, AveragePixelDelta(original, decoded));
+}
+
+TEST(JPEGCodec, EncodeDecodeRGBA) {
+  int w = 20, h = 20;
+
+  // create an image with known values, a must be opaque because it will be
+  // lost during compression
+  std::vector<unsigned char> original;
+  original.resize(w * h * 4);
+  for (int y = 0; y < h; y++) {
+    for (int x = 0; x < w; x++) {
+      unsigned char* org_px = &original[(y * w + x) * 4];
+      org_px[0] = x * 3;      // r
+      org_px[1] = x * 3 + 1;  // g
+      org_px[2] = x * 3 + 2;  // b
+      org_px[3] = 0xFF;       // a (opaque)
+    }
+  }
+
+  // encode, making sure it was compressed some
+  std::vector<unsigned char> encoded;
+  EXPECT_TRUE(JPEGCodec::Encode(&original[0], JPEGCodec::FORMAT_RGBA, w, h,
+                                w * 4, jpeg_quality, &encoded));
+  EXPECT_GT(original.size(), encoded.size());
+
+  // decode, it should have the same size as the original
+  std::vector<unsigned char> decoded;
+  int outw, outh;
+  EXPECT_TRUE(JPEGCodec::Decode(&encoded[0], encoded.size(),
+                                JPEGCodec::FORMAT_RGBA, &decoded,
+                                &outw, &outh));
+  ASSERT_EQ(w, outw);
+  ASSERT_EQ(h, outh);
+  ASSERT_EQ(original.size(), decoded.size());
+
+  // Images must be approximately equal (compression will have introduced some
+  // minor artifacts).
+  ASSERT_GE(jpeg_equality_threshold, AveragePixelDelta(original, decoded));
+}
+
+// Test that corrupted data decompression causes failures.
+TEST(JPEGCodec, DecodeCorrupted) {
+  int w = 20, h = 20;
+
+  // some random data (an uncompressed image)
+  std::vector<unsigned char> original;
+  MakeRGBImage(w, h, &original);
+
+  // it should fail when given non-JPEG compressed data
+  std::vector<unsigned char> output;
+  int outw, outh;
+  ASSERT_FALSE(JPEGCodec::Decode(&original[0], original.size(),
+                                 JPEGCodec::FORMAT_RGB, &output,
+                                 &outw, &outh));
+
+  // make some compressed data
+  std::vector<unsigned char> compressed;
+  ASSERT_TRUE(JPEGCodec::Encode(&original[0], JPEGCodec::FORMAT_RGB, w, h,
+                                w * 3, jpeg_quality, &compressed));
+
+  // try decompressing a truncated version
+  ASSERT_FALSE(JPEGCodec::Decode(&compressed[0], compressed.size() / 2,
+                                 JPEGCodec::FORMAT_RGB, &output,
+                                 &outw, &outh));
+
+  // corrupt it and try decompressing that
+  for (int i = 10; i < 30; i++)
+    compressed[i] = i;
+  ASSERT_FALSE(JPEGCodec::Decode(&compressed[0], compressed.size(),
+                                 JPEGCodec::FORMAT_RGB, &output,
+                                 &outw, &outh));
+}

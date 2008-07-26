@@ -1,0 +1,229 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#include "chrome/renderer/localized_error.h"
+
+#include "base/logging.h"
+#include "base/string_util.h"
+#include "base/values.h"
+#include "chrome/common/l10n_util.h"
+#include "googleurl/src/gurl.h"
+#include "net/base/escape.h"
+#include "net/base/net_errors.h"
+#include "webkit/glue/weberror.h"
+
+#include "generated_resources.h"
+
+namespace {
+
+// Helper method for generating the google cache lookup url.
+const std::wstring ConstructGoogleCacheUrl(const std::wstring& url) {
+  // TODO(tc): use locale based google domain
+  std::wstring cache_url(L"http://www.google.com/search?q=cache:");
+  cache_url.append(EscapeQueryParamValueUTF8(url));
+  return cache_url;
+}
+
+enum NAV_SUGGESTIONS {
+  SUGGEST_NONE     = 0,
+  SUGGEST_RELOAD   = 1 << 0,
+  SUGGEST_CACHE    = 1 << 1,
+  SUGGEST_HOSTNAME = 1 << 2,
+};
+
+struct WebErrorNetErrorMap {
+  const int error_code;
+  const unsigned int title_resource_id;
+  const unsigned int heading_resource_id;
+  const unsigned int summary_resource_id;
+  const unsigned int details_resource_id;
+  const int suggestions;  // Bitmap of SUGGEST_* values.
+};
+
+WebErrorNetErrorMap net_error_options[] = {
+  {net::ERR_TIMED_OUT,
+   IDS_ERRORPAGES_TITLE_NOT_AVAILABLE,
+   IDS_ERRORPAGES_HEADING_NOT_AVAILABLE,
+   IDS_ERRORPAGES_SUMMARY_NOT_AVAILABLE,
+   IDS_ERRORPAGES_DETAILS_TIMED_OUT,
+   SUGGEST_RELOAD | SUGGEST_CACHE,
+  },
+  {net::ERR_CONNECTION_FAILED,
+   IDS_ERRORPAGES_TITLE_NOT_AVAILABLE,
+   IDS_ERRORPAGES_HEADING_NOT_AVAILABLE,
+   IDS_ERRORPAGES_SUMMARY_NOT_AVAILABLE,
+   IDS_ERRORPAGES_DETAILS_CONNECT_FAILED,
+   SUGGEST_RELOAD | SUGGEST_CACHE,
+  },
+  {net::ERR_NAME_NOT_RESOLVED,
+   IDS_ERRORPAGES_TITLE_NOT_AVAILABLE,
+   IDS_ERRORPAGES_HEADING_NOT_AVAILABLE,
+   IDS_ERRORPAGES_SUMMARY_NOT_AVAILABLE,
+   IDS_ERRORPAGES_DETAILS_NAME_NOT_RESOLVED,
+   SUGGEST_RELOAD | SUGGEST_CACHE,
+  },
+  {net::ERR_INTERNET_DISCONNECTED,
+   IDS_ERRORPAGES_TITLE_NOT_AVAILABLE,
+   IDS_ERRORPAGES_HEADING_NOT_AVAILABLE,
+   IDS_ERRORPAGES_SUMMARY_NOT_AVAILABLE,
+   IDS_ERRORPAGES_DETAILS_DISCONNECTED,
+   SUGGEST_RELOAD,
+  },
+  {net::ERR_FILE_NOT_FOUND,
+   IDS_ERRORPAGES_TITLE_NOT_FOUND,
+   IDS_ERRORPAGES_HEADING_NOT_FOUND,
+   IDS_ERRORPAGES_SUMMARY_NOT_FOUND,
+   IDS_ERRORPAGES_DETAILS_FILE_NOT_FOUND,
+   SUGGEST_NONE,
+  },
+  {net::ERR_TOO_MANY_REDIRECTS,
+   IDS_ERRORPAGES_TITLE_LOAD_FAILED,
+   IDS_ERRORPAGES_HEADING_TOO_MANY_REDIRECTS,
+   IDS_ERRORPAGES_SUMMARY_TOO_MANY_REDIRECTS,
+   IDS_ERRORPAGES_DETAILS_TOO_MANY_REDIRECTS,
+   SUGGEST_RELOAD,
+  },
+};
+
+}  // namespace
+
+void GetLocalizedErrorValues(const WebError& error,
+                             DictionaryValue* error_strings) {
+  // Grab strings that are applicable to all error pages
+  error_strings->SetString(L"detailsLink",
+    l10n_util::GetString(IDS_ERRORPAGES_DETAILS_LINK));
+  error_strings->SetString(L"detailsHeading",
+    l10n_util::GetString(IDS_ERRORPAGES_DETAILS_HEADING));
+
+  // Grab the strings and settings that depend on the error type.  Init
+  // options with default values.
+  WebErrorNetErrorMap options = {
+    0,
+    IDS_ERRORPAGES_TITLE_NOT_AVAILABLE,
+    IDS_ERRORPAGES_HEADING_NOT_AVAILABLE,
+    IDS_ERRORPAGES_SUMMARY_NOT_AVAILABLE,
+    IDS_ERRORPAGES_DETAILS_UNKNOWN,
+    SUGGEST_NONE,
+  };
+  int error_code = error.GetErrorCode();
+  for (int i = 0; i < arraysize(net_error_options); ++i) {
+    if (net_error_options[i].error_code == error_code) {
+      memcpy(&options, &net_error_options[i], sizeof(WebErrorNetErrorMap));
+      break;
+    }
+  }
+
+  std::wstring suggestions_heading;
+  if (options.suggestions != SUGGEST_NONE) {
+    suggestions_heading =
+        l10n_util::GetString(IDS_ERRORPAGES_SUGGESTION_HEADING);
+  }
+  error_strings->SetString(L"suggestionsHeading", suggestions_heading);
+
+  std::wstring failed_url(UTF8ToWide(error.GetFailedURL().spec()));
+  // URLs are always LTR.
+  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
+    l10n_util::WrapStringWithLTRFormatting(&failed_url);
+  error_strings->SetString(L"title",
+                           l10n_util::GetStringF(options.title_resource_id,
+                                                 failed_url.c_str()));
+  error_strings->SetString(L"heading",
+                           l10n_util::GetString(options.heading_resource_id));
+
+  DictionaryValue* summary = new DictionaryValue;
+  summary->SetString(L"msg",
+      l10n_util::GetString(options.summary_resource_id));
+  // TODO(tc): we want the unicode url here since it's being displayed
+  summary->SetString(L"failedUrl", failed_url.c_str());
+  error_strings->Set(L"summary", summary);
+
+  // Error codes are expected to be negative
+  DCHECK(error_code < 0);
+  std::wstring details = l10n_util::GetString(options.details_resource_id);
+  error_strings->SetString(L"details",
+      l10n_util::GetStringF(IDS_ERRORPAGES_DETAILS_TEMPLATE,
+                            IntToWString(-error_code),
+                            ASCIIToWide(net::ErrorToString(error_code)),
+                            details));
+
+  if (options.suggestions & SUGGEST_RELOAD) {
+    DictionaryValue* suggest_reload = new DictionaryValue;
+    suggest_reload->SetString(L"msg",
+        l10n_util::GetString(IDS_ERRORPAGES_SUGGESTION_RELOAD));
+    suggest_reload->SetString(L"reloadUrl", failed_url.c_str());
+    error_strings->Set(L"suggestionsReload", suggest_reload);
+  }
+
+  if (options.suggestions & SUGGEST_CACHE) {
+    DictionaryValue* suggest_cache = new DictionaryValue;
+    suggest_cache->SetString(L"msg",
+        l10n_util::GetString(IDS_ERRORPAGES_SUGGESTION_CACHE));
+    suggest_cache->SetString(L"cacheUrl",
+        ConstructGoogleCacheUrl(failed_url).c_str());
+    error_strings->Set(L"suggestionsCache", suggest_cache);
+  }
+
+  if (options.suggestions & SUGGEST_HOSTNAME) {
+    // Only show the "Go to hostname" suggestion if the failed_url has a path.
+    const GURL& failed_url = error.GetFailedURL();
+    if (std::string() == failed_url.path()) {
+      DictionaryValue* suggest_home_page = new DictionaryValue;
+      suggest_home_page->SetString(L"suggestionsHomepageMsg",
+          l10n_util::GetString(IDS_ERRORPAGES_SUGGESTION_HOMEPAGE));
+      std::wstring homepage(UTF8ToWide(failed_url.GetWithEmptyPath().spec()));
+      // URLs are always LTR.
+      if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
+        l10n_util::WrapStringWithLTRFormatting(&homepage);
+      suggest_home_page->SetString(L"homePage", homepage);
+      // TODO(tc): we actually want the unicode hostname
+      suggest_home_page->SetString(L"hostName",
+          UTF8ToWide(failed_url.host()));
+      error_strings->Set(L"suggestionsHomepage", suggest_home_page);
+    }
+  }
+}
+
+void GetFormRepostErrorValues(const GURL& display_url,
+                              DictionaryValue* error_strings) {
+  std::wstring failed_url(UTF8ToWide(display_url.spec()));
+  // URLs are always LTR.
+  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
+    l10n_util::WrapStringWithLTRFormatting(&failed_url);
+  error_strings->SetString(
+      L"title", l10n_util::GetStringF(IDS_ERRORPAGES_TITLE_NOT_AVAILABLE,
+                                      failed_url.c_str()));
+  error_strings->SetString(L"heading",
+                           l10n_util::GetString(IDS_HTTP_POST_WARNING_TITLE));
+  error_strings->SetString(L"suggestionsHeading", L"");
+  DictionaryValue* summary = new DictionaryValue;
+  summary->SetString(L"msg",
+                     l10n_util::GetString(IDS_ERRORPAGES_HTTP_POST_WARNING));
+  error_strings->Set(L"summary", summary);
+}
+

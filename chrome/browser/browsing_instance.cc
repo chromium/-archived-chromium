@@ -1,0 +1,137 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#include "chrome/browser/browsing_instance.h"
+
+#include "base/command_line.h"
+#include "chrome/browser/site_instance.h"
+#include "chrome/common/chrome_switches.h"
+
+/*static*/
+BrowsingInstance::ProfileSiteInstanceMap
+    BrowsingInstance::profile_site_instance_map_;
+
+bool BrowsingInstance::ShouldUseProcessPerSite(const GURL& url) {
+  // Returns true if we should use the process-per-site model.  This will be
+  // the case if the --process-per-site switch is specified, or in
+  // process-per-site-instance for particular sites (e.g., the new tab page).
+
+  if (CommandLine().HasSwitch(switches::kProcessPerSite))
+    return true;
+
+  if (!CommandLine().HasSwitch(switches::kProcessPerTab)) {
+    // We are not in process-per-site or process-per-tab, so we must be in the
+    // default (process-per-site-instance).  Only use the process-per-site
+    // logic for particular sites that we want to consolidate.
+    // Note that --single-process may have been specified, but that affects the
+    // process creation logic in RenderProcessHost, so we do not need to worry
+    // about it here.
+    if (url.SchemeIs("chrome-resource"))
+      // Always consolidate instances of the new tab page (and instances of any
+      // other internal resource urls).
+      return true;
+
+    // TODO(creis): List any other special cases that we want to limit to a
+    // single process for all instances.
+  }
+
+  // In all other cases, don't use process-per-site logic.
+  return false;
+}
+
+BrowsingInstance::SiteInstanceMap* BrowsingInstance::GetSiteInstanceMap(
+    Profile* profile, const GURL& url) {
+  if (!ShouldUseProcessPerSite(url)) {
+    // Not using process-per-site, so use a map specific to this instance.
+    return &site_instance_map_;
+  }
+
+  // Otherwise, process-per-site is in use, at least for this URL.  Look up the
+  // global map for this profile, creating an entry if necessary.
+  return &profile_site_instance_map_[profile];
+}
+
+bool BrowsingInstance::HasSiteInstance(const GURL& url) {
+  std::string site = SiteInstance::GetSiteForURL(url).possibly_invalid_spec();
+
+  SiteInstanceMap* map = GetSiteInstanceMap(profile_, url);
+  SiteInstanceMap::iterator i = map->find(site);
+  return (i != map->end());
+}
+
+SiteInstance* BrowsingInstance::GetSiteInstanceForURL(const GURL& url) {
+  std::string site = SiteInstance::GetSiteForURL(url).possibly_invalid_spec();
+
+  SiteInstanceMap* map = GetSiteInstanceMap(profile_, url);
+  SiteInstanceMap::iterator i = map->find(site);
+  if (i != map->end()) {
+    return i->second;
+  }
+
+  // No current SiteInstance for this site, so let's create one.
+  SiteInstance* instance = new SiteInstance(this);
+
+  // Set the site of this new SiteInstance, which will register it with us.
+  instance->SetSite(url);
+  return instance;
+}
+
+void BrowsingInstance::RegisterSiteInstance(SiteInstance* site_instance) {
+  DCHECK(site_instance->browsing_instance() == this);
+  DCHECK(site_instance->has_site());
+  std::string site = site_instance->site().possibly_invalid_spec();
+
+  // Only register if we don't have a SiteInstance for this site already.
+  // It's possible to have two SiteInstances point to the same site if two
+  // tabs are navigated there at the same time.  (We don't call SetSite or
+  // register them until DidNavigate.)  If there is a previously existing
+  // SiteInstance for this site, we just won't register the new one.
+  SiteInstanceMap* map = GetSiteInstanceMap(profile_, site_instance->site());
+  SiteInstanceMap::iterator i = map->find(site);
+  if (i == map->end()) {
+    // Not previously registered, so register it.
+    (*map)[site] = site_instance;
+  }
+}
+
+void BrowsingInstance::UnregisterSiteInstance(SiteInstance* site_instance) {
+  DCHECK(site_instance->browsing_instance() == this);
+  DCHECK(site_instance->has_site());
+  std::string site = site_instance->site().possibly_invalid_spec();
+
+  // Only unregister the SiteInstance if it is the same one that is registered
+  // for the site.  (It might have been an unregistered SiteInstance.  See the
+  // comments in RegisterSiteInstance.)
+  SiteInstanceMap* map = GetSiteInstanceMap(profile_, site_instance->site());
+  SiteInstanceMap::iterator i = map->find(site);
+  if (i != map->end() && i->second == site_instance) {
+    // Matches, so erase it.
+    map->erase(i);
+  }
+}

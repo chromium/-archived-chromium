@@ -1,0 +1,227 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#include "chrome/views/hwnd_view.h"
+
+#include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/common/win_util.h"
+#include "chrome/views/focus_manager.h"
+#include "chrome/views/scroll_view.h"
+#include "chrome/views/view_container.h"
+#include "base/logging.h"
+
+namespace ChromeViews {
+
+static const char kViewClassName[] = "chrome/views/HWNDView";
+
+HWNDView::HWNDView() :
+    hwnd_(0),
+    preferred_size_(0, 0),
+    installed_clip_(false),
+    fast_resize_(false),
+    focus_view_(NULL) {
+  // HWNDs are placed relative to the root. As such, we need to
+  // know when the position of any ancestor changes, or our visibility relative
+  // to other views changed as it'll effect our position relative to the root.
+  SetNotifyWhenVisibleBoundsInRootChanges(true);
+}
+
+HWNDView::~HWNDView() {
+}
+
+void HWNDView::Attach(HWND hwnd) {
+  DCHECK(hwnd_ == NULL);
+  hwnd_ = hwnd;
+
+  // First hide the new window. We don't want anything to draw (like sub-hwnd
+  // borders), when we change the parent below.
+  ShowWindow(hwnd_, SW_HIDE);
+
+  // Need to set the HWND's parent before changing its size to avoid flashing.
+  ::SetParent(hwnd_, GetViewContainer()->GetHWND());
+  UpdateHWNDBounds();
+
+  // Register with the focus manager so the associated view is focused when the
+  // native control gets the focus.
+  FocusManager::InstallFocusSubclass(hwnd_, focus_view_ ? focus_view_ : this);
+}
+
+void HWNDView::Detach() {
+  DCHECK(hwnd_);
+  FocusManager::UninstallFocusSubclass(hwnd_);
+  hwnd_ = NULL;
+  installed_clip_ = false;
+}
+
+void HWNDView::SetAssociatedFocusView(View* view) {
+  DCHECK(!::IsWindow(hwnd_));
+  focus_view_ = view;
+}
+
+HWND HWNDView::GetHWND() const {
+  return hwnd_;
+}
+
+void HWNDView::UpdateHWNDBounds() {
+  if (!hwnd_)
+    return;
+
+  // Since HWNDs know nothing about the View hierarchy (they are direct children
+  // of the ViewContainer that hosts our View hierarchy) they need to be
+  // positioned in the coordinate system of the ViewContainer, not the current
+  // view.
+  CPoint top_left;
+
+  top_left.x = top_left.y = 0;
+  ConvertPointToViewContainer(this, &top_left);
+
+  gfx::Rect vis_bounds = GetVisibleBounds();
+  bool visible = !vis_bounds.IsEmpty();
+
+  if (visible && !fast_resize_) {
+    if (vis_bounds.width() != bounds_.Width() ||
+        vis_bounds.height() != bounds_.Height()) {
+      // Only a portion of the HWND is really visible.
+      int x = vis_bounds.x();
+      int y = vis_bounds.y();
+      HRGN clip_region = CreateRectRgn(x, y, x + vis_bounds.width(),
+                                       y + vis_bounds.height());
+      // NOTE: SetWindowRgn owns the region (as well as the deleting the
+      // current region), as such we don't delete the old region.
+      SetWindowRgn(hwnd_, clip_region, FALSE);
+      installed_clip_ = true;
+    } else if (installed_clip_) {
+      // The whole HWND is visible but we installed a clip on the HWND,
+      // uninstall it.
+      SetWindowRgn(hwnd_, 0, FALSE);
+      installed_clip_ = false;
+    }
+  }
+
+  if (visible) {
+    UINT swp_flags;
+    swp_flags = SWP_DEFERERASE |
+                SWP_NOACTIVATE |
+                SWP_NOCOPYBITS |
+                SWP_NOOWNERZORDER |
+                SWP_NOZORDER;
+    // Only send the SHOWWINDOW flag if we're invisible, to avoid flashing.
+    if (!::IsWindowVisible(hwnd_))
+      swp_flags = (swp_flags | SWP_SHOWWINDOW) & ~SWP_NOREDRAW;
+
+    if (fast_resize_) {
+      // In a fast resize, we move the window and clip it with SetWindowRgn.
+      CRect rect;
+      GetWindowRect(hwnd_, &rect);
+      ::SetWindowPos(hwnd_, 0, top_left.x, top_left.y, rect.Width(),
+                     rect.Height(), swp_flags);
+
+      HRGN clip_region = CreateRectRgn(0, 0,
+                                       bounds_.Width(),
+                                       bounds_.Height());
+      SetWindowRgn(hwnd_, clip_region, FALSE);
+      installed_clip_ = true;
+    } else {
+      ::SetWindowPos(hwnd_, 0, top_left.x, top_left.y, bounds_.Width(),
+                     bounds_.Height(), swp_flags);
+    }
+  } else if (::IsWindowVisible(hwnd_)) {
+    // The window is currently visible, but its clipped by another view. Hide
+    // it.
+    ::SetWindowPos(hwnd_, 0, 0, 0, 0, 0,
+                   SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
+                   SWP_NOREDRAW | SWP_NOOWNERZORDER );
+  }
+}
+
+void HWNDView::DidChangeBounds(const CRect& previous, const CRect& current) {
+  UpdateHWNDBounds();
+}
+
+void HWNDView::VisibilityChanged(View* starting_from, bool is_visible) {
+  //UpdateHWNDBounds();
+  if (IsVisibleInRootView())
+    ::ShowWindow(hwnd_, SW_SHOW);
+  else
+    ::ShowWindow(hwnd_, SW_HIDE);
+}
+
+void HWNDView::GetPreferredSize(CSize *out) {
+  out->cx = preferred_size_.cx;
+  out->cy = preferred_size_.cy;
+}
+
+void HWNDView::SetPreferredSize(const CSize& size) {
+  preferred_size_ = size;
+}
+
+void HWNDView::ViewHierarchyChanged(bool is_add, View *parent, View *child) {
+  if (hwnd_) {
+    ViewContainer* vc = GetViewContainer();
+    if (is_add && vc) {
+      HWND parent = ::GetParent(hwnd_);
+      HWND vc_hwnd = vc->GetHWND();
+      if (parent != vc_hwnd) {
+        ::SetParent(hwnd_, vc_hwnd);
+      }
+      if (IsVisibleInRootView())
+        ::ShowWindow(hwnd_, SW_SHOW);
+      else
+        ::ShowWindow(hwnd_, SW_HIDE);
+      UpdateHWNDBounds();
+    } else if (!is_add) {
+      ::ShowWindow(hwnd_, SW_HIDE);
+      ::SetParent(hwnd_, NULL);
+    }
+  }
+}
+
+void HWNDView::VisibleBoundsInRootChanged() {
+  UpdateHWNDBounds();
+}
+
+void HWNDView::Paint(ChromeCanvas* canvas) {
+  // On Vista, the area behind our window is black (due to the Aero Glass)
+  // this means that during a fast resize (where our content doesn't draw
+  // over the full size of our HWND, and the HWND background color
+  // doesn't show up), we need to cover that blackness with something so
+  // that fast resizes don't result in black flash.
+  //
+  // It would be nice if this used some approximation of the page's
+  // current background color.
+  if (installed_clip_ && win_util::ShouldUseVistaFrame())
+    canvas->FillRectInt(SkColorSetRGB(255, 255, 255), 0, 0,
+                        bounds_.Width(), bounds_.Height());
+}
+
+std::string HWNDView::GetClassName() const {
+  return kViewClassName;
+}
+
+}

@@ -1,0 +1,34 @@
+HKCR
+{
+	activex_test_control.ChromeTestContro.1 = s 'ChromeTestControl Class'
+	{
+		CLSID = s '{4E174456-5EE6-494D-B6F2-2B52898A620E}'
+	}
+	activex_test_control.ChromeTestControl = s 'ChromeTestControl Class'
+	{
+		CLSID = s '{4E174456-5EE6-494D-B6F2-2B52898A620E}'
+		CurVer = s 'activex_test_control.ChromeTestContro.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {4E174456-5EE6-494D-B6F2-2B52898A620E} = s 'ChromeTestControl Class'
+		{
+			ProgID = s 'activex_test_control.ChromeTestContro.1'
+			VersionIndependentProgID = s 'activex_test_control.ChromeTestControl'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			val AppID = s '%APPID%'
+			ForceRemove 'Control'
+			ForceRemove 'ToolboxBitmap32' = s '%MODULE%, 102'
+			'MiscStatus' = s '0'
+			{
+			    '1' = s '%OLEMISC%'
+			}
+			'TypeLib' = s '{83D767F4-5C4F-4ACA-B0E8-928C54845C33}'
+			'Version' = s '1.0'
+		}
+	}
+}

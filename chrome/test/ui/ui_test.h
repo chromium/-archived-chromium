@@ -1,0 +1,344 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#ifndef CHROME_TEST_UI_UI_TEST_H__
+#define CHROME_TEST_UI_UI_TEST_H__
+
+// This file provides a common base for running UI unit tests, which operate
+// the entire browser application in a separate process for holistic
+// functional testing.
+//
+// Tests should #include this file, subclass UITest, and use the TEST_F macro
+// to declare individual test cases.  This provides a running browser window
+// during the test, accessible through the window_ member variable.  The window
+// will close when the test ends, regardless of whether the test passed.
+//
+// Tests which need to launch the browser with a particular set of command-line
+// arguments should set the value of launch_arguments_ in their constructors.
+
+#include <windows.h>
+#include <string>
+
+#include "base/path_service.h"
+#include "base/scoped_ptr.h"
+#include "base/time.h"
+#include "chrome/test/automation/automation_proxy.h"
+#include "googleurl/src/gurl.h"
+#include "testing/gtest/include/gtest/gtest.h"
+
+class DictionaryValue;
+class TabProxy;
+
+class UITest : public testing::Test {
+ protected:
+  // Delay to let browser complete a requested action.
+  static const int kWaitForActionMsec = 2000;
+  static const int kWaitForActionMaxMsec = 10000;
+  // Delay to let the browser complete the test.
+  static const int kMaxTestExecutionTime = 30000;
+
+  // Tries to delete the specified file/directory returning true on success.
+  // This differs from file_util::Delete in that it repeatedly invokes Delete
+  // until successful, or a timeout is reached. Returns true on success.
+  static bool DieFileDie(const std::wstring& file, bool recurse);
+
+  // Constructor
+  UITest();
+
+  // Starts the browser using the arguments in launch_arguments_, and
+  // sets up member variables.
+  virtual void SetUp();
+
+  // Closes the browser window.
+  virtual void TearDown();
+
+  // ********* Utility functions *********
+
+  // Launches the browser and IPC testing server.
+  void LaunchBrowserAndServer();
+
+  // Closes the browser and IPC testing server.
+  void CloseBrowserAndServer();
+
+  // Launches the browser with the given arguments.
+  void LaunchBrowser(const std::wstring& arguments, bool clear_profile);
+
+  // Exits out browser instance.
+  void QuitBrowser();
+
+  // Tells the browser to navigate to the given URL in the active tab
+  // of the first app window.
+  // This method doesn't return until the navigation is complete.
+  void NavigateToURL(const GURL& url);
+
+  // Returns the URL of the currently active tab. If there is no active tab,
+  // or some other error, the returned URL will be empty.
+  GURL GetActiveTabURL();
+
+  // Returns the title of the currently active tab.
+  std::wstring GetActiveTabTitle();
+
+  // Returns true when the browser process is running, independent if any
+  // renderer process exists or not. It will returns false if an user closed the
+  // window or if the browser process died by itself.
+  bool IsBrowserRunning();
+
+  // Returns true when time_out_ms milliseconds have elapsed.
+  // Returns false if the browser process died while waiting.
+  bool CrashAwareSleep(int time_out_ms);
+
+  // Returns the number of tabs in the first window.  If no windows exist,
+  // causes a test failure and returns 0.
+  int GetTabCount();
+
+  // Polls the tab for the cookie_name cookie and returns once one of the
+  // following conditions hold true:
+  // - The cookie is of expected_value.
+  // - The browser process died.
+  // - The time_out value has been exceeded.
+  bool WaitUntilCookieValue(TabProxy* tab, const GURL& url,
+                            const char* cookie_name,
+                            int interval_ms,
+                            int time_out_ms,
+                            const char* expected_value);
+  // Polls the tab for the cookie_name cookie and returns once one of the
+  // following conditions hold true:
+  // - The cookie is set to any value.
+  // - The browser process died.
+  // - The time_out value has been exceeded.
+  std::string WaitUntilCookieNonEmpty(TabProxy* tab,
+                                      const GURL& url,
+                                      const char* cookie_name,
+                                      int interval_ms,
+                                      int time_out_ms);
+
+  // Polls up to kWaitForActionMaxMsec ms to attain a specific tab count. Will
+  // assert that the tab count is valid at the end of the wait.
+  void WaitUntilTabCount(int tab_count);
+
+  // Checks whether the download shelf is visible in the current tab, giving it
+  // a chance to appear (we don't know the exact timing) while finishing as soon
+  // as possible.
+  bool WaitForDownloadShelfVisible(TabProxy* tab);
+
+  // Closes the specified browser.  Returns true if the browser was closed.
+  // This call is blocking.  |application_closed| is set to true if this was
+  // the last browser window (and therefore as a result of it closing the
+  // browser process terminated).  Note that in that case this method returns
+  // after the browser process has terminated.
+  bool CloseBrowser(BrowserProxy* browser, bool* application_closed) const;
+
+  // Gets the directory for the currently active profile in the browser.
+  std::wstring GetDownloadDirectory();
+
+  // Get the handle of browser process connected to the automation. This
+  // function only retruns a reference to the handle so the caller does not
+  // own the handle returned.
+  HANDLE process() { return process_; }
+
+ public:
+  // Get/Set a flag to run the renderer in process when running the
+  // tests.
+  static bool in_process_renderer() { return in_process_renderer_; }
+  static void set_in_process_renderer(bool value) {
+    in_process_renderer_ = value;
+  }
+
+  // Get/Set a flag to run the plugins in the renderer process when running the
+  // tests.
+  static bool in_process_plugins() { return in_process_plugins_; }
+  static void set_in_process_plugins(bool value) {
+    in_process_plugins_ = value;
+  }
+
+  // Get/Set a flag to run the renderer outside the sandbox when running the
+  // tests
+  static bool no_sandbox() { return no_sandbox_; }
+  static void set_no_sandbox(bool value) {
+    no_sandbox_ = value;
+  }
+
+  // Get/Set a flag to run with DCHECKs enabled in release.
+  static bool enable_dcheck() { return enable_dcheck_; }
+  static void set_enable_dcheck(bool value) {
+    enable_dcheck_ = value;
+  }
+
+  // Get/Set a flag to dump the process memory without crashing on DCHECKs.
+  static bool silent_dump_on_dcheck() { return silent_dump_on_dcheck_; }
+  static void set_silent_dump_on_dcheck(bool value) {
+    silent_dump_on_dcheck_ = value;
+  }
+
+  // Get/Set a flag to run the plugin processes inside the sandbox when running
+  // the tests
+  static bool safe_plugins() { return safe_plugins_; }
+  static void set_safe_plugins(bool value) {
+    safe_plugins_ = value;
+  }
+
+  static bool show_error_dialogs() { return show_error_dialogs_; }
+  static void set_show_error_dialogs(bool value) {
+    show_error_dialogs_ = value;
+  }
+
+  static bool full_memory_dump() { return full_memory_dump_; }
+  static void set_full_memory_dump(bool value) {
+    full_memory_dump_ = value;
+  }
+
+  static bool use_existing_browser() { return default_use_existing_browser_; }
+  static void set_use_existing_browser(bool value) {
+    default_use_existing_browser_ = value;
+  }
+
+  static bool dump_histograms_on_exit() { return dump_histograms_on_exit_; }
+  static void set_dump_histograms_on_exit(bool value) {
+    dump_histograms_on_exit_ = value;
+  }
+
+  static int test_timeout_ms() { return timeout_ms_; }
+  static void set_test_timeout_ms(int value) {
+    timeout_ms_ = value;
+  }
+
+  // Called by some tests that wish to have a base profile to start from. This
+  // "user data directory" (containing one or more profiles) will be recursively
+  // copied into the user data directory for the test and the files will be
+  // evicted from the OS cache. To start with a blank profile, supply an empty
+  // string (the default).
+  std::wstring template_user_data() const { return template_user_data_; }
+  void set_template_user_data(const std::wstring& template_user_data) {
+    template_user_data_ = template_user_data;
+  }
+
+  // Return the user data directory being used by the browser instance in
+  // UITest::SetUp().
+  std::wstring user_data_dir() const { return user_data_dir_; }
+
+  // Count the number of active browser processes.  This function only counts
+  // browser processes that share the same profile directory as the current
+  // process.  The count includes browser sub-processes.
+  static int GetBrowserProcessCount();
+
+  // Returns a copy of local state preferences. The caller is responsible for
+  // deleting the returned object. Returns NULL if there is an error.
+  DictionaryValue* GetLocalState();
+
+  // Returns a copy of the default profile preferences. The caller is
+  // responsible for deleting the returned object. Returns NULL if there is an
+  // error.
+  DictionaryValue* GetDefaultProfilePreferences();
+
+ private:
+  // Check that no processes related to Chrome exist, displaying
+  // the given message if any do.
+  void AssertAppNotRunning(const std::wstring& error_message);
+
+ protected:
+  AutomationProxy* automation() {
+    EXPECT_TRUE(server_.get());
+    return server_.get();
+  }
+
+  // Wait a certain amount of time for all the app processes to exit,
+  // forcibly killing them if they haven't exited by then.
+  // It has the side-effect of killing every browser window opened in your
+  // session, even those unrelated in the test.
+  void CleanupAppProcesses();
+
+  // Returns the proxy for the currently active tab, or NULL if there is no
+  // tab or there was some kind of error. The returned pointer MUST be
+  // deleted by the caller if non-NULL.
+  TabProxy* GetActiveTab();
+
+  // ********* Member variables *********
+
+  std::wstring browser_directory_;      // Path to the browser executable,
+                                        // with no trailing slash
+  std::wstring test_data_directory_;    // Path to the unit test data,
+                                        // with no trailing slash
+  std::wstring launch_arguments_;       // Arguments to the browser on launch.
+  int expected_errors_;                 // The number of errors expected during
+                                        // the run (generally 0).
+  int expected_crashes_;                // The number of crashes expected during
+                                        // the run (generally 0).
+  std::wstring homepage_;               // Homepage used for testing.
+  bool wait_for_initial_loads_;         // Wait for initial loads to complete
+                                        // in SetUp() before running test body.
+  TimeTicks browser_launch_time_;       // Time when the browser was run.
+  bool dom_automation_enabled_;         // This can be set to true to have the
+                                        // test run the dom automation case.
+  std::wstring template_user_data_;     // See set_template_user_data().
+  HANDLE process_;                      // Handle the the first Chrome process.
+  std::wstring user_data_dir_;          // User data directory used for the test
+  static bool in_process_renderer_;     // true if we're in single process mode
+  bool show_window_;                    // Determines if the window is shown or
+                                        // hidden. Defaults to hidden.
+  bool clear_profile_;                  // If true the profile is cleared before
+                                        // launching. Default is true.
+  bool include_testing_id_;             // Should we supply the testing channel
+                                        // id on the command line? Default is
+                                        // true.
+  bool use_existing_browser_;           // Duplicate of the static version.
+                                        // Default value comes from static.
+
+ private:
+  FILETIME test_start_time_;            // Time the test was started
+                                        // (so we can check for new crash dumps)
+  static bool in_process_plugins_;
+  static bool no_sandbox_;
+  static bool safe_plugins_;
+  static bool full_memory_dump_;        // If true, write full memory dump
+                                        // during crash.
+  static bool show_error_dialogs_;      // If true, a user is paying attention
+                                        // to the test, so show error dialogs.
+  static bool default_use_existing_browser_;  // The test connects to an already
+                                              // running browser instance.
+  static bool dump_histograms_on_exit_;  // Include histograms in log on exit.
+  static bool enable_dcheck_;           // Enable dchecks in release mode.
+  static bool silent_dump_on_dcheck_;   // Dump process memory on dcheck without
+                                        // crashing.
+  static int timeout_ms_;               // Timeout in milliseconds to wait
+                                        // for an test to finish.
+  ::scoped_ptr<AutomationProxy> server_;
+};
+
+// These exist only to support the gTest assertion macros, and
+// shouldn't be used in normal program code.
+#ifdef UNIT_TEST
+std::ostream& operator<<(std::ostream& out, const std::wstring& wstr);
+
+template<typename T>
+std::ostream& operator<<(std::ostream& out, const ::scoped_ptr<T>& ptr) {
+  return out << ptr.get();
+}
+#endif  // UNIT_TEST
+
+#endif  // CHROME_TEST_UI_UI_TEST_H__

@@ -1,0 +1,359 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#include "base/thread.h"
+#include "base/time.h"
+#include "chrome/browser/url_fetcher.h"
+#include "chrome/browser/url_fetcher_protect.h"
+#include "net/url_request/url_request_unittest.h"
+#include "testing/gtest/include/gtest/gtest.h"
+
+namespace {
+  const wchar_t kDocRoot[] = L"chrome/test/data";
+  const char kHostName[] = "127.0.0.1";
+  const int kBadHTTPSPort = 9666;
+
+  class URLFetcherTest : public testing::Test, public URLFetcher::Delegate {
+   public:
+    URLFetcherTest() : main_loop_(MessageLoop::current()), fetcher_(NULL) { }
+
+    // Creates a URLFetcher, using the program's main thread to do IO.
+    virtual void CreateFetcher(const GURL& url);
+
+    // URLFetcher::Delegate
+    virtual void OnURLFetchComplete(const URLFetcher* source,
+                                    const GURL& url,
+                                    const URLRequestStatus& status,
+                                    int response_code,
+                                    const ResponseCookies& cookies,
+                                    const std::string& data);
+
+   protected:
+    MessageLoop* main_loop_;
+    URLFetcher* fetcher_;
+  };
+
+  // Version of URLFetcherTest that does a POST instead
+  class URLFetcherPostTest : public URLFetcherTest {
+   public:
+    virtual void CreateFetcher(const GURL& url);
+
+    // URLFetcher::Delegate
+    virtual void OnURLFetchComplete(const URLFetcher* source,
+                                    const GURL& url,
+                                    const URLRequestStatus& status,
+                                    int response_code,
+                                    const ResponseCookies& cookies,
+                                    const std::string& data);
+  };
+
+  // Version of URLFetcherTest that tests headers.
+  class URLFetcherHeadersTest : public URLFetcherTest {
+   public:
+    // URLFetcher::Delegate
+    virtual void OnURLFetchComplete(const URLFetcher* source,
+                                    const GURL& url,
+                                    const URLRequestStatus& status,
+                                    int response_code,
+                                    const ResponseCookies& cookies,
+                                    const std::string& data);
+  };
+
+  // Version of URLFetcherTest that tests overload proctection.
+  class URLFetcherProtectTest : public URLFetcherTest {
+   public:
+    virtual void CreateFetcher(const GURL& url);
+    // URLFetcher::Delegate
+    virtual void OnURLFetchComplete(const URLFetcher* source,
+                                    const GURL& url,
+                                    const URLRequestStatus& status,
+                                    int response_code,
+                                    const ResponseCookies& cookies,
+                                    const std::string& data);
+   private:
+    Time start_time_;
+  };
+
+  // Version of URLFetcherTest that tests bad HTTPS requests.
+  class URLFetcherBadHTTPSTest : public URLFetcherTest {
+   public:
+    URLFetcherBadHTTPSTest();
+
+    // URLFetcher::Delegate
+    virtual void OnURLFetchComplete(const URLFetcher* source,
+                                    const GURL& url,
+                                    const URLRequestStatus& status,
+                                    int response_code,
+                                    const ResponseCookies& cookies,
+                                    const std::string& data);
+
+   protected:
+    std::wstring GetExpiredCertPath();
+
+   private:
+    std::wstring cert_dir_;
+  };
+
+  // Wrapper that lets us call CreateFetcher() on a thread of our choice.  We
+  // could make URLFetcherTest refcounted and use PostTask(FROM_HERE.. ) to call
+  // CreateFetcher() directly, but the ownership of the URLFetcherTest is a bit
+  // confusing in that case because GTest doesn't know about the refcounting.
+  // It's less confusing to just do it this way.
+  class FetcherWrapperTask : public Task {
+   public:
+    FetcherWrapperTask(URLFetcherTest* test, const GURL& url)
+        : test_(test), url_(url) { }
+    virtual void Run();
+
+   private:
+    URLFetcherTest* test_;
+    GURL url_;
+  };
+
+  void URLFetcherTest::CreateFetcher(const GURL& url) {
+    fetcher_ = new URLFetcher(url, URLFetcher::GET, this);
+    fetcher_->set_request_context(new TestURLRequestContext());
+    fetcher_->set_io_loop(main_loop_);
+    fetcher_->Start();
+  }
+
+  void URLFetcherTest::OnURLFetchComplete(const URLFetcher* source,
+                                          const GURL& url,
+                                          const URLRequestStatus& status,
+                                          int response_code,
+                                          const ResponseCookies& cookies,
+                                          const std::string& data) {
+    EXPECT_TRUE(status.is_success());
+    EXPECT_EQ(200, response_code);  // HTTP OK
+    EXPECT_FALSE(data.empty());
+
+    delete fetcher_;  // Have to delete this here and not in the destructor,
+                      // because the destructor won't necessarily run on the
+                      // same thread that CreateFetcher() did.
+
+    main_loop_->Quit();
+    // If MessageLoop::current() != main_loop_, it will be shut down when the
+    // main loop returns and this thread subsequently goes out of scope.
+  }
+
+
+  void FetcherWrapperTask::Run() {
+    test_->CreateFetcher(url_);
+  }
+
+  void URLFetcherPostTest::CreateFetcher(const GURL& url) {
+    fetcher_ = new URLFetcher(url, URLFetcher::POST, this);
+    fetcher_->set_request_context(new TestURLRequestContext());
+    fetcher_->set_io_loop(main_loop_);
+    fetcher_->set_upload_data("application/x-www-form-urlencoded",
+                              "bobsyeruncle");
+    fetcher_->Start();
+  }
+
+  void URLFetcherPostTest::OnURLFetchComplete(const URLFetcher* source,
+                                              const GURL& url,
+                                              const URLRequestStatus& status,
+                                              int response_code,
+                                              const ResponseCookies& cookies,
+                                              const std::string& data) {
+    EXPECT_EQ(std::string("bobsyeruncle"), data);
+    URLFetcherTest::OnURLFetchComplete(source, url, status, response_code,
+                                       cookies, data);
+  }
+
+  void URLFetcherHeadersTest::OnURLFetchComplete(
+      const URLFetcher* source,
+      const GURL& url,
+      const URLRequestStatus& status,
+      int response_code,
+      const ResponseCookies& cookies,
+      const std::string& data) {
+    std::string header;
+    EXPECT_TRUE(source->response_headers()->GetNormalizedHeader("cache-control",
+                                                                &header));
+    EXPECT_EQ("private", header);
+    URLFetcherTest::OnURLFetchComplete(source, url, status, response_code,
+                                       cookies, data);
+  }
+
+  void URLFetcherProtectTest::CreateFetcher(const GURL& url) {
+    fetcher_ = new URLFetcher(url, URLFetcher::GET, this);
+    fetcher_->set_request_context(new TestURLRequestContext());
+    fetcher_->set_io_loop(main_loop_);
+    start_time_ = Time::Now();
+    fetcher_->Start();
+  }
+
+  void URLFetcherProtectTest::OnURLFetchComplete(const URLFetcher* source,
+                                                 const GURL& url,
+                                                 const URLRequestStatus& status,
+                                                 int response_code,
+                                                 const ResponseCookies& cookies,
+                                                 const std::string& data) {
+    const TimeDelta one_second = TimeDelta::FromMilliseconds(1000);
+    if (response_code >= 500) {
+      // Now running ServerUnavailable test.
+      // It takes more than 1 second to finish all 11 requests.
+      EXPECT_TRUE(Time::Now() - start_time_ >= one_second);
+      EXPECT_TRUE(status.is_success());
+      EXPECT_FALSE(data.empty());
+      delete fetcher_;
+      main_loop_->Quit();
+    } else {
+      // Now running Overload test.
+      static int count = 0;
+      count++;
+      if (count < 20) {
+        fetcher_->Start();
+      } else {
+        // We have already sent 20 requests continuously. And we expect that
+        // it takes more than 1 second due to the overload pretection settings.
+        EXPECT_TRUE(Time::Now() - start_time_ >= one_second);
+        URLFetcherTest::OnURLFetchComplete(source, url, status, response_code,
+                                           cookies, data);
+      }
+    }
+  }
+
+  URLFetcherBadHTTPSTest::URLFetcherBadHTTPSTest() {
+    PathService::Get(base::DIR_SOURCE_ROOT, &cert_dir_);
+    cert_dir_ += L"/chrome/test/data/ssl/certs/";
+    std::replace(cert_dir_.begin(), cert_dir_.end(),
+                 L'/', file_util::kPathSeparator);
+  }
+
+  // The "server certificate expired" error should result in automatic
+  // cancellation of the request by
+  // URLRequest::Delegate::OnSSLCertificateError.
+  void URLFetcherBadHTTPSTest::OnURLFetchComplete(
+      const URLFetcher* source,
+      const GURL& url,
+      const URLRequestStatus& status,
+      int response_code,
+      const ResponseCookies& cookies,
+      const std::string& data) {
+    // This part is different from URLFetcherTest::OnURLFetchComplete
+    // because this test expects the request to be cancelled.
+    EXPECT_EQ(URLRequestStatus::CANCELED, status.status());
+    EXPECT_EQ(net::ERR_ABORTED, status.os_error());
+    EXPECT_EQ(-1, response_code);
+    EXPECT_TRUE(cookies.empty());
+    EXPECT_TRUE(data.empty());
+
+    // The rest is the same as URLFetcherTest::OnURLFetchComplete.
+    delete fetcher_;
+    main_loop_->Quit();
+  }
+
+  std::wstring URLFetcherBadHTTPSTest::GetExpiredCertPath() {
+    std::wstring path(cert_dir_);
+    file_util::AppendToPath(&path, L"expired_cert.pem");
+    return path;
+  }
+};
+
+TEST_F(URLFetcherTest, SameThreadsTest) {
+  // Create the fetcher on the main thread.  Since IO will happen on the main
+  // thread, this will test URLFetcher's ability to do everything on one
+  // thread.
+  TestServer server(kDocRoot);
+
+  CreateFetcher(GURL(server.TestServerPage("defaultresponse")));
+
+  MessageLoop::current()->Run();
+}
+
+TEST_F(URLFetcherTest, DifferentThreadsTest) {
+  TestServer server(kDocRoot);
+  // Create a separate thread that will create the URLFetcher.  The current
+  // (main) thread will do the IO, and when the fetch is complete it will
+  // terminate the main thread's message loop; then the other thread's
+  // message loop will be shut down automatically as the thread goes out of
+  // scope.
+  Thread t("URLFetcher test thread");
+  t.Start();
+  t.message_loop()->PostTask(FROM_HERE, new FetcherWrapperTask(this,
+      GURL(server.TestServerPage("defaultresponse"))));
+
+  MessageLoop::current()->Run();
+}
+
+TEST_F(URLFetcherPostTest, Basic) {
+  TestServer server(kDocRoot);
+  CreateFetcher(GURL(server.TestServerPage("echo")));
+  MessageLoop::current()->Run();
+}
+
+TEST_F(URLFetcherHeadersTest, Headers) {
+  TestServer server(L"net/data/url_request_unittest");
+  CreateFetcher(GURL(server.TestServerPage("files/with-headers.html")));
+  MessageLoop::current()->Run();
+  // The actual tests are in the URLFetcherHeadersTest fixture.
+}
+
+TEST_F(URLFetcherProtectTest, Overload) {
+  TestServer server(kDocRoot);
+  GURL url = GURL(server.TestServerPage("defaultresponse"));
+
+  // Registers an entry for test url. It only allows 3 requests to be sent
+  // in 200 milliseconds.
+  ProtectManager* manager = ProtectManager::GetInstance();
+  ProtectEntry* entry = new ProtectEntry(200, 3, 11, 1, 2.0, 0, 256);
+  manager->Register(url.host(), entry);
+
+  CreateFetcher(url);
+
+  MessageLoop::current()->Run();
+}
+
+TEST_F(URLFetcherProtectTest, ServerUnavailable) {
+  TestServer server(L"chrome/test/data");
+  GURL url = GURL(server.TestServerPage("files/server-unavailable.html"));
+
+  // Registers an entry for test url. The backoff time is calculated by:
+  //     new_backoff = 2.0 * old_backoff + 0
+  // and maximum backoff time is 256 milliseconds.
+  // Maximum retries allowed is set to 11.
+  ProtectManager* manager = ProtectManager::GetInstance();
+  ProtectEntry* entry = new ProtectEntry(200, 3, 11, 1, 2.0, 0, 256);
+  manager->Register(url.host(), entry);
+
+  CreateFetcher(url);
+
+  MessageLoop::current()->Run();
+}
+
+TEST_F(URLFetcherBadHTTPSTest, BadHTTPSTest) {
+  HTTPSTestServer server(kHostName, kBadHTTPSPort,
+                         kDocRoot, GetExpiredCertPath());
+
+  CreateFetcher(GURL(server.TestServerPage("defaultresponse")));
+
+  MessageLoop::current()->Run();
+}

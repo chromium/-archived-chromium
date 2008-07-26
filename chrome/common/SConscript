@@ -1,0 +1,210 @@
+# Copyright 2008, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Import('env', 'env_test')
+
+env = env.Clone()
+
+env.Prepend(
+    CPPPATH = [
+        env.Dir('../app/resources'),
+        env.Dir('#/tools/build/win'),
+        env.Dir('#/..'),
+    ],
+    CPPDEFINES = [
+        'U_STATIC_IMPLEMENTATION',
+        'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
+        'WIN32_LEAN_AND_MEAN',
+    ],
+    CCFLAGS = [
+        '/TP',
+
+        '/Wp64',
+
+        '/wd4503',
+        '/wd4819',
+    ],
+)
+
+env.Append(
+    CPPPATH = [
+        'third_party/wtl/include',
+        '$NPAPI_DIR',
+        '$LIBXML_DIR/scons/include',
+        '$LIBXML_DIR/include',
+
+        'app',
+        '$WEBKIT_DIR/build/localized_strings',
+
+        '$SKIA_DIR/include',
+        '$SKIA_DIR/include/corecg',
+        '$SKIA_DIR/platform',
+        '$LIBPNG_DIR',
+        '$ZLIB_DIR',
+        env.Dir('#../breakpad/src'),
+        '$LIBJPEG_DIR',
+        '$ICU38_DIR/public/common',
+        '$ICU38_DIR/public/i18n',
+    ],
+)
+
+input_files = [
+    'animation.cc',
+    'child_process.cc',
+    'chrome_constants.cc',
+    'chrome_counters.cc',
+    'chrome_paths.cc',
+    'chrome_plugin_lib.cc',
+    'chrome_plugin_util.cc',
+    'chrome_process_filter.cc',
+    'chrome_switches.cc',
+    'classfactory.cc',
+    'clipboard_service.cc',
+    'debug_flags.cc',
+    'drag_drop_types.cc',
+    'env_util.cc',
+    'env_vars.cc',
+    'gfx/chrome_canvas.cc',
+    'gfx/chrome_font.cc',
+    'gfx/color_utils.cc',
+    'gfx/emf.cc',
+    'gfx/icon_util.cc',
+    'gfx/path.cc',
+    'gfx/url_elider.cc',
+    'ipc_channel.cc',
+    'ipc_channel_proxy.cc',
+    'ipc_logging.cc',
+    'ipc_message.cc',
+    'ipc_sync_channel.cc',
+    'ipc_sync_message.cc',
+    'jpeg_codec.cc',
+    'json_value_serializer.cc',
+    'jstemplate_builder.cc',
+    'l10n_util.cc',
+    'libxml_utils.cc',
+    'logging_chrome.cc',
+    'message_router.cc',
+    'net/cookie_monster_sqlite.cc',
+    'net/url_request_intercept_job.cc',
+    'notification_service.cc',
+    'os_exchange_data.cc',
+    'plugin_messages.cc',
+    'pref_names.cc',
+    'pref_service.cc',
+    'process_watcher.cc',
+    'rand_util.cc',
+    'render_messages.cc',
+    'resource_bundle.cc',
+    'resource_dispatcher.cc',
+    'security_filter_peer.cc',
+    'slide_animation.cc',
+    'sqlite_compiled_statement.cc',
+    'sqlite_utils.cc',
+    'task_queue.cc',
+    'throb_animation.cc',
+    'thumbnail_score.cc',
+    'time_format.cc',
+    'visitedlink_common.cc',
+    'win_safe_util.cc',
+    'win_util.cc',
+    'worker_thread_ticker.cc',
+]
+
+env.StaticLibrary('common', input_files)
+
+
+env_test = env_test.Clone()
+
+env_test.Append(
+    CPPPATH = [
+        '$SKIA_DIR/include',
+        '$SKIA_DIR/include/corecg',
+        '$SKIA_DIR/platform',
+        '#/..',
+        '$GTEST_DIR/include',
+    ],
+    LINKFLAGS = [
+        '/INCREMENTAL',
+
+        '/safeseh',
+        '/dynamicbase',
+        '/ignore:4199',
+        '/nxcompat',
+
+        '/DELAYLOAD:"dwmapi.dll"',
+        '/DELAYLOAD:"uxtheme.dll"',
+
+        '/DEBUG',
+        '/MACHINE:X86',
+        '/FIXED:No',
+    ],
+    LIBS = [
+        'shlwapi.lib',
+        'rpcrt4.lib',
+        'winmm.lib',
+
+        'wininet.lib',
+        'version.lib',
+        'msimg32.lib',
+        'ws2_32.lib',
+        'usp10.lib',
+        'psapi.lib',
+        'kernel32.lib',
+        'user32.lib',
+        'gdi32.lib',
+        'winspool.lib',
+        'comdlg32.lib',
+        'advapi32.lib',
+        'shell32.lib',
+        'ole32.lib',
+        'oleaut32.lib',
+        'uuid.lib',
+        'odbc32.lib',
+        'odbccp32.lib',
+        'DelayImp.lib',
+    ],
+)
+
+ipc_tests_files = [
+    '$BASE_DIR/perftimer$OBJSUFFIX',
+    'ipc_fuzzing_tests.cc',
+    'ipc_tests.cc',
+]
+
+libs = [
+    '$TESTING_DIR/gtest.lib',
+    '$ICU38_DIR/icuuc.lib',
+    'common.lib',
+    '$BASE_DIR/base.lib',
+]
+
+ipc_tests = env_test.Program('ipc_tests.exe', ipc_tests_files + libs)
+
+i = env_test.Install('$TARGET_ROOT', ipc_tests)
+Alias('chrome', i)

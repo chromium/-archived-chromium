@@ -1,0 +1,160 @@
+# Copyright 2008, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Import(['env', 'env_res'])
+
+env = env.Clone()
+env_res = env_res.Clone()
+
+env_res.Append(
+    CPPPATH = [
+        '.',
+        '#/../chrome/Debug/obj/chrome_dll',
+        '#/..',
+        '#/../chrome/Debug/obj',
+    ],
+    RCFLAGS = [
+        ['/l', '0x409'],
+    ],
+)
+
+rc_files = [
+    'locale_settings_ar.rc',
+    'locale_settings_bg.rc',
+    'locale_settings_ca.rc',
+    'locale_settings_cs.rc',
+    'locale_settings_da.rc',
+    'locale_settings_de.rc',
+    'locale_settings_el.rc',
+    'locale_settings_en-GB.rc',
+    'locale_settings_en-US.rc',
+    'locale_settings_es.rc',
+    'locale_settings_et.rc',
+    'locale_settings_fi.rc',
+    'locale_settings_fil.rc',
+    'locale_settings_fr.rc',
+    'locale_settings_he.rc',
+    'locale_settings_hi.rc',
+    'locale_settings_hr.rc',
+    'locale_settings_hu.rc',
+    'locale_settings_id.rc',
+    'locale_settings_it.rc',
+    'locale_settings_ja.rc',
+    'locale_settings_ko.rc',
+    'locale_settings_lt.rc',
+    'locale_settings_lv.rc',
+    'locale_settings_nl.rc',
+    'locale_settings_pl.rc',
+    'locale_settings_pt-BR.rc',
+    'locale_settings_pt-PT.rc',
+    'locale_settings_ro.rc',
+    'locale_settings_ru.rc',
+    'locale_settings_sk.rc',
+    'locale_settings_sl.rc',
+    'locale_settings_sr.rc',
+    'locale_settings_sv.rc',
+    'locale_settings_th.rc',
+    'locale_settings_tr.rc',
+    'locale_settings_uk.rc',
+    'locale_settings_vi.rc',
+    'locale_settings_zh-CN.rc',
+    'locale_settings_zh-TW.rc',
+]
+
+
+resources = []
+for rc in rc_files:
+  resources.extend(env_res.RES(rc))
+
+
+env.Append(
+    LINKFLAGS = [
+        '/INCREMENTAL:NO',
+        '/DELAYLOAD:"dwmapi.dll"',
+        '/DELAYLOAD:"uxtheme.dll"',
+
+        '/NOENTRY',
+        '/BASE:"0x3CF00000"',
+        '/MACHINE:X86',
+        '/FIXED:No',
+
+        '/safeseh',
+        '/dynamicbase',
+        '/ignore:4199',
+        '/nxcompat',
+    ],
+    LIBS = [
+        'DelayImp.lib',
+        'advapi32.lib',
+        'comdlg32.lib',
+        'gdi32.lib',
+        'kernel32.lib',
+        'msimg32.lib',
+        'odbc32.lib',
+        'odbccp32.lib',
+        'ole32.lib',
+        'oleaut32.lib',
+        'psapi.lib',
+        'shell32.lib',
+        'user32.lib',
+        'usp10.lib',
+        'uuid.lib',
+        'version.lib',
+        'wininet.lib',
+        'winspool.lib',
+        'ws2_32.lib',
+    ],
+    PDB = '${TARGET}.pdb',
+    no_import_lib = True,       # We don't need the .lib and .exp.
+)
+
+import re
+extract_lang = re.compile(r'locale_settings_(.*)\.res')
+
+locale_dlls = []
+
+for locale_settings_res in resources:
+  s = str(locale_settings_res)
+  #lang = '$CHROME_DIR/locales/' + extract_lang.match(s).group(1)
+  lang = extract_lang.match(s).group(1)
+  g_r_res = s.replace('locale_settings', 'generated_resources')
+  w_s_res = s.replace('locale_settings',
+                      '$WEBKIT_DIR/build/localized_strings/webkit_strings')
+  dll = env.SharedLibrary(
+      lang,
+      [
+          g_r_res,
+          w_s_res,
+          locale_settings_res,
+      ])
+
+  locale_dlls.append(dll)
+
+i = env.Install('$TARGET_ROOT/locales/', locale_dlls)
+env.Alias('chrome', i)

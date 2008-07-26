@@ -1,0 +1,22 @@
+{
+   "both": {
+      "bool": false,
+      "dictionary": {
+         "value": "persistent"
+      },
+      "int": 1,
+      "list": [ "persistent" ],
+      "real": 1,
+      "string": "persistent"
+   },
+   "persistent": {
+      "bool": false,
+      "dictionary": {
+         "value": "persistent"
+      },
+      "int": 1,
+      "list": [ "persistent" ],
+      "real": 1.0,
+      "string": "persistent"
+   }
+}

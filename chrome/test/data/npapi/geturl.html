@@ -1,0 +1,26 @@
+<html>
+
+<head>
+<script src="npapi.js"></script>
+</head>
+
+
+<body>
+<div id="statusPanel" style="border: 1px solid red; width: 100%">
+Test running....
+</div>
+
+
+GetURL Test<p>
+This test fetches an URL via the plugin, and verifies that the 
+callbacks are expected and that the retrieved content is correct.
+
+<embed	type="application/vnd.npapi-test" 
+	src="foo"
+	name="geturl"
+	id="1"
+	mode="np_embed"
+>
+
+</body>
+</html>

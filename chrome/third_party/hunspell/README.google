@@ -1,0 +1,29 @@
+This is a partial copy of Hunspell 1.1.5, with the following changes:
+* '#include "config.h"' removed from src/hunspell/hunspell.hxx
+* '#include "config.h"' removed from src/hunspell/license.hunspell
+* Two unreferenced local variables removed from src/hunspell/suggestmgr.cxx
+* src/hunspell/utf_info.cxx moved to src/hunspell/utf_info.hxx, and #include
+  reference in src/hunspell/csutil.cxx changed accordingly
+* Change the input params of the constructors to receive a FILE* instead of
+  a file path. This is required to use hunspell in the sandbox.
+  The patch is in google.patch.
+
+The English dictionary distributed by Firefox has been checked in to the
+dictionaries directory. It has several additions over the default
+myspell/hunspell dictionary.
+
+* Workaround for non-ASCII characters
+
+Visual Studio on Japanese Windows assumes the source files to be
+encoded in Shift_JIS.  The compiler is unhappy with non-ASCII letters
+in the source files of Hunspell.  The same problem happens with other
+CJK Windows as well.  Here is the workaround for this problem:
+
+Convert 8-bit bytes to hexadecimal escaped forms by
+
+  % perl -i -De 's/([\x80-\xff])/sprintf("\\x%02x", $1)/ge' src/*.cxx
+
+
+Note that Hunspell upstream is going to fix this problem.  We'll no
+longer need the workaround if the problem is fixed in the upstream.
+

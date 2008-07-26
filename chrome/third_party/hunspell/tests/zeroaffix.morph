@@ -1,0 +1,10 @@
+> bar
+bar<BAR<ZERO>>
+bar<BAR>
+bar<BAR<ZERODERIV><ZERO>>
+bar<BAR<ZERODERIV>>
+> foo
+foo<FOO>
+> barbaz
+bar<BAR<DERIV><ZERO>>
+bar<BAR<DERIV>>

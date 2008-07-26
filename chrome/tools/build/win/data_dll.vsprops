@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="data_dll"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		PreprocessorDefinitions="_USRDLL;GENERATED_RESOURCES_DLL_EXPORTS"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		IgnoreImportLibrary="true"
+		LinkIncremental="1"
+		LinkTimeCodeGeneration="0"
+		ResourceOnlyDLL="true"
+	/>
+</VisualStudioPropertySheet>

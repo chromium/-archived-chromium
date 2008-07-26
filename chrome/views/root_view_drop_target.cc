@@ -1,0 +1,142 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#include "chrome/views/root_view_drop_target.h"
+
+#include "base/logging.h"
+#include "chrome/common/drag_drop_types.h"
+#include "chrome/views/root_view.h"
+
+namespace ChromeViews {
+
+RootViewDropTarget::RootViewDropTarget(RootView* root_view)
+    : BaseDropTarget(root_view->GetViewContainer()->GetHWND()),
+      root_view_(root_view),
+      target_view_(NULL),
+      deepest_view_(NULL) {
+}
+
+RootViewDropTarget::~RootViewDropTarget() {
+}
+
+void RootViewDropTarget::ResetTargetViewIfEquals(View* view) {
+  if (target_view_ == view)
+    target_view_ = NULL;
+  if (deepest_view_ == view)
+    deepest_view_ = NULL;
+}
+
+DWORD RootViewDropTarget::OnDragOver(IDataObject* data_object,
+                                     DWORD key_state,
+                                     POINT cursor_position,
+                                     DWORD effect) {
+  const OSExchangeData data(data_object);
+  CPoint root_view_location(cursor_position.x, cursor_position.y);
+  View::ConvertPointToView(NULL, root_view_, &root_view_location);
+  View* view = CalculateTargetView(root_view_location, data);
+
+  if (view != target_view_) {
+    // Target changed notify old drag exited, then new drag entered.
+    if (target_view_)
+      target_view_->OnDragExited();
+    target_view_ = view;
+    if (target_view_) {
+      CPoint target_view_location(root_view_location.x, root_view_location.y);
+      View::ConvertPointToView(root_view_, target_view_, &target_view_location);
+      DropTargetEvent enter_event(data,
+          target_view_location.x,
+          target_view_location.y,
+          DragDropTypes::DropEffectToDragOperation(effect));
+      target_view_->OnDragEntered(enter_event);
+    }
+  }
+
+  if (target_view_) {
+    CPoint target_view_location(root_view_location.x, root_view_location.y);
+    View::ConvertPointToView(root_view_, target_view_, &target_view_location);
+    DropTargetEvent enter_event(data,
+        target_view_location.x,
+        target_view_location.y,
+        DragDropTypes::DropEffectToDragOperation(effect));
+    int result_operation = target_view_->OnDragUpdated(enter_event);
+    return DragDropTypes::DragOperationToDropEffect(result_operation);
+  } else {
+    return DROPEFFECT_NONE;
+  }
+}
+
+void RootViewDropTarget::OnDragLeave(IDataObject* data_object) {
+  if (target_view_)
+    target_view_->OnDragExited();
+  deepest_view_ = target_view_ = NULL;
+}
+
+DWORD RootViewDropTarget::OnDrop(IDataObject* data_object,
+                                 DWORD key_state,
+                                 POINT cursor_position,
+                                 DWORD effect) {
+  const OSExchangeData data(data_object);
+  DWORD drop_effect = OnDragOver(data_object, key_state, cursor_position,
+                                 effect);
+  View* drop_view = target_view_;
+  deepest_view_ = target_view_ = NULL;
+  if (drop_effect != DROPEFFECT_NONE) {
+    CPoint view_location(cursor_position.x, cursor_position.y);
+    View::ConvertPointToView(NULL, drop_view, &view_location);
+    DropTargetEvent drop_event(data, view_location.x, view_location.y,
+        DragDropTypes::DropEffectToDragOperation(effect));
+    return DragDropTypes::DragOperationToDropEffect(
+        drop_view->OnPerformDrop(drop_event));
+  } else {
+    if (drop_view)
+      drop_view->OnDragExited();
+    return DROPEFFECT_NONE;
+  }
+}
+
+View* RootViewDropTarget::CalculateTargetView(
+    const CPoint& root_view_location,
+    const OSExchangeData& data) {
+  View* view = root_view_->GetViewForPoint(root_view_location);
+  if (view == deepest_view_) {
+    // The view the mouse is over hasn't changed; reuse the target.
+    return target_view_;
+  }
+  // View under mouse changed, which means a new view may want the drop.
+  // Walk the tree, stopping at target_view_ as we know it'll accept the
+  // drop.
+  deepest_view_ = view;
+  while (view && view != target_view_ &&
+         (!view->IsEnabled() || !view->CanDrop(data))) {
+    view = view->GetParent();
+  }
+  return view;
+}
+
+}  // namespace

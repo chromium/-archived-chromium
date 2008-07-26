@@ -1,0 +1,108 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// This file will be processed by the MIDL tool to
+// produce the type library (activex_test_control.tlb) and marshalling code.
+
+#include "olectl.h"
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+  object,
+  uuid(9AC37249-E247-4B82-AC1E-0917737528E9),
+  dual,
+  nonextensible,
+  helpstring("IChromeTestControl Interface"),
+  pointer_default(unique)
+]
+interface IChromeTestControl : IDispatch{
+  [propput, bindable, requestedit, id(DISPID_BACKCOLOR)]
+  HRESULT BackColor([in]OLE_COLOR clr);
+  [propget, bindable, requestedit, id(DISPID_BACKCOLOR)]
+  HRESULT BackColor([out,retval]OLE_COLOR* pclr);
+  [propput, bindable, requestedit, id(DISPID_BORDERCOLOR)]
+  HRESULT BorderColor([in]OLE_COLOR clr);
+  [propget, bindable, requestedit, id(DISPID_BORDERCOLOR)]
+  HRESULT BorderColor([out, retval]OLE_COLOR* pclr);
+  [propput, bindable, requestedit, id(DISPID_FORECOLOR)]
+  HRESULT ForeColor([in]OLE_COLOR clr);
+  [propget, bindable, requestedit, id(DISPID_FORECOLOR)]
+  HRESULT ForeColor([out,retval]OLE_COLOR* pclr);
+  [propput, bindable, requestedit, id(DISPID_CAPTION)]
+  HRESULT Caption([in]BSTR strCaption);
+  [propget, bindable, requestedit, id(DISPID_CAPTION)]
+  HRESULT Caption([out,retval]BSTR* pstrCaption);
+  [propget, id(1), helpstring("property StringProp")] HRESULT StringProp([out, retval] BSTR* pVal);
+  [propput, id(1), helpstring("property StringProp")] HRESULT StringProp([in] BSTR newVal);
+  [propget, id(2), helpstring("property LongProp")] HRESULT LongProp([out, retval] LONG* pVal);
+  [propput, id(2), helpstring("property LongProp")] HRESULT LongProp([in] LONG newVal);
+  [propget, id(3), helpstring("property DoubleProp")] HRESULT DoubleProp([out, retval] DOUBLE* pVal);
+  [propput, id(3), helpstring("property DoubleProp")] HRESULT DoubleProp([in] DOUBLE newVal);
+  [propget, id(4), helpstring("property BoolProp")] HRESULT BoolProp([out, retval] VARIANT_BOOL* pVal);
+  [propput, id(4), helpstring("property BoolProp")] HRESULT BoolProp([in] VARIANT_BOOL newVal);
+  [propget, id(5), helpstring("property ByteProp")] HRESULT ByteProp([out, retval] BYTE* pVal);
+  [propput, id(5), helpstring("property ByteProp")] HRESULT ByteProp([in] BYTE newVal);
+  [propget, id(6), helpstring("property FloatProp")] HRESULT FloatProp([out, retval] FLOAT* pVal);
+  [propput, id(6), helpstring("property FloatProp")] HRESULT FloatProp([in] FLOAT newVal);
+  [id(7), helpstring("method BigSetMethod")] HRESULT BigSetMethodRet([in] BSTR string_param, [in] BYTE byte_param, [in] FLOAT float_param, [in] VARIANT_BOOL bool_param, [out,retval] BSTR* ret);
+  [id(8), helpstring("method SetByte")] HRESULT SetByte([in] BYTE val);
+  [id(9), helpstring("method SetByteRet")] HRESULT SetByteRet([in] BYTE byte_param, [out,retval] BYTE* ret);
+  [id(10), helpstring("method SetStringRet")] HRESULT SetStringRet([in] BSTR val, [out,retval] BSTR* ret);
+  [id(11), helpstring("method GetCookie")] HRESULT GetCookie([out,retval] BSTR* cookie);
+};
+
+[
+  uuid(83D767F4-5C4F-4ACA-B0E8-928C54845C33),
+  version(1.0),
+  helpstring("activex_test_control 1.0 Type Library")
+]
+library activex_test_controlLib
+{
+  importlib("stdole2.tlb");
+  [
+    uuid(EF88DE01-35AF-463F-9802-1BF908F48696),
+    helpstring("_IChromeTestControlEvents Interface")
+  ]
+  dispinterface _IChromeTestControlEvents
+  {
+    properties:
+    methods:
+  };
+  [
+    uuid(4E174456-5EE6-494D-B6F2-2B52898A620E),
+    control,
+    helpstring("ChromeTestControl Class")
+  ]
+  coclass ChromeTestControl
+  {
+    [default] interface IChromeTestControl;
+    [default, source] dispinterface _IChromeTestControlEvents;
+  };
+};

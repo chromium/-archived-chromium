@@ -1,0 +1,53 @@
+<script>
+var popup, popup2, popup3, popup4;
+
+// window.open, window.close should be synchronous
+function test1() {
+  popup = window.open('title1.html', 'name');
+  popup.close();
+
+  popup = window.open('title2.html', 'name', 'width=200,height=200');
+  popup.close();
+}
+
+// Try opening/closing a few windows.
+function test2() {
+  openPopups();
+  closePopups();
+}
+
+function test3() {
+  openPopups();
+  setTimeout(closePopups, 0);
+  setTimeout(test4, 1);
+}
+
+function test4() {
+  openPopups();
+  setTimeout(closePopupsAndDone, 250);
+}
+
+function openPopups() {
+  popup = window.open('title1.html', 'name');
+  popup2 = window.open('title1.html', 'name2');
+  popup3 = window.open('title1.html', 'name3');
+  popup4 = window.open('title1.html', 'name4');
+}
+
+function closePopups() {
+  popup.close();
+  popup2.close();
+  popup3.close();
+  popup4.close();
+}
+
+function closePopupsAndDone() {
+  closePopups();
+  document.title = "PASSED";
+}
+
+test1();
+test2();
+test3();
+
+</script>

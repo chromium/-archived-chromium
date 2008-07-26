@@ -1,0 +1,34 @@
+<html>
+
+<head>
+<script src="npapi.js"></script>
+
+<script>
+function DeletePluginWithinScript() {
+  var plugin_div = document.getElementById("PluginDiv");
+  plugin_div.innerHTML = "Object Deleted";
+  onSuccess("self_delete_plugin_stream", 1); 
+}
+</script>
+</head>
+
+<body>
+<div id="statusPanel" style="border: 1px solid red; width: 100%">
+Test running....
+</div>
+
+
+<DIV ID=PluginDiv>
+<embed	type="application/vnd.npapi-test" 
+	src="foo"
+	name="self_delete_plugin_stream"
+	id="1"
+	mode="np_embed"
+>
+</DIV>
+<script> 
+    var height = document.body.offsetHeight;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "homepage": "http://www.cnn.com",
+  "tabs": {
+    "new_windows_in_tabs": true,
+    "max_tabs": 20
+  }
+}

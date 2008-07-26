@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="Font file copy"
+	Version="8.00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="Font file copy"
+			DisplayName="Font file copy"
+			CommandLine="xcopy /Y /D /Q $(InputPath) $(OutDir)\fonts"
+			Outputs="$(OutDir)\fonts\$(InputFileName)"
+			FileExtensions="*.ttf;*.afm"
+			ExecutionDescription="Copying font file..."
+			>
+			<Properties>
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>

@@ -1,0 +1,122 @@
+# Copyright 2008, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Copyright 2008 Google Inc. All Rights Reserved.
+
+Import('env')
+
+env = env.Clone(
+)
+
+env.Prepend(
+    CPPPATH = [
+        '$ICU38_DIR/public/common',
+        '$ICU38_DIR/public/i18n',
+        '..',
+    ],
+)
+
+env.Append(
+    CPPDEFINES = [
+        'U_STATIC_IMPLEMENTATION',
+
+        'SQLITE_ENABLE_FTS2',
+        'SQLITE_ENABLE_BROKEN_FTS2',
+        'SQLITE_ENABLE_ICU',
+        'SQLITE_SECURE_DELETE',
+        'THREADSAFE',
+        ['_HAS_EXCEPTIONS', '0'],
+        'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
+    ],
+
+    CCFLAGS = [
+        '/TC',
+
+        '/wd4800',
+        '/wd4244',
+        '/wd4503',
+        '/wd4819',
+    ],
+)
+
+input_files = [
+    'alter.c',
+    'analyze.c',
+    'attach.c',
+    'auth.c',
+    'btree.c',
+    'build.c',
+    'callback.c',
+    'complete.c',
+    'date.c',
+    'delete.c',
+    'expr.c',
+    'fts2.c',
+    'fts2_hash.c',
+    'fts2_icu.c',
+    'fts2_porter.c',
+    'fts2_tokenizer.c',
+    'fts2_tokenizer1.c',
+    'func.c',
+    'hash.c',
+    'icu.c',
+    'insert.c',
+    'legacy.c',
+    'loadext.c',
+    'main.c',
+    'malloc.c',
+    'opcodes.c',
+    'os.c',
+    'os_win.c',
+    'pager.c',
+    'parse.c',
+    'pragma.c',
+    'prepare.c',
+    'printf.c',
+    'random.c',
+    'select.c',
+    'shell.c',
+    'shell_icu.c',
+    'table.c',
+    'tokenize.c',
+    'trigger.c',
+    'update.c',
+    'utf.c',
+    'util.c',
+    'vacuum.c',
+    'vdbe.c',
+    'vdbeapi.c',
+    'vdbeaux.c',
+    'vdbefifo.c',
+    'vdbemem.c',
+    'vtab.c',
+    'where.c',
+]
+
+env.StaticLibrary('sqlite', input_files)

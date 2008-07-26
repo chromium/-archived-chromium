@@ -1,0 +1,94 @@
+<!--
+Copyright 2006 Google
+Author: Steffen Meschkat (mesch@google.com)
+Interactive jstemplates test page, specifically to demonstrate
+recursive templates
+
+Modified slightly to work with compiled jstemplate file.
+-->
+<html>
+  <head>
+    <title>Interactive tests for jstemplate</title>
+    <script src="../jstemplate_compiled.js"></script>
+    <script src="jstemplate_script.js"></script>
+    <style>
+      .section { border: 1px solid silver; margin: 1em; }
+      .section TEXTAREA { border: none; width: 100%; }
+    </style>
+  </head>
+  <body onload="jsinit()">
+    <table>
+      <tr>
+        <th>template</th>
+        <th>data</th>
+      </tr>
+      <tr>
+        <td>
+          <textarea id="template" rows="15" cols="80"></textarea>
+        </td>
+        <td>
+          <textarea id="js" rows="15" cols="80">
+{ title: "title1", items: [
+  { title: "title2", items: [
+    { title: "title2", items: [
+      { title: "title3", items: []},
+      { title: "title4", items: []}
+    ]},
+    { title: "title5", items: []}
+  ]},
+  { title: "title3", items: []},
+  { title: "title4", items: []},
+  { title: "title5", items: []}
+],
+  testArray: ["", "", "1", "2"]
+}
+</textarea>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <a href="javascript:jstest(false)">process</a>
+          <a href="javascript:jstest(true)">reprocess</a>
+        </td>
+      </tr>
+      <tr>
+        <th>output HTML</th>
+        <th>output display</th>
+      </tr>
+      <tr>
+        <td>
+          <textarea id="html" rows="15" cols="80"></textarea>
+        </td>
+        <td>
+          <div id="out" class="section"></div>
+        </td>
+      </tr>
+    </table>
+    <p><a href="javascript:jstest(false)">Process</a> the
+    <b>template</b>, upper left, with the <b>data</b>, upper
+    right. See the resulting DOM in <b>output display</b>, lower
+    right, and the corresponding HTML text in <b>output HTML</b>,
+    lower left. Notice, however, that the template processing happens
+    directly on the HTML DOM, and the HTML text shown is merely the
+    <code>innerHTML</code> of that DOM.</p>
+    <p>Now, change the <b>data</b> and <a
+    href="javascript:jstest(true)">reprocess</a> the DOM of the <b>output
+    display</b> with the changed data, and see that the <b>output
+    display</b> reflects the change. Notice that the reprocessing
+    takes place on the DOM of <b>output display</b>, i.e. on the
+    result of the previous template processing.</p>
+    <div style="display:none" id="tc">
+      <div id="t">
+        <span jscontent="title"></span>
+        <ul jsdisplay="items.length">
+          <li jsselect="items">
+            <div transclude="t"></div>
+          </li>
+        </ul>
+        <div jsselect="testArray">
+          content: <span jscontent="$this"></span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,130 @@
+# Copyright 2008, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Import('env_test')
+
+env_test = env_test.Clone()
+
+
+env_test.Prepend(
+    CPPDEFINES = [
+        'UI_TEST',
+        'UNIT_TEST',
+        'LIBXSLT_STATIC',
+        'LIBXML_STATIC',
+        'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
+        'WIN32_LEAN_AND_MEAN',
+    ],
+    CPPPATH = [
+        '$GTEST_DIR/include',
+        '$GTEST_DIR',
+        '$SKIA_DIR/include',
+        '$SKIA_DIR/include/corecg',
+        '$SKIA_DIR/platform',
+        '#/..',
+        '$LIBXSLT_DIR',
+        '$LIBXML_DIR/includ',
+    ],
+    LINKFLAGS = [
+        '/INCREMENTAL',
+        '/DEBUG',
+
+        '/DELAYLOAD:"ws2_32.dll"',
+        '/DELAYLOAD:"dwmapi.dll"',
+        '/DELAYLOAD:"uxtheme.dll"',
+
+        '/MACHINE:X86',
+        '/FIXED:No',
+
+        '/safeseh',
+        '/dynamicbase',
+        '/ignore:4199',
+        '/nxcompat',
+    ],
+    LIBS = [
+         'winmm.lib',
+         'rpcrt4.lib',
+         'oleacc.lib',
+         'comsupp.lib',
+
+         'wininet.lib',
+         'version.lib',
+         'msimg32.lib',
+         'ws2_32.lib',
+         'usp10.lib',
+         'psapi.lib',
+         'kernel32.lib',
+         'user32.lib',
+         'gdi32.lib',
+         'winspool.lib',
+         'comdlg32.lib',
+         'advapi32.lib',
+         'shell32.lib',
+         'ole32.lib',
+         'oleaut32.lib',
+         'uuid.lib',
+         'odbc32.lib',
+         'odbccp32.lib',
+
+         'DelayImp.lib',
+    ],
+)
+
+input_files = [
+    '$CHROME_DIR/test/ui/run_all_unittests$OBJSUFFIX',
+    '$CHROME_DIR/test/ui/ui_test$OBJSUFFIX',
+    '$CHROME_DIR/test/ui/ui_test_suite$OBJSUFFIX',
+    '$CHROME_DIR/test/test_file_util$OBJSUFFIX',
+    'plugin_test.cpp',
+]
+
+libs = [
+    '$GOOGLEURL_DIR/googleurl.lib',
+    '$CHROME_DIR/test/security_tests/security_tests.lib',
+    '$SKIA_DIR/skia.lib',
+    '$LIBPNG_DIR/libpng.lib',
+    '$TESTING_DIR/gtest.lib',
+    '$BASE_DIR/gfx/base_gfx.lib',
+    '$ICU38_DIR/icuuc.lib',
+    '$CHROME_DIR/common/common.lib',
+    '$ZLIB_DIR/zlib.lib',
+    '$MODP_B64_DIR/modp_b64.lib',
+    '$CHROME_DIR/browser/browser.lib',
+    '$NET_DIR/net.lib',
+    '$BASE_DIR/base.lib',
+    '$CHROME_DIR/test/automation/automation.lib',
+]
+
+
+exe = env_test.Program(['plugin_tests',
+                        'plugin_tests.pdb'],
+                       input_files + libs)
+i = env_test.Install('$TARGET_ROOT', exe)
+
+env_test.Alias('chrome', i)

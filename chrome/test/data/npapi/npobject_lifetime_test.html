@@ -1,0 +1,58 @@
+<html>
+
+<head>
+<script src="npapi.js"></script>
+</head>
+
+
+<body>
+<div id="statusPanel" style="border: 1px solid red; width: 100%">
+Test running....
+</div>
+
+
+NPObject Lifetime test<p>
+
+Tests the case where a plugin holds on to an NPObject reference 
+to another plugin in a different frame in the page and whether 
+the npobject is callable when the frame is destroyed.
+
+<div ID=npobject_lifetime_test_instance2>
+<iframe src="npobject_lifetime_test_second_instance.html" name="plugin_frame"> 
+</iframe>
+</div>
+
+<embed	type="application/vnd.npapi-test" 
+	src="foo"
+	name="npobject_lifetime_test"
+	id="1"
+	mode="np_embed">
+	
+<script>
+
+function GetSecondPluginInstance() {
+  var plugin_frame = window.frames["plugin_frame"];
+  if (!plugin_frame) {
+    alert("failed to find frame in frames list");
+    return;
+  } 
+  
+  var plugin = plugin_frame.document.getElementById(2);
+  if (!plugin) {
+    alert("Failed to locate second plugin");
+    return;
+  }
+  return plugin;
+}
+
+function DeleteSecondPluginInstance() {
+  var frame_div = document.getElementById("npobject_lifetime_test_instance2");
+  if (frame_div.parentNode && frame_div.parentNode.removeChild) {
+    frame_div.parentNode.removeChild(frame_div);
+  }
+}
+</script>	
+    
+</body>
+</html>
+

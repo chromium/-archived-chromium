@@ -1,0 +1,124 @@
+# Copyright 2008, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Import('env')
+
+env = env.Clone()
+
+
+
+env.Prepend(
+    CPPPATH = [
+        env.Dir("#/../chrome/tools/build/win"),
+        env.Dir("#/.."),
+    ],
+    CPPDEFINES = [
+        "CERT_CHAIN_PARA_HAS_EXTRA_FIELDS",
+        "WIN32_LEAN_AND_MEAN",
+    ],
+    CCFLAGS = [
+        '/TP',
+
+        #'/Wp64',
+
+        '/wd4503',
+        '/wd4819',
+    ],
+)
+
+env.Append(
+    CPPPATH = [
+        '../app/resources',
+        '$SKIA_DIR/include',
+        '$SKIA_DIR/include/corecg',
+        '$SKIA_DIR/include/platform',
+        'third_party/wtl/include',
+    ],
+)
+
+input_files = [
+    'accelerator.cc',
+    'accelerator_handler.cc',
+    'accessibility/accessible_wrapper.cc',
+    'accessibility/autocomplete_accessibility.cc',
+    'accessibility/view_accessibility.cc',
+    'aero_tooltip_manager.cc',
+    'background.cc',
+    'base_button.cc',
+    'bitmap_scroll_bar.cc',
+    'border.cc',
+    'button.cc',
+    'button_dropdown.cc',
+    'checkbox.cc',
+    'chrome_menu.cc',
+    'client_view.cc',
+    'combo_box.cc',
+    'custom_frame_window.cc',
+    'decision.cc',
+    'event.cc',
+    'external_focus_tracker.cc',
+    'focus_manager.cc',
+    # This was in the Visual Studio build, but seems unnecessary.
+    #'focus_manager_unittest.cc',
+    'grid_layout.cc',
+    'group_table_view.cc',
+    'hwnd_view.cc',
+    'hwnd_view_container.cc',
+    'image_view.cc',
+    'label.cc',
+    'layout_manager.cc',
+    'link.cc',
+    'menu.cc',
+    'menu_button.cc',
+    'message_box_view.cc',
+    'native_button.cc',
+    'native_control.cc',
+    'native_scroll_bar.cc',
+    'painter.cc',
+    'radio_button.cc',
+    'repeat_controller.cc',
+    'resize_corner.cc',
+    'root_view.cc',
+    'root_view_drop_target.cc',
+    'scroll_bar.cc',
+    'scroll_view.cc',
+    'separator.cc',
+    'tabbed_pane.cc',
+    'table_view.cc',
+    'text_button.cc',
+    'text_field.cc',
+    'throbber.cc',
+    'tooltip_manager.cc',
+    'tree_view.cc',
+    'view.cc',
+    'view_storage.cc',
+    'window.cc',
+]
+
+env.StaticLibrary('views', input_files)

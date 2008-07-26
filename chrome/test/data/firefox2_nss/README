@@ -1,0 +1,7 @@
+The NSPR and NSS DLLs in this directory (freebl3.dll, nspr4.dll, nss3.dll,
+plc4.dll, plds4.dll, and softokn3.dll) come from the Firefox 2.0.0.x
+distribution for Windows.
+
+The source code of NSPR and NSS, which you may use, modify, and distribute, is
+available to you free-of-charge from www.mozilla.org under the Mozilla Public
+License and other open source software licenses.

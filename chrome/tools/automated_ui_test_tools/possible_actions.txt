@@ -1,0 +1,17 @@
+Navigate
+NewTab
+Back
+Forward
+CloseTab
+OpenWindow
+Reload
+FindInPage
+SelectNextTab
+SelectPrevTab
+ZoomPlus
+ZoomMinus
+Sessions
+Bookmarks
+History
+Downloads
+Applications

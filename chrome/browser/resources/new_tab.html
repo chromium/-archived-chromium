@@ -1,0 +1,624 @@
+<html id="t" jsvalues="dir:textdirection;newsession:newsession">
+<!--
+ This page is optimized for perceived performance. Our enemies are the time
+ taken for the backend to generate our data, and the time taken to parse
+ and render the starting HTML/CSS content of the page. This page is
+ designed to let Chrome do both of those things in parallel.
+
+ 1. Defines temporary content callback functions
+ 2. Fires off requests for content (these can come back 20-150ms later)
+ 3. Defines basic functions (handlers)
+ 4. Renders a fast-parse hard-coded version of itself (this can take 20-50ms)
+ 5. Defines the full content-rendering functions
+
+ If the requests for content come back before the content-rendering functions
+ are defined, the data is held until those functions are defined.
+-->
+<script type="text/javascript">
+/* Logging info for benchmarking purposes. */
+var log = [];
+function logEvent(name) {
+  log.push([name, new Date().getTime()]);
+}
+
+// Basic functions to send, receive, store and process the data from our
+// backend.
+var unprocessedData = {
+  mostVisitedPages : false,
+  searchURLs : false,
+  recentlyBookmarked : false,
+  recentlyClosedTabs : false
+}
+
+var renderFunctionsDefined = false;
+
+/**
+ * If the functions that can render content are defined, render
+ * the content for any data we've received so far.
+ */
+function processData() {
+  if (renderFunctionsDefined) {
+    if (unprocessedData.mostVisitedPages) {
+      renderMostVisitedPages(unprocessedData.mostVisitedPages);
+      unprocessedData.mostVisitedPages = false;
+    }
+    if (unprocessedData.searchURLs) {
+      renderSearchURLs(unprocessedData.searchURLs);
+      unprocessedData.searchURLs = false;
+    }
+    if (unprocessedData.recentlyBookmarked) {
+      renderRecentlyBookmarked(unprocessedData.recentlyBookmarked);
+      unprocessedData.recentlyBookmarked = false;
+    }
+    if (unprocessedData.recentlyClosedTabs) {
+      renderRecentlyClosedTabs(unprocessedData.recentlyClosedTabs);
+      unprocessedData.recentlyClosedTabs = false;
+    }
+  }
+}
+
+function mostVisitedPages(data) {
+  logEvent('received most visited pages');
+  unprocessedData.mostVisitedPages = data;
+  processData();
+}
+
+function searchURLs(data) {
+  logEvent('received search URLs');
+  unprocessedData.searchURLs = data;
+  processData();
+}
+
+function recentlyBookmarked(data) {
+  logEvent('received recently bookmarked data');
+  unprocessedData.recentlyBookmarked = data;
+  processData();
+}
+
+function recentlyClosedTabs(data) {
+  logEvent('received recently closed tabs');
+  unprocessedData.recentlyClosedTabs = data;
+  processData();
+}
+
+chrome.send("getMostVisited");
+chrome.send("getMostSearched");
+chrome.send("getRecentlyBookmarked");
+chrome.send("getRecentlyClosedTabs");
+
+function handleWindowResize() {
+  if (!document.body || document.body.clientWidth < 10) {
+    // We're probably a background tab, so don't do anything.
+    return;
+  }
+
+  if (document.body.className == 'small' && document.body.clientWidth >= 885) {
+    document.body.className = '';
+  } else if (document.body.className == '' && document.body.clientWidth <= 865) {
+    document.body.className = 'small';
+  }
+}
+
+function handleInputFocus() {
+  if (!this.deftext) {
+    this.deftext = this.value;
+  }
+
+  if (this.value == this.deftext) {
+    this.className = '';
+    this.value = '';
+  }
+}
+
+function handleInputBlur() {
+  if (!this.value) {
+    this.className = 'hint';
+    this.value = this.deftext;
+  }
+}
+
+function handleDOMContentLoaded() {
+  logEvent('domcontentloaded fired');
+
+  if (document.getElementById('motd').innerHTML) {
+    document.getElementById('motd').style.display = 'block';
+  }
+}
+
+logEvent('log start');
+</script>
+<head>
+<title jscontent="title"></title>
+<style type="text/css">
+body {
+  font-family:arial;
+  background-color:white;
+  font-size:84%;
+  margin:0px;
+}
+html[newsession='true'] #main {
+  opacity:0.0;
+  -webkit-transition:all 0.4s;
+}
+html[newsession='true'] #main.visible {
+  /* unfortunately, 1.0 results in no animation */
+  opacity:0.999;
+}
+#main {
+  margin-left:auto;
+  margin-right:auto;
+  margin-top:10px;
+}
+td {
+  font-size:84%;
+}
+form {
+  padding: 0;
+  margin: 0;
+}
+.section {
+  padding:3px 0px 5px 0px;
+  margin-bottom:30px;
+}
+.section-title {
+  color:#000;
+  line-height:19pt;
+  font-size:110%;
+  font-weight:bold;
+  margin-bottom:4px;
+}
+#mostvisitedsection {
+  margin:0px 5px 0px 0px;
+}
+#mostvisited td {
+  padding:0px 10px 10px 0px;
+}
+html[dir='rtl'] #mostvisited td {
+  padding:0px 0px 10px 10px;
+}
+.most-visited-text {
+  width:548px; /* thumbnail + td * 3 - 2*padding - 2*margin */
+  padding:20px;
+  margin:15px;
+  background-color:white;
+  -webkit-box-shadow: 5px 5px 10px #ccc;
+  -webkit-transition:all 0.12s;
+}
+#motd {
+  background-color:#ffc;
+  padding:5px;
+  margin-bottom:9px;
+  width:610px;
+  -webkit-transition:all 0.12s;
+}
+.thumbnail-title {
+  background-image:url(chrome-resource://favicon/);
+  display:block;
+  background-repeat:no-repeat;
+  background-size:16px;
+  background-position:0px 1px;
+  width:172px; /* thumbnail - padding */
+  margin-top:6px; /* line up favicons with search favicons */
+  padding:1px 0px 4px 22px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration:none;
+  -webkit-transition:all 0.12s;
+}
+html[dir='rtl'] .thumbnail-title {
+  background-position:right;
+  padding-left:0px;
+  padding-right:22px;
+}
+.thumbnail {
+  width:195px;
+  height:136px;
+  border:1px solid #ccc;
+  background-color:#eee;
+  -webkit-transition:all 0.12s;
+}
+a.thumbnail {
+  border:1px solid #abe;
+}
+
+.small #motd {
+  width:480px;
+}
+.small .thumbnail-title {
+  width:127px;
+}
+.small .thumbnail {
+  width:150px;
+  height:113px;
+}
+.small .most-visited-text {
+  width:430px;
+  padding:15px;
+  margin:12px;
+}
+
+.recent-bookmark {
+  display:block;
+  background-repeat:no-repeat;
+  background-size:16px;
+  background-position:0px 1px;
+  padding:1px 0px 0px 22px;
+  margin:3px 0px 3px 0px;
+  min-height:16pt;
+  line-height:16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration:underline;
+}
+html[dir='rtl'] .recent-bookmark {
+  background-position:right;
+  padding-left:0px;
+  padding-right:22px;
+}
+a {
+  color:#0000cc;
+  text-decoration:underline;
+  white-space: nowrap;
+}
+a.manage {
+  color:#77c;
+  margin-left: 5px;
+  margin-right: 5px;
+  font-size:84%;
+  line-height:19pt;
+  text-decoration:underline;
+}
+html[dir='rtl'] #managesearcheslink {
+  float: left;
+}
+.sidebar {
+  width: 207px;
+  padding:3px 10px 3px 9px;
+  -webkit-border-radius:5px 5px;
+  margin-bottom:10px;
+}
+#searches {
+  background-color:#e1ecfe;
+}
+#recentlyBookmarked {
+  background-color:#e1ecfe;
+}
+#recentlyClosedTabs {
+  background-color:#fff1a8;
+}
+#searches input {
+  border:1px solid #7f9db9;
+  background-repeat: no-repeat;
+  background-position:4px center;
+  padding-left: 23px;
+  min-height:24px;
+  width:206px;
+  margin-bottom:8px;
+  display:block;
+}
+html[dir='rtl'] #searches input {
+  background-position: right;
+  padding-right: 23px;
+}
+#searches input.hint {
+  color:#aaa;
+}
+.footer {
+  border-top:1px solid #ccc;
+  padding-top:4px;
+  font-size:8pt;
+}
+</style>
+</head>
+<body onload="logEvent('body onload fired');">
+<script>
+// We apply the size class here so that we don't trigger layout animations onload.
+handleWindowResize();
+window.addEventListener('resize', handleWindowResize, true);
+document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
+</script>
+
+<table id="main" cellpadding="0" cellspacing="0" border="0">
+  <tr>
+  <td valign="top">
+  <div id="mostvisitedsection" class="section">
+    <div id="motd" jscontent="motd" style="display:none;"></div>
+    <div id="mostvisited" style="position:relative;">
+      <div class="section-title" jscontent="mostvisited"></div>
+      <div id="mostvisitedintro" style="display:none;">
+        <div class="most-visited-text" style="position:absolute;" jseval="this.innerHTML = $this.mostvisitedintro;"></div>
+        <table>
+          <tr>
+            <td><div class="thumbnail">&nbsp;</div></td>
+            <td><div class="thumbnail"></div></td>
+            <td><div class="thumbnail">&nbsp;</div></td>
+          </tr>
+          <tr>
+            <td><div class="thumbnail">&nbsp;</div></td>
+            <td><div class="thumbnail"></div></td>
+            <td><div class="thumbnail">&nbsp;</div></td>
+          </tr>
+        </table>
+      </div>
+      <table id="mostvisitedtable">
+        <!-- This content forces the view to the correct width and provides a
+             preview of what's to load to reduce white-flash. Users who get
+             the mostvisitedintro will see a brief flash of this content. We
+             only use one row so that we may avoid flashing extra rows when
+             the user has only one row of items -->
+        <tr>
+          <td>
+            <div class="thumbnail-title">&nbsp;</div>
+            <div class="thumbnail"></div>
+          </td>
+          <td>
+            <div class="thumbnail-title">&nbsp;</div>
+            <div class="thumbnail"></div>
+          </td>
+          <td>
+            <div class="thumbnail-title">&nbsp;</div>
+            <div class="thumbnail"></div>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <a href="#"
+       class="manage"
+       onclick="chrome.send('showHistoryPage'); return false">
+       <span jscontent="showhistory"></span> &raquo;</a>
+  </div>
+  </td>
+  <td valign="top" width="230">
+    <div align="right">
+        <img src="../../app/theme/product_logo.png" 
+             width="145" height="52" style="padding-bottom:8px;" />
+    </div>
+    <div id="searches" class="sidebar">
+      <div class="section-title" jscontent="searches"></div>
+      <form onsubmit="chrome.send('searchHistoryPage', [this.search.value]); return false;">
+        <input type="text" class="hint"
+               name="search"
+               style="background-image:url(chrome-resource://favicon/);"
+               jsvalues="value:searchhistory"
+               onfocus="handleInputFocus.apply(this);"
+               onblur="handleInputBlur.apply(this);" />
+      </form>
+      <div id='searches-entries'></div>
+    </div>
+
+    <div id="recentlyBookmarked" class="sidebar" style="display:none">
+      <span class="section-title" jscontent="bookmarks"></span>
+    </div>
+
+    <div id="recentlyClosedTabs" class="sidebar" style="display:none">
+      <div class="section-title" jscontent="closedtabs"></div>
+      <div id="recentlyClosedContainer"></div>
+    </div>
+  </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+logEvent('start of second script block');
+
+/* Return a DOM element with tag name |elem| and attributes |attrs|. */
+function DOM(elem, attrs) {
+  var elem = document.createElement(elem);
+  for (var attr in attrs) {
+    elem[attr] = attrs[attr];
+  }
+  return elem;
+}
+
+/* Return the DOM element for a "most visited" entry.
+   |page| should be an object with "title" and "url" fields. */
+function makeMostVisitedDOM(page) {
+  /* The HTML we want looks like this:
+    <a class="most-visited-item" href="URL" title="gmail.com">
+      <div class="thumbnail-title" style="background-image:url(faviconurl);">gmail.com</div>
+      <img class="thumbnail" style="background-image:url(thumbnailurl);" />
+    </a>
+  */
+  var root = DOM('a', {href:page.url, className:'most-visited-item', title:page.title});
+
+  /* Create the thumbnail */
+  var img_thumbnail = DOM('img', {className:'thumbnail'});
+  img_thumbnail.setAttribute('onload', "logEvent('image loaded');");
+  img_thumbnail.src = 'chrome-resource://thumb/' + page.url;
+
+  /* Create the title */
+  var div_title = DOM('div', {className:'thumbnail-title'});
+  div_title.style.backgroundImage =
+      'url("chrome-resource://favicon/' + page.url + '")';
+  div_title.appendChild(document.createTextNode(page.title));
+
+  root.appendChild(div_title);
+  root.appendChild(img_thumbnail);
+
+  return root;
+}
+
+/* This function is called by the browser with the most visited pages list.
+   |pages| is a list of page objects, which have url and title attributes. */
+function renderMostVisitedPages(pages) {
+  logEvent('renderMostVisitedPages called: ' + pages.length);
+
+  document.getElementById("main").className = 'visible';
+  var table = document.getElementById("mostvisitedtable");
+  table.innerHTML = '';
+
+  // Show the most visited helptext if most visited is still useless. This is
+  // a crappy heuristic.
+  if (pages.length < 3) {
+    document.getElementById("mostvisitedintro").style.display = "block";
+    return;
+  }
+
+  document.getElementById('mostvisitedintro').style.display = 'none';
+
+  // Create the items and add them to rows.
+  var rows = [];
+  var rowNum = -1;
+  for (var i = 0, page; page = pages[i]; ++i) {
+    if (i % 3 == 0) {
+      rowNum += 1;
+      rows[rowNum] = DOM('tr', {});
+    }
+
+    var dom = makeMostVisitedDOM(page);
+
+    var cell = DOM('td');
+    cell.appendChild(dom);
+
+    rows[rowNum].appendChild(cell);
+
+    logEvent('mostVisitedPage : ' + i);
+  }
+
+  // Add the rows to the table.
+  for (var i = 0, row; row = rows[i]; i++) {
+    table.appendChild(row);
+  }
+
+  logEvent('renderMostVisitedPages done');
+}
+
+function makeSearchURL(url) {
+  /* The HTML we want looks like this:
+     <form>
+     <input type="text" class="hint"
+            style="background-image:url(chrome-resource://favicon/"+url+");"
+            value="Search Wikipedia"
+            onfocus="handleInputFocus();"
+            onblur="handleInputBlur();" />
+     </form>
+  */
+  var input = DOM('input', {type:'text',
+      className:'hint',
+      value:url.short_name});
+  input.keyword = url.keyword;
+
+  if (url.favIconURL) {
+    input.style.backgroundImage =
+      'url("chrome-resource://favicon/iconurl/' + url.favIconURL + '")';
+  } else {
+    input.style.backgroundImage =
+      'url("chrome-resource://favicon/http://' + url.short_name + '")';
+  }
+
+  input.onfocus = handleInputFocus;
+  input.onblur = handleInputBlur;
+
+  var form = DOM('form');
+  form.onsubmit = function() {
+    chrome.send('doSearch', [input.keyword, input.value]);
+    return false;
+  };
+  form.appendChild(input);
+
+  return form;
+}
+
+/* This function is called by the browser when the list of search URLs is
+   available.  |urls| is a list of objects with |name| attributes. */
+function renderSearchURLs(urls) {
+  logEvent('renderSearchURLs called: ' + urls.length);
+  var container = document.getElementById('searches-entries');
+  container.innerHTML = '';  // Clear out any previous contents.
+  if (urls.length > 0) {
+    document.getElementById('searches').style.display = 'block';
+    for (var i = 0; i < urls.length; ++i) {
+      container.appendChild(makeSearchURL(urls[i]));
+    }
+  }
+
+  logEvent('renderSearchURLs done');
+}
+
+/* This function is called by the browser when the list of recently bookmarked
+   URLs is available.  |entries| is a list of objects with title and url
+   attributes. */
+function renderRecentlyBookmarked(entries) {
+  logEvent('renderRecentlyBookmarked called: ' + entries.length);
+  var container = document.getElementById('recentlyBookmarked');
+
+  if (entries.length > 0) {
+    container.style.display = 'block';
+    for (var i = 0, entry = entries[0]; entry = entries[i]; ++i) {
+      var link = DOM('a', {href: entry.url, className:'recent-bookmark', title:entry.title});
+      link.style.backgroundImage =
+          'url("chrome-resource://favicon/' + entry.url + '")';
+      link.appendChild(document.createTextNode(entry.title));
+      container.appendChild(link);
+    }
+  }
+
+  logEvent('renderRecentlyBookmarked done');
+}
+
+/* This function adds incoming information about tabs to the new tab UI. */
+function renderRecentlyClosedTabs(entries) {
+  logEvent('renderRecentlyClosedTabs begin');
+  var section   = document.getElementById('recentlyClosedTabs');
+  var container = document.getElementById('recentlyClosedContainer');
+
+  /* recentlyClosedTabs is called on every internal event which
+     affects tab history to make sure things are up to
+     date. Therefore, reset the recentlyClosedTabs state on every
+     call. */
+  section.style.display = 'none';
+  while(container.hasChildNodes()) {
+    container.removeChild(container.firstChild);
+  }
+
+  if (entries.length > 0) {
+    section.style.display = 'block';
+
+    for (var i = 0; entry = entries[i]; ++i) {
+      var link = DOM('a', {href:entry.url, className:'recent-bookmark', title:entry.title});
+
+      link.onclick = function(sessionId) {
+        return function() {
+          /* This is a hack because chrome.send is hardcoded to only
+             accept arrays of strings. */
+          chrome.send('reopenTab', [sessionId.toString()]);
+          return false;
+        }
+      }(entry.sessionId);
+
+      link.style.backgroundImage = 'url("chrome-resource://favicon/' + entry.url + '")';
+      link.appendChild(document.createTextNode(entry.title));
+      container.appendChild(link);
+    }
+  }
+
+  logEvent('renderRecentlyClosedTabs done');
+}
+
+function viewLog() {
+  var lines = [];
+  var start = log[0][1];
+
+  for (var i = 0; i < log.length; i++) {
+    lines.push((log[i][1] - start) + ': ' + log[i][0]);
+  }
+
+  var lognode = document.createElement('pre');
+  lognode.appendChild(document.createTextNode(lines.join("\n")));
+  document.body.appendChild(lognode);
+}
+
+logEvent('end of second script block');
+
+// We've got all the JS we need, render any unprocessed data.
+renderFunctionsDefined = true;
+processData();
+
+// In case renderMostVisitedItems doesn't come back quickly enough, begin
+// the first-run fade-in. If it has started or if this is not a first
+// run new tab, this will be a no-op.
+setTimeout(function(){document.getElementById('main').className = 'visible'},
+           1000);
+</script>
+</body>
+</html>

@@ -1,0 +1,344 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#include "chrome/browser/back_forward_menu_model.h"
+
+#include "chrome/browser/browser.h"
+#include "chrome/browser/history_tab_ui.h"
+#include "chrome/browser/navigation_controller.h"
+#include "chrome/browser/navigation_entry.h"
+#include "chrome/browser/tab_contents.h"
+#include "chrome/browser/user_metrics.h"
+#include "chrome/common/l10n_util.h"
+#include "net/base/registry_controlled_domain.h"
+
+#include "generated_resources.h"
+
+const int BackForwardMenuModel::kMaxHistoryItems = 12;
+const int BackForwardMenuModel::kMaxChapterStops = 5;
+
+BackForwardMenuModel::BackForwardMenuModel(Browser* browser,
+                                           ModelType model_type)
+    : browser_(browser),
+      test_tab_contents_(NULL),
+      model_type_(model_type) {
+}
+
+BackForwardMenuModel::~BackForwardMenuModel() {
+}
+
+TabContents* BackForwardMenuModel::GetTabContents() const {
+  // We use the test tab contents if the unit test has specified it.
+  return test_tab_contents_ ? test_tab_contents_ :
+                              browser_->GetSelectedTabContents();
+}
+
+int BackForwardMenuModel::GetHistoryItemCount() const {
+  TabContents* contents = GetTabContents();
+  NavigationController* controller = contents->controller();
+
+  int items = 0;
+
+  if (model_type_ == FORWARD_MENU_DELEGATE) {
+    // Only count items from n+1 to end (if n is current entry)
+    items = controller->GetEntryCount() -
+            controller->GetCurrentEntryIndex() - 1;
+  } else {
+    items = controller->GetCurrentEntryIndex();
+  }
+
+  if (items > kMaxHistoryItems)
+    items = kMaxHistoryItems;
+  else if (items < 0)
+    items = 0;
+
+  return items;
+}
+
+int BackForwardMenuModel::GetChapterStopCount(int history_items) const {
+  TabContents* contents = GetTabContents();
+  NavigationController* controller = contents->controller();
+
+  int chapter_stops = 0;
+  int current_entry = controller->GetCurrentEntryIndex();
+
+  if (history_items == kMaxHistoryItems) {
+    int chapter_id = current_entry;
+    if (model_type_ == FORWARD_MENU_DELEGATE) {
+      chapter_id += history_items;
+    } else {
+      chapter_id -= history_items;
+    }
+
+    do {
+      chapter_id = GetIndexOfNextChapterStop(chapter_id,
+          model_type_ == FORWARD_MENU_DELEGATE);
+      if (chapter_id != -1)
+        ++chapter_stops;
+    } while (chapter_id != -1 && chapter_stops < kMaxChapterStops);
+  }
+
+  return chapter_stops;
+}
+
+int BackForwardMenuModel::GetItemCount() const {
+  int items = GetHistoryItemCount();
+
+  if (items > 0) {
+    int chapter_stops = 0;
+
+    // Next, we count ChapterStops, if any.
+    if (items == kMaxHistoryItems)
+      chapter_stops = GetChapterStopCount(items);
+
+    if (chapter_stops)
+      items += chapter_stops + 1;  // Chapter stops also need a separator.
+
+    // If the menu is not empty, add two positions in the end
+    // for a separator and a "Show Full History" item.
+    items += 2;
+  }
+
+  return items;
+}
+
+int BackForwardMenuModel::MenuIdToNavEntryIndex(int menu_id) const {
+  TabContents* contents = GetTabContents();
+  NavigationController* controller = contents->controller();
+
+  int history_items = GetHistoryItemCount();
+
+  DCHECK(menu_id > 0);
+
+  // Convert anything above the History items separator.
+  if (menu_id <= history_items) {
+    if (model_type_ == FORWARD_MENU_DELEGATE) {
+      // The |menu_id| is relative to our current position, so we need to add.
+      menu_id += controller->GetCurrentEntryIndex();
+    } else {
+      // Back menu is reverse.
+      menu_id = controller->GetCurrentEntryIndex() - menu_id;
+    }
+    return menu_id;
+  }
+  if (menu_id == history_items + 1)
+    return -1;           // Don't translate the separator for history items.
+
+  if (menu_id >= history_items + 1 + GetChapterStopCount(history_items) + 1)
+    return -1;           // This is beyond the last chapter stop so we abort.
+
+  // This menu item is a chapter stop located between the two separators.
+  menu_id = FindChapterStop(history_items,
+                            model_type_ == FORWARD_MENU_DELEGATE,
+                            menu_id - history_items - 1 - 1);
+
+  return menu_id;
+}
+
+NavigationEntry* BackForwardMenuModel::GetNavigationEntry(int menu_id) const {
+  TabContents* contents = GetTabContents();
+  NavigationController* controller = contents->controller();
+
+  int index = MenuIdToNavEntryIndex(menu_id);
+  return controller->GetEntryAtIndex(index);
+}
+
+std::wstring BackForwardMenuModel::GetLabel(int menu_id) const {
+  // Return label "Show Full History" for the last item of the menu.
+  if (menu_id == GetItemCount())
+    return l10n_util::GetString(IDS_SHOWFULLHISTORY_LINK);
+
+  // Return an empty string for a separator.
+  if (IsItemSeparator(menu_id))
+    return L"";
+
+  NavigationEntry* entry = GetNavigationEntry(menu_id);
+  return entry->GetTitle();
+}
+
+const SkBitmap& BackForwardMenuModel::GetIcon(int menu_id) const {
+  // Return NULL if the item doesn't have an icon
+  if (!HasIcon(menu_id))
+    return GetEmptyIcon();
+
+  NavigationEntry* entry = GetNavigationEntry(menu_id);
+  return entry->GetFavIcon();
+}
+
+bool BackForwardMenuModel::IsItemSeparator(int menu_id) const {
+  int history_items = GetHistoryItemCount();
+  // If the menu_id is higher than the number of history items + separator,
+  // we then consider if it is a chapter-stop entry.
+  if (menu_id > history_items + 1) {
+    // We either are in ChapterStop area, or at the end of the list (the "Show
+    // Full History" link).
+    int chapter_stops = GetChapterStopCount(history_items);
+    if (chapter_stops == 0)
+      return false;  // We must have reached the "Show Full History" link.
+    // Otherwise, look to see if we have reached the separator for the
+    // chapter-stops. If not, this is a chapter stop.
+    return (menu_id == history_items + 1 +
+                       chapter_stops + 1);
+  }
+
+  // Look to see if we have reached the separator for the history items.
+  return menu_id == history_items + 1;
+}
+
+bool BackForwardMenuModel::HasIcon(int menu_id) const {
+  // Using "id" not "id - 1" because the last item "Show Full History"
+  // doesn't have an icon.
+  return menu_id < GetItemCount() && !IsItemSeparator(menu_id);
+}
+
+bool BackForwardMenuModel::SupportsCommand(int menu_id) const {
+  return menu_id - 1 < GetItemCount() && !IsItemSeparator(menu_id);
+}
+
+bool BackForwardMenuModel::IsCommandEnabled(int menu_id) const {
+  return menu_id - 1 < GetItemCount() && !IsItemSeparator(menu_id);
+}
+
+std::wstring BackForwardMenuModel::BuildActionName(
+    const std::wstring& action, int index) const {
+  DCHECK(!action.empty());
+  DCHECK(index >= -1);
+  std::wstring metric_string;
+  if (model_type_ == FORWARD_MENU_DELEGATE)
+    metric_string += L"ForwardMenu_";
+  else
+    metric_string += L"BackMenu_";
+  metric_string += action;
+  if (index != -1)
+    metric_string += IntToWString(index);
+  return metric_string;
+}
+
+void BackForwardMenuModel::ExecuteCommand(int menu_id) {
+  TabContents* contents = GetTabContents();
+  NavigationController* controller = contents->controller();
+
+  DCHECK(!IsItemSeparator(menu_id));
+
+  // Execute the command for the last item: "Show Full History".
+  if (menu_id == GetItemCount()) {
+    UserMetrics::RecordComputedAction(BuildActionName(L"ShowFullHistory", -1),
+                                      controller->profile());
+    browser_->ShowNativeUI(HistoryTabUI::GetURL());
+    return;
+  }
+
+  // Log whether it was a history or chapter click.
+  if (menu_id <= GetHistoryItemCount()) {
+    UserMetrics::RecordComputedAction(
+        BuildActionName(L"HistoryClick", menu_id), controller->profile());
+  } else {
+    UserMetrics::RecordComputedAction(
+        BuildActionName(L"ChapterClick", menu_id - GetHistoryItemCount() - 1),
+        controller->profile());
+  }
+
+  int index = MenuIdToNavEntryIndex(menu_id);
+  if (index >= 0 && index < controller->GetEntryCount())
+    controller->GoToIndex(index);
+}
+
+void BackForwardMenuModel::MenuWillShow() {
+  UserMetrics::RecordComputedAction(BuildActionName(L"Popup", -1),
+                                    browser_->profile());
+}
+
+std::wstring BackForwardMenuModel::GetShowFullHistoryLabel() const {
+  return l10n_util::GetString(IDS_SHOWFULLHISTORY_LINK);
+}
+
+int BackForwardMenuModel::GetIndexOfNextChapterStop(int start_from,
+                                                    bool forward) const {
+  TabContents* contents = GetTabContents();
+  NavigationController* controller = contents->controller();
+
+  int max_count = controller->GetEntryCount();
+  if (start_from < 0 || start_from >= max_count)
+    return -1;  // Out of bounds.
+
+  if (forward) {
+    if (start_from < max_count - 1) {
+      // We want to advance over the current chapter stop, so we add one.
+      // We don't need to do this when direction is backwards.
+      start_from++;
+    } else {
+      return -1;
+    }
+  }
+
+  NavigationEntry* start_entry = controller->GetEntryAtIndex(start_from);
+  GURL url = start_entry->GetURL();
+
+  if (!forward) {
+    // When going backwards we return the first entry we find that has a
+    // different domain.
+    for (int i = start_from - 1; i >= 0; --i) {
+      if (!RegistryControlledDomainService::SameDomainOrHost(url,
+              controller->GetEntryAtIndex(i)->GetURL()))
+        return i;
+    }
+    // We have reached the beginning without finding a chapter stop.
+    return -1;
+  } else {
+    // When going forwards we return the entry before the entry that has a
+    // different domain.
+    for (int i = start_from + 1; i < max_count; ++i) {
+      if (!RegistryControlledDomainService::SameDomainOrHost(url,
+              controller->GetEntryAtIndex(i)->GetURL()))
+        return i - 1;
+    }
+    // Last entry is always considered a chapter stop.
+    return max_count - 1;
+  }
+}
+
+int BackForwardMenuModel::FindChapterStop(int offset,
+                                          bool forward,
+                                          int skip) const {
+  if (offset < 0 || skip < 0)
+    return -1;
+
+  if (!forward)
+    offset *= -1;
+
+  TabContents* contents = GetTabContents();
+  NavigationController* controller = contents->controller();
+
+  int entry = controller->GetCurrentEntryIndex() + offset;
+
+  for (int i = 0; i < skip + 1; i++)
+    entry = GetIndexOfNextChapterStop(entry, forward);
+
+  return entry;
+}

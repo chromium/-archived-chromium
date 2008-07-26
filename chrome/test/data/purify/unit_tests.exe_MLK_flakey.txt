@@ -1,0 +1,97 @@
+sqlite3GenericRealloc [unit_tests.exe]
+Alloc Location
+   ...  
+   chrome/browser/history/history_unittest.cc  history::HistoryProfileTest_TypicalProfileVersion_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+sqlite3GenericRealloc [unit_tests.exe]
+Alloc Location
+   ...  
+   chrome/browser/history/history_unittest.cc  history::HistoryProfileTest_TypicalProfileVersion_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+sqlite3GenericRealloc [unit_tests.exe]
+Alloc Location
+   ...  
+   chrome/browser/history/history_unittest.cc  history::HistoryProfileTest_TypicalProfileVersion_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+sqlite3GenericMalloc [unit_tests.exe]
+Alloc Location
+   ...  
+   chrome/common/sqlite_utils.h  SQLStatement::prepare(sqlite3 *,char const*,int)
+   chrome/common/sqlite_utils.h  SQLStatement::prepare(sqlite3 *,char const*)
+   chrome/browser/history/history_unittest.cc  history::HistoryProfileTest_TypicalProfileVersion_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+sqlite3GenericMalloc [unit_tests.exe]
+Alloc Location
+   ...  
+   chrome/common/sqlite_utils.h  SQLStatement::step(void)
+   chrome/browser/history/history_unittest.cc  history::HistoryProfileTest_TypicalProfileVersion_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+TabStripModelTest::CreateTabContents(void) [unit_tests.exe]
+Alloc Location
+   ...  
+   chrome/browser/tabs/tab_strip_model_unittest.cc  TabStripModelTest::CreateTabContents(void)
+   chrome/browser/tabs/tab_strip_model_unittest.cc  TabStripModelTest_TestBasicAPI_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+TabContents::SetupController(Profile *) [unit_tests.exe]
+Alloc Location
+   ...  
+   chrome/browser/tab_contents.cc  TabContents::SetupController(Profile *)
+   chrome/browser/tabs/tab_strip_model_unittest.cc  TabStripModelTest::CreateTabContents(void)
+   chrome/browser/tabs/tab_strip_model_unittest.cc  TabStripModelTest_TestBasicAPI_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+?_Allocate@U_Node@?$_List_nod@U?$pair@$$CBW4TabContentsType@@PAVTabContents@@@std@@V?$allocator@U?$pair@$$CBW4TabContentsType@@PAVTabContents@@@std@@@2@@std@@@std@@YAPAU_Node@?$_List_nod@U?$pair@$$CBW4TabContentsType@@PAVTabContents@@@std@@V?$allocator@U?$pair@$$CBW4TabContentsType@@PAVTabContents@@@std@@@2@@0@IPAU120@@Z [unit_tests.exe]
+Alloc Location
+   ...  
+   chrome/browser/navigation_controller.cc  NavigationController::NavigationController(TabContents *,Profile *)
+   chrome/browser/tab_contents.cc  TabContents::SetupController(Profile *)
+   chrome/browser/tabs/tab_strip_model_unittest.cc  TabStripModelTest::CreateTabContents(void)
+   chrome/browser/tabs/tab_strip_model_unittest.cc  TabStripModelTest_TestBasicAPI_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+c:\b\slave\p\build\third_party\platformsdk_vista_6_0\files\vc\include\xmemory.
+Alloc Location
+   ...  
+   chrome/browser/navigation_controller.cc  NavigationController::NavigationController(TabContents *,Profile *)
+   chrome/browser/tab_contents.cc  TabContents::SetupController(Profile *)
+   chrome/browser/tabs/tab_strip_model_unittest.cc  TabStripModelTest::CreateTabContents(void)
+   chrome/browser/tabs/tab_strip_model_unittest.cc  TabStripModelTest_TestBasicAPI_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+?_Allocate@U_Node@?$_List_nod@U?$pair@$$CBW4TabContentsType@@PAVTabContents@@@std@@V?$allocator@U?$pair@$$CBW4TabContentsType@@PAVTabContents@@@std@@@2@@std@@@std@@YAPAU_Node@?$_List_nod@U?$pair@$$CBW4TabContentsType@@PAVTabContents@@@std@@V?$allocator@U?$pair@$$CBW4TabContentsType@@PAVTabContents@@@std@@@2@@0@IPAU120@@Z [unit_tests.exe]
+Alloc Location
+   ...  
+   chrome/browser/navigation_controller.cc  NavigationController::RegisterTabContents(TabContents *)
+   chrome/browser/navigation_controller.cc  NavigationController::NavigationController(TabContents *,Profile *)
+   chrome/browser/tab_contents.cc  TabContents::SetupController(Profile *)
+   chrome/browser/tabs/tab_strip_model_unittest.cc  TabStripModelTest::CreateTabContents(void)
+   chrome/browser/tabs/tab_strip_model_unittest.cc  TabStripModelTest_TestBasicAPI_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+c:\b\slave\p\build\third_party\platformsdk_vista_6_0\files\vc\include\xmemory.
+Alloc Location
+   ...  
+   chrome/browser/ssl_manager.cc  SSLManager::SSLManager(NavigationController *,Delegate::SSLManager *)
+   chrome/browser/navigation_controller.cc  NavigationController::NavigationController(TabContents *,Profile *)
+   chrome/browser/tab_contents.cc  TabContents::SetupController(Profile *)
+   chrome/browser/tabs/tab_strip_model_unittest.cc  TabStripModelTest::CreateTabContents(void)
+   chrome/browser/tabs/tab_strip_model_unittest.cc  TabStripModelTest_TestBasicAPI_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+

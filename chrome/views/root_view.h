@@ -1,0 +1,373 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#ifndef CHROME_VIEWS_ROOT_VIEW_H__
+#define CHROME_VIEWS_ROOT_VIEW_H__
+
+#include "base/ref_counted.h"
+#include "chrome/views/focus_manager.h"
+#include "chrome/views/view.h"
+
+namespace ChromeViews {
+
+class ViewContainer;
+class PaintTask;
+class RootViewDropTarget;
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// FocusListener Interface
+//
+////////////////////////////////////////////////////////////////////////////////
+class FocusListener {
+ public:
+  virtual void FocusChanged(View* lost_focus, View* got_focus) = 0;
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RootView class
+//
+//   The RootView is the root of a View hierarchy. Its parent is not
+//   necessarily a ViewContainer, but the ViewContainer's View child is
+//   always a RootView.
+//
+//   The RootView manages the View hierarchy's interface with the
+//   ViewContainer, and also maintains the current invalid rect - the region
+//   that needs repainting.
+//
+/////////////////////////////////////////////////////////////////////////////
+class RootView : public View,
+                 public FocusTraversable {
+ public:
+  static const char kViewClassName[];
+
+  RootView(ViewContainer* view_container, bool double_buffer);
+
+  virtual ~RootView();
+
+  // Layout and Painting functions
+
+  // Overridden from View to implement paint scheduling.
+  virtual void SchedulePaint(const CRect& r, bool urgent);
+
+  // Convenience to schedule the whole view
+  virtual void SchedulePaint();
+
+  // Convenience to schedule a paint given some ints
+  virtual void SchedulePaint(int x, int y, int w, int h);
+
+  // Paint this RootView and its child Views.
+  virtual void ProcessPaint(ChromeCanvas* canvas);
+
+  // Paint this View's invalid rect immediately.
+  virtual void PaintNow();
+
+  // Whether or not this View needs repainting. If |urgent| is true, this method
+  // returns whether this root view needs to paint as soon as possible.
+  virtual bool NeedsPainting(bool urgent);
+
+  // Invoked by the ViewContainer to discover what rectangle should be
+  // painted
+  const CRect& GetScheduledPaintRect();
+
+  // Returns the region scheduled to paint clipped to the RootViews bounds.
+  CRect GetScheduledPaintRectConstrainedToSize();
+
+  // Tree functions
+
+  // Get the ViewContainer that hosts this View.
+  virtual ViewContainer* GetViewContainer() const;
+
+  // The following event methods are overridden to propagate event to the
+  // control tree
+  virtual bool OnMousePressed(const MouseEvent& e);
+  virtual bool OnMouseDragged(const MouseEvent& e);
+  virtual void OnMouseReleased(const MouseEvent& e, bool canceled);
+  virtual void OnMouseMoved(const MouseEvent& e);
+  virtual void SetMouseHandler(View* new_mouse_handler);
+
+  // Invoked when the ViewContainers has been fully initialized.
+  // At the time the constructor is invoked the ViewContainer may not be
+  // completely initialized, when this method is invoked, it is.
+  void OnViewContainerCreated();
+
+  // Invoked prior to the ViewContainer being destroyed.
+  void OnViewContainerDestroyed();
+
+  // Invoked By the ViewContainer if the mouse drag is interrupted by
+  // the system. Invokes OnMouseReleased with a value of true for canceled.
+  void ProcessMouseDragCanceled();
+
+  // Invoked by the ViewContainer instance when the mouse moves outside of
+  // the container bounds
+  virtual void ProcessOnMouseExited();
+
+  // Make the provided view focused. Also make sure that our container
+  // is focused.
+  void FocusView(View* view);
+
+  // Check whether the provided view is in the focus path. The focus path is the
+  // path between the focused view (included) to the root view.
+  bool IsInFocusPath(View* view);
+
+  // Returns the View in this RootView hierarchy that has the focus, or NULL if
+  // no View currently has the focus.
+  View* GetFocusedView();
+
+  // Process a key event. Send the event to the focused view and up
+  // the focus path until the event is consumed.
+  virtual void ProcessKeyEvent(const KeyEvent& event);
+
+  // Set the default keyboard handler. The default keyboard handler is
+  // a view that will get an opportunity to process key events when all
+  // views in the focus path did not process an event.
+  //
+  // Note: this is a single view at this point. We may want to make
+  // this a list if needed.
+  void SetDefaultKeyboardHandler(View* v);
+
+  // Set whether this root view should focus the corresponding hwnd
+  // when an unprocessed mouse event occurs.
+  void SetFocusOnMousePressed(bool f);
+
+  // Process a mousewheel event. Return true if the event was processed
+  // and false otherwise.
+  // MouseWheel events are sent on the focus path.
+  virtual bool ProcessMouseWheelEvent(const MouseWheelEvent& e);
+
+  // Overridden to handle special root view case.
+  virtual bool IsVisibleInRootView() const;
+
+  // Sets a listener that receives focus changes events.
+  void SetFocusListener(FocusListener* listener);
+
+  // FocusTraversable implementation.
+  virtual View* FindNextFocusableView(View* starting_view,
+                                      bool reverse,
+                                      Direction direction,
+                                      bool dont_loop,
+                                      FocusTraversable** focus_traversable,
+                                      View** focus_traversable_view);
+  virtual FocusTraversable* GetFocusTraversableParent();
+  virtual View* GetFocusTraversableParentView();
+
+  // Used to set the FocusTraversable parent after the view has been created
+  // (typically when the hierarchy changes and this RootView is added/removed).
+  virtual void SetFocusTraversableParent(FocusTraversable* focus_traversable);
+
+  // Used to set the View parent after the view has been created.
+  virtual void SetFocusTraversableParentView(View* view);
+
+  // Returns the name of this class: chrome/views/RootView
+  virtual std::string GetClassName() const;
+
+  // Clears the region that is schedule to be painted. You nearly never need
+  // to invoke this. This is primarily intended for ViewContainers.
+  void ClearPaintRect();
+
+  // Invoked from the ViewContainer to service a WM_PAINT call.
+  void OnPaint(HWND hwnd);
+
+  // Returns the MSAA role of the current view. The role is what assistive
+  // technologies (ATs) use to determine what behavior to expect from a given
+  // control.
+  bool GetAccessibleRole(VARIANT* role);
+
+  // Returns a brief, identifying string, containing a unique, readable name.
+  bool GetAccessibleName(std::wstring* name);
+
+  // Assigns an accessible string name.
+  void SetAccessibleName(const std::wstring& name);
+
+ protected:
+
+  // Overridden to properly reset our event propagation member
+  // variables when a child is removed
+  virtual void ViewHierarchyChanged(bool is_add, View *parent, View *child);
+
+#ifndef NDEBUG
+  virtual bool IsProcessingPaint() const { return is_processing_paint_; }
+#endif
+
+ private:
+  friend class View;
+  friend class PaintTask;
+
+  RootView();
+  DISALLOW_EVIL_CONSTRUCTORS(RootView);
+
+  // Convert a point to our current mouse handler. Returns false if the
+  // mouse handler is not connected to a ViewContainer. In that case, the
+  // conversion cannot take place and *p is unchanged
+  bool ConvertPointToMouseHandler(const CPoint &l, CPoint *p);
+
+  // Update the cursor given a mouse event. This is called by non mouse_move
+  // event handlers to honor the cursor desired by views located under the
+  // cursor during drag operations.
+  void UpdateCursor(const MouseEvent& e);
+
+  // Notification that size and/or position of a view has changed. This
+  // notifies the appropriate views.
+  void ViewBoundsChanged(View* view, bool size_changed, bool position_changed);
+
+  // Registers a view for notification when the visible bounds relative to the
+  // root of a view changes.
+  void RegisterViewForVisibleBoundsNotification(View* view);
+  void UnregisterViewForVisibleBoundsNotification(View* view);
+
+  // Invoked by PaintTask to paint the root view in a non urgent way.
+  void ProcessPendingPaint();
+
+  // Returns the next focusable view or view containing a FocusTraversable (NULL
+  // if none was found), starting at the starting_view.
+  // skip_starting_view, can_go_up and can_go_down controls the traversal of
+  // the views hierarchy.
+  // skip_group_id specifies a group_id, -1 means no group. All views from a
+  // group are traversed in one pass.
+  View* FindNextFocusableViewImpl(View* starting_view,
+                                  bool skip_starting_view,
+                                  bool can_go_up,
+                                  bool can_go_down,
+                                  int skip_group_id);
+
+  // Same as FindNextFocusableViewImpl but returns the previous focusable view.
+  View* FindPreviousFocusableViewImpl(View* starting_view,
+                                      bool skip_starting_view,
+                                      bool can_go_up,
+                                      bool can_go_down,
+                                      int skip_group_id);
+
+  // Convenience method that returns true if a view is focusable and does not
+  // belong to the specified group.
+  bool IsViewFocusableCandidate(View* v, int skip_group_id);
+
+  // Returns the view selected for the group of the selected view. If the view
+  // does not belong to a group or if no view is selected in the group, the
+  // specified view is returned.
+  static View* FindSelectedViewForGroup(View* view);
+
+  // Updates the last_mouse_* fields from e.
+  void SetMouseLocationAndFlags(const MouseEvent& e);
+
+  // Starts a drag operation for the specified view. This blocks until done.
+  // If the view has not been deleted during the drag, OnDragDone is invoked
+  // on the view.
+  void StartDragForViewFromMouseEvent(View* view,
+                                      IDataObject* data,
+                                      int operation);
+
+  // If a view is dragging, this returns it. Otherwise returns NULL.
+  View* GetDragView();
+
+  // Whether or not we're double buffering paints
+  bool double_buffer_;
+
+  // The view currently handing down - drag - up
+  View* mouse_pressed_handler_;
+
+  // The view currently handling enter / exit
+  View* mouse_move_handler_;
+
+  // The host ViewContainer
+  ViewContainer* view_container_;
+
+  // The rectangle that should be painted
+  CRect invalid_rect_;
+
+  // Whether the current invalid rect should be painted urgently.
+  bool invalid_rect_urgent_;
+
+  // The task that we are using to trigger some non urgent painting or NULL
+  // if no painting has been scheduled yet.
+  PaintTask* pending_paint_task_;
+
+  // Indicate if, when the pending_paint_task_ is run, actual painting is still
+  // required.
+  bool paint_task_needed_;
+
+  // true if mouse_handler_ has been explicitly set
+  bool explicit_mouse_handler_;
+
+  // Previous cursor
+  HCURSOR previous_cursor_;
+
+  // Default keyboard handler
+  View* default_keyboard_hander_;
+
+  // The listener that gets focus change notifications.
+  FocusListener* focus_listener_;
+
+  // Whether this root view should make our hwnd focused
+  // when an unprocessed mouse press event occurs
+  bool focus_on_mouse_pressed_;
+
+  // Flag used to ignore focus events when we focus the native window associated
+  // with a view.
+  bool ignore_set_focus_calls_;
+
+  // Whether this root view belongs to the current active window.
+  // bool activated_;
+
+  // Last position/flag of a mouse press/drag. Used if capture stops and we need
+  // to synthesize a release.
+  int last_mouse_event_flags_;
+  int last_mouse_event_x_;
+  int last_mouse_event_y_;
+
+  // The parent FocusTraversable, used for focus traversal.
+  FocusTraversable* focus_traversable_parent_;
+
+  // The View that contains this RootView. This is used when we have RootView
+  // wrapped inside native components, and is used for the focus traversal.
+  View* focus_traversable_parent_view_;
+
+  // Handles dnd for us.
+  scoped_refptr<RootViewDropTarget> drop_target_;
+
+  // Storage of strings needed for accessibility.
+  std::wstring accessible_name_;
+
+  // Tracks drag state for a view.
+  View::DragInfo drag_info;
+
+  // Valid for the lifetime of StartDragForViewFromMouseEvent, indicates the
+  // view the drag started from.
+  View* drag_view_;
+
+#ifndef NDEBUG
+  // True if we're currently processing paint.
+  bool is_processing_paint_;
+#endif
+};
+
+}
+
+#endif // CHROME_VIEWS_ROOT_VIEW_H__

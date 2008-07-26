@@ -1,0 +1,20 @@
+<html>
+
+<body>
+<div id="statusPanel" style="border: 1px solid red; width: 100%">
+Second instance.
+</div>
+
+NPObject Lifetime test second plugin instance<p>
+
+Tests the case where a plugin holds on to an NPObject reference 
+to another plugin in a different frame in the page and whether 
+the npobject is callable when the frame is destroyed.
+
+<embed	type="application/vnd.npapi-test" 
+	name="npobject_lifetime_test_second_instance"
+	id="2"
+	mode="np_embed"> </embed>
+	
+</body>
+</html>

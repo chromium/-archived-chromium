@@ -1,0 +1,14 @@
+> drink
+drink[verb]
+drink[noun]
+> drinks
+drink[verb]+3SGV
+drink[noun]+PL
+> drinkable
+drink[verb]+DER_V_ADJ_ABLE
+> drinkables
+drink[verb]+DER_V_ADJ_ABLE+PL
+> undrinkable
+prefix_un+drink[verb]+DER_V_ADJ_ABLE
+> undrinkables
+prefix_un+drink[verb]+DER_V_ADJ_ABLE+PL

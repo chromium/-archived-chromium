@@ -1,0 +1,175 @@
+# Copyright 2008, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Import('env_test')
+
+env_test = env_test.Clone()
+
+env_test.Prepend(
+    CPPPATH = [
+        '$CHROME_DIR/app/resources',
+        '$ICU38_DIR/public/common',
+        '$ICU38_DIR/public/i18n',
+        '$SKIA_DIR/include',
+        '$SKIA_DIR/include/corecg',
+        '$SKIA_DIR/platform',
+        '#/..',
+        '$GTEST_DIR/include',
+        'third_party/wtl/include',
+        '$LIBXSLT_DIR',
+        '$LIBXML_DIR/include',
+        '$LIBXML_DIR/scons/include',
+        'tools/build/win',
+    ],
+    CPPDEFINES = [
+        'LIBXSLT_STATIC',
+        'LIBXML_STATIC',
+        'PNG_USER_CONFIG',
+        'CHROME_PNG_WRITE_SUPPORT',
+        'UI_TEST',
+        'UNIT_TEST',
+    ],
+    LINKFLAGS = [
+        '/INCREMENTAL',
+
+        '/safeseh',
+        '/dynamicbase',
+        '/ignore:4199',
+        '/nxcompat',
+
+        '/MANIFEST',
+        '/DELAYLOAD:"ws2_32.dll"',
+        '/DELAYLOAD:"dwmapi.dll"',
+        '/DELAYLOAD:"uxtheme.dll"',
+
+        '/DEBUG',
+        '/MACHINE:X86',
+        '/FIXED:No',
+    ],
+    LIBS = [
+        'winmm.lib',
+        'rpcrt4.lib',
+        'oleacc.lib',
+        'comsupp.lib',
+
+        'wininet.lib',
+        'version.lib',
+        'msimg32.lib',
+        'ws2_32.lib',
+        'usp10.lib',
+        'psapi.lib',
+        'kernel32.lib',
+        'user32.lib',
+        'gdi32.lib',
+        'winspool.lib',
+        'comdlg32.lib',
+        'advapi32.lib',
+        'shell32.lib',
+        'ole32.lib',
+        'oleaut32.lib',
+        'uuid.lib',
+        'odbc32.lib',
+        'odbccp32.lib',
+
+        'DelayImp.lib',
+    ],
+)
+
+libs = [
+    '$LIBXML_DIR/libxml.lib',
+    '$GOOGLEURL_DIR/googleurl.lib',
+    'test/security_tests/security_tests.lib',
+    '$SKIA_DIR/skia.lib',
+    '$LIBPNG_DIR/libpng.lib',
+    '$TARGET_ROOT/plugins/npapi_layout_test_plugin.lib',
+    '$TESTING_DIR/gtest.lib',
+    '$BASE_DIR/gfx/base_gfx.lib',
+    '$ICU38_DIR/icuuc.lib',
+    'common/common.lib',
+    '$ZLIB_DIR/zlib.lib',
+    '$MODP_B64_DIR/modp_b64.lib',
+    'browser/browser.lib',
+    '$NET_DIR/net.lib',
+    '$BZIP2_DIR/bzip2.lib',
+    '$BASE_DIR/base.lib',
+    'test/automation/automation.lib',
+    '$TARGET_ROOT/npapi_test_plugin.lib',
+]
+
+ui_test_files = [
+    'app/chrome_main_uitest.cc',
+    'browser/browser_uitest.cc',
+    'browser/crash_recovery_uitest.cc',
+    'browser/download_uitest.cc',
+    'browser/errorpage_uitest.cc',
+    'browser/find_in_page_controller_uitest.cc',
+    'browser/history/redirect_uitest.cc',
+    'browser/iframe_uitest.cc',
+    'browser/images_uitest.cc',
+    'browser/interstitial_page_uitest.cc',
+    'browser/locale_tests_uitest.cc',
+    'browser/login_prompt_uitest.cc',
+    'browser/metrics_service_uitest.cc',
+    'browser/printing/printing_layout_uitest.cc',
+    'browser/resource_dispatcher_host_uitest.cc',
+    'browser/sanity_uitest.cc',
+    'browser/save_page_uitest.cc',
+    'browser/session_history_uitest.cc',
+    'browser/session_restore_uitest.cc',
+    'browser/ssl_uitest.cc',
+    'browser/tab_restore_uitest.cc',
+    'browser/view_source_uitest.cc',
+    'common/logging_chrome_uitest.cc',
+    'common/net/cache_uitest.cc',
+    'common/pref_service_uitest.cc',
+    'test/accessibility/accessibility_tests.cc',
+    'test/accessibility/accessibility_util.cc',
+    'test/accessibility/browser_impl.cc',
+    'test/accessibility/keyboard_util.cc',
+    'test/accessibility/registry_util.cc',
+    'test/accessibility/tab_impl.cc',
+    'test/automation/automation_proxy_uitest.cc',
+    'test/perf/mem_usage.cc',
+    'test/reliability/page_load_test$OBJSUFFIX',
+    'test/ui/inspector_controller_uitest.cc',
+    'test/ui/layout_plugin_uitest.cpp',
+    'test/ui/npapi_uitest.cpp',
+    'test/ui/omnibox_uitest.cc',
+    'test/ui/run_all_unittests.cc',
+    'test/ui/sandbox_uitests.cc',
+    'test/ui/ui_test.cc',
+    'test/ui/ui_test_suite.cc',
+    '$CHROME_DIR/test/test_file_util$OBJSUFFIX',
+    '$NET_DIR/url_request/url_request_test_job$OBJSUFFIX',
+]
+
+ui_tests = env_test.Program('ui_tests.exe',  ui_test_files + libs)
+
+i = env_test.Install('$TARGET_ROOT', ui_tests)
+Alias('chrome', i)
