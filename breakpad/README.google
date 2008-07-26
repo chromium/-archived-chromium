@@ -1,0 +1,5 @@
+Breakpad actually lives in src (pulled via svn:externals from code.google.com).
+
+This directory contains Chrome's version of Breakpad's Visual Studio build
+files (*.vcproj) and a compiled version of Breakpad's symupload.exe utility
+for Windows.
