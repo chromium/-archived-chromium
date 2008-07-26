@@ -1,0 +1,78 @@
+# Copyright 2008, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Import('env')
+
+env = env.Clone()
+
+# Grungy environment hackery to satisfy the Visual Studio that we're
+# going to execute.
+import os
+env['ENV'] = os.environ.copy()
+
+env.AppendENVPath('INCLUDE', env['MSVS_ENV']['INCLUDE'])
+env.AppendENVPath('LIB', env['MSVS_ENV']['LIB'])
+env.AppendENVPath('PATH', env['MSVS_ENV']['PATH'])
+
+
+mksnapshot_exe = File('#/../v8/bin/debug/mksnapshot.exe')
+v8_exe = File('#/../v8/Debug/v8_shell.exe')
+
+v8_scons_targets = [
+    mksnapshot_exe,
+    File('#/../v8/bin/debug/v8.lib'),
+    File('#/../v8/bin/debug/snapshot-empty.obj'),
+    File('#/../v8/vc80.pdb')
+]
+
+v8 = env.Command(v8_scons_targets,
+                 [],
+                 'cd ..\\v8 && $PYTHON $SCONS $SCONSFLAGS ${TARGETS[:-1]}',
+                 SCONS='..\\third_party\\scons-0.98.3\\scons.py',
+                 SCONSFLAGS='-Q --warn=no-deprecated')
+env.AlwaysBuild(v8)
+env.Install('$V8_DIR', v8)
+
+i = env.Install('$TARGET_ROOT', mksnapshot_exe)
+env.Alias('webkit', i)
+
+
+v8_shell = env.Command(v8_exe,
+                       [],
+                       'cd ..\\v8 && devenv /nologo v8.sln /build Debug v8_shell')
+env.AlwaysBuild(v8_shell)
+
+i = env.Install('$TARGET_ROOT', v8_exe)
+env.Alias('chrome', i)
+
+# By default, SCons deletes the target before invoking the command.
+# Tell SCons to *not* delete v8.lib and the other targets so the
+# subsidiary v8 SCons call doesn't always rebuild it (thereby causing
+# us to always rebuild things that use it).
+env.Precious(v8 + v8_shell)
