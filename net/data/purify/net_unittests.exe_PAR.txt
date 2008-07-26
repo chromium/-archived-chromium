@@ -1,0 +1,7 @@
+WideCharToMultiByte: Invalid size (0x27) for destination buffer.
+Error Location
+   ...  
+   net/url_request/url_request_unittest.cc  URLRequestTest_ResolveShortcutTest_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+

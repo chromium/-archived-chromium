@@ -1,0 +1,360 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#include "net/url_request/url_request.h"
+
+#include "base/basictypes.h"
+#include "base/process_util.h"
+#include "base/singleton.h"
+#include "base/stats_counters.h"
+#include "googleurl/src/gurl.h"
+#include "net/base/load_flags.h"
+#include "net/base/net_errors.h"
+#include "net/base/upload_data.h"
+#include "net/url_request/url_request_job.h"
+#include "net/url_request/url_request_job_manager.h"
+
+#ifndef NDEBUG
+URLRequestMetrics url_request_metrics;
+#endif
+
+using net::UploadData;
+using std::string;
+using std::wstring;
+
+// Max number of http redirects to follow.  Same number as gecko.
+const static int kMaxRedirects = 20;
+
+// The id of the current process.  Lazily initialized.
+static int32 current_proc_id = -1;
+
+static URLRequestJobManager* GetJobManager() {
+  return Singleton<URLRequestJobManager>::get();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// URLRequest
+
+URLRequest::URLRequest(const GURL& url, Delegate* delegate)
+    : url_(url),
+      original_url_(url),
+      method_("GET"),
+      load_flags_(net::LOAD_NORMAL),
+      delegate_(delegate),
+      is_pending_(false),
+      user_data_(NULL),
+      enable_profiling_(false),
+      redirect_limit_(kMaxRedirects),
+      final_upload_progress_(0) {
+  URLREQUEST_COUNT_CTOR();
+  SIMPLE_STATS_COUNTER(L"URLRequestCount");
+  if (current_proc_id == -1)
+    base::AtomicSwap(&current_proc_id, process_util::GetCurrentProcId());
+  origin_pid_ = current_proc_id;
+}
+
+URLRequest::~URLRequest() {
+  URLREQUEST_COUNT_DTOR();
+
+  Cancel();
+
+  if (job_)
+    OrphanJob();
+
+  delete user_data_;  // NULL check unnecessary for delete
+}
+
+// static
+URLRequest::ProtocolFactory* URLRequest::RegisterProtocolFactory(
+    const string& scheme, ProtocolFactory* factory) {
+  return GetJobManager()->RegisterProtocolFactory(scheme, factory);
+}
+
+// static
+void URLRequest::RegisterRequestInterceptor(Interceptor* interceptor) {
+  GetJobManager()->RegisterRequestInterceptor(interceptor);
+}
+
+// static
+void URLRequest::UnregisterRequestInterceptor(Interceptor* interceptor) {
+  GetJobManager()->UnregisterRequestInterceptor(interceptor);
+}
+
+void URLRequest::AppendBytesToUpload(const char* bytes, int bytes_len) {
+  DCHECK(bytes_len > 0 && bytes);
+  if (!upload_)
+    upload_ = new UploadData();
+  upload_->AppendBytes(bytes, bytes_len);
+}
+
+void URLRequest::AppendFileRangeToUpload(const wstring& file_path,
+                                         uint64 offset, uint64 length) {
+  DCHECK(file_path.length() > 0 && length > 0);
+  if (!upload_)
+    upload_ = new UploadData();
+  upload_->AppendFileRange(file_path, offset, length);
+}
+
+void URLRequest::SetExtraRequestHeaderById(int id, const string& value,
+                                           bool overwrite) {
+  DCHECK(!is_pending_);
+  NOTREACHED() << "implement me!";
+}
+
+void URLRequest::SetExtraRequestHeaderByName(const string& name,
+                                             const string& value,
+                                             bool overwrite) {
+  DCHECK(!is_pending_);
+  NOTREACHED() << "implement me!";
+}
+
+void URLRequest::SetExtraRequestHeaders(const string& headers) {
+  DCHECK(!is_pending_);
+  if (headers.empty()) {
+    extra_request_headers_.clear();
+  } else {
+#ifndef NDEBUG
+    size_t crlf = headers.rfind("\r\n", headers.size() - 1);
+    DCHECK(crlf != headers.size() - 2) << "headers must not end with CRLF";
+#endif
+    extra_request_headers_ = headers + "\r\n";
+  }
+
+  // NOTE: This method will likely become non-trivial once the other setters
+  // for request headers are implemented.
+}
+
+net::LoadState URLRequest::GetLoadState() const {
+  return job_ ? job_->GetLoadState() : net::LOAD_STATE_IDLE;
+}
+
+uint64 URLRequest::GetUploadProgress() const {
+  if (!job_) {
+    // We haven't started or the request was cancelled
+    return 0;
+  }
+  if (final_upload_progress_) {
+    // The first job completed and none of the subsequent series of
+    // GETs when following redirects will upload anything, so we return the
+    // cached results from the initial job, the POST.
+    return final_upload_progress_;
+  }
+  return job_->GetUploadProgress();
+}
+
+void URLRequest::GetResponseHeaderById(int id, string* value) {
+  DCHECK(job_);
+  NOTREACHED() << "implement me!";
+}
+
+void URLRequest::GetResponseHeaderByName(const string& name, string* value) {
+  DCHECK(value);
+  if (response_info_.headers) {
+    response_info_.headers->GetNormalizedHeader(name, value);
+  } else {
+    value->clear();
+  }
+}
+
+void URLRequest::GetAllResponseHeaders(string* headers) {
+  DCHECK(headers);
+  if (response_info_.headers) {
+    response_info_.headers->GetNormalizedHeaders(headers);
+  } else {
+    headers->clear();
+  }
+}
+
+bool URLRequest::GetResponseCookies(ResponseCookies* cookies) {
+  DCHECK(job_);
+  return job_->GetResponseCookies(cookies);
+}
+
+void URLRequest::GetMimeType(string* mime_type) {
+  DCHECK(job_);
+  job_->GetMimeType(mime_type);
+}
+
+void URLRequest::GetCharset(string* charset) {
+  DCHECK(job_);
+  job_->GetCharset(charset);
+}
+
+int URLRequest::GetResponseCode() {
+  DCHECK(job_);
+  return job_->GetResponseCode();
+}
+
+// static
+bool URLRequest::IsHandledProtocol(const std::string& scheme) {
+  return GetJobManager()->SupportsScheme(scheme);
+}
+
+// static
+bool URLRequest::IsHandledURL(const GURL& url) {
+  if (!url.is_valid()) {
+    // We handle error cases.
+    return true;
+  }
+
+  return IsHandledProtocol(url.scheme());
+}
+
+void URLRequest::Start() {
+  DCHECK(!is_pending_);
+  DCHECK(!job_);
+
+  job_ = GetJobManager()->CreateJob(this);
+  job_->SetExtraRequestHeaders(extra_request_headers_);
+
+  if (upload_.get())
+    job_->SetUpload(upload_.get());
+
+  is_pending_ = true;
+  response_info_.request_time = Time::Now();
+
+  // Don't allow errors to be sent from within Start().
+  // TODO(brettw) this may cause NotifyDone to be sent synchronously,
+  // we probably don't want this: they should be sent asynchronously so
+  // the caller does not get reentered.
+  job_->Start();
+}
+
+void URLRequest::Cancel() {
+  CancelWithError(net::ERR_ABORTED);
+}
+
+void URLRequest::CancelWithError(int os_error) {
+  DCHECK(os_error < 0);
+
+  // There's nothing to do if we are not waiting on a Job.
+  if (!is_pending_ || !job_)
+    return;
+
+  // If the URL request already has an error status, then canceling is a no-op.
+  // Plus, we don't want to change the error status once it has been set.
+  if (status_.is_success()) {
+    status_.set_status(URLRequestStatus::CANCELED);
+    status_.set_os_error(os_error);
+  }
+
+  job_->Kill();
+
+  // The Job will call our NotifyDone method asynchronously.  This is done so
+  // that the Delegate implementation can call Cancel without having to worry
+  // about being called recursively.
+}
+
+bool URLRequest::Read(char* dest, int dest_size, int *bytes_read) {
+  DCHECK(job_);
+  DCHECK(bytes_read);
+  DCHECK(!job_->is_done());
+  *bytes_read = 0;
+
+  if (dest_size == 0) {
+    // Caller is not too bright.  I guess we've done what they asked.
+    return true;
+  }
+
+  // Once the request fails or is cancelled, read will just return 0 bytes
+  // to indicate end of stream.
+  if (!status_.is_success()) {
+    return true;
+  }
+
+  return job_->Read(dest, dest_size, bytes_read);
+}
+
+void URLRequest::SetAuth(const wstring& username, const wstring& password) {
+  DCHECK(job_);
+  DCHECK(job_->NeedsAuth());
+
+  job_->SetAuth(username, password);
+}
+
+void URLRequest::CancelAuth() {
+  DCHECK(job_);
+  DCHECK(job_->NeedsAuth());
+
+  job_->CancelAuth();
+}
+
+void URLRequest::ContinueDespiteLastError() {
+  DCHECK(job_);
+
+  job_->ContinueDespiteLastError();
+}
+
+void URLRequest::OrphanJob() {
+  job_->DetachRequest();  // ensures that the job will not call us again
+  job_ = NULL;
+}
+
+int URLRequest::Redirect(const GURL& location, int http_status_code) {
+  // TODO(darin): treat 307 redirects of POST requests very carefully.  we
+  // should prompt the user before re-submitting the POST body.
+  DCHECK(!(method_ == "POST" && http_status_code == 307)) << "implement me!";
+
+  if (redirect_limit_ <= 0) {
+    DLOG(INFO) << "disallowing redirect: exceeds limit";
+    return net::ERR_TOO_MANY_REDIRECTS;
+  }
+
+  if (!job_->IsSafeRedirect(location)) {
+    DLOG(INFO) << "disallowing redirect: unsafe protocol";
+    return net::ERR_UNSAFE_REDIRECT;
+  }
+
+  // NOTE: even though RFC 2616 says to preserve the request method when
+  // following a 302 redirect, normal browsers don't do that.  instead, they
+  // all convert a POST into a GET in response to a 302, and so shall we.
+  url_ = location;
+  method_ = "GET";
+  upload_ = 0;
+  status_ = URLRequestStatus();
+  --redirect_limit_;
+
+  if (!final_upload_progress_) {
+    final_upload_progress_ = job_->GetUploadProgress();
+  }
+
+  OrphanJob();
+
+  is_pending_ = false;
+  Start();
+  return net::OK;
+}
+
+int64 URLRequest::GetExpectedContentSize() const {
+  int64 expected_content_size = -1;
+  if (job_)
+    expected_content_size = job_->expected_content_size();
+
+  return expected_content_size;
+}

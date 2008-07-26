@@ -1,0 +1,11 @@
+Freeing invalid memory in RtlFreeHeap
+Free Location
+   ...  
+   base/file_util.cc  file_util::ShellCopy(class std::basic_string const &,class std::basic_string const &,bool)
+   base/file_util.cc  file_util::CopyDirectory(class std::basic_string const &,class std::basic_string const &,bool)
+   net/disk_cache/backend_unittest.cc  ?CopyTestCache@?A0xcda35beb@@YA_NABV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@@Z
+   net/disk_cache/backend_unittest.cc  ?TestTransaction@?A0xcda35beb@@YAHABV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@H_N@Z
+   net/disk_cache/backend_unittest.cc  DiskCacheTest_Backend_RecoverInsert_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+

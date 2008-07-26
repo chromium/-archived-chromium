@@ -1,0 +1,159 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#include <algorithm>
+
+#include "base/basictypes.h"
+#include "net/http/http_util.h"
+#include "testing/gtest/include/gtest/gtest.h"
+
+using net::HttpUtil;
+
+namespace {
+class HttpUtilTest : public testing::Test {};
+}
+
+TEST(HttpUtilTest, HasHeader) {
+  static const struct {
+    const char* headers;
+    const char* name;
+    bool expected_result;
+  } tests[] = {
+    { "", "foo", false },
+    { "foo\r\nbar", "foo", false },
+    { "ffoo: 1", "foo", false },
+    { "foo: 1", "foo", true },
+    { "foo: 1\r\nbar: 2", "foo", true },
+    { "fOO: 1\r\nbar: 2", "foo", true },
+    { "g: 0\r\nfoo: 1\r\nbar: 2", "foo", true },
+  };
+  for (size_t i = 0; i < arraysize(tests); ++i) {
+    bool result = HttpUtil::HasHeader(tests[i].headers, tests[i].name);
+    EXPECT_EQ(tests[i].expected_result, result);
+  }
+}
+
+TEST(HttpUtilTest, HeadersIterator) {
+  std::string headers = "foo: 1\t\r\nbar: hello world\r\nbaz: 3 \r\n";
+
+  HttpUtil::HeadersIterator it(headers.begin(), headers.end(), "\r\n");
+
+  ASSERT_TRUE(it.GetNext());
+  EXPECT_EQ(std::string("foo"), it.name());
+  EXPECT_EQ(std::string("1"), it.values());
+
+  ASSERT_TRUE(it.GetNext());
+  EXPECT_EQ(std::string("bar"), it.name());
+  EXPECT_EQ(std::string("hello world"), it.values());
+
+  ASSERT_TRUE(it.GetNext());
+  EXPECT_EQ(std::string("baz"), it.name());
+  EXPECT_EQ(std::string("3"), it.values());
+
+  EXPECT_FALSE(it.GetNext());
+}
+
+TEST(HttpUtilTest, HeadersIterator_MalformedLine) {
+  std::string headers = "foo: 1\n: 2\n3\nbar: 4";
+
+  HttpUtil::HeadersIterator it(headers.begin(), headers.end(), "\n");
+
+  ASSERT_TRUE(it.GetNext());
+  EXPECT_EQ(std::string("foo"), it.name());
+  EXPECT_EQ(std::string("1"), it.values());
+
+  ASSERT_TRUE(it.GetNext());
+  EXPECT_EQ(std::string("bar"), it.name());
+  EXPECT_EQ(std::string("4"), it.values());
+
+  EXPECT_FALSE(it.GetNext());
+}
+
+TEST(HttpUtilTest, ValuesIterator) {
+  std::string values = " must-revalidate,   no-cache=\"foo, bar\"\t, private ";
+
+  HttpUtil::ValuesIterator it(values.begin(), values.end(), ',');
+
+  ASSERT_TRUE(it.GetNext());
+  EXPECT_EQ(std::string("must-revalidate"), it.value());
+
+  ASSERT_TRUE(it.GetNext());
+  EXPECT_EQ(std::string("no-cache=\"foo, bar\""), it.value());
+
+  ASSERT_TRUE(it.GetNext());
+  EXPECT_EQ(std::string("private"), it.value());
+
+  EXPECT_FALSE(it.GetNext());
+}
+
+TEST(HttpUtilTest, ValuesIterator_Blanks) {
+  std::string values = " \t ";
+
+  HttpUtil::ValuesIterator it(values.begin(), values.end(), ',');
+
+  EXPECT_FALSE(it.GetNext());
+}
+
+TEST(HttpUtilTest, LocateEndOfHeaders) {
+  struct {
+    const char* input;
+    int expected_result;
+  } tests[] = {
+    { "foo\r\nbar\r\n\r\n", 12 },
+    { "foo\nbar\n\n", 9 },
+    { "foo\r\nbar\r\n\r\njunk", 12 },
+    { "foo\nbar\n\njunk", 9 },
+    { "foo\nbar\n\r\njunk", 10 },
+    { "foo\nbar\r\n\njunk", 10 },
+  };
+  for (size_t i = 0; i < arraysize(tests); ++i) {
+    int input_len = static_cast<int>(strlen(tests[i].input));
+    int eoh = HttpUtil::LocateEndOfHeaders(tests[i].input, input_len);
+    EXPECT_EQ(tests[i].expected_result, eoh);
+  }
+}
+
+TEST(HttpUtilTest, AssembleRawHeaders) {
+  struct {
+    const char* input;
+    const char* expected_result;  // with '\0' changed to '|'
+  } tests[] = {
+    { "HTTP/1.0 200 OK\r\nFoo: 1\r\nBar: 2\r\n\r\n",
+      "HTTP/1.0 200 OK|Foo: 1|Bar: 2||" },
+
+    { "HTTP/1.0 200 OK\nFoo: 1\nBar: 2\n\n",
+      "HTTP/1.0 200 OK|Foo: 1|Bar: 2||" },
+  };
+  for (size_t i = 0; i < arraysize(tests); ++i) {
+    int input_len = static_cast<int>(strlen(tests[i].input));
+    std::string raw = HttpUtil::AssembleRawHeaders(tests[i].input, input_len);
+    std::replace(raw.begin(), raw.end(), '\0', '|');
+    EXPECT_TRUE(raw == tests[i].expected_result);
+  }
+}

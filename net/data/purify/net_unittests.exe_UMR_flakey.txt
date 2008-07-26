@@ -1,0 +1,50 @@
+Uninitialized memory read in WriteFileEx
+Error Location
+   ...  
+   net/disk_cache/file.cc  disk_cache::File::AsyncWrite(void const*,UINT,UINT,bool,FileIOCallback::disk_cache *,bool *)
+   net/disk_cache/file.cc  disk_cache::File::Write(void const*,UINT,UINT,FileIOCallback::disk_cache *,bool *)
+   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::Flush(int,int,bool)
+   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::~EntryImpl(void)
+   chrome/release/net_unittests.exe  disk_cache::EntryImpl::`vector deleting destructor'(UINT)
+   base/ref_counted.h  base::RefCounted::Release(void)
+   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::Close(void)
+   net/disk_cache/entry_unittest.cc  DiskCacheEntryTest::GrowData(void)
+   net/disk_cache/entry_unittest.cc  DiskCacheEntryTest_GrowData_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+Alloc Location
+   ...  
+   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::MoveToLocalBuffer(int)
+   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::GrowUserBuffer(int,int,int,bool)
+   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::PrepareTarget(int,int,int,bool)
+   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::WriteData(int,int,char const*,int,CallbackRunner *,bool)
+   net/disk_cache/entry_unittest.cc  DiskCacheEntryTest::GrowData(void)
+   net/disk_cache/entry_unittest.cc  DiskCacheEntryTest_GrowData_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+Uninitialized memory read in WriteFileEx
+Error Location
+   ...  
+   net/disk_cache/file.cc  disk_cache::File::AsyncWrite(void const*,UINT,UINT,bool,FileIOCallback::disk_cache *,bool *)
+   net/disk_cache/file.cc  disk_cache::File::Write(void const*,UINT,UINT,FileIOCallback::disk_cache *,bool *)
+   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::Flush(int,int,bool)
+   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::~EntryImpl(void)
+   chrome/release/net_unittests.exe  disk_cache::EntryImpl::`scalar deleting destructor'(UINT)
+   base/ref_counted.h  base::RefCounted::Release(void)
+   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::Close(void)
+   net/disk_cache/entry_unittest.cc  DiskCacheEntryTest::GrowData(void)
+   net/disk_cache/entry_unittest.cc  DiskCacheEntryTest_GrowData_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+Alloc Location
+   ...  
+   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::MoveToLocalBuffer(int)
+   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::GrowUserBuffer(int,int,int,bool)
+   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::PrepareTarget(int,int,int,bool)
+   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::WriteData(int,int,char const*,int,CallbackRunner *,bool)
+   net/disk_cache/entry_unittest.cc  DiskCacheEntryTest::GrowData(void)
+   net/disk_cache/entry_unittest.cc  DiskCacheEntryTest_GrowData_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+

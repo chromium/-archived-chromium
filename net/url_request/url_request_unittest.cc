@@ -1,0 +1,792 @@
+// Copyright 2008, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#include <windows.h>
+#include <shlobj.h>
+#include <algorithm>
+#include <string>
+
+#include "net/url_request/url_request_unittest.h"
+
+#include "base/message_loop.h"
+#include "base/path_service.h"
+#include "base/process_util.h"
+#include "base/string_util.h"
+#include "net/base/load_flags.h"
+#include "net/base/net_errors.h"
+#include "net/base/net_module.h"
+#include "net/base/net_util.h"
+#include "net/disk_cache/disk_cache.h"
+#include "net/http/http_cache.h"
+#include "net/http/http_network_layer.h"
+#include "net/url_request/url_request.h"
+#include "testing/gtest/include/gtest/gtest.h"
+
+namespace {
+
+class URLRequestTest : public testing::Test {
+};
+
+class URLRequestHttpCacheContext : public URLRequestContext {
+ public:
+  URLRequestHttpCacheContext() {
+    http_transaction_factory_ =
+        new net::HttpCache(net::HttpNetworkLayer::CreateFactory(NULL),
+                           disk_cache::CreateInMemoryCacheBackend(0));
+  }
+
+  virtual ~URLRequestHttpCacheContext() {
+    delete http_transaction_factory_;
+  }
+};
+
+class TestURLRequest : public URLRequest {
+ public:
+   TestURLRequest(const GURL& url, Delegate* delegate)
+       : URLRequest(url, delegate) {
+     set_context(new URLRequestHttpCacheContext());
+   }
+};
+
+std::string TestNetResourceProvider(int key) {
+  return "header";
+}
+
+}
+
+TEST(URLRequestTest, GetTest_NoCache) {
+  TestServer server(L"");
+  TestDelegate d;
+  {
+    TestURLRequest r(server.TestServerPage(""), &d);
+
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+
+    EXPECT_EQ(1, d.response_started_count());
+    EXPECT_FALSE(d.received_data_before_response());
+    EXPECT_NE(0, d.bytes_received());
+  }
+#ifndef NDEBUG
+  DCHECK_EQ(url_request_metrics.object_count,0);
+#endif
+}
+
+TEST(URLRequestTest, GetTest) {
+  TestServer server(L"");
+  TestDelegate d;
+  {
+    TestURLRequest r(server.TestServerPage(""), &d);
+
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+
+    EXPECT_EQ(1, d.response_started_count());
+    EXPECT_FALSE(d.received_data_before_response());
+    EXPECT_NE(0, d.bytes_received());
+  }
+#ifndef NDEBUG
+  DCHECK_EQ(url_request_metrics.object_count,0);
+#endif
+}
+
+TEST(URLRequestTest, CancelTest) {
+  TestDelegate d;
+  {
+    TestURLRequest r(GURL("http://www.google.com/"), &d);
+
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    r.Cancel();
+
+    MessageLoop::current()->Run();
+
+    // We expect to receive OnResponseStarted even though the request has been
+    // cancelled.
+    EXPECT_EQ(1, d.response_started_count());
+    EXPECT_EQ(0, d.bytes_received());
+    EXPECT_FALSE(d.received_data_before_response());
+  }
+#ifndef NDEBUG
+  DCHECK_EQ(url_request_metrics.object_count,0);
+#endif
+}
+
+TEST(URLRequestTest, CancelTest2) {
+  TestServer server(L"");
+  TestDelegate d;
+  {
+    TestURLRequest r(server.TestServerPage(""), &d);
+
+    d.set_cancel_in_response_started(true);
+
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+
+    EXPECT_EQ(1, d.response_started_count());
+    EXPECT_EQ(0, d.bytes_received());
+    EXPECT_FALSE(d.received_data_before_response());
+    EXPECT_EQ(URLRequestStatus::CANCELED, r.status().status());
+  }
+#ifndef NDEBUG
+  DCHECK_EQ(url_request_metrics.object_count,0);
+#endif
+}
+
+TEST(URLRequestTest, CancelTest3) {
+  TestServer server(L"");
+  TestDelegate d;
+  {
+    TestURLRequest r(server.TestServerPage(""), &d);
+
+    d.set_cancel_in_received_data(true);
+
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+
+    EXPECT_EQ(1, d.response_started_count());
+    // There is no guarantee about how much data was received
+    // before the cancel was issued.  It could have been 0 bytes,
+    // or it could have been all the bytes.
+    // EXPECT_EQ(0, d.bytes_received());
+    EXPECT_FALSE(d.received_data_before_response());
+    EXPECT_EQ(URLRequestStatus::CANCELED, r.status().status());
+  }
+#ifndef NDEBUG
+  DCHECK_EQ(url_request_metrics.object_count,0);
+#endif
+}
+
+TEST(URLRequestTest, CancelTest4) {
+  TestServer server(L"");
+  TestDelegate d;
+  {
+    TestURLRequest r(server.TestServerPage(""), &d);
+
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    // The request will be implicitly canceled when it is destroyed. The
+    // test delegate must not post a quit message when this happens because
+    // this test doesn't actually have a message loop. The quit message would
+    // get put on this thread's message queue and the next test would exit
+    // early, causing problems.
+    d.set_quit_on_complete(false);
+  }
+  // expect things to just cleanup properly.
+
+  // we won't actually get a received reponse here because we've never run the
+  // message loop
+  EXPECT_FALSE(d.received_data_before_response());
+  EXPECT_EQ(0, d.bytes_received());
+}
+
+TEST(URLRequestTest, CancelTest5) {
+  TestServer server(L"");
+  scoped_refptr<URLRequestContext> context = new URLRequestHttpCacheContext();
+
+  // populate cache
+  {
+    TestDelegate d;
+    URLRequest r(server.TestServerPage("cachetime"), &d);
+    r.set_context(context);
+    r.Start();
+    MessageLoop::current()->Run();
+    EXPECT_EQ(URLRequestStatus::SUCCESS, r.status().status());
+  }
+
+  // cancel read from cache (see bug 990242)
+  {
+    TestDelegate d;
+    URLRequest r(server.TestServerPage("cachetime"), &d);
+    r.set_context(context);
+    r.Start();
+    r.Cancel();
+    MessageLoop::current()->Run();
+
+    EXPECT_EQ(URLRequestStatus::CANCELED, r.status().status());
+    EXPECT_EQ(1, d.response_started_count());
+    EXPECT_EQ(0, d.bytes_received());
+    EXPECT_FALSE(d.received_data_before_response());
+  }
+
+#ifndef NDEBUG
+  DCHECK_EQ(url_request_metrics.object_count, 0);
+#endif
+}
+
+TEST(URLRequestTest, PostTest) {
+  TestServer server(L"net/data");
+
+  const int kMsgSize = 20000;  // multiple of 10
+  const int kIterations = 50;
+  char *uploadBytes = new char[kMsgSize+1];
+  char *ptr = uploadBytes;
+  char marker = 'a';
+  for(int idx=0; idx<kMsgSize/10; idx++) {
+    memcpy(ptr, "----------", 10);
+    ptr += 10;
+    if (idx % 100 == 0) {
+      ptr--;
+      *ptr++ = marker;
+      if (++marker > 'z')
+        marker = 'a';
+    }
+
+  }
+  uploadBytes[kMsgSize] = '\0';
+
+  scoped_refptr<URLRequestContext> context =
+      new URLRequestHttpCacheContext();
+
+  for (int i = 0; i < kIterations; ++i) {
+    TestDelegate d;
+    URLRequest r(server.TestServerPage("echo"), &d);
+    r.set_context(context);
+    r.set_method("POST");
+
+    r.AppendBytesToUpload(uploadBytes, kMsgSize);
+
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+
+    ASSERT_EQ(1, d.response_started_count()) << "request failed: " <<
+        (int) r.status().status() << ", os error: " << r.status().os_error();
+
+    EXPECT_FALSE(d.received_data_before_response());
+    EXPECT_EQ(uploadBytes, d.data_received());
+    EXPECT_EQ(memcmp(uploadBytes, d.data_received().c_str(), kMsgSize),0);
+    EXPECT_EQ(d.data_received().compare(uploadBytes), 0);
+  }
+  delete[] uploadBytes;
+#ifndef NDEBUG
+  DCHECK_EQ(url_request_metrics.object_count,0);
+#endif
+}
+
+TEST(URLRequestTest, PostEmptyTest) {
+  TestServer server(L"net/data");
+  TestDelegate d;
+  {
+    TestURLRequest r(server.TestServerPage("echo"), &d);
+    r.set_method("POST");
+
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+
+    ASSERT_EQ(1, d.response_started_count()) << "request failed: " <<
+        (int) r.status().status() << ", os error: " << r.status().os_error();
+
+    EXPECT_FALSE(d.received_data_before_response());
+    EXPECT_TRUE(d.data_received().empty());
+  }
+#ifndef NDEBUG
+  DCHECK_EQ(url_request_metrics.object_count,0);
+#endif
+}
+
+TEST(URLRequestTest, PostFileTest) {
+  TestServer server(L"net/data");
+  TestDelegate d;
+  {
+    TestURLRequest r(server.TestServerPage("echo"), &d);
+    r.set_method("POST");
+
+    std::wstring dir;
+    PathService::Get(base::DIR_EXE, &dir);
+    _wchdir(dir.c_str());
+
+    std::wstring path;
+    PathService::Get(base::DIR_SOURCE_ROOT, &path);
+    file_util::AppendToPath(&path, L"net");
+    file_util::AppendToPath(&path, L"data");
+    file_util::AppendToPath(&path, L"url_request_unittest");
+    file_util::AppendToPath(&path, L"with-headers.html");
+    r.AppendFileToUpload(path);
+
+    // This file should just be ignored in the upload stream.
+    r.AppendFileToUpload(L"c:\\path\\to\\non\\existant\\file.randomness.12345");
+
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+
+    HANDLE file = CreateFile(path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
+                             OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    ASSERT_NE(INVALID_HANDLE_VALUE, file);
+
+    DWORD size = GetFileSize(file, NULL);
+    scoped_array<char> buf(new char[size]);
+
+    DWORD size_read;
+    EXPECT_TRUE(ReadFile(file, buf.get(), size, &size_read, NULL));
+
+    CloseHandle(file);
+
+    EXPECT_EQ(size, size_read);
+
+    ASSERT_EQ(1, d.response_started_count()) << "request failed: " <<
+        (int) r.status().status() << ", os error: " << r.status().os_error();
+
+    EXPECT_FALSE(d.received_data_before_response());
+
+    ASSERT_EQ(size, d.bytes_received());
+    EXPECT_EQ(0, memcmp(d.data_received().c_str(), buf.get(), size));
+  }
+#ifndef NDEBUG
+  DCHECK_EQ(url_request_metrics.object_count,0);
+#endif
+}
+
+TEST(URLRequestTest, AboutBlankTest) {
+  TestDelegate d;
+  {
+    TestURLRequest r(GURL("about:blank"), &d);
+
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+
+    EXPECT_TRUE(!r.is_pending());
+    EXPECT_FALSE(d.received_data_before_response());
+    EXPECT_EQ(d.bytes_received(), 0);
+  }
+#ifndef NDEBUG
+  DCHECK_EQ(url_request_metrics.object_count,0);
+#endif
+}
+
+TEST(URLRequestTest, FileTest) {
+  std::wstring app_path;
+  PathService::Get(base::FILE_EXE, &app_path);
+
+  std::string app_url = WideToUTF8(app_path);
+  std::replace(app_url.begin(), app_url.end(),
+               file_util::kPathSeparator, L'/');
+  app_url.insert(0, "file:///");
+
+  TestDelegate d;
+  {
+    TestURLRequest r(GURL(app_url), &d);
+
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+
+    WIN32_FILE_ATTRIBUTE_DATA data;
+    GetFileAttributesEx(app_path.c_str(), GetFileExInfoStandard, &data);
+
+    EXPECT_TRUE(!r.is_pending());
+    EXPECT_EQ(1, d.response_started_count());
+    EXPECT_FALSE(d.received_data_before_response());
+    EXPECT_EQ(d.bytes_received(), data.nFileSizeLow);
+  }
+#ifndef NDEBUG
+  DCHECK_EQ(url_request_metrics.object_count,0);
+#endif
+}
+
+TEST(URLRequestTest, InvalidUrlTest) {
+  TestDelegate d;
+  {
+    TestURLRequest r(GURL("invalid url"), &d);
+
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+    EXPECT_TRUE(d.request_failed());
+  }
+#ifndef NDEBUG
+  DCHECK_EQ(url_request_metrics.object_count,0);
+#endif
+}
+
+/* This test is disabled because it fails on some computers due to proxies
+   returning a page in response to this request rather than reporting failure.
+TEST(URLRequestTest, DnsFailureTest) {
+  TestDelegate d;
+  {
+    URLRequest r(GURL("http://thisisnotavalidurl0123456789foo.com/"), &d);
+
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+    EXPECT_TRUE(d.request_failed());
+  }
+#ifndef NDEBUG
+  DCHECK_EQ(url_request_metrics.object_count,0);
+#endif
+}
+*/
+
+TEST(URLRequestTest, ResponseHeadersTest) {
+  TestServer server(L"net/data/url_request_unittest");
+  TestDelegate d;
+  TestURLRequest req(server.TestServerPage("files/with-headers.html"), &d);
+  req.Start();
+  MessageLoop::current()->Run();
+
+  const net::HttpResponseHeaders* headers = req.response_headers();
+  std::string header;
+  EXPECT_TRUE(headers->GetNormalizedHeader("cache-control", &header));
+  EXPECT_EQ("private", header);
+
+  header.clear();
+  EXPECT_TRUE(headers->GetNormalizedHeader("content-type", &header));
+  EXPECT_EQ("text/html; charset=ISO-8859-1", header);
+
+  // The response has two "X-Multiple-Entries" headers.
+  // This verfies our output has them concatenated together.
+  header.clear();
+  EXPECT_TRUE(headers->GetNormalizedHeader("x-multiple-entries", &header));
+  EXPECT_EQ("a, b", header);
+}
+
+TEST(URLRequestTest, BZip2ContentTest) {
+  TestServer server(L"net/data/filter_unittests");
+
+  // for localhost domain, we also should support bzip2 encoding
+  // first, get the original file
+  TestDelegate d1;
+  TestURLRequest req1(server.TestServerPage("realfiles/google.txt"), &d1);
+  req1.Start();
+  MessageLoop::current()->Run();
+
+  const std::string& got_content = d1.data_received();
+
+  // second, get bzip2 content
+  TestDelegate d2;
+  TestURLRequest req2(server.TestServerPage("realbz2files/google.txt"), &d2);
+  req2.Start();
+  MessageLoop::current()->Run();
+
+  const std::string& got_bz2_content = d2.data_received();
+
+  // compare those two results
+  EXPECT_TRUE(got_content == got_bz2_content);
+}
+
+TEST(URLRequestTest, BZip2ContentTest_IncrementalHeader) {
+  TestServer server(L"net/data/filter_unittests");
+
+  // for localhost domain, we also should support bzip2 encoding
+  // first, get the original file
+  TestDelegate d1;
+  TestURLRequest req1(server.TestServerPage("realfiles/google.txt"), &d1);
+  req1.Start();
+  MessageLoop::current()->Run();
+
+  const std::string& got_content = d1.data_received();
+
+  // second, get bzip2 content.  ask the testserver to send the BZ2 header in
+  // two chunks with a delay between them.  this tests our fix for bug 867161.
+  TestDelegate d2;
+  TestURLRequest req2(server.TestServerPage("realbz2files/google.txt?incremental-header"), &d2);
+  req2.Start();
+  MessageLoop::current()->Run();
+
+  const std::string& got_bz2_content = d2.data_received();
+
+  // compare those two results
+  EXPECT_TRUE(got_content == got_bz2_content);
+}
+
+TEST(URLRequestTest, ResolveShortcutTest) {
+  std::wstring app_path;
+  PathService::Get(base::DIR_SOURCE_ROOT, &app_path);
+  file_util::AppendToPath(&app_path, L"net");
+  file_util::AppendToPath(&app_path, L"data");
+  file_util::AppendToPath(&app_path, L"url_request_unittest");
+  file_util::AppendToPath(&app_path, L"with-headers.html");
+
+  std::wstring lnk_path = app_path + L".lnk";
+
+  HRESULT result;
+  IShellLink *shell = NULL;
+  IPersistFile *persist = NULL;
+
+  CoInitialize(NULL);
+  // Temporarily create a shortcut for test
+  result = CoCreateInstance(CLSID_ShellLink, NULL,
+                          CLSCTX_INPROC_SERVER, IID_IShellLink,
+                          reinterpret_cast<LPVOID*>(&shell));
+  EXPECT_TRUE(SUCCEEDED(result));
+  result = shell->QueryInterface(IID_IPersistFile,
+                             reinterpret_cast<LPVOID*>(&persist));
+  EXPECT_TRUE(SUCCEEDED(result));
+  result = shell->SetPath(app_path.c_str());
+  EXPECT_TRUE(SUCCEEDED(result));
+  result = shell->SetDescription(L"ResolveShortcutTest");
+  EXPECT_TRUE(SUCCEEDED(result));
+  result = persist->Save(lnk_path.c_str(), TRUE);
+  EXPECT_TRUE(SUCCEEDED(result));
+  if (persist)
+    persist->Release();
+  if (shell)
+    shell->Release();
+
+  TestDelegate d;
+  {
+    TestURLRequest r(net_util::FilePathToFileURL(lnk_path), &d);
+
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+
+    WIN32_FILE_ATTRIBUTE_DATA data;
+    GetFileAttributesEx(app_path.c_str(), GetFileExInfoStandard, &data);
+    HANDLE file = CreateFile(app_path.c_str(), GENERIC_READ,
+                             FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                             FILE_ATTRIBUTE_NORMAL, NULL);
+    EXPECT_NE(INVALID_HANDLE_VALUE, file);
+    scoped_array<char> buffer(new char[data.nFileSizeLow]);
+    DWORD read_size;
+    BOOL result;
+    result = ReadFile(file, buffer.get(), data.nFileSizeLow,
+                      &read_size, NULL);
+    std::string content(buffer.get(), read_size);
+    CloseHandle(file);
+
+    EXPECT_TRUE(!r.is_pending());
+    EXPECT_EQ(1, d.received_redirect_count());
+    EXPECT_EQ(content, d.data_received());
+  }
+
+  // Clean the shortcut
+  DeleteFile(lnk_path.c_str());
+  CoUninitialize();
+
+#ifndef NDEBUG
+  DCHECK_EQ(url_request_metrics.object_count,0);
+#endif
+}
+
+TEST(URLRequestTest, ContentTypeNormalizationTest) {
+  TestServer server(L"net/data/url_request_unittest");
+  TestDelegate d;
+  TestURLRequest req(server.TestServerPage(
+      "files/content-type-normalization.html"), &d);
+  req.Start();
+  MessageLoop::current()->Run();
+
+  std::string mime_type;
+  req.GetMimeType(&mime_type);
+  EXPECT_EQ("text/html", mime_type);
+
+  std::string charset;
+  req.GetCharset(&charset);
+  EXPECT_EQ("utf-8", charset);
+  req.Cancel();
+}
+
+TEST(URLRequestTest, FileDirCancelTest) {
+  // Put in mock resource provider.
+  NetModule::SetResourceProvider(TestNetResourceProvider);
+
+  TestDelegate d;
+  {
+    std::wstring file_path;
+    PathService::Get(base::DIR_SOURCE_ROOT, &file_path);
+    file_util::AppendToPath(&file_path, L"net");
+    file_util::AppendToPath(&file_path, L"data");
+    file_util::AppendToPath(&file_path, L"");
+
+    TestURLRequest req(net_util::FilePathToFileURL(file_path), &d);
+    req.Start();
+    EXPECT_TRUE(req.is_pending());
+
+    d.set_cancel_in_received_data_pending(true);
+
+    MessageLoop::current()->Run();
+  }
+#ifndef NDEBUG
+  DCHECK_EQ(url_request_metrics.object_count,0);
+#endif
+
+  // Take out mock resource provider.
+  NetModule::SetResourceProvider(NULL);
+}
+
+TEST(URLRequestTest, RestrictRedirects) {
+  TestServer server(L"net/data/url_request_unittest");
+  TestDelegate d;
+  TestURLRequest req(server.TestServerPage(
+      "files/redirect-to-file.html"), &d);
+  req.Start();
+  MessageLoop::current()->Run();
+
+  EXPECT_EQ(URLRequestStatus::FAILED, req.status().status());
+  EXPECT_EQ(net::ERR_UNSAFE_REDIRECT, req.status().os_error());
+}
+
+TEST(URLRequestTest, NoUserPassInReferrer) {
+  TestServer server(L"net/data/url_request_unittest");
+  TestDelegate d;
+  TestURLRequest req(server.TestServerPage(
+      "echoheader?Referer"), &d);
+  req.set_referrer("http://user:pass@foo.com/");
+  req.Start();
+  MessageLoop::current()->Run();
+
+  EXPECT_EQ(std::string("http://foo.com/"), d.data_received());
+}
+
+TEST(URLRequestTest, CancelRedirect) {
+  TestServer server(L"net/data/url_request_unittest");
+  TestDelegate d;
+  {
+    d.set_cancel_in_received_redirect(true);
+    TestURLRequest req(server.TestServerPage(
+        "files/redirect-test.html"), &d);
+    req.Start();
+    MessageLoop::current()->Run();
+
+    EXPECT_EQ(1, d.response_started_count());
+    EXPECT_EQ(0, d.bytes_received());
+    EXPECT_FALSE(d.received_data_before_response());
+    EXPECT_EQ(URLRequestStatus::CANCELED, req.status().status());
+  }
+}
+
+TEST(URLRequestTest, VaryHeader) {
+  TestServer server(L"net/data/url_request_unittest");
+
+  scoped_refptr<URLRequestContext> context = new URLRequestHttpCacheContext();
+
+  Time response_time;
+
+  // populate the cache
+  {
+    TestDelegate d;
+    URLRequest req(server.TestServerPage("echoheader?foo"), &d);
+    req.set_context(context);
+    req.SetExtraRequestHeaders("foo:1");
+    req.Start();
+    MessageLoop::current()->Run();
+
+    response_time = req.response_time();
+  }
+
+  // Make sure that the response time of a future response will be in the
+  // future!
+  Sleep(10);
+
+  // expect a cache hit
+  {
+    TestDelegate d;
+    URLRequest req(server.TestServerPage("echoheader?foo"), &d);
+    req.set_context(context);
+    req.SetExtraRequestHeaders("foo:1");
+    req.Start();
+    MessageLoop::current()->Run();
+
+    EXPECT_TRUE(req.response_time() == response_time);
+  }
+
+  // expect a cache miss
+  {
+    TestDelegate d;
+    URLRequest req(server.TestServerPage("echoheader?foo"), &d);
+    req.set_context(context);
+    req.SetExtraRequestHeaders("foo:2");
+    req.Start();
+    MessageLoop::current()->Run();
+
+    EXPECT_FALSE(req.response_time() == response_time);
+  }
+}
+
+TEST(URLRequestTest, BasicAuth) {
+  scoped_refptr<URLRequestContext> context = new URLRequestHttpCacheContext();
+  TestServer server(L"");
+
+  Time response_time;
+
+  // populate the cache
+  {
+    TestDelegate d;
+    d.set_username(L"user");
+    d.set_password(L"secret");
+
+    URLRequest r(server.TestServerPage("auth-basic"), &d);
+    r.set_context(context);
+    r.Start();
+
+    MessageLoop::current()->Run();
+
+    EXPECT_TRUE(d.data_received().find("user/secret") != std::string::npos);
+
+    response_time = r.response_time();
+  }
+
+  // Let some time pass so we can ensure that a future response will have a
+  // response time value in the future.
+  Sleep(10 /* milliseconds */);
+
+  // repeat request with end-to-end validation.  since auth-basic results in a
+  // cachable page, we expect this test to result in a 304.  in which case, the
+  // response should be fetched from the cache.
+  {
+    TestDelegate d;
+    d.set_username(L"user");
+    d.set_password(L"secret");
+
+    URLRequest r(server.TestServerPage("auth-basic"), &d);
+    r.set_context(context);
+    r.set_load_flags(net::LOAD_VALIDATE_CACHE);
+    r.Start();
+
+    MessageLoop::current()->Run();
+
+    EXPECT_TRUE(d.data_received().find("user/secret") != std::string::npos);
+
+    // Should be the same cached document, which means that the response time
+    // should not have changed.
+    EXPECT_TRUE(response_time == r.response_time());
+  }
+}
