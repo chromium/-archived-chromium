@@ -1,0 +1,41 @@
+Ä}q(Utwisted_webqctwisted.plugin
+CachedDropin
+q)Åq}q(U
+moduleNameqUtwisted.plugins.twisted_webqUdescriptionqNUpluginsq	]q
+ctwisted.plugin
+CachedPlugin
+q)Åq}q(Uprovidedq]q(ctwisted.plugin
+IPlugin
+qctwisted.scripts.mktap
+IServiceMaker
+qeUdropinqhUnameqU
+TwistedWebqhUà
+    Internal utility class to simplify the definition of "new-style"
+    mktap plugins based on existing, "classic" mktap plugins.
+    qubaubUtwisted_conchqh)Åq}q(hUtwisted.plugins.twisted_conchqhNh	]q(h)Åq}q(h]q(hhehhhUTwistedManholeqhhubh)Åq}q (h]q!(hhehhhU
+TwistedSSHq"hhubeubUtwisted_web2q#h)Åq$}q%(hUtwisted.plugins.twisted_web2q&hNh	]q'(h)Åq(}q)(h]q*(hctwisted.web2.iweb
+IResource
+q+ehh$hUTestResourceq,hNubh)Åq-}q.(h]q/(hhehh$hUTwistedWeb2q0hhubeubU
+testpluginq1h)Åq2}q3(hUtwisted.plugins.testpluginq4hUR
+I'm a test drop-in.  The plugin system's unit tests use me.  No one
+else should.
+q5h	]q6(h)Åq7}q8(h]q9(ctwisted.plugin
+ITestPlugin2
+q:hehh2hUAnotherTestPluginq;hU5Another plugin used solely for testing purposes.
+    q<ubh)Åq=}q>(h]q?(ctwisted.plugin
+ITestPlugin
+q@hehh2hU
+TestPluginqAhU/A plugin used solely for testing purposes.
+    qBubh)ÅqC}qD(h]qE(h:hehh2hUThirdTestPluginqFhU5Another plugin used solely for testing purposes.
+    qGubeubUnotestpluginqHh)ÅqI}qJ(hUtwisted.plugins.notestpluginqKhUWPlugin module for use by the plugin system's unit tests.
+
+Nothing to see here, really.
+qLh	]qMubUtwisted_ftpqNh)ÅqO}qP(hUtwisted.plugins.twisted_ftpqQhNh	]qRh)ÅqS}qT(h]qU(hhehhOhU
+TwistedFTPqVhhubaubUtwisted_telnetqWh)ÅqX}qY(hUtwisted.plugins.twisted_telnetqZhNh	]q[h)Åq\}q](h]q^(hhehhXhUTwistedTelnetq_hhubaubUtwisted_newsq`h)Åqa}qb(hUtwisted.plugins.twisted_newsqchNh	]qdh)Åqe}qf(h]qg(hhehhahUTwistedNewsqhhhubaubUtwisted_socksqih)Åqj}qk(hUtwisted.plugins.twisted_socksqlhNh	]qmh)Åqn}qo(h]qp(hhehhjhUTwistedSOCKSqqhhubaubUtwisted_trialqrh)Åqs}qt(hUtwisted.plugins.twisted_trialquhNh	]qv(h)Åqw}qx(h]qy(hctwisted.trial.itrial
+IReporter
+qzehhshUBlackAndWhiteq{hNubh)Åq|}q}(h]q~(hhzehhshUClassicqhNubh)ÅqÄ}qÅ(h]qÇ(hhzehhshUTreeqÉhNubh)ÅqÑ}qÖ(h]qÜ(hhzehhshUTimingqáhNubh)Åqà}qâ(h]qä(hhzehhshUMinimalqãhNubeubUtwisted_wordsqåh)Åqç}qé(hUtwisted.plugins.twisted_wordsqèhNh	]qê(h)Åqë}qí(h]qì(hctwisted.words.iwords
+IProtocolPlugin
+qîehhçhURelayChatInterfaceqïhNubh)Åqñ}qó(h]qò(hhehhçhUNewTwistedWordsqôhhubh)Åqö}qõ(h]qú(hhîehhçhUPBChatInterfaceqùhNubh)Åqû}qü(h]q†(hhehhçhU
+TwistedTOCq°hhubeubUtwisted_manholeq¢h)Åq£}q§(hUtwisted.plugins.twisted_manholeq•hNh	]q¶h)Åqß}q®(h]q©(hhehh£hhhhubaubUtwisted_namesq™h)Åq´}q¨(hUtwisted.plugins.twisted_namesq≠hNh	]qÆh)ÅqØ}q∞(h]q±(hhehh´hUTwistedNamesq≤hhubaubUtwisted_mailq≥h)Åq¥}qµ(hUtwisted.plugins.twisted_mailq∂hNh	]q∑h)Åq∏}qπ(h]q∫(hhehh¥hUTwistedMailqªhhubaubUtwisted_inetqºh)ÅqΩ}qæ(hUtwisted.plugins.twisted_inetqøhNh	]q¿h)Åq¡}q¬(h]q√(hhehhΩhUTwistedINETDqƒhhubaubUtwisted_portforwardq≈h)Åq∆}q«(hU#twisted.plugins.twisted_portforwardq»hNh	]q…h)Åq }qÀ(h]qÃ(hhehh∆hUTwistedPortForwardqÕhhubaubUtwisted_loreqŒh)Åqœ}q–(hUtwisted.plugins.twisted_loreq—hNh	]q“(h)Åq”}q‘(h]q’(hctwisted.lore.scripts.lore
+IProcessor
+q÷ehhœhUSlideProcessorq◊hNubh)Åqÿ}qŸ(h]q⁄(hh÷ehhœhUDefaultProcessorq€hNubh)Åq‹}q›(h]qﬁ(hh÷ehhœhUMathProcessorqﬂhNubh)Åq‡}q·(h]q‚(hh÷ehhœhUNevowProcessorq„hNubh)Åq‰}qÂ(h]qÊ(hh÷ehhœhUManProcessorqÁhNubeubu.

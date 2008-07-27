@@ -1,0 +1,649 @@
+<html>
+<head>
+<title>Trevor Perrin</title>
+</head>
+<body>
+<H1>Trevor Perrin</H1>
+<b>Email:</b> trevp at trevp.net<br>
+<b>PGP Key:</b> <a href="pgp/key.asc">8035 47B9 D1F9 C148 619A  7948 D8C0 0F11 2F2F F9E3</a>
+<p>I'm a programmer, here are some projects I'm involved in.
+
+<p>My current interest is cryptographic key management and alternatives to PKI.
+<p>
+
+<a name="cryptoID">
+<H2><a href="cryptoID/">CryptoIDs</a></H2>
+<b>Paper 1:</b> Public Key Distribution through "cryptoIDs" (<a href="cryptoID/cryptoID.pdf">.pdf</a>, <a href="cryptoID/cryptoID.html">.html</a>) <i>(presented at <a href="http://www.nspw.org/2003/">NSPW 2003</a>)</i><br>
+<b>Paper 2:</b> The CryptoID Key Management Protocols (<a href="cryptoID/cryptoID2.pdf">.pdf</a>) <i>(the best introduction)</i><br>
+<b>Schema:</b>  XML Schema for &lt;certChain&gt; (<a href="cryptoID/cryptoID.xsd">.xsd</a>)<br>
+<b>Code:</b>  CryptoIDlib Python and Java library and command-line tool v0.1.8 (<a href="cryptoID/cryptoIDlib-0.1.8.zip">.zip</a>, <a href="cryptoID/readme.txt">readme.txt</a>)
+<p>PKI isn't working for person-to-person communications.  Few people use
+secure email, voice, instant-messaging, or anything else.
+<p>CryptoIDs are an alternative.  The idea is for people to exchange small,
+user-friendly fingerprints (aka "cryptoIDs") like 'cyhf4.9ajd8.kbdx4.rk98c'.
+These could be passed around and stored in address books as if they were phone
+numbers or postal addresses.
+<p>The cryptoID for each user would correspond to that user's <i>root key</i>.
+The user would keep his root key in a safe place - his employer or
+some commercial service might hold it for him.  The rootholder would operate
+an online service which would issue short-lived <i>subkey certificates</i> or <i>validation signatures</i> to the user.
+<p>CryptoIDs, then, are about combining <i>fingerprint-based public-key distribution</i> with
+<i>certificate-based private-key management</i>.  The first paper above presents the
+cryptoID fingerprint and certificate formats, which are designed specifically for
+this.  CryptoIDlib lets you test-drive these formats.
+<p>The second paper presents private-key management protocols for use with online servers.
+Support for these is being added to cryptoIDlib.
+
+<a name="tls_lite">
+<H2><a href="tls_lite/">TLS Lite</a></H2>
+<b>Code:</b> tls_lite python library v0.1.8 (<a href="tls_lite/tls_lite-0.1.8.zip">.zip</a>, <a href="tls_lite/readme.txt">readme.txt</a>)<br>
+<p>
+TLS Lite is a free python library that implements SSL 3.0 and <a href="http://www.ietf.org/rfc/rfc2246.txt">TLS 1.0</a>.
+TLS Lite supports non-traditional authentication methods such as <a href="http://trevp.net/tls_srp/index.html">SRP</a>,
+<a href="http://www.ietf.org/internet-drafts/draft-ietf-tls-sharedkeys-02.txt">shared keys</a>,
+and <a href="http://trevp.net/cryptoID/index.html">cryptoIDs</a>, in addition to X.509 certificates.  TLS Lite is pure
+<a href="http://www.python.org">Python</a>, however it can access <a href="http://www.openssl.org/">OpenSSL</a> or
+<a href="http://www.cs.auckland.ac.nz/~pgut001/cryptlib/">cryptlib</a> for faster crypto operations.
+
+<a name="tlssrp">
+<H2><a href="tls_srp/">TLS/SRP</a></H2>
+<b>Internet-Draft:</b>  Using SRP for TLS Authentication (<a href="tls_srp/draft-ietf-tls-srp-06.txt">.txt</a>, <a href="tls_srp/draft-ietf-tls-srp-06.html">.html</a>)
+<p><a href="http://srp.stanford.edu">SRP</a> is the best way to do password authentication
+across a network.  <a href="http://www.ietf.org/html.charters/tls-charter.html">TLS</a> (aka SSL v3.1)
+is the best way to do channel security.  What could go better together?
+<p>This draft modifies the TLS handshake to use SRP.  This combination of
+password-based mutual authentication and the TLS record layer is
+ideal for protecting protocols like POP3 and HTTP.
+
+<a name="dss">
+<H2>DSS</H2>
+<b>Requirements:</b>  DSS Use Case Requirements Analysis (<a href="dss/oasis-dss-1.0-requirements-wd-12.pdf">.pdf</a>, <a href="dss/oasis-dss-1.0-requirements-wd-12.doc">.doc</a>)<br>
+<b>Specification Working Draft:</b> Digital Signature Service Core Protocol and Elements (<a href="dss/oasis-dss-1.0-core-spec-wd-10.pdf">.pdf</a>, <a href="dss/oasis-dss-1.0-core-spec-wd-10.doc">.doc</a>)<br>
+<b>Schema Working Draft:</b> oasis-dss-1.0-core-schema-wd-10 (<a href="dss/oasis-dss-1.0-core-schema-wd-10.xsd">.xsd</a>)<br>
+<b>Somewhat Related Paper:</b> Delegated Cryptography, Online Trusted Third Parties, and PKI
+(<a href="delegatedCrypto/delegatedCrypto.pdf">.pdf</a>, <a href="delegatedCrypto/delegatedCrypto.html">.html</a>)<br>
+<i>(presented at the <a href="http://www.cs.dartmouth.edu/~pki02/">1st Annual PKI Research Workshop</a>)</i>
+<p>The <a href="http://www.oasis-open.org/">OASIS</a> <a href="http://www.oasis-open.org/committees/dss/">Digital Signature Service Technical Committee</a>
+is designing protocols for signing, verifying, and
+time-stamping of XML documents and other data.  The idea is to perform these
+operations on servers, thus freeing clients from having to manage private
+keys, calculate certificate paths, and so on.
+<p>Also listed is a paper arguing for the server-based approach vs. client-side PKI.
+
+<a name="cryptoURL">
+<H2>CryptoURLs</H2>
+<b>Draft of potential Internet-Draft:</b> The "crypto" URL scheme (<a href="cryptoURL/draft-ietf-cryptoURL-01.txt">.txt</a>, <a href="cryptoURL/draft-ietf-cryptoURL-01.html">.html</a>)<br>
+<p>
+CryptoURLs add "crypto metadata" like content hashes and key fingerprints to normal URLs.
+The resulting URLs are <a href="http://zooko.com/distnames.html">self-authenticating</a>,
+like <a href="http://citeseer.nj.nec.com/mazieres99separating.html">SFS file names</a> or
+<a href="http://research.microsoft.com/users/tuomaura/CGA/">Cryptographically Generated Addresses</a>.
+These could be useful in:
+<dir>
+<LI>web pages:
+  <dir>
+  <LI>a page could link to software binaries and include their hash
+  <LI>a portal could provide secure introductions to a community of sites
+  </dir>
+<LI>XML documents (e.g. extending an <a href="http://www.w3.org/TR/xmldsig-core/">XML-DSIG</a> over external references)
+<LI>protocols (e.g. HTTP Redirects or LDAP Referrals)
+<LI>software configuration (you could configure a client with the address and fingerprint of a server in one step)
+</dir>
+<a href="http://www.waterken.com/dev/YURL/">YURLs</a> are another approach to self-authenticating URLs.
+
+<a name="cryptlibConverter">
+<H2><a href="cryptlibConverter/">CryptlibConverter</a></H2>
+<b>Code:</b>  Version 5 for cryptlib 3.1 (<a href="cryptlibConverter/cryptlibConverter5_cl31.zip">.zip</a>, <a href="cryptlibConverter/readme.txt">readme.txt</a>)
+<p>This is a python script that generates java, python, and C# wrappers for
+<a href="http://www.cs.auckland.ac.nz/~pgut001/cryptlib/">cryptlib</a>.  A set of wrappers for
+cryptlib 3.1 is included in the .zip file.  The python and C# wrappers are also included in the latest cryptlib distribution.
+<br>
+<a name="cryptoID">
+<H2><a href="cryptoID/">CryptoIDs</a></H2>
+<b>Paper 1:</b> Public Key Distribution through "cryptoIDs" (<a href="cryptoID/cryptoID.pdf">.pdf</a>, <a href="cryptoID/cryptoID.html">.html</a>) <i>(presented at <a href="http://www.nspw.org/2003/">NSPW 2003</a>)</i><br>
+<b>Paper 2:</b> The CryptoID Key Management Protocols (<a href="cryptoID/cryptoID2.pdf">.pdf</a>) <i>(the best introduction)</i><br>
+<b>Schema:</b>  XML Schema for &lt;certChain&gt; (<a href="cryptoID/cryptoID.xsd">.xsd</a>)<br>
+<b>Code:</b>  CryptoIDlib Python and Java library and command-line tool v0.1.8 (<a href="cryptoID/cryptoIDlib-0.1.8.zip">.zip</a>, <a href="cryptoID/readme.txt">readme.txt</a>)
+<p>PKI isn't working for person-to-person communications.  Few people use
+secure email, voice, instant-messaging, or anything else.
+<p>CryptoIDs are an alternative.  The idea is for people to exchange small,
+user-friendly fingerprints (aka "cryptoIDs") like 'cyhf4.9ajd8.kbdx4.rk98c'.
+These could be passed around and stored in address books as if they were phone
+numbers or postal addresses.
+<p>The cryptoID for each user would correspond to that user's <i>root key</i>.
+The user would keep his root key in a safe place - his employer or
+some commercial service might hold it for him.  The rootholder would operate
+an online service which would issue short-lived <i>subkey certificates</i> or <i>validation signatures</i> to the user.
+<p>CryptoIDs, then, are about combining <i>fingerprint-based public-key distribution</i> with
+<i>certificate-based private-key management</i>.  The first paper above presents the
+cryptoID fingerprint and certificate formats, which are designed specifically for
+this.  CryptoIDlib lets you test-drive these formats.
+<p>The second paper presents private-key management protocols for use with online servers.
+Support for these is being added to cryptoIDlib.
+
+<a name="tls_lite">
+<H2><a href="tls_lite/">TLS Lite</a></H2>
+<b>Code:</b> tls_lite python library v0.1.8 (<a href="tls_lite/tls_lite-0.1.8.zip">.zip</a>, <a href="tls_lite/readme.txt">readme.txt</a>)<br>
+<p>
+TLS Lite is a free python library that implements SSL 3.0 and <a href="http://www.ietf.org/rfc/rfc2246.txt">TLS 1.0</a>.
+TLS Lite supports non-traditional authentication methods such as <a href="http://trevp.net/tls_srp/index.html">SRP</a>,
+<a href="http://www.ietf.org/internet-drafts/draft-ietf-tls-sharedkeys-02.txt">shared keys</a>,
+and <a href="http://trevp.net/cryptoID/index.html">cryptoIDs</a>, in addition to X.509 certificates.  TLS Lite is pure
+<a href="http://www.python.org">Python</a>, however it can access <a href="http://www.openssl.org/">OpenSSL</a> or
+<a href="http://www.cs.auckland.ac.nz/~pgut001/cryptlib/">cryptlib</a> for faster crypto operations.
+
+<a name="tlssrp">
+<H2><a href="tls_srp/">TLS/SRP</a></H2>
+<b>Internet-Draft:</b>  Using SRP for TLS Authentication (<a href="tls_srp/draft-ietf-tls-srp-06.txt">.txt</a>, <a href="tls_srp/draft-ietf-tls-srp-06.html">.html</a>)
+<p><a href="http://srp.stanford.edu">SRP</a> is the best way to do password authentication
+across a network.  <a href="http://www.ietf.org/html.charters/tls-charter.html">TLS</a> (aka SSL v3.1)
+is the best way to do channel security.  What could go better together?
+<p>This draft modifies the TLS handshake to use SRP.  This combination of
+password-based mutual authentication and the TLS record layer is
+ideal for protecting protocols like POP3 and HTTP.
+
+<a name="dss">
+<H2>DSS</H2>
+<b>Requirements:</b>  DSS Use Case Requirements Analysis (<a href="dss/oasis-dss-1.0-requirements-wd-12.pdf">.pdf</a>, <a href="dss/oasis-dss-1.0-requirements-wd-12.doc">.doc</a>)<br>
+<b>Specification Working Draft:</b> Digital Signature Service Core Protocol and Elements (<a href="dss/oasis-dss-1.0-core-spec-wd-10.pdf">.pdf</a>, <a href="dss/oasis-dss-1.0-core-spec-wd-10.doc">.doc</a>)<br>
+<b>Schema Working Draft:</b> oasis-dss-1.0-core-schema-wd-10 (<a href="dss/oasis-dss-1.0-core-schema-wd-10.xsd">.xsd</a>)<br>
+<b>Somewhat Related Paper:</b> Delegated Cryptography, Online Trusted Third Parties, and PKI
+(<a href="delegatedCrypto/delegatedCrypto.pdf">.pdf</a>, <a href="delegatedCrypto/delegatedCrypto.html">.html</a>)<br>
+<i>(presented at the <a href="http://www.cs.dartmouth.edu/~pki02/">1st Annual PKI Research Workshop</a>)</i>
+<p>The <a href="http://www.oasis-open.org/">OASIS</a> <a href="http://www.oasis-open.org/committees/dss/">Digital Signature Service Technical Committee</a>
+is designing protocols for signing, verifying, and
+time-stamping of XML documents and other data.  The idea is to perform these
+operations on servers, thus freeing clients from having to manage private
+keys, calculate certificate paths, and so on.
+<p>Also listed is a paper arguing for the server-based approach vs. client-side PKI.
+
+<a name="cryptoURL">
+<H2>CryptoURLs</H2>
+<b>Draft of potential Internet-Draft:</b> The "crypto" URL scheme (<a href="cryptoURL/draft-ietf-cryptoURL-01.txt">.txt</a>, <a href="cryptoURL/draft-ietf-cryptoURL-01.html">.html</a>)<br>
+<p>
+CryptoURLs add "crypto metadata" like content hashes and key fingerprints to normal URLs.
+The resulting URLs are <a href="http://zooko.com/distnames.html">self-authenticating</a>,
+like <a href="http://citeseer.nj.nec.com/mazieres99separating.html">SFS file names</a> or
+<a href="http://research.microsoft.com/users/tuomaura/CGA/">Cryptographically Generated Addresses</a>.
+These could be useful in:
+<dir>
+<LI>web pages:
+  <dir>
+  <LI>a page could link to software binaries and include their hash
+  <LI>a portal could provide secure introductions to a community of sites
+  </dir>
+<LI>XML documents (e.g. extending an <a href="http://www.w3.org/TR/xmldsig-core/">XML-DSIG</a> over external references)
+<LI>protocols (e.g. HTTP Redirects or LDAP Referrals)
+<LI>software configuration (you could configure a client with the address and fingerprint of a server in one step)
+</dir>
+<a href="http://www.waterken.com/dev/YURL/">YURLs</a> are another approach to self-authenticating URLs.
+
+<a name="cryptlibConverter">
+<H2><a href="cryptlibConverter/">CryptlibConverter</a></H2>
+<b>Code:</b>  Version 5 for cryptlib 3.1 (<a href="cryptlibConverter/cryptlibConverter5_cl31.zip">.zip</a>, <a href="cryptlibConverter/readme.txt">readme.txt</a>)
+<p>This is a python script that generates java, python, and C# wrappers for
+<a href="http://www.cs.auckland.ac.nz/~pgut001/cryptlib/">cryptlib</a>.  A set of wrappers for
+cryptlib 3.1 is included in the .zip file.  The python and C# wrappers are also included in the latest cryptlib distribution.
+<br>
+<a name="cryptoID">
+<H2><a href="cryptoID/">CryptoIDs</a></H2>
+<b>Paper 1:</b> Public Key Distribution through "cryptoIDs" (<a href="cryptoID/cryptoID.pdf">.pdf</a>, <a href="cryptoID/cryptoID.html">.html</a>) <i>(presented at <a href="http://www.nspw.org/2003/">NSPW 2003</a>)</i><br>
+<b>Paper 2:</b> The CryptoID Key Management Protocols (<a href="cryptoID/cryptoID2.pdf">.pdf</a>) <i>(the best introduction)</i><br>
+<b>Schema:</b>  XML Schema for &lt;certChain&gt; (<a href="cryptoID/cryptoID.xsd">.xsd</a>)<br>
+<b>Code:</b>  CryptoIDlib Python and Java library and command-line tool v0.1.8 (<a href="cryptoID/cryptoIDlib-0.1.8.zip">.zip</a>, <a href="cryptoID/readme.txt">readme.txt</a>)
+<p>PKI isn't working for person-to-person communications.  Few people use
+secure email, voice, instant-messaging, or anything else.
+<p>CryptoIDs are an alternative.  The idea is for people to exchange small,
+user-friendly fingerprints (aka "cryptoIDs") like 'cyhf4.9ajd8.kbdx4.rk98c'.
+These could be passed around and stored in address books as if they were phone
+numbers or postal addresses.
+<p>The cryptoID for each user would correspond to that user's <i>root key</i>.
+The user would keep his root key in a safe place - his employer or
+some commercial service might hold it for him.  The rootholder would operate
+an online service which would issue short-lived <i>subkey certificates</i> or <i>validation signatures</i> to the user.
+<p>CryptoIDs, then, are about combining <i>fingerprint-based public-key distribution</i> with
+<i>certificate-based private-key management</i>.  The first paper above presents the
+cryptoID fingerprint and certificate formats, which are designed specifically for
+this.  CryptoIDlib lets you test-drive these formats.
+<p>The second paper presents private-key management protocols for use with online servers.
+Support for these is being added to cryptoIDlib.
+
+<a name="tls_lite">
+<H2><a href="tls_lite/">TLS Lite</a></H2>
+<b>Code:</b> tls_lite python library v0.1.8 (<a href="tls_lite/tls_lite-0.1.8.zip">.zip</a>, <a href="tls_lite/readme.txt">readme.txt</a>)<br>
+<p>
+TLS Lite is a free python library that implements SSL 3.0 and <a href="http://www.ietf.org/rfc/rfc2246.txt">TLS 1.0</a>.
+TLS Lite supports non-traditional authentication methods such as <a href="http://trevp.net/tls_srp/index.html">SRP</a>,
+<a href="http://www.ietf.org/internet-drafts/draft-ietf-tls-sharedkeys-02.txt">shared keys</a>,
+and <a href="http://trevp.net/cryptoID/index.html">cryptoIDs</a>, in addition to X.509 certificates.  TLS Lite is pure
+<a href="http://www.python.org">Python</a>, however it can access <a href="http://www.openssl.org/">OpenSSL</a> or
+<a href="http://www.cs.auckland.ac.nz/~pgut001/cryptlib/">cryptlib</a> for faster crypto operations.
+
+<a name="tlssrp">
+<H2><a href="tls_srp/">TLS/SRP</a></H2>
+<b>Internet-Draft:</b>  Using SRP for TLS Authentication (<a href="tls_srp/draft-ietf-tls-srp-06.txt">.txt</a>, <a href="tls_srp/draft-ietf-tls-srp-06.html">.html</a>)
+<p><a href="http://srp.stanford.edu">SRP</a> is the best way to do password authentication
+across a network.  <a href="http://www.ietf.org/html.charters/tls-charter.html">TLS</a> (aka SSL v3.1)
+is the best way to do channel security.  What could go better together?
+<p>This draft modifies the TLS handshake to use SRP.  This combination of
+password-based mutual authentication and the TLS record layer is
+ideal for protecting protocols like POP3 and HTTP.
+
+<a name="dss">
+<H2>DSS</H2>
+<b>Requirements:</b>  DSS Use Case Requirements Analysis (<a href="dss/oasis-dss-1.0-requirements-wd-12.pdf">.pdf</a>, <a href="dss/oasis-dss-1.0-requirements-wd-12.doc">.doc</a>)<br>
+<b>Specification Working Draft:</b> Digital Signature Service Core Protocol and Elements (<a href="dss/oasis-dss-1.0-core-spec-wd-10.pdf">.pdf</a>, <a href="dss/oasis-dss-1.0-core-spec-wd-10.doc">.doc</a>)<br>
+<b>Schema Working Draft:</b> oasis-dss-1.0-core-schema-wd-10 (<a href="dss/oasis-dss-1.0-core-schema-wd-10.xsd">.xsd</a>)<br>
+<b>Somewhat Related Paper:</b> Delegated Cryptography, Online Trusted Third Parties, and PKI
+(<a href="delegatedCrypto/delegatedCrypto.pdf">.pdf</a>, <a href="delegatedCrypto/delegatedCrypto.html">.html</a>)<br>
+<i>(presented at the <a href="http://www.cs.dartmouth.edu/~pki02/">1st Annual PKI Research Workshop</a>)</i>
+<p>The <a href="http://www.oasis-open.org/">OASIS</a> <a href="http://www.oasis-open.org/committees/dss/">Digital Signature Service Technical Committee</a>
+is designing protocols for signing, verifying, and
+time-stamping of XML documents and other data.  The idea is to perform these
+operations on servers, thus freeing clients from having to manage private
+keys, calculate certificate paths, and so on.
+<p>Also listed is a paper arguing for the server-based approach vs. client-side PKI.
+
+<a name="cryptoURL">
+<H2>CryptoURLs</H2>
+<b>Draft of potential Internet-Draft:</b> The "crypto" URL scheme (<a href="cryptoURL/draft-ietf-cryptoURL-01.txt">.txt</a>, <a href="cryptoURL/draft-ietf-cryptoURL-01.html">.html</a>)<br>
+<p>
+CryptoURLs add "crypto metadata" like content hashes and key fingerprints to normal URLs.
+The resulting URLs are <a href="http://zooko.com/distnames.html">self-authenticating</a>,
+like <a href="http://citeseer.nj.nec.com/mazieres99separating.html">SFS file names</a> or
+<a href="http://research.microsoft.com/users/tuomaura/CGA/">Cryptographically Generated Addresses</a>.
+These could be useful in:
+<dir>
+<LI>web pages:
+  <dir>
+  <LI>a page could link to software binaries and include their hash
+  <LI>a portal could provide secure introductions to a community of sites
+  </dir>
+<LI>XML documents (e.g. extending an <a href="http://www.w3.org/TR/xmldsig-core/">XML-DSIG</a> over external references)
+<LI>protocols (e.g. HTTP Redirects or LDAP Referrals)
+<LI>software configuration (you could configure a client with the address and fingerprint of a server in one step)
+</dir>
+<a href="http://www.waterken.com/dev/YURL/">YURLs</a> are another approach to self-authenticating URLs.
+
+<a name="cryptlibConverter">
+<H2><a href="cryptlibConverter/">CryptlibConverter</a></H2>
+<b>Code:</b>  Version 5 for cryptlib 3.1 (<a href="cryptlibConverter/cryptlibConverter5_cl31.zip">.zip</a>, <a href="cryptlibConverter/readme.txt">readme.txt</a>)
+<p>This is a python script that generates java, python, and C# wrappers for
+<a href="http://www.cs.auckland.ac.nz/~pgut001/cryptlib/">cryptlib</a>.  A set of wrappers for
+cryptlib 3.1 is included in the .zip file.  The python and C# wrappers are also included in the latest cryptlib distribution.
+<br>
+<a name="cryptoID">
+<H2><a href="cryptoID/">CryptoIDs</a></H2>
+<b>Paper 1:</b> Public Key Distribution through "cryptoIDs" (<a href="cryptoID/cryptoID.pdf">.pdf</a>, <a href="cryptoID/cryptoID.html">.html</a>) <i>(presented at <a href="http://www.nspw.org/2003/">NSPW 2003</a>)</i><br>
+<b>Paper 2:</b> The CryptoID Key Management Protocols (<a href="cryptoID/cryptoID2.pdf">.pdf</a>) <i>(the best introduction)</i><br>
+<b>Schema:</b>  XML Schema for &lt;certChain&gt; (<a href="cryptoID/cryptoID.xsd">.xsd</a>)<br>
+<b>Code:</b>  CryptoIDlib Python and Java library and command-line tool v0.1.8 (<a href="cryptoID/cryptoIDlib-0.1.8.zip">.zip</a>, <a href="cryptoID/readme.txt">readme.txt</a>)
+<p>PKI isn't working for person-to-person communications.  Few people use
+secure email, voice, instant-messaging, or anything else.
+<p>CryptoIDs are an alternative.  The idea is for people to exchange small,
+user-friendly fingerprints (aka "cryptoIDs") like 'cyhf4.9ajd8.kbdx4.rk98c'.
+These could be passed around and stored in address books as if they were phone
+numbers or postal addresses.
+<p>The cryptoID for each user would correspond to that user's <i>root key</i>.
+The user would keep his root key in a safe place - his employer or
+some commercial service might hold it for him.  The rootholder would operate
+an online service which would issue short-lived <i>subkey certificates</i> or <i>validation signatures</i> to the user.
+<p>CryptoIDs, then, are about combining <i>fingerprint-based public-key distribution</i> with
+<i>certificate-based private-key management</i>.  The first paper above presents the
+cryptoID fingerprint and certificate formats, which are designed specifically for
+this.  CryptoIDlib lets you test-drive these formats.
+<p>The second paper presents private-key management protocols for use with online servers.
+Support for these is being added to cryptoIDlib.
+
+<a name="tls_lite">
+<H2><a href="tls_lite/">TLS Lite</a></H2>
+<b>Code:</b> tls_lite python library v0.1.8 (<a href="tls_lite/tls_lite-0.1.8.zip">.zip</a>, <a href="tls_lite/readme.txt">readme.txt</a>)<br>
+<p>
+TLS Lite is a free python library that implements SSL 3.0 and <a href="http://www.ietf.org/rfc/rfc2246.txt">TLS 1.0</a>.
+TLS Lite supports non-traditional authentication methods such as <a href="http://trevp.net/tls_srp/index.html">SRP</a>,
+<a href="http://www.ietf.org/internet-drafts/draft-ietf-tls-sharedkeys-02.txt">shared keys</a>,
+and <a href="http://trevp.net/cryptoID/index.html">cryptoIDs</a>, in addition to X.509 certificates.  TLS Lite is pure
+<a href="http://www.python.org">Python</a>, however it can access <a href="http://www.openssl.org/">OpenSSL</a> or
+<a href="http://www.cs.auckland.ac.nz/~pgut001/cryptlib/">cryptlib</a> for faster crypto operations.
+
+<a name="tlssrp">
+<H2><a href="tls_srp/">TLS/SRP</a></H2>
+<b>Internet-Draft:</b>  Using SRP for TLS Authentication (<a href="tls_srp/draft-ietf-tls-srp-06.txt">.txt</a>, <a href="tls_srp/draft-ietf-tls-srp-06.html">.html</a>)
+<p><a href="http://srp.stanford.edu">SRP</a> is the best way to do password authentication
+across a network.  <a href="http://www.ietf.org/html.charters/tls-charter.html">TLS</a> (aka SSL v3.1)
+is the best way to do channel security.  What could go better together?
+<p>This draft modifies the TLS handshake to use SRP.  This combination of
+password-based mutual authentication and the TLS record layer is
+ideal for protecting protocols like POP3 and HTTP.
+
+<a name="dss">
+<H2>DSS</H2>
+<b>Requirements:</b>  DSS Use Case Requirements Analysis (<a href="dss/oasis-dss-1.0-requirements-wd-12.pdf">.pdf</a>, <a href="dss/oasis-dss-1.0-requirements-wd-12.doc">.doc</a>)<br>
+<b>Specification Working Draft:</b> Digital Signature Service Core Protocol and Elements (<a href="dss/oasis-dss-1.0-core-spec-wd-10.pdf">.pdf</a>, <a href="dss/oasis-dss-1.0-core-spec-wd-10.doc">.doc</a>)<br>
+<b>Schema Working Draft:</b> oasis-dss-1.0-core-schema-wd-10 (<a href="dss/oasis-dss-1.0-core-schema-wd-10.xsd">.xsd</a>)<br>
+<b>Somewhat Related Paper:</b> Delegated Cryptography, Online Trusted Third Parties, and PKI
+(<a href="delegatedCrypto/delegatedCrypto.pdf">.pdf</a>, <a href="delegatedCrypto/delegatedCrypto.html">.html</a>)<br>
+<i>(presented at the <a href="http://www.cs.dartmouth.edu/~pki02/">1st Annual PKI Research Workshop</a>)</i>
+<p>The <a href="http://www.oasis-open.org/">OASIS</a> <a href="http://www.oasis-open.org/committees/dss/">Digital Signature Service Technical Committee</a>
+is designing protocols for signing, verifying, and
+time-stamping of XML documents and other data.  The idea is to perform these
+operations on servers, thus freeing clients from having to manage private
+keys, calculate certificate paths, and so on.
+<p>Also listed is a paper arguing for the server-based approach vs. client-side PKI.
+
+<a name="cryptoURL">
+<H2>CryptoURLs</H2>
+<b>Draft of potential Internet-Draft:</b> The "crypto" URL scheme (<a href="cryptoURL/draft-ietf-cryptoURL-01.txt">.txt</a>, <a href="cryptoURL/draft-ietf-cryptoURL-01.html">.html</a>)<br>
+<p>
+CryptoURLs add "crypto metadata" like content hashes and key fingerprints to normal URLs.
+The resulting URLs are <a href="http://zooko.com/distnames.html">self-authenticating</a>,
+like <a href="http://citeseer.nj.nec.com/mazieres99separating.html">SFS file names</a> or
+<a href="http://research.microsoft.com/users/tuomaura/CGA/">Cryptographically Generated Addresses</a>.
+These could be useful in:
+<dir>
+<LI>web pages:
+  <dir>
+  <LI>a page could link to software binaries and include their hash
+  <LI>a portal could provide secure introductions to a community of sites
+  </dir>
+<LI>XML documents (e.g. extending an <a href="http://www.w3.org/TR/xmldsig-core/">XML-DSIG</a> over external references)
+<LI>protocols (e.g. HTTP Redirects or LDAP Referrals)
+<LI>software configuration (you could configure a client with the address and fingerprint of a server in one step)
+</dir>
+<a href="http://www.waterken.com/dev/YURL/">YURLs</a> are another approach to self-authenticating URLs.
+
+<a name="cryptlibConverter">
+<H2><a href="cryptlibConverter/">CryptlibConverter</a></H2>
+<b>Code:</b>  Version 5 for cryptlib 3.1 (<a href="cryptlibConverter/cryptlibConverter5_cl31.zip">.zip</a>, <a href="cryptlibConverter/readme.txt">readme.txt</a>)
+<p>This is a python script that generates java, python, and C# wrappers for
+<a href="http://www.cs.auckland.ac.nz/~pgut001/cryptlib/">cryptlib</a>.  A set of wrappers for
+cryptlib 3.1 is included in the .zip file.  The python and C# wrappers are also included in the latest cryptlib distribution.
+<br>
+<a name="cryptoID">
+<H2><a href="cryptoID/">CryptoIDs</a></H2>
+<b>Paper 1:</b> Public Key Distribution through "cryptoIDs" (<a href="cryptoID/cryptoID.pdf">.pdf</a>, <a href="cryptoID/cryptoID.html">.html</a>) <i>(presented at <a href="http://www.nspw.org/2003/">NSPW 2003</a>)</i><br>
+<b>Paper 2:</b> The CryptoID Key Management Protocols (<a href="cryptoID/cryptoID2.pdf">.pdf</a>) <i>(the best introduction)</i><br>
+<b>Schema:</b>  XML Schema for &lt;certChain&gt; (<a href="cryptoID/cryptoID.xsd">.xsd</a>)<br>
+<b>Code:</b>  CryptoIDlib Python and Java library and command-line tool v0.1.8 (<a href="cryptoID/cryptoIDlib-0.1.8.zip">.zip</a>, <a href="cryptoID/readme.txt">readme.txt</a>)
+<p>PKI isn't working for person-to-person communications.  Few people use
+secure email, voice, instant-messaging, or anything else.
+<p>CryptoIDs are an alternative.  The idea is for people to exchange small,
+user-friendly fingerprints (aka "cryptoIDs") like 'cyhf4.9ajd8.kbdx4.rk98c'.
+These could be passed around and stored in address books as if they were phone
+numbers or postal addresses.
+<p>The cryptoID for each user would correspond to that user's <i>root key</i>.
+The user would keep his root key in a safe place - his employer or
+some commercial service might hold it for him.  The rootholder would operate
+an online service which would issue short-lived <i>subkey certificates</i> or <i>validation signatures</i> to the user.
+<p>CryptoIDs, then, are about combining <i>fingerprint-based public-key distribution</i> with
+<i>certificate-based private-key management</i>.  The first paper above presents the
+cryptoID fingerprint and certificate formats, which are designed specifically for
+this.  CryptoIDlib lets you test-drive these formats.
+<p>The second paper presents private-key management protocols for use with online servers.
+Support for these is being added to cryptoIDlib.
+
+<a name="tls_lite">
+<H2><a href="tls_lite/">TLS Lite</a></H2>
+<b>Code:</b> tls_lite python library v0.1.8 (<a href="tls_lite/tls_lite-0.1.8.zip">.zip</a>, <a href="tls_lite/readme.txt">readme.txt</a>)<br>
+<p>
+TLS Lite is a free python library that implements SSL 3.0 and <a href="http://www.ietf.org/rfc/rfc2246.txt">TLS 1.0</a>.
+TLS Lite supports non-traditional authentication methods such as <a href="http://trevp.net/tls_srp/index.html">SRP</a>,
+<a href="http://www.ietf.org/internet-drafts/draft-ietf-tls-sharedkeys-02.txt">shared keys</a>,
+and <a href="http://trevp.net/cryptoID/index.html">cryptoIDs</a>, in addition to X.509 certificates.  TLS Lite is pure
+<a href="http://www.python.org">Python</a>, however it can access <a href="http://www.openssl.org/">OpenSSL</a> or
+<a href="http://www.cs.auckland.ac.nz/~pgut001/cryptlib/">cryptlib</a> for faster crypto operations.
+
+<a name="tlssrp">
+<H2><a href="tls_srp/">TLS/SRP</a></H2>
+<b>Internet-Draft:</b>  Using SRP for TLS Authentication (<a href="tls_srp/draft-ietf-tls-srp-06.txt">.txt</a>, <a href="tls_srp/draft-ietf-tls-srp-06.html">.html</a>)
+<p><a href="http://srp.stanford.edu">SRP</a> is the best way to do password authentication
+across a network.  <a href="http://www.ietf.org/html.charters/tls-charter.html">TLS</a> (aka SSL v3.1)
+is the best way to do channel security.  What could go better together?
+<p>This draft modifies the TLS handshake to use SRP.  This combination of
+password-based mutual authentication and the TLS record layer is
+ideal for protecting protocols like POP3 and HTTP.
+
+<a name="dss">
+<H2>DSS</H2>
+<b>Requirements:</b>  DSS Use Case Requirements Analysis (<a href="dss/oasis-dss-1.0-requirements-wd-12.pdf">.pdf</a>, <a href="dss/oasis-dss-1.0-requirements-wd-12.doc">.doc</a>)<br>
+<b>Specification Working Draft:</b> Digital Signature Service Core Protocol and Elements (<a href="dss/oasis-dss-1.0-core-spec-wd-10.pdf">.pdf</a>, <a href="dss/oasis-dss-1.0-core-spec-wd-10.doc">.doc</a>)<br>
+<b>Schema Working Draft:</b> oasis-dss-1.0-core-schema-wd-10 (<a href="dss/oasis-dss-1.0-core-schema-wd-10.xsd">.xsd</a>)<br>
+<b>Somewhat Related Paper:</b> Delegated Cryptography, Online Trusted Third Parties, and PKI
+(<a href="delegatedCrypto/delegatedCrypto.pdf">.pdf</a>, <a href="delegatedCrypto/delegatedCrypto.html">.html</a>)<br>
+<i>(presented at the <a href="http://www.cs.dartmouth.edu/~pki02/">1st Annual PKI Research Workshop</a>)</i>
+<p>The <a href="http://www.oasis-open.org/">OASIS</a> <a href="http://www.oasis-open.org/committees/dss/">Digital Signature Service Technical Committee</a>
+is designing protocols for signing, verifying, and
+time-stamping of XML documents and other data.  The idea is to perform these
+operations on servers, thus freeing clients from having to manage private
+keys, calculate certificate paths, and so on.
+<p>Also listed is a paper arguing for the server-based approach vs. client-side PKI.
+
+<a name="cryptoURL">
+<H2>CryptoURLs</H2>
+<b>Draft of potential Internet-Draft:</b> The "crypto" URL scheme (<a href="cryptoURL/draft-ietf-cryptoURL-01.txt">.txt</a>, <a href="cryptoURL/draft-ietf-cryptoURL-01.html">.html</a>)<br>
+<p>
+CryptoURLs add "crypto metadata" like content hashes and key fingerprints to normal URLs.
+The resulting URLs are <a href="http://zooko.com/distnames.html">self-authenticating</a>,
+like <a href="http://citeseer.nj.nec.com/mazieres99separating.html">SFS file names</a> or
+<a href="http://research.microsoft.com/users/tuomaura/CGA/">Cryptographically Generated Addresses</a>.
+These could be useful in:
+<dir>
+<LI>web pages:
+  <dir>
+  <LI>a page could link to software binaries and include their hash
+  <LI>a portal could provide secure introductions to a community of sites
+  </dir>
+<LI>XML documents (e.g. extending an <a href="http://www.w3.org/TR/xmldsig-core/">XML-DSIG</a> over external references)
+<LI>protocols (e.g. HTTP Redirects or LDAP Referrals)
+<LI>software configuration (you could configure a client with the address and fingerprint of a server in one step)
+</dir>
+<a href="http://www.waterken.com/dev/YURL/">YURLs</a> are another approach to self-authenticating URLs.
+
+<a name="cryptlibConverter">
+<H2><a href="cryptlibConverter/">CryptlibConverter</a></H2>
+<b>Code:</b>  Version 5 for cryptlib 3.1 (<a href="cryptlibConverter/cryptlibConverter5_cl31.zip">.zip</a>, <a href="cryptlibConverter/readme.txt">readme.txt</a>)
+<p>This is a python script that generates java, python, and C# wrappers for
+<a href="http://www.cs.auckland.ac.nz/~pgut001/cryptlib/">cryptlib</a>.  A set of wrappers for
+cryptlib 3.1 is included in the .zip file.  The python and C# wrappers are also included in the latest cryptlib distribution.
+<br>
+<a name="cryptoID">
+<H2><a href="cryptoID/">CryptoIDs</a></H2>
+<b>Paper 1:</b> Public Key Distribution through "cryptoIDs" (<a href="cryptoID/cryptoID.pdf">.pdf</a>, <a href="cryptoID/cryptoID.html">.html</a>) <i>(presented at <a href="http://www.nspw.org/2003/">NSPW 2003</a>)</i><br>
+<b>Paper 2:</b> The CryptoID Key Management Protocols (<a href="cryptoID/cryptoID2.pdf">.pdf</a>) <i>(the best introduction)</i><br>
+<b>Schema:</b>  XML Schema for &lt;certChain&gt; (<a href="cryptoID/cryptoID.xsd">.xsd</a>)<br>
+<b>Code:</b>  CryptoIDlib Python and Java library and command-line tool v0.1.8 (<a href="cryptoID/cryptoIDlib-0.1.8.zip">.zip</a>, <a href="cryptoID/readme.txt">readme.txt</a>)
+<p>PKI isn't working for person-to-person communications.  Few people use
+secure email, voice, instant-messaging, or anything else.
+<p>CryptoIDs are an alternative.  The idea is for people to exchange small,
+user-friendly fingerprints (aka "cryptoIDs") like 'cyhf4.9ajd8.kbdx4.rk98c'.
+These could be passed around and stored in address books as if they were phone
+numbers or postal addresses.
+<p>The cryptoID for each user would correspond to that user's <i>root key</i>.
+The user would keep his root key in a safe place - his employer or
+some commercial service might hold it for him.  The rootholder would operate
+an online service which would issue short-lived <i>subkey certificates</i> or <i>validation signatures</i> to the user.
+<p>CryptoIDs, then, are about combining <i>fingerprint-based public-key distribution</i> with
+<i>certificate-based private-key management</i>.  The first paper above presents the
+cryptoID fingerprint and certificate formats, which are designed specifically for
+this.  CryptoIDlib lets you test-drive these formats.
+<p>The second paper presents private-key management protocols for use with online servers.
+Support for these is being added to cryptoIDlib.
+
+<a name="tls_lite">
+<H2><a href="tls_lite/">TLS Lite</a></H2>
+<b>Code:</b> tls_lite python library v0.1.8 (<a href="tls_lite/tls_lite-0.1.8.zip">.zip</a>, <a href="tls_lite/readme.txt">readme.txt</a>)<br>
+<p>
+TLS Lite is a free python library that implements SSL 3.0 and <a href="http://www.ietf.org/rfc/rfc2246.txt">TLS 1.0</a>.
+TLS Lite supports non-traditional authentication methods such as <a href="http://trevp.net/tls_srp/index.html">SRP</a>,
+<a href="http://www.ietf.org/internet-drafts/draft-ietf-tls-sharedkeys-02.txt">shared keys</a>,
+and <a href="http://trevp.net/cryptoID/index.html">cryptoIDs</a>, in addition to X.509 certificates.  TLS Lite is pure
+<a href="http://www.python.org">Python</a>, however it can access <a href="http://www.openssl.org/">OpenSSL</a> or
+<a href="http://www.cs.auckland.ac.nz/~pgut001/cryptlib/">cryptlib</a> for faster crypto operations.
+
+<a name="tlssrp">
+<H2><a href="tls_srp/">TLS/SRP</a></H2>
+<b>Internet-Draft:</b>  Using SRP for TLS Authentication (<a href="tls_srp/draft-ietf-tls-srp-06.txt">.txt</a>, <a href="tls_srp/draft-ietf-tls-srp-06.html">.html</a>)
+<p><a href="http://srp.stanford.edu">SRP</a> is the best way to do password authentication
+across a network.  <a href="http://www.ietf.org/html.charters/tls-charter.html">TLS</a> (aka SSL v3.1)
+is the best way to do channel security.  What could go better together?
+<p>This draft modifies the TLS handshake to use SRP.  This combination of
+password-based mutual authentication and the TLS record layer is
+ideal for protecting protocols like POP3 and HTTP.
+
+<a name="dss">
+<H2>DSS</H2>
+<b>Requirements:</b>  DSS Use Case Requirements Analysis (<a href="dss/oasis-dss-1.0-requirements-wd-12.pdf">.pdf</a>, <a href="dss/oasis-dss-1.0-requirements-wd-12.doc">.doc</a>)<br>
+<b>Specification Working Draft:</b> Digital Signature Service Core Protocol and Elements (<a href="dss/oasis-dss-1.0-core-spec-wd-10.pdf">.pdf</a>, <a href="dss/oasis-dss-1.0-core-spec-wd-10.doc">.doc</a>)<br>
+<b>Schema Working Draft:</b> oasis-dss-1.0-core-schema-wd-10 (<a href="dss/oasis-dss-1.0-core-schema-wd-10.xsd">.xsd</a>)<br>
+<b>Somewhat Related Paper:</b> Delegated Cryptography, Online Trusted Third Parties, and PKI
+(<a href="delegatedCrypto/delegatedCrypto.pdf">.pdf</a>, <a href="delegatedCrypto/delegatedCrypto.html">.html</a>)<br>
+<i>(presented at the <a href="http://www.cs.dartmouth.edu/~pki02/">1st Annual PKI Research Workshop</a>)</i>
+<p>The <a href="http://www.oasis-open.org/">OASIS</a> <a href="http://www.oasis-open.org/committees/dss/">Digital Signature Service Technical Committee</a>
+is designing protocols for signing, verifying, and
+time-stamping of XML documents and other data.  The idea is to perform these
+operations on servers, thus freeing clients from having to manage private
+keys, calculate certificate paths, and so on.
+<p>Also listed is a paper arguing for the server-based approach vs. client-side PKI.
+
+<a name="cryptoURL">
+<H2>CryptoURLs</H2>
+<b>Draft of potential Internet-Draft:</b> The "crypto" URL scheme (<a href="cryptoURL/draft-ietf-cryptoURL-01.txt">.txt</a>, <a href="cryptoURL/draft-ietf-cryptoURL-01.html">.html</a>)<br>
+<p>
+CryptoURLs add "crypto metadata" like content hashes and key fingerprints to normal URLs.
+The resulting URLs are <a href="http://zooko.com/distnames.html">self-authenticating</a>,
+like <a href="http://citeseer.nj.nec.com/mazieres99separating.html">SFS file names</a> or
+<a href="http://research.microsoft.com/users/tuomaura/CGA/">Cryptographically Generated Addresses</a>.
+These could be useful in:
+<dir>
+<LI>web pages:
+  <dir>
+  <LI>a page could link to software binaries and include their hash
+  <LI>a portal could provide secure introductions to a community of sites
+  </dir>
+<LI>XML documents (e.g. extending an <a href="http://www.w3.org/TR/xmldsig-core/">XML-DSIG</a> over external references)
+<LI>protocols (e.g. HTTP Redirects or LDAP Referrals)
+<LI>software configuration (you could configure a client with the address and fingerprint of a server in one step)
+</dir>
+<a href="http://www.waterken.com/dev/YURL/">YURLs</a> are another approach to self-authenticating URLs.
+
+<a name="cryptlibConverter">
+<H2><a href="cryptlibConverter/">CryptlibConverter</a></H2>
+<b>Code:</b>  Version 5 for cryptlib 3.1 (<a href="cryptlibConverter/cryptlibConverter5_cl31.zip">.zip</a>, <a href="cryptlibConverter/readme.txt">readme.txt</a>)
+<p>This is a python script that generates java, python, and C# wrappers for
+<a href="http://www.cs.auckland.ac.nz/~pgut001/cryptlib/">cryptlib</a>.  A set of wrappers for
+cryptlib 3.1 is included in the .zip file.  The python and C# wrappers are also included in the latest cryptlib distribution.
+<br>
+<a name="cryptoID">
+<H2><a href="cryptoID/">CryptoIDs</a></H2>
+<b>Paper 1:</b> Public Key Distribution through "cryptoIDs" (<a href="cryptoID/cryptoID.pdf">.pdf</a>, <a href="cryptoID/cryptoID.html">.html</a>) <i>(presented at <a href="http://www.nspw.org/2003/">NSPW 2003</a>)</i><br>
+<b>Paper 2:</b> The CryptoID Key Management Protocols (<a href="cryptoID/cryptoID2.pdf">.pdf</a>) <i>(the best introduction)</i><br>
+<b>Schema:</b>  XML Schema for &lt;certChain&gt; (<a href="cryptoID/cryptoID.xsd">.xsd</a>)<br>
+<b>Code:</b>  CryptoIDlib Python and Java library and command-line tool v0.1.8 (<a href="cryptoID/cryptoIDlib-0.1.8.zip">.zip</a>, <a href="cryptoID/readme.txt">readme.txt</a>)
+<p>PKI isn't working for person-to-person communications.  Few people use
+secure email, voice, instant-messaging, or anything else.
+<p>CryptoIDs are an alternative.  The idea is for people to exchange small,
+user-friendly fingerprints (aka "cryptoIDs") like 'cyhf4.9ajd8.kbdx4.rk98c'.
+These could be passed around and stored in address books as if they were phone
+numbers or postal addresses.
+<p>The cryptoID for each user would correspond to that user's <i>root key</i>.
+The user would keep his root key in a safe place - his employer or
+some commercial service might hold it for him.  The rootholder would operate
+an online service which would issue short-lived <i>subkey certificates</i> or <i>validation signatures</i> to the user.
+<p>CryptoIDs, then, are about combining <i>fingerprint-based public-key distribution</i> with
+<i>certificate-based private-key management</i>.  The first paper above presents the
+cryptoID fingerprint and certificate formats, which are designed specifically for
+this.  CryptoIDlib lets you test-drive these formats.
+<p>The second paper presents private-key management protocols for use with online servers.
+Support for these is being added to cryptoIDlib.
+
+<a name="tls_lite">
+<H2><a href="tls_lite/">TLS Lite</a></H2>
+<b>Code:</b> tls_lite python library v0.1.8 (<a href="tls_lite/tls_lite-0.1.8.zip">.zip</a>, <a href="tls_lite/readme.txt">readme.txt</a>)<br>
+<p>
+TLS Lite is a free python library that implements SSL 3.0 and <a href="http://www.ietf.org/rfc/rfc2246.txt">TLS 1.0</a>.
+TLS Lite supports non-traditional authentication methods such as <a href="http://trevp.net/tls_srp/index.html">SRP</a>,
+<a href="http://www.ietf.org/internet-drafts/draft-ietf-tls-sharedkeys-02.txt">shared keys</a>,
+and <a href="http://trevp.net/cryptoID/index.html">cryptoIDs</a>, in addition to X.509 certificates.  TLS Lite is pure
+<a href="http://www.python.org">Python</a>, however it can access <a href="http://www.openssl.org/">OpenSSL</a> or
+<a href="http://www.cs.auckland.ac.nz/~pgut001/cryptlib/">cryptlib</a> for faster crypto operations.
+
+<a name="tlssrp">
+<H2><a href="tls_srp/">TLS/SRP</a></H2>
+<b>Internet-Draft:</b>  Using SRP for TLS Authentication (<a href="tls_srp/draft-ietf-tls-srp-06.txt">.txt</a>, <a href="tls_srp/draft-ietf-tls-srp-06.html">.html</a>)
+<p><a href="http://srp.stanford.edu">SRP</a> is the best way to do password authentication
+across a network.  <a href="http://www.ietf.org/html.charters/tls-charter.html">TLS</a> (aka SSL v3.1)
+is the best way to do channel security.  What could go better together?
+<p>This draft modifies the TLS handshake to use SRP.  This combination of
+password-based mutual authentication and the TLS record layer is
+ideal for protecting protocols like POP3 and HTTP.
+
+<a name="dss">
+<H2>DSS</H2>
+<b>Requirements:</b>  DSS Use Case Requirements Analysis (<a href="dss/oasis-dss-1.0-requirements-wd-12.pdf">.pdf</a>, <a href="dss/oasis-dss-1.0-requirements-wd-12.doc">.doc</a>)<br>
+<b>Specification Working Draft:</b> Digital Signature Service Core Protocol and Elements (<a href="dss/oasis-dss-1.0-core-spec-wd-10.pdf">.pdf</a>, <a href="dss/oasis-dss-1.0-core-spec-wd-10.doc">.doc</a>)<br>
+<b>Schema Working Draft:</b> oasis-dss-1.0-core-schema-wd-10 (<a href="dss/oasis-dss-1.0-core-schema-wd-10.xsd">.xsd</a>)<br>
+<b>Somewhat Related Paper:</b> Delegated Cryptography, Online Trusted Third Parties, and PKI
+(<a href="delegatedCrypto/delegatedCrypto.pdf">.pdf</a>, <a href="delegatedCrypto/delegatedCrypto.html">.html</a>)<br>
+<i>(presented at the <a href="http://www.cs.dartmouth.edu/~pki02/">1st Annual PKI Research Workshop</a>)</i>
+<p>The <a href="http://www.oasis-open.org/">OASIS</a> <a href="http://www.oasis-open.org/committees/dss/">Digital Signature Service Technical Committee</a>
+is designing protocols for signing, verifying, and
+time-stamping of XML documents and other data.  The idea is to perform these
+operations on servers, thus freeing clients from having to manage private
+keys, calculate certificate paths, and so on.
+<p>Also listed is a paper arguing for the server-based approach vs. client-side PKI.
+
+<a name="cryptoURL">
+<H2>CryptoURLs</H2>
+<b>Draft of potential Internet-Draft:</b> The "crypto" URL scheme (<a href="cryptoURL/draft-ietf-cryptoURL-01.txt">.txt</a>, <a href="cryptoURL/draft-ietf-cryptoURL-01.html">.html</a>)<br>
+<p>
+CryptoURLs add "crypto metadata" like content hashes and key fingerprints to normal URLs.
+The resulting URLs are <a href="http://zooko.com/distnames.html">self-authenticating</a>,
+like <a href="http://citeseer.nj.nec.com/mazieres99separating.html">SFS file names</a> or
+<a href="http://research.microsoft.com/users/tuomaura/CGA/">Cryptographically Generated Addresses</a>.
+These could be useful in:
+<dir>
+<LI>web pages:
+  <dir>
+  <LI>a page could link to software binaries and include their hash
+  <LI>a portal could provide secure introductions to a community of sites
+  </dir>
+<LI>XML documents (e.g. extending an <a href="http://www.w3.org/TR/xmldsig-core/">XML-DSIG</a> over external references)
+<LI>protocols (e.g. HTTP Redirects or LDAP Referrals)
+<LI>software configuration (you could configure a client with the address and fingerprint of a server in one step)
+</dir>
+<a href="http://www.waterken.com/dev/YURL/">YURLs</a> are another approach to self-authenticating URLs.
+
+<a name="cryptlibConverter">
+<H2><a href="cryptlibConverter/">CryptlibConverter</a></H2>
+<b>Code:</b>  Version 5 for cryptlib 3.1 (<a href="cryptlibConverter/cryptlibConverter5_cl31.zip">.zip</a>, <a href="cryptlibConverter/readme.txt">readme.txt</a>)
+<p>This is a python script that generates java, python, and C# wrappers for
+<a href="http://www.cs.auckland.ac.nz/~pgut001/cryptlib/">cryptlib</a>.  A set of wrappers for
+cryptlib 3.1 is included in the .zip file.  The python and C# wrappers are also included in the latest cryptlib distribution.
+<br>
+<a name="cryptoID">
+<H2><a href="cryptoID/">CryptoIDs</a></H2>
+<b>Paper 1:</b> Public Key Distribution through "cryptoIDs" (<a href="cryptoID/cryptoID.pdf">.pdf</a>, <a href="cryptoID/cryptoID.html">.html</a>) <i>(presented at <a href="http://www.nspw.org/2003/">NSPW 2003</a>)</i><br>
+<b>Paper 2:</b> The CryptoID Key Management Protocols (<a href="cryptoID/cryptoID2.pdf">.pdf</a>) <i>(the best introduction)</i><br>
+<b>Schema:</b>  XML Schema for &lt;certChain&gt; (<a href="cryptoID/cryptoID.xsd">.xsd</a>)<br>
+<b>Code:</b>  CryptoIDlib Python and Java library and command-line tool v0.1.8 (<a href="cryptoID/cryptoIDlib-0.1.8.zip">.zip</a>, <a href="cryptoID/readme.txt">readme.txt</a>)
+<p>PKI isn't working for person-to-person communications.  Few people use
+secure email, voice, instant-messaging, or anything else.
+<p>CryptoIDs are an alternative.  The idea is for people to exchange small,
+user-friendly fingerprints (aka "cryptoIDs") like 'cyhf4.9ajd8.kbdx4.rk98c'.
+These could be passed around and stored in address books as if they were phone
+numbers or postal addresses.
+<p>The cryptoID for each user would correspond to that user's <i>root key</i>.
+The user would keep his root key in a safe place - his employer or
+some commercial service might hold it for him.  The rootholder would operate
+an online service which would issue short-lived <i>subkey certificates</i> or <i>validation signatures</i> to the user.
+<p>CryptoIDs, then, are about combining <i>fingerprint-based public-key distribution</i> with
+<i>certificate-based private-key management</i>.  The first paper above presents the
+cryptoID fingerprint and certificate formats, which are designed specifically for
+this.  CryptoIDlib lets you test-drive these formats.
+<p>The second paper presents private-key management protocols for use with online servers.
+Support for these is being added to cryptoIDlib.
+
+<br>
+<br>
+</body>
+</html>

@@ -1,0 +1,32 @@
+Update(04/29/08): Added PHP module for Apache 2. First PHP module was installed
+(from Cygwin repository at ftp://sunsite.dk/projects/cygwinports) as part of
+another Cygwin installation. Then the required files for PHP were moved
+under source tree.
+Update(04/25/08): Added Apache 2. apache2 package was first installed
+as part of another Cygwin installation and then only the required files were
+copied over to this tree.
+-----------------------------------------------------------------------------
+This contains the necessary Cygwin files to build WebKit.  A filemon trace
+during a build showed which files from cygwin\build are needed.
+
+The first change is a binary modification to cygwin1.dll so that /, /bin,
+/usr etc point to third_party\cygwin.  Normally cygwin reads the mounts from
+HKCU\Software\Cygnus Solutions\Cygwin\mounts v2.  We trick it into using
+version 0, which was never used, by binary editing cygwin1.dll.  This lets
+cygwin start without any mounts even if the user already has cygwin installed.
+setup_mount.bat lets us add these mounts to point to the user's
+third_party\cygwin directory.
+
+The second change is to modify the name of the shared memory structures, so
+that if another cygwin (of a different version) is running, these two don't
+collide.
+
+The binary modifications to cygwin1.dll were:
+  replacing "mounts v2" with "mounts v0" (two places)
+  replacing "mount registry: 2" with "mount registry: 0"
+  replacing "cygwin1S4" with "cygwin0S4"
+
+These can be replayed by running "changes\convert.py".
+
+IMPORTANT: To add new files here you should grab them out of \\jam2-corp\cygwin
+to avoid version incompatibilities.

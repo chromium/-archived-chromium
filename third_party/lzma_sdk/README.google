@@ -1,0 +1,5 @@
+This contains a part of LZMA SDK 4.49.
+
+Only the C code required to open 7z archive files and uncompress LZMA
+compression has been included. The project files have been rewritten to use
+proper file paths and generate a static lib.

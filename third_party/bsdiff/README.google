@@ -1,0 +1,10 @@
+This is Chrome's locally patched copy of Colin Percival's bsdiff tool
+(see ../bspatch for the corresponding bspatch tool).
+
+Originally obtained from Mozilla's local copy/fork of bsdiff; see:
+
+http://lxr.mozilla.org/mozilla/source/other-licenses/bsdiff/bsdiff.c
+
+The LICENSE from that location has been preserved here.
+
+Local changes include CRC32 verification.

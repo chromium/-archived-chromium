@@ -1,0 +1,136 @@
+# Copyright 2008, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Import('env')
+
+env = env.Clone()
+
+env.Prepend(
+    CPPPATH = [
+        '$ICU38_DIR/public/common',
+        '$ICU38_DIR/public/18n',
+        '$ZLIB_DIR',
+        'scons',
+        'scons/include',
+        'include',
+    ],
+)
+
+env.Append(
+    CPPDEFINES = [
+        'U_STATIC_IMPLEMENTATION',
+        'LIBXML_STATIC',
+    ],
+    CCFLAGS = [
+        '/TC',
+
+        '/wd4800',
+        '/wd4503',
+        '/wd4819',
+    ],
+)
+
+
+input_files = [
+    'c14n.c',
+    'catalog.c',
+    'chvalid.c',
+    'debugXML.c',
+    'dict.c',
+    'DOCBparser.c',
+    'encoding.c',
+    'entities.c',
+    'error.c',
+    'globals.c',
+    'hash.c',
+    'HTMLparser.c',
+    'HTMLtree.c',
+    'legacy.c',
+    'list.c',
+    'nanoftp.c',
+    'nanohttp.c',
+    'parser.c',
+    'parserInternals.c',
+    'pattern.c',
+    'relaxng.c',
+    'SAX.c',
+    'SAX2.c',
+    'schematron.c',
+    'threads.c',
+    'tree.c',
+    'uri.c',
+    'valid.c',
+    'xinclude.c',
+    'xlink.c',
+    'xmlIO.c',
+    'xmlmemory.c',
+    'xmlmodule.c',
+    'xmlreader.c',
+    'xmlregexp.c',
+    'xmlsave.c',
+    'xmlschemas.c',
+    'xmlschemastypes.c',
+    'xmlstring.c',
+    'xmlunicode.c',
+    'xmlwriter.c',
+    'xpath.c',
+    'xpointer.c',
+]
+
+env.StaticLibrary('libxml', input_files)
+
+
+config_files = [
+    # The configure.js script must be first in this list; the
+    # env.Command() call below executes the first list element.
+
+    'win32/configure.js',
+    'win32/Makefile.msvc',
+
+    'config.h.in',
+    'configure.in',
+    'libxml-2.0-uninstalled.pc.in',
+    'libxml-2.0.pc.in',
+    'libxml.spec.in',
+    'xml2-config.in',
+    'xml2Conf.sh.in',
+
+    'include/libxml/xmlversion.h.in',
+    'include/win32config.h',
+]
+
+copied_files = []
+for cf in config_files:
+  result = env.Command('scons/' + cf, cf, Copy('$TARGET', '$SOURCE'))
+  copied_files.extend(result)
+    
+env.Command(['scons/config.h', 'scons/include/libxml/xmlversion.h'],
+            copied_files,
+            'cd ${SOURCE.dir} && $CSCRIPT ${SOURCE.file} $CONFIG_OPTIONS',
+            CONFIG_OPTIONS='compiler=msvc iconv=no icu=yes')

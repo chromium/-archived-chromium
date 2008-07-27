@@ -1,0 +1,10 @@
+<privateKey xmlns="http://trevp.net/rsa">
+	<n>uJRX5oHWOjaQEvoGmshObJSWEVotPAvIfdtNWc4cI56sNhNcKMSLSEvZF/294hpvDl8SQB6Y/DyGcCFv5ShYOL7mfje+7Iq64ck604jeea9rE848NMfwq9MgHDpXq1Cx9NtbcOLilrb2z0rCvNihI4Qb/wrI/tYLlU5fXwOoUGM=</n>
+	<e>Aw==</e>
+	<d>HsNj+8BOXwkYAymrxHa3vMNuWDmyNKyhak83jvevW0Ucs63ksXYXNrdO2VT0+wRn17qDCq/EKgoWaAWSpjFkCSwsTV9UTOLNmxd+OZ1KePURiZo9EPTlzcufbyAW6t01gx6MFuKfBo9Ayuk/Na3dVt6s2vOVYvaJvjqnWpuv/Oc=</d>
+	<p>wOJPKhX4RqJLyHBJ7JMnM1hwWixWE0Bn1KFDiFyjmIFU8mNkLKvGBkrTvegkcwwiRvOf3H5fyWiUHeO3YJopLQ==</p>
+	<q>9Ppe0a8m80bzc9Uv7Ix8valp1qF4901xOMI98XGGiO+NMa+DZnypVSc6FV9WUmT4BRs9eMpNRWiL0I+H/O45zw==</q>
+	<dP>gJbfcWP62cGH2vWGnbdvd5BK5sg5Yirv4xYtBZMXuwDjTEJCyHKEBDHifprC911sL00VPamVMPBivpfPlbwbcw==</dP>
+	<dQ>o1GUi8oZ94SiTTjKnbL908ZGjxZQpN5LeywpS6EEW0peIR+s7v3GOMTRY5TkNu36rhIo+zGI2PBdNbUFU0l73w==</dQ>
+	<qInv>XJ1sKQDEzji46Xfg08m2y66COjLNguW5DW7SNVKEbsS9f6C4Wpt2bA806pqn/6lTiv4h2DSGTKh/RzH6Ztdmdg==</qInv>
+</privateKey>

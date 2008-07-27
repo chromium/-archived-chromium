@@ -1,0 +1,7 @@
+This library was downloaded from http://trevp.net/tlslite/.
+
+The code is public domain.
+
+tlslite/TLSRecordLayer.py was changed to force the socket to be closed when the
+SSL connection is closed. This is is necessary at this point since WinHTTP does
+not seem to react to the SSL close notify.
