@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="skia"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\external_code.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="include;include\corecg;corecg;sgl;picture"
+		PreprocessorDefinitions="SKIA_DISABLE_SUPPORT_FOR_DECODERS"
+		DisableSpecificWarnings="4244; 4267; 4345; 4390; 4554; 4800"
+	/>
+</VisualStudioPropertySheet>

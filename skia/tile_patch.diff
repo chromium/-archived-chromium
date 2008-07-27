@@ -1,0 +1,284 @@
+Index: sgl/SkBitmapProcState.h
+===================================================================
+--- sgl/SkBitmapProcState.h	(revision 42716)
++++ sgl/SkBitmapProcState.h	(working copy)
+@@ -39,8 +39,9 @@
+                                  int count,
+                                  uint16_t colors[]);
+     
+-    typedef U16CPU (*FixedTileProc)(SkFixed);   // returns 0..0xFFFF
+-    
++    typedef SkFixed (*FixedTileProc)(SkFixed, int);
++    typedef int (*IntTileProc)(int, int);
++
+     MatrixProc          fMatrixProc;        // chooseProcs
+     SampleProc32        fSampleProc32;      // chooseProcs
+     SampleProc16        fSampleProc16;      // chooseProcs
+@@ -48,6 +49,8 @@
+     SkMatrix            fUnitInvMatrix;     // chooseProcs
+     FixedTileProc       fTileProcX;         // chooseProcs
+     FixedTileProc       fTileProcY;         // chooseProcs
++    IntTileProc         iTileProcX;         // chooseProcs
++    IntTileProc         iTileProcY;         // chooseProcs
+     SkFixed             fFilterOneX;
+     SkFixed             fFilterOneY;
+ 
+Index: sgl/SkBitmapProcState.cpp
+===================================================================
+--- sgl/SkBitmapProcState.cpp	(revision 42716)
++++ sgl/SkBitmapProcState.cpp	(working copy)
+@@ -296,8 +296,9 @@
+     }
+     const SkMatrix* m;
+     
+-    if (SkShader::kClamp_TileMode == fTileModeX &&
+-            SkShader::kClamp_TileMode == fTileModeY) {
++    if (inv.getType() <= SkMatrix::kTranslate_Mask ||
++        (SkShader::kClamp_TileMode == fTileModeX &&
++         SkShader::kClamp_TileMode == fTileModeY)) {
+         m = &inv;
+     } else {
+         fUnitInvMatrix = inv;
+@@ -330,6 +331,16 @@
+     fInvMatrix      = m;
+     fInvProc        = m->getMapXYProc();
+     fInvType        = m->getType();
++    if (fInvType <= SkMatrix::kTranslate_Mask &&
++        inv.getType() > SkMatrix::kTranslate_Mask) {
++      SkASSERT(inv.getType() <=
++               (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
++      // It is possible that by the calculation of fUnitInvMatrix, we have
++      // eliminated the scale transformation of the matrix (e.g., if inv^(-1)
++      // scales fOrigBitmap into an 1X1 rect). We add the scale flag back so
++      // that we don't make wrong choice in chooseMatrixProc().
++      fInvType |= SkMatrix::kScale_Mask;
++    }
+     fInvSx          = SkScalarToFixed(m->getScaleX());
+     fInvSy          = SkScalarToFixed(m->getScaleY());
+     fInvKy          = SkScalarToFixed(m->getSkewY());
+Index: sgl/SkBitmapProcState_matrix.h
+===================================================================
+--- sgl/SkBitmapProcState_matrix.h	(revision 42716)
++++ sgl/SkBitmapProcState_matrix.h	(working copy)
+@@ -1,4 +1,5 @@
+ 
++#define TRANSLATE_NOFILTER_NAME MAKENAME(_nofilter_translate)
+ #define SCALE_NOFILTER_NAME     MAKENAME(_nofilter_scale)
+ #define SCALE_FILTER_NAME       MAKENAME(_filter_scale)
+ #define AFFINE_NOFILTER_NAME    MAKENAME(_nofilter_affine)
+@@ -17,6 +18,38 @@
+     #define PREAMBLE_ARG_Y
+ #endif
+ 
++#ifndef PREAMBLE_TRANS
++    #define PREAMBLE_TRANS(state)
++#endif
++
++static void TRANSLATE_NOFILTER_NAME(const SkBitmapProcState& s,
++                                    uint32_t xy[], int count, int x, int y)
++{
++    SkASSERT((s.fInvType & ~SkMatrix::kTranslate_Mask) == 0);
++
++    PREAMBLE_TRANS(s);
++
++    x += SkScalarFloor(s.fInvMatrix->getTranslateX());
++    y += SkScalarFloor(s.fInvMatrix->getTranslateY());
++
++    *xy++ = (uint32_t)TILEY_TRANS(y, (s.fBitmap->height() - 1));
++    
++    int maxX = s.fBitmap->width() - 1;
++    int i;
++    uint16_t* xx = (uint16_t*)xy;
++    for (i = (count >> 2); i > 0; --i)
++    {
++        *xx++ = (uint16_t)TILEX_TRANS(x, maxX); x++;
++        *xx++ = (uint16_t)TILEX_TRANS(x, maxX); x++;
++        *xx++ = (uint16_t)TILEX_TRANS(x, maxX); x++;
++        *xx++ = (uint16_t)TILEX_TRANS(x, maxX); x++;
++    }
++    for (i = (count & 3); i > 0; --i)
++    {
++        *xx++ = (uint16_t)TILEX_TRANS(x, maxX); x++;
++    }
++}
++
+ static void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
+                                 uint32_t xy[], int count, int x, int y) {
+     SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
+@@ -206,9 +239,9 @@
+     unsigned maxY = s.fBitmap->height() - 1;
+     
+     do {
+-        *xy++ = PACK_FILTER_Y_NAME(fy, maxY, oneX PREAMBLE_ARG_Y);
++        *xy++ = PACK_FILTER_Y_NAME(fy, maxY, oneY PREAMBLE_ARG_Y);
+         fy += dy;
+-        *xy++ = PACK_FILTER_X_NAME(fx, maxX, oneY PREAMBLE_ARG_X);
++        *xy++ = PACK_FILTER_X_NAME(fx, maxX, oneX PREAMBLE_ARG_X);
+         fx += dx;
+     } while (--count != 0);
+ }
+@@ -241,6 +274,9 @@
+ }
+ 
+ static SkBitmapProcState::MatrixProc MAKENAME(_Procs)[] = {
++    TRANSLATE_NOFILTER_NAME,
++    TRANSLATE_NOFILTER_NAME,    // No need to do filtering if the matrix is no
++                                // more complex than identity/translate.
+     SCALE_NOFILTER_NAME,
+     SCALE_FILTER_NAME,
+     AFFINE_NOFILTER_NAME,
+@@ -255,7 +291,10 @@
+ #ifdef CHECK_FOR_DECAL
+     #undef CHECK_FOR_DECAL
+ #endif
+-
++#undef TILEX_TRANS
++#undef TILEY_TRANS
++ 
++#undef TRANSLATE_NOFILTER_NAME
+ #undef SCALE_NOFILTER_NAME
+ #undef SCALE_FILTER_NAME
+ #undef AFFINE_NOFILTER_NAME
+@@ -268,6 +307,7 @@
+ #undef PREAMBLE_PARAM_Y
+ #undef PREAMBLE_ARG_X
+ #undef PREAMBLE_ARG_Y
++#undef PREAMBLE_TRANS
+ 
+ #undef TILEX_LOW_BITS
+ #undef TILEY_LOW_BITS
+Index: sgl/SkBitmapProcState_matrixProcs.cpp
+===================================================================
+--- sgl/SkBitmapProcState_matrixProcs.cpp	(revision 42716)
++++ sgl/SkBitmapProcState_matrixProcs.cpp	(working copy)
+@@ -28,6 +28,8 @@
+ #define TILEX_LOW_BITS(fx, max) (((fx) >> 12) & 0xF)
+ #define TILEY_LOW_BITS(fy, max) (((fy) >> 12) & 0xF)
+ #define CHECK_FOR_DECAL
++#define TILEX_TRANS(x, max)     SkClampMax(x, max)
++#define TILEY_TRANS(y, max)     SkClampMax(y, max)
+ #include "SkBitmapProcState_matrix.h"
+ 
+ #define MAKENAME(suffix)        RepeatX_RepeatY ## suffix
+@@ -35,6 +37,9 @@
+ #define TILEY_PROCF(fy, max)    (((fy) & 0xFFFF) * ((max) + 1) >> 16)
+ #define TILEX_LOW_BITS(fx, max) ((((fx) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
+ #define TILEY_LOW_BITS(fy, max) ((((fy) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
++#define REAL_MOD(val, modulus)  (((val)%(modulus)) + (modulus)*( (val)<0 ))
++#define TILEX_TRANS(x, max)     (REAL_MOD((x), ((max) + 1)))
++#define TILEY_TRANS(y, max)     (REAL_MOD((y), ((max) + 1)))
+ #include "SkBitmapProcState_matrix.h"
+ 
+ #define MAKENAME(suffix)        GeneralXY ## suffix
+@@ -44,13 +49,17 @@
+ #define PREAMBLE_PARAM_Y        , SkBitmapProcState::FixedTileProc tileProcY
+ #define PREAMBLE_ARG_X          , tileProcX
+ #define PREAMBLE_ARG_Y          , tileProcY
+-#define TILEX_PROCF(fx, max)    (tileProcX(fx) * ((max) + 1) >> 16)
+-#define TILEY_PROCF(fy, max)    (tileProcY(fy) * ((max) + 1) >> 16)
+-#define TILEX_LOW_BITS(fx, max) ((tileProcX(fx) * ((max) + 1) >> 12) & 0xF)
+-#define TILEY_LOW_BITS(fy, max) ((tileProcY(fy) * ((max) + 1) >> 12) & 0xF)
++#define TILEX_PROCF(fx, max)    (tileProcX(fx, max) >> 16)
++#define TILEY_PROCF(fy, max)    (tileProcY(fy, max) >> 16)
++#define TILEX_LOW_BITS(fx, max) ((tileProcX(fx, max) >> 14) & 0x3)
++#define TILEY_LOW_BITS(fy, max) ((tileProcY(fy, max) >> 14) & 0x3)
++#define PREAMBLE_TRANS(state)   SkBitmapProcState::IntTileProc tileProcX = (state).iTileProcX; \
++                                SkBitmapProcState::IntTileProc tileProcY = (state).iTileProcY
++#define TILEX_TRANS(x, max)     tileProcX(x, max)
++#define TILEY_TRANS(y, max)     tileProcY(y, max)
+ #include "SkBitmapProcState_matrix.h"
+ 
+-static inline U16CPU fixed_clamp(SkFixed x)
++static inline SkFixed fixed_clamp(SkFixed x, int max)
+ {
+ #ifdef SK_CPU_HAS_CONDITIONAL_INSTR
+     if (x >> 16)
+@@ -66,19 +75,20 @@
+             x = 0xFFFF;
+     }
+ #endif
+-    return x;
++    return x * (max + 1);
+ }
+ 
+-static inline U16CPU fixed_repeat(SkFixed x)
++static inline SkFixed fixed_repeat(SkFixed x, int max)
+ {
+-    return x & 0xFFFF;
++    return (x & 0xFFFF) * (max + 1);
+ }
+ 
+-static inline U16CPU fixed_mirror(SkFixed x)
++static inline SkFixed fixed_mirror(SkFixed x, int max)
+ {
+     SkFixed s = x << 15 >> 31;
+     // s is FFFFFFFF if we're on an odd interval, or 0 if an even interval
+-    return (x ^ s) & 0xFFFF;
++    x = ((x ^ s) & 0xFFFF) * (max + 1);
++    return s ? (x ^ 0xFFFF) : x;
+ }
+ 
+ static SkBitmapProcState::FixedTileProc choose_tile_proc(unsigned m)
+@@ -90,15 +100,52 @@
+     SkASSERT(SkShader::kMirror_TileMode == m);
+     return fixed_mirror;
+ }
++ 
++static inline int int_clamp(int x, int max)
++{
++    SkASSERT(max >= 0);
++    
++    return SkClampMax(x, max);
++}
+ 
++static inline int int_repeat(int x, int max)
++{
++    SkASSERT(max >= 0);
++
++    return x % (max + 1);
++}
++
++static inline int int_mirror(int x, int max)
++{
++    SkASSERT(max >= 0);
++
++    int dx = x % (max + 1);
++    if (dx < 0)
++        dx = -dx - 1;
++    
++    return (x / (max + 1) % 2) ? max - dx : dx;
++}
++
++static SkBitmapProcState::IntTileProc choose_int_tile_proc(unsigned m)
++{
++    if (SkShader::kClamp_TileMode == m)
++        return int_clamp;
++    if (SkShader::kRepeat_TileMode == m)
++        return int_repeat;
++    SkASSERT(SkShader::kMirror_TileMode == m);
++    return int_mirror;
++}
++
+ SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc()
+ {
+     int index = 0;
+     if (fDoFilter)
+         index = 1;
+     if (fInvType & SkMatrix::kPerspective_Mask)
++        index |= 6;
++    else if (fInvType & SkMatrix::kAffine_Mask)
+         index |= 4;
+-    else if (fInvType & SkMatrix::kAffine_Mask)
++    else if (fInvType & SkMatrix::kScale_Mask)
+         index |= 2;
+ 
+     if (SkShader::kClamp_TileMode == fTileModeX &&
+@@ -123,6 +170,8 @@
+     // only general needs these procs
+     fTileProcX = choose_tile_proc(fTileModeX);
+     fTileProcY = choose_tile_proc(fTileModeY);
++    iTileProcX = choose_int_tile_proc(fTileModeX);
++    iTileProcY = choose_int_tile_proc(fTileModeY);
+     return GeneralXY_Procs[index];
+ }
+ 
