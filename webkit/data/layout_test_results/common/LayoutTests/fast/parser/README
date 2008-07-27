@@ -1,0 +1,8 @@
+This file documents why the various tests have been rebaselined.
+
+external-entities.xml
+xhtml-alternate-entities.xml
+----------------------------
+We behave the same as Safari on these tests, except that our error messages
+refer to different column numbers.  Our column numbers make more sense than
+theirs.

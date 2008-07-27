@@ -1,0 +1,14 @@
+This file documents why the various tests have been rebaselined.
+
+clientWidthAfterDocumentIsRemoved-expected.txt
+replaceChild-expected.txt
+--------------------------
+These tests have incorrect expected output due to webkit bug:
+http://bugs.webkit.org/show_bug.cgi?id=15219
+They each remove an iframe child from the document, but that iframe is
+(incorrectly) present in the expected output because the render tree is
+dumped prematurely.  We dump the correct tree.
+
+anchor-toString.html
+--------------------------
+Replaced "file:///" with "file:///C:/" in the expected output, since GURL resolves differently than WebCore (see http://b/1089284)

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="Inspector file copy"
+	Version="8.00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="Inspector file copy"
+			CommandLine="xcopy /Y /D $(InputPath) $(OutDir)\Resources\Inspector\"
+			Outputs="$(OutDir)\Resources\Inspector\$(InputFileName)"
+			FileExtensions="*.html;*.js;*.gif;*.css"
+			ExecutionDescription="Copying resource file..."
+			>
+			<Properties>
+			</Properties>
+		</CustomBuildRule>
+		<CustomBuildRule
+			Name="Inspector image file copy"
+			CommandLine="xcopy /Y /D $(InputPath) $(OutDir)\Resources\Inspector\Images\"
+			Outputs="$(OutDir)\Resources\Inspector\Images\$(InputFileName)"
+			FileExtensions="*.png"
+			ExecutionDescription="Copying resource file..."
+			>
+			<Properties>
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>

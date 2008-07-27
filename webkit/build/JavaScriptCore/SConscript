@@ -1,0 +1,173 @@
+# Copyright 2008, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Import('env')
+
+env = env.Clone()
+
+
+cygwin = Dir('#../third_party/cygwin/bin')
+cygwin_posix = cygwin.abspath.replace('\\', '/')
+env.PrependENVPath('PATH', '../third_party/cygwin/bin')
+
+
+hash_table_cmd = '$PERL $CREATE_HASH_TABLE $SOURCE $CREATE_HASH_TABLE_FLAGS > $TARGET'
+
+env.Replace(
+    CREATE_HASH_TABLE_COM       = hash_table_cmd,
+    CREATE_HASH_TABLE           = env.File('#/../third_party/WebKit/JavascriptCore/kjs/create_hash_table'),
+    CREATE_HASH_TABLE_FLAGS     = '-i',
+)
+
+env['BUILDERS']['Lookup_Table_h'] = Builder(action = '$CREATE_HASH_TABLE_COM',
+                                            suffix = '.lut.h',
+                                            src_suffix = '.cpp')
+
+
+inputs = [
+    'array_object',
+    'date_object',
+    'math_object',
+    'number_object',
+    'regexp_object',
+    'string_object',
+]
+
+for i in inputs:
+    env.Lookup_Table_h(i, '$KJS_DIR/%s.cpp' % i)
+
+env.Lookup_Table_h('lexer', '$KJS_DIR/keywords.table',
+                   CREATE_HASH_TABLE_FLAGS='')
+
+# TODO(bradnelson): sucks, needs relative path
+env.Command('$WEBKIT_DIR/port/JavaScriptCore/chartables.c',
+            '$PCRE_DIR/dftables',
+            '$PERL ../third_party/WebKit/JavaScriptCore/pcre/dftables ' + \
+            '${TARGET.posix}')
+
+# We'd like to do this as follows:
+#env.CXXFile('grammar.cpp', '$KJS_DIR/grammar.y')
+# but SCons has a HARD-WIRED notion that the source must be a .yy file.
+# TODO(bradnelson): not sure why YACCCOM is needed, but fails without
+cpp = env.Command(['grammar.cpp', 'grammar.h'],
+                  '$KJS_DIR/grammar.y',
+                  '$YACCCOM',
+                  YACCCOM = '$YACC $YACCFLAGS -o $TARGET $SOURCES',
+                  YACCFLAGS = '-d -p kjsyy')
+env.AddPostAction(cpp, Move('${TARGETS[1]}', '${TARGET.dir}/grammar.hpp'))
+
+copies = [
+    'API/APICast.h',
+    'API/JSBase.h',
+    'API/JSValueRef.h',
+    'API/JSObjectRef.h',
+    'API/JSRetainPtr.h',
+    'API/JSContextRef.h',
+    'API/JSStringRef.h',
+    'API/JSStringRefCF.h',
+    'API/JSStringRefBSTR.h',
+    'API/JavaScriptCore.h',
+    'bindings/npruntime.h',
+    'bindings/runtime.h',
+    'bindings/np_jsobject.h',
+    'bindings/npruntime_internal.h',
+    'bindings/npruntime_impl.h',
+    'bindings/runtime_object.h',
+    'bindings/runtime_root.h',
+    'kjs/JSLock.h',
+    'kjs/interpreter.h',
+    'wtf/HashCountedSet.h',
+]
+
+JSCORE_OUT = '$WEBKIT_DIR/scons/WebCore/JavaScriptCore'
+
+for c in copies:
+  i = env.Install(JSCORE_OUT, '$JAVASCRIPTCORE_DIR/' + c)
+  env.Alias('webkit', i)
+
+i = env.Install(JSCORE_OUT, '../../pending/kjs/collector.h')
+env.Alias('webkit', i)
+
+
+# Stuff for WTF
+env = env.Clone(
+    CPPPATH = [
+        '$WEBKIT_DIR/build/JavaScriptCore',
+        '$JAVASCRIPTCORE_DIR',
+        '$JAVASCRIPTCORE_DIR/os-win32',
+        '$JAVASCRIPTCORE_DIR/kjs',
+        '$WTF_DIR',
+        '$JAVASCRIPTCORE_DIR/API',
+        '$JAVASCRIPTCORE_DIR/bindings',
+        '$JAVASCRIPTCORE_DIR/bindings/c',
+        '$JAVASCRIPTCORE_DIR/bindings/jni',
+        '$WEBKIT_DIR/pending',
+        '$WEBKIT_DIR/pending/wtf',
+        '$ICU38_DIR/public/common',
+        '$ICU38_DIR/public/i18n',
+        '$WEBKIT_DIR',
+        '#/..',
+    ],
+)
+
+env.Append(
+    CPPDEFINES = [
+        'HAVE_CONFIG_H',
+        '__STD_C',
+        'CRASH=__debugbreak',
+        'U_STATIC_IMPLEMENTATION',
+        '_WIN32_WINNT=0x0600',
+        'WINVER=0x0600',
+        'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
+        'WIN32_LEAN_AND_MEAN',
+    ],
+    CCFLAGS = [
+        '/WX',
+        '/Wp64',
+        '/TP',
+
+        '/wd4127',
+        '/wd4355',
+        '/wd4510',
+        '/wd4512',
+        '/wd4610',
+        '/wd4706',
+        '/wd4503',
+        '/wd4819',
+    ],
+)
+
+wtf_inputs = [
+    '$WTF_DIR/Assertions.cpp',
+    '$WTF_DIR/unicode/UTF8.cpp',
+    '$WTF_DIR/TCSystemAlloc.cpp',
+    '$WTF_DIR/HashTable.cpp',
+]
+
+env.Library('WTF', wtf_inputs)

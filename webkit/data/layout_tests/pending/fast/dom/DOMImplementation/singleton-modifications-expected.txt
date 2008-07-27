@@ -1,0 +1,6 @@
+This tests if modifications to document.implementation will be globally visible 
+
+--------
+Frame: 'framey'
+--------
+true

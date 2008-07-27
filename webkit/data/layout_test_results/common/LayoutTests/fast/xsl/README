@@ -1,0 +1,14 @@
+This file documents why the various tests have been rebaselined.
+
+xslt-extra-content-at-end.xml
+-----------------------------
+We behave the same as Safari in this test, except that our error message
+refers to a different column number.  Neither their column number nor ours
+makes a lot of sense, since the XSL transformation moves things around, but
+ours is no worse than theirs.
+
+mozilla-tests.xml
+-----------------
+The Safari expected result includes an error message that does not appear to
+be correct, judging from the test's own description of what should be in the
+output.  Our result doesn't produce the error.

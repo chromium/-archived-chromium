@@ -1,0 +1,4 @@
+fillrect_gradient.html
+----------------------
+Added tests for stop positions starting after 0.0 and ending before 1.0,
+and for gradients with only one stop.

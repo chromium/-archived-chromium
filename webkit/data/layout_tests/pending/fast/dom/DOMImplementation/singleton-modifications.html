@@ -1,0 +1,25 @@
+<html>
+<head>
+<script>
+function runTests() {
+    if (window.layoutTestController) {
+        layoutTestController.dumpAsText();
+        layoutTestController.dumpChildFramesAsText();
+        layoutTestController.waitUntilDone();
+    }
+
+    var framey = document.getElementById('framey');
+    document.implementation.hasFeature = function() { return 'FAIL'; };
+    framey.onload = function() {
+        if (window.layoutTestController)
+            layoutTestController.notifyDone();
+    };
+    framey.src = "data:text/html,<script>document.write(document.implementation.hasFeature('HTML', '1.0'));<"+"/script>";
+}
+</script>
+</head>
+<body onload="runTests();">
+This tests if modifications to document.implementation will be globally visible
+<iframe id="framey" />
+</body>
+</html>

@@ -1,0 +1,8 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x584
+      RenderText {#text} at (0,0) size 765x36
+        text run at (0,0) width 765: "This tests loading of a GIF image and no HTML when the HTTP content-type is set to \"application/x-shockwave-flash\" ."
+        text run at (0,18) width 330: "Expected : This page should have a FLASH object ."

@@ -1,0 +1,4 @@
+This file exists only to test the svnpoller.  It should be deleted afterward.
+
+1
+2

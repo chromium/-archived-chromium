@@ -1,0 +1,55 @@
+// Resources used by webkit/*.
+//
+// Paths in this file are relative to SolutionDir.
+
+#ifdef APSTUDIO_INVOKED
+  #error // Don't open in the Visual Studio resource editor!
+#endif //APSTUDIO_INVOKED
+
+#include <winuser.h>
+#include "webkit\\glue\\webkit_resources.h"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// data resources
+//
+
+IDR_BROKENIMAGE            BINDATA "webkit\\glue\\resources\\broken-image.gif"
+IDR_TICKMARK_DASH          BINDATA "webkit\\glue\\resources\\dash.png"
+
+IDR_FEED_PREVIEW           BINDATA "webkit\\glue\\resources\\feed.html"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_ALIAS               CURSOR    "webkit\\glue\\resources\\aliasb.cur"
+IDC_CELL                CURSOR    "webkit\\glue\\resources\\cell.cur"
+IDC_COLRESIZE           CURSOR    "webkit\\glue\\resources\\col_resize.cur"
+IDC_COPYCUR             CURSOR    "webkit\\glue\\resources\\copy.cur"
+IDC_ROWRESIZE           CURSOR    "webkit\\glue\\resources\\row_resize.cur"
+IDC_VERTICALTEXT        CURSOR    "webkit\\glue\\resources\\vertical_text.cur"
+IDC_ZOOMIN              CURSOR    "webkit\\glue\\resources\\zoom_in.cur"
+IDC_ZOOMOUT             CURSOR    "webkit\\glue\\resources\\zoom_out.cur"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog template for the plugin installation dialog.
+//
+IDD_DEFAULT_PLUGIN_INSTALL_DIALOG DIALOGEX 0, 0, 240, 130
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Plug-in Needed"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "",IDB_GET_THE_PLUGIN,32,100,81,14
+    PUSHBUTTON      "",IDCANCEL,133,100,74,14
+    LTEXT           "",IDC_PLUGIN_INSTALL_CONFIRMATION_LABEL,17,50,204,27
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon used by the default plugin window.
+//
+IDI_DEFAULT_PLUGIN_ICON            ICON             "webkit\\default_plugin\\default_plugin.ico"

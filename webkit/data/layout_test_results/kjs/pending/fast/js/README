@@ -1,0 +1,5 @@
+function-toString-parentheses.html
+----------------------------------------
+These results are unchanged from the ones in LayoutTests.  They are placed
+here only so the KJS tests can find expected results for this test that was
+forked into pending/.

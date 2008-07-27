@@ -1,0 +1,657 @@
+# Copyright 2008, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import os.path
+import re
+
+Import('env')
+
+webcore = env.Dir('$WEBKIT_DIR/WebCore')
+webcore_posix = webcore.abspath.replace('\\', '/')
+
+cygwin = env.Dir('$CYGWIN_DIR/bin')
+cygwin_posix = cygwin.abspath.replace('\\', '/')
+
+pending = env.Dir('#../webkit/pending')
+portroot = env.Dir('#../webkit/port')
+webkit_build = env.Dir('#../webkit/build')
+bindings_output_dir = env.Dir('#/../webkit/$BUILD_TYPE/scons/V8Bindings')
+
+
+env = env.Clone(
+    WEBCORE = webcore,
+    PORTROOT = portroot,
+    WEBKIT_BUILD = webkit_build,
+
+    BINDINGS_SCRIPTS_DIR = '$WEBKIT_DIR/port/bindings/scripts',
+    BINDINGS_SCRIPT = '$BINDINGS_SCRIPTS_DIR/generate-bindings.pl',
+
+    PERL_INCLUDE_PATH = ['$BINDINGS_SCRIPTS_DIR',
+                         '#/../third_party/WebKit/WebCore/bindings/scripts'],
+
+    WEBKIT_PORT_DIR = '$WEBKIT_DIR/port',
+
+    FEATURE_DEFINES = [
+        'ENABLE_XSLT',
+        'ENABLE_XPATH',
+        'ENABLE_SVG',
+        'ENABLE_SVG_FOREIGN_OBJECT',
+        'ENABLE_SVG_USE',
+        'ENABLE_SVG_AS_IMAGE',
+        'ENABLE_SVG_FONTS',
+    ],
+
+    SVG_FLAGS = [
+        'ENABLE_SVG_FOREIGN_OBJECT=1',
+        'ENABLE_SVG_USE=1',
+        'ENABLE_SVG_AS_IMAGE=1',
+        'ENABLE_SVG_FONTS=1',
+    ],
+
+    BINDINGS_INCLUDE_PATH = [
+        '$WEBCORE/dom',
+        '$WEBCORE/html',
+        '$WEBCORE/css',
+        '$WEBCORE/page',
+        '$WEBCORE/xml',
+        '$WEBCORE/svg',
+    ],
+    BINDINGS_INCLUDE_FLAG = '--include ',
+    BINDINGS_INCLUDE_SUFFIX = '',
+    _BINDINGS_INCLUDE_FLAGS = '${_concat(BINDINGS_INCLUDE_FLAG, ' + \
+                                        'BINDINGS_INCLUDE_PATH, ' + \
+                                        'BINDINGS_INCLUDE_SUFFIX, ' + \
+                                        '__env__, RDirs, TARGET, SOURCE)}',
+)
+
+env.PrependENVPath('PATH', cygwin_posix)
+
+bindings_perl_modules = env.Glob('$BINDINGS_SCRIPTS_DIR/*.pm')
+
+
+def BindingsEmitter(target, source, env):
+  idl_contents = open(source[0].rfile().abspath, 'r').read()
+  idl_contents = re.sub('//[^\\n]*\\n', '', idl_contents)
+  interfaces = re.findall('interface\\s*(?:\\[[^]]+\\])?\\s*'
+                          '(\\w+)[^{]*[{]', idl_contents)
+  new_target = []
+  for i in interfaces:
+    new_cpp = '$DERIVED_DIR/${BINDINGSPREFIX}' + i + '.cpp'
+    new_h = '$DERIVED_DIR/${BINDINGSPREFIX}' + i + '.h'
+    new_target.extend([new_cpp, new_h])
+    env.Depends(new_cpp, bindings_perl_modules)
+    env.Depends(new_h, bindings_perl_modules)
+  source.append('$BINDINGS_SCRIPT')
+  return new_target, source
+
+
+env.Append(
+    BUILDERS = {'Bindings' : Builder(action = '$BINDINGSCOM',
+                                     src_suffix = '.idl',
+                                     emitter = BindingsEmitter,
+                                    ),
+               },
+)
+env.Replace(
+    # TODO(bradnelson): don't have the path change here!!!
+    # TODO(bradnelson): fix ugly hack with one include!
+    BINDINGSCOM = '$PERL $_PERL_INCLUDE_FLAGS ' + \
+                  '${SOURCES[1]} ' + \
+                  '--include ../webkit/port/dom ' + \
+                  '--include ../third_party/WebKit/WebCore/svg ' + \
+                  '--defines "$FEATURE_DEFINES $BINDINGS_LANGUAGE" ' + \
+                  '--generator $BINDINGS_GENERATOR_ARG ' + \
+                  '$_BINDINGS_INCLUDE_FLAGS ' + \
+                  '--outputdir ${TARGET.dir} ' + \
+                  '${SOURCES[0].posix}',
+)
+
+if env['PLATFORM'] == 'mac':  # Mac OS X
+  env['BINDINGSPREFIX'] = 'DOM'
+  env['BINDINGS_GENERATOR_ARG'] = 'ObjC'
+  env['BINDINGS_LANGUAGE'] = 'LANGUAGE_OBJECTIVE_C'
+  env.Append(BINDINGS_INCLUDE_PATH = [ 'bindings/js' ])
+elif False:
+  env['BINDINGSPREFIX'] = 'JS'
+  env['BINDINGS_GENERATOR_ARG'] = 'JS'
+  env['BINDINGS_LANGUAGE'] = 'LANGUAGE_JAVASCRIPT'
+  env.Append(BINDINGS_INCLUDE_PATH = [ 'bindings/js' ])
+elif True:
+  env['BINDINGSPREFIX'] = 'V8'
+  env['BINDINGS_GENERATOR_ARG'] = 'V8'
+  env['BINDINGS_LANGUAGE'] = 'LANGUAGE_JAVASCRIPT V8_BINDING'
+  env.Prepend(PERL_INCLUDE_PATH = [ '$PORTROOT/bindings/scripts' ])
+  env.Prepend(BINDINGS_INCLUDE_PATH = [
+                '$PORTROOT/dom',
+                '$PORTROOT/html',
+                '$PORTROOT/page',
+                '$PORTROOT/xml',
+              ])
+else:
+  print 'I am not going to generate bindings for you!'
+
+
+idl_files = [
+    'css/Counter.idl',
+    'css/CSSCharsetRule.idl',
+    'css/CSSFontFaceRule.idl',
+    'css/CSSImportRule.idl',
+    'css/CSSMediaRule.idl',
+    'css/CSSPageRule.idl',
+    'css/CSSPrimitiveValue.idl',
+    'css/CSSRule.idl',
+    'css/CSSRuleList.idl',
+    'css/CSSStyleDeclaration.idl',
+    'css/CSSStyleRule.idl',
+    'css/CSSStyleSheet.idl',
+    'css/CSSUnknownRule.idl',
+    'css/CSSValue.idl',
+    'css/CSSValueList.idl',
+    'css/MediaList.idl',
+    'css/Rect.idl',
+    'css/RGBColor.idl',
+    'css/StyleSheet.idl',
+    'css/StyleSheetList.idl',
+
+    'dom/Attr.idl',
+    'dom/CDATASection.idl',
+    'dom/CharacterData.idl',
+    'dom/Clipboard.idl',                          # port only
+    'dom/Comment.idl',
+    'dom/Document.idl',
+    'dom/DocumentFragment.idl',
+    'dom/DocumentType.idl',
+    'dom/DOMCoreException.idl',
+    'dom/DOMImplementation.idl',
+    'dom/Element.idl',
+    'dom/Entity.idl',
+    'dom/EntityReference.idl',
+    'dom/Event.idl',
+    'dom/EventException.idl',
+    'dom/EventListener.idl',
+    'dom/EventTarget.idl',
+    'dom/EventTargetNode.idl',                    # port only
+    'dom/KeyboardEvent.idl',
+    'dom/MessageEvent.idl',
+    'dom/MouseEvent.idl',
+    'dom/MutationEvent.idl',
+    'dom/NamedNodeMap.idl',
+    'dom/Node.idl',
+    'dom/NodeFilter.idl',
+    'dom/NodeIterator.idl',
+    'dom/NodeList.idl',
+    'dom/Notation.idl',
+    'dom/OverflowEvent.idl',
+    'dom/ProcessingInstruction.idl',
+    'dom/ProgressEvent.idl',
+    'dom/Range.idl',
+    'dom/RangeException.idl',
+    'dom/Text.idl',
+    'dom/TextEvent.idl',
+    'dom/TreeWalker.idl',
+    'dom/UIEvent.idl',
+    'dom/WheelEvent.idl',
+
+    'html/CanvasGradient.idl',
+    'html/CanvasPattern.idl',
+    'html/CanvasRenderingContext2D.idl',
+    'html/HTMLAnchorElement.idl',
+    'html/HTMLAppletElement.idl',
+    'html/HTMLAreaElement.idl',
+    'html/HTMLAudioElement.idl',
+    'html/HTMLBaseElement.idl',
+    'html/HTMLBaseFontElement.idl',
+    'html/HTMLBlockquoteElement.idl',
+    'html/HTMLBodyElement.idl',
+    'html/HTMLBRElement.idl',
+    'html/HTMLButtonElement.idl',
+    'html/HTMLCanvasElement.idl',
+    'html/HTMLCollection.idl',
+    'html/HTMLDirectoryElement.idl',
+    'html/HTMLDivElement.idl',
+    'html/HTMLDListElement.idl',
+    'html/HTMLDocument.idl',
+    'html/HTMLElement.idl',
+    'html/HTMLEmbedElement.idl',
+    'html/HTMLFieldSetElement.idl',
+    'html/HTMLFontElement.idl',
+    'html/HTMLFormElement.idl',
+    'html/HTMLFrameElement.idl',
+    'html/HTMLFrameSetElement.idl',
+    'html/HTMLHeadElement.idl',
+    'html/HTMLHeadingElement.idl',
+    'html/HTMLHRElement.idl',
+    'html/HTMLHtmlElement.idl',
+    'html/HTMLIFrameElement.idl',
+    'html/HTMLImageElement.idl',
+    'html/HTMLInputElement.idl',
+    'html/HTMLIsIndexElement.idl',
+    'html/HTMLLabelElement.idl',
+    'html/HTMLLegendElement.idl',
+    'html/HTMLLIElement.idl',
+    'html/HTMLLinkElement.idl',
+    'html/HTMLMapElement.idl',
+    'html/HTMLMarqueeElement.idl',
+    'html/HTMLMediaElement.idl',
+    'html/HTMLMenuElement.idl',
+    'html/HTMLMetaElement.idl',
+    'html/HTMLModElement.idl',
+    'html/HTMLObjectElement.idl',
+    'html/HTMLOListElement.idl',
+    'html/HTMLOptGroupElement.idl',
+    'html/HTMLOptionElement.idl',
+    'html/HTMLOptionsCollection.idl',
+    'html/HTMLParagraphElement.idl',
+    'html/HTMLParamElement.idl',
+    'html/HTMLPreElement.idl',
+    'html/HTMLQuoteElement.idl',
+    'html/HTMLScriptElement.idl',
+    'html/HTMLSelectElement.idl',
+    'html/HTMLSelectionInputElement.idl',         # port only
+    'html/HTMLSourceElement.idl',
+    'html/HTMLStyleElement.idl',
+    'html/HTMLTableCaptionElement.idl',
+    'html/HTMLTableCellElement.idl',
+    'html/HTMLTableColElement.idl',
+    'html/HTMLTableElement.idl',
+    'html/HTMLTableRowElement.idl',
+    'html/HTMLTableSectionElement.idl',
+    'html/HTMLTextAreaElement.idl',
+    'html/HTMLTitleElement.idl',
+    'html/HTMLUListElement.idl',
+    'html/UndetectableHTMLCollection.idl',        # port only
+    'html/HTMLVideoElement.idl',
+    'html/MediaError.idl',
+    'html/TimeRanges.idl',
+    'html/VoidCallback.idl',
+
+    'page/AbstractView.idl',
+    'page/BarInfo.idl',
+    'page/Console.idl',
+    'page/DOMSelection.idl',
+    'page/DOMWindow.idl',
+    'page/History.idl',
+    'page/Screen.idl',
+
+    'page/inspector/InspectorController.idl',     # port only
+
+    'page/Navigator.idl',                          # port only
+    'page/Location.idl',                           # port only
+
+
+    'xml/DOMParser.idl',
+    'xml/DOMParser.idl',
+    'xml/XMLHttpRequest.idl',                     # port only
+    'xml/XMLHttpRequestException.idl',
+    'xml/XMLSerializer.idl',
+    'xml/XPathEvaluator.idl',
+    'xml/XPathException.idl',
+    'xml/XPathExpression.idl',
+    'xml/XPathNSResolver.idl',
+    'xml/XPathResult.idl',
+    'xml/XSLTProcessor.idl',                      # port only
+
+    'ksvg2/svg/SVGMatrix.idl',                    # port only
+    'ksvg2/svg/SVGPathSegList.idl',               # port only
+    'ksvg2/svg/SVGPointList.idl',                 # port only
+    'ksvg2/svg/SVGTransformList.idl',             # port only
+
+    'svg/SVGLength.idl',
+    'svg/SVGElement.idl',
+    'svg/SVGAElement.idl',
+    'svg/SVGURIReference.idl',
+    'svg/SVGRect.idl',
+    'svg/SVGRectElement.idl',
+    'svg/SVGRenderingIntent.idl',
+    'svg/SVGAngle.idl',
+    'svg/SVGAnimateColorElement.idl',
+    'svg/SVGAnimateElement.idl',
+    'svg/SVGAnimateTransformElement.idl',
+    'svg/SVGAnimatedAngle.idl',
+    'svg/SVGAnimatedBoolean.idl',
+    'svg/SVGAnimatedEnumeration.idl',
+    'svg/SVGAnimatedInteger.idl',
+    'svg/SVGAnimatedLength.idl',
+    'svg/SVGAnimatedLengthList.idl',
+    'svg/SVGAnimatedNumber.idl',
+    'svg/SVGAnimatedNumberList.idl',
+    'svg/SVGAnimatedPathData.idl',
+    'svg/SVGAnimatedPoints.idl',
+    'svg/SVGAnimatedPreserveAspectRatio.idl',
+    'svg/SVGAnimatedRect.idl',
+    'svg/SVGAnimatedString.idl',
+    'svg/SVGAnimatedTransformList.idl',
+    'svg/SVGAnimationElement.idl',
+    'svg/SVGCircleElement.idl',
+    'svg/SVGClipPathElement.idl',
+    'svg/SVGColor.idl',
+    'svg/SVGComponentTransferFunctionElement.idl',
+    'svg/SVGCursorElement.idl',
+    'svg/SVGDefinitionSrcElement.idl',
+    'svg/SVGDefsElement.idl',
+    'svg/SVGDescElement.idl',
+    'svg/SVGDocument.idl',
+    'svg/SVGElement.idl',
+    'svg/SVGElementInstance.idl',
+    'svg/SVGElementInstanceList.idl',
+    'svg/SVGEllipseElement.idl',
+    'svg/SVGException.idl',
+    'svg/SVGExternalResourcesRequired.idl',
+    'svg/SVGFEBlendElement.idl',
+    'svg/SVGFEColorMatrixElement.idl',
+    'svg/SVGFEComponentTransferElement.idl',
+    'svg/SVGFECompositeElement.idl',
+    'svg/SVGFEDiffuseLightingElement.idl',
+    'svg/SVGFEDisplacementMapElement.idl',
+    'svg/SVGFEDistantLightElement.idl',
+    'svg/SVGFEFloodElement.idl',
+    'svg/SVGFEFuncAElement.idl',
+    'svg/SVGFEFuncBElement.idl',
+    'svg/SVGFEFuncGElement.idl',
+    'svg/SVGFEFuncRElement.idl',
+    'svg/SVGFEGaussianBlurElement.idl',
+    'svg/SVGFEImageElement.idl',
+    'svg/SVGFEMergeElement.idl',
+    'svg/SVGFEMergeNodeElement.idl',
+    'svg/SVGFEOffsetElement.idl',
+    'svg/SVGFEPointLightElement.idl',
+    'svg/SVGFESpecularLightingElement.idl',
+    'svg/SVGFESpotLightElement.idl',
+    'svg/SVGFETileElement.idl',
+    'svg/SVGFETurbulenceElement.idl',
+    'svg/SVGFontElement.idl',
+    'svg/SVGFontFaceElement.idl',
+    'svg/SVGFontFaceFormatElement.idl',
+    'svg/SVGFontFaceNameElement.idl',
+    'svg/SVGFontFaceSrcElement.idl',
+    'svg/SVGFontFaceUriElement.idl',
+    'svg/SVGFilterElement.idl',
+    'svg/SVGFilterPrimitiveStandardAttributes.idl',
+    'svg/SVGFitToViewBox.idl',
+    'svg/SVGForeignObjectElement.idl',
+    'svg/SVGGElement.idl',
+    'svg/SVGGlyphElement.idl',
+    'svg/SVGGradientElement.idl',
+    'svg/SVGImageElement.idl',
+    'svg/SVGLangSpace.idl',
+    'svg/SVGLength.idl',
+    'svg/SVGLengthList.idl',
+    'svg/SVGLineElement.idl',
+    'svg/SVGLinearGradientElement.idl',
+    'svg/SVGLocatable.idl',
+    'svg/SVGMarkerElement.idl',
+    'svg/SVGMaskElement.idl',
+    'svg/SVGMetadataElement.idl',
+    'svg/SVGMissingGlyphElement.idl',
+    'svg/SVGNumber.idl',
+    'svg/SVGNumberList.idl',
+    'svg/SVGPaint.idl',
+    'svg/SVGPathElement.idl',
+    'svg/SVGPathSeg.idl',
+    'svg/SVGPathSegArcAbs.idl',
+    'svg/SVGPathSegArcRel.idl',
+    'svg/SVGPathSegClosePath.idl',
+    'svg/SVGPathSegCurvetoCubicAbs.idl',
+    'svg/SVGPathSegCurvetoCubicRel.idl',
+    'svg/SVGPathSegCurvetoCubicSmoothAbs.idl',
+    'svg/SVGPathSegCurvetoCubicSmoothRel.idl',
+    'svg/SVGPathSegCurvetoQuadraticAbs.idl',
+    'svg/SVGPathSegCurvetoQuadraticRel.idl',
+    'svg/SVGPathSegCurvetoQuadraticSmoothAbs.idl',
+    'svg/SVGPathSegCurvetoQuadraticSmoothRel.idl',
+    'svg/SVGPathSegLinetoAbs.idl',
+    'svg/SVGPathSegLinetoHorizontalAbs.idl',
+    'svg/SVGPathSegLinetoHorizontalRel.idl',
+    'svg/SVGPathSegLinetoRel.idl',
+    'svg/SVGPathSegLinetoVerticalAbs.idl',
+    'svg/SVGPathSegLinetoVerticalRel.idl',
+    'svg/SVGPathSegMovetoAbs.idl',
+    'svg/SVGPathSegMovetoRel.idl',
+    'svg/SVGPatternElement.idl',
+    'svg/SVGPoint.idl',
+    'svg/SVGPolygonElement.idl',
+    'svg/SVGPolylineElement.idl',
+    'svg/SVGPreserveAspectRatio.idl',
+    'svg/SVGRadialGradientElement.idl',
+    'svg/SVGRect.idl',
+    'svg/SVGRectElement.idl',
+    'svg/SVGRenderingIntent.idl',
+    'svg/SVGSVGElement.idl',
+    'svg/SVGScriptElement.idl',
+    'svg/SVGSetElement.idl',
+    'svg/SVGStopElement.idl',
+    'svg/SVGStringList.idl',
+    'svg/SVGStylable.idl',
+    'svg/SVGStyleElement.idl',
+    'svg/SVGSwitchElement.idl',
+    'svg/SVGSymbolElement.idl',
+    'svg/SVGTRefElement.idl',
+    'svg/SVGTSpanElement.idl',
+    'svg/SVGTests.idl',
+    'svg/SVGTextContentElement.idl',
+    'svg/SVGTextElement.idl',
+    'svg/SVGTextPathElement.idl',
+    'svg/SVGTextPositioningElement.idl',
+    'svg/SVGTitleElement.idl',
+    'svg/SVGTransform.idl',
+    'svg/SVGTransformable.idl',
+    'svg/SVGURIReference.idl',
+    'svg/SVGUnitTypes.idl',
+    'svg/SVGUseElement.idl',
+    'svg/SVGViewElement.idl',
+    'svg/SVGZoomAndPan.idl',
+    'svg/SVGZoomEvent.idl',
+]
+
+for subdir in set([os.path.dirname(n) for n in idl_files]):
+  dir = env.Dir('#/$BUILD_TYPE/webkit/port/' + subdir)
+
+  dir.addRepository(env.Dir('#/../webkit/pending'))
+  dir.addRepository(env.Dir('#/../webkit/port/' + subdir))
+  dir.addRepository(env.Dir('#/../third_party/WebKit/WebCore/' + subdir))
+
+for name in idl_files:
+  env.Bindings('$WEBKIT_DIR/port/' + name)
+
+
+# copy over some files
+i = env.Install('$SHARED_DIR',
+                ['$WEBKIT_PORT_DIR/bindings/js/PausedTimeouts.h',
+                 '$WEBKIT_PORT_DIR/bindings/js/PausedTimeouts.cpp'])
+env.Alias('webkit', i)
+
+
+
+# HTML tag and attribute names
+env.Command(['$DERIVED_DIR/HTMLNames.cpp',
+             '$DERIVED_DIR/HTMLNames.h'],
+            ['$WEBKIT_PORT_DIR/dom/make_names.pl',
+             '$WEBKIT_PORT_DIR/html/HTMLTagNames.in',
+             '$WEBKIT_PORT_DIR/html/HTMLAttributeNames.in'],
+            '$PERL ${SOURCES[0].posix} ' + \
+            '--tags ${SOURCES[1].posix} ' + \
+            '--attrs ${SOURCES[2].posix} ' + \
+            '--namespace HTML --namespacePrefix xhtml ' + \
+            '--cppNamespace WebCore ' + \
+            '--namespaceURI "http://www.w3.org/1999/xhtml" ' + \
+            '--attrsNullNamespace --output $DERIVED_DIR')
+
+env.Command(['$DERIVED_DIR/XMLNames.cpp',
+             '$DERIVED_DIR/XMLNames.h'],
+            ['$WEBKIT_PORT_DIR/dom/make_names.pl',
+             '$WEBKIT_PORT_DIR/xml/xmlattrs.in'],
+            '$PERL ${SOURCES[0].posix} ' + \
+            '--attrs ${SOURCES[1].posix} ' + \
+            '--namespace XML --cppNamespace WebCore ' + \
+            '--namespaceURI "http://www.w3.org/XML/1998/namespace" ' + \
+            '--output $DERIVED_DIR')
+
+env.Command(['$DERIVED_DIR/SVGElementFactory.cpp',
+             '$DERIVED_DIR/SVGElementFactory.h',
+             '$DERIVED_DIR/SVGNames.cpp',
+             '$DERIVED_DIR/SVGNames.h'],
+            ['$WEBKIT_PORT_DIR/dom/make_names.pl',
+             '$WEBKIT_PORT_DIR/svg/svgtags.in',
+             '$WEBKIT_PORT_DIR/svg/svgattrs.in'],
+            '$PERL ${SOURCES[0].posix} ' + \
+            '--tags ${SOURCES[1].posix} ' + \
+            '--attrs ${SOURCES[2].posix} ' + \
+            '--extraDefines "$SVG_FLAGS" ' +  \
+            '--namespace SVG --cppNamespace WebCore ' + \
+            '--namespaceURI "http://www.w3.org/2000/svg" ' + \
+            '--factory --attrsNullNamespace --output $DERIVED_DIR')
+
+env.Command(['$DERIVED_DIR/XLinkNames.cpp',
+             '$DERIVED_DIR/XLinkNames.h'],
+            ['$WEBKIT_PORT_DIR/dom/make_names.pl',
+             '$WEBKIT_PORT_DIR/svg/xlinkattrs.in'],
+            '$PERL ${SOURCES[0].posix} ' + \
+            '--attrs ${SOURCES[1].posix} ' + \
+            '--namespace XLink --cppNamespace WebCore ' + \
+            '--namespaceURI "http://www.w3.org/1999/xlink" ' + \
+            '--output $DERIVED_DIR')
+
+# Add SVG Symbols to the WebCore exported symbols file
+# TODO(bradnelson): fix this
+#WebCore.exp : WebCore.base.exp WebCore.SVG.exp
+#	cat $^ > $@
+
+
+env.Command('$DERIVED_DIR/html4.css',
+            ['$WEBKIT_PORT_DIR/css/html4.css',
+             '$PORTROOT/css/html4-overrides.css'],
+            'type $SOURCES > $TARGETS')
+
+env.Command('$DERIVED_DIR/quirks.css',
+            ['$WEBKIT_PORT_DIR/css/quirks.css',
+             '$PORTROOT/css/quirks-overrides.css'],
+            'type $SOURCES > $TARGETS')
+
+env.Command(['$DERIVED_DIR/UserAgentStyleSheets.h',
+             '$DERIVED_DIR/UserAgentStyleSheetsData.cpp'],
+            ['$WEBKIT_PORT_DIR/css/make-css-file-arrays.pl',
+             '$WEBKIT_PORT_DIR/css/view-source.css',
+             '$WEBKIT_PORT_DIR/css/svg.css',
+             '$DERIVED_DIR/html4.css',
+             '$DERIVED_DIR/quirks.css'],
+            '$PERL ${SOURCES[0].posix} ${TARGETS.posix} ${SOURCES[1:].posix}')
+
+env.Command(['$DERIVED_DIR/XPathGrammar.cpp',
+             '$DERIVED_DIR/XPathGrammar.h'],
+            ['$WEBKIT_PORT_DIR/xml/XPathGrammar.y'],
+            '$YACC -d -p xpathyy ${SOURCES[0].posix} -o ${TARGET.posix} && ' + \
+            'echo #ifndef XPathGrammar_h ' + \
+               '> $DERIVED_DIR\\XPathGrammar.h && ' + \
+            'echo #define XPathGrammar_h ' + \
+               '>> $DERIVED_DIR\\XPathGrammar.h && ' + \
+            'type $DERIVED_DIR\\XPathGrammar.hpp ' + \
+               '>> $DERIVED_DIR\\XPathGrammar.h && ' + \
+            'echo #endif ' + \
+               '>> $DERIVED_DIR\\XPathGrammar.h && ' + \
+            'del $DERIVED_DIR\\XPathGrammar.hpp')
+
+env.Command(['$DERIVED_DIR/CSSGrammar.cpp',
+             '$DERIVED_DIR/CSSGrammar.h'],
+            ['$WEBKIT_PORT_DIR/css/CSSGrammar.y'],
+            '$YACC -d -p cssyy ${SOURCES[0].posix} -o ${TARGET.posix} && ' + \
+            'echo #ifndef CSSGrammar_h ' + \
+               '> $DERIVED_DIR\\CSSGrammar.h && ' + \
+            'echo #define CSSGrammar_h ' + \
+               '>> $DERIVED_DIR\\CSSGrammar.h && ' + \
+            'type $DERIVED_DIR\\CSSGrammar.hpp ' + \
+               '>> $DERIVED_DIR\\CSSGrammar.h && ' + \
+            'echo #endif ' + \
+               '>> $DERIVED_DIR\\CSSGrammar.h && ' + \
+            'del $DERIVED_DIR\\CSSGrammar.hpp')
+
+# TODO(bradnelson): need to add in error checking
+
+env.Command('$WEBKIT_PORT_DIR/SVGCSSValueKeywords.in',
+            '$WEBKIT_PORT_DIR/css/SVGCSSValueKeywords.in',
+            '$PERL -ne "print lc" $SOURCES > $TARGET')
+
+env.Command('$WEBKIT_PORT_DIR/CSSValueKeywords.in',
+            ['$WEBKIT_PORT_DIR/css/CSSValueKeywords.in',
+             '$WEBKIT_PORT_DIR/css/SVGCSSValueKeywords.in'],
+            '$PERL -ne "print lc" $SOURCES > $TARGET')
+
+env.Command('$WEBKIT_PORT_DIR/CSSPropertyNames.in',
+            ['$WEBKIT_PORT_DIR/css/CSSPropertyNames.in',
+             '$WEBKIT_PORT_DIR/css/SVGCSSPropertyNames.in'],
+            '$PERL -ne "print lc" $SOURCES > $TARGET')
+
+env.Command(['$DERIVED_DIR/CSSValueKeywords.c',
+             '$DERIVED_DIR/CSSValueKeywords.h'],
+            ['#/../webkit/pending/makevalues.pl',
+             '$WEBKIT_PORT_DIR/CSSValueKeywords.in'],
+            ['cd ${SOURCES[1].dir} && $PERL ${str(SOURCES[0].abspath).replace("\\\\", "/")}',
+             Move('${TARGETS[0]}', '${SOURCES[1].dir}/${TARGETS[0].file}'),
+             Move('${TARGETS[1]}', '${SOURCES[1].dir}/${TARGETS[1].file}'),
+            ])
+
+env.Command(['$DERIVED_DIR/CSSPropertyNames.c',
+             '$DERIVED_DIR/CSSPropertyNames.h'],
+            ['#/../webkit/pending/makeprop.pl',
+             '$WEBKIT_PORT_DIR/CSSPropertyNames.in'],
+            ['cd ${SOURCES[1].dir} && $PERL ${str(SOURCES[0].abspath).replace("\\\\", "/")}',
+             Move('${TARGETS[0]}', '${SOURCES[1].dir}/${TARGETS[0].file}'),
+             Move('${TARGETS[1]}', '${SOURCES[1].dir}/${TARGETS[1].file}'),
+            ])
+
+
+# DOCTYPE strings
+env.Command('$DERIVED_DIR/DocTypeStrings.cpp',
+            '$WEBKIT_PORT_DIR/html/DocTypeStrings.gperf',
+            'gperf -CEot -L ANSI-C -k "*" -N findDoctypeEntry -F ' + \
+            ',PubIDInfo::eAlmostStandards,PubIDInfo::eAlmostStandards ' + \
+            '$SOURCE > $TARGET')
+
+# color names
+env.Command('$DERIVED_DIR/ColorData.c',
+            '$WEBKIT_PORT_DIR/platform/ColorData.gperf',
+            'gperf -CDEot -L ANSI-C -k "*" -N findColor -D -s 2 ' + \
+            '$SOURCE > $TARGET')
+
+# HTML entity names
+env.Command('$DERIVED_DIR/HTMLEntityNames.c',
+            '$WEBKIT_PORT_DIR/html/HTMLEntityNames.gperf',
+            'gperf -a -L ANSI-C -C -G -c -o -t -k "*" -N findEntity ' + \
+            '-D -s 2 $SOURCE > $TARGET')
+
+env.Command('$DERIVED_DIR/HTMLEntityCodes.c',
+            '$WEBKIT_PORT_DIR/html/HTMLEntityNames.gperf',
+            'perl $WEBKIT_BUILD/WebCore/generate_entitycodes.pl ' + \
+            '$SOURCE > $TARGET')
+
+# CSS tokenizer
+env.Command('$DERIVED_DIR/tokenizer.cpp',
+            ['$WEBKIT_PORT_DIR/css/tokenizer.flex',
+             '$WEBKIT_PORT_DIR/css/maketokenizer'],
+            'flex -t $SOURCE | perl ${SOURCES[1]} > $TARGET')
+

@@ -1,0 +1,31 @@
+
+<script>
+  var test_object = new Object();
+  test_object.value = 1;
+
+  function callbk(arg) {
+    return test_object;
+  }
+
+  function runtest() {
+    var obj = plug.testCallbackRet("callbk");
+    if (obj == test_object) {
+      var output = document.getElementById("output");
+      output.innerHTML = "SUCCESS";
+    }
+  }
+</script>
+
+<BODY id="bodyId" onload="runtest()">
+
+Test that we can get an NPObject returned through a method on
+an NPAPI Object.<P>
+
+Prints "SUCCESS" on success, "FAILURE" on failure.
+
+<embed name="plug" type="application/x-webkit-test-netscape">
+
+<div id=output>FAILURE</div>
+
+</BODY>
+

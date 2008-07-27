@@ -1,0 +1,4 @@
+w3-list-styles-expected.txt
+---------------------------
+Our fake font metrics for layout tests don't handle some inernational fonts,
+so these font sizes differ.

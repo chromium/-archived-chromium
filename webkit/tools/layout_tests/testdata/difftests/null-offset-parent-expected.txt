@@ -1,0 +1,82 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x584
+      RenderText {#text} at (0,0) size 782x36
+        text run at (0,0) width 782: "This test verifies that JS access to offsetParent on an element that lacks one, such as the body, doesn't crash. If it didn't crash,"
+        text run at (0,18) width 58: "it passed."
+      RenderText {#text} at (0,0) size 0x0
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x584
+      RenderBlock {P} at (0,0) size 784x18
+        RenderText {#text} at (0,0) size 111x18
+          text run at (0,0) width 111: "Tests: the bdo tag"
+      RenderBlock {P} at (0,34) size 784x18
+        RenderText {#text} at (0,0) size 328x18
+          text run at (0,0) width 328: "The bdo element overrides the default text direction."
+      RenderBlock {P} at (0,68) size 784x36
+        RenderText {#text} at (0,0) size 762x36
+          text run at (0,0) width 727: "If successful, the first sentence would be backward, and the second sentence regular. There should then be an extra "
+          text run at (727,0) width 35: "blank"
+          text run at (0,18) width 698: "line, followed by a line reading only \"A,\" and finally, a sentence where only the word \"umbrella\" is backward."
+      RenderBlock {HR} at (0,120) size 784x2 [border: (1px inset #000000)]
+      RenderBlock (anonymous) at (0,130) size 784x108
+        RenderBR {BR} at (0,0) size 0x18
+        RenderInline {BDO} at (0,0) size 221x18
+          RenderText {#text} at (0,18) size 221x18
+            text run at (0,18) width 221 RTL override: "This sentence should be backward."
+        RenderText {#text} at (221,18) size 4x18
+          text run at (221,18) width 4: " "
+        RenderBR {BR} at (225,32) size 0x0
+        RenderInline {BDO} at (0,0) size 209x18
+          RenderText {#text} at (0,36) size 209x18
+            text run at (0,36) width 209 LTR override: "This sentence should be forward."
+        RenderText {#text} at (209,36) size 4x18
+          text run at (209,36) width 4: " "
+        RenderBR {BR} at (213,50) size 0x0
+        RenderInline {BDO} at (0,0) size 0x0
+        RenderText {#text} at (0,0) size 0x0
+        RenderBR {BR} at (0,54) size 0x18
+        RenderInline {BDO} at (0,0) size 12x18
+          RenderText {#text} at (0,72) size 12x18
+            text run at (0,72) width 12 RTL override: "A"
+        RenderText {#text} at (12,72) size 4x18
+          text run at (12,72) width 4: " "
+        RenderBR {BR} at (16,86) size 0x0
+        RenderInline {BDO} at (0,0) size 290x18
+          RenderText {#text} at (0,90) size 26x18
+            text run at (0,90) width 26 LTR override: "My "
+          RenderInline {BDO} at (0,0) size 55x18
+            RenderText {#text} at (26,90) size 55x18
+              text run at (26,90) width 55 RTL override: "umbrella"
+          RenderText {#text} at (81,90) size 209x18
+            text run at (81,90) width 209 LTR override: " sure would be useful in this rain."
+        RenderText {#text} at (0,0) size 0x0
+        RenderText {#text} at (0,0) size 0x0
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x576
+      RenderBlock {P} at (0,0) size 784x36
+        RenderText {#text} at (0,0) size 253x18
+          text run at (0,0) width 253: "This test checks for a regression against "
+        RenderInline {I} at (0,0) size 757x36
+          RenderInline {A} at (0,0) size 348x18 [color=#0000EE]
+            RenderText {#text} at (253,0) size 348x18
+              text run at (253,0) width 348: "http://bugzilla.opendarwin.org/show_bug.cgi?id=6214"
+          RenderText {#text} at (601,0) size 757x36
+            text run at (601,0) width 156: " text-indent in RTL block"
+            text run at (0,18) width 109: "does the opposite"
+        RenderText {#text} at (109,18) size 4x18
+          text run at (109,18) width 4: "."
+      RenderBlock {HR} at (0,52) size 784x2 [border: (1px inset #000000)]
+      RenderBlock {P} at (0,70) size 784x36 [bgcolor=#00FFFF]
+        RenderText {#text} at (41,0) size 743x36
+          text run at (41,0) width 693: "The first line of this sententce should be indented 50 pixels to the left, but the rest of it should be flush with the"
+          text run at (581,18) width 4 RTL: "."
+          text run at (585,18) width 199: "normal right margin of the page"

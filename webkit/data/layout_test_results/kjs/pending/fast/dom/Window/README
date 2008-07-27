@@ -1,0 +1,4 @@
+window-open-pending-url
+------------------------------------
+webkit-v8 sets the URL to about:blank while a page is loading.  kjs sets it
+to /.

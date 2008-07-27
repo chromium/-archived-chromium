@@ -1,0 +1,22 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x584
+      RenderButton {INPUT} at (0,0) size 113x19 [bgcolor=#C0C0C0] [border: (2px outset #C0C0C0)]
+        RenderBlock (anonymous) at (8,2) size 97x15
+          RenderText at (3,1) size 91x13
+            text run at (3,1) width 91: "\x{915}\x{93F}\x{938}\x{940} \x{92D}\x{940} \x{924}\x{930}\x{939} \x{906}\x{917}\x{947} \x{92C}"
+      RenderBR {BR} at (113,14) size 0x0
+      RenderInline {SPAN} at (0,0) size 132x18
+        RenderText {#text} at (0,19) size 132x18
+          text run at (0,19) width 132: "\x{915}\x{93F}\x{938}\x{940} \x{92D}\x{940} \x{924}\x{930}\x{939} \x{906}\x{917}\x{947} \x{92C}"
+      RenderText {#text} at (132,19) size 25x18
+        text run at (132,19) width 25: "Foo"
+      RenderBR {BR} at (157,33) size 0x0
+      RenderInline {SPAN} at (0,0) size 132x17
+        RenderText {#text} at (0,37) size 132x17
+          text run at (0,37) width 132: "\x{915}\x{93F}\x{938}\x{940} \x{92D}\x{940} \x{924}\x{930}\x{939} \x{906}\x{917}\x{947} \x{92C}"
+      RenderText {#text} at (132,37) size 25x18
+        text run at (132,37) width 25: "Foo"
+      RenderBR {BR} at (157,51) size 0x0

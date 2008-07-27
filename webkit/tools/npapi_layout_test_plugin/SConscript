@@ -1,0 +1,100 @@
+# Copyright 2008, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Import('env', 'env_res')
+
+env = env.Clone()
+env_res = env_res.Clone()
+
+input_files = [
+    'main.cpp',
+    env_res.RES('npapi_layout_test_plugin.rc'),
+    'PluginObject.cpp',
+    'TestObject.cpp',
+    'npapi_layout_test_plugin.def',
+]
+
+env.Append(
+    CCFLAGS = [
+        '/TP',
+        '/WX',
+        '/wd4503',
+        '/wd4819',
+    ],
+
+    LIBS = [
+        'advapi32.lib',
+        'comctl32.lib',
+        'comdlg32.lib',
+        'delayimp.lib',
+        'gdi32.lib',
+        'kernel32.lib',
+        'msimg32.lib',
+        'odbc32.lib',
+        'odbccp32.lib',
+        'ole32.lib',
+        'oleaut32.lib',
+        'psapi.lib',
+        'rpcrt4.lib',
+        'shell32.lib',
+        'shlwapi.lib',
+        'user32.lib',
+        'usp10.lib',
+        'uuid.lib',
+        'version.lib',
+        'wininet.lib',
+        'winmm.lib',
+        'winspool.lib',
+        'ws2_32.lib',
+    ],
+
+    LINKFLAGS = [
+        '/DELAYLOAD:"dwmapi.dll"',
+        '/DELAYLOAD:"uxtheme.dll"',
+        '/FIXED:No',
+        '/SUBSYSTEM:CONSOLE',
+        '/MACHINE:X86',
+        '/safeseh',
+        '/dynamicbase',
+        '/ignore:4199',
+        '/nxcompat',
+    ],
+)
+
+dll = env.SharedLibrary(['npapi_layout_test_plugin',
+                         'npapi_layout_test_plugin.lib',
+                         'npapi_layout_test_plugin.ilk',
+                         'npapi_layout_test_plugin.pdb'],
+                        input_files)
+
+i = env.Install('$TARGET_ROOT/plugins', dll)
+env.Alias('webkit', i)
+
+i = env.Install('$TARGET_ROOT', dll)
+env.Alias('webkit', i)

@@ -1,0 +1,8 @@
+This file documents why the various tests have been rebaselined.
+
+5109817-expected.txt
+5354455-2-expected.txt
+--------------------------
+These tests right click on text and expect the text under the cursor to be
+selected. This is different from other Windows apps, so we don't expect to
+select text in this case.

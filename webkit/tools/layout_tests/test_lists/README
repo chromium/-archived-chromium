@@ -1,0 +1,34 @@
+The files in this directory are read by the
+run_webkit_tests.py script and used to determine which tests to run
+and which failures to consider regressions.
+
+If we *never* expect to pass these tests (e.g. test for Apple's objective-c 
+API), then add them to tests_ignore.txt. If we expect that we might ever want to
+pass the test, first file a bug, then add it to tests_fixable.txt. 
+
+Tests can have the following metatdata associated with them (optional):
+DEFER : We don't expect to pass them in the current release.
+SKIP : We don't want to run them (perhaps because they take too long).
+
+Tests have a build-type (required):
+V8 # The test only fails in V8 build.
+KJS # The test only fails in KJS build.
+
+Tests can also have expections (required):
+PASS
+FAIL
+TIMEOUT
+CRASH
+
+The format of a test is as follows:
+BUILD_TYPE # METADATA : TEST = EXPECTATIONS
+
+For example
+V8 # DEFER : LayoutTests/media = PASS | FAIL
+
+The above means that in the V8 build, all the media tests are flaky and
+we'll defer fixing them for a future release.
+
+Note that tests_fixable.txt and tests_ignored.txt aren't allowed to share any
+lines. Except for skipped tests, all tests are run. In calculating success
+metrics, we ignore tests in tests_ignored.txt and deferred tests.

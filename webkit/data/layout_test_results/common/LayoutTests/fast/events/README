@@ -1,0 +1,20 @@
+This file documents why the various tests have been rebaselined.
+
+autoscroll-expected.txt
+-----------------------
+This test has been forked because of changed behavior in text drag delay for
+windows.  This test doesn't initiate a drag, but the new behavior causes
+it to.  The updated test that doesn't cause a drag is in
+webkit/data/layout_tests/pending/.
+
+frame-click-focus-expected.txt
+------------------------------
+In Chrome, as in Firefox and IE, we trigger a main frame focus event when the
+page finishes loading (before any user action).  Safari doesn't.
+
+drag-in-frames-expected.txt
+---------------------------
+Due to the way we fake events in EventSendingController, we can't match
+exactly the order of drag & drop events.  Two of the events are swapped
+when running this test automatically, but they work properly when
+running doing a real drag & drop in the test shell.

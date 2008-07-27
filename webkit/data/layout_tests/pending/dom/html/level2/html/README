@@ -1,0 +1,8 @@
+HTMLFrameElement09.html
+HTMLIFrameElement11.html
+--------------------------------
+Both tests assign a string to a function name 'setUpPage' and it should
+be assigned to 'setUpPageStatus'. Copy these two tests and related files here.
+HTMLFrameElement09.js and HTMLIFrameElement11.js and both expected output
+files are modified. 
+See http://bugs.webkit.org/show_bug.cgi?id=16494 .

@@ -1,0 +1,12 @@
+This file documents why the various tests have been rebaselined.
+
+paste-text-013-expected.txt
+--------------------------
+The Mac has more up-to-date expected results in
+platform/mac/editing/pasteboard.  It looks like they forgot to update the
+platform neutral results, which is what we picked up in the last merge.
+
+subframe-dragndrop-1-expected.txt
+---------------------------------
+This test uses double click to select a word and drag it to a new location. 
+We follow Windows convention and include the trailing space on double click.

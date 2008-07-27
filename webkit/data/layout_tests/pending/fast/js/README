@@ -1,0 +1,16 @@
+resources/function-toString-parentheses.js
+------------------------------------------
+Expected result has the wrong parentheses for testHigherFirst case with parens
+around the first condition and removesExtraParentheses == false.  Safari (and
+Firefox) has removesExtraParentheses == true, so the problem never turned
+up there.  Our results may still be wrong, though: see bug 1135116.
+
+The main .html file, and the other files in resources/, are unchanged from
+the originals but here to support this forked test.
+
+resources/const.js
+------------------------------------------
+Test failed because of a const/const redeclaration error being thrown.  Changed
+the second const declaration of x to z to avoid this error.
+
+A bug should be filed upstream for this test post-beta.

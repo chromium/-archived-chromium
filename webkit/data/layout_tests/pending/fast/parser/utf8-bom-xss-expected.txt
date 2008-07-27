@@ -1,0 +1,4 @@
+Test for unicode BOM character within a tag.  Original Firefox bug:
+  http://www.mozilla.org/security/announce/2006/mfsa2006-42.html
+  https://bugzilla.mozilla.org/attachment.cgi?id=220127
+<﻿script>document.write('FAILED');

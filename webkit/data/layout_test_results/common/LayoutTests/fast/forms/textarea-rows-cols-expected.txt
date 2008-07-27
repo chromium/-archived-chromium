@@ -1,0 +1,132 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x584
+      RenderBlock {DIV} at (0,0) size 784x18
+        RenderText {#text} at (0,0) size 364x18
+          text run at (0,0) width 364: "Test for edge cases of <textarea> rows and cols attributes."
+      RenderBlock {HR} at (0,26) size 784x2 [border: (1px inset #000000)]
+      RenderBlock {DIV} at (0,36) size 784x32
+      RenderBlock {DIV} at (0,68) size 784x19
+      RenderBlock {DIV} at (0,87) size 784x32
+      RenderBlock {DIV} at (0,119) size 784x45
+      RenderBlock {DIV} at (0,164) size 784x32
+      RenderBlock {DIV} at (0,196) size 784x32
+      RenderBlock {DIV} at (0,228) size 784x32
+      RenderBlock {DIV} at (0,260) size 784x32
+      RenderBlock {HR} at (0,300) size 784x2 [border: (1px inset #000000)]
+      RenderBlock {DIV} at (0,310) size 784x32
+      RenderBlock {DIV} at (0,342) size 784x32
+      RenderBlock {DIV} at (0,374) size 784x32
+      RenderBlock {DIV} at (0,406) size 784x32
+      RenderBlock {DIV} at (0,438) size 784x32
+      RenderBlock {DIV} at (0,470) size 784x32
+      RenderBlock {DIV} at (0,502) size 784x32
+      RenderBlock {DIV} at (0,534) size 784x32
+      RenderBlock {HR} at (0,574) size 784x2 [border: (1px inset #000000)]
+layer at (8,45) size 119x30 clip at (9,46) size 117x28
+  RenderTextControl {TEXTAREA} at (0,1) size 119x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 98x13
+      RenderText {#text} at (0,0) size 98x13
+        text run at (0,0) width 98: "default height"
+layer at (8,77) size 119x17 clip at (9,78) size 117x15
+  RenderTextControl {TEXTAREA} at (0,1) size 119x17 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 98x13
+      RenderText {#text} at (0,0) size 56x13
+        text run at (0,0) width 56: "rows = 1"
+layer at (8,96) size 119x30 clip at (9,97) size 102x28 scrollHeight 41
+  RenderTextControl {TEXTAREA} at (0,1) size 119x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 98x39
+      RenderText {#text} at (0,0) size 98x39
+        text run at (0,0) width 70: "rows = 2; "
+        text run at (0,13) width 91: "should match "
+        text run at (0,26) width 98: "default height"
+layer at (8,128) size 119x43 clip at (9,129) size 117x41
+  RenderTextControl {TEXTAREA} at (0,1) size 119x43 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 98x13
+      RenderText {#text} at (0,0) size 56x13
+        text run at (0,0) width 56: "rows = 3"
+layer at (8,173) size 119x30 clip at (9,174) size 102x28 scrollHeight 41
+  RenderTextControl {TEXTAREA} at (0,1) size 119x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 98x39
+      RenderText {#text} at (0,0) size 91x39
+        text run at (0,0) width 91: "rows; should "
+        text run at (0,13) width 77: "be default "
+        text run at (0,26) width 42: "height"
+layer at (8,205) size 119x30 clip at (9,206) size 102x28 scrollHeight 41
+  RenderTextControl {TEXTAREA} at (0,1) size 119x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 98x39
+      RenderText {#text} at (0,0) size 98x39
+        text run at (0,0) width 70: "rows = 0; "
+        text run at (0,13) width 70: "should be "
+        text run at (0,26) width 98: "default height"
+layer at (8,237) size 119x30 clip at (9,238) size 102x28 scrollHeight 41
+  RenderTextControl {TEXTAREA} at (0,1) size 119x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 98x39
+      RenderText {#text} at (0,0) size 98x39
+        text run at (0,0) width 77: "rows = -1; "
+        text run at (0,13) width 70: "should be "
+        text run at (0,26) width 98: "default height"
+layer at (8,269) size 119x30 clip at (9,270) size 102x28 scrollHeight 41
+  RenderTextControl {TEXTAREA} at (0,1) size 119x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 98x39
+      RenderText {#text} at (0,0) size 98x39
+        text run at (0,0) width 70: "rows = x; "
+        text run at (0,13) width 70: "should be "
+        text run at (0,26) width 98: "default height"
+layer at (8,319) size 119x30 clip at (9,320) size 117x28
+  RenderTextControl {TEXTAREA} at (0,1) size 119x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 98x13
+      RenderText {#text} at (0,0) size 91x13
+        text run at (0,0) width 91: "default width"
+layer at (8,351) size 24x30 clip at (9,352) size 7x28 scrollHeight 80
+  RenderTextControl {TEXTAREA} at (0,1) size 24x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 3x78
+      RenderText {#text} at (0,0) size 3x78
+        text run at (0,0) width 3: "c"
+        text run at (0,13) width 3: "o"
+        text run at (0,26) width 3: "l"
+        text run at (0,39) width 3: "s"
+        text run at (0,52) width 3: "="
+        text run at (0,65) width 3: "1"
+layer at (8,383) size 119x30 clip at (9,384) size 102x28 scrollHeight 41
+  RenderTextControl {TEXTAREA} at (0,1) size 119x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 98x39
+      RenderText {#text} at (0,0) size 91x39
+        text run at (0,0) width 77: "cols = 20; "
+        text run at (0,13) width 91: "should match "
+        text run at (0,26) width 91: "default width"
+layer at (8,415) size 219x30 clip at (9,416) size 217x28
+  RenderTextControl {TEXTAREA} at (0,1) size 219x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 198x13
+      RenderText {#text} at (0,0) size 63x13
+        text run at (0,0) width 63: "cols = 40"
+layer at (8,447) size 119x30 clip at (9,448) size 102x28 scrollHeight 41
+  RenderTextControl {TEXTAREA} at (0,1) size 119x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 98x39
+      RenderText {#text} at (0,0) size 91x39
+        text run at (0,0) width 91: "cols; should "
+        text run at (0,13) width 77: "be default "
+        text run at (0,26) width 35: "width"
+layer at (8,479) size 119x30 clip at (9,480) size 102x28 scrollHeight 41
+  RenderTextControl {TEXTAREA} at (0,1) size 119x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 98x39
+      RenderText {#text} at (0,0) size 91x39
+        text run at (0,0) width 70: "cols = 0; "
+        text run at (0,13) width 70: "should be "
+        text run at (0,26) width 91: "default width"
+layer at (8,511) size 119x30 clip at (9,512) size 102x28 scrollHeight 41
+  RenderTextControl {TEXTAREA} at (0,1) size 119x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 98x39
+      RenderText {#text} at (0,0) size 91x39
+        text run at (0,0) width 77: "cols = -1; "
+        text run at (0,13) width 70: "should be "
+        text run at (0,26) width 91: "default width"
+layer at (8,543) size 119x30 clip at (9,544) size 102x28 scrollHeight 41
+  RenderTextControl {TEXTAREA} at (0,1) size 119x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 98x39
+      RenderText {#text} at (0,0) size 91x39
+        text run at (0,0) width 70: "cols = x; "
+        text run at (0,13) width 70: "should be "
+        text run at (0,26) width 91: "default width"

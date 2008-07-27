@@ -1,0 +1,56 @@
+This HTML is used to test HTTP content-type "image/gif" by having multiple iframes render different types of content for the same HTTP content-type header.
+<script>
+  if(window.layoutTestController)
+    window.layoutTestController.waitUntilDone();
+</script>
+<html>
+<body>
+<br>Well here are the frames !<br>
+<br><br>This frame tests loading of a HTML page with a GIF image when the HTTP content-type is set to "image/gif" .<br> Expected : This iframe should have NOTHING .<br>
+<iframe src="resources/getpage.pl?type=image/gif&tag=img&content=type_gif.gif" height="300" width="500"></iframe>
+
+<br><br>This frame tests loading of a HTML page with a BMP image when the HTTP content-type is set to "image/gif" .<br> Expected : This iframe should have NOTHING .<br>
+<iframe src="resources/getpage.pl?type=image/gif&tag=img&content=type_bmp.bmp" height="300" width="500"></iframe>
+
+<br><br>This frame tests loading of a HTML page with a TIF image when the HTTP content-type is set to "image/gif" .<br> Expected : This iframe should have NOTHING .<br>
+<iframe src="resources/getpage.pl?type=image/gif&tag=img&content=type_tif.tif" height="300" width="500"></iframe>
+
+<br><br>This frame tests loading of a HTML page with a PNG image when the HTTP content-type is set to "image/gif" .<br> Expected : This iframe should have NOTHING .<br>
+<iframe src="resources/getpage.pl?type=image/gif&tag=img&content=type_png.png" height="300" width="500"></iframe>
+
+<br><br>This frame tests loading of a HTML page with a JPEG image when the HTTP content-type is set to "image/gif" .<br> Expected : This iframe should have NOTHING .<br>
+<iframe src="resources/getpage.pl?type=image/gif&tag=img&content=type_jpg.jpg" height="300" width="500"></iframe>
+
+<br><br>This frame tests loading of a HTML page when the HTTP content-type is set to "image/gif" .<br> Expected : This iframe should have NOTHING .<br>
+<iframe src="resources/getpage.pl?type=image/gif&tag=img&content=type_txt.txt" height="300" width="500"></iframe>
+
+<br><br>This frame tests loading of a an HTML page with a FLASH object when the HTTP content-type is set to "image/gif" .<br> Expected : This iframe should have NOTHING .<br>
+<iframe src="resources/getpage.pl?type=image/gif&tag=embed&content=type_swf.swf" height="300" width="500"></iframe>
+
+<br><br>This frame tests loading of a GIF image and no HTML when the HTTP content-type is set to "image/gif" .<br> Expected : This iframe should have NOTHING .<br>
+<iframe src="resources/getpage.pl?type=image/gif&switch=nohtml&content=type_gif.gif" height="300" width="500"></iframe>
+
+<br><br>This frame tests loading of a BMP image and no HTML when the HTTP content-type is set to "image/gif" .<br> Expected : This iframe should have NOTHING .<br>
+<iframe src="resources/getpage.pl?type=image/gif&switch=nohtml&content=type_bmp.bmp" height="300" width="500"></iframe>
+
+<br><br>This frame tests loading of a TIF image and no HTML when the HTTP content-type is set to "image/gif" .<br> Expected : This iframe should have NOTHING .<br>
+<iframe src="resources/getpage.pl?type=image/gif&switch=nohtml&content=type_tif.tif" height="300" width="500"></iframe>
+
+<br><br>This frame tests loading of a PNG image and no HTML when the HTTP content-type is set to "image/gif" .<br> Expected : This iframe should have NOTHING .<br>
+<iframe src="resources/getpage.pl?type=image/gif&switch=nohtml&content=type_png.png" height="300" width="500"></iframe>
+
+<br><br>This frame tests loading of a JPEG image and no HTML when the HTTP content-type is set to "image/gif" .<br> Expected : This iframe should have NOTHING .<br>
+<iframe src="resources/getpage.pl?type=image/gif&switch=nohtml&content=type_jpg.jpg" height="300" width="500"></iframe>
+
+<br><br>This frame tests loading of a simple TEXT and no HTML when the HTTP content-type is set to "image/gif" .<br> Expected : This iframe should have NOTHING .<br>
+<iframe src="resources/getpage.pl?type=image/gif&switch=nohtml&content=type_txt.txt" height="300" width="500"></iframe>
+
+<br><br>This frame tests loading of a FLASH object and no HTML when the HTTP content-type is set to "image/gif" .<br> Expected : This iframe should have NOTHING .<br>
+<iframe src="resources/getpage.pl?type=image/gif&switch=nohtml&content=type_swf.swf" height="300" width="500"></iframe>
+
+</body>
+</html>
+<script>
+  if(window.layoutTestController)
+    layoutTestController.notifyDone();
+</script>

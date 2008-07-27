@@ -1,0 +1,21 @@
+<html>
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>test case for webkit bug 15630</title>
+</head>
+<body>
+
+  <p>The column on the right has explicit spaces after each of
+  U+3001 (ideographic comma) and U+3002 (ideographic full stop) while
+  the left column does not. The left and the right columns should be 
+  rendered identically.</p>
+
+<div style="width:1px; position:absolute; left:30%">
+Experts、eWatch(TM)、123、abc456、123Experts。eWatch(TM)。123。abc456。123
+</div>
+
+<div style="width:1px; position:absolute; left:60%">
+Experts、 eWatch(TM)、 123、 abc456、 123Experts。 eWatch(TM)。 123。 abc456。 123
+</div>
+</body>
+</html>

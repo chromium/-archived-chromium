@@ -1,0 +1,151 @@
+@media screen { 
+body { 
+	color : black; 
+	background : white; 
+	font-family : sans-serif; 
+}
+
+.chk-summary { font-weight: bold }
+
+.dfn-instance { color: #00513D; 
+       background: white;
+       font-style: italic ;
+}
+
+.indent { margin-left : 5%; } 
+
+.introduction { 
+	font-size : 105%; 
+	margin-right : 2%;
+	margin-left : 2%; 
+	border-width : thin; 
+	border-style : solid; 
+	border-color : black; 
+	color : black; 
+	background : white; 
+	padding : .5em; 
+}
+
+.markup-example { margin-left : 5%; }
+
+.nav { 
+	margin-right : 10%; 
+	margin-left : 10%; 
+	font-weight : bold; 
+	text-align : center; 
+}
+
+.nav-bar-title { 
+	text-align : center; 
+	font-size : 110%; 
+	font-family : sans-serif; 
+	font-weight: normal;
+	color: #0050B2; 
+	background : white; 
+}
+
+.policyfooter { font-size : 80%; }
+
+.new { color:white; background:red; font-weight:bold; font-size:90%; }
+
+.priority1 { color:red; background:white; }
+
+.return1 { font-size : 105%; font-weight : bold; }
+
+.separator { display: none } 
+
+.sub-navigation-bar { font-size:90%; font-weight:bold; margin-left:5%; }
+
+.test { 
+	border-width : thin; 
+	border-style : solid; 
+	border-color : black; 
+	color : black; 
+	background : white; 
+	padding : .75em; 
+}
+
+.under-construction { 	
+ 	font-family : arial, sans-serif; 
+	font-weight : bold; 
+	font-size : 115%; 
+	background : yellow; 
+	color : inherit; 
+	display : inline; 
+	border-width: 2px; 
+	border-style: solid; 
+	width : 100%; 
+	text-align : center; 
+}
+
+.valid { font-size:105%; text-align:center; }       
+a.link { color : #00008B; background : inherit; }
+a:active { color : red; background : inherit; }
+a:visited { color : purple; background : inherit; }
+a:hover { color : inherit; background : #FFA ; }
+
+dl.checkpoints { margin-left: 2em; margin-right: 2em; }
+
+dt.checkpoint { font-weight: normal; }
+
+dt.toc-intro { font-size : 1.25em; font-family : arial, sans-serif; font-weight : bold; }
+
+em { font-style : italic; }
+
+h1 { 
+	text-align : center; 
+	font-family : sans-serif;
+	font-weight: normal;
+	color: #0050B2; 
+	background : white; 
+}
+
+h2,h3 {
+	text-align : left; 
+	font-family : sans-serif;
+	font-weight: normal;
+	color: #0050B2; 
+	background : white; 
+}
+
+h4,h5,h6 { color: #0050B2; background: white; font-weight: normal; }
+
+hr { color : black; background : white; }
+
+ol { counter-reset : item; }
+
+ol.li { display : block; }
+
+ol.li:before { content : counters(item, ".") ; counter-increment: item; }
+
+strong { font-weight : bold; }
+
+span.checkpoint { font-weight: bold; margin-top: .75em; }
+
+.checkpoint-nb { color: maroon; background: white; }
+}
+
+@media print {
+.noprint { display: none }
+}
+
+@media aural {
+.guideline { volume: loud ; pause-before: 20%; elevation: above }
+.markup-example { speak-punctuation: code; }
+
+span.checkpoint { richness: 75; }
+.example { speak-punctuation: code; }
+.off { speak: none; }
+.priority1 { volume: loud; }
+.dfn-instance { stress: 20; pitch: high; }
+
+cite.normref { volume: loud }
+
+h1 { stress: 25; richness: 90; }
+h2 { stress: 20; richness: 90; }
+h3 { stress: 15; richness: 90; }
+h4 { stress: 10; richness: 90; }
+h5 { stress: 7; richness: 90; }
+h6 { stress: 5; richness: 90; }
+
+}

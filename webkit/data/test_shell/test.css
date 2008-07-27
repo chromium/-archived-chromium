@@ -1,0 +1,39 @@
+div.group {
+  width : 250px;
+}
+
+div.group h1 {
+  font-family: sans-serif;
+  font-size  : 16px;
+  color      : white;
+  background : red;
+}
+
+div.title {
+  font-family: sans-serif;
+  font-size  : 24px;
+}
+
+div.description {
+  font-family: sans-serif;
+}
+
+#title {
+  height: 160px;
+}
+
+#leftcol {
+  width:50%;
+}
+
+#rightcol {
+  float: right;
+  width:50%;
+}
+
+#footer {
+  font-size: 12px;
+  position: absolute;
+  bottom: 0;
+}
+

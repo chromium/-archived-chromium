@@ -1,0 +1,2 @@
+fast/foo/pass2.html
+fast/pass1.html

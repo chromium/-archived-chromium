@@ -1,0 +1,412 @@
+/*
+ * Copyright (C) 2006, 2007 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+module window {
+    // DOMWindow object has CheckDomainSecurity on the front object.
+    interface [LegacyParent=KJS::Window, DoNotCache, GenerateNativeConverter, CustomGetOwnPropertySlot, CustomPutFunction] DOMWindow {
+        // DOM Level 0
+        readonly attribute Screen screen;
+        readonly attribute [DoNotCheckDomainSecurity] History history;
+        attribute [Replaceable] BarInfo locationbar;
+        attribute [Replaceable] BarInfo menubar;
+        attribute [Replaceable] BarInfo personalbar;
+        attribute [Replaceable] BarInfo scrollbars;
+        attribute [Replaceable] BarInfo statusbar;
+        attribute [Replaceable] BarInfo toolbar;
+
+        DOMSelection getSelection();
+
+        readonly attribute [CheckNodeSecurity] Element frameElement;
+
+        [DoNotCheckDomainSecurity] void focus();
+        [DoNotCheckDomainSecurity] void blur();
+        [DoNotCheckDomainSecurity] void close();
+
+        void print();
+        void stop();
+
+        void alert(in DOMString message);
+        boolean confirm(in DOMString message);
+        [ConvertNullStringTo=Null] DOMString prompt(in DOMString message,
+                                                    in [ConvertUndefinedOrNullToNullString] DOMString defaultValue);
+
+        boolean find(in DOMString string,
+                     in boolean caseSensitive,
+                     in boolean backwards,
+                     in boolean wrap,
+                     in boolean wholeWord,
+                     in boolean searchInFrames,
+                     in boolean showDialog);
+
+        attribute [Replaceable] boolean offscreenBuffering;
+
+        attribute [Replaceable] long outerHeight;
+        attribute [Replaceable] long outerWidth;
+        attribute [Replaceable] long innerHeight;
+        attribute [Replaceable] long innerWidth;
+        attribute [Replaceable] long screenX;
+        attribute [Replaceable] long screenY;
+        attribute [Replaceable] long screenLeft;
+        attribute [Replaceable] long screenTop;
+        attribute [Replaceable] long scrollX;
+        attribute [Replaceable] long scrollY;
+        readonly attribute long pageXOffset;
+        readonly attribute long pageYOffset;
+
+        readonly attribute [DoNotCheckDomainSecurity] boolean closed;
+
+        attribute [Replaceable, DoNotCheckDomainSecurity] unsigned long length;
+
+        attribute DOMString name;
+
+        attribute [Replaceable] DOMString status;
+        attribute [Replaceable] DOMString defaultStatus;
+#if defined(LANGUAGE_JAVASCRIPT)
+        // This attribute is an alias of defaultStatus and is necessary for legacy uses.
+        attribute [Replaceable] DOMString defaultstatus;
+#endif
+
+        // Self referential attributes
+        attribute [Replaceable, DoNotCheckDomainSecurityOnGet] DOMWindow self;
+        readonly attribute [DoNotCheckDomainSecurity] DOMWindow window;
+        attribute [Replaceable, DoNotCheckDomainSecurityOnGet] DOMWindow frames;
+
+#if defined(V8_BINDING)
+        attribute [CustomSetter, DoNotCheckDomainSecurity] DOMWindow opener;
+#else
+        attribute [Replaceable, DoNotCheckDomainSecurityOnGet] DOMWindow opener;
+#endif
+        attribute [Replaceable, DoNotCheckDomainSecurity] DOMWindow parent;
+        attribute [Replaceable, DoNotCheckDomainSecurity] DOMWindow top;
+
+        // DOM Level 2 AbstractView Interface
+        readonly attribute Document document;
+
+        // DOM Level 2 Style Interface
+        CSSStyleDeclaration getComputedStyle(in Element element,
+                                             in DOMString pseudoElement);
+
+        // WebKit extensions
+        CSSRuleList getMatchedCSSRules(in Element element,
+                                       in DOMString pseudoElement,
+                                       in [Optional] boolean authorOnly);
+        attribute [Replaceable] double devicePixelRatio;
+
+#if defined(ENABLE_DATABASE)
+        Database openDatabase(in DOMString name, in DOMString version, in DOMString displayName, in unsigned long estimatedSize)
+            raises(DOMException);
+#endif
+
+                 attribute [Replaceable] Console console;
+
+#if defined(V8_BINDING)
+        [Custom] DOMWindow open(in DOMString url,
+                                in DOMString name,
+                                in [Optional] DOMString options);
+
+        [Custom] DOMObject showModalDialog(in DOMString url, 
+                                           in [Optional] DOMObject dialogArgs,
+                                           in [Optional] DOMString featureArgs);
+
+        void  back();
+        void  forward();
+#endif
+
+#if defined(LANGUAGE_JAVASCRIPT)
+        // Global constructors
+        attribute StyleSheetConstructor StyleSheet;
+        attribute CSSStyleSheetConstructor CSSStyleSheet;
+
+        attribute CSSValueConstructor CSSValue;
+        attribute CSSPrimitiveValueConstructor CSSPrimitiveValue;
+        attribute CSSValueListConstructor CSSValueList;
+
+        attribute CSSRuleConstructor CSSRule;
+        attribute CSSCharsetRuleConstructor CSSCharsetRule;
+        attribute CSSFontFaceRuleConstructor CSSFontFaceRule;
+        attribute CSSImportRuleConstructor CSSImportRule;
+        attribute CSSMediaRuleConstructor CSSMediaRule;
+        attribute CSSPageRuleConstructor CSSPageRule;
+        attribute CSSStyleRuleConstructor CSSStyleRule;
+
+        attribute CSSStyleDeclarationConstructor CSSStyleDeclaration;
+        attribute MediaListConstructor MediaList;
+        attribute CounterConstructor Counter;
+        attribute CSSRuleListConstructor CSSRuleList;
+        attribute RectConstructor Rect;
+        attribute StyleSheetListConstructor StyleSheetList;
+
+        // FIXME: Implement the commented-out global constructors for interfaces listed in DOM Level 3 Core specification.
+        attribute DOMCoreExceptionConstructor DOMException;
+//        attribute DOMStringListConstructor DOMStringList;
+//        attribute NameListConstructor NameList;
+//        attribute DOMImplementationListConstructor DOMImplementationList;
+//        attribute DOMImplementationSourceConstructor DOMImplementationSource;
+        attribute DOMImplementationConstructor DOMImplementation;
+        attribute DocumentFragmentConstructor DocumentFragment;
+        attribute DocumentConstructor Document;
+        attribute NodeConstructor Node;
+        attribute NodeListConstructor NodeList;
+        attribute NamedNodeMapConstructor NamedNodeMap;
+        attribute CharacterDataConstructor CharacterData;
+        attribute AttrConstructor Attr;
+        attribute ElementConstructor Element;
+        attribute TextConstructor Text;
+        attribute CommentConstructor Comment;
+//        attribute TypeInfoConstructor TypeInfo;
+//        attribute UserDataHandlerConstructor UserDataHandler;
+//        attribute DOMErrorConstructor DOMError;
+//        attribute DOMErrorHandlerConstructor DOMErrorHandler
+//        attribute DOMLocatorConstructor DOMLocator;
+//        attribute DOMConfigurationConstructor DOMConfiguration;
+        attribute CDATASectionConstructor CDATASection;
+        attribute DocumentTypeConstructor DocumentType;
+        attribute NotationConstructor Notation;
+        attribute EntityConstructor Entity;
+        attribute EntityReferenceConstructor EntityReference;
+        attribute ProcessingInstructionConstructor ProcessingInstruction;
+
+        attribute HTMLDocumentConstructor HTMLDocument;
+
+        attribute HTMLElementConstructor HTMLElement;
+        attribute HTMLAnchorElementConstructor HTMLAnchorElement;
+        attribute HTMLAppletElementConstructor HTMLAppletElement;
+        attribute HTMLAreaElementConstructor HTMLAreaElement;
+        attribute HTMLBRElementConstructor HTMLBRElement;
+        attribute HTMLBaseElementConstructor HTMLBaseElement;
+        attribute HTMLBaseFontElementConstructor HTMLBaseFontElement;
+        attribute HTMLBlockquoteElementConstructor HTMLBlockquoteElement;
+        attribute HTMLBodyElementConstructor HTMLBodyElement;
+        attribute HTMLButtonElementConstructor HTMLButtonElement;
+        attribute HTMLCanvasElementConstructor HTMLCanvasElement;
+        attribute HTMLDListElementConstructor HTMLDListElement;
+        attribute HTMLDirectoryElementConstructor HTMLDirectoryElement;
+        attribute HTMLDivElementConstructor HTMLDivElement;
+        attribute HTMLEmbedElementConstructor HTMLEmbedElement;
+        attribute HTMLFieldSetElementConstructor HTMLFieldSetElement;
+        attribute HTMLFontElementConstructor HTMLFontElement;
+        attribute HTMLFormElementConstructor HTMLFormElement;
+        attribute HTMLFrameElementConstructor HTMLFrameElement;
+        attribute HTMLFrameSetElementConstructor HTMLFrameSetElement;
+        attribute HTMLHRElementConstructor HTMLHRElement;
+        attribute HTMLHeadElementConstructor HTMLHeadElement;
+        attribute HTMLHeadingElementConstructor HTMLHeadingElement;
+        attribute HTMLHtmlElementConstructor HTMLHtmlElement;
+        attribute HTMLIFrameElementConstructor HTMLIFrameElement;
+        attribute HTMLImageElementConstructor HTMLImageElement;
+        attribute HTMLInputElementConstructor HTMLInputElement;
+        attribute HTMLIsIndexElementConstructor HTMLIsIndexElement;
+        attribute HTMLLIElementConstructor HTMLLIElement;
+        attribute HTMLLabelElementConstructor HTMLLabelElement;
+        attribute HTMLLegendElementConstructor HTMLLegendElement;
+        attribute HTMLLinkElementConstructor HTMLLinkElement;
+        attribute HTMLMapElementConstructor HTMLMapElement;
+        attribute HTMLMarqueeElementConstructor HTMLMarqueeElement;
+        attribute HTMLMenuElementConstructor HTMLMenuElement;
+        attribute HTMLMetaElementConstructor HTMLMetaElement;
+        attribute HTMLModElementConstructor HTMLModElement;
+        attribute HTMLOListElementConstructor HTMLOListElement;
+        attribute HTMLObjectElementConstructor HTMLObjectElement;
+        attribute HTMLOptGroupElementConstructor HTMLOptGroupElement;
+        attribute HTMLOptionElementConstructor HTMLOptionElement;
+        attribute HTMLParagraphElementConstructor HTMLParagraphElement;
+        attribute HTMLParamElementConstructor HTMLParamElement;
+        attribute HTMLPreElementConstructor HTMLPreElement;
+        attribute HTMLQuoteElementConstructor HTMLQuoteElement;
+        attribute HTMLScriptElementConstructor HTMLScriptElement;
+        attribute HTMLSelectElementConstructor HTMLSelectElement;
+        attribute HTMLStyleElementConstructor HTMLStyleElement;
+        attribute HTMLTableCaptionElementConstructor HTMLTableCaptionElement;
+        attribute HTMLTableCellElementConstructor HTMLTableCellElement;
+        attribute HTMLTableColElementConstructor HTMLTableColElement;
+        attribute HTMLTableElementConstructor HTMLTableElement;
+        attribute HTMLTableRowElementConstructor HTMLTableRowElement;
+        attribute HTMLTableSectionElementConstructor HTMLTableSectionElement;
+        attribute HTMLTextAreaElementConstructor HTMLTextAreaElement;
+        attribute HTMLTitleElementConstructor HTMLTitleElement;
+        attribute HTMLUListElementConstructor HTMLUListElement;
+
+        attribute EventConstructor Event;
+        attribute KeyboardEventConstructor KeyboardEvent;
+        attribute MouseEventConstructor MouseEvent;
+        attribute MutationEventConstructor MutationEvent;
+        attribute OverflowEventConstructor OverflowEvent;
+        attribute ProgressEventConstructor ProgressEvent;
+        attribute TextEventConstructor TextEvent;
+        attribute UIEventConstructor UIEvent;
+        attribute WheelEventConstructor WheelEvent;
+        attribute EventExceptionConstructor EventException;
+
+        attribute NodeFilterConstructor NodeFilter;
+        attribute RangeConstructor Range;
+        attribute RangeExceptionConstructor RangeException;
+
+        // Mozilla has a separate XMLDocument object for XML documents. 
+        // We just use Document for this.
+        attribute DocumentConstructor XMLDocument;
+
+        attribute DOMParserConstructor DOMParser;
+        attribute XMLSerializerConstructor XMLSerializer;
+
+        attribute XMLHttpRequestExceptionConstructor XMLHttpRequestException;
+#if defined(V8_BINDING)
+	// KJS adds these to the window object in kjs_window.cpp.
+	attribute XMLHttpRequestConstructor XMLHttpRequest;
+	attribute XSLTProcessorConstructor XSLTProcessor;
+#endif
+
+#if defined(ENABLE_CROSS_DOCUMENT_MESSAGING)
+        attribute MessageEventConstructor MessageEvent;
+#endif	
+
+#if defined(ENABLE_VIDEO)
+        attribute HTMLAudioElementConstructor HTMLAudioElement;
+        attribute HTMLMediaElementConstructor HTMLMediaElement;
+        attribute HTMLVideoElementConstructor HTMLVideoElement;
+        attribute MediaErrorConstructor MediaError;
+#endif
+
+#if defined(ENABLE_XPATH)
+        attribute XPathEvaluatorConstructor XPathEvaluator;
+        attribute XPathResultConstructor XPathResult;
+        attribute XPathExceptionConstructor XPathException;
+#endif
+
+#if defined(ENABLE_SVG)
+        attribute SVGAngleConstructor SVGAngle;
+        attribute SVGColorConstructor SVGColor;
+//      attribute SVGCSSRuleConstructor SVGCSSRule;
+        attribute SVGExceptionConstructor SVGException;
+        attribute SVGGradientElementConstructor SVGGradientElement;
+        attribute SVGLengthConstructor SVGLength;
+        attribute SVGMarkerElementConstructor SVGMarkerElement;
+        attribute SVGPaintConstructor SVGPaint;
+        attribute SVGPathSegConstructor SVGPathSeg;
+        attribute SVGPreserveAspectRatioConstructor SVGPreserveAspectRatio;
+        attribute SVGRenderingIntentConstructor SVGRenderingIntent;
+        attribute SVGTextContentElementConstructor SVGTextContentElement;
+        attribute SVGTextPathElementConstructor SVGTextPathElement;
+        attribute SVGTransformConstructor SVGTransform;
+        attribute SVGUnitTypesConstructor SVGUnitTypes;
+//      attribute SVGZoomAndPanConstructor SVGZoomAndPan;
+#endif
+
+#if defined(ENABLE_SVG_EXPERIMENTAL_FEATURES)
+        attribute SVGComponentTransferFunctionElementConstructor SVGComponentTransferFunctionElement;
+        attribute SVGFEBlendElementConstructor SVGFEBlendElement;
+        attribute SVGFEColorMatrixElementConstructor SVGFEColorMatrixElement;
+        attribute SVGFECompositeElementConstructor SVGFECompositeElement;
+//      attribute SVGFEConvolveMatrixElementConstructor SVGFEConvolveMatrixElement;
+        attribute SVGFEDisplacementMapElementConstructor SVGFEDisplacementMapElement;
+//      attribute SVGFEMorphologyElementConstructor SVGFEMorphologyElement;
+        attribute SVGFETurbulenceElementConstructor SVGFETurbulenceElement;
+#endif
+
+#endif // defined(LANGUAGE_JAVASCRIPT)
+
+#if defined(V8_BINDING)
+    // These were implemented in KJS::Window and not moved to IDL yet.
+
+    attribute [Replaceable] Navigator navigator;
+    attribute [Replaceable, v8referenceattr=navigator] Navigator clientInformation;
+    // Getter returns a Location object, setter assigns a string.    
+    attribute [DoNotCheckDomainSecurity, CustomSetter, v8OnProto] Location location;
+
+// Not supported by Safari
+//    void  home();
+//    void  dump();
+
+    [RequiresAllArguments] void scrollBy(in long xScrollDif, in long yScrollDif);
+    [RequiresAllArguments] void scrollTo(in long xScroll, in long yScroll);
+    [RequiresAllArguments] void scroll(in long xScroll, in long yScroll);
+    [RequiresAllArguments] void moveBy(in float x, in float y); // FIXME: this should take longs not floats.
+    [RequiresAllArguments] void moveTo(in float x, in float y); // FIXME: this should take longs not floats.
+    [RequiresAllArguments] void resizeBy(in float x, in float y); // FIXME: this should take longs not floats.
+    [RequiresAllArguments] void resizeTo(in float width, in float height); // FIXME: this should take longs not floats.
+
+// Not supported in Safari.
+//    void  sizeToContent();
+//    void  getAttention();
+
+    void clearTimeout(in long timerID);
+    void clearInterval(in long timerID);
+
+    [Custom] long setTimeout(in DOMString function, in unsigned long timeout);
+    [Custom] long setInterval(in DOMString function, in unsigned long timeout);
+
+    [Custom] String atob(in DOMString str)
+        raises(DOMException);
+    [Custom] String btoa(in DOMString str)
+        raises(DOMException);
+
+    // These are defined on the window object in WebKit/KJS, but they
+    // are not implemented.
+    [Custom=DOMWindowNOP] void captureEvents(in long eventFlags);
+    [Custom=DOMWindowNOP] void releaseEvents(in long eventFlags);
+
+    // window.toString requires special handling
+    [v8DoNotCheckSignature, DoNotCheckDomainSecurity, Custom, DontEnum] DOMString toString();
+
+// Not supported in Safari.
+//    void routeEvent(in Event evt);
+//    void enableExternalCapture();
+//    void disableExternalCapture();
+
+    // Following two functions are part of JavaScript spec, implemented by
+    // VM already.
+//    DOMString escape(in DOMString str);
+//    DOMString unescape(in DOMString str); 
+
+    // attributes that are v8 specific, type is not important.
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onabort;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onblur;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onchange;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onclick;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString ondblclick;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString ondragdrop;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onerror;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onfocus;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onkeydown;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onkeypress;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onkeyup;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onload;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onmousedown;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onmousemove;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onmouseout;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onmouseover;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onmouseup;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onmousewheel;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onmove;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onreset;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onresize;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onscroll;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onsearch;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onselect;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onsubmit;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onunload;
+    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onbeforeunload;
+#endif // defined(V8_BINDING)
+  };
+}

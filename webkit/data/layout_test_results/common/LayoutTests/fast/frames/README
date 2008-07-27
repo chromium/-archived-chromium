@@ -1,0 +1,10 @@
+This file documents why the various tests have been rebaselined.
+
+iframe-option-crash-expected.txt
+--------------------------------
+In r12252, we fixed bug 688933 which let javascript:<expr> set the contents
+of the current document to <expr> (matching the behavior of Firefox and IE).
+This test includes an iframe with src="javascript:55".  In Chrome (and
+Firefox and IE), the 55 is rendered, in Safari, the 55 is not.  The test
+doesn't seem to have anything to do with the contents of this iframe, so
+rebaselining to include the 55.

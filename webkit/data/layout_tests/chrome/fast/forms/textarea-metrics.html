@@ -1,0 +1,72 @@
+<!Doctype html>
+<html>
+<head>
+<title>Test for metrics of textareas. Should match IE.</title>
+<link rel="stylesheet" href="../js/resources/js-test-style.css">
+<script src="../js/resources/js-test-pre.js"></script>
+<script src="../js/resources/js-test-post-function.js"></script>
+<script>
+if (window.layoutTestController) {
+    layoutTestController.waitUntilDone();
+    layoutTestController.dumpAsText();
+}
+
+function test()
+{
+    description("This test checks that textareas have the right metrics.");
+
+    /*
+      TODO(ojan): These numbers match IE. We match IE in non-layout-test-mode. 
+      So, I want to keep the numbers. Unfortunately, that means that our
+      baseline will include the word fail until we get rid of our font-fallback and 
+      scrollbar metric hacks. The test is still valid though.
+     */
+    shouldBe("document.getElementById('textarea-no-scroll').clientWidth", "94");
+    shouldBe("document.getElementById('textarea-no-scroll').clientHeight", "94");
+    shouldBe("document.getElementById('textarea-no-scroll').offsetWidth", "96");
+    shouldBe("document.getElementById('textarea-no-scroll').offsetHeight", "96");
+    shouldBe("document.getElementById('textarea-no-scroll').scrollWidth", "94");
+    shouldBe("document.getElementById('textarea-no-scroll').scrollHeight", "20");
+
+    shouldBe("document.getElementById('textarea-with-scroll').clientWidth", "77");
+    shouldBe("document.getElementById('textarea-with-scroll').clientHeight", "94");
+    shouldBe("document.getElementById('textarea-with-scroll').offsetWidth", "96");
+    shouldBe("document.getElementById('textarea-with-scroll').offsetHeight", "96");
+    shouldBe("document.getElementById('textarea-with-scroll').scrollWidth", "77");
+    shouldBe("document.getElementById('textarea-with-scroll').scrollHeight", "132");
+
+    shouldBe("document.getElementById('textarea-no-scroll-with-padding').clientWidth", "106");
+    shouldBe("document.getElementById('textarea-no-scroll-with-padding').clientHeight", "106");
+    shouldBe("document.getElementById('textarea-no-scroll-with-padding').offsetWidth", "108");
+    shouldBe("document.getElementById('textarea-no-scroll-with-padding').offsetHeight", "108");
+    shouldBe("document.getElementById('textarea-no-scroll-with-padding').scrollWidth", "106");
+    shouldBe("document.getElementById('textarea-no-scroll-with-padding').scrollHeight", "32");
+
+    shouldBe("document.getElementById('textarea-with-scroll-with-padding').clientWidth", "89");
+    shouldBe("document.getElementById('textarea-with-scroll-with-padding').clientHeight", "106");
+    shouldBe("document.getElementById('textarea-with-scroll-with-padding').offsetWidth", "108");
+    shouldBe("document.getElementById('textarea-with-scroll-with-padding').offsetHeight", "108");
+    shouldBe("document.getElementById('textarea-with-scroll-with-padding').scrollWidth", "89");
+    shouldBe("document.getElementById('textarea-with-scroll-with-padding').scrollHeight", "144");
+
+    if (window.layoutTestController) { 
+        layoutTestController.notifyDone();
+    }
+}
+
+var successfullyParsed = true;
+</script>
+<style>
+textarea { overflow-y:auto; font-family:courier new; font-size:13px; width:90px; height:90px; }
+</style>
+</head>
+<body onload="test()">
+<textarea id="textarea-no-scroll">Foo</textarea>
+<textarea id="textarea-with-scroll">Foo Bar Baz Foo Bar Baz Foo Bar Baz Foo Bar Baz Foo Bar Baz</textarea>
+<textarea id="textarea-no-scroll-with-padding" style="padding:8px">Foo</textarea>
+<textarea id="textarea-with-scroll-with-padding" style="padding:8px">Foo Bar Baz Foo Bar Baz Foo Bar Baz Foo Bar Baz Foo Bar Baz</textarea>
+
+<p id="description"></p>
+<div id="console"></div>
+</body>
+</html>

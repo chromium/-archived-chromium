@@ -1,0 +1,10 @@
+ideo_punc.html: new test
+------------------------
+This test case is for 
+  webkit bug 15630 (http://bugs.webkit.org/show_bug.cgi?id=15630)
+  and our bug 824225 (http://b/issue?id=824225 )
+
+hindi-spacing.html: new test
+------------------------
+This test case is for http://b/1212319. WebKit doesn't have this bug,
+but it's a generic rendering test for Hindi where WebKit could regress.

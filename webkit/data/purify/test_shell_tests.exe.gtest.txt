@@ -1,0 +1,2 @@
+# the BMP tests are currently too slow under Purify
+BMP*

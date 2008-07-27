@@ -1,0 +1,6 @@
+This file documents why the various tests have been rebaselined.
+
+advanced-get.html
+advanced-put.html
+----------------------------
+The outputs differ by having one fewer space on the terminal line. This is probably due to one of the form control changes, as the render tree is slightly different.

@@ -1,0 +1,12 @@
+- plugin-javascript-access.html
+  Has a hardcoded mac filename for the test plugin.
+
+- mouse-events.html
+  The events are system specific and Windows/Mac differ.
+  
+- open-and-close-window-with-plugin.html
+  Our scrollview update functionality invokes the frame geometry change 
+  function, thus causing the plugin to receive a NPP_SetWindow call before NPP_Destroy.
+  Safari's implementation invokes the win32 API UpdateWindow which will cause a similar
+  notification if there is a non zero update region.
+  

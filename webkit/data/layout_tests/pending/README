@@ -1,0 +1,9 @@
+If you add a test to this directory, please edit or add a README file in the
+same directory as your test explaining why it was forked (or that it's new)
+and mentioning any applicable internal or WebKit bugs.
+
+The original versions of tests that have been forked into this directory
+should be added to tests_fixable.txt so we keep track of the need to send
+them upstream and then remove these copies. Mark them as DEFER if possible,
+or SKIP if running them causes problems with other tests.
+

@@ -1,0 +1,3 @@
+REPRODUCIBLE CRASH: Omitting terminal question mark in xml tag causes access violation.
+
+If you don't crash, you pass.

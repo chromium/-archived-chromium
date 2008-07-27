@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><title>Inline Frame Test</title>
+
+
+
+
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+<meta name="description" content="This document contains the text of several 
+UAAG checkpoints. It is intended to be displayed as an inline frame.">
+
+<meta name="keywords" content="HTML, web accessibility, user agent, UA, UAWG, WCAG, 
+Web Content Accessibility Guidelines, World Wide Web Consortium, W3C, WWW,
+disabilities, disabled, web access">
+
+<meta name="author" content="Gregory J. Rosmaita">
+
+<link rel="stylesheet" type="text/css" href="iframe1_files/test.txt">
+
+<style type="text/css">
+<!-- 
+.source { 
+	margin-right : 2%;
+	margin-left : 2%; 
+	border-width : thin; 
+	border-style : solid; 
+	border-color : black; 
+	color : black; 
+	background : white; 
+	padding : .5em;
+	font-size : 105%;  
+	font-weight : bold; 
+ }
+
+.indented { margin-left : 5%; margin-right : 5%; }
+ -->
+</style></head><body>
+
+<h1>Pertinent <acronym title="User Agent Accessibility Guidelines">UAAG</acronym> Checkpoints</h1>
+
+<p class="source">
+The source of the checkpoints reproduced in this test document is the 
+<a href="http://www.w3.org/WAI/UA/WD-UAAG10-20010411/">11 May 2001 
+Working Draft of the User Agent Accessibility Guidelines</a>:
+<br>
+<span class="indented">&lt;http://www.w3.org/WAI/UA/WD-UAAG10-20010411/&gt;</span>
+</p>
+
+<dl class="checkpoint">
+
+<dt class="checkpoint"><span class="checkpoint"><a id="tech-doc-content-access" name="tech-doc-content-access">2.1</a></span> For all format specifications
+that the user agent <a href="http://www.w3.org/TR/UAAG10/#def-implement" rel="glossary" title="Definition of implement"><span class="dfn-instance">
+implements</span></a>, make <a href="http://www.w3.org/TR/UAAG10/#def-content" rel="glossary" title="Definition of Content"><span class="dfn-instance">content</span></a>
+available through the rendering processes described by those specifications.
+<span class="priority1">[Priority&nbsp;1]</span> Content only.</dt>
+
+<dd class="checkpoint"><strong>Note:</strong> This includes format-defined
+interactions between author preferences and user preferences/capabilities
+(e.g., when to render the "<code>alt</code>" <a href="http://www.w3.org/TR/UAAG10/#def-attribute" rel="glossary" title="Definition of Attribute"><span class="dfn-instance">
+attribute</span></a> in HTML <cite><a href="http://www.w3.org/TR/UAAG10/#ref-HTML4" title="Link to reference HTML4">[HTML4]</a></cite>, the rendering order of
+nested <code>OBJECT</code> elements in HTML, test attributes in SMIL <cite><a href="http://www.w3.org/TR/UAAG10/#ref-SMIL" title="Link to reference SMIL">[SMIL]</a></cite>, and the
+cascade in CSS2 <cite><a href="http://www.w3.org/TR/UAAG10/#ref-CSS2" title="Link to reference CSS2">
+[CSS2]</a></cite>). If a conforming user agent does not render a content type,
+it should allow the user to choose a way to handle that content (e.g., by
+launching another application, by saving it to disk, etc.). This checkpoint
+does not require that all content be available through each <a href="http://www.w3.org/TR/UAAG10/#def-viewport" rel="glossary" title="Definition of viewports"><span class="dfn-instance">viewport</span></a>.</dd>
+
+<dd><span class="noprint"><a href="http://www.w3.org/WAI/UA/UAAG10-TECHS/guidelines.html#tech-doc-content-access">
+Techniques for checkpoint 2.1</a></span></dd>
+
+<dt class="checkpoint"><span class="checkpoint"><a id="tech-nav-viewports" name="tech-nav-viewports">9.1</a></span> Allow the user to make the <a href="http://www.w3.org/TR/UAAG10/#def-selection" rel="glossary" title="Definition of Selection"><span class="dfn-instance">selection</span></a> and <a href="http://www.w3.org/TR/UAAG10/#def-focus" rel="glossary" title="Definition of Focus"><span class="dfn-instance">
+focus</span></a> of each <a href="http://www.w3.org/TR/UAAG10/#def-viewport" rel="glossary" title="Definition of viewports"><span class="dfn-instance">viewport</span></a>
+(including frames) the <a href="http://www.w3.org/TR/UAAG10/#def-current-selection" rel="glossary" title="Definition of current selection"><span class="dfn-instance">current
+selection</span></a> and <a href="http://www.w3.org/TR/UAAG10/#def-current-focus" rel="glossary" title="Definition of current focus"><span class="dfn-instance">current
+focus</span></a>, respectively. <span class="priority1">
+[Priority&nbsp;1]</span> User agent only.</dt>
+
+<dd class="checkpoint"><strong>Note:</strong> For example, when all frames of a
+frameset are displayed side-by-side, allow the user (via the keyboard) to move
+the <a href="http://www.w3.org/TR/UAAG10/#def-focus" rel="glossary" title="Definition of Focus"><span class="dfn-instance">focus</span></a> among them.</dd>
+
+<dd><span class="noprint"><a href="http://www.w3.org/WAI/UA/UAAG10-TECHS/guidelines.html#tech-nav-viewports">
+Techniques for checkpoint 9.1</a></span></dd>
+
+</dl>
+
+<hr title="Validation Information">
+
+<p class="validation">
+
+<a href="http://validator.w3.org/check/referer"><img src="foo1_data/vxhtml10.png" alt="W3C&nbsp;Validated&nbsp;XHTML&nbsp;1.0!" style="border: 0pt none ; width: 88px; height: 31px;"></a>
+
+&nbsp;&nbsp;&nbsp;
+
+<a href="http://jigsaw.w3.org/css-validator/validator-uri.html" title="Validate this page's stylesheet, courtesy of the W3C CSS Validation Service"><img style="border: 0pt none ; width: 88px; height: 31px;" src="foo1_data/vcss.gif" alt="W3C&nbsp;Validated&nbsp;CSS!"></a>
+</p>
+
+</body></html>

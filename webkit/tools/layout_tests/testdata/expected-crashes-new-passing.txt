@@ -1,0 +1,2 @@
+fast/bar/crash2.html
+fast/foo/crash1.html

@@ -1,0 +1,12 @@
+/* Copyright 2008 Google Inc. All Rights Reserved. */
+/* Author: ojan@google.com (Ojan Vafai) */
+
+/* These styles override the default styling for HTML elements in quirks-mode
+   as defined in WebCore/css/quirks.css. So far we have used this file exclusively for
+   making our form elements match Firefoxes. If we find other needs for this
+   file we should seriously consider if this is the right place of them. */
+
+textarea {
+  /* Matches IE's text offsets in quirksmode (causes text to wrap the same as IE). */
+  padding: 2px 0 0 2px;
+}

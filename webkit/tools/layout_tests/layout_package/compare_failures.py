@@ -1,0 +1,170 @@
+# Copyright 2008, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+"""A helper class for comparing the failures and crashes between layout test
+runs.  The results from the last test run are stored in expected-failures.txt
+and expected-crashes.txt in the layout test results directory."""
+
+import errno
+import os
+
+import path_utils
+import test_failures
+import test_expectations
+
+
+def PrintFilesFromSet(filenames, header_text):
+  """A helper method to print a list of files to stdout.
+  
+  Args:
+  filenames: a list of absolute filenames
+  header_text: a string to display before the list of filenames
+  """
+  if not len(filenames):
+    return
+  
+  filenames = list(filenames)
+  filenames.sort()
+  print
+  print header_text, "(%d):" % len(filenames)
+  for filename in filenames:
+    print "  %s" % path_utils.RelativeTestFilename(filename)
+
+
+class CompareFailures:
+  # A list of which TestFailure classes count as a failure vs a crash.
+  FAILURE_TYPES = (test_failures.FailureTextMismatch,
+                   test_failures.FailureImageHashMismatch)
+  CRASH_TYPES = (test_failures.FailureCrash,)
+  HANG_TYPES = (test_failures.FailureTimeout,)
+  MISSING_TYPES = (test_failures.FailureMissingResult,
+                   test_failures.FailureMissingImageHash)
+
+
+  def __init__(self, test_files, test_failures, expectations):
+    """Read the past layout test run's failures from disk.
+
+    Args:
+      test_files is a set of the filenames of all the test cases we ran
+      test_failures is a dictionary mapping the test filename to a list of
+          TestFailure objects if the test failed
+      expectations is a TestExpectations object representing the
+          current test status
+    """
+    self._test_files = test_files
+    self._test_failures = test_failures
+    self._expectations = expectations
+    self._CalculateRegressions()
+
+
+  def PrintRegressions(self):
+    """Print the regressions computed by _CalculateRegressions() to stdout. """
+
+    print "-" * 78
+
+    # Print unexpected passes by category.
+    passes = self._regressed_passes
+    PrintFilesFromSet(passes & self._expectations.GetFixableFailures(), 
+                      "Expected to fail, but passed")
+    PrintFilesFromSet(passes & self._expectations.GetFixableTimeouts(),
+                      "Expected to timeout, but passed")
+    PrintFilesFromSet(passes & self._expectations.GetFixableCrashes(),
+                      "Expected to crash, but passed")
+    
+    PrintFilesFromSet(passes & self._expectations.GetIgnoredFailures(), 
+                      "Expected to fail (ignored), but passed")
+    PrintFilesFromSet(passes & self._expectations.GetIgnoredTimeouts(),
+                      "Expected to timeout (ignored), but passed")
+
+    PrintFilesFromSet(passes & self._expectations.GetFixableDeferredFailures(),
+                      "Expected to fail (deferred), but passed")
+    PrintFilesFromSet(passes & self._expectations.GetFixableDeferredTimeouts(),
+                      "Expected to timeout (deferred), but passed")
+
+    # Print real regressions.
+    PrintFilesFromSet(self._regressed_failures,
+                      "Regressions: Unexpected failures")
+    PrintFilesFromSet(self._regressed_hangs,
+                      "Regressions: Unexpected timeouts")
+    PrintFilesFromSet(self._regressed_crashes,
+                      "Regressions: Unexpected crashes")
+    PrintFilesFromSet(self._missing, "Missing expected results")
+
+
+  def _CalculateRegressions(self):
+    """Calculate regressions from this run through the layout tests."""
+    worklist = self._test_files.copy()
+    
+    passes = set()
+    crashes = set()
+    hangs = set()
+    missing = set()
+    failures = set()
+
+    for test, failure_types in self._test_failures.iteritems():
+      # Although each test can have multiple test_failures, we only put them
+      # into one list (either the crash list or the failure list).  We give
+      # priority to a crash/timeout over others, and to missing results over
+      # a text mismatch.
+      is_crash = [True for f in failure_types if type(f) in self.CRASH_TYPES]
+      is_hang = [True for f in failure_types if type(f) in self.HANG_TYPES]
+      is_missing = [True for f in failure_types
+                    if type(f) in self.MISSING_TYPES]
+      is_failure = [True for f in failure_types
+                    if type(f) in self.FAILURE_TYPES]
+      expectations = self._expectations.GetExpectations(test)
+      if is_crash:
+        if not test_expectations.CRASH in expectations: crashes.add(test)
+      elif is_hang:
+        if not test_expectations.TIMEOUT in expectations: hangs.add(test)
+      elif is_missing:
+        missing.add(test)
+      elif is_failure:
+        if not test_expectations.FAIL in expectations: failures.add(test)
+      worklist.remove(test)
+
+    for test in worklist:
+      # Check that all passing tests are expected to pass.
+      expectations = self._expectations.GetExpectations(test)
+      if not test_expectations.PASS in expectations: passes.add(test)
+      
+    self._regressed_passes = passes
+    self._regressed_crashes = crashes
+    self._regressed_hangs = hangs
+    self._missing = missing
+    self._regressed_failures = failures
+
+
+  def GetRegressions(self):
+    """Returns a set of regressions from the test expectations. This is
+    used to determine which tests to list in results.html and the
+    right script exit code for the build bots. The list does not
+    include the unexpected passes."""
+    return (self._regressed_failures | self._regressed_hangs |
+            self._regressed_crashes | self._missing)

@@ -1,0 +1,12 @@
+<html> 
+  <body> 
+    <iframe id='ifr'> 
+    </iframe> 
+    <script> 
+      if (window.layoutTestController)
+        layoutTestController.waitUntilDone();
+      var ifr = document.getElementById('ifr');
+      ifr.contentWindow.document.location = "child.html";
+    </script> 
+  </body> 
+</html> 

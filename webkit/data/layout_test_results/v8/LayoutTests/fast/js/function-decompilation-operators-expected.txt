@@ -1,0 +1,59 @@
+This test checks toString() round-trip decompilation for binary and unary operators.
+
+On success, you will see a series of "PASS" messages, followed by "TEST COMPLETE".
+
+
+FAIL decompiledFunction should be function () {  x + + y;}. Was function () {x + + y}.
+FAIL decompiledFunction should be function () {  x + - y;}. Was function () {x + - y}.
+FAIL decompiledFunction should be function () {  x - + y;}. Was function () {x - + y}.
+FAIL decompiledFunction should be function () {  x - - y;}. Was function () {x - - y}.
+FAIL decompiledFunction should be function () {  x * + y;}. Was function () {x * + y}.
+FAIL decompiledFunction should be function () {  x * - y;}. Was function () {x * - y}.
+FAIL decompiledFunction should be function () {  x / + y;}. Was function () {x / + y}.
+FAIL decompiledFunction should be function () {  x / - y;}. Was function () {x / - y}.
+FAIL decompiledFunction should be function () {  x % + y;}. Was function () {x % + y}.
+FAIL decompiledFunction should be function () {  x % - y;}. Was function () {x % - y}.
+FAIL decompiledFunction should be function () {  x++ + y;}. Was function () {x++ + y}.
+FAIL decompiledFunction should be function () {  x++ - y;}. Was function () {x++ - y}.
+FAIL decompiledFunction should be function () {  x++ * y;}. Was function () {x++ * y}.
+FAIL decompiledFunction should be function () {  x++ / y;}. Was function () {x++ / y}.
+FAIL decompiledFunction should be function () {  x-- + y;}. Was function () {x-- + y}.
+FAIL decompiledFunction should be function () {  x-- - y;}. Was function () {x-- - y}.
+FAIL decompiledFunction should be function () {  x-- * y;}. Was function () {x-- * y}.
+FAIL decompiledFunction should be function () {  x-- / y;}. Was function () {x-- / y}.
+FAIL decompiledFunction should be function () {  x + ++y;}. Was function () {x + ++y}.
+FAIL decompiledFunction should be function () {  x - ++y;}. Was function () {x - ++y}.
+FAIL decompiledFunction should be function () {  x * ++y;}. Was function () {x * ++y}.
+FAIL decompiledFunction should be function () {  x / ++y;}. Was function () {x / ++y}.
+FAIL decompiledFunction should be function () {  x + --y;}. Was function () {x + --y}.
+FAIL decompiledFunction should be function () {  x - --y;}. Was function () {x - --y}.
+FAIL decompiledFunction should be function () {  x * --y;}. Was function () {x * --y}.
+FAIL decompiledFunction should be function () {  x / --y;}. Was function () {x / --y}.
+FAIL decompiledFunction should be function () {  x++ + ++y;}. Was function () {x++ + ++y}.
+FAIL decompiledFunction should be function () {  x++ - ++y;}. Was function () {x++ - ++y}.
+FAIL decompiledFunction should be function () {  x++ * ++y;}. Was function () {x++ * ++y}.
+FAIL decompiledFunction should be function () {  x++ / ++y;}. Was function () {x++ / ++y}.
+FAIL decompiledFunction should be function () {  x-- + ++y;}. Was function () {x-- + ++y}.
+FAIL decompiledFunction should be function () {  x-- - ++y;}. Was function () {x-- - ++y}.
+FAIL decompiledFunction should be function () {  x-- * ++y;}. Was function () {x-- * ++y}.
+FAIL decompiledFunction should be function () {  x-- / ++y;}. Was function () {x-- / ++y}.
+FAIL decompiledFunction should be function () {  x++ + --y;}. Was function () {x++ + --y}.
+FAIL decompiledFunction should be function () {  x++ - --y;}. Was function () {x++ - --y}.
+FAIL decompiledFunction should be function () {  x++ * --y;}. Was function () {x++ * --y}.
+FAIL decompiledFunction should be function () {  x++ / --y;}. Was function () {x++ / --y}.
+FAIL decompiledFunction should be function () {  x-- + --y;}. Was function () {x-- + --y}.
+FAIL decompiledFunction should be function () {  x-- - --y;}. Was function () {x-- - --y}.
+FAIL decompiledFunction should be function () {  x-- * --y;}. Was function () {x-- * --y}.
+FAIL decompiledFunction should be function () {  x-- / --y;}. Was function () {x-- / --y}.
+FAIL decompiledFunction should be function () {  + + x;}. Was function () {+ + x}.
+FAIL decompiledFunction should be function () {  + - x;}. Was function () {+ - x}.
+FAIL decompiledFunction should be function () {  - + x;}. Was function () {- + x}.
+FAIL decompiledFunction should be function () {  - - x;}. Was function () {- - x}.
+FAIL decompiledFunction should be function () {  1;}. Was function () {1}.
+FAIL decompiledFunction should be function () {  -1;}. Was function () {-1}.
+FAIL decompiledFunction should be function () {  - -1;}. Was function () {- -1}.
+FAIL decompiledFunction should be function () {  - - 0;}. Was function () {- - 0}.
+FAIL decompiledFunction should be function () {  - - NaN;}. Was function () {- - NaN}.
+PASS successfullyParsed is true
+
+TEST COMPLETE

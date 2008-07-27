@@ -1,0 +1,2 @@
+destroy-stream-twice.html: Bug 982608: corrected expected output of one
+tested condition, and added a timeout check.

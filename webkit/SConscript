@@ -1,0 +1,202 @@
+# Copyright 2008, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import os
+
+Import(['env'])
+
+env = env.Clone()
+env_res = env.Clone()
+
+
+port_dir = env.Dir('#/$BUILD_TYPE/webkit/port')
+
+port_dir.addRepository(env.Dir('#/../webkit/port'))
+port_dir.addRepository(env.Dir('#/../third_party/WebKit/WebCore'))
+
+
+env.Prepend(
+    CPPPATH = [
+        '$WEBKIT_DIR/build/localized_strings',
+        '$WEBKIT_DIR/build/JSConfig/obj/WebCore',
+        '$ICU38_DIR/public/common',
+        '$ICU38_DIR/public/i18n',
+        '$SKIA_DIR/include',
+        '$SKIA_DIR/include/corecg',
+        '$SKIA_DIR/platform',
+        '$NPAPI_DIR',
+        '$V8_DIR/src/api',
+        '$V8_DIR/public',
+        '$WEBKIT_DIR/V8Bindings/DerivedSources',
+        '$WEBKIT_DIR/V8Bindings/SharedSources',
+        '$WEBKIT_DIR/port/bindings/v8',
+        '$WEBKIT_DIR/WebCore',
+        '$WEBKIT_DIR/WebCore/JavaScriptHeaders',
+        '$WEBKIT_DIR/WebCore/JavaScriptHeaders/JavaScriptCore',
+        '$WEBKIT_DIR/pending',
+        '$WEBKIT_DIR/pending/kjs',
+        '$WEBKIT_DIR/pending/wtf',
+        '$WEBKIT_DIR/port/bridge',
+        '$WEBKIT_DIR/port/css',
+        '$WEBKIT_DIR/port/dom',
+        '$WEBKIT_DIR/port/editing',
+        '$WEBKIT_DIR/port/history',
+        '$WEBKIT_DIR/port/html',
+        '$WEBKIT_DIR/port/loader',
+        '$WEBKIT_DIR/port/loader/icon',
+        '$WEBKIT_DIR/port/page',
+        '$WEBKIT_DIR/port/platform',
+        '$WEBKIT_DIR/port/platform/network',
+        '$WEBKIT_DIR/port/platform/text',
+        '$WEBKIT_DIR/port/plugins',
+        '$WEBKIT_DIR/port/rendering',
+        '#/',
+        '.',
+
+        '$WEBKIT_DIR/port/platform/image-decoders',
+        '$WEBKIT_DIR/port/platform/image-decoders/bmp',
+        '$WEBKIT_DIR/port/platform/image-decoders/gif',
+        '$WEBKIT_DIR/port/platform/image-decoders/ico',
+        '$WEBKIT_DIR/port/platform/image-decoders/jpeg',
+        '$WEBKIT_DIR/port/platform/image-decoders/png',
+        '$WEBKIT_DIR/port/platform/image-decoders/xbm',
+        '$WEBKIT_DIR/port/platform/image-decoders/zlib',
+
+        '$WEBKIT_DIR/port/platform/graphics',
+
+        '$WEBKIT_DIR/port/svg/graphics',
+        '$WEBKIT_DIR/port/platform/network',
+        '$WEBKIT_DIR/port/platform/sql',
+        '$WEBKIT_DIR/port/platform/network/win',
+        '$WEBKIT_DIR/port/rendering',
+        '$WEBKIT_DIR/port/storage',
+        '$WEBKIT_DIR/port/xml',
+        '$WEBKIT_DIR/port',
+        '$WEBKIT_DIR/port/os-win32',
+        '$WEBKIT_DIR/port/wtf',
+        '$THIRD_PARTY_WEBKIT_DIR/JavaScriptCore',
+        '$THIRD_PARTY_WEBKIT_DIR/JavaScriptCore/wtf',
+        '$THIRD_PARTY_WEBKIT_DIR/JavaScriptCore/os-win32',
+        '$WEBKIT_DIR/port/svg',
+        '$WEBKIT_DIR/port/svg/graphics/filters',
+        '$WEBKIT_DIR/port/plugins',
+        '$LIBXSLT_DIR/scons',
+        '$LIBXSLT_DIR',
+        '$LIBXML_DIR/scons/include',
+        '$LIBXML_DIR/include',
+        '$LIBPNG_DIR',
+        '$ZLIB_DIR',
+        '$LIBJPEG_DIR',
+        '$WEBKIT_DIR/DerivedSources',
+        '#/..',
+    ],
+)
+
+env.Append(
+    WEBCORE_DIR = "$THIRD_PARTY_WEBKIT_DIR/WebCore",
+    PENDING_DIR = "$WEBKIT_DIR/pending",
+    PORT_DIR = "$WEBKIT_DIR/port",
+
+    JAVASCRIPTCORE_DIR = "$THIRD_PARTY_WEBKIT_DIR/JavaScriptCore",
+    WTF_DIR = "$JAVASCRIPTCORE_DIR/wtf",
+    KJS_DIR = "$JAVASCRIPTCORE_DIR/kjs",
+    PCRE_DIR = "$JAVASCRIPTCORE_DIR/pcre",
+
+    V8BINDINGS_DIR = "$WEBKIT_DIR/V8Bindings",
+    DERIVED_DIR = env.Dir("$WEBKIT_DIR/V8Bindings/DerivedSources"),
+    SHARED_DIR = env.Dir("$WEBKIT_DIR/V8Bindings/SharedSources"),
+
+    CPPDEFINES = [
+      'U_STATIC_IMPLEMENTATION'
+      '_CRT_SECURE_NO_DEPRECATE',
+      '_CRT_NONSTDC_NO_WARNINGS',
+      '_CRT_NONSTDC_NO_DEPRECATE',
+      '_SCL_SECURE_NO_DEPRECATE',
+      '_SCL_SECURE_NO_WARNINGS',
+      ['CRASH', '__debugbreak'],
+      ['ENABLE_CROSS_DOCUMENT_MESSAGING', '1'],
+      ['ENABLE_XSLT', '1'],
+      ['ENABLE_XPATH', '1'],
+      ['ENABLE_SVG', '1'],
+      ['ENABLE_SVG_AS_IMAGE', '1'],
+      ['ENABLE_SVG_USE', '1'],
+      ['ENABLE_SVG_FOREIGN_OBJECT', '1'],
+      ['ENABLE_SVG_FONTS', '1'],
+      ['ANDROID_CANVAS_IMPL', '1'],
+      ['WEBCORE_NAVIGATOR_PLATFORM', '"\\"Win32\\""'],
+      'USE_GOOGLE_URL_LIBRARY',
+
+      '_WIN32_WINNT=0x0600',
+      'WINVER=0x0600',
+
+      'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
+      'WIN32_LEAN_AND_MEAN',
+
+      'LIBXSLT_STATIC',
+      'LIBXML_STATIC',
+      'PNG_USER_CONFIG',
+      'CHROME_PNG_WRITE_SUPPORT',
+      ['__PRETTY_FUNCTION__', '__FUNCTION__'],
+      'DISABLE_ACTIVEX_TYPE_CONVERSION_MPLAYER2',
+
+      'HAVE_CONFIG_H',
+      '__STD_C',
+    ],
+)
+
+
+sconscript_dirs = [
+    'SConscript.port',
+    'SConscript.javascriptcore_pcre',
+    'activex_shim/SConscript',
+    'activex_shim_dll/SConscript',
+    'build/JSConfig/SConscript',
+    'build/JavaScriptCore/SConscript',
+    'build/localized_strings/SConscript',
+    'build/port/SConscript',
+    'build/V8Bindings/SConscript',
+    'build/WebCore/SConscript',
+    'default_plugin/SConscript',
+    'glue/SConscript',
+    'glue/plugins/test/SConscript',
+    'tools/npapi_layout_test_plugin/SConscript',
+    'tools/test_shell/SConscript',
+    'tools/test_shell/resources/fonts/SConscript',
+]
+
+env.SConscript(sconscript_dirs, exports=['env', 'env_res'])
+
+# Setup alias for all webkit related targets.
+# We'd like to do this as follows, but it leads to out-of-memory
+# errors when SCons tries to use the entire contents of the
+# directory tree as a huge content-signature string.
+# Instead we're going to let all the subsidiary SConscript files
+# add their own individual targets to the 'webkit' Alias.
+#env.Alias('webkit', ['.', '../icudt38.dll'])
+env.Alias('webkit', ['../icudt38.dll'])

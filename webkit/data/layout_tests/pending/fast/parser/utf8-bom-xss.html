@@ -1,0 +1,23 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+<title>MFSA 2006-42 BOM XSS Test</title>
+</head>
+<body>
+
+<pre>
+Test for unicode BOM character within a tag.  Original Firefox bug:
+  http://www.mozilla.org/security/announce/2006/mfsa2006-42.html
+  https://bugzilla.mozilla.org/attachment.cgi?id=220127
+</pre>
+
+<﻿script>document.write('FAILED');</script>
+
+<script>
+  if (window.layoutTestController)
+    layoutTestController.dumpAsText();
+</script>
+
+</body>
+</html>

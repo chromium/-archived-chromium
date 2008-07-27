@@ -1,0 +1,6 @@
+LIBRARY   npapi_test_plugin
+
+EXPORTS
+	NP_GetEntryPoints   @1
+	NP_Initialize       @2
+	NP_Shutdown         @3

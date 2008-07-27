@@ -1,0 +1,53 @@
+body {
+  font-family: Consolas, monospace;
+  font-size: 12px;
+}
+
+ul.bar {
+  position: relative;
+  width: 900px;
+  height: 200px;
+  background: gray;
+  border: 2px solid silver;
+}
+ul.bar li {
+  position: absolute;
+  bottom: 0px;
+  width: 5px;
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
+  z-index: 2;
+  border: 1px solid black;
+  border-bottom: 0px;
+  background: green;
+}
+
+ul.bar .label {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  background: none;
+}
+
+li.compare {
+  border: white;
+  width: 10px;
+}
+
+li.compare { 
+  background-color: red;
+}
+
+.button {
+  border: 1px dashed silver;
+  padding: 2px;
+  margin: 2px;
+  display: inline;
+}
+
+.button:hover {
+  text-decoration:underline;
+  cursor: pointer;
+  background-color: silver;
+}

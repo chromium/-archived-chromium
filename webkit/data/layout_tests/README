@@ -1,0 +1,11 @@
+This directory contains layout tests.  Next to this directory is
+layout_test_results which contains custom kjs and v8 results.
+
+  chrome/
+    contains webkit tests and results for chrome specific issues
+
+  pending/
+    contains webkit tests that should be sent upstream to webkit.org
+
+  LayoutTests/
+    pulled in via svn:external from svn.webkit.org

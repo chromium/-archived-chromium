@@ -1,0 +1,17 @@
+<!DOCTYPE HTML>
+<html  style="overflow: hidden">
+<script>
+function check () {
+ var mylink = document.getElementsByTagName('a');
+ location =  mylink[0];
+}
+</script>
+
+<body onload="check()">
+<p> <b> Should not fail to scroll when frame's overflow is hidden . See bug 655542. </b> </p>
+<div style="height: 2000px">
+<a href="#top">Click here</a> </div>
+<h2 id="top">Test Passed</h2>
+</body>
+
+</html>

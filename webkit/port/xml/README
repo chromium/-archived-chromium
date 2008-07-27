@@ -1,0 +1,16 @@
+Please read carefully!
+
+This directory contains replacement .idl files copied from
+WebKit's WebCore directories which have been modified for v8.
+
+The directory hierarchy from WebKit's WebCore has been preserved.
+Only the files modified have been copied here.
+
+GOALS:  We don't want to touch this many Webkit files, and we plan
+to make this "mirror" go away completely if possible.  For the interim,
+we've made changes to these files and this directory represents a capture
+of those changes.  It will be difficult to get these changes fully
+accepted into WebKit proper unless we can find a way to modify fewer
+files or better abstract the IDL differences between the various
+bindings.
+

@@ -1,0 +1,3 @@
+- abort-should-cancel-load.html
+  This test uses dumpResourceLoadCallbacks, which creates Mac-specific output.
+  Our output of those callbacks necessarily differs, hence the rebaseline.

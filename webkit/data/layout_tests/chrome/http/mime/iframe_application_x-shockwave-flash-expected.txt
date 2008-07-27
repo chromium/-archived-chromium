@@ -1,0 +1,253 @@
+layer at (0,0) size 785x5386
+  RenderView at (0,0) size 785x600
+layer at (0,0) size 785x5386
+  RenderBlock {HTML} at (0,0) size 785x5386
+    RenderBody {BODY} at (8,8) size 769x5370
+      RenderText {#text} at (0,0) size 719x36
+        text run at (0,0) width 719: "This HTML is used to test HTTP content-type \"application/x-shockwave-flash\" by having multiple iframes render"
+        text run at (0,18) width 419: "different types of content for the same HTTP content-type header. "
+      RenderText {#text} at (0,0) size 0x0
+      RenderText {#text} at (0,0) size 0x0
+      RenderText {#text} at (0,0) size 0x0
+      RenderBR {BR} at (0,0) size 0x0
+      RenderText {#text} at (0,36) size 162x18
+        text run at (0,36) width 162: "Well here are the frames !"
+      RenderBR {BR} at (162,50) size 0x0
+      RenderBR {BR} at (0,54) size 0x18
+      RenderBR {BR} at (0,72) size 0x18
+      RenderText {#text} at (0,90) size 714x36
+        text run at (0,90) width 714: "This frame tests loading of a HTML page with a GIF image when the HTTP content-type is set to \"application/x-"
+        text run at (0,108) width 121: "shockwave-flash\" ."
+      RenderBR {BR} at (121,122) size 0x0
+      RenderText {#text} at (0,126) size 310x18
+        text run at (0,126) width 310: "Expected : This iframe should have NOTHING ."
+      RenderBR {BR} at (310,140) size 0x0
+      RenderPartObject {IFRAME} at (0,144) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,434) size 4x18
+        text run at (504,434) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,452) size 0x18
+      RenderText {#text} at (0,470) size 722x36
+        text run at (0,470) width 722: "This frame tests loading of a HTML page with a BMP image when the HTTP content-type is set to \"application/x-"
+        text run at (0,488) width 121: "shockwave-flash\" ."
+      RenderBR {BR} at (121,502) size 0x0
+      RenderText {#text} at (0,506) size 310x18
+        text run at (0,506) width 310: "Expected : This iframe should have NOTHING ."
+      RenderBR {BR} at (310,520) size 0x0
+      RenderPartObject {IFRAME} at (0,524) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,814) size 4x18
+        text run at (504,814) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,832) size 0x18
+      RenderText {#text} at (0,850) size 712x36
+        text run at (0,850) width 712: "This frame tests loading of a HTML page with a TIF image when the HTTP content-type is set to \"application/x-"
+        text run at (0,868) width 121: "shockwave-flash\" ."
+      RenderBR {BR} at (121,882) size 0x0
+      RenderText {#text} at (0,886) size 310x18
+        text run at (0,886) width 310: "Expected : This iframe should have NOTHING ."
+      RenderBR {BR} at (310,900) size 0x0
+      RenderPartObject {IFRAME} at (0,904) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,1194) size 4x18
+        text run at (504,1194) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,1212) size 0x18
+      RenderText {#text} at (0,1230) size 721x36
+        text run at (0,1230) width 721: "This frame tests loading of a HTML page with a PNG image when the HTTP content-type is set to \"application/x-"
+        text run at (0,1248) width 121: "shockwave-flash\" ."
+      RenderBR {BR} at (121,1262) size 0x0
+      RenderText {#text} at (0,1266) size 310x18
+        text run at (0,1266) width 310: "Expected : This iframe should have NOTHING ."
+      RenderBR {BR} at (310,1280) size 0x0
+      RenderPartObject {IFRAME} at (0,1284) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,1574) size 4x18
+        text run at (504,1574) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,1592) size 0x18
+      RenderText {#text} at (0,1610) size 725x36
+        text run at (0,1610) width 725: "This frame tests loading of a HTML page with a JPEG image when the HTTP content-type is set to \"application/x-"
+        text run at (0,1628) width 121: "shockwave-flash\" ."
+      RenderBR {BR} at (121,1642) size 0x0
+      RenderText {#text} at (0,1646) size 310x18
+        text run at (0,1646) width 310: "Expected : This iframe should have NOTHING ."
+      RenderBR {BR} at (310,1660) size 0x0
+      RenderPartObject {IFRAME} at (0,1664) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,1954) size 4x18
+        text run at (504,1954) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,1972) size 0x18
+      RenderText {#text} at (0,1990) size 720x18
+        text run at (0,1990) width 720: "This frame tests loading of a HTML page when the HTTP content-type is set to \"application/x-shockwave-flash\" ."
+      RenderBR {BR} at (720,2004) size 0x0
+      RenderText {#text} at (0,2008) size 310x18
+        text run at (0,2008) width 310: "Expected : This iframe should have NOTHING ."
+      RenderBR {BR} at (310,2022) size 0x0
+      RenderPartObject {IFRAME} at (0,2026) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,2316) size 4x18
+        text run at (504,2316) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,2334) size 0x18
+      RenderText {#text} at (0,2352) size 759x36
+        text run at (0,2352) width 759: "This frame tests loading of a an HTML page with a FLASH object when the HTTP content-type is set to \"application/x-"
+        text run at (0,2370) width 121: "shockwave-flash\" ."
+      RenderBR {BR} at (121,2384) size 0x0
+      RenderText {#text} at (0,2388) size 310x18
+        text run at (0,2388) width 310: "Expected : This iframe should have NOTHING ."
+      RenderBR {BR} at (310,2402) size 0x0
+      RenderPartObject {IFRAME} at (0,2406) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,2696) size 4x18
+        text run at (504,2696) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,2714) size 0x18
+      RenderText {#text} at (0,2732) size 760x36
+        text run at (0,2732) width 760: "This frame tests loading of a GIF image and no HTML when the HTTP content-type is set to \"application/x-shockwave-"
+        text run at (0,2750) width 45: "flash\" ."
+      RenderBR {BR} at (45,2764) size 0x0
+      RenderText {#text} at (0,2768) size 340x18
+        text run at (0,2768) width 340: "Expected : This iframe should have a FLASH object ."
+      RenderBR {BR} at (340,2782) size 0x0
+      RenderPartObject {IFRAME} at (0,2786) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,3076) size 4x18
+        text run at (504,3076) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,3094) size 0x18
+      RenderText {#text} at (0,3112) size 768x36
+        text run at (0,3112) width 768: "This frame tests loading of a BMP image and no HTML when the HTTP content-type is set to \"application/x-shockwave-"
+        text run at (0,3130) width 45: "flash\" ."
+      RenderBR {BR} at (45,3144) size 0x0
+      RenderText {#text} at (0,3148) size 310x18
+        text run at (0,3148) width 310: "Expected : This iframe should have NOTHING ."
+      RenderBR {BR} at (310,3162) size 0x0
+      RenderPartObject {IFRAME} at (0,3166) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,3456) size 4x18
+        text run at (504,3456) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,3474) size 0x18
+      RenderText {#text} at (0,3492) size 758x36
+        text run at (0,3492) width 758: "This frame tests loading of a TIF image and no HTML when the HTTP content-type is set to \"application/x-shockwave-"
+        text run at (0,3510) width 45: "flash\" ."
+      RenderBR {BR} at (45,3524) size 0x0
+      RenderText {#text} at (0,3528) size 310x18
+        text run at (0,3528) width 310: "Expected : This iframe should have NOTHING ."
+      RenderBR {BR} at (310,3542) size 0x0
+      RenderPartObject {IFRAME} at (0,3546) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,3836) size 4x18
+        text run at (504,3836) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,3854) size 0x18
+      RenderText {#text} at (0,3872) size 767x36
+        text run at (0,3872) width 767: "This frame tests loading of a PNG image and no HTML when the HTTP content-type is set to \"application/x-shockwave-"
+        text run at (0,3890) width 45: "flash\" ."
+      RenderBR {BR} at (45,3904) size 0x0
+      RenderText {#text} at (0,3908) size 340x18
+        text run at (0,3908) width 340: "Expected : This iframe should have a FLASH object ."
+      RenderBR {BR} at (340,3922) size 0x0
+      RenderPartObject {IFRAME} at (0,3926) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,4216) size 4x18
+        text run at (504,4216) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,4234) size 0x18
+      RenderText {#text} at (0,4252) size 695x36
+        text run at (0,4252) width 695: "This frame tests loading of a JPEG image and no HTML when the HTTP content-type is set to \"application/x-"
+        text run at (0,4270) width 121: "shockwave-flash\" ."
+      RenderBR {BR} at (121,4284) size 0x0
+      RenderText {#text} at (0,4288) size 340x18
+        text run at (0,4288) width 340: "Expected : This iframe should have a FLASH object ."
+      RenderBR {BR} at (340,4302) size 0x0
+      RenderPartObject {IFRAME} at (0,4306) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,4596) size 4x18
+        text run at (504,4596) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,4614) size 0x18
+      RenderText {#text} at (0,4632) size 703x36
+        text run at (0,4632) width 703: "This frame tests loading of a simple TEXT and no HTML when the HTTP content-type is set to \"application/x-"
+        text run at (0,4650) width 121: "shockwave-flash\" ."
+      RenderBR {BR} at (121,4664) size 0x0
+      RenderText {#text} at (0,4668) size 310x18
+        text run at (0,4668) width 310: "Expected : This iframe should have NOTHING ."
+      RenderBR {BR} at (310,4682) size 0x0
+      RenderPartObject {IFRAME} at (0,4686) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,4976) size 4x18
+        text run at (504,4976) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,4994) size 0x18
+      RenderText {#text} at (0,5012) size 710x36
+        text run at (0,5012) width 710: "This frame tests loading of a FLASH object and no HTML when the HTTP content-type is set to \"application/x-"
+        text run at (0,5030) width 121: "shockwave-flash\" ."
+      RenderBR {BR} at (121,5044) size 0x0
+      RenderText {#text} at (0,5048) size 340x18
+        text run at (0,5048) width 340: "Expected : This iframe should have a FLASH object ."
+      RenderBR {BR} at (340,5062) size 0x0
+      RenderPartObject {IFRAME} at (0,5066) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (0,0) size 0x0
+      RenderText {#text} at (0,0) size 0x0
+      RenderText {#text} at (0,0) size 0x0

@@ -1,0 +1,2 @@
+NamedNodeMap-setNamedItem-crash-expected.txt:
+Differing console exception message between v8 and KJS.

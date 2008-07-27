@@ -1,0 +1,51 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x584
+      RenderBlock {P} at (0,0) size 784x18
+        RenderText {#text} at (0,0) size 624x18
+          text run at (0,0) width 624: "The following textarea elements should all be rendered on the left, with their text aligned to the left."
+      RenderBlock (anonymous) at (0,34) size 784x140
+        RenderText {#text} at (269,18) size 4x18
+          text run at (269,18) width 4: " "
+        RenderBR {BR} at (0,0) size 0x0
+        RenderText {#text} at (269,54) size 4x18
+          text run at (269,54) width 4: " "
+        RenderBR {BR} at (0,0) size 0x0
+        RenderText {#text} at (269,90) size 4x18
+          text run at (269,90) width 4: " "
+        RenderBR {BR} at (0,0) size 0x0
+        RenderText {#text} at (0,0) size 0x0
+        RenderText {#text} at (0,0) size 0x0
+      RenderBlock {DIV} at (0,174) size 784x32
+layer at (8,43) size 269x30 clip at (9,44) size 267x28
+  RenderTextControl {TEXTAREA} at (0,1) size 269x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 248x26
+      RenderText {#text} at (0,0) size 231x26
+        text run at (0,0) width 231: "This is should be aligned to the "
+        text run at (0,13) width 35: "left."
+layer at (8,79) size 269x30 clip at (9,80) size 267x28
+  RenderTextControl {TEXTAREA} at (0,37) size 269x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 248x26
+      RenderText {#text} at (0,0) size 231x26
+        text run at (0,0) width 231: "This is should be aligned to the "
+        text run at (0,13) width 35: "left."
+layer at (8,115) size 269x30 clip at (9,116) size 267x28
+  RenderTextControl {TEXTAREA} at (0,73) size 269x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 248x26
+      RenderText {#text} at (0,0) size 231x26
+        text run at (0,0) width 231: "This is should be aligned to the "
+        text run at (0,13) width 35: "left."
+layer at (8,151) size 269x30 clip at (9,152) size 267x28
+  RenderTextControl {TEXTAREA} at (0,109) size 269x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 248x26
+      RenderText {#text} at (0,0) size 231x26
+        text run at (0,0) width 231: "This is should be aligned to the "
+        text run at (0,13) width 35: "left."
+layer at (8,183) size 269x30 clip at (9,184) size 267x28
+  RenderTextControl {TEXTAREA} at (0,1) size 269x30 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 248x26
+      RenderText {#text} at (0,0) size 231x26
+        text run at (0,0) width 231: "This is should be aligned to the "
+        text run at (0,13) width 35: "left."
