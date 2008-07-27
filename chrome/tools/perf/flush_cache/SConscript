@@ -1,0 +1,92 @@
+# Copyright 2008, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Import('env_test')
+
+env_test = env_test.Clone()
+
+env_test.Prepend(
+    CPPPATH = [
+        '#/..',
+    ],
+    LINKFLAGS = [
+        '/INCREMENTAL',
+        '/DEBUG',
+
+        '/DELAYLOAD:"dwmapi.dll"',
+        '/DELAYLOAD:"uxtheme.dll"',
+
+        '/MACHINE:X86',
+        '/FIXED:No',
+
+        '/safeseh',
+        '/dynamicbase',
+        '/ignore:4199',
+        '/nxcompat',
+    ],
+    LIBS = [
+        'wininet.lib',
+        'version.lib',
+        'msimg32.lib',
+        'ws2_32.lib',
+        'usp10.lib',
+        'psapi.lib',
+        'kernel32.lib',
+        'user32.lib',
+        'gdi32.lib',
+        'winspool.lib',
+        'comdlg32.lib',
+        'advapi32.lib',
+        'shell32.lib',
+        'ole32.lib',
+        'oleaut32.lib',
+        'uuid.lib',
+        'odbc32.lib',
+        'odbccp32.lib',
+
+        'DelayImp.lib',
+    ],
+)
+
+input_files = [
+    '$CHROME_DIR/test/test_file_util$OBJSUFFIX',
+    'flush_cache.cc',
+]
+
+libs = [
+    '$ICU38_DIR/icuuc.lib',
+    '$BASE_DIR/base.lib',
+]
+
+exe = env_test.Program(['flush_cache',
+                        'flush_cache'],
+                       input_files + libs)
+i = env_test.Install('$TARGET_ROOT', exe)
+
+env_test.Alias('chrome', i)
