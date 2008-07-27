@@ -1,10 +1,10 @@
-?NewRunnableMethod@VRequestProxy@?A0x40e06119@@P812@AEXABVURLRequestStatus@@@ZV3@@@YAPAVCancelableTask@@PAVRequestProxy@?A0x40e06119@@P812@AEXABVURLRequestStatus@@@Z1@Z [test_shell_tests.exe]
+?NewRunnableMethod@VRequestProxy@?A0x74bd0f07@@P812@AEXABVURLRequestStatus@@@ZV3@@@YAPAVCancelableTask@@PAVRequestProxy@?A0x74bd0f07@@P812@AEXABVURLRequestStatus@@@Z1@Z [test_shell_tests.exe]
 Alloc Location
    ...  
-   base/task.h  ?NewRunnableMethod@VRequestProxy@?A0x40e06119@@P812@AEXABVURLRequestStatus@@@ZV3@@@YAPAVCancelableTask@@PAVRequestProxy@?A0x40e06119@@P812@AEXABVURLRequestStatus@@@Z1@Z
+   base/task.h  ?NewRunnableMethod@VRequestProxy@?A0x74bd0f07@@P812@AEXABVURLRequestStatus@@@ZV3@@@YAPAVCancelableTask@@PAVRequestProxy@?A0x74bd0f07@@P812@AEXABVURLRequestStatus@@@Z1@Z
    webkit/tools/test_shell/simple_resource_loader_bridge.cc  RequestProxy::OnCompletedRequest(URLRequestStatus const&)
    webkit/tools/test_shell/simple_resource_loader_bridge.cc  RequestProxy::Done(void)
    webkit/tools/test_shell/simple_resource_loader_bridge.cc  RequestProxy::AsyncCancel(void)
-   base/tuple.h  ?DispatchToMethod@VRequestProxy@?A0x40e06119@@P812@AEXXZ@@YAXPAVRequestProxy@?A0x40e06119@@P801@AEXXZABUTuple0@@@Z
+   base/tuple.h  ?DispatchToMethod@VRequestProxy@?A0x74bd0f07@@P812@AEXXZ@@YAXPAVRequestProxy@?A0x74bd0f07@@P801@AEXXZABUTuple0@@@Z
    ^^^  
 
