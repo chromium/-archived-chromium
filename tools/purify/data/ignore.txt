@@ -1,0 +1,12 @@
+# See bug 1157381
+Pure: Trap bits found in live chunk
+
+# See bugs 1151263 and 1164562
+Memory leak .+ allocated in InitSecurityInterfaceA \[SECUR32\.DLL\]
+
+# See bug 1163766
+# Ugly regexps are trying to deal with Purify's demangling bugs.
+Memory leak .+ allocated in \?NewRunnableMethod.+ExpireHistoryBackend.+ScopedRunnableMethodFactory
+Memory leak .+ allocated in RevocableStore::RevokeAll\(void\)
+Memory leak .+ allocated in \?NewRunnableMethod.+CommitLaterTask.+CancelableTask.+CommitLaterTask
+Memory leak .+ allocated in history::HistoryBackend::ScheduleCommit\(void\)

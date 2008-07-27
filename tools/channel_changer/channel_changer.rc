@@ -1,0 +1,124 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_BRANCH_SWITCHER     ICON                    "channel_changer.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_MAIN_DIALOG DIALOGEX 0, 0, 419, 147
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Chrome Channel Switcher v1.1"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Update",IDOK,156,127,50,14
+    PUSHBUTTON      "Close",IDCANCEL,212,127,50,14
+    LTEXT           "This label will be populated programmatically.",IDC_LABEL_MAIN,47,13,322,18
+    CONTROL         "Beta: More stable releases, less frequently. You won't get bug fixes and new features as quickly, but what you get will have had more testing.",IDC_STABLE,
+                    "Button",BS_AUTORADIOBUTTON | BS_MULTILINE,47,39,340,19
+    CONTROL         "Dev: Get the latest features and bugfixes every week. You'll be helping us improve, iterate, and make Chrome great faster. We need Dev users, and we'll give your feedback and issues higher priority.",IDC_CUTTING_EDGE,
+                    "Button",BS_AUTORADIOBUTTON | BS_MULTILINE,47,63,355,21
+    CONTROL         129,IDC_IMAGEVIEW,"Static",SS_BITMAP,7,7,35,23
+    LTEXT           "Note: If you switch from Dev to Beta, you'll stay on the current Chrome version until the Beta channel gets a later update. Changing channels does not change the version of Chrome you are currently using.",IDC_SECONDARY_LABEL,47,97,340,21
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_MAIN_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 412
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 140
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_PICTURE             BITMAP                  "glasses.bmp"
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
