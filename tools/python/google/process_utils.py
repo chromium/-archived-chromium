@@ -130,6 +130,9 @@ def RunCommandFull(command, verbose=True, collect_output=False,
       sys.stdout.flush()
     line = read_from.readline()
 
+  # Make sure the process terminates.
+  proc.wait()
+
   if not verbose:
     out.close()
   return (proc.returncode, output)
