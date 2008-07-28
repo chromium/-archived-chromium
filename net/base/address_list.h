@@ -50,8 +50,11 @@ class AddressList {
 
  private:
   struct Data : public base::RefCountedThreadSafe<Data> {
+    explicit Data(struct addrinfo* ai) : head(ai) {}
     ~Data();
     struct addrinfo* head;
+   private:
+    Data();
   };
   scoped_refptr<Data> data_;
 };

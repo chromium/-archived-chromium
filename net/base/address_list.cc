@@ -35,8 +35,7 @@
 namespace net {
 
 void AddressList::Adopt(struct addrinfo* head) {
-  data_ = new Data();
-  data_->head = head;
+  data_ = new Data(head);
 }
 
 AddressList::Data::~Data() {

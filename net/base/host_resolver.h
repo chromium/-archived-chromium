@@ -27,8 +27,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef NET_BASE_HOST_RESOLVER_H__
-#define NET_BASE_HOST_RESOLVER_H__
+#ifndef NET_BASE_HOST_RESOLVER_H_
+#define NET_BASE_HOST_RESOLVER_H_
+
+#include <string>
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
@@ -50,9 +52,9 @@ class HostResolver {
   ~HostResolver();
 
   // Resolves the given hostname, filling out the |addresses| object upon
-  // success.  The |port| parameter is optional (will be set as the sin_port
-  // field of the sockaddr_in{6} struct).  Returns OK if successful or an error
-  // code upon failure.
+  // success.  The |port| parameter will be set as the sin(6)_port field of
+  // the sockaddr_in{6} struct.  Returns OK if successful or an error code
+  // upon failure.
   //
   // When callback is non-null, ERR_IO_PENDING is returned if the operation
   // could not be completed synchronously, in which case the result code will
@@ -62,11 +64,11 @@ class HostResolver {
               AddressList* addresses, CompletionCallback* callback);
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(HostResolver);
   struct Request;
   scoped_refptr<Request> request_;
+  DISALLOW_EVIL_CONSTRUCTORS(HostResolver);
 };
 
 }  // namespace net
 
-#endif  // NET_BASE_HOST_RESOLVER_H__
+#endif  // NET_BASE_HOST_RESOLVER_H_

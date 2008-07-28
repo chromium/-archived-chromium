@@ -84,8 +84,8 @@ struct HostResolver::Request :
     Request* r = reinterpret_cast<Request*>(param);
     // The HostResolver may have gone away.
     if (r->addresses) {
-      DCHECK(r->addresses);
-      r->addresses->Adopt(r->results);
+      if (r->error == OK)
+        r->addresses->Adopt(r->results);
       if (r->callback)
         r->callback->Run(r->error);
     } else if (r->results) {
@@ -94,7 +94,7 @@ struct HostResolver::Request :
     r->Release();
   }
 
-  static DWORD CALLBACK DoLookup(void* param) {
+  static DWORD WINAPI DoLookup(void* param) {
     Request* r = static_cast<Request*>(param);
 
     r->error = ResolveAddrInfo(r->host, r->port, &r->results);
@@ -118,6 +118,7 @@ HostResolver::HostResolver() {
 
 HostResolver::~HostResolver() {
   if (request_) {
+    // Prevent the thread pool from running the callback.
     request_->addresses = NULL;
     request_->callback = NULL;
   }
