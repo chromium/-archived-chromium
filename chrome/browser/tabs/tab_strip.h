@@ -369,4 +369,4 @@ class TabStrip : public ChromeViews::View,
   DISALLOW_EVIL_CONSTRUCTORS(TabStrip);
 };
 
-#endif CHROME_BROWSER_TABS_TAB_STRIP_H__
+#endif  // CHROME_BROWSER_TABS_TAB_STRIP_H__

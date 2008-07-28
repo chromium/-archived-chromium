@@ -189,4 +189,4 @@ class TabRenderer : public ChromeViews::View,
   DISALLOW_EVIL_CONSTRUCTORS(TabRenderer);
 };
 
-#endif CHROME_BROWSER_TABS_TAB_RENDERER_H__
+#endif  // CHROME_BROWSER_TABS_TAB_RENDERER_H__

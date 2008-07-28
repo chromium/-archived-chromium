@@ -349,4 +349,4 @@ class TreeView : public NativeControl, public TreeModelObserver {
 
 }  // namespace ChromeViews
 
-#endif CHROME_VIEWS_TREE_VIEW_H__
+#endif  // CHROME_VIEWS_TREE_VIEW_H__

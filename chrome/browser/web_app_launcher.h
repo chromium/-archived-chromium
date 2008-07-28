@@ -65,4 +65,4 @@ class WebAppLauncher {
   DISALLOW_EVIL_CONSTRUCTORS(WebAppLauncher);
 };
 
-#endif CHROME_BROWSER_WEB_APP_LAUNCHER_H__
+#endif  // CHROME_BROWSER_WEB_APP_LAUNCHER_H__

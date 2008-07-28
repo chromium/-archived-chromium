@@ -327,4 +327,4 @@ class NewTabUIContents : public DOMUIHost {
   DISALLOW_EVIL_CONSTRUCTORS(NewTabUIContents);
 };
 
-#endif CHROME_BROWSER_DOM_UI_NEW_TAB_UI_H__
+#endif  // CHROME_BROWSER_DOM_UI_NEW_TAB_UI_H__

@@ -131,4 +131,4 @@ class Tab : public TabRenderer,
   DISALLOW_EVIL_CONSTRUCTORS(Tab);
 };
 
-#endif CHROME_BROWSER_TABS_TAB_H__
+#endif  // CHROME_BROWSER_TABS_TAB_H__
