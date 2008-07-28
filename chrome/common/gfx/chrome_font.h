@@ -111,7 +111,7 @@ class ChromeFont {
   // Chrome text drawing bottoms out in the Windows GDI functions that take an
   // HFONT (an opaque handle into Windows). To avoid lots of GDI object
   // allocation and destruction, ChromeFont indirectly refers to the HFONT
-  // by way of an HFontRef. That is, every ChromeFront has an HFontRef, which
+  // by way of an HFontRef. That is, every ChromeFont has an HFontRef, which
   // has an HFONT.
   //
   // HFontRef is reference counted. Upon deletion, it deletes the HFONT.
