@@ -31,6 +31,8 @@
 #ifndef CHROME_TEST_CHROME_PLUGIN_TEST_CHROME_PLUGIN_H__
 #define CHROME_TEST_CHROME_PLUGIN_TEST_CHROME_PLUGIN_H__
 
+#include <string>
+
 #include "base/basictypes.h"
 #include "chrome/common/chrome_plugin_api.h"
 

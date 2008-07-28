@@ -31,6 +31,7 @@
 #include "base/logging.h"
 #include "base/sha2.h"
 #include "chrome/browser/safe_browsing/safe_browsing_util.h"
+#include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
