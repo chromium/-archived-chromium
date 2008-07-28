@@ -39,6 +39,7 @@
 #include "chrome/installer/util/create_reg_key_work_item.h"
 #include "chrome/installer/util/delete_tree_work_item.h"
 #include "chrome/installer/util/install_util.h"
+#include "chrome/installer/util/l10n_string_util.h"
 #include "chrome/installer/util/logging_installer.h"
 #include "chrome/installer/util/google_update_constants.h"
 #include "chrome/installer/util/set_reg_value_work_item.h"
@@ -46,6 +47,8 @@
 #include "chrome/installer/util/util_constants.h"
 #include "chrome/installer/util/version.h"
 #include "chrome/installer/util/work_item_list.h"
+
+#include "setup_strings.h"
 
 namespace {
 std::wstring AppendPath(const std::wstring parent_path,
@@ -74,11 +77,11 @@ void AddUninstallShortcutWorkItems(HKEY reg_root,
   // Create DisplayName, UninstallString and InstallLocation keys
   install_list->AddCreateRegKeyWorkItem(reg_root,
                                         installer_util::kUninstallRegPath);
+  const std::wstring& product_name =
+      installer_util::GetLocalizedString(IDS_PRODUCT_NAME_BASE);
   install_list->AddSetRegValueWorkItem(
-      reg_root,
-      installer_util::kUninstallRegPath,
-      installer_util::kUninstallDisplayNameField,
-      installer_util::kChrome, true);
+      reg_root, installer_util::kUninstallRegPath,
+      installer_util::kUninstallDisplayNameField, product_name, true);
   install_list->AddSetRegValueWorkItem(reg_root,
                                        installer_util::kUninstallRegPath,
                                        installer_util::kUninstallStringField,

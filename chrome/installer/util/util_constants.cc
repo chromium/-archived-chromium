@@ -76,7 +76,7 @@ const wchar_t kPublisherName[] = L"Google";
 const wchar_t kApplicationName[] = L"Google Chrome";
 const wchar_t kSetupExe[] = L"setup.exe";
 
-const wchar_t kUninstallRegPath[] = L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Chrome";
+const wchar_t kUninstallRegPath[] = L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Google Chrome";
 const wchar_t kUninstallStringField[] = L"UninstallString";
 const wchar_t kUninstallDisplayNameField[] = L"DisplayName";
 }  // namespace installer_util
