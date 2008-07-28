@@ -296,6 +296,10 @@ class DraggedTabController : public TabContentsDelegate,
 
   bool in_destructor_;
 
+  // The horizontal position of the mouse cursor in screen coordinates at the
+  // time of the last re-order event.
+  int last_move_screen_x_;
+
   DISALLOW_EVIL_CONSTRUCTORS(DraggedTabController);
 };
 

@@ -41,7 +41,7 @@
 #include "chrome/views/event.h"
 #include "skia/include/SkBitmap.h"
 
-static const int kSnapshotIntervalMs = 100;
+static const int kHorizontalMoveThreshold = 16; // pixels
 
 namespace {
 
@@ -114,7 +114,8 @@ DraggedTabController::DraggedTabController(Tab* source_tab,
       source_model_index_(source_tabstrip->GetIndexOfTab(source_tab)),
       attached_tabstrip_(NULL),
       old_focused_view_(NULL),
-      in_destructor_(false) {
+      in_destructor_(false),
+      last_move_screen_x_(0) {
   ChangeDraggedContents(
       source_tabstrip_->model()->GetTabContentsAt(source_model_index_));
   // Listen for Esc key presses.
@@ -377,14 +378,33 @@ void DraggedTabController::ContinueDragging() {
 
 void DraggedTabController::MoveTab(const gfx::Point& screen_point) {
   gfx::Point dragged_view_point = GetDraggedViewPoint(screen_point);
+
   if (attached_tabstrip_) {
-    TabStripModel* attached_model = attached_tabstrip_->model();
-    int from_index = attached_model->GetIndexOfTabContents(dragged_contents_);
-    gfx::Rect bounds = GetDraggedViewTabStripBounds(dragged_view_point);
-    int to_index = GetInsertionIndexForDraggedBounds(bounds);
-    to_index = NormalizeIndexToAttachedTabStrip(to_index);
-    attached_model->MoveTabContentsAt(from_index, to_index);
+    // Determine the horizontal move threshold. This is dependent on the width
+    // of tabs. The smaller the tabs compared to the standard size, the smaller
+    // the threshold.
+    double unselected, selected;
+    attached_tabstrip_->GetCurrentTabWidths(&unselected, &selected);
+    double ratio = unselected / Tab::GetStandardSize().width();
+    int threshold = static_cast<int>(ratio * kHorizontalMoveThreshold);
+
+    // Update the model, moving the TabContents from one index to another. Do
+    // this only if we have moved a minimum distance since the last reorder (to
+    // prevent jitter).
+    if (abs(screen_point.x() - last_move_screen_x_) > threshold) {
+      TabStripModel* attached_model = attached_tabstrip_->model();
+      int from_index =
+          attached_model->GetIndexOfTabContents(dragged_contents_);
+      gfx::Rect bounds = GetDraggedViewTabStripBounds(dragged_view_point);
+      int to_index = GetInsertionIndexForDraggedBounds(bounds);
+      to_index = NormalizeIndexToAttachedTabStrip(to_index);
+      if (from_index != to_index) {
+        last_move_screen_x_ = screen_point.x();
+        attached_model->MoveTabContentsAt(from_index, to_index);
+      }
+    }
   }
+  // Move the View. There are no changes to the model if we're detached.
   view_->MoveTo(dragged_view_point);
 }
 
@@ -429,6 +449,7 @@ void DraggedTabController::Attach(TabStrip* attached_tabstrip,
                                   const gfx::Point& screen_point) {
   attached_tabstrip_ = attached_tabstrip;
   InitWindowCreatePoint();
+  attached_tabstrip_->GenerateIdealBounds();
 
   // We don't need the photo-booth while we're attached.
   photobooth_.reset(NULL);
@@ -464,9 +485,23 @@ void DraggedTabController::Attach(TabStrip* attached_tabstrip,
     // Return the TabContents' to normalcy.
     dragged_contents_->DidCaptureContents();
 
+    // We need to ask the TabStrip we're attached to to ensure that the ideal
+    // bounds for all its tabs are correctly generated, because the calculation
+    // in GetInsertionIndexForDraggedBounds needs them to be to figure out the
+    // appropriate insertion index.
+    attached_tabstrip_->GenerateIdealBounds();
+
+    // Inserting counts as a move. We don't want the tabs to jitter when the
+    // user moves the tab immediately after attaching it.
+    last_move_screen_x_ = screen_point.x();
+
+    // Figure out where to insert the tab based on the bounds of the dragged
+    // representation and the ideal bounds of the other Tabs already in the
+    // strip. ("ideal bounds" are stable even if the Tabs' actual bounds are
+    // changing due to animation).
     gfx::Rect bounds = GetDraggedViewTabStripBounds(screen_point);
     int index = GetInsertionIndexForDraggedBounds(bounds);
-    index = NormalizeIndexToAttachedTabStrip(index);
+    index = std::max(std::min(index, attached_tabstrip_->model()->count()), 0);
     attached_tabstrip_->model()->InsertTabContentsAt(index, dragged_contents_,
         true, false);
 
