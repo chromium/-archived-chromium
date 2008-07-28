@@ -37,7 +37,7 @@
 #ifdef WIN32
 #include <windows.h>
 #include <tlhelp32.h>
-#endif // WIN32
+#endif  // WIN32
 
 #include "base/basictypes.h"
 #include "base/process.h"
@@ -163,7 +163,7 @@ class NamedProcessIterator {
   std::wstring executable_name_;
 #ifdef WIN32
   HANDLE snapshot_;
-#endif WIN32
+#endif  // WIN32
   bool started_iteration_;
   ProcessEntry entry_;
   const ProcessFilter* filter_;
