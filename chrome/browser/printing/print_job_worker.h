@@ -34,7 +34,6 @@
 #include "base/thread.h"
 #include "chrome/browser/printing/page_number.h"
 #include "chrome/browser/printing/win_printing_context.h"
-#include "googleurl/src/gurl.h"
 
 namespace printing {
 

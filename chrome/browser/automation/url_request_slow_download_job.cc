@@ -31,6 +31,7 @@
 
 #include "base/message_loop.h"
 #include "base/string_util.h"
+#include "googleurl/src/gurl.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_filter.h"
 

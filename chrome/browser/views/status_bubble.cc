@@ -42,6 +42,7 @@
 #include "chrome/views/hwnd_view_container.h"
 #include "chrome/views/label.h"
 #include "chrome/views/view_container.h"
+#include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 #include "SkPaint.h"
 #include "SkPath.h"

@@ -34,8 +34,9 @@
 #include <vector>
 
 #include "base/logging.h"
-#include "googleurl/src/gurl.h"
 #include "net/base/x509_certificate.h"
+
+class GURL;
 
 // This class describes an error that happened while showing a page over SSL.
 // An SSLErrorInfo object only exists on the UI thread and only contains

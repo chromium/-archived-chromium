@@ -34,7 +34,8 @@
 
 #include "base/basictypes.h"
 #include "chrome/common/gfx/chrome_font.h"
-#include "googleurl/src/gurl.h"
+
+class GURL;
 
 namespace gfx {
 

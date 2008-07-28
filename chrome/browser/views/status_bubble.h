@@ -33,7 +33,8 @@
 #include "base/gfx/rect.h"
 #include "chrome/views/hwnd_view_container.h"
 #include "chrome/views/view_container.h"
-#include "googleurl/src/gurl.h"
+
+class GURL;
 
 // StatusBubble displays a bubble of text that fades in, hovers over the
 // browser chrome and fades away when not needed. It is primarily designed

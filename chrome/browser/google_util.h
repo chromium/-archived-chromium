@@ -32,7 +32,7 @@
 #ifndef CHROME_BROWSER_GOOGLE_UTIL_H__
 #define CHROME_BROWSER_GOOGLE_UTIL_H__
 
-#include "googleurl/src/gurl.h"
+class GURL;
 
 namespace google_util {
 

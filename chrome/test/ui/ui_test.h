@@ -49,10 +49,10 @@
 #include "base/scoped_ptr.h"
 #include "base/time.h"
 #include "chrome/test/automation/automation_proxy.h"
-#include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 class DictionaryValue;
+class GURL;
 class TabProxy;
 
 class UITest : public testing::Test {

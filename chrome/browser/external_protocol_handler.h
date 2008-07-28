@@ -27,12 +27,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "chrome/common/pref_service.h"
-#include "googleurl/src/gurl.h"
-
 #ifndef CHROME_BROWSER_EXTERNAL_PROTOCOL_HANDLER_H__
 #define CHROME_BROWSER_EXTERNAL_PROTOCOL_HANDLER_H__
 
+#include "chrome/common/pref_service.h"
+
+class GURL;
 class MessageLoop;
 
 class ExternalProtocolHandler {
@@ -75,4 +75,4 @@ class ExternalProtocolHandler {
   static void PrepopulateDictionary(DictionaryValue* win_pref);
 };
 
-#endif CHROME_BROWSER_EXTERNAL_PROTOCOL_HANDLER_H__
+#endif  // CHROME_BROWSER_EXTERNAL_PROTOCOL_HANDLER_H__

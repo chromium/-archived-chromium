@@ -74,12 +74,12 @@
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/common/pref_member.h"
-#include "googleurl/src/gurl.h"
 
 class DownloadFileManager;
 class DownloadItem;
 class DownloadItemView;
 class DownloadManager;
+class GURL;
 class MessageLoop;
 class PrefService;
 class Profile;

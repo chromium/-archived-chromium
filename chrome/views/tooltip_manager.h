@@ -33,7 +33,6 @@
 #include <windows.h>
 #include <string>
 #include "base/basictypes.h"
-#include "googleurl/src/gurl.h"
 
 class ChromeFont;
 

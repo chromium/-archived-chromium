@@ -31,7 +31,6 @@
 #ifndef CHROME_BROWSER_AUTOMATION_URL_REQUEST_FAILED_DNS_JOB_H__
 #define CHROME_BROWSER_AUTOMATION_URL_REQUEST_FAILED_DNS_JOB_H__
 
-#include "googleurl/src/gurl.h"
 #include "net/url_request/url_request_job.h"
 
 class URLRequestFailedDnsJob : public URLRequestJob {

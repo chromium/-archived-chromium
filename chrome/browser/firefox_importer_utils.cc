@@ -40,6 +40,7 @@
 #include "chrome/browser/template_url_model.h"
 #include "chrome/browser/template_url_parser.h"
 #include "chrome/common/win_util.h"
+#include "googleurl/src/gurl.h"
 #include "net/base/base64.h"
 
 namespace {

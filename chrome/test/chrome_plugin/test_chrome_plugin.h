@@ -33,7 +33,8 @@
 
 #include "base/basictypes.h"
 #include "chrome/common/chrome_plugin_api.h"
-#include "googleurl/src/gurl.h"
+
+class GURL;
 
 struct TestResponsePayload {
   const char* url;

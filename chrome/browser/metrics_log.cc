@@ -40,6 +40,7 @@
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "googleurl/src/gurl.h"
 #include "net/base/base64.h"
 
 #define OPEN_ELEMENT_FOR_SCOPE(name) ScopedElement scoped_element(this, name)

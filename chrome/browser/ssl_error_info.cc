@@ -37,6 +37,8 @@
 #include "net/base/cert_status_flags.h"
 #include "net/base/net_errors.h"
 #include "net/base/ssl_info.h"
+#include "googleurl/src/gurl.h"
+
 #include "generated_resources.h"
 
 SSLErrorInfo::SSLErrorInfo(const std::wstring& title,

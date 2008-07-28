@@ -76,9 +76,9 @@
 #include "base/ref_counted.h"
 #include "base/thread.h"
 #include "chrome/browser/history/download_types.h"
-#include "googleurl/src/gurl.h"
 
 class DownloadManager;
+class GURL;
 class MessageLoop;
 class ResourceDispatcherHost;
 class Task;

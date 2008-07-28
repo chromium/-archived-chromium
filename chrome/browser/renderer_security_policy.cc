@@ -31,6 +31,7 @@
 
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "googleurl/src/gurl.h"
 #include "net/url_request/url_request.h"
 
 // The SecurityState class is used to maintain per-renderer security state

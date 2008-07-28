@@ -91,8 +91,8 @@
 #include "base/ref_counted.h"
 #include "base/thread.h"
 #include "chrome/browser/save_types.h"
-#include "googleurl/src/gurl.h"
 
+class GURL;
 class SaveFile;
 class SavePackage;
 class MessageLoop;

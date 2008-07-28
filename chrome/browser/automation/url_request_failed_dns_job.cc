@@ -30,6 +30,7 @@
 #include "chrome/browser/automation/url_request_failed_dns_job.h"
 
 #include "base/message_loop.h"
+#include "googleurl/src/gurl.h"
 #include "net/base/net_errors.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_filter.h"

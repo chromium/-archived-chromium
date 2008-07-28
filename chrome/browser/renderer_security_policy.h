@@ -37,7 +37,8 @@
 #include "base/basictypes.h"
 #include "base/lock.h"
 #include "base/singleton.h"
-#include "googleurl/src/gurl.h"
+
+class GURL;
 
 // The RendererSecurityPolicy class is used to grant and revoke security
 // capabilities for renderers.  For example, it restricts whether a renderer
@@ -142,4 +143,4 @@ class RendererSecurityPolicy {
   DISALLOW_EVIL_CONSTRUCTORS(RendererSecurityPolicy);
 };
 
-#endif // CHROME_BROWSER_RENDERER_SECURITY_POLICY_H__
+#endif  // CHROME_BROWSER_RENDERER_SECURITY_POLICY_H__

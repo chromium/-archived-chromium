@@ -58,6 +58,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/common/win_util.h"
+#include "googleurl/src/gurl.h"
 #include "net/base/mime_util.h"
 #include "net/base/net_util.h"
 #include "net/url_request/url_request_context.h"

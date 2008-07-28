@@ -31,9 +31,9 @@
 #define CHROME_BROWSER_FIREFOX_IMPORTER_UTILS_H_
 
 #include "base/values.h"
-#include "googleurl/src/gurl.h"
 #include "webkit/glue/password_form.h"
 
+class GURL;
 class TemplateURL;
 
 // Detects which version of Firefox is installed. Returns its

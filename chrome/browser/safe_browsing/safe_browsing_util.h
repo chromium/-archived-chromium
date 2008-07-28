@@ -38,7 +38,8 @@
 
 #include "base/scoped_ptr.h"
 #include "chrome/browser/safe_browsing/chunk_range.h"
-#include "googleurl/src/gurl.h"
+
+class GURL;
 
 //#define SB_LOGGING_ENABLED
 #ifdef SB_LOGGING_ENABLED

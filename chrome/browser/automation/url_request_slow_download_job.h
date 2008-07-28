@@ -35,7 +35,6 @@
 
 #include <vector>
 
-#include "googleurl/src/gurl.h"
 #include "net/url_request/url_request_job.h"
 
 class URLRequestSlowDownloadJob : public URLRequestJob {

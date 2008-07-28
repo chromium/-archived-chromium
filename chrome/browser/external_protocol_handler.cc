@@ -42,6 +42,7 @@
 #include "chrome/browser/external_protocol_dialog.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/pref_names.h"
+#include "googleurl/src/gurl.h"
 #include "net/base/escape.h"
 
 // static

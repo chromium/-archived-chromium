@@ -34,6 +34,7 @@
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "chrome/common/chrome_plugin_api.h"
+#include "googleurl/src/gurl.h"
 
 static CPID g_cpid;
 static CPBrowserFuncs g_cpbrowser_funcs;

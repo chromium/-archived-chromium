@@ -38,6 +38,7 @@
 #include "chrome/browser/safe_browsing/chunk_range.h"
 #include "chrome/common/sqlite_compiled_statement.h"
 #include "chrome/common/sqlite_utils.h"
+#include "googleurl/src/gurl.h"
 
 // Database version.  If this is different than what's stored on disk, the
 // database is reset.

@@ -51,6 +51,7 @@
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/test_file_util.h"
+#include "googleurl/src/gurl.h"
 
 bool UITest::in_process_renderer_ = false;
 bool UITest::in_process_plugins_ = false;

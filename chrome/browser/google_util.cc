@@ -34,6 +34,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/google_url_tracker.h"
+#include "googleurl/src/gurl.h"
 #include "net/base/registry_controlled_domain.h"
 
 namespace {

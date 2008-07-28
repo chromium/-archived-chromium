@@ -41,9 +41,9 @@
 #include "chrome/browser/safe_browsing/safe_browsing_util.h"
 #include "chrome/common/sqlite_compiled_statement.h"
 #include "chrome/common/sqlite_utils.h"
-#include "googleurl/src/gurl.h"
 
 class BloomFilter;
+class GURL;
 
 // Encapsulates the database that stores information about phishing and malware
 // sites.  There is one on-disk database for all profiles, as it doesn't

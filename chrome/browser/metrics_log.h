@@ -42,11 +42,11 @@
 #include "base/histogram.h"
 #include "base/time.h"
 #include "chrome/common/page_transition_types.h"
-#include "googleurl/src/gurl.h"
 #include "webkit/glue/webplugin.h"
 
 struct AutocompleteLog;
 class DictionaryValue;
+class GURL;
 class PrefService;
 
 class MetricsLog {

@@ -40,7 +40,6 @@
 #include "chrome/browser/meta_table_helper.h"
 #include "chrome/common/sqlite_compiled_statement.h"
 #include "chrome/common/sqlite_utils.h"
-#include "googleurl/src/gurl.h"
 
 struct sqlite3;
 
