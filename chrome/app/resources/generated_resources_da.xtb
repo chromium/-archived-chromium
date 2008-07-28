@@ -32,7 +32,7 @@
 <translation id="5903264686717710770">Titel:</translation>
 <translation id="4188026131102273494">Søgeord:</translation>
 <translation id="4268574628540273656">Webadresse:</translation>
-<translation id="1181037720776840403">Fjern</translation>
+<translation id="1181037720776840403">Slet</translation>
 <translation id="9065203028668620118">Rediger</translation>
 <translation id="3157931365184549694">Gendan</translation>
 <translation id="8261506727792406068">Slet</translation>
@@ -126,7 +126,7 @@
 <translation id="385051799172605136">Tilbage</translation>
 <translation id="7481312909269577407">Videresend</translation>
 <translation id="6847541693235449912">Start</translation>
-<translation id="1963227389609234879">Fjern Alt</translation>
+<translation id="1963227389609234879">Slet alle</translation>
 <translation id="2870560284913253234">Websted</translation>
 <translation id="8503813439785031346">Brugernavn</translation>
 <translation id="7887334752153342268">Dupliker</translation>
@@ -156,10 +156,10 @@
 <translation id="1234466194727942574">Fanelinje</translation>
 <translation id="5941711191222866238">Minimer</translation>
 <translation id="1398853756734560583">Maksimer</translation>
-<translation id="1813414402673211292">Ryd browserdata ...</translation>
-<translation id="908263542783690259">Ryd browser-historikken</translation>
-<translation id="2342959293776168129">Ryd download-historikken</translation>
-<translation id="2681441671465314329">Tøm cachen</translation>
+<translation id="1813414402673211292">Ryd browserdata</translation>
+<translation id="908263542783690259">Ryd browser-historik</translation>
+<translation id="2342959293776168129">Ryd download-historik</translation>
+<translation id="2681441671465314329">Tøm cache</translation>
 <translation id="6589689504565594563">Slet cookies</translation>
 <translation id="4089663545127310568">Ryd gemte adgangskoder</translation>
 <translation id="7447718177945067973">Serveren blev ikke fundet.</translation>
@@ -177,16 +177,16 @@
 <translation id="2674170444375937751">Er du sikker på, at du vil slette disse sider fra din historik?</translation>
 <translation id="6165508094623778733">Flere oplysninger</translation>
 <translation id="3280237271814976245">Gem &amp;som ...</translation>
-<translation id="8664389313780386848">&amp;Vis sidens kilde</translation>
-<translation id="1970746430676306437">Vis &amp;info om siden</translation>
+<translation id="8664389313780386848">&amp;Vis kildetekst</translation>
+<translation id="1970746430676306437">Vis &amp;info om side</translation>
 <translation id="7567293639574541773">Vis detaljer om eleme&amp;ntet</translation>
 <translation id="1474307029659222435">Åbn ramme i nyt vindue</translation>
 <translation id="715468010956678290">Åbn ramme i inko&amp;gnito-vindue</translation>
 <translation id="7552620667503495646">Åbn ramme i ny fane</translation>
 <translation id="1621207256975573490">Gem ramme &amp;som ...</translation>
 <translation id="1608306110678187802">P&amp;rint ramme ...</translation>
-<translation id="1163931534039071049">&amp;Vis rammens kilde</translation>
-<translation id="1908748899139377733">Se remme &amp;info</translation>
+<translation id="1163931534039071049">&amp;Vis rammens kildetekst</translation>
+<translation id="1908748899139377733">Vis &amp;info om ramme</translation>
 <translation id="6886871292305414135">Åbn link i ny &amp;fane</translation>
 <translation id="8899851313684471736">Åbn link i nyt &amp;vindue</translation>
 <translation id="3627588569887975815">Åbn link i inkognitovindue</translation>
@@ -214,7 +214,7 @@
 <translation id="7434509671034404296">Udvikler</translation>
 <translation id="2440604414813129000">Vis &amp;kilde</translation>
 <translation id="3842377959466606212">Side &amp;info</translation>
-<translation id="5872213955895293073">Udfør fejlfinding af JavaScript</translation>
+<translation id="5872213955895293073">Debug JavaScript</translation>
 <translation id="5904714272463161824">&amp;Rapporter fejl eller ødelagt websted ...</translation>
 <translation id="1587275751631642843">&amp;JavaScript-konsol</translation>
 <translation id="4035758313003622889">&amp;Jobliste</translation>
@@ -306,8 +306,8 @@
 <translation id="5455790498993699893"><ph name="ACTIVE_MATCH"/> af <ph name="TOTAL_MATCHCOUNT"/></translation>
 <translation id="1829244130665387512">Find på side</translation>
 <translation id="2955913368246107853">Luk findlinjen</translation>
-<translation id="7564847347806291057">Afslutningsproces</translation>
-<translation id="5981759340456370804">Statistik for nørder</translation>
+<translation id="7564847347806291057">Afslut proces</translation>
+<translation id="5981759340456370804">Detaljeret statistik</translation>
 <translation id="5233231016133573565">Behandling af ID</translation>
 <translation id="7629827748548208700">Fane: <ph name="TAB_NAME"/></translation>
 <translation id="6513615899227776181">Plugin: <ph name="PLUGIN_NAME"/></translation>
@@ -327,7 +327,7 @@
 <translation id="5376169624176189338">Klik for at gå tilbage, hold knappen inde for at se historikken</translation>
 <translation id="2961695502793809356">Klik for at gå fremad, hold knappen inde for at se historikken</translation>
 <translation id="7221869452894271364">Genindlæs denne side</translation>
-<translation id="3254409185687681395">Indsæt bogmærke ved denne side</translation>
+<translation id="3254409185687681395">Føj bogmærke til denne side</translation>
 <translation id="4422347585044846479">Rediger bogmærke for denne side</translation>
 <translation id="4084682180776658562">Bogmærke</translation>
 <translation id="5646376287012673985">Placering</translation>
@@ -347,8 +347,8 @@
 <translation id="2192505247865591433">Fra:</translation>
 <translation id="1076818208934827215">Microsoft Internet Explorer</translation>
 <translation id="5119173345047096771">Mozilla Firefox</translation>
-<translation id="3031557471081358569">Vælg, hvad der skal importeres:</translation>
-<translation id="2496180316473517155">Gennemser historikken</translation>
+<translation id="3031557471081358569">Vælg at importere følgende:</translation>
+<translation id="2496180316473517155">Browser-historik</translation>
 <translation id="6447842834002726250">Cookies</translation>
 <translation id="5869522115854928033">Gemte adgangskoder</translation>
 <translation id="8275038454117074363">Import</translation>
@@ -371,12 +371,12 @@
 <translation id="2503522102815150840">Nedbrud i browser ... kaput</translation>
 <translation id="5435666907653217300">Andet
  problem</translation>
-<translation id="7397054681783221164">Fjern følgende:</translation>
+<translation id="7397054681783221164">Vælg at rydde følgende:</translation>
 <translation id="6909042471249949473">Ryd data fra denne periode:</translation>
 <translation id="5360606537916580043">Seneste døgn</translation>
 <translation id="4867297348137739678">Sidste uge</translation>
 <translation id="8571213806525832805">Seneste 4 timer</translation>
-<translation id="8112223930265703044">Alt</translation>
+<translation id="8112223930265703044">Ryd alt</translation>
 <translation id="5538307496474303926">Rydder ...</translation>
 <translation id="2339641773402824483">Kontrollerer for opdateringer ...</translation>
 <translation id="5844183150118566785"><ph name="PRODUCT_NAME"/> er opdateret (<ph name="VERSION"/>)</translation>
@@ -385,7 +385,7 @@
 <translation id="5502500733115278303">Importeret fra Firefox</translation>
 <translation id="939736085109172342">Ny mappe</translation>
 <translation id="7910768399700579500">&amp;Ny mappe</translation>
-<translation id="2149973817440762519">Rediger bogmærke</translation>
+<translation id="2149973817440762519">Rediger bogmærker</translation>
 <translation id="8349305172487531364">Bogmærkelinje</translation>
 <translation id="2224551243087462610">Rediger mappenavn</translation>
 <translation id="1560991001553749272">Bogmærke tilføjet!</translation>
@@ -440,7 +440,7 @@
 <translation id="8241707690549784388">Siden, du søger, benyttede oplysninger, du har indtastet. Vender du tilbage til denne side kan det betyde, at enhver handling, du har foretaget, skal gentages. Vil du fortsætte?</translation>
 <translation id="1964682833763362793">Luk alle Chrome-vinduer, og prøv igen
 .</translation>
-<translation id="5333374927882515515">Importer bogmærker, adgangskoder og andre indstillinger fra <ph name="DEF_BROWSER"/></translation>
+<translation id="5333374927882515515">Import af bogmærker, adgangskoder og andre indstillinger fra <ph name="DEF_BROWSER"/></translation>
 <translation id="8256087479641463867">Tilpas dine indstillinger</translation>
 <translation id="7789175495288668515">Skift standardvalgmuligheder for installation.</translation>
 <translation id="2869459179306435079">Importer indstillinger fra:</translation>
@@ -461,7 +461,7 @@
 <translation id="4948468046837535074">Åbn følgende sider:</translation>
 <translation id="2518917559152314023">T&amp;ilføj ...</translation>
 <translation id="7905536804357499080">Brug aktuelle</translation>
-<translation id="9189691339671500905">Angiv søgemaskine, der bruges i omniboksen.</translation>
+<translation id="9189691339671500905">Angiv søgemaskine, der bruges i omnifeltet.</translation>
 <translation id="7125953501962311360">Standardbrowser:</translation>
 <translation id="762917759028004464"><ph name="BROWSER_NAME"/> er i øjeblikket din standardbrowser.</translation>
 <translation id="6144890426075165477"><ph name="PRODUCT_NAME"/> er i øjeblikket ikke din standardbrowser.</translation>
@@ -481,7 +481,7 @@
 <translation id="6222380584850953107">Vis gemte adgangskoder</translation>
 <translation id="3675321783533846350">Konfigurer en proxyserver for at oprette forbindelse til netværket.</translation>
 <translation id="4172706149171596436">Skift indstillinger for proxy</translation>
-<translation id="3478477629095836699">Indstillinger for Cookies:</translation>
+<translation id="3478477629095836699">Indstillinger for cookies:</translation>
 <translation id="5657156137487675418">Tillad alle cookies</translation>
 <translation id="6805291412499505360">Begræns, hvordan tredjeparts-cookies kan bruges</translation>
 <translation id="5821894118254011366">Bloker fuldstændigt for tredjeparts-cookies</translation>
@@ -499,11 +499,11 @@
 <translation id="3891357445869647828">Aktiver JavaScript</translation>
 <translation id="2994458892329442723">Aktiver plugins</translation>
 <translation id="3268761268932257769">Indlæs automatisk billeder</translation>
-<translation id="4400697530699263877">Brug Forudhentning af DNS for at forbedre ydeevnen i forhold til indlæsning af siderne</translation>
+<translation id="4400697530699263877">Brug forudhentning af DNS for at kunne indlæse sider hurtigere</translation>
 <translation id="2648845569394238430">Søg:</translation>
 <translation id="7442246004212327644">&amp;Ryd</translation>
 <translation id="4474796446011988286">Følgende cookies er gemt på din computer:</translation>
-<translation id="4108206167095122329">Fjern &amp;Alt</translation>
+<translation id="4108206167095122329">Slet &amp;alle</translation>
 <translation id="8178665534778830238">Indhold:</translation>
 <translation id="4422428420715047158">Domæne:</translation>
 <translation id="9068931793451030927">Sti:</translation>
@@ -515,7 +515,7 @@
 <translation id="7615851733760445951">&lt;ingen cookie er valgt&gt;</translation>
 <translation id="8940262601983387853">Cookie-navn</translation>
 <translation id="5264618369089706215">Søgninger</translation>
-<translation id="3810973564298564668">Administrer</translation>
+<translation id="3810973564298564668">Valgmuligheder</translation>
 <translation id="2559292239863842334">De søgefelter, du oftest anvender på andre websteder, vil blive vist her.</translation>
 <translation id="8413126021676339697">Vis hele historikken</translation>
 <translation id="3549657413697417275">Søg i din historik</translation>
@@ -576,7 +576,7 @@
 <translation id="4244236525807044920">Skift indstillinger for skrifttyper og sprog</translation>
 <translation id="7736284018483078792">Skift sprog for stavekontrollens ordbog.</translation>
 <translation id="5433207235435438329">Sprog for stavekontrol:</translation>
-<translation id="2441719842399509963">Nulstil til standardindstillinger</translation>
+<translation id="2441719842399509963">Gendan standardindstillinger</translation>
 <translation id="1208126399996836490">Afhold dig fra at nulstille.</translation>
 <translation id="3122496702278727796">Oprettelsen af datamappe mislykkedes</translation>
 <translation id="5046764976540625289">Afslut Chrome</translation>
@@ -591,7 +591,7 @@
 <translation id="411666854932687641">Privat hukommelse</translation>
 <translation id="7965010376480416255">Delt hukommelse</translation>
 <translation id="7931071620596053769">Følgende side(r) svarer ikke. Du kan afvente svar fra dem eller afslutte dem.</translation>
-<translation id="501080040224996242">Hjælp med at gøre Chrome bedre ved automatisk at sende forbrugsstatistikker og rapporter om nedbrud til Google</translation>
+<translation id="501080040224996242">Hjælp med at gøre Chrome bedre ved automatisk at sende anvendelsesdata og rapporter om nedbrud til Google</translation>
 <translation id="5912378097832178659">&amp;Rediger søgemaskiner ...</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Standard)</translation>
 <translation id="614298788004369532">Denne side indeholder usikre elementer</translation>
@@ -684,7 +684,7 @@
 <translation id="6921913858457830952">Google Chrome er klar til at færdiggøre din installation.</translation>
 <translation id="7241541963706135274">Google Chrome vil udføre disse opgaver:</translation>
 <translation id="7101265395643981223">Start Google Chrome</translation>
-<translation id="2618799103663374905">Føj Google Chrome-genveje til dit skrivebord, Hurtig start og Start-menuen</translation>
+<translation id="2618799103663374905">Tilføjelse af Google Chrome-genveje til Hurtig start, start-menuen og dit skrivebord.</translation>
 <translation id="213581405366815208">Er du sikker på, at du vil annullere installationen af Chrome? Vil du fortsætte senere, skal du åbne Chrome fra din mappe Programmer i Start-menuen.</translation>
 <translation id="5941830788786076944">Gør Google Chrome til din standardbrowser</translation>
 <translation id="7001386529596391893">Opret Google Chrome-genveje disse steder:</translation>
@@ -701,13 +701,13 @@
 <translation id="7958215378280655655">Når du nulstiller valgmulighederne i Chrome, bliver alle ændringer, du har foretaget, erstattet med standardindstillingerne. Er du sikker på, at du vil nulstille valgmulighederne i Chrome?</translation>
 <translation id="7100330187273168372">Google Chrome kan ikke læse og skrive til dets datamappe:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="3324235665723428530">Din profil kan ikke bruges, da den stammer fra en nyere version af Google Chrome.\n\nNogle funktioner er måske utilgængelige. Angiv en anden profilmappe, eller anvend en nyere version af Chrome.</translation>
-<translation id="3319048459796106952">Nyt &amp;inkognitovindue</translation>
+<translation id="3319048459796106952">Nyt &amp;inkognito-vindue</translation>
 <translation id="1120026268649657149">Søgeord skal være blankt eller enestående</translation>
 <translation id="7481475534986701730">Websider, du har besøgt for nylig</translation>
 <translation id="8815061062167142136">Hold da op! Google Chrome er gået ned. Vil du genstarte nu?</translation>
 <translation id="3889417619312448367">Afinstaller Google Chrome</translation>
 <translation id="3169621169201401257">Du kan få detaljerede oplysninger om problemerne med disse elementer ved at besøge Google <ph name="DIAGNOSTIC_PAGE"/> for <ph name="DOMAIN"/>.</translation>
-<translation id="2356762928523809690">Opdatering af server er ikke tilgængelig (fejl: <ph name="ERROR_NUMBER"/>)</translation>
+<translation id="2356762928523809690">Server til opdatering er ikke tilgængelig (fejl: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">&amp;Tilføj til ordbog</translation>
 <translation id="2499193704281978000">Google Chrome svarer ikke. Vil du genstarte nu?</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
