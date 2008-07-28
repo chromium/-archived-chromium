@@ -411,7 +411,6 @@ class MessageLoop {
     void Push(Task* task);
     Task* Pop();  // Extract the next Task from the queue, and return it.
     bool Empty() const { return !first_; }
-    friend void std::swap<TaskQueue>(TaskQueue&, TaskQueue&);
    private:
     Task* first_;
     Task* last_;

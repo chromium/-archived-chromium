@@ -107,10 +107,12 @@ END_COM_MAP()
 BEGIN_PROP_MAP(ChromeTestControl)
   PROP_DATA_ENTRY("_cx", m_sizeExtent.cx, VT_UI4)
   PROP_DATA_ENTRY("_cy", m_sizeExtent.cy, VT_UI4)
-  PROP_ENTRY("BackColor", DISPID_BACKCOLOR, CLSID_StockColorPage)
-  PROP_ENTRY("BorderColor", DISPID_BORDERCOLOR, CLSID_StockColorPage)
-  PROP_ENTRY("Caption", DISPID_CAPTION, CLSID_NULL)
-  PROP_ENTRY("ForeColor", DISPID_FORECOLOR, CLSID_StockColorPage)
+  PROP_ENTRY_TYPE("BackColor", DISPID_BACKCOLOR, CLSID_StockColorPage,
+                  VT_COLOR)
+  PROP_ENTRY_TYPE("BorderColor", DISPID_BORDERCOLOR, CLSID_StockColorPage,
+                  VT_COLOR)
+  PROP_ENTRY_TYPE("Caption", DISPID_CAPTION, CLSID_NULL, VT_BSTR)
+  PROP_ENTRY_TYPE("ForeColor", DISPID_FORECOLOR, CLSID_StockColorPage, VT_COLOR)
   // Example entries
   // PROP_ENTRY("Property Description", dispid, clsid)
   // PROP_PAGE(CLSID_StockColorPage)
