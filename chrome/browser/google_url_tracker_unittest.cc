@@ -30,9 +30,7 @@
 #include "chrome/browser/google_url_tracker.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-class GoogleURLTrackerTest : public testing::Test { };
-
-TEST_F(GoogleURLTrackerTest, CheckAndConvertURL) {
+TEST(GoogleURLTrackerTest, CheckAndConvertURL) {
   static const struct {
     const char* const source_url;
     const bool can_convert;
