@@ -49,7 +49,7 @@ bool JSONStringValueSerializer::Deserialize(Value** root) {
   if (!json_string_)
     return false;
 
-  return JSONReader::Read(*json_string_, root);
+  return JSONReader::Read(*json_string_, root, allow_trailing_comma_);
 }
 
 /******* File Serializer *******/

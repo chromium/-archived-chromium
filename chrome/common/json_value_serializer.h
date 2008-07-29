@@ -43,14 +43,16 @@ class JSONStringValueSerializer : public ValueSerializer {
   JSONStringValueSerializer(std::string* json_string)
       : json_string_(json_string),
         initialized_with_const_string_(false),
-        pretty_print_(false) {
+        pretty_print_(false),
+        allow_trailing_comma_(false) {
   }
 
   // This version allows initialization with a const string reference for
   // deserialization only.
   JSONStringValueSerializer(const std::string& json_string)
       : json_string_(&const_cast<std::string&>(json_string)),
-        initialized_with_const_string_(true) {
+        initialized_with_const_string_(true),
+        allow_trailing_comma_(false) {
   }
 
   ~JSONStringValueSerializer();
@@ -70,10 +72,16 @@ class JSONStringValueSerializer : public ValueSerializer {
   void set_pretty_print(bool new_value) { pretty_print_ = new_value; }
   bool pretty_print() { return pretty_print_; }
 
+  bool set_allow_trailing_comma(bool new_value) {
+    allow_trailing_comma_ = new_value;
+  }
+
  private:
   std::string* json_string_;
   bool initialized_with_const_string_;
   bool pretty_print_;  // If true, serialization will span multiple lines.
+  // If true, deserialization will allow trailing commas.
+  bool allow_trailing_comma_;  
 
   DISALLOW_EVIL_CONSTRUCTORS(JSONStringValueSerializer);
 };
