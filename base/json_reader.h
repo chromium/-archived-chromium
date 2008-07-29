@@ -46,11 +46,11 @@
 //   character, the function skips a Unicode BOM at the beginning of the
 //   Unicode string (converted from the input UTF-8 string) before parsing it.
 //
-// TODO(tc): It would be nice to give back an error string when we fail to parse JSON.
-// Parsing options:
-// - Relax trailing commas in arrays and objects
-// - Relax object keys being wrapped in double quotes
-// - Disable comment stripping
+// TODO(tc): It would be nice to give back an error string when we fail to
+//   parse JSON.
+// TODO(tc): Add a parsing option to to relax object keys being wrapped in
+//   double quotes
+// TODO(tc): Add an option to disable comment stripping
 
 #ifndef CHROME_COMMON_JSON_READER_H__
 #define CHROME_COMMON_JSON_READER_H__
@@ -99,12 +99,16 @@ class JSONReader {
     }
   };
 
-  // Reads and parses |json| and populates |root|.  If |json| is not a
-  // properly formed JSON string, returns false and leaves root unaltered.
-  static bool Read(const std::string& json, Value** root);
+  // Reads and parses |json| and populates |root|.  If |json| is not a properly
+  // formed JSON string, returns false and leaves root unaltered.  If
+  // allow_trailing_comma is true, we will ignore trailing commas in objects
+  // and arrays even though this goes against the RFC.
+  static bool Read(const std::string& json,
+                   Value** root,
+                   bool allow_trailing_comma);
 
  private:
-  JSONReader(const wchar_t* json_start_pos);
+  JSONReader(const wchar_t* json_start_pos, bool allow_trailing_comma);
   DISALLOW_EVIL_CONSTRUCTORS(JSONReader);
 
   FRIEND_TEST(JSONReaderTest, Reading);
@@ -112,7 +116,8 @@ class JSONReader {
   // Pass through method from JSONReader::Read.  We have this so unittests can
   // disable the root check.
   static bool JsonToValue(const std::string& json, Value** root,
-                          bool check_root);
+                          bool check_root,
+                          bool allow_trailing_comma);
 
   // Recursively build Value.  Returns false if we don't have a valid JSON
   // string.  If |is_root| is true, we verify that the root element is either
@@ -160,6 +165,9 @@ class JSONReader {
 
   // Used to keep track of how many nested lists/dicts there are.
   int stack_depth_;
+
+  // A parser flag that allows trailing commas in objects and arrays.
+  bool allow_trailing_comma_;
 };
 
 #endif  // CHROME_COMMON_JSON_READER_H__

@@ -98,13 +98,17 @@ bool ReadHexDigits(JSONReader::Token& token, int digits) {
 }  // anonymous namespace
 
 /* static */
-bool JSONReader::Read(const std::string& json, Value** root) {
-  return JsonToValue(json, root, true);
+bool JSONReader::Read(const std::string& json,
+                      Value** root,
+                      bool allow_trailing_comma) {
+  return JsonToValue(json, root, true, allow_trailing_comma);
 }
 
 /* static */
-bool JSONReader::JsonToValue(const std::string& json, Value** root,
-                             bool check_root) {
+bool JSONReader::JsonToValue(const std::string& json,
+                             Value** root,
+                             bool check_root,
+                             bool allow_trailing_comma) {
   // Assume input is UTF8.  The conversion from UTF8 to wstring removes null
   // bytes for us (a good thing).
   std::wstring json_wide(UTF8ToWide(json));
@@ -119,7 +123,7 @@ bool JSONReader::JsonToValue(const std::string& json, Value** root,
     ++json_cstr;
   }
 
-  JSONReader reader(json_cstr);
+  JSONReader reader(json_cstr, allow_trailing_comma);
 
   Value* temp_root = NULL;
   bool success = reader.BuildValue(&temp_root, check_root);
@@ -135,8 +139,11 @@ bool JSONReader::JsonToValue(const std::string& json, Value** root,
   return false;
 }
 
-JSONReader::JSONReader(const wchar_t* json_start_pos)
-  : json_pos_(json_start_pos), stack_depth_(0) {}
+JSONReader::JSONReader(const wchar_t* json_start_pos,
+                       bool allow_trailing_comma)
+  : json_pos_(json_start_pos),
+    stack_depth_(0),
+    allow_trailing_comma_(allow_trailing_comma) {}
 
 bool JSONReader::BuildValue(Value** node, bool is_root) {
   ++stack_depth_;
@@ -196,10 +203,15 @@ bool JSONReader::BuildValue(Value** node, bool is_root) {
           if (token.type == Token::LIST_SEPARATOR) {
             json_pos_ += token.length;
             token = ParseToken();
-            // Trailing commas are invalid
+            // Trailing commas are invalid according to the JSON RFC, but some
+            // consumers need the parsing leniency, so handle accordingly.
             if (token.type == Token::ARRAY_END) {
-              delete array;
-              return false;
+              if (!allow_trailing_comma_) {
+                delete array;
+                return false;
+              }
+              // Trailing comma OK, stop parsing the Array.
+              break;
             }
           } else if (token.type != Token::ARRAY_END) {
             // Unexpected value after list value.  Bail out.
@@ -259,11 +271,15 @@ bool JSONReader::BuildValue(Value** node, bool is_root) {
           if (token.type == Token::LIST_SEPARATOR) {
             json_pos_ += token.length;
             token = ParseToken();
-            // Trailing commas are invalid.  TODO(tc): Should we allow trailing
-            // commas in objects?  Seems harmless and quite convenient...
+            // Trailing commas are invalid according to the JSON RFC, but some
+            // consumers need the parsing leniency, so handle accordingly.
             if (token.type == Token::OBJECT_END) {
-              delete dict;
-              return false;
+              if (!allow_trailing_comma_) {
+                delete dict;
+                return false;
+              }
+              // Trailing comma OK, stop parsing the Object.
+              break;
             }
           } else if (token.type != Token::OBJECT_END) {
             // Unexpected value after last object value.  Bail out.
