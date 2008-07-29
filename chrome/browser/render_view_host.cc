@@ -518,6 +518,9 @@ void RenderViewHost::CaptureThumbnail() {
 void RenderViewHost::JavaScriptMessageBoxClosed(IPC::Message* reply_msg,
                                                 bool success,
                                                 const std::wstring& prompt) {
+  if (is_waiting_for_unload_ack_)
+    StartHangMonitorTimeout(kUnloadTimeoutMS);
+
   if (--modal_dialog_count_ == 0)
     ResetEvent(modal_dialog_event_.Get());
   ViewHostMsg_RunJavaScriptMessage::WriteReplyParams(reply_msg, success, prompt);
@@ -526,6 +529,9 @@ void RenderViewHost::JavaScriptMessageBoxClosed(IPC::Message* reply_msg,
 
 void RenderViewHost::ModalHTMLDialogClosed(IPC::Message* reply_msg,
                                            const std::string& json_retval) {
+  if (is_waiting_for_unload_ack_)
+    StartHangMonitorTimeout(kUnloadTimeoutMS);
+
   if (--modal_dialog_count_ == 0)
     ResetEvent(modal_dialog_event_.Get());
 
@@ -1023,6 +1029,7 @@ void RenderViewHost::OnMsgRunJavaScriptMessage(
     const std::wstring& default_prompt,
     const int flags,
     IPC::Message* reply_msg) {
+  StopHangMonitorTimeout();
   if (modal_dialog_count_++ == 0)
     SetEvent(modal_dialog_event_.Get());
   delegate_->RunJavaScriptMessage(message, default_prompt, flags, reply_msg);
@@ -1030,6 +1037,7 @@ void RenderViewHost::OnMsgRunJavaScriptMessage(
 
 void RenderViewHost::OnMsgRunBeforeUnloadConfirm(const std::wstring& message,
                                                  IPC::Message* reply_msg) {
+  StopHangMonitorTimeout();
   if (modal_dialog_count_++ == 0)
     SetEvent(modal_dialog_event_.Get());
   delegate_->RunBeforeUnloadConfirm(message, reply_msg);
@@ -1038,6 +1046,7 @@ void RenderViewHost::OnMsgRunBeforeUnloadConfirm(const std::wstring& message,
 void RenderViewHost::OnMsgShowModalHTMLDialog(
     const GURL& url, int width, int height, const std::string& json_arguments,
     IPC::Message* reply_msg) {
+  StopHangMonitorTimeout();
   if (modal_dialog_count_++ == 0)
     SetEvent(modal_dialog_event_.Get());
   delegate_->ShowModalHTMLDialog(url, width, height, json_arguments, reply_msg);
