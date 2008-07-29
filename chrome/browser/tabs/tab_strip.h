@@ -112,6 +112,9 @@ class TabStrip : public ChromeViews::View,
   // Destroys the active drag controller.
   void DestroyDragController();
 
+  // Removes the drag source Tab from this TabStrip, and deletes it.
+  void DestroyDraggedSourceTab(Tab* tab);
+
   // Retrieve the ideal bounds for the Tab at the specified index.
   gfx::Rect GetIdealBounds(int index);
 

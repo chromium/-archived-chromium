@@ -230,6 +230,9 @@ class DraggedTabController : public TabContentsDelegate,
   // Closes a hidden frame at the end of a drag session.
   void CleanUpHiddenFrame();
 
+  // Cleans up a source tab that is no longer used.
+  void CleanUpSourceTab();
+
   // Completes the drag session after the view has animated to its final
   // position.
   void OnAnimateToBoundsComplete();

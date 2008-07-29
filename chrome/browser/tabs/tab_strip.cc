@@ -499,6 +499,14 @@ void TabStrip::DestroyDragController() {
     drag_controller_.reset(NULL);
 }
 
+void TabStrip::DestroyDraggedSourceTab(Tab* tab) {
+  // We could be running an animation that references this Tab.
+  if (active_animation_.get())
+    active_animation_->Stop();
+  tab->GetParent()->RemoveChildView(tab);
+  delete tab;
+}
+
 gfx::Rect TabStrip::GetIdealBounds(int index) {
   DCHECK(index >= 0 && index < GetTabCount());
   return tab_data_.at(index).ideal_bounds;
@@ -669,6 +677,7 @@ void TabStrip::TabInsertedAt(TabContents* contents,
   if (active_animation_.get())
     active_animation_->Stop();
 
+  bool contains_tab = false;
   Tab* tab = NULL;
   // First see if this Tab is one that was dragged out of this TabStrip and is
   // now being dragged back in. In this case, the DraggedTabController actually
@@ -681,6 +690,14 @@ void TabStrip::TabInsertedAt(TabContents* contents,
       // removed, so we need to reset this property.
       tab->set_closing(false);
       tab->ValidateLoadingAnimation(TabRenderer::ANIMATION_NONE);
+      tab->SetVisible(true);
+    }
+
+    // See if we're already in the list. We don't want to add ourselves twice.
+    std::vector<TabData>::const_iterator iter = tab_data_.begin();
+    for (; iter != tab_data_.end() && !contains_tab; ++iter) {
+      if (iter->tab == tab)
+        contains_tab = true;
     }
   }
 
@@ -688,15 +705,19 @@ void TabStrip::TabInsertedAt(TabContents* contents,
   if (!tab)
     tab = new Tab(this);
 
-  if (index == TabStripModel::kNoTab) {
-    TabData d = { tab, gfx::Rect() };
-    tab_data_.push_back(d);
-    tab->UpdateData(contents);
-  } else {
-    TabData d = { tab, gfx::Rect() };
-    tab_data_.insert(tab_data_.begin() + index, d);
-    tab->UpdateData(contents);
+  // Only insert if we're not already in the list.
+  if (!contains_tab) {
+    if (index == TabStripModel::kNoTab) {
+      TabData d = { tab, gfx::Rect() };
+      tab_data_.push_back(d);
+      tab->UpdateData(contents);
+    } else {
+      TabData d = { tab, gfx::Rect() };
+      tab_data_.insert(tab_data_.begin() + index, d);
+      tab->UpdateData(contents);
+    }
   }
+
   // We only add the tab to the child list if it's not already - an invisible
   // tab maintained by the DraggedTabController will already be parented.
   if (!tab->GetParent())

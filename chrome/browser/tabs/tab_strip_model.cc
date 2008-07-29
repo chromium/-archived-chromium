@@ -99,6 +99,12 @@ void TabStripModel::InsertTabContentsAt(int index,
                                         TabContents* contents,
                                         bool foreground,
                                         bool inherit_group) {
+  // In tab dragging situations, if the last tab in the window was detached
+  // then the user aborted the drag, we will have the |closing_all_| member
+  // set (see DetachTabContentsAt) which will mess with our mojo here. We need
+  // to clear this bit.
+  closing_all_ = false;
+
   // Have to get the selected contents before we monkey with |contents_|
   // otherwise we run into problems when we try to change the selected contents
   // since the old contents and the new contents will be the same...

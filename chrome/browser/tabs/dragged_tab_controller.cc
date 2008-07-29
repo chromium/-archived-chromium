@@ -112,7 +112,7 @@ DraggedTabController::DraggedTabController(Tab* source_tab,
       source_tab_(source_tab),
       source_tabstrip_(source_tabstrip),
       source_model_index_(source_tabstrip->GetIndexOfTab(source_tab)),
-      attached_tabstrip_(NULL),
+      attached_tabstrip_(source_tabstrip),
       old_focused_view_(NULL),
       in_destructor_(false),
       last_move_screen_x_(0) {
@@ -124,6 +124,7 @@ DraggedTabController::DraggedTabController(Tab* source_tab,
 
 DraggedTabController::~DraggedTabController() {
   in_destructor_ = true;
+  CleanUpSourceTab();
   MessageLoop::current()->RemoveObserver(this);
   ChangeDraggedContents(NULL); // This removes our observer.
 }
@@ -151,7 +152,9 @@ void DraggedTabController::EndDrag(bool canceled) {
 
 Tab* DraggedTabController::GetDragSourceTabForContents(
     TabContents* contents) const {
-  return contents == dragged_contents_ ? source_tab_ : NULL;
+  if (attached_tabstrip_ == source_tabstrip_)
+    return contents == dragged_contents_ ? source_tab_ : NULL;
+  return NULL;
 }
 
 bool DraggedTabController::IsDragSourceTab(Tab* tab) const {
@@ -669,6 +672,8 @@ void DraggedTabController::EndDragImpl(EndDragType type) {
 }
 
 void DraggedTabController::RevertDrag() {
+  // We save this here because code below will modify |attached_tabstrip_|.
+  bool restore_frame = attached_tabstrip_ != source_tabstrip_;
   if (attached_tabstrip_) {
     int index = attached_tabstrip_->model()->GetIndexOfTabContents(
         dragged_contents_);
@@ -676,6 +681,9 @@ void DraggedTabController::RevertDrag() {
       // The Tab was inserted into another TabStrip. We need to put it back
       // into the original one.
       attached_tabstrip_->model()->DetachTabContentsAt(index);
+      // TODO(beng): (Cleanup) seems like we should use Attach() for this
+      //             somehow.
+      attached_tabstrip_ = source_tabstrip_;
       source_tabstrip_->model()->InsertTabContentsAt(source_model_index_,
           dragged_contents_, true, false);
     } else {
@@ -684,6 +692,9 @@ void DraggedTabController::RevertDrag() {
       source_tabstrip_->model()->MoveTabContentsAt(index, source_model_index_);
     }
   } else {
+    // TODO(beng): (Cleanup) seems like we should use Attach() for this
+    //             somehow.
+    attached_tabstrip_ = source_tabstrip_;
     // The Tab was detached from the TabStrip where the drag began, and has not
     // been attached to any other TabStrip. We need to put it back into the
     // source TabStrip.
@@ -693,7 +704,7 @@ void DraggedTabController::RevertDrag() {
   // If we're not attached to any TabStrip, or attached to some other TabStrip,
   // we need to restore the bounds of the original TabStrip's frame, in case
   // it has been hidden.
-  if (!attached_tabstrip_ || attached_tabstrip_ != source_tabstrip_) {
+  if (restore_frame) {
     if (!restore_bounds_.IsEmpty()) {
       HWND frame_hwnd = source_tabstrip_->GetViewContainer()->GetHWND();
       MoveWindow(frame_hwnd, restore_bounds_.x(), restore_bounds_.y(),
@@ -783,6 +794,16 @@ void DraggedTabController::CleanUpHiddenFrame() {
   // delegate to close the frame.
   if (source_tabstrip_->model()->empty())
     source_tabstrip_->model()->delegate()->CloseFrameAfterDragSession();
+}
+
+void DraggedTabController::CleanUpSourceTab() {
+  // If we were attached to the source TabStrip, source Tab will be in use
+  // as the Tab. If we were detached or attached to another TabStrip, we can
+  // safely remove this item and delete it now.
+  if (attached_tabstrip_ != source_tabstrip_) {
+    source_tabstrip_->DestroyDraggedSourceTab(source_tab_);
+    source_tab_ = NULL;
+  }
 }
 
 void DraggedTabController::OnAnimateToBoundsComplete() {
