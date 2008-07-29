@@ -81,7 +81,6 @@ class Charmap {
   uint32 map_[8];
 };
 
-
 // Given text to escape and a Charmap defining which values to escape,
 // return an escaped string.  If use_plus is true, spaces are converted
 // to +, otherwise, if spaces are in the charmap, they are converted to
@@ -105,6 +104,32 @@ const std::string Escape(const std::string& text, const Charmap& charmap,
   return escaped;
 }
 
+// Contains nonzero when the corresponding character is unescapable for normal
+// URLs. These characters are the ones that may change the parsing of a URL, so
+// we don't want to unescape them sometimes. In many case we won't want to
+// unescape spaces, but that is controlled by parameters to Unescape*.
+//
+// The basic rule is that we can't unescape anything that would changing parsing
+// like # or ?. We also can't unescape &, =, or + since that could be part of a
+// query and that could change the server's parsing of the query.
+const char kUrlUnescape[128] = {
+//   NULL, control chars...
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+//  ' ' !  "  #  $  %  &  '  (  )  *  +  ,  -  .  /
+     0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1,
+//   0  1  2  3  4  5  6  7  8  9  :  ;  <  =  >  ?
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0,
+//   @  A  B  C  D  E  F  G  H  I  J  K  L  M  N  O
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//   P  Q  R  S  T  U  V  W  X  Y  Z  [  \  ]  ^  _
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//   `  a  b  c  d  e  f  g  h  i  j  k  l  m  n  o
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//   p  q  r  s  t  u  v  w  x  y  z  {  |  }  ~  <NBSP>
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0
+};
+
 std::string UnescapeURLImpl(const std::string& escaped_text,
                             UnescapeRule::Type rules) {
   // The output of the unescaping is always smaller than the input, so we can
@@ -121,21 +146,34 @@ std::string UnescapeURLImpl(const std::string& escaped_text,
       if (IsHex(most_sig_digit) && IsHex(least_sig_digit)) {
         unsigned char value = HexToInt(most_sig_digit) * 16 +
             HexToInt(least_sig_digit);
-        if (((rules & UnescapeRule::PERCENTS) || value != '%') &&
-            ((rules & UnescapeRule::SPACES) || value != ' ')) {
+        if (value >= 0x80 ||  // Unescape all high-bit characters.
+            // For 7-bit characters, the lookup table tells us all valid chars.
+            (kUrlUnescape[value] ||
+             // ...and we allow some additional unescaping when flags are set.
+             (value == ' ' && (rules & UnescapeRule::SPACES)) ||
+             // Allow any of the prohibited but non-control characters when
+             // we're doing "special" chars.
+             (value > ' ' && (rules & UnescapeRule::URL_SPECIAL_CHARS)) ||
+             // Additionally allow control characters if requested.
+             (value < ' ' && (rules & UnescapeRule::CONTROL_CHARS)))) {
           // Use the unescaped version of the character.
           result.push_back(value);
           i += 2;
         } else {
+          // Keep escaped. Append a percent and we'll get the following two
+          // digits on the next loops through.
           result.push_back('%');
         }
       } else {
+        // Invalid escape sequence, just pass the percent through and continue
+        // right after it.
         result.push_back('%');
       }
     } else if ((rules & UnescapeRule::REPLACE_PLUS_WITH_SPACE) &&
                escaped_text[i] == '+') {
       result.push_back(' ');
     } else {
+      // Normal case for unescaped characters.
       result.push_back(escaped_text[i]);
     }
   }

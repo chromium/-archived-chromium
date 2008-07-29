@@ -446,7 +446,8 @@ wstring URLFixerUpper::FixupRelativeFile(const wstring& base_dir,
     // escaped things. We need to go through 8-bit since the escaped values
     // only represent 8-bit values.
     std::wstring unescaped = UTF8ToWide(UnescapeURLComponent(
-        WideToUTF8(trimmed), UnescapeRule::SPACES | UnescapeRule::PERCENTS));
+        WideToUTF8(trimmed),
+        UnescapeRule::SPACES | UnescapeRule::URL_SPECIAL_CHARS));
     if (!ValidPathForFile(unescaped, &full_path))
       is_file = false;
   }
