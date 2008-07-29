@@ -197,6 +197,18 @@ int CalculateCrc(const unsigned char *buf, int size) {
   return crc;
 }
 
+/* _O_BINARY is a MSWindows open() mode flag.  When absent, MSWindows
+ * open() translates CR+LF to LF; when present, it passes bytes
+ * through faithfully.  Under *nix, we are always in binary mode, so
+ * the following #define turns this flag into a no-op w.r.t.  bitwise
+ * OR.  Note that this would be DANGEROUS AND UNSOUND if we used
+ * _O_BINARY other than as a bitwise OR mask (e.g., as a bitwise AND
+ * mask to check for binary mode), but it seems OK in the limited
+ * context of the following small function. */
+#ifndef _O_BINARY
+# define _O_BINARY 0
+#endif
+
 int ApplyBinaryPatch(const char *old_file, const char *patch_file,
                      const char *new_file) {
   int ret = 0;
@@ -231,4 +243,3 @@ int ApplyBinaryPatch(const char *old_file, const char *patch_file,
   close(nfd);
   return OK;
 }
-
