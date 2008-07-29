@@ -61,6 +61,7 @@
 #include "chrome/views/view_container.h"
 #include "chrome/views/background.h"
 #include "chrome/views/label.h"
+#include "chrome/views/tooltip_manager.h"
 #include "net/base/net_util.h"
 
 #include "generated_resources.h"
@@ -373,6 +374,9 @@ void BrowserToolbarView::DidGainFocus() {
 void BrowserToolbarView::WillLoseFocus() {
   // Resetting focus state.
   acc_focused_view_->SetHotTracked(false);
+  // Any tooltips that are active should be hidden when toolbar loses focus.
+  if (GetViewContainer() && GetViewContainer()->GetTooltipManager())
+    GetViewContainer()->GetTooltipManager()->HideKeyboardTooltip();
   acc_focused_view_ = NULL;
 }
 
@@ -396,6 +400,10 @@ bool BrowserToolbarView::OnKeyPressed(const ChromeViews::KeyEvent& e) {
       // VK_SPACE is already handled by the default case.
       if (acc_focused_view_->GetID() == VIEW_ID_PAGE_MENU ||
           acc_focused_view_->GetID() == VIEW_ID_APP_MENU) {
+        // If a menu button in toolbar is activated and its menu is displayed,
+        // then active tooltip should be hidden.
+        if (GetViewContainer()->GetTooltipManager())
+          GetViewContainer()->GetTooltipManager()->HideKeyboardTooltip();
         // Safe to cast, given to above check.
         static_cast<ChromeViews::MenuButton*>(acc_focused_view_)->Activate();
         // Re-enable hot-tracking, as Activate() will disable it.
@@ -426,6 +434,10 @@ bool BrowserToolbarView::OnKeyPressed(const ChromeViews::KeyEvent& e) {
     int view_id = acc_focused_view_->GetID();
     HWND hwnd = GetViewContainer()->GetHWND();
 
+    // Show the tooltip for the view that got the focus.
+    if (GetViewContainer()->GetTooltipManager())
+      GetViewContainer()->GetTooltipManager()->
+                          ShowKeyboardTooltip(GetChildViewAt(next_view));
     // Notify Access Technology that there was a change in keyboard focus.
     ::NotifyWinEvent(EVENT_OBJECT_FOCUS, hwnd, OBJID_CLIENT,
                      static_cast<LONG>(view_id));
