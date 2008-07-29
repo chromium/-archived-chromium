@@ -77,20 +77,17 @@ class UnescapeRule {
     // by other applications.
     SPACES = 1,
 
-    // Unescapes various characters that will change the meaning of URLs,
-    // including '%', '+', '&', '/', '#'. If we unescaped these charaters, the
-    // resulting URL won't be the same as the source one. This flag is used when
-    // generating final output like filenames for URLs where we won't be
-    // interpreting as a URL and want to do as much unescaping as possible.
-    URL_SPECIAL_CHARS = 2,
-
-    // Unescapes control characters such as %01. This INCLUDES NULLs!. This is
-    // used for rare cases such as data: URL decoding where the result is binary
-    // data. You should not use this for normal URLs!
-    CONTROL_CHARS = 4,
+    // Unescapes "%25" to "%". This must not be used when the resulting string
+    // will need to be interpreted as a URL again, since we won't know what
+    // should be escaped and what shouldn't. For example, "%2520" would be
+    // converted to "%20" which would have different meaning than the origina.
+    // This flag is used when generating final output like filenames for URLs
+    // where we won't be interpreting as a URL and want to do as much unescaping
+    // as possible.
+    PERCENTS = 2,
 
     // URL queries use "+" for space. This flag controls that replacement.
-    REPLACE_PLUS_WITH_SPACE = 8,
+    REPLACE_PLUS_WITH_SPACE = 4,
   };
 };
 

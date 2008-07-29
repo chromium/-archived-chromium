@@ -121,18 +121,11 @@ TEST(Escape, UnescapeURLComponent) {
     {"Invalid %escape %2", UnescapeRule::NORMAL, "Invalid %escape %2"},
     {"Some%20random text %25%3bOK", UnescapeRule::NORMAL, "Some%20random text %25;OK"},
     {"Some%20random text %25%3bOK", UnescapeRule::SPACES, "Some random text %25;OK"},
-    {"Some%20random text %25%3bOK", UnescapeRule::URL_SPECIAL_CHARS, "Some%20random text %;OK"},
-    {"Some%20random text %25%3bOK", UnescapeRule::SPACES | UnescapeRule::URL_SPECIAL_CHARS, "Some random text %;OK"},
+    {"Some%20random text %25%3bOK", UnescapeRule::PERCENTS, "Some%20random text %;OK"},
+    {"Some%20random text %25%3bOK", UnescapeRule::SPACES | UnescapeRule::PERCENTS, "Some random text %;OK"},
+    {"%01%02%03%04%05%06%07%08%09", UnescapeRule::NORMAL, "\x01\x02\x03\x04\x05\x06\x07\x08\x09"},
     {"%A0%B1%C2%D3%E4%F5", UnescapeRule::NORMAL, "\xA0\xB1\xC2\xD3\xE4\xF5"},
-    {"%Aa%Bb%Cc%Dd%Ee%Ff", UnescapeRule::NORMAL, "\xAa\xBb\xCc\xDd\xEe\xFf"},
-    // Certain URL-sensitive characters should not be unescaped unless asked.
-    {"Hello%20%13%10world %23# %3F? %3D= %26& %25% %2B+", UnescapeRule::SPACES, "Hello %13%10world %23# %3F? %3D= %26& %25% %2B+"},
-    {"Hello%20%13%10world %23# %3F? %3D= %26& %25% %2B+", UnescapeRule::URL_SPECIAL_CHARS, "Hello%20%13%10world ## ?? == && %% ++"},
-    // Control characters.
-    {"%01%02%03%04%05%06%07%08%09 %25", UnescapeRule::URL_SPECIAL_CHARS, "%01%02%03%04%05%06%07%08%09 %"},
-    {"%01%02%03%04%05%06%07%08%09 %25", UnescapeRule::CONTROL_CHARS, "\x01\x02\x03\x04\x05\x06\x07\x08\x09 %25"},
-    {"Hello%20%13%10%02", UnescapeRule::SPACES, "Hello %13%10%02"},
-    {"Hello%20%13%10%02", UnescapeRule::CONTROL_CHARS, "Hello%20\x13\x10\x02"},
+    {"%Aa%Bb%Cc%Dd%Ee%Ff", UnescapeRule::NORMAL, "\xAa\xBb\xCc\xDd\xEe\xFf"}
   };
 
   for (int i = 0; i < arraysize(unescape_cases); i++) {
@@ -141,23 +134,17 @@ TEST(Escape, UnescapeURLComponent) {
               UnescapeURLComponent(str, unescape_cases[i].rules));
   }
 
-  // Test the NULL character unescaping (which wouldn't work above since those
-  // are just char pointers).
+  // test the NULL character escaping (which wouldn't work above since those
+  // are just char pointers)
   std::string input("Null");
   input.push_back(0);  // Also have a NULL in the input.
   input.append("%00%39Test");
 
-  // When we're unescaping NULLs
   std::string expected("Null");
   expected.push_back(0);
   expected.push_back(0);
   expected.append("9Test");
-  EXPECT_EQ(expected, UnescapeURLComponent(input, UnescapeRule::CONTROL_CHARS));
 
-  // When we're not unescaping NULLs.
-  expected = "Null";
-  expected.push_back(0);
-  expected.append("%009Test");
   EXPECT_EQ(expected, UnescapeURLComponent(input, UnescapeRule::NORMAL));
 }
 
@@ -191,9 +178,9 @@ TEST(Escape, UnescapeAndDecodeURLComponent) {
              "Some random text %25;OK",
              L"Some random text %25;OK"},
     {"UTF8", "%01%02%03%04%05%06%07%08%09",
-             "%01%02%03%04%05%06%07%08%09",
-             "%01%02%03%04%05%06%07%08%09",
-             L"%01%02%03%04%05%06%07%08%09"},
+             "\x01\x02\x03\x04\x05\x06\x07\x08\x09",
+             "\x01\x02\x03\x04\x05\x06\x07\x08\x09",
+             L"\x01\x02\x03\x04\x05\x06\x07\x08\x09"},
     {"UTF8", "%E4%BD%A0+%E5%A5%BD",
              "\xE4\xBD\xA0+\xE5\xA5\xBD",
              "\xE4\xBD\xA0 \xE5\xA5\xBD",

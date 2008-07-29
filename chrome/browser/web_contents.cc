@@ -860,7 +860,7 @@ SiteInstance* WebContents::GetSiteInstanceForEntry(
   if (entry.site_instance())
     return entry.site_instance();
 
-  // (UGLY) HEURISTIC, process-per-site only:
+  // (UGLY) HEURISTIC:
   //
   // If this navigation is generated, then it probably corresponds to a search
   // query.  Given that search results typically lead to users navigating to
@@ -870,8 +870,7 @@ SiteInstance* WebContents::GetSiteInstanceForEntry(
   // NOTE: This can be removed once we have a way to transition between
   //       RenderViews in response to a link click.
   //
-  if (CommandLine().HasSwitch(switches::kProcessPerSite) &&
-      entry.GetTransitionType() == PageTransition::GENERATED)
+  if (entry.GetTransitionType() == PageTransition::GENERATED)
     return curr_instance;
 
   const GURL& dest_url = entry.GetURL();
