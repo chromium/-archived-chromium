@@ -202,11 +202,22 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // javascript call.
   virtual bool CanBlur() const { return true; }
 
-  // Reset the active hang monitor timeout.
+  // Restart the active hang monitor timeout. Clears all existing timeouts
+  // and starts with a new one.
   // This can be because the renderer has become active, the tab is being
   // hidden, or the user has chosen to wait some more to give the tab a chance
   // to become active and we don't want to display a warning too soon.
-  void ResetHangMonitorTimeout();
+  void RestartHangMonitorTimeout();
+  
+  // Stops all existing hang monitor timeouts and assumes the renderer is
+  // responsive.
+  void StopHangMonitorTimeout();
+
+  // Starts a hang monitor timeout. If there's already a hang monitor timeout
+  // the new one will only fire if it has a shorter delay than the time
+  // left on the existing timeouts.
+  void StartHangMonitorTimeout(int delay);
+
 
  protected:
   // Represents a cache of BackingStore objects indexed by RenderWidgetHost.

@@ -116,7 +116,8 @@ class RenderWidgetHelper :
   // that the original RenderViewHost is not live and thus cannot run an
   // onunload handler.
   void CrossSiteClosePageACK(int new_render_process_host_id,
-                             int new_request_id);
+                             int new_request_id,
+                             bool is_closing_browser);
 
   // Called on the UI thread to wait for the next PaintRect message for the
   // specified render widget.  Returns true if successful, and the msg out-
@@ -158,7 +159,8 @@ class RenderWidgetHelper :
   // Called on the IO thread to resume a cross-site response.
   void OnCrossSiteClosePageACK(ResourceDispatcherHost* dispatcher,
                                int new_render_process_host_id,
-                               int new_request_id);
+                               int new_request_id,
+                               bool is_closing_browser);
 
   // A map of live paint messages.  Must hold pending_paints_lock_ to access.
   // The PaintMsgProxy objects are not owned by this map.  (See PaintMsgProxy

@@ -269,7 +269,13 @@ bool TabStripModel::TabsAreLoading() const {
 bool TabStripModel::TabHasUnloadListener(int index) {
   WebContents* web_contents = GetContentsAt(index)->AsWebContents();
   if (web_contents) {
-    return web_contents->render_view_host()->HasUnloadListener();
+    // If the WebContents is not connected yet, then there's no unload
+    // handler we can fire even if the WebContents has an unload listener.
+    // One case where we hit this is in a tab that has an infinite loop 
+    // before load.
+    return web_contents->notify_disconnection() && 
+        !web_contents->IsShowingInterstitialPage() &&
+        web_contents->render_view_host()->HasUnloadListener();
   }
   return false;
 }

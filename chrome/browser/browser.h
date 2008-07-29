@@ -517,11 +517,15 @@ class Browser : public TabStripModelDelegate,
 
   // Processes the next tab that needs it's beforeunload event fired before
   // we can proceed with closing the browser.
-  void Browser::ProcessPendingBeforeUnloadTabs();
+  void ProcessPendingBeforeUnloadTabs();
 
   // Processes the next tab that needs it's unload event fired before we can
   // proceed with closing the browser.
-  void Browser::ProcessPendingUnloadTabs();
+  void ProcessPendingUnloadTabs();
+
+  // Cleans up state appropriately when we are trying to close the browser
+  // and a tab crashes in it's beforeunload/unload handler.
+  void ClearUnloadStateOnCrash(TabContents* tab);
 
   // The frame
   ChromeFrame* frame_;
@@ -580,7 +584,7 @@ class Browser : public TabStripModelDelegate,
   ScopedRunnableMethodFactory<Browser> chrome_updater_factory_;
 
   // The following factory is used to close the frame at a later time.
-  ScopedRunnableMethodFactory<Browser> frame_method_factory_;
+  ScopedRunnableMethodFactory<Browser> method_factory_;
 
   // This object is used to perform periodic actions in a worker
   // thread. It is currently used to monitor hung plugin windows.

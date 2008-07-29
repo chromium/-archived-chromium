@@ -172,7 +172,9 @@ class RenderViewHost : public RenderWidgetHost {
   // ResourceDispatcherHost when it is finished. |new_render_process_host_id|
   // and |new_request_id| will help the ResourceDispatcherHost identify which
   // response is associated with this event.
-  virtual void ClosePage(int new_render_process_host_id, int new_request_id);
+  virtual void ClosePage(int new_render_process_host_id,
+                         int new_request_id,
+                         bool is_closing_browser);
 
   // Sets whether this RenderViewHost has an outstanding cross-site request,
   // for which another renderer will need to run an onunload event handler.
@@ -568,6 +570,8 @@ class RenderViewHost : public RenderWidgetHost {
   IPC::Message* run_modal_reply_msg_;
 
   bool has_unload_listener_;
+
+  bool is_waiting_for_unload_ack_;
 
   DISALLOW_EVIL_CONSTRUCTORS(RenderViewHost);
 };

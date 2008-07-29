@@ -74,6 +74,9 @@ void FilterURL(RendererSecurityPolicy* policy, int renderer_id, GURL* url) {
   }
 }
 
+// Delay to wait on closing the tab for a beforeunload/unload handler to fire.
+const int kUnloadTimeoutMS = 1000;
+
 }  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -107,7 +110,8 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
       navigations_suspended_(false),
       suspended_nav_message_(NULL),
       run_modal_reply_msg_(NULL),
-      has_unload_listener_(false) {
+      has_unload_listener_(false),
+      is_waiting_for_unload_ack_(false) {
   DCHECK(instance_);
   DCHECK(delegate_);
   if (modal_dialog_event == NULL)
@@ -243,6 +247,11 @@ void RenderViewHost::SetNavigationsSuspended(bool suspend) {
 
 void RenderViewHost::AttemptToClosePage(bool is_closing_browser) {
   if (IsRenderViewLive()) {
+    // Start the hang monitor in case the renderer hangs in the beforeunload
+    // handler.
+    DCHECK(!is_waiting_for_unload_ack_);
+    is_waiting_for_unload_ack_ = true;
+    StartHangMonitorTimeout(kUnloadTimeoutMS);
     Send(new ViewMsg_ShouldClose(routing_id_, is_closing_browser));
   } else {
     // This RenderViewHost doesn't have a live renderer, so just skip running
@@ -252,10 +261,13 @@ void RenderViewHost::AttemptToClosePage(bool is_closing_browser) {
 }
 
 void RenderViewHost::OnProceedWithClosePage(bool is_closing_browser) {
-  Send(new ViewMsg_ClosePage(routing_id_,
-                             site_instance()->process_host_id(),
-                             routing_id(),
-                             is_closing_browser));
+  // Start the hang monitor in case the renderer hangs in the unload handler.
+  DCHECK(!is_waiting_for_unload_ack_);
+  is_waiting_for_unload_ack_ = true;
+  StartHangMonitorTimeout(kUnloadTimeoutMS);
+  ClosePage(site_instance()->process_host_id(), 
+            routing_id(),
+            is_closing_browser);
 }
 
 // static
@@ -266,6 +278,10 @@ void RenderViewHost::ClosePageIgnoringUnloadEvents(int render_process_host_id,
                                                request_id);
   if (!rvh)
     return;
+
+  rvh->StopHangMonitorTimeout();
+  DCHECK(rvh->is_waiting_for_unload_ack_);
+  rvh->is_waiting_for_unload_ack_ = false;
 
   // The RenderViewHost's delegate is a WebContents.
   TabContents* tab = static_cast<WebContents*>(rvh->delegate());
@@ -279,18 +295,20 @@ void RenderViewHost::ClosePageIgnoringUnloadEvents(int render_process_host_id,
 }
 
 void RenderViewHost::ClosePage(int new_render_process_host_id,
-                               int new_request_id) {
+                               int new_request_id,
+                               bool is_closing_browser) {
   if (IsRenderViewLive()) {
     Send(new ViewMsg_ClosePage(routing_id_,
                                new_render_process_host_id,
                                new_request_id,
-                               false)); // is_closing_browser
+                               is_closing_browser));
   } else {
     // This RenderViewHost doesn't have a live renderer, so just skip closing
     // the page.  We must notify the ResourceDispatcherHost on the IO thread,
     // which we will do through the RenderProcessHost's widget helper.
     process()->CrossSiteClosePageACK(new_render_process_host_id,
-                                     new_request_id);
+                                     new_request_id,
+                                     is_closing_browser);
   }
 }
 
@@ -1138,6 +1156,10 @@ void RenderViewHost::OnReceivedSerializedHtmlData(const GURL& frame_url,
 
 void RenderViewHost::OnMsgShouldCloseACK(bool proceed,
                                          bool is_closing_browser) {
+  StopHangMonitorTimeout();
+  DCHECK(is_waiting_for_unload_ack_);
+  is_waiting_for_unload_ack_ = false;
+
   if (is_closing_browser) {
     // The RenderViewHost's delegate is a WebContents.
     TabContents* tab = static_cast<WebContents*>(delegate());
@@ -1155,6 +1177,14 @@ void RenderViewHost::OnUnloadListenerChanged(bool has_listener) {
 }
 
 void RenderViewHost::NotifyRendererUnresponsive() {
+  if (is_waiting_for_unload_ack_) {
+    // If the tab hangs in the beforeunload/unload handler there's really
+    // nothing we can do to recover. We can safely kill the process and the
+    // Browser will deal with the crash appropriately.
+    TerminateProcess(process()->process(), 0);
+    return;
+  }
+
   // If the debugger is attached, we're going to be unresponsive anytime it's
   // stopped at a breakpoint.
   if (!debugger_attached_)

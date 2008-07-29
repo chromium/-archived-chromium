@@ -338,8 +338,7 @@ void RenderWidgetHost::OnMsgInputEventAck(const IPC::Message& message) {
   UMA_HISTOGRAM_TIMES(L"MPArch.RWH_InputEventDelta", delta);
 
   // Cancel pending hung renderer checks since the renderer is responsive.
-  ResetHangMonitorTimeout();
-  RendererIsResponsive();
+  StopHangMonitorTimeout();
 
   void* iter = NULL;
   int type = 0;
@@ -396,8 +395,7 @@ void RenderWidgetHost::WasHidden() {
   is_hidden_ = true;
 
   // Don't bother reporting hung state when we aren't the active tab.
-  ResetHangMonitorTimeout();
-  RendererIsResponsive();
+  StopHangMonitorTimeout();
 
   // If we have a renderer, then inform it that we are being hidden so it can
   // reduce its resource utilization.
@@ -499,9 +497,7 @@ void RenderWidgetHost::ForwardInputEvent(const WebInputEvent& input_event,
   // any input event cancels a pending mouse move event
   next_mouse_move_.reset();
 
-  MessageLoop::current()->PostDelayedTask(FROM_HERE,
-      hung_renderer_factory_.NewRunnableMethod(
-          &RenderWidgetHost::RendererIsUnresponsive), kHungRendererDelayMs);
+  StartHangMonitorTimeout(kHungRendererDelayMs);
 }
 
 void RenderWidgetHost::Shutdown() {
@@ -694,6 +690,18 @@ void RenderWidgetHost::ScrollRect(HANDLE bitmap, const gfx::Rect& bitmap_rect,
   }
 }
 
-void RenderWidgetHost::ResetHangMonitorTimeout() {
+void RenderWidgetHost::RestartHangMonitorTimeout() {
   hung_renderer_factory_.RevokeAll();
+  StartHangMonitorTimeout(kHungRendererDelayMs);
+}
+
+void RenderWidgetHost::StopHangMonitorTimeout() {
+  hung_renderer_factory_.RevokeAll();
+  RendererIsResponsive();
+}
+
+void RenderWidgetHost::StartHangMonitorTimeout(int delay) {
+  MessageLoop::current()->PostDelayedTask(FROM_HERE,
+        hung_renderer_factory_.NewRunnableMethod(
+            &RenderWidgetHost::RendererIsUnresponsive), delay);
 }

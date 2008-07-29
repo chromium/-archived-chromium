@@ -211,7 +211,7 @@ Browser::Browser(const gfx::Rect& initial_bounds,
       controller_(this),
       toolbar_(&controller_, this),
       chrome_updater_factory_(this),
-      frame_method_factory_(this),
+      method_factory_(this),
       hung_window_detector_(&hung_plugin_action_),
       ticker_(0),
       tabstrip_model_(this, profile),
@@ -788,6 +788,12 @@ void Browser::Observe(NotificationType type,
         frame_->ShelfVisibilityChanged();
       }
     }
+  } else if (type == NOTIFY_WEB_CONTENTS_DISCONNECTED) {
+    // Need to do this asynchronously as it will close the tab, which is 
+    // currently on the call stack above us.
+    MessageLoop::current()->PostTask(FROM_HERE,
+        method_factory_.NewRunnableMethod(&Browser::ClearUnloadStateOnCrash,
+                                          Source<TabContents>(source).ptr()));
   } else {
     NOTREACHED() << "Got a notification we didn't register for.";
   }
@@ -1002,19 +1008,27 @@ void Browser::MoveToFront(bool should_activate) {
 
 bool Browser::ShouldCloseWindow() {
   if (is_processing_tab_unload_events_) {
-    return false;
+    return tabs_needing_before_unload_fired_.empty() &&
+        tabs_needing_unload_fired_.empty();
   }
   is_processing_tab_unload_events_ = true;
 
   for (int i = 0; i < tab_count(); ++i) {
-    if (tabstrip_model_.TabHasUnloadListener(i))
-      tabs_needing_before_unload_fired_.push_back(GetTabContentsAt(i));
+    if (tabstrip_model_.TabHasUnloadListener(i)) {
+      TabContents* tab = GetTabContentsAt(i);
+
+      // If the tab crashes in the beforeunload or unload handler, it won't be
+      // able to ack. But we know we can close it.
+      NotificationService::current()->
+          AddObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED,
+                      Source<TabContents>(tab));
+
+      tabs_needing_before_unload_fired_.push_back(tab);
+    }
   }
 
-  if (tabs_needing_before_unload_fired_.empty()) {
-    is_processing_tab_unload_events_ = false;
+  if (tabs_needing_before_unload_fired_.empty())
     return true;
-  }
 
   ProcessPendingBeforeUnloadTabs();
   return false;
@@ -1080,13 +1094,40 @@ void Browser::UnloadFired(TabContents* tab) {
     }
   }
 
+  NotificationService::current()->
+      RemoveObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED,
+                     Source<TabContents>(tab));
+
   if (tabs_needing_unload_fired_.empty()) {
     // We've finished all the unload events and can proceed to close the
     // browser.
-    is_processing_tab_unload_events_ = false;
     OnWindowClosing();
   } else {
     ProcessPendingUnloadTabs();
+  }
+}
+
+void Browser::ClearUnloadStateOnCrash(TabContents* tab) {
+  bool is_waiting_on_before_unload = false;
+
+  for (UnloadListenerVector::iterator it =
+           tabs_needing_before_unload_fired_.begin();
+       it != tabs_needing_before_unload_fired_.end();
+       ++it) {
+    if (*it == tab) {
+      is_waiting_on_before_unload = true;
+      break;
+    }
+  }
+
+  if (is_waiting_on_before_unload) {
+    // Even though beforeunload didn't really fire, we call the same function
+    // so that all the appropriate cleanup happens.
+    BeforeUnloadFired(tab, true);
+  } else {
+    // Even though unload didn't really fire, we call the same function
+    // so that all the appropriate cleanup happens.
+    UnloadFired(tab);
   }
 }
 
@@ -1269,7 +1310,7 @@ void Browser::CloseFrameAfterDragSession() {
   // otherwise the frame will think the drag session is still active and ignore
   // the request.
   MessageLoop::current()->PostTask(FROM_HERE,
-      frame_method_factory_.NewRunnableMethod(&Browser::CloseFrame));
+      method_factory_.NewRunnableMethod(&Browser::CloseFrame));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1417,7 +1458,7 @@ void Browser::TabStripEmpty() {
   // NOTE: If you change to be immediate (no invokeLater) then you'll need to
   //       update BrowserList::CloseAllBrowsers.
   MessageLoop::current()->PostTask(FROM_HERE,
-      frame_method_factory_.NewRunnableMethod(&Browser::CloseFrame));
+      method_factory_.NewRunnableMethod(&Browser::CloseFrame));
 }
 
 void Browser::RemoveShelvesForTabContents(TabContents* contents) {

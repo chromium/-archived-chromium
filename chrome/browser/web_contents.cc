@@ -1023,9 +1023,12 @@ void WebContents::OnCrossSiteResponse(int new_render_process_host_id,
   if (IsShowingInterstitialPage()) {
     DCHECK(original_render_view_host_);
     original_render_view_host_->ClosePage(new_render_process_host_id,
-                                          new_request_id);
+                                          new_request_id,
+                                          false); // is_closing_browser
   } else {
-    render_view_host_->ClosePage(new_render_process_host_id, new_request_id);
+    render_view_host_->ClosePage(new_render_process_host_id,
+                                 new_request_id,
+                                 false); // is_closing_browser
   }
 
   // ResourceDispatcherHost has told us to run the onunload handler, which

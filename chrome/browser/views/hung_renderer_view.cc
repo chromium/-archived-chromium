@@ -322,7 +322,7 @@ bool HungRendererWarningView::Accept(bool window_closing) {
 
   // Start waiting again for responsiveness.
   if (contents_ && contents_->render_view_host())
-    contents_->render_view_host()->ResetHangMonitorTimeout();
+    contents_->render_view_host()->RestartHangMonitorTimeout();
   return true;
 }
 
