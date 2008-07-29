@@ -104,7 +104,7 @@ void DOMUIHost::ProcessDOMUIMessage(const std::string& message,
   // Convert the content JSON into a Value.
   Value* value = NULL;
   if (!content.empty()) {
-    if (!JSONReader::Read(content, &value)) {
+    if (!JSONReader::Read(content, &value, false)) {
       // The page sent us something that we didn't understand.
       // This probably indicates a programming error.
       NOTREACHED();
