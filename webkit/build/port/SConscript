@@ -96,7 +96,11 @@ bindings_perl_modules = env.Glob('$BINDINGS_SCRIPTS_DIR/*.pm')
 
 
 def BindingsEmitter(target, source, env):
-  idl_contents = open(source[0].rfile().abspath, 'r').read()
+  source.append('$BINDINGS_SCRIPT')
+  try:
+    idl_contents = open(source[0].rfile().abspath, 'r').read()
+  except EnvironmentError:
+    return target, source
   idl_contents = re.sub('//[^\\n]*\\n', '', idl_contents)
   interfaces = re.findall('interface\\s*(?:\\[[^]]+\\])?\\s*'
                           '(\\w+)[^{]*[{]', idl_contents)
@@ -107,7 +111,6 @@ def BindingsEmitter(target, source, env):
     new_target.extend([new_cpp, new_h])
     env.Depends(new_cpp, bindings_perl_modules)
     env.Depends(new_h, bindings_perl_modules)
-  source.append('$BINDINGS_SCRIPT')
   return new_target, source
 
 
