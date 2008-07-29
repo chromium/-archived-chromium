@@ -419,7 +419,14 @@ function makeMostVisitedDOM(page) {
       <img class="thumbnail" style="background-image:url(thumbnailurl);" />
     </a>
   */
-  var root = DOM('a', {href:page.url, className:'most-visited-item', title:page.title});
+  var root;
+  if (page.url) {
+    root = DOM('a', {href:page.url, title:page.title});
+  } else {
+    // Something went wrong; don't make it clickable.
+    root = DOM('span');
+  }
+  
 
   /* Create the thumbnail */
   var img_thumbnail = DOM('img', {className:'thumbnail'});
@@ -430,7 +437,12 @@ function makeMostVisitedDOM(page) {
   var div_title = DOM('div', {className:'thumbnail-title'});
   div_title.style.backgroundImage =
       'url("chrome-resource://favicon/' + page.url + '")';
-  div_title.appendChild(document.createTextNode(page.title));
+  if (page.title) {
+    div_title.appendChild(document.createTextNode(page.title));
+  } else {
+    // Make the empty title at least push down the icon.
+    div_title.innerHTML = '&nbsp;';
+  }
 
   root.appendChild(div_title);
   root.appendChild(img_thumbnail);
