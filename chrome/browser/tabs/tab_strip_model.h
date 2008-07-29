@@ -248,8 +248,10 @@ class TabStripModel : public NotificationObserver {
   // Closes the TabContents at the specified index. This causes the TabContents
   // to be destroyed, but it may not happen immediately (e.g. if it's a
   // WebContents).
-  void CloseTabContentsAt(int index) {
-    InternalCloseTabContentsAt(index, true);
+  // Returns true if the TabContents was closed immediately, false if we are
+  // waiting for a response from an onunload handler.
+  bool CloseTabContentsAt(int index) {
+    return InternalCloseTabContentsAt(index, true);
   }
 
   // Replaces the entire state of a the tab at index by switching in a
@@ -426,7 +428,10 @@ class TabStripModel : public NotificationObserver {
   // The boolean parameter create_historical_tab controls whether to
   // record this tab and its history for reopening recently closed
   // tabs.
-  void InternalCloseTabContentsAt(int index, bool create_historical_tab);
+  //
+  // Returns true if the TabContents was closed immediately, false if we are
+  // waiting for the result of an onunload handler.
+  bool InternalCloseTabContentsAt(int index, bool create_historical_tab);
 
   TabContents* GetContentsAt(int index) const;
 

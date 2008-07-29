@@ -461,11 +461,17 @@ void TabStripModel::ExecuteContextMenuCommand(
     case CommandCloseOtherTabs: {
       UserMetrics::RecordAction(L"TabContextMenu_CloseOtherTabs", profile_);
       // Remove tabs before the tab to keep.
-      for (int i = 0; i < context_index; i++)
-        CloseTabContentsAt(0);
+      int index = 0;
+      for (int i = 0; i < context_index; i++) {
+        if (!CloseTabContentsAt(index))
+          ++index;
+      }
       // Remove all tabs after the tab to keep.
-      for (int i = 1, c = count(); i < c; i++)
-        CloseTabContentsAt(1);
+      index = 1;
+      for (int i = 1, c = count(); i < c; i++) {
+        if (!CloseTabContentsAt(index))
+          ++index;
+      }
       break;
     }
     case CommandCloseTabsToRight: {
@@ -513,7 +519,7 @@ void TabStripModel::Observe(NotificationType type,
 ///////////////////////////////////////////////////////////////////////////////
 // TabStripModel, private:
 
-void TabStripModel::InternalCloseTabContentsAt(int index,
+bool TabStripModel::InternalCloseTabContentsAt(int index,
                                                bool create_historical_tab) {
   TabContents* detached_contents = GetContentsAt(index);
 
@@ -526,7 +532,7 @@ void TabStripModel::InternalCloseTabContentsAt(int index,
     // If we hit this code path, the tab had better be a WebContents tab.
     DCHECK(web_contents);
     web_contents->render_view_host()->AttemptToClosePage(false);
-    return;
+    return false;
   }
 
   // TODO: Now that we know the tab has no unload/beforeunload listeners,
@@ -548,6 +554,7 @@ void TabStripModel::InternalCloseTabContentsAt(int index,
     // Closing the TabContents will later call back to us via
     // NotificationObserver and detach it.
   }
+  return true;
 }
 
 TabContents* TabStripModel::GetContentsAt(int index) const {
