@@ -63,7 +63,6 @@ void AeroTooltipManager::OnMouse(UINT u_msg, WPARAM w_param, LPARAM l_param) {
     if (last_mouse_x_ != x || last_mouse_y_ != y) {
       last_mouse_x_ = x;
       last_mouse_y_ = y;
-      HideKeyboardTooltip();
       UpdateTooltip(x, y);
     }
 

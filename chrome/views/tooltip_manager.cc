@@ -31,7 +31,6 @@
 
 #include "chrome/common/gfx/chrome_font.h"
 #include "base/logging.h"
-#include "base/message_loop.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/gfx/url_elider.h"
 #include "chrome/common/win_util.h"
@@ -44,10 +43,6 @@ namespace ChromeViews {
 
 //static
 int TooltipManager::tooltip_height_ = 0;
-
-// Default timeout for the tooltip displayed using keyboard.
-// Timeout is mentioned in milliseconds.
-static const int kDefaultTimeout = 4000;
 
 // Maximum number of lines we allow in the tooltip.
 static const int kMaxLines = 6;
@@ -106,10 +101,7 @@ TooltipManager::TooltipManager(ViewContainer* container, HWND parent)
       tooltip_showing_(false),
       last_tooltip_view_(NULL),
       last_view_out_of_sync_(false),
-      tooltip_width_(0),
-      keyboard_tooltip_hwnd_(NULL),
-#pragma warning(suppress: 4355)
-      keyboard_tooltip_factory_(this) {
+      tooltip_width_(0) {
   DCHECK(container && parent);
   Init();
 }
@@ -117,8 +109,6 @@ TooltipManager::TooltipManager(ViewContainer* container, HWND parent)
 TooltipManager::~TooltipManager() {
   if (tooltip_hwnd_)
     DestroyWindow(tooltip_hwnd_);
-  if (keyboard_tooltip_hwnd_)
-    DestroyWindow(keyboard_tooltip_hwnd_);
 }
 
 void TooltipManager::Init() {
@@ -164,7 +154,7 @@ void TooltipManager::TooltipTextChanged(View* view) {
 
 LRESULT TooltipManager::OnNotify(int w_param, NMHDR* l_param, bool* handled) {
   *handled = false;
-  if (l_param->hwndFrom == tooltip_hwnd_ && keyboard_tooltip_hwnd_ == NULL) {
+  if (l_param->hwndFrom == tooltip_hwnd_) {
     switch (l_param->code) {
       case TTN_GETDISPINFO: {
         if (last_view_out_of_sync_) {
@@ -193,8 +183,7 @@ LRESULT TooltipManager::OnNotify(int w_param, NMHDR* l_param, bool* handled) {
               !tooltip_text_.empty()) {
             // View has a valid tip, copy it into TOOLTIPINFO.
             clipped_text_ = tooltip_text_;
-            TrimTooltipToFit(&clipped_text_, &tooltip_width_, &line_count_,
-                             last_mouse_x_, last_mouse_y_, tooltip_hwnd_);
+            TrimTooltipToFit(&clipped_text_, &tooltip_width_, &line_count_);
             tooltip_info->lpszText = const_cast<WCHAR*>(clipped_text_.c_str());
           } else {
             tooltip_text_.clear();
@@ -290,21 +279,18 @@ int TooltipManager::CalcTooltipHeight() {
 
 void TooltipManager::TrimTooltipToFit(std::wstring* text,
                                       int* max_width,
-                                      int* line_count,
-                                      int position_x,
-                                      int position_y,
-                                      HWND window) {
+                                      int* line_count) {
   *max_width = 0;
   *line_count = 0;
 
   // Determine the available width for the tooltip.
-  CPoint screen_loc(position_x, position_y);
+  CPoint screen_loc(last_mouse_x_, last_mouse_y_);
   View::ConvertPointToScreen(view_container_->GetRootView(), &screen_loc);
   gfx::Rect monitor_bounds =
       win_util::GetMonitorBoundsForRect(gfx::Rect(screen_loc.x, screen_loc.y,
                                                   0, 0));
   RECT tooltip_margin;
-  SendMessage(window, TTM_GETMARGIN, 0, (LPARAM)&tooltip_margin);
+  SendMessage(tooltip_hwnd_, TTM_GETMARGIN, 0, (LPARAM)&tooltip_margin);
   const int available_width = monitor_bounds.width() - tooltip_margin.left -
       tooltip_margin.right;
   if (available_width <= 0)
@@ -366,7 +352,6 @@ void TooltipManager::OnMouse(UINT u_msg, WPARAM w_param, LPARAM l_param) {
   if (u_msg != WM_MOUSEMOVE || last_mouse_x_ != x || last_mouse_y_ != y) {
     last_mouse_x_ = x;
     last_mouse_y_ = y;
-    HideKeyboardTooltip();
     UpdateTooltip(x, y);
   }
   // Forward the message onto the tooltip.
@@ -376,72 +361,6 @@ void TooltipManager::OnMouse(UINT u_msg, WPARAM w_param, LPARAM l_param) {
   msg.wParam = w_param;
   msg.lParam = l_param;
   SendMessage(tooltip_hwnd_, TTM_RELAYEVENT, 0, (LPARAM)&msg);
-}
-
-void TooltipManager::ShowKeyboardTooltip(View* focused_view) {
-  if (tooltip_showing_) {
-    SendMessage(tooltip_hwnd_, TTM_POP, 0, 0);
-    tooltip_text_.clear();
-  }
-  HideKeyboardTooltip();
-  std::wstring tooltip_text;
-  if (!focused_view->GetTooltipText(0, 0, &tooltip_text))
-    return ;
-  CRect bounds;
-  focused_view->GetBounds(&bounds);
-  CPoint screen_point;
-  focused_view->ConvertPointToScreen(focused_view, &screen_point);
-  CPoint relative_point_coordinates;
-  focused_view->ConvertPointToViewContainer(focused_view,
-                                            &relative_point_coordinates);
-  keyboard_tooltip_hwnd_ = CreateWindowEx(
-      WS_EX_TRANSPARENT | l10n_util::GetExtendedTooltipStyles(),
-      TOOLTIPS_CLASS, NULL, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL);
-  SendMessage(keyboard_tooltip_hwnd_, TTM_SETMAXTIPWIDTH, 0,
-              std::numeric_limits<short>::max());
-  int tooltip_width;
-  int line_count;
-  TrimTooltipToFit(&tooltip_text, &tooltip_width, &line_count,
-                   relative_point_coordinates.x, relative_point_coordinates.y,
-                   keyboard_tooltip_hwnd_);
-  TOOLINFO keyboard_toolinfo;
-  memset(&keyboard_toolinfo, 0, sizeof(keyboard_toolinfo));
-  keyboard_toolinfo.cbSize = sizeof(keyboard_toolinfo);
-  keyboard_toolinfo.hwnd = parent_;
-  keyboard_toolinfo.uFlags = TTF_TRACK | TTF_TRANSPARENT | TTF_IDISHWND ;
-  keyboard_toolinfo.lpszText = const_cast<WCHAR*>(tooltip_text.c_str());
-  SendMessage(keyboard_tooltip_hwnd_, TTM_ADDTOOL, 0,
-              reinterpret_cast<LPARAM>(&keyboard_toolinfo));
-  SendMessage(keyboard_tooltip_hwnd_, TTM_TRACKACTIVATE,  TRUE,
-              reinterpret_cast<LPARAM>(&keyboard_toolinfo));
-  if (!tooltip_height_)
-    tooltip_height_ = CalcTooltipHeight();
-  RECT rect_bounds = {screen_point.x, screen_point.y + bounds.Height(),
-                      screen_point.x + tooltip_width,
-                      screen_point.y + bounds.Height() +
-                      line_count * tooltip_height_ };
-  gfx::Rect monitor_bounds =
-      win_util::GetMonitorBoundsForRect(gfx::Rect(rect_bounds));
-  rect_bounds = gfx::Rect(rect_bounds).AdjustToFit(monitor_bounds).ToRECT();
-  ::SetWindowPos(keyboard_tooltip_hwnd_, NULL, rect_bounds.left,
-                 rect_bounds.top, 0, 0,
-                 SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSIZE);
-  MessageLoop::current()->PostDelayedTask(FROM_HERE,
-      keyboard_tooltip_factory_.NewRunnableMethod(
-      &TooltipManager::DestroyKeyboardTooltipWindow, keyboard_tooltip_hwnd_),
-      kDefaultTimeout);
-}
-
-void TooltipManager::HideKeyboardTooltip() {
-  if (keyboard_tooltip_hwnd_ != NULL) {
-    SendMessage(keyboard_tooltip_hwnd_, WM_CLOSE, 0, 0);
-    keyboard_tooltip_hwnd_ = NULL;
-  }
-}
-
-void TooltipManager::DestroyKeyboardTooltipWindow(HWND window_to_destroy) {
-  if (keyboard_tooltip_hwnd_ == window_to_destroy)
-    HideKeyboardTooltip();
 }
 
 } // namespace ChromeViews

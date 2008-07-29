@@ -92,12 +92,6 @@ class TooltipManager {
   // Invoked when the tooltip text changes for the specified views.
   void TooltipTextChanged(View* view);
 
-  // Invoked when toolbar icon gets focus.
-  void ShowKeyboardTooltip(View* view);
-
-  // Invoked when toolbar loses focus.
-  void HideKeyboardTooltip();
-
   // Message handlers. These forward to the tooltip control.
   virtual void OnMouse(UINT u_msg, WPARAM w_param, LPARAM l_param);
   LRESULT OnNotify(int w_param, NMHDR* l_param, bool* handled);
@@ -138,13 +132,7 @@ class TooltipManager {
   // of text in the tooltip.
   void TrimTooltipToFit(std::wstring* text,
                         int* width,
-                        int* line_count,
-                        int position_x,
-                        int position_y,
-                        HWND window);
-
-  // Invoked when the timer elapses and tooltip has to be destroyed.
-  void DestroyKeyboardTooltipWindow(HWND window_to_destroy);
+                        int* line_count);
 
   // Hosting view container.
   ViewContainer* view_container_;
@@ -172,13 +160,6 @@ class TooltipManager {
 
   // Height for a tooltip; lazily calculated.
   static int tooltip_height_;
-
-  // control window for tooltip displayed using keyboard.
-  HWND keyboard_tooltip_hwnd_;
-
-  // Used to register DestroyTooltipWindow function with postdelayedtask
-  // function.
-  ScopedRunnableMethodFactory<TooltipManager> keyboard_tooltip_factory_;
 
   DISALLOW_EVIL_CONSTRUCTORS(TooltipManager);
 };
