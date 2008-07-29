@@ -72,7 +72,7 @@ class JSONStringValueSerializer : public ValueSerializer {
   void set_pretty_print(bool new_value) { pretty_print_ = new_value; }
   bool pretty_print() { return pretty_print_; }
 
-  bool set_allow_trailing_comma(bool new_value) {
+  void set_allow_trailing_comma(bool new_value) {
     allow_trailing_comma_ = new_value;
   }
 

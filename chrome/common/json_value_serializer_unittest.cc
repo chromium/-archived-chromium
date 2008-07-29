@@ -187,6 +187,23 @@ TEST(JSONValueSerializerTest, HexStrings) {
   delete deserial_root;
 }
 
+TEST(JSONValueSerializerTest, AllowTrailingComma) {
+  Value* root = NULL;
+  Value* root_expected = NULL;
+  std::string test_with_commas("{\"key\": [true,],}");
+  std::string test_no_commas("{\"key\": [true]}");
+
+  JSONStringValueSerializer serializer(test_with_commas);
+  serializer.set_allow_trailing_comma(true);
+  JSONStringValueSerializer serializer_expected(test_no_commas);
+  ASSERT_TRUE(serializer.Deserialize(&root));
+  ASSERT_TRUE(serializer_expected.Deserialize(&root_expected));
+  ASSERT_TRUE(root->Equals(root_expected));
+
+  delete root;
+  delete root_expected;
+}
+
 namespace {
 
 void ValidateJsonList(const std::string& json) {
