@@ -155,7 +155,7 @@ class EntryImpl : public Entry, public base::RefCounted<EntryImpl> {
   CacheEntryBlock entry_;     // Key related information for this entry.
   CacheRankingsBlock node_;   // Rankings related information for this entry.
   BackendImpl* backend_;      // Back pointer to the cache.
-  scoped_ptr<char> user_buffers_[2];  // Store user data.
+  scoped_array<char> user_buffers_[2];  // Store user data.
   scoped_refptr<File> files_[3];  // Files to store external user data and key.
   int unreported_size_[2];    // Bytes not reported yet to the backend.
   bool doomed_;               // True if this entry was removed from the cache.

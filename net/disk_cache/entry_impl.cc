@@ -531,7 +531,7 @@ bool EntryImpl::MoveToLocalBuffer(int index) {
   Addr address(entry_.Data()->data_addr[index]);
   DCHECK(!user_buffers_[index].get());
   DCHECK(address.is_initialized());
-  scoped_ptr<char> buffer(new char[kMaxBlockSize]);
+  scoped_array<char> buffer(new char[kMaxBlockSize]);
 
   File* file = GetBackingFile(address, index);
   size_t len = entry_.Data()->data_size[index];
