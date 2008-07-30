@@ -385,10 +385,6 @@ int HttpProxyService::ReconsiderProxyAfterError(const GURL& url,
                                                 HttpProxyInfo* result,
                                                 CompletionCallback* callback,
                                                 PacRequest** pac_request) {
-  bool was_direct = result->is_direct();
-  if (!was_direct && result->Fallback(&http_proxy_retry_info_))
-    return OK;
-
   // Check to see if we have a new config since ResolveProxy was called.  We
   // want to re-run ResolveProxy in two cases: 1) we have a new config, or 2) a
   // direct connection failed and we never tried the current config.
@@ -407,8 +403,18 @@ int HttpProxyService::ReconsiderProxyAfterError(const GURL& url,
       re_resolve = true;
     }
   }
-  if (re_resolve)
+  if (re_resolve) {
+    // If we have a new config or the config was never tried, we delete the
+    // list of bad proxies and we try again.
+    http_proxy_retry_info_.clear();
     return ResolveProxy(url, result, callback, pac_request);
+  }
+
+  // We don't have new proxy settings to try, fallback to the next proxy
+  // in the list.
+  bool was_direct = result->is_direct();
+  if (!was_direct && result->Fallback(&http_proxy_retry_info_))
+    return OK;
 
   if (!config_.auto_detect && !config_.proxy_server.empty()) {
     // If auto detect is on, then we should try a DIRECT connection
@@ -452,6 +458,9 @@ void HttpProxyService::UpdateConfig() {
 
   config_ = latest;
   config_is_bad_ = false;
+
+  // We have a new config, we should clear the list of bad proxies.
+  http_proxy_retry_info_.clear();
 }
 
 bool HttpProxyService::ShouldBypassProxyForURL(const GURL& url) {
