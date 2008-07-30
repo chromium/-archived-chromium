@@ -152,9 +152,6 @@ class HistoryDatabase : public DownloadDatabase,
   // in on-demand (which causes lots of seeks).
   void PrimeCache();
 
-  // Sets the fields of the supplied entry from the starred select statement.
-  void FillInStarredEntry(SQLStatement* s, StarredEntry* entry);
-
   // Migration -----------------------------------------------------------------
 
   // Makes sure the version is up-to-date, updating if necessary. If the
