@@ -77,6 +77,7 @@ void SetOverrideHomePage(const CommandLine& command_line, PrefService* prefs) {
         browser_directory,
         command_line.GetSwitchValue(switches::kHomePage));
     prefs->transient()->SetString(prefs::kHomePage, new_homepage);
+    prefs->transient()->SetBoolean(prefs::kHomePageIsNewTabPage, false);
   }
 }
 

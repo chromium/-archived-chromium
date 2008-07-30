@@ -34,6 +34,9 @@ namespace prefs {
 // *************** PROFILE PREFS ***************
 // These are attached to the user profile
 
+// A boolean specifying whether the New Tab page is the home page or not.
+const wchar_t kHomePageIsNewTabPage[] = L"homepage_is_newtabpage";
+
 // This is the URL of the page to load when opening new tabs.
 const wchar_t kHomePage[] = L"homepage";
 

@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_BROWSER_H__
-#define CHROME_BROWSER_BROWSER_H__
+#ifndef CHROME_BROWSER_BROWSER_H_
+#define CHROME_BROWSER_BROWSER_H_
 
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_type.h"
@@ -404,6 +404,10 @@ class Browser : public TabStripModelDelegate,
   // Returns the root view for this browser.
   ChromeViews::RootView* GetRootView() const;
 
+  // Returns what the user's home page is, or the new tab page if the home page
+  // has not been set.
+  GURL GetHomePage();
+
   // Called when this window gains or loses window-manager-level activation.
   // is_active is whether or not the Window is now active.
   void WindowActivationChanged(bool is_active);
@@ -634,4 +638,4 @@ class Browser : public TabStripModelDelegate,
   DISALLOW_EVIL_CONSTRUCTORS(Browser);
 };
 
-#endif  // CHROME_BROWSER_BROWSER_H__
+#endif  // CHROME_BROWSER_BROWSER_H_

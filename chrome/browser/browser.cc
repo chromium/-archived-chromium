@@ -41,6 +41,7 @@
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/browser_url_handler.h"
 #include "chrome/browser/cert_store.h"
+#include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/frame_util.h"
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/navigation_entry.h"
@@ -194,6 +195,7 @@ void Browser::RegisterPrefs(PrefService* prefs) {
 // static
 void Browser::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterStringPref(prefs::kHomePage, L"chrome-internal:");
+  prefs->RegisterBooleanPref(prefs::kHomePageIsNewTabPage, true);
   prefs->RegisterIntegerPref(prefs::kCookieBehavior,
       CookiePolicy::ALLOW_ALL_COOKIES);
   prefs->RegisterBooleanPref(prefs::kShowHomeButton, false);
@@ -371,6 +373,20 @@ void Browser::CloseFrame() {
 
 ChromeViews::View* Browser::GetToolbar() {
   return &toolbar_;
+}
+
+GURL Browser::GetHomePage() {
+  if (profile_->GetPrefs()->GetBoolean(prefs::kHomePageIsNewTabPage)) {
+    return NewTabUIURL();
+  } else {
+    GURL home_page = GURL(URLFixerUpper::FixupURL(
+        profile_->GetPrefs()->GetString(prefs::kHomePage),
+        std::wstring()));
+    if (!home_page.is_valid())
+      return NewTabUIURL();
+
+    return home_page;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -619,7 +635,8 @@ void Browser::OpenURLFromTab(TabContents* source,
   }
 
   if (disposition != NEW_BACKGROUND_TAB && source_tab_was_frontmost) {
-    // Give the focus to the newly navigated tab, if the source tab was front-most
+    // Give the focus to the newly navigated tab, if the source tab was
+    // front-most.
     new_contents->Focus();
   }
 }
@@ -790,7 +807,7 @@ void Browser::Observe(NotificationType type,
       }
     }
   } else if (type == NOTIFY_WEB_CONTENTS_DISCONNECTED) {
-    // Need to do this asynchronously as it will close the tab, which is 
+    // Need to do this asynchronously as it will close the tab, which is
     // currently on the call stack above us.
     MessageLoop::current()->PostTask(FROM_HERE,
         method_factory_.NewRunnableMethod(&Browser::ClearUnloadStateOnCrash,
@@ -1161,7 +1178,7 @@ TabContents* Browser::AddTabWithURL(
 
   GURL url_to_load = url;
   if (url_to_load.is_empty())
-    url_to_load = GURL(profile_->GetPrefs()->GetString(prefs::kHomePage));
+    url_to_load = GetHomePage();
   TabContents* contents =
       CreateTabContentsForURL(url_to_load, profile_, transition, false,
                               instance);
@@ -1550,7 +1567,7 @@ NavigationController* Browser::BuildRestoredNavigationController(
     // We should have a valid URL, if we don't fall back to the default.
     GURL url = navigations[selected_navigation].url;
     if (url.is_empty())
-      url = GURL(profile_->GetPrefs()->GetString(prefs::kHomePage));
+      url = GetHomePage();
 
     // Create a NavigationController. This constructor creates the appropriate
     // set of TabContents.

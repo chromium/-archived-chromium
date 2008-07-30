@@ -847,12 +847,7 @@ void Browser::Reload() {
 }
 
 void Browser::Home() {
-  GURL homepage_url(URLFixerUpper::FixupURL(
-      profile_->GetPrefs()->GetString(prefs::kHomePage),
-      std::wstring()));
-  if (!homepage_url.is_valid())
-    homepage_url = NewTabUIURL();
-
+  GURL homepage_url = GetHomePage();
   GetSelectedTabContents()->controller()->LoadURL(
       homepage_url, PageTransition::AUTO_BOOKMARK);
 }

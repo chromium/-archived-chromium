@@ -29,12 +29,13 @@
 
 // Constants for the names of various preferences, for easier changing.
 
-#ifndef CHROME_COMMON_PREF_NAMES_H__
-#define CHROME_COMMON_PREF_NAMES_H__
+#ifndef CHROME_COMMON_PREF_NAMES_H_
+#define CHROME_COMMON_PREF_NAMES_H_
 
 namespace prefs {
 
 // Profile prefs
+extern const wchar_t kHomePageIsNewTabPage[];
 extern const wchar_t kHomePage[];
 extern const wchar_t kProfileName[];
 extern const wchar_t kProfileNickname[];
@@ -164,4 +165,4 @@ extern const wchar_t kNumFoldersInOtherBookmarkFolder[];
 extern const wchar_t kNumKeywords[];
 }
 
-#endif  // CHROME_COMMON_PREF_NAMES_H__
+#endif  // CHROME_COMMON_PREF_NAMES_H_
