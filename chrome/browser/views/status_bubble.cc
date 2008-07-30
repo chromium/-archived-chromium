@@ -505,8 +505,8 @@ void StatusBubble::Init() {
                                 WS_EX_TRANSPARENT |
                                 l10n_util::GetExtendedTooltipStyles());
     popup_->SetLayeredAlpha(0x00);
-    popup_->Init(frame_->GetHWND(), rc, view_,
-                 false);
+    popup_->Init(frame_->GetHWND(), rc, false);
+    popup_->SetContentsView(view_);
     Reposition();
     popup_->ShowWindow(SW_SHOWNOACTIVATE);
   }

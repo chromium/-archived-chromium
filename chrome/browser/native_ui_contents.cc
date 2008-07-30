@@ -173,7 +173,7 @@ NativeUIContents::~NativeUIContents() {
 void NativeUIContents::CreateView(HWND parent_hwnd,
                                   const gfx::Rect& initial_bounds) {
   set_delete_on_destroy(false);
-  HWNDViewContainer::Init(parent_hwnd, initial_bounds, NULL, false);
+  HWNDViewContainer::Init(parent_hwnd, initial_bounds, false);
 }
 
 LRESULT NativeUIContents::OnCreate(LPCREATESTRUCT create_struct) {

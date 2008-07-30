@@ -68,7 +68,8 @@ DraggedTabView::DraggedTabView(TabContents* datasource,
   container_->set_window_ex_style(
     WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TOOLWINDOW);
   container_->set_can_update_layered_window(false);
-  container_->Init(NULL, gfx::Rect(0, 0, 0, 0), this, false);
+  container_->Init(NULL, gfx::Rect(0, 0, 0, 0), false);
+  container_->SetContentsView(this);
 }
 
 DraggedTabView::~DraggedTabView() {

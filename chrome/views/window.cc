@@ -116,18 +116,18 @@ void Window::Init(HWND parent, const gfx::Rect& bounds) {
   // associated with the root of the window tree...
   if (use_client_view_) {
     View* contents_view = window_delegate_->GetContentsView();
-    if (!contents_view)
-      contents_view = new View;
+    DCHECK(contents_view);
     client_view_ = new ClientView(this, contents_view);
     // A Window almost always owns its own focus manager, even if it's a child
     // window. File a bug if you find a circumstance where this isn't the case
     // and we can adjust this API.  Note that if this is not the case, you'll
     // also have to change SetInitialFocus() as it relies on the window's focus
     // manager.
-    HWNDViewContainer::Init(parent, bounds, client_view_, true);
+    HWNDViewContainer::Init(parent, bounds, true);
+    SetContentsView(client_view_);
   } else {
-    HWNDViewContainer::Init(parent, bounds,
-                            window_delegate_->GetContentsView(), true);
+    HWNDViewContainer::Init(parent, bounds, true);
+    SetContentsView(window_delegate_->GetContentsView());
   }
   win_util::SetWindowUserData(GetHWND(), this);
   

@@ -678,7 +678,8 @@ class MenuHost : public HWNDViewContainer {
             const gfx::Rect& bounds,
             View* contents_view,
             bool do_capture) {
-    HWNDViewContainer::Init(parent, bounds, contents_view, true);
+    HWNDViewContainer::Init(parent, bounds, true);
+    SetContentsView(contents_view);
     // We don't want to take focus away from the hosting window.
     ShowWindow(SW_SHOWNA);
     owns_capture_ = do_capture;

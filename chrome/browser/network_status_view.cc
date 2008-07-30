@@ -147,7 +147,8 @@ void NetworkStatusView::OnCreate(const CRect& rect) {
   // Graphical report of page loading
   page_load_view_ = new PageLoadView();
   page_view_container_ = new ChromeViews::HWNDViewContainer;
-  page_view_container_->Init(m_hWnd, gfx::Rect(rect), page_load_view_, false);
+  page_view_container_->Init(m_hWnd, gfx::Rect(rect), false);
+  page_view_container_->SetContentsView(page_load_view_);
 
   HideProfilingResults();
 }

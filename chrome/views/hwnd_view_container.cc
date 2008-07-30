@@ -169,7 +169,6 @@ HWNDViewContainer::~HWNDViewContainer() {
 
 void HWNDViewContainer::Init(HWND parent,
                              const gfx::Rect& bounds,
-                             View* contents_view,
                              bool has_own_focus_manager) {
   toplevel_ = parent == NULL;
 
@@ -207,20 +206,6 @@ void HWNDViewContainer::Init(HWND parent,
     FocusManager::InstallFocusSubclass(hwnd_, NULL);
   }
 
-  // The RootView is set up _after_ the window is created so that its
-  // ViewContainer pointer is valid.
-  if (contents_view) {
-    // The FillLayout only applies when we have been provided with a single
-    // contents view. If the user intends to manage the RootView themselves,
-    // they are responsible for providing their own LayoutManager, since
-    // FillLayout is only capable of laying out a single child view.
-    root_view_->SetLayoutManager(new FillLayout());
-    root_view_->AddChildView(contents_view);
-  }
-
-  // Manually size the window here to ensure the root view is laid out.
-  ChangeSize(0, CSize(bounds.width(), bounds.height()));
-
   // Sets the RootView as a property, so the automation can introspect windows.
   SetRootViewForHWND(hwnd_, root_view_.get());
 
@@ -245,6 +230,21 @@ void HWNDViewContainer::Init(HWND parent,
   // Bug 964884: detach the IME attached to this window.
   // We should attach IMEs only when we need to input CJK strings.
   ::ImmAssociateContextEx(GetHWND(), NULL, 0);
+}
+
+void HWNDViewContainer::SetContentsView(View* view) {
+  DCHECK(view && hwnd_) << "Can't be called until after the HWND is created!";
+  // The ContentsView must be set up _after_ the window is created so that its
+  // ViewContainer pointer is valid.
+  root_view_->SetLayoutManager(new FillLayout);
+  if (root_view_->GetChildViewCount() != 0)
+    root_view_->RemoveAllChildViews(true);
+  root_view_->AddChildView(view);
+
+  // Manually size the window here to ensure the root view is laid out.
+  RECT wr;
+  GetWindowRect(&wr);
+  ChangeSize(0, CSize(wr.right - wr.left, wr.bottom - wr.top));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

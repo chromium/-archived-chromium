@@ -141,7 +141,8 @@ class BorderView : public ChromeViews::NativeControl {
                                         parent_container, NULL, NULL, NULL);
     // Create the view container which is a child of the TabControl.
     view_container_ = new ChromeViews::HWNDViewContainer();
-    view_container_->Init(tab_control, gfx::Rect(), child_, false);
+    view_container_->Init(tab_control, gfx::Rect(), false);
+    view_container_->SetContentsView(child_);
     view_container_->SetFocusTraversableParentView(this);
     ResizeContents(tab_control);
     return tab_control;

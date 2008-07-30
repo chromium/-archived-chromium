@@ -1264,8 +1264,8 @@ TabStrip::DropInfo::DropInfo(int drop_index, bool drop_before, bool point_down)
   arrow_window->Init(
       NULL,
       gfx::Rect(0, 0, drop_indicator_width, drop_indicator_height),
-      arrow_view,
       true);
+  arrow_window->SetContentsView(arrow_view);
 }
 
 TabStrip::DropInfo::~DropInfo() {

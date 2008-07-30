@@ -383,10 +383,10 @@ TEST_F(ViewTest, Painting) {
                             RDW_UPDATENOW | RDW_INVALIDATE | RDW_ALLCHILDREN);
   bool empty_paint = paint_window.empty_paint();
 
-  ChromeViews::Window window;
+  ChromeViews::HWNDViewContainer window;
   window.set_delete_on_destroy(false);
   window.set_window_style(WS_OVERLAPPEDWINDOW);
-  window.Init(NULL, gfx::Rect(50, 50, 650, 650), NULL, NULL);
+  window.Init(NULL, gfx::Rect(50, 50, 650, 650), NULL);
   RootView* root = window.GetRootView();
 
   TestView* v1 = new TestView();

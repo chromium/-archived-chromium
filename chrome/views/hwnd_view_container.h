@@ -112,8 +112,13 @@ class HWNDViewContainer : public ViewContainer,
   // the window.
   void Init(HWND parent,
             const gfx::Rect& bounds,
-            View* contents_view,
             bool has_own_focus_manager);
+
+  // Sets the specified view as the contents of this HWNDViewContainer. There
+  // can only be one contnets view child of this ViewContainer's RootView. This
+  // view is sized to fit the entire size of the RootView. The RootView takes
+  // ownership of this View, unless it is set as not being parent-owned.
+  virtual void SetContentsView(View* view);
 
   // Sets the window styles. This is ONLY used when the window is created.
   // In other words, if you invoke this after invoking Init, nothing happens.

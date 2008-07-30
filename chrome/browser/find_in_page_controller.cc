@@ -85,7 +85,8 @@ FindInPageController::FindInPageController(TabContents* parent_tab,
   gfx::Rect find_dlg_rect = GetDialogPosition(gfx::Rect());
   set_window_style(WS_CHILD | WS_CLIPCHILDREN);
   set_window_ex_style(WS_EX_TOPMOST);
-  HWNDViewContainer::Init(parent_hwnd, find_dlg_rect, view_, false);
+  HWNDViewContainer::Init(parent_hwnd, find_dlg_rect, false);
+  SetContentsView(view_);
 
   // Start the process of animating the opening of the window.
   animation_.reset(new SlideAnimation(this));
