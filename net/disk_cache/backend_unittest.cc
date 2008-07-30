@@ -111,6 +111,9 @@ class DiskCacheBackendTest : public DiskCacheTestBase {
   void BackendDoomRecent();
   void BackendDoomBetween();
   void BackendDoomAll();
+  void BackendInvalidRankings();
+  void BackendDisable();
+  void BackendDisable2();
 };
 
 void DiskCacheBackendTest::BackendBasics() {
@@ -809,71 +812,98 @@ TEST(DiskCacheTest, Backend_InvalidRankings) {
 }
 
 // If the LRU is corrupt, we delete the cache.
-TEST(DiskCacheTest, Backend_InvalidRankings2) {
-  ASSERT_TRUE(CopyTestCache(L"bad_rankings"));
-  std::wstring path = GetCachePath();
-  disk_cache::Backend* cache = disk_cache::CreateCacheBackend(path, false, 0);
-  ASSERT_TRUE(NULL != cache);
-
+void DiskCacheBackendTest::BackendInvalidRankings() {
   disk_cache::Entry* entry;
   void* iter = NULL;
-  ASSERT_TRUE(cache->OpenNextEntry(&iter, &entry));
+  ASSERT_TRUE(cache_->OpenNextEntry(&iter, &entry));
   entry->Close();
-  EXPECT_EQ(2, cache->GetEntryCount());
+  EXPECT_EQ(2, cache_->GetEntryCount());
 
-  EXPECT_FALSE(cache->OpenNextEntry(&iter, &entry));
-  EXPECT_EQ(0, cache->GetEntryCount());
+  EXPECT_FALSE(cache_->OpenNextEntry(&iter, &entry));
+  EXPECT_EQ(0, cache_->GetEntryCount());
+}
 
-  delete cache;
-  EXPECT_TRUE(CheckCacheIntegrity(path));
+TEST_F(DiskCacheBackendTest, InvalidRankingsSuccess) {
+  ASSERT_TRUE(CopyTestCache(L"bad_rankings"));
+  DisableFirstCleanup();
+  SetDirectMode();
+  InitCache();
+  BackendInvalidRankings();
+}
+
+TEST_F(DiskCacheBackendTest, InvalidRankingsFailure) {
+  ASSERT_TRUE(CopyTestCache(L"bad_rankings"));
+  DisableFirstCleanup();
+  SetDirectMode();
+  InitCache();
+  SetTestMode();  // Fail cache reinitialization.
+  BackendInvalidRankings();
 }
 
 // If the LRU is corrupt and we have open entries, we disable the cache.
-TEST(DiskCacheTest, Backend_Disable) {
-  ASSERT_TRUE(CopyTestCache(L"bad_rankings"));
-  std::wstring path = GetCachePath();
-  disk_cache::Backend* cache = disk_cache::CreateCacheBackend(path, false, 0);
-  ASSERT_TRUE(NULL != cache);
-
+void DiskCacheBackendTest::BackendDisable() {
   disk_cache::Entry *entry1, *entry2;
   void* iter = NULL;
-  ASSERT_TRUE(cache->OpenNextEntry(&iter, &entry1));
+  ASSERT_TRUE(cache_->OpenNextEntry(&iter, &entry1));
 
-  EXPECT_FALSE(cache->OpenNextEntry(&iter, &entry2));
-  EXPECT_EQ(2, cache->GetEntryCount());
-  EXPECT_FALSE(cache->CreateEntry("Something new", &entry2));
+  EXPECT_FALSE(cache_->OpenNextEntry(&iter, &entry2));
+  EXPECT_EQ(2, cache_->GetEntryCount());
+  EXPECT_FALSE(cache_->CreateEntry("Something new", &entry2));
 
   entry1->Close();
 
-  EXPECT_EQ(0, cache->GetEntryCount());
+  EXPECT_EQ(0, cache_->GetEntryCount());
+}
 
-  delete cache;
-  EXPECT_TRUE(CheckCacheIntegrity(path));
+TEST_F(DiskCacheBackendTest, DisableSuccess) {
+  ASSERT_TRUE(CopyTestCache(L"bad_rankings"));
+  DisableFirstCleanup();
+  SetDirectMode();
+  InitCache();
+  BackendDisable();
+}
+
+TEST_F(DiskCacheBackendTest, DisableFailure) {
+  ASSERT_TRUE(CopyTestCache(L"bad_rankings"));
+  DisableFirstCleanup();
+  SetDirectMode();
+  InitCache();
+  SetTestMode();  // Fail cache reinitialization.
+  BackendDisable();
 }
 
 // This is another type of corruption on the LRU; disable the cache.
-TEST(DiskCacheTest, Backend_Disable2) {
-  ASSERT_TRUE(CopyTestCache(L"list_loop"));
-  std::wstring path = GetCachePath();
-  disk_cache::Backend* cache = disk_cache::CreateCacheBackend(path, false, 0);
-  ASSERT_TRUE(NULL != cache);
-
-  EXPECT_EQ(8, cache->GetEntryCount());
+void DiskCacheBackendTest::BackendDisable2() {
+  EXPECT_EQ(8, cache_->GetEntryCount());
 
   disk_cache::Entry* entry;
   void* iter = NULL;
   int count = 0;
-  while (cache->OpenNextEntry(&iter, &entry)) {
+  while (cache_->OpenNextEntry(&iter, &entry)) {
     ASSERT_TRUE(NULL != entry);
     entry->Close();
     count++;
     ASSERT_LT(count, 9);
   };
 
-  EXPECT_EQ(0, cache->GetEntryCount());
+  EXPECT_EQ(0, cache_->GetEntryCount());
+}
 
-  delete cache;
-  EXPECT_TRUE(CheckCacheIntegrity(path));
+TEST_F(DiskCacheBackendTest, DisableSuccess2) {
+  ASSERT_TRUE(CopyTestCache(L"list_loop"));
+  DisableFirstCleanup();
+  SetDirectMode();
+  InitCache();
+  BackendDisable2();
+}
+
+TEST_F(DiskCacheBackendTest, DisableFailure2) {
+  ASSERT_TRUE(CopyTestCache(L"list_loop"));
+  DisableFirstCleanup();
+  SetDirectMode();
+  InitCache();
+  SetTestMode();  // Fail cache reinitialization.
+  BackendDisable2();
 }
 
 TEST(DiskCacheTest, Backend_UsageStats) {

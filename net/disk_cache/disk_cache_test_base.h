@@ -46,11 +46,13 @@ class DiskCacheTestBase : public testing::Test {
  protected:
   DiskCacheTestBase()
       : cache_(NULL), cache_impl_(NULL), mem_cache_(NULL), mask_(0), size_(0),
-        memory_only_(false), implementation_(false), force_creation_(false) {}
+        memory_only_(false), implementation_(false), force_creation_(false),
+        first_cleanup_(true) {}
 
   void InitCache();
   virtual void TearDown();
   void SimulateCrash();
+  void SetTestMode();
 
   void SetMemoryOnlyMode() {
     memory_only_ = true;
@@ -72,6 +74,10 @@ class DiskCacheTestBase : public testing::Test {
     force_creation_ = true;
   }
 
+  void DisableFirstCleanup() {
+    first_cleanup_ = false;
+  }
+
   // cache_ will always have a valid object, regardless of how the cache was
   // initialized. The implementation pointers can be NULL.
   disk_cache::Backend* cache_;
@@ -83,6 +89,7 @@ class DiskCacheTestBase : public testing::Test {
   bool memory_only_;
   bool implementation_;
   bool force_creation_;
+  bool first_cleanup_;
 
  private:
   void InitMemoryCache();
