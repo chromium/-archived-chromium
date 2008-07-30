@@ -90,7 +90,7 @@ ResultCode BrokerServicesBase::Init() {
   no_targets_ = ::CreateEventW(NULL, TRUE, FALSE, NULL);
 
   job_thread_ = ::CreateThread(NULL, 0,  // Default security and stack.
-                                 TargetEventsThread, this, NULL, NULL);
+                               TargetEventsThread, this, NULL, NULL);
   if (NULL == job_thread_)
     return SBOX_ERROR_GENERIC;
 
@@ -103,6 +103,9 @@ ResultCode BrokerServicesBase::Init() {
 // DLL_PROCESS_DETACH in other words, holding the loader lock, so we cannot
 // wait for threads here.
 BrokerServicesBase::~BrokerServicesBase() {
+  // If there is no port Init() was never called successfully.
+  if (!job_port_)
+    return;
   // Closing the port causes, that no more Job notifications are delivered to
   // the worker thread and also causes the thread to exit. This is what we
   // want to do since we are going to close all outstanding Jobs and notifying
