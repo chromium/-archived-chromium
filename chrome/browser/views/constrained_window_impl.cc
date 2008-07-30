@@ -52,6 +52,7 @@
 #include "chrome/views/button.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/hwnd_view.h"
+#include "chrome/views/non_client_view.h"
 #include "generated_resources.h"
 #include "net/base/net_util.h"
 
@@ -225,7 +226,7 @@ ChromeFont OTRWindowResources::title_font_;
 // ConstrainedWindowNonClientView
 
 class ConstrainedWindowNonClientView
-    : public ChromeViews::CustomFrameWindow::NonClientView,
+    : public ChromeViews::NonClientView,
       public ChromeViews::BaseButton::ButtonListener,
       public LocationBarView::Delegate,
       public Task {
@@ -254,13 +255,13 @@ class ConstrainedWindowNonClientView
   // forces a repaint of the titlebar.
   void SetShowThrobber(bool show_throbber);
 
-  // Overridden from ChromeViews::CustomFrameWindow::NonClientView:
+  // Overridden from ChromeViews::NonClientView:
   virtual void Init(ChromeViews::ClientView* client_view);
   virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
   virtual gfx::Size CalculateWindowSizeForClientSize(int width,
                                                      int height) const;
   virtual CPoint GetSystemMenuPoint() const;
-  virtual int HitTest(const gfx::Point& point);
+  virtual int NonClientHitTest(const gfx::Point& point);
   virtual void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask);
   virtual void EnableClose(bool enable);
 
@@ -537,8 +538,7 @@ void ConstrainedWindowNonClientView::Run() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ConstrainedWindowNonClientView,
-//     ChromeViews::CustomFrameWindow::NonClientView implementation:
+// ConstrainedWindowNonClientView, ChromeViews::NonClientView implementation:
 
 void ConstrainedWindowNonClientView::Init(
     ChromeViews::ClientView* client_view) {
@@ -572,7 +572,7 @@ CPoint ConstrainedWindowNonClientView::GetSystemMenuPoint() const {
   return system_menu_point;
 }
 
-int ConstrainedWindowNonClientView::HitTest(const gfx::Point& point) {
+int ConstrainedWindowNonClientView::NonClientHitTest(const gfx::Point& point) {
   CRect bounds;
   CPoint test_point = point.ToPOINT();
 
@@ -596,59 +596,18 @@ int ConstrainedWindowNonClientView::HitTest(const gfx::Point& point) {
   if (bounds.PtInRect(test_point))
     return HTSYSMENU;
 
-  // Then see if the point is within the resize boundaries.
-  int width = GetWidth();
-  int height = GetHeight();
-  int component = HTNOWHERE;
-  if (point.x() < kResizeAreaSize) {
-    if (point.y() < kResizeAreaCornerSize) {
-      component = HTTOPLEFT;
-    } else if (point.y() >= (height - kResizeAreaCornerSize)) {
-      component = HTBOTTOMLEFT;
-    } else {
-      component = HTLEFT;
-    }
-  } else if (point.x() < kResizeAreaCornerSize) {
-    if (point.y() < kResizeAreaNorthSize) {
-      component = HTTOPLEFT;
-    } else if (point.y() >= (height - kResizeAreaSize)) {
-      component = HTBOTTOMLEFT;
-    }
-  } else if (point.x() >= (width - kResizeAreaSize)) {
-    if (point.y() < kResizeAreaCornerSize) {
-      component = HTTOPRIGHT;
-    } else if (point.y() >= (height - kResizeAreaCornerSize)) {
-      component = HTBOTTOMRIGHT;
-    } else if (point.x() >= (width - kResizeAreaSize)) {
-      component = HTRIGHT;
-    }
-  } else if (point.x() >= (width - kResizeAreaCornerSize)) {
-    if (point.y() < kResizeAreaNorthSize) {
-      component = HTTOPRIGHT;
-    } else if (point.y() >= (height - kResizeAreaSize)) {
-      component = HTBOTTOMRIGHT;
-    }
-  } else if (point.y() < kResizeAreaNorthSize) {
-    component = HTTOP;
-  } else if (point.y() >= (height - kResizeAreaSize)) {
-    component = HTBOTTOM;
+  int component = GetHTComponentForFrame(point, kResizeAreaSize,
+                                         kResizeAreaCornerSize,
+                                         kResizeAreaNorthSize,
+                                         window_delegate_->CanResize());
+  if (component == HTNOWHERE) {
+    // Finally fall back to the caption.
+    GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
+    if (bounds.PtInRect(test_point))
+      component = HTCAPTION;
+    // Otherwise, the point is outside the window's bounds.
   }
-
-  // If the window can't be resized, there are no resize boundaries, just
-  // window borders.
-  if (component != HTNOWHERE) {
-    if (window_delegate_ && !window_delegate_->CanResize()) {
-      return HTBORDER;
-    }
-    return component;
-  }
-
-  // Finally fall back to the caption.
-  GetBounds(&bounds);
-  if (bounds.PtInRect(test_point))
-    return HTCAPTION;
-  // The point is outside the window's bounds.
-  return HTNOWHERE;
+  return component;
 }
 
 void ConstrainedWindowNonClientView::GetWindowMask(const gfx::Size& size,

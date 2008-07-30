@@ -422,6 +422,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\non_client_view.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\non_client_view.h"
+			>
+		</File>
+		<File
 			RelativePath=".\painter.cc"
 			>
 		</File>
