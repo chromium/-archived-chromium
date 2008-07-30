@@ -40,8 +40,16 @@ namespace net {
 
 class AddressList;
 
-// This class represents the task of resolving a single hostname.  To resolve
-// multiple hostnames, a new resolver will need to be created for each.
+// This class represents the task of resolving a hostname (or IP address
+// literal) to an AddressList object.  It can only resolve a single hostname at
+// a time, so if you need to resolve multiple hostnames at the same time, you
+// will need to allocate a HostResolver object for each hostname.
+//
+// No attempt is made at this level to cache or pin resolution results.  For
+// each request, this API talks directly to the underlying name resolver of
+// the local system, which may or may not result in a DNS query.  The exact
+// behavior depends on the system configuration.
+//
 class HostResolver {
  public:
   HostResolver();
@@ -51,10 +59,10 @@ class HostResolver {
   // called.
   ~HostResolver();
 
-  // Resolves the given hostname, filling out the |addresses| object upon
-  // success.  The |port| parameter will be set as the sin(6)_port field of
-  // the sockaddr_in{6} struct.  Returns OK if successful or an error code
-  // upon failure.
+  // Resolves the given hostname (or IP address literal), filling out the
+  // |addresses| object upon success.  The |port| parameter will be set as the
+  // sin(6)_port field of the sockaddr_in{6} struct.  Returns OK if successful
+  // or an error code upon failure.
   //
   // When callback is non-null, ERR_IO_PENDING is returned if the operation
   // could not be completed synchronously, in which case the result code will
@@ -64,7 +72,8 @@ class HostResolver {
               AddressList* addresses, CompletionCallback* callback);
 
  private:
-  struct Request;
+  class Request;
+  friend class Request;
   scoped_refptr<Request> request_;
   DISALLOW_EVIL_CONSTRUCTORS(HostResolver);
 };
