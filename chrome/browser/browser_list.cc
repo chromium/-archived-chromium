@@ -32,7 +32,7 @@
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/chrome_frame.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/web_contents.h"
@@ -140,13 +140,13 @@ void BrowserList::CloseAllBrowsers(bool use_post) {
       // This path is hit during logoff/power-down. In this case we won't get
       // a final message and so we force the browser to be deleted.
       Browser* browser = *iter;
-      browser->frame()->Close();
+      browser->window()->Close();
       // Close doesn't immediately destroy the browser
       // (Browser::TabStripEmpty() uses invoke later) but when we're ending the
       // session we need to make sure the browser is destroyed now. So, invoke
       // DestroyBrowser to make sure the browser is deleted and cleanup can
       // happen.
-      browser->frame()->DestroyBrowser();
+      browser->window()->DestroyBrowser();
       iter = BrowserList::begin();
       if (iter != BrowserList::end() && browser == *iter) {
         // Destroying the browser should have removed it from the browser list.

@@ -38,7 +38,7 @@
 
 #include "base/message_loop.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/browser/chrome_frame.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/browser/frame_view.h"
 #include "chrome/browser/views/status_bubble.h"
 #include "chrome/views/view_container.h"
@@ -65,7 +65,7 @@ class TemporaryPlaceholder;
 // a ChromeView hierarchy for the tabs and toolbar
 //
 ////////////////////////////////////////////////////////////////////////////////
-class XPFrame : public ChromeFrame,
+class XPFrame : public BrowserWindow,
                 public CWindowImpl<XPFrame,
                                    CWindow,
                                    CWinTraits<WS_SYSMENU |
@@ -91,7 +91,7 @@ class XPFrame : public ChromeFrame,
                               bool is_off_the_record);
 
   ////////////////////////////////////////////////////////////////////////////////
-  // ChromeFrame implementation
+  // BrowserWindow implementation
   ////////////////////////////////////////////////////////////////////////////////
   virtual ~XPFrame();
   virtual void Init();

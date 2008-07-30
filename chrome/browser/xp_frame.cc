@@ -36,7 +36,7 @@
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
-#include "chrome/browser/chrome_frame.h"
+#include "chrome/browser/frame_util.h"
 #include "chrome/browser/point_buffer.h"
 #include "chrome/browser/suspend_controller.h"
 #include "chrome/browser/tab_contents.h"
@@ -412,7 +412,7 @@ void XPFrame::InitializeIfNeeded() {
 void XPFrame::Init() {
   ResourceBundle &rb = ResourceBundle::GetSharedInstance();
 
-  ChromeFrame::RegisterChromeFrame(this);
+  FrameUtil::RegisterBrowserWindow(this);
 
   // Link the HWND with its root view so we can retrieve the RootView from the
   // HWND for automation purposes.
@@ -539,7 +539,7 @@ void XPFrame::Init() {
   // Register accelerators.
   HACCEL accelerators_table = AtlLoadAccelerators(IDR_MAINFRAME);
   DCHECK(accelerators_table);
-  ChromeFrame::LoadAccelerators(this, accelerators_table, this);
+  FrameUtil::LoadAccelerators(this, accelerators_table, this);
 
   ShelfVisibilityChanged();
   root_view_.OnViewContainerCreated();
@@ -820,7 +820,7 @@ void XPFrame::Layout() {
 // the application or we are going to be flagged as flaky.
 void XPFrame::OnEndSession(BOOL ending, UINT logoff) {
   tabstrip_->AbortActiveDragSession();
-  EndSession();
+  FrameUtil::EndSession();
 }
 
 // Note: called directly by the handler macros to handle WM_CLOSE messages.
@@ -1227,7 +1227,7 @@ void XPFrame::OnKeyUp(TCHAR c, UINT rep_cnt, UINT flags) {
 }
 
 void XPFrame::OnActivate(UINT n_state, BOOL is_minimized, HWND other) {
-  if (ActivateAppModalDialog(browser_))
+  if (FrameUtil::ActivateAppModalDialog(browser_))
     return;
 
   // We get deactivation notices before the window is deactivated,
@@ -1248,7 +1248,8 @@ void XPFrame::OnActivate(UINT n_state, BOOL is_minimized, HWND other) {
 }
 
 int XPFrame::OnMouseActivate(CWindow wndTopLevel, UINT nHitTest, UINT message) {
-  return ActivateAppModalDialog(browser_) ? MA_NOACTIVATEANDEAT : MA_ACTIVATE;
+  return FrameUtil::ActivateAppModalDialog(browser_) ? MA_NOACTIVATEANDEAT
+                                                     : MA_ACTIVATE;
 }
 
 void XPFrame::OnPaint(HDC dc) {
@@ -1492,7 +1493,7 @@ BOOL XPFrame::OnPowerBroadcast(DWORD power_event, DWORD data) {
 void XPFrame::OnThemeChanged() {
   // Notify NativeTheme.
   gfx::NativeTheme::instance()->CloseHandles();
-  ChromeFrame::NotifyTabsOfThemeChange(browser_);
+  FrameUtil::NotifyTabsOfThemeChange(browser_);
 }
 
 LRESULT XPFrame::OnAppCommand(
@@ -1838,7 +1839,7 @@ void XPFrame::InfoBubbleShowing() {
 
 void XPFrame::InfoBubbleClosing() {
   paint_as_active_ = false;
-  ChromeFrame::InfoBubbleClosing();
+  BrowserWindow::InfoBubbleClosing();
   // How we render the frame has changed, we need to force a paint otherwise
   // visually the user won't be able to tell.
   InvalidateRect(NULL, false);

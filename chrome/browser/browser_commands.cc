@@ -47,8 +47,8 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_shutdown.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/browser/character_encoding.h"
-#include "chrome/browser/chrome_frame.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/download_tab_view.h"
 #include "chrome/browser/history_tab_ui.h"
@@ -362,7 +362,7 @@ void Browser::ExecuteCommand(int id) {
 
     case IDC_CLOSEWINDOW:
       UserMetrics::RecordAction(L"CloseWindow", profile_);
-      frame_->Close();
+      window_->Close();
       break;
 
     case IDC_FOCUS_LOCATION:

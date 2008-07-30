@@ -31,7 +31,8 @@
 
 #include "base/win_util.h"
 #include "chrome/app/theme/theme_resources.h"
-#include "chrome/browser/chrome_frame.h"
+#include "chrome/browser/browser_window.h"
+#include "chrome/browser/frame_util.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/resource_bundle.h"
@@ -95,7 +96,7 @@ InfoBubble* InfoBubble::Show(HWND parent_hwnd,
                              InfoBubbleDelegate* delegate) {
   InfoBubble* window = new InfoBubble();
   window->Init(parent_hwnd, position_relative_to, content);
-  ChromeFrame* frame = window->GetHostingFrame();
+  BrowserWindow* frame = window->GetHostingWindow();
   if (frame)
     frame->InfoBubbleShowing();
   window->ShowWindow(SW_SHOW);
@@ -164,7 +165,7 @@ void InfoBubble::Init(HWND parent_hwnd,
 
 void InfoBubble::Close() {
   // We don't fade out because it looks terrible.
-  ChromeFrame* frame = GetHostingFrame();
+  BrowserWindow* frame = GetHostingWindow();
   if (delegate_)
     delegate_->InfoBubbleClosing(this);
   if (frame)
@@ -212,9 +213,9 @@ InfoBubble::ContentView* InfoBubble::CreateContentView(View* content) {
   return new ContentView(content, this);
 }
 
-ChromeFrame* InfoBubble::GetHostingFrame() {
+BrowserWindow* InfoBubble::GetHostingWindow() {
   HWND owning_frame_hwnd = GetAncestor(GetHWND(), GA_ROOTOWNER);
-  ChromeFrame* frame = ChromeFrame::GetChromeFrameForWindow(owning_frame_hwnd);
+  BrowserWindow* frame = FrameUtil::GetBrowserWindowForHWND(owning_frame_hwnd);
   if (!frame) {
     // We should always have a frame, but there was a bug else where that
     // made it possible for the frame to be NULL, so we have the check. If

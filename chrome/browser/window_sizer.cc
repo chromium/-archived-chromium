@@ -33,7 +33,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_type.h"
-#include "chrome/browser/chrome_frame.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 
@@ -167,7 +167,7 @@ class DefaultStateProvider : public WindowSizer::StateProvider {
       Browser* last_active = *it;
       if (last_active &&
           last_active->GetType() == BrowserType::TABBED_BROWSER) {
-        ChromeFrame* frame = last_active->frame();
+        BrowserWindow* frame = last_active->window();
         DCHECK(frame);
         *bounds = frame->GetNormalBounds();
         return true;

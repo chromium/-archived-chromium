@@ -38,7 +38,6 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/character_encoding.h"
-#include "chrome/browser/chrome_frame.h"
 #include "chrome/browser/drag_utils.h"
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/navigation_entry.h"

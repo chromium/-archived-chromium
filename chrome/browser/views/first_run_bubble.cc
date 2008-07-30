@@ -32,7 +32,7 @@
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
-#include "chrome/browser/chrome_frame.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/browser/options_window.h"
 #include "chrome/browser/standard_layout.h"
 #include "chrome/browser/template_url_model.h"
@@ -229,7 +229,7 @@ FirstRunBubble* FirstRunBubble::Show(HWND parent_hwnd,
   ChromeViews::View* view = new FirstRunBubbleView(window);
   window->SetDelegate(window);
   window->Init(parent_hwnd, position_relative_to, view);
-  ChromeFrame* frame = window->GetHostingFrame();
+  BrowserWindow* frame = window->GetHostingWindow();
   DCHECK(frame);
   frame->InfoBubbleShowing();
   window->ShowWindow(SW_SHOW);

@@ -27,37 +27,29 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_CHROME_FRAME_H__
-#define CHROME_BROWSER_CHROME_FRAME_H__
+#ifndef CHROME_BROWSER_BROWSER_WINDOW_H_
+#define CHROME_BROWSER_BROWSER_WINDOW_H_
 
 #include <map>
-#include <string>
-#include <windows.h>
 
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
-#include "chrome/browser/views/status_bubble.h"
 #include "chrome/views/accelerator.h"
 
-class Browser;
 class BrowserList;
 namespace ChromeViews {
-  class RootView;
+class RootView;
 }
+class StatusBubble;
 class TabContents;
 class TabStrip;
 
 ////////////////////////////////////////////////////////////////////////////////
+// BrowserWindow interface
+//  An interface implemented by the "view" of the Browser window.
 //
-// ChromeFrame class
-//
-// An abstract class to define the methods implemented by chrome's frames. We
-// currently have 2 implementations. One for vista and one for XP.
-//
-////////////////////////////////////////////////////////////////////////////////
-class ChromeFrame {
+class BrowserWindow {
  public:
-
   // Initialize the frame.
   virtual void Init() = 0;
 
@@ -138,7 +130,7 @@ class ChromeFrame {
   // Set the accelerator table. This is called once after LoadAccelerators
   // has been called on the frame. The callee becomes the owner of the passed
   // map. The map associates accelerators with command ids.
-  // Note if you are not calling ChromeFrame::LoadAccelerators() on this frame,
+  // Note if you are not calling FrameUtil::LoadAccelerators() on this frame,
   // this method is never invoked.
   virtual void SetAcceleratorTable(
       std::map<ChromeViews::Accelerator, int>* accelerator_table) = 0;
@@ -175,39 +167,16 @@ class ChromeFrame {
   // The implementation for this sends WM_NCACTIVATE with a value of FALSE for
   // the window. Subclasses that need to customize should be sure and invoke
   // this implementation too.
-  virtual void InfoBubbleClosing();
-
-  // Mark the frame such as it can be retrieved using GetChromeFrameForWindow()
-  static void RegisterChromeFrame(ChromeFrame* frame);
-
-  // Return a ChromeFrame instance given an hwnd.
-  static ChromeFrame* GetChromeFrameForWindow(HWND hwnd);
-
-  // Create a ChromeFrame for the given browser.
-  static ChromeFrame* CreateChromeFrame(const gfx::Rect& bounds,
-                                        Browser* browser);
-
-  // Initialize the accelerators for that frame.
-  static bool LoadAccelerators(ChromeFrame* frame,
-      HACCEL accelerator_table,
-      ChromeViews::AcceleratorTarget* accelerator_target);
-
-  // Activate any app modal dialog that might be present. Returns true if one
-  // was present.
-  static bool ActivateAppModalDialog(Browser* browser);
+  virtual void InfoBubbleClosing() {
+    // TODO(beng): (Cleanup) - move out of here!
+    HWND hwnd = static_cast<HWND>(GetPlatformID());
+    // The frame is really inactive, send notification now.
+    DefWindowProc(hwnd, WM_NCACTIVATE, FALSE, 0);
+  }
 
  protected:
   friend class BrowserList;
-
-  // Invoked when windows is shutting down (or the user is logging off). When
-  // this method returns windows is going to kill our process. As such, this
-  // blocks until the shtudown has been marked as clean.
-  static void EndSession();
-
-  // Notifies all tabs with associated webcontents of theme changes.
-  void NotifyTabsOfThemeChange(Browser* browser);
-
   virtual void DestroyBrowser() = 0;
 };
 
-#endif  //  CHROME_BROWSER_CHROME_FRAME_H__
+#endif  // #ifndef CHROME_BROWSER_BROWSER_WINDOW_H__

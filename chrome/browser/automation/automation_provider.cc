@@ -35,7 +35,7 @@
 #include "chrome/browser/automation/url_request_failed_dns_job.h"
 #include "chrome/browser/automation/url_request_mock_http_job.h"
 #include "chrome/browser/automation/url_request_slow_download_job.h"
-#include "chrome/browser/chrome_frame.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/download_manager.h"
 #include "chrome/browser/external_tab_container.h"
@@ -1258,7 +1258,7 @@ void AutomationProvider::WindowSimulateDrag(const IPC::Message& message,
 
     Browser* browser = browser_tracker_->GetResource(handle);
     DCHECK(browser);
-    ChromeViews::RootView* root = browser->frame()->GetRootView();
+    ChromeViews::RootView* root = browser->window()->GetRootView();
     DCHECK(root);
     ScheduleMouseEvent(root, ChromeViews::Event::ET_MOUSE_PRESSED,
                        drag_path[0], flags);
@@ -1844,7 +1844,7 @@ void AutomationProvider::CloseBrowser(const IPC::Message& message,
   if (browser_tracker_->ContainsHandle(browser_handle)) {
     Browser* browser = browser_tracker_->GetResource(browser_handle);
     new BrowserClosedNotificationObserver(browser, this, message.routing_id());
-    browser->frame()->Close();
+    browser->window()->Close();
   } else {
     NOTREACHED();
   }

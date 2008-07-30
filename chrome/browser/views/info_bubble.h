@@ -42,7 +42,7 @@
 // (or rather ContentView) insets the content view for you, so that the
 // content typically shouldn't have any additional margins around the view.
 
-class ChromeFrame;
+class BrowserWindow;
 class InfoBubble;
 
 class InfoBubbleDelegate {
@@ -174,8 +174,8 @@ class InfoBubble : public ChromeViews::HWNDViewContainer,
   // Creates and return a new ContentView containing content.
   virtual ContentView* CreateContentView(ChromeViews::View* content);
 
-  // Returns the ChromeFrame that owns this InfoBubble.
-  ChromeFrame* GetHostingFrame();
+  // Returns the BrowserWindow that owns this InfoBubble.
+  BrowserWindow* GetHostingWindow();
 
  private:
   // The delegate notified when the InfoBubble is closed.

@@ -48,7 +48,7 @@
 #include "chrome/common/pref_member.h"
 
 class BookmarkBarView;
-class ChromeFrame;
+class BrowserWindow;
 class GoButton;
 class LocationBarView;
 class PrefService;
@@ -146,7 +146,7 @@ class Browser : public TabStripModelDelegate,
 
   Profile* profile() const { return profile_; }
 
-  ChromeFrame* frame() const { return frame_; }
+  BrowserWindow* window() const { return window_; }
 
   ToolbarModel* toolbar_model() { return &toolbar_model_; }
 
@@ -528,7 +528,7 @@ class Browser : public TabStripModelDelegate,
   void ClearUnloadStateOnCrash(TabContents* tab);
 
   // The frame
-  ChromeFrame* frame_;
+  BrowserWindow* window_;
 
   // Controls how the window will appear when Show() is called. This is one
   // of the SW_* constants passed to ShowWindow, and will be initialized in the

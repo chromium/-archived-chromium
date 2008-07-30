@@ -37,7 +37,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/chrome_frame.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/browser/drag_utils.h"
 #include "chrome/browser/download_util.h"
 #include "chrome/browser/history/history_backend.h"
@@ -411,6 +411,10 @@ class EditFolderController : public InputWindowDelegate,
     return is_new_ ?
         l10n_util::GetString(IDS_BOOMARK_FOLDER_EDITOR_WINDOW_TITLE_NEW) :
         l10n_util::GetString(IDS_BOOMARK_FOLDER_EDITOR_WINDOW_TITLE);
+  }
+
+  virtual ChromeViews::View* GetContentsView() {
+    return view_;
   }
 
   BookmarkBarView* view_;
@@ -1719,7 +1723,7 @@ void BookmarkBarView::RunMenu(ChromeViews::View* view,
   View::ConvertPointToScreen(this, &screen_loc);
   menu_runner_.reset(new MenuRunner(this, node, start_index));
   HWND parent_hwnd = reinterpret_cast<HWND>(
-      browser_->frame()->GetPlatformID());
+      browser_->window()->GetPlatformID());
   menu_runner_->RunMenuAt(parent_hwnd,
                           gfx::Rect(screen_loc.x, screen_loc.y,
                                     view->GetWidth(), height),

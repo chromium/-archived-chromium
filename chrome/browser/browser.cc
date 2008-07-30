@@ -41,6 +41,7 @@
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/browser_url_handler.h"
 #include "chrome/browser/cert_store.h"
+#include "chrome/browser/frame_util.h"
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/plugin_process_host.h"
@@ -205,7 +206,7 @@ Browser::Browser(const gfx::Rect& initial_bounds,
                  BrowserType::Type type,
                  const std::wstring& app_name)
     : profile_(profile),
-      frame_(NULL),
+      window_(NULL),
       initial_show_command_(show_command),
       is_processing_tab_unload_events_(false),
       controller_(this),
@@ -231,7 +232,7 @@ Browser::Browser(const gfx::Rect& initial_bounds,
     maximized = true;
   if (maximized)
     initial_show_command_ = SW_SHOWMAXIMIZED;
-  frame_ = ChromeFrame::CreateChromeFrame(create_bounds, this);
+  window_ = FrameUtil::CreateBrowserWindow(create_bounds, this);
 
   toolbar_.SetID(VIEW_ID_TOOLBAR);
   toolbar_.Init(profile_);
@@ -241,7 +242,7 @@ Browser::Browser(const gfx::Rect& initial_bounds,
   if (show_command == SIZE_TO_CONTENTS) {
     // SizeToContents causes a Layout so make sure the tab strip and toolbar
     // are already initialized.
-    frame_->SizeToContents(initial_bounds);
+    window_->SizeToContents(initial_bounds);
     initial_show_command_ = SW_SHOWNORMAL;
   }
 
@@ -340,13 +341,13 @@ void Browser::ShowAndFit(bool resize_to_fit) {
   if (initial_show_command_ < 0) {
     // The frame is already visible, we're being invoked again either by the
     // user clicking a link in another app or from a desktop shortcut.
-    frame_->Activate();
+    window_->Activate();
     return;
   }
-  frame_->Show(initial_show_command_, resize_to_fit);
+  window_->Show(initial_show_command_, resize_to_fit);
   if ((initial_show_command_ == SW_SHOWNORMAL) ||
       (initial_show_command_ == SW_SHOWMAXIMIZED))
-    frame_->Activate();
+    window_->Activate();
   initial_show_command_ = -1;
 
   // Setting the focus doesn't work when the window is invisible, so any focus
@@ -365,7 +366,7 @@ void Browser::ShowAndFit(bool resize_to_fit) {
 }
 
 void Browser::CloseFrame() {
-  frame_->Close();
+  window_->Close();
 }
 
 ChromeViews::View* Browser::GetToolbar() {
@@ -377,11 +378,11 @@ ChromeViews::View* Browser::GetToolbar() {
 void Browser::SyncWindowTitle() {
   TabContents* current_tab = GetSelectedTabContents();
   if (!current_tab || current_tab->GetTitle().empty()) {
-    frame_->SetWindowTitle(l10n_util::GetString(IDS_PRODUCT_NAME));
+    window_->SetWindowTitle(l10n_util::GetString(IDS_PRODUCT_NAME));
     return;
   }
 
-  frame_->SetWindowTitle(
+  window_->SetWindowTitle(
       l10n_util::GetStringF(IDS_BROWSER_WINDOW_TITLE_FORMAT,
                             current_tab->GetTitle()));
 }
@@ -501,7 +502,7 @@ void Browser::ProcessPendingUIUpdates() {
     if (invalidate_tab) {  // INVALIDATE_TITLE or INVALIDATE_FAVICON.
       tabstrip_model_.UpdateTabContentsStateAt(
           tabstrip_model_.GetIndexOfController(contents->controller()));
-      frame_->UpdateTitleBar();
+      window_->UpdateTitleBar();
 
       if (contents == GetSelectedTabContents()) {
         TabContents* current_tab = GetSelectedTabContents();
@@ -713,24 +714,24 @@ void Browser::StartDraggingDetachedContents(TabContents* source,
   browser->AddNewContents(
       source, new_contents, NEW_FOREGROUND_TAB, contents_bounds, true);
   browser->Show();
-  browser->frame_->ContinueDetachConstrainedWindowDrag(
+  browser->window_->ContinueDetachConstrainedWindowDrag(
       mouse_pt, frame_component);
 }
 
 void Browser::ActivateContents(TabContents* contents) {
   tabstrip_model_.SelectTabContentsAt(
       tabstrip_model_.GetIndexOfTabContents(contents), false);
-  frame_->Activate();
+  window_->Activate();
 }
 
 HWND Browser::GetTopLevelHWND() const {
-  return frame_ ? reinterpret_cast<HWND>(frame_->GetPlatformID()) : NULL;
+  return window_ ? reinterpret_cast<HWND>(window_->GetPlatformID()) : NULL;
 }
 
 void Browser::LoadingStateChanged(TabContents* source) {
   tabstrip_model_.UpdateTabContentsLoadingAnimations();
 
-  frame_->UpdateTitleBar();
+  window_->UpdateTitleBar();
 
   // Let the go button know that it should change appearance if possible.
   if (source == GetSelectedTabContents()) {
@@ -785,7 +786,7 @@ void Browser::Observe(NotificationType type,
       Profile* event_profile = Source<Profile>(source).ptr();
       if (event_profile->IsSameProfile(current_tab->profile())) {
         // This forces the browser to query for the BookmarkBar again.
-        frame_->ShelfVisibilityChanged();
+        window_->ShelfVisibilityChanged();
       }
     }
   } else if (type == NOTIFY_WEB_CONTENTS_DISCONNECTED) {
@@ -857,7 +858,7 @@ void Browser::URLStarredChanged(TabContents* source, bool starred) {
 }
 
 StatusBubble* Browser::GetStatusBubble() {
-  return frame_->GetStatusBubble();
+  return window_->GetStatusBubble();
 }
 
 // Called whenever the window is moved so that we can update the position
@@ -940,7 +941,7 @@ void Browser::SaveWindowPlacementToDatabase() {
   WINDOWPLACEMENT wp;
   wp.length = sizeof(wp);
 
-  HWND hwnd = reinterpret_cast<HWND>(frame_->GetPlatformID());
+  HWND hwnd = reinterpret_cast<HWND>(window_->GetPlatformID());
   if (!::GetWindowPlacement(hwnd, &wp))
     return;
 
@@ -953,7 +954,7 @@ void Browser::SaveWindowPlacement() {
   WINDOWPLACEMENT wp;
   wp.length = sizeof(wp);
 
-  HWND hwnd = reinterpret_cast<HWND>(frame_->GetPlatformID());
+  HWND hwnd = reinterpret_cast<HWND>(window_->GetPlatformID());
   if (!::GetWindowPlacement(hwnd, &wp))
     return;
 
@@ -998,12 +999,12 @@ void Browser::SyncHistoryWithTabs(int index) {
 void Browser::ToolbarSizeChanged(TabContents* source, bool is_animating) {
   if (source == GetSelectedTabContents() || source == NULL) {
     // This will refresh the shelf if needed.
-    frame_->SelectedTabToolbarSizeChanged(is_animating);
+    window_->SelectedTabToolbarSizeChanged(is_animating);
   }
 }
 
 void Browser::MoveToFront(bool should_activate) {
-  frame_->Activate();
+  window_->Activate();
 }
 
 bool Browser::ShouldCloseWindow() {
@@ -1237,7 +1238,7 @@ void Browser::CreateNewStripWithContents(TabContents* detached_contents,
 
   // Create an empty new browser window the same size as the old one.
   CRect browser_rect;
-  GetWindowRect(reinterpret_cast<HWND>(frame_->GetPlatformID()), &browser_rect);
+  GetWindowRect(reinterpret_cast<HWND>(window_->GetPlatformID()), &browser_rect);
   gfx::Rect rect(0, 0);
   if (drop_point.x() != 0 || drop_point.y() != 0) {
     rect.SetRect(drop_point.x(), drop_point.y(), browser_rect.Width(),
@@ -1290,10 +1291,10 @@ TabContents* Browser::CreateTabContentsForURL(
 }
 
 void Browser::ShowApplicationMenu(const gfx::Point p) {
-  if (!frame_)
+  if (!window_)
     return;
 
-  HWND hwnd = reinterpret_cast<HWND>(frame_->GetPlatformID());
+  HWND hwnd = reinterpret_cast<HWND>(window_->GetPlatformID());
   CPoint t;
   t.x = p.x();
   t.y = p.y();
@@ -1301,8 +1302,8 @@ void Browser::ShowApplicationMenu(const gfx::Point p) {
 }
 
 void Browser::ValidateLoadingAnimations() {
-  if (frame_)
-    frame_->ValidateThrobber();
+  if (window_)
+    window_->ValidateThrobber();
 }
 
 void Browser::CloseFrameAfterDragSession() {
@@ -1354,7 +1355,7 @@ void Browser::TabClosingAt(TabContents* contents, int index) {
     // We need to reset the current tab contents to NULL before it gets
     // freed. This is because the focus manager performs some operation
     // on the selected tab contents when it is removed.
-    frame_->ShowTabContents(NULL);
+    window_->ShowTabContents(NULL);
   }
 }
 
@@ -1395,7 +1396,7 @@ void Browser::TabSelectedAt(TabContents* old_contents,
   }
 
   // Tell the frame what happened so that the TabContents gets resized, etc.
-  frame_->ShowTabContents(new_contents);
+  window_->ShowTabContents(new_contents);
 
   // Inform the tab that it is now selected.
   new_contents->DidBecomeSelected();
@@ -1447,7 +1448,7 @@ void Browser::TabMoved(TabContents* contents,
 void Browser::TabStripEmpty() {
   // We need to reset the frame contents just in case this wasn't done while
   // detaching the tab. This happens when dragging out the last tab.
-  frame_->ShowTabContents(NULL);
+  window_->ShowTabContents(NULL);
 
   // Close the frame after we return to the message loop (not immediately,
   // otherwise it will destroy this object before the stack has a chance to
@@ -1616,7 +1617,7 @@ void Browser::BuildPopupWindow(TabContents* source,
   // numbers are for the content area, but x/y are for the actual
   // window position. Thus we can't just call MoveContents().
   gfx::Rect window_rect =
-      browser->frame()->GetBoundsForContentBounds(initial_pos);
+      browser->window()->GetBoundsForContentBounds(initial_pos);
   window_rect.set_origin(initial_pos.origin());
   ::SetWindowPos(browser->GetTopLevelHWND(), NULL,
                  window_rect.x(), window_rect.y(),

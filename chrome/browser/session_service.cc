@@ -38,7 +38,7 @@
 #include "base/thread.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/chrome_frame.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/profile.h"
@@ -896,8 +896,8 @@ void SessionService::BuildCommandsForBrowser(
 
   commands->push_back(
       CreateSetWindowBoundsCommand(browser->session_id(),
-                                   browser->frame()->GetNormalBounds(),
-                                   browser->frame()->IsMaximized()));
+                                   browser->window()->GetNormalBounds(),
+                                   browser->window()->IsMaximized()));
 
   commands->push_back(CreateSetWindowTypeCommand(
       browser->session_id(), browser->GetType()));

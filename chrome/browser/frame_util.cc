@@ -27,7 +27,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "chrome/browser/chrome_frame.h"
+#include "chrome/browser/frame_util.h"
 
 #include "base/message_loop.h"
 #include "chrome/app/result_codes.h"
@@ -48,13 +48,13 @@
 #include "chrome/views/focus_manager.h"
 
 // static
-void ChromeFrame::RegisterChromeFrame(ChromeFrame* frame) {
+void FrameUtil::RegisterBrowserWindow(BrowserWindow* frame) {
   HWND h = reinterpret_cast<HWND>(frame->GetPlatformID());
   win_util::SetWindowUserData(h, frame);
 }
 
 // static
-ChromeFrame* ChromeFrame::GetChromeFrameForWindow(HWND hwnd) {
+BrowserWindow* FrameUtil::GetBrowserWindowForHWND(HWND hwnd) {
   if (hwnd) {
     std::wstring class_name = win_util::GetClassName(hwnd);
     if (class_name == VISTA_FRAME_CLASSNAME ||
@@ -62,16 +62,16 @@ ChromeFrame* ChromeFrame::GetChromeFrameForWindow(HWND hwnd) {
       // Need to check for both, as it's possible to have vista and xp frames
       // at the same time (you can get into this state when connecting via
       // remote desktop to a vista machine with Chrome already running).
-      return static_cast<ChromeFrame*>(win_util::GetWindowUserData(hwnd));
+      return static_cast<BrowserWindow*>(win_util::GetWindowUserData(hwnd));
     }
   }
   return NULL;
 }
 
 // static
-ChromeFrame* ChromeFrame::CreateChromeFrame(const gfx::Rect& bounds,
-                                            Browser* browser) {
-  ChromeFrame* frame = NULL;
+BrowserWindow* FrameUtil::CreateBrowserWindow(const gfx::Rect& bounds,
+                                              Browser* browser) {
+  BrowserWindow* frame = NULL;
 
   switch (browser->GetType()) {
     case BrowserType::TABBED_BROWSER: {
@@ -98,7 +98,7 @@ ChromeFrame* ChromeFrame::CreateChromeFrame(const gfx::Rect& bounds,
 }
 
 // static
-bool ChromeFrame::LoadAccelerators(ChromeFrame* frame,
+bool FrameUtil::LoadAccelerators(BrowserWindow* frame,
     HACCEL accelerator_table,
     ChromeViews::AcceleratorTarget* accelerator_target) {
   // We have to copy the table to access its contents.
@@ -140,18 +140,12 @@ bool ChromeFrame::LoadAccelerators(ChromeFrame* frame,
   return true;
 }
 
-void ChromeFrame::InfoBubbleClosing() {
-  HWND hwnd = static_cast<HWND>(GetPlatformID());
-  // The frame is really inactive, send notification now.
-  DefWindowProc(hwnd, WM_NCACTIVATE, FALSE, 0);
-}
-
 // static
-bool ChromeFrame::ActivateAppModalDialog(Browser* browser) {
+bool FrameUtil::ActivateAppModalDialog(Browser* browser) {
   // If another browser is app modal, flash and activate the modal browser.
   if (BrowserList::IsShowingAppModalDialog()) {
     if (browser != BrowserList::GetLastActive()) {
-      BrowserList::GetLastActive()->frame()->FlashFrame();
+      BrowserList::GetLastActive()->window()->FlashFrame();
       BrowserList::GetLastActive()->MoveToFront(true);
     }
     AppModalDialogQueue::ActivateModalDialog();
@@ -161,7 +155,7 @@ bool ChromeFrame::ActivateAppModalDialog(Browser* browser) {
 }
 
 // static
-void ChromeFrame::EndSession() {
+void FrameUtil::EndSession() {
   // EndSession is invoked once per frame. Only do something the first time.
   static bool already_ended = false;
   if (already_ended)
@@ -191,7 +185,8 @@ void ChromeFrame::EndSession() {
 }
 
 
-void ChromeFrame::NotifyTabsOfThemeChange(Browser* browser) {
+// static
+void FrameUtil::NotifyTabsOfThemeChange(Browser* browser) {
   if (!browser) {
     NOTREACHED();
     return;

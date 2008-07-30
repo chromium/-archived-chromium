@@ -32,7 +32,6 @@
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/bookmark_bar_model.h"
 #include "chrome/browser/browser.h"
-#include "chrome/browser/chrome_frame.h"
 #include "chrome/browser/views/bookmark_bubble_view.h"
 #include "chrome/browser/views/toolbar_view.h"
 #include "chrome/common/resource_bundle.h"

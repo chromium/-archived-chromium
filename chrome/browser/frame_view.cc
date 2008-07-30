@@ -29,12 +29,12 @@
 
 #include "chrome/browser/frame_view.h"
 
-#include "chrome/browser/chrome_frame.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/browser/tabs/tab_strip.h"
 #include "chrome/common/os_exchange_data.h"
 
-FrameView::FrameView(ChromeFrame* frame)
-    : frame_(frame),
+FrameView::FrameView(BrowserWindow* window)
+    : window_(window),
       can_drop_(false),
       forwarding_to_tab_strip_(false) {
 }
@@ -44,8 +44,8 @@ void FrameView::AddViewToDropList(ChromeViews::View* view) {
 }
 
 bool FrameView::CanDrop(const OSExchangeData& data) {
-  can_drop_ = (frame_->GetTabStrip()->IsVisible() &&
-               !frame_->GetTabStrip()->IsAnimating() &&
+  can_drop_ = (window_->GetTabStrip()->IsVisible() &&
+               !window_->GetTabStrip()->IsAnimating() &&
                data.HasURL());
   return can_drop_;
 }
@@ -55,7 +55,7 @@ void FrameView::OnDragEntered(const ChromeViews::DropTargetEvent& event) {
     forwarding_to_tab_strip_ = true;
     scoped_ptr<ChromeViews::DropTargetEvent> mapped_event(
         MapEventToTabStrip(event));
-    frame_->GetTabStrip()->OnDragEntered(*mapped_event.get());
+    window_->GetTabStrip()->OnDragEntered(*mapped_event.get());
   }
 }
 
@@ -65,13 +65,13 @@ int FrameView::OnDragUpdated(const ChromeViews::DropTargetEvent& event) {
       scoped_ptr<ChromeViews::DropTargetEvent> mapped_event(
           MapEventToTabStrip(event));
       if (!forwarding_to_tab_strip_) {
-        frame_->GetTabStrip()->OnDragEntered(*mapped_event.get());
+        window_->GetTabStrip()->OnDragEntered(*mapped_event.get());
         forwarding_to_tab_strip_ = true;
       }
-      return frame_->GetTabStrip()->OnDragUpdated(*mapped_event.get());
+      return window_->GetTabStrip()->OnDragUpdated(*mapped_event.get());
     } else if (forwarding_to_tab_strip_) {
       forwarding_to_tab_strip_ = false;
-      frame_->GetTabStrip()->OnDragExited();
+      window_->GetTabStrip()->OnDragExited();
     }
   }
   return DragDropTypes::DRAG_NONE;
@@ -80,7 +80,7 @@ int FrameView::OnDragUpdated(const ChromeViews::DropTargetEvent& event) {
 void FrameView::OnDragExited() {
   if (forwarding_to_tab_strip_) {
     forwarding_to_tab_strip_ = false;
-    frame_->GetTabStrip()->OnDragExited();
+    window_->GetTabStrip()->OnDragExited();
   }
 }
 
@@ -89,18 +89,18 @@ int FrameView::OnPerformDrop(const ChromeViews::DropTargetEvent& event) {
     forwarding_to_tab_strip_ = false;
     scoped_ptr<ChromeViews::DropTargetEvent> mapped_event(
           MapEventToTabStrip(event));
-    return frame_->GetTabStrip()->OnPerformDrop(*mapped_event.get());
+    return window_->GetTabStrip()->OnPerformDrop(*mapped_event.get());
   }
   return DragDropTypes::DRAG_NONE;
 }
 
 bool FrameView::ShouldForwardToTabStrip(
     const ChromeViews::DropTargetEvent& event) {
-  if (!frame_->GetTabStrip()->IsVisible())
+  if (!window_->GetTabStrip()->IsVisible())
     return false;
 
-  const int tab_y = frame_->GetTabStrip()->GetY();
-  const int tab_height = frame_->GetTabStrip()->GetHeight();
+  const int tab_y = window_->GetTabStrip()->GetY();
+  const int tab_height = window_->GetTabStrip()->GetHeight();
   if (event.GetY() >= tab_y + tab_height)
     return false;
 
@@ -113,7 +113,7 @@ bool FrameView::ShouldForwardToTabStrip(
   ChromeViews::View* view_over_mouse =
       GetViewForPoint(CPoint(event.GetX(), event.GetY()));
   return (view_over_mouse == this ||
-          view_over_mouse == frame_->GetTabStrip() ||
+          view_over_mouse == window_->GetTabStrip() ||
           dropable_views_.find(view_over_mouse) != dropable_views_.end());
 }
 
@@ -125,7 +125,7 @@ void FrameView::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
 ChromeViews::DropTargetEvent* FrameView::MapEventToTabStrip(
     const ChromeViews::DropTargetEvent& event) {
   gfx::Point tab_strip_loc(event.location());
-  ConvertPointToView(this, frame_->GetTabStrip(), &tab_strip_loc);
+  ConvertPointToView(this, window_->GetTabStrip(), &tab_strip_loc);
   return new ChromeViews::DropTargetEvent(event.GetData(), tab_strip_loc.x(),
                                           tab_strip_loc.y(),
                                           event.GetSourceOperations());
