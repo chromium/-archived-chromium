@@ -14,7 +14,7 @@ Alloc Location
 std::_W::_Allocate(unsigned int,wchar_t *) [net_unittests.exe]
 Alloc Location
    ...  
-   net/base/directory_lister.cc  net::DirectoryLister::DirectoryLister(class std::basic_string const &,class DirectoryLister::Delegate *)
+   net/base/directory_lister.cc  net::DirectoryLister::DirectoryLister(class std::basic_string const &,class DirectoryLister::DirectoryLister::Delegate *)
    net/base/directory_lister_unittest.cc  DirectoryListerTest_BigDirTest_Test::TestBody(void)
    testing/gtest/src/gtest.cc  testing::Test::Run(void)
    ^^^  
