@@ -32,6 +32,13 @@
 
 #include "base/pe_image.h"
 
+#ifdef _WIN64
+#error This code is not tested on x64. Please make sure all the base unit tests\
+ pass before doing any real work. The current unit tests don't test the\
+ differences between 32- and 64-bits implementations. Bugs may slip through.\
+ You need to improve the coverage before continuing.
+#endif
+
 // Structure to perform imports enumerations.
 struct EnumAllImportsStorage {
   PEImage::EnumImportsFunction callback;
@@ -539,14 +546,14 @@ bool PEImage::ImageAddrToOnDiskOffset(LPVOID address,
   return true;
 }
 
-PVOID PEImage::RVAToAddr(DWORD rva) const {
+PVOID PEImage::RVAToAddr(DWORD_PTR rva) const {
   if (rva == 0)
     return NULL;
 
   return reinterpret_cast<char*>(module_) + rva;
 }
 
-PVOID PEImageAsData::RVAToAddr(DWORD rva) const {
+PVOID PEImageAsData::RVAToAddr(DWORD_PTR rva) const {
   if (rva == 0)
     return NULL;
 

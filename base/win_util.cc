@@ -345,7 +345,7 @@ bool UserAccountControlIsEnabled() {
 // If the ASSERT below fails, please install Visual Studio 2005 Service Pack 1.
 //
 extern char VisualStudio2005ServicePack1Detection[10];
-COMPILE_ASSERT(sizeof(&VisualStudio2005ServicePack1Detection) == 4,
+COMPILE_ASSERT(sizeof(&VisualStudio2005ServicePack1Detection) == sizeof(void*),
                VS2005SP1Detect);
 //
 // Chrome requires at least Service Pack 1 for Visual Studio 2005.

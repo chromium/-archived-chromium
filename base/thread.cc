@@ -138,7 +138,7 @@ void Thread::SetThreadName(const char* name, DWORD tid) {
   __try {
     RaiseException(MS_VC_EXCEPTION, 0,
                    sizeof(info)/sizeof(DWORD),
-                   reinterpret_cast<DWORD*>(&info));
+                   reinterpret_cast<DWORD_PTR *>(&info));
   } __except(EXCEPTION_CONTINUE_EXECUTION) {
   }
 }

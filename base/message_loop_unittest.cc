@@ -201,10 +201,22 @@ class CrasherTask : public Task {
       ::SetUnhandledExceptionFilter(&BadExceptionHandler);
     // Generate a SEH fault. We do it in asm to make sure we know how to undo
     // the damage.
+
+#if defined(_M_IX86)
+
     __asm {
       mov eax, dword ptr [CrasherTask::bad_array_]
       mov byte ptr [eax], 66
     }
+
+#elif defined(_M_X64)
+
+    bad_array_[0] = 66;
+
+#elif
+
+#endif
+
     MessageLoop::current()->Quit();
   }
   // Points the bad array to a valid memory location.
@@ -229,7 +241,17 @@ LONG WINAPI HandleCrasherTaskException(EXCEPTION_POINTERS *ex_info) {
     return EXCEPTION_EXECUTE_HANDLER;
 
   CrasherTask::FixError();
+
+#if defined(_M_IX86)
+
   ex_info->ContextRecord->Eip -= 5;
+
+#elif defined(_M_X64)
+
+  ex_info->ContextRecord->Rip -= 5;
+
+#endif
+
   return EXCEPTION_CONTINUE_EXECUTION;
 }
 
@@ -266,6 +288,7 @@ TEST(MessageLoopTest, CrasherNasty) {
 
   ::SetUnhandledExceptionFilter(old_SEH_filter);
 }
+
 
 TEST(MessageLoopTest, Nesting) {
   int depth = 100;

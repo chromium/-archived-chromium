@@ -62,14 +62,29 @@ class DebugOnStart {
 // theory it should be called before any user created global variable
 // initialization code and CRT initialization code.
 // Note: See VC\crt\src\defsects.inc and VC\crt\src\crt0.c for reference.
+#ifdef _WIN64
 
-// "Fix" the data section.
+// "Fix" the segment. On x64, the .CRT segment is merged into the .rdata segment
+// so it constains const data only.
+#pragma const_seg(push, ".CRT$XIB")
+// Declare the pointer so the CRT will find it.
+extern const DebugOnStart::PIFV debug_on_start;
+DECLSPEC_SELECTANY const DebugOnStart::PIFV debug_on_start =
+    &DebugOnStart::Init;
+// Fix back the segment.
+#pragma const_seg(pop)
+
+#else  // _WIN64
+
+// "Fix" the segment. On x86, the .CRT segment is merged into the .data segment
+// so it constains non-const data only.
 #pragma data_seg(push, ".CRT$XIB")
 // Declare the pointer so the CRT will find it.
 DECLSPEC_SELECTANY DebugOnStart::PIFV debug_on_start = &DebugOnStart::Init;
-// Fix back the data segment.
+// Fix back the segment.
 #pragma data_seg(pop)
 
+#endif  // _WIN64
 #endif  // _WIN32
 
 #endif  // BASE_DEBUG_ON_START_H__

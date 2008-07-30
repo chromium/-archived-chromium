@@ -27,9 +27,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <windows.h>
-
 #include "base/thread_local_storage.h"
+
+#include <windows.h>
 
 #include "base/logging.h"
 
@@ -144,9 +144,19 @@ void ThreadLocalStorage::ThreadExit() {
 // This magic is from http://www.codeproject.com/threads/tls.asp
 // and it works for VC++ 7.0 and later.
 
+#ifdef _WIN64
+
+// This makes the linker create the TLS directory if it's not already
+// there.  (e.g. if __declspec(thread) is not used).
+#pragma comment(linker, "/INCLUDE:_tls_used")
+
+#else  // _WIN64
+
 // This makes the linker create the TLS directory if it's not already
 // there.  (e.g. if __declspec(thread) is not used).
 #pragma comment(linker, "/INCLUDE:__tls_used")
+
+#endif  // _WIN64
 
 // Static callback function to call with each thread termination.
 void NTAPI OnThreadExit(PVOID module, DWORD reason, PVOID reserved)
@@ -157,9 +167,6 @@ void NTAPI OnThreadExit(PVOID module, DWORD reason, PVOID reserved)
     ThreadLocalStorage::ThreadExit();
 }
 
-// Note: .CRT section get merged with .rdata on x64 so it should be constant
-// data.
-//
 // .CRT$XLA to .CRT$XLZ is an array of PIMAGE_TLS_CALLBACK pointers that are
 // called automatically by the OS loader code (not the CRT) when the module is
 // loaded and on thread creation. They are NOT called if the module has been
@@ -170,8 +177,21 @@ void NTAPI OnThreadExit(PVOID module, DWORD reason, PVOID reserved)
 // implicitly loaded.
 //
 // See VC\crt\src\tlssup.c for reference.
+#ifdef _WIN64
+
+// .CRT section is merged with .rdata on x64 so it must be constant data.
+#pragma const_seg(".CRT$XLB")
+const PIMAGE_TLS_CALLBACK p_thread_callback = OnThreadExit;
+
+// Reset the default section.
+#pragma const_seg()
+
+#else  // _WIN64
+
 #pragma data_seg(".CRT$XLB")
 PIMAGE_TLS_CALLBACK p_thread_callback = OnThreadExit;
 
 // Reset the default section.
 #pragma data_seg()
+
+#endif  // _WIN64
