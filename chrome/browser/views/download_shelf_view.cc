@@ -223,9 +223,7 @@ void DownloadShelfView::AnimationProgressed(const Animation *animation) {
 
 void DownloadShelfView::AnimationEnded(const Animation *animation) {
   if (animation == shelf_animation_.get()) {
-    if (shelf_animation_->IsShowing() == false)
-      tab_contents_->SetDownloadShelfVisible(false);
-    tab_contents_->ToolbarSizeChanged(false);
+    tab_contents_->SetDownloadShelfVisible(shelf_animation_->IsShowing());
   }
 }
 

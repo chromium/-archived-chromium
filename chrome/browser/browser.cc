@@ -919,7 +919,7 @@ bool Browser::IsApplication() const {
   return type_ == BrowserType::APPLICATION;
 }
 
-void Browser::CrashedStateChanged(TabContents* source) {
+void Browser::ContentsStateChanged(TabContents* source) {
   int index = tabstrip_model_.GetIndexOfTabContents(source);
   if (index != TabStripModel::kNoTab)
     tabstrip_model_.UpdateTabContentsStateAt(index);

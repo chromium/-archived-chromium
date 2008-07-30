@@ -529,6 +529,9 @@ void TabContents::SetDownloadShelfVisible(bool visible) {
     }
     shelf_visible_ = visible;
 
+    if (delegate_)
+      delegate_->ContentsStateChanged(this);
+
     // SetShelfVisible can force-close the shelf, so make sure we lay out
     // everything correctly, as if the animation had finished. This doesn't
     // matter for showing the shelf, as the show animation will do it.
@@ -550,7 +553,7 @@ void TabContents::SetIsCrashed(bool state) {
 
   is_crashed_ = state;
   if (delegate_)
-    delegate_->CrashedStateChanged(this);
+    delegate_->ContentsStateChanged(this);
 }
 
 bool TabContents::IsCrashed() const {
