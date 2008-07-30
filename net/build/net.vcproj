@@ -529,11 +529,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\url_request\url_request_http_cache_job.cc"
+				RelativePath="..\url_request\url_request_http_job.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\url_request\url_request_http_cache_job.h"
+				RelativePath="..\url_request\url_request_http_job.h"
 				>
 			</File>
 			<File

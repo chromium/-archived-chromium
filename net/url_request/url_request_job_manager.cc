@@ -35,7 +35,7 @@
 #include "net/url_request/url_request_error_job.h"
 #include "net/url_request/url_request_file_job.h"
 #include "net/url_request/url_request_ftp_job.h"
-#include "net/url_request/url_request_http_cache_job.h"
+#include "net/url_request/url_request_http_job.h"
 #include "net/url_request/url_request_view_cache_job.h"
 
 // The built-in set of protocol factories
@@ -43,8 +43,8 @@ static const struct {
   const char* scheme;
   URLRequest::ProtocolFactory* factory;
 } kBuiltinFactories[] = {
-  { "http", URLRequestHttpCacheJob::Factory },
-  { "https", URLRequestHttpCacheJob::Factory },
+  { "http", URLRequestHttpJob::Factory },
+  { "https", URLRequestHttpJob::Factory },
   { "file", URLRequestFileJob::Factory },
   { "ftp", URLRequestFtpJob::Factory },
   { "about", URLRequestAboutJob::Factory },

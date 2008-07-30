@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef NET_URL_REQUEST_URL_REQUEST_HTTP_CACHE_JOB_H__
-#define NET_URL_REQUEST_URL_REQUEST_HTTP_CACHE_JOB_H__
+#ifndef NET_URL_REQUEST_URL_REQUEST_HTTP_JOB_H__
+#define NET_URL_REQUEST_URL_REQUEST_HTTP_JOB_H__
 
 #include "net/base/completion_callback.h"
 #include "net/http/http_request_info.h"
@@ -40,16 +40,16 @@ class HttpTransaction;
 }
 class URLRequestContext;
 
-// A URLRequestJob subclass that is built on top of the HttpCache.  It provides
-// an implementation for both HTTP and HTTPS.
-class URLRequestHttpCacheJob : public URLRequestJob {
+// A URLRequestJob subclass that is built on top of HttpTransaction.  It
+// provides an implementation for both HTTP and HTTPS.
+class URLRequestHttpJob : public URLRequestJob {
  public:
   static URLRequestJob* Factory(URLRequest* request, const std::string& scheme);
 
-  virtual ~URLRequestHttpCacheJob();
+  virtual ~URLRequestHttpJob();
 
  protected:
-  URLRequestHttpCacheJob(URLRequest* request);
+  URLRequestHttpJob(URLRequest* request);
 
   // URLRequestJob methods:
   virtual void SetUpload(net::UploadData* upload);
@@ -97,8 +97,8 @@ class URLRequestHttpCacheJob : public URLRequestJob {
   net::AuthState proxy_auth_state_;
   net::AuthState server_auth_state_;
 
-  net::CompletionCallbackImpl<URLRequestHttpCacheJob> start_callback_;
-  net::CompletionCallbackImpl<URLRequestHttpCacheJob> read_callback_;
+  net::CompletionCallbackImpl<URLRequestHttpJob> start_callback_;
+  net::CompletionCallbackImpl<URLRequestHttpJob> read_callback_;
 
   bool read_in_progress_;
 
@@ -106,7 +106,7 @@ class URLRequestHttpCacheJob : public URLRequestJob {
   // deleted before us.
   scoped_refptr<URLRequestContext> context_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(URLRequestHttpCacheJob);
+  DISALLOW_EVIL_CONSTRUCTORS(URLRequestHttpJob);
 };
 
-#endif  // NET_URL_REQUEST_URL_REQUEST_HTTP_CACHE_JOB_H__
+#endif  // NET_URL_REQUEST_URL_REQUEST_HTTP_JOB_H__

@@ -27,7 +27,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "net/url_request/url_request_http_cache_job.h"
+#include "net/url_request/url_request_http_job.h"
 
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -45,8 +45,8 @@
 #pragma warning(disable: 4355)
 
 // static
-URLRequestJob* URLRequestHttpCacheJob::Factory(URLRequest* request,
-                                               const std::string& scheme) {
+URLRequestJob* URLRequestHttpJob::Factory(URLRequest* request,
+                                          const std::string& scheme) {
   DCHECK(scheme == "http" || scheme == "https");
 
   if (!net_util::IsPortAllowedByDefault(request->url().IntPort()))
@@ -58,38 +58,38 @@ URLRequestJob* URLRequestHttpCacheJob::Factory(URLRequest* request,
     return new URLRequestErrorJob(request, net::ERR_INVALID_ARGUMENT);
   }
 
-  return new URLRequestHttpCacheJob(request);
+  return new URLRequestHttpJob(request);
 }
 
-URLRequestHttpCacheJob::URLRequestHttpCacheJob(URLRequest* request)
+URLRequestHttpJob::URLRequestHttpJob(URLRequest* request)
     : URLRequestJob(request),
       context_(request->context()),
       transaction_(NULL),
       response_info_(NULL),
       proxy_auth_state_(net::AUTH_STATE_DONT_NEED_AUTH),
       server_auth_state_(net::AUTH_STATE_DONT_NEED_AUTH),
-      start_callback_(this, &URLRequestHttpCacheJob::OnStartCompleted),
-      read_callback_(this, &URLRequestHttpCacheJob::OnReadCompleted),
+      start_callback_(this, &URLRequestHttpJob::OnStartCompleted),
+      read_callback_(this, &URLRequestHttpJob::OnReadCompleted),
       read_in_progress_(false) {
 }
 
-URLRequestHttpCacheJob::~URLRequestHttpCacheJob() {
+URLRequestHttpJob::~URLRequestHttpJob() {
   if (transaction_)
     DestroyTransaction();
 }
 
-void URLRequestHttpCacheJob::SetUpload(net::UploadData* upload) {
+void URLRequestHttpJob::SetUpload(net::UploadData* upload) {
   DCHECK(!transaction_) << "cannot change once started";
   request_info_.upload_data = upload;
 }
 
-void URLRequestHttpCacheJob::SetExtraRequestHeaders(
+void URLRequestHttpJob::SetExtraRequestHeaders(
     const std::string& headers) {
   DCHECK(!transaction_) << "cannot change once started";
   request_info_.extra_headers = headers;
 }
 
-void URLRequestHttpCacheJob::Start() {
+void URLRequestHttpJob::Start() {
   DCHECK(!transaction_);
 
   // TODO(darin): URLRequest::referrer() should return a GURL
@@ -116,7 +116,7 @@ void URLRequestHttpCacheJob::Start() {
   StartTransaction();
 }
 
-void URLRequestHttpCacheJob::Kill() {
+void URLRequestHttpJob::Kill() {
   if (!transaction_)
     return;
 
@@ -124,15 +124,15 @@ void URLRequestHttpCacheJob::Kill() {
   URLRequestJob::Kill();
 }
 
-net::LoadState URLRequestHttpCacheJob::GetLoadState() const {
+net::LoadState URLRequestHttpJob::GetLoadState() const {
   return transaction_ ? transaction_->GetLoadState() : net::LOAD_STATE_IDLE;
 }
 
-uint64 URLRequestHttpCacheJob::GetUploadProgress() const {
+uint64 URLRequestHttpJob::GetUploadProgress() const {
   return transaction_ ? transaction_->GetUploadProgress() : 0;
 }
 
-bool URLRequestHttpCacheJob::GetMimeType(std::string* mime_type) {
+bool URLRequestHttpJob::GetMimeType(std::string* mime_type) {
   DCHECK(transaction_);
 
   if (!response_info_)
@@ -141,7 +141,7 @@ bool URLRequestHttpCacheJob::GetMimeType(std::string* mime_type) {
   return response_info_->headers->GetMimeType(mime_type);
 }
 
-bool URLRequestHttpCacheJob::GetCharset(std::string* charset) {
+bool URLRequestHttpJob::GetCharset(std::string* charset) {
   DCHECK(transaction_);
 
   if (!response_info_)
@@ -150,7 +150,7 @@ bool URLRequestHttpCacheJob::GetCharset(std::string* charset) {
   return response_info_->headers->GetCharset(charset);
 }
 
-void URLRequestHttpCacheJob::GetResponseInfo(net::HttpResponseInfo* info) {
+void URLRequestHttpJob::GetResponseInfo(net::HttpResponseInfo* info) {
   DCHECK(request_);
   DCHECK(transaction_);
 
@@ -158,7 +158,7 @@ void URLRequestHttpCacheJob::GetResponseInfo(net::HttpResponseInfo* info) {
     *info = *response_info_;
 }
 
-bool URLRequestHttpCacheJob::GetResponseCookies(
+bool URLRequestHttpJob::GetResponseCookies(
     std::vector<std::string>* cookies) {
   DCHECK(transaction_);
 
@@ -173,7 +173,7 @@ bool URLRequestHttpCacheJob::GetResponseCookies(
   return true;
 }
 
-int URLRequestHttpCacheJob::GetResponseCode() {
+int URLRequestHttpJob::GetResponseCode() {
   DCHECK(transaction_);
 
   if (!response_info_)
@@ -182,7 +182,7 @@ int URLRequestHttpCacheJob::GetResponseCode() {
   return response_info_->headers->response_code();
 }
 
-bool URLRequestHttpCacheJob::GetContentEncoding(std::string* encoding_type) {
+bool URLRequestHttpJob::GetContentEncoding(std::string* encoding_type) {
   DCHECK(transaction_);
 
   if (!response_info_)
@@ -193,8 +193,8 @@ bool URLRequestHttpCacheJob::GetContentEncoding(std::string* encoding_type) {
                                                   encoding_type);
 }
 
-bool URLRequestHttpCacheJob::IsRedirectResponse(GURL* location,
-                                                int* http_status_code) {
+bool URLRequestHttpJob::IsRedirectResponse(GURL* location,
+                                           int* http_status_code) {
   if (!response_info_)
     return false;
 
@@ -207,7 +207,7 @@ bool URLRequestHttpCacheJob::IsRedirectResponse(GURL* location,
   return true;
 }
 
-bool URLRequestHttpCacheJob::IsSafeRedirect(const GURL& location) {
+bool URLRequestHttpJob::IsSafeRedirect(const GURL& location) {
   // We only allow redirects to certain "safe" protocols.  This does not
   // restrict redirects to externally handled protocols.  Our consumer would
   // need to take care of those.
@@ -229,7 +229,7 @@ bool URLRequestHttpCacheJob::IsSafeRedirect(const GURL& location) {
   return false;
 }
 
-bool URLRequestHttpCacheJob::NeedsAuth() {
+bool URLRequestHttpJob::NeedsAuth() {
   int code = GetResponseCode();
   if (code == -1)
     return false;
@@ -251,7 +251,7 @@ bool URLRequestHttpCacheJob::NeedsAuth() {
   return false;
 }
 
-void URLRequestHttpCacheJob::GetAuthChallengeInfo(
+void URLRequestHttpJob::GetAuthChallengeInfo(
     scoped_refptr<net::AuthChallengeInfo>* result) {
   DCHECK(transaction_);
   DCHECK(response_info_);
@@ -265,7 +265,7 @@ void URLRequestHttpCacheJob::GetAuthChallengeInfo(
   *result = response_info_->auth_challenge;
 }
 
-void URLRequestHttpCacheJob::GetCachedAuthData(
+void URLRequestHttpJob::GetCachedAuthData(
     const net::AuthChallengeInfo& auth_info,
     scoped_refptr<net::AuthData>* auth_data) {
   net::AuthCache* auth_cache =
@@ -279,8 +279,8 @@ void URLRequestHttpCacheJob::GetCachedAuthData(
   *auth_data = auth_cache->Lookup(auth_cache_key);
 }
 
-void URLRequestHttpCacheJob::SetAuth(const std::wstring& username,
-                                     const std::wstring& password) {
+void URLRequestHttpJob::SetAuth(const std::wstring& username,
+                                const std::wstring& password) {
   DCHECK(transaction_);
 
   // Proxy gets set first, then WWW.
@@ -307,10 +307,10 @@ void URLRequestHttpCacheJob::SetAuth(const std::wstring& username,
   // The transaction started synchronously, but we need to notify the
   // URLRequest delegate via the message loop.
   MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &URLRequestHttpCacheJob::OnStartCompleted, rv));
+      this, &URLRequestHttpJob::OnStartCompleted, rv));
 }
 
-void URLRequestHttpCacheJob::CancelAuth() {
+void URLRequestHttpJob::CancelAuth() {
   // Proxy gets set first, then WWW.
   if (proxy_auth_state_ == net::AUTH_STATE_NEED_AUTH) {
     proxy_auth_state_ = net::AUTH_STATE_CANCELED;
@@ -332,10 +332,10 @@ void URLRequestHttpCacheJob::CancelAuth() {
   // We have to do this via InvokeLater to avoid "recursing" the consumer.
   //
   MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &URLRequestHttpCacheJob::OnStartCompleted, net::OK));
+      this, &URLRequestHttpJob::OnStartCompleted, net::OK));
 }
 
-void URLRequestHttpCacheJob::ContinueDespiteLastError() {
+void URLRequestHttpJob::ContinueDespiteLastError() {
   DCHECK(transaction_);
   DCHECK(!response_info_) << "should not have a response yet";
 
@@ -350,15 +350,14 @@ void URLRequestHttpCacheJob::ContinueDespiteLastError() {
   // The transaction started synchronously, but we need to notify the
   // URLRequest delegate via the message loop.
   MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &URLRequestHttpCacheJob::OnStartCompleted, rv));
+      this, &URLRequestHttpJob::OnStartCompleted, rv));
 }
 
-bool URLRequestHttpCacheJob::GetMoreData() {
+bool URLRequestHttpJob::GetMoreData() {
   return transaction_ && !read_in_progress_;
 }
 
-bool URLRequestHttpCacheJob::ReadRawData(char* buf, int buf_size,
-                                         int *bytes_read) {
+bool URLRequestHttpJob::ReadRawData(char* buf, int buf_size, int *bytes_read) {
   DCHECK_NE(buf_size, 0);
   DCHECK(bytes_read);
   DCHECK(!read_in_progress_);
@@ -379,7 +378,7 @@ bool URLRequestHttpCacheJob::ReadRawData(char* buf, int buf_size,
   return false;
 }
 
-void URLRequestHttpCacheJob::OnStartCompleted(int result) {
+void URLRequestHttpJob::OnStartCompleted(int result) {
   // If the request was destroyed, then there is no more work to do.
   if (!request_ || !request_->delegate())
     return;
@@ -406,7 +405,7 @@ void URLRequestHttpCacheJob::OnStartCompleted(int result) {
   }
 }
 
-void URLRequestHttpCacheJob::OnReadCompleted(int result) {
+void URLRequestHttpJob::OnReadCompleted(int result) {
   read_in_progress_ = false;
 
   if (result == 0) {
@@ -421,7 +420,7 @@ void URLRequestHttpCacheJob::OnReadCompleted(int result) {
   NotifyReadComplete(result);
 }
 
-void URLRequestHttpCacheJob::NotifyHeadersComplete() {
+void URLRequestHttpJob::NotifyHeadersComplete() {
   DCHECK(!response_info_);
 
   response_info_ = transaction_->GetResponseInfo();
@@ -439,7 +438,7 @@ void URLRequestHttpCacheJob::NotifyHeadersComplete() {
   URLRequestJob::NotifyHeadersComplete();
 }
 
-void URLRequestHttpCacheJob::DestroyTransaction() {
+void URLRequestHttpJob::DestroyTransaction() {
   DCHECK(transaction_);
 
   transaction_->Destroy();
@@ -447,7 +446,7 @@ void URLRequestHttpCacheJob::DestroyTransaction() {
   response_info_ = NULL;
 }
 
-void URLRequestHttpCacheJob::StartTransaction() {
+void URLRequestHttpJob::StartTransaction() {
   // NOTE: This method assumes that request_info_ is already setup properly.
 
   // Create a transaction.
@@ -475,10 +474,10 @@ void URLRequestHttpCacheJob::StartTransaction() {
   // The transaction started synchronously, but we need to notify the
   // URLRequest delegate via the message loop.
   MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &URLRequestHttpCacheJob::OnStartCompleted, rv));
+      this, &URLRequestHttpJob::OnStartCompleted, rv));
 }
 
-void URLRequestHttpCacheJob::AddExtraHeaders() {
+void URLRequestHttpJob::AddExtraHeaders() {
   URLRequestContext* context = request_->context();
   if (context) {
     // Add in the cookie header.  TODO might we need more than one header?
@@ -526,7 +525,7 @@ void URLRequestHttpCacheJob::AddExtraHeaders() {
 #endif
 }
 
-void URLRequestHttpCacheJob::FetchResponseCookies() {
+void URLRequestHttpJob::FetchResponseCookies() {
   DCHECK(response_info_);
   DCHECK(response_cookies_.empty());
 
