@@ -58,6 +58,7 @@ input_files = [
     'base_drop_target.cc',
     'base_paths.cc',
     'base_switches.cc',
+    'bzip2_error_handler.cc',
     'clipboard.cc',
     'clipboard_util.cc',
     'command_line.cc',
