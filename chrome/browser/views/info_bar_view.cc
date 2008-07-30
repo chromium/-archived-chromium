@@ -141,7 +141,9 @@ void InfoBarView::DidNavigate(NavigationEntry* entry) {
                                         entry->unique_id();
   for (std::map<View*,int>::iterator i = expire_map_.begin();
        i != expire_map_.end(); ++i) {
-    if ((i->second) != active_id)
+    if ((pending_entry && 
+        pending_entry->GetTransitionType() == PageTransition::RELOAD) ||
+        i->second != active_id)
       to_remove.push_back(i->first);
   }
 
