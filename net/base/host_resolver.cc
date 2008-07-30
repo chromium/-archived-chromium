@@ -166,7 +166,7 @@ int HostResolver::Resolve(const std::string& hostname, int port,
 
   const std::string& port_str = IntToString(port);
 
-  // Do a synchronous resolution?
+  // Do a synchronous resolution.
   if (!callback) {
     struct addrinfo* results;
     int rv = ResolveAddrInfo(hostname, port_str, &results);

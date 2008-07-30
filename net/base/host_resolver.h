@@ -64,6 +64,8 @@ class HostResolver {
   // sin(6)_port field of the sockaddr_in{6} struct.  Returns OK if successful
   // or an error code upon failure.
   //
+  // When callback is null, the operation completes synchronously.
+  //
   // When callback is non-null, ERR_IO_PENDING is returned if the operation
   // could not be completed synchronously, in which case the result code will
   // be passed to the callback when available.
