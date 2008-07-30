@@ -283,6 +283,11 @@ installer_util::InstallStatus installer::InstallOrUpdateChrome(
     } else {
       UpdateChromeExeShortcuts(chrome_exe);
       RemoveOldVersionDirs(install_path, new_version.GetString());
+      // Delete the old key for Uninstall link (this code can be removed once
+      // everyone has migrated to the new "Google Chrome" version of the key).
+      RegKey key(reg_root, L"", KEY_ALL_ACCESS);
+      key.DeleteKey(L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Chrome");
+      key.Close();
     }
   }
 
