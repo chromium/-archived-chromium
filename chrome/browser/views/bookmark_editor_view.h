@@ -83,6 +83,7 @@ class BookmarkEditorView : public ChromeViews::View,
   virtual std::wstring GetWindowTitle() const;
   virtual bool Accept();
   virtual bool AreAcceleratorsEnabled(DialogButton button);
+  virtual ChromeViews::View* GetContentsView();
 
   // View methods.
   virtual void Layout();
@@ -243,9 +244,6 @@ class BookmarkEditorView : public ChromeViews::View,
 
   // Used for editing the title.
   ChromeViews::TextField title_tf_;
-
-  // Dialog we're contained in.
-  ChromeViews::Window* dialog_;
 
   // URL we were created with.
   const GURL url_;

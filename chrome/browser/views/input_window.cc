@@ -51,12 +51,9 @@ class ContentView : public ChromeViews::View,
  public:
   explicit ContentView(InputWindowDelegate* delegate)
       : delegate_(delegate),
-        window_(NULL),
         focus_grabber_factory_(this) {
     DCHECK(delegate_);
   }
-
-  void set_window(ChromeViews::Window* window) { window_ = window; }
 
   // ChromeViews::DialogDelegate overrides:
   virtual bool IsDialogButtonEnabled(DialogButton button) const;
@@ -65,6 +62,7 @@ class ContentView : public ChromeViews::View,
   virtual void WindowClosing();
   virtual std::wstring GetWindowTitle() const;
   virtual bool IsModal() const { return true; }
+  virtual ChromeViews::View* GetContentsView();
 
   // ChromeViews::TextField::Controller overrides:
   virtual void ContentsChanged(ChromeViews::TextField* sender,
@@ -90,9 +88,6 @@ class ContentView : public ChromeViews::View,
   // The delegate that the ContentView uses to communicate changes to the
   // caller.
   InputWindowDelegate* delegate_;
-
-  // The Window that owns this view.
-  ChromeViews::Window* window_;
 
   // Helps us set focus to the first TextField in the window.
   ScopedRunnableMethodFactory<ContentView> focus_grabber_factory_;
@@ -127,12 +122,16 @@ std::wstring ContentView::GetWindowTitle() const {
   return delegate_->GetWindowTitle();
 }
 
+ChromeViews::View* ContentView::GetContentsView() {
+  return this;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // ContentView, ChromeViews::TextField::Controller implementation:
 
 void ContentView::ContentsChanged(ChromeViews::TextField* sender,
                                   const std::wstring& new_contents) {
-  window_->UpdateDialogButtons();
+  window()->UpdateDialogButtons();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -185,10 +184,9 @@ void ContentView::FocusFirstFocusableControl() {
 
 ChromeViews::Window* CreateInputWindow(HWND parent_hwnd,
                                        InputWindowDelegate* delegate) {
-  ContentView* cv = new ContentView(delegate);
-  ChromeViews::Window* window = ChromeViews::Window::CreateChromeWindow(
-      parent_hwnd, gfx::Rect(), cv, cv);
-  cv->set_window(window);
+  ChromeViews::Window* window =
+      ChromeViews::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(),
+                                              new ContentView(delegate));
   window->UpdateDialogButtons();
   return window;
 }

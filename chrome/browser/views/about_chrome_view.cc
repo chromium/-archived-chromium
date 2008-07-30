@@ -54,8 +54,7 @@
 // AboutChromeView, public:
 
 AboutChromeView::AboutChromeView(Profile* profile)
-    : dialog_(NULL),
-      profile_(profile),
+    : profile_(profile),
       about_dlg_background_(NULL),
       about_title_label_(NULL),
       version_label_(NULL),
@@ -372,6 +371,10 @@ bool AboutChromeView::Accept() {
   return false;  // We never allow this button to close the window.
 }
 
+ChromeViews::View* AboutChromeView::GetContentsView() {
+  return this;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // AboutChromeView, GoogleUpdateStatusListener implementation:
 
@@ -456,7 +459,7 @@ void AboutChromeView::UpdateStatus(GoogleUpdateUpgradeResult result,
           l10n_util::GetString(IDS_PRODUCT_NAME),
           new_version_available_));
       show_success_indicator = true;
-      RestartMessageBox::ShowMessageBox(dialog_->GetHWND());
+      RestartMessageBox::ShowMessageBox(window()->GetHWND());
       break;
     case UPGRADE_ERROR:
       UserMetrics::RecordAction(L"UpgradeCheck_Error", profile_);
@@ -484,7 +487,7 @@ void AboutChromeView::UpdateStatus(GoogleUpdateUpgradeResult result,
   parent->Layout();
 
   // Check button may have appeared/disappeared. We cannot call this during
-  // ViewHierarchyChanged because the |dialog_| pointer hasn't been set yet.
-  if (dialog_)
-    dialog_->UpdateDialogButtons();
+  // ViewHierarchyChanged because the |window()| pointer hasn't been set yet.
+  if (window())
+    window()->UpdateDialogButtons();
 }

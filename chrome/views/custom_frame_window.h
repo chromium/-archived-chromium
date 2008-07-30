@@ -48,9 +48,10 @@ namespace ChromeViews {
 ////////////////////////////////////////////////////////////////////////////////
 class CustomFrameWindow : public Window {
  public:
-  CustomFrameWindow();
+  explicit CustomFrameWindow(WindowDelegate* window_delegate);
   class NonClientView;
-  explicit CustomFrameWindow(NonClientView* non_client_view);
+  CustomFrameWindow(WindowDelegate* window_delegate,
+                    NonClientView* non_client_view);
   virtual ~CustomFrameWindow();
 
   // Create the CustomFrameWindow.
@@ -58,14 +59,7 @@ class CustomFrameWindow : public Window {
   // window that this window is dependent on, if this window is opened as a
   // modal dialog or dependent window. This is NULL if the window is not
   // dependent on any other window.
-  // |contents_view| is the view to be displayed in the client area of the
-  // window.
-  // |window_delegate| is an object implementing the WindowDelegate interface
-  // that supplies information to the window such as its title, icon, etc.
-  virtual void Init(HWND owner,
-                    const gfx::Rect& bounds,
-                    View* contents_view,
-                    WindowDelegate* window_delegate);
+  virtual void Init(HWND owner, const gfx::Rect& bounds);
 
   // Executes the specified SC_command.
   void ExecuteSystemMenuCommand(int command);

@@ -48,7 +48,8 @@
 #include "generated_resources.h"
 
 FirstRunCustomizeView::FirstRunCustomizeView(Profile* profile,
-                                             ImporterHost* importer_host)
+                                             ImporterHost* importer_host,
+                                             CustomizeViewObserver* observer)
     : FirstRunViewBase(profile),
       main_label_(NULL),
       import_cbox_(NULL),
@@ -57,7 +58,7 @@ FirstRunCustomizeView::FirstRunCustomizeView(Profile* profile,
       shortcuts_label_(NULL),
       desktop_shortcut_cbox_(NULL),
       quick_shortcut_cbox_(NULL),
-      customize_observer_(NULL) {
+      customize_observer_(observer) {
   importer_host_ = importer_host;
   DCHECK(importer_host_);
   SetupControls();
@@ -202,6 +203,10 @@ std::wstring FirstRunCustomizeView::GetWindowTitle() const {
   return l10n_util::GetString(IDS_FR_CUSTOMIZE_DLG_TITLE);
 }
 
+ChromeViews::View* FirstRunCustomizeView::GetContentsView() {
+  return this;
+}
+
 bool FirstRunCustomizeView::Accept() {
   if (!IsDialogButtonEnabled(DIALOGBUTTON_OK))
     return false;
@@ -226,7 +231,7 @@ bool FirstRunCustomizeView::Accept() {
   } else {
     int browser_selected = import_from_combo_->GetSelectedItem();
     FirstRun::ImportSettings(profile_, browser_selected,
-                             GetDefaultImportItems(), dialog_->GetHWND());
+                             GetDefaultImportItems(), window()->GetHWND());
   }
   if (default_browser_cbox_->IsSelected()) {
     UserMetrics::RecordAction(L"FirstRunCustom_Do_DefBrowser", profile_);

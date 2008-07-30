@@ -63,15 +63,10 @@ class FirstRunCustomizeView : public FirstRunViewBase,
     virtual void CustomizeCanceled() = 0;
   };
 
-  FirstRunCustomizeView(Profile* profile, ImporterHost* importer_host);
+  FirstRunCustomizeView(Profile* profile,
+                        ImporterHost* importer_host,
+                        CustomizeViewObserver* observer);
   virtual ~FirstRunCustomizeView();
-
-  void set_dialog(ChromeViews::Window* dialog) { dialog_ = dialog; }
-
-  // Sets the object that receives UserAccept and UserCancel notifications.
-  void set_observer(CustomizeViewObserver* observer) {
-    customize_observer_ = observer;
-  };
 
   // Overridden from ChromeViews::View.
   virtual void GetPreferredSize(CSize *out);
@@ -90,13 +85,11 @@ class FirstRunCustomizeView : public FirstRunViewBase,
 
   // Overridden from ChromeViews::WindowDelegate.
   virtual std::wstring GetWindowTitle() const;
-
+  virtual ChromeViews::View* GetContentsView();
   // Yes, we're modal.
   // NOTE: if you change this you'll need to make sure it isn't possible to
   // close the window while importing.
-  virtual bool IsModal() const {
-    return true;
-  }
+  virtual bool IsModal() const { return true; }
 
  private:
   // Initializes the controls on the dialog.

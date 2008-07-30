@@ -33,6 +33,8 @@
 #include "base/basictypes.h"
 #include "chrome/views/dialog_delegate.h"
 
+class MessageBoxView;
+
 // A dialog box that tells the user that s/he needs to restart Chrome
 // for a change to take effect.
 class RestartMessageBox : public ChromeViews::DialogDelegate {
@@ -49,10 +51,13 @@ class RestartMessageBox : public ChromeViews::DialogDelegate {
   // ChromeViews::WindowDelegate:
   virtual void WindowClosing();
   virtual bool IsModal() const;
+  virtual ChromeViews::View* GetContentsView();
 
  private:
   explicit RestartMessageBox(HWND parent_hwnd);
   virtual ~RestartMessageBox();
+
+  MessageBoxView* message_box_view_;
 
   DISALLOW_EVIL_CONSTRUCTORS(RestartMessageBox);
 };

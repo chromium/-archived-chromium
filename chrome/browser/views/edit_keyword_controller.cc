@@ -78,13 +78,10 @@ EditKeywordController::EditKeywordController(
 void EditKeywordController::Show() {
   // Window interprets an empty rectangle as needing to query the content for
   // the size as well as centering relative to the parent.
-  window_ = ChromeViews::Window::CreateChromeWindow(
-      ::IsWindow(parent_) ? parent_ : NULL,
-      gfx::Rect(),
-      view_,
-      this);
-  window_->Show();
-  window_->UpdateDialogButtons();
+  ChromeViews::Window::CreateChromeWindow(::IsWindow(parent_) ? parent_ : NULL,
+                                          gfx::Rect(), this); 
+  window()->Show();
+  window()->UpdateDialogButtons();
   title_tf_->SelectAll();
   title_tf_->RequestFocus();
 }
@@ -180,9 +177,13 @@ bool EditKeywordController::Accept() {
   return true;
 }
 
+ChromeViews::View* EditKeywordController::GetContentsView() {
+  return view_;
+}
+
 void EditKeywordController::ContentsChanged(TextField* sender,
                                             const std::wstring& new_contents) {
-  window_->UpdateDialogButtons();
+  window()->UpdateDialogButtons();
   UpdateImageViews();
 }
 

@@ -55,6 +55,7 @@ class ExternalProtocolDialog : public ChromeViews::DialogDelegate {
   virtual std::wstring GetWindowTitle() const;
   virtual void WindowClosing();
   virtual bool Accept();
+  virtual ChromeViews::View* GetContentsView();
 
   // ChromeViews::WindowDelegate Methods:
   virtual bool IsAlwaysOnTop() const { return false; }

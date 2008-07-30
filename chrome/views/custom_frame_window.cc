@@ -507,8 +507,7 @@ int DefaultNonClientView::HitTest(const gfx::Point& point) {
   // If the window can't be resized, there are no resize boundaries, just
   // window borders.
   if (component != HTNOWHERE) {
-    if (container_->window_delegate() &&
-        !container_->window_delegate()->CanResize()) {
+    if (!container_->window_delegate()->CanResize()) {
       return HTBORDER;
     }
     return component;
@@ -571,6 +570,7 @@ void DefaultNonClientView::Layout() {
   LayoutWindowControls();
   LayoutTitleBar();
   LayoutClientView();
+  SchedulePaint();
 }
 
 void DefaultNonClientView::GetPreferredSize(CSize* out) {
@@ -880,15 +880,16 @@ void DefaultNonClientView::InitClass() {
 ////////////////////////////////////////////////////////////////////////////////
 // CustomFrameWindow, public:
 
-CustomFrameWindow::CustomFrameWindow()
-    : Window(),
+CustomFrameWindow::CustomFrameWindow(WindowDelegate* window_delegate)
+    : Window(window_delegate),
       non_client_view_(new DefaultNonClientView(this)),
       is_active_(false) {
   InitClass();
 }
 
-CustomFrameWindow::CustomFrameWindow(NonClientView* non_client_view)
-    : Window(),
+CustomFrameWindow::CustomFrameWindow(WindowDelegate* window_delegate,
+                                     NonClientView* non_client_view)
+    : Window(window_delegate),
       non_client_view_(non_client_view) {
   InitClass();
 }
@@ -896,10 +897,8 @@ CustomFrameWindow::CustomFrameWindow(NonClientView* non_client_view)
 CustomFrameWindow::~CustomFrameWindow() {
 }
 
-void CustomFrameWindow::Init(HWND owner, const gfx::Rect& bounds,
-                             View* contents_view,
-                             WindowDelegate* window_delegate) {
-  Window::Init(owner, bounds, contents_view, window_delegate);
+void CustomFrameWindow::Init(HWND owner, const gfx::Rect& bounds) {
+  Window::Init(owner, bounds);
   // We need to re-parent the client view to the non-client view.
   GetRootView()->RemoveChildView(client_view_);
   GetRootView()->AddChildView(non_client_view_);

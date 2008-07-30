@@ -67,8 +67,6 @@ class ClearBrowsingDataView : public ChromeViews::View,
   // Initialize the controls on the dialog.
   void Init();
 
-  void SetDialog(ChromeViews::Window* dialog) { dialog_ = dialog; }
-
   // Overridden from ChromeViews::View:
   virtual void GetPreferredSize(CSize *out);
   virtual void Layout();
@@ -86,6 +84,7 @@ class ClearBrowsingDataView : public ChromeViews::View,
   virtual bool IsModal() const;
   virtual std::wstring GetWindowTitle() const;
   virtual bool Accept();
+  virtual ChromeViews::View* GetContentsView();
 
   // Overridden from ChromeViews::ComboBox::Model:
   virtual int GetItemCount(ChromeViews::ComboBox* source);
@@ -124,8 +123,6 @@ class ClearBrowsingDataView : public ChromeViews::View,
 
   // Used to signal enabled/disabled state for controls in the UI.
   bool delete_in_progress_;
-
-  ChromeViews::Window* dialog_;
 
   Profile* profile_;
 

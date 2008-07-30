@@ -63,7 +63,6 @@ ImportingProgressView::ImportingProgressView(const std::wstring& source_name,
           l10n_util::GetString(IDS_IMPORT_PROGRESS_STATUS_HISTORY))),
       label_cookies_(new ChromeViews::Label(
           l10n_util::GetString(IDS_IMPORT_PROGRESS_STATUS_COOKIES))),
-      window_(NULL),
       parent_window_(parent_window),
       coordinator_(coordinator),
       import_observer_(observer),
@@ -167,7 +166,7 @@ void ImportingProgressView::ImportEnded() {
   // In every case, we need to close the UI now.
   importing_ = false;
   coordinator_->SetObserver(NULL);
-  window_->Close();
+  window()->Close();
   if (import_observer_)
     import_observer_->ImportComplete();
 }
@@ -218,6 +217,10 @@ bool ImportingProgressView::Cancel() {
   // Return false because the window needs to live long enough to receive
   // ImportEnded, which will close the window.
   return false;
+}
+
+ChromeViews::View* ImportingProgressView::GetContentsView() {
+  return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -296,10 +299,8 @@ void StartImportingWithUI(HWND parent_window,
   DCHECK(items != 0);
   ImportingProgressView* v = new ImportingProgressView(
       source_profile.description, items, coordinator, observer, parent_window);
-  ChromeViews::Window* window = ChromeViews::Window::CreateChromeWindow(
-      parent_window, gfx::Rect(), v, v);
-  v->set_window(window);
-  window->Show();
+  ChromeViews::Window::CreateChromeWindow(parent_window, gfx::Rect(),
+                                          v)->Show();
   coordinator->StartImportSettings(source_profile, items,
                                    new ProfileWriter(target_profile),
                                    first_run);

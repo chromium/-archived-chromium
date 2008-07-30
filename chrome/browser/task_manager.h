@@ -150,6 +150,7 @@ class TaskManager : public ChromeViews::DialogDelegate {
                                      bool* always_on_top);
   virtual int GetDialogButtons() const;
   virtual void WindowClosing();
+  virtual ChromeViews::View* GetContentsView();
 
  private:
   // Obtain an instance via GetInstance().
@@ -162,8 +163,6 @@ class TaskManager : public ChromeViews::DialogDelegate {
 
   // Returns the singleton instance (and initializes it if necessary).
   static TaskManager* GetInstance();
-
-  ChromeViews::Window* window_;
 
   // The model used for the list in the table that displays the list of tab
   // processes. It is ref counted because it is passed as a parameter to

@@ -54,8 +54,7 @@ static const int kExtraMarginForTimePeriodLabel = 3;
 // ClearBrowsingDataView, public:
 
 ClearBrowsingDataView::ClearBrowsingDataView(Profile* profile)
-    : dialog_(NULL),
-      del_history_checkbox_(NULL),
+    : del_history_checkbox_(NULL),
       del_downloads_checkbox_(NULL),
       del_cache_checkbox_(NULL),
       del_cookies_checkbox_(NULL),
@@ -292,6 +291,10 @@ bool ClearBrowsingDataView::Accept() {
   return false;  // We close the dialog in OnDeletionDone().
 }
 
+ChromeViews::View* ClearBrowsingDataView::GetContentsView() {
+  return this;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // ClearBrowsingDataView, ChromeViews::ComboBox::Model implementation:
 
@@ -319,7 +322,7 @@ std::wstring ClearBrowsingDataView::GetItemAt(ChromeViews::ComboBox* source,
 void ClearBrowsingDataView::ButtonPressed(ChromeViews::NativeButton* sender) {
   // When no checkbox is checked we should not have the action button enabled.
   // This forces the button to evaluate what state they should be in.
-  dialog_->UpdateDialogButtons();
+  window()->UpdateDialogButtons();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -335,7 +338,7 @@ ChromeViews::CheckBox* ClearBrowsingDataView::AddCheckbox(
 }
 
 void ClearBrowsingDataView::UpdateControlEnabledState() {
-  dialog_->EnableClose(!delete_in_progress_);
+  window()->EnableClose(!delete_in_progress_);
 
   del_history_checkbox_->SetEnabled(!delete_in_progress_);
   del_downloads_checkbox_->SetEnabled(!delete_in_progress_);
@@ -352,7 +355,7 @@ void ClearBrowsingDataView::UpdateControlEnabledState() {
     throbber_->Stop();
 
   // Make sure to update the state for OK and Cancel buttons.
-  dialog_->UpdateDialogButtons();
+  window()->UpdateDialogButtons();
 }
 
 // Convenience method that returns true if the supplied checkbox is selected
@@ -399,5 +402,5 @@ void ClearBrowsingDataView::OnDelete() {
 }
 
 void ClearBrowsingDataView::OnBrowsingDataRemoverDone() {
-  dialog_->Close();
+  window()->Close();
 }

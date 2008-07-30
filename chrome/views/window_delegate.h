@@ -35,6 +35,7 @@
 #include <atlmisc.h>
 #include <string>
 
+#include "chrome/views/window.h"
 #include "skia/include/SkBitmap.h"
 
 namespace ChromeViews {
@@ -53,6 +54,10 @@ class View;
 ///////////////////////////////////////////////////////////////////////////////
 class WindowDelegate {
  public:
+  virtual ~WindowDelegate() {
+    window_.release();
+  }
+
   virtual DialogDelegate* AsDialogDelegate() { return NULL; }
 
   // Returns true if the window can be resized.
@@ -128,6 +133,23 @@ class WindowDelegate {
 
   // Called when the window closes.
   virtual void WindowClosing() { }
+
+  // Returns the View that is contained within this Window.
+  virtual View* GetContentsView() {
+    return NULL;
+  }
+
+  // An accessor to the Window this delegate is bound to.
+  Window* window() const { return window_.get(); }
+
+ private:
+  friend Window;
+  // This is a little unusual. We use a scoped_ptr here because it's
+  // initialized to NULL automatically. We do this because we want to allow
+  // people using this helper to not have to call a ctor on this object.
+  // Instead we just release the owning ref this pointer has when we are
+  // destroyed.
+  scoped_ptr<ChromeViews::Window> window_;
 };
 
 }  // namespace ChromeViews

@@ -243,16 +243,16 @@ void ClientView::Layout() {
 
 void ClientView::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
   if (is_add && child == this) {
+    // Can only add and update the dialog buttons _after_ they are added to the
+    // view hierarchy since they are native controls and require the
+    // ViewContainer's HWND.
+    ShowDialogButtons();
     // Only add the contents_view_ once, and only when we ourselves are added
     // to the view hierarchy, since some contents_view_s assume that when they
     // are added to the hierarchy a HWND exists, when it may not, since we are
     // not yet added...
     if (contents_view_ && contents_view_->GetParent() != this)
       AddChildView(contents_view_);
-    // Can only add and update the dialog buttons _after_ they are added to the
-    // view hierarchy since they are native controls and require the
-    // ViewContainer's HWND.
-    ShowDialogButtons();
     UpdateDialogButtons();
     Layout();
   }

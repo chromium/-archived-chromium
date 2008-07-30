@@ -60,7 +60,7 @@ class HtmlDialogView
   virtual ~HtmlDialogView();
 
   // Initializes the contents of the dialog (the DOMView and the callbacks).
-  void InitDialog(ChromeViews::Window* dialog);
+  void InitDialog();
 
   // Overridden from ChromeViews::View:
   virtual void GetPreferredSize(CSize *out);
@@ -70,6 +70,7 @@ class HtmlDialogView
   virtual bool IsModal() const;
   virtual std::wstring GetWindowTitle() const;
   virtual void WindowClosing();
+  virtual ChromeViews::View* GetContentsView();
 
   // Overridden from HtmlDialogContentsDelegate:
   virtual GURL GetDialogContentURL() const;
@@ -101,9 +102,6 @@ class HtmlDialogView
   virtual void UpdateTargetURL(TabContents* source, const GURL& url);
 
  private:
-  // The dialog this view is displayed in.
-  ChromeViews::Window* dialog_;
-
   // The Browser object which created this html dialog; we send all
   // window opening/navigations to this object.
   Browser* parent_browser_;

@@ -75,15 +75,20 @@ void RepostFormWarningDialog::WindowClosing() {
 }
 
 bool RepostFormWarningDialog::Cancel() {
-  dialog_ = NULL;
   return true;
 }
 
 bool RepostFormWarningDialog::Accept() {
-  dialog_ = NULL;
   if (navigation_controller_)
     navigation_controller_->ReloadDontCheckForRepost();
   return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// RepostFormWarningDialog, ChromeViews::WindowDelegate implementation:
+
+ChromeViews::View* RepostFormWarningDialog::GetContentsView() {
+  return message_box_view_;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -100,10 +105,7 @@ RepostFormWarningDialog::RepostFormWarningDialog(
   HWND root_hwnd = NULL;
   if (BrowserList::GetLastActive())
     root_hwnd = BrowserList::GetLastActive()->GetTopLevelHWND();
-  ChromeViews::Window* dialog_ =
-      ChromeViews::Window::CreateChromeWindow(root_hwnd, gfx::Rect(),
-                                              message_box_view_, this);
-  dialog_->Show();
+  ChromeViews::Window::CreateChromeWindow(root_hwnd, gfx::Rect(), this)->Show();
   NotificationService::current()->
       AddObserver(this, NOTIFY_LOAD_START, NotificationService::AllSources());
   NotificationService::current()->
@@ -116,10 +118,10 @@ void RepostFormWarningDialog::Observe(NotificationType type,
   // Close the dialog if we load a page (because reloading might not apply to
   // the same page anymore) or if the tab is closed, because then we won't have
   // a navigation controller anymore.
-  if (dialog_ && navigation_controller_ &&
+  if (window() && navigation_controller_ &&
       (type == NOTIFY_LOAD_START || type == NOTIFY_TAB_CLOSING) &&
       Source<NavigationController>(source).ptr() == navigation_controller_) {
       navigation_controller_ = NULL;
-      dialog_->Close();
+      window()->Close();
     }
 }

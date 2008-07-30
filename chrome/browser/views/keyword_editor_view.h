@@ -178,6 +178,7 @@ class KeywordEditorView : public ChromeViews::View,
   virtual int GetDialogButtons() const;
   virtual bool Accept();
   virtual bool Cancel();
+  virtual ChromeViews::View* GetContentsView();
 
   // Returns the TemplateURLModel we're using.
   TemplateURLModel* template_url_model() const { return url_model_; }

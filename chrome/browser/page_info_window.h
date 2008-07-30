@@ -42,6 +42,7 @@ class TabbedPane;
 }
 
 class NavigationEntry;
+class PageInfoContentView;
 class PrefService;
 class Profile;
 class X509Certificate;
@@ -85,6 +86,7 @@ class PageInfoWindow : public ChromeViews::DialogDelegate,
   virtual bool RestoreWindowPosition(CRect* bounds,
                                      bool* maximized,
                                      bool* always_on_top);
+  virtual ChromeViews::View* GetContentsView();
 
  private:
   ChromeViews::View* CreateGeneralTabView();
@@ -103,11 +105,11 @@ class PageInfoWindow : public ChromeViews::DialogDelegate,
   // The id of the server cert for this page (0 means no cert).
   int cert_id_;
 
+  // The page info contents.
+  PageInfoContentView* contents_;
+
   // A counter of how many page info windows are currently opened.
   static int opened_window_count_;
-
-  // The Window
-  ChromeViews::Window* window_;
 
   DISALLOW_EVIL_CONSTRUCTORS(PageInfoWindow);
 };

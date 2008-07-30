@@ -44,8 +44,7 @@ static const int kDefaultWindowWidth = 320;
 static const int kDefaultWindowHeight = 100;
 
 ImporterLockView::ImporterLockView(ImporterHost* host)
-    : dialog_(NULL),
-      description_label_(NULL),
+    : description_label_(NULL),
       importer_host_(host) {
   description_label_ = new ChromeViews::Label(
       l10n_util::GetString(IDS_IMPORTER_LOCK_TEXT));
@@ -96,4 +95,8 @@ bool ImporterLockView::Cancel() {
   MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
       importer_host_, &ImporterHost::OnLockViewEnd, false));
   return true;
+}
+
+ChromeViews::View* ImporterLockView::GetContentsView() {
+  return this;
 }

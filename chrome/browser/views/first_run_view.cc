@@ -180,16 +180,10 @@ std::wstring FirstRunView::GetDialogButtonLabel(DialogButton button) const {
 
 void FirstRunView::OpenCustomizeDialog() {
   // The customize dialog now owns the importer host object.
-  FirstRunCustomizeView* customize_view =
-      new FirstRunCustomizeView(profile_, importer_host_);
-
-  ChromeViews::Window* customize_dialog =
-      ChromeViews::Window::CreateChromeWindow(dialog_->GetHWND(),
-                                              gfx::Rect(), customize_view,
-                                              customize_view);
-  customize_dialog->Show();
-  customize_view->set_dialog(customize_dialog);
-  customize_view->set_observer(this);
+  ChromeViews::Window::CreateChromeWindow(
+      window()->GetHWND(),
+      gfx::Rect(),
+      new FirstRunCustomizeView(profile_, importer_host_, this))->Show();
 }
 
 void FirstRunView::LinkActivated(ChromeViews::Link* source, int event_flags) {
@@ -198,6 +192,10 @@ void FirstRunView::LinkActivated(ChromeViews::Link* source, int event_flags) {
 
 std::wstring FirstRunView::GetWindowTitle() const {
   return l10n_util::GetString(IDS_FIRSTRUN_DLG_TITLE);
+}
+
+ChromeViews::View* FirstRunView::GetContentsView() {
+  return this;
 }
 
 bool FirstRunView::Accept() {
@@ -210,7 +208,7 @@ bool FirstRunView::Accept() {
   CreateQuickLaunchShortcut();
   // Index 0 is the default browser.
   FirstRun::ImportSettings(profile_, 0, GetDefaultImportItems(),
-                           dialog_->GetHWND());
+                           window()->GetHWND());
   UserMetrics::RecordAction(L"FirstRunDef_Accept", profile_);
 
   return true;
@@ -224,7 +222,7 @@ bool FirstRunView::Cancel() {
 // Notification from the customize dialog that the user accepted. Since all
 // the work is done there we got nothing else to do.
 void FirstRunView::CustomizeAccepted() {
-  dialog_->Close();
+  window()->Close();
 }
 
 // Notification from the customize dialog that the user cancelled.

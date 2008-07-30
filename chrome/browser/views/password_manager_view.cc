@@ -185,15 +185,12 @@ void PasswordManagerView::Show(Profile* profile) {
     instance_ = new PasswordManagerView(profile);
 
     // manager is owned by the dialog window, so Close() will delete it.
-    instance_->dialog_ = ChromeViews::Window::CreateChromeWindow(NULL,
-                                                                 gfx::Rect(),
-                                                                 instance_,
-                                                                 instance_);
+    ChromeViews::Window::CreateChromeWindow(NULL, gfx::Rect(), instance_);
   }
-  if (!instance_->dialog_->IsVisible()) {
-    instance_->dialog_->Show();
+  if (!instance_->window()->IsVisible()) {
+    instance_->window()->Show();
   } else {
-    instance_->dialog_->Activate();
+    instance_->window()->Activate();
   }
 }
 
@@ -358,7 +355,7 @@ std::wstring PasswordManagerView::GetWindowTitle() const {
 }
 
 void PasswordManagerView::ButtonPressed(ChromeViews::NativeButton* sender) {
-  DCHECK(dialog_);
+  DCHECK(window());
   // Close will result in our destruction.
   if (sender == &remove_all_button_) {
     table_model_.ForgetAndRemoveAllSignons();
@@ -396,4 +393,8 @@ void PasswordManagerView::WindowClosing() {
   // Clear the static instance so the next time Show() is called, a new
   // instance is created.
   instance_ = NULL;
+}
+
+ChromeViews::View* PasswordManagerView::GetContentsView() {
+  return this;
 }

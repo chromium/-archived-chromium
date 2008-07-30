@@ -243,6 +243,7 @@ class AddLanguageWindowView : public ChromeViews::View,
 
   // ChromeViews::WindowDelegate method.
   virtual bool IsModal() const { return true; }
+  virtual ChromeViews::View* GetContentsView() { return this; }
 
   // ChromeViews::ComboBox::Listener implementation:
   virtual void ItemChanged(ChromeViews::ComboBox* combo_box,
@@ -525,12 +526,10 @@ void LanguagesPageView::ButtonPressed(ChromeViews::NativeButton* sender) {
     OnRemoveLanguage();
     language_table_edited_ = true;
   } else if (sender == add_button_) {
-    AddLanguageWindowView* instance = new AddLanguageWindowView(this, profile());
-    HWND parent_hwnd = GetViewContainer()->GetHWND();
-    ChromeViews::Window* w =
-        ChromeViews::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(),
-            instance, instance);
-    w->Show();
+    ChromeViews::Window::CreateChromeWindow(
+        GetViewContainer()->GetHWND(),
+        gfx::Rect(),
+        new AddLanguageWindowView(this, profile()))->Show();
     language_table_edited_ = true;
   }
 }

@@ -449,8 +449,8 @@ void ConstrainedWindowNonClientView::UpdateLocationBar() {
   if (ShouldDisplayURLField()) {
     std::wstring url_spec;
     TabContents* tab = container_->constrained_contents();
-    url_spec = gfx::ElideUrl(tab->GetURL(),
-        ChromeFont(),
+    url_spec = gfx::ElideUrl(tab->GetURL(), 
+        ChromeFont(), 
         0,
         tab->profile()->GetPrefs()->GetString(prefs::kAcceptLanguages));
     std::wstring ev_text, ev_tooltip_text;
@@ -727,7 +727,7 @@ void ConstrainedWindowNonClientView::Layout() {
   client_bounds_ = CalculateClientAreaBounds(GetWidth(), GetHeight());
   if (should_display_url_field) {
     location_bar_->SetBounds(client_bounds_.x() - kLocationBarOffset,
-                             client_bounds_.y() - location_bar_height -
+                             client_bounds_.y() - location_bar_height - 
                              kLocationBarSpacing,
                              client_bounds_.width() + kLocationBarOffset * 2,
                              location_bar_height);
@@ -914,9 +914,13 @@ void ConstrainedWindowNonClientView::InitClass() {
 class ConstrainedTabContentsWindowDelegate
     : public ChromeViews::WindowDelegate {
  public:
-  explicit ConstrainedTabContentsWindowDelegate(
-      ConstrainedWindowImpl* window)
-      : window_(window) {
+  explicit ConstrainedTabContentsWindowDelegate(TabContents* contents)
+      : contents_(contents),
+        contents_view_(NULL) {
+  }
+
+  void set_contents_view(ChromeViews::View* contents_view) {
+    contents_view_ = contents_view;
   }
 
   // ChromeViews::WindowDelegate implementation:
@@ -924,25 +928,21 @@ class ConstrainedTabContentsWindowDelegate
     return true;
   }
   virtual std::wstring GetWindowTitle() const {
-    TabContents* constrained_contents = window_->constrained_contents();
-    if (constrained_contents)
-      return constrained_contents->GetTitle();
-
-    return std::wstring();
+    return contents_->GetTitle();
   }
   virtual bool ShouldShowWindowIcon() const {
     return true;
   }
   virtual SkBitmap GetWindowIcon() {
-    TabContents* constrained_contents = window_->constrained_contents();
-    if (constrained_contents)
-      return constrained_contents->GetFavIcon();
-
-    return SkBitmap();
+    return contents_->GetFavIcon();
+  }
+  virtual ChromeViews::View* GetContentsView() {
+    return contents_view_;
   }
 
  private:
-  ConstrainedWindowImpl* window_;
+  TabContents* contents_;
+  ChromeViews::View* contents_view_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ConstrainedTabContentsWindowDelegate);
 };
@@ -954,19 +954,6 @@ class ConstrainedTabContentsWindowDelegate
 // vertically.
 static const int kPopupRepositionOffset = 5;
 static const int kConstrainedWindowEdgePadding = 10;
-
-ConstrainedWindowImpl::ConstrainedWindowImpl(TabContents* owner)
-    : CustomFrameWindow(new ConstrainedWindowNonClientView(this, owner)),
-      owner_(owner),
-      constrained_contents_(NULL),
-      focus_restoration_disabled_(false),
-      is_dialog_(false),
-      titlebar_visibility_(0.0),
-      contents_container_(NULL) {
-  set_window_style(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CAPTION |
-                   WS_THICKFRAME | WS_SYSMENU);
-  set_focus_on_creation(false);
-}
 
 ConstrainedWindowImpl::~ConstrainedWindowImpl() {
 }
@@ -1120,6 +1107,7 @@ void ConstrainedWindowImpl::OpenURLFromTab(TabContents* source,
                                            const GURL& url,
                                            WindowOpenDisposition disposition,
                                            PageTransition::Type transition) {
+  // We ignore source right now.
   owner_->OpenURL(this, url, disposition, transition);
 }
 
@@ -1165,14 +1153,45 @@ TabContents* ConstrainedWindowImpl::GetConstrainingContents(
   return owner_;
 }
 
-void ConstrainedWindowImpl::ToolbarSizeChanged(TabContents* source,
+void ConstrainedWindowImpl::ToolbarSizeChanged(TabContents* source, 
                                              bool finished) {
-  // We don't control the layout of anything that could be animating,
+  // We don't control the layout of anything that could be animating, 
   // so do nothing.
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // ConstrainedWindowImpl, private:
+
+ConstrainedWindowImpl::ConstrainedWindowImpl(
+    TabContents* owner,
+    ChromeViews::WindowDelegate* window_delegate,
+    TabContents* constrained_contents)
+    : CustomFrameWindow(window_delegate,
+                        new ConstrainedWindowNonClientView(this, owner)),
+      contents_window_delegate_(window_delegate),
+      constrained_contents_(constrained_contents),
+      titlebar_visibility_(0.0) {
+  Init(owner);
+}
+
+ConstrainedWindowImpl::ConstrainedWindowImpl(
+    TabContents* owner,
+    ChromeViews::WindowDelegate* window_delegate) 
+    : CustomFrameWindow(window_delegate,
+                        new ConstrainedWindowNonClientView(this, owner)),
+      constrained_contents_(NULL) {
+  Init(owner);
+}
+
+void ConstrainedWindowImpl::Init(TabContents* owner) {
+  owner_ = owner;
+  focus_restoration_disabled_ = false;
+  is_dialog_ = false;
+  contents_container_ = NULL;
+  set_window_style(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CAPTION |
+                   WS_THICKFRAME | WS_SYSMENU);
+  set_focus_on_creation(false);
+}
 
 void ConstrainedWindowImpl::ResizeConstrainedTitlebar() {
   DCHECK(constrained_contents_)
@@ -1196,32 +1215,26 @@ void ConstrainedWindowImpl::ResizeConstrainedTitlebar() {
                SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 }
 
-void ConstrainedWindowImpl::InitAsDialog(
-    const gfx::Rect& initial_bounds,
-    ChromeViews::View* contents_view,
-    ChromeViews::WindowDelegate* window_delegate) {
+void ConstrainedWindowImpl::InitAsDialog(const gfx::Rect& initial_bounds) {
   is_dialog_ = true;
-  non_client_view()->set_window_delegate(window_delegate);
-  CustomFrameWindow::Init(owner_->GetContainerHWND(), initial_bounds,
-                          contents_view, window_delegate);
+  non_client_view()->set_window_delegate(window_delegate());
+  CustomFrameWindow::Init(owner_->GetContainerHWND(), initial_bounds);
   ActivateConstrainedWindow();
 }
 
 void ConstrainedWindowImpl::InitWindowForContents(
-    TabContents* constrained_contents) {
+    TabContents* constrained_contents,
+    ConstrainedTabContentsWindowDelegate* delegate) {
   constrained_contents_ = constrained_contents;
   constrained_contents_->set_delegate(this);
   contents_container_ = new ChromeViews::HWNDView;
-  contents_window_delegate_.reset(
-      new ConstrainedTabContentsWindowDelegate(this));
-
+  delegate->set_contents_view(contents_container_);
   non_client_view()->set_window_delegate(contents_window_delegate_.get());
 }
 
 void ConstrainedWindowImpl::InitSizeForContents(
     const gfx::Rect& initial_bounds) {
-  CustomFrameWindow::Init(owner_->GetContainerHWND(), initial_bounds,
-                          contents_container_, contents_window_delegate_.get());
+  CustomFrameWindow::Init(owner_->GetContainerHWND(), initial_bounds);
   contents_container_->Attach(constrained_contents_->GetContainerHWND());
 
   constrained_contents_->SizeContents(
@@ -1412,7 +1425,7 @@ void ConstrainedWindow::GenerateInitialBounds(
   // behvaiors below interact.
   std::wstring app_name;
 
-  if (parent->delegate() && parent->delegate()->IsApplication() &&
+  if (parent->delegate() && parent->delegate()->IsApplication() && 
       parent->AsWebContents() && parent->AsWebContents()->web_app()) {
     app_name = parent->AsWebContents()->web_app()->name();
   }
@@ -1460,8 +1473,9 @@ ConstrainedWindow* ConstrainedWindow::CreateConstrainedDialog(
     const gfx::Rect& initial_bounds,
     ChromeViews::View* contents_view,
     ChromeViews::WindowDelegate* window_delegate) {
-  ConstrainedWindowImpl* window = new ConstrainedWindowImpl(parent);
-  window->InitAsDialog(initial_bounds, contents_view, window_delegate);
+  ConstrainedWindowImpl* window = new ConstrainedWindowImpl(parent,
+                                                            window_delegate);
+  window->InitAsDialog(initial_bounds);
   return window;
 }
 
@@ -1470,9 +1484,11 @@ ConstrainedWindow* ConstrainedWindow::CreateConstrainedPopup(
     TabContents* parent,
     const gfx::Rect& initial_bounds,
     TabContents* constrained_contents) {
+  ConstrainedTabContentsWindowDelegate* d =
+      new ConstrainedTabContentsWindowDelegate(constrained_contents);
   ConstrainedWindowImpl* window =
-      new ConstrainedWindowImpl(parent);
-  window->InitWindowForContents(constrained_contents);
+      new ConstrainedWindowImpl(parent, d, constrained_contents);
+  window->InitWindowForContents(constrained_contents, d);
 
   gfx::Rect window_bounds;
   if (initial_bounds.width() == 0 || initial_bounds.height() == 0) {

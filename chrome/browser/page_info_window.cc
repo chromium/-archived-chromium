@@ -509,7 +509,7 @@ void PageInfoWindow::RegisterPrefs(PrefService* prefs) {
   prefs->RegisterDictionaryPref(prefs::kPageInfoWindowPlacement);
 }
 
-PageInfoWindow::PageInfoWindow() : cert_id_(0) {
+PageInfoWindow::PageInfoWindow() : cert_id_(0), contents_(NULL) {
 }
 
 PageInfoWindow::~PageInfoWindow() {
@@ -526,15 +526,15 @@ void PageInfoWindow::Init(Profile* profile,
       l10n_util::GetString(IDS_PAGEINFO_CERT_INFO_BUTTON));
   cert_info_button_->SetListener(this);
 
-  PageInfoContentView* contents = new PageInfoContentView();
+  contents_ = new PageInfoContentView();
   DWORD sys_color = ::GetSysColor(COLOR_3DFACE);
   SkColor color = SkColorSetRGB(GetRValue(sys_color), GetGValue(sys_color),
                                 GetBValue(sys_color));
-  contents->SetBackground(
+  contents_->SetBackground(
       ChromeViews::Background::CreateSolidBackground(color));
 
-  ChromeViews::GridLayout* layout = new ChromeViews::GridLayout(contents);
-  contents->SetLayoutManager(layout);
+  ChromeViews::GridLayout* layout = new ChromeViews::GridLayout(contents_);
+  contents_->SetLayoutManager(layout);
   ChromeViews::ColumnSet* columns = layout->AddColumnSet(0);
   columns->AddPaddingColumn(0, kHorizontalPadding);
   columns->AddColumn(ChromeViews::GridLayout::FILL,  // Horizontal resize.
@@ -569,12 +569,12 @@ void PageInfoWindow::Init(Profile* profile,
     }
   }
 
-  window_ = ChromeViews::Window::CreateChromeWindow(parent, gfx::Rect(),
-                                                    contents, this);
+  ChromeViews::Window::CreateChromeWindow(parent, gfx::Rect(), this);
+  // TODO(beng): (Cleanup) - cert viewer button should use GetExtraView.
   if (cert_id_) {
-    contents->GetParent()->AddChildView(cert_info_button_);
-    contents->set_cert_viewer_button(cert_info_button_);
-    contents->Layout();
+    contents_->GetParent()->AddChildView(cert_info_button_);
+    contents_->set_cert_viewer_button(cert_info_button_);
+    contents_->Layout();
   }
 }
 
@@ -589,7 +589,7 @@ ChromeViews::View* PageInfoWindow::CreateSecurityTabView(
 }
 
 void PageInfoWindow::Show() {
-  window_->Show();
+  window()->Show();
   opened_window_count_++;
 }
 
@@ -604,18 +604,22 @@ std::wstring PageInfoWindow::GetWindowTitle() const {
 void PageInfoWindow::SaveWindowPosition(const CRect& bounds,
                                         bool maximized,
                                         bool always_on_top) {
-  window_->SaveWindowPositionToPrefService(g_browser_process->local_state(),
-                                           prefs::kPageInfoWindowPlacement,
-                                           bounds, maximized, always_on_top);
+  window()->SaveWindowPositionToPrefService(g_browser_process->local_state(),
+                                            prefs::kPageInfoWindowPlacement,
+                                            bounds, maximized, always_on_top);
 }
 
 bool PageInfoWindow::RestoreWindowPosition(CRect* bounds,
                                            bool* maximized,
                                            bool* always_on_top) {
-  return window_->RestoreWindowPositionFromPrefService(
+  return window()->RestoreWindowPositionFromPrefService(
       g_browser_process->local_state(),
       prefs::kPageInfoWindowPlacement,
       bounds, maximized, always_on_top);
+}
+
+ChromeViews::View* PageInfoWindow::GetContentsView() {
+  return contents_;
 }
 
 void PageInfoWindow::ButtonPressed(ChromeViews::NativeButton* sender) {
@@ -675,7 +679,7 @@ void PageInfoWindow::ShowCertDialog(int cert_id) {
   view_info.dwSize = sizeof(view_info); 		
   // We set our parent to the tab window. This makes the cert dialog created 		
   // in CryptUIDlgViewCertificate modal to the browser. 		
-  view_info.hwndParent = window_->owning_window();
+  view_info.hwndParent = window()->owning_window();
   view_info.dwFlags = CRYPTUI_DISABLE_EDITPROPERTIES |
                       CRYPTUI_DISABLE_ADDTOSTORE;
   view_info.pCertContext = cert->os_cert_handle();

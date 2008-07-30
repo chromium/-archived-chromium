@@ -63,15 +63,22 @@ FontsLanguagesWindowView::~FontsLanguagesWindowView() {
 ///////////////////////////////////////////////////////////////////////////////
 // FontsLanguagesWindowView, ChromeViews::DialogDelegate implementation:
 
+bool FontsLanguagesWindowView::Accept() {
+  fonts_page_->SaveChanges();
+  languages_page_->SaveChanges();
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// FontsLanguagesWindowView, ChromeViews::WindowDelegate implementation:
+
 std::wstring FontsLanguagesWindowView::GetWindowTitle() const {
   return l10n_util::GetStringF(IDS_FONT_LANGUAGE_SETTING_WINDOWS_TITLE,
                                l10n_util::GetString(IDS_PRODUCT_NAME));
 }
 
-bool FontsLanguagesWindowView::Accept() {
-  fonts_page_->SaveChanges();
-  languages_page_->SaveChanges();
-  return true;
+ChromeViews::View* FontsLanguagesWindowView::GetContentsView() {
+  return this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

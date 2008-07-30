@@ -57,6 +57,7 @@ class RepostFormWarningDialog : public ChromeViews::DialogDelegate,
 
   // ChromeViews::WindowDelegate Methods:
   virtual bool IsModal() const { return true; }
+  virtual ChromeViews::View* GetContentsView();
 
  private:
   // Use RunRepostFormWarningDialog to use.
@@ -73,10 +74,6 @@ class RepostFormWarningDialog : public ChromeViews::DialogDelegate,
 
   // Navigation controller, used to continue the reload.
   NavigationController* navigation_controller_;
-
-  // Our window. Used to close the dialog if we navigate or lose our navigation
-  // controller before the user makes a decision.
-  ChromeViews::Window* dialog_;
 
   DISALLOW_EVIL_CONSTRUCTORS(RepostFormWarningDialog);
 };

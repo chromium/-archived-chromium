@@ -61,30 +61,22 @@ class Window : public HWNDViewContainer {
   //             ChromeViews. Users in browser/ should always construct with
   //             CreateChromeWindow which will give the right version,
   //             depending on platform & configuration.
-  Window();
+  // Create a Window using the specified delegate. The delegate must not be
+  // NULL.
+  explicit Window(WindowDelegate* window_delegate);
   virtual ~Window();
 
   // Creates the appropriate Window class for a Chrome dialog or window. This
   // means a ChromeWindow or a standard Windows frame.
   static Window* CreateChromeWindow(HWND parent,
                                     const gfx::Rect& bounds,
-                                    View* contents_view,
                                     WindowDelegate* window_delegate);
 
   // Create the Window.
   // If parent is NULL, this Window is top level on the desktop.
-  // |contents_view| is a ChromeView that will be displayed in the client area
-  // of the Window, as the sole child view of the RootView.
-  // |window_delegate| is an object implementing WindowDelegate that can perform
-  // controller-like tasks for this window, such as obtaining its preferred
-  // placement and state from preferences (which override the default position
-  // and size specified in |bounds|) and executing commands. Can be NULL.
   // If |bounds| is empty, the view is queried for its preferred size and
   // centered on screen.
-  void Init(HWND parent,
-            const gfx::Rect& bounds,
-            View* contents_view,
-            WindowDelegate* window_delegate);
+  virtual void Init(HWND parent, const gfx::Rect& bounds);
 
   // Return the size of window (including non-client area) required to contain
   // a window of the specified client size.

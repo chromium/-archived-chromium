@@ -50,17 +50,13 @@ class FontsLanguagesWindowView : public ChromeViews::View,
   explicit FontsLanguagesWindowView(Profile* profile);
   virtual ~FontsLanguagesWindowView();
 
-  ChromeViews::Window* container() const { return container_; }
-  void set_container(ChromeViews::Window* container) {
-    container_ = container;
-  }
-
   // ChromeViews::DialogDelegate implementation:
   virtual bool Accept();
-  virtual std::wstring GetWindowTitle() const;
 
   // ChromeViews::WindowDelegate Methods:
   virtual bool IsModal() const { return true; }
+  virtual std::wstring GetWindowTitle() const;
+  virtual ChromeViews::View* GetContentsView();
 
   // ChromeViews::View overrides:
   virtual void Layout();
@@ -77,9 +73,6 @@ class FontsLanguagesWindowView : public ChromeViews::View,
 
   // The Tab view that contains all of the options pages.
   ChromeViews::TabbedPane* tabs_;
-
-  // The Options dialog window.
-  ChromeViews::Window* container_;
 
   // Fonts Page View handle remembered so that prefs is updated only when
   // OK is pressed.

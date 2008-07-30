@@ -770,10 +770,10 @@ void Browser::ShowHtmlDialog(HtmlDialogContentsDelegate* delegate,
                              HWND parent_hwnd) {
   parent_hwnd = parent_hwnd ? parent_hwnd : GetTopLevelHWND();
   HtmlDialogView* html_view = new HtmlDialogView(this, profile_, delegate);
-  ChromeViews::Window* html_dialog = ChromeViews::Window::CreateChromeWindow(
-      parent_hwnd, gfx::Rect(), html_view, html_view);
-  html_view->InitDialog(html_dialog);
-  html_dialog->Show();
+  ChromeViews::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(),
+                                          html_view);
+  html_view->InitDialog();
+  html_view->window()->Show();
 }
 
 void Browser::Observe(NotificationType type,

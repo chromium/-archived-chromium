@@ -51,8 +51,6 @@ class ImportingProgressView : public ChromeViews::View,
                         HWND parent_window);
   virtual ~ImportingProgressView();
 
-  void set_window(ChromeViews::Window* window) { window_ = window; }
-
  protected:
   // Overridden from ImporterHost::Observer:
   virtual void ImportItemStarted(ImportItem item);
@@ -66,6 +64,7 @@ class ImportingProgressView : public ChromeViews::View,
   virtual bool IsModal() const;
   virtual std::wstring GetWindowTitle() const;
   virtual bool Cancel();
+  virtual ChromeViews::View* GetContentsView();
 
   // Overridden from ChromeViews::View:
   virtual void GetPreferredSize(CSize *out);
@@ -89,9 +88,6 @@ class ImportingProgressView : public ChromeViews::View,
   scoped_ptr<ChromeViews::Label> label_passwords_;
   scoped_ptr<ChromeViews::Label> label_history_;
   scoped_ptr<ChromeViews::Label> label_cookies_;
-
-  // The window that contains us.
-  ChromeViews::Window* window_;
 
   // The native window that we are parented to. Can be NULL.
   HWND parent_window_;

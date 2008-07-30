@@ -74,6 +74,7 @@ class EditKeywordController : public ChromeViews::TextField::Controller,
   virtual void WindowClosing();
   virtual bool Cancel();
   virtual bool Accept();
+  virtual ChromeViews::View* GetContentsView();
 
   // ChromeViews::TextField::Controller overrides. Updates whether the user can
   // accept the dialog as well as updating image views showing whether value is
@@ -141,9 +142,6 @@ class EditKeywordController : public ChromeViews::TextField::Controller,
 
   // Profile whose TemplateURLModel we're modifying.
   Profile* profile_;
-
-  // Container for displaying the contents.
-  ChromeViews::Window* window_;
 
   // Text fields.
   ChromeViews::TextField* title_tf_;

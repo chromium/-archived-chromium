@@ -154,8 +154,7 @@ void BugReportView::PostCleanup::OnURLFetchComplete(
 // This is separate from crash reporting, which is handled by Breakpad.
 //
 BugReportView::BugReportView(Profile* profile, TabContents* tab)
-    : dialog_(NULL),
-      include_page_source_checkbox_(NULL),
+    : include_page_source_checkbox_(NULL),
       include_page_image_checkbox_(NULL),
       profile_(profile),
       post_url_(l10n_util::GetString(IDS_BUGREPORT_POST_URL)),
@@ -279,7 +278,7 @@ void BugReportView::ItemChanged(ChromeViews::ComboBox* combo_box,
   include_page_image_checkbox_->SetEnabled(!is_phishing_report);
   include_page_image_checkbox_->SetIsSelected(!is_phishing_report);
 
-  dialog_->UpdateDialogButtons();
+  window()->UpdateDialogButtons();
 }
 
 void BugReportView::ContentsChanged(ChromeViews::TextField* sender,
@@ -338,6 +337,10 @@ bool BugReportView::Accept() {
       SendReport();
   }
   return true;
+}
+
+ChromeViews::View* BugReportView::GetContentsView() {
+  return this;
 }
 
 void BugReportView::SetUrl(const GURL& url) {

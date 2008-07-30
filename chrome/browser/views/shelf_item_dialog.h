@@ -88,6 +88,7 @@ class ShelfItemDialog : public ChromeViews::View,
   virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
   virtual bool Accept();
   virtual bool IsDialogButtonEnabled(DialogButton button) const;
+  virtual ChromeViews::View* GetContentsView();
 
   // TextField::Controller.
   virtual void ContentsChanged(ChromeViews::TextField* sender,
@@ -121,9 +122,6 @@ class ShelfItemDialog : public ChromeViews::View,
 
   // Returns the URL the user has typed.
   GURL GetInputURL() const;
-
-  // The dialog controller for our current dialog.
-  ChromeViews::Window* dialog_;
 
   // Profile.
   Profile* profile_;

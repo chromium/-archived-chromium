@@ -50,10 +50,6 @@ class ImporterLockView : public ChromeViews::View,
   explicit ImporterLockView(ImporterHost* host);
   virtual ~ImporterLockView();
 
-  void set_dialog(ChromeViews::Window* dialog) {
-    dialog_ = dialog;
-  }
-
   // Overridden from ChromeViews::View.
   virtual void GetPreferredSize(CSize *out);
   virtual void Layout();
@@ -64,11 +60,10 @@ class ImporterLockView : public ChromeViews::View,
   virtual std::wstring GetWindowTitle() const;
   virtual bool Accept();
   virtual bool Cancel();
+  virtual ChromeViews::View* GetContentsView();
 
  private:
   ChromeViews::Label* description_label_;
-
-  ChromeViews::Window* dialog_;
 
   ImporterHost* importer_host_;
 

@@ -67,7 +67,6 @@ class BugReportView : public ChromeViews::View,
   explicit BugReportView(Profile* profile, TabContents* tab);
   virtual ~BugReportView();
 
-  void set_dialog(ChromeViews::Window* dialog) { dialog_ = dialog; }
   void set_version(const std::wstring& version) { version_ = version; }
   // NOTE: set_png_data takes ownership of the vector
   void set_png_data(std::vector<unsigned char> *png_data) {
@@ -98,6 +97,7 @@ class BugReportView : public ChromeViews::View,
   virtual bool IsModal() const;
   virtual std::wstring GetWindowTitle() const;
   virtual bool Accept();
+  virtual ChromeViews::View* GetContentsView();
 
   void SetUrl(const GURL& url);
 
@@ -129,7 +129,6 @@ class BugReportView : public ChromeViews::View,
   ChromeViews::CheckBox* include_page_image_checkbox_;
 
   scoped_ptr<BugReportComboBoxModel> bug_type_model_;
-  ChromeViews::Window* dialog_;
 
   Profile* profile_;
 

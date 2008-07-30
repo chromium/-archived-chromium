@@ -249,11 +249,10 @@ void ContentPageView::ButtonPressed(ChromeViews::NativeButton* sender) {
     UserMetricsRecordAction(L"Options_ShowPasswordManager", NULL);
     PasswordManagerView::Show(profile());
   } else if (sender == change_content_fonts_button_) {
-    FontsLanguagesWindowView* flwv = new FontsLanguagesWindowView(profile());
-    ChromeViews::Window* w =
-        ChromeViews::Window::CreateChromeWindow(GetRootWindow(), gfx::Rect(),
-                                                flwv, flwv);
-    w->Show();
+    ChromeViews::Window::CreateChromeWindow(
+        GetRootWindow(),
+        gfx::Rect(),
+        new FontsLanguagesWindowView(profile()))->Show();
   }
 }
 

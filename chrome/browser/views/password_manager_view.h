@@ -140,6 +140,7 @@ class PasswordManagerView : public ChromeViews::View,
   virtual bool HasAlwaysOnTopMenu() const;
   virtual std::wstring GetWindowTitle() const;
   virtual void WindowClosing();
+  virtual ChromeViews::View* GetContentsView();
 
  private:
   // Wire up buttons, the model, and the table view, and query the DB for
@@ -161,9 +162,6 @@ class PasswordManagerView : public ChromeViews::View,
   ChromeViews::NativeButton remove_button_;
   ChromeViews::NativeButton remove_all_button_;
   ChromeViews::Label password_label_;
-
-  // The window containing this view.
-  ChromeViews::Window* dialog_;
 
   DISALLOW_EVIL_CONSTRUCTORS(PasswordManagerView);
 };

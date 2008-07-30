@@ -84,22 +84,24 @@ class ResetDefaultsConfirmBox : public ChromeViews::DialogDelegate {
   // ChromeViews::WindowDelegate
   virtual void WindowClosing() { delete this; }
   virtual bool IsModal() const { return true; }
+  virtual ChromeViews::View* GetContentsView() { return message_box_view_; }
 
  private:
   ResetDefaultsConfirmBox(HWND parent_hwnd, AdvancedPageView* page_view)
       : advanced_page_view_(page_view) {
     const int kDialogWidth = 400;
     // Also deleted when the window closes.
-    MessageBoxView* message_box_view = new MessageBoxView(
+    message_box_view_ = new MessageBoxView(
         MessageBoxView::kFlagHasMessage | MessageBoxView::kFlagHasOKButton,
         l10n_util::GetString(IDS_OPTIONS_RESET_MESSAGE).c_str(),
         std::wstring(),
         kDialogWidth);
     ChromeViews::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(),
-        message_box_view, this)->Show();
+                                            this)->Show();
   }
   virtual ~ResetDefaultsConfirmBox() { }
 
+  MessageBoxView* message_box_view_;
   AdvancedPageView* advanced_page_view_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ResetDefaultsConfirmBox);

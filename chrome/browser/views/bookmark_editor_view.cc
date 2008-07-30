@@ -79,7 +79,6 @@ BookmarkEditorView::BookmarkEditorView(Profile* profile,
 #pragma warning(suppress: 4355)  // Okay to pass "this" here.
       new_group_button_(
           l10n_util::GetString(IDS_BOOMARK_EDITOR_NEW_FOLDER_BUTTON)),
-      dialog_(NULL),
       url_(url),
       title_(title),
       running_menu_for_root_(false) {
@@ -120,6 +119,10 @@ bool BookmarkEditorView::Accept() {
 
 bool BookmarkEditorView::AreAcceleratorsEnabled(DialogButton button) {
   return !tree_view_.GetEditingNode();
+}
+
+ChromeViews::View* BookmarkEditorView::GetContentsView() {
+  return this;
 }
 
 void BookmarkEditorView::Layout() {
@@ -205,12 +208,11 @@ bool BookmarkEditorView::IsCommandEnabled(int id) const {
 }
 
 void BookmarkEditorView::Show(HWND parent_hwnd) {
-  dialog_ = ChromeViews::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(),
-                                                    this, this);
+  ChromeViews::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(), this);
   UserInputChanged();
   if (bb_model_->IsLoaded())
     ExpandAndSelect();
-  dialog_->Show();
+  window()->Show();
   // Select all the text in the name textfield.
   title_tf_.SelectAll();
   // Give focus to the name textfield.
@@ -218,8 +220,8 @@ void BookmarkEditorView::Show(HWND parent_hwnd) {
 }
 
 void BookmarkEditorView::Close() {
-  DCHECK(dialog_);
-  dialog_->Close();
+  DCHECK(window());
+  window()->Close();
 }
 
 void BookmarkEditorView::ShowContextMenu(View* source,
@@ -389,7 +391,7 @@ void BookmarkEditorView::UserInputChanged() {
     url_tf_.SetBackgroundColor(kErrorColor);
   else
     url_tf_.SetDefaultBackgroundColor();
-  dialog_->UpdateDialogButtons();
+  window()->UpdateDialogButtons();
 }
 
 void BookmarkEditorView::NewGroup() {

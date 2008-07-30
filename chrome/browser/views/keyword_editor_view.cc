@@ -362,7 +362,7 @@ void KeywordEditorView::Show(Profile* profile) {
   // Initialize the UI. By passing in an empty rect KeywordEditorView is
   // queried for its preferred size.
   open_window = ChromeViews::Window::CreateChromeWindow(
-      NULL, gfx::Rect(), keyword_editor, keyword_editor);
+      NULL, gfx::Rect(), keyword_editor);
 
   open_window->Show();
 }
@@ -478,6 +478,10 @@ bool KeywordEditorView::Accept() {
 bool KeywordEditorView::Cancel() {
   open_window = NULL;
   return true;
+}
+
+ChromeViews::View* KeywordEditorView::GetContentsView() {
+  return this;
 }
 
 void KeywordEditorView::Init() {

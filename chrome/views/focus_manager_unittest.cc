@@ -192,14 +192,15 @@ private:
   DISALLOW_EVIL_CONSTRUCTORS(BorderView);
 };
 
-class TestViewWindow : public ChromeViews::Window,
-                       public ChromeViews::WindowDelegate {
+class TestViewWindow : public ChromeViews::HWNDViewContainer {
  public:
   explicit TestViewWindow(FocusManagerTest* test);
   ~TestViewWindow() { }
 
   void Init();
-  virtual std::wstring GetWindowTitle() const;
+
+  ChromeViews::View* contents() const { return contents_; }
+  
 
   // Return the ID of the component that currently has the focus.
   int GetFocusedComponentID();
@@ -262,7 +263,7 @@ void TestViewWindow::Init() {
   contents_->SetBackground(
       ChromeViews::Background::CreateSolidBackground(255, 255, 255));
 
-  Window::Init(NULL, bounds, contents_, this);
+  HWNDViewContainer::Init(NULL, bounds, contents_, true);
 
   ChromeViews::CheckBox* cb =
       new ChromeViews::CheckBox(L"This is a checkbox");
@@ -521,11 +522,6 @@ void TestViewWindow::Init() {
   contents->SetBounds(200, y, 200, 50);
 }
 
-// WindowDelegate Implementation.
-std::wstring TestViewWindow::GetWindowTitle() const {
-  return L"Focus Manager Test Window";
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // FocusManagerTest
 ////////////////////////////////////////////////////////////////////////////////
@@ -543,7 +539,7 @@ TestViewWindow* FocusManagerTest::GetWindow() {
 void FocusManagerTest::SetUp() {
   test_window_ = new TestViewWindow(this);
   test_window_->Init();
-  test_window_->Show();
+  ShowWindow(test_window_->GetHWND(), SW_SHOW);
 }
 
 void FocusManagerTest::TearDown() {

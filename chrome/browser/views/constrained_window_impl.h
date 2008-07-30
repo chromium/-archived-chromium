@@ -73,11 +73,13 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   virtual void UpdateWindowTitle();
   virtual const gfx::Rect& GetCurrentBounds() const;
 
-  // Overridden from TabContentsDelegate:
+  // Overridden from PageNavigator (TabContentsDelegate's base interface):
   virtual void OpenURLFromTab(TabContents* source,
                               const GURL& url,
                               WindowOpenDisposition disposition,
                               PageTransition::Type transition);
+
+  // Overridden from TabContentsDelegate:
   virtual void NavigationStateChanged(const TabContents* source,
                                       unsigned changed_flags);
   virtual void ReplaceContents(TabContents* source,
@@ -123,7 +125,12 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
  private:
   // Use the static factory methods on ConstrainedWindow to construct a
   // ConstrainedWindow.
-  ConstrainedWindowImpl(TabContents* owner);
+  ConstrainedWindowImpl(TabContents* owner,
+                        ChromeViews::WindowDelegate* window_delegate,
+                        TabContents* constrained_contents);
+  ConstrainedWindowImpl(TabContents* owner,
+                        ChromeViews::WindowDelegate* window_delegate);
+  void Init(TabContents* owner);
 
   friend class ConstrainedWindow;
 
@@ -136,9 +143,7 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
 
   // Initialize the Constrained Window as a Constrained Dialog containing a
   // ChromeViews::View client area.
-  void InitAsDialog(const gfx::Rect& initial_bounds,
-                    ChromeViews::View* contents_view,
-                    ChromeViews::WindowDelegate* window_delegate);
+  void InitAsDialog(const gfx::Rect& initial_bounds);
 
   // Builds the underlying HWND and window delegates for a newly
   // created popup window.
@@ -148,7 +153,8 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   // so that when we query for desired size, we get accurate data. If
   // we didn't do this, windows will initialize to being smaller then
   // the desired content size plus room for browser chrome.
-  void InitWindowForContents(TabContents* constrained_contents);
+  void InitWindowForContents(TabContents* constrained_contents,
+                             ConstrainedTabContentsWindowDelegate* delegate);
 
   // Sets the initial bounds for a newly created popup window.
   //
@@ -183,7 +189,7 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   // A default ChromeViews::WindowDelegate implementation for this window when
   // a TabContents is being constrained. (For the Constrained Dialog case, the
   // caller is required to provide the WindowDelegate).
-  scoped_ptr<ConstrainedTabContentsWindowDelegate> contents_window_delegate_;
+  scoped_ptr<ChromeViews::WindowDelegate> contents_window_delegate_;
 
   // We keep a reference on the HWNDView so we can properly detach the tab
   // contents when detaching.

@@ -53,10 +53,7 @@ UserDataDirDialog::UserDataDirDialog(const std::wstring& user_data_dir)
   message_box_view_ = new MessageBoxView(MessageBoxView::kIsConfirmMessageBox,
       message_text.c_str(), std::wstring(), kDialogWidth);
 
-  message_box_window_ = ChromeViews::Window::CreateChromeWindow(
-      NULL, gfx::Rect(), message_box_view_, this);
-
-  message_box_window_->Show();
+  ChromeViews::Window::CreateChromeWindow(NULL, gfx::Rect(), this)->Show();
 }
 
 UserDataDirDialog::~UserDataDirDialog() {
@@ -109,6 +106,10 @@ bool UserDataDirDialog::Cancel() {
   return true;
 }
 
+ChromeViews::View* UserDataDirDialog::GetContentsView() {
+  return message_box_view_;
+}
+
 bool UserDataDirDialog::Dispatch(const MSG& msg) {
   TranslateMessage(&msg);
   DispatchMessage(&msg);
@@ -118,7 +119,7 @@ bool UserDataDirDialog::Dispatch(const MSG& msg) {
 void UserDataDirDialog::FileSelected(const std::wstring& path, void* params) {
   user_data_dir_ = path;
   is_blocking_ = false;
-  message_box_window_->Close();
+  window()->Close();
 }
 
 void UserDataDirDialog::FileSelectionCanceled(void* params) {

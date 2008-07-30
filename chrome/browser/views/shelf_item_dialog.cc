@@ -242,8 +242,7 @@ class PossibleURLModel : public ChromeViews::TableModel {
 ShelfItemDialog::ShelfItemDialog(ShelfItemDialogDelegate* delegate,
                                  Profile* profile,
                                  bool show_title)
-    : dialog_(NULL),
-      profile_(profile),
+    : profile_(profile),
       expected_title_handle_(0),
       delegate_(delegate) {
   DCHECK(profile_);
@@ -338,10 +337,8 @@ ShelfItemDialog::~ShelfItemDialog() {
 }
 
 void ShelfItemDialog::Show(HWND parent) {
-  DCHECK(!dialog_);
-  dialog_ =
-      ChromeViews::Window::CreateChromeWindow(parent, gfx::Rect(), this, this);
-  dialog_->Show();
+  DCHECK(!window());
+  ChromeViews::Window::CreateChromeWindow(parent, gfx::Rect(), this)->Show();
   if (title_field_) {
     title_field_->SetText(l10n_util::GetString(IDS_ASI_DEFAULT_TITLE));
     title_field_->SelectAll();
@@ -354,8 +351,8 @@ void ShelfItemDialog::Show(HWND parent) {
 }
 
 void ShelfItemDialog::Close() {
-  DCHECK(dialog_);
-  dialog_->Close();
+  DCHECK(window());
+  window()->Close();
 }
 
 std::wstring ShelfItemDialog::GetWindowTitle() const {
@@ -416,7 +413,7 @@ void ShelfItemDialog::ContentsChanged(ChromeViews::TextField* sender,
   // so we reset the expected handle to an impossible value.
   if (sender == title_field_)
     expected_title_handle_ = 0;
-  dialog_->UpdateDialogButtons();
+  window()->UpdateDialogButtons();
 }
 
 bool ShelfItemDialog::Accept() {
@@ -437,6 +434,10 @@ bool ShelfItemDialog::IsDialogButtonEnabled(DialogButton button) const {
   return true;
 }
 
+ChromeViews::View* ShelfItemDialog::GetContentsView() {
+  return this;
+}
+
 void ShelfItemDialog::PerformModelChange() {
   DCHECK(delegate_);
   GURL url(GetInputURL());
@@ -455,7 +456,7 @@ void ShelfItemDialog::GetPreferredSize(CSize *out) {
 bool ShelfItemDialog::AcceleratorPressed(
     const ChromeViews::Accelerator& accelerator) {
   if (accelerator.GetKeyCode() == VK_ESCAPE) {
-    dialog_->Close();
+    window()->Close();
   } else if (accelerator.GetKeyCode() == VK_RETURN) {
     ChromeViews::FocusManager* fm = ChromeViews::FocusManager::GetFocusManager(
         GetViewContainer()->GetHWND());
@@ -467,8 +468,8 @@ bool ShelfItemDialog::AcceleratorPressed(
       // is invalid, focus is left on the url field.
       if (GetInputURL().is_valid()) {
         PerformModelChange();
-        if (dialog_)
-          dialog_->Close();
+        if (window())
+          window()->Close();
       } else {
         url_field_->SelectAll();
       }
@@ -492,7 +493,7 @@ void ShelfItemDialog::OnSelectionChanged() {
         UTF8ToWide(url_table_model_->GetURL(selection).spec()));
     if (title_field_)
       title_field_->SetText(url_table_model_->GetTitle(selection));
-    dialog_->UpdateDialogButtons();
+    window()->UpdateDialogButtons();
   }
 }
 
@@ -501,8 +502,8 @@ void ShelfItemDialog::OnDoubleClick() {
   if (selection >= 0 && selection < url_table_model_->RowCount()) {
     OnSelectionChanged();
     PerformModelChange();
-    if (dialog_)
-      dialog_->Close();
+    if (window())
+      window()->Close();
   }
 }
 

@@ -140,8 +140,6 @@ class HungRendererWarningView : public ChromeViews::View,
   void ShowForWebContents(WebContents* contents);
   void EndForWebContents(WebContents* contents);
 
-  void set_window(ChromeViews::Window* window) { window_ = window; }
-
   // ChromeViews::WindowDelegate overrides:
   virtual std::wstring GetWindowTitle() const;
   virtual void WindowClosing();
@@ -150,7 +148,8 @@ class HungRendererWarningView : public ChromeViews::View,
       ChromeViews::DialogDelegate::DialogButton button) const;
   virtual ChromeViews::View* GetExtraView();
   virtual bool Accept(bool window_closing);
-
+  virtual ChromeViews::View* GetContentsView();
+  
   // ChromeViews::NativeButton::Listener overrides:
   virtual void ButtonPressed(ChromeViews::NativeButton* sender);
 
@@ -193,9 +192,6 @@ class HungRendererWarningView : public ChromeViews::View,
   };
   ButtonContainer* kill_button_container_;
 
-  // The Window that contains this view.
-  ChromeViews::Window* window_;
-
   // The model that provides the contents of the table that shows a list of
   // pages affected by the hang.
   scoped_ptr<HungPagesTableModel> hung_pages_table_model_;
@@ -233,7 +229,6 @@ HungRendererWarningView::HungRendererWarningView()
       hung_pages_table_(NULL),
       kill_button_(NULL),
       kill_button_container_(NULL),
-      window_(NULL),
       contents_(NULL),
       initialized_(false) {
   InitClass();
@@ -244,7 +239,7 @@ HungRendererWarningView::~HungRendererWarningView() {
 }
 
 void HungRendererWarningView::ShowForWebContents(WebContents* contents) {
-  DCHECK(contents && window_);
+  DCHECK(contents && window());
   contents_ = contents;
 
   // Don't show the warning unless the foreground window is the frame, or this
@@ -253,13 +248,13 @@ void HungRendererWarningView::ShowForWebContents(WebContents* contents) {
   HWND frame_hwnd = GetAncestor(contents->GetContainerHWND(), GA_ROOT);
   HWND foreground_window = GetForegroundWindow();
   if (foreground_window != frame_hwnd &&
-      foreground_window != window_->GetHWND()) {
+      foreground_window != window()->GetHWND()) {
     return;
   }
 
-  if (!window_->IsActive()) {
+  if (!window()->IsActive()) {
     gfx::Rect bounds = GetDisplayBounds(contents);
-    window_->SetBounds(bounds, frame_hwnd);
+    window()->SetBounds(bounds, frame_hwnd);
 
     // We only do this if the window isn't active (i.e. hasn't been shown yet,
     // or is currently shown but deactivated for another WebContents). This is
@@ -268,14 +263,14 @@ void HungRendererWarningView::ShowForWebContents(WebContents* contents) {
     // the list of hung pages for a potentially unrelated renderer while this
     // one is showing.
     hung_pages_table_model_->InitForWebContents(contents);
-    window_->Show();
+    window()->Show();
   }
 }
 
 void HungRendererWarningView::EndForWebContents(WebContents* contents) {
   DCHECK(contents);
   if (contents_ && contents_->process() == contents->process()) {
-    window_->Close();
+    window()->Close();
     // Since we're closing, we no longer need this WebContents.
     contents_ = NULL;
   }
@@ -325,6 +320,13 @@ bool HungRendererWarningView::Accept(bool window_closing) {
     contents_->render_view_host()->RestartHangMonitorTimeout();
   return true;
 }
+
+ChromeViews::View* HungRendererWarningView::GetContentsView() {
+  return this;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// HungRendererWarningView, ChromeViews::NativeButton::Listener implementation:
 
 void HungRendererWarningView::ButtonPressed(
     ChromeViews::NativeButton* sender) {
@@ -401,7 +403,7 @@ void HungRendererWarningView::CreateKillButtonView() {
   kill_button_->SetListener(this);
 
   kill_button_container_ = new ButtonContainer;
-
+ 
   using ChromeViews::GridLayout;
   using ChromeViews::ColumnSet;
 
@@ -426,7 +428,7 @@ gfx::Rect HungRendererWarningView::GetDisplayBounds(
   GetWindowRect(contents_hwnd, &contents_bounds);
 
   CRect window_bounds;
-  window_->GetBounds(&window_bounds, true);
+  window()->GetBounds(&window_bounds, true);
 
   int window_x = contents_bounds.left +
       (contents_bounds.Width() - window_bounds.Width()) / 2;
@@ -453,9 +455,7 @@ HungRendererWarningView* HungRendererWarning::instance_ = NULL;
 
 static HungRendererWarningView* CreateHungRendererWarningView() {
   HungRendererWarningView* cv = new HungRendererWarningView;
-  ChromeViews::Window* window =
-      ChromeViews::Window::CreateChromeWindow(NULL, gfx::Rect(), cv, cv);
-  cv->set_window(window);
+  ChromeViews::Window::CreateChromeWindow(NULL, gfx::Rect(), cv);
   return cv;
 }
 

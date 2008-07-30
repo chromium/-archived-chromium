@@ -72,6 +72,7 @@ class JavascriptMessageBoxHandler
 
   // ChromeViews::WindowDelegate Methods:
   virtual bool IsModal() const { return true; }
+  virtual ChromeViews::View* GetContentsView();
 
  protected:
   // Use RunJavaScriptMessageBox to use.

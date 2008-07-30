@@ -546,14 +546,10 @@ void Browser::ExecuteCommand(int id) {
 
     case IDC_ABOUT: {
       UserMetrics::RecordAction(L"AboutChrome", profile_);
-      AboutChromeView* about_view = new AboutChromeView(profile_);
-      ChromeViews::Window* about_dialog =
-          ChromeViews::Window::CreateChromeWindow(GetTopLevelHWND(),
-                                                  gfx::Rect(),
-                                                  about_view,
-                                                  about_view);
-      about_dialog->Show();
-      about_view->SetDialog(about_dialog);
+      ChromeViews::Window::CreateChromeWindow(
+          GetTopLevelHWND(),
+          gfx::Rect(),
+          new AboutChromeView(profile_))->Show();
       break;
     }
 
@@ -944,12 +940,8 @@ void Browser::OpenKeywordEditor() {
 }
 
 void Browser::OpenImportSettingsDialog() {
-  ImporterView* importer_view = new ImporterView(profile_);
-  ChromeViews::Window* importer_dialog =
-      ChromeViews::Window::CreateChromeWindow(GetTopLevelHWND(), gfx::Rect(),
-                                              importer_view, importer_view);
-  importer_dialog->Show();
-  importer_view->set_dialog(importer_dialog);
+  ChromeViews::Window::CreateChromeWindow(GetTopLevelHWND(), gfx::Rect(),
+                                          new ImporterView(profile_))->Show();
 }
 
 void Browser::OpenBugReportDialog() {
@@ -988,22 +980,15 @@ void Browser::OpenBugReportDialog() {
   bug_report_view->set_png_data(screenshot_png);
 
   // Create and show the dialog
-  ChromeViews::Window* bug_report_dialog =
-      ChromeViews::Window::CreateChromeWindow(GetTopLevelHWND(), gfx::Rect(),
-                                              bug_report_view, bug_report_view);
-  bug_report_dialog->Show();
-  bug_report_view->set_dialog(bug_report_dialog);
+  ChromeViews::Window::CreateChromeWindow(GetTopLevelHWND(), gfx::Rect(),
+                                          bug_report_view)->Show();
 }
 
 void Browser::OpenClearBrowsingDataDialog() {
-  ClearBrowsingDataView* clear_browsing_data_view =
-      new ClearBrowsingDataView(profile_);
-  ChromeViews::Window* clear_browsing_data_dialog =
-      ChromeViews::Window::CreateChromeWindow(
-          GetTopLevelHWND(), gfx::Rect(),
-          clear_browsing_data_view, clear_browsing_data_view);
-  clear_browsing_data_dialog->Show();
-  clear_browsing_data_view->SetDialog(clear_browsing_data_dialog);
+    ChromeViews::Window::CreateChromeWindow(
+        GetTopLevelHWND(),
+        gfx::Rect(),
+        new ClearBrowsingDataView(profile_))->Show();
 }
 
 void Browser::RunSimpleFrameMenu(const CPoint& pt, HWND hwnd) {

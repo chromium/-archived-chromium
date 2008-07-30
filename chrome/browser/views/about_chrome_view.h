@@ -61,8 +61,6 @@ class AboutChromeView : public ChromeViews::View,
   // Initialize the controls on the dialog.
   void Init();
 
-  void SetDialog(ChromeViews::Window* dialog) { dialog_ = dialog; }
-
   // Overridden from ChromeViews::View:
   virtual void GetPreferredSize(CSize *out);
   virtual void Layout();
@@ -82,6 +80,7 @@ class AboutChromeView : public ChromeViews::View,
   virtual bool IsModal() const;
   virtual std::wstring GetWindowTitle() const;
   virtual bool Accept();
+  virtual ChromeViews::View* GetContentsView();
 
   // Overridden from GoogleUpdateStatusListener:
   virtual void OnReportResults(GoogleUpdateUpgradeResult result,
@@ -99,8 +98,6 @@ class AboutChromeView : public ChromeViews::View,
   // Update the UI to show the status of the upgrade.
   void UpdateStatus(GoogleUpdateUpgradeResult result,
                     GoogleUpdateErrorCode error_code);
-
-  ChromeViews::Window* dialog_;
 
   Profile* profile_;
 

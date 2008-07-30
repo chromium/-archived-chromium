@@ -54,9 +54,6 @@ class FirstRunViewBase : public ChromeViews::View,
   explicit FirstRunViewBase(Profile* profile);
   virtual ~FirstRunViewBase();
 
-  // Sets the dialog window that host the view.
-  void set_dialog(ChromeViews::Window* dialog) { dialog_ = dialog; }
-
   // Overridden from ChromeViews::View.
   virtual void Layout();
 
@@ -78,7 +75,7 @@ class FirstRunViewBase : public ChromeViews::View,
   // Modifies the chrome configuration so that the first-run dialogs are not
   // shown again.
   bool FirstRunComplete();
-
+  
   // Disables the standard buttons of the dialog. Useful when importing.
   void DisableButtons();
   // Computes a tight dialog width given a contained UI element.
@@ -99,7 +96,6 @@ class FirstRunViewBase : public ChromeViews::View,
 
   scoped_refptr<ImporterHost> importer_host_;
   Profile* profile_;
-  ChromeViews::Window* dialog_;
 
  private:
   // Initializes the controls on the dialog.

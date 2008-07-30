@@ -146,8 +146,8 @@ void JavascriptMessageBoxHandler::ShowModalDialog() {
 
   web_contents_->Activate();
   HWND root_hwnd = GetAncestor(web_contents_->GetHWND(), GA_ROOT);
-  dialog_ = ChromeViews::Window::CreateChromeWindow(root_hwnd, gfx::Rect(),
-                                                    message_box_view_, this);
+  dialog_ =
+      ChromeViews::Window::CreateChromeWindow(root_hwnd, gfx::Rect(), this);
   dialog_->Show();
 }
 
@@ -157,6 +157,13 @@ void JavascriptMessageBoxHandler::ActivateModalDialog() {
   // desktop to the one the browser window is on.
   dialog_->Show();
   dialog_->Activate();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// JavascriptMessageBoxHandler, ChromeViews::WindowDelegate implementation:
+
+ChromeViews::View* JavascriptMessageBoxHandler::GetContentsView() {
+  return message_box_view_;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

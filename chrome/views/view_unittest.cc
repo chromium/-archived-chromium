@@ -309,10 +309,10 @@ TEST_F(ViewTest, MouseEvent) {
   TestView* v2 = new TestView();
   v2->SetBounds (100, 100, 100, 100);
 
-  ChromeViews::Window window;
+  ChromeViews::HWNDViewContainer window;
   window.set_delete_on_destroy(false);
   window.set_window_style(WS_OVERLAPPEDWINDOW);
-  window.Init(NULL, gfx::Rect(50, 50, 650, 650), NULL, NULL);
+  window.Init(NULL, gfx::Rect(50, 50, 650, 650), NULL, false);
   RootView* root = window.GetRootView();
 
   root->AddChildView(v1);
@@ -470,7 +470,7 @@ TEST_F(ViewTest, RemoveNotification) {
   NotificationService::current()->AddObserver(
       observer.get(), NOTIFY_VIEW_REMOVED, NotificationService::AllSources());
 
-  ChromeViews::Window* window = new ChromeViews::Window;
+  ChromeViews::HWNDViewContainer* window = new ChromeViews::HWNDViewContainer;
   ChromeViews::RootView* root_view = window->GetRootView();
 
   View* v1 = new View;

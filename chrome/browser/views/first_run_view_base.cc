@@ -54,8 +54,7 @@
 #include "generated_resources.h"
 
 FirstRunViewBase::FirstRunViewBase(Profile* profile)
-    : dialog_(NULL),
-      preferred_width_(0),
+    : preferred_width_(0),
       background_image_(NULL),
       separator_1_(NULL),
       separator_2_(NULL),
@@ -148,9 +147,7 @@ void FirstRunViewBase::Layout() {
                      background_image_->GetHeight() - 2;
 
   separator_1_->GetPreferredSize(&pref_size);
-  separator_1_->SetBounds(0, next_v_space,
-                          canvas.cx + 1,
-                          pref_size.cy);
+  separator_1_->SetBounds(0 , next_v_space, canvas.cx + 1, pref_size.cy);
 
   next_v_space = canvas.cy - kPanelSubVerticalSpacing;
   separator_2_->GetPreferredSize(&pref_size);
@@ -182,7 +179,7 @@ int FirstRunViewBase::GetDefaultImportItems() const {
 };
 
 void FirstRunViewBase::DisableButtons() {
-  dialog_->EnableClose(false);
+  window()->EnableClose(false);
   ChromeViews::ClientView* cv =
       reinterpret_cast<ChromeViews::ClientView*>(GetParent());
   if (cv) {

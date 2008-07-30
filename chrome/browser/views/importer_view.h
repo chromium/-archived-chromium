@@ -58,8 +58,6 @@ class ImporterView : public ChromeViews::View,
   explicit ImporterView(Profile* profile);
   virtual ~ImporterView();
 
-  void set_dialog(ChromeViews::Window* dialog) { dialog_ = dialog; }
-
   // Overridden from ChromeViews::View.
   virtual void GetPreferredSize(CSize *out);
   virtual void Layout();
@@ -69,6 +67,7 @@ class ImporterView : public ChromeViews::View,
   virtual bool IsModal() const;
   virtual std::wstring GetWindowTitle() const;
   virtual bool Accept();
+  virtual ChromeViews::View* GetContentsView();
 
   // Overridden from ChromeViews::ComboBox::Model.
   virtual int GetItemCount(ChromeViews::ComboBox* source);
@@ -92,8 +91,6 @@ class ImporterView : public ChromeViews::View,
   ChromeViews::CheckBox* favorites_checkbox_;
   ChromeViews::CheckBox* passwords_checkbox_;
   ChromeViews::CheckBox* search_engines_checkbox_;
-
-  ChromeViews::Window* dialog_;
 
   scoped_refptr<ImporterHost> importer_host_;
 

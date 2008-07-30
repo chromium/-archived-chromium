@@ -60,11 +60,6 @@ class OptionsWindowView : public ChromeViews::View,
   explicit OptionsWindowView(Profile* profile);
   virtual ~OptionsWindowView();
 
-  ChromeViews::Window* container() const { return container_; }
-  void set_container(ChromeViews::Window* container) {
-    container_ = container;
-  }
-
   // Shows the Tab corresponding to the specified OptionsPage.
   void ShowOptionsPage(OptionsPage page, OptionsGroup highlight_group);
 
@@ -73,6 +68,7 @@ class OptionsWindowView : public ChromeViews::View,
   virtual std::wstring GetWindowTitle() const;
   virtual void WindowClosing();
   virtual bool Cancel();
+  virtual ChromeViews::View* GetContentsView();
 
   // ChromeViews::TabbedPane::Listener implementation:
   virtual void TabSelectedAt(int index);
@@ -95,9 +91,6 @@ class OptionsWindowView : public ChromeViews::View,
 
   // The Tab view that contains all of the options pages.
   ChromeViews::TabbedPane* tabs_;
-
-  // The Options dialog window.
-  ChromeViews::Window* container_;
 
   // The Profile associated with these options.
   Profile* profile_;
@@ -135,10 +128,10 @@ void OptionsWindowView::ShowOptionsPage(OptionsPage page,
                                         OptionsGroup highlight_group) {
   // If the window is not yet visible, we need to show it (it will become
   // active), otherwise just bring it to the front.
-  if (!container_->IsVisible()) {
-    container_->Show();
+  if (!window()->IsVisible()) {
+    window()->Show();
   } else {
-    container_->Activate();
+    window()->Activate();
   }
 
   if (page == OPTIONS_PAGE_DEFAULT) {
@@ -169,6 +162,10 @@ void OptionsWindowView::WindowClosing() {
 
 bool OptionsWindowView::Cancel() {
   return GetCurrentOptionsPageView()->CanClose();
+}
+
+ChromeViews::View* OptionsWindowView::GetContentsView() {
+  return this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -246,8 +243,7 @@ void ShowOptionsWindow(OptionsPage page,
   //             about this case this will have to be fixed.
   if (!instance_) {
     instance_ = new OptionsWindowView(profile);
-    instance_->set_container(ChromeViews::Window::CreateChromeWindow(
-        NULL, gfx::Rect(), instance_, instance_));
+    ChromeViews::Window::CreateChromeWindow(NULL, gfx::Rect(), instance_);
     // The window is alive by itself now...
   }
   instance_->ShowOptionsPage(page, highlight_group);
