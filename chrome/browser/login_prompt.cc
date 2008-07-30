@@ -165,6 +165,9 @@ class LoginHandlerImpl : public LoginHandler,
     SetAuth(login_view_->GetUsername(), login_view_->GetPassword());
     return true;
   }
+  virtual ChromeViews::View* GetContentsView() {
+    return login_view_;
+  }
 
   // LoginHandler:
   virtual void SetAuth(const std::wstring& username,

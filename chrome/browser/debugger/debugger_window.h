@@ -66,6 +66,7 @@ class DebuggerWindow : public DebuggerInputOutput,
   virtual std::wstring GetWindowTitle() const;
   virtual void WindowClosing();
   virtual bool CanResize() const;
+  virtual ChromeViews::View* GetContentsView();
 
   // Overridden from ChromeViews::TextField::Controller:
   virtual void ContentsChanged(ChromeViews::TextField* sender,
