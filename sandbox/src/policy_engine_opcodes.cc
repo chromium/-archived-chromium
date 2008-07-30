@@ -299,7 +299,7 @@ EvalResult OpcodeEval<OP_WSTRING_MATCH>(PolicyOpcode* opcode,
   // Advance the source string to the last successfully evaluated position
   // according to the match context.
   source_str = &source_str[context->position];
-  int source_len  = g_nt.wcslen(source_str);
+  int source_len  = static_cast<int>(g_nt.wcslen(source_str));
 
   if (0 == source_len) {
     // If we reached the end of the source string there is nothing we can
