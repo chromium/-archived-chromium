@@ -124,6 +124,7 @@ class TestRenderViewHost : public RenderViewHost {
 
   // Support for onbeforeunload, onunload
   void AttemptToClosePage(bool is_closing_browser) {
+    is_waiting_for_unload_ack_ = true;
     // TODO(ojan): Add tests for the case where is_closing_browser is true.
     DCHECK(!is_closing_browser);
     if (immediate_before_unload)
