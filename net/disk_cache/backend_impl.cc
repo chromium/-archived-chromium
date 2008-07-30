@@ -1040,7 +1040,9 @@ void BackendImpl::RestartCache() {
 
   // Don't call Init() if directed by the unit test: we are simulating a failure
   // trying to re-enable the cache.
-  if (!unit_test_ && Init())
+  if (unit_test_)
+    init_ = true;  // Let the destructor do proper cleanup.
+  else if (Init())
     stats_.SetCounter(Stats::FATAL_ERROR, errors + 1);
 }
 
