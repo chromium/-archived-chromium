@@ -129,46 +129,10 @@ void Window::Init(HWND parent, const gfx::Rect& bounds) {
     HWNDViewContainer::Init(parent, bounds,
                             window_delegate_->GetContentsView(), true);
   }
-
-  std::wstring window_title = window_delegate_->GetWindowTitle();
-  SetWindowText(GetHWND(), window_title.c_str());
-
   win_util::SetWindowUserData(GetHWND(), this);
-
-  // Restore the window's placement from the controller.
-  CRect saved_bounds(0, 0, 0, 0);
-  bool maximized = false;
-  if (window_delegate_->RestoreWindowPosition(&saved_bounds,
-                                              &maximized,
-                                              &is_always_on_top_)) {
-    // Make sure the bounds are at least the minimum size.
-    if (saved_bounds.Width() < minimum_size_.cx) {
-      saved_bounds.SetRect(saved_bounds.left, saved_bounds.top,
-                           saved_bounds.right + minimum_size_.cx -
-                              saved_bounds.Width(),
-                           saved_bounds.bottom);
-    }
-
-    if (saved_bounds.Height() < minimum_size_.cy) {
-      saved_bounds.SetRect(saved_bounds.left, saved_bounds.top,
-                           saved_bounds.right,
-                           saved_bounds.bottom + minimum_size_.cy -
-                              saved_bounds.Height());
-    }
-
-    WINDOWPLACEMENT placement = {0};
-    placement.length = sizeof(WINDOWPLACEMENT);
-    placement.rcNormalPosition = saved_bounds;
-    if (maximized)
-      placement.showCmd = SW_SHOWMAXIMIZED;
-    ::SetWindowPlacement(GetHWND(), &placement);
-
-    if (is_always_on_top_ != window_delegate_->IsAlwaysOnTop())
-      AlwaysOnTopChanged();
-  } else if (bounds.IsEmpty()) {
-    // Size the window to the content and center over the parent.
-    SizeWindowToDefault();
-  }
+  
+  UpdateWindowTitle();
+  SetInitialBounds(bounds);
 
   if (window_delegate_->HasAlwaysOnTopMenu())
     AddAlwaysOnTopSystemMenuItem();
@@ -398,38 +362,6 @@ void Window::SizeWindowToDefault() {
   }
 }
 
-void Window::SetInitialFocus() {
-  if (!focus_on_creation_)
-    return;
-
-  bool focus_set = false;
-  ChromeViews::View* v = window_delegate_->GetInitiallyFocusedView();
-  // For dialogs, try to focus either the OK or Cancel buttons if any.
-  if (!v && window_delegate_->AsDialogDelegate() && client_view_) {
-    if (client_view_->ok_button())
-      v = client_view_->ok_button();
-    else if (client_view_->cancel_button())
-      v = client_view_->cancel_button();
-  }
-  if (v) {
-    focus_set = true;
-    // In order to make that view the initially focused one, we make it the
-    // focused view on the focus manager and we store the focused view.
-    // When the window is activated, the focus manager will restore the 
-    // stored focused view.
-    FocusManager* focus_manager = FocusManager::GetFocusManager(GetHWND());
-    DCHECK(focus_manager);
-    focus_manager->SetFocusedView(v);
-    focus_manager->StoreFocusedView();
-  }
-
-  if (!focus_set && focus_on_creation_) {
-    // The window does not get keyboard messages unless we focus it, not sure
-    // why.
-    SetFocus(GetHWND());
-  }
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // Window, HWNDViewContainer overrides:
 
@@ -530,6 +462,75 @@ void Window::BecomeModal() {
   while (start != NULL) {
     ::EnableWindow(start, FALSE);
     start = ::GetParent(start);
+  }
+}
+
+void Window::SetInitialFocus() {
+  if (!focus_on_creation_)
+    return;
+
+  bool focus_set = false;
+  ChromeViews::View* v = window_delegate_->GetInitiallyFocusedView();
+  // For dialogs, try to focus either the OK or Cancel buttons if any.
+  if (!v && window_delegate_->AsDialogDelegate() && client_view_) {
+    if (client_view_->ok_button())
+      v = client_view_->ok_button();
+    else if (client_view_->cancel_button())
+      v = client_view_->cancel_button();
+  }
+  if (v) {
+    focus_set = true;
+    // In order to make that view the initially focused one, we make it the
+    // focused view on the focus manager and we store the focused view.
+    // When the window is activated, the focus manager will restore the
+    // stored focused view.
+    FocusManager* focus_manager = FocusManager::GetFocusManager(GetHWND());
+    DCHECK(focus_manager);
+    focus_manager->SetFocusedView(v);
+    focus_manager->StoreFocusedView();
+  }
+
+  if (!focus_set && focus_on_creation_) {
+    // The window does not get keyboard messages unless we focus it, not sure
+    // why.
+    SetFocus(GetHWND());
+  }
+}
+
+void Window::SetInitialBounds(const gfx::Rect& create_bounds) {
+  // Restore the window's placement from the controller.
+  CRect saved_bounds(0, 0, 0, 0);
+  bool maximized = false;
+  if (window_delegate_->RestoreWindowPosition(&saved_bounds,
+                                              &maximized,
+                                              &is_always_on_top_)) {
+    // Make sure the bounds are at least the minimum size.
+    if (saved_bounds.Width() < minimum_size_.cx) {
+      saved_bounds.SetRect(saved_bounds.left, saved_bounds.top,
+                           saved_bounds.right + minimum_size_.cx -
+                              saved_bounds.Width(),
+                           saved_bounds.bottom);
+    }
+
+    if (saved_bounds.Height() < minimum_size_.cy) {
+      saved_bounds.SetRect(saved_bounds.left, saved_bounds.top,
+                           saved_bounds.right,
+                           saved_bounds.bottom + minimum_size_.cy -
+                              saved_bounds.Height());
+    }
+
+    WINDOWPLACEMENT placement = {0};
+    placement.length = sizeof(WINDOWPLACEMENT);
+    placement.rcNormalPosition = saved_bounds;
+    if (maximized)
+      placement.showCmd = SW_SHOWMAXIMIZED;
+    ::SetWindowPlacement(GetHWND(), &placement);
+
+    if (is_always_on_top_ != window_delegate_->IsAlwaysOnTop())
+      AlwaysOnTopChanged();
+  } else if (create_bounds.IsEmpty()) {
+    // Size the window to the content and center over the parent.
+    SizeWindowToDefault();
   }
 }
 

@@ -173,11 +173,6 @@ class Window : public HWNDViewContainer {
  protected:
   virtual void SizeWindowToDefault();
 
-  // Sets-up the focus manager with the view that should have focus when the
-  // window is shown the first time.  If NULL is returned, the focus goes to the
-  // button if there is one, otherwise the to the Cancel button.
-  void SetInitialFocus();
-
   // Overridden from HWNDViewContainer:
   virtual void OnActivate(UINT action, BOOL minimized, HWND window);
   virtual void OnCommand(UINT notification_code, int command_id, HWND window);
@@ -198,6 +193,15 @@ class Window : public HWNDViewContainer {
  private:
   // Set the window as modal (by disabling all the other windows).
   void BecomeModal();
+
+  // Sets-up the focus manager with the view that should have focus when the
+  // window is shown the first time.  If NULL is returned, the focus goes to the
+  // button if there is one, otherwise the to the Cancel button.
+  void SetInitialFocus();
+
+  // Place and size the window when it is created. |create_bounds| are the
+  // bounds used when the window was created.
+  void SetInitialBounds(const gfx::Rect& create_bounds);
 
   // Add an item for "Always on Top" to the System Menu.
   void AddAlwaysOnTopSystemMenuItem();
