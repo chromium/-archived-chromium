@@ -131,7 +131,8 @@ void Window::Init(HWND parent, const gfx::Rect& bounds) {
   }
   win_util::SetWindowUserData(GetHWND(), this);
   
-  UpdateWindowTitle();
+  std::wstring window_title = window_delegate_->GetWindowTitle();
+  SetWindowText(GetHWND(), window_title.c_str());
   SetInitialBounds(bounds);
 
   if (window_delegate_->HasAlwaysOnTopMenu())
