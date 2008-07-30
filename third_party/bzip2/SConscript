@@ -33,6 +33,7 @@ env = env.Clone()
 
 env.Append(
     CCFLAGS = [
+        '/DBZ_NO_STDIO',
         '/TC',
 
         '/wd4996',

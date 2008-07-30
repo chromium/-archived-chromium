@@ -18,6 +18,7 @@
 			>
 			<Tool
 				Name="VCCLCompilerTool"
+				PreprocessorDefinitions="BZ_NO_STDIO"
 				DisableSpecificWarnings="4996"
 			/>
 			<Tool
@@ -31,6 +32,7 @@
 			>
 			<Tool
 				Name="VCCLCompilerTool"
+				PreprocessorDefinitions="BZ_NO_STDIO"
 				DisableSpecificWarnings="4996"
 			/>
 			<Tool
