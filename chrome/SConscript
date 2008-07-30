@@ -368,7 +368,15 @@ chrome_exe = env_exe.Program(
 install_targets.extend(chrome_exe)
 env.Requires(chrome_exe[0], ['$TARGET_ROOT/chrome.dll',
                              '$TARGET_ROOT/icudt38.dll',
-                             '$TARGET_ROOT/rlz.dll'])
+                             '$TARGET_ROOT/rlz.dll',
+                             '$TARGET_ROOT/First Run'])
+
+env.Command('$TARGET_ROOT/First Run', '$CHROME_DIR/app/FirstRun',
+            Copy('$TARGET', '$SOURCE'))
+
+# For release we want to run dependencies.py, may look something like:
+#env.AddPostAction('$TARGET_ROOT/chrome.exe',
+#                  '$PYTHON tools/build/win/dependencies.py $(TargetPath) chrome.exe.deps')
 
 
 env_snapshot = env.Clone()
