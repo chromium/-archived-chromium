@@ -64,23 +64,6 @@ void trim_quote(std::wstring* string) {
     (*string) = string->substr(pos1, pos2 + 1);
 }
 
-// Returns true if the current's thread desktop is the interactive desktop.
-// In Vista there is a more direct test but for XP and w2k we need to check
-// the object name.
-bool IsInteractiveDesktop(bool* is_interactive) {
-  HDESK current_desk = ::GetThreadDesktop(::GetCurrentThreadId());
-  if (NULL == current_desk) {
-    return false;
-  }
-  wchar_t current_desk_name[256] = {0};
-  if (!::GetUserObjectInformationW(current_desk, UOI_NAME, current_desk_name,
-                                  sizeof(current_desk_name), NULL)) {
-    return false;
-  }
-  *is_interactive = (0 == _wcsicmp(L"default", current_desk_name));
-  return true;
-}
-
 int TestOpenFile(std::wstring path, bool for_write) {
   wchar_t path_expanded[MAX_PATH + 1] = {0};
   DWORD size = ::ExpandEnvironmentStrings(path.c_str(), path_expanded,
@@ -242,6 +225,55 @@ int TestOpenKey(HKEY base_key, std::wstring subkey) {
   } else {
     return SBOX_TEST_FAILED_TO_EXECUTE_COMMAND;
   }
+}
+
+// Returns true if the current's thread desktop is the interactive desktop.
+// In Vista there is a more direct test but for XP and w2k we need to check
+// the object name.
+bool IsInteractiveDesktop(bool* is_interactive) {
+  HDESK current_desk = ::GetThreadDesktop(::GetCurrentThreadId());
+  if (NULL == current_desk) {
+    return false;
+  }
+  wchar_t current_desk_name[256] = {0};
+  if (!::GetUserObjectInformationW(current_desk, UOI_NAME, current_desk_name,
+                                  sizeof(current_desk_name), NULL)) {
+    return false;
+  }
+  *is_interactive = (0 == _wcsicmp(L"default", current_desk_name));
+  return true;
+}
+
+SBOX_TESTS_COMMAND int OpenInteractiveDesktop(int, wchar_t **) {
+  return TestOpenInputDesktop();
+}
+
+int TestOpenInputDesktop() {
+  bool is_interactive = false;
+  if (IsInteractiveDesktop(&is_interactive) && is_interactive) {
+    return SBOX_TEST_SUCCEEDED;
+  }
+  HDESK desk = ::OpenInputDesktop(0, FALSE, DESKTOP_CREATEWINDOW);
+  if (desk) {
+    ::CloseDesktop(desk);
+    return SBOX_TEST_SUCCEEDED;
+  }
+  return SBOX_TEST_DENIED;
+}
+
+SBOX_TESTS_COMMAND int SwitchToSboxDesktop(int, wchar_t **) {
+  return TestSwitchDesktop();
+}
+
+int TestSwitchDesktop() {
+  HDESK sbox_desk = ::GetThreadDesktop(::GetCurrentThreadId());
+  if (NULL == sbox_desk) {
+    return SBOX_TEST_FAILED;
+  }
+  if (::SwitchDesktop(sbox_desk)) {
+    return SBOX_TEST_SUCCEEDED;
+  }
+  return SBOX_TEST_DENIED;
 }
 
 }  // namespace sandbox

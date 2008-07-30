@@ -54,6 +54,9 @@ int TestOpenKey(HKEY base_key, std::wstring subkey);
 // current desktop is not the interactive one. Returns a SboxTestResult.
 int TestOpenInputDesktop();
 
+// Tries to switch the interactive desktop. Returns a SboxTestResult.
+int TestSwitchDesktop();
+
 }  // namespace sandbox
 
 #endif  // SANDBOX_TESTS_VALIDATION_TESTS_COMMANDS_H__

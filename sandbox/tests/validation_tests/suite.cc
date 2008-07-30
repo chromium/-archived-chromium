@@ -98,6 +98,15 @@ TEST(ValidationSuite, TestRegistry) {
           L"\"Software\\Microsoft\\Windows NT\\CurrentVersion\\WinLogon\""));
 }
 
+// Tests that the permissions on the Windowstation does not allow the sandbox
+// to get to the interactive desktop or to make the sbox desktop interactive.
+TEST(ValidationSuite, TestDesktop) {
+  TestRunner runner;
+  runner.GetPolicy()->SetDesktop(L"sbox_validation_desktop");
+  EXPECT_EQ(SBOX_TEST_DENIED, runner.RunTest(L"OpenInteractiveDesktop NULL"));
+  EXPECT_EQ(SBOX_TEST_DENIED, runner.RunTest(L"SwitchToSboxDesktop NULL"));
+}
+
 // Tests if the windows are correctly protected by the sandbox.
 TEST(ValidationSuite, TestWindows) {
   TestRunner runner;
