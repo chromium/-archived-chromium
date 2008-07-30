@@ -223,9 +223,9 @@ env_unit_tests.Append(CCPCHFLAGS = ['/FIstdafx.h'])
 
 
 unit_tests = env_unit_tests.Program(
-    ['../sandbox_unit_tests.exe',
-    '../sandbox_unit_tests.ilk',
-    '../sandbox_unit_tests.pdb'],
+    ['../sbox_unittests.exe',
+    '../sbox_unittests.ilk',
+    '../sbox_unittests.pdb'],
     unit_test_files + extra_libs,
 )
 
@@ -267,11 +267,11 @@ env_integration_tests['PCHSTOP'] = 'stdafx.h'
 env_integration_tests.Append(CCPCHFLAGS = ['/FIstdafx.h'])
 
 integration_tests = env_integration_tests.Program(
-    ['../integration_tests.exe',
-    '../integration_tests.ilk',
-    '../integration_tests.lib',
-    '../integration_tests.exp',
-    '../integration_tests.pdb'],
+    ['../sbox_integration_tests.exe',
+    '../sbox_integration_tests.ilk',
+    '../sbox_integration_tests.lib',
+    '../sbox_integration_tests.exp',
+    '../sbox_integration_tests.pdb'],
     integration_test_files + extra_libs,
 )
 
@@ -306,11 +306,11 @@ env_validation_tests['PCHSTOP'] = 'stdafx.h'
 env_validation_tests.Append(CCPCHFLAGS = ['/FIstdafx.h'])
 
 validation_tests = env_validation_tests.Program(
-    ['../validation_tests.exe',
-    '../validation_tests.ilk',
-    '../validation_tests.lib',
-    '../validation_tests.exp',
-    '../validation_tests.pdb'],
+    ['../sbox_validation_tests.exe',
+    '../sbox_validation_tests.ilk',
+    '../sbox_validation_tests.lib',
+    '../sbox_validation_tests.exp',
+    '../sbox_validation_tests.pdb'],
     validation_test_files + extra_libs,
 )
 
