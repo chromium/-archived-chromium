@@ -121,6 +121,7 @@
 #include "base/gfx/bitmap_platform_device.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/platform_canvas.h"
+#include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
@@ -205,13 +206,27 @@ static void FrameContentAsPlainText(int max_chars, Frame* frame,
     // string conversion.
     for (TextIterator it(range.get()); !it.atEnd(); it.advance()) {
       const wchar_t* chars = reinterpret_cast<const wchar_t*>(it.characters());
-      if (chars) {
-        int to_append = std::min(it.length(),
-                                 max_chars - static_cast<int>(output->size()));
-        output->append(chars, to_append);
-        if (output->size() >= static_cast<size_t>(max_chars))
-          return;  // Filled up the buffer.
+      if (!chars) {
+        // It appears from crash reports that an iterator can get into a state
+        // where the character count is nonempty but the character pointer is
+        // NULL. advance()ing it will then just add that many to the NULL
+        // pointer which won't be caught in a NULL check but will crash.
+        //
+        // So as soon as we see a NULL character pointer, we know that the
+        // iterator is done and we should not continue.
+        //
+        // IF YOU CATCH THIS IN A DEBUGGER please let brettw know. We don't
+        // currently understand the conditions for this to occur. Ideally, the
+        // iterators would never get into the condition so we should fix them
+        // if we can.
+        NOTREACHED();
+        break;
       }
+      int to_append = std::min(it.length(),
+                               max_chars - static_cast<int>(output->size()));
+      output->append(chars, to_append);
+      if (output->size() >= static_cast<size_t>(max_chars))
+        return;  // Filled up the buffer.
     }
   }
 
