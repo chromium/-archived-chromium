@@ -350,6 +350,10 @@ void MetricsLog::WriteStabilityElement() {
   WriteIntAttribute("crashcount",
                     pref->GetInteger(prefs::kStabilityCrashCount));
   pref->SetInteger(prefs::kStabilityCrashCount, 0);
+  WriteIntAttribute("incompleteshutdowncount",
+                    pref->GetInteger(
+                        prefs::kStabilityIncompleteSessionEndCount));
+  pref->SetInteger(prefs::kStabilityIncompleteSessionEndCount, 0);
   WriteIntAttribute("pageloadcount",
                     pref->GetInteger(prefs::kStabilityPageLoadCount));
   pref->SetInteger(prefs::kStabilityPageLoadCount, 0);
