@@ -165,12 +165,12 @@ bool VerifyMAC(const std::string& key, const std::string& mac,
   std::string key_copy = key;
   DecodeWebSafe(&key_copy);
   std::string decoded_key;
-  Base64Decode(key_copy, &decoded_key);
+  net::Base64Decode(key_copy, &decoded_key);
 
   std::string mac_copy = mac;
   DecodeWebSafe(&mac_copy);
   std::string decoded_mac;
-  Base64Decode(mac_copy, &decoded_mac);
+  net::Base64Decode(mac_copy, &decoded_mac);
 
   HMAC hmac(HMAC::SHA1,
             reinterpret_cast<const unsigned char*>(decoded_key.data()),

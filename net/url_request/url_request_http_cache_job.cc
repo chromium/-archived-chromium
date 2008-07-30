@@ -66,8 +66,8 @@ URLRequestHttpCacheJob::URLRequestHttpCacheJob(URLRequest* request)
       context_(request->context()),
       transaction_(NULL),
       response_info_(NULL),
-      proxy_auth_state_(AUTH_STATE_DONT_NEED_AUTH),
-      server_auth_state_(AUTH_STATE_DONT_NEED_AUTH),
+      proxy_auth_state_(net::AUTH_STATE_DONT_NEED_AUTH),
+      server_auth_state_(net::AUTH_STATE_DONT_NEED_AUTH),
       start_callback_(this, &URLRequestHttpCacheJob::OnStartCompleted),
       read_callback_(this, &URLRequestHttpCacheJob::OnReadCompleted),
       read_in_progress_(false) {
@@ -238,27 +238,27 @@ bool URLRequestHttpCacheJob::NeedsAuth() {
   // because we either provided no auth info, or provided incorrect info.
   switch (code) {
     case 407:
-      if (proxy_auth_state_ == AUTH_STATE_CANCELED)
+      if (proxy_auth_state_ == net::AUTH_STATE_CANCELED)
         return false;
-      proxy_auth_state_ = AUTH_STATE_NEED_AUTH;
+      proxy_auth_state_ = net::AUTH_STATE_NEED_AUTH;
       return true;
     case 401:
-      if (server_auth_state_ == AUTH_STATE_CANCELED)
+      if (server_auth_state_ == net::AUTH_STATE_CANCELED)
         return false;
-      server_auth_state_ = AUTH_STATE_NEED_AUTH;
+      server_auth_state_ = net::AUTH_STATE_NEED_AUTH;
       return true;
   }
   return false;
 }
 
 void URLRequestHttpCacheJob::GetAuthChallengeInfo(
-    scoped_refptr<AuthChallengeInfo>* result) {
+    scoped_refptr<net::AuthChallengeInfo>* result) {
   DCHECK(transaction_);
   DCHECK(response_info_);
 
   // sanity checks:
-  DCHECK(proxy_auth_state_ == AUTH_STATE_NEED_AUTH ||
-         server_auth_state_ == AUTH_STATE_NEED_AUTH);
+  DCHECK(proxy_auth_state_ == net::AUTH_STATE_NEED_AUTH ||
+         server_auth_state_ == net::AUTH_STATE_NEED_AUTH);
   DCHECK(response_info_->headers->response_code() == 401 ||
          response_info_->headers->response_code() == 407);
 
@@ -266,16 +266,16 @@ void URLRequestHttpCacheJob::GetAuthChallengeInfo(
 }
 
 void URLRequestHttpCacheJob::GetCachedAuthData(
-    const AuthChallengeInfo& auth_info,
-    scoped_refptr<AuthData>* auth_data) {
-  AuthCache* auth_cache =
+    const net::AuthChallengeInfo& auth_info,
+    scoped_refptr<net::AuthData>* auth_data) {
+  net::AuthCache* auth_cache =
       request_->context()->http_transaction_factory()->GetAuthCache();
   if (!auth_cache) {
     *auth_data = NULL;
     return;
   }
-  std::string auth_cache_key = AuthCache::HttpKey(request_->url(),
-                                                  auth_info);
+  std::string auth_cache_key =
+      net::AuthCache::HttpKey(request_->url(), auth_info);
   *auth_data = auth_cache->Lookup(auth_cache_key);
 }
 
@@ -284,11 +284,11 @@ void URLRequestHttpCacheJob::SetAuth(const std::wstring& username,
   DCHECK(transaction_);
 
   // Proxy gets set first, then WWW.
-  if (proxy_auth_state_ == AUTH_STATE_NEED_AUTH) {
-    proxy_auth_state_ = AUTH_STATE_HAVE_AUTH;
+  if (proxy_auth_state_ == net::AUTH_STATE_NEED_AUTH) {
+    proxy_auth_state_ = net::AUTH_STATE_HAVE_AUTH;
   } else {
-    DCHECK(server_auth_state_ == AUTH_STATE_NEED_AUTH);
-    server_auth_state_ = AUTH_STATE_HAVE_AUTH;
+    DCHECK(server_auth_state_ == net::AUTH_STATE_NEED_AUTH);
+    server_auth_state_ = net::AUTH_STATE_HAVE_AUTH;
   }
 
   // These will be reset in OnStartCompleted.
@@ -312,11 +312,11 @@ void URLRequestHttpCacheJob::SetAuth(const std::wstring& username,
 
 void URLRequestHttpCacheJob::CancelAuth() {
   // Proxy gets set first, then WWW.
-  if (proxy_auth_state_ == AUTH_STATE_NEED_AUTH) {
-    proxy_auth_state_ = AUTH_STATE_CANCELED;
+  if (proxy_auth_state_ == net::AUTH_STATE_NEED_AUTH) {
+    proxy_auth_state_ = net::AUTH_STATE_CANCELED;
   } else {
-    DCHECK(server_auth_state_ == AUTH_STATE_NEED_AUTH);
-    server_auth_state_ = AUTH_STATE_CANCELED;
+    DCHECK(server_auth_state_ == net::AUTH_STATE_NEED_AUTH);
+    server_auth_state_ = net::AUTH_STATE_CANCELED;
   }
 
   // These will be reset in OnStartCompleted.

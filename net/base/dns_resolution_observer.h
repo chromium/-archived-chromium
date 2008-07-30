@@ -76,5 +76,7 @@ DnsResolutionObserver* RemoveDnsResolutionObserver();
 // to any registered observer.
 void DidStartDnsResolution(const std::string& name, void* context);
 void DidFinishDnsResolutionWithStatus(bool was_resolved, void* context);
+
 }  // namspace net
+
 #endif  // NET_BASE_DNS_RESOLUTION_OBSERVER_H__

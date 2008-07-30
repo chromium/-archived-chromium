@@ -154,7 +154,7 @@ static GURL ConvertSkBitmapToDataURL(const SkBitmap& icon) {
   std::string icon_data_str(reinterpret_cast<char*>(&icon_data[0]),
                             icon_data.size());
   std::string icon_base64_encoded;
-  Base64Encode(icon_data_str, &icon_base64_encoded);
+  net::Base64Encode(icon_data_str, &icon_base64_encoded);
   GURL icon_url("data:image/png;base64," + icon_base64_encoded);
 
   return icon_url;

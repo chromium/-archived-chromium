@@ -31,6 +31,8 @@
 
 class GURL;
 
+namespace net {
+
 // See RFC 2397 for a complete description of the 'data' URL scheme.
 //
 // Briefly, a 'data' URL has the form:
@@ -61,3 +63,5 @@ class DataURL {
                     std::string* charset,
                     std::string* data);
 };
+
+}  // namespace net

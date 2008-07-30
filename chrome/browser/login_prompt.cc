@@ -323,7 +323,7 @@ class LoginHandlerImpl : public LoginHandler,
 // which then routes it to the URLRequest on the I/O thread.
 class LoginDialogTask : public Task {
  public:
-  LoginDialogTask(AuthChallengeInfo* auth_info, LoginHandlerImpl* handler)
+  LoginDialogTask(net::AuthChallengeInfo* auth_info, LoginHandlerImpl* handler)
       : auth_info_(auth_info), handler_(handler) {
   }
   virtual ~LoginDialogTask() {
@@ -380,15 +380,15 @@ class LoginDialogTask : public Task {
     // TODO(timsteele): Shouldn't depend on HttpKey since a change to the
     // format would result in not being able to retrieve existing logins
     // for a site. Refactor HttpKey behavior to be more reusable.
-    dialog_form.signon_realm = AuthCache::HttpKey(dialog_form.origin,
-                                                  *auth_info_);
+    dialog_form.signon_realm =
+        net::AuthCache::HttpKey(dialog_form.origin, *auth_info_);
     password_manager_input->push_back(dialog_form);
     // Set the password form for the handler (by copy).
     handler_->set_password_form(dialog_form);
   }
 
   // Info about who/where/what is asking for authentication.
-  scoped_refptr<AuthChallengeInfo> auth_info_;
+  scoped_refptr<net::AuthChallengeInfo> auth_info_;
 
   // Where to send the authentication when obtained.
   // This is owned by the ResourceDispatcherHost that invoked us.
@@ -400,7 +400,7 @@ class LoginDialogTask : public Task {
 // ----------------------------------------------------------------------------
 // Public API
 
-LoginHandler* CreateLoginPrompt(AuthChallengeInfo* auth_info,
+LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
                                 URLRequest* request,
                                 MessageLoop* ui_loop) {
   LoginHandlerImpl* handler = new LoginHandlerImpl(request, ui_loop);

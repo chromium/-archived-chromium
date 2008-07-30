@@ -32,7 +32,7 @@
 
 #include <string>
 
-namespace mime_util {
+namespace net {
 
 // Get the mime type (if any) that is associated with the given file extension.
 // Returns true if a corresponding mime type exists.
@@ -66,6 +66,6 @@ bool IsSupportedMimeType(const std::string& mime_type);
 bool MatchesMimeType(const std::string &mime_type_pattern,
                      const std::string &mime_type);
 
-}  // namespace mime_util
+}  // namespace net
 
 #endif  // NET_BASE_MIME_UTIL_H__

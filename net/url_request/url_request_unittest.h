@@ -143,7 +143,7 @@ class TestDelegate : public URLRequest::Delegate {
       MessageLoop::current()->Quit();
   }
 
-  void OnAuthRequired(URLRequest* request, AuthChallengeInfo* auth_info) {
+  void OnAuthRequired(URLRequest* request, net::AuthChallengeInfo* auth_info) {
     if (!username_.empty() || !password_.empty()) {
       request->SetAuth(username_, password_);
     } else {

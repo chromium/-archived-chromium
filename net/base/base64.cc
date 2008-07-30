@@ -34,6 +34,8 @@
 #include "third_party/modp_b64/modp_b64.h"
 #pragma warning(pop)
 
+namespace net {
+
 bool Base64Encode(const std::string& input, std::string* output) {
   std::string temp;
   temp.resize(modp_b64_encode_len(input.size()));  // makes room for null byte
@@ -63,3 +65,5 @@ bool Base64Decode(const std::string& input, std::string* output) {
   output->swap(temp);
   return true;
 }
+
+}  // namespace net

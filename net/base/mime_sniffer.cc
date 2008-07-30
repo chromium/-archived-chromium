@@ -137,7 +137,7 @@ class SnifferHistogram : public LinearHistogram {
 
 }  // namespace
 
-namespace mime_util {
+namespace net {
 
 // We aren't interested in looking at more than 512 bytes of content
 static const size_t kMaxBytesToSniff = 512;
@@ -620,4 +620,4 @@ bool SniffMimeType(const char* content, size_t content_size,
   return have_enough_content;
 }
 
-}  // namespace mime_util
+}  // namespace net

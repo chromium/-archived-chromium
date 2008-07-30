@@ -866,7 +866,7 @@ void DownloadManager::GenerateExtension(const std::wstring& file_name,
     extension.assign(default_extension);
 
   std::string mime_type_from_extension;
-  mime_util::GetMimeTypeFromFile(file_name, &mime_type_from_extension);
+  net::GetMimeTypeFromFile(file_name, &mime_type_from_extension);
   if (mime_type == mime_type_from_extension) {
     // The hinted extension matches the mime type.  It looks like a winner.
     generated_extension->swap(extension);
@@ -877,7 +877,7 @@ void DownloadManager::GenerateExtension(const std::wstring& file_name,
     // We want to be careful about executable extensions.  The worry here is
     // that a trusted web site could be tricked into dropping an executable file
     // on the user's filesystem.
-    if (!mime_util::GetPreferredExtensionForMimeType(mime_type, &extension)) {
+    if (!net::GetPreferredExtensionForMimeType(mime_type, &extension)) {
       // We couldn't find a good extension for this content type.  Use a dummy
       // extension instead.
       extension.assign(default_extension);
@@ -885,7 +885,7 @@ void DownloadManager::GenerateExtension(const std::wstring& file_name,
   }
 
   if (extension.empty()) {
-    mime_util::GetPreferredExtensionForMimeType(mime_type, &extension);
+    net::GetPreferredExtensionForMimeType(mime_type, &extension);
   } else {
     // Append entension generated from the mime type if:
     // 1. New extension is not ".txt"
@@ -895,8 +895,7 @@ void DownloadManager::GenerateExtension(const std::wstring& file_name,
     //    E.g. my-cat.jpg becomes my-cat.jpg.js if content type is
     //         application/x-javascript.
     std::wstring append_extension;
-    if (mime_util::GetPreferredExtensionForMimeType(mime_type,
-                                                    &append_extension)) {
+    if (net::GetPreferredExtensionForMimeType(mime_type, &append_extension)) {
       if (append_extension != L".txt" && append_extension != extension &&
           !IsExecutable(append_extension))
         extension += append_extension;
@@ -973,19 +972,19 @@ bool DownloadManager::ShouldOpenFileExtension(const std::wstring& extension) {
 // static
 bool DownloadManager::IsExecutableMimeType(const std::string& mime_type) {
   // JavaScript is just as powerful as EXE.
-  if (mime_util::MatchesMimeType("text/javascript", mime_type))
+  if (net::MatchesMimeType("text/javascript", mime_type))
     return true;
-  if (mime_util::MatchesMimeType("text/javascript;version=*", mime_type))
+  if (net::MatchesMimeType("text/javascript;version=*", mime_type))
     return true;
 
   // We don't consider other non-application types to be executable.
-  if (!mime_util::MatchesMimeType("application/*", mime_type))
+  if (!net::MatchesMimeType("application/*", mime_type))
     return false;
 
   // These application types are not executable.
-  if (mime_util::MatchesMimeType("application/*+xml", mime_type))
+  if (net::MatchesMimeType("application/*+xml", mime_type))
     return false;
-  if (mime_util::MatchesMimeType("application/xml", mime_type))
+  if (net::MatchesMimeType("application/xml", mime_type))
     return false;
 
   return true;

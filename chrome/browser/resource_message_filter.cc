@@ -449,17 +449,17 @@ void ResourceMessageFilter::OnGetWindowRect(HWND window, gfx::Rect *rect) {
 
 void ResourceMessageFilter::OnGetMimeTypeFromExtension(
     const std::wstring& ext, std::string* mime_type) {
-  mime_util::GetMimeTypeFromExtension(ext, mime_type);
+  net::GetMimeTypeFromExtension(ext, mime_type);
 }
 
 void ResourceMessageFilter::OnGetMimeTypeFromFile(
     const std::wstring& file_path, std::string* mime_type) {
-  mime_util::GetMimeTypeFromFile(file_path, mime_type);
+  net::GetMimeTypeFromFile(file_path, mime_type);
 }
 
 void ResourceMessageFilter::OnGetPreferredExtensionForMimeType(
     const std::string& mime_type, std::wstring* ext) {
-  mime_util::GetPreferredExtensionForMimeType(mime_type, ext);
+  net::GetPreferredExtensionForMimeType(mime_type, ext);
 }
 
 void ResourceMessageFilter::OnGetCPBrowsingContext(uint32* context) {

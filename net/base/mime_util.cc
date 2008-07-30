@@ -40,7 +40,7 @@
 using std::string;
 using std::wstring;
 
-namespace mime_util {
+namespace net {
 
 struct MimeInfo {
   const char* mime_type;
@@ -259,8 +259,8 @@ bool IsViewSourceMimeType(const char* mime_type) {
 bool IsSupportedMimeType(const std::string& mime_type) {
   if (mime_type.compare(0, 5, "text/") == 0 ||
       (mime_type.compare(0, 6, "image/") == 0 &&
-       mime_util::IsSupportedImageMimeType(mime_type.c_str())) ||
-      mime_util::IsSupportedNonImageMimeType(mime_type.c_str()))
+       IsSupportedImageMimeType(mime_type.c_str())) ||
+      IsSupportedNonImageMimeType(mime_type.c_str()))
     return true;
   return false;
 }
@@ -302,4 +302,4 @@ bool MatchesMimeType(const std::string &mime_type_pattern,
   return true;
 }
 
-}  // namespace mime_util
+}  // namespace net

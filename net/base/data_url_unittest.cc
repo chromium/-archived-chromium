@@ -33,8 +33,10 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
-  class DataURLTest : public testing::Test {
-  };
+
+class DataURLTest : public testing::Test {
+};
+
 }
 
 TEST(DataURLTest, Parse) {
@@ -165,7 +167,8 @@ TEST(DataURLTest, Parse) {
     std::string mime_type;
     std::string charset;
     std::string data;
-    bool ok = DataURL::Parse(GURL(tests[i].url), &mime_type, &charset, &data);
+    bool ok =
+        net::DataURL::Parse(GURL(tests[i].url), &mime_type, &charset, &data);
     EXPECT_EQ(ok, tests[i].is_valid);
     if (tests[i].is_valid) {
       EXPECT_EQ(tests[i].mime_type, mime_type);

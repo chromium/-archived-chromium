@@ -1008,17 +1008,17 @@ void AppendToLog(const char* file, int line, const char* msg) {
 }
 
 bool GetMimeTypeFromExtension(std::wstring &ext, std::string *mime_type) {
-  return mime_util::GetMimeTypeFromExtension(ext, mime_type);
+  return net::GetMimeTypeFromExtension(ext, mime_type);
 }
 
 bool GetMimeTypeFromFile(const std::wstring &file_path,
                          std::string *mime_type) {
-  return mime_util::GetMimeTypeFromFile(file_path, mime_type);
+  return net::GetMimeTypeFromFile(file_path, mime_type);
 }
 
 bool GetPreferredExtensionForMimeType(const std::string& mime_type,
                                       std::wstring* ext) {
-  return mime_util::GetPreferredExtensionForMimeType(mime_type, ext);
+  return net::GetPreferredExtensionForMimeType(mime_type, ext);
 }
 
 IMLangFontLink2* GetLangFontLink() {

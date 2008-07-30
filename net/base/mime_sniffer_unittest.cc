@@ -49,11 +49,11 @@ static void TestArray(SnifferTest* tests, size_t count) {
   std::string mime_type;
 
   for (size_t i = 0; i < count; ++i) {
-    mime_util::SniffMimeType(tests[i].content,
-                             tests[i].content_len,
-                             GURL(tests[i].url),
-                             tests[i].type_hint,
-                             &mime_type);
+    net::SniffMimeType(tests[i].content,
+                       tests[i].content_len,
+                       GURL(tests[i].url),
+                       tests[i].type_hint,
+                       &mime_type);
     EXPECT_EQ(tests[i].mime_type, mime_type);
   }
 }
@@ -64,8 +64,8 @@ static std::string SniffMimeType(const std::string& content,
                                  const std::string& url,
                                  const std::string& mime_type_hint) {
   std::string mime_type;
-  mime_util::SniffMimeType(content.data(), content.size(), GURL(url),
-                           mime_type_hint, &mime_type);
+  net::SniffMimeType(content.data(), content.size(), GURL(url),
+                     mime_type_hint, &mime_type);
   return mime_type;
 }
 
@@ -79,11 +79,11 @@ TEST(MimeSnifferTest, BoundaryConditionsTest) {
 
   GURL url;
 
-  mime_util::SniffMimeType(buf, 0, url, type_hint, &mime_type);
+  net::SniffMimeType(buf, 0, url, type_hint, &mime_type);
   EXPECT_EQ("text/plain", mime_type);
-  mime_util::SniffMimeType(buf, 1, url, type_hint, &mime_type);
+  net::SniffMimeType(buf, 1, url, type_hint, &mime_type);
   EXPECT_EQ("text/plain", mime_type);
-  mime_util::SniffMimeType(buf, 2, url, type_hint, &mime_type);
+  net::SniffMimeType(buf, 2, url, type_hint, &mime_type);
   EXPECT_EQ("application/octet-stream", mime_type);
 }
 

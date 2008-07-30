@@ -324,7 +324,7 @@ class MockNetworkLayer : public net::HttpTransactionFactory {
     return NULL;
   }
 
-  virtual AuthCache* GetAuthCache() {
+  virtual net::AuthCache* GetAuthCache() {
     return NULL;
   }
 

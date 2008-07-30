@@ -1169,8 +1169,8 @@ bool WebFrameLoaderClient::canShowMIMEType(const String& mime_type) const {
   // "internally" (i.e. inside the browser) regardless of whether or not the
   // browser or a plugin is doing the rendering.
 
-  if (mime_util::IsSupportedMimeType(
-      WideToASCII(webkit_glue::StringToStdWString(mime_type))))
+  if (net::IsSupportedMimeType(
+          WideToASCII(webkit_glue::StringToStdWString(mime_type))))
     return true;
 
   // See if the type is handled by an installed plugin, if so, we can show it.

@@ -34,7 +34,10 @@
 
 #include "base/basictypes.h"
 
+namespace net {
 class AuthChallengeInfo;
+}
+
 class URLRequest;
 class MessageLoop;
 class TabContents;
@@ -83,7 +86,7 @@ private:
 // which can be used to set or cancel authentication programmatically.  The
 // caller must invoke OnRequestCancelled() on this LoginHandler before
 // destroying the URLRequest.
-LoginHandler* CreateLoginPrompt(AuthChallengeInfo* auth_info,
+LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
                                 URLRequest* request,
                                 MessageLoop* ui_loop);
 

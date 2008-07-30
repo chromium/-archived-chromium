@@ -37,6 +37,8 @@
 
 class MessageLoop;
 
+namespace net {
+
 //
 // This class provides an API for listing the contents of a directory on the
 // filesystem asynchronously.  It spawns a background thread, and enumerates
@@ -88,5 +90,7 @@ class DirectoryLister : public base::RefCountedThreadSafe<DirectoryLister> {
   HANDLE thread_;
   bool canceled_;
 };
+
+}  // namespace net
 
 #endif  // NET_BASE_DIRECTORY_LISTER_H__

@@ -219,7 +219,7 @@ bool DecodeBQEncoding(const std::string& part, RFC2047EncodingType enc_type,
                        const std::string& charset, std::string* output) {
   std::string decoded;
   if (enc_type == B_ENCODING) {
-    if (!Base64Decode(part, &decoded)) {
+    if (!net::Base64Decode(part, &decoded)) {
       return false;
     }
   } else {

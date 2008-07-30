@@ -68,7 +68,7 @@ class URLRequestContext :
   CookiePolicy* cookie_policy() { return &cookie_policy_; }
 
   // Gets the FTP realm authentication cache for this context.
-  AuthCache* ftp_auth_cache() { return &ftp_auth_cache_; }
+  net::AuthCache* ftp_auth_cache() { return &ftp_auth_cache_; }
 
   // Gets the UA string to use for this context.
   const std::string& user_agent() const { return user_agent_; }
@@ -92,7 +92,7 @@ class URLRequestContext :
   net::HttpTransactionFactory* http_transaction_factory_;
   CookieMonster* cookie_store_;
   CookiePolicy cookie_policy_;
-  AuthCache ftp_auth_cache_;
+  net::AuthCache ftp_auth_cache_;
   std::string user_agent_;
   bool is_off_the_record_;
   std::string accept_language_;

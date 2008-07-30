@@ -181,7 +181,7 @@ bool PluginLib::SupportsType(const std::string &mime_type,
 
   for (size_t i = 0; i < web_plugin_info_->mime_types.size(); ++i) {
     const WebPluginMimeType& mime_info = web_plugin_info_->mime_types[i];
-    if (mime_util::MatchesMimeType(mime_info.mime_type, mime_type)) {
+    if (net::MatchesMimeType(mime_info.mime_type, mime_type)) {
       if (!allow_wildcard && (mime_info.mime_type == "*")) {
         continue;
       }

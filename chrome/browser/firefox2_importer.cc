@@ -519,7 +519,7 @@ void Firefox2Importer::DataURLToFaviconUsage(
 
   // Parse the data URL.
   std::string mime_type, char_set, data;
-  if (!DataURL::Parse(favicon_data, &mime_type, &char_set, &data) ||
+  if (!net::DataURL::Parse(favicon_data, &mime_type, &char_set, &data) ||
       data.empty())
     return;
 

@@ -39,7 +39,7 @@ class AuthCacheTest : public testing::Test {
 }  // namespace
 
 TEST(AuthCacheTest, HttpKey) {
-  scoped_refptr<AuthChallengeInfo> auth_info = new AuthChallengeInfo;
+  scoped_refptr<net::AuthChallengeInfo> auth_info = new net::AuthChallengeInfo;
   auth_info->is_proxy = false;  // server auth
   // auth_info->host is intentionally left empty.
   auth_info->scheme = L"Basic";
@@ -66,7 +66,7 @@ TEST(AuthCacheTest, HttpKey) {
   };
 
   for (int i = 0; i < arraysize(url); i++) {
-    std::string key = AuthCache::HttpKey(GURL(url[i]), *auth_info);
+    std::string key = net::AuthCache::HttpKey(GURL(url[i]), *auth_info);
     EXPECT_EQ(expected[i], key);
   }
 }

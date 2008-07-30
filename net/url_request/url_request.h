@@ -132,7 +132,7 @@ class URLRequest {
     // When it does so, the request will be reissued, restarting the sequence
     // of On* callbacks.
     virtual void OnAuthRequired(URLRequest* request,
-                                AuthChallengeInfo* auth_info) {
+                                net::AuthChallengeInfo* auth_info) {
       request->CancelAuth();
     }
 

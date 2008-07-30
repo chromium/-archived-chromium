@@ -36,7 +36,10 @@
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
 
+namespace net {
 class AuthData;
+}
+
 class MessageLoop;
 
 // For all WinInet-based URL requests
@@ -139,8 +142,8 @@ protected:
   std::string extra_request_headers_;
 
   // Authentication information.
-  scoped_refptr<AuthData> proxy_auth_;
-  scoped_refptr<AuthData> server_auth_;
+  scoped_refptr<net::AuthData> proxy_auth_;
+  scoped_refptr<net::AuthData> server_auth_;
 
  private:
 

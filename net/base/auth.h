@@ -34,6 +34,8 @@
 
 #include "base/ref_counted.h"
 
+namespace net {
+
 // Holds info about an authentication challenge that we may want to display
 // to the user.
 class AuthChallengeInfo :
@@ -72,5 +74,7 @@ class AuthData : public base::RefCountedThreadSafe<AuthData> {
   friend base::RefCountedThreadSafe<AuthData>;
   ~AuthData() {}
 };
+
+}  // namespace net
 
 #endif  // NET_BASE_AUTH_H__

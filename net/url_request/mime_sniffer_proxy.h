@@ -63,7 +63,7 @@ class MimeSnifferProxy : public URLRequest::Delegate {
     delegate_->OnReceivedRedirect(request, new_url);
   }
   virtual void OnAuthRequired(URLRequest* request,
-                              AuthChallengeInfo* auth_info) {
+                              net::AuthChallengeInfo* auth_info) {
     delegate_->OnAuthRequired(request, auth_info);
   }
   virtual void OnSSLCertificateError(URLRequest* request,

@@ -82,4 +82,5 @@ void DidFinishDnsResolutionWithStatus(bool was_resolved, void* context) {
     current_observer->OnFinishResolutionWithStatus(was_resolved, context);
   }
 }
+
 }  // namspace net

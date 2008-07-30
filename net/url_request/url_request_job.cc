@@ -299,12 +299,12 @@ void URLRequestJob::NotifyHeadersComplete() {
       return;
     }
   } else if (NeedsAuth()) {
-    scoped_refptr<AuthChallengeInfo> auth_info;
+    scoped_refptr<net::AuthChallengeInfo> auth_info;
     GetAuthChallengeInfo(&auth_info);
     // Need to check for a NULL auth_info because the server may have failed
     // to send a challenge with the 401 response.
     if (auth_info) {
-      scoped_refptr<AuthData> auth_data;
+      scoped_refptr<net::AuthData> auth_data;
       GetCachedAuthData(*auth_info, &auth_data);
       if (auth_data) {
         SetAuth(auth_data->username, auth_data->password);

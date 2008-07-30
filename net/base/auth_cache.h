@@ -37,7 +37,7 @@
 
 class GURL;
 
-// TODO(wtc): move AuthCache into the net namespace.
+namespace net {
 
 // The AuthCache class is a simple cache structure to store authentication
 // information for ftp or http/https sites. Provides lookup, addition, and
@@ -80,5 +80,7 @@ class AuthCache {
   // internal representation of cache, an STL map.
   AuthCacheMap cache_;
 };
+
+}  // namespace net
 
 #endif  // NET_BASE_AUTH_CACHE_H__

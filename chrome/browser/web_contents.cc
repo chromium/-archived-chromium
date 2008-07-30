@@ -2975,8 +2975,8 @@ HWND WebContents::GetContentHWND() {
 bool WebContents::CanDisplayFile(const std::wstring& full_path) {
   bool allow_wildcard = false;
   std::string mime_type;
-  mime_util::GetMimeTypeFromFile(full_path, &mime_type);
-  if (mime_util::IsSupportedMimeType(mime_type) ||
+  net::GetMimeTypeFromFile(full_path, &mime_type);
+  if (net::IsSupportedMimeType(mime_type) ||
       (PluginService::GetInstance() &&
        PluginService::GetInstance()->HavePluginFor(mime_type, allow_wildcard)))
     return true;

@@ -53,7 +53,7 @@ TEST(MimeUtilTest, ExtensionTest) {
   bool rv;
 
   for (size_t i = 0; i < arraysize(tests); ++i) {
-    rv = mime_util::GetMimeTypeFromExtension(tests[i].extension, &mime_type);
+    rv = net::GetMimeTypeFromExtension(tests[i].extension, &mime_type);
     EXPECT_EQ(rv, tests[i].valid);
     if (rv)
       EXPECT_EQ(mime_type, tests[i].mime_type);
@@ -75,7 +75,7 @@ TEST(MimeUtilTest, FileTest) {
   bool rv;
 
   for (size_t i = 0; i < arraysize(tests); ++i) {
-    rv = mime_util::GetMimeTypeFromFile(tests[i].file_path, &mime_type);
+    rv = net::GetMimeTypeFromFile(tests[i].file_path, &mime_type);
     EXPECT_EQ(rv, tests[i].valid);
     if (rv)
       EXPECT_EQ(mime_type, tests[i].mime_type);
@@ -83,32 +83,32 @@ TEST(MimeUtilTest, FileTest) {
 }
 
 TEST(MimeUtilTest, LookupTypes) {
-  EXPECT_EQ(true, mime_util::IsSupportedImageMimeType("image/jpeg"));
-  EXPECT_EQ(false, mime_util::IsSupportedImageMimeType("image/lolcat"));
-  EXPECT_EQ(true, mime_util::IsSupportedNonImageMimeType("text/html"));
-  EXPECT_EQ(false, mime_util::IsSupportedNonImageMimeType("text/virus"));
+  EXPECT_EQ(true, net::IsSupportedImageMimeType("image/jpeg"));
+  EXPECT_EQ(false, net::IsSupportedImageMimeType("image/lolcat"));
+  EXPECT_EQ(true, net::IsSupportedNonImageMimeType("text/html"));
+  EXPECT_EQ(false, net::IsSupportedNonImageMimeType("text/virus"));
 }
 
 TEST(MimeUtilTest, MatchesMimeType) {
-  EXPECT_EQ(true, mime_util::MatchesMimeType("*", "video/x-mpeg"));
-  EXPECT_EQ(true, mime_util::MatchesMimeType("video/*", "video/x-mpeg"));
-  EXPECT_EQ(true, mime_util::MatchesMimeType("video/x-mpeg", "video/x-mpeg"));
-  EXPECT_EQ(true, mime_util::MatchesMimeType("application/*+xml",
+  EXPECT_EQ(true, net::MatchesMimeType("*", "video/x-mpeg"));
+  EXPECT_EQ(true, net::MatchesMimeType("video/*", "video/x-mpeg"));
+  EXPECT_EQ(true, net::MatchesMimeType("video/x-mpeg", "video/x-mpeg"));
+  EXPECT_EQ(true, net::MatchesMimeType("application/*+xml",
                                              "application/html+xml"));
-  EXPECT_EQ(true, mime_util::MatchesMimeType("application/*+xml",
+  EXPECT_EQ(true, net::MatchesMimeType("application/*+xml",
                                              "application/+xml"));
-  EXPECT_EQ(true, mime_util::MatchesMimeType("aaa*aaa",
+  EXPECT_EQ(true, net::MatchesMimeType("aaa*aaa",
                                              "aaaaaa"));
-  EXPECT_EQ(false, mime_util::MatchesMimeType("video/", "video/x-mpeg"));
-  EXPECT_EQ(false, mime_util::MatchesMimeType("", "video/x-mpeg"));
-  EXPECT_EQ(false, mime_util::MatchesMimeType("", ""));
-  EXPECT_EQ(false, mime_util::MatchesMimeType("video/x-mpeg", ""));
-  EXPECT_EQ(false, mime_util::MatchesMimeType("application/*+xml",
+  EXPECT_EQ(false, net::MatchesMimeType("video/", "video/x-mpeg"));
+  EXPECT_EQ(false, net::MatchesMimeType("", "video/x-mpeg"));
+  EXPECT_EQ(false, net::MatchesMimeType("", ""));
+  EXPECT_EQ(false, net::MatchesMimeType("video/x-mpeg", ""));
+  EXPECT_EQ(false, net::MatchesMimeType("application/*+xml",
                                               "application/xml"));
-  EXPECT_EQ(false, mime_util::MatchesMimeType("application/*+xml",
+  EXPECT_EQ(false, net::MatchesMimeType("application/*+xml",
                                               "application/html+xmlz"));
-  EXPECT_EQ(false, mime_util::MatchesMimeType("application/*+xml",
+  EXPECT_EQ(false, net::MatchesMimeType("application/*+xml",
                                               "applcation/html+xml"));
-  EXPECT_EQ(false, mime_util::MatchesMimeType("aaa*aaa",
+  EXPECT_EQ(false, net::MatchesMimeType("aaa*aaa",
                                               "aaaaa"));
 }

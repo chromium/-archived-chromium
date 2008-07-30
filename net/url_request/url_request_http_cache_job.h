@@ -67,9 +67,9 @@ class URLRequestHttpCacheJob : public URLRequestJob {
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code);
   virtual bool IsSafeRedirect(const GURL& location);
   virtual bool NeedsAuth();
-  virtual void GetAuthChallengeInfo(scoped_refptr<AuthChallengeInfo>*);
-  virtual void GetCachedAuthData(const AuthChallengeInfo& auth_info,
-                                 scoped_refptr<AuthData>* auth_data);
+  virtual void GetAuthChallengeInfo(scoped_refptr<net::AuthChallengeInfo>*);
+  virtual void GetCachedAuthData(const net::AuthChallengeInfo& auth_info,
+                                 scoped_refptr<net::AuthData>* auth_data);
   virtual void SetAuth(const std::wstring& username,
                        const std::wstring& password);
   virtual void CancelAuth();
@@ -94,8 +94,8 @@ class URLRequestHttpCacheJob : public URLRequestJob {
   std::vector<std::string> response_cookies_;
 
   // Auth states for proxy and origin server.
-  AuthState proxy_auth_state_;
-  AuthState server_auth_state_;
+  net::AuthState proxy_auth_state_;
+  net::AuthState server_auth_state_;
 
   net::CompletionCallbackImpl<URLRequestHttpCacheJob> start_callback_;
   net::CompletionCallbackImpl<URLRequestHttpCacheJob> read_callback_;

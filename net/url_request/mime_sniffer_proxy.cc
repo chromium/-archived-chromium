@@ -41,7 +41,7 @@ MimeSnifferProxy::MimeSnifferProxy(URLRequest* request,
 void MimeSnifferProxy::OnResponseStarted(URLRequest* request) {
   if (request->status().is_success()) {
     request->GetMimeType(&mime_type_);
-    if (mime_util::ShouldSniffMimeType(request->url(), mime_type_)) {
+    if (net::ShouldSniffMimeType(request->url(), mime_type_)) {
       // We need to read content before we know the mime type,
       // so we don't call OnResponseStarted.
       sniff_content_ = true;
@@ -82,8 +82,8 @@ void MimeSnifferProxy::OnReadCompleted(URLRequest* request, int bytes_read) {
       std::string type_hint;
       request_->GetMimeType(&type_hint);
       bytes_read_ = bytes_read;
-      mime_util::SniffMimeType(buf_, bytes_read_,
-                               request_->url(), type_hint, &mime_type_);
+      net::SniffMimeType(
+          buf_, bytes_read_, request_->url(), type_hint, &mime_type_);
     } else {
       error_ = true;
     }

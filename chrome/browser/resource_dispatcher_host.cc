@@ -974,7 +974,7 @@ bool ResourceDispatcherHost::BufferedEventHandler::DelayResponse() {
   std::string mime_type;
   request_->GetMimeType(&mime_type);
 
-  if (mime_util::ShouldSniffMimeType(request_->url(), mime_type)) {
+  if (net::ShouldSniffMimeType(request_->url(), mime_type)) {
     // We're going to look at the data before deciding what the content type
     // is.  That means we need to delay sending the ResponseStarted message
     // over the IPC channel.
@@ -1019,8 +1019,8 @@ bool ResourceDispatcherHost::BufferedEventHandler::KeepBuffering(
     std::string type_hint, new_type;
     request_->GetMimeType(&type_hint);
 
-    if (!mime_util::SniffMimeType(read_buffer_, bytes_read_, request_->url(),
-                                  type_hint, &new_type)) {
+    if (!net::SniffMimeType(read_buffer_, bytes_read_, request_->url(),
+                            type_hint, &new_type)) {
       // SniffMimeType() returns false if there is not enough data to determine
       // the mime type. However, even if it returns false, it returns a new type
       // that is probably better than the current one.
@@ -1804,8 +1804,9 @@ void ResourceDispatcherHost::OnReceivedRedirect(URLRequest* request,
     CancelRequest(info->render_process_host_id, info->request_id, false);
 }
 
-void ResourceDispatcherHost::OnAuthRequired(URLRequest* request,
-                                            AuthChallengeInfo* auth_info) {
+void ResourceDispatcherHost::OnAuthRequired(
+    URLRequest* request,
+    net::AuthChallengeInfo* auth_info) {
   // Create a login dialog on the UI thread to get authentication data,
   // or pull from cache and continue on the IO thread.
   // TODO(mpcomplete): We should block the parent tab while waiting for
@@ -1961,7 +1962,7 @@ bool ResourceDispatcherHost::ShouldDownload(
   }
 
   // MIME type checking.
-  if (mime_util::IsSupportedMimeType(type))
+  if (net::IsSupportedMimeType(type))
     return false;
 
   // Finally, check the plugin service.

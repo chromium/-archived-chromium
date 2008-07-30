@@ -592,7 +592,7 @@ std::wstring NSSDecryptor::Decrypt(const std::string& crypt) const {
   // by a leading '~'. Otherwise, we should decrypt the text.
   if (crypt[0] != '~') {
     std::string decoded_data;
-    Base64Decode(crypt, &decoded_data);
+    net::Base64Decode(crypt, &decoded_data);
     PK11SlotInfo* slot = NULL;
     slot = PK11_GetInternalKeySlot();
     SECStatus result = PK11_Authenticate(slot, PR_TRUE, NULL);
@@ -616,7 +616,7 @@ std::wstring NSSDecryptor::Decrypt(const std::string& crypt) const {
     PK11_FreeSlot(slot);
   } else {
     // Deletes the leading '~' before decoding.
-    Base64Decode(crypt.substr(1), &plain);
+    net::Base64Decode(crypt.substr(1), &plain);
   }
 
   return UTF8ToWide(plain);

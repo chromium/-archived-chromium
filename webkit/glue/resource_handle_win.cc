@@ -91,7 +91,7 @@ bool GetInfoFromDataUrl(const GURL& url,
                         std::string* data, URLRequestStatus* status) {
   std::string mime_type;
   std::string charset;
-  if (DataURL::Parse(url, &mime_type, &charset, data)) {
+  if (net::DataURL::Parse(url, &mime_type, &charset, data)) {
     info->request_time = Time::Now();
     info->response_time = Time::Now();
     info->mime_type.swap(mime_type);

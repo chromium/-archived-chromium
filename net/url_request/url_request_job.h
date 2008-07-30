@@ -168,7 +168,7 @@ class URLRequestJob : public base::RefCounted<URLRequestJob> {
 
   // Fills the authentication info with the server's response.
   virtual void GetAuthChallengeInfo(
-      scoped_refptr<AuthChallengeInfo>* auth_info) {
+      scoped_refptr<net::AuthChallengeInfo>* auth_info) {
     // This will only be called if NeedsAuth() returns true, in which
     // case the derived class should implement this!
     NOTREACHED();
@@ -177,8 +177,8 @@ class URLRequestJob : public base::RefCounted<URLRequestJob> {
   // Returns cached auth data for the auth challenge.  Returns NULL if there
   // is no auth cache or if the auth cache doesn't have the auth data for
   // the auth challenge.
-  virtual void GetCachedAuthData(const AuthChallengeInfo& auth_info,
-                                 scoped_refptr<AuthData>* auth_data) {
+  virtual void GetCachedAuthData(const net::AuthChallengeInfo& auth_info,
+                                 scoped_refptr<net::AuthData>* auth_data) {
     *auth_data = NULL;
   }
 

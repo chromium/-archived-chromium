@@ -32,6 +32,8 @@
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 
+namespace net {
+
 // Create an AuthCacheKey from url and auth_info.
 //
 // The cache key is made up of two components, separated by a slash /.
@@ -67,3 +69,5 @@ AuthData* AuthCache::Lookup(const AuthCacheKey& key) {
   AuthCacheMap::iterator iter = cache_.find(key);
   return (iter == cache_.end()) ? NULL : iter->second;
 }
+
+}  // namespace net

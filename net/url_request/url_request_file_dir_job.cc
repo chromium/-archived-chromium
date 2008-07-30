@@ -73,7 +73,7 @@ void URLRequestFileDirJob::StartAsync() {
   // is trying to feed us data.
 
   AddRef();
-  lister_ = new DirectoryLister(dir_path_, this);
+  lister_ = new net::DirectoryLister(dir_path_, this);
   lister_->Start();
 
   NotifyHeadersComplete();

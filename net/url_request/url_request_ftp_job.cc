@@ -146,7 +146,7 @@ void URLRequestFtpJob::SendRequest() {
   // in the url (if anything).
   string username, password;
   bool have_auth = false;
-  if (server_auth_ != NULL && server_auth_->state == AUTH_STATE_HAVE_AUTH) {
+  if (server_auth_ && server_auth_->state == net::AUTH_STATE_HAVE_AUTH) {
     // Add auth info to cache
     have_auth = true;
     username = WideToUTF8(server_auth_->username);
@@ -194,13 +194,13 @@ void URLRequestFtpJob::OnIOComplete(const AsyncResult& result) {
         // fall through
       case ERROR_INTERNET_INCORRECT_PASSWORD:
         if (server_auth_ != NULL &&
-            server_auth_->state == AUTH_STATE_HAVE_AUTH) {
+            server_auth_->state == net::AUTH_STATE_HAVE_AUTH) {
           request_->context()->ftp_auth_cache()->Remove(request_->url().host());
         } else {
-          server_auth_ = new AuthData();
+          server_auth_ = new net::AuthData();
         }
         // Try again, prompting for authentication.
-        server_auth_->state = AUTH_STATE_NEED_AUTH;
+        server_auth_->state = net::AUTH_STATE_NEED_AUTH;
         // The io completed fine, the error was due to invalid auth.
         SetStatus(URLRequestStatus());
         NotifyHeadersComplete();
@@ -271,15 +271,14 @@ bool URLRequestFtpJob::NeedsAuth() {
   // requires auth (and not a proxy), because connecting to FTP via proxy
   // effectively means the browser communicates via HTTP, and uses HTTP's
   // Proxy-Authenticate protocol when proxy servers require auth.
-  return ((server_auth_ != NULL) &&
-          server_auth_->state == AUTH_STATE_NEED_AUTH);
+  return server_auth_ && server_auth_->state == net::AUTH_STATE_NEED_AUTH;
 }
 
 void URLRequestFtpJob::GetAuthChallengeInfo(
-    scoped_refptr<AuthChallengeInfo>* result) {
+    scoped_refptr<net::AuthChallengeInfo>* result) {
   DCHECK((server_auth_ != NULL) &&
-         (server_auth_->state == AUTH_STATE_NEED_AUTH));
-  scoped_refptr<AuthChallengeInfo> auth_info = new AuthChallengeInfo;
+         (server_auth_->state == net::AUTH_STATE_NEED_AUTH));
+  scoped_refptr<net::AuthChallengeInfo> auth_info = new net::AuthChallengeInfo;
   auth_info->is_proxy = false;
   auth_info->host = UTF8ToWide(request_->url().host());
   auth_info->scheme = L"";
@@ -288,8 +287,8 @@ void URLRequestFtpJob::GetAuthChallengeInfo(
 }
 
 void URLRequestFtpJob::GetCachedAuthData(
-    const AuthChallengeInfo& auth_info,
-    scoped_refptr<AuthData>* auth_data) {
+    const net::AuthChallengeInfo& auth_info,
+    scoped_refptr<net::AuthData>* auth_data) {
   *auth_data = request_->context()->ftp_auth_cache()->
                Lookup(WideToUTF8(auth_info.host));
 }

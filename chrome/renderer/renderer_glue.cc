@@ -162,7 +162,7 @@ void webkit_glue::AppendToLog(const char* file, int line, const char* msg) {
 bool webkit_glue::GetMimeTypeFromExtension(std::wstring &ext,
                                            std::string *mime_type) {
   if (IsPluginProcess())
-    return mime_util::GetMimeTypeFromExtension(ext, mime_type);
+    return net::GetMimeTypeFromExtension(ext, mime_type);
 
   // The sandbox restricts our access to the registry, so we need to proxy
   // these calls over to the browser process.
@@ -175,7 +175,7 @@ bool webkit_glue::GetMimeTypeFromExtension(std::wstring &ext,
 bool webkit_glue::GetMimeTypeFromFile(const std::wstring &file_path,
                                       std::string *mime_type) {
   if (IsPluginProcess())
-    return mime_util::GetMimeTypeFromFile(file_path, mime_type);
+    return net::GetMimeTypeFromFile(file_path, mime_type);
 
   // The sandbox restricts our access to the registry, so we need to proxy
   // these calls over to the browser process.
@@ -188,7 +188,7 @@ bool webkit_glue::GetMimeTypeFromFile(const std::wstring &file_path,
 bool webkit_glue::GetPreferredExtensionForMimeType(const std::string& mime_type,
                                                    std::wstring* ext) {
   if (IsPluginProcess())
-    return mime_util::GetPreferredExtensionForMimeType(mime_type, ext);
+    return net::GetPreferredExtensionForMimeType(mime_type, ext);
 
   // The sandbox restricts our access to the registry, so we need to proxy
   // these calls over to the browser process.
