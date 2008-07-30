@@ -91,7 +91,7 @@ static const wchar_t* const g_supported_spellchecker_languages[] = {
   L"lt-LT",
   L"sk-SK",
   L"sl-SI",
-  L"ca-ES"
+  L"ca-ES",
   L"lv-LV",
   // L"uk-UA",  // Not to be included in Spellchecker as per B=1277824
   L"hi-IN",
