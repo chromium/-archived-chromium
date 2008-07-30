@@ -106,7 +106,7 @@ class TabSwitchingUITest : public UITest {
     const std::string average_str("average = ");
     const std::string std_dev_str("standard deviation = ");
     std::string::size_type pos = contents.find(
-        "Histogram: RenderWidgetHostHWND_WhiteoutDuration", 0);
+        "Histogram: MPArch.RWHH_WhiteoutDuration", 0);
     std::string::size_type comma_pos;
     std::string::size_type number_length;
     if (pos != std::string::npos) {
