@@ -820,8 +820,9 @@ void TabStrip::SelectTab(Tab* tab) {
 void TabStrip::CloseTab(Tab* tab) {
   int tab_index = GetIndexOfTab(tab);
   if (tab_index != -1) {
-    UserMetrics::RecordAction(L"CloseTab_Mouse",
-                              model_->GetTabContentsAt(tab_index)->profile());
+    TabContents* contents = model_->GetTabContentsAt(tab_index);
+    if (contents)
+      UserMetrics::RecordAction(L"CloseTab_Mouse", contents->profile());
     Tab* last_tab = GetTabAt(GetTabCount() - 1);
     // Limit the width available to the TabStrip for laying out Tabs, so that
     // Tabs are not resized until a later time (when the mouse pointer leaves
