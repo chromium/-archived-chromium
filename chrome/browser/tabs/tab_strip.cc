@@ -166,6 +166,14 @@ class TabStrip::TabAnimation : public AnimationDelegate {
   void GenerateStartAndEndWidths(int start_tab_count, int end_tab_count) {
     tabstrip_->GetDesiredTabWidths(start_tab_count, &start_unselected_width_,
                                    &start_selected_width_);
+    double standard_tab_width =
+        static_cast<double>(TabRenderer::GetStandardSize().width());
+    if (start_tab_count < end_tab_count &&
+        start_unselected_width_ < standard_tab_width) {
+      double minimum_tab_width =
+          static_cast<double>(TabRenderer::GetMinimumSize().width());
+      start_unselected_width_ -= minimum_tab_width / start_tab_count;
+    }
     tabstrip_->GenerateIdealBounds();
     tabstrip_->GetDesiredTabWidths(end_tab_count,
                                    &end_unselected_width_,
