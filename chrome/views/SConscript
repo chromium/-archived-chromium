@@ -100,6 +100,7 @@ input_files = [
     'native_button.cc',
     'native_control.cc',
     'native_scroll_bar.cc',
+    'non_client_view.cc',
     'painter.cc',
     'radio_button.cc',
     'repeat_controller.cc',
