@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="integration_tests"
-	ProjectGUID="{542D4B3B-98D4-4233-B68D-0103891508C6}"
+	Name="sbox_unittests"
+	ProjectGUID="{883553BE-2A9D-418C-A121-61FE1DFBC562}"
 	RootNamespace="unit_tests"
 	Keyword="Win32Proj"
 	>
@@ -39,6 +39,7 @@
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="_CONSOLE"
 				UsePrecompiledHeader="2"
+				WarningLevel="3"
 				ForcedIncludeFiles="stdafx.h"
 			/>
 			<Tool
@@ -52,7 +53,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/safeseh /dynamicbase /ignore:4199 $(NoInherit)"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -103,6 +103,7 @@
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="_CONSOLE"
 				UsePrecompiledHeader="0"
+				WarningLevel="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -115,7 +116,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/safeseh /dynamicbase /ignore:4199 $(NoInherit)"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -149,22 +149,10 @@
 		<Filter
 			Name="Common"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{49F2D231-E141-4455-B241-7D37C09B6EEB}"
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\common\controller.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\common\controller.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\testing\gtest\src\gtest.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\integration_tests.cc"
 				>
 			</File>
 			<File
@@ -191,47 +179,79 @@
 				RelativePath=".\stdafx.h"
 				>
 			</File>
+			<File
+				RelativePath=".\unit_tests.cc"
+				>
+			</File>
 		</Filter>
-		<File
-			RelativePath="..\..\src\dep_test.cc"
+		<Filter
+			Name="TestInterception"
 			>
-		</File>
-		<File
-			RelativePath="..\..\src\file_policy_test.cc"
+			<File
+				RelativePath="..\..\src\interception_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\pe_image_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\service_resolver_unittest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="TestRestrictedToken"
 			>
-		</File>
-		<File
-			RelativePath=".\integration_tests_test.cc"
+			<File
+				RelativePath="..\..\src\restricted_token_unittest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="TestJob"
 			>
-		</File>
-		<File
-			RelativePath="..\..\src\integrity_level_test.cc"
+			<File
+				RelativePath="..\..\src\job_unittest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Sid"
 			>
-		</File>
-		<File
-			RelativePath="..\..\src\ipc_ping_test.cc"
+			<File
+				RelativePath="..\..\src\sid_unittest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Policy"
 			>
-		</File>
-		<File
-			RelativePath="..\..\src\named_pipe_policy_test.cc"
+			<File
+				RelativePath="..\..\src\policy_engine_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\policy_low_level_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\policy_opcodes_unittest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="IPC"
 			>
-		</File>
-		<File
-			RelativePath="..\..\src\policy_target_test.cc"
-			>
-		</File>
-		<File
-			RelativePath="..\..\src\process_policy_test.cc"
-			>
-		</File>
-		<File
-			RelativePath="..\..\src\registry_policy_test.cc"
-			>
-		</File>
-		<File
-			RelativePath="..\..\src\sync_policy_test.cc"
-			>
-		</File>
+			<File
+				RelativePath="..\..\src\ipc_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\threadpool_unittest.cc"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

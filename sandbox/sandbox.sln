@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sandbox", "src\sandbox.vcproj", "{881F6A97-D539-4C48-B401-DF04385B2343}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unit_tests", "tests\unit_tests\unit_tests.vcproj", "{883553BE-2A9D-418C-A121-61FE1DFBC562}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unit_tests", "tests\unit_tests\sbox_unittests.vcproj", "{883553BE-2A9D-418C-A121-61FE1DFBC562}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0E5474AC-5996-4B13-87C0-4AE931EE0815} = {0E5474AC-5996-4B13-87C0-4AE931EE0815}
 		{1832A374-8A74-4F9E-B536-69A699B3E165} = {1832A374-8A74-4F9E-B536-69A699B3E165}
@@ -12,7 +12,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unit_tests", "tests\unit_te
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{F7A3B82E-B8B4-4FDF-BC8E-FEC9398F57ED}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "validation_tests", "tests\validation_tests\validation_tests.vcproj", "{B9CC7B0D-145A-49C2-B887-84E43CFA0F27}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "validation_tests", "tests\validation_tests\sbox_validation_tests.vcproj", "{B9CC7B0D-145A-49C2-B887-84E43CFA0F27}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0E5474AC-5996-4B13-87C0-4AE931EE0815} = {0E5474AC-5996-4B13-87C0-4AE931EE0815}
 		{1832A374-8A74-4F9E-B536-69A699B3E165} = {1832A374-8A74-4F9E-B536-69A699B3E165}
@@ -49,7 +49,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "launcher", "tools\launcher\
 		{881F6A97-D539-4C48-B401-DF04385B2343} = {881F6A97-D539-4C48-B401-DF04385B2343}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "integration_tests", "tests\integration_tests\integration_tests.vcproj", "{542D4B3B-98D4-4233-B68D-0103891508C6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "integration_tests", "tests\integration_tests\sbox_integration_tests.vcproj", "{542D4B3B-98D4-4233-B68D-0103891508C6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0E5474AC-5996-4B13-87C0-4AE931EE0815} = {0E5474AC-5996-4B13-87C0-4AE931EE0815}
 		{1832A374-8A74-4F9E-B536-69A699B3E165} = {1832A374-8A74-4F9E-B536-69A699B3E165}
