@@ -863,9 +863,6 @@ void Browser::UpdateNavigationCommands() {
   controller_.UpdateCommandEnabled(IDC_PRINT, web_contents != NULL);
   controller_.UpdateCommandEnabled(IDC_DUPLICATE,
                                    CanDuplicateContentsAt(selected_index()));
-
-  controller_.UpdateCommandEnabled(IDC_GOOFFTHERECORD,
-      profile_->GetOffTheRecordProfile() != profile_);
 }
 
 // Notification that the starredness of a tab changed.

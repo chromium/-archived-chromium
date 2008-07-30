@@ -144,7 +144,7 @@ void Browser::InitCommandState() {
   controller_.UpdateCommandEnabled(IDC_PRINT, true);
   controller_.UpdateCommandEnabled(IDC_COPY_URL, true);
   controller_.UpdateCommandEnabled(IDC_DUPLICATE, true);
-  controller_.UpdateCommandEnabled(IDC_GOOFFTHERECORD, false);
+  controller_.UpdateCommandEnabled(IDC_GOOFFTHERECORD, true);
   controller_.UpdateCommandEnabled(IDC_VIEW_PASSWORDS, true);
   controller_.UpdateCommandEnabled(IDC_IMPORT_SETTINGS, true);
   controller_.UpdateCommandEnabled(IDC_CLEAR_BROWSING_DATA, true);
@@ -357,7 +357,8 @@ void Browser::ExecuteCommand(int id) {
 
     case IDC_NEWWINDOW:
       UserMetrics::RecordAction(L"NewWindow", profile_);
-      Browser::OpenNewBrowserWindow(profile_, SW_SHOWNORMAL);
+      Browser::OpenNewBrowserWindow(profile_->GetOriginalProfile(),
+                                    SW_SHOWNORMAL);
       break;
 
     case IDC_CLOSEWINDOW:
@@ -523,7 +524,8 @@ void Browser::ExecuteCommand(int id) {
     }
 
     case IDC_GOOFFTHERECORD: {
-      Browser::OpenURLOffTheRecord(profile_, NewTabUIURL());
+      Browser::OpenNewBrowserWindow(profile_->GetOffTheRecordProfile(),
+                                    SW_SHOWNORMAL);
       break;
     }
 
