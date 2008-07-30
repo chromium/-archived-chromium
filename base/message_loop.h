@@ -132,10 +132,6 @@
 // loop.
 
 //------------------------------------------------------------------------------
-// Define a macro to record where (in the sourec code) each Task is posted from.
-#define FROM_HERE tracked_objects::Location(__FUNCTION__, __FILE__, __LINE__)
-
-//------------------------------------------------------------------------------
 class MessageLoop {
  public:
 

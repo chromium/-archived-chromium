@@ -176,7 +176,7 @@ bool DelayedCacheCleanup(const std::wstring& full_path) {
     return false;
   }
 
-  WorkerPool::Run(new CleanupTask(path, name), true);
+  WorkerPool::PostTask(FROM_HERE, new CleanupTask(path, name), true);
   return true;
 }
 

@@ -80,7 +80,6 @@ class MessageLoopOwnable : public tracked_objects::Tracked {
  private:
   friend class TimerManager;  // To check is_owned_by_message_loop().
   friend class MessageLoop;   // To maintain posted_task_delay().
-  friend class WorkerPool;    // To release the task.
 
   // Access methods used ONLY by friends in MessageLoop and TimerManager
   int posted_task_delay() const { return posted_task_delay_; }
