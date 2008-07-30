@@ -61,7 +61,7 @@ static bool UnescapeAndValidatePath(const URLRequest* request,
   // we need to identify the encoding and convert to that encoding.
   static const std::string kInvalidChars("\x00\x0d\x0a", 3);
   *unescaped_path = UnescapeURLComponent(request->url().path(),
-      UnescapeRule::SPACES | UnescapeRule::PERCENTS);
+      UnescapeRule::SPACES | UnescapeRule::URL_SPECIAL_CHARS);
   if (unescaped_path->find_first_of(kInvalidChars) != std::string::npos) {
     SetLastError(ERROR_INTERNET_INVALID_URL);
     // GURL path should not contain '%00' which is NULL(0x00) when unescaped.
@@ -415,7 +415,7 @@ void URLRequestFtpJob::OnStartDirectoryTraversal() {
   // Unescape the URL path and pass the raw 8bit directly to the browser.
   string html = net_util::GetDirectoryListingHeader(
       UnescapeURLComponent(request_->url().path(),
-                           UnescapeRule::SPACES | UnescapeRule::PERCENTS));
+          UnescapeRule::SPACES | UnescapeRule::URL_SPECIAL_CHARS));
 
   // If this isn't top level directory (i.e. the path isn't "/",) add a link to
   // the parent directory.

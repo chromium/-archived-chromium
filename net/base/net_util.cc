@@ -715,7 +715,7 @@ bool FileURLToFilePath(const GURL& url, std::wstring* file_path) {
 
   // GURL stores strings as percent-encoded UTF-8, this will undo if possible.
   path = UnescapeURLComponent(path,
-                              UnescapeRule::SPACES | UnescapeRule::PERCENTS);
+      UnescapeRule::SPACES | UnescapeRule::URL_SPECIAL_CHARS);
 
   if (!IsStringUTF8(path.c_str())) {
     // Not UTF-8, assume encoding is native codepage and we're done. We know we
@@ -937,9 +937,11 @@ std::wstring GetSuggestedFilename(const GURL& url,
     TrimString(filename, L".", &filename);
   }
   if (filename.empty()) {
-    if (url.is_valid())
+    if (url.is_valid()) {
       filename = UnescapeAndDecodeUTF8URLComponent(
-          url.ExtractFileName(), UnescapeRule::SPACES | UnescapeRule::PERCENTS);
+          url.ExtractFileName(),
+          UnescapeRule::SPACES | UnescapeRule::URL_SPECIAL_CHARS);
+    }
   }
 
   // Trim '.' once more.
