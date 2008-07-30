@@ -445,11 +445,10 @@ bool SyncChannel::Send(IPC::Message* message) {
       // shutdown the nested loop when there are no more messages.
       pump_messages_events_.push(pump_messages_event);
       bool old_state = MessageLoop::current()->NestableTasksAllowed();
-      // Insert a Quit message so that we just flush the MessageLoop without
-      // letting the MessageLoop wait for more messages.
-      MessageLoop::current()->Quit();
       MessageLoop::current()->SetNestableTasksAllowed(true);
-      MessageLoop::current()->Run();
+      // Process a message, but come right back out of the MessageLoop (don't
+      // loop, sleep, or wait for a kMsgQuit).
+      MessageLoop::current()->RunOnce();
       MessageLoop::current()->SetNestableTasksAllowed(old_state);
       pump_messages_events_.pop();
     } else {

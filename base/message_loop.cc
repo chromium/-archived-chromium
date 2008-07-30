@@ -169,7 +169,15 @@ void MessageLoop::RemoveObserver(Observer *obs) {
 }
 
 void MessageLoop::Run() {
-  Run(NULL);
+  RunHandler(NULL, false);
+}
+
+void MessageLoop::Run(Dispatcher* dispatcher) {
+  RunHandler(dispatcher, false);
+}
+
+void MessageLoop::RunOnce() {
+  RunHandler(NULL, true);
 }
 
 // Runs the loop in two different SEH modes:
@@ -177,20 +185,19 @@ void MessageLoop::Run() {
 // one that calls SetUnhandledExceptionFilter().
 // enable_SEH_restoration_ = true : any unhandled exception goes to the filter
 // that was existed before the loop was run.
-void MessageLoop::Run(Dispatcher* dispatcher) {
+void MessageLoop::RunHandler(Dispatcher* dispatcher, bool run_loop_once) {
   if (exception_restoration_) {
     LPTOP_LEVEL_EXCEPTION_FILTER current_filter = GetTopSEHFilter();
     __try {
-      RunInternal(dispatcher);
+      RunInternal(dispatcher, run_loop_once);
     } __except(SEHFilter(current_filter)) {
     }
   } else {
-    RunInternal(dispatcher);
+    RunInternal(dispatcher, run_loop_once);
   }
 }
 
 //------------------------------------------------------------------------------
-// Methods supporting various strategies for servicing the numerous queues.
 // IF this was just a simple PeekMessage() loop (servicing all passible work
 // queues), then Windows would try to achieve the following order according to
 // MSDN documentation about PeekMessage with no filter):
@@ -203,7 +210,7 @@ void MessageLoop::Run(Dispatcher* dispatcher) {
 // Summary: none of the above classes is starved, and sent messages has twice
 // the chance of being processed (i.e., reduced service time).
 
-void MessageLoop::RunInternal(Dispatcher* dispatcher) {
+void MessageLoop::RunInternal(Dispatcher* dispatcher, bool run_loop_once) {
   // Preserve ability to be called recursively.
   ScopedStateSave save(this);  // State is restored on exit.
   dispatcher_ = dispatcher;
@@ -211,38 +218,30 @@ void MessageLoop::RunInternal(Dispatcher* dispatcher) {
 
   DCHECK(this == current());
   //
-  // Process all pending messages and signaled objects.
+  // Process pending messages and signaled objects.
   //
   // Flush these queues before exiting due to a kMsgQuit or else we risk not
   // shutting down properly as some operations may depend on further event
   // processing. (Note: some tests may use quit_now_ to exit more swiftly,
   // and leave messages pending, so don't assert the above fact).
-  //
-
-  RunTraditional();
-  DCHECK(quit_received_ || quit_now_);
+  RunTraditional(run_loop_once);
+  DCHECK(run_loop_once || quit_received_ || quit_now_);
 }
 
-typedef bool (MessageLoop::*ProcessingMethod)();
-typedef ProcessingMethod ProcessingMethods[];
-
-void MessageLoop::RunTraditional() {
-  run_depth_++;
-  for (;;) {
+void MessageLoop::RunTraditional(bool run_loop_once) {
+  do {
     // If we do any work, we may create more messages etc., and more work
-    // may possibly be waiting in another task group.  In addition, each method
-    // call here typically limits work to 1 (worst case 2) items.  As a result,
-    // when we (for example) ProcessNextWindowsMessage() there is a good chance
-    // there are still more waiting (same thing for ProcessNextDeferredTask(),
-    // which responds to only one signaled object.).  On the other hand, when
-    // any of these methods return having done no work, then it is pretty
-    // unlikely that calling them again quickly will find any work to do.
+    // may possibly be waiting in another task group.  When we (for example)
+    // ProcessNextWindowsMessage(), there is a good chance there are still more
+    // messages waiting (same thing for ProcessNextObject(), which responds to
+    // only one signaled object; etc.).  On the other hand, when any of these
+    // methods return having done no work, then it is pretty unlikely that
+    // calling them again quickly will find any work to do.
     // Finally, if they all say they had no work, then it is a good time to
     // consider sleeping (waiting) for more work.
-    bool more_work_is_plausible = false;
-    more_work_is_plausible |= ProcessNextWindowsMessage();
+    bool more_work_is_plausible = ProcessNextWindowsMessage();
     if (quit_now_)
-      break;
+      return;
 
     more_work_is_plausible |= ProcessNextDeferredTask();
     more_work_is_plausible |= ProcessNextObject();
@@ -250,7 +249,7 @@ void MessageLoop::RunTraditional() {
       continue;
 
     if (quit_received_)
-      break;
+      return;
 
     // Run any timer that is ready to run. It may create messages etc.
     if (ProcessSomeTimers())
@@ -258,16 +257,19 @@ void MessageLoop::RunTraditional() {
 
     // We run delayed non nestable tasks only after all nestable tasks have
     // run, to preserve FIFO ordering.
-    more_work_is_plausible = ProcessNextDelayedNonNestableTask();
-    if (more_work_is_plausible)
+    if (ProcessNextDelayedNonNestableTask())
       continue;
+
+    if (run_loop_once)
+      return;
 
     // We service APCs in WaitForWork, without returning.
     WaitForWork();  // Wait (sleep) until we have work to do again.
-  }
-
-  run_depth_--;
+  } while (!run_loop_once);
 }
+
+//------------------------------------------------------------------------------
+// Wrapper functions for use in above message loop framework.
 
 bool MessageLoop::ProcessNextDelayedNonNestableTask() {
   if (run_depth_ != 1)
@@ -279,9 +281,6 @@ bool MessageLoop::ProcessNextDelayedNonNestableTask() {
   RunTask(delayed_non_nestable_queue_.Pop());
   return true;
 }
-
-//------------------------------------------------------------------------------
-// Wrapper functions for use in above message loop frameworks.
 
 bool MessageLoop::ProcessNextDeferredTask() {
   ReloadWorkQueue();
@@ -399,6 +398,7 @@ LRESULT MessageLoop::MessageWndProc(HWND hwnd, UINT message,
     }
 
     case kMsgQuit: {
+      CHECK(!quit_received_);  // Discarding a second quit will cause a hang.
       quit_received_ = true;
       return 0;
     }
