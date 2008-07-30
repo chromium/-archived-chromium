@@ -267,8 +267,11 @@ bool TabStripModel::TabsAreLoading() const {
 }
 
 bool TabStripModel::TabHasUnloadListener(int index) {
+  // TODO(beng): this should call through to the delegate, so we can mock it
+  //             in testing and then provide better test coverage for features
+  //             like "close other tabs".
   WebContents* web_contents = GetContentsAt(index)->AsWebContents();
-  if (web_contents) {
+  if (web_contents)
     // If the WebContents is not connected yet, then there's no unload
     // handler we can fire even if the WebContents has an unload listener.
     // One case where we hit this is in a tab that has an infinite loop 
@@ -276,7 +279,6 @@ bool TabStripModel::TabHasUnloadListener(int index) {
     return web_contents->notify_disconnection() && 
         !web_contents->IsShowingInterstitialPage() &&
         web_contents->render_view_host()->HasUnloadListener();
-  }
   return false;
 }
 
@@ -466,17 +468,10 @@ void TabStripModel::ExecuteContextMenuCommand(
       break;
     case CommandCloseOtherTabs: {
       UserMetrics::RecordAction(L"TabContextMenu_CloseOtherTabs", profile_);
-      // Remove tabs before the tab to keep.
-      int index = 0;
-      for (int i = 0; i < context_index; i++) {
-        if (!CloseTabContentsAt(index))
-          ++index;
-      }
-      // Remove all tabs after the tab to keep.
-      index = 1;
-      for (int i = 1, c = count(); i < c; i++) {
-        if (!CloseTabContentsAt(index))
-          ++index;
+      TabContents* contents = GetTabContentsAt(context_index);
+      for (int i = count() - 1; i >= 0; --i) {
+        if (GetTabContentsAt(i) != contents)
+          CloseTabContentsAt(i);
       }
       break;
     }
