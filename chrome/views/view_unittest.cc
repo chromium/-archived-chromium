@@ -312,7 +312,7 @@ TEST_F(ViewTest, MouseEvent) {
   ChromeViews::HWNDViewContainer window;
   window.set_delete_on_destroy(false);
   window.set_window_style(WS_OVERLAPPEDWINDOW);
-  window.Init(NULL, gfx::Rect(50, 50, 650, 650), NULL, false);
+  window.Init(NULL, gfx::Rect(50, 50, 650, 650), false);
   RootView* root = window.GetRootView();
 
   root->AddChildView(v1);

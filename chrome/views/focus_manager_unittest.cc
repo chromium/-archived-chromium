@@ -264,7 +264,8 @@ void TestViewWindow::Init() {
   contents_->SetBackground(
       ChromeViews::Background::CreateSolidBackground(255, 255, 255));
 
-  HWNDViewContainer::Init(NULL, bounds, contents_, true);
+  HWNDViewContainer::Init(NULL, bounds, true);
+  SetContentsView(contents_);
 
   ChromeViews::CheckBox* cb =
       new ChromeViews::CheckBox(L"This is a checkbox");
