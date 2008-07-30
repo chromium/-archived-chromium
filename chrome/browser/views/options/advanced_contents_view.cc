@@ -467,7 +467,7 @@ void GeneralSection::NotifyPrefChanged(const std::wstring* pref_name) {
     reset_file_handlers_label_->SetEnabled(enabled);
     reset_file_handlers_button_->SetEnabled(enabled);
   }
-  if (!pref_name ||*pref_name == prefs::kMetricsReportingEnabled) {
+  if (!pref_name || *pref_name == prefs::kMetricsReportingEnabled) {
     bool enabled = enable_metrics_recording_.GetValue();
     bool done = g_browser_process->metrics_service()->EnableReporting(enabled);
     if (!done) {

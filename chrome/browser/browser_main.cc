@@ -294,6 +294,7 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   // sources. This has to be done before uninstall code path and before prefs
   // are registered.
   local_state->RegisterStringPref(prefs::kApplicationLocale, L"");
+  local_state->RegisterBooleanPref(prefs::kMetricsReportingEnabled, false);
 
   // During first run we read the google update registry key to find what
   // language the user selected when downloading the installer. This
@@ -302,6 +303,8 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
     std::wstring install_lang;
     if (GoogleUpdateSettings::GetLanguage(&install_lang))
       local_state->SetString(prefs::kApplicationLocale, install_lang);
+    if (GoogleUpdateSettings::GetCollectStatsConsent())
+      local_state->SetBoolean(prefs::kMetricsReportingEnabled, true);
   }
 
   ResourceBundle::InitSharedInstance(

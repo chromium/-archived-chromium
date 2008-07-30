@@ -188,7 +188,6 @@ void Browser::RegisterPrefs(PrefService* prefs) {
   prefs->RegisterIntegerPref(prefs::kHungPluginDetectFrequency,
       kDefaultHungPluginDetectFrequency);
   prefs->RegisterDictionaryPref(prefs::kBrowserWindowPlacement);
-  prefs->RegisterBooleanPref(prefs::kMetricsReportingEnabled, true);
   prefs->RegisterIntegerPref(prefs::kOptionsWindowLastTabIndex, 0);
 }
 

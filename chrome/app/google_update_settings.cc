@@ -46,7 +46,7 @@ bool GoogleUpdateSettings::GetCollectStatsConsent() {
   RegKey key(HKEY_CURRENT_USER, kRegistryBase, KEY_READ);
   DWORD value;
   if (!key.ReadValueDW(kUsageStatsFlag, &value))
-    return true;
+    return false;
   return (1 == value);
 }
 
