@@ -252,8 +252,9 @@ class MessageLoop {
   // Run the message loop.
   void Run();
 
-  // Run just one pass through the message loop.
-  void RunOnce();
+  // Process all pending tasks, windows messages, etc., but don't wait/sleep.
+  // Return as soon as all items that can be run are taken care of.
+  void RunAllPending();
 
   // See description of Dispatcher for how Run uses Dispatcher.
   void Run(Dispatcher* dispatcher);
@@ -443,16 +444,18 @@ class MessageLoop {
   // stacks around the running of a main message loop.
   // It will run the message loop in a SEH try block or not depending on the
   // set_SEH_restoration() flag.
-  void RunHandler(Dispatcher* dispatcher, bool run_loop_once);
+  void RunHandler(Dispatcher* dispatcher, bool non_blocking);
 
   // A surrounding stack frame around the running of the message loop that
   // supports all saving and restoring of state, as is needed for any/all (ugly)
   // recursive calls.
-  void RunInternal(Dispatcher* dispatcher, bool run_loop_once);
+  void RunInternal(Dispatcher* dispatcher, bool non_blocking);
 
   // An extended message loop (message pump) that loops mostly forever, and
   // processes task, signals, timers, etc.
-  void RunTraditional(bool run_loop_once);
+  // If non-blocking is set, it will return rather than wait for new things to
+  // arrive for processing.
+  void RunTraditional(bool non_blocking);
 
   //----------------------------------------------------------------------------
   // A list of method wrappers with identical calling signatures (no arguments)

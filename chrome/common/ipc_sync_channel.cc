@@ -448,7 +448,7 @@ bool SyncChannel::Send(IPC::Message* message) {
       MessageLoop::current()->SetNestableTasksAllowed(true);
       // Process a message, but come right back out of the MessageLoop (don't
       // loop, sleep, or wait for a kMsgQuit).
-      MessageLoop::current()->RunOnce();
+      MessageLoop::current()->RunAllPending();
       MessageLoop::current()->SetNestableTasksAllowed(old_state);
       pump_messages_events_.pop();
     } else {

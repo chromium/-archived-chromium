@@ -176,7 +176,7 @@ void MessageLoop::Run(Dispatcher* dispatcher) {
   RunHandler(dispatcher, false);
 }
 
-void MessageLoop::RunOnce() {
+void MessageLoop::RunAllPending() {
   RunHandler(NULL, true);
 }
 
@@ -185,15 +185,15 @@ void MessageLoop::RunOnce() {
 // one that calls SetUnhandledExceptionFilter().
 // enable_SEH_restoration_ = true : any unhandled exception goes to the filter
 // that was existed before the loop was run.
-void MessageLoop::RunHandler(Dispatcher* dispatcher, bool run_loop_once) {
+void MessageLoop::RunHandler(Dispatcher* dispatcher, bool non_blocking) {
   if (exception_restoration_) {
     LPTOP_LEVEL_EXCEPTION_FILTER current_filter = GetTopSEHFilter();
     __try {
-      RunInternal(dispatcher, run_loop_once);
+      RunInternal(dispatcher, non_blocking);
     } __except(SEHFilter(current_filter)) {
     }
   } else {
-    RunInternal(dispatcher, run_loop_once);
+    RunInternal(dispatcher, non_blocking);
   }
 }
 
@@ -210,7 +210,7 @@ void MessageLoop::RunHandler(Dispatcher* dispatcher, bool run_loop_once) {
 // Summary: none of the above classes is starved, and sent messages has twice
 // the chance of being processed (i.e., reduced service time).
 
-void MessageLoop::RunInternal(Dispatcher* dispatcher, bool run_loop_once) {
+void MessageLoop::RunInternal(Dispatcher* dispatcher, bool non_blocking) {
   // Preserve ability to be called recursively.
   ScopedStateSave save(this);  // State is restored on exit.
   dispatcher_ = dispatcher;
@@ -224,12 +224,12 @@ void MessageLoop::RunInternal(Dispatcher* dispatcher, bool run_loop_once) {
   // shutting down properly as some operations may depend on further event
   // processing. (Note: some tests may use quit_now_ to exit more swiftly,
   // and leave messages pending, so don't assert the above fact).
-  RunTraditional(run_loop_once);
-  DCHECK(run_loop_once || quit_received_ || quit_now_);
+  RunTraditional(non_blocking);
+  DCHECK(non_blocking || quit_received_ || quit_now_);
 }
 
-void MessageLoop::RunTraditional(bool run_loop_once) {
-  do {
+void MessageLoop::RunTraditional(bool non_blocking) {
+  for (;;) {
     // If we do any work, we may create more messages etc., and more work
     // may possibly be waiting in another task group.  When we (for example)
     // ProcessNextWindowsMessage(), there is a good chance there are still more
@@ -260,12 +260,12 @@ void MessageLoop::RunTraditional(bool run_loop_once) {
     if (ProcessNextDelayedNonNestableTask())
       continue;
 
-    if (run_loop_once)
+    if (non_blocking)
       return;
 
     // We service APCs in WaitForWork, without returning.
     WaitForWork();  // Wait (sleep) until we have work to do again.
-  } while (!run_loop_once);
+  }
 }
 
 //------------------------------------------------------------------------------
