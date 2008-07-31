@@ -30,6 +30,7 @@
 #ifndef CHROME_VIEWS_DIALOG_DELEGATE_H__
 #define CHROME_VIEWS_DIALOG_DELEGATE_H__
 
+#include "chrome/views/dialog_client_view.h"
 #include "chrome/views/window_delegate.h"
 
 namespace ChromeViews {
@@ -119,6 +120,31 @@ class DialogDelegate : public WindowDelegate {
   // instead.
   virtual bool Accept(bool window_closing) { return Accept(); }
   virtual bool Accept() { return true; }
+
+  // Overridden from WindowDelegate:
+  virtual View* GetInitiallyFocusedView() const {
+    // Try to focus the OK then the Cancel button if present.
+    DialogClientView* dcv = GetDialogClientView();
+    if (GetDialogButtons() & DIALOGBUTTON_OK)
+      return dcv->ok_button();
+    if (GetDialogButtons() & DIALOGBUTTON_CANCEL)
+      return dcv->cancel_button();
+    return NULL;
+  }
+
+  // Overridden from WindowDelegate:
+  virtual ClientView* CreateClientView(Window* window) {
+    return new DialogClientView(window, GetContentsView());
+  }
+
+  // A helper for accessing the DialogClientView object contained by this
+  // delegate's Window.
+  DialogClientView* GetDialogClientView() const {
+    ClientView* client_view = window()->client_view();
+    DialogClientView* dialog_client_view = client_view->AsDialogClientView();
+    DCHECK(dialog_client_view);
+    return dialog_client_view;
+  }
 };
 
 }  // namespace ChromeViews

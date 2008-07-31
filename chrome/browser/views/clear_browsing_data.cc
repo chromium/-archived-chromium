@@ -322,7 +322,7 @@ std::wstring ClearBrowsingDataView::GetItemAt(ChromeViews::ComboBox* source,
 void ClearBrowsingDataView::ButtonPressed(ChromeViews::NativeButton* sender) {
   // When no checkbox is checked we should not have the action button enabled.
   // This forces the button to evaluate what state they should be in.
-  window()->UpdateDialogButtons();
+  GetDialogClientView()->UpdateDialogButtons();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -355,7 +355,7 @@ void ClearBrowsingDataView::UpdateControlEnabledState() {
     throbber_->Stop();
 
   // Make sure to update the state for OK and Cancel buttons.
-  window()->UpdateDialogButtons();
+  GetDialogClientView()->UpdateDialogButtons();
 }
 
 // Convenience method that returns true if the supplied checkbox is selected

@@ -32,12 +32,15 @@
 
 #include "chrome/browser/constrained_window.h"
 #include "chrome/browser/tab_contents_delegate.h"
-#include "chrome/views/client_view.h"
 #include "chrome/views/custom_frame_window.h"
 
 class ConstrainedTabContentsWindowDelegate;
 class ConstrainedWindowAnimation;
 class ConstrainedWindowNonClientView;
+namespace ChromeViews {
+class HWNDView;
+class WindowDelegate;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // ConstrainedWindowImpl
@@ -123,6 +126,8 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   virtual void OnWindowPosChanged(WINDOWPOS* window_pos);
 
  private:
+  friend class ConstrainedWindow;
+
   // Use the static factory methods on ConstrainedWindow to construct a
   // ConstrainedWindow.
   ConstrainedWindowImpl(TabContents* owner,
@@ -131,8 +136,6 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   ConstrainedWindowImpl(TabContents* owner,
                         ChromeViews::WindowDelegate* window_delegate);
   void Init(TabContents* owner);
-
-  friend class ConstrainedWindow;
 
   // Called after changing either the anchor point or titlebar
   // visibility of a suppressed popup. This does the actual resizing.

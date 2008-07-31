@@ -278,7 +278,7 @@ void BugReportView::ItemChanged(ChromeViews::ComboBox* combo_box,
   include_page_image_checkbox_->SetEnabled(!is_phishing_report);
   include_page_image_checkbox_->SetIsSelected(!is_phishing_report);
 
-  window()->UpdateDialogButtons();
+  GetDialogClientView()->UpdateDialogButtons();
 }
 
 void BugReportView::ContentsChanged(ChromeViews::TextField* sender,

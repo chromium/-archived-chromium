@@ -81,7 +81,7 @@ void EditKeywordController::Show() {
   ChromeViews::Window::CreateChromeWindow(::IsWindow(parent_) ? parent_ : NULL,
                                           gfx::Rect(), this); 
   window()->Show();
-  window()->UpdateDialogButtons();
+  GetDialogClientView()->UpdateDialogButtons();
   title_tf_->SelectAll();
   title_tf_->RequestFocus();
 }
@@ -183,7 +183,7 @@ ChromeViews::View* EditKeywordController::GetContentsView() {
 
 void EditKeywordController::ContentsChanged(TextField* sender,
                                             const std::wstring& new_contents) {
-  window()->UpdateDialogButtons();
+  GetDialogClientView()->UpdateDialogButtons();
   UpdateImageViews();
 }
 

@@ -114,35 +114,19 @@ class Window : public HWNDViewContainer {
   virtual void EnableClose(bool enable);
 
   WindowDelegate* window_delegate() const { return window_delegate_; }
-  void set_window_delegate(WindowDelegate* delegate) {
-    window_delegate_ = delegate;
-  }
 
-  // Set whether or not we should insert a client view. See comment below.
-  void set_use_client_view(bool use_client_view) {
-    use_client_view_ = use_client_view;
-  }
+  // Returns the ClientView object used by this Window.
+  ClientView* client_view() const { return client_view_; }
 
   void set_focus_on_creation(bool focus_on_creation) {
     focus_on_creation_ = focus_on_creation;
   }
 
-  // Updates the enabled state and label of the dialog buttons visible in this
-  // window.
-  void UpdateDialogButtons();
-
-  // Called when the window should be canceled or accepted, if it is a dialog
-  // box.
-  void AcceptWindow();
-  void CancelWindow();
-
   // Tell the window to update its title from the delegate.
   virtual void UpdateWindowTitle();
 
   // The parent of this window.
-  HWND owning_window() const {
-    return owning_hwnd_;
-  }
+  HWND owning_window() const { return owning_hwnd_; }
 
   // Convenience methods for storing/retrieving window location information
   // to/from a PrefService using the specified |entry| name.
@@ -171,6 +155,16 @@ class Window : public HWNDViewContainer {
                                             int row_resource_id);
 
  protected:
+  // Sets the specified view as the ClientView of this Window. The ClientView
+  // is responsible for laying out the Window's contents view, as well as
+  // performing basic hit-testing, and perhaps other responsibilities depending
+  // on the implementation. The Window's view hierarchy takes ownership of the
+  // ClientView unless the ClientView specifies otherwise. This must be called
+  // only once, and after the native window has been created.
+  // This is called by Init. |client_view| cannot be NULL.
+  virtual void SetClientView(ClientView* client_view);
+
+  // Sizes the window to the default size specified by its ClientView.
   virtual void SizeWindowToDefault();
 
   // Overridden from HWNDViewContainer:
@@ -183,8 +177,9 @@ class Window : public HWNDViewContainer {
   virtual void OnSize(UINT size_param, const CSize& new_size);
   virtual void OnSysCommand(UINT notification_code, CPoint click);
 
-  // The client view object that contains the client area of the window,
-  // including optional dialog buttons.
+  // A ClientView object or subclass, responsible for sizing the contents view
+  // of the window, hit testing and perhaps other tasks depending on the
+  // implementation.
   ClientView* client_view_;
 
   // Our window delegate (see Init method for documentation).
@@ -248,17 +243,6 @@ class Window : public HWNDViewContainer {
 
   // We need to own the text of the menu, the Windows API does not copy it.
   std::wstring always_on_top_menu_text_;
-
-  // Whether or not the client view should be inserted into the Window's view
-  // hierarchy.
-  // TODO(beng): (Cleanup) This is probably a short term measure until I figure
-  //             out a way to make other Window subclasses (e.g.
-  //             ConstrainedWindowImpl) and their users jive with the new
-  //             dialog framework.
-  bool use_client_view_;
-
-  // True if the window was Accepted by the user using the OK button.
-  bool accepted_;
 
   // Set to true if the window is in the process of closing .
   bool window_closed_;

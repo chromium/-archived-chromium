@@ -131,7 +131,7 @@ ChromeViews::View* ContentView::GetContentsView() {
 
 void ContentView::ContentsChanged(ChromeViews::TextField* sender,
                                   const std::wstring& new_contents) {
-  window()->UpdateDialogButtons();
+  GetDialogClientView()->UpdateDialogButtons();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -187,6 +187,6 @@ ChromeViews::Window* CreateInputWindow(HWND parent_hwnd,
   ChromeViews::Window* window =
       ChromeViews::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(),
                                               new ContentView(delegate));
-  window->UpdateDialogButtons();
+  window->client_view()->AsDialogClientView()->UpdateDialogButtons();
   return window;
 }

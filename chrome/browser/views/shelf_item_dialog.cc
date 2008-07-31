@@ -413,7 +413,7 @@ void ShelfItemDialog::ContentsChanged(ChromeViews::TextField* sender,
   // so we reset the expected handle to an impossible value.
   if (sender == title_field_)
     expected_title_handle_ = 0;
-  window()->UpdateDialogButtons();
+  GetDialogClientView()->UpdateDialogButtons();
 }
 
 bool ShelfItemDialog::Accept() {
@@ -493,7 +493,7 @@ void ShelfItemDialog::OnSelectionChanged() {
         UTF8ToWide(url_table_model_->GetURL(selection).spec()));
     if (title_field_)
       title_field_->SetText(url_table_model_->GetTitle(selection));
-    window()->UpdateDialogButtons();
+    GetDialogClientView()->UpdateDialogButtons();
   }
 }
 

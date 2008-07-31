@@ -180,12 +180,9 @@ int FirstRunViewBase::GetDefaultImportItems() const {
 
 void FirstRunViewBase::DisableButtons() {
   window()->EnableClose(false);
-  ChromeViews::ClientView* cv =
-      reinterpret_cast<ChromeViews::ClientView*>(GetParent());
-  if (cv) {
-    cv->ok_button()->SetEnabled(false);
-    cv->cancel_button()->SetEnabled(false);
-  }
+  ChromeViews::DialogClientView* dcv = GetDialogClientView();
+  dcv->ok_button()->SetEnabled(false);
+  dcv->cancel_button()->SetEnabled(false);
 }
 
 bool FirstRunViewBase::CreateDesktopShortcut() {

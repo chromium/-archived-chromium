@@ -256,7 +256,6 @@ class ConstrainedWindowNonClientView
   void SetShowThrobber(bool show_throbber);
 
   // Overridden from ChromeViews::NonClientView:
-  virtual void Init(ChromeViews::ClientView* client_view);
   virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
   virtual gfx::Size CalculateWindowSizeForClientSize(int width,
                                                      int height) const;
@@ -299,11 +298,6 @@ class ConstrainedWindowNonClientView
 
   void UpdateLocationBar();
   bool ShouldDisplayURLField() const;
-
-  // The View that provides the background for the window, and optionally
-  // dialog buttons. Note: the non-client view does _not_ own this view, the
-  // container does.
-  ChromeViews::ClientView* client_view_;
 
   ConstrainedWindowImpl* container_;
   ChromeViews::WindowDelegate* window_delegate_;
@@ -540,12 +534,6 @@ void ConstrainedWindowNonClientView::Run() {
 ////////////////////////////////////////////////////////////////////////////////
 // ConstrainedWindowNonClientView, ChromeViews::NonClientView implementation:
 
-void ConstrainedWindowNonClientView::Init(
-    ChromeViews::ClientView* client_view) {
-  client_view_ = client_view;
-  AddChildView(client_view_);
-}
-
 gfx::Rect ConstrainedWindowNonClientView::CalculateClientAreaBounds(
     int width,
     int height) const {
@@ -578,15 +566,9 @@ int ConstrainedWindowNonClientView::NonClientHitTest(const gfx::Point& point) {
 
   // First see if it's within the grow box area, since that overlaps the client
   // bounds.
-  if (client_view_->PointIsInSizeBox(point))
-    return HTBOTTOMRIGHT;
-
-  // Then see if it's within the client area.
-  if (client_view_) {
-    client_view_->GetBounds(&bounds);
-    if (bounds.PtInRect(test_point))
-      return HTCLIENT;
-  }
+  int component = container_->client_view()->NonClientHitTest(point);
+  if (component != HTNOWHERE)
+    return component;
 
   // Then see if the point is within any of the window controls.
   close_button_->GetBounds(&bounds);
@@ -596,10 +578,10 @@ int ConstrainedWindowNonClientView::NonClientHitTest(const gfx::Point& point) {
   if (bounds.PtInRect(test_point))
     return HTSYSMENU;
 
-  int component = GetHTComponentForFrame(point, kResizeAreaSize,
-                                         kResizeAreaCornerSize,
-                                         kResizeAreaNorthSize,
-                                         window_delegate_->CanResize());
+  component = GetHTComponentForFrame(point, kResizeAreaSize,
+                                     kResizeAreaCornerSize,
+                                     kResizeAreaNorthSize,
+                                     window_delegate_->CanResize());
   if (component == HTNOWHERE) {
     // Finally fall back to the caption.
     GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
@@ -692,26 +674,28 @@ void ConstrainedWindowNonClientView::Layout() {
                              location_bar_height);
     location_bar_->Layout();
   }
-  if (client_view_)
-    client_view_->SetBounds(client_bounds_.ToRECT());
+  container_->client_view()->SetBounds(client_bounds_.ToRECT());
 }
 
 void ConstrainedWindowNonClientView::GetPreferredSize(CSize* out) {
   DCHECK(out);
-  if (client_view_) {
-    client_view_->GetPreferredSize(out);
-    out->cx += 2 * kWindowHorizontalBorderSize;
-    out->cy += CalculateNonClientHeight(ShouldDisplayURLField()) +
-        kWindowVerticalBorderSize;
-  }
+  container_->client_view()->GetPreferredSize(out);
+  out->cx += 2 * kWindowHorizontalBorderSize;
+  out->cy += CalculateNonClientHeight(ShouldDisplayURLField()) +
+      kWindowVerticalBorderSize;
 }
 
 void ConstrainedWindowNonClientView::ViewHierarchyChanged(bool is_add,
                                                           View *parent,
                                                           View *child) {
-  if (is_add && location_bar_ && GetViewContainer() &&
-      !(location_bar_->IsInitialized())) {
-    location_bar_->Init();
+  if (is_add && GetViewContainer()) {
+    // Add our Client View as we are added to the ViewContainer so that if we
+    // are subsequently resized all the parent-child relationships are
+    // established.
+    if (is_add && GetViewContainer() && child == this)
+      AddChildView(container_->client_view());
+    if (location_bar_ && !location_bar_->IsInitialized())
+      location_bar_->Init();
   }
 }
 

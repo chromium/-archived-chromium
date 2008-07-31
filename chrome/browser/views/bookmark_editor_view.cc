@@ -391,7 +391,7 @@ void BookmarkEditorView::UserInputChanged() {
     url_tf_.SetBackgroundColor(kErrorColor);
   else
     url_tf_.SetDefaultBackgroundColor();
-  window()->UpdateDialogButtons();
+  GetDialogClientView()->UpdateDialogButtons();
 }
 
 void BookmarkEditorView::NewGroup() {

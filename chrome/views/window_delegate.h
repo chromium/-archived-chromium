@@ -35,6 +35,7 @@
 #include <atlmisc.h>
 #include <string>
 
+#include "chrome/views/client_view.h"
 #include "chrome/views/window.h"
 #include "skia/include/SkBitmap.h"
 
@@ -137,6 +138,12 @@ class WindowDelegate {
   // Returns the View that is contained within this Window.
   virtual View* GetContentsView() {
     return NULL;
+  }
+
+  // Called by the Window to create the Client View used to host the contents
+  // of the window.
+  virtual ClientView* CreateClientView(Window* window) {
+    return new ClientView(window, GetContentsView());
   }
 
   // An accessor to the Window this delegate is bound to.

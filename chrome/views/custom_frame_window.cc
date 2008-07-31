@@ -49,7 +49,7 @@ namespace ChromeViews {
 
 HCURSOR CustomFrameWindow::resize_cursors_[6];
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // WindowResources
 //
 // An enumeration of bitmap resources used by this window.
@@ -222,7 +222,7 @@ SkBitmap* InactiveWindowResources::standard_frame_bitmaps_[];
 ChromeFont InactiveWindowResources::title_font_;
 
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 //
 // DefaultNonClientView
 //
@@ -237,7 +237,6 @@ class DefaultNonClientView : public NonClientView,
   virtual ~DefaultNonClientView();
 
   // Overridden from CustomFrameWindow::NonClientView:
-  virtual void Init(ClientView* client_view);
   virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
   virtual gfx::Size CalculateWindowSizeForClientSize(int width,
                                                      int height) const;
@@ -250,6 +249,7 @@ class DefaultNonClientView : public NonClientView,
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
   virtual void GetPreferredSize(CSize* out);
+  virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
 
   // BaseButton::ButtonListener implementation:
   virtual void ButtonPressed(BaseButton* sender);
@@ -327,7 +327,7 @@ static const int kResizeAreaCornerSize = 16;
 static const int kWindowHorizontalBorderSize = 4;
 static const int kWindowVerticalBorderSize = 4;
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // DefaultNonClientView, public:
 
 DefaultNonClientView::DefaultNonClientView(
@@ -385,18 +385,8 @@ DefaultNonClientView::DefaultNonClientView(
 DefaultNonClientView::~DefaultNonClientView() {
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // DefaultNonClientView, CustomFrameWindow::NonClientView implementation:
-
-void DefaultNonClientView::Init(ClientView* client_view) {
-  client_view_ = client_view;
-  AddChildView(client_view_);
-  // TODO(beng): (Cleanup) this should mostly move down to Window, because
-  //             it'll be needed for that version too, but with a virtual
-  //             override here to update the NC view.
-  SetWindowIcon(container_->window_delegate()->GetWindowIcon());
-}
-
 
 gfx::Rect DefaultNonClientView::CalculateClientAreaBounds(
     int width, int height) const {
@@ -440,15 +430,9 @@ int DefaultNonClientView::NonClientHitTest(const gfx::Point& point) {
 
   // First see if it's within the grow box area, since that overlaps the client
   // bounds.
-  if (client_view_->PointIsInSizeBox(point))
-    return HTBOTTOMRIGHT;
-
-  // Then see if it's within the client area.
-  if (client_view_) {
-    client_view_->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
-    if (bounds.PtInRect(test_point))
-      return HTCLIENT;
-  }
+  int component = container_->client_view()->NonClientHitTest(point);
+  if (component != HTNOWHERE)
+    return component;
 
   // Then see if the point is within any of the window controls.
   close_button_->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
@@ -467,7 +451,7 @@ int DefaultNonClientView::NonClientHitTest(const gfx::Point& point) {
   if (bounds.PtInRect(test_point))
     return HTSYSMENU;
 
-  int component = GetHTComponentForFrame(
+  component = GetHTComponentForFrame(
       point,
       kResizeAreaSize,
       kResizeAreaCornerSize,
@@ -507,7 +491,7 @@ void DefaultNonClientView::EnableClose(bool enable) {
   close_button_->SetEnabled(enable);
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // DefaultNonClientView, View overrides:
 
 void DefaultNonClientView::Paint(ChromeCanvas* canvas) {
@@ -537,14 +521,21 @@ void DefaultNonClientView::Layout() {
 
 void DefaultNonClientView::GetPreferredSize(CSize* out) {
   DCHECK(out);
-  if (client_view_) {
-    client_view_->GetPreferredSize(out);
-    out->cx += 2 * kWindowHorizontalBorderSize;
-    out->cy += CalculateContentsTop() + kWindowVerticalBorderSize;
-  }
+  container_->client_view()->GetPreferredSize(out);
+  out->cx += 2 * kWindowHorizontalBorderSize;
+  out->cy += CalculateContentsTop() + kWindowVerticalBorderSize;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+void DefaultNonClientView::ViewHierarchyChanged(bool is_add,
+                                                View* parent,
+                                                View* child) {
+  // Add our Client View as we are added to the ViewContainer so that if we are
+  // subsequently resized all the parent-child relationships are established.
+  if (is_add && GetViewContainer() && child == this)
+    AddChildView(container_->client_view());
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // DefaultNonClientView, BaseButton::ButtonListener implementation:
 
 void DefaultNonClientView::ButtonPressed(BaseButton* sender) {
@@ -559,7 +550,7 @@ void DefaultNonClientView::ButtonPressed(BaseButton* sender) {
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // DefaultNonClientView, private:
 
 void DefaultNonClientView::SetWindowIcon(SkBitmap window_icon) {
@@ -650,7 +641,7 @@ void DefaultNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
   SkBitmap* left = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_LEFT);
 
   CRect client_area_bounds;
-  client_view_->GetBounds(&client_area_bounds);
+  container_->client_view()->GetBounds(&client_area_bounds);
 
   canvas->DrawBitmapInt(*top_left, client_area_bounds.left - top_left->width(),
                         client_area_bounds.top - top->height());
@@ -822,11 +813,9 @@ void DefaultNonClientView::LayoutTitleBar() {
 }
 
 void DefaultNonClientView::LayoutClientView() {
-  if (client_view_) {
-    gfx::Rect client_bounds(
-        CalculateClientAreaBounds(GetWidth(), GetHeight()));
-    client_view_->SetBounds(client_bounds.ToRECT());
-  }
+  gfx::Rect client_bounds(
+      CalculateClientAreaBounds(GetWidth(), GetHeight()));
+  container_->client_view()->SetBounds(client_bounds.ToRECT());
 }
 
 // static
@@ -839,7 +828,7 @@ void DefaultNonClientView::InitClass() {
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // CustomFrameWindow, public:
 
 CustomFrameWindow::CustomFrameWindow(WindowDelegate* window_delegate)
@@ -859,24 +848,32 @@ CustomFrameWindow::CustomFrameWindow(WindowDelegate* window_delegate,
 CustomFrameWindow::~CustomFrameWindow() {
 }
 
-void CustomFrameWindow::Init(HWND owner, const gfx::Rect& bounds) {
-  Window::Init(owner, bounds);
-  // We need to re-parent the client view to the non-client view.
-  GetRootView()->RemoveChildView(client_view_);
-  GetRootView()->AddChildView(non_client_view_);
-  non_client_view_->Init(client_view_);
-  GetRootView()->Layout();
-
-  ResetWindowRegion();
-}
-
 void CustomFrameWindow::ExecuteSystemMenuCommand(int command) {
   if (command)
     SendMessage(GetHWND(), WM_SYSCOMMAND, command, 0);
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // CustomFrameWindow, Window overrides:
+
+void CustomFrameWindow::Init(HWND parent, const gfx::Rect& bounds) {
+  // TODO(beng): (Cleanup) Right now, the only way to specify a different
+  //             non-client view is to subclass this object and provide one
+  //             by setting this member before calling Init.
+  if (!non_client_view_)
+    non_client_view_ = new DefaultNonClientView(this);
+  Window::Init(parent, bounds);
+  ResetWindowRegion();
+}
+
+void CustomFrameWindow::SetClientView(ClientView* client_view) {
+  DCHECK(client_view && !client_view_ && GetHWND());
+  client_view_ = client_view;
+  // For a CustomFrameWindow, the non-client view is the root.
+  HWNDViewContainer::SetContentsView(non_client_view_);
+  // When the non client view is added to the view hierarchy, it will cause the
+  // client view to be added as well.
+}
 
 gfx::Size CustomFrameWindow::CalculateWindowSizeForClientSize(
     const gfx::Size& client_size) const {
@@ -906,7 +903,7 @@ void CustomFrameWindow::SizeWindowToDefault() {
                                 window_size.ToSIZE(), false);
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // CustomFrameWindow, HWNDViewContainer overrides:
 
 static void EnableMenuItem(HMENU menu, UINT command, bool enabled) {
@@ -1161,7 +1158,7 @@ void CustomFrameWindow::OnSize(UINT param, const CSize& size) {
   ResetWindowRegion();
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // CustomFrameWindow, private:
 
 void CustomFrameWindow::RunSystemMenu(const CPoint& point) {

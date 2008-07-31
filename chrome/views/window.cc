@@ -36,7 +36,6 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/client_view.h"
 #include "chrome/views/custom_frame_window.h"
 #include "chrome/views/window_delegate.h"
 
@@ -65,8 +64,6 @@ Window::Window(WindowDelegate* window_delegate)
       is_modal_(false),
       restored_enabled_(false),
       is_always_on_top_(false),
-      use_client_view_(true),
-      accepted_(false),
       window_closed_(false) {
   InitClass();
   DCHECK(window_delegate_);
@@ -112,31 +109,23 @@ void Window::Init(HWND parent, const gfx::Rect& bounds) {
   if (window_ex_style() == 0)
     set_window_ex_style(CalculateWindowExStyle());
 
-  // A child window never owns its own focus manager, it uses the one
-  // associated with the root of the window tree...
-  if (use_client_view_) {
-    View* contents_view = window_delegate_->GetContentsView();
-    DCHECK(contents_view);
-    client_view_ = new ClientView(this, contents_view);
-    // A Window almost always owns its own focus manager, even if it's a child
-    // window. File a bug if you find a circumstance where this isn't the case
-    // and we can adjust this API.  Note that if this is not the case, you'll
-    // also have to change SetInitialFocus() as it relies on the window's focus
-    // manager.
-    HWNDViewContainer::Init(parent, bounds, true);
-    SetContentsView(client_view_);
-  } else {
-    HWNDViewContainer::Init(parent, bounds, true);
-    SetContentsView(window_delegate_->GetContentsView());
-  }
+  HWNDViewContainer::Init(parent, bounds, true);
   win_util::SetWindowUserData(GetHWND(), this);
   
   std::wstring window_title = window_delegate_->GetWindowTitle();
   SetWindowText(GetHWND(), window_title.c_str());
+
+  SetClientView(window_delegate_->CreateClientView(this));
   SetInitialBounds(bounds);
 
   if (window_delegate_->HasAlwaysOnTopMenu())
     AddAlwaysOnTopSystemMenuItem();
+}
+
+void Window::SetClientView(ClientView* client_view) {
+  DCHECK(client_view && !client_view_ && GetHWND());
+  client_view_ = client_view;
+  HWNDViewContainer::SetContentsView(client_view_);
 }
 
 gfx::Size Window::CalculateWindowSizeForClientSize(
@@ -197,24 +186,7 @@ void Window::Close() {
     return;
   }
 
-  bool can_close = true;
-  // Ask the delegate if we're allowed to close. The user may not have left the
-  // window in a state where this is allowable (e.g. unsaved work). Also, don't
-  // call Cancel on the delegate if we've already been accepted and are in the
-  // process of being closed. Furthermore, if we have only an OK button, but no
-  // Cancel button, and we're closing without being accepted, call Accept to
-  // see if we should close.
-  if (!accepted_) {
-    DialogDelegate* dd = window_delegate_->AsDialogDelegate();
-    if (dd) {
-      int buttons = dd->GetDialogButtons();
-      if (buttons & DialogDelegate::DIALOGBUTTON_CANCEL)
-        can_close = dd->Cancel();
-      else if (buttons & DialogDelegate::DIALOGBUTTON_OK)
-        can_close = dd->Accept(true);
-    }
-  }
-  if (can_close) {
+  if (client_view_->CanClose()) {
     SaveWindowPosition();
     RestoreEnabledIfNecessary();
     HWNDViewContainer::Close();
@@ -254,27 +226,6 @@ void Window::EnableClose(bool enable) {
                SWP_NOSENDCHANGING |
                SWP_NOSIZE |
                SWP_NOZORDER);
-}
-
-void Window::UpdateDialogButtons() {
-  if (client_view_)
-    client_view_->UpdateDialogButtons();
-}
-
-void Window::AcceptWindow() {
-  accepted_ = true;
-  DialogDelegate* dd = window_delegate_->AsDialogDelegate();
-  if (dd)
-    accepted_ = dd->Accept(false);
-  if (accepted_)
-    Close();
-}
-
-void Window::CancelWindow() {
-  // Call the standard Close handler, which checks with the delegate before
-  // proceeding. This checking _isn't_ done here, but in the WM_CLOSE handler,
-  // so that the close box on the window also shares this code path.
-  Close();
 }
 
 void Window::UpdateWindowTitle() {
@@ -349,21 +300,19 @@ gfx::Size Window::GetLocalizedContentsSize(int col_resource_id,
   return gfx::Size(width, height);
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // Window, protected:
 
 void Window::SizeWindowToDefault() {
-  if (client_view_) {
-    CSize pref(0, 0);
-    client_view_->GetPreferredSize(&pref);
-    DCHECK(pref.cx > 0 && pref.cy > 0);
-    // CenterAndSizeWindow adjusts the window size to accommodate the non-client
-    // area.
-    win_util::CenterAndSizeWindow(owning_window(), GetHWND(), pref, true);
-  }
+  CSize pref(0, 0);
+  client_view_->GetPreferredSize(&pref);
+  DCHECK(pref.cx > 0 && pref.cy > 0);
+  // CenterAndSizeWindow adjusts the window size to accommodate the non-client
+  // area.
+  win_util::CenterAndSizeWindow(owning_window(), GetHWND(), pref, true);
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // Window, HWNDViewContainer overrides:
 
 void Window::OnActivate(UINT action, BOOL minimized, HWND window) {
@@ -390,12 +339,13 @@ LRESULT Window::OnEraseBkgnd(HDC dc) {
 }
 
 LRESULT Window::OnNCHitTest(const CPoint& point) {
-  // We paint the size box over the content area sometimes... check to see if
-  // the mouse is over it...
+  // First, give the ClientView a chance to test the point to see if it is part
+  // of the non-client area.
   CPoint temp = point;
   MapWindowPoints(HWND_DESKTOP, GetHWND(), &temp, 1);
-  if (client_view_ && client_view_->PointIsInSizeBox(gfx::Point(temp)))
-    return HTBOTTOMRIGHT;
+  int component = client_view_->NonClientHitTest(gfx::Point(temp));
+  if (component != HTNOWHERE)
+    return component;
 
   // Otherwise, we let Windows do all the native frame non-client handling for
   // us.
@@ -472,13 +422,6 @@ void Window::SetInitialFocus() {
 
   bool focus_set = false;
   ChromeViews::View* v = window_delegate_->GetInitiallyFocusedView();
-  // For dialogs, try to focus either the OK or Cancel buttons if any.
-  if (!v && window_delegate_->AsDialogDelegate() && client_view_) {
-    if (client_view_->ok_button())
-      v = client_view_->ok_button();
-    else if (client_view_->cancel_button())
-      v = client_view_->cancel_button();
-  }
   if (v) {
     focus_set = true;
     // In order to make that view the initially focused one, we make it the

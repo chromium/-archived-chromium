@@ -489,5 +489,5 @@ void AboutChromeView::UpdateStatus(GoogleUpdateUpgradeResult result,
   // Check button may have appeared/disappeared. We cannot call this during
   // ViewHierarchyChanged because the |window()| pointer hasn't been set yet.
   if (window())
-    window()->UpdateDialogButtons();
+    GetDialogClientView()->UpdateDialogButtons();
 }
