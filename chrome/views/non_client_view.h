@@ -52,8 +52,6 @@ class ClientView;
 //
 class NonClientView : public View {
  public:
-  virtual void Init(ClientView* client_view) = 0;
-
   // Calculates the bounds of the client area of the window assuming the
   // window is sized to |width| and |height|.
   virtual gfx::Rect CalculateClientAreaBounds(int width,

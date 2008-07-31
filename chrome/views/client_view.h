@@ -27,103 +27,75 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_VIEWS_CLIENT_VIEW_H__
-#define CHROME_VIEWS_CLIENT_VIEW_H__
+#ifndef CHROME_VIEWS_CLIENT_VIEW_H_
+#define CHROME_VIEWS_CLIENT_VIEW_H_
 
-#include "chrome/common/gfx/chrome_font.h"
-#include "chrome/views/dialog_delegate.h"
-#include "chrome/views/native_button.h"
+#include "chrome/views/view.h"
 
 namespace ChromeViews {
 
+class DialogClientView;
 class Window;
 
 ///////////////////////////////////////////////////////////////////////////////
 // ClientView
 //
-//  A ClientView is a view representing the "Client" area of a Window. This is
-//  defined on Windows as being the portion of the window excluding the frame,
-//  title bar and window controls.
-//
-//  This abstraction is used to provide both the native frame window class
-//  (ChromeViews::Window) and custom frame window class
-//  (ChromeViews::ChromeWindow) with a client view container and dialog button
-//  helper. ChromeWindow is used for all dialogs and windows on Windows XP and
-//  Windows Vista without Aero, and Window is used on Windows Vista with Aero,
-//  and so this class allows both Window types to share the same dialog button
-//  behavior.
-//
-///////////////////////////////////////////////////////////////////////////////
-class ClientView : public View,
-                   public NativeButton::Listener {
+//  A ClientView is a View subclass that is used to occupy the "client area"
+//  of a window. It provides basic information to the window that contains it
+//  such as non-client hit testing information, sizing etc. Sub-classes of
+//  ClientView are used to create more elaborate contents, e.g.
+//  "DialogClientView".
+class ClientView : public View {
  public:
+  // Constructs a ClientView object for the specified window with the specified
+  // contents. Since this object is created during the process of creating
+  // |window|, |contents_view| must be valid so we can determine the initial
+  // size of |window|. We call GetPreferredSize on |contents_view|,
+  // which should return something non-zero.
   ClientView(Window* window, View* contents_view);
-  virtual ~ClientView();
+  virtual ~ClientView() {}
 
-  // Adds the dialog buttons required by the supplied WindowDelegate to the
-  // view.
-  void ShowDialogButtons();
+  // Manual RTTI ftw.
+  virtual DialogClientView* AsDialogClientView() { return NULL; }
 
-  // Updates the enabled state and label of the buttons required by the
-  // supplied WindowDelegate
-  void UpdateDialogButtons();
+  // Returns true to signal that the Window can be closed. Specialized
+  // ClientView subclasses can override this default behavior to allow the
+  // close to be blocked until the user corrects mistakes, accepts a warning
+  // dialog, etc.
+  virtual bool CanClose() const { return true; }
 
-  // Returns true if the specified point (in screen coordinates) is within the
-  // resize box area of the window.
-  bool PointIsInSizeBox(const gfx::Point& point);
+  // Tests to see if the specified point (in view coordinates) is within the 
+  // bounds of this view. If so, it returns HTCLIENT in this default
+  // implementation. If it is outside the bounds of this view, this must return
+  // HTNOWHERE to tell the caller to do further processing to determine where
+  // in the non-client area it is (if it is).
+  // Subclasses of ClientView can extend this logic by overriding this method
+  // to detect if regions within the client area count as parts of the "non-
+  // client" area. A good example of this is the size box at the bottom right
+  // corner of resizable dialog boxes.
+  virtual int NonClientHitTest(const gfx::Point& point);
 
-  // Accessors in case the user wishes to adjust these buttons.
-  NativeButton* ok_button() const { return ok_button_; }
-  NativeButton* cancel_button() const { return cancel_button_; }
-
-  // View overrides:
-  virtual void Paint(ChromeCanvas* canvas);
-  virtual void PaintChildren(ChromeCanvas* canvas);
-  virtual void Layout();
-  virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
-  virtual void DidChangeBounds(const CRect& prev, const CRect& next);
+  // Overridden from View:
   virtual void GetPreferredSize(CSize* out);
-  virtual bool AcceleratorPressed(const Accelerator& accelerator);
 
-  // NativeButton::Listener implementation:
-  virtual void ButtonPressed(NativeButton* sender);
+ protected:
+  // Overridden from View:
+  virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
+  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
+  virtual void Layout();
+
+  // Accessors for private data members.
+  Window* window() const { return window_; }
+  View* contents_view() const { return contents_view_; }
 
  private:
-  // Paint the size box in the bottom right corner of the window if it is
-  // resizable.
-  void PaintSizeBox(ChromeCanvas* canvas);
+  // The Window that hosts this ClientView.
+  Window* window_;
 
-  // Returns the width of the specified dialog button using the correct font.
-  int GetButtonWidth(DialogDelegate::DialogButton button);
-
-  // Position and size various sub-views.
-  void LayoutDialogButtons();
-  void LayoutContentsView();
-
-  bool has_dialog_buttons() const { return ok_button_ || cancel_button_; }
-
-  // The dialog buttons.
-  NativeButton* ok_button_;
-  NativeButton* cancel_button_;
-  // The button-level extra view, NULL unless the dialog delegate supplies one.
-  View* extra_view_;
-
-  // The layout rect of the size box, when visible.
-  gfx::Rect size_box_bounds_;
-
-  // The Window that owns us.
-  Window* owner_;
-
-  // The contents of the client area, supplied by the caller.
+  // The View that this ClientView contains.
   View* contents_view_;
-
-  // Static resource initialization
-  static void InitClass();
-  static ChromeFont dialog_button_font_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(ClientView);
 };
 
-}
+}  // namespace ChromeViews
 
-#endif  // #ifndef CHROME_VIEWS_CLIENT_VIEW_H__
+#endif  // #ifndef CHROME_VIEWS_CLIENT_VIEW_H_

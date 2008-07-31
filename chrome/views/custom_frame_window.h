@@ -55,13 +55,6 @@ class CustomFrameWindow : public Window {
                     NonClientView* non_client_view);
   virtual ~CustomFrameWindow();
 
-  // Create the CustomFrameWindow.
-  // The parent of this window is always the desktop, however the owner is a
-  // window that this window is dependent on, if this window is opened as a
-  // modal dialog or dependent window. This is NULL if the window is not
-  // dependent on any other window.
-  virtual void Init(HWND owner, const gfx::Rect& bounds);
-
   // Executes the specified SC_command.
   void ExecuteSystemMenuCommand(int command);
 
@@ -69,6 +62,8 @@ class CustomFrameWindow : public Window {
   bool is_active() const { return is_active_; }
 
   // Overridden from Window:
+  virtual void Init(HWND parent, const gfx::Rect& bounds);
+  virtual void SetClientView(ClientView* client_view);
   virtual gfx::Size CalculateWindowSizeForClientSize(
       const gfx::Size& client_size) const;
   virtual void UpdateWindowTitle();
