@@ -37,6 +37,10 @@
 // or directly for the plugin and renderer process.
 void InitCrashReporter(std::wstring dll_path);
 
+// Intercepts a crash but does not process it, just ask if we want to restart
+// the browser or not.
+void InitDefaultCrashCallback();
+
 // Initializes the crash reporter in chrome.
 unsigned __stdcall InitCrashReporterThread(void* param);
 

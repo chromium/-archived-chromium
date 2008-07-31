@@ -71,8 +71,9 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
 
   // Initialize the crash reporter.
   if (GoogleUpdateSettings::GetCollectStatsConsent()) {
-    _CrtSetReportMode(_CRT_ASSERT, 0);
     InitCrashReporter(client.GetDLLPath());
+  } else {
+    InitDefaultCrashCallback();
   }
 
   bool exit_now = false;

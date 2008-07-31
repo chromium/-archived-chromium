@@ -108,8 +108,6 @@ const wchar_t kEnvShowRestart[] = L"CHROME_CRASHED";
 const wchar_t kRtlLocaleDirection[] = L"RIGHT_TO_LEFT";
 const wchar_t kLtrLocaleDirection[] = L"LEFT_TO_RIGHT";
 
-}  // namespace
-
 // This callback is executed when the browser process has crashed, after
 // the crash dump has been created. We need to minimize the amount of work
 // done here since we have potentially corrupted process. Our job is to
@@ -136,6 +134,23 @@ bool DumpDoneCallback(const wchar_t*, const wchar_t*, void*,
   // not used at all.
   return true;
 }
+
+// Previous unhandled filter. Will be called if not null when we
+// intercept a crash.
+LPTOP_LEVEL_EXCEPTION_FILTER previous_filter = NULL;
+
+// Exception filter used when breakpad is not enabled. We just display
+// the "Do you want to restart" message and then we call the previous filter.
+long WINAPI ChromeExceptionFilter(EXCEPTION_POINTERS* info) {
+  DumpDoneCallback(NULL, NULL, NULL, info, NULL, false);
+
+  if (previous_filter)
+    return previous_filter(info);
+
+  return EXCEPTION_EXECUTE_HANDLER;
+}
+
+}  // namespace
 
 // This function is executed by the child process that DumpDoneCallback()
 // spawned and basically just shows the 'chrome has crashed' dialog if
@@ -221,9 +236,16 @@ unsigned __stdcall InitCrashReporterThread(void* param)  {
   return 0;
 }
 
+void InitDefaultCrashCallback() {
+  previous_filter = SetUnhandledExceptionFilter(ChromeExceptionFilter);
+}
+
 void InitCrashReporter(std::wstring dll_path) {
   CommandLine command;
   if (!command.HasSwitch(switches::kDisableBreakpad)) {
+    // Disable the message box for assertions.
+    _CrtSetReportMode(_CRT_ASSERT, 0);
+
     // Query the custom_info now because if we do it in the thread it's going to
     // fail in the sandbox. The thread will delete this object.
     CrashReporterInfo* info = new CrashReporterInfo;
