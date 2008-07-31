@@ -718,18 +718,20 @@ void GeneralPageView::NotifyPrefChanged(const std::wstring* pref_name) {
     startup_custom_pages_table_model_->SetURLs(startup_pref.urls);
   }
 
-  if (!pref_name || *pref_name == prefs::kHomePageIsNewTabPage) {    
-    if (new_tab_page_is_home_page_.GetValue())
+  if (!pref_name || *pref_name == prefs::kHomePageIsNewTabPage) {
+    if (new_tab_page_is_home_page_.GetValue()) {
       homepage_use_newtab_radio_->SetIsSelected(true);
-    else
+      EnableHomepageURLField(false);
+    } else {
       homepage_use_url_radio_->SetIsSelected(true);
+      EnableHomepageURLField(true);
+    }
   }
 
   if (!pref_name || *pref_name == prefs::kHomePage) {
     bool enabled = homepage_.GetValue() != GetNewTabUIURLString();
     if (enabled)
       homepage_use_url_textfield_->SetText(homepage_.GetValue());
-    EnableHomepageURLField(!new_tab_page_is_home_page_.GetValue());
   }
 
   if (!pref_name || *pref_name == prefs::kShowHomeButton) {
