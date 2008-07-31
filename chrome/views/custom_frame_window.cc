@@ -831,6 +831,17 @@ void DefaultNonClientView::InitClass() {
 ///////////////////////////////////////////////////////////////////////////////
 // CustomFrameWindow, public:
 
+CustomFrameWindow::~CustomFrameWindow() {
+}
+
+void CustomFrameWindow::ExecuteSystemMenuCommand(int command) {
+  if (command)
+    SendMessage(GetHWND(), WM_SYSCOMMAND, command, 0);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// CustomFrameWindow, protected:
+
 CustomFrameWindow::CustomFrameWindow(WindowDelegate* window_delegate)
     : Window(window_delegate),
       non_client_view_(new DefaultNonClientView(this)),
@@ -843,14 +854,6 @@ CustomFrameWindow::CustomFrameWindow(WindowDelegate* window_delegate,
     : Window(window_delegate),
       non_client_view_(non_client_view) {
   InitClass();
-}
-
-CustomFrameWindow::~CustomFrameWindow() {
-}
-
-void CustomFrameWindow::ExecuteSystemMenuCommand(int command) {
-  if (command)
-    SendMessage(GetHWND(), WM_SYSCOMMAND, command, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

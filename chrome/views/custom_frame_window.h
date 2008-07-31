@@ -50,9 +50,6 @@ class NonClientView;
 ////////////////////////////////////////////////////////////////////////////////
 class CustomFrameWindow : public Window {
  public:
-  explicit CustomFrameWindow(WindowDelegate* window_delegate);
-  CustomFrameWindow(WindowDelegate* window_delegate,
-                    NonClientView* non_client_view);
   virtual ~CustomFrameWindow();
 
   // Executes the specified SC_command.
@@ -69,6 +66,12 @@ class CustomFrameWindow : public Window {
   virtual void UpdateWindowTitle();
 
  protected:
+  // Cannot construct one of these directly - use Window::CreateChromeWindow.
+  // Subclasses _must_ call one of these constructors.
+  explicit CustomFrameWindow(WindowDelegate* window_delegate);
+  CustomFrameWindow(WindowDelegate* window_delegate,
+                    NonClientView* non_client_view);
+
   // Overridden from Window:
   virtual void SizeWindowToDefault();
   virtual void EnableClose(bool enable);
