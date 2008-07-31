@@ -51,9 +51,6 @@ using std::wstring;
 // Max number of http redirects to follow.  Same number as gecko.
 const static int kMaxRedirects = 20;
 
-// The id of the current process.  Lazily initialized.
-static int32 current_proc_id = -1;
-
 static URLRequestJobManager* GetJobManager() {
   return Singleton<URLRequestJobManager>::get();
 }
@@ -74,9 +71,7 @@ URLRequest::URLRequest(const GURL& url, Delegate* delegate)
       final_upload_progress_(0) {
   URLREQUEST_COUNT_CTOR();
   SIMPLE_STATS_COUNTER(L"URLRequestCount");
-  if (current_proc_id == -1)
-    base::AtomicSwap(&current_proc_id, process_util::GetCurrentProcId());
-  origin_pid_ = current_proc_id;
+  origin_pid_ = process_util::GetCurrentProcId();
 }
 
 URLRequest::~URLRequest() {
