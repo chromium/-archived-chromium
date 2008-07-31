@@ -500,6 +500,85 @@ TEST_F(CopyTreeWorkItemTest, RenameAndCopyTest) {
   EXPECT_FALSE(file_util::PathExists(alternate_to));
 }
 
+// Test overwrite option IF_NOT_PRESENT:
+// 1. If destination file/directory exist, the source should not be copied
+// 2. If destination file/directory do not exist, the source should be copied
+//    in the destination folder after Do() and should be rolled back after
+//    Rollback().
+TEST_F(CopyTreeWorkItemTest, IfNotPresentTest) {
+  // Create source file
+  std::wstring file_name_from(test_dir_);
+  file_util::AppendToPath(&file_name_from, L"File_From");
+  CreateTextFile(file_name_from, text_content_1);
+  ASSERT_TRUE(file_util::PathExists(file_name_from));
+
+  // Create an executable in destination path by copying ourself to it.
+  wchar_t exe_full_path_str[MAX_PATH];
+  ::GetModuleFileNameW(NULL, exe_full_path_str, MAX_PATH);
+  std::wstring exe_full_path(exe_full_path_str);
+  std::wstring dir_name_to(test_dir_);
+  file_util::AppendToPath(&dir_name_to, L"Copy_To_Subdir");
+  CreateDirectory(dir_name_to.c_str(), NULL);
+  ASSERT_TRUE(file_util::PathExists(dir_name_to));
+  std::wstring file_name_to(dir_name_to);
+  file_util::AppendToPath(&file_name_to, L"File_To");
+  file_util::CopyFile(exe_full_path, file_name_to);
+  ASSERT_TRUE(file_util::PathExists(file_name_to));
+
+  // Get the path of backup file
+  std::wstring backup_file(temp_dir_);
+  file_util::AppendToPath(&backup_file, L"File_To");
+
+  // test Do().
+  scoped_ptr<CopyTreeWorkItem> work_item(
+      WorkItem::CreateCopyTreeWorkItem(file_name_from, file_name_to,
+                                       temp_dir_, WorkItem::IF_NOT_PRESENT,
+                                       L""));
+  EXPECT_TRUE(work_item->Do());
+
+  // verify that the source, destination have not changed and backup path
+  // does not exist
+  EXPECT_TRUE(file_util::PathExists(file_name_from));
+  EXPECT_TRUE(file_util::PathExists(file_name_to));
+  EXPECT_EQ(0, ReadTextFile(file_name_from).compare(text_content_1));
+  EXPECT_TRUE(file_util::ContentsEqual(exe_full_path, file_name_to));
+  EXPECT_FALSE(file_util::PathExists(backup_file));
+
+  // test rollback()
+  work_item->Rollback();
+
+  // verify that the source, destination have not changed and backup path
+  // does not exist after rollback also
+  EXPECT_TRUE(file_util::PathExists(file_name_from));
+  EXPECT_TRUE(file_util::PathExists(file_name_to));
+  EXPECT_EQ(0, ReadTextFile(file_name_from).compare(text_content_1));
+  EXPECT_TRUE(file_util::ContentsEqual(exe_full_path, file_name_to));
+  EXPECT_FALSE(file_util::PathExists(backup_file));
+
+  // Now delete the destination and try copying the file again.
+  file_util::Delete(file_name_to, true);
+  work_item.reset(WorkItem::CreateCopyTreeWorkItem(
+      file_name_from, file_name_to, temp_dir_, WorkItem::IF_NOT_PRESENT, L""));
+  EXPECT_TRUE(work_item->Do());
+
+  // verify that the source, destination are the same and backup path
+  // does not exist
+  EXPECT_TRUE(file_util::PathExists(file_name_from));
+  EXPECT_TRUE(file_util::PathExists(file_name_to));
+  EXPECT_EQ(0, ReadTextFile(file_name_from).compare(text_content_1));
+  EXPECT_EQ(0, ReadTextFile(file_name_to).compare(text_content_1));
+  EXPECT_FALSE(file_util::PathExists(backup_file));
+
+  // test rollback()
+  work_item->Rollback();
+
+  // verify that the destination does not exist anymore
+  EXPECT_TRUE(file_util::PathExists(file_name_from));
+  EXPECT_FALSE(file_util::PathExists(file_name_to));
+  EXPECT_EQ(0, ReadTextFile(file_name_from).compare(text_content_1));
+  EXPECT_FALSE(file_util::PathExists(backup_file));
+}
+
 // Copy one file without rollback. The existing one in destination is in use.
 // Verify it is moved to backup location and stays there.
 TEST_F(CopyTreeWorkItemTest, CopyFileInUseAndCleanup) {

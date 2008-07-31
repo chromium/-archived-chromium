@@ -187,54 +187,35 @@ bool installer::InstallNewVersion(const std::wstring& exe_path,
   install_list->AddCreateDirWorkItem(temp_dir);
   install_list->AddCreateDirWorkItem(install_path);
 
-  // Browse for all the files in archive, add work items to copy them while
-  // handling special cases of executables.
-  LOG(INFO) << "Looking for Chrome installation files under " << src_path;
-  std::wstring root_path(src_path);
-  file_util::AppendToPath(&root_path, L"*");
-  WIN32_FIND_DATA find_file_data;
-  HANDLE file_handle = FindFirstFile(root_path.c_str(), &find_file_data);
-  BOOL ret = TRUE;
-  while (ret) {
-    LOG(INFO) << "directory found: " << find_file_data.cFileName;
-    // We do not want any directories starting with '.'
-    if ((wcslen(find_file_data.cFileName) <= 0) ||
-        (find_file_data.cFileName[0] == '.')) {
-      LOG(INFO) << "Ignoring directory found: " << find_file_data.cFileName;
-    } else if (_wcsicmp(find_file_data.cFileName,
-                        installer_util::kChromeExe) == 0) {
-      // Special case of chrome.exe. Delete any new_chrome.exe if present
-      // (we will create a new one if chrome.exe is in use) and then
-      // copy chrome.exe.
-      install_list->AddDeleteTreeWorkItem(
-          AppendPath(install_path, installer::kChromeNewExe), std::wstring());
-      install_list->AddCopyTreeWorkItem(
-          AppendPath(src_path, installer_util::kChromeExe),
-          AppendPath(install_path, installer_util::kChromeExe),
-          temp_dir, WorkItem::RENAME_IF_IN_USE,
-          AppendPath(install_path, installer::kChromeNewExe));
-    } else if (_wcsicmp(find_file_data.cFileName,
-                        installer::kWowHelperExe) == 0) {
-      // Special case of wow_helper.exe which is required only on 64 bit
-      // systems. This exe runs only for a short time when Chrome starts so
-      // it should not be locked most of the times and can be overwritten
-      // directly.
-      if (Is64bit()) {
-        install_list->AddCopyTreeWorkItem(
-            AppendPath(src_path, installer::kWowHelperExe),
-            AppendPath(install_path, installer::kWowHelperExe),
-            temp_dir, WorkItem::ALWAYS);
-      }
-    } else {
-      // In all other cases just copy the file/directory to install location.
-      install_list->AddCopyTreeWorkItem(
-          AppendPath(src_path, find_file_data.cFileName),
-          AppendPath(install_path, find_file_data.cFileName),
-          temp_dir, WorkItem::ALWAYS);    // Always overwrite.
-    }
-    ret = FindNextFile(file_handle, &find_file_data);
+  // Copy the version folder
+  install_list->AddCopyTreeWorkItem(
+      AppendPath(src_path, new_version.GetString()),
+      AppendPath(install_path, new_version.GetString()),
+      temp_dir, WorkItem::ALWAYS);    // Always overwrite.
+
+  // Delete any new_chrome.exe if present (we will end up create a new one
+  // if required) and then copy chrome.exe
+  install_list->AddDeleteTreeWorkItem(
+      AppendPath(install_path, installer::kChromeNewExe), std::wstring());
+  install_list->AddCopyTreeWorkItem(
+      AppendPath(src_path, installer_util::kChromeExe),
+      AppendPath(install_path, installer_util::kChromeExe),
+      temp_dir, WorkItem::RENAME_IF_IN_USE,
+      AppendPath(install_path, installer::kChromeNewExe));
+
+  // Extra executable for 64 bit systems.
+  if (Is64bit()) {
+    install_list->AddCopyTreeWorkItem(
+        AppendPath(src_path, installer::kWowHelperExe),
+        AppendPath(install_path, installer::kWowHelperExe),
+        temp_dir, WorkItem::ALWAYS);
   }
-  FindClose(file_handle);
+
+  // Copy the default Dictionaries only if the folder doesnt exist already
+  install_list->AddCopyTreeWorkItem(
+      AppendPath(src_path, installer::kDictionaries),
+      AppendPath(install_path, installer::kDictionaries),
+      temp_dir, WorkItem::IF_NOT_PRESENT);
 
   // Copy installer in install directory and
   // add shortcut in Control Panel->Add/Remove Programs.
