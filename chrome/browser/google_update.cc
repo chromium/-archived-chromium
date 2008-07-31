@@ -258,6 +258,9 @@ bool GoogleUpdate::InitiateGoogleUpdateCheck(bool install_if_newer,
   if (hr != S_OK)
     return ReportFailure(hr, GOOGLE_UPDATE_GET_RESULT_CALL_FAILED, main_loop);
 
+  if (results == UPGRADE_ERROR)
+    return ReportFailure(hr, GOOGLE_UPDATE_ERROR_UPDATING, main_loop);
+
   hr = job_observer->GetVersionInfo(&version_available_);
   if (hr != S_OK)
     return ReportFailure(hr, GOOGLE_UPDATE_GET_VERSION_INFO_FAILED, main_loop);

@@ -72,6 +72,9 @@ enum GoogleUpdateErrorCode {
   GOOGLE_UPDATE_GET_RESULT_CALL_FAILED,
   // A call to GetVersionInfo failed.
   GOOGLE_UPDATE_GET_VERSION_INFO_FAILED,
+  // An error occurred while upgrading (or while checking for update).
+  // Check the Google Update log in %TEMP% for more details.
+  GOOGLE_UPDATE_ERROR_UPDATING,
 };
 
 // The GoogleUpdateStatusListener interface is used by components to receive
