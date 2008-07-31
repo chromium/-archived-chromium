@@ -6,7 +6,7 @@
 	<Rules>
 		<CustomBuildRule
 			Name="Output RLZ copy"
-			CommandLine="xcopy /R /C /Y $(InputPath) $(OutDir)"
+			CommandLine="start /B xcopy /R /C /Y $(InputPath) $(OutDir)"
 			Outputs="$(OutDir)\$(InputFileName)"
 			FileExtensions="*.dll;*.pdb"
 			>
