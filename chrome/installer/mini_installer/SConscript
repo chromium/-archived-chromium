@@ -134,18 +134,9 @@ packed = env.Command('$TARGET_ROOT/packed_files.txt',
 env.Depends(packed, '$TARGET_ROOT/setup.exe')
 
 
-env_version = env.Clone(
-    VERSION_BAT = env.File('$CHROME_DIR/tools/build/win/version.bat'),
-    CHROMEDIR = env.Dir('$CHROME_DIR'),
-    PWD = env.Dir('.'),
-)
-
-env_version.Command('mini_installer_exe_version.rc',
-                    ['mini_installer_exe_version.rc.version',
-                     '$CHROME_DIR/VERSION',
-                     '$CHROME_DIR/BRANDING'
-                    ],
-                    "$VERSION_BAT $SOURCE $CHROMEDIR $PWD $TARGET")
+env.ChromeVersionRC('mini_installer_exe_version.rc',
+                    'mini_installer_exe_version.rc.version',
+                    PWD=Dir('.'))
 
 
 env_test.Prepend(

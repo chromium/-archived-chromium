@@ -132,23 +132,6 @@ i = env.Install('$TARGET_ROOT', exe)
 env.Alias('chrome', i)
 
 
-
-env_version = env.Clone(
-    VERSION_BAT = env.File('$CHROME_DIR/tools/build/win/version.bat'),
-    CHROMEDIR = env.Dir('$CHROME_DIR'),
-    PWD = env.Dir('.'),
-)
-
-import os
-env_version['ENV']['PROGRAMFILES'] = os.environ['PROGRAMFILES']
-env_version['ENV']['SystemDrive'] = os.environ['SystemDrive']
-env_version['ENV']['USERPROFILE'] = os.environ['USERPROFILE']
-env_version['ENV']['PATH'] = os.environ['PATH']
-
-setup_exe_version_rc = env_version.Command(
-    'setup_exe_version.rc',
-    ['setup_exe_version.rc.version',
-     '$CHROME_DIR/VERSION',
-     '$CHROME_DIR/BRANDING'
-    ],
-    '$VERSION_BAT $SOURCE $CHROMEDIR $PWD $TARGET')
+env.ChromeVersionRC('setup_exe_version.rc',
+                    'setup_exe_version.rc.version',
+                    PWD = env.Dir('.'))

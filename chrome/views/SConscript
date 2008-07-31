@@ -71,6 +71,7 @@ input_files = [
     'client_view.cc',
     'combo_box.cc',
     'custom_frame_window.cc',
+    'dialog_client_view.cc',
     'decision.cc',
     'event.cc',
     'external_focus_tracker.cc',

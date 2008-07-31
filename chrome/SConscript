@@ -61,6 +61,7 @@ env_res.Append(
 browser_res = env_res.RES('browser/browser_resources.rc')
 chrome_dll_res = env_res.RES('app/chrome_dll.rc')
 common_res = env_res.RES('common/common_resources.rc')
+debugger_res = env_res.RES('browser/debugger/resources/debugger_resources.rc')
 renderer_res = env_res.RES('renderer/renderer_resources.rc')
 test_data_res = env_res.RES('test/data/resource.rc')
 webkit_res = env_res.RES('$WEBKIT_DIR/glue/webkit_resources.rc')
@@ -71,6 +72,7 @@ dll_resources = [
     browser_res,
     chrome_dll_res,
     common_res,
+    debugger_res,
     net_res,
     renderer_res,
     webkit_res,
@@ -238,32 +240,48 @@ for g in [ g for g in generated if str(g).endswith('.rc') ]:
 
 
 
-env_version = env.Clone(
-    VERSION_BAT = env.File('$CHROME_DIR/tools/build/win/version.bat'),
-    CHROMEDIR = env.Dir('$CHROME_DIR'),
-    PWD = env.Dir('.'),
+def chrome_version_emitter(target, source, env):
+    source.append('$CHROME_SRC_DIR/VERSION')
+    source.append('$CHROME_SRC_DIR/BRANDING')
+    return target, source
+
+b = Builder(action = '$CHROME_VERSION_RC_COM',
+            emitter = chrome_version_emitter)
+
+env['BUILDERS']['ChromeVersionRC'] = b
+
+env.Replace(
+    CHROME_VERSION_RC_COM = '$VERSION_BAT $SOURCE $CHROME_SRC_DIR $PWD $TARGET',
+    VERSION_BAT = File('#/../chrome/tools/build/win/version.bat'),
+    CHROME_SRC_DIR = Dir('#/../chrome'),
+    PWD = Dir('.'),
 )
 
-env_version['ENV']['PROGRAMFILES'] = os.environ['PROGRAMFILES']
-env_version['ENV']['SystemDrive'] = os.environ['SystemDrive']
-env_version['ENV']['USERPROFILE'] = os.environ['USERPROFILE']
-env_version['ENV']['PATH'] = os.environ['PATH']
-
-
-chrome_exe_version_rc = env_version.Command(
+chrome_exe_version_rc = env.ChromeVersionRC(
     'chrome_exe_version.rc',
-    ['app/chrome_exe_version.rc.version',
-     '$CHROME_DIR/VERSION',
-     '$CHROME_DIR/BRANDING'],
-    '$VERSION_BAT $SOURCE $CHROMEDIR $PWD $TARGET')
+    'app/chrome_exe_version.rc.version'
+)
 
-chrome_dll_version_rc = env_version.Command(
+chrome_dll_version_rc = env.ChromeVersionRC(
     'chrome_dll_version.rc',
-    ['app/chrome_dll_version.rc.version',
-     '$CHROME_DIR/VERSION',
-     '$CHROME_DIR/BRANDING',
-    ],
-    '$VERSION_BAT $SOURCE $CHROMEDIR $PWD $TARGET')
+    'app/chrome_dll_version.rc.version',
+)
+
+
+#chrome_exe_version_rc = env_version.Command(
+#    'chrome_exe_version.rc',
+#    ['app/chrome_exe_version.rc.version',
+#     '$CHROME_SRC_DIR/VERSION',
+#     '$CHROME_SRC_DIR/BRANDING'],
+#    '$VERSION_BAT $SOURCE $CHROME_SRC_DIR $PWD $TARGET')
+#
+#chrome_dll_version_rc = env_version.Command(
+#    'chrome_dll_version.rc',
+#    ['app/chrome_dll_version.rc.version',
+#     '$CHROME_SRC_DIR/VERSION',
+#     '$CHROME_SRC_DIR/BRANDING',
+#    ],
+#    '$VERSION_BAT $SOURCE $CHROME_SRC_DIR $PWD $TARGET')
 
 Depends(chrome_dll_res, chrome_dll_version_rc)
 
@@ -390,7 +408,7 @@ env_snapshot.Command('snapshot.cc', '#/../v8/bin/debug/mksnapshot.exe',
 
 env_flat = env.Clone(
     BROWSER_RESOURCES = Dir('browser_resources'),
-    HTML_INLINE = File('$CHROME_DIR/tools/build/win/html_inline.py'),
+    HTML_INLINE = File('#/../chrome/tools/build/win/html_inline.py'),
     FLATTEN_HTML_COM = '$PYTHON $HTML_INLINE $SOURCE $TARGET',
 )
 

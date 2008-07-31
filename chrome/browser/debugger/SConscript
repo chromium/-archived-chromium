@@ -65,9 +65,10 @@ env.Append(
 )
 
 input_files = [
-    'debugger_shell.cc',
+    'debugger_contents.cc',
     'debugger_io_socket.cc',
     'debugger_node.cc',
+    'debugger_shell.cc',
     'debugger_view.cc',
     'debugger_window.cc',
     'debugger_wrapper.cc',
