@@ -46,14 +46,12 @@ const int kOKHTTPSPort = 9443;
 const int kBadHTTPSPort = 9666;
 
 // The issuer name of the cert that should be trusted for the test to work.
-const wchar_t kCertIssuerName[] = L"unittest.example.com";
+const wchar_t kCertIssuerName[] = L"Test CA";
 
 class SSLUITest : public UITest {
  protected:
   SSLUITest() {
-    // TODO(jcampan): bug #1293555 Reenable the CA trusted check once we have
-    // imported the new certs (with issuer name: unittest.example.com).
-    // CheckCATrusted();
+    CheckCATrusted();
     dom_automation_enabled_ = true;
     PathService::Get(base::DIR_SOURCE_ROOT, &cert_dir_);
     cert_dir_ += L"/chrome/test/data/ssl/certs/";
