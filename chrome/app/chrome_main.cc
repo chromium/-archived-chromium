@@ -30,6 +30,7 @@
 #include <atlbase.h>
 #include <atlapp.h>
 #include <malloc.h>
+#include <new.h>
 
 #include "base/command_line.h"
 #include "base/icu_util.h"
@@ -88,6 +89,14 @@ void PureCall() {
   __debugbreak();
 }
 
+int OnNoMemory(size_t memory_size) {
+  __debugbreak();
+  // Return memory_size so it is not optimized out. Make sure the return value
+  // is at least 1 so malloc/new is retried, especially useful when under a
+  // debugger.
+  return memory_size ? static_cast<int>(memory_size) : 1;
+}
+
 // Handlers to silently dump the current process when there is an assert in
 // chrome.
 void ChromeAssert(const std::string& str) {
@@ -135,6 +144,10 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
   // notify breakpad when it happens.
   _set_invalid_parameter_handler(InvalidParameter);
   _set_purecall_handler(PureCall);
+  // Gather allocation failure.
+  _set_new_handler(&OnNoMemory);
+  // Make sure malloc() calls the new handler too.
+  _set_new_mode(1);
 
   CommandLine parsed_command_line;
 
