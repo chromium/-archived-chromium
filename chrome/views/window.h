@@ -244,6 +244,9 @@ class Window : public HWNDViewContainer {
   // Set to true if the window is in the process of closing .
   bool window_closed_;
 
+  // Allows CreateChromeWindow to access CustomFrameWindow's ctor.
+  friend class CustomFrameWindow;
+
   DISALLOW_EVIL_CONSTRUCTORS(Window);
 };
 
