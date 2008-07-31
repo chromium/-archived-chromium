@@ -918,13 +918,10 @@ void Browser::OpenDebuggerWindow() {
     return;
 
   if (current_tab->AsWebContents()) {
-    if (DebuggerWindow::DoesDebuggerExist()) {
-      // Only one debugger instance can exist at a time right now.
-      // TODO(erikkay): need an alert, dialog, something
-      // or better yet, fix the one instance limitation
-      return;
-    }
-    if (!debugger_window_.get()) {
+    // Only one debugger instance can exist at a time right now.
+    // TODO(erikkay): need an alert, dialog, something
+    // or better yet, fix the one instance limitation
+    if (!DebuggerWindow::DoesDebuggerExist()) {
       debugger_window_ = new DebuggerWindow();
     }
     debugger_window_->Show(current_tab);

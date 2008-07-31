@@ -48,7 +48,7 @@ class WebContents;
 class DebuggerView : public ChromeViews::View,
                   public TabContentsDelegate {
  public:
-  DebuggerView(ChromeViews::TextField::Controller* controller);
+  DebuggerView();
   virtual ~DebuggerView();
 
   // Output a line of text to the debugger view
@@ -63,6 +63,11 @@ class DebuggerView : public ChromeViews::View,
   // Called when the window is being closed.
   void OnClose();
 
+  // Called when the debugger hits a breakpoint or continues.
+  void SetDebuggerBreak(bool is_broken);
+
+  void SetOutputViewReady();
+
   // Overridden from ChromeViews::View:
   virtual std::string GetClassName() const {
     return "DebuggerView";
@@ -71,11 +76,13 @@ class DebuggerView : public ChromeViews::View,
   virtual void Layout();
   virtual void Paint(ChromeCanvas* canvas);
 
-  // Overridden from TabContentsDelegate:
+  // Overridden from PageNavigator (TabContentsDelegate's base interface):
   virtual void OpenURLFromTab(TabContents* source,
                               const GURL& url,
                               WindowOpenDisposition disposition,
                               PageTransition::Type transition);
+
+  // Overridden from TabContentsDelegate:
   virtual void NavigationStateChanged(const TabContents* source,
                                       unsigned changed_flags) {}
   virtual void ReplaceContents(TabContents* source,
@@ -86,7 +93,7 @@ class DebuggerView : public ChromeViews::View,
                               const gfx::Rect& initial_pos,
                               bool user_gesture) {}
   virtual void ActivateContents(TabContents* contents) {}
-  virtual void LoadingStateChanged(TabContents* source) {}
+  virtual void LoadingStateChanged(TabContents* source);
   virtual void CloseContents(TabContents* source) {}
   virtual void MoveContents(TabContents* source, const gfx::Rect& pos) {}
   virtual bool IsPopup(TabContents* source) { return false; }
@@ -96,12 +103,14 @@ class DebuggerView : public ChromeViews::View,
   virtual bool CanBlur() const { return false; }
 
  private:
+  void ExecuteJavascript(const std::string& js);
 
-  ChromeViews::TextField* command_text_;
   DebuggerWindow* window_;
   ChromeFont font_;
   WebContents* web_contents_;
   TabContentsContainerView* web_container_;
+  std::vector<std::wstring> pending_output_;
+  bool output_ready_;
 
   DISALLOW_EVIL_CONSTRUCTORS(DebuggerView);
 };

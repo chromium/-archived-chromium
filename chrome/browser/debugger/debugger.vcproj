@@ -121,6 +121,34 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="resources"
+			>
+			<File
+				RelativePath=".\resources\debugger.css"
+				>
+			</File>
+			<File
+				RelativePath=".\resources\debugger.html"
+				>
+			</File>
+			<File
+				RelativePath=".\resources\debugger.js"
+				>
+			</File>
+			<File
+				RelativePath=".\resources\debugger_shell.js"
+				>
+			</File>
+		</Filter>
+		<File
+			RelativePath=".\debugger_contents.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\debugger_contents.h"
+			>
+		</File>
 		<File
 			RelativePath=".\debugger_io.h"
 			>
@@ -150,7 +178,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\resources\debugger_shell.js"
+			RelativePath=".\resources\debugger_resources.h"
 			>
 		</File>
 		<File

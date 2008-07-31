@@ -34,7 +34,6 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/browser_resources.h"
 #include "chrome/browser/render_process_host.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/debugger/debugger_shell.h"
@@ -138,8 +137,9 @@ void DebuggerInputOutputSocket::DidRead(ListenSocket *connection,
                                      const std::string& data) {
   DCHECK(MessageLoop::current() == io_loop_);
   if (connection == connection_) {
+    const std::wstring wstr = UTF8ToWide(data);
     ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-        debugger_, &DebuggerShell::ProcessCommand, data));
+        debugger_, &DebuggerShell::ProcessCommand, wstr));
   } else {
     // TODO(erikkay): assert?
   }

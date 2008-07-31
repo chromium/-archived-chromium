@@ -237,6 +237,10 @@
 				RelativePath="$(IntDir)\..\util_prebuild\setup_strings.rc"
 				>
 			</File>
+			<File
+				RelativePath="..\browser\debugger\resources\debugger_resources.rc"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\resources\chrome.ico"

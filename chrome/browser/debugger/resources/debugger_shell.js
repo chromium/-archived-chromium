@@ -1,18 +1,14 @@
-// Copyright 2008 Google Inc. 
-// All Rights Reserved.
-
-// TODO(erikkay): look into how this can be split up into multiple files
-// It's currently loaded explicitly by Chrome, so maybe I need an "include"
-// or "source" builtin to allow a core source file to reference multiple
-// sub-files.
-
 /**
  * @fileoverview Shell objects and global helper functions for Chrome 
  * automation shell / debugger.  This file is loaded into the global namespace
  * of the interactive shell, so users can simply call global functions 
  * directly.
- * @author erikkay@google.com (Erik Kay)
  */
+
+// TODO(erikkay): look into how this can be split up into multiple files
+// It's currently loaded explicitly by Chrome, so maybe I need an "include"
+// or "source" builtin to allow a core source file to reference multiple
+// sub-files.
 
 /**
  * Sequence number of the DebugCommand.
@@ -102,13 +98,16 @@ DebugCommand.log10 = function(num) {
  * @param {Object} obj - object to encode
  */
 DebugCommand.toJSON = function(obj) {
+  // TODO(erikkay): use a real JSON library
   var json = '{';
   for (var key in obj) {
+    if (json.length > 1)
+      json += ",";
     var val = obj[key];
     if (!DebugCommand.isInt(val)) {
       val = DebugCommand.stringToJSON(val.toString());
     }
-    json += '"' + key + '":' + val + ',';
+    json += '"' + key + '":' + val;
   }
   json += '}';
   return json;
@@ -119,6 +118,7 @@ DebugCommand.toJSON = function(obj) {
  * @see http://wiki/Main/V8Debugger
  */
 DebugCommand.prototype.toJSONProtocol = function() {
+  // TODO(erikkay): use a real JSON library
   var json = '{';
   json += '"seq":"' + this.seq;
   json += '","type":"' + this.type;

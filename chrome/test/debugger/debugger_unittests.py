@@ -30,7 +30,7 @@ def RunTests(build_dir=None):
   cmd = [v8_shell,
          "--allow-natives-syntax",
          "--expose-debug-as", "debugContext", # these two are together
-         os.path.join(chrome_dir, "browser", "resources", "debugger_shell.js"),
+         os.path.join(chrome_dir, "browser", "debugger", "resources", "debugger_shell.js"),
          os.path.join(v8_dir, "tests", "mjsunit.js"),
          os.path.join(chrome_dir, "test", "debugger", "test_protocol.js")
         ]

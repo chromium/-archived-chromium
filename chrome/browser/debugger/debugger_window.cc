@@ -61,7 +61,7 @@ void DebuggerWindow::Show(TabContents* tab) {
     view_->OnShow();
     return;
   }
-  view_ = new DebuggerView(this);
+  view_ = new DebuggerView();
   window_ = ChromeViews::Window::CreateChromeWindow(NULL, gfx::Rect(), this);
   view_->OnInit();
   window_->Show();
@@ -131,7 +131,8 @@ void DebuggerWindow::SetDebuggerReady(bool ready) {
 #ifndef CHROME_DEBUGGER_DISABLED
   if (debugger_ready_ != ready) {
     debugger_ready_ = ready;
-    window_->UpdateWindowTitle();
+    if (window_)
+      window_->UpdateWindowTitle();
   }
 #endif
 }
@@ -140,9 +141,13 @@ void DebuggerWindow::SetDebuggerBreak(bool brk) {
 #ifndef CHROME_DEBUGGER_DISABLED
   if (debugger_break_ != brk) {
     debugger_break_ = brk;
-    window_->UpdateWindowTitle();
-    if (brk)
-      window_->Activate();
+    if (window_) {
+      if (view_)
+        view_->SetDebuggerBreak(brk);
+      window_->UpdateWindowTitle();
+      if (brk)
+        window_->Activate();
+    }
   }
 #endif
 }
@@ -164,9 +169,12 @@ void DebuggerWindow::WindowClosing() {
 #ifndef CHROME_DEBUGGER_DISABLED
   view_->OnClose();
 #endif
-  debugger_ = NULL;
   window_ = NULL;
   view_ = NULL;
+#ifndef CHROME_DEBUGGER_DISABLED
+  debugger_->DidDisconnect();
+#endif
+  debugger_ = NULL;
   DebuggerWrapper* wrapper = g_browser_process->debugger_wrapper();
   wrapper->SetDebugger(NULL);
 }
@@ -194,7 +202,7 @@ void DebuggerWindow::HandleKeystroke(ChromeViews::TextField* sender, UINT messag
     std::wstring txt = sender->GetText();
     if (txt.length()) {
       view_->Output(L"$ " + txt);
-      debugger_->ProcessCommand(WideToUTF8(txt));
+      debugger_->ProcessCommand(txt);
       sender->SetText(L"");
     }
   }

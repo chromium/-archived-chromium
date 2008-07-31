@@ -36,14 +36,13 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/browser_resources.h"
-#include "chrome/browser/render_process_host.h"
-#include "chrome/browser/tab_contents.h"
 #include "chrome/browser/debugger/debugger_io.h"
 #include "chrome/browser/debugger/debugger_node.h"
+#include "chrome/browser/debugger/resources/debugger_resources.h"
+#include "chrome/browser/render_process_host.h"
+#include "chrome/browser/tab_contents.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/resource_bundle.h"
-#include "v8/public/v8.h"
 
 DebuggerShell::DebuggerShell(DebuggerInputOutput* io) : io_(io),
                                                         debugger_ready_(true) {
@@ -148,11 +147,11 @@ v8::Handle<v8::Value> DebuggerShell::Subshell(const v8::Arguments& args) {
     v8::Handle<v8::Function> func = v8::Handle<v8::Function>::Cast(args[0]);
     v8::Local<v8::Object> obj = func->NewInstance();
     if (!obj->IsUndefined()) {
-      shell_= v8::Persistent<v8::Object>::New(obj);
+      shell_ = v8::Persistent<v8::Object>::New(obj);
       v8_context_->Global()->Set(v8::String::New("shell_"), shell_);
     }
   } else if (args[0]->IsObject()) {
-    shell_= v8::Persistent<v8::Object>::New(v8::Local<v8::Object>::Cast(args[0]));
+    shell_ = v8::Persistent<v8::Object>::New(v8::Local<v8::Object>::Cast(args[0]));
     v8_context_->Global()->Set(v8::String::New("shell_"), shell_);
   }
   return v8::Undefined();
@@ -346,20 +345,22 @@ void DebuggerShell::PrintPrompt() {
     io_->OutputPrompt(out);
 }
 
-void DebuggerShell::ProcessCommand(const std::string& data) {
+void DebuggerShell::ProcessCommand(const std::wstring& data) {
   v8::HandleScope outer;
   v8::Context::Scope scope(v8_context_);
-  if (!shell_.IsEmpty() && data.substr(0, 7) != "source(") {
-    if (data == "exit") {
+  if (!shell_.IsEmpty() && data.substr(0, 7) != L"source(") {
+    if (data == L"exit") {
       PrintObject(SubshellFunction("exit", 0, NULL));
       v8_context_->Global()->Delete(v8::String::New("shell_"));
       shell_.Dispose();
       shell_.Clear();
     } else {
-      v8::Handle<v8::Value> argv[] = {v8::String::New(data.c_str())};
+      const uint16* utf16 = reinterpret_cast<const uint16*>(data.c_str());
+      v8::Handle<v8::Value> argv[] = {v8::String::New(utf16)};
       PrintObject(SubshellFunction("command", 1, argv));
     }
   } else if (data.length()) {
+    //TODO(erikkay): change everything to wstring
     v8::Handle<v8::Value> result = CompileAndRun(data);
     PrintObject(result);
   }
@@ -394,8 +395,21 @@ void DebuggerShell::DidConnect() {
   PrintPrompt();
 }
 
-v8::Handle<v8::Value> DebuggerShell::CompileAndRun(const std::string& str,
-                                           const std::string& filename) {
+void DebuggerShell::DidDisconnect() {
+  v8::HandleScope outer;
+  SubshellFunction("exit", 0, NULL);
+}
+
+v8::Handle<v8::Value> DebuggerShell::CompileAndRun(
+    const std::string& str,
+    const std::string& filename) {
+  const std::wstring wstr = UTF8ToWide(str);
+  return CompileAndRun(wstr, filename);
+}
+
+v8::Handle<v8::Value> DebuggerShell::CompileAndRun(
+    const std::wstring& wstr,
+    const std::string& filename) {
   v8::Context::Scope scope(v8_context_);
   v8::Handle<v8::String> scriptname;
   if (filename.length() > 0) {
@@ -403,10 +417,10 @@ v8::Handle<v8::Value> DebuggerShell::CompileAndRun(const std::string& str,
   } else {
     scriptname = v8::String::New("");
   }
-  v8::ScriptOrigin origin =
-    v8::ScriptOrigin(scriptname);
+  const uint16* utf16 = reinterpret_cast<const uint16*>(wstr.c_str());
+  v8::ScriptOrigin origin = v8::ScriptOrigin(scriptname);
   v8::Local<v8::Script> code =
-    v8::Script::Compile(v8::String::New(str.c_str()), &origin);
+      v8::Script::Compile(v8::String::New(utf16), &origin);
   if (!code.IsEmpty()) {
     v8::Local<v8::Value> result = code->Run();
     if (!result.IsEmpty()) {

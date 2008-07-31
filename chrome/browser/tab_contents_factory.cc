@@ -39,6 +39,7 @@
 #include "chrome/browser/network_status_view.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/render_process_host.h"
+#include "chrome/browser/debugger/debugger_contents.h"
 #include "chrome/browser/tab_contents_factory.h"
 #include "chrome/browser/view_source_contents.h"
 #include "chrome/browser/web_contents.h"
@@ -85,6 +86,9 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
     case TAB_CONTENTS_ABOUT_UI:
       contents = new BrowserAboutHandler(profile, instance, NULL);
       break;
+    case TAB_CONTENTS_DEBUGGER:
+      contents = new DebuggerContents(profile, instance);
+      break;
     default:
       if (g_extra_types) {
         TabContentsFactoryMap::const_iterator it = g_extra_types->find(type);
@@ -125,6 +129,9 @@ TabContentsType TabContents::TypeForURL(GURL* url) {
 
   if (HtmlDialogContents::IsHtmlDialogUrl(*url))
     return TAB_CONTENTS_HTML_DIALOG;
+
+  if (DebuggerContents::IsDebuggerUrl(*url))
+    return TAB_CONTENTS_DEBUGGER;
 
   if (url->SchemeIs("view-source")) {
     // Load the inner URL instead, but render it using a ViewSourceContents.

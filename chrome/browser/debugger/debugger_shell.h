@@ -47,7 +47,7 @@
 class DebuggerShell : public base::RefCountedThreadSafe<DebuggerShell> {
  public:
   DebuggerShell() {
-    LOG(ERROR) << "Debug Debugger not enabled for KJS";
+    LOG(ERROR) << "Debugger not enabled for KJS";
   }
   virtual ~DebuggerShell() {}
   void Start() {}
@@ -83,7 +83,8 @@ class DebuggerShell : public base::RefCountedThreadSafe<DebuggerShell> {
 
   // SocketInputOutput callback methods
   void DidConnect();
-  void ProcessCommand(const std::string& data);
+  void DidDisconnect();
+  void ProcessCommand(const std::wstring& data);
 
   static v8::Handle<v8::Value> SetDebuggerReady(const v8::Arguments& args,
                                                 DebuggerShell* debugger);
@@ -108,6 +109,8 @@ class DebuggerShell : public base::RefCountedThreadSafe<DebuggerShell> {
   void PrintLine(const std::string& out);
   void PrintString(const std::string& out);
   void PrintPrompt();
+  v8::Handle<v8::Value> CompileAndRun(const std::wstring& wstr,
+                                      const std::string& filename = "");
   v8::Handle<v8::Value> CompileAndRun(const std::string& str,
                                       const std::string& filename = "");
 
@@ -120,7 +123,7 @@ class DebuggerShell : public base::RefCountedThreadSafe<DebuggerShell> {
 
   void MessageListener(v8::Handle<v8::Message> message);
 
-  // global debugger() function designed to allow command-line processing by
+  // global shell() function designed to allow command-line processing by
   // javascript code rather than by this object.
   static v8::Handle<v8::Value> DelegateSubshell(const v8::Arguments& args);
   v8::Handle<v8::Value> Subshell(const v8::Arguments& args);

@@ -26,29 +26,31 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// This file defines utility functions for working with strings.
 
-#ifndef CHROME_BROWSER_TAB_CONTENTS_TYPE_H__
-#define CHROME_BROWSER_TAB_CONTENTS_TYPE_H__
+#ifndef CHROME_BROWSER_SHELL_DEBUGGER_CONTENTS_H__
+#define CHROME_BROWSER_SHELL_DEBUGGER_CONTENTS_H__
 
-// The different kinds of tab contents we support. This is declared outside of
-// TabContents to eliminate the circular dependency between NavigationEntry
-// (which requires a tab type) and TabContents (which requires a
-// NavigationEntry).
-enum TabContentsType {
-  TAB_CONTENTS_UNKNOWN_TYPE = 0,
-  TAB_CONTENTS_WEB,
-  TAB_CONTENTS_DOWNLOAD_VIEW,
-  TAB_CONTENTS_NETWORK_STATUS_VIEW,
-  TAB_CONTENTS_IPC_STATUS_VIEW,
-  TAB_CONTENTS_CHROME_VIEW_CONTENTS,
-  TAB_CONTENTS_NEW_TAB_UI,
-  TAB_CONTENTS_NATIVE_UI,
-  TAB_CONTENTS_ABOUT_INTERNETS_STATUS_VIEW,
-  TAB_CONTENTS_VIEW_SOURCE,
-  TAB_CONTENTS_HTML_DIALOG,
-  TAB_CONTENTS_ABOUT_UI,
-  TAB_CONTENTS_DEBUGGER,
-  TAB_CONTENTS_NUM_TYPES
+#include "chrome/browser/dom_ui/dom_ui_host.h"
+
+class DebuggerContents : public DOMUIHost {
+ public:
+  DebuggerContents(Profile* profile, SiteInstance* instance);
+
+  static bool IsDebuggerUrl(const GURL& url);
+
+ protected:
+  // WebContents overrides:
+  // We override updating history with a no-op so these pages
+  // are not saved to history.
+  virtual void UpdateHistoryForNavigation(const GURL& url,
+      const ViewHostMsg_FrameNavigate_Params& params) { }
+
+  // DOMUIHost implementation.
+  virtual void AttachMessageHandlers();
+
+  DISALLOW_EVIL_CONSTRUCTORS(DebuggerContents);
 };
 
-#endif  // CHROME_BROWSER_TAB_CONTENTS_TYPE_H__
+#endif  // CHROME_BROWSER_DEBUGGER_CONTENTS_H__
