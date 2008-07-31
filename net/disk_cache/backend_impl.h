@@ -74,12 +74,14 @@ class BackendImpl : public Backend {
   // Sets the maximum size for the total amount of data stored by this instance.
   bool SetMaxSize(int max_bytes);
 
+  // Returns the full name for an external storage file.
+  std::wstring GetFileName(Addr address) const;
+
   // Returns the actual file used to store a given (non-external) address.
-  MappedFile* File(Addr address) {
-    if (disabled_)
-      return NULL;
-    return block_files_.GetFile(address);
-  }
+  MappedFile* File(Addr address);
+
+  // Creates an external storage file.
+  bool CreateExternalFile(Addr* address);
 
   // Creates a new storage block of size block_count.
   bool CreateBlock(FileType block_type, int block_count,
@@ -89,46 +91,33 @@ class BackendImpl : public Backend {
   // the related storage in addition of releasing the related block.
   void DeleteBlock(Addr block_address, bool deep);
 
-  // Permanently deletes an entry.
-  void InternalDoomEntry(EntryImpl* entry);
-
-  // Returns the full name for an external storage file.
-  std::wstring GetFileName(Addr address) const;
-
-  // Creates an external storage file.
-  bool CreateExternalFile(Addr* address);
-
   // Updates the ranking information for an entry.
   void UpdateRank(CacheRankingsBlock* node, bool modified);
-
-  // This method must be called whenever an entry is released for the last time.
-  void CacheEntryDestroyed();
-
-  // Handles the pending asynchronous IO count.
-  void IncrementIoCount();
-  void DecrementIoCount();
-
-  // Returns the id being used on this run of the cache.
-  int32 GetCurrentEntryId();
 
   // A node was recovered from a crash, it may not be on the index, so this
   // method checks it and takes the appropriate action.
   void RecoveredEntry(CacheRankingsBlock* rankings);
 
-  // Clears the counter of references to test handling of corruptions.
-  void ClearRefCountForTest();
+  // Permanently deletes an entry.
+  void InternalDoomEntry(EntryImpl* entry);
 
-  // Sets internal parameters to enable unit testing mode.
-  void SetUnitTestMode();
+  // This method must be called whenever an entry is released for the last time.
+  void CacheEntryDestroyed();
 
-  // A user data block is being created, extended or truncated.
-  void ModifyStorageSize(int32 old_size, int32 new_size);
+  // Returns the id being used on this run of the cache.
+  int32 GetCurrentEntryId();
 
   // Returns the maximum size for a file to reside on the cache.
   int MaxFileSize() const;
 
+  // A user data block is being created, extended or truncated.
+  void ModifyStorageSize(int32 old_size, int32 new_size);
+
   // Logs requests that are denied due to being too big.
   void TooMuchStorageRequested(int32 size);
+
+  // Reports a critical error (and disables the cache).
+  void CriticalError(int error);
 
   // Called when an interesting event should be logged (counted).
   void OnEvent(Stats::Counters an_event);
@@ -136,17 +125,32 @@ class BackendImpl : public Backend {
   // Timer callback to calculate usage statistics.
   void OnStatsTimer();
 
+  // Handles the pending asynchronous IO count.
+  void IncrementIoCount();
+  void DecrementIoCount();
+
+  // Sets internal parameters to enable unit testing mode.
+  void SetUnitTestMode();
+
+  // Clears the counter of references to test handling of corruptions.
+  void ClearRefCountForTest();
+
   // Peforms a simple self-check, and returns the number of dirty items
   // or an error code (negative value).
   int SelfCheck();
-
-  // Reports a critical error (and disables the cache).
-  void CriticalError(int error);
 
  private:
   // Creates a new backing file for the cache index.
   bool CreateBackingStore(HANDLE file);
   bool InitBackingStore(bool* file_created);
+  void AdjustMaxCacheSize(int table_len);
+
+  // Deletes the cache and starts again.
+  void RestartCache();
+
+  // Creates a new entry object and checks to see if it is dirty. Returns zero
+  // on success, or a disk_cache error on failure.
+  int NewEntry(Addr address, EntryImpl** entry, bool* dirty);
 
   // Returns a given entry from the cache. The entry to match is determined by
   // key and hash, and the returned entry may be the matched one or it's parent
@@ -154,32 +158,13 @@ class BackendImpl : public Backend {
   EntryImpl* MatchEntry(const std::string& key, uint32 hash,
                          bool find_parent);
 
+  void DestroyInvalidEntry(Addr address, EntryImpl* entry);
+
   // Deletes entries from the cache until the current size is below the limit.
   // If empty is true, the whole cache will be trimmed, regardless of being in
   // use.
   void TrimCache(bool empty);
-
-  void DestroyInvalidEntry(Addr address, EntryImpl* entry);
-
-  // Creates a new entry object and checks to see if it is dirty. Returns zero
-  // on success, or a disk_cache error on failure.
-  int NewEntry(Addr address, EntryImpl** entry, bool* dirty);
-
-  // Part of the selt test. Returns the number or dirty entries, or an error.
-  int CheckAllEntries();
-
-  // Part of the self test. Returns false if the entry is corrupt.
-  bool CheckEntry(EntryImpl* cache_entry);
-
-  // Performs basic checks on the index file. Returns false on failure.
-  bool CheckIndex();
-
-  // Dumps current cache statistics to the log.
-  void LogStats();
-
-  // Deletes the cache and starts again.
-  void RestartCache();
-
+  
   // Handles the used storage count.
   void AddStorageSize(int32 bytes);
   void SubstractStorageSize(int32 bytes);
@@ -188,7 +173,17 @@ class BackendImpl : public Backend {
   void IncreaseNumRefs();
   void DecreaseNumRefs();
 
-  void AdjustMaxCacheSize(int table_len);
+  // Dumps current cache statistics to the log.
+  void LogStats();
+
+  // Performs basic checks on the index file. Returns false on failure.
+  bool CheckIndex();
+
+  // Part of the selt test. Returns the number or dirty entries, or an error.
+  int CheckAllEntries();
+
+  // Part of the self test. Returns false if the entry is corrupt.
+  bool CheckEntry(EntryImpl* cache_entry);
 
   scoped_refptr<MappedFile> index_;  // The main cache index.
   std::wstring path_;  // Path to the folder used as backing storage.
