@@ -175,6 +175,9 @@ sub AddIncludesForType
         $joinedName = $type;
         $joinedName =~ s/Abs|Rel//;
         $implIncludes{"${joinedName}.h"} = 1;
+    } elsif ($type eq "CSSStyleDeclaration") {
+        $implIncludes{"CSSStyleDeclaration.h"} = 1;
+        $implIncludes{"CSSMutableStyleDeclaration.h"} = 1;
     } else {
         # default, include the same named file
         $implIncludes{GetImplementationFileName(${type})} = 1;
@@ -468,9 +471,15 @@ END
   my $getterFunc = WK_lcfirst($attrName);
   $getterFunc .= "Animated" if $codeGenerator->IsSVGAnimatedType($attribute->signature->type);
 
+  my $returnType = $codeGenerator->StripModule($attribute->signature->type);
+
   my $getterString = "imp->$getterFunc(";
   $getterString .= "ec" if $useExceptions;
   $getterString .= ")";
+  if (IsRefPtrType($returnType)) {
+    $implIncludes{"wtf/GetPtr.h"} = 1;
+    $getterString = "WTF::getPtr(" . $getterString . ")";
+  }
   if ($nativeType eq "int" and $attribute->signature->extendedAttributes->{"ConvertFromString"}) {
     $getterString .= ".toInt()";
   }
@@ -494,8 +503,9 @@ END
     }
 
     $result = "v";
-    my $returnType = $codeGenerator->StripModule($attribute->signature->type);
-    $result .= ".get()" if IsRefPtrType($returnType);
+    if (IsRefPtrType($returnType)) {
+      $result = "WTF::getPtr(" . $result . ")";
+    }
   } else {
     # Special case: RGBColor is noncopyable
     $result = $getterString;
@@ -591,7 +601,9 @@ END
     $result .= ")";
   }
   my $returnType = $codeGenerator->StripModule($attribute->signature->type);
-  $result .= ".get()" if IsRefPtrType($returnType);
+  if (IsRefPtrType($returnType)) {
+    $result = "WTF::getPtr(" . $result . ")";
+  }
   
   my $useExceptions = 1 if @{$attribute->setterExceptions} and !($isPodType); 
 
@@ -1157,6 +1169,14 @@ sub GenerateFunctionCallString()
   }
   $functionString .= ")";
 
+  if ((IsRefPtrType($returnType) || $returnsListItemPodType) &&
+      !$nodeToReturn) {
+    # We don't use getPtr when $nodeToReturn because that situation is
+    # special-cased below to return a bool.
+    $implIncludes{"wtf/GetPtr.h"} = 1;
+    $functionString = "WTF::getPtr(" . $functionString . ")";
+  }
+
   if ($nodeToReturn) {
     # Special case for insertBefore, replaceChild, removeChild and
     # appendChild functions from Node.
@@ -1186,7 +1206,10 @@ sub GenerateFunctionCallString()
   }
 
   my $return = "result";
-  $return .= ".get()" if IsRefPtrType($returnType) || $returnsListItemPodType;
+  if (IsRefPtrType($returnType) || $returnsListItemPodType) {
+    $implIncludes{"wtf/GetPtr.h"} = 1;
+    $return = "WTF::getPtr(" . $return . ")";
+  }
 
   # If the return type is a POD type, separate out the wrapper generation
   if ($returnsListItemPodType) {
@@ -1662,6 +1685,7 @@ sub NativeToJSValue
 
     else {
       $implIncludes{"wtf/RefCounted.h"} = 1;
+      $implIncludes{"wtf/RefPtr.h"} = 1;
       my $classIndex = uc($type);
       
       if ($codeGenerator->IsPodType($type)) {
