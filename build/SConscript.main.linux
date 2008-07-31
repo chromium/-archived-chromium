@@ -37,9 +37,6 @@ import shutil
 import sys
 
 
-Import('PLATFORM')
-
-
 # Base -------------------------------------------------------------------
 
 base_env = Environment(
@@ -90,7 +87,7 @@ env = base_env.Clone()
 
 for sconscript_dir, target_subdir in sconscript_and_target_subdirs:
   env.SConscript(os.path.join(sconscript_dir, 'SConscript'),
-                 exports=['env', 'PLATFORM'],
+                 exports=['env'],
                  variant_dir=os.path.join('$TARGET_ROOT', target_subdir),
                  duplicate=0
                  )

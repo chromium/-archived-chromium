@@ -28,13 +28,11 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # TODO(keunwoo): Use better cross-platform abstraction; see chrome/SConstruct
-Import('PLATFORM')
-
 Import('env')
 
 env = env.Clone()
 
-if PLATFORM == 'WINDOWS':
+if env['PLATFORM'] == 'win32':
   env.Append(
       CCFLAGS = [
           '/TC',
