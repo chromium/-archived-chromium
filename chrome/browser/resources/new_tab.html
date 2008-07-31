@@ -1,4 +1,4 @@
-<html id="t" jsvalues="dir:textdirection;newsession:newsession">
+<html id="t" jsvalues="dir:textdirection;firstview:firstview">
 <!--
  This page is optimized for perceived performance. Our enemies are the time
  taken for the backend to generate our data, and the time taken to parse
@@ -119,10 +119,6 @@ function handleInputBlur() {
 
 function handleDOMContentLoaded() {
   logEvent('domcontentloaded fired');
-
-  if (document.getElementById('motd').innerHTML) {
-    document.getElementById('motd').style.display = 'block';
-  }
 }
 
 logEvent('log start');
@@ -136,11 +132,11 @@ body {
   font-size:84%;
   margin:0px;
 }
-html[newsession='true'] #main {
+html[firstview='true'] #main {
   opacity:0.0;
   -webkit-transition:all 0.4s;
 }
-html[newsession='true'] #main.visible {
+html[firstview='true'] #main.visible {
   /* unfortunately, 1.0 results in no animation */
   opacity:0.999;
 }
@@ -184,13 +180,6 @@ html[dir='rtl'] #mostvisited td {
   -webkit-box-shadow: 5px 5px 10px #ccc;
   -webkit-transition:all 0.12s;
 }
-#motd {
-  background-color:#ffc;
-  padding:5px;
-  margin-bottom:9px;
-  width:610px;
-  -webkit-transition:all 0.12s;
-}
 .thumbnail-title {
   background-image:url(chrome-resource://favicon/);
   display:block;
@@ -221,9 +210,6 @@ a.thumbnail {
   border:1px solid #abe;
 }
 
-.small #motd {
-  width:480px;
-}
 .small .thumbnail-title {
   width:127px;
 }
@@ -322,7 +308,6 @@ document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
   <tr>
   <td valign="top">
   <div id="mostvisitedsection" class="section">
-    <div id="motd" jscontent="motd" style="display:none;"></div>
     <div id="mostvisited" style="position:relative;">
       <div class="section-title" jscontent="mostvisited"></div>
       <div id="mostvisitedintro" style="display:none;">

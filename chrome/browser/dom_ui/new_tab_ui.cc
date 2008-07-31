@@ -43,8 +43,9 @@
 #include "chrome/browser/template_url.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/browser/views/keyword_editor_view.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/jstemplate_builder.h"
+#include "chrome/common/l10n_util.h"
+#include "chrome/common/pref_names.h"
 #include "chrome/common/resource_bundle.h"
 
 #include "generated_resources.h"
@@ -71,6 +72,8 @@ static const int kRecentBookmarks = 9;
 // HTML document based on locale.
 static const wchar_t kRTLHtmlTextDirection[] = L"rtl";
 static const wchar_t kDefaultHtmlTextDirection[] = L"ltr";
+
+bool NewTabHTMLSource::first_view_ = true;
 
 namespace {
 
@@ -166,9 +169,8 @@ void SetURLAndTitle(DictionaryValue* dictionary, std::wstring title,
 
 }  // end anonymous namespace
 
-NewTabHTMLSource::NewTabHTMLSource(int message_id)
-    : DataSource("new-tab", MessageLoop::current()),
-      message_id_(message_id) {
+NewTabHTMLSource::NewTabHTMLSource()
+    : DataSource("new-tab", MessageLoop::current()) {
 }
 
 void NewTabHTMLSource::StartDataRequest(const std::string& path,
@@ -202,17 +204,10 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
       (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
        kRTLHtmlTextDirection : kDefaultHtmlTextDirection);
 
-  // Let the page know whether this is the first New Tab view for
-  // this session (and let it trigger all manner of fancy).
-  static bool new_session = true;
-  localized_strings.SetString(L"newsession",
-                              new_session ? L"true" : std::wstring());
-  new_session = false;
-
-  if (message_id_)
-    localized_strings.SetString(L"motd", l10n_util::GetString(message_id_));
-  else
-    localized_strings.SetString(L"motd", std::wstring());
+  // Let the tab know whether it's the first tab being viewed.
+  localized_strings.SetString(L"firstview",
+                              first_view_ ? L"true" : std::wstring());
+  first_view_ = false;
 
   static const StringPiece new_tab_html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(
@@ -751,6 +746,13 @@ NewTabUIContents::NewTabUIContents(Profile* profile,
   if (profile->IsOffTheRecord())
     incognito_ = true;
 
+  if (NewTabHTMLSource::first_view() && 
+      (profile->GetPrefs()->GetInteger(prefs::kRestoreOnStartup) != 0 ||
+       !profile->GetPrefs()->GetBoolean(prefs::kHomePageIsNewTabPage))
+     ) {
+    NewTabHTMLSource::set_first_view(false);
+  }
+
   render_view_host()->SetPaintObserver(new PaintTimer);
 }
 
@@ -783,7 +785,7 @@ void NewTabUIContents::AttachMessageHandlers() {
     AddMessageHandler(new RecentlyClosedTabsHandler(this));
     AddMessageHandler(new HistoryHandler(this));
 
-    NewTabHTMLSource* html_source = new NewTabHTMLSource(0);
+    NewTabHTMLSource* html_source = new NewTabHTMLSource();
 
     g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
         NewRunnableMethod(&chrome_url_data_manager,

@@ -54,17 +54,19 @@ bool NewTabUIHandleURL(GURL* url, TabContentsType* result_type);
 
 class NewTabHTMLSource : public ChromeURLDataManager::DataSource {
  public:
-  // Creates our datasource and sets our user message to a specific message
-  // from our string bundle.
-  NewTabHTMLSource(int message_id);
+  NewTabHTMLSource();
 
   // Called when the network layer has requested a resource underneath
   // the path we registered.
   virtual void StartDataRequest(const std::string& path, int request_id);
 
+  // Setters and getters for first_view.
+  static void set_first_view(bool first_view) { first_view_ = first_view; }
+  static bool first_view() { return first_view_; }
  private:
-  // The ID of the message from our string bundle to display to the user.
-  int message_id_;
+  // Whether this is the is the first viewing of the new tab page and
+  // we think it is the user's startup page.
+  static bool first_view_;
 
   DISALLOW_EVIL_CONSTRUCTORS(NewTabHTMLSource);
 };
@@ -306,7 +308,6 @@ class NewTabUIContents : public DOMUIHost {
   // Clicking a URL on the page should count as an autobookmark click.
   virtual void RequestOpenURL(const GURL& url,
                               WindowOpenDisposition disposition);
-
  private:
   // The message id that should be displayed in this NewTabUIContents
   // instance's motd area.
