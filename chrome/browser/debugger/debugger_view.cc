@@ -72,6 +72,20 @@ void DebuggerView::Layout() {
   web_container_->SetBounds(0, 0, GetWidth(), GetHeight());
 }
 
+void DebuggerView::DidChangeBounds(const CRect& previous,
+                                   const CRect& current) {
+  Layout();
+}
+
+void DebuggerView::ViewHierarchyChanged(bool is_add,
+                                        ChromeViews::View* parent,
+                                        ChromeViews::View* child) {
+  if (is_add && child == this) {
+    DCHECK(GetViewContainer());
+    OnInit();
+  }
+}
+
 void DebuggerView::Paint(ChromeCanvas* canvas) {
 #ifndef NDEBUG
   SkPaint paint;

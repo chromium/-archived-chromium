@@ -75,6 +75,10 @@ class DebuggerView : public ChromeViews::View,
   virtual void GetPreferredSize(CSize* out);
   virtual void Layout();
   virtual void Paint(ChromeCanvas* canvas);
+  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
+  virtual void ViewHierarchyChanged(bool is_add,
+                                    ChromeViews::View* parent,
+                                    ChromeViews::View* child);
 
   // Overridden from PageNavigator (TabContentsDelegate's base interface):
   virtual void OpenURLFromTab(TabContents* source,
@@ -105,7 +109,6 @@ class DebuggerView : public ChromeViews::View,
  private:
   void ExecuteJavascript(const std::string& js);
 
-  DebuggerWindow* window_;
   ChromeFont font_;
   WebContents* web_contents_;
   TabContentsContainerView* web_container_;

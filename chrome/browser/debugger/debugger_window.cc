@@ -63,7 +63,6 @@ void DebuggerWindow::Show(TabContents* tab) {
   }
   view_ = new DebuggerView();
   window_ = ChromeViews::Window::CreateChromeWindow(NULL, gfx::Rect(), this);
-  view_->OnInit();
   window_->Show();
   view_->OnShow();
   debugger_ready_ = true;

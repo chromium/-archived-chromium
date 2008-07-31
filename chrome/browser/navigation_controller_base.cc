@@ -86,7 +86,8 @@ int NavigationControllerBase::GetEntryIndexWithPageID(
       type != TAB_CONTENTS_NEW_TAB_UI &&
       type != TAB_CONTENTS_ABOUT_UI &&
       type != TAB_CONTENTS_HTML_DIALOG &&
-      type != TAB_CONTENTS_VIEW_SOURCE)
+      type != TAB_CONTENTS_VIEW_SOURCE &&
+      type != TAB_CONTENTS_DEBUGGER)
     DCHECK(instance == NULL);
 
   for (int i = static_cast<int>(entries_.size()) - 1; i >= 0; --i) {
