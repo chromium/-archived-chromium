@@ -40,9 +40,6 @@ env.Prepend(
 env.Append(
     CCFLAGS = [
         '/TP',
-
-        '/wd4503',
-        '/wd4819',
     ],
 
     LINKFLAGS = [

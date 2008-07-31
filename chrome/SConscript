@@ -42,9 +42,8 @@ install_targets = []
 
 env.Prepend(
     CPPPATH = [
-        Dir('app'),
-        #Dir('third_party/wtl/include'),
-        Dir('#/../chrome/third_party/wtl/include'),
+        'app',
+        '$CHROME_DIR/third_party/wtl/include',
     ],
 )
 
@@ -52,9 +51,7 @@ env.Prepend(
 env_res.Append(
     CPPPATH = [
         '.',
-        '#/../chrome/Debug/obj/chrome_dll',
         '#/..',
-        '#/../chrome/Debug/obj',
     ],
     RCFLAGS = [
         ['/l', '0x409'],
@@ -90,9 +87,6 @@ env_dll.Prepend(
     ],
     CPPDEFINES = [
         'U_STATIC_IMPLEMENTATION',
-        'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
-        'WIN32_LEAN_AND_MEAN',
-
         'PNG_USER_CONFIG',
         'CHROME_PNG_WRITE_SUPPORT',
         'LIBXSLT_STATIC',
@@ -101,29 +95,20 @@ env_dll.Prepend(
     ],
     CCFLAGS = [
         '/TP',
-
         '/Wp64',
-
-        '/wd4503',
-        '/wd4819',
     ],
 )
 
 env_dll.Append(
     CPPPATH = [
-        #/I '../chrome/Debug/webkit'
-        #/I '../third_party/webkit/out'
-
-        Dir('#../chrome/app'),
-        #Dir('#../chrome/Debug/obj/generated_resources'),
-        Dir('#../chrome/Debug/obj/localized_strings'),
-        Dir('#../third_party/libpng'),
-        Dir('#../skia/include'),
-        Dir('#../skia/include/corecg'),
-        Dir('#../skia/platform'),
-        Dir('#../third_party/libxslt'),
-        Dir('#../third_party/libxml/include'),
-        Dir('#../breakpad/src'),
+        '$CHROME_DIR/app',
+        '$LIBPNG_DIR',
+        '$SKIA_DIR/include',
+        '$SKIA_DIR/include/corecg',
+        '$SKIA_DIR/platform',
+        '$LIBXSL_DIR',
+        '$LIBXML_DIR/include',
+        '$BREAKPAD_DIR/src',
     ],
     LIBS = [
         'DelayImp.lib',
@@ -148,46 +133,10 @@ env_dll.Append(
         'uuid.lib',
         'version.lib',
         'wininet.lib',
-        'wininet.lib',
         'winmm.lib',
         'winspool.lib',
         'ws2_32.lib',
         'wsock32.lib',
-
-        env.File('$BASE_DIR/base.lib'),
-        env.File('$BASE_DIR/gfx/base_gfx.lib'),
-        env.File('$BREAKPAD_DIR/breakpad_handler.lib'),
-        env.File('browser/browser.lib'),
-        env.File('browser/debugger/debugger.lib'),
-        env.File('common/common.lib'),
-        env.File('installer/util/util.lib'),
-        env.File('libjscre.lib'),
-        env.File('plugin/plugin.lib'),
-        env.File('renderer/renderer.lib'),
-        env.File('third_party/hunspell/hunspell.lib'),
-        env.File('third_party/sqlite/sqlite.lib'),
-        env.File('views/views.lib'),
-        env.File('$NET_DIR/net.lib'),
-        env.File('$SKIA_DIR/skia.lib'),
-        env.File('$BZIP2_DIR/bzip2.lib'),
-        env.File('$ICU38_DIR/icuuc.lib'),
-        env.File('$LIBJPEG_DIR/libjpeg.lib'),
-        env.File('$LIBPNG_DIR/libpng.lib'),
-        env.File('$LIBXML_DIR/libxml.lib'),
-        env.File('$LIBXSLT_DIR/libxslt.lib'),
-        env.File('$MODP_B64_DIR/modp_b64.lib'),
-        env.File('$ZLIB_DIR/zlib.lib'),
-        env.File('$V8_DIR/v8.lib'),
-        env.File('$V8_DIR/snapshot-empty.obj'),
-        env.File('$WEBKIT_DIR/activex_shim/activex_shim.lib'),
-        env.File('$WEBKIT_DIR/build/JavaScriptCore/WTF.lib'),
-        env.File('$WEBKIT_DIR/build/V8Bindings/V8Bindings.lib'),
-        env.File('$WEBKIT_DIR/build/WebCore/WebCore.lib'),
-        env.File('$WEBKIT_DIR/default_plugin/default_plugin.lib'),
-        env.File('$WEBKIT_DIR/glue/Glue.lib'),
-        env.File('$GOOGLEURL_DIR/googleurl.lib'),
-        env.File('$WEBKIT_DIR/JavaScriptCore_pcre.lib'),
-        env.File('$WEBKIT_DIR/Port.lib'),
     ],
     LINKFLAGS = [
         '/INCREMENTAL',
@@ -229,10 +178,48 @@ input_files = [
     'app/chrome_main.cc',
 ]
 
+
+libs = [
+    '$BASE_DIR/base.lib',
+    '$BASE_DIR/gfx/base_gfx.lib',
+    '$BREAKPAD_DIR/breakpad_handler.lib',
+    'browser/browser.lib',
+    'browser/debugger/debugger.lib',
+    'common/common.lib',
+    'installer/util/util.lib',
+    'libjscre.lib',
+    'plugin/plugin.lib',
+    'renderer/renderer.lib',
+    'third_party/hunspell/hunspell.lib',
+    'third_party/sqlite/sqlite.lib',
+    'views/views.lib',
+    '$NET_DIR/net.lib',
+    '$SKIA_DIR/skia.lib',
+    '$BZIP2_DIR/bzip2.lib',
+    '$ICU38_DIR/icuuc.lib',
+    '$LIBJPEG_DIR/libjpeg.lib',
+    '$LIBPNG_DIR/libpng.lib',
+    '$LIBXML_DIR/libxml.lib',
+    '$LIBXSLT_DIR/libxslt.lib',
+    '$MODP_B64_DIR/modp_b64.lib',
+    '$ZLIB_DIR/zlib.lib',
+    '$V8_DIR/v8.lib',
+    '$V8_DIR/snapshot-empty.obj',
+    '$WEBKIT_DIR/activex_shim/activex_shim.lib',
+    '$WEBKIT_DIR/build/JavaScriptCore/WTF.lib',
+    '$WEBKIT_DIR/build/V8Bindings/V8Bindings.lib',
+    '$WEBKIT_DIR/build/WebCore/WebCore.lib',
+    '$WEBKIT_DIR/default_plugin/default_plugin.lib',
+    '$WEBKIT_DIR/glue/Glue.lib',
+    '$GOOGLEURL_DIR/googleurl.lib',
+    '$WEBKIT_DIR/JavaScriptCore_pcre.lib',
+    '$WEBKIT_DIR/Port.lib',
+]
+
 dll_targets = env_dll.SharedLibrary(['chrome',
                                      'chrome_dll.pdb',
                                      'chrome_dll.lib'],
-                                    dll_resources + input_files)
+                                    dll_resources + input_files + libs)
 
 install_targets.extend(dll_targets)
 
@@ -252,9 +239,9 @@ for g in [ g for g in generated if str(g).endswith('.rc') ]:
 
 
 env_version = env.Clone(
-    VERSION_BAT = File('#/../chrome/tools/build/win/version.bat'),
-    CHROMEDIR = Dir('#/../chrome'),
-    PWD = Dir('.'),
+    VERSION_BAT = env.File('$CHROME_DIR/tools/build/win/version.bat'),
+    CHROMEDIR = env.Dir('$CHROME_DIR'),
+    PWD = env.Dir('.'),
 )
 
 env_version['ENV']['PROGRAMFILES'] = os.environ['PROGRAMFILES']
@@ -266,16 +253,15 @@ env_version['ENV']['PATH'] = os.environ['PATH']
 chrome_exe_version_rc = env_version.Command(
     'chrome_exe_version.rc',
     ['app/chrome_exe_version.rc.version',
-    '$CHROMEDIR/VERSION',
-    '$CHROMEDIR/BRANDING'],
+     '$CHROME_DIR/VERSION',
+     '$CHROME_DIR/BRANDING'],
     '$VERSION_BAT $SOURCE $CHROMEDIR $PWD $TARGET')
 
 chrome_dll_version_rc = env_version.Command(
     'chrome_dll_version.rc',
-    [
-        'app/chrome_dll_version.rc.version',
-        '$CHROMEDIR/VERSION',
-       '$CHROMEDIR/BRANDING',
+    ['app/chrome_dll_version.rc.version',
+     '$CHROME_DIR/VERSION',
+     '$CHROME_DIR/BRANDING',
     ],
     '$VERSION_BAT $SOURCE $CHROMEDIR $PWD $TARGET')
 
@@ -296,11 +282,7 @@ env_exe = env.Clone()
 env_exe.Prepend(
     CPPPATH = [
         '..',
-        Dir('#../breakpad/src'),
-    ],
-    CPPDEFINES = [
-        'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
-        'WIN32_LEAN_AND_MEAN',
+        '$BREAKPAD_DIR/src',
     ],
 )
 env_exe.Append(
@@ -342,13 +324,6 @@ env_exe.Append(
         'wininet.lib',
         'winspool.lib',
         'ws2_32.lib',
-
-        env.File('common/common.lib'),
-        env.File('$CHROME_DIR/chrome_dll.lib'),
-        env.File('$BREAKPAD_DIR/breakpad_handler.lib'),
-        env.File('$SANDBOX_DIR/src/sandbox.lib'),
-        env.File('$BASE_DIR/base.lib'),
-        env.File('$ICU38_DIR/icuuc.lib'),
     ],
 )
 
@@ -362,6 +337,13 @@ chrome_exe = env_exe.Program(
         'app/main.cc',
         'app/google_update_client.cc',
         'app/google_update_settings.cc',
+
+        'common/common.lib',
+        '$CHROME_DIR/chrome_dll.lib',
+        '$BREAKPAD_DIR/breakpad_handler.lib',
+        '$SANDBOX_DIR/src/sandbox.lib',
+        '$BASE_DIR/base.lib',
+        '$ICU38_DIR/icuuc.lib',
     ]
 )
 
@@ -396,8 +378,6 @@ env_snapshot.Prepend(
         '/wd4099',
         '/wd4355',
         '/wd4800',
-        '/wd4503',
-        '/wd4819',
     ],
 )
 
@@ -410,7 +390,7 @@ env_snapshot.Command('snapshot.cc', '#/../v8/bin/debug/mksnapshot.exe',
 
 env_flat = env.Clone(
     BROWSER_RESOURCES = Dir('browser_resources'),
-    HTML_INLINE = File('#/../chrome/tools/build/win/html_inline.py'),
+    HTML_INLINE = File('$CHROME_DIR/tools/build/win/html_inline.py'),
     FLATTEN_HTML_COM = '$PYTHON $HTML_INLINE $SOURCE $TARGET',
 )
 

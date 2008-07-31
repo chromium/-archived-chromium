@@ -32,27 +32,15 @@ Import('env')
 env = env.Clone()
 
 
-
-#/Yu"precompiled_wtl.h"
-#/Fp"C:\src\trunk\chrome\Debug\obj\browser\precompiled_wtl.pch"
-#/Fo"C:\src\trunk\chrome\Debug\obj\browser\\"
-#/Fd"C:\src\trunk\chrome\Debug\obj\browser\vc80.pdb"
-#/W3
-#/WX
-#/FI "precompiled_wtl.h"
-
 env.Prepend(
     CPPPATH = [
-        env.Dir('../app/resources'),
-        env.Dir('$OBJ_ROOT/google_update'),
-        env.Dir('#/tools/build/win'),
-        env.Dir('#/..'),
+        '$CHROME_DIR/app/resources',
+        #'$OBJ_ROOT/google_update',
+        '#/tools/build/win',
+        '#/..',
     ],
     CPPDEFINES = [
         'U_STATIC_IMPLEMENTATION',
-        'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
-        'WIN32_LEAN_AND_MEAN',
-
         'USE_HUNSPELL',
         'HUNSPELL_CHROME_CLIENT',
         'LIBXML_STATIC',
@@ -61,39 +49,29 @@ env.Prepend(
     ],
     CCFLAGS = [
         '/TP',
-
-        '/Wp64',
-
-        '/wd4503',
-        '/wd4819',
     ],
 )
 
 env.Append(
     CPPPATH = [
         '$GTEST_DIR/include',
-        #/I "../chrome/Debug/webkit"
-        #/I "../third_party/webkit/out"
 
-        env.Dir("#../google_update"),
-        env.Dir("#../chrome/third_party/hunspell/src/hunspell"),
-        env.Dir("#../chrome/third_party/wtl/include"),
-        env.Dir("#../third_party/npapi"),
+        '$GOOGLE_UPDATE_DIR',
+        '$CHROME_DIR/third_party/hunspell/src/hunspell',
+        '$CHROME_DIR/third_party/wtl/include',
+        '$NPAPI_DIR',
         '$LIBXML_DIR/scons/include',
         '$LIBXML_DIR/include',
-        env.Dir("#../third_party/icu38/public/common"),
-        env.Dir("#../third_party/icu38/public/i18n"),
-
-        env.Dir("#../chrome/app"),
-
-        env.Dir("#../webkit/build/localized_strings"),
-
-        env.Dir("#../third_party/zlib"),
-        env.Dir("#../skia/include"),
-        env.Dir("#../skia/include/corecg"),
-        env.Dir("#../skia/platform"),
-        env.Dir("#../third_party/libpng"),
-        env.Dir("#../breakpad/src"),
+        '$ICU38_DIR/public/common',
+        '$ICU38_DIR/public/i18n',
+        '$CHROME_DIR/app',
+        '$WEBKIT_DIR/build/localized_strings',
+        '$ZLIB_DIR',
+        '$SKIA_DIR/include',
+        '$SKIA_DIR/include/corecg',
+        '$SKIA_DIR/platform',
+        '$LIBPNG_DIR',
+        '$BREAKPAD_DIR/src',
     ],
 )
 
@@ -398,7 +376,6 @@ input_files = [
 ]
 
 env.StaticLibrary('browser', input_files)
-
 
 
 SConscript('debugger/SConscript', exports=['env'])

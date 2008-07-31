@@ -44,15 +44,12 @@ env.Append(
     ],
     CCFLAGS = [
         '/TP',
-
         '/wd4800',
-        '/wd4503',
-        '/wd4819',
     ],
 )
 
-input_files = Split('''
-    mbspatch.cc
-''')
+input_files = [
+    'mbspatch.cc',
+]
 
 env.StaticLibrary('bspatch', input_files)

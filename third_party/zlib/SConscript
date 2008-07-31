@@ -34,10 +34,7 @@ env = env.Clone()
 env.Append(
     CCFLAGS = [
         '/TC',
-
         '/wd4800',
-        '/wd4503',
-        '/wd4819',
     ],
 )
 

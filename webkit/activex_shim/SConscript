@@ -47,9 +47,6 @@ env.Append(
 
         '/WX',
         '/Wp64',
-
-        '/wd4503',
-        '/wd4819',
     ],
 # TODO(bradnelson): Scons should really have a way to handle this.
     ARFLAGS = [
@@ -69,5 +66,3 @@ input_files = [
 ]
 
 env.StaticLibrary('activex_shim', input_files)
-
-

@@ -52,7 +52,6 @@ env.Append(
         'SQLITE_SECURE_DELETE',
         'THREADSAFE',
         ['_HAS_EXCEPTIONS', '0'],
-        'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
     ],
 
     CCFLAGS = [
@@ -60,8 +59,6 @@ env.Append(
 
         '/wd4800',
         '/wd4244',
-        '/wd4503',
-        '/wd4819',
     ],
 )
 

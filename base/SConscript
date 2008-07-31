@@ -40,16 +40,10 @@ env.Prepend(
     ],
     CPPDEFINES = [
         'U_STATIC_IMPLEMENTATION',
-        'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
-        'WIN32_LEAN_AND_MEAN',
     ],
     CCFLAGS = [
         '/TP',
-
         '/Wp64',
-
-        '/wd4503',
-        '/wd4819',
     ],
 )
 
@@ -139,16 +133,11 @@ env_tests.Prepend(
         '_WIN32_WINNT=0x0600',
         'WINVER=0x0600',
         '_HAS_EXCEPTIONS=0',
-        'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
-        'WIN32_LEAN_AND_MEAN',
     ],
     CCFLAGS = [
+        '/TP',
         '/WX',
         '/Wp64',
-        '/TP',
-
-        '/wd4503',
-        '/wd4819',
     ],
     LINKFLAGS = [
         '/MANIFEST',

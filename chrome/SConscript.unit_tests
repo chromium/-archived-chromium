@@ -101,9 +101,6 @@ env_test.Prepend(
     ],
 )
 
-#/MANIFESTFILE:"C:\src\trunk-vs\chrome\Debug\obj\unit_tests\unit_tests.exe.intermediate.manifest"
-#/PDB:"c:\src\trunk-vs\chrome\Debug\unit_tests.pdb"
-
 libs = [
     'snapshotv8.lib',
 
@@ -143,13 +140,6 @@ libs = [
     '$V8_DIR/v8.lib',
     '$ZLIB_DIR/zlib.lib',
 ]
-
-#/Yu"precompiled_wtl.h"
-#/Fp"C:\src\trunk-vs\chrome\Debug\obj\unit_tests\precompiled_wtl.pch"
-#/Fo"C:\src\trunk-vs\chrome\Debug\obj\unit_tests\\"
-#/Fd"C:\src\trunk-vs\chrome\Debug\obj\unit_tests\vc80.pdb"
-#/FI
-#"precompiled_wtl.h"
 
 unit_test_files = [
     'browser/autocomplete/autocomplete_unittest.cc',

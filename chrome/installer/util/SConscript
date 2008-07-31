@@ -34,23 +34,21 @@ env = env.Clone()
 
 env.Prepend(
     CPPPATH = [
-        Dir("#/../third_party/lzma_sdk"),
-        Dir("../chrome/third_party/wtl/include"),
-        Dir("#/../third_party/npapi"),
-        Dir("#/../third_party/libxml/include"),
-        #/I "C:/src/trunk/chrome/Debug/obj/generated_resources"
-        #/I "C:/src/trunk/chrome/Debug/obj/localized_strings"
-        Dir("#/../skia/include"),
-        Dir("#/../skia/include/corecg"),
-        Dir("#/../skia/platform"),
-        Dir("#/../third_party/libpng"),
-        Dir("#/../third_party/zlib"),
-        Dir("#/../breakpad/src"),
-        Dir("#/../third_party/libjpeg"),
-        Dir("#/../third_party/icu38/public/common"),
-        Dir("#/../third_party/icu38/public/i18n"),
-        Dir("#/.."),
-        Dir("."),
+        '$LZMA_SDK_DIR',
+        '$CHROME_DIR/third_party/wtl/include',
+        '$NPAPI_DIR',
+        '$LIBXML_DIR/include',
+        '$SKIA_DIR/include',
+        '$SKIA_DIR/include/corecg',
+        '$SKIA_DIR/platform',
+        '$LIBPNG_DIR',
+        '$ZLIB_DIR',
+        '$BREAKPAD_DIR/src',
+        '$LIBJPEG_DIR',
+        '$ICU38_DIR/public/common',
+        '$ICU38_DIR/public/i18n',
+        '#/..',
+        '.',
     ],
     CPPDEFINES = [
         "_LZMA_IN_CB",
@@ -58,37 +56,30 @@ env.Prepend(
         "PNG_USER_CONFIG",
         "CHROME_PNG_WRITE_SUPPORT"
         "U_STATIC_IMPLEMENTATION",
-        "CERT_CHAIN_PARA_HAS_EXTRA_FIELDS",
-        "WIN32_LEAN_AND_MEAN",
     ],
     CCFLAGS = [
         '/TP',
-
-        '/Wp64',
-
-        '/wd4503',
-        '/wd4819',
     ],
 )
 
 input_files = [
-  "../../app/google_update_settings$OBJSUFFIX",
-  "copy_tree_work_item.cc",
-  "create_dir_work_item.cc",
-  "create_reg_key_work_item.cc",
-  "delete_tree_work_item.cc",
-  "google_update_constants.cc",
-  "helper.cc",
-  "install_util.cc",
-  "l10n_string_util.cc",
-  "logging_installer.cc",
-  "lzma_util.cc",
-  "set_reg_value_work_item.cc",
-  "shell_util.cc",
-  "util_constants.cc",
-  "version.cc",
-  "work_item.cc",
-  "work_item_list.cc",
+    '../../app/google_update_settings$OBJSUFFIX',
+    'copy_tree_work_item.cc',
+    'create_dir_work_item.cc',
+    'create_reg_key_work_item.cc',
+    'delete_tree_work_item.cc',
+    'google_update_constants.cc',
+    'helper.cc',
+    'install_util.cc',
+    'l10n_string_util.cc',
+    'logging_installer.cc',
+    'lzma_util.cc',
+    'set_reg_value_work_item.cc',
+    'shell_util.cc',
+    'util_constants.cc',
+    'version.cc',
+    'work_item.cc',
+    'work_item_list.cc',
 ]
 
 x = env.StaticLibrary('util', input_files)

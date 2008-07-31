@@ -32,42 +32,32 @@ Import('env')
 env = env.Clone()
 
 
-
 env.Prepend(
     CPPPATH = [
-        Dir("#/../third_party/npapi"),
-        Dir("#/../chrome/tools/build/win"),
-        Dir("#/../skia/include"),
-        Dir("#/../skia/include/corecg"),
-        Dir("#/../skia/platform"),
-        Dir("#/.."),
-    ],
-    CPPDEFINES = [
-        "CERT_CHAIN_PARA_HAS_EXTRA_FIELDS",
-        "WIN32_LEAN_AND_MEAN",
+        '$NPAPI_DIR',
+        '$CHROME_DIR/tools/build/win',
+        '$SKIA_DIR/include',
+        '$SKIA_DIR/include/corecg',
+        '$SKIA_DIR/platform',
+        '#/..',
     ],
     CCFLAGS = [
         '/TP',
-
-        #'/Wp64',
-
-        '/wd4503',
-        '/wd4819',
     ],
 )
 
 input_files = [
-  "npobject_proxy.cc",
-  "webplugin_proxy.cc",
-  "webplugin_delegate_stub.cc",
-  "plugin_thread.cc",
-  "plugin_process.cc",
-  "plugin_main.cc",
-  "plugin_channel_base.cc",
-  "plugin_channel.cc",
-  "chrome_plugin_host.cc",
-  "npobject_util.cc",
-  "npobject_stub.cc",
+    'chrome_plugin_host.cc',
+    'npobject_proxy.cc',
+    'npobject_stub.cc',
+    'npobject_util.cc',
+    'plugin_channel.cc',
+    'plugin_channel_base.cc',
+    'plugin_main.cc',
+    'plugin_process.cc',
+    'plugin_thread.cc',
+    'webplugin_delegate_stub.cc',
+    'webplugin_proxy.cc',
 ]
 
 env.StaticLibrary('plugin', input_files)

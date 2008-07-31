@@ -38,8 +38,6 @@ env_test.Prepend(
         'UNIT_TEST',
         'LIBXSLT_STATIC',
         'LIBXML_STATIC',
-        'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
-        'WIN32_LEAN_AND_MEAN',
     ],
     CPPPATH = [
         '$GTEST_DIR/include',

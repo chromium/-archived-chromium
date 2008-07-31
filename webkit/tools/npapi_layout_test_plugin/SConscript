@@ -44,8 +44,6 @@ env.Append(
     CCFLAGS = [
         '/TP',
         '/WX',
-        '/wd4503',
-        '/wd4819',
     ],
 
     LIBS = [

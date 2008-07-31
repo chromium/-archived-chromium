@@ -70,8 +70,6 @@ env.Append(
         '/TP',
         '/WX',
         '/Wp64',
-        '/wd4503',
-        '/wd4819',
     ],
 
     LIBS = [

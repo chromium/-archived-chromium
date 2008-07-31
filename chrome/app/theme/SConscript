@@ -33,58 +33,56 @@ env = env.Clone()
 env_res = env_res.Clone()
 
 env_res.Append(
-  CPPPATH = [
-    ".",
-    "#/../chrome/Debug/obj/chrome_dll",
-    "#/..",
-    "#/../chrome/Debug/obj",
-  ],
-  RCFLAGS = [
-    ["/l", "0x409"],
-  ],
+    CPPPATH = [
+        '.',
+        '#/..',
+    ],
+    RCFLAGS = [
+        ['/l', '0x409'],
+    ],
 )
 
-res = env_res.RES("theme_resources.rc")
+res = env_res.RES('theme_resources.rc')
 
 
 
 env.Append(
-  LINKFLAGS = [
-    "/INCREMENTAL:NO",
-    '/DELAYLOAD:"dwmapi.dll',
-    '/DELAYLOAD:"uxtheme.dll',
+    LINKFLAGS = [
+        '/INCREMENTAL:NO',
+        '/DELAYLOAD:"dwmapi.dll"',
+        '/DELAYLOAD:"uxtheme.dll"',
 
-    "/NOENTRY",
-    '/BASE:"0x3CE00000"',
-    "/MACHINE:X86",
-    "/FIXED:No",
+        '/NOENTRY',
+        '/BASE:"0x3CE00000"',
+        '/MACHINE:X86',
+        '/FIXED:No',
 
-    "/safeseh",
-    "/dynamicbase",
-    "/ignore:4199",
-    "/nxcompat",
-  ],
-  LIBS = [
-    "wininet.lib",
-    "version.lib",
-    "msimg32.lib",
-    "ws2_32.lib",
-    "usp10.lib",
-    "psapi.lib",
-    "kernel32.lib",
-    "user32.lib",
-    "gdi32.lib",
-    "winspool.lib",
-    "comdlg32.lib",
-    "advapi32.lib",
-    "shell32.lib",
-    "ole32.lib",
-    "oleaut32.lib",
-    "uuid.lib",
-    "odbc32.lib",
-    "odbccp32.lib",
-    "DelayImp.lib",
-  ],
+        '/safeseh',
+        '/dynamicbase',
+        '/ignore:4199',
+        '/nxcompat',
+    ],
+    LIBS = [
+        'wininet.lib',
+        'version.lib',
+        'msimg32.lib',
+        'ws2_32.lib',
+        'usp10.lib',
+        'psapi.lib',
+        'kernel32.lib',
+        'user32.lib',
+        'gdi32.lib',
+        'winspool.lib',
+        'comdlg32.lib',
+        'advapi32.lib',
+        'shell32.lib',
+        'ole32.lib',
+        'oleaut32.lib',
+        'uuid.lib',
+        'odbc32.lib',
+        'odbccp32.lib',
+        'DelayImp.lib',
+    ],
 )
 
 themes_default = env.SharedLibrary("$CHROME_DIR/themes/default", res)

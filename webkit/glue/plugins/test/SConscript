@@ -49,15 +49,13 @@ input_files = [
     'plugin_window_size_test.cc',
     'npapi_test.def',
 
-    env.File('$BASE_DIR/base.lib'),
+    '$BASE_DIR/base.lib',
 ]
 
 env.Append(
     CCFLAGS = [
         '/TP',
         '/wd4800',
-        '/wd4503',
-        '/wd4819',
     ],
 
     LIBS = [

@@ -126,6 +126,8 @@ env = Environment(
     ],
 
     CCFLAGS = [
+        '/nologo',
+
         '/Od',          # no optimization
 
         '/RTC1',
@@ -137,8 +139,10 @@ env = Environment(
 
         '/Z7',
 
-        '/nologo',
         '/errorReport:prompt',
+
+        '/wd4503',
+        '/wd4819',
     ],
 
     CPPDEFINES = [
@@ -158,6 +162,9 @@ env = Environment(
         'NOMINMAX',
         '_UNICODE',
         'UNICODE',
+
+        'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
+        'WIN32_LEAN_AND_MEAN',
     ],
 
     CPPPATH = [
@@ -173,6 +180,7 @@ env = Environment(
     ],
 
     LINKFLAGS = [
+        '/nologo',
         '/DEBUG',
     ],
 )

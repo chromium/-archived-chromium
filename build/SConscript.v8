@@ -65,7 +65,7 @@ env.Alias('webkit', i)
 
 v8_shell = env.Command(v8_exe,
                        [],
-                       'cd ..\\v8 && devenv /nologo v8.sln /build Debug v8_shell')
+                       'cd ..\\v8 && devenv /nologo v8.sln /build Debug vcproj\\v8_shell.vcproj')
 env.AlwaysBuild(v8_shell)
 
 i = env.Install('$TARGET_ROOT', v8_exe)

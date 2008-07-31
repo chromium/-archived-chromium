@@ -32,33 +32,17 @@ Import('env')
 env = env.Clone()
 
 
-
-#/Yu"precompiled_wtl.h"
-#/Fp"C:\src\trunk\chrome\Debug\obj\browser\precompiled_wtl.pch"
-#/Fo"C:\src\trunk\chrome\Debug\obj\browser\\"
-#/Fd"C:\src\trunk\chrome\Debug\obj\browser\vc80.pdb"
-#/W3
-#/WX
-#/FI "precompiled_wtl.h"
-
 env.Prepend(
     CPPPATH = [
-        env.Dir('../app/resources'),
-        env.Dir('#/tools/build/win'),
-        env.Dir('#/..'),
+        '$CHROME_DIR/app/resources',
+        '#/tools/build/win',
+        '#/..',
     ],
     CPPDEFINES = [
         'U_STATIC_IMPLEMENTATION',
-        'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
-        'WIN32_LEAN_AND_MEAN',
     ],
     CCFLAGS = [
         '/TP',
-
-        '/Wp64',
-
-        '/wd4503',
-        '/wd4819',
     ],
 )
 
@@ -67,8 +51,6 @@ env.Append(
         'third_party/wtl/include',
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',
-        #Dir('#../chrome/Debug/obj/generated_resources'),
-        #Dir('#../chrome/Debug/obj/localized_strings'),
         '$NPAPI_DIR',
         '$SKIA_DIR/include',
         '$SKIA_DIR/include/corecg',

@@ -50,12 +50,6 @@ env.Append(
         '/TP',
         '/WX',          # treat warnings as errors
         '/Wp64',        # warn about potential 64-bit problems
-        '/wd4503',
-        '/wd4819',
-    ],
-    CPPDEFINES = [
-        'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
-        'WIN32_LEAN_AND_MEAN',
     ],
 )
 
