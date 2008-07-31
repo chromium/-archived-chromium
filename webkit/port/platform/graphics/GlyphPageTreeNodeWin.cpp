@@ -32,6 +32,7 @@
 #include <windows.h>
 #include <vector>
 
+#include "Font.h"
 #include "GlyphPageTreeNode.h"
 #include "SimpleFontData.h"
 #include "UniscribeStateTextRun.h"
@@ -145,8 +146,28 @@ static bool FillBMPGlyphs(UChar* buffer,
         !(tm.tmPitchAndFamily & TMPF_TRUETYPE))
       invalid_glyph = 0x1F;
 
+    WORD space_glyph = 0;  // Glyph for a space. Lazily filled, see below.
+
     for (unsigned i = 0; i < GlyphPage::size; i++) {
-        if (localGlyphBuffer[i] == invalid_glyph) {
+        // When this character should be a space, we ignore whatever the font
+        // says and use a space. Otherwise, if fonts don't map one of these
+        // space or zero width glyphs, we will get a box.
+        //
+        // TODO(brettw): we should have Font::treatAsZeroWidthSpace return true
+        // for zero width spaces (U+200B) just like Font::treatAsSpace will
+        // return true for spaces. Then the additional OR is not necessary.
+        if (Font::treatAsSpace(buffer[i]) ||
+            Font::treatAsZeroWidthSpace(buffer[i]) ||
+            buffer[i] == 0x200B) {
+            // Hard code the glyph indices for characters that should be treated
+            // like spaces.
+            if (!space_glyph) {
+                // Get the glyph index for space.
+                wchar_t space = ' ';
+                GetGlyphIndices(dc, &space, 1, &space_glyph, 0);
+            }
+            page->setGlyphDataForIndex(i, space_glyph, fontData);
+        } else if (localGlyphBuffer[i] == invalid_glyph) {
             // WebKit expects both the glyph index and FontData
             // pointer to be NULL if the glyph is not present
             page->setGlyphDataForIndex(i, 0, 0);
