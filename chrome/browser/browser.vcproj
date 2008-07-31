@@ -1689,6 +1689,54 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="Frame"
+				>
+				<File
+					RelativePath=".\views\frame\aero_glass_frame.cc"
+					>
+				</File>
+				<File
+					RelativePath=".\views\frame\aero_glass_frame.h"
+					>
+				</File>
+				<File
+					RelativePath=".\views\frame\aero_glass_non_client_view.cc"
+					>
+				</File>
+				<File
+					RelativePath=".\views\frame\aero_glass_non_client_view.h"
+					>
+				</File>
+				<File
+					RelativePath=".\views\frame\browser_frame.h"
+					>
+				</File>
+				<File
+					RelativePath=".\views\frame\browser_view.cc"
+					>
+				</File>
+				<File
+					RelativePath=".\views\frame\browser_view.h"
+					>
+				</File>
+				<File
+					RelativePath=".\views\frame\opaque_frame.cc"
+					>
+				</File>
+				<File
+					RelativePath=".\views\frame\opaque_frame.h"
+					>
+				</File>
+				<File
+					RelativePath=".\views\frame\opaque_non_client_view.cc"
+					>
+				</File>
+				<File
+					RelativePath=".\views\frame\opaque_non_client_view.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Destination"
