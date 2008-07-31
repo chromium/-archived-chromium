@@ -27,11 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "chrome/browser/visitedlink_master.h"
+
 #include <windows.h>
 #include <shlobj.h>
 #include <algorithm>
-
-#include "chrome/browser/visitedlink_master.h"
 
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -42,6 +42,10 @@
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/win_util.h"
+
+#ifdef _WIN32
+#pragma comment(lib, "rpcrt4.lib") // for UuidCreate().
+#endif
 
 const int32 VisitedLinkMaster::kFileHeaderSignatureOffset = 0;
 const int32 VisitedLinkMaster::kFileHeaderVersionOffset = 4;
