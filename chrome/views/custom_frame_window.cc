@@ -866,9 +866,9 @@ void CustomFrameWindow::Init(HWND parent, const gfx::Rect& bounds) {
   ResetWindowRegion();
 }
 
-void CustomFrameWindow::SetClientView(ClientView* client_view) {
-  DCHECK(client_view && !client_view_ && GetHWND());
-  client_view_ = client_view;
+void CustomFrameWindow::SetClientView(ClientView* cv) {
+  DCHECK(cv && !client_view() && GetHWND());
+  set_client_view(cv);
   // For a CustomFrameWindow, the non-client view is the root.
   HWNDViewContainer::SetContentsView(non_client_view_);
   // When the non client view is added to the view hierarchy, it will cause the
@@ -895,7 +895,7 @@ void CustomFrameWindow::EnableClose(bool enable) {
 
 void CustomFrameWindow::SizeWindowToDefault() {
   CSize pref(0, 0);
-  client_view_->GetPreferredSize(&pref);
+  client_view()->GetPreferredSize(&pref);
   DCHECK(pref.cx > 0 && pref.cy > 0);
   gfx::Size window_size =
       non_client_view_->CalculateWindowSizeForClientSize(pref.cx, pref.cy);

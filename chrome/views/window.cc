@@ -54,27 +54,6 @@ static const int kMonitorEdgePadding = 10;
 ////////////////////////////////////////////////////////////////////////////////
 // Window, public:
 
-Window::Window(WindowDelegate* window_delegate)
-    : HWNDViewContainer(),
-      focus_on_creation_(true),
-      window_delegate_(window_delegate),
-      client_view_(NULL),
-      owning_hwnd_(NULL),
-      minimum_size_(100, 100),
-      is_modal_(false),
-      restored_enabled_(false),
-      is_always_on_top_(false),
-      window_closed_(false) {
-  InitClass();
-  DCHECK(window_delegate_);
-  window_delegate_->window_.reset(this);
-  // Initialize these values to 0 so that subclasses can override the default
-  // behavior before calling Init.
-  set_window_style(0);
-  set_window_ex_style(0);
-  BrowserList::AddDependentWindow(this);
-}
-
 Window::~Window() {
   BrowserList::RemoveDependentWindow(this);
 }
@@ -91,41 +70,6 @@ Window* Window::CreateChromeWindow(HWND parent,
   }
   window->Init(parent, bounds);
   return window;
-}
-
-void Window::Init(HWND parent, const gfx::Rect& bounds) {
-  // We need to save the parent window, since later calls to GetParent() will
-  // return NULL.
-  owning_hwnd_ = parent;
-  // We call this after initializing our members since our implementations of
-  // assorted HWNDViewContainer functions may be called during initialization.
-  is_modal_ = window_delegate_->IsModal();
-  if (is_modal_)
-    BecomeModal();
-  is_always_on_top_ = window_delegate_->IsAlwaysOnTop();
-
-  if (window_style() == 0)
-    set_window_style(CalculateWindowStyle());
-  if (window_ex_style() == 0)
-    set_window_ex_style(CalculateWindowExStyle());
-
-  HWNDViewContainer::Init(parent, bounds, true);
-  win_util::SetWindowUserData(GetHWND(), this);
-  
-  std::wstring window_title = window_delegate_->GetWindowTitle();
-  SetWindowText(GetHWND(), window_title.c_str());
-
-  SetClientView(window_delegate_->CreateClientView(this));
-  SetInitialBounds(bounds);
-
-  if (window_delegate_->HasAlwaysOnTopMenu())
-    AddAlwaysOnTopSystemMenuItem();
-}
-
-void Window::SetClientView(ClientView* client_view) {
-  DCHECK(client_view && !client_view_ && GetHWND());
-  client_view_ = client_view;
-  HWNDViewContainer::SetContentsView(client_view_);
 }
 
 gfx::Size Window::CalculateWindowSizeForClientSize(
@@ -302,6 +246,62 @@ gfx::Size Window::GetLocalizedContentsSize(int col_resource_id,
 
 ///////////////////////////////////////////////////////////////////////////////
 // Window, protected:
+
+Window::Window(WindowDelegate* window_delegate)
+    : HWNDViewContainer(),
+      focus_on_creation_(true),
+      window_delegate_(window_delegate),
+      client_view_(NULL),
+      owning_hwnd_(NULL),
+      minimum_size_(100, 100),
+      is_modal_(false),
+      restored_enabled_(false),
+      is_always_on_top_(false),
+      window_closed_(false) {
+  InitClass();
+  DCHECK(window_delegate_);
+  window_delegate_->window_.reset(this);
+  // Initialize these values to 0 so that subclasses can override the default
+  // behavior before calling Init.
+  set_window_style(0);
+  set_window_ex_style(0);
+  BrowserList::AddDependentWindow(this);
+}
+
+void Window::Init(HWND parent, const gfx::Rect& bounds) {
+  // We need to save the parent window, since later calls to GetParent() will
+  // return NULL.
+  owning_hwnd_ = parent;
+  // We call this after initializing our members since our implementations of
+  // assorted HWNDViewContainer functions may be called during initialization.
+  is_modal_ = window_delegate_->IsModal();
+  if (is_modal_)
+    BecomeModal();
+  is_always_on_top_ = window_delegate_->IsAlwaysOnTop();
+
+  if (window_style() == 0)
+    set_window_style(CalculateWindowStyle());
+  if (window_ex_style() == 0)
+    set_window_ex_style(CalculateWindowExStyle());
+
+  HWNDViewContainer::Init(parent, bounds, true);
+  win_util::SetWindowUserData(GetHWND(), this);
+  
+  std::wstring window_title = window_delegate_->GetWindowTitle();
+  SetWindowText(GetHWND(), window_title.c_str());
+
+  SetClientView(window_delegate_->CreateClientView(this));
+  SetInitialBounds(bounds);
+
+  if (window_delegate_->HasAlwaysOnTopMenu())
+    AddAlwaysOnTopSystemMenuItem();
+}
+
+void Window::SetClientView(ClientView* client_view) {
+  DCHECK(client_view && !client_view_ && GetHWND());
+  client_view_ = client_view;
+  HWNDViewContainer::SetContentsView(client_view_);
+}
 
 void Window::SizeWindowToDefault() {
   CSize pref(0, 0);

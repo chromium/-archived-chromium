@@ -56,14 +56,6 @@ class WindowDelegate;
 ////////////////////////////////////////////////////////////////////////////////
 class Window : public HWNDViewContainer {
  public:
-  // TODO(beng): (Cleanup) move these into private section, effectively making
-  //             this class "final" to all but designated friends within
-  //             ChromeViews. Users in browser/ should always construct with
-  //             CreateChromeWindow which will give the right version,
-  //             depending on platform & configuration.
-  // Create a Window using the specified delegate. The delegate must not be
-  // NULL.
-  explicit Window(WindowDelegate* window_delegate);
   virtual ~Window();
 
   // Creates the appropriate Window class for a Chrome dialog or window. This
@@ -71,12 +63,6 @@ class Window : public HWNDViewContainer {
   static Window* CreateChromeWindow(HWND parent,
                                     const gfx::Rect& bounds,
                                     WindowDelegate* window_delegate);
-
-  // Create the Window.
-  // If parent is NULL, this Window is top level on the desktop.
-  // If |bounds| is empty, the view is queried for its preferred size and
-  // centered on screen.
-  virtual void Init(HWND parent, const gfx::Rect& bounds);
 
   // Return the size of window (including non-client area) required to contain
   // a window of the specified client size.
@@ -155,6 +141,15 @@ class Window : public HWNDViewContainer {
                                             int row_resource_id);
 
  protected:
+  // Constructs the Window. |window_delegate| cannot be NULL.
+  explicit Window(WindowDelegate* window_delegate);
+
+  // Create the Window.
+  // If parent is NULL, this Window is top level on the desktop.
+  // If |bounds| is empty, the view is queried for its preferred size and
+  // centered on screen.
+  virtual void Init(HWND parent, const gfx::Rect& bounds);
+
   // Sets the specified view as the ClientView of this Window. The ClientView
   // is responsible for laying out the Window's contents view, as well as
   // performing basic hit-testing, and perhaps other responsibilities depending
@@ -167,6 +162,8 @@ class Window : public HWNDViewContainer {
   // Sizes the window to the default size specified by its ClientView.
   virtual void SizeWindowToDefault();
 
+  void set_client_view(ClientView* client_view) { client_view_ = client_view; }
+
   // Overridden from HWNDViewContainer:
   virtual void OnActivate(UINT action, BOOL minimized, HWND window);
   virtual void OnCommand(UINT notification_code, int command_id, HWND window);
@@ -176,14 +173,6 @@ class Window : public HWNDViewContainer {
   virtual LRESULT OnSetCursor(HWND window, UINT hittest_code, UINT message);
   virtual void OnSize(UINT size_param, const CSize& new_size);
   virtual void OnSysCommand(UINT notification_code, CPoint click);
-
-  // A ClientView object or subclass, responsible for sizing the contents view
-  // of the window, hit testing and perhaps other tasks depending on the
-  // implementation.
-  ClientView* client_view_;
-
-  // Our window delegate (see Init method for documentation).
-  WindowDelegate* window_delegate_;
 
  private:
   // Set the window as modal (by disabling all the other windows).
@@ -217,6 +206,14 @@ class Window : public HWNDViewContainer {
   // Static resource initialization.
   static void InitClass();
   static HCURSOR nwse_cursor_;
+
+  // A ClientView object or subclass, responsible for sizing the contents view
+  // of the window, hit testing and perhaps other tasks depending on the
+  // implementation.
+  ClientView* client_view_;
+
+  // Our window delegate (see Init method for documentation).
+  WindowDelegate* window_delegate_;
 
   // Whether we should SetFocus() on a newly created window after
   // Init(). Defaults to true.
