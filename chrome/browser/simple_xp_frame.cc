@@ -60,7 +60,10 @@ static const SkColor kTitleBarTextColor = SkColorSetRGB(255, 255, 255);
 static const int kTopResizeBarHeight = 3;
 
 // Left margin on the left side of the favicon.
-static const int kFavIconMargin = 2;
+static const int kFavIconMargin = 1;
+
+// Label offset.
+static const int kLabelVerticalOffset = -1;
 
 // Padding between the favicon and the text.
 static const int kFavIconPadding = 4;
@@ -228,11 +231,11 @@ void SimpleXPFrameTitleBar::RunMenu(ChromeViews::View* source,
 void SimpleXPFrameTitleBar::Layout() {
   CSize s;
   menu_button_->GetPreferredSize(&s);
-  menu_button_->SetBounds(kFavIconMargin, 1 + (GetHeight() - s.cy) / 2,
+  menu_button_->SetBounds(kFavIconMargin, (GetHeight() - s.cy) / 2,
                           s.cx, s.cy);
   menu_button_->Layout();
   label_->SetBounds(menu_button_->GetX() + menu_button_->GetWidth() +
-                    kFavIconPadding, 0,
+                    kFavIconPadding, kLabelVerticalOffset,
                     GetWidth() - (menu_button_->GetX() +
                                   menu_button_->GetWidth() + kFavIconPadding),
                     GetHeight());
