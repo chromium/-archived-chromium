@@ -28,6 +28,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Import('env')
+Import('PLATFORM')
 
 env = env.Clone(
 )
@@ -44,11 +45,15 @@ env.Append(
         '_LZMA_PROB32',
         '_LZMA_IN_CB',
     ],
+)
+
+if PLATFORM == 'WINDOWS':
+  env.Append(
     CCFLAGS = [
         '/TC',
         '/wd4800',
     ],
-)
+  )
 
 input_files = [
     'Compress/Lzma/LzmaDecode.c',
