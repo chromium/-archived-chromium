@@ -140,6 +140,8 @@ extern const wchar_t kGearsPluginPathOverride[];
 
 extern const wchar_t kUseNewHttp[];
 
+extern const wchar_t kJavaScriptDebuggerPath[];
+
 }  // namespace switches
 
 #endif  // CHROME_COMMON_CHROME_SWITCHES_H__

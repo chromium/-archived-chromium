@@ -337,4 +337,7 @@ const wchar_t kGearsPluginPathOverride[] = L"gears-plugin-path";
 // Enable new HTTP stack.
 const wchar_t kUseNewHttp[] = L"new-http";
 
+// Allow loading of the javascript debugger UI from the filesystem.
+const wchar_t kJavaScriptDebuggerPath[] = L"javascript-debugger-path";
+
 }  // namespace switches

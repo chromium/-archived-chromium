@@ -29,12 +29,15 @@
 //
 // This file defines utility functions for working with strings.
 
+#include "base/command_line.h"
+#include "base/file_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/debugger/debugger_contents.h"
 #include "chrome/browser/debugger/debugger_shell.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/browser/debugger/resources/debugger_resources.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/resource_bundle.h"
 
 class DebuggerHTMLSource : public ChromeURLDataManager::DataSource {
@@ -47,7 +50,6 @@ class DebuggerHTMLSource : public ChromeURLDataManager::DataSource {
   // Called when the network layer has requested a resource underneath
   // the path we registered.
   virtual void StartDataRequest(const std::string& path, int request_id) {
-    ResourceBundle& rb = ResourceBundle::GetSharedInstance();
     int resource_id = 0;
 
     if (!path.length()) {
@@ -60,7 +62,23 @@ class DebuggerHTMLSource : public ChromeURLDataManager::DataSource {
       SendResponse(request_id, NULL);
       return;
     }
-    const std::string& data_str = rb.GetDataResource(resource_id);
+    
+    std::wstring debugger_path =
+        CommandLine().GetSwitchValue(switches::kJavaScriptDebuggerPath);
+    std::string data_str;
+    if (!debugger_path.empty() && file_util::PathExists(debugger_path)) {
+      if (path.empty())
+        file_util::AppendToPath(&debugger_path, L"debugger.html");
+      else
+        file_util::AppendToPath(&debugger_path, UTF8ToWide(path));
+      if (!file_util::ReadFileToString(debugger_path, &data_str)) {
+        SendResponse(request_id, NULL);
+        return;
+      }
+    } else {
+      ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+      data_str = rb.GetDataResource(resource_id);
+    }
     scoped_refptr<RefCountedBytes> data_bytes(new RefCountedBytes);
     data_bytes->data.resize(data_str.size());
     std::copy(data_str.begin(), data_str.end(), data_bytes->data.begin());
