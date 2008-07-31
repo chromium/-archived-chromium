@@ -33,6 +33,7 @@
 #include <vector>
 
 #include "base/string_util.h"
+#include "chrome/app/result_codes.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cross_site_request_manager.h"
 #include "chrome/browser/navigation_entry.h"
@@ -1190,7 +1191,7 @@ void RenderViewHost::NotifyRendererUnresponsive() {
     // If the tab hangs in the beforeunload/unload handler there's really
     // nothing we can do to recover. We can safely kill the process and the
     // Browser will deal with the crash appropriately.
-    TerminateProcess(process()->process(), 0);
+    TerminateProcess(process()->process(), ResultCodes::HUNG);
     return;
   }
 

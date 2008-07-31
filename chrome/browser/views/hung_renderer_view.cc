@@ -29,6 +29,7 @@
 
 #include "chrome/browser/views/hung_renderer_view.h"
 
+#include "chrome/app/result_codes.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/render_view_host.h"
@@ -333,7 +334,7 @@ void HungRendererWarningView::ButtonPressed(
   if (sender == kill_button_) {
     // Kill the process.
     HANDLE process = contents_->process()->process();
-    TerminateProcess(process, 0);
+    TerminateProcess(process, ResultCodes::HUNG);
   }
 }
 

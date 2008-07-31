@@ -509,7 +509,7 @@ bool RenderProcessHost::FastShutdownIfPossible() {
   }
   // Otherwise, call TerminateProcess.  Using exit code 0 means that UMA won't
   // treat this as a renderer crash.
-  ::TerminateProcess(proc, 0);
+  ::TerminateProcess(proc, ResultCodes::NORMAL_EXIT);
   return true;
 }
 
