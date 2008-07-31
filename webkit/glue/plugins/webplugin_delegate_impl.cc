@@ -486,7 +486,11 @@ void WebPluginDelegateImpl::OnThrottleMessage() {
     const MSG& msg = *it;
     if (processed.find(msg.hwnd) == processed.end()) {
       WNDPROC proc = reinterpret_cast<WNDPROC>(msg.time);
-      CallWindowProc(proc, msg.hwnd, msg.message, msg.wParam, msg.lParam);
+	  // It is possible that the window was closed after we queued
+	  // this message.  This is a rare event; just verify the window
+	  // is alive.  (see also bug 1259488)
+	  if (IsWindow(msg.hwnd))
+          CallWindowProc(proc, msg.hwnd, msg.message, msg.wParam, msg.lParam);
       processed[msg.hwnd] = 1;
       it = throttle_queue_.erase(it);
       windowless_queue.Decrement();
