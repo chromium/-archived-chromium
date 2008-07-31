@@ -30,6 +30,7 @@
 #include "config.h"
 #include "SimpleFontData.h"
 
+#include "Font.h"
 #include "FontMetrics.h"
 
 #if ENABLE(SVG_FONTS)
@@ -148,6 +149,21 @@ float SimpleFontData::widthForGlyph(UChar32 c, Glyph glyph) const
         ASSERT((cGlyphWidthUnknown == width) || (actual_width == width));
     }
 #endif
+
+    // Some characters should be zero width and we want to ignore whatever
+    // crazy stuff the font may have (or not defined). If the font doesn't
+    // define it, we don't want to measure the width of the "invalid character"
+    // box, for example.
+    //
+    // Note that we have to exempt control characters, which
+    // treatAsZeroWidthSpace would normally return true for. This is primarily
+    // for \n since it will be rendered as a regular space in HTML.
+    //
+    // TODO(brettw): we should have Font::treatAsZeroWidthSpace return true for
+    // zero width spaces (U+200B) just like Font::treatAsSpace will return true
+    // for spaces. Then the additional OR is not necessary.
+    if (c > ' ' && (Font::treatAsZeroWidthSpace(c) || c == 0x200b))
+      return 0.0f;
 
     if (width != cGlyphWidthUnknown)
         return width;
