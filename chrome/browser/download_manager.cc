@@ -908,9 +908,9 @@ void DownloadManager::GenerateExtension(const std::wstring& file_name,
 void DownloadManager::GenerateFilename(DownloadCreateInfo* info,
                                        std::wstring* generated_name) {
   std::wstring file_name =
-    net_util::GetSuggestedFilename(GURL(info->url),
-                                   info->content_disposition,
-                                   L"download");
+      net::GetSuggestedFilename(GURL(info->url),
+                                info->content_disposition,
+                                L"download");
   DCHECK(!file_name.empty());
 
   // Make sure we get the right file extension.

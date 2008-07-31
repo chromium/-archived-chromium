@@ -48,6 +48,8 @@
 #include "net/base/net_util.h"
 #include "net/base/registry_controlled_domain.h"
 
+namespace net {
+
 // This list of rules is used by unit tests and any other time that the main
 // resource file is not available.  It should be kept exceedingly short to
 // avoid impacting unit test performance.
@@ -73,8 +75,7 @@ std::string RegistryControlledDomainService::GetDomainAndRegistry(
 std::string RegistryControlledDomainService::GetDomainAndRegistry(
     const std::string& host) {
   bool is_ip_address;
-  const std::string canon_host(net_util::CanonicalizeHost(host,
-                                                          &is_ip_address));
+  const std::string canon_host(net::CanonicalizeHost(host, &is_ip_address));
   if (canon_host.empty() || is_ip_address)
     return std::string();
   return GetDomainAndRegistryImpl(canon_host);
@@ -84,8 +85,7 @@ std::string RegistryControlledDomainService::GetDomainAndRegistry(
 std::string RegistryControlledDomainService::GetDomainAndRegistry(
     const std::wstring& host) {
   bool is_ip_address;
-  const std::string canon_host(net_util::CanonicalizeHost(host,
-                                                          &is_ip_address));
+  const std::string canon_host(net::CanonicalizeHost(host, &is_ip_address));
   if (canon_host.empty() || is_ip_address)
     return std::string();
   return GetDomainAndRegistryImpl(canon_host);
@@ -133,8 +133,7 @@ size_t RegistryControlledDomainService::GetRegistryLength(
     const std::string& host,
     bool allow_unknown_registries) {
   bool is_ip_address;
-  const std::string canon_host(net_util::CanonicalizeHost(host,
-                                                          &is_ip_address));
+  const std::string canon_host(net::CanonicalizeHost(host, &is_ip_address));
   if (canon_host.empty())
     return std::string::npos;
   if (is_ip_address)
@@ -148,8 +147,7 @@ size_t RegistryControlledDomainService::GetRegistryLength(
     const std::wstring& host,
     bool allow_unknown_registries) {
   bool is_ip_address;
-  const std::string canon_host(net_util::CanonicalizeHost(host,
-                                                          &is_ip_address));
+  const std::string canon_host(net::CanonicalizeHost(host, &is_ip_address));
   if (canon_host.empty())
     return std::string::npos;
   if (is_ip_address)
@@ -349,3 +347,5 @@ bool RegistryControlledDomainService::StringSegment::operator<(
   }
   return (len_ < other.len_);
 }
+
+}  // namespace net

@@ -45,7 +45,7 @@ TestShellRequestContext::TestShellRequestContext(
 void TestShellRequestContext::Init(
     const std::wstring& cache_path,
     net::HttpCache::Mode cache_mode) {
-  cookie_store_ = new CookieMonster();
+  cookie_store_ = new net::CookieMonster();
 
   user_agent_ = webkit_glue::GetDefaultUserAgent();
 

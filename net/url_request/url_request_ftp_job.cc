@@ -79,7 +79,7 @@ URLRequestJob* URLRequestFtpJob::Factory(URLRequest* request,
   DCHECK(scheme == "ftp");
 
   if (request->url().has_port() &&
-      !net_util::IsPortAllowedByFtp(request->url().IntPort()))
+      !net::IsPortAllowedByFtp(request->url().IntPort()))
     return new URLRequestErrorJob(request, net::ERR_UNSAFE_PORT);
 
   return new URLRequestFtpJob(request);
@@ -396,7 +396,7 @@ void URLRequestFtpJob::OnFindFile(DWORD last_error) {
 
     // We don't know the encoding, and can't assume utf8, so pass the 8bit
     // directly to the browser for it to decide.
-    string file_entry = net_util::GetDirectoryListingEntry(
+    string file_entry = net::GetDirectoryListingEntry(
         find_data_.cFileName, find_data_.dwFileAttributes, size,
         &find_data_.ftLastWriteTime);
     WriteData(&file_entry, true);
@@ -413,14 +413,14 @@ void URLRequestFtpJob::OnStartDirectoryTraversal() {
   state_ = GETTING_DIRECTORY;
 
   // Unescape the URL path and pass the raw 8bit directly to the browser.
-  string html = net_util::GetDirectoryListingHeader(
+  string html = net::GetDirectoryListingHeader(
       UnescapeURLComponent(request_->url().path(),
           UnescapeRule::SPACES | UnescapeRule::URL_SPECIAL_CHARS));
 
   // If this isn't top level directory (i.e. the path isn't "/",) add a link to
   // the parent directory.
   if (request_->url().path().length() > 1)
-    html.append(net_util::GetDirectoryListingEntry("..", 0, 0, NULL));
+    html.append(net::GetDirectoryListingEntry("..", 0, 0, NULL));
 
   WriteData(&html, true);
 

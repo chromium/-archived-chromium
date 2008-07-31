@@ -77,7 +77,7 @@ TEST_F(CrashRecoveryUITest, LoadInNewTab) {
   // The title of the active tab should change each time this URL is loaded.
   std::wstring test_file = test_data_directory_;
   file_util::AppendToPath(&test_file, L"title2.html");
-  GURL url(net_util::FilePathToFileURL(test_file));
+  GURL url(net::FilePathToFileURL(test_file));
 
   NavigateToURL(url);
 

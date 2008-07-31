@@ -174,7 +174,7 @@ int main(int argc, char* argv[])
 
     if (layout_test_mode ||
         parsed_command_line.HasSwitch(test_shell::kEnableFileCookies))
-      CookieMonster::EnableFileScheme();
+      net::CookieMonster::EnableFileScheme();
 
     std::wstring cache_path =
         parsed_command_line.GetSwitchValue(test_shell::kCacheDir);
@@ -192,7 +192,7 @@ int main(int argc, char* argv[])
     icu_util::Initialize();
 
     // Config the network module so it has access to a limited set of resources.
-    NetModule::SetResourceProvider(NetResourceProvider);
+    net::NetModule::SetResourceProvider(NetResourceProvider);
 
     INITCOMMONCONTROLSEX InitCtrlEx;
 

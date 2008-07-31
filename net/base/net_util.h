@@ -39,7 +39,7 @@
 
 class GURL;
 
-namespace net_util {
+namespace net {
 
 // Given the full path to a file name, creates a file: URL. The returned URL
 // may not be valid if the input is malformed.
@@ -148,6 +148,6 @@ bool IsPortAllowedByDefault(int port);
 // restricted.
 bool IsPortAllowedByFtp(int port);
 
-}  // namespace net_util
+}  // namespace net
 
 #endif  // NET_BASE_NET_UTIL_H__

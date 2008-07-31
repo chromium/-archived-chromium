@@ -64,7 +64,7 @@ class SSLErrorInfo {
   static ErrorType NetErrorToErrorType(int net_error);
 
   static SSLErrorInfo CreateError(ErrorType error_type,
-                                  X509Certificate* cert,
+                                  net::X509Certificate* cert,
                                   const GURL& request_url);
 
   // Populates the specified |errors| vector with the errors contained in

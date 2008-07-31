@@ -84,7 +84,7 @@ static wstring FixupPath(const wstring& text) {
     filename[1] = ':';
 
   // Here, we know the input looks like a file.
-  GURL file_url = net_util::FilePathToFileURL(filename);
+  GURL file_url = net::FilePathToFileURL(filename);
   if (file_url.is_valid())
     return gfx::ElideUrl(file_url, ChromeFont(), 0, std::wstring());
 
@@ -108,7 +108,7 @@ static void AddDesiredTLD(const wstring& desired_tld,
   // TLD).  We disallow unknown registries here so users can input "mail.yahoo"
   // and hit ctrl-enter to get "www.mail.yahoo.com".
   const size_t registry_length =
-      RegistryControlledDomainService::GetRegistryLength(*domain, false);
+      net::RegistryControlledDomainService::GetRegistryLength(*domain, false);
   if (registry_length != 0)
     return;
 
@@ -457,7 +457,7 @@ wstring URLFixerUpper::FixupRelativeFile(const wstring& base_dir,
     SetCurrentDirectory(old_cur_directory);
 
   if (is_file) {
-    GURL file_url = net_util::FilePathToFileURL(full_path);
+    GURL file_url = net::FilePathToFileURL(full_path);
     if (file_url.is_valid())
       return gfx::ElideUrl(file_url, ChromeFont(), 0, std::wstring());
     // Invalid files fall through to regular processing.

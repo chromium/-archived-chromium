@@ -1115,7 +1115,7 @@ void Browser::DuplicateContentsAt(int index) {
 // Browser, SelectFileDialog::Listener implementation:
 
 void Browser::FileSelected(const std::wstring& path, void* params) {
-  GURL file_url = net_util::FilePathToFileURL(path);
+  GURL file_url = net::FilePathToFileURL(path);
   if (!file_url.is_empty())
     OpenURL(file_url, CURRENT_TAB, PageTransition::TYPED);
 }

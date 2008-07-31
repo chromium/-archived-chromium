@@ -389,7 +389,7 @@ void RenderViewHost::DragTargetDragEnter(const WebDropData& drop_data,
   for (std::vector<std::wstring>::const_iterator iter(drop_data.filenames.begin());
        iter != drop_data.filenames.end(); ++iter) {
     policy->GrantRequestURL(process()->host_id(),
-                            net_util::FilePathToFileURL(*iter));
+                            net::FilePathToFileURL(*iter));
     policy->GrantUploadFile(process()->host_id(), *iter);
   }
   Send(new ViewMsg_DragTargetDragEnter(routing_id_, drop_data, client_pt,

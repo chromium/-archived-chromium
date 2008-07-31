@@ -59,9 +59,9 @@ class SQLitePersistentCookieStore::Backend
 
   // Batch a cookie add
   void AddCookie(const std::string& key,
-                 const CookieMonster::CanonicalCookie& cc);
+                 const net::CookieMonster::CanonicalCookie& cc);
   // Batch a cookie delete
-  void DeleteCookie(const CookieMonster::CanonicalCookie& cc);
+  void DeleteCookie(const net::CookieMonster::CanonicalCookie& cc);
   // Commit and pending operations and close the database, must be called
   // before the object is destructed.
   void Close();
@@ -76,24 +76,24 @@ class SQLitePersistentCookieStore::Backend
 
     PendingOperation(OperationType op,
                      const std::string& key,
-                     const CookieMonster::CanonicalCookie& cc)
+                     const net::CookieMonster::CanonicalCookie& cc)
         : op_(op), key_(key), cc_(cc) { }
 
     OperationType op() const { return op_; }
     const std::string& key() const { return key_; }
-    const CookieMonster::CanonicalCookie& cc() const { return cc_; }
+    const net::CookieMonster::CanonicalCookie& cc() const { return cc_; }
 
    private:
     OperationType op_;
     std::string key_;  // Only used for OP_ADD
-    CookieMonster::CanonicalCookie cc_;
+    net::CookieMonster::CanonicalCookie cc_;
   };
 
  private:
   // Batch a cookie operation (add or delete)
   void BatchOperation(PendingOperation::OperationType op,
                       const std::string& key,
-                      const CookieMonster::CanonicalCookie& cc);
+                      const net::CookieMonster::CanonicalCookie& cc);
   // Commit our pending operations to the database.
   void Commit();
   // Close() executed on the background thread.
@@ -113,19 +113,19 @@ class SQLitePersistentCookieStore::Backend
 
 void SQLitePersistentCookieStore::Backend::AddCookie(
     const std::string& key,
-    const CookieMonster::CanonicalCookie& cc) {
+    const net::CookieMonster::CanonicalCookie& cc) {
   BatchOperation(PendingOperation::COOKIE_ADD, key, cc);
 }
 
 void SQLitePersistentCookieStore::Backend::DeleteCookie(
-    const CookieMonster::CanonicalCookie& cc) {
+    const net::CookieMonster::CanonicalCookie& cc) {
   BatchOperation(PendingOperation::COOKIE_DELETE, std::string(), cc);
 }
 
 void SQLitePersistentCookieStore::Backend::BatchOperation(
     PendingOperation::OperationType op,
     const std::string& key,
-    const CookieMonster::CanonicalCookie& cc) {
+    const net::CookieMonster::CanonicalCookie& cc) {
   // Commit every 30 seconds.
   static const int kCommitIntervalMs = 30 * 1000;
   // Commit right away if we have more than 512 outstanding operations.
@@ -288,7 +288,7 @@ bool InitTable(sqlite3* db) {
 }  // namespace
 
 bool SQLitePersistentCookieStore::Load(
-    std::vector<CookieMonster::KeyedCanonicalCookie>* cookies) {
+    std::vector<net::CookieMonster::KeyedCanonicalCookie>* cookies) {
   DCHECK(!path_.empty());
   sqlite3* db;
   if (sqlite3_open(WideToUTF8(path_).c_str(), &db) != SQLITE_OK) {
@@ -323,8 +323,8 @@ bool SQLitePersistentCookieStore::Load(
 
   while (smt.step() == SQLITE_ROW) {
     std::string key = smt.column_string(1);
-    scoped_ptr<CookieMonster::CanonicalCookie> cc(
-        new CookieMonster::CanonicalCookie(
+    scoped_ptr<net::CookieMonster::CanonicalCookie> cc(
+        new net::CookieMonster::CanonicalCookie(
             smt.column_string(2),                            // name
             smt.column_string(3),                            // value
             smt.column_string(4),                            // path
@@ -340,8 +340,8 @@ bool SQLitePersistentCookieStore::Load(
     DLOG_IF(WARNING,
             cc->CreationDate() > Time::Now()) << L"CreationDate too recent";
     cookies->push_back(
-        CookieMonster::KeyedCanonicalCookie(smt.column_string(1),
-                                            cc.release()));
+        net::CookieMonster::KeyedCanonicalCookie(smt.column_string(1),
+                                                 cc.release()));
   }
 
   // Create the backend, this will take ownership of the db pointer.
@@ -366,13 +366,13 @@ bool SQLitePersistentCookieStore::EnsureDatabaseVersion(sqlite3* db) {
 
 void SQLitePersistentCookieStore::AddCookie(
     const std::string& key,
-    const CookieMonster::CanonicalCookie& cc) {
+    const net::CookieMonster::CanonicalCookie& cc) {
   if (backend_.get())
     backend_->AddCookie(key, cc);
 }
 
 void SQLitePersistentCookieStore::DeleteCookie(
-    const CookieMonster::CanonicalCookie& cc) {
+    const net::CookieMonster::CanonicalCookie& cc) {
   if (backend_.get())
     backend_->DeleteCookie(cc);
 }

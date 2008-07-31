@@ -51,7 +51,7 @@ class SessionHistoryTest : public UITest {
     file_util::AppendToPath(&path_prefix, L"session_history");
     path_prefix += file_util::kPathSeparator;
 
-    url_prefix_ = UTF8ToWide(net_util::FilePathToFileURL(path_prefix).spec());
+    url_prefix_ = UTF8ToWide(net::FilePathToFileURL(path_prefix).spec());
   }
 
   virtual void SetUp() {

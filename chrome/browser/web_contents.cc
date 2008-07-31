@@ -1301,7 +1301,8 @@ void WebContents::UpdateHistoryForNavigation(const GURL& display_url,
 
 void WebContents::MaybeCloseChildWindows(
     const ViewHostMsg_FrameNavigate_Params& params) {
-  if (RegistryControlledDomainService::SameDomainOrHost(last_url_, params.url))
+  if (net::RegistryControlledDomainService::SameDomainOrHost(
+          last_url_, params.url))
     return;
   last_url_ = params.url;
 
@@ -1876,7 +1877,7 @@ void WebContents::DidNavigateAnyFramePreCommit(
   DownloadManager* download_manager = profile()->GetDownloadManager();
   // download_manager can be NULL in unit test context.
   if (download_manager && download_manager ->in_progress_count() == 0 &&
-      current_entry && !RegistryControlledDomainService::SameDomainOrHost(
+      current_entry && !net::RegistryControlledDomainService::SameDomainOrHost(
           current_entry->GetURL(), entry->GetURL())) {
     TimeDelta time_delta(
         TimeTicks::Now() - last_download_shelf_show_);

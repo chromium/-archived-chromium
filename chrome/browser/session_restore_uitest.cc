@@ -50,9 +50,9 @@ class SessionRestoreUITest : public UITest {
     file_util::AppendToPath(&path_prefix, L"session_history");
     path_prefix += file_util::kPathSeparator;
 
-    url1 = net_util::FilePathToFileURL(path_prefix + L"bot1.html");
-    url2 = net_util::FilePathToFileURL(path_prefix + L"bot2.html");
-    url3 = net_util::FilePathToFileURL(path_prefix + L"bot3.html");
+    url1 = net::FilePathToFileURL(path_prefix + L"bot1.html");
+    url2 = net::FilePathToFileURL(path_prefix + L"bot2.html");
+    url3 = net::FilePathToFileURL(path_prefix + L"bot3.html");
   }
 
   virtual void QuitBrowserAndRestore() {

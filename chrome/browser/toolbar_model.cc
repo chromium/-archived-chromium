@@ -200,7 +200,7 @@ void ToolbarModel::GetInfoText(std::wstring* text,
       ((entry->GetSSLCertStatus() & net::CERT_STATUS_IS_EV) == 0))
     return;
 
-  scoped_refptr<X509Certificate> cert;
+  scoped_refptr<net::X509Certificate> cert;
   CertStore::GetSharedInstance()->RetrieveCert(entry->GetSSLCertID(), &cert);
   if (!cert.get()) {
     NOTREACHED();

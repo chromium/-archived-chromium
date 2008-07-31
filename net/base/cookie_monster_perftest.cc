@@ -45,7 +45,7 @@ TEST(ParsedCookieTest, TestParseCookies) {
   std::string cookie(kCookieLine);
   PerfTimeLogger timer("Parsed_cookie_parse_cookies");
   for (int i = 0; i < kNumCookies; ++i) {
-    CookieMonster::ParsedCookie pc(cookie);
+    net::CookieMonster::ParsedCookie pc(cookie);
     EXPECT_TRUE(pc.IsValid());
   }
   timer.Done();
@@ -56,7 +56,7 @@ TEST(ParsedCookieTest, TestParseBigCookies) {
   cookie += kCookieLine;
   PerfTimeLogger timer("Parsed_cookie_parse_big_cookies");
   for (int i = 0; i < kNumCookies; ++i) {
-    CookieMonster::ParsedCookie pc(cookie);
+    net::CookieMonster::ParsedCookie pc(cookie);
     EXPECT_TRUE(pc.IsValid());
   }
   timer.Done();
@@ -65,7 +65,7 @@ TEST(ParsedCookieTest, TestParseBigCookies) {
 static const GURL kUrlGoogle("http://www.google.izzle");
 
 TEST(CookieMonsterTest, TestAddCookiesOnSingleHost) {
-  CookieMonster cm;
+  net::CookieMonster cm;
   std::vector<std::string> cookies;
   for (int i = 0; i < kNumCookies; i++) {
     cookies.push_back(StringPrintf("a%03d=b", i));
@@ -92,7 +92,7 @@ TEST(CookieMonsterTest, TestAddCookiesOnSingleHost) {
 }
 
 TEST(CookieMonsterTest, TestAddCookieOnManyHosts) {
-  CookieMonster cm;
+  net::CookieMonster cm;
   std::string cookie(kCookieLine);
   std::vector<GURL> gurls;  // just wanna have ffffuunnn
   for (int i = 0; i < kNumCookies; ++i) {

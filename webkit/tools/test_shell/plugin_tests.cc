@@ -54,7 +54,7 @@ class PluginTest : public TestShellTest {
   class RequestContext : public TestURLRequestContext {
    public:
     RequestContext() {
-      cookie_store_ = new CookieMonster();
+      cookie_store_ = new net::CookieMonster();
     }
 
     virtual ~RequestContext() {
@@ -68,7 +68,7 @@ class PluginTest : public TestShellTest {
 
   void NavigateToURL(const std::wstring& test_url) {
     ASSERT_TRUE(file_util::PathExists(test_url));
-    test_url_ = net_util::FilePathToFileURL(test_url);
+    test_url_ = net::FilePathToFileURL(test_url);
     test_shell_->LoadURL(test_url.c_str());
   }
 

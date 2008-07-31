@@ -636,16 +636,16 @@ class CookieBehaviorComboModel : public ChromeViews::ComboBox::Model {
     return L"";
   }
 
-  static int CookiePolicyToIndex(CookiePolicy::Type policy) {
+  static int CookiePolicyToIndex(net::CookiePolicy::Type policy) {
     return policy;
   }
 
-  static CookiePolicy::Type IndexToCookiePolicy(int index) {
-    if (CookiePolicy::ValidType(index))
-      return CookiePolicy::FromInt(index);
+  static net::CookiePolicy::Type IndexToCookiePolicy(int index) {
+    if (net::CookiePolicy::ValidType(index))
+      return net::CookiePolicy::FromInt(index);
 
     NOTREACHED();
-    return CookiePolicy::ALLOW_ALL_COOKIES;
+    return net::CookiePolicy::ALLOW_ALL_COOKIES;
   }
 
  private:
@@ -775,7 +775,7 @@ void SecuritySection::ItemChanged(ChromeViews::ComboBox* sender,
     UserMetricsRecordAction(kUserMetrics[filter_policy], profile()->GetPrefs());
     filter_mixed_content_.SetValue(filter_policy);
   } else if (sender == cookie_behavior_combobox_) {
-    CookiePolicy::Type cookie_policy =
+    net::CookiePolicy::Type cookie_policy =
         CookieBehaviorComboModel::IndexToCookiePolicy(new_index);
     const wchar_t* kUserMetrics[] = {
       L"Options_AllowAllCookies",
@@ -884,7 +884,7 @@ void SecuritySection::NotifyPrefChanged(const std::wstring* pref_name) {
   if (!pref_name || *pref_name == prefs::kCookieBehavior) {
     cookie_behavior_combobox_->SetSelectedItem(
         CookieBehaviorComboModel::CookiePolicyToIndex(
-            CookiePolicy::FromInt(cookie_behavior_.GetValue())));
+            net::CookiePolicy::FromInt(cookie_behavior_.GetValue())));
   }
   if (!pref_name || *pref_name == prefs::kSafeBrowsingEnabled)
     enable_safe_browsing_checkbox_->SetIsSelected(safe_browsing_.GetValue());

@@ -660,7 +660,7 @@ std::wstring LocalizedDateTime(const FILETIME* filetime) {
 
 }  // namespace
 
-namespace net_util {
+namespace net {
 
 GURL FilePathToFileURL(const std::wstring& file_path) {
   // Produce a URL like "file:///C:/foo" for a regular file, or
@@ -992,4 +992,4 @@ bool IsPortAllowedByFtp(int port) {
   return IsPortAllowedByDefault(port);
 }
 
-}  // namespace net_util
+}  // namespace net

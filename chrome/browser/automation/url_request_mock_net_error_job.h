@@ -41,7 +41,7 @@ class URLRequestMockNetErrorJob : public URLRequestMockHTTPJob {
  public:
   URLRequestMockNetErrorJob(URLRequest* request,
                             const std::vector<int>& errors,
-                            X509Certificate* ssl_cert);
+                            net::X509Certificate* ssl_cert);
   virtual ~URLRequestMockNetErrorJob();
 
   virtual void Start();
@@ -56,7 +56,7 @@ class URLRequestMockNetErrorJob : public URLRequestMockHTTPJob {
   static void AddMockedURL(const GURL& url,
                            const std::wstring& base,
                            const std::vector<int>& errors,
-                           X509Certificate* ssl_cert);
+                           net::X509Certificate* ssl_cert);
 
   // Removes the specified |url| from the list of mocked urls.
   static void RemoveMockedURL(const GURL& url);
@@ -66,14 +66,14 @@ class URLRequestMockNetErrorJob : public URLRequestMockHTTPJob {
     MockInfo() : ssl_cert(NULL) { }
     MockInfo(std::wstring base,
              std::vector<int> errors,
-             X509Certificate* ssl_cert)
+             net::X509Certificate* ssl_cert)
         : base(base),
           errors(errors),
           ssl_cert(ssl_cert) { }
 
     std::wstring base;
     std::vector<int> errors;
-    scoped_refptr<X509Certificate> ssl_cert;
+    scoped_refptr<net::X509Certificate> ssl_cert;
   };
 
   static URLRequest::ProtocolFactory Factory;
@@ -84,7 +84,7 @@ class URLRequestMockNetErrorJob : public URLRequestMockHTTPJob {
   std::vector<int> errors_;
 
   // The certificate to use for SSL errors.
-  scoped_refptr<X509Certificate> ssl_cert_;
+  scoped_refptr<net::X509Certificate> ssl_cert_;
 
   typedef std::map<GURL, MockInfo> URLMockInfoMap;
   static URLMockInfoMap url_mock_info_map_;

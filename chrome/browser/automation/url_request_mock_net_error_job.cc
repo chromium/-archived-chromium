@@ -43,7 +43,7 @@ URLRequestMockNetErrorJob::URLMockInfoMap
 void URLRequestMockNetErrorJob::AddMockedURL(const GURL& url,
                                              const std::wstring& base,
                                              const std::vector<int>& errors,
-                                             X509Certificate* ssl_cert) {
+                                             net::X509Certificate* ssl_cert) {
 #ifndef NDEBUG
   URLMockInfoMap::const_iterator iter = url_mock_info_map_.find(url);
   DCHECK(iter == url_mock_info_map_.end());
@@ -83,13 +83,13 @@ URLRequestJob* URLRequestMockNetErrorJob::Factory(URLRequest* request,
   file_url.append(UTF8ToWide(url.path()));
   // Convert the file:/// URL to a path on disk.
   std::wstring file_path;
-  net_util::FileURLToFilePath(GURL(file_url), &file_path);
+  net::FileURLToFilePath(GURL(file_url), &file_path);
   job->file_path_ = file_path;
   return job;
 }
 
 URLRequestMockNetErrorJob::URLRequestMockNetErrorJob(URLRequest* request,
-    const std::vector<int>& errors, X509Certificate* cert)
+    const std::vector<int>& errors, net::X509Certificate* cert)
     : URLRequestMockHTTPJob(request),
       errors_(errors),
       ssl_cert_(cert) {

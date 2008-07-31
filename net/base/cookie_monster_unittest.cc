@@ -46,7 +46,7 @@ namespace {
 
 
 TEST(ParsedCookieTest, TestBasic) {
-  CookieMonster::ParsedCookie pc("a=b");
+  net::CookieMonster::ParsedCookie pc("a=b");
   EXPECT_TRUE(pc.IsValid());
   EXPECT_FALSE(pc.IsSecure());
   EXPECT_EQ(pc.Name(), "a");
@@ -54,7 +54,7 @@ TEST(ParsedCookieTest, TestBasic) {
 }
 
 TEST(ParsedCookieTest, TestQuoted) {
-  CookieMonster::ParsedCookie pc("a=\"b=;\"; path=\"/\"");
+  net::CookieMonster::ParsedCookie pc("a=\"b=;\"; path=\"/\"");
   EXPECT_TRUE(pc.IsValid());
   EXPECT_FALSE(pc.IsSecure());
   EXPECT_TRUE(pc.HasPath());
@@ -67,7 +67,7 @@ TEST(ParsedCookieTest, TestQuoted) {
 }
 
 TEST(ParsedCookieTest, TestNameless) {
-  CookieMonster::ParsedCookie pc("BLAHHH; path=/; secure;");
+  net::CookieMonster::ParsedCookie pc("BLAHHH; path=/; secure;");
   EXPECT_TRUE(pc.IsValid());
   EXPECT_TRUE(pc.IsSecure());
   EXPECT_TRUE(pc.HasPath());
@@ -77,7 +77,7 @@ TEST(ParsedCookieTest, TestNameless) {
 }
 
 TEST(ParsedCookieTest, TestAttributeCase) {
-  CookieMonster::ParsedCookie pc("BLAHHH; Path=/; sECuRe; httpONLY");
+  net::CookieMonster::ParsedCookie pc("BLAHHH; Path=/; sECuRe; httpONLY");
   EXPECT_TRUE(pc.IsValid());
   EXPECT_TRUE(pc.IsSecure());
   EXPECT_TRUE(pc.IsHttpOnly());
@@ -88,7 +88,7 @@ TEST(ParsedCookieTest, TestAttributeCase) {
 }
 
 TEST(ParsedCookieTest, TestDoubleQuotedNameless) {
-  CookieMonster::ParsedCookie pc("\"BLA\\\"HHH\"; path=/; secure;");
+  net::CookieMonster::ParsedCookie pc("\"BLA\\\"HHH\"; path=/; secure;");
   EXPECT_TRUE(pc.IsValid());
   EXPECT_TRUE(pc.IsSecure());
   EXPECT_TRUE(pc.HasPath());
@@ -98,21 +98,21 @@ TEST(ParsedCookieTest, TestDoubleQuotedNameless) {
 }
 
 TEST(ParsedCookieTest, QuoteOffTheEnd) {
-  CookieMonster::ParsedCookie pc("a=\"B");
+  net::CookieMonster::ParsedCookie pc("a=\"B");
   EXPECT_TRUE(pc.IsValid());
   EXPECT_EQ(pc.Name(), "a");
   EXPECT_EQ(pc.Value(), "\"B");
 }
 
 TEST(ParsedCookieTest, MissingName) {
-  CookieMonster::ParsedCookie pc("=ABC");
+  net::CookieMonster::ParsedCookie pc("=ABC");
   EXPECT_TRUE(pc.IsValid());
   EXPECT_EQ(pc.Name(), "");
   EXPECT_EQ(pc.Value(), "ABC");
 }
 
 TEST(ParsedCookieTest, MissingValue) {
-  CookieMonster::ParsedCookie pc("ABC=;  path = /wee");
+  net::CookieMonster::ParsedCookie pc("ABC=;  path = /wee");
   EXPECT_TRUE(pc.IsValid());
   EXPECT_EQ(pc.Name(), "ABC");
   EXPECT_EQ(pc.Value(), "");
@@ -121,7 +121,7 @@ TEST(ParsedCookieTest, MissingValue) {
 }
 
 TEST(ParsedCookieTest, Whitespace) {
-  CookieMonster::ParsedCookie pc("  A  = BC  ;secure;;;   httponly");
+  net::CookieMonster::ParsedCookie pc("  A  = BC  ;secure;;;   httponly");
   EXPECT_TRUE(pc.IsValid());
   EXPECT_EQ(pc.Name(), "A");
   EXPECT_EQ(pc.Value(), "BC");
@@ -131,7 +131,7 @@ TEST(ParsedCookieTest, Whitespace) {
   EXPECT_TRUE(pc.IsHttpOnly());
 }
 TEST(ParsedCookieTest, MultipleEquals) {
-  CookieMonster::ParsedCookie pc("  A=== BC  ;secure;;;   httponly");
+  net::CookieMonster::ParsedCookie pc("  A=== BC  ;secure;;;   httponly");
   EXPECT_TRUE(pc.IsValid());
   EXPECT_EQ(pc.Name(), "A");
   EXPECT_EQ(pc.Value(), "== BC");
@@ -142,9 +142,9 @@ TEST(ParsedCookieTest, MultipleEquals) {
 }
 
 TEST(ParsedCookieTest, TrailingWhitespace) {
-  CookieMonster::ParsedCookie pc("ANCUUID=zohNumRKgI0oxyhSsV3Z7D; "
-                                  "expires=Sun, 18-Apr-2027 21:06:29 GMT; "
-                                  "path=/  ;  ");
+  net::CookieMonster::ParsedCookie pc("ANCUUID=zohNumRKgI0oxyhSsV3Z7D; "
+                                      "expires=Sun, 18-Apr-2027 21:06:29 GMT; "
+                                      "path=/  ;  ");
   EXPECT_TRUE(pc.IsValid());
   EXPECT_EQ(pc.Name(), "ANCUUID");
   EXPECT_TRUE(pc.HasExpires());
@@ -156,43 +156,43 @@ TEST(ParsedCookieTest, TrailingWhitespace) {
 
 TEST(ParsedCookieTest, TooManyPairs) {
   std::string blankpairs;
-  blankpairs.resize(CookieMonster::ParsedCookie::kMaxPairs - 1, ';');
+  blankpairs.resize(net::CookieMonster::ParsedCookie::kMaxPairs - 1, ';');
 
-  CookieMonster::ParsedCookie pc1(blankpairs + "secure");
+  net::CookieMonster::ParsedCookie pc1(blankpairs + "secure");
   EXPECT_TRUE(pc1.IsValid());
   EXPECT_TRUE(pc1.IsSecure());
 
-  CookieMonster::ParsedCookie pc2(blankpairs + ";secure");
+  net::CookieMonster::ParsedCookie pc2(blankpairs + ";secure");
   EXPECT_TRUE(pc2.IsValid());
   EXPECT_FALSE(pc2.IsSecure());
 }
 
 // TODO some better test cases for invalid cookies.
 TEST(ParsedCookieTest, InvalidWhitespace) {
-  CookieMonster::ParsedCookie pc("    ");
+  net::CookieMonster::ParsedCookie pc("    ");
   EXPECT_FALSE(pc.IsValid());
 }
 
 TEST(ParsedCookieTest, InvalidTooLong) {
   std::string maxstr;
-  maxstr.resize(CookieMonster::ParsedCookie::kMaxCookieSize, 'a');
+  maxstr.resize(net::CookieMonster::ParsedCookie::kMaxCookieSize, 'a');
 
-  CookieMonster::ParsedCookie pc1(maxstr);
+  net::CookieMonster::ParsedCookie pc1(maxstr);
   EXPECT_TRUE(pc1.IsValid());
 
-  CookieMonster::ParsedCookie pc2(maxstr + "A");
+  net::CookieMonster::ParsedCookie pc2(maxstr + "A");
   EXPECT_FALSE(pc2.IsValid());
 }
 
 TEST(ParsedCookieTest, InvalidEmpty) {
-  CookieMonster::ParsedCookie pc("");
+  net::CookieMonster::ParsedCookie pc("");
   EXPECT_FALSE(pc.IsValid());
 }
 
 TEST(ParsedCookieTest, EmbeddedTerminator) {
-  CookieMonster::ParsedCookie pc1("AAA=BB\0ZYX");
-  CookieMonster::ParsedCookie pc2("AAA=BB\rZYX");
-  CookieMonster::ParsedCookie pc3("AAA=BB\nZYX");
+  net::CookieMonster::ParsedCookie pc1("AAA=BB\0ZYX");
+  net::CookieMonster::ParsedCookie pc2("AAA=BB\rZYX");
+  net::CookieMonster::ParsedCookie pc3("AAA=BB\nZYX");
   EXPECT_TRUE(pc1.IsValid());
   EXPECT_EQ(pc1.Name(), "AAA");
   EXPECT_EQ(pc1.Value(), "BB");
@@ -213,7 +213,7 @@ static const char kValidDomainCookieLine[] = "A=B; path=/; domain=google.izzle";
 TEST(CookieMonsterTest, DomainTest) {
   GURL url_google(kUrlGoogle);
 
-  CookieMonster cm;
+  net::CookieMonster cm;
   EXPECT_TRUE(cm.SetCookie(url_google, "A=B"));
   EXPECT_EQ(cm.GetCookies(url_google), "A=B");
   EXPECT_TRUE(cm.SetCookie(url_google, "C=D; domain=.google.izzle"));
@@ -244,7 +244,7 @@ TEST(CookieMonsterTest, DomainTest) {
 // FireFox recognizes domains containing trailing periods as valid.
 // IE and Safari do not. Assert the expected policy here.
 TEST(CookieMonsterTest, DomainWithTrailingDotTest) {
-  CookieMonster cm;
+  net::CookieMonster cm;
   GURL url_google("http://www.google.com");
 
   EXPECT_FALSE(cm.SetCookie(url_google, "a=1; domain=.www.google.com."));
@@ -255,7 +255,7 @@ TEST(CookieMonsterTest, DomainWithTrailingDotTest) {
 // Test that cookies can bet set on higher level domains.
 // http://b/issue?id=896491
 TEST(CookieMonsterTest, ValidSubdomainTest) {
-  CookieMonster cm;
+  net::CookieMonster cm;
   GURL url_abcd("http://a.b.c.d.com");
   GURL url_bcd("http://b.c.d.com");
   GURL url_cd("http://c.d.com");
@@ -284,7 +284,7 @@ TEST(CookieMonsterTest, ValidSubdomainTest) {
 // http://b/issue?id=896472
 TEST(CookieMonsterTest, InvalidDomainTest) {
   {
-    CookieMonster cm;
+    net::CookieMonster cm;
     GURL url_foobar("http://foo.bar.com");
 
     // More specific sub-domain than allowed.
@@ -321,7 +321,7 @@ TEST(CookieMonsterTest, InvalidDomainTest) {
     // Make sure the cookie code hasn't gotten its subdomain string handling
     // reversed, missed a suffix check, etc.  It's important here that the two
     // hosts below have the same domain + registry.
-    CookieMonster cm;
+    net::CookieMonster cm;
     GURL url_foocom("http://foo.com.com");
     EXPECT_FALSE(cm.SetCookie(url_foocom, "a=1; domain=.foo.com.com.com"));
     EXPECT_EQ(cm.GetCookies(url_foocom), "");
@@ -333,16 +333,16 @@ TEST(CookieMonsterTest, InvalidDomainTest) {
 // http://b/issue?id=889898
 TEST(CookieMonsterTest, DomainWithoutLeadingDotTest) {
   {  // The omission of dot results in setting a domain cookie.
-  CookieMonster cm;
-  GURL url_hosted("http://manage.hosted.filefront.com");
-  GURL url_filefront("http://www.filefront.com");
-  EXPECT_TRUE(cm.SetCookie(url_hosted, "sawAd=1; domain=filefront.com"));
-  EXPECT_EQ(cm.GetCookies(url_hosted), "sawAd=1");
-  EXPECT_EQ(cm.GetCookies(url_filefront), "sawAd=1");
+    net::CookieMonster cm;
+    GURL url_hosted("http://manage.hosted.filefront.com");
+    GURL url_filefront("http://www.filefront.com");
+    EXPECT_TRUE(cm.SetCookie(url_hosted, "sawAd=1; domain=filefront.com"));
+    EXPECT_EQ(cm.GetCookies(url_hosted), "sawAd=1");
+    EXPECT_EQ(cm.GetCookies(url_filefront), "sawAd=1");
   }
 
   {  // Even when the domains match exactly, don't consider it host cookie.
-    CookieMonster cm;
+    net::CookieMonster cm;
     GURL url("http://www.google.com");
     EXPECT_TRUE(cm.SetCookie(url, "a=1; domain=www.google.com"));
     EXPECT_EQ(cm.GetCookies(url), "a=1");
@@ -354,7 +354,7 @@ TEST(CookieMonsterTest, DomainWithoutLeadingDotTest) {
 // Test that the domain specified in cookie string is treated case-insensitive
 // http://b/issue?id=896475.
 TEST(CookieMonsterTest, CaseInsensitiveDomainTest) {
-  CookieMonster cm;
+  net::CookieMonster cm;
   GURL url_google("http://www.google.com");
   EXPECT_TRUE(cm.SetCookie(url_google, "a=1; domain=.GOOGLE.COM"));
   EXPECT_TRUE(cm.SetCookie(url_google, "b=2; domain=.wWw.gOOgLE.coM"));
@@ -364,83 +364,83 @@ TEST(CookieMonsterTest, CaseInsensitiveDomainTest) {
 TEST(CookieMonsterTest, TestIpAddress) {
   GURL url_ip("http://1.2.3.4/weee");
   {
-  CookieMonster cm;
-  EXPECT_TRUE(cm.SetCookie(url_ip, kValidCookieLine));
-  EXPECT_EQ(cm.GetCookies(url_ip), "A=B");
+    net::CookieMonster cm;
+    EXPECT_TRUE(cm.SetCookie(url_ip, kValidCookieLine));
+    EXPECT_EQ(cm.GetCookies(url_ip), "A=B");
   }
 
   {  // IP addresses should not be able to set domain cookies.
-  CookieMonster cm;
-  EXPECT_FALSE(cm.SetCookie(url_ip, "b=2; domain=.1.2.3.4"));
-  EXPECT_FALSE(cm.SetCookie(url_ip, "c=3; domain=.3.4"));
-  EXPECT_EQ(cm.GetCookies(url_ip), "");
+    net::CookieMonster cm;
+    EXPECT_FALSE(cm.SetCookie(url_ip, "b=2; domain=.1.2.3.4"));
+    EXPECT_FALSE(cm.SetCookie(url_ip, "c=3; domain=.3.4"));
+    EXPECT_EQ(cm.GetCookies(url_ip), "");
   }
 }
 
 // Test host cookies, and setting of cookies on TLD.
 TEST(CookieMonsterTest, TestNonDottedAndTLD) {
   {
-  CookieMonster cm;
-  GURL url("http://com/");
-  // Allow setting on "com", (but only as a host cookie).
-  EXPECT_TRUE(cm.SetCookie(url, "a=1"));
-  EXPECT_FALSE(cm.SetCookie(url, "b=2; domain=.com"));
-  EXPECT_FALSE(cm.SetCookie(url, "c=3; domain=com"));
-  EXPECT_EQ(cm.GetCookies(url), "a=1");
-  // Make sure it doesn't show up for a normal .com, it should be a host
-  // not a domain cookie.
-  EXPECT_EQ(cm.GetCookies(GURL("http://hopefully-no-cookies.com/")), "");
-  EXPECT_EQ(cm.GetCookies(GURL("http://.com/")), "");
+    net::CookieMonster cm;
+    GURL url("http://com/");
+    // Allow setting on "com", (but only as a host cookie).
+    EXPECT_TRUE(cm.SetCookie(url, "a=1"));
+    EXPECT_FALSE(cm.SetCookie(url, "b=2; domain=.com"));
+    EXPECT_FALSE(cm.SetCookie(url, "c=3; domain=com"));
+    EXPECT_EQ(cm.GetCookies(url), "a=1");
+    // Make sure it doesn't show up for a normal .com, it should be a host
+    // not a domain cookie.
+    EXPECT_EQ(cm.GetCookies(GURL("http://hopefully-no-cookies.com/")), "");
+    EXPECT_EQ(cm.GetCookies(GURL("http://.com/")), "");
   }
 
   {  // http://com. should be treated the same as http://com.
-  CookieMonster cm;
-  GURL url("http://com./index.html");
-  EXPECT_TRUE(cm.SetCookie(url, "a=1"));
-  EXPECT_EQ(cm.GetCookies(url), "a=1");
-  EXPECT_EQ(cm.GetCookies(GURL("http://hopefully-no-cookies.com./")), "");
+    net::CookieMonster cm;
+    GURL url("http://com./index.html");
+    EXPECT_TRUE(cm.SetCookie(url, "a=1"));
+    EXPECT_EQ(cm.GetCookies(url), "a=1");
+    EXPECT_EQ(cm.GetCookies(GURL("http://hopefully-no-cookies.com./")), "");
   }
 
   {  // Should not be able to set host cookie from a subdomain.
-  CookieMonster cm;
-  GURL url("http://a.b");
-  EXPECT_FALSE(cm.SetCookie(url, "a=1; domain=.b"));
-  EXPECT_FALSE(cm.SetCookie(url, "b=2; domain=b"));
-  EXPECT_EQ(cm.GetCookies(url), "");
+    net::CookieMonster cm;
+    GURL url("http://a.b");
+    EXPECT_FALSE(cm.SetCookie(url, "a=1; domain=.b"));
+    EXPECT_FALSE(cm.SetCookie(url, "b=2; domain=b"));
+    EXPECT_EQ(cm.GetCookies(url), "");
   }
 
   {  // Same test as above, but explicitly on a known TLD (com).
-  CookieMonster cm;
-  GURL url("http://google.com");
-  EXPECT_FALSE(cm.SetCookie(url, "a=1; domain=.com"));
-  EXPECT_FALSE(cm.SetCookie(url, "b=2; domain=com"));
-  EXPECT_EQ(cm.GetCookies(url), "");
+    net::CookieMonster cm;
+    GURL url("http://google.com");
+    EXPECT_FALSE(cm.SetCookie(url, "a=1; domain=.com"));
+    EXPECT_FALSE(cm.SetCookie(url, "b=2; domain=com"));
+    EXPECT_EQ(cm.GetCookies(url), "");
   }
 
   {  // Make sure can't set cookie on TLD which is dotted.
-  CookieMonster cm;
-  GURL url("http://google.co.uk");
-  EXPECT_FALSE(cm.SetCookie(url, "a=1; domain=.co.uk"));
-  EXPECT_FALSE(cm.SetCookie(url, "b=2; domain=.uk"));
-  EXPECT_EQ(cm.GetCookies(url), "");
-  EXPECT_EQ(cm.GetCookies(GURL("http://something-else.co.uk")), "");
-  EXPECT_EQ(cm.GetCookies(GURL("http://something-else.uk")), "");
+    net::CookieMonster cm;
+    GURL url("http://google.co.uk");
+    EXPECT_FALSE(cm.SetCookie(url, "a=1; domain=.co.uk"));
+    EXPECT_FALSE(cm.SetCookie(url, "b=2; domain=.uk"));
+    EXPECT_EQ(cm.GetCookies(url), "");
+    EXPECT_EQ(cm.GetCookies(GURL("http://something-else.co.uk")), "");
+    EXPECT_EQ(cm.GetCookies(GURL("http://something-else.uk")), "");
   }
 
   {  // Intranet URLs should only be able to set host cookies.
-  CookieMonster cm;
-  GURL url("http://b");
-  EXPECT_TRUE(cm.SetCookie(url, "a=1"));
-  EXPECT_FALSE(cm.SetCookie(url, "b=2; domain=.b"));
-  EXPECT_FALSE(cm.SetCookie(url, "c=3; domain=b"));
-  EXPECT_EQ(cm.GetCookies(url), "a=1");
+    net::CookieMonster cm;
+    GURL url("http://b");
+    EXPECT_TRUE(cm.SetCookie(url, "a=1"));
+    EXPECT_FALSE(cm.SetCookie(url, "b=2; domain=.b"));
+    EXPECT_FALSE(cm.SetCookie(url, "c=3; domain=b"));
+    EXPECT_EQ(cm.GetCookies(url), "a=1");
   }
 }
 
 // Test reading/writing cookies when the domain ends with a period,
 // as in "www.google.com."
 TEST(CookieMonsterTest, TestHostEndsWithDot) {
-  CookieMonster cm;
+  net::CookieMonster cm;
   GURL url("http://www.google.com");
   GURL url_with_dot("http://www.google.com.");
   EXPECT_TRUE(cm.SetCookie(url, "a=1"));
@@ -460,19 +460,19 @@ TEST(CookieMonsterTest, TestHostEndsWithDot) {
 }
 
 TEST(CookieMonsterTest, InvalidScheme) {
-  CookieMonster cm;
+  net::CookieMonster cm;
   EXPECT_FALSE(cm.SetCookie(GURL(kUrlFtp), kValidCookieLine));
 }
 
 TEST(CookieMonsterTest, InvalidScheme_Read) {
-  CookieMonster cm;
+  net::CookieMonster cm;
   EXPECT_TRUE(cm.SetCookie(GURL(kUrlGoogle), kValidDomainCookieLine));
   EXPECT_EQ(cm.GetCookies(GURL(kUrlFtp)), "");
 }
 
 TEST(CookieMonsterTest, PathTest) {
   std::string url("http://www.google.izzle");
-  CookieMonster cm;
+  net::CookieMonster cm;
   EXPECT_TRUE(cm.SetCookie(GURL(url), "A=B; path=/wee"));
   EXPECT_EQ(cm.GetCookies(GURL(url + "/wee")), "A=B");
   EXPECT_EQ(cm.GetCookies(GURL(url + "/wee/")), "A=B");
@@ -489,11 +489,11 @@ TEST(CookieMonsterTest, PathTest) {
 
 TEST(CookieMonsterTest, HttpOnlyTest) {
   GURL url_google(kUrlGoogle);
-  CookieMonster cm;
+  net::CookieMonster cm;
   EXPECT_TRUE(cm.SetCookie(url_google, "A=B; httponly"));
   EXPECT_EQ(cm.GetCookies(url_google), "");
-  EXPECT_EQ(cm.GetCookiesWithOptions(url_google,
-                                     CookieMonster::INCLUDE_HTTPONLY), "A=B");
+  EXPECT_EQ(cm.GetCookiesWithOptions(
+      url_google, net::CookieMonster::INCLUDE_HTTPONLY), "A=B");
 }
 
 // From: http://support.microsoft.com/kb/167296.
@@ -506,12 +506,12 @@ static void UnixTimeToFileTime(time_t t, LPFILETIME pft) {
 }
 
 static uint64 UnixTimeToUTC(time_t t) {
-    FILETIME ftime;
-    LARGE_INTEGER li;
-    UnixTimeToFileTime(t, &ftime);
-    li.LowPart = ftime.dwLowDateTime;
-    li.HighPart = ftime.dwHighDateTime;
-    return li.QuadPart;
+  FILETIME ftime;
+  LARGE_INTEGER li;
+  UnixTimeToFileTime(t, &ftime);
+  li.LowPart = ftime.dwLowDateTime;
+  li.HighPart = ftime.dwHighDateTime;
+  return li.QuadPart;
 }
 
 TEST(CookieMonsterTest, TestCookieDateParsing) {
@@ -592,7 +592,7 @@ TEST(CookieMonsterTest, TestCookieDateParsing) {
 
   Time parsed_time;
   for (int i = 0; i < arraysize(tests); ++i) {
-    parsed_time = CookieMonster::ParseCookieTime(tests[i].str);
+    parsed_time = net::CookieMonster::ParseCookieTime(tests[i].str);
     if (!tests[i].valid) {
       EXPECT_FALSE(!parsed_time.is_null()) << tests[i].str;
       continue;
@@ -604,7 +604,7 @@ TEST(CookieMonsterTest, TestCookieDateParsing) {
 
 TEST(CookieMonsterTest, TestCookieDeletion) {
   GURL url_google(kUrlGoogle);
-  CookieMonster cm;
+  net::CookieMonster cm;
 
   // Create a session cookie.
   EXPECT_TRUE(cm.SetCookie(url_google, kValidCookieLine));
@@ -647,7 +647,7 @@ TEST(CookieMonsterTest, TestCookieDeletion) {
 
 TEST(CookieMonsterTest, TestCookieDeleteAll) {
   GURL url_google(kUrlGoogle);
-  CookieMonster cm;
+  net::CookieMonster cm;
 
   EXPECT_TRUE(cm.SetCookie(url_google, kValidCookieLine));
   EXPECT_EQ(cm.GetCookies(url_google), "A=B");
@@ -661,7 +661,7 @@ TEST(CookieMonsterTest, TestCookieDeleteAll) {
 
 TEST(CookieMonsterTest, TestCookieDeleteAllCreatedAfterTimestamp) {
   GURL url_google(kUrlGoogle);
-  CookieMonster cm;
+  net::CookieMonster cm;
   Time now = Time::Now();
 
   // Nothing has been added so nothing should be deleted.
@@ -689,7 +689,7 @@ TEST(CookieMonsterTest, TestCookieDeleteAllCreatedAfterTimestamp) {
 
 TEST(CookieMonsterTest, TestCookieDeleteAllCreatedBetweenTimestamps) {
   GURL url_google(kUrlGoogle);
-  CookieMonster cm;
+  net::CookieMonster cm;
   Time now = Time::Now();
 
   // Nothing has been added so nothing should be deleted.
@@ -732,7 +732,7 @@ TEST(CookieMonsterTest, TestCookieDeleteAllCreatedBetweenTimestamps) {
 TEST(CookieMonsterTest, TestSecure) {
   GURL url_google(kUrlGoogle);
   GURL url_google_secure(kUrlGoogleSecure);
-  CookieMonster cm;
+  net::CookieMonster cm;
 
   EXPECT_TRUE(cm.SetCookie(url_google, "A=B"));
   EXPECT_EQ(cm.GetCookies(url_google), "A=B");
@@ -765,7 +765,7 @@ static int CountInString(const std::string& str, char c) {
 
 TEST(CookieMonsterTest, TestHostGarbageCollection) {
   GURL url_google(kUrlGoogle);
-  CookieMonster cm;
+  net::CookieMonster cm;
   // Add a bunch of cookies on a single host, should purge them.
   for (int i = 0; i < 101; i++) {
     std::string cookie = StringPrintf("a%03d=b", i);
@@ -779,7 +779,7 @@ TEST(CookieMonsterTest, TestHostGarbageCollection) {
 }
 
 TEST(CookieMonsterTest, TestTotalGarbageCollection) {
-  CookieMonster cm;
+  net::CookieMonster cm;
   // Add a bunch of cookies on a bunch of host, some should get purged.
   for (int i = 0; i < 2000; ++i) {
     GURL url(StringPrintf("http://a%04d.izzle", i));
@@ -804,7 +804,7 @@ TEST(CookieMonsterTest, TestTotalGarbageCollection) {
 TEST(CookieMonsterTest, NetUtilCookieTest) {
   const GURL test_url(L"http://mojo.jojo.google.izzle/");
 
-  CookieMonster cm;
+  net::CookieMonster cm;
 
   EXPECT_TRUE(cm.SetCookie(test_url, "foo=bar"));
   std::string value = cm.GetCookies(test_url);
@@ -820,10 +820,11 @@ TEST(CookieMonsterTest, NetUtilCookieTest) {
   EXPECT_TRUE(result.find("y=2") != std::string::npos) << result;
 }
 
-static bool FindAndDeleteCookie(CookieMonster& cm, const std::string& domain,
+static bool FindAndDeleteCookie(net::CookieMonster& cm,
+                                const std::string& domain,
                                 const std::string& name) {
-  CookieMonster::CookieList cookies = cm.GetAllCookies();
-  for (CookieMonster::CookieList::iterator it = cookies.begin();
+  net::CookieMonster::CookieList cookies = cm.GetAllCookies();
+  for (net::CookieMonster::CookieList::iterator it = cookies.begin();
        it != cookies.end(); ++it)
     if (it->first == domain && it->second.Name() == name)
       return cm.DeleteCookie(domain, it->second, false);
@@ -833,7 +834,7 @@ static bool FindAndDeleteCookie(CookieMonster& cm, const std::string& domain,
 TEST(CookieMonsterTest, TestDeleteSingleCookie) {
   GURL url_google(kUrlGoogle);
 
-  CookieMonster cm;
+  net::CookieMonster cm;
   EXPECT_TRUE(cm.SetCookie(url_google, "A=B"));
   EXPECT_TRUE(cm.SetCookie(url_google, "C=D"));
   EXPECT_TRUE(cm.SetCookie(url_google, "E=F"));

@@ -153,7 +153,7 @@ class TestDelegate : public URLRequest::Delegate {
 
   virtual void OnSSLCertificateError(URLRequest* request,
                                      int cert_error,
-                                     X509Certificate* cert) {
+                                     net::X509Certificate* cert) {
     // Ignore SSL errors, we test the server is started and shut it down by
     // performing GETs, no security restrictions should apply as we always want
     // these GETs to go through.

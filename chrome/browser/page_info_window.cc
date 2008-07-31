@@ -118,7 +118,8 @@ class SecurityTabView : public ChromeViews::View {
 
   // Returns a name that can be used to represent the issuer.  It tries in this
   // order CN, O and OU and returns the first non-empty one found.
-  static std::string GetIssuerName(const X509Certificate::Principal& issuer);
+  static std::string GetIssuerName(
+      const net::X509Certificate::Principal& issuer);
 
   // Callback from history service with number of visits to url.
   void OnGotVisitCountToHost(HistoryService::Handle handle,
@@ -253,7 +254,7 @@ SecurityTabView::SecurityTabView(Profile* profile,
   std::wstring identity_title;
   std::wstring identity_msg;
   std::wstring connection_msg;
-  scoped_refptr<X509Certificate> cert;
+  scoped_refptr<net::X509Certificate> cert;
   int cert_id = navigation_entry->GetSSLCertID();
   int cert_status = navigation_entry->GetSSLCertStatus();
 
@@ -408,7 +409,7 @@ void SecurityTabView::Layout() {
 
 // static
 std::string SecurityTabView::GetIssuerName(
-    const X509Certificate::Principal& issuer) {
+    const net::X509Certificate::Principal& issuer) {
   if (!issuer.common_name.empty())
     return issuer.common_name;
   if (!issuer.organization_names.empty())
@@ -667,7 +668,7 @@ void PageInfoWindow::CalculateWindowBounds(CRect* bounds) {
 }
 
 void PageInfoWindow::ShowCertDialog(int cert_id) {
-  scoped_refptr<X509Certificate> cert;
+  scoped_refptr<net::X509Certificate> cert;
   CertStore::GetSharedInstance()->RetrieveCert(cert_id, &cert);
   if (!cert.get()) {
     // The certificate was not found. Could be that the renderer crashed before

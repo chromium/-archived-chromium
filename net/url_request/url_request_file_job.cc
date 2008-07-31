@@ -75,7 +75,7 @@ DWORD WINAPI NetworkFileThread(LPVOID param) {
 URLRequestJob* URLRequestFileJob::Factory(URLRequest* request,
                                           const std::string& scheme) {
   std::wstring file_path;
-  if (net_util::FileURLToFilePath(request->url(), &file_path)) {
+  if (net::FileURLToFilePath(request->url(), &file_path)) {
     if (file_path[file_path.size() - 1] == file_util::kPathSeparator) {
       // Only directories have trailing slashes.
       return new URLRequestFileDirJob(request, file_path);
@@ -343,7 +343,7 @@ bool URLRequestFileJob::IsRedirectResponse(GURL* location,
   if (!resolved)
     return false;
 
-  *location = net_util::FilePathToFileURL(new_path);
+  *location = net::FilePathToFileURL(new_path);
   *http_status_code = 301;
   return true;
 }

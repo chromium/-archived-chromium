@@ -32,6 +32,8 @@
 
 #include "googleurl/src/gurl.h"
 
+namespace net {
+
 // The CookiePolicy class implements third-party cookie blocking.
 class CookiePolicy {
  public:
@@ -68,5 +70,7 @@ class CookiePolicy {
 
   DISALLOW_EVIL_CONSTRUCTORS(CookiePolicy);
 };
+
+}  // namespace net
 
 #endif // NET_BASE_COOKIE_POLICY_H__

@@ -166,7 +166,7 @@ bool TabContents::GetSSLEVText(std::wstring* ev_text,
       ((entry->GetSSLCertStatus() & net::CERT_STATUS_IS_EV) == 0))
     return false;
 
-  scoped_refptr<X509Certificate> cert;
+  scoped_refptr<net::X509Certificate> cert;
   CertStore::GetSharedInstance()->RetrieveCert(entry->GetSSLCertID(), &cert);
   if (!cert.get()) {
     NOTREACHED();

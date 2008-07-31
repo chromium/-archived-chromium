@@ -53,7 +53,7 @@ SSLErrorInfo::SSLErrorInfo(const std::wstring& title,
 
 // static
 SSLErrorInfo SSLErrorInfo::CreateError(ErrorType error_type,
-                                       X509Certificate* cert,
+                                       net::X509Certificate* cert,
                                        const GURL& request_url) {
   std::wstring title, details, short_description;
   std::vector<std::wstring> extra_info;
@@ -257,7 +257,7 @@ int SSLErrorInfo::GetErrorsForCertStatus(int cert_id,
   };
   DCHECK(arraysize(kErrorFlags) == arraysize(kErrorTypes));
 
-  scoped_refptr<X509Certificate> cert = NULL;
+  scoped_refptr<net::X509Certificate> cert = NULL;
   int count = 0;
   for (int i = 0; i < arraysize(kErrorFlags); ++i) {
     if (cert_status & kErrorFlags[i]) {

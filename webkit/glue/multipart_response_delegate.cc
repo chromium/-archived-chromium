@@ -192,10 +192,8 @@ bool MultipartResponseDelegate::ParseHeaders() {
   // Create a ResourceResponse based on the original set of headers + the
   // replacement headers.  We only replace the same few headers that gecko
   // does.  See netwerk/streamconv/converters/nsMultiMixedConv.cpp.
-  std::string mime_type = net_util::GetSpecificHeader(headers,
-                                                      "content-type");
-  std::string charset = net_util::GetHeaderParamValue(mime_type,
-                                                      "charset");
+  std::string mime_type = net::GetSpecificHeader(headers, "content-type");
+  std::string charset = net::GetHeaderParamValue(mime_type, "charset");
   WebCore::ResourceResponse response(original_response_.url(),
       webkit_glue::StdStringToString(mime_type.c_str()),
       -1,
@@ -224,7 +222,7 @@ bool MultipartResponseDelegate::ParseHeaders() {
   };
   for (int i = 0; i < arraysize(replace_headers); ++i) {
     std::string name(replace_headers[i]);
-    std::string value = net_util::GetSpecificHeader(headers, name);
+    std::string value = net::GetSpecificHeader(headers, name);
     if (!value.empty()) {
       response.setHTTPHeaderField(webkit_glue::StdStringToString(name.c_str()),
           webkit_glue::StdStringToString(value.c_str()));

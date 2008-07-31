@@ -38,7 +38,7 @@ class IFrameTest : public UITest {
     std::wstring test_file = test_data_directory_;
     file_util::AppendToPath(&test_file, url);
 
-    NavigateToURL(net_util::FilePathToFileURL(test_file));
+    NavigateToURL(net::FilePathToFileURL(test_file));
     Sleep(kWaitForActionMsec);  // The browser lazily updates the title.
 
     // Make sure the navigation succeeded.

@@ -33,6 +33,8 @@
 
 #include "base/singleton.h"
 
+namespace net {
+
 WinsockInit::WinsockInit() : did_init_(false) {
   did_init_ = Init();
 }
@@ -55,3 +57,5 @@ WinsockInit::~WinsockInit() {
 void EnsureWinsockInit() {
   Singleton<WinsockInit>::get();
 }
+
+}  // namespace net

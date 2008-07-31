@@ -88,7 +88,10 @@
 #define COOKIE_DLOG(severity) DLOG_IF(INFO, 0)
 #endif
 
-/*static*/ bool CookieMonster::enable_file_scheme_ = false;
+namespace net {
+
+// static
+bool CookieMonster::enable_file_scheme_ = false;
 
 // static
 void CookieMonster::EnableFileScheme() {
@@ -266,7 +269,7 @@ static bool GetCookieDomainKey(const GURL& url,
   // domain=.my.domain.com -- for compatibility we do the same here.  Firefox
   // also treats domain=.....my.domain.com like domain=.my.domain.com, but
   // neither IE nor Safari do this, and we don't either.
-  std::string cookie_domain(net_util::CanonicalizeHost(pc.Domain(), NULL));
+  std::string cookie_domain(net::CanonicalizeHost(pc.Domain(), NULL));
   if (cookie_domain.empty())
     return false;
   if (cookie_domain[0] != '.')
@@ -1041,3 +1044,5 @@ std::string CookieMonster::CanonicalCookie::DebugString() const {
                       name_.c_str(), value_.c_str(), path_.c_str(),
                       creation_date_.ToTimeT());
 }
+
+}  // namespace

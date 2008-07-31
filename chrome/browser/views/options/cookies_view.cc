@@ -66,7 +66,7 @@ class CookiesTableModel : public ChromeViews::TableModel {
 
   // Returns information about the Cookie at the specified index.
   std::string GetDomainAt(int index);
-  CookieMonster::CanonicalCookie& GetCookieAt(int index);
+  net::CookieMonster::CanonicalCookie& GetCookieAt(int index);
 
   // Remove the specified cookies from the Cookie Monster and update the view.
   void RemoveCookies(int start_index, int remove_count);
@@ -90,8 +90,8 @@ class CookiesTableModel : public ChromeViews::TableModel {
   // The profile from which this model sources cookies.
   Profile* profile_;
 
-  typedef CookieMonster::CookieList CookieList;
-  typedef std::vector<CookieMonster::CookieListPair*> CookiePtrList;
+  typedef net::CookieMonster::CookieList CookieList;
+  typedef std::vector<net::CookieMonster::CookieListPair*> CookiePtrList;
   CookieList all_cookies_;
   CookiePtrList shown_cookies_;
 
@@ -121,7 +121,8 @@ std::string CookiesTableModel::GetDomainAt(int index) {
   return shown_cookies_.at(index)->first;
 }
 
-CookieMonster::CanonicalCookie& CookiesTableModel::GetCookieAt(int index) {
+net::CookieMonster::CanonicalCookie& CookiesTableModel::GetCookieAt(
+    int index) {
   DCHECK(index >= 0 && index < RowCount());
   return shown_cookies_.at(index)->second;
 }
@@ -132,7 +133,7 @@ void CookiesTableModel::RemoveCookies(int start_index, int remove_count) {
     return;
   }
 
-  CookieMonster* monster = profile_->GetRequestContext()->cookie_store();
+  net::CookieMonster* monster = profile_->GetRequestContext()->cookie_store();
 
   // We need to update the searched results list, the full cookie list,
   // and the view.  We walk through the search results list (which is what
@@ -207,17 +208,18 @@ void CookiesTableModel::SetObserver(ChromeViews::TableModelObserver* observer) {
 // Returns true if |cookie| matches the specified filter, where "match" is
 // defined as the cookie's domain, name and value contains filter text
 // somewhere.
-static bool ContainsFilterText(const std::string& domain,
-                               const CookieMonster::CanonicalCookie& cookie,
-                               const std::string& filter) {
+static bool ContainsFilterText(
+    const std::string& domain,
+    const net::CookieMonster::CanonicalCookie& cookie,
+    const std::string& filter) {
   return domain.find(filter) != std::string::npos ||
       cookie.Name().find(filter) != std::string::npos ||
       cookie.Value().find(filter) != std::string::npos;
 }
 
 // Sort ignore the '.' prefix for domain cookies.
-static bool CookieSorter(const CookieMonster::CookieListPair& cp1,
-                         const CookieMonster::CookieListPair& cp2) {
+static bool CookieSorter(const net::CookieMonster::CookieListPair& cp1,
+                         const net::CookieMonster::CookieListPair& cp2) {
   bool is1domain = !cp1.first.empty() && cp1.first[0] == '.';
   bool is2domain = !cp2.first.empty() && cp2.first[0] == '.';
 
@@ -235,7 +237,7 @@ static bool CookieSorter(const CookieMonster::CookieListPair& cp1,
 
 void CookiesTableModel::LoadCookies() {
   // mmargh mmargh mmargh!
-  CookieMonster* cookie_monster =
+  net::CookieMonster* cookie_monster =
       profile_->GetRequestContext()->cookie_store();
   all_cookies_ = cookie_monster->GetAllCookies();
   std::sort(all_cookies_.begin(), all_cookies_.end(), CookieSorter);
@@ -335,7 +337,7 @@ class CookieInfoView : public ChromeViews::View {
 
   // Update the display from the specified CookieNode.
   void SetCookie(const std::string& domain,
-                 const CookieMonster::CanonicalCookie& cookie_node);
+                 const net::CookieMonster::CanonicalCookie& cookie_node);
 
   // Clears the cookie display to indicate that no or multiple cookies are
   // selected.
@@ -393,8 +395,9 @@ CookieInfoView::CookieInfoView()
 CookieInfoView::~CookieInfoView() {
 }
 
-void CookieInfoView::SetCookie(const std::string& domain,
-                               const CookieMonster::CanonicalCookie& cookie) {
+void CookieInfoView::SetCookie(
+    const std::string& domain,
+    const net::CookieMonster::CanonicalCookie& cookie) {
   name_value_field_->SetText(UTF8ToWide(cookie.Name()));
   content_value_field_->SetText(UTF8ToWide(cookie.Value()));
   domain_value_field_->SetText(UTF8ToWide(domain));

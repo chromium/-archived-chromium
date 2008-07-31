@@ -266,7 +266,7 @@ void SSLManager::AddMessageToConsole(const std::wstring& msg,
 
 
 // Delegate API method.
-void SSLManager::DenyCertForHost(X509Certificate* cert,
+void SSLManager::DenyCertForHost(net::X509Certificate* cert,
                                  const std::string& host) {
   // Remember that we don't like this cert for this host.
   // TODO(abarth): Do we want to persist this information in the user's profile?
@@ -274,7 +274,7 @@ void SSLManager::DenyCertForHost(X509Certificate* cert,
 }
 
 // Delegate API method.
-void SSLManager::AllowCertForHost(X509Certificate* cert,
+void SSLManager::AllowCertForHost(net::X509Certificate* cert,
                                   const std::string& host) {
   // Remember that we do like this cert for this host.
   // TODO(abarth): Do we want to persist this information in the user's profile?
@@ -282,8 +282,8 @@ void SSLManager::AllowCertForHost(X509Certificate* cert,
 }
 
 // Delegate API method.
-X509Certificate::Policy::Judgment SSLManager::QueryPolicy(
-    X509Certificate* cert, const std::string& host) {
+net::X509Certificate::Policy::Judgment SSLManager::QueryPolicy(
+    net::X509Certificate* cert, const std::string& host) {
   // TODO(abarth): Do we want to read this information from the user's profile?
   return cert_policy_for_host_[host].Check(cert);
 }
@@ -512,7 +512,7 @@ SSLManager::CertError::CertError(
     URLRequest* request,
     ResourceType::Type resource_type,
     int cert_error,
-    X509Certificate* cert,
+    net::X509Certificate* cert,
     MessageLoop* ui_loop)
     : ErrorHandler(rdh, request, ui_loop),
       cert_error_(cert_error),
@@ -529,7 +529,7 @@ SSLManager::CertError::CertError(
 void SSLManager::OnSSLCertificateError(ResourceDispatcherHost* rdh,
                                        URLRequest* request,
                                        int cert_error,
-                                       X509Certificate* cert,
+                                       net::X509Certificate* cert,
                                        MessageLoop* ui_loop) {
   DLOG(INFO) << "OnSSLCertificateError() cert_error: " << cert_error <<
                 " url: " << request->url().spec();
@@ -751,7 +751,7 @@ bool SSLManager::DeserializeSecurityInfo(const std::string& state,
 }
 
 // static
-bool SSLManager::GetEVCertNames(const X509Certificate& cert,
+bool SSLManager::GetEVCertNames(const net::X509Certificate& cert,
                                 std::wstring* short_name,
                                 std::wstring* ca_name) {
   DCHECK(short_name || ca_name);

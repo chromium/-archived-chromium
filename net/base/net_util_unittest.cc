@@ -55,12 +55,12 @@ TEST(NetUtilTest, FileURLConversion) {
   std::wstring output;
   for (int i = 0; i < arraysize(round_trip_cases); i++) {
     // convert to the file URL
-    GURL file_url(net_util::FilePathToFileURL(round_trip_cases[i].file));
+    GURL file_url(net::FilePathToFileURL(round_trip_cases[i].file));
     EXPECT_EQ(std::wstring(round_trip_cases[i].url),
               UTF8ToWide(file_url.spec()));
 
     // Back to the filename.
-    EXPECT_TRUE(net_util::FileURLToFilePath(file_url, &output));
+    EXPECT_TRUE(net::FileURLToFilePath(file_url, &output));
     EXPECT_EQ(std::wstring(round_trip_cases[i].file), output);
   }
 
@@ -76,7 +76,7 @@ TEST(NetUtilTest, FileURLConversion) {
     {L"C:\\foo\\bar.txt", L"file:\\\\\\c:/foo/bar.txt"},
   };
   for (int i = 0; i < arraysize(url_cases); i++) {
-    net_util::FileURLToFilePath(GURL(url_cases[i].url), &output);
+    net::FileURLToFilePath(GURL(url_cases[i].url), &output);
     EXPECT_EQ(std::wstring(url_cases[i].file), output);
   }
 
@@ -84,7 +84,7 @@ TEST(NetUtilTest, FileURLConversion) {
   // they might be stored with wide characters
   const wchar_t utf8[] = L"file:///d:/Chinese/\xe6\x89\x80\xe6\x9c\x89\xe4\xb8\xad\xe6\x96\x87\xe7\xbd\x91\xe9\xa1\xb5.doc";
   const wchar_t wide[] = L"D:\\Chinese\\\x6240\x6709\x4e2d\x6587\x7f51\x9875.doc";
-  EXPECT_TRUE(net_util::FileURLToFilePath(GURL(utf8), &output));
+  EXPECT_TRUE(net::FileURLToFilePath(GURL(utf8), &output));
   EXPECT_EQ(std::wstring(wide), output);
 
   // Unfortunately, UTF8ToWide discards invalid UTF8 input.
@@ -93,13 +93,13 @@ TEST(NetUtilTest, FileURLConversion) {
   // the input is preserved in UTF-8
   const char invalid_utf8[] = "file:///d:/Blah/\xff.doc";
   const wchar_t invalid_wide[] = L"D:\\Blah\\\xff.doc";
-  EXPECT_TRUE(net_util::FileURLToFilePath(
+  EXPECT_TRUE(net::FileURLToFilePath(
       GURL(std::string(invalid_utf8)), &output));
   EXPECT_EQ(std::wstring(invalid_wide), output);
 #endif
 
   // Test that if a file URL is malformed, we get a failure
-  EXPECT_FALSE(net_util::FileURLToFilePath(GURL("filefoobar"), &output));
+  EXPECT_FALSE(net::FileURLToFilePath(GURL("filefoobar"), &output));
 }
 
 // Just a bunch of fake headers.
@@ -138,14 +138,14 @@ TEST(NetUtilTest, GetSpecificHeader) {
 
   // Test first with google_headers.
   for (size_t i = 0; i < arraysize(tests); ++i) {
-    std::wstring result = net_util::GetSpecificHeader(google_headers,
-                                                      tests[i].header_name);
+    std::wstring result = net::GetSpecificHeader(google_headers,
+                                                 tests[i].header_name);
     EXPECT_EQ(result, tests[i].expected);
   }
 
   // Test again with empty headers.
   for (size_t i = 0; i < arraysize(tests); ++i) {
-    std::wstring result = net_util::GetSpecificHeader(L"", tests[i].header_name);
+    std::wstring result = net::GetSpecificHeader(L"", tests[i].header_name);
     EXPECT_EQ(result, std::wstring());
   }
 }
@@ -171,18 +171,18 @@ TEST(NetUtilTest, GetHeaderParamValue) {
   // TODO(mpcomplete): add tests for other formats of headers.
 
   for (size_t i = 0; i < arraysize(tests); ++i) {
-    std::wstring header_value = net_util::GetSpecificHeader(google_headers,
-                                                            tests[i].header_name);
-    std::wstring result = net_util::GetHeaderParamValue(header_value,
-                                                        tests[i].param_name);
+    std::wstring header_value =
+        net::GetSpecificHeader(google_headers, tests[i].header_name);
+    std::wstring result =
+        net::GetHeaderParamValue(header_value, tests[i].param_name);
     EXPECT_EQ(result, tests[i].expected);
   }
 
   for (size_t i = 0; i < arraysize(tests); ++i) {
-    std::wstring header_value = net_util::GetSpecificHeader(L"",
-                                                            tests[i].header_name);
-    std::wstring result = net_util::GetHeaderParamValue(header_value,
-                                                        tests[i].param_name);
+    std::wstring header_value =
+        net::GetSpecificHeader(L"", tests[i].header_name);
+    std::wstring result =
+        net::GetHeaderParamValue(header_value, tests[i].param_name);
     EXPECT_EQ(result, std::wstring());
   }
 }
@@ -260,7 +260,7 @@ TEST(NetUtilTest, GetFileNameFromCD) {
   };
   for (size_t i = 0; i < arraysize(tests); ++i) {
     EXPECT_EQ(tests[i].expected,
-              net_util::GetFileNameFromCD(tests[i].header_field));
+              net::GetFileNameFromCD(tests[i].header_field));
   }
 }
 
@@ -548,10 +548,10 @@ TEST(NetUtilTest, IDNToUnicode) {
   for (int i = 0; i < arraysize(idn_cases); i++) {
     for (int j = 0; j < arraysize(languages); j++) {
       std::wstring output;
-      net_util::IDNToUnicode(idn_cases[i].input,
-                             static_cast<int>(strlen(idn_cases[i].input)),
-                             languages[j],
-                             &output);
+      net::IDNToUnicode(idn_cases[i].input,
+                        static_cast<int>(strlen(idn_cases[i].input)),
+                        languages[j],
+                        &output);
       std::wstring expected(idn_cases[i].unicode_allowed[j] ?
                             idn_cases[i].unicode_output :
                             ASCIIToWide(idn_cases[i].input));
@@ -561,10 +561,10 @@ TEST(NetUtilTest, IDNToUnicode) {
 }
 
 TEST(NetUtilTest, StripWWW) {
-  EXPECT_EQ(L"", net_util::StripWWW(L""));
-  EXPECT_EQ(L"", net_util::StripWWW(L"www."));
-  EXPECT_EQ(L"blah", net_util::StripWWW(L"www.blah"));
-  EXPECT_EQ(L"blah", net_util::StripWWW(L"blah"));
+  EXPECT_EQ(L"", net::StripWWW(L""));
+  EXPECT_EQ(L"", net::StripWWW(L"www."));
+  EXPECT_EQ(L"blah", net::StripWWW(L"www.blah"));
+  EXPECT_EQ(L"blah", net::StripWWW(L"blah"));
 }
 
 TEST(NetUtilTest, GetSuggestedFilename) {
@@ -663,7 +663,7 @@ TEST(NetUtilTest, GetSuggestedFilename) {
      L"test.html"},
   };
   for (int i = 0; i < arraysize(test_cases); ++i) {
-    std::wstring filename = net_util::GetSuggestedFilename(
+    std::wstring filename = net::GetSuggestedFilename(
         GURL(test_cases[i].url), test_cases[i].content_disp_header,
         test_cases[i].default_filename);
     EXPECT_EQ(std::wstring(test_cases[i].expected_filename), filename);

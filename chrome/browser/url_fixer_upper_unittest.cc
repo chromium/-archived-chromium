@@ -164,7 +164,7 @@ static bool IsMatchingFileURL(const std::wstring& url,
     return false; // contains backslashes
 
   std::wstring derived_path;
-  net_util::FileURLToFilePath(GURL(url), &derived_path);
+  net::FileURLToFilePath(GURL(url), &derived_path);
   return (derived_path.length() == full_file_path.length()) &&
       std::equal(derived_path.begin(), derived_path.end(),
                  full_file_path.begin(), CaseInsensitiveCompare<wchar_t>());
@@ -249,7 +249,7 @@ TEST(URLFixerUpperTest, FixupFile) {
 
   // reference path
   std::wstring golden =
-      UTF8ToWide(net_util::FilePathToFileURL(original).spec());
+      UTF8ToWide(net::FilePathToFileURL(original).spec());
 
   // c:\foo\bar.txt -> file:///c:/foo/bar.txt (basic)
   std::wstring fixedup = URLFixerUpper::FixupURL(original, L"");

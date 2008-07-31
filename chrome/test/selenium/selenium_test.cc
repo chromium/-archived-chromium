@@ -125,7 +125,7 @@ class SeleniumTest : public UITest {
     file_util::AppendToPath(&test_path, L"core");
     file_util::AppendToPath(&test_path, L"TestRunner.html");
 
-    GURL test_url(net_util::FilePathToFileURL(test_path));
+    GURL test_url(net::FilePathToFileURL(test_path));
     scoped_ptr<TabProxy> tab(GetActiveTab());
     tab->NavigateToURL(test_url);
 

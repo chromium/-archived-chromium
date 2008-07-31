@@ -43,6 +43,8 @@
 
 class GURL;
 
+namespace net {
+
 // The cookie monster is the system for storing and retrieving cookies. It has
 // an in-memory list of all cookies, and synchronizes non-session cookies to an
 // optional permanent storage that implements the PersistentCookieStore
@@ -327,5 +329,7 @@ class CookieMonster::PersistentCookieStore {
  private:
   DISALLOW_EVIL_CONSTRUCTORS(CookieMonster::PersistentCookieStore);
 };
+
+}  // namespace net
 
 #endif  // NET_BASE_COOKIE_MONSTER_H__

@@ -350,7 +350,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
                               net::AuthChallengeInfo* auth_info);
   virtual void OnSSLCertificateError(URLRequest* request,
                                      int cert_error,
-                                     X509Certificate* cert);
+                                     net::X509Certificate* cert);
   virtual void OnResponseStarted(URLRequest* request);
   virtual void OnReadCompleted(URLRequest* request, int bytes_read);
   void OnResponseCompleted(URLRequest* request);

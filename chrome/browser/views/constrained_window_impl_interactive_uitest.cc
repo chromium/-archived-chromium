@@ -62,7 +62,7 @@ TEST_F(InteractiveConstrainedWindowTest, UserActivatedResizeToLeavesSpaceForChro
   file_util::AppendToPath(&filename, L"constrained_files");
   file_util::AppendToPath(&filename,
                           L"constrained_window_onload_resizeto.html");
-  ASSERT_TRUE(tab->NavigateToURL(net_util::FilePathToFileURL(filename)));
+  ASSERT_TRUE(tab->NavigateToURL(net::FilePathToFileURL(filename)));
 
   gfx::Rect tab_view_bounds;
   ASSERT_TRUE(window->GetViewBounds(VIEW_ID_TAB_CONTAINER,

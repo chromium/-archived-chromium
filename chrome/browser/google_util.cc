@@ -63,8 +63,8 @@ GURL AppendGoogleLocaleParam(const GURL& url) {
 
 GURL AppendGoogleTLDParam(const GURL& url) {
   const std::string google_domain(
-      RegistryControlledDomainService::GetDomainAndRegistry(
-      GoogleURLTracker::GoogleURL()));
+      net::RegistryControlledDomainService::GetDomainAndRegistry(
+          GoogleURLTracker::GoogleURL()));
   const size_t first_dot = google_domain.find('.');
   if (first_dot == std::string::npos) {
     NOTREACHED();

@@ -519,7 +519,7 @@ void SaveFileManager::SaveLocalFile(const std::wstring& original_file_url,
   GURL file_url(original_file_url);
   DCHECK(file_url.SchemeIsFile());
   std::wstring file_path;
-  net_util::FileURLToFilePath(file_url, &file_path);
+  net::FileURLToFilePath(file_url, &file_path);
   // If we can not get valid file path from original URL, treat it as
   // disk error.
   if (file_path.empty())

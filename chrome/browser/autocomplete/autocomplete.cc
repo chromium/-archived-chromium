@@ -150,7 +150,7 @@ AutocompleteInput::Type AutocompleteInput::Parse(const std::wstring& text,
   // the host's validity at this point.)
   const std::wstring host(text.substr(parts->host.begin, parts->host.len));
   const size_t registry_length =
-      RegistryControlledDomainService::GetRegistryLength(host, false);
+      net::RegistryControlledDomainService::GetRegistryLength(host, false);
   if (registry_length == std::wstring::npos)
     return QUERY;  // It's not clear to me that we can reach this...
 
@@ -169,7 +169,7 @@ AutocompleteInput::Type AutocompleteInput::Parse(const std::wstring& text,
 
   // See if the host is an IP address.
   bool is_ip_address;
-  net_util::CanonicalizeHost(host, &is_ip_address);
+  net::CanonicalizeHost(host, &is_ip_address);
   if (is_ip_address) {
     // If the user originally typed a host that looks like an IP address (a
     // dotted quad), they probably want to open it.  If the original input was

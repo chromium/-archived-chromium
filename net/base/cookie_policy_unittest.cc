@@ -49,7 +49,7 @@ class CookiePolicyTest : public testing::Test {
 }  // namespace
 
 TEST_F(CookiePolicyTest, DefaultPolicyTest) {
-  CookiePolicy cp;
+  net::CookiePolicy cp;
   EXPECT_TRUE(cp.CanGetCookies(url_google_, url_google_));
   EXPECT_TRUE(cp.CanGetCookies(url_google_, url_google_secure_));
   EXPECT_TRUE(cp.CanGetCookies(url_google_, url_google_mail_));
@@ -64,8 +64,8 @@ TEST_F(CookiePolicyTest, DefaultPolicyTest) {
 }
 
 TEST_F(CookiePolicyTest, AllowAllCookiesTest) {
-  CookiePolicy cp;
-  cp.SetType(CookiePolicy::ALLOW_ALL_COOKIES);
+  net::CookiePolicy cp;
+  cp.SetType(net::CookiePolicy::ALLOW_ALL_COOKIES);
 
   EXPECT_TRUE(cp.CanGetCookies(url_google_, url_google_));
   EXPECT_TRUE(cp.CanGetCookies(url_google_, url_google_secure_));
@@ -81,8 +81,8 @@ TEST_F(CookiePolicyTest, AllowAllCookiesTest) {
 }
 
 TEST_F(CookiePolicyTest, BlockThirdPartyCookiesTest) {
-  CookiePolicy cp;
-  cp.SetType(CookiePolicy::BLOCK_THIRD_PARTY_COOKIES);
+  net::CookiePolicy cp;
+  cp.SetType(net::CookiePolicy::BLOCK_THIRD_PARTY_COOKIES);
 
   EXPECT_TRUE(cp.CanGetCookies(url_google_, url_google_));
   EXPECT_TRUE(cp.CanGetCookies(url_google_, url_google_secure_));
@@ -98,8 +98,8 @@ TEST_F(CookiePolicyTest, BlockThirdPartyCookiesTest) {
 }
 
 TEST_F(CookiePolicyTest, BlockAllCookiesTest) {
-  CookiePolicy cp;
-  cp.SetType(CookiePolicy::BLOCK_ALL_COOKIES);
+  net::CookiePolicy cp;
+  cp.SetType(net::CookiePolicy::BLOCK_ALL_COOKIES);
 
   EXPECT_FALSE(cp.CanGetCookies(url_google_, url_google_));
   EXPECT_FALSE(cp.CanGetCookies(url_google_, url_google_secure_));

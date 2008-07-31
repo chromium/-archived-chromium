@@ -115,7 +115,7 @@ GURL SiteInstance::GetSiteForURL(const GURL& url) {
 
     // If this URL has a registered domain, we only want to remember that part.
     std::string domain =
-        RegistryControlledDomainService::GetDomainAndRegistry(url);
+        net::RegistryControlledDomainService::GetDomainAndRegistry(url);
     if (!domain.empty()) {
       GURL::Replacements rep;
       rep.SetHostStr(domain);
@@ -155,5 +155,5 @@ bool SiteInstance::IsSameWebSite(const GURL& url1, const GURL& url2) {
     return false;
   }
 
-  return RegistryControlledDomainService::SameDomainOrHost(url1, url2);
+  return net::RegistryControlledDomainService::SameDomainOrHost(url1, url2);
 }

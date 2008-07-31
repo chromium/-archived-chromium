@@ -427,7 +427,7 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
   }
 
   if (parsed_command_line.HasSwitch(switches::kEnableFileCookies))
-    CookieMonster::EnableFileScheme();
+    net::CookieMonster::EnableFileScheme();
 
 #ifndef NDEBUG
   if (parsed_command_line.HasSwitch(switches::kApp)) {

@@ -34,6 +34,8 @@
 
 #include "base/basictypes.h"
 
+namespace net {
+
 // Defines global initializers and associated methods for the net module.
 //
 // The network module does not have direct access to the way application
@@ -56,5 +58,7 @@ class NetModule {
  private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(NetModule);
 };
+
+}  // namespace net
 
 #endif  // NET_BASE_NET_MODULE_H__

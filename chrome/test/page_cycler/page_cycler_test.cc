@@ -86,7 +86,7 @@ class PageCyclerTest : public UITest {
       file_util::AppendToPath(&test_path, L"page_cycler");
       file_util::AppendToPath(&test_path, name);
       file_util::AppendToPath(&test_path, L"start.html");
-      test_url = net_util::FilePathToFileURL(test_path);
+      test_url = net::FilePathToFileURL(test_path);
     }
 
     // run N iterations

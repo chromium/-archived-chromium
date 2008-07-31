@@ -303,21 +303,21 @@ class DefaultPolicy : public SSLPolicy {
     }
 
     // First we check if we know the policy for this error.
-    X509Certificate::Policy::Judgment judgment =
+    net::X509Certificate::Policy::Judgment judgment =
         error->manager()->QueryPolicy(error->ssl_info().cert,
                                       error->request_url().host());
 
-    switch(judgment) {
-    case X509Certificate::Policy::ALLOWED:
+    switch (judgment) {
+    case net::X509Certificate::Policy::ALLOWED:
       // We've been told to allow this certificate.
       error->manager()->SetMaxSecurityStyle(
           SECURITY_STYLE_AUTHENTICATION_BROKEN);
       error->ContinueRequest();
       break;
-    case X509Certificate::Policy::DENIED:
+    case net::X509Certificate::Policy::DENIED:
       // For now we handle the DENIED as the UNKNOWN, which means a blocking
       // page is shown to the user every time he comes back to the page.
-    case X509Certificate::Policy::UNKNOWN:
+    case net::X509Certificate::Policy::UNKNOWN:
       // We don't know how to handle this error.  Ask our sub-policies.
       sub_policies_[index]->OnCertError(main_frame_url, error);
       break;

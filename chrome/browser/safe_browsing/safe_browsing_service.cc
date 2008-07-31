@@ -207,7 +207,7 @@ void SafeBrowsingService::DisplayBlockingPage(const GURL& url,
         entry.render_view_id == render_view_id &&
         entry.result == result &&
         entry.domain ==
-        RegistryControlledDomainService::GetDomainAndRegistry(url)) {
+        net::RegistryControlledDomainService::GetDomainAndRegistry(url)) {
       MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
           this, &SafeBrowsingService::NotifyClientBlockingComplete,
           client, true));
@@ -405,8 +405,8 @@ void SafeBrowsingService::OnBlockingPageDone(SafeBrowsingBlockingPage* page,
     WhiteListedEntry entry;
     entry.render_process_host_id = page->render_process_host_id();
     entry.render_view_id = page->render_view_id();
-    entry.domain =
-        RegistryControlledDomainService::GetDomainAndRegistry(page->url());
+    entry.domain = net::RegistryControlledDomainService::GetDomainAndRegistry(
+        page->url());
     entry.result = page->result();
     white_listed_entries_.push_back(entry);
   }

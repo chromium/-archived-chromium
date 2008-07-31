@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_COMMON_NET_X509_CERTIFICATE_H__
-#define CHROME_COMMON_NET_X509_CERTIFICATE_H__
+#ifndef NET_BASE_X509_CERTIFICATE_H_
+#define NET_BASE_X509_CERTIFICATE_H_
 
 #include <windows.h>
 #include <wincrypt.h>
@@ -41,6 +41,8 @@
 #include "base/time.h"
 
 class Pickle;
+
+namespace net {
 
 // X509Certificate represents an X.509 certificate used by SSL.
 class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
@@ -210,4 +212,6 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
   DISALLOW_EVIL_CONSTRUCTORS(X509Certificate);
 };
 
-#endif  // CHROME_COMMON_NET_X509_CERTIFICATE_H__
+}  // namespace net
+
+#endif  // NET_BASE_X509_CERTIFICATE_H_

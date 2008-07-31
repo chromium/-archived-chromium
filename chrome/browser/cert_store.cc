@@ -80,7 +80,7 @@ CertStore::~CertStore() {
       NOTIFY_RENDERER_PROCESS_TERMINATED, NotificationService::AllSources());
 }
 
-int CertStore::StoreCert(X509Certificate* cert, int process_id) {
+int CertStore::StoreCert(net::X509Certificate* cert, int process_id) {
   DCHECK(cert);
   AutoLock autoLock(cert_lock_);
 
@@ -117,7 +117,7 @@ int CertStore::StoreCert(X509Certificate* cert, int process_id) {
 }
 
 bool CertStore::RetrieveCert(int cert_id,
-                             scoped_refptr<X509Certificate>* cert) {
+                             scoped_refptr<net::X509Certificate>* cert) {
    AutoLock autoLock(cert_lock_);
 
    CertMap::iterator iter = id_to_cert_.find(cert_id);

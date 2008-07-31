@@ -44,7 +44,9 @@
 #include "net/base/cookie_policy.h"
 #include "net/http/http_transaction_factory.h"
 
+namespace net {
 class CookieMonster;
+}
 
 // Subclass to provide application-specific context for URLRequest instances.
 class URLRequestContext :
@@ -62,10 +64,10 @@ class URLRequestContext :
   }
 
   // Gets the cookie store for this context.
-  CookieMonster* cookie_store() { return cookie_store_; }
+  net::CookieMonster* cookie_store() { return cookie_store_; }
 
   // Gets the cookie policy for this context.
-  CookiePolicy* cookie_policy() { return &cookie_policy_; }
+  net::CookiePolicy* cookie_policy() { return &cookie_policy_; }
 
   // Gets the FTP realm authentication cache for this context.
   net::AuthCache* ftp_auth_cache() { return &ftp_auth_cache_; }
@@ -90,8 +92,8 @@ class URLRequestContext :
   // The following members are expected to be initialized and owned by
   // subclasses.
   net::HttpTransactionFactory* http_transaction_factory_;
-  CookieMonster* cookie_store_;
-  CookiePolicy cookie_policy_;
+  net::CookieMonster* cookie_store_;
+  net::CookiePolicy cookie_policy_;
   net::AuthCache ftp_auth_cache_;
   std::string user_agent_;
   bool is_off_the_record_;

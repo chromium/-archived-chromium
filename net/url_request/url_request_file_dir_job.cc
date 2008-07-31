@@ -131,11 +131,11 @@ void URLRequestFileDirJob::OnListFile(const WIN32_FIND_DATA& data) {
   // We wait to write out the header until we get the first file, so that we
   // can catch errors from DirectoryLister and show an error page.
   if (!wrote_header_) {
-    data_.append(net_util::GetDirectoryListingHeader(WideToUTF8(dir_path_)));
+    data_.append(net::GetDirectoryListingHeader(WideToUTF8(dir_path_)));
     wrote_header_ = true;
   }
 
-  data_.append(net_util::GetDirectoryListingEntry(
+  data_.append(net::GetDirectoryListingEntry(
       WideToUTF8(data.cFileName), data.dwFileAttributes, size, &local_time));
 
   // TODO(darin): coalesce more?

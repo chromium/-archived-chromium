@@ -144,7 +144,7 @@ class URLRequest {
     // indicating what's wrong with the certificate.
     virtual void OnSSLCertificateError(URLRequest* request,
                                        int cert_error,
-                                       X509Certificate* cert) {
+                                       net::X509Certificate* cert) {
       request->Cancel();
     }
 

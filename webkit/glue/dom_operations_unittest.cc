@@ -66,7 +66,7 @@ void DomOperationsTests::GetSavableResourceLinksForPage(
     const std::wstring& page_file_path,
     const std::set<GURL>& expected_resources_set) {
   // Convert local file path to file URL.
-  GURL file_url = net_util::FilePathToFileURL(page_file_path);
+  GURL file_url = net::FilePathToFileURL(page_file_path);
   // Load the test file.
   test_shell_->ResetTestController();
   std::wstring file_wurl = ASCIIToWide(file_url.spec());
@@ -122,7 +122,7 @@ TEST_F(DomOperationsTests, GetSavableResourceLinksWithPageHasValidLinks) {
     std::wstring expected_frame_url = page_file_path;
     file_util::AppendToPath(&expected_frame_url, expected_frame_links[i]);
     expected_resources_set.insert(
-        net_util::FilePathToFileURL(expected_frame_url));
+        net::FilePathToFileURL(expected_frame_url));
   }
 
   file_util::AppendToPath(&page_file_path, std::wstring(L"youtube_1.htm"));
@@ -145,7 +145,7 @@ TEST_F(DomOperationsTests, GetSavableResourceLinksWithPageHasInvalidLinks) {
     std::wstring expected_frame_url = page_file_path;
     file_util::AppendToPath(&expected_frame_url, expected_frame_links[i]);
     expected_resources_set.insert(
-        net_util::FilePathToFileURL(expected_frame_url));
+        net::FilePathToFileURL(expected_frame_url));
   }
 
   file_util::AppendToPath(&page_file_path, std::wstring(L"youtube_2.htm"));

@@ -146,7 +146,7 @@ class ProfileImpl::RequestContext : public URLRequestContext,
 
     if (record_mode || playback_mode) {
       // Don't use existing cookies and use an in-memory store.
-      cookie_store_ = new CookieMonster();
+      cookie_store_ = new net::CookieMonster();
       cache->set_mode(
           record_mode ? net::HttpCache::RECORD : net::HttpCache::PLAYBACK);
     }
@@ -157,11 +157,11 @@ class ProfileImpl::RequestContext : public URLRequestContext,
       DCHECK(!cookie_store_path.empty());
       cookie_db_.reset(new SQLitePersistentCookieStore(
           cookie_store_path, g_browser_process->db_thread()->message_loop()));
-      cookie_store_ = new CookieMonster(cookie_db_.get());
+      cookie_store_ = new net::CookieMonster(cookie_db_.get());
     }
 
-    cookie_policy_.SetType(
-        CookiePolicy::FromInt(prefs_->GetInteger(prefs::kCookieBehavior)));
+    cookie_policy_.SetType(net::CookiePolicy::FromInt(
+        prefs_->GetInteger(prefs::kCookieBehavior)));
 
     // The first request context to be created is the one for the default
     // profile - at least until we support multiple profiles.
@@ -189,8 +189,8 @@ class ProfileImpl::RequestContext : public URLRequestContext,
                               &RequestContext::OnAcceptLanguageChange,
                               accept_language));
       } else if (*pref_name_in == prefs::kCookieBehavior) {
-        CookiePolicy::Type type =
-            CookiePolicy::FromInt(prefs_->GetInteger(prefs::kCookieBehavior));
+        net::CookiePolicy::Type type = net::CookiePolicy::FromInt(
+            prefs_->GetInteger(prefs::kCookieBehavior));
         g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
             NewRunnableMethod(this,
                               &RequestContext::OnCookiePolicyChange,
@@ -216,7 +216,7 @@ class ProfileImpl::RequestContext : public URLRequestContext,
     accept_language_ = accept_language;
   }
 
-  void OnCookiePolicyChange(CookiePolicy::Type type) {
+  void OnCookiePolicyChange(net::CookiePolicy::Type type) {
     DCHECK(MessageLoop::current() ==
            ChromeThread::GetMessageLoop(ChromeThread::IO));
     cookie_policy_.SetType(type);
@@ -265,9 +265,9 @@ class OffTheRecordRequestContext : public URLRequestContext,
     scoped_ptr<net::HttpProxyInfo> proxy_info(CreateProxyInfo(command_line));
 
     http_transaction_factory_ = new net::HttpCache(NULL, 0);
-    cookie_store_ = new CookieMonster;
-    cookie_policy_.SetType(
-        CookiePolicy::FromInt(prefs_->GetInteger(prefs::kCookieBehavior)));
+    cookie_store_ = new net::CookieMonster;
+    cookie_policy_.SetType(net::CookiePolicy::FromInt(
+        prefs_->GetInteger(prefs::kCookieBehavior)));
     user_agent_ = original_context_->user_agent();
     accept_language_ = original_context_->accept_language();
     accept_charset_ = original_context_->accept_charset();
@@ -307,8 +307,8 @@ class OffTheRecordRequestContext : public URLRequestContext,
                 &OffTheRecordRequestContext::OnAcceptLanguageChange,
                 accept_language));
       } else if (*pref_name_in == prefs::kCookieBehavior) {
-        CookiePolicy::Type type =
-            CookiePolicy::FromInt(prefs_->GetInteger(prefs::kCookieBehavior));
+        net::CookiePolicy::Type type = net::CookiePolicy::FromInt(
+            prefs_->GetInteger(prefs::kCookieBehavior));
         g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
             NewRunnableMethod(this,
                               &OffTheRecordRequestContext::OnCookiePolicyChange,
@@ -323,7 +323,7 @@ class OffTheRecordRequestContext : public URLRequestContext,
     accept_language_ = accept_language;
   }
 
-  void OnCookiePolicyChange(CookiePolicy::Type type) {
+  void OnCookiePolicyChange(net::CookiePolicy::Type type) {
     DCHECK(MessageLoop::current() ==
            ChromeThread::GetMessageLoop(ChromeThread::IO));
     cookie_policy_.SetType(type);

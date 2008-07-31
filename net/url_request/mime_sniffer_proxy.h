@@ -68,7 +68,7 @@ class MimeSnifferProxy : public URLRequest::Delegate {
   }
   virtual void OnSSLCertificateError(URLRequest* request,
                                      int cert_error,
-                                     X509Certificate* cert) {
+                                     net::X509Certificate* cert) {
     delegate_->OnSSLCertificateError(request, cert_error, cert);
   }
 

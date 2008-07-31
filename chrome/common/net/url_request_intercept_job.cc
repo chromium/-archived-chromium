@@ -160,10 +160,10 @@ void URLRequestInterceptJob::GetResponseInfo(net::HttpResponseInfo* info) {
         << request_->url();
 
     info->ssl_info.cert =
-        new X509Certificate(request_->url().GetWithEmptyPath().spec(),
-                            kCertIssuer,
-                            Time::Now(),
-                            Time::Now() + TimeDelta::FromDays(kLifetimeDays));
+        new net::X509Certificate(request_->url().GetWithEmptyPath().spec(),
+                                 kCertIssuer,
+                                 Time::Now(),
+                                 Time::Now() + TimeDelta::FromDays(kLifetimeDays));
     info->ssl_info.cert_status = 0;
     info->ssl_info.security_bits = 0;
   }

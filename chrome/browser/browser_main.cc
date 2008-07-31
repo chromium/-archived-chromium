@@ -423,7 +423,7 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   PrepareRestartOnCrashEnviroment(parsed_command_line);
 
   // Initialize Winsock.
-  WinsockInit init;
+  net::WinsockInit init;
 
   // Initialize the DNS prefetch system
   chrome_browser_net::DnsPrefetcherInit dns_prefetch_init(user_prefs);
@@ -443,7 +443,7 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   RLZTracker::InitRlzDelayed(base::DIR_MODULE, is_first_run);
 
   // Config the network module so it has access to resources.
-  NetModule::SetResourceProvider(NetResourceProvider);
+  net::NetModule::SetResourceProvider(NetResourceProvider);
 
   // Register our global network handler for chrome-resource:// URLs.
   RegisterURLRequestChromeJob();

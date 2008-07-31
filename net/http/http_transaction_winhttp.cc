@@ -1549,7 +1549,7 @@ void HttpTransactionWinHttp::PopulateAuthChallenge() {
   std::wstring::const_iterator space = find(auth_header.begin(),
                                             auth_header.end(), ' ');
   auth_info->scheme.assign(auth_header.begin(), space);
-  auth_info->realm = net_util::GetHeaderParamValue(auth_header, L"realm");
+  auth_info->realm = GetHeaderParamValue(auth_header, L"realm");
 
   // Now auth_info has been fully populated.  Before we swap it with
   // response_.auth_challenge, update the auth cache key and remove any

@@ -571,7 +571,7 @@ TEST(URLRequestTest, ResolveShortcutTest) {
 
   TestDelegate d;
   {
-    TestURLRequest r(net_util::FilePathToFileURL(lnk_path), &d);
+    TestURLRequest r(net::FilePathToFileURL(lnk_path), &d);
 
     r.Start();
     EXPECT_TRUE(r.is_pending());
@@ -626,7 +626,7 @@ TEST(URLRequestTest, ContentTypeNormalizationTest) {
 
 TEST(URLRequestTest, FileDirCancelTest) {
   // Put in mock resource provider.
-  NetModule::SetResourceProvider(TestNetResourceProvider);
+  net::NetModule::SetResourceProvider(TestNetResourceProvider);
 
   TestDelegate d;
   {
@@ -636,7 +636,7 @@ TEST(URLRequestTest, FileDirCancelTest) {
     file_util::AppendToPath(&file_path, L"data");
     file_util::AppendToPath(&file_path, L"");
 
-    TestURLRequest req(net_util::FilePathToFileURL(file_path), &d);
+    TestURLRequest req(net::FilePathToFileURL(file_path), &d);
     req.Start();
     EXPECT_TRUE(req.is_pending());
 
@@ -649,7 +649,7 @@ TEST(URLRequestTest, FileDirCancelTest) {
 #endif
 
   // Take out mock resource provider.
-  NetModule::SetResourceProvider(NULL);
+  net::NetModule::SetResourceProvider(NULL);
 }
 
 TEST(URLRequestTest, RestrictRedirects) {

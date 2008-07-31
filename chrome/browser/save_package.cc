@@ -237,7 +237,7 @@ bool SavePackage::GenerateFilename(const std::string& disposition,
                                    bool need_html_ext,
                                    std::wstring* generated_name) {
   std::wstring file_name =
-    net_util::GetSuggestedFilename(GURL(url), disposition, kDefaultSaveName);
+      net::GetSuggestedFilename(GURL(url), disposition, kDefaultSaveName);
 
   DCHECK(!file_name.empty());
   // Check whether we have same name before.

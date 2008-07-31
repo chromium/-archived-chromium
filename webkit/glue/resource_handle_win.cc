@@ -165,7 +165,7 @@ static ResourceResponse MakeResourceResponse(
   if (info.headers) {
     std::string disp_val;
     if (info.headers->EnumerateHeader(NULL, "content-disposition", &disp_val)) {
-      suggested_filename = net_util::GetSuggestedFilename(
+      suggested_filename = net::GetSuggestedFilename(
           webkit_glue::KURLToGURL(kurl), disp_val, std::wstring());
     }
   }
@@ -552,8 +552,7 @@ void ResourceHandleInternal::OnReceivedResponse(
     std::string content_type;
     info.headers->EnumerateHeader(NULL, "content-type", &content_type);
 
-    std::string boundary = net_util::GetHeaderParamValue(content_type,
-                                                         "boundary");
+    std::string boundary = net::GetHeaderParamValue(content_type, "boundary");
     TrimString(boundary, " \"", &boundary);
     // If there's no boundary, just handle the request normally.  In the gecko
     // code, nsMultiMixedConv::OnStartRequest throws an exception.

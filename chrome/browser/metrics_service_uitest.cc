@@ -60,12 +60,12 @@ class MetricsServiceTest : public UITest {
     std::wstring page1_path;
     ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &page1_path));
     file_util::AppendToPath(&page1_path, L"title2.html");
-    ASSERT_TRUE(window_->AppendTab(net_util::FilePathToFileURL(page1_path)));
+    ASSERT_TRUE(window_->AppendTab(net::FilePathToFileURL(page1_path)));
 
     std::wstring page2_path;
     ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &page2_path));
     file_util::AppendToPath(&page2_path, L"iframe.html");
-    ASSERT_TRUE(window_->AppendTab(net_util::FilePathToFileURL(page2_path)));
+    ASSERT_TRUE(window_->AppendTab(net::FilePathToFileURL(page2_path)));
   }
 
   // Get a PrefService whose contents correspond to the Local State file

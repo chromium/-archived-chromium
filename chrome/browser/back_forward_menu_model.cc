@@ -304,7 +304,7 @@ int BackForwardMenuModel::GetIndexOfNextChapterStop(int start_from,
     // When going backwards we return the first entry we find that has a
     // different domain.
     for (int i = start_from - 1; i >= 0; --i) {
-      if (!RegistryControlledDomainService::SameDomainOrHost(url,
+      if (!net::RegistryControlledDomainService::SameDomainOrHost(url,
               controller->GetEntryAtIndex(i)->GetURL()))
         return i;
     }
@@ -314,7 +314,7 @@ int BackForwardMenuModel::GetIndexOfNextChapterStop(int start_from,
     // When going forwards we return the entry before the entry that has a
     // different domain.
     for (int i = start_from + 1; i < max_count; ++i) {
-      if (!RegistryControlledDomainService::SameDomainOrHost(url,
+      if (!net::RegistryControlledDomainService::SameDomainOrHost(url,
               controller->GetEntryAtIndex(i)->GetURL()))
         return i - 1;
     }

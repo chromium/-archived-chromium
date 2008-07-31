@@ -218,7 +218,7 @@ TEST_F(AccessibilityTest, TestStarBtnStatusOnNewTab) {
   ASSERT_TRUE(tab1.get());
   std::wstring test_file1 = test_data_directory_;
   file_util::AppendToPath(&test_file1, L"title1.html");
-  tab1->NavigateToURL(net_util::FilePathToFileURL(test_file1));
+  tab1->NavigateToURL(net::FilePathToFileURL(test_file1));
   Sleep(kWaitForActionMsec);
   EXPECT_EQ(L"focusable", GetState(p_toolbar, button));
 
@@ -239,7 +239,7 @@ TEST_F(AccessibilityTest, TestStarBtnStatusOnNewTab) {
   old_tab_count = new_tab_count;
   std::wstring test_file2 = test_data_directory_;
   file_util::AppendToPath(&test_file2, L"title1.html");
-  ASSERT_TRUE(window->AppendTab(net_util::FilePathToFileURL(test_file2)));
+  ASSERT_TRUE(window->AppendTab(net::FilePathToFileURL(test_file2)));
   ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
               5000));
   // Check tab count. Also, check accessibility object's children.
@@ -320,7 +320,7 @@ TEST_F(AccessibilityTest, DISABLED_TestBackBtnStatusOnNewTab) {
   ASSERT_TRUE(tab1.get());
   std::wstring test_file1 = test_data_directory_;
   file_util::AppendToPath(&test_file1, L"title1.html");
-  tab1->NavigateToURL(net_util::FilePathToFileURL(test_file1));
+  tab1->NavigateToURL(net::FilePathToFileURL(test_file1));
   Sleep(kWaitForActionMsec);
   if (win_util::GetWinVersion() > win_util::WINVERSION_2000) {
     EXPECT_EQ(L"has popup, focusable",
@@ -356,7 +356,7 @@ TEST_F(AccessibilityTest, DISABLED_TestBackBtnStatusOnNewTab) {
   old_tab_count = new_tab_count;
   std::wstring test_file2 = test_data_directory_;
   file_util::AppendToPath(&test_file2, L"title1.html");
-  ASSERT_TRUE(window->AppendTab(net_util::FilePathToFileURL(test_file2)));
+  ASSERT_TRUE(window->AppendTab(net::FilePathToFileURL(test_file2)));
   ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
               5000));
   // Check tab count. Also, check accessibility object's children.
@@ -441,7 +441,7 @@ TEST_F(AccessibilityTest, DISABLED_TestForwardBtnStatusOnNewTab) {
   ASSERT_TRUE(tab1.get());
   std::wstring test_file1 = test_data_directory_;
   file_util::AppendToPath(&test_file1, L"title1.html");
-  tab1->NavigateToURL(net_util::FilePathToFileURL(test_file1));
+  tab1->NavigateToURL(net::FilePathToFileURL(test_file1));
   Sleep(kWaitForActionMsec);
   if (win_util::GetWinVersion() > win_util::WINVERSION_2000) {
     EXPECT_EQ(L"has popup, focusable, unavailable",
@@ -486,7 +486,7 @@ TEST_F(AccessibilityTest, DISABLED_TestForwardBtnStatusOnNewTab) {
   old_tab_count = new_tab_count;
   std::wstring test_file2 = test_data_directory_;
   file_util::AppendToPath(&test_file2, L"title1.html");
-  ASSERT_TRUE(window->AppendTab(net_util::FilePathToFileURL(test_file2)));
+  ASSERT_TRUE(window->AppendTab(net::FilePathToFileURL(test_file2)));
   ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
               5000));
   // Check tab count.

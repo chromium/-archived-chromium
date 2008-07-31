@@ -37,6 +37,8 @@
 #ifndef NET_BASE_WINSOCK_INIT_H_
 #define NET_BASE_WINSOCK_INIT_H_
 
+namespace net {
+
 class WinsockInit {
  public:
   WinsockInit();
@@ -52,5 +54,7 @@ class WinsockInit {
 // Force there to be a global WinsockInit object that gets created once and
 // destroyed at application exit.  This may be called multiple times.
 void EnsureWinsockInit();
+
+}  // namespace net
 
 #endif  // NET_BASE_WINSOCK_INIT_H_

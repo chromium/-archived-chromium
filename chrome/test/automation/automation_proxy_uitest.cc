@@ -197,7 +197,7 @@ TEST_F(AutomationProxyVisibleTest, AppendTab) {
 
   std::wstring filename(test_data_directory_);
   file_util::AppendToPath(&filename, L"title2.html");
-  ASSERT_TRUE(window->AppendTab(net_util::FilePathToFileURL(filename)));
+  ASSERT_TRUE(window->AppendTab(net::FilePathToFileURL(filename)));
 
   int appended_tab_index;
   // Append tab will also be active tab
@@ -266,7 +266,7 @@ TEST_F(AutomationProxyTest, NavigateToURL) {
   std::wstring filename(test_data_directory_);
   file_util::AppendToPath(&filename, L"title2.html");
 
-  tab->NavigateToURL(net_util::FilePathToFileURL(filename));
+  tab->NavigateToURL(net::FilePathToFileURL(filename));
   ASSERT_TRUE(tab->GetTabTitle(&title));
   ASSERT_STREQ(L"Title Of Awesomeness", title.c_str());
 
@@ -284,7 +284,7 @@ TEST_F(AutomationProxyTest, DISABLED_NavigateToURLWithTimeout1) {
   file_util::AppendToPath(&filename, L"title2.html");
 
   bool is_timeout;
-  tab->NavigateToURLWithTimeout(net_util::FilePathToFileURL(filename),
+  tab->NavigateToURLWithTimeout(net::FilePathToFileURL(filename),
                                 10000, &is_timeout);
   ASSERT_FALSE(is_timeout);
 
@@ -292,7 +292,7 @@ TEST_F(AutomationProxyTest, DISABLED_NavigateToURLWithTimeout1) {
   ASSERT_TRUE(tab->GetTabTitle(&title));
   ASSERT_STREQ(L"Title Of Awesomeness", title.c_str());
 
-  tab->NavigateToURLWithTimeout(net_util::FilePathToFileURL(filename),
+  tab->NavigateToURLWithTimeout(net::FilePathToFileURL(filename),
                                 1, &is_timeout);
   ASSERT_TRUE(is_timeout);
 
@@ -311,13 +311,13 @@ TEST_F(AutomationProxyTest, DISABLED_NavigateToURLWithTimeout2) {
   file_util::AppendToPath(&filename1, L"title1.html");
 
   bool is_timeout;
-  tab->NavigateToURLWithTimeout(net_util::FilePathToFileURL(filename1),
+  tab->NavigateToURLWithTimeout(net::FilePathToFileURL(filename1),
                                 1, &is_timeout);
   ASSERT_TRUE(is_timeout);
 
   std::wstring filename2(test_data_directory_);
   file_util::AppendToPath(&filename2, L"title2.html");
-  tab->NavigateToURLWithTimeout(net_util::FilePathToFileURL(filename2),
+  tab->NavigateToURLWithTimeout(net::FilePathToFileURL(filename2),
                                 10000, &is_timeout);
   ASSERT_FALSE(is_timeout);
 
@@ -341,7 +341,7 @@ TEST_F(AutomationProxyTest, GoBackForward) {
 
   std::wstring filename(test_data_directory_);
   file_util::AppendToPath(&filename, L"title2.html");
-  ASSERT_TRUE(tab->NavigateToURL(net_util::FilePathToFileURL(filename)));
+  ASSERT_TRUE(tab->NavigateToURL(net::FilePathToFileURL(filename)));
   ASSERT_TRUE(tab->GetTabTitle(&title));
   ASSERT_STREQ(L"Title Of Awesomeness", title.c_str());
 
@@ -370,7 +370,7 @@ TEST_F(AutomationProxyTest, GetCurrentURL) {
 
   std::wstring filename(test_data_directory_);
   file_util::AppendToPath(&filename, L"cookie1.html");
-  GURL newurl = net_util::FilePathToFileURL(filename);
+  GURL newurl = net::FilePathToFileURL(filename);
   ASSERT_TRUE(tab->NavigateToURL(newurl));
   ASSERT_TRUE(tab->GetCurrentURL(&url));
   // compare canonical urls...
@@ -476,7 +476,7 @@ TEST_F(AutomationProxyTest, NavigateToURLAsync) {
 
   std::wstring filename(test_data_directory_);
   file_util::AppendToPath(&filename, L"cookie1.html");
-  GURL newurl = net_util::FilePathToFileURL(filename);
+  GURL newurl = net::FilePathToFileURL(filename);
 
   ASSERT_TRUE(tab->NavigateToURLAsync(newurl));
   std::string value = WaitUntilCookieNonEmpty(tab.get(), newurl,
@@ -664,7 +664,7 @@ TEST_F(AutomationProxyTest, ConstrainedWindowTest) {
   file_util::AppendToPath(&filename, L"constrained_files");
   file_util::AppendToPath(&filename, L"constrained_window.html");
 
-  ASSERT_TRUE(tab->NavigateToURL(net_util::FilePathToFileURL(filename)));
+  ASSERT_TRUE(tab->NavigateToURL(net::FilePathToFileURL(filename)));
 
   int count;
   ASSERT_TRUE(tab->WaitForChildWindowCountToChange(0, &count, 5000));
@@ -698,7 +698,7 @@ TEST_F(AutomationProxyTest, CantEscapeByOnloadMoveto) {
   file_util::AppendToPath(&filename, L"constrained_files");
   file_util::AppendToPath(&filename, L"constrained_window_onload_moveto.html");
 
-  ASSERT_TRUE(tab->NavigateToURL(net_util::FilePathToFileURL(filename)));
+  ASSERT_TRUE(tab->NavigateToURL(net::FilePathToFileURL(filename)));
 
   int count;
   ASSERT_TRUE(tab->WaitForChildWindowCountToChange(0, &count, 5000));

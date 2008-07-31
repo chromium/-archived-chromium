@@ -148,7 +148,7 @@ class TabSwitchingUITest : public UITest {
       file_name += files[i];
       file_name += file_util::kPathSeparator;
       file_name += L"index.html";
-      browser_proxy_->AppendTab(net_util::FilePathToFileURL(file_name));
+      browser_proxy_->AppendTab(net::FilePathToFileURL(file_name));
       number_of_new_tabs_opened++;
     }
 

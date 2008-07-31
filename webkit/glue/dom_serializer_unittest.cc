@@ -263,7 +263,7 @@ bool IsMetaElement(const WebCore::Node* node, WebCore::String* charset_info) {
 TEST_F(DomSerializerTests, SerialzeHTMLDOMWithDocType) {
   std::wstring page_file_path = data_dir_;
   file_util::AppendToPath(&page_file_path, L"dom_serializer/youtube_1.htm");
-  GURL file_url = net_util::FilePathToFileURL(page_file_path);
+  GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
   std::wstring page_url = ASCIIToWide(file_url.spec());
   // Load the test file.
@@ -295,7 +295,7 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithDocType) {
 TEST_F(DomSerializerTests, SerialzeHTMLDOMWithoutDocType) {
   std::wstring page_file_path = data_dir_;
   file_util::AppendToPath(&page_file_path, L"dom_serializer/youtube_2.htm");
-  GURL file_url = net_util::FilePathToFileURL(page_file_path);
+  GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
   std::wstring page_url = ASCIIToWide(file_url.spec());
   // Load the test file.
@@ -332,7 +332,7 @@ TEST_F(DomSerializerTests, SerialzeXMLDocWithBuiltInEntities) {
   std::string orginal_contents;
   ASSERT_TRUE(file_util::ReadFileToString(page_file_path, &orginal_contents));
   // Get file URL.
-  GURL file_url = net_util::FilePathToFileURL(page_file_path);
+  GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
   std::wstring page_url = ASCIIToWide(file_url.spec());
   // Load the test file.
@@ -354,7 +354,7 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithAddingMOTW) {
   std::string orginal_contents;
   ASSERT_TRUE(file_util::ReadFileToString(page_file_path, &orginal_contents));
   // Get file URL.
-  GURL file_url = net_util::FilePathToFileURL(page_file_path);
+  GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
   std::wstring page_url = ASCIIToWide(file_url.spec());
   // Make sure original contents does not have MOTW;
@@ -385,7 +385,7 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithNoMetaCharsetInOriginalDoc) {
   std::wstring page_file_path = data_dir_;
   file_util::AppendToPath(&page_file_path, L"dom_serializer/youtube_1.htm");
   // Get file URL.
-  GURL file_url = net_util::FilePathToFileURL(page_file_path);
+  GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
   std::wstring page_url = ASCIIToWide(file_url.spec());
   // Load the test file.
@@ -448,7 +448,7 @@ TEST_F(DomSerializerTests,
   std::wstring page_file_path = data_dir_;
   file_util::AppendToPath(&page_file_path, L"dom_serializer/youtube_2.htm");
   // Get file URL.
-  GURL file_url = net_util::FilePathToFileURL(page_file_path);
+  GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
   std::wstring page_url = ASCIIToWide(file_url.spec());
   // Load the test file.
@@ -516,7 +516,7 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithEntitiesInText) {
   std::string orginal_contents;
   ASSERT_TRUE(file_util::ReadFileToString(page_file_path, &orginal_contents));
   // Get file URL.
-  GURL file_url = net_util::FilePathToFileURL(page_file_path);
+  GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
   std::wstring page_url = ASCIIToWide(file_url.spec());
   // Load the test file.
@@ -557,7 +557,7 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithEntitiesInAttributeValue) {
   std::string orginal_contents;
   ASSERT_TRUE(file_util::ReadFileToString(page_file_path, &orginal_contents));
   // Get file URL.
-  GURL file_url = net_util::FilePathToFileURL(page_file_path);
+  GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
   std::wstring page_url = ASCIIToWide(file_url.spec());
   // Load the test file.
@@ -598,11 +598,11 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithBaseTag) {
   std::wstring page_file_path = data_dir_;
   file_util::AppendToPath(&page_file_path, L"dom_serializer\\");
   // Get page dir URL which is base URL of this file.
-  GURL path_dir_url = net_util::FilePathToFileURL(page_file_path);
+  GURL path_dir_url = net::FilePathToFileURL(page_file_path);
   // Get file path.
   file_util::AppendToPath(&page_file_path, L"html_doc_has_base_tag.htm");
   // Get file URL.
-  GURL file_url = net_util::FilePathToFileURL(page_file_path);
+  GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
   std::wstring page_url = ASCIIToWide(file_url.spec());
   // Load the test file.

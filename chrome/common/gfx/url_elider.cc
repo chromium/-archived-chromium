@@ -113,7 +113,7 @@ std::wstring ElideUrl(const GURL& url,
 
   // Get domain and registry information from the URL.
   std::wstring url_domain = UTF8ToWide(
-     RegistryControlledDomainService::GetDomainAndRegistry(url));
+      net::RegistryControlledDomainService::GetDomainAndRegistry(url));
   if (url_domain.empty())
     url_domain = url_host;
 
@@ -353,7 +353,7 @@ void AppendFormattedHost(const GURL& url,
     DCHECK(host.begin >= 0 &&
            ((spec.length() == 0 && host.begin == 0) ||
             host.begin < static_cast<int>(spec.length())));
-    net_util::IDNToUnicode(&spec[host.begin], host.len, languages, output);
+    net::IDNToUnicode(&spec[host.begin], host.len, languages, output);
 
     new_parsed->host.len =
         static_cast<int>(output->length()) - new_parsed->host.begin;

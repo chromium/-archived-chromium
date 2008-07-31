@@ -101,7 +101,7 @@ protected:
     PathService::Get(chrome::DIR_TEST_DATA, &path);
     file_util::AppendToPath(&path, L"npapi");
     file_util::AppendToPath(&path, test_case);
-    return net_util::FilePathToFileURL(path);
+    return net::FilePathToFileURL(path);
   }
 
   // Waits for the test case to finish.

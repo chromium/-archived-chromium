@@ -29,6 +29,8 @@
 
 #include "net/base/net_module.h"
 
+namespace net {
+
 static NetModule::ResourceProvider resource_provider;
 
 // static
@@ -42,3 +44,5 @@ std::string NetModule::GetResource(int key) {
   ResourceProvider func = resource_provider;
   return func ? func(key) : std::string();
 }
+
+}  // namespace net

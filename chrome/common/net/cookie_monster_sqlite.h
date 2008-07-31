@@ -43,17 +43,17 @@
 struct sqlite3;
 
 class SQLitePersistentCookieStore
-    : public CookieMonster::PersistentCookieStore {
+    : public net::CookieMonster::PersistentCookieStore {
  public:
   SQLitePersistentCookieStore(const std::wstring& path,
                               MessageLoop* background_loop);
   ~SQLitePersistentCookieStore();
 
-  virtual bool Load(std::vector<CookieMonster::KeyedCanonicalCookie>*);
+  virtual bool Load(std::vector<net::CookieMonster::KeyedCanonicalCookie>*);
 
   virtual void AddCookie(const std::string&,
-                         const CookieMonster::CanonicalCookie&);
-  virtual void DeleteCookie(const CookieMonster::CanonicalCookie&);
+                         const net::CookieMonster::CanonicalCookie&);
+  virtual void DeleteCookie(const net::CookieMonster::CanonicalCookie&);
 
  private:
   class Backend;

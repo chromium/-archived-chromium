@@ -102,7 +102,7 @@ TEST_F(RedirectTest, ClientEmptyReferer) {
     GURL final_url = server.TestServerPageW(std::wstring());
     std::wstring test_file = test_data_directory_;
     file_util::AppendToPath(&test_file, L"file_client_redirect.html");
-    GURL first_url = net_util::FilePathToFileURL(test_file);
+    GURL first_url = net::FilePathToFileURL(test_file);
 
     NavigateToURL(first_url);
     std::vector<GURL> redirects;
@@ -128,7 +128,7 @@ TEST_F(RedirectTest, ClientEmptyReferer) {
 TEST_F(RedirectTest, ClientCancelled) {
   std::wstring first_path = test_data_directory_;
   file_util::AppendToPath(&first_path, L"cancelled_redirect_test.html");
-  GURL first_url = net_util::FilePathToFileURL(first_path);
+  GURL first_url = net::FilePathToFileURL(first_path);
 
   NavigateToURL(first_url);
   Sleep(kWaitForActionMsec);
@@ -151,7 +151,7 @@ TEST_F(RedirectTest, ClientCancelled) {
   // %23, but in current_url the anchor will be '#'.
   std::string final_ref = "myanchor";
   std::wstring current_path;
-  ASSERT_TRUE(net_util::FileURLToFilePath(current_url, &current_path));
+  ASSERT_TRUE(net::FileURLToFilePath(current_url, &current_path));
   // Path should remain unchanged.
   EXPECT_EQ(StringToLowerASCII(first_path), StringToLowerASCII(current_path));
   EXPECT_EQ(final_ref, current_url.ref());
@@ -215,7 +215,7 @@ TEST_F(RedirectTest, NoHttpToFile) {
   TestServer server(kDocRoot);
   std::wstring test_file = test_data_directory_;
   file_util::AppendToPath(&test_file, L"http_to_file.html");
-  GURL file_url = net_util::FilePathToFileURL(test_file);
+  GURL file_url = net::FilePathToFileURL(test_file);
 
   GURL initial_url = server.TestServerPageW(
     std::wstring(L"client-redirect?") + UTF8ToWide(file_url.spec()));
@@ -236,7 +236,7 @@ TEST_F(RedirectTest, ClientFragments) {
   TestServer server(kDocRoot);
   std::wstring test_file = test_data_directory_;
   file_util::AppendToPath(&test_file, L"ref_redirect.html");
-  GURL first_url = net_util::FilePathToFileURL(test_file);
+  GURL first_url = net::FilePathToFileURL(test_file);
   std::vector<GURL> redirects;
 
   NavigateToURL(first_url);

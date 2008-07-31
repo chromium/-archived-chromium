@@ -49,7 +49,7 @@ URLRequestJob* URLRequestHttpJob::Factory(URLRequest* request,
                                           const std::string& scheme) {
   DCHECK(scheme == "http" || scheme == "https");
 
-  if (!net_util::IsPortAllowedByDefault(request->url().IntPort()))
+  if (!net::IsPortAllowedByDefault(request->url().IntPort()))
     return new URLRequestErrorJob(request, net::ERR_UNSAFE_PORT);
 
   if (!request->context() ||
@@ -486,7 +486,7 @@ void URLRequestHttpJob::AddExtraHeaders() {
                                                request_->policy_url())) {
       std::string cookies = request_->context()->cookie_store()->
           GetCookiesWithOptions(request_->url(),
-                                CookieMonster::INCLUDE_HTTPONLY);
+                                net::CookieMonster::INCLUDE_HTTPONLY);
       if (!cookies.empty())
         request_info_.extra_headers += "Cookie: " + cookies + "\r\n";
     }

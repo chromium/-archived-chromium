@@ -42,6 +42,8 @@
 
 #pragma comment(lib, "crypt32.lib")
 
+namespace net {
+
 namespace {
 
 // Returns true if this cert fingerprint is the null (all zero) fingerprint.
@@ -567,3 +569,5 @@ void X509Certificate::Policy::Deny(X509Certificate* cert) {
   allowed_.erase(cert->fingerprint());
   denied_.insert(cert->fingerprint());
 }
+
+}  // namespace net

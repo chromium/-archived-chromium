@@ -117,6 +117,8 @@
 
 class GURL;
 
+namespace net {
+
 // This class is a singleton.
 class RegistryControlledDomainService {
  public:
@@ -294,5 +296,7 @@ class RegistryControlledDomainService {
 
   DISALLOW_EVIL_CONSTRUCTORS(RegistryControlledDomainService);
 };
+
+}  // namespace net
 
 #endif  // NET_BASE_REGISTRY_CONTROLLED_DOMAIN_H__

@@ -61,12 +61,12 @@ class CertStore : public NotificationObserver {
   // When all the RenderProcessHosts associated with a cert have exited, the
   // cert is removed from the store.
   // Note: ids starts at 1.
-  int StoreCert(X509Certificate* cert, int render_process_host_id);
+  int StoreCert(net::X509Certificate* cert, int render_process_host_id);
 
   // Retrieves the previously stored cert associated with the specified
   // |cert_id| and set it in |cert|.  Returns false if no cert was found for
   // that id.
-  bool RetrieveCert(int cert_id, scoped_refptr<X509Certificate>* cert);
+  bool RetrieveCert(int cert_id, scoped_refptr<net::X509Certificate>* cert);
 
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,
@@ -86,8 +86,8 @@ class CertStore : public NotificationObserver {
   static CertStore* instance_;
 
   typedef std::multimap<int, int> IDMap;
-  typedef std::map<int, scoped_refptr<X509Certificate>> CertMap;
-  typedef std::map<X509Certificate*, int, X509Certificate::LessThan>
+  typedef std::map<int, scoped_refptr<net::X509Certificate>> CertMap;
+  typedef std::map<net::X509Certificate*, int, net::X509Certificate::LessThan>
       ReverseCertMap;
 
   IDMap process_id_to_cert_id_;

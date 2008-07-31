@@ -89,7 +89,7 @@ TEST_F(BrowserTest, NoTitle) {
   std::wstring test_file = test_data_directory_;
   file_util::AppendToPath(&test_file, L"title1.html");
 
-  NavigateToURL(net_util::FilePathToFileURL(test_file));
+  NavigateToURL(net::FilePathToFileURL(test_file));
   Sleep(kWaitForActionMsec);  // The browser lazily updates the title.
 
   EXPECT_EQ(WindowCaptionFromPageTitle(L"title1.html"), GetWindowTitle());
@@ -102,7 +102,7 @@ TEST_F(BrowserTest, Title) {
   std::wstring test_file = test_data_directory_;
   file_util::AppendToPath(&test_file, L"title2.html");
 
-  NavigateToURL(net_util::FilePathToFileURL(test_file));
+  NavigateToURL(net::FilePathToFileURL(test_file));
   Sleep(kWaitForActionMsec);  // The browser lazily updates the title.
 
   const std::wstring test_title(L"Title Of Awesomeness");
@@ -115,7 +115,7 @@ TEST_F(BrowserTest, WindowsSessionEnd) {
   std::wstring test_file = test_data_directory_;
   file_util::AppendToPath(&test_file, L"title1.html");
 
-  NavigateToURL(net_util::FilePathToFileURL(test_file));
+  NavigateToURL(net::FilePathToFileURL(test_file));
   Sleep(kWaitForActionMsec);
 
   // Simulate an end of session. Normally this happens when the user
@@ -209,8 +209,8 @@ TEST_F(BrowserTest, DuplicateTab) {
   std::wstring path_prefix = test_data_directory_;
   file_util::AppendToPath(&path_prefix, L"session_history");
   path_prefix += file_util::kPathSeparator;
-  GURL url1 = net_util::FilePathToFileURL(path_prefix + L"bot1.html");
-  GURL url2 = net_util::FilePathToFileURL(path_prefix + L"bot2.html");
+  GURL url1 = net::FilePathToFileURL(path_prefix + L"bot1.html");
+  GURL url2 = net::FilePathToFileURL(path_prefix + L"bot2.html");
   GURL url3 = GURL("about:blank");
 
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
@@ -273,7 +273,7 @@ TEST_F(BrowserTest, NullOpenerRedirectForksProcess) {
 
   // Start with a file:// url
   file_util::AppendToPath(&test_file, L"title2.html");
-  tab->NavigateToURL(net_util::FilePathToFileURL(test_file));
+  tab->NavigateToURL(net::FilePathToFileURL(test_file));
   int orig_tab_count = -1;
   ASSERT_TRUE(window->GetTabCount(&orig_tab_count));
   int orig_process_count = GetBrowserProcessCount();
@@ -311,7 +311,7 @@ TEST_F(BrowserTest, OtherRedirectsDontForkProcess) {
 
   // Start with a file:// url
   file_util::AppendToPath(&test_file, L"title2.html");
-  tab->NavigateToURL(net_util::FilePathToFileURL(test_file));
+  tab->NavigateToURL(net::FilePathToFileURL(test_file));
   int orig_tab_count = -1;
   ASSERT_TRUE(window->GetTabCount(&orig_tab_count));
   int orig_process_count = GetBrowserProcessCount();
@@ -345,7 +345,7 @@ TEST_F(VisibleBrowserTest, WindowOpenClose) {
   std::wstring test_file(test_data_directory_);
   file_util::AppendToPath(&test_file, L"window.close.html");
 
-  NavigateToURL(net_util::FilePathToFileURL(test_file));
+  NavigateToURL(net::FilePathToFileURL(test_file));
 
   int i;
   for (i = 0; i < 10; ++i) {

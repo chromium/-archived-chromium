@@ -229,7 +229,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationNonBuffered) {
   std::wstring test_file = test_data_directory_;
   file_util::AppendToPath(&test_file, L"title2.html");
   bool timed_out = false;
-  tab->NavigateToURLWithTimeout(net_util::FilePathToFileURL(test_file),
+  tab->NavigateToURLWithTimeout(net::FilePathToFileURL(test_file),
                                 kWaitForActionMaxMsec,
                                 &timed_out);
   EXPECT_FALSE(timed_out);

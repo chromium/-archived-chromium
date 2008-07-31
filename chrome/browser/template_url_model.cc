@@ -174,7 +174,7 @@ std::wstring TemplateURLModel::GenerateKeyword(const GURL& url,
 
   // Strip "www." off the front of the keyword; otherwise the keyword won't work
   // properly.  See http://b/issue?id=1205573.
-  return net_util::StripWWW(UTF8ToWide(url.host()));
+  return net::StripWWW(UTF8ToWide(url.host()));
 }
 
 // static
@@ -195,7 +195,7 @@ std::wstring TemplateURLModel::CleanUserInputKeyword(
   }
 
   // Remove leading "www.".
-  result = net_util::StripWWW(result);
+  result = net::StripWWW(result);
 
   // Remove trailing "/".
   return (result.length() > 0 && result[result.length() - 1] == L'/') ?

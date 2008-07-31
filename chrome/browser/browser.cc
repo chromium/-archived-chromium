@@ -196,7 +196,7 @@ void Browser::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterStringPref(prefs::kHomePage, L"chrome-internal:");
   prefs->RegisterBooleanPref(prefs::kHomePageIsNewTabPage, true);
   prefs->RegisterIntegerPref(prefs::kCookieBehavior,
-      CookiePolicy::ALLOW_ALL_COOKIES);
+      net::CookiePolicy::ALLOW_ALL_COOKIES);
   prefs->RegisterBooleanPref(prefs::kShowHomeButton, false);
   prefs->RegisterStringPref(prefs::kRecentlySelectedEncoding, L"");
 }

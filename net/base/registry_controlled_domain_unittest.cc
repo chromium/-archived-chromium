@@ -37,17 +37,17 @@ class TestRegistryControlledDomainService;
 static TestRegistryControlledDomainService* test_instance_;
 
 class TestRegistryControlledDomainService :
-    public RegistryControlledDomainService {
+    public net::RegistryControlledDomainService {
  public:
 
   // Deletes the instance so a new one will be created.
   static void ResetInstance() {
-    RegistryControlledDomainService::ResetInstance();
+    net::RegistryControlledDomainService::ResetInstance();
   }
 
   // Sets and parses the given data.
   static void UseDomainData(const std::string& data) {
-    RegistryControlledDomainService::UseDomainData(data);
+    net::RegistryControlledDomainService::UseDomainData(data);
   }
 
  private:
