@@ -45,6 +45,7 @@
 #include "chrome/browser/printing/print_job.h"
 #include "chrome/browser/save_package.h"
 #include "chrome/browser/ssl_blocking_page.h"
+#include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/test/automation/automation_messages.h"
 #include "net/base/cookie_monster.h"

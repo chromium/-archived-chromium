@@ -50,6 +50,7 @@
 #define VISTA_FRAME_CLASSNAME L"Chrome_VistaFrame"
 
 class Browser;
+class BrowserToolbarView;
 class TabContentsContainerView;
 class ChromeViews::FocusManager;
 class SkBitmap;
@@ -202,6 +203,12 @@ class VistaFrame : public BrowserWindow,
   virtual void SetBounds(const gfx::Rect& bounds);
   virtual void DetachFromBrowser();
   virtual void InfoBubbleShowing();
+  virtual ToolbarStarToggle* GetStarButton() const;
+  virtual LocationBarView* GetLocationBarView() const;
+  virtual GoButton* GetGoButton() const;
+  virtual void Update(TabContents* contents, bool should_restore_state);
+  virtual void ProfileChanged(Profile* profile);
+  virtual void FocusToolbar();
 
   ////////////////////////////////////////////////////////////////////////////////
   // ChromeViews::ViewContainer
@@ -361,8 +368,8 @@ class VistaFrame : public BrowserWindow,
   // The view that contains the tabs and any associated controls.
   TabStrip* tabstrip_;
 
-  // Toolbar provided by our browser
-  ChromeViews::View* toolbar_;
+  // The Toolbar containing the navigation buttons, menus and the address bar.
+  BrowserToolbarView* toolbar_;
 
   // Browser contents
   TabContentsContainerView* tab_contents_container_;

@@ -37,13 +37,14 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/views/hwnd_view_container.h"
+#include "chrome/views/background.h"
 #include "chrome/views/checkbox.h"
 #include "chrome/views/grid_layout.h"
+#include "chrome/views/hwnd_view_container.h"
+#include "chrome/views/image_view.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/scroll_view.h"
 #include "chrome/views/throbber.h"
-#include "chrome/views/background.h"
 
 #include "generated_resources.h"
 

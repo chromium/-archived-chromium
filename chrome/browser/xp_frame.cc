@@ -43,8 +43,10 @@
 #include "chrome/browser/tab_contents_container_view.h"
 #include "chrome/browser/tabs/tab_strip.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
+#include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/download_shelf_view.h"
+#include "chrome/browser/views/toolbar_view.h"
 #include "chrome/browser/window_clipping_info.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/gfx/chrome_canvas.h"
@@ -437,9 +439,11 @@ void XPFrame::Init() {
   root_view_.SetBackground(
       ChromeViews::Background::CreateSolidBackground(SK_ColorWHITE));
 
-  toolbar_ = browser_->GetToolbar();
-  toolbar_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TOOLBAR));
+  toolbar_ = new BrowserToolbarView(browser_->controller(), browser_);
   frame_view_->AddChildView(toolbar_);
+  toolbar_->SetID(VIEW_ID_TOOLBAR);
+  toolbar_->Init(browser_->profile());
+  toolbar_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TOOLBAR));
 
   tabstrip_ = CreateTabStrip(browser_);
   tabstrip_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TABSTRIP));
@@ -1843,6 +1847,30 @@ void XPFrame::InfoBubbleClosing() {
   // How we render the frame has changed, we need to force a paint otherwise
   // visually the user won't be able to tell.
   InvalidateRect(NULL, false);
+}
+
+ToolbarStarToggle* XPFrame::GetStarButton() const {
+  return toolbar_->star_button();
+}
+
+LocationBarView* XPFrame::GetLocationBarView() const {
+  return toolbar_->GetLocationBarView();
+}
+
+GoButton* XPFrame::GetGoButton() const {
+  return toolbar_->GetGoButton();
+}
+
+void XPFrame::Update(TabContents* contents, bool should_restore_state) {
+  toolbar_->Update(contents, should_restore_state);
+}
+
+void XPFrame::ProfileChanged(Profile* profile) {
+  toolbar_->SetProfile(profile);
+}
+
+void XPFrame::FocusToolbar() {
+  toolbar_->RequestFocus();
 }
 
 void XPFrame::MoveToFront(bool should_activate) {

@@ -211,7 +211,6 @@ Browser::Browser(const gfx::Rect& initial_bounds,
       initial_show_command_(show_command),
       is_processing_tab_unload_events_(false),
       controller_(this),
-      toolbar_(&controller_, this),
       chrome_updater_factory_(this),
       method_factory_(this),
       hung_window_detector_(&hung_plugin_action_),
@@ -234,9 +233,6 @@ Browser::Browser(const gfx::Rect& initial_bounds,
   if (maximized)
     initial_show_command_ = SW_SHOWMAXIMIZED;
   window_ = FrameUtil::CreateBrowserWindow(create_bounds, this);
-
-  toolbar_.SetID(VIEW_ID_TOOLBAR);
-  toolbar_.Init(profile_);
 
   // See note where SIZE_TO_CONTENTS is defined in browser.h for an explanation
   // of this hack.
@@ -308,11 +304,6 @@ Browser::~Browser() {
                      NotificationService::AllSources());
 
   ChromeViews::View* p;
-  // Remove our main views from the view hierarchy to prevent
-  // a double delete (the Browser is deleted before the RootView that contains
-  // the toolbar and tab_strip).
-  if ((p = toolbar_.GetParent()))
-    p->RemoveChildView(&toolbar_);
   if (bookmark_bar_view_.get() && (p = bookmark_bar_view_->GetParent()))
     p->RemoveChildView(bookmark_bar_view_.get());
 
@@ -370,10 +361,6 @@ void Browser::CloseFrame() {
   window_->Close();
 }
 
-ChromeViews::View* Browser::GetToolbar() {
-  return &toolbar_;
-}
-
 GURL Browser::GetHomePage() {
   if (profile_->GetPrefs()->GetBoolean(prefs::kHomePageIsNewTabPage)) {
     return NewTabUIURL();
@@ -414,14 +401,14 @@ void Browser::WindowActivationChanged(bool is_active) {
 // Toolbar creation, management
 
 LocationBarView* Browser::GetLocationBarView() const {
-  return toolbar_.GetLocationBarView();
+  return window_->GetLocationBarView();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Chrome update coalescing
 
 void Browser::UpdateToolBar(bool should_restore_state) {
-  toolbar_.Update(GetSelectedTabContents(), should_restore_state);
+  window_->Update(GetSelectedTabContents(), should_restore_state);
 }
 
 void Browser::ScheduleUIUpdate(const TabContents* source,
@@ -903,11 +890,11 @@ void Browser::UpdateTargetURL(TabContents* source, const GURL& url) {
 }
 
 void Browser::SetStarredButtonToggled(bool starred) {
-  toolbar_.star_button()->SetToggled(starred);
+  window_->GetStarButton()->SetToggled(starred);
 }
 
 GoButton* Browser::GetGoButton() {
-  return toolbar_.GetGoButton();
+  return window_->GetGoButton();
 }
 
 void Browser::ContentsZoomChange(bool zoom_in) {
@@ -1417,7 +1404,7 @@ void Browser::TabSelectedAt(TabContents* old_contents,
     new_contents->RestoreFocus();
 
   // Propagate the profile to the location bar.
-  toolbar_.SetProfile(new_contents->profile());
+  window_->ProfileChanged(new_contents->profile());
   UpdateToolBar(true);
 
   // Force the go/stop button to change.

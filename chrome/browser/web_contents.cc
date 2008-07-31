@@ -65,6 +65,7 @@
 #include "chrome/browser/web_drag_source.h"
 #include "chrome/browser/web_drop_target.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/resource_bundle.h"

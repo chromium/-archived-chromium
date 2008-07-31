@@ -32,6 +32,7 @@
 
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_type.h"
+#include "chrome/browser/controller.h"
 #include "chrome/browser/hang_monitor/hung_plugin_action.h"
 #include "chrome/browser/hang_monitor/hung_window_detector.h"
 #include "chrome/browser/render_process_host.h"
@@ -43,7 +44,6 @@
 #include "chrome/browser/tabs/tab.h"
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/browser/views/html_dialog_view.h"
-#include "chrome/browser/views/toolbar_view.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_member.h"
 
@@ -398,9 +398,6 @@ class Browser : public TabStripModelDelegate,
   // Closes the frame.
   void CloseFrame();
 
-  // Invoked by the frame. Return the toolbar for this browser.
-  ChromeViews::View* GetToolbar();
-
   // Returns the root view for this browser.
   ChromeViews::RootView* GetRootView() const;
 
@@ -541,9 +538,6 @@ class Browser : public TabStripModelDelegate,
   // After the first call to Show() succeeds, this is set to -1, indicating that
   // subsequent calls to Show() should be ignored.
   int initial_show_command_;
-
-  // The toolbar view.
-  BrowserToolbarView toolbar_;
 
   class BrowserToolbarModel : public ToolbarModel {
    public:

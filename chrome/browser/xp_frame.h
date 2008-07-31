@@ -51,6 +51,7 @@
 
 class ChromeViews::RootView;
 class Browser;
+class BrowserToolbarView;
 class TabContentsContainerView;
 class TabStrip;
 class TemporaryPlaceholder;
@@ -109,6 +110,12 @@ class XPFrame : public BrowserWindow,
   virtual void DetachFromBrowser();
   virtual void InfoBubbleShowing();
   virtual void InfoBubbleClosing();
+  virtual ToolbarStarToggle* GetStarButton() const;
+  virtual LocationBarView* GetLocationBarView() const;
+  virtual GoButton* GetGoButton() const;
+  virtual void Update(TabContents* contents, bool should_restore_state);
+  virtual void ProfileChanged(Profile* profile);
+  virtual void FocusToolbar();
 
   //
   // CWindowImpl event management magic. See atlcrack.h
@@ -423,9 +430,6 @@ class XPFrame : public BrowserWindow,
   // Top level view used to render the frame itself including the title bar
   XPFrameView* frame_view_;
 
-  // Toolbar provided by our browser
-  ChromeViews::View* toolbar_;
-
   // Browser contents
   TabContentsContainerView* tab_contents_container_;
 
@@ -490,6 +494,9 @@ class XPFrame : public BrowserWindow,
 
   // The view that contains the tabs and any associated controls.
   TabStrip* tabstrip_;
+
+  // The Toolbar containing the navigation buttons, menus and the address bar.
+  BrowserToolbarView* toolbar_;
 
   // The optional container for the off the record icon.
   ChromeViews::ImageView* off_the_record_image_;

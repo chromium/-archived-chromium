@@ -40,9 +40,13 @@ class BrowserList;
 namespace ChromeViews {
 class RootView;
 }
+class GoButton;
+class LocationBarView;
+class Profile;
 class StatusBubble;
 class TabContents;
 class TabStrip;
+class ToolbarStarToggle;
 
 ////////////////////////////////////////////////////////////////////////////////
 // BrowserWindow interface
@@ -173,6 +177,24 @@ class BrowserWindow {
     // The frame is really inactive, send notification now.
     DefWindowProc(hwnd, WM_NCACTIVATE, FALSE, 0);
   }
+
+  // Returns the star button.
+  virtual ToolbarStarToggle* GetStarButton() const = 0;
+
+  // Returns the location bar.
+  virtual LocationBarView* GetLocationBarView() const = 0;
+
+  // Returns the go button.
+  virtual GoButton* GetGoButton() const = 0;
+
+  // Updates the toolbar with the state for the specified |contents|.
+  virtual void Update(TabContents* contents, bool should_restore_state) = 0;
+
+  // Updates the UI with the specified Profile.
+  virtual void ProfileChanged(Profile* profile) = 0;
+
+  // Focuses the toolbar (for accessibility).
+  virtual void FocusToolbar() = 0;
 
  protected:
   friend class BrowserList;

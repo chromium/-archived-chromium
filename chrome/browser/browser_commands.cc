@@ -393,10 +393,7 @@ void Browser::ExecuteCommand(int id) {
     case IDC_FOCUS_TOOLBAR:
       UserMetrics::RecordAction(L"FocusToolbar", profile_);
       {
-        ChromeViews::View* tb = GetToolbar();
-        if (tb) {
-          tb->RequestFocus();
-        }
+        window_->FocusToolbar();
       }
       break;
 
@@ -871,8 +868,8 @@ void Browser::StarCurrentTabContents() {
   if (url.is_empty() || !url.is_valid())
     return;
 
-  if (toolbar_.star_button()) {
-    if (!toolbar_.star_button()->is_bubble_showing()) {
+  if (window_->GetStarButton()) {
+    if (!window_->GetStarButton()->is_bubble_showing()) {
       const bool newly_bookmarked = (model->GetNodeByURL(url) == NULL);
       if (newly_bookmarked) {
         model->SetURLStarred(url, entry->GetTitle(), true);
@@ -882,7 +879,7 @@ void Browser::StarCurrentTabContents() {
           return;
         }
       }
-      toolbar_.star_button()->ShowStarBubble(url, newly_bookmarked);
+      window_->GetStarButton()->ShowStarBubble(url, newly_bookmarked);
     }
   } else if (model->GetNodeByURL(url)) {
     // If we can't find the star button and the user wanted to unstar it,
