@@ -27,16 +27,20 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# TODO(keunwoo): Use better cross-platform abstraction; see chrome/SConstruct
+Import('PLATFORM')
+
 Import('env')
 
 env = env.Clone()
 
-env.Append(
-    CCFLAGS = [
-        '/TC',
-        '/wd4800',
-    ],
-)
+if PLATFORM == 'WINDOWS':
+  env.Append(
+      CCFLAGS = [
+          '/TC',
+          '/wd4800',
+      ],
+  )
 
 input_files = [
     'adler32.c',

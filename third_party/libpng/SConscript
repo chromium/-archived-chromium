@@ -27,6 +27,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# TODO(keunwoo): Use better cross-platform abstraction; see chrome/SConstruct
+Import('PLATFORM')
+
 Import('env')
 
 env = env.Clone()
@@ -38,11 +41,15 @@ env.Prepend(
     ],
 )
 
+if PLATFORM == 'WINDOWS':
+  env.Append(
+      CCFLAGS = [
+          '/TP',
+          '/wd4800',
+      ],
+  )
+
 env.Append(
-    CCFLAGS = [
-        '/TP',
-        '/wd4800',
-    ],
     CPPDEFINES = [
         'PNG_USER_CONFIG',
         'CHROME_PNG_WRITE_SUPPORT',

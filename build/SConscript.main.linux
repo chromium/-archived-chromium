@@ -1,0 +1,96 @@
+# -*- mode: python -*-
+# Copyright 2008, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# TODO(keunwoo): This file is a temporary shim while we debug problems
+# with SConscript.main under Linux.  We'll merge this back into
+# SConscript.main someday.
+
+import os
+import shutil
+import sys
+
+
+Import('PLATFORM')
+
+
+# Base -------------------------------------------------------------------
+
+base_env = Environment(
+    BUILD_TYPE = ARGUMENTS.get('BUILD_TYPE', 'Hammer'),
+    TARGET_ROOT = '#/$BUILD_TYPE',
+    OBJ_ROOT = '$TARGET_ROOT',
+
+    THIRD_PARTY_DIR       = '#/../third_party',
+    BSDIFF_DIR            = '$THIRD_PARTY_DIR/bsdiff',
+    BSPATCH_DIR           = '$THIRD_PARTY_DIR/bspatch',
+    BZIP2_DIR             = '$THIRD_PARTY_DIR/bzip2',
+    ICU38_DIR             = '$THIRD_PARTY_DIR/icu38',
+    LIBJPEG_DIR           = '$THIRD_PARTY_DIR/libjpeg',
+    LIBPNG_DIR            = '$THIRD_PARTY_DIR/libpng',
+    # TODO(keunwoo): Port over other third_party packages.
+    ZLIB_DIR              = '$THIRD_PARTY_DIR/zlib',
+
+    PYTHON=sys.executable,
+
+    )
+
+
+# Place the .sconsign.dblite in the build directory.
+target_dir = base_env.Dir('$TARGET_ROOT')
+if not os.path.exists(target_dir.abspath):
+  Execute(Mkdir(target_dir))
+SConsignFile(target_dir.File('.sconsign').abspath)
+
+
+# Use timestamps change, followed by MD5 for speed
+base_env.Decider('MD5-timestamp')
+
+
+# All platforms ----------------------------------------------------------
+
+sconscript_and_target_subdirs = [
+   ('$BSDIFF_DIR', 'third_party/bsdiff'),
+   ('$BSPATCH_DIR', 'third_party/bspatch'),
+   ('$BZIP2_DIR', 'third_party/bzip2'),
+   ('$ICU38_DIR', 'third_party/icu38'),
+   ('$LIBJPEG_DIR', 'third_party/libjpeg'),
+   ('$LIBPNG_DIR', 'third_party/libpng'),
+   # TODO(keunwoo): Port over other third_party packages.
+   ('$ZLIB_DIR', 'third_party/zlib'),
+   ]
+
+env = base_env.Clone()
+
+for sconscript_dir, target_subdir in sconscript_and_target_subdirs:
+  env.SConscript(os.path.join(sconscript_dir, 'SConscript'),
+                 exports=['env', 'PLATFORM'],
+                 variant_dir=os.path.join('$TARGET_ROOT', target_subdir),
+                 duplicate=0
+                 )

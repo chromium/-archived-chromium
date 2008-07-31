@@ -28,5 +28,24 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 build_component = 'chrome'
-SConscript('../build/SConscript.main',
-           exports=['build_component'])
+
+# TODO(keunwoo): This is an ugly hack to reify the result of scons's built-in
+# platform detection as a variable (the RES attribute is only available
+# under MSWindows).  Once rspangler+sgk merge better idioms into Chrome's
+# site scons, we should be able to remove this.
+try:
+  Environment().RES
+except AttributeError:
+  PLATFORM = 'LINUX'
+else:
+  PLATFORM = 'WINDOWS'
+
+# TODO(keunwoo): Merge ../build/SConscript.main.linux back to SConscript.main,
+# then remove this.
+if PLATFORM == 'LINUX':
+  SCONSCRIPT_MAIN = '../build/SConscript.main.linux'
+else:
+  SCONSCRIPT_MAIN = '../build/SConscript.main'
+
+SConscript(SCONSCRIPT_MAIN,
+           exports=['build_component', 'PLATFORM'])
