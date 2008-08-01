@@ -48,9 +48,6 @@ processors = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
 SetOption('num_jobs', processors + 1)
 
 
-msvs_env = Environment(tools=['msvc', 'mslink', 'msvs'])['ENV']
-
-
 env = Environment(
     BUILD_TYPE = ARGUMENTS.get('BUILD_TYPE', 'Hammer'),
     TARGET_ROOT = '#/$BUILD_TYPE',
@@ -60,7 +57,7 @@ env = Environment(
 
     PLATFORMSDK_VISTA_REL = '../third_party/platformsdk_vista_6_0',
     PLATFORMSDK_VISTA = '#/$PLATFORMSDK_VISTA_REL',
-    VISUAL_STUDIO = 'C:/Program Files/Microsoft Visual Studio 8',
+    VISUAL_STUDIO = '/Program Files/Microsoft Visual Studio 8',
 
     BASE_DIR              = '#/$BUILD_TYPE/base',
     BREAKPAD_DIR          = '#/$BUILD_TYPE/breakpad',
@@ -104,10 +101,17 @@ env = Environment(
 
     THIRD_PARTY_WEBKIT_DIR = '$THIRD_PARTY_DIR/webkit',
 
+    PYTHON=sys.executable,
+)
+
+
+if env['PLATFORM'] == 'win32':
+
+  msvs_env = Environment(tools=['msvc', 'mslink', 'msvs'])['ENV']
+
+  env.Replace(
     CYGWIN_DIR = Dir('#../third_party/cygwin'),
     CYGWIN_BIN_DIR = '$CYGWIN_DIR/bin',
-
-    PYTHON=sys.executable,
 
     PERL = '$CYGWIN_BIN_DIR/perl.exe',
     PERL_INCLUDE_FLAG = '-I ',
@@ -176,14 +180,47 @@ env = Environment(
     LIBPATH = [
         '$PLATFORMSDK_VISTA/files/Lib',
         '$PLATFORMSDK_VISTA/files/VC/LIB',
-        'c:/Program Files/Microsoft Visual Studio 8/VC/atlmfc/lib',
+        '$VISUAL_STUDIO/VC/atlmfc/lib',
     ],
 
     LINKFLAGS = [
         '/nologo',
         '/DEBUG',
     ],
-)
+  )
+
+  # TODO(sgk): remove once we upgrade to SCons 0.98.4
+  for var in ['INCLUDE', 'LIB', 'PATH']:
+    msvs_env[var] = msvs_env[var].split('|', 1)[0]
+    env['ENV'][var] = env['ENV'][var].split('|', 1)[0]
+
+  # Force scons to handle long include lines correctly.
+  pchcom_fixed = env['PCHCOM']
+  pchcom_fixed = pchcom_fixed.replace('${TARGETS[0]}', '$TARGET')
+  pchcom_fixed = pchcom_fixed.replace('${TARGETS[1]}', '$TARGETS1')
+
+  env.Replace(
+      CCCOM = "${TEMPFILE('%s')}" % env['CCCOM'],
+      CXXCOM = "${TEMPFILE('%s')}" % env['CXXCOM'],
+      SHCCCOM = "${TEMPFILE('%s')}" % env['SHCCCOM'],
+      SHCXXCOM = "${TEMPFILE('%s')}" % env['SHCXXCOM'],
+      PCHCOM = "${TEMPFILE('%s')}" % pchcom_fixed,
+      TARGETS1 = '${TARGETS[1]}',
+  )
+
+  env['ENV']['PROGRAMFILES'] = os.environ['PROGRAMFILES']
+  env['ENV']['SystemDrive'] = os.environ['SystemDrive']
+  env['ENV']['USERPROFILE'] = os.environ['USERPROFILE']
+
+elif env['PLATFORM'] == 'posix':
+
+  env.Replace()
+
+else:
+
+  print "Unsupported SCons $PLATFORM value %s" % repr(env['PLATFORM'])
+  Exit(1)
+
 
 if ARGUMENTS.get('VERBOSE') in (None, '0'):
   env['CCCOMSTR'] = 'Compiling $TARGET ...'
@@ -206,26 +243,9 @@ AddOption('--clobber', action='store_true', dest='clobber', default=False,
 if GetOption('clobber'):
   shutil.rmtree(env.Dir('$TARGET_ROOT').abspath, True)
 
-
-# Force scons to handle long include lines correctly.
-pchcom_fixed = env['PCHCOM']
-pchcom_fixed = pchcom_fixed.replace('${TARGETS[0]}', '$TARGET')
-pchcom_fixed = pchcom_fixed.replace('${TARGETS[1]}', '$TARGETS1')
-env.Replace(
-    CCCOM = "${TEMPFILE('%s')}" % env['CCCOM'],
-    CXXCOM = "${TEMPFILE('%s')}" % env['CXXCOM'],
-    SHCCCOM = "${TEMPFILE('%s')}" % env['SHCCCOM'],
-    SHCXXCOM = "${TEMPFILE('%s')}" % env['SHCXXCOM'],
-    PCHCOM = "${TEMPFILE('%s')}" % pchcom_fixed,
-    TARGETS1 = '${TARGETS[1]}',
-)
-
-env['ENV']['PROGRAMFILES'] = os.environ['PROGRAMFILES']
-env['ENV']['SystemDrive'] = os.environ['SystemDrive']
-env['ENV']['USERPROFILE'] = os.environ['USERPROFILE']
-
 # Use timestamps change, followed by MD5 for speed
 env.Decider('MD5-timestamp')
+
 
 # Overlay things from a layer below.
 env.Dir('$TARGET_ROOT').addRepository(Dir('..'))
@@ -324,6 +344,7 @@ Supported build variables:
   PROGRESS=type             Display a progress indicator:
                               name:  print each evaluated target name
                               spinner:  print a spinner every 5 targets
+  VERBOSE=1                 Display full command lines
 """
 
 if GetOption('help'):

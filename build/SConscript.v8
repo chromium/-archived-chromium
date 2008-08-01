@@ -33,8 +33,9 @@ env = env.Clone()
 
 # Grungy environment hackery to satisfy the Visual Studio that we're
 # going to execute.
+import copy
 import os
-env['ENV'] = os.environ.copy()
+env['ENV'] = copy.deepcopy(os.environ)
 
 env.AppendENVPath('INCLUDE', env['MSVS_ENV']['INCLUDE'])
 env.AppendENVPath('LIB', env['MSVS_ENV']['LIB'])
