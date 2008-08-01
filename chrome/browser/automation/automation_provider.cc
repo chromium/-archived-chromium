@@ -1257,19 +1257,44 @@ void AutomationProvider::WindowSimulateDrag(const IPC::Message& message,
   if (browser_tracker_->ContainsHandle(handle) && (drag_path.size() > 1)) {
     succeeded = true;
 
+    UINT down_message = 0;
+    UINT up_message = 0;
+    WPARAM wparam_flags = 0;
+    if (flags & ChromeViews::Event::EF_SHIFT_DOWN)
+      wparam_flags |= MK_SHIFT;
+    if (flags & ChromeViews::Event::EF_CONTROL_DOWN)
+      wparam_flags |= MK_CONTROL;
+    if (flags & ChromeViews::Event::EF_LEFT_BUTTON_DOWN) {
+      wparam_flags |= MK_LBUTTON;
+      down_message = WM_LBUTTONDOWN;
+      up_message = WM_LBUTTONUP;
+    }
+    if (flags & ChromeViews::Event::EF_MIDDLE_BUTTON_DOWN) {
+      wparam_flags |= MK_MBUTTON;
+      down_message = WM_MBUTTONDOWN;
+      up_message = WM_MBUTTONUP;
+    }
+    if (flags & ChromeViews::Event::EF_RIGHT_BUTTON_DOWN) {
+      wparam_flags |= MK_RBUTTON;
+      down_message = WM_LBUTTONDOWN;
+      up_message = WM_LBUTTONUP;
+    }
+
     Browser* browser = browser_tracker_->GetResource(handle);
     DCHECK(browser);
-    ChromeViews::RootView* root = browser->window()->GetRootView();
-    DCHECK(root);
-    ScheduleMouseEvent(root, ChromeViews::Event::ET_MOUSE_PRESSED,
-                       drag_path[0], flags);
+    HWND top_level_hwnd = browser->GetTopLevelHWND();
+    SetCursorPos(drag_path[0].x, drag_path[0].y);
+    SendMessage(top_level_hwnd, down_message, wparam_flags,
+                MAKELPARAM(drag_path[0].x, drag_path[0].y));
     for (int i = 1; i < static_cast<int>(drag_path.size()); ++i) {
-      ScheduleMouseEvent(root, ChromeViews::Event::ET_MOUSE_DRAGGED,
-                         drag_path[i], flags);
+      SetCursorPos(drag_path[i].x, drag_path[i].y);
+      SendMessage(top_level_hwnd, WM_MOUSEMOVE, wparam_flags,
+                  MAKELPARAM(drag_path[i].x, drag_path[i].y));
     }
     POINT end = drag_path[drag_path.size() - 1];
-    ScheduleMouseEvent(root, ChromeViews::Event::ET_MOUSE_RELEASED,
-                       drag_path[drag_path.size() - 1], flags);
+    SetCursorPos(end.x, end.y);
+    SendMessage(top_level_hwnd, up_message, wparam_flags,
+                MAKELPARAM(end.x, end.y));
 
     MessageLoop::current()->PostTask(FROM_HERE,
         new InvokeTaskLaterTask(
