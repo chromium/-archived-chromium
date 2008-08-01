@@ -30,7 +30,9 @@
 #ifndef NET_BASE_COOKIE_POLICY_H__
 #define NET_BASE_COOKIE_POLICY_H__
 
-#include "googleurl/src/gurl.h"
+#include "base/basictypes.h"
+
+class GURL;
 
 namespace net {
 

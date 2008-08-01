@@ -29,6 +29,7 @@
 
 #include "net/base/cookie_policy.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "googleurl/src/gurl.h"
 
 namespace {
 

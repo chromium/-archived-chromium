@@ -30,6 +30,7 @@
 #include "net/base/cookie_policy.h"
 
 #include "base/logging.h"
+#include "googleurl/src/gurl.h"
 #include "net/base/registry_controlled_domain.h"
 
 namespace net {
