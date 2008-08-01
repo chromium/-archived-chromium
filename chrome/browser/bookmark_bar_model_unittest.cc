@@ -28,6 +28,9 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "base/string_util.h"
+#ifdef USE_BOOKMARK_CODEC
+#include "chrome/browser/bookmark_codec.h"
+#endif  // USE_BOOKMARK_CODEC
 #include "chrome/browser/bookmark_bar_model.h"
 #include "chrome/test/testing_profile.h"
 #include "chrome/views/tree_node_model.h"
@@ -129,6 +132,31 @@ class BookmarkBarModelTest : public testing::Test,
 
   history::UIStarID GetMaxGroupID() {
     return GetMaxGroupID(model.root_node());
+  }
+
+  void AssertNodesEqual(BookmarkBarNode* expected, BookmarkBarNode* actual) {
+    ASSERT_TRUE(expected);
+    ASSERT_TRUE(actual);
+    EXPECT_EQ(expected->GetTitle(), actual->GetTitle());
+    EXPECT_EQ(expected->GetType(), actual->GetType());
+    EXPECT_TRUE(expected->date_added() == actual->date_added());
+    if (expected->GetType() == history::StarredEntry::URL) {
+      EXPECT_EQ(expected->GetURL(), actual->GetURL());
+    } else {
+      EXPECT_TRUE(expected->date_group_modified() ==
+                  actual->date_group_modified());
+      ASSERT_EQ(expected->GetChildCount(), actual->GetChildCount());
+      for (int i = 0; i < expected->GetChildCount(); ++i)
+        AssertNodesEqual(expected->GetChild(i), actual->GetChild(i));
+    }
+  }
+
+  void AssertModelsEqual(BookmarkBarModel* expected,
+                         BookmarkBarModel* actual) {
+    AssertNodesEqual(expected->GetBookmarkBarNode(),
+                     actual->GetBookmarkBarNode());
+    AssertNodesEqual(expected->other_node(),
+                     actual->other_node());
   }
 
   BookmarkBarModel model;
@@ -572,3 +600,45 @@ TEST_F(BookmarkBarModelTestWithProfile, CreateAndRestore) {
     VerifyModelMatchesNode(&other, bb_model_->other_node());
   }
 }
+
+#ifdef USE_BOOKMARK_CODEC
+// Creates a set of nodes in the bookmark bar model, then recreates the
+// bookmark bar model which triggers loading from the db and checks the loaded
+// structure to make sure it is what we first created.
+TEST_F(BookmarkBarModelTest, TestJSONCodec) {
+  struct TestData {
+    // Structure of the children of the bookmark bar model node.
+    const std::wstring bbn_contents;
+    // Structure of the children of the other node.
+    const std::wstring other_contents;
+  } data[] = {
+    // See PopulateNodeFromString for a description of these strings.
+    { L"", L"" },
+    { L"a", L"b" },
+    { L"a [ b ]", L"" },
+    { L"", L"[ b ] a [ c [ d e [ f ] ] ]" },
+    { L"a [ b ]", L"" },
+    { L"a b c [ d e [ f ] ]", L"g h i [ j k [ l ] ]"},
+  };
+  for (int i = 0; i < arraysize(data); ++i) {
+    BookmarkBarModel expected_model(NULL);
+
+    TestNode bbn;
+    PopulateNodeFromString(data[i].bbn_contents, &bbn);
+    PopulateBookmarkBarNode(&bbn, &expected_model,
+                            expected_model.GetBookmarkBarNode());
+
+    TestNode other;
+    PopulateNodeFromString(data[i].other_contents, &other);
+    PopulateBookmarkBarNode(&other, &expected_model,
+                            expected_model.other_node());
+
+    BookmarkBarModel actual_model(NULL);
+    BookmarkCodec codec;
+    scoped_ptr<Value> encoded_value(codec.Encode(&expected_model));
+    codec.Decode(&actual_model, *(encoded_value.get()));
+
+    AssertModelsEqual(&expected_model, &actual_model);
+  }
+}
+#endif  // USE_BOOKMARK_CODEC

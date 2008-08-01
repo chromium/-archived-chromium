@@ -40,6 +40,7 @@
 #include "skia/include/SkBitmap.h"
 
 class BookmarkBarModel;
+class BookmarkCodec;
 class Profile;
 
 // BookmarkBarNode ------------------------------------------------------------
@@ -50,6 +51,7 @@ class Profile;
 //
 class BookmarkBarNode : public ChromeViews::TreeNode<BookmarkBarNode> {
   friend class BookmarkBarModel;
+  friend class BookmarkCodec;
 
  public:
   explicit BookmarkBarNode(BookmarkBarModel* model);
@@ -64,6 +66,8 @@ class BookmarkBarNode : public ChromeViews::TreeNode<BookmarkBarNode> {
   const GURL& GetURL() const { return url_; }
 
   // Returns the start ID corresponding to this node.
+  // TODO(sky): bug 1256202, make this an ever increasing integer assigned on
+  // reading, but not archived. Best to set it automatically in the constructor.
   history::StarID GetStarID() const { return star_id_; }
 
   // Returns the type of this node.
@@ -73,6 +77,7 @@ class BookmarkBarNode : public ChromeViews::TreeNode<BookmarkBarNode> {
   history::StarredEntry GetEntry();
 
   // Returns the ID of group.
+  // TODO(sky): bug 1256202, nuke this.
   history::UIStarID GetGroupID() { return group_id_; }
 
   // Called when the favicon becomes invalid.
@@ -80,6 +85,13 @@ class BookmarkBarNode : public ChromeViews::TreeNode<BookmarkBarNode> {
     loaded_favicon_ = false;
     favicon_ = SkBitmap();
   }
+
+  // Returns the time the bookmark/group was added.
+  Time date_added() const { return date_added_; }
+
+  // Returns the last time the group was modified. This is only maintained
+  // for folders (including the bookmark and other folder).
+  Time date_group_modified() const { return date_group_modified_; }
 
  private:
   // Resets the properties of the node from the supplied entry.
@@ -108,6 +120,7 @@ class BookmarkBarNode : public ChromeViews::TreeNode<BookmarkBarNode> {
   GURL url_;
 
   // Type of node.
+  // TODO(sky): bug 1256202, convert this into a type defined here.
   history::StarredEntry::Type type_;
 
   // Group ID.
