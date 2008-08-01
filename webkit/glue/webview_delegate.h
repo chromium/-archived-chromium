@@ -404,6 +404,8 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
 
   // Notifies the delegate that the load about to be committed for the specified
   // webview and frame was due to a client redirect originating from source URL.
+  // The information/notification obtained from this method is relevant until
+  // the next provisional load is started, at which point it becomes obsolete.
   virtual void DidCompleteClientRedirect(WebView* webview,
                                          WebFrame* frame,
                                          const GURL& source) {

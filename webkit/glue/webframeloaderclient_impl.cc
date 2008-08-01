@@ -671,6 +671,7 @@ void WebFrameLoaderClient::dispatchDidStartProvisionalLoad() {
   // If this load is what we expected from a client redirect, treat it as a
   // redirect from that original page. The expected redirect urls will be
   // cleared by DidCancelClientRedirect.
+  bool completing_client_redirect = false;
   if (expected_client_redirect_src_.is_valid()) {
     // expected_client_redirect_dest_ could be something like 
     // "javascript:history.go(-1)" thus we need to exclude url starts with
@@ -678,15 +679,22 @@ void WebFrameLoaderClient::dispatchDidStartProvisionalLoad() {
     DCHECK(expected_client_redirect_dest_.SchemeIs("javascript") || 
            expected_client_redirect_dest_ == url);
     ds->AppendRedirect(expected_client_redirect_src_);
-    if (d)
-      d->DidCompleteClientRedirect(webview, webframe_, 
-                                   expected_client_redirect_src_);
+    completing_client_redirect = true;
   }
   ds->AppendRedirect(url);
 
-  if (d)
+  if (d) {
+    // As the comment for DidCompleteClientRedirect in webview_delegate.h
+    // points out, whatever information its invocation contains should only
+    // be considered relevant until the next provisional load has started.
+    // So we first tell the delegate that the load started, and then tell it
+    // about the client redirect the load is responsible for completing.
     d->DidStartProvisionalLoadForFrame(webview, webframe_,
                                        NavigationGestureForLastLoad());
+    if (completing_client_redirect)
+      d->DidCompleteClientRedirect(webview, webframe_, 
+                                   expected_client_redirect_src_);
+  }
 
   // Cancel any pending loads.
   if (alt_404_page_fetcher_.get())

@@ -252,3 +252,63 @@ TEST_F(RedirectTest, ClientFragments) {
   EXPECT_EQ(1, redirects.size());
   EXPECT_EQ(first_url.spec() + "#myanchor", redirects[0].spec());
 }
+
+// TODO(timsteele): This is disabled because our current testserver can't
+// handle multiple requests in parallel, making it hang on the first request to
+// /slow?60. It's unable to serve our second request for files/title2.html until
+// /slow? completes, which doesn't give the desired behavior. We could
+// alternatively load the second page from disk, but we would need to start the
+// browser for this testcase with --process-per-tab, and I don't think we can do
+// this at test-case-level granularity at the moment.
+TEST_F(RedirectTest, DISABLED_ClientCancelledByNewNavigationAfterProvisionalLoad) {
+  // We want to initiate a second navigation after the provisional load for
+  // the client redirect destination has started, but before this load is
+  // committed. To achieve this, we tell the browser to load a slow page,
+  // which causes it to start a provisional load, and while it is waiting
+  // for the response (which means it hasn't committed the load for the client
+  // redirect destination page yet), we issue a new navigation request.
+  TestServer server(kDocRoot);
+  
+  GURL final_url = server.TestServerPageW(std::wstring(L"files/title2.html"));
+  GURL slow = server.TestServerPageW(std::wstring(L"slow?60"));
+  GURL first_url = server.TestServerPageW(
+      std::wstring(L"client-redirect?") + UTF8ToWide(slow.spec()));
+  std::vector<GURL> redirects;
+
+  NavigateToURL(first_url);
+  // We don't sleep here - the first navigation won't have been committed yet
+  // because we told the server to wait a minute. This means the browser has
+  // started it's provisional load for the client redirect destination page but
+  // hasn't completed. Our time is now!
+  NavigateToURL(final_url);
+  
+  std::wstring tab_title;
+  std::wstring final_url_title = L"Title Of Awesomeness";
+  // Wait till the final page has been loaded.
+  for (int i = 0; i < 10; ++i) {
+    Sleep(kWaitForActionMaxMsec / 10);
+    scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
+    ASSERT_TRUE(tab_proxy.get());
+    ASSERT_TRUE(tab_proxy->GetTabTitle(&tab_title));
+    if (tab_title == final_url_title) {
+      ASSERT_TRUE(tab_proxy->GetRedirectsFrom(first_url, &redirects));
+      break;
+    }
+  }
+
+  // Check to make sure the navigation did in fact take place and we are 
+  // at the expected page.
+  EXPECT_EQ(final_url_title, tab_title); 
+
+  bool final_navigation_not_redirect = true;
+  // Check to make sure our request for files/title2.html doesn't get flagged
+  // as a client redirect from the first (/client-redirect?) page.
+  for (std::vector<GURL>::iterator it = redirects.begin();
+       it != redirects.end(); ++it) {
+    if (final_url.spec() == it->spec()) {
+      final_navigation_not_redirect = false;
+      break;
+    }
+  }
+  EXPECT_TRUE(final_navigation_not_redirect);
+}

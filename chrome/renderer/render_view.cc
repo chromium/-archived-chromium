@@ -1015,6 +1015,7 @@ void RenderView::UpdateURL(WebFrame* frame) {
     // the page contained a client redirect (meta refresh, document.loc...),
     // so we set the referrer and transition to match.
     if (completed_client_redirect_src_.is_valid()) {
+      DCHECK(completed_client_redirect_src_ == params.redirects[0]);
       params.referrer = completed_client_redirect_src_;
       params.transition = static_cast<PageTransition::Type>(
           params.transition | PageTransition::CLIENT_REDIRECT);
@@ -1146,8 +1147,12 @@ void RenderView::DidStartProvisionalLoadForFrame(
     WebView* webview,
     WebFrame* frame,
     NavigationGesture gesture) {
-  if (webview->GetMainFrame() == frame)
+  if (webview->GetMainFrame() == frame) {
     navigation_gesture_ = gesture;
+    
+    // Make sure redirect tracking state is clear for the new load.
+    completed_client_redirect_src_ = GURL();
+  }
 
   Send(new ViewHostMsg_DidStartProvisionalLoadForFrame(
        routing_id_, webview->GetMainFrame() == frame,
