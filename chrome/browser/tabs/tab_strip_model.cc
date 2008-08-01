@@ -486,7 +486,7 @@ void TabStripModel::ExecuteContextMenuCommand(
       NavigationController* opener =
           GetTabContentsAt(context_index)->controller();
 
-      for (int i = count() - 1; i > context_index; --i) {
+      for (int i = count() - 1; i >= 0; --i) {
         if (OpenerMatches(contents_data_.at(i), opener, true))
           CloseTabContentsAt(i);
       }
