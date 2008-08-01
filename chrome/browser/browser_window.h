@@ -36,6 +36,7 @@
 #include "base/gfx/rect.h"
 #include "chrome/views/accelerator.h"
 
+class BookmarkBarView;
 class BrowserList;
 namespace ChromeViews {
 class RootView;
@@ -186,6 +187,9 @@ class BrowserWindow {
 
   // Returns the go button.
   virtual GoButton* GetGoButton() const = 0;
+
+  // Returns the Bookmark Bar view.
+  virtual BookmarkBarView* GetBookmarkBarView() = 0;
 
   // Updates the toolbar with the state for the specified |contents|.
   virtual void Update(TabContents* contents, bool should_restore_state) = 0;

@@ -47,7 +47,6 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_member.h"
 
-class BookmarkBarView;
 class BrowserWindow;
 class GoButton;
 class LocationBarView;
@@ -335,9 +334,6 @@ class Browser : public TabStripModelDelegate,
   // point and for the provided hwnd.
   void RunSimpleFrameMenu(const CPoint& pt, HWND hwnd);
 
-  // Returns the bookmark bar view, creating if NULL.
-  BookmarkBarView* GetBookmarkBarView();
-
   // Show some native UI given a URL. If a tab with the same URL is already
   // visible in this browser, it becomes selected. Otherwise a new tab is
   // created.
@@ -599,9 +595,6 @@ class Browser : public TabStripModelDelegate,
 
   // This browser type.
   BrowserType::Type type_;
-
-  // The bookmark bar. This is lazily created.
-  scoped_ptr<BookmarkBarView> bookmark_bar_view_;
 
   // Lists all UI updates that are pending. We don't update things like the
   // URL or tab title right away to avoid flickering and extra painting.

@@ -344,6 +344,7 @@ XPFrame::XPFrame(Browser* browser)
       frame_view_(NULL),
       tabstrip_(NULL),
       toolbar_(NULL),
+      active_bookmark_bar_(NULL),
       tab_contents_container_(NULL),
       min_button_(NULL),
       max_button_(NULL),
@@ -568,7 +569,7 @@ int XPFrame::GetContentsYOrigin() {
   if (info_bar_view_)
     min_y = std::min(min_y, info_bar_view_->GetY());
 
-  if (bookmark_bar_view_)
+  if (bookmark_bar_view_.get())
     min_y = std::min(min_y, bookmark_bar_view_->GetY());
 
   return min_y;
@@ -750,7 +751,7 @@ void XPFrame::Layout() {
   CSize bookmark_bar_size;
   CSize info_bar_size;
 
-  if (bookmark_bar_view_) {
+  if (bookmark_bar_view_.get()) {
     bookmark_bar_view_->GetPreferredSize(&bookmark_bar_size);
     bookmark_bar_height = bookmark_bar_size.cy;
   }
@@ -761,9 +762,9 @@ void XPFrame::Layout() {
   // If we're showing a bookmarks bar in the new tab page style and we
   // have an infobar showing, we need to flip them.
   if (info_bar_view_ &&
-      bookmark_bar_view_ &&
-      static_cast<BookmarkBarView*>(bookmark_bar_view_)->IsNewTabPage() &&
-      !static_cast<BookmarkBarView*>(bookmark_bar_view_)->IsAlwaysShown()) {
+      bookmark_bar_view_.get() &&
+      bookmark_bar_view_->IsNewTabPage() &&
+      !bookmark_bar_view_->IsAlwaysShown()) {
     info_bar_view_->SetBounds(left_margin,
                               last_y,
                               client_rect.Width() - left_margin - right_margin,
@@ -781,7 +782,7 @@ void XPFrame::Layout() {
     browser_h -= (bookmark_bar_size.cy - kSeparationLineHeight);
     last_y += bookmark_bar_size.cy;
   } else {
-    if (bookmark_bar_view_) {
+    if (bookmark_bar_view_.get()) {
       // We want our bookmarks bar to be responsible for drawing its own
       // separator, so we let it overlap ours.
       last_y -= kSeparationLineHeight;
@@ -1861,6 +1862,22 @@ GoButton* XPFrame::GetGoButton() const {
   return toolbar_->GetGoButton();
 }
 
+BookmarkBarView* XPFrame::GetBookmarkBarView() {
+  TabContents* current_tab = browser_->GetSelectedTabContents();
+  if (!current_tab || !current_tab->profile())
+    return NULL;
+
+  if (!bookmark_bar_view_.get()) {
+    bookmark_bar_view_.reset(new BookmarkBarView(current_tab->profile(),
+                                                 browser_));
+    bookmark_bar_view_->SetParentOwned(false);
+  } else {
+    bookmark_bar_view_->SetProfile(current_tab->profile());
+  }
+  bookmark_bar_view_->SetPageNavigator(current_tab);
+  return bookmark_bar_view_.get();
+}
+
 void XPFrame::Update(TabContents* contents, bool should_restore_state) {
   toolbar_->Update(contents, should_restore_state);
 }
@@ -2467,9 +2484,9 @@ void XPFrame::ShelfVisibilityChangedImpl(TabContents* current_tab) {
 
   ChromeViews::View* new_bookmark_bar_view = NULL;
   if (SupportsBookmarkBar() && current_tab)
-    new_bookmark_bar_view = browser_->GetBookmarkBarView();
+    new_bookmark_bar_view = GetBookmarkBarView();
   changed |= UpdateChildViewAndLayout(new_bookmark_bar_view,
-                                      &bookmark_bar_view_);
+                                      &active_bookmark_bar_);
 
   // Only do a layout if the current contents is non-null. We assume that if the
   // contents is NULL, we're either being destroyed, or ShowTabContents is going

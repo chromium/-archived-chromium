@@ -303,10 +303,6 @@ Browser::~Browser() {
       RemoveObserver(this, NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
                      NotificationService::AllSources());
 
-  ChromeViews::View* p;
-  if (bookmark_bar_view_.get() && (p = bookmark_bar_view_->GetParent()))
-    p->RemoveChildView(bookmark_bar_view_.get());
-
   // Stop hung plugin monitoring.
   ticker_.Stop();
   ticker_.UnregisterTickHandler(&hung_window_detector_);
@@ -913,19 +909,6 @@ void Browser::ContentsStateChanged(TabContents* source) {
 
 bool Browser::ShouldDisplayURLField() {
   return !IsApplication();
-}
-
-BookmarkBarView* Browser::GetBookmarkBarView() {
-  TabContents* current_tab = GetSelectedTabContents();
-  if (!current_tab || !current_tab->profile())
-    return NULL;
-
-  if (!bookmark_bar_view_.get())
-    bookmark_bar_view_.reset(new BookmarkBarView(current_tab->profile(), this));
-  else
-    bookmark_bar_view_->SetProfile(current_tab->profile());
-  bookmark_bar_view_->SetPageNavigator(current_tab);
-  return bookmark_bar_view_.get();
 }
 
 void Browser::SaveWindowPlacementToDatabase() {

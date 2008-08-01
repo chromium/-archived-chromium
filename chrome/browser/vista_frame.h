@@ -49,6 +49,7 @@
 
 #define VISTA_FRAME_CLASSNAME L"Chrome_VistaFrame"
 
+class BookmarkBarView;
 class Browser;
 class BrowserToolbarView;
 class TabContentsContainerView;
@@ -206,6 +207,7 @@ class VistaFrame : public BrowserWindow,
   virtual ToolbarStarToggle* GetStarButton() const;
   virtual LocationBarView* GetLocationBarView() const;
   virtual GoButton* GetGoButton() const;
+  virtual BookmarkBarView* GetBookmarkBarView();
   virtual void Update(TabContents* contents, bool should_restore_state);
   virtual void ProfileChanged(Profile* profile);
   virtual void FocusToolbar();
@@ -371,6 +373,12 @@ class VistaFrame : public BrowserWindow,
   // The Toolbar containing the navigation buttons, menus and the address bar.
   BrowserToolbarView* toolbar_;
 
+  // The bookmark bar. This is lazily created.
+  scoped_ptr<BookmarkBarView> bookmark_bar_view_;
+
+  // The visible bookmark bar. NULL if none is visible.
+  ChromeViews::View* active_bookmark_bar_;
+
   // Browser contents
   TabContentsContainerView* tab_contents_container_;
 
@@ -391,9 +399,6 @@ class VistaFrame : public BrowserWindow,
 
   // A view positioned at the bottom of the frame.
   ChromeViews::View* shelf_view_;
-
-  // View positioned beneath the tab strip.
-  ChromeViews::View* bookmark_bar_view_;
 
   // A view positioned beneath the bookmark bar view.
   // Implementation mirrors shelf_view_
