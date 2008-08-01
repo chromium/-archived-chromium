@@ -250,6 +250,27 @@ std::wstring ASCIIToWide(const std::string& ascii) {
   return std::wstring(ascii.begin(), ascii.end());
 }
 
+std::string WideToUTF8(const std::wstring& wide) {
+  std::string ret;
+  if (wide.empty())
+    return ret;
+
+  // Ignore the success flag of this call, it will do the best it can for
+  // invalid input, which is what we want here.
+  WideToUTF8(wide.data(), wide.length(), &ret);
+  return ret;
+}
+
+// Similar to the Wide->UTF8 version above.
+std::wstring UTF8ToWide(const std::string& utf8) {
+  std::wstring ret;
+  if (utf8.empty())
+    return ret;
+
+  UTF8ToWide(utf8.data(), utf8.length(), &ret);
+  return ret;
+}
+
 // Latin1 is just the low range of Unicode, so we can copy directly to convert.
 bool WideToLatin1(const std::wstring& wide, std::string* latin1) {
   std::string output;

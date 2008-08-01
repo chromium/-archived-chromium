@@ -76,16 +76,6 @@ static std::wstring MultiByteToWide(const std::string& mb, UINT code_page) {
   return wide;
 }
 
-// Wide <--> UTF-8
-std::string WideToUTF8(const std::wstring& wide) {
-
-  return WideToMultiByte(wide, CP_UTF8);
-}
-
-std::wstring UTF8ToWide(const std::string& utf8) {
-  return MultiByteToWide(utf8, CP_UTF8);
-}
-
 // Wide <--> native multibyte
 std::string WideToNativeMB(const std::wstring& wide) {
   return WideToMultiByte(wide, CP_ACP);
