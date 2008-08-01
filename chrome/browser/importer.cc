@@ -188,10 +188,13 @@ static void BuildHostPathMap(const TemplateURLModel& model,
     const std::string host_path = BuildHostPathKey(template_urls[i]);
     if (!host_path.empty()) {
       const TemplateURL* existing_turl = (*host_path_map)[host_path];
-      if (!existing_turl || template_urls[i]->show_in_default_list()) {
+      if (!existing_turl ||
+          (template_urls[i]->show_in_default_list() &&
+           !existing_turl->show_in_default_list())) {
         // If there are multiple TemplateURLs with the same host+path, favor
-        // those show in the default list. This is done just in case we end
-        // up using it as the default search provider.
+        // those shown in the default list.  If there are multiple potential
+        // defaults, favor the first one, which should be the more commonly used
+        // one.
         (*host_path_map)[host_path] = template_urls[i];
       }
     }  // else case, TemplateURL doesn't have a search url, doesn't support
