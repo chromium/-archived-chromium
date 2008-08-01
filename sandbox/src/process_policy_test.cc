@@ -285,7 +285,8 @@ TEST(ProcessPolicyTest, TestAllAccess) {
                                         L"this is not important"));
 }
 
-TEST(ProcessPolicyTest, RunFindstrExe) {
+// This test is disabled.  See bug 1305476.
+TEST(ProcessPolicyTest, DISABLED_RunFindstrExe) {
   TestRunner runner;
   std::wstring exe_path = MakeFullPathToSystem32(L"findstr.exe");
   std::wstring system32 = MakeFullPathToSystem32(L"");
