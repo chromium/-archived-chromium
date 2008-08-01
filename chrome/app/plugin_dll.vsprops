@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="plugin_dll"
+	InheritedPropertySheets=".\chrome_binaries.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		PreprocessorDefinitions="PLUGIN_DLL"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		OutputFile="$(OutDir)\plugin.dll"
+		ImportLibrary="$(OutDir)\lib\$(ProjectName).lib"
+	/>
+</VisualStudioPropertySheet>
