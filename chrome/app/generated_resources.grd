@@ -3266,7 +3266,7 @@ each locale. -->
       </message>
 
       <message name="IDS_OPTIONS_ENABLE_LOGGING" desc="The label of the checkbox to enable/disable crash and user metrics logging">
-        Help make Chrome better by automatically sending usage statistics and crash reports to Google
+        Help make Google Chrome better by automatically sending usage statistics and crash reports to Google
       </message>
 
       <message name="IDS_PROFILE_TOO_NEW_ERROR" desc="Error displayed on startup when the profile is from a newer version of the product and can not be read">
