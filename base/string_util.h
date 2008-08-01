@@ -155,15 +155,9 @@ std::wstring CollapseWhitespace(const std::wstring& text,
 std::string WideToASCII(const std::wstring& wide);
 std::wstring ASCIIToWide(const std::string& ascii);
 
-// These convert between UTF8 and UTF16 strings. They are potentially slow, so
-// avoid unnecessary conversions. Most things should be in wide. The low-level
-// versions return a boolean indicating whether the conversion was 100% valid.
-// In this case, it will still do the best it can and put the result in the
-// output buffer. The versions that return strings ignore this error and just
-// return the best conversion possible.
-bool WideToUTF8(const wchar_t* src, size_t src_len, std::string* output);
+// These convert between UTF8 and UTF16 strings. They are potentially slow,
+// so avoid unnecessary conversions. Most things should be in UTF16.
 std::string WideToUTF8(const std::wstring& wide);
-bool UTF8ToWide(const char* src, size_t src_len, std::wstring* output);
 std::wstring UTF8ToWide(const std::string& utf8);
 
 // Converts between wide strings and whatever the native multibyte encoding
