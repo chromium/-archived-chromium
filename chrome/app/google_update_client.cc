@@ -199,7 +199,11 @@ bool GoogleUpdateClient::Launch(HINSTANCE instance, HINSTANCE prev_instance,
       }
       did_launch = true;
     }
+#ifdef PURIFY
+    // We should never unload the dll. There is only risk and no gain from
+    // doing so. The singleton dtors have been already run by AtExitManager.
     ::FreeLibrary(dll_handle);
+#endif
   } else {
     unsigned long err = GetLastError();
     if (err) {
