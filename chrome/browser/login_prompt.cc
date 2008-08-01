@@ -269,7 +269,7 @@ class LoginHandlerImpl : public LoginHandler,
 
     NavigationController* controller = requesting_contents->controller();
 
-    if (WasAuthHandled(false)) {
+    if (!WasAuthHandled(false)) {
       LoginNotificationDetails details(this);
       service->Notify(NOTIFY_AUTH_NEEDED,
                       Source<NavigationController>(controller),
