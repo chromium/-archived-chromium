@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <tchar.h>
 
+#include "base/at_exit.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 
@@ -57,6 +58,9 @@ bool GetCrashServiceDirectory(std::wstring* dir) {
 
 int __stdcall wWinMain(HINSTANCE instance, HINSTANCE, wchar_t* cmd_line,
                        int show_mode) {
+  // Manages the destruction of singletons.
+  base::AtExitManager exit_manager;
+
   // We use/create a directory under the user's temp folder, for logging.
   std::wstring operating_dir;
   GetCrashServiceDirectory(&operating_dir);
