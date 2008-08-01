@@ -37,57 +37,327 @@ import shutil
 import sys
 
 
-# Base -------------------------------------------------------------------
 
-base_env = Environment(
+env = Environment(
     BUILD_TYPE = ARGUMENTS.get('BUILD_TYPE', 'Hammer'),
     TARGET_ROOT = '#/$BUILD_TYPE',
     OBJ_ROOT = '$TARGET_ROOT',
 
-    THIRD_PARTY_DIR       = '#/../third_party',
+    BASE_DIR              = '#/$BUILD_TYPE/base',
+    #BREAKPAD_DIR          = '#/$BUILD_TYPE/breakpad',
+    #CHROME_DIR            = '#/$BUILD_TYPE/chrome',
+    #GEARS_DIR             = '#/$BUILD_TYPE/gears',
+    #GOOGLE_UPDATE_DIR     = '#/$BUILD_TYPE/google_update',
+
+    # Work around a limitation (bug?) in SCons in that, when we build
+    # from a different directory, it forces the build targets defined
+    # the SConscript.googleurl file to be relative to that file (i.e.,
+    # here in the build/ directory with us), not relative to the
+    # the SConstruct directory from which SCons was launched.  When
+    # we roll forward to a version of SCons that fixes this, we'll
+    # need to revert to the $BUILD_TYPE definition of GOOGLEURL_DIR.
+    #GOOGLEURL_DIR         = '#/$BUILD_TYPE/googleurl',
+    GOOGLEURL_DIR         = '#/../build/googleurl',
+
+    #NET_DIR               = '#/$BUILD_TYPE/net',
+    #RLZ_DIR               = '#/$BUILD_TYPE/rlz',
+    #SANDBOX_DIR           = '#/$BUILD_TYPE/sandbox',
+    #SKIA_DIR              = '#/$BUILD_TYPE/skia',
+    TESTING_DIR           = '#/$BUILD_TYPE/testing',
+    THIRD_PARTY_DIR       = '#/$BUILD_TYPE/third_party',
+    #V8_DIR                = '#/$BUILD_TYPE/v8',
+    #WEBKIT_DIR            = '#/$BUILD_TYPE/webkit',
+
+    GTEST_DIR             = '$TESTING_DIR/gtest',
+
     BSDIFF_DIR            = '$THIRD_PARTY_DIR/bsdiff',
     BSPATCH_DIR           = '$THIRD_PARTY_DIR/bspatch',
     BZIP2_DIR             = '$THIRD_PARTY_DIR/bzip2',
     ICU38_DIR             = '$THIRD_PARTY_DIR/icu38',
     LIBJPEG_DIR           = '$THIRD_PARTY_DIR/libjpeg',
     LIBPNG_DIR            = '$THIRD_PARTY_DIR/libpng',
-    # TODO(keunwoo): Port over other third_party packages.
+    #LIBXML_DIR            = '$THIRD_PARTY_DIR/libxml',
+    #LIBXSLT_DIR           = '$THIRD_PARTY_DIR/libxslt',
+    LZMA_SDK_DIR          = '$THIRD_PARTY_DIR/lzma_sdk',
+    MODP_B64_DIR          = '$THIRD_PARTY_DIR/modp_b64',
+    #NPAPI_DIR             = '$THIRD_PARTY_DIR/npapi',
     ZLIB_DIR              = '$THIRD_PARTY_DIR/zlib',
+
+    #THIRD_PARTY_WEBKIT_DIR = '$THIRD_PARTY_DIR/webkit',
 
     PYTHON=sys.executable,
 
-    )
+
+    # XXX linux-specific:
+    # Build 32-bit libraries/executables.
+    CCFLAGS='-m32'
+    # TODO(linux): we should also compile with
+    # CCFLAGS='-Werror', but not yet.
+)
+
+
+if env['PLATFORM'] == 'win32':
+
+  msvs_env = Environment(tools=['msvc', 'mslink', 'msvs'])['ENV']
+
+  env.Replace(
+    CSCRIPT = 'c:\\Windows\\System32\\cscript',
+
+    PLATFORMSDK_VISTA_REL = '../third_party/platformsdk_vista_6_0',
+    PLATFORMSDK_VISTA = '#/$PLATFORMSDK_VISTA_REL',
+    VISUAL_STUDIO = '/Program Files/Microsoft Visual Studio 8',
+
+    CYGWIN_DIR = Dir('#../third_party/cygwin'),
+    CYGWIN_BIN_DIR = '$CYGWIN_DIR/bin',
+
+    PERL = '$CYGWIN_BIN_DIR/perl.exe',
+    PERL_INCLUDE_FLAG = '-I ',
+    PERL_INCLUDE_SUFFIX = '',
+    _PERL_INCLUDE_FLAGS = ('${_concat(PERL_INCLUDE_FLAG, '
+                           'PERL_INCLUDE_PATH, '
+                           'PERL_INCLUDE_SUFFIX,'
+                           '__env__, RDirs, TARGET, SOURCE)}'),
+
+    MSVS_ENV = msvs_env,
+
+    YACC = '$CYGWIN_BIN_DIR/bison.exe',
+
+    ARFLAGS = [
+        '/nologo',
+    ],
+
+    CCFLAGS = [
+        '/nologo',
+
+        '/Od',          # no optimization
+
+        '/RTC1',
+        '/MTd',         # static link to crt, and debug version
+        '/Gy',
+        '/GR-',
+
+        '/W3',
+
+        '/Z7',
+
+        '/errorReport:prompt',
+
+        '/wd4503',
+        '/wd4819',
+    ],
+
+    CPPDEFINES = [
+        '_CRT_SECURE_NO_DEPRECATE',
+        '_CRT_NONSTDC_NO_WARNINGS',
+        '_CRT_NONSTDC_NO_DEPRECATE',
+        '_SCL_SECURE_NO_DEPRECATE',
+
+        '_DEBUG',
+
+        '_CRT_RAND_S',
+        ('_WIN32_WINNT', '0x0600'),
+        ('WINVER', '0x0600'),
+        'WIN32',
+        '_WINDOWS',
+        ('_HAS_EXCEPTIONS', 0),
+        'NOMINMAX',
+        '_UNICODE',
+        'UNICODE',
+
+        'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
+        'WIN32_LEAN_AND_MEAN',
+    ],
+
+    CPPPATH = [
+        '$PLATFORMSDK_VISTA/files/Include',
+        '$PLATFORMSDK_VISTA/files/VC/INCLUDE',
+        '$VISUAL_STUDIO/VC/atlmfc/include',
+    ],
+
+    LIBPATH = [
+        '$PLATFORMSDK_VISTA/files/Lib',
+        '$PLATFORMSDK_VISTA/files/VC/LIB',
+        '$VISUAL_STUDIO/VC/atlmfc/lib',
+    ],
+
+    LINKFLAGS = [
+        '/nologo',
+        '/DEBUG',
+    ],
+  )
+
+  # TODO(sgk): remove once we upgrade to SCons 0.98.4
+  for var in ['INCLUDE', 'LIB', 'PATH']:
+    msvs_env[var] = msvs_env[var].split('|', 1)[0]
+    env['ENV'][var] = env['ENV'][var].split('|', 1)[0]
+
+  # Force scons to handle long include lines correctly.
+  pchcom_fixed = env['PCHCOM']
+  pchcom_fixed = pchcom_fixed.replace('${TARGETS[0]}', '$TARGET')
+  pchcom_fixed = pchcom_fixed.replace('${TARGETS[1]}', '$TARGETS1')
+
+  env.Replace(
+      CCCOM = "${TEMPFILE('%s')}" % env['CCCOM'],
+      CXXCOM = "${TEMPFILE('%s')}" % env['CXXCOM'],
+      SHCCCOM = "${TEMPFILE('%s')}" % env['SHCCCOM'],
+      SHCXXCOM = "${TEMPFILE('%s')}" % env['SHCXXCOM'],
+      PCHCOM = "${TEMPFILE('%s')}" % pchcom_fixed,
+      TARGETS1 = '${TARGETS[1]}',
+  )
+
+  env['ENV']['PROGRAMFILES'] = os.environ['PROGRAMFILES']
+  env['ENV']['SystemDrive'] = os.environ['SystemDrive']
+  env['ENV']['USERPROFILE'] = os.environ['USERPROFILE']
+
+elif env['PLATFORM'] == 'posix':
+
+  env.Replace()
+
+else:
+
+  print "Unsupported SCons $PLATFORM value %s" % repr(env['PLATFORM'])
+  Exit(1)
+
+
+if ARGUMENTS.get('VERBOSE') in (None, '0'):
+  env['CCCOMSTR'] = 'Compiling $TARGET ...'
+  env['CXXCOMSTR'] = 'Compiling $TARGET ...'
+  env['ARCOMSTR'] = 'Archiving $TARGET ...'
+  env['LINKCOMSTR'] = 'Linking $TARGET ...'
 
 
 # Place the .sconsign.dblite in the build directory.
-target_dir = base_env.Dir('$TARGET_ROOT')
+target_dir = env.Dir('$TARGET_ROOT')
 if not os.path.exists(target_dir.abspath):
   Execute(Mkdir(target_dir))
 SConsignFile(target_dir.File('.sconsign').abspath)
 
 
+# Add --clobber (for the buildbot).
+# NOTE: seems to be crucial to do this before any builders are invoked.
+AddOption('--clobber', action='store_true', dest='clobber', default=False,
+          help='Delete build directory before building.')
+if GetOption('clobber'):
+  shutil.rmtree(env.Dir('$TARGET_ROOT').abspath, True)
+
 # Use timestamps change, followed by MD5 for speed
-base_env.Decider('MD5-timestamp')
+env.Decider('MD5-timestamp')
 
 
-# All platforms ----------------------------------------------------------
+# Overlay things from a layer below.
+env.Dir('$TARGET_ROOT').addRepository(Dir('..'))
 
-sconscript_and_target_subdirs = [
-   ('$BSDIFF_DIR', 'third_party/bsdiff'),
-   ('$BSPATCH_DIR', 'third_party/bspatch'),
-   ('$BZIP2_DIR', 'third_party/bzip2'),
-   ('$ICU38_DIR', 'third_party/icu38'),
-   ('$LIBJPEG_DIR', 'third_party/libjpeg'),
-   ('$LIBPNG_DIR', 'third_party/libpng'),
-   # TODO(keunwoo): Port over other third_party packages.
-   ('$ZLIB_DIR', 'third_party/zlib'),
-   ]
 
-env = base_env.Clone()
+load = ARGUMENTS.get('LOAD')
+if load:
+    load = load.split(',')
+else:
+    # TODO(evanm): default load should be empty so we load all files, but for
+    # now let's only load the ones we know work.
+    load = ['base', 'testing', 'third_party']
 
-for sconscript_dir, target_subdir in sconscript_and_target_subdirs:
-  env.SConscript(os.path.join(sconscript_dir, 'SConscript'),
-                 exports=['env'],
-                 variant_dir=os.path.join('$TARGET_ROOT', target_subdir),
-                 duplicate=0
-                 )
+included = [c for c in load if not c.startswith('-')]
+excluded = [c[1:] for c in load if c.startswith('-')]
+if not included:
+  included = ['all']
+
+components = ['all']
+
+def LoadComponent(c):
+  components.append(c)
+  return (not GetOption('help') and
+          c in included or
+          ('all' in included and not c in excluded))
+
+sconscripts = []
+
+if LoadComponent('base'):
+  sconscripts.append('$BASE_DIR/SConscript')
+
+if LoadComponent('breakpad'):
+  sconscripts.append('$BREAKPAD_DIR/SConscript')
+
+if LoadComponent('chrome'):
+  sconscripts.append('$CHROME_DIR/SConscript')
+
+if LoadComponent('google_update'):
+  sconscripts.append('$GOOGLE_UPDATE_DIR/SConscript')
+
+if LoadComponent('googleurl'):
+  env.SConscript('SConscript.googleurl',
+                 duplicate=0,
+                 variant_dir='$GOOGLEURL_DIR',
+                 src_dir='../googleurl',
+                 exports=['env'])
+
+if LoadComponent('net'):
+  sconscripts.append('$NET_DIR/SConscript')
+
+if LoadComponent('rlz'):
+  sconscripts.append('$RLZ_DIR/SConscript')
+
+if LoadComponent('sandbox'):
+  sconscripts.append('$SANDBOX_DIR/src/SConscript')
+
+if LoadComponent('skia'):
+  sconscripts.append('$SKIA_DIR/SConscript')
+
+if LoadComponent('testing'):
+  sconscripts.append('$TESTING_DIR/SConscript.gtest')
+
+if LoadComponent('third_party'):
+  sconscripts.extend([
+      '$BSDIFF_DIR/SConscript',
+      '$BSPATCH_DIR/SConscript',
+      '$BZIP2_DIR/SConscript',
+      '$ICU38_DIR/SConscript',
+      '$LIBJPEG_DIR/SConscript',
+      '$LIBPNG_DIR/SConscript',
+       # TODO(linux): bring these back.
+       #'$LIBXML_DIR/SConscript',
+       #'$LIBXSLT_DIR/SConscript',
+      '$LZMA_SDK_DIR/SConscript',
+      '$MODP_B64_DIR/SConscript',
+      '$ZLIB_DIR/SConscript',
+  ])
+
+if LoadComponent('v8') and env.Dir('#/../v8').exists():
+  env.SConscript('SConscript.v8',
+                 exports=['env'])
+
+if LoadComponent('webkit'):
+  sconscripts.append('$WEBKIT_DIR/SConscript')
+
+env.SConscript(sconscripts, exports=['env'])
+
+
+help_fmt = """
+Usage: hammer [SCONS_OPTIONS] [VARIABLES] [TARGET] ...
+
+Supported build variables:
+
+  BUILD_TYPE=type           Build type.  Also used as the subdirectory name
+                              in which the build occurs.
+  LOAD=[module,...]         Comma-separated list of components to load in the
+                              dependency graph ('-' prefix excludes):
+%s
+  PROGRESS=type             Display a progress indicator:
+                              name:  print each evaluated target name
+                              spinner:  print a spinner every 5 targets
+  VERBOSE=1                 Display full command lines
+"""
+
+if GetOption('help'):
+  import textwrap
+  tw = textwrap.TextWrapper(
+    width = 78,
+    initial_indent = ' '*32,
+    subsequent_indent = ' '*32,
+  )
+  components = tw.fill(', '.join(components))
+
+  Help(help_fmt % components)
+
+
+Import('build_component')
+Default(build_component)
