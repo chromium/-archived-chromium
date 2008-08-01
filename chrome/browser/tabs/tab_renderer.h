@@ -33,7 +33,6 @@
 #include "base/gfx/point.h"
 #include "chrome/common/animation.h"
 #include "chrome/common/slide_animation.h"
-#include "chrome/common/notification_service.h"
 #include "chrome/views/button.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/view.h"

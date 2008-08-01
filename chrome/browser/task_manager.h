@@ -33,7 +33,6 @@
 #include "base/lock.h"
 #include "base/singleton.h"
 #include "base/ref_counted.h"
-#include "chrome/common/notification_service.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/group_table_view.h"
 #include "chrome/browser/cache_manager_host.h"

@@ -36,7 +36,6 @@
 #include "base/basictypes.h"
 #include "base/observer_list.h"
 #include "base/ref_counted.h"
-#include "base/task.h"
 #include "chrome/browser/views/info_bar_message_view.h"
 #include "chrome/browser/provisional_load_details.h"
 #include "chrome/browser/resource_dispatcher_host.h"
@@ -60,6 +59,7 @@ class ResourceRequestDetails;
 class SSLErrorInfo;
 class SSLInfoBar;
 class TabContents;
+class Task;
 class URLRequest;
 
 // The SSLManager SSLManager controls the SSL UI elements in a TabContents.  It

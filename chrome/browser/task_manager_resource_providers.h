@@ -30,9 +30,10 @@
 #ifndef CHROME_BROWSER_TASK_MANAGER_RESOURCE_PROVIDERS_H__
 #define CHROME_BROWSER_TASK_MANAGER_RESOURCE_PROVIDERS_H__
 
+#include "base/basictypes.h"
 #include "chrome/browser/plugin_process_info.h"
 #include "chrome/browser/task_manager.h"
-#include "base/basictypes.h"
+#include "chrome/common/notification_service.h"
 
 class PluginProcessHost;
 class WebContents;
