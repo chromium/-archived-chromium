@@ -38,14 +38,15 @@ env.Prepend(
     ],
 )
 
-env.Append(
-    CCFLAGS = [
-        '/TP',
+if env['PLATFORM'] == 'win32':
+  env.Append(
+      CCFLAGS = [
+          '/TP',
 
-        '/WX',
-        '/Wp64',
-    ],
-)
+          '/WX',
+          '/Wp64',
+      ],
+  )
 
 input_files = [
     'gtest/src/gtest-death-test.cc',
