@@ -236,6 +236,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\object_watcher_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\path_service_unittest.cc"
 				>
 			</File>

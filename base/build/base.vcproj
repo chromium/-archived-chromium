@@ -390,6 +390,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\object_watcher.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\object_watcher.h"
+			>
+		</File>
+		<File
 			RelativePath="..\observer_list.h"
 			>
 		</File>
