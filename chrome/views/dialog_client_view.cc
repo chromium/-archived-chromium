@@ -206,12 +206,14 @@ void DialogClientView::CancelWindow() {
 // DialogClientView, ClientView overrides:
 
 bool DialogClientView::CanClose() const {
-  DialogDelegate* dd = GetDialogDelegate();
-  int buttons = dd->GetDialogButtons();
-  if (buttons & DialogDelegate::DIALOGBUTTON_CANCEL)
-    return dd->Cancel();
-  if (buttons & DialogDelegate::DIALOGBUTTON_OK)
-    return dd->Accept(true);
+  if (!accepted_) {
+    DialogDelegate* dd = GetDialogDelegate();
+    int buttons = dd->GetDialogButtons();
+    if (buttons & DialogDelegate::DIALOGBUTTON_CANCEL)
+      return dd->Cancel();
+    if (buttons & DialogDelegate::DIALOGBUTTON_OK)
+      return dd->Accept(true);
+  }
   return true;
 }
 
