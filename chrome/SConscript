@@ -35,8 +35,6 @@ env_res = env.Clone()
 env_test = env.Clone()
 env = env.Clone()
 
-
-
 install_targets = []
 
 
@@ -94,6 +92,9 @@ env_dll.Prepend(
         'LIBXSLT_STATIC',
         'LIBXML_STATIC',
         '_WINDLL',
+        'BROWSER_DLL',
+        'RENDERER_DLL',
+        'PLUGIN_DLL',
     ],
     CCFLAGS = [
         '/TP',
@@ -177,7 +178,7 @@ env_dll.Append(
 )
 
 input_files = [
-    'app/chrome_main.cc',
+    'app/chrome_dll_main.cc',
 ]
 
 
@@ -352,7 +353,7 @@ chrome_exe = env_exe.Program(
     [
         env_res.RES('app/chrome_exe.rc'),
         'app/breakpad.cc',
-        'app/main.cc',
+        'app/chrome_exe_main.cc',
         'app/google_update_client.cc',
         'app/google_update_settings.cc',
 
@@ -385,8 +386,6 @@ env_snapshot.Prepend(
     CPPPATH = [
         '$V8_DIR/src',
         '$V8_DIR/src/pcre/jscre',
-        #"C:\src\trunk-vs\chrome\\third_party\webkit\src\JavaScriptCore\os-win32"
-        #"C:\src\trunk-vs\chrome\Debug\obj\snapshotv8\DerivedSources"
         '..',
     ],
     CPPDEFINES = [

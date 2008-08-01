@@ -53,12 +53,6 @@ env = Environment(
     TARGET_ROOT = '#/$BUILD_TYPE',
     OBJ_ROOT = '$TARGET_ROOT',
 
-    CSCRIPT = 'c:\\Windows\\System32\\cscript',
-
-    PLATFORMSDK_VISTA_REL = '../third_party/platformsdk_vista_6_0',
-    PLATFORMSDK_VISTA = '#/$PLATFORMSDK_VISTA_REL',
-    VISUAL_STUDIO = '/Program Files/Microsoft Visual Studio 8',
-
     BASE_DIR              = '#/$BUILD_TYPE/base',
     BREAKPAD_DIR          = '#/$BUILD_TYPE/breakpad',
     CHROME_DIR            = '#/$BUILD_TYPE/chrome',
@@ -110,6 +104,12 @@ if env['PLATFORM'] == 'win32':
   msvs_env = Environment(tools=['msvc', 'mslink', 'msvs'])['ENV']
 
   env.Replace(
+    CSCRIPT = 'c:\\Windows\\System32\\cscript',
+
+    PLATFORMSDK_VISTA_REL = '../third_party/platformsdk_vista_6_0',
+    PLATFORMSDK_VISTA = '#/$PLATFORMSDK_VISTA_REL',
+    VISUAL_STUDIO = '/Program Files/Microsoft Visual Studio 8',
+
     CYGWIN_DIR = Dir('#../third_party/cygwin'),
     CYGWIN_BIN_DIR = '$CYGWIN_DIR/bin',
 

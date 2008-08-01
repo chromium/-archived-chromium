@@ -78,9 +78,6 @@ env.Prepend(
     ],
 )
 
-#/MANIFESTFILE:"C:\src\trunk-vs\chrome\Debug\obj\test_chrome_plugin\test_chrome_plugin.dll.intermediate.manifest"
-#/PDB:"c:\src\trunk-vs\chrome\Debug\test_chrome_plugin.pdb"
-
 input_files = [
     'test_chrome_plugin.cc',
     'test_chrome_plugin.def',
