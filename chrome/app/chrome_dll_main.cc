@@ -40,13 +40,13 @@
 #include "base/stats_table.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
+#ifdef BROWSER_DLL
 #include "chrome/browser/render_process_host.h"
+#endif
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/env_util.h"
-#include "chrome/common/env_vars.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/resource_bundle.h"
 #include "sandbox/src/sandbox.h"
@@ -56,7 +56,19 @@ extern int BrowserMain(CommandLine &, int, sandbox::BrokerServices*);
 extern int RendererMain(CommandLine &, int, sandbox::TargetServices*);
 extern int PluginMain(CommandLine &, int, sandbox::TargetServices*);
 
-static const wchar_t kProfilingDll[] = L"memory_watcher.dll";
+// TODO(erikkay): isn't this already defined somewhere?
+#define DLLEXPORT __declspec(dllexport)
+
+// We use extern C for the prototype DLLEXPORT to avoid C++ name mangling.
+extern "C" {
+DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
+                                 sandbox::SandboxInterfaceInfo* sandbox_info,
+                                 TCHAR* command_line, int show_command);
+}
+
+namespace {
+
+const wchar_t kProfilingDll[] = L"memory_watcher.dll";
 
 // Load the memory profiling DLL.  All it needs to be activated
 // is to be loaded.  Return true on success, false otherwise.
@@ -66,16 +78,6 @@ bool LoadMemoryProfiler() {
 }
 
 CAppModule _Module;
-
-// TODO(erikkay): isn't this already defined somewhere?
-#define DLLEXPORT __declspec(dllexport)
-
-// We use extern C for the prototype DLLEXPORT to avoid C++ name mangling.
-extern "C" {
-DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
-                                 sandbox::SandboxInterfaceInfo *sandbox_info,
-                                 TCHAR* command_line, int show_command);
-}
 
 #pragma optimize("", off)
 // Handlers for invalid parameter and pure call. They generate a breakpoint to
@@ -111,6 +113,8 @@ void ChromeAssert(const std::string& str) {
 
 #pragma optimize("", on)
 
+
+#if defined(RENDERER_DLL) || defined(PLUGIN_DLL)
 // Try to unload DLLs that malfunction with the sandboxed processes.
 static void EvictTroublesomeDlls() {
   const wchar_t* troublesome_dlls[] = {
@@ -130,9 +134,12 @@ static void EvictTroublesomeDlls() {
     }
   }
 }
+#endif  // defined(RENDERER_DLL) || defined(PLUGIN_DLL)
+
+}  // namespace
 
 DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
-                                 sandbox::SandboxInterfaceInfo *sandbox_info,
+                                 sandbox::SandboxInterfaceInfo* sandbox_info,
                                  TCHAR* command_line, int show_command) {
 #ifdef _CRTDBG_MAP_ALLOC
   _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
@@ -212,6 +219,7 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
   std::wstring process_type =
     parsed_command_line.GetSwitchValue(switches::kProcessType);
 
+#if defined(RENDERER_DLL) || defined(PLUGIN_DLL)
   bool do_dll_eviction = false;
 
   // Checks if the sandbox is enabled in this process and initializes it if this
@@ -225,6 +233,7 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
       do_dll_eviction = true;
     }
   }
+#endif  // defined(RENDERER_DLL) || defined(PLUGIN_DLL)
 
   _Module.Init(NULL, instance);
 
@@ -237,10 +246,12 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
   if (!user_data_dir.empty())
     PathService::Override(chrome::DIR_USER_DATA, user_data_dir);
 
+#ifdef BROWSER_DLL
   bool single_process =
     parsed_command_line.HasSwitch(switches::kSingleProcess);
   if (single_process)
     RenderProcessHost::set_run_renderer_in_process(true);
+#endif  // BROWSER_DLL
 
   bool icu_result = icu_util::Initialize();
   CHECK(icu_result);
@@ -257,7 +268,7 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
       parsed_command_line.HasSwitch(switches::kEnableDCHECK)) {
     logging::SetLogAssertHandler(ChromeAssert);
   }
-#endif
+#endif  // NDEBUG
 
   if (!process_type.empty()) {
     // Initialize ResourceBundle which handles files loaded from external
@@ -266,23 +277,37 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
     ResourceBundle::InitSharedInstance(std::wstring());
   }
 
+#if defined(RENDERER_DLL) || defined(PLUGIN_DLL)
   // Eviction of injected DLLs is done early enough that it is likely
   // to only cover DLLs injected by means of appInit_dlls registry key.
   if (do_dll_eviction)
       EvictTroublesomeDlls();
+#endif  // defined(RENDERER_DLL) || defined(PLUGIN_DLL)
 
   startup_timer.Stop();  // End of Startup Time Measurement.
 
   int rv;
-  if (process_type == switches::kRendererProcess) {
+  // This condition exist to simplify the #ifdef
+  if (0) {
+
+#ifdef RENDERER_DLL
+  } else if (process_type == switches::kRendererProcess) {
     rv = RendererMain(parsed_command_line, show_command, target_services);
+#endif  // RENDERER_DLL
+
+#ifdef PLUGIN_DLL
   } else if (process_type == switches::kPluginProcess) {
     rv = PluginMain(parsed_command_line, show_command, target_services);
+#endif  // PLUGIN_DLL
+
+#ifdef BROWSER_DLL
   } else if (process_type.empty()) {
     int ole_result = OleInitialize(NULL);
     DCHECK(ole_result == S_OK);
     rv = BrowserMain(parsed_command_line, show_command, broker_services);
     OleUninitialize();
+#endif  // BROWSER_DLL
+
   } else {
     NOTREACHED() << "Unknown process type";
     rv = -1;
@@ -294,7 +319,7 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
 
 #ifdef _CRTDBG_MAP_ALLOC
   _CrtDumpMemoryLeaks();
-#endif
+#endif  // _CRTDBG_MAP_ALLOC
 
   _Module.Term();
 

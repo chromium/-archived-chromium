@@ -149,7 +149,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy first run complete sentinel file"
-				CommandLine="copy $(ProjectDir)\FirstRun $(OutDir)\&quot;First Run&quot;&#x0D;&#x0A;check_dependents.bat $(TargetPath) chrome.exe.deps"
+				CommandLine="copy $(ProjectDir)\FirstRun $(OutDir)\&quot;First Run&quot;&#x0D;&#x0A;check_dependents.bat $(TargetPath) chrome.exe.deps&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -165,10 +165,6 @@
 			</File>
 			<File
 				RelativePath=".\chrome.exe.deps"
-				>
-			</File>
-			<File
-				RelativePath=".\chrome.ico"
 				>
 			</File>
 			<File
@@ -193,6 +189,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\chrome_exe_main.cc"
+			>
+		</File>
+		<File
 			RelativePath="..\common\chrome_switches.cc"
 			>
 		</File>
@@ -210,10 +210,6 @@
 		</File>
 		<File
 			RelativePath=".\google_update_settings.h"
-			>
-		</File>
-		<File
-			RelativePath=".\main.cc"
 			>
 		</File>
 		<File

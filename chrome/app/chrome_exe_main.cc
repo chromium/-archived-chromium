@@ -42,6 +42,10 @@
 #include "sandbox/src/sandbox_factory.h"
 #include "sandbox/src/dep.h"
 
+// When defined, a different dll is loaded depending on the process type.
+// Otherwise, the mighty chrome.dll is loaded.
+//#define USE_SEPARATE_DLLS
+
 int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
                       wchar_t* command_line, int show_command) {
   // The exit manager is in charge of calling the dtors of singletons.
@@ -54,24 +58,35 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   CommandLine parsed_command_line;
   std::wstring process_type =
     parsed_command_line.GetSwitchValue(switches::kProcessType);
+
+  const wchar_t* dll_name = L"chrome.dll";
   if (process_type == switches::kPluginProcess) {
     // Plugin process.
     // For plugins, we enable ATL7 thunking support because we saw old activex
     // built with VC2002 in the wild still being used.
     sandbox::SetCurrentProcessDEP(sandbox::DEP_ENABLED_ATL7_COMPAT);
+#ifdef USE_SEPARATE_DLLS
+    dll_name = L"plugin.dll";
+#endif
   } else if (process_type == switches::kRendererProcess) {
     // Renderer process.
     // For the processes we control, we enforce strong DEP support.
     sandbox::SetCurrentProcessDEP(sandbox::DEP_ENABLED);
+#ifdef USE_SEPARATE_DLLS
+    dll_name = L"renderer.dll";
+#endif
   } else {
     // Browser process.
     // For the processes we control, we enforce strong DEP support.
     sandbox::SetCurrentProcessDEP(sandbox::DEP_ENABLED);
+#ifdef USE_SEPARATE_DLLS
+    dll_name = L"browser.dll";
+#endif
   }
 
   // TODO(erikkay): Get guid from build macros rather than hardcoding.
   // TODO(erikkay): verify client.Init() return value for official builds
-  client.Init(L"{8A69D345-D564-463c-AFF1-A69D9E530F96}", L"chrome.dll");
+  client.Init(L"{8A69D345-D564-463c-AFF1-A69D9E530F96}", dll_name);
 
   // Initialize the crash reporter.
   if (GoogleUpdateSettings::GetCollectStatsConsent()) {
