@@ -485,13 +485,12 @@ void TabStripModel::ExecuteContextMenuCommand(
       UserMetrics::RecordAction(L"TabContextMenu_CloseTabsOpenedBy", profile_);
       NavigationController* opener =
           GetTabContentsAt(context_index)->controller();
-      int next_index = context_index;
-      while (true) {
-        next_index = GetIndexOfNextTabContentsOpenedBy(opener, 0, true);
-        if (next_index == kNoTab)
-          break;
-        CloseTabContentsAt(next_index);
+
+      for (int i = count() - 1; i > context_index; --i) {
+        if (OpenerMatches(contents_data_.at(i), opener, true))
+          CloseTabContentsAt(i);
       }
+
       break;
     }
     default:
