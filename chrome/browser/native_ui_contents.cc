@@ -497,6 +497,16 @@ SearchableUIContainer::SearchableUIContainer(
   title_image_ = new ChromeViews::ImageView();
   title_image_->SetVisible(false);
 
+  // Get the product logo
+  if (!kProductLogo) {
+    kProductLogo = resource_bundle.GetBitmapNamed(IDR_PRODUCT_LOGO);
+  }
+
+  product_logo_ = new ChromeViews::ImageView();
+  product_logo_->SetVisible(true);
+  product_logo_->SetImage(*kProductLogo);
+  AddChildView(product_logo_);
+
   search_field_ = new ChromeViews::TextField;
   search_field_->SetFont(ResourceBundle::GetSharedInstance().GetFont(
                              ResourceBundle::WebFont));
@@ -509,11 +519,6 @@ SearchableUIContainer::SearchableUIContainer(
   SetBackground(new SearchableUIBackground(kBackground));
 
   throbber_ = new ChromeViews::SmoothedThrobber(50);
-
-  // Get the product logo
-  if (!kProductLogo) {
-    kProductLogo = resource_bundle.GetBitmapNamed(IDR_PRODUCT_LOGO);
-  }
 
   GridLayout* layout = new GridLayout(this);
   // View owns the LayoutManager and will delete it along with all the columns
@@ -601,6 +606,28 @@ ChromeViews::View* SearchableUIContainer::GetContents() {
   return scroll_view_->GetContents();
 }
 
+void SearchableUIContainer::Layout() {
+  View::Layout();
+
+  CSize search_button_size;
+  search_button_->GetPreferredSize(&search_button_size);
+
+  CSize product_logo_size;
+  product_logo_->GetPreferredSize(&product_logo_size);
+
+  int field_width = kDestinationSearchOffset + 
+    kDestinationSearchWidth +
+    kDestinationSmallerMargin +
+    static_cast<int>(search_button_size.cx) +
+    kDestinationSmallerMargin;
+
+  product_logo_->SetBounds(std::max(GetWidth() - kProductLogo->width() - 
+                               kProductLogoPadding,
+                               field_width), 
+                           kProductLogoPadding, 
+                           product_logo_size.cx, product_logo_size.cy);
+}
+
 void SearchableUIContainer::Paint(ChromeCanvas* canvas) {
   SkColor top_color(kBackground);
   canvas->FillRectInt(top_color, 0, 0,
@@ -611,18 +638,6 @@ void SearchableUIContainer::Paint(ChromeCanvas* canvas) {
 
   canvas->FillRectInt(SkColorSetRGB(196, 196, 196),
                       0, scroll_view_->GetY() - 1, GetWidth(), 1);
-
-  // Lay out the product logo.
-  CSize search_button_size;
-  search_button_->GetPreferredSize(&search_button_size);
-
-  canvas->DrawBitmapInt(*kProductLogo,
-      std::max(GetWidth() - kProductLogo->width() - kProductLogoPadding,
-               kDestinationSearchOffset + kDestinationSearchWidth +
-               kDestinationSmallerMargin +
-               static_cast<int>(search_button_size.cx) +
-               kDestinationSmallerMargin),
-      kProductLogoPadding);
 }
 
 ChromeViews::TextField* SearchableUIContainer::GetSearchField() const {

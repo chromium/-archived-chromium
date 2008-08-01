@@ -267,6 +267,8 @@ class SearchableUIContainer : public ChromeViews::View,
   void SetContents(ChromeViews::View* contents);
   ChromeViews::View* GetContents();
 
+  virtual void Layout();
+
   // Overriden to paint the container.
   virtual void Paint(ChromeCanvas* canvas);
 
@@ -304,6 +306,7 @@ class SearchableUIContainer : public ChromeViews::View,
   Delegate* delegate_;
   ChromeViews::Link* title_link_;
   ChromeViews::ImageView* title_image_;
+  ChromeViews::ImageView* product_logo_;
   ChromeViews::TextField* search_field_;
   ChromeViews::NativeButton* search_button_;
   ChromeViews::ScrollView* scroll_view_;
