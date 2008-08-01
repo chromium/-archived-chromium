@@ -31,7 +31,6 @@
 
 #include "base/command_line.h"
 #include "chrome/browser/template_url.h"
-#include "chrome/browser/template_url_model.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -45,10 +44,11 @@ namespace {
 
 struct PrepopulatedEngine {
   const wchar_t* const name;
-  const wchar_t* const keyword;      // If NULL, we'll autogenerate a keyword
-                                     // based on the search_url.
-                                     // If the empty string, the engine has no
-                                     // keyword.
+  // If NULL, we'll autogenerate a keyword based on the search_url every time
+  // someone asks.  Only entries which need keywords to auto-track a dynamically
+  // generated search URL should use this.
+  // If the empty string, the engine has no keyword.
+  const wchar_t* const keyword;      
   const wchar_t* const favicon_url;  // If NULL, there is no favicon.
   const wchar_t* const search_url;
   const char* const encoding;
@@ -73,7 +73,7 @@ struct PrepopulatedEngine {
 
 const PrepopulatedEngine abcsok = {
   L"ABC S\x00f8k",
-  NULL,
+  L"abcsok.no",
   L"http://abcsok.no/favicon.ico",
   L"http://abcsok.no/index.html?q={searchTerms}",
   "UTF-8",
@@ -83,7 +83,7 @@ const PrepopulatedEngine abcsok = {
 
 const PrepopulatedEngine adonde = {
   L"Adonde.com",
-  NULL,
+  L"adonde.com",
   L"http://www.adonde.com/favicon.ico",
   L"http://www.adonde.com/peru/peru.html?sitesearch=adonde.com&"
       L"client=pub-6263803831447773&ie={inputEncoding}&cof=GALT%3A%23CC0000"
@@ -97,7 +97,7 @@ const PrepopulatedEngine adonde = {
 
 const PrepopulatedEngine aeiou = {
   L"AEIOU",
-  NULL,
+  L"aeiou.pt",
   L"http://aeiou.pt/favicon.ico",
   L"http://aeiou.pt/pesquisa/index.php?p={searchTerms}",
   "ISO-8859-1",
@@ -107,7 +107,7 @@ const PrepopulatedEngine aeiou = {
 
 const PrepopulatedEngine aladin = {
   L"Aladin",
-  NULL,
+  L"aladin.info",
   L"http://www.aladin.info/favicon.ico",
   L"http://www.aladin.info/search/index.php?term={searchTerms}&req=search&"
       L"source=2",
@@ -118,7 +118,7 @@ const PrepopulatedEngine aladin = {
 
 const PrepopulatedEngine alltheweb = {
   L"AlltheWeb",
-  NULL,
+  L"alltheweb.com",
   L"http://alltheweb.com/favicon.ico",
   L"http://alltheweb.com/search?cs={inputEncoding}&q={searchTerms}",
   "ISO-8859-1",
@@ -128,7 +128,7 @@ const PrepopulatedEngine alltheweb = {
 
 const PrepopulatedEngine altavista = {
   L"AltaVista",
-  NULL,
+  L"altavista.com",
   L"http://www.altavista.com/favicon.ico",
   L"http://www.altavista.com/web/results?q={searchTerms}",
   "UTF-8",
@@ -138,7 +138,7 @@ const PrepopulatedEngine altavista = {
 
 const PrepopulatedEngine altavista_ar = {
   L"AltaVista",
-  NULL,
+  L"ar.altavista.com",
   L"http://ar.altavista.com/favicon.ico",
   L"http://ar.altavista.com/web/results?q={searchTerms}",
   "UTF-8",
@@ -148,7 +148,7 @@ const PrepopulatedEngine altavista_ar = {
 
 const PrepopulatedEngine altavista_es = {
   L"AltaVista",
-  NULL,
+  L"es.altavista.com",
   L"http://es.altavista.com/favicon.ico",
   L"http://es.altavista.com/web/results?q={searchTerms}",
   "UTF-8",
@@ -158,7 +158,7 @@ const PrepopulatedEngine altavista_es = {
 
 const PrepopulatedEngine altavista_mx = {
   L"AltaVista",
-  NULL,
+  L"mx.altavista.com",
   L"http://mx.altavista.com/favicon.ico",
   L"http://mx.altavista.com/web/results?q={searchTerms}",
   "UTF-8",
@@ -168,7 +168,7 @@ const PrepopulatedEngine altavista_mx = {
 
 const PrepopulatedEngine altavista_se = {
   L"AltaVista",
-  NULL,
+  L"se.altavista.com",
   L"http://se.altavista.com/favicon.ico",
   L"http://se.altavista.com/web/results?q={searchTerms}",
   "UTF-8",
@@ -208,7 +208,7 @@ const PrepopulatedEngine aonde = {
 
 const PrepopulatedEngine araby = {
   L"\x0639\x0631\x0628\x064a",
-  NULL,
+  L"araby.com",
   L"http://araby.com/favicon.ico",
   L"http://araby.com/?q={searchTerms}",
   "UTF-8",
@@ -218,7 +218,7 @@ const PrepopulatedEngine araby = {
 
 const PrepopulatedEngine ask = {
   L"Ask",
-  NULL,
+  L"ask.com",
   L"http://www.ask.com/favicon.ico",
   L"http://www.ask.com/web?q={searchTerms}",
   "UTF-8",
@@ -228,7 +228,7 @@ const PrepopulatedEngine ask = {
 
 const PrepopulatedEngine ask_de = {
   L"Ask.com Deutschland",
-  NULL,
+  L"de.ask.com",
   L"http://de.ask.com/favicon.ico",
   L"http://de.ask.com/web?q={searchTerms}",
   "UTF-8",
@@ -238,7 +238,7 @@ const PrepopulatedEngine ask_de = {
 
 const PrepopulatedEngine ask_es = {
   L"Ask.com Espa" L"\x00f1" L"a",
-  NULL,
+  L"es.ask.com",
   L"http://es.ask.com/favicon.ico",
   L"http://es.ask.com/web?q={searchTerms}",
   "UTF-8",
@@ -248,7 +248,7 @@ const PrepopulatedEngine ask_es = {
 
 const PrepopulatedEngine ask_it = {
   L"Ask.com Italia",
-  NULL,
+  L"it.ask.com",
   L"http://it.ask.com/favicon.ico",
   L"http://it.ask.com/web?q={searchTerms}",
   "UTF-8",
@@ -258,7 +258,7 @@ const PrepopulatedEngine ask_it = {
 
 const PrepopulatedEngine ask_uk = {
   L"Ask.com UK",
-  NULL,
+  L"uk.ask.com",
   L"http://uk.ask.com/favicon.ico",
   L"http://uk.ask.com/web?q={searchTerms}",
   "UTF-8",
@@ -288,7 +288,7 @@ const PrepopulatedEngine atlas_sk = {
 
 const PrepopulatedEngine baidu = {
   L"\x767e\x5ea6",
-  NULL,
+  L"baidu.com",
   L"http://www.baidu.com/favicon.ico",
   L"http://www.baidu.com/s?wd={searchTerms}",
   "GB2312",
@@ -318,7 +318,7 @@ const PrepopulatedEngine bigmir = {
 
 const PrepopulatedEngine bluewin = {
   L"Bluewin",
-  NULL,
+  L"search.bluewin.ch",
   L"http://search.bluewin.ch/favicon.ico",
   L"http://search.bluewin.ch/bw/search/web/de/result.jsp?query={searchTerms}",
   "ISO-8859-1",
@@ -398,7 +398,7 @@ const PrepopulatedEngine delfi_lv = {
 
 const PrepopulatedEngine dogpile = {
   L"Dogpile",
-  NULL,
+  L"dogpile.com",
   L"http://ttl60m.wsoo.infospace.com.edgesuite.net/dogpile/ws/pics/favicon.ico",
   L"http://www.dogpile.com/dogpile/ws/results/Web/{searchTerms}/1/417/"
       L"TopNavigation/Relevance/_iceUrlFlag=7?_IceUrl=true",
@@ -409,7 +409,7 @@ const PrepopulatedEngine dogpile = {
 
 const PrepopulatedEngine embla = {
   L"Embla",
-  NULL,
+  L"embla.is",
   L"http://embla.is/favicon.ico",
   L"http://embla.is/mm/embla/?s={searchTerms}",
   "ISO-8859-1",
@@ -429,7 +429,7 @@ const PrepopulatedEngine empas = {
 
 const PrepopulatedEngine eniro_dk = {
   L"Eniro",
-  NULL,
+  L"eniro.dk",
   L"http://eniro.dk/favicon.ico",
   L"http://eniro.dk/query?search_word={searchTerms}&what=web_local",
   "ISO-8859-1",
@@ -439,7 +439,7 @@ const PrepopulatedEngine eniro_dk = {
 
 const PrepopulatedEngine eniro_fi = {
   L"Eniro",
-  NULL,
+  L"eniro.fi",
   L"http://eniro.fi/favicon.ico",
   L"http://eniro.fi/query?search_word={searchTerms}&what=web_local",
   "ISO-8859-1",
@@ -449,7 +449,7 @@ const PrepopulatedEngine eniro_fi = {
 
 const PrepopulatedEngine eniro_se = {
   L"Eniro",
-  NULL,
+  L"eniro.se",
   L"http://eniro.se/favicon.ico",
   L"http://eniro.se/query?search_word={searchTerms}&what=web_local",
   "ISO-8859-1",
@@ -459,7 +459,7 @@ const PrepopulatedEngine eniro_se = {
 
 const PrepopulatedEngine finna = {
   L"FINNA",
-  NULL,
+  L"finna.is",
   L"http://finna.is/favicon.ico",
   L"http://finna.is/WWW_Search/?query={searchTerms}",
   "UTF-8",
@@ -526,7 +526,7 @@ const PrepopulatedEngine google = {
 
 const PrepopulatedEngine guruji = {
   L"guruji",
-  NULL,
+  L"guruji.com",
   L"http://guruji.com/favicon.ico",
   L"http://guruji.com/search?q={searchTerms}",
   "UTF-8",
@@ -576,7 +576,7 @@ const PrepopulatedEngine infoseek = {
 
 const PrepopulatedEngine jabse = {
   L"Jabse",
-  NULL,
+  L"jabse.com",
   L"http://www.jabse.com/favicon.ico",
   L"http://www.jabse.com/searchmachine.php?query={searchTerms}",
   "UTF-8",
@@ -586,7 +586,7 @@ const PrepopulatedEngine jabse = {
 
 const PrepopulatedEngine jamaicalive = {
   L"JamaicaLive",
-  NULL,
+  L"jalive.com.jm",
   L"http://jalive.com.jm/favicon.ico",
   L"http://jalive.com.jm/search/?mode=allwords&search={searchTerms}",
   "ISO-8859-1",
@@ -616,7 +616,7 @@ const PrepopulatedEngine krstarica = {
 
 const PrepopulatedEngine kvasir = {
   L"Kvasir",
-  NULL,
+  L"kvasir.no",
   L"http://www.kvasir.no/img/favicon.ico",
   L"http://www.kvasir.no/nettsok/searchResult.html?searchExpr={searchTerms}",
   "ISO-8859-1",
@@ -626,7 +626,7 @@ const PrepopulatedEngine kvasir = {
 
 const PrepopulatedEngine latne = {
   L"LATNE",
-  NULL,
+  L"latne.lv",
   L"http://latne.lv/favicon.ico",
   L"http://latne.lv/siets.php?q={searchTerms}",
   "UTF-8",
@@ -636,7 +636,7 @@ const PrepopulatedEngine latne = {
 
 const PrepopulatedEngine leit = {
   L"leit.is",
-  NULL,
+  L"leit.is",
   L"http://leit.is/leit.ico",
   L"http://leit.is/query.aspx?qt={searchTerms}",
   "ISO-8859-1",
@@ -749,7 +749,7 @@ const PrepopulatedEngine live_en_XA = {
 };
 
 const PrepopulatedEngine live_es_US = {
-  L"Live Search (Espa" L"\x00f1" L"ol)",
+  L"Live Search (Espa\x00f1ol)",
   L"",  // "live.com" is already taken by live_en_US (see comment on ID below).
   L"http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?setlang=es-US&mkt=es-US&"
@@ -911,7 +911,7 @@ const PrepopulatedEngine mail_ru = {
 
 const PrepopulatedEngine maktoob = {
   L"\x0645\x0643\x062a\x0648\x0628",
-  NULL,
+  L"maktoob.com",
   L"http://www.maktoob.com/favicon.ico",
   L"http://www.maktoob.com/searchResult.php?q={searchTerms}",
   "UTF-8",
@@ -921,7 +921,7 @@ const PrepopulatedEngine maktoob = {
 
 const PrepopulatedEngine masrawy = {
   L"\x0645\x0635\x0631\x0627\x0648\x064a",
-  NULL,
+  L"masrawy.com",
   L"http://www.masrawy.com/new/images/masrawy.ico",
   L"http://masrawy.com/new/search.aspx?sr={searchTerms}",
   "windows-1256",
@@ -931,7 +931,7 @@ const PrepopulatedEngine masrawy = {
 
 const PrepopulatedEngine matkurja = {
   L"Mat'Kurja",
-  NULL,
+  L"matkurja.com",
   L"http://matkurja.com/favicon.ico",
   L"http://matkurja.com/si/iskalnik/?q={searchTerms}&search_source=directory",
   "ISO-8859-2",
@@ -941,7 +941,7 @@ const PrepopulatedEngine matkurja = {
 
 const PrepopulatedEngine meta = {
   L"<META>",
-  NULL,
+  L"meta.ua",
   L"http://meta.ua/favicon.ico",
   L"http://meta.ua/search.asp?q={searchTerms}",
   "windows-1251",
@@ -983,7 +983,7 @@ const PrepopulatedEngine msn_da_DK = {
 };
 
 const PrepopulatedEngine msn_de_AT = {
-  L"MSN " L"\x00f1" L"sterreich",
+  L"MSN \x00d6sterreich",
   L"at.msn.com",
   L"http://search.msn.at/s/wlflag.ico",
   L"http://search.msn.at/results.aspx?mkt=de-AT&q={searchTerms}",
@@ -1145,7 +1145,7 @@ const PrepopulatedEngine msn_es_MX = {
 };
 
 const PrepopulatedEngine msn_es_XL = {
-  L"MSN Latinoam" L"\x00e9" L"rica",
+  L"MSN Latinoam\x00e9rica",
   L"latam.msn.com",
   L"http://search.msn.com/s/wlflag.ico",
   L"http://search.msn.com/results.aspx?mkt=es-XL&q={searchTerms}",
@@ -1282,7 +1282,7 @@ const PrepopulatedEngine msn_sv_SE = {
 };
 
 const PrepopulatedEngine msn_tr_TR = {
-  L"MSN T" L"\x00fc" L"kiye'ye",
+  L"MSN T\x00fckiye'ye",
   L"tr.msn.com",
   L"http://search.msn.com.tr/s/wlflag.ico",
   L"http://search.msn.com.tr/results.aspx?mkt=tr-TR&q={searchTerms}",
@@ -1334,7 +1334,7 @@ const PrepopulatedEngine mywebsearch = {
 
 const PrepopulatedEngine najdi = {
   L"Najdi.si",
-  NULL,
+  L"najdi.si",
   L"http://www.najdi.si/master/favicon.ico",
   L"http://www.najdi.si/search.jsp?q={searchTerms}",
   "UTF-8",
@@ -1375,7 +1375,7 @@ const PrepopulatedEngine naver = {
 
 const PrepopulatedEngine neti = {
   L"NETI",
-  NULL,
+  L"neti.ee",
   L"http://www.neti.ee/favicon.ico",
   L"http://www.neti.ee/cgi-bin/otsing?query={searchTerms}",
   "ISO-8859-1",
@@ -1385,7 +1385,7 @@ const PrepopulatedEngine neti = {
 
 const PrepopulatedEngine netindex = {
   L"NetINDEX",
-  NULL,
+  L"netindex.pt",
   L"http://www.netindex.pt/favicon.ico",
   L"http://www.netindex.pt/cgi-bin/index.cgi?question={searchTerms}",
   "ISO-8859-1",
@@ -1404,7 +1404,7 @@ const PrepopulatedEngine nifty = {
 };
 
 const PrepopulatedEngine ohperu = {
-  L"Oh Per" L"\x00fa",
+  L"Oh Per\x00fa",
   L"ohperu.com",
   NULL,
   L"http://www.google.com.pe/custom?q={searchTerms}&"
@@ -1421,7 +1421,7 @@ const PrepopulatedEngine ohperu = {
 
 const PrepopulatedEngine ok = {
   L"OK.hu",
-  NULL,
+  L"ok.hu",
   L"http://ok.hu/gfx/favicon.ico",
   L"http://ok.hu/katalogus?q={searchTerms}",
   "ISO-8859-2",
@@ -1451,7 +1451,7 @@ const PrepopulatedEngine orange = {
 };
 
 const PrepopulatedEngine ozu = {
-  L"OZ" L"\x00da",
+  L"OZ\x00da",
   L"ozu.es",
   L"http://www.ozu.es/favicon.ico",
   L"http://buscar.ozu.es/index.php?q={searchTerms}",
@@ -1462,7 +1462,7 @@ const PrepopulatedEngine ozu = {
 
 const PrepopulatedEngine pogodak_ba = {
   L"Pogodak!",
-  NULL,
+  L"pogodak.ba",
   L"http://www.pogodak.ba/favicon.ico",
   L"http://www.pogodak.ba/search.jsp?q={searchTerms}",
   "UTF-8",
@@ -1472,7 +1472,7 @@ const PrepopulatedEngine pogodak_ba = {
 
 const PrepopulatedEngine pogodak_hr = {
   L"Pogodak!",
-  NULL,
+  L"pogodak.hr",
   L"http://www.pogodak.hr/favicon.ico",
   L"http://www.pogodak.hr/search.jsp?q={searchTerms}",
   "UTF-8",
@@ -1482,7 +1482,7 @@ const PrepopulatedEngine pogodak_hr = {
 
 const PrepopulatedEngine pogodak_rs = {
   L"Pogodak!",
-  NULL,
+  L"pogodak.rs",
   L"http://www.pogodak.rs/favicon.ico",
   L"http://www.pogodak.rs/search.jsp?q={searchTerms}",
   "UTF-8",
@@ -1492,7 +1492,7 @@ const PrepopulatedEngine pogodak_rs = {
 
 const PrepopulatedEngine pogodok = {
   L"\x041f\x043e\x0433\x043e\x0434\x043e\x043a!",
-  NULL,
+  L"pogodok.com.mk",
   L"http://www.pogodok.com.mk/favicon.ico",
   L"http://www.pogodok.com.mk/search.jsp?q={searchTerms}",
   "UTF-8",
@@ -1502,7 +1502,7 @@ const PrepopulatedEngine pogodok = {
 
 const PrepopulatedEngine rambler = {
   L"Rambler",
-  NULL,
+  L"rambler.ru",
   L"http://www.rambler.ru/favicon.ico",
   L"http://www.rambler.ru/srch?words={searchTerms}",
   "windows-1251",
@@ -1522,7 +1522,7 @@ const PrepopulatedEngine rediff = {
 
 const PrepopulatedEngine rednano = {
   L"Rednano",
-  NULL,
+  L"rednano.sg",
   L"http://rednano.sg/favicon.ico",
   L"http://rednano.sg/sfe/lwi.action?querystring={searchTerms}",
   "UTF-8",
@@ -1552,7 +1552,7 @@ const PrepopulatedEngine sapo = {
 
 const PrepopulatedEngine search_ch = {
   L"search.ch",
-  NULL,
+  L"search.ch",
   L"http://www.search.ch/favicon.ico",
   L"http://www.search.ch/?q={searchTerms}",
   "ISO-8859-1",
@@ -1562,7 +1562,7 @@ const PrepopulatedEngine search_ch = {
 
 const PrepopulatedEngine sensis = {
   L"sensis.com.au",
-  NULL,
+  L"sensis.com.au",
   L"http://www.sensis.com.au/favicon.ico",
   L"http://www.sensis.com.au/search.do?find={searchTerms}",
   "UTF-8",
@@ -1572,7 +1572,7 @@ const PrepopulatedEngine sensis = {
 
 const PrepopulatedEngine sesam = {
   L"Sesam",
-  NULL,
+  L"sesam.no",
   L"http://sesam.no/images/favicon.gif",
   L"http://sesam.no/search/?q={searchTerms}",
   "UTF-8",
@@ -1593,7 +1593,7 @@ const PrepopulatedEngine seznam = {
 
 const PrepopulatedEngine sogou = {
   L"\x641c\x72d7",
-  NULL,
+  L"sogou.com",
   L"http://www.sogou.com/favicon.ico",
   L"http://www.sogou.com/web?query={searchTerms}",
   "GB2312",
@@ -1603,7 +1603,7 @@ const PrepopulatedEngine sogou = {
 
 const PrepopulatedEngine soso = {
   L"\x641c\x641c",
-  NULL,
+  L"soso.com",
   L"http://www.soso.com/favicon.ico",
   L"http://www.soso.com/q?w={searchTerms}",
   "GB2312",
@@ -1623,7 +1623,7 @@ const PrepopulatedEngine spray = {
 
 const PrepopulatedEngine szm = {
   L"SZM.sk",
-  NULL,
+  L"szm.sk",
   L"http://szm.sk/favicon.ico",
   L"http://szm.sk/search/?co=1&q={searchTerms}",
   "windows-1250",
@@ -1633,7 +1633,7 @@ const PrepopulatedEngine szm = {
 
 const PrepopulatedEngine t_online = {
   L"T-Online",
-  NULL,
+  L"suche.t-online.de",
   L"http://suche.t-online.de/favicon.ico",
   L"http://suche.t-online.de/fast-cgi/tsc?q={searchTerms}",
   "UTF-8",
@@ -1643,7 +1643,7 @@ const PrepopulatedEngine t_online = {
 
 const PrepopulatedEngine tango = {
   L"Tango",
-  NULL,
+  L"tango.hu",
   L"http://tango.hu/favicon.ico",
   L"http://tango.hu/search.php?q={searchTerms}",
   "windows-1250",
@@ -1653,7 +1653,7 @@ const PrepopulatedEngine tango = {
 
 const PrepopulatedEngine tapuz = {
   L"\x05ea\x05e4\x05d5\x05d6 \x05d0\x05e0\x05e9\x05d9\x05dd",
-  NULL,
+  L"tapuz.co.il",
   L"http://www.tapuz.co.il/favicon.ico",
   L"http://www.tapuz.co.il/search/search.asp?q={searchTerms}",
   "windows-1255",
@@ -1716,7 +1716,7 @@ const PrepopulatedEngine terra_pe = {
 
 const PrepopulatedEngine toile = {
   L"La Toile du Qu" L"\x00e9" L"bec",
-  NULL,
+  L"toile.com",
   L"http://static.search.canoe.ca/s-toile/img/favicon_toile.ico",
   L"http://www.toile.com/search?q={searchTerms}",
   "UTF-8",
@@ -1736,7 +1736,7 @@ const PrepopulatedEngine tut = {
 
 const PrepopulatedEngine uol = {
   L"UOL Busca",
-  NULL,
+  L"busca.uol.com.br",
   L"http://busca.uol.com.br/favicon.ico",
   L"http://busca.uol.com.br/www/index.html?q={searchTerms}",
   "ISO-8859-1",
@@ -1746,7 +1746,7 @@ const PrepopulatedEngine uol = {
 
 const PrepopulatedEngine vinden = {
   L"Vinden.nl",
-  NULL,
+  L"vinden.nl",
   L"http://www.vinden.nl/favicon.ico",
   L"http://www.vinden.nl/?q={searchTerms}",
   "UTF-8",
@@ -2037,7 +2037,7 @@ const PrepopulatedEngine yahoo_malaysia = {
 };
 
 const PrepopulatedEngine yahoo_mx = {
-  L"Yahoo! M" L"\x00e9" L"xico",
+  L"Yahoo! M\x00e9xico",
   L"mx.yahoo.com",
   L"http://mx.search.yahoo.com/favicon.ico",
   L"http://mx.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
@@ -2077,7 +2077,7 @@ const PrepopulatedEngine yahoo_nz = {
 };
 
 const PrepopulatedEngine yahoo_pe = {
-  L"Yahoo! Per" L"\x00fa",
+  L"Yahoo! Per\x00fa",
   L"pe.yahoo.com",
   L"http://pe.search.yahoo.com/favicon.ico",
   L"http://pe.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
@@ -2188,7 +2188,7 @@ const PrepopulatedEngine yam = {
 
 const PrepopulatedEngine yamli = {
   L"Yamli",
-  NULL,
+  L"yamli.com",
   L"http://www.yamli.com/favicon.ico",
   L"http://www.yamli.com/#q={searchTerms}",
   "UTF-8",
@@ -2198,7 +2198,7 @@ const PrepopulatedEngine yamli = {
 
 const PrepopulatedEngine yandex_ru = {
   L"\x042f\x043d\x0434\x0435\x043a\x0441",
-  NULL,
+  L"yandex.ru",
   L"http://yandex.ru/favicon.ico",
   L"http://yandex.ru/yandsearch?text={searchTerms}",
   "windows-1251",
@@ -2208,7 +2208,7 @@ const PrepopulatedEngine yandex_ru = {
 
 const PrepopulatedEngine yandex_ua = {
   L"\x042f\x043d\x0434\x0435\x043a\x0441",
-  NULL,
+  L"yandex.ua",
   L"http://yandex.ua/favicon.ico",
   L"http://yandex.ua/yandsearch?text={searchTerms}",
   "windows-1251",
@@ -2218,7 +2218,7 @@ const PrepopulatedEngine yandex_ua = {
 
 const PrepopulatedEngine zoznam = {
   L"Zoznam",
-  NULL,
+  L"zoznam.sk",
   L"http://zoznam.sk/favicon.ico",
   L"http://zoznam.sk/hladaj.fcgi?s={searchTerms}",
   "windows-1250",
@@ -2971,6 +2971,10 @@ void GetPrepopulatedEngines(PrefService* prefs,
     if (engines[i].suggest_url)
       new_turl->SetSuggestionsURL(engines[i].suggest_url, 0, 0);
     new_turl->set_short_name(engines[i].name);
+    if (engines[i].keyword == NULL)
+      new_turl->set_autogenerate_keyword(true);
+    else
+      new_turl->set_keyword(engines[i].keyword);
     new_turl->set_show_in_default_list(true);
     new_turl->set_safe_for_autoreplace(true);
     new_turl->set_date_created(Time());
@@ -2978,14 +2982,6 @@ void GetPrepopulatedEngines(PrefService* prefs,
     turl_encodings.push_back(engines[i].encoding);
     new_turl->set_input_encodings(turl_encodings);
     new_turl->set_prepopulate_id(engines[i].id);
-
-    // Set the keyword.  We do this last so that if we need to generate a
-    // keyword, the rest of the data is complete for GenerateSearchHost().
-    new_turl->set_keyword(engines[i].keyword ? engines[i].keyword :
-        TemplateURLModel::GenerateKeyword(
-            TemplateURLModel::GenerateSearchURL(new_turl).GetWithEmptyPath(),
-            true));  // autodetected
-
     t_urls->push_back(new_turl);
   }
 }

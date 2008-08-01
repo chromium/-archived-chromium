@@ -115,10 +115,10 @@ TEST_F(WebDatabaseTest, Keywords) {
   TemplateURL template_url;
   template_url.set_short_name(L"short_name");
   template_url.set_keyword(L"keyword");
-  GURL favicon_url("http://favicon.url");
-  GURL originating_url("http://google.com");
+  GURL favicon_url("http://favicon.url/");
+  GURL originating_url("http://google.com/");
   template_url.SetFavIconURL(favicon_url);
-  template_url.SetURL(L"url", 0, 0);
+  template_url.SetURL(L"http://url/", 0, 0);
   template_url.set_safe_for_autoreplace(true);
   template_url.set_show_in_default_list(true);
   template_url.set_originating_url(originating_url);
@@ -138,6 +138,8 @@ TEST_F(WebDatabaseTest, Keywords) {
   EXPECT_EQ(template_url.short_name(), restored_url->short_name());
 
   EXPECT_EQ(template_url.keyword(), restored_url->keyword());
+
+  EXPECT_FALSE(restored_url->autogenerate_keyword());
 
   EXPECT_TRUE(favicon_url == restored_url->GetFavIconURL());
 
@@ -189,10 +191,10 @@ TEST_F(WebDatabaseTest, UpdateKeyword) {
   TemplateURL template_url;
   template_url.set_short_name(L"short_name");
   template_url.set_keyword(L"keyword");
-  GURL favicon_url("http://favicon.url");
-  GURL originating_url("http://originating.url");
+  GURL favicon_url("http://favicon.url/");
+  GURL originating_url("http://originating.url/");
   template_url.SetFavIconURL(favicon_url);
-  template_url.SetURL(L"url", 0, 0);
+  template_url.SetURL(L"http://url/", 0, 0);
   template_url.set_safe_for_autoreplace(true);
   template_url.set_show_in_default_list(true);
   template_url.SetSuggestionsURL(L"url2", 0, 0);
@@ -200,9 +202,10 @@ TEST_F(WebDatabaseTest, UpdateKeyword) {
 
   EXPECT_TRUE(db.AddKeyword(template_url));
 
-  GURL originating_url2("http://originating.url");
-  template_url.set_keyword(L"X");
+  GURL originating_url2("http://originating.url/");
   template_url.set_originating_url(originating_url2);
+  template_url.set_autogenerate_keyword(true);
+  EXPECT_EQ(L"url", template_url.keyword());
   template_url.add_input_encoding("Shift_JIS");
   set_prepopulate_id(&template_url, 5);
   EXPECT_TRUE(db.UpdateKeyword(template_url));
@@ -216,6 +219,8 @@ TEST_F(WebDatabaseTest, UpdateKeyword) {
   EXPECT_EQ(template_url.short_name(), restored_url->short_name());
 
   EXPECT_EQ(template_url.keyword(), restored_url->keyword());
+
+  EXPECT_TRUE(restored_url->autogenerate_keyword());
 
   EXPECT_TRUE(favicon_url == restored_url->GetFavIconURL());
 
@@ -248,7 +253,7 @@ TEST_F(WebDatabaseTest, KeywordWithNoFavicon) {
   TemplateURL template_url;
   template_url.set_short_name(L"short_name");
   template_url.set_keyword(L"keyword");
-  template_url.SetURL(L"url", 0, 0);
+  template_url.SetURL(L"http://url/", 0, 0);
   template_url.set_safe_for_autoreplace(true);
   SetID(-100, &template_url);
 
@@ -287,7 +292,7 @@ TEST_F(WebDatabaseTest, Logins) {
   form.password_element = L"Passwd";
   form.password_value = L"test";
   form.submit_element = L"signIn";
-  form.signon_realm = "http://www.google.com";
+  form.signon_realm = "http://www.google.com/";
   form.ssl_valid = false;
   form.preferred = false;
   form.scheme = PasswordForm::SCHEME_HTML;
@@ -328,7 +333,7 @@ TEST_F(WebDatabaseTest, Logins) {
 
   // Imagine the site moves to a secure server for login.
   PasswordForm form4(form3);
-  form4.signon_realm = "https://www.google.com";
+  form4.signon_realm = "https://www.google.com/";
   form4.ssl_valid = true;
 
   // We have only an http record, so no match for this.
@@ -480,7 +485,7 @@ TEST_F(WebDatabaseTest, BlacklistedLogins) {
   form.username_element = L"Email";
   form.password_element = L"Passwd";
   form.submit_element = L"signIn";
-  form.signon_realm = "http://www.google.com";
+  form.signon_realm = "http://www.google.com/";
   form.ssl_valid = false;
   form.preferred = true;
   form.blacklisted_by_user = true;
@@ -506,7 +511,7 @@ TEST_F(WebDatabaseTest, WebAppHasAllImages) {
   WebDatabase db;
 
   EXPECT_TRUE(db.Init(file_));
-  GURL url("http://google.com");
+  GURL url("http://google.com/");
 
   // Initial value for unknown web app should be false.
   EXPECT_FALSE(db.GetWebAppHasAllImages(url));
@@ -524,7 +529,7 @@ TEST_F(WebDatabaseTest, WebAppImages) {
   WebDatabase db;
 
   ASSERT_TRUE(db.Init(file_));
-  GURL url("http://google.com");
+  GURL url("http://google.com/");
 
   // Web app should initially have no images.
   std::vector<SkBitmap> images;

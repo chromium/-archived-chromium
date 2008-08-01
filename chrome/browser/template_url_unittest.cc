@@ -366,3 +366,17 @@ TEST_F(TemplateURLTest, GoogleBaseSuggestURL) {
   for (int i = 0; i < arraysize(data); ++i)
     CheckSuggestBaseURL(data[i].base_url, data[i].base_suggest_url);
 }
+
+TEST_F(TemplateURLTest, Keyword) {
+  TemplateURL t_url;
+  t_url.SetURL(L"http://www.google.com/search", 0, 0);
+  EXPECT_FALSE(t_url.autogenerate_keyword());
+  t_url.set_keyword(L"foo");
+  EXPECT_EQ(L"foo", t_url.keyword());
+  t_url.set_autogenerate_keyword(true);
+  EXPECT_TRUE(t_url.autogenerate_keyword());
+  EXPECT_EQ(L"google.com", t_url.keyword());
+  t_url.set_keyword(L"foo");
+  EXPECT_FALSE(t_url.autogenerate_keyword());
+  EXPECT_EQ(L"foo", t_url.keyword());
+}

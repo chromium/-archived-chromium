@@ -157,6 +157,8 @@ class WebDatabase {
   bool InitWebAppIconsTable();
   bool InitWebAppsTable();
 
+  void MigrateOldVersionsAsNeeded();
+
   sqlite3* db_;
   int transaction_nesting_;
   MetaTableHelper meta_table_;

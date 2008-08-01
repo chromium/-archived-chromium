@@ -244,10 +244,10 @@ class TemplateURLModel : public WebDataServiceConsumer,
 
   void RemoveFromMaps(const TemplateURL* template_url);
 
-  // Removes the supplied template_url from host_to_urls_map. This searches
-  // through *all* entries in host_to_urls_map_ and does not generate the host.
-  // This is used when the host of the search term of the TemplateURL changes.
-  void RemoveFromHostMapByPointer(const TemplateURL* template_url);
+  // Removes the supplied template_url from the maps. This searches through all
+  // entries in the maps and does not generate the host or keyword.
+  // This is used when the cached content of the TemplateURL changes.
+  void RemoveFromMapsByPointer(const TemplateURL* template_url);
 
   void AddToMaps(const TemplateURL* template_url);
 

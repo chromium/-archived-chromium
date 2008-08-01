@@ -66,6 +66,7 @@
 //                          encodings, may be empty.
 //   suggest_url
 //   prepopulate_id         See TemplateURL::prepoulate_id.
+//   autogenerate_keyword
 //
 // logins
 //   origin_url
@@ -98,7 +99,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // Current version number.
-static const int kCurrentVersionNumber = 20;
+static const int kCurrentVersionNumber = 21;
 
 // Keys used in the meta table.
 static const char* kDefaultSearchProviderKey = "Default Search Provider ID";
@@ -185,14 +186,9 @@ bool WebDatabase::Init(const std::wstring& db_name) {
     LOG(WARNING) << "Unable to initialize the web database.";
     return false;
   }
-  int cur_version = meta_table_.GetVersionNumber();
 
-  // Put migration code here.
-
-  // When the version is too old, we just try to continue anyway, there should
-  // not be a released product that makes a database too old for us to handle.
-  LOG_IF(WARNING, cur_version < kCurrentVersionNumber) <<
-      "Web database version " << cur_version << " is too old to handle.";
+  // If the file on disk is an older database version, bring it up to date.
+  MigrateOldVersionsAsNeeded();
 
   return (transaction.Commit() == SQLITE_OK);
 }
@@ -305,7 +301,8 @@ bool WebDatabase::InitKeywordsTable() {
                      "usage_count INTEGER DEFAULT 0,"
                      "input_encodings VARCHAR,"
                      "suggest_url VARCHAR,"
-                     "prepopulate_id INTEGER DEFAULT 0)",
+                     "prepopulate_id INTEGER DEFAULT 0,"
+                     "autogenerate_keyword INTEGER DEFAULT 0)",
                      NULL, NULL, NULL) != SQLITE_OK) {
       NOTREACHED();
       return false;
@@ -432,6 +429,7 @@ static void BindURLToStatement(const TemplateURL& url, SQLStatement* s) {
   else
     s->bind_wstring(10, std::wstring());
   s->bind_int(11, url.prepopulate_id());
+  s->bind_int(12, url.autogenerate_keyword() ? 1 : 0);
 }
 
 bool WebDatabase::AddKeyword(const TemplateURL& url) {
@@ -441,14 +439,15 @@ bool WebDatabase::AddKeyword(const TemplateURL& url) {
                 "INSERT INTO keywords "
                 "(short_name, keyword, favicon_url, url, safe_for_autoreplace, "
                 "originating_url, date_created, usage_count, input_encodings, "
-                "show_in_default_list, suggest_url, prepopulate_id, id) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                "show_in_default_list, suggest_url, prepopulate_id, "
+                "autogenerate_keyword, id) VALUES "
+                "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
                 != SQLITE_OK) {
     NOTREACHED() << "Statement prepare failed";
     return false;
   }
   BindURLToStatement(url, &s);
-  s.bind_int64(12, url.id());
+  s.bind_int64(13, url.id());
   if (s.step() != SQLITE_DONE) {
     NOTREACHED();
     return false;
@@ -474,7 +473,7 @@ bool WebDatabase::GetKeywords(std::vector<TemplateURL*>* urls) {
                 "SELECT id, short_name, keyword, favicon_url, url, "
                 "safe_for_autoreplace, originating_url, date_created, "
                 "usage_count, input_encodings, show_in_default_list, "
-                "suggest_url, prepopulate_id "
+                "suggest_url, prepopulate_id, autogenerate_keyword "
                 "FROM keywords ORDER BY id ASC") != SQLITE_OK) {
     NOTREACHED() << "Statement prepare failed";
     return false;
@@ -520,6 +519,8 @@ bool WebDatabase::GetKeywords(std::vector<TemplateURL*>* urls) {
 
     template_url->set_prepopulate_id(s.column_int(12));
 
+    template_url->set_autogenerate_keyword(s.column_int(13) == 1);
+
     urls->push_back(template_url);
   }
   return result == SQLITE_DONE;
@@ -530,17 +531,17 @@ bool WebDatabase::UpdateKeyword(const TemplateURL& url) {
   SQLStatement s;
   if (s.prepare(db_,
                 "UPDATE keywords "
-                "SET short_name=?, keyword=?, favicon_url=?, url=?,"
-                "safe_for_autoreplace=?, originating_url=?, "
-                "date_created=?, usage_count=?, input_encodings=?, "
-                "show_in_default_list=?, suggest_url=?, prepopulate_id=? "
+                "SET short_name=?, keyword=?, favicon_url=?, url=?, "
+                "safe_for_autoreplace=?, originating_url=?, date_created=?, "
+                "usage_count=?, input_encodings=?, show_in_default_list=?, "
+                "suggest_url=?, prepopulate_id=?, autogenerate_keyword=? "
                 "WHERE id=?")
                 != SQLITE_OK) {
     NOTREACHED() << "Statement prepare failed";
     return false;
   }
   BindURLToStatement(url, &s);
-  s.bind_int64(12, url.id());
+  s.bind_int64(13, url.id());
   return s.step() == SQLITE_DONE;
 }
 
@@ -870,4 +871,40 @@ bool WebDatabase::GetAllLogins(std::vector<PasswordForm*>* forms,
     forms->push_back(new_form);
   }
   return result == SQLITE_DONE;
+}
+
+void WebDatabase::MigrateOldVersionsAsNeeded() {
+  // Migrate if necessary.
+  int current_version = meta_table_.GetVersionNumber();
+  switch(current_version) {
+    // Versions 1 - 19 are unhandled.  Version numbers greater than
+    // kCurrentVersionNumber should have already been weeded out by the caller.
+    default:
+      // When the version is too old, we just try to continue anyway.  There
+      // should not be a released product that makes a database too old for us
+      // to handle.
+      LOG(WARNING) << "Web database version " << current_version <<
+          " is too old to handle.";
+      return;
+
+    case 20:
+      // Add the autogenerate_keyword column.
+      if (sqlite3_exec(db_,
+                       "ALTER TABLE keywords ADD COLUMN autogenerate_keyword "
+                       "INTEGER DEFAULT 0", NULL, NULL, NULL) != SQLITE_OK) {
+        NOTREACHED();
+        return;
+      }
+      ++current_version;
+      meta_table_.SetVersionNumber(current_version);
+      meta_table_.SetCompatibleVersionNumber(current_version);
+
+    // Add successive versions here.  Each should set the version number and
+    // compatible version number as appropriate, then fall through to the next
+    // case.
+
+    case kCurrentVersionNumber:
+      // No migration needed.
+      return;
+  }
 }

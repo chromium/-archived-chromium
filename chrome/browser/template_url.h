@@ -134,11 +134,6 @@ class TemplateURLRef {
   // {google:baseURL} or {google:baseSuggestURL}.
   bool HasGoogleBaseURLs() const;
 
-  // TemplateURLRef internally caches values to make replacement quick. This
-  // method invalidates any cached values. You shouldn't have a need to invoke
-  // this, it's invoked by TemplateURLModel when the google base url changes.
-  void InvalidateCachedValues() const;
-
  private:
   friend class TemplateURL;
   friend class TemplateURLModelTest;
@@ -166,6 +161,10 @@ class TemplateURLRef {
 
   // The list of elements to replace.
   typedef std::vector<struct Replacement> Replacements;
+
+  // TemplateURLRef internally caches values to make replacement quick. This
+  // method invalidates any cached values.
+  void InvalidateCachedValues() const;
 
   // Resets the url.
   void Set(const std::wstring& url, int index_offset, int page_offset);
@@ -278,7 +277,8 @@ class TemplateURL {
   static GURL GenerateFaviconURL(const GURL& url);
 
   TemplateURL()
-      : show_in_default_list_(false),
+      : autogenerate_keyword_(false),
+        show_in_default_list_(false),
         safe_for_autoreplace_(false),
         id_(0),
         date_created_(Time::Now()),
@@ -336,8 +336,22 @@ class TemplateURL {
     // Case sensitive keyword matching is confusing. As such, we force all
     // keywords to be lower case.
     keyword_ = l10n_util::ToLower(keyword);
+    autogenerate_keyword_ = false;
   }
-  const std::wstring& keyword() const { return keyword_; }
+  const std::wstring& keyword() const;
+
+  // Whether to autogenerate a keyword from the url() in GetKeyword().  Most
+  // consumers should not need this.
+  // NOTE: Calling set_keyword() turns this back off.  Manual and automatic
+  // keywords are mutually exclusive.
+  void set_autogenerate_keyword(bool autogenerate_keyword) {
+    autogenerate_keyword_ = autogenerate_keyword;
+    if (autogenerate_keyword_)
+      keyword_.clear();
+  }
+  bool autogenerate_keyword() const {
+    return autogenerate_keyword_;
+  }
 
   // Whether this keyword is shown in the default list of search providers. This
   // is just a property and does not indicate whether this TemplateURL has
@@ -417,10 +431,12 @@ class TemplateURL {
   int prepopulate_id() const { return prepopulate_id_; }
 
  private:
-  // For access to set id.
   friend class WebDatabaseTest;
   friend class WebDatabase;
   friend class TemplateURLModel;
+
+  // Invalidates cached values on this object and its child TemplateURLRefs.
+  void InvalidateCachedValues() const;
 
   // Unique identifier, used when archived to the database.
   void set_id(IDType id) { id_ = id;}
@@ -430,7 +446,9 @@ class TemplateURL {
   TemplateURLRef suggestions_url_;
   TemplateURLRef url_;
   GURL originating_url_;
-  std::wstring keyword_;
+  mutable std::wstring keyword_;
+  bool autogenerate_keyword_;  // If this is set, |keyword_| holds the cached
+                               // generated keyword if available.
   bool show_in_default_list_;
   bool safe_for_autoreplace_;
   std::vector<ImageRef> image_refs_;

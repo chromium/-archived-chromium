@@ -34,6 +34,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/google_url_tracker.h"
+#include "chrome/browser/template_url_model.h"
 #include "chrome/common/gfx/favicon_size.h"
 #include "net/base/escape.h"
 
@@ -527,6 +528,15 @@ void TemplateURL::SetURL(const std::wstring& url,
   url_.Set(url, index_offset, page_offset);
 }
 
+const std::wstring& TemplateURL::keyword() const {
+  if (autogenerate_keyword_ && keyword_.empty()) {
+    // Generate a keyword and cache it.
+    keyword_ = TemplateURLModel::GenerateKeyword(
+        TemplateURLModel::GenerateSearchURL(this).GetWithEmptyPath(), true);
+  }
+  return keyword_;
+}
+
 bool TemplateURL::ShowInDefaultList() const {
   return show_in_default_list() && url() && url()->SupportsReplacement();
 }
@@ -560,4 +570,11 @@ GURL TemplateURL::GetFavIconURL() const {
     }
   }
   return GURL();
+}
+
+void TemplateURL::InvalidateCachedValues() const {
+  url_.InvalidateCachedValues();
+  suggestions_url_.InvalidateCachedValues();
+  if (autogenerate_keyword_)
+    keyword_.clear();
 }

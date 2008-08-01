@@ -424,9 +424,19 @@ void TemplateURLModel::RemoveFromMaps(const TemplateURL* template_url) {
   }
 }
 
-void TemplateURLModel::RemoveFromHostMapByPointer(
+void TemplateURLModel::RemoveFromMapsByPointer(
     const TemplateURL* template_url) {
   DCHECK(template_url);
+  for (KeywordToTemplateMap::iterator i = keyword_to_template_map_.begin();
+       i != keyword_to_template_map_.end(); ++i) {
+    if (i->second == template_url) {
+      keyword_to_template_map_.erase(i);
+      // A given TemplateURL only occurs once in the map. As soon as we find the
+      // entry, stop.
+      break;
+    }
+  }
+
   for (HostToURLsMap::iterator i = host_to_urls_map_.begin();
        i != host_to_urls_map_.end(); ++i) {
     TemplateURLSet::iterator url_set_iterator = i->second.find(template_url);
@@ -435,7 +445,7 @@ void TemplateURLModel::RemoveFromHostMapByPointer(
       if (i->second.empty())
         host_to_urls_map_.erase(i);
       // A given TemplateURL only occurs once in the map. As soon as we find the
-      // entry, return.
+      // entry, stop.
       return;
     }
   }
@@ -727,6 +737,8 @@ void TemplateURLModel::MergeEnginesFromPrepopulateData() {
         // User edited the entry, preserve the keyword and description.
         loaded_urls[i]->set_safe_for_autoreplace(false);
         loaded_urls[i]->set_keyword(existing_url->keyword());
+        loaded_urls[i]->set_autogenerate_keyword(
+            existing_url->autogenerate_keyword());
         loaded_urls[i]->set_short_name(existing_url->short_name());
       }
       Replace(existing_url, loaded_urls[i]);
@@ -934,17 +946,21 @@ bool TemplateURLModel::BuildQueryTerms(const GURL& url,
 }
 
 void TemplateURLModel::GoogleBaseURLChanged() {
+  bool something_changed = false;
   for (size_t i = 0; i < template_urls_.size(); ++i) {
     const TemplateURL* t_url = template_urls_[i];
     if ((t_url->url() && t_url->url()->HasGoogleBaseURLs()) ||
         (t_url->suggestions_url() &&
          t_url->suggestions_url()->HasGoogleBaseURLs())) {
-      RemoveFromHostMapByPointer(t_url);
-      if (t_url->url())
-        t_url->url()->InvalidateCachedValues();
-      if (t_url->suggestions_url())
-        t_url->suggestions_url()->InvalidateCachedValues();
+      RemoveFromMapsByPointer(t_url);
+      t_url->InvalidateCachedValues();
       AddToMaps(t_url);
+      something_changed = true;
     }
+  }
+
+  if (something_changed && loaded_) {
+    FOR_EACH_OBSERVER(TemplateURLModelObserver, model_observers_,
+                      OnTemplateURLModelChanged());
   }
 }
