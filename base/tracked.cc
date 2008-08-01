@@ -75,6 +75,7 @@ Tracked::Tracked() {}
 Tracked::~Tracked() {}
 void Tracked::SetBirthPlace(const Location& from_here) {}
 bool Tracked::MissingBirthplace() const { return false; }
+void Tracked::ResetBirthTime() {}
 
 #else
 
