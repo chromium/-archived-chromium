@@ -2024,16 +2024,28 @@ void ResourceDispatcherHost::OnReadCompleted(URLRequest* request,
     return;
   }
 
-  // Keep reading as long as we can.
-  while (request->status().is_success() &&
-         CompleteRead(request, &bytes_read)) {
+  if (request->status().is_success() && CompleteRead(request, &bytes_read)) {
     // The request can be paused if we realize that the renderer is not
     // servicing messages fast enough.
-    if (info->pause_count > 0)
-      break;
-
-    if (!Read(request, &bytes_read))
-      break;  // IO is pending.
+    if (info->pause_count == 0 &&
+        Read(request, &bytes_read) &&
+        request->status().is_success()) {
+      if (bytes_read == 0) {
+        CompleteRead(request, &bytes_read);
+      } else {
+        // Force the next CompleteRead / Read pair to run as a separate task.
+        // This avoids a fast, large network request from monopolizing the IO
+        // thread and starving other IO operations from running.
+        info->paused_read_bytes = bytes_read;
+        info->is_paused = true;
+        GlobalRequestID id(info->render_process_host_id, info->request_id);
+        MessageLoop::current()->PostTask(
+            FROM_HERE,
+            method_runner_.NewRunnableMethod(
+                &ResourceDispatcherHost::ResumeRequest, id));
+        return;
+      }
+    }
   }
 
   if (PauseRequestIfNeeded(info)) {
