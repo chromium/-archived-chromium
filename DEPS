@@ -12,7 +12,7 @@ deps = {
     "svn://chrome-svn/chrome/trunk/third_party/WebKit@19",
 
   "src/third_party/icu38":
-    "svn://chrome-svn/chrome/trunk/third_party/icu38@179",
+    "svn://chrome-svn/chrome/trunk/third_party/icu38@246",
 
   "src/v8":
     "https://svn/r/googleclient/v8/trunk@129455",
