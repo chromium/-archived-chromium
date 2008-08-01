@@ -310,3 +310,4 @@
 #define IDR_THROBBER_LIGHT                               9379
 #define IDR_OTR_ICON_STANDALONE                          9380
 #define IDR_PRODUCT_LOGO                                 9381
+#define IDR_DISTRIBUTOR_LOGO                             9382

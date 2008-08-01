@@ -86,6 +86,9 @@ static const int kSeparationLineHeight = 1;
 static const int kOTRImageHorizMargin = 2;
 static const int kOTRImageVertMargin = 2;
 
+// Distributor logo offsets.
+static const int kDistributorLogoVerticalOffset = 3;
+
 // The DWM puts a light border around the client area - we need to
 // take this border size into account when we reduce its size so that
 // we don't draw our content border dropshadow images over the top.
@@ -151,6 +154,7 @@ VistaFrame::VistaFrame(Browser* browser)
       info_bar_view_(NULL),
       is_off_the_record_(false),
       off_the_record_image_(NULL),
+      distributor_logo_(NULL),
       ignore_ncactivate_(false),
       should_save_window_placement_(browser->GetType() != BrowserType::BROWSER),
       browser_view_(NULL) {
@@ -231,24 +235,42 @@ void VistaFrame::Layout() {
 
     }
 
+    // Figure out where the minimize button is for layout purposes.
+    TITLEBARINFOEX titlebar_info;
+    titlebar_info.cbSize = sizeof(TITLEBARINFOEX);
+    SendMessage(WM_GETTITLEBARINFOEX, 0, (WPARAM)&titlebar_info);
+
+    // rgrect[2] refers to the minimize button. min_offset will
+    // be the distance between the right side of the window
+    // and the minimize button.
+    CRect window_rect;
+    GetWindowRect(&window_rect);
+    int min_offset = window_rect.right - titlebar_info.rgrect[2].left;
+
     // If we are maxmized, the tab strip will be in line with the window
     // controls, so we need to make sure they don't overlap.
-    int controls_offset = 0;
+    int zoomed_offset = 0;
     if(IsZoomed()) {
-      TITLEBARINFOEX titlebar_info;
-      titlebar_info.cbSize = sizeof(TITLEBARINFOEX);
-      SendMessage(WM_GETTITLEBARINFOEX, 0, (WPARAM)&titlebar_info);
+      zoomed_offset = std::max(min_offset, kWindowControlsMinOffset);
 
-      // rgrect[2] refers to the minimize button.
-      controls_offset = client_rect.right - titlebar_info.rgrect[2].left;
-      controls_offset = std::max(controls_offset, kWindowControlsMinOffset);
+      // Hide the distributor logo if we're zoomed.
+      distributor_logo_->SetVisible(false);
+    } else {
+      CSize distributor_logo_size;
+      distributor_logo_->GetPreferredSize(&distributor_logo_size);
+      distributor_logo_->SetVisible(true);
+      distributor_logo_->SetBounds(width - min_offset - 
+          distributor_logo_size.cx,
+          kDistributorLogoVerticalOffset,
+          distributor_logo_size.cx,
+          distributor_logo_size.cy);
     }
 
     gfx::Rect tabstrip_bounds(tabstrip_x,
                               kResizeBorder + (IsZoomed() ?
                                   kDwmBorderSize : kTitlebarHeight),
                               width - tabstrip_x - kTabStripRightHorizOffset -
-                              controls_offset,
+                              zoomed_offset,
                               tabstrip_->GetPreferredHeight());
     if (frame_view_->UILayoutIsRightToLeft() &&
         (IsZoomed() || is_off_the_record_))
@@ -405,8 +427,9 @@ void VistaFrame::Init() {
   tabstrip_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TABSTRIP));
   frame_view_->AddChildView(tabstrip_);
 
+  ResourceBundle &rb = ResourceBundle::GetSharedInstance();
+
   if (is_off_the_record_) {
-    ResourceBundle &rb = ResourceBundle::GetSharedInstance();
     off_the_record_image_ = new ChromeViews::ImageView();
     frame_view_->AddViewToDropList(off_the_record_image_);
     SkBitmap* otr_icon = rb.GetBitmapNamed(IDR_OTR_ICON);
@@ -417,6 +440,11 @@ void VistaFrame::Init() {
         ChromeViews::ImageView::LEADING);
     frame_view_->AddChildView(off_the_record_image_);
   }
+
+  distributor_logo_ = new ChromeViews::ImageView();
+  frame_view_->AddViewToDropList(distributor_logo_);
+  distributor_logo_->SetImage(rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO));
+  frame_view_->AddChildView(distributor_logo_);
 
   tab_contents_container_ = new TabContentsContainerView();
   frame_view_->AddChildView(tab_contents_container_);

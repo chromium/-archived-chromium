@@ -502,6 +502,9 @@ class XPFrame : public BrowserWindow,
   // The optional container for the off the record icon.
   ChromeViews::ImageView* off_the_record_image_;
 
+  // The container for the distributor logo.
+  ChromeViews::ImageView* distributor_logo_;
+
   // We need to own the text of the menu, the Windows API does not copy it.
   std::wstring task_manager_label_text_;
 

@@ -367,6 +367,9 @@ class VistaFrame : public BrowserWindow,
   // The optional container for the off the record icon.
   ChromeViews::ImageView* off_the_record_image_;
 
+  // The container for the distributor logo.
+  ChromeViews::ImageView* distributor_logo_;
+
   // The view that contains the tabs and any associated controls.
   TabStrip* tabstrip_;
 

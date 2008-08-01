@@ -82,6 +82,9 @@ static const int kContentBorderVertBottomOffset = 2;
 static const int kToolbarOverlapVertOffset = 3;
 static const int kTabShadowSize = 2;
 
+static const int kDistributorLogoHorizontalOffset = 7;
+static const int kDistributorLogoVerticalOffset = 4;
+
 // Size of a corner. We use this when drawing a black background in maximized
 // mode
 static const int kCornerSize = 4;
@@ -119,7 +122,7 @@ static const int kSeparationLineHeight = 1;
 static const SkColor kSeparationLineColor = SkColorSetRGB(178, 178, 178);
 
 // Padding between the tab strip and the window controls in maximized mode.
-static const int kZoomedStripPadding = 32;
+static const int kZoomedStripPadding = 16;
 
 using ChromeViews::Accelerator;
 using ChromeViews::FocusManager;
@@ -359,6 +362,7 @@ XPFrame::XPFrame(Browser* browser)
       is_off_the_record_(false),
       title_bar_height_(0),
       off_the_record_image_(NULL),
+      distributor_logo_(NULL),
       ignore_ncactivate_(false),
       paint_as_active_(false),
       browser_view_(NULL) {
@@ -455,6 +459,11 @@ void XPFrame::Init() {
     frame_view_->AddChildView(off_the_record_image_);
     frame_view_->AddViewToDropList(off_the_record_image_);
   }
+
+  distributor_logo_ = new ChromeViews::ImageView();
+  frame_view_->AddViewToDropList(distributor_logo_);
+  distributor_logo_->SetImage(rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO));
+  frame_view_->AddChildView(distributor_logo_);
 
   min_button_ = new ChromeViews::Button();
   min_button_->SetListener(this, MINIATURIZE_TAG);
@@ -690,6 +699,20 @@ void XPFrame::Layout() {
                                          otr_image_size.cx,
                                          otr_image_size.cy);
       }
+    }
+
+    if (IsZoomed()) {
+      distributor_logo_->SetVisible(false);
+    } else {
+      CSize distributor_logo_size;
+      distributor_logo_->GetPreferredSize(&distributor_logo_size);
+      distributor_logo_->SetVisible(true);
+      distributor_logo_->SetBounds(min_button_->GetX() - 
+                                       distributor_logo_size.cx -
+                                       kDistributorLogoHorizontalOffset,
+                                   kDistributorLogoVerticalOffset,
+                                   distributor_logo_size.cx,
+                                   distributor_logo_size.cy);
     }
 
     tabstrip_->SetBounds(tab_strip_x, top_margin - 1,
@@ -1358,16 +1381,6 @@ LRESULT XPFrame::OnNCHitTest(const CPoint& pt) {
     return HTCAPTION;
   }
 
-  // If the OTR image exists and the mouse is above it, let's move the window.
-  if (off_the_record_image_) {
-    CPoint otr_p(p);
-    otr_p.x -= off_the_record_image_->GetX(
-        ChromeViews::View::APPLY_MIRRORING_TRANSFORMATION);
-    otr_p.y -= off_the_record_image_->GetY();
-    if (off_the_record_image_->HitTest(otr_p))
-      return HTCAPTION;
-  }
-
   CPoint tsp(p);
   ChromeViews::View::ConvertPointToView(&root_view_, tabstrip_, &tsp);
 
@@ -1395,7 +1408,9 @@ LRESULT XPFrame::OnNCHitTest(const CPoint& pt) {
     // The mouse is not above the tab strip. If there is no control under it,
     // let's move the window.
     if (ComputeResizeMode(p.x, p.y, r.Width(), r.Height()) == RM_UNDEFINED) {
-      if (root_view_.GetViewForPoint(p) == frame_view_) {
+      ChromeViews::View* v = root_view_.GetViewForPoint(p);
+      if (v == frame_view_ || v == off_the_record_image_ || 
+          v == distributor_logo_) {
         return HTCAPTION;
       }
     }
