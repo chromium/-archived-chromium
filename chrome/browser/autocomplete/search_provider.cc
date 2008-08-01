@@ -136,6 +136,7 @@ void SearchProvider::OnURLFetchComplete(const URLFetcher* source,
   suggest_results_.clear();
   navigation_results_.clear();
   JSONStringValueSerializer deserializer(data);
+  deserializer.set_allow_trailing_comma(true);
   Value* root_val = NULL;
   have_suggest_results_ = status.is_success() && (response_code == 200) &&
       deserializer.Deserialize(&root_val) && ParseSuggestResults(root_val);
