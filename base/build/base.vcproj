@@ -122,6 +122,14 @@
 	</References>
 	<Files>
 		<File
+			RelativePath="..\at_exit.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\at_exit.h"
+			>
+		</File>
+		<File
 			RelativePath="..\atomic.h"
 			>
 		</File>
@@ -162,15 +170,15 @@
 			>
 		</File>
 		<File
-			RelativePath="..\bzip2_error_handler.cc"
-			>
-		</File>
-		<File
 			RelativePath="..\third_party\nss\blapi.h"
 			>
 		</File>
 		<File
 			RelativePath="..\third_party\nss\blapit.h"
+			>
+		</File>
+		<File
+			RelativePath="..\bzip2_error_handler.cc"
 			>
 		</File>
 		<File

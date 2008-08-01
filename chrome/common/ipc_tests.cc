@@ -34,6 +34,7 @@
 
 #include "chrome/common/ipc_tests.h"
 
+#include "base/at_exit.h"
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/debug_on_start.h"
@@ -400,6 +401,10 @@ HANDLE SpawnChild(ChildType child_type) {
 }
 
 int main(int argc, char** argv) {
+  // Some tests may use base::Singleton<>, thus we need to instanciate
+  // the AtExitManager or else we will leak objects.
+  base::AtExitManager at_exit_manager;  
+
   MessageLoop main_message_loop;
 
   // suppress standard crash dialogs and such unless a debugger is present.

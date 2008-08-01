@@ -30,6 +30,7 @@
 #include <windows.h>
 #include <tchar.h>
 
+#include "base/at_exit.h"
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/debug_on_start.h"
@@ -43,6 +44,9 @@
 
 int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
                       wchar_t* command_line, int show_command) {
+  // The exit manager is in charge of calling the dtors of singletons.
+  base::AtExitManager exit_manager;
+
   google_update::GoogleUpdateClient client;
 
   // Note that std::wstring and CommandLine got linked anyway because of

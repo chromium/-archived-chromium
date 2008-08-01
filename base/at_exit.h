@@ -27,13 +27,54 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "base/at_exit.h"
-#include "base/test_suite.h"
+#ifndef BASE_AT_EXIT_H__
+#define BASE_AT_EXIT_H__
 
-int main(int argc, char** argv) {
-  // Some tests may use base::Singleton<>, thus we need to instanciate
-  // the AtExitManager or else we will leak objects.
-  base::AtExitManager at_exit_manager;  
+#include <stack>
 
-  return TestSuite(argc, argv).Run();
-}
+#include "base/basictypes.h"
+#include "base/lock.h"
+
+namespace base {
+
+typedef void (*AtExitCallbackType)();
+
+// This class provides a facility similar to the CRT atexit(), except that
+// we control when the callbacks are executed. Under Windows for a DLL they
+// happen at a really bad time and under the loader lock. This facility is
+// mostly used by base::Singleton.
+//
+// The usage is simple. Early in the main() or WinMain() scope create an
+// AtExitManager object on the stack:
+// int main(...) {
+//    base::AtExitManager exit_manager;
+//   
+// }
+// When the exit_manager object goes out of scope, all the registered
+// callbacks and singleton destructors will be called.
+
+class AtExitManager {
+ public:
+  AtExitManager();
+
+  // The dtor calls all the registered callbacks. Do not try to register more
+  // callbacks after this point.
+  ~AtExitManager();
+
+  // Registers the specified function to be called at exit. The prototype of
+  // the callback function is void func().
+  static void RegisterCallback(AtExitCallbackType func);
+
+  // Calls the functions registered with RegisterCallback in LIFO order. It
+  // is possible to register new callbacks after calling this function.
+  static void ProcessCallbacksNow();
+
+ private:
+  Lock lock_;
+  std::stack<base::AtExitCallbackType> atexit_queue_;
+  DISALLOW_EVIL_CONSTRUCTORS(AtExitManager);
+};
+
+}  // namespace base
+
+#endif // BASE_AT_EXIT_H__

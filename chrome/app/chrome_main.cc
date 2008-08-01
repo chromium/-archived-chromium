@@ -32,6 +32,7 @@
 #include <malloc.h>
 #include <new.h>
 
+#include "base/at_exit.h"
 #include "base/command_line.h"
 #include "base/icu_util.h"
 #include "base/message_loop.h"
@@ -139,6 +140,9 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
 #else
   _CrtSetReportMode(_CRT_ASSERT, 0);
 #endif
+
+  // The exit manager is in charge of calling the dtors of singleton objects.
+  base::AtExitManager exit_manager;
 
   // Register the invalid param handler and pure call handler to be able to
   // notify breakpad when it happens.

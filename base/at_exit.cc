@@ -28,12 +28,60 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "base/at_exit.h"
-#include "base/test_suite.h"
+#include "base/logging.h"
 
-int main(int argc, char** argv) {
-  // Some tests may use base::Singleton<>, thus we need to instanciate
-  // the AtExitManager or else we will leak objects.
-  base::AtExitManager at_exit_manager;  
+namespace {
 
-  return TestSuite(argc, argv).Run();
+std::stack<base::AtExitCallbackType>* g_atexit_queue = NULL;
+Lock* g_atexit_lock = NULL;
+
+void ProcessCallbacks() {
+  if (!g_atexit_queue)
+    return;
+  base::AtExitCallbackType func = NULL;
+  while(!g_atexit_queue->empty()) {
+    func = g_atexit_queue->top();
+    g_atexit_queue->pop();
+    if (func)
+      func();
+  }
 }
+
+}   // namespace
+
+namespace base {
+
+AtExitManager::AtExitManager() {
+  DCHECK(NULL == g_atexit_queue);
+  DCHECK(NULL == g_atexit_lock);
+  g_atexit_lock = &lock_;
+  g_atexit_queue = &atexit_queue_;
+}
+
+AtExitManager::~AtExitManager() {
+  AutoLock lock(lock_);
+  ProcessCallbacks();
+  g_atexit_queue = NULL;
+}
+
+void AtExitManager::RegisterCallback(AtExitCallbackType func) {
+  DCHECK(NULL != g_atexit_queue);
+  DCHECK(NULL != g_atexit_lock);
+  if (!g_atexit_lock)
+    return;
+  AutoLock lock(*g_atexit_lock);
+  if (g_atexit_queue)
+    g_atexit_queue->push(func);
+}
+
+// Calls the functions registered with AtExit in LIFO order.
+void AtExitManager::ProcessCallbacksNow() {
+  DCHECK(NULL != g_atexit_lock);
+  if (!g_atexit_lock)
+    return;
+  AutoLock lock(*g_atexit_lock);
+  DCHECK(NULL != g_atexit_queue);
+  ProcessCallbacks();
+}
+
+}  // namespace base

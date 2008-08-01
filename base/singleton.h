@@ -34,6 +34,7 @@
 
 #include <utility>
 
+#include "base/at_exit.h"
 #include "base/lock.h"
 #include "base/singleton_internal.h"
 
@@ -44,7 +45,7 @@
 #endif  // WIN32
 
 // Default traits for Singleton<Type>. Calls operator new and operator delete on
-// the object. Registers automatic deletion at library unload or process exit.
+// the object. Registers automatic deletion at process exit.
 // Overload if you need arguments or another memory allocation function.
 template<typename Type>
 struct DefaultSingletonTraits {
@@ -60,8 +61,8 @@ struct DefaultSingletonTraits {
     delete x;
   }
 
-  // Set to true to automatically register deletion of the object on library
-  // unload or process exit.
+  // Set to true to automatically register deletion of the object on process
+  // exit. See below for the required call that makes this happen.
   static const bool kRegisterAtExit = true;
 
   // Note: Only apply on Windows. Has *no effect* on other platform.
@@ -75,8 +76,8 @@ struct DefaultSingletonTraits {
 
 // The Singleton<Type, Traits, DifferentiatingType> class manages a single
 // instance of Type which will be created on first use and will be destroyed at
-// library unload (or on normal process exit). The Trait::Delete function will
-// not be called on abnormal process exit.
+// normal process exit). The Trait::Delete function will not be called on
+// abnormal process exit.
 //
 // DifferentiatingType is used as a key to differentiate two different
 // singletons having the same memory allocation functions but serving a
@@ -101,11 +102,15 @@ struct DefaultSingletonTraits {
 //   RAE = kRegisterAtExit
 //
 // On every platform, if Traits::RAE is true, the singleton will be destroyed at
-// library unload or process exit. if Traits::RAE is false, the singleton will
-// not be freed at library unload or process exit, thus the singleton will be
-// leaked if it is ever accessed. Traits::RAE shouldn't be false unless
-// absolutely necessary. Remember that the heap where the object is allocated
-// may be destroyed by the CRT anyway.
+// process exit. More precisely it uses base::AtExitManager which requires an
+// object of this type to be instanciated. AtExitManager mimics the semantics
+// of atexit() such as LIFO order but under Windows is safer to call. For more
+// information see at_exit.h.
+//
+// If Traits::RAE is false, the singleton will not be freed at process exit,
+// thus the singleton will be leaked if it is ever accessed. Traits::RAE
+// shouldn't be false unless absolutely necessary. Remember that the heap where
+// the object is allocated may be destroyed by the CRT anyway.
 //
 // On Windows, now the fun begins. Traits::New() may be called more than once
 // concurrently, but no user will gain access to the object until the winning
@@ -231,16 +236,8 @@ class Singleton
       // Race condition, discard the temporary value.
       Traits::Delete(value);
     } else {
-      // Got it, register destruction at unload. atexit() is called on library
-      // unload. It is assumed that atexit() is itself thread safe. It is also
-      // assumed that registered functions by atexit are called in a thread
-      // safe manner. At least on Windows, they are called with the loader
-      // lock held. On Windows, the CRT use a structure similar to
-      // std::map<dll_handle,std::vector<registered_functions>> so the right
-      // functions are called on library unload, independent of having a DLL
-      // CRT or a static CRT or even both.
       if (Traits::kRegisterAtExit)
-        atexit(&OnExit);
+        base::AtExitManager::RegisterCallback(&OnExit);
     }
   }
 #endif  // WIN32
@@ -249,27 +246,11 @@ class Singleton
   static void SafeConstruct() {
     instance_ = Traits::New();
 
-    // Porting note: this code depends on some properties of atexit which are
-    // not guaranteed by the standard:
-    //  - atexit must be thread-safe: its internal manipulation of the list of
-    //    registered functions must be tolerant of multiple threads attempting
-    //    to register exit routines simultaneously.
-    //  - exit routines must run when the executable module that contains them
-    //    is unloaded.  For routines in by dynamically-loaded modules, this
-    //    may be sooner than process termination.
-    //  - atexit should support an arbitrary number of registered exit
-    //    routines, or at least should support more routines than will
-    //    actually be registered (the standard only requires 32).
-    // The atexit implementations in contemporary versions of Mac OS X, glibc,
-    // and the Windows C runtime provide these capabilities.  To port to other
-    // systems with less-advanced (even though still standard-conforming)
-    // atexit implmentations, consider alternatives such as __cxa_atexit or
-    // custom termination sections.
     if (Traits::kRegisterAtExit)
-      atexit(OnExit);
+      base::AtExitManager::RegisterCallback(OnExit);
   }
 
-  // Adapter function for use with atexit().
+  // Adapter function for use with AtExit().
   static void OnExit() {
     if (!instance_)
       return;

@@ -34,6 +34,7 @@
 #include <windows.h>
 #include <commctrl.h>
 
+#include "base/at_exit.h"
 #include "base/basictypes.h"
 #include "base/command_line.h"
 #include "base/event_recorder.h"
@@ -136,6 +137,9 @@ int main(int argc, char* argv[])
     _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
     _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
 #endif
+    // Some tests may use base::Singleton<>, thus we need to instanciate
+    // the AtExitManager or else we will leak objects.
+    base::AtExitManager at_exit_manager;  
 
     CommandLine parsed_command_line;
     if (parsed_command_line.HasSwitch(test_shell::kStartupDialog))

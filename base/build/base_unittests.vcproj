@@ -168,6 +168,10 @@
 			Name="base_tests"
 			>
 			<File
+				RelativePath="..\at_exit_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\atomic_unittest.cc"
 				>
 			</File>

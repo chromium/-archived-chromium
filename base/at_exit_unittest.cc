@@ -28,12 +28,55 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "base/at_exit.h"
-#include "base/test_suite.h"
 
-int main(int argc, char** argv) {
-  // Some tests may use base::Singleton<>, thus we need to instanciate
-  // the AtExitManager or else we will leak objects.
-  base::AtExitManager at_exit_manager;  
+#include "testing/gtest/include/gtest/gtest.h"
 
-  return TestSuite(argc, argv).Run();
+namespace {
+
+int g_test_counter_1 = 0;
+int g_test_counter_2 = 0;
+
+void IncrementTestCounter1() {
+  ++g_test_counter_1;
+}
+
+void IncrementTestCounter2() {
+  ++g_test_counter_2;
+}
+
+void ZeroTestCounters() {
+  g_test_counter_1 = 0;
+  g_test_counter_2 = 0;
+}
+
+void ExpectCounter1IsZero() {
+  EXPECT_EQ(0, g_test_counter_1);
+}
+
+}  // namespace
+
+TEST(AtExitTest, Basic) {
+  ZeroTestCounters();
+  base::AtExitManager::RegisterCallback(&IncrementTestCounter1);
+  base::AtExitManager::RegisterCallback(&IncrementTestCounter2);
+  base::AtExitManager::RegisterCallback(&IncrementTestCounter1);
+  
+  EXPECT_EQ(0, g_test_counter_1);
+  EXPECT_EQ(0, g_test_counter_2);
+  base::AtExitManager::ProcessCallbacksNow();
+  EXPECT_EQ(2, g_test_counter_1);
+  EXPECT_EQ(1, g_test_counter_2);
+}
+
+TEST(AtExitTest, LIFOOrder) {
+  ZeroTestCounters();
+  base::AtExitManager::RegisterCallback(&IncrementTestCounter1);
+  base::AtExitManager::RegisterCallback(&ExpectCounter1IsZero);
+  base::AtExitManager::RegisterCallback(&IncrementTestCounter2);
+  
+  EXPECT_EQ(0, g_test_counter_1);
+  EXPECT_EQ(0, g_test_counter_2);
+  base::AtExitManager::ProcessCallbacksNow();
+  EXPECT_EQ(1, g_test_counter_1);
+  EXPECT_EQ(1, g_test_counter_2);
 }

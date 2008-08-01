@@ -33,6 +33,7 @@
 #include <windows.h>
 #include <commctrl.h>
 
+#include "base/at_exit.h"
 #include "base/icu_util.h"
 #include "base/message_loop.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
@@ -50,6 +51,10 @@ const char* TestShellTest::kJavascriptDelayExitScript =
   "</script>";
 
 int main(int argc, char* argv[]) {
+  // Some unittests may use base::Singleton<>, thus we need to instanciate
+  // the AtExitManager or else we will leak objects.
+  base::AtExitManager at_exit_manager;  
+
   TestShell::InitLogging(true);  // suppress error dialogs
 
   // Initialize test shell in non-interactive mode, which will let us load one

@@ -29,12 +29,17 @@
 
 #include <windows.h>
 
+#include "base/at_exit.h"
 #include "base/command_line.h"
 #include "base/perftimer.h"
 #include "base/string_util.h"
 #include "base/test_suite.h"
 
 int main(int argc, char** argv) {
+  // Some tests may use base::Singleton<>, thus we need to instanciate
+  // the AtExitManager or else we will leak objects.
+  base::AtExitManager at_exit_manager;  
+
   // Initialize the perf timer log
   std::string log_file =
       WideToUTF8(CommandLine().GetSwitchValue(L"log-file"));
