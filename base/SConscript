@@ -48,6 +48,7 @@ env.Prepend(
 )
 
 input_files = [
+    'at_exit.cc',
     'base_drag_source.cc',
     'base_drop_target.cc',
     'base_paths.cc',
@@ -211,6 +212,7 @@ env_tests.Program(['debug_message.exe',
                   ['debug_message.cc'] + libs)
 
 test_files = [
+    'at_exit_unittest.cc',
     'atomic_unittest.cc',
     'check_handler_unittest.cc',
     'clipboard_unittest.cc',
