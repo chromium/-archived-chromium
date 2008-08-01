@@ -97,13 +97,13 @@ def RunDumpbin(binary_file):
       if line == "Image has the following dependencies:":
         if current_section != START:
           raise Error("Internal parsing error.")
-        current_section = DEPENDENCIES_HEADER;
+        current_section = DEPENDENCIES_HEADER
       elif line == "Image has the following delay load dependencies:":
         if current_section != DEPENDENCIES:
           raise Error("Internal parsing error.")
-        current_section = DELAY_LOAD_HEADER;
+        current_section = DELAY_LOAD_HEADER
       elif line == "Summary":
-        current_section = SUMMARY_HEADER;
+        current_section = SUMMARY_HEADER
       elif current_section == DEPENDENCIES:
         # Got a dependent
         dependents.append(line)

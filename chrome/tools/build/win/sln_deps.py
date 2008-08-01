@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # Copyright 2008, Google Inc.
 # All rights reserved.
 #
@@ -28,7 +28,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import sys
+import copy
+import optparse
+
+__version__ = "1.0"
 
 # Constants used by Visual Studio.
 UNKNOWN_GUID = "{00000000-0000-0000-0000-000000000000}"
@@ -47,14 +50,13 @@ class Project:
     return self.name
 
 
-def main(filename, project_to_scan):
-  project_to_scan = project_to_scan.lower()
+def ScanSlnFile(filename):
+  """Scan a Visual Studio .sln and extract the project dependencies."""
   try:
     sln = open(filename, "r")
   except IOError:
     sys.stderr.write("Unable to open " + filename + " for reading.\n")
     return 1
-
   projects = {}
   project = None
   while 1:
@@ -83,6 +85,26 @@ def main(filename, project_to_scan):
 
   # We are done parsing.
   sln.close()
+  return projects
+
+
+def main(filename, project_to_scan, reverse):
+  """Displays the project's dependencies."""
+  project_to_scan = project_to_scan.lower()
+
+  projects = ScanSlnFile(filename)
+
+  if reverse:
+    # Inverse the dependencies map so they are displayed in the reverse order.
+    # First, create a copy of the map.
+    projects_reversed = copy.deepcopy(projects)
+    for project_reversed in projects_reversed.itervalues():
+      project_reversed.deps = []
+    # Then, assign reverse dependencies.
+    for project in projects.itervalues():
+      for dep in project.deps:
+        projects_reversed[dep].deps.append(project.guid)
+    projects = projects_reversed
 
   # Print the results.
   for project in projects.itervalues():
@@ -97,14 +119,26 @@ def main(filename, project_to_scan):
 
 
 if __name__ == '__main__':
-  if len(sys.argv) != 2 and len(sys.argv) != 3:
-    print """Usage: sln_deps.py <SOLUTIONNAME>.sln [project]
-  to display the dependencies of a project in human readable form.
+  usage = "usage: %prog [options] solution [project]"
+  
+  description = ("Display the dependencies of a project in human readable"
+                 " form. [project] is optional. If omited, all projects are"
+                 " listed.")
 
-  [project] is optional. If omited, all projects are listed."""
-    sys.exit(1)
+  option_parser = optparse.OptionParser(usage = usage,
+                                        version="%prog " + __version__,
+                                        description = description)
+  option_parser.add_option("-r",
+                           "--reverse",
+                           dest="reverse",
+                           action="store_true",
+                           default=False,
+                           help="Display the reverse dependencies")
+  options, args = option_parser.parse_args()
+  if len(args) != 1 and len(args) != 2:
+    option_parser.error("incorrect number of arguments")
 
   project_to_scan = ""
-  if len(sys.argv) == 3:
-    project_to_scan = sys.argv[2]
-  sys.exit(main(sys.argv[1], project_to_scan))
+  if len(args) == 2:
+    project_to_scan = args[1]
+  main(args[0], project_to_scan, options.reverse)
