@@ -45,6 +45,7 @@
 #include <set>
 #include <string>
 
+#include "base/at_exit.h"
 #include "base/file_util.h"
 #include "base/icu_util.h"
 #include "base/logging.h"
@@ -234,6 +235,9 @@ int main(int argc, const char* argv[]) {
     fprintf(stderr, "Usage: %s <input> <output>\n", argv[0]);
     return 1;
   }
+
+  // Manages the destruction of singletons.
+  base::AtExitManager exit_manager;
 
   // Only use OutputDebugString in debug mode.
 #ifdef NDEBUG
