@@ -51,11 +51,15 @@ DUMPBIN = "dumpbin.exe"
 class Error(Exception):
   def __init__(self, message):
     self.message = message
+  def __str__(self):
+    return self.message
 
 
 def RunSystemCommand(cmd):
-  return subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
-
+  try:
+    return subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
+  except:
+    raise Error("Failed to execute: " + cmd)
 
 def RunDumpbin(binary_file):
   """Runs dumpbin and parses its output.
@@ -143,18 +147,18 @@ def Diff(name, type, current, expected, deps_file):
   if len(only_in_expected) or len(only_in_current):
     print name.upper() + " DEPENDENCIES MISMATCH\n"
 
-  if len(only_in_current):
+  if len(only_in_expected):
     found_extra = 1
     print "%s is no longer dependent on these %s: %s." % (name,
         type,
-        ' '.join(only_in_current))
+        ' '.join(only_in_expected))
     print "Please update \"%s\"." % deps_file
 
-  if len(only_in_expected):
+  if len(only_in_current):
     found_extra = 2
     string = "%s is now dependent on these %s, but shouldn't: %s." % (name,
         type,
-        ' '.join(only_in_expected))
+        ' '.join(only_in_current))
     stars = '*' * len(string)
     print "**" + stars + "**"
     print "* " + string + " *"
@@ -163,10 +167,19 @@ def Diff(name, type, current, expected, deps_file):
   return found_extra
 
 
-def VerifyDependents(pe_name, dependents, delay_loaded, list_file):
+def VerifyDependents(pe_name, dependents, delay_loaded, list_file, verbose):
   """Compare the actual dependents to the expected ones."""
   scope = {}
-  execfile(list_file, scope)
+  try:
+    execfile(list_file, scope)
+  except:
+    raise Error("Failed to load " + list_file)
+  if verbose:
+    print "Expected dependents:"
+    print "\n".join(scope["dependents"])
+    print "Expected delayloaded:"
+    print "\n".join(scope["delay_loaded"])
+    
   deps_result = Diff(pe_name,
                      "dll",
                      dependents,
@@ -185,12 +198,24 @@ def main(options, args):
   pe_name = args[0]
   deps_file = args[1]
   dependents, delay_loaded = RunDumpbin(pe_name)
-  return VerifyDependents(pe_name, dependents, delay_loaded, deps_file)
+  if options.debug:
+    print "Dependents:"
+    print "\n".join(dependents)
+    print "Delayloaded:"
+    print "\n".join(delay_loaded)
+  return VerifyDependents(pe_name, dependents, delay_loaded, deps_file,
+                          options.debug)
 
 
 if '__main__' == __name__:
   usage = "usage: %prog [options] input output"
   option_parser = optparse.OptionParser(usage = usage)
+  option_parser.add_option("-d",
+                           "--debug",
+                           dest="debug",
+                           action="store_true",
+                           default=False,
+                           help="Display debugging information")
   options, args = option_parser.parse_args()
   if len(args) != 2:
       parser.error("Incorrect number of arguments")
