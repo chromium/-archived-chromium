@@ -30,6 +30,13 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXContainerItemProxy section */
+		7B2AC1870DAE950200D3CF87 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7B9377530D91B56E008B9587 /* webkit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 825404E00D92E3910006B936;
+			remoteInfo = Glue;
+		};
 		7B9377670D91B56E008B9587 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B9377530D91B56E008B9587 /* webkit.xcodeproj */;
@@ -249,6 +256,7 @@
 		7B9377540D91B56E008B9587 /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				7B2AC1880DAE950200D3CF87 /* libGlue.a */,
 				7B9377680D91B56E008B9587 /* libJavaScriptCore.a */,
 				7B93776A0D91B56E008B9587 /* libPort.a */,
 				7B93776C0D91B56E008B9587 /* libWebCore.a */,
@@ -383,6 +391,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		7B2AC1880DAE950200D3CF87 /* libGlue.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libGlue.a;
+			remoteRef = 7B2AC1870DAE950200D3CF87 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		7B9377680D91B56E008B9587 /* libJavaScriptCore.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;

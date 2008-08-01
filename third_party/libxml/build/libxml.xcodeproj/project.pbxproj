@@ -226,6 +226,13 @@
 			remoteGlobalIDString = 7BD540FA0D6F8397003CD41E;
 			remoteInfo = icudata;
 		};
+		7B42A8750DE2292000659DE0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7B12F5680D8EEA7E00CB6E8F /* icu.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 82C262C40DCF9411005CFE91 /* libicudatastatic.a */;
+			remoteInfo = icudatastatic;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -508,6 +515,7 @@
 				7B12F57E0D8EEA7E00CB6E8F /* genccode */,
 				7B12F5800D8EEA7E00CB6E8F /* icupkg */,
 				7B12F5820D8EEA7E00CB6E8F /* libicudata.dylib */,
+				7B42A8760DE2292000659DE0 /* libicudatastatic.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -728,6 +736,13 @@
 			remoteRef = 7B12F5810D8EEA7E00CB6E8F /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		7B42A8760DE2292000659DE0 /* libicudatastatic.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libicudatastatic.a;
+			remoteRef = 7B42A8750DE2292000659DE0 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXShellScriptBuildPhase section */
@@ -861,13 +876,11 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = /usr/local/lib;
 				PREBINDING = NO;
 				PRODUCT_NAME = xml;
-				ZERO_LINK = YES;
 			};
 			name = Debug;
 		};
@@ -876,12 +889,10 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = G5;
 				INSTALL_PATH = /usr/local/lib;
 				PREBINDING = NO;
 				PRODUCT_NAME = xml;
-				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
@@ -890,13 +901,11 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = /usr/local/bin;
 				PREBINDING = NO;
 				PRODUCT_NAME = xmlcatalog;
-				ZERO_LINK = YES;
 			};
 			name = Debug;
 		};
@@ -905,12 +914,10 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = G5;
 				INSTALL_PATH = /usr/local/bin;
 				PREBINDING = NO;
 				PRODUCT_NAME = xmlcatalog;
-				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
@@ -919,13 +926,11 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = /usr/local/bin;
 				PREBINDING = NO;
 				PRODUCT_NAME = xmllint;
-				ZERO_LINK = YES;
 			};
 			name = Debug;
 		};
@@ -934,12 +939,10 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = G5;
 				INSTALL_PATH = /usr/local/bin;
 				PREBINDING = NO;
 				PRODUCT_NAME = xmllint;
-				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
@@ -947,11 +950,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					DEBUG,
 					HAVE_CONFIG_H,
 					_REENTRANT,
 				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				HEADER_SEARCH_PATHS = (
 					..,
 					../include,
@@ -964,11 +969,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					NDEBUG,
 					HAVE_CONFIG_H,
 					_REENTRANT,
 				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				HEADER_SEARCH_PATHS = (
 					..,
 					../include,
