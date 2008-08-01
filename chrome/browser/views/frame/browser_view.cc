@@ -29,8 +29,167 @@
 
 #include "chrome/browser/views/frame/browser_view.h"
 
+#include "chrome/browser/profile.h"
+#include "chrome/browser/tab_contents.h"
+#include "chrome/browser/tabs/tab_strip.h"
+#include "chrome/browser/views/bookmark_bar_view.h"
+#include "chrome/browser/views/go_button.h"
+#include "chrome/browser/views/location_bar_view.h"
+#include "chrome/browser/views/status_bubble.h"
+#include "chrome/browser/views/toolbar_star_toggle.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, public:
+
+BrowserView::BrowserView(ChromeViews::Window* window,
+                         ChromeViews::View* contents_view)
+    : ClientView(window, contents_view) {
+}
+
+BrowserView::~BrowserView() {
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// BrowserView, BrowserWindow implementation:
+
+void BrowserView::Init() {
+
+}
+
+void BrowserView::Show(int command, bool adjust_to_fit) {
+
+}
+
+void BrowserView::BrowserDidPaint(HRGN region) {
+
+}
+
+void BrowserView::Close() {
+
+}
+
+void* BrowserView::GetPlatformID() {
+  return NULL;
+}
+
+TabStrip* BrowserView::GetTabStrip() const {
+  return NULL;
+}
+
+StatusBubble* BrowserView::GetStatusBubble() {
+  return NULL;
+}
+
+ChromeViews::RootView* BrowserView::GetRootView() {
+  return NULL;
+}
+
+void BrowserView::ShelfVisibilityChanged() {
+
+}
+
+void BrowserView::SelectedTabToolbarSizeChanged(bool is_animating) {
+
+}
+
+void BrowserView::UpdateTitleBar() {
+
+}
+
+void BrowserView::SetWindowTitle(const std::wstring& title) {
+
+}
+
+void BrowserView::Activate() {
+
+}
+
+void BrowserView::FlashFrame() {
+
+}
+
+void BrowserView::ShowTabContents(TabContents* contents) {
+
+}
+
+void BrowserView::ContinueDetachConstrainedWindowDrag(
+    const gfx::Point& mouse_pt,
+    int frame_component) {
+
+}
+
+void BrowserView::SizeToContents(const gfx::Rect& contents_bounds) {
+
+}
+
+void BrowserView::SetAcceleratorTable(
+    std::map<ChromeViews::Accelerator, int>* accelerator_table) {
+
+}
+
+void BrowserView::ValidateThrobber() {
+
+}
+
+gfx::Rect BrowserView::GetNormalBounds() {
+  return gfx::Rect();
+}
+
+bool BrowserView::IsMaximized() {
+  return false;
+}
+
+gfx::Rect BrowserView::GetBoundsForContentBounds(const gfx::Rect content_rect) {
+  return gfx::Rect();
+}
+
+void BrowserView::SetBounds(const gfx::Rect& bounds) {
+
+}
+
+void BrowserView::DetachFromBrowser() {
+
+}
+
+void BrowserView::InfoBubbleShowing() {
+
+}
+
+void BrowserView::InfoBubbleClosing() {
+
+}
+
+ToolbarStarToggle* BrowserView::GetStarButton() const {
+  return NULL;
+}
+
+LocationBarView* BrowserView::GetLocationBarView() const {
+  return NULL;
+}
+
+GoButton* BrowserView::GetGoButton() const {
+  return NULL;
+}
+
+BookmarkBarView* BrowserView::GetBookmarkBarView() {
+  return NULL;
+}
+
+void BrowserView::Update(TabContents* contents, bool should_restore_state) {
+
+}
+
+void BrowserView::ProfileChanged(Profile* profile) {
+
+}
+
+void BrowserView::FocusToolbar() {
+
+}
+
+void BrowserView::DestroyBrowser() {
+
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, ChromeViews::ClientView overrides:

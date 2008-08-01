@@ -30,6 +30,7 @@
 #ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW_H_
 #define CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW_H_
 
+#include "chrome/browser/browser_window.h"
 #include "chrome/views/client_view.h"
 
 // NOTE: For more information about the objects and files in this directory,
@@ -41,10 +42,50 @@
 //  A ClientView subclass that provides the contents of a browser window,
 //  including the TabStrip, toolbars, download shelves, the content area etc.
 //
-class BrowserView : public ChromeViews::ClientView {
+class BrowserView : public BrowserWindow,
+                    public ChromeViews::ClientView {
  public:
   BrowserView(ChromeViews::Window* window, ChromeViews::View* contents_view);
   virtual ~BrowserView();
+
+  // Overridden from BrowserWindow:
+  virtual void Init();
+  virtual void Show(int command, bool adjust_to_fit);
+  virtual void BrowserDidPaint(HRGN region);
+  virtual void Close();
+  virtual void* GetPlatformID();
+  virtual TabStrip* GetTabStrip() const;
+  virtual StatusBubble* GetStatusBubble();
+  virtual ChromeViews::RootView* GetRootView();
+  virtual void ShelfVisibilityChanged();
+  virtual void SelectedTabToolbarSizeChanged(bool is_animating);
+  virtual void UpdateTitleBar();
+  virtual void SetWindowTitle(const std::wstring& title);
+  virtual void Activate();
+  virtual void FlashFrame();
+  virtual void ShowTabContents(TabContents* contents);
+  virtual void ContinueDetachConstrainedWindowDrag(
+      const gfx::Point& mouse_pt,
+      int frame_component);
+  virtual void SizeToContents(const gfx::Rect& contents_bounds);
+  virtual void SetAcceleratorTable(
+      std::map<ChromeViews::Accelerator, int>* accelerator_table);
+  virtual void ValidateThrobber();
+  virtual gfx::Rect GetNormalBounds();
+  virtual bool IsMaximized();
+  virtual gfx::Rect GetBoundsForContentBounds(const gfx::Rect content_rect);
+  virtual void SetBounds(const gfx::Rect& bounds);
+  virtual void DetachFromBrowser();
+  virtual void InfoBubbleShowing();
+  virtual void InfoBubbleClosing();
+  virtual ToolbarStarToggle* GetStarButton() const;
+  virtual LocationBarView* GetLocationBarView() const;
+  virtual GoButton* GetGoButton() const;
+  virtual BookmarkBarView* GetBookmarkBarView();
+  virtual void Update(TabContents* contents, bool should_restore_state);
+  virtual void ProfileChanged(Profile* profile);
+  virtual void FocusToolbar();
+  virtual void DestroyBrowser();
 
   // Overridden from ChromeViews::ClientView:
   virtual bool CanClose() const;
