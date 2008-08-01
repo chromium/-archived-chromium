@@ -34,6 +34,7 @@
 
 #include "base/logging.h"
 #include "base/thread_local_storage.h"
+#include "base/time.h"
 #include "base/win_util.h"
 
 namespace rand_util {
@@ -44,7 +45,9 @@ int g_tls_index = ThreadLocalStorage::Alloc();
 int RandInt(int min, int max) {
   if (ThreadLocalStorage::Get(g_tls_index) == 0) {
     ThreadLocalStorage::Set(g_tls_index, reinterpret_cast<void*>(1));
-    srand(static_cast<unsigned int>(time(0)));
+    TimeDelta now = TimeTicks::UnreliableHighResNow() - TimeTicks();
+    unsigned int seed = static_cast<unsigned int>(now.InMicroseconds());
+    srand(seed);
   }
 
   // From the rand man page, use this instead of just rand() % max, so that the
