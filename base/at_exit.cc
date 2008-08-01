@@ -62,6 +62,7 @@ AtExitManager::~AtExitManager() {
   AutoLock lock(lock_);
   ProcessCallbacks();
   g_atexit_queue = NULL;
+  g_atexit_lock = NULL;
 }
 
 void AtExitManager::RegisterCallback(AtExitCallbackType func) {
@@ -74,7 +75,6 @@ void AtExitManager::RegisterCallback(AtExitCallbackType func) {
     g_atexit_queue->push(func);
 }
 
-// Calls the functions registered with AtExit in LIFO order.
 void AtExitManager::ProcessCallbacksNow() {
   DCHECK(NULL != g_atexit_lock);
   if (!g_atexit_lock)

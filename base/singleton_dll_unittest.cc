@@ -33,7 +33,7 @@
 
 namespace {
 
-base::AtExitManager* g_exit_manager = NULL;
+base::AtExitManager g_exit_manager;
 
 }   // namespace
 
@@ -41,13 +41,11 @@ BOOL APIENTRY DllMain(HMODULE module, DWORD reason_for_call, LPVOID reserved) {
   switch (reason_for_call) {
     case DLL_PROCESS_ATTACH:
       DisableThreadLibraryCalls(module);
-      g_exit_manager = new base::AtExitManager();
       break;
     case DLL_THREAD_ATTACH:
     case DLL_THREAD_DETACH:
       break;
     case DLL_PROCESS_DETACH:
-      delete g_exit_manager;
       break;
   }
   return TRUE;
