@@ -27,7 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <windows.h>
 #include <time.h>
 
 #include <string>
@@ -494,24 +493,6 @@ TEST(CookieMonsterTest, HttpOnlyTest) {
   EXPECT_EQ(cm.GetCookies(url_google), "");
   EXPECT_EQ(cm.GetCookiesWithOptions(
       url_google, net::CookieMonster::INCLUDE_HTTPONLY), "A=B");
-}
-
-// From: http://support.microsoft.com/kb/167296.
-static void UnixTimeToFileTime(time_t t, LPFILETIME pft) {
-  uint64 ll;
-
-  ll = Int32x32To64(t, 10000000) + 116444736000000000;
-  pft->dwLowDateTime = (DWORD)ll;
-  pft->dwHighDateTime = (DWORD)(ll >> 32);
-}
-
-static uint64 UnixTimeToUTC(time_t t) {
-  FILETIME ftime;
-  LARGE_INTEGER li;
-  UnixTimeToFileTime(t, &ftime);
-  li.LowPart = ftime.dwLowDateTime;
-  li.HighPart = ftime.dwHighDateTime;
-  return li.QuadPart;
 }
 
 TEST(CookieMonsterTest, TestCookieDateParsing) {
