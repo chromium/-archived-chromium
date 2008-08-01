@@ -103,6 +103,10 @@ void Tracked::SetBirthPlace(const Location& from_here) {
   tracked_births_->RecordBirth();
 }
 
+void Tracked::ResetBirthTime() {
+  tracked_birth_time_ = Time::Now();
+}
+
 bool Tracked::MissingBirthplace() const {
   return -1 == tracked_births_->location().line_number();
 }

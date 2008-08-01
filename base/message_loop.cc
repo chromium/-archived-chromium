@@ -342,6 +342,15 @@ void MessageLoop::PostDelayedTask(const tracked_objects::Location& from_here,
   PostTaskInternal(task);
 }
 
+void MessageLoop::PostSignaledTask(Task* task) {
+  DCHECK(!task->MissingBirthplace());
+  task->ResetBirthTime();
+  DCHECK(!task->is_owned_by_message_loop());
+  task->set_posted_task_delay(0);  // Run ASAP, and we take ownership.
+  DCHECK(task->is_owned_by_message_loop());
+  PostTaskInternal(task);
+}
+
 void MessageLoop::PostTaskInternal(Task* task) {
   // Warning: Don't try to short-circuit, and handle this thread's tasks more
   // directly, as it could starve handling of foreign threads.  Put every task
@@ -648,6 +657,7 @@ bool MessageLoop::RunTimerTask(Timer* timer) {
     DCHECK(!timer->repeating());
     timer->set_task(NULL);
     delete timer;
+    task->ResetBirthTime();
     return QueueOrRunTask(task);
   } else {
     // This is an unknown timer task, and we *can't* delay running it, as a

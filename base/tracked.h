@@ -48,8 +48,10 @@
 #include "base/time.h"
 
 #ifndef NDEBUG
+#ifndef TRACK_ALL_TASK_OBJECTS
 #define TRACK_ALL_TASK_OBJECTS
-#endif
+#endif   // TRACK_ALL_TASK_OBJECTS
+#endif  // NDEBUG
 
 namespace tracked_objects {
 
@@ -119,13 +121,25 @@ class Tracked {
  public:
   Tracked();
   virtual ~Tracked();
+
+  // Used to record the FROM_HERE location of a caller.
   void SetBirthPlace(const Location& from_here);
+
+  // When a task sits around a long time, such as in a timer, or object watcher,
+  // this method should be called when the task becomes active, and its
+  // significant lifetime begins (and its waiting to be woken up has passed).
+  void ResetBirthTime();
 
   bool MissingBirthplace() const;
 
  private:
-  Births* tracked_births_;  // At same birthplace, and same thread.
-  const Time tracked_birth_time_;
+  // Pointer to instance were counts of objects with the same birth location
+  // (on the same thread) are stored.
+  Births* tracked_births_;
+  // The time this object was constructed.  If its life consisted of a long
+  // waiting period, and then it became active, then this value is generally
+  // reset before the object begins it active life.
+  Time tracked_birth_time_;
 
   DISALLOW_EVIL_CONSTRUCTORS(Tracked);
 };
