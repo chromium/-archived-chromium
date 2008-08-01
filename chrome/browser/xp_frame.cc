@@ -46,7 +46,7 @@
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/download_shelf_view.h"
-#include "chrome/browser/views/toolbar_view.h"
+#include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/window_clipping_info.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/gfx/chrome_canvas.h"
@@ -113,10 +113,6 @@ static const int kMinTitleBarHeight = 25;
 // OTR image offsets.
 static const int kOTRImageHorizMargin = 2;
 static const int kOTRImageVertMargin = 2;
-
-// Status Bubble metrics.
-static const int kStatusBubbleHeight = 20;
-static const int kStatusBubbleOffset = 2;
 
 // The line drawn to separate tab end contents.
 static const int kSeparationLineHeight = 1;
@@ -343,7 +339,6 @@ XPFrame::XPFrame(Browser* browser)
       root_view_(this, true),
       frame_view_(NULL),
       tabstrip_(NULL),
-      toolbar_(NULL),
       active_bookmark_bar_(NULL),
       tab_contents_container_(NULL),
       min_button_(NULL),
@@ -365,7 +360,8 @@ XPFrame::XPFrame(Browser* browser)
       title_bar_height_(0),
       off_the_record_image_(NULL),
       ignore_ncactivate_(false),
-      paint_as_active_(false) {
+      paint_as_active_(false),
+      browser_view_(NULL) {
   InitializeIfNeeded();
 }
 
@@ -382,7 +378,7 @@ ChromeViews::TooltipManager* XPFrame::GetTooltipManager() {
 }
 
 StatusBubble* XPFrame::GetStatusBubble() {
-  return status_bubble_.get();
+  return NULL;
 }
 
 void XPFrame::InitializeIfNeeded() {
@@ -440,11 +436,8 @@ void XPFrame::Init() {
   root_view_.SetBackground(
       ChromeViews::Background::CreateSolidBackground(SK_ColorWHITE));
 
-  toolbar_ = new BrowserToolbarView(browser_->controller(), browser_);
-  frame_view_->AddChildView(toolbar_);
-  toolbar_->SetID(VIEW_ID_TOOLBAR);
-  toolbar_->Init(browser_->profile());
-  toolbar_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TOOLBAR));
+  browser_view_ = new BrowserView(this, browser_, NULL, NULL);
+  frame_view_->AddChildView(browser_view_);
 
   tabstrip_ = CreateTabStrip(browser_);
   tabstrip_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TABSTRIP));
@@ -514,8 +507,6 @@ void XPFrame::Init() {
   close_button_->SetTooltipText(
       l10n_util::GetString(IDS_XPFRAME_CLOSE_TOOLTIP));
   frame_view_->AddChildView(close_button_);
-
-  status_bubble_.reset(new StatusBubble(this));
 
   // Add the task manager item to the system menu before the last entry.
   task_manager_label_text_ = l10n_util::GetString(IDS_TASKMANAGER);
@@ -714,14 +705,14 @@ void XPFrame::Layout() {
   }
 
   if (IsToolBarVisible()) {
-    toolbar_->SetVisible(true);
-    toolbar_->SetBounds(left_margin,
-                        last_y - kToolbarOverlapVertOffset,
-                        width - left_margin - right_margin,
-                        bitmaps[CT_TOP_CENTER]->height());
-    toolbar_->Layout();
-    title_bar_height_ = toolbar_->GetY();
-    last_y = toolbar_->GetY() + toolbar_->GetHeight();
+    browser_view_->SetVisible(true);
+    browser_view_->SetBounds(left_margin,
+                             last_y - kToolbarOverlapVertOffset,
+                             width - left_margin - right_margin,
+                             bitmaps[CT_TOP_CENTER]->height());
+    browser_view_->Layout();
+    title_bar_height_ = browser_view_->GetY();
+    last_y = browser_view_->GetY() + browser_view_->GetHeight();
   } else {
     // If the tab strip is visible, we need to expose the toolbar for a small
     // offset. (kCollapsedToolbarHeight).
@@ -733,7 +724,7 @@ void XPFrame::Layout() {
                         close_button_->GetY() + close_button_->GetHeight());
       title_bar_height_ = last_y;
     }
-    toolbar_->SetVisible(false);
+    browser_view_->SetVisible(false);
   }
 
   int browser_h = height - last_y - bottom_margin;
@@ -812,11 +803,7 @@ void XPFrame::Layout() {
                                      width - left_margin - right_margin,
                                      browser_h);
 
-  status_bubble_->SetBounds(left_margin - kStatusBubbleOffset,
-                            last_y + browser_h - kStatusBubbleHeight +
-                            kStatusBubbleOffset,
-                            width / 3,
-                            kStatusBubbleHeight);
+  browser_view_->LayoutStatusBubble(last_y + browser_h);
 
   frame_view_->SchedulePaint();
 }
@@ -1827,11 +1814,6 @@ gfx::Rect XPFrame::GetBoundsForContentBounds(const gfx::Rect content_rect) {
   return r;
 }
 
-void XPFrame::SetBounds(const gfx::Rect& bounds) {
-  SetWindowPos(NULL, bounds.x(), bounds.y(), bounds.width(), bounds.height(),
-               SWP_NOZORDER | SWP_NOACTIVATE);
-}
-
 void XPFrame::DetachFromBrowser() {
   browser_->tabstrip_model()->RemoveObserver(tabstrip_);
   browser_ = NULL;
@@ -1851,15 +1833,15 @@ void XPFrame::InfoBubbleClosing() {
 }
 
 ToolbarStarToggle* XPFrame::GetStarButton() const {
-  return toolbar_->star_button();
+  return browser_view_->GetStarButton();
 }
 
 LocationBarView* XPFrame::GetLocationBarView() const {
-  return toolbar_->GetLocationBarView();
+  return browser_view_->GetLocationBarView();
 }
 
 GoButton* XPFrame::GetGoButton() const {
-  return toolbar_->GetGoButton();
+  return browser_view_->GetGoButton();
 }
 
 BookmarkBarView* XPFrame::GetBookmarkBarView() {
@@ -1878,16 +1860,20 @@ BookmarkBarView* XPFrame::GetBookmarkBarView() {
   return bookmark_bar_view_.get();
 }
 
+BrowserView* XPFrame::GetBrowserView() const {
+  return browser_view_;
+}
+
 void XPFrame::Update(TabContents* contents, bool should_restore_state) {
-  toolbar_->Update(contents, should_restore_state);
+  browser_view_->Update(contents, should_restore_state);
 }
 
 void XPFrame::ProfileChanged(Profile* profile) {
-  toolbar_->SetProfile(profile);
+  browser_view_->ProfileChanged(profile);
 }
 
 void XPFrame::FocusToolbar() {
-  toolbar_->RequestFocus();
+  browser_view_->FocusToolbar();
 }
 
 void XPFrame::MoveToFront(bool should_activate) {
@@ -2212,7 +2198,7 @@ void XPFrame::XPFrameView::Paint(ChromeCanvas* canvas) {
     int y;
     bool should_draw_separator = false;
     if (parent_->IsToolBarVisible()) {
-      y = parent_->toolbar_->GetY();
+      y = parent_->browser_view_->GetY();
     } else if (parent_->IsTabStripVisible()) {
       y = parent_->GetContentsYOrigin() - kCollapsedToolbarHeight -
           kToolbarOverlapVertOffset;
@@ -2225,8 +2211,8 @@ void XPFrame::XPFrameView::Paint(ChromeCanvas* canvas) {
     PaintFrameBorder(canvas);
     int y, height;
     if (parent_->IsToolBarVisible()) {
-      y = parent_->toolbar_->GetY();
-      height = GetHeight() - (parent_->toolbar_->GetY() +
+      y = parent_->browser_view_->GetY();
+      height = GetHeight() - (parent_->browser_view_->GetY() +
                               kContentBorderVertBottomOffset);
     } else {
       if (parent_->IsTabStripVisible()) {

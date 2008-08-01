@@ -49,9 +49,9 @@
 
 #define XP_FRAME_CLASSNAME L"Chrome_XPFrame"
 
+class BrowserView;
 class BookmarkBarView;
 class Browser;
-class BrowserToolbarView;
 class TabContentsContainerView;
 class TabStrip;
 class TemporaryPlaceholder;
@@ -106,7 +106,6 @@ class XPFrame : public BrowserWindow,
   virtual gfx::Rect GetNormalBounds();
   virtual bool IsMaximized();
   virtual gfx::Rect GetBoundsForContentBounds(const gfx::Rect content_rect);
-  virtual void SetBounds(const gfx::Rect& bounds);
   virtual void DetachFromBrowser();
   virtual void InfoBubbleShowing();
   virtual void InfoBubbleClosing();
@@ -114,6 +113,7 @@ class XPFrame : public BrowserWindow,
   virtual LocationBarView* GetLocationBarView() const;
   virtual GoButton* GetGoButton() const;
   virtual BookmarkBarView* GetBookmarkBarView();
+  virtual BrowserView* GetBrowserView() const;
   virtual void Update(TabContents* contents, bool should_restore_state);
   virtual void ProfileChanged(Profile* profile);
   virtual void FocusToolbar();
@@ -493,9 +493,6 @@ class XPFrame : public BrowserWindow,
   // The view that contains the tabs and any associated controls.
   TabStrip* tabstrip_;
 
-  // The Toolbar containing the navigation buttons, menus and the address bar.
-  BrowserToolbarView* toolbar_;
-
   // The bookmark bar. This is lazily created.
   scoped_ptr<BookmarkBarView> bookmark_bar_view_;
 
@@ -522,14 +519,15 @@ class XPFrame : public BrowserWindow,
   static SkBitmap** g_bitmaps;
   static SkBitmap** g_otr_bitmaps;
 
-  scoped_ptr<StatusBubble> status_bubble_;
-
   // Instance of accessibility information and handling for MSAA root
   CComPtr<IAccessible> accessibility_root_;
 
   // See note in VistaFrame for a description of this.
   bool ignore_ncactivate_;
   bool paint_as_active_;
+
+  // A view that holds the client-area contents of the browser window.
+  BrowserView* browser_view_;
 
   DISALLOW_EVIL_CONSTRUCTORS(XPFrame);
 };

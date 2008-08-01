@@ -232,7 +232,8 @@ Browser::Browser(const gfx::Rect& initial_bounds,
     maximized = true;
   if (maximized)
     initial_show_command_ = SW_SHOWMAXIMIZED;
-  window_ = FrameUtil::CreateBrowserWindow(create_bounds, this);
+  window_ = BrowserWindow::CreateBrowserWindow(this, create_bounds,
+                                               show_command);
 
   // See note where SIZE_TO_CONTENTS is defined in browser.h for an explanation
   // of this hack.

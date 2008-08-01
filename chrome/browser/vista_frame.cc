@@ -51,7 +51,7 @@
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/download_shelf_view.h"
-#include "chrome/browser/views/toolbar_view.h"
+#include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
@@ -78,10 +78,6 @@ static const int kResizeCornerSize = 12;
 static const int kResizeBorder = 5;
 static const int kTitlebarHeight = 14;
 static const int kTabShadowSize = 2;
-
-// Status Bubble metrics.
-static const int kStatusBubbleHeight = 20;
-static const int kStatusBubbleOffset = 2;
 
 // The line drawn to separate tab end contents.
 static const int kSeparationLineHeight = 1;
@@ -143,7 +139,6 @@ VistaFrame::VistaFrame(Browser* browser)
     : browser_(browser),
       root_view_(this, true),
       tabstrip_(NULL),
-      toolbar_(NULL),
       active_bookmark_bar_(NULL),
       tab_contents_container_(NULL),
       custom_window_enabled_(false),
@@ -157,7 +152,8 @@ VistaFrame::VistaFrame(Browser* browser)
       is_off_the_record_(false),
       off_the_record_image_(NULL),
       ignore_ncactivate_(false),
-      should_save_window_placement_(browser->GetType() != BrowserType::BROWSER) {
+      should_save_window_placement_(browser->GetType() != BrowserType::BROWSER),
+      browser_view_(NULL) {
   InitializeIfNeeded();
 }
 
@@ -275,18 +271,18 @@ void VistaFrame::Layout() {
 
   int toolbar_bottom;
   if (IsToolBarVisible()) {
-    toolbar_->SetVisible(true);
-    toolbar_->SetBounds(g_bitmaps[CT_LEFT_SIDE]->width(),
-                        tabstrip_->GetY() + tabstrip_->GetHeight() -
-                        kToolbarOverlapVertOffset,
-                        width - g_bitmaps[CT_LEFT_SIDE]->width() -
-                        g_bitmaps[CT_RIGHT_SIDE]->width(),
-                        g_bitmaps[CT_TOP_CENTER]->height());
-    toolbar_->Layout();
-    toolbar_bottom = toolbar_->GetY() + toolbar_->GetHeight();
+    browser_view_->SetVisible(true);
+    browser_view_->SetBounds(g_bitmaps[CT_LEFT_SIDE]->width(),
+                             tabstrip_->GetY() + tabstrip_->GetHeight() -
+                             kToolbarOverlapVertOffset,
+                             width - g_bitmaps[CT_LEFT_SIDE]->width() -
+                             g_bitmaps[CT_RIGHT_SIDE]->width(),
+                             g_bitmaps[CT_TOP_CENTER]->height());
+    browser_view_->Layout();
+    toolbar_bottom = browser_view_->GetY() + browser_view_->GetHeight();
   } else {
-    toolbar_->SetBounds(0, 0, 0, 0);
-    toolbar_->SetVisible(false);
+    browser_view_->SetBounds(0, 0, 0, 0);
+    browser_view_->SetVisible(false);
     toolbar_bottom = tabstrip_->GetY() + tabstrip_->GetHeight();
   }
   int browser_x, browser_y;
@@ -379,11 +375,7 @@ void VistaFrame::Layout() {
                                      browser_w,
                                      browser_h);
 
-  status_bubble_->SetBounds(browser_x - kStatusBubbleOffset,
-                            browser_y + browser_h - kStatusBubbleHeight +
-                            kStatusBubbleOffset,
-                            width / 3,
-                            kStatusBubbleHeight);
+  browser_view_->LayoutStatusBubble(browser_y + browser_h);
 
   frame_view_->SchedulePaint();
 }
@@ -406,12 +398,9 @@ void VistaFrame::Init() {
   root_view_.SetAccessibleName(l10n_util::GetString(IDS_PRODUCT_NAME));
   frame_view_->SetAccessibleName(l10n_util::GetString(IDS_PRODUCT_NAME));
 
-  toolbar_ = new BrowserToolbarView(browser_->controller(), browser_);
-  frame_view_->AddChildView(toolbar_);
-  toolbar_->SetID(VIEW_ID_TOOLBAR);
-  toolbar_->Init(browser_->profile());
-  toolbar_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TOOLBAR));
-  
+  browser_view_ = new BrowserView(this, browser_, NULL, NULL);
+  frame_view_->AddChildView(browser_view_);
+
   tabstrip_ = CreateTabStrip(browser_);
   tabstrip_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TABSTRIP));
   frame_view_->AddChildView(tabstrip_);
@@ -431,8 +420,6 @@ void VistaFrame::Init() {
 
   tab_contents_container_ = new TabContentsContainerView();
   frame_view_->AddChildView(tab_contents_container_);
-
-  status_bubble_.reset(new StatusBubble(this));
 
   // Add the task manager item to the system menu before the last entry.
   task_manager_label_text_ = l10n_util::GetString(IDS_TASKMANAGER);
@@ -604,11 +591,6 @@ gfx::Rect VistaFrame::GetBoundsForContentBounds(const gfx::Rect content_rect) {
   return r;
 }
 
-void VistaFrame::SetBounds(const gfx::Rect& bounds) {
-  SetWindowPos(NULL, bounds.x(), bounds.y(), bounds.width(), bounds.height(),
-               SWP_NOZORDER | SWP_NOACTIVATE);
-}
-
 void VistaFrame::DetachFromBrowser() {
   browser_->tabstrip_model()->RemoveObserver(tabstrip_);
   browser_ = NULL;
@@ -619,15 +601,15 @@ void VistaFrame::InfoBubbleShowing() {
 }
 
 ToolbarStarToggle* VistaFrame::GetStarButton() const {
-  return toolbar_->star_button();
+  return NULL;
 }
 
 LocationBarView* VistaFrame::GetLocationBarView() const {
-  return toolbar_->GetLocationBarView();
+  return NULL;
 }
 
 GoButton* VistaFrame::GetGoButton() const {
-  return toolbar_->GetGoButton();
+  return NULL;
 }
 
 BookmarkBarView* VistaFrame::GetBookmarkBarView() {
@@ -646,16 +628,17 @@ BookmarkBarView* VistaFrame::GetBookmarkBarView() {
   return bookmark_bar_view_.get();
 }
 
+BrowserView* VistaFrame::GetBrowserView() const {
+  return browser_view_;
+}
+
 void VistaFrame::Update(TabContents* contents, bool should_restore_state) {
-  toolbar_->Update(contents, should_restore_state);
 }
 
 void VistaFrame::ProfileChanged(Profile* profile) {
-  toolbar_->SetProfile(profile);
 }
 
 void VistaFrame::FocusToolbar() {
-  toolbar_->RequestFocus();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1391,7 +1374,7 @@ ChromeViews::TooltipManager* VistaFrame::GetTooltipManager() {
 }
 
 StatusBubble* VistaFrame::GetStatusBubble() {
-  return status_bubble_.get();
+  return NULL;
 }
 
 void VistaFrame::InitAfterHWNDCreated() {
@@ -1412,7 +1395,7 @@ void VistaFrame::ResetDWMFrame() {
                        g_bitmaps[CT_TOP_RIGHT_CORNER]->width(),
                        kDwmBorderSize +
                        IsToolBarVisible() ?
-                         toolbar_->GetY() + kToolbarOverlapVertOffset :
+                         browser_view_->GetY() + kToolbarOverlapVertOffset :
                          tabstrip_->GetHeight(),
                        kDwmBorderSize +
                        g_bitmaps[CT_BOTTOM_CENTER]->height()};

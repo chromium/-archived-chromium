@@ -181,6 +181,8 @@ HRESULT GetChildWndOf(std::wstring parent_name, unsigned int child_index,
   IAccessible *pi_parent = NULL;
   if (0 == parent_name.compare(BROWSER_STR))
     GetChromeBrowserWnd(&pi_parent);
+  if (0 == parent_name.compare(BROWSER_VIEW_STR))
+    GetBrowserViewWnd(&pi_parent);
   if (0 == parent_name.compare(TOOLBAR_STR))
     GetToolbarWnd(&pi_parent);
   if (0 == parent_name.compare(TABSTRIP_STR))
@@ -223,8 +225,12 @@ HRESULT GetTabStripWnd(IAccessible** ppi_access) {
   return GetChildWndOf(BROWSER_STR, TABSTRIP_ACC_INDEX, ppi_access, NULL);
 }
 
+HRESULT GetBrowserViewWnd(IAccessible** ppi_access) {
+  return GetChildWndOf(BROWSER_STR, BROWSER_VIEW_ACC_INDEX, ppi_access, NULL);
+}
+
 HRESULT GetToolbarWnd(IAccessible** ppi_access) {
-  return GetChildWndOf(BROWSER_STR, TOOLBAR_ACC_INDEX, ppi_access, NULL);
+  return GetChildWndOf(BROWSER_VIEW_STR, TOOLBAR_ACC_INDEX, ppi_access, NULL);
 }
 
 HRESULT GetBrowserMinimizeButton(IAccessible** ppi_access,

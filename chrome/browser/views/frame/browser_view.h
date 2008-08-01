@@ -36,6 +36,9 @@
 // NOTE: For more information about the objects and files in this directory,
 //       view: https://sites.google.com/a/google.com/the-chrome-project/developers/design-documents/browser-window
 
+class Browser;
+class BrowserToolbarView;
+
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView
 //
@@ -43,10 +46,18 @@
 //  including the TabStrip, toolbars, download shelves, the content area etc.
 //
 class BrowserView : public BrowserWindow,
-                    public ChromeViews::ClientView {
+/*                  public ChromeViews::ClientView */
+                    public ChromeViews::View {
  public:
-  BrowserView(ChromeViews::Window* window, ChromeViews::View* contents_view);
+  BrowserView(BrowserWindow* frame,
+              Browser* browser,
+              ChromeViews::Window* window,
+              ChromeViews::View* contents_view);
   virtual ~BrowserView();
+
+  // TODO(beng): remove this once all layout is done inside this object.
+  // Layout the Status bubble relative to position.
+  void LayoutStatusBubble(int status_bubble_y);
 
   // Overridden from BrowserWindow:
   virtual void Init();
@@ -74,7 +85,6 @@ class BrowserView : public BrowserWindow,
   virtual gfx::Rect GetNormalBounds();
   virtual bool IsMaximized();
   virtual gfx::Rect GetBoundsForContentBounds(const gfx::Rect content_rect);
-  virtual void SetBounds(const gfx::Rect& bounds);
   virtual void DetachFromBrowser();
   virtual void InfoBubbleShowing();
   virtual void InfoBubbleClosing();
@@ -82,23 +92,43 @@ class BrowserView : public BrowserWindow,
   virtual LocationBarView* GetLocationBarView() const;
   virtual GoButton* GetGoButton() const;
   virtual BookmarkBarView* GetBookmarkBarView();
+  virtual BrowserView* GetBrowserView() const;
   virtual void Update(TabContents* contents, bool should_restore_state);
   virtual void ProfileChanged(Profile* profile);
   virtual void FocusToolbar();
   virtual void DestroyBrowser();
 
+  /*
   // Overridden from ChromeViews::ClientView:
   virtual bool CanClose() const;
   virtual int NonClientHitTest(const gfx::Point& point);
+  */
 
- protected:
   // Overridden from ChromeViews::View:
   virtual void Layout();
+  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual void ViewHierarchyChanged(bool is_add,
                                     ChromeViews::View* parent,
                                     ChromeViews::View* child);
 
  private:
+  // The Browser object we are associated with.
+  // TODO(beng): (Cleanup) this should become a scoped_ptr.
+  Browser* browser_;
+
+  // The Toolbar containing the navigation buttons, menus and the address bar.
+  BrowserToolbarView* toolbar_;
+
+  // The Status information bubble that appears at the bottom of the window.
+  scoped_ptr<StatusBubble> status_bubble_;
+
+  // Temporary pointer to containing BrowserWindow.
+  // TODO(beng): convert this to a BrowserFrame*.
+  BrowserWindow* frame_;
+
+  // True if we have already been initialized.
+  bool initialized_;
+
   DISALLOW_EVIL_CONSTRUCTORS(BrowserView);
 };
 

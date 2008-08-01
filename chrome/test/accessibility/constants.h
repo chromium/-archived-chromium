@@ -60,12 +60,15 @@
 #define CHROME_CLIENT_ACC_INDEX         (0)
 
 // Chrome Client chidren.
-#define TOOLBAR_ACC_INDEX               (0)
+#define BROWSER_VIEW_ACC_INDEX          (0)
 #define TABSTRIP_ACC_INDEX              (1)
 #define CHROME_MIN_ACC_INDEX            (3)
 #define CHROME_MAX_ACC_INDEX            (4)
 #define CHROME_RESTORE_ACC_INDEX        (5)
 #define CHROME_CLOSE_ACC_INDEX          (6)
+
+// Browser View children.
+#define TOOLBAR_ACC_INDEX               (0)
 
 // Toolbar children.
 #define BACK_BTN_INDEX                  (0)
@@ -85,6 +88,7 @@
 #define TOOLBAR_STR                      _T("toolbar")
 #define TABSTRIP_STR                     _T("tabstrip")
 #define TAB_STR                          _T("tab")
+#define BROWSER_VIEW_STR                 _T("browser_view")
 
 // Enums for keyboard keys. These values are directed to virtual-key values.
 enum KEYBD_KEYS {

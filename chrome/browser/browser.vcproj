@@ -1721,6 +1721,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\views\frame\browser_window_factory.cc"
+					>
+				</File>
+				<File
 					RelativePath=".\views\frame\opaque_frame.cc"
 					>
 				</File>

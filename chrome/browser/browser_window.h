@@ -37,7 +37,9 @@
 #include "chrome/views/accelerator.h"
 
 class BookmarkBarView;
+class Browser;
 class BrowserList;
+class BrowserView;
 namespace ChromeViews {
 class RootView;
 }
@@ -158,9 +160,6 @@ class BrowserWindow {
   // |content_rect|.
   virtual gfx::Rect GetBoundsForContentBounds(const gfx::Rect content_rect) = 0;
 
-  // Set the frame bounds. |bounds| is in screen coordinate.
-  virtual void SetBounds(const gfx::Rect& bounds) = 0;
-
   // Tel this frame to detach from the web browser. The frame should no longer
   // notify the browser about anything.
   virtual void DetachFromBrowser() = 0;
@@ -191,6 +190,10 @@ class BrowserWindow {
   // Returns the Bookmark Bar view.
   virtual BookmarkBarView* GetBookmarkBarView() = 0;
 
+  // Returns the BrowserView.
+  // TODO(beng): remove this! temporary only!
+  virtual BrowserView* GetBrowserView() const = 0;
+
   // Updates the toolbar with the state for the specified |contents|.
   virtual void Update(TabContents* contents, bool should_restore_state) = 0;
 
@@ -200,8 +203,14 @@ class BrowserWindow {
   // Focuses the toolbar (for accessibility).
   virtual void FocusToolbar() = 0;
 
+  // Construct a BrowserWindow implementation for the specified |browser|.
+  static BrowserWindow* CreateBrowserWindow(Browser* browser,
+                                            const gfx::Rect& bounds,
+                                            int show_command);
+
  protected:
   friend class BrowserList;
+  friend class BrowserView;
   virtual void DestroyBrowser() = 0;
 };
 

@@ -54,6 +54,9 @@ HRESULT GetChildWndOf(std::wstring parent_name, unsigned int child_index,
 // Returns IAccessible pointer for Tabstrip. It does not have window handle.
 HRESULT GetTabStripWnd(IAccessible** ppi_access);
 
+// Returns IAccessible pointer for BrowserView. It does not have window handle.
+HRESULT GetBrowserViewWnd(IAccessible** ppi_access);
+
 // Returns IAccessible pointer for Toolbar. It does not have window handle.
 HRESULT GetToolbarWnd(IAccessible** ppi_access);
 
