@@ -29,8 +29,8 @@
 
 #include "chrome/browser/login_prompt.h"
 
-#include "base/atomic.h"
 #include "base/command_line.h"
+#include "base/lock.h"
 #include "base/message_loop.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/constrained_window.h"
@@ -80,7 +80,7 @@ class LoginHandlerImpl : public LoginHandler,
  public:
   LoginHandlerImpl(URLRequest* request, MessageLoop* ui_loop)
       : dialog_(NULL),
-        got_auth_(FALSE),
+        handled_auth_(false),
         request_(request),
         request_loop_(MessageLoop::current()),
         ui_loop_(ui_loop),
@@ -144,7 +144,7 @@ class LoginHandlerImpl : public LoginHandler,
     // Reference is no longer valid.
     dialog_ = NULL;
 
-    if (!GotAuth()) {
+    if (!WasAuthHandled(true)) {
       request_loop_->PostTask(FROM_HERE, NewRunnableMethod(
           this, &LoginHandlerImpl::CancelAuthDeferred));
       SendNotifications();
@@ -172,7 +172,7 @@ class LoginHandlerImpl : public LoginHandler,
   // LoginHandler:
   virtual void SetAuth(const std::wstring& username,
                        const std::wstring& password) {
-    if (GotAuth())
+    if (WasAuthHandled(true))
       return;
 
     // Tell the password manager the credentials were submitted / accepted.
@@ -191,7 +191,7 @@ class LoginHandlerImpl : public LoginHandler,
   }
 
   virtual void CancelAuth() {
-    if (GotAuth())
+    if (WasAuthHandled(true))
       return;
 
     ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(
@@ -247,9 +247,14 @@ class LoginHandlerImpl : public LoginHandler,
       dialog_->CloseConstrainedWindow();
   }
 
-  // Atomic test-and-set whether we've gotten (or cancelled) authentication.
-  int32 GotAuth() {
-    return base::AtomicSwap(&got_auth_, TRUE);
+  // Returns whether authentication had been handled (SetAuth or CancelAuth).
+  // If |set_handled| is true, it will mark authentication as handled.
+  bool WasAuthHandled(bool set_handled) {
+    AutoLock lock(handled_auth_lock_);
+    bool was_handled = handled_auth_;
+    if (set_handled)
+      handled_auth_ = true;
+    return was_handled;
   }
 
   // Notify observers that authentication is needed or received.  The automation
@@ -263,7 +268,8 @@ class LoginHandlerImpl : public LoginHandler,
       return;
 
     NavigationController* controller = requesting_contents->controller();
-    if (!got_auth_) {
+
+    if (WasAuthHandled(false)) {
       LoginNotificationDetails details(this);
       service->Notify(NOTIFY_AUTH_NEEDED,
                       Source<NavigationController>(controller),
@@ -275,9 +281,9 @@ class LoginHandlerImpl : public LoginHandler,
     }
   }
 
-  // Whether SetAuth or CancelAuth have been called.
-  // Must be aligned on a 32-bit boundary.
-  int32 got_auth_;
+  // True if we've handled auth (SetAuth or CancelAuth has been called).
+  bool handled_auth_;
+  Lock handled_auth_lock_;
 
   // The ConstrainedWindow that is hosting our LoginView.
   // This should only be accessed on the ui_loop_.
