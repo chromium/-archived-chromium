@@ -152,20 +152,19 @@ class RenderViewHost : public RenderWidgetHost {
 
   // Causes the renderer to invoke the onbeforeunload event handler.  The
   // result will be returned via ViewMsg_ShouldClose.
-  virtual void AttemptToClosePage(bool is_closing_browser);
+  virtual void FirePageBeforeUnload();
 
   // Close the page after the page has responded that it can be closed via
   // ViewMsg_ShouldClose. This is where the page itself is closed. The
   // unload handler is triggered here, which can block with a dialog, but cannot
   // cancel the close of the page.
-  virtual void OnProceedWithClosePage(bool is_closing_browser);
+  virtual void FirePageUnload();
 
   // Close the page ignoring whether it has unload events registers.
   // This is called after the beforeunload and unload events have fired
   // and the user has agreed to continue with closing the page.
   static void ClosePageIgnoringUnloadEvents(int render_process_host_id,
-                                            int request_id,
-                                            bool is_closing_browser);
+                                            int request_id);
 
   // Causes the renderer to close the current page, including running its
   // onunload event handler.  A ClosePage_ACK message will be sent to the
@@ -173,8 +172,7 @@ class RenderViewHost : public RenderWidgetHost {
   // and |new_request_id| will help the ResourceDispatcherHost identify which
   // response is associated with this event.
   virtual void ClosePage(int new_render_process_host_id,
-                         int new_request_id,
-                         bool is_closing_browser);
+                         int new_request_id);
 
   // Sets whether this RenderViewHost has an outstanding cross-site request,
   // for which another renderer will need to run an onunload event handler.
@@ -502,7 +500,7 @@ class RenderViewHost : public RenderWidgetHost {
 
   void OnDidGetApplicationInfo(int32 page_id,
                                const webkit_glue::WebApplicationInfo& info);
-  void OnMsgShouldCloseACK(bool proceed, bool is_closing_browser);
+  void OnMsgShouldCloseACK(bool proceed);
   void OnUnloadListenerChanged(bool has_handler);
 
   virtual void NotifyRendererUnresponsive();

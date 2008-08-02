@@ -332,8 +332,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   MessageLoop* ui_loop() const { return ui_loop_; }
 
   // Called when the onunload handler for a cross-site request has finished.
-  void OnClosePageACK(int render_process_host_id, int request_id,
-                      bool is_closing_browser);
+  void OnClosePageACK(int render_process_host_id, int request_id);
 
   // Force cancels any pending requests for the given process.
   void CancelRequestsForProcess(int render_process_host_id);

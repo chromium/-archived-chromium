@@ -531,11 +531,9 @@ void RenderProcessHost::UpdateMaxPageID(int32 page_id) {
 }
 
 void RenderProcessHost::CrossSiteClosePageACK(int new_render_process_host_id,
-                                              int new_request_id,
-                                              bool is_closing_browser) {
+                                              int new_request_id) {
   widget_helper_->CrossSiteClosePageACK(new_render_process_host_id,
-                                        new_request_id,
-                                        is_closing_browser);
+                                        new_request_id);
 }
 
 void RenderProcessHost::OnMessageReceived(const IPC::Message& msg) {

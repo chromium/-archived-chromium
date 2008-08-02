@@ -209,7 +209,7 @@ Browser::Browser(const gfx::Rect& initial_bounds,
     : profile_(profile),
       window_(NULL),
       initial_show_command_(show_command),
-      is_processing_tab_unload_events_(false),
+      is_attempting_to_close_browser_(false),
       controller_(this),
       chrome_updater_factory_(this),
       method_factory_(this),
@@ -743,6 +743,15 @@ void Browser::LoadingStateChanged(TabContents* source) {
 }
 
 void Browser::CloseContents(TabContents* source) {
+  if (is_attempting_to_close_browser_) {
+    // If we're trying to close the browser, just clear the state related to
+    // waiting for unload to fire. Don't actually try to close the tab as it 
+    // will go down the slow shutdown path instead of the fast path of killing
+    // all the renderer processes.
+    UnloadFired(source);
+    return;
+  }
+
   int index = tabstrip_model_.GetIndexOfTabContents(source);
   if (index == TabStripModel::kNoTab) {
     NOTREACHED() << "CloseContents called for tab not in our strip";
@@ -992,11 +1001,10 @@ void Browser::MoveToFront(bool should_activate) {
 }
 
 bool Browser::ShouldCloseWindow() {
-  if (is_processing_tab_unload_events_) {
-    return tabs_needing_before_unload_fired_.empty() &&
-        tabs_needing_unload_fired_.empty();
+  if (HasCompletedUnloadProcessing()) {
+    return true;
   }
-  is_processing_tab_unload_events_ = true;
+  is_attempting_to_close_browser_ = true;
 
   for (int i = 0; i < tab_count(); ++i) {
     if (tabstrip_model_.TabHasUnloadListener(i)) {
@@ -1015,107 +1023,128 @@ bool Browser::ShouldCloseWindow() {
   if (tabs_needing_before_unload_fired_.empty())
     return true;
 
-  ProcessPendingBeforeUnloadTabs();
+  ProcessPendingTabs();
   return false;
 }
 
-void Browser::ProcessPendingBeforeUnloadTabs() {
-  DCHECK(is_processing_tab_unload_events_);
+void Browser::ProcessPendingTabs() {
+  DCHECK(is_attempting_to_close_browser_);
 
-  TabContents* tab = tabs_needing_before_unload_fired_.back();
-  tab->AsWebContents()->render_view_host()->AttemptToClosePage(true);
-}
-
-void Browser::ProcessPendingUnloadTabs() {
-  DCHECK(is_processing_tab_unload_events_);
-
-  TabContents* tab = tabs_needing_unload_fired_.back();
-  tab->AsWebContents()->render_view_host()->OnProceedWithClosePage(true);
-}
-
-void Browser::BeforeUnloadFired(TabContents* tab, bool proceed) {
-  DCHECK(is_processing_tab_unload_events_);
-
-  if (!proceed) {
-    tabs_needing_before_unload_fired_.clear();
-    tabs_needing_unload_fired_.clear();
-    is_processing_tab_unload_events_ = false;
+  if (HasCompletedUnloadProcessing()) {
+    // We've finished all the unload events and can proceed to close the
+    // browser.
+    OnWindowClosing();
     return;
   }
 
-  tabs_needing_unload_fired_.push_back(tab);
-
-  for (UnloadListenerVector::iterator it =
-           tabs_needing_before_unload_fired_.begin();
-       it != tabs_needing_before_unload_fired_.end();
-       ++it) {
-    if (*it == tab) {
-      tabs_needing_before_unload_fired_.erase(it);
-      break;
-    }
-  }
-
-  if (tabs_needing_before_unload_fired_.empty()) {
+  // Process beforeunload tabs first. When that queue is empty, process
+  // unload tabs.
+  // TODO(ojan): Move some of this logic down into TabContents and/or 
+  // WebContents so we don't need to dig into RenderViewHost here.
+  if (!tabs_needing_before_unload_fired_.empty()) {
+    TabContents* tab = tabs_needing_before_unload_fired_.back();
+    tab->AsWebContents()->render_view_host()->FirePageBeforeUnload();
+  } else if (!tabs_needing_unload_fired_.empty()) {
     // We've finished firing all beforeunload events and can proceed with unload
     // events.
     // TODO(ojan): We should add a call to browser_shutdown::OnShutdownStarting
     // somewhere around here so that we have accurate measurements of shutdown
     // time.
-    ProcessPendingUnloadTabs();
+    // TODO(ojan): We can probably fire all the unload events in parallel and
+    // get a perf benefit from that in the cases where the tab hangs in it's
+    // unload handler or takes a long time to page in.
+    TabContents* tab = tabs_needing_unload_fired_.back();
+    tab->AsWebContents()->render_view_host()->FirePageUnload();
   } else {
-    ProcessPendingBeforeUnloadTabs();
+    NOTREACHED();
   }
+}
+
+bool Browser::HasCompletedUnloadProcessing() {
+  return is_attempting_to_close_browser_ &&
+      tabs_needing_before_unload_fired_.empty() &&
+      tabs_needing_unload_fired_.empty();
+}
+
+void Browser::CancelWindowClose() {
+  DCHECK(is_attempting_to_close_browser_);
+  // Only cancelling beforeunload should be able to cancel the window's close.
+  // So there had better be a tab that we think needs beforeunload fired.
+  DCHECK(!tabs_needing_before_unload_fired_.empty());
+
+  while (!tabs_needing_before_unload_fired_.empty()) {
+    TabContents* tab = tabs_needing_before_unload_fired_.back();
+    NotificationService::current()->
+        RemoveObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED, 
+                       Source<TabContents>(tab));
+    tabs_needing_before_unload_fired_.pop_back();
+  }
+
+  while (!tabs_needing_unload_fired_.empty()) {
+    TabContents* tab = tabs_needing_unload_fired_.back();
+    NotificationService::current()->
+        RemoveObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED, 
+                       Source<TabContents>(tab));
+    tabs_needing_unload_fired_.pop_back();
+  }
+
+  is_attempting_to_close_browser_ = false;
+}
+
+void Browser::BeforeUnloadFired(TabContents* tab,
+                                bool proceed,
+                                bool* proceed_to_fire_unload) {
+  if (!is_attempting_to_close_browser_) {
+    *proceed_to_fire_unload = proceed;
+    return;
+  }
+
+  if (!proceed) {
+    CancelWindowClose();
+    *proceed_to_fire_unload = false;
+    return;
+  }
+
+  if (RemoveFromVector(&tabs_needing_before_unload_fired_, tab)) {
+    // Now that beforeunload has fired, put the tab on the queue to fire unload.
+    tabs_needing_unload_fired_.push_back(tab);
+    ProcessPendingTabs();
+    // We want to handle firing the unload event ourselves since we want to 
+    // fire all the beforeunload events before attempting to fire the unload
+    // events should the user cancel closing the browser.
+    *proceed_to_fire_unload = false;
+    return;
+  }
+
+  *proceed_to_fire_unload = true;
 }
 
 void Browser::UnloadFired(TabContents* tab) {
-  DCHECK(is_processing_tab_unload_events_);
-
-  for (UnloadListenerVector::iterator it = tabs_needing_unload_fired_.begin();
-       it != tabs_needing_unload_fired_.end();
-       ++it) {
-    if (*it == tab) {
-      tabs_needing_unload_fired_.erase(it);
-      break;
-    }
-  }
-
-  NotificationService::current()->
-      RemoveObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED,
-                     Source<TabContents>(tab));
-
-  if (tabs_needing_unload_fired_.empty()) {
-    // We've finished all the unload events and can proceed to close the
-    // browser.
-    OnWindowClosing();
-  } else {
-    ProcessPendingUnloadTabs();
-  }
+  DCHECK(is_attempting_to_close_browser_);
+  RemoveFromVector(&tabs_needing_unload_fired_, tab);
+  ProcessPendingTabs();
 }
 
 void Browser::ClearUnloadStateOnCrash(TabContents* tab) {
-  bool is_waiting_on_before_unload = false;
-
-  for (UnloadListenerVector::iterator it =
-           tabs_needing_before_unload_fired_.begin();
-       it != tabs_needing_before_unload_fired_.end();
-       ++it) {
-    if (*it == tab) {
-      is_waiting_on_before_unload = true;
-      break;
-    }
-  }
-
-  if (is_waiting_on_before_unload) {
-    // Even though beforeunload didn't really fire, we call the same function
-    // so that all the appropriate cleanup happens.
-    BeforeUnloadFired(tab, true);
-  } else {
-    // Even though unload didn't really fire, we call the same function
-    // so that all the appropriate cleanup happens.
-    UnloadFired(tab);
-  }
+  DCHECK(is_attempting_to_close_browser_);
+  RemoveFromVector(&tabs_needing_before_unload_fired_, tab);
+  RemoveFromVector(&tabs_needing_unload_fired_, tab);
+  ProcessPendingTabs();
 }
 
+bool Browser::RemoveFromVector(UnloadListenerVector* vector, TabContents* tab) {
+  DCHECK(is_attempting_to_close_browser_);
+
+  for (UnloadListenerVector::iterator it = vector->begin();
+       it != vector->end();
+       ++it) {
+    if (*it == tab) {
+      vector->erase(it);
+      return true;
+    }
+  }
+  return false;
+}
 
 void Browser::OnWindowClosing() {
   if (!ShouldCloseWindow())

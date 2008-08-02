@@ -187,8 +187,12 @@ class Browser : public TabStripModelDelegate,
 
   // Tells us that we've finished firing this tab's beforeunload event.
   // The proceed bool tells us whether the user chose to proceed closing the
-  // tab.
-  void BeforeUnloadFired(TabContents* source, bool proceed);
+  // tab. Returns true if the tab can continue on firing it's unload event.
+  // If we're closing the entire browser, then we'll want to delay firing 
+  // unload events until all the beforeunload events have fired.
+  void BeforeUnloadFired(TabContents* source,
+                         bool proceed, 
+                         bool* proceed_to_fire_unload);
 
   // Tells us that we've finished firing this tab's unload event.
   void UnloadFired(TabContents* source);
@@ -512,13 +516,19 @@ class Browser : public TabStripModelDelegate,
                         TabContents* new_contents,
                         const gfx::Rect& initial_pos);
 
-  // Processes the next tab that needs it's beforeunload event fired before
-  // we can proceed with closing the browser.
-  void ProcessPendingBeforeUnloadTabs();
+  // Processes the next tab that needs it's beforeunload/unload event fired.
+  void ProcessPendingTabs();
 
-  // Processes the next tab that needs it's unload event fired before we can
-  // proceed with closing the browser.
-  void ProcessPendingUnloadTabs();
+  // Whether we've completed firing all the tabs' beforeunload/unload events.
+  bool HasCompletedUnloadProcessing();
+
+  // Clears all the state associated with processing tabs' beforeunload/unload
+  // events since the user cancelled closing the window.
+  void CancelWindowClose();
+
+  // Removes the tab from the associated vector. Returns whether the tab
+  // was in the vector in the first place.
+  bool RemoveFromVector(UnloadListenerVector* vector, TabContents* tab);
 
   // Cleans up state appropriately when we are trying to close the browser
   // and a tab crashes in it's beforeunload/unload handler.
@@ -572,7 +582,7 @@ class Browser : public TabStripModelDelegate,
 
   // Whether we are processing the beforeunload and unload events of each tab
   // in preparation for closing the browser.
-  bool is_processing_tab_unload_events_;
+  bool is_attempting_to_close_browser_;
 
   // The following factory is used for chrome update coalescing.
   ScopedRunnableMethodFactory<Browser> chrome_updater_factory_;

@@ -93,8 +93,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnRequestResource(const IPC::Message& msg, int request_id,
                          const ViewHostMsg_Resource_Request& request);
   void OnCancelRequest(int request_id);
-  void OnClosePageACK(int new_render_process_host_id, int new_request_id,
-                      bool is_closing_browser);
+  void OnClosePageACK(int new_render_process_host_id, int new_request_id);
   void OnDataReceivedACK(int request_id);
   void OnUploadProgressACK(int request_id);
   void OnSyncLoad(int request_id,

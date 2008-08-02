@@ -418,14 +418,13 @@ IPC_BEGIN_MESSAGES(View, 1)
   // Instructs the renderer to invoke the frame's shouldClose method, which
   // runs the onbeforeunload event handler.  Expects the result to be returned
   // via ViewHostMsg_ShouldClose.
-  IPC_MESSAGE_ROUTED1(ViewMsg_ShouldClose, bool /* is_closing_browser */)
+  IPC_MESSAGE_ROUTED0(ViewMsg_ShouldClose)
 
   // Instructs the renderer to close the current page, including running the
   // onunload event handler.  Expects a ClosePage_ACK message when finished.
-  IPC_MESSAGE_ROUTED3(ViewMsg_ClosePage,
+  IPC_MESSAGE_ROUTED2(ViewMsg_ClosePage,
                       int /* new_render_process_host_id */,
-                      int /* new_request_id */,
-                      bool /* is_closing_browser */)
+                      int /* new_request_id */)
 
   // Asks the renderer to send back stats on the WebCore cache broken down by
   // resource types.
@@ -939,16 +938,14 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   // return value of the the frame's shouldClose method (which includes the
   // onbeforeunload handler): true if the user decided to proceed with leaving
   // the page.
-  IPC_MESSAGE_ROUTED2(ViewHostMsg_ShouldClose_ACK,
-                      bool /* proceed */,
-                      bool /* is_closing_browser */)
+  IPC_MESSAGE_ROUTED1(ViewHostMsg_ShouldClose_ACK,
+                      bool /* proceed */)
 
   // Indicates that the current page has been closed, after a ClosePage
   // message.
-  IPC_MESSAGE_ROUTED3(ViewHostMsg_ClosePage_ACK,
+  IPC_MESSAGE_ROUTED2(ViewHostMsg_ClosePage_ACK,
                       int /* new_render_process_host_id */,
-                      int /* new_request_id */,
-                      bool /* is_closing_browser */)
+                      int /* new_request_id */)
 
   IPC_MESSAGE_ROUTED4(ViewHostMsg_DidDownloadImage,
                       int /* Identifier of the request */,

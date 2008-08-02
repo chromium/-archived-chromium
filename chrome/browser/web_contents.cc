@@ -832,7 +832,7 @@ RenderViewHost* WebContents::UpdateRendererStateNavigate(
     // Tell the old render view to run its onbeforeunload handler, since it
     // doesn't otherwise know that the cross-site request is happening.  This
     // will trigger a call to ShouldClosePage with the reply.
-    render_view_host_->AttemptToClosePage(false);
+    render_view_host_->FirePageBeforeUnload();
 
     return pending_render_view_host_;
   }
@@ -990,9 +990,12 @@ void WebContents::ShouldClosePage(bool proceed) {
   // Should only see this while we have a pending renderer.  Otherwise, we
   // should ignore.
   if (!pending_render_view_host_) {
-    if (proceed) {
+    bool proceed_to_fire_unload;
+    delegate()->BeforeUnloadFired(this, proceed, &proceed_to_fire_unload);
+
+    if (proceed_to_fire_unload) {
       // This is not a cross-site navigation, the tab is being closed.
-      render_view_host_->OnProceedWithClosePage(false);
+      render_view_host_->FirePageUnload();
     }
     return;
   }
@@ -1024,12 +1027,10 @@ void WebContents::OnCrossSiteResponse(int new_render_process_host_id,
   if (IsShowingInterstitialPage()) {
     DCHECK(original_render_view_host_);
     original_render_view_host_->ClosePage(new_render_process_host_id,
-                                          new_request_id,
-                                          false); // is_closing_browser
+                                          new_request_id);
   } else {
     render_view_host_->ClosePage(new_render_process_host_id,
-                                 new_request_id,
-                                 false); // is_closing_browser
+                                 new_request_id);
   }
 
   // ResourceDispatcherHost has told us to run the onunload handler, which

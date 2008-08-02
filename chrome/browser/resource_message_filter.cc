@@ -329,11 +329,9 @@ void ResourceMessageFilter::OnCancelRequest(int request_id) {
 }
 
 void ResourceMessageFilter::OnClosePageACK(int new_render_process_host_id,
-                                           int new_request_id,
-                                           bool is_closing_browser) {
+                                           int new_request_id) {
   resource_dispatcher_host_->OnClosePageACK(new_render_process_host_id,
-                                            new_request_id,
-                                            is_closing_browser);
+                                            new_request_id);
 }
 
 void ResourceMessageFilter::OnSyncLoad(

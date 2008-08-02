@@ -1682,8 +1682,7 @@ void ResourceDispatcherHost::PauseRequest(int render_process_host_id,
 }
 
 void ResourceDispatcherHost::OnClosePageACK(int render_process_host_id,
-                                            int request_id,
-                                            bool is_closing_browser) {
+                                            int request_id) {
   GlobalRequestID global_id(render_process_host_id, request_id);
   PendingRequestList::iterator i = pending_requests_.find(global_id);
   if (i == pending_requests_.end()) {
@@ -1692,8 +1691,7 @@ void ResourceDispatcherHost::OnClosePageACK(int render_process_host_id,
     ui_loop_->PostTask(FROM_HERE, NewRunnableFunction(
         &RenderViewHost::ClosePageIgnoringUnloadEvents,
         render_process_host_id,
-        request_id,
-        is_closing_browser));
+        request_id));
     return;
   }
 

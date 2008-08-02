@@ -531,7 +531,7 @@ bool TabStripModel::InternalCloseTabContentsAt(int index,
     WebContents* web_contents = GetContentsAt(index)->AsWebContents();
     // If we hit this code path, the tab had better be a WebContents tab.
     DCHECK(web_contents);
-    web_contents->render_view_host()->AttemptToClosePage(false);
+    web_contents->render_view_host()->FirePageBeforeUnload();
     return false;
   }
 

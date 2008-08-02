@@ -443,12 +443,11 @@ class RenderView : public RenderWidget, public WebViewDelegate,
 
   // Checks if the RenderView should close, runs the beforeunload handler and
   // sends ViewMsg_ShouldClose to the browser.
-  void OnMsgShouldClose(bool is_closing_browser);
+  void OnMsgShouldClose();
 
   // Runs the onunload handler and closes the page, replying with ClosePage_ACK
   // (with the given RPH and request IDs, to help track the request).
-  void OnClosePage(int new_render_process_host_id, int new_request_id,
-                   bool is_closing_browser);
+  void OnClosePage(int new_render_process_host_id, int new_request_id);
 
   // Notification about ui theme changes.
   void OnThemeChanged();

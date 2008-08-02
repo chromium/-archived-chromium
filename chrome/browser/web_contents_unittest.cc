@@ -123,10 +123,8 @@ class TestRenderViewHost : public RenderViewHost {
   }
 
   // Support for onbeforeunload, onunload
-  void AttemptToClosePage(bool is_closing_browser) {
+  void FirePageBeforeUnload() {
     is_waiting_for_unload_ack_ = true;
-    // TODO(ojan): Add tests for the case where is_closing_browser is true.
-    DCHECK(!is_closing_browser);
     if (immediate_before_unload)
       delegate()->ShouldClosePage(true);
   }
@@ -135,7 +133,7 @@ class TestRenderViewHost : public RenderViewHost {
     // ResourceDispatcherHost, so we can simulate that manually.
   }
   void TestOnMsgShouldClose(bool proceed) {
-    OnMsgShouldCloseACK(proceed, false);
+    OnMsgShouldCloseACK(proceed);
   }
 
   bool is_loading;

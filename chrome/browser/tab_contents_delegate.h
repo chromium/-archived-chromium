@@ -182,8 +182,14 @@ class TabContentsDelegate : public PageNavigator {
 
   // Tells us that we've finished firing this tab's beforeunload event.
   // The proceed bool tells us whether the user chose to proceed closing the
-  // tab.
-  virtual void BeforeUnloadFired(TabContents* tab, bool proceed) {}
+  // tab. Returns true if the tab can continue on firing it's unload event.
+  // If we're closing the entire browser, then we'll want to delay firing 
+  // unload events until all the beforeunload events have fired.
+  virtual void BeforeUnloadFired(TabContents* tab,
+                                 bool proceed, 
+                                 bool* proceed_to_fire_unload) { 
+    *proceed_to_fire_unload = true;
+  }
 
   // Tells us that we've finished firing this tab's unload event.
   virtual void UnloadFired(TabContents* tab) {}

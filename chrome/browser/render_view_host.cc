@@ -45,8 +45,6 @@
 #include "chrome/browser/renderer_security_policy.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/browser/site_instance.h"
-#include "chrome/browser/tab_contents.h"
-#include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/common/resource_bundle.h"
@@ -246,35 +244,33 @@ void RenderViewHost::SetNavigationsSuspended(bool suspend) {
   }
 }
 
-void RenderViewHost::AttemptToClosePage(bool is_closing_browser) {
+void RenderViewHost::FirePageBeforeUnload() {
   if (IsRenderViewLive()) {
     // Start the hang monitor in case the renderer hangs in the beforeunload
     // handler.
     DCHECK(!is_waiting_for_unload_ack_);
     is_waiting_for_unload_ack_ = true;
     StartHangMonitorTimeout(kUnloadTimeoutMS);
-    Send(new ViewMsg_ShouldClose(routing_id_, is_closing_browser));
+    Send(new ViewMsg_ShouldClose(routing_id_));
   } else {
     // This RenderViewHost doesn't have a live renderer, so just skip running
     // the onbeforeunload handler.
-    OnMsgShouldCloseACK(true, is_closing_browser);
+    OnMsgShouldCloseACK(true);
   }
 }
 
-void RenderViewHost::OnProceedWithClosePage(bool is_closing_browser) {
+void RenderViewHost::FirePageUnload() {
   // Start the hang monitor in case the renderer hangs in the unload handler.
   DCHECK(!is_waiting_for_unload_ack_);
   is_waiting_for_unload_ack_ = true;
   StartHangMonitorTimeout(kUnloadTimeoutMS);
   ClosePage(site_instance()->process_host_id(), 
-            routing_id(),
-            is_closing_browser);
+            routing_id());
 }
 
 // static
 void RenderViewHost::ClosePageIgnoringUnloadEvents(int render_process_host_id,
-                                                   int request_id,
-                                                   bool is_closing_browser) {
+                                                   int request_id) {
   RenderViewHost* rvh = RenderViewHost::FromID(render_process_host_id,
                                                request_id);
   if (!rvh)
@@ -284,32 +280,22 @@ void RenderViewHost::ClosePageIgnoringUnloadEvents(int render_process_host_id,
   DCHECK(rvh->is_waiting_for_unload_ack_);
   rvh->is_waiting_for_unload_ack_ = false;
 
-  // The RenderViewHost's delegate is a WebContents.
-  TabContents* tab = static_cast<WebContents*>(rvh->delegate());
   rvh->UnloadListenerHasFired();
-
-  if (is_closing_browser) {
-    tab->delegate()->UnloadFired(tab);
-  } else {
-    rvh->delegate()->Close(rvh);
-  }
+  rvh->delegate()->Close(rvh);
 }
 
 void RenderViewHost::ClosePage(int new_render_process_host_id,
-                               int new_request_id,
-                               bool is_closing_browser) {
+                               int new_request_id) {
   if (IsRenderViewLive()) {
     Send(new ViewMsg_ClosePage(routing_id_,
                                new_render_process_host_id,
-                               new_request_id,
-                               is_closing_browser));
+                               new_request_id));
   } else {
     // This RenderViewHost doesn't have a live renderer, so just skip closing
     // the page.  We must notify the ResourceDispatcherHost on the IO thread,
     // which we will do through the RenderProcessHost's widget helper.
     process()->CrossSiteClosePageACK(new_render_process_host_id,
-                                     new_request_id,
-                                     is_closing_browser);
+                                     new_request_id);
   }
 }
 
@@ -1164,22 +1150,11 @@ void RenderViewHost::OnReceivedSerializedHtmlData(const GURL& frame_url,
   delegate_->OnReceivedSerializedHtmlData(frame_url, data, status);
 }
 
-void RenderViewHost::OnMsgShouldCloseACK(bool proceed,
-                                         bool is_closing_browser) {
+void RenderViewHost::OnMsgShouldCloseACK(bool proceed) {
   StopHangMonitorTimeout();
   DCHECK(is_waiting_for_unload_ack_);
   is_waiting_for_unload_ack_ = false;
-
-  if (is_closing_browser) {
-    // The RenderViewHost's delegate is a WebContents.
-    TabContents* tab = static_cast<WebContents*>(delegate());
-    if (!tab)
-      return;
-
-    tab->delegate()->BeforeUnloadFired(tab, proceed);
-  } else {
-    delegate_->ShouldClosePage(proceed);
-  }
+  delegate_->ShouldClosePage(proceed);
 }
 
 void RenderViewHost::OnUnloadListenerChanged(bool has_listener) {

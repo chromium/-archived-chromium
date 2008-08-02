@@ -149,8 +149,7 @@ class RenderProcessHost : public IPC::Channel::Listener,
   // Necessary for a cross-site request, in the case that the original
   // RenderViewHost is not live and thus cannot run an onunload handler.
   void CrossSiteClosePageACK(int new_render_process_host_id,
-                             int new_request_id,
-                             bool is_closing_browser);
+                             int new_request_id);
 
   // IPC channel listener
   virtual void OnMessageReceived(const IPC::Message& msg);

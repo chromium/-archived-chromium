@@ -2425,16 +2425,13 @@ void RenderView::DidSerializeDataForFrame(const GURL& frame_url,
       frame_url, data, static_cast<int32>(status)));
 }
 
-void RenderView::OnMsgShouldClose(bool is_closing_browser) {
+void RenderView::OnMsgShouldClose() {
   bool should_close = webview()->ShouldClose();
-
-  Send(new ViewHostMsg_ShouldClose_ACK(routing_id_, should_close,
-                                       is_closing_browser));
+  Send(new ViewHostMsg_ShouldClose_ACK(routing_id_, should_close));
 }
 
 void RenderView::OnClosePage(int new_render_process_host_id,
-                             int new_request_id,
-                             bool is_closing_browser) {
+                             int new_request_id) {
   // TODO(creis): We'd rather use webview()->Close() here, but that currently
   // sets the WebView's delegate_ to NULL, preventing any JavaScript dialogs
   // in the onunload handler from appearing.  For now, we're bypassing that and
@@ -2448,8 +2445,7 @@ void RenderView::OnClosePage(int new_render_process_host_id,
 
   Send(new ViewHostMsg_ClosePage_ACK(routing_id_,
                                      new_render_process_host_id,
-                                     new_request_id,
-                                     is_closing_browser));
+                                     new_request_id));
 }
 
 void RenderView::OnThemeChanged() {

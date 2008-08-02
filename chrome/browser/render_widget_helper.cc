@@ -86,16 +86,14 @@ void RenderWidgetHelper::CancelResourceRequests(int render_widget_id) {
 }
 
 void RenderWidgetHelper::CrossSiteClosePageACK(int new_render_process_host_id,
-                                               int new_request_id,
-                                               bool is_closing_browser) {
+                                               int new_request_id) {
   if (g_browser_process->io_thread())
     g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
         NewRunnableMethod(this,
                           &RenderWidgetHelper::OnCrossSiteClosePageACK,
                           g_browser_process->resource_dispatcher_host(),
                           new_render_process_host_id,
-                          new_request_id,
-                          is_closing_browser));
+                          new_request_id));
 }
 
 bool RenderWidgetHelper::WaitForPaintMsg(int render_widget_id,
@@ -198,10 +196,8 @@ void RenderWidgetHelper::OnCancelResourceRequests(
 void RenderWidgetHelper::OnCrossSiteClosePageACK(
     ResourceDispatcherHost* dispatcher,
     int new_render_process_host_id,
-    int new_request_id,
-    bool is_closing_browser) {
-  dispatcher->OnClosePageACK(new_render_process_host_id, new_request_id, 
-      is_closing_browser);
+    int new_request_id) {
+  dispatcher->OnClosePageACK(new_render_process_host_id, new_request_id);
 }
 
 void RenderWidgetHelper::CreateView(int opener_id,
