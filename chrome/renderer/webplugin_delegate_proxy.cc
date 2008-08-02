@@ -199,10 +199,9 @@ void WebPluginDelegateProxy::PluginDestroyed() {
 
     channel_host_->RemoveRoute(instance_id_);
     Send(new PluginMsg_DestroyInstance(instance_id_));
-    channel_host_ = NULL;
   }
   render_view_->PluginDestroyed(this);
-  delete this;
+  MessageLoop::current()->DeleteSoon(FROM_HERE, this);
 }
 
 void WebPluginDelegateProxy::FlushGeometryUpdates() {

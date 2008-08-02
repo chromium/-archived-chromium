@@ -113,11 +113,14 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   virtual void URLRequestRouted(const std::string&url, bool notify_needed,
                                 void* notify_data);
 
+ protected:
+  template<class WebPluginDelegateProxy> friend class DeleteTask;
+  ~WebPluginDelegateProxy();
+
  private:
   WebPluginDelegateProxy(const std::string& mime_type,
                          const std::string& clsid,
                          RenderView* render_view);
-  ~WebPluginDelegateProxy();
 
   // Message handlers for messages that proxy WebPlugin methods, which
   // we translate into calls to the real WebPlugin.
