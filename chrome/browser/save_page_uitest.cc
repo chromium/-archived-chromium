@@ -78,7 +78,8 @@ class SavePageTest : public UITest {
   std::wstring save_dir_;
 };
 
-TEST_F(SavePageTest, SaveHTMLOnly) {
+// bug 1306067
+TEST_F(SavePageTest, DISABLED_SaveHTMLOnly) {
   std::wstring file_name = L"a.htm";
   std::wstring full_file_name = save_dir_ + file_name;
   std::wstring dir = save_dir_ + L"a_files";
