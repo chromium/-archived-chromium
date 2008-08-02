@@ -34,6 +34,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#undef IN  // On Windows, windef.h defines this, which screws up "India" cases.
 
 namespace {
 
@@ -68,6 +69,9 @@ struct PrepopulatedEngine {
   // previous, non-localized versions.  For engines where we need two instances
   // to appear for one country (e.g. Live Search U.S. English and Spanish), we
   // must use two different unique IDs (and different keywords).
+  //
+  // The following unique IDs are available: 6, 103+
+  // NOTE: CHANGE THE ABOVE NUMBERS IF YOU ADD A NEW ENGINE; ID conflicts = bad!
   const int id;
 };
 
@@ -378,7 +382,7 @@ const PrepopulatedEngine delfi_ee = {
 
 const PrepopulatedEngine delfi_lt = {
   L"DELFI",
-  L"delfi.lv",
+  L"delfi.lt",
   L"http://search.delfi.lt/img/favicon.png",
   L"http://search.delfi.lt/search.php?q={searchTerms}",
   "UTF-8",
@@ -655,7 +659,7 @@ const PrepopulatedEngine libero = {
 };
 
 const PrepopulatedEngine live = {
-  L"Live Search (\x0627\x0644\x0639\x0631\x0628\x064a\x0629)",
+  L"Live Search",
   L"live.com",
   L"http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?q={searchTerms}",
@@ -665,7 +669,9 @@ const PrepopulatedEngine live = {
 };
 
 const PrepopulatedEngine live_ar_XA = {
-  L"Live Search (\x0627\x0644\x0639\x0631\x0628\x064a\x0629)",
+  // The name here is displayed LTR, but is really RTL (with an LTR string at
+  // the beginning), so hackishly reorder things so they look "RTL".
+  L"(\x0627\x0644\x0639\x0631\x0628\x064a\x0629) Live Search",
   L"",  // "live.com" is already taken by live_en_XA (see comment on ID below).
   L"http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?setlang=ar-XA&mkt=ar-XA&"
@@ -727,7 +733,7 @@ const PrepopulatedEngine live_en_NZ = {
 };
 
 const PrepopulatedEngine live_en_US = {
-  L"Live Search (English)",
+  L"Live Search",
   L"live.com",
   L"http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?setlang=en-US&mkt=en-US&"
@@ -746,17 +752,6 @@ const PrepopulatedEngine live_en_XA = {
   "UTF-8",
   NULL,
   3,
-};
-
-const PrepopulatedEngine live_es_US = {
-  L"Live Search (Espa\x00f1ol)",
-  L"",  // "live.com" is already taken by live_en_US (see comment on ID below).
-  L"http://search.live.com/s/wlflag.ico",
-  L"http://search.live.com/results.aspx?setlang=es-US&mkt=es-US&"
-      L"q={searchTerms}",
-  "UTF-8",
-  NULL,
-  6,  // Can't be 3 as this has to appear in the U.S. list alongside live_en_US.
 };
 
 const PrepopulatedEngine live_et_EE = {
@@ -973,10 +968,10 @@ const PrepopulatedEngine msn_ar_XA = {
 };
 
 const PrepopulatedEngine msn_da_DK = {
-  L"MSN.nl",
-  L"nl.msn.com",
-  L"http://search.msn.nl/s/wlflag.ico",
-  L"http://search.msn.nl/results.aspx?mkt=nl-NL&q={searchTerms}",
+  L"MSN Danmark",
+  L"dk.msn.com",
+  L"http://search.msn.dk/s/wlflag.ico",
+  L"http://search.msn.dk/results.aspx?mkt=da-DK&q={searchTerms}",
   "UTF-8",
   NULL,
   3,
@@ -1252,10 +1247,10 @@ const PrepopulatedEngine msn_nl_BE = {
 };
 
 const PrepopulatedEngine msn_nl_NL = {
-  L"MSN Danmark",
-  L"dk.msn.com",
-  L"http://search.msn.dk/s/wlflag.ico",
-  L"http://search.msn.dk/results.aspx?mkt=da-DK&q={searchTerms}",
+  L"MSN.nl",
+  L"nl.msn.com",
+  L"http://search.msn.nl/s/wlflag.ico",
+  L"http://search.msn.nl/results.aspx?mkt=nl-NL&q={searchTerms}",
   "UTF-8",
   NULL,
   3,
@@ -1776,10 +1771,12 @@ const PrepopulatedEngine voila = {
 };
 
 const PrepopulatedEngine walla = {
-  L"\x05d5\x05d5\x05d0\x05dc\x05d4!",
+  // The name here is displayed LTR, but is really RTL, so hackishly reorder
+  // the exclamation point so it looks "RTL".
+  L"!\x05d5\x05d5\x05d0\x05dc\x05d4",
   L"walla.co.il",
   L"http://www.walla.co.il/favicon.ico",
-  L"http://search.walla.co.il/?q={searchTerms}",
+  L"http://search.walla.co.il/?e=hew&q={searchTerms}",
   "windows-1255",
   NULL,
   55,
@@ -2231,6 +2228,9 @@ const PrepopulatedEngine zoznam = {
 // Put these in order with most interesting/important first.  The default will
 // be the first engine.
 
+// Default (for countries with no better engine set)
+const PrepopulatedEngine engines_default[] = { google, yahoo, live, };
+
 // United Arab Emirates
 const PrepopulatedEngine engines_AE[] =
     { google, maktoob, yahoo, yamli, araby, msn_en_XA, msn_ar_XA, };
@@ -2593,7 +2593,7 @@ const PrepopulatedEngine engines_UK[] =
 
 // United States
 const PrepopulatedEngine engines_US[] =
-    { google, yahoo, live_en_US, live_es_US, aol, ask, };
+    { google, yahoo, live_en_US, aol, ask, };
 
 // Uruguay
 const PrepopulatedEngine engines_UY[] =
@@ -2662,12 +2662,17 @@ void GetPrepopulationSetFromGeoID(PrefService* prefs,
   // Country codes and names are from http://www.geonames.org/countries/ .
   switch (GetGeoIDFromPrefs(prefs)) {
 
-#define DECLARE_COUNTRY(id, code) \
-    case id:\
+#define UNHANDLED_COUNTRY(id, code)\
+    case id:
+#define END_UNHANDLED_COUNTRIES(code)\
       *engines = engines_##code;\
       *num_engines = arraysize(engines_##code);\
       return;
+#define DECLARE_COUNTRY(id, code)\
+    UNHANDLED_COUNTRY(id, code)\
+    END_UNHANDLED_COUNTRIES(code)
 
+    // Countries with their own, dedicated engine set.
     DECLARE_COUNTRY(0x4,    DZ)     // Algeria
     DECLARE_COUNTRY(0x6,    AL)     // Albania
     DECLARE_COUNTRY(0xB,    AR)     // Argentina
@@ -2770,173 +2775,216 @@ void GetPrepopulationSetFromGeoID(PrefService* prefs,
     DECLARE_COUNTRY(0x10D,  RS_ME)  // Serbia/Montenegro
     DECLARE_COUNTRY(0x4CA2, MK)     // Macedonia
 
-#define UNHANDLED_COUNTRY(id, code) \
-    case id:
+    // Countries using the "Australia" engine set.
+    UNHANDLED_COUNTRY(0x130, XX)  // Ashmore and Cartier Islands
+    UNHANDLED_COUNTRY(0x135, CX)  // Christmas Island
+    UNHANDLED_COUNTRY(0x137, CC)  // Cocos Islands
+    UNHANDLED_COUNTRY(0x139, XX)  // Coral Sea Islands
+    UNHANDLED_COUNTRY(0x145, HM)  // Heard Island and McDonald Islands
+    UNHANDLED_COUNTRY(0x150, NF)  // Norfolk Island
+    END_UNHANDLED_COUNTRIES(AU)
 
-    // All these fall through to the GEOID_NOT_AVAILABLE case at the bottom.
-    UNHANDLED_COUNTRY(0x2,      AG)  // Antigua and Barbuda
-    UNHANDLED_COUNTRY(0x3,      AF)  // Afghanistan
-    UNHANDLED_COUNTRY(0x5,      AZ)  // Azerbaijan
-    UNHANDLED_COUNTRY(0x7,      AM)  // Armenia
-    UNHANDLED_COUNTRY(0x8,      AD)  // Andorra
-    UNHANDLED_COUNTRY(0x9,      AO)  // Angola
-    UNHANDLED_COUNTRY(0xA,      AS)  // American Samoa
-    UNHANDLED_COUNTRY(0x12,     BB)  // Barbados
-    UNHANDLED_COUNTRY(0x13,     BW)  // Botswana
-    UNHANDLED_COUNTRY(0x14,     BM)  // Bermuda
-    UNHANDLED_COUNTRY(0x16,     BS)  // Bahamas
-    UNHANDLED_COUNTRY(0x17,     BD)  // Bangladesh
-    UNHANDLED_COUNTRY(0x1B,     MM)  // Myanmar
-    UNHANDLED_COUNTRY(0x1C,     BJ)  // Benin
-    UNHANDLED_COUNTRY(0x1E,     SB)  // Solomon Islands
-    UNHANDLED_COUNTRY(0x22,     BT)  // Bhutan
-    UNHANDLED_COUNTRY(0x26,     BI)  // Burundi
-    UNHANDLED_COUNTRY(0x28,     KH)  // Cambodia
-    UNHANDLED_COUNTRY(0x29,     TD)  // Chad
-    UNHANDLED_COUNTRY(0x2A,     LK)  // Sri Lanka
-    UNHANDLED_COUNTRY(0x2B,     CG)  // Congo - Brazzaville
-    UNHANDLED_COUNTRY(0x2C,     CD)  // Congo - Kinshasa
-    UNHANDLED_COUNTRY(0x31,     CM)  // Cameroon
-    UNHANDLED_COUNTRY(0x32,     KM)  // Comoros
-    UNHANDLED_COUNTRY(0x37,     CF)  // Central African Republic
-    UNHANDLED_COUNTRY(0x38,     CU)  // Cuba
+    // Countries using the "China" engine set.
+    UNHANDLED_COUNTRY(0x97, MO)  // Macao
+    END_UNHANDLED_COUNTRIES(CN)
+
+    // Countries using the "Denmark" engine set.
+    UNHANDLED_COUNTRY(0x5D, GL)  // Greenland
+    END_UNHANDLED_COUNTRIES(DK)
+
+    // Countries using the "Spain" engine set.
+    UNHANDLED_COUNTRY(0x8, AD)  // Andorra
+    END_UNHANDLED_COUNTRIES(ES)
+
+    // Countries using the "France" engine set.
+    UNHANDLED_COUNTRY(0x1C,  BJ)  // Benin
+    UNHANDLED_COUNTRY(0x26,  BI)  // Burundi
+    UNHANDLED_COUNTRY(0x29,  TD)  // Chad
+    UNHANDLED_COUNTRY(0x2B,  CG)  // Congo - Brazzaville
+    UNHANDLED_COUNTRY(0x2C,  CD)  // Congo - Kinshasa
+    UNHANDLED_COUNTRY(0x31,  CM)  // Cameroon
+    UNHANDLED_COUNTRY(0x37,  CF)  // Central African Republic
+    UNHANDLED_COUNTRY(0x3E,  DJ)  // Djibouti
+    UNHANDLED_COUNTRY(0x57,  GA)  // Gabon
+    UNHANDLED_COUNTRY(0x64,  GN)  // Guinea
+    UNHANDLED_COUNTRY(0x67,  HT)  // Haiti
+    UNHANDLED_COUNTRY(0x77,  CI)  // Ivory Coast
+    UNHANDLED_COUNTRY(0x9D,  ML)  // Mali
+    UNHANDLED_COUNTRY(0xAD,  NE)  // Niger
+    UNHANDLED_COUNTRY(0xC6,  RE)  // Reunion
+    UNHANDLED_COUNTRY(0xCE,  PM)  // Saint Pierre and Miquelon
+    UNHANDLED_COUNTRY(0xD2,  SN)  // Senegal
+    UNHANDLED_COUNTRY(0xE8,  TG)  // Togo
+    UNHANDLED_COUNTRY(0xF5,  BF)  // Burkina Faso
+    UNHANDLED_COUNTRY(0x136, XX)  // Clipperton Island
+    UNHANDLED_COUNTRY(0x13D, GF)  // French Guiana
+    UNHANDLED_COUNTRY(0x13E, PF)  // French Polynesia
+    UNHANDLED_COUNTRY(0x13F, TF)  // French Southern Territories
+    UNHANDLED_COUNTRY(0x141, GP)  // Guadeloupe
+    UNHANDLED_COUNTRY(0x14A, MQ)  // Martinique
+    UNHANDLED_COUNTRY(0x14B, YT)  // Mayotte
+    UNHANDLED_COUNTRY(0x14E, NC)  // New Caledonia
+    UNHANDLED_COUNTRY(0x160, WF)  // Wallis and Futuna
+    END_UNHANDLED_COUNTRIES(FR)
+
+    // Countries using the "Greece" engine set.
+    UNHANDLED_COUNTRY(0x3B, CY)  // Cyprus
+    END_UNHANDLED_COUNTRIES(GR)
+
+    // Countries using the "Italy" engine set.
+    UNHANDLED_COUNTRY(0xD6, SM)  // San Marino
+    UNHANDLED_COUNTRY(0xFD, VA)  // Vatican
+    END_UNHANDLED_COUNTRIES(IT)
+
+    // Countries using the "Netherlands" engine set.
+    UNHANDLED_COUNTRY(0x12E, AW)  // Aruba
+    UNHANDLED_COUNTRY(0x14D, AN)  // Netherlands Antilles
+    END_UNHANDLED_COUNTRIES(NL)
+
+    // Countries using the "Norway" engine set.
+    UNHANDLED_COUNTRY(0x7D,  SJ)  // [Svalbard and] Jan Mayen
+    UNHANDLED_COUNTRY(0xDC,  SJ)  // Svalbard [and Jan Mayen]
+    UNHANDLED_COUNTRY(0x132, BV)  // Bouvet Island
+    END_UNHANDLED_COUNTRIES(NO)
+
+    // Countries using the "New Zealand" engine set.
+    UNHANDLED_COUNTRY(0x138, CK)  // Cook Islands
+    UNHANDLED_COUNTRY(0x14F, NU)  // Niue
+    UNHANDLED_COUNTRY(0x15B, TK)  // Tokelau
+    END_UNHANDLED_COUNTRIES(NZ)
+
+    // Countries using the "Portugal" engine set.
     UNHANDLED_COUNTRY(0x39,     CV)  // Cape Verde
-    UNHANDLED_COUNTRY(0x3B,     CY)  // Cyprus
-    UNHANDLED_COUNTRY(0x3E,     DJ)  // Djibouti
-    UNHANDLED_COUNTRY(0x3F,     DM)  // Dominica
-    UNHANDLED_COUNTRY(0x45,     GQ)  // Equatorial Guinea
-    UNHANDLED_COUNTRY(0x47,     ER)  // Eritrea
-    UNHANDLED_COUNTRY(0x49,     ET)  // Ethiopia
-    UNHANDLED_COUNTRY(0x4E,     FJ)  // Fiji
-    UNHANDLED_COUNTRY(0x50,     FM)  // Micronesia
-    UNHANDLED_COUNTRY(0x56,     GM)  // Gambia
-    UNHANDLED_COUNTRY(0x57,     GA)  // Gabon
-    UNHANDLED_COUNTRY(0x58,     GE)  // Georgia
-    UNHANDLED_COUNTRY(0x59,     GH)  // Ghana
-    UNHANDLED_COUNTRY(0x5A,     GI)  // Gibraltar
-    UNHANDLED_COUNTRY(0x5B,     GD)  // Grenada
-    UNHANDLED_COUNTRY(0x5D,     GL)  // Greenland
-    UNHANDLED_COUNTRY(0x64,     GN)  // Guinea
-    UNHANDLED_COUNTRY(0x65,     GY)  // Guyana
-    UNHANDLED_COUNTRY(0x67,     HT)  // Haiti
-    UNHANDLED_COUNTRY(0x72,     IO)  // British Indian Ocean Territory
-    UNHANDLED_COUNTRY(0x77,     CI)  // Ivory Coast
-    UNHANDLED_COUNTRY(0x7D,     SJ)  // [Svalbard and] Jan Mayen
-    UNHANDLED_COUNTRY(0x7F,     XX)  // Johnston Atoll
-    UNHANDLED_COUNTRY(0x82,     KG)  // Kyrgyzstan
-    UNHANDLED_COUNTRY(0x83,     KP)  // North Korea
-    UNHANDLED_COUNTRY(0x85,     KI)  // Kiribati
-    UNHANDLED_COUNTRY(0x89,     KZ)  // Kazakhstan
-    UNHANDLED_COUNTRY(0x8A,     LA)  // Laos
-    UNHANDLED_COUNTRY(0x8E,     LR)  // Liberia
-    UNHANDLED_COUNTRY(0x92,     LS)  // Lesotho
-    UNHANDLED_COUNTRY(0x95,     MG)  // Madagascar
-    UNHANDLED_COUNTRY(0x97,     MO)  // Macao
-    UNHANDLED_COUNTRY(0x98,     MD)  // Moldova
-    UNHANDLED_COUNTRY(0x9A,     MN)  // Mongolia
-    UNHANDLED_COUNTRY(0x9C,     MW)  // Malawi
-    UNHANDLED_COUNTRY(0x9D,     ML)  // Mali
-    UNHANDLED_COUNTRY(0xA0,     MU)  // Mauritius
-    UNHANDLED_COUNTRY(0xA2,     MR)  // Mauritania
-    UNHANDLED_COUNTRY(0xA3,     MT)  // Malta
-    UNHANDLED_COUNTRY(0xA5,     MV)  // Maldives
     UNHANDLED_COUNTRY(0xA8,     MZ)  // Mozambique
-    UNHANDLED_COUNTRY(0xAD,     NE)  // Niger
-    UNHANDLED_COUNTRY(0xAE,     VU)  // Vanuatu
-    UNHANDLED_COUNTRY(0xAF,     NG)  // Nigeria
-    UNHANDLED_COUNTRY(0xB2,     NP)  // Nepal
-    UNHANDLED_COUNTRY(0xB4,     NR)  // Nauru
-    UNHANDLED_COUNTRY(0xB5,     SR)  // Suriname
-    UNHANDLED_COUNTRY(0xB8,     PS)  // Palestinian Territory
-    UNHANDLED_COUNTRY(0xC2,     PG)  // Papua New Guinea
-    UNHANDLED_COUNTRY(0xC3,     PW)  // Palau
     UNHANDLED_COUNTRY(0xC4,     GW)  // Guinea-Bissau
-    UNHANDLED_COUNTRY(0xC6,     RE)  // Reunion
-    UNHANDLED_COUNTRY(0xC7,     MH)  // Marshall Islands
-    UNHANDLED_COUNTRY(0xCC,     RW)  // Rwanda
-    UNHANDLED_COUNTRY(0xCE,     PM)  // Saint Pierre and Miquelon
-    UNHANDLED_COUNTRY(0xCF,     KN)  // Saint Kitts and Nevis
-    UNHANDLED_COUNTRY(0xD0,     SC)  // Seychelles
-    UNHANDLED_COUNTRY(0xD2,     SN)  // Senegal
-    UNHANDLED_COUNTRY(0xD5,     SL)  // Sierra Leone
-    UNHANDLED_COUNTRY(0xD6,     SM)  // San Marino
-    UNHANDLED_COUNTRY(0xD8,     SO)  // Somalia
-    UNHANDLED_COUNTRY(0xDA,     LC)  // Saint Lucia
-    UNHANDLED_COUNTRY(0xDB,     SD)  // Sudan
-    UNHANDLED_COUNTRY(0xDC,     SJ)  // Svalbard [and Jan Mayen]
-    UNHANDLED_COUNTRY(0xE4,     TJ)  // Tajikistan
-    UNHANDLED_COUNTRY(0xE7,     TO)  // Tonga
-    UNHANDLED_COUNTRY(0xE8,     TG)  // Togo
     UNHANDLED_COUNTRY(0xE9,     ST)  // Sao Tome and Principe
-    UNHANDLED_COUNTRY(0xEC,     TV)  // Tuvalu
-    UNHANDLED_COUNTRY(0xEE,     TM)  // Turkmenistan
-    UNHANDLED_COUNTRY(0xEF,     TZ)  // Tanzania
-    UNHANDLED_COUNTRY(0xF0,     UG)  // Uganda
-    UNHANDLED_COUNTRY(0xF5,     BF)  // Burkina Faso
-    UNHANDLED_COUNTRY(0xF7,     UZ)  // Uzbekistan
-    UNHANDLED_COUNTRY(0xF8,     VC)  // Saint Vincent and the Grenadines
-    UNHANDLED_COUNTRY(0xFC,     VI)  // U.S. Virgin Islands
-    UNHANDLED_COUNTRY(0xFD,     VA)  // Vatican
-    UNHANDLED_COUNTRY(0xFE,     NA)  // Namibia
-    UNHANDLED_COUNTRY(0x102,    XX)  // Wake Island
-    UNHANDLED_COUNTRY(0x103,    WS)  // Samoa
-    UNHANDLED_COUNTRY(0x104,    SZ)  // Swaziland
-    UNHANDLED_COUNTRY(0x107,    ZM)  // Zambia
-    UNHANDLED_COUNTRY(0x12C,    AI)  // Anguilla
-    UNHANDLED_COUNTRY(0x12D,    AQ)  // Antarctica
-    UNHANDLED_COUNTRY(0x12E,    AW)  // Aruba
-    UNHANDLED_COUNTRY(0x12F,    XX)  // Ascension Island
-    UNHANDLED_COUNTRY(0x130,    XX)  // Ashmore and Cartier Islands
-    UNHANDLED_COUNTRY(0x131,    XX)  // Baker Island
-    UNHANDLED_COUNTRY(0x132,    BV)  // Bouvet Island
-    UNHANDLED_COUNTRY(0x133,    KY)  // Cayman Islands
-    UNHANDLED_COUNTRY(0x134,    XX)  // Channel Islands
-    UNHANDLED_COUNTRY(0x135,    CX)  // Christmas Island
-    UNHANDLED_COUNTRY(0x136,    XX)  // Clipperton Island
-    UNHANDLED_COUNTRY(0x137,    CC)  // Cocos Islands
-    UNHANDLED_COUNTRY(0x138,    CK)  // Cook Islands
-    UNHANDLED_COUNTRY(0x139,    XX)  // Coral Sea Islands
-    UNHANDLED_COUNTRY(0x13A,    XX)  // Diego Garcia
-    UNHANDLED_COUNTRY(0x13B,    FK)  // Falkland Islands
-    UNHANDLED_COUNTRY(0x13D,    GF)  // French Guiana
-    UNHANDLED_COUNTRY(0x13E,    PF)  // French Polynesia
-    UNHANDLED_COUNTRY(0x13F,    TF)  // French Southern Territories
-    UNHANDLED_COUNTRY(0x141,    GP)  // Guadeloupe
-    UNHANDLED_COUNTRY(0x142,    GU)  // Guam
-    UNHANDLED_COUNTRY(0x143,    XX)  // Guantanamo Bay
-    UNHANDLED_COUNTRY(0x144,    GG)  // Guernsey
-    UNHANDLED_COUNTRY(0x145,    HM)  // Heard Island and McDonald Islands
-    UNHANDLED_COUNTRY(0x146,    XX)  // Howland Island
-    UNHANDLED_COUNTRY(0x147,    XX)  // Jarvis Island
-    UNHANDLED_COUNTRY(0x148,    JE)  // Jersey
-    UNHANDLED_COUNTRY(0x149,    XX)  // Kingman Reef
-    UNHANDLED_COUNTRY(0x14A,    MQ)  // Martinique
-    UNHANDLED_COUNTRY(0x14B,    YT)  // Mayotte
-    UNHANDLED_COUNTRY(0x14C,    MS)  // Montserrat
-    UNHANDLED_COUNTRY(0x14D,    AN)  // Netherlands Antilles
-    UNHANDLED_COUNTRY(0x14E,    NC)  // New Caledonia
-    UNHANDLED_COUNTRY(0x14F,    NU)  // Niue
-    UNHANDLED_COUNTRY(0x150,    NF)  // Norfolk Island
-    UNHANDLED_COUNTRY(0x151,    MP)  // Northern Mariana Islands
-    UNHANDLED_COUNTRY(0x152,    XX)  // Palmyra Atoll
-    UNHANDLED_COUNTRY(0x153,    PN)  // Pitcairn Islands
-    UNHANDLED_COUNTRY(0x154,    XX)  // Rota Island
-    UNHANDLED_COUNTRY(0x155,    XX)  // Saipan
-    UNHANDLED_COUNTRY(0x156,    GS)  // South Georgia and the South Sandwich
-                                     // Islands
-    UNHANDLED_COUNTRY(0x157,    SH)  // Saint Helena
-    UNHANDLED_COUNTRY(0x15A,    XX)  // Tinian Island
-    UNHANDLED_COUNTRY(0x15B,    TK)  // Tokelau
-    UNHANDLED_COUNTRY(0x15C,    XX)  // Tristan da Cunha
-    UNHANDLED_COUNTRY(0x15D,    TC)  // Turks and Caicos Islands
-    UNHANDLED_COUNTRY(0x15F,    VG)  // British Virgin Islands
-    UNHANDLED_COUNTRY(0x160,    WF)  // Wallis and Futuna
-    UNHANDLED_COUNTRY(0x3B16,   IM)  // Isle of Man
-    UNHANDLED_COUNTRY(0x52FA,   XX)  // Midway Islands
     UNHANDLED_COUNTRY(0x6F60E7, TL)  // East Timor
-    default:                         // Unknown location
-    // Perhaps this should use an empty set of engines instead of the US set?
-    DECLARE_COUNTRY(GEOID_NOT_AVAILABLE, US)
+    END_UNHANDLED_COUNTRIES(PT)
+
+    // Countries using the "Russia" engine set.
+    UNHANDLED_COUNTRY(0x5,  AZ)  // Azerbaijan
+    UNHANDLED_COUNTRY(0x7,  AM)  // Armenia
+    UNHANDLED_COUNTRY(0x82, KG)  // Kyrgyzstan
+    UNHANDLED_COUNTRY(0x89, KZ)  // Kazakhstan
+    UNHANDLED_COUNTRY(0xE4, TJ)  // Tajikistan
+    UNHANDLED_COUNTRY(0xEE, TM)  // Turkmenistan
+    UNHANDLED_COUNTRY(0xF7, UZ)  // Uzbekistan
+    END_UNHANDLED_COUNTRIES(RU)
+
+    // Countries using the "Saudi Arabia" engine set.
+    UNHANDLED_COUNTRY(0xA2, MR)  // Mauritania
+    UNHANDLED_COUNTRY(0xB8, PS)  // Palestinian Territory
+    UNHANDLED_COUNTRY(0xDB, SD)  // Sudan
+    END_UNHANDLED_COUNTRIES(SA)
+
+    // Countries using the "United Kingdom" engine set.
+    UNHANDLED_COUNTRY(0x14,   BM)  // Bermuda
+    UNHANDLED_COUNTRY(0x5A,   GI)  // Gibraltar
+    UNHANDLED_COUNTRY(0x72,   IO)  // British Indian Ocean Territory
+    UNHANDLED_COUNTRY(0xA3,   MT)  // Malta
+    UNHANDLED_COUNTRY(0x12F,  XX)  // Ascension Island
+    UNHANDLED_COUNTRY(0x133,  KY)  // Cayman Islands
+    UNHANDLED_COUNTRY(0x134,  XX)  // Channel Islands
+    UNHANDLED_COUNTRY(0x13A,  XX)  // Diego Garcia
+    UNHANDLED_COUNTRY(0x13B,  FK)  // Falkland Islands
+    UNHANDLED_COUNTRY(0x144,  GG)  // Guernsey
+    UNHANDLED_COUNTRY(0x148,  JE)  // Jersey
+    UNHANDLED_COUNTRY(0x14C,  MS)  // Montserrat
+    UNHANDLED_COUNTRY(0x153,  PN)  // Pitcairn Islands
+    UNHANDLED_COUNTRY(0x156,  GS)  // South Georgia and the South Sandwich
+                                   // Islands
+    UNHANDLED_COUNTRY(0x157,  SH)  // Saint Helena
+    UNHANDLED_COUNTRY(0x15C,  XX)  // Tristan da Cunha
+    UNHANDLED_COUNTRY(0x15D,  TC)  // Turks and Caicos Islands
+    UNHANDLED_COUNTRY(0x15F,  VG)  // British Virgin Islands
+    UNHANDLED_COUNTRY(0x3B16, IM)  // Isle of Man
+    END_UNHANDLED_COUNTRIES(UK)
+
+    // Countries using the "United States" engine set.
+    UNHANDLED_COUNTRY(0xA,    AS)  // American Samoa
+    UNHANDLED_COUNTRY(0x7F,   XX)  // Johnston Atoll
+    UNHANDLED_COUNTRY(0xFC,   VI)  // U.S. Virgin Islands
+    UNHANDLED_COUNTRY(0x102,  XX)  // Wake Island
+    UNHANDLED_COUNTRY(0x131,  XX)  // Baker Island
+    UNHANDLED_COUNTRY(0x142,  GU)  // Guam
+    UNHANDLED_COUNTRY(0x146,  XX)  // Howland Island
+    UNHANDLED_COUNTRY(0x147,  XX)  // Jarvis Island
+    UNHANDLED_COUNTRY(0x149,  XX)  // Kingman Reef
+    UNHANDLED_COUNTRY(0x151,  MP)  // Northern Mariana Islands
+    UNHANDLED_COUNTRY(0x152,  XX)  // Palmyra Atoll
+    UNHANDLED_COUNTRY(0x154,  XX)  // Rota Island
+    UNHANDLED_COUNTRY(0x155,  XX)  // Saipan
+    UNHANDLED_COUNTRY(0x15A,  XX)  // Tinian Island
+    UNHANDLED_COUNTRY(0x52FA, XX)  // Midway Islands
+    END_UNHANDLED_COUNTRIES(US)
+
+    // Countries using the "default" engine set.
+    UNHANDLED_COUNTRY(0x2,                 AG)  // Antigua and Barbuda
+    UNHANDLED_COUNTRY(0x3,                 AF)  // Afghanistan
+    UNHANDLED_COUNTRY(0x9,                 AO)  // Angola
+    UNHANDLED_COUNTRY(0x12,                BB)  // Barbados
+    UNHANDLED_COUNTRY(0x13,                BW)  // Botswana
+    UNHANDLED_COUNTRY(0x16,                BS)  // Bahamas
+    UNHANDLED_COUNTRY(0x17,                BD)  // Bangladesh
+    UNHANDLED_COUNTRY(0x1B,                MM)  // Myanmar
+    UNHANDLED_COUNTRY(0x1E,                SB)  // Solomon Islands
+    UNHANDLED_COUNTRY(0x22,                BT)  // Bhutan
+    UNHANDLED_COUNTRY(0x28,                KH)  // Cambodia
+    UNHANDLED_COUNTRY(0x2A,                LK)  // Sri Lanka
+    UNHANDLED_COUNTRY(0x32,                KM)  // Comoros
+    UNHANDLED_COUNTRY(0x38,                CU)  // Cuba
+    UNHANDLED_COUNTRY(0x3F,                DM)  // Dominica
+    UNHANDLED_COUNTRY(0x45,                GQ)  // Equatorial Guinea
+    UNHANDLED_COUNTRY(0x47,                ER)  // Eritrea
+    UNHANDLED_COUNTRY(0x49,                ET)  // Ethiopia
+    UNHANDLED_COUNTRY(0x4E,                FJ)  // Fiji
+    UNHANDLED_COUNTRY(0x50,                FM)  // Micronesia
+    UNHANDLED_COUNTRY(0x56,                GM)  // Gambia
+    UNHANDLED_COUNTRY(0x58,                GE)  // Georgia
+    UNHANDLED_COUNTRY(0x59,                GH)  // Ghana
+    UNHANDLED_COUNTRY(0x5B,                GD)  // Grenada
+    UNHANDLED_COUNTRY(0x65,                GY)  // Guyana
+    UNHANDLED_COUNTRY(0x83,                KP)  // North Korea
+    UNHANDLED_COUNTRY(0x85,                KI)  // Kiribati
+    UNHANDLED_COUNTRY(0x8A,                LA)  // Laos
+    UNHANDLED_COUNTRY(0x8E,                LR)  // Liberia
+    UNHANDLED_COUNTRY(0x92,                LS)  // Lesotho
+    UNHANDLED_COUNTRY(0x95,                MG)  // Madagascar
+    UNHANDLED_COUNTRY(0x98,                MD)  // Moldova
+    UNHANDLED_COUNTRY(0x9A,                MN)  // Mongolia
+    UNHANDLED_COUNTRY(0x9C,                MW)  // Malawi
+    UNHANDLED_COUNTRY(0xA0,                MU)  // Mauritius
+    UNHANDLED_COUNTRY(0xA5,                MV)  // Maldives
+    UNHANDLED_COUNTRY(0xAE,                VU)  // Vanuatu
+    UNHANDLED_COUNTRY(0xAF,                NG)  // Nigeria
+    UNHANDLED_COUNTRY(0xB2,                NP)  // Nepal
+    UNHANDLED_COUNTRY(0xB4,                NR)  // Nauru
+    UNHANDLED_COUNTRY(0xB5,                SR)  // Suriname
+    UNHANDLED_COUNTRY(0xC2,                PG)  // Papua New Guinea
+    UNHANDLED_COUNTRY(0xC3,                PW)  // Palau
+    UNHANDLED_COUNTRY(0xC7,                MH)  // Marshall Islands
+    UNHANDLED_COUNTRY(0xCC,                RW)  // Rwanda
+    UNHANDLED_COUNTRY(0xCF,                KN)  // Saint Kitts and Nevis
+    UNHANDLED_COUNTRY(0xD0,                SC)  // Seychelles
+    UNHANDLED_COUNTRY(0xD5,                SL)  // Sierra Leone
+    UNHANDLED_COUNTRY(0xD8,                SO)  // Somalia
+    UNHANDLED_COUNTRY(0xDA,                LC)  // Saint Lucia
+    UNHANDLED_COUNTRY(0xE7,                TO)  // Tonga
+    UNHANDLED_COUNTRY(0xEC,                TV)  // Tuvalu
+    UNHANDLED_COUNTRY(0xEF,                TZ)  // Tanzania
+    UNHANDLED_COUNTRY(0xF0,                UG)  // Uganda
+    UNHANDLED_COUNTRY(0xF8,                VC)  // Saint Vincent and the
+                                                // Grenadines
+    UNHANDLED_COUNTRY(0xFE,                NA)  // Namibia
+    UNHANDLED_COUNTRY(0x103,               WS)  // Samoa
+    UNHANDLED_COUNTRY(0x104,               SZ)  // Swaziland
+    UNHANDLED_COUNTRY(0x107,               ZM)  // Zambia
+    UNHANDLED_COUNTRY(0x12C,               AI)  // Anguilla
+    UNHANDLED_COUNTRY(0x12D,               AQ)  // Antarctica
+    UNHANDLED_COUNTRY(0x143,               XX)  // Guantanamo Bay
+    UNHANDLED_COUNTRY(GEOID_NOT_AVAILABLE, XX)  // Unknown location
+    default:                                    // Unhandled location
+    END_UNHANDLED_COUNTRIES(default)
   }
 }
 
@@ -2949,7 +2997,7 @@ void RegisterUserPrefs(PrefService* prefs) {
 }
 
 int GetDataVersion() {
-  return 8;  // Increment this if you change the above data in ways that mean
+  return 9;  // Increment this if you change the above data in ways that mean
              // users with existing data should get a new version.
 }
 
