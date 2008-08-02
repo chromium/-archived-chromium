@@ -699,9 +699,9 @@ bool EntryImpl::MoveToLocalBuffer(int index) {
 
 bool EntryImpl::ImportSeparateFile(int index, int offset, int buf_len) {
   if (entry_.Data()->data_size[index] > offset + buf_len) {
-    entry_.Data()->data_size[index] = offset + buf_len;
     unreported_size_[index] += offset + buf_len -
                                entry_.Data()->data_size[index];
+    entry_.Data()->data_size[index] = offset + buf_len;
   }
 
   if (!MoveToLocalBuffer(index))

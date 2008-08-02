@@ -48,6 +48,7 @@ class DiskCacheEntryTest : public DiskCacheTestBase {
   void GetKey();
   void GrowData();
   void TruncateData();
+  void ReuseEntry();
   void InvalidData();
   void DoomEntry();
   void DoomedEntry();
@@ -569,6 +570,46 @@ TEST_F(DiskCacheEntryTest, MemoryOnlyTruncateData) {
   SetMemoryOnlyMode();
   InitCache();
   TruncateData();
+}
+
+// Write more than the total cache capacity but to a single entry.
+void DiskCacheEntryTest::ReuseEntry() {
+  std::string key1("the first key");
+  disk_cache::Entry *entry;
+  ASSERT_TRUE(cache_->CreateEntry(key1, &entry));
+
+  entry->Close();
+  std::string key2("the second key");
+  ASSERT_TRUE(cache_->CreateEntry(key2, &entry));
+
+  char buffer[20000];
+  CacheTestFillBuffer(buffer, sizeof(buffer), false);
+
+  for (int i = 0; i < 15; i++) {
+    EXPECT_EQ(0, entry->WriteData(0, 0, buffer, 0, NULL, true));
+    EXPECT_EQ(20000, entry->WriteData(0, 0, buffer, 20000, NULL, false));
+    entry->Close();
+    ASSERT_TRUE(cache_->OpenEntry(key2, &entry));
+  }
+
+  entry->Close();
+  ASSERT_TRUE(cache_->OpenEntry(key1, &entry)) << "have not evicted this entry";
+  entry->Close();
+}
+
+TEST_F(DiskCacheEntryTest, ReuseEntry) {
+  SetDirectMode();
+  SetMaxSize(200 * 1024);
+  InitCache();
+  ReuseEntry();
+}
+
+TEST_F(DiskCacheEntryTest, MemoryOnlyReuseEntry) {
+  SetDirectMode();
+  SetMemoryOnlyMode();
+  SetMaxSize(200 * 1024);
+  InitCache();
+  ReuseEntry();
 }
 
 // Reading somewhere that was not written should return zeros.

@@ -88,7 +88,7 @@ typedef uint32 CacheAddr;
 
 const int kIndexTablesize = 0x10000;
 const uint32 kIndexMagic = 0xC103CAC3;
-const uint32 kCurrentVersion = 0x10002;  // Version 1.2.
+const uint32 kCurrentVersion = 0x10003;  // Version 1.3.
 
 // Header for the master index file.
 struct IndexHeader {
