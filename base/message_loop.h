@@ -543,10 +543,6 @@ class MessageLoop {
   // Do a PostMessage(), and crash if we can't eventually do the post.
   void EnsureMessageGetsPosted(int message) const;
 
-  // Post a task that an object watcher has already initialized with the
-  // place of birth.
-  void PostSignaledTask(Task* task);
-
   // Post a task to our incomming queue.
   void MessageLoop::PostTaskInternal(Task* task);
 

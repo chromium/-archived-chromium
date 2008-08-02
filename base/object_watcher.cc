@@ -57,6 +57,7 @@ struct ObjectWatcher::Watch : public Task {
     
     watcher->CancelWatch(object);
 
+    task_to_run->ResetBirthTime();
     task_to_run->Run();
     delete task_to_run;
   }
