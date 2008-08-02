@@ -1,4 +1,4 @@
-# List of chrome.dll's dependencies.
+# List of browser.dll's dependencies.
 
 dependents = [
   'KERNEL32.dll',

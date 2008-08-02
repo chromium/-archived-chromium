@@ -32,27 +32,14 @@
 #include <windows.h>
 #include <wininet.h>
 
-#include "base/command_line.h"
-#include "base/logging.h"
-#include "base/path_service.h"
-#include "base/string_util.h"
 #include "chrome/renderer/net/render_dns_master.h"
-#include "chrome/common/chrome_paths.h"
-#include "chrome/common/chrome_switches.h"
-#include "chrome/common/render_messages.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/common/resource_dispatcher.h"
 #include "chrome/plugin/npobject_util.h"
-#include "chrome/renderer/render_process.h"
-#include "chrome/renderer/render_thread.h"
 #include "chrome/renderer/render_view.h"
 #include "chrome/renderer/visitedlink_slave.h"
-#include "googleurl/src/gurl.h"
 #include "googleurl/src/url_util.h"
 #include "net/base/mime_util.h"
-#include "webkit/glue/resource_type.h"
 #include "webkit/glue/webframe.h"
-#include "webkit/glue/webview.h"
 #include "webkit/glue/webkit_glue.h"
 
 #include "SkBitmap.h"
@@ -202,10 +189,6 @@ IMLangFontLink2* webkit_glue::GetLangFontLink() {
   return RenderProcess::GetLangFontLink();
 }
 
-std::wstring webkit_glue::GetLocalizedString(int message_id) {
-  return ResourceBundle::GetSharedInstance().GetLocalizedString(message_id);
-}
-
 std::string webkit_glue::GetDataResource(int resource_id) {
   return ResourceBundle::GetSharedInstance().GetDataResource(resource_id);
 }
@@ -289,11 +272,6 @@ void webkit_glue::ClipboardReadHTML(std::wstring* markup, GURL* url) {
   RenderThread::current()->Send(new ViewHostMsg_ClipboardReadHTML(markup, url));
 }
 
-
-bool webkit_glue::GetApplicationDirectory(std::wstring *path) {
-  return PathService::Get(chrome::DIR_APP, path);
-}
-
 GURL webkit_glue::GetInspectorURL() {
   return GURL("chrome-resource://inspector/inspector.html");
 }
@@ -302,18 +280,10 @@ std::string webkit_glue::GetUIResourceProtocol() {
   return "chrome-resource";
 }
 
-bool webkit_glue::GetExeDirectory(std::wstring *path) {
-  return PathService::Get(base::DIR_EXE, path);
-}
-
 bool webkit_glue::GetPlugins(bool refresh,
                              std::vector<WebPluginInfo>* plugins) {
   return RenderThread::current()->Send(
       new ViewHostMsg_GetPlugins(refresh, plugins));
-}
-
-bool webkit_glue::IsPluginRunningInRendererProcess() {
-  return !IsPluginProcess();
 }
 
 bool webkit_glue::EnsureFontLoaded(HFONT font) {
@@ -329,15 +299,6 @@ MONITORINFOEX webkit_glue::GetMonitorInfoForWindow(HWND window) {
   return monitor_info;
 }
 
-std::wstring webkit_glue::GetWebKitLocale() {
-  // The browser process should have passed the locale to the renderer via the
-  // --lang command line flag.
-  CommandLine parsed_command_line;
-  const std::wstring& lang =
-      parsed_command_line.GetSwitchValue(switches::kLang);
-  DCHECK(!lang.empty());
-  return lang;
-}
 
 #ifndef USING_SIMPLE_RESOURCE_LOADER_BRIDGE
 

@@ -103,10 +103,6 @@ bool RenderProcess::GlobalInit(const std::wstring &channel_name) {
       command_line.HasSwitch(switches::kSingleProcess))
     load_plugins_in_process_ = true;
 
-  if (command_line.HasSwitch(switches::kDnsPrefetchDisable)) {
-    chrome_browser_net::EnableDnsPrefetch(false);
-  }
-
   if (command_line.HasSwitch(switches::kEnableWatchdog)) {
     // TODO(JAR): Need to implement renderer IO msgloop watchdog.
   }

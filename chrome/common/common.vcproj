@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="common"
 	ProjectGUID="{899F1280-3441-4D1F-BA04-CCD6208D9146}"
 	RootNamespace="common"
@@ -394,6 +394,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\common_glue.cc"
+			>
+		</File>
+		<File
 			RelativePath=".\common_resources.h"
 			>
 		</File>
@@ -530,22 +534,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\slide_animation.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\slide_animation.h"
-			>
-		</File>
-		<File
-			RelativePath=".\throb_animation.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\throb_animation.h"
-			>
-		</File>
-		<File
 			RelativePath="..\tools\build\win\precompiled.cc"
 			>
 			<FileConfiguration
@@ -630,6 +618,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\slide_animation.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\slide_animation.h"
+			>
+		</File>
+		<File
 			RelativePath=".\sqlite_compiled_statement.cc"
 			>
 		</File>
@@ -659,6 +655,14 @@
 		</File>
 		<File
 			RelativePath=".\text_zoom.h"
+			>
+		</File>
+		<File
+			RelativePath=".\throb_animation.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\throb_animation.h"
 			>
 		</File>
 		<File

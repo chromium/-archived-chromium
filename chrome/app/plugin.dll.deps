@@ -1,4 +1,4 @@
-# List of chrome.dll's dependencies.
+# List of plugin.dll's dependencies.
 
 dependents = [
   'KERNEL32.dll',
@@ -6,27 +6,17 @@ dependents = [
   'ADVAPI32.dll',
   'MSIMG32.dll',
   'WINMM.dll',
-  'COMCTL32.dll',
   'SHLWAPI.dll',
-  'RPCRT4.dll',
   'GDI32.dll',
   'SHELL32.dll',
   'VERSION.dll',
   'USP10.dll',
   'ole32.dll',
   'OLEAUT32.dll',
-  'OLEACC.dll',
 ]
 
 delay_loaded = [
-  'CRYPTUI.dll',
-  'IMM32.dll',
-  'CRYPT32.dll',
   'WINHTTP.dll',
-  'WININET.dll',
   'WS2_32.dll',
-  'PSAPI.DLL',
-  'dwmapi.dll',
-  'COMDLG32.dll',
   'urlmon.dll',
 ]
