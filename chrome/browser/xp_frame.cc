@@ -83,7 +83,7 @@ static const int kToolbarOverlapVertOffset = 3;
 static const int kTabShadowSize = 2;
 
 static const int kDistributorLogoHorizontalOffset = 7;
-static const int kDistributorLogoVerticalOffset = 4;
+static const int kDistributorLogoVerticalOffset = 3;
 
 // Size of a corner. We use this when drawing a black background in maximized
 // mode
@@ -462,7 +462,7 @@ void XPFrame::Init() {
 
   distributor_logo_ = new ChromeViews::ImageView();
   frame_view_->AddViewToDropList(distributor_logo_);
-  distributor_logo_->SetImage(rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO));
+  distributor_logo_->SetImage(rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO_LIGHT));
   frame_view_->AddChildView(distributor_logo_);
 
   min_button_ = new ChromeViews::Button();
