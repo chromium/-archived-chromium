@@ -90,7 +90,8 @@ NativeTheme::NativeTheme()
 
 NativeTheme::~NativeTheme() {
   if (theme_dll_) {
-    CloseHandles();
+    // todo (cpu): fix this soon.
+    // CloseHandles();
     FreeLibrary(theme_dll_);
   }
 }
