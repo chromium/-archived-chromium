@@ -378,7 +378,7 @@
 <translation id="8112223930265703044">Vše</translation>
 <translation id="5538307496474303926">Probíhá vyčištění...</translation>
 <translation id="2339641773402824483">Kontrola aktualizací...</translation>
-<translation id="5844183150118566785"><ph name="PRODUCT_NAME"/> je aktuální <ph name="VERSION"/>)</translation>
+<translation id="5844183150118566785">Vaše verze <ph name="PRODUCT_NAME"/> je aktuální (<ph name="VERSION"/>)</translation>
 <translation id="4477534650265381513">Pro pohotový přístup umístěte své záložky sem, do lišty záložek.</translation>
 <translation id="394984172568887996">Importováno z aplikace IE</translation>
 <translation id="5502500733115278303">Importováno z aplikace Firefox</translation>
