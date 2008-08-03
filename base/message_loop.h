@@ -353,8 +353,7 @@ class MessageLoop {
           quit_now_(loop->quit_now_),
           quit_received_(loop->quit_received_),
           run_depth_(loop->run_depth_) {
-      loop->quit_now_ = false;
-      loop->quit_received_ = 0;
+      loop->quit_now_ = loop->quit_received_ = false;
       ++loop->run_depth_;
     }
 
@@ -369,7 +368,7 @@ class MessageLoop {
     MessageLoop* loop_;
     Dispatcher* dispatcher_;
     bool quit_now_;
-    int quit_received_;
+    bool quit_received_;
     int run_depth_;
   };  // struct ScopedStateSave
 
@@ -587,8 +586,8 @@ class MessageLoop {
   bool exception_restoration_;
 
   Dispatcher* dispatcher_;
-  int quit_received_;  // The number of kQuitMsg's processed during run.
-  bool quit_now_;  // A dispatcher indicated the message pump should terminate.
+  bool quit_received_;
+  bool quit_now_;
 
   std::string thread_name_;
   // A profiling histogram showing the counts of various messages and events.

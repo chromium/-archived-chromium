@@ -128,7 +128,7 @@ MessageLoop::MessageLoop() : message_hwnd_(NULL),
                              exception_restoration_(false),
                              nestable_tasks_allowed_(true),
                              dispatcher_(NULL),
-                             quit_received_(0),
+                             quit_received_(false),
                              quit_now_(false),
                              task_pump_message_pending_(false),
                              run_depth_(0) {
@@ -226,16 +226,6 @@ void MessageLoop::RunInternal(Dispatcher* dispatcher, bool non_blocking) {
   // and leave messages pending, so don't assert the above fact).
   RunTraditional(non_blocking);
   DCHECK(non_blocking || quit_received_ || quit_now_);
-  // Repost excess kMsgQuit's that were received before we exit.
-  int excess_quits = quit_received_ - 1;  // One is expected.
-  if (non_blocking || quit_now_)
-    ++excess_quits;  // Any quit is an excess quit.
-  if (excess_quits > run_depth_ - 1) {
-    // DCHECK(false);  // Someone sent redundant quits.
-    excess_quits = run_depth_ - 1;
-  }
-  while (--excess_quits >= 0)
-    Quit();
 }
 
 void MessageLoop::RunTraditional(bool non_blocking) {
@@ -255,7 +245,6 @@ void MessageLoop::RunTraditional(bool non_blocking) {
 
     more_work_is_plausible |= ProcessNextDeferredTask();
     more_work_is_plausible |= ProcessNextObject();
-    more_work_is_plausible |= ProcessNextDelayedNonNestableTask();
     if (more_work_is_plausible)
       continue;
 
@@ -264,6 +253,11 @@ void MessageLoop::RunTraditional(bool non_blocking) {
 
     // Run any timer that is ready to run. It may create messages etc.
     if (ProcessSomeTimers())
+      continue;
+
+    // We run delayed non nestable tasks only after all nestable tasks have
+    // run, to preserve FIFO ordering.
+    if (ProcessNextDelayedNonNestableTask())
       continue;
 
     if (non_blocking)
@@ -404,7 +398,11 @@ LRESULT MessageLoop::MessageWndProc(HWND hwnd, UINT message,
     }
 
     case kMsgQuit: {
-      ++quit_received_;
+      // TODO(jar): bug 1300541 The following assert should be used, but
+      // currently too much code actually triggers the assert, especially in
+      // tests :-(.
+      //CHECK(!quit_received_);  // Discarding a second quit will cause a hang.
+      quit_received_ = true;
       return 0;
     }
   }
