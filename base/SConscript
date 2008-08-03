@@ -113,7 +113,7 @@ input_files = [
     'worker_pool.cc',
 ]
 
-env.StaticLibrary('base', input_files)
+env.ChromeStaticLibrary('base', input_files)
 
 
 env_tests.Prepend(
@@ -199,7 +199,7 @@ env_tests_dll.Append(
         'SINGLETON_UNITTEST_EXPORTS',
     ],
 )
-dll = env_tests_dll.SharedLibrary(['singleton_dll_unittest.dll',
+dll = env_tests_dll.ChromeSharedLibrary(['singleton_dll_unittest.dll',
                                    'singleton_dll_unittest.ilk',
                                    'singleton_dll_unittest.pdb'],
                                   ['singleton_dll_unittest.cc',
@@ -207,7 +207,7 @@ dll = env_tests_dll.SharedLibrary(['singleton_dll_unittest.dll',
 i = env.Install('$TARGET_ROOT', dll[0])
 env.Alias('base', i)
 
-env_tests.Program(['debug_message.exe',
+env_tests.ChromeTestProgram(['debug_message.exe',
                    'debug_message.ilk',
                    'debug_message.pdb'],
                   ['debug_message.cc'] + libs)
@@ -263,7 +263,7 @@ test_files = [
     'singleton_dll_unittest.lib',
 ]
 
-base_unittests = env_tests.Program([
+base_unittests = env_tests.ChromeTestProgram([
     'base_unittests',
     'base_unittests.exp',
     'base_unittests.ilk',

@@ -73,4 +73,4 @@ input_files = [
     'vector_device.cc',
 ]
 
-env.StaticLibrary('base_gfx', input_files)
+env.ChromeStaticLibrary('base_gfx', input_files)

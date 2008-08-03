@@ -50,7 +50,7 @@ sender_input_files = [
     'src/common/windows/http_upload.cc',
 ]
 
-env.StaticLibrary('breakpad_sender', sender_input_files)
+env.ChromeStaticLibrary('breakpad_sender', sender_input_files)
 
 
 handler_input_files = [
@@ -62,4 +62,4 @@ handler_input_files = [
     'src/client/windows/crash_generation/crash_generation_client.cc',
 ]
 
-env.StaticLibrary('breakpad_handler', handler_input_files)
+env.ChromeStaticLibrary('breakpad_handler', handler_input_files)

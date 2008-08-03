@@ -127,7 +127,7 @@ env['PCHSTOP'] = 'stdafx.h'
 env.Append(CCPCHFLAGS = ['/FIstdafx.h'])
 
 
-env.StaticLibrary('sandbox', input_files + [obj])
+env.ChromeStaticLibrary('sandbox', input_files + [obj])
 
 
 env_tests.Prepend(
@@ -216,7 +216,7 @@ env_unit_tests['PCHSTOP'] = 'stdafx.h'
 env_unit_tests.Append(CCPCHFLAGS = ['/FIstdafx.h'])
 
 
-unit_tests = env_unit_tests.Program(
+unit_tests = env_unit_tests.ChromeTestProgram(
     ['../sbox_unittests.exe',
     '../sbox_unittests.ilk',
     '../sbox_unittests.pdb'],
@@ -260,7 +260,7 @@ env_integration_tests['PCH'] = pch
 env_integration_tests['PCHSTOP'] = 'stdafx.h'
 env_integration_tests.Append(CCPCHFLAGS = ['/FIstdafx.h'])
 
-integration_tests = env_integration_tests.Program(
+integration_tests = env_integration_tests.ChromeTestProgram(
     ['../sbox_integration_tests.exe',
     '../sbox_integration_tests.ilk',
     '../sbox_integration_tests.lib',
@@ -299,7 +299,7 @@ env_validation_tests['PCH'] = pch
 env_validation_tests['PCHSTOP'] = 'stdafx.h'
 env_validation_tests.Append(CCPCHFLAGS = ['/FIstdafx.h'])
 
-validation_tests = env_validation_tests.Program(
+validation_tests = env_validation_tests.ChromeTestProgram(
     ['../sbox_validation_tests.exe',
     '../sbox_validation_tests.ilk',
     '../sbox_validation_tests.lib',

@@ -68,7 +68,7 @@ input_files = [
     'src/url_util.cc',
 ]
 
-env.StaticLibrary('googleurl', input_files)
+env.ChromeStaticLibrary('googleurl', input_files)
 
 
 # Commented out for now because we can't build googleurl unit tests
@@ -89,5 +89,5 @@ env.StaticLibrary('googleurl', input_files)
 #    'src/url_util_unittest.cc',
 #]
 #
-#env_tests.StaticLibrary('googleurl_tests', test_files)
+#env_tests.ChromeStaticLibrary('googleurl_tests', test_files)
 

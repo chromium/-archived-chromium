@@ -190,4 +190,4 @@ env_p = env.Clone(
 pch, obj = env_p.PCH(['skia.pch', 'precompiled.obj'], 'precompiled.cc')
 env_p['PCH'] = pch
 
-env.StaticLibrary('skia', input_files + [obj])
+env.ChromeStaticLibrary('skia', input_files + [obj])

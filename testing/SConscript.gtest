@@ -55,4 +55,4 @@ input_files = [
     'gtest/src/gtest.cc',
 ]
 
-env.StaticLibrary('gtest', input_files)
+env.ChromeStaticLibrary('gtest', input_files)

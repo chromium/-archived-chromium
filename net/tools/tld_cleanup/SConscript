@@ -92,27 +92,11 @@ libs = [
   '$NET_DIR/net.lib',
 ]
 
-exe_targets = env.Program(['tld_cleanup',
+exe_targets = env.ChromeProgram(['tld_cleanup',
                            'tld_cleanup.ilk',
                            'tld_cleanup.pdb'],
                           input_files + libs)
 i = env.Install('$TARGET_ROOT', exe_targets)
 env.Alias('net', i)
-
-#env.Program('tld_cleanup', input_files + libs,
-#            #WINDOWS_INSERT_MANIFEST=1,
-#            PDB='tld_cleanup.pdb')
-
-#env.Command('tld_cleanup.exe.embed.manifest',
-#            'tld_cleanup.exe.intermediate.manifest',
-#            '-mt.exe /out:${TARGET} /notify_update /manifest $SOURCE')
-
-#env.RES('tld_cleanup.exe.embed.manifest.res',
-#        'tld_cleanup.exe.embed.manifest',
-#        CFLAGS=None,
-#        CCFLAGS=None,
-#        CXXFLAGS=None,
-#        CPPDEFINES=[],
-#        CPPPATH=[])
 
 env.Install('$TARGET_ROOT', exe_targets)

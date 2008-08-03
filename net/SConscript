@@ -138,7 +138,7 @@ input_files = [
 #pch, obj = env_p.PCH(['net.pch', 'precompiled_net.obj'], 'precompiled_net.cc')
 #env_p['PCH'] = pch
 
-#env.StaticLibrary('net', input_files + [obj])
+#env.ChromeStaticLibrary('net', input_files + [obj])
 
 # TODO(bradnelson): This step generates file precompiled_net.pch.ib_tag
 #                   possibly only on incredibuild, scons doesn't know this.
@@ -149,7 +149,7 @@ env['PCH'] = pch
 env['PCHSTOP'] = 'precompiled_net.h'
 env.Append(CCPCHFLAGS = ['/FIprecompiled_net.h'])
 
-env.StaticLibrary('net', input_files + [obj])
+env.ChromeStaticLibrary('net', input_files + [obj])
 
 
 env_tests.Prepend(
@@ -258,7 +258,7 @@ unittest_files = [
     '$BASE_DIR/run_all_unittests.obj',
 ]
 
-net_unittests = env_tests.Program(
+net_unittests = env_tests.ChromeTestProgram(
     ['net_unittests.exe',
     'net_unittests.ilk',
     'net_unittests.pdb'],
@@ -267,7 +267,7 @@ net_unittests = env_tests.Program(
 
 
 
-stress_cache = env_tests.Program(
+stress_cache = env_tests.ChromeTestProgram(
     ['stress_cache.exe',
     'stress_cache.ilk',
     'stress_cache.pdb'],
@@ -276,7 +276,7 @@ stress_cache = env_tests.Program(
 )
 
 
-crash_cache = env_tests.Program(
+crash_cache = env_tests.ChromeTestProgram(
     ['crash_cache.exe',
     'crash_cache.ilk',
     'crash_cache.pdb'],
@@ -285,7 +285,7 @@ crash_cache = env_tests.Program(
 )
 
 
-net_perftests = env_tests.Program(
+net_perftests = env_tests.ChromeTestProgram(
     ['net_perftests.exe',
     'net_perftests.ilk',
     'net_perftests.pdb'],
