@@ -139,6 +139,11 @@ V8 | KJS # DEFER : LayoutTests/http/tests/navigation/onload-navigation-iframe.ht
 // Other
 // -----------------------------------------------------------------
 
+// Bug https://bugs.webkit.org/show_bug.cgi?id=20265
+// The cookie used in this test has expired. We should get an updated test 
+// when we stop pulling the Safari 3.1 branch. Until then, ignore this failure.
+V8 | KJS # DEFER : LayoutTests/fast/cookies/local-file-can-set-cookies.html = FAIL
+
 // Bug 865472, this should just need proper pixel test rebaselining.
 V8 # LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
 
