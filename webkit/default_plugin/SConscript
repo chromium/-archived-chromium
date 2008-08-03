@@ -65,4 +65,4 @@ input_files = [
     'install_dialog.cc',
 ]
 
-env.StaticLibrary('default_plugin', input_files)
+env.ChromeStaticLibrary('default_plugin', input_files)

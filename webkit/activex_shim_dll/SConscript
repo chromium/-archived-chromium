@@ -91,6 +91,6 @@ input_files = [
     'activex_shim_dll.def',
 ]
 
-dll = env.SharedLibrary('npaxshim', input_files + libs)
+dll = env.ChromeSharedLibrary('npaxshim', input_files + libs)
 i = env.Install('$TARGET_ROOT', dll)
 env.Alias('webkit', i)

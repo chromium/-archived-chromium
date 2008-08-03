@@ -85,7 +85,7 @@ env.Append(
     ],
 )
 
-dll = env.SharedLibrary(['npapi_layout_test_plugin',
+dll = env.ChromeSharedLibrary(['npapi_layout_test_plugin',
                          'npapi_layout_test_plugin.lib',
                          'npapi_layout_test_plugin.ilk',
                          'npapi_layout_test_plugin.pdb'],

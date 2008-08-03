@@ -322,4 +322,4 @@ inputs = [
 ]
 
 
-env.Library('V8Bindings', inputs)
+env.ChromeStaticLibrary('V8Bindings', inputs)

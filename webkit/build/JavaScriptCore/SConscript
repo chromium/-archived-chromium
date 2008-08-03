@@ -167,4 +167,4 @@ wtf_inputs = [
     '$WTF_DIR/HashTable.cpp',
 ]
 
-env.Library('WTF', wtf_inputs)
+env.ChromeStaticLibrary('WTF', wtf_inputs)

@@ -98,7 +98,7 @@ env.Append(
     ],
 )
 
-dll = env.SharedLibrary(['npapi_test_plugin',
+dll = env.ChromeSharedLibrary(['npapi_test_plugin',
                          'npapi_test_plugin.ilk',
                          'npapi_test_plugin.pdb'],
                          input_files)

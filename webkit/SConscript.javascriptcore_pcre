@@ -63,4 +63,4 @@ input_files = [
      '$PCRE_DIR/pcre_exec.cpp',
 ]
 
-env.Library('JavaScriptCore_pcre', input_files)
+env.ChromeStaticLibrary('JavaScriptCore_pcre', input_files)

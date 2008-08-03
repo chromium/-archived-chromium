@@ -113,7 +113,7 @@ env.Append(
     ],
 )
 
-lib = env.Library('test_shell', input_files)
+lib = env.ChromeStaticLibrary('test_shell', input_files)
 
 
 
@@ -155,7 +155,7 @@ components = [
     '$WEBKIT_DIR/glue/Glue.lib',
 ]
 
-test_shell = env.Program(['test_shell.exe',
+test_shell = env.ChromeProgram(['test_shell.exe',
                           'test_shell.ilk',
                           'test_shell.pdb'],
                          components + resources +
@@ -217,7 +217,7 @@ test_files = [
     '$WEBKIT_DIR/port/platform/image-decoders/xbm/XBMImageDecoder_unittest.cpp',
 ]
 
-test_shell_tests = env.Program(['test_shell_tests',
+test_shell_tests = env.ChromeTestProgram(['test_shell_tests',
                                 'test_shell_tests.ilk',
                                 'test_shell_tests.pdb'],
                                components + resources + test_files)

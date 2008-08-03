@@ -65,4 +65,4 @@ input_files = [
     'web_activex_site.cc',
 ]
 
-env.StaticLibrary('activex_shim', input_files)
+env.ChromeStaticLibrary('activex_shim', input_files)

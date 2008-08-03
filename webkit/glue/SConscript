@@ -101,6 +101,6 @@ input_files = [
     'webwidget_impl.cc',
 ]
 
-env.StaticLibrary('Glue', input_files)
+env.ChromeStaticLibrary('Glue', input_files)
 
 

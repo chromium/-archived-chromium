@@ -699,4 +699,4 @@ input_files = [
     '$WEBCORE_DIR/xml/XSLTUnicodeSort.cpp',
 ]
 
-env.StaticLibrary('WebCore', input_files + [obj])
+env.ChromeStaticLibrary('WebCore', input_files + [obj])
