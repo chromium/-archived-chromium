@@ -731,7 +731,7 @@ TEST(MessageLoop, NonNestableInNestedLoop) {
   task->set_nestable(false);
   MessageLoop::current()->PostTask(FROM_HERE, task);
   MessageLoop::current()->PostTask(FROM_HERE, new OrderedTasks(&order, 3));
-  MessageLoop::current()->PostTask(FROM_HERE, new QuitTask(&order, 4));
+  MessageLoop::current()->PostTask(FROM_HERE, new OrderedTasks(&order, 4));
   Task* non_nestable_quit = new QuitTask(&order, 5);
   non_nestable_quit->set_nestable(false);
   MessageLoop::current()->PostTask(FROM_HERE, non_nestable_quit);
@@ -744,8 +744,8 @@ TEST(MessageLoop, NonNestableInNestedLoop) {
   EXPECT_EQ(order[ 0], TaskItem(PUMPS, 1, true));
   EXPECT_EQ(order[ 1], TaskItem(ORDERERD, 3, true));
   EXPECT_EQ(order[ 2], TaskItem(ORDERERD, 3, false));
-  EXPECT_EQ(order[ 3], TaskItem(QUITMESSAGELOOP, 4, true));
-  EXPECT_EQ(order[ 4], TaskItem(QUITMESSAGELOOP, 4, false));
+  EXPECT_EQ(order[ 3], TaskItem(ORDERERD, 4, true));
+  EXPECT_EQ(order[ 4], TaskItem(ORDERERD, 4, false));
   EXPECT_EQ(order[ 5], TaskItem(PUMPS, 1, false));
   EXPECT_EQ(order[ 6], TaskItem(ORDERERD, 2, true));
   EXPECT_EQ(order[ 7], TaskItem(ORDERERD, 2, false));
