@@ -74,4 +74,4 @@ input_files = [
     'pngerror.c',
 ]
 
-env.StaticLibrary('libpng', input_files)
+env.ChromeStaticLibrary('libpng', input_files)

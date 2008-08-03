@@ -92,4 +92,4 @@ input_files = [
     'jutils.c',
 ]
 
-env.StaticLibrary('libjpeg', input_files)
+env.ChromeStaticLibrary('libjpeg', input_files)

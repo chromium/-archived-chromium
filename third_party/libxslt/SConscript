@@ -77,7 +77,7 @@ input_files = [
     'libxslt/xsltutils.c',
 ]
 
-env.StaticLibrary('libxslt', input_files)
+env.ChromeStaticLibrary('libxslt', input_files)
 
 
 config_files = [

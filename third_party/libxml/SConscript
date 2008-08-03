@@ -100,7 +100,7 @@ input_files = [
     'xpointer.c',
 ]
 
-env.StaticLibrary('libxml', input_files)
+env.ChromeStaticLibrary('libxml', input_files)
 
 
 config_files = [

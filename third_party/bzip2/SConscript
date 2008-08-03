@@ -57,4 +57,4 @@ input_files = [
     'randtable.c',
 ]
 
-env.StaticLibrary('bzip2', input_files)
+env.ChromeStaticLibrary('bzip2', input_files)

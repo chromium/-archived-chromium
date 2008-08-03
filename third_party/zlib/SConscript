@@ -55,4 +55,4 @@ input_files = [
     'zutil.c',
 ]
 
-env.StaticLibrary('zlib', input_files)
+env.ChromeStaticLibrary('zlib', input_files)

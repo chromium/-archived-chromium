@@ -69,4 +69,4 @@ input_files = [
     'Compress/Lzma/LzmaDecode.c',
 ]
 
-env.StaticLibrary('lzma_sdk', input_files)
+env.ChromeStaticLibrary('lzma_sdk', input_files)

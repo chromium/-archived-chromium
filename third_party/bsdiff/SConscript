@@ -50,4 +50,4 @@ input_files = [
     "mbsdiff.cc",
 ]
 
-env.StaticLibrary('bsdiff', input_files)
+env.ChromeStaticLibrary('bsdiff', input_files)

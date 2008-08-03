@@ -43,4 +43,4 @@ input_files = [
     'modp_b64.cc',
 ]
 
-env.StaticLibrary('modp_b64', input_files)
+env.ChromeStaticLibrary('modp_b64', input_files)
