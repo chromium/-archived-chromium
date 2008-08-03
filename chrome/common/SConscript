@@ -79,6 +79,7 @@ input_files = [
     'chrome_switches.cc',
     'classfactory.cc',
     'clipboard_service.cc',
+    'common_glue.cc',
     'debug_flags.cc',
     'drag_drop_types.cc',
     'env_util.cc',
