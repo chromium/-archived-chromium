@@ -99,6 +99,23 @@ env = Environment(
 )
 
 
+def ChromeProgram(env, *args, **kw):
+    return env.Program(*args, **kw)
+env.AddMethod(ChromeProgram, "ChromeProgram")
+
+def ChromeTestProgram(env, *args, **kw):
+    return env.Program(*args, **kw)
+env.AddMethod(ChromeTestProgram, "ChromeTestProgram")
+
+def ChromeStaticLibrary(env, *args, **kw):
+    return env.StaticLibrary(*args, **kw)
+env.AddMethod(ChromeStaticLibrary, "ChromeStaticLibrary")
+
+def ChromeSharedLibrary(env, *args, **kw):
+    return env.SharedLibrary(*args, **kw)
+env.AddMethod(ChromeSharedLibrary, "ChromeSharedLibrary")
+
+
 if env['PLATFORM'] == 'win32':
 
   msvs_env = Environment(tools=['msvc', 'mslink', 'msvs'])['ENV']
