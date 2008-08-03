@@ -123,7 +123,7 @@ libs = [
     '$BASE_DIR/base.lib',
 ]
 
-exe = env.Program(['setup',
+exe = env.ChromeProgram(['setup',
                    'setup.pdb',
                    'setup.map'],
                   resources + input_files + libs)

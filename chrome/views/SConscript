@@ -114,4 +114,4 @@ input_files = [
     'window.cc',
 ]
 
-env.StaticLibrary('views', input_files)
+env.ChromeStaticLibrary('views', input_files)

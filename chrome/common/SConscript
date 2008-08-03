@@ -130,7 +130,7 @@ input_files = [
     'worker_thread_ticker.cc',
 ]
 
-env.StaticLibrary('common', input_files)
+env.ChromeStaticLibrary('common', input_files)
 
 
 env_test = env_test.Clone()
@@ -198,7 +198,7 @@ libs = [
     '$BASE_DIR/base.lib',
 ]
 
-ipc_tests = env_test.Program('ipc_tests.exe', ipc_tests_files + libs)
+ipc_tests = env_test.ChromeTestProgram('ipc_tests.exe', ipc_tests_files + libs)
 
 i = env_test.Install('$TARGET_ROOT', ipc_tests)
 Alias('chrome', i)

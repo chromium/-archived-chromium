@@ -112,7 +112,7 @@ libs = [
     '$CHROME_DIR/test/automation/automation.lib',
 ]
 
-exe = env_test.Program(['selenium_tests',
+exe = env_test.ChromeTestProgram(['selenium_tests',
                         'selenium_tests.pdb'],
                        input_files + libs)
 i = env_test.Install('$TARGET_ROOT', exe)

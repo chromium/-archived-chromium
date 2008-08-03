@@ -96,7 +96,7 @@ libs = [
     '$BASE_DIR/base.lib',
 ]
 
-exe = env_test.Program(['image_diff',
+exe = env_test.ChromeTestProgram(['image_diff',
                         'image_diff.pdb'],
                        input_files + libs)
 i = env_test.Install('$TARGET_ROOT', exe)

@@ -85,7 +85,7 @@ env.Append(
     ],
 )
 
-themes_default = env.SharedLibrary("$CHROME_DIR/themes/default", res)
+themes_default = env.ChromeSharedLibrary("$CHROME_DIR/themes/default", res)
 
 env.AddPostAction(themes_default[1], Touch(themes_default[1:]))
 

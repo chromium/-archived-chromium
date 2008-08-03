@@ -116,4 +116,4 @@ input_files = [
     'where.c',
 ]
 
-env.StaticLibrary('sqlite', input_files)
+env.ChromeStaticLibrary('sqlite', input_files)

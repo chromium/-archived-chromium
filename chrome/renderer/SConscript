@@ -78,4 +78,4 @@ input_files = [
     'webplugin_delegate_proxy.cc',
 ]
 
-env.StaticLibrary('renderer', input_files)
+env.ChromeStaticLibrary('renderer', input_files)

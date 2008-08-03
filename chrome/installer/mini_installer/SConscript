@@ -115,7 +115,7 @@ input_files = [
     "pe_resource.cc",
 ]
 
-exe = env.Program(['mini_installer',
+exe = env.ChromeProgram(['mini_installer',
                    'mini_installer.pdb',
                    'mini_installer.map'],
                   components + resources + input_files)
@@ -213,7 +213,7 @@ libs = [
     '$BASE_DIR/base.lib',
 ]
 
-exe = env_test.Program(['installer_unittests',
+exe = env_test.ChromeTestProgram(['installer_unittests',
                         'installer_unittests.pdb'],
                        input_files + libs)
 i = env_test.Install('$TARGET_ROOT', exe)

@@ -111,7 +111,7 @@ libs = [
     '$CHROME_DIR/test/automation/automation.lib',
 ]
 
-exe = env_test.Program(['startup_tests',
+exe = env_test.ChromeTestProgram(['startup_tests',
                         'startup_tests.pdb'],
                        input_files + libs)
 i = env_test.Install('$TARGET_ROOT', exe)

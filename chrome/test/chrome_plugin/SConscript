@@ -89,7 +89,7 @@ libs = [
     '$BASE_DIR/base.lib',
 ]
 
-dll = env.SharedLibrary('test_chrome_plugin', input_files + libs)
+dll = env.ChromeSharedLibrary('test_chrome_plugin', input_files + libs)
 
 i = env.Install('$TARGET_ROOT', dll)
 env.Alias('chrome', i)

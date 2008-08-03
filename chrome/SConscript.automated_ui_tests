@@ -119,7 +119,7 @@ test_files = [
     '$CHROME_DIR/test/ui/ui_test_suite$OBJSUFFIX',
 ]
 
-exe = env_test.Program('automated_ui_tests.exe',  test_files + libs)
+exe = env_test.ChromeTestProgram('automated_ui_tests.exe',  test_files + libs)
 
 i = env_test.Install('$TARGET_ROOT', exe)
 Alias('chrome', i)

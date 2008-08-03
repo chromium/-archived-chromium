@@ -52,7 +52,7 @@ input_files = [
     'window_proxy.cc',
 ]
 
-lib = env.StaticLibrary('automation', input_files)
+lib = env.ChromeStaticLibrary('automation', input_files)
 
 i = env.Install('$TARGET_ROOT', lib)
 env.Alias('chrome', i)

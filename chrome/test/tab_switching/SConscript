@@ -115,7 +115,7 @@ libs = [
 
 #"..\..\Debug\obj\tab_switching_test\precompiled_wtl.obj"
 
-exe = env_test.Program(['tab_switching_test',
+exe = env_test.ChromeTestProgram(['tab_switching_test',
                         'tab_switching_test.pdb'],
                        input_files + libs)
 i = env_test.Install('$TARGET_ROOT', exe)

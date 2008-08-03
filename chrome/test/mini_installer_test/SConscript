@@ -101,7 +101,7 @@ libs = [
     '$BASE_DIR/base.lib',
 ]
 
-exe = env_test.Program(['mini_installer_test',
+exe = env_test.ChromeTestProgram(['mini_installer_test',
                         'mini_installer_test.pdb'],
                        input_files + libs)
 i = env_test.Install('$TARGET_ROOT', exe)

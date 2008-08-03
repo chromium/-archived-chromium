@@ -67,7 +67,7 @@ input_files = [
     'src/parsers/textparser.cxx',
 ]
 
-env.StaticLibrary('hunspell', input_files)
+env.ChromeStaticLibrary('hunspell', input_files)
 
 
 

@@ -219,7 +219,7 @@ libs = [
     '$WEBKIT_DIR/Port.lib',
 ]
 
-dll_targets = env_dll.SharedLibrary(['chrome',
+dll_targets = env_dll.ChromeSharedLibrary(['chrome',
                                      'chrome_dll.pdb',
                                      'chrome_dll.lib'],
                                     dll_resources + input_files + libs)
@@ -346,7 +346,7 @@ env_exe.Append(
     ],
 )
 
-chrome_exe = env_exe.Program(
+chrome_exe = env_exe.ChromeProgram(
     ['chrome.exe',
      'chrome_exe.pdb',
      'chrome_exe_implib.lib'],
@@ -398,7 +398,7 @@ env_snapshot.Prepend(
     ],
 )
 
-env_snapshot.StaticLibrary('snapshotv8', 'snapshot.cc')
+env_snapshot.ChromeStaticLibrary('snapshotv8', 'snapshot.cc')
 
 env_snapshot.Command('snapshot.cc', '#/../v8/bin/debug/mksnapshot.exe',
                      '$SOURCE $TARGET')

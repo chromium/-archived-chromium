@@ -146,7 +146,7 @@ for locale_settings_res in resources:
   g_r_res = s.replace('locale_settings', 'generated_resources')
   w_s_res = s.replace('locale_settings',
                       '$WEBKIT_DIR/build/localized_strings/webkit_strings')
-  dll = env.SharedLibrary(
+  dll = env.ChromeSharedLibrary(
       lang,
       [
           g_r_res,

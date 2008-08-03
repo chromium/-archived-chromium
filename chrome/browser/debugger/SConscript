@@ -74,4 +74,4 @@ input_files = [
     'debugger_wrapper.cc',
 ]
 
-env.StaticLibrary('debugger', input_files)
+env.ChromeStaticLibrary('debugger', input_files)

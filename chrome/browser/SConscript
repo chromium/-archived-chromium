@@ -383,7 +383,7 @@ input_files = [
     'xp_frame.cc',
 ]
 
-env.StaticLibrary('browser', input_files)
+env.ChromeStaticLibrary('browser', input_files)
 
 
 SConscript('debugger/SConscript', exports=['env'])

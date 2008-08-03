@@ -115,7 +115,7 @@ libs = [
 ]
 
 
-exe = env_test.Program(['reliability_tests',
+exe = env_test.ChromeTestProgram(['reliability_tests',
                         'reliability_tests.pdb'],
                        input_files + libs)
 i = env_test.Install('$TARGET_ROOT', exe)

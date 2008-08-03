@@ -84,7 +84,7 @@ libs = [
     '$BASE_DIR/base.lib',
 ]
 
-exe = env_test.Program(['flush_cache',
+exe = env_test.ChromeTestProgram(['flush_cache',
                         'flush_cache'],
                        input_files + libs)
 i = env_test.Install('$TARGET_ROOT', exe)

@@ -60,4 +60,4 @@ input_files = [
     'webplugin_proxy.cc',
 ]
 
-env.StaticLibrary('plugin', input_files)
+env.ChromeStaticLibrary('plugin', input_files)

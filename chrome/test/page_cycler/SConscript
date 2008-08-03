@@ -117,7 +117,7 @@ libs = [
 ]
 
 
-exe = env_test.Program(['page_cycler_tests',
+exe = env_test.ChromeTestProgram(['page_cycler_tests',
                         'page_cycler_tests.pdb'],
                        input_files + libs)
 i = env_test.Install('$TARGET_ROOT', exe)
