@@ -38,8 +38,7 @@
 class TelnetServer : public ListenSocket {
 public:
   static TelnetServer* Listen(std::string ip, int port,
-                              ListenSocketDelegate *del,
-                              MessageLoop* loop);
+                              ListenSocketDelegate *del);
   virtual ~TelnetServer();
 
 protected:
@@ -61,7 +60,7 @@ private:
     EXPECTING_NUMBER_SEMICOLON_OR_END  // Processing "ESC [" sequence.
   };
 
-  TelnetServer(SOCKET s, ListenSocketDelegate* del, MessageLoop* loop);
+  TelnetServer(SOCKET s, ListenSocketDelegate* del);
 
   // telnet commands
   void SendIAC(int command, int option);

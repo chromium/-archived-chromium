@@ -37,6 +37,7 @@
 
 #include "base/basictypes.h"
 #include "base/logging.h"
+#include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "net/base/listen_socket.h"
@@ -81,7 +82,7 @@ class ListenSocketTester :
     public base::RefCountedThreadSafe<ListenSocketTester> {
  protected:
   virtual ListenSocket* DoListen() {
-    return ListenSocket::Listen("127.0.0.1", TEST_PORT, this, loop_);
+    return ListenSocket::Listen("127.0.0.1", TEST_PORT, this);
   }
 
  public:

@@ -39,7 +39,7 @@ const std::string CRLF("\r\n");
 class TelnetServerTester : public ListenSocketTester {
 public:
   virtual ListenSocket* DoListen() {
-    return TelnetServer::Listen("127.0.0.1", TEST_PORT, this, loop_);
+    return TelnetServer::Listen("127.0.0.1", TEST_PORT, this);
   }
 
   virtual void SetUp() {

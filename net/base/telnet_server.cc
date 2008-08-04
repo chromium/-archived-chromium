@@ -90,8 +90,8 @@ class TelnetProtocol {
 ///////////////////////
 
 // must run in the IO thread
-TelnetServer::TelnetServer(SOCKET s, ListenSocketDelegate* del, MessageLoop *l)
-    : ListenSocket(s, del, l) {
+TelnetServer::TelnetServer(SOCKET s, ListenSocketDelegate* del)
+    : ListenSocket(s, del) {
   input_state_ = NOT_IN_IAC_OR_ESC_SEQUENCE;
 }
 
@@ -133,7 +133,7 @@ void TelnetServer::Accept() {
     // TODO
   } else {
     scoped_refptr<TelnetServer> sock =
-      new TelnetServer(conn, socket_delegate_, loop_);
+        new TelnetServer(conn, socket_delegate_);
 
     // Setup the way we want to communicate
     sock->SendIAC(TelnetProtocol::DO, TelnetProtocol::ECHO);
@@ -148,12 +148,12 @@ void TelnetServer::Accept() {
 }
 
 TelnetServer* TelnetServer::Listen(std::string ip, int port,
-                                   ListenSocketDelegate *del, MessageLoop* l) {
+                                   ListenSocketDelegate *del) {
   SOCKET s = ListenSocket::Listen(ip, port);
   if (s == INVALID_SOCKET) {
     // TODO
   } else {
-    TelnetServer *serv = new TelnetServer(s, del, l);
+    TelnetServer *serv = new TelnetServer(s, del);
     serv->Listen();
     return serv;
   }

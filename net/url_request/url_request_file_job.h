@@ -27,11 +27,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_URL_REQUEST_URL_REQUEST_FILE_JOB_H__
-#define BASE_URL_REQUEST_URL_REQUEST_FILE_JOB_H__
+#ifndef BASE_URL_REQUEST_URL_REQUEST_FILE_JOB_H_
+#define BASE_URL_REQUEST_URL_REQUEST_FILE_JOB_H_
 
 #include "base/lock.h"
 #include "base/message_loop.h"
+#include "base/object_watcher.h"
 #include "base/thread.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
@@ -39,7 +40,7 @@
 
 // A request job that handles reading file URLs
 class URLRequestFileJob : public URLRequestJob,
-                          protected MessageLoop::Watcher {
+                          public base::ObjectWatcher::Delegate {
  public:
   URLRequestFileJob(URLRequest* request);
   virtual ~URLRequestFileJob();
@@ -62,13 +63,10 @@ class URLRequestFileJob : public URLRequestJob,
   std::wstring file_path_;
 
  private:
-  // The net util test wants to run our FileURLToFilePath function.
-  FRIEND_TEST(NetUtilTest, FileURLConversion);
-
   void CloseHandles();
   void StartAsync();
 
-  // MessageLoop::Watcher callback
+  // base::ObjectWatcher::Delegate implementation:
   virtual void OnObjectSignaled(HANDLE object);
 
   // We use overlapped reads to ensure that reads from network file systems do
@@ -78,6 +76,8 @@ class URLRequestFileJob : public URLRequestJob,
   bool is_waiting_;  // true when waiting for overlapped result
   bool is_directory_;  // true when the file request is for a direcotry.
   bool is_not_found_;  // true when the file requested does not exist.
+
+  base::ObjectWatcher watcher_;
 
   // This lock ensure that the network_file_thread is not using the loop_ after
   // is has been set to NULL in Kill().
@@ -94,5 +94,4 @@ class URLRequestFileJob : public URLRequestJob,
   DISALLOW_EVIL_CONSTRUCTORS(URLRequestFileJob);
 };
 
-
-#endif  // BASE_URL_REQUEST_URL_REQUEST_FILE_JOB_H__
+#endif  // BASE_URL_REQUEST_URL_REQUEST_FILE_JOB_H_
