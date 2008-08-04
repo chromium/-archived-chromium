@@ -27,33 +27,31 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_PORT_H__
-#define BASE_PORT_H__
+#ifndef BUILD_BUILD_CONFIG_H_
+#define BUILD_BUILD_CONFIG_H_
 
-#include "build/build_config.h"
-
-#ifdef COMPILER_MSVC
-#define GG_LONGLONG(x) x##I64
-#define GG_ULONGLONG(x) x##UI64
+// A set of macros to use for platform detection.
+#if defined(__APPLE__)
+#define OS_MACOSX 1
+#elif defined(linux)
+#define OS_LINUX 1
+#elif defined(WIN32)
+#define OS_WINDOWS 1
 #else
-#define GG_LONGLONG(x) x##LL
-#define GG_ULONGLONG(x) x##ULL
+#error Please add support for your platform in build/build_config.h
 #endif
 
-// Per C99 7.8.14, define __STDC_CONSTANT_MACROS before including <stdint.h>
-// to get the INTn_C and UINTn_C macros for integer constants.  It's difficult
-// to guarantee any specific ordering of header includes, so it's difficult to
-// guarantee that the INTn_C macros can be defined by including <stdint.h> at
-// any specific point.  Provide GG_INTn_C macros instead.
+// For access to standard POSIX features, use OS_POSIX instead of a more
+// specific macro.
+#if defined(OS_MACOSX) || defined(OS_LINUX)
+#define OS_POSIX 1
+#endif
 
-#define GG_INT8_C(x)    (x)
-#define GG_INT16_C(x)   (x)
-#define GG_INT32_C(x)   (x)
-#define GG_INT64_C(x)   GG_LONGLONG(x)
+// Compiler detection.
+#if defined(__GNUC__)
+#define COMPILER_GCC
+#elif defined(_MSC_VER)
+#define COMPILER_MSVC
+#endif
 
-#define GG_UINT8_C(x)   (x ## U)
-#define GG_UINT16_C(x)  (x ## U)
-#define GG_UINT32_C(x)  (x ## U)
-#define GG_UINT64_C(x)  GG_ULONGLONG(x)
-
-#endif // BASE_PORT_H__
+#endif  // BUILD_BUILD_CONFIG_H_
