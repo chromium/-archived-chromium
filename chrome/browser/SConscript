@@ -325,6 +325,7 @@ input_files = [
     'views/frame/aero_glass_frame.cc',
     'views/frame/aero_glass_non_client_view.cc',
     'views/frame/browser_view.cc',
+    'views/frame/browser_view2.cc',
     'views/frame/browser_window_factory.cc',
     'views/frame/opaque_frame.cc',
     'views/frame/opaque_non_client_view.cc',
