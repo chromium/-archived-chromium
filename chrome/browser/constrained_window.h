@@ -121,12 +121,6 @@ class ConstrainedWindow {
       const gfx::Rect& initial_bounds,
       TabContents* constrained_contents);
 
-  // Generates the bounds for a window when one/both of the
-  // initial_bounds are invalid.
-  static void GenerateInitialBounds(const gfx::Rect& initial_bounds,
-                                    TabContents* parent,
-                                    gfx::Rect* window_bounds);
-
   // Activates the Constrained Window, which has the effect of detaching it if
   // it contains a WebContents, otherwise just brings it to the front of the
   // z-order.

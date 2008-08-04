@@ -234,15 +234,7 @@ void TabContents::AddNewContents(TabContents* new_contents,
 
   if ((disposition == NEW_POPUP) && !delegate_->IsPopup(this)) {
     if (user_gesture) {
-      // TODO(erg): Need a better policy about initial placement of
-      // popup windows.
-      gfx::Rect initial_bounds = initial_pos;
-      if (initial_bounds.x() == 0 || initial_bounds.y() == 0) {
-        ConstrainedWindow::GenerateInitialBounds(
-            initial_pos, this, &initial_bounds);
-      }
-
-      delegate_->AddNewContents(this, new_contents, disposition, initial_bounds,
+      delegate_->AddNewContents(this, new_contents, disposition, initial_pos,
                                 user_gesture);
     } else {
       AddConstrainedPopup(new_contents, initial_pos);

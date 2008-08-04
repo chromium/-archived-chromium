@@ -1354,63 +1354,6 @@ void ConstrainedWindowImpl::OnWindowPosChanged(WINDOWPOS* window_pos) {
 // ConstrainedWindow, public:
 
 // static
-void ConstrainedWindow::GenerateInitialBounds(
-    const gfx::Rect& initial_bounds, TabContents* parent,
-    gfx::Rect* window_bounds) {
-  // Calculate desired window bounds.  Try to use the bounds of a
-  // non-maximized browser window; this matches other browsers' behavior.
-  //
-  // NOTE: The downside here is that, if we open multiple constrained popups,
-  // they'll all get the same window position, since WindowSizer uses the
-  // "last active browser window"'s bounds.  Fixing this properly is hard,
-  // since we'd have to tell the WindowSizer about the window we're opening
-  // here, and figure out how the sizing memory and the clipping/offsetting
-  // behvaiors below interact.
-  std::wstring app_name;
-
-  if (parent->delegate() && parent->delegate()->IsApplication() && 
-      parent->AsWebContents() && parent->AsWebContents()->web_app()) {
-    app_name = parent->AsWebContents()->web_app()->name();
-  }
-  bool maximized = false;
-  gfx::Rect empty_bounds;
-  WindowSizer::GetBrowserWindowBounds(app_name, empty_bounds,
-                                      window_bounds, &maximized);
-  if (initial_bounds.width() > 0)
-    window_bounds->set_width(initial_bounds.width());
-  if (initial_bounds.height() > 0)
-    window_bounds->set_height(initial_bounds.height());
-
-  // Map desired window bounds from screen coordinates to our parent's
-  // coordinates.
-  CPoint window_origin(window_bounds->origin().ToPOINT());
-  MapWindowPoints(HWND_DESKTOP, parent->GetContainerHWND(), &window_origin,
-                  1);
-  window_bounds->set_origin(gfx::Point(window_origin));
-
-  // Ensure some amount of the page is visible above and to the left of the
-  // popup, so it doesn't cover the whole content area (we use 30 px).
-  if (window_bounds->x() < 30)
-    window_bounds->set_x(30);
-  if (window_bounds->y() < 30)
-    window_bounds->set_y(30);
-
-  // Clip the desired coordinates so they fit within the content area.
-  CRect parent_rect;
-  ::GetClientRect(parent->GetContainerHWND(), &parent_rect);
-  if (window_bounds->right() > parent_rect.right)
-    window_bounds->set_width(parent_rect.Width() - window_bounds->x());
-  if (window_bounds->bottom() > parent_rect.bottom)
-    window_bounds->set_height(parent_rect.Height() - window_bounds->y());
-
-  // Don't let the window become too small (we use a 60x30 minimum size).
-  if (window_bounds->width() < 60)
-    window_bounds->set_width(60);
-  if (window_bounds->height() < 30)
-    window_bounds->set_height(30);
-}
-
-// static
 ConstrainedWindow* ConstrainedWindow::CreateConstrainedDialog(
     TabContents* parent,
     const gfx::Rect& initial_bounds,
@@ -1433,15 +1376,10 @@ ConstrainedWindow* ConstrainedWindow::CreateConstrainedPopup(
       new ConstrainedWindowImpl(parent, d, constrained_contents);
   window->InitWindowForContents(constrained_contents, d);
 
-  gfx::Rect window_bounds;
-  if (initial_bounds.width() == 0 || initial_bounds.height() == 0) {
-    GenerateInitialBounds(initial_bounds, parent, &window_bounds);
-  } else {
-    window_bounds = window->non_client_view()->
-        CalculateWindowBoundsForClientBounds(
-            initial_bounds,
-            parent->delegate()->ShouldDisplayURLField());
-  }
+  gfx::Rect window_bounds = window->non_client_view()->
+      CalculateWindowBoundsForClientBounds(
+          initial_bounds,
+          parent->delegate()->ShouldDisplayURLField());
 
   window->InitSizeForContents(window_bounds);
 

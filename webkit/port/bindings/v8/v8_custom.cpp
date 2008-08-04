@@ -1184,8 +1184,13 @@ CALLBACK_FUNC_DECL(DOMWindowOpen) {
 
   // In the case of a named frame or a new window, we'll use the createWindow()
   // helper.
-  WindowFeatures window_features(
+
+  // Parse the values, and then work with a copy of the parsed values
+  // so we can restore the values we may not want to overwrite after
+  // we do the multiple monitor fixes.
+  WindowFeatures raw_features(
       valueToStringWithNullOrUndefinedCheck(args[2]));
+  WindowFeatures window_features(raw_features);
   FloatRect screen_rect = screenAvailableRect(page->mainFrame()->view());
 
   // Set default size and location near parent window if none were specified.
@@ -1215,11 +1220,21 @@ CALLBACK_FUNC_DECL(DOMWindowOpen) {
   window_rect.move(screen_rect.x(), screen_rect.y());
   WebCore::DOMWindow::adjustWindowRect(screen_rect, window_rect, window_rect);
 
-  // createWindow expects the location to be specified relative to the parent.
-  window_features.x = window_rect.x() - parent->screenX();
-  window_features.y = window_rect.y() - parent->screenY();
+  window_features.x = window_rect.x();
+  window_features.y = window_rect.y();
   window_features.height = window_rect.height();
   window_features.width = window_rect.width();
+
+  // If either of the origin coordinates weren't set in the original
+  // string, make sure they aren't set now.
+  if (!raw_features.xSet) {
+    window_features.x = 0;
+    window_features.xSet = false;
+  }
+  if (!raw_features.ySet) {
+    window_features.y = 0;
+    window_features.ySet = false;
+  }
 
   frame = createWindow(frame, url_string, frame_name,
                        window_features, v8::Local<v8::Value>());

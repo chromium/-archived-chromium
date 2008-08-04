@@ -85,7 +85,7 @@ static const int kBrowserReleaseMemoryInterval = 30;  // In seconds.
 
 // How much horizontal and vertical offset there is between newly opened
 // windows.
-static const int kWindowTilePixels = 10;
+static const int kWindowTilePixels = 20;
 
 // How frequently we check for hung plugin windows.
 static const int kDefaultHungPluginDetectFrequency = 2000;
@@ -1623,15 +1623,22 @@ void Browser::BuildPopupWindow(TabContents* source,
   browser->AddNewContents(source, new_contents,
                           NEW_FOREGROUND_TAB, gfx::Rect(), true);
 
-  // TODO(erg): Need to move all popup sizing logic here, instead of
-  // having it spread across three files.
-
   // For newly opened popup windows, the incoming width/height
   // numbers are for the content area, but x/y are for the actual
   // window position. Thus we can't just call MoveContents().
   gfx::Rect window_rect =
       browser->window()->GetBoundsForContentBounds(initial_pos);
   window_rect.set_origin(initial_pos.origin());
+
+  // When we are given x/y coordinates of 0 on a created popup window,
+  // assume none were given by the window.open() command.
+  if (window_rect.x() == 0 && window_rect.y() == 0) {
+    gfx::Point origin = window()->GetNormalBounds().origin();
+    origin.set_x(origin.x() + kWindowTilePixels);
+    origin.set_y(origin.y() + kWindowTilePixels);
+    window_rect.set_origin(origin);
+  }
+
   ::SetWindowPos(browser->GetTopLevelHWND(), NULL,
                  window_rect.x(), window_rect.y(),
                  window_rect.width(), window_rect.height(), 0);
