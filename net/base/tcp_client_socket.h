@@ -32,13 +32,14 @@
 
 #include <ws2tcpip.h>
 
-#include "base/message_loop.h"
+#include "base/object_watcher.h"
 #include "net/base/address_list.h"
 #include "net/base/client_socket.h"
 
 namespace net {
 
-class TCPClientSocket : public ClientSocket, public MessageLoop::Watcher {
+class TCPClientSocket : public ClientSocket,
+                        public base::ObjectWatcher::Delegate {
  public:
   // The IP address(es) and port number to connect to.  The TCP socket will try
   // each IP address in the list until it succeeds in establishing a
@@ -68,6 +69,8 @@ class TCPClientSocket : public ClientSocket, public MessageLoop::Watcher {
   SOCKET socket_;
   OVERLAPPED overlapped_;
   WSABUF buffer_;
+
+  base::ObjectWatcher watcher_;
 
   CompletionCallback* callback_;
 

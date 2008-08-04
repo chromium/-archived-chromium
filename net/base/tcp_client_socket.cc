@@ -106,7 +106,7 @@ int TCPClientSocket::Connect(CompletionCallback* callback) {
   overlapped_.hEvent = WSACreateEvent();
   WSAEventSelect(socket_, overlapped_.hEvent, FD_CONNECT);
 
-  MessageLoop::current()->WatchObject(overlapped_.hEvent, this);
+  watcher_.StartWatching(overlapped_.hEvent, this);
   wait_state_ = WAITING_CONNECT;
   callback_ = callback;
   return ERR_IO_PENDING;
@@ -122,7 +122,7 @@ void TCPClientSocket::Disconnect() {
     return;
 
   // Make sure the message loop is not watching this object anymore.
-  MessageLoop::current()->WatchObject(overlapped_.hEvent, NULL);
+  watcher_.StopWatching();
 
   // This cancels any pending IO.
   closesocket(socket_);
@@ -163,7 +163,7 @@ int TCPClientSocket::Read(char* buf, int buf_len, CompletionCallback* callback) 
   if (rv == 0)
     return static_cast<int>(num);
   if (rv == SOCKET_ERROR && WSAGetLastError() == WSA_IO_PENDING) {
-    MessageLoop::current()->WatchObject(overlapped_.hEvent, this);
+    watcher_.StartWatching(overlapped_.hEvent, this);
     wait_state_ = WAITING_READ;
     callback_ = callback;
     return ERR_IO_PENDING;
@@ -184,7 +184,7 @@ int TCPClientSocket::Write(const char* buf, int buf_len, CompletionCallback* cal
   if (rv == 0)
     return static_cast<int>(num);
   if (rv == SOCKET_ERROR && WSAGetLastError() == WSA_IO_PENDING) {
-    MessageLoop::current()->WatchObject(overlapped_.hEvent, this);
+    watcher_.StartWatching(overlapped_.hEvent, this);
     wait_state_ = WAITING_WRITE;
     callback_ = callback;
     return ERR_IO_PENDING;
@@ -264,8 +264,6 @@ void TCPClientSocket::DidCompleteIO() {
 
 void TCPClientSocket::OnObjectSignaled(HANDLE object) {
   DCHECK(object == overlapped_.hEvent);
-
-  MessageLoop::current()->WatchObject(overlapped_.hEvent, NULL);
 
   switch (wait_state_) {
     case WAITING_CONNECT:
