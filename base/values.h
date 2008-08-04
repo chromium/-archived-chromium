@@ -190,7 +190,7 @@ public:
   // Returns NULL if buffer is NULL.
   static BinaryValue* CreateWithCopiedBuffer(char* buffer, size_t size);
 
-  BinaryValue::~BinaryValue();
+  ~BinaryValue();
 
   // Subclassed methods
   Value* DeepCopy() const;
@@ -204,7 +204,7 @@ private:
 
   // Constructor is private so that only objects with valid buffer pointers
   // and size values can be created.
-  BinaryValue::BinaryValue(char* buffer, size_t size);
+  BinaryValue(char* buffer, size_t size);
 
   char* buffer_;
   size_t size_;
@@ -220,10 +220,10 @@ class DictionaryValue : public Value {
   virtual bool Equals(const Value* other) const;
 
   // Returns true if the current dictionary has a value for the given key.
-  bool DictionaryValue::HasKey(const std::wstring& key);
+  bool HasKey(const std::wstring& key);
 
   // Clears any current contents of this dictionary.
-  void DictionaryValue::Clear();
+  void Clear();
 
   // Sets the Value associated with the given path starting from this object.
   // A path has the form "<key>" or "<key>.<key>.[...]", where "." indexes
