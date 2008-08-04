@@ -188,6 +188,7 @@ env_tests_dll.Append(
     ],
 )
 dll = env_tests_dll.ChromeSharedLibrary(['singleton_dll_unittest.dll',
+                                   'singleton_dll_unittest.lib',
                                    'singleton_dll_unittest.ilk',
                                    'singleton_dll_unittest.pdb'],
                                   ['singleton_dll_unittest.cc',
@@ -249,7 +250,7 @@ test_files = [
     'win_util_unittest.cc',
     'wmi_util_unittest.cc',
 
-    dll[0],
+    dll[1],
 ]
 
 base_unittests = env_tests.ChromeTestProgram([
