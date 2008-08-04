@@ -157,6 +157,11 @@ class BrowserProxy : public AutomationResourceProxy {
   // reference build.
   bool GetHWND(HWND* handle) const;
 
+  // Run the specified command in the browser (see browser_commands.cc for the
+  // list of supported commands).  Returns true if the command was successfully
+  // executed, false otherwise.
+  bool RunCommand(int browser_command) const;
+
  private:
   DISALLOW_EVIL_CONSTRUCTORS(BrowserProxy);
 };

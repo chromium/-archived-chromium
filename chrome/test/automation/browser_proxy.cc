@@ -346,3 +346,24 @@ bool BrowserProxy::GetHWND(HWND* handle) const {
 
   return succeeded;
 }
+
+bool BrowserProxy::RunCommand(int browser_command) const {
+  if (!is_valid())
+    return false;
+
+  IPC::Message* response = NULL;
+  bool succeeded = sender_->SendAndWaitForResponse(
+    new AutomationMsg_WindowExecuteCommandRequest(0, handle_, browser_command),
+    &response, AutomationMsg_WindowExecuteCommandResponse::ID);
+
+  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
+  if (!succeeded)
+    return false;
+
+  bool success = false;
+  if (AutomationMsg_WindowExecuteCommandResponse::Read(response, &success))
+    return success;
+
+  // We failed to deserialize the returned value.
+  return false;
+}
