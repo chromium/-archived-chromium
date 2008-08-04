@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="WebKit Version"
+	Version="8.00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="WebKitVersion"
+			DisplayName="WebKit Version"
+			CommandLine="$(SolutionDir)/../third_party/python_24/python.exe $(SolutionDir)/../webkit/build/webkit_version.py &quot;$(InputPath)&quot; &quot;$(IntDir)&quot;"
+			Outputs="$(IntDir)/webkit_version.h"
+			FileExtensions="*.xcconfig"
+			>
+			<Properties>
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>

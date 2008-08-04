@@ -31,6 +31,7 @@
 #include <mlang.h>
 
 #include "config.h"
+#include "webkit_version.h"
 #pragma warning(push, 0)
 #include "BackForwardList.h"
 #include "Document.h"
@@ -344,6 +345,10 @@ void NotifyFormStateChanged(const WebCore::Document* document) {
   delegate->OnNavStateChanged(webview);
 }
 
+std::string GetWebKitVersion() {
+  return StringPrintf("%d.%d", WEBKIT_VERSION_MAJOR, WEBKIT_VERSION_MINOR);
+}
+
 const std::string& GetDefaultUserAgent() {
   static std::string user_agent;
   static bool generated_user_agent;
@@ -368,11 +373,16 @@ const std::string& GetDefaultUserAgent() {
     // Derived from Safari's UA string.
     StringAppendF(
         &user_agent,
-        "Mozilla/5.0 (Windows; U; Windows NT %d.%d; en-US) AppleWebKit/525.13"
-        " (KHTML, like Gecko) %s Safari/525.13",
+        "Mozilla/5.0 (Windows; U; Windows NT %d.%d; en-US) AppleWebKit/%d.%d"
+        " (KHTML, like Gecko) %s Safari/%d.%d",
         info.dwMajorVersion,
         info.dwMinorVersion,
-        product.c_str());
+        WEBKIT_VERSION_MAJOR,
+        WEBKIT_VERSION_MINOR,
+        product.c_str(),
+        WEBKIT_VERSION_MAJOR,
+        WEBKIT_VERSION_MINOR
+        );
 
     generated_user_agent = true;
   }

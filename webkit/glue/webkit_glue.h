@@ -110,6 +110,9 @@ void DumpBackForwardList(WebView* view, void* previous_history_item,
 // Cleans up state left over from the previous test run.
 void ResetBeforeTestRun(WebView* view);
 
+// Returns the WebKit version (major.minor).
+std::string GetWebKitVersion();
+
 // Returns the user agent.
 const std::string& GetDefaultUserAgent();
 
