@@ -93,7 +93,7 @@ input_files = [
     'shared_memory.cc',
     'stats_table.cc',
     'string_escape.cc',
-    'string_piece.cc'
+    'string_piece.cc',
     'string_util.cc',
     'string_util_icu.cc',
     'string_util_win.cc',
