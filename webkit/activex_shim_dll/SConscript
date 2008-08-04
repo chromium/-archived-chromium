@@ -36,6 +36,12 @@ env.Prepend(
         '$NPAPI_DIR',
         '#/..',
     ],
+    LIBS = [
+        'activex_shim',
+        'googleurl',
+        'icuuc',
+        'base',
+    ],
 )
 
 env.Append(
@@ -57,18 +63,11 @@ env.Append(
     ],
 )
 
-libs = [
-    '$WEBKIT_DIR/activex_shim/activex_shim.lib',
-    '$GOOGLEURL_DIR/googleurl.lib',
-    '$ICU38_DIR/icuuc.lib',
-    '$BASE_DIR/base.lib',
-]
-
 input_files = [
     'activex_shim_dll.cc',
     'activex_shim_dll.def',
 ]
 
-dll = env.ChromeSharedLibrary('npaxshim', input_files + libs)
+dll = env.ChromeSharedLibrary('npaxshim', input_files)
 i = env.Install('$TARGET_ROOT', dll)
 env.Alias('webkit', i)

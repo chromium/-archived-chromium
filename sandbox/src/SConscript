@@ -142,8 +142,9 @@ env_tests.Prepend(
         '/nxcompat',
     ],
     LIBS = [
-        'base.lib',
-        'sandbox.lib',
+        'base',
+        'gtest',
+        'sandbox',
     ],
     LIBPATH = [
         '.',
@@ -152,8 +153,6 @@ env_tests.Prepend(
 )
 
 controller_obj = env_tests.StaticObject('$TESTS_DIR/common/controller.cc')
-
-extra_libs = ['$TESTING_DIR/gtest.lib']
 
 
 # Unit Tests
@@ -198,7 +197,7 @@ unit_tests = env_unit_tests.ChromeTestProgram(
     ['../sbox_unittests.exe',
     '../sbox_unittests.ilk',
     '../sbox_unittests.pdb'],
-    unit_test_files + extra_libs,
+    unit_test_files,
 )
 
 
@@ -244,7 +243,7 @@ integration_tests = env_integration_tests.ChromeTestProgram(
     '../sbox_integration_tests.lib',
     '../sbox_integration_tests.exp',
     '../sbox_integration_tests.pdb'],
-    integration_test_files + extra_libs,
+    integration_test_files,
 )
 
 
@@ -283,7 +282,7 @@ validation_tests = env_validation_tests.ChromeTestProgram(
     '../sbox_validation_tests.lib',
     '../sbox_validation_tests.exp',
     '../sbox_validation_tests.pdb'],
-    validation_test_files + extra_libs,
+    validation_test_files,
 )
 
 

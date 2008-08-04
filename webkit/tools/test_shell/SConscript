@@ -43,29 +43,43 @@ env_res.Append(
     ],
 )
 
-input_files = [
-    'drag_delegate.cc',
-    'drop_delegate.cc',
-    'event_sending_controller.cc',
-    'layout_test_controller.cc',
-    'simple_resource_loader_bridge.cc',
-    'test_navigation_controller.cc',
-    'test_shell.cc',
-    'test_shell_switches.cc',
-    'test_shell_request_context.cc',
-    'test_webview_delegate.cc',
-    'text_input_controller.cc',
-    'webview_host.cc',
-    'webwidget_host.cc',
-    'temp/navigation_controller_base.cc',
-]
-
 env.Append(
     CPPPATH = [
         '$BREAKPAD_DIR/src',
         '$WEBKIT_DIR/glue',
         '$GTEST_DIR/include',
     ],
+    LIBS = [
+       'test_shell',
+       'base',
+       'base_gfx',
+       'breakpad_handler',
+       'breakpad_sender',
+       'googleurl',
+       'net',
+       'skia',
+       'gtest',
+       'bzip2',
+       'icuuc',
+       'libjpeg',
+       'libpng',
+       'libxml',
+       'libxslt',
+       'modp_b64',
+       'zlib',
+       'v8',
+       'JavaScriptCore_pcre',
+       'Port',
+       'activex_shim',
+       'WTF',
+       'V8Bindings',
+       'WebCore',
+       'default_plugin',
+       'Glue',
+    ],
+)
+
+env.Append(
     CCFLAGS = [
         '/TP',
         '/WX',
@@ -93,8 +107,24 @@ env.Append(
     ],
 )
 
-lib = env.ChromeStaticLibrary('test_shell', input_files)
+input_files = [
+    'drag_delegate.cc',
+    'drop_delegate.cc',
+    'event_sending_controller.cc',
+    'layout_test_controller.cc',
+    'simple_resource_loader_bridge.cc',
+    'test_navigation_controller.cc',
+    'test_shell.cc',
+    'test_shell_switches.cc',
+    'test_shell_request_context.cc',
+    'test_webview_delegate.cc',
+    'text_input_controller.cc',
+    'webview_host.cc',
+    'webwidget_host.cc',
+    'temp/navigation_controller_base.cc',
+]
 
+lib = env.ChromeStaticLibrary('test_shell', input_files)
 
 
 
@@ -104,42 +134,16 @@ resources = [
     '$WEBKIT_DIR/build/localized_strings/webkit_strings_en-US.res',
 ]
 
-components = [
-    lib,
 
-    '$BASE_DIR/base.lib',
-    '$BASE_DIR/gfx/base_gfx.lib',
-    '$BREAKPAD_DIR/breakpad_handler.lib',
-    '$BREAKPAD_DIR/breakpad_sender.lib',
-    '$GOOGLEURL_DIR/googleurl.lib',
-    '$NET_DIR/net.lib',
-    '$SKIA_DIR/skia.lib',
-    '$TESTING_DIR/gtest.lib',
-    '$BZIP2_DIR/bzip2.lib',
-    '$ICU38_DIR/icuuc.lib',
-    '$LIBJPEG_DIR/libjpeg.lib',
-    '$LIBPNG_DIR/libpng.lib',
-    '$LIBXML_DIR/libxml.lib',
-    '$LIBXSLT_DIR/libxslt.lib',
-    '$MODP_B64_DIR/modp_b64.lib',
-    '$ZLIB_DIR/zlib.lib',
-    '$V8_DIR/v8.lib',
-    '$V8_DIR/snapshot-empty.obj',
-    '$WEBKIT_DIR/JavaScriptCore_pcre.lib',
-    '$WEBKIT_DIR/Port.lib',
-    '$WEBKIT_DIR/activex_shim/activex_shim.lib',
-    '$WEBKIT_DIR/build/JavaScriptCore/WTF.lib',
-    '$WEBKIT_DIR/build/V8Bindings/V8Bindings.lib',
-    '$WEBKIT_DIR/build/WebCore/WebCore.lib',
-    '$WEBKIT_DIR/default_plugin/default_plugin.lib',
-    '$WEBKIT_DIR/glue/Glue.lib',
+exe_input_files = [
+    'test_shell_main.cc',
+    '$V8_DIR/snapshot-empty$OBJSUFFIX'
 ]
 
 test_shell = env.ChromeProgram(['test_shell.exe',
                           'test_shell.ilk',
                           'test_shell.pdb'],
-                         components + resources +
-                         ['test_shell_main.cc'])
+                         resources + exe_input_files)
 i = env.Install('$TARGET_ROOT', test_shell)
 env.Alias('webkit', i)
 
@@ -195,11 +199,13 @@ test_files = [
     '$WEBKIT_DIR/port/platform/image-decoders/bmp/BMPImageDecoder_unittest.cpp',
     '$WEBKIT_DIR/port/platform/image-decoders/ico/ICOImageDecoder_unittest.cpp',
     '$WEBKIT_DIR/port/platform/image-decoders/xbm/XBMImageDecoder_unittest.cpp',
+
+    '$V8_DIR/snapshot-empty$OBJSUFFIX',
 ]
 
 test_shell_tests = env.ChromeTestProgram(['test_shell_tests',
                                 'test_shell_tests.ilk',
                                 'test_shell_tests.pdb'],
-                               components + resources + test_files)
+                               resources + test_files)
 i = env.Install('$TARGET_ROOT', test_shell_tests)
 env.Alias('webkit', i)

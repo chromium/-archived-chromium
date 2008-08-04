@@ -43,6 +43,8 @@ env = Environment(
     TARGET_ROOT = '#/$BUILD_TYPE',
     OBJ_ROOT = '$TARGET_ROOT',
 
+    LIBS_DIR              = '#/$BUILD_TYPE/Libs',
+
     BASE_DIR              = '#/$BUILD_TYPE/base',
     #BREAKPAD_DIR          = '#/$BUILD_TYPE/breakpad',
     #CHROME_DIR            = '#/$BUILD_TYPE/chrome',
@@ -87,6 +89,7 @@ env = Environment(
 
     PYTHON=sys.executable,
 
+    LIBPATH               = ['$LIBS_DIR'],
 
     # XXX linux-specific:
     # Build 32-bit libraries/executables.
@@ -106,7 +109,9 @@ def ChromeTestProgram(env, *args, **kw):
 env.AddMethod(ChromeTestProgram, "ChromeTestProgram")
 
 def ChromeStaticLibrary(env, *args, **kw):
-    return env.StaticLibrary(*args, **kw)
+    result = env.StaticLibrary(*args, **kw)
+    env.Install('$LIBS_DIR', result)
+    return result
 env.AddMethod(ChromeStaticLibrary, "ChromeStaticLibrary")
 
 def ChromeSharedLibrary(env, *args, **kw):
@@ -192,12 +197,6 @@ if env['PLATFORM'] == 'win32':
         '$VISUAL_STUDIO/VC/atlmfc/include',
     ],
 
-    LIBPATH = [
-        '$PLATFORMSDK_VISTA/files/Lib',
-        '$PLATFORMSDK_VISTA/files/VC/LIB',
-        '$VISUAL_STUDIO/VC/atlmfc/lib',
-    ],
-
     LIBS = [
         'advapi32.lib',
         'comdlg32.lib',
@@ -224,6 +223,14 @@ if env['PLATFORM'] == 'win32':
     LINKFLAGS = [
         '/nologo',
         '/DEBUG',
+    ],
+  )
+ 
+  env.Append(
+    LIBPATH = [
+        '$PLATFORMSDK_VISTA/files/Lib',
+        '$PLATFORMSDK_VISTA/files/VC/LIB',
+        '$VISUAL_STUDIO/VC/atlmfc/lib',
     ],
   )
 

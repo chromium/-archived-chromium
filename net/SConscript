@@ -162,6 +162,19 @@ env_tests.Prepend(
         'WINVER=0x0600',
         '_HAS_EXCEPTIONS=0',
     ],
+    LIBS = [
+        'googleurl',
+        'base',
+        'gtest',
+        'bzip2',
+        'icuuc',
+        'modp_b64',
+        'zlib',
+        'net',
+    ]
+)
+
+env_tests.Prepend(
     CCFLAGS = [
         '/TP',
         '/WX',
@@ -184,17 +197,6 @@ env_tests.Append(
         '$GTEST_DIR/include',
     ],
 )
-
-libs = [
-    '$GOOGLEURL_DIR/googleurl.lib',
-    '$BASE_DIR/base.lib',
-    '$TESTING_DIR/gtest.lib',
-    '../third_party/bzip2/bzip2.lib',
-    '$ICU38_DIR/icuuc.lib',
-    '$MODP_B64_DIR/modp_b64.lib',
-    '$ZLIB_DIR/zlib.lib',
-    'net.lib',
-]
 
 
 unittest_files = [
@@ -241,7 +243,7 @@ net_unittests = env_tests.ChromeTestProgram(
     ['net_unittests.exe',
     'net_unittests.ilk',
     'net_unittests.pdb'],
-    unittest_files + libs
+    unittest_files
 )
 
 
@@ -251,7 +253,7 @@ stress_cache = env_tests.ChromeTestProgram(
     'stress_cache.ilk',
     'stress_cache.pdb'],
     ['disk_cache/stress_cache.cc',
-    'disk_cache/disk_cache_test_util.cc'] + libs
+    'disk_cache/disk_cache_test_util.cc']
 )
 
 
@@ -260,7 +262,7 @@ crash_cache = env_tests.ChromeTestProgram(
     'crash_cache.ilk',
     'crash_cache.pdb'],
     ['tools/crash_cache/crash_cache.cc',
-    'disk_cache/disk_cache_test_util.cc'] + libs
+    'disk_cache/disk_cache_test_util.cc']
 )
 
 
@@ -273,7 +275,7 @@ net_perftests = env_tests.ChromeTestProgram(
     'base/cookie_monster_perftest.cc',
     # TODO(sgk): avoid using .cc from base directly
     '$BASE_DIR/run_all_perftests$OBJSUFFIX',
-    '$BASE_DIR/perftimer$OBJSUFFIX'] + libs
+    '$BASE_DIR/perftimer$OBJSUFFIX']
 )
 
 

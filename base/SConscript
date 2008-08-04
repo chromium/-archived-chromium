@@ -41,11 +41,15 @@ env.Prepend(
     CPPDEFINES = [
         'U_STATIC_IMPLEMENTATION',
     ],
-    CCFLAGS = [
-        '/TP',
-        '/Wp64',
-    ],
 )
+
+if env['PLATFORM'] == 'win32':
+  env.Prepend(
+      CCFLAGS = [
+          '/TP',
+          '/Wp64',
+      ],
+  )
 
 input_files = [
     'at_exit.cc',
@@ -137,40 +141,44 @@ env_tests.Prepend(
         'WINVER=0x0600',
         '_HAS_EXCEPTIONS=0',
     ],
-    CCFLAGS = [
-        '/TP',
-        '/WX',
-        '/Wp64',
-    ],
-    LINKFLAGS = [
-        '/MANIFEST',
-        '/DELAYLOAD:"dwmapi.dll"',
-        '/DELAYLOAD:"uxtheme.dll"',
-        '/MACHINE:X86',
-        '/FIXED:No',
-
-        '/safeseh',
-        '/dynamicbase',
-        '/ignore:4199',
-        '/nxcompat',
-    ],
+    LIBS = [
+        'base',
+        'base_gfx',
+        'skia',
+        'libpng',
+        'gtest',
+        'icuuc',
+        'zlib',
+    ]
 )
-
-libs = [
-    'base.lib',
-    'gfx/base_gfx.lib',
-    '$SKIA_DIR/skia.lib',
-    '$LIBPNG_DIR/libpng.lib',
-    '$TESTING_DIR/gtest.lib',
-    '$ICU38_DIR/icuuc.lib',
-    '$ZLIB_DIR/zlib.lib',
-]
 
 env_tests.Append(
     CPPPATH = [
         '$GTEST_DIR/include',
     ],
 )
+
+if env['PLATFORM'] == 'win32':
+  env_tests.Prepend(
+      CCFLAGS = [
+          '/TP',
+          '/WX',
+          '/Wp64',
+      ],
+      LINKFLAGS = [
+          '/MANIFEST',
+          '/DELAYLOAD:"dwmapi.dll"',
+          '/DELAYLOAD:"uxtheme.dll"',
+          '/MACHINE:X86',
+          '/FIXED:No',
+
+          '/safeseh',
+          '/dynamicbase',
+          '/ignore:4199',
+          '/nxcompat',
+      ],
+  )
+
 
 env_tests_dll = env_tests.Clone()
 env_tests_dll.Append(
@@ -183,14 +191,14 @@ dll = env_tests_dll.ChromeSharedLibrary(['singleton_dll_unittest.dll',
                                    'singleton_dll_unittest.ilk',
                                    'singleton_dll_unittest.pdb'],
                                   ['singleton_dll_unittest.cc',
-                                   'build/singleton_dll_unittest.def'] + libs)
+                                   'build/singleton_dll_unittest.def'])
 i = env.Install('$TARGET_ROOT', dll[0])
 env.Alias('base', i)
 
 env_tests.ChromeTestProgram(['debug_message.exe',
                    'debug_message.ilk',
                    'debug_message.pdb'],
-                  ['debug_message.cc'] + libs)
+                  ['debug_message.cc'])
 
 test_files = [
     'at_exit_unittest.cc',
@@ -241,7 +249,7 @@ test_files = [
     'win_util_unittest.cc',
     'wmi_util_unittest.cc',
 
-    'singleton_dll_unittest.lib',
+    dll[0],
 ]
 
 base_unittests = env_tests.ChromeTestProgram([
@@ -249,7 +257,7 @@ base_unittests = env_tests.ChromeTestProgram([
     'base_unittests.exp',
     'base_unittests.ilk',
     'base_unittests.lib',
-    'base_unittests.pdb'], test_files + libs)
+    'base_unittests.pdb'], test_files)
 
 
 # Install up a level to allow unit test path assumptions to be valid.

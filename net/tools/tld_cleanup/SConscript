@@ -35,6 +35,13 @@ env.Prepend(
     CPPPATH = [
         '../../..',
     ],
+    LIBS = [
+      'googleurl',
+      'icuuc',
+      'base',
+      # We only need to link with net due to use precompiled_net.pch.
+      'net',
+    ],
 )
 
 env.Append(
@@ -62,18 +69,10 @@ input_files = [
     'tld_cleanup.cc',
 ]
 
-libs = [
-  '$GOOGLEURL_DIR/googleurl.lib',
-  '$ICU38_DIR/icuuc.lib',
-  '$BASE_DIR/base.lib',
-  # We only need to link with net.lib due to use precompiled_net.pch.
-  '$NET_DIR/net.lib',
-]
-
 exe_targets = env.ChromeProgram(['tld_cleanup',
                            'tld_cleanup.ilk',
                            'tld_cleanup.pdb'],
-                          input_files + libs)
+                          input_files)
 i = env.Install('$TARGET_ROOT', exe_targets)
 env.Alias('net', i)
 

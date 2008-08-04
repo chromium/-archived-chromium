@@ -44,10 +44,11 @@ env.AppendENVPath('PATH', env['MSVS_ENV']['PATH'])
 
 mksnapshot_exe = File('#/../v8/bin/debug/mksnapshot.exe')
 v8_exe = File('#/../v8/Debug/v8_shell.exe')
+v8_lib = File('#/../v8/bin/debug/v8.lib'),
 
 v8_scons_targets = [
     mksnapshot_exe,
-    File('#/../v8/bin/debug/v8.lib'),
+    v8_lib,
     File('#/../v8/bin/debug/snapshot-empty.obj'),
     File('#/../v8/vc80.pdb')
 ]
@@ -61,6 +62,9 @@ env.AlwaysBuild(v8)
 env.Install('$V8_DIR', v8)
 
 i = env.Install('$TARGET_ROOT', mksnapshot_exe)
+env.Alias('webkit', i)
+
+i = env.Install('$LIBS_DIR', v8_lib)
 env.Alias('webkit', i)
 
 

@@ -48,9 +48,13 @@ input_files = [
     'plugin_test.cc',
     'plugin_window_size_test.cc',
     'npapi_test.def',
-
-    '$BASE_DIR/base.lib',
 ]
+
+env.Append(
+    LIBS = [
+         'base',
+    ],
+)
 
 env.Append(
     CCFLAGS = [
@@ -66,6 +70,7 @@ env.Append(
     ],
 
     LINKFLAGS = [
+        '/INCREMENTAL',
         '/DELAYLOAD:"dwmapi.dll"',
         '/DELAYLOAD:"uxtheme.dll"',
         '/FIXED:No',
@@ -79,9 +84,13 @@ env.Append(
 )
 
 dll = env.ChromeSharedLibrary(['npapi_test_plugin',
+                         'npapi_test_plugin.lib',
                          'npapi_test_plugin.ilk',
                          'npapi_test_plugin.pdb'],
                          input_files)
+
+# TODO(sgk):  goes away once ChromeSharedLibrary does this for us.
+env.Install('$LIBS_DIR', dll[1])
 
 i = env.Install('$TARGET_ROOT', dll)
 env.Alias('webkit', i)
