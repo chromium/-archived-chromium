@@ -136,6 +136,12 @@ class TabStripModelTest : public testing::Test {
     contents->SetupController(profile_);
     return contents;
   }
+  TabContents* CreateNewTabTabContents() {
+    TabStripModelTestTabContents* contents =
+        new TabStripModelTestTabContents(TAB_CONTENTS_NEW_TAB_UI);
+    contents->SetupController(profile_);
+    return contents;
+  }
 
   // Forwards a URL "load" request through to our dummy TabContents
   // implementation.
@@ -1072,10 +1078,12 @@ TEST_F(TabStripModelTest, AppendContentsReselectionTest) {
   EXPECT_EQ(0, tabstrip.selected_index());
 
   // Now open a blank tab...
+  // (see also AddTabContents_NewTabAtEndOfStripInheritsGroup for an
+  // explanation of this behavior)
   tabstrip.AddBlankTab(true);
   EXPECT_EQ(2, tabstrip.selected_index());
   tabstrip.CloseTabContentsAt(2);
-  EXPECT_EQ(1, tabstrip.selected_index());
+  EXPECT_EQ(0, tabstrip.selected_index());
 
   // clean up after ourselves
   tabstrip.CloseAllTabs();
@@ -1124,6 +1132,72 @@ TEST_F(TabStripModelTest, ReselectionConsidersChildrenTest) {
 
   // Page A should be selected
   EXPECT_EQ(page_a_contents, strip.GetSelectedTabContents());
+
+  // Clean up.
+  strip.CloseAllTabs();
+}
+
+TEST_F(TabStripModelTest, AddTabContents_NewTabAtEndOfStripInheritsGroup) {
+  TabStripDummyDelegate delegate(NULL);
+  TabStripModel strip(&delegate, profile_);
+
+  // Open page A
+  TabContents* page_a_contents = CreateTabContents();
+  strip.AddTabContents(page_a_contents, -1, PageTransition::START_PAGE, true);
+
+  // Open pages B, C and D in the background from links on page A...
+  TabContents* page_b_contents = CreateTabContents();
+  TabContents* page_c_contents = CreateTabContents();
+  TabContents* page_d_contents = CreateTabContents();
+  strip.AddTabContents(page_b_contents, -1, PageTransition::LINK, false);
+  strip.AddTabContents(page_c_contents, -1, PageTransition::LINK, false);
+  strip.AddTabContents(page_d_contents, -1, PageTransition::LINK, false);
+
+  // Switch to page B's tab.
+  strip.SelectTabContentsAt(1, true);
+
+  // Open a New Tab at the end of the strip (simulate Ctrl+T)
+  TabContents* new_tab_contents = CreateNewTabTabContents();
+  strip.AddTabContents(new_tab_contents, -1, PageTransition::TYPED, true);
+
+  EXPECT_EQ(4, strip.GetIndexOfTabContents(new_tab_contents));
+  EXPECT_EQ(4, strip.selected_index());
+
+  // Close the New Tab that was just opened. We should be returned to page B's
+  // Tab...
+  strip.CloseTabContentsAt(4);
+
+  EXPECT_EQ(1, strip.selected_index());
+
+  // Open a non-New Tab tab at the end of the strip, with a TYPED transition.
+  // This is like typing a URL in the address bar and pressing Alt+Enter. The
+  // behavior should be the same as above.
+  TabContents* page_e_contents = CreateTabContents();
+  strip.AddTabContents(page_e_contents, -1, PageTransition::TYPED, true);
+
+  EXPECT_EQ(4, strip.GetIndexOfTabContents(page_e_contents));
+  EXPECT_EQ(4, strip.selected_index());
+
+  // Close the Tab. Selection should shift back to page B's Tab.
+  strip.CloseTabContentsAt(4);
+
+  EXPECT_EQ(1, strip.selected_index());
+
+  // Open a non-New Tab tab at the end of the strip, with some other
+  // transition. This is like right clicking on a bookmark and choosing "Open
+  // in New Tab". No opener relationship should be preserved between this Tab
+  // and the one that was active when the gesture was performed.
+  TabContents* page_f_contents = CreateTabContents();
+  strip.AddTabContents(page_f_contents, -1, PageTransition::AUTO_BOOKMARK,
+                       true);
+
+  EXPECT_EQ(4, strip.GetIndexOfTabContents(page_f_contents));
+  EXPECT_EQ(4, strip.selected_index());
+
+  // Close the Tab. The next-adjacent should be selected.
+  strip.CloseTabContentsAt(4);
+
+  EXPECT_EQ(3, strip.selected_index());
 
   // Clean up.
   strip.CloseAllTabs();

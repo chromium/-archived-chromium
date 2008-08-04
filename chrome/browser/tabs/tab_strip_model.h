@@ -353,8 +353,13 @@ class TabStripModel : public NotificationObserver {
   // Forgets the group affiliation of the specified TabContents. This should be
   // called when a TabContents that is part of a logical group of tabs is
   // moved to a new logical context by the user (e.g. by typing a new URL or
-  // selecting a bookmark).
+  // selecting a bookmark). This also forgets the opener, which is considered
+  // a weaker relationship than group.
   void ForgetGroup(TabContents* contents);
+
+  // Returns true if the group/opener relationships present for |contents|
+  // should be reset when _any_ selection change occurs in the model.
+  bool ShouldResetGroupOnSelect(TabContents* contents) const;
 
   // Command level API /////////////////////////////////////////////////////////
 
@@ -487,8 +492,17 @@ class TabStripModel : public NotificationObserver {
     // same group. This property is used to determine what tab to select next
     // when one is closed.
     NavigationController* opener;
+    // True if our group should be reset the moment selection moves away from
+    // this Tab. This is the case for tabs opened in the foreground at the end
+    // of the TabStrip while viewing another Tab. If these tabs are closed
+    // before selection moves elsewhere, their opener is selected. But if
+    // selection shifts to _any_ tab (including their opener), the group
+    // relationship is reset to avoid confusing close sequencing.
+    bool reset_group_on_select;
+
     explicit TabContentsData(TabContents* a_contents)
-        : contents(a_contents) {
+        : contents(a_contents),
+          reset_group_on_select(false) {
       SetGroup(NULL);
     }
 

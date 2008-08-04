@@ -123,8 +123,14 @@ void TabStripModelOrderController::TabSelectedAt(TabContents* old_contents,
   NavigationController* old_opener = NULL;
   if (old_contents) {
     int index = tabstrip_->GetIndexOfTabContents(old_contents);
-    if (index != TabStripModel::kNoTab)
+    if (index != TabStripModel::kNoTab) {
       old_opener = tabstrip_->GetOpenerOfTabContentsAt(index);
+
+      // Forget any group/opener relationships that need to be reset whenever
+      // selection changes (see comment in TabStripModel::AddTabContentsAt).
+      if (tabstrip_->ShouldResetGroupOnSelect(old_contents))
+        tabstrip_->ForgetGroup(old_contents);
+    }
   }
   NavigationController* new_opener =
       tabstrip_->GetOpenerOfTabContentsAt(index);

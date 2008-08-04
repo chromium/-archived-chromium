@@ -346,6 +346,13 @@ void TabStripModel::ForgetGroup(TabContents* contents) {
   int index = GetIndexOfTabContents(contents);
   DCHECK(ContainsIndex(index));
   contents_data_.at(index)->SetGroup(NULL);
+  contents_data_.at(index)->ForgetOpener();
+}
+
+bool TabStripModel::ShouldResetGroupOnSelect(TabContents* contents) const {
+  int index = GetIndexOfTabContents(contents);
+  DCHECK(ContainsIndex(index));
+  return contents_data_.at(index)->reset_group_on_select;
 }
 
 TabContents* TabStripModel::AddBlankTab(bool foreground) {
@@ -378,8 +385,22 @@ void TabStripModel::AddTabContents(TabContents* contents,
       index = count();
   }
   TabContents* last_selected_contents = GetSelectedTabContents();
-  InsertTabContentsAt(
-      index, contents, foreground, transition == PageTransition::LINK);
+  // Tabs opened from links inherit the "group" attribute of the Tab from which
+  // they were opened. This means when they're closed, that Tab will be
+  // selected again.
+  bool inherit_group = transition == PageTransition::LINK;
+  if (!inherit_group) {
+    // Also, any tab opened at the end of the TabStrip with a "TYPED"
+    // transition inherit group as well. This covers the cases where the user
+    // creates a New Tab (e.g. Ctrl+T, or clicks the New Tab button), or types
+    // in the address bar and presses Alt+Enter. This allows for opening a new
+    // Tab to quickly look up something. When this Tab is closed, the old one
+    // is re-selected, not the next-adjacent.
+    inherit_group = transition == PageTransition::TYPED && index == count();
+  }
+  InsertTabContentsAt(index, contents, foreground, inherit_group);
+  if (inherit_group && transition == PageTransition::TYPED)
+    contents_data_.at(index)->reset_group_on_select = true;
 }
 
 void TabStripModel::CloseSelectedTab() {
