@@ -38,7 +38,6 @@ namespace ChromeViews {
 ClientView::ClientView(Window* window, View* contents_view)
     : window_(window),
       contents_view_(contents_view) {
-  DCHECK(window && contents_view);
 }
 
 int ClientView::NonClientHitTest(const gfx::Point& point) {
@@ -54,12 +53,16 @@ int ClientView::NonClientHitTest(const gfx::Point& point) {
 
 void ClientView::GetPreferredSize(CSize* out) {
   DCHECK(out);
-  contents_view_->GetPreferredSize(out);
+  // |contents_view_| is allowed to be NULL up until the point where this view
+  // is attached to a ViewContainer.
+  if (contents_view_)
+    contents_view_->GetPreferredSize(out);
 }
 
 void ClientView::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
   if (is_add && child == this) {
     DCHECK(GetViewContainer());
+    DCHECK(contents_view_); // |contents_view_| must be valid now!
     AddChildView(contents_view_);
   }
 }
@@ -69,7 +72,10 @@ void ClientView::DidChangeBounds(const CRect& previous, const CRect& current) {
 }
 
 void ClientView::Layout() {
-  contents_view_->SetBounds(0, 0, GetWidth(), GetHeight());
+  // |contents_view_| is allowed to be NULL up until the point where this view
+  // is attached to a ViewContainer.
+  if (contents_view_)
+    contents_view_->SetBounds(0, 0, GetWidth(), GetHeight());
 }
 
 };  // namespace ChromeViews

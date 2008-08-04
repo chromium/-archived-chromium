@@ -30,7 +30,13 @@
 #ifndef CHROME_BROWSER_VIEWS_FRAME_OPAQUE_FRAME_H_
 #define CHROME_BROWSER_VIEWS_FRAME_OPAQUE_FRAME_H_
 
+#include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/views/custom_frame_window.h"
+
+class BrowserView2;
+namespace ChromeViews {
+class Window;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueFrame
@@ -40,12 +46,26 @@
 //  Vista when DWM desktop compositing is disabled. The window title and
 //  borders are provided with bitmaps.
 //
-class OpaqueFrame : public ChromeViews::CustomFrameWindow {
+class OpaqueFrame : public BrowserFrame,
+                    public ChromeViews::CustomFrameWindow {
  public:
-  OpaqueFrame();
+  explicit OpaqueFrame(BrowserView2* browser_view);
   virtual ~OpaqueFrame();
 
+  bool IsToolbarVisible() const { return true; }
+  bool IsTabStripVisible() const { return true; }
+
+  // Returns bounds of various areas within the BrowserView ClientView.
+  gfx::Rect GetToolbarBounds() const;
+  gfx::Rect GetContentsBounds() const;
+
+  // Overridden from BrowserFrame:
+  virtual ChromeViews::Window* GetWindow();
+
  private:
+  // The BrowserView2 is our ClientView. This is a pointer to it.
+  BrowserView2* browser_view_;
+
   DISALLOW_EVIL_CONSTRUCTORS(OpaqueFrame);
 };
 

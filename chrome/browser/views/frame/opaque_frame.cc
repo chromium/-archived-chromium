@@ -29,11 +29,33 @@
 
 #include "chrome/browser/views/frame/opaque_frame.h"
 
+#include "chrome/browser/views/frame/browser_view2.h"
+#include "chrome/browser/views/frame/opaque_non_client_view.h"
+#include "chrome/views/window_delegate.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueFrame, public:
 
-OpaqueFrame::OpaqueFrame() : CustomFrameWindow(NULL, NULL) {
+OpaqueFrame::OpaqueFrame(BrowserView2* browser_view)
+    : CustomFrameWindow(browser_view, new OpaqueNonClientView(this, false)),
+      browser_view_(browser_view) {
+  browser_view_->set_frame(this);
 }
 
 OpaqueFrame::~OpaqueFrame() {
+}
+
+gfx::Rect OpaqueFrame::GetToolbarBounds() const {
+  return browser_view_->GetToolbarBounds();
+}
+
+gfx::Rect OpaqueFrame::GetContentsBounds() const {
+  return browser_view_->GetClientAreaBounds();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// OpaqueFrame, BrowserFrame implementation:
+
+ChromeViews::Window* OpaqueFrame::GetWindow() {
+  return this;
 }

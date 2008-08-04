@@ -49,9 +49,8 @@ class ClientView : public View {
  public:
   // Constructs a ClientView object for the specified window with the specified
   // contents. Since this object is created during the process of creating
-  // |window|, |contents_view| must be valid so we can determine the initial
-  // size of |window|. We call GetPreferredSize on |contents_view|,
-  // which should return something non-zero.
+  // |window|, |contents_view| must be valid if you want the initial size of
+  // the window to be based on |contents_view|'s preferred size.
   ClientView(Window* window, View* contents_view);
   virtual ~ClientView() {}
 
@@ -86,7 +85,11 @@ class ClientView : public View {
 
   // Accessors for private data members.
   Window* window() const { return window_; }
+  void set_window(Window* window) { window_ = window; }
   View* contents_view() const { return contents_view_; }
+  void set_contents_view(View* contents_view) {
+    contents_view_ = contents_view;
+  }
 
  private:
   // The Window that hosts this ClientView.

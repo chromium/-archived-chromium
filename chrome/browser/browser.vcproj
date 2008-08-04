@@ -1721,6 +1721,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\views\frame\browser_view2.cc"
+					>
+				</File>
+				<File
+					RelativePath=".\views\frame\browser_view2.h"
+					>
+				</File>
+				<File
 					RelativePath=".\views\frame\browser_window_factory.cc"
 					>
 				</File>

@@ -30,6 +30,14 @@
 #ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_FRAME_H_
 #define CHROME_BROWSER_VIEWS_FRAME_BROWSER_FRAME_H_
 
+class BrowserView2;
+namespace ChromeViews {
+class Window;
+}
+namespace gfx {
+class Rect;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserFrame
 //
@@ -39,6 +47,25 @@
 //
 class BrowserFrame {
  public:
+  // Returns the ChromeViews::Window associated with this frame.
+  virtual ChromeViews::Window* GetWindow() = 0;
+
+  enum FrameType {
+    FRAMETYPE_OPAQUE,
+    FRAMETYPE_AERO_GLASS
+  };
+
+  // Returns the FrameType that should be constructed given the current system
+  // settings.
+  static FrameType GetActiveFrameType();
+
+  // Creates a BrowserFrame instance for the specified FrameType and
+  // BrowserView.
+  static BrowserFrame* CreateForBrowserView(FrameType type,
+                                            BrowserView2* browser_view,
+                                            const gfx::Rect& bounds,
+                                            int show_command);
+
 };
 
 #endif  // #ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_FRAME_H_

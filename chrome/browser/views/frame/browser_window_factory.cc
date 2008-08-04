@@ -27,10 +27,15 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "base/command_line.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/frame_util.h"
+#include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/browser/views/frame/browser_view.h"
+#include "chrome/browser/views/frame/browser_view2.h"
+#include "chrome/browser/views/frame/opaque_frame.h"
+#include "chrome/common/win_util.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserWindow, public:
@@ -46,7 +51,38 @@ BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser,
   //             However BrowserView is the one that Browser has a ref to, and
   //             calls that BrowserView can't perform directly are passed on to
   //             its frame. Eventually this will be better, I promise.
+  CommandLine parsed_command_line;
+  if (parsed_command_line.HasSwitch(L"magic_browzR")) {
+    BrowserView2* browser_view = new BrowserView2(browser);
+    BrowserFrame::CreateForBrowserView(BrowserFrame::GetActiveFrameType(),
+                                       browser_view, bounds, show_command);
+    return browser_view;
+  }
   BrowserWindow* window = FrameUtil::CreateBrowserWindow(bounds, browser);
   return window->GetBrowserView();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// BrowserFrame, public:
+
+// static
+BrowserFrame::FrameType BrowserFrame::GetActiveFrameType() {
+  return win_util::ShouldUseVistaFrame() ? BrowserFrame::FRAMETYPE_AERO_GLASS
+                                         : BrowserFrame::FRAMETYPE_OPAQUE;
+}
+
+// static
+BrowserFrame* BrowserFrame::CreateForBrowserView(BrowserFrame::FrameType type,
+                                                 BrowserView2* browser_view,
+                                                 const gfx::Rect& bounds,
+                                                 int show_command) {
+  if (type == FRAMETYPE_OPAQUE) {
+    OpaqueFrame* frame = new OpaqueFrame(browser_view);
+    frame->Init(NULL, bounds);
+    return frame;
+  } else if (type == FRAMETYPE_AERO_GLASS) {
+    NOTREACHED() << "Aero/Glass not supported yet by magic_browzR switch";
+  }
+  NOTREACHED() << "Unsupported frame type";
+  return NULL;
+}

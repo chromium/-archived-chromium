@@ -30,14 +30,26 @@
 #ifndef CHROME_BROWSER_VIEWS_FRAME_OPAQUE_NON_CLIENT_VIEW_H_
 #define CHROME_BROWSER_VIEWS_FRAME_OPAQUE_NON_CLIENT_VIEW_H_
 
+#include "chrome/browser/views/frame/opaque_frame.h"
 #include "chrome/views/non_client_view.h"
+#include "chrome/views/button.h"
 
-class OpaqueNonClientView : public ChromeViews::NonClientView {
+class OpaqueFrame;
+class WindowResources;
+
+class OpaqueNonClientView : public ChromeViews::NonClientView,
+                            public ChromeViews::BaseButton::ButtonListener {
  public:
-  OpaqueNonClientView();
+  // Constructs a non-client view for an OpaqueFrame. |is_otr| specifies if the
+  // frame was created "off-the-record" and as such different bitmaps should be
+  // used to render the frame.
+  OpaqueNonClientView(OpaqueFrame* frame, bool is_otr);
   virtual ~OpaqueNonClientView();
 
  protected:
+  // Overridden from ChromeViews::BaseButton::ButtonListener:
+  virtual void ButtonPressed(ChromeViews::BaseButton* sender);
+
   // Overridden from ChromeViews::NonClientView:
   virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
   virtual gfx::Size CalculateWindowSizeForClientSize(int width,
@@ -48,12 +60,75 @@ class OpaqueNonClientView : public ChromeViews::NonClientView {
   virtual void EnableClose(bool enable);
 
   // Overridden from ChromeViews::View:
+  virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
+  virtual void GetPreferredSize(CSize* out);
+  virtual ChromeViews::View* GetViewForPoint(const CPoint& point,
+                                             bool can_create_floating);
+  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual void ViewHierarchyChanged(bool is_add,
                                     ChromeViews::View* parent,
                                     ChromeViews::View* child);
 
  private:
+  // Updates the system menu icon button.
+  void SetWindowIcon(SkBitmap window_icon);
+
+  // Returns the height of the non-client area at the top of the window (the
+  // title bar, etc).
+  int CalculateNonClientTopHeight() const;
+
+  // Paint various sub-components of this view.
+  void PaintFrameBorder(ChromeCanvas* canvas);
+  void PaintMaximizedFrameBorder(ChromeCanvas* canvas);
+  void PaintDistributorLogo(ChromeCanvas* canvas);
+  void PaintTitleBar(ChromeCanvas* canvas);
+  void PaintToolbarBackground(ChromeCanvas* canvas);
+  void PaintClientEdge(ChromeCanvas* canvas);
+
+  // Layout various sub-components of this view.
+  void LayoutWindowControls();
+  void LayoutDistributorLogo();
+  void LayoutTitleBar();
+  void LayoutClientView();
+
+  // Returns the set of resources to use to paint this view.
+  WindowResources* resources() const {
+    return frame_->is_active() ? current_active_resources_
+                               : current_inactive_resources_;
+  }
+  
+  // The layout rect of the title, if visible.
+  gfx::Rect title_bounds_;
+
+  // The layout rect of the window icon, if visible.
+  gfx::Rect icon_bounds_;
+
+  // The layout rect of the distributor logo, if visible.
+  gfx::Rect logo_bounds_;
+
+  // Window controls.
+  ChromeViews::Button* minimize_button_;
+  ChromeViews::Button* maximize_button_;
+  ChromeViews::Button* restore_button_;
+  ChromeViews::Button* close_button_;
+
+  // The frame that hosts this view.
+  OpaqueFrame* frame_;
+
+  // The BrowserView hosted within this View.
+
+  // The resources currently used to paint this view.
+  WindowResources* current_active_resources_;
+  WindowResources* current_inactive_resources_;
+
+  static void InitClass();
+  static SkBitmap distributor_logo_;
+  static WindowResources* active_resources_;
+  static WindowResources* inactive_resources_;
+  static WindowResources* active_otr_resources_;
+  static WindowResources* inactive_otr_resources_;
+
   DISALLOW_EVIL_CONSTRUCTORS(OpaqueNonClientView);
 };
 

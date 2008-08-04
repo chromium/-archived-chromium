@@ -459,6 +459,16 @@ bool BrowserToolbarView::OnKeyReleased(const ChromeViews::KeyEvent& e) {
   return acc_focused_view_->OnKeyReleased(e);
 }
 
+void BrowserToolbarView::GetPreferredSize(CSize* out) {
+  DCHECK(out);
+  static SkBitmap* bg_bitmap = NULL;
+  if (!bg_bitmap) {
+    ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+    bg_bitmap = rb.GetBitmapNamed(IDR_CONTENT_TOP_CENTER);
+  }
+  out->cx = 0;
+  out->cy = bg_bitmap->height();
+}
 
 void BrowserToolbarView::RunPageMenu(const CPoint& pt, HWND hwnd) {
   Menu::AnchorPoint anchor = Menu::TOPRIGHT;
