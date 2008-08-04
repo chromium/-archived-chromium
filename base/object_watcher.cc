@@ -41,7 +41,7 @@ struct ObjectWatcher::Watch : public Task {
   HANDLE object;             // The object being watched
   HANDLE wait_object;        // Returned by RegisterWaitForSingleObject
   MessageLoop* origin_loop;  // Used to get back to the origin thread
-  scoped_ptr<Task> task;     // Task to notify when signaled
+  Delegate* delegate;        // Delegate to notify when signaled
   bool did_signal;           // DoneWaiting was called
 
   virtual void Run() {
@@ -50,42 +50,33 @@ struct ObjectWatcher::Watch : public Task {
     if (!watcher)
       return;
     
-    // Put this on the stack since CancelWatch deletes task.  It is a good
-    // to call CancelWatch before running the task because we want to allow
-    // the consumer to call AddWatch again inside Run.
-    Task* task_to_run = task.release();
-    
-    watcher->CancelWatch(object);
+    DCHECK(did_signal);
+    watcher->StopWatching();
 
-    task_to_run->ResetBirthTime();
-    task_to_run->Run();
-    delete task_to_run;
+    delegate->OnObjectSignaled(object);
   }
 };
 
 //-----------------------------------------------------------------------------
 
-ObjectWatcher::ObjectWatcher() {
+ObjectWatcher::ObjectWatcher() : watch_(NULL) {
 }
 
 ObjectWatcher::~ObjectWatcher() {
-  // Cancel any watches that may still exist.
-  while (!watches_.empty())
-    CancelWatch(watches_.begin()->first);
+  StopWatching();
 }
 
-bool ObjectWatcher::AddWatch(const tracked_objects::Location& from_here,
-                             HANDLE object, Task* task) {
-  task->SetBirthPlace(from_here);
+bool ObjectWatcher::StartWatching(HANDLE object, Delegate* delegate) {
+  if (watch_) {
+    NOTREACHED() << "Already watching an object";
+    return false;
+  }
 
-  linked_ptr<Watch>& watch = watches_[object];
-  CHECK(!watch.get()) << "Already watched!";
-
-  watch.reset(new Watch());
+  Watch* watch = new Watch;
   watch->watcher = this;
   watch->object = object;
   watch->origin_loop = MessageLoop::current();
-  watch->task.reset(task);
+  watch->delegate = delegate;
   watch->did_signal = false;
 
   // Since our job is to just notice when an object is signaled and report the
@@ -93,44 +84,46 @@ bool ObjectWatcher::AddWatch(const tracked_objects::Location& from_here,
   DWORD wait_flags = WT_EXECUTEINWAITTHREAD | WT_EXECUTEONLYONCE;
 
   if (!RegisterWaitForSingleObject(&watch->wait_object, object, DoneWaiting,
-                                   watch.get(), INFINITE, wait_flags)) {
+                                   watch, INFINITE, wait_flags)) {
     NOTREACHED() << "RegisterWaitForSingleObject failed: " << GetLastError();
-    watches_.erase(object);
+    delete watch;
     return false;
   }
 
+  watch_ = watch;
   return true;
 }
 
-bool ObjectWatcher::CancelWatch(HANDLE object) {
-  WatchMap::iterator i = watches_.find(object);
-  if (i == watches_.end())
+bool ObjectWatcher::StopWatching() {
+  if (!watch_)
     return false;
 
-  Watch* watch = i->second.get();
+  // Make sure ObjectWatcher is used in a single-threaded fashion.
+  DCHECK(watch_->origin_loop == MessageLoop::current());
   
   // If DoneWaiting is in progress, we wait for it to finish.  We know whether
   // DoneWaiting happened or not by inspecting the did_signal flag.
-  if (!UnregisterWaitEx(watch->wait_object, INVALID_HANDLE_VALUE)) {
+  if (!UnregisterWaitEx(watch_->wait_object, INVALID_HANDLE_VALUE)) {
     NOTREACHED() << "UnregisterWaitEx failed: " << GetLastError();
     return false;
   }
 
-  // If DoneWaiting was called, then the watch would have been posted as a
-  // task, and will therefore be deleted by the MessageLoop.  Otherwise, we
-  // need to take care to delete it here.
-  if (watch->did_signal)
-    i->second.release();
+  // Make sure that we see any mutation to did_signal.  This should be a no-op
+  // since we expect that UnregisterWaitEx resulted in a memory barrier, but
+  // just to be sure, we're going to be explicit.
+  MemoryBarrier();
 
   // If the watch has been posted, then we need to make sure it knows not to do
   // anything once it is run.
-  watch->watcher = NULL;
+  watch_->watcher = NULL;
 
-  // Delete the task object now so that everything, from the perspective of the
-  // consumer, is cleaned up once we return from CancelWatch.
-  watch->task.reset();
+  // If DoneWaiting was called, then the watch would have been posted as a
+  // task, and will therefore be deleted by the MessageLoop.  Otherwise, we
+  // need to take care to delete it here.
+  if (!watch_->did_signal)
+    delete watch_;
 
-  watches_.erase(i);
+  watch_ = NULL;
   return true;
 }
 
@@ -143,6 +136,9 @@ void CALLBACK ObjectWatcher::DoneWaiting(void* param, BOOLEAN timed_out) {
   // Record that we ran this function.
   watch->did_signal = true;
 
+  // We rely on the locking in PostTask() to ensure that a memory barrier is
+  // provided, which in turn ensures our change to did_signal can be observed
+  // on the target thread.
   watch->origin_loop->PostTask(FROM_HERE, watch);
 }
 

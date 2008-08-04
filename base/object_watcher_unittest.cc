@@ -34,13 +34,19 @@
 namespace {
 typedef testing::Test ObjectWatcherTest;
 
-class DecrementCountTask : public Task {
+class QuitDelegate : public base::ObjectWatcher::Delegate {
  public:
-  DecrementCountTask(int* counter) : counter_(counter) {
+  virtual void OnObjectSignaled(HANDLE object) {
+    MessageLoop::current()->Quit();
   }
-  virtual void Run() {
-    if (--(*counter_) == 0)
-      MessageLoop::current()->Quit();
+};
+
+class DecrementCountDelegate : public base::ObjectWatcher::Delegate {
+ public:
+  DecrementCountDelegate(int* counter) : counter_(counter) {
+  }
+  virtual void OnObjectSignaled(HANDLE object) {
+    --(*counter_);
   }
  private:
   int* counter_;
@@ -54,7 +60,8 @@ TEST(ObjectWatcherTest, BasicSignal) {
   // A manual-reset event that is not yet signaled.
   HANDLE event = CreateEvent(NULL, TRUE, FALSE, NULL);
 
-  bool ok = watcher.AddWatch(FROM_HERE, event, new MessageLoop::QuitTask());
+  QuitDelegate delegate;
+  bool ok = watcher.StartWatching(event, &delegate);
   EXPECT_TRUE(ok);
   
   SetEvent(event);
@@ -70,98 +77,39 @@ TEST(ObjectWatcherTest, BasicCancel) {
   // A manual-reset event that is not yet signaled.
   HANDLE event = CreateEvent(NULL, TRUE, FALSE, NULL);
 
-  bool ok = watcher.AddWatch(FROM_HERE, event, new MessageLoop::QuitTask());
+  QuitDelegate delegate;
+  bool ok = watcher.StartWatching(event, &delegate);
   EXPECT_TRUE(ok);
   
-  watcher.CancelWatch(event);
+  watcher.StopWatching();
 
   CloseHandle(event);
 }
 
-TEST(ObjectWatcherTest, ManySignal) {
-  base::ObjectWatcher watcher;
-
-  const int kNumObjects = 2000;
-
-  int counter = kNumObjects;
-  HANDLE events[kNumObjects];
-  
-  for (int i = 0; i < kNumObjects; ++i) {
-    // A manual-reset event that is not yet signaled.
-    events[i] = CreateEvent(NULL, TRUE, FALSE, NULL);
-
-    bool ok = watcher.AddWatch(
-        FROM_HERE, events[i], new DecrementCountTask(&counter));
-    EXPECT_TRUE(ok);
-  }
-   
-  for (int i = 0; i < kNumObjects; ++i) 
-    SetEvent(events[i]);
-
-  MessageLoop::current()->Run();
-
-  for (int i = 0; i < kNumObjects; ++i)
-    CloseHandle(events[i]);
-}
-
-TEST(ObjectWatcherTest, ManyCancel) {
-  base::ObjectWatcher watcher;
-
-  const int kNumObjects = 2000;
-
-  int counter = kNumObjects;
-  HANDLE events[kNumObjects];
-  
-  for (int i = 0; i < kNumObjects; ++i) {
-    // A manual-reset event that is not yet signaled.
-    events[i] = CreateEvent(NULL, TRUE, FALSE, NULL);
-
-    bool ok = watcher.AddWatch(
-        FROM_HERE, events[i], new DecrementCountTask(&counter));
-    EXPECT_TRUE(ok);
-  }
-   
-  for (int i = 0; i < kNumObjects; ++i) 
-    watcher.CancelWatch(events[i]);
-
-  for (int i = 0; i < kNumObjects; ++i)
-    CloseHandle(events[i]);
-}
 
 TEST(ObjectWatcherTest, CancelAfterSet) {
   base::ObjectWatcher watcher;
 
-  const int kNumObjects = 50;
+  int counter = 1;
+  DecrementCountDelegate delegate(&counter);
 
-  int counter = kNumObjects;
-  HANDLE events[kNumObjects];
-  
-  for (int i = 0; i < kNumObjects; ++i) {
     // A manual-reset event that is not yet signaled.
-    events[i] = CreateEvent(NULL, TRUE, FALSE, NULL);
+  HANDLE event = CreateEvent(NULL, TRUE, FALSE, NULL);
 
-    bool ok = watcher.AddWatch(
-        FROM_HERE, events[i], new DecrementCountTask(&counter));
-    EXPECT_TRUE(ok);
-  }
+  bool ok = watcher.StartWatching(event, &delegate);
+  EXPECT_TRUE(ok);
    
-  for (int i = 0; i < kNumObjects; ++i) {
-    SetEvent(events[i]);
+  SetEvent(event);
     
-    // Let the background thread do its business
-    SleepEx(10, TRUE);
+  // Let the background thread do its business
+  Sleep(30);
     
-    // Occasionally pump some tasks.  Sometimes we cancel a watch after its
-    // task has run and other times we do nothing.
-    if (i % 3 == 0)
-      MessageLoop::current()->RunAllPending();
-
-    if (watcher.CancelWatch(events[i]))
-      --counter;
-  }
+  watcher.StopWatching();
   
-  EXPECT_EQ(0, counter);
+  MessageLoop::current()->RunAllPending();
 
-  for (int i = 0; i < kNumObjects; ++i)
-    CloseHandle(events[i]);
+  // Our delegate should not have fired.
+  EXPECT_EQ(1, counter);
+  
+  CloseHandle(event);
 }

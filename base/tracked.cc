@@ -74,6 +74,7 @@ void Location::WriteFunctionName(std::string* output) const {
 Tracked::Tracked() {}
 Tracked::~Tracked() {}
 void Tracked::SetBirthPlace(const Location& from_here) {}
+void Tracked::ResetBirthTime() {}
 bool Tracked::MissingBirthplace() const { return false; }
 void Tracked::ResetBirthTime() {}
 

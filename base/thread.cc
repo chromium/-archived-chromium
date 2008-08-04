@@ -33,9 +33,12 @@
 #include "base/thread.h"
 
 #include "base/message_loop.h"
+#include "base/object_watcher.h"
 #include "base/ref_counted.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
+
+namespace {
 
 // This class is used when starting a thread.  It passes information to the
 // thread function.  It is referenced counted so we can cleanup the event
@@ -65,19 +68,14 @@ class ThreadQuitTask : public Task {
 };
 
 // Once an object is signaled, quits the current inner message loop.
-class QuitOnSignal : public MessageLoop::Watcher {
+class QuitOnSignal : public base::ObjectWatcher::Delegate {
  public:
-  explicit QuitOnSignal(HANDLE signal) : signal_(signal) {
-  }
   virtual void OnObjectSignaled(HANDLE object) {
-    DCHECK_EQ(object, signal_);
-    MessageLoop::current()->WatchObject(signal_, NULL);
     MessageLoop::current()->Quit();
   }
- private:
-  HANDLE signal_;
-  DISALLOW_EVIL_CONSTRUCTORS(QuitOnSignal);
 };
+
+}  // namespace
 
 Thread::Thread(const char *name)
     : thread_(NULL),
@@ -198,8 +196,10 @@ void Thread::InternalStop(bool run_message_loop) {
   message_loop_->PostTask(FROM_HERE, new ThreadQuitTask());
 
   if (run_message_loop) {
-    QuitOnSignal signal_watcher(thread_);
-    MessageLoop::current()->WatchObject(thread_, &signal_watcher);
+    QuitOnSignal quit_on_signal;
+    base::ObjectWatcher signal_watcher;
+    CHECK(signal_watcher.StartWatching(thread_, &quit_on_signal));
+
     bool old_state = MessageLoop::current()->NestableTasksAllowed();
     MessageLoop::current()->SetNestableTasksAllowed(true);
     MessageLoop::current()->Run();
