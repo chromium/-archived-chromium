@@ -36,7 +36,7 @@
 #elif defined(linux)
 #define OS_LINUX 1
 #elif defined(WIN32)
-#define OS_WINDOWS 1
+#define OS_WIN 1
 #else
 #error Please add support for your platform in build/build_config.h
 #endif
