@@ -121,12 +121,11 @@
 //          will be overwritten with the normal results. This flag is used to
 //          help debug the tests if they are crashing before they get a chance
 //          to write their results to file.
-//
-// --wait-after-action : waits the specified amount of time (1s by default)
-//                       after each action. Useful for debugging.
-//
 
 #include "chrome/test/ui/ui_test.h"
+
+// Size of the array of possible actions to use when testing a dialog.
+const int kNumTestDialogActions = 4;
 
 class AutomatedUITest : public UITest {
  protected:
@@ -220,16 +219,6 @@ class AutomatedUITest : public UITest {
   // XML element: <ImportSettings/>
   bool ImportSettings();
 
-  // Opens the Search Engines dialog. While it isn't modal, it takes focus from
-  // the current browser window, so most of the test can't continue until it is
-  // dismissed.
-  // XML element: <EditSearchEngines/>
-  bool EditSearchEngines();
-
-  // Opens one of the dialogs (chosen randomly) and exercises it.
-  // XML element: <Dialog/>
-  bool ExerciseDialog();
-
   // Opens the View Passwords dialog, this dialog is modal so a majority of
   // the test can't be completed until it is dismissed.
   // XML element: <ViewPasswords/>
@@ -241,33 +230,10 @@ class AutomatedUITest : public UITest {
   bool ClearBrowserData();
 
   // Opens the Task Manager dialog. While it isn't modal, it takes focus from
-  // the current browser window, so most of the test can't continue until it is
+  // the current browser window, so most of the test can't continue until is
   // dismissed.
   // XML element: <TaskManager/>
   bool TaskManager();
-
-  // Opens the Options dialog. While it isn't modal, it takes focus from
-  // the current browser window, so most of the test can't continue until it is
-  // dismissed.
-  // XML element: <Options/>
-  bool Options();
-
-  // Opens the About dialog. This dialog is modal so a majority of the test
-  // can't be completed until it is dismissed.
-  // XML element: <About/>
-  bool About();
-
-  // Opens the JavaScriptDebugger window. While it isn't modal, it takes focus
-  // from the current browser window, so most of the test can't continue until
-  // it is dismissed.
-  // XML element: <JavaScriptDebugger/>
-  bool JavaScriptDebugger();
-
-  // Opens the JavaScriptConsole window. While it isn't modal, it takes focus
-  // from the current browser window, so most of the test can't continue until
-  // it is dismissed.
-  // XML element: <JavaScriptConsole/>
-  bool JavaScriptConsole();
 
   // Opens and focuses an OffTheRecord browser window.
   // XML element: <GoOffTheRecord/>
@@ -328,10 +294,6 @@ class AutomatedUITest : public UITest {
   // XML element: <TestTaskManager/>
   bool TestTaskManager();
 
-  // Opens Options dialog and runs random actions on it.
-  // XML element: <TestOptions/>
-  bool TestOptions();
-
   // Opens View Passwords dialog and runs random actions on it.
   // XML element: <TestViewPasswords/>
   bool TestViewPasswords();
@@ -375,12 +337,11 @@ class AutomatedUITest : public UITest {
   // window to the top.
   WindowProxy* GetAndActivateWindowForBrowser(BrowserProxy* browser);
 
-  // Runs the specified browser command in the current active browser.
-  // See browser_commands.cc for the list of commands.
+  // Applies the accelerator with the given ID to the current active window.
   // Returns true if the call is successful.
   // Returns false if the active window is not a browser window or if the
   // message to apply the accelerator fails.
-  bool RunCommand(int browser_command);
+  bool ApplyAccelerator(int id);
 
   // Calls SimulateOSKeyPress on the active window. Simulates a key press at
   // the OS level. |key| is the key pressed  and |flags| specifies which
@@ -474,8 +435,7 @@ class AutomatedUITest : public UITest {
   // results.
   bool debug_logging_enabled_;
 
-  // A delay in second we wait for after each action.  Useful for debugging.
-  int post_action_delay_;
+  static std::string test_dialog_possible_actions_[kNumTestDialogActions];
 
   DISALLOW_EVIL_CONSTRUCTORS(AutomatedUITest);
 };

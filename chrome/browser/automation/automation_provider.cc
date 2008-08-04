@@ -698,8 +698,6 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(AutomationMsg_IsWindowActiveRequest, IsWindowActive)
     IPC_MESSAGE_HANDLER(AutomationMsg_ActivateWindow, ActivateWindow);
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowHWNDRequest, GetWindowHWND)
-    IPC_MESSAGE_HANDLER(AutomationMsg_WindowExecuteCommandRequest,
-                        ExecuteBrowserCommand)
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowViewBoundsRequest,
                         WindowGetViewBounds)
     IPC_MESSAGE_HANDLER(AutomationMsg_SetWindowVisibleRequest, SetWindowVisible)
@@ -1091,23 +1089,6 @@ void AutomationProvider::GetWindowHWND(const IPC::Message& message,
   HWND win32_handle = window_tracker_->GetResource(handle);
   Send(new AutomationMsg_WindowHWNDResponse(message.routing_id(),
                                             win32_handle));
-}
-
-void AutomationProvider::ExecuteBrowserCommand(const IPC::Message& message,
-                                               int handle,
-                                               int command) {
-
-  bool success = false;
-  if (browser_tracker_->ContainsHandle(handle)) {
-    Browser* browser = browser_tracker_->GetResource(handle);
-    if (browser->SupportsCommand(command) &&
-        browser->IsCommandEnabled(command)) {
-      browser->ExecuteCommand(command);
-      success = true;
-    }
-  }
-  Send(new AutomationMsg_WindowExecuteCommandResponse(message.routing_id(),
-                                                      success));
 }
 
 void AutomationProvider::WindowGetViewBounds(const IPC::Message& message,

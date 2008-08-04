@@ -10,6 +10,8 @@ SelectNextTab
 SelectPrevTab
 ZoomPlus
 ZoomMinus
+Sessions
+Bookmarks
 History
 Downloads
-Dialog
+Applications
