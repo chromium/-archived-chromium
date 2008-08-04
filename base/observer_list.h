@@ -100,7 +100,8 @@ class ObserverList {
 
   // Remove an observer from the list.
   void RemoveObserver(ObserverType* obs) {
-    ListType::iterator it = find(observers_.begin(), observers_.end(), obs);
+    typename ListType::iterator it = 
+      std::find(observers_.begin(), observers_.end(), obs);
     if (it != observers_.end()) {
       if (notify_depth_) {
         *it = 0;
@@ -140,7 +141,7 @@ class ObserverList {
   typedef std::vector<ObserverType*> ListType;
 
   void Compact() const {
-    ListType::iterator it = observers_.begin();
+    typename ListType::iterator it = observers_.begin();
     while (it != observers_.end()) {
       if (*it) {
         ++it;
