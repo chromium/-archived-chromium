@@ -207,10 +207,19 @@ class MetricsService : public NotificationObserver,
                                   int response_code,
                                   const ResponseCookies& cookies,
                                   const std::string& data);
-  // Extract the time interval suggested by the server for waiting after a log
-  // transmision before starting the next transmision.  The result is set into
-  // interlog_duration_.
-  void GetSuggestedInterlogTime(const std::string& server_data);
+
+  // Called by OnURLFetchComplete to handle the case when the server returned
+  // a response code not equal to 200.
+  void HandleBadResponseCode();
+
+  // Called by OnURLFetchComplete with data as the argument
+  // parses the xml returned by the server in the call to OnURLFetchComplete
+  // and extracts settings for subsequent frequency and content of log posts.
+  void GetSettingsFromResponseData(const std::string& data);
+
+  // This is a helper function for GetSettingsFromResponseData which iterates
+  // through the xml tree at the level of the <config> node.
+  void GetSettingsFromConfigNode(xmlNodePtr config_node);
 
   // Records a window-related notification.
   void LogWindowChange(NotificationType type,
@@ -332,9 +341,20 @@ class MetricsService : public NotificationObserver,
   // histogram) so that we can send only the delta with the next log.
   MetricsService::LoggedSampleMap logged_samples_;
 
-  // The duration for which we build up a log. After that period, we try to
-  // send the log (unless another log is already pending).
+  // The interval between consecutive log transmissions (to avoid hogging the
+  // outbound network link).  This is usually also the duration for which we
+  // build up a log, but if other unsent-logs from previous sessions exist, we
+  // quickly transmit those unsent logs while we continue to build a log.
   TimeDelta interlog_duration_;
+
+  // The maximum number of events which get transmitted in the log.  This is
+  // provided by the UMA server in the server response data.
+  int event_limit_;
+
+  // The types of data that are to be included in the log.  These are called
+  // "collectors" in the server response data.
+  std::set<std::string> collectors_;
+
   // Indicate that a timer for sending the next log has already been queued,
   // or that a URLFetch (i.e., log transmission) is in progress.
   bool timer_pending_;
