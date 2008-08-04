@@ -134,6 +134,9 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   void GetLastActiveBrowserWindow(const IPC::Message& message);
   void GetActiveWindow(const IPC::Message& message);
   void GetWindowHWND(const IPC::Message& message, int handle);
+  void ExecuteBrowserCommand(const IPC::Message& message,
+                             int handle,
+                             int command);
   void WindowGetViewBounds(const IPC::Message& message,
                            int handle,
                            int view_id,

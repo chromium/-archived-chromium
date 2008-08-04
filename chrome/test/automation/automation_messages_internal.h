@@ -160,7 +160,7 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   IPC_MESSAGE_ROUTED1(AutomationMsg_TabTitleRequest, int)
   IPC_MESSAGE_ROUTED2(AutomationMsg_TabTitleResponse, int, std::wstring)
 
-  // This message requests the the url of the tab with the given handle.
+  // This message requests the url of the tab with the given handle.
   // The response contains a success flag and the URL string. The URL will
   // be empty on failure, and it still may be empty on success.
   IPC_MESSAGE_ROUTED1(AutomationMsg_TabURLRequest,
@@ -719,5 +719,15 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   IPC_MESSAGE_ROUTED2(AutomationMsg_AutocompleteEditGetMatchesResponse,
                       bool /* the requested autocomplete edit exists */,
                       std::vector<AutocompleteMatchData> /* matches */)
+
+  // This message requests the execution of a browser command in the browser
+  // for which the handle is specified.
+  // The response contains a boolean, whether the command execution was
+  // successful.
+  IPC_MESSAGE_ROUTED2(AutomationMsg_WindowExecuteCommandRequest,
+                      int /* automation handle */,
+                      int /* browser command */)
+  IPC_MESSAGE_ROUTED1(AutomationMsg_WindowExecuteCommandResponse,
+                      bool /* success flag */)
 
 IPC_END_MESSAGES(Automation)
