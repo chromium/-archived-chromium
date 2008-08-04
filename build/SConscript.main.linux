@@ -90,7 +90,8 @@ env = Environment(
 
     # XXX linux-specific:
     # Build 32-bit libraries/executables.
-    CCFLAGS='-m32'
+    CCFLAGS='-m32',
+    LINKFLAGS='-m32',
     # TODO(linux): we should also compile with
     # CCFLAGS='-Werror', but not yet.
 )
