@@ -41,8 +41,8 @@
 // it through to URLRequestInetJob::Factory and lets the default network stack
 // handle it.
 
-#ifndef BASE_URL_REQUEST_URL_REQUEST_FILTER_H__
-#define BASE_URL_REQUEST_URL_REQUEST_FILTER_H__
+#ifndef NET_URL_REQUEST_URL_REQUEST_FILTER_H_
+#define NET_URL_REQUEST_URL_REQUEST_FILTER_H_
 
 #include <hash_map>
 #include <map>
@@ -102,4 +102,4 @@ class URLRequestFilter {
   DISALLOW_EVIL_CONSTRUCTORS(URLRequestFilter);
 };
 
-#endif  // BASE_URL_REQUEST_URL_REQUEST_FILTER_H__
+#endif  // NET_URL_REQUEST_URL_REQUEST_FILTER_H_

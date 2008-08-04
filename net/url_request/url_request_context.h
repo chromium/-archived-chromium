@@ -32,8 +32,8 @@
 // The class is reference-counted so that it can be cleaned up after any
 // requests that are using it have been completed.
 
-#ifndef BASE_URL_REQUEST_URL_REQUEST_CONTEXT_H__
-#define BASE_URL_REQUEST_URL_REQUEST_CONTEXT_H__
+#ifndef NET_URL_REQUEST_URL_REQUEST_CONTEXT_H_
+#define NET_URL_REQUEST_URL_REQUEST_CONTEXT_H_
 
 #include <string>
 
@@ -104,4 +104,4 @@ class URLRequestContext :
   DISALLOW_EVIL_CONSTRUCTORS(URLRequestContext);
 };
 
-#endif  // BASE_URL_REQUEST_URL_REQUEST_CONTEXT_H__
+#endif  // NET_URL_REQUEST_URL_REQUEST_CONTEXT_H_

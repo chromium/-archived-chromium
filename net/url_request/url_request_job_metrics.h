@@ -30,15 +30,15 @@
 // Records IO statistics associated with a URLRequestJob.
 // See description in navigation_profiler.h for an overview of perf profiling.
 
+#ifndef NET_URL_REQUEST_URL_REQUEST_JOB_METRICS_H_
+#define NET_URL_REQUEST_URL_REQUEST_JOB_METRICS_H_
+
 #include <string>
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "base/time.h"
 #include "googleurl/src/gurl.h"
-
-#ifndef BASE_URL_REQUEST_URL_REQUEST_JOB_METRICS_H__
-#define BASE_URL_REQUEST_URL_REQUEST_JOB_METRICS_H__
 
 class URLRequestJobMetrics {
  public:
@@ -71,4 +71,4 @@ class URLRequestJobMetrics {
   void AppendText(std::wstring* text);
 };
 
-#endif  // BASE_URL_REQUEST_URL_REQUEST_JOB_METRICS_H__
+#endif  // NET_URL_REQUEST_URL_REQUEST_JOB_METRICS_H_

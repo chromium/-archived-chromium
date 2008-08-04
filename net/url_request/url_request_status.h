@@ -30,8 +30,8 @@
 // This file's dependencies should be kept to a minimum so that it can be
 // included in WebKit code that doesn't rely on much of common.
 
-#ifndef BASE_URL_REQUEST_URL_REQUEST_STATUS_H__
-#define BASE_URL_REQUEST_URL_REQUEST_STATUS_H__
+#ifndef NET_URL_REQUEST_URL_REQUEST_STATUS_H_
+#define NET_URL_REQUEST_URL_REQUEST_STATUS_H_
 
 // Respresents the result of a URL request. It encodes errors and various
 // types of success.
@@ -88,4 +88,4 @@ class URLRequestStatus {
   int os_error_;
 };
 
-#endif  // BASE_URL_REQUEST_URL_REQUEST_STATUS_H__
+#endif  // NET_URL_REQUEST_URL_REQUEST_STATUS_H_

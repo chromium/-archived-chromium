@@ -30,8 +30,8 @@
 // Invalid URLs go through this URLRequestJob class rather than being passed
 // to the default job handler.
 
-#ifndef BASE_URL_REQUEST_URL_REQUEST_ERROR_JOB_H__
-#define BASE_URL_REQUEST_URL_REQUEST_ERROR_JOB_H__
+#ifndef NET_URL_REQUEST_URL_REQUEST_ERROR_JOB_H_
+#define NET_URL_REQUEST_URL_REQUEST_ERROR_JOB_H_
 
 #include "net/url_request/url_request_job.h"
 
@@ -46,4 +46,4 @@ class URLRequestErrorJob : public URLRequestJob {
   void StartAsync();
 };
 
-#endif  // BASE_URL_REQUEST_URL_REQUEST_ERROR_JOB_H__
+#endif  // NET_URL_REQUEST_URL_REQUEST_ERROR_JOB_H_
