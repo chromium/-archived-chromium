@@ -226,24 +226,33 @@ void NavigationController::ReloadDontCheckForRepost() {
 }
 
 void NavigationController::Destroy() {
-  // First, clean out all NULL entries in the map so that we know empty map
-  // means all tabs destroyed.  This is needed since TabContentsWasDestroyed()
-  // won't get called for types that are in our map with a NULL contents.
-  for (int t = 0; t < TAB_CONTENTS_NUM_TYPES; t++) {
-    TabContentsMap::iterator i =
-        tab_contents_map_.find(static_cast<TabContentsType>(t));
-    if (i != tab_contents_map_.end() && !i->second)
-      tab_contents_map_.erase(i);
-  }
-
-  // Now close all tab contents owned by this controller.  We make a list on
-  // the stack because they are removed from the map as they are Destroyed
+  // Close all tab contents owned by this controller.  We make a list on the
+  // stack because they are removed from the map as they are Destroyed
   // (invalidating the iterators), which may or may not occur synchronously.
+  // We also keep track of any NULL entries in the map so that we can clean
+  // them out.
   std::list<TabContents*> tabs_to_destroy;
+  std::list<TabContentsType> tab_types_to_erase;
   for (TabContentsMap::iterator i = tab_contents_map_.begin();
        i != tab_contents_map_.end(); ++i) {
-    DCHECK(i->second);
-    tabs_to_destroy.push_back(i->second);
+    if (i->second)
+      tabs_to_destroy.push_back(i->second);
+    else
+      tab_types_to_erase.push_back(i->first);
+  }
+
+  // Clean out all NULL entries in the map so that we know empty map means all
+  // tabs destroyed.  This is needed since TabContentsWasDestroyed() won't get
+  // called for types that are in our map with a NULL contents.  (We don't do
+  // this by iterating over TAB_CONTENTS_NUM_TYPES because some tests create
+  // additional types.)
+  for (std::list<TabContentsType>::iterator i = tab_types_to_erase.begin();
+       i != tab_types_to_erase.end(); ++i) {
+    TabContentsMap::iterator map_iterator = tab_contents_map_.find(*i);
+    if (map_iterator != tab_contents_map_.end()) {
+      DCHECK(!map_iterator->second);
+      tab_contents_map_.erase(map_iterator);
+    }
   }
 
   // Cancel all the TabContentsCollectors.
@@ -377,23 +386,17 @@ void NavigationController::DidNavigateToEntry(NavigationEntry* entry) {
     alternate_nav_url_fetcher_->OnNavigatedToEntry();
   }
 
-  // If the previous or next entry uses a different tab contents it is now a
-  // safe time to schedule collection because a navigation is neccessary to
-  // get back to them.
+  // It is now a safe time to schedule collection for any tab contents of a
+  // different type, because a navigation is necessary to get back to them.
   int index = GetCurrentEntryIndex();
   if (index < 0 || GetPendingEntryIndex() != -1)
     return;
 
   TabContentsType active_type = GetEntryAtIndex(index)->GetType();
-  if (index > 0) {
-    NavigationEntry* ne = GetEntryAtIndex(index - 1);
-    if (ne->GetType() != active_type)
-      ScheduleTabContentsCollection(ne->GetType());
-  }
-  if (index < (GetEntryCount() - 1)) {
-    NavigationEntry* ne = GetEntryAtIndex(index + 1);
-    if (ne->GetType() != active_type)
-      ScheduleTabContentsCollection(ne->GetType());
+  for (TabContentsMap::iterator i = tab_contents_map_.begin();
+       i != tab_contents_map_.end(); ++i) {
+    if (i->first != active_type)
+      ScheduleTabContentsCollection(i->first);
   }
 }
 

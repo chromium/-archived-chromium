@@ -626,7 +626,7 @@ TEST_F(NavigationControllerTest, LinkClick) {
   EXPECT_FALSE(contents->controller()->CanGoForward());
 }
 
-TEST_F(NavigationControllerTest, DISABLED_SwitchTypes) {
+TEST_F(NavigationControllerTest, SwitchTypes) {
   const GURL url1("test1:foo");
   const GURL url2("test2:foo");
 
@@ -664,11 +664,15 @@ TEST_F(NavigationControllerTest, DISABLED_SwitchTypes) {
   EXPECT_FALSE(contents->controller()->GetPendingEntry());
   EXPECT_FALSE(contents->controller()->CanGoBack());
   EXPECT_TRUE(contents->controller()->CanGoForward());
+
+  // There may be TabContentsCollector tasks pending, so flush them from queue.
+  MessageLoop::current()->Quit();
+  MessageLoop::current()->Run();
 }
 
 // Tests what happens when we begin to navigate to a new contents type, but
 // then that navigation gets discarded instead.
-TEST_F(NavigationControllerTest, DISABLED_SwitchTypes_Discard) {
+TEST_F(NavigationControllerTest, SwitchTypes_Discard) {
   const GURL url1("test1:foo");
   const GURL url2("test2:foo");
 
@@ -694,6 +698,45 @@ TEST_F(NavigationControllerTest, DISABLED_SwitchTypes_Discard) {
   EXPECT_FALSE(contents->controller()->GetPendingEntry());
   EXPECT_FALSE(contents->controller()->CanGoBack());
   EXPECT_FALSE(contents->controller()->CanGoForward());
+
+  // There may be TabContentsCollector tasks pending, so flush them from queue.
+  MessageLoop::current()->Quit();
+  MessageLoop::current()->Run();
+}
+
+// Tests that TabContentsTypes that are not in use are deleted (via a
+// TabContentsCollector task).  Prevents regression of bug 1296773.
+TEST_F(NavigationControllerTest, SwitchTypesCleanup) {
+  const GURL url1("test1:foo");
+  const GURL url2("test2:foo");
+  const GURL url3("test2:bar");
+
+  contents->controller()->LoadURL(url1, PageTransition::TYPED);
+  contents->CompleteNavigation(0);
+
+  contents->controller()->LoadURL(url2, PageTransition::TYPED);
+  contents->CompleteNavigation(0);
+
+  contents->controller()->LoadURL(url3, PageTransition::TYPED);
+  contents->CompleteNavigation(1);
+
+  // Navigate back to the start
+  contents->controller()->GoToIndex(0);
+  contents->CompleteNavigation(0);
+
+  // Now jump to the end
+  contents->controller()->GoToIndex(2);
+  contents->CompleteNavigation(1);
+
+  // There may be TabContentsCollector tasks pending, so flush them from queue.
+  MessageLoop::current()->Quit();
+  MessageLoop::current()->Run();
+
+  // Now that the tasks have been flushed, the first tab type should be gone.
+  ASSERT_TRUE(
+      contents->controller()->GetTabContents(kTestContentsType1) == NULL);
+  ASSERT_EQ(contents, 
+      contents->controller()->GetTabContents(kTestContentsType2));
 }
 
 // Tests that we limit the number of navigation entries created correctly.
