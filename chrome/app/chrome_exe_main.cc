@@ -36,7 +36,6 @@
 #include "base/debug_on_start.h"
 #include "chrome/app/breakpad.h"
 #include "chrome/app/google_update_client.h"
-#include "chrome/app/google_update_settings.h"
 #include "chrome/app/result_codes.h"
 #include "chrome/common/chrome_switches.h"
 #include "sandbox/src/sandbox_factory.h"
@@ -89,11 +88,7 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   client.Init(L"{8A69D345-D564-463c-AFF1-A69D9E530F96}", dll_name);
 
   // Initialize the crash reporter.
-  if (GoogleUpdateSettings::GetCollectStatsConsent()) {
-    InitCrashReporter(client.GetDLLPath());
-  } else {
-    InitDefaultCrashCallback();
-  }
+  InitCrashReporter(client.GetDLLPath());
 
   bool exit_now = false;
   if (ShowRestartDialogIfCrashed(&exit_now)) {

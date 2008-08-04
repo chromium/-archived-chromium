@@ -41,6 +41,7 @@
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "chrome/app/google_update_client.h"
+#include "chrome/app/google_update_settings.h"
 #include "breakpad/src/client/windows/handler/exception_handler.h"
 
 namespace {
@@ -205,6 +206,15 @@ unsigned __stdcall InitCrashReporterThread(void* param)  {
   if (use_crash_service) {
     pipe_name = kChromePipeName;
   } else {
+    // We want to use the Google Update crash reporting. We need to check if the
+    // user allows it first.
+    if (!GoogleUpdateSettings::GetCollectStatsConsent()) {
+      // The user did not allow Google Update to send crashes, we need to use
+      // our default crash handler instead.
+      InitDefaultCrashCallback();
+      return 0;
+    }
+
     // Build the pipe name.
     std::wstring user_sid;
     if (!win_util::GetUserSidString(&user_sid)) {
