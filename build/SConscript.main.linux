@@ -92,8 +92,8 @@ env = Environment(
     LIBPATH               = ['$LIBS_DIR'],
 
     # XXX linux-specific:
-    # Build 32-bit libraries/executables.
-    CCFLAGS='-m32',
+    # Build 32-bit libraries/executables, debug info.
+    CCFLAGS='-m32 -g',
     LINKFLAGS='-m32',
     # TODO(linux): we should also compile with
     # CCFLAGS='-Werror', but not yet.
