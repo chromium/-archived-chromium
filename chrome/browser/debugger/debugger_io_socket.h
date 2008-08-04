@@ -34,6 +34,7 @@
 #include "net/base/telnet_server.h"
 
 class DebuggerShell;
+class MessageLoop;
 
 // Interaction with the underlying Socket object MUST happen in the IO thread.
 // However, Debugger will call into this object from the main thread.  As a result

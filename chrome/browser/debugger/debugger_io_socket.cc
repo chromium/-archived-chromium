@@ -56,7 +56,7 @@ void DebuggerInputOutputSocket::Start(DebuggerShell* debugger) {
 
 void DebuggerInputOutputSocket::StartListening() {
   DCHECK(MessageLoop::current() == io_loop_);
-  server_ = TelnetServer::Listen("127.0.0.1", port_, this, io_loop_);
+  server_ = TelnetServer::Listen("127.0.0.1", port_, this);
 }
 
 DebuggerInputOutputSocket::~DebuggerInputOutputSocket() {
