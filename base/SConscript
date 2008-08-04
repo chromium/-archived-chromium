@@ -93,6 +93,7 @@ input_files = [
     'shared_memory.cc',
     'stats_table.cc',
     'string_escape.cc',
+    'string_piece.cc'
     'string_util.cc',
     'string_util_icu.cc',
     'string_util_win.cc',
@@ -229,6 +230,7 @@ test_files = [
     'stack_container_unittest.cc',
     'stats_table_unittest.cc',
     'string_tokenizer_unittest.cc',
+    'string_piece_unittest.cc',
     'string_util_unittest.cc',
     'thread_local_storage_unittest.cc',
     'thread_unittest.cc',
