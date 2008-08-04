@@ -9,7 +9,7 @@ deps = {
     "http://googletest.googlecode.com/svn/trunk@63",
 
   "src/third_party/WebKit":
-    "svn://chrome-svn/chrome/trunk/deps/third_party/WebKit@318",
+    "svn://chrome-svn/chrome/trunk/third_party/WebKit@19",
 
   "src/third_party/icu38":
     "svn://chrome-svn/chrome/trunk/deps/third_party/icu38@318",
