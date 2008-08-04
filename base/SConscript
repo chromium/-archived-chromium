@@ -153,27 +153,6 @@ env_tests.Prepend(
         '/ignore:4199',
         '/nxcompat',
     ],
-    LIBS = [
-        'advapi32.lib',
-        'comdlg32.lib',
-        'DelayImp.lib',
-        'gdi32.lib',
-        'kernel32.lib',
-        'msimg32.lib',
-        'odbc32.lib',
-        'odbccp32.lib',
-        'ole32.lib',
-        'oleaut32.lib',
-        'psapi.lib',
-        'shell32.lib',
-        'user32.lib',
-        'usp10.lib',
-        'uuid.lib',
-        'version.lib',
-        'wininet.lib',
-        'winspool.lib',
-        'ws2_32.lib',
-    ],
 )
 
 libs = [
