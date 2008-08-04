@@ -36,6 +36,19 @@ env.Prepend(
         '$BREAKPAD_DIR/src',
         '#/..',
     ],
+    LIBS = [
+        'base',
+        'base_gfx',
+        'breakpad_handler',
+        'breakpad_sender',
+        'common',
+        'icuuc',
+        'skia',
+        'zlib',
+    ],
+)
+
+env.Prepend(
     LINKFLAGS = [
         '/INCREMENTAL',
 
@@ -54,24 +67,12 @@ env.Prepend(
     ],
 )
 
-libs = [
-    '$BASE_DIR/base.lib',
-    '$BASE_DIR/gfx/base_gfx.lib',
-    '$BREAKPAD_DIR/breakpad_handler.lib',
-    '$BREAKPAD_DIR/breakpad_sender.lib',
-    '$CHROME_DIR/common/common.lib',
-    '$ICU38_DIR/icuuc.lib',
-    '$SKIA_DIR/skia.lib',
-    '$ZLIB_DIR/zlib.lib',
-]
-
-
 input_files = [
     'main.cc',
     'crash_service.cc',
 ]
 
-exe = env.ChromeProgram('crash_service.exe', input_files + libs)
+exe = env.ChromeProgram('crash_service.exe', input_files)
 
 i = env.Install('$TARGET_ROOT', exe)
 Alias('chrome', i)

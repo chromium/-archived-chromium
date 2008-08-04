@@ -48,6 +48,20 @@ env_test.Prepend(
     CPPDEFINES = [
         'LIBXML_STATIC',
     ],
+    LIBS = [
+        'libxml',
+        'googleurl',
+        'skia',
+        'libpng',
+        'gtest',
+        'base_gfx',
+        'icuuc',
+        'zlib',
+        'base',
+    ],
+)
+
+env_test.Prepend(
     LINKFLAGS = [
         '/INCREMENTAL',
 
@@ -74,17 +88,8 @@ env_test.Prepend(
 )
 
 libs = [
-    '$LIBXML_DIR/libxml.lib',
-    '$GOOGLEURL_DIR/googleurl.lib',
-    '$SKIA_DIR/skia.lib',
-    '$LIBPNG_DIR/libpng.lib',
-    '$TESTING_DIR/gtest.lib',
-    '$BASE_DIR/gfx/base_gfx.lib',
-    '$ICU38_DIR/icuuc.lib',
     'common/common.lib',
-    '$ZLIB_DIR/zlib.lib',
     'browser/browser.lib',
-    '$BASE_DIR/base.lib',
     'test/automation/automation.lib',
 ]
 

@@ -36,6 +36,9 @@ env.Prepend(
     CPPPATH = [
         '#/..',
     ],
+)
+
+env.Prepend(
     LINKFLAGS = [
         '/INCREMENTAL',
 
@@ -63,7 +66,14 @@ input_files = [
     '$SANDBOX_DIR/tests/validation_tests/commands${OBJSUFFIX}',
 ]
 
-dll = env.ChromeSharedLibrary('security_tests', input_files)
+dll = env.ChromeSharedLibrary(['security_tests',
+                               'security_tests.lib',
+                               'security_tests.ilk',
+                               'security_tests.pdb'],
+                              input_files)
+
+# TODO(sgk):  can go away once ChromeSharedLibrary() handles this.
+env.Install('$LIBS_DIR', dll[1])
 
 i = env.Install('$TARGET_ROOT', dll)
 env.Alias('chrome', i)

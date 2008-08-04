@@ -36,6 +36,14 @@ env.Prepend(
     CPPPATH = [
         '#/..',
     ],
+    LIBS = [
+        'googleurl',
+        'icuuc',
+        'base',
+    ],
+)
+
+env.Prepend(
     LINKFLAGS = [
         '/INCREMENTAL',
 
@@ -62,13 +70,7 @@ input_files = [
     'test_chrome_plugin.def',
 ]
 
-libs = [
-    '$GOOGLEURL_DIR/googleurl.lib',
-    '$ICU38_DIR/icuuc.lib',
-    '$BASE_DIR/base.lib',
-]
-
-dll = env.ChromeSharedLibrary('test_chrome_plugin', input_files + libs)
+dll = env.ChromeSharedLibrary('test_chrome_plugin', input_files)
 
 i = env.Install('$TARGET_ROOT', dll)
 env.Alias('chrome', i)

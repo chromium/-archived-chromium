@@ -143,6 +143,14 @@ env_test.Append(
         '#/..',
         '$GTEST_DIR/include',
     ],
+    LIBS = [
+        'base',
+        'gtest',
+        'icuuc',
+    ],
+)
+
+env_test.Append(
     LINKFLAGS = [
         '/INCREMENTAL',
 
@@ -172,10 +180,7 @@ ipc_tests_files = [
 ]
 
 libs = [
-    '$TESTING_DIR/gtest.lib',
-    '$ICU38_DIR/icuuc.lib',
     'common.lib',
-    '$BASE_DIR/base.lib',
 ]
 
 ipc_tests = env_test.ChromeTestProgram('ipc_tests.exe', ipc_tests_files + libs)

@@ -58,6 +58,16 @@ env.Prepend(
         '.',
         '#/..',
     ],
+    LIBS = [
+        'bspatch',
+        'lzma_sdk',
+        'icuuc',
+        'common',
+        'base',
+    ],
+)
+
+env.Prepend(
     LINKFLAGS = [
         '/INCREMENTAL',
         '/DEBUG',
@@ -94,11 +104,6 @@ input_files = [
 
 libs = [
     '../util/util.lib',
-    '$BSPATCH_DIR/bspatch.lib',
-    '$LZMA_SDK_DIR/lzma_sdk.lib',
-    '$ICU38_DIR/icuuc.lib',
-    '$CHROME_DIR/common/common.lib',
-    '$BASE_DIR/base.lib',
 ]
 
 exe = env.ChromeProgram(['setup',

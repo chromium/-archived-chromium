@@ -114,6 +114,34 @@ env_dll.Append(
         '$BREAKPAD_DIR/src',
     ],
     LIBS = [
+        'base',
+        'base_gfx',
+        'breakpad_handler',
+        'googleurl',
+        'net',
+        'skia',
+        'bzip2',
+        'icuuc',
+        'libjpeg',
+        'libpng',
+        'libxml',
+        'libxslt',
+        'modp_b64',
+        'zlib',
+
+        'activex_shim',
+        'WTF',
+        'V8Bindings',
+        'WebCore',
+        'default_plugin',
+        'Glue',
+        'JavaScriptCore_pcre',
+        'Port',
+    ],
+)
+
+env_dll.Append(
+    LIBS = [
         'comctl32.lib',
         'dwmapi.lib',
         'rpcrt4.lib',
@@ -161,11 +189,7 @@ input_files = [
     'app/chrome_dll_main.cc',
 ]
 
-
 libs = [
-    '$BASE_DIR/base.lib',
-    '$BASE_DIR/gfx/base_gfx.lib',
-    '$BREAKPAD_DIR/breakpad_handler.lib',
     'browser/browser.lib',
     'browser/debugger/debugger.lib',
     'common/common.lib',
@@ -176,27 +200,8 @@ libs = [
     'third_party/hunspell/hunspell.lib',
     'third_party/sqlite/sqlite.lib',
     'views/views.lib',
-    '$NET_DIR/net.lib',
-    '$SKIA_DIR/skia.lib',
-    '$BZIP2_DIR/bzip2.lib',
-    '$ICU38_DIR/icuuc.lib',
-    '$LIBJPEG_DIR/libjpeg.lib',
-    '$LIBPNG_DIR/libpng.lib',
-    '$LIBXML_DIR/libxml.lib',
-    '$LIBXSLT_DIR/libxslt.lib',
-    '$MODP_B64_DIR/modp_b64.lib',
-    '$ZLIB_DIR/zlib.lib',
     '$V8_DIR/v8.lib',
     '$V8_DIR/snapshot-empty.obj',
-    '$WEBKIT_DIR/activex_shim/activex_shim.lib',
-    '$WEBKIT_DIR/build/JavaScriptCore/WTF.lib',
-    '$WEBKIT_DIR/build/V8Bindings/V8Bindings.lib',
-    '$WEBKIT_DIR/build/WebCore/WebCore.lib',
-    '$WEBKIT_DIR/default_plugin/default_plugin.lib',
-    '$WEBKIT_DIR/glue/Glue.lib',
-    '$GOOGLEURL_DIR/googleurl.lib',
-    '$WEBKIT_DIR/JavaScriptCore_pcre.lib',
-    '$WEBKIT_DIR/Port.lib',
 ]
 
 dll_targets = env_dll.ChromeSharedLibrary(['chrome',
@@ -248,22 +253,6 @@ chrome_dll_version_rc = env.ChromeVersionRC(
     'app/chrome_dll_version.rc.version',
 )
 
-
-#chrome_exe_version_rc = env_version.Command(
-#    'chrome_exe_version.rc',
-#    ['app/chrome_exe_version.rc.version',
-#     '$CHROME_SRC_DIR/VERSION',
-#     '$CHROME_SRC_DIR/BRANDING'],
-#    '$VERSION_BAT $SOURCE $CHROME_SRC_DIR $PWD $TARGET')
-#
-#chrome_dll_version_rc = env_version.Command(
-#    'chrome_dll_version.rc',
-#    ['app/chrome_dll_version.rc.version',
-#     '$CHROME_SRC_DIR/VERSION',
-#     '$CHROME_SRC_DIR/BRANDING',
-#    ],
-#    '$VERSION_BAT $SOURCE $CHROME_SRC_DIR $PWD $TARGET')
-
 Depends(chrome_dll_res, chrome_dll_version_rc)
 
 chrome_exe_version_res = env_res.RES(chrome_exe_version_rc)
@@ -278,12 +267,20 @@ install_targets.extend(chrome_dll_version_res)
 
 
 env_exe = env.Clone()
+
 env_exe.Prepend(
     CPPPATH = [
         '..',
         '$BREAKPAD_DIR/src',
     ],
+    LIBS = [
+        'breakpad_handler',
+        'sandbox',
+        'base',
+        'icuuc',
+    ],
 )
+
 env_exe.Append(
     LINKFLAGS = [
         '/INCREMENTAL',
@@ -318,10 +315,6 @@ chrome_exe = env_exe.ChromeProgram(
 
         'common/common.lib',
         '$CHROME_DIR/chrome_dll.lib',
-        '$BREAKPAD_DIR/breakpad_handler.lib',
-        '$SANDBOX_DIR/src/sandbox.lib',
-        '$BASE_DIR/base.lib',
-        '$ICU38_DIR/icuuc.lib',
     ]
 )
 

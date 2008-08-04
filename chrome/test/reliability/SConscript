@@ -46,6 +46,22 @@ env_test.Prepend(
         '$SKIA_DIR/platform',
         '#/..',
     ],
+    LIBS = [
+        'googleurl',
+        'skia',
+        'libpng',
+        'gtest',
+        'base_gfx',
+        'icuuc',
+        'common',
+        'zlib',
+        'browser',
+        'base',
+        'automation',
+    ],
+)
+
+env_test.Prepend(
     LINKFLAGS = [
         '/INCREMENTAL',
         '/DEBUG',
@@ -79,24 +95,9 @@ input_files = [
     'run_all_unittests.cc',
 ]
 
-libs = [
-    '$GOOGLEURL_DIR/googleurl.lib',
-    '$SKIA_DIR/skia.lib',
-    '$LIBPNG_DIR/libpng.lib',
-    '$TESTING_DIR/gtest.lib',
-    '$BASE_DIR/gfx/base_gfx.lib',
-    '$ICU38_DIR/icuuc.lib',
-    '$CHROME_DIR/common/common.lib',
-    '$ZLIB_DIR/zlib.lib',
-    '$CHROME_DIR/browser/browser.lib',
-    '$BASE_DIR/base.lib',
-    '$CHROME_DIR/test/automation/automation.lib',
-]
-
-
 exe = env_test.ChromeTestProgram(['reliability_tests',
                         'reliability_tests.pdb'],
-                       input_files + libs)
+                       input_files)
 i = env_test.Install('$TARGET_ROOT', exe)
 
 env_test.Alias('chrome', i)

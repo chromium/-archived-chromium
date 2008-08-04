@@ -50,6 +50,25 @@ env_test.Prepend(
         '$LIBXSLT_DIR',
         '$LIBXML_DIR/include',
     ],
+    LIBS = [
+        'automation',
+        'base',
+        'base_gfx',
+        'browser',
+        'bzip2',
+        'common',
+        'googleurl',
+        'gtest',
+        'icuuc',
+        'libpng',
+        'modp_b64',
+        'net',
+        'skia',
+        'zlib',
+    ],
+)
+
+env_test.Prepend(
     LINKFLAGS = [
         '/INCREMENTAL',
         '/DEBUG',
@@ -83,27 +102,9 @@ input_files = [
     '$CHROME_DIR/test/test_file_util$OBJSUFFIX',
 ]
 
-libs = [
-    '$GOOGLEURL_DIR/googleurl.lib',
-    '$SKIA_DIR/skia.lib',
-    '$LIBPNG_DIR/libpng.lib',
-    '$TESTING_DIR/gtest.lib',
-    '$BASE_DIR/gfx/base_gfx.lib',
-    '$ICU38_DIR/icuuc.lib',
-    '$CHROME_DIR/common/common.lib',
-    '$ZLIB_DIR/zlib.lib',
-    '$MODP_B64_DIR/modp_b64.lib',
-    '$CHROME_DIR/browser/browser.lib',
-    '$NET_DIR/net.lib',
-    '$BZIP2_DIR/bzip2.lib',
-    '$BASE_DIR/base.lib',
-    '$CHROME_DIR/test/automation/automation.lib',
-]
-
-
 exe = env_test.ChromeTestProgram(['interactive_ui_tests',
                         'interactive_ui_tests.pdb'],
-                       input_files + libs)
+                       input_files)
 i = env_test.Install('$TARGET_ROOT', exe)
 
 env_test.Alias('chrome', i)

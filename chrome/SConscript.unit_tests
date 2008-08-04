@@ -55,6 +55,35 @@ env_test.Prepend(
         'CHROME_PNG_WRITE_SUPPORT',
         'UNIT_TEST',
     ],
+    LIBS = [
+        'base',
+        'base_gfx',
+        'bzip2',
+        'googleurl',
+        'gtest',
+        'icuuc',
+        'libjpeg',
+        'libpng',
+        'libxml',
+        'libxslt',
+        'modp_b64',
+        'net',
+        'skia',
+        'v8',
+        'zlib',
+
+        'activex_shim',
+        'WTF',
+        'V8Bindings',
+        'WebCore',
+        'default_plugin',
+        'Glue',
+        'JavaScriptCore_pcre',
+        'Port',
+    ],
+)
+
+env_test.Prepend(
     LINKFLAGS = [
         '/INCREMENTAL',
 
@@ -94,30 +123,6 @@ libs = [
     'third_party/hunspell/hunspell.lib',
     'third_party/sqlite/sqlite.lib',
     'views/views.lib',
-
-    '$BASE_DIR/base.lib',
-    '$BASE_DIR/gfx/base_gfx.lib',
-    '$BZIP2_DIR/bzip2.lib',
-    '$GOOGLEURL_DIR/googleurl.lib',
-    '$ICU38_DIR/icuuc.lib',
-    '$LIBJPEG_DIR/libjpeg.lib',
-    '$LIBPNG_DIR/libpng.lib',
-    '$LIBXML_DIR/libxml.lib',
-    '$LIBXSLT_DIR/libxslt.lib',
-    '$MODP_B64_DIR/modp_b64.lib',
-    '$NET_DIR/net.lib',
-    '$SKIA_DIR/skia.lib',
-    '$TESTING_DIR/gtest.lib',
-    '$WEBKIT_DIR/activex_shim/activex_shim.lib',
-    '$WEBKIT_DIR/build/JavaScriptCore/WTF.lib',
-    '$WEBKIT_DIR/build/V8Bindings/V8Bindings.lib',
-    '$WEBKIT_DIR/build/WebCore/WebCore.lib',
-    '$WEBKIT_DIR/default_plugin/default_plugin.lib',
-    '$WEBKIT_DIR/glue/Glue.lib',
-    '$WEBKIT_DIR/JavaScriptCore_pcre.lib',
-    '$WEBKIT_DIR/port.lib',
-    '$V8_DIR/v8.lib',
-    '$ZLIB_DIR/zlib.lib',
 ]
 
 unit_test_files = [

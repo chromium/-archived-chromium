@@ -130,6 +130,15 @@ env_test.Prepend(
         '$GTEST_DIR',
         '#/..',
     ],
+    LIBS = [
+        'gtest',
+        'icuuc',
+        'common',
+        'base',
+    ],
+)
+
+env_test.Prepend(
     LINKFLAGS = [
         '/INCREMENTAL',
         '/DEBUG',
@@ -168,10 +177,6 @@ input_files = [
 
 libs = [
     '../util/util.lib',
-    '$TESTING_DIR/gtest.lib',
-    '$ICU38_DIR/icuuc.lib',
-    '$CHROME_DIR/common/common.lib',
-    '$BASE_DIR/base.lib',
 ]
 
 exe = env_test.ChromeTestProgram(['installer_unittests',

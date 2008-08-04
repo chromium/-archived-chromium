@@ -42,6 +42,15 @@ env_test.Prepend(
         '$GTEST_DIR',
         '#/..',
     ],
+    LIBS = [
+        'util',
+        'gtest',
+        'icuuc',
+        'base',
+    ],
+)
+
+env_test.Prepend(
     LINKFLAGS = [
         '/INCREMENTAL',
         '/DEBUG',
@@ -73,16 +82,9 @@ input_files = [
     'test.cc',
 ]
 
-libs = [
-    '$CHROME_DIR/installer/util/util.lib',
-    '$TESTING_DIR/gtest.lib',
-    '$ICU38_DIR/icuuc.lib',
-    '$BASE_DIR/base.lib',
-]
-
 exe = env_test.ChromeTestProgram(['mini_installer_test',
                         'mini_installer_test.pdb'],
-                       input_files + libs)
+                       input_files)
 i = env_test.Install('$TARGET_ROOT', exe)
 
 env_test.Alias('chrome', i)

@@ -42,6 +42,17 @@ env_test.Prepend(
         '$LIBPNG_DIR',
         '#/..',
     ],
+    LIBS = [
+        'skia',
+        'libpng',
+        'base_gfx',
+        'icuuc',
+        'zlib',
+        'base',
+    ],
+)
+
+env_test.Prepend(
     LINKFLAGS = [
         '/INCREMENTAL',
         '/DEBUG',
@@ -65,18 +76,9 @@ input_files = [
     'image_diff.cc',
 ]
 
-libs = [
-    '$SKIA_DIR/skia.lib',
-    '$LIBPNG_DIR/libpng.lib',
-    '$BASE_DIR/gfx/base_gfx.lib',
-    '$ICU38_DIR/icuuc.lib',
-    '$ZLIB_DIR/zlib.lib',
-    '$BASE_DIR/base.lib',
-]
-
 exe = env_test.ChromeTestProgram(['image_diff',
                         'image_diff.pdb'],
-                       input_files + libs)
+                       input_files)
 i = env_test.Install('$TARGET_ROOT', exe)
 
 env_test.Alias('chrome', i)

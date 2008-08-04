@@ -35,6 +35,13 @@ env_test.Prepend(
     CPPPATH = [
         '#/..',
     ],
+    LIBS = [
+        'icuuc',
+        'base',
+    ],
+)
+
+env_test.Prepend(
     LINKFLAGS = [
         '/INCREMENTAL',
         '/DEBUG',
@@ -57,14 +64,9 @@ input_files = [
     'flush_cache.cc',
 ]
 
-libs = [
-    '$ICU38_DIR/icuuc.lib',
-    '$BASE_DIR/base.lib',
-]
-
 exe = env_test.ChromeTestProgram(['flush_cache',
                         'flush_cache'],
-                       input_files + libs)
+                       input_files)
 i = env_test.Install('$TARGET_ROOT', exe)
 
 env_test.Alias('chrome', i)

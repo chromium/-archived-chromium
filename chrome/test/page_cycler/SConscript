@@ -45,6 +45,24 @@ env_test.Prepend(
         '$SKIA_DIR/platform',
         '#/..',
     ],
+    LIBS = [
+        'googleurl',
+        'skia',
+        'libpng',
+        'gtest',
+        'base_gfx',
+        'icuuc',
+        'common',
+        'zlib',
+        'modp_b64',
+        'browser',
+        'net',
+        'base',
+        'automation',
+    ],
+)
+
+env_test.Prepend(
     LINKFLAGS = [
         '/INCREMENTAL',
         '/DEBUG',
@@ -79,26 +97,9 @@ input_files = [
     'page_cycler_test.cc',
 ]
 
-libs = [
-    '$GOOGLEURL_DIR/googleurl.lib',
-    '$SKIA_DIR/skia.lib',
-    '$LIBPNG_DIR/libpng.lib',
-    '$TESTING_DIR/gtest.lib',
-    '$BASE_DIR/gfx/base_gfx.lib',
-    '$ICU38_DIR/icuuc.lib',
-    '$CHROME_DIR/common/common.lib',
-    '$ZLIB_DIR/zlib.lib',
-    '$MODP_B64_DIR/modp_b64.lib',
-    '$CHROME_DIR/browser/browser.lib',
-    '$NET_DIR/net.lib',
-    '$BASE_DIR/base.lib',
-    '$CHROME_DIR/test/automation/automation.lib',
-]
-
-
 exe = env_test.ChromeTestProgram(['page_cycler_tests',
                         'page_cycler_tests.pdb'],
-                       input_files + libs)
+                       input_files)
 i = env_test.Install('$TARGET_ROOT', exe)
 
 env_test.Alias('chrome', i)

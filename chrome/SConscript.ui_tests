@@ -55,6 +55,25 @@ env_test.Prepend(
         'UI_TEST',
         'UNIT_TEST',
     ],
+    LIBS = [
+        'libxml',
+        'googleurl',
+        'skia',
+        'libpng',
+        'npapi_layout_test_plugin',
+        'gtest',
+        'base_gfx',
+        'icuuc',
+        'zlib',
+        'modp_b64',
+        'net',
+        'bzip2',
+        'base',
+        'npapi_test_plugin',
+    ],
+)
+
+env_test.Prepend(
     LINKFLAGS = [
         '/INCREMENTAL',
 
@@ -81,24 +100,10 @@ env_test.Prepend(
 )
 
 libs = [
-    '$LIBXML_DIR/libxml.lib',
-    '$GOOGLEURL_DIR/googleurl.lib',
     'test/security_tests/security_tests.lib',
-    '$SKIA_DIR/skia.lib',
-    '$LIBPNG_DIR/libpng.lib',
-    '$TARGET_ROOT/plugins/npapi_layout_test_plugin.lib',
-    '$TESTING_DIR/gtest.lib',
-    '$BASE_DIR/gfx/base_gfx.lib',
-    '$ICU38_DIR/icuuc.lib',
     'common/common.lib',
-    '$ZLIB_DIR/zlib.lib',
-    '$MODP_B64_DIR/modp_b64.lib',
     'browser/browser.lib',
-    '$NET_DIR/net.lib',
-    '$BZIP2_DIR/bzip2.lib',
-    '$BASE_DIR/base.lib',
     'test/automation/automation.lib',
-    '$TARGET_ROOT/npapi_test_plugin.lib',
 ]
 
 ui_test_files = [
