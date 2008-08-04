@@ -141,6 +141,10 @@ env_tests.Prepend(
         '/ignore:4199',
         '/nxcompat',
     ],
+    LIBS = [
+        'base.lib',
+        'sandbox.lib',
+    ],
     LIBPATH = [
         '.',
         '$BASE_DIR'
