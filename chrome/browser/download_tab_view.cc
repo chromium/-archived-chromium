@@ -812,7 +812,12 @@ bool DownloadTabView::GetFloatingViewIDForPoint(int x, int y, int* id) {
 }
 
 ChromeViews::View* DownloadTabView::CreateFloatingViewForIndex(int index) {
-  DCHECK(index < static_cast<int>(downloads_.size()));
+  if (index >= static_cast<int>(downloads_.size())) {
+    // It's possible that the downloads have been cleared via the "Clear
+    // Browsing Data" command, so this index is gone.
+    return NULL;
+  }
+
   DownloadItemTabView* dl = new DownloadItemTabView();
   dl->SetModel(downloads_[index], this);
   int row = static_cast<int>(downloads_.size()) - 1 - index;
