@@ -27,8 +27,14 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
+
+//
 // Deal with the differences between Microsoft and GNU implemenations
-// of hash_map
+// of hash_map. Allows all platforms to use |base::hash_map| and
+// |base::hash_set|.
+//  eg: 
+//   base::hash_map<int> my_map;
+//   base::hash_set<int> my_set;
 //
 
 #ifndef BASE_HASH_TABLES_H__
@@ -38,15 +44,70 @@
 #include <hash_map>
 #include <hash_set>
 namespace base {
-  using stdext::hash_map;
-  using stdext::hash_set;
+using stdext::hash_map;
+using stdext::hash_set;
 }
 #else
 #include <ext/hash_map>
 #include <ext/hash_set>
 namespace base {
-  using __gnu_cxx::hash_map;
-  using __gnu_cxx::hash_set;
+using __gnu_cxx::hash_map;
+using __gnu_cxx::hash_set;
+}
+
+// Implement string hash functions so that strings of various flavors can
+// be used as keys in STL maps and sets.
+namespace __gnu_cxx {
+
+inline size_t stl_hash_wstring(const wchar_t* s) {
+  unsigned long h = 0;
+  for ( ; *s; ++s)
+    h = 5 * h + *s;
+  return size_t(h);
+}
+
+template<>
+struct hash<wchar_t*> {
+  size_t operator()(const wchar_t* s) const {
+    return stl_hash_wstring(s); 
+  }
+};
+
+template<>
+struct hash<const wchar_t*> {
+  size_t operator()(const wchar_t* s) const {
+    return stl_hash_wstring(s); 
+  }
+};
+
+template<>
+struct hash<std::wstring> {
+  size_t operator()(const std::wstring& s) const {
+    return stl_hash_wstring(s.c_str()); 
+  }
+};
+
+template<>
+struct hash<const std::wstring> {
+  size_t operator()(const std::wstring& s) const {
+    return stl_hash_wstring(s.c_str());
+  }
+};
+
+template<>
+struct hash<std::string> {
+  size_t operator()(const std::string& s) const {
+    return __stl_hash_string(s.c_str());
+  }
+};
+
+template<>
+struct hash<const std::string> {
+  size_t operator()(const std::string& s) const {
+    return __stl_hash_string(s.c_str());
+  }
+};  
+
 }
 
 #endif
