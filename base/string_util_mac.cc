@@ -229,11 +229,3 @@ NumberFormat* NumberFormatSingleton() {
   InitializeStatics();
   return number_format_singleton;
 }
-
-int64 StringToInt64(const std::string& value) {
-  return atoll(value.c_str());
-}
-
-int64 StringToInt64(const std::wstring& value) {
-  return wcstoll(value.c_str(), NULL, 10);
-}

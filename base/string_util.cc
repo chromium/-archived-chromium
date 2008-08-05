@@ -26,16 +26,23 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 // StringPrintf stuff based on strings/stringprintf.cc by Sanjay Ghemawat
 
 #include "base/string_util.h"
 
-#include <algorithm>
+#include <ctype.h>
+#include <errno.h>
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <wchar.h>
+#include <wctype.h>
+
+#include <algorithm>
 #include <vector>
 
 #include "base/basictypes.h"
@@ -88,6 +95,139 @@ static bool CompareParameter(const ReplacementOffset& elem1,
                              const ReplacementOffset& elem2) {
   return elem1.parameter < elem2.parameter;
 }
+
+// Generalized string-to-number conversion.
+//
+// StringToNumberTraits should provide:
+//  - a typedef for string_type, the STL string type used as input.
+//  - a typedef for value_type, the target numeric type.
+//  - a static function, convert_func, which dispatches to an appropriate
+//    strtol-like function and returns type value_type.
+//  - a static function, valid_func, which validates |input| and returns a bool
+//    indicating whether it is in proper form.  This is used to check for
+//    conditions that convert_func tolerates but should result in
+//    StringToNumber returning false.  For strtol-like funtions, valid_func
+//    should check for leading whitespace.
+template<typename StringToNumberTraits>
+bool StringToNumber(const typename StringToNumberTraits::string_type& input,
+                    typename StringToNumberTraits::value_type* output) {
+  typedef StringToNumberTraits traits;
+
+  errno = 0;  // Thread-safe?  It is on at least Mac, Linux, and Windows.
+  typename traits::string_type::value_type* endptr = NULL;
+  typename traits::value_type value = traits::convert_func(input.c_str(),
+                                                           &endptr);
+  *output = value;
+
+  // Cases to return false:
+  //  - If errno is ERANGE, there was an overflow or underflow.
+  //  - If the input string is empty, there was nothing to parse.
+  //  - If endptr does not point to the end of the string, there are either
+  //    characters remaining in the string after a parsed number, or the string
+  //    does not begin with a parseable number.  endptr is compared to the
+  //    expected end given the string's stated length to correctly catch cases
+  //    where the string contains embedded NUL characters.
+  //  - valid_func determines that the input is not in preferred form.
+  return errno == 0 &&
+         !input.empty() &&
+         input.c_str() + input.length() == endptr &&
+         traits::valid_func(input);
+}
+
+class StringToLongTraits {
+ public:
+  typedef std::string string_type;
+  typedef long value_type;
+  static const int kBase = 10;
+  static inline value_type convert_func(const string_type::value_type* str,
+                                        string_type::value_type** endptr) {
+    return strtol(str, endptr, kBase);
+  }
+  static inline bool valid_func(const string_type& str) {
+    return !isspace(str[0]);
+  }
+};
+
+class WStringToLongTraits {
+ public:
+  typedef std::wstring string_type;
+  typedef long value_type;
+  static const int kBase = 10;
+  static inline value_type convert_func(const string_type::value_type* str,
+                                        string_type::value_type** endptr) {
+    return wcstol(str, endptr, kBase);
+  }
+  static inline bool valid_func(const string_type& str) {
+    return !iswspace(str[0]);
+  }
+};
+
+class StringToInt64Traits {
+ public:
+  typedef std::string string_type;
+  typedef int64 value_type;
+  static const int kBase = 10;
+  static inline value_type convert_func(const string_type::value_type* str,
+                                        string_type::value_type** endptr) {
+#ifdef OS_WIN
+    return _strtoi64(str, endptr, kBase);
+#else  // assume OS_POSIX
+    return strtoll(str, endptr, kBase);
+#endif
+  }
+  static inline bool valid_func(const string_type& str) {
+    return !isspace(str[0]);
+  }
+};
+
+class WStringToInt64Traits {
+ public:
+  typedef std::wstring string_type;
+  typedef int64 value_type;
+  static const int kBase = 10;
+  static inline value_type convert_func(const string_type::value_type* str,
+                                        string_type::value_type** endptr) {
+#ifdef OS_WIN
+    return _wcstoi64(str, endptr, kBase);
+#else  // assume OS_POSIX
+    return wcstoll(str, endptr, kBase);
+#endif
+  }
+  static inline bool valid_func(const string_type& str) {
+    return !iswspace(str[0]);
+  }
+};
+
+// For the HexString variants, use the unsigned variants like strtoul for
+// convert_func so that input like "0x80000000" doesn't result in an overflow.
+
+class HexStringToLongTraits {
+ public:
+  typedef std::string string_type;
+  typedef long value_type;
+  static const int kBase = 16;
+  static inline value_type convert_func(const string_type::value_type* str,
+                                        string_type::value_type** endptr) {
+    return strtoul(str, endptr, kBase);
+  }
+  static inline bool valid_func(const string_type& str) {
+    return !isspace(str[0]);
+  }
+};
+
+class HexWStringToLongTraits {
+ public:
+  typedef std::wstring string_type;
+  typedef long value_type;
+  static const int kBase = 16;
+  static inline value_type convert_func(const string_type::value_type* str,
+                                        string_type::value_type** endptr) {
+    return wcstoul(str, endptr, kBase);
+  }
+  static inline bool valid_func(const string_type& str) {
+    return !iswspace(str[0]);
+  }
+};
 
 }  // namespace
 
@@ -1018,4 +1158,77 @@ bool MatchPattern(const std::wstring& eval, const std::wstring& pattern) {
 
 bool MatchPattern(const std::string& eval, const std::string& pattern) {
   return MatchPatternT(eval.c_str(), pattern.c_str());
+}
+
+// For the various *ToInt conversions, there are no *ToIntTraits classes to use
+// because there's no such thing as strtoi.  Use *ToLongTraits through a cast
+// instead, requiring that long and int are compatible and equal-width.  They
+// are on our target platforms.
+
+bool StringToInt(const std::string& input, int* output) {
+  DCHECK(sizeof(int) == sizeof(long));
+  return StringToNumber<StringToLongTraits>(input,
+                                            reinterpret_cast<long*>(output));
+}
+
+bool StringToInt(const std::wstring& input, int* output) {
+  DCHECK(sizeof(int) == sizeof(long));
+  return StringToNumber<WStringToLongTraits>(input,
+                                             reinterpret_cast<long*>(output));
+}
+
+bool StringToInt64(const std::string& input, int64* output) {
+  return StringToNumber<StringToInt64Traits>(input, output);
+}
+
+bool StringToInt64(const std::wstring& input, int64* output) {
+  return StringToNumber<WStringToInt64Traits>(input, output);
+}
+
+bool HexStringToInt(const std::string& input, int* output) {
+  DCHECK(sizeof(int) == sizeof(long));
+  return StringToNumber<HexStringToLongTraits>(input,
+                                               reinterpret_cast<long*>(output));
+}
+
+bool HexStringToInt(const std::wstring& input, int* output) {
+  DCHECK(sizeof(int) == sizeof(long));
+  return StringToNumber<HexWStringToLongTraits>(
+      input, reinterpret_cast<long*>(output));
+}
+
+int StringToInt(const std::string& value) {
+  int result;
+  StringToInt(value, &result);
+  return result;
+}
+
+int StringToInt(const std::wstring& value) {
+  int result;
+  StringToInt(value, &result);
+  return result;
+}
+
+int64 StringToInt64(const std::string& value) {
+  int64 result;
+  StringToInt64(value, &result);
+  return result;
+}
+
+int64 StringToInt64(const std::wstring& value) {
+  int64 result;
+  StringToInt64(value, &result);
+  return result;
+}
+
+int HexStringToInt(const std::string& value) {
+  int result;
+  HexStringToInt(value, &result);
+  return result;
+}
+
+int HexStringToInt(const std::wstring& value) {
+  int result;
+  HexStringToInt(value, &result);
+  return result;
 }

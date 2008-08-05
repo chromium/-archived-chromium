@@ -401,6 +401,16 @@ TEST(StringUtilTest, ConvertASCII) {
   std::string empty;
   EXPECT_EQ(empty, WideToASCII(wempty));
   EXPECT_EQ(wempty, ASCIIToWide(empty));
+
+  // Convert strings with an embedded NUL character.
+  const char chars_with_nul[] = "test\0string";
+  const int length_with_nul = arraysize(chars_with_nul) - 1;
+  std::string string_with_nul(chars_with_nul, length_with_nul);
+  std::wstring wide_with_nul = ASCIIToWide(string_with_nul);
+  EXPECT_EQ(length_with_nul, wide_with_nul.length());
+  std::string narrow_with_nul = WideToASCII(wide_with_nul);
+  EXPECT_EQ(length_with_nul, narrow_with_nul.length());
+  EXPECT_EQ(0, string_with_nul.compare(narrow_with_nul));
 }
 
 static const struct {
@@ -535,6 +545,178 @@ TEST(StringUtilTest, Uint64ToString) {
 
   for (int i = 0; i < arraysize(cases); ++i)
     EXPECT_EQ(cases[i].output, Uint64ToString(cases[i].input));
+}
+
+TEST(StringUtilTest, StringToInt) {
+  static const struct {
+    std::string input;
+    int output;
+    bool success;
+  } cases[] = {
+    {"0", 0, true},
+    {"42", 42, true},
+    {"-2147483648", INT_MIN, true},
+    {"2147483647", INT_MAX, true},
+    {"", 0, false},
+    {" 42", 42, false},
+    {"\t\n\v\f\r 42", 42, false},
+    {"blah42", 0, false},
+    {"42blah", 42, false},
+    {"blah42blah", 0, false},
+    {"-273.15", -273, false},
+    {"+98.6", 98, false},
+    {"--123", 0, false},
+    {"++123", 0, false},
+    {"-+123", 0, false},
+    {"+-123", 0, false},
+    {"-", 0, false},
+    {"-2147483649", INT_MIN, false},
+    {"-99999999999", INT_MIN, false},
+    {"2147483648", INT_MAX, false},
+    {"99999999999", INT_MAX, false},
+  };
+
+  for (int i = 0; i < arraysize(cases); ++i) {
+    EXPECT_EQ(cases[i].output, StringToInt(cases[i].input));
+    int output;
+    EXPECT_EQ(cases[i].success, StringToInt(cases[i].input, &output));
+    EXPECT_EQ(cases[i].output, output);
+
+    std::wstring wide_input = ASCIIToWide(cases[i].input);
+    EXPECT_EQ(cases[i].output, StringToInt(wide_input));
+    EXPECT_EQ(cases[i].success, StringToInt(wide_input, &output));
+    EXPECT_EQ(cases[i].output, output);
+  }
+
+  // One additional test to verify that conversion of numbers in strings with
+  // embedded NUL characters.  The NUL and extra data after it should be
+  // interpreted as junk after the number.
+  const char input[] = "6\06";
+  std::string input_string(input, arraysize(input) - 1);
+  int output;
+  EXPECT_FALSE(StringToInt(input_string, &output));
+  EXPECT_EQ(6, output);
+
+  std::wstring wide_input = ASCIIToWide(input_string);
+  EXPECT_FALSE(StringToInt(wide_input, &output));
+  EXPECT_EQ(6, output);
+}
+
+TEST(StringUtilTest, StringToInt64) {
+  static const struct {
+    std::string input;
+    int64 output;
+    bool success;
+  } cases[] = {
+    {"0", 0, true},
+    {"42", 42, true},
+    {"-2147483648", INT_MIN, true},
+    {"2147483647", INT_MAX, true},
+    {"-2147483649", GG_INT64_C(-2147483649), true},
+    {"-99999999999", GG_INT64_C(-99999999999), true},
+    {"2147483648", GG_INT64_C(2147483648), true},
+    {"99999999999", GG_INT64_C(99999999999), true},
+    {"9223372036854775807", kint64max, true},
+    {"-9223372036854775808", kint64min, true},
+    {"", 0, false},
+    {" 42", 42, false},
+    {"\t\n\v\f\r 42", 42, false},
+    {"blah42", 0, false},
+    {"42blah", 42, false},
+    {"blah42blah", 0, false},
+    {"-273.15", -273, false},
+    {"+98.6", 98, false},
+    {"--123", 0, false},
+    {"++123", 0, false},
+    {"-+123", 0, false},
+    {"+-123", 0, false},
+    {"-", 0, false},
+    {"-9223372036854775809", kint64min, false},
+    {"-99999999999999999999", kint64min, false},
+    {"9223372036854775808", kint64max, false},
+    {"99999999999999999999", kint64max, false},
+  };
+
+  for (int i = 0; i < arraysize(cases); ++i) {
+    EXPECT_EQ(cases[i].output, StringToInt64(cases[i].input));
+    int64 output;
+    EXPECT_EQ(cases[i].success, StringToInt64(cases[i].input, &output));
+    EXPECT_EQ(cases[i].output, output);
+
+    std::wstring wide_input = ASCIIToWide(cases[i].input);
+    EXPECT_EQ(cases[i].output, StringToInt64(wide_input));
+    EXPECT_EQ(cases[i].success, StringToInt64(wide_input, &output));
+    EXPECT_EQ(cases[i].output, output);
+  }
+
+  // One additional test to verify that conversion of numbers in strings with
+  // embedded NUL characters.  The NUL and extra data after it should be
+  // interpreted as junk after the number.
+  const char input[] = "6\06";
+  std::string input_string(input, arraysize(input) - 1);
+  int64 output;
+  EXPECT_FALSE(StringToInt64(input_string, &output));
+  EXPECT_EQ(6, output);
+
+  std::wstring wide_input = ASCIIToWide(input_string);
+  EXPECT_FALSE(StringToInt64(wide_input, &output));
+  EXPECT_EQ(6, output);
+}
+
+TEST(StringUtilTest, HexStringToInt) {
+  static const struct {
+    std::string input;
+    int output;
+    bool success;
+  } cases[] = {
+    {"0", 0, true},
+    {"42", 66, true},
+    {"-42", -66, true},
+    {"+42", 66, true},
+    {"7fffffff", INT_MAX, true},
+    {"80000000", INT_MIN, true},
+    {"ffffffff", -1, true},
+    {"DeadBeef", 0xdeadbeef, true},
+    {"0x42", 66, true},
+    {"-0x42", -66, true},
+    {"+0x42", 66, true},
+    {"0x7fffffff", INT_MAX, true},
+    {"0x80000000", INT_MIN, true},
+    {"0xffffffff", -1, true},
+    {"0XDeadBeef", 0xdeadbeef, true},
+    {" 45", 0x45, false},
+    {"\t\n\v\f\r 0x45", 0x45, false},
+    {"efgh", 0xef, false},
+    {"0xefgh", 0xef, false},
+    {"hgfe", 0, false},
+    {"100000000", -1, false},  // don't care about |output|, just |success|
+    {"-", 0, false},
+    {"", 0, false},
+  };
+
+  for (int i = 0; i < arraysize(cases); ++i) {
+    EXPECT_EQ(cases[i].output, HexStringToInt(cases[i].input));
+    int output;
+    EXPECT_EQ(cases[i].success, HexStringToInt(cases[i].input, &output));
+    EXPECT_EQ(cases[i].output, output);
+
+    std::wstring wide_input = ASCIIToWide(cases[i].input);
+    EXPECT_EQ(cases[i].output, HexStringToInt(wide_input));
+    EXPECT_EQ(cases[i].success, HexStringToInt(wide_input, &output));
+    EXPECT_EQ(cases[i].output, output);
+  }
+  // One additional test to verify that conversion of numbers in strings with
+  // embedded NUL characters.  The NUL and extra data after it should be
+  // interpreted as junk after the number.
+  const char input[] = "0xc0ffee\09";
+  std::string input_string(input, arraysize(input) - 1);
+  int output;
+  EXPECT_FALSE(HexStringToInt(input_string, &output));
+  EXPECT_EQ(0xc0ffee, output);
+
+  std::wstring wide_input = ASCIIToWide(input_string);
+  EXPECT_FALSE(HexStringToInt(wide_input, &output));
+  EXPECT_EQ(0xc0ffee, output);
 }
 
 // This checks where we can use the assignment operator for a va_list. We need

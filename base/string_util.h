@@ -328,8 +328,33 @@ std::string IntToString(int value);
 std::string Int64ToString(int64 value);
 std::wstring Int64ToWString(int64 value);
 std::wstring IntToWString(int value);
+
+// Perform a best-effort conversion of the input string to a numeric type,
+// setting |*output| to the result of the conversion.  Returns true for
+// "perfect" conversions; returns false in the following cases:
+//  - Overflow/underflow.  |*output| will be set to the maximum value supported
+//    by the data type.
+//  - Trailing characters in the string after parsing the number.  |*output|
+//    will be set to the value of the number that was parsed.
+//  - No characters parseable as a number at the beginning of the string.
+//    |*output| will be set to 0.
+//  - Empty string.  |*output| will be set to 0.
+bool StringToInt(const std::string& input, int* output);
+bool StringToInt(const std::wstring& input, int* output);
+bool StringToInt64(const std::string& input, int64* output);
+bool StringToInt64(const std::wstring& input, int64* output);
+bool HexStringToInt(const std::string& input, int* output);
+bool HexStringToInt(const std::wstring& input, int* output);
+
+// Convenience forms of the above, when the caller is uninterested in the
+// boolean return value.  These return only the |*output| value from the
+// above conversions: a best-effort conversion when possible, otherwise, 0.
+int StringToInt(const std::string& value);
+int StringToInt(const std::wstring& value);
 int64 StringToInt64(const std::string& value);
 int64 StringToInt64(const std::wstring& value);
+int HexStringToInt(const std::string& value);
+int HexStringToInt(const std::wstring& value);
 
 // Return a C++ string given printf-like input.
 std::string StringPrintf(const char* format, ...);

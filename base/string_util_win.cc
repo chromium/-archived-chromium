@@ -114,11 +114,3 @@ NumberFormat* NumberFormatSingleton() {
   }
   return number_format;
 }
-
-int64 StringToInt64(const std::string& value) {
-  return _atoi64(value.c_str());
-}
-
-int64 StringToInt64(const std::wstring& value) {
-  return _wtoi64(value.c_str());
-}
