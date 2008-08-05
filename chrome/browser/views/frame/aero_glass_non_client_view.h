@@ -42,6 +42,8 @@ class AeroGlassNonClientView : public ChromeViews::NonClientView {
   explicit AeroGlassNonClientView(AeroGlassFrame* frame);
   virtual ~AeroGlassNonClientView();
 
+  gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip);
+
  protected:
   // Overridden from ChromeViews::NonClientView:
   virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;

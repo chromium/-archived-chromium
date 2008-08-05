@@ -33,6 +33,7 @@
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/views/window.h"
 
+class AeroGlassNonClientView;
 class BrowserView2;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -62,6 +63,7 @@ class AeroGlassFrame : public BrowserFrame,
   int GetMinimizeButtonOffset() const;
 
   // Overridden from BrowserFrame:
+  virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const;
   virtual ChromeViews::Window* GetWindow();
 
  protected:
@@ -73,6 +75,9 @@ class AeroGlassFrame : public BrowserFrame,
  private:
   // Updates the DWM with the frame bounds.
   void UpdateDWMFrame();
+
+  // Return a pointer to the concrete type of our non-client view.
+  AeroGlassNonClientView* GetAeroGlassNonClientView() const;
 
   // The BrowserView2 is our ClientView. This is a pointer to it.
   BrowserView2* browser_view_;

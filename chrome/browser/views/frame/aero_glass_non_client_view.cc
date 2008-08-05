@@ -30,6 +30,7 @@
 #include "chrome/browser/views/frame/aero_glass_non_client_view.h"
 
 #include "chrome/app/theme/theme_resources.h"
+#include "chrome/browser/tabs/tab_strip.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/path.h"
@@ -121,6 +122,7 @@ static const int kWindowHorizontalBorderSize = 2;
 static const int kWindowVerticalBorderSize = 2;
 static const int kDistributorLogoHorizontalOffset = 7;
 static const int kDistributorLogoVerticalOffset = 3;
+static const int kTitlebarHeight = 14;
 
 ///////////////////////////////////////////////////////////////////////////////
 // AeroGlassNonClientView, public:
@@ -131,6 +133,23 @@ AeroGlassNonClientView::AeroGlassNonClientView(AeroGlassFrame* frame)
 }
 
 AeroGlassNonClientView::~AeroGlassNonClientView() {
+}
+
+gfx::Rect AeroGlassNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
+  // If we are maximized, the tab strip will be in line with the window
+  // controls, so we need to make sure they don't overlap.
+  int tabstrip_width = GetWidth();
+  if(frame_->IsMaximized()) {
+    TITLEBARINFOEX titlebar_info;
+    titlebar_info.cbSize = sizeof(TITLEBARINFOEX);
+    SendMessage(frame_->GetHWND(), WM_GETTITLEBARINFOEX, 0,
+      reinterpret_cast<WPARAM>(&titlebar_info));
+
+    // rgrect[2] refers to the minimize button.
+    tabstrip_width -= (tabstrip_width - titlebar_info.rgrect[2].left);
+  }
+  int tabstrip_height = tabstrip->GetPreferredHeight();
+  return gfx::Rect(0, kTitlebarHeight, tabstrip_width, tabstrip_height);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

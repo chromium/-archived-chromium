@@ -49,7 +49,7 @@ static const int kToolbarOverlapVertOffset = 3;
 static const int kDwmBorderSize = 1;
 
 ///////////////////////////////////////////////////////////////////////////////
-// OpaqueFrame, public:
+// AeroGlassFrame, public:
 
 AeroGlassFrame::AeroGlassFrame(BrowserView2* browser_view)
     : Window(browser_view),
@@ -87,6 +87,10 @@ int AeroGlassFrame::GetMinimizeButtonOffset() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 // AeroGlassFrame, BrowserFrame implementation:
+
+gfx::Rect AeroGlassFrame::GetBoundsForTabStrip(TabStrip* tabstrip) const {
+  return GetAeroGlassNonClientView()->GetBoundsForTabStrip(tabstrip);
+}
 
 ChromeViews::Window* AeroGlassFrame::GetWindow() {
   return this;
@@ -170,4 +174,9 @@ void AeroGlassFrame::UpdateDWMFrame() {
                           kToolbarOverlapVertOffset + toolbar_y,
                       kDwmBorderSize + bottom_edge.height() };
   DwmExtendFrameIntoClientArea(GetHWND(), &margins);
+}
+
+AeroGlassNonClientView* AeroGlassFrame::GetAeroGlassNonClientView() const {
+  // We can safely assume that this conversion is true.
+  return static_cast<AeroGlassNonClientView*>(non_client_view_);
 }
