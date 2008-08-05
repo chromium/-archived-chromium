@@ -115,7 +115,7 @@ class PageCyclerTest : public UITest {
 
   void PrintIOPerfInfo(const wchar_t* test_name) {
     printf("\n");
-    BrowserProcessFilter chrome_filter;
+    BrowserProcessFilter chrome_filter(L"");
     process_util::NamedProcessIterator
         chrome_process_itr(chrome::kBrowserProcessExecutableName,
                            &chrome_filter);
@@ -162,7 +162,7 @@ class PageCyclerTest : public UITest {
 
   void PrintMemoryUsageInfo(const wchar_t* test_name) {
     printf("\n");
-    BrowserProcessFilter chrome_filter;
+    BrowserProcessFilter chrome_filter(L"");
     process_util::NamedProcessIterator
         chrome_process_itr(chrome::kBrowserProcessExecutableName,
                            &chrome_filter);

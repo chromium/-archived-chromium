@@ -41,7 +41,6 @@ bool GetMemoryInfo(uint32 process_id,
                    size_t *current_virtual_size,
                    size_t *peak_working_set_size,
                    size_t *current_working_set_size) {
-
   if (!peak_virtual_size || !current_virtual_size)
     return false;
 
@@ -67,14 +66,25 @@ bool GetMemoryInfo(uint32 process_id,
   return result;
 }
 
+size_t GetSystemCommitCharge() {
+  // Get the System Page Size.
+  SYSTEM_INFO system_info;
+  GetSystemInfo(&system_info);
+
+  PERFORMANCE_INFORMATION info;
+  if (GetPerformanceInfo(&info, sizeof(info)))
+    return info.CommitTotal * system_info.dwPageSize;
+  return -1;
+}
+
 void PrintChromeMemoryUsageInfo() {
   printf("\n");
-  BrowserProcessFilter chrome_filter;
+  BrowserProcessFilter chrome_filter(L"");
   process_util::NamedProcessIterator
       chrome_process_itr(chrome::kBrowserProcessExecutableName, &chrome_filter);
 
   const PROCESSENTRY32* chrome_entry;
-  while(chrome_entry = chrome_process_itr.NextProcessEntry()) {
+  while (chrome_entry = chrome_process_itr.NextProcessEntry()) {
     uint32 pid = chrome_entry->th32ProcessID;
     size_t peak_virtual_size;
     size_t current_virtual_size;

@@ -35,17 +35,20 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 
-BrowserProcessFilter::BrowserProcessFilter() : browser_process_id_(0) {
+BrowserProcessFilter::BrowserProcessFilter(const std::wstring user_data_dir)
+    : browser_process_id_(0),
+      user_data_dir_(user_data_dir) {
   // Find the message window (if any) for the current user data directory,
   // and get its process ID.  We'll only count browser processes that either
   // have the same process ID or have that process ID as their parent.
 
-  std::wstring user_data_dir;
-  PathService::Get(chrome::DIR_USER_DATA, &user_data_dir);
+  if (user_data_dir_.length() == 0)
+    PathService::Get(chrome::DIR_USER_DATA, &user_data_dir_);
+
 
   HWND message_window = FindWindowEx(HWND_MESSAGE, NULL,
                                      chrome::kMessageWindowClass,
-                                     user_data_dir.c_str());
+                                     user_data_dir_.c_str());
   if (message_window)
     GetWindowThreadProcessId(message_window, &browser_process_id_);
 }

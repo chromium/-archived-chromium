@@ -320,7 +320,7 @@ void UITest::AssertAppNotRunning(const std::wstring& error_message) {
 }
 
 void UITest::CleanupAppProcesses() {
-  BrowserProcessFilter filter;
+  BrowserProcessFilter filter(L"");
 
   // Make sure that no instances of the browser remain.
   const int kExitTimeoutMs = 5000;
@@ -408,7 +408,7 @@ bool UITest::CrashAwareSleep(int time_out_ms) {
 
 /*static*/
 int UITest::GetBrowserProcessCount() {
-  BrowserProcessFilter filter;
+  BrowserProcessFilter filter(L"");
   return process_util::GetProcessCount(chrome::kBrowserProcessExecutableName,
                                        &filter);
 }

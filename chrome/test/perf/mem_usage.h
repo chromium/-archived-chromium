@@ -59,6 +59,10 @@ bool GetMemoryInfo(uint32 process_id,
                    size_t *peak_working_set_size,
                    size_t *current_working_set_size);
 
+// Get the number of bytes currently committed by the system.
+// Returns -1 on failure.
+size_t GetSystemCommitCharge();
+
 // Get and print memory usage information for running chrome processes.
 void PrintChromeMemoryUsageInfo();
-#endif // CHROME_TEST_PERF_MEM_USAGE_H__
+#endif  // CHROME_TEST_PERF_MEM_USAGE_H__
