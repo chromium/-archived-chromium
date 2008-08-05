@@ -52,7 +52,7 @@ class ResultCodes {
     MISSING_PATH,               // An critical chrome path is missing.
     MISSING_DATA,               // A critical chrome file is missing.
     SHELL_INTEGRATION_FAILED,   // Failed to make Chrome default browser.
-    UNINSTALL_ERROR,            // Unspecified error while uninstalling.
+    UNINSTALL_DELETE_FILE_ERROR,// Error while deleting shortcuts.
     UNINSTALL_CHROME_ALIVE,     // Uninstall detected another chrome instance.
     UNINSTALL_NO_SURVEY,        // Do not launch survey after uninstall.
     UNINSTALL_USER_CANCEL,      // The user changed her mind.

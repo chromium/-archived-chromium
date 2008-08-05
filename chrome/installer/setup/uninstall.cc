@@ -119,8 +119,12 @@ installer_util::InstallStatus IsChromeActiveOrUserCancelled(
   int32 exit_code = ResultCodes::NORMAL_EXIT;
   bool is_timeout = false;
 
-  // We ignore all other errors such as whether launching chrome fails,
-  // whether chrome returns UNINSTALL_ERROR, etc.
+  // We want to continue with the uninstallation only when chrome.exe either
+  // returns NORMAL_EXIT (means Chrome is not running, user has confirmed
+  // uninstallation and sentinel file/desktop/ql shortcuts have been
+  // cleaned up) or UNINSTALL_DELETE_FILE_ERROR (means Chrome is not running,
+  // user has confirmed uninstallation but there was a problem with deleting
+  // sentinel file, desktop or ql shortcuts).
   LOG(INFO) << "Launching Chrome to do uninstall tasks.";
   if (installer::LaunchChromeAndWaitForResult(system_uninstall,
                                               kCmdLineOptions,
@@ -128,18 +132,21 @@ installer_util::InstallStatus IsChromeActiveOrUserCancelled(
                                               &exit_code,
                                               &is_timeout)) {
     if (is_timeout || exit_code == ResultCodes::UNINSTALL_CHROME_ALIVE) {
-      LOG(ERROR) << "Can't uninstall when chrome is still running";
+      LOG(INFO) << "Can't uninstall when chrome is still running";
       return installer_util::CHROME_RUNNING;
     } else if (exit_code == ResultCodes::UNINSTALL_USER_CANCEL) {
       LOG(INFO) << "User cancelled uninstall operation";
       return installer_util::UNINSTALL_CANCELLED;
-    } else if (exit_code == ResultCodes::UNINSTALL_ERROR) {
-      LOG(ERROR) << "chrome.exe reported error while uninstalling.";
-      return installer_util::UNINSTALL_FAILED;
+    } else if (exit_code == ResultCodes::NORMAL_EXIT) {
+      LOG(INFO) << "chrome.exe confirmed uninstallation from user.";
+      return installer_util::UNINSTALL_CONFIRMED;
+    } else if (exit_code == ResultCodes::UNINSTALL_DELETE_FILE_ERROR) {
+      LOG(ERROR) << "chrome.exe returned delete file error.";
+      return installer_util::UNINSTALL_CONFIRMED;
     }
   }
 
-  return installer_util::UNINSTALL_CONFIRMED;
+  return installer_util::UNINSTALL_FAILED;
 }
 
 // Read the URL from the resource file and substitute the locale parameter
@@ -222,8 +229,7 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
     const installer::Version& installed_version, bool remove_all) {
   installer_util::InstallStatus status =
       IsChromeActiveOrUserCancelled(system_uninstall);
-  if (status == installer_util::CHROME_RUNNING ||
-      status == installer_util::UNINSTALL_CANCELLED)
+  if (status != installer_util::UNINSTALL_CONFIRMED)
     return status;
 
   // Uninstall Gears first.
