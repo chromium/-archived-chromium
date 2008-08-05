@@ -73,7 +73,7 @@
 <translation id="4250680216510889253">Nie</translation>
 <translation id="1375198122581997741">Informacje o wersji</translation>
 <translation id="969892804517981540">Oficjalna wersja</translation>
-<translation id="988159990683914416">Wersja dla programistów</translation>
+<translation id="988159990683914416">Build</translation>
 <translation id="610886263749567451">Alert JavaScript</translation>
 <translation id="3433151241941574321">Dodaj stronę</translation>
 <translation id="7791543448312431591">Dodaj</translation>
@@ -173,7 +173,7 @@
 <translation id="5650551054760837876">Nie znaleziono wyników wyszukiwania.</translation>
 <translation id="7596288230018319236">Wszystkie odwiedzone strony będą wyświetlane tutaj, o ile nie zostaną otwarte w oknie incognito. Możesz użyć na tej stronie przycisku Szukaj, aby przeszukać wszystkie strony w historii.</translation>
 <translation id="7377249249140280793"><ph name="RELATIVE_DATE"/> – <ph name="FULL_DATE"/></translation>
-<translation id="8739589585766515812">Usuń historię tego dnia</translation>
+<translation id="8739589585766515812">Usuń historię z tego dnia</translation>
 <translation id="2674170444375937751">Czy na pewno chcesz usunąć te strony z historii?</translation>
 <translation id="6165508094623778733">Więcej informacji</translation>
 <translation id="3280237271814976245">Zapisz &amp;jako...</translation>
@@ -326,7 +326,7 @@
 <translation id="8717266507183354698">Wyświetl wszystkie strony w historii zawierające hasło <ph name="SEARCH_TERMS"/></translation>
 <translation id="5376169624176189338">Kliknij, aby przejść wstecz. Przytrzymaj, aby wyświetlić historię</translation>
 <translation id="2961695502793809356">Kliknij, aby przejść dalej. Przytrzymaj, aby wyświetlić historię</translation>
-<translation id="7221869452894271364">Odśwież tę stronę</translation>
+<translation id="7221869452894271364">Odśwież stronę</translation>
 <translation id="3254409185687681395">Dodaj tę stronę do zakładek</translation>
 <translation id="4422347585044846479">Edytuj zakładkę tej strony</translation>
 <translation id="4084682180776658562">Dodaj do zakładek</translation>
@@ -344,7 +344,7 @@
 <translation id="2435457462613246316">Pokaż hasło</translation>
 <translation id="4565377596337484307">Ukryj hasło</translation>
 <translation id="4571852245489094179">Importuj zakładki i ustawienia</translation>
-<translation id="2192505247865591433">Od:</translation>
+<translation id="2192505247865591433">Z:</translation>
 <translation id="1076818208934827215">Microsoft Internet Explorer</translation>
 <translation id="5119173345047096771">Mozilla Firefox</translation>
 <translation id="3031557471081358569">Wybierz elementy do zaimportowania:</translation>
@@ -370,7 +370,7 @@
 <translation id="4419098590196511435">Brak elementu</translation>
 <translation id="2503522102815150840">Awaria przeglądarki... błąd</translation>
 <translation id="5435666907653217300">Inny problem</translation>
-<translation id="7397054681783221164">Wyczyść następujące elementy:</translation>
+<translation id="7397054681783221164">Wykonaj następujące zadania:</translation>
 <translation id="6909042471249949473">Wyczyść dane za:</translation>
 <translation id="5360606537916580043">Ostatni dzień</translation>
 <translation id="4867297348137739678">Ostatni tydzień</translation>
@@ -477,7 +477,7 @@
 <translation id="6644512095122093795">Proponuj zapisywanie haseł</translation>
 <translation id="2815448242176260024">Nigdy nie zapisuj haseł</translation>
 <translation id="6222380584850953107">Pokaż zapisane hasła</translation>
-<translation id="3675321783533846350">Skonfiguruj proxy, aby połączyć się z siecią.</translation>
+<translation id="3675321783533846350">Skonfiguruj proxy do łączenia się z siecią.</translation>
 <translation id="4172706149171596436">Zmień ustawienia proxy</translation>
 <translation id="3478477629095836699">Ustawienia plików cookie:</translation>
 <translation id="5657156137487675418">Zezwól na wszystkie pliki cookie</translation>
@@ -570,7 +570,7 @@
 <translation id="4890855023395992542">Adres URL usługi:</translation>
 <translation id="8186012393692847636">Użyj usługi podpowiedzi, aby umożliwić uzupełnianie wyszukiwań i adresów URL wpisywanych w pasku adresu</translation>
 <translation id="8041183585493091279">Adres URL usługi propozycji:</translation>
-<translation id="1676388805288306495">Zmień domyślne czcionki i język stron internetowych.</translation>
+<translation id="1676388805288306495">Zmień domyślne czcionki i język stron internetowych</translation>
 <translation id="4244236525807044920">Zmień ustawienia czcionek i języka</translation>
 <translation id="7736284018483078792">Zmień język słownika sprawdzania pisowni.</translation>
 <translation id="5433207235435438329">Język sprawdzania pisowni:</translation>
@@ -672,7 +672,7 @@
 <translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
 <translation id="2044287590254833138">Pasek narzędzi Google Chrome</translation>
 <translation id="8449380764213232436">Google Chrome rozpoczął importowanie następujących elementów z przeglądarki <ph name="BROWSER_COMPONENT"/></translation>
-<translation id="8562413501751825163">Zamknij Firefoxa przed rozpoczęciem importowania</translation>
+<translation id="8562413501751825163">Zamknij Firefoxa przed importowaniem</translation>
 <translation id="6626317981028933585">Niestety ustawienia przeglądarki Firefox są niedostępne, gdy aplikacja jest uruchomiona. Aby importować ustawienia do Google Chrome, zapisz bieżącą pracę i zamknij wszystkie okna Firefoxa. Następnie kliknij przycisk Kontynuj.</translation>
 <translation id="8446794773162156990">Google Chrome zachowuje się niegrzecznie</translation>
 <translation id="7400722733683201933">Google Chrome – informacje</translation>
@@ -688,7 +688,7 @@
 <translation id="7001386529596391893">Utwórz skróty przeglądarki Chrome w tych miejscach:</translation>
 <translation id="480990236307250886">Otwórz stronę początkową</translation>
 <translation id="6514771739083339959">Strona początkowa:</translation>
-<translation id="1665770420914915777">Użyj strony Nowa karta</translation>
+<translation id="1665770420914915777">Nowa karta</translation>
 <translation id="4726901538158498735">Domyślna wyszukiwarka:</translation>
 <translation id="2231233239095101917">Skrypt na tej stronie wykorzystał zbyt wiele pamięci. Odśwież stronę, aby ponownie uruchomić skrypty.</translation>
 <translation id="8227755444512189073">Chrome musi uruchomić zewnętrzną aplikację do obsługi linków <ph name="SCHEME"/>. Żądany link to <ph name="PROTOLINK"/>.</translation>
@@ -705,9 +705,9 @@
 <translation id="8815061062167142136">Kurza twarz! Google Chrome się zawiesił. Uruchomić ponownie?</translation>
 <translation id="3889417619312448367">Odinstaluj Google Chrome</translation>
 <translation id="3169621169201401257">Więcej informacji na temat problemów występujących we wskazanych elementach znajduje się na stronie <ph name="DIAGNOSTIC_PAGE"/> dla domeny <ph name="DOMAIN"/>.</translation>
-<translation id="2356762928523809690">Aktualizacja serwera jest niedostępna (błąd: <ph name="ERROR_NUMBER"/>)</translation>
+<translation id="2356762928523809690">Serwer z aktualizacją jest niedostępny (błąd: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">&amp;Dodaj do słownika</translation>
-<translation id="2499193704281978000">Przeglądarka Google Chrome nie odpowiada. Uruchomić ponownie teraz?</translation>
+<translation id="2499193704281978000">Przeglądarka Google Chrome nie odpowiada. Uruchomić ponownie?</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">Unicode</translation>
 <translation id="1702534956030472451">Zachodni</translation>
@@ -726,15 +726,16 @@
 <translation id="2822854841007275488">Arabski</translation>
 <translation id="5098629044894065541">Hebrajski</translation>
 <translation id="8899388739470541164">Wietnamski</translation>
-<translation id="1714078437629572290">Otwórz stronę główną</translation>
-<translation id="5316814419223884568">Wyszukuj od tego momentu</translation>
-<translation id="3065140616557457172">Wpisz zapytanie lub wprowadź żądany adres URL – wszystko działa bez problemu.</translation>
-<translation id="4178055285485194276">Na początek:</translation>
+<translation id="1714078437629572290">Otwórz stronę początkową</translation>
+<translation id="5316814419223884568">Wyszukuj bezpośrednio stąd</translation>
+<translation id="3065140616557457172">Wpisz zapytanie lub wprowadź adres URL – wszystko po prostu działa.</translation>
+<translation id="4178055285485194276">Po uruchomieniu:</translation>
 <translation id="1154228249304313899">Otwórz tę stronę:</translation>
 <translation id="3761000923495507277">Wyświetl przycisk Home na pasku narzędzi</translation>
 <translation id="5291303148298143069">Powiadom mnie o zablokowaniu wyskakującego okienka</translation>
 <translation id="3383487468758466563">Czcionki i języki:</translation>
 <translation id="1137776625614346046">Obszar Najczęściej odwiedzane zawiera najczęściej używane witryny. Po pewnym okresie używania przeglądarki Chrome, kiedy otworzysz nową kartę, wyświetlą się Twoje najczęściej odwiedzane witryny. Bardziej szczegółowe informacje na temat tych i pozostałych funkcji znajdują się na stronie <ph name="BEGIN_LINK"/>Pierwsze kroki<ph name="END_LINK"/>.</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Jesteś teraz incognito<ph name="END_BOLD"/>. Strony przeglądane w tym oknie nie będą wyświetlane w historii przeglądarki ani historii wyszukiwania. Po zamknięciu okna incognito na komputerze nie zostanie po nich żaden ślad np. w postaci plików cookie. Zachowane zostaną jednak pobrane pliki lub utworzone zakładki.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Przejście do trybu incognito nie ma wpływu na działania innych osób, serwery ani oprogramowanie. Należy uważać na:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>witryny zbierające lub udostępniające dane na temat użytkowników<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>dostawców usług internetowych oraz pracowników śledzących odwiedzane przez użytkowników strony<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>złośliwe oprogramowanie śledzące naciśnięcia klawiszy w zamian za darmowe emotikony <ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>monitoring prowadzony przez tajnych agentów<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>osoby stojące za plecami<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Więcej informacji<ph name="END_LINK"/> na temat trybu incognito przeglądarki.</translation>
-<translation id="1604816462140255479">Tekst i przybliżenie</translation>
+<translation id="1604816462140255479">Rozmiar tekstu</translation>
+<translation id="2089625293428655599">Część niniejszego oprogramowania pochodzi z licencji innych firm, zgodnie z opisem: <ph name="URL"/></translation>
 </translationbundle>

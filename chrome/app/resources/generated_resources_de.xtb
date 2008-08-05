@@ -432,7 +432,7 @@
 <translation id="1628736721748648976">Codierung</translation>
 <translation id="5706242308519462060">Standard-Codierung:</translation>
 <translation id="4181841719683918333">Sprachen</translation>
-<translation id="8929159553808058020">Fügen Sie die Sprachen hinzu, die Sie zum Lesen von Websites verwenden, und listen Sie sie in beliebiger Reihenfolge auf. Fügen Sie nur benötigte Sprachen hinzu, da einige Zeichen verwendet werden können, um Websites in anderen Sprachen nachzuahmen.</translation>
+<translation id="8929159553808058020">Fügen Sie die Sprachen hinzu, die Sie zum Lesen von Websites verwenden, und listen Sie sie in beliebiger Reihenfolge auf. Fügen Sie nur benötigte Sprachen hinzu, da einige Zeichen verwendet werden können, um Websites in anderen Sprachen darzustellen.</translation>
 <translation id="2303544859777878640">Sprachen:</translation>
 <translation id="8609465669617005112">Nach oben</translation>
 <translation id="6746124502594467657">Nach unten</translation>
@@ -485,7 +485,7 @@
 <translation id="5821894118254011366">Drittanbieter-Cookies blockieren</translation>
 <translation id="6883611015375728278">Alle Cookies blockieren</translation>
 <translation id="5287240709317226393">Cookies anzeigen</translation>
-<translation id="7280343984261969618">Plug-ins in einem &quot;Sandkasten&quot; ohne Rechte ausführen. Dadurch werden einige Plug-ins nicht ordnungsgemäß funktionieren.</translation>
+<translation id="7280343984261969618">Plug-ins in einem &quot;Sandkasten&quot; ohne Rechte ausführen. Dadurch werden einige Plug-ins nicht richtig funktionieren.</translation>
 <translation id="3473105180351527598">Phishing- und Malware-Schutz aktivieren</translation>
 <translation id="8646430701497924396">SSL 2.0 verwenden</translation>
 <translation id="8709969075297564489">Sperrung des Serverzertifikats überprüfen</translation>
@@ -570,7 +570,7 @@
 <translation id="4890855023395992542">Service-URL:</translation>
 <translation id="8186012393692847636">Automatische Vorschläge zur Vervollständigung der in die Adressleiste eingegebenen Suchanfragen und URLs</translation>
 <translation id="8041183585493091279">URL für Vorschlagsdienst:</translation>
-<translation id="1676388805288306495">Ändern Sie die Standardschriftart und -sprache für Webseiten.</translation>
+<translation id="1676388805288306495">Standardschriftart/-sprache für Webseiten ändern</translation>
 <translation id="4244236525807044920">Schriftart- und Spracheinstellungen ändern</translation>
 <translation id="7736284018483078792">Ändern Sie die Sprache des Rechtschreibwörterbuchs.</translation>
 <translation id="5433207235435438329">Sprache der Rechtschreibprüfung:</translation>
@@ -608,7 +608,7 @@
 <translation id="8155798677707647270">Neue Version installieren...</translation>
 <translation id="6484929352454160200">Eine neue Version von <ph name="PRODUCT_NAME"/> ist verfügbar.</translation>
 <translation id="3702398161649563352"><ph name="PRODUCT_NAME"/> wurde mit <ph name="VERSION"/> aktualisiert</translation>
-<translation id="965674096648379287">Diese Webseite fordert Daten an, die Sie zuvor eingegeben haben, damit sie ordnungsgemäß angezeigt wird. Sie können diese Daten erneut senden, aber dadurch werden sämtliche Aktionen wiederholt, die zuvor durch diese Seite ausgeführt wurden. Drücken Sie &quot;Aktuelle Seite neu laden&quot;, um die Daten erneut zu senden und diese Seite anzuzeigen.</translation>
+<translation id="965674096648379287">Diese Webseite fordert Daten an, die Sie zuvor eingegeben haben, damit sie richtig angezeigt wird. Sie können diese Daten erneut senden, aber dadurch werden sämtliche Aktionen wiederholt, die zuvor durch diese Seite ausgeführt wurden. Drücken Sie &quot;Aktuelle Seite neu laden&quot;, um die Daten erneut zu senden und diese Seite anzuzeigen.</translation>
 <translation id="7012108905414904806">Diese Seite enthält jedoch andere Ressourcen, die nicht sicher sind. Diese Ressourcen können während der Übertragung von anderen gesehen werden und erlauben Hackern, das Layout und Verhalten der Seite zu ändern.</translation>
 <translation id="7755167023778553803">Diese Seite enthält jedoch Ressourcen von anderen Websites, deren Identität nicht überprüft werden kann.</translation>
 <translation id="6451458296329894277">Erneute Übermittlung des Formulars bestätigen</translation>
@@ -668,7 +668,7 @@
 <translation id="1144950271450340860">Sie haben versucht, &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; aufzurufen. Der Server hat sich jedoch mit einem Zertifikat ausgewiesen, das von einer Entität ausgestellt wurde, die vom Betriebssystem Ihres Computers als nicht vertrauenswürdig eingestuft wurde. Dies bedeutet möglicherweise, dass der Server seine eigenen Anmeldeinformationen erzeugt hat, auf die Google Chrome als Identitätsinformationen nicht vertrauen kann, oder dass ein Hacker versucht, Ihre Kommunikation abzufangen. Fahren Sie nicht fort, &lt;strong&gt;insbesondere&lt;/strong&gt; wenn diese Warnung für diese Website vorher noch nie erschienen ist.</translation>
 <translation id="6009537148180854585">Sie haben versucht, auf &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; zuzugreifen. Der Server hat sich jedoch mit einem fehlerhaften Zertifikat ausgewiesen. Google Chrome kann kein Zertifikat mit Fehlern verwenden und die Identität dieser Website nicht überprüfen, zu der Sie eine Verbindung herstellen wollten. Ihre Verbindung ist nicht sicher. Fahren Sie nicht fort.</translation>
 <translation id="7106741999175697885">Task-Manager - Google Chrome</translation>
-<translation id="1195935957447623558">Google Chrome wurde nicht ordnungsgemäß heruntergefahren. Klicken Sie auf &quot;Wiederherstellen&quot;, um die bereits geöffneten Seiten erneut zu öffnen.</translation>
+<translation id="1195935957447623558">Google Chrome wurde nicht richtig heruntergefahren. Klicken Sie auf &quot;Wiederherstellen&quot;, um die bereits geöffneten Seiten erneut zu öffnen.</translation>
 <translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
 <translation id="2044287590254833138">Google Chrome-Toolbar</translation>
 <translation id="8449380764213232436">Google Chrome importiert nun die folgenden Elemente aus <ph name="BROWSER_COMPONENT"/>:</translation>
@@ -682,7 +682,7 @@
 <translation id="6921913858457830952">Google Chrome kann die Installation nun abschließen.</translation>
 <translation id="7241541963706135274">Google Chrome führt folgende Aufgaben aus:</translation>
 <translation id="7101265395643981223">Google Chrome starten</translation>
-<translation id="2618799103663374905">Google Crome-Verknüpfungen zum Desktop, zur Schnellstartleiste und zum Startmenü hinzufügen</translation>
+<translation id="2618799103663374905">Google Chrome-Verknüpfungen zum Desktop, zur Schnellstartleiste und zum Startmenü hinzufügen</translation>
 <translation id="213581405366815208">Möchten Sie die Installation von Google Chrome wirklich abbrechen? Falls Sie später fortfahren möchten, öffnen Sie Chrome im Startmenü über den Ordner &quot;Programme&quot;.</translation>
 <translation id="5941830788786076944">Google Chrome als Standardbrowser festlegen</translation>
 <translation id="7001386529596391893">Chrome-Verknüpfungen an diesen Speicherorten erstellen:</translation>
@@ -727,14 +727,15 @@
 <translation id="5098629044894065541">Hebräisch</translation>
 <translation id="8899388739470541164">Vietnamesisch</translation>
 <translation id="1714078437629572290">Homepage öffnen</translation>
-<translation id="5316814419223884568">Suche hier starten</translation>
-<translation id="3065140616557457172">Suchbegriff oder URL für Navigation eingeben – alles ist möglich.</translation>
+<translation id="5316814419223884568">Direkt von hier aus suchen</translation>
+<translation id="3065140616557457172">Einfach Suchbegriff oder Webadresse eingeben – alles ist möglich.</translation>
 <translation id="4178055285485194276">Beim Start:</translation>
 <translation id="1154228249304313899">Diese Seite öffnen:</translation>
 <translation id="3761000923495507277">Home-Schaltfläche auf der Toolbar anzeigen</translation>
 <translation id="5291303148298143069">Über Blockierung von Pop-ups informieren</translation>
 <translation id="3383487468758466563">Schriftarten und Sprachen:</translation>
 <translation id="1137776625614346046">Im Bereich &quot;Am häufigsten besucht&quot; werden die am häufigsten aufgerufenen Websites angezeigt. Nachdem Sie Google Chrome einige Zeit verwendet haben, werden Ihnen die am häufigsten besuchten Websites beim Öffnen eines neuen Tabs angezeigt. Weitere Informationen hierzu und zu anderen Funktionen erhalten Sie auf der Seite <ph name="BEGIN_LINK"/>Erste Schritte<ph name="END_LINK"/>.</translation>
-<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Sie haben den Modus für anonymes Browsen aktiviert<ph name="END_BOLD"/>. In diesem Fenster aufgerufene Seiten werden nicht im Browserverlauf oder Suchverlauf angezeigt. Zudem werden nach dem Schließen des Inkognito-Fensters keine anderen Hinweise wie Cookies auf dem Computer gespeichert. Heruntergeladene Dateien oder hinzugefügte Lesezeichen werden jedoch beibehalten. <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Das anonyme Browsen wirkt sich nicht auf das Nutzerverhalten bzw. auf die Funktionsweise von Servern oder Software aus. Vorsicht ist geboten bei:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Websites, auf denen Informationen über Sie gesammelt oder weitergegeben werden<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Internetanbietern oder Arbeitgebern, die die von Ihnen aufgerufenen Seiten protokollieren<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Bösartiger Software, mit der Ihre Tastatureingaben für kostenlose Smileys protokolliert werden<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Überwachung durch Ermittlungsbehörden<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Personen, die hinter Ihnen stehen<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        Weitere Informationen zum anonymen Browsen erhalten Sie <ph name="BEGIN_LINK"/>hier<ph name="END_LINK"/>.</translation>
-<translation id="1604816462140255479">Text&amp;zoom</translation>
+<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Sie haben den Modus für anonymes Browsen aktiviert<ph name="END_BOLD"/>. In diesem Fenster aufgerufene Seiten werden nicht im Browserverlauf oder Suchverlauf angezeigt. Zudem werden nach dem Schließen des Inkognito-Fensters keine anderen Hinweise wie Cookies auf dem Computer gespeichert. Heruntergeladene Dateien oder hinzugefügte Lesezeichen werden jedoch beibehalten. <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Das anonyme Browsen wirkt sich nicht auf das Nutzerverhalten bzw. auf die Funktionsweise von Servern oder Software aus. Vorsicht ist geboten bei:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Websites, auf denen Informationen über Sie gesammelt oder weitergegeben werden<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Internetanbietern oder Arbeitgebern, die die von Ihnen aufgerufenen Seiten protokollieren<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Bösartiger Software, mit der Ihre Tastatureingaben festgehalten werden (dafür bekommen Sie Smileys gratis)<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Überwachung durch Ermittlungsbehörden<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Personen, die hinter Ihnen stehen<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        Weitere Informationen zum anonymen Browsen erhalten Sie <ph name="BEGIN_LINK"/>hier<ph name="END_LINK"/>.</translation>
+<translation id="1604816462140255479">Text &amp;zoom</translation>
+<translation id="2089625293428655599">Teile dieser Software sind von Drittanbietern lizenziert. Weitere Informationen erhalten Sie unter: <ph name="URL"/></translation>
 </translationbundle>

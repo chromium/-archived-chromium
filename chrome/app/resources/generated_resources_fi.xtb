@@ -171,7 +171,7 @@
 <translation id="8182985032676093812">Osoitteen <ph name="PAGE_URL"/> alkuperä</translation>
 <translation id="4880827082731008257">Haku historiasta</translation>
 <translation id="5650551054760837876">Hakutuloksia ei löytynyt.</translation>
-<translation id="7596288230018319236">Kaikki sivut, joilla käyt, näkyvät tässä, ellet avaa niitä näkymättömyysikkunassa. Tällä sivulla olevalla Haku-painikkeella voit hakea kaikkia historiassasi olevia sivuja.</translation>
+<translation id="7596288230018319236">Kaikki sivut, joilla käyt, näkyvät tässä, ellet avaa niitä incognito-ikkunassa. Tällä sivulla olevalla Haku-painikkeella voit hakea kaikkia historiassasi olevia sivuja.</translation>
 <translation id="7377249249140280793"><ph name="RELATIVE_DATE"/> - <ph name="FULL_DATE"/></translation>
 <translation id="8739589585766515812">Poista päivän selaustiedot</translation>
 <translation id="2674170444375937751">Haluatko varmasti poistaa nämä sivut historiastasi?</translation>
@@ -211,7 +211,7 @@
 <translation id="569109051430110155">Automaattinen</translation>
 <translation id="5818003990515275822">Korea</translation>
 <translation id="4890284164788142455">Thai</translation>
-<translation id="7434509671034404296">Kehittäjä</translation>
+<translation id="7434509671034404296">Kehittäjille</translation>
 <translation id="2440604414813129000">Näytä a&amp;lkuperä</translation>
 <translation id="3842377959466606212">Sivutie&amp;dot</translation>
 <translation id="5872213955895293073">JavaScript-viankorjaus</translation>
@@ -450,7 +450,7 @@
 <translation id="8288345061925649502">Vaihda hakukone</translation>
 <translation id="3037605927509011580">Voi räkä!</translation>
 <translation id="8927064607636892008">Tämän verkkosivun näytön yhteydessä tapahtui virhe. Jatka painamalla Lataa uudelleen tai siirry toiselle sivulle.</translation>
-<translation id="942671148946453043">Olet avannut näkymättömyysikkunan. Sivut, jotka avaat tässä ikkunassa, eivät näy historiassa.</translation>
+<translation id="942671148946453043">Olet avannut incognito-ikkunan. Sivut, jotka avaat tässä ikkunassa, eivät näy historiassa.</translation>
 <translation id="5107325588313356747">Jotta voit piilottaa tämän ohjelman käyttöoikeuden, sinun on poistettava sen asennus käyttämällä sovelmaa\n<ph name="CONTROL_PANEL_APPLET_NAME"/> ohjauspaneelissa.\n\nHaluatko käynnistää sovelman <ph name="CONTROL_PANEL_APPLET_NAME"/>?</translation>
 <translation id="7543025879977230179"><ph name="PRODUCT_NAME"/> Asetukset</translation>
 <translation id="435463392378565996">Perussäädöt</translation>
@@ -699,10 +699,10 @@
 <translation id="7958215378280655655">Haluatko tyhjentää Chrome-asetukset?</translation>
 <translation id="7100330187273168372">Google Chrome ei voi lukea datahakemistoa :\n\n<ph name="USER_DATA_DIRECTORY"/>, eikä kirjoittaa siihen</translation>
 <translation id="3324235665723428530">Profiiliasi ei voida käyttää koska se on peräisin Google Chromen uudemmasta versiosta.\n\n Kaikki ominaisuudet eivät välttämättä toimi. Valitse toinen profiili tai käytä uudempaa Chrome-versiota.</translation>
-<translation id="3319048459796106952">Uusi &amp;näkymättömyysikkuna</translation>
+<translation id="3319048459796106952">Uusi &amp;incognito-ikkuna</translation>
 <translation id="1120026268649657149">Avainsanan on oltava tyhjä tai yksilöivä</translation>
 <translation id="7481475534986701730">Hiljattain käydyt sivustot</translation>
-<translation id="8815061062167142136">Oho! Google Chrome kaatui. Käynnistetäänkö uudelleen?</translation>
+<translation id="8815061062167142136">Voi räkä! Google Chrome kaatui. Käynnistetäänkö uudelleen?</translation>
 <translation id="3889417619312448367">Poista Google Chromen asennus</translation>
 <translation id="3169621169201401257">Lisätietoja näitä osia koskevista ongelmista on Googlen <ph name="DIAGNOSTIC_PAGE"/> -vianmäärityssivulla verkkotunnuksen <ph name="DOMAIN"/> osalta.</translation>
 <translation id="2356762928523809690">Päivityspalvelin ei ole käytettävissä (virhe: <ph name="ERROR_NUMBER"/>)</translation>
@@ -728,13 +728,14 @@
 <translation id="8899388739470541164">vietnam</translation>
 <translation id="1714078437629572290">Avaa etusivu</translation>
 <translation id="5316814419223884568">Hae tästä</translation>
-<translation id="3065140616557457172">Kirjoita haku tai URL-osoite siirtymistä varten - ja kaikki toimii.</translation>
-<translation id="4178055285485194276">Käynnistyksessä:</translation>
+<translation id="3065140616557457172">Kirjoita haku tai URL-osoite suoraa siirtymistä varten. Kaikki käy.</translation>
+<translation id="4178055285485194276">Käynnistettäessä:</translation>
 <translation id="1154228249304313899">Avaa tämä sivu:</translation>
 <translation id="3761000923495507277">Työkalupalkin Näytä etusivu -painike</translation>
 <translation id="5291303148298143069">Ilmoita, kun ponnahdusikkuna estetään</translation>
 <translation id="3383487468758466563">Kirjasimet ja kielet:</translation>
 <translation id="1137776625614346046">Käydyimmät-alueella näkyvät sivustot, joita käytät useimmin. Kun olet käyttänyt Google Chromea jonkun aikaa, näet käydyimmät sivustot aina, kun avaat uuden välilehden. Lisätietoja Chromen ominaisuuksista on <ph name="BEGIN_LINK"/>aloitussivulla<ph name="END_LINK"/>.</translation>
-<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Olet muuttunut näkymättömäksi<ph name="END_BOLD"/>. Tässä ikkunassa näytettäviä sivuja ei näytetä selaimen historiassa tai selaushistoriassa. Niistä ei jätetä tietokoneelle muitakaan jälkiä, kuten evästeitä, kun suljet näkymättömyysikkunan. Lataamasi tiedostot tai luomasi kirjanmerkit kuitenkin säilytetään.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Näkymättömäksi muuttuminen ei vaikuta muiden ihmisten, palvelinten tai ohjelmistojen toimintaan. Varo:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>verkkosivustoja, jotka keräävät tai jakavat tietoja sinusta<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>internet-palveluntarjoajia tai työntekijöitä, jotka seuraavat sivuja, joilla käyt<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>haittaohjelmia, jotka seuraavat näppäinpainalluksia ja antavat vastineeksi ilmaisia hymiöitä<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>turvallisuuspalveluiden työntekijöiden tekemää seurantaa<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>takanasi seisovia ihmisiä<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Lisätietoja<ph name="END_LINK"/> selaamisesta näkymättömässä tilassa.</translation>
+<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Esiinnyt nyt tuntemattomana<ph name="END_BOLD"/>. Tässä ikkunassa näytettäviä sivuja ei näytetä selaimen historiassa tai selaushistoriassa. Niistä ei jätetä tietokoneelle muitakaan jälkiä, kuten evästeitä, kun suljet incognito-ikkunan. Lataamasi tiedostot tai luomasi kirjanmerkit kuitenkin säilytetään.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Tuntemattomana esiintyminen ei vaikuta muiden ihmisten, palvelinten tai ohjelmistojen toimintaan. Varo:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>verkkosivustoja, jotka keräävät tai jakavat tietoja sinusta<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>internet-palveluntarjoajia tai työntekijöitä, jotka seuraavat sivuja, joilla käyt<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>haittaohjelmia, jotka seuraavat näppäinpainalluksia ja antavat vastineeksi ilmaisia hymiöitä<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>turvallisuuspalveluiden työntekijöiden tekemää seurantaa<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>takanasi seisovia ihmisiä<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Lisätietoja<ph name="END_LINK"/> selaamisesta incognito-tilassa.</translation>
 <translation id="1604816462140255479">Tekstin &amp;koko</translation>
+<translation id="2089625293428655599">Osia tästä ohjelmistosta on lisensoitu kolmansilta osapuolilta, kuten kuvailtu osoitteessa: <ph name="URL"/></translation>
 </translationbundle>

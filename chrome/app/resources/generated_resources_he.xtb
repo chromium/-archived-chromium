@@ -9,7 +9,7 @@
 <translation id="4195643157523330669">פתח בכרטיסייה חדשה</translation>
 <translation id="3786934874263773074">&amp;מצא בדף</translation>
 <translation id="3369624026883419694">פותר מארח...</translation>
-<translation id="1604816462140255479">טקסט &amp;התקרבות</translation>
+<translation id="1604816462140255479">גודל &amp;טקסט</translation>
 <translation id="4890855023395992542">כתובת אתר השירות:</translation>
 <translation id="4047345532928475040">לא זמין</translation>
 <translation id="7767960058630128695">סיסמאות:</translation>
@@ -17,13 +17,13 @@
 <translation id="8739589585766515812">מחק היסטוריה עבור יום זה</translation>
 <translation id="9071050381089585305">אין תגובה מהסקריפט</translation>
 <translation id="8331626408530291785">גלול למעלה</translation>
-<translation id="2961695502793809356">לחץ כדי להמשיך, לחץ והחזק כדי לראות את ההיסטוריה</translation>
+<translation id="2961695502793809356">לחץ כדי לעבור קדימה, לחץ והחזק כדי לראות את ההיסטוריה</translation>
 <translation id="4084682180776658562">סימנייה</translation>
 <translation id="7982789257301363584">רשת</translation>
 <translation id="6479177161510354016">התראת <ph name="SITE"/></translation>
 <translation id="5538307496474303926">מסיר...</translation>
 <translation id="5516565854418269276">הצג תמיד את סרגל הסימניות</translation>
-<translation id="5568069709869097550">לא מצליח להיכנס</translation>
+<translation id="5568069709869097550">אי אפשר להיכנס</translation>
 <translation id="762917759028004464">דפדפן ברירת המחדל בשלב זה הוא <ph name="BROWSER_NAME"/>.</translation>
 <translation id="6134282421960734039">האם אתה רוצה ש-Chrome ישמור את הסיסמה שלך?</translation>
 <translation id="6909042471249949473">הסר נתונים:</translation>
@@ -35,11 +35,11 @@
 <translation id="6978121630131642226">מנועי חיפוש</translation>
 <translation id="4756388243121344051">&amp;היסטוריה</translation>
 <translation id="9012607008263791152">אני מבין שביקור באתר זה עלול להזיק למחשב שלי.</translation>
-<translation id="2437750561138919253">פותר באגים JavaScript - פעיל</translation>
+<translation id="2437750561138919253">פותר באגים ב-JavaScript - פעיל</translation>
 <translation id="362276910939193118">הצג את כל ההיסטוריה</translation>
 <translation id="8434177709403049435">&amp;קידוד</translation>
 <translation id="2065985942032347596">נדרש אימות</translation>
-<translation id="5981759340456370804">סטטיסטיקה ליורמים</translation>
+<translation id="5981759340456370804">כל מני נתונים - לגיקים בלבד</translation>
 <translation id="1120026268649657149">מילת המפתח חייבת להיות ריקה או ייחודית</translation>
 <translation id="8755376271068075440">&amp;גדול יותר</translation>
 <translation id="2955913368246107853">סגור את סרגל האיתור</translation>
@@ -140,7 +140,7 @@ Del</translation>
 <translation id="6314919950468685344">גופן ברוחב קבוע:</translation>
 <translation id="1857842694030005096">מידע נוסף על שגיאה זו</translation>
 <translation id="630065524203833229">צ&amp;א</translation>
-<translation id="5872213955895293073">פתור תקלות JavaScript</translation>
+<translation id="5872213955895293073">פתור באגים ב-JavaScript</translation>
 <translation id="7167486101654761064">&amp;פתח תמיד קבצים מסוג זה</translation>
 <translation id="5098629044894065541">עברית</translation>
 <translation id="6165508094623778733">מידע נוסף</translation>
@@ -166,6 +166,7 @@ Del</translation>
 <translation id="2231233239095101917">הסקריפט בדף מצריך זכרון רב מדי. טען מחדש בכדי לאפשר סקריפטים שוב.</translation>
 <translation id="9181716872983600413">Unicode</translation>
 <translation id="4222982218026733335">אישור שרת לא תקף</translation>
+<translation id="2089625293428655599">חלקים מתוכנה זו כפופים לרישיון מצד גורמי צד שלישי, כמפורט בכתובת:<ph name="URL"/></translation>
 <translation id="3745810751851099214">שלח עבור:</translation>
 <translation id="8820817407110198400">סימניות</translation>
 <translation id="2648845569394238430">חיפוש:</translation>
@@ -198,7 +199,7 @@ Del</translation>
 <translation id="8053959338015477773">יש צורך בתוסף נוסף כדי להציג אלמנטים מסוימים בדף זה.</translation>
 <translation id="8004582292198964060">דפדפן</translation>
 <translation id="5119173345047096771">Mozilla Firefox</translation>
-<translation id="5316814419223884568">התחל חיפוש מכאן:</translation>
+<translation id="5316814419223884568">התחל לחפש מכאן:</translation>
 <translation id="7070442422749762650">דף האינטרנט ב- &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; גרם להפניות-מחדש רבות מדי.  הסרת קבצי ה-cookie שלך עבור אתר זה עשויה לפתור את הבעיה. אם לא, יתכן שהבעייה היא בתצורת השרת ולא במחשב שלך.</translation>
 <translation id="1195935957447623558">Google Chrome לא נסגר כראוי. לפתיחה מחדש של הדפים שפתחת, לחץ על 'שחזר'.</translation>
 <translation id="8689341121182997459">בתוקף עד:</translation>
@@ -220,7 +221,7 @@ Del</translation>
 <translation id="4120898696391891645">הדף לא נטען</translation>
 <translation id="8929159553808058020">הוסף את השפות שבהן אתה משתמש לקריאת אתרים, לפי סדר עדיפות. הוסף רק את אלו שלהן אתה זקוק, שכן תווים מסוימים עלולים לשמש להתחזות לאתרים בשפות אחרות.</translation>
 <translation id="4405141258442788789">תם פרק הזמן שהוקצב לפעולה.</translation>
-<translation id="4035758313003622889">&amp;מנהל משימות</translation>
+<translation id="4035758313003622889">&amp;מנהל המשימות</translation>
 <translation id="3383487468758466563">גופנים ושפות:</translation>
 <translation id="4378551569595875038">מתחבר...</translation>
 <translation id="3335672657969596251">Google Chrome אינו תומך ב <ph name="OS_NAME"/></translation>
@@ -326,7 +327,7 @@ Del</translation>
 <translation id="6227291405321948850">תמונת אינטרנט ללא שם</translation>
 <translation id="1851266746056575977">עדכן כעת</translation>
 <translation id="5941830788786076944">הפוך את Google Chrome לדפדפן ברירת המחדל</translation>
-<translation id="3319048459796106952">&amp;חלון חדש</translation>
+<translation id="3319048459796106952">חלון חדש &amp;אלמוני</translation>
 <translation id="6756161853376828318">הפוך את <ph name="PRODUCT_NAME"/> לדפדפן ברירת המחדל שלי</translation>
 <translation id="2303544859777878640">שפות:</translation>
 <translation id="908263542783690259">הסר היסטוריית גלישה</translation>
@@ -339,7 +340,7 @@ Del</translation>
 <translation id="8887733174653581061">תמיד למעלה</translation>
 <translation id="2149973817440762519">ערוך סימניות</translation>
 <translation id="1425127764082410430">&amp;חפש <ph name="SEARCH_TERMS"/> ב-<ph name="SEARCH_ENGINE"/></translation>
-<translation id="6622748519798088408">זכויות יוצרים © 2006-2008 Google Inc. כל הזכויות שמורות.</translation>
+<translation id="6622748519798088408">זכויות יוצרים © 2008-2006 Google Inc. כל הזכויות שמורות.</translation>
 <translation id="3183922693828471536">גלול ל'כאן'</translation>
 <translation id="74568296546932365">השאר את <ph name="PAGE_TITLE"/> כמנוע חיפוש ברירת המחדל</translation>
 <translation id="333371639341676808">מנע מדף זה ליצור דיאלוגים נוספים.</translation>
@@ -373,7 +374,7 @@ Del</translation>
 <translation id="2649911884196340328">אישור האבטחה של השרת הכיל שגיאות!</translation>
 <translation id="4268574628540273656">כתובת אתר:</translation>
 <translation id="2766006623206032690">הדבק והמשך</translation>
-<translation id="7221869452894271364">טען שנית דף זה</translation>
+<translation id="7221869452894271364">טען שוב את הדף</translation>
 <translation id="430831869130657585">סיומות</translation>
 <translation id="1586296736502814947">(לא ניתן לבצע פעולה)</translation>
 <translation id="4197700912384709145"><ph name="NUMBER_ZERO"/> שניות</translation>
@@ -382,7 +383,7 @@ Del</translation>
 <translation id="3675321783533846350">הגדר פרוקסי כדי להתחבר לרשת.</translation>
 <translation id="5501358408399407103">Web Page, HTML Only\0*.htm\0Web Page, Complete\0*.htm</translation>
 <translation id="6503077044568424649">הכי פופולריים</translation>
-<translation id="6144890426075165477"><ph name="PRODUCT_NAME"/> אינו דפדפן ברירת המחדל שלך כרגע.</translation>
+<translation id="6144890426075165477"><ph name="PRODUCT_NAME"/> אינו דפדפן ברירת המחדל שלך</translation>
 <translation id="1175364870820465910">הדפס...</translation>
 <translation id="8945419807169257367">לא ניתן לבדוק את אישור השרת</translation>
 <translation id="152482086482215392">נותרה שנייה <ph name="NUMBER_ONE"/></translation>
@@ -391,7 +392,7 @@ Del</translation>
 <translation id="8815061062167142136">אוי ואבוי! Google Chrome קרס. להפעיל מחדש כעת? להפעיל מחדש כעת?</translation>
 <translation id="1714078437629572290">פתח את דף הבית</translation>
 <translation id="4182252350869425879">אזהרה: האתר חשוד בהתחזות!</translation>
-<translation id="5048179823246820836">נורדי</translation>
+<translation id="5048179823246820836">נורדית</translation>
 <translation id="385051799172605136">חזור</translation>
 <translation id="7280343984261969618">מפעיל תוספים בתיבת חול ללא זכויות יתר. חלק מהתוספים לא יפעלו כהלכה כתוצאה מכך.</translation>
 <translation id="8927064607636892008">משהו השתבש בעת הצגת הדף. להמשך, לחץ על 'טען שנית' או עבור לדף אחר.</translation>
@@ -413,7 +414,7 @@ Del</translation>
 <translation id="7001386529596391893">צור קיצורי דרך של Google Chrome במיקומים אלו:</translation>
 <translation id="4089663545127310568">הסר סיסמאות שמורות</translation>
 <translation id="8172671748763307156">האם אתה בטוח שברצונך לבטל את התקנת Google Chrome? (זה בגלל משהו שאמרנו?)</translation>
-<translation id="4400697530699263877">השתמש באיתור-מוקדם של DNS לשיפור את ביצועי הטעינה של הדף</translation>
+<translation id="4400697530699263877">השתמש באיתור מוקדם של DNS לשיפור ביצועי הטעינה של הדף</translation>
 <translation id="558442360746014982">להלן הודעת השגיאה המקורית</translation>
 <translation id="2814489978934728345">הפסק את טעינת הדף</translation>
 <translation id="8182985032676093812">מקור של <ph name="PAGE_URL"/></translation>
@@ -471,7 +472,7 @@ Del</translation>
 <translation id="2618799103663374905">הוסף קיצורי דרך של Google Chrome לשולחן העבודה, לסרגל הפתיחה המהירה ולתפריט הפתיחה שלך.</translation>
 <translation id="1572103024875503863"><ph name="NUMBER_MANY"/> ימים</translation>
 <translation id="3009731429620355204">הפעלות</translation>
-<translation id="8446794773162156990">Google Chrome לא מתנהג יפה.</translation>
+<translation id="8446794773162156990">Google Chrome לא מתנהג יפה</translation>
 <translation id="1076818208934827215">Microsoft Internet Explorer</translation>
 <translation id="1137776625614346046">האזור &quot;הכי פופולרי&quot; מציג את האתרים שביקרת בהם בתדירות הרבה ביותר. אחרי שתשתמש ב-Google Chrome למשך זמן מה, תראה את האתרים הפופולריים ביותר שלך בכל פעם שתפתח כרטיסייה חדשה. ניתן לקבל מידע נוסף על תכונה זו ועל תכונות נוספות בדף <ph name="BEGIN_LINK"/>התחלת העבודה<ph name="END_LINK"/>.</translation>
 <translation id="5710435578057952990">הזהות של אתר זה לא אומתה.</translation>
@@ -493,7 +494,7 @@ Del</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (ברירת מחדל)</translation>
 <translation id="5360606537916580043">מהיום האחרון</translation>
 <translation id="1181037720776840403">הסר</translation>
-<translation id="501080040224996242">עזור להפוך את Chrome לטוב יותר על ידי שליחה אוטומטית של סטטיסטיקת שימוש ודוחות קריסה ל-Google.</translation>
+<translation id="501080040224996242">עזור לשפר את Chrome על ידי שליחה אוטומטית של סטטיסטיקת שימוש ודוחות קריסה ל-Google.</translation>
 <translation id="14171126816530869">זהות <ph name="ORGANIZATION"/> ב-<ph name="LOCALITY"/>  אומתה על ידי <ph name="ISSUER"/>.</translation>
 <translation id="569109051430110155">איתור אוטומטי</translation>
 <translation id="8235325155053717782">שגיאה <ph name="ERROR_NUMBER"/>(<ph name="ERROR_NAME"/>): <ph name="ERROR_TEXT"/></translation>
@@ -559,7 +560,7 @@ Del</translation>
 <translation id="5329858601952122676">&amp;מחק</translation>
 <translation id="6710213216561001401">הקודם</translation>
 <translation id="5295309862264981122">אשר ניווט</translation>
-<translation id="1702534956030472451">מערב</translation>
+<translation id="1702534956030472451">מערבית</translation>
 <translation id="2175607476662778685">סרגל הפעלה מהירה</translation>
 <translation id="7511635910912978956">נותרו <ph name="NUMBER_FEW"/> שעות</translation>
 <translation id="7861215335140947162">&amp;הורדות</translation>
@@ -578,7 +579,7 @@ Del</translation>
 <translation id="9189723490960700326">ניסית להגיע אל &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, אך השרת הציג אישור שתוקפו פג. אין מידע זמין שיכול לרמוז על כך שהאישור נפגע מאז פג תוקפו. משמעות הדבר היא ש-Google Chrome אינו יכול להבטיח כי אתה מתקשר עם &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; ולא עם תוקף. מומלץ לא להמשיך.</translation>
 <translation id="6059232451013891645">תיקייה:</translation>
 <translation id="715468010956678290">פתח מסגרת בחלון inco&amp;gnito</translation>
-<translation id="5042992464904238023">תוכן אינטרנט</translation>
+<translation id="5042992464904238023">תוכן</translation>
 <translation id="2440604414813129000">צפה &amp;במקור</translation>
 <translation id="3873963583678942942">(ללא שם)</translation>
 <translation id="6040143037577758943">סגור</translation>
@@ -608,7 +609,7 @@ Del</translation>
 <translation id="2359808026110333948">המשך</translation>
 <translation id="4108206167095122329">הסר &amp;הכל</translation>
 <translation id="566920818739465183">ביקרת באתר זה בפעם הראשונה בתאריך <ph name="VISIT_DATE"/>.</translation>
-<translation id="358344266898797651">קלטי</translation>
+<translation id="358344266898797651">קלטית</translation>
 <translation id="2979639724566107830">פתח בחלון חדש</translation>
 <translation id="6349678711452810642">הפוך לברירת מחדל</translation>
 <translation id="3520476450377425184">נותרו <ph name="NUMBER_MANY"/> ימים</translation>
@@ -629,7 +630,7 @@ Del</translation>
 <translation id="8540666473246803645">Google Chrome</translation>
 <translation id="7125953501962311360">דפדפן ברירת המחדל:</translation>
 <translation id="1723824996674794290">&amp;חלון חדש</translation>
-<translation id="5502500733115278303">ייבוא מ-Firefox</translation>
+<translation id="5502500733115278303">מיובא מ-Firefox</translation>
 <translation id="2820806154655529776"><ph name="NUMBER_ONE"/> שניה</translation>
 <translation id="2666092431469916601">למעלה</translation>
 <translation id="4211171103079968550">הפעל Java</translation>
@@ -697,7 +698,7 @@ Del</translation>
 <translation id="4475552974751346499">חפש בהורדות</translation>
 <translation id="724208122063442954">בחרת לפתוח סוגי קבצים מסוימים באופן אוטומטי לאחר הורדתם. אתה יכול להסיר הגדרות אלו, כך שהקבצים שהורדו לא ייפתחו אוטומטית.</translation>
 <translation id="3108416241300843963">בקשה נכשלה משום שאישור השרת לא היה תקף.</translation>
-<translation id="6833901631330113163">דרום אירופה</translation>
+<translation id="6833901631330113163">דרום אירופאית</translation>
 <translation id="1232569758102978740">ללא שם</translation>
 <translation id="6451650035642342749">הסר הגדרות לפתיחה אוטומטית</translation>
 <translation id="5076340679995252485">&amp;הדבק</translation>
@@ -707,7 +708,7 @@ Del</translation>
 <translation id="7414887922320653780">נותרו <ph name="NUMBER_ONE"/> שעות</translation>
 <translation id="8439117394107194826">קח אותי לדף האינטרנט של הסקר לאחר ביטול ההתקנה.</translation>
 <translation id="6325525973963619867">נכשל</translation>
-<translation id="6419902127459849040">מרכז אירופה</translation>
+<translation id="6419902127459849040">מרכז אירופאית</translation>
 <translation id="969892804517981540">גירסה רשמית</translation>
 <translation id="5912378097832178659">&amp;ערוך מנועי חיפוש...</translation>
 <translation id="8015746205953933323">דף אינטרנט זה אינו זמין.</translation>
@@ -717,7 +718,7 @@ Del</translation>
 <translation id="528468243742722775">End</translation>
 <translation id="394984172568887996">מיובא מ-IE</translation>
 <translation id="2179052183774520942">הוסף מנוע חיפוש</translation>
-<translation id="2503522102815150840">בום טראח... הדפדפן קרס</translation>
+<translation id="2503522102815150840">בום!... הדפדפן קרס</translation>
 <translation id="1293699935367580298">Esc</translation>
 <translation id="1823768272150895732">גופן</translation>
 <translation id="2339641773402824483">מחפש עדכונים...</translation>
@@ -742,7 +743,7 @@ Del</translation>
 <translation id="8664389313780386848">&amp;צפה במקור הדף</translation>
 <translation id="2148716181193084225">היום</translation>
 <translation id="7755167023778553803">יחד עם זאת, הדף כולל משאבים מאתרים אחרים שזהותם לא ניתנת לאימות.</translation>
-<translation id="3478477629095836699">הגדרות קובץ Cookie:</translation>
+<translation id="3478477629095836699">הגדרות קבצי cookie:</translation>
 <translation id="5463275305984126951">אינדקס של <ph name="LOCATION"/></translation>
 <translation id="5046764976540625289">צא מ-Chrome</translation>
 <translation id="6513615899227776181">תוסף: <ph name="PLUGIN_NAME"/></translation>

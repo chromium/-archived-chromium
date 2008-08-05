@@ -27,6 +27,7 @@
 <translation id="5300471193642408424">Mostrar páginas</translation>
 <translation id="8434177709403049435">&amp;Codificación</translation>
 <translation id="6040143037577758943">Cerrar</translation>
+<translation id="9147392381910171771">&amp;Opciones</translation>
 <translation id="2454247629720664989">Palabra clave</translation>
 <translation id="5903264686717710770">Título:</translation>
 <translation id="4188026131102273494">Palabra clave:</translation>
@@ -698,4 +699,43 @@
 <translation id="7958215378280655655">Al restablecer las opciones de Google Chrome, se revertirán los cambios que haya realizado en la configuración predeterminada. ¿Desea restablecer las opciones de Chrome?</translation>
 <translation id="7100330187273168372">Google Chrome no puede leer y escribir a su directorio de datos:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="3324235665723428530">No se puede utilizar su perfil porque pertenece a una versión más nueva de Google Chrome.\n\nEs posible que no pueda utilizar algunas funciones. Especifique otro directorio para el perfil o utilice una versión más nueva de Chrome.</translation>
+<translation id="3319048459796106952">Nueva ventana de &amp;incógnito</translation>
+<translation id="1120026268649657149">La palabra clave debe ser única o inexistente.</translation>
+<translation id="7481475534986701730">Sitios visitados recientemente</translation>
+<translation id="8815061062167142136">¡Vaya! Google Chrome falló. ¿Deseas reiniciar?</translation>
+<translation id="3889417619312448367">Desinstalar Google Chrome</translation>
+<translation id="3169621169201401257">Si quieres obtener más información sobre los problemas relacionados con estos elementos, visita <ph name="DIAGNOSTIC_PAGE"/> de Google de <ph name="DOMAIN"/>.</translation>
+<translation id="2356762928523809690">No es posible actualizar el servidor (error: <ph name="ERROR_NUMBER"/>)</translation>
+<translation id="1017280919048282932">&amp;Añadir al diccionario</translation>
+<translation id="2499193704281978000">Google Chrome no responde. ¿Quieres reiniciarlo ahora?</translation>
+<translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
+<translation id="9181716872983600413">Unicode</translation>
+<translation id="1702534956030472451">Europa Occidental</translation>
+<translation id="6507969014813375884">Chino simplificado</translation>
+<translation id="2987775926667433828">Chino tradicional</translation>
+<translation id="8299269255470343364">Japonés</translation>
+<translation id="6419902127459849040">Europa Central</translation>
+<translation id="5453632173748266363">Cirílico</translation>
+<translation id="770015031906360009">Griego</translation>
+<translation id="7587108133605326224">Báltico</translation>
+<translation id="6833901631330113163">Sur de Europa</translation>
+<translation id="5048179823246820836">Nórdico</translation>
+<translation id="358344266898797651">Celta</translation>
+<translation id="8045462269890919536">Rumano</translation>
+<translation id="4711094779914110278">Turco</translation>
+<translation id="2822854841007275488">Árabe</translation>
+<translation id="5098629044894065541">Hebreo</translation>
+<translation id="8899388739470541164">Vietnamita</translation>
+<translation id="1714078437629572290">Abrir la página principal</translation>
+<translation id="5316814419223884568">Buscar desde aquí</translation>
+<translation id="3065140616557457172">Puedes escribir una consulta o bien la URL de la página que quieres visitar, lo que prefieras.</translation>
+<translation id="4178055285485194276">Al inicio:</translation>
+<translation id="1154228249304313899">Abrir esta página:</translation>
+<translation id="3761000923495507277">Mostrar el botón &quot;Página de inicio&quot; en la barra de herramientas</translation>
+<translation id="5291303148298143069">Deseo que el sistema me avise cuando se bloquee un pop-up.</translation>
+<translation id="3383487468758466563">Fuentes e idiomas:</translation>
+<translation id="1137776625614346046">El área &quot;Más visitados&quot; muestra los sitios web que visitas con mayor frecuencia. Cuando hayas utilizado Google Chrome durante un tiempo, al abrir una nueva pestaña podrás ver los sitios más visitados. Encontrarás más información sobre ésta y otras funciones en la página <ph name="BEGIN_LINK"/>Cómo empezar<ph name="END_LINK"/>.</translation>
+<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Ingresaste en el modo &quot;Navegar de incógnito&quot;<ph name="END_BOLD"/>. Las páginas que consultes a través de esta ventana no quedarán registradas en el historial del navegador ni en el historial de búsquedas, y tampoco dejarán otros rastros en el equipo (como cookies) una vez cerrada. Aunque sí quedarán almacenados los archivos que descargues y los marcadores que guardes durante la sesión.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>La función &quot;Navegar de incógnito&quot; no afecta al comportamiento de otros usuarios, servidores o programas. Atención con:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>sitios web que recopilan o comparten información personal,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>proveedores de servicios de Internet o trabajadores de estas empresas que supervisan las páginas que visita el usuario,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>software malicioso que realiza un seguimiento de las teclas que utiliza el usuario a cambio de unos emoticones gratuitos,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>el seguimiento por parte de detectives privados,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>personas merodeando cerca de tu equipo.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Más información<ph name="END_LINK"/> sobre la función &quot;Navegar de incógnito&quot;.</translation>
+<translation id="1604816462140255479">Tamaño del &amp;texto</translation>
+<translation id="2089625293428655599">Algunas partes de este software tienen licencias de terceros, como se describe en <ph name="URL"/></translation>
 </translationbundle>

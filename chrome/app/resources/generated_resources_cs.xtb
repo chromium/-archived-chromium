@@ -10,7 +10,7 @@
 <translation id="4759238208242260848">Stahování</translation>
 <translation id="3009731429620355204">Relace</translation>
 <translation id="3705722231355495246">-</translation>
-<translation id="5329858601952122676">O&amp;dstranit</translation>
+<translation id="5329858601952122676">&amp;Smazat</translation>
 <translation id="3873963583678942942">(Bez názvu)</translation>
 <translation id="1232569758102978740">Bez názvu</translation>
 <translation id="1759842336958782510">Chrome</translation>
@@ -35,7 +35,7 @@
 <translation id="1181037720776840403">Odstranit</translation>
 <translation id="9065203028668620118">Upravit</translation>
 <translation id="3157931365184549694">Obnovit</translation>
-<translation id="8261506727792406068">Odstranit</translation>
+<translation id="8261506727792406068">Smazat</translation>
 <translation id="5626134646977739690">Jméno:</translation>
 <translation id="2148716181193084225">Dnes</translation>
 <translation id="7781829728241885113">Včera</translation>
@@ -171,7 +171,7 @@
 <translation id="8182985032676093812">Zdroj <ph name="PAGE_URL"/></translation>
 <translation id="4880827082731008257">Historie hledání</translation>
 <translation id="5650551054760837876">Nebyly nalezeny žádné výsledky vyhledávání.</translation>
-<translation id="7596288230018319236">Všechny stránky, které navštívíte, se zobrazí zde, pokud je ovšem neotevřete v okně inkognito. Chcete-li vyhledat všechny stránky historie, můžete použít tlačítko Vyhledat na této stránce.</translation>
+<translation id="7596288230018319236">Všechny stránky, které navštívíte, se zobrazí zde, pokud je ovšem neotevřete v anonymním okně. Chcete-li vyhledat všechny stránky historie, můžete použít tlačítko Vyhledat na této stránce.</translation>
 <translation id="7377249249140280793"><ph name="RELATIVE_DATE"/> - <ph name="FULL_DATE"/></translation>
 <translation id="8739589585766515812">Smazat historii tohoto dne</translation>
 <translation id="2674170444375937751">Jste si jisti, že chcete tyto stránky odstranit ze své historie?</translation>
@@ -180,16 +180,16 @@
 <translation id="8664389313780386848">Zobrazit zdrojový kód stránky</translation>
 <translation id="1970746430676306437">Zobrazit informaci o stránce</translation>
 <translation id="7567293639574541773">Zkontrolovat prvek</translation>
-<translation id="1474307029659222435">Otevřít rámeček v novém okně</translation>
-<translation id="715468010956678290">Otevřít rámeček v okně inkognito</translation>
-<translation id="7552620667503495646">Otevřít rámeček na nové kartě</translation>
-<translation id="1621207256975573490">Uložit rámeček jako...</translation>
-<translation id="1608306110678187802">Vytisknout rámeček...</translation>
-<translation id="1163931534039071049">Zobrazit zdrojový kód rámečku</translation>
-<translation id="1908748899139377733">Zobrazit informaci o rámečku</translation>
+<translation id="1474307029659222435">&amp;Otevřít rámec v novém okně</translation>
+<translation id="715468010956678290">Anonymně otevřít rámec</translation>
+<translation id="7552620667503495646">O&amp;tevřít rámec na nové kartě</translation>
+<translation id="1621207256975573490">Uložit rámec jako...</translation>
+<translation id="1608306110678187802">Vytisknout &amp;rámec...</translation>
+<translation id="1163931534039071049">Zobrazit zdrojový kód rámce</translation>
+<translation id="1908748899139377733">Zobrazit informaci o rámci</translation>
 <translation id="6886871292305414135">Otevřít odkaz na nové kartě</translation>
 <translation id="8899851313684471736">Otevřít odkaz v novém okně</translation>
-<translation id="3627588569887975815">Otevřít odkaz v okně inkognito</translation>
+<translation id="3627588569887975815">Anonymně otevřít odkaz</translation>
 <translation id="6308937455967653460">Uložit odkaz jako...</translation>
 <translation id="1084824384139382525">Kopírovat adresu odkazu</translation>
 <translation id="8382913212082956454">Kopírovat e-mailovou adresu</translation>
@@ -270,18 +270,18 @@
 <translation id="7511635910912978956">Zbývá: <ph name="NUMBER_FEW"/> hod</translation>
 <translation id="7163503212501929773">Zbývá: <ph name="NUMBER_MANY"/> hod</translation>
 <translation id="1963692530539281474">Zbývá: <ph name="NUMBER_DEFAULT"/> dnů</translation>
-<translation id="50030952220075532">Zbývá: <ph name="NUMBER_ONE"/> dnů</translation>
+<translation id="50030952220075532">Zbývá: <ph name="NUMBER_ONE"/> den</translation>
 <translation id="8666066831007952346">Zbývá: <ph name="NUMBER_TWO"/> dny</translation>
 <translation id="3759876923365568382">Zbývá: <ph name="NUMBER_FEW"/> dnů</translation>
 <translation id="3520476450377425184">Zbývá: <ph name="NUMBER_MANY"/> dnů</translation>
 <translation id="121827551500866099">Zobrazit veškeré stahování...</translation>
-<translation id="1168020859489941584">Probíhá otevírání v <ph name="TIME_REMAINING"/>...</translation>
+<translation id="1168020859489941584">Složka se otevře za <ph name="TIME_REMAINING"/>...</translation>
 <translation id="1383861834909034572">Otevřít po dokončení</translation>
 <translation id="2371076942591664043">Po dokončení otevřít</translation>
 <translation id="5139955368427980650">Otevřít</translation>
 <translation id="7167486101654761064">Vždy otevírat soubory tohoto typu</translation>
 <translation id="3807747707162121253">Zrušit</translation>
-<translation id="5819484510464120153">Vytvořit zástupce...</translation>
+<translation id="5819484510464120153">Vytvořit &amp;zástupce...</translation>
 <translation id="116506693382293616">Některé prvky na této stránce jsou načítány pomocí spojení s chybami SSL.</translation>
 <translation id="3942946088478181888">Potřebuji vysvětlení</translation>
 <translation id="6295228342562451544">Když se připojíte k zabezpečeným webovým stránkám, server, na kterém jsou takové stránky hoštěny, předloží vašemu prohlížeči takzvaný „certifikát“, kterým se ověřuje identita takového serveru. Certifikát obsahuje informace o identitě, například adresu webových stránek, které ověřuje třetí strana, které váš počítač důvěřuje. Kontrolou, zda adresa v certifikátu odpovídá adrese webových stránek, je možné ověřit, že bezpečně komunikujete s požadovanými webovými stránkami a ne s třetí stranou (například s útočníkem na vaši síť).</translation>
@@ -298,7 +298,7 @@
 <translation id="8534801226027872331">V tomto případě obsahuje certifikát předložený vašemu prohlížeči chyby a je nesrozumitelný. To může znamenat, že nemůžeme porozumět informaci o identitě, jež je v certifikátu obsažená, nebo určitým dalším informacím v certifikátu, které se používají pro zabezpečení spojení. Neměli byste postupovat dále.</translation>
 <translation id="8187473050234053012">Bezpečnostní certifikát serveru je zamítnutý!</translation>
 <translation id="3455546154539383562">Pokusili jste se přejít na server &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ale certifikát, který server předložil, byl vydavatelem zamítnut. To znamená, že bezpečnostní záruce, kterou server předložil, absolutně není možné věřit. Je možné, že komunikujete s útočníkem. Neměli byste pokračovat.</translation>
-<translation id="43742617823094120">V tomto případě byl certifikát předložený vašemu prohlížeči zrušen vydavatelem. Zpravidla to znamená, že došlo k narušení integrity tohoto certifikátu, a proto by se nemělo tomuto certifikátu důvěřovat. Rozhodně byste neměli postupovat dále za tento bod.</translation>
+<translation id="43742617823094120">V tomto případě byl certifikát předložený vašemu prohlížeči zrušen vydavatelem. Zpravidla to znamená, že došlo k narušení integrity tohoto certifikátu, a proto by se nemělo tomuto certifikátu důvěřovat. Rozhodně byste neměli pokračovat.</translation>
 <translation id="1177437665183591855">Neznámá chyba certifikátu serveru</translation>
 <translation id="4771973620359291008">Došlo k neznámé chybě.</translation>
 <translation id="4381091992796011497">Jméno uživatele:</translation>
@@ -351,7 +351,7 @@
 <translation id="2496180316473517155">Procházení historie</translation>
 <translation id="6447842834002726250">Soubory cookie</translation>
 <translation id="5869522115854928033">Uložená hesla</translation>
-<translation id="8275038454117074363">Import</translation>
+<translation id="8275038454117074363">Importovat</translation>
 <translation id="2359808026110333948">Pokračovat</translation>
 <translation id="4684748086689879921">Přeskočit import</translation>
 <translation id="6783679543387074885">Oznámit chybu či vadné stránky</translation>
@@ -368,7 +368,7 @@
 <translation id="5921544176073914576">Phishingová stránka</translation>
 <translation id="5568069709869097550">Nepodařilo se přihlásit</translation>
 <translation id="4419098590196511435">Někde něco chybí</translation>
-<translation id="2503522102815150840">Došlo k selhání prohlížeče...</translation>
+<translation id="2503522102815150840">Pomoc, prohlížeč selhal...</translation>
 <translation id="5435666907653217300">Jiný problém</translation>
 <translation id="7397054681783221164">Zlikvidovat následující položky</translation>
 <translation id="6909042471249949473">Smazat údaje z tohoto období:</translation>
@@ -378,7 +378,7 @@
 <translation id="8112223930265703044">Vše</translation>
 <translation id="5538307496474303926">Probíhá vyčištění...</translation>
 <translation id="2339641773402824483">Kontrola aktualizací...</translation>
-<translation id="5844183150118566785">Vaše verze <ph name="PRODUCT_NAME"/> je aktuální (<ph name="VERSION"/>)</translation>
+<translation id="5844183150118566785"><ph name="PRODUCT_NAME"/> je aktuální <ph name="VERSION"/>)</translation>
 <translation id="4477534650265381513">Pro pohotový přístup umístěte své záložky sem, do lišty záložek.</translation>
 <translation id="394984172568887996">Importováno z aplikace IE</translation>
 <translation id="5502500733115278303">Importováno z aplikace Firefox</translation>
@@ -421,7 +421,7 @@
 <translation id="6264485186158353794">Zpět na bezpečnost</translation>
 <translation id="4515911410595374805">Některé prvky na této stránce pocházejí z neověřených zdrojů, a proto se nezobrazují.</translation>
 <translation id="2290414052248371705">Zobrazit veškerý obsah</translation>
-<translation id="146000042969587795">Tento rámeček byl blokován, protože obsahuje určitý nezabezpečený obsah.</translation>
+<translation id="146000042969587795">Tento rámec byl blokován, protože obsahuje určitý nezabezpečený obsah.</translation>
 <translation id="6592392877063354583">Stránka na <ph name="SECURE_PAGE_URL"/> obsahuje nezabezpečený obsah od <ph name="INSECURE_RESOURCE_URL"/>.</translation>
 <translation id="1570242578492689919">Písma a kódování</translation>
 <translation id="1823768272150895732">Písmo</translation>
@@ -432,7 +432,7 @@
 <translation id="1628736721748648976">Kódování</translation>
 <translation id="5706242308519462060">Výchozí kódování:</translation>
 <translation id="4181841719683918333">Jazyky</translation>
-<translation id="8929159553808058020">Přidat jazyky používané pro čtení webových stránek, seřadit podle preference. Přidejte pouze ty, které potřebujete, protože některé znaky mohou být v jiných jazycích použity pro vydávání se za jiné weby.</translation>
+<translation id="8929159553808058020">Přidejte jazyky, které používáte při čtení webových stránek, a seřaďte je podle preference. Přidejte pouze ty, které potřebujete, protože některé znaky mohou být v jiných jazycích použity pro vydávání se za jiné weby.</translation>
 <translation id="2303544859777878640">Jazyky:</translation>
 <translation id="8609465669617005112">Posunout nahoru</translation>
 <translation id="6746124502594467657">Posunout dolů</translation>
@@ -450,11 +450,11 @@
 <translation id="8288345061925649502">Změnit vyhledávač</translation>
 <translation id="3037605927509011580">Aj, chyba!</translation>
 <translation id="8927064607636892008">Při zobrazování této webové stránky došlo k chybě. Chcete-li pokračovat, stiskněte tlačítko Načíst znovu nebo přejděte na jinou stránku.</translation>
-<translation id="942671148946453043">Otevřeli jste okno inkognito. Stránky, které v tomto okně otevřete, se nezobrazí ve vaší historii.</translation>
+<translation id="942671148946453043">Otevřeli jste okno v anonymním režimu. Stránky, které v tomto okně otevřete, se nezobrazí ve vaší historii.</translation>
 <translation id="5107325588313356747">Chcete-li skrýt přístup k tomuto programu, je třeba, abyste jej nainstalovali pomocí\n<ph name="CONTROL_PANEL_APPLET_NAME"/> v ovládacím panelu.\n\nPřejete si spustit <ph name="CONTROL_PANEL_APPLET_NAME"/>?</translation>
 <translation id="7543025879977230179"><ph name="PRODUCT_NAME"/> Možnosti</translation>
 <translation id="435463392378565996">Drobné úpravy</translation>
-<translation id="5040262127954254034">Ochrana osobních údajů</translation>
+<translation id="5040262127954254034">Soukromí</translation>
 <translation id="4047498523333824092">Obnovit stránky, které byly naposledy otevřené.</translation>
 <translation id="4948468046837535074">Otevřít následující stránky:</translation>
 <translation id="2518917559152314023">Přidat...</translation>
@@ -471,7 +471,7 @@
 <translation id="6451650035642342749">Zrušit nastavení automatického otevírání</translation>
 <translation id="3702416240431471861">Google Gears:</translation>
 <translation id="5452592754878692665">Změnit nastavení Google Gears</translation>
-<translation id="5384051050210890146">Vyberte důvěryhodné certifikáty SSL.</translation>
+<translation id="5384051050210890146">Vybrat důvěryhodné certifikáty SSL.</translation>
 <translation id="1521442365706402292">Správa certifikátů</translation>
 <translation id="7767960058630128695">Hesla:</translation>
 <translation id="6644512095122093795">Nabídnout uložení hesel</translation>
@@ -485,7 +485,7 @@
 <translation id="5821894118254011366">Úplné blokování souborů cookie třetích stran</translation>
 <translation id="6883611015375728278">Blokovat všechny soubory cookie</translation>
 <translation id="5287240709317226393">Zobrazit soubory cookie</translation>
-<translation id="7280343984261969618">Spustí pluginy v rámečku sandbox bez výsad. Způsobí, že některé pluginy nebudou fungovat správně.</translation>
+<translation id="7280343984261969618">Spustí pluginy v rámci sandbox bez výsad. Způsobí, že některé pluginy nebudou fungovat správně.</translation>
 <translation id="3473105180351527598">Povolit ochranu proti phishingu a malwaru</translation>
 <translation id="8646430701497924396">Použít SSL 2.0</translation>
 <translation id="8709969075297564489">Zkontrolovat, zda certifikát serveru není zamítnutý</translation>
@@ -568,10 +568,10 @@
 <translation id="1669397342410349095">Oznámit phishingové webové stránky...</translation>
 <translation id="3512466011168167042">Zobrazovat návrhy v případě chyb navigace</translation>
 <translation id="4890855023395992542">Adresa URL služby:</translation>
-<translation id="8186012393692847636">Používat službu napovídače, která pomáhá doplňovat vyhledávání a adresy URL zadávané do lišty adresy</translation>
-<translation id="8041183585493091279">Adresa URL služby napovídače:</translation>
-<translation id="1676388805288306495">Změna předvoleného písma a jazyka webových stránek.</translation>
-<translation id="4244236525807044920">Změnit nastavení týkající písma a jazyka</translation>
+<translation id="8186012393692847636">Používat nápovědu, která pomáhá doplňovat vyhledávání a adresy URL zadávané do lišty adresy</translation>
+<translation id="8041183585493091279">Adresa URL nápovědy:</translation>
+<translation id="1676388805288306495">Změna předvoleného písma a jazyka webových stránek</translation>
+<translation id="4244236525807044920">Změnit nastavení písma a jazyka</translation>
 <translation id="7736284018483078792">Vybrat jazyk slovníku pro kontrolu pravopisu.</translation>
 <translation id="5433207235435438329">Jazyk kontroly pravopisu:</translation>
 <translation id="2441719842399509963">Výchozí nastavení</translation>
@@ -601,11 +601,11 @@
 <translation id="8453184121293348016">Nebyl nalezen žádný mechanismus zamítnutí</translation>
 <translation id="347250956943431997">Certifikát serveru byl zamítnut</translation>
 <translation id="2800662284745373504">Certifikát serveru je neplatný</translation>
-<translation id="2766006623206032690">Vložit a rovnou přejít</translation>
+<translation id="2766006623206032690">Vložit a rovnou otevřít</translation>
 <translation id="7042418530779813870">Vložit a vyhledat</translation>
 <translation id="8887733174653581061">Vždy navrchu</translation>
 <translation id="1851266746056575977">Aktualizovat ihned</translation>
-<translation id="8155798677707647270">Probíhá instalace nové verze...</translation>
+<translation id="8155798677707647270">Instaluje se nová verze...</translation>
 <translation id="6484929352454160200">K dispozici je nová verze <ph name="PRODUCT_NAME"/></translation>
 <translation id="3702398161649563352"><ph name="PRODUCT_NAME"/> byl aktualizován <ph name="VERSION"/></translation>
 <translation id="965674096648379287">Aby mohla být tato webová stránka řádně zobrazena, vyžaduje údaje, které jste zadali dříve. Tyto údaje můžete poslat znovu, ale budete tak opakovat činnosti, které jste již provedli předtím. Stiskněte tlačítko Načíst znovu, chcete-li odeslat údaje znovu a tuto stránku zobrazit.</translation>
@@ -616,10 +616,10 @@
 <translation id="1709220265083931213">Pod pokličkou</translation>
 <translation id="1674989413181946727">Nastavení SSL v počítači:</translation>
 <translation id="582763753075639530">Zavřete, prosím, všechna okna aplikace Chrome a restartujte ji, tak se změny projeví.</translation>
-<translation id="9015241028623917394">Zkontrolovat aktuální stránku</translation>
-<translation id="8502249598105294518">Přizpůsobit a ovládat <ph name="PRODUCT_NAME"/></translation>
+<translation id="9015241028623917394">Ovládání aktuální stránky</translation>
+<translation id="8502249598105294518">Přizpůsobení a ovládání <ph name="PRODUCT_NAME"/></translation>
 <translation id="4475552974751346499">Vyhledat stahování</translation>
-<translation id="3473034187222004855">Kopírovat cestu souboru</translation>
+<translation id="3473034187222004855">Ko&amp;pírovat cestu k souboru</translation>
 <translation id="3577682619813191010">Kopírovat soubor</translation>
 <translation id="7029809446516969842">Hesla</translation>
 <translation id="8725178340343806893">Oblíbené položky/záložky</translation>
@@ -656,8 +656,8 @@
 <translation id="3605499851022050619">Diagnostická stránka bezpečného prohlížení</translation>
 <translation id="3115147772012638511">Čekání na mezipaměť</translation>
 <translation id="5015344424288992913">Rozpoznávání serveru proxy...</translation>
-<translation id="3369624026883419694">Probíhá rozpoznávání hostitele...</translation>
-<translation id="4378551569595875038">Probíhá připojování</translation>
+<translation id="3369624026883419694">Rozpoznávání hostitele...</translation>
+<translation id="4378551569595875038">Připojování...</translation>
 <translation id="1731911755844941020">Zasílání požadavku</translation>
 <translation id="7925285046818567682">Čekání na <ph name="HOST_NAME"/>...</translation>
 <translation id="2021921916539001817">Probíhá přenos z <ph name="HOST_NAME"/>...</translation>
@@ -674,7 +674,7 @@
 <translation id="8449380764213232436">Google Chrome právě importuje tyto položky z <ph name="BROWSER_COMPONENT"/>:</translation>
 <translation id="8562413501751825163">Před importem zavřete prohlížeč Firefox</translation>
 <translation id="6626317981028933585">Vaše nastavení prohlížeče Mozilla Firefox je bohužel nedostupné, je-li tento prohlížeč spuštěný. Chcete-li toto nastavení importovat do Google Chrome, uložte si práci a zavřete všechna okna prohlížeče Firefox. Poté klikněte na tlačítko Pokračovat.</translation>
-<translation id="8446794773162156990">Google Chrome se nechová správně</translation>
+<translation id="8446794773162156990">Google Chrome se chová nějak podivně</translation>
 <translation id="7400722733683201933">O aplikaci Google Chrome</translation>
 <translation id="3591558551793645824">Aplikace Chrome byla úspěšně odinstalována. Sbohem!</translation>
 <translation id="8172671748763307156">Opravdu chcete odinstalovat aplikaci Google Chrome? (Že bychom vám tohle někdy poradili?)</translation>
@@ -699,7 +699,7 @@
 <translation id="7958215378280655655">Resetujete-li možnosti aplikace Google Chrome, všechny změny, které jste provedli se vrátí do výchozího nastavení. Přejete si resetovat možnosti aplikace Chrome?</translation>
 <translation id="7100330187273168372">Aplikace Google Chrome nemůže číst ani zapisovat do svého datového adresáře:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="3324235665723428530">Váš profil nelze použít, protože je vytvořen v novější verzi aplikace Google Chrome.\n\nNěkteré funkce mohou být nedostupné. Zadejte prosím jiný adresář profilu nebo použijte novější verzi aplikace Chrome.</translation>
-<translation id="3319048459796106952">Nové &amp;okno inkognito</translation>
+<translation id="3319048459796106952">Nové &amp;anonymní okno</translation>
 <translation id="1120026268649657149">Je nutné zadat jedinečné klíčové slovo nebo nezadávat nic</translation>
 <translation id="7481475534986701730">Nedávno navštívené stránky</translation>
 <translation id="8815061062167142136">Prrr! Prohlížeč Google Chrome spadl. Restartovat?</translation>
@@ -710,7 +710,7 @@
 <translation id="2499193704281978000">Prohlížeč Google Chrome nereaguje. Restartovat?</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">Unicode</translation>
-<translation id="1702534956030472451">Západní</translation>
+<translation id="1702534956030472451">Západní jazyky</translation>
 <translation id="6507969014813375884">Zjednodušená čínština</translation>
 <translation id="2987775926667433828">Tradiční čínština</translation>
 <translation id="8299269255470343364">Japonština</translation>
@@ -720,7 +720,7 @@
 <translation id="7587108133605326224">Baltské jazyky</translation>
 <translation id="6833901631330113163">Jihoevropské jazyky</translation>
 <translation id="5048179823246820836">Severské jazyky</translation>
-<translation id="358344266898797651">Keltské</translation>
+<translation id="358344266898797651">Keltské jazyky</translation>
 <translation id="8045462269890919536">Rumunština</translation>
 <translation id="4711094779914110278">Turečtina</translation>
 <translation id="2822854841007275488">Arabština</translation>
@@ -734,7 +734,8 @@
 <translation id="3761000923495507277">Zobrazit tlačítko Domů na liště nástrojů</translation>
 <translation id="5291303148298143069">Upozornit při blokování překryvných prvků</translation>
 <translation id="3383487468758466563">Písma a jazyky:</translation>
-<translation id="1137776625614346046">Oblast „Nejčastěji navštěvované“ zobrazuje webové stránky, které navštěvujete nejčastěji. Až budete aplikaci Google Chrome nějakou dobu používat, zobrazí se vám nejčastěji navštěvované weby, kdykoli otevřete novou kartu. Další informace o této a ostatních funkcích se dozvíte na stránce <ph name="BEGIN_LINK"/>Začínáme<ph name="END_LINK"/>.</translation>
-<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Jste v režimu inkognito<ph name="END_BOLD"/>. Stránky, které otevřete v tomto okně, se nezobrazí v historii prohlížeče ani v historii vyhledávání a nezanechají ve vašem počítači po zavření okna inkognito žádné stopy, jako např. soubory cookie. Zachovány však zůstanou všechny soubory, které stáhnete, a záložky, které vytvoříte.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>To, že jste vy v režimu inkognito, nijak neovlivňuje chování ostatních lidí, serverů ani softwaru. Dejte si pozor na:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Webové stránky, které sbírají nebo sdílí údaje o vás<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Poskytovatele internetových služeb nebo zaměstnavatele, kteří sledují stránky, které navštívíte<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Škodlivý software, který monitoruje vaši klávesnici a na oplátku vám nabídne sadu smajlíků zdarma<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Sledování tajnými agenty<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Lidi stojící za vámi<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Další informace<ph name="END_LINK"/> o prohlížení inkognito.</translation>
-<translation id="1604816462140255479">Text &amp;velikost písma</translation>
+<translation id="1137776625614346046">Oblast Nejnavštěvovanější zobrazuje webové stránky, které navštěvujete nejčastěji. Až budete aplikaci Google Chrome nějakou dobu používat, zobrazí se vám nejčastěji navštěvované weby, kdykoli otevřete novou kartu. Další informace o této a ostatních funkcích se dozvíte na stránce <ph name="BEGIN_LINK"/>Začínáme<ph name="END_LINK"/>.</translation>
+<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Jste v anonymním režimu<ph name="END_BOLD"/>. Stránky, které otevřete v tomto okně, se nezobrazí v historii prohlížeče ani v historii vyhledávání a nezanechají ve vašem počítači po zavření anonymního okna žádné stopy, jako např. soubory cookie. Zachovány však zůstanou všechny soubory, které stáhnete, a záložky, které vytvoříte.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>To, že jste vy v anonymním režimu, nijak neovlivňuje chování ostatních lidí, serverů ani softwaru. Dejte si pozor na:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Webové stránky, které sbírají nebo sdílí údaje o vás,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Poskytovatele internetových služeb nebo zaměstnavatele, kteří sledují stránky, které navštívíte,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Škodlivý software, který monitoruje vaši klávesnici a na oplátku vám nabídne sadu smajlíků zdarma,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Sledování tajnými agenty,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Lidi, kteří stojí za vámi.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Další informace<ph name="END_LINK"/> o prohlížení v anonymním režimu.</translation>
+<translation id="1604816462140255479">&amp;Velikost písma</translation>
+<translation id="2089625293428655599">Části tohoto softwaru jsou vytvořeny v licenci třetích stran, jak je popsáno zde: <ph name="URL"/></translation>
 </translationbundle>

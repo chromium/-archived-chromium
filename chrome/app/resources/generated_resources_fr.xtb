@@ -218,7 +218,7 @@
 <translation id="5904714272463161824">Signale&amp;r un bug ou un site Web hors service...</translation>
 <translation id="1587275751631642843">Console &amp;JavaScript</translation>
 <translation id="4035758313003622889">Gestionnaire de &amp;tâches</translation>
-<translation id="6996505290426962909">&amp;Importer des favoris et des paramètres...</translation>
+<translation id="6996505290426962909">&amp;Importer mes favoris et paramètres...</translation>
 <translation id="5516565854418269276">Toujours &amp;afficher la barre de favoris</translation>
 <translation id="1882575713358235784">Effacer les &amp;données de navigation...</translation>
 <translation id="4789872672210757069">À propos de &amp;<ph name="PRODUCT_NAME"/></translation>
@@ -343,7 +343,7 @@
 <translation id="4195643157523330669">Ouvrir dans un nouvel onglet</translation>
 <translation id="2435457462613246316">Afficher le mot de passe</translation>
 <translation id="4565377596337484307">Masquer le mot de passe</translation>
-<translation id="4571852245489094179">Importer des favoris et des paramètres</translation>
+<translation id="4571852245489094179">Importer mes favoris et paramètres</translation>
 <translation id="2192505247865591433">De :</translation>
 <translation id="1076818208934827215">Microsoft Internet Explorer</translation>
 <translation id="5119173345047096771">Mozilla Firefox</translation>
@@ -464,10 +464,10 @@
 <translation id="762917759028004464">Le navigateur par défaut est actuellement <ph name="BROWSER_NAME"/>.</translation>
 <translation id="6144890426075165477"><ph name="PRODUCT_NAME"/> n'est pas votre navigateur par défaut.</translation>
 <translation id="6756161853376828318">Définir <ph name="PRODUCT_NAME"/> en tant que navigateur par défaut</translation>
-<translation id="8986267729801483565">Enregistrer les fichiers dans le dossier</translation>
+<translation id="8986267729801483565">Enregistrer les fichiers dans le dossier :</translation>
 <translation id="8978540966440585844">Parc&amp;ourir...</translation>
 <translation id="7754704193130578113">Toujours demander où enregistrer les fichiers</translation>
-<translation id="724208122063442954">Vous avez choisi d'ouvrir automatiquement certains types de fichiers après leur téléchargement. Vous pouvez effacer ces paramètres afin que les fichiers téléchargés ne s'ouvrent pas automatiquement.</translation>
+<translation id="724208122063442954">Vous avez choisi d'ouvrir automatiquement certains types de fichiers après leur téléchargement. Vous pouvez changer ces paramètres afin que les fichiers téléchargés ne s'ouvrent pas automatiquement.</translation>
 <translation id="6451650035642342749">Effacer les paramètres d'ouverture automatique</translation>
 <translation id="3702416240431471861">Google Gears :</translation>
 <translation id="5452592754878692665">Modifier les paramètres de Google Gears</translation>
@@ -566,11 +566,11 @@
 <translation id="6325525973963619867">Échec</translation>
 <translation id="5958418293370246440"><ph name="SAVED_FILES"/> / <ph name="TOTAL_FILES"/> fichiers</translation>
 <translation id="1669397342410349095">Signaler un site Web de phishing...</translation>
-<translation id="3512466011168167042">Afficher les suggestions relatives aux erreurs de navigation</translation>
+<translation id="3512466011168167042">Afficher des suggestions lors d'erreurs de navigation</translation>
 <translation id="4890855023395992542">URL du service :</translation>
 <translation id="8186012393692847636">Afficher des suggestions pour les requêtes et les URL entrées dans la barre d'adresse</translation>
 <translation id="8041183585493091279">URL du service de suggestion :</translation>
-<translation id="1676388805288306495">Modifier la police et la langue par défaut pour les pages Web</translation>
+<translation id="1676388805288306495">Modifier la police et la langue par défaut des pages Web</translation>
 <translation id="4244236525807044920">Modifier les paramètres relatifs à la police et à la langue</translation>
 <translation id="7736284018483078792">Modifier la langue du dictionnaire pour la vérification orthographique</translation>
 <translation id="5433207235435438329">Langue du correcteur orthographique :</translation>
@@ -688,26 +688,26 @@
 <translation id="7001386529596391893">Créer des raccourcis Google Chrome à ces emplacements :</translation>
 <translation id="480990236307250886">Ouvrir la page d'accueil</translation>
 <translation id="6514771739083339959">Page d'accueil :</translation>
-<translation id="1665770420914915777">Utiliser la page &quot;Nouvel onglet&quot;</translation>
+<translation id="1665770420914915777">Afficher la page Nouvel onglet</translation>
 <translation id="4726901538158498735">Recherche par défaut :</translation>
 <translation id="2231233239095101917">Le script de la page utilisait trop de mémoire. Rafraîchissez la page pour réactiver le script.</translation>
 <translation id="8227755444512189073">Chrome va devoir lancer une application tierce pour gérer les liens <ph name="SCHEME"/>. Le lien demandé est <ph name="PROTOLINK"/>.</translation>
 <translation id="8236873504073475138">Google Chrome ne prend pas en charge Windows 2000. Certaines fonctionnalités sont susceptibles de ne pas fonctionner.</translation>
 <translation id="3335672657969596251">Google Chrome ne prend pas <ph name="OS_NAME"/> en charge.</translation>
-<translation id="1446473746922165495">Choisissez la langue utilisée dans les menus, les boîtes de dialogue et les bulles d'aide de Chrome.</translation>
+<translation id="1446473746922165495">Choisissez la langue à utiliser dans les menus, boîtes de dialogue et bulles d'aide.</translation>
 <translation id="8810218179782551669">Langue de Google Chrome :</translation>
 <translation id="7958215378280655655">Lorsque vous réinitialisez les options de Google Chrome, toutes les modifications apportées sont effacées et remplacées par les paramètres par défaut. Souhaitez-vous réinitialiser les options de Chrome ?</translation>
 <translation id="7100330187273168372">Google Chrome ne peut ni lire ni écrire vers son répertoire de données :\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="3324235665723428530">Votre profil ne peut être utilisé, car il provient d'une version plus récente de Chrome.\n\nIl est possible que certaines fonctionnalités ne soient pas disponibles. Veuillez indiquer un autre répertoire de profil ou utiliser une version plus récente de Chrome.</translation>
 <translation id="3319048459796106952">Nouvelle fenêtre de nav&amp;igation privée</translation>
-<translation id="1120026268649657149">Le champ de mot clé doit être vide ou comporter un mot unique.</translation>
-<translation id="7481475534986701730">Sites consultés récemment</translation>
-<translation id="8815061062167142136">Aïe aïe aïe ! Google Chrome a planté. Relancez maintenant ?</translation>
+<translation id="1120026268649657149">Le champ de mot clé doit être vide ou comporter un mot unique</translation>
+<translation id="7481475534986701730">Sites récemment consultés</translation>
+<translation id="8815061062167142136">Aïe aïe aïe ! Google Chrome est bloqué. Relancer maintenant ?</translation>
 <translation id="3889417619312448367">Désinstaller Google Chrome</translation>
 <translation id="3169621169201401257">Pour obtenir des informations détaillées sur les problèmes relatifs à ces éléments, consultez la page <ph name="DIAGNOSTIC_PAGE"/> de Google pour <ph name="DOMAIN"/>.</translation>
 <translation id="2356762928523809690">Serveur de mise à jour non disponible (erreur : <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">&amp;Ajouter au dictionnaire</translation>
-<translation id="2499193704281978000">Google Chrome ne répond pas. Relancez maintenant ?</translation>
+<translation id="2499193704281978000">Google Chrome ne répond pas. Relancer maintenant ?</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">Unicode</translation>
 <translation id="1702534956030472451">Occident</translation>
@@ -726,8 +726,8 @@
 <translation id="2822854841007275488">Arabe</translation>
 <translation id="5098629044894065541">Hébreu</translation>
 <translation id="8899388739470541164">Vietnamien</translation>
-<translation id="1714078437629572290">Ouvre la page d'accueil</translation>
-<translation id="5316814419223884568">Rechercher à partir d'ici</translation>
+<translation id="1714078437629572290">Ouvrir la page d'accueil</translation>
+<translation id="5316814419223884568">Lancez votre recherche à partir d'ici</translation>
 <translation id="3065140616557457172">Tapez votre requête ou saisissez une URL pour commencer la navigation : c'est à vous de choisir.</translation>
 <translation id="4178055285485194276">Au démarrage :</translation>
 <translation id="1154228249304313899">Ouvrir cette page :</translation>
@@ -735,6 +735,7 @@
 <translation id="5291303148298143069">M'avertir lorsqu'une fenêtre pop-up est bloquée</translation>
 <translation id="3383487468758466563">Polices et langues :</translation>
 <translation id="1137776625614346046">La zone &quot;Les plus visités&quot; montre les sites Web que vous consultez le plus souvent. Après avoir utilisé Google Chrome pendant un certain temps, vous verrez la liste de vos sites les plus visités chaque fois que vous ouvrirez un nouvel onglet. Pour en savoir plus sur cette fonction et d'autres, accédez à la page <ph name="BEGIN_LINK"/>Mise en route<ph name="END_LINK"/>.</translation>
-<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Vous êtes passé en navigation privée<ph name="END_BOLD"/>. Les pages que vous consultez dans cette fenêtre n'apparaîtront ni dans l'historique de votre navigateur ni dans l'historique des recherches, et ne laisseront aucune trace (comme les cookies) sur votre ordinateur une fois que vous aurez fermé la fenêtre de navigation privée. Tous les fichiers téléchargés et les favoris créés seront toutefois conservés.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Passer en navigation privée n'affecte pas le comportement des autres utilisateurs, serveurs ou logiciels. Méfiez-vous :<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>des sites Web qui collectent ou partagent des informations vous concernant ;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>des fournisseurs d'accès Internet ou des employeurs qui conservent une trace des pages que vous visitez ;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>des programmes indésirables qui enregistrent vos frappes en échange d'émoticônes gratuites ;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>des agents secrets ;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>des personnes qui se tiennent derrière vous.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>En savoir plus<ph name="END_LINK"/> sur la navigation privée.</translation>
+<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Vous êtes passé en navigation privée<ph name="END_BOLD"/>. Les pages que vous consultez dans cette fenêtre n'apparaîtront ni dans l'historique de votre navigateur ni dans l'historique des recherches, et ne laisseront aucune trace (comme les cookies) sur votre ordinateur une fois que vous aurez fermé la fenêtre de navigation privée. Tous les fichiers téléchargés et les favoris créés seront toutefois conservés.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Passer en navigation privée n'a aucun effet sur les autres utilisateurs, serveurs ou logiciels. Méfiez-vous :<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>des sites Web qui collectent ou partagent des informations vous concernant ;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>des fournisseurs d'accès Internet ou des employeurs qui conservent une trace des pages que vous visitez ;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>des programmes indésirables qui enregistrent vos frappes en échange d'émoticônes gratuites ;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>des agents secrets ;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>des personnes qui se tiennent derrière vous.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>En savoir plus<ph name="END_LINK"/> sur la navigation privée.</translation>
 <translation id="1604816462140255479">&amp;Zoom texte</translation>
+<translation id="2089625293428655599">Certaines parties de ce logiciel sont utilisées sous licences obtenues de tiers, comme indiqué à la page : <ph name="URL"/></translation>
 </translationbundle>

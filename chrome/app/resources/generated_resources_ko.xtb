@@ -32,7 +32,7 @@
 <translation id="5903264686717710770">직책:</translation>
 <translation id="4188026131102273494">키워드:</translation>
 <translation id="4268574628540273656">URL:</translation>
-<translation id="1181037720776840403">제거</translation>
+<translation id="1181037720776840403">삭제</translation>
 <translation id="9065203028668620118">수정</translation>
 <translation id="3157931365184549694">복구</translation>
 <translation id="8261506727792406068">삭제</translation>
@@ -54,7 +54,7 @@
 <translation id="1201402288615127009">다음</translation>
 <translation id="8730621377337864115">완료</translation>
 <translation id="6710213216561001401">이전</translation>
-<translation id="6865323153634004209">해당 설정 사용자설정</translation>
+<translation id="6865323153634004209">사용자 설정</translation>
 <translation id="6100736666660498114">시작 메뉴</translation>
 <translation id="2065985942032347596">인증 필요</translation>
 <translation id="3693415264595406141">비밀번호:</translation>
@@ -111,7 +111,7 @@
 <translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/>, 취소</translation>
 <translation id="4057041477816018958"><ph name="SPEED"/> - <ph name="RECEIVED_AMOUNT"/></translation>
 <translation id="2505402373176859469"><ph name="TOTAL_SIZE"/>중 <ph name="RECEIVED_AMOUNT"/></translation>
-<translation id="6779164083355903755">제거(&amp;R)</translation>
+<translation id="6779164083355903755">삭제(&amp;R)</translation>
 <translation id="8412968288526977732"><ph name="TITLE"/>의 <ph name="DOMAIN"/> 서버에는 사용자 이름 및 비밀번호를 입력해야 합니다.</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/>K</translation>
 <translation id="5436510242972373446"><ph name="SITE_NAME"/> 검색:</translation>
@@ -211,7 +211,7 @@
 <translation id="569109051430110155">자동 선택</translation>
 <translation id="5818003990515275822">한국어</translation>
 <translation id="4890284164788142455">태국어</translation>
-<translation id="7434509671034404296">개발자</translation>
+<translation id="7434509671034404296">개발자 정보</translation>
 <translation id="2440604414813129000">소스 보기(&amp;o)</translation>
 <translation id="3842377959466606212">페이지 정보(&amp;i)</translation>
 <translation id="5872213955895293073">자바스크립트 디버깅</translation>
@@ -281,7 +281,7 @@
 <translation id="5139955368427980650">열기(&amp;O)</translation>
 <translation id="7167486101654761064">해당 유형의 파일 항상 열기(&amp;A)</translation>
 <translation id="3807747707162121253">취소(&amp;C)</translation>
-<translation id="5819484510464120153">응용프로그램 바로가기 만들기...(&amp;s)</translation>
+<translation id="5819484510464120153">현재 응용프로그램 바로가기 만들기...(&amp;s)</translation>
 <translation id="116506693382293616">이 페이지의 일부 요소는 SSL 오류가 있는 연결을 통해 검색됩니다.</translation>
 <translation id="3942946088478181888">자세한 정보</translation>
 <translation id="6295228342562451544">보안 웹사이트에 연결할 경우 해당 사이트를 호스팅하는 서버는 주소 확인을 위해 '인증서'를 브라우저에 제공합니다. 해당 인증서에는 웹사이트 주소와 같은 주소 정보가 포함되어 있는데, 컴퓨터가 신뢰하는 제3자가 이를 확인합니다. 인증서 주소와 웹사이트 주소의 일치를 확인함으로써 제3자(예: 사용자의 네트워크에 침입한 해커)가 아닌 사용자가 도달하려던 웹사이트와 안전하게 통신하고 있음을 확인할 수 있습니다.</translation>
@@ -451,12 +451,12 @@
 <translation id="3037605927509011580">앗, 이런!</translation>
 <translation id="8927064607636892008">이 웹페이지를 표시하는 도중 문제가 발생했습니다. 계속 하려면 새로고침을 누르거나 다른 페이지로 이동하세요.</translation>
 <translation id="942671148946453043">시크릿 창을 열었습니다. 이 창에서 여는 페이지는 방문한 페이지에 나타나지 않습니다.</translation>
-<translation id="5107325588313356747">이 프로그램에 대한 액세스를 숨기려면 제어판의\n<ph name="CONTROL_PANEL_APPLET_NAME"/>을(를) 통해 프로그램을 제거해야 합니다.\n\n<ph name="CONTROL_PANEL_APPLET_NAME"/>을(를) 시작하시겠습니까?</translation>
+<translation id="5107325588313356747">이 프로그램에 대한 액세스를 숨기려면 제어판의\n<ph name="CONTROL_PANEL_APPLET_NAME"/>을(를) 통해 프로그램을 삭제해야 합니다.\n\n<ph name="CONTROL_PANEL_APPLET_NAME"/>을(를) 시작하시겠습니까?</translation>
 <translation id="7543025879977230179"><ph name="PRODUCT_NAME"/> 옵션</translation>
-<translation id="435463392378565996">중급</translation>
+<translation id="435463392378565996">환경설정</translation>
 <translation id="5040262127954254034">개인정보</translation>
-<translation id="4047498523333824092">가장 최근에 열어본 페이지 복구</translation>
-<translation id="4948468046837535074">다음 페이지 열기:</translation>
+<translation id="4047498523333824092">가장 최근에 열어본 페이지</translation>
+<translation id="4948468046837535074">페이지 설정:</translation>
 <translation id="2518917559152314023">추가...(&amp;d)</translation>
 <translation id="7905536804357499080">현재 페이지</translation>
 <translation id="9189691339671500905">검색주소창에서 사용한 검색엔진을 설정합니다.</translation>
@@ -464,9 +464,9 @@
 <translation id="762917759028004464">현재 기본 브라우저는 <ph name="BROWSER_NAME"/>입니다.</translation>
 <translation id="6144890426075165477">현재 <ph name="PRODUCT_NAME"/>이(가) 기본 브라우저로 설정되어 있지 않습니다.</translation>
 <translation id="6756161853376828318"><ph name="PRODUCT_NAME"/>을(를) 기본 브라우저로</translation>
-<translation id="8986267729801483565">위치 다운로드:</translation>
+<translation id="8986267729801483565">다운로드 위치:</translation>
 <translation id="8978540966440585844">찾아보기...(&amp;o)</translation>
-<translation id="7754704193130578113">다운로드 전에 각 파일의 저장 위치 묻기</translation>
+<translation id="7754704193130578113">다운로드 전에 각 파일의 저장 위치 확인</translation>
 <translation id="724208122063442954">다운로드 후에 특정 유형의 파일을 자동으로 열도록 선택했습니다. 이러한 설정을 삭제하여 다운로드된 파일이 자동으로 열리지 않도록 할 수 있습니다.</translation>
 <translation id="6451650035642342749">자동열기 설정 지우기</translation>
 <translation id="3702416240431471861">Google Gears:</translation>
@@ -497,11 +497,11 @@
 <translation id="3891357445869647828">자바스크립트 사용</translation>
 <translation id="2994458892329442723">플러그인 활성화</translation>
 <translation id="3268761268932257769">이미지 자동 로드</translation>
-<translation id="4400697530699263877">DNS 프리페칭을 사용하여 페이지 로드 실적 개선하기</translation>
+<translation id="4400697530699263877">DNS 프리페칭으로 페이지 로드 속도 개선하기</translation>
 <translation id="2648845569394238430">검색:</translation>
 <translation id="7442246004212327644">삭제(&amp;l)</translation>
 <translation id="4474796446011988286">다음 쿠키가 컴퓨터에 저장되었습니다.</translation>
-<translation id="4108206167095122329">모두 제거(&amp;A)</translation>
+<translation id="4108206167095122329">모두 삭제(&amp;A)</translation>
 <translation id="8178665534778830238">콘텐츠:</translation>
 <translation id="4422428420715047158">도메인:</translation>
 <translation id="9068931793451030927">경로:</translation>
@@ -513,7 +513,7 @@
 <translation id="7615851733760445951">&lt;선택된 쿠키 없음&gt;</translation>
 <translation id="8940262601983387853">쿠키 이름</translation>
 <translation id="5264618369089706215">검색</translation>
-<translation id="3810973564298564668">관리</translation>
+<translation id="3810973564298564668">설정</translation>
 <translation id="2559292239863842334">다른 사이트에서 자주 사용하는 검색창이 여기에 나타납니다.</translation>
 <translation id="8413126021676339697">방문한 페이지 전체보기</translation>
 <translation id="3549657413697417275">방문한 페이지 검색</translation>
@@ -612,8 +612,8 @@
 <translation id="7012108905414904806">그러나 이 페이지에는 안전하지 않은 다른 자료도 포함되어 있습니다. 이러한 자료는 전송 중에 다른 사용자에게 노출될 수 있으며, 해커에 의해 조작될 경우 페이지의 모양이나 움직임이 변경될 수도 있습니다.</translation>
 <translation id="7755167023778553803">그러나 이 페이지에는 주소를 확인할 수 없는 기타 웹사이트 자료가 포함되어 있습니다.</translation>
 <translation id="6451458296329894277">양식 다시 제출 확인</translation>
-<translation id="4307992518367153382">기본사항</translation>
-<translation id="1709220265083931213">고급</translation>
+<translation id="4307992518367153382">기본설정</translation>
+<translation id="1709220265083931213">고급설정</translation>
 <translation id="1674989413181946727">컴퓨터 전체 SSL 설정:</translation>
 <translation id="582763753075639530">해당 변경사항이 적용되도록 모든 크롬 창을 닫고 크롬을 다시 시작합니다.</translation>
 <translation id="9015241028623917394">현재 페이지 관리</translation>
@@ -677,7 +677,7 @@
 <translation id="8446794773162156990">Google 크롬 오작동</translation>
 <translation id="7400722733683201933">Google 크롬 정보</translation>
 <translation id="3591558551793645824">Google 크롬이 제거되었습니다. 감사합니다.</translation>
-<translation id="8172671748763307156">Google 크롬을 제거하시겠습니까? (Google이 그렇게 하도록 요청했습니까?)</translation>
+<translation id="8172671748763307156">Google 크롬을 제거하시겠습니까? (크롬이 마음에 안 드세요? &gt;.&lt;)</translation>
 <translation id="7161904924553537242">Google 크롬에 오신 것을 환영합니다.</translation>
 <translation id="6921913858457830952">Google 크롬에서 설치를 완료할 준비가 되었습니다.</translation>
 <translation id="7241541963706135274">Google 크롬에서 다음 작업을 수행합니다.</translation>
@@ -686,9 +686,9 @@
 <translation id="213581405366815208">Google 크롬 설치를 취소하시겠습니까? 나중에 설치를 계속하려면 '시작 메뉴 프로그램' 폴더에서 크롬을 실행합니다.</translation>
 <translation id="5941830788786076944">Google 크롬을 기본 브라우저로</translation>
 <translation id="7001386529596391893">다음 위치에 Google 크롬 바로가기를 만듭니다.</translation>
-<translation id="480990236307250886">홈페이지 열기</translation>
+<translation id="480990236307250886">홈페이지</translation>
 <translation id="6514771739083339959">홈페이지:</translation>
-<translation id="1665770420914915777">새 탭 페이지 사용</translation>
+<translation id="1665770420914915777">새 탭 페이지</translation>
 <translation id="4726901538158498735">기본 검색엔진:</translation>
 <translation id="2231233239095101917">페이지 스크립트에 너무 많은 메모리를 사용했습니다. 페이지를 다시 로드하여 스크립트를 다시 활성화하십시오.</translation>
 <translation id="8227755444512189073"><ph name="SCHEME"/> 링크 처리를 위해 Google 크롬에서 외부 응용 프로그램을 실행해야 합니다. 요청 링크는 <ph name="PROTOLINK"/>입니다.</translation>
@@ -702,7 +702,7 @@
 <translation id="3319048459796106952">새 시크릿 창(&amp;I)</translation>
 <translation id="1120026268649657149">키워드를 지정하지 않았거나 고유한 키워드가 아닙니다.</translation>
 <translation id="7481475534986701730">최근 방문한 사이트</translation>
-<translation id="8815061062167142136">앗! Google 크롬이 다운되었습니다. 다시 시작하시겠습니까?</translation>
+<translation id="8815061062167142136">헉! Google 크롬이 다운되었습니다. 다시 시작하시겠습니까?</translation>
 <translation id="3889417619312448367">Google 크롬 제거</translation>
 <translation id="3169621169201401257">이러한 부분에 문제가 있을 경우 <ph name="DOMAIN"/>에 대한 Google <ph name="DIAGNOSTIC_PAGE"/>를 참조하시기 바랍니다.</translation>
 <translation id="2356762928523809690">서버를 업데이트할 수 없습니다(오류: <ph name="ERROR_NUMBER"/>)</translation>
@@ -727,14 +727,15 @@
 <translation id="5098629044894065541">히브리어</translation>
 <translation id="8899388739470541164">베트남어</translation>
 <translation id="1714078437629572290">홈페이지 열기</translation>
-<translation id="5316814419223884568">여기에서 검색</translation>
-<translation id="3065140616557457172">검색어 또는 탐색할 URL을 입력하세요.</translation>
-<translation id="4178055285485194276">시작 그룹:</translation>
-<translation id="1154228249304313899">페이지 열기:</translation>
+<translation id="5316814419223884568">주소창에서 바로 검색</translation>
+<translation id="3065140616557457172">검색할 키워드나 사이트 URL, 무엇이든 입력하세요.</translation>
+<translation id="4178055285485194276">시작 페이지:</translation>
+<translation id="1154228249304313899">페이지 설정:</translation>
 <translation id="3761000923495507277">툴바에 홈 버튼 표시</translation>
 <translation id="5291303148298143069">팝업 차단 시 알림</translation>
 <translation id="3383487468758466563">언어와 글꼴:</translation>
-<translation id="1137776625614346046">'자주 방문한 페이지' 영역에는 가장 자주 이용하는 웹사이트가 표시됩니다. 크롬을 얼마간 사용한 후에는 새 탭을 열 때마다 자주 방문한 페이지를 볼 수 있습니다. <ph name="BEGIN_LINK"/>시작 페이지<ph name="END_LINK"/>에서 '자주 방문한 페이지' 및 기타 기능에 대해 자세히 알아볼 수 있습니다.</translation>
-<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>시크릿 모드로 바뀌었습니다<ph name="END_BOLD"/>. 시크릿 창으로 본 페이지는 브라우저의 웹 기록이나 검색 기록에 나타나지 않으며 창을 닫은 후에는 쿠키 같은 기록을 컴퓨터에 남기지 않습니다. 다운로드한 파일 또는 작성한 북마크는 그대로 유지됩니다.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>시크릿 모드는 다른 사용자의 행위나 서버 또는 소프트웨어의 동작에 영향을 주지 않습니다. 다음을 주의하세요. <ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>사용자 정보를 수집하고 공유하는 웹사이트<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>사용자가 방문한 페이지를 추적하는 인터넷 서비스 제공업체 또는 근무 회사<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>무료 이모티콘을 배포하고 사용자의 단축키를 추적하는 악성 소프트웨어<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>스파이웨어의 감시<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>뒤에 서 있는 사람<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        시크릿 검색에 대해 <ph name="BEGIN_LINK"/>자세히 알아보기<ph name="END_LINK"/></translation>
-<translation id="1604816462140255479">텍스트 및 글꼴 크기</translation>
+<translation id="1137776625614346046">'자주 방문한 페이지'에는 가장 자주 이용하는 사이트가 표시됩니다. 크롬을 어느 정도 사용한 다음에는 새 탭을 열 때마다 자주 방문한 페이지를 볼 수 있습니다. <ph name="BEGIN_LINK"/>시작 페이지<ph name="END_LINK"/>에서 '자주 방문한 페이지' 및 기타 기능에 대해 자세히 알아보세요.</translation>
+<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>시크릿 모드로 바뀌었습니다<ph name="END_BOLD"/>. 시크릿 창에서 연 페이지는 브라우저의 웹 기록이나 검색 기록에 나타나지 않으며 창을 닫은 후에는 쿠키 같은 기록을 컴퓨터에 남기지 않습니다. 그러나 다운로드한 파일이나 작성한 북마크는 저장됩니다.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>시크릿 모드는 다른 사용자나 서버 또는 소프트웨어의 동작에 영향을 주지 않습니다. 주의:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>사용자 정보를 수집하고 공유하는 사이트<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>사용자가 방문한 페이지를 추적하는 인터넷 서비스 제공업체 또는 기업<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>무료 이모티콘을 제공하고 사용자의 키보드 입력을 추적하는 악성 소프트웨어<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>스파이의 감시<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>뒤에 서 있는 사람<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        시크릿 검색에 대해 <ph name="BEGIN_LINK"/>자세히 알아보기<ph name="END_LINK"/></translation>
+<translation id="1604816462140255479">글꼴 크기</translation>
+<translation id="2089625293428655599">본 소프트웨어에는 타사 라이센스 소프트웨어가 일부 포함되어 있습니다. 자세한 내용은 다음 페이지를 참조하세요. <ph name="URL"/></translation>
 </translationbundle>

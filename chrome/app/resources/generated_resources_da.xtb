@@ -18,7 +18,7 @@
 <translation id="7658239707568436148">Annuller</translation>
 <translation id="6463795194797719782">&amp;Rediger</translation>
 <translation id="3943582379552582368">&amp;Tilbage</translation>
-<translation id="6691936601825168937">&amp;Videresend</translation>
+<translation id="6691936601825168937">&amp;Frem</translation>
 <translation id="9170848237812810038">&amp;Fortryd</translation>
 <translation id="2972581237482394796">&amp;Annuller fortryd</translation>
 <translation id="3909791450649380159">Kli&amp;p</translation>
@@ -173,7 +173,7 @@
 <translation id="5650551054760837876">Ingen søgeresultater fundet.</translation>
 <translation id="7596288230018319236">Alle de sider, du besøger, vil ses her, medmindre du åbner dem i et inkognitovindue. Du kan bruge søgeknappen på denne side til at søge i alle siderne i din historik.</translation>
 <translation id="7377249249140280793"><ph name="RELATIVE_DATE"/> - <ph name="FULL_DATE"/></translation>
-<translation id="8739589585766515812">Slet historikken for denne dag</translation>
+<translation id="8739589585766515812">Slet dagens historik</translation>
 <translation id="2674170444375937751">Er du sikker på, at du vil slette disse sider fra din historik?</translation>
 <translation id="6165508094623778733">Flere oplysninger</translation>
 <translation id="3280237271814976245">Gem &amp;som ...</translation>
@@ -184,7 +184,7 @@
 <translation id="715468010956678290">Åbn ramme i inko&amp;gnito-vindue</translation>
 <translation id="7552620667503495646">Åbn ramme i ny fane</translation>
 <translation id="1621207256975573490">Gem ramme &amp;som ...</translation>
-<translation id="1608306110678187802">P&amp;rint ramme ...</translation>
+<translation id="1608306110678187802">Udsk&amp;riv ramme ...</translation>
 <translation id="1163931534039071049">&amp;Vis rammens kildetekst</translation>
 <translation id="1908748899139377733">Vis &amp;info om ramme</translation>
 <translation id="6886871292305414135">Åbn link i ny &amp;fane</translation>
@@ -302,7 +302,7 @@
 <translation id="1177437665183591855">Ukendt fejl i certifikat på server</translation>
 <translation id="4771973620359291008">Der er opstået en ukendt fejl.</translation>
 <translation id="4381091992796011497">Brugernavn:</translation>
-<translation id="4304224509867189079">Logge ind</translation>
+<translation id="4304224509867189079">Log ind</translation>
 <translation id="5455790498993699893"><ph name="ACTIVE_MATCH"/> af <ph name="TOTAL_MATCHCOUNT"/></translation>
 <translation id="1829244130665387512">Find på side</translation>
 <translation id="2955913368246107853">Luk findlinjen</translation>
@@ -324,8 +324,8 @@
 <translation id="6151323131516309312">Tryk på <ph name="SEARCH_KEY"/> for at søge på <ph name="SITE_NAME"/></translation>
 <translation id="8695758493354644945">Se de seneste <ph name="NUM_MATCHES"/> sider i historikken, der indeholder <ph name="SEARCH_TERMS"/></translation>
 <translation id="8717266507183354698">Se alle sider i historik, som indeholder <ph name="SEARCH_TERMS"/></translation>
-<translation id="5376169624176189338">Klik for at gå tilbage, hold knappen inde for at se historikken</translation>
-<translation id="2961695502793809356">Klik for at gå fremad, hold knappen inde for at se historikken</translation>
+<translation id="5376169624176189338">Klik for at gå tilbage. Hold knappen inde for at se historikken.</translation>
+<translation id="2961695502793809356">Klik for at gå frem. Hold knappen inde for at se historikken.</translation>
 <translation id="7221869452894271364">Genindlæs denne side</translation>
 <translation id="3254409185687681395">Føj bogmærke til denne side</translation>
 <translation id="4422347585044846479">Rediger bogmærke for denne side</translation>
@@ -337,7 +337,7 @@
 <translation id="2266011376676382776">Siden svarer ikke</translation>
 <translation id="1110155001042129815">Vent</translation>
 <translation id="1684861821302948641">Afslut sider</translation>
-<translation id="6134282421960734039">Er du sikker på, at du vil have Chrome til at gemme din adgangskode?</translation>
+<translation id="6134282421960734039">vil du have Chrome til at gemme din adgangskode?</translation>
 <translation id="5271549068863921519">Gem adgangskode</translation>
 <translation id="7484645889979462775">Aldrig for dette websted</translation>
 <translation id="4195643157523330669">Åbn i ny fane</translation>
@@ -351,7 +351,7 @@
 <translation id="2496180316473517155">Browser-historik</translation>
 <translation id="6447842834002726250">Cookies</translation>
 <translation id="5869522115854928033">Gemte adgangskoder</translation>
-<translation id="8275038454117074363">Import</translation>
+<translation id="8275038454117074363">Importer</translation>
 <translation id="2359808026110333948">Fortsæt</translation>
 <translation id="4684748086689879921">Spring import over</translation>
 <translation id="6783679543387074885">Rapporter fejl eller ødelagt websted</translation>
@@ -436,7 +436,7 @@
 <translation id="8929159553808058020">Tilføj de sprog, du bruger til læsning af websteder i prioriteret rækkefølge. Tilføj kun dem, du har brug for, da nogle tegn kan benyttes til at efterligne websteder på andre sprog.</translation>
 <translation id="2303544859777878640">Sprog:</translation>
 <translation id="8609465669617005112">Flyt op</translation>
-<translation id="6746124502594467657">Flyt nedad</translation>
+<translation id="6746124502594467657">Flyt ned</translation>
 <translation id="8241707690549784388">Siden, du søger, benyttede oplysninger, du har indtastet. Vender du tilbage til denne side kan det betyde, at enhver handling, du har foretaget, skal gentages. Vil du fortsætte?</translation>
 <translation id="1964682833763362793">Luk alle Chrome-vinduer, og prøv igen
 .</translation>
@@ -447,7 +447,7 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">Hurtig start</translation>
-<translation id="1549918799472947005">Chrome bruger dit standardvalg for søgemaskiner, som aktuelt er <ph name="PAGE_TITLE"/>. Ønsker du at beholde din standardsøgemaskine?</translation>
+<translation id="1549918799472947005">Chrome bruger dit standardvalg af søgemaskine, som aktuelt er <ph name="PAGE_TITLE"/>. Ønsker du at beholde din standardsøgemaskine?</translation>
 <translation id="74568296546932365">Behold <ph name="PAGE_TITLE"/> som standardsøgemaskine</translation>
 <translation id="8288345061925649502">Skift søgemaskine</translation>
 <translation id="3037605927509011580">Øv, surt!</translation>
@@ -542,9 +542,9 @@
 <translation id="1768211415369530011">Følgende program bliver startet, hvis du accepterer denne anmodning:\n\n <ph name="APPLICATION"/></translation>
 <translation id="4745142959976410383">Har du ikke selv startet denne anmodning, kan det være et forsøg udefra på angreb på dit system. Med mindre du er sikker på selv at have startet denne anmodning, bør du trykke på Annuller.</translation>
 <translation id="5055518462594137986">Husk mine valg for alle links af denne type.</translation>
-<translation id="7334704644505105275">JavaScript Debugger - optaget</translation>
-<translation id="5303890401939113396">JavaScript Debugger - pause</translation>
-<translation id="2437750561138919253">JavaScript Debugger - Kører</translation>
+<translation id="7334704644505105275">JavaScript-debugger - Optaget</translation>
+<translation id="5303890401939113396">JavaScript-debugger - Pause</translation>
+<translation id="2437750561138919253">JavaScript-debugger - Kører</translation>
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="5948410903763073882">Alt+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="8400147561352026160">Skift+<ph name="KEY_COMBO_NAME"/></translation>
@@ -679,7 +679,7 @@
 <translation id="8446794773162156990">Google Chrome er uartig</translation>
 <translation id="7400722733683201933">Om Google Chrome</translation>
 <translation id="3591558551793645824">Google Chrome er blevet afinstalleret. Farvel!</translation>
-<translation id="8172671748763307156">Er du sikker på, at du vil afinstallere Google Chrome? (Var det noget, vi sagde?)</translation>
+<translation id="8172671748763307156">Er du sikker på, at du vil afinstallere Google Chrome? (Har vi mon sagt noget forkert?)</translation>
 <translation id="7161904924553537242">Velkommen til Google Chrome</translation>
 <translation id="6921913858457830952">Google Chrome er klar til at færdiggøre din installation.</translation>
 <translation id="7241541963706135274">Google Chrome vil udføre disse opgaver:</translation>
@@ -702,11 +702,11 @@
 <translation id="7100330187273168372">Google Chrome kan ikke læse og skrive til dets datamappe:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="3324235665723428530">Din profil kan ikke bruges, da den stammer fra en nyere version af Google Chrome.\n\nNogle funktioner er måske utilgængelige. Angiv en anden profilmappe, eller anvend en nyere version af Chrome.</translation>
 <translation id="3319048459796106952">Nyt &amp;inkognito-vindue</translation>
-<translation id="1120026268649657149">Søgeord skal være blankt eller enestående</translation>
+<translation id="1120026268649657149">Søgeord skal være blankt eller entydigt</translation>
 <translation id="7481475534986701730">Websider, du har besøgt for nylig</translation>
 <translation id="8815061062167142136">Hold da op! Google Chrome er gået ned. Vil du genstarte nu?</translation>
 <translation id="3889417619312448367">Afinstaller Google Chrome</translation>
-<translation id="3169621169201401257">Du kan få detaljerede oplysninger om problemerne med disse elementer ved at besøge Google <ph name="DIAGNOSTIC_PAGE"/> for <ph name="DOMAIN"/>.</translation>
+<translation id="3169621169201401257">Du kan få detaljerede oplysninger om problemerne med disse elementer ved at besøge Googles <ph name="DIAGNOSTIC_PAGE"/> for <ph name="DOMAIN"/>.</translation>
 <translation id="2356762928523809690">Server til opdatering er ikke tilgængelig (fejl: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">&amp;Tilføj til ordbog</translation>
 <translation id="2499193704281978000">Google Chrome svarer ikke. Vil du genstarte nu?</translation>
@@ -729,14 +729,15 @@
 <translation id="5098629044894065541">Hebraisk</translation>
 <translation id="8899388739470541164">Vietnamesisk</translation>
 <translation id="1714078437629572290">Åbn startsiden</translation>
-<translation id="5316814419223884568">Søg lige herfra</translation>
-<translation id="3065140616557457172">Indtast for at søge eller indtast en webadresse for at navigere - alt virker bare.</translation>
+<translation id="5316814419223884568">Søg direkte herfra</translation>
+<translation id="3065140616557457172">Tast for at søge eller angiv en webadresse for at navigere - alt virker.</translation>
 <translation id="4178055285485194276">Ved opstart:</translation>
 <translation id="1154228249304313899">Åbn denne side:</translation>
-<translation id="3761000923495507277">Vis knappen Startside på værktøjslinjen</translation>
+<translation id="3761000923495507277">Vis knap til startsiden på værktøjslinjen</translation>
 <translation id="5291303148298143069">Giv mig besked, når en popup bliver blokeret</translation>
 <translation id="3383487468758466563">Skrifttyper og sprog:</translation>
-<translation id="1137776625614346046">Området &quot;Mest besøgte&quot; viser de websteder, du oftest bruger. Når du har brugt Google Chrome i et stykke tid, vil du kunne se dine mest besøgte websteder, hver gang du åbner en ny fane. Du kan lære mere om det og om andre funktioner på <ph name="BEGIN_LINK"/>siden Sådan kommer du i gang<ph name="END_LINK"/>.</translation>
-<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Du er nu inkognito<ph name="END_BOLD"/>. Sider, du ser i dette vindue, vil ikke fremgå af din browserhistorik eller søgehistorik, og de vil ikke efterlade andre spor, som f.eks. cookies, på din computer, efter du har lukket inkognitovinduet. Alle filer, du downloader, eller bogmærker, du opretter, vil dog blive bevaret.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Når du vælger at være inkognito, påvirker det ikke andre mennesker, servere eller software. Vær forsigtig med:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Websteder, der indsamler eller videregiver oplysninger om dig<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Internetudbydere og arbejdsgivere, der sporer, hvilke sider, du besøger<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Ondsindet software, der sporer dine tasteanslag i bytte for gratis smileys<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Overvågning af hemmelige agenter<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Mennesker, der kigger dig over skulderen<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Få flere oplysninger<ph name="END_LINK"/> om inkognitobrowsing.</translation>
+<translation id="1137776625614346046">Området &quot;Mest besøgte&quot; viser de websteder, du oftest bruger. Når du har brugt Google Chrome i et stykke tid, vil du kunne se dine mest besøgte websteder, hver gang du åbner en ny fane. Du kan lære mere om det og om andre funktioner på siden <ph name="BEGIN_LINK"/>Sådan kommer du i gang<ph name="END_LINK"/>.</translation>
+<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Du er nu inkognito<ph name="END_BOLD"/>. Sider, du ser i dette vindue, vil ikke fremgå af din browserhistorik eller søgehistorik, og de vil ikke efterlade andre spor, som f.eks. cookies, på din computer, efter du har lukket inkognitovinduet. Alle filer, du downloader, eller bogmærker, du opretter, vil dog blive bevaret.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Når du vælger at være inkognito, påvirker det ikke andre mennesker, servere eller software. Vær forsigtig med:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>websteder, der indsamler eller videregiver oplysninger om dig<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>internetudbydere og arbejdsgivere, der sporer, hvilke sider du besøger<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ondsindet software, der sporer dine tasteanslag i bytte for gratis smileys<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>hemmelige agenter, der overvåger dig<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>mennesker, der kigger dig over skulderen<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Få flere oplysninger<ph name="END_LINK"/> om inkognitobrowsing.</translation>
 <translation id="1604816462140255479">Tekst &amp;zoom</translation>
+<translation id="2089625293428655599">Dele af denne software er licenseret fra tredjepart som beskrevet på: <ph name="URL"/></translation>
 </translationbundle>

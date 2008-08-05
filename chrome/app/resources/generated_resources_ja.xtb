@@ -27,7 +27,7 @@
 <translation id="5300471193642408424">ページの表示</translation>
 <translation id="8434177709403049435">エンコード(&amp;E)</translation>
 <translation id="6040143037577758943">閉じる</translation>
-<translation id="9147392381910171771">&amp;オプション</translation>
+<translation id="9147392381910171771">オプション(&amp;O)</translation>
 <translation id="2454247629720664989">キーワード</translation>
 <translation id="5903264686717710770">タイトル:</translation>
 <translation id="4188026131102273494">キーワード:</translation>
@@ -224,7 +224,7 @@
 <translation id="4789872672210757069"><ph name="PRODUCT_NAME"/> について</translation>
 <translation id="6978121630131642226">検索エンジン</translation>
 <translation id="5327248766486351172">名前</translation>
-<translation id="1485146213770915382">URL の検索キーワードが表示される箇所に <ph name="SEARCH_TERMS_LITERAL"/> を挿入してください。</translation>
+<translation id="1485146213770915382">URL の検索キーワードを指定する箇所に <ph name="SEARCH_TERMS_LITERAL"/> を挿入してください。</translation>
 <translation id="6349678711452810642">既定にする</translation>
 <translation id="872451400847464257">検索エンジンの編集</translation>
 <translation id="2179052183774520942">検索エンジンの追加</translation>
@@ -332,9 +332,9 @@
 <translation id="4084682180776658562">ブックマーク</translation>
 <translation id="5646376287012673985">場所</translation>
 <translation id="1040471547130882189">プラグイン応答なし</translation>
-<translation id="7887998671651498201">プラグイン <ph name="PLUGIN_NAME"/> は応答がありません。停止しますか？</translation>
+<translation id="7887998671651498201">次のプラグインは応答していません: <ph name="PLUGIN_NAME"/>強制終了しますか？</translation>
 <translation id="7887455386323777409">プラグインを強制終了</translation>
-<translation id="2266011376676382776">応答のないページ</translation>
+<translation id="2266011376676382776">ページ応答なし</translation>
 <translation id="1110155001042129815">待機</translation>
 <translation id="1684861821302948641">ページを強制終了</translation>
 <translation id="6134282421960734039">Chrome にパスワードを保存しますか？</translation>
@@ -380,8 +380,8 @@
 <translation id="2339641773402824483">アップデートを確認しています...</translation>
 <translation id="5844183150118566785">最新版の <ph name="PRODUCT_NAME"/> です (<ph name="VERSION"/>)</translation>
 <translation id="4477534650265381513">こちらのブックマーク バーにブックマークを追加すると簡単にページにアクセスできます。</translation>
-<translation id="394984172568887996">IE からのインポート</translation>
-<translation id="5502500733115278303">Firefox からのインポート</translation>
+<translation id="394984172568887996">IE ブックマーク</translation>
+<translation id="5502500733115278303">Firefox ブックマーク</translation>
 <translation id="939736085109172342">新しいフォルダ</translation>
 <translation id="7910768399700579500">新しいフォルダ(&amp;N)</translation>
 <translation id="2149973817440762519">ブックマークを編集</translation>
@@ -425,8 +425,8 @@
 <translation id="6592392877063354583"><ph name="SECURE_PAGE_URL"/> のページには、<ph name="INSECURE_RESOURCE_URL"/> からのセキュリティで保護されていないコンテンツが含まれています。</translation>
 <translation id="1570242578492689919">フォントとエンコード</translation>
 <translation id="1823768272150895732">フォント</translation>
-<translation id="8542113417382134668">明朝体（serif）:</translation>
-<translation id="6021004449668343960">ゴシック体（sans-serif）:</translation>
+<translation id="8542113417382134668">明朝系:</translation>
+<translation id="6021004449668343960">ゴシック系:</translation>
 <translation id="6314919950468685344">固定幅フォント:</translation>
 <translation id="2927657246008729253">変更...</translation>
 <translation id="1628736721748648976">エンコード</translation>
@@ -445,7 +445,7 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">クイック起動バー</translation>
-<translation id="1549918799472947005">現在このパソコンでは <ph name="PAGE_TITLE"/> が既定の検索エンジンとして設定されています。この設定を変更しますか？</translation>
+<translation id="1549918799472947005">このパソコンの既定の検索エンジンは <ph name="PAGE_TITLE"/> になっています。現在の設定でよろしいですか？</translation>
 <translation id="74568296546932365"><ph name="PAGE_TITLE"/> を既定の検索エンジンにする</translation>
 <translation id="8288345061925649502">検索エンジンの変更</translation>
 <translation id="3037605927509011580">エラー</translation>
@@ -455,7 +455,7 @@
 <translation id="7543025879977230179"><ph name="PRODUCT_NAME"/> オプション</translation>
 <translation id="435463392378565996">詳細設定</translation>
 <translation id="5040262127954254034">プライバシー</translation>
-<translation id="4047498523333824092">開いていたタブをすべて復元する</translation>
+<translation id="4047498523333824092">前回開いていたタブをすべて復元する</translation>
 <translation id="4948468046837535074">次のページを開く:</translation>
 <translation id="2518917559152314023">追加(&amp;D)...</translation>
 <translation id="7905536804357499080">現在のページを使用</translation>
@@ -582,13 +582,13 @@
 <translation id="2160383474450212653">フォントと言語</translation>
 <translation id="5042992464904238023">ウェブ コンテンツ</translation>
 <translation id="7982789257301363584">ネットワーク</translation>
-<translation id="9071050381089585305">応答のないスクリプト</translation>
-<translation id="9040508646567685134">このページ上で実行中のスクリプトは処理時間がかなり長くなっています。スクリプトが完了するまで待ちますか？それとも終了しますか？</translation>
+<translation id="9071050381089585305">スクリプト応答なし</translation>
+<translation id="9040508646567685134">このページ上で実行中のスクリプトは処理にかなりの時間がかかっています。スクリプトが完了するまで待ちますか？それとも終了しますか？</translation>
 <translation id="1748246833559136615">終了</translation>
 <translation id="5154917547274118687">メモリ</translation>
 <translation id="411666854932687641">専有メモリ</translation>
 <translation id="7965010376480416255">共有メモリ</translation>
-<translation id="7931071620596053769">次のページは応答していません。応答があるまで待つか、強制終了することができます。</translation>
+<translation id="7931071620596053769">次のページは応答していません。応答があるまで待つか、強制終了してください。</translation>
 <translation id="501080040224996242">Chrome の品質向上のため使用統計と障害レポートを Google に自動送信する</translation>
 <translation id="5912378097832178659">検索エンジンの編集(&amp;E)...</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (既定)</translation>
@@ -652,7 +652,7 @@
 <translation id="5584537427775243893">インポート中</translation>
 <translation id="6248988683584659830">検索設定</translation>
 <translation id="2354001756790975382">その他のブックマーク</translation>
-<translation id="5155632014218747366">このサイトの問題に関する詳細は、<ph name="DOMAIN"/> の Google <ph name="DIAGNOSTIC_PAGE"/>をご覧ください。</translation>
+<translation id="5155632014218747366">問題の詳細については、<ph name="DOMAIN"/> に関する Google <ph name="DIAGNOSTIC_PAGE"/>をご覧ください。</translation>
 <translation id="3605499851022050619">セーフ ブラウジング診断ページ</translation>
 <translation id="3115147772012638511">キャッシュを待機しています...</translation>
 <translation id="5015344424288992913">プロキシを解決しています...</translation>
@@ -694,7 +694,7 @@
 <translation id="8227755444512189073"><ph name="SCHEME"/> リンクを処理するには外部アプリケーションの起動が必要です。リクエストされたリンクは <ph name="PROTOLINK"/> です。</translation>
 <translation id="8236873504073475138">Google Chrome は Windows 2000 に対応していません。動作しない機能がある可能性があります。</translation>
 <translation id="3335672657969596251">Google Chrome は <ph name="OS_NAME"/> に対応していません。</translation>
-<translation id="1446473746922165495">Google Chrome の画面メニューに表示される言語を変更します。</translation>
+<translation id="1446473746922165495">Google Chrome の画面メニューの言語を変更します。</translation>
 <translation id="8810218179782551669">Google Chrome の言語:</translation>
 <translation id="7958215378280655655">Google Chrome オプションをリセットすると、これまでの変更がすべて消去され既定の設定に戻ります。Chrome オプションをリセットしてよろしいですか？</translation>
 <translation id="7100330187273168372">このディレクトリには Google Chrome はアクセスできません:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
@@ -702,12 +702,12 @@
 <translation id="3319048459796106952">新しいシークレット ウィンドウ(&amp;I)</translation>
 <translation id="1120026268649657149">キーワードは空白にするか、固有のものを指定してください</translation>
 <translation id="7481475534986701730">最近アクセスしたサイト</translation>
-<translation id="8815061062167142136">エラー! Google Chrome がクラッシュしました。再起動しますか？</translation>
+<translation id="8815061062167142136">Google Chrome がクラッシュしました。再起動しますか？</translation>
 <translation id="3889417619312448367">Google Chrome をアンインストール</translation>
-<translation id="3169621169201401257">これらの要素の問題に関する詳細情報については、<ph name="DOMAIN"/> の Google <ph name="DIAGNOSTIC_PAGE"/>をご覧ください。</translation>
+<translation id="3169621169201401257">問題の詳細については、<ph name="DOMAIN"/> に関する Google <ph name="DIAGNOSTIC_PAGE"/>をご覧ください。</translation>
 <translation id="2356762928523809690">更新サーバーにアクセスできません (エラー: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">辞書に追加(&amp;A)</translation>
-<translation id="2499193704281978000">Google Chrome は反応していません。再起動しますか？</translation>
+<translation id="2499193704281978000">Google Chrome の応答がありません。再起動しますか？</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">Unicode</translation>
 <translation id="1702534956030472451">西欧</translation>
@@ -726,15 +726,16 @@
 <translation id="2822854841007275488">アラビア語</translation>
 <translation id="5098629044894065541">ヘブライ語</translation>
 <translation id="8899388739470541164">ベトナム語</translation>
-<translation id="1714078437629572290">ホームページを開きます</translation>
-<translation id="5316814419223884568">今すぐ検索</translation>
-<translation id="3065140616557457172">検索するキーワードまたはアクセスする URL を入力してください。</translation>
+<translation id="1714078437629572290">ホーム</translation>
+<translation id="5316814419223884568">ここで検索もできます</translation>
+<translation id="3065140616557457172">キーワードを入力して検索するか、直接 URL を入力してください。</translation>
 <translation id="4178055285485194276">起動時:</translation>
-<translation id="1154228249304313899">このページを開く</translation>
-<translation id="3761000923495507277">ツールバーに [ホーム] ボタンを表示</translation>
+<translation id="1154228249304313899">アドレス:</translation>
+<translation id="3761000923495507277">ツールバーにホーム ボタンを表示</translation>
 <translation id="5291303148298143069">ポップアップがブロックされたときに知らせる</translation>
 <translation id="3383487468758466563">フォントと言語:</translation>
-<translation id="1137776625614346046">ここには最もよく使うウェブサイトが表示されます。また、Google Chrome をある程度使い続けると、新しいタブを開いたときにもそのサイトが表示されます。機能の詳細については<ph name="BEGIN_LINK"/>スタート ガイドのページ<ph name="END_LINK"/>をご覧ください。</translation>
+<translation id="1137776625614346046">ここには最もよく使うウェブサイトが表示されます。また、Google Chrome をある程度使い続けると、新しいタブを開いたときにもよく使うサイトが一覧表示されます。詳細については<ph name="BEGIN_LINK"/>スタートガイド<ph name="END_LINK"/>をご覧ください。</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>シークレット モードです<ph name="END_BOLD"/>。このウィンドウで開いたページはブラウザの履歴や検索履歴に記録されません。このウィンドウを閉じると Cookie などの記録もパソコンに残りません。ダウンロードしたファイルやブックマークしたページは保存されます。<ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>シークレット モードが他のユーザー、サーバー、ソフトウェアの動作に影響することはありません。ただし、次のような相手には注意してください。<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>ユーザーの情報を収集、共有するウェブサイト<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ユーザーがアクセスしたページをトラッキングするインターネット サービス プロバイダや雇用主<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>無料ダウンロードなどと一緒にインストールされ、キーストロークを記録するマルウェア<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>見張りの秘密諜報員<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>背後にいる人<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        シークレット モードの詳細については<ph name="BEGIN_LINK"/>こちら<ph name="END_LINK"/>をご覧ください。</translation>
 <translation id="1604816462140255479">テキスト拡大(&amp;Z)</translation>
+<translation id="2089625293428655599">このソフトウェアの一部はサードパーティのライセンスを受けています: <ph name="URL"/></translation>
 </translationbundle>

@@ -138,10 +138,10 @@
 <translation id="3087734570205094154">Parte inferior</translation>
 <translation id="2168039046890040389">Página para cima</translation>
 <translation id="8210608804940886430">Página para baixo</translation>
-<translation id="6364916375976753737">Percorrer para a esquerda</translation>
-<translation id="4588090240171750605">Percorrer para a direita</translation>
-<translation id="8331626408530291785">Percorrer acima</translation>
-<translation id="815598010540052116">Percorrer abaixo</translation>
+<translation id="6364916375976753737">Percorrer à esquerda</translation>
+<translation id="4588090240171750605">Percorrer à direita</translation>
+<translation id="8331626408530291785">Percorrer para cima</translation>
+<translation id="815598010540052116">Percorrer para baixo</translation>
 <translation id="4021918302616263355">Pesquisar <ph name="SEARCH_TERMS"/> no <ph name="ENGINE"/></translation>
 <translation id="9002707937526687073">&amp;Imprimir...</translation>
 <translation id="1175364870820465910">&amp;Imprimir...</translation>
@@ -168,28 +168,28 @@
 <translation id="3183922693828471536">Percorrer até aqui</translation>
 <translation id="8439117394107194826">Redirecione-me para a página da web de pesquisa depois de desinstalar.</translation>
 <translation id="4610637590575890427">Você quis ir a <ph name="SITE"/>?</translation>
-<translation id="8182985032676093812">Origem de <ph name="PAGE_URL"/></translation>
+<translation id="8182985032676093812">Código fonte de <ph name="PAGE_URL"/></translation>
 <translation id="4880827082731008257">Histórico de pesquisas</translation>
 <translation id="5650551054760837876">Nenhum resultado de pesquisa encontrado.</translation>
-<translation id="7596288230018319236">Todas as páginas que você visitar serão exibidas aqui a menos que que sejam abertas em uma janela incógnita. Use o botão &quot;Pesquisar&quot; nesta página para pesquisar todas as páginas no seu histórico.</translation>
+<translation id="7596288230018319236">Todas as páginas que você visitar serão exibidas aqui a menos que que sejam abertas em uma janela anônima. Use o botão &quot;Pesquisar&quot; nesta página para pesquisar todas as páginas no seu histórico.</translation>
 <translation id="7377249249140280793"><ph name="RELATIVE_DATE"/> - <ph name="FULL_DATE"/></translation>
 <translation id="8739589585766515812">Excluir histórico para esse dia</translation>
 <translation id="2674170444375937751">Tem certeza de que deseja excluir essas páginas do seu histórico?</translation>
 <translation id="6165508094623778733">Saiba mais</translation>
 <translation id="3280237271814976245">Salvar &amp;como...</translation>
-<translation id="8664389313780386848">&amp;Exibir origem da página</translation>
+<translation id="8664389313780386848">&amp;Exibir código fonte da página</translation>
 <translation id="1970746430676306437">Visualizar &amp;informações da página</translation>
 <translation id="7567293639574541773">&amp;Inspecionar elemento</translation>
 <translation id="1474307029659222435">Abrir frame em uma nova &amp;janela</translation>
-<translation id="715468010956678290">Abrir frame na janela &amp;incógnita</translation>
+<translation id="715468010956678290">Abrir frame em janela &amp;anônima</translation>
 <translation id="7552620667503495646">Abrir frame em uma nova &amp;guia</translation>
 <translation id="1621207256975573490">Salvar &amp;frame como...</translation>
 <translation id="1608306110678187802">&amp;Imprimir frame...</translation>
-<translation id="1163931534039071049">&amp;Exibir origem do frame</translation>
+<translation id="1163931534039071049">&amp;Exibir código fonte do frame</translation>
 <translation id="1908748899139377733">Exibir &amp;informação de frame</translation>
 <translation id="6886871292305414135">Abrir link em uma nova &amp;guia</translation>
 <translation id="8899851313684471736">Abrir link em uma nova &amp;janela</translation>
-<translation id="3627588569887975815">Abrir link na janela &amp;incógnita</translation>
+<translation id="3627588569887975815">Abrir link em janela &amp;anônima</translation>
 <translation id="6308937455967653460">Salvar &amp;link como...</translation>
 <translation id="1084824384139382525">Copiar &amp;endereço do link</translation>
 <translation id="8382913212082956454">Copiar &amp;endereço de e-mail</translation>
@@ -212,7 +212,7 @@
 <translation id="5818003990515275822">Coreano</translation>
 <translation id="4890284164788142455">Tailandês</translation>
 <translation id="7434509671034404296">Desenvolvedor</translation>
-<translation id="2440604414813129000">Exibir &amp;fonte</translation>
+<translation id="2440604414813129000">Exibir &amp;código fonte</translation>
 <translation id="3842377959466606212">&amp;Informações da página</translation>
 <translation id="5872213955895293073">Depurar JavaScript</translation>
 <translation id="5904714272463161824">&amp;Informar bug ou página web quebrada...</translation>
@@ -298,7 +298,7 @@
 <translation id="8534801226027872331">Nesse caso, o certificado apresentado ao navegador tem erros e não pode ser compreendido. Desse modo, não conseguimos reconhecer as informações de identidade do certificado ou algumas outras informações do certificado foram usadas para proteger a conexão. Você não deve continuar.</translation>
 <translation id="8187473050234053012">O certificado de segurança do servidor foi revogado.</translation>
 <translation id="3455546154539383562">Você tentou acessar &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, mas o certificado apresentado pelo servidor foi revogado pelo emissor. Isso indica que as credenciais de segurança apresentadas pelo servidor não devem ser de modo algum confiáveis. Você pode estar se comunicando com um invasor. Você não deve continuar.</translation>
-<translation id="43742617823094120">Nesse caso, o certificado apresentado ao navegador foi revogado pelo emissor. Normalmente, isso indica que a integridade deste certificado foi comprometida e que o certificado não deve ser confiável. Você não deve de modo algum continuar depois deste ponto.</translation>
+<translation id="43742617823094120">Nesse caso, o certificado apresentado ao navegador foi revogado pelo emissor. Normalmente, isso indica que a integridade deste certificado foi comprometida e que o certificado não é confiável. Você não deve de modo algum continuar depois deste ponto.</translation>
 <translation id="1177437665183591855">Erro de certificado de servidor desconhecido</translation>
 <translation id="4771973620359291008">Ocorreu um erro desconhecido.</translation>
 <translation id="4381091992796011497">Nome de usuário:</translation>
@@ -339,7 +339,7 @@
 <translation id="1684861821302948641">Eliminar páginas</translation>
 <translation id="6134282421960734039">Deseja que o Chrome salve sua senha?</translation>
 <translation id="5271549068863921519">Salvar senha</translation>
-<translation id="7484645889979462775">Nunca neste site</translation>
+<translation id="7484645889979462775">Nunca para este site</translation>
 <translation id="4195643157523330669">Abrir em uma nova guia</translation>
 <translation id="2435457462613246316">Mostrar senha</translation>
 <translation id="4565377596337484307">Ocultar senha</translation>
@@ -348,7 +348,7 @@
 <translation id="1076818208934827215">Microsoft Internet Explorer</translation>
 <translation id="5119173345047096771">Mozilla Firefox</translation>
 <translation id="3031557471081358569">Selecione os itens que serão importados:</translation>
-<translation id="2496180316473517155">Navegando no histórico...</translation>
+<translation id="2496180316473517155">Histórico de navegação</translation>
 <translation id="6447842834002726250">Cookies</translation>
 <translation id="5869522115854928033">Senhas salvas</translation>
 <translation id="8275038454117074363">Importar</translation>
@@ -358,7 +358,7 @@
 <translation id="3737554291183722650">Título da página:</translation>
 <translation id="2679629658858164554">URL da página:</translation>
 <translation id="5765780083710877561">Descrição:</translation>
-<translation id="5868426874618963178">Enviar origem da página atual</translation>
+<translation id="5868426874618963178">Enviar código fonte da página atual</translation>
 <translation id="1983108933174595844">Enviar captura de tela da página atual</translation>
 <translation id="1767991048059195456">Enviar relatório</translation>
 <translation id="486595306984036763">Abrir relatório de phishing</translation>
@@ -436,12 +436,12 @@
 <translation id="2303544859777878640">Idiomas:</translation>
 <translation id="8609465669617005112">Mover para cima</translation>
 <translation id="6746124502594467657">Mover para baixo</translation>
-<translation id="8241707690549784388">A página que você está procurando usou as informações inseridas. O retorno à essa página poderá fazer com que todas as ações realizadas antes sejam repetidas. Deseja continuar?</translation>
+<translation id="8241707690549784388">A página que você está procurando usou as informações inseridas. Voltar à essa página poderá fazer com que todas as ações realizadas antes sejam repetidas. Deseja continuar?</translation>
 <translation id="1964682833763362793">Feche todas as janelas do Chrome e tente novamente.</translation>
 <translation id="5333374927882515515">Importar favoritos, senhas e outras configurações de <ph name="DEF_BROWSER"/></translation>
 <translation id="8256087479641463867">Personalize suas configurações</translation>
 <translation id="7789175495288668515">Alterar as opções de instalação padrão.</translation>
-<translation id="2869459179306435079">Importar configurações de:</translation>
+<translation id="2869459179306435079">Importar configurações do:</translation>
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">Barra de inicialização rápida</translation>
@@ -450,7 +450,7 @@
 <translation id="8288345061925649502">Alterar mecanismo de pesquisa</translation>
 <translation id="3037605927509011580">Ah, não!</translation>
 <translation id="8927064607636892008">Algo deu errado ao exibir esta página da web. Para continuar, pressione &quot;Recarregar&quot; ou vá até outra página.</translation>
-<translation id="942671148946453043">Você abriu uma janela incógnita. As páginas abertas nesta janela não aparecerão no seu histórico.</translation>
+<translation id="942671148946453043">Você abriu uma janela anônima. As páginas abertas nesta janela não aparecerão no seu histórico.</translation>
 <translation id="5107325588313356747">Para ocultar o acesso a esse programa, desinstale-o usando\n<ph name="CONTROL_PANEL_APPLET_NAME"/> no Painel de controle.\n\nDeseja iniciar <ph name="CONTROL_PANEL_APPLET_NAME"/>?</translation>
 <translation id="7543025879977230179">Opções do <ph name="PRODUCT_NAME"/></translation>
 <translation id="435463392378565996">Pequenos ajustes</translation>
@@ -481,7 +481,7 @@
 <translation id="4172706149171596436">Alterar configurações de proxy</translation>
 <translation id="3478477629095836699">Configurações de cookie:</translation>
 <translation id="5657156137487675418">Mostrar todos os cookies</translation>
-<translation id="6805291412499505360">Limitar o modo de uso de cookies de terceiros</translation>
+<translation id="6805291412499505360">Limitar o uso de cookies de terceiros</translation>
 <translation id="5821894118254011366">Bloquear cookies de terceiros completamente</translation>
 <translation id="6883611015375728278">Bloquear todos os cookies</translation>
 <translation id="5287240709317226393">Mostrar cookies</translation>
@@ -516,7 +516,7 @@
 <translation id="3810973564298564668">Gerenciar</translation>
 <translation id="2559292239863842334">As caixas de pesquisa que você usa com mais freqüência em outros sites serão exibidas aqui.</translation>
 <translation id="8413126021676339697">Mostrar histórico completo</translation>
-<translation id="3549657413697417275">Seu histórico de pesquisas</translation>
+<translation id="3549657413697417275">Pesquise o seu histórico</translation>
 <translation id="495091556140548787">Guias recentemente fechadas</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
 <translation id="7227780179130368205">Malware detectado.</translation>
@@ -525,15 +525,15 @@
 <translation id="644038709730536388">Saiba mais sobre como se proteger do software prejudicial on-line.</translation>
 <translation id="9012607008263791152">Sei que a visita a este site pode prejudicar meu computador.</translation>
 <translation id="8831104962952173133">Phishing detectado.</translation>
-<translation id="4182252350869425879">Aviso: Site de phishing suspeito.</translation>
+<translation id="4182252350869425879">Aviso: Site suspeito de phishing .</translation>
 <translation id="2193841602817119749">O site em &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; foi considerado um site de “phishing”.  Os sites de phishing normalmente tentam se passar por representantes de instituições confiáveis como bancos e enganam os usuários, que acabam divulgando informações pessoais ou financeiras.</translation>
-<translation id="7063412606254013905">Saiba mais sobre as características de phishing.</translation>
+<translation id="7063412606254013905">Saiba mais sobre os golpes de phishing.</translation>
 <translation id="6521850982405273806">Denunciar um erro</translation>
 <translation id="8053959338015477773">Um plug-in adicional é necessário para exibir alguns elementos nesta página.</translation>
 <translation id="5285267187067365830">Instalar plug-in...</translation>
-<translation id="1568162916422682473">Os plug-ins a seguir falharam: <ph name="PLUGIN_NAME"/></translation>
+<translation id="1568162916422682473">Os seguintes plug-ins falharam: <ph name="PLUGIN_NAME"/></translation>
 <translation id="2665163749053788434">Visitar histórico</translation>
-<translation id="3228279582454007836">Hoje você ainda não visitou esse site.</translation>
+<translation id="3228279582454007836">É a primeira vez que você visita esse site.</translation>
 <translation id="566920818739465183">Você visitou este site pela primeira vez em <ph name="VISIT_DATE"/>.</translation>
 <translation id="3366404380928138336">Solicitação de protocolo externo</translation>
 <translation id="5822838715583768518">Iniciar aplicativo</translation>
@@ -553,8 +553,8 @@
 <translation id="528468243742722775">End</translation>
 <translation id="8447116497070723931">PgUp</translation>
 <translation id="4552416320897244156">PgDwn</translation>
-<translation id="5613020302032141669">Seta à esquerda</translation>
-<translation id="3889424535448813030">Seta à direita</translation>
+<translation id="5613020302032141669">Seta para a esquerda</translation>
+<translation id="3889424535448813030">Seta para a direita</translation>
 <translation id="3660179305079774227">Seta para cima</translation>
 <translation id="3234408098842461169">Seta para baixo</translation>
 <translation id="8179976553408161302">Enter</translation>
@@ -589,7 +589,7 @@
 <translation id="411666854932687641">Memória privada</translation>
 <translation id="7965010376480416255">Memória compartilhada</translation>
 <translation id="7931071620596053769">As páginas a seguir deixaram de responder. Aguarde até que voltem a responder ou elimine-as.</translation>
-<translation id="501080040224996242">Ajudar a melhorar o Chrome enviando estatísticas de uso e relatórios de falha para o Google automaticamente</translation>
+<translation id="501080040224996242">Enviar estatísticas de uso e relatórios de falha automaticamente para o Google para ajudar a melhorar o Chrome</translation>
 <translation id="5912378097832178659">&amp;Editar mecanismos de pesquisa...</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (padrão)</translation>
 <translation id="614298788004369532">Esta página contém alguns elementos não seguros</translation>
@@ -612,7 +612,7 @@
 <translation id="7012108905414904806">No entanto, esta página inclui outros recursos que não são seguros. Esses recursos podem ser visualizados por outros enquanto navega e podem ser modificados por um invasor para alterar a aparência ou o comportamento da página.</translation>
 <translation id="7755167023778553803">No entanto, esta página inclui recursos de outros sites cuja identidade não é possível confirmar.</translation>
 <translation id="6451458296329894277">Confirmar reenvio do formulário</translation>
-<translation id="4307992518367153382">Noções básicas</translation>
+<translation id="4307992518367153382">Básicas</translation>
 <translation id="1709220265083931213">Configurações avançadas</translation>
 <translation id="1674989413181946727">Configurações SSL do computador inteiro:</translation>
 <translation id="582763753075639530">Feche todas as janelas do Chrome e reinicie o Chrome para que essa alteração entre em vigor.</translation>
@@ -669,15 +669,15 @@ Se continuar, o Chrome não procurará nenhuma outra correspondência incorreta 
 <translation id="1144950271450340860">Você tentou acessar &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, mas o servidor apresentou um certificado emitido por uma entidade que não é confiável para o sistema operacional do seu computador. Isso talvez indique que o servidor gerou suas próprias credenciais de segurança, em cujas informações de identidade o Google Chrome não confia, ou que um intruso pode estar tentando interceptar suas comunicações. Você não deve continuar, &lt;strong&gt;principalmente&lt;/strong&gt; se nunca tiver visto esse aviso antes neste site.</translation>
 <translation id="6009537148180854585">Você tentou acessar &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, mas o certificado apresentado pelo servidor contém erros. O Google Chrome não pode usar um certificado com erros e não pode validar a identidade do site ao qual você tentou se conectar. Sua conexão não é segura e você não deve continuar.</translation>
 <translation id="7106741999175697885">Gerenciador de tarefas - Google Chrome</translation>
-<translation id="1195935957447623558">O Google Chrome não foi encerrado corretamente. Para reabrir as páginas que tinham sido abertas, clique em &quot;Restaurar&quot;.</translation>
+<translation id="1195935957447623558">O Google Chrome não foi encerrado corretamente. Para reabrir as páginas que você tinha aberto, clique em &quot;Restaurar&quot;.</translation>
 <translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
 <translation id="2044287590254833138">Barra de ferramentas do Google Chrome</translation>
 <translation id="8449380764213232436">O Google Chrome agora está importando os seguintes itens do <ph name="BROWSER_COMPONENT"/>:</translation>
 <translation id="8562413501751825163">Fechar o Firefox antes de importar</translation>
 <translation id="6626317981028933585">Infelizmente, suas configurações do Mozilla Firefox não ficarão disponíveis enquanto esse navegador estiver sendo executado. Para importar essas configurações para o Google Chrome, salve o seu trabalho e feche todas as janelas do Firefox. Em seguida, clique em &quot;Continuar&quot;.</translation>
-<translation id="8446794773162156990">O Google Chrome está se comportando de forma inadequada</translation>
+<translation id="8446794773162156990">O Google Chrome não está se comportando bem</translation>
 <translation id="7400722733683201933">Sobre o Google Chrome</translation>
-<translation id="3591558551793645824">O Google Chrome foi desinstalado com sucesso. Adeus!</translation>
+<translation id="3591558551793645824">O Google Chrome foi desinstalado com sucesso. Até a próxima!</translation>
 <translation id="8172671748763307156">Tem certeza de que deseja desinstalar o Google Chrome? Foi algo que dissemos?</translation>
 <translation id="7161904924553537242">Bem-vindo ao Google Chrome</translation>
 <translation id="6921913858457830952">O Google Chrome está pronto para concluir a instalação.</translation>
@@ -695,18 +695,18 @@ Se continuar, o Chrome não procurará nenhuma outra correspondência incorreta 
 <translation id="8227755444512189073">O Google Chrome precisa iniciar um aplicativo externo para lidar com  os links <ph name="SCHEME"/>. O link solicitado é <ph name="PROTOLINK"/>.</translation>
 <translation id="8236873504073475138">O Google Chrome não é compatível com o Windows 2000. Alguns recursos talvez não funcionem.</translation>
 <translation id="3335672657969596251">O Google Chrome não é compatível com o <ph name="OS_NAME"/>.</translation>
-<translation id="1446473746922165495">Altere o idioma usado nos menus, nas caixas de diálogo e nas dicas de ferramenta do Google Chrome.</translation>
+<translation id="1446473746922165495">Altere o idioma dos menus, caixas de diálogo e dicas de ferramenta do Google Chrome.</translation>
 <translation id="8810218179782551669">Idioma do Google Chrome:</translation>
 <translation id="7958215378280655655">Ao redefinir as opções do Google Chrome, todas as alterações feitas serão revertidas para as configurações padrão. Deseja redefinir as opções do Chrome?</translation>
 <translation id="7100330187273168372">O Google Chrome não pode ler nem gravar em seu diretório de dados:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="3324235665723428530">O seu perfil não pode ser usado, pois ele é de uma versão mais recente do Google Chrome.\n\nAlguns recursos podem estar indisponíveis. Especifique um diretório de perfil diferente ou use uma versão mais recente do Chrome.</translation>
-<translation id="3319048459796106952">Nova janela &amp;incógnita</translation>
+<translation id="3319048459796106952">Nova janela &amp;anônima</translation>
 <translation id="1120026268649657149">A palavra-chave precisa estar vazia ou ser exclusiva</translation>
 <translation id="7481475534986701730">Sites visitados recentemente</translation>
 <translation id="8815061062167142136">Nossa! O Google Chrome travou. Deseja reiniciá-lo agora?</translation>
-<translation id="3889417619312448367">Instalar o Google Chrome</translation>
+<translation id="3889417619312448367">Desinstalar o Google Chrome</translation>
 <translation id="3169621169201401257">Para obter informações detalhadas sobre os problemas com esses elementos, visite a <ph name="DIAGNOSTIC_PAGE"/> do Google para <ph name="DOMAIN"/>.</translation>
-<translation id="2356762928523809690">Atualização de servidor não disponível (erro: <ph name="ERROR_NUMBER"/>)</translation>
+<translation id="2356762928523809690">Servidor de atualização não disponível (erro: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">&amp;Adicionar ao dicionário</translation>
 <translation id="2499193704281978000">O Google Chrome não responde. Deseja reiniciá-lo agora?</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
@@ -728,14 +728,15 @@ Se continuar, o Chrome não procurará nenhuma outra correspondência incorreta 
 <translation id="5098629044894065541">Hebraico</translation>
 <translation id="8899388739470541164">Vietnamita</translation>
 <translation id="1714078437629572290">Abrir a página inicial</translation>
-<translation id="5316814419223884568">Pesquisar a partir daqui</translation>
-<translation id="3065140616557457172">Digite para pesquisar ou insira um URL para navegar - ambos funcionam.</translation>
+<translation id="5316814419223884568">Pesquise a partir daqui</translation>
+<translation id="3065140616557457172">Digite para pesquisar ou insira um URL para navegar - o que você preferir.</translation>
 <translation id="4178055285485194276">Inicialização:</translation>
 <translation id="1154228249304313899">Abrir esta página:</translation>
-<translation id="3761000923495507277">Mostrar o botão de Início na barra de ferramentas</translation>
-<translation id="5291303148298143069">Notificar-me quando um pop-up é bloqueado</translation>
+<translation id="3761000923495507277">Mostrar o botão de Página Inicial na barra de ferramentas</translation>
+<translation id="5291303148298143069">Notificar quando um pop-up for bloqueado</translation>
 <translation id="3383487468758466563">Fontes e idiomas:</translation>
-<translation id="1137776625614346046">A área &quot;Mais visitados&quot; mostra os sites que você usa com mais freqüência. Depois de usar o Google Chrome por algum tempo, você verá os sites mais visitados sempre que abrir uma nova guia. Você pode saber mais sobre esse e outros recursos na <ph name="BEGIN_LINK"/>página Primeiros passos<ph name="END_LINK"/>.</translation>
-<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Você ficou no anonimato.<ph name="END_BOLD"/>. As páginas visualizadas nesta janela não aparecerão no histórico ou no histórico de pesquisa do seu navegador nem deixarão outros rastros em seu computador (por exemplo, cookies) após você fechar a janela incógnita. Porém, todos os arquivos que você baixar ou os favoritos que marcar serão preservados.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Ficar no anonimato não afeta o comportamento de outras pessoas, servidores ou softwares. Seja cuidadoso com:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Sites que coletam ou compartilham informações a seu respeito<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Provedores de internet ou empregadores que rastreiam as páginas visitadas por você<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Smileys gratuitos, pois eles podem ser iscas de softwares maliciosos<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Vigilância de agentes secretos<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Pessoas que ficam atrás de você quando navegando<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Saiba mais<ph name="END_LINK"/> sobre navegação anônima.</translation>
+<translation id="1137776625614346046">A área &quot;Mais visitados&quot; mostra os sites que você usa com mais freqüência. Depois de usar o Google Chrome por algum tempo, você verá os sites mais visitados sempre que abrir uma nova guia. Saiba mais sobre esse e outros recursos na <ph name="BEGIN_LINK"/>página Primeiros passos<ph name="END_LINK"/>.</translation>
+<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Você está no modo anônimo.<ph name="END_BOLD"/>. As páginas visualizadas nesta janela não aparecerão no histórico ou no histórico de pesquisa do seu navegador nem deixarão outros rastros em seu computador (por exemplo, cookies) após você fechar a janela incógnita. Porém, todos os arquivos que você baixar ou os favoritos que marcar serão preservados.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Ficar no anonimato não afeta o comportamento de outras pessoas, servidores ou softwares. Seja cuidadoso com:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Sites que coletam ou compartilham informações a seu respeito<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Provedores de internet ou empregadores que rastreiam as páginas visitadas por você<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Smileys gratuitos, pois eles podem ser iscas de softwares maliciosos<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Vigilância de agentes secretos<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Pessoas que ficam atrás de você quando navegando<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Saiba mais<ph name="END_LINK"/> sobre navegação anônima.</translation>
 <translation id="1604816462140255479">&amp;Zoom de texto</translation>
+<translation id="2089625293428655599">Partes deste software foram licenciadas de terceiros como descrito em: <ph name="URL"/></translation>
 </translationbundle>

@@ -117,7 +117,7 @@
 <translation id="5436510242972373446"><ph name="SITE_NAME"/> keresés:</translation>
 <translation id="6281636957902664775">Ugrás: <ph name="URL"/></translation>
 <translation id="5782620817391526544">Könyvjelzők eszköztára</translation>
-<translation id="2214283295778284209"><ph name="SITE"/> nem elérhető</translation>
+<translation id="2214283295778284209"><ph name="SITE"/> nem érhető el</translation>
 <translation id="790025292736025802"><ph name="URL"/> nem található</translation>
 <translation id="2108475813351458355">Biztonságos kapcsolat: <ph name="DOMAIN"/></translation>
 <translation id="7208899522964477531">&amp;Keresés a(z) <ph name="SITE_NAME"/> keresővel a(z) &quot;<ph name="SEARCH_TERMS"/>&quot; kifejezésre</translation>
@@ -638,7 +638,7 @@
 <translation id="6059232451013891645">Mappa:</translation>
 <translation id="3966072572894326936">Válasszon másik mappát...</translation>
 <translation id="746319800473277382">A webhely kezdőlapjának megtekintése:</translation>
-<translation id="8015746205953933323">Ez a weboldal nem elérhető.</translation>
+<translation id="8015746205953933323">Ez a weboldal nem érhető el.</translation>
 <translation id="3867260226944967367">Ez a weboldal nem található.</translation>
 <translation id="8598751847679122414">Ez a weboldal átirányítási körbe került.</translation>
 <translation id="877010697526426622">A(z) &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; weboldal lehet, hogy ideiglenesen nem érhető el, vagy véglegesen új címre költözött.</translation>
@@ -706,7 +706,7 @@
 <translation id="8815061062167142136">Jaj! A Google Chrome lefagyott. Újraindítja most?</translation>
 <translation id="3889417619312448367">A Google Chrome eltávolítása</translation>
 <translation id="3169621169201401257">Ha részletes információt szeretne az elemekkel kapcsolatban, nyissa meg a Google <ph name="DIAGNOSTIC_PAGE"/> oldalát az alábbi részére: <ph name="DOMAIN"/>.</translation>
-<translation id="2356762928523809690">A szerver frissítése nem elérhető (hiba: <ph name="ERROR_NUMBER"/>)</translation>
+<translation id="2356762928523809690">A szerver frissítése nem érhető el (hiba: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">&amp;Szótár hozzáadása</translation>
 <translation id="2499193704281978000">A Google Chrome nem válaszol. Újraindítja most?</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
@@ -714,28 +714,29 @@
 <translation id="1702534956030472451">Nyugati</translation>
 <translation id="6507969014813375884">Kínai egyszerűsített</translation>
 <translation id="2987775926667433828">Kínai (hagyományos)</translation>
-<translation id="8299269255470343364">japán</translation>
+<translation id="8299269255470343364">Japán</translation>
 <translation id="6419902127459849040">Közép-Európai</translation>
 <translation id="5453632173748266363">Cirill</translation>
-<translation id="770015031906360009">görög</translation>
+<translation id="770015031906360009">Görög</translation>
 <translation id="7587108133605326224">Balti</translation>
 <translation id="6833901631330113163">Dél-Európai</translation>
 <translation id="5048179823246820836">Skandináv</translation>
 <translation id="358344266898797651">Kelta</translation>
-<translation id="8045462269890919536">román</translation>
-<translation id="4711094779914110278">török</translation>
-<translation id="2822854841007275488">arab (ISO-8859-6)</translation>
-<translation id="5098629044894065541">héber</translation>
-<translation id="8899388739470541164">vietnámi</translation>
+<translation id="8045462269890919536">Román</translation>
+<translation id="4711094779914110278">Török</translation>
+<translation id="2822854841007275488">Arab (ISO-8859-6)</translation>
+<translation id="5098629044894065541">Héber</translation>
+<translation id="8899388739470541164">Vietnámi</translation>
 <translation id="1714078437629572290">A kezdőlap megnyitása</translation>
-<translation id="5316814419223884568">Keresés itt</translation>
+<translation id="5316814419223884568">Keresés egyenesen innen</translation>
 <translation id="3065140616557457172">Írja be a keresett kifejezést, vagy írja be a felkeresni kívánt URL-címet – mindkét lehetőség működik.</translation>
 <translation id="4178055285485194276">Kezdő oldalak:</translation>
 <translation id="1154228249304313899">A következő oldal megnyitása:</translation>
 <translation id="3761000923495507277">Kezdőlap gomb megjelenítése az eszköztáron</translation>
 <translation id="5291303148298143069">Értesítést szeretnék a pop-upok blokkolásáról</translation>
 <translation id="3383487468758466563">Betűtípusok és nyelvek:</translation>
-<translation id="1137776625614346046">A &quot;Leglátogatottabb&quot; rész alatt a leggyakrabban használt webhelyek láthatók. Amikor már egy ideje használja a Google Chrome-ot, a legtöbbször látogatott oldalak meg fognak jelenni minden újonnan megnyitott lapon. Tudjon meg többet erről vagy a többi funkcióról a <ph name="BEGIN_LINK"/>Kezdő lépések oldalán<ph name="END_LINK"/>.</translation>
-<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Ön inkognitóra váltott<ph name="END_BOLD"/>. Az inkognitóablakban megtekintett oldalak nem jelennek meg böngészője előzményeiben, illetve keresési előzményeiben, és nem hagynak más nyomot pl. cookie-t sem a számítógépén az inkognitóablak bezárását követően. A letöltött fájlok, valamint a létrehozott könyvjelzők azonban megmaradnak.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Az inkognitó üzemmód nem befolyásolja a többi ember, szerver vagy szoftver viselkedését. Ügyeljen a következőkre:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Olyan webhelyek, amelyek információt gyűjtenek vagy osztanak meg Önről<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Olyan internetszolgáltatók vagy alkalmazottaik, akik nyomon követik az Ön által látogatott oldalakat<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Olyan kártékony szoftverek, amelyek ingyenes hangulatjelekért cserébe nyomon követik billentyűbeviteleit<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Titkos ügynökök megfigyelése<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Az Ön mögött álló emberek<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>További tájékoztatás<ph name="END_LINK"/> az inkognitóban történő böngészésről.</translation>
-<translation id="1604816462140255479">Szöveg &amp;zoom</translation>
+<translation id="1137776625614346046">A &quot;Leggyakrabban látogatott webhelyek&quot; rész alatt a leggyakrabban használt webhelyek láthatók. Amikor már egy ideje használja a Google Chrome-ot, a legtöbbször látogatott oldalak meg fognak jelenni minden újonnan megnyitott lapon. További információ erről és a többi funkcióról a <ph name="BEGIN_LINK"/>Kezdő lépések oldalán<ph name="END_LINK"/> található.</translation>
+<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Ön inkognitóra váltott<ph name="END_BOLD"/>. Az inkognitóablakban megtekintett oldalak nem jelennek meg böngészője előzményeiben, illetve keresési előzményeiben, és nem hagynak más nyomot pl. cookie-t sem a számítógépén az inkognitóablak bezárását követően. A letöltött fájlok, valamint a létrehozott könyvjelzők azonban megmaradnak.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Az inkognitó üzemmód nem befolyásolja a többi felhasználó, szerver vagy szoftver viselkedését. Ügyeljen a következőkre:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Olyan webhelyek, amelyek információt gyűjtenek vagy osztanak meg Önről<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Olyan internetszolgáltatók vagy alkalmazottaik, akik nyomon követik az Ön által látogatott oldalakat<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Olyan kártékony szoftverek, amelyek ingyenes hangulatjelekért cserébe nyomon követik billentyűbeviteleit<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Titkos ügynökök megfigyelése<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Az Ön mögött álló emberek<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>További tájékoztatás<ph name="END_LINK"/> az inkognitóban történő böngészésről.</translation>
+<translation id="1604816462140255479">Nagyítás/kicsinyítés</translation>
+<translation id="2089625293428655599">A jelen szoftver bizonyos részeit harmadik féltől licenceltük, az alábbi címen leírtak szerint: <ph name="URL"/></translation>
 </translationbundle>

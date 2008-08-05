@@ -279,7 +279,7 @@
 <translation id="1383861834909034572">Apri al termine</translation>
 <translation id="2371076942591664043">Apri al &amp;termine</translation>
 <translation id="5139955368427980650">&amp;Apri</translation>
-<translation id="7167486101654761064">Apri &amp;sempre file di questo tipo</translation>
+<translation id="7167486101654761064">&amp;Apri sempre file di questo tipo</translation>
 <translation id="3807747707162121253">&amp;Annulla</translation>
 <translation id="5819484510464120153">Crea &amp;scorciatoie applicazione...</translation>
 <translation id="116506693382293616">Alcuni elementi presenti in questa pagina sono stati recuperati da una connessione con errori SSL.</translation>
@@ -328,7 +328,7 @@
 <translation id="2961695502793809356">Fai clic per andare avanti, tieni premuto per vedere la cronologia</translation>
 <translation id="7221869452894271364">Ricarica questa pagina</translation>
 <translation id="3254409185687681395">Aggiungi ai Preferiti</translation>
-<translation id="4422347585044846479">Modifica Preferito per la pagina</translation>
+<translation id="4422347585044846479">Modifica Preferito</translation>
 <translation id="4084682180776658562">Aggiungi ai Preferiti</translation>
 <translation id="5646376287012673985">Percorso</translation>
 <translation id="1040471547130882189">Il plug-in non risponde</translation>
@@ -570,8 +570,8 @@
 <translation id="4890855023395992542">URL servizio:</translation>
 <translation id="8186012393692847636">Utilizza i suggerimenti per completare i termini di ricerca e gli URL digitati nella barra degli indirizzi</translation>
 <translation id="8041183585493091279">URL suggerimenti:</translation>
-<translation id="1676388805288306495">Modifica il carattere e la lingua predefinita per le pagine web.</translation>
-<translation id="4244236525807044920">Modifica carattere e lingua</translation>
+<translation id="1676388805288306495">Cambia carattere e lingua predefiniti per le pagine web.</translation>
+<translation id="4244236525807044920">Cambia carattere e lingua</translation>
 <translation id="7736284018483078792">Cambia la lingua del dizionario.</translation>
 <translation id="5433207235435438329">Lingua correttore ortografico:</translation>
 <translation id="2441719842399509963">Ripristina impostazioni predefinite</translation>
@@ -618,7 +618,7 @@
 <translation id="582763753075639530">Chiudi tutte le finestre di Chrome e riavvia il programma per rendere effettiva la modifica.</translation>
 <translation id="9015241028623917394">Controlla pagina corrente</translation>
 <translation id="8502249598105294518">Personalizza e controlla <ph name="PRODUCT_NAME"/></translation>
-<translation id="4475552974751346499">Cerca nei download</translation>
+<translation id="4475552974751346499">Cerca tra i file scaricati</translation>
 <translation id="3473034187222004855">Copia &amp;percorso file</translation>
 <translation id="3577682619813191010">Copia &amp;file</translation>
 <translation id="7029809446516969842">Password</translation>
@@ -690,8 +690,8 @@
 <translation id="213581405366815208">Annullare l'installazione di Google Chrome? Se desideri continuare in seguito, apri Chrome dalla cartella dei programmi del menu di avvio.</translation>
 <translation id="5941830788786076944">Imposta Google Chrome come browser predefinito</translation>
 <translation id="7001386529596391893">Crea scorciatoie di Google Chrome nei seguenti percorsi:</translation>
-<translation id="480990236307250886">Apri home page</translation>
-<translation id="6514771739083339959">Home page:</translation>
+<translation id="480990236307250886">Apri pagina iniziale</translation>
+<translation id="6514771739083339959">Pagina iniziale:</translation>
 <translation id="1665770420914915777">Usa la pagina Nuova scheda</translation>
 <translation id="4726901538158498735">Ricerca predefinita</translation>
 <translation id="2231233239095101917">Lo script presente nella pagina ha utilizzato troppa memoria. Ricarica la pagina per attivare nuovamente gli script.</translation>
@@ -730,16 +730,16 @@
 <translation id="2822854841007275488">Arabo</translation>
 <translation id="5098629044894065541">Ebraico</translation>
 <translation id="8899388739470541164">Vietnamita</translation>
-<translation id="1714078437629572290">Apri la home page</translation>
+<translation id="1714078437629572290">Apri la pagina iniziale</translation>
 <translation id="5316814419223884568">Cerca da qui</translation>
-<translation id="3065140616557457172">Digita e cerca o inserisci un URL per navigare. Entrambe le soluzioni funzionano.</translation>
+<translation id="3065140616557457172">Digita i termini di ricerca o inserisci un URL per navigare. Entrambe le soluzioni funzionano.</translation>
 <translation id="4178055285485194276">All'avvio:</translation>
 <translation id="1154228249304313899">Apri questa pagina:</translation>
-<translation id="3761000923495507277">Mostra pulsante Home page nella barra degli strumenti</translation>
+<translation id="3761000923495507277">Mostra pulsante Pagina iniziale nella barra degli strumenti</translation>
 <translation id="5291303148298143069">Avvisami quando un popup viene bloccato</translation>
 <translation id="3383487468758466563">Caratteri e lingue:</translation>
 <translation id="1137776625614346046">La sezione &quot;Più visitati&quot; mostra i siti web che hai visitato più spesso. Dopo aver utilizzato Chrome per un po' di tempo, vedrai i siti più visitati ogni volta che apri una nuova scheda. Per ulteriori informazioni su questa e altre funzioni, consulta la <ph name="BEGIN_LINK"/>pagina Come iniziare<ph name="END_LINK"/>.</translation>
-<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Sei passato alla navigazione in incognito<ph name="END_BOLD"/>. Le pagine aperte in questa finestra non vengono registrate nella cronologia di navigazione o di ricerca e non lasciano traccia come i cookie sul tuo computer una volta chiusa la finestra. Tuttavia, qualsiasi file scaricato o segnalibro creato verrà conservato.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>La navigazione in incognito non influisce sul comportamento di altri utenti, server o software. Diffida di:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Siti web che raccolgono o condividono informazioni su di te<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Provider di servizi Internet o datori di lavoro che registrano le pagine da te visitate<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Software dannosi che registrano le sequenze di tasti da te utilizzate in cambio di smiley gratuiti<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Agenti segreti<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Persone che ti stanno alle spalle<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Ulteriori informazioni<ph name="END_LINK"/> sulla navigazione in incognito.</translation>
-<translation id="1604816462140255479">Più grande</translation>
-<translation id="2089625293428655599">Parti di questo software sono state concesse in licenza da terzi parti come indicato all'indirizzo: <ph name="URL"/></translation>
+<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Sei passato alla navigazione in incognito<ph name="END_BOLD"/>. Le pagine aperte in questa finestra non vengono registrate nella cronologia di navigazione o di ricerca, e non lasciano traccia sul tuo computer, ad esempio sotto forma di cookie, una volta chiusa la finestra. Tuttavia, qualsiasi file scaricato o preferito creato verrà conservato.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>La navigazione in incognito non influisce sul comportamento di altri utenti, server o software. Diffida di:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Siti web che raccolgono o condividono informazioni su di te<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Provider di servizi Internet o datori di lavoro che registrano le pagine da te visitate<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Software dannosi che registrano le sequenze di tasti da te utilizzate in cambio di smiley gratuiti<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Agenti segreti<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Persone che ti stanno alle spalle<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Ulteriori informazioni<ph name="END_LINK"/> sulla navigazione in incognito.</translation>
+<translation id="1604816462140255479">Carattere</translation>
+<translation id="2089625293428655599">Parti di questo software sono state ottenute in licenza da terze parti come descritto alla pagina: <ph name="URL"/></translation>
 </translationbundle>
