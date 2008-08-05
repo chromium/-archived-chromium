@@ -88,6 +88,15 @@ int AeroGlassFrame::GetMinimizeButtonOffset() const {
 ///////////////////////////////////////////////////////////////////////////////
 // AeroGlassFrame, BrowserFrame implementation:
 
+gfx::Rect AeroGlassFrame::GetWindowBoundsForClientBounds(
+    const gfx::Rect& client_bounds) {
+  return gfx::Rect();
+}
+
+void AeroGlassFrame::SizeToContents(const gfx::Rect& contents_bounds) {
+  // TODO(beng): implement me.
+}
+
 gfx::Rect AeroGlassFrame::GetBoundsForTabStrip(TabStrip* tabstrip) const {
   return GetAeroGlassNonClientView()->GetBoundsForTabStrip(tabstrip);
 }

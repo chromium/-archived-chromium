@@ -47,6 +47,10 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   OpaqueNonClientView(OpaqueFrame* frame, bool is_otr);
   virtual ~OpaqueNonClientView();
 
+  // Retrieve the bounds of the window for the specified contents bounds.
+  gfx::Rect GetWindowBoundsForClientBounds(const gfx::Rect& client_bounds);
+
+  // Retrieve the bounds that the specified |tabstrip| will be laid out within.
   gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip);
 
  protected:

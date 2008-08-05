@@ -67,6 +67,7 @@ class BrowserWindow {
   // default screen.
   virtual void Show(int command, bool adjust_to_fit) = 0;
 
+  // TODO(beng): REMOVE
   // Invoked by the browser when painting occurred. This is called as a
   // result of calling Browser::Paint()
   // TODO(ACW) We really need a cross platform region class to replace
@@ -82,6 +83,7 @@ class BrowserWindow {
   // returns an HWND.
   virtual void* GetPlatformID() = 0;
 
+  // TODO(beng): REMOVE (obtain via BrowserFrame).
   // Return the TabStrip associated with the frame.
   virtual TabStrip* GetTabStrip() const = 0;
 
@@ -148,13 +150,16 @@ class BrowserWindow {
   // If necessary, the appropriate painting is scheduled.
   virtual void ValidateThrobber() { }
 
+  // TODO(beng): RENAME (GetRestoredBounds)
   // Returns the nonmaximized bounds of the frame (even if the frame is
   // currently maximized or minimized) in terms of the screen coordinates.
   virtual gfx::Rect GetNormalBounds() = 0;
 
+  // TODO(beng): REMOVE?
   // Returns true if the frame is maximized (aka zoomed).
   virtual bool IsMaximized() = 0;
 
+  // TODO(beng): REMOVE - this work should be done entirely in the frames.
   // Returns the bounds required to accomodate for some contents located at the
   // provided rectangle. The result is in whatever coordinate system used for
   // |content_rect|.

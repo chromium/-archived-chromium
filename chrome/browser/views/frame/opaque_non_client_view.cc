@@ -417,6 +417,19 @@ OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame, bool is_otr)
 OpaqueNonClientView::~OpaqueNonClientView() {
 }
 
+gfx::Rect OpaqueNonClientView::GetWindowBoundsForClientBounds(
+    const gfx::Rect& client_bounds) {
+  int top_height = CalculateNonClientTopHeight();
+  // TODO(beng): support popups.
+  //top_height += browser_view_->GetToolbarHeightForPopup();
+  int window_x = std::max(0, client_bounds.x() - kWindowHorizontalBorderSize);
+  int window_y = std::max(0, client_bounds.y() - top_height);
+  int window_w = client_bounds.width() + (2 * kWindowHorizontalBorderSize);
+  int window_h =
+      client_bounds.height() + top_height + kWindowVerticalBorderSize;
+  return gfx::Rect(window_x, window_y, window_w, window_h);
+}
+
 gfx::Rect OpaqueNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
   int tabstrip_height = tabstrip->GetPreferredHeight();
   int tabstrip_x = frame_->client_view()->GetX() - 4;

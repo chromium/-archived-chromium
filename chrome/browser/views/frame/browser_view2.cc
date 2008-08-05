@@ -46,6 +46,8 @@ static const int kToolbarTabStripVerticalOverlap = 3;
 static const int kTabShadowSize = 2;
 static const int kStatusBubbleHeight = 20;
 static const int kStatusBubbleOffset = 2;
+static const int kSeparationLineHeight = 1;
+static const SkColor kSeparationLineColor = SkColorSetRGB(178, 178, 178);
 
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView2, public:
@@ -117,7 +119,7 @@ void* BrowserView2::GetPlatformID() {
 }
 
 TabStrip* BrowserView2::GetTabStrip() const {
-  return NULL;
+  return tabstrip_;
 }
 
 StatusBubble* BrowserView2::GetStatusBubble() {
@@ -145,15 +147,24 @@ void BrowserView2::SelectedTabToolbarSizeChanged(bool is_animating) {
 }
 
 void BrowserView2::UpdateTitleBar() {
+  frame_->GetWindow()->UpdateWindowTitle();
 }
 
 void BrowserView2::SetWindowTitle(const std::wstring& title) {
 }
 
 void BrowserView2::Activate() {
+  frame_->GetWindow()->Activate();
 }
 
 void BrowserView2::FlashFrame() {
+  FLASHWINFO fwi;
+  fwi.cbSize = sizeof(fwi);
+  fwi.hwnd = frame_->GetWindow()->GetHWND();
+  fwi.dwFlags = FLASHW_ALL;
+  fwi.uCount = 4;
+  fwi.dwTimeout = 0;
+  FlashWindowEx(&fwi);
 }
 
 void BrowserView2::ShowTabContents(TabContents* contents) {
@@ -173,6 +184,7 @@ void BrowserView2::ContinueDetachConstrainedWindowDrag(
 }
 
 void BrowserView2::SizeToContents(const gfx::Rect& contents_bounds) {
+  frame_->SizeToContents(contents_bounds);
 }
 
 void BrowserView2::SetAcceleratorTable(
@@ -183,16 +195,20 @@ void BrowserView2::ValidateThrobber() {
 }
 
 gfx::Rect BrowserView2::GetNormalBounds() {
-  return gfx::Rect();
+  WINDOWPLACEMENT wp;
+  wp.length = sizeof(wp);
+  const bool ret = !!GetWindowPlacement(frame_->GetWindow()->GetHWND(), &wp);
+  DCHECK(ret);
+  return gfx::Rect(wp.rcNormalPosition);
 }
 
 bool BrowserView2::IsMaximized() {
-  return false;
+  return frame_->GetWindow()->IsMaximized();
 }
 
 gfx::Rect BrowserView2::GetBoundsForContentBounds(
     const gfx::Rect content_rect) {
-  return gfx::Rect();
+  return frame_->GetWindowBoundsForClientBounds(content_rect);
 }
 
 void BrowserView2::DetachFromBrowser() {
@@ -268,7 +284,7 @@ std::wstring BrowserView2::GetWindowTitle() const {
 }
 
 ChromeViews::View* BrowserView2::GetInitiallyFocusedView() const {
-  return NULL;
+  return GetLocationBarView();
 }
 
 bool BrowserView2::ShouldShowWindowTitle() const {
@@ -290,11 +306,36 @@ void BrowserView2::ExecuteWindowsCommand(int command_id) {
   }
 }
 
+void BrowserView2::SaveWindowPosition(const CRect& bounds,
+                                      bool maximized,
+                                      bool always_on_top) {
+  // TODO(beng): implement me!
+  //browser_->SaveWindowPosition(gfx::Rect(bounds), maximized);
+}
+
+bool BrowserView2::RestoreWindowPosition(CRect* bounds,
+                                         bool* maximized,
+                                         bool* always_on_top) {
+  DCHECK(bounds && maximized && always_on_top);
+  *always_on_top = false;
+  /* TODO(beng): implement this method in Browser
+  browser_->RestoreWindowPosition(bounds, maximized);
+
+  // We return true because we can _always_ locate reasonable bounds using the
+  // WindowSizer, and we don't want to trigger the Window's built-in "size to
+  // default" handling because the browser window has no default preferred
+  // size.
+  return true;
+  */
+  // For now, return false to just use whatever was given to us by Browser...
+  return false;
+}
+
 void BrowserView2::WindowClosing() {
 }
 
 ChromeViews::View* BrowserView2::GetContentsView() {
-  return NULL;
+  return contents_container_;
 }
 
 ChromeViews::ClientView* BrowserView2::CreateClientView(
@@ -307,6 +348,32 @@ ChromeViews::ClientView* BrowserView2::CreateClientView(
 // BrowserView2, ChromeViews::ClientView overrides:
 
 bool BrowserView2::CanClose() const {
+  // You cannot close a frame for which there is an active originating drag
+  // session.
+  if (tabstrip_->IsDragSessionActive())
+    return false;
+
+  // Give beforeunload handlers the chance to cancel the close before we hide
+  // the window below.
+  if (!browser_->ShouldCloseWindow())
+    return false;
+
+  if (!browser_->tabstrip_model()->empty()) {
+    // Tab strip isn't empty.  Hide the frame (so it appears to have closed
+    // immediately) and close all the tabs, allowing the renderers to shut
+    // down. When the tab strip is empty we'll be called back again.
+    frame_->GetWindow()->Hide();
+    browser_->OnWindowClosing();
+    return false;
+  }
+
+  // Empty TabStripModel, it's now safe to allow the Window to be closed.
+  /*
+  // TODO(beng): for some reason, this won't compile. Figure it out.
+  NotificationService::current()->Notify(
+      NOTIFY_WINDOW_CLOSED, Source<HWND>(frame_->GetWindow()->GetHWND()),
+      NotificationService::NoDetails());
+      */
   return true;
 }
 
@@ -416,6 +483,7 @@ int BrowserView2::LayoutBookmarkAndInfoBars(int top) {
     return LayoutBookmarkBar(top);
   }
   // Otherwise, Bookmark bar first, Info bar second.
+  top -= kSeparationLineHeight;
   top = LayoutBookmarkBar(top);
   return LayoutInfoBar(top);
 }

@@ -464,6 +464,9 @@ TabStrip::TabStrip(TabStripModel* model)
 }
 
 TabStrip::~TabStrip() {
+  // TODO(beng): (1031854) Restore this line once XPFrame/VistaFrame are dead.
+  //model_->RemoveObserver(this);
+
   // Stop any existing Loading Animation timer.
   MessageLoop::current()->timer_manager()->StopTimer(
       loading_animation_timer_.get());

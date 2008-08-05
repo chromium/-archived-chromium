@@ -115,6 +115,12 @@ class BrowserView2 : public BrowserWindow,
   virtual SkBitmap GetWindowIcon();
   virtual bool ShouldShowWindowIcon() const;
   virtual void ExecuteWindowsCommand(int command_id);
+  virtual void SaveWindowPosition(const CRect& bounds,
+                                  bool maximized,
+                                  bool always_on_top);
+  virtual bool RestoreWindowPosition(CRect* bounds,
+                                     bool* maximized,
+                                     bool* always_on_top);
   virtual void WindowClosing();
   virtual ChromeViews::View* GetContentsView();
   virtual ChromeViews::ClientView* CreateClientView(

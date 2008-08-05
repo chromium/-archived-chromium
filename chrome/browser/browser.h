@@ -386,6 +386,7 @@ class Browser : public TabStripModelDelegate,
   friend class XPFrame;
   friend class VistaFrame;
   friend class SimpleFrame;
+  friend class BrowserView2;
 
   // Tracks invalidates to the UI, see the declaration in the .cc file.
   struct UIUpdate;

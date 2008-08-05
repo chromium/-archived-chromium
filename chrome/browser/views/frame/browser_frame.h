@@ -48,6 +48,16 @@ class TabStrip;
 //
 class BrowserFrame {
  public:
+  // TODO(beng): We should _not_ have to expose this method here... it's only
+  //             because BrowserView2 needs it to implement BrowserWindow
+  //             because we're doing popup setup in browser.cc when we
+  //             shouldn't be...
+  virtual gfx::Rect GetWindowBoundsForClientBounds(
+      const gfx::Rect& client_bounds) = 0;
+
+  // Sizes the frame assuming the contents view's bounds are as specified.
+  virtual void SizeToContents(const gfx::Rect& contents_bounds) = 0;
+
   // Returns the bounds that should be used to size and position the specified
   // TabStrip.
   virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const = 0;

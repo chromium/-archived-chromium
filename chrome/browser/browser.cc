@@ -1639,6 +1639,7 @@ void Browser::BuildPopupWindow(TabContents* source,
   browser->AddNewContents(source, new_contents,
                           NEW_FOREGROUND_TAB, gfx::Rect(), true);
 
+  // TODO(beng): (1031854) Move most of this to the frames!!
   // For newly opened popup windows, the incoming width/height
   // numbers are for the content area, but x/y are for the actual
   // window position. Thus we can't just call MoveContents().

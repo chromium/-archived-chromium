@@ -57,6 +57,18 @@ gfx::Rect OpaqueFrame::GetContentsBounds() const {
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueFrame, BrowserFrame implementation:
 
+gfx::Rect OpaqueFrame::GetWindowBoundsForClientBounds(
+    const gfx::Rect& client_bounds) {
+  return GetOpaqueNonClientView()->GetWindowBoundsForClientBounds(
+      client_bounds);
+}
+
+void OpaqueFrame::SizeToContents(const gfx::Rect& contents_bounds) {
+  gfx::Rect window_bounds = GetOpaqueNonClientView()->
+      GetWindowBoundsForClientBounds(contents_bounds);
+  SetBounds(window_bounds);
+}
+
 gfx::Rect OpaqueFrame::GetBoundsForTabStrip(TabStrip* tabstrip) const {
   return GetOpaqueNonClientView()->GetBoundsForTabStrip(tabstrip);
 }
