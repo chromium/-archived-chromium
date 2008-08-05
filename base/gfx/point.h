@@ -30,6 +30,8 @@
 #ifndef BASE_GFX_POINT_H__
 #define BASE_GFX_POINT_H__
 
+#include "build/build_config.h"
+
 #ifdef UNIT_TEST
 #include <iostream>
 #endif
