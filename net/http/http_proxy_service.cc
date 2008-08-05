@@ -106,10 +106,6 @@ std::wstring HttpProxyList::Get() const {
   return std::wstring();
 }
 
-const std::vector<std::wstring>& HttpProxyList::GetVector() const {
-  return proxies_;
-}
-
 std::wstring HttpProxyList::GetList() const {
   std::wstring proxy_list;
   std::vector<std::wstring>::const_iterator iter = proxies_.begin();
@@ -160,7 +156,7 @@ HttpProxyInfo::HttpProxyInfo()
 }
 
 void HttpProxyInfo::Use(const HttpProxyInfo& other) {
-  proxy_list_.SetVector(other.proxy_list_.GetVector());
+  proxy_list_ = other.proxy_list_;
 }
 
 void HttpProxyInfo::UseDirect() {

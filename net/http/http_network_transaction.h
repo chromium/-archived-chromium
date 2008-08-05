@@ -30,8 +30,11 @@
 #ifndef NET_HTTP_HTTP_NETWORK_TRANSACTION_H_
 #define NET_HTTP_HTTP_NETWORK_TRANSACTION_H_
 
+#include <string>
+
 #include "base/ref_counted.h"
 #include "net/base/address_list.h"
+#include "net/base/host_resolver.h"
 #include "net/http/http_connection.h"
 #include "net/http/http_proxy_service.h"
 #include "net/http/http_response_info.h"
@@ -112,7 +115,7 @@ class HttpNetworkTransaction : public HttpTransaction {
   HttpProxyService::PacRequest* pac_request_;
   HttpProxyInfo proxy_info_;
 
-  scoped_ptr<HostResolver> resolver_;
+  HostResolver resolver_;
   AddressList addresses_;
 
   ClientSocketFactory* socket_factory_;
@@ -120,12 +123,12 @@ class HttpNetworkTransaction : public HttpTransaction {
   bool reused_socket_;
 
   bool using_ssl_;     // True if handling a HTTPS request
-  bool using_proxy_;   // True if using a HTTP proxy
+  bool using_proxy_;   // True if using a proxy for HTTP (not HTTPS)
   bool using_tunnel_;  // True if using a tunnel for HTTPS
 
   std::string request_headers_;
+  size_t request_headers_bytes_sent_;
   scoped_ptr<UploadDataStream> request_body_stream_;
-  uint64 bytes_sent_;
 
   // The read buffer may be larger than it is full.  The 'capacity' indicates
   // the allocation size of the buffer, and the 'len' indicates how much data

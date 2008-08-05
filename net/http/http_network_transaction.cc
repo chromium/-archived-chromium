@@ -51,13 +51,6 @@ namespace net {
 
 //-----------------------------------------------------------------------------
 
-// TODO(darin): Move this onto HttpProxyInfo
-static std::string GetProxyHostPort(const HttpProxyInfo& pi) {
-  return WideToASCII(pi.proxy_server());
-}
-
-//-----------------------------------------------------------------------------
-
 HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
                                                ClientSocketFactory* csf)
 #pragma warning(suppress: 4355)
@@ -72,7 +65,7 @@ HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
       using_ssl_(false),
       using_proxy_(false),
       using_tunnel_(false),
-      bytes_sent_(0),
+      request_headers_bytes_sent_(0),
       header_buf_capacity_(0),
       header_buf_len_(0),
       header_buf_body_offset_(-1),
@@ -81,6 +74,85 @@ HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
       read_buf_(NULL),
       read_buf_len_(0),
       next_state_(STATE_NONE) {
+}
+
+void HttpNetworkTransaction::Destroy() {
+  delete this;
+}
+
+int HttpNetworkTransaction::Start(const HttpRequestInfo* request_info,
+                                  CompletionCallback* callback) {
+  request_ = request_info;
+
+  next_state_ = STATE_RESOLVE_PROXY;
+  int rv = DoLoop(OK);
+  if (rv == ERR_IO_PENDING)
+    user_callback_ = callback;
+  return rv;
+}
+
+int HttpNetworkTransaction::RestartIgnoringLastError(
+    CompletionCallback* callback) {
+  return ERR_FAILED;  // TODO(darin): implement me!
+}
+
+int HttpNetworkTransaction::RestartWithAuth(
+    const std::wstring& username,
+    const std::wstring& password,
+    CompletionCallback* callback) {
+  return ERR_FAILED;  // TODO(darin): implement me!
+}
+
+int HttpNetworkTransaction::Read(char* buf, int buf_len,
+                                 CompletionCallback* callback) {
+  DCHECK(response_.headers);
+  DCHECK(buf);
+  DCHECK(buf_len > 0);
+
+  if (!connection_.is_initialized())
+    return 0;  // connection_ has been reset.  Treat like EOF.
+
+  read_buf_ = buf;
+  read_buf_len_ = buf_len;
+
+  next_state_ = STATE_READ_BODY;
+  int rv = DoLoop(OK);
+  if (rv == ERR_IO_PENDING)
+    user_callback_ = callback;
+  return rv;
+}
+
+const HttpResponseInfo* HttpNetworkTransaction::GetResponseInfo() const {
+  return response_.headers ? &response_ : NULL;
+}
+
+LoadState HttpNetworkTransaction::GetLoadState() const {
+  // TODO(wtc): Define a new LoadState value for the
+  // STATE_INIT_CONNECTION_COMPLETE state, which delays the HTTP request.
+  switch (next_state_) {
+    case STATE_RESOLVE_PROXY_COMPLETE:
+      return LOAD_STATE_RESOLVING_PROXY_FOR_URL;
+    case STATE_RESOLVE_HOST_COMPLETE:
+      return LOAD_STATE_RESOLVING_HOST;
+    case STATE_CONNECT_COMPLETE:
+      return LOAD_STATE_CONNECTING;
+    case STATE_WRITE_HEADERS_COMPLETE:
+    case STATE_WRITE_BODY_COMPLETE:
+      return LOAD_STATE_SENDING_REQUEST;
+    case STATE_READ_HEADERS_COMPLETE:
+      return LOAD_STATE_WAITING_FOR_RESPONSE;
+    case STATE_READ_BODY_COMPLETE:
+      return LOAD_STATE_READING_RESPONSE;
+    default:
+      return LOAD_STATE_IDLE;
+  }
+}
+
+uint64 HttpNetworkTransaction::GetUploadProgress() const {
+  if (!request_body_stream_.get())
+    return 0;
+
+  return request_body_stream_->position();
 }
 
 HttpNetworkTransaction::~HttpNetworkTransaction() {
@@ -156,7 +228,7 @@ void HttpNetworkTransaction::DoCallback(int rv) {
   DCHECK(rv != ERR_IO_PENDING);
   DCHECK(user_callback_);
 
-  // Since Run may result in Read being called, clear callback_ up front.
+  // Since Run may result in Read being called, clear user_callback_ up front.
   CompletionCallback* c = user_callback_;
   user_callback_ = NULL;
   c->Run(rv);
@@ -177,48 +249,56 @@ int HttpNetworkTransaction::DoLoop(int result) {
     next_state_ = STATE_NONE;
     switch (state) {
       case STATE_RESOLVE_PROXY:
+        DCHECK(rv == OK);
         rv = DoResolveProxy();
         break;
       case STATE_RESOLVE_PROXY_COMPLETE:
         rv = DoResolveProxyComplete(rv);
         break;
       case STATE_INIT_CONNECTION:
+        DCHECK(rv == OK);
         rv = DoInitConnection();
         break;
       case STATE_INIT_CONNECTION_COMPLETE:
         rv = DoInitConnectionComplete(rv);
         break;
       case STATE_RESOLVE_HOST:
+        DCHECK(rv == OK);
         rv = DoResolveHost();
         break;
       case STATE_RESOLVE_HOST_COMPLETE:
         rv = DoResolveHostComplete(rv);
         break;
       case STATE_CONNECT:
+        DCHECK(rv == OK);
         rv = DoConnect();
         break;
       case STATE_CONNECT_COMPLETE:
         rv = DoConnectComplete(rv);
         break;
       case STATE_WRITE_HEADERS:
+        DCHECK(rv == OK);
         rv = DoWriteHeaders();
         break;
       case STATE_WRITE_HEADERS_COMPLETE:
         rv = DoWriteHeadersComplete(rv);
         break;
       case STATE_WRITE_BODY:
+        DCHECK(rv == OK);
         rv = DoWriteBody();
         break;
       case STATE_WRITE_BODY_COMPLETE:
         rv = DoWriteBodyComplete(rv);
         break;
       case STATE_READ_HEADERS:
+        DCHECK(rv == OK);
         rv = DoReadHeaders();
         break;
       case STATE_READ_HEADERS_COMPLETE:
         rv = DoReadHeadersComplete(rv);
         break;
       case STATE_READ_BODY:
+        DCHECK(rv == OK);
         rv = DoReadBody();
         break;
       case STATE_READ_BODY_COMPLETE:
@@ -227,6 +307,7 @@ int HttpNetworkTransaction::DoLoop(int result) {
       default:
         NOTREACHED() << "bad state";
         rv = ERR_FAILED;
+        break;
     }
   } while (rv != ERR_IO_PENDING && next_state_ != STATE_NONE);
 
@@ -266,10 +347,11 @@ int HttpNetworkTransaction::DoInitConnection() {
   // Build the string used to uniquely identify connections of this type.
   std::string connection_group;
   if (using_proxy_ || using_tunnel_)
-    connection_group = "proxy/" + GetProxyHostPort(proxy_info_) + "/";
+    connection_group = "proxy/" + proxy_info_.GetProxyServer() + "/";
   if (!using_proxy_)
     connection_group.append(request_->url.GetOrigin().spec());
 
+  DCHECK(!connection_group.empty());
   return connection_.Init(connection_group, &io_callback_);
 }
 
@@ -293,14 +375,12 @@ int HttpNetworkTransaction::DoInitConnectionComplete(int result) {
 int HttpNetworkTransaction::DoResolveHost() {
   next_state_ = STATE_RESOLVE_HOST_COMPLETE;
 
-  DCHECK(!resolver_.get());
-
   std::string host;
   int port;
 
   // Determine the host and port to connect to.
   if (using_proxy_ || using_tunnel_) {
-    const std::string& proxy = GetProxyHostPort(proxy_info_);
+    const std::string& proxy = proxy_info_.GetProxyServer();
     StringTokenizer t(proxy, ":");
     // TODO(darin): Handle errors here.  Perhaps HttpProxyInfo should do this
     // before claiming a proxy server configuration.
@@ -309,9 +389,10 @@ int HttpNetworkTransaction::DoResolveHost() {
     t.GetNext();
     port = static_cast<int>(StringToInt64(t.token()));
   } else {
+    // Direct connection
     host = request_->url.host();
     port = request_->url.IntPort();
-    if (port == -1) {
+    if (port == url_parse::PORT_UNSPECIFIED) {
       if (using_ssl_) {
         port = 443;  // Default HTTPS port
       } else {
@@ -320,12 +401,10 @@ int HttpNetworkTransaction::DoResolveHost() {
     }
   }
 
-  resolver_.reset(new HostResolver());
-  return resolver_->Resolve(host, port, &addresses_, &io_callback_);
+  return resolver_.Resolve(host, port, &addresses_, &io_callback_);
 }
 
 int HttpNetworkTransaction::DoResolveHostComplete(int result) {
-  resolver_.reset();
   if (result == OK)
     next_state_ = STATE_CONNECT;
   return result;
@@ -363,11 +442,12 @@ int HttpNetworkTransaction::DoWriteHeaders() {
 
   // Record our best estimate of the 'request time' as the time when we send
   // out the first bytes of the request headers.
-  if (bytes_sent_ == 0)
+  if (request_headers_bytes_sent_ == 0)
     response_.request_time = Time::Now();
 
-  const char* buf = request_headers_.data() + bytes_sent_;
-  int buf_len = static_cast<int>(request_headers_.size() - bytes_sent_);
+  const char* buf = request_headers_.data() + request_headers_bytes_sent_;
+  int buf_len = static_cast<int>(request_headers_.size() -
+                                 request_headers_bytes_sent_);
   DCHECK(buf_len > 0);
 
   return connection_.socket()->Write(buf, buf_len, &io_callback_);
@@ -377,8 +457,8 @@ int HttpNetworkTransaction::DoWriteHeadersComplete(int result) {
   if (result < 0)
     return HandleIOError(result);
 
-  bytes_sent_ += result;
-  if (bytes_sent_ < request_headers_.size()) {
+  request_headers_bytes_sent_ += result;
+  if (request_headers_bytes_sent_ < request_headers_.size()) {
     next_state_ = STATE_WRITE_HEADERS;
   } else if (request_->upload_data) {
     next_state_ = STATE_WRITE_BODY;
@@ -450,16 +530,14 @@ int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
     // TODO(darin): Check for a HTTP/0.9 response.
 
     int eoh = HttpUtil::LocateEndOfHeaders(header_buf_.get(), header_buf_len_);
-    if (eoh != -1) {
-      header_buf_body_offset_ = eoh;
-    } else {
+    if (eoh == -1) {
       next_state_ = STATE_READ_HEADERS;  // Read more.
       return OK;
     }
+    header_buf_body_offset_ = eoh;
   }
 
   // And, we are done with the Start sequence.
-  next_state_ = STATE_NONE;
   return DidReadResponseHeaders();
 }
 
@@ -470,13 +548,17 @@ int HttpNetworkTransaction::DoReadBody() {
 
   next_state_ = STATE_READ_BODY_COMPLETE;
 
-  // We may have some data remaining in the read buffer.
+  // We may have some data remaining in the header buffer.
   if (header_buf_.get() && header_buf_body_offset_ < header_buf_len_) {
     int n = std::min(read_buf_len_, header_buf_len_ - header_buf_body_offset_);
     memcpy(read_buf_, header_buf_.get() + header_buf_body_offset_, n);
     header_buf_body_offset_ += n;
-    if (header_buf_body_offset_ == header_buf_len_)
+    if (header_buf_body_offset_ == header_buf_len_) {
       header_buf_.reset();
+      header_buf_capacity_ = 0;
+      header_buf_len_ = 0;
+      header_buf_body_offset_ = -1;
+    }
     return n;
   }
 
@@ -486,10 +568,12 @@ int HttpNetworkTransaction::DoReadBody() {
 int HttpNetworkTransaction::DoReadBodyComplete(int result) {
   // We are done with the Read call.
 
+  bool unfiltered_eof = (result == 0);
+
   // Filter incoming data if appropriate.  FilterBuf may return an error.
   if (result > 0 && chunked_decoder_.get()) {
     result = chunked_decoder_->FilterBuf(read_buf_, result);
-    if (result == 0) {
+    if (result == 0 && !chunked_decoder_->reached_eof()) {
       // Don't signal completion of the Read call yet or else it'll look like
       // we received end-of-file.  Wait for more data.
       next_state_ = STATE_READ_BODY;
@@ -503,18 +587,25 @@ int HttpNetworkTransaction::DoReadBodyComplete(int result) {
     done = true;
   } else {
     content_read_ += result;
-    if ((content_length_ != -1 && content_read_ >= content_length_) ||
+    if (unfiltered_eof ||
+        (content_length_ != -1 && content_read_ >= content_length_) ||
         (chunked_decoder_.get() && chunked_decoder_->reached_eof())) {
       done = true;
       keep_alive = response_.headers->IsKeepAlive();
+      // We can't reuse the connection if we read more than the advertised
+      // content length.
+      if (unfiltered_eof ||
+          (content_length_ != -1 && content_read_ > content_length_))
+        keep_alive = false;
     }
   }
 
-  // Cleanup the HttpConnection if we are done.
+  // Clean up the HttpConnection if we are done.
   if (done) {
     if (!keep_alive)
       connection_.set_socket(NULL);
     connection_.Reset();
+    // The next Read call will return 0 (EOF).
   }
 
   // Clear these to avoid leaving around old state.
@@ -532,7 +623,13 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
   // allowed to send this response even if we didn't ask for it, so we just
   // need to skip over it.
   if (headers->response_code() == 100) {
-    header_buf_len_ = 0;
+    header_buf_len_ -= header_buf_body_offset_;
+    // If we've already received some bytes after the 100 Continue response,
+    // move them to the beginning of header_buf_.
+    if (header_buf_len_) {
+      memmove(header_buf_.get(), header_buf_.get() + header_buf_body_offset_,
+              header_buf_len_);
+    }
     header_buf_body_offset_ = -1;
     next_state_ = STATE_READ_HEADERS;
     return OK;
@@ -545,9 +642,9 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
 
   // For certain responses, we know the content length is always 0.
   switch (response_.headers->response_code()) {
-    case 204:
-    case 205:
-    case 304:
+    case 204:  // No Content
+    case 205:  // Reset Content
+    case 304:  // Not Modified
       content_length_ = 0;
       break;
   }
@@ -569,6 +666,10 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
   return OK;
 }
 
+// This method determines whether it is safe to resend the request after an
+// IO error.  It can only be called in response to request header or body
+// write errors or response header read errors.  It should not be used in
+// other cases, such as a Connect error.
 int HttpNetworkTransaction::HandleIOError(int error) {
   switch (error) {
     // If we try to reuse a connection that the server is in the process of
@@ -579,95 +680,18 @@ int HttpNetworkTransaction::HandleIOError(int error) {
     case ERR_CONNECTION_CLOSED:
     case ERR_CONNECTION_ABORTED:
       if (reused_socket_ &&    // We reused a keep-alive connection.
-          !header_buf_len_) {  // We have not received any response data yet.
+          !header_buf_len_) {  // We haven't received any response header yet.
         connection_.set_socket(NULL);
         connection_.Reset();
-        bytes_sent_ = 0;
+        request_headers_bytes_sent_ = 0;
         if (request_body_stream_.get())
           request_body_stream_->Reset();
-        next_state_ = STATE_INIT_CONNECTION;
+        next_state_ = STATE_INIT_CONNECTION;  // Resend the request.
         error = OK;
       }
       break;
   }
   return error;
-}
-
-void HttpNetworkTransaction::Destroy() {
-  delete this;
-}
-
-int HttpNetworkTransaction::Start(const HttpRequestInfo* request_info,
-                                  CompletionCallback* callback) {
-  request_ = request_info;
-
-  next_state_ = STATE_RESOLVE_PROXY;
-  int rv = DoLoop(OK);
-  if (rv == ERR_IO_PENDING)
-    user_callback_ = callback;
-  return rv;
-}
-
-int HttpNetworkTransaction::RestartIgnoringLastError(
-    CompletionCallback* callback) {
-  return ERR_FAILED;  // TODO(darin): implement me!
-}
-
-int HttpNetworkTransaction::RestartWithAuth(
-    const std::wstring& username,
-    const std::wstring& password,
-    CompletionCallback* callback) {
-  return ERR_FAILED;  // TODO(darin): implement me!
-}
-
-int HttpNetworkTransaction::Read(char* buf, int buf_len,
-                                 CompletionCallback* callback) {
-  DCHECK(response_.headers);
-  DCHECK(buf);
-  DCHECK(buf_len > 0);
-
-  if (!connection_.is_initialized())
-    return 0;  // Treat like EOF.
-
-  read_buf_ = buf;
-  read_buf_len_ = buf_len;
-
-  next_state_ = STATE_READ_BODY;
-  int rv = DoLoop(OK);
-  if (rv == ERR_IO_PENDING)
-    user_callback_ = callback;
-  return rv;
-}
-
-const HttpResponseInfo* HttpNetworkTransaction::GetResponseInfo() const {
-  return response_.headers ? &response_ : NULL;
-}
-
-LoadState HttpNetworkTransaction::GetLoadState() const {
-  switch (next_state_) {
-    case STATE_RESOLVE_PROXY_COMPLETE:
-      return LOAD_STATE_RESOLVING_PROXY_FOR_URL;
-    case STATE_RESOLVE_HOST_COMPLETE:
-      return LOAD_STATE_RESOLVING_HOST;
-    case STATE_CONNECT_COMPLETE:
-      return LOAD_STATE_CONNECTING;
-    case STATE_WRITE_HEADERS_COMPLETE:
-    case STATE_WRITE_BODY_COMPLETE:
-      return LOAD_STATE_SENDING_REQUEST;
-    case STATE_READ_HEADERS_COMPLETE:
-      return LOAD_STATE_WAITING_FOR_RESPONSE;
-    case STATE_READ_BODY_COMPLETE:
-      return LOAD_STATE_READING_RESPONSE;
-    default:
-      return LOAD_STATE_IDLE;
-  }
-}
-
-uint64 HttpNetworkTransaction::GetUploadProgress() const {
-  if (!request_body_stream_.get())
-    return 0;
-
-  return request_body_stream_->position();
 }
 
 }  // namespace net

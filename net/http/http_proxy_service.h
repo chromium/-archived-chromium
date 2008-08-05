@@ -35,6 +35,7 @@
 
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
+#include "base/string_util.h"
 #include "base/thread.h"
 #include "base/time.h"
 #include "net/base/completion_callback.h"
@@ -213,9 +214,6 @@ class HttpProxyList {
   // Returns all the valid proxies, delimited by a semicolon.
   std::wstring GetList() const;
 
-  // Returns all the valid proxies in a vector.
-  const std::vector<std::wstring>& GetVector() const;
-
   // Marks the current proxy server as bad and deletes it from the list.
   // The list of known bad proxies is given by http_proxy_retry_info.
   // Returns true if there is another server available in the list.
@@ -248,7 +246,9 @@ class HttpProxyInfo {
   bool is_direct() const { return proxy_list_.Get().empty(); }
 
   // Returns the first valid proxy server.
-  const std::wstring proxy_server() const { return proxy_list_.Get(); }
+  std::wstring proxy_server() const { return proxy_list_.Get(); }
+
+  std::string GetProxyServer() const { return WideToASCII(proxy_server()); }
 
   // Marks the current proxy as bad. Returns true if there is another proxy
   // available to try in proxy list_.
