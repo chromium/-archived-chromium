@@ -30,13 +30,9 @@
 #ifndef CHROME_COMMON_IPC_LOGGING_H__
 #define CHROME_COMMON_IPC_LOGGING_H__
 
-#include <vector>
-#include <windows.h>
-#include "base/basictypes.h"
 #include "base/lock.h"
 #include "base/message_loop.h"
-#include "base/ref_counted.h"
-#include "chrome/common/ipc_message_utils.h"
+#include "chrome/common/ipc_message.h"  // For IPC_MESSAGE_LOG_ENABLED.
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
 
@@ -118,7 +114,7 @@ class Logging : public base::RefCounted<Logging>,
   static Lock logger_lock_;
 };
 
-}
+}  // namespace IPC
 
 #endif // IPC_MESSAGE_LOG_ENABLED
 

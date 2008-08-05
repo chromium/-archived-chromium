@@ -38,10 +38,12 @@
 #include <string>
 #include <vector>
 
+#include "base/gfx/rect.h"
 #include "base/basictypes.h"
 #include "bindings/npapi.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_message_utils.h"
+#include "googleurl/src/gurl.h"
 
 void PluginMessagesInit();
 
