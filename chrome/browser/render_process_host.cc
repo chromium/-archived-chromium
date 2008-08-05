@@ -202,7 +202,7 @@ RenderProcessHost::~RenderProcessHost() {
   channel_.reset();
 
   if (process_.handle() && !run_renderer_in_process_) {
-    MessageLoop::current()->WatchObject(process_.handle(), NULL);
+    watcher_.StopWatching();
     ProcessWatcher::EnsureProcessTerminated(process_.handle());
   }
 
@@ -420,7 +420,7 @@ bool RenderProcessHost::Init() {
         process_.set_handle(process);
       }
 
-      MessageLoop::current()->WatchObject(process_.handle(), this);
+      watcher_.StartWatching(process_.handle(), this);
     }
   }
 
@@ -576,7 +576,7 @@ void RenderProcessHost::OnChannelConnected(int32 peer_pid) {
       // returned by CreateProcess() has to the process object.
       process_.set_handle(OpenProcess(MAXIMUM_ALLOWED, FALSE, peer_pid));
       DCHECK(process_.handle());
-      MessageLoop::current()->WatchObject(process_.handle(), this);
+      watcher_.StartWatching(process_.handle(), this);
     }
   } else {
     // Need to verify that the peer_pid is actually the process we know, if
@@ -590,8 +590,6 @@ void RenderProcessHost::OnObjectSignaled(HANDLE object) {
   DCHECK(process_.handle());
   DCHECK(channel_.get());
   DCHECK_EQ(object, process_.handle());
-
-  MessageLoop::current()->WatchObject(object, NULL);
 
   bool clean_shutdown = !process_util::DidProcessCrash(object);
 

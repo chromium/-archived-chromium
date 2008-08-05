@@ -29,11 +29,8 @@
 
 #include "chrome/browser/render_widget_host.h"
 
-#include <atlbase.h>
-#include <atlapp.h>
-
 #include "base/gfx/bitmap_header.h"
-#include "base/histogram.h"
+#include "base/message_loop.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/render_process_host.h"
 #include "chrome/browser/render_widget_helper.h"
