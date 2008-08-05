@@ -45,6 +45,7 @@ env.Prepend(
     CPPPATH = [
         '$WEBKIT_DIR/build/localized_strings',
         '$WEBKIT_DIR/build/JSConfig/obj/WebCore',
+        '$WEBKIT_DIR/build/WebCore',
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',
         '$SKIA_DIR/include',
@@ -197,3 +198,10 @@ env.SConscript(sconscript_dirs, exports=['env', 'env_res'])
 # add their own individual targets to the 'webkit' Alias.
 #env.Alias('webkit', ['.', '../icudt38.dll'])
 env.Alias('webkit', ['../icudt38.dll'])
+
+
+version = env.Command('$WEBKIT_DIR/build/WebCore/webkit_version.h',
+                      ['$WEBCORE_DIR/Configurations/Version.xcconfig',
+                       '#/../webkit/build/webkit_version.py'],
+                      "$PYTHON ${SOURCES[1]} ${SOURCES[0]} ${TARGET.dir}")
+env.AlwaysBuild(version)
