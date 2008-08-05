@@ -34,7 +34,11 @@
 #include <iostream>
 #endif
 
+#if defined(OS_WIN)
 typedef struct tagSIZE SIZE;
+#elif defined(OS_MACOSX)
+#import <ApplicationServices/ApplicationServices.h>
+#endif
 
 namespace gfx {
 
@@ -71,7 +75,11 @@ class Size {
     return !width_ && !height_;
   }
 
+#if defined(OS_WIN)
   SIZE ToSIZE() const;
+#elif defined(OS_MACOSX)
+  CGSize ToCGSize() const;
+#endif
 
  private:
   int width_;
