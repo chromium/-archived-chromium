@@ -412,6 +412,7 @@ sconscript_files = [
     'test/automation/SConscript',
     'test/chrome_plugin/SConscript',
     'test/interactive_ui/SConscript',
+    'test/memory_test/SConscript',
     'test/mini_installer_test/SConscript',
     'test/page_cycler/SConscript',
     'test/plugin/SConscript',
