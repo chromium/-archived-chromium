@@ -30,6 +30,7 @@
 #include "chrome/browser/views/frame/opaque_non_client_view.h"
 
 #include "chrome/app/theme/theme_resources.h"
+#include "chrome/browser/tabs/tab_strip.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/path.h"
@@ -335,7 +336,7 @@ static const int kWindowIconTopOffset = 5;
 static const int kTitleTopOffset = 6;
 static const int kWindowIconTitleSpacing = 3;
 static const int kTitleBottomSpacing = 6;
-static const int kNoTitleTopSpacing = 8;
+static const int kNoTitleTopSpacing = 10;
 static const int kResizeAreaSize = 5;
 static const int kResizeAreaNorthSize = 3;
 static const int kResizeAreaCornerSize = 16;
@@ -414,6 +415,13 @@ OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame, bool is_otr)
 }
 
 OpaqueNonClientView::~OpaqueNonClientView() {
+}
+
+gfx::Rect OpaqueNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
+  int tabstrip_height = tabstrip->GetPreferredHeight();
+  int tabstrip_x = frame_->client_view()->GetX() - 4;
+  return gfx::Rect(tabstrip_x, frame_->client_view()->GetY() - 1,
+                   minimize_button_->GetX() - tabstrip_x, tabstrip_height);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

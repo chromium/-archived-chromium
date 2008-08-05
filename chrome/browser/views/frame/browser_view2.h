@@ -174,6 +174,9 @@ class BrowserView2 : public BrowserWindow,
   ChromeViews::View* active_info_bar_;
   ChromeViews::View* active_download_shelf_;
 
+  // The TabStrip.
+  TabStrip* tabstrip_;
+
   // The Toolbar containing the navigation buttons, menus and the address bar.
   BrowserToolbarView* toolbar_;
 

@@ -35,6 +35,7 @@
 #include "chrome/views/button.h"
 
 class OpaqueFrame;
+class TabStrip;
 class WindowResources;
 
 class OpaqueNonClientView : public ChromeViews::NonClientView,
@@ -45,6 +46,8 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   // used to render the frame.
   OpaqueNonClientView(OpaqueFrame* frame, bool is_otr);
   virtual ~OpaqueNonClientView();
+
+  gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip);
 
  protected:
   // Overridden from ChromeViews::BaseButton::ButtonListener:

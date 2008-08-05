@@ -37,6 +37,8 @@ class BrowserView2;
 namespace ChromeViews {
 class Window;
 }
+class OpaqueNonClientView;
+class TabStrip;
 
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueFrame
@@ -60,9 +62,13 @@ class OpaqueFrame : public BrowserFrame,
   gfx::Rect GetContentsBounds() const;
 
   // Overridden from BrowserFrame:
+  virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const;
   virtual ChromeViews::Window* GetWindow();
 
  private:
+  // Return a pointer to the concrete type of our non-client view.
+  OpaqueNonClientView* GetOpaqueNonClientView() const;
+
   // The BrowserView2 is our ClientView. This is a pointer to it.
   BrowserView2* browser_view_;
 

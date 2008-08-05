@@ -31,6 +31,7 @@
 
 #include "chrome/browser/browser.h"
 #include "chrome/browser/tab_contents_container_view.h"
+#include "chrome/browser/tabs/tab_strip.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/download_shelf_view.h"
@@ -42,6 +43,7 @@
 
 // static
 static const int kToolbarTabStripVerticalOverlap = 3;
+static const int kTabShadowSize = 2;
 static const int kStatusBubbleHeight = 20;
 static const int kStatusBubbleOffset = 2;
 
@@ -81,6 +83,10 @@ gfx::Rect BrowserView2::GetClientAreaBounds() const {
 
 void BrowserView2::Init() {
   SetAccessibleName(l10n_util::GetString(IDS_PRODUCT_NAME));
+
+  tabstrip_ = new TabStrip(browser_->tabstrip_model());
+  tabstrip_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TABSTRIP));
+  AddChildView(tabstrip_);
 
   toolbar_ = new BrowserToolbarView(browser_->controller(), browser_.get());
   AddChildView(toolbar_);
@@ -305,7 +311,49 @@ bool BrowserView2::CanClose() const {
 }
 
 int BrowserView2::NonClientHitTest(const gfx::Point& point) {
-  return HTNOWHERE;
+  // First learn about the kind of frame we dwell within...
+  WINDOWINFO wi;
+  wi.cbSize = sizeof(wi);
+  GetWindowInfo(frame_->GetWindow()->GetHWND(), &wi);
+
+  // Since we say that our client area extends to the top of the window (in
+  // the frame's WM_NCHITTEST handler.
+  CRect lb;
+  GetLocalBounds(&lb, true);
+  if (lb.PtInRect(point.ToPOINT())) {
+    if (point.y() < static_cast<int>(wi.cyWindowBorders))
+      return HTTOP;
+  }
+
+  CPoint point_in_view_coords(point.ToPOINT());
+  View::ConvertPointToView(GetParent(), this, &point_in_view_coords);
+  // TODO(beng): support IsTabStripVisible().
+  if (/* IsTabStripVisible() && */tabstrip_->HitTest(point_in_view_coords) &&
+      tabstrip_->CanProcessInputEvents()) {
+    ChromeViews::Window* window = frame_->GetWindow();
+    // The top few pixels of the TabStrip are a drop-shadow - as we're pretty
+    // starved of dragable area, let's give it to window dragging (this also
+    // makes sense visually).
+    if (!window->IsMaximized() && point_in_view_coords.y < kTabShadowSize)
+      return HTCAPTION;
+
+    if (tabstrip_->PointIsWithinWindowCaption(point_in_view_coords))
+      return HTCAPTION;
+
+    return HTCLIENT;
+  }
+
+  // If the point's y coordinate is below the top of the toolbar and otherwise
+  // within the bounds of this view, the point is considered to be within the
+  // client area.
+  CRect bounds;
+  GetBounds(&bounds);
+  bounds.top += toolbar_->GetY();
+  if (gfx::Rect(bounds).Contains(point.x(), point.y()))
+    return HTCLIENT;
+
+  // If the point is somewhere else, delegate to the default implementation.
+  return ClientView::NonClientHitTest(point);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -339,7 +387,12 @@ void BrowserView2::ViewHierarchyChanged(bool is_add,
 // BrowserView2, private:
 
 int BrowserView2::LayoutTabStrip() {
-  return 40; // TODO(beng): hook this up.
+  gfx::Rect tabstrip_bounds = frame_->GetBoundsForTabStrip(tabstrip_);
+  // TODO(beng): account for OTR avatar.
+  tabstrip_->SetBounds(tabstrip_bounds.x(), tabstrip_bounds.y(),
+                       tabstrip_bounds.width(), tabstrip_bounds.height());
+  return tabstrip_bounds.bottom();
+  // TODO(beng): support tabstrip-less windows.
 }
 
 int BrowserView2::LayoutToolbar(int top) {

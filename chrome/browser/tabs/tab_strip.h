@@ -90,6 +90,12 @@ class TabStrip : public ChromeViews::View,
   // not be allowed to interact with the TabStrip.
   bool CanProcessInputEvents() const;
 
+  // Returns true if the specified point (in TabStrip coordinates) is within a
+  // portion of the TabStrip that should be treated as the containing Window's
+  // titlebar for dragging purposes.
+  // TODO(beng): (Cleanup) should be const, but GetViewForPoint isn't, so fie!
+  bool PointIsWithinWindowCaption(const CPoint& point);
+
   // Return true if this tab strip is compatible with the provided tab strip.
   // Compatible tab strips can transfer tabs during drag and drop.
   bool IsCompatibleWith(TabStrip* other);

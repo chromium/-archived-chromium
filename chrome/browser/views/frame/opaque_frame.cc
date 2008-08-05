@@ -29,6 +29,7 @@
 
 #include "chrome/browser/views/frame/opaque_frame.h"
 
+#include "chrome/browser/tabs/tab_strip.h"
 #include "chrome/browser/views/frame/browser_view2.h"
 #include "chrome/browser/views/frame/opaque_non_client_view.h"
 #include "chrome/views/window_delegate.h"
@@ -56,6 +57,18 @@ gfx::Rect OpaqueFrame::GetContentsBounds() const {
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueFrame, BrowserFrame implementation:
 
+gfx::Rect OpaqueFrame::GetBoundsForTabStrip(TabStrip* tabstrip) const {
+  return GetOpaqueNonClientView()->GetBoundsForTabStrip(tabstrip);
+}
+
 ChromeViews::Window* OpaqueFrame::GetWindow() {
   return this;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// OpaqueFrame, private:
+
+OpaqueNonClientView* OpaqueFrame::GetOpaqueNonClientView() const {
+  // We can safely assume that this conversion is true.
+  return static_cast<OpaqueNonClientView*>(non_client_view_);
 }

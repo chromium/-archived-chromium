@@ -37,6 +37,7 @@ class Window;
 namespace gfx {
 class Rect;
 }
+class TabStrip;
 
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserFrame
@@ -47,6 +48,10 @@ class Rect;
 //
 class BrowserFrame {
  public:
+  // Returns the bounds that should be used to size and position the specified
+  // TabStrip.
+  virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const = 0;
+
   // Returns the ChromeViews::Window associated with this frame.
   virtual ChromeViews::Window* GetWindow() = 0;
 

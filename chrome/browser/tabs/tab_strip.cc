@@ -494,6 +494,25 @@ bool TabStrip::CanProcessInputEvents() const {
   return IsAnimating() == NULL;
 }
 
+bool TabStrip::PointIsWithinWindowCaption(const CPoint& point) {
+  ChromeViews::View* v = GetViewForPoint(point);
+
+  // If there is no control at this location, claim the hit was in the title
+  // bar to get a move action.
+  if (v == this)
+    return true;
+
+  // If the point is within the bounds of a Tab, the point can be considered
+  // part of the caption if there are no available drag operations for the Tab.
+  if (v->GetClassName() == Tab::kTabClassName && !HasAvailableDragActions())
+    return true;
+
+  // All other regions, including the new Tab button, should be considered part
+  // of the containing Window's client area so that regular events can be
+  // processed for them.
+  return false;
+}
+
 bool TabStrip::IsCompatibleWith(TabStrip* other) {
   return model_->profile() == other->model()->profile();
 }
