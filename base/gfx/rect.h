@@ -40,9 +40,7 @@
 #include "base/gfx/size.h"
 #include "base/gfx/point.h"
 
-#if defined(OS_WIN)
 typedef struct tagRECT RECT;
-#endif
 
 namespace gfx {
 
@@ -51,20 +49,12 @@ class Rect {
   Rect();
   Rect(int width, int height);
   Rect(int x, int y, int width, int height);
-#if defined(OS_WIN)
   explicit Rect(const RECT& r);
-#elif defined(OS_MACOSX)
-  explicit Rect(const CGRect& r);
-#endif
   Rect(const gfx::Point& origin, const gfx::Size& size);
 
   ~Rect() {}
 
-#if defined(OS_WIN)
   Rect& operator=(const RECT& r);
-#elif defined(OS_MACOSX)
-  Rect& operator=(const CGRect& r);
-#endif
 
   int x() const { return origin_.x(); }
   void set_x(int x) { origin_.set_x(x); }
@@ -103,13 +93,8 @@ class Rect {
     return !(*this == other);
   }
 
-#if defined(OS_WIN)
   // Construct an equivalent Win32 RECT object.
   RECT ToRECT() const;
-#elif defined(OS_MACOSX)
-  // Construct an equivalent CoreGraphics object.
-  CGRect ToCGRect() const;
-#endif
 
   // Returns true if the point identified by point_x and point_y falls inside
   // this rectangle.  The point (x, y) is inside the rectangle, but the

@@ -30,17 +30,11 @@
 #ifndef BASE_GFX_POINT_H__
 #define BASE_GFX_POINT_H__
 
-#include "build/build_config.h"
-
 #ifdef UNIT_TEST
 #include <iostream>
 #endif
 
-#if defined(OS_WIN)
 typedef struct tagPOINT POINT;
-#elif defined(OS_MACOSX)
-#import <ApplicationServices/ApplicationServices.h>
-#endif
 
 namespace gfx {
 
@@ -51,11 +45,7 @@ class Point {
  public:
   Point();
   Point(int x, int y);
-#if defined(OS_WIN)
   explicit Point(const POINT& point);
-#elif defined(OS_MACOSX)
-  explicit Point(const CGPoint& point);
-#endif
 
   ~Point() {}
 
@@ -78,11 +68,7 @@ class Point {
     return !(*this == rhs);
   }
 
-#if defined(OS_WIN)
   POINT ToPOINT() const;
-#elif defined(OS_MACOSX)
-  CGPoint ToCGPoint() const;
-#endif
 
  private:
   int x_;

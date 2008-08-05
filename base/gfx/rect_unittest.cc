@@ -55,7 +55,7 @@ TEST(RectTest, Contains) {
     {0, 0, -10, -10, 0, 0, false},
   #endif  // NDEBUG
   };
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(contains_cases); ++i) {
+  for (int i = 0; i < arraysize(contains_cases); ++i) {
     const ContainsCase& value = contains_cases[i];
     gfx::Rect rect(value.rect_x, value.rect_y,
                    value.rect_width, value.rect_height);
@@ -84,7 +84,7 @@ TEST(RectTest, Intersects) {
     { 10, 10, 10, 10, 20, 15, 10, 10, false },
     { 10, 10, 10, 10, 21, 15, 10, 10, false }
   };
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+  for (size_t i = 0; i < arraysize(tests); ++i) {
     gfx::Rect r1(tests[i].x1, tests[i].y1, tests[i].w1, tests[i].h1);
     gfx::Rect r2(tests[i].x2, tests[i].y2, tests[i].w2, tests[i].h2);
     EXPECT_EQ(tests[i].intersects, r1.Intersects(r2));
@@ -125,7 +125,7 @@ TEST(RectTest, Intersect) {
       0, 0, 2, 2,
       0, 0, 0, 0 }
   };
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+  for (size_t i = 0; i < arraysize(tests); ++i) {
     gfx::Rect r1(tests[i].x1, tests[i].y1, tests[i].w1, tests[i].h1);
     gfx::Rect r2(tests[i].x2, tests[i].y2, tests[i].w2, tests[i].h2);
     gfx::Rect r3(tests[i].x3, tests[i].y3, tests[i].w3, tests[i].h3);
@@ -138,7 +138,7 @@ TEST(RectTest, Intersect) {
 }
 
 TEST(RectTest, Union) {
-  static const struct Test {
+  static const struct {
     int x1;  // rect 1
     int y1;
     int w1;
@@ -174,7 +174,7 @@ TEST(RectTest, Union) {
       2, 2, 2, 2,
       2, 2, 2, 2 }
   };
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+  for (size_t i = 0; i < arraysize(tests); ++i) {
     gfx::Rect r1(tests[i].x1, tests[i].y1, tests[i].w1, tests[i].h1);
     gfx::Rect r2(tests[i].x2, tests[i].y2, tests[i].w2, tests[i].h2);
     gfx::Rect r3(tests[i].x3, tests[i].y3, tests[i].w3, tests[i].h3);
@@ -196,7 +196,7 @@ TEST(RectTest, Equals) {
 }
 
 TEST(RectTest, AdjustToFit) {
-  static const struct Test {
+  static const struct {
     int x1;  // source
     int y1;
     int w1;
@@ -226,7 +226,7 @@ TEST(RectTest, AdjustToFit) {
       0, 0, 3, 3,
       2, 2, 1, 1 }
   };
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+  for (size_t i = 0; i < arraysize(tests); ++i) {
     gfx::Rect r1(tests[i].x1, tests[i].y1, tests[i].w1, tests[i].h1);
     gfx::Rect r2(tests[i].x2, tests[i].y2, tests[i].w2, tests[i].h2);
     gfx::Rect r3(tests[i].x3, tests[i].y3, tests[i].w3, tests[i].h3);
