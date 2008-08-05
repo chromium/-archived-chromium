@@ -95,6 +95,7 @@ input_files = [
     'ipc_channel_proxy.cc',
     'ipc_logging.cc',
     'ipc_message.cc',
+    'ipc_message_utils.cc',
     'ipc_sync_channel.cc',
     'ipc_sync_message.cc',
     'jpeg_codec.cc',
