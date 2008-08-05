@@ -31,9 +31,7 @@
 #define BASE_WORD_ITERATOR_H__
 
 #include "base/basictypes.h"
-#ifndef U_WCHAR_IS_UTF16
-#include "unicode/ustring.h"
-#endif
+#include "unicode/umachine.h"  // Needed for U_WCHAR_IS_UTF16.
 
 // The WordIterator class iterates through the words and word breaks
 // in a string.  (In the string " foo bar! ", the word breaks are at the
