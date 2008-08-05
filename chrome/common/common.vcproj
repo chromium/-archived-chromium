@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="common"
 	ProjectGUID="{899F1280-3441-4D1F-BA04-CCD6208D9146}"
 	RootNamespace="common"
@@ -254,6 +254,10 @@
 			</File>
 			<File
 				RelativePath=".\ipc_message_macros.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ipc_message_utils.cc"
 				>
 			</File>
 			<File
