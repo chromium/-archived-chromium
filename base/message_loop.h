@@ -150,6 +150,10 @@ class MessageLoop {
     virtual void OnObjectSignaled(HANDLE object) = 0;
   };
 
+  // Have the current thread's message loop watch for a signaled object.
+  // Pass a null watcher to stop watching the object.
+  bool WatchObject(HANDLE, Watcher*);
+
   // Dispatcher is used during a nested invocation of Run to dispatch events.
   // If Run is invoked with a non-NULL Dispatcher, MessageLoop does not
   // dispatch events (or invoke TranslateMessage), rather every message is
@@ -172,9 +176,27 @@ class MessageLoop {
     virtual bool Dispatch(const MSG& msg) = 0;
   };
 
-  // Have the current thread's message loop watch for a signaled object.
-  // Pass a null watcher to stop watching the object.
-  bool WatchObject(HANDLE, Watcher*);
+  // A DestructionObserver is notified when the current MessageLoop is being
+  // destroyed.  These obsevers are notified prior to MessageLoop::current()
+  // being changed to return NULL.  This gives interested parties the chance to
+  // do final cleanup that depends on the MessageLoop.
+  //
+  // NOTE: Any tasks posted to the MessageLoop during this notification will
+  // not be run.  Instead, they will be deleted.
+  //
+  class DestructionObserver {
+   public:
+    virtual ~DestructionObserver() {}
+    virtual void WillDestroyCurrentMessageLoop() = 0;
+  };
+
+  // Add a DestructionObserver, which will start receiving notifications
+  // immediately.
+  void AddDestructionObserver(DestructionObserver* destruction_observer);
+
+  // Remove a DestructionObserver.  It is safe to call this method while a
+  // DestructionObserver is receiving a notification callback.
+  void RemoveDestructionObserver(DestructionObserver* destruction_observer);
 
   // An Observer is an object that receives global notifications from the
   // MessageLoop.
@@ -577,6 +599,7 @@ class MessageLoop {
   std::vector<Watcher*> watchers_;
 
   ObserverList<Observer> observers_;
+  ObserverList<DestructionObserver> destruction_observers_;
   HWND message_hwnd_;
   IDMap<Task> timed_tasks_;
   // A recursion block that prevents accidentally running additonal tasks when

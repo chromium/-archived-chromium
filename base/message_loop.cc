@@ -140,9 +140,17 @@ MessageLoop::MessageLoop() : message_hwnd_(NULL),
 
 MessageLoop::~MessageLoop() {
   DCHECK(this == current());
+
+  // Let interested parties have one last shot at accessing this.
+  FOR_EACH_OBSERVER(DestructionObserver, destruction_observers_,
+                    WillDestroyCurrentMessageLoop());
+
+  // OK, now make it so that no one can find us.
   ThreadLocalStorage::Set(tls_index_, NULL);
+
   DCHECK(!dispatcher_);
   DCHECK(!quit_received_ && !quit_now_);
+
   // Most tasks that have not been Run() are deleted in the |timer_manager_|
   // destructor after we remove our tls index.  We delete the tasks in our
   // queues here so their destuction is similar to the tasks in the
@@ -156,6 +164,16 @@ void MessageLoop::SetThreadName(const std::string& thread_name) {
   DCHECK(thread_name_.empty());
   thread_name_ = thread_name;
   StartHistogrammer();
+}
+
+void MessageLoop::AddDestructionObserver(DestructionObserver *obs) {
+  DCHECK(this == current());
+  destruction_observers_.AddObserver(obs);
+}
+
+void MessageLoop::RemoveDestructionObserver(DestructionObserver *obs) {
+  DCHECK(this == current());
+  destruction_observers_.RemoveObserver(obs);
 }
 
 void MessageLoop::AddObserver(Observer *obs) {

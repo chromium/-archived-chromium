@@ -29,7 +29,6 @@
 
 #include "base/object_watcher.h"
 
-#include "base/message_loop.h"
 #include "base/logging.h"
 
 namespace base {
@@ -91,6 +90,10 @@ bool ObjectWatcher::StartWatching(HANDLE object, Delegate* delegate) {
   }
 
   watch_ = watch;
+
+  // We need to know if the current message loop is going away so we can
+  // prevent the wait thread from trying to access a dead message loop.
+  MessageLoop::current()->AddDestructionObserver(this);
   return true;
 }
 
@@ -124,6 +127,8 @@ bool ObjectWatcher::StopWatching() {
     delete watch_;
 
   watch_ = NULL;
+
+  MessageLoop::current()->RemoveDestructionObserver(this);
   return true;
 }
 
@@ -140,6 +145,12 @@ void CALLBACK ObjectWatcher::DoneWaiting(void* param, BOOLEAN timed_out) {
   // provided, which in turn ensures our change to did_signal can be observed
   // on the target thread.
   watch->origin_loop->PostTask(FROM_HERE, watch);
+}
+
+void ObjectWatcher::WillDestroyCurrentMessageLoop() {
+  // Need to shutdown the watch so that we don't try to access the MessageLoop
+  // after this point.
+  StopWatching();
 }
 
 }  // namespace base

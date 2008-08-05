@@ -27,6 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <process.h>
+
 #include "base/message_loop.h"
 #include "base/object_watcher.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -112,4 +114,35 @@ TEST(ObjectWatcherTest, CancelAfterSet) {
   EXPECT_EQ(1, counter);
   
   CloseHandle(event);
+}
+
+// Used so we can simulate a MessageLoop that dies before an ObjectWatcher.
+// This ordinarily doesn't happen when people use the Thread class, but it can
+// happen when people use the Singleton pattern or atexit.
+static unsigned __stdcall ThreadFunc(void* param) {
+  HANDLE event = CreateEvent(NULL, TRUE, FALSE, NULL);  // not signaled
+  {
+    base::ObjectWatcher watcher;
+    {
+      MessageLoop message_loop;
+
+      QuitDelegate delegate;
+      watcher.StartWatching(event, &delegate);
+    }
+  }
+  CloseHandle(event);
+  return 0;
+}
+
+TEST(ObjectWatcherTest, OutlivesMessageLoop) {
+  unsigned int thread_id;
+  HANDLE thread = reinterpret_cast<HANDLE>(
+      _beginthreadex(NULL,
+                     0,
+                     ThreadFunc,
+                     NULL,
+                     0,
+                     &thread_id));
+  WaitForSingleObject(thread, INFINITE);
+  CloseHandle(thread);
 }
