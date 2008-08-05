@@ -30,6 +30,8 @@
 #ifndef NET_HTTP_HTTP_CONNECTION_H_
 #define NET_HTTP_HTTP_CONNECTION_H_
 
+#include <string>
+
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "net/base/client_socket.h"
@@ -50,11 +52,12 @@ class HttpConnectionManager;
 //
 class HttpConnection {
  public:
-  HttpConnection(HttpConnectionManager* mgr);
+  explicit HttpConnection(HttpConnectionManager* mgr);
   ~HttpConnection();
 
   // Initializes a HttpConnection object, which involves talking to the
-  // HttpConnectionManager to locate a socket to possibly reuse.
+  // HttpConnectionManager to locate a socket to possibly reuse.  This method
+  // returns either OK or ERR_IO_PENDING.
   //
   // If this method succeeds, then the socket member will be set to an existing
   // socket if an existing socket was available to reuse.  Otherwise, the
@@ -69,9 +72,9 @@ class HttpConnection {
 
   // An initialized connection can be reset, which causes it to return to the
   // un-initialized state.  This releases the underlying socket, which in the
-  // case of a socket that is not closed, indicates that the socket may be kept
-  // alive for use by a subsequent HttpConnection.  NOTE: To prevent the socket
-  // from being kept alive, be sure to call its Close method.
+  // case of a socket that is not disconnected, indicates that the socket may
+  // be kept alive for use by a subsequent HttpConnection.  NOTE: To prevent
+  // the socket from being kept alive, be sure to call its Disconnect method.
   void Reset();
 
   // Returns true when Init has completed successfully.

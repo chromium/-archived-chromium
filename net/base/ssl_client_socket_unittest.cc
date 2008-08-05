@@ -28,8 +28,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "net/base/address_list.h"
-#include "net/base/net_errors.h"
 #include "net/base/host_resolver.h"
+#include "net/base/net_errors.h"
 #include "net/base/ssl_client_socket.h"
 #include "net/base/tcp_client_socket.h"
 #include "net/base/test_completion_callback.h"
@@ -60,10 +60,12 @@ TEST_F(SSLClientSocketTest, Connect) {
   EXPECT_FALSE(sock.IsConnected());
 
   rv = sock.Connect(&callback);
-  ASSERT_EQ(net::ERR_IO_PENDING, rv);
+  if (rv != net::OK) {
+    ASSERT_EQ(net::ERR_IO_PENDING, rv);
 
-  rv = callback.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+    rv = callback.WaitForResult();
+    EXPECT_EQ(net::OK, rv);
+  }
 
   EXPECT_TRUE(sock.IsConnected());
 
@@ -87,18 +89,20 @@ TEST_F(SSLClientSocketTest, Read) {
   net::SSLClientSocket sock(new net::TCPClientSocket(addr), hostname);
 
   rv = sock.Connect(&callback);
-  ASSERT_EQ(rv, net::ERR_IO_PENDING);
+  if (rv != net::OK) {
+    ASSERT_EQ(rv, net::ERR_IO_PENDING);
 
-  rv = callback.WaitForResult();
-  EXPECT_EQ(rv, net::OK);
+    rv = callback.WaitForResult();
+    EXPECT_EQ(rv, net::OK);
+  }
 
   const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
-  rv = sock.Write(request_text, arraysize(request_text)-1, &callback);
+  rv = sock.Write(request_text, arraysize(request_text) - 1, &callback);
   EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
   if (rv == net::ERR_IO_PENDING) {
     rv = callback.WaitForResult();
-    EXPECT_EQ(rv, arraysize(request_text)-1);
+    EXPECT_EQ(rv, arraysize(request_text) - 1);
   }
 
   char buf[4096];
@@ -109,12 +113,13 @@ TEST_F(SSLClientSocketTest, Read) {
     if (rv == net::ERR_IO_PENDING)
       rv = callback.WaitForResult();
 
-    if (rv == 0)
+    EXPECT_GE(rv, 0);
+    if (rv <= 0)
       break;
   }
 }
 
-TEST_F(TCPClientSocketTest, Read_SmallChunks) {
+TEST_F(SSLClientSocketTest, Read_SmallChunks) {
   net::AddressList addr;
   net::HostResolver resolver;
   TestCompletionCallback callback;
@@ -125,18 +130,20 @@ TEST_F(TCPClientSocketTest, Read_SmallChunks) {
   net::TCPClientSocket sock(addr);
 
   rv = sock.Connect(&callback);
-  ASSERT_EQ(rv, net::ERR_IO_PENDING);
+  if (rv != net::OK) {
+    ASSERT_EQ(rv, net::ERR_IO_PENDING);
 
-  rv = callback.WaitForResult();
-  EXPECT_EQ(rv, net::OK);
+    rv = callback.WaitForResult();
+    EXPECT_EQ(rv, net::OK);
+  }
 
   const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
-  rv = sock.Write(request_text, arraysize(request_text)-1, &callback);
+  rv = sock.Write(request_text, arraysize(request_text) - 1, &callback);
   EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
   if (rv == net::ERR_IO_PENDING) {
     rv = callback.WaitForResult();
-    EXPECT_EQ(rv, arraysize(request_text)-1);
+    EXPECT_EQ(rv, arraysize(request_text) - 1);
   }
 
   char buf[1];
@@ -147,12 +154,13 @@ TEST_F(TCPClientSocketTest, Read_SmallChunks) {
     if (rv == net::ERR_IO_PENDING)
       rv = callback.WaitForResult();
 
-    if (rv == 0)
+    EXPECT_GE(rv, 0);
+    if (rv <= 0)
       break;
   }
 }
 
-TEST_F(TCPClientSocketTest, Read_Interrupted) {
+TEST_F(SSLClientSocketTest, Read_Interrupted) {
   net::AddressList addr;
   net::HostResolver resolver;
   TestCompletionCallback callback;
@@ -163,18 +171,20 @@ TEST_F(TCPClientSocketTest, Read_Interrupted) {
   net::TCPClientSocket sock(addr);
 
   rv = sock.Connect(&callback);
-  ASSERT_EQ(rv, net::ERR_IO_PENDING);
+  if (rv != net::OK) {
+    ASSERT_EQ(rv, net::ERR_IO_PENDING);
 
-  rv = callback.WaitForResult();
-  EXPECT_EQ(rv, net::OK);
+    rv = callback.WaitForResult();
+    EXPECT_EQ(rv, net::OK);
+  }
 
   const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
-  rv = sock.Write(request_text, arraysize(request_text)-1, &callback);
+  rv = sock.Write(request_text, arraysize(request_text) - 1, &callback);
   EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
   if (rv == net::ERR_IO_PENDING) {
     rv = callback.WaitForResult();
-    EXPECT_EQ(rv, arraysize(request_text)-1);
+    EXPECT_EQ(rv, arraysize(request_text) - 1);
   }
 
   // Do a partial read and then exit.  This test should not crash!
@@ -185,6 +195,6 @@ TEST_F(TCPClientSocketTest, Read_Interrupted) {
   if (rv == net::ERR_IO_PENDING)
     rv = callback.WaitForResult();
 
-  EXPECT_TRUE(rv != 0);
+  EXPECT_NE(rv, 0);
 }
 #endif

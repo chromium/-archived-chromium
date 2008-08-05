@@ -40,15 +40,15 @@ class HttpProxyInfo;
 
 class HttpNetworkLayer : public HttpTransactionFactory {
  public:
+  explicit HttpNetworkLayer(const HttpProxyInfo* pi);
+  ~HttpNetworkLayer();
+
   // This function hides the details of how a network layer gets instantiated
   // and allows other implementations to be substituted.
   static HttpTransactionFactory* CreateFactory(const HttpProxyInfo* pi);
 
   // If value is true, then WinHTTP will be used.
   static void UseWinHttp(bool value);
-
-  HttpNetworkLayer(const HttpProxyInfo* pi);
-  ~HttpNetworkLayer();
 
   // HttpTransactionFactory methods:
   virtual HttpTransaction* CreateTransaction();

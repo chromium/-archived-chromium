@@ -67,12 +67,6 @@ class MockClientSocket : public net::ClientSocket {
                     net::CompletionCallback* callback) {
     return net::ERR_FAILED;
   }
-  virtual int GetProperty(int property, void* buf, int buf_len) const {
-    return net::ERR_FAILED;
-  }
-  virtual int SetProperty(int property, const void* buf, int buf_len) {
-    return net::ERR_FAILED;
-  }
 
   static int allocation_count;
 

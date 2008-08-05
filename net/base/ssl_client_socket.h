@@ -35,12 +35,16 @@
 #include <windows.h>
 #include <security.h>
 
+#include <string>
+
 #include "base/scoped_ptr.h"
 #include "net/base/client_socket.h"
 #include "net/base/completion_callback.h"
 
 namespace net {
 
+// A client socket that uses SSL as the transport layer.
+//
 // NOTE: The SSL handshake occurs within the Connect method after a TCP
 // connection is established.  If a SSL error occurs during the handshake,
 // Connect will fail.  The consumer may choose to ignore certain SSL errors,

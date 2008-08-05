@@ -32,6 +32,7 @@
 
 #include <deque>
 #include <map>
+#include <string>
 
 #include "base/ref_counted.h"
 #include "base/timer.h"
@@ -45,7 +46,7 @@ class ClientSocket;
 // open at a time.  It also maintains a list of idle persistent sockets.
 //
 // The HttpConnectionManager allocates SocketHandle objects, but it is not
-// responsible for allocating the associated ClientSocket object.  The
+// responsible for allocating the associated ClientSocket objects.  The
 // consumer must do so if it gets a SocketHandle with a null ClientSocket.
 //
 class HttpConnectionManager : public base::RefCounted<HttpConnectionManager>,
@@ -62,11 +63,10 @@ class HttpConnectionManager : public base::RefCounted<HttpConnectionManager>,
   //
   // If this function returns OK, then |*handle| will reference a SocketHandle
   // object.  If ERR_IO_PENDING is returned, then the completion callback will
-  // be called when |*handle| has been populated.  Otherwise, an error code is
-  // returned.
+  // be called when |*handle| has been populated.
   //
   // If the resultant SocketHandle object has a null member, then it is the
-  // callers job to create a ClientSocket and associate it with the handle.
+  // caller's job to create a ClientSocket and associate it with the handle.
   //
   int RequestSocket(const std::string& group_name, SocketHandle** handle,
                     CompletionCallback* callback);
@@ -91,7 +91,9 @@ class HttpConnectionManager : public base::RefCounted<HttpConnectionManager>,
   ~HttpConnectionManager();
 
   // Closes all idle sockets if |only_if_disconnected| is false.  Else, only
-  // idle sockets that are disconnected get closed.
+  // idle sockets that are disconnected get closed.  "Maybe" refers to the
+  // fact that it doesn't close all idle sockets if |only_if_disconnected| is
+  // true.
   void MaybeCloseIdleSockets(bool only_if_disconnected);
 
   // Called when the number of idle sockets changes.
@@ -115,10 +117,10 @@ class HttpConnectionManager : public base::RefCounted<HttpConnectionManager>,
   // A Group is allocated per group_name when there are idle sockets or pending
   // requests.  Otherwise, the Group object is removed from the map.
   struct Group {
+    Group() : active_socket_count(0) {}
     std::deque<SocketHandle*> idle_sockets;
     std::deque<Request> pending_requests;
     int active_socket_count;
-    Group() : active_socket_count(0) {}
   };
 
   typedef std::map<std::string, Group> GroupMap;
@@ -128,7 +130,7 @@ class HttpConnectionManager : public base::RefCounted<HttpConnectionManager>,
   RepeatingTimer timer_;
 
   // The total number of idle sockets in the system.
-  int idle_count_;
+  int idle_socket_count_;
 };
 
 }  // namespace net

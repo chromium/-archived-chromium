@@ -46,7 +46,7 @@ void RunTest(const char* inputs[], size_t num_inputs,
   for (size_t i = 0; i < num_inputs; ++i) {
     std::string input = inputs[i];
     int n = decoder.FilterBuf(&input[0], static_cast<int>(input.size()));
-    EXPECT_TRUE(n >= 0);
+    EXPECT_GE(n, 0);
     if (n > 0)
       result.append(input.data(), n);
   }
@@ -62,6 +62,13 @@ TEST(HttpChunkedDecoderTest, Basic) {
     "5\r\nhello\r\n0\r\n\r\n"
   };
   RunTest(inputs, arraysize(inputs), "hello", true);
+}
+
+TEST(HttpChunkedDecoderTest, OneChunk) {
+  const char* inputs[] = {
+    "5\r\nhello\r\n"
+  };
+  RunTest(inputs, arraysize(inputs), "hello", false);
 }
 
 TEST(HttpChunkedDecoderTest, Typical) {
