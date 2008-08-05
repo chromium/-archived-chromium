@@ -76,7 +76,6 @@ input_files = [
     'json_reader.cc',
     'json_writer.cc',
     'lock.cc',
-    'lock_impl_win.cc',
     'logging.cc',
     'md5.cc',
     'memory_debug.cc',
@@ -100,13 +99,10 @@ input_files = [
     'string_piece.cc',
     'string_util.cc',
     'string_util_icu.cc',
-    'string_util_win.cc',
     'third_party/nspr/prtime.cc',
     'third_party/nss/sha512.cc',
     'thread.cc',
-    'thread_local_storage_win.cc',
     'time.cc',
-    'time_win.cc',
     'timer.cc',
     'tracked.cc',
     'tracked_objects.cc',
@@ -117,6 +113,15 @@ input_files = [
     'word_iterator.cc',
     'worker_pool.cc',
 ]
+
+if env['PLATFORM'] == 'win32':
+  input_files.extend([
+      'base_paths_win.cc',
+      'lock_impl_win.cc',
+      'string_util_win.cc',
+      'thread_local_storage_win.cc',
+      'time_win.cc',
+  ])
 
 env.ChromeStaticLibrary('base', input_files)
 
