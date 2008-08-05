@@ -178,6 +178,9 @@ class HWNDViewContainer : public ViewContainer,
 
     // Reflected message handler
     MESSAGE_HANDLER_EX(kReflectedMessage, OnReflectedMessage)
+    
+    // Non-atlcrack.h handlers
+    MESSAGE_HANDLER_EX(WM_GETOBJECT, OnGetObject)
 
     // This list is in _ALPHABETICAL_ order! OR I WILL HURT YOU.
     MSG_WM_ACTIVATE(OnActivate)
@@ -188,6 +191,7 @@ class HWNDViewContainer : public ViewContainer,
     MSG_WM_CREATE(OnCreate)
     MSG_WM_DESTROY(OnDestroy)
     MSG_WM_ERASEBKGND(OnEraseBkgnd)
+    MSG_WM_ENDSESSION(OnEndSession)
     MSG_WM_GETMINMAXINFO(OnGetMinMaxInfo)
     MSG_WM_HSCROLL(OnHScroll)
     MSG_WM_INITMENU(OnInitMenu)
@@ -217,6 +221,7 @@ class HWNDViewContainer : public ViewContainer,
     MSG_WM_NCRBUTTONUP(OnNCRButtonUp)
     MSG_WM_NOTIFY(OnNotify)
     MSG_WM_PAINT(OnPaint)
+    MSG_WM_POWERBROADCAST(OnPowerBroadcast)
     MSG_WM_RBUTTONDBLCLK(OnRButtonDblClk)
     MSG_WM_RBUTTONDOWN(OnRButtonDown)
     MSG_WM_RBUTTONUP(OnRButtonUp)
@@ -338,8 +343,10 @@ class HWNDViewContainer : public ViewContainer,
   // WARNING: If you override this be sure and invoke super, otherwise we'll
   // leak a few things.
   virtual void OnDestroy();
+  virtual void OnEndSession(BOOL ending, UINT logoff) { SetMsgHandled(FALSE); }
   virtual LRESULT OnEraseBkgnd(HDC dc);
   virtual void OnGetMinMaxInfo(LPMINMAXINFO mm_info) { }
+  virtual LRESULT OnGetObject(UINT uMsg, WPARAM w_param, LPARAM l_param);
   virtual void OnHScroll(int scroll_type, short position, HWND scrollbar) {
     SetMsgHandled(FALSE);
   }
@@ -371,6 +378,10 @@ class HWNDViewContainer : public ViewContainer,
   virtual void OnNCRButtonUp(UINT flags, const CPoint& point);
   virtual LRESULT OnNotify(int w_param, NMHDR* l_param);
   virtual void OnPaint(HDC dc);
+  virtual LRESULT OnPowerBroadcast(DWORD power_event, DWORD data) {
+    SetMsgHandled(FALSE);
+    return 0;
+  }
   virtual void OnRButtonDblClk(UINT flags, const CPoint& point);
   virtual void OnRButtonDown(UINT flags, const CPoint& point);
   virtual void OnRButtonUp(UINT flags, const CPoint& point);
@@ -517,9 +528,12 @@ class HWNDViewContainer : public ViewContainer,
   // If true, the last event was a mouse move event.
   bool last_mouse_event_was_move_;
 
-  // Coordinates of the last mouse move event, in terms of the screen.
+  // Coordinates of the last mouse move event, in screen coordinates.
   int last_mouse_move_x_;
   int last_mouse_move_y_;
+
+  // Instance of accessibility information and handling for MSAA root
+  CComPtr<IAccessible> accessibility_root_;
 
   // Our hwnd.
   HWND hwnd_;

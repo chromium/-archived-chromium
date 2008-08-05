@@ -36,6 +36,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/aero_tooltip_manager.h"
+#include "chrome/views/accessibility/view_accessibility.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/hwnd_notification_source.h"
 #include "chrome/views/root_view.h"
@@ -471,6 +472,53 @@ void HWNDViewContainer::OnDestroy() {
 LRESULT HWNDViewContainer::OnEraseBkgnd(HDC dc) {
   // This is needed for magical win32 flicker ju-ju
   return 1;
+}
+
+LRESULT HWNDViewContainer::OnGetObject(UINT uMsg, WPARAM w_param,
+                                       LPARAM l_param) {
+  LRESULT reference_result = static_cast<LRESULT>(0L);
+
+  // Accessibility readers will send an OBJID_CLIENT message
+  if (OBJID_CLIENT == l_param) {
+    // If our MSAA root is already created, reuse that pointer. Otherwise,
+    // create a new one.
+    if (!accessibility_root_) {
+      CComObject<ViewAccessibility>* instance = NULL;
+
+      HRESULT hr = CComObject<ViewAccessibility>::CreateInstance(&instance);
+      DCHECK(SUCCEEDED(hr));
+
+      if (!instance) {
+        // Return with failure.
+        return static_cast<LRESULT>(0L);
+      }
+
+      CComPtr<IAccessible> accessibility_instance(instance);
+
+      if (!SUCCEEDED(instance->Initialize(root_view_.get()))) {
+        // Return with failure.
+        return static_cast<LRESULT>(0L);
+      }
+
+      // All is well, assign the temp instance to the class smart pointer
+      accessibility_root_.Attach(accessibility_instance.Detach());
+
+      if (!accessibility_root_) {
+        // Return with failure.
+        return static_cast<LRESULT>(0L);
+      }
+
+      // Notify that an instance of IAccessible was allocated for m_hWnd
+      ::NotifyWinEvent(EVENT_OBJECT_CREATE, GetHWND(), OBJID_CLIENT,
+                       CHILDID_SELF);
+    }
+
+    // Create a reference to ViewAccessibility that MSAA will marshall
+    // to the client.
+    reference_result = LresultFromObject(IID_IAccessible, w_param,
+        static_cast<IAccessible*>(accessibility_root_));
+  }
+  return reference_result;
 }
 
 void HWNDViewContainer::OnKeyDown(TCHAR c, UINT rep_cnt, UINT flags) {
