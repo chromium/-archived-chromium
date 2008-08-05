@@ -1,3 +1,10 @@
+This directory includes a version of Python derived from  Python 2.4.1, which is
+Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006 Python Software Foundation; All
+Rights Reserved. 
+
+See http://www.python.org/download/releases/2.4.1/license/.
+--------------------------------------------------------------------------------  
+
 This is a slightly customized version of Python 2.4.1.
 
 This version was built from the 2.4.1 sources at python.org.

@@ -11,7 +11,7 @@ includes the following modifications :
 * Added nsParent member to _xmlParseCtxt in include/libxml/parser.h, 
   added a check to nsParent in xmlGetNamespace() in parser.c. 
   This allows parsed entities to inherit namespaces.
-  ( http://b/issue?id=1030825  and http://bugzilla.gnome.org/show_bug.cgi?id=502960 )
+  (http://bugzilla.gnome.org/show_bug.cgi?id=502960 )
 
 Current version: 2.6.31
 

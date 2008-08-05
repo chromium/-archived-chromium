@@ -2,10 +2,29 @@ Update(04/29/08): Added PHP module for Apache 2. First PHP module was installed
 (from Cygwin repository at ftp://sunsite.dk/projects/cygwinports) as part of
 another Cygwin installation. Then the required files for PHP were moved
 under source tree.
+
 Update(04/25/08): Added Apache 2. apache2 package was first installed
 as part of another Cygwin installation and then only the required files were
 copied over to this tree.
------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+VERSION and LICENSE information
+For more information about Cygwin, see http://cygwin.com/.
+The Cygwin licensing terms are defined in CYGWIN_LICENSE. Cygwin is licensed
+under the GNU public license, a copy of which is in GPLv2.txt.
+
+The binaries are built from Cygwin version 1.5.24.
+The source files are included in trunk\deps\third_party\cygwin_src. These are 
+not downloaded with the default gclient configuration, but you can get them
+directly from the svn server you used to get this source.
+
+The Apache web server is redistributed under the terms of the Apache 2 license:
+http://www.apache.org/licenses/LICENSE-2.0.txt
+
+PHP is Copyright (c) 1999-2008 The PHP Group. All rights reserved.
+See http://www.php.net/license/3_01.txt for redistribution and usage conditions
+and disclaimers.
+--------------------------------------------------------------------------------
+
 This contains the necessary Cygwin files to build WebKit.  A filemon trace
 during a build showed which files from cygwin\build are needed.
 
@@ -28,5 +47,3 @@ The binary modifications to cygwin1.dll were:
 
 These can be replayed by running "changes\convert.py".
 
-IMPORTANT: To add new files here you should grab them out of \\jam2-corp\cygwin
-to avoid version incompatibilities.
