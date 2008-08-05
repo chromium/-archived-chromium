@@ -27,6 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <windows.h>
+
 #include "chrome/common/ipc_logging.h"
 
 #include "base/command_line.h"
@@ -36,7 +38,6 @@
 #include "base/time.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/ipc_sync_message.h"
-#include "chrome/common/ipc_message_utils.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/plugin_messages.h"
 

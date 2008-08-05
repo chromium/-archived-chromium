@@ -35,15 +35,17 @@
 #include <vector>
 
 #include "base/gfx/rect.h"
+#include "base/gfx/size.h"
 #include "base/shared_memory.h"
 #include "chrome/common/ipc_message_macros.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/find_in_page_request.h"
+#include "webkit/glue/cache_manager.h"
 #include "webkit/glue/console_message_level.h"
 #include "webkit/glue/context_node_types.h"
-#include "webkit/glue/webcursor.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webinputevent.h"
+#include "webkit/glue/window_open_disposition.h"
 
 void RenderMessagesInit();
 
