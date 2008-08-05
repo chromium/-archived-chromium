@@ -56,6 +56,10 @@ NET_ERROR(TIMED_OUT, -7)
 // The file is too large.
 NET_ERROR(FILE_TOO_BIG, -8)
 
+// An unexpected error.  This may be caused by a programming mistake or an
+// invalid assumption.
+NET_ERROR(UNEXPECTED, -9)
+
 // A connection was closed (corresponding to a TCP FIN).
 NET_ERROR(CONNECTION_CLOSED, -100)
 

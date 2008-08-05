@@ -41,6 +41,8 @@ class ClientSocket;
 // testing code with mock socket implementations.
 class ClientSocketFactory {
  public:
+  virtual ~ClientSocketFactory() {}
+
   virtual ClientSocket* CreateTCPClientSocket(
       const AddressList& addresses) = 0;
 

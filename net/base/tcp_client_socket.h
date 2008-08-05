@@ -38,13 +38,17 @@
 
 namespace net {
 
+// A client socket that uses TCP as the transport layer.
+//
+// NOTE: The implementation supports half duplex only.  Read and Write calls
+// must not be in progress at the same time.
 class TCPClientSocket : public ClientSocket,
                         public base::ObjectWatcher::Delegate {
  public:
   // The IP address(es) and port number to connect to.  The TCP socket will try
   // each IP address in the list until it succeeds in establishing a
   // connection.
-  TCPClientSocket(const AddressList& addresses);
+  explicit TCPClientSocket(const AddressList& addresses);
 
   ~TCPClientSocket();
 
@@ -64,6 +68,7 @@ class TCPClientSocket : public ClientSocket,
   void DidCompleteConnect();
   void DidCompleteIO();
 
+  // MessageLoop::Watcher methods:
   virtual void OnObjectSignaled(HANDLE object);
 
   SOCKET socket_;
@@ -74,11 +79,11 @@ class TCPClientSocket : public ClientSocket,
 
   CompletionCallback* callback_;
 
-  // Stored outside of the context so we can both lazily construct the context
-  // as well as construct a new one if Connect is called after Close.
+  // The list of addresses we should try in order to establish a connection.
   AddressList addresses_;
 
-  // The addrinfo that we are attempting to use or NULL if uninitialized.
+  // The addrinfo that we are attempting to use or NULL if all addrinfos have
+  // been tried.
   const struct addrinfo* current_ai_;
 
   enum WaitState {

@@ -45,19 +45,26 @@ static int MapWinsockError(DWORD err) {
     case WSAETIMEDOUT:
       return ERR_TIMED_OUT;
     case WSAECONNRESET:
-    case WSAENETRESET:
+    case WSAENETRESET:  // Related to keep-alive
       return ERR_CONNECTION_RESET;
     case WSAECONNABORTED:
       return ERR_CONNECTION_ABORTED;
     case WSAECONNREFUSED:
       return ERR_CONNECTION_REFUSED;
     case WSAEDISCON:
+      // Returned by WSARecv or WSARecvFrom for message-oriented sockets (where
+      // a return value of zero means a zero-byte message) to indicate graceful
+      // connection shutdown.  We should not ever see this error code for TCP
+      // sockets, which are byte stream oriented.
+      NOTREACHED();
       return ERR_CONNECTION_CLOSED;
     case WSAEHOSTUNREACH:
     case WSAENETUNREACH:
       return ERR_ADDRESS_UNREACHABLE;
     case WSAEADDRNOTAVAIL:
       return ERR_ADDRESS_INVALID;
+    case WSA_IO_INCOMPLETE:
+      return ERR_UNEXPECTED;
     case ERROR_SUCCESS:
       return OK;
     default:
@@ -92,6 +99,11 @@ int TCPClientSocket::Connect(CompletionCallback* callback) {
   if (rv != OK)
     return rv;
 
+  overlapped_.hEvent = WSACreateEvent();
+  // WSAEventSelect sets the socket to non-blocking mode as a side effect.
+  // Our connect() and recv() calls require that the socket be non-blocking.
+  WSAEventSelect(socket_, overlapped_.hEvent, FD_CONNECT);
+
   if (!connect(socket_, ai->ai_addr, static_cast<int>(ai->ai_addrlen))) {
     // Connected without waiting!
     return OK;
@@ -102,9 +114,6 @@ int TCPClientSocket::Connect(CompletionCallback* callback) {
     LOG(ERROR) << "connect failed: " << err;
     return MapWinsockError(err);
   }
-
-  overlapped_.hEvent = WSACreateEvent();
-  WSAEventSelect(socket_, overlapped_.hEvent, FD_CONNECT);
 
   watcher_.StartWatching(overlapped_.hEvent, this);
   wait_state_ = WAITING_CONNECT;
@@ -124,12 +133,18 @@ void TCPClientSocket::Disconnect() {
   // Make sure the message loop is not watching this object anymore.
   watcher_.StopWatching();
 
+  // In most socket implementations, closing a socket results in a graceful
+  // connection shutdown, but in Winsock we have to call shutdown explicitly.
+  // See the MSDN page "Graceful Shutdown, Linger Options, and Socket Closure"
+  // at http://msdn.microsoft.com/en-us/library/ms738547.aspx
+  shutdown(socket_, SD_SEND);
+
   // This cancels any pending IO.
   closesocket(socket_);
   socket_ = INVALID_SOCKET;
 
   WSACloseEvent(overlapped_.hEvent);
-  overlapped_.hEvent = NULL;
+  memset(&overlapped_, 0, sizeof(overlapped_));
 
   // Reset for next time.
   current_ai_ = addresses_.head();
@@ -150,7 +165,9 @@ bool TCPClientSocket::IsConnected() const {
   return true;
 }
 
-int TCPClientSocket::Read(char* buf, int buf_len, CompletionCallback* callback) {
+int TCPClientSocket::Read(char* buf,
+                          int buf_len,
+                          CompletionCallback* callback) {
   DCHECK(socket_ != INVALID_SOCKET);
   DCHECK(wait_state_ == NOT_WAITING);
   DCHECK(!callback_);
@@ -171,7 +188,9 @@ int TCPClientSocket::Read(char* buf, int buf_len, CompletionCallback* callback) 
   return MapWinsockError(WSAGetLastError());
 }
 
-int TCPClientSocket::Write(const char* buf, int buf_len, CompletionCallback* callback) {
+int TCPClientSocket::Write(const char* buf,
+                           int buf_len,
+                           CompletionCallback* callback) {
   DCHECK(socket_ != INVALID_SOCKET);
   DCHECK(wait_state_ == NOT_WAITING);
   DCHECK(!callback_);
@@ -196,17 +215,10 @@ int TCPClientSocket::CreateSocket(const struct addrinfo* ai) {
   socket_ = WSASocket(ai->ai_family, ai->ai_socktype, ai->ai_protocol, NULL, 0,
                       WSA_FLAG_OVERLAPPED);
   if (socket_ == INVALID_SOCKET) {
-    LOG(ERROR) << "WSASocket failed: " << WSAGetLastError();
-    return ERR_FAILED;
+    DWORD err = WSAGetLastError();
+    LOG(ERROR) << "WSASocket failed: " << err;
+    return MapWinsockError(err);
   }
-
-  // Configure non-blocking mode.
-  u_long non_blocking_mode = 1;
-  if (ioctlsocket(socket_, FIONBIO, &non_blocking_mode)) {
-    LOG(ERROR) << "ioctlsocket failed: " << WSAGetLastError();
-    return ERR_FAILED;
-  }
-
   return OK;
 }
 
@@ -226,8 +238,11 @@ void TCPClientSocket::DidCompleteConnect() {
   wait_state_ = NOT_WAITING;
 
   WSANETWORKEVENTS events;
-  WSAEnumNetworkEvents(socket_, overlapped_.hEvent, &events);
-  if (events.lNetworkEvents & FD_CONNECT) {
+  int rv = WSAEnumNetworkEvents(socket_, overlapped_.hEvent, &events);
+  if (rv == SOCKET_ERROR) {
+    NOTREACHED();
+    result = MapWinsockError(WSAGetLastError());
+  } else if (events.lNetworkEvents & FD_CONNECT) {
     wait_state_ = NOT_WAITING;
     DWORD error_code = static_cast<DWORD>(events.iErrorCode[FD_CONNECT_BIT]);
     if (current_ai_->ai_next && (
@@ -258,6 +273,7 @@ void TCPClientSocket::DidCompleteIO() {
   DWORD num_bytes, flags;
   BOOL ok = WSAGetOverlappedResult(
       socket_, &overlapped_, &num_bytes, FALSE, &flags);
+  WSAResetEvent(overlapped_.hEvent);
   wait_state_ = NOT_WAITING;
   DoCallback(ok ? num_bytes : MapWinsockError(WSAGetLastError()));
 }
@@ -272,6 +288,9 @@ void TCPClientSocket::OnObjectSignaled(HANDLE object) {
     case WAITING_READ:
     case WAITING_WRITE:
       DidCompleteIO();
+      break;
+    default:
+      NOTREACHED();
       break;
   }
 }

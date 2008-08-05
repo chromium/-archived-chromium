@@ -38,9 +38,9 @@ class ClientSocket : public Socket {
  public:
   // Called to establish a connection.  Returns OK if the connection could be
   // established synchronously.  Otherwise, ERR_IO_PENDING is returned and the
-  // given callback will be notified asynchronously when the connection is
-  // established or when an error occurs.  The result is some other error code
-  // if the connection could not be established.
+  // given callback will run asynchronously when the connection is established
+  // or when an error occurs.  The result is some other error code if the
+  // connection could not be established.
   //
   // The socket's Read and Write methods may not be called until Connect
   // succeeds.
@@ -48,7 +48,7 @@ class ClientSocket : public Socket {
   // It is valid to call Connect on an already connected socket, in which case
   // OK is simply returned.
   //
-  // Connect may also be called again after a call to the Close method.
+  // Connect may also be called again after a call to the Disconnect method.
   //
   virtual int Connect(CompletionCallback* callback) = 0;
 
@@ -62,7 +62,8 @@ class ClientSocket : public Socket {
   // Connect again to establish a new connection.
   virtual void Disconnect() = 0;
 
-  // Called to test if the socket is connected.
+  // Called to test if the connection is still alive.  Returns false if a
+  // connection wasn't established or the connection is dead.
   virtual bool IsConnected() const = 0;
 };
 

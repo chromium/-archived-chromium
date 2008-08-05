@@ -39,11 +39,11 @@ class Socket {
  public:
   virtual ~Socket() {}
 
-  // Read data, up to buf_len bytes, from the socket.  The number of bytes read
-  // is returned, or an error is returned upon failure.  Zero is returned to
-  // indicate end-of-file.  ERR_IO_PENDING is returned if the operation could
-  // not be completed synchronously, in which case the result will be passed to
-  // the callback when available.
+  // Reads data, up to buf_len bytes, from the socket.  The number of bytes
+  // read is returned, or an error is returned upon failure.  Zero is returned
+  // to indicate end-of-file.  ERR_IO_PENDING is returned if the operation
+  // could not be completed synchronously, in which case the result will be
+  // passed to the callback when available.
   virtual int Read(char* buf, int buf_len,
                    CompletionCallback* callback) = 0;
 
