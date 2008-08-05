@@ -158,6 +158,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\base_paths_win.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\base_paths_win.h"
+			>
+		</File>
+		<File
 			RelativePath="..\base_switches.cc"
 			>
 		</File>

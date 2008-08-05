@@ -42,6 +42,9 @@
 
 namespace base {
   bool PathProvider(int key, std::wstring* result);
+#if OS_WIN
+  bool PathProviderWin(int key, std::wstring* result);
+#endif
 }
 
 namespace {
@@ -69,13 +72,31 @@ static Provider base_provider = {
 #endif
 };
 
+#ifdef OS_WIN
+static Provider base_provider_win = {
+  base::PathProviderWin,
+  &base_provider,
+#ifndef NDEBUG
+  base::PATH_WIN_START,
+  base::PATH_WIN_END
+#endif
+};
+#endif
+
 struct PathData {
   Lock      lock;
   PathMap   cache;      // Track mappings from path key to path value.
   PathSet   overrides;  // Track whether a path has been overridden.
   Provider* providers;  // Linked list of path service providers.
 
-  PathData() : providers(&base_provider) {
+  PathData() {
+#if defined(OS_WIN)
+    providers = &base_provider_win;
+#elif defined(OS_MACOSX)
+    providers = &base_provider;
+#elif defined(OS_LINUX)
+    providers = &base_provider;
+#endif
   }
 };
 
