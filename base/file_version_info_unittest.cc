@@ -49,6 +49,7 @@ std::wstring GetTestDataPath() {
 
 }
 
+#ifdef OS_WIN
 TEST(FileVersionInfoTest, HardCodedProperties) {
   const wchar_t* kDLLNames[] = {
     L"FileVersionInfoTest1.dll"
@@ -99,7 +100,9 @@ TEST(FileVersionInfoTest, HardCodedProperties) {
     EXPECT_EQ(kExpectedValues[i][j++], version_info->last_change());
   }
 }
+#endif
 
+#ifdef OS_WIN
 TEST(FileVersionInfoTest, IsOfficialBuild) {
   const wchar_t* kDLLNames[] = {
     L"FileVersionInfoTest1.dll",
@@ -124,6 +127,7 @@ TEST(FileVersionInfoTest, IsOfficialBuild) {
     EXPECT_EQ(kExpected[i], version_info->is_official_build());
   }
 }
+#endif
 
 TEST(FileVersionInfoTest, CustomProperties) {
   std::wstring dll_path = GetTestDataPath();
@@ -134,6 +138,7 @@ TEST(FileVersionInfoTest, CustomProperties) {
 
   // Test few existing properties.
   std::wstring str;
+#ifdef OS_WIN
   EXPECT_TRUE(version_info->GetValue(L"Custom prop 1",  &str));
   EXPECT_EQ(L"Un", str);
   EXPECT_EQ(L"Un", version_info->GetStringValue(L"Custom prop 1"));
@@ -146,6 +151,7 @@ TEST(FileVersionInfoTest, CustomProperties) {
   EXPECT_EQ(L"1600 Amphitheatre Parkway Mountain View, CA 94043", str);
   EXPECT_EQ(L"1600 Amphitheatre Parkway Mountain View, CA 94043",
             version_info->GetStringValue(L"Custom prop 3"));
+#endif
 
   // Test an non-existing property.
   EXPECT_FALSE(version_info->GetValue(L"Unknown property",  &str));
