@@ -70,7 +70,7 @@ struct PrepopulatedEngine {
   // to appear for one country (e.g. Live Search U.S. English and Spanish), we
   // must use two different unique IDs (and different keywords).
   //
-  // The following unique IDs are available: 6, 103+
+  // The following unique IDs are available: 6, 92, 93, 103+
   // NOTE: CHANGE THE ABOVE NUMBERS IF YOU ADD A NEW ENGINE; ID conflicts = bad!
   const int id;
 };
@@ -118,16 +118,6 @@ const PrepopulatedEngine aladin = {
   "UTF-8",
   NULL,
   18,
-};
-
-const PrepopulatedEngine alltheweb = {
-  L"AlltheWeb",
-  L"alltheweb.com",
-  L"http://alltheweb.com/favicon.ico",
-  L"http://alltheweb.com/search?cs={inputEncoding}&q={searchTerms}",
-  "ISO-8859-1",
-  NULL,
-  93,
 };
 
 const PrepopulatedEngine altavista = {
@@ -400,17 +390,6 @@ const PrepopulatedEngine delfi_lv = {
   45,
 };
 
-const PrepopulatedEngine dogpile = {
-  L"Dogpile",
-  L"dogpile.com",
-  L"http://ttl60m.wsoo.infospace.com.edgesuite.net/dogpile/ws/pics/favicon.ico",
-  L"http://www.dogpile.com/dogpile/ws/results/Web/{searchTerms}/1/417/"
-      L"TopNavigation/Relevance/_iceUrlFlag=7?_IceUrl=true",
-  "UTF-8",
-  NULL,
-  92,
-};
-
 const PrepopulatedEngine embla = {
   L"Embla",
   L"embla.is",
@@ -671,6 +650,7 @@ const PrepopulatedEngine live = {
 const PrepopulatedEngine live_ar_XA = {
   // The name here is displayed LTR, but is really RTL (with an LTR string at
   // the beginning), so hackishly reorder things so they look "RTL".
+  // TODO(pkasting): When http://b/1252245 is fixed, we can revert this hack.
   L"(\x0627\x0644\x0639\x0631\x0628\x064a\x0629) Live Search",
   L"",  // "live.com" is already taken by live_en_XA (see comment on ID below).
   L"http://search.live.com/s/wlflag.ico",
@@ -1109,11 +1089,31 @@ const PrepopulatedEngine msn_en_ZA = {
   3,
 };
 
+const PrepopulatedEngine msn_es_AR = {
+  L"MSN Argentina",
+  L"ar.msn.com",
+  L"http://search.msn.com/s/wlflag.ico",
+  L"http://search.msn.com/results.aspx?mkt=es-AR&q={searchTerms}",
+  "UTF-8",
+  NULL,
+  3,
+};
+
 const PrepopulatedEngine msn_es_CL = {
   L"MSN Chile",
   L"cl.msn.com",
   L"http://search.msn.com/s/wlflag.ico",
   L"http://search.msn.com/results.aspx?mkt=es-CL&q={searchTerms}",
+  "UTF-8",
+  NULL,
+  3,
+};
+
+const PrepopulatedEngine msn_es_CO = {
+  L"MSN Colombia",
+  L"co.msn.com",
+  L"http://search.msn.com/s/wlflag.ico",
+  L"http://search.msn.com/results.aspx?mkt=es-CO&q={searchTerms}",
   "UTF-8",
   NULL,
   3,
@@ -1773,6 +1773,7 @@ const PrepopulatedEngine voila = {
 const PrepopulatedEngine walla = {
   // The name here is displayed LTR, but is really RTL, so hackishly reorder
   // the exclamation point so it looks "RTL".
+  // TODO(pkasting): When http://b/1252245 is fixed, we can revert this hack.
   L"!\x05d5\x05d5\x05d0\x05dc\x05d4",
   L"walla.co.il",
   L"http://www.walla.co.il/favicon.ico",
@@ -2241,7 +2242,7 @@ const PrepopulatedEngine engines_AL[] =
 
 // Argentina
 const PrepopulatedEngine engines_AR[] =
-    { google, altavista_ar, terra_ar, yahoo_ar, };
+    { google, msn_es_AR, altavista_ar, terra_ar, yahoo_ar, };
 
 // Austria
 const PrepopulatedEngine engines_AT[] = { google, yahoo_at, msn_de_AT, };
@@ -2305,7 +2306,7 @@ const PrepopulatedEngine engines_CN[] =
 
 // Colombia
 const PrepopulatedEngine engines_CO[] =
-    { google, ask_es, altavista, conexcol, yahoo_co, dogpile, alltheweb, };
+    { google, msn_es_CO, ask_es, altavista, conexcol, yahoo_co, };
 
 // Costa Rica
 const PrepopulatedEngine engines_CR[] =
@@ -2443,7 +2444,7 @@ const PrepopulatedEngine engines_LI[] =
 
 // Lithuania
 const PrepopulatedEngine engines_LT[] =
-    { google, delfi_lt, yandex_ru, live_lt_LT, };
+    { google, delfi_lt, yahoo, yandex_ru, live_lt_LT, };
 
 // Luxembourg
 const PrepopulatedEngine engines_LU[] =
@@ -2451,7 +2452,7 @@ const PrepopulatedEngine engines_LU[] =
 
 // Latvia
 const PrepopulatedEngine engines_LV[] =
-    { google, yandex_ru, delfi_lv, latne, };
+    { google, delfi_lv, yahoo, yandex_ru, latne, };
 
 // Libya
 const PrepopulatedEngine engines_LY[] =
@@ -2462,7 +2463,8 @@ const PrepopulatedEngine engines_MA[] =
     { google, yamli, araby, yahoo, msn_en_XA, msn_ar_XA, };
 
 // Monaco
-const PrepopulatedEngine engines_MC[] = { google, };
+const PrepopulatedEngine engines_MC[] =
+    { google, voila, yahoo_fr, msn_fr_FR, orange, aol_fr, };
 
 // Macedonia
 const PrepopulatedEngine engines_MK[] = { google, pogodok, yahoo, live, };
@@ -2997,7 +2999,7 @@ void RegisterUserPrefs(PrefService* prefs) {
 }
 
 int GetDataVersion() {
-  return 9;  // Increment this if you change the above data in ways that mean
+  return 10;  // Increment this if you change the above data in ways that mean
              // users with existing data should get a new version.
 }
 
