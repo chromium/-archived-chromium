@@ -56,7 +56,9 @@ TEST(FixedStringTest, TestBasic) {
 TEST(FixedStringTest, TestOverflow) {
   FixedString<wchar_t, 5> buf;
   buf.Append(L"hello world");
-  EXPECT_EQ(0, buf.size());
+  // The following static_cast is necessary to make Mac gcc happy, so don't
+  // remove it unless you've verified that it works there.
+  EXPECT_EQ(static_cast<size_t>(0), buf.size());
   EXPECT_EQ(0, buf.get()[0]);
   EXPECT_EQ(true, buf.was_truncated());
 }
