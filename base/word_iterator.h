@@ -31,6 +31,9 @@
 #define BASE_WORD_ITERATOR_H__
 
 #include "base/basictypes.h"
+#ifndef U_WCHAR_IS_UTF16
+#include "unicode/ustring.h"
+#endif
 
 // The WordIterator class iterates through the words and word breaks
 // in a string.  (In the string " foo bar! ", the word breaks are at the
@@ -94,6 +97,9 @@ class WordIterator {
  private:
   // ICU iterator.
   void* iter_;
+#ifndef U_WCHAR_IS_UTF16
+  std::vector<UChar> chars_;
+#endif
 
   // The string we're iterating over.
   const std::wstring& string_;

@@ -60,9 +60,26 @@ bool WordIterator::Init() {
       NOTREACHED();
       break_type = UBRK_LINE;
   }
+#ifdef U_WCHAR_IS_UTF16
   iter_ = ubrk_open(break_type, NULL,
                     string_.data(), static_cast<int32_t>(string_.size()),
                     &status);
+#else  // U_WCHAR_IS_UTF16
+  // When wchar_t is wider than UChar (16 bits), transform |string_| into a
+  // UChar* string.  Size the UChar* buffer to be large enough to hold twice
+  // as many UTF-16 code points as there are UCS-4 characters, in case each
+  // character translates to a UTF-16 surrogate pair, and leave room for a NUL
+  // terminator.
+  // TODO(avi): avoid this alloc
+  chars_.resize(wide.length() * sizeof(UChar) + 1);
+
+  UErrorCode error = U_ZERO_ERROR;
+  int32_t destLength;
+  u_strFromWCS(&chars_[0], chars_.size(), &destLength, string_.data(),
+               string_.length(), &error);
+  
+  iter_ = ubrk_open(break_type, NULL, chars_, destLength, &status);
+#endif
   if (U_FAILURE(status)) {
     NOTREACHED() << "ubrk_open failed";
     return false;
