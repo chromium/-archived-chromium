@@ -182,11 +182,11 @@ int DoUninstallTasks() {
   LOG(INFO) << "Executing uninstall actions";
   ResultCodes::ExitCode ret = ResultCodes::NORMAL_EXIT;
   if (!FirstRun::RemoveSentinel())
-    ret = ResultCodes::UNINSTALL_ERROR;
+    ret = ResultCodes::UNINSTALL_DELETE_FILE_ERROR;
   if (!FirstRun::RemoveChromeDesktopShortcut())
-    ret = ResultCodes::UNINSTALL_ERROR;
+    ret = ResultCodes::UNINSTALL_DELETE_FILE_ERROR;
   if (!FirstRun::RemoveChromeQuickLaunchShortcut())
-    ret = ResultCodes::UNINSTALL_ERROR;
+    ret = ResultCodes::UNINSTALL_DELETE_FILE_ERROR;
   return ret;
 }
 
