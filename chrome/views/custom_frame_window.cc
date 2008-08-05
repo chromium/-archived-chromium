@@ -833,16 +833,16 @@ void DefaultNonClientView::InitClass() {
 
 CustomFrameWindow::CustomFrameWindow(WindowDelegate* window_delegate)
     : Window(window_delegate),
-      non_client_view_(new DefaultNonClientView(this)),
       is_active_(false) {
   InitClass();
+  non_client_view_ = new DefaultNonClientView(this);
 }
 
 CustomFrameWindow::CustomFrameWindow(WindowDelegate* window_delegate,
                                      NonClientView* non_client_view)
-    : Window(window_delegate),
-      non_client_view_(non_client_view) {
+    : Window(window_delegate) {
   InitClass();
+  non_client_view_ = non_client_view;
 }
 
 CustomFrameWindow::~CustomFrameWindow() {

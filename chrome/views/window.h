@@ -44,6 +44,7 @@ namespace ChromeViews {
 
 class ClientView;
 class Client;
+class NonClientView;
 class WindowDelegate;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -173,6 +174,12 @@ class Window : public HWNDViewContainer {
   virtual LRESULT OnSetCursor(HWND window, UINT hittest_code, UINT message);
   virtual void OnSize(UINT size_param, const CSize& new_size);
   virtual void OnSysCommand(UINT notification_code, CPoint click);
+
+  // The View that provides the non-client area of the window (title bar,
+  // window controls, sizing borders etc). To use an implementation other than
+  // the default, this class must be subclassed and this value set to the
+  // desired implementation before calling |Init|.
+  NonClientView* non_client_view_;
 
  private:
   // Set the window as modal (by disabling all the other windows).

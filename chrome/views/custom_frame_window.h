@@ -86,12 +86,6 @@ class CustomFrameWindow : public Window {
   virtual LRESULT OnSetCursor(HWND window, UINT hittest_code, UINT message);
   virtual void OnSize(UINT param, const CSize& size);
 
-  // The View that provides the non-client area of the window (title bar,
-  // window controls, sizing borders etc). To use an implementation other than
-  // the default, this class must be subclassed and this value set to the
-  // desired implementation before calling |Init|.
-  NonClientView* non_client_view_;
-
  private:
   // Shows the system menu at the specified screen point.
   void RunSystemMenu(const CPoint& point);

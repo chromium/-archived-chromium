@@ -37,6 +37,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/custom_frame_window.h"
+#include "chrome/views/non_client_view.h"
 #include "chrome/views/window_delegate.h"
 
 #include "generated_resources.h"
@@ -251,6 +252,7 @@ Window::Window(WindowDelegate* window_delegate)
     : HWNDViewContainer(),
       focus_on_creation_(true),
       window_delegate_(window_delegate),
+      non_client_view_(NULL),
       client_view_(NULL),
       owning_hwnd_(NULL),
       minimum_size_(100, 100),
@@ -300,12 +302,21 @@ void Window::Init(HWND parent, const gfx::Rect& bounds) {
 void Window::SetClientView(ClientView* client_view) {
   DCHECK(client_view && !client_view_ && GetHWND());
   client_view_ = client_view;
-  HWNDViewContainer::SetContentsView(client_view_);
+  if (non_client_view_) {
+    // This will trigger the ClientView to be added by the non-client view.
+    HWNDViewContainer::SetContentsView(non_client_view_);
+  } else {
+    HWNDViewContainer::SetContentsView(client_view_);
+  }
 }
 
 void Window::SizeWindowToDefault() {
   CSize pref(0, 0);
-  client_view_->GetPreferredSize(&pref);
+  if (non_client_view_) {
+    non_client_view_->GetPreferredSize(&pref);
+  } else {
+    client_view_->GetPreferredSize(&pref);
+  }
   DCHECK(pref.cx > 0 && pref.cy > 0);
   // CenterAndSizeWindow adjusts the window size to accommodate the non-client
   // area.
@@ -343,7 +354,12 @@ LRESULT Window::OnNCHitTest(const CPoint& point) {
   // of the non-client area.
   CPoint temp = point;
   MapWindowPoints(HWND_DESKTOP, GetHWND(), &temp, 1);
-  int component = client_view_->NonClientHitTest(gfx::Point(temp));
+  int component = HTNOWHERE;
+  if (non_client_view_) {
+    component = non_client_view_->NonClientHitTest(gfx::Point(temp));
+  } else {
+    component = client_view_->NonClientHitTest(gfx::Point(temp));
+  }
   if (component != HTNOWHERE)
     return component;
 

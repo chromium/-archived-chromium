@@ -119,7 +119,7 @@ StatusBubble* BrowserView2::GetStatusBubble() {
 }
 
 ChromeViews::RootView* BrowserView2::GetRootView() {
-  // TODO(beng): get rid of this stupid method.
+  // TODO(beng): Get rid of this stupid method.
   return View::GetRootView();
 }
 

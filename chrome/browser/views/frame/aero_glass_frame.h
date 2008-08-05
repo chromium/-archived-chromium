@@ -30,21 +30,55 @@
 #ifndef CHROME_BROWSER_VIEWS_FRAME_AERO_GLASS_FRAME_H_
 #define CHROME_BROWSER_VIEWS_FRAME_AERO_GLASS_FRAME_H_
 
+#include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/views/window.h"
+
+class BrowserView2;
 
 ///////////////////////////////////////////////////////////////////////////////
 // AeroGlassFrame
 //
-//  AeroGlassFrame is a Window subclass that in conjunction with 
-//  AeroGlassNonClientView provides the window frame on Windows Vista with
-//  DWM desktop compositing is enabled. A standard Windows frame is used.
+//  AeroGlassFrame is a Window subclass that provides the window frame on
+//  Windows Vista with DWM desktop compositing enabled. The window's non-client
+//  areas are drawn by the system.
 //
-class AeroGlassFrame : public ChromeViews::Window {
+class AeroGlassFrame : public BrowserFrame,
+                       public ChromeViews::Window {
  public:
-  AeroGlassFrame();
+  explicit AeroGlassFrame(BrowserView2* browser_view);
   virtual ~AeroGlassFrame();
 
+  void Init(const gfx::Rect& bounds);
+
+  bool IsToolbarVisible() const { return true; }
+  bool IsTabStripVisible() const { return true; }
+
+  // Returns bounds of various areas within the BrowserView ClientView.
+  gfx::Rect GetToolbarBounds() const;
+  gfx::Rect GetContentsBounds() const;
+
+  // Determine the distance of the left edge of the minimize button from the
+  // right edge of the window. Used in our Non-Client View's Layout.
+  int GetMinimizeButtonOffset() const;
+
+  // Overridden from BrowserFrame:
+  virtual ChromeViews::Window* GetWindow();
+
+ protected:
+  // Overridden from ChromeViews::HWNDViewContainer:
+  virtual LRESULT OnNCActivate(BOOL active);
+  virtual LRESULT OnNCCalcSize(BOOL mode, LPARAM l_param);
+  virtual LRESULT OnNCHitTest(const CPoint& pt);
+
  private:
+  // Updates the DWM with the frame bounds.
+  void UpdateDWMFrame();
+
+  // The BrowserView2 is our ClientView. This is a pointer to it.
+  BrowserView2* browser_view_;
+
+  bool frame_initialized_;
+
   DISALLOW_EVIL_CONSTRUCTORS(AeroGlassFrame);
 };
 

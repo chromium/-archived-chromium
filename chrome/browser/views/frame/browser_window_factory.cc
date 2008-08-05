@@ -31,6 +31,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/frame_util.h"
+#include "chrome/browser/views/frame/aero_glass_frame.h"
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/frame/browser_view2.h"
@@ -81,7 +82,9 @@ BrowserFrame* BrowserFrame::CreateForBrowserView(BrowserFrame::FrameType type,
     frame->Init(NULL, bounds);
     return frame;
   } else if (type == FRAMETYPE_AERO_GLASS) {
-    NOTREACHED() << "Aero/Glass not supported yet by magic_browzR switch";
+    AeroGlassFrame* frame = new AeroGlassFrame(browser_view);
+    frame->Init(bounds);
+    return frame;
   }
   NOTREACHED() << "Unsupported frame type";
   return NULL;
