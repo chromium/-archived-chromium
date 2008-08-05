@@ -258,9 +258,17 @@ void VistaFrame::Layout() {
     } else {
       CSize distributor_logo_size;
       distributor_logo_->GetPreferredSize(&distributor_logo_size);
+
+      int logo_x;
+      // Because of Bug 1128173, our Window controls aren't actually flipped 
+      // on Vista, yet all our math and layout presumes that they are.
+      if (frame_view_->UILayoutIsRightToLeft())
+        logo_x = width - distributor_logo_size.cx;
+      else
+        logo_x = width - min_offset - distributor_logo_size.cx;
+
       distributor_logo_->SetVisible(true);
-      distributor_logo_->SetBounds(width - min_offset - 
-          distributor_logo_size.cx,
+      distributor_logo_->SetBounds(logo_x,
           kDistributorLogoVerticalOffset,
           distributor_logo_size.cx,
           distributor_logo_size.cy);
