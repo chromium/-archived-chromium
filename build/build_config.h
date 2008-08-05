@@ -27,6 +27,15 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+// This file adds defines about the platform we're currently building on.
+//  Operating System:
+//    OS_WIN / OS_MACOSX / OS_LINUX / OS_POSIX (MACOSX or LINUX)
+//  Compiler:
+//    COMPILER_MSVC / COMPILER_GCC
+//  Processor:
+//    ARCH_CPU_X86 / ARCH_CPU_X86_64 / ARCH_CPU_X86_FAMILY (X86 or X86_64)
+//    ARCH_CPU_32_BITS / ARCH_CPU_64_BITS
+
 #ifndef BUILD_BUILD_CONFIG_H_
 #define BUILD_BUILD_CONFIG_H_
 
@@ -49,9 +58,26 @@
 
 // Compiler detection.
 #if defined(__GNUC__)
-#define COMPILER_GCC
+#define COMPILER_GCC 1
 #elif defined(_MSC_VER)
-#define COMPILER_MSVC
+#define COMPILER_MSVC 1
+#else
+#error Please add support for your compiler in build/build_config.h
+#endif
+
+// Processor architecture detection.  For more info on what's defined, see:
+//   http://msdn.microsoft.com/en-us/library/b0084kay.aspx
+//   http://www.agner.org/optimize/calling_conventions.pdf
+#if defined(_M_X64) || defined(__x86_64__)
+#define ARCH_CPU_X86_FAMILY 1
+#define ARCH_CPU_X86_64 1
+#define ARCH_CPU_64_BITS 1
+#elif defined(_M_IX86) || defined(__i386__)
+#define ARCH_CPU_X86_FAMILY 1
+#define ARCH_CPU_X86 1
+#define ARCH_CPU_32_BITS 1
+#else
+#error Please add support for your architecture in build/build_config.h
 #endif
 
 #endif  // BUILD_BUILD_CONFIG_H_
