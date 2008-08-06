@@ -62,6 +62,9 @@
 #include "chrome/renderer/about_handler.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/webkit_glue.h"
+#ifdef CHROME_V8
+#include "v8/public/v8.h"
+#endif
 
 #include "generated_resources.h"
 
@@ -254,9 +257,23 @@ std::string BrowserAboutHandler::AboutVersion() {
     DLOG(ERROR) << "Unable to create FileVersionInfo object";
     return std::string();
   }
+
+  std::wstring webkit_version = UTF8ToWide(webkit_glue::GetWebKitVersion());
+#ifdef CHROME_V8
+  const char* v8_vers = v8::V8::GetVersion();
+  std::wstring js_version = UTF8ToWide(v8_vers);
+  std::wstring js_engine = L"V8";
+#else
+  std::wstring js_version = webkit_version;
+  std::wstring js_engine = L"JavaScriptCore";
+#endif
+
   localized_strings.SetString(L"name",
       l10n_util::GetString(IDS_PRODUCT_NAME));
   localized_strings.SetString(L"version", version_info->file_version());
+  localized_strings.SetString(L"js_engine", js_engine);
+  localized_strings.SetString(L"js_version", js_version);
+  localized_strings.SetString(L"webkit_version", webkit_version);
   localized_strings.SetString(L"company",
       l10n_util::GetString(IDS_ABOUT_VERSION_COMPANY_NAME));
   localized_strings.SetString(L"copyright",

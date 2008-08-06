@@ -75,7 +75,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets=".\browser.vsprops;$(SolutionDir)..\build\release.vsprops"
+			InheritedPropertySheets=".\browser.vsprops;$(SolutionDir)..\build\release.vsprops;$(SolutionDir)\tools\build\win\js_engine.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"

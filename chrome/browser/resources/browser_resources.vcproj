@@ -72,11 +72,15 @@
 			>
 		</File>
 		<File
-			RelativePath=".\new_tab.html"
+			RelativePath=".\about_version.html"
 			>
 		</File>
 		<File
 			RelativePath=".\incognito_tab.html"
+			>
+		</File>
+		<File
+			RelativePath=".\new_tab.html"
 			>
 		</File>
 		<File
