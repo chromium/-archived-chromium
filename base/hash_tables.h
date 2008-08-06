@@ -40,16 +40,19 @@
 #ifndef BASE_HASH_TABLES_H__
 #define BASE_HASH_TABLES_H__
 
-#ifdef WIN32
+#include "build/build_config.h"
+
+#if defined(COMPILER_MSVC)
 #include <hash_map>
 #include <hash_set>
 namespace base {
 using stdext::hash_map;
 using stdext::hash_set;
 }
-#else
+#elif defined(COMPILER_GCC)
 #include <ext/hash_map>
 #include <ext/hash_set>
+#include <tr1/functional>
 namespace base {
 using __gnu_cxx::hash_map;
 using __gnu_cxx::hash_set;
@@ -59,52 +62,45 @@ using __gnu_cxx::hash_set;
 // be used as keys in STL maps and sets.
 namespace __gnu_cxx {
 
-inline size_t stl_hash_wstring(const wchar_t* s) {
-  unsigned long h = 0;
-  for ( ; *s; ++s)
-    h = 5 * h + *s;
-  return size_t(h);
-}
-
 template<>
 struct hash<wchar_t*> {
   size_t operator()(const wchar_t* s) const {
-    return stl_hash_wstring(s); 
+    return std::tr1::hash<const wchar_t*>()(s);
   }
 };
 
 template<>
 struct hash<const wchar_t*> {
   size_t operator()(const wchar_t* s) const {
-    return stl_hash_wstring(s); 
+    return std::tr1::hash<const wchar_t*>()(s);
   }
 };
 
 template<>
 struct hash<std::wstring> {
   size_t operator()(const std::wstring& s) const {
-    return stl_hash_wstring(s.c_str()); 
+    return std::tr1::hash<std::wstring>()(s);
   }
 };
 
 template<>
 struct hash<const std::wstring> {
   size_t operator()(const std::wstring& s) const {
-    return stl_hash_wstring(s.c_str());
+    return std::tr1::hash<std::wstring>()(s);
   }
 };
 
 template<>
 struct hash<std::string> {
   size_t operator()(const std::string& s) const {
-    return __stl_hash_string(s.c_str());
+    return std::tr1::hash<std::string>()(s);
   }
 };
 
 template<>
 struct hash<const std::string> {
   size_t operator()(const std::string& s) const {
-    return __stl_hash_string(s.c_str());
+    return std::tr1::hash<std::string>()(s);
   }
 };  
 
