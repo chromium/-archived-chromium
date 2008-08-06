@@ -43,6 +43,9 @@ class PlatformThread {
   // Gets the current thread.
   static PlatformThread Current();
 
+  // Yield the current thread so another thread can be scheduled.
+  static void YieldCurrentThread();
+
   bool operator==(const PlatformThread& other_thread);
 
  private:

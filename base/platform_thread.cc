@@ -27,6 +27,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#ifndef WIN32
+#include <sched.h>
+#endif
+
 #include "base/platform_thread.h"
 
 // static
@@ -40,6 +44,15 @@ PlatformThread PlatformThread::Current() {
 #endif
 
   return thread;
+}
+
+// static
+void PlatformThread::YieldCurrentThread() {
+#ifdef WIN32
+  ::Sleep(0);
+#else
+  sched_yield();
+#endif
 }
 
 bool PlatformThread::operator==(const PlatformThread& other_thread) {
