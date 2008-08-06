@@ -93,7 +93,7 @@ void HttpNetworkLayer::Suspend(bool suspend) {
   suspended_ = suspend;
 
   if (suspend)
-    session_->connection_manager()->CloseIdleSockets();
+    session_->connection_pool()->CloseIdleSockets();
 }
 
 }  // namespace net

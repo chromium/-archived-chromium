@@ -27,10 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "net/http/http_connection_manager.h"
+#include "net/base/client_socket_pool.h"
 
 #include "base/message_loop.h"
 #include "net/base/client_socket.h"
+#include "net/base/client_socket_handle.h"
 #include "net/base/net_errors.h"
 
 namespace {
@@ -42,13 +43,14 @@ const int kCleanupInterval = 5;
 
 namespace net {
 
-HttpConnectionManager::HttpConnectionManager()
+ClientSocketPool::ClientSocketPool(int max_sockets_per_group)
     : timer_(TimeDelta::FromSeconds(kCleanupInterval)),
-      idle_socket_count_(0) {
+      idle_socket_count_(0),
+      max_sockets_per_group_(max_sockets_per_group) {
   timer_.set_task(this);
 }
 
-HttpConnectionManager::~HttpConnectionManager() {
+ClientSocketPool::~ClientSocketPool() {
   timer_.set_task(NULL);
 
   // Clean up any idle sockets.  Assert that we have no remaining active sockets
@@ -59,15 +61,14 @@ HttpConnectionManager::~HttpConnectionManager() {
   DCHECK(group_map_.empty());
 }
 
-int HttpConnectionManager::RequestSocket(const std::string& group_name,
-                                         SocketHandle** handle,
-                                         CompletionCallback* callback) {
-  Group& group = group_map_[group_name];
+int ClientSocketPool::RequestSocket(ClientSocketHandle* handle,
+                                    CompletionCallback* callback) {
+  Group& group = group_map_[handle->group_name_];
 
   // Can we make another active socket now?
-  if (group.active_socket_count == kMaxSocketsPerGroup) {
+  if (group.active_socket_count == max_sockets_per_group_) {
     Request r;
-    r.result = handle;
+    r.handle = handle;
     DCHECK(callback);
     r.callback = callback;
     group.pending_requests.push_back(r);
@@ -80,53 +81,53 @@ int HttpConnectionManager::RequestSocket(const std::string& group_name,
   // Use idle sockets in LIFO order because they're more likely to be
   // still connected.
   while (!group.idle_sockets.empty()) {
-    SocketHandle* h = group.idle_sockets.back();
+    ClientSocketPtr* ptr = group.idle_sockets.back();
     group.idle_sockets.pop_back();
     DecrementIdleCount();
-    if (h->get()->IsConnected()) {
+    if ((*ptr)->IsConnected()) {
       // We found one we can reuse!
-      *handle = h;
+      handle->socket_ = ptr;
       return OK;
     }
-    delete h;
+    delete ptr;
   }
 
-  *handle = new SocketHandle();
+  handle->socket_ = new ClientSocketPtr();
   return OK;
 }
 
-void HttpConnectionManager::CancelRequest(const std::string& group_name,
-                                          SocketHandle** handle) {
-  Group& group = group_map_[group_name];
+void ClientSocketPool::CancelRequest(ClientSocketHandle* handle) {
+  Group& group = group_map_[handle->group_name_];
 
   // In order for us to be canceling a pending request, we must have active
   // sockets equaling the limit.  NOTE: The correctness of the code doesn't
   // require this assertion.
-  DCHECK(group.active_socket_count == kMaxSocketsPerGroup);
+  DCHECK(group.active_socket_count == max_sockets_per_group_);
 
   // Search pending_requests for matching handle.
   std::deque<Request>::iterator it = group.pending_requests.begin();
   for (; it != group.pending_requests.end(); ++it) {
-    if (it->result == handle) {
+    if (it->handle == handle) {
       group.pending_requests.erase(it);
       break;
     }
   }
 }
 
-void HttpConnectionManager::ReleaseSocket(const std::string& group_name,
-                                          SocketHandle* handle) {
+void ClientSocketPool::ReleaseSocket(ClientSocketHandle* handle) {
   // Run this asynchronously to allow the caller to finish before we let
   // another to begin doing work.  This also avoids nasty recursion issues.
+  // NOTE: We cannot refer to the handle argument after this method returns.
   MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &HttpConnectionManager::DoReleaseSocket, group_name, handle));
+      this, &ClientSocketPool::DoReleaseSocket, handle->group_name_,
+      handle->socket_));
 }
 
-void HttpConnectionManager::CloseIdleSockets() {
+void ClientSocketPool::CloseIdleSockets() {
   MaybeCloseIdleSockets(false);
 }
 
-void HttpConnectionManager::MaybeCloseIdleSockets(
+void ClientSocketPool::MaybeCloseIdleSockets(
     bool only_if_disconnected) {
   if (idle_socket_count_ == 0)
     return;
@@ -135,7 +136,7 @@ void HttpConnectionManager::MaybeCloseIdleSockets(
   while (i != group_map_.end()) {
     Group& group = i->second;
 
-    std::deque<SocketHandle*>::iterator j = group.idle_sockets.begin();
+    std::deque<ClientSocketPtr*>::iterator j = group.idle_sockets.begin();
     while (j != group.idle_sockets.end()) {
       if (!only_if_disconnected || !(*j)->get()->IsConnected()) {
         delete *j;
@@ -156,18 +157,18 @@ void HttpConnectionManager::MaybeCloseIdleSockets(
   }
 }
 
-void HttpConnectionManager::IncrementIdleCount() {
+void ClientSocketPool::IncrementIdleCount() {
   if (++idle_socket_count_ == 1)
     timer_.Start();
 }
 
-void HttpConnectionManager::DecrementIdleCount() {
+void ClientSocketPool::DecrementIdleCount() {
   if (--idle_socket_count_ == 0)
     timer_.Stop();
 }
 
-void HttpConnectionManager::DoReleaseSocket(const std::string& group_name,
-                                            SocketHandle* handle) {
+void ClientSocketPool::DoReleaseSocket(const std::string& group_name,
+                                       ClientSocketPtr* ptr) {
   GroupMap::iterator i = group_map_.find(group_name);
   DCHECK(i != group_map_.end());
 
@@ -176,19 +177,19 @@ void HttpConnectionManager::DoReleaseSocket(const std::string& group_name,
   DCHECK(group.active_socket_count > 0);
   group.active_socket_count--;
 
-  bool can_reuse = handle->get() && handle->get()->IsConnected();
+  bool can_reuse = ptr->get() && (*ptr)->IsConnected();
   if (can_reuse) {
-    group.idle_sockets.push_back(handle);
+    group.idle_sockets.push_back(ptr);
     IncrementIdleCount();
   } else {
-    delete handle;
+    delete ptr;
   }
 
   // Process one pending request.
   if (!group.pending_requests.empty()) {
     Request r = group.pending_requests.front();
     group.pending_requests.pop_front();
-    int rv = RequestSocket(i->first, r.result, NULL);
+    int rv = RequestSocket(r.handle, NULL);
     DCHECK(rv == OK);
     r.callback->Run(rv);
     return;
@@ -201,7 +202,7 @@ void HttpConnectionManager::DoReleaseSocket(const std::string& group_name,
   }
 }
 
-void HttpConnectionManager::Run() {
+void ClientSocketPool::Run() {
   MaybeCloseIdleSockets(true);
 }
 

@@ -27,36 +27,36 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "net/http/http_connection.h"
+#include "net/base/client_socket_handle.h"
 
 #include "net/base/client_socket.h"
-#include "net/http/http_connection_manager.h"
+#include "net/base/client_socket_pool.h"
 
 namespace net {
 
-HttpConnection::HttpConnection(HttpConnectionManager* mgr)
-    : mgr_(mgr), socket_(NULL) {
+ClientSocketHandle::ClientSocketHandle(ClientSocketPool* pool)
+    : pool_(pool), socket_(NULL) {
 }
 
-HttpConnection::~HttpConnection() {
+ClientSocketHandle::~ClientSocketHandle() {
   Reset();
 }
 
-int HttpConnection::Init(const std::string& group_name,
-                         CompletionCallback* callback) {
+int ClientSocketHandle::Init(const std::string& group_name,
+                             CompletionCallback* callback) {
   Reset();
   group_name_ = group_name;
-  return mgr_->RequestSocket(group_name_, &socket_, callback);
+  return pool_->RequestSocket(this, callback);
 }
 
-void HttpConnection::Reset() {
+void ClientSocketHandle::Reset() {
   if (group_name_.empty())  // Was Init called?
     return;
   if (socket_) {
-    mgr_->ReleaseSocket(group_name_, socket_);
+    pool_->ReleaseSocket(this);
     socket_ = NULL;
   } else {
-    mgr_->CancelRequest(group_name_, &socket_);
+    pool_->CancelRequest(this);
   }
   group_name_.clear();
 }

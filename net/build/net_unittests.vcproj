@@ -235,10 +235,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\http\http_connection_manager_unittest.cc"
-					>
-				</File>
-				<File
 					RelativePath="..\http\http_network_layer_unittest.cc"
 					>
 				</File>
@@ -292,6 +288,10 @@
 				</File>
 				<File
 					RelativePath="..\base\bzip2_filter_unittest.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\base\client_socket_pool_unittest.cc"
 					>
 				</File>
 				<File

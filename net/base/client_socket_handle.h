@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef NET_HTTP_HTTP_CONNECTION_H_
-#define NET_HTTP_HTTP_CONNECTION_H_
+#ifndef NET_BASE_CLIENT_SOCKET_HANDLE_H_
+#define NET_BASE_CLIENT_SOCKET_HANDLE_H_
 
 #include <string>
 
@@ -39,29 +39,29 @@
 
 namespace net {
 
-class HttpConnectionManager;
+class ClientSocketPool;
 
-// A container for a ClientSocket, representing a HTTP connection.
+// A container for a connected ClientSocket.
 //
-// The connection's |group_name| uniquely identifies the origin and type of the
-// connection.  It is used by the HttpConnectionManager to group similar http
-// connection objects.
+// The handle's |group_name| uniquely identifies the origin and type of the
+// connection.  It is used by the ClientSocketPool to group similar connected
+// client socket objects.
 //
-// A connection object is initialized with a null socket.  It is the consumer's
-// job to initialize a ClientSocket object and set it on the connection.
+// A handle is initialized with a null socket.  It is the consumer's job to
+// initialize a ClientSocket object and set it on the handle.
 //
-class HttpConnection {
+class ClientSocketHandle {
  public:
-  explicit HttpConnection(HttpConnectionManager* mgr);
-  ~HttpConnection();
+  explicit ClientSocketHandle(ClientSocketPool* pool);
+  ~ClientSocketHandle();
 
-  // Initializes a HttpConnection object, which involves talking to the
-  // HttpConnectionManager to locate a socket to possibly reuse.  This method
+  // Initializes a ClientSocketHandle object, which involves talking to the
+  // ClientSocketPool to locate a socket to possibly reuse.  This method
   // returns either OK or ERR_IO_PENDING.
   //
   // If this method succeeds, then the socket member will be set to an existing
   // socket if an existing socket was available to reuse.  Otherwise, the
-  // consumer should set the socket member of this connection object.
+  // consumer should set the socket member of this handle.
   //
   // This method returns ERR_IO_PENDING if it cannot complete synchronously, in
   // which case the consumer should wait for the completion callback to run.
@@ -70,11 +70,14 @@ class HttpConnection {
   //
   int Init(const std::string& group_name, CompletionCallback* callback);
 
-  // An initialized connection can be reset, which causes it to return to the
+  // An initialized handle can be reset, which causes it to return to the
   // un-initialized state.  This releases the underlying socket, which in the
-  // case of a socket that is not disconnected, indicates that the socket may
-  // be kept alive for use by a subsequent HttpConnection.  NOTE: To prevent
-  // the socket from being kept alive, be sure to call its Disconnect method.
+  // case of a socket that still has an established connection, indicates that
+  // the socket may be kept alive for use by a subsequent ClientSocketHandle.
+  //
+  // NOTE: To prevent the socket from being kept alive, be sure to call its
+  // Disconnect method.
+  //
   void Reset();
 
   // Returns true when Init has completed successfully.
@@ -85,13 +88,15 @@ class HttpConnection {
   void set_socket(ClientSocket* s) { socket_->reset(s); }
 
  private:
-  scoped_refptr<HttpConnectionManager> mgr_;
+  friend class ClientSocketPool;
+
+  scoped_refptr<ClientSocketPool> pool_;
   scoped_ptr<ClientSocket>* socket_;
   std::string group_name_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(HttpConnection);
+  DISALLOW_COPY_AND_ASSIGN(ClientSocketHandle);
 };
 
 }  // namespace net
 
-#endif  // NET_HTTP_HTTP_CONNECTION_H_
+#endif  // NET_BASE_CLIENT_SOCKET_HANDLE_H_

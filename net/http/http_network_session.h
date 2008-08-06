@@ -32,7 +32,7 @@
 
 #include "base/ref_counted.h"
 #include "net/base/auth_cache.h"
-#include "net/http/http_connection_manager.h"
+#include "net/base/client_socket_pool.h"
 #include "net/http/http_proxy_service.h"
 
 namespace net {
@@ -40,19 +40,24 @@ namespace net {
 // This class holds session objects used by HttpNetworkTransaction objects.
 class HttpNetworkSession : public base::RefCounted<HttpNetworkSession> {
  public:
+  // Allow up to 6 connections per host.
+  enum {
+    MAX_SOCKETS_PER_GROUP = 6
+  };
+  
   HttpNetworkSession(HttpProxyResolver* proxy_resolver)
-      : connection_manager_(new HttpConnectionManager()),
+      : connection_pool_(new ClientSocketPool(MAX_SOCKETS_PER_GROUP)),
         proxy_resolver_(proxy_resolver),
         proxy_service_(proxy_resolver) {
   }
 
   AuthCache* auth_cache() { return &auth_cache_; }
-  HttpConnectionManager* connection_manager() { return connection_manager_; }
+  ClientSocketPool* connection_pool() { return connection_pool_; }
   HttpProxyService* proxy_service() { return &proxy_service_; }
 
  private:
   AuthCache auth_cache_;
-  scoped_refptr<HttpConnectionManager> connection_manager_;
+  scoped_refptr<ClientSocketPool> connection_pool_;
   scoped_ptr<HttpProxyResolver> proxy_resolver_;
   HttpProxyService proxy_service_;
 };

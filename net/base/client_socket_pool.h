@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef NET_HTTP_HTTP_CONNECTION_MANAGER_H_
-#define NET_HTTP_HTTP_CONNECTION_MANAGER_H_
+#ifndef NET_BASE_CLIENT_SOCKET_POOL_H_
+#define NET_BASE_CLIENT_SOCKET_POOL_H_
 
 #include <deque>
 #include <map>
@@ -41,54 +41,61 @@
 namespace net {
 
 class ClientSocket;
+class ClientSocketHandle;
 
-// A HttpConnectionManager is used to restrict the number of HTTP sockets
-// open at a time.  It also maintains a list of idle persistent sockets.
+// A ClientSocketPool is used to restrict the number of sockets open at a time.
+// It also maintains a list of idle persistent sockets.
 //
-// The HttpConnectionManager allocates SocketHandle objects, but it is not
-// responsible for allocating the associated ClientSocket objects.  The
-// consumer must do so if it gets a SocketHandle with a null ClientSocket.
+// The ClientSocketPool allocates scoped_ptr<ClientSocket> objects, but it is
+// not responsible for allocating the associated ClientSocket objects.  The
+// consumer must do so if it gets a scoped_ptr<ClientSocket> with a null value.
 //
-class HttpConnectionManager : public base::RefCounted<HttpConnectionManager>,
-                              public Task {
+class ClientSocketPool : public base::RefCounted<ClientSocketPool>,
+                         public Task {
  public:
-  HttpConnectionManager();
+  explicit ClientSocketPool(int max_sockets_per_group);
 
-  // The maximum number of simultaneous sockets per group.
-  enum { kMaxSocketsPerGroup = 6 };
-
-  typedef scoped_ptr<ClientSocket> SocketHandle;
-
-  // Called to get access to a SocketHandle object for the given group name.
+  // Called to request a socket for the given handle.  There are three possible
+  // results: 1) the handle will be initialized with a socket to reuse, 2) the
+  // handle will be initialized without a socket such that the consumer needs
+  // to supply a socket, or 3) the handle will be added to a wait list until a
+  // socket is available to reuse or the opportunity to create a new socket
+  // arises.  The completion callback is notified in the 3rd case.
   //
-  // If this function returns OK, then |*handle| will reference a SocketHandle
-  // object.  If ERR_IO_PENDING is returned, then the completion callback will
-  // be called when |*handle| has been populated.
+  // If this function returns OK, then |handle| is initialized upon return.
+  // The |handle|'s is_initialized method will return true in this case.  If a
+  // ClientSocket was reused, then |handle|'s socket member will be non-NULL.
+  // Otherwise, the consumer will need to supply |handle| with a socket by
+  // allocating a new ClientSocket object and calling the |handle|'s set_socket
+  // method.
   //
-  // If the resultant SocketHandle object has a null member, then it is the
-  // caller's job to create a ClientSocket and associate it with the handle.
+  // If ERR_IO_PENDING is returned, then the completion callback will be called
+  // when |handle| has been initialized.
   //
-  int RequestSocket(const std::string& group_name, SocketHandle** handle,
-                    CompletionCallback* callback);
+  int RequestSocket(ClientSocketHandle* handle, CompletionCallback* callback);
 
   // Called to cancel a RequestSocket call that returned ERR_IO_PENDING.  The
-  // same group_name and handle parameters must be passed to this method as
-  // were passed to the RequestSocket call being cancelled.  The associated
-  // CompletionCallback is not run.
-  void CancelRequest(const std::string& group_name, SocketHandle** handle);
+  // same handle parameter must be passed to this method as was passed to the
+  // RequestSocket call being cancelled.  The associated CompletionCallback is
+  // not run.
+  void CancelRequest(ClientSocketHandle* handle);
 
-  // Called to release a SocketHandle object that is no longer in use.  If the
-  // handle has a ClientSocket that is still connected, then this handle may be
-  // added to the keep-alive set of sockets.
-  void ReleaseSocket(const std::string& group_name, SocketHandle* handle);
+  // Called to release the socket member of an initialized ClientSocketHandle
+  // once the socket is no longer needed.  If the socket member is non-null and
+  // still has an established connection, then it will be added to the idle set
+  // of sockets to be used to satisfy future RequestSocket calls.  Otherwise,
+  // the ClientSocket is destroyed.
+  void ReleaseSocket(ClientSocketHandle* handle);
 
   // Called to close any idle connections held by the connection manager.
   void CloseIdleSockets();
 
  private:
-  friend class base::RefCounted<HttpConnectionManager>;
+  friend class base::RefCounted<ClientSocketPool>;
 
-  ~HttpConnectionManager();
+  typedef scoped_ptr<ClientSocket> ClientSocketPtr;
+
+  ~ClientSocketPool();
 
   // Closes all idle sockets if |only_if_disconnected| is false.  Else, only
   // idle sockets that are disconnected get closed.  "Maybe" refers to the
@@ -101,7 +108,7 @@ class HttpConnectionManager : public base::RefCounted<HttpConnectionManager>,
   void DecrementIdleCount();
 
   // Called via PostTask by ReleaseSocket.
-  void DoReleaseSocket(const std::string& group_name, SocketHandle* handle);
+  void DoReleaseSocket(const std::string& group_name, ClientSocketPtr* ptr);
 
   // Task implementation.  This method scans the idle sockets checking to see
   // if any have been disconnected.
@@ -110,7 +117,7 @@ class HttpConnectionManager : public base::RefCounted<HttpConnectionManager>,
   // A Request is allocated per call to RequestSocket that results in
   // ERR_IO_PENDING.
   struct Request {
-    SocketHandle** result;
+    ClientSocketHandle* handle;
     CompletionCallback* callback;
   };
 
@@ -118,7 +125,7 @@ class HttpConnectionManager : public base::RefCounted<HttpConnectionManager>,
   // requests.  Otherwise, the Group object is removed from the map.
   struct Group {
     Group() : active_socket_count(0) {}
-    std::deque<SocketHandle*> idle_sockets;
+    std::deque<ClientSocketPtr*> idle_sockets;
     std::deque<Request> pending_requests;
     int active_socket_count;
   };
@@ -131,8 +138,11 @@ class HttpConnectionManager : public base::RefCounted<HttpConnectionManager>,
 
   // The total number of idle sockets in the system.
   int idle_socket_count_;
+
+  // The maximum number of sockets kept per group.
+  int max_sockets_per_group_;
 };
 
 }  // namespace net
 
-#endif  // NET_HTTP_HTTP_CONNECTION_MANAGER_H_
+#endif  // NET_BASE_CLIENT_SOCKET_POOL_H_

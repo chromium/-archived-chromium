@@ -189,6 +189,22 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\client_socket_handle.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\base\client_socket_handle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\base\client_socket_pool.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\base\client_socket_pool.h"
+				>
+			</File>
+			<File
 				RelativePath="..\base\completion_callback.h"
 				>
 			</File>
@@ -634,22 +650,6 @@
 			</File>
 			<File
 				RelativePath="..\http\http_chunked_decoder.h"
-				>
-			</File>
-			<File
-				RelativePath="..\http\http_connection.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\http\http_connection.h"
-				>
-			</File>
-			<File
-				RelativePath="..\http\http_connection_manager.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\http\http_connection_manager.h"
 				>
 			</File>
 			<File
