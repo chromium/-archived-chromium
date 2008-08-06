@@ -794,14 +794,15 @@ void Browser::CloseContents(TabContents* source) {
   tabstrip_model_.CloseTabContentsAt(index);
 }
 
-void Browser::MoveContents(TabContents* source, const gfx::Rect& pos) {
+void Browser::MoveContents(TabContents* source, const gfx::Rect& content_pos) {
   if (GetType() != BrowserType::BROWSER) {
     NOTREACHED() << "moving invalid browser type";
     return;
   }
 
-  ::SetWindowPos(GetTopLevelHWND(), NULL, pos.x(), pos.y(), pos.width(),
-                 pos.height(), 0);
+  gfx::Rect window_pos = window_->GetBoundsForContentBounds(content_pos);
+  ::SetWindowPos(GetTopLevelHWND(), NULL, window_pos.x(), window_pos.y(), 
+                 window_pos.width(), window_pos.height(), 0);
   win_util::AdjustWindowToFit(GetTopLevelHWND());
 }
 
