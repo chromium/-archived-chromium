@@ -60,18 +60,20 @@ static std::string WideToMultiByte(const std::wstring& wide, UINT code_page) {
 // Danger: do not assert in this function, as it is used by the assertion code.
 // Doing so will cause an infinite loop.
 static std::wstring MultiByteToWide(const std::string& mb, UINT code_page) {
-  if (mb.length() == 0)
+  int mb_length = static_cast<int>(mb.length());
+  if (mb_length == 0)
     return std::wstring();
 
   // compute the length of the buffer
-  int charcount = MultiByteToWideChar(code_page, 0, mb.c_str(), -1, NULL, 0);
+  int charcount = MultiByteToWideChar(code_page, 0, mb.c_str(), mb_length,
+                                      NULL, 0);
   if (charcount == 0)
     return std::wstring();
 
   // convert
   std::wstring wide;
-  MultiByteToWideChar(code_page, 0, mb.c_str(), -1,
-                      WriteInto(&wide, charcount), charcount);
+  MultiByteToWideChar(code_page, 0, mb.c_str(), mb_length,
+                      WriteInto(&wide, charcount + 1), charcount);
 
   return wide;
 }
