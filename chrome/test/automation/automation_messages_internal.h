@@ -732,4 +732,8 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   IPC_MESSAGE_ROUTED1(AutomationMsg_WindowExecuteCommandResponse,
                       bool /* success flag */)
 
+  // This message opens the Find window within a tab corresponding to the
+  // supplied tab handle. 
+  IPC_MESSAGE_ROUTED1(AutomationMsg_OpenFindInPageRequest,
+                      int /* tab_handle */)
 IPC_END_MESSAGES(Automation)

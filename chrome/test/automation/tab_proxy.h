@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_TEST_AUTOMATION_TAB_PROXY_H__
-#define CHROME_TEST_AUTOMATION_TAB_PROXY_H__
+#ifndef CHROME_TEST_AUTOMATION_TAB_PROXY_H_
+#define CHROME_TEST_AUTOMATION_TAB_PROXY_H_
 
 #include <wtypes.h>
 #include <string>
@@ -188,6 +188,10 @@ class TabProxy : public AutomationResourceProxy {
   // unchanged.
   bool IsShelfVisible(bool* is_visible);
 
+  // Opens the FindInPage box. Note: If you just want to search within a tab
+  // you don't need to call this function, just use FindInPage(...) directly.
+  bool OpenFindInPage();
+
   // Starts a search within the current tab. The parameter 'search_string'
   // specifies what string to search for, 'forward' specifies whether to search
   // in forward direction, and 'match_case' specifies case sensitivity
@@ -263,4 +267,4 @@ class TabProxy : public AutomationResourceProxy {
   DISALLOW_EVIL_CONSTRUCTORS(TabProxy);
 };
 
-#endif  // CHROME_TEST_AUTOMATION_TAB_PROXY_H__
+#endif  // CHROME_TEST_AUTOMATION_TAB_PROXY_H_

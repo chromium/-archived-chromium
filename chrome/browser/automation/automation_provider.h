@@ -33,8 +33,8 @@
 // the BrowserProcess, and in particular the NotificationService that's
 // hung off of it.
 
-#ifndef CHROME_BROWSER_AUTOMATION_AUTOMATION_PROVIDER_H__
-#define CHROME_BROWSER_AUTOMATION_AUTOMATION_PROVIDER_H__
+#ifndef CHROME_BROWSER_AUTOMATION_AUTOMATION_PROVIDER_H_
+#define CHROME_BROWSER_AUTOMATION_AUTOMATION_PROVIDER_H_
 
 #include <map>
 #include <string>
@@ -58,7 +58,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
                            public IPC::Channel::Listener,
                            public IPC::Message::Sender {
  public:
-  AutomationProvider(Profile* profile);
+  explicit AutomationProvider(Profile* profile);
   virtual ~AutomationProvider();
 
   // Establishes a connection to an automation client, if present.
@@ -217,6 +217,10 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
                                int forward,
                                int match_case);
 
+  // Responds to requests to open the FindInPage window.
+  void HandleOpenFindInPageRequest(const IPC::Message& message,
+                                   int handle);
+
   // Responds to InspectElement request
   void HandleInspectElementRequest(const IPC::Message& message,
                                    int handle,
@@ -353,10 +357,10 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
 };
 
 // When life started, the AutomationProvider class was a singleton and was meant
-// only for UI tests. It had specific behavior (like for example, when the channel
-// was shut down. it closed all open Browsers). The new AutomationProvider serves
-// other purposes than just UI testing. This class is meant to provide the OLD
-// functionality for backward compatibility
+// only for UI tests. It had specific behavior (like for example, when the
+// channel was shut down. it closed all open Browsers). The new
+// AutomationProvider serves other purposes than just UI testing. This class is
+// meant to provide the OLD functionality for backward compatibility
 class TestingAutomationProvider : public AutomationProvider,
                                   public BrowserList::Observer,
                                   public NotificationObserver {
@@ -379,4 +383,4 @@ class TestingAutomationProvider : public AutomationProvider,
                        const NotificationSource& source,
                        const NotificationDetails& details);
 };
-#endif  // CHROME_BROWSER_AUTOMATION_AUTOMATION_PROVIDER_H__
+#endif  // CHROME_BROWSER_AUTOMATION_AUTOMATION_PROVIDER_H_

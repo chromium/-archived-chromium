@@ -92,6 +92,15 @@ bool TabProxy::IsShelfVisible(bool* is_visible) {
   return true;
 }
 
+bool TabProxy::OpenFindInPage() {
+  if (!is_valid())
+    return false;
+
+  return sender_->Send(
+      new AutomationMsg_OpenFindInPageRequest(0, handle_));
+  // This message expects no response.
+}
+
 int TabProxy::FindInPage(const std::wstring& search_string,
                          FindInPageDirection forward,
                          FindInPageCase match_case) {

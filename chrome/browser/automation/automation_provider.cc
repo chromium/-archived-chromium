@@ -775,6 +775,8 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         AutocompleteEditGetMatches)
     IPC_MESSAGE_HANDLER(AutomationMsg_ConstrainedWindowBoundsRequest,
                         GetConstrainedWindowBounds)
+    IPC_MESSAGE_HANDLER(AutomationMsg_OpenFindInPageRequest,
+                        HandleOpenFindInPageRequest)
   IPC_END_MESSAGE_MAP()
 }
 
@@ -1096,7 +1098,6 @@ void AutomationProvider::GetWindowHWND(const IPC::Message& message,
 void AutomationProvider::ExecuteBrowserCommand(const IPC::Message& message,
                                                int handle,
                                                int command) {
-
   bool success = false;
   if (browser_tracker_->ContainsHandle(handle)) {
     Browser* browser = browser_tracker_->GetResource(handle);
@@ -1692,6 +1693,18 @@ void AutomationProvider::HandleFindInPageRequest(
       FindInPageNotificationObserver::kFindInPageRequestId,
       find_request, forward == TRUE, match_case == TRUE,
       false);  // Not a FindNext operation.
+}
+
+void AutomationProvider::HandleOpenFindInPageRequest(
+    const IPC::Message& message, int handle) {
+  if (tab_tracker_->ContainsHandle(handle)) {
+    NavigationController* tab = tab_tracker_->GetResource(handle);
+    Browser* browser = Browser::GetBrowserForController(tab, NULL);
+    if (tab->active_contents()->AsWebContents()) {
+      WebContents* web_contents = tab->active_contents()->AsWebContents();
+      web_contents->OpenFindInPageWindow(*browser);
+    }
+  }
 }
 
 void AutomationProvider::HandleInspectElementRequest(

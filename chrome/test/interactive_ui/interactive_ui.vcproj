@@ -180,6 +180,14 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="TestFindInPage"
+			>
+			<File
+				RelativePath="..\..\browser\find_in_page_controller_interactive_uitest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="TestFocus"
 			>
 			<File
