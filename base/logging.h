@@ -143,10 +143,10 @@ enum OldFileDeletionState { DELETE_OLD_LOG_FILE, APPEND_TO_OLD_LOG_FILE };
 // The default log file is initialized to "debug.log" in the application
 // directory. You probably don't want this, especially since the program
 // directory may not be writable on an enduser's system.
-#if defined(OS_WIN)
+#if defined(WIN32)
 void InitLogging(const wchar_t* log_file, LoggingDestination logging_dest,
                  LogLockingState lock_log, OldFileDeletionState delete_old);
-#elif defined(OS_POSIX)
+#else
 // TODO(avi): do we want to do a unification of character types here?
 void InitLogging(const char* log_file, LoggingDestination logging_dest,
                  LogLockingState lock_log, OldFileDeletionState delete_old);
