@@ -27,15 +27,37 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "build/build_config.h"
+
+#if defined(WIN32)
+#include <windows.h>
+typedef HANDLE FileHandle;
+typedef HANDLE MutexHandle;
+#endif
+
+#if defined(OS_MACOSX)
+#include <CoreFoundation/CoreFoundation.h>
+#include <mach/mach.h>
+#include <mach/mach_time.h>
+#include <mach-o/dyld.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#define MAX_PATH PATH_MAX
+typedef FILE* FileHandle;
+typedef pthread_mutex_t* MutexHandle;
+#endif
+
 #include <ctime>
 #include <iomanip>
 #include <cstring>
-#include <windows.h>
 #include <algorithm>
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/lock_impl.h"
 #include "base/logging.h"
+#include "base/string_util.h"
 
 namespace logging {
 
@@ -54,10 +76,15 @@ char* log_filter_prefix = NULL;
 // which log file to use? This is initialized by InitLogging or
 // will be lazily initialized to the default value when it is
 // first needed.
-wchar_t log_file_name[MAX_PATH] = { 0 };
+#if defined(OS_WIN)
+typedef wchar_t PathChar;
+#else
+typedef char PathChar;
+#endif
+PathChar log_file_name[MAX_PATH] = { 0 };
 
 // this file is lazily opened and the handle may be NULL
-HANDLE log_file = NULL;
+FileHandle log_file = NULL;
 
 // what should be prepended to each message?
 bool log_process_id = false;
@@ -76,7 +103,60 @@ static LockImpl* log_lock = NULL;
 
 // When we don't use a lock, we are using a global mutex. We need to do this
 // because LockFileEx is not thread safe.
-HANDLE log_mutex = NULL;
+#if defined(OS_WIN)
+MutexHandle log_mutex = NULL;
+#elif defined(OS_POSIX)
+pthread_mutex_t log_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
+
+// Helper functions to wrap platform differences.
+// TODO(pinkerton): move these into a separate support file, perhaps
+
+int32 CurrentProcessId() {
+#if defined(OS_WIN)
+  return GetCurrentProcessId();
+#elif defined(OS_POSIX)
+  return getpid();
+#endif
+}
+
+int32 CurrentThreadId() {
+#if defined(OS_WIN)
+  return GetCurrentThreadId();
+#elif defined(OS_MACOSX)
+  return mach_thread_self();
+#else
+  // TODO(pinkerton): need linux-fu to fill in thread id here
+  return 0;
+#endif
+}
+
+uint64 TickCount() {
+#if defined(OS_WIN)
+  return GetTickCount();
+#elif defined(OS_MACOSX)
+  return mach_absolute_time();
+#else
+  // TODO(pinkerton): need linux-fu to fill in time here
+  return 0;
+#endif
+}
+
+void CloseFile(FileHandle log) {
+#if defined(OS_WIN)
+  CloseHandle(log);
+#else
+  fclose(log);
+#endif
+}
+
+void DeleteFilePath(PathChar* log_name) {
+#if defined(OS_WIN)
+  DeleteFile(log_name);
+#else
+  unlink(log_name);
+#endif
+}
 
 // Called by logging functions to ensure that debug_file is initialized
 // and can be used for writing. Returns false if the file could not be
@@ -85,13 +165,14 @@ bool InitializeLogFileHandle() {
   if (log_file)
     return true;
 
+#if defined(OS_WIN)
   if (!log_file_name[0]) {
     // nobody has called InitLogging to specify a debug log file, so here we
     // initialize the log file name to the default
     GetModuleFileName(NULL, log_file_name, MAX_PATH);
     wchar_t* last_backslash = wcsrchr(log_file_name, '\\');
     if (last_backslash)
-      last_backslash[1] = 0; // name now ends with the backslash
+      last_backslash[1] = 0;      // name now ends with the backslash
     wcscat_s(log_file_name, L"debug.log");
   }
 
@@ -109,10 +190,34 @@ bool InitializeLogFileHandle() {
     }
   }
   SetFilePointer(log_file, 0, 0, FILE_END);
+#elif defined(OS_POSIX)
+  if (!log_file_name[0]) {
+#if defined(OS_MACOSX)
+    // nobody has called InitLogging to specify a debug log file, so here we
+    // initialize the log file name to the default
+    uint32_t log_file_name_size = arraysize(log_file_name);
+    _NSGetExecutablePath(log_file_name, &log_file_name_size);
+    char* last_slash = strrchr(log_file_name, '/');
+    if (last_slash)
+      last_slash[1] = 0; // name now ends with the slash
+    strlcat(log_file_name, "debug.log", arraysize(log_file_name));    
+#endif
+  }
+  
+  log_file = fopen(log_file_name, "a");
+  if (log_file == NULL) {
+    // try the current directory 
+    log_file = fopen("debug.log", "a");
+    if (log_file == NULL) {
+      return false;
+    }
+  }
+#endif
   return true;
 }
 
 void InitLogMutex() {
+#if defined(OS_WIN)
   if (!log_mutex) {
     // \ is not a legal character in mutex names so we replace \ with /
     std::wstring safe_name(log_file_name);
@@ -121,16 +226,19 @@ void InitLogMutex() {
     t.append(safe_name);
     log_mutex = ::CreateMutex(NULL, FALSE, t.c_str());
   }
+#elif defined(OS_POSIX)
+  // statically initialized
+#endif
 }
 
-void InitLogging(const wchar_t* new_log_file, LoggingDestination logging_dest,
+void InitLogging(const PathChar* new_log_file, LoggingDestination logging_dest,
                  LogLockingState lock_log, OldFileDeletionState delete_old) {
   g_enable_dcheck = CommandLine().HasSwitch(switches::kEnableDCHECK);
 
   if (log_file) {
     // calling InitLogging twice or after some log call has already opened the
     // default log file will re-initialize to the new options
-    CloseHandle(log_file);
+    CloseFile(log_file);
     log_file = NULL;
   }
 
@@ -142,9 +250,13 @@ void InitLogging(const wchar_t* new_log_file, LoggingDestination logging_dest,
       logging_destination == LOG_ONLY_TO_SYSTEM_DEBUG_LOG)
     return;
 
+#if defined(OS_WIN)
   wcscpy_s(log_file_name, MAX_PATH, new_log_file);
+#elif defined(OS_POSIX)
+  strlcpy(log_file_name, new_log_file, arraysize(log_file_name));
+#endif
   if (delete_old == DELETE_OLD_LOG_FILE)
-    DeleteFile(log_file_name);
+    DeleteFilePath(log_file_name);
 
   if (lock_log_file == LOCK_LOG_FILE) {
     InitLogMutex();
@@ -172,7 +284,11 @@ void SetLogFilterPrefix(const char* filter)  {
   if (filter) {
     size_t size = strlen(filter)+1;
     log_filter_prefix = new char[size];
+#if defined(OS_WIN)
     strcpy_s(log_filter_prefix, size, filter);
+#elif defined(OS_POSIX)
+    strlcpy(log_filter_prefix, filter, size);
+#endif
   }
 }
 
@@ -199,6 +315,7 @@ void DisplayDebugMessage(const std::string& str) {
   if (str.empty())
     return;
 
+#if defined(OS_WIN)
   // look for the debug dialog program next to our application
   wchar_t prog_name[MAX_PATH];
   GetModuleFileNameW(NULL, prog_name, MAX_PATH);
@@ -231,6 +348,9 @@ void DisplayDebugMessage(const std::string& str) {
     MessageBoxW(NULL, cmdline.get(), L"Fatal error",
                 MB_OK | MB_ICONHAND | MB_TOPMOST);
   }
+#else
+  fprintf(stderr, "%s\n", str.c_str());
+#endif
 }
 
 LogMessage::LogMessage(const char* file, int line, LogSeverity severity,
@@ -266,9 +386,9 @@ void LogMessage::Init(const char* file, int line) {
 
   stream_ <<  '[';
   if (log_process_id)
-    stream_ << GetCurrentProcessId() << ':';
+    stream_ << CurrentProcessId() << ':';
   if (log_thread_id)
-    stream_ << GetCurrentThreadId() << ':';
+    stream_ << CurrentThreadId() << ':';
   if (log_timestamp) {
      time_t t = time(NULL);
 #if _MSC_VER >= 1400
@@ -288,7 +408,7 @@ void LogMessage::Init(const char* file, int line) {
             << ':';
   }
   if (log_tickcount)
-    stream_ << GetTickCount() << ':';
+    stream_ << TickCount() << ':';
   stream_ << log_severity_names[severity_] << ":" << file << "(" << line << ")] ";
 
   message_start_ = stream_.tellp();
@@ -310,9 +430,14 @@ LogMessage::~LogMessage() {
   }
 
   if (logging_destination == LOG_ONLY_TO_SYSTEM_DEBUG_LOG ||
-      logging_destination == LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG)
+      logging_destination == LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG) {
+#if defined(OS_WIN)
     OutputDebugStringA(str_newline.c_str());
-
+#else
+    fprintf(stderr, str_newline.c_str());
+#endif
+  }
+  
   // write to log file
   if (logging_destination != LOG_NONE &&
       logging_destination != LOG_ONLY_TO_SYSTEM_DEBUG_LOG &&
@@ -324,8 +449,12 @@ LogMessage::~LogMessage() {
       // call InitLogging. This is not thread safe. See below
       InitLogMutex();
 
+#if defined(OS_WIN)
       DWORD r = ::WaitForSingleObject(log_mutex, INFINITE);
       DCHECK(r != WAIT_ABANDONED);
+#elif defined(OS_POSIX)
+      pthread_mutex_lock(&log_mutex);
+#endif
     } else {
       // use the lock
       if (!log_lock) {
@@ -339,12 +468,20 @@ LogMessage::~LogMessage() {
       log_lock->Lock();
     }
 
+#if defined(OS_WIN)
     SetFilePointer(log_file, 0, 0, SEEK_END);
     DWORD num_written;
     WriteFile(log_file, (void*)str_newline.c_str(), (DWORD)str_newline.length(), &num_written, NULL);
+#else
+    fprintf(log_file, "%s", str_newline.c_str());
+#endif
 
     if (lock_log_file == LOCK_LOG_FILE) {
+#if defined(OS_WIN)
       ReleaseMutex(log_mutex);
+#elif defined(OS_POSIX)
+      pthread_mutex_unlock(&log_mutex);
+#endif
     } else {
       log_lock->Unlock();
     }
@@ -352,9 +489,13 @@ LogMessage::~LogMessage() {
 
   if (severity_ == LOG_FATAL) {
     // display a message or break into the debugger on a fatal error
+#if defined(OS_WIN)
     if (::IsDebuggerPresent()) {
       __debugbreak();
-    } else {
+    } 
+    else
+#endif
+    {
       if (log_assert_handler) {
         // make a copy of the string for the handler out of paranoia
         log_assert_handler(std::string(stream_.str()));
@@ -363,7 +504,16 @@ LogMessage::~LogMessage() {
         // the debug message process
         DisplayDebugMessage(stream_.str());
         // Crash the process to generate a dump.
+#if defined(OS_WIN)
         __debugbreak();
+#elif defined(OS_POSIX)
+#if defined(OS_MACOSX)
+        // TODO: when we have breakpad support, generate a breakpad dump, but
+        // until then, do not invoke the Apple crash reporter.
+        Debugger();
+#endif
+        exit(-1);
+#endif
       }
     }
   }
@@ -373,7 +523,7 @@ void CloseLogFile() {
   if (!log_file)
     return;
 
-  CloseHandle(log_file);
+  CloseFile(log_file);
   log_file = NULL;
 }
 
@@ -383,14 +533,5 @@ std::ostream& operator<<(std::ostream& out, const wchar_t* wstr) {
   if (!wstr || !wstr[0])
     return out;
 
-  // compute the length of the buffer we'll need
-  int charcount = WideCharToMultiByte(CP_UTF8, 0, wstr, -1,
-                                      NULL, 0, NULL, NULL);
-  if (charcount == 0)
-    return out;
-
-  // convert
-  scoped_array<char> buf(new char[charcount]);
-  WideCharToMultiByte(CP_UTF8, 0, wstr, -1, buf.get(), charcount, NULL, NULL);
-  return out << buf.get();
+  return out << WideToUTF8(wstr).c_str();
 }
