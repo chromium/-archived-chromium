@@ -42,16 +42,11 @@
 // size from ~10k to ~1k.  The performance should be reasonable for our use.
 #define NOUNROLL256 1
 
-#if defined(_M_IX86) || defined(i386) || defined(__i386) || defined(__i386__)
-#define _X86_ 1
-#endif
-
-#include "base/third_party/nspr/prcpucfg.h"
+#include "base/third_party/nspr/prtypes.h"  /* for PRUintXX */
 #if defined(_X86_) || defined(SHA_NO_LONG_LONG)
 #define NOUNROLL512 1
 #undef HAVE_LONG_LONG
 #endif
-#include "base/third_party/nspr/prtypes.h"  /* for PRUintXX */
 #include "base/third_party/nss/blapi.h"
 #include "base/third_party/nss/sha256.h"    /* for struct SHA256ContextStr */
 

@@ -134,6 +134,22 @@
 			>
 		</File>
 		<File
+			RelativePath="..\atomic_ref_count.h"
+			>
+		</File>
+		<File
+			RelativePath="..\atomic_sequence_num.h"
+			>
+		</File>
+		<File
+			RelativePath="..\atomicops.h"
+			>
+		</File>
+		<File
+			RelativePath="..\atomicops_internals_x86_msvc.h"
+			>
+		</File>
+		<File
 			RelativePath="..\base_drag_source.cc"
 			>
 		</File>
@@ -186,7 +202,15 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\build\build_config.h"
+			>
+		</File>
+		<File
 			RelativePath="..\bzip2_error_handler.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\check_handler.h"
 			>
 		</File>
 		<File
@@ -271,6 +295,10 @@
 		</File>
 		<File
 			RelativePath="..\fixed_string.h"
+			>
+		</File>
+		<File
+			RelativePath="..\hash_tables.h"
 			>
 		</File>
 		<File

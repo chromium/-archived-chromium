@@ -52,6 +52,14 @@
 #ifndef prtypes_h___
 #define prtypes_h___
 
+#include "build/build_config.h"
+
+#ifdef OS_WIN
+// This files assumes windows.h has been included first since it expects _X86_
+// or _AMD64_ to be defined.
+#include <windows.h>
+#endif  // OS_WIN
+
 #ifdef MDCPUCFG
 #include MDCPUCFG
 #else

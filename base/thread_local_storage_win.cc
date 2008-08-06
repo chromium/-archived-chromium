@@ -181,6 +181,10 @@ void NTAPI OnThreadExit(PVOID module, DWORD reason, PVOID reserved)
 
 // .CRT section is merged with .rdata on x64 so it must be constant data.
 #pragma const_seg(".CRT$XLB")
+// When defining a const variable, it must have external linkage to be sure the
+// linker doesn't discard it. If this value is discarded, the OnThreadExit
+// function will never be called.
+extern const PIMAGE_TLS_CALLBACK p_thread_callback;
 const PIMAGE_TLS_CALLBACK p_thread_callback = OnThreadExit;
 
 // Reset the default section.

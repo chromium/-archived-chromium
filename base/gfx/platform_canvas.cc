@@ -32,6 +32,11 @@
 #include "base/gfx/bitmap_platform_device.h"
 #include "base/logging.h"
 
+#ifdef ARCH_CPU_64_BITS
+#error This code does not work on x64. Please make sure all the base unit tests\
+ pass before doing any real work.
+#endif
+
 namespace gfx {
 
 PlatformCanvas::PlatformCanvas() : SkCanvas() {

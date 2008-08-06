@@ -147,9 +147,9 @@ class Pickle {
   // not been changed.
   void TrimWriteData(int length);
 
-  // payload follows after allocation of Header (header size is customizable)
+  // Payload follows after allocation of Header (header size is customizable).
   struct Header {
-    size_t payload_size;  // specifies the size of the payload
+    uint32 payload_size;  // Specifies the size of the payload.
   };
 
   // Returns the header, cast to a user-specified type T.  The type T must be a
@@ -218,14 +218,14 @@ class Pickle {
   bool Resize(size_t new_capacity);
 
   // Aligns 'i' by rounding it up to the next multiple of 'alignment'
-  static inline size_t AlignInt(size_t i, int alignment) {
+  static size_t AlignInt(size_t i, int alignment) {
     return i + (alignment - (i % alignment)) % alignment;
   }
 
   // Moves the iterator by the given number of bytes, making sure it is aligned.
   // Pointer (iterator) is NOT aligned, but the change in the pointer
   // is guaranteed to be a multiple of sizeof(uint32).
-  static inline void UpdateIter(void** iter, int bytes) {
+  static void UpdateIter(void** iter, int bytes) {
     *iter = static_cast<char*>(*iter) + AlignInt(bytes, sizeof(uint32));
   }
 

@@ -27,10 +27,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <stdlib.h>
-#include <string>
-
 #include "base/pickle.h"
+
+#include <stdlib.h>
+
+#include <limits>
+#include <string>
 
 //------------------------------------------------------------------------------
 
@@ -240,7 +242,11 @@ char* Pickle::BeginWrite(size_t length) {
   if (header_size_ + new_size > capacity_ && !Resize(header_size_ + new_size))
     return NULL;
 
-  header_->payload_size = new_size;
+#ifdef ARCH_CPU_64_BITS
+  DCHECK_LE(length, std::numeric_limits<uint32>::max());
+#endif
+
+  header_->payload_size = static_cast<uint32>(new_size);
   return payload() + offset;
 }
 
