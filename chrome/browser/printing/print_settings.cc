@@ -29,13 +29,15 @@
 
 #include "chrome/browser/printing/print_settings.h"
 
+#include "base/atomic_sequence_num.h"
 #include "base/logging.h"
 #include "chrome/browser/printing/units.h"
 #include "chrome/common/render_messages.h"
 
 namespace printing {
 
-int PrintSettings::s_cookie_;
+// Global SequenceNumber used for generating unique cookie values.
+static base::AtomicSequenceNumber cookie_seq;
 
 PrintSettings::PrintSettings()
     : min_shrink(1.25),
@@ -189,7 +191,7 @@ bool PrintSettings::Equals(const PrintSettings& rhs) const {
 }
 
 int PrintSettings::NewCookie() {
-  return base::AtomicIncrement(&s_cookie_);
+  return cookie_seq.GetNext();
 }
 
 }  // namespace printing

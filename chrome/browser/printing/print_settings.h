@@ -106,7 +106,9 @@ class PrintSettings {
   // The various overlays (headers and footers).
   PageOverlays overlays;
 
-  // Generates a new cookie to uniquely identify a PrintedDocument.
+  // Cookie generator. It is used to initialize PrintedDocument with its
+  // associated PrintSettings, to be sure that each generated PrintedPage is
+  // correctly associated with its corresponding PrintedDocument.
   static int NewCookie();
 
  private:
@@ -130,11 +132,6 @@ class PrintSettings {
 
   // Is the orientation landscape or portrait.
   bool landscape_;
-
-  // Cookie generator. It is used to initialize PrintedDocument with its
-  // associated PrintSettings, to be sure that each generated PrintedPage is
-  // correctly associated with its corresponding PrintedDocument.
-  static int s_cookie_;
 };
 
 }  // namespace printing
