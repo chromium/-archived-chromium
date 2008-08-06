@@ -38,6 +38,11 @@
 
 #include "base/port.h"    // Types that only need exist on certain systems
 
+#ifndef COMPILER_MSVC
+// stdint.h is part of C99 but MSVC doesn't have it.
+#include <stdint.h>         // For intptr_t.
+#endif
+
 typedef signed char         schar;
 typedef signed char         int8;
 typedef short               int16;
