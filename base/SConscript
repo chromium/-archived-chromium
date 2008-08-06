@@ -117,6 +117,7 @@ input_files = [
 if env['PLATFORM'] == 'win32':
   input_files.extend([
       'base_paths_win.cc',
+      'file_util_win.cc',
       'lock_impl_win.cc',
       'string_util_win.cc',
       'thread_local_storage_win.cc',
