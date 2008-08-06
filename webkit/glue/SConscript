@@ -68,6 +68,7 @@ input_files = [
     'inspector_client_impl.cc',
     'localized_strings.cc',
     'multipart_response_delegate.cc',
+    'npruntime_util.cc',
     'password_autocomplete_listener.cc',
     'password_form_dom_manager.cc',
     'plugins/mozilla_extensions.cc',
