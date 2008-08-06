@@ -533,6 +533,17 @@ void TabStrip::DestroyDraggedSourceTab(Tab* tab) {
   // We could be running an animation that references this Tab.
   if (active_animation_.get())
     active_animation_->Stop();
+  // Make sure we leave the tab_data_ vector in a consistent state, otherwise
+  // we'll be pointing to tabs that have been deleted and removed from the
+  // child view list.
+  std::vector<TabData>::iterator it = tab_data_.begin();
+  for (; it != tab_data_.end(); ++it) {
+    if (it->tab == tab) {
+      NOTREACHED() << "Leaving in an inconsistent state!";
+      tab_data_.erase(it);
+      break;
+    }
+  }
   tab->GetParent()->RemoveChildView(tab);
   delete tab;
 }
