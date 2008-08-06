@@ -196,7 +196,7 @@ BinaryValue* BinaryValue::CreateWithCopiedBuffer(char* buffer, size_t size) {
     return NULL;
 
   char* buffer_copy = new char[size];
-  memcpy_s(buffer_copy, size, buffer, size);
+  memcpy(buffer_copy, buffer, size);
   return new BinaryValue(buffer_copy, size);
 }
 
@@ -277,7 +277,6 @@ bool DictionaryValue::Set(const std::wstring& path, Value* in_value) {
 
   // Assume that we're indexing into a dictionary.
   DictionaryValue* entry = NULL;
-  ValueType current_entry_type = TYPE_NULL;
   if (!HasKey(key) || (dictionary_[key]->GetType() != TYPE_DICTIONARY)) {
     entry = new DictionaryValue;
     SetInCurrentNode(key, entry);

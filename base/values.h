@@ -369,6 +369,8 @@ class ListValue : public Value {
 // deserialize Value objects.
 class ValueSerializer {
  public:
+  virtual ~ValueSerializer() {}
+
   virtual bool Serialize(const Value& root) = 0;
 
   // This method deserializes the subclass-specific format into a Value object.
