@@ -32,11 +32,11 @@
 
 #include "base/basictypes.h"
 
-#ifdef WIN32
+#if defined(OS_WIN)
 typedef int TLSSlot;
-#else
+#elif defined(OS_POSIX)
 typedef pthread_key_t TLSSlot;
-#endif
+#endif  // OS_*
 
 // Wrapper for thread local storage.  This class doesn't
 // do much except provide an API for portability later.
@@ -69,7 +69,7 @@ class ThreadLocalStorage {
   // value 'value'.
   static void Set(TLSSlot slot, void* value);
 
-#ifdef WIN32
+#if defined(OS_WIN)
   // Function called when on thread exit to call TLS
   // destructor functions.  This function is used internally.
   static void ThreadExit();
@@ -87,7 +87,7 @@ class ThreadLocalStorage {
   static long tls_key_;
   static long tls_max_;
   static TLSDestructorFunc tls_destructors_[kThreadLocalStorageSize];
-#endif
+#endif  // OS_WIN
 
   DISALLOW_EVIL_CONSTRUCTORS(ThreadLocalStorage);
 };

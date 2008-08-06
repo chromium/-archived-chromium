@@ -30,14 +30,8 @@
 #ifndef BASE_ID_MAP_H__
 #define BASE_ID_MAP_H__
 
-// hash map is common (GCC4 and Dinkumware also support it, for example), but
-// is not strictly part of the C++ standard. MS puts it into a funny namespace,
-// although most other vendors seem to use std. This may have to change if
-// other platforms are supported.
-#include <hash_map>
-using stdext::hash_map;
-
 #include "base/basictypes.h"
+#include "base/hash_tables.h"
 #include "base/logging.h"
 
 // This object maintains a list of IDs that can be quickly converted to
@@ -51,7 +45,7 @@ using stdext::hash_map;
 template<class T>
 class IDMap {
  private:
-  typedef hash_map<int32, T*> HashTable;
+  typedef base::hash_map<int32, T*> HashTable;
 
  public:
   IDMap() : next_id_(1) {

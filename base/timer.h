@@ -31,13 +31,16 @@
 #define BASE_TIMER_H_
 
 #include <math.h>
-#include <windows.h>
 
 #include <queue>
 #include <vector>
 
 #include "base/basictypes.h"
 #include "base/time.h"
+
+#ifdef OS_WIN
+#include <windows.h>
+#endif  // OS_WIN
 
 // Timer/TimerManager are objects designed to help setting timers.
 // Goals of TimerManager:
@@ -202,7 +205,7 @@ class TimerManager {
   void set_use_broken_delay(bool use_broken_delay) {
     use_broken_delay_ = use_broken_delay;
   }
-#endif
+#endif  // UNIT_TEST
 
  protected:
   // Peek at the timer which will fire soonest.
@@ -212,15 +215,17 @@ class TimerManager {
   // Update our Windows WM_TIMER to match our most immediately pending timer.
   void UpdateWindowsWmTimer();
 
+#ifdef OS_WIN
   // Retrieve the Message Window that handles WM_TIMER messages from the
   // system.
   HWND GetMessageHWND();
 
+  HWND message_hwnd_;
+#endif  // OS_WIN
+
   TimerPQueue timers_;
 
   bool use_broken_delay_;
-
-  HWND message_hwnd_;
 
   // Flag to enable/disable use of native timers.
   bool use_native_timers_;

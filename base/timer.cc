@@ -116,8 +116,8 @@ bool TimerPQueue::ContainsTimer(const Timer* timer) const {
 // TimerManager
 
 TimerManager::TimerManager()
-    : use_broken_delay_(false),
-      message_hwnd_(NULL),
+    : message_hwnd_(NULL),
+      use_broken_delay_(false),
       use_native_timers_(true),
       message_loop_(NULL) {
   // We've experimented with all sorts of timers, and initially tried

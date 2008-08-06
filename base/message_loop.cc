@@ -70,22 +70,6 @@ static const int kNumberOfDistinctMessagesDisplayed = 1100;
 
 //------------------------------------------------------------------------------
 
-static LRESULT CALLBACK MessageLoopWndProc(HWND hwnd, UINT message,
-                                           WPARAM wparam, LPARAM lparam) {
-  switch (message) {
-    case kMsgQuit:
-    case kMsgPumpATask: {
-      UINT_PTR message_loop_id = static_cast<UINT_PTR>(wparam);
-      MessageLoop* current_message_loop =
-          reinterpret_cast<MessageLoop*>(message_loop_id);
-      DCHECK(MessageLoop::current() == current_message_loop);
-      return current_message_loop->MessageWndProc(hwnd, message, wparam,
-                                                  lparam);
-    }
-  }
-  return ::DefWindowProc(hwnd, message, wparam, lparam);
-}
-
 #ifndef NDEBUG
 // Force exercise of polling model.
 #define CHROME_MAXIMUM_WAIT_OBJECTS 8
@@ -385,7 +369,7 @@ void MessageLoop::PostTaskInternal(Task* task) {
   // Do not invoke non-static methods, or members in any way!
 
   // PostMessage may fail, as the hwnd may have vanished due to kMsgQuit.
-  PostMessage(message_hwnd, kMsgPumpATask, reinterpret_cast<UINT_PTR>(this), 0);
+  PostMessage(message_hwnd, kMsgPumpATask, 0, 0);
 }
 
 void MessageLoop::InitMessageWnd() {
@@ -393,7 +377,7 @@ void MessageLoop::InitMessageWnd() {
 
   WNDCLASSEX wc = {0};
   wc.cbSize = sizeof(wc);
-  wc.lpfnWndProc = MessageLoopWndProc;
+  wc.lpfnWndProc = WndProcThunk;
   wc.hInstance = hinst;
   wc.lpszClassName = kWndClass;
   RegisterClassEx(&wc);
@@ -403,8 +387,15 @@ void MessageLoop::InitMessageWnd() {
   DCHECK(message_hwnd_);
 }
 
-LRESULT MessageLoop::MessageWndProc(HWND hwnd, UINT message,
-                                    WPARAM wparam, LPARAM lparam) {
+// static
+LRESULT CALLBACK MessageLoop::WndProcThunk(
+    HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
+  DCHECK(MessageLoop::current());
+  return MessageLoop::current()->WndProc(hwnd, message, wparam, lparam);
+}
+
+LRESULT MessageLoop::WndProc(
+    HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
   DCHECK(hwnd == message_hwnd_);
   switch (message) {
     case kMsgPumpATask: {
@@ -773,8 +764,7 @@ void MessageLoop::EnsureMessageGetsPosted(int message) const {
   for (int i = 0; i < kRetryCount; ++i) {
     // Posting to our own windows should always succeed.  If it doesn't we're in
     // big trouble.
-    if (PostMessage(message_hwnd_, message,
-                    reinterpret_cast<UINT_PTR>(this), 0))
+    if (PostMessage(message_hwnd_, message, 0, 0))
       return;
     Sleep(kSleepDurationWhenFailing);
   }

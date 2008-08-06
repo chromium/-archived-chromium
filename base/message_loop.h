@@ -30,7 +30,6 @@
 #ifndef BASE_MESSAGE_LOOP_H__
 #define BASE_MESSAGE_LOOP_H__
 
-#include <windows.h>
 #include <deque>
 #include <queue>
 #include <string>
@@ -141,6 +140,7 @@ class MessageLoop {
   static void SetStrategy(int strategy);
   static void EnableHistogrammer(bool enable_histogrammer);
 
+#ifdef OS_WIN
   // Used with WatchObject to asynchronously monitor the signaled state of a
   // HANDLE object.
   class Watcher {
@@ -153,50 +153,6 @@ class MessageLoop {
   // Have the current thread's message loop watch for a signaled object.
   // Pass a null watcher to stop watching the object.
   bool WatchObject(HANDLE, Watcher*);
-
-  // Dispatcher is used during a nested invocation of Run to dispatch events.
-  // If Run is invoked with a non-NULL Dispatcher, MessageLoop does not
-  // dispatch events (or invoke TranslateMessage), rather every message is
-  // passed to Dispatcher's Dispatch method for dispatch. It is up to the
-  // Dispatcher to dispatch, or not, the event.
-  //
-  // The nested loop is exited by either posting a quit, or returning false
-  // from Dispatch.
-  class Dispatcher {
-   public:
-    // Define a macro for use in the PostTask() or PostDelayedTask()
-    // invocations.  The definition varies depending upon mode (DEBUG, etc.),
-    // but for now we'll just define it as an int.  In other modes it may
-    // encapsulate the file and line number of the source code where it is
-    // expanded.
-
-    virtual ~Dispatcher() {}
-    // Dispatches the event. If true is returned processing continues as
-    // normal. If false is returned, the nested loop exits immediately.
-    virtual bool Dispatch(const MSG& msg) = 0;
-  };
-
-  // A DestructionObserver is notified when the current MessageLoop is being
-  // destroyed.  These obsevers are notified prior to MessageLoop::current()
-  // being changed to return NULL.  This gives interested parties the chance to
-  // do final cleanup that depends on the MessageLoop.
-  //
-  // NOTE: Any tasks posted to the MessageLoop during this notification will
-  // not be run.  Instead, they will be deleted.
-  //
-  class DestructionObserver {
-   public:
-    virtual ~DestructionObserver() {}
-    virtual void WillDestroyCurrentMessageLoop() = 0;
-  };
-
-  // Add a DestructionObserver, which will start receiving notifications
-  // immediately.
-  void AddDestructionObserver(DestructionObserver* destruction_observer);
-
-  // Remove a DestructionObserver.  It is safe to call this method while a
-  // DestructionObserver is receiving a notification callback.
-  void RemoveDestructionObserver(DestructionObserver* destruction_observer);
 
   // An Observer is an object that receives global notifications from the
   // MessageLoop.
@@ -222,6 +178,61 @@ class MessageLoop {
   // Remove an Observer.  It is safe to call this method while an Observer is
   // receiving a notification callback.
   void RemoveObserver(Observer* observer);
+
+  // Give a chance to code processing additional messages to notify the
+  // message loop observers that another message has been processed.
+  void WillProcessMessage(const MSG& msg);
+  void DidProcessMessage(const MSG& msg);
+
+  // Dispatcher is used during a nested invocation of Run to dispatch events.
+  // If Run is invoked with a non-NULL Dispatcher, MessageLoop does not
+  // dispatch events (or invoke TranslateMessage), rather every message is
+  // passed to Dispatcher's Dispatch method for dispatch. It is up to the
+  // Dispatcher to dispatch, or not, the event.
+  //
+  // The nested loop is exited by either posting a quit, or returning false
+  // from Dispatch.
+  class Dispatcher {
+   public:
+    // Define a macro for use in the PostTask() or PostDelayedTask()
+    // invocations.  The definition varies depending upon mode (DEBUG, etc.),
+    // but for now we'll just define it as an int.  In other modes it may
+    // encapsulate the file and line number of the source code where it is
+    // expanded.
+
+    virtual ~Dispatcher() {}
+    // Dispatches the event. If true is returned processing continues as
+    // normal. If false is returned, the nested loop exits immediately.
+    virtual bool Dispatch(const MSG& msg) = 0;
+  };
+#else  // !OS_WIN
+  // On non-Windows platforms, the Dispatcher does not exist, but we allow the
+  // typename to exist for convenience.  On non-Windows platforms, a Dispatcher
+  // pointer should always be NULL.
+  class Dispatcher;
+#endif  // OS_*
+
+  // A DestructionObserver is notified when the current MessageLoop is being
+  // destroyed.  These obsevers are notified prior to MessageLoop::current()
+  // being changed to return NULL.  This gives interested parties the chance to
+  // do final cleanup that depends on the MessageLoop.
+  //
+  // NOTE: Any tasks posted to the MessageLoop during this notification will
+  // not be run.  Instead, they will be deleted.
+  //
+  class DestructionObserver {
+   public:
+    virtual ~DestructionObserver() {}
+    virtual void WillDestroyCurrentMessageLoop() = 0;
+  };
+
+  // Add a DestructionObserver, which will start receiving notifications
+  // immediately.
+  void AddDestructionObserver(DestructionObserver* destruction_observer);
+
+  // Remove a DestructionObserver.  It is safe to call this method while a
+  // DestructionObserver is receiving a notification callback.
+  void RemoveDestructionObserver(DestructionObserver* destruction_observer);
 
   // Call the task's Run method asynchronously from within a message loop at
   // some point in the future.  With the PostTask variant, tasks are invoked in
@@ -299,9 +310,6 @@ class MessageLoop {
     }
   };
 
-  // Wnd Proc for message_hwnd_.
-  LRESULT MessageWndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
-
   // Normally, it is not necessary to instantiate a MessageLoop.  Instead, it
   // is typical to make use of the current thread's MessageLoop instance.
   MessageLoop();
@@ -309,7 +317,7 @@ class MessageLoop {
 
   // Optional call to connect the thread name with this loop.
   void SetThreadName(const std::string& thread_name);
-  std::string thread_name() const { return thread_name_; }
+  const std::string& thread_name() const { return thread_name_; }
 
   // Returns the MessageLoop object for the current thread, or null if none.
   static MessageLoop* current() {
@@ -318,11 +326,6 @@ class MessageLoop {
 
   // Returns the TimerManager object for the current thread.
   TimerManager* timer_manager() { return &timer_manager_; }
-
-  // Give a chance to code processing additional messages to notify the
-  // message loop delegates that another message has been processed.
-  void WillProcessMessage(const MSG& msg);
-  void DidProcessMessage(const MSG& msg);
 
   // Enables or disables the recursive task processing. This happens in the case
   // of recursive message loops. Some unwanted message loop may occurs when
@@ -413,7 +416,7 @@ class MessageLoop {
         : task_(task),
           sequence_number_(sequence_number),
           priority_(task->priority()) {}
-      Task* task() { return task_; }
+      Task* task() const { return task_; }
       bool operator < (PrioritizedTask const & right) const ;
 
      private:
@@ -459,8 +462,15 @@ class MessageLoop {
     DISALLOW_EVIL_CONSTRUCTORS(OptionallyPrioritizedTaskQueue);
   };
 
+#ifdef OS_WIN
   void InitMessageWnd();
 
+  // Windows procedure for message_hwnd_.
+  static LRESULT CALLBACK WndProcThunk(
+      HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
+  LRESULT WndProc(
+      HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
+#endif  // OS_WIN
 
   // A function to encapsulate all the exception handling capability in the
   // stacks around the running of a main message loop.
@@ -490,8 +500,7 @@ class MessageLoop {
   bool ProcessSomeTimers();
 
   //----------------------------------------------------------------------------
-  // Process some pending messages.
-  // Returns true if a message was processed.
+  // Process some pending messages.  Returns true if a message was processed.
   bool ProcessNextWindowsMessage();
 
   // Wait until either an object is signaled, a message is available, a timer
@@ -499,12 +508,14 @@ class MessageLoop {
   // Handle (without returning) any APCs (only IO thread currently has APCs.)
   void WaitForWork();
 
+#ifdef OS_WIN
   // Helper function for processing window messages. This includes handling
   // WM_QUIT, message translation and dispatch, etc.
   //
   // If dispatcher_ is non-NULL this method does NOT dispatch the event, instead
   // it invokes Dispatch on the dispatcher_.
   bool ProcessMessageHelper(const MSG& msg);
+#endif  // OS_WIN
 
   // When we encounter a kMsgPumpATask, the following helper can be called to
   // peek and process a replacement message, such as a WM_PAINT or WM_TIMER.
@@ -566,7 +577,7 @@ class MessageLoop {
   void EnsureMessageGetsPosted(int message) const;
 
   // Post a task to our incomming queue.
-  void MessageLoop::PostTaskInternal(Task* task);
+  void PostTaskInternal(Task* task);
 
   // Start recording histogram info about events and action IF it was enabled
   // and IF the statistics recorder can accept a registration of our histogram.
@@ -593,14 +604,18 @@ class MessageLoop {
   // there was no real prioritization.
   OptionallyPrioritizedTaskQueue work_queue_;
 
+#ifdef OS_WIN
+  HWND message_hwnd_;
+
   // A vector of objects (and corresponding watchers) that are routinely
   // serviced by this message loop's pump.
   std::vector<HANDLE> objects_;
   std::vector<Watcher*> watchers_;
 
   ObserverList<Observer> observers_;
+#endif  // OS_WIN
+
   ObserverList<DestructionObserver> destruction_observers_;
-  HWND message_hwnd_;
   IDMap<Task> timed_tasks_;
   // A recursion block that prevents accidentally running additonal tasks when
   // insider a (accidentally induced?) nested message pump.
