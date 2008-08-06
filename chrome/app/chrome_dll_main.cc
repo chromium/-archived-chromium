@@ -40,9 +40,7 @@
 #include "base/stats_table.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
-#ifdef BROWSER_DLL
 #include "chrome/browser/render_process_host.h"
-#endif
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/chrome_paths.h"
@@ -114,7 +112,6 @@ void ChromeAssert(const std::string& str) {
 #pragma optimize("", on)
 
 
-#if defined(RENDERER_DLL) || defined(PLUGIN_DLL)
 // Try to unload DLLs that malfunction with the sandboxed processes.
 static void EvictTroublesomeDlls() {
   const wchar_t* troublesome_dlls[] = {
@@ -134,7 +131,6 @@ static void EvictTroublesomeDlls() {
     }
   }
 }
-#endif  // defined(RENDERER_DLL) || defined(PLUGIN_DLL)
 
 }  // namespace
 
@@ -219,7 +215,6 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
   std::wstring process_type =
     parsed_command_line.GetSwitchValue(switches::kProcessType);
 
-#if defined(RENDERER_DLL) || defined(PLUGIN_DLL)
   bool do_dll_eviction = false;
 
   // Checks if the sandbox is enabled in this process and initializes it if this
@@ -233,7 +228,6 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
       do_dll_eviction = true;
     }
   }
-#endif  // defined(RENDERER_DLL) || defined(PLUGIN_DLL)
 
   _Module.Init(NULL, instance);
 
@@ -246,12 +240,10 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
   if (!user_data_dir.empty())
     PathService::Override(chrome::DIR_USER_DATA, user_data_dir);
 
-#ifdef BROWSER_DLL
   bool single_process =
     parsed_command_line.HasSwitch(switches::kSingleProcess);
   if (single_process)
     RenderProcessHost::set_run_renderer_in_process(true);
-#endif  // BROWSER_DLL
 
   bool icu_result = icu_util::Initialize();
   CHECK(icu_result);
@@ -277,37 +269,23 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
     ResourceBundle::InitSharedInstance(std::wstring());
   }
 
-#if defined(RENDERER_DLL) || defined(PLUGIN_DLL)
   // Eviction of injected DLLs is done early enough that it is likely
   // to only cover DLLs injected by means of appInit_dlls registry key.
   if (do_dll_eviction)
       EvictTroublesomeDlls();
-#endif  // defined(RENDERER_DLL) || defined(PLUGIN_DLL)
 
   startup_timer.Stop();  // End of Startup Time Measurement.
 
   int rv;
-  // This condition exist to simplify the #ifdef
-  if (0) {
-
-#ifdef RENDERER_DLL
-  } else if (process_type == switches::kRendererProcess) {
+  if (process_type == switches::kRendererProcess) {
     rv = RendererMain(parsed_command_line, show_command, target_services);
-#endif  // RENDERER_DLL
-
-#ifdef PLUGIN_DLL
   } else if (process_type == switches::kPluginProcess) {
     rv = PluginMain(parsed_command_line, show_command, target_services);
-#endif  // PLUGIN_DLL
-
-#ifdef BROWSER_DLL
   } else if (process_type.empty()) {
     int ole_result = OleInitialize(NULL);
     DCHECK(ole_result == S_OK);
     rv = BrowserMain(parsed_command_line, show_command, broker_services);
     OleUninitialize();
-#endif  // BROWSER_DLL
-
   } else {
     NOTREACHED() << "Unknown process type";
     rv = -1;
