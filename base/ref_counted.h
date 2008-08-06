@@ -30,7 +30,7 @@
 #ifndef BASE_REF_COUNTED_H__
 #define BASE_REF_COUNTED_H__
 
-#include "base/atomic.h"
+#include "base/atomic_ref_count.h"
 #include "base/basictypes.h"
 #include "base/logging.h"
 
@@ -115,18 +115,15 @@ class RefCountedThreadSafe {
 #ifndef NDEBUG
     DCHECK(!in_dtor_);
 #endif
-    AtomicIncrement(&ref_count_);
+    AtomicRefCountInc(&ref_count_);
   }
 
   void Release() {
 #ifndef NDEBUG
     DCHECK(!in_dtor_);
+    DCHECK(!AtomicRefCountIsZero(&ref_count_));
 #endif
-    // We need to insert memory barriers to ensure that state written before
-    // the reference count became 0 will be visible to a thread that has just
-    // made the count 0.
-    // TODO(wtc): Bug 1112286: use the barrier variant of AtomicDecrement.
-    if (AtomicDecrement(&ref_count_) == 0) {
+    if (!AtomicRefCountDec(&ref_count_)) {
 #ifndef NDEBUG
       in_dtor_ = true;
 #endif
@@ -135,7 +132,7 @@ class RefCountedThreadSafe {
   }
 
  private:
-  int32 ref_count_;
+  AtomicRefCount ref_count_;
 #ifndef NDEBUG
   bool in_dtor_;
 #endif
