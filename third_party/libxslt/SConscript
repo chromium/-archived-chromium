@@ -38,6 +38,7 @@ env.Prepend(
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/18n',
         '$ZLIB_DIR',
+        'scons',
         '.',
         '../',
     ],
@@ -49,11 +50,15 @@ env.Append(
         'LIBXML_STATIC',
         'LIBXSLT_STATIC',
     ],
-    CCFLAGS = [
-        '/TC',
-        '/wd4800',
-    ],
 )
+
+if env['PLATFORM'] == 'win32':
+  env.Append(
+      CCFLAGS = [
+          '/TC',
+          '/wd4800',
+      ],
+  )
 
 
 input_files = [
@@ -80,34 +85,47 @@ input_files = [
 env.ChromeStaticLibrary('libxslt', input_files)
 
 
-config_files = [
-    # The configure.js script must be first in this list; the
-    # env.Command() call below executes the first list element.
+if env['PLATFORM'] == 'win32':
+  config_files = [
+      # The configure.js script must be first in this list; the
+      # env.Command() call below executes the first list element.
 
-    'win32/configure.js',
-    'win32/Makefile.msvc',
+      'win32/configure.js',
+      'win32/Makefile.msvc',
 
-    'config.h.in',
-    'configure.in',
-    'libexslt.pc.in',
-    'libxslt.pc.in',
-    'libxslt.spec.in',
-    'xslt-config.in',
-    'xsltConf.sh.in',
+      'config.h.in',
+      'configure.in',
+      'libexslt.pc.in',
+      'libxslt.pc.in',
+      'libxslt.spec.in',
+      'xslt-config.in',
+      'xsltConf.sh.in',
 
-    'libexslt/exsltconfig.h.in',
+      'libexslt/exsltconfig.h.in',
 
-    'libxslt/xsltconfig.h.in',
-    'libxslt/xsltwin32config.h.in',
-    'libxslt/win32config.h',
-]
+      'libxslt/xsltconfig.h.in',
+      'libxslt/xsltwin32config.h.in',
+      'libxslt/win32config.h',
+  ]
 
-copied_sources = []
-for cf in config_files:
-  result = env.Command('scons/' + cf, cf, Copy('$TARGET', '$SOURCE'))
-  copied_sources.extend(result)
+  copied_sources = []
+  for cf in config_files:
+    result = env.Command('scons/' + cf, cf, Copy('$TARGET', '$SOURCE'))
+    copied_sources.extend(result)
 
-env.Command(['scons/config.h'],
-            copied_sources,
-            'cd ${SOURCE.dir} && $CSCRIPT ${SOURCE.file} $CONFIG_OPTIONS',
-            CONFIG_OPTIONS='compiler=msvc')
+  env.Command(['scons/config.h'],
+              copied_sources,
+              'cd ${SOURCE.dir} && $CSCRIPT ${SOURCE.file} $CONFIG_OPTIONS',
+              CONFIG_OPTIONS='compiler=msvc')
+elif env['PLATFORM'] == 'posix':
+  config_files = [
+      'config.h',
+      'xslt-config',
+      'libexslt/exsltconfig.h',
+      'libxslt/xsltconfig.h',
+      'libxslt/xsltwin32config.h',
+  ]
+  for cf in config_files:
+    result = env.Command('scons/' + cf, 'linux/' + cf,
+                         Copy('$TARGET', '$SOURCE'))
+

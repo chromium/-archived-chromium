@@ -22731,7 +22731,7 @@ $LN_S Copyright COPYING
 )
 
 
-ac_config_files="$ac_config_files Makefile libxslt.pc libexslt.pc libxslt/Makefile libxslt/xsltconfig.h libxslt/xsltwin32config.h libexslt/Makefile libexslt/exsltconfig.h xsltproc/Makefile python/Makefile python/tests/Makefile tests/Makefile tests/docs/Makefile tests/REC1/Makefile tests/REC2/Makefile tests/REC/Makefile tests/general/Makefile tests/reports/Makefile tests/extensions/Makefile tests/namespaces/Makefile tests/keys/Makefile tests/numbers/Makefile tests/documents/Makefile tests/xmlspec/Makefile tests/multiple/Makefile tests/xinclude/Makefile tests/XSLTMark/Makefile tests/docbook/Makefile tests/exslt/Makefile tests/exslt/common/Makefile tests/exslt/functions/Makefile tests/exslt/math/Makefile tests/exslt/sets/Makefile tests/exslt/strings/Makefile tests/exslt/date/Makefile tests/exslt/dynamic/Makefile tests/plugins/Makefile doc/Makefile xslt-config libxslt.spec"
+ac_config_files="$ac_config_files libxslt/xsltconfig.h libxslt/xsltwin32config.h libexslt/exsltconfig.h xslt-config"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
