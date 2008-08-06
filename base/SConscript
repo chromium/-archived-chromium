@@ -216,7 +216,6 @@ test_files = [
     'condition_variable_test.cc',
     'file_util_unittest.cc',
     'file_version_info_unittest.cc',
-    'fixed_string_unittest.cc',
     'gfx/convolver_unittest.cc',
     'gfx/image_operations_unittest.cc',
     'gfx/native_theme_unittest.cc',

@@ -39,13 +39,13 @@
 #include "base/command_line.h"
 #include "base/event_recorder.h"
 #include "base/file_util.h"
-#include "base/fixed_string.h"
 #include "base/gfx/native_theme.h"
 #include "base/icu_util.h"
 #include "base/memory_debug.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/resource_util.h"
+#include "base/stack_container.h"
 #include "base/stats_table.h"
 #include "base/string_util.h"
 #include "breakpad/src/client/windows/handler/exception_handler.h"
@@ -109,23 +109,26 @@ bool MinidumpCallback(const wchar_t *dumpPath,
         return false;
 
     // Try to rename the minidump file to include the crashed test's name.
-    FixedString<wchar_t, MAX_PATH> origPath;
-    origPath.Append(dumpPath);
-    origPath.Append(file_util::kPathSeparator);
-    origPath.Append(minidumpID);
-    origPath.Append(L".dmp");
+    // StackString uses the stack but overflows onto the heap.  But we don't
+    // care too much about being completely correct here, since most crashes
+    // will be happening on developers' machines where they have debuggers.
+    StackWString<MAX_PATH*2> origPath;
+    origPath->append(dumpPath);
+    origPath->push_back(file_util::kPathSeparator);
+    origPath->append(minidumpID);
+    origPath->append(L".dmp");
 
-    FixedString<wchar_t, MAX_PATH> newPath;
-    newPath.Append(dumpPath);
-    newPath.Append(file_util::kPathSeparator);
-    newPath.Append(g_currentTestName);
-    newPath.Append(L"-");
-    newPath.Append(minidumpID);
-    newPath.Append(L".dmp");
+    StackWString<MAX_PATH*2>  newPath;
+    newPath->append(dumpPath);
+    newPath->push_back(file_util::kPathSeparator);
+    newPath->append(g_currentTestName);
+    newPath->append(L"-");
+    newPath->append(minidumpID);
+    newPath->append(L".dmp");
 
     // May use the heap, but oh well.  If this fails, we'll just have the
     // original dump file lying around.
-    _wrename(origPath.get(), newPath.get());
+    _wrename(origPath->c_str(), newPath->c_str());
 
     return false;
 }

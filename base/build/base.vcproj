@@ -294,10 +294,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\fixed_string.h"
-			>
-		</File>
-		<File
 			RelativePath="..\hash_tables.h"
 			>
 		</File>

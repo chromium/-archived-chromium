@@ -200,10 +200,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\fixed_string_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\histogram_test.cc"
 				>
 			</File>

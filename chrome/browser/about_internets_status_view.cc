@@ -30,7 +30,6 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
-#include "base/fixed_string.h"
 #include "chrome/browser/about_internets_status_view.h"
 #include "chrome/browser/tab_contents_delegate.h"
 
@@ -60,15 +59,15 @@ void AboutInternetsStatusView::OnCreate(const CRect& rect) {
   std::wstring path;
   PathService::Get(base::DIR_SYSTEM, &path);
   file_util::AppendToPath(&path, L"sspipes.scr");
-  FixedString<wchar_t, MAX_PATH> parameters;
-  parameters.Append(path.c_str());
+  std::wstring parameters;
+  parameters.append(path.c_str());
   // Append the handle of the HWND that we want to render the pipes into.
-  parameters.Append(L" /p ");
-  parameters.Append(
+  parameters.append(L" /p ");
+  parameters.append(
       Int64ToWString(reinterpret_cast<int64>(contents_hwnd)).c_str());
   BOOL result =
       CreateProcess(NULL,
-                    parameters.get(),
+                    const_cast<LPWSTR>(parameters.c_str()),
                     NULL,           // LPSECURITY_ATTRIBUTES lpProcessAttributes
                     NULL,           // LPSECURITY_ATTRIBUTES lpThreadAttributes
                     FALSE,          // BOOL bInheritHandles
