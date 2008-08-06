@@ -562,10 +562,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\singleton_internal.h"
-			>
-		</File>
-		<File
 			RelativePath="..\spin_wait.h"
 			>
 		</File>

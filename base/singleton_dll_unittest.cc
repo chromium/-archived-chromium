@@ -52,13 +52,9 @@ BOOL APIENTRY DllMain(HMODULE module, DWORD reason_for_call, LPVOID reserved) {
 }
 
 COMPILE_ASSERT(DefaultSingletonTraits<int>::kRegisterAtExit == true, a);
-COMPILE_ASSERT(
-    DefaultSingletonTraits<int>::kMustCallNewExactlyOnce == false,
-    b);
 
 template<typename Type>
 struct LockTrait : public DefaultSingletonTraits<Type> {
-  static const bool kMustCallNewExactlyOnce = true;
 };
 
 struct Init5Trait : public DefaultSingletonTraits<int> {

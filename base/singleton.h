@@ -35,14 +35,8 @@
 #include <utility>
 
 #include "base/at_exit.h"
-#include "base/lock.h"
-#include "base/singleton_internal.h"
-
-#ifdef WIN32
-#include "base/fix_wp64.h"
-#else  // WIN32
-#include <pthread.h>
-#endif  // WIN32
+#include "base/atomicops.h"
+#include "base/platform_thread.h"
 
 // Default traits for Singleton<Type>. Calls operator new and operator delete on
 // the object. Registers automatic deletion at process exit.
@@ -64,15 +58,7 @@ struct DefaultSingletonTraits {
   // Set to true to automatically register deletion of the object on process
   // exit. See below for the required call that makes this happen.
   static const bool kRegisterAtExit = true;
-
-  // Note: Only apply on Windows. Has *no effect* on other platform.
-  // When set to true, it signals that Trait::New() *must* not be called
-  // multiple times at construction. Anything that must be done to not enter
-  // this situation should be done at all cost. This simply involves creating a
-  // temporary lock.
-  static const bool kMustCallNewExactlyOnce = false;
 };
-
 
 // The Singleton<Type, Traits, DifferentiatingType> class manages a single
 // instance of Type which will be created on first use and will be destroyed at
@@ -98,7 +84,6 @@ struct DefaultSingletonTraits {
 // depending on the user's requirements.
 //
 // Glossary:
-//   MCNEO = kMustCallNewExactlyOnce
 //   RAE = kRegisterAtExit
 //
 // On every platform, if Traits::RAE is true, the singleton will be destroyed at
@@ -111,23 +96,6 @@ struct DefaultSingletonTraits {
 // thus the singleton will be leaked if it is ever accessed. Traits::RAE
 // shouldn't be false unless absolutely necessary. Remember that the heap where
 // the object is allocated may be destroyed by the CRT anyway.
-//
-// On Windows, now the fun begins. Traits::New() may be called more than once
-// concurrently, but no user will gain access to the object until the winning
-// Traits::New() call is completed.
-//
-// On Windows, if Traits::MCNEO and Traits::RAE are both false,
-// Traits::Delete() can still be called. The reason is that a race condition can
-// occur during the object creation which will cause Traits::Delete() to be
-// called even if Traits::RAE is false, so Traits::Delete() should still be
-// implemented or objects may be leaked when there is a race condition in
-// creating the singleton. Even though this case is very rare, it may happen in
-// practice. To work around this situation, before creating a multithreaded
-// environment, be sure to call Singleton<>::get() to force the creation of the
-// instance.
-//
-// On Windows, If Traits::MCNEO is true, a temporary lock per singleton will be
-// created to ensure that Trait::New() is only called once.
 //
 // If you want to ensure that your class can only exist as a singleton, make
 // its constructors private, and make DefaultSingletonTraits<> a friend:
@@ -152,43 +120,56 @@ struct DefaultSingletonTraits {
 // (b) Your factory function must never throw an exception. This class is not
 //     exception-safe.
 //
-// (c) On Windows at least, if Traits::kMustCallNewExactlyOnce is false,
-//     Traits::New() may be called two times in two different threads at the
-//     same time so it must not have side effects. Set
-//     Traits::kMustCallNewExactlyOnce to true to alleviate this issue, at
-//     the cost of a slight increase of memory use and creation time.
-//
 template <typename Type,
           typename Traits = DefaultSingletonTraits<Type>,
           typename DifferentiatingType = Type>
-class Singleton
-    : public SingletonStorage<
-          Type,
-          std::pair<Traits, DifferentiatingType>,
-          UseVolatileSingleton<Traits::kMustCallNewExactlyOnce>::value> {
+class Singleton {
  public:
   // This class is safe to be constructed and copy-constructed since it has no
   // member.
 
   // Return a pointer to the one true instance of the class.
   static Type* get() {
-    Type* value = instance_;
-    // Acute readers may think: why not just discard "value" and use
-    // "instance_" directly? Astute readers will remark that instance_ can be a
-    // volatile pointer on Windows and hence the compiler would be forced to
-    // generate two memory reads instead of just one. Since this is the hotspot,
-    // this is inefficient.
-    if (value)
-      return value;
+    // Our AtomicWord doubles as a spinlock, where a value of
+    // kBeingCreatedMarker means the spinlock is being held for creation.
+    static const base::subtle::AtomicWord kBeingCreatedMarker = 1;
 
-#ifdef WIN32
-    // Statically determine which function to call.
-    LockedConstruct<Traits::kMustCallNewExactlyOnce>();
-#else  // WIN32
-    // Posix platforms already have the functionality embedded.
-    pthread_once(&control_, SafeConstruct);
-#endif  // WIN32
-    return instance_;
+    base::subtle::AtomicWord value = base::subtle::NoBarrier_Load(&instance_);
+    if (value != 0 && value != kBeingCreatedMarker)
+      return reinterpret_cast<Type*>(value);
+
+    // Object isn't created yet, maybe we will get to create it, let's try...
+    if (base::subtle::Acquire_CompareAndSwap(&instance_,
+                                             0,
+                                             kBeingCreatedMarker) == 0) {
+      // instance_ was NULL and is now kBeingCreatedMarker.  Only one thread
+      // will ever get here.  Threads might be spinning on us, and they will
+      // stop right after we do this store.
+      Type* newval = Traits::New();
+      base::subtle::Release_Store(
+          &instance_, reinterpret_cast<base::subtle::AtomicWord>(newval));
+
+      if (Traits::kRegisterAtExit)
+        base::AtExitManager::RegisterCallback(OnExit);
+
+      return newval;
+    }
+
+    // We hit a race.  Another thread beat us and either:
+    // - Has the object in BeingCreated state
+    // - Already has the object created...
+    // We know value != NULL.  It could be kBeingCreatedMarker, or a valid ptr.
+    // Unless your constructor can be very time consuming, it is very unlikely
+    // to hit this race.  When it does, we just spin and yield the thread until
+    // the object has been created.
+    while (true) {
+      value = base::subtle::NoBarrier_Load(&instance_);
+      if (value != kBeingCreatedMarker)
+        break;
+      PlatformThread::YieldCurrentThread();
+    }
+
+    return reinterpret_cast<Type*>(value);
   }
 
   // Shortcuts.
@@ -201,74 +182,21 @@ class Singleton
   }
 
  private:
-#ifdef WIN32
-  // Use bool template differentiation to make sure to not build the other part
-  // of the code. We don't want to instantiate Singleton<Lock, ...> uselessly.
-  template<bool kUseLock>
-  static void LockedConstruct() {
-    // Define a differentiating type for the Lock.
-    typedef std::pair<Type, std::pair<Traits, DifferentiatingType> >
-        LockDifferentiatingType;
-
-    // Object-type lock. Note that the lock singleton is different per singleton
-    // type.
-    AutoLock lock(*Singleton<Lock,
-                             DefaultSingletonTraits<Lock>,
-                             LockDifferentiatingType>());
-    // Now that we have the lock, look if the instance is created, if not yet,
-    // create it.
-    if (!instance_)
-      SafeConstruct();
-  }
-
-  template<>
-  static void LockedConstruct<false>() {
-    // Implemented using atomic compare-and-swap. The new object is
-    // constructed and used as the new value in the operation; if the
-    // compare fails, the new object will be deleted. Future implementations
-    // for Windows might use InitOnceExecuteOnce (Vista-only), similar in
-    // spirit to pthread_once.
-
-    // On Windows, multiple concurrent Traits::New() calls are tolerated.
-    Type* value = Traits::New();
-    if (InterlockedCompareExchangePointer(
-            reinterpret_cast<void* volatile*>(&instance_), value, NULL)) {
-      // Race condition, discard the temporary value.
-      Traits::Delete(value);
-    } else {
-      if (Traits::kRegisterAtExit)
-        base::AtExitManager::RegisterCallback(&OnExit);
-    }
-  }
-#endif  // WIN32
-
-  // SafeConstruct is guaranteed to be executed only once.
-  static void SafeConstruct() {
-    instance_ = Traits::New();
-
-    if (Traits::kRegisterAtExit)
-      base::AtExitManager::RegisterCallback(OnExit);
-  }
-
-  // Adapter function for use with AtExit().
+  // Adapter function for use with AtExit().  This should be called single
+  // threaded, but we might as well take the precautions anyway.
   static void OnExit() {
-    if (!instance_)
-      return;
-    Traits::Delete(instance_);
-    instance_ = NULL;
+    // AtExit should only ever be register after the singleton instance was
+    // created.  We should only ever get here with a valid instance_ pointer.
+    // We skip the DCHECK because we don't want to pull in logging.h :/
+    Traits::Delete(reinterpret_cast<Type*>(instance_));
+    base::subtle::Release_Store(&instance_, 0);
   }
-
-#ifndef WIN32
-  static pthread_once_t control_;
-#endif  // !WIN32
+  static base::subtle::AtomicWord instance_;
 };
 
-#ifndef WIN32
-
 template <typename Type, typename Traits, typename DifferentiatingType>
-pthread_once_t Singleton<Type, Traits, DifferentiatingType>::control_ =
-    PTHREAD_ONCE_INIT;
+base::subtle::AtomicWord Singleton<Type, Traits, DifferentiatingType>::
+    instance_ = NULL;
 
-#endif  // !WIN32
 
 #endif  // BASE_SINGLETON_H__
