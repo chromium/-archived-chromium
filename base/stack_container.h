@@ -56,6 +56,9 @@
 template<typename T, size_t stack_capacity>
 class StackAllocator : public std::allocator<T> {
  public:
+  typedef typename std::allocator<T>::pointer pointer;
+  typedef typename std::allocator<T>::size_type size_type;
+
   // Backing store for the allocator. The container owner is responsible for
   // maintaining this for as long as any containers using this allocator are
   // live.
@@ -130,10 +133,10 @@ class StackAllocator : public std::allocator<T> {
 // WATCH OUT: the ContainerType MUST use the proper StackAllocator for this
 // type. This object is really intended to be used only internally. You'll want
 // to use the wrappers below for different types.
-template<typename ContainerType, int stack_capacity>
+template<typename TContainerType, int stack_capacity>
 class StackContainer {
  public:
-  typedef typename ContainerType ContainerType;
+  typedef TContainerType ContainerType;
   typedef typename ContainerType::value_type ContainedType;
   typedef StackAllocator<ContainedType, stack_capacity> Allocator;
 
@@ -162,7 +165,7 @@ class StackContainer {
 #ifdef UNIT_TEST
   // Retrieves the stack source so that that unit tests can verify that the
   // buffer is being used properly.
-  typename const Allocator::Source& stack_data() const {
+  const typename Allocator::Source& stack_data() const {
     return stack_data_;
   }
 #endif
@@ -237,19 +240,21 @@ class StackVector : public StackContainer<
       : StackContainer<
             std::vector<T, StackAllocator<T, stack_capacity> >,
             stack_capacity>() {
-    container().assign(other->begin(), other->end());
+    this->container().assign(other->begin(), other->end());
   }
 
   StackVector<T, stack_capacity>& operator=(
       const StackVector<T, stack_capacity>& other) {
-    container().assign(other->begin(), other->end());
+    this->container().assign(other->begin(), other->end());
     return *this;
   }
 
   // Vectors are commonly indexed, which isn't very convenient even with
   // operator-> (using "->at()" does exception stuff we don't want).
-  T& operator[](size_t i) { return container().operator[](i); }
-  const T& operator[](size_t i) const { return container().operator[](i); }
+  T& operator[](size_t i) { return this->container().operator[](i); }
+  const T& operator[](size_t i) const { 
+    return this->container().operator[](i); 
+  }
 };
 
 #endif  // BASE_STACK_CONTAINER_H__

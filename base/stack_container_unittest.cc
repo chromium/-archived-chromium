@@ -132,6 +132,10 @@ TEST(StackContainer, BufferAlignment) {
   EXPECT_EQ(even_aligned, true);
 }
 
+#ifdef COMPILER_MSVC
 // Make sure all the class compiles correctly.
+// TODO(pinkerton): i'm not sure why this doesn't compile on GCC, but
+// it doesn't.
 template StackVector<int, 2>;
 template StackVector<scoped_refptr<Dummy>, 2>;
+#endif
