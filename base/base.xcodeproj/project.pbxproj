@@ -101,7 +101,7 @@
 		ABF4B9AF0DC2BC6200A6E319 /* json_reader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254031B0D92D1F40006B936 /* json_reader.cc */; };
 		ABF4B9B00DC2BC6500A6E319 /* json_writer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254031D0D92D1F40006B936 /* json_writer.cc */; };
 		ABF4B9B20DC2BC8300A6E319 /* memory_debug.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254032B0D92D2090006B936 /* memory_debug.cc */; };
-		ABF4B9B50DC2BC9F00A6E319 /* path_service_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABF4B9B40DC2BC9F00A6E319 /* path_service_mac.cc */; };
+		ABF4B9B50DC2BC9F00A6E319 /* path_service.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABF4B9B40DC2BC9F00A6E319 /* path_service.cc */; };
 		ABF4B9B90DC2BCE300A6E319 /* platform_thread.cc in Sources */ = {isa = PBXBuildFile; fileRef = 82E23FCC0D9C219600F8B40A /* platform_thread.cc */; };
 		ABF4B9BC0DC2BD1000A6E319 /* sha2.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403620D92D27C0006B936 /* sha2.cc */; };
 		ABF4B9BE0DC2BD1500A6E319 /* sha512.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403700D92D2840006B936 /* sha512.cc */; };
@@ -253,42 +253,42 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = E45A2C680E47AEFF00DB1196 /* gtest.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* gtest */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = gtest;
 		};
 		E49115D90E47B397001EE8C3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E4562AF30E27E428005E4685 /* icu.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 7BD5408A0D6F743F003CD41E /* icudata_stub */;
+			remoteGlobalIDString = 7BD5408A0D6F743F003CD41E;
 			remoteInfo = icudata_stub;
 		};
 		E49115DB0E47B397001EE8C3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E4562AF30E27E428005E4685 /* icu.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 7BD53AAA0D6F6671003CD41E /* icuuc */;
+			remoteGlobalIDString = 7BD53AAA0D6F6671003CD41E;
 			remoteInfo = icuuc;
 		};
 		E49115DD0E47B397001EE8C3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E4562AF30E27E428005E4685 /* icu.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 7BD53EA50D6F6FC7003CD41E /* icui18n */;
+			remoteGlobalIDString = 7BD53EA50D6F6FC7003CD41E;
 			remoteInfo = icui18n;
 		};
 		E49115DF0E47B397001EE8C3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E4562AF30E27E428005E4685 /* icu.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 7BD540250D6F727B003CD41E /* icutu */;
+			remoteGlobalIDString = 7BD540250D6F727B003CD41E;
 			remoteInfo = icutu;
 		};
 		E49115E10E47B39E001EE8C3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E4562AF30E27E428005E4685 /* icu.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 82C262C30DCF9411005CFE91 /* icudatastatic */;
+			remoteGlobalIDString = 82C262C30DCF9411005CFE91;
 			remoteInfo = icudatastatic;
 		};
 /* End PBXContainerItemProxy section */
@@ -453,7 +453,7 @@
 		ABF4B99D0DC2BB6000A6E319 /* clipboard.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = clipboard.mm; sourceTree = "<group>"; };
 		ABF4B9A90DC2BC2A00A6E319 /* file_util_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file_util_mac.cc; sourceTree = "<group>"; };
 		ABF4B9AC0DC2BC4800A6E319 /* file_version_info.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = file_version_info.mm; sourceTree = "<group>"; };
-		ABF4B9B40DC2BC9F00A6E319 /* path_service_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = path_service_mac.cc; sourceTree = "<group>"; };
+		ABF4B9B40DC2BC9F00A6E319 /* path_service.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = path_service.cc; sourceTree = "<group>"; };
 		E45629D60E27BF9A005E4685 /* Tests.gtest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.gtest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E45629E40E27C058005E4685 /* rect_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rect_unittest.cc; sourceTree = "<group>"; };
 		E4562A200E27C8C1005E4685 /* png_codec_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = png_codec_unittest.cc; sourceTree = "<group>"; };
@@ -604,7 +604,7 @@
 				825403390D92D2210006B936 /* observer_list.h */,
 				E4562AD60E27E27E005E4685 /* path_service_unittest.cc */,
 				8254033B0D92D2210006B936 /* path_service.h */,
-				ABF4B9B40DC2BC9F00A6E319 /* path_service_mac.cc */,
+				ABF4B9B40DC2BC9F00A6E319 /* path_service.cc */,
 				E4562C680E2803C3005E4685 /* pickle_unittest.cc */,
 				8254033E0D92D2210006B936 /* pickle.cc */,
 				8254033F0D92D2210006B936 /* pickle.h */,
@@ -1104,7 +1104,7 @@
 				ABF4B9AF0DC2BC6200A6E319 /* json_reader.cc in Sources */,
 				ABF4B9B00DC2BC6500A6E319 /* json_writer.cc in Sources */,
 				ABF4B9B20DC2BC8300A6E319 /* memory_debug.cc in Sources */,
-				ABF4B9B50DC2BC9F00A6E319 /* path_service_mac.cc in Sources */,
+				ABF4B9B50DC2BC9F00A6E319 /* path_service.cc in Sources */,
 				ABF4B9B90DC2BCE300A6E319 /* platform_thread.cc in Sources */,
 				ABF4B9BC0DC2BD1000A6E319 /* sha2.cc in Sources */,
 				ABF4B9BE0DC2BD1500A6E319 /* sha512.cc in Sources */,

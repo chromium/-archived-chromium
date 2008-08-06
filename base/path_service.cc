@@ -27,30 +27,33 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "build/build_config.h"
+
+#ifdef OS_WIN
 #include <windows.h>
 #include <shellapi.h>
 #include <shlobj.h>
+#endif
 
-#include <hash_map>
-#include <hash_set>
-
+#include "base/hash_tables.h"
 #include "base/path_service.h"
 
 #include "base/lock.h"
 #include "base/logging.h"
 #include "base/file_util.h"
+#include "base/string_util.h"
 
 namespace base {
   bool PathProvider(int key, std::wstring* result);
-#if OS_WIN
+#ifdef OS_WIN
   bool PathProviderWin(int key, std::wstring* result);
 #endif
 }
 
 namespace {
 
-typedef stdext::hash_map<int,std::wstring> PathMap;
-typedef stdext::hash_set<int> PathSet;
+typedef base::hash_map<int, std::wstring> PathMap;
+typedef base::hash_set<int> PathSet;
 
 // We keep a linked list of providers.  In a debug build we ensure that no two
 // providers claim overlapping keys.
@@ -92,9 +95,7 @@ struct PathData {
   PathData() {
 #if defined(OS_WIN)
     providers = &base_provider_win;
-#elif defined(OS_MACOSX)
-    providers = &base_provider;
-#elif defined(OS_LINUX)
+#elif defined(OS_POSIX)
     providers = &base_provider;
 #endif
   }
@@ -117,6 +118,7 @@ bool PathService::Get(int key, std::wstring* result) {
 
   // special case the current directory because it can never be cached
   if (key == base::DIR_CURRENT) {
+#if defined(OS_WIN)
     wchar_t system_buffer[MAX_PATH];
     system_buffer[0] = 0;
     DWORD len = GetCurrentDirectory(MAX_PATH, system_buffer);
@@ -125,6 +127,13 @@ bool PathService::Get(int key, std::wstring* result) {
     *result = system_buffer;
     file_util::TrimTrailingSeparator(result);
     return true;
+#elif defined(OS_POSIX)
+    char system_buffer[PATH_MAX];
+    system_buffer[0] = 0;
+    getcwd(system_buffer, sizeof(system_buffer));
+    *result = NativeMBToWide(system_buffer);
+    return true;
+#endif
   }
 
   // TODO(darin): it would be nice to avoid holding this lock while calling out
@@ -170,10 +179,22 @@ bool PathService::Override(int key, const std::wstring& path) {
   DCHECK(path_data);
   DCHECK(key > base::DIR_CURRENT) << "invalid path key";
 
+#if defined(OS_WIN)
   wchar_t file_path_buf[MAX_PATH];
   if (!_wfullpath(file_path_buf, path.c_str(), MAX_PATH))
     return false;
   std::wstring file_path(file_path_buf);
+#elif defined(OS_POSIX)
+  // The other (posix-like) platforms don't use wide strings for paths. On the
+  // Mac it's NFD UTF-8, and we have to assume that whatever other platforms
+  // we end up on the native encoding is correct.
+  // TODO: refactor all of the path code throughout the project to use a
+  // per-platform path type
+  char file_path_buf[PATH_MAX];
+  if (!realpath(WideToNativeMB(path).c_str(), file_path_buf))
+    return false;
+  std::wstring file_path(NativeMBToWide(file_path_buf));
+#endif
 
   // make sure the directory exists:
   if (!file_util::PathExists(file_path) &&
@@ -190,8 +211,13 @@ bool PathService::Override(int key, const std::wstring& path) {
 }
 
 bool PathService::SetCurrentDirectory(const std::wstring& current_directory) {
+#if defined(OS_WIN)
   BOOL ret = ::SetCurrentDirectory(current_directory.c_str());
   return (ret ? true : false);
+#elif defined(OS_POSIX)
+  int ret = chdir(WideToNativeMB(current_directory).c_str());
+  return (ret == 0);
+#endif
 }
 
 void PathService::RegisterProvider(ProviderFunc func, int key_start,
