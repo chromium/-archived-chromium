@@ -49,8 +49,8 @@ void JSONWriter::Write(const Value* const node, bool pretty_print,
 }
 
 JSONWriter::JSONWriter(bool pretty_print, std::string* json)
-  : pretty_print_(pretty_print),
-    json_string_(json) {
+    : json_string_(json),
+      pretty_print_(pretty_print) {
   DCHECK(json);
 }
 

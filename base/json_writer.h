@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_COMMON_JSON_WRITER_H__
-#define CHROME_COMMON_JSON_WRITER_H__
+#ifndef BASE_JSON_WRITER_H_
+#define BASE_JSON_WRITER_H_
 
 #include <string>
 
@@ -50,7 +50,6 @@ class JSONWriter {
 
  private:
   JSONWriter(bool pretty_print, std::string* json);
-  DISALLOW_EVIL_CONSTRUCTORS(JSONWriter);
 
   // Called recursively to build the JSON string.  Whe completed, value is
   // json_string_ will contain the JSON.
@@ -66,6 +65,8 @@ class JSONWriter {
   std::string* json_string_;
 
   bool pretty_print_;
+
+  DISALLOW_COPY_AND_ASSIGN(JSONWriter);
 };
 
-#endif  // CHROME_COMMON_JSON_WRITER_H__
+#endif  // BASE_JSON_WRITER_H_
