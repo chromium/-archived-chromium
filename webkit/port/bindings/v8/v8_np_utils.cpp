@@ -31,6 +31,7 @@
 
 #include "v8_np_utils.h"
 
+#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "DOMWindow.h"
 #include "Frame.h"
@@ -118,9 +119,19 @@ v8::Handle<v8::Value> ConvertNPVariantToV8Object(const NPVariant* variant,
 
 // Helper function to create an NPN String Identifier from a v8 string.
 NPIdentifier GetStringIdentifier(v8::Handle<v8::String> str) {
-  char *buf = new char[str->Length() + 1];
-  str->WriteAscii(buf);
-  NPIdentifier ident = NPN_GetStringIdentifier(buf);
-  delete[] buf;
-  return ident;
+  const int kStackBufSize = 100;
+
+  int buf_len = str->Length() + 1;
+  if (buf_len <= kStackBufSize) {
+    // Use local stack buffer to avoid heap allocations for small strings.
+    // Here we should only use the stack space for stack_buf when it's used,
+    // not when we use the heap.
+    char stack_buf[kStackBufSize];
+    str->WriteAscii(stack_buf);
+    return NPN_GetStringIdentifier(stack_buf);
+  }
+
+  scoped_array<char> heap_buf(new char[buf_len]);
+  str->WriteAscii(heap_buf.get());
+  return NPN_GetStringIdentifier(heap_buf.get());
 }
