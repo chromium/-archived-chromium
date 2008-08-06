@@ -379,12 +379,12 @@ struct ParamTraits<NPEvent> {
     switch(p.event) {
      case WM_KEYDOWN:
       event = L"WM_KEYDOWN";
-      wparam = IntToString(p.wParam);
-      lparam = IntToString(p.lParam);
+      wparam = StringPrintf(L"%d", p.wParam);
+      lparam = StringPrintf(L"%d", p.lParam);
       break;
      case WM_KEYUP:
       event = L"WM_KEYDOWN";
-      wparam = IntToString(p.wParam);
+      wparam = StringPrintf(L"%d", p.wParam);
       lparam = StringPrintf(L"%x", p.lParam);
       break;
      case WM_MOUSEMOVE:
