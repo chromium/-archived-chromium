@@ -66,15 +66,40 @@ bool GetMemoryInfo(uint32 process_id,
   return result;
 }
 
+// GetPerformanceInfo is not available on WIN2K.  So we'll
+// load it on-the-fly.
+const wchar_t kPsapiDllName[] = L"psapi.dll";
+typedef BOOL (WINAPI *GetPerformanceInfoFunction) (
+    PPERFORMANCE_INFORMATION pPerformanceInformation,
+    DWORD cb);
+
+static BOOL InternalGetPerformanceInfo(
+    PPERFORMANCE_INFORMATION pPerformanceInformation, DWORD cb) {
+  static GetPerformanceInfoFunction GetPerformanceInfo_func = NULL;
+  if (!GetPerformanceInfo_func) {
+    HMODULE psapi_dll = ::GetModuleHandle(kPsapiDllName);
+    if (psapi_dll)
+      GetPerformanceInfo_func = reinterpret_cast<GetPerformanceInfoFunction>(
+          GetProcAddress(psapi_dll, "GetPerformanceInfo"));
+
+    if (!GetPerformanceInfo_func) {
+      // The function could be loaded!
+      memset(pPerformanceInformation, 0, cb);
+      return FALSE;
+    }
+  }
+  return GetPerformanceInfo_func(pPerformanceInformation, cb);
+}
+
+
 size_t GetSystemCommitCharge() {
   // Get the System Page Size.
   SYSTEM_INFO system_info;
   GetSystemInfo(&system_info);
 
-  // TODO(mbelshe): This does not work on win2k.
-  // PERFORMANCE_INFORMATION info;
-  // if (GetPerformanceInfo(&info, sizeof(info)))
-  //   return info.CommitTotal * system_info.dwPageSize;
+  PERFORMANCE_INFORMATION info;
+  if (InternalGetPerformanceInfo(&info, sizeof(info)))
+    return info.CommitTotal * system_info.dwPageSize;
   return -1;
 }
 
