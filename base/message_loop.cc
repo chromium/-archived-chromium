@@ -396,23 +396,25 @@ LRESULT CALLBACK MessageLoop::WndProcThunk(
 
 LRESULT MessageLoop::WndProc(
     HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
-  DCHECK(hwnd == message_hwnd_);
-  switch (message) {
-    case kMsgPumpATask: {
-      ProcessPumpReplacementMessage();  // Avoid starving paint and timer.
-      if (!nestable_tasks_allowed_)
+  if (hwnd == message_hwnd_) {
+    switch (message) {
+      case kMsgPumpATask: {
+        ProcessPumpReplacementMessage();  // Avoid starving paint and timer.
+        if (!nestable_tasks_allowed_)
+          return 0;
+        PumpATaskDuringWndProc();
         return 0;
-      PumpATaskDuringWndProc();
-      return 0;
-    }
+      }
 
-    case kMsgQuit: {
-      // TODO(jar): bug 1300541 The following assert should be used, but
-      // currently too much code actually triggers the assert, especially in
-      // tests :-(.
-      //CHECK(!quit_received_);  // Discarding a second quit will cause a hang.
-      quit_received_ = true;
-      return 0;
+      case kMsgQuit: {
+        // TODO(jar): bug 1300541 The following assert should be used, but
+        // currently too much code actually triggers the assert, especially in
+        // tests :-(.
+        // Discarding a second quit will cause a hang.
+        //CHECK(!quit_received_);
+        quit_received_ = true;
+        return 0;
+      }
     }
   }
   return ::DefWindowProc(hwnd, message, wparam, lparam);
