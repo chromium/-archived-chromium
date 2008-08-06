@@ -31,22 +31,8 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
-#include "base/string_util.h"
 
 namespace base {
-
-namespace {
-
-// List of directory name prefixes to skip when calculating
-// base::DIR_SOURCE_ROOT.
-const wchar_t* const kPathToStrip[] = {
-  L"release",
-  L"debug",
-  L"win32",
-  L"x64",
-};
-
-}  // namespace
 
 bool PathProvider(int key, std::wstring* result) {
   // NOTE: DIR_CURRENT is a special cased in PathService::Get
@@ -66,26 +52,10 @@ bool PathProvider(int key, std::wstring* result) {
         return false;
       break;
     case base::DIR_SOURCE_ROOT:
+      // By default, unit tests execute two levels deep from the source root.
+      // For example:  chrome/{Debug|Release}/ui_tests.exe
       PathProvider(base::DIR_EXE, &cur);
-      for (;;) {
-        bool found = false;
-        std::wstring bottom_dir(file_util::GetFilenameFromPath(cur));
-        for (int i = 0; i < arraysize(kPathToStrip); ++i) {
-          if (0 == wcsncmp(bottom_dir.c_str(),
-                           kPathToStrip[i],
-                           wcslen(kPathToStrip[i]))) {
-            found = true;
-            break;
-          }
-        }
-        if (!found)
-          break;
-
-        // Skip this directory.
-        file_util::UpOneDirectory(&cur);
-      }
-
-      // Then skip one more for the solution directory.
+      file_util::UpOneDirectory(&cur);
       file_util::UpOneDirectory(&cur);
       break;
     default:
