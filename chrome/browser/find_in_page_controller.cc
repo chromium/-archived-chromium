@@ -410,7 +410,6 @@ bool FindInPageController::AcceleratorPressed(
   return true;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // FindInPageController, AnimationDelegate implementation:
 
@@ -654,24 +653,24 @@ void FindInPageController::RestoreSavedFocus() {
 void FindInPageController::RegisterEscAccelerator() {
   ChromeViews::Accelerator escape(VK_ESCAPE, false, false, false);
 
+  // TODO(finnur): Once we fix issue 1307173 we should not remember any old
+  // accelerator targets and just Register and Unregister when needed.
   ChromeViews::AcceleratorTarget* old_target =
       focus_manager_->RegisterAccelerator(escape, this);
 
-  // We can get a FocusWillChange event setting focus to something that is
-  // already focused, without loosing focus first, for example when you switch
-  // to another application and come back. We must take care not to overwrite
-  // what the old accelerator target is in that case.
-  if (old_target != this)
+  if (!old_accel_target_for_esc_)
     old_accel_target_for_esc_ = old_target;
 }
 
 void FindInPageController::UnregisterEscAccelerator() {
-  // This DCHECK can happen if we get FocusWillChange events in incorrect order
-  // so that we think we are loosing focus twice.
+  // TODO(finnur): Once we fix issue 1307173 we should not remember any old
+  // accelerator targets and just Register and Unregister when needed.
   DCHECK(old_accel_target_for_esc_ != NULL);
   ChromeViews::Accelerator escape(VK_ESCAPE, false, false, false);
-  focus_manager_->RegisterAccelerator(escape, old_accel_target_for_esc_);
-  old_accel_target_for_esc_ = NULL;
+  ChromeViews::AcceleratorTarget* current_target =
+      focus_manager_->GetTargetForAccelerator(escape);
+  if (current_target == this)
+    focus_manager_->RegisterAccelerator(escape, old_accel_target_for_esc_);
 }
 
 void FindInPageController::Observe(NotificationType type,

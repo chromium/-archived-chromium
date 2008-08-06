@@ -292,6 +292,13 @@ class FocusManager : public NotificationObserver {
   void AddFocusChangeListener(FocusChangeListener* listener);
   void RemoveFocusChangeListener(FocusChangeListener* listener);
 
+  // Returns the AcceleratorTarget that should be activated for the specified
+  // keyboard accelerator, or NULL if no view is registered for that keyboard
+  // accelerator.
+  // TODO(finnur): http://b/1307173 Make this private once the bug is fixed.
+  AcceleratorTarget* GetTargetForAccelerator(
+      const Accelerator& accelerator) const;
+
  private:
   explicit FocusManager(HWND root, RootView* root_view);
   ~FocusManager();
@@ -310,12 +317,6 @@ class FocusManager : public NotificationObserver {
                           View* starting_view,
                           bool reverse,
                           bool dont_loop);
-
-  // Returns the AcceleratorTarget that should be activated for the specified
-  // keyboard accelerator, or NULL if no view is registered for that keyboard
-  // accelerator.
-  AcceleratorTarget* GetTargetForAccelerator(
-      const Accelerator& accelerator) const;
 
   // The RootView of the window associated with this FocusManager.
   RootView* top_root_view_;
