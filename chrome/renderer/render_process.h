@@ -63,6 +63,9 @@ class RenderProcess : public ChildProcess {
   // this function to free the SharedMemory object.
   static void FreeSharedMemory(SharedMemory* mem);
 
+  // Deletes the shared memory allocated by AllocSharedMemory.
+  static void DeleteSharedMem(SharedMemory* mem);
+
  private:
   friend class ChildProcessFactory<RenderProcess>;
   RenderProcess(const std::wstring& channel_name);
@@ -82,10 +85,6 @@ class RenderProcess : public ChildProcess {
   }
 
   static ChildProcess* ClassFactory(const std::wstring& channel_name);
-
-  // This is here so consumers will use FreeSharedMemory instead.  A destructor
-  // on SharedMemory would be too tempting.
-  static void DeleteSharedMem(SharedMemory* mem);
 
   // Look in the shared memory cache for a suitable object to reuse.  Returns
   // NULL if there is none.

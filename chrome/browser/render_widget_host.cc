@@ -54,85 +54,269 @@ static const int kHungRendererDelayMs = 10000;
 // RenderWidget::BackingStore
 
 RenderWidgetHost::BackingStore::BackingStore(const gfx::Size& size)
-    : size_(size) {
+    : size_(size),
+      backing_store_dib_(NULL),
+      renderer_bitmap_section_(NULL),
+      original_bitmap_(NULL) {
   HDC screen_dc = ::GetDC(NULL);
   hdc_ = CreateCompatibleDC(screen_dc);
-  int color_depth = GetDeviceCaps(screen_dc, BITSPIXEL);
-
-  // Color depths less than 16 bpp require a palette to be specified in the
-  // BITMAPINFO structure passed to CreateDIBSection. Instead of creating
-  // the palette, we specify the desired color depth as 16 which allows the
-  // OS to come up with an approximation. Tested this with 8bpp.
-  if (color_depth < 16)
-    color_depth = 16;
-
-  BITMAPINFOHEADER hdr = {0};
-  gfx::CreateBitmapHeaderWithColorDepth(size.width(), size.height(),
-                                        color_depth, &hdr);
-  void* data = NULL;
-  HANDLE bitmap = CreateDIBSection(hdc_, reinterpret_cast<BITMAPINFO*>(&hdr),
-                                   0, &data, NULL, 0);
-  SelectObject(hdc_, bitmap);
-  ::ReleaseDC(NULL, screen_dc);
+  ReleaseDC(NULL, screen_dc);
 }
 
 RenderWidgetHost::BackingStore::~BackingStore() {
   DCHECK(hdc_);
 
-  HBITMAP bitmap =
-      reinterpret_cast<HBITMAP>(GetCurrentObject(hdc_, OBJ_BITMAP));
   DeleteDC(hdc_);
-  DeleteObject(bitmap);
-}
 
-///////////////////////////////////////////////////////////////////////////////
-// RenderWidget::BackingStoreCache
-
-class RenderWidgetHost::BackingStoreCache {
- public:
-  // The number of backing stores to cache.
-  enum { kMaxSize = 5 };
-
-  static void Add(RenderWidgetHost* host, BackingStore* backing_store) {
-    // TODO(darin): Re-enable once we have a fix for bug 1143208.
-    if (!cache_)
-      cache_ = new Cache(kMaxSize);
-    cache_->Put(host, backing_store);
+  if (backing_store_dib_) {
+    DeleteObject(backing_store_dib_);
+    backing_store_dib_ = NULL;
   }
 
-  static BackingStore* Remove(RenderWidgetHost* host) {
-    // TODO(darin): Re-enable once we have a fix for bug 1143208.
+  if (renderer_bitmap_section_) {
+    CloseHandle(renderer_bitmap_section_);
+    renderer_bitmap_section_ = NULL;
+  }
+}
+
+bool RenderWidgetHost::BackingStore::Refresh(HANDLE process, 
+                                             HANDLE bitmap_section,
+                                             const gfx::Rect& bitmap_rect) {
+  // The bitmap received is valid only in the renderer process.
+  HANDLE valid_bitmap =
+      win_util::GetSectionFromProcess(bitmap_section, process, false);
+  if (!valid_bitmap)
+    return false;
+
+  if (bitmap_rect.size() == size()) {
+    CreateDIBSectionBackedByRendererBitmap(bitmap_rect, valid_bitmap);
+    return true;
+  }
+
+  if (!backing_store_dib_) {
+    backing_store_dib_ = CreateDIB(hdc_, size_.width(), size_.height(), true,
+                                   NULL);
+    DCHECK(backing_store_dib_ != NULL);
+    original_bitmap_ = SelectObject(hdc_, backing_store_dib_);
+  }
+
+  // TODO(darin): protect against integer overflow
+  DWORD size = 4 * bitmap_rect.width() * bitmap_rect.height();
+  void* backing_store_data = MapViewOfFile(valid_bitmap, FILE_MAP_READ, 0, 0,
+                                           size);
+  // These values are shared with gfx::PlatformDevice
+  BITMAPINFOHEADER hdr;
+  gfx::CreateBitmapHeader(bitmap_rect.width(), bitmap_rect.height(), &hdr);
+  // Account for a bitmap_rect that exceeds the bounds of our view
+  gfx::Rect view_rect(0, 0, size_.width(), size_.height());
+  gfx::Rect paint_rect = view_rect.Intersect(bitmap_rect);
+
+  StretchDIBits(hdc_,
+                paint_rect.x(),
+                paint_rect.y(),
+                paint_rect.width(),
+                paint_rect.height(),
+                0, 0,  // source x,y
+                paint_rect.width(),
+                paint_rect.height(),
+                backing_store_data,
+                reinterpret_cast<BITMAPINFO*>(&hdr),
+                DIB_RGB_COLORS,
+                SRCCOPY);
+
+  UnmapViewOfFile(backing_store_data);
+  CloseHandle(valid_bitmap);
+  return true;
+}
+
+void RenderWidgetHost::BackingStore::CreateDIBSectionBackedByRendererBitmap(
+    const gfx::Rect& bitmap_rect, HANDLE bitmap_section_from_renderer) {
+  if (backing_store_dib_ != NULL) {
+    SelectObject(hdc_, original_bitmap_);
+    DeleteObject(backing_store_dib_);
+    backing_store_dib_ = NULL;
+  }
+
+  if (renderer_bitmap_section_ != NULL) {
+    CloseHandle(renderer_bitmap_section_);
+    renderer_bitmap_section_ = NULL;
+  }
+
+  backing_store_dib_ = CreateDIB(hdc_, bitmap_rect.width(),
+                                 bitmap_rect.height(), false,
+                                 bitmap_section_from_renderer);
+  DCHECK(backing_store_dib_ != NULL);
+
+  renderer_bitmap_section_ = bitmap_section_from_renderer;
+  original_bitmap_ = SelectObject(hdc_, backing_store_dib_);
+}
+
+HANDLE RenderWidgetHost::BackingStore::CreateDIB(HDC dc, int width, int height,
+                                                 bool use_system_color_depth,
+                                                 HANDLE section) {
+  BITMAPINFOHEADER hdr;
+
+  if (use_system_color_depth) {
+    HDC screen_dc = ::GetDC(NULL);
+    int color_depth = GetDeviceCaps(screen_dc, BITSPIXEL);
+    ::ReleaseDC(NULL, screen_dc);
+
+    // Color depths less than 16 bpp require a palette to be specified in the
+    // BITMAPINFO structure passed to CreateDIBSection. Instead of creating
+    // the palette, we specify the desired color depth as 16 which allows the
+    // OS to come up with an approximation. Tested this with 8bpp.
+    if (color_depth < 16)
+      color_depth = 16;
+
+    gfx::CreateBitmapHeaderWithColorDepth(width, height, color_depth, &hdr);
+  } else {
+    gfx::CreateBitmapHeader(width, height, &hdr);
+  }
+  void* data = NULL;
+  HANDLE dib =
+      CreateDIBSection(hdc_, reinterpret_cast<BITMAPINFO*>(&hdr),
+                       0, &data, section, 0);
+  return dib;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// RenderWidgetHost::BackingStoreManager
+
+// This class manages backing stores in the browsr. Every RenderWidgetHost
+// is associated with a backing store which it requests from this class.
+// The hosts don't maintain any references to the backing stores. 
+// These backing stores are maintained in a cache which can be trimmed as
+// needed.
+class RenderWidgetHost::BackingStoreManager {
+ public:
+  // Returns a backing store which matches the desired dimensions.
+  // Parameters:
+  // host
+  //  A pointer to the RenderWidgetHost.
+  // backing_store_rect
+  //  The desired backing store dimensions.
+  // Returns a pointer to the backing store on success, NULL on failure.
+  static BackingStore* GetBackingStore(RenderWidgetHost* host,
+                                       const gfx::Size& desired_size) {
+    BackingStore* backing_store = Lookup(host);
+    if (backing_store) {
+      // If we already have a backing store, then make sure it is the correct
+      // size.
+      if (backing_store->size() == desired_size)
+        return backing_store;
+      backing_store = NULL;
+    }
+
+    return backing_store;
+  }
+
+  // Returns a backing store which is fully ready for consumption,
+  // i.e. the bitmap from the renderer has been copied into the
+  // backing store dc, or the bitmap in the backing store dc references
+  // the renderer bitmap.
+  // Parameters:
+  // host
+  //   A pointer to the RenderWidgetHost.
+  // backing_store_rect
+  //   The desired backing store dimensions.
+  // process_handle
+  //   The renderer process handle.
+  // bitmap_section
+  //   The bitmap section from the renderer.
+  // bitmap_rect
+  //   The rect to be painted into the backing store
+  // needs_full_paint
+  //   Set if we need to send out a request to paint the view
+  //   to the renderer.
+  static BackingStore* PrepareBackingStore(RenderWidgetHost* host, 
+                                           const gfx::Rect& backing_store_rect,
+                                           HANDLE process_handle,
+                                           HANDLE bitmap_section,
+                                           const gfx::Rect& bitmap_rect,
+                                           bool* needs_full_paint) {
+    BackingStore* backing_store = GetBackingStore(host,
+                                                  backing_store_rect.size());
+    if (!backing_store) {
+      // We need to get Webkit to generate a new paint here, as we
+      // don't have a previous snapshot.
+      if (bitmap_rect != backing_store_rect) {
+        DCHECK(needs_full_paint != NULL);
+        *needs_full_paint = true;
+      }
+      backing_store = CreateBackingStore(host, backing_store_rect);
+    }
+
+    DCHECK(backing_store != NULL);
+    backing_store->Refresh(process_handle, bitmap_section, bitmap_rect);
+    return backing_store;
+  }
+
+  // Returns a matching backing store for the host.
+  // Returns NULL if we fail to find one.
+  static BackingStore* Lookup(RenderWidgetHost* host) {
+    if (cache_) {
+      BackingStoreCache::iterator it = cache_->Peek(host);
+      if (it != cache_->end())
+        return it->second;
+    }
+    return NULL;
+  }
+
+  // Removes the backing store for the host.
+  static void RemoveBackingStore(RenderWidgetHost* host) {
     if (!cache_)
-      return NULL;
+      return;
 
-    Cache::iterator it = cache_->Peek(host);
+    BackingStoreCache::iterator it = cache_->Peek(host);
     if (it == cache_->end())
-      return NULL;
+      return;
 
-    BackingStore* result = it->second;
-
-    // Remove from the cache without deleting the backing store object.
-    it->second = NULL;
     cache_->Erase(it);
 
-    if (cache_->size() == 0) {
+    if (cache_->empty()) {
       delete cache_;
       cache_ = NULL;
     }
-
-    return result;
   }
 
  private:
-  ~BackingStoreCache();  // not intended to be instantiated
+   // Not intended for instantiation.
+  ~BackingStoreManager();
 
-  typedef OwningMRUCache<RenderWidgetHost*, BackingStore*> Cache;
-  static Cache* cache_;
+  typedef OwningMRUCache<RenderWidgetHost*, BackingStore*> BackingStoreCache;
+  static BackingStoreCache* cache_;
+
+  // Returns the size of the backing store cache.
+  // TODO(iyengar) Make this dynamic, i.e. based on the available resources
+  // on the machine.
+  static int GetBackingStoreCacheSize() {
+    const int kMaxSize = 5;
+    return kMaxSize;
+  }
+
+  // Creates the backing store for the host based on the dimensions passed in.
+  // Removes the existing backing store if there is one.
+  static BackingStore* CreateBackingStore(
+      RenderWidgetHost* host, const gfx::Rect& backing_store_rect) {
+    RemoveBackingStore(host);
+
+    BackingStore* backing_store = new BackingStore(backing_store_rect.size());
+    int backing_store_cache_size = GetBackingStoreCacheSize();
+    if (backing_store_cache_size > 0) {
+      if (!cache_)
+        cache_ = new BackingStoreCache(backing_store_cache_size);
+      cache_->Put(host, backing_store);
+    }
+    return backing_store;
+  }
+
+  DISALLOW_EVIL_CONSTRUCTORS(BackingStoreManager);
 };
 
-// static
-RenderWidgetHost::BackingStoreCache::Cache*
-    RenderWidgetHost::BackingStoreCache::cache_ = NULL;
+RenderWidgetHost::BackingStoreManager::BackingStoreCache* 
+    RenderWidgetHost::BackingStoreManager::cache_ = NULL;
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // RenderWidgetHost
@@ -148,7 +332,9 @@ RenderWidgetHost::RenderWidgetHost(RenderProcessHost* process, int routing_id)
       suppress_view_updating_(false),
       needs_repainting_on_restore_(false),
       hung_renderer_factory_(this),
-      is_unresponsive_(false) {
+      is_unresponsive_(false),
+      view_being_painted_(false),
+      repaint_ack_pending_(false) {
   if (routing_id_ == MSG_ROUTING_NONE)
     routing_id_ = process_->widget_helper()->GetNextRoutingID();
 
@@ -160,7 +346,7 @@ RenderWidgetHost::RenderWidgetHost(RenderProcessHost* process, int routing_id)
 
 RenderWidgetHost::~RenderWidgetHost() {
   // Clear our current or cached backing store if either remains.
-  backing_store_.reset(BackingStoreCache::Remove(this));
+  BackingStoreManager::RemoveBackingStore(this);
 
   process_->Release(routing_id_);
 }
@@ -230,21 +416,39 @@ void RenderWidgetHost::OnMsgPaintRect(
     resize_ack_pending_ = false;
   }
 
+  bool is_repaint_ack =
+      ViewHostMsg_PaintRect_Flags::is_repaint_ack(params.flags);
+  if (is_repaint_ack) {
+    repaint_ack_pending_ = false;
+    TimeDelta delta = TimeTicks::Now() - repaint_start_time_;
+    UMA_HISTOGRAM_TIMES(L"MPArch.RWH_RepaintDelta", delta);
+  }
+
   DCHECK(params.bitmap);
   DCHECK(!params.bitmap_rect.IsEmpty());
   DCHECK(!params.view_size.IsEmpty());
 
   PaintRect(params.bitmap, params.bitmap_rect, params.view_size);
 
+  bool using_renderer_bitmap_section = false;
+  BackingStore* backing_store = BackingStoreManager::Lookup(this);
+  if (backing_store) {
+    using_renderer_bitmap_section = 
+        backing_store->using_renderer_bitmap_section();
+  }
+
   // ACK early so we can prefetch the next PaintRect if there is a next one.
-  Send(new ViewMsg_PaintRect_ACK(routing_id_));
+  Send(new ViewMsg_PaintRect_ACK(routing_id_, using_renderer_bitmap_section));
 
   // TODO(darin): This should really be done by the view_!
   MovePluginWindows(params.plugin_window_moves);
 
   // The view might be destroyed already.  Check for this case.
-  if (view_ && !suppress_view_updating_)
+  if (view_ && !suppress_view_updating_) {
+    view_being_painted_ = true;
     view_->DidPaintRect(params.bitmap_rect);
+    view_being_painted_ = false;
+  }
 
   if (paint_observer_.get())
     paint_observer_->RenderWidgetHostDidPaint(this);
@@ -279,8 +483,11 @@ void RenderWidgetHost::OnMsgScrollRect(
   MovePluginWindows(params.plugin_window_moves);
 
   // The view might be destroyed already. Check for this case
-  if (view_)
+  if (view_) {
+    view_being_painted_ = true;
     view_->DidScrollRect(params.clip_rect, params.dx, params.dy);
+    view_being_painted_ = false;
+  }
 
   // Log the time delta for processing a scroll message.
   TimeDelta delta = TimeTicks::Now() - scroll_start;
@@ -398,10 +605,6 @@ void RenderWidgetHost::WasHidden() {
   // reduce its resource utilization.
   Send(new ViewMsg_WasHidden(routing_id_));
 
-  // Yield the backing store (allows this memory to be freed).
-  if (backing_store_.get())
-    BackingStoreCache::Add(this, backing_store_.release());
-
   // TODO(darin): what about constrained windows?  it doesn't look like they
   // see a message when their parent is hidden.  maybe there is something more
   // generic we can do at the TabContents API level instead of relying on
@@ -417,13 +620,11 @@ void RenderWidgetHost::WasRestored() {
     return;
   is_hidden_ = false;
 
-  DCHECK(!backing_store_.get());
-  backing_store_.reset(BackingStoreCache::Remove(this));
-
+  BackingStore* backing_store = BackingStoreManager::Lookup(this);
   // If we already have a backing store for this widget, then we don't need to
   // repaint on restore _unless_ we know that our backing store is invalid.
   bool needs_repainting;
-  if (needs_repainting_on_restore_ || !backing_store_.get()) {
+  if (needs_repainting_on_restore_ || !backing_store) {
     needs_repainting = true;
     needs_repainting_on_restore_ = false;
   } else {
@@ -569,13 +770,21 @@ RenderWidgetHost::BackingStore* RenderWidgetHost::GetBackingStore() {
   DCHECK(!is_hidden_) << "GetBackingStore called while hidden!";
 
   // We might have a cached backing store that we can reuse!
-  if (!backing_store_.get())
-    backing_store_.reset(BackingStoreCache::Remove(this));
+  BackingStore* backing_store = 
+      BackingStoreManager::GetBackingStore(this, current_size_);
+  // If we fail to find a backing store in the cache, send out a request
+  // to the renderer to paint the view if required.
+  if (!backing_store && !repaint_ack_pending_ && !resize_ack_pending_ && 
+      !view_being_painted_) {
+    repaint_start_time_ = TimeTicks::Now();
+    repaint_ack_pending_ = true;
+    Send(new ViewMsg_Repaint(routing_id_, current_size_));
+  }
 
   // When we have asked the RenderWidget to resize, and we are still waiting on
   // a response, block for a little while to see if we can't get a response
   // before returning the old (incorrectly sized) backing store.
-  if (resize_ack_pending_ || !backing_store_.get()) {
+  if (resize_ack_pending_ || !backing_store) {
     IPC::Message msg;
     TimeDelta max_delay = TimeDelta::FromMilliseconds(kPaintMsgTimeoutMS);
     if (process_->widget_helper()->WaitForPaintMsg(routing_id_, max_delay,
@@ -584,53 +793,11 @@ RenderWidgetHost::BackingStore* RenderWidgetHost::GetBackingStore() {
       ViewHostMsg_PaintRect::Dispatch(
           &msg, this, &RenderWidgetHost::OnMsgPaintRect);
       suppress_view_updating_ = false;
+      backing_store = BackingStoreManager::GetBackingStore(this, current_size_);
     }
   }
 
-  return backing_store_.get();
-}
-
-void RenderWidgetHost::EnsureBackingStore(const gfx::Rect& view_rect) {
-  // We might have a cached backing store that we can reuse!
-  if (!backing_store_.get())
-    backing_store_.reset(BackingStoreCache::Remove(this));
-
-  // If we already have a backing store, then make sure it is the correct size.
-  if (backing_store_.get() && backing_store_->size() == view_rect.size())
-    return;
-
-  backing_store_.reset(new BackingStore(view_rect.size()));
-}
-
-void RenderWidgetHost::PaintBackingStore(HANDLE bitmap,
-                                         const gfx::Rect& bitmap_rect) {
-  // TODO(darin): protect against integer overflow
-  DWORD size = 4 * bitmap_rect.width() * bitmap_rect.height();
-  void* data = MapViewOfFile(bitmap, FILE_MAP_READ, 0, 0, size);
-
-  // These values are shared with gfx::PlatformDevice
-  BITMAPINFOHEADER hdr;
-  gfx::CreateBitmapHeader(bitmap_rect.width(), bitmap_rect.height(), &hdr);
-
-  // Account for a bitmap_rect that exceeds the bounds of our view
-  gfx::Rect view_rect(
-      0, 0, backing_store_->size().width(), backing_store_->size().height());
-  gfx::Rect paint_rect = view_rect.Intersect(bitmap_rect);
-
-  StretchDIBits(backing_store_->dc(),
-                paint_rect.x(),
-                paint_rect.y(),
-                paint_rect.width(),
-                paint_rect.height(),
-                0, 0,  // source x,y
-                paint_rect.width(),
-                paint_rect.height(),
-                data,
-                reinterpret_cast<BITMAPINFO*>(&hdr),
-                DIB_RGB_COLORS,
-                SRCCOPY);
-
-  UnmapViewOfFile(data);
+  return backing_store;
 }
 
 void RenderWidgetHost::PaintRect(HANDLE bitmap, const gfx::Rect& bitmap_rect,
@@ -640,18 +807,21 @@ void RenderWidgetHost::PaintRect(HANDLE bitmap, const gfx::Rect& bitmap_rect,
     return;
   }
 
-  // The bitmap received is valid only in the renderer process.
-  HANDLE valid_bitmap =
-      win_util::GetSectionFromProcess(bitmap, process_->process(), true);
-  if (valid_bitmap) {
-    // We use the view size according to the render view, which may not be
-    // quite the same as the size of our window.
-    gfx::Rect view_rect(0, 0, view_size.width(), view_size.height());
+  // We use the view size according to the render view, which may not be
+  // quite the same as the size of our window.
+  gfx::Rect view_rect(0, 0, view_size.width(), view_size.height());
 
-    EnsureBackingStore(view_rect);
-
-    PaintBackingStore(valid_bitmap, bitmap_rect);
-    CloseHandle(valid_bitmap);
+  bool needs_full_paint = false;
+  BackingStore* backing_store = 
+      BackingStoreManager::PrepareBackingStore(this, view_rect,
+                                               process_->process(),
+                                               bitmap, bitmap_rect,
+                                               &needs_full_paint);
+  DCHECK(backing_store != NULL);
+  if (needs_full_paint) {
+    repaint_start_time_ = TimeTicks::Now();
+    repaint_ack_pending_ = true;
+    Send(new ViewMsg_Repaint(routing_id_, view_size));
   }
 }
 
@@ -666,11 +836,12 @@ void RenderWidgetHost::ScrollRect(HANDLE bitmap, const gfx::Rect& bitmap_rect,
   // TODO(darin): do we need to do something else if our backing store is not
   // the same size as the advertised view?  maybe we just assume there is a
   // full paint on its way?
-  if (backing_store_->size() != view_size)
+  BackingStore* backing_store = BackingStoreManager::Lookup(this);
+  if (backing_store && backing_store->size() != view_size)
     return;
 
   RECT damaged_rect, r = clip_rect.ToRECT();
-  ScrollDC(backing_store_->dc(), dx, dy, NULL, &r, NULL, &damaged_rect);
+  ScrollDC(backing_store->dc(), dx, dy, NULL, &r, NULL, &damaged_rect);
 
   // TODO(darin): this doesn't work if dx and dy are both non-zero!
   DCHECK(dx == 0 || dy == 0);
@@ -678,13 +849,7 @@ void RenderWidgetHost::ScrollRect(HANDLE bitmap, const gfx::Rect& bitmap_rect,
   // We expect that damaged_rect should equal bitmap_rect.
   DCHECK(gfx::Rect(damaged_rect) == bitmap_rect);
 
-  // The bitmap handle is valid only in the renderer process
-  HANDLE valid_bitmap =
-      win_util::GetSectionFromProcess(bitmap, process_->process(), true);
-  if (valid_bitmap) {
-    PaintBackingStore(valid_bitmap, bitmap_rect);
-    CloseHandle(valid_bitmap);
-  }
+  backing_store->Refresh(process_->process(), bitmap, bitmap_rect);
 }
 
 void RenderWidgetHost::RestartHangMonitorTimeout() {
@@ -701,4 +866,8 @@ void RenderWidgetHost::StartHangMonitorTimeout(int delay) {
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
         hung_renderer_factory_.NewRunnableMethod(
             &RenderWidgetHost::RendererIsUnresponsive), delay);
+}
+
+void RenderWidgetHost::RendererExited() {
+  BackingStoreManager::RemoveBackingStore(this);
 }

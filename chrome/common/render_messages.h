@@ -183,12 +183,17 @@ struct ViewHostMsg_PaintRect_Flags {
   enum {
     IS_RESIZE_ACK = 1 << 0,
     IS_RESTORE_ACK = 1 << 1,
+    IS_REPAINT_ACK = 1 << 2,
   };
   static bool is_resize_ack(int flags) {
     return (flags & IS_RESIZE_ACK) != 0;
   }
   static bool is_restore_ack(int flags) {
     return (flags & IS_RESTORE_ACK) != 0;
+  }
+
+  static bool is_repaint_ack(int flags) {
+    return (flags & IS_REPAINT_ACK) != 0;
   }
 };
 

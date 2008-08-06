@@ -133,7 +133,7 @@ class RenderWidget : public IPC::Channel::Listener,
   void OnResize(const gfx::Size& new_size);
   void OnWasHidden();
   void OnWasRestored(bool needs_repainting);
-  void OnPaintRectAck();
+  void OnPaintRectAck(bool drop_bitmap);
   void OnScrollRectAck();
   void OnHandleInputEvent(const IPC::Message& message);
   void OnMouseCaptureLost();
@@ -142,6 +142,7 @@ class RenderWidget : public IPC::Channel::Listener,
   void OnImeSetComposition(int string_type, int cursor_position,
                            int target_start, int target_end,
                            const std::wstring& ime_string);
+  void OnMsgRepaint(const gfx::Size& size_to_paint);
 
   // True if a PaintRect_ACK message is pending.
   bool paint_reply_pending() const {
@@ -167,6 +168,10 @@ class RenderWidget : public IPC::Channel::Listener,
 
   void set_next_paint_is_restore_ack() {
     next_paint_flags_ |= ViewHostMsg_PaintRect_Flags::IS_RESTORE_ACK;
+  }
+
+  void set_next_paint_is_repaint_ack() {
+    next_paint_flags_ |= ViewHostMsg_PaintRect_Flags::IS_REPAINT_ACK;
   }
 
   // Called when a renderer process moves an input focus or updates the

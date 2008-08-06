@@ -105,7 +105,10 @@ IPC_BEGIN_MESSAGES(View, 1)
 
   // Tells the render view that a ViewHostMsg_PaintRect message was processed.
   // This signals the render view that it can send another PaintRect message.
-  IPC_MESSAGE_ROUTED0(ViewMsg_PaintRect_ACK)
+  // The drop bitmap argument indicates whether the renderer should drop its
+  // reference on the shared section used for the dib.
+  IPC_MESSAGE_ROUTED1(ViewMsg_PaintRect_ACK,
+                      bool /* drop bitmap */)
 
   // Asks the renderer to calculate the number of printed pages according to the
   // supplied settings. The renderer will reply with
@@ -431,6 +434,10 @@ IPC_BEGIN_MESSAGES(View, 1)
   // Notifies the renderer about ui theme changes
   IPC_MESSAGE_ROUTED0(ViewMsg_ThemeChanged)
 
+  // Notifies the renderer that a paint is to be generated for the rectangle
+  // passed in.
+  IPC_MESSAGE_ROUTED1(ViewMsg_Repaint,
+                      gfx::Size /* The view size to be repainted */)
 IPC_END_MESSAGES(View)
 
 

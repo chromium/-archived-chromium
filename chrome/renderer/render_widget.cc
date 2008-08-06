@@ -182,6 +182,7 @@ IPC_DEFINE_MESSAGE_MAP(RenderWidget)
   IPC_MESSAGE_HANDLER(ViewMsg_SetFocus, OnSetFocus)
   IPC_MESSAGE_HANDLER(ViewMsg_ImeSetInputMode, OnImeSetInputMode)
   IPC_MESSAGE_HANDLER(ViewMsg_ImeSetComposition, OnImeSetComposition)
+  IPC_MESSAGE_HANDLER(ViewMsg_Repaint, OnMsgRepaint)
   IPC_MESSAGE_UNHANDLED_ERROR()
 IPC_END_MESSAGE_MAP()
 
@@ -295,16 +296,23 @@ void RenderWidget::OnWasRestored(bool needs_repainting) {
   DidInvalidateRect(webwidget_, gfx::Rect(size_.width(), size_.height()));
 }
 
-void RenderWidget::OnPaintRectAck() {
+void RenderWidget::OnPaintRectAck(bool drop_bitmap) {
   DCHECK(paint_reply_pending());
   paint_reply_pending_ = false;
 
-  // If we sent a PaintRect message with a zero-sized bitmap, then
-  // we should have no current paint buf.
-  if (current_paint_buf_) {
-    RenderProcess::FreeSharedMemory(current_paint_buf_);
-    current_paint_buf_ = NULL;
+  if (drop_bitmap) {
+    if (current_paint_buf_) {
+      RenderProcess::DeleteSharedMem(current_paint_buf_);
+    }
+  } else {
+    // If we sent a PaintRect message with a zero-sized bitmap, then
+    // we should have no current paint buf.
+    if (current_paint_buf_) {
+      RenderProcess::FreeSharedMemory(current_paint_buf_);
+    }
   }
+
+  current_paint_buf_ = NULL;
 
   // Continue painting if necessary...
   DoDeferredPaint();
@@ -689,6 +697,16 @@ void RenderWidget::OnImeSetComposition(int string_type,
                                   target_start, target_end,
                                   string_length, string_data);
   }
+}
+
+void RenderWidget::OnMsgRepaint(const gfx::Size& size_to_paint) {
+  // During shutdown we can just ignore this message.
+  if (!webwidget_)
+    return;
+
+  set_next_paint_is_repaint_ack();
+  gfx::Rect repaint_rect(size_to_paint.width(), size_to_paint.height());
+  DidInvalidateRect(webwidget_, repaint_rect);
 }
 
 void RenderWidget::UpdateIME() {

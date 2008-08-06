@@ -186,6 +186,8 @@ class MRUCacheBase {
   reverse_iterator rend() { return ordering_.rend(); }
   const_reverse_iterator rend() const { return ordering_.rend(); }
 
+  bool empty() const { return ordering_.empty(); }
+
  private:
   PayloadList ordering_;
   KeyIndex index_;

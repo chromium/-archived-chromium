@@ -184,6 +184,9 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // of a RenderWidgetHost.
   class BackingStore;
 
+  // Manages a set of backing stores.
+  class BackingStoreManager;
+
   // Get access to the widget's backing store.  If a resize is in progress,
   // then the current size of the backing store may be less than the size of
   // the widget's view.  This method returns NULL if the backing store could
@@ -218,11 +221,11 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // left on the existing timeouts.
   void StartHangMonitorTimeout(int delay);
 
+  // Called when we receive a notification indicating that the renderer
+  // process has gone.
+  void RendererExited();
 
  protected:
-  // Represents a cache of BackingStore objects indexed by RenderWidgetHost.
-  class BackingStoreCache;
-
   // Called when we an InputEvent was not processed by the renderer.
   virtual void UnhandledInputEvent(const WebInputEvent& event) { }
 
@@ -252,17 +255,6 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   void ForwardKeyboardEvent(const WebKeyboardEvent& key_event);
   void ForwardWheelEvent(const WebMouseWheelEvent& wheel_event);
   void ForwardInputEvent(const WebInputEvent& input_event, int event_size);
-
-  // Paints the bitmap referenced by the specified handle to the backing store,
-  // at the specified bounds.
-  void PaintBackingStore(HANDLE bitmap, const gfx::Rect& bitmap_rect);
-
-  // Retrieves a handle to the backing store bitmap.
-  HBITMAP GetBackingStoreBitmap() const;
-
-  // Creates the backing store bitmap for the specified ViewPort bounds, if
-  // one does not presently exist.
-  void EnsureBackingStore(const gfx::Rect& view_rect);
 
   // Called to paint a region of the backing store
   void PaintRect(HANDLE bitmap, const gfx::Rect& bitmap_rect,
@@ -312,9 +304,6 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // The time when an input event was sent to the RenderWidget.
   TimeTicks input_event_start_time_;
 
-  // The backing store, used as a target for rendering.
-  scoped_ptr<BackingStore> backing_store_;
-
   // Indicates whether a page is loading or not.
   bool is_loading_;
   // Indicates whether a page is hidden or not.
@@ -338,6 +327,16 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // Optional observer that listens for notifications of painting.
   scoped_ptr<PaintObserver> paint_observer_;
 
+  // Set when we call DidPaintRect/DidScrollRect on the view.
+  bool view_being_painted_;
+
+  // Set if we are waiting for a repaint ack for the view.
+  bool repaint_ack_pending_;
+
+  // Used for UMA histogram logging to measure the time for a repaint view
+  // operation to finish.
+  TimeTicks repaint_start_time_;
+
   DISALLOW_EVIL_CONSTRUCTORS(RenderWidgetHost);
 };
 
@@ -349,9 +348,38 @@ class RenderWidgetHost::BackingStore {
   HDC dc() { return hdc_; }
   const gfx::Size& size() { return size_; }
 
+  // Paints the bitmap from the renderer onto the backing store.
+  bool Refresh(HANDLE process, HANDLE bitmap_section,
+               const gfx::Rect& bitmap_rect);
+
+  bool using_renderer_bitmap_section() const {
+    return renderer_bitmap_section_ != NULL;
+  }
+
  private:
+  // Creates the backing store DIB backed by the renderer bitmap
+  // shared section.
+  void CreateDIBSectionBackedByRendererBitmap(
+      const gfx::Rect& bitmap_rect, HANDLE bitmap_section_from_renderer);
+
+  // Creates a dib conforming to the height/width/section parameters passed
+  // in. The use_os_color_depth parameter controls whether we use the color
+  // depth to create an appropriate dib or not.
+  HANDLE CreateDIB(HDC dc, int width, int height, bool use_os_color_depth, 
+                   HANDLE section);
+
+  // The backing store dc.
   HDC hdc_;
+  // The size of the backing store.
   gfx::Size size_;
+  // Handle to the renderer bitmap section, valid in the browser address
+  // space. This is set if the backing store dib is backed by the renderer
+  // bitmap section.
+  HANDLE renderer_bitmap_section_;
+  // Handle to the backing store dib.
+  HANDLE backing_store_dib_;
+  // Handle to the original bitmap in the dc.
+  HANDLE original_bitmap_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BackingStore);
 };
