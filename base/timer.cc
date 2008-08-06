@@ -30,7 +30,7 @@
 #include "base/timer.h"
 #include <mmsystem.h>
 
-#include "base/atomic.h"
+#include "base/atomic_sequence_num.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/task.h"
@@ -74,8 +74,9 @@ static LRESULT CALLBACK MessageWndProc(HWND hwnd,
   return DefWindowProc(hwnd, message, wparam, lparam);
 }
 
-// static
-int32 Timer::timer_id_counter_ = 0;
+// A sequence number for all allocated times (used to break ties when
+// comparing times in the TimerManager, and assure FIFO execution sequence).
+static base::AtomicSequenceNumber timer_id_counter_;
 
 //-----------------------------------------------------------------------------
 // Timer
@@ -84,7 +85,7 @@ Timer::Timer(int delay, Task* task, bool repeating)
     : delay_(delay),
       task_(task),
       repeating_(repeating) {
-      timer_id_ = base::AtomicIncrement(&timer_id_counter_);
+  timer_id_ = timer_id_counter_.GetNext();
   DCHECK(delay >= 0);
   Reset();
 }

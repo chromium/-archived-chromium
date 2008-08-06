@@ -84,10 +84,6 @@ class Timer {
   Time fire_time_;
 
  private:
-  // A sequence number for all allocated times (used to break ties when
-  // comparing times in the TimerManager, and assure FIFO execution sequence).
-  static int32 timer_id_counter_;
-
   // The task that is run when this timer fires.
   Task* task_;
 
