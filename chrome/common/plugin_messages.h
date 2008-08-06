@@ -454,7 +454,7 @@ struct ParamTraits<NPIdentifier_Param> {
       l->append(UTF8ToWide(str));
       NPN_MemFree(str);
     } else {
-      l->append(IntToString(NPN_IntFromIdentifier(p.identifier)));
+      l->append(IntToWString(NPN_IntFromIdentifier(p.identifier)));
     }
   }
 };
