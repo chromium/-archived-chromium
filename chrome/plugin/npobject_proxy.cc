@@ -176,7 +176,7 @@ bool NPObjectProxy::NPInvokePrivate(NPP npp,
   NPIdentifier_Param name_param;
   if (is_default) {
     // The data won't actually get used, but set it so we don't send random data.
-    name_param.is_string = true;
+    name_param.identifier = NULL;
   } else {
     CreateNPIdentifierParam(name, &name_param);
   }

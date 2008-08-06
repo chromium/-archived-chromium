@@ -44,6 +44,7 @@
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_message_utils.h"
 #include "googleurl/src/gurl.h"
+#include "webkit/glue/npruntime_util.h"
 
 void PluginMessagesInit();
 
@@ -107,9 +108,7 @@ struct PluginMsg_DidReceiveResponseParams {
 };
 
 struct NPIdentifier_Param {
-  bool is_string;
-  std::string string;
-  int number;
+  NPIdentifier identifier;
 };
 
 enum NPVariant_ParamEnum {
@@ -380,12 +379,12 @@ struct ParamTraits<NPEvent> {
     switch(p.event) {
      case WM_KEYDOWN:
       event = L"WM_KEYDOWN";
-      wparam = StringPrintf(L"%d", p.wParam);
-      lparam = StringPrintf(L"%d", p.lParam);
+      wparam = IntToString(p.wParam);
+      lparam = IntToString(p.lParam);
       break;
      case WM_KEYUP:
       event = L"WM_KEYDOWN";
-      wparam = StringPrintf(L"%d", p.wParam);
+      wparam = IntToString(p.wParam);
       lparam = StringPrintf(L"%x", p.lParam);
       break;
      case WM_MOUSEMOVE:
@@ -444,31 +443,18 @@ template <>
 struct ParamTraits<NPIdentifier_Param> {
   typedef NPIdentifier_Param param_type;
   static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.is_string);
-    if (p.is_string) {
-      WriteParam(m, p.string);
-    } else {
-      WriteParam(m, p.number);
-    }
+    webkit_glue::SerializeNPIdentifier(p.identifier, m);
   }
   static bool Read(const Message* m, void** iter, param_type* r) {
-    if (!ReadParam(m, iter, &r->is_string))
-      return false;
-
-    bool result;
-    if (r->is_string) {
-      result = ReadParam(m, iter, &r->string);
-    } else {
-      result = ReadParam(m, iter, &r->number);
-    }
-
-    return result;
+    return webkit_glue::DeserializeNPIdentifier(*m, iter, &r->identifier);
   }
   static void Log(const param_type& p, std::wstring* l) {
-    if (p.is_string) {
-      l->append(ASCIIToWide(p.string));
+    if (NPN_IdentifierIsString(p.identifier)) {
+      NPUTF8* str = NPN_UTF8FromIdentifier(p.identifier);
+      l->append(UTF8ToWide(str));
+      NPN_MemFree(str);
     } else {
-      l->append(StringPrintf(L"%d", p.number));
+      l->append(IntToString(NPN_IntFromIdentifier(p.identifier)));
     }
   }
 };
@@ -485,7 +471,7 @@ struct ParamTraits<NPVariant_Param> {
     } else if (p.type == NPVARIANT_PARAM_DOUBLE) {
       WriteParam(m, p.double_value);
     } else if (p.type == NPVARIANT_PARAM_STRING) {
-      WriteParam(m, std::string(p.string_value));
+      WriteParam(m, p.string_value);
     } else if (p.type == NPVARIANT_PARAM_OBJECT_ROUTING_ID) {
       // This is the routing id used to connect NPObjectProxy in the other
       // process with NPObjectStub in this process.

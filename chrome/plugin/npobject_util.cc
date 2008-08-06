@@ -150,22 +150,11 @@ bool IsPluginProcess() {
 }
 
 void CreateNPIdentifierParam(NPIdentifier id, NPIdentifier_Param* param) {
-  param->is_string = NPN_IdentifierIsString(id);
-  if (param->is_string) {
-    NPUTF8* utf8 = NPN_UTF8FromIdentifier(id);
-    param->string = utf8;
-    NPN_MemFree(utf8);
-  } else {
-    param->number = NPN_IntFromIdentifier(id);
-  }
+  param->identifier = id;
 }
 
-NPIdentifier CreateNPIdentifier(const  NPIdentifier_Param& param) {
-  if (param.is_string) {
-    return NPN_GetStringIdentifier(param.string.c_str());
-  } else {
-    return NPN_GetIntIdentifier(param.number);
-  }
+NPIdentifier CreateNPIdentifier(const NPIdentifier_Param& param) {
+  return param.identifier;
 }
 
 void CreateNPVariantParam(const NPVariant& variant,
@@ -194,8 +183,8 @@ void CreateNPVariantParam(const NPVariant& variant,
     case NPVariantType_String:
       param->type = NPVARIANT_PARAM_STRING;
       if (variant.value.stringValue.UTF8Length) {
-        param->string_value = std::string(variant.value.stringValue.UTF8Characters,
-                                          variant.value.stringValue.UTF8Length);
+        param->string_value.assign(variant.value.stringValue.UTF8Characters,
+                                   variant.value.stringValue.UTF8Length);
       }
       break;
     case NPVariantType_Object:
