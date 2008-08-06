@@ -1238,8 +1238,10 @@ NavigationController* Browser::AddRestoredTab(
   NavigationController* restored_controller =
       BuildRestoredNavigationController(navigations, selected_navigation);
 
-  tabstrip_model_.AppendTabContents(restored_controller->active_contents(),
-                                    select);
+  tabstrip_model_.InsertTabContentsAt(
+      tabstrip_model_.count(),
+      restored_controller->active_contents(),
+      select, false);
   if (profile_->HasSessionService()) {
     SessionService* session_service = profile_->GetSessionService();
     if (session_service)
