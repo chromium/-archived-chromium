@@ -35,7 +35,7 @@
 #if USE(V8_BINDING)
 #include "webkit/port/bindings/v8/np_v8object.h"
 #elif USE(JAVASCRIPTCORE_BINDINGS)
-#include "c_utility.h"
+#include "c/c_utility.h"
 #endif
 
 #include "base/pickle.h"
