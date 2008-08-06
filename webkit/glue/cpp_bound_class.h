@@ -52,7 +52,7 @@
 
 class WebFrame;
 
-typedef std::vector<const CppVariant> CppArgumentList;
+typedef std::vector<CppVariant> CppArgumentList;
 
 // CppBoundClass lets you map Javascript method calls and property accesses
 // directly to C++ method calls and CppVariant* variable access.

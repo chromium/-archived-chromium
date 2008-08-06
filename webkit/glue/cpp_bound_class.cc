@@ -37,9 +37,9 @@
 //   name in its internal map of methods, and then calls the appropriate
 //   method.
 
-#include "webkit/glue/cpp_bound_class.h"
-
 #include "config.h"
+
+#include "webkit/glue/cpp_bound_class.h"
 #include "webkit/glue/webframe.h"
 
 // This is required for the KJS build due to an artifact of the
