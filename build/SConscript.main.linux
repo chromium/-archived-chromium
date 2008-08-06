@@ -78,7 +78,7 @@ env = Environment(
     ICU38_DIR             = '$THIRD_PARTY_DIR/icu38',
     LIBJPEG_DIR           = '$THIRD_PARTY_DIR/libjpeg',
     LIBPNG_DIR            = '$THIRD_PARTY_DIR/libpng',
-    #LIBXML_DIR            = '$THIRD_PARTY_DIR/libxml',
+    LIBXML_DIR            = '$THIRD_PARTY_DIR/libxml',
     #LIBXSLT_DIR           = '$THIRD_PARTY_DIR/libxslt',
     LZMA_SDK_DIR          = '$THIRD_PARTY_DIR/lzma_sdk',
     MODP_B64_DIR          = '$THIRD_PARTY_DIR/modp_b64',
@@ -361,8 +361,8 @@ if LoadComponent('third_party'):
       '$ICU38_DIR/SConscript',
       '$LIBJPEG_DIR/SConscript',
       '$LIBPNG_DIR/SConscript',
+       '$LIBXML_DIR/SConscript',
        # TODO(linux): bring these back.
-       #'$LIBXML_DIR/SConscript',
        #'$LIBXSLT_DIR/SConscript',
       '$LZMA_SDK_DIR/SConscript',
       '$MODP_B64_DIR/SConscript',

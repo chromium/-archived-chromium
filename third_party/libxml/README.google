@@ -4,6 +4,9 @@ includes the following modifications :
 * Modified encoding.c to fix memory leak (06/13/2008)
 * Modified win32/configure.js NOT to use iconv
 * Modified win32/configure.js to be able to clobber a read-only Makefile
+* Modified configure to enable icu.
+* Modified configure to not generate Makefiles and other unused build files..
+* Added pre-generated Linux headers to linux/.
 * Changed 'LoadLibrary' to 'LoadLibraryA' in xmlmodule.c (used with
   'const char*' as an argument)
 * Changed bogus '(unsigned long)' cast to '(unsigned short)' in xmlregexp.c
@@ -25,4 +28,6 @@ To import a new snapshot of libxml:
 - Apply the patch in google.patch and reconcile any conflict
 - Then, make any necessary changes to remove compile-time warnings.
 - Update google.patch
+- 'cd linux && sh ../configure --without-iconv' to re-generate config.h and
+  include/libxml/xmlversion.h.
 - Update this README to reflect the new version number.

@@ -47,11 +47,21 @@ env.Append(
         'U_STATIC_IMPLEMENTATION',
         'LIBXML_STATIC',
     ],
-    CCFLAGS = [
-        '/TC',
-        '/wd4800',
-    ],
 )
+
+if env['PLATFORM'] == 'win32':
+  env.Append(
+      CCFLAGS = [
+          '/TC',
+          '/wd4800',
+      ],
+  )
+elif env['PLATFORM'] == 'posix':
+  env.Append(
+      CPPDEFINES = [
+          '_REENTRANT',
+      ],
+  )
 
 
 input_files = [
@@ -103,31 +113,42 @@ input_files = [
 env.ChromeStaticLibrary('libxml', input_files)
 
 
-config_files = [
-    # The configure.js script must be first in this list; the
-    # env.Command() call below executes the first list element.
+if env['PLATFORM'] == 'win32':
+  config_files = [
+      # The configure.js script must be first in this list; the
+      # env.Command() call below executes the first list element.
 
-    'win32/configure.js',
-    'win32/Makefile.msvc',
+      'win32/configure.js',
+      'win32/Makefile.msvc',
 
-    'config.h.in',
-    'configure.in',
-    'libxml-2.0-uninstalled.pc.in',
-    'libxml-2.0.pc.in',
-    'libxml.spec.in',
-    'xml2-config.in',
-    'xml2Conf.sh.in',
+      'config.h.in',
+      'configure.in',
+      'libxml-2.0-uninstalled.pc.in',
+      'libxml-2.0.pc.in',
+      'libxml.spec.in',
+      'xml2-config.in',
+      'xml2Conf.sh.in',
 
-    'include/libxml/xmlversion.h.in',
-    'include/win32config.h',
-]
+      'include/libxml/xmlversion.h.in',
+      'include/win32config.h',
+  ]
 
-copied_files = []
-for cf in config_files:
-  result = env.Command('scons/' + cf, cf, Copy('$TARGET', '$SOURCE'))
-  copied_files.extend(result)
-    
-env.Command(['scons/config.h', 'scons/include/libxml/xmlversion.h'],
-            copied_files,
-            'cd ${SOURCE.dir} && $CSCRIPT ${SOURCE.file} $CONFIG_OPTIONS',
-            CONFIG_OPTIONS='compiler=msvc iconv=no icu=yes')
+  copied_files = []
+  for cf in config_files:
+    result = env.Command('scons/' + cf, cf, Copy('$TARGET', '$SOURCE'))
+    copied_files.extend(result)
+
+  env.Command(['scons/config.h', 'scons/include/libxml/xmlversion.h'],
+              copied_files,
+              'cd ${SOURCE.dir} && $CSCRIPT ${SOURCE.file} $CONFIG_OPTIONS',
+              CONFIG_OPTIONS='compiler=msvc iconv=no icu=yes')
+elif env['PLATFORM'] == 'posix':
+  config_files = [
+      'config.h',
+      'include/libxml/xmlversion.h',
+      'xml2-config',
+  ]
+  for cf in config_files:
+    result = env.Command('scons/' + cf, 'linux/' + cf,
+                         Copy('$TARGET', '$SOURCE'))
+
