@@ -191,7 +191,8 @@ bool PrintSettings::Equals(const PrintSettings& rhs) const {
 }
 
 int PrintSettings::NewCookie() {
-  return cookie_seq.GetNext();
+  // A cookie of 0 is used to mark a document as unassigned, count from 1.
+  return cookie_seq.GetNext() + 1;
 }
 
 }  // namespace printing
