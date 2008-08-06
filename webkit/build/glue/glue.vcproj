@@ -417,6 +417,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\glue\npruntime_util.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\npruntime_util.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\glue\password_autocomplete_listener.cc"
 				>
 			</File>
