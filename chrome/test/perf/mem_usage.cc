@@ -71,9 +71,10 @@ size_t GetSystemCommitCharge() {
   SYSTEM_INFO system_info;
   GetSystemInfo(&system_info);
 
-  PERFORMANCE_INFORMATION info;
-  if (GetPerformanceInfo(&info, sizeof(info)))
-    return info.CommitTotal * system_info.dwPageSize;
+  // TODO(mbelshe): This does not work on win2k.
+  // PERFORMANCE_INFORMATION info;
+  // if (GetPerformanceInfo(&info, sizeof(info)))
+  //   return info.CommitTotal * system_info.dwPageSize;
   return -1;
 }
 
