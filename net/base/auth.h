@@ -48,7 +48,7 @@ class AuthChallengeInfo :
   std::wstring realm;  // the realm provided by the server, if there is one.
 
  private:
-  friend base::RefCountedThreadSafe<AuthChallengeInfo>;
+  friend class base::RefCountedThreadSafe<AuthChallengeInfo>;
   ~AuthChallengeInfo() {}
 };
 
@@ -71,7 +71,7 @@ class AuthData : public base::RefCountedThreadSafe<AuthData> {
   AuthData() : state(AUTH_STATE_NEED_AUTH) {}
 
  private:
-  friend base::RefCountedThreadSafe<AuthData>;
+  friend class base::RefCountedThreadSafe<AuthData>;
   ~AuthData() {}
 };
 

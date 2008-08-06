@@ -27,8 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <minmax.h>
-
 #include "net/base/gzip_filter.h"
 
 #include "base/logging.h"
@@ -292,7 +290,7 @@ bool GZipFilter::InsertZlibHeader() {
 void GZipFilter::SkipGZipFooter() {
   int footer_bytes_expected = kGZipFooterSize - gzip_footer_bytes_;
   if (footer_bytes_expected > 0) {
-    int footer_byte_avail = min(footer_bytes_expected, stream_data_len_);
+    int footer_byte_avail = std::min(footer_bytes_expected, stream_data_len_);
     stream_data_len_ -= footer_byte_avail;
     next_stream_data_ += footer_byte_avail;
     gzip_footer_bytes_ += footer_byte_avail;

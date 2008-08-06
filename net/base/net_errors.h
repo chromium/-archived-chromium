@@ -38,7 +38,7 @@ namespace net {
 extern const char kErrorDomain[];
 
 // Error values are negative.
-enum {
+enum Error {
   // No error.
   OK = 0,
 

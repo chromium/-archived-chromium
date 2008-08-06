@@ -29,8 +29,12 @@
 
 #include "net/base/address_list.h"
 
+#ifdef OS_WIN
 #include <ws2tcpip.h>
 #include <wspiapi.h>  // Needed for Win2k compat.
+#else
+#include <netdb.h>
+#endif
 
 namespace net {
 

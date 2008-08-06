@@ -27,8 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <minmax.h>
-
 #include "net/base/gzip_header.h"
 
 #include "base/logging.h"
@@ -125,8 +123,8 @@ GZipHeader::Status GZipHeader::ReadMore(const char* inbuf, int inbuf_len,
       case IN_FEXTRA: {
         // Grab the rest of the bytes in the extra field, or as many
         // of them as are actually present so far.
-        const int num_extra_bytes = static_cast<const int>(min(
-            extra_length_,
+        const int num_extra_bytes = static_cast<const int>(std::min(
+            static_cast<ptrdiff_t>(extra_length_),
             (end - pos)));
         pos += num_extra_bytes;
         extra_length_ -= num_extra_bytes;

@@ -270,7 +270,7 @@ void AppendEscapedCharForHTMLImpl(typename str::value_type c, str* output) {
     { '\'', "&#39;" },
   };
   size_t k;
-  for (k = 0; k < arraysize(kCharsToEscape); ++k) {
+  for (k = 0; k < ARRAYSIZE_UNSAFE(kCharsToEscape); ++k) {
     if (c == kCharsToEscape[k].key) {
       const char* p = kCharsToEscape[k].replacement;
       while (*p)
@@ -278,7 +278,7 @@ void AppendEscapedCharForHTMLImpl(typename str::value_type c, str* output) {
       break;
     }
   }
-  if (k == arraysize(kCharsToEscape))
+  if (k == ARRAYSIZE_UNSAFE(kCharsToEscape))
     output->push_back(c);
 }
 
@@ -295,7 +295,7 @@ str EscapeForHTMLImpl(const str& input) {
   str result;
   result.reserve(input.size());  // optimize for no escaping
 
-  for (str::const_iterator it = input.begin(); it != input.end(); ++it)
+  for (typename str::const_iterator it = input.begin(); it != input.end(); ++it)
     AppendEscapedCharForHTMLImpl(*it, &result);
 
   return result;
