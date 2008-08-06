@@ -30,14 +30,17 @@
 #ifndef BASE_PROCESS_H__
 #define BASE_PROCESS_H__
 
-#include <windows.h>
 #include "base/basictypes.h"
+
+#ifdef OS_WIN
+#include <windows.h>
+#endif
 
 // ProcessHandle is a platform specific type which represents the underlying OS
 // handle to a process.
-#ifdef WIN32
+#if defined(OS_WIN)
 typedef HANDLE ProcessHandle;
-#else
+#elif defined(OS_POSIX)
 typedef int ProcessHandle;
 #endif
 
@@ -65,7 +68,9 @@ class Process {
 
   // Close the Process Handle.
   void Close() {
+#ifdef OS_WIN
     CloseHandle(process_);
+#endif
     process_ = 0;
   }
 

@@ -33,23 +33,25 @@
 #ifndef BASE_PROCESS_UTIL_H__
 #define BASE_PROCESS_UTIL_H__
 
-#include <string>
-#ifdef WIN32
+#include "base/basictypes.h"
+
+#ifdef OS_WIN
 #include <windows.h>
 #include <tlhelp32.h>
-#endif  // WIN32
+#endif
 
-#include "base/basictypes.h"
+#include <string>
+
 #include "base/process.h"
 
 // ProcessHandle is a platform specific type which represents the underlying OS
 // handle to a process.
-#ifdef WIN32
+#if defined(OS_WIN)
 typedef PROCESSENTRY32 ProcessEntry;
 typedef IO_COUNTERS IoCounters;
-#else
+#elif defined(OS_POSIX)
 typedef int ProcessEntry;
-typedef int IoCounters; //TODO(awalker): replace with struct when available
+typedef int IoCounters;  //TODO(awalker): replace with struct when available
 #endif
 
 namespace process_util {
@@ -161,9 +163,9 @@ class NamedProcessIterator {
   void InitProcessEntry(ProcessEntry* entry);
 
   std::wstring executable_name_;
-#ifdef WIN32
+#ifdef OS_WIN
   HANDLE snapshot_;
-#endif  // WIN32
+#endif
   bool started_iteration_;
   ProcessEntry entry_;
   const ProcessFilter* filter_;
