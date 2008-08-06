@@ -33,7 +33,11 @@
 #ifndef BASE_FILE_UTIL_H__
 #define BASE_FILE_UTIL_H__
 
+#include "build/build_config.h"
+
+#ifdef OS_WIN
 #include <windows.h>
+#endif
 #include <stack>
 #include <string>
 
@@ -116,11 +120,13 @@ void ReplaceExtension(std::wstring* file_name, const std::wstring& extension);
 //-----------------------------------------------------------------------------
 // Functions that involve filesystem access or modification:
 
+#ifdef OS_WIN
 // Returns the number of files matching the current path that were
 // created on or after the given FILETIME.  Doesn't count ".." or ".".
 // Filetime is UTC filetime, not LocalFiletime.
 int CountFilesCreatedAfter(const std::wstring& path,
                            const FILETIME& file_time);
+#endif
 
 // Deletes the given path, whether it's a file or a directory.
 // If it's a directory, it's perfectly happy to delete all of the
@@ -156,6 +162,7 @@ bool PathExists(const std::wstring& path);
 // Returns true if the given path is writable by the user, false otherwise.
 bool PathIsWritable(const std::wstring& path);
 
+#ifdef OS_WIN
 // Gets the creation time of the given file (expressed in the local timezone),
 // and returns it via the creation_time parameter.  Returns true if successful,
 // false otherwise.
@@ -165,6 +172,7 @@ bool GetFileCreationLocalTime(const std::wstring& filename,
 // Same as above, but takes a previously-opened file handle instead of a name.
 bool GetFileCreationLocalTimeFromHandle(HANDLE file_handle,
                                         LPSYSTEMTIME creation_time);
+#endif
 
 // Returns true if the contents of the two files given are equal, false
 // otherwise.  If either file can't be read, returns false.
@@ -235,6 +243,12 @@ int ReadFile(const std::wstring& filename, char* data, int size);
 // previously there.  Returns the number of bytes written, or -1 on error.
 int WriteFile(const std::wstring& filename, const char* data, int size);
 
+// Gets the current working directory for the process.
+bool GetCurrentDirectory(std::wstring* path);
+
+// Sets the current working directory for the process.
+bool SetCurrentDirectory(const std::wstring& current_directory);
+
 // A class for enumerating the files in a provided path. The order of the
 // results is not guaranteed.
 //
@@ -285,8 +299,10 @@ class FileEnumerator {
   // enumerate in the breadth-first search.
   std::stack<std::wstring> pending_paths_;
 
+#ifdef OS_WIN
   WIN32_FIND_DATA find_data_;
   HANDLE find_handle_;
+#endif
 
   DISALLOW_EVIL_CONSTRUCTORS(FileEnumerator);
 };

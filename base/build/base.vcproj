@@ -254,6 +254,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\file_util_win.cc"
+			>
+		</File>
+		<File
 			RelativePath="..\file_version_info.cc"
 			>
 		</File>

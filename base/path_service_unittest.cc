@@ -54,4 +54,9 @@ TEST(PathServiceTest, Get) {
   for (int key = base::DIR_CURRENT; key < base::PATH_END; ++key) {
     EXPECT_PRED1(ReturnsValidPath, key);
   }
+#ifdef OS_WIN
+  for (int key = base::PATH_WIN_START + 1; key < base::PATH_WIN_END; ++key) {
+    EXPECT_PRED1(ReturnsValidPath, key);
+  }
+#endif
 }

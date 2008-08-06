@@ -30,6 +30,16 @@
 #ifndef BASE_PATH_SERVICE_H__
 #define BASE_PATH_SERVICE_H__
 
+#include "build/build_config.h"
+#ifdef OS_WIN
+// TODO(erikkay): this should be removable, but because SetCurrentDirectory
+// is the name of a Windows function, it gets macro-ized to SetCurrentDirectoryW
+// by windows.h, which leads to a different name in the header vs. the impl.
+// Even if we could fix that, it would still hose all callers of the function.
+// The right thing is likely to rename.
+#include <windows.h>
+#endif
+
 #include <string>
 
 #include "base/base_paths.h"

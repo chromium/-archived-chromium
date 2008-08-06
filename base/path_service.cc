@@ -119,14 +119,7 @@ bool PathService::Get(int key, std::wstring* result) {
   // special case the current directory because it can never be cached
   if (key == base::DIR_CURRENT) {
 #if defined(OS_WIN)
-    wchar_t system_buffer[MAX_PATH];
-    system_buffer[0] = 0;
-    DWORD len = GetCurrentDirectory(MAX_PATH, system_buffer);
-    if (len == 0 || len > MAX_PATH)
-      return false;
-    *result = system_buffer;
-    file_util::TrimTrailingSeparator(result);
-    return true;
+    return file_util::GetCurrentDirectory(result);
 #elif defined(OS_POSIX)
     char system_buffer[PATH_MAX];
     system_buffer[0] = 0;
@@ -212,8 +205,7 @@ bool PathService::Override(int key, const std::wstring& path) {
 
 bool PathService::SetCurrentDirectory(const std::wstring& current_directory) {
 #if defined(OS_WIN)
-  BOOL ret = ::SetCurrentDirectory(current_directory.c_str());
-  return (ret ? true : false);
+  return file_util::SetCurrentDirectory(current_directory);
 #elif defined(OS_POSIX)
   int ret = chdir(WideToNativeMB(current_directory).c_str());
   return (ret == 0);
