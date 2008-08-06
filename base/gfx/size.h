@@ -30,11 +30,17 @@
 #ifndef BASE_GFX_SIZE_H__
 #define BASE_GFX_SIZE_H__
 
+#include "build/build_config.h"
+
 #ifdef UNIT_TEST
 #include <iostream>
 #endif
 
+#if defined(OS_WIN)
 typedef struct tagSIZE SIZE;
+#elif defined(OS_MACOSX)
+#include <ApplicationServices/ApplicationServices.h>
+#endif
 
 namespace gfx {
 
@@ -71,7 +77,11 @@ class Size {
     return !width_ && !height_;
   }
 
+#if defined(OS_WIN)
   SIZE ToSIZE() const;
+#elif defined(OS_MACOSX)
+  CGSize ToCGSize() const;
+#endif
 
  private:
   int width_;

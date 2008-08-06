@@ -29,7 +29,11 @@
 
 #include "base/gfx/rect.h"
 
+#if defined(OS_WIN)
 #include <windows.h>
+#elif defined(OS_MACOSX)
+#include <CoreGraphics/CGGeometry.h>
+#endif
 
 #include "base/logging.h"
 
@@ -63,6 +67,7 @@ Rect::Rect(int x, int y, int width, int height)
   set_height(height);
 }
 
+#if defined(OS_WIN)
 Rect::Rect(const RECT& r)
     : origin_(r.left, r.top) {
   set_width(r.right - r.left);
@@ -75,6 +80,20 @@ Rect& Rect::operator=(const RECT& r) {
   set_height(r.bottom - r.top);
   return *this;
 }
+#elif defined(OS_MACOSX)
+Rect::Rect(const CGRect& r)
+    : origin_(r.origin.x, r.origin.y) {
+  set_width(r.size.width);
+  set_height(r.size.height);
+}
+
+Rect& Rect::operator=(const CGRect& r) {
+  origin_.SetPoint(r.origin.x, r.origin.y);
+  set_width(r.size.width);
+  set_height(r.size.height);
+  return *this;
+}
+#endif
 
 void Rect::set_width(int width) {
   if (width < 0) {
@@ -119,6 +138,7 @@ bool Rect::operator==(const Rect& other) const {
   return origin_ == other.origin_ && size_ == other.size_;
 }
 
+#if defined(OS_WIN)
 RECT Rect::ToRECT() const {
   RECT r;
   r.left = x();
@@ -127,6 +147,11 @@ RECT Rect::ToRECT() const {
   r.bottom = bottom();
   return r;
 }
+#elif defined(OS_MACOSX)
+CGRect Rect::ToCGRect() const {
+  return CGRectMake(x(), y(), width(), height());
+}
+#endif
 
 bool Rect::Contains(int point_x, int point_y) const {
   return (point_x >= x()) && (point_x < right()) &&

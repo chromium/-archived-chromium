@@ -29,21 +29,25 @@
 
 #include "base/gfx/size.h"
 
+#if defined(OS_WIN)
 #include <windows.h>
-
-#include <ostream>
+#elif defined(OS_MACOSX)
+#include <CoreGraphics/CGGeometry.h>
+#endif
 
 namespace gfx {
 
+#if defined(OS_WIN)
 SIZE Size::ToSIZE() const {
   SIZE s;
   s.cx = width_;
   s.cy = height_;
   return s;
 }
-
-std::ostream& operator<<(std::ostream& out, const gfx::Size& s) {
-  return out << s.width() << "x" << s.height();
+#elif defined(OS_MACOSX)
+CGSize Size::ToCGSize() const {
+  return CGSizeMake(width_, height_);
 }
+#endif
 
 }  // namespace gfx
