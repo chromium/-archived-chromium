@@ -31,6 +31,7 @@
 #include <vector>
 
 #include "base/command_line.h"
+#include "base/basictypes.h"
 #include "base/logging.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -40,12 +41,21 @@ namespace {
 };
 
 TEST(CommandLineTest, CommandLineConstructor) {
+#ifdef OS_WIN
   CommandLine cl(L"program --foo= -bAr  /Spaetzel=pierogi /Baz flim "
                  L"--other-switches=\"--dog=canine --cat=feline\" "
                  L"-spaetzle=Crepe   -=loosevalue  flan "
                  L"--input-translation=\"45\"--output-rotation "
                  L"\"in the time of submarines...\"");
-
+#elif OS_POSIX
+  const char* argv[] = {"program", "--foo=", "-bAr", 
+                         "/Spaetzel=pierogi /Baz flim",
+                         "--other-switches=\"--dog=canine --cat=feline\"",
+                         "-spaetzle=Crepe", "-=loosevalue", "flan",
+                         "--input-translation=\"45\"--output-rotation",
+                         "\"in the time of submarines...\""};
+  CommandLine cl(arraysize(argv), argv);
+#endif
   EXPECT_FALSE(cl.command_line_string().empty());
   EXPECT_FALSE(cl.HasSwitch(L"cruller"));
   EXPECT_FALSE(cl.HasSwitch(L"flim"));
@@ -92,13 +102,21 @@ TEST(CommandLineTest, DefaultConstructor) {
 
 // Tests behavior with an empty input string.
 TEST(CommandLineTest, EmptyString) {
+#if defined(OS_WIN)
   CommandLine cl(L"");
+#elif defined(OS_POSIX)
+  const char* argv[] = {};
+  CommandLine cl(ARRAYSIZE_UNSAFE(argv), argv);
+#endif
   EXPECT_TRUE(cl.command_line_string().empty());
   EXPECT_TRUE(cl.program().empty());
   EXPECT_EQ(0, cl.GetLooseValueCount());
 }
 
 // Test static functions for appending switches to a command line.
+// TODO(pinkerton): non-windows platforms don't have the requisite ctor here, so
+// we need something that tests AppendSwitches in another way (if even desired).
+#if defined(OS_WIN)
 TEST(CommandLineTest, AppendSwitches) {
   std::wstring cl_string = L"Program";
   std::wstring switch1 = L"switch1";
@@ -123,3 +141,4 @@ TEST(CommandLineTest, AppendSwitches) {
   EXPECT_TRUE(cl.HasSwitch(switch2));
   EXPECT_EQ(value4.substr(1, value4.length() - 2), cl.GetSwitchValue(switch4));
 }
+#endif

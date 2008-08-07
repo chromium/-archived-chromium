@@ -27,16 +27,29 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "base/command_line.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
 #include <shellapi.h>
+#endif
 
 #include <algorithm>
-
-#include "base/command_line.h"
 
 #include "base/logging.h"
 #include "base/singleton.h"
 #include "base/string_util.h"
+
+extern "C" {
+#if defined(OS_MACOSX)
+const char** NXArgv;
+int NXArgc;
+#elif defined(OS_LINUX)
+extern "C" {
+const char** __libc_argv;
+int __libc_argv;
+#endif
+}  // extern "C"
 
 using namespace std;
 
@@ -46,8 +59,15 @@ const wchar_t* const CommandLine::kSwitchPrefixes[] = {L"--", L"-", L"/"};
 
 const wchar_t CommandLine::kSwitchValueSeparator[] = L"=";
 
+// Needed to avoid a typecast on the tolower() function pointer in Lowercase().
+// MSVC accepts it as-is but GCC requires the typecast.
+static int ToLower(int c) {
+  return tolower(c);
+}
+
 static void Lowercase(wstring* parameter) {
-  transform(parameter->begin(), parameter->end(), parameter->begin(), tolower);
+  transform(parameter->begin(), parameter->end(), parameter->begin(), 
+            ToLower);
 }
 
 // CommandLine::Data
@@ -61,13 +81,85 @@ static void Lowercase(wstring* parameter) {
 // Do NOT add any non-const methods to this object.  You have been warned.
 class CommandLine::Data {
  public:
-  Data() {
+#if defined(OS_WIN)
+  Data() { 
     Init(GetCommandLineW());
   }
+#elif defined(OS_MACOSX)
+  Data() {
+    Init(NXArgc, NXArgv);
+  }
+#elif defined(OS_LINUX)
+  Data() {
+    Init(__gnuc_argc, __gnuc_argv);
+  }
+#endif
 
+#if defined(OS_WIN)
   Data(const wstring& command_line) {
     Init(command_line);
   }
+#elif defined(OS_POSIX)
+  Data(const int argc, const char* argv[]) {
+    Init(argc, argv);
+  }
+#endif
+
+#if defined(OS_WIN)
+  // Does the actual parsing of the command line.
+  void Init(const std::wstring& command_line) {
+    TrimWhitespace(command_line, TRIM_ALL, &command_line_string_);
+
+    if (command_line_string_.empty())
+      return;
+
+    int num_args = 0;
+    wchar_t** args = NULL;
+
+    args = CommandLineToArgvW(command_line_string_.c_str(), &num_args);
+
+    // Populate program_ with the trimmed version of the first arg.
+    TrimWhitespace(args[0], TRIM_ALL, &program_);
+
+    for (int i = 1; i < num_args; ++i) {
+      wstring arg;
+      TrimWhitespace(args[i], TRIM_ALL, &arg);
+
+      wstring switch_string;
+      wstring switch_value;
+      if (IsSwitch(arg, &switch_string, &switch_value)) {
+        switches_[switch_string] = switch_value;
+      } else {
+        loose_values_.push_back(arg);
+      }
+    }
+
+    if (args)
+      LocalFree(args);
+  }
+#elif defined(OS_POSIX)  // Does the actual parsing of the command line.
+  void Init(int argc, const char* argv[]) {
+    if (argc <= 1)
+      return;
+
+    program_ = NativeMBToWide(argv[0]);
+    command_line_string_ = program_;
+
+    for (int i = 1; i < argc; ++i) {
+      std::wstring arg = NativeMBToWide(argv[i]);
+      command_line_string_.append(L" ");
+      command_line_string_.append(arg);
+
+      wstring switch_string;
+      wstring switch_value;
+      if (IsSwitch(arg, &switch_string, &switch_value)) {
+        switches_[switch_string] = switch_value;
+      } else {
+        loose_values_.push_back(arg);
+      }
+    }
+  }
+#endif
 
   const std::wstring& command_line_string() const {
     return command_line_string_;
@@ -119,44 +211,12 @@ class CommandLine::Data {
     return false;
   }
 
-  // Does the actual parsing of the command line.
-  void Init(const std::wstring& command_line) {
-    TrimWhitespace(command_line, TRIM_ALL, &command_line_string_);
-
-    if (command_line_string_.empty())
-      return;
-
-    int num_args = 0;
-    wchar_t** args = NULL;
-
-    args = CommandLineToArgvW(command_line_string_.c_str(), &num_args);
-
-    // Populate program_ with the trimmed version of the first arg.
-    TrimWhitespace(args[0], TRIM_ALL, &program_);
-
-    for (int i = 1; i < num_args; ++i) {
-      wstring arg;
-      TrimWhitespace(args[i], TRIM_ALL, &arg);
-
-      wstring switch_string;
-      wstring switch_value;
-      if (IsSwitch(arg, &switch_string, &switch_value)) {
-        switches_[switch_string] = switch_value;
-      } else {
-        loose_values_.push_back(arg);
-      }
-    }
-
-    if (args)
-      LocalFree(args);
-  }
-
   std::wstring command_line_string_;
   std::wstring program_;
   std::map<std::wstring, std::wstring> switches_;
   std::vector<std::wstring> loose_values_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(CommandLine::Data);
+  DISALLOW_EVIL_CONSTRUCTORS(Data);
 };
 
 CommandLine::CommandLine()
@@ -164,10 +224,17 @@ CommandLine::CommandLine()
       data_(Singleton<Data>::get()) {
 }
 
+#if defined(OS_WIN)
 CommandLine::CommandLine(const wstring& command_line)
     : we_own_data_(true),
       data_(new Data(command_line)) {
 }
+#elif defined(OS_POSIX)
+CommandLine::CommandLine(const int argc, const char* argv[])
+    : we_own_data_(true),
+      data_(new Data(argc, argv)) {
+}
+#endif
 
 CommandLine::~CommandLine() {
   if (we_own_data_)

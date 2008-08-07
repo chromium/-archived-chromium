@@ -50,9 +50,13 @@ class CommandLine {
   // the current process.
   CommandLine();
 
+#if defined(OS_WIN)
   // Creates a parsed version of the given command-line string.
-  // The program name is assumed to be the first item in the string.
+  // The program name is assumed to be the first item in the string.  
   CommandLine(const std::wstring& command_line);
+#elif defined(OS_POSIX)
+  CommandLine(int argc, const char** argv);
+#endif
 
   ~CommandLine();
 
@@ -112,7 +116,7 @@ class CommandLine {
 
   // A pointer to the parsed version of the command line.
   Data* data_;
-
+  
   DISALLOW_EVIL_CONSTRUCTORS(CommandLine);
 };
 
