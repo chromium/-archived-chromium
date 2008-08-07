@@ -34,8 +34,8 @@
 
 #include "base/ref_counted.h"
 #include "net/base/address_list.h"
+#include "net/base/client_socket_handle.h"
 #include "net/base/host_resolver.h"
-#include "net/http/http_connection.h"
 #include "net/http/http_proxy_service.h"
 #include "net/http/http_response_info.h"
 #include "net/http/http_transaction.h"
@@ -119,7 +119,7 @@ class HttpNetworkTransaction : public HttpTransaction {
   AddressList addresses_;
 
   ClientSocketFactory* socket_factory_;
-  HttpConnection connection_;
+  ClientSocketHandle connection_;
   bool reused_socket_;
 
   bool using_ssl_;     // True if handling a HTTPS request
@@ -154,7 +154,6 @@ class HttpNetworkTransaction : public HttpTransaction {
   char* read_buf_;
   int read_buf_len_;
 
-  // The different states for the 'Start' routine.
   enum State {
     STATE_RESOLVE_PROXY,
     STATE_RESOLVE_PROXY_COMPLETE,
