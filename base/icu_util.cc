@@ -27,7 +27,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "build/build_config.h"
+
+#ifdef OS_WIN
 #include <windows.h>
+#endif
+
 #include <string>
 
 #include "base/icu_util.h"
@@ -40,10 +45,11 @@
 namespace icu_util {
 
 bool Initialize() {
+#ifdef OS_WIN
   // Assert that we are not called more than once.  Even though calling this
   // function isn't harmful (ICU can handle it), being called twice probably
   // indicates a programming error.
-#ifndef DEBUG
+#ifndef NDEBUG
   static bool called_once = false;
   DCHECK(!called_once);
   called_once = true;
@@ -65,6 +71,11 @@ bool Initialize() {
   UErrorCode err = U_ZERO_ERROR;
   udata_setCommonData(reinterpret_cast<void*>(addr), &err);
   return err == U_ZERO_ERROR;
+#else
+  // Windows ships ICU's data separate, so it needs to link the code to data
+  // here. Other platforms don't need this.
+  return true;
+#endif  // OS_WIN
 }
 
 }  // namespace icu_util
