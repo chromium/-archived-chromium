@@ -1,0 +1,461 @@
+# Copyright 2008, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+"""Makes sure that files include headers from allowed directories.
+
+Checks DEPS files in the source tree for rules, and applies those rules to
+"#include" commands in source files. Any source file including something not
+permitted by the DEPS files will fail.
+
+The format of the deps file:
+
+First you have the normal module-level deps. These are the ones used by
+gclient. An example would be:
+
+  deps = {
+    "base":"http://foo.bar/trunk/base"
+  }
+
+DEPS files not in the top-level of a module won't need this. Then you have
+any additional include rules. You can add (using "+") or subtract (using "-")
+from the previously specified rules (including module-level deps).
+
+  include_rules = {
+    # Code should be able to use base (it's specified in the module-level
+    # deps above), but nothing in "base/evil" because it's evil.
+    "-base/evil",
+
+    # But this one subdirectory of evil is OK.
+    "+base/evil/not",
+
+    # And it can include files from this other directory even though there is
+    # no deps rule for it.
+    "+tools/crime_fighter"
+  }
+
+DEPS files may be placed anywhere in the tree. Each one applies to all
+subdirectories, where there may be more DEPS files that provide additions or
+subtractions for their own sub-trees.
+
+There is an implicit rule for the current directory (where the DEPS file lives)
+and all of its subdirectories. This prevents you from having to explicitly
+allow the current directory everywhere.  This implicit rule is applied first,
+so you can modify or remove it using the normal include rules.
+
+The rules are processed in order. This means you can explicitly allow a higher
+directory and then take away permissions from sub-parts, or the reverse.
+
+Note that all directory separators must be slashes (Unix-style) and not
+backslashes. All directories should be relative to the source root and use
+only lowercase.
+"""
+
+import os
+import optparse
+import re
+import sys
+
+# Variable name used in the DEPS file. Its presence tells us not to check
+# the sub-tree. For example, third_party directories would use this, where we
+# have no control over their includes.
+SKIP_VAR_NAME = "skip_subtree_includes"
+
+# Variable name used in the DEPS file to specify module-level deps.
+DEPS_VAR_NAME = "deps"
+
+# Variable name used in the DEPS file to add or subtract include files from
+# the module-level deps.
+INCLUDE_RULES_VAR_NAME = "include_rules"
+
+# We'll search for lines beginning with this string for checking.
+INCLUDE_PREFIX = "#include"
+
+# The maximum number of lines to check in each source file before giving up.
+MAX_LINES = 150
+
+# The maximum line length, this is to be efficient in the case of very long
+# lines (which can't be #includes).
+MAX_LINE_LENGTH = 128
+
+# Set to true for more output. This is set by the command line options.
+VERBOSE = False
+
+# This regular expression will be used to extract filenames from include
+# statements.
+EXTRACT_INCLUDE_FILENAME = re.compile(INCLUDE_PREFIX + ' *"(.*)"')
+
+# In lowercase, using forward slashes as directory separators, ending in a
+# forward slash. Set by the command line options.
+BASE_DIRECTORY = ""
+
+# Specifies a single rule for an include, which can be either allow or disallow.
+class Rule(object):
+  def __init__(self, allow, dir, source):
+    self._allow = allow
+    self._dir = dir
+    self._source = source
+
+  def __str__(self):
+    if (self._allow):
+      return '"+%s" from %s.' % (self._dir, self._source)
+    return '"-%s" from %s.' % (self._dir, self._source)
+
+  def ParentOrMatch(self, other):
+    """Returns true if the input string is an exact match or is a parent
+    of the current rule. For example, the input "foo" would match "foo/bar"."""
+    return self._dir == other or self._dir.startswith(other + "/")
+
+  def ChildOrMatch(self, other):
+    """Returns true if the input string would be covered by this rule. For
+    example, the input "foo/bar" would match the rule "foo"."""
+    return self._dir == other or other.startswith(self._dir + "/")
+
+
+def ParseRuleString(rule_string, source):
+  """Returns a tuple of a boolean indicating whether the directory is an allow
+  rule, and a string holding the directory name.
+  """
+  if len(rule_string) < 1:
+    raise Exception('The rule string "%s" is too short\nin %s' %
+                    (rule_string, source))
+
+  if rule_string[0] == "+":
+    return (True, rule_string[1:])
+  if rule_string[0] == "-":
+    return (False, rule_string[1:])
+  raise Exception('The rule string "%s" does not begin with a "+" or a "-"' %
+                  rule_string)
+
+
+class Rules:
+  def __init__(self):
+    """Initializes the current rules with an empty rule list."""
+    self._rules = []
+
+  def __str__(self):
+    ret = "Rules = [\n"
+    ret += "\n".join([" %s" % x for x in self._rules])
+    ret += "]\n"
+    return ret
+
+  def AddRule(self, rule_string, source):
+    """Adds a rule for the given rule string.
+
+    Args:
+      rule_string: The include_rule string read from the DEPS file to apply.
+      source: A string representing the location of that string (filename, etc.)
+              so that we can give meaningful errors.
+    """
+    (add_rule, rule_dir) = ParseRuleString(rule_string, source)
+    # Remove any existing rules or sub-rules that apply. For example, if we're
+    # passed "foo", we should remove "foo", "foo/bar", but not "foobar".
+    self._rules = [x for x in self._rules if not x.ParentOrMatch(rule_dir)]
+    self._rules.insert(0, Rule(add_rule, rule_dir, source))
+
+  def DirAllowed(self, allowed_dir):
+    """Returns a tuple (success, message), where success indicates if the given
+    directory is allowed given the current set of rules, and the message tells
+    why if the comparison failed."""
+    for rule in self._rules:
+      if rule.ChildOrMatch(allowed_dir):
+        # This rule applies.
+        if rule._allow:
+          return (True, "")
+        return (False, rule.__str__())
+    # No rules apply, fail.
+    return (False, "no rule applying")
+
+
+def ApplyRules(existing_rules, deps, includes, cur_dir):
+  """Applies the given deps and include rules, returning the new rules.
+
+  Args:
+    existing_rules: A set of existing rules that will be combined.
+    deps: The list of imports from the "deps" section of the DEPS file.
+    include: The list of rules from the "include_rules" section of DEPS.
+    cur_dir: The current directory. We will create an implicit rule that
+             allows inclusion from this directory.
+
+  Returns: A new set of rules combining the existing_rules with the other
+           arguments.
+  """
+  rules = existing_rules
+
+  # First apply the implicit "allow" rule for the current directory.
+  if cur_dir.lower().startswith(BASE_DIRECTORY):
+    relative_dir = cur_dir[len(BASE_DIRECTORY):]
+    # Normalize path separators to slashes.
+    relative_dir = relative_dir.replace("\\", "/")
+    source = relative_dir
+    if len(source) == 0:
+      source = "."  # Make the help string a little more meaningful.
+    rules.AddRule("+" + relative_dir, "Default rule for " + source)
+  else:
+    raise Exception("Internal error: base directory is not at the beginning" +
+                    " for\n  %s and base dir\n  %s" %
+                    (cur_dir, BASE_DIRECTORY))
+
+  # Next apply the DEPS additions, these are all allowed.
+  for (index, key) in enumerate(deps):
+    rules.AddRule("+" + key, relative_dir + "'s deps for " + key)
+
+  # Last, apply the additional explicit rules.
+  for (index, rule_str) in enumerate(includes):
+    rules.AddRule(rule_str, relative_dir + "'s include_rules")
+
+  return rules
+
+
+def ApplyDirectoryRules(existing_rules, dir_name):
+  """Combines rules from the existing rules and the new directory.
+
+  Any directory can contain a DEPS file. Toplevel DEPS files can contain
+  module dependencies which are used by gclient. We use these, along with
+  additional include rules and implicit rules for the given directory, to
+  come up with a combined set of rules to apply for the directory.
+
+  Args:
+    existing_rules: The rules for the parent directory. We'll add-on to these.
+    dir_name: The directory name that the deps file may live in (if it exists).
+              This will also be used to generate the implicit rules.
+
+  Returns: The combined set of rules to apply to the sub-tree.
+  """
+  # Check for a .svn directory in this directory. This will tell us if it's
+  # a source directory and should be checked.
+  if not os.path.exists(os.path.join(dir_name, ".svn")):
+    return None
+
+  # Check the DEPS file in this directory.
+  if VERBOSE:
+    print "Applying rules from", dir_name
+  def FromImpl(unused):
+    pass  # NOP function so "From" doesn't fail.
+  scope = {"From": FromImpl}
+  deps_file = os.path.join(dir_name, "DEPS")
+  if not os.path.exists(deps_file):
+    if VERBOSE:
+      print "  No deps file found in", dir_name
+    return existing_rules  # Nothing to change from the input rules.
+
+  execfile(deps_file, scope)
+
+  # Check the "skip" flag to see if we should check this directory at all.
+  if scope.get(SKIP_VAR_NAME):
+    if VERBOSE:
+      print "  Deps file specifies skipping this directory."
+    return None
+
+  deps = scope.get(DEPS_VAR_NAME, {})
+  include_rules = scope.get(INCLUDE_RULES_VAR_NAME, [])
+
+  return ApplyRules(existing_rules, deps, include_rules, dir_name)
+
+
+def ShouldCheckFile(file_name):
+  """Returns True if the given file is a type we want to check."""
+  if len(file_name) < 2:
+    return False
+  return file_name.endswith(".cc") or file_name.endswith(".h")
+
+
+def CheckLine(rules, line):
+  """Checks the given file with the given rule set. If the line is an #include
+  directive and is illegal, a string describing the error will be returned.
+  Otherwise, None will be returned."""
+  if line[0:8] != "#include":
+    return None  # Not an include line
+
+  found_item = EXTRACT_INCLUDE_FILENAME.match(line)
+  if not found_item:
+    return None  # Not a match
+
+  include_path = found_item.group(1)
+
+  # Fix up backslashes in case somebody accidentally used them.
+  include_path.replace("\\", "/")
+
+  if include_path.find("/") < 0:
+    # Don't fail when no directory is specified. We may want to be more
+    # strict about this in the future.
+    if VERBOSE:
+      print " WARNING: directory specified with no path: " + include_path
+    return None
+
+  (allowed, why_failed) = rules.DirAllowed(include_path)
+  if not allowed:
+    if VERBOSE:
+      retval = "\nFor " + rules.__str__()
+    else:
+      retval = ""
+    return retval + ('Illegal include: "%s include_path"\n    Because of %s' %
+        (include_path, why_failed))
+
+  return None
+
+
+def CheckFile(rules, file_name):
+  """Checks the given file with the given rule set.
+
+  Args:
+    rules: The set of rules that apply to files in this directory.
+    file_name: The source file to check.
+
+  Returns: Either a string describing the error if there was one, or None if
+           the file checked out OK.
+  """
+  if VERBOSE:
+    print "Checking: " + file_name
+
+  ret_val = ""  # We'll collect the error messages in here
+  try:
+    cur_file = open(file_name, "r")
+    for cur_line in range(MAX_LINES):
+      cur_line = cur_file.readline(MAX_LINE_LENGTH)
+      line_status = CheckLine(rules, cur_line)
+      if line_status is not None:
+        if len(line_status) > 0:  # Add newline to separate messages.
+          line_status += "\n"
+        ret_val += line_status
+    cur_file.close()
+
+  except IOError:
+    if VERBOSE:
+      print "Unable to open file: " + file_name
+    cur_file.close()
+
+  # Map empty string to None for easier checking.
+  if len(ret_val) == 0:
+    return None
+  return ret_val
+
+
+def CheckDirectory(rules, dir_name):
+  rules = ApplyDirectoryRules(rules, dir_name)
+  if rules == None:
+    return True
+
+  # Collect a list of all files and directories to check.
+  files_to_check = []
+  dirs_to_check = []
+  success = True
+  contents = os.listdir(dir_name)
+  for cur in contents:
+    full_name = os.path.join(dir_name, cur)
+    if os.path.isdir(full_name):
+      dirs_to_check.append(full_name)
+    elif ShouldCheckFile(full_name):
+      files_to_check.append(full_name)
+
+  # First check all files in this directory.
+  for cur in files_to_check:
+    file_status = CheckFile(rules, cur)
+    if file_status != None:
+      print "ERROR in " + cur + "\n" + file_status
+      success = False
+
+  # Next recurse into the subdirectories.
+  for cur in dirs_to_check:
+    if not CheckDirectory(rules, cur):
+      success = False
+
+  return success
+
+def PrintUsage():
+  print """Usage: python checkdeps.py [--root <root>] [tocheck]
+  --root   Specifies the repository root. This defaults to "../.." relative to
+           the script file. This will be correct given the normal location of 
+           the script in "<root>/tools/checkdeps".
+
+  tocheck  Specifies the directory, relative to root, to check. This defaults
+           to "." so it checks everything. Only one level deep is currently
+           supported, so you can say "chrome" but not "chrome/browser".
+
+Examples:
+  python checkdeps.py
+  python checkdeps.py --root c:\\source chrome"""
+
+def main(options, args):
+  global VERBOSE
+  if options.verbose:
+    VERBOSE = True
+
+  # Optional base directory of the repository.
+  global BASE_DIRECTORY
+  if not options.base_directory:
+    BASE_DIRECTORY = os.path.abspath(
+        os.path.join(os.path.abspath(sys.argv[0]), "..\.."))
+  else:
+    BASE_DIRECTORY = os.path.abspath(sys.argv[2])
+
+  # Figure out which directory we have to check.
+  if len(args) == 0:
+    # No directory to check specified, use the repository root.
+    start_dir = BASE_DIRECTORY
+  elif len(args) == 1:
+    # Directory specified. Start here. It's supposed to be relative to the
+    # base directory.
+    start_dir = os.path.abspath(os.path.join(BASE_DIRECTORY, args[0]))
+  else:
+    # More than one argument, we don't handle this.
+    PrintUsage()
+    sys.exit(1)
+
+  print "Using base directory:", BASE_DIRECTORY
+  print "Checking:", start_dir
+
+  base_rules = Rules()
+
+  # The base directory should be lower case from here on since it will be used
+  # for substring matching on the includes, and we compile on case-insensitive
+  # systems. Plus, we always use slashes here since the include parsing code
+  # will also normalize to slashes.
+  BASE_DIRECTORY = BASE_DIRECTORY.lower()
+  BASE_DIRECTORY = BASE_DIRECTORY.replace("\\", "/")
+  start_dir = start_dir.replace("\\", "/")
+
+  success = CheckDirectory(base_rules, start_dir)
+  success = False
+  if not success:
+    print "\nFAILED\n"
+    sys.exit(1)
+  print "\nSUCCESS\n"
+  sys.exit(0)
+
+if '__main__' == __name__:
+  option_parser = optparse.OptionParser()
+  option_parser.add_option("", "--root", default="", dest="base_directory",
+                           help='Specifies the repository root. This defaults '
+                           'to "../.." relative to the script file, which will '
+                           'normally be the repository root.')
+  option_parser.add_option("-v", "--verbose", action="store_true",
+                           default=False, help="Print debug logging")
+  options, args = option_parser.parse_args()
+  main(options, args)
+
