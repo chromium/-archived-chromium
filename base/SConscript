@@ -120,8 +120,14 @@ if env['PLATFORM'] == 'win32':
       'file_util_win.cc',
       'lock_impl_win.cc',
       'string_util_win.cc',
+      'sys_string_conversions_win.cc',
       'thread_local_storage_win.cc',
       'time_win.cc',
+  ])
+
+if env['PLATFORM'] == 'win32':
+  input_files.extend([
+      'sys_string_conversions_mac.cc',
   ])
 
 env.ChromeStaticLibrary('base', input_files)
@@ -257,6 +263,11 @@ test_files = [
 
     dll[1],
 ]
+
+if env['PLATFORM'] == 'win32':
+  test_files.extend([
+      'sys_string_conversions_win_unittest.cc',
+  ])
 
 base_unittests = env_tests.ChromeTestProgram([
     'base_unittests',
