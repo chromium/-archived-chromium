@@ -133,8 +133,8 @@ below:
     <file path="resources/webkit_strings_zh-CN.xtb" lang="zh-CN" />
     <file path="resources/webkit_strings_zh-TW.xtb" lang="zh-TW" />
   </translations>
-  <release seq="1">
-    <messages>
+  <release seq="1" allow_pseudo="false">
+    <messages fallback_to_english="true">
       <!-- TODO add all of your "string table" messages here.  Remember to
       change nontranslateable parts of the messages into placeholders (using the
       <ph> element).  You can also use the 'grit add' tool to help you identify
