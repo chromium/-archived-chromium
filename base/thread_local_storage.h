@@ -27,14 +27,15 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_THREAD_LOCAL_STORAGE_H__
-#define BASE_THREAD_LOCAL_STORAGE_H__
+#ifndef BASE_THREAD_LOCAL_STORAGE_H_
+#define BASE_THREAD_LOCAL_STORAGE_H_
 
 #include "base/basictypes.h"
 
 #if defined(OS_WIN)
 typedef int TLSSlot;
 #elif defined(OS_POSIX)
+#include <pthread.h>
 typedef pthread_key_t TLSSlot;
 #endif  // OS_*
 
@@ -92,4 +93,4 @@ class ThreadLocalStorage {
   DISALLOW_EVIL_CONSTRUCTORS(ThreadLocalStorage);
 };
 
-#endif  // BASE_THREAD_LOCAL_STORAGE_H__
+#endif  // BASE_THREAD_LOCAL_STORAGE_H_

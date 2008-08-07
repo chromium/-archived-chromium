@@ -126,7 +126,7 @@ typedef struct tagTHREADNAME_INFO {
 // On XP, you can only get the ThreadId of the current
 // thread.  So it is expected that you'll call this after the
 // thread starts up; hence, it is static.
-void Thread::SetThreadName(const char* name, DWORD tid) {
+void Thread::SetThreadName(const char* name, unsigned int tid) {
   THREADNAME_INFO info;
   info.dwType = 0x1000;
   info.szName = name;

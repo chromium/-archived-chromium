@@ -30,13 +30,20 @@
 #ifndef BASE_THREAD_H__
 #define BASE_THREAD_H__
 
-#include <wtypes.h>
 #include <string>
 
 #include "base/basictypes.h"
 #include "base/thread_local_storage.h"
 
 class MessageLoop;
+
+// Types that differ
+#if defined(OS_WIN)
+#include <wtypes.h>
+typedef unsigned int ThreadId;
+#elif defined(OS_POSIX)
+typedef pthread_t ThreadId;
+#endif
 
 // A simple thread abstraction that establishes a MessageLoop on a new thread.
 // The consumer uses the MessageLoop of the thread to cause code to execute on
@@ -90,7 +97,7 @@ class Thread {
   void NonBlockingStop();
 
   // Returns the message loop for this thread.  Use the MessageLoop's
-  // Posttask methods to execute code on the thread.  This only returns
+  // PostTask methods to execute code on the thread.  This only returns
   // non-null after a successful call to Start.  After Stop has been called,
   // this will return NULL.
   //
@@ -108,7 +115,7 @@ class Thread {
   // Sets the thread name if a debugger is currently attached. Has no effect
   // otherwise. To set the name of the current thread, pass GetCurrentThreadId()
   // as the tid parameter.
-  static void SetThreadName(const char* name, DWORD tid);
+  static void SetThreadName(const char* name, ThreadId tid);
 
  protected:
   // Called just prior to starting the message loop
@@ -121,10 +128,12 @@ class Thread {
   void InternalStop(bool run_message_loop);
 
  private:
+#ifdef OS_WIN
   static unsigned __stdcall ThreadFunc(void* param);
-
   HANDLE thread_;
-  unsigned thread_id_;
+#endif
+  
+  ThreadId thread_id_;
   MessageLoop* message_loop_;
   std::string name_;
   static TLSSlot tls_index_;
