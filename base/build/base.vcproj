@@ -130,10 +130,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\atomic.h"
-			>
-		</File>
-		<File
 			RelativePath="..\atomic_ref_count.h"
 			>
 		</File>

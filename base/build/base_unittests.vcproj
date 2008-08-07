@@ -172,10 +172,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\atomic_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\check_handler_unittest.cc"
 				>
 			</File>

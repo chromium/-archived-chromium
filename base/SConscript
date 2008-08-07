@@ -215,7 +215,6 @@ env_tests.ChromeTestProgram(['debug_message.exe',
 
 test_files = [
     'at_exit_unittest.cc',
-    'atomic_unittest.cc',
     'check_handler_unittest.cc',
     'clipboard_unittest.cc',
     'command_line_unittest.cc',
