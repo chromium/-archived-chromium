@@ -40,7 +40,7 @@
 // attempts to read more from the file to fill its buffer.  If reading from the
 // file does not complete synchronously, then the URLRequestFileJob waits for a
 // signal from the OS that the overlapped read has completed.  It does so by
-// leveraging the MessageLoop::WatchObject API.
+// leveraging the ObjectWatcher API.
 
 #include <process.h>
 #include <windows.h>
@@ -57,6 +57,7 @@
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_file_dir_job.h"
 
+// TODO(darin): The file job should not depend on WinInet!!
 using net::WinInetUtil;
 
 namespace {
@@ -165,7 +166,7 @@ void URLRequestFileJob::Start() {
 void URLRequestFileJob::Kill() {
   // If we are killed while waiting for an overlapped result...
   if (is_waiting_) {
-    MessageLoop::current()->WatchObject(overlapped_.hEvent, NULL);
+    watcher_.StopWatching();
     is_waiting_ = false;
     Release();
   }
@@ -203,7 +204,7 @@ bool URLRequestFileJob::ReadRawData(char* dest, int dest_size,
   DWORD err = GetLastError();
   if (err == ERROR_IO_PENDING) {
     // OK, wait for the object to become signaled
-    MessageLoop::current()->WatchObject(overlapped_.hEvent, this);
+    watcher_.StartWatching(overlapped_.hEvent, this);
     is_waiting_ = true;
     SetStatus(URLRequestStatus(URLRequestStatus::IO_PENDING, 0));
     AddRef();
@@ -284,9 +285,7 @@ void URLRequestFileJob::OnObjectSignaled(HANDLE object) {
   DCHECK(overlapped_.hEvent == object);
   DCHECK(is_waiting_);
 
-  // We'll resume watching this handle if need be when we do
-  // another IO.
-  MessageLoop::current()->WatchObject(object, NULL);
+  // We'll resume watching this handle if need be when we do another IO.
   is_waiting_ = false;
 
   DWORD bytes_read = 0;
