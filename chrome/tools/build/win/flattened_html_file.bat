@@ -8,7 +8,7 @@ set InFile=%~1
 set SolutionDir=%~2
 set OutFile=%~3
 
-:: Use GNU tools
-call %SolutionDir%\..\third_party\gnu\setup_env.bat
+:: Put cygwin in the path
+call %SolutionDir%\..\third_party\cygwin\setup_env.bat
 
 %SolutionDir%\..\third_party\python_24\python.exe %SolutionDir%\tools\build\win\html_inline.py %InFile% %OutFile%

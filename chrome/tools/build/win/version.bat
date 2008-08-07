@@ -9,8 +9,8 @@ set IntDir=%~3
 set OutFile=%~4
 set VarsBat=%IntDir%/vers-vars.bat
 
-:: Use GNU tools
-call %SolutionDir%\..\third_party\gnu\setup_env.bat
+:: Put cygwin in the path
+call %SolutionDir%\..\third_party\cygwin\setup_env.bat
 
 :: Load version digits as environment variables
 cat %SolutionDir%\VERSION | sed "s/\(.*\)/set \1/" > %VarsBat%
