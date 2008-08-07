@@ -55,7 +55,6 @@ class InfoBubbleDelegate {
 };
 
 class InfoBubble : public ChromeViews::HWNDViewContainer,
-                   public ChromeViews::AcceleratorTarget,
                    public AnimationDelegate {
  public:
   // Shows the InfoBubble. The InfoBubble is parented to parent_hwnd, contains

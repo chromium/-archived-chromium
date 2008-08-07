@@ -78,9 +78,22 @@ ChromeViews::Window* OpaqueFrame::GetWindow() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// OpaqueFrame, ChromeViews::HWNDViewContainer overrides:
+
+bool OpaqueFrame::AcceleratorPressed(ChromeViews::Accelerator* accelerator) {
+  return browser_view_->AcceleratorPressed(*accelerator);
+}
+
+bool OpaqueFrame::GetAccelerator(int cmd_id,
+                                 ChromeViews::Accelerator* accelerator) {
+  return browser_view_->GetAccelerator(cmd_id, accelerator);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // OpaqueFrame, private:
 
 OpaqueNonClientView* OpaqueFrame::GetOpaqueNonClientView() const {
   // We can safely assume that this conversion is true.
   return static_cast<OpaqueNonClientView*>(non_client_view_);
 }
+

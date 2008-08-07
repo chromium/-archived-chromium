@@ -906,6 +906,7 @@ StatusBubble* Browser::GetStatusBubble() {
 
 // Called whenever the window is moved so that we can update the position
 // of any WS_POPUP HWNDs.
+// TODO(beng): This should move to BrowserView2!
 void Browser::WindowMoved() {
   GetStatusBubble()->Reposition();
 

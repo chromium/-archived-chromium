@@ -30,7 +30,9 @@
 #ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW2_H_
 #define CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW2_H_
 
+#include "chrome/browser/browser_type.h"
 #include "chrome/browser/browser_window.h"
+#include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/views/client_view.h"
 #include "chrome/views/window_delegate.h"
@@ -51,6 +53,8 @@ class TabContentsContainerView;
 //  including the TabStrip, toolbars, download shelves, the content area etc.
 //
 class BrowserView2 : public BrowserWindow,
+                     public NotificationObserver,
+                     public TabStripModelObserver,
                      public ChromeViews::WindowDelegate,
                      public ChromeViews::ClientView {
  public:
@@ -65,6 +69,37 @@ class BrowserView2 : public BrowserWindow,
   // Returns the bounds of the content area, in the coordinates of the
   // BrowserView2's parent.
   gfx::Rect GetClientAreaBounds() const;
+
+  // Returns true if various window components are visible.
+  bool IsToolbarVisible() const;
+  bool IsTabStripVisible() const;
+
+  // Handle the specified |accelerator| being pressed.
+  bool AcceleratorPressed(const ChromeViews::Accelerator& accelerator);
+
+  // Provides the containing frame with the accelerator for the specified
+  // command id. This can be used to provide menu item shortcut hints etc.
+  // Returns true if an accelerator was found for the specified |cmd_id|, false
+  // otherwise.
+  bool GetAccelerator(int cmd_id, ChromeViews::Accelerator* accelerator);
+
+  // Possible elements of the Browser window.
+  enum WindowFeature {
+    FEATURE_TITLEBAR = 1,
+    FEATURE_TABSTRIP = 2,
+    FEATURE_TOOLBAR = 4,
+    FEATURE_LOCATIONBAR = 8,
+    FEATURE_BOOKMARKBAR = 16,
+    FEATURE_INFOBAR = 32,
+    FEATURE_DOWNLOADSHELF = 64
+  };
+
+  // Returns true if the Browser object associated with this BrowserView2
+  // supports the specified feature.
+  bool SupportsWindowFeature(WindowFeature feature) const;
+
+  // Returns the set of WindowFeatures supported by the specified BrowserType.
+  static unsigned int FeaturesForBrowserType(BrowserType::Type type);
 
   // Overridden from BrowserWindow:
   virtual void Init();
@@ -83,7 +118,7 @@ class BrowserView2 : public BrowserWindow,
   virtual void FlashFrame();
   virtual void ShowTabContents(TabContents* contents);
   virtual void ContinueDetachConstrainedWindowDrag(
-      const gfx::Point& mouse_pt,
+      const gfx::Point& mouse_point,
       int frame_component);
   virtual void SizeToContents(const gfx::Rect& contents_bounds);
   virtual void SetAcceleratorTable(
@@ -104,6 +139,23 @@ class BrowserView2 : public BrowserWindow,
   virtual void ProfileChanged(Profile* profile);
   virtual void FocusToolbar();
   virtual void DestroyBrowser();
+
+  // Overridden from NotificationObserver:
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
+
+  // Overridden from TabStripModelObserver:
+  virtual void TabClosingAt(TabContents* contents, int index);
+  virtual void TabDetachedAt(TabContents* contents, int index);
+  virtual void TabSelectedAt(TabContents* old_contents,
+                             TabContents* new_contents,
+                             int index,
+                             bool user_gesture);
+  virtual void TabChangedAt(TabContents* old_contents,
+                            TabContents* new_contents,
+                            int index);
+  virtual void TabStripEmpty();
 
   // Overridden from ChromeViews::WindowDelegate:
   virtual bool CanResize() const;
@@ -156,6 +208,21 @@ class BrowserView2 : public BrowserWindow,
   // Layout the Status Bubble.
   void LayoutStatusBubble(int top);
 
+  // Prepare to show the Bookmark Bar for the specified TabContents. Returns
+  // true if the Bookmark Bar can be shown (i.e. it's supported for this
+  // Browser type) and there should be a subsequent re-layout to show it.
+  bool MaybeShowBookmarkBar(TabContents* contents);
+
+  // Prepare to show an Info Bar for the specified TabContents. Returns true
+  // if there is an Info Bar to show and one is supported for this Browser
+  // type, and there should be a subsequent re-layout to show it.
+  bool MaybeShowInfoBar(TabContents* contents);
+
+  // Prepare to show a Download Shelf for the specified TabContents. Returns
+  // true if there is a Download Shelf to show and one is supported for this
+  // Browser type, and there should be a subsequent re-layout to show it.
+  bool MaybeShowDownloadShelf(TabContents* contents);
+
   // Updates various optional child Views, e.g. Bookmarks Bar, Info Bar or the
   // Download Shelf in response to a change notification from the specified
   // |contents|.
@@ -168,6 +235,10 @@ class BrowserView2 : public BrowserWindow,
   // Returns true if anything was changed, and a re-Layout is now required.
   bool UpdateChildViewAndLayout(ChromeViews::View* new_view,
                                 ChromeViews::View** old_view);
+
+  // Copy the accelerator table from the app resources into something we can
+  // use.
+  void LoadAccelerators();
 
   // The BrowserFrame that hosts this view.
   BrowserFrame* frame_;
@@ -194,6 +265,9 @@ class BrowserView2 : public BrowserWindow,
 
   // The Status information bubble that appears at the bottom of the window.
   scoped_ptr<StatusBubble> status_bubble_;
+
+  // A mapping between accelerators and commands.
+  scoped_ptr<std::map<ChromeViews::Accelerator, int>> accelerator_table_;
 
   // True if we have already been initialized.
   bool initialized_;

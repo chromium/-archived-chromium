@@ -57,7 +57,6 @@ namespace ChromeViews {
 //
 ////////////////////////////////////////////////////////////////////////////////
 class FindInPageController : public NotificationObserver,
-                             public ChromeViews::AcceleratorTarget,
                              public ChromeViews::FocusChangeListener,
                              public ChromeViews::HWNDViewContainer,
                              public AnimationDelegate {

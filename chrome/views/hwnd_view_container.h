@@ -96,7 +96,8 @@ class FillLayout : public LayoutManager {
 ///////////////////////////////////////////////////////////////////////////////
 class HWNDViewContainer : public ViewContainer,
                           public MessageLoop::Observer,
-                          public FocusTraversable {
+                          public FocusTraversable,
+                          public AcceleratorTarget {
  public:
   HWNDViewContainer();
   virtual ~HWNDViewContainer();
@@ -256,6 +257,11 @@ class HWNDViewContainer : public ViewContainer,
                                       View** focus_traversable_view);
   virtual FocusTraversable* GetFocusTraversableParent();
   virtual View* GetFocusTraversableParentView();
+
+  // Overridden from AcceleratorTarget:
+  virtual bool AcceleratorPressed(const Accelerator& accelerator) {
+    return false;
+  }
 
   void SetFocusTraversableParent(FocusTraversable* parent);
   void SetFocusTraversableParentView(View* parent_view);

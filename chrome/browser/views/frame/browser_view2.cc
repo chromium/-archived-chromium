@@ -30,6 +30,7 @@
 #include "chrome/browser/views/frame/browser_view2.h"
 
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_list.h"
 #include "chrome/browser/tab_contents_container_view.h"
 #include "chrome/browser/tabs/tab_strip.h"
 #include "chrome/browser/view_ids.h"
@@ -62,9 +63,19 @@ BrowserView2::BrowserView2(Browser* browser)
       toolbar_(NULL),
       contents_container_(NULL),
       initialized_(false) {
+  NotificationService::current()->AddObserver(
+      this,
+      NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
+      NotificationService::AllSources());
+  browser_->tabstrip_model()->AddObserver(this);
 }
 
 BrowserView2::~BrowserView2() {
+  browser_->tabstrip_model()->RemoveObserver(this);
+  NotificationService::current()->RemoveObserver(
+      this,
+      NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
+      NotificationService::AllSources());
 }
 
 gfx::Rect BrowserView2::GetToolbarBounds() const {
@@ -80,10 +91,65 @@ gfx::Rect BrowserView2::GetClientAreaBounds() const {
   return gfx::Rect(bounds);
 }
 
+bool BrowserView2::IsToolbarVisible() const {
+  return SupportsWindowFeature(FEATURE_TOOLBAR) ||
+         SupportsWindowFeature(FEATURE_LOCATIONBAR);
+}
+
+bool BrowserView2::IsTabStripVisible() const {
+  return SupportsWindowFeature(FEATURE_TABSTRIP);
+}
+
+bool BrowserView2::AcceleratorPressed(
+    const ChromeViews::Accelerator& accelerator) {
+  DCHECK(accelerator_table_.get());
+  std::map<ChromeViews::Accelerator, int>::const_iterator iter =
+      accelerator_table_->find(accelerator);
+  DCHECK(iter != accelerator_table_->end());
+
+  int command_id = iter->second;
+  if (browser_->SupportsCommand(command_id) &&
+      browser_->IsCommandEnabled(command_id)) {
+    browser_->ExecuteCommand(command_id);
+    return true;
+  }
+  return false;
+}
+
+bool BrowserView2::GetAccelerator(int cmd_id,
+                                  ChromeViews::Accelerator* accelerator) {
+  std::map<ChromeViews::Accelerator, int>::iterator it =
+      accelerator_table_->begin();
+  for (; it != accelerator_table_->end(); ++it) {
+    if (it->second == cmd_id) {
+      *accelerator = it->first;
+      return true;
+    }
+  }
+  return false;
+}
+
+bool BrowserView2::SupportsWindowFeature(WindowFeature feature) const {
+  return !!(FeaturesForBrowserType(browser_->GetType()) & feature);
+}
+
+// static
+unsigned int BrowserView2::FeaturesForBrowserType(BrowserType::Type type) {
+  unsigned int features = FEATURE_INFOBAR | FEATURE_DOWNLOADSHELF;
+  if (type == BrowserType::TABBED_BROWSER)
+    features |= FEATURE_TABSTRIP | FEATURE_TOOLBAR | FEATURE_BOOKMARKBAR;
+  if (type != BrowserType::APPLICATION)
+    features |= FEATURE_LOCATIONBAR;
+  if (type != BrowserType::TABBED_BROWSER)
+    features |= FEATURE_TITLEBAR;
+  return features;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView2, BrowserWindow implementation:
 
 void BrowserView2::Init() {
+  LoadAccelerators();
   SetAccessibleName(l10n_util::GetString(IDS_PRODUCT_NAME));
 
   tabstrip_ = new TabStrip(browser_->tabstrip_model());
@@ -179,8 +245,37 @@ void BrowserView2::ShowTabContents(TabContents* contents) {
 }
 
 void BrowserView2::ContinueDetachConstrainedWindowDrag(
-    const gfx::Point& mouse_pt,
+    const gfx::Point& mouse_point,
     int frame_component) {
+  HWND vc_hwnd = GetViewContainer()->GetHWND();
+  if (frame_component == HTCLIENT) {
+    // If the user's mouse was over the content area of the popup when they
+    // clicked down, we need to re-play the mouse down event so as to actually
+    // send the click to the renderer. If we don't do this, the user needs to
+    // click again once the window is detached to interact.
+    HWND inner_hwnd = browser_->GetSelectedTabContents()->GetContentHWND();
+    POINT window_point = mouse_point.ToPOINT();
+    MapWindowPoints(HWND_DESKTOP, inner_hwnd, &window_point, 1);
+    PostMessage(inner_hwnd, WM_LBUTTONDOWN, MK_LBUTTON,
+                MAKELPARAM(window_point.x, window_point.y));
+  } else if (frame_component != HTNOWHERE) {
+    // The user's mouse is already moving, and the left button is down, but we
+    // need to start moving this frame, so we _post_ it a NCLBUTTONDOWN message
+    // with the corresponding frame component as supplied by the constrained
+    // window where the user clicked. This tricks Windows into believing the
+    // user just started performing that operation on the newly created window.
+    // All the frame moving and sizing is then handled automatically by
+    // Windows. We use PostMessage because we need to return to the message
+    // loop first for Windows' built in moving/sizing to be triggered.
+    POINTS pts;
+    pts.x = mouse_point.x();
+    pts.y = mouse_point.y();
+    PostMessage(vc_hwnd, WM_NCLBUTTONDOWN, frame_component,
+                reinterpret_cast<LPARAM>(&pts));
+    // Also make sure the right cursor for the action is set.
+    PostMessage(vc_hwnd, WM_SETCURSOR, reinterpret_cast<WPARAM>(vc_hwnd),
+                frame_component);
+  }
 }
 
 void BrowserView2::SizeToContents(const gfx::Rect& contents_bounds) {
@@ -189,6 +284,7 @@ void BrowserView2::SizeToContents(const gfx::Rect& contents_bounds) {
 
 void BrowserView2::SetAcceleratorTable(
     std::map<ChromeViews::Accelerator, int>* accelerator_table) {
+  accelerator_table_.reset(accelerator_table);
 }
 
 void BrowserView2::ValidateThrobber() {
@@ -265,6 +361,81 @@ void BrowserView2::DestroyBrowser() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// BrowserView2, NotificationObserver implementation:
+
+void BrowserView2::Observe(NotificationType type,
+                           const NotificationSource& source,
+                           const NotificationDetails& details) {
+  if (type == NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED) {
+    if (browser_->profile() == Source<Profile>(source).ptr() &&
+        MaybeShowBookmarkBar(browser_->GetSelectedTabContents())) {
+      Layout();
+    }
+  } else {
+    NOTREACHED() << "Got a notification we didn't register for!";
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// BrowserView2, TabStripModelObserver implementation:
+
+void BrowserView2::TabClosingAt(TabContents* contents, int index) {
+  if (contents == browser_->GetSelectedTabContents()) {
+    // TODO(beng): (Cleanup) These should probably eventually live in the
+    //             TabContentsView, then we could skip all this teardown.
+    ChromeViews::View* shelf = contents->GetDownloadShelfView();
+    if (shelf && shelf->GetParent() != NULL)
+      shelf->GetParent()->RemoveChildView(shelf);
+
+    ChromeViews::View* info_bar = contents->GetInfoBarView();
+    if (info_bar && info_bar->GetParent() != NULL)
+      info_bar->GetParent()->RemoveChildView(info_bar);
+
+    // We need to reset the current tab contents to NULL before it gets
+    // freed. This is because the focus manager performs some operations
+    // on the selected TabContents when it is removed.
+    contents_container_->SetTabContents(NULL);
+  }
+}
+
+void BrowserView2::TabDetachedAt(TabContents* contents, int index) {
+  // TODO(beng): implement
+}
+
+void BrowserView2::TabSelectedAt(TabContents* old_contents,
+                                 TabContents* new_contents,
+                                 int index,
+                                 bool user_gesture) {
+  if (old_contents)
+    old_contents->StoreFocus();
+
+  // Tell the frame what happened so that the TabContents gets resized, etc.
+  contents_container_->SetTabContents(new_contents);
+
+  if (BrowserList::GetLastActive() == browser_)
+    new_contents->RestoreFocus();
+
+  /*
+  UpdateWindowTitle();
+  UpdateToolbar(true);
+  */
+
+  UpdateUIForContents(new_contents);
+}
+
+void BrowserView2::TabChangedAt(TabContents* old_contents,
+                                TabContents* new_contents,
+                                int index) {
+  UpdateUIForContents(new_contents);
+}
+
+void BrowserView2::TabStripEmpty() {
+  // We need to reset the frame contents just in case this wasn't done while
+  // detaching the tab. This happens when dragging out the last tab.
+  contents_container_->SetTabContents(NULL);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // BrowserView2, ChromeViews::WindowDelegate implementation:
 
 bool BrowserView2::CanResize() const {
@@ -288,7 +459,7 @@ ChromeViews::View* BrowserView2::GetInitiallyFocusedView() const {
 }
 
 bool BrowserView2::ShouldShowWindowTitle() const {
-  return false;
+  return SupportsWindowFeature(FEATURE_TITLEBAR);
 }
 
 SkBitmap BrowserView2::GetWindowIcon() {
@@ -296,7 +467,7 @@ SkBitmap BrowserView2::GetWindowIcon() {
 }
 
 bool BrowserView2::ShouldShowWindowIcon() const {
-  return false;
+  return SupportsWindowFeature(FEATURE_TITLEBAR);
 }
 
 void BrowserView2::ExecuteWindowsCommand(int command_id) {
@@ -394,8 +565,7 @@ int BrowserView2::NonClientHitTest(const gfx::Point& point) {
 
   CPoint point_in_view_coords(point.ToPOINT());
   View::ConvertPointToView(GetParent(), this, &point_in_view_coords);
-  // TODO(beng): support IsTabStripVisible().
-  if (/* IsTabStripVisible() && */tabstrip_->HitTest(point_in_view_coords) &&
+  if (IsTabStripVisible() && tabstrip_->HitTest(point_in_view_coords) &&
       tabstrip_->CanProcessInputEvents()) {
     ChromeViews::Window* window = frame_->GetWindow();
     // The top few pixels of the TabStrip are a drop-shadow - as we're pretty
@@ -463,12 +633,15 @@ int BrowserView2::LayoutTabStrip() {
 }
 
 int BrowserView2::LayoutToolbar(int top) {
-  CSize ps;
-  toolbar_->GetPreferredSize(&ps);
-  int toolbar_y = top - kToolbarTabStripVerticalOverlap;
-  toolbar_->SetBounds(0, toolbar_y, GetWidth(), ps.cy);
-  return toolbar_y + ps.cy;
-  // TODO(beng): support toolbar-less windows.
+  if (IsToolbarVisible()) {
+    CSize ps;
+    toolbar_->GetPreferredSize(&ps);
+    int toolbar_y = top - kToolbarTabStripVerticalOverlap;
+    toolbar_->SetBounds(0, toolbar_y, GetWidth(), ps.cy);
+    return toolbar_y + ps.cy;
+  }
+  toolbar_->SetVisible(false);
+  return top;
 }
 
 int BrowserView2::LayoutBookmarkAndInfoBars(int top) {
@@ -489,7 +662,7 @@ int BrowserView2::LayoutBookmarkAndInfoBars(int top) {
 }
 
 int BrowserView2::LayoutBookmarkBar(int top) {
-  if (active_bookmark_bar_) {
+  if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && active_bookmark_bar_) {
     CSize ps;
     active_bookmark_bar_->GetPreferredSize(&ps);
     active_bookmark_bar_->SetBounds(0, top, GetWidth(), ps.cy);
@@ -498,7 +671,7 @@ int BrowserView2::LayoutBookmarkBar(int top) {
   return top;
 }
 int BrowserView2::LayoutInfoBar(int top) {
-  if (active_info_bar_) {
+  if (SupportsWindowFeature(FEATURE_INFOBAR) && active_info_bar_) {
     CSize ps;
     active_info_bar_->GetPreferredSize(&ps);
     active_info_bar_->SetBounds(0, top, GetWidth(), ps.cy);
@@ -513,7 +686,7 @@ void BrowserView2::LayoutTabContents(int top, int bottom) {
 
 int BrowserView2::LayoutDownloadShelf() {
   int bottom = GetHeight();
-  if (active_download_shelf_) {
+  if (SupportsWindowFeature(FEATURE_DOWNLOADSHELF) && active_download_shelf_) {
     CSize ps;
     active_download_shelf_->GetPreferredSize(&ps);
     active_download_shelf_->SetBounds(0, bottom - ps.cy, GetWidth(), ps.cy);
@@ -529,31 +702,42 @@ void BrowserView2::LayoutStatusBubble(int top) {
                             GetWidth() / 3, kStatusBubbleHeight);
 }
 
-void BrowserView2::UpdateUIForContents(TabContents* contents) {
-  // Coalesce layouts.
-  bool changed = false;
+bool BrowserView2::MaybeShowBookmarkBar(TabContents* contents) {
+  ChromeViews::View* new_bookmark_bar_view = NULL;
+  if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) &&
+      contents->IsBookmarkBarAlwaysVisible()) {
+    new_bookmark_bar_view = GetBookmarkBarView();
+  }
+  return UpdateChildViewAndLayout(new_bookmark_bar_view,
+                                  &active_bookmark_bar_);
+}
 
-  ChromeViews::View* new_shelf = NULL;
-  if (contents && contents->IsDownloadShelfVisible())
-    new_shelf = contents->GetDownloadShelfView();
-  changed |= UpdateChildViewAndLayout(new_shelf, &active_download_shelf_);
-
+bool BrowserView2::MaybeShowInfoBar(TabContents* contents) {
   ChromeViews::View* new_info_bar = NULL;
   if (contents && contents->IsInfoBarVisible())
     new_info_bar = contents->GetInfoBarView();
-  changed |= UpdateChildViewAndLayout(new_info_bar, &active_info_bar_);
+  return UpdateChildViewAndLayout(new_info_bar, &active_info_bar_);
+}
 
-  ChromeViews::View* new_bookmark_bar = NULL;
-  if (contents) // TODO(beng): check for support of BookmarkBar
-    new_bookmark_bar = GetBookmarkBarView();
-  changed |= UpdateChildViewAndLayout(new_bookmark_bar, &active_bookmark_bar_);
+bool BrowserView2::MaybeShowDownloadShelf(TabContents* contents) {
+  ChromeViews::View* new_shelf = NULL;
+  if (contents && contents->IsDownloadShelfVisible())
+    new_shelf = contents->GetDownloadShelfView();
+  return UpdateChildViewAndLayout(new_shelf, &active_download_shelf_);
+}
 
+void BrowserView2::UpdateUIForContents(TabContents* contents) {
   // Only do a Layout if the current contents is non-NULL. We assume that if
   // the contents is NULL, we're either being destroyed, or ShowTabContents is
   // going to be invoked with a non-NULL TabContents again so that there is no
   // need to do a Layout now.
-  if (changed && contents)
+  if (!contents)
+    return;
+
+  if (MaybeShowBookmarkBar(contents) && MaybeShowInfoBar(contents) &&
+      MaybeShowDownloadShelf(contents)) {
     Layout();
+  }
 }
 
 bool BrowserView2::UpdateChildViewAndLayout(ChromeViews::View* new_view,
@@ -607,4 +791,40 @@ bool BrowserView2::UpdateChildViewAndLayout(ChromeViews::View* new_view,
   }
   *old_view = new_view;
   return changed;
+}
+
+void BrowserView2::LoadAccelerators() {
+  HACCEL accelerator_table = AtlLoadAccelerators(IDR_MAINFRAME);
+  DCHECK(accelerator_table);
+
+  // We have to copy the table to access its contents.
+  int count = CopyAcceleratorTable(accelerator_table, 0, 0);
+  if (count == 0) {
+    // Nothing to do in that case.
+    return;
+  }
+
+  ACCEL* accelerators = static_cast<ACCEL*>(malloc(sizeof(ACCEL) * count));
+  CopyAcceleratorTable(accelerator_table, accelerators, count);
+
+  ChromeViews::FocusManager* focus_manager =
+    ChromeViews::FocusManager::GetFocusManager(GetViewContainer()->GetHWND());
+  DCHECK(focus_manager);
+
+  // Let's build our own accelerator table.
+  accelerator_table_.reset(new std::map<ChromeViews::Accelerator, int>);
+  for (int i = 0; i < count; ++i) {
+    bool alt_down = (accelerators[i].fVirt & FALT) == FALT;
+    bool ctrl_down = (accelerators[i].fVirt & FCONTROL) == FCONTROL;
+    bool shift_down = (accelerators[i].fVirt & FSHIFT) == FSHIFT;
+    ChromeViews::Accelerator accelerator(accelerators[i].key,
+      shift_down, ctrl_down, alt_down);
+    (*accelerator_table_)[accelerator] = accelerators[i].cmd;
+
+    // Also register with the focus manager.
+    focus_manager->RegisterAccelerator(accelerator, this);
+  }
+
+  // We don't need the Windows accelerator table anymore.
+  free(accelerators);
 }
