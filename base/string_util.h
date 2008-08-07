@@ -34,71 +34,68 @@
 
 #include <string>
 #include <vector>
+#include <stdarg.h>   // va_list
 
 #include "base/basictypes.h"
 
-// Safe standard library wrappers for all platforms.  The Str* variants
-// operate on NUL-terminated char* strings, like the standard library's str*
-// functions.
+// Safe standard library wrappers for all platforms.
 
-// Copy at most (dst_size - 1) characters from src to dest, guaranteeing dst
-// will be NUL-terminated.  If the string is copied without truncation,
-// returns true.  dst is undefined if the string cannot be copied without
-// truncation, and the function will either return false or cause termination.
-bool StrCpy(char* dest, const char* src, size_t dst_size);
+namespace base {
 
-// As with StrCpy, but copies at most the minimum of (dst_size - 1) and
-// src_size characters.
-bool StrNCpy(char* dest, const char* src, size_t dst_size, size_t src_size);
+// C standard-library functions like "strncasecmp" and "snprintf" that aren't
+// cross-platform are provided as "base::strncasecmp", and their prototypes
+// are listed below.  These functions are then implemented as inline calls
+// to the platform-specific equivalents in the platform-specific headers.
 
 // Compare up to count characters of s1 and s2 without regard to case using
 // the current locale; returns 0 if they are equal, 1 if s1 > s2, and -1 if
 // s2 > s1 according to a lexicographic comparison.
-int StrNCaseCmp(const char* s1, const char* s2, size_t count);
+int strncasecmp(const char* s1, const char* s2, size_t count);
 
-// Wrapper for vsnprintf, snprintf that always NUL-terminates and always
-// returns the number of characters that would be in an untruncated formatted
+// Wrapper for vsnprintf that always NUL-terminates and always returns the
+// number of characters that would be in an untruncated formatted
 // string, even when truncation occurs.
-int VSNPrintF(char* buffer, size_t size,
-	      const char* format, va_list arguments);
-int SNPrintF(char* buffer, size_t size, const char* format, ...);
+int vsnprintf(char* buffer, size_t size, const char* format, va_list arguments);
 
-// The Wcs* variants operate on NUL-terminated wchar_t* strings, like the
-// standard library's wcs* functions.  Otherwise, these behave the same as
-// the Str* variants above.
-
-bool WcsCpy(wchar_t* dest, const wchar_t* src, size_t dst_size);
-bool WcsNCpy(wchar_t* dest, const wchar_t* src, size_t dst_size);
-
-int VSWPrintF(wchar_t* buffer, size_t size,
+int vswprintf(wchar_t* buffer, size_t size,
               const wchar_t* format, va_list arguments);
-int SWPrintF(wchar_t* buffer, size_t size, const wchar_t* format, ...);
 
 // Some of these implementations need to be inlined.
 
+inline int snprintf(char* buffer, size_t size, const char* format, ...) {
+  va_list arguments;
+  va_start(arguments, format);
+  int result = vsnprintf(buffer, size, format, arguments);
+  va_end(arguments);
+  return result;
+}
+
+inline int swprintf(wchar_t* buffer, size_t size, const wchar_t* format, ...) {
+  va_list arguments;
+  va_start(arguments, format);
+  int result = vswprintf(buffer, size, format, arguments);
+  va_end(arguments);
+  return result;
+}
+
+}  // namespace base
+
 #if defined(OS_WIN)
 #include "base/string_util_win.h"
-#elif defined(OS_MACOSX)
-#include "base/string_util_mac.h"
+#elif defined(OS_POSIX)
+#include "base/string_util_posix.h"
 #else
 #error Define string operations appropriately for your platform
 #endif
 
-inline int SNPrintF(char* buffer, size_t size, const char* format, ...) {
-  va_list arguments;
-  va_start(arguments, format);
-  int result = VSNPrintF(buffer, size, format, arguments);
-  va_end(arguments);
-  return result;
-}
+// Old names for the above string functions, kept for compatibility.
+// TODO(evanm): excise all references to these old names.
+#define StrNCaseCmp base::strncasecmp
+#define SWPrintF base::swprintf
+#define VSNPrintF base::vsnprintf
+#define SNPrintF base::snprintf
+#define SWPrintF base::swprintf
 
-inline int SWPrintF(wchar_t* buffer, size_t size, const wchar_t* format, ...) {
-  va_list arguments;
-  va_start(arguments, format);
-  int result = VSWPrintF(buffer, size, format, arguments);
-  va_end(arguments);
-  return result;
-}
 
 // Returns a reference to a globally unique empty string that functions can
 // return.  Use this to avoid static construction of strings, not to replace
@@ -404,49 +401,6 @@ inline char_type* WriteInto(
   str->resize(length_including_null - 1);
   return &((*str)[0]);
 }
-
-//-----------------------------------------------------------------------------
-// CharTraits is provides wrappers with common function names for char/wchar_t
-// specific CRT functions.
-
-template <class CharT> struct CharTraits {
-};
-
-template <>
-struct CharTraits<char> {
-  static inline size_t length(const char* s) {
-    return strlen(s);
-  }
-  static inline bool copy(char* dst, size_t dst_size, const char* s) {
-    return StrCpy(dst, s, dst_size);
-  }
-  static inline bool copy_num(char* dst, size_t dst_size, const char* s,
-                              size_t s_len) {
-    if (dst_size < (s_len + 1))
-      return false;
-    memcpy(dst, s, s_len);
-    dst[s_len] = '\0';
-    return true;
-  }
-};
-
-template <>
-struct CharTraits<wchar_t> {
-  static inline size_t length(const wchar_t* s) {
-    return wcslen(s);
-  }
-  static inline bool copy(wchar_t* dst, size_t dst_size, const wchar_t* s) {
-    return WcsCpy(dst, s, dst_size);
-  }
-  static inline bool copy_num(wchar_t* dst, size_t dst_size, const wchar_t* s,
-                              size_t s_len) {
-    if (dst_size < (s_len + 1))
-      return false;
-    memcpy(dst, s, s_len * sizeof(wchar_t));
-    dst[s_len] = '\0';
-    return true;
-  }
-};
 
 //-----------------------------------------------------------------------------
 

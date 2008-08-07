@@ -35,42 +35,28 @@
 #include <string.h>
 #include <wchar.h>
 
-inline bool StrCpy(char* dst, const char* src, size_t dst_size) {
-  return strcpy_s(dst, dst_size, src) == 0;
-}
+namespace base {
 
-inline bool StrNCpy(char* dst, const char* src,
-                    size_t dst_size, size_t src_size) {
-  return strncpy_s(dst, dst_size, src, src_size) == 0;
-}
-
-inline int StrNCaseCmp(const char* s1, const char* s2, size_t count) {
+inline int strncasecmp(const char* s1, const char* s2, size_t count) {
   return _strnicmp(s1, s2, count);
 }
 
-inline int VSNPrintF(char* buffer, size_t size,
-		     const char* format, va_list arguments) {
+inline int vsnprintf(char* buffer, size_t size,
+                     const char* format, va_list arguments) {
   int length = vsnprintf_s(buffer, size, size - 1, format, arguments);
   if (length < 0)
     return _vscprintf(format, arguments);
   return length;
 }
 
-inline bool WcsCpy(wchar_t* dst, const wchar_t* src, size_t dst_size) {
-  return wcscpy_s(dst, dst_size, src) == 0;
-}
-
-inline bool WcsNCpy(wchar_t* dst, const wchar_t* src,
-                    size_t dst_size, size_t src_size) {
-  return wcsncpy_s(dst, dst_size, src, src_size) == 0;
-}
-
-inline int VSWPrintF(wchar_t* buffer, size_t size,
+inline int vswprintf(wchar_t* buffer, size_t size,
                      const wchar_t* format, va_list arguments) {
   int length = _vsnwprintf_s(buffer, size, size - 1, format, arguments);
   if (length < 0)
     return _vscwprintf(format, arguments);
   return length;
 }
+
+}  // namespace base
 
 #endif  // BASE_STRING_UTIL_WIN_H__

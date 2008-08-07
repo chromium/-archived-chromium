@@ -637,7 +637,7 @@ bool StartsWithASCII(const std::string& str,
   if (case_sensitive)
     return str.compare(0, search.length(), search) == 0;
   else
-    return StrNCaseCmp(str.c_str(), search.c_str(), search.length()) == 0;
+    return base::strncasecmp(str.c_str(), search.c_str(), search.length()) == 0;
 }
 
 DataUnits GetByteDisplayUnits(int64 bytes) {
@@ -703,10 +703,12 @@ std::wstring FormatBytesInternal(int64 bytes,
   double int_part;
   double fractional_part = modf(unit_amount, &int_part);
   modf(fractional_part * 10, &int_part);
-  if (int_part == 0)
-    SWPrintF(tmp, arraysize(tmp), L"%lld", static_cast<int64>(unit_amount));
-  else
-    SWPrintF(tmp, arraysize(tmp), L"%.1lf", unit_amount);
+  if (int_part == 0) {
+    base::swprintf(tmp, arraysize(tmp),
+                   L"%lld", static_cast<int64>(unit_amount));
+  } else {
+    base::swprintf(tmp, arraysize(tmp), L"%.1lf", unit_amount);
+  }
 
   std::wstring ret(tmp);
   if (show_units) {
@@ -764,14 +766,14 @@ inline int vsnprintfT(char* buffer,
                       size_t buf_size,
                       const char* format,
                       va_list argptr) {
-  return VSNPrintF(buffer, buf_size, format, argptr);
+  return base::vsnprintf(buffer, buf_size, format, argptr);
 }
 
 inline int vsnprintfT(wchar_t* buffer,
                       size_t buf_size,
                       const wchar_t* format,
                       va_list argptr) {
-  return VSWPrintF(buffer, buf_size, format, argptr);
+  return base::vswprintf(buffer, buf_size, format, argptr);
 }
 
 // Templatized backend for StringPrintF/StringAppendF. This does not finalize

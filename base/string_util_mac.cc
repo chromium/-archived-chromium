@@ -37,47 +37,6 @@
 #include "base/scoped_cftyperef.h"
 #include "unicode/numfmt.h"
 
-// Can't use strlcpy/wcslcpy, because they always returns the length of src,
-// making it impossible to detect overflow.  Because the reimplementation is
-// too large to inline, StrNCpy and WcsNCpy are in this file, but since they
-// don't make any non-inlined calls, there's no penalty relative to the libc
-// routines.
-template<typename CharType>
-static inline bool StrNCpyT(CharType* dst, const CharType* src,
-                            size_t dst_size, size_t src_size) {
-  // The initial value of count has room for a NUL terminator.
-  size_t count = std::min(dst_size, src_size + 1);
-  if (count == 0)
-    return false;
-
-  // Copy up to (count - 1) bytes, or until reaching a NUL terminator
-  while (--count != 0) {
-    if ((*dst++ = *src++) == '\0')
-      break;
-  }
-
-  // If the break never occurred, append a NUL terminator
-  if (count == 0) {
-    *dst = '\0';
-
-    // If the string was truncated, return false
-    if (*src != '\0')
-      return false;
-  }
-
-  return true;
-}
-
-bool StrNCpy(char* dst, const char* src,
-             size_t dst_size, size_t src_size) {
-  return StrNCpyT(dst, src, dst_size, src_size);
-}
-
-bool WcsNCpy(wchar_t* dst, const wchar_t* src,
-             size_t dst_size, size_t src_size) {
-  return StrNCpyT(dst, src, dst_size, src_size);
-}
-
 static NumberFormat* number_format_singleton = NULL;
 static CFDateFormatterRef date_formatter = NULL;
 static CFDateFormatterRef time_formatter = NULL;
