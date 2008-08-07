@@ -27,15 +27,16 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "base/sys_strings.h"
-
+#include "base/sys_string_conversions.h"
 #include <CoreFoundation/CoreFoundation.h>
+#include <vector>
+#include "base/scoped_cftyperef.h"
 
 namespace base {
 
 namespace {
 
-// Convert the supplied cfsring into the specified encoding, and return it as
+// Convert the supplied CFString into the specified encoding, and return it as
 // an STL string of the template type.  Returns an empty string on failure.
 //
 // Do not assert in this function since it is used by the asssertion code!
@@ -56,7 +57,6 @@ static StringType CFStringToSTLStringWithEncodingT(CFStringRef cfstring,
                                        NULL,   // buffer
                                        0,      // maxBufLen
                                        &out_size);
-  DCHECK(converted != 0 && out_size != 0);
   if (converted == 0 || out_size == 0)
     return StringType();
 
@@ -89,7 +89,7 @@ static StringType CFStringToSTLStringWithEncodingT(CFStringRef cfstring,
 // |OutStringType| template type.  Returns an empty string on failure.
 //
 // Do not assert in this function since it is used by the asssertion code!
-template<typename OutStringType, typename InStringType>
+template<typename InStringType, typename OutStringType>
 static OutStringType STLStringToSTLStringWithEncodingsT(
     const InStringType& in,
     CFStringEncoding in_encoding,
@@ -106,7 +106,6 @@ static OutStringType STLStringToSTLStringWithEncodingsT(
                                     in_encoding,
                                     false,
                                     kCFAllocatorNull));
-  DCHECK(cfstring);
   if (!cfstring)
     return OutStringType();
 
@@ -118,39 +117,39 @@ static OutStringType STLStringToSTLStringWithEncodingsT(
 // when strings don't carry BOMs, as they typically won't.
 static const CFStringEncoding kNarrowStringEncoding = kCFStringEncodingUTF8;
 #ifdef __BIG_ENDIAN__
-#if defined(__WCHAR_MAX__) && __WCHAR_MAX__ == 0xffff
+#if defined(WCHAR_T_IS_UTF16)
 static const CFStringEncoding kWideStringEncoding = kCFStringEncodingUTF16BE;
-#else  // __WCHAR_MAX__
+#elif defined(WCHAR_T_IS_UTF32)
 static const CFStringEncoding kWideStringEncoding = kCFStringEncodingUTF32BE;
-#endif  // __WCHAR_MAX__
-#else  // __BIG_ENDIAN__
-#if defined(__WCHAR_MAX__) && __WCHAR_MAX__ == 0xffff
+#endif  // WCHAR_T_IS_UTF32
+#elif defined(__LITTLE_ENDIAN__)
+#if defined(WCHAR_T_IS_UTF16)
 static const CFStringEncoding kWideStringEncoding = kCFStringEncodingUTF16LE;
-#else  // __WCHAR_MAX__
+#elif defined(WCHAR_T_IS_UTF32)
 static const CFStringEncoding kWideStringEncoding = kCFStringEncodingUTF32LE;
-#endif  // __WCHAR_MAX__
-#endif  // __BIG_ENDIAN__
+#endif  // WCHAR_T_IS_UTF32
+#endif  // __LITTLE_ENDIAN__
 
 }  // namespace
 
 // Do not assert in this function since it is used by the asssertion code!
 std::string SysWideToUTF8(const std::wstring& wide) {
-  return STLStringToSTLStringWithEncodingsT<std::string>(
+  return STLStringToSTLStringWithEncodingsT<std::wstring, std::string>(
       wide, kWideStringEncoding, kNarrowStringEncoding);
 }
 
 // Do not assert in this function since it is used by the asssertion code!
 std::wstring SysUTF8ToWide(const std::string& utf8) {
-  return STLStringToSTLStringWithEncodingsT<std::wstring>(
+  return STLStringToSTLStringWithEncodingsT<std::string, std::wstring>(
       utf8, kNarrowStringEncoding, kWideStringEncoding);
 }
 
 std::string SysWideToNativeMB(const std::wstring& wide) {
-  return WideToUTF8(wide);
+  return SysWideToUTF8(wide);
 }
 
 std::wstring SysNativeMBToWide(const std::string& native_mb) {
-  return UTF8ToWide(native_mb);
+  return SysUTF8ToWide(native_mb);
 }
 
 }  // namespace base

@@ -25,6 +25,8 @@
 /* Begin PBXBuildFile section */
 		7B4C5D840E49157E00679E8F /* json_reader_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4562C3B0E28017F005E4685 /* json_reader_unittest.cc */; };
 		7B4C5D890E4915D800679E8F /* float_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B4C5D880E4915D800679E8F /* float_util.h */; };
+		7B4C5F490E4B6BF900679E8F /* sys_string_conversions.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B4C5F470E4B6BF900679E8F /* sys_string_conversions.h */; };
+		7B4C5F4A0E4B6BF900679E8F /* sys_string_conversions_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7B4C5F480E4B6BF900679E8F /* sys_string_conversions_mac.cc */; };
 		820EB4F00E3A610A009668FC /* linked_ptr.h in Headers */ = {isa = PBXBuildFile; fileRef = 820EB4EF0E3A610A009668FC /* linked_ptr.h */; };
 		820EB4F70E3A613F009668FC /* string_piece.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4F50E3A613F009668FC /* string_piece.cc */; };
 		820EB4F80E3A613F009668FC /* string_piece.h in Headers */ = {isa = PBXBuildFile; fileRef = 820EB4F60E3A613F009668FC /* string_piece.h */; };
@@ -297,6 +299,8 @@
 
 /* Begin PBXFileReference section */
 		7B4C5D880E4915D800679E8F /* float_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = float_util.h; sourceTree = "<group>"; };
+		7B4C5F470E4B6BF900679E8F /* sys_string_conversions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sys_string_conversions.h; sourceTree = "<group>"; };
+		7B4C5F480E4B6BF900679E8F /* sys_string_conversions_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sys_string_conversions_mac.cc; sourceTree = "<group>"; };
 		7B5AD60D0D9DD8050012BCF1 /* scoped_cftyperef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scoped_cftyperef.h; sourceTree = "<group>"; };
 		7BD9E84E0DA447F800FC7A01 /* singleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = singleton.h; sourceTree = "<group>"; };
 		7BEB81100D9AD288009BA8DD /* prcpucfg_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = prcpucfg_mac.h; path = third_party/nspr/prcpucfg_mac.h; sourceTree = "<group>"; };
@@ -660,6 +664,8 @@
 				7BEB834D0D9C4BE0009BA8DD /* string_util_mac.cc */,
 				7BEE52C10D9D84FD0067FF23 /* string_util_mac.h */,
 				821B91680DAABD7F00F350D7 /* string16.h */,
+				7B4C5F470E4B6BF900679E8F /* sys_string_conversions.h */,
+				7B4C5F480E4B6BF900679E8F /* sys_string_conversions_mac.cc */,
 				8254037E0D92D2CF0006B936 /* task.h */,
 				E4BA048D0E25687E00BE02C6 /* thread_posix.cc */,
 				825403800D92D2CF0006B936 /* thread.h */,
@@ -846,6 +852,7 @@
 				E49357230E422A38008F8B09 /* timer.h in Headers */,
 				E49115EE0E47B461001EE8C3 /* at_exit.h in Headers */,
 				7B4C5D890E4915D800679E8F /* float_util.h in Headers */,
+				7B4C5F490E4B6BF900679E8F /* sys_string_conversions.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1129,6 +1136,7 @@
 				E45062A60E40A9BE0025A81A /* base_switches.cc in Sources */,
 				E49357220E422A36008F8B09 /* timer.cc in Sources */,
 				E49115EF0E47B461001EE8C3 /* at_exit.cc in Sources */,
+				7B4C5F4A0E4B6BF900679E8F /* sys_string_conversions_mac.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
