@@ -1043,11 +1043,16 @@ void MetricsService::OnURLFetchComplete(const URLFetcher* source,
     }
     DLOG(INFO) << "METRICS RESPONSE DATA: " << data;
     DiscardPendingLog();
+    // Since we sent a log, make sure our in-memory state is recorded to disk.
+    PrefService* local_state = g_browser_process->local_state();
+    DCHECK(local_state);
+    if (local_state)
+      local_state->ScheduleSavePersistentPrefs(
+          g_browser_process->file_thread());
 
     GetSettingsFromResponseData(data);
-
     // Override server specified interlog delay if there are unsent logs to
-    // transmit
+    // transmit.
     if (unsent_logs()) {
       DCHECK(state_ < SENDING_CURRENT_LOGS);
       interlog_duration_ = TimeDelta::FromSeconds(kUnsentLogDelay);
@@ -1090,7 +1095,7 @@ void MetricsService::GetSettingsFromResponseData(const std::string& data) {
   DLOG(INFO) << data;
   int data_size = static_cast<int>(data.size());
   if (data_size < 0) {
-    DLOG(INFO) << "METRICS: server response data bad size " << 
+    DLOG(INFO) << "METRICS: server response data bad size " <<
       " aborting extraction of settings";
     return;
   }
@@ -1120,7 +1125,6 @@ void MetricsService::GetSettingsFromConfigNode(xmlNodePtr config_node) {
   for (xmlNodePtr current_node = config_node->children;
       current_node;
       current_node = current_node->next) {
-
     // If the node is collectors list, we iterate through the children
     // to get the types of collectors.
     if (xmlStrEqual(current_node->name, BAD_CAST "collectors")) {
@@ -1146,7 +1150,7 @@ void MetricsService::GetSettingsFromConfigNode(xmlNodePtr config_node) {
     if (xmlStrEqual(current_node->name, BAD_CAST "upload")) {
       xmlChar* upload_interval_val = xmlGetProp(current_node,
           BAD_CAST "interval");
-      int upload_interval_sec = 
+      int upload_interval_sec =
         atoi(reinterpret_cast<char*>(upload_interval_val));
       interlog_duration_ = TimeDelta::FromSeconds(upload_interval_sec);
       continue;
