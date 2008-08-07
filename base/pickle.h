@@ -239,6 +239,12 @@ class Pickle {
   static const int kPayloadUnit;
 
  private:
+  // A buffer of variable length; used internally
+  struct VariableLengthBuffer {
+    int length;
+    char data;   // This is variable length.
+  };
+
   Header* header_;
   size_t header_size_;  // Supports extra data between header and payload.
   // Allocation size of payload (or -1 if allocation is const).
