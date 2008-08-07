@@ -62,9 +62,8 @@ bool ReadUnicodeCharacter(const char* src, int32 src_len,
   return U_IS_UNICODE_CHAR(*code_point);
 }
 
-#if defined(WCHAR_T_IS_UTF16)
 // Reads a UTF-16 character. The usage is the same as the 8-bit version above.
-bool ReadUnicodeCharacter(const wchar_t* src, int32 src_len,
+bool ReadUnicodeCharacter(const char16* src, int32 src_len,
                           int32* char_index, uint32* code_point) {
   if (U16_IS_SURROGATE(src[*char_index])) {
     if (!U16_IS_SURROGATE_LEAD(src[*char_index]) ||
@@ -85,10 +84,11 @@ bool ReadUnicodeCharacter(const wchar_t* src, int32 src_len,
 
   return U_IS_UNICODE_CHAR(*code_point);
 }
-#elif defined(WCHAR_T_IS_UTF32)
+
+#if defined(WCHAR_T_IS_UTF32)
 // Reads UTF-32 character. The usage is the same as the 8-bit version above.
-bool ReadUnicodeCharacter(const wchar_t* src, int32 src_len,
-                          int32* char_index, uint32* code_point) {
+bool ReadUTF32Character(const wchar_t* src, int32 src_len,
+                        int32* char_index, uint32* code_point) {
   // Conversion is easy since the source is 32-bit.
   *code_point = src[*char_index];
 
@@ -118,13 +118,12 @@ void WriteUnicodeCharacter(uint32 code_point, std::basic_string<char>* output) {
   output->resize(char_offset);
 }
 
-#if defined(WCHAR_T_IS_UTF16)
 // Appends the given code point as a UTF-16 character to the STL string.
 void WriteUnicodeCharacter(uint32 code_point,
-                           std::basic_string<wchar_t>* output) {
+                           std::basic_string<char16>* output) {
   if (U16_LENGTH(code_point) == 1) {
     // Thie code point is in the Basic Multilingual Plane (BMP).
-    output->push_back(static_cast<wchar_t>(code_point));
+    output->push_back(static_cast<char16>(code_point));
   } else {
     // Non-BMP characters use a double-character encoding.
     int32 char_offset = static_cast<int32>(output->length());
@@ -132,7 +131,8 @@ void WriteUnicodeCharacter(uint32 code_point,
     U16_APPEND_UNSAFE(&(*output)[0], char_offset, code_point);
   }
 }
-#elif defined(WCHAR_T_IS_UTF32)
+
+#if defined(WCHAR_T_IS_UTF32)
 // Appends the given UTF-32 character to the given 32-bit string.
 inline void WriteUnicodeCharacter(uint32 code_point,
                                   std::basic_string<wchar_t>* output) {
@@ -167,7 +167,7 @@ bool ConvertUnicode(const SRC_CHAR* src, size_t src_len,
 
 }  // namespace
 
-// UTF-x <-> UTF-x -------------------------------------------------------------
+// UTF-8 <-> Wide --------------------------------------------------------------
 
 std::string WideToUTF8(const std::wstring& wide) {
   std::string ret;
@@ -223,6 +223,75 @@ bool UTF8ToWide(const char* src, size_t src_len, std::wstring* output) {
     output->reserve(src_len / 2);
   return ConvertUnicode<char, wchar_t>(src, src_len, output);
 }
+
+// UTF-16 <-> Wide -------------------------------------------------------------
+
+#if defined(WCHAR_T_IS_UTF16)
+
+// When wide == UTF-16, then conversions are a NOP.
+std::string16 WideToUTF16(const std::wstring& wide) {
+  return wide;
+}
+
+bool WideToUTF16(const wchar_t* src, size_t src_len, std::string16* output) {
+  output->assign(src, src_len);
+  return true;
+}
+
+std::wstring UTF16ToWide(const std::string16& utf16) {
+  return utf16;
+}
+
+bool UTF16ToWide(const char16* src, size_t src_len, std::wstring* output) {
+  output->assign(src, src_len);
+  return true;
+}
+
+#elif defined(WCHAR_T_IS_UTF32)
+
+std::string16 WideToUTF16(const std::wstring& wide) {
+  std::string16 ret;
+  if (wide.empty())
+    return ret;
+
+  UTF8ToWide(wide.data(), wide.length(), &ret);
+  return ret;
+}
+
+bool WideToUTF16(const wchar_t* src, size_t src_len, std::string16* output) {
+  if (src_len == 0) {
+    output->clear();
+    return true;
+  }
+
+  // Assume that normally we won't have any non-BMP characters so the counts
+  // will be the same.
+  output->reserve(src_len);
+  return ConvertUnicode<wchar_t, char16>(src, src_len, output);
+}
+
+std::wstring UTF16ToWide(const std::string16& utf16) {
+  std::wstring ret;
+  if (utf16.empty())
+    return ret;
+
+  UTF8ToWide(utf16.data(), utf16.length(), &ret);
+  return ret;
+}
+
+bool UTF16ToWide(const char16* src, size_t src_len, std::wstring* output) {
+  if (src_len == 0) {
+    output->clear();
+    return true;
+  }
+
+  // Assume that normally we won't have any non-BMP characters so the counts
+  // will be the same.
+  output->reserve(src_len);
+  return ConvertUnicode<char16, wchar_t>(src, src_len, output);
+}
+
+#endif  // defined(WCHAR_T_IS_UTF32)
 
 // Codepage <-> Wide -----------------------------------------------------------
 
