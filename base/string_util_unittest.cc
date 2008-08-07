@@ -183,6 +183,123 @@ TEST(StringUtilTest, ConvertUTF8AndWideEmptyString) {
   EXPECT_EQ(wempty, UTF8ToWide(empty));
 }
 
+// This tests the current behavior of our UTF-8/UTF-16 conversion. On Windows,
+// we just use the platform functions which strip invalid characters. This isn't
+// necessarily the best behavior, we may want to write our own converter using
+// ICU to get more customized results (for example, substituting the
+// "replacement character" U+FFFD for invalid sequences.
+TEST(StringUtilTest, ConvertUTF8ToWide) {
+  struct UTF8ToWideCase {
+    const char* utf8;
+    const wchar_t* wide;
+    bool success;
+  } convert_cases[] = {
+    // Regular UTF-8 input.
+    {"\xe4\xbd\xa0\xe5\xa5\xbd", L"\x4f60\x597d", true},
+    // Invalid Unicode code point.
+    {"\xef\xbf\xbfHello", L"Hello", false},
+    // Truncated UTF-8 sequence.
+    {"\xe4\xa0\xe5\xa5\xbd", L"\x597d", false},
+    // Truncated off the end.
+    {"\xe5\xa5\xbd\xe4\xa0", L"\x597d", false},
+    // Non-shortest-form UTF-8.
+    {"\xf0\x84\xbd\xa0\xe5\xa5\xbd", L"\x597d", false},
+    // This UTF-8 character decodes to a UTF-16 surrogate, which is illegal.
+    {"\xed\xb0\x80", L"", false},
+    // Non-BMP character. The result will either be in UTF-16 or UCS-4.
+#ifdef WIN32
+    {"A\xF0\x90\x8C\x80z", L"A\xd800\xdf00z", true},
+#else
+    {"A\xF0\x90\x8C\x80z", L"A\x10300z", true},
+#endif
+  };
+
+  for (int i = 0; i < arraysize(convert_cases); i++) {
+    std::wstring converted;
+    EXPECT_EQ(convert_cases[i].success,
+              UTF8ToWide(convert_cases[i].utf8,
+                         strlen(convert_cases[i].utf8),
+                         &converted));
+    std::wstring expected(convert_cases[i].wide);
+    EXPECT_EQ(expected, converted);
+  }
+
+  // Manually test an embedded NULL.
+  std::wstring converted;
+  EXPECT_TRUE(UTF8ToWide("\00Z\t", 3, &converted));
+  ASSERT_EQ(3, converted.length());
+  EXPECT_EQ(0, converted[0]);
+  EXPECT_EQ('Z', converted[1]);
+  EXPECT_EQ('\t', converted[2]);
+
+  // Make sure that conversion replaces, not appends.
+  EXPECT_TRUE(UTF8ToWide("B", 1, &converted));
+  ASSERT_EQ(1, converted.length());
+  EXPECT_EQ('B', converted[0]);
+}
+
+#ifdef WIN32
+// This test is only valid when wchar_t == UTF-16.
+TEST(StringUtilTest, ConvertUTF16ToUTF8) {
+  struct UTF16ToUTF8Case {
+    const wchar_t* utf16;
+    const char* utf8;
+    bool success;
+  } convert_cases[] = {
+    // Regular UTF-16 input.
+    {L"\x4f60\x597d", "\xe4\xbd\xa0\xe5\xa5\xbd", true},
+    // Test a non-BMP character.
+    {L"\xd800\xdf00", "\xF0\x90\x8C\x80", true},
+    // Invalid Unicode code point.
+    {L"\xffffHello", "Hello", false},
+    // The first character is a truncated UTF-16 character.
+    {L"\xd800\x597d", "\xe5\xa5\xbd", false},
+    // Truncated at the end.
+    {L"\x597d\xd800", "\xe5\xa5\xbd", false},
+  };
+
+  for (int i = 0; i < arraysize(convert_cases); i++) {
+    std::string converted;
+    EXPECT_EQ(convert_cases[i].success,
+              WideToUTF8(convert_cases[i].utf16,
+                         wcslen(convert_cases[i].utf16),
+                         &converted));
+    std::string expected(convert_cases[i].utf8);
+    EXPECT_EQ(expected, converted);
+  }
+}
+
+#else
+// This test is only valid when wchar_t == UCS-4.
+TEST(StringUtilTest, ConvertUCS4ToUTF8) {
+  struct UTF8ToWideCase {
+    const wchar_t* ucs4;
+    const char* utf8;
+    bool success;
+  } convert_cases[] = {
+    // Regular 16-bit input.
+    {L"\x4f60\x597d", "\xe4\xbd\xa0\xe5\xa5\xbd", true},
+    // Test a non-BMP character.
+    {L"A\x10300z", "A\xF0\x90\x8C\x80z", true},
+    // Invalid Unicode code points.
+    {L"\xffffHello", "Hello, false", false},
+    {L"\xfffffffHello", "Hello, false", false},
+    // The first character is a truncated UTF-16 character.
+    {L"\xd800\x597d", "\xe5\xa5\xbd", false},
+  }
+
+  for (int i = 0; i < arraysize(convert_cases); i++) {
+    std::string converted;
+    EXPECT_EQ(convert_cases[i].success,
+              WideToUTF8(convert_cases[i].utf16,
+                         wcslen(convert_cases[i].utf16),
+                         &converted));
+    std::string expected(convert_cases[i].utf8);
+    EXPECT_EQ(expected, converted);
+  }
+}
+#endif
+
 TEST(StringUtilTest, ConvertMultiString) {
   static wchar_t wmulti[] = {
     L'f', L'o', L'o', L'\0',

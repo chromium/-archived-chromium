@@ -35,6 +35,7 @@
 #include "base/memory_debug.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
+#include "base/sys_string_conversions.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/auth_cache.h"
 #include "net/base/cert_status_flags.h"
@@ -1155,7 +1156,7 @@ bool HttpTransactionWinHttp::OpenRequest() {
   // Add request headers.  WinHttp is known to convert the headers to bytes
   // using the system charset converter, so we use the same converter to map
   // our request headers to UTF-16 before handing the data to WinHttp.
-  std::wstring request_headers = NativeMBToWide(GetRequestHeaders());
+  std::wstring request_headers = base::SysNativeMBToWide(GetRequestHeaders());
 
   DWORD len = static_cast<DWORD>(request_headers.size());
   if (!WinHttpAddRequestHeaders(request_handle_,
@@ -1490,7 +1491,8 @@ int HttpTransactionWinHttp::DidReceiveHeaders() {
   // From experimentation, it appears that WinHttp translates non-ASCII bytes
   // found in the response headers to UTF-16 assuming that they are encoded
   // using the default system charset.  We attempt to undo that here.
-  response_.headers = new HttpResponseHeaders(WideToNativeMB(raw_headers));
+  response_.headers =
+      new HttpResponseHeaders(base::SysWideToNativeMB(raw_headers));
 
   // WinHTTP truncates a response longer than 2GB.  Perhaps it stores the
   // response's content length in a signed 32-bit integer.  We fail rather

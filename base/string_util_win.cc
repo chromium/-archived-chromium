@@ -34,69 +34,6 @@
 #include "unicode/numfmt.h"
 #include "base/logging.h"
 
-// See WideToUTF8.
-static std::string WideToMultiByte(const std::wstring& wide, UINT code_page) {
-  int wide_length = static_cast<int>(wide.length());
-  if (wide_length == 0)
-    return std::string();
-
-  // compute the length of the buffer we'll need
-  int charcount = WideCharToMultiByte(code_page, 0, wide.data(), wide_length,
-                                      NULL, 0, NULL, NULL);
-  if (charcount == 0)
-    return std::string();
-
-  // convert
-  std::string mb;
-  WideCharToMultiByte(code_page, 0, wide.data(), wide_length,
-                      WriteInto(&mb, charcount + 1), charcount, NULL, NULL);
-
-  return mb;
-}
-
-// Converts the given 8-bit string into a wide string, using the given
-// code page. The code page identifier is one accepted by MultiByteToWideChar()
-//
-// Danger: do not assert in this function, as it is used by the assertion code.
-// Doing so will cause an infinite loop.
-static std::wstring MultiByteToWide(const std::string& mb, UINT code_page) {
-  int mb_length = static_cast<int>(mb.length());
-  if (mb_length == 0)
-    return std::wstring();
-
-  // compute the length of the buffer
-  int charcount = MultiByteToWideChar(code_page, 0, mb.c_str(), mb_length,
-                                      NULL, 0);
-  if (charcount == 0)
-    return std::wstring();
-
-  // convert
-  std::wstring wide;
-  MultiByteToWideChar(code_page, 0, mb.c_str(), mb_length,
-                      WriteInto(&wide, charcount + 1), charcount);
-
-  return wide;
-}
-
-// Wide <--> UTF-8
-std::string WideToUTF8(const std::wstring& wide) {
-
-  return WideToMultiByte(wide, CP_UTF8);
-}
-
-std::wstring UTF8ToWide(const std::string& utf8) {
-  return MultiByteToWide(utf8, CP_UTF8);
-}
-
-// Wide <--> native multibyte
-std::string WideToNativeMB(const std::wstring& wide) {
-  return WideToMultiByte(wide, CP_ACP);
-}
-
-std::wstring NativeMBToWide(const std::string& native_mb) {
-  return MultiByteToWide(native_mb, CP_ACP);
-}
-
 NumberFormat* NumberFormatSingleton() {
   static NumberFormat* number_format = NULL;
   if (!number_format) {

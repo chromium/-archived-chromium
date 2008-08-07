@@ -38,6 +38,7 @@
 #include "base/path_service.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
+#include "base/sys_string_conversions.h"
 #include "base/task.h"
 #include "webkit/activex_shim/npp_impl.h"
 #include "webkit/default_plugin/plugin_main.h"
@@ -369,8 +370,8 @@ void PluginLib::Shutdown() {
 WebPluginInfo* PluginLib::CreateWebPluginInfo(const PluginVersionInfo& pvi) {
   std::vector<std::string> mime_types, file_extensions;
   std::vector<std::wstring> descriptions;
-  SplitString(WideToNativeMB(pvi.mime_types), '|', &mime_types);
-  SplitString(WideToNativeMB(pvi.file_extents), '|', &file_extensions);
+  SplitString(base::SysWideToNativeMB(pvi.mime_types), '|', &mime_types);
+  SplitString(base::SysWideToNativeMB(pvi.file_extents), '|', &file_extensions);
   SplitString(pvi.file_open_names, '|', &descriptions);
 
   if (mime_types.empty())

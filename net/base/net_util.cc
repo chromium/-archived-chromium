@@ -46,6 +46,7 @@
 #include "base/scoped_ptr.h"
 #include "base/string_tokenizer.h"
 #include "base/string_util.h"
+#include "base/sys_string_conversions.h"
 #include "base/time.h"
 #include "base/string_escape.h"
 #include "googleurl/src/gurl.h"
@@ -260,7 +261,7 @@ bool DecodeWord(const std::string& encoded_word,
     if (IsStringUTF8(encoded_word.c_str())) {
       *output = encoded_word;
     } else {
-      *output = WideToUTF8(NativeMBToWide(encoded_word));
+      *output = WideToUTF8(base::SysNativeMBToWide(encoded_word));
     }
     *is_rfc2047 = false;
     return true;
@@ -722,7 +723,7 @@ bool FileURLToFilePath(const GURL& url, std::wstring* file_path) {
     // are giving the conversion function a nonempty string, and it may fail if
     // the given string is not in the current encoding and give us an empty
     // string back. We detect this and report failure.
-    *file_path = NativeMBToWide(path);
+    *file_path = base::SysNativeMBToWide(path);
     return !file_path->empty();
   }
   file_path->assign(UTF8ToWide(path));
@@ -748,7 +749,7 @@ bool FileURLToFilePath(const GURL& url, std::wstring* file_path) {
   } else {
     // Our wide string contains only 8-bit characters and it's not UTF-8, so
     // we assume it's in the native codepage.
-    *file_path = NativeMBToWide(narrow);
+    *file_path = base::SysNativeMBToWide(narrow);
   }
 
   // Fail if 8-bit -> wide conversion failed and gave us an empty string back

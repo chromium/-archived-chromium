@@ -30,7 +30,7 @@
 // This little program attempts to flush the disk cache for some files.
 // It's useful for testing Chrome with a cold database.
 
-#include "base/string_util.h"
+#include "base/sys_string_conversions.h"
 #include "chrome/test/test_file_util.h"
 
 int main(int argc, const char* argv[]) {
@@ -41,7 +41,7 @@ int main(int argc, const char* argv[]) {
   }
 
   for (int i = 1; i < argc; ++i) {
-    std::wstring filename = NativeMBToWide(argv[i]);
+    std::wstring filename = base::SysNativeMBToWide(argv[i]);
     if (!file_util::EvictFileFromSystemCache(filename.c_str())) {
       fprintf(stderr, "Failed to evict %s from cache -- is it a directory?\n",
               argv[i]);

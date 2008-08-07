@@ -62,6 +62,7 @@
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
+#include "base/sys_string_conversions.h"
 #include "net/base/escape.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
@@ -172,8 +173,8 @@ void WebPluginContainer::didReceiveResponse(
   }
 
   impl_->delegate_->DidReceiveManualResponse(
-      ascii_url, WideToNativeMB(mime_type),
-      WideToNativeMB(impl_->GetAllHeaders(response)),
+      ascii_url, base::SysWideToNativeMB(mime_type),
+      base::SysWideToNativeMB(impl_->GetAllHeaders(response)),
       expected_length, last_modified);
 }
 
@@ -826,8 +827,8 @@ void WebPluginImpl::didReceiveResponse(WebCore::ResourceHandle* handle,
     expected_length = 0;
   }
 
-  client->DidReceiveResponse(WideToNativeMB(mime_type),
-                             WideToNativeMB(GetAllHeaders(response)),
+  client->DidReceiveResponse(base::SysWideToNativeMB(mime_type),
+                             base::SysWideToNativeMB(GetAllHeaders(response)),
                              expected_length,
                              last_modified,
                              &cancel);

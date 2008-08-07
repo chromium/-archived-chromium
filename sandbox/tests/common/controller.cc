@@ -31,6 +31,7 @@
 
 #include <string>
 
+#include "base/sys_string_conversions.h"
 #include "sandbox/src/sandbox_factory.h"
 #include "sandbox/src/sandbox_utils.h"
 
@@ -40,41 +41,6 @@ namespace {
 #define RUN_WITHOUT_TIMEOUTS 0
 
 static const int kDefaultTimeout = 3000;
-
-// Grabbed from chrome/common/string_util.h
-template <class char_type>
-inline char_type* WriteInto(
-    std::basic_string<char_type, std::char_traits<char_type>,
-                      std::allocator<char_type> >* str,
-    size_t length_including_null) {
-  str->reserve(length_including_null);
-  str->resize(length_including_null - 1);
-  return &((*str)[0]);
-}
-
-// Grabbed from chrome/common/string_util.cc
-std::string WideToMultiByte(const std::wstring& wide, UINT code_page) {
-  if (wide.length() == 0)
-    return std::string();
-
-  // compute the length of the buffer we'll need
-  int charcount = WideCharToMultiByte(code_page, 0, wide.c_str(), -1,
-                                      NULL, 0, NULL, NULL);
-  if (charcount == 0)
-    return std::string();
-
-  // convert
-  std::string mb;
-  WideCharToMultiByte(code_page, 0, wide.c_str(), -1,
-                      WriteInto(&mb, charcount), charcount, NULL, NULL);
-
-  return mb;
-}
-
-// Grabbed from chrome/common/string_util.cc
-std::string WideToUTF8(const std::wstring& wide) {
-  return WideToMultiByte(wide, CP_UTF8);
-}
 
 }  // namespace
 
@@ -287,7 +253,7 @@ int DispatchCall(int argc, wchar_t **argv) {
                              &module))
     return SBOX_TEST_FAILED_TO_EXECUTE_COMMAND;
 
-  std::string command_name = WideToUTF8(argv[3]);
+  std::string command_name = base::SysWideToUTF8(argv[3]);
   CommandFunction command = reinterpret_cast<CommandFunction>(
                                 ::GetProcAddress(module, command_name.c_str()));
 

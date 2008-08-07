@@ -44,7 +44,7 @@
 // routines.
 template<typename CharType>
 static inline bool StrNCpyT(CharType* dst, const CharType* src,
-			    size_t dst_size, size_t src_size) {
+                            size_t dst_size, size_t src_size) {
   // The initial value of count has room for a NUL terminator.
   size_t count = std::min(dst_size, src_size + 1);
   if (count == 0)
@@ -103,114 +103,6 @@ static void DoInitializeStatics() {
 static void InitializeStatics() {
   static pthread_once_t pthread_once_initialized = PTHREAD_ONCE_INIT;
   pthread_once(&pthread_once_initialized, DoInitializeStatics);
-}
-
-// Convert the supplied cfsring into the specified encoding, and return it as
-// an STL string of the template type.  Returns an empty string on failure.
-template<typename StringType>
-static StringType CFStringToSTLStringWithEncodingT(CFStringRef cfstring,
-                                                   CFStringEncoding encoding) {
-  CFIndex length = CFStringGetLength(cfstring);
-  if (length == 0)
-    return StringType();
-
-  CFRange whole_string = CFRangeMake(0, length);
-  CFIndex out_size;
-  CFIndex converted = CFStringGetBytes(cfstring,
-                                       whole_string,
-                                       encoding,
-                                       0,      // lossByte
-                                       false,  // isExternalRepresentation
-                                       NULL,   // buffer
-                                       0,      // maxBufLen
-                                       &out_size);
-  DCHECK(converted != 0 && out_size != 0);
-  if (converted == 0 || out_size == 0)
-    return StringType();
-
-  // out_size is the number of UInt8-sized units needed in the destination.
-  // A buffer allocated as UInt8 units might not be properly aligned to
-  // contain elements of StringType::value_type.  Use a container for the
-  // proper value_type, and convert out_size by figuring the number of
-  // value_type elements per UInt8.  Leave room for a NUL terminator.
-  typename StringType::size_type elements =
-      out_size * sizeof(UInt8) / sizeof(typename StringType::value_type) + 1;
-
-  // Make sure that integer truncation didn't occur.  For the conversions done
-  // here, it never should.
-  DCHECK(((out_size * sizeof(UInt8)) %
-          sizeof(typename StringType::value_type)) == 0);
-
-  std::vector<typename StringType::value_type> out_buffer(elements);
-  converted = CFStringGetBytes(cfstring,
-                               whole_string,
-                               encoding,
-                               0,      // lossByte
-                               false,  // isExternalRepresentation
-                               reinterpret_cast<UInt8*>(&out_buffer[0]),
-                               out_size,
-                               NULL);  // usedBufLen
-  DCHECK(converted != 0);
-  if (converted == 0)
-    return StringType();
-
-  out_buffer[elements - 1] = '\0';
-  return StringType(&out_buffer[0]);
-}
-
-// Given an STL string |in| with an encoding specified by |in_encoding|,
-// convert it to |out_encoding| and return it as an STL string of the
-// |OutStringType| template type.  Returns an empty string on failure.
-template<typename OutStringType, typename InStringType>
-static OutStringType STLStringToSTLStringWithEncodingsT(
-    const InStringType& in,
-    CFStringEncoding in_encoding,
-    CFStringEncoding out_encoding) {
-  typename InStringType::size_type in_length = in.length();
-  if (in_length == 0)
-    return OutStringType();
-
-  scoped_cftyperef<CFStringRef> cfstring(
-      CFStringCreateWithBytesNoCopy(NULL,
-                                    reinterpret_cast<const UInt8*>(in.c_str()),
-                                    in_length *
-                                      sizeof(typename InStringType::value_type),
-                                    in_encoding,
-                                    false,
-                                    kCFAllocatorNull));
-  DCHECK(cfstring);
-  if (!cfstring)
-    return OutStringType();
-
-  return CFStringToSTLStringWithEncodingT<OutStringType>(cfstring,
-                                                         out_encoding);
-}
-
-// Specify the byte ordering explicitly, otherwise CFString will be confused
-// when strings don't carry BOMs, as they typically won't.
-static const CFStringEncoding kNarrowStringEncoding = kCFStringEncodingUTF8;
-#ifdef __BIG_ENDIAN__
-#if defined(__WCHAR_MAX__) && __WCHAR_MAX__ == 0xffff
-static const CFStringEncoding kWideStringEncoding = kCFStringEncodingUTF16BE;
-#else  // __WCHAR_MAX__
-static const CFStringEncoding kWideStringEncoding = kCFStringEncodingUTF32BE;
-#endif  // __WCHAR_MAX__
-#else  // __BIG_ENDIAN__
-#if defined(__WCHAR_MAX__) && __WCHAR_MAX__ == 0xffff
-static const CFStringEncoding kWideStringEncoding = kCFStringEncodingUTF16LE;
-#else  // __WCHAR_MAX__
-static const CFStringEncoding kWideStringEncoding = kCFStringEncodingUTF32LE;
-#endif  // __WCHAR_MAX__
-#endif  // __BIG_ENDIAN__
-
-std::string WideToUTF8(const std::wstring& wide) {
-  return STLStringToSTLStringWithEncodingsT<std::string>(
-      wide, kWideStringEncoding, kNarrowStringEncoding);
-}
-
-std::wstring UTF8ToWide(const std::string& utf8) {
-  return STLStringToSTLStringWithEncodingsT<std::wstring>(
-      utf8, kNarrowStringEncoding, kWideStringEncoding);
 }
 
 // Technically, the native multibyte encoding would be the encoding returned

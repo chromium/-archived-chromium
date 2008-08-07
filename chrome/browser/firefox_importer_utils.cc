@@ -35,6 +35,7 @@
 #include "base/logging.h"
 #include "base/registry.h"
 #include "base/string_util.h"
+#include "base/sys_string_conversions.h"
 #include "base/time.h"
 #include "chrome/browser/template_url.h"
 #include "chrome/browser/template_url_model.h"
@@ -507,7 +508,7 @@ bool NSSDecryptor::Init(const std::wstring& dll_path,
     return false;
   }
 
-  SECStatus result = NSS_Init(WideToNativeMB(db_path).c_str());
+  SECStatus result = NSS_Init(base::SysWideToNativeMB(db_path).c_str());
   if (result != SECSuccess) {
     Free();
     return false;

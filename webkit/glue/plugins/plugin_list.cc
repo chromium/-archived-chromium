@@ -39,6 +39,7 @@
 #include "base/registry.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
+#include "base/sys_string_conversions.h"
 #include "base/time.h"
 #include "webkit/activex_shim/activex_shared.h"
 #include "webkit/glue/webkit_glue.h"
@@ -275,12 +276,13 @@ PluginLib* PluginList::FindPlugin(const std::string& mime_type,
 }
 
 PluginLib* PluginList::FindPlugin(const GURL &url, std::string* actual_mime_type) {
-  std::wstring path = NativeMBToWide(url.path());
+  std::wstring path = base::SysNativeMBToWide(url.path());
   std::wstring extension_wide = file_util::GetFileExtensionFromPath(path);
   if (extension_wide.empty())
     return NULL;;
 
-  std::string extension = StringToLowerASCII(WideToNativeMB(extension_wide));
+  std::string extension =
+      StringToLowerASCII(base::SysWideToNativeMB(extension_wide));
 
   for (size_t idx = 0; idx < plugins_.size(); ++idx) {
     if (SupportsExtension(plugins_[idx]->plugin_info(), extension, actual_mime_type)) {
