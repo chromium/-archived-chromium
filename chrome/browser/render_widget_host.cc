@@ -91,10 +91,13 @@ bool RenderWidgetHost::BackingStore::Refresh(HANDLE process,
   if (!valid_bitmap)
     return false;
 
+  // Disable this optimization to see how it impacts perf.
+#if 0
   if (bitmap_rect.size() == size()) {
     CreateDIBSectionBackedByRendererBitmap(bitmap_rect, valid_bitmap);
     return true;
   }
+#endif
 
   if (!backing_store_dib_) {
     backing_store_dib_ = CreateDIB(hdc_, size_.width(), size_.height(), true,
