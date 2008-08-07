@@ -294,6 +294,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\float_util.h"
+			>
+		</File>
+		<File
 			RelativePath="..\histogram.cc"
 			>
 		</File>

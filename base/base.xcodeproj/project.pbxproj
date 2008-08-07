@@ -23,6 +23,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		7B4C5D840E49157E00679E8F /* json_reader_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4562C3B0E28017F005E4685 /* json_reader_unittest.cc */; };
+		7B4C5D890E4915D800679E8F /* float_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B4C5D880E4915D800679E8F /* float_util.h */; };
 		820EB4F00E3A610A009668FC /* linked_ptr.h in Headers */ = {isa = PBXBuildFile; fileRef = 820EB4EF0E3A610A009668FC /* linked_ptr.h */; };
 		820EB4F70E3A613F009668FC /* string_piece.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4F50E3A613F009668FC /* string_piece.cc */; };
 		820EB4F80E3A613F009668FC /* string_piece.h in Headers */ = {isa = PBXBuildFile; fileRef = 820EB4F60E3A613F009668FC /* string_piece.h */; };
@@ -294,6 +296,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7B4C5D880E4915D800679E8F /* float_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = float_util.h; sourceTree = "<group>"; };
 		7B5AD60D0D9DD8050012BCF1 /* scoped_cftyperef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scoped_cftyperef.h; sourceTree = "<group>"; };
 		7BD9E84E0DA447F800FC7A01 /* singleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = singleton.h; sourceTree = "<group>"; };
 		7BEB81100D9AD288009BA8DD /* prcpucfg_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = prcpucfg_mac.h; path = third_party/nspr/prcpucfg_mac.h; sourceTree = "<group>"; };
@@ -571,6 +574,7 @@
 				8254030B0D92D1D10006B936 /* fix_wp64.h */,
 				8254030D0D92D1DB0006B936 /* fixed_string.h */,
 				E4562C310E2800DE005E4685 /* fixed_string_unittest.cc */,
+				7B4C5D880E4915D800679E8F /* float_util.h */,
 				824652C00DC12044007C2BAA /* hash_tables.h */,
 				8254030F0D92D1E80006B936 /* iat_patch.cc */,
 				825403100D92D1E80006B936 /* iat_patch.h */,
@@ -841,6 +845,7 @@
 				E48A066B0E3F70B500172919 /* convolver.h in Headers */,
 				E49357230E422A38008F8B09 /* timer.h in Headers */,
 				E49115EE0E47B461001EE8C3 /* at_exit.h in Headers */,
+				7B4C5D890E4915D800679E8F /* float_util.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1149,17 +1154,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E45A2C260E47ACC300DB1196 /* string_util.cc in Sources */,
-				E45A2C7C0E47B20B00DB1196 /* string_util_mac.cc in Sources */,
-				E45A2C7D0E47B20E00DB1196 /* string_util_icu.cc in Sources */,
 				E49115ED0E47B461001EE8C3 /* at_exit.cc in Sources */,
 				E49115F40E47B496001EE8C3 /* at_exit_unittest.cc in Sources */,
-				E49115F90E47B4CB001EE8C3 /* logging.cc in Sources */,
+				E49115FD0E47B502001EE8C3 /* base_switches.cc in Sources */,
 				E49115FA0E47B4D3001EE8C3 /* command_line.cc in Sources */,
 				E49115FB0E47B4D3001EE8C3 /* command_line_unittest.cc in Sources */,
-				E49115FD0E47B502001EE8C3 /* base_switches.cc in Sources */,
 				E491162D0E4895E2001EE8C3 /* fixed_string_unittest.cc in Sources */,
+				7B4C5D840E49157E00679E8F /* json_reader_unittest.cc in Sources */,
+				E49115F90E47B4CB001EE8C3 /* logging.cc in Sources */,
 				E491165D0E48A51E001EE8C3 /* stack_container_unittest.cc in Sources */,
+				E45A2C260E47ACC300DB1196 /* string_util.cc in Sources */,
+				E45A2C7D0E47B20E00DB1196 /* string_util_icu.cc in Sources */,
+				E45A2C7C0E47B20B00DB1196 /* string_util_mac.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

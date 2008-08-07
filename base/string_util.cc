@@ -144,7 +144,7 @@ class StringToLongTraits {
     return strtol(str, endptr, kBase);
   }
   static inline bool valid_func(const string_type& str) {
-    return !isspace(str[0]);
+    return !str.empty() && !isspace(str[0]);
   }
 };
 
@@ -158,7 +158,7 @@ class WStringToLongTraits {
     return wcstol(str, endptr, kBase);
   }
   static inline bool valid_func(const string_type& str) {
-    return !iswspace(str[0]);
+    return !str.empty() && !iswspace(str[0]);
   }
 };
 
@@ -176,7 +176,7 @@ class StringToInt64Traits {
 #endif
   }
   static inline bool valid_func(const string_type& str) {
-    return !isspace(str[0]);
+    return !str.empty() && !isspace(str[0]);
   }
 };
 
@@ -194,7 +194,7 @@ class WStringToInt64Traits {
 #endif
   }
   static inline bool valid_func(const string_type& str) {
-    return !iswspace(str[0]);
+    return !str.empty() && !iswspace(str[0]);
   }
 };
 
@@ -211,7 +211,7 @@ class HexStringToLongTraits {
     return strtoul(str, endptr, kBase);
   }
   static inline bool valid_func(const string_type& str) {
-    return !isspace(str[0]);
+    return !str.empty() && !isspace(str[0]);
   }
 };
 
@@ -225,7 +225,33 @@ class HexWStringToLongTraits {
     return wcstoul(str, endptr, kBase);
   }
   static inline bool valid_func(const string_type& str) {
-    return !iswspace(str[0]);
+    return !str.empty() && !iswspace(str[0]);
+  }
+};
+
+class StringToDoubleTraits {
+ public:
+  typedef std::string string_type;
+  typedef double value_type;
+  static inline value_type convert_func(const string_type::value_type* str,
+                                        string_type::value_type** endptr) {
+    return strtod(str, endptr);
+  }
+  static inline bool valid_func(const string_type& str) {
+    return !str.empty() && !isspace(str[0]);
+  }
+};
+
+class WStringToDoubleTraits {
+ public:
+  typedef std::wstring string_type;
+  typedef double value_type;
+  static inline value_type convert_func(const string_type::value_type* str,
+                                        string_type::value_type** endptr) {
+    return wcstod(str, endptr);
+  }
+  static inline bool valid_func(const string_type& str) {
+    return !str.empty() && !iswspace(str[0]);
   }
 };
 
@@ -1197,6 +1223,14 @@ bool HexStringToInt(const std::wstring& input, int* output) {
       input, reinterpret_cast<long*>(output));
 }
 
+bool StringToDouble(const std::string& input, double* output) {
+  return StringToNumber<StringToDoubleTraits>(input, output);
+}
+
+bool StringToDouble(const std::wstring& input, double* output) {
+  return StringToNumber<WStringToDoubleTraits>(input, output);
+}
+
 int StringToInt(const std::string& value) {
   int result;
   StringToInt(value, &result);
@@ -1230,5 +1264,17 @@ int HexStringToInt(const std::string& value) {
 int HexStringToInt(const std::wstring& value) {
   int result;
   HexStringToInt(value, &result);
+  return result;
+}
+
+double StringToDouble(const std::string& value) {
+  double result;
+  StringToDouble(value, &result);
+  return result;
+}
+
+double StringToDouble(const std::wstring& value) {
+  double result;
+  StringToDouble(value, &result);
   return result;
 }

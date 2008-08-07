@@ -342,6 +342,14 @@ bool StringToInt64(const std::wstring& input, int64* output);
 bool HexStringToInt(const std::string& input, int* output);
 bool HexStringToInt(const std::wstring& input, int* output);
 
+// For floating-point conversions, only conversions of input strings in decimal
+// form are defined to work.  Behavior with strings representing floating-point
+// numbers in hexadecimal, and strings representing non-fininte values (such
+// as NaN and inf) is undefined.  Otherwise, these behave the same as the
+// integral variants above.
+bool StringToDouble(const std::string& input, double* output);
+bool StringToDouble(const std::wstring& input, double* output);
+
 // Convenience forms of the above, when the caller is uninterested in the
 // boolean return value.  These return only the |*output| value from the
 // above conversions: a best-effort conversion when possible, otherwise, 0.
@@ -351,6 +359,8 @@ int64 StringToInt64(const std::string& value);
 int64 StringToInt64(const std::wstring& value);
 int HexStringToInt(const std::string& value);
 int HexStringToInt(const std::wstring& value);
+double StringToDouble(const std::string& value);
+double StringToDouble(const std::wstring& value);
 
 // Return a C++ string given printf-like input.
 std::string StringPrintf(const char* format, ...);

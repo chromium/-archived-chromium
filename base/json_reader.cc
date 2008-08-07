@@ -29,8 +29,7 @@
 
 #include "base/json_reader.h"
 
-#include <float.h>
-
+#include "base/float_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "base/values.h"
@@ -343,39 +342,20 @@ JSONReader::Token JSONReader::ParseNumberToken() {
 }
 
 bool JSONReader::DecodeNumber(const Token& token, Value** node) {
-  // Determine if we want to try to parse as an int or a double.
-  bool is_double = false;
-  for (int i = 0; i < token.length; ++i) {
-    wchar_t c = *(token.begin + i);
-    if ('e' == c || 'E' == c || '.' == c) {
-      is_double = true;
-      break;
-    }
+  const std::wstring num_string(token.begin, token.length);
+
+  int num_int;
+  if (StringToInt(num_string, &num_int)) {
+    *node = Value::CreateIntegerValue(num_int);
+    return true;
   }
 
-  if (is_double) {
-    // Try parsing as a double.
-    double num_double;
-    int parsed_values = swscanf_s(token.begin, L"%lf", &num_double);
-    // Make sure we're not -INF, INF or NAN.
-    if (1 == parsed_values && _finite(num_double)) {
-      *node = Value::CreateRealValue(num_double);
-      return true;
-    }
-  } else {
-    int num_int;
-    int parsed_values = swscanf_s(token.begin, L"%d", &num_int);
-    if (1 == parsed_values) {
-      // Ensure the parsed value matches the string.  This makes sure we don't
-      // overflow/underflow.
-      const std::wstring& back_to_str = StringPrintf(L"%d", num_int);
-      if (0 == wcsncmp(back_to_str.c_str(), token.begin,
-                       back_to_str.length())) {
-        *node = Value::CreateIntegerValue(num_int);
-        return true;
-      }
-    }
+  double num_double;
+  if (StringToDouble(num_string, &num_double) && base::IsFinite(num_double)) {
+    *node = Value::CreateRealValue(num_double);
+    return true;
   }
+
   return false;
 }
 

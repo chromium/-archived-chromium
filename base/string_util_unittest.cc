@@ -735,6 +735,8 @@ TEST(StringUtilTest, StringToInt64) {
     {"99999999999", GG_INT64_C(99999999999), true},
     {"9223372036854775807", kint64max, true},
     {"-9223372036854775808", kint64min, true},
+    {"09", 9, true},
+    {"-09", -9, true},
     {"", 0, false},
     {" 42", 42, false},
     {"\t\n\v\f\r 42", 42, false},
@@ -801,6 +803,8 @@ TEST(StringUtilTest, HexStringToInt) {
     {"0x80000000", INT_MIN, true},
     {"0xffffffff", -1, true},
     {"0XDeadBeef", 0xdeadbeef, true},
+    {"0x0f", 15, true},
+    {"0f", 15, true},
     {" 45", 0x45, false},
     {"\t\n\v\f\r 0x45", 0x45, false},
     {"efgh", 0xef, false},
@@ -834,6 +838,65 @@ TEST(StringUtilTest, HexStringToInt) {
   std::wstring wide_input = ASCIIToWide(input_string);
   EXPECT_FALSE(HexStringToInt(wide_input, &output));
   EXPECT_EQ(0xc0ffee, output);
+}
+
+TEST(StringUtilTest, StringToDouble) {
+  static const struct {
+    std::string input;
+    double output;
+    bool success;
+  } cases[] = {
+    {"0", 0.0, true},
+    {"42", 42.0, true},
+    {"-42", -42.0, true},
+    {"123.45", 123.45, true},
+    {"-123.45", -123.45, true},
+    {"+123.45", 123.45, true},
+    {"2.99792458e8", 299792458.0, true},
+    {"149597870.691E+3", 149597870691.0, true},
+    {"6.", 6.0, true},
+    {"9e99999999999999999999", HUGE_VAL, false},
+    {"-9e99999999999999999999", -HUGE_VAL, false},
+    {"1e-2", 0.01, true},
+    {"-1E-7", -0.0000001, true},
+    {"01e02", 100, true},
+    {"2.3e15", 2.3e15, true},
+    {"\t\n\v\f\r -123.45e2", -12345.0, false},
+    {"+123 e4", 123.0, false},
+    {"123e ", 123.0, false},
+    {"123e", 123.0, false},
+    {" 2.99", 2.99, false},
+    {"1e3.4", 1000.0, false},
+    {"nothing", 0.0, false},
+    {"-", 0.0, false},
+    {"+", 0.0, false},
+    {"", 0.0, false},
+  };
+
+  for (int i = 0; i < arraysize(cases); ++i) {
+    EXPECT_DOUBLE_EQ(cases[i].output, StringToDouble(cases[i].input));
+    double output;
+    EXPECT_EQ(cases[i].success, StringToDouble(cases[i].input, &output));
+    EXPECT_DOUBLE_EQ(cases[i].output, output);
+
+    std::wstring wide_input = ASCIIToWide(cases[i].input);
+    EXPECT_DOUBLE_EQ(cases[i].output, StringToDouble(wide_input));
+    EXPECT_EQ(cases[i].success, StringToDouble(wide_input, &output));
+    EXPECT_DOUBLE_EQ(cases[i].output, output);
+  }
+
+  // One additional test to verify that conversion of numbers in strings with
+  // embedded NUL characters.  The NUL and extra data after it should be
+  // interpreted as junk after the number.
+  const char input[] = "3.14\0159";
+  std::string input_string(input, arraysize(input) - 1);
+  double output;
+  EXPECT_FALSE(StringToDouble(input_string, &output));
+  EXPECT_DOUBLE_EQ(3.14, output);
+
+  std::wstring wide_input = ASCIIToWide(input_string);
+  EXPECT_FALSE(StringToDouble(wide_input, &output));
+  EXPECT_DOUBLE_EQ(3.14, output);
 }
 
 // This checks where we can use the assignment operator for a va_list. We need
