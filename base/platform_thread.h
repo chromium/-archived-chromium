@@ -27,16 +27,22 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_PLATFORM_THREAD_H__
-#define BASE_PLATFORM_THREAD_H__
+#ifndef BASE_PLATFORM_THREAD_H_
+#define BASE_PLATFORM_THREAD_H_
 
-#ifdef WIN32
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
+
 #include <windows.h>
 typedef HANDLE PlatformThreadHandle;
-#else
+
+#elif defined(OS_POSIX)
+
 #include <pthread.h>
 typedef pthread_t PlatformThreadHandle;
-#endif
+
+#endif  // defined(OS_POSIX)
 
 class PlatformThread {
  public:
@@ -49,8 +55,7 @@ class PlatformThread {
   bool operator==(const PlatformThread& other_thread);
 
  private:
-
   PlatformThreadHandle thread_;
 };
 
-#endif  // BASE_PLATFORM_THREAD_H__
+#endif  // BASE_PLATFORM_THREAD_H_

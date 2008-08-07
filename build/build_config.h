@@ -80,4 +80,14 @@
 #error Please add support for your architecture in build/build_config.h
 #endif
 
+// Type detection for wchar_t.
+#if defined(OS_WIN)
+#define WCHAR_T_IS_UTF16
+#elif defined(OS_POSIX) && defined(COMPILER_GCC) && \
+    defined(__WCHAR_MAX__) && __WCHAR_MAX__ == 0x7fffffff
+#define WCHAR_T_IS_UTF32
+#else
+#error Please add support for your compiler in build/build_config.h
+#endif
+
 #endif  // BUILD_BUILD_CONFIG_H_

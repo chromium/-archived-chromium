@@ -62,9 +62,8 @@ bool ReadUnicodeCharacter(const char* src, int32 src_len,
   return U_IS_UNICODE_CHAR(*code_point);
 }
 
-#ifdef WIN32
-// Reads a UTF-16 character for Windows. The usage is the same as the 8-bit
-// version above.
+#if defined(WCHAR_T_IS_UTF16)
+// Reads a UTF-16 character. The usage is the same as the 8-bit version above.
 bool ReadUnicodeCharacter(const wchar_t* src, int32 src_len,
                           int32* char_index, uint32* code_point) {
   if (U16_IS_SURROGATE(src[*char_index])) {
@@ -86,10 +85,9 @@ bool ReadUnicodeCharacter(const wchar_t* src, int32 src_len,
 
   return U_IS_UNICODE_CHAR(*code_point);
 }
-#else
-// Reads a 32-bit character for Mac and Linux systems. The usage is the same as
-// the 8-bit version above.
-bool ReadUnicodeCharacter(const wchar_t* src, in32 src_len,
+#elif defined(WCHAR_T_IS_UTF32)
+// Reads UTF-32 character. The usage is the same as the 8-bit version above.
+bool ReadUnicodeCharacter(const wchar_t* src, int32 src_len,
                           int32* char_index, uint32* code_point) {
   // Conversion is easy since the source is 32-bit.
   *code_point = src[*char_index];
@@ -97,7 +95,7 @@ bool ReadUnicodeCharacter(const wchar_t* src, in32 src_len,
   // Validate the value.
   return U_IS_UNICODE_CHAR(*code_point);
 }
-#endif
+#endif  // defined(WCHAR_T_IS_UTF32)
 
 // WriteUnicodeCharacter -------------------------------------------------------
 
@@ -120,9 +118,8 @@ void WriteUnicodeCharacter(uint32 code_point, std::basic_string<char>* output) {
   output->resize(char_offset);
 }
 
-#ifdef WIN32
-// Appends the given code point as a UTF-16 character to the STL string. On
-// Windows, wchar_t is UTF-16.
+#if defined(WCHAR_T_IS_UTF16)
+// Appends the given code point as a UTF-16 character to the STL string.
 void WriteUnicodeCharacter(uint32 code_point,
                            std::basic_string<wchar_t>* output) {
   if (U16_LENGTH(code_point) == 1) {
@@ -135,15 +132,14 @@ void WriteUnicodeCharacter(uint32 code_point,
     U16_APPEND_UNSAFE(&(*output)[0], char_offset, code_point);
   }
 }
-#else
-// Appends the given UCS-4 character to the given 32-bit string for Linux and
-// Mac where wchar_t is UCS-4.
+#elif defined(WCHAR_T_IS_UTF32)
+// Appends the given UTF-32 character to the given 32-bit string.
 inline void WriteUnicodeCharacter(uint32 code_point,
                                   std::basic_string<wchar_t>* output) {
   // This is the easy case, just append the character.
   output->push_back(code_point);
 }
-#endif
+#endif  // defined(WCHAR_T_IS_UTF32)
 
 // Generalized Unicode converter -----------------------------------------------
 
@@ -245,10 +241,10 @@ bool WideToCodepage(const std::wstring& wide,
 
   const UChar* uchar_src;
   int uchar_len;
-#ifdef U_WCHAR_IS_UTF16
+#if defined(WCHAR_T_IS_UTF16)
   uchar_src = wide.c_str();
   uchar_len = static_cast<int>(wide.length());
-#else  // U_WCHAR_IS_UTF16
+#elif defined(WCHAR_T_IS_UTF32)
   // When wchar_t is wider than UChar (16 bits), transform |wide| into a
   // UChar* string.  Size the UChar* buffer to be large enough to hold twice
   // as many UTF-16 code points as there are UCS-4 characters, in case each
@@ -259,7 +255,7 @@ bool WideToCodepage(const std::wstring& wide,
                wide.c_str(), wide.length(), &status);
   uchar_src = &wide_uchar[0];
   DCHECK(U_SUCCESS(status)) << "failed to convert wstring to UChar*";
-#endif  // U_WCHAR_IS_UTF16
+#endif  // defined(WCHAR_T_IS_UTF32)
 
   int encoded_max_length = UCNV_GET_MAX_BYTES_FOR_STRING(uchar_len,
     ucnv_getMaxCharSize(converter));
@@ -307,14 +303,14 @@ bool CodepageToWide(const std::string& encoded,
   size_t uchar_max_length = encoded.length() * 2 + 1;
 
   UChar* uchar_dst;
-#ifdef U_WCHAR_IS_UTF16
+#if defined(WCHAR_T_IS_UTF16)
   uchar_dst = WriteInto(wide, uchar_max_length);
-#else
+#elif defined(WCHAR_T_IS_UTF32)
   // When wchar_t is wider than UChar (16 bits), convert into a temporary
   // UChar* buffer.
   std::vector<UChar> wide_uchar(uchar_max_length);
   uchar_dst = &wide_uchar[0];
-#endif  // U_WCHAR_IS_UTF16
+#endif  // defined(WCHAR_T_IS_UTF32)
 
   // Setup our error handler.
   switch (on_error) {
@@ -342,7 +338,7 @@ bool CodepageToWide(const std::string& encoded,
     return false;
   }
 
-#ifndef U_WCHAR_IS_UTF16
+#ifdef WCHAR_T_IS_UTF32
   // When wchar_t is wider than UChar (16 bits), it's not possible to wind up
   // with any more wchar_t elements than UChar elements.  ucnv_toUChars
   // returns the number of UChar elements not including the NUL terminator, so
@@ -350,7 +346,7 @@ bool CodepageToWide(const std::string& encoded,
   u_strToWCS(WriteInto(wide, actual_size + 1), actual_size + 1, &actual_size,
              uchar_dst, actual_size, &status);
   DCHECK(U_SUCCESS(status)) << "failed to convert UChar* to wstring";
-#endif  // U_WCHAR_IS_UTF16
+#endif  // WCHAR_T_IS_UTF32
 
   wide->resize(actual_size);
   return true;
@@ -372,10 +368,10 @@ std::wstring FormatNumber(int64 number) {
   UnicodeString ustr;
   number_format->format(number, ustr);
 
-#ifdef U_WCHAR_IS_UTF16
+#if defined(WCHAR_T_IS_UTF16)
   return std::wstring(ustr.getBuffer(),
                       static_cast<std::wstring::size_type>(ustr.length()));
-#else  // U_WCHAR_IS_UTF16
+#elif defined(WCHAR_T_IS_UTF32)
   wchar_t buffer[64];  // A int64 is less than 20 chars long,  so 64 chars
                        // leaves plenty of room for formating stuff.
   int length = 0;
@@ -387,5 +383,5 @@ std::wstring FormatNumber(int64 number) {
     return StringPrintf(L"%lld", number);
   }
   return std::wstring(buffer, static_cast<std::wstring::size_type>(length));
-#endif  // U_WCHAR_IS_UTF16
+#endif  // defined(WCHAR_T_IS_UTF32)
 }

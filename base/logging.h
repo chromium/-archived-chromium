@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_LOGGING_H__
-#define BASE_LOGGING_H__
+#ifndef BASE_LOGGING_H_
+#define BASE_LOGGING_H_
 
 #include <string>
 #include <cstring>
@@ -143,10 +143,10 @@ enum OldFileDeletionState { DELETE_OLD_LOG_FILE, APPEND_TO_OLD_LOG_FILE };
 // The default log file is initialized to "debug.log" in the application
 // directory. You probably don't want this, especially since the program
 // directory may not be writable on an enduser's system.
-#if defined(WIN32)
+#if defined(OS_WIN)
 void InitLogging(const wchar_t* log_file, LoggingDestination logging_dest,
                  LogLockingState lock_log, OldFileDeletionState delete_old);
-#else
+#elif defined(OS_POSIX)
 // TODO(avi): do we want to do a unification of character types here?
 void InitLogging(const char* log_file, LoggingDestination logging_dest,
                  LogLockingState lock_log, OldFileDeletionState delete_old);
@@ -483,7 +483,7 @@ class LogMessage {
   size_t message_start_;  // Offset of the start of the message (past prefix
                           // info).
 
-  DISALLOW_EVIL_CONSTRUCTORS(LogMessage);
+  DISALLOW_COPY_AND_ASSIGN(LogMessage);
 };
 
 // A non-macro interface to the log facility; (useful
@@ -509,16 +509,17 @@ class LogMessageVoidify {
 //       after this call.
 void CloseLogFile();
 
-} // namespace Logging
+}  // namespace logging
 
 // These functions are provided as a convenience for logging, which is where we
 // use streams (it is against Google style to use streams in other places). It
 // is designed to allow you to emit non-ASCII Unicode strings to the log file,
 // which is normally ASCII. It is relatively slow, so try not to use it for
-// common cases. Non-ASCII characters will be converted to UTF-8 by these operators.
+// common cases. Non-ASCII characters will be converted to UTF-8 by these
+// operators.
 std::ostream& operator<<(std::ostream& out, const wchar_t* wstr);
 inline std::ostream& operator<<(std::ostream& out, const std::wstring& wstr) {
   return out << wstr.c_str();
 }
 
-#endif  // BASE_LOGGING_H__
+#endif  // BASE_LOGGING_H_

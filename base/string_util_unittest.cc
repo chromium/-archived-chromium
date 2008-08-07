@@ -153,9 +153,9 @@ static const wchar_t* const kConvertRoundtripCases[] = {
 
   // Test a character that takes more than 16-bits. This will depend on whether
   // wchar_t is 16 or 32 bits.
-  #ifdef WIN32
+  #if defined(WCHAR_T_IS_UTF16)
     L"\xd800\xdf00",
-  #else
+  #elif defined(WCHAR_T_IS_UTF32)
     "\x10300,
   #endif
 };
@@ -207,9 +207,9 @@ TEST(StringUtilTest, ConvertUTF8ToWide) {
     // This UTF-8 character decodes to a UTF-16 surrogate, which is illegal.
     {"\xed\xb0\x80", L"", false},
     // Non-BMP character. The result will either be in UTF-16 or UCS-4.
-#ifdef WIN32
+#if defined(WCHAR_T_IS_UTF16)
     {"A\xF0\x90\x8C\x80z", L"A\xd800\xdf00z", true},
-#else
+#elif defined(WCHAR_T_IS_UTF32)
     {"A\xF0\x90\x8C\x80z", L"A\x10300z", true},
 #endif
   };
@@ -238,7 +238,7 @@ TEST(StringUtilTest, ConvertUTF8ToWide) {
   EXPECT_EQ('B', converted[0]);
 }
 
-#ifdef WIN32
+#if defined(WCHAR_T_IS_UTf16)
 // This test is only valid when wchar_t == UTF-16.
 TEST(StringUtilTest, ConvertUTF16ToUTF8) {
   struct UTF16ToUTF8Case {
@@ -269,7 +269,7 @@ TEST(StringUtilTest, ConvertUTF16ToUTF8) {
   }
 }
 
-#else
+#elif defined(WCHAR_T_IS_UTF32)
 // This test is only valid when wchar_t == UCS-4.
 TEST(StringUtilTest, ConvertUCS4ToUTF8) {
   struct UTF8ToWideCase {
@@ -298,7 +298,7 @@ TEST(StringUtilTest, ConvertUCS4ToUTF8) {
     EXPECT_EQ(expected, converted);
   }
 }
-#endif
+#endif  // defined(WCHAR_T_IS_UTF32)
 
 TEST(StringUtilTest, ConvertMultiString) {
   static wchar_t wmulti[] = {
@@ -467,7 +467,7 @@ TEST(StringUtilTest, ConvertBetweenCodepageAndWide) {
                              OnStringUtilConversionError::SKIP, &encoded));
   EXPECT_STREQ("Chinese", encoded.c_str());
 
-#ifdef WIN32
+#if defined(WCHAR_T_IS_UTF16)
   // When we're in UTF-16 mode, test an invalid UTF-16 character in the input.
   EXPECT_FALSE(WideToCodepage(L"a\xd800z", "iso-8859-1",
                               OnStringUtilConversionError::FAIL, &encoded));
@@ -475,7 +475,7 @@ TEST(StringUtilTest, ConvertBetweenCodepageAndWide) {
   EXPECT_TRUE(WideToCodepage(L"a\xd800z", "iso-8859-1",
                              OnStringUtilConversionError::SKIP, &encoded));
   EXPECT_STREQ("az", encoded.c_str());
-#endif
+#endif  // WCHAR_T_IS_UTf16
 
   // Invalid characters should fail.
   EXPECT_TRUE(WideToCodepage(L"a\xffffz", "iso-8859-1",

@@ -44,18 +44,18 @@
 // These classes are represented as only a 64-bit value, so they can be
 // efficiently passed by value.
 
-#ifndef BASE_TIME_H__
-#define BASE_TIME_H__
-
-#ifdef WIN32
-// For FILETIME in FromFileTime, until it moves to a new converter class.
-// See TODO(iyengar) below.
-#include <windows.h>
-#endif
+#ifndef BASE_TIME_H_
+#define BASE_TIME_H_
 
 #include <time.h>
 #include "base/basictypes.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
+
+#if defined(OS_WIN)
+// For FILETIME in FromFileTime, until it moves to a new converter class.
+// See TODO(iyengar) below.
+#include <windows.h>
+#endif
 
 class Time;
 class TimeTicks;
@@ -236,7 +236,7 @@ class Time {
   // (Jan 1, 1970).  Webkit uses this format to represent time.
   double ToDoubleT() const;
 
-#ifdef WIN32
+#if defined(OS_WIN)
   static Time FromFileTime(FILETIME ft);
   FILETIME ToFileTime() const;
 #endif
@@ -455,7 +455,7 @@ class TimeTicks {
   // Tick count in microseconds.
   int64 ticks_;
 
-#ifdef WIN32
+#if defined(OS_WIN)
   // The function to use for counting ticks.
   typedef int (__stdcall *TickFunction)(void);
   static TickFunction tick_function_;
@@ -466,4 +466,4 @@ inline TimeTicks TimeDelta::operator+(TimeTicks t) const {
   return TimeTicks(t.ticks_ + delta_);
 }
 
-#endif  // BASE_TIME_H__
+#endif  // BASE_TIME_H_

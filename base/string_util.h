@@ -29,8 +29,8 @@
 //
 // This file defines utility functions for working with strings.
 
-#ifndef BASE_STRING_UTIL_H__
-#define BASE_STRING_UTIL_H__
+#ifndef BASE_STRING_UTIL_H_
+#define BASE_STRING_UTIL_H_
 
 #include <string>
 #include <vector>
@@ -76,9 +76,9 @@ int SWPrintF(wchar_t* buffer, size_t size, const wchar_t* format, ...);
 
 // Some of these implementations need to be inlined.
 
-#if defined(WIN32)
+#if defined(OS_WIN)
 #include "base/string_util_win.h"
-#elif defined(__APPLE__)
+#elif defined(OS_MACOSX)
 #include "base/string_util_mac.h"
 #else
 #error Define string operations appropriately for your platform
@@ -532,4 +532,4 @@ std::wstring ReplaceStringPlaceholders(const std::wstring& format_string,
 bool MatchPattern(const std::wstring& string, const std::wstring& pattern);
 bool MatchPattern(const std::string& string, const std::string& pattern);
 
-#endif  // BASE_STRING_UTIL_H__
+#endif  // BASE_STRING_UTIL_H_

@@ -27,17 +27,18 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_SHARED_MEMORY_H__
-#define BASE_SHARED_MEMORY_H__
+#ifndef BASE_SHARED_MEMORY_H_
+#define BASE_SHARED_MEMORY_H_
 
+#include "base/basictypes.h"
 #include "base/process_util.h"
 
 // SharedMemoryHandle is a platform specific type which represents
 // the underlying OS handle to a shared memory segment.
-#ifdef WIN32
+#if defined(OS_WIN)
 typedef HANDLE SharedMemoryHandle;
 typedef HANDLE SharedMemoryLock;
-#else
+#elif defined(OS_POSIX)
 typedef int SharedMemoryHandle;
 typedef int SharedMemoryLock;
 #endif
@@ -166,4 +167,4 @@ class SharedMemoryAutoLock {
 };
 
 
-#endif  // BASE_SHARED_MEMORY_H__
+#endif  // BASE_SHARED_MEMORY_H_

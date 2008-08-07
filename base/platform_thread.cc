@@ -27,19 +27,19 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef WIN32
+#include "base/platform_thread.h"
+
+#if defined(OS_POSIX)
 #include <sched.h>
 #endif
-
-#include "base/platform_thread.h"
 
 // static
 PlatformThread PlatformThread::Current() {
   PlatformThread thread;
 
-#ifdef WIN32
+#if defined(OS_WIN)
   thread.thread_ = GetCurrentThread();
-#else
+#elif defined(OS_POSIX)
   thread.thread_ = pthread_self();
 #endif
 
@@ -48,17 +48,17 @@ PlatformThread PlatformThread::Current() {
 
 // static
 void PlatformThread::YieldCurrentThread() {
-#ifdef WIN32
+#if defined(OS_WIN)
   ::Sleep(0);
-#else
+#elif defined(OS_POSIX)
   sched_yield();
 #endif
 }
 
 bool PlatformThread::operator==(const PlatformThread& other_thread) {
-#ifdef WIN32
+#if defined(OS_WIN)
   return thread_ == other_thread.thread_;
-#else
+#elif defined(OS_POSIX)
   return pthread_equal(thread_, other_thread.thread_);
 #endif
 }

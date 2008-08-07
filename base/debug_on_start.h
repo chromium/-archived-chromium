@@ -31,11 +31,13 @@
 // line argument. When the command line argument is detected, it invokes the
 // debugger, if no system-wide debugger is registered, a debug break is done.
 
-#ifndef BASE_DEBUG_ON_START_H__
-#define BASE_DEBUG_ON_START_H__
+#ifndef BASE_DEBUG_ON_START_H_
+#define BASE_DEBUG_ON_START_H_
+
+#include "base/basictypes.h"
 
 // This only works on Windows.
-#ifdef _WIN32
+#if defined(OS_WIN)
 
 #ifndef DECLSPEC_SELECTANY
 #define DECLSPEC_SELECTANY  __declspec(selectany)
@@ -85,6 +87,6 @@ DECLSPEC_SELECTANY DebugOnStart::PIFV debug_on_start = &DebugOnStart::Init;
 #pragma data_seg(pop)
 
 #endif  // _WIN64
-#endif  // _WIN32
+#endif  // defined(OS_WIN)
 
-#endif  // BASE_DEBUG_ON_START_H__
+#endif  // BASE_DEBUG_ON_START_H_
