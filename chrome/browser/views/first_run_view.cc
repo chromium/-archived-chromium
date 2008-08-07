@@ -144,22 +144,18 @@ void FirstRunView::Layout() {
   next_v_space = actions_label_->GetY() +
                  actions_label_->GetHeight() + kVertSpacing;
 
-
-  // First give the label some width, so that GetPreferredSize can return us a
-  // reasonable height...
-  actions_import_->SetBounds(0, 0, GetWidth() - kPanelHorizMargin, 0);
-  actions_import_->GetPreferredSize(&pref_size);
-  actions_import_->SetBounds(kPanelHorizMargin, next_v_space,
-                             pref_size.cx + 100, pref_size.cy);
+  int label_width = GetWidth() - (2 * kPanelHorizMargin);
+  int label_height = actions_import_->GetHeightForWidth(label_width);
+  actions_import_->SetBounds(kPanelHorizMargin, next_v_space, label_width,
+                             label_height);
 
   next_v_space = actions_import_->GetY() +
                  actions_import_->GetHeight() + kVertSpacing;
   AdjustDialogWidth(actions_import_);
 
-  actions_shorcuts_->SetBounds(0, 0, GetWidth() - kPanelHorizMargin, 0);
-  actions_shorcuts_->GetPreferredSize(&pref_size);
-  actions_shorcuts_->SetBounds(kPanelHorizMargin, next_v_space,
-                               pref_size.cx, pref_size.cy);
+  label_height = actions_shorcuts_->GetHeightForWidth(label_width);
+  actions_shorcuts_->SetBounds(kPanelHorizMargin, next_v_space, label_width,
+                               label_height);
   AdjustDialogWidth(actions_shorcuts_);
 
   next_v_space = actions_shorcuts_->GetY() +
