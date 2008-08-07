@@ -330,9 +330,6 @@ enum { MLOCK_ALL = -1, MLOCK_NONE = 0 };
 // If pos is large enough, "pos + N" may overflow.  For example,
 // pos==0xfffff000 and N==1MB.
 //
-// This often happens on Nacona's in 32-bit mode, because the
-// main thread's stack is put very close to address 0xffffffff.
-//
 // PointerRangeSize(a,b) returns the size of the range [a,b-1]
 inline size_t PointerRangeSize(const char* start, const char* end) {
   assert(start <= end);
