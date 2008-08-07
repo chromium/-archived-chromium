@@ -122,7 +122,7 @@ def StartTestShell(binary, args):
   return subprocess.Popen(cmd,
                           stdin=subprocess.PIPE,
                           stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE)
+                          stderr=subprocess.STDOUT)
 
 
 class SingleTestThread(threading.Thread):
@@ -297,5 +297,6 @@ class TestShellThread(threading.Thread):
     if self._test_shell_proc:
       self._test_shell_proc.stdin.close()
       self._test_shell_proc.stdout.close()
-      self._test_shell_proc.stderr.close()
+      if self._test_shell_proc.stderr:
+        self._test_shell_proc.stderr.close()
       self._test_shell_proc = None
