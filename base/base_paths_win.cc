@@ -32,7 +32,9 @@
 #include <shlobj.h>
 
 #include "base/file_util.h"
+#include "base/logging.h"
 #include "base/path_service.h"
+#include "base/win_util.h"
 
 // This is here for the sole purpose of looking up the corresponding HMODULE.
 static int handle_lookup = 0;
@@ -106,6 +108,10 @@ bool PathProviderWin(int key, std::wstring* result) {
       cur = system_buffer;
       break;
     case base::DIR_LOCAL_APP_DATA_LOW:
+      if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
+        NOTREACHED();
+        return false;
+      }
       // TODO(nsylvain): We should use SHGetKnownFolderPath instead. Bug 1281128
       if (FAILED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT,
                                  system_buffer)))

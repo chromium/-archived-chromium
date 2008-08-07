@@ -27,7 +27,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "build/build_config.h"
+#include "base/path_service.h"
 
 #ifdef OS_WIN
 #include <windows.h>
@@ -36,11 +36,9 @@
 #endif
 
 #include "base/hash_tables.h"
-#include "base/path_service.h"
-
+#include "base/file_util.h"
 #include "base/lock.h"
 #include "base/logging.h"
-#include "base/file_util.h"
 #include "base/string_util.h"
 
 namespace base {

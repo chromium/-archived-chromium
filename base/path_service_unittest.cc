@@ -31,20 +31,28 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "base/win_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "testing/gtest/include/gtest/gtest-spi.h"
 
 namespace {
-  class PathServiceTest : public testing::Test {
-  };
-};
 
 // Returns true if PathService::Get returns true and sets the path parameter
 // to non-empty for the given PathService::DirType enumeration value.
 bool ReturnsValidPath(int dir_type) {
   std::wstring path;
   bool result = PathService::Get(dir_type, &path);
-  return result && !path.empty();
+  return result && !path.empty() && file_util::PathExists(path);
 }
+
+// Function to test DIR_LOCAL_APP_DATA_LOW on Windows XP. Make sure it fails.
+void GetPath() {
+  std::wstring path;
+  bool result = PathService::Get(base::DIR_LOCAL_APP_DATA_LOW, &path);
+  EXPECT_FALSE(result);
+}
+
+}  // namespace
 
 // Test that all PathService::Get calls return a value and a true result
 // in the development environment.  (This test was created because a few
@@ -56,7 +64,20 @@ TEST(PathServiceTest, Get) {
   }
 #ifdef OS_WIN
   for (int key = base::PATH_WIN_START + 1; key < base::PATH_WIN_END; ++key) {
-    EXPECT_PRED1(ReturnsValidPath, key);
+    if (key == base::DIR_LOCAL_APP_DATA_LOW &&
+        win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
+      // DIR_LOCAL_APP_DATA_LOW is not supported prior Vista and is expected to
+      // fail.
+#ifdef _DEBUG
+      EXPECT_FATAL_FAILURE(GetPath(), ":FATAL:base_paths_win.cc(");
+#else
+      // In release, the DCHECK won't be hit. Still verify that
+      // PathService::Get() returns false.
+      GetPath();
+#endif
+    } else {
+      EXPECT_PRED1(ReturnsValidPath, key);
+    }
   }
 #endif
 }
