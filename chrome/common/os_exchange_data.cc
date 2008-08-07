@@ -45,7 +45,9 @@
 #include "generated_resources.h"
 
 // Creates a new STGMEDIUM object to hold the specified text. The caller
-// owns the resulting object.
+// owns the resulting object. The "Bytes" version does not NULL terminate, the
+// string version does.
+static STGMEDIUM* GetStorageForBytes(const char* data, size_t bytes);
 static STGMEDIUM* GetStorageForWString(const std::wstring& data);
 static STGMEDIUM* GetStorageForString(const std::string& data);
 // Creates the contents of an Internet Shortcut file for the given URL.
@@ -359,7 +361,8 @@ void OSExchangeData::SetFileContents(const std::wstring& filename,
 }
 
 void OSExchangeData::SetCFHtml(const std::wstring& cf_html) {
-  STGMEDIUM* storage = GetStorageForString(WideToUTF8(cf_html));
+  std::string utf8 = WideToUTF8(cf_html);
+  STGMEDIUM* storage = GetStorageForBytes(utf8.c_str(), utf8.size());
   contents_.push_back(new StoredDataInfo(
       ClipboardUtil::GetHtmlFormat()->cfFormat, storage));
 }
@@ -619,6 +622,19 @@ ULONG OSExchangeData::Release() {
 
 ///////////////////////////////////////////////////////////////////////////////
 // OSExchangeData, private:
+
+static STGMEDIUM* GetStorageForBytes(const char* data, size_t bytes) {
+  HANDLE handle = GlobalAlloc(GPTR, static_cast<int>(bytes));
+  ScopedHGlobal<char> scoped(handle);
+  size_t allocated = static_cast<size_t>(GlobalSize(handle));
+  memcpy(scoped.get(), data, allocated);
+
+  STGMEDIUM* storage = new STGMEDIUM;
+  storage->hGlobal = handle;
+  storage->tymed = TYMED_HGLOBAL;
+  storage->pUnkForRelease = NULL;
+  return storage;
+}
 
 template<class T>
 static HGLOBAL CopyStringToGlobalHandle(const T& payload) {
