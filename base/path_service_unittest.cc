@@ -46,10 +46,10 @@ bool ReturnsValidPath(int dir_type) {
 }
 
 // Function to test DIR_LOCAL_APP_DATA_LOW on Windows XP. Make sure it fails.
-void GetPath() {
+bool ReturnsInvalidPath(int dir_type) {
   std::wstring path;
   bool result = PathService::Get(base::DIR_LOCAL_APP_DATA_LOW, &path);
-  EXPECT_FALSE(result);
+  return !result && path.empty();
 }
 
 }  // namespace
@@ -68,15 +68,9 @@ TEST(PathServiceTest, Get) {
         win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
       // DIR_LOCAL_APP_DATA_LOW is not supported prior Vista and is expected to
       // fail.
-#ifdef _DEBUG
-      EXPECT_FATAL_FAILURE(GetPath(), ":FATAL:base_paths_win.cc(");
-#else
-      // In release, the DCHECK won't be hit. Still verify that
-      // PathService::Get() returns false.
-      GetPath();
-#endif
+      EXPECT_TRUE(ReturnsInvalidPath(key)) << key;
     } else {
-      EXPECT_PRED1(ReturnsValidPath, key);
+      EXPECT_TRUE(ReturnsValidPath(key)) << key;
     }
   }
 #endif
