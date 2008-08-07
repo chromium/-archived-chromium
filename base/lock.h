@@ -88,14 +88,6 @@ class AutoLock {
   DISALLOW_EVIL_CONSTRUCTORS(AutoLock);
 };
 
-// A helper macro to perform a single operation (expressed by expr)
-// in a lock
-#define LOCKED_EXPRESSION(lock, expr) \
-  do { \
-    AutoLock _auto_lock(lock);  \
-    (expr); \
-  } while (0)
-
 // AutoUnlock is a helper class for ConditionVariable instances
 // that is analogous to AutoLock.  It provides for nested Releases
 // of a lock for the Wait functionality of a ConditionVariable class.

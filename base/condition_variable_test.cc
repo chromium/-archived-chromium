@@ -235,21 +235,6 @@ TEST_F(ConditionVariableTest, StartupShutdownTest) {
   lock.Release();
 }  // Call for cv destruction.
 
-TEST_F(ConditionVariableTest, LockedExpressionTest) {
-  int i = 0;
-  Lock lock;
-
-  // Old LOCKED_EXPRESSION macro caused syntax errors here.
-  // ... yes... compiler will optimize this example.
-  // Syntax error is what I'm after precluding.
-  if (0)
-    LOCKED_EXPRESSION(lock, i = 1);
-  else
-    LOCKED_EXPRESSION(lock, i = 2);
-
-  EXPECT_EQ(2, i);
-}
-
 TEST_F(ConditionVariableTest, TimeoutTest) {
   Lock lock;
   ConditionVariable cv(&lock);
