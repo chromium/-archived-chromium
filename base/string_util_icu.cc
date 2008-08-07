@@ -87,7 +87,7 @@ bool ReadUnicodeCharacter(const char16* src, int32 src_len,
 
 #if defined(WCHAR_T_IS_UTF32)
 // Reads UTF-32 character. The usage is the same as the 8-bit version above.
-bool ReadUTF32Character(const wchar_t* src, int32 src_len,
+bool ReadUnicodeCharacter(const wchar_t* src, int32 src_len,
                         int32* char_index, uint32* code_point) {
   // Conversion is easy since the source is 32-bit.
   *code_point = src[*char_index];
@@ -254,7 +254,7 @@ std::string16 WideToUTF16(const std::wstring& wide) {
   if (wide.empty())
     return ret;
 
-  UTF8ToWide(wide.data(), wide.length(), &ret);
+  WideToUTF16(wide.data(), wide.length(), &ret);
   return ret;
 }
 
@@ -275,7 +275,7 @@ std::wstring UTF16ToWide(const std::string16& utf16) {
   if (utf16.empty())
     return ret;
 
-  UTF8ToWide(utf16.data(), utf16.length(), &ret);
+  UTF16ToWide(utf16.data(), utf16.length(), &ret);
   return ret;
 }
 
