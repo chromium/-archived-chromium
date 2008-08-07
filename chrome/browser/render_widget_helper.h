@@ -32,6 +32,7 @@
 
 #include <hash_map>
 
+#include "base/atomic_sequence_num.h"
 #include "base/ref_counted.h"
 #include "base/lock.h"
 
@@ -173,7 +174,7 @@ class RenderWidgetHelper :
   HANDLE event_;
 
   // The next routing id to use.
-  LONG next_routing_id_;
+  base::AtomicSequenceNumber next_routing_id_;
 
   // Whether popup blocking is enabled or not.
   bool block_popups_;

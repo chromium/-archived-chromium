@@ -93,7 +93,7 @@ void PluginProcess::OnFinalRelease() {
 }
 
 void PluginProcess::OnProcessShutdownTimeout() {
-  if (GetProcessRefcount() == 0) {
+  if (ProcessRefCountIsZero()) {
     // The plugin process shutdown sequence is a request response based
     // mechanism, where we send out an initial feeler request to the plugin
     // process host instance in the browser to verify if it is ok to shutdown

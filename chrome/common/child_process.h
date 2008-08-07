@@ -88,7 +88,7 @@ class ChildProcess {
   static bool GlobalInit(const std::wstring& channel_name,
                          ChildProcessFactoryInterface* factory);
 
-  static int GetProcessRefcount() { return static_cast<int>(ref_count_);}
+  static bool ProcessRefCountIsZero();
 
   // The singleton instance for this process.
   static ChildProcess* child_process_;
@@ -105,8 +105,6 @@ class ChildProcess {
   // Derived classes can override this to handle any cleanup, called by
   // GlobalCleanup.
   virtual void Cleanup() {}
-
-  static LONG ref_count_;
   static HANDLE shutdown_event_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ChildProcess);

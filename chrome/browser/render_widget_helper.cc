@@ -60,7 +60,6 @@ RenderWidgetHelper::RenderWidgetHelper(int render_process_id)
     : render_process_id_(render_process_id),
       ui_loop_(MessageLoop::current()),
       event_(CreateEvent(NULL, FALSE /* auto-reset */, FALSE, NULL)),
-      next_routing_id_(0),
       block_popups_(false) {
 }
 
@@ -73,7 +72,7 @@ RenderWidgetHelper::~RenderWidgetHelper() {
 }
 
 int RenderWidgetHelper::GetNextRoutingID() {
-  return InterlockedIncrement(&next_routing_id_);
+  return next_routing_id_.GetNext() + 1;
 }
 
 void RenderWidgetHelper::CancelResourceRequests(int render_widget_id) {

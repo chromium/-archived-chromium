@@ -30,11 +30,12 @@
 #include <windows.h>
 #include "chrome/common/child_process.h"
 
+#include "base/atomic_ref_count.h"
 #include "base/basictypes.h"
 
 ChildProcess* ChildProcess::child_process_;
 MessageLoop* ChildProcess::main_thread_loop_;
-LONG ChildProcess::ref_count_;
+static base::AtomicRefCount ref_count;
 HANDLE ChildProcess::shutdown_event_;
 
 
@@ -48,15 +49,21 @@ ChildProcess::~ChildProcess() {
 
 // Called on any thread
 void ChildProcess::AddRefProcess() {
-  InterlockedIncrement(&ref_count_);
+  base::AtomicRefCountInc(&ref_count);
 }
 
 // Called on any thread
 void ChildProcess::ReleaseProcess() {
-  DCHECK(ref_count_ > 0);
+  DCHECK(!base::AtomicRefCountIsZero(&ref_count));
   DCHECK(child_process_);
-  if (InterlockedDecrement(&ref_count_) == 0)
+  if (!base::AtomicRefCountDec(&ref_count))
     child_process_->OnFinalRelease();
+}
+
+// Called on any thread
+// static
+bool ChildProcess::ProcessRefCountIsZero() {
+  return base::AtomicRefCountIsZero(&ref_count);
 }
 
 void ChildProcess::OnFinalRelease() {
