@@ -50,7 +50,7 @@ class Profile;
 //
 ///////////////////////////////////////////////////////////////////////////////
 class Tab : public TabRenderer,
-            public Menu::Delegate,
+            public ChromeViews::ContextMenuController,
             public ChromeViews::BaseButton::ButtonListener {
  public:
   static const std::string kTabClassName;
@@ -77,6 +77,14 @@ class Tab : public TabRenderer,
     virtual void ExecuteCommandForTab(
         TabStripModel::ContextMenuCommand command_id, Tab* tab) = 0;
 
+    // Starts/Stops highlighting the tabs that will be affected by the
+    // specified command for the specified Tab.
+    virtual void StartHighlightTabsForCommand(
+        TabStripModel::ContextMenuCommand command_id, Tab* tab) = 0;
+    virtual void StopHighlightTabsForCommand(
+        TabStripModel::ContextMenuCommand command_id, Tab* tab) = 0;
+    virtual void StopAllHighlighting() = 0;
+
     // Potentially starts a drag for the specified Tab.
     virtual void MaybeStartDrag(Tab* tab,
                                 const ChromeViews::MouseEvent& event) = 0;
@@ -91,6 +99,9 @@ class Tab : public TabRenderer,
 
   explicit Tab(TabDelegate* delegate);
   virtual ~Tab();
+
+  // Access the delegate.
+  TabDelegate* delegate() const { return delegate_; }
 
   // Used to set/check whether this Tab is being animated closed.
   void set_closing(bool closing) { closing_ = closing; }
@@ -111,15 +122,14 @@ class Tab : public TabRenderer,
   virtual bool GetAccessibleRole(VARIANT* role);
   virtual bool GetAccessibleName(std::wstring* name);
 
-  // ChromeViews::Menu::Delegate overrides:
-  virtual bool IsCommandEnabled(int id) const;
-  virtual void ExecuteCommand(int id);
+  // ChromeViews::ContextMenuController overrides:
+  virtual void ShowContextMenu(ChromeViews::View* source,
+                               int x,
+                               int y,
+                               bool is_mouse_gesture);
 
   // ChromeViews::BaseButton::ButtonListener overrides:
   virtual void ButtonPressed(ChromeViews::BaseButton* sender);
-
-  // Run a context menu for this Tab at the specified screen point.
-  void RunContextMenuAt(const gfx::Point& screen_point);
 
   // An instance of a delegate object that can perform various actions based on
   // user gestures.

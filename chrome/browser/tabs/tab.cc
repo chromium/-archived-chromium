@@ -36,10 +36,92 @@
 #include "chrome/browser/user_metrics.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/views/chrome_menu.h"
 #include "chrome/views/tooltip_manager.h"
 #include "generated_resources.h"
 
 const std::string Tab::kTabClassName = "browser/tabs/Tab";
+
+class TabContextMenuController : public ChromeViews::MenuDelegate {
+ public:
+  explicit TabContextMenuController(Tab* tab)
+      : tab_(tab),
+        last_command_(TabStripModel::CommandFirst) {
+    menu_.reset(new ChromeViews::MenuItemView(this));
+    menu_->AppendMenuItemWithLabel(TabStripModel::CommandNewTab,
+                                   l10n_util::GetString(IDS_TAB_CXMENU_NEWTAB));
+    menu_->AppendSeparator();
+    menu_->AppendMenuItemWithLabel(TabStripModel::CommandReload,
+                                   l10n_util::GetString(IDS_TAB_CXMENU_RELOAD));
+    menu_->AppendMenuItemWithLabel(
+        TabStripModel::CommandDuplicate,
+        l10n_util::GetString(IDS_TAB_CXMENU_DUPLICATE));
+    menu_->AppendSeparator();
+    menu_->AppendMenuItemWithLabel(
+        TabStripModel::CommandCloseTab,
+        l10n_util::GetString(IDS_TAB_CXMENU_CLOSETAB));
+    menu_->AppendMenuItemWithLabel(
+        TabStripModel::CommandCloseOtherTabs,
+        l10n_util::GetString(IDS_TAB_CXMENU_CLOSEOTHERTABS));
+    menu_->AppendMenuItemWithLabel(
+        TabStripModel::CommandCloseTabsToRight,
+        l10n_util::GetString(IDS_TAB_CXMENU_CLOSETABSTORIGHT));
+    menu_->AppendMenuItemWithLabel(
+        TabStripModel::CommandCloseTabsOpenedBy,
+        l10n_util::GetString(IDS_TAB_CXMENU_CLOSETABSOPENEDBY));
+  }
+  virtual ~TabContextMenuController() {
+    tab_->delegate()->StopAllHighlighting();
+  }
+
+  void RunMenuAt(int x, int y) {
+    menu_->RunMenuAt(tab_->GetViewContainer()->GetHWND(),
+                     gfx::Rect(x, y, 0, 0), ChromeViews::MenuItemView::TOPLEFT,
+                     false);
+  }
+
+ private:
+  // ChromeViews::MenuDelegate implementation:
+  virtual bool IsCommandEnabled(int id) const {
+    // The MenuItemView used to contain the contents of the Context Menu itself
+    // has a command id of 0, and it will check to see if it's enabled for
+    // some reason during its construction. The TabStripModel can't handle
+    // command indices it doesn't know about, so we need to filter this out
+    // here.
+    if (id == 0)
+      return false;
+    return tab_->delegate()->IsCommandEnabledForTab(
+        static_cast<TabStripModel::ContextMenuCommand>(id),
+        tab_);
+  }
+
+  virtual void ExecuteCommand(int id) {
+    tab_->delegate()->ExecuteCommandForTab(
+        static_cast<TabStripModel::ContextMenuCommand>(id),
+        tab_);
+  }
+
+  virtual void SelectionChanged(ChromeViews::MenuItemView* menu) {
+    TabStripModel::ContextMenuCommand command =
+        static_cast<TabStripModel::ContextMenuCommand>(menu->GetCommand());
+    tab_->delegate()->StopHighlightTabsForCommand(last_command_, tab_);
+    last_command_ = command;
+    tab_->delegate()->StartHighlightTabsForCommand(command, tab_);
+  }
+
+ private:
+  // The context menu.
+  scoped_ptr<ChromeViews::MenuItemView> menu_;
+
+  // The Tab the context menu was brought up for.
+  Tab* tab_;
+
+  // The last command that was selected, so that we can start/stop highlighting
+  // appropriately as the user moves through the menu.
+  TabStripModel::ContextMenuCommand last_command_;
+
+  DISALLOW_EVIL_CONSTRUCTORS(TabContextMenuController);
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // Tab, public:
@@ -51,6 +133,7 @@ Tab::Tab(TabDelegate* delegate)
   close_button()->SetListener(this, 0);
   close_button()->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_CLOSE));
   close_button()->SetAnimationDuration(0);
+  SetContextMenuController(this);
 }
 
 Tab::~Tab() {
@@ -89,13 +172,8 @@ void Tab::OnMouseReleased(const ChromeViews::MouseEvent& event,
   // Notify the drag helper that we're done with any potential drag operations.
   // Clean up the drag helper, which is re-created on the next mouse press.
   delegate_->EndDrag(canceled);
-  if (event.IsOnlyRightMouseButton()) {
-    CPoint screen_point = event.GetLocation();
-    ConvertPointToScreen(this, &screen_point);
-    RunContextMenuAt(gfx::Point(screen_point));
-  } else if (event.IsMiddleMouseButton()) {
+  if (event.IsMiddleMouseButton())
     delegate_->CloseTab(this);
-  }
 }
 
 bool Tab::GetTooltipText(int x, int y, std::wstring* tooltip) {
@@ -132,17 +210,14 @@ bool Tab::GetAccessibleName(std::wstring* name) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Tab, ChromeViews::Menu::Delegate implementation:
+// Tab, ChromeViews::ContextMenuController implementation:
 
-bool Tab::IsCommandEnabled(int id) const {
-  return delegate_->IsCommandEnabledForTab(
-      static_cast<TabStripModel::ContextMenuCommand>(id), this);
+void Tab::ShowContextMenu(ChromeViews::View* source, int x, int y,
+                          bool is_mouse_gesture) {
+  TabContextMenuController controller(this);
+  controller.RunMenuAt(x, y);
 }
 
-void Tab::ExecuteCommand(int id) {
-  delegate_->ExecuteCommandForTab(
-      static_cast<TabStripModel::ContextMenuCommand>(id), this);
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // ChromeViews::BaseButton::ButtonListener implementation:
@@ -150,35 +225,4 @@ void Tab::ExecuteCommand(int id) {
 void Tab::ButtonPressed(ChromeViews::BaseButton* sender) {
   if (sender == close_button())
     delegate_->CloseTab(this);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Tab, private
-
-void Tab::RunContextMenuAt(const gfx::Point& screen_point) {
-  Menu menu(this, Menu::TOPLEFT, GetViewContainer()->GetHWND());
-  menu.AppendMenuItem(TabStripModel::CommandNewTab,
-                      l10n_util::GetString(IDS_TAB_CXMENU_NEWTAB),
-                      Menu::NORMAL);
-  menu.AppendSeparator();
-  menu.AppendMenuItem(TabStripModel::CommandReload,
-                      l10n_util::GetString(IDS_TAB_CXMENU_RELOAD),
-                      Menu::NORMAL);
-  menu.AppendMenuItem(TabStripModel::CommandDuplicate,
-                      l10n_util::GetString(IDS_TAB_CXMENU_DUPLICATE),
-                      Menu::NORMAL);
-  menu.AppendSeparator();
-  menu.AppendMenuItem(TabStripModel::CommandCloseTab,
-                      l10n_util::GetString(IDS_TAB_CXMENU_CLOSETAB),
-                      Menu::NORMAL);
-  menu.AppendMenuItem(TabStripModel::CommandCloseOtherTabs,
-                      l10n_util::GetString(IDS_TAB_CXMENU_CLOSEOTHERTABS),
-                      Menu::NORMAL);
-  menu.AppendMenuItem(TabStripModel::CommandCloseTabsToRight,
-                      l10n_util::GetString(IDS_TAB_CXMENU_CLOSETABSTORIGHT),
-                      Menu::NORMAL);
-  menu.AppendMenuItem(TabStripModel::CommandCloseTabsOpenedBy,
-                      l10n_util::GetString(IDS_TAB_CXMENU_CLOSETABSOPENEDBY),
-                      Menu::NORMAL);
-  menu.RunMenuAt(screen_point.x(), screen_point.y());
 }

@@ -890,6 +890,52 @@ void TabStrip::ExecuteCommandForTab(
     model_->ExecuteContextMenuCommand(index, command_id);
 }
 
+void TabStrip::StartHighlightTabsForCommand(
+    TabStripModel::ContextMenuCommand command_id, Tab* tab) {
+  if (command_id == TabStripModel::CommandCloseTabsOpenedBy) {
+    int index = GetIndexOfTab(tab);
+    if (index != -1) {
+      std::vector<int> indices = model_->GetIndexesOpenedBy(index);
+      std::vector<int>::const_iterator iter = indices.begin();
+      for (; iter != indices.end(); ++iter) {
+        int current_index = *iter;
+        DCHECK(current_index >= 0 && current_index < GetTabCount());
+        Tab* current_tab = GetTabAt(current_index);
+        current_tab->StartPulse();
+      }
+    }
+  } else if (command_id == TabStripModel::CommandCloseTabsToRight) {
+    int index = GetIndexOfTab(tab);
+    if (index != -1) {
+      for (int i = index + 1; i < GetTabCount(); ++i) {
+        Tab* current_tab = GetTabAt(i);
+        current_tab->StartPulse();
+      }
+    }
+  } else if (command_id == TabStripModel::CommandCloseOtherTabs) {
+    for (int i = 0; i < GetTabCount(); ++i) {
+      Tab* current_tab = GetTabAt(i);
+      if (current_tab != tab)
+        current_tab->StartPulse();
+    }
+  }
+}
+
+void TabStrip::StopHighlightTabsForCommand(
+    TabStripModel::ContextMenuCommand command_id, Tab* tab) {
+  if (command_id == TabStripModel::CommandCloseTabsOpenedBy ||
+      command_id == TabStripModel::CommandCloseTabsToRight ||
+      command_id == TabStripModel::CommandCloseOtherTabs) {
+    // Just tell all Tabs to stop pulsing - it's safe.
+    StopAllHighlighting();
+  }
+}
+
+void TabStrip::StopAllHighlighting() {
+  for (int i = 0; i < GetTabCount(); ++i)
+    GetTabAt(i)->StopPulse();
+}
+
 void TabStrip::MaybeStartDrag(Tab* tab, const ChromeViews::MouseEvent& event) {
   // Don't accidentally start any drag operations during animations if the
   // mouse is down... during an animation tabs are being resized automatically,

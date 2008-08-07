@@ -198,6 +198,10 @@ class MenuDelegate : Controller {
   // menu for a drop.
   virtual void DropMenuClosed(MenuItemView* menu) {
   }
+
+  // Notification that the user has highlighted the specified item.
+  virtual void SelectionChanged(MenuItemView* menu) {
+  }
 };
 
 // MenuItemView --------------------------------------------------------------

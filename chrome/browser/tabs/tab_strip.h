@@ -162,6 +162,11 @@ class TabStrip : public ChromeViews::View,
       TabStripModel::ContextMenuCommand command_id, const Tab* tab) const;
   virtual void ExecuteCommandForTab(
       TabStripModel::ContextMenuCommand command_id, Tab* tab);
+  virtual void StartHighlightTabsForCommand(
+      TabStripModel::ContextMenuCommand command_id, Tab* tab);
+  virtual void StopHighlightTabsForCommand(
+      TabStripModel::ContextMenuCommand command_id, Tab* tab);
+  virtual void StopAllHighlighting();
   virtual void MaybeStartDrag(Tab* tab,
                               const ChromeViews::MouseEvent& event);
   virtual void ContinueDrag(const ChromeViews::MouseEvent& event);

@@ -415,6 +415,10 @@ class TabStripModel : public NotificationObserver {
   void ExecuteContextMenuCommand(int context_index,
                                  ContextMenuCommand command_id);
 
+  // Returns a vector of indices of TabContentses opened from the TabContents
+  // at the specified |index|.
+  std::vector<int> GetIndexesOpenedBy(int index) const;
+
   // Overridden from notificationObserver:
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,

@@ -1633,6 +1633,9 @@ void MenuController::SetSelection(MenuItemView* menu_item,
   for (size_t i = paths_differ_at; i < new_size; ++i)
     new_path[i]->SetSelected(true);
 
+  if (menu_item && menu_item->GetDelegate())
+    menu_item->GetDelegate()->SelectionChanged(menu_item);
+
   pending_state_.item = menu_item;
   pending_state_.submenu_open = open_submenu;
 

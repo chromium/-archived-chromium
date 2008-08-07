@@ -33,6 +33,7 @@
 #include "base/gfx/point.h"
 #include "chrome/common/animation.h"
 #include "chrome/common/slide_animation.h"
+#include "chrome/common/throb_animation.h"
 #include "chrome/views/button.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/view.h"
@@ -73,8 +74,9 @@ class TabRenderer : public ChromeViews::View,
   // the tab isn't loading.
   void ValidateLoadingAnimation(AnimationState animation_state);
 
-  // AnimationDelegate implementation.
-  virtual void AnimationProgressed(const Animation* animation);
+  // Starts/Stops a pulse animation.
+  void StartPulse();
+  void StopPulse();
 
   // Returns the minimum possible size of a single unselected Tab.
   static gfx::Size GetMinimumSize();
@@ -105,6 +107,11 @@ class TabRenderer : public ChromeViews::View,
   virtual void OnMouseEntered(const ChromeViews::MouseEvent& event);
   virtual void OnMouseExited(const ChromeViews::MouseEvent& event);
 
+  // Overridden from AnimationDelegate:
+  virtual void AnimationProgressed(const Animation* animation);
+  virtual void AnimationCanceled(const Animation* animation);
+  virtual void AnimationEnded(const Animation* animation);
+
   // Starts/Stops the crash animation.
   void StartCrashAnimation();
   void StopCrashAnimation();
@@ -119,6 +126,7 @@ class TabRenderer : public ChromeViews::View,
   void ResetCrashedFavIcon();
 
   // Paint various portions of the Tab
+  void PaintTabBackground(ChromeCanvas* canvas);
   void PaintInactiveTabBackground(ChromeCanvas* canvas);
   void PaintActiveTabBackground(ChromeCanvas* canvas);
   void PaintHoverTabBackground(ChromeCanvas* canvas, double opacity);
@@ -150,6 +158,9 @@ class TabRenderer : public ChromeViews::View,
 
   // Hover animation.
   scoped_ptr<SlideAnimation> hover_animation_;
+
+  // Pulse animation.
+  scoped_ptr<ThrobAnimation> pulse_animation_;
 
   // Model data. We store this here so that we don't need to ask the underlying
   // model, which is tricky since instances of this object can outlive the

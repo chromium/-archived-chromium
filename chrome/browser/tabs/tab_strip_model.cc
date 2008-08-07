@@ -519,6 +519,16 @@ void TabStripModel::ExecuteContextMenuCommand(
   }
 }
 
+std::vector<int> TabStripModel::GetIndexesOpenedBy(int index) const {
+  std::vector<int> indices;
+  NavigationController* opener = GetTabContentsAt(index)->controller();
+  for (int i = count() - 1; i >= 0; --i) {
+    if (OpenerMatches(contents_data_.at(i), opener, true))
+      indices.push_back(i);
+  }
+  return indices;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // TabStripModel, NotificationObserver implementation:
 

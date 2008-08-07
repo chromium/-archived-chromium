@@ -27,6 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <limits>
+
 #include "chrome/browser/tabs/tab_renderer.h"
 
 #include "base/gfx/image_operations.h"
@@ -54,6 +56,9 @@ static const int kUnselectedTitleColor = SkColorSetRGB(64, 64, 64);
 
 // How long the hover state takes.
 static const int kHoverDurationMs = 90;
+
+// How long the pulse throb takes.
+static const int kPulseDurationMs = 200;
 
 // How opaque to make the hover state (out of 1).
 static const double kHoverOpacity = 0.33;
@@ -272,6 +277,9 @@ TabRenderer::TabRenderer()
 
   hover_animation_.reset(new SlideAnimation(this));
   hover_animation_->SetSlideDuration(kHoverDurationMs);
+
+  pulse_animation_.reset(new ThrobAnimation(this));
+  pulse_animation_->SetSlideDuration(kPulseDurationMs);
 }
 
 TabRenderer::~TabRenderer() {
@@ -334,10 +342,14 @@ void TabRenderer::ValidateLoadingAnimation(AnimationState animation_state) {
   SchedulePaint();
 }
 
-void TabRenderer::AnimationProgressed(const Animation* animation) {
-  if (animation == hover_animation_.get()) {
-    SchedulePaint();
-  }
+void TabRenderer::StartPulse() {
+  pulse_animation_->Reset();
+  pulse_animation_->StartThrobbing(std::numeric_limits<int>::max());
+}
+
+void TabRenderer::StopPulse() {
+  if (pulse_animation_->IsAnimating())
+    pulse_animation_->Stop();
 }
 
 // static
@@ -403,21 +415,7 @@ void TabRenderer::Paint(ChromeCanvas* canvas) {
       show_close_button != showing_close_button_)
     Layout();
 
-  if (IsSelected()) {
-    // Sometimes detaching a tab quickly can result in the model reporting it
-    // as not being selected, so is_drag_clone_ ensures that we always paint
-    // the active representation for the dragged tab.
-    PaintActiveTabBackground(canvas);
-  } else {
-    // Draw our hover state.
-    if (hover_animation_->GetCurrentValue() > 0) {
-      PaintHoverTabBackground(canvas, hover_animation_->GetCurrentValue() *
-          (win_util::ShouldUseVistaFrame() ?
-          kHoverOpacityVista : kHoverOpacity));
-    } else {
-      PaintInactiveTabBackground(canvas);
-    }
-  }
+  PaintTabBackground(canvas);
 
   // Paint the loading animation if the page is currently loading, otherwise
   // show the page's favicon.
@@ -573,8 +571,47 @@ void TabRenderer::OnMouseExited(const ChromeViews::MouseEvent& e) {
   hover_animation_->Hide();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// TabRenderer, AnimationDelegate implementation:
+
+void TabRenderer::AnimationProgressed(const Animation* animation) {
+  SchedulePaint();
+}
+
+void TabRenderer::AnimationCanceled(const Animation* animation) {
+  AnimationEnded(animation);
+}
+
+void TabRenderer::AnimationEnded(const Animation* animation) {
+  SchedulePaint();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // TabRenderer, private
+
+void TabRenderer::PaintTabBackground(ChromeCanvas* canvas) {
+  if (IsSelected()) {
+    // Sometimes detaching a tab quickly can result in the model reporting it
+    // as not being selected, so is_drag_clone_ ensures that we always paint
+    // the active representation for the dragged tab.
+    PaintActiveTabBackground(canvas);
+  } else {
+    // Draw our hover state.
+    Animation* animation = NULL;
+    if (hover_animation_->IsAnimating()) {
+      animation = hover_animation_.get();
+    } else if (pulse_animation_->IsAnimating()) {
+      animation = pulse_animation_.get();
+    }
+    if (animation && animation->GetCurrentValue() > 0) {
+      PaintHoverTabBackground(canvas, animation->GetCurrentValue() *
+          (win_util::ShouldUseVistaFrame() ?
+          kHoverOpacityVista : kHoverOpacity));
+    } else {
+      PaintInactiveTabBackground(canvas);
+    }
+  }
+}
 
 void TabRenderer::PaintInactiveTabBackground(ChromeCanvas* canvas) {
   bool is_otr = data_.off_the_record;
@@ -609,7 +646,7 @@ void TabRenderer::PaintHoverTabBackground(ChromeCanvas* canvas,
 
   canvas->DrawBitmapInt(left, 0, 0);
   canvas->TileImageInt(center, tab_active_l_width, 0,
-    GetWidth() - tab_active_l_width - tab_active_r_width, GetHeight());
+      GetWidth() - tab_active_l_width - tab_active_r_width, GetHeight());
   canvas->DrawBitmapInt(right, GetWidth() - tab_active_r_width, 0);
 }
 
