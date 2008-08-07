@@ -365,6 +365,7 @@ env_flat = env.Clone(
 
 flats = [
     'about_memory',
+    'about_version',
     'incognito_tab',
     'new_tab',
     'safe_browsing_malware_block',
