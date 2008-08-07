@@ -39,15 +39,15 @@
 #include "base/logging.h"
 #include "base/singleton.h"
 #include "base/string_util.h"
+#include "base/sys_string_conversions.h"
 
 extern "C" {
 #if defined(OS_MACOSX)
 const char** NXArgv;
 int NXArgc;
 #elif defined(OS_LINUX)
-extern "C" {
 const char** __libc_argv;
-int __libc_argv;
+int __libc_argc;
 #endif
 }  // extern "C"
 
@@ -142,11 +142,11 @@ class CommandLine::Data {
     if (argc <= 1)
       return;
 
-    program_ = NativeMBToWide(argv[0]);
+    program_ = base::SysNativeMBToWide(argv[0]);
     command_line_string_ = program_;
 
     for (int i = 1; i < argc; ++i) {
-      std::wstring arg = NativeMBToWide(argv[i]);
+      std::wstring arg = base::SysNativeMBToWide(argv[i]);
       command_line_string_.append(L" ");
       command_line_string_.append(arg);
 
