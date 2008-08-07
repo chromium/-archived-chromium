@@ -233,6 +233,20 @@ bool DoUpgradeTasks(const CommandLine& command_line) {
   return true;
 }
 
+bool CreateUniqueChromeEvent() {
+  std::wstring exe;
+  PathService::Get(base::FILE_EXE, &exe);
+  std::replace(exe.begin(), exe.end(), '\\', '!');
+  std::transform(exe.begin(), exe.end(), exe.begin(), tolower);
+  HANDLE handle = CreateEvent(NULL, TRUE, TRUE, exe.c_str());
+  bool already_running = false;
+  if (GetLastError() == ERROR_ALREADY_EXISTS) {
+    already_running = true;
+    CloseHandle(handle);
+  }
+  return already_running;
+}
+
 }  // namespace
 
 // Main routine for running as the Browser process.
@@ -248,22 +262,12 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   const char* main_thread_name = "Chrome_BrowserMain";
   Thread::SetThreadName(main_thread_name, GetCurrentThreadId());
   MessageLoop::current()->SetThreadName(main_thread_name);
+  bool already_running = CreateUniqueChromeEvent();
 
   // Make the selection of network stacks early on before any consumers try to
   // issue HTTP requests.
   if (parsed_command_line.HasSwitch(switches::kUseNewHttp))
     net::HttpNetworkLayer::UseWinHttp(false);
-
-  std::wstring exe;
-  PathService::Get(base::FILE_EXE, &exe);
-  std::replace(exe.begin(), exe.end(), '\\', '!');
-  std::transform(exe.begin(), exe.end(), exe.begin(), tolower);
-  HANDLE handle = CreateEvent(NULL, TRUE, TRUE, exe.c_str());
-  bool already_running = false;
-  if (GetLastError() == ERROR_ALREADY_EXISTS) {
-    already_running = true;
-    CloseHandle(handle);
-  }
 
   std::wstring user_data_dir;
   PathService::Get(chrome::DIR_USER_DATA, &user_data_dir);
@@ -395,7 +399,10 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   if (message_window.NotifyOtherProcess(show_command))
     return ResultCodes::NORMAL_EXIT;
 
+  // Sometimes we end up killing browser process (http://b/1308130) so make
+  // sure we recreate unique event to indicate running browser process.
   message_window.HuntForZombieChromeProcesses();
+  CreateUniqueChromeEvent();
 
   // Do the tasks if chrome has been upgraded while it was last running.
   if (DoUpgradeTasks(parsed_command_line)) {
