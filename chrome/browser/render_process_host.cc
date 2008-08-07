@@ -467,7 +467,10 @@ void RenderProcessHost::Release(int listener_id) {
     if (!notified_termination_) {
       // It is possible that the renderer died already even though we haven't
       // broken the pipe yet.  We should take care to count this as unexpected.
-      bool clean_shutdown = !process_util::DidProcessCrash(process_.handle());
+      // In unit tests, we do not have a valid process handle.
+      bool clean_shutdown = true;
+      if (process_.handle())
+        clean_shutdown = !process_util::DidProcessCrash(process_.handle());
       NotificationService::current()->Notify(NOTIFY_RENDERER_PROCESS_TERMINATED,
                                              Source<RenderProcessHost>(this),
                                              Details<bool>(&clean_shutdown));
