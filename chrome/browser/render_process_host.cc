@@ -202,7 +202,7 @@ RenderProcessHost::~RenderProcessHost() {
   channel_.reset();
 
   if (process_.handle() && !run_renderer_in_process_) {
-    MessageLoop::current()->WatchObject(process_.handle(), NULL);
+    watcher_.StopWatching();
     ProcessWatcher::EnsureProcessTerminated(process_.handle());
   }
 
@@ -420,7 +420,7 @@ bool RenderProcessHost::Init() {
         process_.set_handle(process);
       }
 
-      MessageLoop::current()->WatchObject(process_.handle(), this);
+      watcher_.StartWatching(process_.handle(), this);
     }
   }
 
@@ -459,16 +459,18 @@ void RenderProcessHost::Release(int listener_id) {
   DCHECK(listeners_.Lookup(listener_id) != NULL);
   listeners_.Remove(listener_id);
 
-  // make sure that all associated resource requests are stopped.
+  // Make sure that all associated resource requests are stopped.
   widget_helper_->CancelResourceRequests(listener_id);
 
-  // when no other owners of this object, we can delete ourselves
+  // When there are no other owners of this object, we can delete ourselves.
   if (listeners_.IsEmpty()) {
     if (!notified_termination_) {
-      bool close_expected = true;
+      // It is possible that the renderer died already even though we haven't
+      // broken the pipe yet.  We should take care to count this as unexpected.
+      bool clean_shutdown = !process_util::DidProcessCrash(process_.handle());
       NotificationService::current()->Notify(NOTIFY_RENDERER_PROCESS_TERMINATED,
                                              Source<RenderProcessHost>(this),
-                                             Details<bool>(&close_expected));
+                                             Details<bool>(&clean_shutdown));
       notified_termination_ = true;
     }
     Unregister();
@@ -506,8 +508,8 @@ bool RenderProcessHost::FastShutdownIfPossible() {
       return false;
     }
   }
-  // Otherwise, call TerminateProcess.  Using exit code 0 means that UMA won't
-  // treat this as a renderer crash.
+  // Otherwise, call TerminateProcess.  Using NORMAL_EXIT here means that UMA
+  // won't treat this as a renderer crash.
   ::TerminateProcess(proc, ResultCodes::NORMAL_EXIT);
   return true;
 }
@@ -576,7 +578,7 @@ void RenderProcessHost::OnChannelConnected(int32 peer_pid) {
       // returned by CreateProcess() has to the process object.
       process_.set_handle(OpenProcess(MAXIMUM_ALLOWED, FALSE, peer_pid));
       DCHECK(process_.handle());
-      MessageLoop::current()->WatchObject(process_.handle(), this);
+      watcher_.StartWatching(process_.handle(), this);
     }
   } else {
     // Need to verify that the peer_pid is actually the process we know, if
@@ -591,8 +593,6 @@ void RenderProcessHost::OnObjectSignaled(HANDLE object) {
   DCHECK(channel_.get());
   DCHECK_EQ(object, process_.handle());
 
-  MessageLoop::current()->WatchObject(object, NULL);
-
   bool clean_shutdown = !process_util::DidProcessCrash(object);
 
   process_.Close();
@@ -600,8 +600,8 @@ void RenderProcessHost::OnObjectSignaled(HANDLE object) {
   channel_.reset();
 
   if (!notified_termination_) {
-    // If |close_expected| is false, it means the renderer process went away
-    // before the web views expected it; count it as a crash.
+    // If |clean_shutdown| is false, it means the renderer process went away
+    // before we expected it; count it as a crash.
     NotificationService::current()->Notify(NOTIFY_RENDERER_PROCESS_TERMINATED,
                                            Source<RenderProcessHost>(this),
                                            Details<bool>(&clean_shutdown));
