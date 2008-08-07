@@ -31,5 +31,6 @@ The binary modifications to cygwin1.dll were:
   replacing "mount registry: 2" with "mount registry: 0"
   replacing "cygwin1S4" with "cygwin0S4"
 
-These can be replayed by running "changes\convert.py".
+These can be replayed by running "cygwin_src\changes\convert.py" on cygwin1.dll
+that's in cygwin_src.
 
