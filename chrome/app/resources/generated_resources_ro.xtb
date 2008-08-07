@@ -589,7 +589,6 @@
 <translation id="411666854932687641">Memorie privată</translation>
 <translation id="7965010376480416255">Memorie comună</translation>
 <translation id="7931071620596053769">Următoarea(ele) pagină(i) a(u) devenit inactivă(e). Puteţi aştepta să devină activă(e) sau să o(le) închideţi.</translation>
-<translation id="501080040224996242">Ajutaţi la îmbunătăţirea Chrome prin trimiterea automată de statistici privind utilizarea şi rapoarte de avarie la Google</translation>
 <translation id="5912378097832178659">&amp;Editaţi motoarele de căutare...</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Prestabilit)</translation>
 <translation id="614298788004369532">Această pagină conţine unele elemente nesigure</translation>
@@ -738,4 +737,5 @@
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Aţi trecut în modul incognito<ph name="END_BOLD"/>. Paginile pe care le vedeţi în această fereastră nu vor apărea în istoricul browserului sau în istoricul căutării şi nu vor lăsa urme pe computer, cum ar fi cookie-uri, după ce închideţi fereastra incognito. Cu toate acestea, vor fi păstrate orice fişiere descărcate sau marcaje create.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Intrarea incognito nu afectează comportamentul altor persoane, servere sau aplicaţii software. Fiţi atent la:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Site-urile Web care colectează sau distribuie informaţii despre dvs.<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Furnizorii de servicii Internet sau angajaţii care urmăresc paginile pe care le vizitaţi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Aplicaţiile software dăunătoare care urmăresc apăsarea tastelor în schimbul emoticoanelor gratuite<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Supravegherea de către agenţi secreţi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Persoanele care stau în spatele dvs.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Aflaţi mai multe<ph name="END_LINK"/> despre accesarea incognito.</translation>
 <translation id="1604816462140255479">&amp;Panoramare text</translation>
 <translation id="2089625293428655599">Fragmente ale acestui software au fost licenţiate de la terţe părţi, după cum este descris la: <ph name="URL"/></translation>
+<translation id="6817660909204164466">Ajutaţi la îmbunătăţirea Google Chrome prin trimiterea automată de statistici de utilizare şi rapoarte de avarie la Google</translation>
 </translationbundle>

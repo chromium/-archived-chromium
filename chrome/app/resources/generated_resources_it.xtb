@@ -212,7 +212,7 @@
 <translation id="5818003990515275822">Coreano</translation>
 <translation id="4890284164788142455">Tailandese</translation>
 <translation id="7434509671034404296">Opzioni per sviluppatori</translation>
-<translation id="2440604414813129000">Visualizza o&amp;rigine</translation>
+<translation id="2440604414813129000">Visualizza &amp;sorgente</translation>
 <translation id="3842377959466606212">&amp;Informazioni pagina</translation>
 <translation id="5872213955895293073">Avvia debugger JavaScript</translation>
 <translation id="5904714272463161824">&amp;Segnala bug o sito web non funzionante...</translation>
@@ -337,7 +337,7 @@
 <translation id="2266011376676382776">La pagina non risponde</translation>
 <translation id="1110155001042129815">Attendi</translation>
 <translation id="1684861821302948641">Termina pagine</translation>
-<translation id="6134282421960734039">Vuoi che Crhome salvi la tua password?</translation>
+<translation id="6134282421960734039">Vuoi che Chrome salvi la tua password?</translation>
 <translation id="5271549068863921519">Salva password</translation>
 <translation id="7484645889979462775">Mai per questo sito</translation>
 <translation id="4195643157523330669">Apri in un'altra scheda</translation>
@@ -589,7 +589,6 @@
 <translation id="411666854932687641">Memoria privata</translation>
 <translation id="7965010376480416255">Memoria condivisa</translation>
 <translation id="7931071620596053769">Le pagine seguenti non rispondono. Puoi attendere che tornino a rispondere o puoi terminarle.</translation>
-<translation id="501080040224996242">Contribuisci a migliorare le prestazioni di Chrome inviando automaticamente a Google statistiche di utilizzo e segnalazioni sugli arresti anomali</translation>
 <translation id="5912378097832178659">&amp;Cambia motori di ricerca...</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (predefinito)</translation>
 <translation id="614298788004369532">La pagina contiene elementi non protetti</translation>
@@ -742,4 +741,5 @@
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Sei passato alla navigazione in incognito<ph name="END_BOLD"/>. Le pagine aperte in questa finestra non vengono registrate nella cronologia di navigazione o di ricerca, e non lasciano traccia sul tuo computer, ad esempio sotto forma di cookie, una volta chiusa la finestra. Tuttavia, qualsiasi file scaricato o preferito creato verrà conservato.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>La navigazione in incognito non influisce sul comportamento di altri utenti, server o software. Diffida di:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Siti web che raccolgono o condividono informazioni su di te<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Provider di servizi Internet o datori di lavoro che registrano le pagine da te visitate<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Software dannosi che registrano le sequenze di tasti da te utilizzate in cambio di smiley gratuiti<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Agenti segreti<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Persone che ti stanno alle spalle<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Ulteriori informazioni<ph name="END_LINK"/> sulla navigazione in incognito.</translation>
 <translation id="1604816462140255479">Carattere</translation>
 <translation id="2089625293428655599">Parti di questo software sono state ottenute in licenza da terze parti come descritto alla pagina: <ph name="URL"/></translation>
+<translation id="6817660909204164466">Aiutaci a migliorare Google Chrome inviando automaticamente a Google le statistiche sull'utilizzo e segnalazioni sugli arresti anomali</translation>
 </translationbundle>

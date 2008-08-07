@@ -589,7 +589,6 @@
 <translation id="411666854932687641">Privater Arbeitsspeicher</translation>
 <translation id="7965010376480416255">Freigegebener Arbeitsspeicher</translation>
 <translation id="7931071620596053769">Die folgende(n) Seite(n) reagiert/en nicht mehr. Sie können warten, bis die Seiten wieder reagieren, oder sie schließen.</translation>
-<translation id="501080040224996242">Helfen Sie, Chrome zu verbessern, indem Sie automatisch Nutzungsstatistiken und Absturzberichte an Google senden.</translation>
 <translation id="5912378097832178659">Suchmaschin&amp;en bearbeiten...</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Standardeinstellung)</translation>
 <translation id="614298788004369532">Diese Seite enthält einige nicht sichere Elemente.</translation>
@@ -738,4 +737,5 @@
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Sie haben den Modus für anonymes Browsen aktiviert<ph name="END_BOLD"/>. In diesem Fenster aufgerufene Seiten werden nicht im Browserverlauf oder Suchverlauf angezeigt. Zudem werden nach dem Schließen des Inkognito-Fensters keine anderen Hinweise wie Cookies auf dem Computer gespeichert. Heruntergeladene Dateien oder hinzugefügte Lesezeichen werden jedoch beibehalten. <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Das anonyme Browsen wirkt sich nicht auf das Nutzerverhalten bzw. auf die Funktionsweise von Servern oder Software aus. Vorsicht ist geboten bei:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Websites, auf denen Informationen über Sie gesammelt oder weitergegeben werden<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Internetanbietern oder Arbeitgebern, die die von Ihnen aufgerufenen Seiten protokollieren<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Bösartiger Software, mit der Ihre Tastatureingaben festgehalten werden (dafür bekommen Sie Smileys gratis)<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Überwachung durch Ermittlungsbehörden<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Personen, die hinter Ihnen stehen<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        Weitere Informationen zum anonymen Browsen erhalten Sie <ph name="BEGIN_LINK"/>hier<ph name="END_LINK"/>.</translation>
 <translation id="1604816462140255479">Text &amp;zoom</translation>
 <translation id="2089625293428655599">Teile dieser Software sind von Drittanbietern lizenziert. Weitere Informationen erhalten Sie unter: <ph name="URL"/></translation>
+<translation id="6817660909204164466">Helfen Sie, Google Chrome zu verbessern, indem Sie automatisch Nutzungsstatistiken und Absturzberichte an Google senden.</translation>
 </translationbundle>

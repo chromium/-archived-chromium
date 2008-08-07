@@ -282,6 +282,7 @@ Del</translation>
 <translation id="703748601351783580">פתח את כל הסימניות בחלון חדש</translation>
 <translation id="1521442365706402292">נהל אישורים</translation>
 <translation id="3702398161649563352"><ph name="PRODUCT_NAME"/> עודכן <ph name="VERSION"/></translation>
+<translation id="6817660909204164466">עזור לשפר את Gogle Chrome באמצעות שליחת נתונים סטטיסטיים לגבי שימוש ודוחות קריסה באופן אוטומטי  Google</translation>
 <translation id="6264485186158353794">חזרה לבטיחות</translation>
 <translation id="4948468046837535074">פתח את הדפים הבאים:</translation>
 <translation id="2544782972264605588">נותרו <ph name="NUMBER_DEFAULT"/> שניות</translation>
@@ -494,7 +495,6 @@ Del</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (ברירת מחדל)</translation>
 <translation id="5360606537916580043">מהיום האחרון</translation>
 <translation id="1181037720776840403">הסר</translation>
-<translation id="501080040224996242">עזור לשפר את Chrome על ידי שליחה אוטומטית של סטטיסטיקת שימוש ודוחות קריסה ל-Google.</translation>
 <translation id="14171126816530869">זהות <ph name="ORGANIZATION"/> ב-<ph name="LOCALITY"/>  אומתה על ידי <ph name="ISSUER"/>.</translation>
 <translation id="569109051430110155">איתור אוטומטי</translation>
 <translation id="8235325155053717782">שגיאה <ph name="ERROR_NUMBER"/>(<ph name="ERROR_NAME"/>): <ph name="ERROR_TEXT"/></translation>

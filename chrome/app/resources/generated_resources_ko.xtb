@@ -589,7 +589,6 @@
 <translation id="411666854932687641">개별 메모리</translation>
 <translation id="7965010376480416255">공유 메모리</translation>
 <translation id="7931071620596053769">다음 페이지에서 응답이 없습니다. 페이지가 응답할 때까지 기다리거나 종료할 수 있습니다.</translation>
-<translation id="501080040224996242">사용 통계 및 오류 보고를 Google에 자동 전송하도록 선택하여 크롬 개선에 도움 주기</translation>
 <translation id="5912378097832178659">검색엔진 수정...(&amp;E)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/>(기본)</translation>
 <translation id="614298788004369532">이 페이지에는 안전하지 못한 요소가 있습니다.</translation>
@@ -738,4 +737,5 @@
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>시크릿 모드로 바뀌었습니다<ph name="END_BOLD"/>. 시크릿 창에서 연 페이지는 브라우저의 웹 기록이나 검색 기록에 나타나지 않으며 창을 닫은 후에는 쿠키 같은 기록을 컴퓨터에 남기지 않습니다. 그러나 다운로드한 파일이나 작성한 북마크는 저장됩니다.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>시크릿 모드는 다른 사용자나 서버 또는 소프트웨어의 동작에 영향을 주지 않습니다. 주의:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>사용자 정보를 수집하고 공유하는 사이트<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>사용자가 방문한 페이지를 추적하는 인터넷 서비스 제공업체 또는 기업<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>무료 이모티콘을 제공하고 사용자의 키보드 입력을 추적하는 악성 소프트웨어<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>스파이의 감시<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>뒤에 서 있는 사람<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        시크릿 검색에 대해 <ph name="BEGIN_LINK"/>자세히 알아보기<ph name="END_LINK"/></translation>
 <translation id="1604816462140255479">글꼴 크기</translation>
 <translation id="2089625293428655599">본 소프트웨어에는 타사 라이센스 소프트웨어가 일부 포함되어 있습니다. 자세한 내용은 다음 페이지를 참조하세요. <ph name="URL"/></translation>
+<translation id="6817660909204164466">사용 통계 및 충돌 보고서가 Google로 자동 전송되도록 선택하시면 크롬을 개선하는 데 도움이 됩니다.</translation>
 </translationbundle>

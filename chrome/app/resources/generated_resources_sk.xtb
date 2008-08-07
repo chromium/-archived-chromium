@@ -589,7 +589,6 @@
 <translation id="411666854932687641">Súkromná pamäť</translation>
 <translation id="7965010376480416255">Zdieľaná pamäť</translation>
 <translation id="7931071620596053769">Niektoré z nasledujúcich stránok prestali reagovať. Môžete počkať, kým začnú reagovať, alebo ich nútene ukončiť.</translation>
-<translation id="501080040224996242">Ak aktivujete automatické posielanie štatistiky použitia a prehľadov chýb do spoločnosti Google, pomôžete nám zlepšovať prehliadač Chrome.</translation>
 <translation id="5912378097832178659">&amp;Upraviť vyhľadávacie mechanizmy...</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (predvolené nastavenie)</translation>
 <translation id="614298788004369532">Táto stránka obsahuje niekoľko nezabezpečených prvkov.</translation>
@@ -738,4 +737,5 @@
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Aktivovali ste prehľadávanie inkognito<ph name="END_BOLD"/>. Stránky, ktoré si prezeráte v tomto okne, sa nezobrazia v histórii prehliadača ani v histórii vyhľadávania. Na rozdiel od súborov cookie po zatvorení okna inkognito v počítači nevytvoria žiadny záznam. Akékoľvek načítané súbory alebo vytvorené záložky sa však uchovajú.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Prehľadávanie inkognito neovplyvňuje správanie ostatných ľudí, serverov ani softvéru. Venujte zvýšenú pozornosť:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Webovým stránkam, ktoré zbierajú alebo zdieľajú vaše osobné informácie<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Poskytovateľom internetových služieb alebo zamestnancom, ktorí sledujú vami navštívené stránky<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Škodlivému softvéru, ktorý sleduje vami stlačené klávesy výmenou za bezplatné „smajlíky“ <ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Pozorovaniu tajnými agentmi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Ľuďom stojacim za vaším chrbtom<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Viac informácií<ph name="END_LINK"/> o prehliadaní inkognito.</translation>
 <translation id="1604816462140255479">Priblíženie t&amp;extu</translation>
 <translation id="2089625293428655599">Na časti tohto softvéru sa vzťahujú licencie tretích strán, ako sa uvádza na stránke: <ph name="URL"/></translation>
+<translation id="6817660909204164466">Pomôžte nám vylepšiť prehliadač Google Chrome aktivovaním automatického odosielania štatistických údajov o používaní prehliadača a prehľadov chýb spoločnosti Google</translation>
 </translationbundle>

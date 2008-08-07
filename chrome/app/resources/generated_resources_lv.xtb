@@ -589,7 +589,6 @@
 <translation id="411666854932687641">Privāta atmiņa</translation>
 <translation id="7965010376480416255">Koplietotā atmiņa</translation>
 <translation id="7931071620596053769">Šāda(s) lapa(s) nesniedz atbildi. Jūs varat gaidīt līdz tās atbild vai tās iznīcināt.</translation>
-<translation id="501080040224996242">Palīdziet izveidot Chrome labāku, automātiski nosūtot lietošanas statistiku un avārijas pārskatus uz Google</translation>
 <translation id="5912378097832178659">Rediģēt meklējumprogrammas...</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Noklusējums)</translation>
 <translation id="614298788004369532">Šī lapa satur dažus nedrošus elementus</translation>
@@ -738,4 +737,5 @@
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Jūs esat kļuvis inkognito<ph name="END_BOLD"/>. Lapas, kuras jūs skatāt šajā logā, neparādīsies jūsu pārlūkprogrammas vēsturē vai meklēšanas vēsturē un neatstās citas pēdas, piemēram, sīkfailus, jūsu datorā pēc inkognito loga aizvēršanas. Taču visi lejupielādētie faili un izveidotās grāmatzīmes būs saglabātas.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Lietojot inkognito funkciju netiks ietekmēta citu personu, serveru un programmatūras darbība. Uzmanieties no:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>vietnēm, kas apkopo un kopīgo informāciju par jums;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>interneta pakalpojumu sniedzējiem vai darba devējiem, kas izseko jūsu apmeklētās lapas;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ļaunprātīgas programmatūras, kas izseko jūsu taustiņsitienus, parādot smaidiņus;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>slepeno aģentu novērošanas;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>cilvēkiem, kas stāv aiz jums.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Uzziniet vairāk<ph name="END_LINK"/> par pārlūkošanu inkognito režīmā.</translation>
 <translation id="1604816462140255479">Teksta &amp;tālummaiņa</translation>
 <translation id="2089625293428655599">Šīs programmatūras daļas licencējušas trešās personas kā aprakstīts: <ph name="URL"/></translation>
+<translation id="6817660909204164466">Palīdziet izveidot Goole Chrome labāku, automātiski nosūtot lietošanas statistiku un avāriju atskaites uz Google</translation>
 </translationbundle>

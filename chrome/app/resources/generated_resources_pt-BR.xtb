@@ -589,7 +589,6 @@
 <translation id="411666854932687641">Memória privada</translation>
 <translation id="7965010376480416255">Memória compartilhada</translation>
 <translation id="7931071620596053769">As páginas a seguir deixaram de responder. Aguarde até que voltem a responder ou elimine-as.</translation>
-<translation id="501080040224996242">Enviar estatísticas de uso e relatórios de falha automaticamente para o Google para ajudar a melhorar o Chrome</translation>
 <translation id="5912378097832178659">&amp;Editar mecanismos de pesquisa...</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (padrão)</translation>
 <translation id="614298788004369532">Esta página contém alguns elementos não seguros</translation>
@@ -739,4 +738,5 @@ Se continuar, o Chrome não procurará nenhuma outra correspondência incorreta 
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Você está no modo anônimo.<ph name="END_BOLD"/>. As páginas visualizadas nesta janela não aparecerão no histórico ou no histórico de pesquisa do seu navegador nem deixarão outros rastros em seu computador (por exemplo, cookies) após você fechar a janela incógnita. Porém, todos os arquivos que você baixar ou os favoritos que marcar serão preservados.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Ficar no anonimato não afeta o comportamento de outras pessoas, servidores ou softwares. Seja cuidadoso com:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Sites que coletam ou compartilham informações a seu respeito<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Provedores de internet ou empregadores que rastreiam as páginas visitadas por você<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Smileys gratuitos, pois eles podem ser iscas de softwares maliciosos<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Vigilância de agentes secretos<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Pessoas que ficam atrás de você quando navegando<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Saiba mais<ph name="END_LINK"/> sobre navegação anônima.</translation>
 <translation id="1604816462140255479">&amp;Zoom de texto</translation>
 <translation id="2089625293428655599">Partes deste software foram licenciadas de terceiros como descrito em: <ph name="URL"/></translation>
+<translation id="6817660909204164466">Ajude a tornar o Google Chrome melhor enviando automaticamente estatísticas de uso e relatórios de problemas ao Google.</translation>
 </translationbundle>

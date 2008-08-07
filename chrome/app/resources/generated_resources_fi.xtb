@@ -589,7 +589,6 @@
 <translation id="411666854932687641">Yksityinen muisti</translation>
 <translation id="7965010376480416255">Jaettu muisti</translation>
 <translation id="7931071620596053769">Seuraava sivu ei vastaa (seuraavat sivut eivät vastaa) enää. Voit odottaa, että se vastaa, tai lopettaa sen.</translation>
-<translation id="501080040224996242">Auta parantamaan Chromea lähettämällä automaattisesti käyttötilastoja ja virheraportteja Googlelle</translation>
 <translation id="5912378097832178659">&amp;Muokkaa hakukoneita...</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Oletus)</translation>
 <translation id="614298788004369532">Tämä sivu sisältää joitakin suojaamattomia osia</translation>
@@ -738,4 +737,5 @@
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Esiinnyt nyt tuntemattomana<ph name="END_BOLD"/>. Tässä ikkunassa näytettäviä sivuja ei näytetä selaimen historiassa tai selaushistoriassa. Niistä ei jätetä tietokoneelle muitakaan jälkiä, kuten evästeitä, kun suljet incognito-ikkunan. Lataamasi tiedostot tai luomasi kirjanmerkit kuitenkin säilytetään.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Tuntemattomana esiintyminen ei vaikuta muiden ihmisten, palvelinten tai ohjelmistojen toimintaan. Varo:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>verkkosivustoja, jotka keräävät tai jakavat tietoja sinusta<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>internet-palveluntarjoajia tai työntekijöitä, jotka seuraavat sivuja, joilla käyt<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>haittaohjelmia, jotka seuraavat näppäinpainalluksia ja antavat vastineeksi ilmaisia hymiöitä<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>turvallisuuspalveluiden työntekijöiden tekemää seurantaa<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>takanasi seisovia ihmisiä<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Lisätietoja<ph name="END_LINK"/> selaamisesta incognito-tilassa.</translation>
 <translation id="1604816462140255479">Tekstin &amp;koko</translation>
 <translation id="2089625293428655599">Osia tästä ohjelmistosta on lisensoitu kolmansilta osapuolilta, kuten kuvailtu osoitteessa: <ph name="URL"/></translation>
+<translation id="6817660909204164466">Auta kehittämäään Google Chromea lähettämällä automaattisesti käyttötilastoja ja virheraportteja Googlelle</translation>
 </translationbundle>

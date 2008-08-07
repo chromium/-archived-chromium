@@ -589,7 +589,6 @@
 <translation id="411666854932687641">Memòria privada</translation>
 <translation id="7965010376480416255">Memòria compartida</translation>
 <translation id="7931071620596053769">Les pàgines següents no responen. Pots esperar que responguin o pots finalitzar-les.</translation>
-<translation id="501080040224996242">Per ajudar a millorar Chrome, envia automàticament estadístiques d'ús i informes d'error a Google</translation>
 <translation id="5912378097832178659">&amp;Edita els motors de cerca...</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Predeterminada)</translation>
 <translation id="614298788004369532">Aquesta pàgina conté alguns elements no segurs</translation>
@@ -739,4 +738,5 @@ No hauríeu de continuar, &lt;strong&gt;sobretot&lt;/strong&gt; si és la primer
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Heu passat a l'estat d'incògnit<ph name="END_BOLD"/>. Les pàgines que visualitzeu en aquesta finestra no apareixeran a l'historial del navegador ni a l'historial de cerques, i no deixaran cap pista (com ara, galetes) a l'equip després de tancar la finestra en mode d'incògnit. Tanmateix, es conservaran tots els fitxers que baixeu o les adreces d'interès que creeu.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Utilitzar el mode d'incògnit no afecta el comportament d'altres usuaris, servidors ni programaris. Teniu en compte:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>llocs web que recopilen o comparteixen informació sobre la vostra identitat,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>proveïdors de serveis d'Internet o treballadors que segueixen les pàgines que visiteu,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>programari maliciós que segueix les vostres pulsacions del teclat a canvi d'emoticones,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>vigilància per part d'agents secrets,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>persones que estan darrere vostre.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Més informació<ph name="END_LINK"/> sobre la navegació en mode d'incògnit.</translation>
 <translation id="1604816462140255479">&amp;Zoom del text</translation>
 <translation id="2089625293428655599">Algunes parts d'aquest programari pertanyen a llicències de tercers, tal com es descriu a: <ph name="URL"/></translation>
+<translation id="6817660909204164466">Per ajudar-nos a millorar Google Chrome, envia automàticament estadístiques d'ús i informes d'errors a Google</translation>
 </translationbundle>

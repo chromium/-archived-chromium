@@ -589,7 +589,6 @@
 <translation id="411666854932687641">専有メモリ</translation>
 <translation id="7965010376480416255">共有メモリ</translation>
 <translation id="7931071620596053769">次のページは応答していません。応答があるまで待つか、強制終了してください。</translation>
-<translation id="501080040224996242">Chrome の品質向上のため使用統計と障害レポートを Google に自動送信する</translation>
 <translation id="5912378097832178659">検索エンジンの編集(&amp;E)...</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (既定)</translation>
 <translation id="614298788004369532">このページにはセキュリティで保護されていない要素が含まれています</translation>
@@ -738,4 +737,5 @@
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>シークレット モードです<ph name="END_BOLD"/>。このウィンドウで開いたページはブラウザの履歴や検索履歴に記録されません。このウィンドウを閉じると Cookie などの記録もパソコンに残りません。ダウンロードしたファイルやブックマークしたページは保存されます。<ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>シークレット モードが他のユーザー、サーバー、ソフトウェアの動作に影響することはありません。ただし、次のような相手には注意してください。<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>ユーザーの情報を収集、共有するウェブサイト<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ユーザーがアクセスしたページをトラッキングするインターネット サービス プロバイダや雇用主<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>無料ダウンロードなどと一緒にインストールされ、キーストロークを記録するマルウェア<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>見張りの秘密諜報員<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>背後にいる人<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        シークレット モードの詳細については<ph name="BEGIN_LINK"/>こちら<ph name="END_LINK"/>をご覧ください。</translation>
 <translation id="1604816462140255479">テキスト拡大(&amp;Z)</translation>
 <translation id="2089625293428655599">このソフトウェアの一部はサードパーティのライセンスを受けています: <ph name="URL"/></translation>
+<translation id="6817660909204164466">使用状況データと障害レポートを Google に自動送信して Google クロームの機能向上に役立てる</translation>
 </translationbundle>

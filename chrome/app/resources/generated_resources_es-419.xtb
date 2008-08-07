@@ -589,7 +589,6 @@
 <translation id="411666854932687641">Memoria privada</translation>
 <translation id="7965010376480416255">Memoria compartida</translation>
 <translation id="7931071620596053769">Las páginas siguientes no responden. Puedes esperar a que vuelvan a responder o puedes cerrarlas.</translation>
-<translation id="501080040224996242">Colabora en la mejora de Chrome enviando automáticamente a Google estadísticas de uso e informes sobre fallos.</translation>
 <translation id="5912378097832178659">&amp;Editar motores de búsqueda...</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (predeterminado)</translation>
 <translation id="614298788004369532">Esta página contiene algunos elementos no seguros</translation>
@@ -738,4 +737,5 @@
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Ingresaste en el modo &quot;Navegar de incógnito&quot;<ph name="END_BOLD"/>. Las páginas que consultes a través de esta ventana no quedarán registradas en el historial del navegador ni en el historial de búsquedas, y tampoco dejarán otros rastros en el equipo (como cookies) una vez cerrada. Aunque sí quedarán almacenados los archivos que descargues y los marcadores que guardes durante la sesión.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>La función &quot;Navegar de incógnito&quot; no afecta al comportamiento de otros usuarios, servidores o programas. Atención con:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>sitios web que recopilan o comparten información personal,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>proveedores de servicios de Internet o trabajadores de estas empresas que supervisan las páginas que visita el usuario,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>software malicioso que realiza un seguimiento de las teclas que utiliza el usuario a cambio de unos emoticones gratuitos,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>el seguimiento por parte de detectives privados,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>personas merodeando cerca de tu equipo.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Más información<ph name="END_LINK"/> sobre la función &quot;Navegar de incógnito&quot;.</translation>
 <translation id="1604816462140255479">Tamaño del &amp;texto</translation>
 <translation id="2089625293428655599">Algunas partes de este software tienen licencias de terceros, como se describe en <ph name="URL"/></translation>
+<translation id="6817660909204164466">Ayúdanos a mejorar Google Chrome enviándonos estadísticas de uso e informes de error.</translation>
 </translationbundle>

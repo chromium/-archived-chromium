@@ -589,7 +589,6 @@
 <translation id="411666854932687641">Privátní paměť</translation>
 <translation id="7965010376480416255">Sdílená paměť</translation>
 <translation id="7931071620596053769">Následující stránka nereaguje/stránky nereagují. Můžete počkat, až budou reagovat, nebo je můžete zrušit.</translation>
-<translation id="501080040224996242">Pomozte aplikaci Chrome zlepšovat - posílejte automaticky společnosti Google statistiky využití a zprávy o selhání aplikace</translation>
 <translation id="5912378097832178659">Upravit vyhledávače...</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Předvolba)</translation>
 <translation id="614298788004369532">Tato stránka obsahuje určité nezabezpečené prvky</translation>
@@ -738,4 +737,5 @@
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Jste v anonymním režimu<ph name="END_BOLD"/>. Stránky, které otevřete v tomto okně, se nezobrazí v historii prohlížeče ani v historii vyhledávání a nezanechají ve vašem počítači po zavření anonymního okna žádné stopy, jako např. soubory cookie. Zachovány však zůstanou všechny soubory, které stáhnete, a záložky, které vytvoříte.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>To, že jste vy v anonymním režimu, nijak neovlivňuje chování ostatních lidí, serverů ani softwaru. Dejte si pozor na:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Webové stránky, které sbírají nebo sdílí údaje o vás,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Poskytovatele internetových služeb nebo zaměstnavatele, kteří sledují stránky, které navštívíte,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Škodlivý software, který monitoruje vaši klávesnici a na oplátku vám nabídne sadu smajlíků zdarma,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Sledování tajnými agenty,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Lidi, kteří stojí za vámi.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Další informace<ph name="END_LINK"/> o prohlížení v anonymním režimu.</translation>
 <translation id="1604816462140255479">&amp;Velikost písma</translation>
 <translation id="2089625293428655599">Části tohoto softwaru jsou vytvořeny v licenci třetích stran, jak je popsáno zde: <ph name="URL"/></translation>
+<translation id="6817660909204164466">Pomozte aplikaci Google Chrome zlepšovat tím, že budete společnosti Google automaticky zasílat statistiky využití a zprávy o selhání aplikace</translation>
 </translationbundle>

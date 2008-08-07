@@ -590,7 +590,6 @@
 <translation id="411666854932687641">Saját memória</translation>
 <translation id="7965010376480416255">Megosztott memória</translation>
 <translation id="7931071620596053769">Az alábbi oldalak nem válaszolnak: Megvárhatja, hogy reagáljanak vagy kikapcsolhatja a programot.</translation>
-<translation id="501080040224996242">Segítsen, a Chrome fejlesztésében. azáltal, hogy automatikusan elküldi a használati statisztikákat és hibajelentéseket a Google részére</translation>
 <translation id="5912378097832178659">&amp;Keresők beállítása...</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Alapértelmezett)</translation>
 <translation id="614298788004369532">Ez az oldal néhány nem biztonságos elemet is tartalmaz</translation>
@@ -739,4 +738,5 @@
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Ön inkognitóra váltott<ph name="END_BOLD"/>. Az inkognitóablakban megtekintett oldalak nem jelennek meg böngészője előzményeiben, illetve keresési előzményeiben, és nem hagynak más nyomot pl. cookie-t sem a számítógépén az inkognitóablak bezárását követően. A letöltött fájlok, valamint a létrehozott könyvjelzők azonban megmaradnak.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Az inkognitó üzemmód nem befolyásolja a többi felhasználó, szerver vagy szoftver viselkedését. Ügyeljen a következőkre:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Olyan webhelyek, amelyek információt gyűjtenek vagy osztanak meg Önről<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Olyan internetszolgáltatók vagy alkalmazottaik, akik nyomon követik az Ön által látogatott oldalakat<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Olyan kártékony szoftverek, amelyek ingyenes hangulatjelekért cserébe nyomon követik billentyűbeviteleit<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Titkos ügynökök megfigyelése<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Az Ön mögött álló emberek<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>További tájékoztatás<ph name="END_LINK"/> az inkognitóban történő böngészésről.</translation>
 <translation id="1604816462140255479">Nagyítás/kicsinyítés</translation>
 <translation id="2089625293428655599">A jelen szoftver bizonyos részeit harmadik féltől licenceltük, az alábbi címen leírtak szerint: <ph name="URL"/></translation>
+<translation id="6817660909204164466">Segítsen a Chrome fejlesztésében: engedélyezze, hogy a program automatikusan elküldje a használati statisztikákat és a hibajelentéseket a Google részére</translation>
 </translationbundle>

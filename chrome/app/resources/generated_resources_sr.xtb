@@ -587,7 +587,6 @@
 <translation id="411666854932687641">Приватна меморија</translation>
 <translation id="7965010376480416255">Дељена меморија</translation>
 <translation id="7931071620596053769">Следеће странице су престале да се одазивају. Можете да чекате да почну да се одазивају или да их затворите.</translation>
-<translation id="501080040224996242">Помозите побољшање Chrome прегледача аутоматским слањем статистике о коришћењу и извештаје о паду прегледача Google-у</translation>
 <translation id="5912378097832178659">&amp;Измени претраживаче...</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (подразумевано)</translation>
 <translation id="614298788004369532">Ова страница садржи неке небезбедне елементе</translation>
@@ -736,4 +735,5 @@
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Пребацили сте се на „Без архивирања“<ph name="END_BOLD"/>. Странице које буду приказане у овом прозору неће се појавити у историји вашег прегледача ни у историји претраге, нити ће оставити било какве друге трагове, рецимо колачиће, на вашем рачунару након што затворите прозор „Без архивирања“. Међутим, све датотеке које будете преузели и обележивачи које направите биће сачувани.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Ако се пребаците на „Без архивирања“, то неће утицати на понашање других особа, сервера и софтвера. Заштитите се од:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>веб сајтова који прикупљају или деле информације о вама<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>добављача интернет услуга или послодаваца који прате странице које посећујете<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>злонамерног софтвера који прати оно што куцате на тастатури, а за узврат добијате бесплатне смајлије<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>праћење од стране тајних агената<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>особа које стоје иза вас<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Сазнајте више<ph name="END_LINK"/> о прегледању без архивирања.</translation>
 <translation id="1604816462140255479">&amp;Зумирање текста</translation>
 <translation id="2089625293428655599">Delom te programske opreme so licence odobrila druga podjetja, kot je opisano na strani: <ph name="URL"/></translation>
+<translation id="6817660909204164466">Pomagajte izboljšati Chrome s samodejnim pošiljanjem statistike uporabe in poročil o zrušitvah Googlu</translation>
 </translationbundle>
