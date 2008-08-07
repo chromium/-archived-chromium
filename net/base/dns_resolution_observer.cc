@@ -30,11 +30,11 @@
 // This file supports network stack independent notification of progress
 // towards resolving a hostname.
 
-#include "net/base/dns_resolution_observer.h"
-
+#include <windows.h>
 #include <string>
 
-#include "base/atomic.h"
+#include "net/base/dns_resolution_observer.h"
+
 #include "base/logging.h"
 
 namespace net {

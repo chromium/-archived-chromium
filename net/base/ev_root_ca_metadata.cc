@@ -27,6 +27,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "base/singleton.h"
 #include "net/base/ev_root_ca_metadata.h"
 
 namespace net {
@@ -165,17 +166,8 @@ static const EVMetadata ev_root_ca_metadata[] = {
 };
 
 // static
-EVRootCAMetadata* EVRootCAMetadata::instance_;
-
-// static
 EVRootCAMetadata* EVRootCAMetadata::GetInstance() {
-  if (!instance_) {
-    EVRootCAMetadata* new_instance = new EVRootCAMetadata;
-    if (InterlockedCompareExchangePointer(
-        reinterpret_cast<PVOID*>(&instance_), new_instance, NULL))
-      delete new_instance;
-  }
-  return instance_;
+  return Singleton<EVRootCAMetadata>::get();
 }
 
 bool EVRootCAMetadata::GetPolicyOID(

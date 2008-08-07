@@ -34,6 +34,9 @@
 
 #include "net/base/x509_certificate.h"
 
+template <typename T>
+struct DefaultSingletonTraits;
+
 namespace net {
 
 // A singleton.  This class stores the meta data of the root CAs that issue
@@ -54,7 +57,7 @@ class EVRootCAMetadata {
   EVRootCAMetadata();
   ~EVRootCAMetadata() { }
 
-  static EVRootCAMetadata* instance_;
+  friend DefaultSingletonTraits<EVRootCAMetadata>;
 
   typedef std::map<X509Certificate::Fingerprint, std::string,
                    X509Certificate::FingerprintLessThan> StringMap;
