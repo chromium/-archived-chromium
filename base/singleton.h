@@ -196,7 +196,7 @@ class Singleton {
 
 template <typename Type, typename Traits, typename DifferentiatingType>
 base::subtle::AtomicWord Singleton<Type, Traits, DifferentiatingType>::
-    instance_ = NULL;
+    instance_ = 0;
 
 
 #endif  // BASE_SINGLETON_H__
