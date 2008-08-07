@@ -125,7 +125,7 @@ if env['PLATFORM'] == 'win32':
       'time_win.cc',
   ])
 
-if env['PLATFORM'] == 'win32':
+if env['PLATFORM'] == 'darwin':
   input_files.extend([
       'sys_string_conversions_mac.cc',
   ])
