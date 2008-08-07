@@ -475,8 +475,16 @@ void FindInPageController::GetDialogBounds(gfx::Rect* bounds) {
 
   // Find the dimensions of the toolbar and the BookmarkBar.
   CRect toolbar_bounds, bookmark_bar_bounds;
-  if (toolbar)
+  if (toolbar) {
     toolbar->GetBounds(&toolbar_bounds);
+    // Need to convert toolbar bounds into ViewContainer coords because the
+    // toolbar is the child of another view that isn't the top level view.
+    // This is required to ensure correct positioning relative to the top,left
+    // of the window.
+    CPoint topleft(0, 0);
+    ChromeViews::View::ConvertPointToViewContainer(toolbar, &topleft);
+    toolbar_bounds.OffsetRect(topleft);
+  }
 
   // If the bookmarks bar is available, we need to update our
   // position and paint accordingly
