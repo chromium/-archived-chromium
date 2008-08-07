@@ -26,14 +26,13 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#include <windows.h>
-#include <string.h>
+
+#include <string>
 
 #include "base/basictypes.h"
-#include "base/check_handler.h"
 #include "base/logging.h"
-#include "base/scoped_ptr.h"
 #include "base/pickle.h"
+#include "base/scoped_ptr.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -94,9 +93,12 @@ TEST(PickleTest, EncodeDecode) {
   EXPECT_TRUE(pickle.WriteBool(testbool2));
   EXPECT_TRUE(pickle.WriteData(testdata, testdatalen));
 
-  char* dest = pickle.BeginWriteData(testdatalen);
+  // Over allocate BeginWriteData so we can test TrimWriteData.
+  char* dest = pickle.BeginWriteData(testdatalen + 100);
   EXPECT_TRUE(dest);
   memcpy(dest, testdata, testdatalen);
+
+  pickle.TrimWriteData(testdatalen);
 
   VerifyResult(pickle);
 
@@ -206,11 +208,15 @@ TEST(PickleTest, Resize) {
   EXPECT_EQ(cur_payload, pickle.payload_size());
 }
 
-TEST(PickleTest, HeaderPadding) {
-  struct CustomHeader : Pickle::Header {
-    int blah;
-  };
+namespace {
 
+struct CustomHeader : Pickle::Header {
+  int blah;
+};
+
+}  // namespace
+
+TEST(PickleTest, HeaderPadding) {
   const uint32 kMagic = 0x12345678;
 
   Pickle pickle(sizeof(CustomHeader));

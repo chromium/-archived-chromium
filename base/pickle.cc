@@ -309,20 +309,21 @@ char* Pickle::BeginWriteData(int length) {
   return data_ptr;
 }
 
-void Pickle::TrimWriteData(int length) {
+void Pickle::TrimWriteData(int new_length) {
   DCHECK(variable_buffer_offset_ != 0);
 
-  VariableLengthBuffer *buffer = reinterpret_cast<VariableLengthBuffer*>(
+  // Fetch the the variable buffer size
+  int* cur_length = reinterpret_cast<int*>(
       reinterpret_cast<char*>(header_) + variable_buffer_offset_);
 
-  DCHECK_GE(buffer->length, length);
-
-  int old_length = buffer->length;
-  int trimmed_bytes = old_length - length;
-  if (trimmed_bytes > 0) {
-    header_->payload_size -= trimmed_bytes;
-    buffer->length = length;
+  if (new_length < 0 || new_length > *cur_length) {
+    NOTREACHED() << "Invalid length in TrimWriteData.";
+    return;
   }
+
+  // Update the payload size and variable buffer size
+  header_->payload_size -= (*cur_length - new_length);
+  *cur_length = new_length;
 }
 
 bool Pickle::Resize(size_t new_capacity) {
