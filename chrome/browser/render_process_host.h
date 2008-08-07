@@ -27,15 +27,14 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_RENDER_PROCESS_HOST_H_
-#define CHROME_BROWSER_RENDER_PROCESS_HOST_H_
+#ifndef CHROME_BROWSER_RENDER_PROCESS_HOST_H__
+#define CHROME_BROWSER_RENDER_PROCESS_HOST_H__
 
-#include <set>
 #include <vector>
 #include <windows.h>
 
 #include "base/id_map.h"
-#include "base/object_watcher.h"
+#include "base/message_loop.h"
 #include "base/process.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
@@ -62,8 +61,8 @@ class WebContents;
 // are correlated with IDs. This way, the Views and the corresponding ViewHosts
 // communicate through the two process objects.
 class RenderProcessHost : public IPC::Channel::Listener,
+                          public MessageLoop::Watcher,
                           public IPC::Channel::Sender,
-                          public base::ObjectWatcher::Delegate,
                           public NotificationObserver {
  public:
   // Returns the RenderProcessHost given its ID.  Returns NULL if the ID does
@@ -156,7 +155,7 @@ class RenderProcessHost : public IPC::Channel::Listener,
   virtual void OnMessageReceived(const IPC::Message& msg);
   virtual void OnChannelConnected(int32 peer_pid);
 
-  // ObjectWatcher::Delegate
+  // MessageLoop watcher callback
   virtual void OnObjectSignaled(HANDLE object);
 
   // IPC::Channel::Sender callback
@@ -245,9 +244,6 @@ class RenderProcessHost : public IPC::Channel::Listener,
   // Our renderer process.
   Process process_;
 
-  // Used to watch the renderer process handle.
-  base::ObjectWatcher watcher_;
-
   // The profile associated with this renderer process.
   Profile* profile_;
 
@@ -293,4 +289,4 @@ inline std::wstring GenerateRandomChannelID(void* instance) {
 }
 
 
-#endif  // CHROME_BROWSER_RENDER_PROCESS_HOST_H_
+#endif  // CHROME_BROWSER_RENDER_PROCESS_HOST_H__

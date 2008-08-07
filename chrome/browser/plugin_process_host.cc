@@ -329,7 +329,7 @@ PluginProcessHost::PluginProcessHost(PluginService* plugin_service)
 
 PluginProcessHost::~PluginProcessHost() {
   if (process_.handle()) {
-    watcher_.StopWatching();
+    MessageLoop::current()->WatchObject(process_.handle(), NULL);
     ProcessWatcher::EnsureProcessTerminated(process_.handle());
   }
 }
@@ -461,7 +461,7 @@ bool PluginProcessHost::Init(const std::wstring& dll,
     process_.set_handle(process);
   }
 
-  watcher_.StartWatching(process_.handle(), this);
+  MessageLoop::current()->WatchObject(process_.handle(), this);
 
   // Give all plugins "background" priority.  See http://b/issue?id=1280317.
   process_.SetProcessBackgrounded(true);

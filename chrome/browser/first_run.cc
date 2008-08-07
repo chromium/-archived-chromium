@@ -36,6 +36,7 @@
 
 #include "base/file_util.h"
 #include "base/logging.h"
+#include "base/object_watcher.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
@@ -197,7 +198,7 @@ namespace {
 // process has ended and what was the result of the operation as reported by
 // the process exit code. This class executes in the context of the main chrome
 // process.
-class ImportProcessRunner : public MessageLoop::Watcher {
+class ImportProcessRunner : public base::ObjectWatcher::Delegate {
  public:
   // The constructor takes the importer process to watch and then it does a
   // message loop blocking wait until the process ends. This object now owns
@@ -205,7 +206,7 @@ class ImportProcessRunner : public MessageLoop::Watcher {
   explicit ImportProcessRunner(ProcessHandle import_process)
       : import_process_(import_process),
         exit_code_(ResultCodes::NORMAL_EXIT) {
-    MessageLoop::current()->WatchObject(import_process, this);
+    watcher_.StartWatching(import_process, this);
     MessageLoop::current()->Run();
   }
   virtual ~ImportProcessRunner() {
@@ -218,7 +219,6 @@ class ImportProcessRunner : public MessageLoop::Watcher {
   }
   // The child process has terminated. Find the exit code and quit the loop.
   virtual void OnObjectSignaled(HANDLE object) {
-    MessageLoop::current()->WatchObject(object, NULL);
     DCHECK(object == import_process_);
     if (!::GetExitCodeProcess(import_process_, &exit_code_)) {
       NOTREACHED();
@@ -227,6 +227,7 @@ class ImportProcessRunner : public MessageLoop::Watcher {
   }
 
  private:
+  base::ObjectWatcher watcher_;
   ProcessHandle import_process_;
   DWORD exit_code_;
 };
