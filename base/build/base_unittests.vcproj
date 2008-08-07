@@ -339,6 +339,10 @@
 				RelativePath="..\wmi_util_unittest.cc"
 				>
 			</File>
+			<File
+				RelativePath="..\word_iterator_unittest.cc"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="gfx_tests"

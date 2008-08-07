@@ -27,8 +27,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "base/logging.h"
 #include "base/word_iterator.h"
+
+#include "base/logging.h"
 #include "unicode/ubrk.h"
 
 const int WordIterator::npos = -1;
@@ -102,4 +103,9 @@ bool WordIterator::Advance() {
 
 bool WordIterator::IsWord() const {
   return (ubrk_getRuleStatus(iter_) != UBRK_WORD_NONE);
+}
+
+std::wstring WordIterator::GetWord() const {
+  DCHECK(prev_ >= 0 && pos_ >= 0);
+  return string_.substr(prev_, pos_ - prev_);
 }

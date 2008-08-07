@@ -30,6 +30,8 @@
 #ifndef BASE_WORD_ITERATOR_H__
 #define BASE_WORD_ITERATOR_H__
 
+#include <string>
+
 #include "base/basictypes.h"
 #include "unicode/umachine.h"  // Needed for U_WCHAR_IS_UTF16.
 
@@ -87,10 +89,7 @@ class WordIterator {
   // Return the word between prev() and pos().
   // Advance() must have been called successfully at least once
   // for pos() to have advanced to somewhere useful.
-  std::wstring GetWord() const {
-    DCHECK(prev_ >= 0 && pos_ >= 0);
-    return string_.substr(prev_, pos_ - prev_);
-  }
+  std::wstring GetWord() const;
 
  private:
   // ICU iterator.
