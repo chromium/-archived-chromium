@@ -36,6 +36,7 @@
 #include "base/command_line.h"
 #include "base/lock_impl.h"
 #include "base/logging.h"
+#include "base/sys_string_conversions.h"
 
 namespace logging {
 
@@ -207,28 +208,24 @@ void DisplayDebugMessage(const std::string& str) {
     backslash[1] = 0;
   wcscat_s(prog_name, MAX_PATH, L"debug_message.exe");
 
-  // stupid CreateProcess requires a non-const command line and may modify it.
-  // We also want to use the wide string
-  int charcount = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
-  if (!charcount)
-    return;
-  scoped_array<wchar_t> cmdline(new wchar_t[charcount]);
-  if (!MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, cmdline.get(), charcount))
-    return;
+  // Stupid CreateProcess requires a non-const command line and may modify it.
+  // We also want to use the wide string.
+  std::wstring cmdline_string = base::SysUTF8ToWide(str);
+  wchar_t* cmdline = const_cast<wchar_t*>(cmdline_string.c_str());
 
   STARTUPINFO startup_info;
   memset(&startup_info, 0, sizeof(startup_info));
   startup_info.cb = sizeof(startup_info);
 
   PROCESS_INFORMATION process_info;
-  if (CreateProcessW(prog_name, cmdline.get(), NULL, NULL, false, 0, NULL,
+  if (CreateProcessW(prog_name, cmdline, NULL, NULL, false, 0, NULL,
                      NULL, &startup_info, &process_info)) {
     WaitForSingleObject(process_info.hProcess, INFINITE);
     CloseHandle(process_info.hThread);
     CloseHandle(process_info.hProcess);
   } else {
     // debug process broken, let's just do a message box
-    MessageBoxW(NULL, cmdline.get(), L"Fatal error",
+    MessageBoxW(NULL, cmdline, L"Fatal error",
                 MB_OK | MB_ICONHAND | MB_TOPMOST);
   }
 }
@@ -380,17 +377,5 @@ void CloseLogFile() {
 } // namespace logging
 
 std::ostream& operator<<(std::ostream& out, const wchar_t* wstr) {
-  if (!wstr || !wstr[0])
-    return out;
-
-  // compute the length of the buffer we'll need
-  int charcount = WideCharToMultiByte(CP_UTF8, 0, wstr, -1,
-                                      NULL, 0, NULL, NULL);
-  if (charcount == 0)
-    return out;
-
-  // convert
-  scoped_array<char> buf(new char[charcount]);
-  WideCharToMultiByte(CP_UTF8, 0, wstr, -1, buf.get(), charcount, NULL, NULL);
-  return out << buf.get();
+  return out << base::SysWideToUTF8(std::wstring(wstr));
 }

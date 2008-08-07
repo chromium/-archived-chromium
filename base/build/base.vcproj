@@ -654,6 +654,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\sys_string_conversions_win.cc"
+			>
+		</File>
+		<File
 			RelativePath="..\task.h"
 			>
 		</File>

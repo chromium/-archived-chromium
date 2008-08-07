@@ -304,6 +304,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\sys_string_conversions_win_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\thread_local_storage_unittest.cc"
 				>
 			</File>
