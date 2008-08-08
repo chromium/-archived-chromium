@@ -325,6 +325,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\mime_util_win.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\base\mime_util.h"
 				>
 			</File>

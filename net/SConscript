@@ -73,6 +73,7 @@ input_files = [
     'base/listen_socket.cc',
     'base/mime_sniffer.cc',
     'base/mime_util.cc',
+    'base/mime_util_win.cc',
     'base/net_errors.cc',
     'base/net_module.cc',
     'base/net_util.cc',

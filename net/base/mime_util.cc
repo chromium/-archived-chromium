@@ -31,16 +31,18 @@
 #include <string.h>
 
 #include "net/base/mime_util.h"
-
-#include "base/basictypes.h"
 #include "base/logging.h"
-#include "base/registry.h"
 #include "base/string_util.h"
 
 using std::string;
 using std::wstring;
 
 namespace net {
+
+// Helper used by GetMimeTypeFromExtension() to lookup the
+// platform specific mappings. Defined in mime_util_{win,mac}.cc
+bool GetPlatformMimeTypeFromExtension(const std::wstring& ext,
+                                      std::string* mime_type);
 
 struct MimeInfo {
   const char* mime_type;
@@ -115,14 +117,8 @@ bool GetMimeTypeFromExtension(const wstring& ext, string* result) {
     return true;
   }
 
-  // check windows registry for file extension's mime type (registry key
-  // names are not case-sensitive).
-  wstring value, key = L"." + ext;
-  RegKey(HKEY_CLASSES_ROOT, key.c_str()).ReadValue(L"Content Type", &value);
-  if (!value.empty()) {
-    *result = WideToUTF8(value);
+  if (GetPlatformMimeTypeFromExtension(ext, result))
     return true;
-  }
 
   mime_type = FindMimeType(secondary_mappings, arraysize(secondary_mappings),
                            ext_utf8.c_str());
@@ -140,13 +136,6 @@ bool GetMimeTypeFromFile(const wstring& file_path, string* result) {
     return false;
   return GetMimeTypeFromExtension(file_path.substr(dot + 1), result);
 }
-
-bool GetPreferredExtensionForMimeType(const std::string& mime_type,
-                                      std::wstring* ext) {
-  wstring key(L"MIME\\Database\\Content Type\\" + UTF8ToWide(mime_type));
-  return RegKey(HKEY_CLASSES_ROOT, key.c_str()).ReadValue(L"Extension", ext);
-}
-
 
 // From WebKit's WebCore/platform/MIMETypeRegistry.cpp:
 
