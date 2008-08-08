@@ -126,11 +126,15 @@ void FirstRunView::Layout() {
   FirstRunViewBase::Layout();
 
   const int kVertSpacing = 8;
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
   CSize pref_size;
   welcome_label_->GetPreferredSize(&pref_size);
+  // Wrap the label text before we overlap the product icon.
+  int label_width = background_image()->GetWidth() -
+      rb.GetBitmapNamed(IDR_WIZARD_ICON)->width() - kPanelHorizMargin;
   welcome_label_->SetBounds(kPanelHorizMargin, kPanelVertMargin,
-                            pref_size.cx, pref_size.cy);
+                            label_width, pref_size.cy);
   AdjustDialogWidth(welcome_label_);
 
   int next_v_space = background_image()->GetY() +
@@ -144,7 +148,7 @@ void FirstRunView::Layout() {
   next_v_space = actions_label_->GetY() +
                  actions_label_->GetHeight() + kVertSpacing;
 
-  int label_width = GetWidth() - (2 * kPanelHorizMargin);
+  label_width = GetWidth() - (2 * kPanelHorizMargin);
   int label_height = actions_import_->GetHeightForWidth(label_width);
   actions_import_->SetBounds(kPanelHorizMargin, next_v_space, label_width,
                              label_height);
