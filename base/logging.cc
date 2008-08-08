@@ -150,7 +150,7 @@ void CloseFile(FileHandle log) {
 #endif
 }
 
-void DeleteFile(PathChar* log_name) {
+void DeleteFilePath(PathChar* log_name) {
 #if defined(OS_WIN)
   DeleteFile(log_name);
 #else
@@ -256,7 +256,7 @@ void InitLogging(const PathChar* new_log_file, LoggingDestination logging_dest,
   strlcpy(log_file_name, new_log_file, arraysize(log_file_name));
 #endif
   if (delete_old == DELETE_OLD_LOG_FILE)
-    DeleteFile(log_file_name);
+    DeleteFilePath(log_file_name);
 
   if (lock_log_file == LOCK_LOG_FILE) {
     InitLogMutex();
