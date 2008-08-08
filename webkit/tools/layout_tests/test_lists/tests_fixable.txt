@@ -69,6 +69,15 @@ V8 | KJS # LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL
 // This class of test fails because of size differences in text runs.
 // Mostly this is because of international text rendering differences.
 
+// Bug 1316221: fail now that we use the same font code path in test_shell
+// as in Chrome
+V8 | KJS # DEFER : LayoutTests/css2.1/t1202-counter-04-b.html = FAIL
+V8 | KJS # DEFER : LayoutTests/css2.1/t1202-counters-04-b-diff-win.txt = FAIL
+
+// Bug 1316382: fails now that we use the same font code path in test_shell
+// as in Chrome: some characters that should have zero width don't
+V8 | KJS # DEFER : LayoutTests/fast/text/zero-width-characters.html = FAIL
+
 // Bug 1124513: the max length is being applied correctly, but the over- and
 // under-lines aren't placed properly over the "x".
 // The under-lines are a cosmetic error which is not necessary to fix for Beta. (eseidel)

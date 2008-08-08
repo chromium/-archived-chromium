@@ -5,11 +5,11 @@ PASS: embed.getAttribute('name') should be 1 and is.
 PASS: embed.getAttribute('width') should be 1 and is.
 PASS: embed.getAttribute('type') should be 1 and is.
 PASS: embed.getAttribute('src') should be 1 and is.
-FAIL: typeof embed.Play should be function but instead is undefined.
+PASS: typeof embed.Play should be function and is.
 ----------
 [Embed is dynamically created element with only type specified]
-FAIL: typeof embed.Play should be function but instead is undefined.
+PASS: typeof embed.Play should be function and is.
 ----------
 [Embed is dynamically created element with only src specified]
-FAIL: typeof embed.Play should be function but instead is undefined.
+PASS: typeof embed.Play should be function and is.
  
