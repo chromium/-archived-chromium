@@ -156,6 +156,19 @@ LRESULT AeroGlassFrame::OnNCHitTest(const CPoint& pt) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// AeroGlassFrame, ChromeViews::HWNDViewContainer overrides:
+
+bool AeroGlassFrame::AcceleratorPressed(
+    ChromeViews::Accelerator* accelerator) {
+  return browser_view_->AcceleratorPressed(*accelerator);
+}
+
+bool AeroGlassFrame::GetAccelerator(int cmd_id,
+                                    ChromeViews::Accelerator* accelerator) {
+  return browser_view_->GetAccelerator(cmd_id, accelerator);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // AeroGlassFrame, private:
 
 void AeroGlassFrame::UpdateDWMFrame() {

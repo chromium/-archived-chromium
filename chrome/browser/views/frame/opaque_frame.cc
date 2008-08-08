@@ -38,7 +38,8 @@
 // OpaqueFrame, public:
 
 OpaqueFrame::OpaqueFrame(BrowserView2* browser_view)
-    : CustomFrameWindow(browser_view, new OpaqueNonClientView(this, false)),
+    : CustomFrameWindow(browser_view, new OpaqueNonClientView(this,
+          browser_view->IsOffTheRecord())),
       browser_view_(browser_view) {
   browser_view_->set_frame(this);
 }

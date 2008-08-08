@@ -38,6 +38,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/command_line.h"
 #include "base/message_loop.h"
 #include "base/non_thread_safe.h"
 #include "base/ref_counted.h"
@@ -196,6 +197,16 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
     return suspend_controller_.get();
   }
 
+  // TODO(beng): remove once XPFrame/VistaFrame are gone.
+  virtual bool IsUsingNewFrames() {
+    DCHECK(CalledOnValidThread());
+    if (!checked_for_new_frames_) {
+      using_new_frames_ = CommandLine().HasSwitch(L"magic_browzR");
+      checked_for_new_frames_ = true;
+    }
+    return using_new_frames_;
+  }
+
  private:
   void CreateResourceDispatcherHost();
   void CreatePrefService();
@@ -266,6 +277,9 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
   MemoryModel memory_model_;
 
   scoped_refptr<SuspendController> suspend_controller_;
+
+  bool checked_for_new_frames_;
+  bool using_new_frames_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BrowserProcessImpl);
 };

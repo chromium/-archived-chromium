@@ -93,11 +93,41 @@ class WindowResources {
   virtual SkBitmap* GetPartBitmap(FramePartBitmap part) const = 0;
   virtual const ChromeFont& GetTitleFont() const = 0;
   SkColor title_color() const { return SK_ColorWHITE; }
+
+  SkBitmap app_top_left() const { return app_top_left_; }
+  SkBitmap app_top_center() const { return app_top_center_; }
+  SkBitmap app_top_right() const { return app_top_right_; }
+
+ protected:
+  static void InitClass() {
+    static bool initialized = false;
+    if (!initialized) {
+      ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+      app_top_left_ = *rb.GetBitmapNamed(IDR_APP_TOP_LEFT);
+      app_top_center_ = *rb.GetBitmapNamed(IDR_APP_TOP_CENTER);
+      app_top_right_ = *rb.GetBitmapNamed(IDR_APP_TOP_RIGHT);      
+      initialized = true;
+    }
+  }
+
+ private:
+  // Bitmaps shared between all frame types.
+  static SkBitmap app_top_left_;
+  static SkBitmap app_top_center_;
+  static SkBitmap app_top_right_;
 };
+
+// static
+SkBitmap WindowResources::app_top_left_;
+SkBitmap WindowResources::app_top_center_;
+SkBitmap WindowResources::app_top_right_;
 
 class ActiveWindowResources : public WindowResources {
  public:
-  ActiveWindowResources() { InitClass(); }
+  ActiveWindowResources() {
+    InitClass();
+    WindowResources::InitClass();
+  }
   virtual ~ActiveWindowResources() { }
 
   // WindowResources implementation:
@@ -151,7 +181,10 @@ class ActiveWindowResources : public WindowResources {
 
 class InactiveWindowResources : public WindowResources {
  public:
-  InactiveWindowResources() { InitClass(); }
+  InactiveWindowResources() {
+    InitClass();
+    WindowResources::InitClass();
+  }
   virtual ~InactiveWindowResources() { }
 
   // WindowResources implementation:
@@ -205,7 +238,10 @@ class InactiveWindowResources : public WindowResources {
 
 class OTRActiveWindowResources : public WindowResources {
  public:
-  OTRActiveWindowResources() { InitClass(); }
+  OTRActiveWindowResources() {
+    InitClass();
+    WindowResources::InitClass();
+  }
   virtual ~OTRActiveWindowResources() { }
 
   // WindowResources implementation:
@@ -259,7 +295,10 @@ class OTRActiveWindowResources : public WindowResources {
 
 class OTRInactiveWindowResources : public WindowResources {
  public:
-  OTRInactiveWindowResources() { InitClass(); }
+  OTRInactiveWindowResources() {
+    InitClass();
+    WindowResources::InitClass();
+  }
   virtual ~OTRInactiveWindowResources() { }
 
   // WindowResources implementation:
@@ -326,24 +365,61 @@ WindowResources* OpaqueNonClientView::inactive_resources_ = NULL;
 WindowResources* OpaqueNonClientView::active_otr_resources_ = NULL;
 WindowResources* OpaqueNonClientView::inactive_otr_resources_ = NULL;
 SkBitmap OpaqueNonClientView::distributor_logo_;
+
+// The distance between the top of the window and the top of the window
+// controls when the window is restored.
 static const int kWindowControlsTopOffset = 0;
+// The distance between the right edge of the window and the right edge of the
+// right-most window control when the window is restored.
 static const int kWindowControlsRightOffset = 4;
-static const int kWindowControlsTopZoomedOffset = 6;
+// The distance between the top of the window and the top of the window
+// controls when the window is maximized.
+static const int kWindowControlsTopZoomedOffset = 4;
+// The distance between the right edge of the window and the right edge of the
+// right-most window control when the window is maximized.
 static const int kWindowControlsRightZoomedOffset = 5;
+// The distance between the top of the window and the title bar/tab strip when
+// the window is maximized.
 static const int kWindowTopMarginZoomed = 1;
+// The distance between the left edge of the window and the left of the window
+// icon when a title-bar is showing.
 static const int kWindowIconLeftOffset = 5;
+// The distance between the top of the window and the top of the window icon
+// when a title-bar is showing.
 static const int kWindowIconTopOffset = 5;
-static const int kTitleTopOffset = 6;
+// The distance between the window icon and the window title when a title-bar
+// is showing.
 static const int kWindowIconTitleSpacing = 3;
+// The distance between the top of the window and the title text when a
+// title-bar is showing.
+static const int kTitleTopOffset = 6;
+// The distance between the bottom of the title text and the TabStrip when a
+// title-bar is showing.
 static const int kTitleBottomSpacing = 6;
+// The distance between the top edge of the window and the TabStrip when there
+// is no title-bar showing, and the window is restored.
 static const int kNoTitleTopSpacing = 10;
-static const int kResizeAreaSize = 5;
-static const int kResizeAreaNorthSize = 3;
+// The distance between the top edge of the window and the TabStrip when there
+// is no title-bar showing, and the window is maximized.
+static const int kNoTitleZoomedTopSpacing = 1;
+// The amount of horizontal and vertical distance from a corner of the window
+// within which a mouse-drive resize operation will resize the window in two
+// dimensions.
 static const int kResizeAreaCornerSize = 16;
-static const int kWindowHorizontalBorderSize = 4;
-static const int kWindowVerticalBorderSize = 4;
+// The width of the sizing border on the left and right edge of the window.
+static const int kWindowHorizontalBorderSize = 5;
+// The height of the sizing border at the top edge of the window
+static const int kWindowVerticalBorderTopSize = 3;
+// The height of the sizing border on the bottom edge of the window.
+static const int kWindowVerticalBorderBottomSize = 5;
+// The width and height of the window icon that appears at the top left of
+// pop-up and app windows.
 static const int kWindowIconSize = 16;
+// The horizontal distance of the right edge of the distributor logo from the
+// left edge of the left-most window control.
 static const int kDistributorLogoHorizontalOffset = 7;
+// The vertical distance of the top of the distributor logo from the top edge
+// of the window.
 static const int kDistributorLogoVerticalOffset = 3;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -357,6 +433,11 @@ OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame, bool is_otr)
       frame_(frame) {
   InitClass();
   if (is_otr) {
+    if (!active_otr_resources_) {
+      // Lazy load OTR resources only when we first show an OTR frame.
+      active_otr_resources_ = new OTRActiveWindowResources;
+      inactive_otr_resources_ = new OTRInactiveWindowResources;
+    }
     current_active_resources_ = active_otr_resources_;
     current_inactive_resources_= inactive_otr_resources_;
   } else {
@@ -426,7 +507,7 @@ gfx::Rect OpaqueNonClientView::GetWindowBoundsForClientBounds(
   int window_y = std::max(0, client_bounds.y() - top_height);
   int window_w = client_bounds.width() + (2 * kWindowHorizontalBorderSize);
   int window_h =
-      client_bounds.height() + top_height + kWindowVerticalBorderSize;
+      client_bounds.height() + top_height + kWindowVerticalBorderBottomSize;
   return gfx::Rect(window_x, window_y, window_w, window_h);
 }
 
@@ -460,7 +541,7 @@ gfx::Rect OpaqueNonClientView::CalculateClientAreaBounds(int width,
   int top_margin = CalculateNonClientTopHeight();
   return gfx::Rect(kWindowHorizontalBorderSize, top_margin,
       std::max(0, width - (2 * kWindowHorizontalBorderSize)),
-      std::max(0, height - top_margin - kWindowVerticalBorderSize));
+      std::max(0, height - top_margin - kWindowVerticalBorderBottomSize));
 }
 
 gfx::Size OpaqueNonClientView::CalculateWindowSizeForClientSize(
@@ -468,7 +549,7 @@ gfx::Size OpaqueNonClientView::CalculateWindowSizeForClientSize(
     int height) const {
   int top_margin = CalculateNonClientTopHeight();
   return gfx::Size(width + (2 * kWindowHorizontalBorderSize),
-                   height + top_margin + kWindowVerticalBorderSize);
+                   height + top_margin + kWindowVerticalBorderBottomSize);
 }
 
 CPoint OpaqueNonClientView::GetSystemMenuPoint() const {
@@ -508,9 +589,9 @@ int OpaqueNonClientView::NonClientHitTest(const gfx::Point& point) {
 
   component = GetHTComponentForFrame(
       point,
-      kResizeAreaSize,
+      kWindowHorizontalBorderSize,
       kResizeAreaCornerSize,
-      kResizeAreaNorthSize,
+      kWindowVerticalBorderTopSize,
       frame_->window_delegate()->CanResize());
   if (component == HTNOWHERE) {
     // Finally fall back to the caption.
@@ -562,7 +643,7 @@ void OpaqueNonClientView::Paint(ChromeCanvas* canvas) {
 
   // TODO(beng): remove this
   gfx::Rect contents_bounds = frame_->GetContentsBounds();
-  canvas->FillRectInt(SK_ColorGRAY, contents_bounds.x(), contents_bounds.y(),
+  canvas->FillRectInt(SK_ColorWHITE, contents_bounds.x(), contents_bounds.y(),
                       contents_bounds.width(), contents_bounds.height());
 }
 
@@ -577,7 +658,7 @@ void OpaqueNonClientView::GetPreferredSize(CSize* out) {
   DCHECK(out);
   frame_->client_view()->GetPreferredSize(out);
   out->cx += 2 * kWindowHorizontalBorderSize;
-  out->cy += CalculateNonClientTopHeight() + kWindowVerticalBorderSize;
+  out->cy += CalculateNonClientTopHeight() + kWindowVerticalBorderBottomSize;
 }
 
 ChromeViews::View* OpaqueNonClientView::GetViewForPoint(
@@ -626,7 +707,7 @@ int OpaqueNonClientView::CalculateNonClientTopHeight() const {
     return kTitleTopOffset + resources()->GetTitleFont().height() +
         kTitleBottomSpacing;
   }
-  return kNoTitleTopSpacing;
+  return frame_->IsMaximized() ? kNoTitleZoomedTopSpacing : kNoTitleTopSpacing;
 }
 
 void OpaqueNonClientView::PaintFrameBorder(ChromeCanvas* canvas) {
@@ -756,7 +837,7 @@ void OpaqueNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
       frame_->client_view()->GetY() + toolbar_bounds.bottom() - 1,
       client_area_bounds.width(),
       std::max(0, GetHeight() - frame_->client_view()->GetY() -
-          toolbar_bounds.bottom() + 1 - kWindowVerticalBorderSize));
+          toolbar_bounds.bottom() + 1 - kWindowVerticalBorderBottomSize));
 
   canvas->TileImageInt(*right, client_area_bounds.right(),
                        client_area_bounds.y(),
@@ -772,6 +853,20 @@ void OpaqueNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
   canvas->TileImageInt(*left, client_area_bounds.x() - left->width(),
                        client_area_bounds.y(),
                        left->width(), client_area_bounds.height());
+  
+  if (frame_->window_delegate()->ShouldShowWindowTitle()) {
+    SkBitmap app_top_left = resources()->app_top_left();
+    SkBitmap app_top_center = resources()->app_top_center();
+    SkBitmap app_top_right = resources()->app_top_right();
+    canvas->DrawBitmapInt(app_top_left,
+                          client_area_bounds.x() - app_top_left.width(),
+                          client_area_bounds.y() - app_top_left.height());
+    canvas->TileImageInt(app_top_center, client_area_bounds.x(),
+                         client_area_bounds.y() - app_top_center.height(),
+                         client_area_bounds.width(), app_top_center.height());
+    canvas->DrawBitmapInt(app_top_right, client_area_bounds.right(),
+                          client_area_bounds.y() - app_top_right.height());
+  }
 }
 
 void OpaqueNonClientView::LayoutWindowControls() {
@@ -891,8 +986,6 @@ void OpaqueNonClientView::InitClass() {
   if (!initialized) {
     active_resources_ = new ActiveWindowResources;
     inactive_resources_ = new InactiveWindowResources;
-    active_otr_resources_ = new OTRActiveWindowResources;
-    inactive_otr_resources_ = new OTRInactiveWindowResources;
 
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
     distributor_logo_ = *rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO_LIGHT);

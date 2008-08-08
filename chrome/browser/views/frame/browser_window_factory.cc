@@ -29,6 +29,7 @@
 
 #include "base/command_line.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_process.h" // TODO(beng): remove once done.
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/frame_util.h"
 #include "chrome/browser/views/frame/aero_glass_frame.h"
@@ -52,8 +53,7 @@ BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser,
   //             However BrowserView is the one that Browser has a ref to, and
   //             calls that BrowserView can't perform directly are passed on to
   //             its frame. Eventually this will be better, I promise.
-  CommandLine parsed_command_line;
-  if (parsed_command_line.HasSwitch(L"magic_browzR")) {
+  if (g_browser_process->IsUsingNewFrames()) {
     BrowserView2* browser_view = new BrowserView2(browser);
     BrowserFrame::CreateForBrowserView(BrowserFrame::GetActiveFrameType(),
                                        browser_view, bounds, show_command);

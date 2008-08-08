@@ -119,7 +119,9 @@ BrowserProcessImpl::BrowserProcessImpl(CommandLine& command_line)
       created_debugger_wrapper_(false),
       broker_services_(NULL),
       module_ref_count_(0),
-      memory_model_(MEDIUM_MEMORY_MODEL) {
+      memory_model_(MEDIUM_MEMORY_MODEL),
+      checked_for_new_frames_(false),
+      using_new_frames_(false) {
   g_browser_process = this;
   clipboard_service_.reset(new ClipboardService);
   main_notification_service_.reset(new NotificationService);

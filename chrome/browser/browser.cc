@@ -1390,7 +1390,8 @@ void Browser::TabClosingAt(TabContents* contents, int index) {
   // Sever the TabContents' connection back to us.
   contents->set_delegate(NULL);
 
-  if (contents == GetSelectedTabContents()) {
+  if (!g_browser_process->IsUsingNewFrames() &&
+      contents == GetSelectedTabContents()) {
     // We need to reset the current tab contents to NULL before it gets
     // freed. This is because the focus manager performs some operation
     // on the selected tab contents when it is removed.
@@ -1420,8 +1421,7 @@ void Browser::TabSelectedAt(TabContents* old_contents,
                             TabContents* new_contents,
                             int index,
                             bool user_gesture) {
-  if (new_contents == old_contents)
-    return;
+  DCHECK(old_contents != new_contents);
 
   // If we have any update pending, do it now.
   if (!chrome_updater_factory_.empty() && old_contents)
@@ -1429,8 +1429,10 @@ void Browser::TabSelectedAt(TabContents* old_contents,
 
   LocationBarView* location_bar = GetLocationBarView();
   if (old_contents) {
-    // Have the contents remember where focus was.
-    old_contents->StoreFocus();
+    if (!g_browser_process->IsUsingNewFrames()) {
+      // Have the contents remember where focus was.
+      old_contents->StoreFocus();
+    }
 
     // Save what the user's currently typing, so it can be restored when we
     // switch back to this tab.
@@ -1438,13 +1440,15 @@ void Browser::TabSelectedAt(TabContents* old_contents,
       location_bar->location_entry()->SaveStateToTab(old_contents);
   }
 
-  // Tell the frame what happened so that the TabContents gets resized, etc.
-  window_->ShowTabContents(new_contents);
+  if (!g_browser_process->IsUsingNewFrames()) {
+    // Tell the frame what happened so that the TabContents gets resized, etc.
+    window_->ShowTabContents(new_contents);
 
-  // Inform the tab that it is now selected.
-  new_contents->DidBecomeSelected();
-  if (BrowserList::GetLastActive() == this)
-    new_contents->RestoreFocus();
+    // Inform the tab that it is now selected.
+    new_contents->DidBecomeSelected();
+    if (BrowserList::GetLastActive() == this)
+      new_contents->RestoreFocus();
+  }
 
   // Propagate the profile to the location bar.
   window_->ProfileChanged(new_contents->profile());
@@ -1489,9 +1493,11 @@ void Browser::TabMoved(TabContents* contents,
 }
 
 void Browser::TabStripEmpty() {
-  // We need to reset the frame contents just in case this wasn't done while
-  // detaching the tab. This happens when dragging out the last tab.
-  window_->ShowTabContents(NULL);
+  if (!g_browser_process->IsUsingNewFrames()) {
+    // We need to reset the frame contents just in case this wasn't done while
+    // detaching the tab. This happens when dragging out the last tab.
+    window_->ShowTabContents(NULL);
+  }
 
   // Close the frame after we return to the message loop (not immediately,
   // otherwise it will destroy this object before the stack has a chance to

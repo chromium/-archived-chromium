@@ -34,6 +34,7 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/frame/browser_frame.h"
+#include "chrome/common/pref_member.h"
 #include "chrome/views/client_view.h"
 #include "chrome/views/window_delegate.h"
 
@@ -73,6 +74,10 @@ class BrowserView2 : public BrowserWindow,
   // Returns true if various window components are visible.
   bool IsToolbarVisible() const;
   bool IsTabStripVisible() const;
+
+  // Returns true if the profile associated with this Browser window is
+  // off the record.
+  bool IsOffTheRecord() const;
 
   // Handle the specified |accelerator| being pressed.
   bool AcceleratorPressed(const ChromeViews::Accelerator& accelerator);
@@ -268,6 +273,9 @@ class BrowserView2 : public BrowserWindow,
 
   // A mapping between accelerators and commands.
   scoped_ptr<std::map<ChromeViews::Accelerator, int>> accelerator_table_;
+
+  // A PrefMember to track the "always show bookmark bar" pref.
+  BooleanPrefMember show_bookmark_bar_pref_;
 
   // True if we have already been initialized.
   bool initialized_;

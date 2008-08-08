@@ -69,6 +69,11 @@ class AeroGlassFrame : public BrowserFrame,
   virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const;
   virtual ChromeViews::Window* GetWindow();
 
+  // Overridden from ChromeViews::HWNDViewContainer:
+  virtual bool AcceleratorPressed(ChromeViews::Accelerator* accelerator);
+  virtual bool GetAccelerator(int cmd_id,
+                              ChromeViews::Accelerator* accelerator);
+
  protected:
   // Overridden from ChromeViews::HWNDViewContainer:
   virtual LRESULT OnNCActivate(BOOL active);

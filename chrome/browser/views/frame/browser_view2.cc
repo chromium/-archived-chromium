@@ -40,6 +40,7 @@
 #include "chrome/browser/views/status_bubble.h"
 #include "chrome/browser/views/toolbar_view.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/pref_names.h"
 #include "generated_resources.h"
 
 // static
@@ -63,19 +64,13 @@ BrowserView2::BrowserView2(Browser* browser)
       toolbar_(NULL),
       contents_container_(NULL),
       initialized_(false) {
-  NotificationService::current()->AddObserver(
-      this,
-      NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
-      NotificationService::AllSources());
+  show_bookmark_bar_pref_.Init(prefs::kShowBookmarkBar,
+                               browser_->profile()->GetPrefs(), this);
   browser_->tabstrip_model()->AddObserver(this);
 }
 
 BrowserView2::~BrowserView2() {
   browser_->tabstrip_model()->RemoveObserver(this);
-  NotificationService::current()->RemoveObserver(
-      this,
-      NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
-      NotificationService::AllSources());
 }
 
 gfx::Rect BrowserView2::GetToolbarBounds() const {
@@ -98,6 +93,10 @@ bool BrowserView2::IsToolbarVisible() const {
 
 bool BrowserView2::IsTabStripVisible() const {
   return SupportsWindowFeature(FEATURE_TABSTRIP);
+}
+
+bool BrowserView2::IsOffTheRecord() const {
+  return browser_->profile()->IsOffTheRecord();
 }
 
 bool BrowserView2::AcceleratorPressed(
@@ -366,11 +365,10 @@ void BrowserView2::DestroyBrowser() {
 void BrowserView2::Observe(NotificationType type,
                            const NotificationSource& source,
                            const NotificationDetails& details) {
-  if (type == NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED) {
-    if (browser_->profile() == Source<Profile>(source).ptr() &&
-        MaybeShowBookmarkBar(browser_->GetSelectedTabContents())) {
+  if (type == NOTIFY_PREF_CHANGED &&
+      *Details<std::wstring>(details).ptr() == prefs::kShowBookmarkBar) {
+    if (MaybeShowBookmarkBar(browser_->GetSelectedTabContents()))
       Layout();
-    }
   } else {
     NOTREACHED() << "Got a notification we didn't register for!";
   }
@@ -406,6 +404,8 @@ void BrowserView2::TabSelectedAt(TabContents* old_contents,
                                  TabContents* new_contents,
                                  int index,
                                  bool user_gesture) {
+  DCHECK(old_contents != new_contents);
+
   if (old_contents)
     old_contents->StoreFocus();
 
@@ -624,12 +624,14 @@ void BrowserView2::ViewHierarchyChanged(bool is_add,
 // BrowserView2, private:
 
 int BrowserView2::LayoutTabStrip() {
-  gfx::Rect tabstrip_bounds = frame_->GetBoundsForTabStrip(tabstrip_);
-  // TODO(beng): account for OTR avatar.
-  tabstrip_->SetBounds(tabstrip_bounds.x(), tabstrip_bounds.y(),
-                       tabstrip_bounds.width(), tabstrip_bounds.height());
-  return tabstrip_bounds.bottom();
-  // TODO(beng): support tabstrip-less windows.
+  if (IsTabStripVisible()) {
+    gfx::Rect tabstrip_bounds = frame_->GetBoundsForTabStrip(tabstrip_);
+    // TODO(beng): account for OTR avatar.
+    tabstrip_->SetBounds(tabstrip_bounds.x(), tabstrip_bounds.y(),
+      tabstrip_bounds.width(), tabstrip_bounds.height());
+    return tabstrip_bounds.bottom();
+  }
+  return 0;
 }
 
 int BrowserView2::LayoutToolbar(int top) {
@@ -676,6 +678,10 @@ int BrowserView2::LayoutInfoBar(int top) {
     active_info_bar_->GetPreferredSize(&ps);
     active_info_bar_->SetBounds(0, top, GetWidth(), ps.cy);
     top += ps.cy;
+    if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && active_bookmark_bar_ &&
+        !show_bookmark_bar_pref_.GetValue()) {
+      top -= kSeparationLineHeight;
+    }
   }
   return top;
 }
@@ -734,7 +740,7 @@ void BrowserView2::UpdateUIForContents(TabContents* contents) {
   if (!contents)
     return;
 
-  if (MaybeShowBookmarkBar(contents) && MaybeShowInfoBar(contents) &&
+  if (MaybeShowBookmarkBar(contents) || MaybeShowInfoBar(contents) ||
       MaybeShowDownloadShelf(contents)) {
     Layout();
   }

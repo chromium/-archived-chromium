@@ -143,6 +143,9 @@ class BrowserProcess {
 
   virtual SuspendController* suspend_controller() = 0;
 
+  // TODO(beng): remove once XPFrame/VistaFrame are gone.
+  virtual bool IsUsingNewFrames() = 0;
+
  private:
   DISALLOW_EVIL_CONSTRUCTORS(BrowserProcess);
 };
