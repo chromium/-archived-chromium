@@ -26,35 +26,48 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// Copied from base/basictypes.h with some modifications
 
-#ifndef BASE_BASE_PATHS_H_
-#define BASE_BASE_PATHS_H_
-
-// This file declares path keys for the base module.  These can be used with
-// the PathService to access various special directories and files.
-
-#include "base/basictypes.h"
-#if defined(OS_WIN)
-#include "base/base_paths_win.h"
-#elif defined(OS_MACOSX)
 #include "base/base_paths_mac.h"
-#endif
+
+#import <Cocoa/Cocoa.h>
+
+#include "base/logging.h"
+#include "base/string_util.h"
 
 namespace base {
 
-enum {
-  PATH_START = 0,
+bool PathProviderMac(int key, std::wstring* result) {
+  std::wstring cur;
+  switch (key) {
+    case base::FILE_EXE:
+    case base::FILE_MODULE: {
+      NSString* path = [[NSBundle mainBundle] executablePath];
+      cur = reinterpret_cast<const wchar_t*>(
+          [path cStringUsingEncoding:NSUTF32StringEncoding]);
+      break;
+    }
+    case base::DIR_APP_DATA:
+    case base::DIR_LOCAL_APP_DATA: {
+      // TODO(erikkay): maybe we should remove one of these for mac?  The local
+      // vs. roaming distinction is fairly Windows-specific.
+      NSArray* dirs = NSSearchPathForDirectoriesInDomains(
+          NSApplicationSupportDirectory, NSUserDomainMask, YES);
+      if (!dirs || [dirs count] == 0)
+        return false;
+      DCHECK([dirs count] == 1);
+      NSString* tail = [[NSString alloc] initWithCString:"Google/Chrome"];
+      NSString* path = [[dirs lastObject] stringByAppendingPathComponent:tail];
+      cur = reinterpret_cast<const wchar_t*>(
+          [path cStringUsingEncoding:NSUTF32StringEncoding]);
+      break;
+    }
+    default:
+      return false;
+  }
 
-  DIR_CURRENT,  // current directory
-  DIR_EXE,      // directory containing FILE_EXE
-  DIR_MODULE,   // directory containing FILE_MODULE
-  DIR_TEMP,     // temporary directory
-  DIR_SOURCE_ROOT,  // Returns the root of the source tree.  This key is useful
-                    // for tests that need to locate various resources.  It
-                    // should not be used outside of test code.
-  PATH_END
-};
+  result->swap(cur);
+  return true;
+}
 
 }  // namespace base
-
-#endif  // BASE_BASE_PATHS_H_

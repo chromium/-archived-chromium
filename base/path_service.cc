@@ -43,8 +43,10 @@
 
 namespace base {
   bool PathProvider(int key, std::wstring* result);
-#ifdef OS_WIN
+#if defined(OS_WIN)
   bool PathProviderWin(int key, std::wstring* result);
+#elif defined (OS_MACOSX)
+  bool PathProviderMac(int key, std::wstring* ressult);
 #endif
 }
 
@@ -84,6 +86,18 @@ static Provider base_provider_win = {
 };
 #endif
 
+#ifdef OS_MACOSX
+  static Provider base_provider_mac = {
+  base::PathProviderMac,
+  &base_provider,
+#ifndef NDEBUG
+  base::PATH_MAC_START,
+  base::PATH_MAC_END
+#endif
+  };
+#endif
+  
+  
 struct PathData {
   Lock      lock;
   PathMap   cache;      // Track mappings from path key to path value.
@@ -93,7 +107,9 @@ struct PathData {
   PathData() {
 #if defined(OS_WIN)
     providers = &base_provider_win;
-#elif defined(OS_POSIX)
+#elif defined(OS_MACOSX)
+    providers = &base_provider_mac;
+#elif defined(OS_LINUX)
     providers = &base_provider;
 #endif
   }
@@ -115,17 +131,8 @@ bool PathService::Get(int key, std::wstring* result) {
   DCHECK(key >= base::DIR_CURRENT);
 
   // special case the current directory because it can never be cached
-  if (key == base::DIR_CURRENT) {
-#if defined(OS_WIN)
+  if (key == base::DIR_CURRENT)
     return file_util::GetCurrentDirectory(result);
-#elif defined(OS_POSIX)
-    char system_buffer[PATH_MAX];
-    system_buffer[0] = 0;
-    getcwd(system_buffer, sizeof(system_buffer));
-    *result = NativeMBToWide(system_buffer);
-    return true;
-#endif
-  }
 
   // TODO(darin): it would be nice to avoid holding this lock while calling out
   // to the path providers.
@@ -170,6 +177,7 @@ bool PathService::Override(int key, const std::wstring& path) {
   DCHECK(path_data);
   DCHECK(key > base::DIR_CURRENT) << "invalid path key";
 
+  // TODO(erikkay): pull this into file_util*
 #if defined(OS_WIN)
   wchar_t file_path_buf[MAX_PATH];
   if (!_wfullpath(file_path_buf, path.c_str(), MAX_PATH))
@@ -202,12 +210,7 @@ bool PathService::Override(int key, const std::wstring& path) {
 }
 
 bool PathService::SetCurrentDirectory(const std::wstring& current_directory) {
-#if defined(OS_WIN)
   return file_util::SetCurrentDirectory(current_directory);
-#elif defined(OS_POSIX)
-  int ret = chdir(WideToNativeMB(current_directory).c_str());
-  return (ret == 0);
-#endif
 }
 
 void PathService::RegisterProvider(ProviderFunc func, int key_start,

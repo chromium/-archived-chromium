@@ -36,8 +36,6 @@
 #include "base/string_util.h"
 #include "unicode/uniset.h"
 
-using std::wstring;
-
 namespace file_util {
 
 const wchar_t kPathSeparator = L'\\';
@@ -55,16 +53,16 @@ void TrimTrailingSeparator(std::wstring* dir) {
 void UpOneDirectory(std::wstring* dir) {
   TrimTrailingSeparator(dir);
 
-  wstring::size_type last_sep = dir->find_last_of(kPathSeparator);
-  if (last_sep != wstring::npos)
+  std::wstring::size_type last_sep = dir->find_last_of(kPathSeparator);
+  if (last_sep != std::wstring::npos)
     dir->resize(last_sep);
 }
 
 void UpOneDirectoryOrEmpty(std::wstring* dir) {
   TrimTrailingSeparator(dir);
 
-  wstring::size_type last_sep = dir->find_last_of(kPathSeparator);
-  if (last_sep != wstring::npos)
+  std::wstring::size_type last_sep = dir->find_last_of(kPathSeparator);
+  if (last_sep != std::wstring::npos)
     dir->resize(last_sep);
   else
     dir->clear();
@@ -74,22 +72,22 @@ void TrimFilename(std::wstring* path) {
   if (EndsWithSeparator(path)) {
     TrimTrailingSeparator(path);
   } else {
-    wstring::size_type last_sep = path->find_last_of(kPathSeparator);
-    if (last_sep != wstring::npos)
+    std::wstring::size_type last_sep = path->find_last_of(kPathSeparator);
+    if (last_sep != std::wstring::npos)
       path->resize(last_sep);
   }
 }
 
 // TODO(mpcomplete): Make this platform-independent, etc.
-wstring GetFilenameFromPath(const wstring& path) {
-  wstring::size_type pos = path.find_last_of(L"\\/");
-  return wstring(path, pos == wstring::npos ? 0 : pos+1);
+std::wstring GetFilenameFromPath(const std::wstring& path) {
+  std::wstring::size_type pos = path.find_last_of(L"\\/");
+  return std::wstring(path, pos == std::wstring::npos ? 0 : pos+1);
 }
 
-wstring GetFileExtensionFromPath(const wstring& path) {
-  wstring file_name = GetFilenameFromPath(path);
-  wstring::size_type last_dot = file_name.rfind(L'.');
-  return wstring(last_dot == wstring::npos? L"" : file_name, last_dot+1);
+std::wstring GetFileExtensionFromPath(const std::wstring& path) {
+  std::wstring file_name = GetFilenameFromPath(path);
+  std::wstring::size_type last_dot = file_name.rfind(L'.');
+  return std::wstring(last_dot == std::wstring::npos? L"" : file_name, last_dot+1);
 }
 
 void AppendToPath(std::wstring* path, const std::wstring& new_ending) {
@@ -106,11 +104,11 @@ void AppendToPath(std::wstring* path, const std::wstring& new_ending) {
 void InsertBeforeExtension(std::wstring* path, const std::wstring& suffix) {
   DCHECK(path);
 
-  const wstring::size_type last_dot = path->rfind(kExtensionSeparator);
-  const wstring::size_type last_sep = path->rfind(kPathSeparator);
+  const std::wstring::size_type last_dot = path->rfind(kExtensionSeparator);
+  const std::wstring::size_type last_sep = path->rfind(kPathSeparator);
 
-  if (last_dot == wstring::npos ||
-      (last_sep != wstring::npos && last_dot < last_sep)) {
+  if (last_dot == std::wstring::npos ||
+      (last_sep != std::wstring::npos && last_dot < last_sep)) {
     // The path looks something like "C:\pics.old\jojo" or "C:\pics\jojo".
     // We should just append the suffix to the entire path.
     path->append(suffix);
@@ -135,7 +133,7 @@ void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char) {
   // speed.
 
   UErrorCode status = U_ZERO_ERROR;
-#ifdef U_WCHAR_IS_UTF16
+#if defined(WCHAR_T_IS_UTF16)
   UnicodeSet illegal_characters(UnicodeString(
       L"[[\"*/:<>?\\\\|][:Cc:][:Cf:] - [\u200c\u200d]]"), status);
 #else
@@ -158,10 +156,10 @@ void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char) {
 
   std::wstring::size_type i = 0;
   std::wstring::size_type length = file_name->size();
-#ifdef U_WCHAR_IS_UTF16
+  const wchar_t* wstr = file_name->data();
+#if defined(WCHAR_T_IS_UTF16)
   // Using |span| method of UnicodeSet might speed things up a bit, but
   // it's not likely to matter here.
-  const wchar_t* wstr = file_name->data();
   std::wstring temp;
   temp.reserve(length);
   while (i < length) {
@@ -178,10 +176,10 @@ void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char) {
     }
   }
   file_name->swap(temp);
-#elif defined(U_WCHAR_IS_UTF32)
+#elif defined(WCHAR_T_IS_UTF32)
   while (i < length) {
     if (illegal_characters.contains(wstr[i])) {
-      *file_name[i] = replace_char;
+      (*file_name)[i] = replace_char;
     }
   }
 #else
@@ -190,8 +188,8 @@ void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char) {
 }
 
 void ReplaceExtension(std::wstring* file_name, const std::wstring& extension) {
-  const wstring::size_type last_dot = file_name->rfind(L'.');
-  wstring result = file_name->substr(0, last_dot);
+  const std::wstring::size_type last_dot = file_name->rfind(L'.');
+  std::wstring result = file_name->substr(0, last_dot);
   if (!extension.empty() && extension != L".") {
     if (extension.at(0) != L'.')
       result.append(L".");
@@ -200,26 +198,21 @@ void ReplaceExtension(std::wstring* file_name, const std::wstring& extension) {
   file_name->swap(result);
 }
 
-wstring GetDirectoryFromPath(const std::wstring& path) {
-  wchar_t path_buffer[MAX_PATH];
-  wchar_t* file_ptr = NULL;
-  if (GetFullPathName(path.c_str(), MAX_PATH, path_buffer, &file_ptr) == 0)
-    return L"";
-
-  wstring::size_type nc = file_ptr ? file_ptr - path_buffer : path.length();
-  wstring directory(path, 0, nc);
-  TrimTrailingSeparator(&directory);
-  return directory;
-}
-
 bool ContentsEqual(const std::wstring& filename1,
                    const std::wstring& filename2) {
   // We open the file in binary format even if they are text files because
   // we are just comparing that bytes are exactly same in both files and not
   // doing anything smart with text formatting.
+#if defined(OS_WIN)
   std::ifstream file1(filename1.c_str(), std::ios::in | std::ios::binary);
   std::ifstream file2(filename2.c_str(), std::ios::in | std::ios::binary);
-
+#elif defined(OS_POSIX)
+  std::ifstream file1(WideToUTF8(filename1).c_str(),
+                      std::ios::in | std::ios::binary);
+  std::ifstream file2(WideToUTF8(filename2).c_str(),
+                      std::ios::in | std::ios::binary);
+#endif
+  
   // Even if both files aren't openable (and thus, in some sense, "equal"),
   // any unusable file yields a result of "false".
   if (!file1.is_open() || !file2.is_open())
@@ -247,10 +240,16 @@ bool ContentsEqual(const std::wstring& filename1,
 }
 
 bool ReadFileToString(const std::wstring& path, std::string* contents) {
+#if defined(OS_WIN)
   FILE* file;
   errno_t err = _wfopen_s(&file, path.c_str(), L"rbS");
   if (err != 0)
     return false;
+#elif defined(OS_POSIX)
+  FILE* file = fopen(WideToUTF8(path).c_str(), "r");
+  if (!file)
+    return false;
+#endif
 
   char buf[1 << 16];
   size_t len;

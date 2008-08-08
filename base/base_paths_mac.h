@@ -27,34 +27,28 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_BASE_PATHS_H_
-#define BASE_BASE_PATHS_H_
+#ifndef BASE_BASE_PATHS_MAC_H_
+#define BASE_BASE_PATHS_MAC_H_
 
-// This file declares path keys for the base module.  These can be used with
-// the PathService to access various special directories and files.
-
-#include "base/basictypes.h"
-#if defined(OS_WIN)
-#include "base/base_paths_win.h"
-#elif defined(OS_MACOSX)
-#include "base/base_paths_mac.h"
-#endif
+// This file declares Mac-specific path keys for the base module.  
+// These can be used with the PathService to access various special 
+// directories and files.
 
 namespace base {
 
 enum {
-  PATH_START = 0,
+  PATH_MAC_START = 200,
 
-  DIR_CURRENT,  // current directory
-  DIR_EXE,      // directory containing FILE_EXE
-  DIR_MODULE,   // directory containing FILE_MODULE
-  DIR_TEMP,     // temporary directory
-  DIR_SOURCE_ROOT,  // Returns the root of the source tree.  This key is useful
-                    // for tests that need to locate various resources.  It
-                    // should not be used outside of test code.
-  PATH_END
+  FILE_EXE,     // path and filename of the current executable
+  FILE_MODULE,  // path and filename of the module containing the code for the
+                // PathService (which could differ from FILE_EXE if the
+                // PathService were compiled into a DLL, for example)
+  DIR_APP_DATA,  // Application Data directory under the user profile.
+  DIR_LOCAL_APP_DATA,  // "Local Settings\Application Data" directory under the
+                       // user profile.
+  PATH_MAC_END
 };
 
 }  // namespace base
 
-#endif  // BASE_BASE_PATHS_H_
+#endif  // BASE_BASE_PATHS_MAC_H_

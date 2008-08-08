@@ -26,35 +26,30 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// Copied from base/basictypes.h with some modifications
 
-#ifndef BASE_BASE_PATHS_H_
-#define BASE_BASE_PATHS_H_
+#include "base/file_util.h"
 
-// This file declares path keys for the base module.  These can be used with
-// the PathService to access various special directories and files.
+#include <string>
 
-#include "base/basictypes.h"
-#if defined(OS_WIN)
-#include "base/base_paths_win.h"
-#elif defined(OS_MACOSX)
-#include "base/base_paths_mac.h"
-#endif
+#include "base/logging.h"
+#include "base/string_util.h"
 
-namespace base {
+namespace file_util {
+  
+bool GetTempDir(std::wstring* path) {
+  const char* tmp = getenv("TMPDIR");
+  if (tmp)
+    *path = UTF8ToWide(tmp);
+  else
+    *path = L"/tmp";
+  return true;
+}
 
-enum {
-  PATH_START = 0,
+bool CopyFile(const std::wstring& from_path, const std::wstring& to_path) {
+  // TODO(erikkay): implement
+  DCHECK(false);
+  return false;
+}
 
-  DIR_CURRENT,  // current directory
-  DIR_EXE,      // directory containing FILE_EXE
-  DIR_MODULE,   // directory containing FILE_MODULE
-  DIR_TEMP,     // temporary directory
-  DIR_SOURCE_ROOT,  // Returns the root of the source tree.  This key is useful
-                    // for tests that need to locate various resources.  It
-                    // should not be used outside of test code.
-  PATH_END
-};
-
-}  // namespace base
-
-#endif  // BASE_BASE_PATHS_H_
+} // namespace file_util

@@ -42,6 +42,19 @@
 
 namespace file_util {
 
+std::wstring GetDirectoryFromPath(const std::wstring& path) {
+  wchar_t path_buffer[MAX_PATH];
+  wchar_t* file_ptr = NULL;
+  if (GetFullPathName(path.c_str(), MAX_PATH, path_buffer, &file_ptr) == 0)
+    return L"";
+
+  std::wstring::size_type length =
+      file_ptr ? file_ptr - path_buffer : path.length();
+  std::wstring directory(path, 0, length);
+  TrimTrailingSeparator(&directory);
+  return directory;
+}
+  
 int CountFilesCreatedAfter(const std::wstring& path,
                            const FILETIME& comparison_time) {
   int file_count = 0;
@@ -644,4 +657,4 @@ std::wstring FileEnumerator::Next() {
   return (file_type_ & FileEnumerator::FILES) ? cur_file : Next();
 }
 
-}  // namespace
+}  // namespace file_util
