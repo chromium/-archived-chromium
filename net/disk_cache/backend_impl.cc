@@ -97,6 +97,20 @@ bool DeleteFiles(const wchar_t* path, const wchar_t* search_name) {
   return true;
 }
 
+// Deletes the cache files stored on |path|, and optionally also attempts to
+// delete the folder itself.
+void DeleteCache(const std::wstring& path, bool remove_folder) {
+  DeleteFiles(path.c_str(), L"\\f_*");
+  DeleteFiles(path.c_str(), L"\\data_*");
+
+  std::wstring index(path);
+  file_util::AppendToPath(&index, kIndexName);
+  DeleteFile(index.c_str());
+
+  if (remove_folder)
+    RemoveDirectory(path.c_str());
+}
+
 int LowWaterAdjust(int high_water) {
   if (high_water < kCleanUpMargin)
     return 0;
@@ -134,10 +148,7 @@ class CleanupTask : public Task {
 void CleanupTask::Run() {
   for (int i = 0; i < kMaxOldFolders; i++) {
     std::wstring to_delete = GetPrefixedName(path_, name_, i);
-
-    // We do not create subfolders on the cache. If there is any subfolder, it
-    // was created by someone else so we don't want to delete it.
-    file_util::Delete(to_delete, false);
+    DeleteCache(to_delete, true);
   }
 }
 
@@ -418,12 +429,7 @@ bool BackendImpl::DoomAllEntries() {
     index_ = NULL;
     block_files_.CloseFiles();
     rankings_.Reset();
-    DeleteFiles(path_.c_str(), L"\\f_*");
-    DeleteFiles(path_.c_str(), L"\\data_*");
-
-    std::wstring index(path_);
-    file_util::AppendToPath(&index, kIndexName);
-    DeleteFile(index.c_str());
+    DeleteCache(path_.c_str(), false);
     init_ = false;
     restarted_ = true;
     return Init();
