@@ -61,7 +61,6 @@ input_files = [
     'clipboard.cc',
     'clipboard_util.cc',
     'command_line.cc',
-    'condition_variable.cc',
     'debug_on_start.cc',
     'debug_util.cc',
     'event_recorder.cc',
@@ -117,6 +116,7 @@ input_files = [
 if env['PLATFORM'] == 'win32':
   input_files.extend([
       'base_paths_win.cc',
+      'condition_variable_win.cc',
       'file_util_win.cc',
       'lock_impl_win.cc',
       'string_util_win.cc',
@@ -128,6 +128,14 @@ if env['PLATFORM'] == 'win32':
 if env['PLATFORM'] == 'darwin':
   input_files.extend([
       'sys_string_conversions_mac.cc',
+  ])
+
+if env['PLATFORM'] in ('darwin', 'linux2'):
+  input_files.extend([
+      'condition_variable_posix.cc',
+      'lock_impl_posix.cc',
+      'thread_posix.cc',
+      'thread_local_storage_posix.cc',
   ])
 
 env.ChromeStaticLibrary('base', input_files)
@@ -258,6 +266,7 @@ test_files = [
     'timer_unittest.cc',
     'values_unittest.cc',
     'win_util_unittest.cc',
+    'word_iterator_unittest.cc',
     'wmi_util_unittest.cc',
 
     dll[1],

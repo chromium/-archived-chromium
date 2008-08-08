@@ -116,7 +116,6 @@ input_files = [
     '$PORT_DIR/platform/KeyEventWin.cpp',
     '$PORT_DIR/platform/GKURL.cpp',
     '$PORT_DIR/platform/FramelessScrollView.cpp',
-    '$PORT_DIR/platform/FontMetrics.cpp',
     '$PORT_DIR/platform/FileChooserWin.cpp',
     '$PORT_DIR/platform/EditorWin.cpp',
     '$PORT_DIR/platform/DragImageWin.cpp',
