@@ -534,6 +534,8 @@ FontPlatformData* FontCache::getLastResortFallbackFont(
 // TODO in pending/FontCache.h.
 AtomicString FontCache::getGenericFontForScript(UScriptCode script, const FontDescription& description)
 {
+    if (webkit_glue::IsLayoutTestMode() && script == USCRIPT_LATIN)
+      return emptyAtom;
     FontDescription::GenericFamilyType generic = description.genericFamily();
     const wchar_t* scriptFont = gfx::GetFontFamilyForScript(
         script, static_cast<gfx::GenericFamilyType>(generic));
