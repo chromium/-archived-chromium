@@ -31,7 +31,7 @@
 #define V8_NPOBJECT_H__
 
 #include <v8.h>
-#include "bindings/npruntime.h"
+#include "third_party/npapi/bindings/npruntime.h"
 
 // These functions can be replaced by normal JS operation.
 // Getters

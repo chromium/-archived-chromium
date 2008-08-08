@@ -31,7 +31,7 @@
 #define V8_NP_UTILS_H__
 
 #include <v8.h>
-#include "bindings/npruntime.h"
+#include "third_party/npapi/bindings/npruntime.h"
 
 namespace WebCore {
   class Frame;

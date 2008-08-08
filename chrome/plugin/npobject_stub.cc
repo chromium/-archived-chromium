@@ -29,12 +29,12 @@
 
 #include "chrome/plugin/npobject_stub.h"
 
-#include "bindings/npapi.h"
-#include "bindings/npruntime.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/plugin/npobject_util.h"
 #include "chrome/plugin/plugin_channel_base.h"
 #include "chrome/renderer/webplugin_delegate_proxy.h"
+#include "third_party/npapi/bindings/npapi.h"
+#include "third_party/npapi/bindings/npruntime.h"
 
 NPObjectStub::NPObjectStub(
     NPObject* npobject, PluginChannelBase* channel, int route_id)

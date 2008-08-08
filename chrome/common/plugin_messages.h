@@ -40,10 +40,10 @@
 
 #include "base/gfx/rect.h"
 #include "base/basictypes.h"
-#include "bindings/npapi.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_message_utils.h"
 #include "googleurl/src/gurl.h"
+#include "third_party/npapi/bindings/npapi.h"
 #include "webkit/glue/npruntime_util.h"
 
 void PluginMessagesInit();

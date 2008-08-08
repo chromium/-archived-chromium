@@ -33,7 +33,7 @@
 #ifndef JSBridge_h
 #define JSBridge_h
 
-#include "bindings/npruntime.h"
+#include "third_party/npapi/bindings/npruntime.h"
 #if USE(JAVASCRIPTCORE_BINDINGS)
 #include <kjs/ustring.h>
 #endif

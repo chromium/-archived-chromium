@@ -35,7 +35,7 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "bindings/npapi.h"
+#include "third_party/npapi/bindings/npapi.h"
 
 // Individual plugin details
 struct PluginDetail {

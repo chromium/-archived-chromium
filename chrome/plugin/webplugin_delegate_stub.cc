@@ -33,8 +33,6 @@
 #include "base/time.h"
 #include "base/gfx/bitmap_header.h"
 #include "base/gfx/platform_device.h"
-#include "bindings/npapi.h"
-#include "bindings/npruntime.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/gfx/emf.h"
 #include "chrome/common/plugin_messages.h"
@@ -43,6 +41,8 @@
 #include "chrome/plugin/plugin_channel.h"
 #include "chrome/plugin/plugin_thread.h"
 #include "chrome/plugin/webplugin_proxy.h"
+#include "third_party/npapi/bindings/npapi.h"
+#include "third_party/npapi/bindings/npruntime.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/webcursor.h"
 

@@ -35,9 +35,9 @@
 #include "base/gfx/rect.h"
 #include "base/ref_counted.h"
 #include "base/task.h"
-#include "bindings/npapi.h"
 #include "chrome/common/ipc_channel.h"
 #include "chrome/common/plugin_messages.h"
+#include "third_party/npapi/bindings/npapi.h"
 
 class GURL;
 class PluginChannel;

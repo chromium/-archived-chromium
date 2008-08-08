@@ -34,8 +34,8 @@
 #define CHROME_PLUGIN_NPOBJECT_PROXY_H__
 
 #include "base/ref_counted.h"
-#include "bindings/npruntime.h"
 #include "chrome/common/ipc_channel.h"
+#include "third_party/npapi/bindings/npruntime.h"
 
 class PluginChannelBase;
 struct NPObject;

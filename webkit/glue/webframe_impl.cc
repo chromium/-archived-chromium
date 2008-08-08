@@ -93,7 +93,6 @@
 #include "FrameTree.h"
 #include "FrameView.h"
 #include "FrameWin.h"
-#include "graphics/SkiaUtils.h"
 #include "GraphicsContext.h"
 #include "HTMLHeadElement.h"
 #include "HTMLLinkElement.h"
@@ -110,10 +109,11 @@
 #include "ResourceRequest.h"
 #include "SelectionController.h"
 #include "Settings.h"
+#include "SkiaUtils.h"
 #include "SubstituteData.h"
 #include "TextIterator.h"
 #include "TextAffinity.h"
-#include "xml/XPathResult.h"
+#include "XPathResult.h"
 
 #pragma warning(pop)
 

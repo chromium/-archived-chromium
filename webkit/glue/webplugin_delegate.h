@@ -34,7 +34,7 @@
 
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
-#include "bindings/npapi.h"
+#include "third_party/npapi/bindings/npapi.h"
 
 typedef struct HDC__* HDC;
 

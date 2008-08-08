@@ -37,6 +37,7 @@
 #include "PlatformKeyboardEvent.h"
 #include "PlatformMouseEvent.h"
 #include "PlatformWheelEvent.h"
+#include "SkiaUtils.h"
 #pragma warning(pop)
 
 #undef LOG
@@ -47,7 +48,6 @@
 #include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webwidget_delegate.h"
 #include "webkit/glue/webwidget_impl.h"
-#include "graphics/SkiaUtils.h"
 
 using namespace WebCore;
 

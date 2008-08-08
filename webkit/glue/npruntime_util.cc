@@ -35,7 +35,7 @@
 #if USE(V8_BINDING)
 #include "webkit/port/bindings/v8/np_v8object.h"
 #elif USE(JAVASCRIPTCORE_BINDINGS)
-#include "bindings/c/c_utility.h"
+#include "third_party/npapi/bindings/c/c_utility.h"
 using KJS::Bindings::PrivateIdentifier;
 #endif
 

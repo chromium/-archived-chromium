@@ -30,7 +30,7 @@
 #include <algorithm>
 #include <string>
 
-#include "bindings/npapi.h"
+#include "third_party/npapi/bindings/npapi.h"
 #include "webkit/glue/plugins/nphostapi.h"
 
 namespace default_plugin {

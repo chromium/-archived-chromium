@@ -27,16 +27,16 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "lzma_util.h"
+#include "chrome/installer/util/lzma_util.h"
 
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 
 extern "C" {
-#include "Archive/7z/7zExtract.h"
-#include "Archive/7z/7zIn.h"
-#include "7zCrc.h"
+#include "third_party/lzma_sdk/Archive/7z/7zExtract.h"
+#include "third_party/lzma_sdk/Archive/7z/7zIn.h"
+#include "third_party/lzma_sdk/7zCrc.h"
 }
 
 

@@ -30,7 +30,7 @@
 #ifndef NP_V8OBJECT_H__
 #define NP_V8OBJECT_H__
 
-#include "bindings/npruntime.h"
+#include "third_party/npapi/bindings/npruntime.h"
 #include <v8.h>
 
 namespace WebCore {

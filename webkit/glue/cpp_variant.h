@@ -47,7 +47,7 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "bindings/npruntime.h"
+#include "third_party/npapi/bindings/npruntime.h"
 
 class CppVariant : public NPVariant {
  public:

@@ -36,7 +36,7 @@
 #include <vector>
 
 #include "base/logging.h"
-#include "bindings/npapi.h"
+#include "third_party/npapi/bindings/npapi.h"
 #include "webkit/default_plugin/install_dialog.h"
 #include "webkit/default_plugin/plugin_database_handler.h"
 #include "webkit/default_plugin/plugin_install_job_monitor.h"
