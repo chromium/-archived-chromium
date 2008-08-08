@@ -83,7 +83,7 @@
 <translation id="5965640700983474726">Zadejte hledaný text</translation>
 <translation id="436869212180315161">Tisk</translation>
 <translation id="2814489978934728345">Přerušit načítání této stránky</translation>
-<translation id="583281660410589416">Neznámé</translation>
+<translation id="583281660410589416">Neznámý</translation>
 <translation id="1526560967942511387">Dokument bez názvu</translation>
 <translation id="370665806235115550">Načítání...</translation>
 <translation id="7554791636758816595">Nová karta</translation>
@@ -381,7 +381,7 @@
 <translation id="5844183150118566785"><ph name="PRODUCT_NAME"/> je aktuální <ph name="VERSION"/>)</translation>
 <translation id="4477534650265381513">Pro pohotový přístup umístěte své záložky sem, do lišty záložek.</translation>
 <translation id="394984172568887996">Importováno z aplikace IE</translation>
-<translation id="5502500733115278303">Importováno z aplikace Firefox</translation>
+<translation id="5502500733115278303">Importováno z Firefoxu</translation>
 <translation id="939736085109172342">Nová složka</translation>
 <translation id="7910768399700579500">Nová složka</translation>
 <translation id="2149973817440762519">Upravit záložku</translation>
@@ -418,7 +418,7 @@
 <translation id="8703575177326907206">Vaše spojení se serverem <ph name="DOMAIN"/> není šifrované.</translation>
 <translation id="4701488924964507374"><ph name="SENTENCE1"/> <ph name="SENTENCE2"/></translation>
 <translation id="8398877366907290961">Přesto pokračovat</translation>
-<translation id="6264485186158353794">Zpět na bezpečnost</translation>
+<translation id="6264485186158353794">Zpět na bezpečnější stránku</translation>
 <translation id="4515911410595374805">Některé prvky na této stránce pocházejí z neověřených zdrojů, a proto se nezobrazují.</translation>
 <translation id="2290414052248371705">Zobrazit veškerý obsah</translation>
 <translation id="146000042969587795">Tento rámec byl blokován, protože obsahuje určitý nezabezpečený obsah.</translation>
@@ -454,7 +454,7 @@
 <translation id="5107325588313356747">Chcete-li skrýt přístup k tomuto programu, je třeba, abyste jej nainstalovali pomocí\n<ph name="CONTROL_PANEL_APPLET_NAME"/> v ovládacím panelu.\n\nPřejete si spustit <ph name="CONTROL_PANEL_APPLET_NAME"/>?</translation>
 <translation id="7543025879977230179"><ph name="PRODUCT_NAME"/> Možnosti</translation>
 <translation id="435463392378565996">Drobné úpravy</translation>
-<translation id="5040262127954254034">Soukromí</translation>
+<translation id="5040262127954254034">Ochrana osobních údajů</translation>
 <translation id="4047498523333824092">Obnovit stránky, které byly naposledy otevřené.</translation>
 <translation id="4948468046837535074">Otevřít následující stránky:</translation>
 <translation id="2518917559152314023">Přidat...</translation>
@@ -676,7 +676,7 @@
 <translation id="8446794773162156990">Google Chrome se chová nějak podivně</translation>
 <translation id="7400722733683201933">O aplikaci Google Chrome</translation>
 <translation id="3591558551793645824">Aplikace Chrome byla úspěšně odinstalována. Sbohem!</translation>
-<translation id="8172671748763307156">Opravdu chcete odinstalovat aplikaci Google Chrome? (Že bychom vám tohle někdy poradili?)</translation>
+<translation id="8172671748763307156">Opravdu chcete odinstalovat aplikaci Google Chrome? (Udělali jsme něco špatně?)</translation>
 <translation id="7161904924553537242">Vítejte v aplikaci Google Chrome</translation>
 <translation id="6921913858457830952">Aplikace Chrome je připravena dokončit instalaci.</translation>
 <translation id="7241541963706135274">Chrome provede tyto úlohy:</translation>
@@ -737,5 +737,5 @@
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Jste v anonymním režimu<ph name="END_BOLD"/>. Stránky, které otevřete v tomto okně, se nezobrazí v historii prohlížeče ani v historii vyhledávání a nezanechají ve vašem počítači po zavření anonymního okna žádné stopy, jako např. soubory cookie. Zachovány však zůstanou všechny soubory, které stáhnete, a záložky, které vytvoříte.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>To, že jste vy v anonymním režimu, nijak neovlivňuje chování ostatních lidí, serverů ani softwaru. Dejte si pozor na:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Webové stránky, které sbírají nebo sdílí údaje o vás,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Poskytovatele internetových služeb nebo zaměstnavatele, kteří sledují stránky, které navštívíte,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Škodlivý software, který monitoruje vaši klávesnici a na oplátku vám nabídne sadu smajlíků zdarma,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Sledování tajnými agenty,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Lidi, kteří stojí za vámi.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Další informace<ph name="END_LINK"/> o prohlížení v anonymním režimu.</translation>
 <translation id="1604816462140255479">&amp;Velikost písma</translation>
 <translation id="2089625293428655599">Části tohoto softwaru jsou vytvořeny v licenci třetích stran, jak je popsáno zde: <ph name="URL"/></translation>
-<translation id="6817660909204164466">Pomozte aplikaci Google Chrome zlepšovat tím, že budete společnosti Google automaticky zasílat statistiky využití a zprávy o selhání aplikace</translation>
+<translation id="6817660909204164466">Pomozte aplikaci Google Chrome zlepšovat tím, že budete společnosti Google automaticky zasílat statistiky využití a zprávy o selhání aplikace.</translation>
 </translationbundle>

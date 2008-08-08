@@ -80,7 +80,7 @@
 <translation id="7400418766976504921">URL</translation>
 <translation id="7000311294523403548">Neimenovana web stranica</translation>
 <translation id="6227291405321948850">Neimenovana web slika</translation>
-<translation id="5965640700983474726">Vrsta za pretraživanje</translation>
+<translation id="5965640700983474726">Utipkajte pojam za pretraživanje</translation>
 <translation id="436869212180315161">Pritisnite</translation>
 <translation id="2814489978934728345">Prekini učitavanje ove stranice</translation>
 <translation id="583281660410589416">Nepoznato</translation>
@@ -378,7 +378,7 @@
 <translation id="8112223930265703044">Sve</translation>
 <translation id="5538307496474303926">Brisanje...</translation>
 <translation id="2339641773402824483">Provjera ažuriranja...</translation>
-<translation id="5844183150118566785"><ph name="PRODUCT_NAME"/>je ažuriran na <ph name="VERSION"/></translation>
+<translation id="5844183150118566785"><ph name="PRODUCT_NAME"/> je ažuriran na <ph name="VERSION"/></translation>
 <translation id="4477534650265381513">Za brzi pristup stavite Vaše oznake ovdje u traku oznake.</translation>
 <translation id="394984172568887996">Uvezeno iz IE</translation>
 <translation id="5502500733115278303">Uvezeno iz Firefoxa</translation>
@@ -456,7 +456,7 @@
 <translation id="435463392378565996">Jednostavno</translation>
 <translation id="5040262127954254034">Privatnost</translation>
 <translation id="4047498523333824092">Vrati stranice koje su posljednje otvorene</translation>
-<translation id="4948468046837535074">Otvorite sljedeće stranice:</translation>
+<translation id="4948468046837535074">Otvori sljedeće stranice:</translation>
 <translation id="2518917559152314023">Do&amp;daj...</translation>
 <translation id="7905536804357499080">Upotrijebi trenutno</translation>
 <translation id="9189691339671500905">Postavite tražilicu korištenu u okviru cijelog teksta.</translation>
@@ -474,7 +474,7 @@
 <translation id="5384051050210890146">Odaberite pouzdane SSL potvrde.</translation>
 <translation id="1521442365706402292">Upravljanje potvrdama</translation>
 <translation id="7767960058630128695">Zaporke:</translation>
-<translation id="6644512095122093795">Ponuda za spremanje zaporki</translation>
+<translation id="6644512095122093795">Ponudi spremanje zaporki</translation>
 <translation id="2815448242176260024">Nikad ne spremaj zaporke</translation>
 <translation id="6222380584850953107">Pokaži spremljene zaporke</translation>
 <translation id="3675321783533846350">Postavite proxy za povezivanje s mrežom.</translation>
@@ -575,7 +575,7 @@
 <translation id="7736284018483078792">Promijeni jezik rječnika za provjeru pravopisa.</translation>
 <translation id="5433207235435438329">Jezik provjere pravopisa:</translation>
 <translation id="2441719842399509963">Vrati na zadane postavke</translation>
-<translation id="1208126399996836490">Nemojte ponovno postavljati</translation>
+<translation id="1208126399996836490">Ne vraćaj na zadane postavke</translation>
 <translation id="3122496702278727796">Nije uspjelo stvaranje podatkovnog direktorija</translation>
 <translation id="5046764976540625289">Zatvori Chrome</translation>
 <translation id="5034259512732355072">Odabir drugog direktorija...</translation>
@@ -687,7 +687,7 @@
 <translation id="7001386529596391893">Stvori prečace za Google Chrome na sljedećim mjestima:</translation>
 <translation id="480990236307250886">Otvori početnu stranicu</translation>
 <translation id="6514771739083339959">Početna stranica:</translation>
-<translation id="1665770420914915777">Koristite stranicu &quot;Nova kartica&quot;.</translation>
+<translation id="1665770420914915777">Upotrijebi stranicu &quot;Nova kartica&quot;</translation>
 <translation id="4726901538158498735">Zadano pretraživanje:</translation>
 <translation id="2231233239095101917">Skripta stranice je upotrijebila previše memorije. Ponovno učitajte stranicu da biste skripte opet omogućili.</translation>
 <translation id="8227755444512189073">Google Chrome treba pokrenuti vanjsku aplikaciju da bi mogao koristiti veze <ph name="SCHEME"/>. Zatražena je veza <ph name="PROTOLINK"/>.</translation>
@@ -695,7 +695,7 @@
 <translation id="3335672657969596251">Google Chrome ne podržava sustav <ph name="OS_NAME"/>.</translation>
 <translation id="1446473746922165495">Promijenite jezik koji se koristi u izbornicima, dijaloškim okvirima i opisima alata Google Chromea.</translation>
 <translation id="8810218179782551669">Jezik programa Google Chrome:</translation>
-<translation id="7958215378280655655">Kada ponovno postavite Google Chrome opcije, sve promjene koje ste napravili vratit će se na izvorne postavke. Želite li vratiti izvorne Chrome opcije?</translation>
+<translation id="7958215378280655655">Kada ponovno postavite Google Chrome opcije, sve promjene koje ste napravili vratit će se na zadane postavke. Želite li vratiti zadane Chrome opcije?</translation>
 <translation id="7100330187273168372">Google Chrome ne može čitati iz svojeg podatkovnog direktorija niti u njega pisati:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="3324235665723428530">Vaš profil se ne može koristiti jer pripada novijoj verziji programa Google Chrome.\n\nNeke značajke možda neće biti dostupne. Navedite neki drugi direktorij profila ili koristite noviju verziju programa Chrome.</translation>
 <translation id="3319048459796106952">&amp;Novi inkognito prozor</translation>
