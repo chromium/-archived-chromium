@@ -197,7 +197,7 @@ void AutomatedUITest::RunAutomatedUITest() {
       DoAction("SetUp");
 
       // Record the depth of the root of the command subtree, then advance to
-      // the first element in preperation for parsing.
+      // the first element in preparation for parsing.
       int start_depth = init_reader_.Depth();
       ASSERT_TRUE(init_reader_.Read()) << "Malformed XML file.";
       init_reader_.SkipToElement();
@@ -277,108 +277,104 @@ bool AutomatedUITest::DoAction(const std::string & action) {
   if (debug_logging_enabled_)
     AppendToOutputFile(action);
 
-  if (LowerCaseEqualsASCII(action, "navigate")) {
-    did_complete_action = Navigate();
-  } else if (LowerCaseEqualsASCII(action, "newtab")) {
-    did_complete_action = NewTab();
+  if (LowerCaseEqualsASCII(action, "about")) {
+    did_complete_action = OpenAboutDialog();
   } else if (LowerCaseEqualsASCII(action, "back")) {
     did_complete_action = BackButton();
-  } else if (LowerCaseEqualsASCII(action, "forward")) {
-    did_complete_action = ForwardButton();
   } else if (LowerCaseEqualsASCII(action, "closetab")) {
     did_complete_action = CloseActiveTab();
-  } else if (LowerCaseEqualsASCII(action, "openwindow")) {
-    did_complete_action = OpenAndActivateNewBrowserWindow();
-  } else if (LowerCaseEqualsASCII(action, "reload")) {
-    did_complete_action = ReloadPage();
-  } else if (LowerCaseEqualsASCII(action, "star")) {
-    did_complete_action = StarPage();
-  } else if (LowerCaseEqualsASCII(action, "findinpage")) {
-    did_complete_action = FindInPage();
-  } else if (LowerCaseEqualsASCII(action, "selectnexttab")) {
-    did_complete_action = SelectNextTab();
-  } else if (LowerCaseEqualsASCII(action, "selectprevtab")) {
-    did_complete_action = SelectPreviousTab();
-  } else if (LowerCaseEqualsASCII(action, "zoomplus")) {
-    did_complete_action = ZoomPlus();
-  } else if (LowerCaseEqualsASCII(action, "zoomminus")) {
-    did_complete_action = ZoomMinus();
-  } else if (LowerCaseEqualsASCII(action, "history")) {
-    did_complete_action = ShowHistory();
-  } else if (LowerCaseEqualsASCII(action, "downloads")) {
-    did_complete_action = ShowDownloads();
+  } else if (LowerCaseEqualsASCII(action, "clearbrowsingdata")) {
+    did_complete_action = OpenClearBrowsingDataDialog();
+  } else if (LowerCaseEqualsASCII(action, "crash")) {
+    did_complete_action = ForceCrash();
   } else if (LowerCaseEqualsASCII(action, "dialog")) {
     did_complete_action = ExerciseDialog();
-  } else if (LowerCaseEqualsASCII(action, "viewpasswords")) {
-    did_complete_action = ViewPasswords();
-  } else if (LowerCaseEqualsASCII(action, "about")) {
-    did_complete_action = About();
-  } else if (LowerCaseEqualsASCII(action, "options")) {
-    did_complete_action = Options();
-  } else if (LowerCaseEqualsASCII(action, "taskmanager")) {
-    did_complete_action = TaskManager();
-  } else if (LowerCaseEqualsASCII(action, "clearbrowsingdata")) {
-    did_complete_action = ClearBrowserData();
-  } else if (LowerCaseEqualsASCII(action, "javascriptdebugger")) {
-    did_complete_action = JavaScriptDebugger();
-  } else if (LowerCaseEqualsASCII(action, "javascriptconsole")) {
-    did_complete_action = JavaScriptConsole();
-  } else if (LowerCaseEqualsASCII(action, "import")) {
-    did_complete_action = ImportSettings();
-  } else if (LowerCaseEqualsASCII(action, "editsearchengines")) {
-    did_complete_action = EditSearchEngines();
-  } else if (LowerCaseEqualsASCII(action, "viewpasswords")) {
-    did_complete_action = ViewPasswords();
-  } else if (LowerCaseEqualsASCII(action, "goofftherecord")) {
-    did_complete_action = GoOffTheRecord();
-  } else if (LowerCaseEqualsASCII(action, "pressescapekey")) {
-    did_complete_action = PressEscapeKey();
-  } else if (LowerCaseEqualsASCII(action, "presstabkey")) {
-    did_complete_action = PressTabKey();
-  } else if (LowerCaseEqualsASCII(action, "pressenterkey")) {
-    did_complete_action = PressEnterKey();
-  } else if (LowerCaseEqualsASCII(action, "pressspacebar")) {
-    did_complete_action = PressSpaceBar();
-  } else if (LowerCaseEqualsASCII(action, "pagedown")) {
-    did_complete_action = PageDown();
-  } else if (LowerCaseEqualsASCII(action, "pageup")) {
-    did_complete_action = PageUp();
-  } else if (LowerCaseEqualsASCII(action, "dragtabright")) {
-    did_complete_action = DragActiveTab(true, false);
+  } else if (LowerCaseEqualsASCII(action, "downarrow")) {
+    did_complete_action = PressDownArrow();
+  } else if (LowerCaseEqualsASCII(action, "downloads")) {
+    did_complete_action = ShowDownloads();
   } else if (LowerCaseEqualsASCII(action, "dragtableft")) {
     did_complete_action = DragActiveTab(false, false);
   } else if (LowerCaseEqualsASCII(action, "dragtabout")) {
     did_complete_action = DragActiveTab(false, true);
-  } else if (LowerCaseEqualsASCII(action, "uparrow")) {
-    did_complete_action = UpArrow();
-  } else if (LowerCaseEqualsASCII(action, "downarrow")) {
-    did_complete_action = DownArrow();
+  } else if (LowerCaseEqualsASCII(action, "dragtabright")) {
+    did_complete_action = DragActiveTab(true, false);
+  } else if (LowerCaseEqualsASCII(action, "editsearchengines")) {
+    did_complete_action = OpenEditSearchEnginesDialog();
+  } else if (LowerCaseEqualsASCII(action, "findinpage")) {
+    did_complete_action = FindInPage();
+  } else if (LowerCaseEqualsASCII(action, "forward")) {
+    did_complete_action = ForwardButton();
+  } else if (LowerCaseEqualsASCII(action, "goofftherecord")) {
+    did_complete_action = GoOffTheRecord();
+  } else if (LowerCaseEqualsASCII(action, "history")) {
+    did_complete_action = ShowHistory();
+  } else if (LowerCaseEqualsASCII(action, "import")) {
+    did_complete_action = OpenImportSettingsDialog();
+  } else if (LowerCaseEqualsASCII(action, "javascriptconsole")) {
+    did_complete_action = JavaScriptConsole();
+  } else if (LowerCaseEqualsASCII(action, "javascriptdebugger")) {
+    did_complete_action = JavaScriptDebugger();
+  } else if (LowerCaseEqualsASCII(action, "navigate")) {
+    did_complete_action = Navigate();
+  } else if (LowerCaseEqualsASCII(action, "newtab")) {
+    did_complete_action = NewTab();
+  } else if (LowerCaseEqualsASCII(action, "openwindow")) {
+    did_complete_action = OpenAndActivateNewBrowserWindow();
   } else if (LowerCaseEqualsASCII(action, "options")) {
     did_complete_action = Options();
-  } else if (LowerCaseEqualsASCII(action, "testeditkeywords")) {
-    did_complete_action = TestEditKeywords();
-  } else if (LowerCaseEqualsASCII(action, "testtaskmanager")) {
-    did_complete_action = TestTaskManager();
-  } else if (LowerCaseEqualsASCII(action, "testoptions")) {
-    did_complete_action = TestOptions();
-  } else if (LowerCaseEqualsASCII(action, "testviewpasswords")) {
-    did_complete_action = TestViewPasswords();
-  } else if (LowerCaseEqualsASCII(action, "testclearbrowserdata")) {
-    did_complete_action = TestClearBrowserData();
-  } else if (LowerCaseEqualsASCII(action, "testimportsettings")) {
-    did_complete_action = TestImportSettings();
-  } else if (LowerCaseEqualsASCII(action, "crash")) {
-    did_complete_action = ForceCrash();
+  } else if (LowerCaseEqualsASCII(action, "pagedown")) {
+    did_complete_action = PressPageDown();
+  } else if (LowerCaseEqualsASCII(action, "pageup")) {
+    did_complete_action = PressPageUp();
+  } else if (LowerCaseEqualsASCII(action, "pressenterkey")) {
+    did_complete_action = PressEnterKey();
+  } else if (LowerCaseEqualsASCII(action, "pressescapekey")) {
+    did_complete_action = PressEscapeKey();
+  } else if (LowerCaseEqualsASCII(action, "pressspacebar")) {
+    did_complete_action = PressSpaceBar();
+  } else if (LowerCaseEqualsASCII(action, "presstabkey")) {
+    did_complete_action = PressTabKey();
+  } else if (LowerCaseEqualsASCII(action, "reload")) {
+    did_complete_action = ReloadPage();
+  } else if (LowerCaseEqualsASCII(action, "selectnexttab")) {
+    did_complete_action = SelectNextTab();
+  } else if (LowerCaseEqualsASCII(action, "selectprevtab")) {
+    did_complete_action = SelectPreviousTab();
+  } else if (LowerCaseEqualsASCII(action, "setup")) {
+    LaunchBrowserAndServer();
+    did_complete_action = true;
   } else if (LowerCaseEqualsASCII(action, "sleep")) {
     // This is for debugging, it probably shouldn't be used real tests.
     Sleep(kDebuggingTimeoutMsec);
     did_complete_action = true;
-  } else if (LowerCaseEqualsASCII(action, "setup")) {
-    LaunchBrowserAndServer();
-    did_complete_action = true;
+  } else if (LowerCaseEqualsASCII(action, "star")) {
+    did_complete_action = StarPage();
+  } else if (LowerCaseEqualsASCII(action, "taskmanager")) {
+    did_complete_action = OpenTaskManagerDialog();
   } else if (LowerCaseEqualsASCII(action, "teardown")) {
     CloseBrowserAndServer();
     did_complete_action = true;
+  } else if (LowerCaseEqualsASCII(action, "testclearbrowserdata")) {
+    did_complete_action = TestClearBrowsingData();
+  } else if (LowerCaseEqualsASCII(action, "testeditkeywords")) {
+    did_complete_action = TestEditKeywords();
+  } else if (LowerCaseEqualsASCII(action, "testimportsettings")) {
+    did_complete_action = TestImportSettings();
+  } else if (LowerCaseEqualsASCII(action, "testoptions")) {
+    did_complete_action = TestOptions();
+  } else if (LowerCaseEqualsASCII(action, "testtaskmanager")) {
+    did_complete_action = TestTaskManager();
+  } else if (LowerCaseEqualsASCII(action, "testviewpasswords")) {
+    did_complete_action = TestViewPasswords();
+  } else if (LowerCaseEqualsASCII(action, "uparrow")) {
+    did_complete_action = PressUpArrow();
+  } else if (LowerCaseEqualsASCII(action, "viewpasswords")) {
+    did_complete_action = OpenViewPasswordsDialog();
+  } else if (LowerCaseEqualsASCII(action, "zoomplus")) {
+    did_complete_action = ZoomPlus();
+  } else if (LowerCaseEqualsASCII(action, "zoomminus")) {
+    did_complete_action = ZoomMinus();
   }
 
   if (!did_complete_action)
@@ -389,6 +385,93 @@ bool AutomatedUITest::DoAction(const std::string & action) {
     ::Sleep(1000 * post_action_delay_);
 
   return did_complete_action;
+}
+
+bool AutomatedUITest::OpenAndActivateNewBrowserWindow() {
+  if (!automation()->OpenNewBrowserWindow(SW_SHOWNORMAL)) {
+    AddWarningAttribute("failed_to_open_new_browser_window");
+    return false;
+  }
+  int num_browser_windows;
+  automation()->GetBrowserWindowCount(&num_browser_windows);
+  // Get the most recently opened browser window and activate the tab
+  // in order to activate this browser window.
+  scoped_ptr<BrowserProxy> browser(
+    automation()->GetBrowserWindow(num_browser_windows - 1));
+  if (browser.get() == NULL) {
+    AddErrorAttribute("browser_window_not_found");
+    return false;
+  }
+  bool is_timeout;
+  if (!browser->ActivateTabWithTimeout(0, kWaitForActionMaxMsec,
+                                       &is_timeout)) {
+    AddWarningAttribute("failed_to_activate_tab");
+    return false;
+  }
+  return true;
+}
+
+bool AutomatedUITest::BackButton() {
+  return RunCommand(IDC_BACK);
+}
+
+bool AutomatedUITest::CloseActiveTab() {
+  bool return_value = false;
+  scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
+  if (browser.get() == NULL) {
+    AddErrorAttribute("browser_window_not_found");
+    return false;
+  }
+  int browser_windows_count;
+  int tab_count;
+  bool is_timeout;
+  browser->GetTabCountWithTimeout(&tab_count, kWaitForActionMaxMsec,
+                                  &is_timeout);
+  automation()->GetBrowserWindowCount(&browser_windows_count);
+  // Avoid quitting the application by not closing the last window.
+  if (tab_count > 1) {
+    int new_tab_count;
+    return_value = browser->RunCommand(IDC_CLOSETAB);
+    // Wait for the tab to close before we continue.
+    if (!browser->WaitForTabCountToChange(
+        tab_count, &new_tab_count, kWaitForActionMaxMsec)) {
+      AddWarningAttribute("tab_count_failed_to_change");
+      return false;
+    }
+  } else if (tab_count == 1 && browser_windows_count > 1) {
+    int new_window_count;
+    return_value = browser->RunCommand(IDC_CLOSETAB);
+    // Wait for the window to close before we continue.
+    if (!automation()->WaitForWindowCountToChange(
+        browser_windows_count, &new_window_count, kWaitForActionMaxMsec)) {
+      AddWarningAttribute("window_count_failed_to_change");
+      return false;
+    }
+  } else {
+    AddInfoAttribute("would_have_exited_application");
+    return false;
+  }
+  return return_value;
+}
+
+bool AutomatedUITest::FindInPage() {
+  return RunCommand(IDC_FIND);
+}
+
+bool AutomatedUITest::ForwardButton() {
+  return RunCommand(IDC_FORWARD);
+}
+
+bool AutomatedUITest::GoOffTheRecord() {
+  return RunCommand(IDC_GOOFFTHERECORD);
+}
+
+bool AutomatedUITest::JavaScriptConsole() {
+  return RunCommand(IDC_SHOW_JS_CONSOLE);
+}
+
+bool AutomatedUITest::JavaScriptDebugger() {
+  return RunCommand(IDC_DEBUGGER);
 }
 
 bool AutomatedUITest::Navigate() {
@@ -433,7 +516,7 @@ bool AutomatedUITest::NewTab() {
   int new_tab_count;
   bool is_timeout;
   browser->GetTabCountWithTimeout(&old_tab_count, kWaitForActionMaxMsec,
-                                  &is_timeout);
+      &is_timeout);
   // Apply accelerator and wait for a new tab to open, if either
   // fails, return false. Apply Accelerator takes care of logging its failure.
   bool return_value = RunCommand(IDC_NEWTAB);
@@ -445,87 +528,68 @@ bool AutomatedUITest::NewTab() {
   return return_value;
 }
 
-bool AutomatedUITest::BackButton() {
-  return RunCommand(IDC_BACK);
+bool AutomatedUITest::OpenAboutDialog() {
+  return RunCommand(IDC_ABOUT);
 }
 
-bool AutomatedUITest::ForwardButton() {
-  return RunCommand(IDC_FORWARD);
+bool AutomatedUITest::OpenClearBrowsingDataDialog() {
+  return RunCommand(IDC_CLEAR_BROWSING_DATA);
 }
 
-bool AutomatedUITest::CloseActiveTab() {
-  bool return_value = false;
-  scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
-  if (browser.get() == NULL) {
-    AddErrorAttribute("browser_window_not_found");
-    return false;
-  }
-  int browser_windows_count;
-  int tab_count;
-  bool is_timeout;
-  browser->GetTabCountWithTimeout(&tab_count, kWaitForActionMaxMsec,
-                                  &is_timeout);
-  automation()->GetBrowserWindowCount(&browser_windows_count);
-  // Avoid quitting the application by not closing the last window.
-  if (tab_count > 1) {
-    int new_tab_count;
-    return_value = browser->RunCommand(IDC_CLOSETAB);
-    // Wait for the tab to close before we continue.
-    if (!browser->WaitForTabCountToChange(
-        tab_count, &new_tab_count, kWaitForActionMaxMsec)) {
-      AddWarningAttribute("tab_count_failed_to_change");
-      return false;
-    }
-  } else if (tab_count == 1 && browser_windows_count > 1) {
-    int new_window_count;
-    return_value = browser->RunCommand(IDC_CLOSETAB);
-    // Wait for the window to close before we continue.
-    if (!automation()->WaitForWindowCountToChange(
-        browser_windows_count, &new_window_count, kWaitForActionMaxMsec)) {
-      AddWarningAttribute("window_count_failed_to_change");
-      return false;
-    }
-  } else {
-    AddInfoAttribute("would_have_exited_application");
-    return false;
-  }
-  return return_value;
+bool AutomatedUITest::OpenEditSearchEnginesDialog() {
+  return RunCommand(IDC_EDIT_SEARCH_ENGINES);
 }
 
-bool AutomatedUITest::OpenAndActivateNewBrowserWindow() {
-  if (!automation()->OpenNewBrowserWindow(SW_SHOWNORMAL)) {
-    AddWarningAttribute("failed_to_open_new_browser_window");
-    return false;
-  }
-  int num_browser_windows;
-  automation()->GetBrowserWindowCount(&num_browser_windows);
-  // Get the most recently opened browser window and activate the tab
-  // in order to activate this browser window.
-  scoped_ptr<BrowserProxy> browser(
-    automation()->GetBrowserWindow(num_browser_windows - 1));
-  if (browser.get() == NULL) {
-    AddErrorAttribute("browser_window_not_found");
-    return false;
-  }
-  bool is_timeout;
-  if (!browser->ActivateTabWithTimeout(0, kWaitForActionMaxMsec,
-                                       &is_timeout)) {
-    AddWarningAttribute("failed_to_activate_tab");
-    return false;
-  }
-  return true;
+bool AutomatedUITest::OpenImportSettingsDialog() {
+  return RunCommand(IDC_IMPORT_SETTINGS);
+}
+
+bool AutomatedUITest::OpenTaskManagerDialog() {
+  return RunCommand(IDC_TASKMANAGER);
+}
+
+bool AutomatedUITest::OpenViewPasswordsDialog() {
+  return RunCommand(IDC_VIEW_PASSWORDS);
+}
+
+bool AutomatedUITest::Options() {
+  return RunCommand(IDC_OPTIONS);
+}
+
+bool AutomatedUITest::PressDownArrow() {
+  return SimulateKeyPressInActiveWindow(VK_DOWN, 0);
+}
+
+bool AutomatedUITest::PressEnterKey() {
+  return SimulateKeyPressInActiveWindow(VK_RETURN, 0);
+}
+
+bool AutomatedUITest::PressEscapeKey() {
+  return SimulateKeyPressInActiveWindow(VK_ESCAPE, 0);
+}
+
+bool AutomatedUITest::PressPageDown() {
+  return SimulateKeyPressInActiveWindow(VK_PRIOR, 0);
+}
+
+bool AutomatedUITest::PressPageUp() {
+  return SimulateKeyPressInActiveWindow(VK_NEXT, 0);
+}
+
+bool AutomatedUITest::PressSpaceBar() {
+  return SimulateKeyPressInActiveWindow(VK_SPACE, 0);
+}
+
+bool AutomatedUITest::PressTabKey() {
+  return SimulateKeyPressInActiveWindow(VK_TAB, 0);
+}
+
+bool AutomatedUITest::PressUpArrow() {
+  return SimulateKeyPressInActiveWindow(VK_UP, 0);
 }
 
 bool AutomatedUITest::ReloadPage() {
   return RunCommand(IDC_RELOAD);
-}
-
-bool AutomatedUITest::StarPage() {
-  return RunCommand(IDC_STAR);
-}
-
-bool AutomatedUITest::FindInPage() {
-  return RunCommand(IDC_FIND);
 }
 
 bool AutomatedUITest::SelectNextTab() {
@@ -536,131 +600,62 @@ bool AutomatedUITest::SelectPreviousTab() {
   return RunCommand(IDC_SELECT_PREV_TAB);
 }
 
-bool AutomatedUITest::ZoomPlus() {
-  return RunCommand(IDC_ZOOM_PLUS);
-}
-
-bool AutomatedUITest::ZoomMinus() {
-  return RunCommand(IDC_ZOOM_MINUS);
+bool AutomatedUITest::ShowDownloads() {
+  return RunCommand(IDC_SHOW_DOWNLOADS);
 }
 
 bool AutomatedUITest::ShowHistory() {
   return RunCommand(IDC_SHOW_HISTORY);
 }
 
-bool AutomatedUITest::ShowDownloads() {
-  return RunCommand(IDC_SHOW_DOWNLOADS);
+bool AutomatedUITest::StarPage() {
+  return RunCommand(IDC_STAR);
 }
 
-bool AutomatedUITest::ImportSettings() {
-  return RunCommand(IDC_IMPORT_SETTINGS);
+bool AutomatedUITest::ZoomMinus() {
+  return RunCommand(IDC_ZOOM_MINUS);
 }
 
-bool AutomatedUITest::EditSearchEngines() {
-  return RunCommand(IDC_EDIT_SEARCH_ENGINES);
-}
-
-bool AutomatedUITest::ViewPasswords() {
-  return RunCommand(IDC_VIEW_PASSWORDS);
-}
-
-bool AutomatedUITest::ClearBrowserData() {
-  return RunCommand(IDC_CLEAR_BROWSING_DATA);
-}
-
-bool AutomatedUITest::TaskManager() {
-  return RunCommand(IDC_TASKMANAGER);
-}
-
-bool AutomatedUITest::Options() {
-  return RunCommand(IDC_OPTIONS);
-}
-
-bool AutomatedUITest::JavaScriptConsole() {
-  return RunCommand(IDC_SHOW_JS_CONSOLE);
-}
-
-bool AutomatedUITest::JavaScriptDebugger() {
-  return RunCommand(IDC_DEBUGGER);
-}
-
-bool AutomatedUITest::About() {
-  return RunCommand(IDC_ABOUT);
-}
-
-bool AutomatedUITest::GoOffTheRecord() {
-  return RunCommand(IDC_GOOFFTHERECORD);
-}
-
-bool AutomatedUITest::PressEscapeKey() {
-  return SimulateKeyPressInActiveWindow(VK_ESCAPE, 0);
-}
-
-bool AutomatedUITest::PressTabKey() {
-  return SimulateKeyPressInActiveWindow(VK_TAB, 0);
-}
-
-bool AutomatedUITest::PressEnterKey() {
-  return SimulateKeyPressInActiveWindow(VK_RETURN, 0);
-}
-
-bool AutomatedUITest::PressSpaceBar() {
-  return SimulateKeyPressInActiveWindow(VK_SPACE, 0);
-}
-
-bool AutomatedUITest::PageDown() {
-  return SimulateKeyPressInActiveWindow(VK_PRIOR, 0);
-}
-
-
-bool AutomatedUITest::PageUp() {
-  return SimulateKeyPressInActiveWindow(VK_NEXT, 0);
-}
-
-bool AutomatedUITest::UpArrow() {
-  return SimulateKeyPressInActiveWindow(VK_UP, 0);
-}
-
-bool AutomatedUITest::DownArrow() {
-  return SimulateKeyPressInActiveWindow(VK_DOWN, 0);
+bool AutomatedUITest::ZoomPlus() {
+  return RunCommand(IDC_ZOOM_PLUS);
 }
 
 bool AutomatedUITest::TestEditKeywords() {
   DoAction("EditKeywords");
-  return TestDialog(kTestDialogActionsToRun);
+  return FuzzyTestDialog(kTestDialogActionsToRun);
 }
 
 bool AutomatedUITest::TestTaskManager() {
   DoAction("TaskManager");
-  return TestDialog(kTestDialogActionsToRun);
+  return FuzzyTestDialog(kTestDialogActionsToRun);
 }
 
 bool AutomatedUITest::TestOptions() {
   DoAction("Options");
-  return TestDialog(kTestDialogActionsToRun);
+  return FuzzyTestDialog(kTestDialogActionsToRun);
 }
 
 bool AutomatedUITest::TestViewPasswords() {
   DoAction("ViewPasswords");
-  return TestDialog(kTestDialogActionsToRun);
+  return FuzzyTestDialog(kTestDialogActionsToRun);
 }
 
-bool AutomatedUITest::TestClearBrowserData() {
+bool AutomatedUITest::TestClearBrowsingData() {
   DoAction("ClearBrowserData");
-  return TestDialog(kTestDialogActionsToRun);
+  return FuzzyTestDialog(kTestDialogActionsToRun);
 }
 
 bool AutomatedUITest::TestImportSettings() {
   DoAction("ImportSettings");
-  return TestDialog(kTestDialogActionsToRun);
+  return FuzzyTestDialog(kTestDialogActionsToRun);
 }
 
 bool AutomatedUITest::ExerciseDialog() {
   int index = rand_util::RandInt(0, arraysize(kDialogs) - 1);
-  return DoAction(kDialogs[index]) && TestDialog(kTestDialogActionsToRun); 
+  return DoAction(kDialogs[index]) && FuzzyTestDialog(kTestDialogActionsToRun);
 }
 
-bool AutomatedUITest::TestDialog(int num_actions) {
+bool AutomatedUITest::FuzzyTestDialog(int num_actions) {
   bool return_value = true;
 
   for (int i = 0; i < num_actions; i++) {
