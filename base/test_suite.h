@@ -34,14 +34,22 @@
 // instantiate this class in your main function and call its Run method to run
 // any gtest based tests that are linked into your executable.
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
+#endif
 
 #include "base/command_line.h"
 #include "base/debug_on_start.h"
 #include "base/icu_util.h"
 #include "base/logging.h"
+#if defined(OS_WIN)
+// TODO(pinkerton): re-enable this when MessageLoop can be included by
+// non-windows platforms.
 #include "base/message_loop.h"
 #include "base/multiprocess_test.h"
+#endif
 #include "testing/gtest/include/gtest/gtest.h"
 
 class TestSuite {
@@ -51,16 +59,19 @@ class TestSuite {
   }
 
   virtual ~TestSuite() {
+#if defined(OS_WIN)
     // Flush any remaining messages.  This ensures that any accumulated Task
     // objects get destroyed before we exit, which avoids noise in purify
     // leak-test results.
     message_loop_.Quit();
     message_loop_.Run();
+#endif
   }
 
   int Run() {
     Initialize();
 
+#if defined(OS_WIN)
     // Check to see if we are being run as a client process.
     std::wstring client_func =
         parsed_command_line_.GetSwitchValue(kRunClientProcess);
@@ -77,6 +88,7 @@ class TestSuite {
         return func();
       return -1;
     }
+#endif
     return RUN_ALL_TESTS();
   }
 
@@ -86,6 +98,7 @@ class TestSuite {
     FAIL() << str;
   }
 
+#if defined(OS_WIN)
   // Disable crash dialogs so that it doesn't gum up the buildbot
   virtual void SuppressErrorDialogs() {
     UINT new_flags = SEM_FAILCRITICALERRORS |
@@ -96,20 +109,25 @@ class TestSuite {
     UINT existing_flags = SetErrorMode(new_flags);
     SetErrorMode(existing_flags | new_flags);
   }
+#endif
 
   virtual void Initialize() {
+#if defined(OS_WIN)
     // In some cases, we do not want to see standard error dialogs.
     if (!IsDebuggerPresent() &&
         !parsed_command_line_.HasSwitch(L"show-error-dialogs")) {
       SuppressErrorDialogs();
       logging::SetLogAssertHandler(UnitTestAssertHandler);
     }
+#endif
 
     icu_util::Initialize();
   }
 
   CommandLine parsed_command_line_;
+#if defined(OS_WIN)
   MessageLoop message_loop_;
+#endif
 };
 
 #endif  // BASE_TEST_SUITE_H__

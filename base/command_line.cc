@@ -55,7 +55,12 @@ using namespace std;
 
 // Since we use a lazy match, make sure that longer versions (like L"--")
 // are listed before shorter versions (like L"-") of similar prefixes.
+#if defined(OS_WIN)
 const wchar_t* const CommandLine::kSwitchPrefixes[] = {L"--", L"-", L"/"};
+#elif defined(OS_POSIX)
+// POSIX shells don't use slash as a switch since they mark absolute paths
+const wchar_t* const CommandLine::kSwitchPrefixes[] = {L"--", L"-"};
+#endif
 
 const wchar_t CommandLine::kSwitchValueSeparator[] = L"=";
 
@@ -139,9 +144,8 @@ class CommandLine::Data {
   }
 #elif defined(OS_POSIX)  // Does the actual parsing of the command line.
   void Init(int argc, const char* argv[]) {
-    if (argc <= 1)
+    if (argc < 1)
       return;
-
     program_ = base::SysNativeMBToWide(argv[0]);
     command_line_string_ = program_;
 

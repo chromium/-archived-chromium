@@ -19,6 +19,18 @@
 			name = All;
 			productName = All;
 		};
+		E49F1A870E4CDB4500386AEC /* Run UnitTests */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = E49F1A8F0E4CDB5400386AEC /* Build configuration list for PBXAggregateTarget "Run UnitTests" */;
+			buildPhases = (
+				E49F1A860E4CDB4500386AEC /* ShellScript */,
+			);
+			dependencies = (
+				E49F1AB00E4CDB8A00386AEC /* PBXTargetDependency */,
+			);
+			name = "Run UnitTests";
+			productName = "Run UnitTests";
+		};
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
@@ -149,6 +161,9 @@
 		E49F197C0E4CBDF400386AEC /* stack_container_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E491165C0E48A51E001EE8C3 /* stack_container_unittest.cc */; };
 		E49F19A40E4CBFE900386AEC /* sys_string_conversions_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7B4C5F480E4B6BF900679E8F /* sys_string_conversions_mac.cc */; };
 		E49F1A330E4CCCF200386AEC /* command_line.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A133490E37A41D00110AA2 /* command_line.cc */; };
+		E49F1A390E4CCD6400386AEC /* command_line_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45A2B5A0E479A1900DB1196 /* command_line_unittest.cc */; };
+		E49F1A5E0E4CD6E200386AEC /* run_all_unittests.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49F1A5D0E4CD6E200386AEC /* run_all_unittests.cc */; };
+		E49F1A7B0E4CD99D00386AEC /* icu_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403110D92D1E80006B936 /* icu_util.cc */; };
 		E4A133440E37A3C400110AA2 /* string_escape.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A133420E37A3C400110AA2 /* string_escape.cc */; };
 		E4A133450E37A3C400110AA2 /* string_escape.h in Headers */ = {isa = PBXBuildFile; fileRef = E4A133430E37A3C400110AA2 /* string_escape.h */; };
 		E4A1334C0E37A41D00110AA2 /* command_line.h in Headers */ = {isa = PBXBuildFile; fileRef = E4A1334A0E37A41D00110AA2 /* command_line.h */; };
@@ -296,6 +311,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 82C262C30DCF9411005CFE91;
 			remoteInfo = icudatastatic;
+		};
+		E49F1AAF0E4CDB8A00386AEC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 825402AA0D92D0C60006B936 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E49F18BE0E4CBAC200386AEC;
+			remoteInfo = UnitTest;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -492,6 +514,7 @@
 		E49115F30E47B496001EE8C3 /* at_exit_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = at_exit_unittest.cc; sourceTree = "<group>"; };
 		E491165C0E48A51E001EE8C3 /* stack_container_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stack_container_unittest.cc; sourceTree = "<group>"; };
 		E49F18BF0E4CBAC200386AEC /* UnitTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = UnitTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E49F1A5D0E4CD6E200386AEC /* run_all_unittests.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = run_all_unittests.cc; sourceTree = "<group>"; };
 		E4A133420E37A3C400110AA2 /* string_escape.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_escape.cc; sourceTree = "<group>"; };
 		E4A133430E37A3C400110AA2 /* string_escape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_escape.h; sourceTree = "<group>"; };
 		E4A133490E37A41D00110AA2 /* command_line.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = command_line.cc; sourceTree = "<group>"; };
@@ -645,6 +668,7 @@
 				8254035D0D92D27C0006B936 /* resource_util.h */,
 				8254035E0D92D27C0006B936 /* revocable_store.cc */,
 				8254035F0D92D27C0006B936 /* revocable_store.h */,
+				E49F1A5D0E4CD6E200386AEC /* run_all_unittests.cc */,
 				7B5AD60D0D9DD8050012BCF1 /* scoped_cftyperef.h */,
 				825403610D92D27C0006B936 /* scoped_ptr.h */,
 				825403620D92D27C0006B936 /* sha2.cc */,
@@ -925,7 +949,6 @@
 			buildPhases = (
 				E49F18BC0E4CBAC200386AEC /* Sources */,
 				E49F18BD0E4CBAC200386AEC /* Frameworks */,
-				E49F19B30E4CC0DC00386AEC /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -981,6 +1004,7 @@
 				825403B00D92D2E50006B936 /* base_gfx */,
 				825404020D92D3340006B936 /* All */,
 				E49F18BE0E4CBAC200386AEC /* UnitTest */,
+				E49F1A870E4CDB4500386AEC /* Run UnitTests */,
 			);
 		};
 /* End PBXProject section */
@@ -1073,7 +1097,7 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		E49F19B30E4CC0DC00386AEC /* ShellScript */ = {
+		E49F1A860E4CDB4500386AEC /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1181,6 +1205,9 @@
 				E49F197C0E4CBDF400386AEC /* stack_container_unittest.cc in Sources */,
 				E49F19A40E4CBFE900386AEC /* sys_string_conversions_mac.cc in Sources */,
 				E49F1A330E4CCCF200386AEC /* command_line.cc in Sources */,
+				E49F1A390E4CCD6400386AEC /* command_line_unittest.cc in Sources */,
+				E49F1A5E0E4CD6E200386AEC /* run_all_unittests.cc in Sources */,
+				E49F1A7B0E4CD99D00386AEC /* icu_util.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1226,6 +1253,11 @@
 			isa = PBXTargetDependency;
 			name = icudatastatic;
 			targetProxy = E49F18CE0E4CBAED00386AEC /* PBXContainerItemProxy */;
+		};
+		E49F1AB00E4CDB8A00386AEC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E49F18BE0E4CBAC200386AEC /* UnitTest */;
+			targetProxy = E49F1AAF0E4CDB8A00386AEC /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1434,6 +1466,20 @@
 			};
 			name = Release;
 		};
+		E49F1A880E4CDB4500386AEC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = UnitTest;
+			};
+			name = Debug;
+		};
+		E49F1A890E4CDB4500386AEC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = UnitTest;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1478,6 +1524,15 @@
 			buildConfigurations = (
 				E49F18C10E4CBAC300386AEC /* Debug */,
 				E49F18C20E4CBAC300386AEC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E49F1A8F0E4CDB5400386AEC /* Build configuration list for PBXAggregateTarget "Run UnitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E49F1A880E4CDB4500386AEC /* Debug */,
+				E49F1A890E4CDB4500386AEC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
