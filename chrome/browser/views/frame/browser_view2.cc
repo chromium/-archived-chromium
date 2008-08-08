@@ -647,19 +647,21 @@ int BrowserView2::LayoutToolbar(int top) {
 }
 
 int BrowserView2::LayoutBookmarkAndInfoBars(int top) {
-  // If we have an Info-bar showing, and we're showing the New Tab Page, and
-  // the Bookmark bar isn't visible on all tabs, then we need to show the Info
-  // bar _above_ the Bookmark bar, since the Bookmark bar is styled to look
-  // like it's part of the New Tab Page...
-  if (active_info_bar_ && active_bookmark_bar_ &&
-      bookmark_bar_view_->IsNewTabPage() &&
-      !bookmark_bar_view_->IsAlwaysShown()) {
-    top = LayoutInfoBar(top);
-    return LayoutBookmarkBar(top);
+  if (SupportsWindowFeature(FEATURE_BOOKMARKBAR)) {
+    // If we have an Info-bar showing, and we're showing the New Tab Page, and
+    // the Bookmark bar isn't visible on all tabs, then we need to show the
+    // Info bar _above_ the Bookmark bar, since the Bookmark bar is styled to
+    // look like it's part of the New Tab Page...
+    if (active_info_bar_ && active_bookmark_bar_ &&
+        bookmark_bar_view_->IsNewTabPage() &&
+        !bookmark_bar_view_->IsAlwaysShown()) {
+      top = LayoutInfoBar(top);
+      return LayoutBookmarkBar(top);
+    }
+    // Otherwise, Bookmark bar first, Info bar second.
+    top -= kSeparationLineHeight;
+    top = LayoutBookmarkBar(top);
   }
-  // Otherwise, Bookmark bar first, Info bar second.
-  top -= kSeparationLineHeight;
-  top = LayoutBookmarkBar(top);
   return LayoutInfoBar(top);
 }
 

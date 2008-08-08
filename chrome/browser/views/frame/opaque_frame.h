@@ -54,8 +54,8 @@ class OpaqueFrame : public BrowserFrame,
   explicit OpaqueFrame(BrowserView2* browser_view);
   virtual ~OpaqueFrame();
 
-  bool IsToolbarVisible() const { return true; }
-  bool IsTabStripVisible() const { return true; }
+  bool IsToolbarVisible() const;
+  bool IsTabStripVisible() const;
 
   // Returns bounds of various areas within the BrowserView ClientView.
   gfx::Rect GetToolbarBounds() const;

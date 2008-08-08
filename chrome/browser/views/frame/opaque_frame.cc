@@ -47,6 +47,14 @@ OpaqueFrame::OpaqueFrame(BrowserView2* browser_view)
 OpaqueFrame::~OpaqueFrame() {
 }
 
+bool OpaqueFrame::IsTabStripVisible() const {
+  return browser_view_->IsTabStripVisible();
+}
+
+bool OpaqueFrame::IsToolbarVisible() const {
+  return browser_view_->IsToolbarVisible();
+}
+
 gfx::Rect OpaqueFrame::GetToolbarBounds() const {
   return browser_view_->GetToolbarBounds();
 }

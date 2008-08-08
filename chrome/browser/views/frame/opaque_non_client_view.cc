@@ -643,7 +643,7 @@ void OpaqueNonClientView::Paint(ChromeCanvas* canvas) {
 
   // TODO(beng): remove this
   gfx::Rect contents_bounds = frame_->GetContentsBounds();
-  canvas->FillRectInt(SK_ColorWHITE, contents_bounds.x(), contents_bounds.y(),
+  canvas->FillRectInt(SK_ColorRED, contents_bounds.x(), contents_bounds.y(),
                       contents_bounds.width(), contents_bounds.height());
 }
 
@@ -832,6 +832,8 @@ void OpaqueNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
   // sides, such as the Bookmark bar, infobars, etc.
   gfx::Rect toolbar_bounds = frame_->GetToolbarBounds();
   gfx::Rect client_area_bounds = frame_->GetContentsBounds();
+  // For some reason things don't line up quite right, so we add and subtract
+  // pixels here and there for aesthetic bliss.
   client_area_bounds.SetRect(
       client_area_bounds.x(),
       frame_->client_view()->GetY() + toolbar_bounds.bottom() - 1,
@@ -840,8 +842,8 @@ void OpaqueNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
           toolbar_bounds.bottom() + 1 - kWindowVerticalBorderBottomSize));
 
   canvas->TileImageInt(*right, client_area_bounds.right(),
-                       client_area_bounds.y(),
-                       right->width(), client_area_bounds.height());
+                       client_area_bounds.y() + 1,
+                       right->width(), client_area_bounds.height() - 1);
   canvas->DrawBitmapInt(*bottom_right, client_area_bounds.right(),
                         client_area_bounds.bottom());
   canvas->TileImageInt(*bottom, client_area_bounds.x(),
@@ -851,8 +853,8 @@ void OpaqueNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
                         client_area_bounds.x() - bottom_left->width(),
                         client_area_bounds.bottom());
   canvas->TileImageInt(*left, client_area_bounds.x() - left->width(),
-                       client_area_bounds.y(),
-                       left->width(), client_area_bounds.height());
+                       client_area_bounds.y() + 1,
+                       left->width(), client_area_bounds.height() - 1);
   
   if (frame_->window_delegate()->ShouldShowWindowTitle()) {
     SkBitmap app_top_left = resources()->app_top_left();
@@ -860,12 +862,12 @@ void OpaqueNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
     SkBitmap app_top_right = resources()->app_top_right();
     canvas->DrawBitmapInt(app_top_left,
                           client_area_bounds.x() - app_top_left.width(),
-                          client_area_bounds.y() - app_top_left.height());
+                          client_area_bounds.y() - app_top_left.height() + 1);
     canvas->TileImageInt(app_top_center, client_area_bounds.x(),
                          client_area_bounds.y() - app_top_center.height(),
                          client_area_bounds.width(), app_top_center.height());
     canvas->DrawBitmapInt(app_top_right, client_area_bounds.right(),
-                          client_area_bounds.y() - app_top_right.height());
+                          client_area_bounds.y() - app_top_right.height() + 1);
   }
 }
 
