@@ -522,6 +522,14 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="TestTabDragging"
+			>
+			<File
+				RelativePath="..\..\browser\tabs\tab_dragging_test.cc"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
