@@ -444,7 +444,7 @@ static const BookmarkList kFirefox2Bookmarks[] = {
    "http://domain/"},
   {false, 0, {},
    L"<Name>",
-   "http://domain.com/q?a=\"er\"&b=<%20%20>"},
+   "http://domain.com/q?a=\"er\"&b=%3C%20%20%3E"},
   {false, 0, {},
    L"Google Home Page",
    "http://www.google.com/"},
