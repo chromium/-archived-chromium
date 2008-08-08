@@ -101,6 +101,9 @@ using namespace std;
 
 namespace WebCore {
 
+// Maximum size of the console message cache.
+static const int MAX_CONSOLE_MESSAGES = 250;
+
 namespace bug1228513 {
   // TODO(ericroman): Temporary hacks to help diagnose http://b/1228513
 
@@ -1377,6 +1380,18 @@ void InspectorController::addConsoleMessage(ConsoleMessage* consoleMessage)
     ASSERT(enabled());
     ASSERT_ARG(consoleMessage, consoleMessage);
 
+    // Limit the number of console messages we keep in memory so a poorly
+    // behaving script doesn't cause unbounded memory growth.  We remove the
+    // oldest messages so that the most recent errors are preserved.
+    // TODO(erikkay): this is not very efficient since Vector has to do a copy
+    // when you remove from anywhere other than the end.  Unfortunately, WTF
+    // doesn't appear to have a double-ended list we could use instead.  The
+    // extra CPU cost is definitely better than the memory cost.
+    if (m_consoleMessages.size() >= MAX_CONSOLE_MESSAGES) {
+        ConsoleMessage* msg = m_consoleMessages[0];
+        m_consoleMessages.remove(0);
+        delete msg;
+    }
     m_consoleMessages.append(consoleMessage);
 
     if (windowVisible())
