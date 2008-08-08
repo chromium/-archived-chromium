@@ -1,0 +1,14 @@
+include_rules = [
+  "+net",
+
+  # The subdirectories in chrome/ will manually allow their own include
+  # directories in chrome/ so we disallow all of them.
+  "-chrome",
+  "+chrome/common",
+  "+chrome/test",
+
+  # Don't allow inclusion of these other libs we shouldn't be calling directly.
+  "-v8",
+  "-webkit",
+  "-tools",
+]

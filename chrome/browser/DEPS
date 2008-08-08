@@ -1,0 +1,19 @@
+include_rules = [
+  "+chrome/installer",
+  "+chrome/tools",
+  "+chrome/tools/profiles",  # For history unit tests.
+  "+chrome/views",
+  "+webkit/activex_shim",
+  "+webkit/default_plugin",
+  "+webkit/glue",  # Defines some types that are marshalled over IPC.
+
+  # Other libraries.
+  "+chrome/third_party/hunspell",
+  "+chrome/third_party/sqlite",
+  "+libxml", # For search engine definition parsing.
+  "+v8/public", # Browser uses V8 to get the version and run the debugger.
+
+  # FIXME: this should probably not be here, we need to find a better
+  # structure for these includes.
+  "+chrome/renderer",
+]
