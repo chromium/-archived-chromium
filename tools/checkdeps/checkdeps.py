@@ -209,25 +209,32 @@ def ApplyRules(existing_rules, deps, includes, cur_dir):
 
   # First apply the implicit "allow" rule for the current directory.
   if cur_dir.lower().startswith(BASE_DIRECTORY):
-    relative_dir = cur_dir[len(BASE_DIRECTORY):]
+    relative_dir = cur_dir[len(BASE_DIRECTORY) + 1:]
     # Normalize path separators to slashes.
     relative_dir = relative_dir.replace("\\", "/")
     source = relative_dir
     if len(source) == 0:
-      source = "."  # Make the help string a little more meaningful.
+      source = "top level"  # Make the help string a little more meaningful.
     rules.AddRule("+" + relative_dir, "Default rule for " + source)
   else:
     raise Exception("Internal error: base directory is not at the beginning" +
                     " for\n  %s and base dir\n  %s" %
                     (cur_dir, BASE_DIRECTORY))
 
-  # Next apply the DEPS additions, these are all allowed.
+  # Next apply the DEPS additions, these are all allowed. Note that DEPS start
+  # out with "src/" which we want to trim.
   for (index, key) in enumerate(deps):
+    if key.startswith("src/"):
+      key = key[4:]
     rules.AddRule("+" + key, relative_dir + "'s deps for " + key)
 
   # Last, apply the additional explicit rules.
   for (index, rule_str) in enumerate(includes):
-    rules.AddRule(rule_str, relative_dir + "'s include_rules")
+    if not len(relative_dir):
+      rule_description = "the top level include_rules"
+    else:
+      rule_description = relative_dir + "'s include_rules"
+    rules.AddRule(rule_str, rule_description)
 
   return rules
 
@@ -314,7 +321,7 @@ def CheckLine(rules, line):
       retval = "\nFor " + rules.__str__()
     else:
       retval = ""
-    return retval + ('Illegal include: "%s include_path"\n    Because of %s' %
+    return retval + ('Illegal include: "%s"\n    Because of %s' %
         (include_path, why_failed))
 
   return None
@@ -389,9 +396,9 @@ def CheckDirectory(rules, dir_name):
 
 def PrintUsage():
   print """Usage: python checkdeps.py [--root <root>] [tocheck]
-  --root   Specifies the repository root. This defaults to "../.." relative to
-           the script file. This will be correct given the normal location of 
-           the script in "<root>/tools/checkdeps".
+  --root   Specifies the repository root. This defaults to "../../.." relative
+           to the script file. This will be correct given the normal location
+           of the script in "<root>/tools/checkdeps".
 
   tocheck  Specifies the directory, relative to root, to check. This defaults
            to "." so it checks everything. Only one level deep is currently
@@ -410,7 +417,7 @@ def main(options, args):
   global BASE_DIRECTORY
   if not options.base_directory:
     BASE_DIRECTORY = os.path.abspath(
-        os.path.join(os.path.abspath(sys.argv[0]), "..\.."))
+        os.path.join(os.path.abspath(sys.argv[0]), "..\..\.."))
   else:
     BASE_DIRECTORY = os.path.abspath(sys.argv[2])
 
@@ -441,7 +448,6 @@ def main(options, args):
   start_dir = start_dir.replace("\\", "/")
 
   success = CheckDirectory(base_rules, start_dir)
-  success = False
   if not success:
     print "\nFAILED\n"
     sys.exit(1)
@@ -452,8 +458,8 @@ if '__main__' == __name__:
   option_parser = optparse.OptionParser()
   option_parser.add_option("", "--root", default="", dest="base_directory",
                            help='Specifies the repository root. This defaults '
-                           'to "../.." relative to the script file, which will '
-                           'normally be the repository root.')
+                           'to "../../.." relative to the script file, which '
+                           'will normally be the repository root.')
   option_parser.add_option("-v", "--verbose", action="store_true",
                            default=False, help="Print debug logging")
   options, args = option_parser.parse_args()
