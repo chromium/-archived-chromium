@@ -137,6 +137,19 @@
 		E49115EF0E47B461001EE8C3 /* at_exit.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49115EC0E47B461001EE8C3 /* at_exit.cc */; };
 		E49357220E422A36008F8B09 /* timer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403850D92D2CF0006B936 /* timer.cc */; };
 		E49357230E422A38008F8B09 /* timer.h in Headers */ = {isa = PBXBuildFile; fileRef = 825403860D92D2CF0006B936 /* timer.h */; };
+		E49E4C790E4CF4CE00AD47F7 /* at_exit_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49115F30E47B496001EE8C3 /* at_exit_unittest.cc */; };
+		E49E4C7F0E4CF50300AD47F7 /* pickle_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4562C680E2803C3005E4685 /* pickle_unittest.cc */; };
+		E49E4C810E4CF51C00AD47F7 /* pickle.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254033E0D92D2210006B936 /* pickle.cc */; };
+		E49E4C880E4CF56100AD47F7 /* string_tokenizer_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49E4C870E4CF56100AD47F7 /* string_tokenizer_unittest.cc */; };
+		E49E4C890E4CF56100AD47F7 /* string_tokenizer_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49E4C870E4CF56100AD47F7 /* string_tokenizer_unittest.cc */; };
+		E49E4C8D0E4CF59400AD47F7 /* string_escape_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49E4C8C0E4CF59400AD47F7 /* string_escape_unittest.cc */; };
+		E49E4C990E4CF60300AD47F7 /* values_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49E4C980E4CF60300AD47F7 /* values_unittest.cc */; };
+		E49E4CA30E4CF67D00AD47F7 /* json_reader_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4562C3B0E28017F005E4685 /* json_reader_unittest.cc */; };
+		E49E4CA60E4CF68E00AD47F7 /* json_writer_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4562C4E0E28022A005E4685 /* json_writer_unittest.cc */; };
+		E49E4CA90E4CF6AD00AD47F7 /* linked_ptr_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49E4CA80E4CF6AD00AD47F7 /* linked_ptr_unittest.cc */; };
+		E49E4CAC0E4CF6DB00AD47F7 /* sha2_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49E4CAB0E4CF6DB00AD47F7 /* sha2_unittest.cc */; };
+		E49E4CAE0E4CF6EC00AD47F7 /* sha2.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403620D92D27C0006B936 /* sha2.cc */; };
+		E49E4CB10E4CF71900AD47F7 /* sha512.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403700D92D2840006B936 /* sha512.cc */; };
 		E49F194D0E4CBB2300386AEC /* libicudatastatic.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E45A2A040E4779FC00DB1196 /* libicudatastatic.a */; };
 		E49F194E0E4CBB2300386AEC /* libicudata_stub.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4562AFF0E27E428005E4685 /* libicudata_stub.a */; };
 		E49F194F0E4CBB2300386AEC /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4562B010E27E428005E4685 /* libicuuc.a */; };
@@ -513,6 +526,11 @@
 		E49115EC0E47B461001EE8C3 /* at_exit.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = at_exit.cc; sourceTree = "<group>"; };
 		E49115F30E47B496001EE8C3 /* at_exit_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = at_exit_unittest.cc; sourceTree = "<group>"; };
 		E491165C0E48A51E001EE8C3 /* stack_container_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stack_container_unittest.cc; sourceTree = "<group>"; };
+		E49E4C870E4CF56100AD47F7 /* string_tokenizer_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_tokenizer_unittest.cc; sourceTree = "<group>"; };
+		E49E4C8C0E4CF59400AD47F7 /* string_escape_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_escape_unittest.cc; sourceTree = "<group>"; };
+		E49E4C980E4CF60300AD47F7 /* values_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = values_unittest.cc; sourceTree = "<group>"; };
+		E49E4CA80E4CF6AD00AD47F7 /* linked_ptr_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = linked_ptr_unittest.cc; sourceTree = "<group>"; };
+		E49E4CAB0E4CF6DB00AD47F7 /* sha2_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sha2_unittest.cc; sourceTree = "<group>"; };
 		E49F18BF0E4CBAC200386AEC /* UnitTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = UnitTest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E49F1A5D0E4CD6E200386AEC /* run_all_unittests.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = run_all_unittests.cc; sourceTree = "<group>"; };
 		E4A133420E37A3C400110AA2 /* string_escape.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_escape.cc; sourceTree = "<group>"; };
@@ -626,6 +644,7 @@
 				E4562C4E0E28022A005E4685 /* json_writer_unittest.cc */,
 				8254031D0D92D1F40006B936 /* json_writer.cc */,
 				8254031E0D92D1F40006B936 /* json_writer.h */,
+				E49E4CA80E4CF6AD00AD47F7 /* linked_ptr_unittest.cc */,
 				820EB4EF0E3A610A009668FC /* linked_ptr.h */,
 				825403250D92D2090006B936 /* lock.cc */,
 				825403260D92D2090006B936 /* lock.h */,
@@ -671,6 +690,7 @@
 				E49F1A5D0E4CD6E200386AEC /* run_all_unittests.cc */,
 				7B5AD60D0D9DD8050012BCF1 /* scoped_cftyperef.h */,
 				825403610D92D27C0006B936 /* scoped_ptr.h */,
+				E49E4CAB0E4CF6DB00AD47F7 /* sha2_unittest.cc */,
 				825403620D92D27C0006B936 /* sha2.cc */,
 				825403630D92D27C0006B936 /* sha2.h */,
 				8254036F0D92D2840006B936 /* sha256.h */,
@@ -685,9 +705,11 @@
 				825403780D92D2CF0006B936 /* stats_counters.h */,
 				825403790D92D2CF0006B936 /* stats_table.cc */,
 				8254037A0D92D2CF0006B936 /* stats_table.h */,
+				E49E4C8C0E4CF59400AD47F7 /* string_escape_unittest.cc */,
 				E4A133420E37A3C400110AA2 /* string_escape.cc */,
 				E4A133430E37A3C400110AA2 /* string_escape.h */,
 				8254037B0D92D2CF0006B936 /* string_tokenizer.h */,
+				E49E4C870E4CF56100AD47F7 /* string_tokenizer_unittest.cc */,
 				820EB4F50E3A613F009668FC /* string_piece.cc */,
 				820EB4F60E3A613F009668FC /* string_piece.h */,
 				8254037C0D92D2CF0006B936 /* string_util.cc */,
@@ -713,6 +735,7 @@
 				820EB4FD0E3A618B009668FC /* tracked.h */,
 				820EB4FE0E3A618B009668FC /* tracked.cc */,
 				825403870D92D2CF0006B936 /* tuple.h */,
+				E49E4C980E4CF60300AD47F7 /* values_unittest.cc */,
 				825403880D92D2CF0006B936 /* values.cc */,
 				825403890D92D2CF0006B936 /* values.h */,
 				820EB5030E3A61A1009668FC /* watchdog.cc */,
@@ -1163,6 +1186,7 @@
 				A5A0268E0E4A2BDC00498DA9 /* file_util_posix.cc in Sources */,
 				A5A0270B0E4A630D00498DA9 /* file_util_mac.mm in Sources */,
 				7B4C5F4A0E4B6BF900679E8F /* sys_string_conversions_mac.cc in Sources */,
+				E49E4C890E4CF56100AD47F7 /* string_tokenizer_unittest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1208,6 +1232,18 @@
 				E49F1A390E4CCD6400386AEC /* command_line_unittest.cc in Sources */,
 				E49F1A5E0E4CD6E200386AEC /* run_all_unittests.cc in Sources */,
 				E49F1A7B0E4CD99D00386AEC /* icu_util.cc in Sources */,
+				E49E4C790E4CF4CE00AD47F7 /* at_exit_unittest.cc in Sources */,
+				E49E4C7F0E4CF50300AD47F7 /* pickle_unittest.cc in Sources */,
+				E49E4C810E4CF51C00AD47F7 /* pickle.cc in Sources */,
+				E49E4C880E4CF56100AD47F7 /* string_tokenizer_unittest.cc in Sources */,
+				E49E4C8D0E4CF59400AD47F7 /* string_escape_unittest.cc in Sources */,
+				E49E4C990E4CF60300AD47F7 /* values_unittest.cc in Sources */,
+				E49E4CA30E4CF67D00AD47F7 /* json_reader_unittest.cc in Sources */,
+				E49E4CA60E4CF68E00AD47F7 /* json_writer_unittest.cc in Sources */,
+				E49E4CA90E4CF6AD00AD47F7 /* linked_ptr_unittest.cc in Sources */,
+				E49E4CAC0E4CF6DB00AD47F7 /* sha2_unittest.cc in Sources */,
+				E49E4CAE0E4CF6EC00AD47F7 /* sha2.cc in Sources */,
+				E49E4CB10E4CF71900AD47F7 /* sha512.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
