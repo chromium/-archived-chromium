@@ -48,7 +48,10 @@ class GURL;
 class URLRequest;
 class URLRequestJobMetrics;
 
-class URLRequestJob : public base::RefCounted<URLRequestJob> {
+// The URLRequestJob is using RefCounterThreadSafe because some sub classes
+// can be destroyed on multiple threads. This is the case of the
+// UrlRequestFileJob.
+class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
  public:
   URLRequestJob(URLRequest* request);
   virtual ~URLRequestJob();
