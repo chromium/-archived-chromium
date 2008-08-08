@@ -143,6 +143,8 @@ class TestingBrowserProcess : public BrowserProcess {
 
   virtual SuspendController* suspend_controller() { return NULL; }
 
+  virtual bool IsUsingNewFrames() { return false; }
+
  private:
   NotificationService notification_service_;
   DISALLOW_EVIL_CONSTRUCTORS(TestingBrowserProcess);
