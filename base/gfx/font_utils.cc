@@ -37,6 +37,7 @@
 #include "base/singleton.h"
 #include "base/string_util.h"
 #include "unicode/locid.h"
+#include "unicode/uchar.h"
 
 namespace gfx {
 
@@ -58,15 +59,18 @@ struct ScriptToFontMapSingletonTraits
     };
 
     const static FontMap font_map[] = {
+      {USCRIPT_LATIN, L"times new roman"},
+      {USCRIPT_GREEK, L"times new roman"},
+      {USCRIPT_CYRILLIC, L"times new roman"},
       {USCRIPT_SIMPLIFIED_HAN, L"simsun"},
-      {USCRIPT_TRADITIONAL_HAN, L"pmingliu"},
+      //{USCRIPT_TRADITIONAL_HAN, L"pmingliu"},
       {USCRIPT_HIRAGANA, L"ms pgothic"},
       {USCRIPT_KATAKANA, L"ms pgothic"},
       {USCRIPT_KATAKANA_OR_HIRAGANA, L"ms pgothic"},
       {USCRIPT_HANGUL, L"gulim"},
       {USCRIPT_THAI, L"tahoma"},
       {USCRIPT_HEBREW, L"david"},
-      {USCRIPT_ARABIC, L"simplified arabic"},
+      {USCRIPT_ARABIC, L"tahoma"},
       {USCRIPT_DEVANAGARI, L"mangal"},
       {USCRIPT_BENGALI, L"vrinda"},
       {USCRIPT_GURMUKHI, L"raavi"},
@@ -104,13 +108,15 @@ struct ScriptToFontMapSingletonTraits
     // this ICU locale tells the current UI locale of Chrome.
     Locale locale = Locale::getDefault();
     ScriptToFontMap::const_iterator iter;
-    if (locale == Locale::getKorean()) {
+    if (locale == Locale::getJapanese()) {
+      iter = new_instance->find(USCRIPT_HIRAGANA);
+    } else if (locale == Locale::getKorean()) {
       iter = new_instance->find(USCRIPT_HANGUL);
-    } else if (locale == Locale::getJapanese()) {
-      iter = new_instance->find(USCRIPT_KATAKANA_OR_HIRAGANA);
-    } else if (locale == Locale::getTraditionalChinese()) {
-      iter = new_instance->find(USCRIPT_TRADITIONAL_HAN);
     } else {
+      // Use Simplified Chinese font for all other locales including
+      // Traditional Chinese because Simsun (SC font) has a wider
+      // coverage (covering both SC and TC) than PMingLiu (TC font).
+      // This also speeds up the TC version of Chrome when rendering SC pages.
       iter = new_instance->find(USCRIPT_SIMPLIFIED_HAN);
     }
     if (iter != new_instance->end())
@@ -170,12 +176,15 @@ struct FontDataCacheSingletonTraits
 //  - Cover all the scripts
 //  - Get the default font for each script/generic family from the
 //    preference instead of hardcoding in the source.
+//    (at least, read values from the registry for IE font settings).
 //  - Support generic families (from FontDescription)
 //  - If the default font for a script is not available,
+//    try some more fonts known to support it. Finally, we can
 //    use EnumFontFamilies or similar APIs to come up with a list of
 //    fonts supporting the script and cache the result.
-//  - Consider using UnicodeSet (or UnicodeMap) to keep track of which
-//    character is supported by which font
+//  - Consider using UnicodeSet (or UnicodeMap) converted from
+//    GLYPHSET (BMP) or directly read from truetype cmap tables to
+//    keep track of which character is supported by which font
 //  - Update script_font_cache in response to WM_FONTCHANGE
 
 const wchar_t* GetFontFamilyForScript(UScriptCode script,
@@ -196,9 +205,11 @@ const wchar_t* GetFontFamilyForScript(UScriptCode script,
 //    and just return it.
 //  - All the characters (or characters up to the point a single
 //    font can cover) need to be taken into account
-const wchar_t* GetFallbackFamily(const wchar_t* characters,
+const wchar_t* GetFallbackFamily(const wchar_t *characters,
                                  int length,
-                                 GenericFamilyType generic) {
+                                 GenericFamilyType generic,
+                                 UChar32 *char_checked,
+                                 UScriptCode *script_checked) {
   DCHECK(characters && characters[0] && length > 0);
   UScriptCode script = USCRIPT_COMMON;
 
@@ -215,11 +226,34 @@ const wchar_t* GetFallbackFamily(const wchar_t* characters,
     // silently ignore the error
   }
 
-  // hack for full width ASCII. Japanese are most fond of full-width ASCII.
-  // TODO(jungshik) find a better way !
+  // hack for full width ASCII. For the full-width ASCII, use the font
+  // for Han (which is locale-dependent). 
   if (0xFF00 < ucs4 && ucs4 < 0xFF5F)
-    return L"ms pgothic";
+    script = USCRIPT_HAN; 
 
+  // There are a lot of characters in USCRIPT_COMMON that can be covered
+  // by fonts for scripts closely related to them.
+  // See http://unicode.org/cldr/utility/list-unicodeset.jsp?a=[:Script=Common:]
+  // TODO(jungshik): make this more efficient with a wider coverage
+  // (Armenian, Georgian, Devanagari, etc)
+  if (script == USCRIPT_COMMON || script == USCRIPT_INHERITED) { 
+    UBlockCode block = ublock_getCode(ucs4);
+    switch (block) {
+      case UBLOCK_BASIC_LATIN:
+        script = USCRIPT_LATIN;
+        break;
+      case UBLOCK_CJK_SYMBOLS_AND_PUNCTUATION: 
+        script = USCRIPT_HAN;
+        break;
+      case UBLOCK_HIRAGANA:
+      case UBLOCK_KATAKANA:
+        script = USCRIPT_HIRAGANA;
+      case UBLOCK_ARABIC:
+        script = USCRIPT_ARABIC;
+    }
+  }
+
+  // Another lame work-around to cover non-BMP characters.
   const wchar_t* family = GetFontFamilyForScript(script, generic);
   if (!family) {
     int plane = ucs4 >> 16;
@@ -228,13 +262,15 @@ const wchar_t* GetFallbackFamily(const wchar_t* characters,
         family = L"code2001";
         break;
       case 2:
-        family = L"simsun ext b";
+        family = L"simsun-extb";
         break;
       default:
         family = L"arial unicode ms";
     }
   }
 
+  if (char_checked) *char_checked = ucs4;
+  if (script_checked) *script_checked = script;
   return family;
 }
 

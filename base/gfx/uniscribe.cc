@@ -587,7 +587,7 @@ bool UniscribeState::Shape(const wchar_t* input,
       // TODO(jungshik): generic type should come from webkit for
       // UniscribeStateTextRun (a derived class used in webkit).
       const wchar_t *family = GetFallbackFamily(input, item_length,
-          GENERIC_FAMILY_STANDARD);
+          GENERIC_FAMILY_STANDARD, NULL, NULL);
       bool font_ok = GetDerivedFontData(family, style_, &logfont_, &ascent, &hfont, &script_cache);
 
       if (!font_ok) {

@@ -60,10 +60,16 @@ const wchar_t* GetFontFamilyForScript(UScriptCode script,
                                       GenericFamilyType generic);
 
 // Return a font family that can render |characters| based on
-// what script characters belong to.
-const wchar_t* GetFallbackFamily(const wchar_t *characters, int length,
-                                 GenericFamilyType generic);
-
+// what script characters belong to. When char_checked is non-NULL,
+// it's filled with the character used to determine the script.
+// When script_checked is non-NULL, the script used to determine
+// the family is returned.
+// TODO(jungshik) : This function needs a total overhaul.
+const wchar_t* GetFallbackFamily(const wchar_t* characters,
+                                 int length,
+                                 GenericFamilyType generic,
+                                 UChar32 *char_checked,
+                                 UScriptCode *script_checked);
 // Derive a new HFONT by replacing lfFaceName of LOGFONT with |family|,
 // calculate the ascent for the derived HFONT, and initialize SCRIPT_CACHE
 // in FontData.
