@@ -142,6 +142,7 @@
 		E49357230E422A38008F8B09 /* timer.h in Headers */ = {isa = PBXBuildFile; fileRef = 825403860D92D2CF0006B936 /* timer.h */; };
 		E49F18160E4BA46400386AEC /* sys_string_conversions_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7B4C5F480E4B6BF900679E8F /* sys_string_conversions_mac.cc */; };
 		E49F181A0E4BA47100386AEC /* platform_thread.cc in Sources */ = {isa = PBXBuildFile; fileRef = 82E23FCC0D9C219600F8B40A /* platform_thread.cc */; };
+		E49F18340E4C891000386AEC /* observer_list_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4562C580E2802AC005E4685 /* observer_list_unittest.cc */; };
 		E4A133440E37A3C400110AA2 /* string_escape.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A133420E37A3C400110AA2 /* string_escape.cc */; };
 		E4A133450E37A3C400110AA2 /* string_escape.h in Headers */ = {isa = PBXBuildFile; fileRef = E4A133430E37A3C400110AA2 /* string_escape.h */; };
 		E4A1334C0E37A41D00110AA2 /* command_line.h in Headers */ = {isa = PBXBuildFile; fileRef = E4A1334A0E37A41D00110AA2 /* command_line.h */; };
@@ -1174,6 +1175,7 @@
 				E45A2C7C0E47B20B00DB1196 /* string_util_mac.cc in Sources */,
 				E49F18160E4BA46400386AEC /* sys_string_conversions_mac.cc in Sources */,
 				E49F181A0E4BA47100386AEC /* platform_thread.cc in Sources */,
+				E49F18340E4C891000386AEC /* observer_list_unittest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

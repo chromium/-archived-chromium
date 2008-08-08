@@ -38,14 +38,16 @@ class ObserverListTest : public testing::Test {
 class Foo {
  public:
   virtual void Observe(int x) = 0;
+  virtual ~Foo() {}
 };
 
 class Adder : public Foo {
  public:
-  Adder(int scaler) : scaler_(scaler), total(0) {}
+  Adder(int scaler) : total(0), scaler_(scaler) {}
   virtual void Observe(int x) {
     total += x * scaler_;
   }
+  virtual ~Adder() { }
   int total;
  private:
   int scaler_;
@@ -55,6 +57,7 @@ class Disrupter : public Foo {
  public:
   Disrupter(ObserverList<Foo>& list, Foo* doomed) : list_(list), doomed_(doomed) {
   }
+  virtual ~Disrupter() { }
   virtual void Observe(int x) {
     list_.RemoveObserver(doomed_);
   }
