@@ -234,11 +234,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\condition_variable.cc"
+			RelativePath="..\condition_variable.h"
 			>
 		</File>
 		<File
-			RelativePath="..\condition_variable.h"
+			RelativePath="..\condition_variable_win.cc"
 			>
 		</File>
 		<File

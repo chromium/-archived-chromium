@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_LOCK_H__
-#define BASE_LOCK_H__
+#ifndef BASE_LOCK_H_
+#define BASE_LOCK_H_
 
 #include "base/lock_impl.h"
 
@@ -50,6 +50,11 @@ class Lock {
   // held by something else, immediately return false.
   bool Try();
 
+  // Return the underlying lock implementation.
+  // TODO(awalker): refactor lock and condition variables so that this is
+  // unnecessary.
+  LockImpl* lock_impl() { return &lock_; }
+
  private:
   LockImpl lock_;  // User-supplied underlying lock implementation.
 
@@ -69,7 +74,7 @@ class Lock {
   int32 contention_count_;
 #endif  // NDEBUG
 
-  DISALLOW_EVIL_CONSTRUCTORS(Lock);
+  DISALLOW_COPY_AND_ASSIGN(Lock);
 };
 
 // A helper class that acquires the given Lock while the AutoLock is in scope.
@@ -85,7 +90,7 @@ class AutoLock {
 
  private:
   Lock& lock_;
-  DISALLOW_EVIL_CONSTRUCTORS(AutoLock);
+  DISALLOW_COPY_AND_ASSIGN(AutoLock);
 };
 
 // AutoUnlock is a helper class for ConditionVariable instances
@@ -111,4 +116,4 @@ class AutoUnlock {
   int release_count_;
 };
 
-#endif  // BASE_LOCK_H__
+#endif  // BASE_LOCK_H_

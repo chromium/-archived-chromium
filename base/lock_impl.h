@@ -27,22 +27,30 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_LOCK_IMPL_H__
-#define BASE_LOCK_IMPL_H__
+#ifndef BASE_LOCK_IMPL_H_
+#define BASE_LOCK_IMPL_H_
+
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
+#include <windows.h>
+#elif defined(OS_POSIX)
+#include <pthread.h>
+#endif
 
 #include "base/basictypes.h"
-
-#if defined(WIN32)
-#include <Windows.h>
-#elif defined(__APPLE__)
-#include <libkern/OSAtomic.h>
-#endif
 
 // This class implements the underlying platform-specific spin-lock mechanism
 // used for the Lock class.  Most users should not use LockImpl directly, but
 // should instead use Lock.
 class LockImpl {
  public:
+#if defined(OS_WIN)
+  typedef CRITICAL_SECTION OSLockType;
+#elif defined(OS_POSIX)
+  typedef pthread_mutex_t OSLockType;
+#endif
+
   LockImpl();
   ~LockImpl();
 
@@ -57,14 +65,15 @@ class LockImpl {
   // a successful call to Try, or a call to Lock.
   void Unlock();
 
- private:
-#if defined(WIN32)
-  CRITICAL_SECTION critical_section_;
-#elif defined(__APPLE__)
-  OSSpinLock spin_lock_;
-#endif
+  // Return the native underlying lock.
+  // TODO(awalker): refactor lock and condition variables so that this is
+  // unnecessary.
+  OSLockType* os_lock() { return &os_lock_; }
 
-  DISALLOW_EVIL_CONSTRUCTORS(LockImpl);
+ private:
+  OSLockType os_lock_;
+
+  DISALLOW_COPY_AND_ASSIGN(LockImpl);
 };
 
 class AutoLockImpl {
@@ -84,4 +93,4 @@ class AutoLockImpl {
   LockImpl* lock_impl_;
 };
 
-#endif  // BASE_LOCK_IMPL_H__
+#endif  // BASE_LOCK_IMPL_H_

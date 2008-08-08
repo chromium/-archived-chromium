@@ -65,8 +65,12 @@ ConditionVariable::~ConditionVariable() {
   DCHECK_EQ(recycling_list_size_, allocation_counter_);
 }
 
-// Wait() atomically releases the caller's lock as it starts to Wait, and then
-// reacquires it when it is signaled.
+void ConditionVariable::Wait() {
+  // Default to "wait forever" timing, which means have to get a Signal()
+  // or Broadcast() to come out of this wait state.
+  TimedWait(TimeDelta::FromMilliseconds(INFINITE));
+}
+
 void ConditionVariable::TimedWait(const TimeDelta& max_time) {
   Event* waiting_event;
   HANDLE handle;

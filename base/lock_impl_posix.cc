@@ -29,21 +29,32 @@
 
 #include "base/lock_impl.h"
 
-LockImpl::LockImpl()
-    : spin_lock_(0) {
+#include <errno.h>
+
+#include "base/logging.h"
+
+LockImpl::LockImpl() {
+  int rv = pthread_mutex_init(&os_lock_, NULL);
+  DCHECK(rv == 0);
 }
 
 LockImpl::~LockImpl() {
+  int rv = pthread_mutex_destroy(&os_lock_);
+  DCHECK(rv == 0);
 }
 
 bool LockImpl::Try() {
-  return ::OSSpinLockTry(&spin_lock_);
+  int rv = pthread_mutex_trylock(&os_lock_);
+  DCHECK(rv == 0 || rv == EBUSY);
+  return rv == 0;
 }
 
 void LockImpl::Lock() {
-  ::OSSpinLockLock(&spin_lock_);
+  int rv = pthread_mutex_lock(&os_lock_);
+  DCHECK(rv == 0);
 }
 
 void LockImpl::Unlock() {
-  ::OSSpinLockUnlock(&spin_lock_);
+  int rv = pthread_mutex_unlock(&os_lock_);
+  DCHECK(rv == 0);
 }

@@ -27,24 +27,59 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "base/condition_variable.h"
+
+#include <errno.h>
+#include <sys/time.h>
+
+#include "base/lock.h"
 #include "base/lock_impl.h"
+#include "base/logging.h"
 
-LockImpl::LockImpl() {
-  ::InitializeCriticalSection(&os_lock_);
+ConditionVariable::ConditionVariable(Lock* user_lock)
+    : user_mutex_(user_lock->lock_impl()->os_lock()) {
+  int rv = pthread_cond_init(&condition_, NULL);
+  DCHECK(rv == 0);
 }
 
-LockImpl::~LockImpl() {
-  ::DeleteCriticalSection(&os_lock_);
+ConditionVariable::~ConditionVariable() {
+  int rv = pthread_cond_destroy(&condition_);
+  DCHECK(rv == 0);
 }
 
-bool LockImpl::Try() {
-  return ::TryEnterCriticalSection(&os_lock_) != FALSE;
+void ConditionVariable::Wait() {
+  int rv = pthread_cond_wait(&condition_, user_mutex_);
+  DCHECK(rv == 0);
 }
 
-void LockImpl::Lock() {
-  ::EnterCriticalSection(&os_lock_);
+void ConditionVariable::TimedWait(const TimeDelta& max_time) {
+  int64 usecs = max_time.InMicroseconds();
+
+  // The timeout argument to pthread_cond_timedwait is in absolute time.
+  struct timeval now;
+  gettimeofday(&now, NULL);
+
+  const int kMicrosPerUnit = 1000000;
+  const int kNanosPerMicro = 1000;
+  const int kNanosPerUnit = kMicrosPerUnit * kNanosPerMicro;
+
+  struct timespec abstime;
+  abstime.tv_sec = now.tv_sec + (usecs / kMicrosPerUnit);
+  abstime.tv_nsec = (now.tv_usec + (usecs % kMicrosPerUnit)) * kNanosPerMicro;
+  abstime.tv_sec += abstime.tv_nsec / kNanosPerUnit;
+  abstime.tv_nsec %= kNanosPerUnit;
+  DCHECK(abstime.tv_sec >= now.tv_sec);  // Overflow paranoia
+
+  int rv = pthread_cond_timedwait(&condition_, user_mutex_, &abstime);
+  DCHECK(rv == 0 || rv == ETIMEDOUT);
 }
 
-void LockImpl::Unlock() {
-  ::LeaveCriticalSection(&os_lock_);
+void ConditionVariable::Broadcast() {
+  int rv = pthread_cond_broadcast(&condition_);
+  DCHECK(rv == 0);
+}
+
+void ConditionVariable::Signal() {
+  int rv = pthread_cond_signal(&condition_);
+  DCHECK(rv == 0);
 }
