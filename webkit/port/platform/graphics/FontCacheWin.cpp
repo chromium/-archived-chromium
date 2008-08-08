@@ -293,6 +293,8 @@ static bool fontContainsCharacter(const FontPlatformData* font_data,
         i++;
     }
     cmap->freeze();
+    // We don't lowercase |family| because all of them are under our control
+    // and they're already lowercased. 
     fontCmapCache->set(family, cmap); 
     return cmap->contains(character);
 }
@@ -335,15 +337,16 @@ const SimpleFontData* FontCache::getFontDataForCharacters(const Font& font,
     // large repertoire. Eventually, we need to scan all the fonts
     // on the system to have a Firefox-like coverage and this needs 
     // to move to base/gfx. 
+    // Make sure that all of them are lowercased.
     const static wchar_t* const cjkFonts[] = {
-        L"Arial Unicode MS",
+        L"arial unicode ms",
         L"ms pgothic",
         L"simsun",
         L"gulim",
         L"pmingliu",
         L"code2000",
-        L"Bitstream Cyberbit", 
-        L"Titus Cyberbit Basic",
+        L"bitstream cyberbit", 
+        L"titus cyberbit basic",
     };
 
     const static wchar_t* const commonFonts[] = {
