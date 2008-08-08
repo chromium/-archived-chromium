@@ -1,0 +1,20 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x240
+  RenderBlock {HTML} at (0,0) size 800x240
+    RenderBody {BODY} at (8,16) size 784x216
+      RenderBlock {P} at (0,0) size 784x20
+        RenderText {#text} at (0,0) size 418x19
+          text run at (0,0) width 418: "There should be no red below, just the outline of an empty green box."
+      RenderBlock {DIV} at (0,36) size 360x180 [color=#FFFFFF] [bgcolor=#FF0000] [border: (20px solid #008000)]
+        RenderText {#text} at (40,39) size 241x62
+          text run at (40,39) width 123: "xxxx xxxx xxxx "
+          text run at (163,39) width 118: "xxxx xxxx xxxx"
+          text run at (40,79) width 41: "xxxx "
+        RenderImage {IMG} at (71,40) size 100x100 [border: (20px solid #FFFFFF)]
+        RenderText {#text} at (161,79) size 244x62
+          text run at (161,79) width 5: " "
+          text run at (166,79) width 41: "xxxx "
+          text run at (207,79) width 77: "xxxx xxxx"
+          text run at (40,119) width 41: "xxxx "
+          text run at (81,119) width 118: "xxxx xxxx xxxx"

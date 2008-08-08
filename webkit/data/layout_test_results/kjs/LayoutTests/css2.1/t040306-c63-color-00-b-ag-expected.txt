@@ -1,0 +1,77 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x120
+  RenderBlock {HTML} at (0,0) size 800x120
+    RenderBody {BODY} at (8,16) size 784x96 [color=#0000FF]
+      RenderBlock {P} at (0,0) size 784x20
+        RenderText {#text} at (0,0) size 621x19
+          text run at (0,0) width 621: "There should be three solid bars of colour below, each longer than the last, each of the colour specified."
+      RenderBlock {DIV} at (0,36) size 784x20
+        RenderText {#text} at (0,0) size 34x19
+          text run at (0,0) width 34: "Blue: "
+        RenderInline {SPAN} at (0,0) size 10x17
+          RenderText {#text} at (34,4) size 10x17
+            text run at (34,4) width 10: "X"
+        RenderInline {SPAN} at (0,0) size 10x17
+          RenderText {#text} at (44,4) size 10x17
+            text run at (44,4) width 10: "X"
+        RenderImage {IMG} at (54,5) size 15x15 [color=#FF0000]
+        RenderText {#text} at (0,0) size 0x0
+      RenderBlock {DIV} at (0,56) size 784x20
+        RenderText {#text} at (0,0) size 52x19
+          text run at (0,0) width 52: "Orange: "
+        RenderInline {SPAN} at (0,0) size 10x17 [color=#FFA500]
+          RenderText {#text} at (52,4) size 10x17
+            text run at (52,4) width 10: "X"
+        RenderInline {SPAN} at (0,0) size 10x17 [color=#FFA500]
+          RenderText {#text} at (62,4) size 10x17
+            text run at (62,4) width 10: "X"
+        RenderInline {SPAN} at (0,0) size 10x17 [color=#FFA500]
+          RenderText {#text} at (72,4) size 10x17
+            text run at (72,4) width 10: "X"
+        RenderInline {SPAN} at (0,0) size 10x17 [color=#FFA500]
+          RenderText {#text} at (82,4) size 10x17
+            text run at (82,4) width 10: "X"
+        RenderImage {IMG} at (92,5) size 15x15 [color=#FF0000]
+        RenderText {#text} at (0,0) size 0x0
+      RenderBlock {DIV} at (0,76) size 784x20
+        RenderText {#text} at (0,0) size 37x19
+          text run at (0,0) width 37: "Lime: "
+        RenderInline {SPAN} at (0,0) size 10x17 [color=#00FF00]
+          RenderText {#text} at (37,4) size 10x17
+            text run at (37,4) width 10: "X"
+        RenderInline {SPAN} at (0,0) size 10x17 [color=#00FF00]
+          RenderText {#text} at (47,4) size 10x17
+            text run at (47,4) width 10: "X"
+        RenderInline {SPAN} at (0,0) size 10x17 [color=#00FF00]
+          RenderText {#text} at (57,4) size 10x17
+            text run at (57,4) width 10: "X"
+        RenderInline {SPAN} at (0,0) size 10x17 [color=#00FF00]
+          RenderText {#text} at (67,4) size 10x17
+            text run at (67,4) width 10: "X"
+        RenderInline {SPAN} at (0,0) size 10x17 [color=#00FF00]
+          RenderText {#text} at (77,4) size 10x17
+            text run at (77,4) width 10: "X"
+        RenderInline {SPAN} at (0,0) size 10x17 [color=#00FF00]
+          RenderText {#text} at (87,4) size 10x17
+            text run at (87,4) width 10: "X"
+        RenderInline {SPAN} at (0,0) size 10x17 [color=#00FF00]
+          RenderText {#text} at (97,4) size 10x17
+            text run at (97,4) width 10: "X"
+        RenderInline {SPAN} at (0,0) size 10x17 [color=#00FF00]
+          RenderText {#text} at (107,4) size 10x17
+            text run at (107,4) width 10: "X"
+        RenderInline {SPAN} at (0,0) size 10x17 [color=#00FF00]
+          RenderText {#text} at (117,4) size 10x17
+            text run at (117,4) width 10: "X"
+        RenderInline {SPAN} at (0,0) size 10x17 [color=#00FF00]
+          RenderText {#text} at (127,4) size 10x17
+            text run at (127,4) width 10: "X"
+        RenderInline {SPAN} at (0,0) size 10x17 [color=#00FF00]
+          RenderText {#text} at (137,4) size 10x17
+            text run at (137,4) width 10: "X"
+        RenderInline {SPAN} at (0,0) size 10x17 [color=#00FF00]
+          RenderText {#text} at (147,4) size 10x17
+            text run at (147,4) width 10: "X"
+        RenderImage {IMG} at (157,5) size 15x15 [color=#FF0000]
+        RenderText {#text} at (0,0) size 0x0

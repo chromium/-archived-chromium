@@ -1,0 +1,35 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x576
+      RenderBlock {P} at (0,0) size 784x40
+        RenderText {#text} at (0,0) size 775x39
+          text run at (0,0) width 339: "The column on the right has explicit spaces after each of "
+          text run at (339,0) width 436: "U+3001 (ideographic comma) and U+3002 (ideographic full stop) while"
+          text run at (0,20) width 393: "the left column does not. The left and the right columns should be "
+          text run at (393,20) width 121: "rendered identically."
+layer at (240,64) size 96x180
+  RenderBlock (positioned) {DIV} at (240,64) size 1x180
+    RenderText {#text} at (0,0) size 96x179
+      text run at (0,0) width 62: "Experts\x{3001}"
+      text run at (0,20) width 96: "eWatch(TM)\x{3001}"
+      text run at (0,40) width 40: "123\x{3001}"
+      text run at (0,60) width 62: "abc456\x{3001}"
+      text run at (0,80) width 86: "123Experts\x{3002}"
+      text run at (0,100) width 96: "eWatch(TM)\x{3002}"
+      text run at (0,120) width 40: "123\x{3002}"
+      text run at (0,140) width 62: "abc456\x{3002}"
+      text run at (0,160) width 24: "123"
+layer at (480,64) size 96x180
+  RenderBlock (positioned) {DIV} at (480,64) size 1x180
+    RenderText {#text} at (0,0) size 96x179
+      text run at (0,0) width 62: "Experts\x{3001}"
+      text run at (0,20) width 96: "eWatch(TM)\x{3001}"
+      text run at (0,40) width 40: "123\x{3001}"
+      text run at (0,60) width 62: "abc456\x{3001}"
+      text run at (0,80) width 86: "123Experts\x{3002}"
+      text run at (0,100) width 96: "eWatch(TM)\x{3002}"
+      text run at (0,120) width 40: "123\x{3002}"
+      text run at (0,140) width 62: "abc456\x{3002}"
+      text run at (0,160) width 24: "123"

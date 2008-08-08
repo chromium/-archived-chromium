@@ -1,0 +1,107 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x204
+  RenderBlock {HTML} at (0,0) size 800x204
+    RenderBody {BODY} at (8,8) size 784x176
+      RenderBlock (anonymous) at (0,0) size 784x20
+        RenderInline {DIV} at (0,0) size 240x18 [color=#FFFFFF] [bgcolor=#FF0000]
+          RenderText {#text} at (16,0) size 240x18
+            text run at (16,0) width 240: "Ahem_font_required_for_this_test."
+        RenderText {#text} at (0,0) size 0x0
+      RenderBlock {P} at (0,36) size 784x20
+        RenderText {#text} at (0,0) size 471x19
+          text run at (0,0) width 471: "There should be no red below, only three identical striped green and lime bars."
+      RenderBlock {DIV} at (20,76) size 744x20
+        RenderInline {SPAN} at (0,0) size 109x22 [color=#800000] [bgcolor=#FF0000]
+          RenderText {#text} at (0,0) size 0x0
+          RenderInline {SPAN} at (0,0) size 109x22 [color=#008000] [bgcolor=#00FF00]
+            RenderText {#text} at (0,-1) size 19x22
+              text run at (0,-1) width 19: "X "
+            RenderInline {SPAN} at (0,0) size 0x0 [color=#800000] [bgcolor=#FF0000]
+              RenderInline {SPAN} at (0,0) size 0x0
+                RenderText {#text} at (0,0) size 0x0
+                RenderInline {SPAN} at (0,0) size 0x0
+                  RenderText {#text} at (0,0) size 0x0
+              RenderText {#text} at (0,0) size 0x0
+            RenderText {#text} at (19,-1) size 19x22
+              text run at (19,-1) width 19: "X "
+            RenderInline {SPAN} at (0,0) size 0x0 [color=#800000] [bgcolor=#FF0000]
+              RenderText {#text} at (0,0) size 0x0
+            RenderText {#text} at (38,-1) size 14x22
+              text run at (38,-1) width 14: "X"
+            RenderInline {SPAN} at (0,0) size 5x22 [color=#800000] [bgcolor=#FF0000]
+              RenderInline {SPAN} at (0,0) size 5x22
+                RenderInline {SPAN} at (0,0) size 5x22 [color=#008000] [bgcolor=#00FF00]
+                  RenderText {#text} at (52,-1) size 5x22
+                    text run at (52,-1) width 5: " "
+                RenderInline {SPAN} at (0,0) size 0x0
+                  RenderText {#text} at (0,0) size 0x0
+              RenderText {#text} at (0,0) size 0x0
+            RenderText {#text} at (57,-1) size 19x22
+              text run at (57,-1) width 19: "X "
+            RenderInline {SPAN} at (0,0) size 0x0 [color=#800000] [bgcolor=#FF0000]
+              RenderText {#text} at (0,0) size 0x0
+            RenderText {#text} at (0,0) size 0x0
+            RenderInline {SPAN} at (0,0) size 33x22
+              RenderText {#text} at (76,-1) size 14x22
+                text run at (76,-1) width 14: "X"
+              RenderInline {SPAN} at (0,0) size 5x22
+                RenderText {#text} at (90,-1) size 5x22
+                  text run at (90,-1) width 5: " "
+                RenderInline {SPAN} at (0,0) size 0x0 [color=#800000] [bgcolor=#FF0000]
+                  RenderText {#text} at (0,0) size 0x0
+              RenderInline {SPAN} at (0,0) size 0x0 [color=#800000] [bgcolor=#FF0000]
+                RenderText {#text} at (0,0) size 0x0
+              RenderText {#text} at (95,-1) size 14x22
+                text run at (95,-1) width 14: "X"
+              RenderInline {SPAN} at (0,0) size 0x0 [color=#800000] [bgcolor=#FF0000]
+                RenderText {#text} at (0,0) size 0x0
+      RenderBlock {DIV} at (20,116) size 744x20
+        RenderInline {SPAN} at (0,0) size 109x22 [color=#800000] [bgcolor=#FF0000]
+          RenderText {#text} at (0,0) size 0x0
+          RenderInline {SPAN} at (0,0) size 109x22 [color=#008000] [bgcolor=#00FF00]
+            RenderText {#text} at (0,-1) size 19x22
+              text run at (0,-1) width 19: "X "
+            RenderInline {SPAN} at (0,0) size 0x0 [color=#800000] [bgcolor=#FF0000]
+              RenderInline {SPAN} at (0,0) size 0x0
+                RenderText {#text} at (0,0) size 0x0
+                RenderInline {SPAN} at (0,0) size 0x0
+                  RenderText {#text} at (0,0) size 0x0
+              RenderText {#text} at (0,0) size 0x0
+            RenderText {#text} at (19,-1) size 19x22
+              text run at (19,-1) width 19: "X "
+            RenderInline {SPAN} at (0,0) size 0x0 [color=#800000] [bgcolor=#FF0000]
+              RenderText {#text} at (0,0) size 0x0
+            RenderText {#text} at (38,-1) size 14x22
+              text run at (38,-1) width 14: "X"
+            RenderInline {SPAN} at (0,0) size 5x22 [color=#800000] [bgcolor=#FF0000]
+              RenderInline {SPAN} at (0,0) size 5x22
+                RenderInline {SPAN} at (0,0) size 5x22 [color=#008000] [bgcolor=#00FF00]
+                  RenderText {#text} at (52,-1) size 5x22
+                    text run at (52,-1) width 5: " "
+                RenderInline {SPAN} at (0,0) size 0x0
+                  RenderText {#text} at (0,0) size 0x0
+              RenderText {#text} at (0,0) size 0x0
+            RenderText {#text} at (57,-1) size 19x22
+              text run at (57,-1) width 19: "X "
+            RenderInline {SPAN} at (0,0) size 0x0 [color=#800000] [bgcolor=#FF0000]
+              RenderText {#text} at (0,0) size 0x0
+            RenderText {#text} at (0,0) size 0x0
+            RenderInline {SPAN} at (0,0) size 33x22
+              RenderText {#text} at (76,-1) size 14x22
+                text run at (76,-1) width 14: "X"
+              RenderInline {SPAN} at (0,0) size 5x22
+                RenderText {#text} at (90,-1) size 5x22
+                  text run at (90,-1) width 5: " "
+                RenderInline {SPAN} at (0,0) size 0x0 [color=#800000] [bgcolor=#FF0000]
+                  RenderText {#text} at (0,0) size 0x0
+              RenderInline {SPAN} at (0,0) size 0x0 [color=#800000] [bgcolor=#FF0000]
+                RenderText {#text} at (0,0) size 0x0
+              RenderText {#text} at (95,-1) size 14x22
+                text run at (95,-1) width 14: "X"
+              RenderInline {SPAN} at (0,0) size 0x0 [color=#800000] [bgcolor=#FF0000]
+                RenderText {#text} at (0,0) size 0x0
+      RenderBlock {DIV} at (20,156) size 744x20
+        RenderInline {SPAN} at (0,0) size 109x22 [color=#008000] [bgcolor=#00FF00]
+          RenderText {#text} at (0,-1) size 109x22
+            text run at (0,-1) width 109: "X X X X X X"

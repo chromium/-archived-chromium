@@ -6,7 +6,7 @@ layer at (0,0) size 800x600
     RenderBody {BODY} at (8,8) size 784x576
       RenderBlock {DIV} at (0,0) size 425x75 [bgcolor=#FFFF00]
         RenderBlock {DIV} at (25,25) size 100x20 [bgcolor=#FFFFFF]
-      RenderBlock {P} at (0,91) size 784x36
-        RenderText {#text} at (0,0) size 759x36
-          text run at (0,0) width 759: "This test clicks outside an editable div element, and must not result in the element receiving focus. If the test succeeds the"
-          text run at (0,18) width 235: "element should not have a focus ring."
+      RenderBlock {P} at (0,91) size 784x40
+        RenderText {#text} at (0,0) size 771x39
+          text run at (0,0) width 771: "This test clicks outside an editable div element, and must not result in the element receiving focus. If the test succeeds the element"
+          text run at (0,20) width 171: "should not have a focus ring."

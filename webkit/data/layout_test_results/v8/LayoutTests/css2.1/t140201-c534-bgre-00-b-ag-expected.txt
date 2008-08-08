@@ -1,0 +1,30 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x201
+  RenderBlock {HTML} at (0,0) size 800x201
+    RenderBody {BODY} at (8,16) size 784x177
+      RenderBlock {P} at (0,0) size 784x20
+        RenderText {#text} at (0,0) size 228x19
+          text run at (0,0) width 228: "There should be a green block below."
+      RenderBlock {DIV} at (0,36) size 156x141 [color=#008000] [bgcolor=#FF0000] [border: (3px solid #000000)]
+        RenderBlock {DIV} at (3,3) size 150x45
+          RenderText {#text} at (0,-1) size 138x47
+            text run at (0,-1) width 71: " xxxxxxxxx "
+            text run at (71,-1) width 67: " xxxxxxxxx"
+            text run at (0,14) width 71: " xxxxxxxxx "
+            text run at (71,14) width 67: " xxxxxxxxx"
+            text run at (0,29) width 67: " xxxxxxxxx"
+        RenderBlock {DIV} at (3,48) size 150x45
+          RenderText {#text} at (0,-1) size 144x47
+            text run at (0,-1) width 44: "           "
+            text run at (44,-1) width 70: "xxxxxxxxxx"
+            text run at (0,14) width 74: "xxxxxxxxxx "
+            text run at (74,14) width 70: "xxxxxxxxxx"
+            text run at (0,29) width 70: "xxxxxxxxxx"
+        RenderBlock {DIV} at (3,93) size 150x45
+          RenderText {#text} at (0,-1) size 144x47
+            text run at (0,-1) width 71: " xxxxxxxxx "
+            text run at (71,-1) width 70: "xxxxxxxxxx"
+            text run at (0,14) width 74: "xxxxxxxxxx "
+            text run at (74,14) width 70: "xxxxxxxxxx"
+            text run at (0,29) width 70: "xxxxxxxxxx"

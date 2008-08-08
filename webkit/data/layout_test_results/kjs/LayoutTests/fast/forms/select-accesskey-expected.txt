@@ -1,0 +1,25 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x584
+      RenderBlock (anonymous) at (0,0) size 784x20
+        RenderMenuList {SELECT} at (0,2) size 49x18 [bgcolor=#FFFFFF]
+          RenderBlock (anonymous) at (0,0) size 49x19
+            RenderText at (8,2) size 18x14
+              text run at (8,2) width 18: "blaa"
+        RenderText {#text} at (49,0) size 472x19
+          text run at (49,0) width 472: " Press ctrl-a to activate the select. Works as layout test too using eventSender."
+      RenderBlock {DIV} at (0,20) size 784x80
+        RenderBlock (anonymous) at (0,0) size 784x20
+          RenderText {#text} at (0,0) size 71x19
+            text run at (0,0) width 71: "focus event:"
+        RenderBlock {DIV} at (0,20) size 784x20
+          RenderText {#text} at (0,0) size 50x19
+            text run at (0,0) width 50: "PASS 1"
+        RenderBlock (anonymous) at (0,40) size 784x20
+          RenderText {#text} at (0,0) size 67x19
+            text run at (0,0) width 67: "click event:"
+        RenderBlock {DIV} at (0,60) size 784x20
+          RenderText {#text} at (0,0) size 50x19
+            text run at (0,0) width 50: "PASS 2"

@@ -1,0 +1,19 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x127
+  RenderBlock {HTML} at (0,0) size 800x127
+    RenderBody {BODY} at (8,16) size 784x96
+      RenderBlock {P} at (0,0) size 784x20
+        RenderText {#text} at (0,0) size 233x19
+          text run at (0,0) width 233: "There should be a green square below:"
+      RenderBlock {DIV} at (15,36) size 754x60
+        RenderBlock {DIV} at (0,0) size 75x60 [bgcolor=#FF0000]
+          RenderBlock {P} at (0,0) size 75x45 [color=#FFFFFF] [bgcolor=#FFFFFF]
+            RenderText {#text} at (0,-1) size 36x17
+              text run at (0,-1) width 36: "xx xx "
+            RenderInline {SPAN} at (0,0) size 74x32 [color=#008000]
+              RenderText {#text} at (36,-1) size 50x32
+                text run at (36,-1) width 14: "xx"
+                text run at (0,14) width 14: "xx"
+            RenderText {#text} at (0,29) size 32x17
+              text run at (0,29) width 32: "xx xx"

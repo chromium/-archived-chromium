@@ -1,0 +1,18 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x112
+  RenderBlock {HTML} at (0,0) size 800x112
+    RenderBody {BODY} at (8,16) size 784x81
+      RenderBlock {P} at (0,0) size 784x20
+        RenderText {#text} at (0,0) size 150x19
+          text run at (0,0) width 150: "It should say \"HI\" below:"
+      RenderBlock {DIV} at (15,36) size 165x45 [color=#FFFFFF] [bgcolor=#000080]
+        RenderText {#text} at (0,-1) size 54x17
+          text run at (0,-1) width 54: "xx xx xx "
+        RenderInline {SPAN} at (0,0) size 140x32
+          RenderText {#text} at (54,-1) size 140x32
+            text run at (54,-1) width 86: "xx xx xx xx xx"
+            text run at (0,14) width 14: "xx"
+        RenderText {#text} at (59,14) size 149x32
+          text run at (59,14) width 90: " xx xx xx xx xx"
+          text run at (0,29) width 86: "xx xx xx xx xx"
