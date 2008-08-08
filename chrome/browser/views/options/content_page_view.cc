@@ -328,6 +328,8 @@ void ContentPageView::Layout() {
       0, 0, passwords_group_->GetContentsWidth(), 0);
   passwords_neversave_radio_->SetBounds(
       0, 0, passwords_group_->GetContentsWidth(), 0);
+  fonts_and_languages_label_->SetBounds(
+      0, 0, fonts_lang_group_->GetContentsWidth(), 0);
   // ... and twice to get the height of multi-line items correct.
   View::Layout();
 }
@@ -429,6 +431,7 @@ void ContentPageView::InitFontsLangGroup() {
       l10n_util::GetString(IDS_OPTIONS_FONTSETTINGS_INFO));
   fonts_and_languages_label_->SetHorizontalAlignment(
       ChromeViews::Label::ALIGN_LEFT);
+  fonts_and_languages_label_->SetMultiLine(true);
   change_content_fonts_button_ = new ChromeViews::NativeButton(
       l10n_util::GetString(IDS_OPTIONS_FONTSETTINGS_CONFIGUREFONTS_BUTTON));
   change_content_fonts_button_->SetListener(this);
