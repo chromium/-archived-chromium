@@ -244,7 +244,11 @@ static wchar_t* defaultGUIFont(Document* document)
   UScriptCode dominantScript = document->dominantScript();
   const wchar_t* family = NULL;
 
-  if (dominantScript != USCRIPT_INVALID_CODE) {
+  // TODO(jungshik) : Special-casing of Latin/Greeek/Cyrillic should go away
+  // once GetFontFamilyForScript is enhanced to support GenericFamilyType for real.
+  // For now, we make sure that we use Arial to match IE for those scripts.
+  if (dominantScript != USCRIPT_LATIN && dominantScript != USCRIPT_CYRILLIC &&
+      dominantScript != USCRIPT_GREEK && dominantScript != USCRIPT_INVALID_CODE) {
       family = gfx::GetFontFamilyForScript(dominantScript,
           gfx::GenericFamilyType::GENERIC_FAMILY_NONE);
       if (family)
