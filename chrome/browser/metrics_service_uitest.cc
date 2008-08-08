@@ -118,6 +118,9 @@ TEST_F(MetricsServiceTest, CrashRenderers) {
   ASSERT_NE(0, process_id);
   process_util::KillProcess(process_id, 0xc0000005, true);  // Fake Access Violation.
 
+  // Give the browser a chance to notice the crashed tab.
+  Sleep(1000);
+
   QuitBrowser();
 
   scoped_ptr<PrefService> local_state(GetLocalState());
