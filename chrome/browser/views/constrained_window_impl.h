@@ -67,7 +67,6 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   // Overridden from ConstrainedWindow:
   virtual void CloseConstrainedWindow();
   virtual void ActivateConstrainedWindow();
-  virtual void ResizeConstrainedWindow(int width, int height);
   virtual void RepositionConstrainedWindowTo(const gfx::Point& anchor_point);
   virtual bool IsSuppressedConstrainedWindow() const;
   virtual void WasHidden();
@@ -138,11 +137,16 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   void Init(TabContents* owner);
 
   // Called after changing either the anchor point or titlebar
-  // visibility of a suppressed popup. This does the actual resizing.
+  // visibility of a suppressed popup.
   //
   // @see RepositionConstrainedWindowTo
   // @see SetTitlebarVisibilityPercentage
   void ResizeConstrainedTitlebar();
+
+  // Called to change the size of a constrained window. Moves the
+  // window to the anchor point (taking titlebar visibility into
+  // account) and sets the pop up size.
+  void ResizeConstrainedWindow(int width, int height);
 
   // Initialize the Constrained Window as a Constrained Dialog containing a
   // ChromeViews::View client area.

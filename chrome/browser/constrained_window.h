@@ -129,9 +129,6 @@ class ConstrainedWindow {
   // Closes the Constrained Window.
   virtual void CloseConstrainedWindow() = 0;
 
-  // Tells the Constrained Window to resize to the specified size.
-  virtual void ResizeConstrainedWindow(int width, int height) = 0;
-
   // Repositions the Constrained Window so that the lower right corner
   // of the titlebar is at the passed in |anchor_point|.
   virtual void RepositionConstrainedWindowTo(

@@ -955,14 +955,6 @@ void ConstrainedWindowImpl::CloseConstrainedWindow() {
   Close();
 }
 
-void ConstrainedWindowImpl::ResizeConstrainedWindow(int width, int height) {
-  gfx::Size window_size =
-      non_client_view_->CalculateWindowSizeForClientSize(width, height);
-  ::SetWindowPos(GetHWND(), NULL, 0, 0, window_size.width(),
-                 window_size.height(),
-                 SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
-}
-
 void ConstrainedWindowImpl::RepositionConstrainedWindowTo(
     const gfx::Point& anchor_point) {
   anchor_point_ = anchor_point;
@@ -1085,6 +1077,8 @@ void ConstrainedWindowImpl::MoveContents(TabContents* source,
                                          const gfx::Rect& pos) {
   if (!IsSuppressedConstrainedWindow())
     SetWindowBounds(pos);
+  else
+    ResizeConstrainedWindow(pos.width(), pos.height());
 }
 
 bool ConstrainedWindowImpl::IsPopup(TabContents* source) {
@@ -1145,16 +1139,34 @@ void ConstrainedWindowImpl::ResizeConstrainedTitlebar() {
   CRect this_bounds;
   GetClientRect(&this_bounds);
 
-  // First determine the height of the title bar of a constrained window, so
+  ResizeConstrainedWindow(this_bounds.Width(), this_bounds.Height());
+}
+
+void ConstrainedWindowImpl::ResizeConstrainedWindow(int width, int height) {
+  DCHECK(constrained_contents_)
+      << "ResizeConstrainedTitlebar() is only valid for web popups";
+
+  // Make sure we aren't larger then our containing tab contents.
+  if (width > anchor_point_.x())
+    width = anchor_point_.x();
+
+  // Determine the height of the title bar of a constrained window, so
   // that we can offset by that much vertically if necessary...
   int titlebar_height = non_client_view()->CalculateTitlebarHeight();
 
   int visible_titlebar_pixels =
       static_cast<int>(titlebar_height * titlebar_visibility_);
 
-  int x = anchor_point_.x() - this_bounds.Width();
+  int x = anchor_point_.x() - width;
   int y = anchor_point_.y() - visible_titlebar_pixels;
-  SetWindowPos(NULL, x, y, this_bounds.Width(), visible_titlebar_pixels,
+
+  // NOTE: Previously, we passed in |visible_titlebar_pixels| instead
+  // of |height|. This didn't actually change any of the properties of
+  // the child HWNDS. If we ever set the |anchor_point_| intelligently
+  // so that it deals with scrollbars, we'll need to change height
+  // back to |visible_titlebar_pixels| and find a different solution,
+  // otherwise part of the window will be displayed over the scrollbar.
+  SetWindowPos(NULL, x, y, width, height,
                SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 }
 
