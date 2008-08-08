@@ -523,12 +523,12 @@ void TabContents::SetDownloadShelfVisible(bool visible) {
 
     if (delegate_)
       delegate_->ContentsStateChanged(this);
-
-    // SetShelfVisible can force-close the shelf, so make sure we lay out
-    // everything correctly, as if the animation had finished. This doesn't
-    // matter for showing the shelf, as the show animation will do it.
-    ToolbarSizeChanged(visible);
   }
+
+  // SetShelfVisible can force-close the shelf, so make sure we lay out
+  // everything correctly, as if the animation had finished. This doesn't
+  // matter for showing the shelf, as the show animation will do it.
+  ToolbarSizeChanged(false);
 }
 
 void TabContents::ReleaseDownloadShelfView() {
