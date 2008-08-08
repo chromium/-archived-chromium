@@ -43,11 +43,11 @@
 
 extern "C" {
 #if defined(OS_MACOSX)
-const char** NXArgv;
-int NXArgc;
+extern const char** NXArgv;
+extern int NXArgc;
 #elif defined(OS_LINUX)
-const char** __libc_argv;
-int __libc_argc;
+extern const char** __libc_argv;
+extern int __libc_argc;
 #endif
 }  // extern "C"
 
