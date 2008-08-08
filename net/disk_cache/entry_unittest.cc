@@ -48,7 +48,7 @@ class DiskCacheEntryTest : public DiskCacheTestBase {
   void GetKey();
   void GrowData();
   void TruncateData();
-  void ReuseEntry();
+  void ReuseEntry(int size);
   void InvalidData();
   void DoomEntry();
   void DoomedEntry();
@@ -572,8 +572,9 @@ TEST_F(DiskCacheEntryTest, MemoryOnlyTruncateData) {
   TruncateData();
 }
 
-// Write more than the total cache capacity but to a single entry.
-void DiskCacheEntryTest::ReuseEntry() {
+// Write more than the total cache capacity but to a single entry. |size| is the
+// amount of bytes to write each time.
+void DiskCacheEntryTest::ReuseEntry(int size) {
   std::string key1("the first key");
   disk_cache::Entry *entry;
   ASSERT_TRUE(cache_->CreateEntry(key1, &entry));
@@ -582,12 +583,12 @@ void DiskCacheEntryTest::ReuseEntry() {
   std::string key2("the second key");
   ASSERT_TRUE(cache_->CreateEntry(key2, &entry));
 
-  char buffer[20000];
-  CacheTestFillBuffer(buffer, sizeof(buffer), false);
+  scoped_array<char> buffer(new char[size]);
+  CacheTestFillBuffer(buffer.get(), size, false);
 
   for (int i = 0; i < 15; i++) {
-    EXPECT_EQ(0, entry->WriteData(0, 0, buffer, 0, NULL, true));
-    EXPECT_EQ(20000, entry->WriteData(0, 0, buffer, 20000, NULL, false));
+    EXPECT_EQ(0, entry->WriteData(0, 0, buffer.get(), 0, NULL, true));
+    EXPECT_EQ(size, entry->WriteData(0, 0, buffer.get(), size, NULL, false));
     entry->Close();
     ASSERT_TRUE(cache_->OpenEntry(key2, &entry));
   }
@@ -597,19 +598,34 @@ void DiskCacheEntryTest::ReuseEntry() {
   entry->Close();
 }
 
-TEST_F(DiskCacheEntryTest, ReuseEntry) {
+TEST_F(DiskCacheEntryTest, ReuseExternalEntry) {
   SetDirectMode();
   SetMaxSize(200 * 1024);
   InitCache();
-  ReuseEntry();
+  ReuseEntry(20 * 1024);
 }
 
-TEST_F(DiskCacheEntryTest, MemoryOnlyReuseEntry) {
+TEST_F(DiskCacheEntryTest, MemoryOnlyReuseExternalEntry) {
   SetDirectMode();
   SetMemoryOnlyMode();
   SetMaxSize(200 * 1024);
   InitCache();
-  ReuseEntry();
+  ReuseEntry(20 * 1024);
+}
+
+TEST_F(DiskCacheEntryTest, ReuseInternalEntry) {
+  SetDirectMode();
+  SetMaxSize(100 * 1024);
+  InitCache();
+  ReuseEntry(10 * 1024);
+}
+
+TEST_F(DiskCacheEntryTest, MemoryOnlyReuseInternalEntry) {
+  SetDirectMode();
+  SetMemoryOnlyMode();
+  SetMaxSize(100 * 1024);
+  InitCache();
+  ReuseEntry(10 * 1024);
 }
 
 // Reading somewhere that was not written should return zeros.
