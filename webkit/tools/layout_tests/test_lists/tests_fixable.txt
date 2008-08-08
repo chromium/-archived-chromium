@@ -72,7 +72,7 @@ V8 | KJS # LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL
 // Bug 1316221: fail now that we use the same font code path in test_shell
 // as in Chrome
 V8 | KJS # DEFER : LayoutTests/css2.1/t1202-counter-04-b.html = FAIL
-V8 | KJS # DEFER : LayoutTests/css2.1/t1202-counters-04-b-diff-win.txt = FAIL
+V8 | KJS # DEFER : LayoutTests/css2.1/t1202-counters-04-b.html = FAIL
 
 // Bug 1316382: fails now that we use the same font code path in test_shell
 // as in Chrome: some characters that should have zero width don't
