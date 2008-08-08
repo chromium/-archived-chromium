@@ -33,7 +33,7 @@ FontCustomPlatformData::~FontCustomPlatformData()
 
 FontPlatformData FontCustomPlatformData::fontPlatformData(int size, bool bold, bool italic)
 {
-    return FontPlatformData(m_font, size, 0, false);
+    return FontPlatformData(m_font, size, false);
 }
 
 FontCustomPlatformData* createFontCustomPlatformData(SharedBuffer* buffer)

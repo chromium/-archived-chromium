@@ -31,7 +31,6 @@
 #include "SimpleFontData.h"
 
 #include "Font.h"
-#include "FontMetrics.h"
 
 #if ENABLE(SVG_FONTS)
 #include "SVGFontData.h"

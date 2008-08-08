@@ -30,7 +30,6 @@
 #include "Font.h"
 #include "FontCache.h"
 #include "SimpleFontData.h"
-#include "FontMetrics.h"
 #include "FloatRect.h"
 #include "FontDescription.h"
 #include <wtf/MathExtras.h>
@@ -70,54 +69,19 @@ void SimpleFontData::platformInit()
     m_avgCharWidth = tm.tmAveCharWidth;
     m_maxCharWidth = tm.tmMaxCharWidth;
 
-    if (!m_font.overrideFontMetrics()) {
-        m_ascent = tm.tmAscent;
-        m_descent = tm.tmDescent;
-        m_lineGap = tm.tmExternalLeading;
-        m_xHeight = m_ascent * 0.56f;  // Best guess for xHeight for non-Truetype fonts.
+    m_ascent = tm.tmAscent;
+    m_descent = tm.tmDescent;
+    m_lineGap = tm.tmExternalLeading;
+    m_xHeight = m_ascent * 0.56f;  // Best guess for xHeight for non-Truetype fonts.
 
-        OUTLINETEXTMETRIC otm;
-        if (GetOutlineTextMetrics(dc, sizeof(otm), &otm) > 0) {
-            // This is a TrueType font.  We might be able to get an accurate xHeight.
-            GLYPHMETRICS gm = {0};
-            MAT2 mat = {{0, 1}, {0, 0}, {0, 0}, {0, 1}}; // The identity matrix.
-            DWORD len = GetGlyphOutlineW(dc, 'x', GGO_METRICS, &gm, 0, 0, &mat);
-            if (len != GDI_ERROR && gm.gmBlackBoxY > 0)
-                m_xHeight = static_cast<float>(gm.gmBlackBoxY);
-        }
-    } else {
-        // We have cached metrics available from a run of Apple's DumpRenderTree.
-        // We use these instead of the system metrics, and scale them the same
-        // way that Apple does.
-
-        const FontMetrics* metrics = m_font.overrideFontMetrics();
-        int unitsPerEm = metrics->unitsPerEm;
-        float pointSize = m_font.size();
-        float fAscent = scaleEmToUnits(metrics->ascent, unitsPerEm) * pointSize;
-        float fDescent = scaleEmToUnits(metrics->descent, unitsPerEm) * pointSize;
-        float fLineGap = scaleEmToUnits(metrics->lineGap, unitsPerEm) * pointSize;
-        float fXHeight = scaleEmToUnits(metrics->xHeight, unitsPerEm) * pointSize;
-
-        m_isSystemFont = metrics->isSystemFont;
-
-        // The following comment and code is from FontDataMac.mm (since we're
-        // using their metrics, we need to adjust them the same way they do):
-
-        // We need to adjust Times, Helvetica, and Courier to closely match the
-        // vertical metrics of their Microsoft counterparts that are the de facto
-        // web standard. The AppKit adjustment of 20% is too big and is
-        // incorrectly added to line spacing, so we use a 15% adjustment instead
-        // and add it to the ascent.
-        if (equalIgnoringCase(metrics->family, "Times") ||
-            equalIgnoringCase(metrics->family, "Helvetica") ||
-            equalIgnoringCase(metrics->family, "Courier")) {
-            fAscent += floorf(((fAscent + fDescent) * 0.15f) + 0.5f);
-        }
-
-        m_ascent = lroundf(fAscent);
-        m_descent = lroundf(fDescent);
-        m_lineGap = lroundf(fLineGap);
-        m_xHeight = fXHeight;
+    OUTLINETEXTMETRIC otm;
+    if (GetOutlineTextMetrics(dc, sizeof(otm), &otm) > 0) {
+        // This is a TrueType font.  We might be able to get an accurate xHeight.
+        GLYPHMETRICS gm = {0};
+        MAT2 mat = {{0, 1}, {0, 0}, {0, 0}, {0, 1}}; // The identity matrix.
+        DWORD len = GetGlyphOutlineW(dc, 'x', GGO_METRICS, &gm, 0, 0, &mat);
+        if (len != GDI_ERROR && gm.gmBlackBoxY > 0)
+            m_xHeight = static_cast<float>(gm.gmBlackBoxY);
     }
 
     m_lineSpacing = m_ascent + m_descent + m_lineGap;
@@ -168,7 +132,6 @@ SimpleFontData* SimpleFontData::smallCapsFontData(const FontDescription& fontDes
         HFONT hfont = CreateFontIndirect(&winfont);
         m_smallCapsFontData =
             new SimpleFontData(FontPlatformData(hfont, smallCapsSize,
-                                                m_font.overrideFontMetrics(),
                                                 false));
     }
     return m_smallCapsFontData;
@@ -234,31 +197,6 @@ void SimpleFontData::determinePitch()
 
 float SimpleFontData::platformWidthForGlyph(Glyph glyph) const
 {
-    const FontMetrics* metrics = m_font.overrideFontMetrics();
-    if (metrics && glyph) {
-        // We have cached metrics available from a run of Apple's DumpRenderTree.
-        // We use these during layout tests instead of the system-supplied
-        // metrics so that we can match their font size output.
-
-        int width = metrics->getWidthForGlyph(glyph);
-        ASSERT(width != -1);
-        float pointSize = m_font.size();
-        float fWidth = scaleEmToUnits(width, metrics->unitsPerEm) * pointSize;
-        float result = fWidth + metrics->syntheticBoldOffset;
-
-        // Don't round for the system font, because Apple doesn't.
-        if (!m_isSystemFont)
-            result = roundf(result);
-
-#ifdef SUPER_VERBOSE_FONT_DEBUGGING
-        fprintf(stderr, "GLYPH %s-%d: %d/%d*%f = %f + %d = %f\n",
-                metrics->family.ascii().data(), glyph, width, metrics->unitsPerEm,
-                pointSize, fWidth, metrics->syntheticBoldOffset, result);
-#endif
-
-        return result;
-    }
-
     HDC dc = GetDC(0);
     HGDIOBJ oldFont = SelectObject(dc, m_font.hfont());
 

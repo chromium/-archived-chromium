@@ -28,7 +28,6 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "config.h"
-#include "FontMetrics.h"
 #include <windows.h>
 #include <vector>
 
@@ -58,25 +57,6 @@ static bool FillBMPGlyphs(UChar* buffer,
                           const SimpleFontData* fontData,
                           bool recurse)
 {
-    const FontMetrics* metrics = fontData->platformData().overrideFontMetrics();
-    if (metrics) {
-        // We have cached metrics available from a run of Apple's
-        // DumpRenderTree. We use these during layout tests instead of the
-        // system-supplied metrics so that we can match their font size output.
-        bool have_glyphs = false;
-        for (unsigned i = 0; i < GlyphPage::size; i++) {
-            int glyph = metrics->getGlyphForChar(buffer[i]);
-            if (glyph) {
-                have_glyphs = true;
-                page->setGlyphDataForIndex(i, glyph, fontData);
-            } else {
-                // Font.cpp relies on !GlyphData.fontData for non-existant glyphs.
-                page->setGlyphDataForIndex(i, 0, 0);
-            }
-        }
-        return have_glyphs;
-    }
-
     HDC dc = GetDC((HWND)0);
     HGDIOBJ old_font = SelectObject(dc, fontData->m_font.hfont());
 
