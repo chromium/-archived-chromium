@@ -87,13 +87,6 @@ void AboutChromeView::Init() {
 
   current_version_ = version_info->file_version();
 
-  std::wstring official;
-  if (version_info->is_official_build()) {
-    official = l10n_util::GetString(IDS_ABOUT_VERSION_OFFICIAL);
-  } else {
-    official = l10n_util::GetString(IDS_ABOUT_VERSION_UNOFFICIAL);
-  }
-
   // Views we will add to the *parent* of this dialog, since it will display
   // next to the buttons which we don't draw ourselves.
   throbber_.reset(new ChromeViews::Throbber(50, true));
@@ -152,9 +145,7 @@ void AboutChromeView::Init() {
       l10n_util::GetString(IDS_ABOUT_VERSION_COMPANY_NAME) + L"\n" +
       l10n_util::GetString(IDS_ABOUT_VERSION_COPYRIGHT) + L"\n" +
       l10n_util::GetStringF(IDS_ABOUT_VERSION_LICENSE,
-          l10n_util::GetString(IDS_ABOUT_VERSION_LICENSE_URL)) + L"\n\n" +
-      official + L" " + version_info->last_change() + L"\n" +
-      UTF8ToWide(webkit_glue::GetDefaultUserAgent());
+          l10n_util::GetString(IDS_ABOUT_VERSION_LICENSE_URL));
 
   main_text_label_ =
       new ChromeViews::TextField(ChromeViews::TextField::STYLE_MULTILINE);
