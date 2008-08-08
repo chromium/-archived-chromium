@@ -30,6 +30,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "base/json_reader.h"
 #include "base/values.h"
+#include "build/build_config.h"
 
 TEST(JSONReaderTest, Reading) {
   // some whitespace checking
@@ -88,16 +89,41 @@ TEST(JSONReaderTest, Reading) {
   root = NULL;
   ASSERT_TRUE(JSONReader::JsonToValue("2147483648", &root, false, false));
   ASSERT_TRUE(root);
+  double real_val;
+#ifdef ARCH_CPU_32_BITS
+  ASSERT_TRUE(root->IsType(Value::TYPE_REAL));
+  real_val = 0.0;
+  ASSERT_TRUE(root->GetAsReal(&real_val));
+  ASSERT_DOUBLE_EQ(2147483648.0, real_val);
+#else
+  ASSERT_TRUE(root->IsType(Value::TYPE_INTEGER));
+  int_val = 0;
+  ASSERT_TRUE(root->GetAsInteger(&int_val));
+  ASSERT_EQ(2147483648, int_val);
+#endif
+  delete root;
   root = NULL;
   ASSERT_TRUE(JSONReader::JsonToValue("-2147483649", &root, false, false));
   ASSERT_TRUE(root);
+#ifdef ARCH_CPU_32_BITS
+  ASSERT_TRUE(root->IsType(Value::TYPE_REAL));
+  real_val = 0.0;
+  ASSERT_TRUE(root->GetAsReal(&real_val));
+  ASSERT_DOUBLE_EQ(-2147483649.0, real_val);
+#else
+  ASSERT_TRUE(root->IsType(Value::TYPE_INTEGER));
+  int_val = 0;
+  ASSERT_TRUE(root->GetAsInteger(&int_val));
+  ASSERT_EQ(-2147483649, int_val);
+#endif
+  delete root;
 
   // Parse a double
   root = NULL;
   ASSERT_TRUE(JSONReader::JsonToValue("43.1", &root, false, false));
   ASSERT_TRUE(root);
   ASSERT_TRUE(root->IsType(Value::TYPE_REAL));
-  double real_val = 0.0;
+  real_val = 0.0;
   ASSERT_TRUE(root->GetAsReal(&real_val));
   ASSERT_DOUBLE_EQ(43.1, real_val);
   delete root;
