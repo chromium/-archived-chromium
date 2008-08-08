@@ -246,6 +246,9 @@
 /* Whether __va_copy() is available */
 #undef HAVE___VA_COPY
 
+/* Define as const if the declaration of iconv() needs const. */
+#undef ICONV_CONST
+
 /* Name of package */
 #undef PACKAGE
 

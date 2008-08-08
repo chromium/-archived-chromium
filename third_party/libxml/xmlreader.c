@@ -234,8 +234,6 @@ xmlTextReaderRemoveID(xmlDocPtr doc, xmlAttrPtr attr) {
     if (table == NULL) 
         return(-1);
 
-    if (attr == NULL)
-	return(-1);
     ID = xmlNodeListGetString(doc, attr->children, 1);
     if (ID == NULL)
 	return(-1);
@@ -2936,7 +2934,7 @@ xmlTextReaderAttributeCount(xmlTextReaderPtr reader) {
  *
  * Get the node type of the current node
  * Reference:
- * http://dotgnu.org/pnetlib-doc/System/Xml/XmlNodeType.html
+ * http://www.gnu.org/software/dotgnu/pnetlib-doc/System/Xml/XmlNodeType.html
  *
  * Returns the xmlNodeType of the current node or -1 in case of error
  */
@@ -3960,8 +3958,7 @@ xmlTextReaderCurrentDoc(xmlTextReaderPtr reader) {
 	return(NULL);
     if (reader->doc != NULL)
         return(reader->doc);
-    if ((reader == NULL) || (reader->ctxt == NULL) ||
-        (reader->ctxt->myDoc == NULL))
+    if ((reader->ctxt == NULL) || (reader->ctxt->myDoc == NULL))
 	return(NULL);
     
     reader->preserve = 1;

@@ -3663,6 +3663,8 @@ xmlXPathNodeSetMerge(xmlNodeSetPtr val1, xmlNodeSetPtr val2) {
     if (val2 == NULL) return(val1);
     if (val1 == NULL) {
 	val1 = xmlXPathNodeSetCreate(NULL);
+    if (val1 == NULL)
+        return (NULL);
 #if 0
 	/*
 	* TODO: The optimization won't work in every case, since
@@ -3776,6 +3778,8 @@ xmlXPathNodeSetMergeUnique(xmlNodeSetPtr val1, xmlNodeSetPtr val2) {
     if (val1 == NULL) {
 	val1 = xmlXPathNodeSetCreate(NULL);
     }
+    if (val1 == NULL)
+        return (NULL);
 
     /* @@ with_ns to check whether namespace nodes should be looked at @@ */
 
@@ -3852,7 +3856,9 @@ xmlXPathNodeSetMergeAndClear(xmlNodeSetPtr set1, xmlNodeSetPtr set2,
 	xmlNodePtr n1, n2;
 
 	if (set1 == NULL)
-	    	set1 = xmlXPathNodeSetCreate(NULL);
+            set1 = xmlXPathNodeSetCreate(NULL);
+        if (set1 == NULL)
+            return (NULL);
 
 	initNbSet1 = set1->nodeNr;        
 	for (i = 0;i < set2->nodeNr;i++) {
@@ -3962,6 +3968,8 @@ xmlXPathNodeSetMergeAndClearNoDupls(xmlNodeSetPtr set1, xmlNodeSetPtr set2,
 
 	if (set1 == NULL)
 	    set1 = xmlXPathNodeSetCreate(NULL);
+        if (set1 == NULL)
+            return (NULL);
    
 	for (i = 0;i < set2->nodeNr;i++) {
 	    n2 = set2->nodeTab[i];
@@ -4281,8 +4289,9 @@ xmlXPathNewNodeSetList(xmlNodeSetPtr val)
         ret = xmlXPathNewNodeSet(NULL);
     else {
         ret = xmlXPathNewNodeSet(val->nodeTab[0]);
-        for (i = 1; i < val->nodeNr; ++i)
-            xmlXPathNodeSetAddUnique(ret->nodesetval, val->nodeTab[i]);
+        if (ret)
+            for (i = 1; i < val->nodeNr; ++i)
+                xmlXPathNodeSetAddUnique(ret->nodesetval, val->nodeTab[i]);
     }
 
     return (ret);
@@ -4381,6 +4390,8 @@ xmlXPathIntersection (xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2) {
     int i, l1;
     xmlNodePtr cur;
 
+    if (ret == NULL)
+        return(ret);
     if (xmlXPathNodeSetIsEmpty(nodes1))
 	return(ret);
     if (xmlXPathNodeSetIsEmpty(nodes2))
@@ -4418,6 +4429,8 @@ xmlXPathDistinctSorted (xmlNodeSetPtr nodes) {
 	return(nodes);
 
     ret = xmlXPathNodeSetCreate(NULL);
+    if (ret == NULL)
+        return(ret);
     l = xmlXPathNodeSetGetLength(nodes);
     hash = xmlHashCreate (l);
     for (i = 0; i < l; i++) {
@@ -4506,6 +4519,8 @@ xmlXPathNodeLeadingSorted (xmlNodeSetPtr nodes, xmlNodePtr node) {
 	return(nodes);
 
     ret = xmlXPathNodeSetCreate(NULL);
+    if (ret == NULL)
+        return(ret);
     if (xmlXPathNodeSetIsEmpty(nodes) ||
 	(!xmlXPathNodeSetContains(nodes, node)))
 	return(ret);
@@ -4608,6 +4623,8 @@ xmlXPathNodeTrailingSorted (xmlNodeSetPtr nodes, xmlNodePtr node) {
 	return(nodes);
 
     ret = xmlXPathNodeSetCreate(NULL);
+    if (ret == NULL)
+        return(ret);
     if (xmlXPathNodeSetIsEmpty(nodes) ||
 	(!xmlXPathNodeSetContains(nodes, node)))
 	return(ret);
@@ -8432,6 +8449,8 @@ xmlXPathGetElementsByIds (xmlDocPtr doc, const xmlChar *ids) {
     if (ids == NULL) return(NULL);
 
     ret = xmlXPathNodeSetCreate(NULL);
+    if (ret == NULL)
+        return(ret);
 
     while (IS_BLANK_CH(*cur)) cur++;
     while (*cur != 0) {
@@ -8499,6 +8518,11 @@ xmlXPathIdFunction(xmlXPathParserContextPtr ctxt, int nargs) {
 	int i;
 
 	ret = xmlXPathNodeSetCreate(NULL);
+        /*
+         * FIXME -- in an out-of-memory condition this will behave badly.
+         * The solution is not clear -- we already popped an item from
+         * ctxt, so the object is in a corrupt state.
+         */
 
 	if (obj->nodesetval != NULL) {
 	    for (i = 0; i < obj->nodesetval->nodeNr; i++) {
@@ -12481,6 +12505,7 @@ error:
 	    outSeq = seq;
 	else
 	    outSeq = xmlXPathNodeSetCreate(NULL);
+        /* XXX what if xmlXPathNodeSetCreate returned NULL here? */
     }
     if ((seq != NULL) && (seq != outSeq)) {
 	 xmlXPathFreeNodeSet(seq);
@@ -12976,6 +13001,7 @@ xmlXPathCompOpEvalFilterFirst(xmlXPathParserContextPtr ctxt,
 	* key() evaluation are attempted on the predicate
 	*/	
 	newset = xmlXPathNodeSetCreate(NULL);
+        /* XXX what if xmlXPathNodeSetCreate returned NULL? */
 	
 	for (i = 0; i < oldset->nodeNr; i++) {
 	    /*

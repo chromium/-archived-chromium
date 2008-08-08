@@ -1,3 +1,304 @@
+Tue Apr  8 10:19:01 CEST 2008 Daniel Veillard <daniel@veillard.com>
+
+	* tree.c: fix a bug introduced when fixing #438208 and reported by
+	  Ashwin
+	* python/generator.py: fix an infinite loop bug
+
+Mon Apr  7 14:44:51 CEST 2008 Daniel Veillard <daniel@veillard.com>
+
+	* xmlreader.c: fix a link to XmlNodeType doc reported by Martijn Arts
+	* docs/*: rebuilt
+
+Fri Apr  4 18:09:50 CEST 2008 Daniel Veillard <daniel@veillard.com>
+
+	* parser.c: improve the *Recover* functions documentation
+
+Thu Apr  3 14:57:15 CEST 2008 Daniel Veillard <daniel@veillard.com>
+
+	* parser.c: patch from Mark Rowe fixing BOM or encoding detection
+	  in external parsed entities, should fix #440415
+
+Thu Apr  3 13:16:01 CEST 2008 Daniel Veillard <daniel@veillard.com>
+
+	* tree.c: fix some problems with the *EatName functions when
+	  running out of memory raised by Eric Schrock , should fix #438208
+
+Thu Apr  3 12:41:29 CEST 2008 Daniel Veillard <daniel@veillard.com>
+
+	* xmlschemastypes.c: horror around the definition of the lexical
+	  values for decimal and derived types, fixing to reject empty 
+	  values, should fix #503268
+
+Thu Apr  3 11:44:57 CEST 2008 Daniel Veillard <daniel@veillard.com>
+
+	* encoding.c: buffer may not be  large enough to convert to
+	  UCS4, patch from Christian Fruth , fixes #504015
+
+Thu Apr  3 11:02:02 CEST 2008 Daniel Veillard <daniel@veillard.com>
+
+	* HTMLparser.c: apparently it's okay to forget the semicolumn after
+	  entity refs in HTML, fixing char refs parsing accordingly based on
+	  T. Manske patch, this should fix #517653
+
+Thu Apr  3 09:30:29 CEST 2008 Daniel Veillard <daniel@veillard.com>
+
+	* error.c: avoid a scary realloc() loop should fix #520383
+
+Thu Apr  3 08:22:52 CEST 2008 Daniel Veillard <daniel@veillard.com>
+
+	* parser.c: more realloc problems pointed out by Ashwin
+
+Thu Apr  3 07:40:13 CEST 2008 Daniel Veillard <daniel@veillard.com>
+
+	* xstc/Makefile.am: applied patch from Mike Hommey fixing distclean,
+	  fixes #520387
+
+Thu Apr  3 06:52:32 CEST 2008 Daniel Veillard <daniel@veillard.com>
+
+	* include/libxml/xpath.h: small doc improvement for xmlXPathContext
+	  from Jack Jansen, fixes #524759
+	* doc/newapi.xsl doc/*: fixed a problem and regenerated the docs
+
+Tue Apr  1 09:59:22 CEST 2008 Daniel Veillard <daniel@veillard.com>
+
+	* xpath.c: two patches from Alvaro Herrera to avoid problem when
+	  running out of memory in XPath evaluations.
+
+Mon Mar 31 11:23:19 CEST 2008 Daniel Veillard <daniel@veillard.com>
+
+	* parser.c: lot of out of memory handling fixes from Ashwin
+	* elfgcchack.h doc/elfgcchack.xsl: work around a problem with xmlDllMain
+	* include/libxml/threads.h: indenting cleanups
+
+Mon Mar 31 10:25:37 CEST 2008 Daniel Veillard <daniel@veillard.com>
+
+	* parser.c docs/*: trying to clarify even more the xmlCleanupParser()
+	  use and the memory documentation
+
+Wed Mar 26 18:39:58 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* parser.c: changes based on  Alex Khesin patch where xmlParseCharRef
+	  seems to not be checked correctly, fixes #520198
+
+Wed Mar 26 15:03:49 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* parser.c: patch from Ashwin to avoid a problem of attribute
+	  redefinition in the DTD. Remove a warning too.
+
+Wed Mar 26 14:38:31 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* xmlschemas.c: fix a problem in externalSubsetSplit with a patch
+	  from Ashwin
+
+Tue Mar 25 17:48:02 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* parser.c: fix various attribute normalisation problems reported
+	  by Ashwin
+	* result/c14n/without-comments/example-4
+	  result/c14n/with-comments/example-4: this impacted the result of
+	  two c14n tests :-\
+	* test/att9 test/att10 test/att11 result//att9* result//att10*
+	  result//att11*: added 3 specific regression tests coming from the
+	  XML spec revision and from Ashwin
+
+Tue Mar 25 14:20:49 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* uri.c: fix saving for file:///X:/ URI embedding Windows file paths
+	  should fix #524253 
+
+Mon Mar 24 21:42:33 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* parser.c: fix a problem reported by Ashwin for system parameter
+	  entities referenced from entities in external subset, add a
+	  specific loading routine.
+	* test/valid/dtds/external.ent test/valid/dtds/external2.ent
+	  test/valid/t11.xml result/valid/t11.xml*: added the test to
+	  the regression suite
+
+Mon Mar 24 15:04:54 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* xmlschemas.c: fix an XML Schemas crash raised by Stefan Behnel
+	  when testing with W3C test suite
+
+Mon Mar 24 12:12:00 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* threads.c: check some allocation with Ashwin patch
+
+Wed Mar 19 16:41:52 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* vms/build_libxml.com: update from Tycho Hilhorst, should fix #523378
+
+Tue Mar 18 09:23:05 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* threads.c: check some malloc returns with Ashwin patch, add
+	  error messages and reindent the module.
+
+Fri Mar 14 15:28:43 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* xmlreader.c: patch from Ashwin removing duplicate tests
+
+Fri Mar 14 13:44:29 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* include/libxml/schematron.h include/libxml/xmlerror.h schematron.c:
+	  applied patch from Tobias Minich to allow plugin schematron error
+	  reporting in the normal error system, should fix #513998
+
+Fri Mar 14 11:52:09 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* parser.c xinclude.c: patch from Vasily Chekalkin fixes memory
+	  leaks, should fix 512647
+
+Thu Mar 13 08:17:58 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* xmlregexp.c: found a nasty bug in regexp automata build,
+	  reported by Ashwin and Bjorn Reese
+
+Wed Mar 12 18:56:22 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* HTMLparser.c: patch from Arnold Hendriks improving parsing of
+	  html within html bogus data, still not a complete fix though
+
+Wed Mar 12 10:22:01 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* python/types.c: fix a memory errro when using namespace nodes
+	  returned from XPath queries, should fix #521699
+	* python/tests/Makefile.am python/tests/xpathns.py: add a specific
+	  regression test for it
+
+Mon Mar 10 16:25:32 CET 2008 Rob Richards <rrichards@ctindustries.net>
+
+	* include/win32config.h: add ICONV_CONST define for win32 build
+	  to satisfy encoding.c change in rev 3693
+
+Fri Mar  7 17:45:27 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* xmlsave.c parser.c: fix handling of empty CDATA nodes as 
+	  reported and discussed around #514181 and associated patches
+	* test/emptycdata.xml result/emptycdata.xml* 
+	  result/noent/emptycdata.xml: added a specific test in the
+	  regression suite.
+
+Thu Mar  6 15:23:10 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* encoding.c: poblem with encoding detection for UTF-16 reported by
+	  Ashwin and found by Bill
+	* test/valid/dtds/utf16b.ent test/valid/dtds/utf16l.ent
+	  test/valid/UTF16Entity.xml result/valid/UTF16Entity.xml*: added
+	  the example to the regression tests
+
+Tue Mar  4 14:16:38 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* xmlwriter.c: patch from Alex Khesin fixing CDATA output after
+	  a text node.
+	* parser.c: fixed the comment for xmlParserCleanup
+	* globals.c: fixed indentation
+
+Mon Feb 25 16:42:19 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* testModule.c: patch from Florent Guiliani to fix build on
+	  SCO OpenServer
+
+Thu Feb 21 22:46:08 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* debugXML.c: made one of the changes suggested by Brian Krahmer
+	* testRegexp.c: allow to pass '--' on the command line to allow
+	  regexps starting with the character '-'
+
+Tue Feb 19 08:49:32 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* python/Makefile.am python/tests/Makefile.am: applied cleanup
+	  patches for cross compilation and MinGW from Roumen Petrov
+
+Sat Feb 16 11:06:54 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* xmlIO.c: fix output bug reported by Petr Pajas and analyzed by
+	  Bill
+
+Fri Feb 15 09:32:11 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* include/libxml/xmlerror.h tree.c: patch from Julien Charbon
+	  to simplify the processing of xmlSetProp()
+
+Fri Feb 15 08:45:32 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* config.h.in configure.in encoding.c: patch from Roumen Petrov
+	  to detect if iconv() needs a const for the second parameter
+
+Fri Feb 15 08:41:31 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* macos/src/XMLTestPrefix2.h win32/Makefile.msvc: EOL cleanups
+	  from Florent Guiliani
+
+Wed Feb 13 10:56:38 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* xmlwriter.c: applied patch from Alfred Mickautsch to flush the
+	  output at the end of document.
+
+Fri Feb  8 11:57:03 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* doc/examples/examples.xml: regenerated, it was truncated.
+
+Fri Feb  8 11:47:18 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* xmlmodule.c: apply simple patch from Carlo Bramini to avoid
+	  compilation problems with Mingw32
+
+Fri Feb  8 11:33:15 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* xmlregexp.c: apply patch from Andrew Tosh to fix behaviour
+	  when '.' is used in a posCharGroup
+	* test/schemas/poschargrp0_0.* result/schemas/poschargrp0_0_0*:
+	  added the test to the regression suite
+
+Fri Feb  8 10:54:09 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* dict.c: applied patch from Florent Guilian to remove an
+	  useless mutex in the xmlDict structure.
+
+Wed Feb  6 17:00:20 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* SAX2.c: another leak reported by Ashwin
+	* xinclude.c: fixed the behaviour when XIncluding a fragment
+	  of the current document, patch from Chris Ryan
+
+Wed Feb  6 12:10:08 HKT 2008 William Brack <wbrack@mmm.com.hk>
+
+	* nanohttp.c: added space for port number (when not 80) in
+	  xmlNanoHTTPMethodRedir, plus a few more comments. Should
+	  fix #514521.
+
+Tue Feb  5 09:41:46 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* schemas.c: apply fix suggested by Ashwin correcting a cut-n-paste
+	  error about the SAX callback in cdataBlockSplit when streaming
+	  XSD validation 
+
+Tue Feb  5 09:36:46 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* uri.c: applied a patch based on Petr Sumbera one to avoid a 
+	  problem with paths starting with //
+
+Mon Feb  4 17:48:30 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* doc/xml.html doc/xmlmem.html: added a small section on returning
+	  memory to the kernel by compacting the heap provided by Wolfram Sang
+
+Fri Jan 25 20:01:42 CET 2007 Rob Richards <rrichards@ctindustries.net>
+
+	* include/win32config.h win32/Makefile.msvc: fix build under VS 2008.
+	  patch by David Wimsey
+
+Thu Jan 24 15:37:04 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* parser.c: fix a memeory leak in internal subset parsing with
+	  a fix from Ashwin
+	* test/errors/content1.xml result/errors/content1.xml*:
+	  add test to regressions
+
+Fri Jan 11 09:00:09 CET 2008 Daniel Veillard <daniel@veillard.com>
+
+	* configure.in doc/*: preparing release of 2.6.31
+
 Fri Jan 11 08:58:49 CET 2008 Daniel Veillard <daniel@veillard.com>
 
 	* parser.c: avoid a warning on 64bits introduced earlier

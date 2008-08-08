@@ -278,6 +278,9 @@ typedef xmlXPathFunction (*xmlXPathFuncLookupFunc) (void *ctxt,
  *    - the set of namespace declarations in scope for the expression 
  * Following the switch to hash tables, this need to be trimmed up at
  * the next binary incompatible release.
+ * The node may be modified when the context is passed to libxml2
+ * for an XPath evaluation so you may need to initialize it again
+ * before the next call.
  */
 
 struct _xmlXPathContext {

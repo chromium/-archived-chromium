@@ -3315,6 +3315,16 @@ xmlOutputBufferWriteEscape(xmlOutputBufferPtr out, const xmlChar *str,
 	cons = len;
 	chunk = (out->buffer->size - out->buffer->use) - 1;
 
+        /*
+	 * make sure we have enough room to save first, if this is
+	 * not the case force a flush, but make sure we stay in the loop
+	 */
+	if (chunk < 40) {
+	    nbchars = 0;
+	    oldwritten = -1;
+	    goto flush;
+	}
+
 	/*
 	 * first handle encoding stuff.
 	 */
@@ -3360,6 +3370,7 @@ xmlOutputBufferWriteEscape(xmlOutputBufferPtr out, const xmlChar *str,
 	if ((nbchars < MINLEN) && (len <= 0))
 	    goto done;
 
+flush:
 	if (out->writecallback) {
 	    /*
 	     * second write the stuff to the I/O channel

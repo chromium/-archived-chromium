@@ -25,6 +25,7 @@ typedef enum {
     XML_SCHEMATRON_OUT_QUIET = 1 << 0,	/* quiet no report */
     XML_SCHEMATRON_OUT_TEXT = 1 << 1,	/* build a textual report */
     XML_SCHEMATRON_OUT_XML = 1 << 2,	/* output SVRL */
+    XML_SCHEMATRON_OUT_ERROR = 1 << 3,  /* output via xmlStructuredErrorFunc */
     XML_SCHEMATRON_OUT_FILE = 1 << 8,	/* output to a file descriptor */
     XML_SCHEMATRON_OUT_BUFFER = 1 << 9,	/* output to a buffer */
     XML_SCHEMATRON_OUT_IO = 1 << 10	/* output to I/O mechanism */
@@ -81,12 +82,12 @@ XMLPUBFUN void XMLCALL
 /*
  * Interfaces for validating
  */
-/******
 XMLPUBFUN void XMLCALL
 	    xmlSchematronSetValidStructuredErrors(
 	                                  xmlSchematronValidCtxtPtr ctxt,
 					  xmlStructuredErrorFunc serror,
 					  void *ctx);
+/******
 XMLPUBFUN void XMLCALL		
 	    xmlSchematronSetValidErrors	(xmlSchematronValidCtxtPtr ctxt,
 					 xmlSchematronValidityErrorFunc err,

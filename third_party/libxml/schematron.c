@@ -168,6 +168,12 @@ struct _xmlSchematronValidCtxt {
     xmlOutputWriteCallback iowrite; /* if using XML_SCHEMATRON_OUT_IO */
     xmlOutputCloseCallback  ioclose;
     void *ioctx;
+
+    /* error reporting data */
+    void *userData;                      /* user specific data block */
+    xmlSchematronValidityErrorFunc error;/* the callback in case of errors */
+    xmlSchematronValidityWarningFunc warning;/* callback in case of warning */
+    xmlStructuredErrorFunc serror;       /* the structured function */
 };
 
 struct _xmlSchematronParserCtxt {
@@ -193,12 +199,11 @@ struct _xmlSchematronParserCtxt {
     int maxIncludes;		/* size of the array */
     xmlNodePtr *includes;	/* the array of includes */
 
-    /* error rreporting data */
+    /* error reporting data */
     void *userData;                      /* user specific data block */
     xmlSchematronValidityErrorFunc error;/* the callback in case of errors */
     xmlSchematronValidityWarningFunc warning;/* callback in case of warning */
     xmlStructuredErrorFunc serror;       /* the structured function */
-
 };
 
 #define XML_STRON_CTXT_PARSER 1
@@ -1361,7 +1366,7 @@ xmlSchematronFormatReport(xmlSchematronValidCtxtPtr ctxt,
  */
 static void
 xmlSchematronReportSuccess(xmlSchematronValidCtxtPtr ctxt, 
-		   xmlSchematronTestPtr test, xmlNodePtr cur, int success) {
+		   xmlSchematronTestPtr test, xmlNodePtr cur, xmlSchematronPatternPtr pattern, int success) {
     if ((ctxt == NULL) || (cur == NULL) || (test == NULL))
         return;
     /* if quiet and not SVRL report only failures */
@@ -1392,18 +1397,41 @@ xmlSchematronReportSuccess(xmlSchematronValidCtxtPtr ctxt,
             report = xmlSchematronFormatReport(ctxt, test->node, cur);
 	if (report == NULL) {
 	    if (test->type == XML_SCHEMATRON_ASSERT) {
-		snprintf(msg, 999, "%s line %ld: node failed assert\n",
-		         (const char *) path, line);
+            report = xmlStrdup((const xmlChar *) "node failed assert");
 	    } else {
-		snprintf(msg, 999, "%s line %ld: node failed report\n",
-		         (const char *) path, line);
+            report = xmlStrdup((const xmlChar *) "node failed report");
 	    }
-	} else {
+	    }
 	    snprintf(msg, 999, "%s line %ld: %s\n", (const char *) path,
 		     line, (const char *) report);
-	    xmlFree((char *) report);
+
+    if (ctxt->flags & XML_SCHEMATRON_OUT_ERROR) {
+        xmlStructuredErrorFunc schannel = NULL;
+        xmlGenericErrorFunc channel = NULL;
+        void *data = NULL;
+
+        if (ctxt != NULL) {
+            if (ctxt->serror != NULL)
+                schannel = ctxt->serror;
+            else
+                channel = ctxt->error;
+            data = ctxt->userData;
 	}
+
+        __xmlRaiseError(schannel, channel, data,
+                        NULL, cur, XML_FROM_SCHEMATRONV,
+                        (test->type == XML_SCHEMATRON_ASSERT)?XML_SCHEMATRONV_ASSERT:XML_SCHEMATRONV_REPORT,
+                        XML_ERR_ERROR, NULL, line,
+                        (pattern == NULL)?NULL:((const char *) pattern->name),
+                        (const char *) path,
+                        (const char *) report, 0, 0,
+                        msg);
+    } else {
 	xmlSchematronReportOutput(ctxt, cur, &msg[0]);
+    }
+
+    xmlFree((char *) report);
+
 	if ((path != NULL) && (path != (xmlChar *) cur->name))
 	    xmlFree(path);
     }
@@ -1421,7 +1449,7 @@ xmlSchematronReportPattern(xmlSchematronValidCtxtPtr ctxt,
 			   xmlSchematronPatternPtr pattern) {
     if ((ctxt == NULL) || (pattern == NULL))
         return;
-    if (ctxt->flags & XML_SCHEMATRON_OUT_QUIET)
+    if ((ctxt->flags & XML_SCHEMATRON_OUT_QUIET) || (ctxt->flags & XML_SCHEMATRON_OUT_ERROR)) /* Error gives pattern name as part of error */
         return;
     if (ctxt->flags & XML_SCHEMATRON_OUT_XML) {
         TODO
@@ -1441,6 +1469,26 @@ xmlSchematronReportPattern(xmlSchematronValidCtxtPtr ctxt,
  *		Validation against a Schematrontron				*
  *									*
  ************************************************************************/
+
+/**
+ * xmlSchematronSetValidStructuredErrors:
+ * @ctxt:  a Schematron validation context
+ * @serror:  the structured error function
+ * @ctx: the functions context
+ *
+ * Set the structured error callback
+ */
+void
+xmlSchematronSetValidStructuredErrors(xmlSchematronValidCtxtPtr ctxt,
+                                      xmlStructuredErrorFunc serror, void *ctx)
+{
+    if (ctxt == NULL)
+        return;
+    ctxt->serror = serror;
+    ctxt->error = NULL;
+    ctxt->warning = NULL;
+    ctxt->userData = ctx;
+}
 
 /**
  * xmlSchematronNewValidCtxt:
@@ -1550,7 +1598,7 @@ xmlSchematronNextNode(xmlNodePtr cur) {
  */
 static int
 xmlSchematronRunTest(xmlSchematronValidCtxtPtr ctxt,
-     xmlSchematronTestPtr test, xmlDocPtr instance, xmlNodePtr cur)
+     xmlSchematronTestPtr test, xmlDocPtr instance, xmlNodePtr cur, xmlSchematronPatternPtr pattern)
 {
     xmlXPathObjectPtr ret;
     int failed;
@@ -1597,7 +1645,7 @@ xmlSchematronRunTest(xmlSchematronValidCtxtPtr ctxt,
     else if ((!failed) && (test->type == XML_SCHEMATRON_REPORT))
         ctxt->nberrors++;
 
-    xmlSchematronReportSuccess(ctxt, test, cur, !failed);
+    xmlSchematronReportSuccess(ctxt, test, cur, pattern, !failed);
 
     return(!failed);
 }
@@ -1643,7 +1691,7 @@ xmlSchematronValidateDoc(xmlSchematronValidCtxtPtr ctxt, xmlDocPtr instance)
 		if (xmlPatternMatch(rule->pattern, cur) == 1) {
 		    test = rule->tests;
 		    while (test != NULL) {
-			xmlSchematronRunTest(ctxt, test, instance, cur);
+			xmlSchematronRunTest(ctxt, test, instance, cur, rule->pattern);
 			test = test->next;
 		    }
 		}
@@ -1674,7 +1722,7 @@ xmlSchematronValidateDoc(xmlSchematronValidCtxtPtr ctxt, xmlDocPtr instance)
 		    if (xmlPatternMatch(rule->pattern, cur) == 1) {
 			test = rule->tests;
 			while (test != NULL) {
-			    xmlSchematronRunTest(ctxt, test, instance, cur);
+			    xmlSchematronRunTest(ctxt, test, instance, cur, pattern);
 			    test = test->next;
 			}
 		    }

@@ -10119,6 +10119,18 @@ extern __typeof (xmlSchematronParse) xmlSchematronParse__internal_alias __attrib
 
 #if defined(LIBXML_SCHEMATRON_ENABLED)
 #ifdef bottom_schematron
+#undef xmlSchematronSetValidStructuredErrors
+extern __typeof (xmlSchematronSetValidStructuredErrors) xmlSchematronSetValidStructuredErrors __attribute((alias("xmlSchematronSetValidStructuredErrors__internal_alias")));
+#else
+#ifndef xmlSchematronSetValidStructuredErrors
+extern __typeof (xmlSchematronSetValidStructuredErrors) xmlSchematronSetValidStructuredErrors__internal_alias __attribute((visibility("hidden")));
+#define xmlSchematronSetValidStructuredErrors xmlSchematronSetValidStructuredErrors__internal_alias
+#endif
+#endif
+#endif
+
+#if defined(LIBXML_SCHEMATRON_ENABLED)
+#ifdef bottom_schematron
 #undef xmlSchematronValidateDoc
 extern __typeof (xmlSchematronValidateDoc) xmlSchematronValidateDoc __attribute((alias("xmlSchematronValidateDoc__internal_alias")));
 #else

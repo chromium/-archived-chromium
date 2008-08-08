@@ -18024,6 +18024,16 @@ static void des_xmlSchematronValidCtxtPtr(int no ATTRIBUTE_UNUSED, xmlSchematron
 
 
 static int
+test_xmlSchematronSetValidStructuredErrors(void) {
+    int test_ret = 0;
+
+
+    /* missing type support */
+    return(test_ret);
+}
+
+
+static int
 test_xmlSchematronValidateDoc(void) {
     int test_ret = 0;
 
@@ -18067,12 +18077,13 @@ static int
 test_schematron(void) {
     int test_ret = 0;
 
-    if (quiet == 0) printf("Testing schematron : 1 of 9 functions ...\n");
+    if (quiet == 0) printf("Testing schematron : 1 of 10 functions ...\n");
     test_ret += test_xmlSchematronNewDocParserCtxt();
     test_ret += test_xmlSchematronNewMemParserCtxt();
     test_ret += test_xmlSchematronNewParserCtxt();
     test_ret += test_xmlSchematronNewValidCtxt();
     test_ret += test_xmlSchematronParse();
+    test_ret += test_xmlSchematronSetValidStructuredErrors();
     test_ret += test_xmlSchematronValidateDoc();
 
     if (test_ret != 0)

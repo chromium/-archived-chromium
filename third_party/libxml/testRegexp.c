@@ -290,6 +290,9 @@ int main(int argc, char **argv) {
 
 	if (argv[i][0] != '-')
 	    continue;
+	if (!strcmp(argv[i], "--"))
+	    break;
+
 	if ((!strcmp(argv[i], "-debug")) || (!strcmp(argv[i], "--debug"))) {
 	    debug++;
 	} else if ((!strcmp(argv[i], "-repeat")) ||
@@ -322,10 +325,15 @@ int main(int argc, char **argv) {
 #endif
 	    testRegexpFile(filename);
     } else {
+        int  data = 0;
 #ifdef LIBXML_EXPR_ENABLED
+
         if (use_exp) {
 	    for (i = 1; i < argc ; i++) {
-		if ((argv[i][0] != '-') || (strcmp(argv[i], "-") == 0)) {
+	        if (strcmp(argv[i], "--") == 0)
+		    data = 1;
+		else if ((argv[i][0] != '-') || (strcmp(argv[i], "-") == 0) ||
+		    (data == 1)) {
 		    if (pattern == NULL) {
 			pattern = argv[i];
 			printf("Testing expr %s:\n", pattern);
@@ -342,13 +350,18 @@ int main(int argc, char **argv) {
 		    }
 		}
 	    }
-	    if (expr != NULL)
+	    if (expr != NULL) {
 		xmlExpFree(ctxt, expr);
+		expr = NULL;
+	    }
 	} else
 #endif
         {
 	    for (i = 1; i < argc ; i++) {
-		if ((argv[i][0] != '-') || (strcmp(argv[i], "-") == 0)) {
+	        if (strcmp(argv[i], "--") == 0)
+		    data = 1;
+		else if ((argv[i][0] != '-') || (strcmp(argv[i], "-") == 0) ||
+		         (data == 1)) {
 		    if (pattern == NULL) {
 			pattern = argv[i];
 			printf("Testing %s:\n", pattern);

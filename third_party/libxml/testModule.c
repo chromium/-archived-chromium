@@ -29,6 +29,15 @@
 #define MODULE_PATH ".libs"
 #endif
 
+/* Used for SCO Openserver*/
+#ifndef PATH_MAX
+#ifdef _POSIX_PATH_MAX
+#define PATH_MAX _POSIX_PATH_MAX
+#else
+#define PATH_MAX 4096
+#endif
+#endif
+
 typedef int (*hello_world_t)(void);
  
 int main(int argc ATTRIBUTE_UNUSED, char **argv ATTRIBUTE_UNUSED) {

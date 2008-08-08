@@ -1532,6 +1532,8 @@ xmlFAGenerateCountedTransition(xmlRegParserCtxtPtr ctxt,
 static int
 xmlFAGenerateTransitions(xmlRegParserCtxtPtr ctxt, xmlRegStatePtr from,
 	                 xmlRegStatePtr to, xmlRegAtomPtr atom) {
+    xmlRegStatePtr end;
+
     if (atom == NULL) {
 	ERROR("genrate transition: atom == NULL");
 	return(-1);
@@ -1689,12 +1691,31 @@ xmlFAGenerateTransitions(xmlRegParserCtxtPtr ctxt, xmlRegStatePtr from,
 	else {
 	    return(-1);
 	}
+    } 
+    end = to;
+    if ((atom->quant == XML_REGEXP_QUANT_MULT) || 
+        (atom->quant == XML_REGEXP_QUANT_PLUS)) {
+	/*
+	 * Do not pollute the target state by adding transitions from
+	 * it as it is likely to be the shared target of multiple branches.
+	 * So isolate with an epsilon transition.
+	 */
+        xmlRegStatePtr tmp;
+	
+	tmp = xmlRegNewState(ctxt);
+	if (tmp != NULL)
+	    xmlRegStatePush(ctxt, tmp);
+	else {
+	    return(-1);
+	}
+	xmlFAGenerateEpsilonTransition(ctxt, tmp, to);
+	to = tmp;
     }
     if (xmlRegAtomPush(ctxt, atom) < 0) {
 	return(-1);
     }
     xmlRegStateAddTrans(ctxt, from, atom, to, -1, -1);
-    ctxt->state = to;
+    ctxt->state = end;
     switch (atom->quant) {
 	case XML_REGEXP_QUANT_OPT:
 	    atom->quant = XML_REGEXP_QUANT_ONCE;
@@ -5052,7 +5073,7 @@ xmlFAParseCharRange(xmlRegParserCtxtPtr ctxt) {
 static void
 xmlFAParsePosCharGroup(xmlRegParserCtxtPtr ctxt) {
     do {
-	if ((CUR == '\\') || (CUR == '.')) {
+	if (CUR == '\\') {
 	    xmlFAParseCharClassEsc(ctxt);
 	} else {
 	    xmlFAParseCharRange(ctxt);

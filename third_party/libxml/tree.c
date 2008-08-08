@@ -92,6 +92,9 @@ xmlTreeErr(int code, xmlNodePtr node, const char *extra)
 	case XML_TREE_UNTERMINATED_ENTITY:
 	    msg = "unterminated entity reference %15s\n";
 	    break;
+	case XML_TREE_NOT_UTF8:
+	    msg = "string is not in UTF-8\n";
+	    break;
 	default:
 	    msg = "unexpected error number\n";
     }
@@ -1780,7 +1783,9 @@ xmlNewPropInternal(xmlNodePtr node, xmlNsPtr ns,
     xmlDocPtr doc = NULL;
 
     if ((node != NULL) && (node->type != XML_ELEMENT_NODE)) {
-        if (eatname == 1)
+        if ((eatname == 1) &&
+	    ((node->doc == NULL) ||
+	     (!(xmlDictOwns(node->doc->dict, name)))))
             xmlFree((xmlChar *) name);
         return (NULL);
     }
@@ -1790,7 +1795,9 @@ xmlNewPropInternal(xmlNodePtr node, xmlNsPtr ns,
      */
     cur = (xmlAttrPtr) xmlMalloc(sizeof(xmlAttr));
     if (cur == NULL) {
-        if (eatname == 1)
+        if ((eatname == 1) &&
+	    ((node->doc == NULL) ||
+	     (!(xmlDictOwns(node->doc->dict, name)))))
             xmlFree((xmlChar *) name);
         xmlTreeErrMemory("building attribute");
         return (NULL);
@@ -1814,11 +1821,15 @@ xmlNewPropInternal(xmlNodePtr node, xmlNsPtr ns,
         cur->name = name;
 
     if (value != NULL) {
-        xmlChar *buffer;
         xmlNodePtr tmp;
 
-        buffer = xmlEncodeEntitiesReentrant(doc, value);
-        cur->children = xmlStringGetNodeList(doc, buffer);
+        if(!xmlCheckUTF8(value)) {
+            xmlTreeErr(XML_TREE_NOT_UTF8, (xmlNodePtr) doc,
+                       NULL);
+            if (doc != NULL)
+                doc->encoding = xmlStrdup(BAD_CAST "ISO-8859-1");
+        }
+        cur->children = xmlNewDocText(doc, value);
         cur->last = NULL;
         tmp = cur->children;
         while (tmp != NULL) {
@@ -1827,7 +1838,6 @@ xmlNewPropInternal(xmlNodePtr node, xmlNsPtr ns,
                 cur->last = tmp;
             tmp = tmp->next;
         }
-        xmlFree(buffer);
     }
 
     /*
@@ -1927,7 +1937,7 @@ xmlNewNsPropEatName(xmlNodePtr node, xmlNsPtr ns, xmlChar *name,
 	return(NULL);
     }
 
-	return xmlNewPropInternal(node, ns, name, value, 1);
+    return xmlNewPropInternal(node, ns, name, value, 1);
 }
 
 /**
@@ -2210,8 +2220,8 @@ xmlNewNodeEatName(xmlNsPtr ns, xmlChar *name) {
      */
     cur = (xmlNodePtr) xmlMalloc(sizeof(xmlNode));
     if (cur == NULL) {
-	xmlFree(name);
 	xmlTreeErrMemory("building node");
+	/* we can't check here that name comes from the doc dictionnary */
 	return(NULL);
     }
     memset(cur, 0, sizeof(xmlNode));
@@ -2290,6 +2300,11 @@ xmlNewDocNodeEatName(xmlDocPtr doc, xmlNsPtr ns,
 	    cur->children = xmlStringGetNodeList(doc, content);
 	    UPDATE_LAST_CHILD_AND_PARENT(cur)
 	}
+    } else {
+        /* if name don't come from the doc dictionnary free it here */
+        if ((name != NULL) && (doc != NULL) &&
+	    (!(xmlDictOwns(doc->dict, name))))
+	    xmlFree(name);
     }
     return(cur);
 }
@@ -6466,11 +6481,15 @@ xmlSetNsProp(xmlNodePtr node, xmlNsPtr ns, const xmlChar *name,
 	prop->last = NULL;
 	prop->ns = ns;
 	if (value != NULL) {
-	    xmlChar *buffer;
 	    xmlNodePtr tmp;
 	    
-	    buffer = xmlEncodeEntitiesReentrant(node->doc, value);
-	    prop->children = xmlStringGetNodeList(node->doc, buffer);
+	    if(!xmlCheckUTF8(value)) {
+	        xmlTreeErr(XML_TREE_NOT_UTF8, (xmlNodePtr) node->doc,
+	                   NULL);
+                if (node->doc != NULL)
+                    node->doc->encoding = xmlStrdup(BAD_CAST "ISO-8859-1");
+	    }
+	    prop->children = xmlNewDocText(node->doc, value);
 	    prop->last = NULL;
 	    tmp = prop->children;
 	    while (tmp != NULL) {
@@ -6479,7 +6498,6 @@ xmlSetNsProp(xmlNodePtr node, xmlNsPtr ns, const xmlChar *name,
 		    prop->last = tmp;
 		tmp = tmp->next;
 	    }
-	    xmlFree(buffer);
 	}
 	if (prop->atype == XML_ATTRIBUTE_ID)
 	    xmlAddID(NULL, node->doc, value, prop);

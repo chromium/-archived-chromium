@@ -3115,9 +3115,9 @@ htmlParseCharRef(htmlParserCtxtPtr ctxt) {
 	        val = val * 16 + (CUR - 'A') + 10;
 	    else {
 	        htmlParseErr(ctxt, XML_ERR_INVALID_HEX_CHARREF,
-		             "htmlParseCharRef: invalid hexadecimal value\n",
+		             "htmlParseCharRef: missing semicolumn\n",
 			     NULL, NULL);
-		return(0);
+		break;
 	    }
 	    NEXT;
 	}
@@ -3130,9 +3130,9 @@ htmlParseCharRef(htmlParserCtxtPtr ctxt) {
 	        val = val * 10 + (CUR - '0');
 	    else {
 	        htmlParseErr(ctxt, XML_ERR_INVALID_DEC_CHARREF,
-		             "htmlParseCharRef: invalid decimal value\n",
+		             "htmlParseCharRef: missing semicolumn\n",
 			     NULL, NULL);
-		return(0);
+		break;
 	    }
 	    NEXT;
 	}
@@ -3423,7 +3423,7 @@ htmlCheckMeta(htmlParserCtxtPtr ctxt, const xmlChar **atts) {
  *
  * [NS 10] EmptyElement ::= '<' QName (S Attribute)* S? '/>'
  *
- * Returns 0 in case of success and -1 in case of error.
+ * Returns 0 in case of success, -1 in case of error and 1 if discarded
  */
 
 static int
@@ -3436,6 +3436,7 @@ htmlParseStartTag(htmlParserCtxtPtr ctxt) {
     int maxatts;
     int meta = 0;
     int i;
+    int discardtag = 0;
 
     if ((ctxt == NULL) || (ctxt->input == NULL)) {
 	htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR,
@@ -3480,14 +3481,14 @@ htmlParseStartTag(htmlParserCtxtPtr ctxt) {
 	htmlParseErr(ctxt, XML_HTML_STRUCURE_ERROR,
 	             "htmlParseStartTag: misplaced <html> tag\n",
 		     name, NULL);
-	return 0;
+	discardtag = 1;
     }
     if ((ctxt->nameNr != 1) && 
 	(xmlStrEqual(name, BAD_CAST"head"))) {
 	htmlParseErr(ctxt, XML_HTML_STRUCURE_ERROR,
 	             "htmlParseStartTag: misplaced <head> tag\n",
 		     name, NULL);
-	return 0;
+	discardtag = 1;
     }
     if (xmlStrEqual(name, BAD_CAST"body")) {
 	int indx;
@@ -3496,9 +3497,7 @@ htmlParseStartTag(htmlParserCtxtPtr ctxt) {
 		htmlParseErr(ctxt, XML_HTML_STRUCURE_ERROR,
 		             "htmlParseStartTag: misplaced <body> tag\n",
 			     name, NULL);
-		while ((IS_CHAR_CH(CUR)) && (CUR != '>'))
-		    NEXT;
-		return 0;
+		discardtag = 1;
 	    }
 	}
     }
@@ -3597,12 +3596,14 @@ failed:
     /*
      * SAX: Start of Element !
      */
-    htmlnamePush(ctxt, name);
-    if ((ctxt->sax != NULL) && (ctxt->sax->startElement != NULL)) {
-	if (nbatts != 0)
-            ctxt->sax->startElement(ctxt->userData, name, atts);
-	else
-            ctxt->sax->startElement(ctxt->userData, name, NULL);
+    if (!discardtag) {
+	htmlnamePush(ctxt, name);
+	if ((ctxt->sax != NULL) && (ctxt->sax->startElement != NULL)) {
+	    if (nbatts != 0)
+		ctxt->sax->startElement(ctxt->userData, name, atts);
+	    else
+		ctxt->sax->startElement(ctxt->userData, name, NULL);
+	}
     }
 
     if (atts != NULL) {
@@ -3612,7 +3613,7 @@ failed:
 	}
     }
 
-    return 0;
+    return(discardtag);
 }
 
 /**
@@ -3991,7 +3992,7 @@ htmlParseElement(htmlParserCtxtPtr ctxt) {
 
     failed = htmlParseStartTag(ctxt);
     name = ctxt->name;
-    if (failed || (name == NULL)) {
+    if ((failed == -1) || (name == NULL)) {
 	if (CUR == '>')
 	    NEXT;
         return;
@@ -4893,7 +4894,7 @@ htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate) {
 
 		failed = htmlParseStartTag(ctxt);
 		name = ctxt->name;
-		if (failed ||
+		if ((failed == -1) ||
 		    (name == NULL)) {
 		    if (CUR == '>')
 			NEXT;

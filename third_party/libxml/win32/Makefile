@@ -66,7 +66,7 @@ LDFLAGS = /nologo /VERSION:$(LIBXML_MAJOR_VERSION).$(LIBXML_MINOR_VERSION)
 LDFLAGS = $(LDFLAGS) /LIBPATH:$(BINDIR) /LIBPATH:$(LIBPREFIX)
 LIBS =
 !if "$(WITH_FTP)" == "1" || "$(WITH_HTTP)" == "1"
-LIBS = $(LIBS) wsock32.lib
+LIBS = $(LIBS) wsock32.lib ws2_32.lib
 !endif 
 !if "$(WITH_ICONV)" == "1"
 LIBS = $(LIBS) iconv.lib

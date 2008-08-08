@@ -60,7 +60,6 @@ struct _xmlDictStrings {
  */
 struct _xmlDict {
     int ref_counter;
-    xmlRMutexPtr mutex;
 
     struct _xmlDictEntry *dict;
     int size;
@@ -337,11 +336,8 @@ xmlDictCreate(void) {
 	dict->strings = NULL;
 	dict->subdict = NULL;
         if (dict->dict) {
-            if ((dict->mutex = xmlNewRMutex()) != NULL) {
-                memset(dict->dict, 0, MIN_DICT_SIZE * sizeof(xmlDictEntry));
-                return(dict);
-            }
-            xmlFree(dict->dict);
+	    memset(dict->dict, 0, MIN_DICT_SIZE * sizeof(xmlDictEntry));
+	    return(dict);
         }
         xmlFree(dict);
     }
@@ -545,7 +541,6 @@ xmlDictFree(xmlDictPtr dict) {
 	xmlFree(pool);
 	pool = nextp;
     }
-    xmlFreeRMutex(dict->mutex);
     xmlFree(dict);
 }
 

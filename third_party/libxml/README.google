@@ -16,7 +16,7 @@ includes the following modifications :
   This allows parsed entities to inherit namespaces.
   (http://bugzilla.gnome.org/show_bug.cgi?id=502960 )
 
-Current version: 2.6.31
+Current version: 2.6.32
 
 To import a new snapshot of libxml:
 

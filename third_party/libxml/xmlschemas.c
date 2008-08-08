@@ -21808,9 +21808,9 @@ xmlSchemaValidateNotation(xmlSchemaValidCtxtPtr vctxt,
 		return (1);
 	    }
 	    if (xmlSchemaGetNotation(schema, localName, nsName) != NULL) {
-		if (valNeeded && (val != NULL)) {
-		    (*val) = xmlSchemaNewNOTATIONValue(BAD_CAST localName,
-			BAD_CAST xmlStrdup(nsName));
+		if ((valNeeded) && (val != NULL)) {
+		    (*val) = xmlSchemaNewNOTATIONValue(xmlStrdup(localName),
+						       xmlStrdup(nsName));
 		    if (*val == NULL)
 			ret = -1;
 		}
@@ -28108,8 +28108,8 @@ externalSubsetSplit(void *ctx, const xmlChar *name,
 {
     xmlSchemaSAXPlugPtr ctxt = (xmlSchemaSAXPlugPtr) ctx;
     if ((ctxt != NULL) && (ctxt->user_sax != NULL) &&
-        (ctxt->user_sax->internalSubset != NULL))
-	ctxt->user_sax->internalSubset(ctxt->user_data, name, ExternalID,
+        (ctxt->user_sax->externalSubset != NULL))
+	ctxt->user_sax->externalSubset(ctxt->user_data, name, ExternalID,
 	                               SystemID);
 }
 
@@ -28315,8 +28315,8 @@ cdataBlockSplit(void *ctx, const xmlChar *value, int len)
     if (ctxt == NULL)
         return;
     if ((ctxt->user_sax != NULL) &&
-        (ctxt->user_sax->ignorableWhitespace != NULL))
-	ctxt->user_sax->ignorableWhitespace(ctxt->user_data, value, len);
+        (ctxt->user_sax->cdataBlock != NULL))
+	ctxt->user_sax->cdataBlock(ctxt->user_data, value, len);
     if (ctxt->ctxt != NULL)
 	xmlSchemaSAXHandleCDataSection(ctxt->ctxt, value, len);
 }
