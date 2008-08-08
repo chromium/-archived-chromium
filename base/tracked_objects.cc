@@ -301,6 +301,7 @@ void ThreadData::SnapshotDeathMap(DeathMap *output) const {
     (*output)[it->first] = it->second;
 }
 
+#ifdef OS_WIN
 void ThreadData::RunOnAllThreads(void (*function)()) {
   ThreadData* list = first();  // Get existing list.
 
@@ -327,6 +328,7 @@ void ThreadData::RunOnAllThreads(void (*function)()) {
   int ret_val = CloseHandle(completion_handle);
   DCHECK(ret_val);
 }
+#endif
 
 // static
 bool ThreadData::StartTracking(bool status) {
@@ -354,6 +356,7 @@ bool ThreadData::IsActive() {
   return status_ == ACTIVE;
 }
 
+#ifdef OS_WIN
 // static
 void ThreadData::ShutdownMultiThreadTracking() {
   // Using lock, guarantee that no new ThreadData instances will be created.
@@ -370,6 +373,7 @@ void ThreadData::ShutdownMultiThreadTracking() {
   // MessageLoops, but we won't bother doing cleanup (destruction of data) yet.
   return;
 }
+#endif
 
 // static
 void ThreadData::ShutdownSingleThreadedCleanup() {
@@ -427,7 +431,7 @@ bool ThreadData::ThreadSafeDownCounter::LastCaller() {
 }
 
 //------------------------------------------------------------------------------
-
+#ifdef OS_WIN
 ThreadData::RunTheStatic::RunTheStatic(FunctionPointer function,
                                        HANDLE completion_handle,
                                        ThreadSafeDownCounter* counter)
@@ -437,11 +441,11 @@ ThreadData::RunTheStatic::RunTheStatic(FunctionPointer function,
 }
 
 void ThreadData::RunTheStatic::Run() {
-      function_();
-      if (counter_->LastCaller())
-        SetEvent(completion_handle_);
-    }
-
+  function_();
+  if (counter_->LastCaller())
+    SetEvent(completion_handle_);
+}
+#endif
 
 //------------------------------------------------------------------------------
 // Individual 3-tuple of birth (place and thread) along with death thread, and
@@ -750,13 +754,13 @@ bool Comparator::Acceptable(const Snapshot& sample) const {
   if (required_.size()) {
     switch (selector_) {
       case BIRTH_THREAD:
-        if (sample.birth_thread()->ThreadName().find(required_)
-            == std::string.npos)
+        if (sample.birth_thread()->ThreadName().find(required_) ==
+            std::string::npos)
           return false;
         break;
 
       case DEATH_THREAD:
-        if (sample.DeathThreadName().find(required_) == std::string.npos)
+        if (sample.DeathThreadName().find(required_) == std::string::npos)
           return false;
         break;
 

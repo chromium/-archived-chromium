@@ -173,7 +173,12 @@ class Snapshot {
 
 class DataCollector {
  public:
+#if defined(__GNUC__)
+  // gcc won't compile with 'const Snapshot'.
+  typedef std::vector<Snapshot> Collection;
+#else
   typedef std::vector<const Snapshot> Collection;
+#endif
 
   // Construct with a list of how many threads should contribute.  This helps us
   // determine (in the async case) when we are done with all contributions.
@@ -387,6 +392,7 @@ class ThreadData {
   static bool StartTracking(bool status);
   static bool IsActive();
 
+#ifdef OS_WIN
   // WARNING: ONLY call this function when all MessageLoops are still intact for
   // all registered threads.  IF you call it later, you will crash.
   // Note: You don't need to call it at all, and you can wait till you are
@@ -398,6 +404,7 @@ class ThreadData {
   // it Posts a Task to all registered threads to be sure they are aware that no
   // more accumulation can take place.
   static void ShutdownMultiThreadTracking();
+#endif
 
   // WARNING: ONLY call this function when you are running single threaded
   // (again) and all message loops and threads have terminated.  Until that
@@ -432,6 +439,7 @@ class ThreadData {
     Lock lock_;  // protect access to remaining_count_.
   };
 
+#ifdef OS_WIN
   // A Task class that runs a static method supplied, and checks to see if this
   // is the last tasks instance (on last thread) that will run the method.
   // IF this is the last run, then the supplied event is signalled.
@@ -452,6 +460,7 @@ class ThreadData {
 
     DISALLOW_EVIL_CONSTRUCTORS(RunTheStatic);
   };
+#endif
 
   // Each registered thread is called to set status_ to SHUTDOWN.
   // This is done redundantly on every registered thread because it is not
