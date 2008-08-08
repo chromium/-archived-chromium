@@ -32,11 +32,14 @@
 // a supported memory tool (currently, only Purify)
 
 #ifndef BASE_MEMORY_DEBUG_H_
+#define BASE_MEMORY_DEBUG_H_
+
+#include "base/basictypes.h"
 
 namespace base {
 
 class MemoryDebug {
-public:
+ public:
   // Since MIU messages are a lot of data, and we don't always want this data,
   // we have a global switch.  If disabled, *MemoryInUse are no-ops.
   static void SetMemoryInUseEnabled(bool enabled);
@@ -57,10 +60,12 @@ public:
   // or UMCs.
   static void MarkAsInitialized(void* addr, size_t size);
 
-private:
+ private:
   static bool memory_in_use_;
+
+  DISALLOW_IMPLICIT_CONSTRUCTORS(MemoryDebug);
 };
 
-} // namespace base
+}  // namespace base
 
-#endif
+#endif  // BASE_MEMORY_DEBUG_H_

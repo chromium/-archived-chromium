@@ -27,14 +27,14 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "base/memory_debug.h"
+
 #ifdef PURIFY
 // this #define is used to prevent people from directly using pure.h
 // instead of memory_debug.h
 #define PURIFY_PRIVATE_INCLUDE
 #include "base/third_party/purify/pure.h"
 #endif
-
-#include "base/memory_debug.h"
 
 namespace base {
 
@@ -76,4 +76,4 @@ void MemoryDebug::MarkAsInitialized(void* addr, size_t size) {
 #endif
 }
 
-} // namespace base
+}  // namespace base
