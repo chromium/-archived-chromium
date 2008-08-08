@@ -31,6 +31,7 @@
 #include "FontMetrics.h"
 #include "Font.h"
 #include "SimpleFontData.h"
+#include "StringHash.h"
 #include <algorithm>
 #include <hash_map>
 #include <string>
@@ -38,6 +39,8 @@
 #include <mlang.h>
 
 #include "base/gfx/font_utils.h"
+#include "base/singleton.h"
+#include "unicode/uniset.h"
 #include "webkit/glue/webkit_glue.h"
 
 using std::min;
@@ -235,6 +238,66 @@ static HFONT createFontIndirectAndGetWinName(const String& family,
     return hfont;
 }
 
+// This maps font family names to their repertoires of supported Unicode
+// characters. Because it's family names rather than font faces we use
+// as keys, there might be edge cases where one face of a font family
+// has a different repertoire from another face of the same family. 
+typedef HashMap<const wchar_t*, UnicodeSet*> FontCmapCache;
+struct FontCmapCacheSingletonTraits
+    : public DefaultSingletonTraits<FontCmapCache> {
+    static void Delete(FontCmapCache* cache) {
+        FontCmapCache::iterator iter = cache->begin();
+        while (iter != cache->end()) {
+            delete iter->second;
+            ++iter;
+        }
+        delete cache;
+    }
+};
+
+static bool fontContainsCharacter(const FontPlatformData* font_data,
+                                  const wchar_t* family, UChar32 character)
+{
+    // TODO(jungshik) : For non-BMP characters, GetFontUnicodeRanges is of
+    // no use. We have to read directly from the cmap table of a font.
+    // Return true for now.
+    if (character > 0xFFFF)
+        return true;
+    static HashMap<const wchar_t*, UnicodeSet*> fontCoverageMap;
+    FontCmapCache* fontCmapCache = 
+        Singleton<FontCmapCache, FontCmapCacheSingletonTraits>::get();
+    HashMap<const wchar_t*, UnicodeSet*>::iterator it =
+        fontCmapCache->find(family);
+    if (it != fontCmapCache->end()) 
+        return it->second->contains(character);
+    
+    HFONT hfont = font_data->hfont(); 
+    HDC hdc = GetDC(0);
+    HGDIOBJ oldFont = static_cast<HFONT>(SelectObject(hdc, hfont));
+    static Vector<char, 512> glyphsetBuffer;
+    glyphsetBuffer.resize(GetFontUnicodeRanges(hdc, 0));
+    GLYPHSET* glyphset = reinterpret_cast<GLYPHSET*>(glyphsetBuffer.data());
+    // In addition, refering to the OS/2 table and converting the codepage list
+    // to the coverage map might be faster. 
+    GetFontUnicodeRanges(hdc, glyphset);
+    SelectObject(hdc, oldFont);
+    ReleaseDC(0, hdc);
+
+    // TODO(jungshik) : consider doing either of the following two:
+    // 1) port back ICU 4.0's faster look-up code for UnicodeSet
+    // 2) port Mozilla's CompressedCharMap or gfxSparseBitset
+    unsigned i = 0;
+    UnicodeSet* cmap = new UnicodeSet;
+    while (i < glyphset->cRanges) {
+        WCHAR start = glyphset->ranges[i].wcLow; 
+        cmap->add(start, start + glyphset->ranges[i].cGlyphs - 1);
+        i++;
+    }
+    cmap->freeze();
+    fontCmapCache->set(family, cmap); 
+    return cmap->contains(character);
+}
+
 IMLangFontLink2* FontCache::getFontLinkInterface()
 {
   return webkit_glue::GetLangFontLink();
@@ -275,8 +338,11 @@ const SimpleFontData* FontCache::getFontDataForCharacters(const Font& font,
     // to GetFallbackFamily here along with the corresponding change
     // in base/gfx.
     FontDescription fontDescription = font.fontDescription();
+    UChar32 c;
+    UScriptCode script;
     const wchar_t* family = gfx::GetFallbackFamily(characters, length,
-        static_cast<gfx::GenericFamilyType>(fontDescription.genericFamily()));
+        static_cast<gfx::GenericFamilyType>(fontDescription.genericFamily()),
+        &c, &script);
     FontPlatformData* data = NULL;
     if (family) {
         data = getCachedFontPlatformData(font.fontDescription(), 
@@ -284,20 +350,60 @@ const SimpleFontData* FontCache::getFontDataForCharacters(const Font& font,
                                          false); 
     }
 
-    // last resort font list : PanUnicode
-    const static char* const panUniFonts[] = {
-        "Arial Unicode MS",
-        "Bitstream Cyberbit", 
-        "Code2000",
-        "Titus Cyberbit Basic",
-        "Microsoft Sans Serif",
-        "Lucida Sans Unicode"
+    // Last resort font list : PanUnicode. CJK fonts have a pretty
+    // large repertoire. Eventually, we need to scan all the fonts
+    // on the system to have a Firefox-like coverage and this needs 
+    // to move to base/gfx. 
+    const static wchar_t* const cjkFonts[] = {
+        L"Arial Unicode MS",
+        L"ms pgothic",
+        L"simsun",
+        L"gulim",
+        L"pmingliu",
+        L"code2000",
+        L"Bitstream Cyberbit", 
+        L"Titus Cyberbit Basic",
     };
-    for (int i = 0; !data && i < ARRAYSIZE(panUniFonts); ++i) {
-        data = getCachedFontPlatformData(font.fontDescription(),
-                                         panUniFonts[i]); 
+
+    const static wchar_t* const commonFonts[] = {
+        L"arial unicode ms",
+        L"tahoma", 
+        L"microsoft sans serif",
+        L"lucida sans unicode",
+        L"palatino linotype",
+        L"ms pgothic",
+        L"simsun",
+        L"gulim",
+        L"pmingliu",
+        L"code2000",
+    };
+
+    const wchar_t* const* panUniFonts = NULL;
+    int numFonts = 0;
+    if (script == USCRIPT_HAN) {
+        panUniFonts = cjkFonts;
+        numFonts = ARRAYSIZE(cjkFonts);
+    } else {
+        panUniFonts = commonFonts;
+        numFonts = ARRAYSIZE(commonFonts);
     }
-    if (data) 
+    // Font returned from GetFallbackFamily may not cover |characters|
+    // because it's based on script to font mapping. This problem is
+    // critical enough for non-Latin scripts (especially Han) to
+    // warrant an additional (real coverage) check with fontCotainsCharacter.
+    // In case of Latin, just trust that it covers a character and
+    // skip the coverage check as long as the font is available 
+    // (i.e. |data| is not NULL).
+    int i;
+    for (i = 0; 
+         (!data ||
+          (script != USCRIPT_LATIN && !fontContainsCharacter(data, family, c)))
+         && i < numFonts; ++i) {
+        family = panUniFonts[i]; 
+        data = getCachedFontPlatformData(font.fontDescription(),
+                                         AtomicString(family, wcslen(family)));
+    }
+    if (i < numFonts) // we found the font that covers this character !
        return new SimpleFontData(*data);
 
     // IMLangFontLink can break up a string into regions that can be rendered
@@ -309,7 +415,8 @@ const SimpleFontData* FontCache::getFontDataForCharacters(const Font& font,
 
     SimpleFontData* fontData = 0;
     HDC hdc = GetDC(0);
-    HFONT primaryFont = font.primaryFont()->fontDataForCharacter(characters[0])->m_font.hfont();
+    HFONT primaryFont = font.primaryFont()->
+        fontDataForCharacter(characters[0])->m_font.hfont();
 
     // Get the code pages supported by the requested font.
     DWORD acpCodePages;
