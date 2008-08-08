@@ -1,4 +1,3 @@
-// linked_ptr.h
 // Copyright 2008, Google Inc.
 // All rights reserved.
 //
