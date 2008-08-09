@@ -27,16 +27,13 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_COMMON_IPC_CHANNEL_PROXY_H_
-#define CHROME_COMMON_IPC_CHANNEL_PROXY_H_
+#ifndef CHROME_COMMON_IPC_CHANNEL_PROXY_H__
+#define CHROME_COMMON_IPC_CHANNEL_PROXY_H__
 
 #include <vector>
-
 #include "base/lock.h"
 #include "base/ref_counted.h"
 #include "chrome/common/ipc_channel.h"
-
-class MessageLoop;
 
 namespace IPC {
 
@@ -219,4 +216,4 @@ class ChannelProxy : public Message::Sender {
 
 }  // namespace IPC
 
-#endif  // CHROME_COMMON_IPC_CHANNEL_PROXY_H_
+#endif  // CHROME_COMMON_IPC_CHANNEL_PROXY_H__

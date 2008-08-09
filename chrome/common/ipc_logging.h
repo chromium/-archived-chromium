@@ -27,17 +27,14 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_COMMON_IPC_LOGGING_H_
-#define CHROME_COMMON_IPC_LOGGING_H_
+#ifndef CHROME_COMMON_IPC_LOGGING_H__
+#define CHROME_COMMON_IPC_LOGGING_H__
 
 #include "base/lock.h"
-#include "base/object_watcher.h"
-#include "base/singleton.h"
+#include "base/message_loop.h"
 #include "chrome/common/ipc_message.h"  // For IPC_MESSAGE_LOG_ENABLED.
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
-
-class MessageLoop;
 
 namespace IPC {
 
@@ -46,7 +43,8 @@ class Message;
 // One instance per process.  Needs to be created on the main thread (the UI
 // thread in the browser) but OnPreDispatchMessage/OnPostDispatchMessage
 // can be called on other threads.
-class Logging : public base::ObjectWatcher::Delegate {
+class Logging : public base::RefCounted<Logging>,
+                public MessageLoop::Watcher {
  public:
   // Implemented by consumers of log messages.
   class Consumer {
@@ -87,11 +85,10 @@ class Logging : public base::ObjectWatcher::Delegate {
   static void GetMessageText(uint16 type, std::wstring* name,
                              const Message* message, std::wstring* params);
 
-  // ObjectWatcher::Delegate implementation
+  // MessageLoop::Watcher
   void OnObjectSignaled(HANDLE object);
 
  private:
-  friend struct DefaultSingletonTraits<IPC::Logging>;
   Logging();
 
   std::wstring GetEventName(int browser_pid, bool enabled);
@@ -99,8 +96,6 @@ class Logging : public base::ObjectWatcher::Delegate {
   void Log(const LogData& data);
 
   void RegisterWaitForEvent(bool enabled);
-
-  base::ObjectWatcher watcher_;
 
   HANDLE logging_event_on_;
   HANDLE logging_event_off_;
@@ -113,10 +108,14 @@ class Logging : public base::ObjectWatcher::Delegate {
   MessageLoop* main_thread_;
 
   Consumer* consumer_;
+
+  static scoped_refptr<Logging> current_;
+
+  static Lock logger_lock_;
 };
 
 }  // namespace IPC
 
 #endif // IPC_MESSAGE_LOG_ENABLED
 
-#endif  // CHROME_COMMON_IPC_LOGGING_H_
+#endif  // CHROME_COMMON_IPC_LOGGING_H__

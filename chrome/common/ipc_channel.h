@@ -27,19 +27,19 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_COMMON_IPC_CHANNEL_H_
-#define CHROME_COMMON_IPC_CHANNEL_H_
+#ifndef CHROME_COMMON_IPC_CHANNEL_H__
+#define CHROME_COMMON_IPC_CHANNEL_H__
 
 #include <queue>
 
-#include "base/object_watcher.h"
+#include "base/message_loop.h"
 #include "chrome/common/ipc_message.h"
 
 namespace IPC {
 
 //------------------------------------------------------------------------------
 
-class Channel : public base::ObjectWatcher::Delegate,
+class Channel : public MessageLoop::Watcher,
                 public Message::Sender {
   // Security tests need access to the pipe handle.
   friend class ChannelTest;
@@ -113,6 +113,15 @@ class Channel : public base::ObjectWatcher::Delegate,
   //
   virtual bool Send(Message* message);
 
+  // Process any pending incoming and outgoing messages.  Wait for at most
+  // max_wait_msec for pending messages if there are none.  Returns true if
+  // there were no pending messages or if pending messages were successfully
+  // processed.  Returns false if there are pending messages that cannot be
+  // processed for some reason (e.g., because ProcessIncomingMessages would be
+  // re-entered).
+  // TODO(darin): Need a better way of dealing with the recursion problem.
+  bool ProcessPendingMessages(DWORD max_wait_msec);
+
  private:
   const std::wstring PipeName(const std::wstring& channel_id) const;
   bool CreatePipe(const std::wstring& channel_id, Mode mode);
@@ -120,9 +129,10 @@ class Channel : public base::ObjectWatcher::Delegate,
   bool ProcessIncomingMessages();
   bool ProcessOutgoingMessages();
 
-  // ObjectWatcher::Delegate implementation
+  // MessageLoop::Watcher implementation
   virtual void OnObjectSignaled(HANDLE object);
 
+ private:
   enum {
     BUF_SIZE = 4096
   };
@@ -130,7 +140,6 @@ class Channel : public base::ObjectWatcher::Delegate,
   struct State {
     State();
     ~State();
-    base::ObjectWatcher watcher;
     OVERLAPPED overlapped;
     bool is_pending;
   };
@@ -175,4 +184,4 @@ class Channel : public base::ObjectWatcher::Delegate,
 
 }
 
-#endif  // CHROME_COMMON_IPC_CHANNEL_H_
+#endif  // CHROME_COMMON_IPC_CHANNEL_H__
