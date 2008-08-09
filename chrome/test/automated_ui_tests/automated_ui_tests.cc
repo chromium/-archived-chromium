@@ -34,6 +34,7 @@
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
+#include "chrome/browser/character_encoding.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/libxml_utils.h"
@@ -76,9 +77,11 @@ const int kTestDialogActionsToRun = 7;
 // This subset of commands is used to test dialog boxes, which aren't likely
 // to respond to most other commands.
 const std::string kTestDialogPossibleActions[] = {
-  "PressTabKey",
+  // See FuzzyTestDialog for details on why Enter and SpaceBar must appear first
+  // in this list.
   "PressEnterKey",
   "PressSpaceBar",
+  "PressTabKey",
   "DownArrow"
 };
 
@@ -281,6 +284,8 @@ bool AutomatedUITest::DoAction(const std::string & action) {
     did_complete_action = OpenAboutDialog();
   } else if (LowerCaseEqualsASCII(action, "back")) {
     did_complete_action = BackButton();
+  } else if (LowerCaseEqualsASCII(action, "changeencoding")) {
+    did_complete_action = ChangeEncoding();
   } else if (LowerCaseEqualsASCII(action, "closetab")) {
     did_complete_action = CloseActiveTab();
   } else if (LowerCaseEqualsASCII(action, "clearbrowsingdata")) {
@@ -299,6 +304,8 @@ bool AutomatedUITest::DoAction(const std::string & action) {
     did_complete_action = DragActiveTab(false, true);
   } else if (LowerCaseEqualsASCII(action, "dragtabright")) {
     did_complete_action = DragActiveTab(true, false);
+  } else if (LowerCaseEqualsASCII(action, "duplicatetab")) {
+    did_complete_action = DuplicateTab();
   } else if (LowerCaseEqualsASCII(action, "editsearchengines")) {
     did_complete_action = OpenEditSearchEnginesDialog();
   } else if (LowerCaseEqualsASCII(action, "findinpage")) {
@@ -309,6 +316,8 @@ bool AutomatedUITest::DoAction(const std::string & action) {
     did_complete_action = GoOffTheRecord();
   } else if (LowerCaseEqualsASCII(action, "history")) {
     did_complete_action = ShowHistory();
+  } else if (LowerCaseEqualsASCII(action, "home")) {
+    did_complete_action = Home();
   } else if (LowerCaseEqualsASCII(action, "import")) {
     did_complete_action = OpenImportSettingsDialog();
   } else if (LowerCaseEqualsASCII(action, "javascriptconsole")) {
@@ -337,10 +346,14 @@ bool AutomatedUITest::DoAction(const std::string & action) {
     did_complete_action = PressTabKey();
   } else if (LowerCaseEqualsASCII(action, "reload")) {
     did_complete_action = ReloadPage();
+  } else if (LowerCaseEqualsASCII(action, "restoretab")) {
+    did_complete_action = RestoreTab();
   } else if (LowerCaseEqualsASCII(action, "selectnexttab")) {
     did_complete_action = SelectNextTab();
   } else if (LowerCaseEqualsASCII(action, "selectprevtab")) {
     did_complete_action = SelectPreviousTab();
+  } else if (LowerCaseEqualsASCII(action, "showbookmarks")) {
+    did_complete_action = ShowBookmarksBar();
   } else if (LowerCaseEqualsASCII(action, "setup")) {
     LaunchBrowserAndServer();
     did_complete_action = true;
@@ -371,10 +384,15 @@ bool AutomatedUITest::DoAction(const std::string & action) {
     did_complete_action = PressUpArrow();
   } else if (LowerCaseEqualsASCII(action, "viewpasswords")) {
     did_complete_action = OpenViewPasswordsDialog();
+  } else if (LowerCaseEqualsASCII(action, "viewsource")) {
+    did_complete_action = ViewSource();
   } else if (LowerCaseEqualsASCII(action, "zoomplus")) {
     did_complete_action = ZoomPlus();
   } else if (LowerCaseEqualsASCII(action, "zoomminus")) {
     did_complete_action = ZoomMinus();
+  } else {
+    NOTREACHED() << "Unknown command passed into DoAction: "
+                 << action.c_str();
   }
 
   if (!did_complete_action)
@@ -413,6 +431,25 @@ bool AutomatedUITest::OpenAndActivateNewBrowserWindow() {
 
 bool AutomatedUITest::BackButton() {
   return RunCommand(IDC_BACK);
+}
+
+bool AutomatedUITest::ChangeEncoding() {
+  // Get the encoding list that is used to populate the UI (encoding menu)
+  const std::vector<int>* encoding_ids =
+      CharacterEncoding::GetCurrentDisplayEncodings(
+          L"ISO-8859-1,windows-1252", L"");
+  DCHECK(encoding_ids);
+  DCHECK(!encoding_ids->empty());
+  unsigned len = static_cast<unsigned>(encoding_ids->size());
+
+  // The vector will contain mostly IDC values for encoding commands plus a few
+  // menu separators (0 values). If we hit a separator we just retry.
+  int index = rand_util::RandInt(0, len);
+  while ((*encoding_ids)[index] == 0) {
+    index = rand_util::RandInt(0, len);
+  }
+
+  return RunCommand((*encoding_ids)[index]);
 }
 
 bool AutomatedUITest::CloseActiveTab() {
@@ -454,6 +491,10 @@ bool AutomatedUITest::CloseActiveTab() {
   return return_value;
 }
 
+bool AutomatedUITest::DuplicateTab() {
+  return RunCommand(IDC_DUPLICATE);
+}
+
 bool AutomatedUITest::FindInPage() {
   return RunCommand(IDC_FIND);
 }
@@ -464,6 +505,10 @@ bool AutomatedUITest::ForwardButton() {
 
 bool AutomatedUITest::GoOffTheRecord() {
   return RunCommand(IDC_GOOFFTHERECORD);
+}
+
+bool AutomatedUITest::Home() {
+  return RunCommand(IDC_HOME);
 }
 
 bool AutomatedUITest::JavaScriptConsole() {
@@ -592,12 +637,20 @@ bool AutomatedUITest::ReloadPage() {
   return RunCommand(IDC_RELOAD);
 }
 
+bool AutomatedUITest::RestoreTab() {
+  return RunCommand(IDC_RESTORE_TAB);
+}
+
 bool AutomatedUITest::SelectNextTab() {
   return RunCommand(IDC_SELECT_NEXT_TAB);
 }
 
 bool AutomatedUITest::SelectPreviousTab() {
   return RunCommand(IDC_SELECT_PREV_TAB);
+}
+
+bool AutomatedUITest::ShowBookmarksBar() {
+  return RunCommand(IDC_SHOW_BOOKMARKS_BAR);
 }
 
 bool AutomatedUITest::ShowDownloads() {
@@ -610,6 +663,10 @@ bool AutomatedUITest::ShowHistory() {
 
 bool AutomatedUITest::StarPage() {
   return RunCommand(IDC_STAR);
+}
+
+bool AutomatedUITest::ViewSource() {
+  return RunCommand(IDC_VIEWSOURCE);
 }
 
 bool AutomatedUITest::ZoomMinus() {
@@ -659,7 +716,12 @@ bool AutomatedUITest::FuzzyTestDialog(int num_actions) {
   bool return_value = true;
 
   for (int i = 0; i < num_actions; i++) {
-    int action_index = rand_util::RandInt(i == 0 ? 1 : 0,
+    // We want to make sure the first action performed on the dialog is not
+    // Space or Enter because focus is likely on the Close button. Both Space
+    // and Enter would close the dialog without performing more actions. We
+    // rely on the fact that those two actions are first in the array and set
+    // the lower bound to 2 if i == 0 to skip those two actions.
+    int action_index = rand_util::RandInt(i == 0 ? 2 : 0,
                                           arraysize(kTestDialogPossibleActions)
                                           - 1);
     return_value = return_value &&

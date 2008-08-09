@@ -155,10 +155,21 @@ class AutomatedUITest : public UITest {
   // XML element: <Back/>
   bool BackButton();
 
+  // Changes the encoding of the page (the encoding is selected at random
+  // from a list of encodings).
+  // Returns true if call to activate the accelerator is successful.
+  // XML element: <ChangeEncoding/>
+  bool ChangeEncoding();
+
   // Uses accelerator to close the active tab if it isn't the only tab.
   // Returns false if active tab is the only tab, true otherwise.
   // XML element: <CloseTab/>
   bool CloseActiveTab();
+
+  // Duplicates the current tab.
+  // Returns true if call to activate the accelerator is successful.
+  // XML element: <DuplicateTab/>
+  bool DuplicateTab();
 
   // Opens one of the dialogs (chosen randomly) and exercises it.
   // XML element: <Dialog/>
@@ -176,6 +187,11 @@ class AutomatedUITest : public UITest {
   // Opens and focuses an OffTheRecord browser window.
   // XML element: <GoOffTheRecord/>
   bool GoOffTheRecord();
+
+  // Navigates to the Home page.
+  // Returns true if call to activate the accelerator is successful.
+  // XML element: <Home/>
+  bool Home();
 
   // Opens the JavaScriptConsole window. While it isn't modal, it takes focus
   // from the current browser window, so most of the test can't continue until
@@ -279,6 +295,11 @@ class AutomatedUITest : public UITest {
   // XML element: <Reload/>
   bool ReloadPage();
 
+  // Restores a previously closed tab.
+  // Returns true if call to activate the accelerator is successful.
+  // XML element: <RestoreTab/>
+  bool RestoreTab();
+
   // Activates the next tab on the active browser window.
   // XML element: <SelectNextTab/>
   bool SelectNextTab();
@@ -286,6 +307,11 @@ class AutomatedUITest : public UITest {
   // Activates the previous tab on the active browser window.
   // XML element: <SelectPrevTab/>
   bool SelectPreviousTab();
+
+  // Displays the bookmark bar.
+  // Returns true if call to activate the accelerator is successful.
+  // XML element: <ShowBookmarks/>
+  bool ShowBookmarksBar();
 
   // Opens the Downloads page in the current active browser window.
   // XML element: <Downloads/>
@@ -299,6 +325,11 @@ class AutomatedUITest : public UITest {
   // dismissed.
   // XML element: <Star/>
   bool StarPage();
+
+  // Views source of the current page.
+  // Returns true if call to activate the accelerator is successful.
+  // XML element: <ViewSource/>
+  bool ViewSource();
 
   // Decreases the text size on the current active tab.
   // XML element: <ZoomMinus/>
@@ -480,7 +511,7 @@ class AutomatedUITest : public UITest {
   // A delay in second we wait for after each action.  Useful for debugging.
   int post_action_delay_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(AutomatedUITest);
+  DISALLOW_COPY_AND_ASSIGN(AutomatedUITest);
 };
 
 #endif  // CHROME_TEST_AUTOMATED_UI_TESTS_AUTOMATED_UI_TESTS_H_
