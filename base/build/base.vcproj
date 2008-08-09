@@ -730,6 +730,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\waitable_event.h"
+			>
+		</File>
+		<File
+			RelativePath="..\waitable_event_win.cc"
+			>
+		</File>
+		<File
 			RelativePath="..\watchdog.cc"
 			>
 		</File>

@@ -123,6 +123,7 @@ if env['PLATFORM'] == 'win32':
       'sys_string_conversions_win.cc',
       'thread_local_storage_win.cc',
       'time_win.cc',
+      'waitable_event_win.cc',
   ])
 
 if env['PLATFORM'] == 'darwin':
