@@ -1,6 +1,14 @@
 #!/usr/bin/perl
 #
-# Summarizes output from memtrace using a set of heuristics
+# Read a memtrace logfile from stdin and group memory allocations by logical
+# code component. The code component is guessed from the callstack, and
+# is something like {v8, sqlite, disk cache, skia, etc..}
+#
+# Usage:
+#
+#   summary.pl
+#
+#      [STDIN] -- The memwatcher.logXXXX file to summarize.
 #
 
 sub process_stdin() {

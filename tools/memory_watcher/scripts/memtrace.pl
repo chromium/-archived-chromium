@@ -1,5 +1,35 @@
 #!/usr/bin/perl
 
+#
+# Blame callstacks for each memory allocation.
+# Similar to memprof.pl, will also try to filter out unuseful stacks.
+# TODO: better describe how these tools differ.
+#
+# Usage:
+#
+#   memtrace.pl <logfile>
+#
+#      logfile -- The memwatcher.logXXXX file to summarize.
+#
+#
+#
+# Sample output:
+#
+# 41975368    77.64%      f:\sp\vctools\crt_bld\self_x86\crt\src\malloc.c (163): malloc
+#  2097152    3.88%       c:\src\chrome1\src\webkit\pending\frameloader.cpp (3300): WebCore::FrameLoader::committedLoad
+#  1572864    2.91%       c:\src\chrome1\src\webkit\port\bridge\v8bridge.cpp (214): WebCore::V8Bridge::evaluate
+#  1572864    2.91%       c:\src\chrome1\src\webkit\glue\webframeloaderclient_impl.cc (1071): WebFrameLoaderClient::committedLoad
+#  1572864    2.91%       c:\src\chrome1\src\v8\src\ast.h (1181): v8::internal::Visitor::Visit
+#
+#
+#
+# ********
+# Note: The output is not currently sorted. To make it more legible,
+# you will want to sort numerically by the first field:
+#   $ ./memtrace.pl memwatcher.log3620.txt | sort -n -r
+# ********
+#
+
 sub process_raw($) {
   my $file = shift;
 
