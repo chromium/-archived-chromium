@@ -429,17 +429,18 @@ void MessageLoop::DidProcessMessage(const MSG& msg) {
 }
 
 void MessageLoop::SetNestableTasksAllowed(bool allowed) {
-  nestable_tasks_allowed_ = allowed;
-  if (!nestable_tasks_allowed_)
-    return;
-  // Start the native pump if we are not already pumping.
-  EnsurePumpATaskWasPosted();
+  if (nestable_tasks_allowed_ != allowed) {
+    nestable_tasks_allowed_ = allowed;
+    if (!nestable_tasks_allowed_)
+      return;
+    // Start the native pump if we are not already pumping.
+    EnsurePumpATaskWasPosted();
+  }
 }
 
 bool MessageLoop::NestableTasksAllowed() const {
   return nestable_tasks_allowed_;
 }
-
 
 bool MessageLoop::ProcessNextWindowsMessage() {
   MSG msg;
