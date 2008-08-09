@@ -727,10 +727,6 @@ bool DraggedTabController::CompleteDrag() {
     destroy_immediately = false;
   } else {
     // Compel the model to construct a new window for the detached TabContents.
-    // TODO(beng): this is here for one cycle only to see if it's
-    //             dragged_contents_ that's getting freed, or something else.
-    dragged_contents_->GetContentHWND();
-    dragged_contents_->GetTitle().size();
     source_tabstrip_->model()->TearOffTabContents(
         dragged_contents_,
         GetWindowCreatePoint());

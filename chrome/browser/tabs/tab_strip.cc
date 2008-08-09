@@ -546,6 +546,10 @@ void TabStrip::DestroyDraggedSourceTab(Tab* tab) {
   }
   tab->GetParent()->RemoveChildView(tab);
   delete tab;
+  // Force a layout here, because if we've just quickly drag detached a Tab,
+  // the stopping of the active animation above may have left the TabStrip in a
+  // bad (visual) state.
+  Layout();
 }
 
 gfx::Rect TabStrip::GetIdealBounds(int index) {
