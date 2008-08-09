@@ -631,6 +631,16 @@ void OpaqueNonClientView::EnableClose(bool enable) {
 // OpaqueNonClientView, ChromeViews::View overrides:
 
 void OpaqueNonClientView::Paint(ChromeCanvas* canvas) {
+  // Clip the content area out of the rendering.
+  gfx::Rect contents_bounds = frame_->GetContentsBounds();
+  SkRect clip;
+  clip.set(SkIntToScalar(contents_bounds.x()),
+           SkIntToScalar(contents_bounds.y()),
+           SkIntToScalar(contents_bounds.right()),
+           SkIntToScalar(contents_bounds.bottom()));
+  canvas->clipRect(clip, SkRegion::kDifference_Op);
+
+  // Render the remaining portions of the non-client area.
   if (frame_->IsMaximized()) {
     PaintMaximizedFrameBorder(canvas);
   } else {
@@ -640,11 +650,6 @@ void OpaqueNonClientView::Paint(ChromeCanvas* canvas) {
   PaintTitleBar(canvas);
   PaintToolbarBackground(canvas);
   PaintClientEdge(canvas);
-
-  // TODO(beng): remove this
-  gfx::Rect contents_bounds = frame_->GetContentsBounds();
-  canvas->FillRectInt(SK_ColorRED, contents_bounds.x(), contents_bounds.y(),
-                      contents_bounds.width(), contents_bounds.height());
 }
 
 void OpaqueNonClientView::Layout() {
@@ -834,12 +839,16 @@ void OpaqueNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
   gfx::Rect client_area_bounds = frame_->GetContentsBounds();
   // For some reason things don't line up quite right, so we add and subtract
   // pixels here and there for aesthetic bliss.
+  // Enlarge the client area to include the toolbar, since the top edge of
+  // the client area is the toolbar background and the client edge renders
+  // the left and right sides of the toolbar background.
+  int fudge = frame_->window_delegate()->ShouldShowWindowTitle() ? 0 : 1;
   client_area_bounds.SetRect(
       client_area_bounds.x(),
-      frame_->client_view()->GetY() + toolbar_bounds.bottom() - 1,
+      frame_->client_view()->GetY() + toolbar_bounds.bottom() - fudge,
       client_area_bounds.width(),
       std::max(0, GetHeight() - frame_->client_view()->GetY() -
-          toolbar_bounds.bottom() + 1 - kWindowVerticalBorderBottomSize));
+          toolbar_bounds.bottom() + fudge - kWindowVerticalBorderBottomSize));
 
   canvas->TileImageInt(*right, client_area_bounds.right(),
                        client_area_bounds.y() + 1,

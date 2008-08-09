@@ -382,6 +382,17 @@ class Browser : public TabStripModelDelegate,
 
   void ConvertTabToApplication(TabContents* contents);
 
+  // NEW FRAME METHODS BELOW THIS LINE ONLY... TODO(beng): clean up this file!
+
+  // Gets the FavIcon of the page in the selected tab.
+  SkBitmap GetCurrentPageIcon() const;
+
+  // Gets the title of the page in the selected tab.
+  std::wstring GetCurrentPageTitle() const;
+
+  // Prepares a title string for display (removes embedded newlines, etc).
+  static void FormatTitleForDisplay(std::wstring* title);
+
  private:
   friend class XPFrame;
   friend class VistaFrame;

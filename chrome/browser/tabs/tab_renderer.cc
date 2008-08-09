@@ -33,6 +33,7 @@
 
 #include "base/gfx/image_operations.h"
 #include "chrome/app/theme/theme_resources.h"
+#include "chrome/browser/browser.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/common/gfx/chrome_canvas.h"
@@ -379,17 +380,6 @@ gfx::Size TabRenderer::GetStandardSize() {
   return standard_size;
 }
 
-// static
-void TabRenderer::FormatTitleForDisplay(std::wstring* title) {
-  size_t current_index = 0;
-  size_t match_index;
-  while ((match_index = title->find(L'\n', current_index)) !=
-    std::wstring::npos) {
-      title->replace(match_index, 1, L"");
-      current_index = match_index;
-  }
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // TabRenderer, protected:
 
@@ -462,7 +452,7 @@ void TabRenderer::Paint(ChromeCanvas* canvas) {
       title = l10n_util::GetString(IDS_TAB_UNTITLED_TITLE);
     }
   } else {
-    FormatTitleForDisplay(&title);
+    Browser::FormatTitleForDisplay(&title);
   }
 
   SkColor title_color = IsSelected() ? kSelectedTitleColor

@@ -1632,7 +1632,7 @@ void Browser::OpenURLOffTheRecord(Profile* profile, const GURL& url) {
 std::wstring Browser::ComputePopupTitle(const GURL& url,
                                         const std::wstring& title) {
   std::wstring result(title);
-  Tab::FormatTitleForDisplay(&result);
+  FormatTitleForDisplay(&result);
   return result;
 }
 
@@ -1761,4 +1761,36 @@ NavigationController* Browser::GetSelectedNavigationController() const {
     return tc->controller();
   else
     return NULL;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// NEW FRAME TODO(beng): clean up this file
+// DO NOT PLACE METHODS NOT RELATED TO NEW FRAMES BELOW THIS LINE.
+
+SkBitmap Browser::GetCurrentPageIcon() const {
+  TabContents* contents = tabstrip_model_.GetSelectedTabContents();
+  return contents ? contents->GetFavIcon() : SkBitmap();
+}
+
+std::wstring Browser::GetCurrentPageTitle() const {
+  TabContents* contents = tabstrip_model_.GetSelectedTabContents();
+  std::wstring title;
+  if (contents) {
+    title = contents->GetTitle();
+    FormatTitleForDisplay(&title);
+  }
+  if (title.empty())
+    title = l10n_util::GetString(IDS_TAB_UNTITLED_TITLE);
+  return title;
+}
+
+// static
+void Browser::FormatTitleForDisplay(std::wstring* title) {
+  size_t current_index = 0;
+  size_t match_index;
+  while ((match_index = title->find(L'\n', current_index)) !=
+         std::wstring::npos) {
+    title->replace(match_index, 1, L"");
+    current_index = match_index;
+  }
 }

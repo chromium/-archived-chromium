@@ -253,7 +253,7 @@ bool SimpleXPFrameTitleBar::WillHandleMouseEvent(int x, int y) {
 void SimpleXPFrameTitleBar::SetWindowTitle(std::wstring s) {
   if (parent_->IsApplication()) {
     std::wstring t(s);
-    Tab::FormatTitleForDisplay(&t);
+    Browser::FormatTitleForDisplay(&t);
     label_->SetText(t);
   } else {
     label_->SetText(Browser::ComputePopupTitle(

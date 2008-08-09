@@ -885,6 +885,8 @@ void CustomFrameWindow::UpdateWindowTitle() {
   // Layout winds up causing the title to be re-validated during
   // string measurement.
   non_client_view_->Layout();
+  // Must call the base class too so that places like the Task Bar get updated.
+  Window::UpdateWindowTitle();
 }
 
 void CustomFrameWindow::EnableClose(bool enable) {

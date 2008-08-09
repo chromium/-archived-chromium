@@ -29,6 +29,7 @@
 
 #include "chrome/browser/views/frame/browser_view2.h"
 
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/tab_contents_container_view.h"
@@ -41,9 +42,11 @@
 #include "chrome/browser/views/toolbar_view.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
+#include "chrome/common/resource_bundle.h"
 #include "generated_resources.h"
 
 // static
+SkBitmap BrowserView2::default_favicon_;
 static const int kToolbarTabStripVerticalOverlap = 3;
 static const int kTabShadowSize = 2;
 static const int kStatusBubbleHeight = 20;
@@ -64,6 +67,7 @@ BrowserView2::BrowserView2(Browser* browser)
       toolbar_(NULL),
       contents_container_(NULL),
       initialized_(false) {
+  InitClass();
   show_bookmark_bar_pref_.Init(prefs::kShowBookmarkBar,
                                browser_->profile()->GetPrefs(), this);
   browser_->tabstrip_model()->AddObserver(this);
@@ -451,7 +455,7 @@ bool BrowserView2::IsModal() const {
 }
 
 std::wstring BrowserView2::GetWindowTitle() const {
-  return L"Magic browzR";
+  return browser_->GetCurrentPageTitle();
 }
 
 ChromeViews::View* BrowserView2::GetInitiallyFocusedView() const {
@@ -463,7 +467,10 @@ bool BrowserView2::ShouldShowWindowTitle() const {
 }
 
 SkBitmap BrowserView2::GetWindowIcon() {
-  return SkBitmap();
+  SkBitmap favicon = browser_->GetCurrentPageIcon();
+  if (favicon.isNull())
+    return default_favicon_;
+  return favicon;
 }
 
 bool BrowserView2::ShouldShowWindowIcon() const {
@@ -835,4 +842,14 @@ void BrowserView2::LoadAccelerators() {
 
   // We don't need the Windows accelerator table anymore.
   free(accelerators);
+}
+
+// static
+void BrowserView2::InitClass() {
+  static bool initialized = false;
+  if (!initialized) {
+    ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+    default_favicon_ = *rb.GetBitmapNamed(IDR_DEFAULT_FAVICON);
+    initialized = true;
+  }
 }

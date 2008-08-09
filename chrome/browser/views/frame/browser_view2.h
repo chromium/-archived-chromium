@@ -245,6 +245,9 @@ class BrowserView2 : public BrowserWindow,
   // use.
   void LoadAccelerators();
 
+  // Initialize class statics.
+  static void InitClass();
+
   // The BrowserFrame that hosts this view.
   BrowserFrame* frame_;
 
@@ -279,6 +282,9 @@ class BrowserView2 : public BrowserWindow,
 
   // True if we have already been initialized.
   bool initialized_;
+
+  // The default favicon image.
+  static SkBitmap default_favicon_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BrowserView2);
 };

@@ -66,6 +66,14 @@ void AeroGlassFrame::Init(const gfx::Rect& bounds) {
   Window::Init(NULL, bounds);
 }
 
+bool AeroGlassFrame::IsTabStripVisible() const {
+  return browser_view_->IsTabStripVisible();
+}
+
+bool AeroGlassFrame::IsToolbarVisible() const {
+  return browser_view_->IsToolbarVisible();
+}
+
 gfx::Rect AeroGlassFrame::GetToolbarBounds() const {
   return browser_view_->GetToolbarBounds();
 }

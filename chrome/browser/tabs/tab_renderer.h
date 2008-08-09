@@ -88,10 +88,6 @@ class TabRenderer : public ChromeViews::View,
   // available.
   static gfx::Size GetStandardSize();
 
-  // Remove invalid characters from the title (e.g. newlines) that may
-  // interfere with rendering.
-  static void FormatTitleForDisplay(std::wstring* title);
-
  protected:
   ChromeViews::Button* close_button() const { return close_button_; }
   const gfx::Rect& title_bounds() const { return title_bounds_; }
