@@ -74,8 +74,8 @@ Channel::Channel(const wstring& channel_id, Mode mode, Listener* listener)
 
 void Channel::Close() {
   // make sure we are no longer watching the pipe events
-  MessageLoop::current()->WatchObject(input_state_.overlapped.hEvent, NULL);
-  MessageLoop::current()->WatchObject(output_state_.overlapped.hEvent, NULL);
+  input_state_.watcher.StopWatching();
+  output_state_.watcher.StopWatching();
 
   if (pipe_ != INVALID_HANDLE_VALUE) {
     CloseHandle(pipe_);
@@ -193,7 +193,7 @@ bool Channel::Connect() {
     // to OnObjectSignaled that this is the special initialization signal.
 
     SetEvent(input_state_.overlapped.hEvent);
-    MessageLoop::current()->WatchObject(input_state_.overlapped.hEvent, this);
+    input_state_.watcher.StartWatching(input_state_.overlapped.hEvent, this);
   }
 
   if (!waiting_connect_)
@@ -203,7 +203,7 @@ bool Channel::Connect() {
 
 bool Channel::ProcessConnection() {
   input_state_.is_pending = false;
-  MessageLoop::current()->WatchObject(input_state_.overlapped.hEvent, NULL);
+  input_state_.watcher.StopWatching();
 
   // Do we have a client connected to our pipe?
   DCHECK(pipe_ != INVALID_HANDLE_VALUE);
@@ -220,7 +220,7 @@ bool Channel::ProcessConnection() {
   switch (err) {
   case ERROR_IO_PENDING:
     input_state_.is_pending = true;
-    MessageLoop::current()->WatchObject(input_state_.overlapped.hEvent, this);
+    input_state_.watcher.StartWatching(input_state_.overlapped.hEvent, this);
     break;
   case ERROR_PIPE_CONNECTED:
     waiting_connect_ = false;
@@ -236,7 +236,7 @@ bool Channel::ProcessConnection() {
 bool Channel::ProcessIncomingMessages() {
   DWORD bytes_read = 0;
 
-  MessageLoop::current()->WatchObject(input_state_.overlapped.hEvent, NULL);
+  input_state_.watcher.StopWatching();
 
   if (input_state_.is_pending) {
     input_state_.is_pending = false;
@@ -268,8 +268,8 @@ bool Channel::ProcessIncomingMessages() {
       if (!ok) {
         DWORD err = GetLastError();
         if (err == ERROR_IO_PENDING) {
-          MessageLoop::current()->WatchObject(input_state_.overlapped.hEvent,
-                                              this);
+          input_state_.watcher.StartWatching(
+              input_state_.overlapped.hEvent, this);
           input_state_.is_pending = true;
           return true;
         }
@@ -332,7 +332,7 @@ bool Channel::ProcessOutgoingMessages() {
   DWORD bytes_written;
 
   if (output_state_.is_pending) {
-    MessageLoop::current()->WatchObject(output_state_.overlapped.hEvent, NULL);
+    output_state_.watcher.StopWatching();
     output_state_.is_pending = false;
     BOOL ok = GetOverlappedResult(pipe_,
                                   &output_state_.overlapped,
@@ -361,8 +361,8 @@ bool Channel::ProcessOutgoingMessages() {
     if (!ok) {
       DWORD err = GetLastError();
       if (err == ERROR_IO_PENDING) {
-        MessageLoop::current()->WatchObject(output_state_.overlapped.hEvent,
-                                            this);
+        output_state_.watcher.StartWatching(
+            output_state_.overlapped.hEvent, this);
         output_state_.is_pending = true;
 
 #ifdef IPC_MESSAGE_DEBUG_EXTRA
@@ -387,42 +387,6 @@ bool Channel::ProcessOutgoingMessages() {
   }
 
   return true;
-}
-
-bool Channel::ProcessPendingMessages(DWORD max_wait_msec) {
-  return false;
-  // TODO(darin): this code is broken and leads to busy waiting
-#if 0
-  DCHECK(max_wait_msec <= 0x7FFFFFFF || max_wait_msec == INFINITE);
-
-  HANDLE events[] = {
-    input_state_.overlapped.hEvent,
-    output_state_.overlapped.hEvent
-  };
-  // Only deal with output messages if we have a connection on which to send
-  const int wait_count = waiting_connect_ ? 1 : 2;
-  DCHECK(wait_count <= _countof(events));
-
-  if (max_wait_msec) {
-    DWORD result = WaitForMultipleObjects(wait_count, events, FALSE,
-                                          max_wait_msec);
-    if (result == WAIT_TIMEOUT)
-      return true;
-  }
-
-  bool rv = true;
-  for (int i = 0; i < wait_count; ++i) {
-    if (WaitForSingleObject(events[i], 0) == WAIT_OBJECT_0) {
-      if (i == 0 && processing_incoming_) {
-        rv = false;
-        DLOG(WARNING) << "Would recurse into ProcessIncomingMessages";
-      } else {
-        OnObjectSignaled(events[i]);
-      }
-    }
-  }
-  return rv;
-#endif
 }
 
 void Channel::OnObjectSignaled(HANDLE object) {

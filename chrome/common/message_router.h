@@ -30,6 +30,7 @@
 #ifndef CHROME_COMMON_MESSAGE_ROUTER_H__
 #define CHROME_COMMON_MESSAGE_ROUTER_H__
 
+#include "base/id_map.h"
 #include "chrome/common/ipc_channel.h"
 
 // The MessageRouter handles all incoming messages sent to it by routing them

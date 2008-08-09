@@ -32,6 +32,7 @@
 #include "chrome/common/resource_dispatcher.h"
 
 #include "base/basictypes.h"
+#include "base/message_loop.h"
 #include "base/shared_memory.h"
 #include "base/string_util.h"
 #include "chrome/common/render_messages.h"

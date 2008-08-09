@@ -35,6 +35,7 @@
 #include <ctype.h>
 
 #include "base/logging.h"
+#include "base/message_loop.h"
 #include "chrome/common/net/dns.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/renderer/net/render_dns_queue.h"
