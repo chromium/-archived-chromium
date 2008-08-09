@@ -10,6 +10,20 @@
 // This test also crashes in debug due to an ASSERT. (see bug 1058654)
 V8 | KJS # DEFER : LayoutTests/editing/execCommand/copy-without-selection.html = FAIL | CRASH
 
+// Bug 1317563: Debug-only test failures following removal of font-metrics
+// hacks.  Possibly due to different fonts installed on that builder?
+V8 # LayoutTests/css1/font_properties/font_size.html = PASS | FAIL
+V8 # LayoutTests/css2.1/t1202-counter-09-b.html = PASS | FAIL
+V8 # LayoutTests/fast/block/float/float-avoidance.html = PASS | FAIL
+V8 # LayoutTests/fast/forms/button-sizes.html = PASS | FAIL
+V8 # LayoutTests/fast/lists/w3-list-styles.html = PASS | FAIL
+V8 # LayoutTests/fast/parser/entities-in-html.html = PASS | FAIL
+V8 # LayoutTests/fast/text/line-breaks.html = PASS | FAIL
+V8 # LayoutTests/svg/W3C-SVG-1.1/interact-cursor-01-f.svg = PASS | FAIL
+V8 # LayoutTests/tables/mozilla/bugs/bug27038-3.html = PASS | FAIL
+V8 # pending/svg/carto.net/window.svg = PASS | FAIL
+
+
 // -----------------------------------------------------------------
 // HANGING TESTS
 // -----------------------------------------------------------------
