@@ -32,7 +32,6 @@
 
 #include "base/lock.h"
 #include "base/message_loop.h"
-#include "base/object_watcher.h"
 #include "base/thread.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
@@ -40,7 +39,7 @@
 
 // A request job that handles reading file URLs
 class URLRequestFileJob : public URLRequestJob,
-                          public base::ObjectWatcher::Delegate {
+                          protected MessageLoop::Watcher {
  public:
   URLRequestFileJob(URLRequest* request);
   virtual ~URLRequestFileJob();
@@ -63,10 +62,13 @@ class URLRequestFileJob : public URLRequestJob,
   std::wstring file_path_;
 
  private:
+  // The net util test wants to run our FileURLToFilePath function.
+  FRIEND_TEST(NetUtilTest, FileURLConversion);
+
   void CloseHandles();
   void StartAsync();
 
-  // base::ObjectWatcher::Delegate implementation:
+  // MessageLoop::Watcher callback
   virtual void OnObjectSignaled(HANDLE object);
 
   // We use overlapped reads to ensure that reads from network file systems do
@@ -76,8 +78,6 @@ class URLRequestFileJob : public URLRequestJob,
   bool is_waiting_;  // true when waiting for overlapped result
   bool is_directory_;  // true when the file request is for a direcotry.
   bool is_not_found_;  // true when the file requested does not exist.
-
-  base::ObjectWatcher watcher_;
 
   // This lock ensure that the network_file_thread is not using the loop_ after
   // is has been set to NULL in Kill().
