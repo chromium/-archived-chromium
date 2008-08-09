@@ -29,15 +29,15 @@
 
 #include <string.h>
 
+#include "net/base/platform_mime_util.h"
+
 #include "base/registry.h"
 #include "base/string_util.h"
 
 namespace net {
 
-// Helper used by GetMimeTypeFromExtension() to lookup the
-// platform specific mappings. Declared in mime_util.cc
-bool GetPlatformMimeTypeFromExtension(const std::wstring& ext,
-                                      std::string* result) {
+bool PlatformMimeUtil::GetPlatformMimeTypeFromExtension(
+    const std::wstring& ext, std::string* result) const {
   // check windows registry for file extension's mime type (registry key
   // names are not case-sensitive).
   std::wstring value, key = L"." + ext;
@@ -46,12 +46,11 @@ bool GetPlatformMimeTypeFromExtension(const std::wstring& ext,
     *result = WideToUTF8(value);
     return true;
   }
-
   return false;
 }
 
-bool GetPreferredExtensionForMimeType(const std::string& mime_type,
-                                      std::wstring* ext) {
+bool PlatformMimeUtil::GetPreferredExtensionForMimeType(
+    const std::string& mime_type, std::wstring* ext) const {
   std::wstring key(L"MIME\\Database\\Content Type\\" + UTF8ToWide(mime_type));
   return RegKey(HKEY_CLASSES_ROOT, key.c_str()).ReadValue(L"Extension", ext);
 }
