@@ -889,6 +889,13 @@ void CustomFrameWindow::UpdateWindowTitle() {
   Window::UpdateWindowTitle();
 }
 
+void CustomFrameWindow::UpdateWindowIcon() {
+  // The icon will be re-validated during painting.
+  non_client_view_->SchedulePaint();
+  // Call the base class so that places like the Task Bar get updated.
+  Window::UpdateWindowIcon();
+}
+
 void CustomFrameWindow::EnableClose(bool enable) {
   non_client_view_->EnableClose(enable);
   // Make sure the SysMenu changes to reflect this change as well.

@@ -217,6 +217,7 @@ void BrowserView2::SelectedTabToolbarSizeChanged(bool is_animating) {
 
 void BrowserView2::UpdateTitleBar() {
   frame_->GetWindow()->UpdateWindowTitle();
+  frame_->GetWindow()->UpdateWindowIcon();
 }
 
 void BrowserView2::SetWindowTitle(const std::wstring& title) {
@@ -419,10 +420,8 @@ void BrowserView2::TabSelectedAt(TabContents* old_contents,
   if (BrowserList::GetLastActive() == browser_)
     new_contents->RestoreFocus();
 
-  /*
-  UpdateWindowTitle();
-  UpdateToolbar(true);
-  */
+  UpdateTitleBar();
+  // UpdateToolbar(true);
 
   UpdateUIForContents(new_contents);
 }
@@ -467,10 +466,13 @@ bool BrowserView2::ShouldShowWindowTitle() const {
 }
 
 SkBitmap BrowserView2::GetWindowIcon() {
-  SkBitmap favicon = browser_->GetCurrentPageIcon();
-  if (favicon.isNull())
-    return default_favicon_;
-  return favicon;
+  if (browser_->GetType() == BrowserType::APPLICATION) {
+    SkBitmap favicon = browser_->GetCurrentPageIcon();
+    if (favicon.isNull())
+      return default_favicon_;
+    return favicon;
+  }
+  return SkBitmap();
 }
 
 bool BrowserView2::ShouldShowWindowIcon() const {

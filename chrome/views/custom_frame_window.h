@@ -67,6 +67,7 @@ class CustomFrameWindow : public Window {
   virtual gfx::Size CalculateWindowSizeForClientSize(
       const gfx::Size& client_size) const;
   virtual void UpdateWindowTitle();
+  virtual void UpdateWindowIcon();
 
  protected:
   // Overridden from Window:

@@ -112,6 +112,9 @@ class Window : public HWNDViewContainer {
   // Tell the window to update its title from the delegate.
   virtual void UpdateWindowTitle();
 
+  // Tell the window to update its icon from the delegate.
+  virtual void UpdateWindowIcon();
+
   // The parent of this window.
   HWND owning_window() const { return owning_hwnd_; }
 

@@ -32,6 +32,7 @@
 #include "chrome/app/chrome_dll_resource.h"
 // TODO(beng): some day make this unfortunate dependency not exist.
 #include "chrome/browser/browser_list.h"
+#include "chrome/common/gfx/icon_util.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
@@ -180,6 +181,17 @@ void Window::UpdateWindowTitle() {
     window_title.assign(localized_text);
 
   SetWindowText(GetHWND(), window_title.c_str());
+}
+
+void Window::UpdateWindowIcon() {
+  SkBitmap icon = window_delegate_->GetWindowIcon();
+  if (!icon.isNull()) {
+    HICON windows_icon = IconUtil::CreateHICONFromSkBitmap(icon);
+    SendMessage(GetHWND(), WM_SETICON, ICON_SMALL,
+                reinterpret_cast<LPARAM>(windows_icon));
+    SendMessage(GetHWND(), WM_SETICON, ICON_BIG,
+                reinterpret_cast<LPARAM>(windows_icon));
+  }
 }
 
 // static
