@@ -141,6 +141,9 @@ void CALLBACK ObjectWatcher::DoneWaiting(void* param, BOOLEAN timed_out) {
   // Record that we ran this function.
   watch->did_signal = true;
 
+  // TODO(darin): This is just a test.
+  watch->set_priority(1000);
+
   // We rely on the locking in PostTask() to ensure that a memory barrier is
   // provided, which in turn ensures our change to did_signal can be observed
   // on the target thread.
