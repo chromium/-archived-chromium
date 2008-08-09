@@ -29,21 +29,26 @@
 
 #include "base/object_watcher.h"
 
+#include "base/histogram.h"
 #include "base/logging.h"
 
 namespace base {
 
+static int live_watches = 0;
+
 //-----------------------------------------------------------------------------
 
-struct ObjectWatcher::Watch : public Task {
+struct ObjectWatcher::Watch {
   ObjectWatcher* watcher;    // The associated ObjectWatcher instance
   HANDLE object;             // The object being watched
   HANDLE wait_object;        // Returned by RegisterWaitForSingleObject
-  MessageLoop* origin_loop;  // Used to get back to the origin thread
+  HANDLE origin_thread;
   Delegate* delegate;        // Delegate to notify when signaled
   bool did_signal;           // DoneWaiting was called
 
-  virtual void Run() {
+  TimeTicks signal_time;
+
+  void Run() {
     // The watcher may have already been torn down, in which case we need to
     // just get out of dodge.
     if (!watcher)
@@ -52,7 +57,20 @@ struct ObjectWatcher::Watch : public Task {
     DCHECK(did_signal);
     watcher->StopWatching();
 
+    TimeDelta delta = TimeTicks::Now() - signal_time;
+    HISTOGRAM_TIMES(L"ObjectWatcher_CallbackLatency", delta);
+
     delegate->OnObjectSignaled(object);
+  }
+
+  ~Watch() {
+    CloseHandle(origin_thread);
+  }
+
+  static void CALLBACK ReturnToOriginThread(ULONG_PTR param) {
+    Watch* self = reinterpret_cast<Watch*>(param);
+    self->Run();
+    delete self;
   }
 };
 
@@ -74,9 +92,11 @@ bool ObjectWatcher::StartWatching(HANDLE object, Delegate* delegate) {
   Watch* watch = new Watch;
   watch->watcher = this;
   watch->object = object;
-  watch->origin_loop = MessageLoop::current();
   watch->delegate = delegate;
   watch->did_signal = false;
+
+  watch->origin_thread =
+      OpenThread(THREAD_SET_CONTEXT, FALSE, GetCurrentThreadId());
 
   // Since our job is to just notice when an object is signaled and report the
   // result back to this thread, we can just run on a Windows wait thread.
@@ -91,6 +111,9 @@ bool ObjectWatcher::StartWatching(HANDLE object, Delegate* delegate) {
 
   watch_ = watch;
 
+  ++live_watches;
+  HISTOGRAM_COUNTS(L"ObjectWatcher_LiveWatches", live_watches);
+
   // We need to know if the current message loop is going away so we can
   // prevent the wait thread from trying to access a dead message loop.
   MessageLoop::current()->AddDestructionObserver(this);
@@ -101,8 +124,10 @@ bool ObjectWatcher::StopWatching() {
   if (!watch_)
     return false;
 
+  --live_watches;
+
   // Make sure ObjectWatcher is used in a single-threaded fashion.
-  DCHECK(watch_->origin_loop == MessageLoop::current());
+  DCHECK(GetThreadId(watch_->origin_thread) == GetCurrentThreadId());
   
   // If DoneWaiting is in progress, we wait for it to finish.  We know whether
   // DoneWaiting happened or not by inspecting the did_signal flag.
@@ -141,13 +166,10 @@ void CALLBACK ObjectWatcher::DoneWaiting(void* param, BOOLEAN timed_out) {
   // Record that we ran this function.
   watch->did_signal = true;
 
-  // TODO(darin): This is just a test.
-  watch->set_priority(1000);
+  watch->signal_time = TimeTicks::Now();
 
-  // We rely on the locking in PostTask() to ensure that a memory barrier is
-  // provided, which in turn ensures our change to did_signal can be observed
-  // on the target thread.
-  watch->origin_loop->PostTask(FROM_HERE, watch);
+  QueueUserAPC(Watch::ReturnToOriginThread, watch->origin_thread,
+      reinterpret_cast<ULONG_PTR>(watch));
 }
 
 void ObjectWatcher::WillDestroyCurrentMessageLoop() {
