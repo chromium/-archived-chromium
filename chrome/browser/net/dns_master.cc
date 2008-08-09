@@ -31,11 +31,8 @@
 
 #include "chrome/browser/net/dns_master.h"
 
-#include <map>
 #include <sstream>
-#include <string>
 
-#include "base/condition_variable.h"
 #include "base/histogram.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
