@@ -27,12 +27,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <hash_set>
-#include <string.h>
+#include <string>
 
 #include "net/base/mime_util.h"
 #include "net/base/platform_mime_util.h"
 
+#include "base/hash_tables.h"
 #include "base/logging.h"
 #include "base/singleton.h"
 #include "base/string_util.h"
@@ -71,7 +71,7 @@ private:
   // For faster lookup, keep hash sets.
   void InitializeMimeTypeMaps();
 
-  typedef stdext::hash_set<std::string> MimeMappings;
+  typedef base::hash_set<std::string> MimeMappings;
   MimeMappings image_map_;
   MimeMappings non_image_map_;
   MimeMappings javascript_map_;
@@ -124,7 +124,8 @@ static const char* FindMimeType(const MimeInfo* mappings,
     const char* extensions = mappings[i].extensions;
     for (;;) {
       size_t end_pos = strcspn(extensions, ",");
-      if (end_pos == ext_len && _strnicmp(extensions, ext, ext_len) == 0)
+      if (end_pos == ext_len &&
+          base::strncasecmp(extensions, ext, ext_len) == 0)
         return mappings[i].mime_type;
       extensions += end_pos;
       if (!*extensions)
@@ -168,6 +169,8 @@ bool MimeUtil::GetMimeTypeFromExtension(const wstring& ext,
 
 bool MimeUtil::GetMimeTypeFromFile(const wstring& file_path,
                                    string* result) const {
+  // TODO(ericroman): this doesn't work properly with paths like
+  // /home/foo/.ssh/known_hosts
   wstring::size_type dot = file_path.find_last_of('.');
   if (dot == wstring::npos)
     return false;

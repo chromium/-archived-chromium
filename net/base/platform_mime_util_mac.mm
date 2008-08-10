@@ -27,32 +27,24 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#import <Cocoa/Cocoa.h>
 #include <string>
 
 #include "net/base/platform_mime_util.h"
-
-#include "base/registry.h"
-#include "base/string_util.h"
+#include "base/notimplemented.h"
 
 namespace net {
 
 bool PlatformMimeUtil::GetPlatformMimeTypeFromExtension(
     const std::wstring& ext, std::string* result) const {
-  // check windows registry for file extension's mime type (registry key
-  // names are not case-sensitive).
-  std::wstring value, key = L"." + ext;
-  RegKey(HKEY_CLASSES_ROOT, key.c_str()).ReadValue(L"Content Type", &value);
-  if (!value.empty()) {
-    *result = WideToUTF8(value);
-    return true;
-  }
+  NOTIMPLEMENTED();
   return false;
 }
 
 bool PlatformMimeUtil::GetPreferredExtensionForMimeType(
     const std::string& mime_type, std::wstring* ext) const {
-  std::wstring key(L"MIME\\Database\\Content Type\\" + UTF8ToWide(mime_type));
-  return RegKey(HKEY_CLASSES_ROOT, key.c_str()).ReadValue(L"Extension", ext);
+  NOTIMPLEMENTED();
+  return false;
 }
 
 }  // namespace net

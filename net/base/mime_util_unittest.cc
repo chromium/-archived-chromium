@@ -68,6 +68,9 @@ TEST(MimeUtilTest, FileTest) {
   } tests[] = {
     { L"c:\\foo\\bar.css", "text/css", true },
     { L"c:\\blah", "", false },
+    { L"/usr/local/bin/mplayer", "", false },
+    { L"/home/foo/bar.css", "text/css", true },
+    { L"/blah.", "", false },
     { L"c:\\blah.", "", false },
   };
 
