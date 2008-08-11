@@ -851,9 +851,11 @@ void OpaqueNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
       std::max(0, GetHeight() - frame_->client_view()->GetY() -
           toolbar_bounds.bottom() + fudge - kWindowVerticalBorderBottomSize));
 
+  // Now the fudge inverts for app vs browser windows.
+  fudge = 1 - fudge;
   canvas->TileImageInt(*right, client_area_bounds.right(),
-                       client_area_bounds.y() + 1,
-                       right->width(), client_area_bounds.height() - 1);
+                       client_area_bounds.y() + fudge,
+                       right->width(), client_area_bounds.height() - fudge);
   canvas->DrawBitmapInt(*bottom_right, client_area_bounds.right(),
                         client_area_bounds.bottom());
   canvas->TileImageInt(*bottom, client_area_bounds.x(),
@@ -863,21 +865,23 @@ void OpaqueNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
                         client_area_bounds.x() - bottom_left->width(),
                         client_area_bounds.bottom());
   canvas->TileImageInt(*left, client_area_bounds.x() - left->width(),
-                       client_area_bounds.y() + 1,
-                       left->width(), client_area_bounds.height() - 1);
-  
+                       client_area_bounds.y() + fudge,
+                       left->width(), client_area_bounds.height() - fudge);
+
   if (frame_->window_delegate()->ShouldShowWindowTitle()) {
     SkBitmap app_top_left = resources()->app_top_left();
     SkBitmap app_top_center = resources()->app_top_center();
     SkBitmap app_top_right = resources()->app_top_right();
     canvas->DrawBitmapInt(app_top_left,
                           client_area_bounds.x() - app_top_left.width(),
-                          client_area_bounds.y() - app_top_left.height() + 1);
+                          client_area_bounds.y() - app_top_left.height() +
+                              fudge);
     canvas->TileImageInt(app_top_center, client_area_bounds.x(),
                          client_area_bounds.y() - app_top_center.height(),
                          client_area_bounds.width(), app_top_center.height());
     canvas->DrawBitmapInt(app_top_right, client_area_bounds.right(),
-                          client_area_bounds.y() - app_top_right.height() + 1);
+                          client_area_bounds.y() - app_top_right.height() +
+                              fudge);
   }
 }
 
