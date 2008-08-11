@@ -60,6 +60,7 @@
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "base/thread.h"
+#include "base/waitable_event.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/net_util.h"
 #include "net/base/upload_data.h"
@@ -330,16 +331,12 @@ class RequestProxy : public URLRequest::Delegate,
 class SyncRequestProxy : public RequestProxy {
  public:
   explicit SyncRequestProxy(ResourceLoaderBridge::SyncLoadResponse* result)
-      : event_(::CreateEvent(NULL, TRUE, FALSE, NULL)),
-        result_(result) {
+      : event_(true, false), result_(result) {
   }
 
-  virtual ~SyncRequestProxy() {
-    CloseHandle(event_);
-  }
-
-  HANDLE event() const {
-    return event_;
+  void WaitForCompletion() {
+    if (!event_.Wait())
+      NOTREACHED();
   }
 
   // --------------------------------------------------------------------------
@@ -361,12 +358,12 @@ class SyncRequestProxy : public RequestProxy {
 
   virtual void OnCompletedRequest(const URLRequestStatus& status) {
     result_->status = status;
-    ::SetEvent(event_);
+    event_.Signal();
   }
 
  private:
   ResourceLoaderBridge::SyncLoadResponse* result_;
-  HANDLE event_;
+  base::WaitableEvent event_;
 };
 
 //-----------------------------------------------------------------------------
@@ -452,10 +449,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
 
     proxy_->Start(NULL, params_.release());
 
-    HANDLE event = static_cast<SyncRequestProxy*>(proxy_)->event();
-
-    if (WaitForSingleObject(event, INFINITE) != WAIT_OBJECT_0)
-      NOTREACHED();
+    static_cast<SyncRequestProxy*>(proxy_)->WaitForCompletion();
   }
 
  private:
@@ -479,27 +473,22 @@ class CookieSetter : public base::RefCountedThreadSafe<CookieSetter> {
 
 class CookieGetter : public base::RefCountedThreadSafe<CookieGetter> {
  public:
-  CookieGetter()
-      : event_(::CreateEvent(NULL, FALSE, FALSE, NULL)) {
-  }
-
-  ~CookieGetter() {
-    CloseHandle(event_);
+  CookieGetter() : event_(false, false) {
   }
 
   void Get(const GURL& url) {
     result_ = request_context->cookie_store()->GetCookies(url);
-    SetEvent(event_);
+    event_.Signal();
   }
 
   std::string GetResult() {
-    if (WaitForSingleObject(event_, INFINITE) != WAIT_OBJECT_0)
+    if (!event_.Wait())
       NOTREACHED();
     return result_;
   }
 
  private:
-  HANDLE event_;
+  base::WaitableEvent event_;
   std::string result_;
 };
 
