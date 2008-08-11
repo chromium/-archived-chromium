@@ -41,6 +41,9 @@ typedef HANDLE MutexHandle;
 #include <mach/mach.h>
 #include <mach/mach_time.h>
 #include <mach-o/dyld.h>
+#endif
+
+#if defined(OS_POSIX)
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -73,17 +76,19 @@ LogLockingState lock_log_file = LOCK_LOG_FILE;
 LoggingDestination logging_destination = LOG_ONLY_TO_FILE;
 
 const int kMaxFilteredLogLevel = LOG_WARNING;
-char* log_filter_prefix = NULL;
+std::string* log_filter_prefix;
 
-// which log file to use? This is initialized by InitLogging or
+// Which log file to use? This is initialized by InitLogging or
 // will be lazily initialized to the default value when it is
 // first needed.
 #if defined(OS_WIN)
 typedef wchar_t PathChar;
+typedef std::wstring PathString;
 #else
 typedef char PathChar;
+typedef std::string PathString;
 #endif
-PathChar log_file_name[MAX_PATH] = { 0 };
+PathString* log_file_name = NULL;
 
 // this file is lazily opened and the handle may be NULL
 FileHandle log_file = NULL;
@@ -151,11 +156,11 @@ void CloseFile(FileHandle log) {
 #endif
 }
 
-void DeleteFilePath(PathChar* log_name) {
+void DeleteFilePath(const PathString& log_name) {
 #if defined(OS_WIN)
-  DeleteFile(log_name);
+  DeleteFile(log_name.c_str());
 #else
-  unlink(log_name);
+  unlink(log_name.c_str());
 #endif
 }
 
@@ -166,18 +171,27 @@ bool InitializeLogFileHandle() {
   if (log_file)
     return true;
 
+  if (!log_file_name) {
+    // Nobody has called InitLogging to specify a debug log file, so here we
+    // initialize the log file name to a default.
 #if defined(OS_WIN)
-  if (!log_file_name[0]) {
-    // nobody has called InitLogging to specify a debug log file, so here we
-    // initialize the log file name to the default
-    GetModuleFileName(NULL, log_file_name, MAX_PATH);
-    wchar_t* last_backslash = wcsrchr(log_file_name, '\\');
-    if (last_backslash)
-      last_backslash[1] = 0;      // name now ends with the backslash
-    wcscat_s(log_file_name, L"debug.log");
+    // On Windows we use the same path as the exe.
+    wchar_t module_name[MAX_PATH];
+    GetModuleFileName(NULL, module_name, MAX_PATH);
+    log_file_name = new std::wstring(module_name);
+    std::wstring::size_type last_backslash =
+        log_file_name->rfind('\\', log_file_name->size());
+    if (last_backslash != std::wstring::npos)
+      log_file_name->erase(last_backslash + 1);
+    *log_file_name += L"debug.log";
+#elif defined(OS_POSIX)
+    // On other platforms we just use the current directory.
+    log_file_name = new std::string("debug.log");
+#endif
   }
 
-  log_file = CreateFile(log_file_name, GENERIC_WRITE,
+#if defined(OS_WIN)
+  log_file = CreateFile(log_file_name->c_str(), GENERIC_WRITE,
                         FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
                         OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
   if (log_file == INVALID_HANDLE_VALUE || log_file == NULL) {
@@ -192,27 +206,9 @@ bool InitializeLogFileHandle() {
   }
   SetFilePointer(log_file, 0, 0, FILE_END);
 #elif defined(OS_POSIX)
-  if (!log_file_name[0]) {
-#if defined(OS_MACOSX)
-    // nobody has called InitLogging to specify a debug log file, so here we
-    // initialize the log file name to the default
-    uint32_t log_file_name_size = arraysize(log_file_name);
-    _NSGetExecutablePath(log_file_name, &log_file_name_size);
-    char* last_slash = strrchr(log_file_name, '/');
-    if (last_slash)
-      last_slash[1] = 0; // name now ends with the slash
-    strlcat(log_file_name, "debug.log", arraysize(log_file_name));    
-#endif
-  }
-  
-  log_file = fopen(log_file_name, "a");
-  if (log_file == NULL) {
-    // try the current directory 
-    log_file = fopen("debug.log", "a");
-    if (log_file == NULL) {
-      return false;
-    }
-  }
+  log_file = fopen(log_file_name->c_str(), "a");
+  if (log_file == NULL)
+    return false;
 #endif
   return true;
 }
@@ -221,7 +217,7 @@ void InitLogMutex() {
 #if defined(OS_WIN)
   if (!log_mutex) {
     // \ is not a legal character in mutex names so we replace \ with /
-    std::wstring safe_name(log_file_name);
+    std::wstring safe_name(*log_file_name);
     std::replace(safe_name.begin(), safe_name.end(), '\\', '/');
     std::wstring t(L"Global\\");
     t.append(safe_name);
@@ -251,13 +247,11 @@ void InitLogging(const PathChar* new_log_file, LoggingDestination logging_dest,
       logging_destination == LOG_ONLY_TO_SYSTEM_DEBUG_LOG)
     return;
 
-#if defined(OS_WIN)
-  wcscpy_s(log_file_name, MAX_PATH, new_log_file);
-#elif defined(OS_POSIX)
-  strlcpy(log_file_name, new_log_file, arraysize(log_file_name));
-#endif
+  if (!log_file_name)
+    log_file_name = new PathString();
+  *log_file_name = new_log_file;
   if (delete_old == DELETE_OLD_LOG_FILE)
-    DeleteFilePath(log_file_name);
+    DeleteFilePath(*log_file_name);
 
   if (lock_log_file == LOCK_LOG_FILE) {
     InitLogMutex();
@@ -278,19 +272,12 @@ int GetMinLogLevel() {
 
 void SetLogFilterPrefix(const char* filter)  {
   if (log_filter_prefix) {
-    delete[] log_filter_prefix;
+    delete log_filter_prefix;
     log_filter_prefix = NULL;
   }
 
-  if (filter) {
-    size_t size = strlen(filter)+1;
-    log_filter_prefix = new char[size];
-#if defined(OS_WIN)
-    strcpy_s(log_filter_prefix, size, filter);
-#elif defined(OS_POSIX)
-    strlcpy(log_filter_prefix, filter, size);
-#endif
-  }
+  if (filter)
+    log_filter_prefix = new std::string(filter);
 }
 
 void SetLogItems(bool enable_process_id, bool enable_thread_id,
@@ -421,8 +408,8 @@ LogMessage::~LogMessage() {
   str_newline.append("\r\n");
 
   if (log_filter_prefix && severity_ <= kMaxFilteredLogLevel &&
-      str_newline.compare(message_start_, strlen(log_filter_prefix),
-                          log_filter_prefix) != 0) {
+      str_newline.compare(message_start_, log_filter_prefix->size(),
+                          log_filter_prefix->data()) != 0) {
     return;
   }
 
