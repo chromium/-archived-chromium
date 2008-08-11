@@ -54,6 +54,12 @@ typedef void (*AtExitCallbackType)();
 // callbacks and singleton destructors will be called.
 
 class AtExitManager {
+ protected:
+  // This constructor will allow this instance of AtExitManager to be created
+  // even if on already exists.  This should only be used for testing!
+  // AtExitManagers are kept on a global stack, and it will be removed during
+  // destruction.  This allows you to shadow another AtExitManager.
+  AtExitManager(bool shadow);
  public:
   AtExitManager();
 
@@ -71,7 +77,7 @@ class AtExitManager {
 
  private:
   Lock lock_;
-  std::stack<base::AtExitCallbackType> atexit_queue_;
+  std::stack<base::AtExitCallbackType> stack_;
   DISALLOW_EVIL_CONSTRUCTORS(AtExitManager);
 };
 

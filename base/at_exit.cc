@@ -30,58 +30,63 @@
 #include "base/at_exit.h"
 #include "base/logging.h"
 
-namespace {
-
-std::stack<base::AtExitCallbackType>* g_atexit_queue = NULL;
-Lock* g_atexit_lock = NULL;
-
-void ProcessCallbacks() {
-  if (!g_atexit_queue)
-    return;
-  base::AtExitCallbackType func = NULL;
-  while(!g_atexit_queue->empty()) {
-    func = g_atexit_queue->top();
-    g_atexit_queue->pop();
-    if (func)
-      func();
-  }
-}
-
-}   // namespace
+// Keep a stack of registered AtExitManagers.  We always operate on the most
+// recent, and we should never have more than one outside of testing, when we
+// use the shadow version of the constructor.  We don't protect this for
+// thread-safe access, since it will only be modified in testing.
+static std::stack<base::AtExitManager*> g_managers;
 
 namespace base {
 
 AtExitManager::AtExitManager() {
-  DCHECK(NULL == g_atexit_queue);
-  DCHECK(NULL == g_atexit_lock);
-  g_atexit_lock = &lock_;
-  g_atexit_queue = &atexit_queue_;
+  DCHECK(g_managers.empty());
+  g_managers.push(this);
+}
+
+AtExitManager::AtExitManager(bool shadow) {
+  DCHECK(shadow || g_managers.empty());
+  g_managers.push(this);
 }
 
 AtExitManager::~AtExitManager() {
-  AutoLock lock(lock_);
-  ProcessCallbacks();
-  g_atexit_queue = NULL;
-  g_atexit_lock = NULL;
+  if (g_managers.empty()) {
+    NOTREACHED() << "Tried to ~AtExitManager without a AtExitManager";
+    return;
+  }
+  DCHECK(g_managers.top() == this);
+
+  ProcessCallbacksNow();
+  g_managers.pop();
 }
 
+// static
 void AtExitManager::RegisterCallback(AtExitCallbackType func) {
-  DCHECK(NULL != g_atexit_queue);
-  DCHECK(NULL != g_atexit_lock);
-  if (!g_atexit_lock)
+  if (g_managers.empty()) {
+    NOTREACHED() << "Tried to RegisterCallback without a AtExitManager";
     return;
-  AutoLock lock(*g_atexit_lock);
-  if (g_atexit_queue)
-    g_atexit_queue->push(func);
+  }
+
+  AtExitManager* manager = g_managers.top();
+  AutoLock lock(manager->lock_);
+  manager->stack_.push(func);
 }
 
+// static
 void AtExitManager::ProcessCallbacksNow() {
-  DCHECK(NULL != g_atexit_lock);
-  if (!g_atexit_lock)
+  if (g_managers.empty()) {
+    NOTREACHED() << "Tried to RegisterCallback without a AtExitManager";
     return;
-  AutoLock lock(*g_atexit_lock);
-  DCHECK(NULL != g_atexit_queue);
-  ProcessCallbacks();
+  }
+
+  AtExitManager* manager = g_managers.top();
+  AutoLock lock(manager->lock_);
+
+  while (!manager->stack_.empty()) {
+    base::AtExitCallbackType func = manager->stack_.top();
+    manager->stack_.pop();
+    if (func)
+      func();
+  }
 }
 
 }  // namespace base

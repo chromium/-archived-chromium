@@ -200,23 +200,6 @@ if env['PLATFORM'] == 'win32':
       ],
   )
 
-
-env_tests_dll = env_tests.Clone()
-env_tests_dll.Append(
-    CPPDEFINES = [
-        '_WINDLL',
-        'SINGLETON_UNITTEST_EXPORTS',
-    ],
-)
-dll = env_tests_dll.ChromeSharedLibrary(['singleton_dll_unittest.dll',
-                                   'singleton_dll_unittest.lib',
-                                   'singleton_dll_unittest.ilk',
-                                   'singleton_dll_unittest.pdb'],
-                                  ['singleton_dll_unittest.cc',
-                                   'build/singleton_dll_unittest.def'])
-i = env.Install('$TARGET_ROOT', dll[0])
-env.Alias('base', i)
-
 env_tests.ChromeTestProgram(['debug_message.exe',
                    'debug_message.ilk',
                    'debug_message.pdb'],
@@ -269,8 +252,6 @@ test_files = [
     'win_util_unittest.cc',
     'word_iterator_unittest.cc',
     'wmi_util_unittest.cc',
-
-    dll[1],
 ]
 
 if env['PLATFORM'] == 'win32':

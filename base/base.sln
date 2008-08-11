@@ -36,12 +36,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng", "..\third_party\li
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "..\third_party\zlib\zlib.vcproj", "{8423AF0D-4B88-4EBF-94E1-E4D00D00E21C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "singleton_dll_unittest", "build\singleton_unittest.vcproj", "{E457F2FB-4708-4001-9B1C-275D7BD7F2A8}"
-	ProjectSection(ProjectDependencies) = postProject
-		{1832A374-8A74-4F9E-B536-69A699B3E165} = {1832A374-8A74-4F9E-B536-69A699B3E165}
-		{8C27D792-2648-4F5E-9ED0-374276327308} = {8C27D792-2648-4F5E-9ED0-374276327308}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gtest", "..\testing\gtest.vcproj", "{BFE8E2A7-3B3B-43B0-A994-3058B852DB8B}"
 EndProject
 Global
