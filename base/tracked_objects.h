@@ -173,12 +173,7 @@ class Snapshot {
 
 class DataCollector {
  public:
-#if defined(__GNUC__)
-  // gcc won't compile with 'const Snapshot'.
   typedef std::vector<Snapshot> Collection;
-#else
-  typedef std::vector<const Snapshot> Collection;
-#endif
 
   // Construct with a list of how many threads should contribute.  This helps us
   // determine (in the async case) when we are done with all contributions.
