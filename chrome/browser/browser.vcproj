@@ -1410,6 +1410,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\views\hwnd_html_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\views\hwnd_html_view.h"
+				>
+			</File>
+			<File
 				RelativePath=".\views\importer_lock_view.cc"
 				>
 			</File>
