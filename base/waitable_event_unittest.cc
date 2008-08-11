@@ -27,59 +27,51 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "base/waitable_event.h"
-
-#include <windows.h>
-
-#include "base/logging.h"
 #include "base/time.h"
+#include "base/waitable_event.h"
+#include "testing/gtest/include/gtest/gtest.h"
 
-namespace base {
+using base::WaitableEvent;
 
-WaitableEvent::WaitableEvent(bool manual_reset, bool signaled)
-    : event_(CreateEvent(NULL, manual_reset, signaled, NULL)) {
-  // We're probably going to crash anyways if this is ever NULL, so we might as
-  // well make our stack reports more informative by crashing here.
-  CHECK(event_);
+namespace {
+typedef testing::Test WaitableEventTest;
 }
 
-WaitableEvent::~WaitableEvent() {
-  CloseHandle(event_);
+TEST(WaitableEventTest, ManualBasics) {
+  WaitableEvent event(true, false);
+
+  EXPECT_FALSE(event.IsSignaled());
+
+  event.Signal();
+  EXPECT_TRUE(event.IsSignaled());
+  EXPECT_TRUE(event.IsSignaled());
+
+  event.Reset();
+  EXPECT_FALSE(event.IsSignaled());
+  EXPECT_FALSE(event.TimedWait(TimeDelta::FromMilliseconds(10)));
+
+  event.Signal();
+  EXPECT_TRUE(event.Wait());
+  EXPECT_TRUE(event.TimedWait(TimeDelta::FromMilliseconds(10)));
 }
 
-void WaitableEvent::Reset() {
-  ResetEvent(event_);
-}
+TEST(WaitableEventTest, AutoBasics) {
+  WaitableEvent event(false, false);
 
-void WaitableEvent::Signal() {
-  SetEvent(event_);
-}
+  EXPECT_FALSE(event.IsSignaled());
 
-bool WaitableEvent::IsSignaled() {
-  return TimedWait(TimeDelta::FromMilliseconds(0));
-}
+  event.Signal();
+  EXPECT_TRUE(event.IsSignaled());
+  EXPECT_FALSE(event.IsSignaled());
 
-bool WaitableEvent::Wait() {
-  DWORD result = WaitForSingleObject(event_, INFINITE);
-  // It is most unexpected that this should ever fail.  Help consumers learn
-  // about it if it should ever fail.
-  DCHECK(result == WAIT_OBJECT_0) << "WaitForSingleObject failed";
-  return result == WAIT_OBJECT_0;
-}
+  event.Reset();
+  EXPECT_FALSE(event.IsSignaled());
+  EXPECT_FALSE(event.TimedWait(TimeDelta::FromMilliseconds(10)));
 
-bool WaitableEvent::TimedWait(const TimeDelta& max_time) {
-  int32 timeout = static_cast<int32>(max_time.InMilliseconds());
-  DWORD result = WaitForSingleObject(event_, timeout);
-  switch (result) {
-    case WAIT_OBJECT_0:
-      return true;
-    case WAIT_TIMEOUT:
-      return false;
-  }
-  // It is most unexpected that this should ever fail.  Help consumers learn
-  // about it if it should ever fail.
-  NOTREACHED() << "WaitForSingleObject failed";
-  return false;
-}
+  event.Signal();
+  EXPECT_TRUE(event.Wait());
+  EXPECT_FALSE(event.TimedWait(TimeDelta::FromMilliseconds(10)));
 
-}  // namespace base
+  event.Signal();
+  EXPECT_TRUE(event.TimedWait(TimeDelta::FromMilliseconds(10)));
+}

@@ -328,6 +328,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\waitable_event_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\watchdog_test.cc"
 				>
 			</File>

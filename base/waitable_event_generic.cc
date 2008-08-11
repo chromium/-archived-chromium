@@ -29,30 +29,35 @@
 
 #include "base/waitable_event.h"
 
-#include <windows.h>
-
-#include "base/logging.h"
-#include "base/time.h"
-
 namespace base {
 
 WaitableEvent::WaitableEvent(bool manual_reset, bool signaled)
-    : event_(CreateEvent(NULL, manual_reset, signaled, NULL)) {
-  // We're probably going to crash anyways if this is ever NULL, so we might as
-  // well make our stack reports more informative by crashing here.
-  CHECK(event_);
+    : lock_(),
+      cvar_(&lock_),
+      signaled_(signaled),
+      manual_reset_(manual_reset) {
 }
 
 WaitableEvent::~WaitableEvent() {
-  CloseHandle(event_);
+  // Members are destroyed in the reverse of their initialization order, so we
+  // should not have to worry about lock_ being destroyed before cvar_.
 }
 
 void WaitableEvent::Reset() {
-  ResetEvent(event_);
+  AutoLock locked(lock_);
+  signaled_ = false;
 }
 
 void WaitableEvent::Signal() {
-  SetEvent(event_);
+  AutoLock locked(lock_);
+  if (!signaled_) {
+    signaled_ = true;
+    if (manual_reset_) {
+      cvar_.Broadcast(); 
+    } else {
+      cvar_.Signal();
+    }
+  }
 }
 
 bool WaitableEvent::IsSignaled() {
@@ -60,26 +65,32 @@ bool WaitableEvent::IsSignaled() {
 }
 
 bool WaitableEvent::Wait() {
-  DWORD result = WaitForSingleObject(event_, INFINITE);
-  // It is most unexpected that this should ever fail.  Help consumers learn
-  // about it if it should ever fail.
-  DCHECK(result == WAIT_OBJECT_0) << "WaitForSingleObject failed";
-  return result == WAIT_OBJECT_0;
+  AutoLock locked(lock_);
+  while (!signaled_)
+    cvar_.Wait();
+  if (!manual_reset_)
+    signaled_ = false;
+  return true;
 }
 
 bool WaitableEvent::TimedWait(const TimeDelta& max_time) {
-  int32 timeout = static_cast<int32>(max_time.InMilliseconds());
-  DWORD result = WaitForSingleObject(event_, timeout);
-  switch (result) {
-    case WAIT_OBJECT_0:
-      return true;
-    case WAIT_TIMEOUT:
-      return false;
+  AutoLock locked(lock_);
+  // In case of spurious wake-ups, we need to adjust the amount of time that we
+  // spend sleeping.
+  TimeDelta total_time;
+  for (;;) {
+    TimeTicks start = TimeTicks::Now();
+    cvar_.TimedWait(max_time - total_time);
+    if (signaled_)
+      break;
+    total_time += TimeTicks::Now() - start;
+    if (total_time >= max_time)
+      break;
   }
-  // It is most unexpected that this should ever fail.  Help consumers learn
-  // about it if it should ever fail.
-  NOTREACHED() << "WaitForSingleObject failed";
-  return false;
+  bool result = signaled_;
+  if (!manual_reset_)
+    signaled_ = false;
+  return result;
 }
 
 }  // namespace base

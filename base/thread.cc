@@ -36,6 +36,7 @@
 #include "base/object_watcher.h"
 #include "base/ref_counted.h"
 #include "base/string_util.h"
+#include "base/waitable_event.h"
 #include "base/win_util.h"
 
 namespace {
@@ -46,15 +47,9 @@ namespace {
 class ThreadStartInfo : public base::RefCountedThreadSafe<ThreadStartInfo> {
  public:
   Thread* self;
-  HANDLE start_event;
+  base::WaitableEvent start_event;
 
-  explicit ThreadStartInfo(Thread* t)
-      : self(t),
-        start_event(CreateEvent(NULL, FALSE, FALSE, NULL)) {
-  }
-
-  ~ThreadStartInfo() {
-    CloseHandle(start_event);
+  explicit ThreadStartInfo(Thread* t) : self(t), start_event(false, false) {
   }
 };
 
@@ -170,7 +165,7 @@ bool Thread::StartWithStackSize(size_t stack_size) {
   }
 
   // Wait for the thread to start and initialize message_loop_
-  WaitForSingleObject(info->start_event, INFINITE);
+  info->start_event.Wait();
   return true;
 }
 
@@ -232,7 +227,7 @@ unsigned __stdcall Thread::ThreadFunc(void* param) {
     self->message_loop_ = &message_loop;
     SetThreadName(self->thread_name().c_str(), GetCurrentThreadId());
     message_loop.SetThreadName(self->thread_name());
-    SetEvent(info->start_event);
+    info->start_event.Signal();
   }
 
   // Let the thread do extra initialization.

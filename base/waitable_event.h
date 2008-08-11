@@ -30,11 +30,16 @@
 #ifndef BASE_WAITABLE_EVENT_H_
 #define BASE_WAITABLE_EVENT_H_
 
-#include "base/time.h"
+#include "base/basictypes.h"
 
 #if defined(OS_WIN)
 typedef void* HANDLE;
+#else
+#include "base/condition_variable.h"
+#include "base/lock.h"
 #endif
+
+class TimeDelta;
 
 namespace base {
 
@@ -71,7 +76,8 @@ class WaitableEvent {
   // to be woken up.
   void Signal();
 
-  // Returns true if the event is in the signaled state, else false.
+  // Returns true if the event is in the signaled state, else false.  If this
+  // is not a manual reset event, then this test will cause a reset.
   bool IsSignaled();
 
   // Wait indefinitely for the event to be signaled.  Returns true if the event
@@ -86,7 +92,14 @@ class WaitableEvent {
  private:
 #if defined(OS_WIN)
   HANDLE event_;
+#else
+  Lock lock_;  // Needs to be listed first so it will be constructed first.
+  ConditionVariable cvar_;
+  bool signaled_;
+  bool manual_reset_;
 #endif
+
+  DISALLOW_COPY_AND_ASSIGN(WaitableEvent);
 };
 
 }  // namespace base

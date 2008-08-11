@@ -137,6 +137,7 @@ if env['PLATFORM'] in ('darwin', 'linux2'):
       'lock_impl_posix.cc',
       'thread_posix.cc',
       'thread_local_storage_posix.cc',
+      'waitable_event_generic.cc',
   ])
 
 env.ChromeStaticLibrary('base', input_files)
@@ -249,6 +250,7 @@ test_files = [
     'time_unittest.cc',
     'timer_unittest.cc',
     'values_unittest.cc',
+    'waitable_event_unittest.cc',
     'win_util_unittest.cc',
     'word_iterator_unittest.cc',
     'wmi_util_unittest.cc',
