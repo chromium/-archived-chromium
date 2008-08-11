@@ -51,7 +51,6 @@ protected:
   }
 };
 
-/*
 // Automated UI test to open three tabs in a new window, and drag Tab-1 into
 // the position of Tab-2.
 TEST_F(TabDraggingTest, Tab1Tab2) {
@@ -157,7 +156,6 @@ TEST_F(TabDraggingTest, Tab1Tab2) {
 
 // Drag Tab-1 into the position of Tab-3. 
 TEST_F(TabDraggingTest, Tab1Tab3) {
-  /*
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
   scoped_ptr<WindowProxy> window(
@@ -263,4 +261,3 @@ TEST_F(TabDraggingTest, Tab1Tab3) {
   EXPECT_EQ(tab2_new_url.spec(), tab3_url.spec());
   EXPECT_EQ(tab3_new_url.spec(), tab1_url.spec());
 }
-*/
