@@ -168,13 +168,11 @@ V8 | KJS # DEFER : LayoutTests/http/tests/navigation/onload-navigation-iframe.ht
 V8 | KJS # DEFER : LayoutTests/fast/cookies/local-file-can-set-cookies.html = FAIL
 
 // Bug 865472, this should just need proper pixel test rebaselining.
+// Also skipped by Apple on Windows (rdar://5723191).
 V8 # LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
 
 // Bug 1235433, javascript can execute before stylesheets are completely loaded.
 V8 | KJS # DEFER : LayoutTests/http/tests/local/stylesheet-and-script-load-order.html = FAIL
-
-// Bug 1195064, dragging into a textarea is less-ideal as it used to be.
-V8 | KJS # DEFER : LayoutTests/fast/forms/drag-into-textarea.html = FAIL
 
 // Bug: 1143492
 // Window status should always return a string object
@@ -202,6 +200,7 @@ V8 | KJS # DEFER : LayoutTests/editing/selection/designmode-no-caret.html = FAIL
 V8 | KJS # DEFER : LayoutTests/editing/selection/move-begin-end.html = FAIL
 
 // Bug 845400 Miscellaneous layout issues under editing
+// Also skipped by Apple on Windows (rdar://5015941).
 V8 | KJS # DEFER : LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL
 
 // Bug 845400

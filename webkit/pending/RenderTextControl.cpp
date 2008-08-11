@@ -772,6 +772,7 @@ bool RenderTextControl::nodeAtPoint(const HitTestRequest& request, HitTestResult
         
         // Hit the inner text block.
         result.setInnerNode(m_innerText.get());
+        result.setInnerNonSharedNode(m_innerText.get());
         result.setLocalPoint(IntPoint(localPoint.x() - m_innerText->renderer()->xPos() - (m_innerBlock.get() ? m_innerBlock->renderer()->xPos() : 0),
                                       localPoint.y() - m_innerText->renderer()->yPos() - (m_innerBlock.get() ? m_innerBlock->renderer()->yPos() : 0)));
         
