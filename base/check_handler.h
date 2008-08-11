@@ -30,7 +30,9 @@
 #ifndef BASE_CHECK_HANDLER_H__
 #define BASE_CHECK_HANDLER_H__
 
+#if defined(OS_WIN)
 #include <windows.h>
+#endif
 
 #include "base/logging.h"
 
@@ -82,6 +84,8 @@
 // program control away from the code that caused the assertion and back
 // into the _except block.
 
+#if defined(OS_WIN)
+
 class CheckAssertHandler {
  public:
   // Installs the assert handler. The dtor will remove the handler.
@@ -108,5 +112,15 @@ class CheckAssertHandler {
     DWORD ecode = GetExceptionCode(); \
     EXPECT_EQ(CheckAssertHandler::seh_exception_code(), ecode); \
   }
+
+#else
+
+// SEH exceptions only make sense on windows, they're meaningless everywhere 
+// else.
+
+#define CHECK_HANDLER_BEGIN // no-op
+#define CHECK_HANDLER_END // no-op
+
+#endif
 
 #endif  // BASE_CHECK_HANDLER_H__
