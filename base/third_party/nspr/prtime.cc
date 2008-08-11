@@ -62,9 +62,22 @@
 * 3. prlong.h
 */
 
-#include <windows.h>
-#include <time.h>
 #include "base/third_party/nspr/prtime.h"
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
+#include <windows.h>
+#elif defined(OS_MACOSX)
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+#include <time.h>
+
+/* Implements the Unix localtime_r() function for windows */
+#if defined(OS_WIN)
+static void localtime_r(const time_t* secs, struct tm* time) {
+  (void) localtime_s(time, secs);
+}
+#endif
 
 /*
  *------------------------------------------------------------------------
@@ -79,6 +92,7 @@
 PRTime
 PR_ImplodeTime(const PRExplodedTime *exploded)
 {
+#if defined(OS_WIN)
    // Create the system struct representing our exploded time.
     SYSTEMTIME st = {0};
     FILETIME ft = {0};
@@ -108,6 +122,32 @@ PR_ImplodeTime(const PRExplodedTime *exploded)
     uli.QuadPart -= 116444736000000000i64; // from Windows epoch to NSPR epoch
     uli.QuadPart /= 10;  // from 100-nanosecond to microsecond
     return (PRTime)uli.QuadPart;
+#elif defined(OS_MACOSX)
+    // Create the system struct representing our exploded time.
+    CFGregorianDate gregorian_date;
+    gregorian_date.year = exploded->tm_year;
+    gregorian_date.month = exploded->tm_month + 1;
+    gregorian_date.day = exploded->tm_mday;
+    gregorian_date.hour = exploded->tm_hour;
+    gregorian_date.minute = exploded->tm_min;
+    gregorian_date.second = exploded->tm_sec;
+
+    // Compute |absolute_time| in seconds, correct for gmt and dst 
+    // (note the combined offset will be negative when we need to add it), then
+    // convert to microseconds which is what PRTime expects.
+    CFAbsoluteTime absolute_time = 
+        CFGregorianDateGetAbsoluteTime(gregorian_date, NULL);
+    PRTime result = static_cast<PRTime>(absolute_time);
+    result -= exploded->tm_params.tp_gmt_offset +
+              exploded->tm_params.tp_dst_offset;
+    result += kCFAbsoluteTimeIntervalSince1970;  // PRTime epoch is 1970
+    result *= 1000000L;  // Seconds to microseconds
+    result += exploded->tm_usec;
+    return result;
+#else
+    NOTREACHED();
+    memset(time, 0, sizeof(*time));
+#endif
 }
 
 /*
@@ -824,7 +864,7 @@ PR_ParseTimeString(
                    zone_offset for the date we are parsing is the same as
                    the zone offset on 00:00:00 2 Jan 1970 GMT. */
                 secs = 86400;
-                (void) localtime_s(&localTime, &secs);
+                localtime_r(&secs, &localTime);
                 zone_offset = localTime.tm_min
                               + 60 * localTime.tm_hour
                               + 1440 * (localTime.tm_mday - 2);

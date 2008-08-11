@@ -36,7 +36,11 @@
 
 namespace {
 
+#if COMPILER_MSVC
 const int64 kMicrosecondsPerSecond = 1000000i64;
+#else
+const int64 kMicrosecondsPerSecond = 1000000;
+#endif
 
 // time_t representation of 15th Oct 2007 12:45:00 PDT
 PRTime comparison_time_pdt = 1192477500 * kMicrosecondsPerSecond;
@@ -74,21 +78,28 @@ class PRTimeTest : public testing::Test {
 // Tests the PR_ParseTimeString nspr helper function for
 // a variety of time strings.
 TEST_F(PRTimeTest, ParseTimeTest1) {
-  //time_t current_time = 0;
-  PRTime current_time = 0;
+  time_t current_time = 0;
   time(&current_time);
 
+  const int BUFFER_SIZE = 64;
   tm local_time = {0};
-  localtime_s(&local_time,&current_time);
-
-  char time_buf[MAX_PATH] = {0};
+#if defined(OS_WIN)
+  localtime_s(&local_time, &current_time);
+#elif defined(OS_POSIX)
+  localtime_r(&current_time, &local_time);
+#endif
+  char time_buf[BUFFER_SIZE] = {0};
+#if defined(OS_WIN)
   asctime_s(time_buf, arraysize(time_buf), &local_time);
-  current_time *= PR_USEC_PER_SEC;
+#elif defined(OS_POSIX)
+  asctime_r(&local_time, time_buf);
+#endif
+  PRTime current_time64 = static_cast<PRTime>(current_time) * PR_USEC_PER_SEC;
 
   PRTime parsed_time = 0;
   PRStatus result = PR_ParseTimeString(time_buf, PR_FALSE, &parsed_time);
   EXPECT_EQ(PR_SUCCESS, result);
-  EXPECT_EQ(current_time,parsed_time);
+  EXPECT_EQ(current_time64, parsed_time);
 }
 
 TEST_F(PRTimeTest, ParseTimeTest2) {
