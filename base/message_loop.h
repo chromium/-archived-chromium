@@ -194,12 +194,6 @@ class MessageLoop {
   // from Dispatch.
   class Dispatcher {
    public:
-    // Define a macro for use in the PostTask() or PostDelayedTask()
-    // invocations.  The definition varies depending upon mode (DEBUG, etc.),
-    // but for now we'll just define it as an int.  In other modes it may
-    // encapsulate the file and line number of the source code where it is
-    // expanded.
-
     virtual ~Dispatcher() {}
     // Dispatches the event. If true is returned processing continues as
     // normal. If false is returned, the nested loop exits immediately.
