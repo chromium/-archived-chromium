@@ -46,17 +46,19 @@ template<class T>
 class IDMap {
  private:
   typedef base::hash_map<int32, T*> HashTable;
+  typedef typename HashTable::iterator iterator;
 
  public:
+  // support const iterators over the items
+  // Note, use iterator->first to get the ID, iterator->second to get the T*
+  typedef typename HashTable::const_iterator const_iterator;
+
   IDMap() : next_id_(1) {
   }
   IDMap(const IDMap& other) : next_id_(other.next_id_),
                                         data_(other.data_) {
   }
 
-  // support const iterators over the items
-  // Note, use iterator->first to get the ID, iterator->second to get the T*
-  typedef typename HashTable::const_iterator const_iterator;
   const_iterator begin() const {
     return data_.begin();
   }
@@ -83,7 +85,7 @@ class IDMap {
   }
 
   void Remove(int32 id) {
-    typename HashTable::iterator i = data_.find(id);
+    iterator i = data_.find(id);
     if (i == data_.end()) {
       NOTREACHED() << "Attempting to remove an item not in the list";
       return;
@@ -96,7 +98,7 @@ class IDMap {
   }
 
   T* Lookup(int32 id) const {
-    typename HashTable::const_iterator i = data_.find(id);
+    const_iterator i = data_.find(id);
     if (i == data_.end())
       return NULL;
     return i->second;
