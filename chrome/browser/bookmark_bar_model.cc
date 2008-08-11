@@ -107,8 +107,13 @@ BookmarkBarModel::BookmarkBarModel(Profile* profile)
       next_group_id_(HistoryService::kBookmarkBarID + 1),
       bookmark_bar_node_(NULL),
       other_node_(NULL) {
-  if (!profile) {
-    // Profile is NULL during testing.
+  // Notifications we want.
+  if (profile_)
+    NotificationService::current()->AddObserver(
+        this, NOTIFY_STARRED_FAVICON_CHANGED, Source<Profile>(profile_));
+
+  if (!profile || !profile_->GetHistoryService(Profile::EXPLICIT_ACCESS)) {
+    // Profile/HistoryService is NULL during testing.
     CreateBookmarkBarNode();
     CreateOtherBookmarksNode();
     AddRootChildren(NULL);
@@ -116,19 +121,11 @@ BookmarkBarModel::BookmarkBarModel(Profile* profile)
     return;
   }
 
-  // Notifications we want.
-  NotificationService::current()->AddObserver(
-      this, NOTIFY_STARRED_FAVICON_CHANGED, Source<Profile>(profile_));
-
-  // Request the entries from the database.
-  HistoryService* history_service =
-      profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
-  if (!history_service)
-    return;
-
   // Request the entries on the bookmark bar.
-  history_service->GetAllStarredEntries(&load_consumer_,
-      NewCallback(this, &BookmarkBarModel::OnGotStarredEntries));
+  profile_->GetHistoryService(Profile::EXPLICIT_ACCESS)->
+      GetAllStarredEntries(&load_consumer_,
+                           NewCallback(this,
+                                       &BookmarkBarModel::OnGotStarredEntries));
 }
 
 BookmarkBarModel::~BookmarkBarModel() {

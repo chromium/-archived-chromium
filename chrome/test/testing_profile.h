@@ -33,6 +33,7 @@
 #include "base/base_paths.h"
 #include "base/path_service.h"
 #include "base/file_util.h"
+#include "chrome/browser/bookmark_bar_model.h"
 #include "chrome/browser/browser_prefs.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
@@ -40,11 +41,15 @@
 
 class TestingProfile : public Profile {
  public:
-  TestingProfile() : start_time_(Time::Now()) {}
+  TestingProfile() : start_time_(Time::Now()), has_history_service_(false) {}
   virtual ~TestingProfile();
 
   // Creates the HistoryService. Normally there is no HistoryService.
   void CreateHistoryService();
+
+  // Creates the BookmkarBarModel. If not invoked the bookmark bar model is
+  // NULL.
+  void CreateBookmarkBarModel();
 
   virtual std::wstring GetPath() {
     return std::wstring();
@@ -64,8 +69,11 @@ class TestingProfile : public Profile {
   virtual HistoryService* GetHistoryService(ServiceAccessType access) {
     return history_service_.get();
   }
+  void set_has_history_service(bool has_history_service) {
+    has_history_service_ = has_history_service;
+  }
   virtual bool HasHistoryService() const {
-    return (history_service_.get() != NULL);
+    return (history_service_.get() != NULL || has_history_service_);
   }
   virtual WebDataService* GetWebDataService(ServiceAccessType access) {
     return NULL;
@@ -134,10 +142,10 @@ class TestingProfile : public Profile {
   virtual void MergeResourceBoolean(int message_id, bool* output_value) {
   }
   virtual bool HasBookmarkBarModel() {
-    return false;
+    return (bookmark_bar_model_.get() != NULL);
   }
   virtual BookmarkBarModel* GetBookmarkBarModel() {
-    return NULL;
+    return bookmark_bar_model_.get();
   }
   virtual bool Profile::IsSameProfile(Profile *p) {
     return this == p;
@@ -171,6 +179,13 @@ class TestingProfile : public Profile {
 
   // The history service. Only created if CreateHistoryService is invoked.
   scoped_refptr<HistoryService> history_service_;
+
+  // The BookmarkBarModel. Only created if CreateBookmarkBarModel is invoked.
+  scoped_ptr<BookmarkBarModel> bookmark_bar_model_;
+
+  // Do we have a history service? This defaults to the value of
+  // history_service, but can be explicitly set.
+  bool has_history_service_;
 };
 
 #endif  // CHROME_TEST_TESTING_PROFILE_H__

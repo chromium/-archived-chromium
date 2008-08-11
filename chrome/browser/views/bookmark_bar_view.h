@@ -52,6 +52,10 @@ class ButtonSeparatorView;
 struct DropInfo;
 }
 
+namespace ChromeViews {
+class MenuItemView;
+}
+
 // BookmarkBarView renders the BookmarkBarModel.  Each starred entry
 // on the BookmarkBar is rendered as a MenuButton. An additional
 // MenuButton aligned to the right allows the user to quickly see
@@ -143,8 +147,32 @@ class BookmarkBarView : public ChromeViews::View,
   void AnimationProgressed(const Animation* animation);
   void AnimationEnded(const Animation* animation);
 
+  // Returns the button at the specified index.
+  ChromeViews::TextButton* GetBookmarkButton(int index);
+
+  // Returns the button responsible for showing bookmarks in the other bookmark
+  // folder.
+  ChromeViews::TextButton* other_bookmarked_button() const {
+    return other_bookmarked_button_;
+  }
+
+  // Returns the active MenuItemView, or NULL if a menu isn't showing.
+  ChromeViews::MenuItemView* GetMenu();
+
+  // Returns the drop MenuItemView, or NULL if a menu isn't showing.
+  ChromeViews::MenuItemView* GetDropMenu();
+
+  // Returns the context menu, or null if one isn't showing.
+  ChromeViews::MenuItemView* GetContextMenu();
+
+  // Returns the button used when not all the items on the bookmark bar fit.
+  ChromeViews::TextButton* overflow_button() const { return overflow_button_; }
+
   // Maximum size of buttons on the bookmark bar.
   static const int kMaxButtonWidth;
+
+  // If true we're running tests. This short circuits a couple of animations.
+  static bool testing_;
 
  private:
   // Task that invokes ShowDropFolderForNode when run. ShowFolderDropMenuTask
@@ -191,9 +219,6 @@ class BookmarkBarView : public ChromeViews::View,
   // is equivalent to the number of children the bookmark bar node from the
   // bookmark bar model has.
   int GetBookmarkButtonCount();
-
-  // Returns the button at the specified index.
-  ChromeViews::TextButton* GetBookmarkButton(int index);
 
   // Invoked when the bookmark bar model has finished loading. Creates a button
   // for each of the children of the root node from the model.
@@ -404,7 +429,7 @@ class BookmarkBarView : public ChromeViews::View,
 
   ButtonSeparatorView* bookmarks_separator_view_;
 
-  // Owning browser.
+  // Owning browser. This is NULL duing testing.
   Browser* browser_;
 
   // Animation controlling showing and hiding of the bar.

@@ -237,6 +237,10 @@ class MenuItemView : public View {
   // before/after the menu item, otherwise it is on the item.
   static const int kDropBetweenPixels;
 
+  // If true SetNestableTasksAllowed(true) is invoked before MessageLoop::Run
+  // is invoked. This is only useful for testing and defaults to false.
+  static bool allow_task_nesting_during_run_;
+
   // Different types of menu items.
   enum Type {
     NORMAL,
@@ -388,7 +392,7 @@ class MenuItemView : public View {
   // Returns the root parent, or this if this has no parent.
   MenuItemView* GetRootMenuItem();
 
-  // Returs the mnemonic for this MenuItemView, or 0 if this MenuItemView
+  // Returns the mnemonic for this MenuItemView, or 0 if this MenuItemView
   // doesn't have a mnemonic.
   wchar_t GetMnemonic();
 

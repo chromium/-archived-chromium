@@ -70,7 +70,7 @@ MenuButton::MenuButton(const std::wstring& text,
                        bool show_menu_marker)
     : TextButton(text),
       menu_visible_(false),
-      menu_closed_time_(Time::Now()),
+      menu_closed_time_(),
       menu_delegate_(menu_delegate),
       show_menu_marker_(show_menu_marker) {
   if (kMenuMarker == NULL) {

@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_BOOKMARK_BAR_H__
-#define CHROME_BROWSER_BOOKMARK_BAR_H__
+#ifndef CHROME_BROWSER_BOOKMARK_BAR_MODEL_H_
+#define CHROME_BROWSER_BOOKMARK_BAR_MODEL_H_
 
 #include "base/observer_list.h"
 #include "chrome/browser/cancelable_request.h"
@@ -427,4 +427,4 @@ class BookmarkBarModel : public NotificationObserver {
   DISALLOW_EVIL_CONSTRUCTORS(BookmarkBarModel);
 };
 
-#endif  // CHROME_BROWSER_BOOKMARK_BAR_H__
+#endif  // CHROME_BROWSER_BOOKMARK_BAR_MODEL_H_

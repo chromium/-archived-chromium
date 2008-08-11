@@ -194,11 +194,27 @@
 				>
 			</File>
 			<File
+				RelativePath="..\ui\view_event_test_base.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\ui\view_event_test_base.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\net\url_request\url_request_test_job.cc"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\net\url_request\url_request_test_job.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="TestBookmarkBarView"
+			>
+			<File
+				RelativePath="..\..\browser\views\bookmark_bar_view_test.cc"
 				>
 			</File>
 		</Filter>

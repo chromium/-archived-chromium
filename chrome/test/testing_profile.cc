@@ -67,3 +67,7 @@ void TestingProfile::DestroyHistoryService() {
   MessageLoop::current()->PostTask(FROM_HERE, new MessageLoop::QuitTask);
   MessageLoop::current()->Run();
 }
+
+void TestingProfile::CreateBookmarkBarModel() {
+  bookmark_bar_model_.reset(new BookmarkBarModel(this));
+}

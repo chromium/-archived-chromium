@@ -1072,6 +1072,9 @@ const int MenuItemView::kMenuItemViewID = 1001;
 //  static
 const int MenuItemView::kDropBetweenPixels = 5;
 
+// static
+bool MenuItemView::allow_task_nesting_during_run_ = false;
+
 MenuItemView::MenuItemView(MenuDelegate* delegate) {
   DCHECK(delegate_);
   Init(NULL, 0, SUBMENU, delegate);
@@ -1571,7 +1574,15 @@ MenuItemView* MenuController::Run(HWND parent,
   DLOG(INFO) << " entering nested loop, depth=" << nested_depth;
 #endif
 
-  MessageLoop::current()->Run(this);
+  if (MenuItemView::allow_task_nesting_during_run_) {
+    bool did_allow_task_nesting =
+        MessageLoop::current()->NestableTasksAllowed();
+    MessageLoop::current()->SetNestableTasksAllowed(true);
+    MessageLoop::current()->Run(this);
+    MessageLoop::current()->SetNestableTasksAllowed(did_allow_task_nesting);
+  } else {
+    MessageLoop::current()->Run(this);
+  }
 
 #ifdef DEBUG_MENU
   nested_depth--;
