@@ -31,7 +31,9 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#if defined(OS_WIN)
 #include "base/win_util.h"
+#endif
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/gtest/include/gtest/gtest-spi.h"
 
@@ -45,12 +47,14 @@ bool ReturnsValidPath(int dir_type) {
   return result && !path.empty() && file_util::PathExists(path);
 }
 
+#if defined(OS_WIN)
 // Function to test DIR_LOCAL_APP_DATA_LOW on Windows XP. Make sure it fails.
 bool ReturnsInvalidPath(int dir_type) {
   std::wstring path;
   bool result = PathService::Get(base::DIR_LOCAL_APP_DATA_LOW, &path);
   return !result && path.empty();
 }
+#endif
 
 }  // namespace
 

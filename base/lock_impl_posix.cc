@@ -34,7 +34,14 @@
 #include "base/logging.h"
 
 LockImpl::LockImpl() {
-  int rv = pthread_mutex_init(&os_lock_, NULL);
+  pthread_mutexattr_t mta;
+  int rv = pthread_mutexattr_init(&mta);
+  DCHECK(rv == 0);
+  //rv = pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_RECURSIVE);
+  DCHECK(rv == 0);
+  rv = pthread_mutex_init(&os_lock_, &mta);
+  DCHECK(rv == 0);
+  rv = pthread_mutexattr_destroy(&mta);
   DCHECK(rv == 0);
 }
 

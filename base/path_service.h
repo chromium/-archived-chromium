@@ -90,6 +90,10 @@ class PathService {
   static void RegisterProvider(ProviderFunc provider,
                                int key_start,
                                int key_end);
+private:
+  static bool GetFromCache(int key, std::wstring* path);
+  static void AddToCache(int key, const std::wstring& path);
+  
 };
 
 #endif // BASE_PATH_SERVICE_H__

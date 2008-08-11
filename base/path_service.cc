@@ -121,6 +121,25 @@ PathData* path_data = new PathData();
 
 }  // namespace
 
+
+bool PathService::GetFromCache(int key, std::wstring* result) {
+  AutoLock scoped_lock(path_data->lock);
+  
+  // check for a cached version
+  PathMap::const_iterator it = path_data->cache.find(key);
+  if (it != path_data->cache.end()) {
+    *result = it->second;
+    return true;
+  }
+  return false;
+}
+
+void PathService::AddToCache(int key, const std::wstring& path) {
+  AutoLock scoped_lock(path_data->lock);
+  // Save the computed path in our cache.
+  path_data->cache[key] = path;
+}
+
 // TODO(brettw): this function does not handle long paths (filename > MAX_PATH)
 // characters). This isn't supported very well by Windows right now, so it is
 // moot, but we should keep this in mind for the future.
@@ -134,20 +153,14 @@ bool PathService::Get(int key, std::wstring* result) {
   if (key == base::DIR_CURRENT)
     return file_util::GetCurrentDirectory(result);
 
-  // TODO(darin): it would be nice to avoid holding this lock while calling out
-  // to the path providers.
-  AutoLock scoped_lock(path_data->lock);
-
-  // check for a cached version
-  PathMap::const_iterator it = path_data->cache.find(key);
-  if (it != path_data->cache.end()) {
-    *result = it->second;
+  if (GetFromCache(key, result))
     return true;
-  }
-
+  
   std::wstring path;
 
   // search providers for the requested path
+  // NOTE: it should be safe to iterate here without the lock
+  // since RegisterProvider always prepends.
   Provider* provider = path_data->providers;
   while (provider) {
     if (provider->func(key, &path))
@@ -159,9 +172,8 @@ bool PathService::Get(int key, std::wstring* result) {
   if (path.empty())
     return false;
 
-  // Save the computed path in our cache.
-  path_data->cache[key] = path;
-
+  AddToCache(key, path);
+  
   result->swap(path);
   return true;
 }
@@ -190,9 +202,9 @@ bool PathService::Override(int key, const std::wstring& path) {
   // TODO: refactor all of the path code throughout the project to use a
   // per-platform path type
   char file_path_buf[PATH_MAX];
-  if (!realpath(WideToNativeMB(path).c_str(), file_path_buf))
+  if (!realpath(WideToUTF8(path).c_str(), file_path_buf))
     return false;
-  std::wstring file_path(NativeMBToWide(file_path_buf));
+  std::wstring file_path(UTF8ToWide(file_path_buf));
 #endif
 
   // make sure the directory exists:
