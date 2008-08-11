@@ -158,20 +158,19 @@ bool Window::IsMinimized() const {
 
 void Window::EnableClose(bool enable) {
   EnableMenuItem(::GetSystemMenu(GetHWND(), false),
-                 SC_CLOSE,
-                 enable ? MF_ENABLED : MF_GRAYED);
+                 SC_CLOSE, enable ? MF_ENABLED : MF_GRAYED);
 
   // Let the window know the frame changed.
   SetWindowPos(NULL, 0, 0, 0, 0,
-               SWP_FRAMECHANGED |
-               SWP_NOACTIVATE |
-               SWP_NOCOPYBITS |
-               SWP_NOMOVE |
-               SWP_NOOWNERZORDER |
-               SWP_NOREPOSITION |
-               SWP_NOSENDCHANGING |
-               SWP_NOSIZE |
-               SWP_NOZORDER);
+               SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOCOPYBITS |
+                   SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOREPOSITION |
+                   SWP_NOSENDCHANGING | SWP_NOSIZE | SWP_NOZORDER);
+}
+
+void Window::DisableInactiveRendering(bool disable) {
+  disable_inactive_rendering_ = disable;
+  if (!disable_inactive_rendering_)
+    DefWindowProc(GetHWND(), WM_NCACTIVATE, FALSE, 0);
 }
 
 void Window::UpdateWindowTitle() {
@@ -275,7 +274,8 @@ Window::Window(WindowDelegate* window_delegate)
       is_modal_(false),
       restored_enabled_(false),
       is_always_on_top_(false),
-      window_closed_(false) {
+      window_closed_(false),
+      disable_inactive_rendering_(false) {
   InitClass();
   DCHECK(window_delegate_);
   window_delegate_->window_.reset(this);
@@ -366,6 +366,15 @@ void Window::OnDestroy() {
 LRESULT Window::OnEraseBkgnd(HDC dc) {
   SetMsgHandled(TRUE);
   return 1;
+}
+
+LRESULT Window::OnNCActivate(BOOL active) {
+  if (disable_inactive_rendering_) {
+    disable_inactive_rendering_ = false;
+    return DefWindowProc(GetHWND(), WM_NCACTIVATE, TRUE, 0);
+  }
+  // Otherwise just do the default thing.
+  return HWNDViewContainer::OnNCActivate(active);
 }
 
 LRESULT Window::OnNCHitTest(const CPoint& point) {

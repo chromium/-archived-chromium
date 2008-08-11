@@ -73,6 +73,7 @@ class CustomFrameWindow : public Window {
   // Overridden from Window:
   virtual void SizeWindowToDefault();
   virtual void EnableClose(bool enable);
+  virtual void DisableInactiveRendering(bool disable);
 
   // Overridden from HWNDViewContainer:
   virtual void OnInitMenu(HMENU menu);

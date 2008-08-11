@@ -274,7 +274,8 @@ class DefaultNonClientView : public NonClientView,
 
   // Returns the resource collection to be used when rendering the window.
   WindowResources* resources() const {
-    return container_->is_active() ? active_resources_ : inactive_resources_;
+    return container_->is_active() || paint_as_active() ? active_resources_
+                                                        : inactive_resources_;
   }
 
   // The View that provides the background for the window, and optionally
@@ -332,7 +333,8 @@ static const int kWindowVerticalBorderSize = 4;
 
 DefaultNonClientView::DefaultNonClientView(
     CustomFrameWindow* container)
-    : client_view_(NULL),
+    : NonClientView(),
+      client_view_(NULL),
       close_button_(new Button),
       restore_button_(new Button),
       maximize_button_(new Button),
@@ -900,6 +902,13 @@ void CustomFrameWindow::EnableClose(bool enable) {
   non_client_view_->EnableClose(enable);
   // Make sure the SysMenu changes to reflect this change as well.
   Window::EnableClose(enable);
+}
+
+void CustomFrameWindow::DisableInactiveRendering(bool disable) {
+  Window::DisableInactiveRendering(disable);
+  non_client_view_->set_paint_as_active(disable);
+  if (!disable)
+    non_client_view_->SchedulePaint();
 }
 
 void CustomFrameWindow::SizeWindowToDefault() {

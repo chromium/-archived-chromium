@@ -100,6 +100,13 @@ class Window : public HWNDViewContainer {
   // the system menu).
   virtual void EnableClose(bool enable);
 
+  // Prevents the window from being rendered as deactivated when |disable| is
+  // true, until called with |disable| false. Used when a sub-window is to be
+  // shown that shouldn't visually de-activate the window.
+  // Subclasses can override this to perform additional actions when this value
+  // changes.
+  virtual void DisableInactiveRendering(bool disable);
+
   WindowDelegate* window_delegate() const { return window_delegate_; }
 
   // Returns the ClientView object used by this Window.
@@ -173,6 +180,7 @@ class Window : public HWNDViewContainer {
   virtual void OnCommand(UINT notification_code, int command_id, HWND window);
   virtual void OnDestroy();
   virtual LRESULT OnEraseBkgnd(HDC dc);
+  virtual LRESULT OnNCActivate(BOOL active);
   virtual LRESULT OnNCHitTest(const CPoint& point);
   virtual LRESULT OnSetCursor(HWND window, UINT hittest_code, UINT message);
   virtual void OnSize(UINT size_param, const CSize& new_size);
@@ -183,6 +191,11 @@ class Window : public HWNDViewContainer {
   // the default, this class must be subclassed and this value set to the
   // desired implementation before calling |Init|.
   NonClientView* non_client_view_;
+
+  // Accessor for disable_inactive_rendering_.
+  bool disable_inactive_rendering() const {
+    return disable_inactive_rendering_;
+  }
 
  private:
   // Set the window as modal (by disabling all the other windows).
@@ -253,6 +266,10 @@ class Window : public HWNDViewContainer {
 
   // Set to true if the window is in the process of closing .
   bool window_closed_;
+
+  // True when the window should be rendered as active, regardless of whether
+  // or not it actually is.
+  bool disable_inactive_rendering_;
 
   DISALLOW_EVIL_CONSTRUCTORS(Window);
 };

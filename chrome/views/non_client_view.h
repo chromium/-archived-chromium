@@ -79,7 +79,15 @@ class NonClientView : public View {
   // the system menu).
   virtual void EnableClose(bool enable) = 0;
 
+  // Prevents the non-client view from rendering as inactive when called with
+  // |disable| true, until called with false.
+  void set_paint_as_active(bool paint_as_active) { 
+    paint_as_active_ = paint_as_active;
+  }
+
  protected:
+  NonClientView() : paint_as_active_(false) {}
+
   // Helper for non-client view implementations to determine which area of the
   // window border the specified |point| falls within. The other parameters are
   // the size of the sizing edges, and whether or not the window can be
@@ -89,6 +97,15 @@ class NonClientView : public View {
                              int resize_area_corner_size,
                              int top_resize_area_size,
                              bool can_resize);
+
+  // Accessor for paint_as_active_.
+  bool paint_as_active() const { return paint_as_active_; }
+
+ private:
+  // True when the non-client view should always be rendered as if the window
+  // were active, regardless of whether or not the top level window actually
+  // is active.
+  bool paint_as_active_;
 };
 
 }  // namespace ChromeViews
