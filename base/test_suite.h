@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_TEST_SUITE_H__
-#define BASE_TEST_SUITE_H__
+#ifndef BASE_TEST_SUITE_H_
+#define BASE_TEST_SUITE_H_
 
 // Defines a basic test suite framework for running gtest based tests.  You can
 // instantiate this class in your main function and call its Run method to run
@@ -105,7 +105,8 @@ class TestSuite {
                      SEM_NOGPFAULTERRORBOX |
                      SEM_NOOPENFILEERRORBOX;
 
-    // Preserve existing error mode, as discussed at http://t/dmea
+    // Preserve existing error mode, as discussed at
+    // http://blogs.msdn.com/oldnewthing/archive/2004/07/27/198410.aspx
     UINT existing_flags = SetErrorMode(new_flags);
     SetErrorMode(existing_flags | new_flags);
   }
@@ -130,4 +131,4 @@ class TestSuite {
 #endif
 };
 
-#endif  // BASE_TEST_SUITE_H__
+#endif  // BASE_TEST_SUITE_H_
