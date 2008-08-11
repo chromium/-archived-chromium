@@ -27,28 +27,22 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef NET_HTTP_HTTP_PROXY_RESOLVER_FIXED_H_
-#define NET_HTTP_HTTP_PROXY_RESOLVER_FIXED_H_
+#include "net/proxy/proxy_resolver_fixed.h"
 
-#include "net/http/http_proxy_service.h"
+#include "net/base/net_errors.h"
 
 namespace net {
 
-// Implementation of HttpProxyResolver that returns a fixed result.
-class HttpProxyResolverFixed : public HttpProxyResolver {
- public:
-  HttpProxyResolverFixed(const HttpProxyInfo& pi) { pi_.Use(pi); }
+int ProxyResolverFixed::GetProxyConfig(ProxyConfig* config) {
+  config->proxy_server = pi_.proxy_server();
+  return OK;
+}
 
-  // HttpProxyResolver methods:
-  virtual int GetProxyConfig(HttpProxyConfig* config);
-  virtual int GetProxyForURL(const std::wstring& query_url,
-                             const std::wstring& pac_url,
-                             HttpProxyInfo* results);
-
- private:
-  HttpProxyInfo pi_;
-};
+int ProxyResolverFixed::GetProxyForURL(const std::wstring& query_url,
+                                       const std::wstring& pac_url,
+                                       ProxyInfo* results) {
+  NOTREACHED() << "Should not be asked to do proxy auto config";
+  return ERR_FAILED;
+}
 
 }  // namespace net
-
-#endif  // NET_HTTP_HTTP_PROXY_RESOLVER_FIXED_H_

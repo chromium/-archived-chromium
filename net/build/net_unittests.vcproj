@@ -243,10 +243,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\http\http_proxy_service_unittest.cc"
-					>
-				</File>
-				<File
 					RelativePath="..\http\http_response_headers_unittest.cc"
 					>
 				</File>
@@ -372,6 +368,14 @@
 				</File>
 				<File
 					RelativePath="..\url_request\url_request_unittest.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="proxy"
+				>
+				<File
+					RelativePath="..\proxy\proxy_service_unittest.cc"
 					>
 				</File>
 			</Filter>

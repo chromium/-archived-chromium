@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef NET_HTTP_HTTP_PROXY_SERVICE_H__
-#define NET_HTTP_HTTP_PROXY_SERVICE_H__
+#ifndef NET_PROXY_PROXY_SERVICE_H_
+#define NET_PROXY_PROXY_SERVICE_H_
 
 #include <map>
 #include <vector>
@@ -46,18 +46,18 @@ class GURL;
 
 namespace net {
 
-class HttpProxyInfo;
-class HttpProxyResolver;
+class ProxyInfo;
+class ProxyResolver;
 
-// Proxy configuration used to by the HttpProxyService.
-class HttpProxyConfig {
+// Proxy configuration used to by the ProxyService.
+class ProxyConfig {
  public:
   typedef int ID;
 
   // Indicates an invalid proxy config.
   enum { INVALID_ID = 0 };
 
-  HttpProxyConfig();
+  ProxyConfig();
   // Default copy-constructor an assignment operator are OK!
 
   // Used to numerically identify this configuration.
@@ -78,7 +78,7 @@ class HttpProxyConfig {
   std::wstring proxy_bypass;
 
   // Returns true if the given config is equivalent to this config.
-  bool Equals(const HttpProxyConfig& other) const;
+  bool Equals(const ProxyConfig& other) const;
 
  private:
   static int last_id_;
@@ -86,7 +86,7 @@ class HttpProxyConfig {
 };
 
 // Contains the information about when to retry a proxy server.
-struct HttpProxyRetryInfo {
+struct ProxyRetryInfo {
   // We should not retry until this time.
   TimeTicks bad_until;
 
@@ -96,16 +96,16 @@ struct HttpProxyRetryInfo {
 };
 
 // Map of proxy servers with the associated RetryInfo structures.
-typedef std::map<std::wstring, HttpProxyRetryInfo> HttpProxyRetryInfoMap;
+typedef std::map<std::wstring, ProxyRetryInfo> ProxyRetryInfoMap;
 
 // This class can be used to resolve the proxy server to use when loading a
-// HTTP(S) URL.  It uses to the given HttpProxyResolver to handle the actual
-// proxy resolution.  See HttpProxyResolverWinHttp for example.  The consumer
-// of this class is responsible for ensuring that the HttpProxyResolver
-// instance remains valid for the lifetime of the HttpProxyService.
-class HttpProxyService {
+// HTTP(S) URL.  It uses to the given ProxyResolver to handle the actual proxy
+// resolution.  See ProxyResolverWinHttp for example.  The consumer of this
+// class is responsible for ensuring that the ProxyResolver instance remains
+// valid for the lifetime of the ProxyService.
+class ProxyService {
  public:
-  explicit HttpProxyService(HttpProxyResolver* resolver);
+  explicit ProxyService(ProxyResolver* resolver);
 
   // Used internally to handle PAC queries.
   class PacRequest;
@@ -128,7 +128,7 @@ class HttpProxyService {
   //   3.  WPAD auto-detection
   //
   int ResolveProxy(const GURL& url,
-                   HttpProxyInfo* results,
+                   ProxyInfo* results,
                    CompletionCallback* callback,
                    PacRequest** pac_request);
 
@@ -141,7 +141,7 @@ class HttpProxyService {
   // Returns ERR_FAILED if there is not another proxy config to try.
   //
   int ReconsiderProxyAfterError(const GURL& url,
-                                HttpProxyInfo* results,
+                                ProxyInfo* results,
                                 CompletionCallback* callback,
                                 PacRequest** pac_request);
 
@@ -151,11 +151,11 @@ class HttpProxyService {
  private:
   friend class PacRequest;
 
-  HttpProxyResolver* resolver() { return resolver_; }
+  ProxyResolver* resolver() { return resolver_; }
   Thread* pac_thread() { return pac_thread_.get(); }
 
   // Identifies the proxy configuration.
-  HttpProxyConfig::ID config_id() const { return config_.id(); }
+  ProxyConfig::ID config_id() const { return config_.id(); }
 
   // Checks to see if the proxy configuration changed, and then updates config_
   // to reference the new configuration.
@@ -173,12 +173,12 @@ class HttpProxyService {
   // 2. The URL matches one of the entities in the proxy bypass list.
   bool ShouldBypassProxyForURL(const GURL& url);
 
-  HttpProxyResolver* resolver_;
+  ProxyResolver* resolver_;
   scoped_ptr<Thread> pac_thread_;
 
   // We store the IE proxy config and a counter that is incremented each time
   // the config changes.
-  HttpProxyConfig config_;
+  ProxyConfig config_;
 
   // Indicates that the configuration is bad and should be ignored.
   bool config_is_bad_;
@@ -187,15 +187,15 @@ class HttpProxyService {
   TimeTicks config_last_update_time_;
 
   // Map of the known bad proxies and the information about the retry time.
-  HttpProxyRetryInfoMap http_proxy_retry_info_;
+  ProxyRetryInfoMap proxy_retry_info_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(HttpProxyService);
+  DISALLOW_COPY_AND_ASSIGN(ProxyService);
 };
 
 // This class is used to hold a list of proxies returned by GetProxyForUrl or
 // manually configured. It handles proxy fallback if multiple servers are
 // specified.
-class HttpProxyList {
+class ProxyList {
  public:
   // Initializes the proxy list to a string containing one or more proxy servers
   // delimited by a semicolon.
@@ -206,7 +206,7 @@ class HttpProxyList {
   void SetVector(const std::vector<std::wstring>& proxy_list);
 
   // Remove all proxies known to be bad from the proxy list.
-  void RemoveBadProxies(const HttpProxyRetryInfoMap& http_proxy_retry_info);
+  void RemoveBadProxies(const ProxyRetryInfoMap& proxy_retry_info);
 
   // Returns the first valid proxy server in the list.
   std::wstring Get() const;
@@ -214,10 +214,10 @@ class HttpProxyList {
   // Returns all the valid proxies, delimited by a semicolon.
   std::wstring GetList() const;
 
-  // Marks the current proxy server as bad and deletes it from the list.
-  // The list of known bad proxies is given by http_proxy_retry_info.
-  // Returns true if there is another server available in the list.
-  bool Fallback(HttpProxyRetryInfoMap* http_proxy_retry_info);
+  // Marks the current proxy server as bad and deletes it from the list.  The
+  // list of known bad proxies is given by proxy_retry_info.  Returns true if
+  // there is another server available in the list.
+  bool Fallback(ProxyRetryInfoMap* proxy_retry_info);
 
  private:
   // List of proxies.
@@ -225,12 +225,12 @@ class HttpProxyList {
 };
 
 // This object holds proxy information returned by ResolveProxy.
-class HttpProxyInfo {
+class ProxyInfo {
  public:
-  HttpProxyInfo();
+  ProxyInfo();
 
   // Use the same proxy server as the given |proxy_info|.
-  void Use(const HttpProxyInfo& proxy_info);
+  void Use(const ProxyInfo& proxy_info);
 
   // Use a direct connection.
   void UseDirect();
@@ -252,23 +252,23 @@ class HttpProxyInfo {
 
   // Marks the current proxy as bad. Returns true if there is another proxy
   // available to try in proxy list_.
-  bool Fallback(HttpProxyRetryInfoMap* http_proxy_retry_info) {
-    return proxy_list_.Fallback(http_proxy_retry_info);
+  bool Fallback(ProxyRetryInfoMap* proxy_retry_info) {
+    return proxy_list_.Fallback(proxy_retry_info);
   }
 
   // Remove all proxies known to be bad from the proxy list.
-  void RemoveBadProxies(const HttpProxyRetryInfoMap& http_proxy_retry_info) {
-    proxy_list_.RemoveBadProxies(http_proxy_retry_info);
+  void RemoveBadProxies(const ProxyRetryInfoMap& proxy_retry_info) {
+    proxy_list_.RemoveBadProxies(proxy_retry_info);
   }
 
  private:
-  friend class HttpProxyService;
+  friend class ProxyService;
 
   // If proxy_list_ is set to empty, then a "direct" connection is indicated.
-  HttpProxyList proxy_list_;
+  ProxyList proxy_list_;
 
   // This value identifies the proxy config used to initialize this object.
-  HttpProxyConfig::ID config_id_;
+  ProxyConfig::ID config_id_;
 
   // This flag is false when the proxy configuration was known to be bad when
   // this proxy info was initialized.  In such cases, we know that if this
@@ -276,28 +276,28 @@ class HttpProxyInfo {
   // the proxy config given by config_id_.
   bool config_was_tried_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(HttpProxyInfo);
+  DISALLOW_COPY_AND_ASSIGN(ProxyInfo);
 };
 
 // This interface provides the low-level functions to access the proxy
 // configuration and resolve proxies for given URLs synchronously.
-class HttpProxyResolver {
+class ProxyResolver {
  public:
-  virtual ~HttpProxyResolver() {}
+  virtual ~ProxyResolver() {}
 
   // Get the proxy configuration.  Returns OK if successful or an error code if
   // otherwise.  |config| should be in its initial state when this method is
   // called.
-  virtual int GetProxyConfig(HttpProxyConfig* config) = 0;
+  virtual int GetProxyConfig(ProxyConfig* config) = 0;
 
   // Query the proxy auto-config file (specified by |pac_url|) for the proxy to
   // use to load the given |query_url|.  Returns OK if successful or an error
   // code if otherwise.
   virtual int GetProxyForURL(const std::wstring& query_url,
                              const std::wstring& pac_url,
-                             HttpProxyInfo* results) = 0;
+                             ProxyInfo* results) = 0;
 };
 
 }  // namespace net
 
-#endif  // NET_HTTP_HTTP_PROXY_SERVICE_H__
+#endif  // NET_PROXY_PROXY_SERVICE_H_

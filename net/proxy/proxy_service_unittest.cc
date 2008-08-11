@@ -29,23 +29,23 @@
 
 #include "googleurl/src/gurl.h"
 #include "net/base/net_errors.h"
-#include "net/http/http_proxy_service.h"
+#include "net/proxy/proxy_service.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
 
-class MockProxyResolver : public net::HttpProxyResolver {
+class MockProxyResolver : public net::ProxyResolver {
  public:
   MockProxyResolver() : fail_get_proxy_for_url(false) {
-    config.reset(new net::HttpProxyConfig);
+    config.reset(new net::ProxyConfig);
   }
-  virtual int GetProxyConfig(net::HttpProxyConfig* results) {
+  virtual int GetProxyConfig(net::ProxyConfig* results) {
     *results = *(config.get());
     return net::OK;
   }
   virtual int GetProxyForURL(const std::wstring& query_url,
                              const std::wstring& pac_url,
-                             net::HttpProxyInfo* results) {
+                             net::ProxyInfo* results) {
     if (pac_url != config->pac_url)
       return net::ERR_INVALID_ARGUMENT;
     if (fail_get_proxy_for_url)
@@ -57,8 +57,8 @@ class MockProxyResolver : public net::HttpProxyResolver {
     }
     return net::OK;
   }
-  scoped_ptr<net::HttpProxyConfig> config;
-  net::HttpProxyInfo info;
+  scoped_ptr<net::ProxyConfig> config;
+  net::ProxyInfo info;
 
   // info is only returned if query_url in GetProxyForURL matches this:
   std::string info_predicate_query_host;
@@ -70,46 +70,46 @@ class MockProxyResolver : public net::HttpProxyResolver {
 
 }  // namespace
 
-TEST(HttpProxyServiceTest, Direct) {
+TEST(ProxyServiceTest, Direct) {
   MockProxyResolver resolver;
-  net::HttpProxyService service(&resolver);
+  net::ProxyService service(&resolver);
 
   GURL url("http://www.google.com/");
 
-  net::HttpProxyInfo info;
+  net::ProxyInfo info;
   int rv = service.ResolveProxy(url, &info, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
   EXPECT_TRUE(info.is_direct());
 }
 
-TEST(HttpProxyServiceTest, PAC) {
+TEST(ProxyServiceTest, PAC) {
   MockProxyResolver resolver;
   resolver.config->pac_url = L"http://foopy/proxy.pac";
   resolver.info.UseNamedProxy(L"foopy");
   resolver.info_predicate_query_host = "www.google.com";
 
-  net::HttpProxyService service(&resolver);
+  net::ProxyService service(&resolver);
 
   GURL url("http://www.google.com/");
 
-  net::HttpProxyInfo info;
+  net::ProxyInfo info;
   int rv = service.ResolveProxy(url, &info, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info.is_direct());
   EXPECT_EQ(info.proxy_server(), L"foopy");
 }
 
-TEST(HttpProxyServiceTest, PAC_FailoverToDirect) {
+TEST(ProxyServiceTest, PAC_FailoverToDirect) {
   MockProxyResolver resolver;
   resolver.config->pac_url = L"http://foopy/proxy.pac";
   resolver.info.UseNamedProxy(L"foopy:8080");
   resolver.info_predicate_query_host = "www.google.com";
 
-  net::HttpProxyService service(&resolver);
+  net::ProxyService service(&resolver);
 
   GURL url("http://www.google.com/");
 
-  net::HttpProxyInfo info;
+  net::ProxyInfo info;
   int rv = service.ResolveProxy(url, &info, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info.is_direct());
@@ -121,7 +121,7 @@ TEST(HttpProxyServiceTest, PAC_FailoverToDirect) {
   EXPECT_TRUE(info.is_direct());
 }
 
-TEST(HttpProxyServiceTest, PAC_FailsToDownload) {
+TEST(ProxyServiceTest, PAC_FailsToDownload) {
   // Test what happens when we fail to download the PAC URL.
 
   MockProxyResolver resolver;
@@ -130,10 +130,10 @@ TEST(HttpProxyServiceTest, PAC_FailsToDownload) {
   resolver.info_predicate_query_host = "www.google.com";
   resolver.fail_get_proxy_for_url = true;
 
-  net::HttpProxyService service(&resolver);
+  net::ProxyService service(&resolver);
 
   GURL url("http://www.google.com/");
-  net::HttpProxyInfo info;
+  net::ProxyInfo info;
   int rv = service.ResolveProxy(url, &info, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
   EXPECT_TRUE(info.is_direct());
@@ -153,7 +153,7 @@ TEST(HttpProxyServiceTest, PAC_FailsToDownload) {
   EXPECT_EQ(info.proxy_server(), L"foopy_valid:8080");
 }
 
-TEST(HttpProxyServiceTest, ProxyFallback) {
+TEST(ProxyServiceTest, ProxyFallback) {
   // Test what happens when we specify multiple proxy servers and some of them
   // are bad.
 
@@ -163,12 +163,12 @@ TEST(HttpProxyServiceTest, ProxyFallback) {
   resolver.info_predicate_query_host = "www.google.com";
   resolver.fail_get_proxy_for_url = false;
 
-  net::HttpProxyService service(&resolver);
+  net::ProxyService service(&resolver);
 
   GURL url("http://www.google.com/");
 
   // Get the proxy information.
-  net::HttpProxyInfo info;
+  net::ProxyInfo info;
   int rv = service.ResolveProxy(url, &info, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info.is_direct());
@@ -212,7 +212,7 @@ TEST(HttpProxyServiceTest, ProxyFallback) {
   // TODO(nsylvain): Test that the proxy can be retried after the delay.
 }
 
-TEST(HttpProxyServiceTest, ProxyFallback_NewSettings) {
+TEST(ProxyServiceTest, ProxyFallback_NewSettings) {
   // Test proxy failover when new settings are available.
 
   MockProxyResolver resolver;
@@ -221,12 +221,12 @@ TEST(HttpProxyServiceTest, ProxyFallback_NewSettings) {
   resolver.info_predicate_query_host = "www.google.com";
   resolver.fail_get_proxy_for_url = false;
 
-  net::HttpProxyService service(&resolver);
+  net::ProxyService service(&resolver);
 
   GURL url("http://www.google.com/");
 
   // Get the proxy information.
-  net::HttpProxyInfo info;
+  net::ProxyInfo info;
   int rv = service.ResolveProxy(url, &info, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info.is_direct());
@@ -235,7 +235,7 @@ TEST(HttpProxyServiceTest, ProxyFallback_NewSettings) {
   EXPECT_EQ(info.proxy_server(), L"foopy1:8080");
 
   // Fake an error on the proxy, and also a new configuration on the proxy.
-  resolver.config.reset(new net::HttpProxyConfig);
+  resolver.config.reset(new net::ProxyConfig);
   resolver.config->pac_url = L"http://foopy-new/proxy.pac";
 
   rv = service.ReconsiderProxyAfterError(url, &info, NULL, NULL);
@@ -250,7 +250,7 @@ TEST(HttpProxyServiceTest, ProxyFallback_NewSettings) {
   EXPECT_EQ(info.proxy_server(), L"foopy2:9090");
 
   // We simulate a new configuration.
-  resolver.config.reset(new net::HttpProxyConfig);
+  resolver.config.reset(new net::ProxyConfig);
   resolver.config->pac_url = L"http://foopy-new2/proxy.pac";
 
   // We fake anothe error. It should go back to the first proxy.
@@ -259,7 +259,7 @@ TEST(HttpProxyServiceTest, ProxyFallback_NewSettings) {
   EXPECT_EQ(info.proxy_server(), L"foopy1:8080");
 }
 
-TEST(HttpProxyServiceTest, ProxyFallback_BadConfig) {
+TEST(ProxyServiceTest, ProxyFallback_BadConfig) {
   // Test proxy failover when the configuration is bad.
 
   MockProxyResolver resolver;
@@ -268,12 +268,12 @@ TEST(HttpProxyServiceTest, ProxyFallback_BadConfig) {
   resolver.info_predicate_query_host = "www.google.com";
   resolver.fail_get_proxy_for_url = false;
 
-  net::HttpProxyService service(&resolver);
+  net::ProxyService service(&resolver);
 
   GURL url("http://www.google.com/");
 
   // Get the proxy information.
-  net::HttpProxyInfo info;
+  net::ProxyInfo info;
   int rv = service.ResolveProxy(url, &info, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info.is_direct());
@@ -290,7 +290,7 @@ TEST(HttpProxyServiceTest, ProxyFallback_BadConfig) {
   EXPECT_EQ(info.proxy_server(), L"foopy2:9090");
 
   // Fake a PAC failure.
-  net::HttpProxyInfo info2;
+  net::ProxyInfo info2;
   resolver.fail_get_proxy_for_url = true;
   rv = service.ResolveProxy(url, &info2, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
@@ -304,7 +304,7 @@ TEST(HttpProxyServiceTest, ProxyFallback_BadConfig) {
 
   // Try to resolve, it will still return "direct" because we have no reason
   // to check the config since everything works.
-  net::HttpProxyInfo info3;
+  net::ProxyInfo info3;
   rv = service.ResolveProxy(url, &info3, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
   EXPECT_TRUE(info3.is_direct());
@@ -320,7 +320,7 @@ TEST(HttpProxyServiceTest, ProxyFallback_BadConfig) {
   EXPECT_EQ(info3.proxy_server(), L"foopy1:8080");
 }
 
-TEST(HttpProxyServiceTest, ProxyBypassList) {
+TEST(ProxyServiceTest, ProxyBypassList) {
   // Test what happens when a proxy bypass list is specified.
 
   MockProxyResolver resolver;
@@ -328,79 +328,79 @@ TEST(HttpProxyServiceTest, ProxyBypassList) {
   resolver.config->auto_detect = false;
   resolver.config->proxy_bypass = L"<local>";
 
-  net::HttpProxyService service(&resolver);
+  net::ProxyService service(&resolver);
   GURL url("http://www.google.com/");
   // Get the proxy information.
-  net::HttpProxyInfo info;
+  net::ProxyInfo info;
   int rv = service.ResolveProxy(url, &info, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info.is_direct());
 
-  net::HttpProxyService service1(&resolver);
+  net::ProxyService service1(&resolver);
   GURL test_url1("local");
-  net::HttpProxyInfo info1;
+  net::ProxyInfo info1;
   rv = service1.ResolveProxy(test_url1, &info1, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
   EXPECT_TRUE(info1.is_direct());
 
   resolver.config->proxy_bypass = L"<local>;*.org";
-  net::HttpProxyService service2(&resolver);
+  net::ProxyService service2(&resolver);
   GURL test_url2("http://www.webkit.org");
-  net::HttpProxyInfo info2;
+  net::ProxyInfo info2;
   rv = service2.ResolveProxy(test_url2, &info2, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
   EXPECT_TRUE(info2.is_direct());
 
   resolver.config->proxy_bypass = L"<local>;*.org;7*";
-  net::HttpProxyService service3(&resolver);
+  net::ProxyService service3(&resolver);
   GURL test_url3("http://74.125.19.147");
-  net::HttpProxyInfo info3;
+  net::ProxyInfo info3;
   rv = service3.ResolveProxy(test_url3, &info3, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
   EXPECT_TRUE(info3.is_direct());
 
   resolver.config->proxy_bypass = L"<local>;*.org;";
-  net::HttpProxyService service4(&resolver);
+  net::ProxyService service4(&resolver);
   GURL test_url4("http://www.msn.com");
-  net::HttpProxyInfo info4;
+  net::ProxyInfo info4;
   rv = service4.ResolveProxy(test_url4, &info4, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info4.is_direct());
 }
 
-TEST(HttpProxyServiceTest, PerProtocolProxyTests) {
+TEST(ProxyServiceTest, PerProtocolProxyTests) {
   MockProxyResolver resolver;
   resolver.config->proxy_server = L"http=foopy1:8080;https=foopy2:8080";
   resolver.config->auto_detect = false;
 
-  net::HttpProxyService service1(&resolver);
+  net::ProxyService service1(&resolver);
   GURL test_url1("http://www.msn.com");
-  net::HttpProxyInfo info1;
+  net::ProxyInfo info1;
   int rv = service1.ResolveProxy(test_url1, &info1, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info1.is_direct());
   EXPECT_TRUE(info1.proxy_server() == L"foopy1:8080");
 
-  net::HttpProxyService service2(&resolver);
+  net::ProxyService service2(&resolver);
   GURL test_url2("ftp://ftp.google.com");
-  net::HttpProxyInfo info2;
+  net::ProxyInfo info2;
   rv = service2.ResolveProxy(test_url2, &info2, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
   EXPECT_TRUE(info2.is_direct());
   EXPECT_TRUE(info2.proxy_server() == L"");
 
-  net::HttpProxyService service3(&resolver);
+  net::ProxyService service3(&resolver);
   GURL test_url3("https://webbranch.techcu.com");
-  net::HttpProxyInfo info3;
+  net::ProxyInfo info3;
   rv = service3.ResolveProxy(test_url3, &info3, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info3.is_direct());
   EXPECT_TRUE(info3.proxy_server() == L"foopy2:8080");
 
   resolver.config->proxy_server = L"foopy1:8080";
-  net::HttpProxyService service4(&resolver);
+  net::ProxyService service4(&resolver);
   GURL test_url4("www.microsoft.com");
-  net::HttpProxyInfo info4;
+  net::ProxyInfo info4;
   rv = service4.ResolveProxy(test_url4, &info4, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info4.is_direct());

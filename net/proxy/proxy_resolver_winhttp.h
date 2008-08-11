@@ -27,27 +27,27 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef NET_HTTP_HTTP_PROXY_RESOLVER_WINHTTP_H__
-#define NET_HTTP_HTTP_PROXY_RESOLVER_WINHTTP_H__
+#ifndef NET_PROXY_PROXY_RESOLVER_WINHTTP_H_
+#define NET_PROXY_PROXY_RESOLVER_WINHTTP_H_
 
-#include "net/http/http_proxy_service.h"
+#include "net/proxy/proxy_service.h"
 
 typedef LPVOID HINTERNET;  // From winhttp.h
 
 namespace net {
 
-// An implementation of HttpProxyResolver that uses WinHTTP and the system
+// An implementation of ProxyResolver that uses WinHTTP and the system
 // proxy settings.
-class HttpProxyResolverWinHttp : public HttpProxyResolver {
+class ProxyResolverWinHttp : public ProxyResolver {
  public:
-  HttpProxyResolverWinHttp();
-  ~HttpProxyResolverWinHttp();
+  ProxyResolverWinHttp();
+  ~ProxyResolverWinHttp();
 
-  // HttpProxyResolver implementation:
-  virtual int GetProxyConfig(HttpProxyConfig* config);
+  // ProxyResolver implementation:
+  virtual int GetProxyConfig(ProxyConfig* config);
   virtual int GetProxyForURL(const std::wstring& query_url,
                              const std::wstring& pac_url,
-                             HttpProxyInfo* results);
+                             ProxyInfo* results);
 
  private:
    bool OpenWinHttpSession();
@@ -56,9 +56,9 @@ class HttpProxyResolverWinHttp : public HttpProxyResolver {
   // Proxy configuration is cached on the session handle.
   HINTERNET session_handle_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(HttpProxyResolverWinHttp);
+  DISALLOW_COPY_AND_ASSIGN(ProxyResolverWinHttp);
 };
 
 }  // namespace net
 
-#endif  // NET_HTTP_HTTP_PROXY_RESOLVER_WINHTTP_H__
+#endif  // NET_PROXY_PROXY_RESOLVER_WINHTTP_H_

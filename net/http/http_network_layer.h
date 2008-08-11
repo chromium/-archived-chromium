@@ -36,16 +36,16 @@
 namespace net {
 
 class HttpNetworkSession;
-class HttpProxyInfo;
+class ProxyInfo;
 
 class HttpNetworkLayer : public HttpTransactionFactory {
  public:
-  explicit HttpNetworkLayer(const HttpProxyInfo* pi);
+  explicit HttpNetworkLayer(const ProxyInfo* pi);
   ~HttpNetworkLayer();
 
   // This function hides the details of how a network layer gets instantiated
   // and allows other implementations to be substituted.
-  static HttpTransactionFactory* CreateFactory(const HttpProxyInfo* pi);
+  static HttpTransactionFactory* CreateFactory(const ProxyInfo* pi);
 
   // If value is true, then WinHTTP will be used.
   static void UseWinHttp(bool value);

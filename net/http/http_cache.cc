@@ -40,7 +40,6 @@
 #include "net/base/net_errors.h"
 #include "net/disk_cache/disk_cache.h"
 #include "net/http/http_network_layer.h"
-#include "net/http/http_proxy_service.h"
 #include "net/http/http_request_info.h"
 #include "net/http/http_response_info.h"
 #include "net/http/http_transaction.h"
@@ -940,7 +939,7 @@ void HttpCache::Transaction::OnCacheReadCompleted(int result) {
 
 //-----------------------------------------------------------------------------
 
-HttpCache::HttpCache(const HttpProxyInfo* proxy_info,
+HttpCache::HttpCache(const ProxyInfo* proxy_info,
                      const std::wstring& cache_dir,
                      int cache_size)
     : disk_cache_dir_(cache_dir),
@@ -951,7 +950,7 @@ HttpCache::HttpCache(const HttpProxyInfo* proxy_info,
       cache_size_(cache_size) {
 }
 
-HttpCache::HttpCache(const HttpProxyInfo* proxy_info, int cache_size)
+HttpCache::HttpCache(const ProxyInfo* proxy_info, int cache_size)
     : mode_(NORMAL),
       network_layer_(HttpNetworkLayer::CreateFactory(proxy_info)),
       task_factory_(this),

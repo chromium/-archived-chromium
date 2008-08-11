@@ -32,9 +32,9 @@
 #include "net/base/client_socket_factory.h"
 #include "net/http/http_network_session.h"
 #include "net/http/http_network_transaction.h"
-#include "net/http/http_proxy_resolver_fixed.h"
-#include "net/http/http_proxy_resolver_winhttp.h"
 #include "net/http/http_transaction_winhttp.h"
+#include "net/proxy/proxy_resolver_fixed.h"
+#include "net/proxy/proxy_resolver_winhttp.h"
 
 namespace net {
 
@@ -45,7 +45,7 @@ bool HttpNetworkLayer::use_winhttp_ = true;
 
 // static
 HttpTransactionFactory* HttpNetworkLayer::CreateFactory(
-    const HttpProxyInfo* pi) {
+    const ProxyInfo* pi) {
   if (use_winhttp_)
     return new HttpTransactionWinHttp::Factory(pi);
 
@@ -59,13 +59,13 @@ void HttpNetworkLayer::UseWinHttp(bool value) {
 
 //-----------------------------------------------------------------------------
 
-HttpNetworkLayer::HttpNetworkLayer(const HttpProxyInfo* pi)
+HttpNetworkLayer::HttpNetworkLayer(const ProxyInfo* pi)
     : suspended_(false) {
-  HttpProxyResolver* proxy_resolver;
+  ProxyResolver* proxy_resolver;
   if (pi) {
-    proxy_resolver = new HttpProxyResolverFixed(*pi);
+    proxy_resolver = new ProxyResolverFixed(*pi);
   } else {
-    proxy_resolver = new HttpProxyResolverWinHttp();
+    proxy_resolver = new ProxyResolverWinHttp();
   }
   session_ = new HttpNetworkSession(proxy_resolver);
 }

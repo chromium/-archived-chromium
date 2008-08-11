@@ -46,9 +46,9 @@
 #include "net/base/ssl_config_service.h"
 #include "net/base/upload_data_stream.h"
 #include "net/http/cert_status_cache.h"
-#include "net/http/http_proxy_resolver_winhttp.h"
 #include "net/http/http_request_info.h"
 #include "net/http/winhttp_request_throttle.h"
+#include "net/proxy/proxy_resolver_winhttp.h"
 
 #pragma comment(lib, "winhttp.lib")
 #pragma warning(disable: 4355)
@@ -221,7 +221,7 @@ class HttpTransactionWinHttp::Session
   // The message loop of the thread where the session was created.
   MessageLoop* message_loop() { return message_loop_; }
 
-  HttpProxyService* proxy_service() { return proxy_service_.get(); }
+  ProxyService* proxy_service() { return proxy_service_.get(); }
 
   // Gets the HTTP authentication cache for the session.
   AuthCache* auth_cache() { return &auth_cache_; }
@@ -265,8 +265,8 @@ class HttpTransactionWinHttp::Session
   HINTERNET internet_;
   HINTERNET internet_no_tls_;
   MessageLoop* message_loop_;
-  scoped_ptr<HttpProxyService> proxy_service_;
-  scoped_ptr<HttpProxyResolver> proxy_resolver_;
+  scoped_ptr<ProxyService> proxy_service_;
+  scoped_ptr<ProxyResolver> proxy_resolver_;
   AuthCache auth_cache_;
 
   // This event object is used when destroying a transaction.  It is given
@@ -353,8 +353,8 @@ bool HttpTransactionWinHttp::Session::Init() {
   if (!internet_)
     return false;
 
-  proxy_resolver_.reset(new HttpProxyResolverWinHttp());
-  proxy_service_.reset(new HttpProxyService(proxy_resolver_.get()));
+  proxy_resolver_.reset(new ProxyResolverWinHttp());
+  proxy_service_.reset(new ProxyService(proxy_resolver_.get()));
 
   ConfigureSSL();
 
@@ -789,7 +789,7 @@ void HttpTransactionWinHttp::Factory::Suspend(bool suspend) {
 // Transaction ----------------------------------------------------------------
 
 HttpTransactionWinHttp::HttpTransactionWinHttp(Session* session,
-                                               const HttpProxyInfo* info)
+                                               const ProxyInfo* info)
     : session_(session),
       request_(NULL),
       load_flags_(0),

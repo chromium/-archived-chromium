@@ -36,9 +36,9 @@
 #include "net/base/address_list.h"
 #include "net/base/client_socket_handle.h"
 #include "net/base/host_resolver.h"
-#include "net/http/http_proxy_service.h"
 #include "net/http/http_response_info.h"
 #include "net/http/http_transaction.h"
+#include "net/proxy/proxy_service.h"
 
 namespace net {
 
@@ -112,8 +112,8 @@ class HttpNetworkTransaction : public HttpTransaction {
   const HttpRequestInfo* request_;
   HttpResponseInfo response_;
 
-  HttpProxyService::PacRequest* pac_request_;
-  HttpProxyInfo proxy_info_;
+  ProxyService::PacRequest* pac_request_;
+  ProxyInfo proxy_info_;
 
   HostResolver resolver_;
   AddressList addresses_;

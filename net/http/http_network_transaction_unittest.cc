@@ -171,14 +171,14 @@ class MockClientSocketFactory : public net::ClientSocketFactory {
 
 MockClientSocketFactory mock_socket_factory;
 
-class NullProxyResolver : public net::HttpProxyResolver {
+class NullProxyResolver : public net::ProxyResolver {
  public:
-  virtual int GetProxyConfig(net::HttpProxyConfig* config) {
+  virtual int GetProxyConfig(net::ProxyConfig* config) {
     return net::ERR_FAILED;
   }
   virtual int GetProxyForURL(const std::wstring& query_url,
                              const std::wstring& pac_url,
-                             net::HttpProxyInfo* results) {
+                             net::ProxyInfo* results) {
     return net::ERR_FAILED;
   }
 };

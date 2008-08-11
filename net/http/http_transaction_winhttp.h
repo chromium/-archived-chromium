@@ -37,10 +37,10 @@
 
 #include "base/ref_counted.h"
 #include "net/base/completion_callback.h"
-#include "net/http/http_proxy_service.h"
 #include "net/http/http_response_info.h"
 #include "net/http/http_transaction.h"
 #include "net/http/http_transaction_factory.h"
+#include "net/proxy/proxy_service.h"
 
 namespace net {
 
@@ -54,10 +54,10 @@ class HttpTransactionWinHttp : public HttpTransaction {
   class Factory : public HttpTransactionFactory {
    public:
     Factory() : session_(NULL), proxy_info_(NULL), is_suspended_(false) {}
-    explicit Factory(const HttpProxyInfo* info)
+    explicit Factory(const ProxyInfo* info)
         : session_(NULL), proxy_info_(NULL), is_suspended_(false) {
       if (info) {
-        proxy_info_.reset(new HttpProxyInfo());
+        proxy_info_.reset(new ProxyInfo());
         proxy_info_->Use(*info);
       }
     }
@@ -70,7 +70,7 @@ class HttpTransactionWinHttp : public HttpTransaction {
 
    private:
     Session* session_;
-    scoped_ptr<HttpProxyInfo> proxy_info_;
+    scoped_ptr<ProxyInfo> proxy_info_;
     bool is_suspended_;
     DISALLOW_EVIL_CONSTRUCTORS(Factory);
   };
@@ -104,7 +104,7 @@ class HttpTransactionWinHttp : public HttpTransaction {
 
   // Methods ------------------------------------------------------------------
 
-  HttpTransactionWinHttp(Session* session, const HttpProxyInfo* info);
+  HttpTransactionWinHttp(Session* session, const ProxyInfo* info);
   ~HttpTransactionWinHttp();
 
   void DoCallback(int rv);
@@ -163,8 +163,8 @@ class HttpTransactionWinHttp : public HttpTransaction {
   // WinHttp (see bug 1063336).
   int64 content_length_remaining_;
 
-  HttpProxyInfo proxy_info_;
-  HttpProxyService::PacRequest* pac_request_;
+  ProxyInfo proxy_info_;
+  ProxyService::PacRequest* pac_request_;
   CompletionCallbackImpl<HttpTransactionWinHttp> proxy_callback_;
 
   HttpResponseInfo response_;

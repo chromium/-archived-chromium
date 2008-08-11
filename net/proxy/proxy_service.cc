@@ -27,7 +27,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "net/http/http_proxy_service.h"
+#include "net/proxy/proxy_service.h"
 
 #include <windows.h>
 #include <winhttp.h>
@@ -42,17 +42,17 @@
 
 namespace net {
 
-// HttpProxyConfig ------------------------------------------------------------
+// ProxyConfig ----------------------------------------------------------------
 
 // static
-HttpProxyConfig::ID HttpProxyConfig::last_id_ = HttpProxyConfig::INVALID_ID;
+ProxyConfig::ID ProxyConfig::last_id_ = ProxyConfig::INVALID_ID;
 
-HttpProxyConfig::HttpProxyConfig()
+ProxyConfig::ProxyConfig()
     : auto_detect(false),
       id_(++last_id_) {
 }
 
-bool HttpProxyConfig::Equals(const HttpProxyConfig& other) const {
+bool ProxyConfig::Equals(const ProxyConfig& other) const {
   // The two configs can have different IDs.  We are just interested in if they
   // have the same settings.
   return auto_detect == other.auto_detect &&
@@ -61,8 +61,8 @@ bool HttpProxyConfig::Equals(const HttpProxyConfig& other) const {
          proxy_bypass == other.proxy_bypass;
 }
 
-// HttpProxyList --------------------------------------------------------------
-void HttpProxyList::SetVector(const std::vector<std::wstring>& proxies) {
+// ProxyList ------------------------------------------------------------------
+void ProxyList::SetVector(const std::vector<std::wstring>& proxies) {
   proxies_.clear();
   std::vector<std::wstring>::const_iterator iter = proxies.begin();
   for (; iter != proxies.end(); ++iter) {
@@ -72,21 +72,20 @@ void HttpProxyList::SetVector(const std::vector<std::wstring>& proxies) {
   }
 }
 
-void HttpProxyList::Set(const std::wstring& proxy_list) {
+void ProxyList::Set(const std::wstring& proxy_list) {
   // Extract the different proxies from the list.
   std::vector<std::wstring> proxies;
   SplitString(proxy_list, L';', &proxies);
   SetVector(proxies);
 }
 
-void HttpProxyList::RemoveBadProxies(const HttpProxyRetryInfoMap&
-                                         http_proxy_retry_info) {
+void ProxyList::RemoveBadProxies(const ProxyRetryInfoMap& proxy_retry_info) {
   std::vector<std::wstring> new_proxy_list;
   std::vector<std::wstring>::const_iterator iter = proxies_.begin();
   for (; iter != proxies_.end(); ++iter) {
-    HttpProxyRetryInfoMap::const_iterator bad_proxy =
-        http_proxy_retry_info.find(*iter);
-    if (bad_proxy != http_proxy_retry_info.end()) {
+    ProxyRetryInfoMap::const_iterator bad_proxy =
+        proxy_retry_info.find(*iter);
+    if (bad_proxy != proxy_retry_info.end()) {
       // This proxy is bad. Check if it's time to retry.
       if (bad_proxy->second.bad_until >= TimeTicks::Now()) {
         // still invalid.
@@ -99,14 +98,14 @@ void HttpProxyList::RemoveBadProxies(const HttpProxyRetryInfoMap&
   proxies_ = new_proxy_list;
 }
 
-std::wstring HttpProxyList::Get() const {
+std::wstring ProxyList::Get() const {
   if (!proxies_.empty())
     return proxies_[0];
 
   return std::wstring();
 }
 
-std::wstring HttpProxyList::GetList() const {
+std::wstring ProxyList::GetList() const {
   std::wstring proxy_list;
   std::vector<std::wstring>::const_iterator iter = proxies_.begin();
   for (; iter != proxies_.end(); ++iter) {
@@ -119,7 +118,7 @@ std::wstring HttpProxyList::GetList() const {
   return proxy_list;
 }
 
-bool HttpProxyList::Fallback(HttpProxyRetryInfoMap* http_proxy_retry_info) {
+bool ProxyList::Fallback(ProxyRetryInfoMap* proxy_retry_info) {
   // Number of minutes to wait before retrying a bad proxy server.
   const TimeDelta kProxyRetryDelay = TimeDelta::FromMinutes(5);
 
@@ -129,17 +128,16 @@ bool HttpProxyList::Fallback(HttpProxyRetryInfoMap* http_proxy_retry_info) {
   }
 
   // Mark this proxy as bad.
-  HttpProxyRetryInfoMap::iterator iter =
-      http_proxy_retry_info->find(proxies_[0]);
-  if (iter != http_proxy_retry_info->end()) {
+  ProxyRetryInfoMap::iterator iter = proxy_retry_info->find(proxies_[0]);
+  if (iter != proxy_retry_info->end()) {
     // TODO(nsylvain): This is not the first time we get this. We should
     // double the retry time. Bug 997660.
     iter->second.bad_until = TimeTicks::Now() + iter->second.current_delay;
   } else {
-    HttpProxyRetryInfo retry_info;
+    ProxyRetryInfo retry_info;
     retry_info.current_delay = kProxyRetryDelay;
     retry_info.bad_until = TimeTicks().Now() + retry_info.current_delay;
-    (*http_proxy_retry_info)[proxies_[0]] = retry_info;
+    (*proxy_retry_info)[proxies_[0]] = retry_info;
   }
 
   // Remove this proxy from our list.
@@ -148,26 +146,26 @@ bool HttpProxyList::Fallback(HttpProxyRetryInfoMap* http_proxy_retry_info) {
   return !proxies_.empty();
 }
 
-// HttpProxyInfo --------------------------------------------------------------
+// ProxyInfo ------------------------------------------------------------------
 
-HttpProxyInfo::HttpProxyInfo()
-    : config_id_(HttpProxyConfig::INVALID_ID),
+ProxyInfo::ProxyInfo()
+    : config_id_(ProxyConfig::INVALID_ID),
       config_was_tried_(false) {
 }
 
-void HttpProxyInfo::Use(const HttpProxyInfo& other) {
+void ProxyInfo::Use(const ProxyInfo& other) {
   proxy_list_ = other.proxy_list_;
 }
 
-void HttpProxyInfo::UseDirect() {
+void ProxyInfo::UseDirect() {
   proxy_list_.Set(std::wstring());
 }
 
-void HttpProxyInfo::UseNamedProxy(const std::wstring& proxy_server) {
+void ProxyInfo::UseNamedProxy(const std::wstring& proxy_server) {
   proxy_list_.Set(proxy_server);
 }
 
-void HttpProxyInfo::Apply(HINTERNET request_handle) {
+void ProxyInfo::Apply(HINTERNET request_handle) {
   WINHTTP_PROXY_INFO pi;
   std::wstring proxy;  // We need to declare this variable here because
                        // lpszProxy needs to be valid in WinHttpSetOption.
@@ -185,15 +183,15 @@ void HttpProxyInfo::Apply(HINTERNET request_handle) {
   WinHttpSetOption(request_handle, WINHTTP_OPTION_PROXY, &pi, sizeof(pi));
 }
 
-// HttpProxyService::PacRequest -----------------------------------------------
+// ProxyService::PacRequest ---------------------------------------------------
 
 // We rely on the fact that the origin thread (and its message loop) will not
 // be destroyed until after the PAC thread is destroyed.
 
-class HttpProxyService::PacRequest :
-    public base::RefCountedThreadSafe<HttpProxyService::PacRequest> {
+class ProxyService::PacRequest :
+    public base::RefCountedThreadSafe<ProxyService::PacRequest> {
  public:
-  PacRequest(HttpProxyService* service,
+  PacRequest(ProxyService* service,
              const std::wstring& pac_url,
              CompletionCallback* callback)
       : service_(service),
@@ -207,17 +205,14 @@ class HttpProxyService::PacRequest :
       origin_loop_ = MessageLoop::current();
   }
 
-  void Query(const std::wstring& url, HttpProxyInfo* results) {
+  void Query(const std::wstring& url, ProxyInfo* results) {
     results_ = results;
     // If we have a valid callback then execute Query asynchronously
     if (callback_) {
       AddRef();  // balanced in QueryComplete
       service_->pac_thread()->message_loop()->PostTask(FROM_HERE,
-          NewRunnableMethod(this,
-                            &HttpProxyService::PacRequest::DoQuery,
-                            service_->resolver(),
-                            url,
-                            pac_url_));
+          NewRunnableMethod(this, &ProxyService::PacRequest::DoQuery,
+                            service_->resolver(), url, pac_url_));
     } else {
       DoQuery(service_->resolver(), url, pac_url_);
     }
@@ -233,7 +228,7 @@ class HttpProxyService::PacRequest :
 
  private:
   // Runs on the PAC thread if a valid callback is provided.
-  void DoQuery(HttpProxyResolver* resolver,
+  void DoQuery(ProxyResolver* resolver,
                const std::wstring& query_url,
                const std::wstring& pac_url) {
     int rv = resolver->GetProxyForURL(query_url, pac_url, &results_buf_);
@@ -253,7 +248,7 @@ class HttpProxyService::PacRequest :
 
     if (result_code == OK && results_) {
       results_->Use(results_buf_);
-      results_->RemoveBadProxies(service_->http_proxy_retry_info_);
+      results_->RemoveBadProxies(service_->proxy_retry_info_);
     }
 
     if (callback_)
@@ -266,28 +261,28 @@ class HttpProxyService::PacRequest :
   }
 
   // Must only be used on the "origin" thread.
-  HttpProxyService* service_;
+  ProxyService* service_;
   CompletionCallback* callback_;
-  HttpProxyInfo* results_;
-  HttpProxyConfig::ID config_id_;
+  ProxyInfo* results_;
+  ProxyConfig::ID config_id_;
 
   // Usable from within DoQuery on the PAC thread.
-  HttpProxyInfo results_buf_;
+  ProxyInfo results_buf_;
   std::wstring pac_url_;
   MessageLoop* origin_loop_;
 };
 
-// HttpProxyService -----------------------------------------------------------
+// ProxyService ---------------------------------------------------------------
 
-HttpProxyService::HttpProxyService(HttpProxyResolver* resolver)
+ProxyService::ProxyService(ProxyResolver* resolver)
     : resolver_(resolver),
       config_is_bad_(false) {
   UpdateConfig();
 }
 
-int HttpProxyService::ResolveProxy(const GURL& url, HttpProxyInfo* result,
-                                   CompletionCallback* callback,
-                                   PacRequest** pac_request) {
+int ProxyService::ResolveProxy(const GURL& url, ProxyInfo* result,
+                               CompletionCallback* callback,
+                               PacRequest** pac_request) {
   // The overhead of calling WinHttpGetIEProxyConfigForCurrentUser is very low.
   const TimeDelta kProxyConfigMaxAge = TimeDelta::FromSeconds(5);
 
@@ -299,7 +294,7 @@ int HttpProxyService::ResolveProxy(const GURL& url, HttpProxyInfo* result,
   // Fallback to a "direct" (no proxy) connection if the current configuration
   // is known to be bad.
   if (config_is_bad_) {
-    // Reset this flag to false in case the HttpProxyInfo object is being
+    // Reset this flag to false in case the ProxyInfo object is being
     // re-used by the caller.
     result->config_was_tried_ = false;
   } else {
@@ -377,10 +372,10 @@ int HttpProxyService::ResolveProxy(const GURL& url, HttpProxyInfo* result,
   return OK;
 }
 
-int HttpProxyService::ReconsiderProxyAfterError(const GURL& url,
-                                                HttpProxyInfo* result,
-                                                CompletionCallback* callback,
-                                                PacRequest** pac_request) {
+int ProxyService::ReconsiderProxyAfterError(const GURL& url,
+                                            ProxyInfo* result,
+                                            CompletionCallback* callback,
+                                            PacRequest** pac_request) {
   // Check to see if we have a new config since ResolveProxy was called.  We
   // want to re-run ResolveProxy in two cases: 1) we have a new config, or 2) a
   // direct connection failed and we never tried the current config.
@@ -402,14 +397,14 @@ int HttpProxyService::ReconsiderProxyAfterError(const GURL& url,
   if (re_resolve) {
     // If we have a new config or the config was never tried, we delete the
     // list of bad proxies and we try again.
-    http_proxy_retry_info_.clear();
+    proxy_retry_info_.clear();
     return ResolveProxy(url, result, callback, pac_request);
   }
 
   // We don't have new proxy settings to try, fallback to the next proxy
   // in the list.
   bool was_direct = result->is_direct();
-  if (!was_direct && result->Fallback(&http_proxy_retry_info_))
+  if (!was_direct && result->Fallback(&proxy_retry_info_))
     return OK;
 
   if (!config_.auto_detect && !config_.proxy_server.empty()) {
@@ -427,11 +422,11 @@ int HttpProxyService::ReconsiderProxyAfterError(const GURL& url,
   return OK;
 }
 
-void HttpProxyService::CancelPacRequest(PacRequest* pac_request) {
+void ProxyService::CancelPacRequest(PacRequest* pac_request) {
   pac_request->Cancel();
 }
 
-void HttpProxyService::DidCompletePacRequest(int config_id, int result_code) {
+void ProxyService::DidCompletePacRequest(int config_id, int result_code) {
   // If we get an error that indicates a bad PAC config, then we should
   // remember that, and not try the PAC config again for a while.
 
@@ -443,8 +438,8 @@ void HttpProxyService::DidCompletePacRequest(int config_id, int result_code) {
   config_is_bad_ = true;
 }
 
-void HttpProxyService::UpdateConfig() {
-  HttpProxyConfig latest;
+void ProxyService::UpdateConfig() {
+  ProxyConfig latest;
   if (resolver_->GetProxyConfig(&latest) != OK)
     return;
   config_last_update_time_ = TimeTicks::Now();
@@ -456,10 +451,10 @@ void HttpProxyService::UpdateConfig() {
   config_is_bad_ = false;
 
   // We have a new config, we should clear the list of bad proxies.
-  http_proxy_retry_info_.clear();
+  proxy_retry_info_.clear();
 }
 
-bool HttpProxyService::ShouldBypassProxyForURL(const GURL& url) {
+bool ProxyService::ShouldBypassProxyForURL(const GURL& url) {
   std::wstring url_domain = ASCIIToWide(url.scheme());
   if (!url_domain.empty())
     url_domain += L"://";

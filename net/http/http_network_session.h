@@ -33,7 +33,7 @@
 #include "base/ref_counted.h"
 #include "net/base/auth_cache.h"
 #include "net/base/client_socket_pool.h"
-#include "net/http/http_proxy_service.h"
+#include "net/proxy/proxy_service.h"
 
 namespace net {
 
@@ -45,7 +45,7 @@ class HttpNetworkSession : public base::RefCounted<HttpNetworkSession> {
     MAX_SOCKETS_PER_GROUP = 6
   };
   
-  HttpNetworkSession(HttpProxyResolver* proxy_resolver)
+  HttpNetworkSession(ProxyResolver* proxy_resolver)
       : connection_pool_(new ClientSocketPool(MAX_SOCKETS_PER_GROUP)),
         proxy_resolver_(proxy_resolver),
         proxy_service_(proxy_resolver) {
@@ -53,13 +53,13 @@ class HttpNetworkSession : public base::RefCounted<HttpNetworkSession> {
 
   AuthCache* auth_cache() { return &auth_cache_; }
   ClientSocketPool* connection_pool() { return connection_pool_; }
-  HttpProxyService* proxy_service() { return &proxy_service_; }
+  ProxyService* proxy_service() { return &proxy_service_; }
 
  private:
   AuthCache auth_cache_;
   scoped_refptr<ClientSocketPool> connection_pool_;
-  scoped_ptr<HttpProxyResolver> proxy_resolver_;
-  HttpProxyService proxy_service_;
+  scoped_ptr<ProxyResolver> proxy_resolver_;
+  ProxyService proxy_service_;
 };
 
 }  // namespace net

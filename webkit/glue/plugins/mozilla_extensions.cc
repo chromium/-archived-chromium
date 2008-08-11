@@ -38,8 +38,8 @@
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_errors.h"
-#include "net/http/http_proxy_service.h"
-#include "net/http/http_proxy_resolver_winhttp.h"
+#include "net/proxy/proxy_service.h"
+#include "net/proxy/proxy_resolver_winhttp.h"
 #include "third_party/npapi/bindings/npapi.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/plugins/plugin_instance.h"
@@ -70,9 +70,9 @@ bool MozillaExtensionApi::FindProxyForUrl(const char* url,
     return result;
   }
 
-  net::HttpProxyResolverWinHttp proxy_resolver;
-  net::HttpProxyService proxy_service(&proxy_resolver);
-  net::HttpProxyInfo proxy_info;
+  net::ProxyResolverWinHttp proxy_resolver;
+  net::ProxyService proxy_service(&proxy_resolver);
+  net::ProxyInfo proxy_info;
 
   if (proxy_service.ResolveProxy(GURL(std::string(url)),
                                  &proxy_info,

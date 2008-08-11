@@ -61,7 +61,7 @@
 #include "net/base/cookie_monster.h"
 #include "net/base/cookie_policy.h"
 #include "net/http/http_cache.h"
-#include "net/http/http_proxy_service.h"
+#include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/webkit_glue.h"
 
@@ -91,11 +91,11 @@ URLRequestContext* Profile::GetDefaultRequestContext() {
 
 // Sets up proxy info if it was specified, otherwise returns NULL. The
 // returned pointer MUST be deleted by the caller if non-NULL.
-static net::HttpProxyInfo* CreateProxyInfo(const CommandLine& command_line) {
-  net::HttpProxyInfo* proxy_info = NULL;
+static net::ProxyInfo* CreateProxyInfo(const CommandLine& command_line) {
+  net::ProxyInfo* proxy_info = NULL;
 
   if (command_line.HasSwitch(switches::kProxyServer)) {
-    proxy_info = new net::HttpProxyInfo();
+    proxy_info = new net::ProxyInfo();
     const std::wstring& proxy_server =
         command_line.GetSwitchValue(switches::kProxyServer);
     proxy_info->UseNamedProxy(proxy_server);
@@ -136,7 +136,7 @@ class ProfileImpl::RequestContext : public URLRequestContext,
 
     CommandLine command_line;
 
-    scoped_ptr<net::HttpProxyInfo> proxy_info(CreateProxyInfo(command_line));
+    scoped_ptr<net::ProxyInfo> proxy_info(CreateProxyInfo(command_line));
     net::HttpCache* cache =
         new net::HttpCache(proxy_info.get(), disk_cache_path, 0);
 
@@ -262,7 +262,7 @@ class OffTheRecordRequestContext : public URLRequestContext,
     original_context_ = profile->GetRequestContext();
 
     CommandLine command_line;
-    scoped_ptr<net::HttpProxyInfo> proxy_info(CreateProxyInfo(command_line));
+    scoped_ptr<net::ProxyInfo> proxy_info(CreateProxyInfo(command_line));
 
     http_transaction_factory_ = new net::HttpCache(NULL, 0);
     cookie_store_ = new net::CookieMonster;

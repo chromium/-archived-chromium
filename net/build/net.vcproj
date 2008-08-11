@@ -361,6 +361,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\platform_mime_util.h"
+				>
+			</File>
+			<File
+				RelativePath="..\base\platform_mime_util_win.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\precompiled_net.cc"
 				>
 				<FileConfiguration
@@ -382,14 +390,6 @@
 			</File>
 			<File
 				RelativePath=".\precompiled_net.h"
-				>
-			</File>
-			<File
-				RelativePath="..\base\platform_mime_util.h"
-				>
-			</File>
-			<File
-				RelativePath="..\base\platform_mime_util_win.cc"
 				>
 			</File>
 			<File
@@ -681,30 +681,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\http\http_proxy_resolver_fixed.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\http\http_proxy_resolver_fixed.h"
-				>
-			</File>
-			<File
-				RelativePath="..\http\http_proxy_resolver_winhttp.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\http\http_proxy_resolver_winhttp.h"
-				>
-			</File>
-			<File
-				RelativePath="..\http\http_proxy_service.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\http\http_proxy_service.h"
-				>
-			</File>
-			<File
 				RelativePath="..\http\http_request_info.h"
 				>
 			</File>
@@ -894,6 +870,34 @@
 			</File>
 			<File
 				RelativePath="..\disk_cache\trace.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="proxy"
+			>
+			<File
+				RelativePath="..\proxy\proxy_resolver_fixed.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\proxy\proxy_resolver_fixed.h"
+				>
+			</File>
+			<File
+				RelativePath="..\proxy\proxy_resolver_winhttp.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\proxy\proxy_resolver_winhttp.h"
+				>
+			</File>
+			<File
+				RelativePath="..\proxy\proxy_service.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\proxy\proxy_service.h"
 				>
 			</File>
 		</Filter>

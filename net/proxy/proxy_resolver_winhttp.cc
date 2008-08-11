@@ -27,7 +27,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "net/http/http_proxy_resolver_winhttp.h"
+#include "net/proxy/proxy_resolver_winhttp.h"
 
 #include <windows.h>
 #include <winhttp.h>
@@ -72,15 +72,15 @@ static void FreeInfo(WINHTTP_PROXY_INFO* info) {
     GlobalFree(info->lpszProxyBypass);
 }
 
-HttpProxyResolverWinHttp::HttpProxyResolverWinHttp()
+ProxyResolverWinHttp::ProxyResolverWinHttp()
     : session_handle_(NULL) {
 }
 
-HttpProxyResolverWinHttp::~HttpProxyResolverWinHttp() {
+ProxyResolverWinHttp::~ProxyResolverWinHttp() {
   CloseWinHttpSession();
 }
 
-int HttpProxyResolverWinHttp::GetProxyConfig(HttpProxyConfig* config) {
+int ProxyResolverWinHttp::GetProxyConfig(ProxyConfig* config) {
   WINHTTP_CURRENT_USER_IE_PROXY_CONFIG ie_config = {0};
   if (!WinHttpGetIEProxyConfigForCurrentUser(&ie_config)) {
     LOG(ERROR) << "WinHttpGetIEProxyConfigForCurrentUser failed: " <<
@@ -101,9 +101,9 @@ int HttpProxyResolverWinHttp::GetProxyConfig(HttpProxyConfig* config) {
   return OK;
 }
 
-int HttpProxyResolverWinHttp::GetProxyForURL(const std::wstring& query_url,
-                                             const std::wstring& pac_url,
-                                             HttpProxyInfo* results) {
+int ProxyResolverWinHttp::GetProxyForURL(const std::wstring& query_url,
+                                         const std::wstring& pac_url,
+                                         ProxyInfo* results) {
   // If we don't have a WinHTTP session, then create a new one.
   if (!session_handle_ && !OpenWinHttpSession())
     return ERR_FAILED;
@@ -155,7 +155,7 @@ int HttpProxyResolverWinHttp::GetProxyForURL(const std::wstring& query_url,
   return rv;
 }
 
-bool HttpProxyResolverWinHttp::OpenWinHttpSession() {
+bool ProxyResolverWinHttp::OpenWinHttpSession() {
   DCHECK(!session_handle_);
   session_handle_ = WinHttpOpen(NULL,
                                 WINHTTP_ACCESS_TYPE_NO_PROXY,
@@ -165,7 +165,7 @@ bool HttpProxyResolverWinHttp::OpenWinHttpSession() {
   if (!session_handle_)
     return false;
 
-  // Since this session handle will never be used for winhttp connections,
+  // Since this session handle will never be used for WinHTTP connections,
   // these timeouts don't really mean much individually.  However, WinHTTP's
   // out of process PAC resolution will use a combined (sum of all timeouts)
   // value to wait for an RPC reply.
@@ -175,7 +175,7 @@ bool HttpProxyResolverWinHttp::OpenWinHttpSession() {
   return true;
 }
 
-void HttpProxyResolverWinHttp::CloseWinHttpSession() {
+void ProxyResolverWinHttp::CloseWinHttpSession() {
   if (session_handle_) {
     WinHttpCloseHandle(session_handle_);
     session_handle_ = NULL;
