@@ -194,9 +194,6 @@ class Browser : public TabStripModelDelegate,
                          bool proceed, 
                          bool* proceed_to_fire_unload);
 
-  // Tells us that we've finished firing this tab's unload event.
-  void UnloadFired(TabContents* source);
-
   // Invoked when the window containing us is closing. Performs the necessary
   // cleanup.
   void OnWindowClosing();
@@ -548,9 +545,11 @@ class Browser : public TabStripModelDelegate,
   // was in the vector in the first place.
   bool RemoveFromVector(UnloadListenerVector* vector, TabContents* tab);
 
-  // Cleans up state appropriately when we are trying to close the browser
-  // and a tab crashes in it's beforeunload/unload handler.
-  void ClearUnloadStateOnCrash(TabContents* tab);
+  // Cleans up state appropriately when we are trying to close the browser and
+  // the tab has finished firing it's unload handler. We also use this in the 
+  // cases where a tab crashes or hangs even if the beforeunload/unload haven't
+  // successfully fired.
+  void ClearUnloadState(TabContents* tab);
 
   // The frame
   BrowserWindow* window_;

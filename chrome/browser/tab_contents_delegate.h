@@ -190,9 +190,6 @@ class TabContentsDelegate : public PageNavigator {
                                  bool* proceed_to_fire_unload) { 
     *proceed_to_fire_unload = true;
   }
-
-  // Tells us that we've finished firing this tab's unload event.
-  virtual void UnloadFired(TabContents* tab) {}
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_DELEGATE_H__

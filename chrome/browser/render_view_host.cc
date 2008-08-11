@@ -248,7 +248,6 @@ void RenderViewHost::FirePageBeforeUnload() {
   if (IsRenderViewLive()) {
     // Start the hang monitor in case the renderer hangs in the beforeunload
     // handler.
-    DCHECK(!is_waiting_for_unload_ack_);
     is_waiting_for_unload_ack_ = true;
     StartHangMonitorTimeout(kUnloadTimeoutMS);
     Send(new ViewMsg_ShouldClose(routing_id_));
@@ -261,7 +260,6 @@ void RenderViewHost::FirePageBeforeUnload() {
 
 void RenderViewHost::FirePageUnload() {
   // Start the hang monitor in case the renderer hangs in the unload handler.
-  DCHECK(!is_waiting_for_unload_ack_);
   is_waiting_for_unload_ack_ = true;
   StartHangMonitorTimeout(kUnloadTimeoutMS);
   ClosePage(site_instance()->process_host_id(), 
@@ -1164,9 +1162,11 @@ void RenderViewHost::OnUnloadListenerChanged(bool has_listener) {
 void RenderViewHost::NotifyRendererUnresponsive() {
   if (is_waiting_for_unload_ack_) {
     // If the tab hangs in the beforeunload/unload handler there's really
-    // nothing we can do to recover. We can safely kill the process and the
-    // Browser will deal with the crash appropriately.
-    TerminateProcess(process()->process(), ResultCodes::HUNG);
+    // nothing we can do to recover. Pretend the unload listeners have
+    // all fired and close the tab. If the hang is in the beforeunload handler
+    // then the user will not have the option of cancelling the close.
+    UnloadListenerHasFired();
+    delegate_->Close(this);
     return;
   }
 

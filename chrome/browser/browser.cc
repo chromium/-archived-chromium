@@ -680,7 +680,7 @@ void Browser::ReplaceContents(TabContents* source, TabContents* new_contents) {
     // Need to do this asynchronously as it will close the tab, which is
     // currently on the call stack above us.
     MessageLoop::current()->PostTask(FROM_HERE,
-        method_factory_.NewRunnableMethod(&Browser::ClearUnloadStateOnCrash,
+        method_factory_.NewRunnableMethod(&Browser::ClearUnloadState,
         Source<TabContents>(source).ptr()));
   }
   // Need to remove ourselves as an observer for disconnection on the replaced
@@ -790,7 +790,7 @@ void Browser::CloseContents(TabContents* source) {
     // waiting for unload to fire. Don't actually try to close the tab as it 
     // will go down the slow shutdown path instead of the fast path of killing
     // all the renderer processes.
-    UnloadFired(source);
+    ClearUnloadState(source);
     return;
   }
 
@@ -847,7 +847,7 @@ void Browser::Observe(NotificationType type,
       // Need to do this asynchronously as it will close the tab, which is
       // currently on the call stack above us.
       MessageLoop::current()->PostTask(FROM_HERE,
-          method_factory_.NewRunnableMethod(&Browser::ClearUnloadStateOnCrash,
+          method_factory_.NewRunnableMethod(&Browser::ClearUnloadState,
               Source<TabContents>(source).ptr()));
     }
   } else {
@@ -1147,13 +1147,7 @@ void Browser::BeforeUnloadFired(TabContents* tab,
   *proceed_to_fire_unload = true;
 }
 
-void Browser::UnloadFired(TabContents* tab) {
-  DCHECK(is_attempting_to_close_browser_);
-  RemoveFromVector(&tabs_needing_unload_fired_, tab);
-  ProcessPendingTabs();
-}
-
-void Browser::ClearUnloadStateOnCrash(TabContents* tab) {
+void Browser::ClearUnloadState(TabContents* tab) {
   DCHECK(is_attempting_to_close_browser_);
   RemoveFromVector(&tabs_needing_before_unload_fired_, tab);
   RemoveFromVector(&tabs_needing_unload_fired_, tab);
