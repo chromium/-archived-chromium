@@ -48,7 +48,7 @@
 static const int kPaintMsgTimeoutMS = 40;
 
 // How long to wait before we consider a renderer hung.
-static const int kHungRendererDelayMs = 10000;
+static const int kHungRendererDelayMs = 20000;
 
 ///////////////////////////////////////////////////////////////////////////////
 // RenderWidget::BackingStore
