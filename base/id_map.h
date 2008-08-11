@@ -83,7 +83,7 @@ class IDMap {
   }
 
   void Remove(int32 id) {
-    HashTable::iterator i = data_.find(id);
+    typename HashTable::iterator i = data_.find(id);
     if (i == data_.end()) {
       NOTREACHED() << "Attempting to remove an item not in the list";
       return;
@@ -96,7 +96,7 @@ class IDMap {
   }
 
   T* Lookup(int32 id) const {
-    HashTable::const_iterator i = data_.find(id);
+    typename HashTable::const_iterator i = data_.find(id);
     if (i == data_.end())
       return NULL;
     return i->second;
