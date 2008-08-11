@@ -137,6 +137,7 @@ if env['PLATFORM'] in ('darwin', 'linux2'):
       'lock_impl_posix.cc',
       'thread_posix.cc',
       'thread_local_storage_posix.cc',
+      'time_posix.cc',
       'waitable_event_generic.cc',
   ])
 

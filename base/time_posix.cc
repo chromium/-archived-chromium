@@ -29,15 +29,18 @@
 
 #include "base/time.h"
 
+#ifdef OS_MACOSX
 #include <mach/mach_time.h>
+#endif
 #include <sys/time.h>
 #include <time.h>
+
 #include "base/basictypes.h"
 #include "base/logging.h"
 
 // The Time routines in this file use standard POSIX routines, or almost-
-// standard routines in the case of timegm.
-// The TimeTicks routines are Mach-specific.
+// standard routines in the case of timegm.  We need to use a Mach-specific
+// function for TimeTicks::Now() on Mac OS X.
 
 // Time -----------------------------------------------------------------------
 
@@ -55,7 +58,7 @@ int64 Time::CurrentWallclockMicroseconds() {
   }
   // Combine seconds and microseconds in a 64-bit field containing microseconds
   // since the epoch.  That's enough for nearly 600 centuries.
-  return tv.tv_sec * GG_UINT64_C(1000000) + tv.tv_usec;
+  return tv.tv_sec * kMicrosecondsPerSecond + tv.tv_usec;
 }
 
 // static
@@ -110,8 +113,12 @@ void Time::Explode(bool is_local, Exploded* exploded) const {
 
 // static
 TimeTicks TimeTicks::Now() {
+  uint64_t absolute_micro;
+
+#if defined(OS_MACOSX)
+
   static bool has_timebase_info = false;
-  static mach_timebase_info_data_t timebase_info;
+  static mach_timebase_info_data_t timebase_info = {1, 1};
   if (!has_timebase_info) {
     has_timebase_info = mach_timebase_info(&timebase_info) == KERN_SUCCESS;
   }
@@ -121,14 +128,30 @@ TimeTicks TimeTicks::Now() {
   // with less precision (such as TickCount) just call through to
   // mach_absolute_time.
 
-  // timebase_info converts absolute time tick units into nanoseconds.  Divide
-  // by 1000 to get microseconds up front to stave off overflows.
-  uint64_t absolute_micro = mach_absolute_time() / 1000 * timebase_info.numer /
-                                                          timebase_info.denom;
+  // timebase_info converts absolute time tick units into nanoseconds.  Convert
+  // to microseconds up front to stave off overflows.
+  absolute_micro = mach_absolute_time() / Time::kNanosecondsPerMicrosecond *
+                   timebase_info.numer / timebase_info.denom;
 
   // Don't bother with the rollover handling that the Windows version does.
   // With numer and denom = 1 (the expected case), the 64-bit absolute time
   // reported in nanoseconds is enough to last nearly 585 years.
+
+#elif defined(OS_POSIX) && \
+      defined(_POSIX_MONOTONIC_CLOCK) && _POSIX_MONOTONIC_CLOCK >= 0
+  struct timespec ts;
+  if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) {
+    NOTREACHED() << "clock_gettime(CLOCK_MONOTONIC) failed.";
+    return TimeTicks();
+  }
+
+  absolute_micro =
+      (static_cast<int64>(ts.tv_sec) * Time::kMicrosecondsPerSecond) +
+      (static_cast<int64>(ts.tv_nsec) / Time::kNanosecondsPerMicrosecond);
+
+#else  // _POSIX_MONOTONIC_CLOCK
+#error No usable tick clock function on this platform.
+#endif  // _POSIX_MONOTONIC_CLOCK
 
   return TimeTicks(absolute_micro);
 }

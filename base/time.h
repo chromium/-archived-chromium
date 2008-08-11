@@ -48,6 +48,7 @@
 #define BASE_TIME_H_
 
 #include <time.h>
+
 #include "base/basictypes.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
@@ -196,6 +197,9 @@ class Time {
   static const int64 kMicrosecondsPerHour = kMicrosecondsPerMinute * 60;
   static const int64 kMicrosecondsPerDay = kMicrosecondsPerHour * 24;
   static const int64 kMicrosecondsPerWeek = kMicrosecondsPerDay * 7;
+  static const int64 kNanosecondsPerMicrosecond = 1000;
+  static const int64 kNanosecondsPerSecond = kNanosecondsPerMicrosecond *
+                                             kMicrosecondsPerSecond;
 
   // Represents an exploded time that can be formatted nicely. This is kind of
   // like the Win32 SYSTEMTIME structure or the Unix "struct tm" with a few

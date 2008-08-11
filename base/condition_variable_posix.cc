@@ -59,15 +59,12 @@ void ConditionVariable::TimedWait(const TimeDelta& max_time) {
   struct timeval now;
   gettimeofday(&now, NULL);
 
-  const int kMicrosPerUnit = 1000000;
-  const int kNanosPerMicro = 1000;
-  const int kNanosPerUnit = kMicrosPerUnit * kNanosPerMicro;
-
   struct timespec abstime;
-  abstime.tv_sec = now.tv_sec + (usecs / kMicrosPerUnit);
-  abstime.tv_nsec = (now.tv_usec + (usecs % kMicrosPerUnit)) * kNanosPerMicro;
-  abstime.tv_sec += abstime.tv_nsec / kNanosPerUnit;
-  abstime.tv_nsec %= kNanosPerUnit;
+  abstime.tv_sec = now.tv_sec + (usecs / Time::kMicrosecondsPerSecond);
+  abstime.tv_nsec = (now.tv_usec + (usecs % Time::kMicrosecondsPerSecond)) *
+                    Time::kNanosecondsPerMicrosecond;
+  abstime.tv_sec += abstime.tv_nsec / Time::kNanosecondsPerSecond;
+  abstime.tv_nsec %= Time::kNanosecondsPerSecond;
   DCHECK(abstime.tv_sec >= now.tv_sec);  // Overflow paranoia
 
   int rv = pthread_cond_timedwait(&condition_, user_mutex_, &abstime);
