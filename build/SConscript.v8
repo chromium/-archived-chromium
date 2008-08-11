@@ -31,23 +31,13 @@ Import('env')
 
 env = env.Clone()
 
-# Grungy environment hackery to satisfy the Visual Studio that we're
-# going to execute.
-import copy
-import os
-env['ENV'] = copy.deepcopy(os.environ)
-
-env.AppendENVPath('INCLUDE', env['MSVS_ENV']['INCLUDE'])
-env.AppendENVPath('LIB', env['MSVS_ENV']['LIB'])
-env.AppendENVPath('PATH', env['MSVS_ENV']['PATH'])
-
-
 mksnapshot_exe = File('#/../v8/bin/debug/mksnapshot.exe')
-v8_exe = File('#/../v8/Debug/v8_shell.exe')
+v8_exe = File('#/../v8/bin/release/v8.exe')
 v8_lib = File('#/../v8/bin/debug/v8.lib'),
 
 v8_scons_targets = [
     mksnapshot_exe,
+    v8_exe,
     v8_lib,
     File('#/../v8/bin/debug/snapshot-empty.obj'),
     File('#/../v8/vc80.pdb')
@@ -57,7 +47,7 @@ v8 = env.Command(v8_scons_targets,
                  [],
                  'cd ..\\v8 && $PYTHON $SCONS $SCONSFLAGS ${TARGETS[:-1]}',
                  SCONS='..\\third_party\\scons\\scons.py',
-                 SCONSFLAGS='-Q --warn=no-deprecated')
+                 SCONSFLAGS='-Q -q --warn=no-deprecated')
 env.AlwaysBuild(v8)
 env.Install('$V8_DIR', v8)
 
@@ -67,17 +57,14 @@ env.Alias('webkit', i)
 i = env.Install('$LIBS_DIR', v8_lib)
 env.Alias('webkit', i)
 
-
-v8_shell = env.Command(v8_exe,
-                       [],
-                       'cd ..\\v8 && devenv /nologo v8.sln /build Debug vcproj\\v8_shell.vcproj')
-env.AlwaysBuild(v8_shell)
-
 i = env.Install('$TARGET_ROOT', v8_exe)
 env.Alias('chrome', i)
 
-# By default, SCons deletes the target before invoking the command.
-# Tell SCons to *not* delete v8.lib and the other targets so the
-# subsidiary v8 SCons call doesn't always rebuild it (thereby causing
-# us to always rebuild things that use it).
-env.Precious(v8 + v8_shell)
+# To satisfy tests expecting the name v8_shell.exe.
+i = env.InstallAs('$TARGET_ROOT/v8_shell.exe', v8_exe)
+env.Alias('chrome', i)
+
+# Tell our SCons invocation to *not* delete v8.lib and the other targets
+# before building them, so the subsidiary v8 SCons call doesn't always
+# rebuild them (thereby causing us to always rebuild their dependents).
+env.Precious(v8)
