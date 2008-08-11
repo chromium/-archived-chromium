@@ -100,7 +100,7 @@ class Pickle {
 
   // Safer version of ReadInt() checks for the result not being negative.
   // Use it for reading the object sizes.
-  bool Pickle::ReadLength(void** iter, int* result) const;
+  bool ReadLength(void** iter, int* result) const;
 
   // Methods for adding to the payload of the Pickle.  These values are
   // appended to the end of the Pickle's payload.  When reading values from a
