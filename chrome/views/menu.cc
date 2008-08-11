@@ -238,6 +238,16 @@ Menu::Menu(Menu* parent)
       owner_draw_(false) {
 }
 
+Menu::Menu(HMENU hmenu)
+    : delegate_(NULL),
+      menu_(hmenu),
+      anchor_(TOPLEFT),
+      owner_(NULL),
+      is_menu_visible_(false),
+      owner_draw_(false) {
+  DCHECK(menu_);
+}
+
 Menu::~Menu() {
   STLDeleteContainerPointers(submenus_.begin(), submenus_.end());
   STLDeleteContainerPointers(item_data_.begin(), item_data_.end());
@@ -258,11 +268,14 @@ UINT Menu::GetStateFlagsForItemID(int item_id) const {
   return flags;
 }
 
-void Menu::AppendMenuItemInternal(int item_id,
-                                  const std::wstring& label,
-                                  const SkBitmap& icon,
-                                  HMENU submenu,
-                                  MenuItemType type) {
+void Menu::AddMenuItemInternal(int index,
+                               int item_id,
+                               const std::wstring& label,
+                               const SkBitmap& icon,
+                               HMENU submenu,
+                               MenuItemType type) {
+  DCHECK(type != SEPARATOR) << "Call AddSeparator instead!";
+
   MENUITEMINFO mii;
   mii.cbSize = sizeof(mii);
   mii.fMask = MIIM_FTYPE | MIIM_ID;
@@ -294,7 +307,7 @@ void Menu::AppendMenuItemInternal(int item_id,
 
   // Find out if there is a shortcut we need to append to the label.
   ChromeViews::Accelerator accelerator(0, false, false, false);
-  if (delegate_->GetAcceleratorInfo(item_id, &accelerator)) {
+  if (delegate_ && delegate_->GetAcceleratorInfo(item_id, &accelerator)) {
     actual_label += L'\t';
     actual_label += accelerator.GetShortcutText();
   }
@@ -309,28 +322,104 @@ void Menu::AppendMenuItemInternal(int item_id,
     mii.dwTypeData = const_cast<wchar_t*>(labels_.back().c_str());
   }
 
-  InsertMenuItem(menu_, -1, TRUE, &mii);
+  InsertMenuItem(menu_, index, TRUE, &mii);
 }
 
-Menu* Menu::AppendSubMenu(int item_id,
-                          const std::wstring& label) {
-  return AppendSubMenuWithIcon(item_id, label, SkBitmap());
+void Menu::AppendMenuItem(int item_id,
+                          const std::wstring& label,
+                          MenuItemType type) {
+  AddMenuItem(-1, item_id, label, type);
+}
+
+void Menu::AddMenuItem(int index,
+                       int item_id,
+                       const std::wstring& label,
+                       MenuItemType type) {
+  if (type == SEPARATOR)
+    AddSeparator(index);
+  else
+    AddMenuItemInternal(index, item_id, label, SkBitmap(), NULL, type);
+}
+
+Menu* Menu::AppendSubMenu(int item_id, const std::wstring& label) {
+  return AddSubMenu(-1, item_id, label);
+}
+
+Menu* Menu::AddSubMenu(int index, int item_id, const std::wstring& label) {
+  return AddSubMenuWithIcon(index, item_id, label, SkBitmap());
 }
 
 Menu* Menu::AppendSubMenuWithIcon(int item_id,
                                   const std::wstring& label,
                                   const SkBitmap& icon) {
+  return AddSubMenuWithIcon(-1, item_id, label, icon);
+}
+
+Menu* Menu::AddSubMenuWithIcon(int index,
+                               int item_id,
+                               const std::wstring& label,
+                               const SkBitmap& icon) {
   if (!owner_draw_ && icon.width() != 0 && icon.height() != 0)
     owner_draw_ = true;
 
   Menu* submenu = new Menu(this);
   submenus_.push_back(submenu);
-  AppendMenuItemInternal(item_id, label, icon, submenu->menu_, NORMAL);
+  AddMenuItemInternal(index, item_id, label, icon, submenu->menu_, NORMAL);
   return submenu;
 }
 
+void Menu::AppendMenuItemWithLabel(int item_id, const std::wstring& label) {
+  AddMenuItemWithLabel(-1, item_id, label);
+}
+
+void Menu::AddMenuItemWithLabel(int index, int item_id,
+                                const std::wstring& label) {
+  AddMenuItem(index, item_id, label, Menu::NORMAL);
+}
+
+void Menu::AppendDelegateMenuItem(int item_id) {
+  AddDelegateMenuItem(-1, item_id);
+}
+
+void Menu::AddDelegateMenuItem(int index, int item_id) {
+  AddMenuItem(index, item_id, std::wstring(), Menu::NORMAL);
+}
+
 void Menu::AppendSeparator() {
-  AppendMenu(menu_, MF_SEPARATOR, 0, NULL);
+  AddSeparator(-1);
+}
+
+void Menu::AddSeparator(int index) {
+  MENUITEMINFO mii;
+  mii.cbSize = sizeof(mii);
+  mii.fMask = MIIM_FTYPE;
+  mii.fType = MFT_SEPARATOR;
+  InsertMenuItem(menu_, index, TRUE, &mii);
+}
+
+void Menu::AppendMenuItemWithIcon(int item_id,
+                                  const std::wstring& label,
+                                  const SkBitmap& icon) {
+  AddMenuItemWithIcon(-1, item_id, label, icon);
+}
+
+void Menu::AddMenuItemWithIcon(int index,
+                               int item_id,
+                               const std::wstring& label,
+                               const SkBitmap& icon) {
+  if (!owner_draw_)
+    owner_draw_ = true;
+  AddMenuItemInternal(index, item_id, label, icon, NULL, Menu::NORMAL);
+}
+
+void Menu::EnableMenuItemByID(int item_id, bool enabled) {
+  UINT enable_flags = enabled ? MF_ENABLED : MF_DISABLED | MF_GRAYED;
+  EnableMenuItem(menu_, item_id, MF_BYCOMMAND | enable_flags);
+}
+
+void Menu::EnableMenuItemAt(int index, bool enabled) {
+  UINT enable_flags = enabled ? MF_ENABLED : MF_DISABLED | MF_GRAYED;
+  EnableMenuItem(menu_, index, MF_BYPOSITION | enable_flags);
 }
 
 DWORD Menu::GetTPMAlignFlags() const {

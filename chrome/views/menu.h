@@ -233,6 +233,11 @@ class Menu {
   //              to. Not actually used for anything but must not be
   //              NULL.
   Menu(Delegate* delegate, AnchorPoint anchor, HWND owner);
+  // Alternatively, a Menu object can be constructed wrapping an existing
+  // HMENU. This can be used to use the convenience methods to insert
+  // menu items and manage label string ownership. However this kind of
+  // Menu object cannot use the delegate.
+  explicit Menu(HMENU hmenu);
   virtual ~Menu();
 
   // Adds an item to this menu.
@@ -245,17 +250,17 @@ class Menu {
   // type       The type of item.
   void AppendMenuItem(int item_id,
                       const std::wstring& label,
-                      MenuItemType type) {
-    if (type == SEPARATOR)
-      AppendSeparator();
-    else
-      AppendMenuItemInternal(item_id, label, SkBitmap(), NULL, type);
-  }
+                      MenuItemType type);
+  void AddMenuItem(int index,
+                   int item_id,
+                   const std::wstring& label,
+                   MenuItemType type);
 
   // Append a submenu to this menu.
   // The returned pointer is owned by this menu.
   Menu* AppendSubMenu(int item_id,
                       const std::wstring& label);
+  Menu* AddSubMenu(int index, int item_id, const std::wstring& label);
 
   // Append a submenu with an icon to this menu
   // The returned pointer is owned by this menu.
@@ -264,33 +269,39 @@ class Menu {
   Menu* AppendSubMenuWithIcon(int item_id,
                               const std::wstring& label,
                               const SkBitmap& icon);
+  Menu* AddSubMenuWithIcon(int index,
+                           int item_id,
+                           const std::wstring& label,
+                           const SkBitmap& icon);
 
   // This is a convenience for standard text label menu items where the label
   // is provided with this call.
-  void AppendMenuItemWithLabel(int item_id,
-                               const std::wstring& label) {
-    AppendMenuItem(item_id, label, Menu::NORMAL);
-  }
+  void AppendMenuItemWithLabel(int item_id, const std::wstring& label);
+  void AddMenuItemWithLabel(int index, int item_id, const std::wstring& label);
 
   // This is a convenience for text label menu items where the label is
   // provided by the delegate.
-  void AppendDelegateMenuItem(int item_id) {
-    AppendMenuItem(item_id, std::wstring(), Menu::NORMAL);
-  }
+  void AppendDelegateMenuItem(int item_id);
+  void AddDelegateMenuItem(int index, int item_id);
 
   // Adds a separator to this menu
   void AppendSeparator();
+  void AddSeparator(int index);
 
   // Appends a menu item with an icon. This is for the menu item which
   // needs an icon. Calling this function forces the Menu class to draw
   // the menu, instead of relying on Windows.
   void AppendMenuItemWithIcon(int item_id,
                               const std::wstring& label,
-                              const SkBitmap& icon) {
-    if (!owner_draw_)
-      owner_draw_ = true;
-    AppendMenuItemInternal(item_id, label, icon, NULL, Menu::NORMAL);
-  }
+                              const SkBitmap& icon);
+  void AddMenuItemWithIcon(int index,
+                           int item_id,
+                           const std::wstring& label,
+                           const SkBitmap& icon);
+
+  // Enables or disables the item with the specified id.
+  void EnableMenuItemByID(int item_id, bool enabled);
+  void EnableMenuItemAt(int index, bool enabled);
 
   // Sets an icon for an item with a given item_id. Calling this function
   // also forces the Menu class to draw the menu, instead of relying on Windows.
@@ -312,11 +323,12 @@ class Menu {
  private:
   explicit Menu(Menu* parent);
 
-  void AppendMenuItemInternal(int item_id,
-                              const std::wstring& label,
-                              const SkBitmap& icon,
-                              HMENU submenu,
-                              MenuItemType type);
+  void AddMenuItemInternal(int index,
+                           int item_id,
+                           const std::wstring& label,
+                           const SkBitmap& icon,
+                           HMENU submenu,
+                           MenuItemType type);
 
   // Sets menu information before displaying, including sub-menus.
   void SetMenuInfo();
