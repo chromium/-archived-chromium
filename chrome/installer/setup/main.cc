@@ -122,11 +122,11 @@ DWORD UnPackArchive(const std::wstring& archive, bool system_install,
     // return with error.
     LOG(INFO) << "Opening archive " << archive;
     if ((ret = util.OpenArchive(archive)) != NO_ERROR) {
-      LOG(ERROR) << "unable to open install archive: " << archive;
+      LOG(ERROR) << "Unable to open install archive: " << archive;
     } else {
       LOG(INFO) << "Uncompressing archive to path " << temp_path;
       if ((ret = util.UnPack(temp_path)) != NO_ERROR) {
-        LOG(ERROR) << "error during uncompression: " << ret;
+        LOG(ERROR) << "Error during uncompression: " << ret;
       }
       util.CloseArchive();
     }
@@ -159,12 +159,12 @@ DWORD UnPackArchive(const std::wstring& archive, bool system_install,
     // If we got the uncompressed archive, lets unpack it
     LOG(INFO) << "Opening archive " << uncompressed_archive;
     if ((ret = util.OpenArchive(uncompressed_archive)) != NO_ERROR) {
-      LOG(ERROR) << "unable to open install archive: " <<
+      LOG(ERROR) << "Unable to open install archive: " <<
           uncompressed_archive;
     } else {
       LOG(INFO) << "Unpacking archive to path " << path;
       if ((ret = util.UnPack(path)) != NO_ERROR) {
-        LOG(ERROR) << "error during uncompression: " << ret;
+        LOG(ERROR) << "Error during uncompression: " << ret;
       }
       util.CloseArchive();
     }
@@ -249,7 +249,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   // Check to make sure current system is WinXP or later. If not, log
   // error message and get out.
   if (!IsWindowsXPorLater()) {
-    LOG(ERROR) << "Chrome only supports Windows XP or later";
+    LOG(ERROR) << "Chrome only supports Windows XP or later.";
     return installer_util::OS_NOT_SUPPORTED;
   }
 
@@ -291,7 +291,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
     // If --uninstall option is given, uninstall chrome
     LOG(INFO) << "Uninstalling Chome";
     if (!installed_version.get()) {
-      LOG(ERROR) << "No Chrome installation found for uninstall";
+      LOG(ERROR) << "No Chrome installation found for uninstall.";
       install_status = installer_util::CHROME_NOT_INSTALLED;
     } else {
       install_status = installer_setup::UninstallChrome(
@@ -319,7 +319,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
     std::wstring install_temp_path;
     if (!file_util::CreateNewTempDirectory(std::wstring(L"chrome_"),
                                            &install_temp_path)) {
-      LOG(ERROR) << "can not create temporary path";
+      LOG(ERROR) << "Could not create temporary path.";
       return installer_util::TEMP_DIR_FAILED;
     }
     LOG(INFO) << "created path " << install_temp_path;
@@ -339,7 +339,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
       scoped_ptr<installer::Version>
           installer_version(GetVersionFromDir(src_path));
       if (!installer_version.get()) {
-        LOG(ERROR) << "didn't find any valid version in installer";
+        LOG(ERROR) << "Did not find any valid version in installer.";
         install_status = installer_util::INVALID_ARCHIVE;
       } else {
         LOG(INFO) << "version to be installed: " <<

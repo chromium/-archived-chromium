@@ -71,7 +71,7 @@ void DeleteChromeShortcut(bool system_uninstall) {
     PathService::Get(base::DIR_START_MENU, &shortcut_path);
   }
   if (shortcut_path.empty()) {
-    LOG(ERROR) << "failed to get location for shortcut";
+    LOG(ERROR) << "Failed to get location for shortcut.";
   } else {
     file_util::AppendToPath(&shortcut_path,
         installer_util::GetLocalizedString(IDS_PRODUCT_NAME_BASE));
@@ -87,8 +87,7 @@ void DeleteChromeShortcut(bool system_uninstall) {
 bool DeleteRegistryKey(RegKey& key, const std::wstring& key_path) {
   LOG(INFO) << "Deleting registry key " << key_path;
   if (!key.DeleteKey(key_path.c_str())) {
-    LOG(ERROR) << "Failed to delete registry key: " << key_path
-               << " and the error is " << InstallUtil::FormatLastWin32Error();
+    LOG(ERROR) << "Failed to delete registry key: " << key_path;
     return false;
   }
   return true;
@@ -102,8 +101,7 @@ bool DeleteRegistryValue(HKEY reg_root, const std::wstring& key_path,
   RegKey key(reg_root, key_path.c_str(), KEY_ALL_ACCESS);
   LOG(INFO) << "Deleting registry value " << value_name;
   if (!key.DeleteValue(value_name.c_str())) {
-    LOG(ERROR) << "Failed to delete registry value: " << value_name
-               << " and the error is " << InstallUtil::FormatLastWin32Error();
+    LOG(ERROR) << "Failed to delete registry value: " << value_name;
     return false;
   }
   return true;
@@ -216,8 +214,7 @@ void UninstallGears() {
     unsigned int ret = MsiConfigureProduct(product, INSTALLLEVEL_MAXIMUM,
                                            INSTALLSTATE_ABSENT);
     if (ret != ERROR_SUCCESS)
-      LOG(ERROR) << "Failed to uninstall Gears " << product
-                 << " because of error " << ret;
+      LOG(ERROR) << "Failed to uninstall Gears " << product << ": " << ret;
   }
 }
 
@@ -283,7 +280,7 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
   // to a temp location.
   std::wstring install_path(installer::GetChromeInstallPath(system_uninstall));
   if (install_path.empty()) {
-    LOG(ERROR) << "Couldn't get installation destination path";
+    LOG(ERROR) << "Could not get installation destination path.";
     // Nothing else we could do for uninstall, so we return.
     return installer_util::UNINSTALL_FAILED;
   } else {

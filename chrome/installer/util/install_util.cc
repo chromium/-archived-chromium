@@ -40,25 +40,6 @@
 #include "chrome/installer/util/google_update_constants.h"
 
 
-std::wstring InstallUtil::FormatLastWin32Error() {
-  unsigned messageid = GetLastError();
-  wchar_t* string_buffer = NULL;
-  unsigned string_length = ::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-      FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-      NULL, messageid, 0, reinterpret_cast<wchar_t *>(&string_buffer), 0, NULL);
-
-  std::wstring formatted_string;
-  if (string_buffer) {
-    formatted_string = string_buffer;
-    LocalFree(reinterpret_cast<HLOCAL>(string_buffer));
-  } else {
-    // The formating failed. simply convert the message value into a string.
-    SStringPrintf(&formatted_string, L"message number %d", messageid);
-  }
-  return formatted_string;
-}
-
-
 std::wstring InstallUtil::GetChromeGoogleUpdateKey() {
   std::wstring chrome_google_update_key(google_update::kRegPathClients);
   chrome_google_update_key.append(L"\\");

@@ -244,8 +244,9 @@ bool installer::InstallNewVersion(const std::wstring& exe_path,
 
   // Perform install operations.
   if (!install_list->Do()) {
-    LOG(ERROR) << "install failed, roll back... ";
+    LOG(ERROR) << "Install failed, rolling back... ";
     install_list->Rollback();
+    LOG(ERROR) << "Rollback complete. ";
     return false;
   }
 

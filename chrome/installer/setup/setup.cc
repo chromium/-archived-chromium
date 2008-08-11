@@ -60,26 +60,8 @@ void AddChromeToMediaPlayerList() {
 
   // if the operation fails we log the error but still continue
   if (!work_item.get()->Do())
-    LOG(ERROR) << "Couldn't add Chrome to media player inclusion list.";
+    LOG(ERROR) << "Could not add Chrome to media player inclusion list.";
 
-}
-
-// If we ever rename Chrome shortcuts under Windows Start menu, this
-// function deletes any of the old Chrome shortcuts if they exist. This
-// function will probably contain hard coded names of old shortcuts as they
-// will not longer be used anywhere else.
-// Method returns true if it finds and deletes successfully any old shortcut,
-// in all other cases it returns false.
-bool DeleteOldShortcuts(const std::wstring shortcut_path) {
-  // Check for the existence of shortcuts when they were still created under
-  // Start->Programs->Chrome (as opposed to Start->Programs->Google Chrome).
-  std::wstring shortcut_folder(shortcut_path);
-  file_util::AppendToPath(&shortcut_folder, L"Chrome");
-  if (file_util::PathExists(shortcut_folder)) {
-    LOG(INFO) << "Old shortcut path " << shortcut_folder << " exists.";
-    return file_util::Delete(shortcut_folder, true);
-  }
-  return false;
 }
 
 // Update shortcuts that are created by chrome.exe during first run, but
@@ -90,25 +72,8 @@ void UpdateChromeExeShortcuts(const std::wstring& chrome_exe) {
       !ShellUtil::GetDesktopPath(&desktop_shortcut) ||
       !ShellUtil::GetChromeShortcutName(&shortcut_name))
     return;
-  // Migrate the old shortcuts from Chrome.lnk to the localized name.
-  std::wstring old_ql_shortcut = ql_shortcut;
-  file_util::AppendToPath(&old_ql_shortcut, L"Chrome.lnk");
   file_util::AppendToPath(&ql_shortcut, shortcut_name);
-  std::wstring old_desktop_shortcut = desktop_shortcut;
-  file_util::AppendToPath(&old_desktop_shortcut, L"Chrome.lnk");
   file_util::AppendToPath(&desktop_shortcut, shortcut_name);
-
-  if (file_util::Move(old_ql_shortcut, ql_shortcut)) {
-    // Notify the Windows Shell that we renamed the file so it can remove the
-    // old icon.  It's safe to not cehck for MAX_PATH because file_util::Move
-    // does the check for us.
-    SHChangeNotify(SHCNE_RENAMEITEM, SHCNF_PATH, old_ql_shortcut.c_str(),
-                   ql_shortcut.c_str());
-  }
-  if (file_util::Move(old_desktop_shortcut, desktop_shortcut)) {
-    SHChangeNotify(SHCNE_RENAMEITEM, SHCNF_PATH, old_desktop_shortcut.c_str(),
-                   desktop_shortcut.c_str());
-  }
 
   // Go ahead and update the shortcuts if they exist.
   ShellUtil::UpdateChromeShortcut(chrome_exe, ql_shortcut, false);
@@ -142,9 +107,6 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
     return false;
   }
 
-  // Check for existence of old shortcuts
-  bool old_shortcuts_existed = DeleteOldShortcuts(shortcut_path);
-
   // The location of Start->Programs->Google Chrome folder
   const std::wstring& product_name =
       installer_util::GetLocalizedString(IDS_PRODUCT_NAME_BASE);
@@ -164,8 +126,7 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
   file_util::AppendToPath(&chrome_exe, installer_util::kChromeExe);
 
   if ((install_status == installer_util::FIRST_INSTALL_SUCCESS) ||
-      (install_status == installer_util::INSTALL_REPAIRED) ||
-      (old_shortcuts_existed)) {
+      (install_status == installer_util::INSTALL_REPAIRED)) {
     if (!file_util::PathExists(shortcut_path))
       file_util::CreateDirectoryW(shortcut_path);
 
@@ -185,7 +146,6 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
       installer_util::GetLocalizedString(IDS_UNINSTALL_CHROME_BASE) + L".lnk");
   if ((install_status == installer_util::FIRST_INSTALL_SUCCESS) ||
       (install_status == installer_util::INSTALL_REPAIRED) ||
-      (old_shortcuts_existed) ||
       (file_util::PathExists(uninstall_link))) {
     if (!file_util::PathExists(shortcut_path))
       file_util::CreateDirectoryW(shortcut_path);
@@ -230,7 +190,7 @@ installer_util::InstallStatus installer::InstallOrUpdateChrome(
 
   std::wstring install_path(GetChromeInstallPath(system_install));
   if (install_path.empty()) {
-    LOG(ERROR) << "Couldn't get installation destination path";
+    LOG(ERROR) << "Could not get installation destination path.";
     return installer_util::INSTALL_FAILED;
   } else {
     LOG(INFO) << "install destination path: " << install_path;
@@ -280,15 +240,9 @@ installer_util::InstallStatus installer::InstallOrUpdateChrome(
       LOG(INFO) << "Registering Chrome as browser";
       ShellUtil::RegisterStatus ret =
           ShellUtil::AddChromeToSetAccessDefaults(chrome_exe, true);
-      LOG(ERROR) << "Return status of Chrome browser registration " << ret;
+      LOG(INFO) << "Return status of Chrome browser registration " << ret;
     } else {
-      UpdateChromeExeShortcuts(chrome_exe);
       RemoveOldVersionDirs(install_path, new_version.GetString());
-      // Delete the old key for Uninstall link (this code can be removed once
-      // everyone has migrated to the new "Google Chrome" version of the key).
-      RegKey key(reg_root, L"", KEY_ALL_ACCESS);
-      key.DeleteKey(L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Chrome");
-      key.Close();
     }
   }
 

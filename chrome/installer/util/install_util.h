@@ -45,14 +45,6 @@
 // independently.
 class InstallUtil {
  public:
-  // Gets the last Win32 error and generates a human readable message string.
-  // Uses the Win32 API GetLastError() to get the last error and API
-  // FormatMessage() to generate a string. This function has been copied
-  // from chrome\common\win_util.{h.cc} to avoid making setup.exe dependent
-  // on all the other libs (base_gfx, libjpeg, libpng and others) that we
-  // need to pull in and the size of setup.exe goes up by ~140KB.
-  static std::wstring FormatLastWin32Error();
-
   // This method gets the Google Update registry key path for Chrome.
   // i.e. - Software\Google\Update\Clients\<chrome-guid>";
   static std::wstring GetChromeGoogleUpdateKey();

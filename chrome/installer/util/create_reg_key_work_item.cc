@@ -80,8 +80,7 @@ bool CreateRegKeyWorkItem::Do() {
         return false;
       }
     } else {
-      LOG(ERROR) << "fail to create " << key_path << " and the error is: "
-                 << InstallUtil::FormatLastWin32Error();
+      LOG(ERROR) << "Failed to create " << key_path;
       return false;
     }
   }
