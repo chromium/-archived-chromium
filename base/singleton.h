@@ -187,9 +187,8 @@ class Singleton {
   static void OnExit() {
     // AtExit should only ever be register after the singleton instance was
     // created.  We should only ever get here with a valid instance_ pointer.
-    // We skip the DCHECK because we don't want to pull in logging.h :/
-    Traits::Delete(reinterpret_cast<Type*>(instance_));
-    base::subtle::Release_Store(&instance_, 0);
+    Traits::Delete(reinterpret_cast<Type*>(
+        base::subtle::NoBarrier_AtomicExchange(&instance_, 0)));
   }
   static base::subtle::AtomicWord instance_;
 };
