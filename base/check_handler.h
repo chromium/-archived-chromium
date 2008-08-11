@@ -30,6 +30,8 @@
 #ifndef BASE_CHECK_HANDLER_H__
 #define BASE_CHECK_HANDLER_H__
 
+#include "build/build_config.h"
+
 #if defined(OS_WIN)
 #include <windows.h>
 #endif
