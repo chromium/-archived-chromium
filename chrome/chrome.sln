@@ -1072,7 +1072,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "v8_snapshot", "..\v8\tools\
 		{EC8B7909-62AF-470D-A75D-E1D89C837142} = {EC8B7909-62AF-470D-A75D-E1D89C837142}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "v8_shell", "..\..\..\..\v8\trunk\v8\tools\visual_studio\v8_shell.vcproj", "{9EBFE04E-0DEF-469A-957E-126FCBD457C7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "v8_shell", "..\v8\tools\visual_studio\v8_shell.vcproj", "{9EBFE04E-0DEF-469A-957E-126FCBD457C7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C0334F9A-1168-4101-9DD8-C30FB252D435} = {C0334F9A-1168-4101-9DD8-C30FB252D435}
 	EndProjectSection
