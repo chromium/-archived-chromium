@@ -175,7 +175,7 @@ class Histogram : public StatsRate {
   static const Sample kSampleType_MAX = INT_MAX;
 
   typedef std::vector<Count> Counts;
-  typedef std::vector<const Sample> Ranges;
+  typedef std::vector<Sample> Ranges;
 
   static const int kHexRangePrintingFlag = 0x8000;
   //----------------------------------------------------------------------------
