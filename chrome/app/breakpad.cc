@@ -210,8 +210,9 @@ unsigned __stdcall InitCrashReporterThread(void* param)  {
     // user allows it first.
     if (!GoogleUpdateSettings::GetCollectStatsConsent()) {
       // The user did not allow Google Update to send crashes, we need to use
-      // our default crash handler instead.
-      InitDefaultCrashCallback();
+      // our default crash handler instead, but only for the browser process.
+      if (callback)
+        InitDefaultCrashCallback();
       return 0;
     }
 
