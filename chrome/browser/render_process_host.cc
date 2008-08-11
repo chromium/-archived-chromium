@@ -557,8 +557,13 @@ void RenderProcessHost::OnMessageReceived(const IPC::Message& msg) {
   // dispatch incoming messages to the appropriate TabContents
   IPC::Channel::Listener* listener = listeners_.Lookup(msg.routing_id());
   if (!listener) {
-    DLOG(WARNING) << "Listener " << msg.routing_id() << " not found for "
-        << msg.type();
+    if (msg.is_sync()) {
+      // The listener has gone away, so we must respond or else the caller will
+      // hang waiting for a reply.
+      IPC::Message* reply = IPC::SyncMessage::GenerateReply(&msg);
+      reply->set_reply_error();
+      Send(reply);
+    }
     return;
   }
   listener->OnMessageReceived(msg);
