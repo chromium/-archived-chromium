@@ -176,6 +176,14 @@ bool AeroGlassFrame::GetAccelerator(int cmd_id,
   return browser_view_->GetAccelerator(cmd_id, accelerator);
 }
 
+void AeroGlassFrame::OnMove(const CPoint& point) {
+  browser_view_->WindowMoved();
+}
+
+void AeroGlassFrame::OnMoving(UINT param, const RECT* new_bounds) {
+  browser_view_->WindowMoved();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // AeroGlassFrame, private:
 

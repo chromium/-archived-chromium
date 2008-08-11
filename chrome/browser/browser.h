@@ -384,6 +384,10 @@ class Browser : public TabStripModelDelegate,
 
   // NEW FRAME METHODS BELOW THIS LINE ONLY... TODO(beng): clean up this file!
 
+  // Save and restore the window position.
+  void SaveWindowPosition(const gfx::Rect& bounds, bool maximized);
+  void RestoreWindowPosition(gfx::Rect* bounds, bool* maximized);
+
   // Gets the FavIcon of the page in the selected tab.
   SkBitmap GetCurrentPageIcon() const;
 
@@ -432,6 +436,7 @@ class Browser : public TabStripModelDelegate,
 
   // Returns the StatusBubble from the current toolbar. It is possible for
   // this to return NULL if called before the toolbar has initialized.
+  // TODO(beng): remove this.
   StatusBubble* GetStatusBubble();
 
   // Syncs the window title with current_tab_.  This may be necessary because
@@ -490,6 +495,7 @@ class Browser : public TabStripModelDelegate,
 
   // Removes the InfoBar and download shelf for the specified TabContents, if
   // they are presently attached.
+  // TODO(beng): REMOVE
   void RemoveShelvesForTabContents(TabContents* contents);
 
   // Copy the current page URL to the clipboard.

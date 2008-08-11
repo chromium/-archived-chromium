@@ -47,22 +47,32 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/focus_manager.h"
 
+// TODO(beng): clean this up
+static const wchar_t* kBrowserWindowKey = L"__BROWSER_WINDOW__";
+
 // static
 void FrameUtil::RegisterBrowserWindow(BrowserWindow* frame) {
+  DCHECK(!g_browser_process->IsUsingNewFrames());
   HWND h = reinterpret_cast<HWND>(frame->GetPlatformID());
   win_util::SetWindowUserData(h, frame);
 }
 
 // static
 BrowserWindow* FrameUtil::GetBrowserWindowForHWND(HWND hwnd) {
-  if (hwnd) {
-    std::wstring class_name = win_util::GetClassName(hwnd);
-    if (class_name == VISTA_FRAME_CLASSNAME ||
-        class_name == XP_FRAME_CLASSNAME) {
-      // Need to check for both, as it's possible to have vista and xp frames
-      // at the same time (you can get into this state when connecting via
-      // remote desktop to a vista machine with Chrome already running).
-      return static_cast<BrowserWindow*>(win_util::GetWindowUserData(hwnd));
+  if (IsWindow(hwnd)) {
+    if (g_browser_process->IsUsingNewFrames()) {
+      HANDLE data = GetProp(hwnd, kBrowserWindowKey);
+      if (data)
+        return reinterpret_cast<BrowserWindow*>(data);
+    } else {
+      std::wstring class_name = win_util::GetClassName(hwnd);
+      if (class_name == VISTA_FRAME_CLASSNAME ||
+          class_name == XP_FRAME_CLASSNAME) {
+        // Need to check for both, as it's possible to have vista and xp frames
+        // at the same time (you can get into this state when connecting via
+        // remote desktop to a vista machine with Chrome already running).
+        return static_cast<BrowserWindow*>(win_util::GetWindowUserData(hwnd));
+      }
     }
   }
   return NULL;
@@ -71,6 +81,8 @@ BrowserWindow* FrameUtil::GetBrowserWindowForHWND(HWND hwnd) {
 // static
 BrowserWindow* FrameUtil::CreateBrowserWindow(const gfx::Rect& bounds,
                                               Browser* browser) {
+  DCHECK(!g_browser_process->IsUsingNewFrames());
+
   BrowserWindow* frame = NULL;
 
   switch (browser->GetType()) {
@@ -101,6 +113,8 @@ BrowserWindow* FrameUtil::CreateBrowserWindow(const gfx::Rect& bounds,
 bool FrameUtil::LoadAccelerators(BrowserWindow* frame,
     HACCEL accelerator_table,
     ChromeViews::AcceleratorTarget* accelerator_target) {
+  DCHECK(!g_browser_process->IsUsingNewFrames());
+
   // We have to copy the table to access its contents.
   int count = CopyAcceleratorTable(accelerator_table, 0, 0);
   if (count == 0) {

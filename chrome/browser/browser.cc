@@ -249,9 +249,11 @@ Browser::Browser(const gfx::Rect& initial_bounds,
   if (!parsed_command_line.HasSwitch(switches::kDisableHangMonitor))
     InitHangMonitor();
 
-  NotificationService::current()->
-      AddObserver(this, NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
-                  NotificationService::AllSources());
+  if (!g_browser_process->IsUsingNewFrames()) {
+    NotificationService::current()->
+        AddObserver(this, NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
+                    NotificationService::AllSources());
+  }
 
   if (profile->HasSessionService()) {
     SessionService* session_service = profile->GetSessionService();
@@ -300,9 +302,11 @@ Browser::~Browser() {
   if (session_service)
     session_service->WindowClosed(session_id_);
 
-  NotificationService::current()->
-      RemoveObserver(this, NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
-                     NotificationService::AllSources());
+  if (!g_browser_process->IsUsingNewFrames()) {
+    NotificationService::current()->
+        RemoveObserver(this, NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
+                       NotificationService::AllSources());
+  }
 
   // Stop hung plugin monitoring.
   ticker_.Stop();
@@ -375,6 +379,8 @@ GURL Browser::GetHomePage() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void Browser::SyncWindowTitle() {
+  DCHECK(!g_browser_process->IsUsingNewFrames());
+
   TabContents* current_tab = GetSelectedTabContents();
   if (!current_tab || current_tab->GetTitle().empty()) {
     window_->SetWindowTitle(l10n_util::GetString(IDS_PRODUCT_NAME));
@@ -405,7 +411,7 @@ LocationBarView* Browser::GetLocationBarView() const {
 // Chrome update coalescing
 
 void Browser::UpdateToolBar(bool should_restore_state) {
-  window_->Update(GetSelectedTabContents(), should_restore_state);
+  window_->UpdateToolbar(GetSelectedTabContents(), should_restore_state);
 }
 
 void Browser::ScheduleUIUpdate(const TabContents* source,
@@ -492,8 +498,10 @@ void Browser::ProcessPendingUIUpdates() {
 
     // Updating the URL happens synchronously in ScheduleUIUpdate.
 
-    if (flags & TabContents::INVALIDATE_TITLE)
+    if (flags & TabContents::INVALIDATE_TITLE &&
+        !g_browser_process->IsUsingNewFrames()) {
       SyncWindowTitle();  // We'll update the tab due to invalide_tab below.
+    }
 
     if (flags & TabContents::INVALIDATE_LOAD)
       GetStatusBubble()->SetStatus(GetSelectedTabContents()->GetStatusText());
@@ -825,6 +833,7 @@ void Browser::Observe(NotificationType type,
                       const NotificationSource& source,
                       const NotificationDetails& details) {
   if (type == NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED) {
+    DCHECK(!g_browser_process->IsUsingNewFrames());
     TabContents* current_tab = GetSelectedTabContents();
     if (current_tab) {
       Profile* event_profile = Source<Profile>(source).ptr();
@@ -908,6 +917,7 @@ StatusBubble* Browser::GetStatusBubble() {
 // of any WS_POPUP HWNDs.
 // TODO(beng): This should move to BrowserView2!
 void Browser::WindowMoved() {
+  DCHECK(!g_browser_process->IsUsingNewFrames());
   GetStatusBubble()->Reposition();
 
   // Close the omnibox popup, if any.
@@ -1400,11 +1410,13 @@ void Browser::TabClosingAt(TabContents* contents, int index) {
 }
 
 void Browser::TabDetachedAt(TabContents* contents, int index) {
-  // TODO(beng): (http://b/1085418) figure out if we really need to do this
-  //             here - surely the subsequent selection of another tab would
-  //             result in this action taking place?
-  if (contents == GetSelectedTabContents())
-    RemoveShelvesForTabContents(contents);
+  if (!g_browser_process->IsUsingNewFrames()) {
+    // TODO(beng): (http://b/1085418) figure out if we really need to do this
+    //             here - surely the subsequent selection of another tab would
+    //             result in this action taking place?
+    if (contents == GetSelectedTabContents())
+      RemoveShelvesForTabContents(contents);
+  }
 
   contents->set_delegate(NULL);
   if (!tabstrip_model_.closing_all())
@@ -1451,7 +1463,8 @@ void Browser::TabSelectedAt(TabContents* old_contents,
   }
 
   // Propagate the profile to the location bar.
-  window_->ProfileChanged(new_contents->profile());
+  if (!g_browser_process->IsUsingNewFrames())
+    window_->ProfileChanged(new_contents->profile());
   UpdateToolBar(true);
 
   // Force the go/stop button to change.
@@ -1471,7 +1484,8 @@ void Browser::TabSelectedAt(TabContents* old_contents,
   // Show the loading state (if any).
   GetStatusBubble()->SetStatus(GetSelectedTabContents()->GetStatusText());
 
-  SyncWindowTitle();
+  if (!g_browser_process->IsUsingNewFrames())
+    SyncWindowTitle();
 
   // Update sessions. Don't force creation of sessions. If sessions doesn't
   // exist, the change will be picked up by sessions when created.
@@ -1512,6 +1526,8 @@ void Browser::TabStripEmpty() {
 }
 
 void Browser::RemoveShelvesForTabContents(TabContents* contents) {
+  DCHECK(!g_browser_process->IsUsingNewFrames());
+
   ChromeViews::View* shelf = contents->GetDownloadShelfView();
   if (shelf && shelf->GetParent() != NULL)
     shelf->GetParent()->RemoveChildView(shelf);
@@ -1766,6 +1782,41 @@ NavigationController* Browser::GetSelectedNavigationController() const {
 ///////////////////////////////////////////////////////////////////////////////
 // NEW FRAME TODO(beng): clean up this file
 // DO NOT PLACE METHODS NOT RELATED TO NEW FRAMES BELOW THIS LINE.
+
+void Browser::SaveWindowPosition(const gfx::Rect& bounds, bool maximized) {
+  // First save to local state, this is for remembering on subsequent starts.
+  PrefService* prefs = g_browser_process->local_state();
+  DCHECK(prefs);
+  std::wstring name(prefs::kBrowserWindowPlacement);
+  if (!app_name_.empty()) {
+    name.append(L"_");
+    name.append(app_name_);
+  }
+
+  DictionaryValue* win_pref = prefs->GetMutableDictionary(name.c_str());
+  DCHECK(win_pref);
+  win_pref->SetInteger(L"top", bounds.y());
+  win_pref->SetInteger(L"left", bounds.x());
+  win_pref->SetInteger(L"bottom", bounds.bottom());
+  win_pref->SetInteger(L"right", bounds.right());
+  win_pref->SetBoolean(L"maximized", maximized);
+
+  // Then save to the session storage service, used when reloading a past
+  // session. Note that we don't want to be the ones who cause lazy
+  // initialization of the session service. This function gets called during
+  // initial window showing, and we don't want to bring in the session service
+  // this early.
+  if (profile()->HasSessionService()) {
+    SessionService* session_service = profile()->GetSessionService();
+    if (session_service)
+      session_service->SetWindowBounds(session_id_, bounds, maximized);
+  }
+}
+
+void Browser::RestoreWindowPosition(gfx::Rect* bounds, bool* maximized) {
+  DCHECK(bounds && maximized);
+  WindowSizer::GetBrowserWindowBounds(app_name_, *bounds, bounds, maximized);
+}
 
 SkBitmap Browser::GetCurrentPageIcon() const {
   TabContents* contents = tabstrip_model_.GetSelectedTabContents();

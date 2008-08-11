@@ -393,7 +393,8 @@ static const int kThrobberFrameTimeMs = 30;
 
 ConstrainedWindowNonClientView::ConstrainedWindowNonClientView(
     ConstrainedWindowImpl* container, TabContents* owner)
-        : container_(container),
+        : NonClientView(),
+          container_(container),
           window_delegate_(NULL),
           close_button_(new ChromeViews::Button),
           location_bar_(NULL),

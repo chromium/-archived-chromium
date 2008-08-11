@@ -208,6 +208,7 @@ class HWNDViewContainer : public ViewContainer,
     MSG_WM_MOUSELEAVE(OnMouseLeave)
     MSG_WM_MOUSEMOVE(OnMouseMove)
     MSG_WM_MOUSEWHEEL(OnMouseWheel)
+    MSG_WM_MOVE(OnMove)
     MSG_WM_MOVING(OnMoving)
     MSG_WM_NCACTIVATE(OnNCActivate)
     MSG_WM_NCCALCSIZE(OnNCCalcSize)
@@ -368,6 +369,7 @@ class HWNDViewContainer : public ViewContainer,
   virtual LRESULT OnMouseActivate(HWND window, UINT hittest_code, UINT message);
   virtual void OnMouseMove(UINT flags, const CPoint& point);
   virtual void OnMouseLeave();
+  virtual void OnMove(const CPoint& point) { SetMsgHandled(FALSE); }
   virtual void OnMoving(UINT param, const LPRECT new_bounds) { }
   virtual LRESULT OnMouseWheel(UINT flags, short distance, const CPoint& point);
   virtual LRESULT OnMouseRange(UINT msg, WPARAM w_param, LPARAM l_param);

@@ -64,6 +64,10 @@ class BrowserView2 : public BrowserWindow,
 
   void set_frame(BrowserFrame* frame) { frame_ = frame; }
 
+  // Called by the frame to notify the BrowserView2 that it was moved, and that
+  // any dependent popup windows should be repositioned.
+  void WindowMoved();
+
   // Returns the bounds of the toolbar, in BrowserView2 coordinates.
   gfx::Rect GetToolbarBounds() const;
 
@@ -109,19 +113,14 @@ class BrowserView2 : public BrowserWindow,
   // Overridden from BrowserWindow:
   virtual void Init();
   virtual void Show(int command, bool adjust_to_fit);
-  virtual void BrowserDidPaint(HRGN region);
   virtual void Close();
   virtual void* GetPlatformID();
   virtual TabStrip* GetTabStrip() const;
   virtual StatusBubble* GetStatusBubble();
-  virtual ChromeViews::RootView* GetRootView();
-  virtual void ShelfVisibilityChanged();
   virtual void SelectedTabToolbarSizeChanged(bool is_animating);
   virtual void UpdateTitleBar();
-  virtual void SetWindowTitle(const std::wstring& title);
   virtual void Activate();
   virtual void FlashFrame();
-  virtual void ShowTabContents(TabContents* contents);
   virtual void ContinueDetachConstrainedWindowDrag(
       const gfx::Point& mouse_point,
       int frame_component);
@@ -132,7 +131,6 @@ class BrowserView2 : public BrowserWindow,
   virtual gfx::Rect GetNormalBounds();
   virtual bool IsMaximized();
   virtual gfx::Rect GetBoundsForContentBounds(const gfx::Rect content_rect);
-  virtual void DetachFromBrowser();
   virtual void InfoBubbleShowing();
   virtual void InfoBubbleClosing();
   virtual ToolbarStarToggle* GetStarButton() const;
@@ -140,8 +138,7 @@ class BrowserView2 : public BrowserWindow,
   virtual GoButton* GetGoButton() const;
   virtual BookmarkBarView* GetBookmarkBarView();
   virtual BrowserView* GetBrowserView() const;
-  virtual void Update(TabContents* contents, bool should_restore_state);
-  virtual void ProfileChanged(Profile* profile);
+  virtual void UpdateToolbar(TabContents* contents, bool should_restore_state);
   virtual void FocusToolbar();
   virtual void DestroyBrowser();
 
@@ -151,15 +148,11 @@ class BrowserView2 : public BrowserWindow,
                        const NotificationDetails& details);
 
   // Overridden from TabStripModelObserver:
-  virtual void TabClosingAt(TabContents* contents, int index);
   virtual void TabDetachedAt(TabContents* contents, int index);
   virtual void TabSelectedAt(TabContents* old_contents,
                              TabContents* new_contents,
                              int index,
                              bool user_gesture);
-  virtual void TabChangedAt(TabContents* old_contents,
-                            TabContents* new_contents,
-                            int index);
   virtual void TabStripEmpty();
 
   // Overridden from ChromeViews::WindowDelegate:
@@ -188,6 +181,7 @@ class BrowserView2 : public BrowserWindow,
   virtual int NonClientHitTest(const gfx::Point& point);
 
   // Overridden from ChromeViews::View:
+  virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
   virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual void ViewHierarchyChanged(bool is_add,
@@ -216,21 +210,25 @@ class BrowserView2 : public BrowserWindow,
   // Prepare to show the Bookmark Bar for the specified TabContents. Returns
   // true if the Bookmark Bar can be shown (i.e. it's supported for this
   // Browser type) and there should be a subsequent re-layout to show it.
+  // |contents| can be NULL.
   bool MaybeShowBookmarkBar(TabContents* contents);
 
   // Prepare to show an Info Bar for the specified TabContents. Returns true
   // if there is an Info Bar to show and one is supported for this Browser
   // type, and there should be a subsequent re-layout to show it.
+  // |contents| can be NULL.
   bool MaybeShowInfoBar(TabContents* contents);
 
   // Prepare to show a Download Shelf for the specified TabContents. Returns
   // true if there is a Download Shelf to show and one is supported for this
   // Browser type, and there should be a subsequent re-layout to show it.
+  // |contents| can be NULL.
   bool MaybeShowDownloadShelf(TabContents* contents);
 
   // Updates various optional child Views, e.g. Bookmarks Bar, Info Bar or the
   // Download Shelf in response to a change notification from the specified
-  // |contents|.
+  // |contents|. |contents| can be NULL. In this case, all optional UI will be
+  // removed.
   void UpdateUIForContents(TabContents* contents);
 
   // Updates an optional child View, e.g. Bookmarks Bar, Info Bar, Download

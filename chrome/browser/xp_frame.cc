@@ -352,7 +352,6 @@ XPFrame::XPFrame(Browser* browser)
       saved_window_placement_(false),
       current_action_(FA_NONE),
       on_mouse_leave_armed_(false),
-      browser_paint_pending_(false),
       previous_cursor_(NULL),
       minimum_size_(100, 100),
       shelf_view_(NULL),
@@ -1581,10 +1580,6 @@ void XPFrame::ButtonPressed(ChromeViews::BaseButton *sender) {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void XPFrame::BrowserDidPaint(HRGN rgn) {
-  browser_paint_pending_ = false;
-}
-
 bool XPFrame::ShouldRefreshCurrentTabContents() {
   if (browser_->tabstrip_model()) {
     TabContents* tc = browser_->GetSelectedTabContents();
@@ -1829,11 +1824,6 @@ gfx::Rect XPFrame::GetBoundsForContentBounds(const gfx::Rect content_rect) {
   return r;
 }
 
-void XPFrame::DetachFromBrowser() {
-  browser_->tabstrip_model()->RemoveObserver(tabstrip_);
-  browser_ = NULL;
-}
-
 void XPFrame::InfoBubbleShowing() {
   ignore_ncactivate_ = true;
   paint_as_active_ = true;
@@ -1879,8 +1869,8 @@ BrowserView* XPFrame::GetBrowserView() const {
   return browser_view_;
 }
 
-void XPFrame::Update(TabContents* contents, bool should_restore_state) {
-  browser_view_->Update(contents, should_restore_state);
+void XPFrame::UpdateToolbar(TabContents* contents, bool should_restore_state) {
+  browser_view_->UpdateToolbar(contents, should_restore_state);
 }
 
 void XPFrame::ProfileChanged(Profile* profile) {

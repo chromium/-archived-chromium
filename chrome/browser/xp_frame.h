@@ -97,7 +97,6 @@ class XPFrame : public BrowserWindow,
   virtual ~XPFrame();
   virtual void Init();
   virtual void Show(int command, bool adjust_to_fit);
-  virtual void BrowserDidPaint(HRGN rgn);
   virtual void Close();
   virtual void* GetPlatformID();
   virtual void SetAcceleratorTable(
@@ -106,7 +105,6 @@ class XPFrame : public BrowserWindow,
   virtual gfx::Rect GetNormalBounds();
   virtual bool IsMaximized();
   virtual gfx::Rect GetBoundsForContentBounds(const gfx::Rect content_rect);
-  virtual void DetachFromBrowser();
   virtual void InfoBubbleShowing();
   virtual void InfoBubbleClosing();
   virtual ToolbarStarToggle* GetStarButton() const;
@@ -114,7 +112,7 @@ class XPFrame : public BrowserWindow,
   virtual GoButton* GetGoButton() const;
   virtual BookmarkBarView* GetBookmarkBarView();
   virtual BrowserView* GetBrowserView() const;
-  virtual void Update(TabContents* contents, bool should_restore_state);
+  virtual void UpdateToolbar(TabContents* contents, bool should_restore_state);
   virtual void ProfileChanged(Profile* profile);
   virtual void FocusToolbar();
 
@@ -468,9 +466,6 @@ class XPFrame : public BrowserWindow,
 
   // Initialize static members the first time this is invoked
   static void InitializeIfNeeded();
-
-  // true if some painting is already pending
-  bool browser_paint_pending_;
 
   // cursor storage
   HCURSOR previous_cursor_;

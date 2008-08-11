@@ -50,7 +50,8 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   // Retrieve the bounds of the window for the specified contents bounds.
   gfx::Rect GetWindowBoundsForClientBounds(const gfx::Rect& client_bounds);
 
-  // Retrieve the bounds that the specified |tabstrip| will be laid out within.
+  // Retrieve the bounds (in ClientView coordinates) that the specified
+  // |tabstrip| will be laid out within.
   gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip);
 
  protected:
@@ -101,8 +102,8 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
 
   // Returns the set of resources to use to paint this view.
   WindowResources* resources() const {
-    return frame_->is_active() ? current_active_resources_
-                               : current_inactive_resources_;
+    return frame_->is_active() || paint_as_active() ?
+        current_active_resources_ : current_inactive_resources_;
   }
   
   // The layout rect of the title, if visible.

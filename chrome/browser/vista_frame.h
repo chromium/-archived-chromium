@@ -186,7 +186,6 @@ class VistaFrame : public BrowserWindow,
 
   virtual void Init();
   virtual void Show(int command, bool adjust_to_fit);
-  virtual void BrowserDidPaint(HRGN region);
   virtual void Close();
   virtual void* GetPlatformID();
   virtual void ShowTabContents(TabContents* contents);
@@ -201,14 +200,13 @@ class VistaFrame : public BrowserWindow,
   virtual gfx::Rect GetNormalBounds();
   virtual bool IsMaximized();
   virtual gfx::Rect GetBoundsForContentBounds(const gfx::Rect content_rect);
-  virtual void DetachFromBrowser();
   virtual void InfoBubbleShowing();
   virtual ToolbarStarToggle* GetStarButton() const;
   virtual LocationBarView* GetLocationBarView() const;
   virtual GoButton* GetGoButton() const;
   virtual BookmarkBarView* GetBookmarkBarView();
   virtual BrowserView* GetBrowserView() const;
-  virtual void Update(TabContents* contents, bool should_restore_state);
+  virtual void UpdateToolbar(TabContents* contents, bool should_restore_state);
   virtual void ProfileChanged(Profile* profile);
   virtual void FocusToolbar();
 
@@ -393,9 +391,6 @@ class VistaFrame : public BrowserWindow,
 
   // whether we are currently processing a view level drag session
   bool in_drag_session_;
-
-  // whether we are waiting for a browser async paint
-  bool browser_paint_pending_;
 
   // A view positioned at the bottom of the frame.
   ChromeViews::View* shelf_view_;

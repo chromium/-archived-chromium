@@ -53,6 +53,7 @@ static const int kStatusBubbleHeight = 20;
 static const int kStatusBubbleOffset = 2;
 static const int kSeparationLineHeight = 1;
 static const SkColor kSeparationLineColor = SkColorSetRGB(178, 178, 178);
+static const wchar_t* kBrowserWindowKey = L"__BROWSER_WINDOW__";
 
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView2, public:
@@ -75,6 +76,14 @@ BrowserView2::BrowserView2(Browser* browser)
 
 BrowserView2::~BrowserView2() {
   browser_->tabstrip_model()->RemoveObserver(this);
+}
+
+void BrowserView2::WindowMoved() {
+  status_bubble_->Reposition();
+
+  // Close the omnibox popup, if any.
+  if (GetLocationBarView())
+    GetLocationBarView()->location_entry()->ClosePopup();
 }
 
 gfx::Rect BrowserView2::GetToolbarBounds() const {
@@ -152,6 +161,10 @@ unsigned int BrowserView2::FeaturesForBrowserType(BrowserType::Type type) {
 // BrowserView2, BrowserWindow implementation:
 
 void BrowserView2::Init() {
+  // Stow a pointer to this object onto the window handle so that we can get
+  // at it later when all we have is a HWND.
+  SetProp(GetViewContainer()->GetHWND(), kBrowserWindowKey, this);
+
   LoadAccelerators();
   SetAccessibleName(l10n_util::GetString(IDS_PRODUCT_NAME));
 
@@ -176,9 +189,6 @@ void BrowserView2::Show(int command, bool adjust_to_fit) {
   frame_->GetWindow()->Show();
 }
 
-void BrowserView2::BrowserDidPaint(HRGN region) {
-}
-
 void BrowserView2::Close() {
   frame_->GetWindow()->Close();
 }
@@ -195,22 +205,13 @@ StatusBubble* BrowserView2::GetStatusBubble() {
   return status_bubble_.get();
 }
 
-ChromeViews::RootView* BrowserView2::GetRootView() {
-  // TODO(beng): Get rid of this stupid method.
-  return View::GetRootView();
-}
-
-void BrowserView2::ShelfVisibilityChanged() {
-  UpdateUIForContents(browser_->GetSelectedTabContents());
-}
-
 void BrowserView2::SelectedTabToolbarSizeChanged(bool is_animating) {
   if (is_animating) {
     contents_container_->set_fast_resize(true);
-    ShelfVisibilityChanged();
+    UpdateUIForContents(browser_->GetSelectedTabContents());
     contents_container_->set_fast_resize(false);
   } else {
-    ShelfVisibilityChanged();
+    UpdateUIForContents(browser_->GetSelectedTabContents());
     contents_container_->UpdateHWNDBounds();
   }
 }
@@ -218,9 +219,6 @@ void BrowserView2::SelectedTabToolbarSizeChanged(bool is_animating) {
 void BrowserView2::UpdateTitleBar() {
   frame_->GetWindow()->UpdateWindowTitle();
   frame_->GetWindow()->UpdateWindowIcon();
-}
-
-void BrowserView2::SetWindowTitle(const std::wstring& title) {
 }
 
 void BrowserView2::Activate() {
@@ -235,17 +233,6 @@ void BrowserView2::FlashFrame() {
   fwi.uCount = 4;
   fwi.dwTimeout = 0;
   FlashWindowEx(&fwi);
-}
-
-void BrowserView2::ShowTabContents(TabContents* contents) {
-  contents_container_->SetTabContents(contents);
-
-  // Force a LoadingStateChanged notification because the TabContents
-  // could be loading (such as when the user unconstrains a tab.
-  if (contents && contents->delegate())
-    contents->delegate()->LoadingStateChanged(contents);
-
-  UpdateUIForContents(contents);
 }
 
 void BrowserView2::ContinueDetachConstrainedWindowDrag(
@@ -311,13 +298,12 @@ gfx::Rect BrowserView2::GetBoundsForContentBounds(
   return frame_->GetWindowBoundsForClientBounds(content_rect);
 }
 
-void BrowserView2::DetachFromBrowser() {
-}
-
 void BrowserView2::InfoBubbleShowing() {
+  frame_->GetWindow()->DisableInactiveRendering(true);
 }
 
 void BrowserView2::InfoBubbleClosing() {
+  frame_->GetWindow()->DisableInactiveRendering(false);
 }
 
 ToolbarStarToggle* BrowserView2::GetStarButton() const {
@@ -349,12 +335,9 @@ BrowserView* BrowserView2::GetBrowserView() const {
   return NULL;
 }
 
-void BrowserView2::Update(TabContents* contents, bool should_restore_state) {
+void BrowserView2::UpdateToolbar(TabContents* contents,
+                                 bool should_restore_state) {
   toolbar_->Update(contents, should_restore_state);
-}
-
-void BrowserView2::ProfileChanged(Profile* profile) {
-  toolbar_->SetProfile(profile);
 }
 
 void BrowserView2::FocusToolbar() {
@@ -382,27 +365,13 @@ void BrowserView2::Observe(NotificationType type,
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView2, TabStripModelObserver implementation:
 
-void BrowserView2::TabClosingAt(TabContents* contents, int index) {
+void BrowserView2::TabDetachedAt(TabContents* contents, int index) {
   if (contents == browser_->GetSelectedTabContents()) {
-    // TODO(beng): (Cleanup) These should probably eventually live in the
-    //             TabContentsView, then we could skip all this teardown.
-    ChromeViews::View* shelf = contents->GetDownloadShelfView();
-    if (shelf && shelf->GetParent() != NULL)
-      shelf->GetParent()->RemoveChildView(shelf);
-
-    ChromeViews::View* info_bar = contents->GetInfoBarView();
-    if (info_bar && info_bar->GetParent() != NULL)
-      info_bar->GetParent()->RemoveChildView(info_bar);
-
     // We need to reset the current tab contents to NULL before it gets
     // freed. This is because the focus manager performs some operations
     // on the selected TabContents when it is removed.
     contents_container_->SetTabContents(NULL);
   }
-}
-
-void BrowserView2::TabDetachedAt(TabContents* contents, int index) {
-  // TODO(beng): implement
 }
 
 void BrowserView2::TabSelectedAt(TabContents* old_contents,
@@ -420,22 +389,18 @@ void BrowserView2::TabSelectedAt(TabContents* old_contents,
   if (BrowserList::GetLastActive() == browser_)
     new_contents->RestoreFocus();
 
+  // Update all the UI bits.
   UpdateTitleBar();
-  // UpdateToolbar(true);
-
-  UpdateUIForContents(new_contents);
-}
-
-void BrowserView2::TabChangedAt(TabContents* old_contents,
-                                TabContents* new_contents,
-                                int index) {
+  toolbar_->SetProfile(new_contents->profile());
+  UpdateToolbar(new_contents, true);
   UpdateUIForContents(new_contents);
 }
 
 void BrowserView2::TabStripEmpty() {
-  // We need to reset the frame contents just in case this wasn't done while
-  // detaching the tab. This happens when dragging out the last tab.
-  contents_container_->SetTabContents(NULL);
+  // Make sure all optional UI is removed before we are destroyed, otherwise
+  // there will be consequences (since our view hierarchy will still have
+  // references to freed views).
+  UpdateUIForContents(NULL);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -489,26 +454,23 @@ void BrowserView2::ExecuteWindowsCommand(int command_id) {
 void BrowserView2::SaveWindowPosition(const CRect& bounds,
                                       bool maximized,
                                       bool always_on_top) {
-  // TODO(beng): implement me!
-  //browser_->SaveWindowPosition(gfx::Rect(bounds), maximized);
+  browser_->SaveWindowPosition(gfx::Rect(bounds), maximized);
 }
 
 bool BrowserView2::RestoreWindowPosition(CRect* bounds,
                                          bool* maximized,
                                          bool* always_on_top) {
   DCHECK(bounds && maximized && always_on_top);
-  *always_on_top = false;
-  /* TODO(beng): implement this method in Browser
-  browser_->RestoreWindowPosition(bounds, maximized);
+  // TODO(beng): (http://b/1317622) Make these functions take gfx::Rects.
+  gfx::Rect b;
+  browser_->RestoreWindowPosition(&b, maximized);
+  *bounds = b.ToRECT();
 
   // We return true because we can _always_ locate reasonable bounds using the
   // WindowSizer, and we don't want to trigger the Window's built-in "size to
   // default" handling because the browser window has no default preferred
   // size.
   return true;
-  */
-  // For now, return false to just use whatever was given to us by Browser...
-  return false;
 }
 
 void BrowserView2::WindowClosing() {
@@ -605,6 +567,10 @@ int BrowserView2::NonClientHitTest(const gfx::Point& point) {
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView2, ChromeViews::View overrides:
 
+void BrowserView2::Paint(ChromeCanvas* canvas) {
+  //canvas->FillRectInt(SK_ColorRED, 0, 0, GetWidth(), GetHeight());
+}
+
 void BrowserView2::Layout() {
   int top = LayoutTabStrip();
   top = LayoutToolbar(top);
@@ -635,9 +601,8 @@ void BrowserView2::ViewHierarchyChanged(bool is_add,
 int BrowserView2::LayoutTabStrip() {
   if (IsTabStripVisible()) {
     gfx::Rect tabstrip_bounds = frame_->GetBoundsForTabStrip(tabstrip_);
-    // TODO(beng): account for OTR avatar.
     tabstrip_->SetBounds(tabstrip_bounds.x(), tabstrip_bounds.y(),
-      tabstrip_bounds.width(), tabstrip_bounds.height());
+                         tabstrip_bounds.width(), tabstrip_bounds.height());
     return tabstrip_bounds.bottom();
   }
   return 0;
@@ -668,7 +633,6 @@ int BrowserView2::LayoutBookmarkAndInfoBars(int top) {
       return LayoutBookmarkBar(top);
     }
     // Otherwise, Bookmark bar first, Info bar second.
-    top -= kSeparationLineHeight;
     top = LayoutBookmarkBar(top);
   }
   return LayoutInfoBar(top);
@@ -678,6 +642,8 @@ int BrowserView2::LayoutBookmarkBar(int top) {
   if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && active_bookmark_bar_) {
     CSize ps;
     active_bookmark_bar_->GetPreferredSize(&ps);
+    if (!active_info_bar_ || show_bookmark_bar_pref_.GetValue())
+      top -= kSeparationLineHeight;
     active_bookmark_bar_->SetBounds(0, top, GetWidth(), ps.cy);
     top += ps.cy;
   }  
@@ -722,7 +688,8 @@ void BrowserView2::LayoutStatusBubble(int top) {
 bool BrowserView2::MaybeShowBookmarkBar(TabContents* contents) {
   ChromeViews::View* new_bookmark_bar_view = NULL;
   if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) &&
-      contents->IsBookmarkBarAlwaysVisible()) {
+      (contents && contents->IsBookmarkBarAlwaysVisible() ||
+       show_bookmark_bar_pref_.GetValue())) {
     new_bookmark_bar_view = GetBookmarkBarView();
   }
   return UpdateChildViewAndLayout(new_bookmark_bar_view,
@@ -744,17 +711,11 @@ bool BrowserView2::MaybeShowDownloadShelf(TabContents* contents) {
 }
 
 void BrowserView2::UpdateUIForContents(TabContents* contents) {
-  // Only do a Layout if the current contents is non-NULL. We assume that if
-  // the contents is NULL, we're either being destroyed, or ShowTabContents is
-  // going to be invoked with a non-NULL TabContents again so that there is no
-  // need to do a Layout now.
-  if (!contents)
-    return;
-
-  if (MaybeShowBookmarkBar(contents) || MaybeShowInfoBar(contents) ||
-      MaybeShowDownloadShelf(contents)) {
+  bool needs_layout = MaybeShowBookmarkBar(contents);
+  needs_layout |= MaybeShowInfoBar(contents);
+  needs_layout |= MaybeShowDownloadShelf(contents);
+  if (needs_layout)
     Layout();
-  }
 }
 
 bool BrowserView2::UpdateChildViewAndLayout(ChromeViews::View* new_view,

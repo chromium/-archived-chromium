@@ -148,7 +148,6 @@ VistaFrame::VistaFrame(Browser* browser)
       saved_window_placement_(false),
       on_mouse_leave_armed_(false),
       in_drag_session_(false),
-      browser_paint_pending_(false),
       shelf_view_(NULL),
       bookmark_bar_view_(NULL),
       info_bar_view_(NULL),
@@ -502,10 +501,6 @@ void VistaFrame::Show(int command, bool adjust_to_fit) {
   ::ShowWindow(*this, command);
 }
 
-void VistaFrame::BrowserDidPaint(HRGN region) {
-  browser_paint_pending_ = false;
-}
-
 // This is called when we receive WM_ENDSESSION. In Vista the we have 5 seconds
 // or will be forcefully terminated if we get stuck servicing this message and
 // not pump the final messages.
@@ -627,11 +622,6 @@ gfx::Rect VistaFrame::GetBoundsForContentBounds(const gfx::Rect content_rect) {
   return r;
 }
 
-void VistaFrame::DetachFromBrowser() {
-  browser_->tabstrip_model()->RemoveObserver(tabstrip_);
-  browser_ = NULL;
-}
-
 void VistaFrame::InfoBubbleShowing() {
   ignore_ncactivate_ = true;
 }
@@ -668,7 +658,8 @@ BrowserView* VistaFrame::GetBrowserView() const {
   return browser_view_;
 }
 
-void VistaFrame::Update(TabContents* contents, bool should_restore_state) {
+void VistaFrame::UpdateToolbar(TabContents* contents,
+                               bool should_restore_state) {
 }
 
 void VistaFrame::ProfileChanged(Profile* profile) {

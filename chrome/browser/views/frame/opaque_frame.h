@@ -61,6 +61,7 @@ class OpaqueFrame : public BrowserFrame,
   gfx::Rect GetToolbarBounds() const;
   gfx::Rect GetContentsBounds() const;
 
+ protected:
   // Overridden from BrowserFrame:
   virtual gfx::Rect GetWindowBoundsForClientBounds(
       const gfx::Rect& client_bounds);
@@ -72,6 +73,8 @@ class OpaqueFrame : public BrowserFrame,
   virtual bool AcceleratorPressed(ChromeViews::Accelerator* accelerator);
   virtual bool GetAccelerator(int cmd_id,
                               ChromeViews::Accelerator* accelerator);
+  virtual void OnMove(const CPoint& point);
+  virtual void OnMoving(UINT param, const RECT* new_bounds);
 
  private:
   // Return a pointer to the concrete type of our non-client view.

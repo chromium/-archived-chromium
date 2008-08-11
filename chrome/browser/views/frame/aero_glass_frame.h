@@ -73,6 +73,8 @@ class AeroGlassFrame : public BrowserFrame,
   virtual bool AcceleratorPressed(ChromeViews::Accelerator* accelerator);
   virtual bool GetAccelerator(int cmd_id,
                               ChromeViews::Accelerator* accelerator);
+  virtual void OnMove(const CPoint& point);
+  virtual void OnMoving(UINT param, const RECT* new_bounds);
 
  protected:
   // Overridden from ChromeViews::HWNDViewContainer:

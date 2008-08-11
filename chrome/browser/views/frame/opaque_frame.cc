@@ -98,6 +98,14 @@ bool OpaqueFrame::GetAccelerator(int cmd_id,
   return browser_view_->GetAccelerator(cmd_id, accelerator);
 }
 
+void OpaqueFrame::OnMove(const CPoint& point) {
+  browser_view_->WindowMoved();
+}
+
+void OpaqueFrame::OnMoving(UINT param, const RECT* new_bounds) {
+  browser_view_->WindowMoved();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueFrame, private:
 

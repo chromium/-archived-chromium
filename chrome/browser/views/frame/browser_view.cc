@@ -91,10 +91,6 @@ void BrowserView::Show(int command, bool adjust_to_fit) {
   frame_->Show(command, adjust_to_fit);
 }
 
-void BrowserView::BrowserDidPaint(HRGN region) {
-  frame_->BrowserDidPaint(region);
-}
-
 void BrowserView::Close() {
   frame_->Close();
 }
@@ -109,10 +105,6 @@ TabStrip* BrowserView::GetTabStrip() const {
 
 StatusBubble* BrowserView::GetStatusBubble() {
   return status_bubble_.get();
-}
-
-ChromeViews::RootView* BrowserView::GetRootView() {
-  return frame_->GetRootView();
 }
 
 void BrowserView::ShelfVisibilityChanged() {
@@ -174,10 +166,6 @@ gfx::Rect BrowserView::GetBoundsForContentBounds(const gfx::Rect content_rect) {
   return frame_->GetBoundsForContentBounds(content_rect);
 }
 
-void BrowserView::DetachFromBrowser() {
-  frame_->DetachFromBrowser();
-}
-
 void BrowserView::InfoBubbleShowing() {
   frame_->InfoBubbleShowing();
 }
@@ -206,7 +194,8 @@ BrowserView* BrowserView::GetBrowserView() const {
   return NULL;
 }
 
-void BrowserView::Update(TabContents* contents, bool should_restore_state) {
+void BrowserView::UpdateToolbar(TabContents* contents,
+                                bool should_restore_state) {
   toolbar_->Update(contents, should_restore_state);
 }
 

@@ -398,7 +398,7 @@ static const int kTitleTopOffset = 6;
 static const int kTitleBottomSpacing = 6;
 // The distance between the top edge of the window and the TabStrip when there
 // is no title-bar showing, and the window is restored.
-static const int kNoTitleTopSpacing = 10;
+static const int kNoTitleTopSpacing = 15;
 // The distance between the top edge of the window and the TabStrip when there
 // is no title-bar showing, and the window is maximized.
 static const int kNoTitleZoomedTopSpacing = 1;
@@ -426,7 +426,8 @@ static const int kDistributorLogoVerticalOffset = 3;
 // OpaqueNonClientView, public:
 
 OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame, bool is_otr)
-    : minimize_button_(new ChromeViews::Button),
+    : NonClientView(),
+      minimize_button_(new ChromeViews::Button),
       maximize_button_(new ChromeViews::Button),
       restore_button_(new ChromeViews::Button),
       close_button_(new ChromeViews::Button),
@@ -513,9 +514,9 @@ gfx::Rect OpaqueNonClientView::GetWindowBoundsForClientBounds(
 
 gfx::Rect OpaqueNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
   int tabstrip_height = tabstrip->GetPreferredHeight();
-  int tabstrip_x = frame_->client_view()->GetX() - 4;
-  return gfx::Rect(tabstrip_x, frame_->client_view()->GetY() - 1,
-                   minimize_button_->GetX() - tabstrip_x, tabstrip_height);
+  int tabstrip_x = frame_->client_view()->GetX();
+  return gfx::Rect(0, 0, minimize_button_->GetX() - tabstrip_x,
+                   tabstrip_height);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

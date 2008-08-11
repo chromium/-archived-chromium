@@ -62,12 +62,10 @@ class BrowserView : public BrowserWindow,
   // Overridden from BrowserWindow:
   virtual void Init();
   virtual void Show(int command, bool adjust_to_fit);
-  virtual void BrowserDidPaint(HRGN region);
   virtual void Close();
   virtual void* GetPlatformID();
   virtual TabStrip* GetTabStrip() const;
   virtual StatusBubble* GetStatusBubble();
-  virtual ChromeViews::RootView* GetRootView();
   virtual void ShelfVisibilityChanged();
   virtual void SelectedTabToolbarSizeChanged(bool is_animating);
   virtual void UpdateTitleBar();
@@ -85,7 +83,6 @@ class BrowserView : public BrowserWindow,
   virtual gfx::Rect GetNormalBounds();
   virtual bool IsMaximized();
   virtual gfx::Rect GetBoundsForContentBounds(const gfx::Rect content_rect);
-  virtual void DetachFromBrowser();
   virtual void InfoBubbleShowing();
   virtual void InfoBubbleClosing();
   virtual ToolbarStarToggle* GetStarButton() const;
@@ -93,7 +90,7 @@ class BrowserView : public BrowserWindow,
   virtual GoButton* GetGoButton() const;
   virtual BookmarkBarView* GetBookmarkBarView();
   virtual BrowserView* GetBrowserView() const;
-  virtual void Update(TabContents* contents, bool should_restore_state);
+  virtual void UpdateToolbar(TabContents* contents, bool should_restore_state);
   virtual void ProfileChanged(Profile* profile);
   virtual void FocusToolbar();
   virtual void DestroyBrowser();
