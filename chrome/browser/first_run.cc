@@ -329,10 +329,17 @@ bool FirstRun::ImportSettings(Profile* profile, int browser,
                               int items_to_import, HWND parent_window) {
   CommandLine cmdline;
   std::wstring import_cmd(cmdline.program());
-  std::wstring data_dir(cmdline.GetSwitchValue(switches::kUserDataDir));
-  if (!data_dir.empty()) {
-    CommandLine::AppendSwitchWithValue(&import_cmd, switches::kUserDataDir,
-                                       data_dir);
+  // Propagate the following switches to the importer command line.
+  static const wchar_t* const switch_names[] = {
+    switches::kUserDataDir,
+    switches::kLang,
+  };
+  for (int i = 0; i < arraysize(switch_names); ++i) {
+    if (cmdline.HasSwitch(switch_names[i])) {
+      CommandLine::AppendSwitchWithValue(
+          &import_cmd, switch_names[i],
+          cmdline.GetSwitchValue(switch_names[i]));
+    }
   }
   CommandLine::AppendSwitchWithValue(&import_cmd, switches::kImport,
       EncodeImportParams(browser, items_to_import, parent_window));
