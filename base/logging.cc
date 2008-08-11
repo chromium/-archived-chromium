@@ -27,6 +27,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "base/notimplemented.h"
 #include "build/build_config.h"
 
 #if defined(WIN32)
@@ -126,7 +127,7 @@ int32 CurrentThreadId() {
 #elif defined(OS_MACOSX)
   return mach_thread_self();
 #else
-  // TODO(pinkerton): need linux-fu to fill in thread id here
+  NOTIMPLEMENTED();
   return 0;
 #endif
 }
@@ -137,7 +138,7 @@ uint64 TickCount() {
 #elif defined(OS_MACOSX)
   return mach_absolute_time();
 #else
-  // TODO(pinkerton): need linux-fu to fill in time here
+  NOTIMPLEMENTED();
   return 0;
 #endif
 }
