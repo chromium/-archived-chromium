@@ -48,7 +48,6 @@
 #include "chrome/browser/plugin_process_host.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/render_view_host.h"
 #include "chrome/browser/save_package.h"
 #include "chrome/browser/ssl_error_info.h"
 #include "chrome/browser/site_instance.h"
@@ -1080,11 +1079,9 @@ void Browser::ProcessPendingTabs() {
 
   // Process beforeunload tabs first. When that queue is empty, process
   // unload tabs.
-  // TODO(ojan): Move some of this logic down into TabContents and/or 
-  // WebContents so we don't need to dig into RenderViewHost here.
   if (!tabs_needing_before_unload_fired_.empty()) {
     TabContents* tab = tabs_needing_before_unload_fired_.back();
-    tab->AsWebContents()->render_view_host()->FirePageBeforeUnload();
+    tab->AsWebContents()->FirePageBeforeUnload();
   } else if (!tabs_needing_unload_fired_.empty()) {
     // We've finished firing all beforeunload events and can proceed with unload
     // events.
@@ -1095,7 +1092,7 @@ void Browser::ProcessPendingTabs() {
     // get a perf benefit from that in the cases where the tab hangs in it's
     // unload handler or takes a long time to page in.
     TabContents* tab = tabs_needing_unload_fired_.back();
-    tab->AsWebContents()->render_view_host()->FirePageUnload();
+    tab->AsWebContents()->FirePageUnload();
   } else {
     NOTREACHED();
   }
