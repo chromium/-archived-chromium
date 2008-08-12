@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_PRINTING_PRINT_JOB_H__
-#define CHROME_BROWSER_PRINTING_PRINT_JOB_H__
+#ifndef CHROME_BROWSER_PRINTING_PRINT_JOB_H_
+#define CHROME_BROWSER_PRINTING_PRINT_JOB_H_
 
 #include "base/ref_counted.h"
 #include "chrome/browser/printing/print_job_worker_owner.h"
@@ -153,6 +153,10 @@ class PrintJob : public base::RefCountedThreadSafe<PrintJob>,
   // notification.
   void OnDocumentDone();
 
+  // Terminates the worker thread in a very controlled way, to work around any
+  // eventual deadlock.
+  void ControlledWorkerShutdown();
+
   // Main message loop reference. Used to send notifications in the right
   // thread.
   MessageLoop* const ui_message_loop_;
@@ -178,14 +182,11 @@ class PrintJob : public base::RefCountedThreadSafe<PrintJob>,
   // Is the Print... dialog box currently shown.
   bool is_print_dialog_box_shown_;
 
-  // Is GetSettings() blocking to act like a synchronous function?
-  bool is_blocking_;
-
   // Is Canceling? If so, try to not cause recursion if on FAILED notification,
   // the notified calls Cancel() again.
   bool is_canceling_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(PrintJob);
+  DISALLOW_COPY_AND_ASSIGN(PrintJob);
 };
 
 // Details for a NOTIFY_PRINT_JOB_EVENT notification. The members may be NULL.
@@ -241,9 +242,9 @@ class JobEventDetails : public base::RefCountedThreadSafe<JobEventDetails> {
   scoped_refptr<PrintedPage> page_;
   const Type type_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(JobEventDetails);
+  DISALLOW_COPY_AND_ASSIGN(JobEventDetails);
 };
 
 }  // namespace printing
 
-#endif  // CHROME_BROWSER_PRINTING_PRINT_JOB_H__
+#endif  // CHROME_BROWSER_PRINTING_PRINT_JOB_H_

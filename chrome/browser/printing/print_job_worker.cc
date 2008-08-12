@@ -162,11 +162,12 @@ void PrintJobWorker::OnDocumentChanged(PrintedDocument* new_document) {
 }
 
 void PrintJobWorker::OnNewPage() {
-  DCHECK_EQ(message_loop(), MessageLoop::current());
   if (!document_.get()) {
     // Spurious message.
     return;
   }
+  // message_loop() could return NULL when the print job is cancelled.
+  DCHECK_EQ(message_loop(), MessageLoop::current());
   DCHECK(printing_context_.context());
   if (!printing_context_.context())
     return;

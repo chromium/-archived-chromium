@@ -46,7 +46,6 @@ PrintJob::PrintJob(PrintedPagesSource* source)
       source_(source),
       is_job_pending_(false),
       is_print_dialog_box_shown_(false),
-      is_blocking_(false),
       is_canceling_(false) {
 }
 
@@ -57,7 +56,6 @@ PrintJob::PrintJob()
       settings_(),
       is_job_pending_(false),
       is_print_dialog_box_shown_(false),
-      is_blocking_(false),
       is_canceling_(false) {
 }
 
@@ -65,7 +63,6 @@ PrintJob::~PrintJob() {
   // The job should be finished (or at least canceled) when it is destroyed.
   DCHECK(!is_job_pending_);
   DCHECK(!is_print_dialog_box_shown_);
-  DCHECK(!is_blocking_);
   DCHECK(!is_canceling_);
   DCHECK(worker_->message_loop() == NULL);
   DCHECK_EQ(ui_message_loop_, MessageLoop::current());
@@ -77,7 +74,6 @@ void PrintJob::Initialize(PrintJobWorkerOwner* job,
   DCHECK(!worker_.get());
   DCHECK(!is_job_pending_);
   DCHECK(!is_print_dialog_box_shown_);
-  DCHECK(!is_blocking_);
   DCHECK(!is_canceling_);
   DCHECK(!document_.get());
   source_ = source;
@@ -124,7 +120,6 @@ void PrintJob::Observe(NotificationType type,
 void PrintJob::GetSettingsDone(const PrintSettings& new_settings,
                                PrintingContext::Result result) {
   DCHECK(!is_job_pending_);
-  DCHECK(!is_blocking_);
 
   if (!source_ || result == PrintingContext::FAILED) {
     // The source is gone, there's nothing to do.
@@ -175,9 +170,8 @@ void PrintJob::GetSettings(GetSettingsAskParam ask_user_for_settings,
   DCHECK_EQ(ui_message_loop_, MessageLoop::current());
   DCHECK(!is_job_pending_);
   DCHECK(!is_print_dialog_box_shown_);
-  DCHECK(!is_blocking_);
   // Is not reentrant.
-  if (is_job_pending_ || is_blocking_)
+  if (is_job_pending_)
     return;
 
   // Lazy create the worker thread. There is one worker thread per print job.
@@ -207,8 +201,7 @@ void PrintJob::StartPrinting() {
   DCHECK(worker_->message_loop());
   DCHECK(!is_job_pending_);
   DCHECK(!is_print_dialog_box_shown_);
-  DCHECK(!is_blocking_);
-  if (!worker_->message_loop() || is_job_pending_ || is_blocking_)
+  if (!worker_->message_loop() || is_job_pending_)
     return;
 
   // Real work is done in PrintJobWorker::StartPrinting().
@@ -235,25 +228,20 @@ void PrintJob::Stop() {
   MessageLoop* worker_loop = worker_->message_loop();
   if (worker_loop) {
     if (is_print_dialog_box_shown_) {
-      // Make sure there is no dialog box.
+      // Make sure there is no Print... dialog box.
       worker_loop->PostTask(FROM_HERE, NewRunnableMethod(
           worker_.get(), &PrintJobWorker::DismissDialog));
       is_print_dialog_box_shown_ = false;
     }
-    // It will wait infinitely for the worker thread to quit.
-    worker_->NonBlockingStop();
+
+    ControlledWorkerShutdown();
+
     is_job_pending_ = false;
     NotificationService::current()->RemoveObserver(
       this, NOTIFY_PRINT_JOB_EVENT, Source<PrintJob>(this));
   }
   // Flush the cached document.
   UpdatePrintedDocument(NULL);
-
-  if (is_blocking_) {
-    // Make sure we don't get stuck in an inner message loop.
-    MessageLoop::current()->Quit();
-    is_blocking_ = false;
-  }
 }
 
 void PrintJob::Cancel() {
@@ -285,8 +273,7 @@ void PrintJob::Cancel() {
 bool PrintJob::RequestMissingPages() {
   DCHECK_EQ(ui_message_loop_, MessageLoop::current());
   DCHECK(!is_print_dialog_box_shown_);
-  DCHECK(!is_blocking_);
-  if (!is_job_pending_ || is_print_dialog_box_shown_ || is_blocking_)
+  if (!is_job_pending_ || is_print_dialog_box_shown_)
     return false;
 
   MessageLoop* worker_loop = worker_.get() ? worker_->message_loop() : NULL;
@@ -314,7 +301,6 @@ bool PrintJob::FlushJob(int timeout_ms) {
         false));
   }
 
-  is_blocking_ = true;
   // Stop() will eventually be called, which will get out of the inner message
   // loop. But, don't take it for granted and set a timer in case something goes
   // wrong.
@@ -429,6 +415,52 @@ void PrintJob::OnDocumentDone() {
       NOTIFY_PRINT_JOB_EVENT,
       Source<PrintJob>(this),
       Details<JobEventDetails>(details.get()));
+}
+
+void PrintJob::ControlledWorkerShutdown() {
+  DCHECK_EQ(ui_message_loop_, MessageLoop::current());
+  // We could easily get into a deadlock case if worker_->Stop() is used; the
+  // printer driver created a window as a child of the browser window. By
+  // canceling the job, the printer driver initiated dialog box is destroyed,
+  // which sends a blocking message to its parent window. If the browser window
+  // thread is not processing messages, a deadlock occurs.
+  //
+  // This function ensures that the dialog box will be destroyed in a timely
+  // manner by the mere fact that the thread will terminate. So the potential
+  // deadlock is eliminated.
+  worker_->StopSoon();
+
+  // Run a tight message loop until the worker terminates. It may seems like a
+  // hack but I see no other way to get it to work flawlessly. The issues here
+  // are:
+  // - We don't want to run tasks while the thread is quitting.
+  // - We want this code path to wait on the thread to quit before continuing.
+  MSG msg;
+  HANDLE thread_handle = worker_->thread_handle();
+  for (; thread_handle;) {
+    // Note that we don't do any kind of message priorization since we don't
+    // execute any pending task or timer.
+    DWORD result = MsgWaitForMultipleObjects(1, &thread_handle,
+                                             FALSE, INFINITE, QS_ALLINPUT);
+    if (result == WAIT_OBJECT_0 + 1) {
+      while (PeekMessage(&msg, NULL, 0, 0, TRUE) > 0) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+      }
+      // Continue looping.
+    }
+    else if (result == WAIT_OBJECT_0) {
+      // The thread quit.
+      break;
+    } else {
+      // An error occured. Assume the thread quit.
+      NOTREACHED();
+      break;
+    }
+  }
+
+  // Now make sure the thread object is cleaned up.
+  worker_->Stop();
 }
 
 // Takes settings_ ownership and will be deleted in the receiving thread.

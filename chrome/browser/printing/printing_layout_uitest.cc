@@ -565,7 +565,7 @@ TEST_F(PrintingLayoutTestHidden, ManyTimes) {
 }
 
 // Prints a popup and immediately closes it.
-TEST_F(PrintingLayoutTest, DISABLED_Delayed) {
+TEST_F(PrintingLayoutTest, Delayed) {
   if (IsTestCaseDisabled())
     return;
 
@@ -605,7 +605,7 @@ TEST_F(PrintingLayoutTest, DISABLED_Delayed) {
 }
 
 // Prints a popup and immediately closes it.
-TEST_F(PrintingLayoutTest, DISABLED_IFrame) {
+TEST_F(PrintingLayoutTest, IFrame) {
   if (IsTestCaseDisabled())
     return;
 
