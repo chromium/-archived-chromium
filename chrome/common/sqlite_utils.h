@@ -27,12 +27,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_COMMON_SQLITEUTILS_H__
-#define CHROME_COMMON_SQLITEUTILS_H__
+#ifndef CHROME_COMMON_SQLITEUTILS_H_
+#define CHROME_COMMON_SQLITEUTILS_H_
 
 #include <vector>
 
-#include "base/logging.h"
+#include "base/basictypes.h"
 #include "chrome/third_party/sqlite/sqlite3.h"
 
 // forward declarations of classes defined here
@@ -49,16 +49,8 @@ class SQLStatement;
 //------------------------------------------------------------------------------
 class SQLTransaction {
  public:
-  SQLTransaction(sqlite3 *db) {
-    db_ = db;
-    began_ = false;
-  }
-
-  virtual ~SQLTransaction() {
-    if (began_) {
-      Rollback();
-    }
-  }
+  explicit SQLTransaction(sqlite3* db);
+  virtual ~SQLTransaction();
 
   int Begin() {
     // By default, we BEGIN IMMEDIATE to establish file locks at the
@@ -93,27 +85,12 @@ class SQLTransaction {
   }
 
  protected:
-  virtual int BeginCommand(const char *command) {
-    int rv = SQLITE_ERROR;
-    if (!began_ && db_) {
-      rv = sqlite3_exec(db_, command, NULL, NULL, NULL);
-      began_ = (rv == SQLITE_OK);
-    }
-    return rv;
-  }
-
-  virtual int EndCommand(const char *command) {
-    int rv = SQLITE_ERROR;
-    if (began_ && db_) {
-      rv = sqlite3_exec(db_, command, NULL, NULL, NULL);
-      began_ = (rv != SQLITE_OK);
-    }
-    return rv;
-  }
+  virtual int BeginCommand(const char* command);
+  virtual int EndCommand(const char* command);
 
   bool began_;
-  sqlite3 *db_;
-  DISALLOW_EVIL_CONSTRUCTORS(SQLTransaction);
+  sqlite3* db_;
+  DISALLOW_COPY_AND_ASSIGN(SQLTransaction);
 };
 
 
@@ -123,7 +100,7 @@ class SQLTransaction {
 class SQLNestedTransactionSite {
  protected:
   SQLNestedTransactionSite() : db_(NULL), top_transaction_(NULL) {}
-  virtual ~SQLNestedTransactionSite() { DCHECK(!top_transaction_); }
+  virtual ~SQLNestedTransactionSite();
 
   // The following virtual methods provide notification of true transaction
   // boundaries as they are crossed by a top nested transaction.
@@ -141,19 +118,16 @@ class SQLNestedTransactionSite {
 
   // Returns the current top nested transaction associated with this site
   // Used by SQLNestedTransaction
-  SQLNestedTransaction *GetTopTransaction() {
+  SQLNestedTransaction* GetTopTransaction() {
     return top_transaction_;
   }
 
   // Sets or clears the top nested transaction associated with this site
   // Used by SQLNestedTransaction
-  void SetTopTransaction(SQLNestedTransaction *top) {
-    DCHECK(!top || !top_transaction_);
-    top_transaction_ = top;
-  }
+  void SetTopTransaction(SQLNestedTransaction* top);
 
   sqlite3* db_;
-  SQLNestedTransaction *top_transaction_;
+  SQLNestedTransaction* top_transaction_;
   friend class SQLNestedTransaction;
 };
 
@@ -179,89 +153,17 @@ class SQLNestedTransactionSite {
 //------------------------------------------------------------------------------
 class SQLNestedTransaction : public SQLTransaction {
  public:
-  SQLNestedTransaction(SQLNestedTransactionSite *site)
-    : SQLTransaction(site->GetSqlite3DB()),
-      needs_rollback_(false),
-      site_(site) {
-    DCHECK(site);
-    if (site->GetTopTransaction() == NULL) {
-      site->SetTopTransaction(this);
-    }
-  }
-
-  virtual ~SQLNestedTransaction() {
-    if (began_) {
-      Rollback();
-    }
-    if (site_->GetTopTransaction() == this) {
-      site_->SetTopTransaction(NULL);
-    }
-  }
+  explicit SQLNestedTransaction(SQLNestedTransactionSite* site);
+  virtual ~SQLNestedTransaction();
 
  protected:
-  virtual int BeginCommand(const char *command) {
-    DCHECK(db_);
-    DCHECK(site_ && site_->GetTopTransaction());
-    if (!db_ || began_) {
-      return SQLITE_ERROR;
-    }
-    if (site_->GetTopTransaction() == this) {
-      int rv = sqlite3_exec(db_, command, NULL, NULL, NULL);
-      began_ = (rv == SQLITE_OK);
-      if (began_) {
-        site_->OnBegin();
-      }
-      return rv;
-    } else {
-      if (site_->GetTopTransaction()->needs_rollback_) {
-        return SQLITE_ERROR;
-      }
-      began_ = true;
-      return SQLITE_OK;
-    }
-  }
-
-  virtual int EndCommand(const char *command) {
-    DCHECK(db_);
-    DCHECK(site_ && site_->GetTopTransaction());
-    if (!db_ || !began_) {
-      return SQLITE_ERROR;
-    }
-    if (site_->GetTopTransaction() == this) {
-      if (needs_rollback_) {
-        sqlite3_exec(db_, "ROLLBACK", NULL, NULL, NULL);
-        began_ = false; // reset so we don't try to rollback or call
-                        // OnRollback() again
-        site_->OnRollback();
-        return SQLITE_ERROR;
-      } else {
-        int rv = sqlite3_exec(db_, command, NULL, NULL, NULL);
-        began_ = (rv != SQLITE_OK);
-        if (strcmp(command, "ROLLBACK") == 0) {
-          began_ = false; // reset so we don't try to rollbck or call
-                          // OnRollback() again
-          site_->OnRollback();
-        } else {
-          DCHECK(strcmp(command, "COMMIT") == 0);
-          if (rv == SQLITE_OK) {
-            site_->OnCommit();
-          }
-        }
-        return rv;
-      }
-    } else {
-      if (strcmp(command, "ROLLBACK") == 0) {
-        site_->GetTopTransaction()->needs_rollback_ = true;
-      }
-      began_ = false;
-      return SQLITE_OK;
-    }
-  }
+  virtual int BeginCommand(const char* command);
+  virtual int EndCommand(const char* command);
 
  private:
   bool needs_rollback_;
-  SQLNestedTransactionSite *site_;
-  DISALLOW_EVIL_CONSTRUCTORS(SQLNestedTransaction);
+  SQLNestedTransactionSite* site_;
+  DISALLOW_COPY_AND_ASSIGN(SQLNestedTransaction);
 };
 
 //------------------------------------------------------------------------------
@@ -276,21 +178,21 @@ class scoped_sqlite3_stmt_ptr {
   scoped_sqlite3_stmt_ptr() : stmt_(NULL) {
   }
 
-  explicit scoped_sqlite3_stmt_ptr(sqlite3_stmt *stmt)
+  explicit scoped_sqlite3_stmt_ptr(sqlite3_stmt* stmt)
     : stmt_(stmt) {
   }
 
-  sqlite3_stmt *get() const {
+  sqlite3_stmt* get() const {
     return stmt_;
   }
 
-  void set(sqlite3_stmt *stmt) {
+  void set(sqlite3_stmt* stmt) {
     finalize();
     stmt_ = stmt;
   }
 
-  sqlite3_stmt *release() {
-    sqlite3_stmt *tmp = stmt_;
+  sqlite3_stmt* release() {
+    sqlite3_stmt* tmp = stmt_;
     stmt_ = NULL;
     return tmp;
   }
@@ -309,10 +211,10 @@ class scoped_sqlite3_stmt_ptr {
   }
 
  protected:
-  sqlite3_stmt *stmt_;
+  sqlite3_stmt* stmt_;
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(scoped_sqlite3_stmt_ptr);
+  DISALLOW_COPY_AND_ASSIGN(scoped_sqlite3_stmt_ptr);
 };
 
 
@@ -320,113 +222,44 @@ class scoped_sqlite3_stmt_ptr {
 // A scoped sqlite statement with convenient C++ wrappers for sqlite3 APIs.
 //------------------------------------------------------------------------------
 class SQLStatement : public scoped_sqlite3_stmt_ptr {
-public:
+ public:
   SQLStatement() {
   }
 
-  int prepare(sqlite3 *db, const char *sql) {
+  int prepare(sqlite3* db, const char* sql) {
     return prepare(db, sql, -1);
   }
 
-  int prepare(sqlite3 *db, const char *sql, int sql_len) {
-    DCHECK(!stmt_);
-    int rv = sqlite3_prepare_v2(db, sql, sql_len, &stmt_, NULL);
-    if (rv != SQLITE_OK) {
-      DLOG(ERROR) << "SQLStatement.prepare_v2 failed: " << sqlite3_errmsg(db);
-    }
-    return rv;
-  }
+  int prepare(sqlite3* db, const char* sql, int sql_len);
 
-  int prepare16(sqlite3 *db, const wchar_t *sql) {
+  int prepare16(sqlite3* db, const wchar_t* sql) {
     return prepare16(db, sql, -1);
   }
 
   // sql_len is number of characters or may be negative
   // a for null-terminated sql string
-  int prepare16(sqlite3 *db, const wchar_t *sql, int sql_len) {
-    DCHECK(!stmt_);
-    sql_len *= sizeof(wchar_t);
-    int rv = sqlite3_prepare16_v2(db, sql, sql_len, &stmt_, NULL);
-    if (rv != SQLITE_OK) {
-      DLOG(ERROR) << "SQLStatement.prepare16_v2 failed: " << sqlite3_errmsg(db);
-    }
-    return rv;
-  }
-
-  int step() {
-    DCHECK(stmt_);
-    return sqlite3_step(stmt_);
-  }
-
-  int reset() {
-    DCHECK(stmt_);
-    return sqlite3_reset(stmt_);
-  }
-
-  sqlite_int64 last_insert_rowid() {
-    DCHECK(stmt_);
-    return sqlite3_last_insert_rowid(db_handle());
-  }
-
-  sqlite3 *db_handle() {
-    DCHECK(stmt_);
-    return sqlite3_db_handle(stmt_);
-  }
+  int prepare16(sqlite3* db, const wchar_t* sql, int sql_len);
+  int step();
+  int reset();
+  sqlite_int64 last_insert_rowid();
+  sqlite3* db_handle();
 
   //
   // Parameter binding helpers (NOTE: index is 0-based)
   //
 
-  int bind_parameter_count() {
-    DCHECK(stmt_);
-    return sqlite3_bind_parameter_count(stmt_);
-  }
+  int bind_parameter_count();
 
   typedef void (*Function)(void*);
 
-  int bind_blob(int index, std::vector<unsigned char> *blob) {
-    if (blob) {
-      const void *value = &(*blob)[0];
-      int len = static_cast<int>(blob->size());
-      return bind_blob(index, value, len);
-    } else {
-      return bind_null(index);
-    }
-  }
-
-  int bind_blob(int index, const void *value, int value_len) {
-     return bind_blob(index, value, value_len, SQLITE_TRANSIENT);
-  }
-
-  int bind_blob(int index, const void *value, int value_len, Function dtor) {
-    DCHECK(stmt_);
-    return sqlite3_bind_blob(stmt_, index + 1, value, value_len, dtor);
-  }
-
-  int bind_double(int index, double value) {
-    DCHECK(stmt_);
-    return sqlite3_bind_double(stmt_, index + 1, value);
-  }
-
-  int bind_bool(int index, bool value) {
-    DCHECK(stmt_);
-    return sqlite3_bind_int(stmt_, index + 1, value);
-  }
-
-  int bind_int(int index, int value) {
-    DCHECK(stmt_);
-    return sqlite3_bind_int(stmt_, index + 1, value);
-  }
-
-  int bind_int64(int index, sqlite_int64 value) {
-    DCHECK(stmt_);
-    return sqlite3_bind_int64(stmt_, index + 1, value);
-  }
-
-  int bind_null(int index) {
-    DCHECK(stmt_);
-    return sqlite3_bind_null(stmt_, index + 1);
-  }
+  int bind_blob(int index, std::vector<unsigned char>* blob);
+  int bind_blob(int index, const void* value, int value_len);
+  int bind_blob(int index, const void* value, int value_len, Function dtor);
+  int bind_double(int index, double value);
+  int bind_bool(int index, bool value);
+  int bind_int(int index, int value);
+  int bind_int64(int index, sqlite_int64 value);
+  int bind_null(int index);
 
   int bind_string(int index, const std::string& value) {
     // don't use c_str so it doesn't have to fix up the null terminator
@@ -442,166 +275,63 @@ public:
                        static_cast<int>(value.length()), SQLITE_TRANSIENT);
   }
 
-  int bind_text(int index, const char *value) {
+  int bind_text(int index, const char* value) {
     return bind_text(index, value, -1, SQLITE_TRANSIENT);
   }
 
   // value_len is number of characters or may be negative
   // a for null-terminated value string
-  int bind_text(int index, const char *value, int value_len) {
+  int bind_text(int index, const char* value, int value_len) {
     return bind_text(index, value, value_len, SQLITE_TRANSIENT);
   }
 
   // value_len is number of characters or may be negative
   // a for null-terminated value string
-  int bind_text(int index, const char *value, int value_len,
-                Function dtor) {
-    DCHECK(stmt_);
-    return sqlite3_bind_text(stmt_, index + 1, value, value_len, dtor);
-  }
+  int bind_text(int index, const char* value, int value_len,
+                Function dtor);
 
-  int bind_text16(int index, const wchar_t *value) {
+  int bind_text16(int index, const wchar_t* value) {
     return bind_text16(index, value, -1, SQLITE_TRANSIENT);
   }
 
   // value_len is number of characters or may be negative
   // a for null-terminated value string
-  int bind_text16(int index, const wchar_t *value, int value_len) {
+  int bind_text16(int index, const wchar_t* value, int value_len) {
     return bind_text16(index, value, value_len, SQLITE_TRANSIENT);
   }
 
   // value_len is number of characters or may be negative
   // a for null-terminated value string
-  int bind_text16(int index, const wchar_t *value, int value_len,
-                  Function dtor) {
-    DCHECK(stmt_);
-    value_len *= sizeof(wchar_t);
-    return sqlite3_bind_text16(stmt_, index + 1, value, value_len, dtor);
-  }
+  int bind_text16(int index, const wchar_t* value, int value_len,
+                  Function dtor);
 
-  int bind_value(int index, const sqlite3_value *value) {
-    DCHECK(stmt_);
-    return sqlite3_bind_value(stmt_, index + 1, value);
-  }
+  int bind_value(int index, const sqlite3_value* value);
 
   //
   // Column helpers (NOTE: index is 0-based)
   //
 
-  int column_count() {
-    DCHECK(stmt_);
-    return sqlite3_column_count(stmt_);
-  }
+  int column_count();
+  int column_type(int index);
+  const wchar_t* column_name16(int index);
+  const void* column_blob(int index);
+  bool column_blob_as_vector(int index, std::vector<unsigned char>* blob);
+  bool column_blob_as_string(int index, std::string* blob);
+  int column_bytes(int index);
+  int column_bytes16(int index);
+  double column_double(int index);
+  bool column_bool(int index);
+  int column_int(int index);
+  sqlite_int64 column_int64(int index);
+  const char* column_text(int index);
+  bool column_string(int index, std::string* str);
+  std::string column_string(int index);
+  const wchar_t* column_text16(int index);
+  bool column_string16(int index, std::wstring* str);
+  std::wstring column_string16(int index);
 
-  int column_type(int index) {
-    DCHECK(stmt_);
-    return sqlite3_column_type(stmt_, index);
-  }
-
-  const wchar_t *column_name16(int index) {
-    DCHECK(stmt_);
-    return static_cast<const wchar_t*>( sqlite3_column_name16(stmt_, index) );
-  }
-
-  const void *column_blob(int index) {
-    DCHECK(stmt_);
-    return sqlite3_column_blob(stmt_, index);
-  }
-
-  bool column_blob_as_vector(int index, std::vector<unsigned char> *blob) {
-    DCHECK(stmt_);
-    const void *p = column_blob(index);
-    size_t len = column_bytes(index);
-    blob->resize(len);
-    if (blob->size() != len) {
-      return false;
-    }
-    if (len > 0)
-      memcpy(&(blob->front()), p, len);
-    return true;
-  }
-
-  bool column_blob_as_string(int index, std::string* blob) {
-    DCHECK(stmt_);
-    const void *p = column_blob(index);
-    size_t len = column_bytes(index);
-    blob->resize(len);
-    if (blob->size() != len) {
-      return false;
-    }
-    blob->assign(reinterpret_cast<const char*>(p), len);
-    return true;
-  }
-
-  int column_bytes(int index) {
-    DCHECK(stmt_);
-    return sqlite3_column_bytes(stmt_, index);
-  }
-
-  int column_bytes16(int index) {
-    DCHECK(stmt_);
-    return sqlite3_column_bytes16(stmt_, index);
-  }
-
-  double column_double(int index) {
-    DCHECK(stmt_);
-    return sqlite3_column_double(stmt_, index);
-  }
-
-  bool column_bool(int index) {
-    DCHECK(stmt_);
-    return sqlite3_column_int(stmt_, index) ? true : false;
-  }
-
-  int column_int(int index) {
-    DCHECK(stmt_);
-    return sqlite3_column_int(stmt_, index);
-  }
-
-  sqlite_int64 column_int64(int index) {
-    DCHECK(stmt_);
-    return sqlite3_column_int64(stmt_, index);
-  }
-
-  const char* column_text(int index) {
-    DCHECK(stmt_);
-    return reinterpret_cast<const char*>(sqlite3_column_text(stmt_, index));
-  }
-
-  bool column_string(int index, std::string *str) {
-    DCHECK(stmt_);
-    DCHECK(str);
-    const char* s = column_text(index);
-	str->assign(s ? s : std::string(""));
-    return s != NULL;
-  }
-
-  std::string column_string(int index) {
-    std::string str;
-    column_string(index, &str);
-    return str;
-  }
-
-  const wchar_t *column_text16(int index) {
-    DCHECK(stmt_);
-    return static_cast<const wchar_t*>( sqlite3_column_text16(stmt_, index) );
-  }
-
-  bool column_string16(int index, std::wstring *str) {
-    DCHECK(stmt_);
-    DCHECK(str);
-    const wchar_t *s = column_text16(index);
-    str->assign(s ? s : std::wstring(L""));
-    return (s != NULL);
-  }
-
-  std::wstring column_string16(int index) {
-    std::wstring wstr;
-    column_string16(index, &wstr);
-    return wstr;
-  }
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(SQLStatement);
+  DISALLOW_COPY_AND_ASSIGN(SQLStatement);
 };
 
 // Returns true if there is a table with the given name in the database.
@@ -638,4 +368,4 @@ inline bool DoesSqliteColumnExist(sqlite3* db,
 // has one or more rows and false if the table is empty or doesn't exist.
 bool DoesSqliteTableHaveRow(sqlite3* db, const char* table_name);
 
-#endif  // CHROME_COMMON_SQLITEUTILS_H__
+#endif  // CHROME_COMMON_SQLITEUTILS_H_

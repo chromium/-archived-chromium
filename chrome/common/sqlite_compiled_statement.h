@@ -27,13 +27,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_COMMON_SQLITE_COMPILED_STATEMENT__
-#define CHROME_COMMON_SQLITE_COMPILED_STATEMENT__
+#ifndef CHROME_COMMON_SQLITE_COMPILED_STATEMENT_
+#define CHROME_COMMON_SQLITE_COMPILED_STATEMENT_
 
 #include <map>
 #include <string>
 
-#include "base/logging.h"
 #include "chrome/common/sqlite_utils.h"
 #include "chrome/third_party/sqlite/sqlite3.h"
 
@@ -47,7 +46,7 @@ class SqliteStatementCache {
   SqliteStatementCache() : db_(NULL) {
   }
 
-  SqliteStatementCache(sqlite3* db) : db_(db) {
+  explicit SqliteStatementCache(sqlite3* db) : db_(db) {
   }
 
   // This object must be deleted before the sqlite connection it is associated
@@ -55,10 +54,7 @@ class SqliteStatementCache {
   // statements.
   ~SqliteStatementCache();
 
-  void set_db(sqlite3* db) {
-    DCHECK(!db_) << "Setting the database twice";
-    db_ = db;
-  }
+  void set_db(sqlite3* db);
 
   // Creates or retrieves a cached SQL statement identified by the given
   // (name, number) pair.
@@ -135,18 +131,9 @@ class SqliteCompiledStatement {
   // Allow accessing this object to be like accessing a statement for
   // convenience. The caller must ensure the statement is_valid() before using
   // these two functions.
-  SQLStatement& operator*() {
-    DCHECK(statement_) << "Should check is_valid() before using the statement.";
-    return *statement_;
-  }
-  SQLStatement* operator->() {
-    DCHECK(statement_) << "Should check is_valid() before using the statement.";
-    return statement_;
-  }
-  SQLStatement* statement() {
-    DCHECK(statement_) << "Should check is_valid() before using the statement.";
-    return statement_;
-  }
+  SQLStatement& operator*();
+  SQLStatement* operator->();
+  SQLStatement* statement();
 
  private:
   // The sql statement if valid, NULL if not valid. This pointer is NOT owned
@@ -168,4 +155,4 @@ class SqliteCompiledStatement {
 #define SQLITE_UNIQUE_STATEMENT(var_name, cache, sql) \
     SqliteCompiledStatement var_name(__FILE__, __LINE__, cache, sql)
 
-#endif  // CHROME_COMMON_SQLITE_COMPILED_STATEMENT__
+#endif  // CHROME_COMMON_SQLITE_COMPILED_STATEMENT_

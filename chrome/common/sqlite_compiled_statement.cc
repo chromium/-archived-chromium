@@ -27,8 +27,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "chrome/common/stl_util-inl.h"
 #include "chrome/common/sqlite_compiled_statement.h"
+
+#include "base/logging.h"
+#include "chrome/common/stl_util-inl.h"
 
 // SqliteStatementCache -------------------------------------------------------
 
@@ -36,6 +38,11 @@ SqliteStatementCache::~SqliteStatementCache() {
   STLDeleteContainerPairSecondPointers(statements_.begin(), statements_.end());
   statements_.clear();
   db_ = NULL;
+}
+
+void SqliteStatementCache::set_db(sqlite3* db) {
+  DCHECK(!db_) << "Setting the database twice";
+  db_ = db;
 }
 
 SQLStatement* SqliteStatementCache::InternalGetStatement(const char* func_name,
@@ -85,4 +92,17 @@ SqliteCompiledStatement::~SqliteCompiledStatement() {
   // Reset the statement so that subsequent callers don't get crap in it.
   if (statement_)
     statement_->reset();
+}
+
+SQLStatement& SqliteCompiledStatement::operator*() {
+  DCHECK(statement_) << "Should check is_valid() before using the statement.";
+  return *statement_;
+}
+SQLStatement* SqliteCompiledStatement::operator->() {
+  DCHECK(statement_) << "Should check is_valid() before using the statement.";
+  return statement_;
+}
+SQLStatement* SqliteCompiledStatement::statement() {
+  DCHECK(statement_) << "Should check is_valid() before using the statement.";
+  return statement_;
 }

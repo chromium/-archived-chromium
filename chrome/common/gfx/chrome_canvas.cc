@@ -27,14 +27,15 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <limits>
-
 #include "chrome/common/gfx/chrome_canvas.h"
 
-#include "base/gfx/platform_canvas.h"
+#include <limits>
+
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "skia/include/SkShader.h"
+#include "chrome/common/gfx/chrome_font.h"
+#include "chrome/common/l10n_util.h"
 
 ChromeCanvas::ChromeCanvas(int width, int height, bool is_opaque)
     : gfx::PlatformCanvas(width, height, is_opaque) {
@@ -226,7 +227,8 @@ void ChromeCanvas::DrawBitmapInt(const SkBitmap& bitmap, int src_x, int src_y,
   shader_scale.setScale(
       SkFloatToScalar(static_cast<float>(dest_w) / src_w),
       SkFloatToScalar(static_cast<float>(dest_h) / src_h));
-  shader_scale.postTranslate(SkIntToScalar(dest_x - src_x), SkIntToScalar(dest_y - src_y));
+  shader_scale.postTranslate(SkIntToScalar(dest_x - src_x),
+                             SkIntToScalar(dest_y - src_y));
   shader->setLocalMatrix(shader_scale);
 
   // Set up our paint to use the shader & release our reference (now just owned
@@ -336,6 +338,15 @@ void ChromeCanvas::DrawStringInt(const std::wstring& text, HFONT font,
   // deletes the font and the DC lives longer.
   SelectObject(dc, old_font);
   getTopPlatformDevice().postProcessGDI(x, y, w, h);
+}
+
+void ChromeCanvas::DrawStringInt(const std::wstring& text,
+                                 const ChromeFont& font,
+                                 const SkColor& color,
+                                 int x, int y,
+                                 int w, int h) {
+  DrawStringInt(text, font, color, x, y, w, h,
+                l10n_util::DefaultCanvasTextAlignment());
 }
 
 // We make sure that LTR text we draw in an RTL context is modified

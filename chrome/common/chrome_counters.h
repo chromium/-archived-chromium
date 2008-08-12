@@ -29,10 +29,12 @@
 
 // Counters used within the browser.
 
-#ifndef CHROME_COMMON_CHROME_COUNTERS_H__
-#define CHROME_COMMON_CHROME_COUNTERS_H__
+#ifndef CHROME_COMMON_CHROME_COUNTERS_H_
+#define CHROME_COMMON_CHROME_COUNTERS_H_
 
-#include "base/stats_counters.h"
+class StatsCounter;
+class StatsCounterTimer;
+class StatsRate;
 
 namespace chrome {
 
@@ -58,9 +60,8 @@ class Counters {
 
   // Time/Count of plugin network interception.
   static StatsRate& plugin_intercept();
-
 };
 
 }  // namespace chrome
 
-#endif  // CHROME_COMMON_CHROME_COUNTERS_H__
+#endif  // CHROME_COMMON_CHROME_COUNTERS_H_

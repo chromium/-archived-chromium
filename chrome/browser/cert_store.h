@@ -27,14 +27,13 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_CERT_STORE_H__
-#define CHROME_BROWSER_CERT_STORE_H__
+#ifndef CHROME_BROWSER_CERT_STORE_H_
+#define CHROME_BROWSER_CERT_STORE_H_
 
 #include <vector>
 #include <map>
 
 #include "base/lock.h"
-#include "chrome/browser/render_process_host.h"
 #include "chrome/common/notification_service.h"
 #include "net/base/x509_certificate.h"
 
@@ -105,4 +104,4 @@ class CertStore : public NotificationObserver {
   DISALLOW_EVIL_CONSTRUCTORS(CertStore);
 };
 
-#endif  // CHROME_BROWSER_CERT_STORE_H__
+#endif  // CHROME_BROWSER_CERT_STORE_H_

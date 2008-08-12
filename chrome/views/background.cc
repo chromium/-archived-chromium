@@ -27,12 +27,14 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/views/background.h"
+
+#include "base/gfx/skia_utils.h"
+#include "base/logging.h"
+#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/views/painter.h"
 #include "chrome/views/view.h"
 #include "skia/include/SkPaint.h"
-#include "base/gfx/skia_utils.h"
 
 namespace ChromeViews {
 

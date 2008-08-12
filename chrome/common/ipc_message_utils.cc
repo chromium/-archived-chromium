@@ -31,10 +31,94 @@
 
 #include "base/gfx/rect.h"
 #include "googleurl/src/gurl.h"
+#include "SkBitmap.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/webcursor.h"
 
 namespace IPC {
+
+namespace {
+
+struct SkBitmap_Data {
+  // The configuration for the bitmap (bits per pixel, etc).
+  SkBitmap::Config fConfig;
+
+  // The width of the bitmap in pixels.
+  uint32 fWidth;
+
+  // The height of the bitmap in pixels.
+  uint32 fHeight;
+
+  // The number of bytes between subsequent rows of the bitmap.
+  uint32 fRowBytes;
+
+  void InitSkBitmapDataForTransfer(const SkBitmap& bitmap) {
+    fConfig = bitmap.config();
+    fWidth = bitmap.width();
+    fHeight = bitmap.height();
+    fRowBytes = bitmap.rowBytes();
+  }
+
+  void InitSkBitmapFromData(SkBitmap* bitmap, const char* pixels,
+                            size_t total_pixels) const {
+    if (total_pixels) {
+      bitmap->setConfig(fConfig, fWidth, fHeight, fRowBytes);
+      bitmap->allocPixels();
+      memcpy(bitmap->getPixels(), pixels, total_pixels);
+    }
+  }
+};
+
+struct WebCursor_Data {
+  WebCursor::Type cursor_type;
+  int hotspot_x;
+  int hotspot_y;
+  SkBitmap_Data bitmap_info;
+};
+
+}  // namespace
+
+
+void ParamTraits<SkBitmap>::Write(Message* m, const SkBitmap& p) {
+  size_t fixed_size = sizeof(SkBitmap_Data);
+  SkBitmap_Data bmp_data;
+  bmp_data.InitSkBitmapDataForTransfer(p);
+  m->WriteData(reinterpret_cast<const char*>(&bmp_data),
+               static_cast<int>(fixed_size));
+  size_t pixel_size = p.getSize();
+  SkAutoLockPixels p_lock(p);
+  m->WriteData(reinterpret_cast<const char*>(p.getPixels()),
+               static_cast<int>(pixel_size));
+}
+
+bool ParamTraits<SkBitmap>::Read(const Message* m, void** iter, SkBitmap* r) {
+  const char* fixed_data;
+  int fixed_data_size = 0;
+  if (!m->ReadData(iter, &fixed_data, &fixed_data_size) ||
+     (fixed_data_size <= 0)) {
+    NOTREACHED();
+    return false;
+  }
+  if (fixed_data_size != sizeof(SkBitmap_Data))
+    return false;  // Message is malformed.
+
+  const char* variable_data;
+  int variable_data_size = 0;
+  if (!m->ReadData(iter, &variable_data, &variable_data_size) ||
+     (variable_data_size < 0)) {
+    NOTREACHED();
+    return false;
+  }
+  const SkBitmap_Data* bmp_data =
+      reinterpret_cast<const SkBitmap_Data*>(fixed_data);
+  bmp_data->InitSkBitmapFromData(r, variable_data, variable_data_size);
+  return true;
+}
+
+void ParamTraits<SkBitmap>::Log(const SkBitmap& p, std::wstring* l) {
+  l->append(StringPrintf(L"<SkBitmap>"));
+}
+
 
 void ParamTraits<GURL>::Write(Message* m, const GURL& p) {
   m->WriteString(p.possibly_invalid_spec());
@@ -77,7 +161,6 @@ void ParamTraits<gfx::Point>::Log(const gfx::Point& p, std::wstring* l) {
 }
 
 
-
 void ParamTraits<gfx::Rect>::Write(Message* m, const gfx::Rect& p) {
   m->WriteInt(p.x());
   m->WriteInt(p.y());
@@ -100,7 +183,8 @@ bool ParamTraits<gfx::Rect>::Read(const Message* m, void** iter, gfx::Rect* r) {
 }
 
 void ParamTraits<gfx::Rect>::Log(const gfx::Rect& p, std::wstring* l) {
-  l->append(StringPrintf(L"(%d, %d, %d, %d)", p.x(), p.y(), p.width(), p.height()));
+  l->append(StringPrintf(L"(%d, %d, %d, %d)", p.x(), p.y(),
+                         p.width(), p.height()));
 }
 
 
@@ -123,13 +207,6 @@ void ParamTraits<gfx::Size>::Log(const gfx::Size& p, std::wstring* l) {
   l->append(StringPrintf(L"(%d, %d)", p.width(), p.height()));
 }
 
-
-struct WebCursor_Data {
-  WebCursor::Type cursor_type;
-  int hotspot_x;
-  int hotspot_y;
-  SkBitmap_Data bitmap_info;
-};
 
 void ParamTraits<WebCursor>::Write(Message* m, const WebCursor& p) {
   const SkBitmap& src_bitmap = p.bitmap();

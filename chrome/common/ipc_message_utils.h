@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_COMMON_IPC_MESSAGE_UTILS_H__
-#define CHROME_COMMON_IPC_MESSAGE_UTILS_H__
+#ifndef CHROME_COMMON_IPC_MESSAGE_UTILS_H_
+#define CHROME_COMMON_IPC_MESSAGE_UTILS_H_
 
 #include <string>
 #include <vector>
@@ -38,13 +38,13 @@
 #include "base/tuple.h"
 #include "chrome/common/ipc_sync_message.h"
 #include "chrome/common/thumbnail_score.h"
-#include "skia/include/SkBitmap.h"
 #include "webkit/glue/cache_manager.h"
 #include "webkit/glue/console_message_level.h"
 #include "webkit/glue/window_open_disposition.h"
 
 // Forward declarations.
 class GURL;
+class SkBitmap;
 class WebCursor;
 
 namespace gfx {
@@ -73,7 +73,7 @@ void RegisterMessageLogger(int msg_start, LogFunction* func);
 
 class MessageIterator {
  public:
-  MessageIterator(const Message& m) : msg_(m), iter_(NULL) {
+  explicit MessageIterator(const Message& m) : msg_(m), iter_(NULL) {
   }
   int NextInt() const {
     int val;
@@ -203,14 +203,14 @@ template <>
 struct ParamTraits<double> {
   typedef double param_type;
   static void Write(Message* m, const param_type& p) {
-    m->WriteData(reinterpret_cast<const char*>(&p), sizeof(double));
+    m->WriteData(reinterpret_cast<const char*>(&p), sizeof(param_type));
   }
   static bool Read(const Message* m, void** iter, param_type* r) {
     const char *data;
     int data_size = 0;
     bool result = m->ReadData(iter, &data, &data_size);
-    if (result && data_size == sizeof(double)) {
-      memcpy(r, data, sizeof(double));
+    if (result && data_size == sizeof(param_type)) {
+      memcpy(r, data, sizeof(param_type));
     } else {
       result = false;
       NOTREACHED();
@@ -227,14 +227,14 @@ template <>
 struct ParamTraits<wchar_t> {
   typedef wchar_t param_type;
   static void Write(Message* m, const param_type& p) {
-    m->WriteData(reinterpret_cast<const char*>(&p), sizeof(wchar_t));
+    m->WriteData(reinterpret_cast<const char*>(&p), sizeof(param_type));
   }
   static bool Read(const Message* m, void** iter, param_type* r) {
     const char *data;
     int data_size = 0;
     bool result = m->ReadData(iter, &data, &data_size);
-    if (result && data_size == sizeof(wchar_t)) {
-      memcpy(r, data, sizeof(wchar_t));
+    if (result && data_size == sizeof(param_type)) {
+      memcpy(r, data, sizeof(param_type));
     } else {
       result = false;
       NOTREACHED();
@@ -310,78 +310,16 @@ struct ParamTraits<MSG> {
   }
 };
 
-struct SkBitmap_Data {
-  // The configuration for the bitmap (bits per pixel, etc).
-  SkBitmap::Config fConfig;
-
-  // The width of the bitmap in pixels.
-  uint32 fWidth;
-
-  // The height of the bitmap in pixels.
-  uint32 fHeight;
-
-  // The number of bytes between subsequent rows of the bitmap.
-  uint32 fRowBytes;
-
-  void InitSkBitmapDataForTransfer(const SkBitmap& bitmap) {
-    fConfig = bitmap.config();
-    fWidth = bitmap.width();
-    fHeight = bitmap.height();
-    fRowBytes = bitmap.rowBytes();
-  }
-
-  void InitSkBitmapFromData(SkBitmap* bitmap, const char* pixels,
-                            size_t total_pixels) const {
-    if (total_pixels) {
-      bitmap->setConfig(fConfig, fWidth, fHeight, fRowBytes);
-      bitmap->allocPixels();
-      memcpy(bitmap->getPixels(), pixels, total_pixels);
-    }
-  }
-};
-
 template <>
 struct ParamTraits<SkBitmap> {
   typedef SkBitmap param_type;
-  static void Write(Message* m, const param_type& p) {
-    size_t fixed_size = sizeof(SkBitmap_Data);
-    SkBitmap_Data bmp_data;
-    bmp_data.InitSkBitmapDataForTransfer(p);
-    m->WriteData(reinterpret_cast<const char*>(&bmp_data),
-                 static_cast<int>(fixed_size));
-    size_t pixel_size = p.getSize();
-    SkAutoLockPixels p_lock(p);
-    m->WriteData(reinterpret_cast<const char*>(p.getPixels()),
-                 static_cast<int>(pixel_size));
-  }
+  static void Write(Message* m, const param_type& p);
+
   // Note: This function expects parameter |r| to be of type &SkBitmap since
   // r->SetConfig() and r->SetPixels() are called.
-  static bool Read(const Message* m, void** iter, param_type* r) {
-    const char* fixed_data;
-    int fixed_data_size = 0;
-    if (!m->ReadData(iter, &fixed_data, &fixed_data_size) ||
-       (fixed_data_size <= 0)) {
-      NOTREACHED();
-      return false;
-    }
-    if (fixed_data_size != sizeof(SkBitmap_Data))
-      return false;  // Message is malformed.
+  static bool Read(const Message* m, void** iter, param_type* r);
 
-    const char* variable_data;
-    int variable_data_size = 0;
-    if (!m->ReadData(iter, &variable_data, &variable_data_size) ||
-       (variable_data_size < 0)) {
-      NOTREACHED();
-      return false;
-    }
-    const SkBitmap_Data* bmp_data =
-        reinterpret_cast<const SkBitmap_Data*>(fixed_data);
-    bmp_data->InitSkBitmapFromData(r, variable_data, variable_data_size);
-    return true;
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(StringPrintf(L"<SkBitmap>"));
-  }
+  static void Log(const param_type& p, std::wstring* l);
 };
 
 template <>
@@ -856,8 +794,10 @@ struct LogData {
   uint16 type;
   std::wstring flags;
   int64 sent;  // Time that the message was sent (i.e. at Send()).
-  int64 receive;  // Time before it was dispatched (i.e. before calling OnMessageReceived).
-  int64 dispatch;  // Time after it was dispatched (i.e. after calling OnMessageReceived).
+  int64 receive;  // Time before it was dispatched (i.e. before calling
+                  // OnMessageReceived).
+  int64 dispatch;  // Time after it was dispatched (i.e. after calling
+                   // OnMessageReceived).
   std::wstring params;
 };
 
@@ -1123,7 +1063,7 @@ class MessageWithTuple : public Message {
 template <class RefTuple>
 class ParamDeserializer : public MessageReplyDeserializer {
  public:
-  ParamDeserializer(const RefTuple& out) : out_(out) { }
+  explicit ParamDeserializer(const RefTuple& out) : out_(out) { }
 
   bool SerializeOutputParameters(const IPC::Message& msg, void* iter) {
     return ReadParam(&msg, &iter, &out_);
@@ -1263,4 +1203,4 @@ class MessageWithReply : public SyncMessage {
 
 }  // namespace IPC
 
-#endif  // CHROME_COMMON_IPC_MESSAGE_UTILS_H__
+#endif  // CHROME_COMMON_IPC_MESSAGE_UTILS_H_

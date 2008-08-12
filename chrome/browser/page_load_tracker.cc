@@ -27,13 +27,14 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "chrome/browser/page_load_tracker.h"
+
 #include <stdlib.h>
 #include <string>
 
-#include "chrome/browser/page_load_tracker.h"
-
 #include "base/string_util.h"
 #include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/views/background.h"
 #include "net/url_request/url_request_job_metrics.h"
 

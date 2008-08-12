@@ -27,16 +27,15 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_COMMON_GFX_CHROME_CANVAS_H__
-#define CHROME_COMMON_GFX_CHROME_CANVAS_H__
+#ifndef CHROME_COMMON_GFX_CHROME_CANVAS_H_
+#define CHROME_COMMON_GFX_CHROME_CANVAS_H_
 
 #include <windows.h>
 #include <string>
 #include "base/basictypes.h"
 #include "base/gfx/platform_canvas.h"
-#include "chrome/common/gfx/chrome_font.h"
-#include "chrome/common/l10n_util.h"
 
+class ChromeFont;
 namespace gfx {
 class Rect;
 }
@@ -155,10 +154,7 @@ class ChromeCanvas : public gfx::PlatformCanvas {
   // aligned to the left, vertically centered, clipped to the region. If the
   // text is too big, it is truncated and '...' is added to the end.
   void DrawStringInt(const std::wstring& text, const ChromeFont& font,
-                     const SkColor& color, int x, int y, int w, int h) {
-    DrawStringInt(text, font, color, x, y, w, h,
-                  l10n_util::DefaultCanvasTextAlignment());
-  }
+                     const SkColor& color, int x, int y, int w, int h);
 
   // Draws text with the specified color, font and location. The last argument
   // specifies flags for how the text should be rendered. It can be one of
@@ -190,8 +186,8 @@ class ChromeCanvas : public gfx::PlatformCanvas {
 
  private:
   // Draws text with the specified color, font and location. The text is
-   // aligned to the left, vertically centered, clipped to the region. If the
-   // text is too big, it is truncated and '...' is added to the end.
+  // aligned to the left, vertically centered, clipped to the region. If the
+  // text is too big, it is truncated and '...' is added to the end.
   void DrawStringInt(const std::wstring& text, HFONT font,
                      const SkColor& color, int x, int y, int w, int h,
                      int flags);
@@ -210,4 +206,4 @@ class ChromeCanvas : public gfx::PlatformCanvas {
 
 typedef gfx::CanvasPaintT<ChromeCanvas> ChromeCanvasPaint;
 
-#endif  // CHROME_COMMON_GFX_CHROME_CANVAS_H__
+#endif  // CHROME_COMMON_GFX_CHROME_CANVAS_H_

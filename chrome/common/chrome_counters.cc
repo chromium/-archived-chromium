@@ -29,6 +29,8 @@
 
 #include "chrome/common/chrome_counters.h"
 
+#include "base/stats_counters.h"
+
 namespace chrome {
 
 // Note: We use the construct-on-first-use pattern here, because we don't

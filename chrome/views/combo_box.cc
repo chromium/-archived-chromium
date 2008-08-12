@@ -29,11 +29,10 @@
 
 #include "chrome/views/combo_box.h"
 
-#include <windows.h>
 #include "base/gfx/native_theme.h"
 #include "base/gfx/rect.h"
-
 #include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/resource_bundle.h"
 
 // Limit how small a combobox can be.

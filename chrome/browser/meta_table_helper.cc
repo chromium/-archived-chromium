@@ -31,6 +31,7 @@
 
 #include <windows.h>
 
+#include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/common/sqlite_utils.h"
 
