@@ -267,12 +267,13 @@ if env['PLATFORM'] == 'win32':
 elif env['PLATFORM'] == 'posix':
 
   # For now, linux only loads the components we know work on Linux, by default.
-  load = ['base', 'testing', 'third_party']
+  load = ['base', 'testing', 'third_party', 'breakpad']
 
   env.Replace(
       # TODO(linux): we should also compile with -Werror, but not yet.
       CCFLAGS = ['-m32', '-g'],
       LINKFLAGS = ['-m32'],
+      LIBS = ['pthread'],
   )
 
 else:

@@ -38,28 +38,37 @@ env.Prepend(
     ],
 )
 
-env.Append(
-    CCFLAGS = [
-        '/TP',
-        '/wd4800',
-    ],
-)
+if env['PLATFORM'] == 'win32':
+  env.Append(
+      CCFLAGS = [
+          '/TP',
+          '/wd4800',
+      ],
+  )
 
-sender_input_files = [
-    'src/client/windows/sender/crash_report_sender.cc',
-    'src/common/windows/http_upload.cc',
-]
+  sender_input_files = [
+      'src/client/windows/sender/crash_report_sender.cc',
+      'src/common/windows/http_upload.cc',
+  ]
 
-env.ChromeStaticLibrary('breakpad_sender', sender_input_files)
+  env.ChromeStaticLibrary('breakpad_sender', sender_input_files)
 
 
-handler_input_files = [
-    'src/client/windows/crash_generation/client_info.cc',
-    'src/client/windows/crash_generation/minidump_generator.cc',
-    'src/common/windows/guid_string.cc',
-    'src/client/windows/handler/exception_handler.cc',
-    'src/client/windows/crash_generation/crash_generation_server.cc',
-    'src/client/windows/crash_generation/crash_generation_client.cc',
-]
+if env['PLATFORM'] == 'win32':
+  handler_input_files = [
+      'src/client/windows/crash_generation/client_info.cc',
+      'src/client/windows/crash_generation/minidump_generator.cc',
+      'src/common/windows/guid_string.cc',
+      'src/client/windows/handler/exception_handler.cc',
+      'src/client/windows/crash_generation/crash_generation_server.cc',
+      'src/client/windows/crash_generation/crash_generation_client.cc',
+  ]
+elif env['PLATFORM'] == 'posix':
+  handler_input_files = [
+      'src/common/linux/guid_creator.cc',
+      'src/client/linux/handler/exception_handler.cc',
+      'src/client/linux/handler/minidump_generator.cc',
+      'src/client/linux/handler/linux_thread.cc',
+  ]
 
 env.ChromeStaticLibrary('breakpad_handler', handler_input_files)
