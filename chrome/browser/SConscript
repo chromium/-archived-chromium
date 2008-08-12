@@ -237,6 +237,7 @@ input_files = [
     'render_view_context_menu.cc',
     'render_view_context_menu_controller.cc',
     'render_view_host.cc',
+    'render_view_host_manager.cc',
     'render_widget_helper.cc',
     'render_widget_host.cc',
     'render_widget_host_hwnd.cc',
