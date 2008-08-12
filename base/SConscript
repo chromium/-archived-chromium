@@ -51,11 +51,6 @@ if env['PLATFORM'] == 'win32':
       ],
   )
 
-if env['PLATFORM'] == 'posix':
-  env.Replace(
-      LIBS = ['pthread'],
-  )
-
 # These base files work on *all* platforms; files that don't work
 # cross-platform live below.
 input_files = [
@@ -65,6 +60,7 @@ input_files = [
     'icu_util.cc',
     'lock.cc',
     'logging.cc',
+    'pickle.cc',
     'platform_thread.cc',
     'string_escape.cc',
     'string_piece.cc',
@@ -103,7 +99,6 @@ if env['PLATFORM'] == 'win32':
     'object_watcher.cc',
     'path_service.cc',
     'pe_image.cc',
-    'pickle.cc',
     'process.cc',
     'process_util.cc',
     'registry.cc',
