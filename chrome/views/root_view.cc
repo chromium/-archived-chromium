@@ -63,7 +63,7 @@ class PaintTask : public Task {
 
   void Run() {
     if (root_view_)
-      root_view_->ProcessPendingPaint();
+      root_view_->PaintNow();
   }
  private:
   // The target root view.
@@ -80,9 +80,8 @@ const char RootView::kViewClassName[] = "chrome/views/RootView";
 //
 /////////////////////////////////////////////////////////////////////////////
 
-RootView::RootView(ViewContainer* view_container, bool double_buffer)
-  : double_buffer_(double_buffer),
-    view_container_(view_container),
+RootView::RootView(ViewContainer* view_container)
+  : view_container_(view_container),
     invalid_rect_(0,0,0,0),
     mouse_pressed_handler_(NULL),
     mouse_move_handler_(NULL),
@@ -149,18 +148,6 @@ void RootView::SchedulePaint(int x, int y, int w, int h) {
   View::SchedulePaint();
 }
 
-void RootView::ProcessPendingPaint() {
-  if (pending_paint_task_) {
-    pending_paint_task_->Cancel();
-    pending_paint_task_ = NULL;
-  }
-  if (!paint_task_needed_)
-    return;
-  ViewContainer* vc = GetViewContainer();
-  if (vc)
-    vc->PaintNow(invalid_rect_);
-}
-
 #ifndef NDEBUG
 // Sets the value of RootView's |is_processing_paint_| member to true as long
 // as ProcessPaint is being called. Sets it to |false| when it returns.
@@ -214,7 +201,15 @@ void RootView::ProcessPaint(ChromeCanvas* canvas) {
 }
 
 void RootView::PaintNow() {
-  GetViewContainer()->PaintNow(invalid_rect_);
+  if (pending_paint_task_) {
+    pending_paint_task_->Cancel();
+    pending_paint_task_ = NULL;
+  }
+  if (!paint_task_needed_)
+    return;
+  ViewContainer* vc = GetViewContainer();
+  if (vc)
+    vc->PaintNow(invalid_rect_);
 }
 
 bool RootView::NeedsPainting(bool urgent) {

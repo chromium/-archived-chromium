@@ -339,7 +339,7 @@ XPFrame* XPFrame::CreateFrame(const gfx::Rect& bounds,
 
 XPFrame::XPFrame(Browser* browser)
     : browser_(browser),
-      root_view_(this, true),
+      root_view_(this),
       frame_view_(NULL),
       tabstrip_(NULL),
       active_bookmark_bar_(NULL),

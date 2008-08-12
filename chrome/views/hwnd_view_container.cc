@@ -818,7 +818,7 @@ void HWNDViewContainer::ChangeSize(UINT size_param, const CSize& size) {
 }
 
 RootView* HWNDViewContainer::CreateRootView() {
-  return new RootView(this, true);
+  return new RootView(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -97,7 +97,7 @@ namespace {
 class NativeRootView : public ChromeViews::RootView {
  public:
   explicit NativeRootView(NativeUIContents* host)
-      : RootView(host, true),
+      : RootView(host),
         host_(host) { }
 
   virtual ~NativeRootView() { }

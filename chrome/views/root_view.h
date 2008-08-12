@@ -69,7 +69,7 @@ class RootView : public View,
  public:
   static const char kViewClassName[];
 
-  RootView(ViewContainer* view_container, bool double_buffer);
+  explicit RootView(ViewContainer* view_container);
 
   virtual ~RootView();
 
@@ -87,7 +87,9 @@ class RootView : public View,
   // Paint this RootView and its child Views.
   virtual void ProcessPaint(ChromeCanvas* canvas);
 
-  // Paint this View's invalid rect immediately.
+  // If the invalid rect is non-empty and there is a pending paint the RootView
+  // is painted immediately. This is internally invoked as the result of
+  // invoking SchedulePaint.
   virtual void PaintNow();
 
   // Whether or not this View needs repainting. If |urgent| is true, this method
@@ -243,9 +245,6 @@ class RootView : public View,
   void RegisterViewForVisibleBoundsNotification(View* view);
   void UnregisterViewForVisibleBoundsNotification(View* view);
 
-  // Invoked by PaintTask to paint the root view in a non urgent way.
-  void ProcessPendingPaint();
-
   // Returns the next focusable view or view containing a FocusTraversable (NULL
   // if none was found), starting at the starting_view.
   // skip_starting_view, can_go_up and can_go_down controls the traversal of
@@ -286,9 +285,6 @@ class RootView : public View,
 
   // If a view is dragging, this returns it. Otherwise returns NULL.
   View* GetDragView();
-
-  // Whether or not we're double buffering paints
-  bool double_buffer_;
 
   // The view currently handing down - drag - up
   View* mouse_pressed_handler_;

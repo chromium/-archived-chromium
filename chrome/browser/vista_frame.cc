@@ -140,7 +140,7 @@ VistaFrame* VistaFrame::CreateFrame(const gfx::Rect& bounds,
 
 VistaFrame::VistaFrame(Browser* browser)
     : browser_(browser),
-      root_view_(this, true),
+      root_view_(this),
       tabstrip_(NULL),
       active_bookmark_bar_(NULL),
       tab_contents_container_(NULL),

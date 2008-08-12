@@ -550,7 +550,7 @@ class MenuHostRootView : public RootView {
  public:
   explicit MenuHostRootView(ViewContainer* container,
                             SubmenuView* submenu)
-      : RootView(container, true),
+      : RootView(container),
         submenu_(submenu),
         forward_drag_to_menu_controller_(true),
         suspend_events_(false) {

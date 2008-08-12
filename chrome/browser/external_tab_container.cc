@@ -47,7 +47,7 @@ static const wchar_t kWindowObjectKey[] = L"ChromeWindowObject";
 ExternalTabContainer::ExternalTabContainer(
     AutomationProvider* automation)
     : automation_(automation),
-      root_view_(this, true),
+      root_view_(this),
       tab_contents_(NULL),
       external_accel_table_(NULL),
       external_accel_entry_count_(0),
