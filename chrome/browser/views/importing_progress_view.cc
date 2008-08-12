@@ -67,7 +67,7 @@ ImportingProgressView::ImportingProgressView(const std::wstring& source_name,
       coordinator_(coordinator),
       import_observer_(observer),
       items_(items),
-      importing_(false) {
+      importing_(true) {
   coordinator_->SetObserver(this);
   label_info_->SetMultiLine(true);
   label_info_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
