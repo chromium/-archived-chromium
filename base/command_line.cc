@@ -91,7 +91,7 @@ class CommandLine::Data {
     Init(command_line);
   }
 #elif defined(OS_POSIX)
-  Data(const int argc, char** argv) {
+  Data(int argc, char** argv) {
     Init(argc, argv);
   }
 #endif

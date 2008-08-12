@@ -47,13 +47,13 @@ TEST(CommandLineTest, CommandLineConstructor) {
                  L"-spaetzle=Crepe   -=loosevalue  flan "
                  L"--input-translation=\"45\"--output-rotation "
                  L"\"in the time of submarines...\"");
-#elif OS_POSIX
-  const char* argv[] = {"program", "--foo=", "-bAr", 
-                         "-Spaetzel=pierogi", "-Baz", "flim",
-                         "--other-switches=--dog=canine --cat=feline",
-                         "-spaetzle=Crepe", "-=loosevalue", "flan",
-                         "--input-translation=45--output-rotation",
-                         "in the time of submarines..."};
+#elif defined(OS_POSIX)
+  char* argv[] = {"program", "--foo=", "-bAr", 
+                  "-Spaetzel=pierogi", "-Baz", "flim",
+                  "--other-switches=--dog=canine --cat=feline",
+                  "-spaetzle=Crepe", "-=loosevalue", "flan",
+                  "--input-translation=45--output-rotation",
+                  "in the time of submarines..."};
   CommandLine cl(arraysize(argv), argv);
 #endif
   EXPECT_FALSE(cl.command_line_string().empty());
@@ -81,7 +81,7 @@ TEST(CommandLineTest, CommandLineConstructor) {
   EXPECT_EQ(L"--dog=canine --cat=feline", cl.GetSwitchValue(L"other-switches"));
   EXPECT_EQ(L"45--output-rotation", cl.GetSwitchValue(L"input-translation"));
 
-  EXPECT_EQ(3, cl.GetLooseValueCount());
+  EXPECT_EQ(static_cast<size_t>(3), cl.GetLooseValueCount());
 
   CommandLine::LooseValueIterator iter = cl.GetLooseValuesBegin();
   EXPECT_EQ(L"flim", *iter);
@@ -105,12 +105,11 @@ TEST(CommandLineTest, EmptyString) {
 #if defined(OS_WIN)
   CommandLine cl(L"");
 #elif defined(OS_POSIX)
-  const char* argv[] = {};
-  CommandLine cl(ARRAYSIZE_UNSAFE(argv), argv);
+  CommandLine cl(0, NULL);
 #endif
   EXPECT_TRUE(cl.command_line_string().empty());
   EXPECT_TRUE(cl.program().empty());
-  EXPECT_EQ(0, cl.GetLooseValueCount());
+  EXPECT_EQ(static_cast<size_t>(0), cl.GetLooseValueCount());
 }
 
 // Test static functions for appending switches to a command line.
