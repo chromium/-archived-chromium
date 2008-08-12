@@ -174,7 +174,7 @@ Clipboard::~Clipboard() {
   clipboard_owner_ = NULL;
 }
 
-void Clipboard::Clear() const {
+void Clipboard::Clear() {
   // Acquire the clipboard.
   ClipboardLock lock;
   if (!lock.Acquire(clipboard_owner_))
@@ -183,7 +183,7 @@ void Clipboard::Clear() const {
   ::EmptyClipboard();
 }
 
-void Clipboard::WriteText(const std::wstring& text) const {
+void Clipboard::WriteText(const std::wstring& text) {
   ClipboardLock lock;
   if (!lock.Acquire(clipboard_owner_))
     return;
@@ -194,7 +194,7 @@ void Clipboard::WriteText(const std::wstring& text) const {
 }
 
 void Clipboard::WriteHTML(const std::wstring& markup,
-                          const std::string& url) const {
+                          const std::string& url) {
   // Acquire the clipboard.
   ClipboardLock lock;
   if (!lock.Acquire(clipboard_owner_))
@@ -210,7 +210,7 @@ void Clipboard::WriteHTML(const std::wstring& markup,
 }
 
 void Clipboard::WriteBookmark(const std::wstring& title,
-                              const std::string& url) const {
+                              const std::string& url) {
   // Acquire the clipboard.
   ClipboardLock lock;
   if (!lock.Acquire(clipboard_owner_))
@@ -227,7 +227,7 @@ void Clipboard::WriteBookmark(const std::wstring& title,
 }
 
 void Clipboard::WriteHyperlink(const std::wstring& title,
-                               const std::string& url) const {
+                               const std::string& url) {
   // Write as a bookmark.
   WriteBookmark(title, url);
 
@@ -242,7 +242,7 @@ void Clipboard::WriteHyperlink(const std::wstring& title,
   WriteHTML(link, std::string());
 }
 
-void Clipboard::WriteWebSmartPaste() const {
+void Clipboard::WriteWebSmartPaste() {
   // Acquire the clipboard.
   ClipboardLock lock;
   if (!lock.Acquire(clipboard_owner_))
@@ -251,7 +251,7 @@ void Clipboard::WriteWebSmartPaste() const {
   SetClipboardData(ClipboardUtil::GetWebKitSmartPasteFormat()->cfFormat, NULL);
 }
 
-void Clipboard::WriteBitmap(const void* pixels, const gfx::Size& size) const {
+void Clipboard::WriteBitmap(const void* pixels, const gfx::Size& size) {
   HDC dc = ::GetDC(NULL);
 
   // This doesn't actually cost us a memcpy when the bitmap comes from the
@@ -287,7 +287,7 @@ void Clipboard::WriteBitmap(const void* pixels, const gfx::Size& size) const {
 }
 
 void Clipboard::WriteBitmapFromSharedMemory(const SharedMemory& bitmap,
-                                            const gfx::Size& size) const {
+                                            const gfx::Size& size) {
   // TODO(darin): share data in gfx/bitmap_header.cc somehow
   BITMAPINFO bm_info = {0};
   bm_info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -314,7 +314,7 @@ void Clipboard::WriteBitmapFromSharedMemory(const SharedMemory& bitmap,
 }
 
 void Clipboard::WriteBitmapFromHandle(HBITMAP source_hbitmap,
-                                      const gfx::Size& size) const {
+                                      const gfx::Size& size) {
   // Acquire the clipboard.
   ClipboardLock lock;
   if (!lock.Acquire(clipboard_owner_))
@@ -363,13 +363,13 @@ void Clipboard::WriteBitmapFromHandle(HBITMAP source_hbitmap,
 // Write a file or set of files to the clipboard in HDROP format. When the user
 // invokes a paste command (in a Windows explorer shell, for example), the files
 // will be copied to the paste location.
-void Clipboard::WriteFile(const std::wstring& file) const {
+void Clipboard::WriteFile(const std::wstring& file) {
   std::vector<std::wstring> files;
   files.push_back(file);
   WriteFiles(files);
 }
 
-void Clipboard::WriteFiles(const std::vector<std::wstring>& files) const {
+void Clipboard::WriteFiles(const std::vector<std::wstring>& files) {
   ClipboardLock lock;
   if (!lock.Acquire(clipboard_owner_))
     return;

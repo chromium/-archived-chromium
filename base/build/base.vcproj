@@ -210,7 +210,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\clipboard.cc"
+			RelativePath="..\clipboard_win.cc"
 			>
 		</File>
 		<File
