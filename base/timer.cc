@@ -82,8 +82,8 @@ static base::AtomicSequenceNumber timer_id_counter_;
 // Timer
 
 Timer::Timer(int delay, Task* task, bool repeating)
-    : delay_(delay),
-      task_(task),
+    : task_(task),
+      delay_(delay),
       repeating_(repeating) {
   timer_id_ = timer_id_counter_.GetNext();
   DCHECK(delay >= 0);
