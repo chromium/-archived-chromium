@@ -44,7 +44,7 @@ class ClipboardService : public Clipboard {
   // Adds a bitmap to the clipboard
   // This is the slowest way to copy a bitmap to the clipboard as we must fist
   // memcpy the bits into GDI and the blit the bitmap to the clipboard.
-  void WriteBitmap(const SkBitmap& bitmap) const;
+  void WriteBitmap(const SkBitmap& bitmap);
 
  private:
 

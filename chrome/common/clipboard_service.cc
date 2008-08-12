@@ -37,7 +37,7 @@
 ClipboardService::ClipboardService() {
 }
 
-void ClipboardService::WriteBitmap(const SkBitmap& bitmap) const {
+void ClipboardService::WriteBitmap(const SkBitmap& bitmap) {
   SkAutoLockPixels bitmap_lock(bitmap);
   Clipboard::WriteBitmap(bitmap.getPixels(),
                          gfx::Size(bitmap.width(), bitmap.height()));
