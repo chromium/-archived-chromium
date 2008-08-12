@@ -39,8 +39,9 @@
 typedef HANDLE SharedMemoryHandle;
 typedef HANDLE SharedMemoryLock;
 #elif defined(OS_POSIX)
+#include <semaphore.h>
 typedef int SharedMemoryHandle;
-typedef int SharedMemoryLock;
+typedef sem_t* SharedMemoryLock;
 #endif
 
 // Platform abstraction for shared memory.  Provides a C++ wrapper

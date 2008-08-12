@@ -582,7 +582,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\shared_memory.cc"
+			RelativePath="..\shared_memory_win.cc"
 			>
 		</File>
 		<File
