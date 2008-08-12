@@ -87,7 +87,7 @@ class ProcessFilter {
   // Returns true to indicate set-inclusion and false otherwise.  This method
   // should not have side-effects and should be idempotent.
   virtual bool Includes(uint32 pid, uint32 parent_pid) const = 0;
-  virtual ~ProcessFilter() {}
+  virtual ~ProcessFilter() { }
 };
 
 // Returns the number of processes on the machine that are running from the
