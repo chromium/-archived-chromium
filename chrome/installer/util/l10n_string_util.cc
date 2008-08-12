@@ -18,8 +18,10 @@ std::wstring GetSystemLanguage() {
   // We don't have ICU at this point, so we use win32 apis.
   LCID id = GetThreadLocale();
   int length = GetLocaleInfo(id, LOCALE_SISO639LANGNAME, 0, 0);
-  if (0 == length)
-    return false;
+  if (0 == length) {
+    language = L"en-us";
+    return language;
+  }
   length = GetLocaleInfo(id, LOCALE_SISO639LANGNAME,
                          WriteInto(&language, length), length);
   DCHECK(length == language.length() + 1);
