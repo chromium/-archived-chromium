@@ -314,14 +314,6 @@ void WebContents::SizeContents(const gfx::Size& size) {
   RepositionSupressedPopupsToFit(size);
 }
 
-void WebContents::FirePageBeforeUnload() {
-  render_view_host_->FirePageBeforeUnload();
-}
-
-void WebContents::FirePageUnload() {
-  render_view_host_->FirePageUnload();
-}
-
 void WebContents::Destroy() {
   // Tell the notification service we no longer want notifications.
   NotificationService::current()->

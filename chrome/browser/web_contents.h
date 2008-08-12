@@ -84,17 +84,6 @@ class WebContents : public TabContents,
   virtual void HideContents();
   virtual void SizeContents(const gfx::Size& size);
 
-  // Causes the renderer to invoke the onbeforeunload event handler.  The
-  // result will be returned via ViewMsg_ShouldClose.
-  virtual void FirePageBeforeUnload();
-
-  // Close the page after the page has responded that it can be closed via
-  // ViewMsg_ShouldClose. This is where the page itself is closed. The
-  // unload handler is triggered here, which can block with a dialog, but cannot
-  // cancel the close of the page.
-  virtual void FirePageUnload();
-
-
   // TabContents
   virtual WebContents* AsWebContents() { return this; }
   virtual bool Navigate(const NavigationEntry& entry, bool reload);
