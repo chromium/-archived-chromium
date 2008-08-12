@@ -32,6 +32,8 @@
 
 #include "build/build_config.h"
 
+class TimeDelta;
+
 #if defined(OS_WIN)
 
 #include <windows.h>
@@ -51,6 +53,9 @@ class PlatformThread {
 
   // Yield the current thread so another thread can be scheduled.
   static void YieldCurrentThread();
+  
+  // Sleep for the specified duration.
+  static void Sleep(TimeDelta sleep_duration);
 
   bool operator==(const PlatformThread& other_thread);
 
