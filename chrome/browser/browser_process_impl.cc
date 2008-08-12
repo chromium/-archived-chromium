@@ -143,6 +143,8 @@ BrowserProcessImpl::BrowserProcessImpl(CommandLine& command_line)
   }
 
   suspend_controller_ = new SuspendController();
+
+  shutdown_event_ = ::CreateEvent(NULL, TRUE, FALSE, NULL);
 }
 
 BrowserProcessImpl::~BrowserProcessImpl() {
@@ -224,6 +226,9 @@ struct RunnableMethodTraits<MessageLoop> {
 };
 
 void BrowserProcessImpl::EndSession() {
+  // Notify we are going away.
+  ::SetEvent(shutdown_event_);
+
   // Mark all the profiles as clean.
   ProfileManager* pm = profile_manager();
   for (ProfileManager::const_iterator i = pm->begin(); i != pm->end(); ++i)

@@ -32,6 +32,7 @@
 #include "base/file_util.h"
 #include "base/histogram.h"
 #include "base/path_service.h"
+#include "base/shared_event.h"
 #include "base/string_util.h"
 #include "base/time.h"
 #include "chrome/browser/browser_process.h"
@@ -105,6 +106,9 @@ void Shutdown() {
   // time to get here. If you have something that *must* happen on end session,
   // consider putting it in BrowserProcessImpl::EndSession.
   DCHECK(g_browser_process);
+
+  // Notifies we are going away.
+  ::SetEvent(g_browser_process->shutdown_event());
 
   PluginService* plugin_service = PluginService::GetInstance();
   if (plugin_service) {

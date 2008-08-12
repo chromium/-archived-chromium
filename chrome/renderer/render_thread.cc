@@ -113,7 +113,8 @@ void RenderThread::Init() {
       new ScopedRunnableMethodFactory<RenderThread>(this));
 
   channel_.reset(new IPC::SyncChannel(channel_name_,
-      IPC::Channel::MODE_CLIENT, this, owner_loop_, true));
+      IPC::Channel::MODE_CLIENT, this, NULL, owner_loop_, true,
+      RenderProcess::GetShutDownEvent()));
 
   ThreadLocalStorage::Set(tls_index_, this);
 

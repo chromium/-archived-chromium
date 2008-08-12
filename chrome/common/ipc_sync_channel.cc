@@ -70,7 +70,6 @@ class SyncChannel::ReceivedSyncMsgQueue :
 
   ~ReceivedSyncMsgQueue() {
     CloseHandle(blocking_event_);
-    ThreadLocalStorage::Set(g_tls_index, NULL);
   }
 
   // Called on IPC thread when a synchronous message or reply arrives.
@@ -252,13 +251,20 @@ SyncChannel::SyncContext::SyncContext(
     // Stash a pointer to the listener thread's ReceivedSyncMsgQueue, as we
     // need to be able to access it in the IPC thread.
     received_sync_msgs_ = new ReceivedSyncMsgQueue();
+    // TODO(jcampan): http:///b/1319842 we are adding an extra-ref to keep this
+    // object around for the duration of the process.  We used to remove it from
+    // the TLS when it was destroyed, but that was causing problems as we could
+    // be destroyed in a different thread then the thread we had been created
+    // on.  This needs to be revisited at some point.
+    received_sync_msgs_->AddRef();
+
     ThreadLocalStorage::Set(g_tls_index, received_sync_msgs_.get());
   }
 }
 
 SyncChannel::SyncContext::~SyncContext() {
   while (!deserializers_.empty())
-    PopDeserializer();
+    PopDeserializer(true);
 }
 
 // Adds information about an outgoing sync message to the context so that
@@ -297,7 +303,7 @@ bool SyncChannel::SyncContext::UnblockListener(const Message* msg) {
       reply_deserialize_result_ = false;
       if (!deserializers_.empty()) {
         reply_event = deserializers_.top().reply_event;
-        PopDeserializer();
+        PopDeserializer(false);
       }
     } else {
       if (deserializers_.empty())
@@ -317,7 +323,7 @@ bool SyncChannel::SyncContext::UnblockListener(const Message* msg) {
       // Can't CloseHandle the event just yet, since doing so might cause the
       // Wait call above to never return.
       reply_event = deserializers_.top().reply_event;
-      PopDeserializer();
+      PopDeserializer(false);
     }
   }
 
@@ -336,6 +342,10 @@ bool SyncChannel::SyncContext::UnblockListener(const Message* msg) {
 
 // Called on the IPC thread.
 void SyncChannel::SyncContext::OnMessageReceived(const Message& msg) {
+  // Give the filters a chance at processing this message.
+  if (TryFilters(msg))
+    return;
+
   if (UnblockListener(&msg))
     return;
 
@@ -360,19 +370,23 @@ void SyncChannel::SyncContext::OnChannelError() {
   Context::OnChannelError();
 }
 
-void SyncChannel::SyncContext::PopDeserializer() {
-  delete deserializers_.top().deserializer;
+void SyncChannel::SyncContext::PopDeserializer(bool close_reply_event) {
+  PendingSyncMsg msg = deserializers_.top();
+  delete msg.deserializer;
+  if (close_reply_event)
+    CloseHandle(msg.reply_event);
   deserializers_.pop();
 }
 
 SyncChannel::SyncChannel(const std::wstring& channel_id, Channel::Mode mode,
-                         Channel::Listener* listener,
+                         Channel::Listener* listener, MessageFilter* filter,
                          MessageLoop* ipc_message_loop,
-                         bool create_pipe_now)
-    : ChannelProxy(channel_id, mode, listener, NULL, ipc_message_loop,
-                   new SyncContext(listener, NULL, ipc_message_loop),
+                         bool create_pipe_now, HANDLE shutdown_event)
+    : ChannelProxy(channel_id, mode, ipc_message_loop,
+                   new SyncContext(listener, filter, ipc_message_loop),
                    create_pipe_now),
-      shutdown_event_(ChildProcess::GetShutDownEvent()) {
+      shutdown_event_(shutdown_event),
+      sync_messages_with_no_timeout_allowed_(true) {
   DCHECK(shutdown_event_ != NULL);
 }
 
@@ -385,11 +399,16 @@ SyncChannel::~SyncChannel() {
 }
 
 bool SyncChannel::Send(IPC::Message* message) {
+  return SendWithTimeout(message, INFINITE);
+}
+
+bool SyncChannel::SendWithTimeout(IPC::Message* message, int timeout_ms) {
   bool message_is_sync = message->is_sync();
   HANDLE pump_messages_event = NULL;
 
   HANDLE reply_event = NULL;
   if (message_is_sync) {
+    DCHECK(sync_messages_with_no_timeout_allowed_ || timeout_ms != INFINITE);
     IPC::SyncMessage* sync_msg = static_cast<IPC::SyncMessage*>(message);
     reply_event = sync_context()->Push(sync_msg);
     pump_messages_event = sync_msg->pump_messages_event();
@@ -409,24 +428,32 @@ bool SyncChannel::Send(IPC::Message* message) {
                          pump_messages_event};
 
     DWORD result;
+    TimeTicks before = TimeTicks::Now();
     if (pump_messages_event == NULL) {
       // No need to pump messages since we didn't get an event to check.
-      result = WaitForMultipleObjects(3, objects, FALSE, INFINITE);
+      result = WaitForMultipleObjects(3, objects, FALSE, timeout_ms);
     } else {
       // If the event is set, then we pump messages.  Otherwise we also wait on
       // it so that if it gets set we start pumping messages.
       if (WaitForSingleObject(pump_messages_event, 0) == WAIT_OBJECT_0) {
-        result = MsgWaitForMultipleObjects(3, objects, FALSE, INFINITE,
-                                           QS_ALLINPUT);
+        // Before calling MsgWaitForMultipleObjects() we check that our events
+        // are not signaled.  The windows message queue might always have events
+        // starving the checking of our events otherwise.
+        result = WaitForMultipleObjects(3, objects, FALSE, 0);
+        if (result == WAIT_TIMEOUT) {
+          result = MsgWaitForMultipleObjects(3, objects, FALSE, timeout_ms,
+                                             QS_ALLINPUT);
+        }
       } else {
-        result = WaitForMultipleObjects(4, objects, FALSE, INFINITE);
+        result = WaitForMultipleObjects(4, objects, FALSE, timeout_ms);
       }
     }
 
-    if (result == WAIT_OBJECT_0) {
-      // Process shut down before we can get a reply to a synchronous message.
-      // Unblock the thread.
-      // Leak reply_event. Since we're shutting down, it's not a big deal.
+    if (result == WAIT_OBJECT_0 || result == WAIT_TIMEOUT) {
+      // Process shut down before we can get a reply to a synchronous message,
+      // or timed-out. Unblock the thread.
+      AutoLock auto_lock(*(sync_context()->deserializers_lock()));
+      sync_context()->PopDeserializer(true);
       return false;
     }
 
@@ -458,7 +485,19 @@ bool SyncChannel::Send(IPC::Message* message) {
       // MsgWaitForMultipleObjects instead.
     }
 
-    // Continue looping until we get the reply to our synchronous message.
+    if (timeout_ms != INFINITE) {
+      TimeDelta time_delta = TimeTicks::Now() - before;
+      timeout_ms -= static_cast<int>(time_delta.InMilliseconds());
+      if (timeout_ms <= 0) {
+        // We timed-out while processing messages.
+        AutoLock auto_lock(*(sync_context()->deserializers_lock()));
+        sync_context()->PopDeserializer(true);
+        return false;
+      }
+    }
+
+    // Continue looping until we either get the reply to our synchronous message
+    // or we time-out.
   } while (true);
 }
 

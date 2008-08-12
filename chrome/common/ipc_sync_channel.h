@@ -52,12 +52,19 @@ class SyncMessage;
 class SyncChannel : public ChannelProxy {
  public:
   SyncChannel(const std::wstring& channel_id, Channel::Mode mode,
-              Channel::Listener* listener, MessageLoop* ipc_message_loop,
-              bool create_pipe_now);
+              Channel::Listener* listener, MessageFilter* filter,
+              MessageLoop* ipc_message_loop, bool create_pipe_now,
+              HANDLE shutdown_handle);
   ~SyncChannel();
 
   virtual bool Send(Message* message);
+  virtual bool SendWithTimeout(Message* message, int timeout_ms);
   bool UnblockListener(Message* message);
+
+  // Whether we allow sending messages with no time-out.
+  void set_sync_messages_with_no_timeout_allowed(bool value) {
+    sync_messages_with_no_timeout_allowed_ = value;
+  }
 
  protected:
   class ReceivedSyncMsgQueue;
@@ -95,6 +102,14 @@ class SyncChannel : public ChannelProxy {
     // Otherwise the function returns false.
     bool UnblockListener(const Message* msg);
 
+
+    // Cleanly remove the top deserializer (and throw it away).
+    // You need to acquire the deserializers_lock before calling this.
+    void PopDeserializer(bool close_reply_event);
+  
+    // Returns the lock that should be acquired before calling PopDeserializer.
+    Lock* deserializers_lock() { return &deserializers_lock_; }
+
    private:
     void OnMessageReceived(const Message& msg);
     void OnChannelError();
@@ -108,9 +123,6 @@ class SyncChannel : public ChannelProxy {
       IPC::MessageReplyDeserializer* deserializer;
       HANDLE reply_event;
     };
-
-    // Cleanly remove the top deserializer (and throw it away).
-    void PopDeserializer();
 
     typedef std::stack<PendingSyncMsg> PendingSyncMessageQueue;
     PendingSyncMessageQueue deserializers_;
@@ -129,6 +141,8 @@ class SyncChannel : public ChannelProxy {
   HANDLE shutdown_event_;
 
   std::stack<HANDLE> pump_messages_events_;
+
+  bool sync_messages_with_no_timeout_allowed_;
 
   DISALLOW_EVIL_CONSTRUCTORS(SyncChannel);
 };

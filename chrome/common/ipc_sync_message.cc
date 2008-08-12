@@ -38,6 +38,8 @@ namespace IPC {
 uint32 SyncMessage::next_id_ = 0;
 #define kSyncMessageHeaderSize 4
 
+// A dummy handle used by EnableMessagePumping.
+HANDLE dummy_event = ::CreateEvent(NULL, TRUE, TRUE, NULL);
 
 SyncMessage::SyncMessage(
     int32 routing_id,
@@ -61,6 +63,11 @@ MessageReplyDeserializer* SyncMessage::GetReplyDeserializer() {
   DCHECK(rv);
   deserializer_ = NULL;
   return rv;
+}
+
+void SyncMessage::EnableMessagePumping() {
+  DCHECK(!pump_messages_event_);
+  set_pump_messages_event(dummy_event);
 }
 
 bool SyncMessage::IsMessageReplyTo(const Message& msg, int request_id) {

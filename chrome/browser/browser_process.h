@@ -53,6 +53,7 @@ class ResourceDispatcherHost;
 class DebuggerWrapper;
 class Thread;
 class WebAppInstallerService;
+class SharedEvent;
 class SuspendController;
 
 namespace sandbox {
@@ -145,6 +146,9 @@ class BrowserProcess {
 
   // TODO(beng): remove once XPFrame/VistaFrame are gone.
   virtual bool IsUsingNewFrames() = 0;
+
+  // Returns an event that is signaled when the browser shutdown.
+  virtual HANDLE shutdown_event() = 0;
 
  private:
   DISALLOW_EVIL_CONSTRUCTORS(BrowserProcess);

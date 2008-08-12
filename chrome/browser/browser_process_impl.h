@@ -43,6 +43,7 @@
 #include "base/non_thread_safe.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
+#include "base/shared_event.h"
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/browser_process.h"
 #include "sandbox/src/sandbox.h"
@@ -207,6 +208,8 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
     return using_new_frames_;
   }
 
+  virtual HANDLE shutdown_event() { return shutdown_event_; }
+
  private:
   void CreateResourceDispatcherHost();
   void CreatePrefService();
@@ -280,6 +283,9 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
 
   bool checked_for_new_frames_;
   bool using_new_frames_;
+
+  // An event that notifies when we are shutting-down.
+  HANDLE shutdown_event_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BrowserProcessImpl);
 };

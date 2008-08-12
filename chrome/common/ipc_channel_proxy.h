@@ -149,7 +149,6 @@ class ChannelProxy : public Message::Sender {
   // to the internal state.  If create_pipe_now is true, the pipe is created
   // immediately.  Otherwise it's created on the IO thread.
   ChannelProxy(const std::wstring& channel_id, Channel::Mode mode,
-               Channel::Listener* listener, MessageFilter* filter,
                MessageLoop* ipc_thread_loop, Context* context,
                bool create_pipe_now);
 
@@ -169,6 +168,10 @@ class ChannelProxy : public Message::Sender {
 
     Channel::Listener* listener() const { return listener_; }
     const std::wstring& channel_id() const { return channel_id_; }
+
+    // Gives the filters a chance at processing |message|.
+    // Returns true if the message was processed, false otherwise.
+    bool TryFilters(const Message& message);
 
    private:
     friend class ChannelProxy;

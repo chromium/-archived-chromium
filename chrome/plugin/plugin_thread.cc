@@ -92,7 +92,8 @@ void PluginThread::Init() {
   PatchNPNFunctions();
   CoInitialize(NULL);
   channel_.reset(new IPC::SyncChannel(channel_name_,
-      IPC::Channel::MODE_CLIENT, this, owner_loop_, true));
+      IPC::Channel::MODE_CLIENT, this, NULL, owner_loop_, true,
+      PluginProcess::GetShutDownEvent()));
   notification_service_.reset(new NotificationService);
   resource_dispatcher_ = new ResourceDispatcher(this);
 

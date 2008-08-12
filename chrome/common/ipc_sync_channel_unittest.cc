@@ -116,6 +116,9 @@ class Worker : public Channel::Listener, public Message::Sender {
   void AddRef() { }
   void Release() { }
   bool Send(Message* msg) { return channel_->Send(msg); }
+  bool SendWithTimeout(Message* msg, int timeout_ms) {
+    return channel_->SendWithTimeout(msg, timeout_ms);
+  }
   void WaitForChannelCreation() { channel_created_.Wait(); }
   void CloseChannel() { channel_.reset(); }
   void Start() {
@@ -158,7 +161,8 @@ class Worker : public Channel::Listener, public Message::Sender {
     ipc_thread_.Start();
     // Link ipc_thread_, listener_thread_ and channel_ altogether.
     channel_.reset(new SyncChannel(
-        channel_name_, mode_, this, ipc_thread_.message_loop(), true));
+        channel_name_, mode_, this, NULL, ipc_thread_.message_loop(), true,
+        TestProcess::GetShutDownEvent()));
     channel_created_.Set();
     Run();
   }
@@ -621,5 +625,104 @@ TEST(IPCSyncChannelTest, ChattyServer) {
   std::vector<Worker*> workers;
   workers.push_back(new RecursiveServer());
   workers.push_back(new ChattyRecursiveClient());
+  RunTest(workers);
+}
+
+
+//------------------------------------------------------------------------------
+class TimeoutServer : public Worker {
+ public:
+   TimeoutServer(int timeout_ms,
+                 std::vector<bool> timeout_seq)
+      : Worker(Channel::MODE_SERVER, "timeout_server"),
+        timeout_ms_(timeout_ms),
+        timeout_seq_(timeout_seq) {
+  }
+
+  void Run() {
+    for (std::vector<bool>::const_iterator iter = timeout_seq_.begin();
+         iter != timeout_seq_.end(); ++iter) {
+      int answer = 0;
+      bool result =
+          SendWithTimeout(new SyncChannelTestMsg_AnswerToLife(&answer),
+                          timeout_ms_);
+      if (*iter) {
+        // Time-out expected.
+        DCHECK(!result);
+        DCHECK(answer == 0);
+      } else {
+        DCHECK(result);
+        DCHECK(answer == 42);
+      }
+    }
+    Done();
+  }
+
+ private:
+  int timeout_ms_;
+  std::vector<bool> timeout_seq_;
+};
+
+class UnresponsiveClient : public Worker {
+ public:
+   UnresponsiveClient(std::vector<bool> timeout_seq)
+      : Worker(Channel::MODE_CLIENT, "unresponsive_client"),
+        timeout_seq_(timeout_seq) {
+   }
+
+  void OnAnswerDelay(Message* reply_msg) {
+    DCHECK(!timeout_seq_.empty());
+    if (!timeout_seq_[0]) {
+      SyncChannelTestMsg_AnswerToLife::WriteReplyParams(reply_msg, 42);
+      Send(reply_msg);
+    } else {
+      // Don't reply.
+    }
+    timeout_seq_.erase(timeout_seq_.begin());
+    if (timeout_seq_.empty())
+      Done();
+  }
+
+ private:
+  // Whether we should time-out or respond to the various messages we receive.
+  std::vector<bool> timeout_seq_;
+};
+
+// Tests that SendWithTimeout does not time-out if the response comes back fast
+// enough.
+TEST(IPCSyncChannelTest, SendWithTimeoutOK) {
+  std::vector<Worker*> workers;
+  std::vector<bool> timeout_seq;
+  timeout_seq.push_back(false);
+  timeout_seq.push_back(false);
+  timeout_seq.push_back(false);
+  workers.push_back(new TimeoutServer(5000, timeout_seq));
+  workers.push_back(new SimpleClient());
+  RunTest(workers);
+}
+
+// Tests that SendWithTimeout does time-out.
+TEST(IPCSyncChannelTest, SendWithTimeoutTimeout) {
+  std::vector<Worker*> workers;
+  std::vector<bool> timeout_seq;
+  timeout_seq.push_back(true);
+  timeout_seq.push_back(false);
+  timeout_seq.push_back(false);
+  workers.push_back(new TimeoutServer(100, timeout_seq));
+  workers.push_back(new UnresponsiveClient(timeout_seq));
+  RunTest(workers);
+}
+
+// Sends some message that time-out and some that succeed.
+TEST(IPCSyncChannelTest, SendWithTimeoutMixedOKAndTimeout) {
+  std::vector<Worker*> workers;
+  std::vector<bool> timeout_seq;
+  timeout_seq.push_back(true);
+  timeout_seq.push_back(false);
+  timeout_seq.push_back(false);
+  timeout_seq.push_back(true);
+  timeout_seq.push_back(false);
+  workers.push_back(new TimeoutServer(100, timeout_seq));
+  workers.push_back(new UnresponsiveClient(timeout_seq));
   RunTest(workers);
 }

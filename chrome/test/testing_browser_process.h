@@ -37,6 +37,7 @@
 
 #include <string>
 
+#include "base/shared_event.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/notification_service.h"
@@ -44,7 +45,9 @@
 
 class TestingBrowserProcess : public BrowserProcess {
  public:
-  TestingBrowserProcess() {}
+  TestingBrowserProcess() {
+    shutdown_event_ = ::CreateEvent(NULL, TRUE, FALSE, NULL);
+  }
   virtual ~TestingBrowserProcess() {
   }
 
@@ -145,8 +148,11 @@ class TestingBrowserProcess : public BrowserProcess {
 
   virtual bool IsUsingNewFrames() { return false; }
 
+  virtual HANDLE shutdown_event() { return shutdown_event_; }
+
  private:
   NotificationService notification_service_;
+  HANDLE shutdown_event_;
   DISALLOW_EVIL_CONSTRUCTORS(TestingBrowserProcess);
 };
 

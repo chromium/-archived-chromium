@@ -63,6 +63,10 @@ class SyncMessage : public Message {
     }
   }
 
+  // Call this if you always want to pump messages.  You can call this method
+  // or set_pump_messages_event but not both.
+  void EnableMessagePumping();
+
   HANDLE pump_messages_event() const { return pump_messages_event_; }
 
   // Returns true if the message is a reply to the given request id.

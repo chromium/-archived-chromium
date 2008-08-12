@@ -44,6 +44,7 @@
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
+#include "base/shared_event.h"
 #include "base/shared_memory.h"
 #include "base/string_util.h"
 #include "base/thread.h"
@@ -241,9 +242,14 @@ bool RenderProcessHost::Init() {
   // setup IPC channel
   std::wstring channel_id = GenerateRandomChannelID(this);
   channel_.reset(
-      new IPC::ChannelProxy(channel_id, IPC::Channel::MODE_SERVER, this,
-                            resource_message_filter,
-                            io_thread->message_loop()));
+      new IPC::SyncChannel(channel_id, IPC::Channel::MODE_SERVER, this,
+                           resource_message_filter,
+                           io_thread->message_loop(), true,
+                           g_browser_process->shutdown_event()));
+  // As a preventive mesure, we DCHECK if someone sends a synchronous message
+  // with no time-out, which in the context of the browser process we should not
+  // be doing.
+  channel_->set_sync_messages_with_no_timeout_allowed(false);
 
   // build command line for renderer, we have to quote the executable name to
   // deal with spaces

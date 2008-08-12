@@ -55,8 +55,7 @@ void ChannelProxy::Context::CreateChannel(const std::wstring& id,
   channel_ = new Channel(id, mode, this);
 }
 
-// Called on the IPC::Channel thread
-void ChannelProxy::Context::OnMessageReceived(const Message& message) {
+bool ChannelProxy::Context::TryFilters(const Message& message) {
 #ifdef IPC_MESSAGE_LOG_ENABLED
   Logging* logger = Logging::current();
   if (logger->Enabled())
@@ -69,9 +68,17 @@ void ChannelProxy::Context::OnMessageReceived(const Message& message) {
       if (logger->Enabled())
         logger->OnPostDispatchMessage(message, channel_id_);
 #endif
-      return;
+      return true;
     }
   }
+  return false;
+}
+
+// Called on the IPC::Channel thread
+void ChannelProxy::Context::OnMessageReceived(const Message& message) {
+  // First give a chance to the filters to process this message.
+  if (TryFilters(message))
+    return;
 
   // NOTE: This code relies on the listener's message loop not going away while
   // this thread is active.  That should be a reasonable assumption, but it
@@ -217,7 +224,6 @@ ChannelProxy::ChannelProxy(const std::wstring& channel_id, Channel::Mode mode,
 }
 
 ChannelProxy::ChannelProxy(const std::wstring& channel_id, Channel::Mode mode,
-                           Channel::Listener* listener, MessageFilter* filter,
                            MessageLoop* ipc_thread, Context* context,
                            bool create_pipe_now)
     : context_(context) {

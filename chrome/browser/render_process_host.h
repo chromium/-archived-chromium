@@ -38,8 +38,9 @@
 #include "base/object_watcher.h"
 #include "base/process.h"
 #include "base/ref_counted.h"
+#include "base/scoped_handle.h"
 #include "base/scoped_ptr.h"
-#include "chrome/common/ipc_channel_proxy.h"
+#include "chrome/common/ipc_sync_channel.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/rand_util.h"
 #include "chrome/common/render_messages.h"
@@ -118,7 +119,7 @@ class RenderProcessHost : public IPC::Channel::Listener,
   void ReportExpectingClose(int32 listener_id);
 
   // getters, these may return NULL if there is no connection
-  IPC::ChannelProxy* channel() {
+  IPC::SyncChannel* channel() {
     return channel_.get();
   }
   HANDLE process() {
@@ -240,7 +241,7 @@ class RenderProcessHost : public IPC::Channel::Listener,
 
   // A proxy for our IPC::Channel that lives on the IO thread (see
   // browser_process.h)
-  scoped_ptr<IPC::ChannelProxy> channel_;
+  scoped_ptr<IPC::SyncChannel> channel_;
 
   // Our renderer process.
   Process process_;
