@@ -30,54 +30,50 @@
 #ifndef BASE_TIMER_H_
 #define BASE_TIMER_H_
 
-#include <math.h>
-
 #include <queue>
 #include <vector>
 
 #include "base/basictypes.h"
 #include "base/time.h"
 
-#ifdef OS_WIN
-#include <windows.h>
-#endif  // OS_WIN
-
+//-----------------------------------------------------------------------------
 // Timer/TimerManager are objects designed to help setting timers.
 // Goals of TimerManager:
-// - have only one Windows system timer for all app timer functionality
+// - have only one system timer for all app timer functionality
 // - work around bugs with timers firing arbitrarily earlier than specified
 // - provide the ability to run timers even if the application is in a
 //   windows modal app loop.
+//-----------------------------------------------------------------------------
 
+class MessageLoop;
 class TimerManager;
 class Task;
-class MessageLoop;
 
+//-----------------------------------------------------------------------------
+// The core timer object.  Use TimerManager to create and control timers.
 class Timer {
  public:
   Timer(int delay, Task* task, bool repeating);
 
+  // The task to be run when the timer fires.
   Task* task() const { return task_; }
   void set_task(Task* task) { task_ = task; }
 
-  int current_delay() const {
-    // Be careful here.  Timers have a precision of microseconds,
-    // but this API is in milliseconds.  If there are 5.5ms left,
-    // should the delay be 5 or 6?  It should be 6 to avoid timers
-    // firing early.  Implement ceiling by adding 999us prior to
-    // conversion to ms.
-    double delay = ceil((fire_time_ - Time::Now()).InMillisecondsF());
-    return static_cast<int>(delay);
-  }
+  // Returns the time in msec relative to now that the timer should fire.
+  int GetCurrentDelay() const;
 
+  // Returns the absolute time at which the timer should fire.
   const Time &fire_time() const { return fire_time_; }
 
+  // A repeating timer is a timer that is automatically scheduled to fire again
+  // after it fires.
   bool repeating() const { return repeating_; }
 
   // Update (or fill in) creation_time_, and calculate future fire_time_ based
   // on current time plus delay_.
   void Reset();
 
+  // A unique identifier for this timer.
   int id() const { return timer_id_; }
 
  protected:
@@ -93,9 +89,8 @@ class Timer {
   // Timer delay in milliseconds.
   int delay_;
 
-  // A monotonically increasing timer id.  Used
-  // for ordering two timers which have the same
-  // timestamp in a FIFO manner.
+  // A monotonically increasing timer id.  Used for ordering two timers which
+  // have the same timestamp in a FIFO manner.
   int timer_id_;
 
   // Whether or not this timer repeats.
@@ -105,9 +100,11 @@ class Timer {
   // iteration started.)
   Time creation_time_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(Timer);
+  DISALLOW_COPY_AND_ASSIGN(Timer);
 };
 
+//-----------------------------------------------------------------------------
+// Used to implement TimerPQueue
 class TimerComparison {
  public:
   bool operator() (const Timer* t1, const Timer* t2) const {
@@ -126,14 +123,14 @@ class TimerComparison {
   }
 };
 
+//-----------------------------------------------------------------------------
 // Subclass priority_queue to provide convenient access to removal from this
 // list.
 //
 // Terminology: The "pending" timer is the timer at the top of the queue,
 //              i.e. the timer whose task needs to be Run next.
-class TimerPQueue : public std::priority_queue<Timer*,
-                                               std::vector<Timer*>,
-                                               TimerComparison> {
+class TimerPQueue :
+    public std::priority_queue<Timer*, std::vector<Timer*>, TimerComparison> {
  public:
   // Removes |timer| from the queue.
   void RemoveTimer(Timer* timer);
@@ -142,31 +139,25 @@ class TimerPQueue : public std::priority_queue<Timer*,
   bool ContainsTimer(const Timer* timer) const;
 };
 
-// There is one TimerManager per thread, owned by the MessageLoop.
-// Timers can either be fired directly by the MessageLoop, or by
-// SetTimer and a WM_TIMER message.  The advantage of the former
-// is that we can make timers fire significantly faster than the 10ms
-// granularity provided by SetTimer().  The advantage of SetTimer()
-// is that modal message loops which don't run our MessageLoop
-// code will still be able to process WM_TIMER messages.
+//-----------------------------------------------------------------------------
+// There is one TimerManager per thread, owned by the MessageLoop.  Timers can
+// either be fired by the MessageLoop from within its run loop or via a system
+// timer event that the MesssageLoop constructs.  The advantage of the former
+// is that we can make timers fire significantly faster than the granularity
+// provided by the system.  The advantage of a system timer is that modal
+// message loops which don't run our MessageLoop code will still be able to
+// process system timer events.
 //
-// Note:  TimerManager is not thread safe.  You cannot set timers
-//        onto a thread other than your own.
+// NOTE:  TimerManager is not thread safe.  You cannot set timers onto a thread
+//        other than your own.
 class TimerManager {
  public:
-  TimerManager();
+  explicit TimerManager(MessageLoop* message_loop);
   ~TimerManager();
 
   // Create and start a new timer. |task| is owned by the caller, as is the
   // timer object that is returned.
   Timer* StartTimer(int delay, Task* task, bool repeating);
-
-  // Flag indicating whether the timer manager should use the OS
-  // timers or not.  Default is true.  MessageLoops which are not reliably
-  // called due to nested windows message loops should set this to
-  // true.
-  bool use_native_timers() { return use_native_timers_; }
-  void set_use_native_timers(bool value) { use_native_timers_ = value; }
 
   // Starts a timer.  This is a no-op if the timer is already started.
   void StartTimer(Timer* timer);
@@ -190,15 +181,6 @@ class TimerManager {
   // pqueue) needs to be fired. Returns -1 if no timers are pending.
   int GetCurrentDelay();
 
-  // A handler for WM_TIMER messages.
-  // If a task is not running currently, it runs some timer tasks (if there are
-  // some ready to fire), otherwise it just updates the WM_TIMER to be called
-  // again (hopefully when it is allowed to run a task).
-  int MessageWndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
-
-  // Return cached copy of MessageLoop::current().
-  MessageLoop* message_loop();
-
 #ifdef UNIT_TEST
   // For testing only, used to simulate broken early-firing WM_TIMER
   // notifications by setting arbitrarily small delays in SetTimer.
@@ -207,35 +189,33 @@ class TimerManager {
   }
 #endif  // UNIT_TEST
 
+  bool use_broken_delay() const {
+    return use_broken_delay_;
+  }
+
  protected:
   // Peek at the timer which will fire soonest.
   Timer* PeekTopTimer();
 
  private:
-  // Update our Windows WM_TIMER to match our most immediately pending timer.
-  void UpdateWindowsWmTimer();
+  void DidChangeNextTimer();
 
-#ifdef OS_WIN
-  // Retrieve the Message Window that handles WM_TIMER messages from the
-  // system.
-  HWND GetMessageHWND();
-
-  HWND message_hwnd_;
-#endif  // OS_WIN
+  // A cached value that indicates the time when we think the next timer is to
+  // fire.  We use this to determine if we should call DidChangeNextTimerExpiry
+  // on the MessageLoop.
+  Time next_timer_expiry_;
 
   TimerPQueue timers_;
 
   bool use_broken_delay_;
 
-  // Flag to enable/disable use of native timers.
-  bool use_native_timers_;
-
   // A lazily cached copy of MessageLoop::current.
   MessageLoop* message_loop_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TimerManager);
+  DISALLOW_COPY_AND_ASSIGN(TimerManager);
 };
 
+//-----------------------------------------------------------------------------
 // A simple wrapper for the Timer / TimerManager API.  This is a helper class.
 // Use OneShotTimer or RepeatingTimer instead.
 class SimpleTimer {
@@ -281,9 +261,10 @@ class SimpleTimer {
   // we are deallocated. Defaults to true.
   bool owns_task_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(SimpleTimer);
+  DISALLOW_COPY_AND_ASSIGN(SimpleTimer);
 };
 
+//-----------------------------------------------------------------------------
 // A simple, one-shot timer.  The task is run after the specified delay once
 // the Start method is called.  The task is deleted when the timer object is
 // destroyed.
@@ -298,9 +279,10 @@ class OneShotTimer : public SimpleTimer {
       : SimpleTimer(delay, task, false) {
   }
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(OneShotTimer);
+  DISALLOW_COPY_AND_ASSIGN(OneShotTimer);
 };
 
+//-----------------------------------------------------------------------------
 // A simple, repeating timer.  The task is run at the specified interval once
 // the Start method is called.  The task is deleted when the timer object is
 // destroyed.
@@ -315,7 +297,7 @@ class RepeatingTimer : public SimpleTimer {
       : SimpleTimer(interval, task, true) {
   }
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(RepeatingTimer);
+  DISALLOW_COPY_AND_ASSIGN(RepeatingTimer);
 };
 
 #endif  // BASE_TIMER_H_

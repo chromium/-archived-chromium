@@ -28,51 +28,16 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "base/timer.h"
+
+#include <math.h>
+#if defined(OS_WIN)
 #include <mmsystem.h>
+#endif
 
 #include "base/atomic_sequence_num.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/task.h"
-
-// Note about hi-resolution timers.
-// This class would *like* to provide high resolution timers.  Windows timers
-// using SetTimer() have a 10ms granularity.  We have to use WM_TIMER as a
-// wakeup mechanism because the application can enter modal windows loops where
-// it is not running our MessageLoop; the only way to have our timers fire in
-// these cases is to post messages there.
-//
-// To provide sub-10ms timers, we process timers directly from our main
-// MessageLoop.  For the common case, timers will be processed there as the
-// message loop does its normal work.  However, we *also* set the system timer
-// so that WM_TIMER events fire.  This mops up the case of timers not being
-// able to work in modal message loops.  It is possible for the SetTimer to
-// pop and have no pending timers, because they could have already been
-// processed by the message loop itself.
-//
-// We use a single SetTimer corresponding to the timer that will expire
-// soonest.  As new timers are created and destroyed, we update SetTimer.
-// Getting a spurrious SetTimer event firing is benign, as we'll just be
-// processing an empty timer queue.
-
-static const wchar_t kWndClass[] = L"Chrome_TimerMessageWindow";
-
-static LRESULT CALLBACK MessageWndProc(HWND hwnd,
-                                       UINT message,
-                                       WPARAM wparam,
-                                       LPARAM lparam) {
-  if (message == WM_TIMER) {
-    // Timer not firing? Maybe you're suffering from a WM_PAINTstorm. Make sure
-    // any WM_PAINT handler you have calls BeginPaint and EndPaint to validate
-    // the invalid region, otherwise you will be flooded with paint messages
-    // that trump WM_TIMER when PeekMessage is called.
-    UINT_PTR timer_id = static_cast<UINT_PTR>(wparam);
-    TimerManager* tm = reinterpret_cast<TimerManager*>(timer_id);
-    return tm->MessageWndProc(hwnd, message, wparam, lparam);
-  }
-
-  return DefWindowProc(hwnd, message, wparam, lparam);
-}
 
 // A sequence number for all allocated times (used to break ties when
 // comparing times in the TimerManager, and assure FIFO execution sequence).
@@ -88,6 +53,14 @@ Timer::Timer(int delay, Task* task, bool repeating)
   timer_id_ = timer_id_counter_.GetNext();
   DCHECK(delay >= 0);
   Reset();
+}
+
+int Timer::GetCurrentDelay() const {
+  // Be careful here.  Timers have a precision of microseconds, but this API is
+  // in milliseconds.  If there are 5.5ms left, should the delay be 5 or 6?  It
+  // should be 6 to avoid timers firing early.
+  double delay = ceil((fire_time_ - Time::Now()).InMillisecondsF());
+  return static_cast<int>(delay);
 }
 
 void Timer::Reset() {
@@ -115,11 +88,10 @@ bool TimerPQueue::ContainsTimer(const Timer* timer) const {
 //-----------------------------------------------------------------------------
 // TimerManager
 
-TimerManager::TimerManager()
-    : message_hwnd_(NULL),
-      use_broken_delay_(false),
-      use_native_timers_(true),
-      message_loop_(NULL) {
+TimerManager::TimerManager(MessageLoop* message_loop)
+    : use_broken_delay_(false),
+      message_loop_(message_loop) {
+#if defined(OS_WIN)
   // We've experimented with all sorts of timers, and initially tried
   // to avoid using timeBeginPeriod because it does affect the system
   // globally.  However, after much investigation, it turns out that all
@@ -129,18 +101,14 @@ TimerManager::TimerManager()
   // needs to support a fast clock.  We may as well use this ourselves,
   // as it really is the best timer mechanism for our needs.
   timeBeginPeriod(1);
-
-  // Initialize the Message HWND in the constructor so that the window
-  // belongs to the same thread as the message loop (this is important!)
-  GetMessageHWND();
+#endif
 }
 
 TimerManager::~TimerManager() {
+#if defined(OS_WIN)
   // Match timeBeginPeriod() from construction.
   timeEndPeriod(1);
-
-  if (message_hwnd_ != NULL)
-    DestroyWindow(message_hwnd_);
+#endif
 
   // Be nice to unit tests, and discard and delete all timers along with the
   // embedded task objects by handing off to MessageLoop (which would have Run()
@@ -168,7 +136,7 @@ void TimerManager::StopTimer(Timer* timer) {
     timers_.RemoveTimer(timer);
   } else {
     timers_.pop();
-    UpdateWindowsWmTimer();  // We took away the head of our queue.
+    DidChangeNextTimer();
   }
 }
 
@@ -190,7 +158,6 @@ Timer* TimerManager::PeekTopTimer() {
 
 bool TimerManager::RunSomePendingTimers() {
   bool did_work = false;
-  bool allowed_to_run = message_loop()->NestableTasksAllowed();
   // Process a small group of timers.  Cap the maximum number of timers we can
   // process so we don't deny cycles to other parts of the process when lots of
   // timers have been set.
@@ -203,10 +170,11 @@ bool TimerManager::RunSomePendingTimers() {
     // the TopTimer.  We'll execute the timer task only after the timer queue
     // is back in a consistent state.
     Timer* pending = timers_.top();
+
     // If pending task isn't invoked_later, then it must be possible to run it
     // now (i.e., current task needs to be reentrant).
     // TODO(jar): We may block tasks that we can queue from being popped.
-    if (!message_loop()->NestableTasksAllowed() &&
+    if (!message_loop_->NestableTasksAllowed() &&
         !pending->task()->is_owned_by_message_loop())
       break;
 
@@ -219,12 +187,12 @@ bool TimerManager::RunSomePendingTimers() {
       timers_.push(pending);
     }
 
-    message_loop()->RunTimerTask(pending);
+    message_loop_->RunTimerTask(pending);
   }
 
   // Restart the WM_TIMER (if necessary).
   if (did_work)
-    UpdateWindowsWmTimer();
+    DidChangeNextTimer();
 
   return did_work;
 }
@@ -239,77 +207,30 @@ void TimerManager::StartTimer(Timer* timer) {
 
   timers_.push(timer);  // Priority queue will sort the timer into place.
 
-  if (timers_.top() == timer)
-    UpdateWindowsWmTimer();  // We are new head of queue.
-}
-
-void TimerManager::UpdateWindowsWmTimer() {
-  if (!use_native_timers_)
-    return;
-
-  if (timers_.empty()) {
-    KillTimer(GetMessageHWND(), reinterpret_cast<UINT_PTR>(this));
-    return;
-  }
-
-  int delay = GetCurrentDelay();
-  if (delay < USER_TIMER_MINIMUM)
-    delay = USER_TIMER_MINIMUM;
-
-  // Simulates malfunctioning, early firing timers. Pending tasks should
-  // only be invoked when the delay they specify has elapsed.
-  if (use_broken_delay_)
-    delay = 10;
-
-  // Create a WM_TIMER event that will wake us up to check for any pending
-  // timers (in case the message loop was otherwise starving us).
-  SetTimer(GetMessageHWND(), reinterpret_cast<UINT_PTR>(this), delay, NULL);
+  if (timers_.top() == timer)  // We are new head of queue.
+    DidChangeNextTimer();
 }
 
 int TimerManager::GetCurrentDelay() {
   if (timers_.empty())
     return -1;
-  int delay = timers_.top()->current_delay();
+  int delay = timers_.top()->GetCurrentDelay();
   if (delay < 0)
     delay = 0;
   return delay;
 }
 
-int TimerManager::MessageWndProc(HWND hwnd, UINT message, WPARAM wparam,
-                                 LPARAM lparam) {
-  DCHECK(!lparam);
-  DCHECK(this == message_loop()->timer_manager());
-  if (message_loop()->NestableTasksAllowed())
-    RunSomePendingTimers();
-  else
-    UpdateWindowsWmTimer();
-  return 0;
-}
-
-MessageLoop* TimerManager::message_loop() {
-  if (!message_loop_)
-    message_loop_ = MessageLoop::current();
-  DCHECK(message_loop_ == MessageLoop::current());
-  return message_loop_;
-}
-
-
-HWND TimerManager::GetMessageHWND() {
-  if (!message_hwnd_) {
-    HINSTANCE hinst = GetModuleHandle(NULL);
-
-    WNDCLASSEX wc = {0};
-    wc.cbSize = sizeof(wc);
-    wc.lpfnWndProc = ::MessageWndProc;
-    wc.hInstance = hinst;
-    wc.lpszClassName = kWndClass;
-    RegisterClassEx(&wc);
-
-    message_hwnd_ = CreateWindow(kWndClass, 0, 0, 0, 0, 0, 0, HWND_MESSAGE, 0,
-                                 hinst, 0);
-    DCHECK(message_hwnd_);
+void TimerManager::DidChangeNextTimer() {
+  // Determine if the next timer expiry actually changed...
+  if (!timers_.empty()) {
+    const Time& expiry = timers_.top()->fire_time();
+    if (expiry == next_timer_expiry_)
+      return;
+    next_timer_expiry_ = expiry;
+  } else {
+    next_timer_expiry_ = Time();
   }
-  return message_hwnd_;
+  message_loop_->DidChangeNextTimerExpiry();
 }
 
 //-----------------------------------------------------------------------------
