@@ -54,7 +54,7 @@ class FileVersionInfo {
   // returned object should be deleted when you are done with it.
   static FileVersionInfo* CreateFileVersionInfo(const std::wstring& file_path);
 
-  // Creates a FileVersionInfo for the current application. Returns NULL in case
+  // Creates a FileVersionInfo for the current module. Returns NULL in case
   // of error. The returned object should be deleted when you are done with it.
   static FileVersionInfo*
       FileVersionInfo::CreateFileVersionInfoForCurrentModule();
@@ -102,9 +102,9 @@ class FileVersionInfo {
   // This is a pointer into the data_ if it exists. Otherwise NULL.
   VS_FIXEDFILEINFO* fixed_file_info_;
 #elif defined(OS_MACOSX)
-  FileVersionInfo(const std::wstring& file_path, NSBundle *bundle);
+  explicit FileVersionInfo(NSBundle *bundle);
+  explicit FileVersionInfo(const std::wstring& file_path);
   
-  const std::wstring& file_path_;
   NSBundle *bundle_;
 #endif
 

@@ -54,6 +54,10 @@ std::wstring GetDirectoryFromPath(const std::wstring& path) {
 #endif
   return UTF8ToWide(dirname(full_path));
 }
+  
+bool AbsolutePath(std::wstring* path) {
+  return ResolveShortcut(path);
+}
 
 bool Delete(const std::wstring& path, bool recursive) {
   std::string utf8_path = WideToUTF8(path);

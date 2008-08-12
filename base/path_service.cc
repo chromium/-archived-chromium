@@ -39,6 +39,7 @@
 #include "base/file_util.h"
 #include "base/lock.h"
 #include "base/logging.h"
+#include "base/singleton.h"
 #include "base/string_util.h"
 
 namespace base {
@@ -46,7 +47,7 @@ namespace base {
 #if defined(OS_WIN)
   bool PathProviderWin(int key, std::wstring* result);
 #elif defined (OS_MACOSX)
-  bool PathProviderMac(int key, std::wstring* ressult);
+  bool PathProviderMac(int key, std::wstring* result);
 #endif
 }
 
@@ -114,15 +115,17 @@ struct PathData {
 #endif
   }
 };
-
-// We rely on the path service not being used prior to 'main' execution, and
-// we are happy to let this data structure leak at process exit.
-PathData* path_data = new PathData();
+  
+static PathData* GetPathData() {
+  return Singleton<PathData>::get();
+}
 
 }  // namespace
 
 
+// static
 bool PathService::GetFromCache(int key, std::wstring* result) {
+  PathData* path_data = GetPathData();
   AutoLock scoped_lock(path_data->lock);
   
   // check for a cached version
@@ -134,7 +137,9 @@ bool PathService::GetFromCache(int key, std::wstring* result) {
   return false;
 }
 
+// static
 void PathService::AddToCache(int key, const std::wstring& path) {
+  PathData* path_data = GetPathData();
   AutoLock scoped_lock(path_data->lock);
   // Save the computed path in our cache.
   path_data->cache[key] = path;
@@ -145,6 +150,7 @@ void PathService::AddToCache(int key, const std::wstring& path) {
 // moot, but we should keep this in mind for the future.
 // static
 bool PathService::Get(int key, std::wstring* result) {
+  PathData* path_data = GetPathData();
   DCHECK(path_data);
   DCHECK(result);
   DCHECK(key >= base::DIR_CURRENT);
@@ -179,6 +185,7 @@ bool PathService::Get(int key, std::wstring* result) {
 }
 
 bool PathService::IsOverridden(int key) {
+  PathData* path_data = GetPathData();
   DCHECK(path_data);
 
   AutoLock scoped_lock(path_data->lock);
@@ -186,26 +193,13 @@ bool PathService::IsOverridden(int key) {
 }
 
 bool PathService::Override(int key, const std::wstring& path) {
+  PathData* path_data = GetPathData();
   DCHECK(path_data);
   DCHECK(key > base::DIR_CURRENT) << "invalid path key";
 
-  // TODO(erikkay): pull this into file_util*
-#if defined(OS_WIN)
-  wchar_t file_path_buf[MAX_PATH];
-  if (!_wfullpath(file_path_buf, path.c_str(), MAX_PATH))
+  std::wstring file_path = path;
+  if (!file_util::AbsolutePath(&file_path))
     return false;
-  std::wstring file_path(file_path_buf);
-#elif defined(OS_POSIX)
-  // The other (posix-like) platforms don't use wide strings for paths. On the
-  // Mac it's NFD UTF-8, and we have to assume that whatever other platforms
-  // we end up on the native encoding is correct.
-  // TODO: refactor all of the path code throughout the project to use a
-  // per-platform path type
-  char file_path_buf[PATH_MAX];
-  if (!realpath(WideToUTF8(path).c_str(), file_path_buf))
-    return false;
-  std::wstring file_path(UTF8ToWide(file_path_buf));
-#endif
 
   // make sure the directory exists:
   if (!file_util::PathExists(file_path) &&
@@ -227,6 +221,7 @@ bool PathService::SetCurrentDirectory(const std::wstring& current_directory) {
 
 void PathService::RegisterProvider(ProviderFunc func, int key_start,
                                    int key_end) {
+  PathData* path_data = GetPathData();
   DCHECK(path_data);
   DCHECK(key_end > key_start);
 

@@ -28,37 +28,39 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Copied from base/basictypes.h with some modifications
 
-#import <Cocoa/Cocoa.h>
-
 #include "base/file_version_info.h"
+
+#import <Cocoa/Cocoa.h>
 
 #include "base/logging.h"
 #include "base/string_util.h"
 
-FileVersionInfo::FileVersionInfo(const std::wstring& file_path, NSBundle *bundle)
-    : file_path_(file_path), bundle_(bundle) {
-  if (!bundle_) {
-    NSString* path = [[NSString alloc]
-        initWithCString:reinterpret_cast<const char*>(file_path_.c_str())
-               encoding:NSUTF32StringEncoding];
-    bundle_ = [NSBundle bundleWithPath: path];
-  }      
+FileVersionInfo::FileVersionInfo(const std::wstring& file_path) {
+  NSString* path = [[NSString alloc]
+      initWithCString:reinterpret_cast<const char*>(file_path.c_str())
+             encoding:NSUTF32StringEncoding];
+  bundle_ = [NSBundle bundleWithPath: path];
+}
+
+FileVersionInfo::FileVersionInfo(NSBundle *bundle) : bundle_(bundle) {
 }
 
 FileVersionInfo::~FileVersionInfo() {
-
+  [bundle_ release];
 }
 
 // static
 FileVersionInfo* FileVersionInfo::CreateFileVersionInfoForCurrentModule() {
+  // TODO(erikkay): this should really use bundleForClass, but we don't have
+  // a class to hang onto yet.
   NSBundle* bundle = [NSBundle mainBundle];
-  return new FileVersionInfo(L"", bundle);
+  return new FileVersionInfo(bundle);
 }
 
 // static
 FileVersionInfo* FileVersionInfo::CreateFileVersionInfo(
     const std::wstring& file_path) {
-  return new FileVersionInfo(file_path, nil);
+  return new FileVersionInfo(file_path);
 }
 
 std::wstring FileVersionInfo::company_name() {
@@ -126,7 +128,6 @@ bool FileVersionInfo::is_official_build() {
 }
 
 bool FileVersionInfo::GetValue(const wchar_t* name, std::wstring* value_str) {
-  std::wstring str;
   if (bundle_) {
     NSString* value = [bundle_ objectForInfoDictionaryKey:
         [NSString stringWithUTF8String:WideToUTF8(name).c_str()]];

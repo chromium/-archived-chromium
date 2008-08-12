@@ -95,6 +95,10 @@ std::wstring GetDirectoryFromPath(const std::wstring& path);
 // Appends new_ending to path, adding a separator between the two if necessary.
 void AppendToPath(std::wstring* path, const std::wstring& new_ending);
 
+// Convert provided relative path into an absolute path.  Returns false on
+// error.
+bool AbsolutePath(std::wstring* path);
+
 // Inserts |suffix| after the file name portion of |path| but before the
 // extension.
 // Examples:

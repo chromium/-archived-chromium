@@ -54,6 +54,14 @@ std::wstring GetDirectoryFromPath(const std::wstring& path) {
   TrimTrailingSeparator(&directory);
   return directory;
 }
+
+bool AbsolutePath(std::wstring* path) {
+  wchar_t file_path_buf[MAX_PATH];
+  if (!_wfullpath(file_path_buf, path->c_str(), MAX_PATH))
+    return false;
+  *path = file_path_buf;
+  return true;
+}
   
 int CountFilesCreatedAfter(const std::wstring& path,
                            const FILETIME& comparison_time) {
