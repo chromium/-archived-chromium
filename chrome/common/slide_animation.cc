@@ -29,6 +29,8 @@
 
 #include "chrome/common/slide_animation.h"
 
+#include <math.h>
+
 // How many frames per second to target.
 static const int kDefaultFramerateHz = 50;
 

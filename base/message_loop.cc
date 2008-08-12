@@ -108,14 +108,17 @@ static LPTOP_LEVEL_EXCEPTION_FILTER GetTopSEHFilter() {
 
 //------------------------------------------------------------------------------
 
-MessageLoop::MessageLoop() : message_hwnd_(NULL),
-                             exception_restoration_(false),
-                             nestable_tasks_allowed_(true),
-                             dispatcher_(NULL),
-                             quit_received_(false),
-                             quit_now_(false),
-                             task_pump_message_pending_(false),
-                             run_depth_(0) {
+MessageLoop::MessageLoop()
+#pragma warning(suppress: 4355)  // OK, to use |this| in the initializer list.
+    : timer_manager_(this),
+      message_hwnd_(NULL),
+      exception_restoration_(false),
+      nestable_tasks_allowed_(true),
+      dispatcher_(NULL),
+      quit_received_(false),
+      quit_now_(false),
+      task_pump_message_pending_(false),
+      run_depth_(0) {
   DCHECK(tls_index_) << "static initializer failed";
   DCHECK(!current()) << "should only have one message loop per thread";
   ThreadLocalStorage::Set(tls_index_, this);
@@ -406,6 +409,11 @@ LRESULT MessageLoop::WndProc(
         return 0;
       }
 
+      case WM_TIMER:
+        ProcessSomeTimers();         // Give the TimerManager a tickle.
+        DidChangeNextTimerExpiry();  // Maybe generate another WM_TIMER.
+        return 0;
+
       case kMsgQuit: {
         // TODO(jar): bug 1300541 The following assert should be used, but
         // currently too much code actually triggers the assert, especially in
@@ -654,21 +662,22 @@ bool MessageLoop::SignalWatcher(size_t object_index) {
 
 bool MessageLoop::RunTimerTask(Timer* timer) {
   HistogramEvent(kTimerEvent);
+
   Task* task = timer->task();
   if (task->is_owned_by_message_loop()) {
-    // We constructed it through PostTask().
+    // We constructed it through PostDelayedTask().
     DCHECK(!timer->repeating());
     timer->set_task(NULL);
     delete timer;
     task->ResetBirthTime();
     return QueueOrRunTask(task);
-  } else {
-    // This is an unknown timer task, and we *can't* delay running it, as a
-    // user might try to cancel it with TimerManager at any moment.
-    DCHECK(nestable_tasks_allowed_);
-    RunTask(task);
-    return true;
   }
+
+  // This is an unknown timer task, and we *can't* delay running it, as a user
+  // might try to cancel it with TimerManager at any moment.
+  DCHECK(nestable_tasks_allowed_);
+  RunTask(task);
+  return true;
 }
 
 void MessageLoop::DiscardTimer(Timer* timer) {
@@ -821,6 +830,45 @@ void MessageLoop::DeletePendingTasks() {
       delete task;
   }
   */
+}
+
+void MessageLoop::DidChangeNextTimerExpiry() {
+#if defined(OS_WIN)
+  //
+  // We would *like* to provide high resolution timers.  Windows timers using
+  // SetTimer() have a 10ms granularity.  We have to use WM_TIMER as a wakeup
+  // mechanism because the application can enter modal windows loops where it
+  // is not running our MessageLoop; the only way to have our timers fire in
+  // these cases is to post messages there.
+  //
+  // To provide sub-10ms timers, we process timers directly from our run loop.
+  // For the common case, timers will be processed there as the run loop does
+  // its normal work.  However, we *also* set the system timer so that WM_TIMER
+  // events fire.  This mops up the case of timers not being able to work in
+  // modal message loops.  It is possible for the SetTimer to pop and have no
+  // pending timers, because they could have already been processed by the
+  // run loop itself.
+  //
+  // We use a single SetTimer corresponding to the timer that will expire
+  // soonest.  As new timers are created and destroyed, we update SetTimer.
+  // Getting a spurrious SetTimer event firing is benign, as we'll just be
+  // processing an empty timer queue.
+  //
+  int delay = timer_manager_.GetCurrentDelay(); 
+  if (delay == -1) {
+    KillTimer(message_hwnd_, reinterpret_cast<UINT_PTR>(this));
+  } else {
+    if (delay < USER_TIMER_MINIMUM)
+      delay = USER_TIMER_MINIMUM;
+    // Simulates malfunctioning, early firing timers. Pending tasks should only
+    // be invoked when the delay they specify has elapsed.
+    if (timer_manager_.use_broken_delay())
+      delay = 10;
+    // Create a WM_TIMER event that will wake us up to check for any pending
+    // timers (in case we are running within a nested, external sub-pump).
+    SetTimer(message_hwnd_, reinterpret_cast<UINT_PTR>(this), delay, NULL);
+  }
+#endif  // defined(OS_WIN)
 }
 
 //------------------------------------------------------------------------------
