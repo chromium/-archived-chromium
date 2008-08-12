@@ -275,7 +275,6 @@ void RenderViewHost::ClosePageIgnoringUnloadEvents(int render_process_host_id,
     return;
 
   rvh->StopHangMonitorTimeout();
-  DCHECK(rvh->is_waiting_for_unload_ack_);
   rvh->is_waiting_for_unload_ack_ = false;
 
   rvh->UnloadListenerHasFired();
