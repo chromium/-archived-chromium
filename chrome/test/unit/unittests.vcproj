@@ -714,11 +714,27 @@
 			Name="TestPrinting"
 			>
 			<File
+				RelativePath="..\..\browser\printing\page_number_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\browser\printing\page_overlays_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\browser\printing\page_range_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\printing\page_setup_unittest.cc"
 				>
 			</File>
 			<File
 				RelativePath="..\..\browser\printing\printing_test.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\browser\printing\units_unittest.cc"
 				>
 			</File>
 			<File
