@@ -27,12 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_THREAD_H__
-#define BASE_THREAD_H__
+#ifndef BASE_THREAD_H_
+#define BASE_THREAD_H_
 
 #include <string>
 
-#include "base/basictypes.h"
 #include "base/thread_local_storage.h"
 
 class MessageLoop;
@@ -65,11 +64,18 @@ class Thread {
   // otherwise, returns false.  Upon successful return, the message_loop()
   // getter will return non-null.
   //
+  // Note: This function can't be called on Windows with the loader lock held;
+  // i.e. during a DllMain, global object construction or destruction, atexit()
+  // callback.
   bool Start();
 
   // Starts the thread. Behaves exactly like Start in addition to allow to
   // override the default process stack size. This is not the initial stack size
   // but the maximum stack size that thread is allowed to use.
+  //
+  // Note: This function can't be called on Windows with the loader lock held;
+  // i.e. during a DllMain, global object construction or destruction, atexit()
+  // callback.
   bool StartWithStackSize(size_t stack_size);
 
   // Signals the thread to exit and returns once the thread has exited.  After
@@ -85,16 +91,18 @@ class Thread {
   //
   void Stop();
 
-  // Signals the thread to exit and returns once the thread has exited.
-  // Meanwhile, a message loop is run. After this method returns, the Thread
-  // object is completely reset and may be used as if it were newly constructed
-  // (i.e., Start may be called again).
+  // Signals the thread to exit in the near future.
   //
-  // NonBlockingStop may be called multiple times and is simply ignored if the
-  // thread is already stopped.
+  // WARNING: This function is not meant to be commonly used. Use at your own
+  // risk. Calling this function will cause message_loop() being invalidated in
+  // the near future. This function was created to workaround a specific
+  // deadlock on Windows with printer worker thread. In any other case, Stop()
+  // should be used.
   //
-  // NOTE: The behavior is the same as Stop() except that pending tasks are run.
-  void NonBlockingStop();
+  // StopSoon should not called multiple times and is risky to do so. It could
+  // cause a timing issue in message_loop() access. Call Stop() to reset the
+  // thread object once it is known that the thread has quit.
+  void StopSoon();
 
   // Returns the message loop for this thread.  Use the MessageLoop's
   // PostTask methods to execute code on the thread.  This only returns
@@ -104,13 +112,18 @@ class Thread {
   // NOTE: You must not call this MessageLoop's Quit method directly.  Use
   // the Thread's Stop method instead.
   //
-  MessageLoop* message_loop() const { return message_loop_; }
+  MessageLoop* message_loop() const {
+    if (thread_id_)
+      return message_loop_;
+    return NULL;
+  }
 
   // Set the name of this thread (for display in debugger too).
   const std::string &thread_name() { return name_; }
 
-  static void SetThreadWasQuitProperly(bool flag);
-  static bool GetThreadWasQuitProperly();
+#if defined(OS_WIN)
+  HANDLE thread_handle() { return thread_; }
+#endif
 
   // Sets the thread name if a debugger is currently attached. Has no effect
   // otherwise. To set the name of the current thread, pass GetCurrentThreadId()
@@ -124,21 +137,31 @@ class Thread {
   // Called just after the message loop ends
   virtual void CleanUp() { }
 
-  // Stops the thread. Called by either Stop() or NonBlockingStop().
-  void InternalStop(bool run_message_loop);
+  static void SetThreadWasQuitProperly(bool flag);
+  static bool GetThreadWasQuitProperly();
 
  private:
-#ifdef OS_WIN
+#if defined(OS_WIN)
   static unsigned __stdcall ThreadFunc(void* param);
+  // The thread's handle. Modified by the root thread.  
   HANDLE thread_;
 #endif
-  
+
+  // The thread's id. Modified by the root thread. Set to 0 when the thread is
+  // not ready to receive messages.
   ThreadId thread_id_;
+
+  // The thread's message loop. Valid only while the thread is alive. Modified
+  // by the created thread.
   MessageLoop* message_loop_;
-  std::string name_;
+
+  const std::string name_;
+
   static TLSSlot tls_index_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(Thread);
+  friend class ThreadQuitTask;
+
+  DISALLOW_COPY_AND_ASSIGN(Thread);
 };
 
-#endif  // BASE_THREAD_H__
+#endif  // BASE_THREAD_H_

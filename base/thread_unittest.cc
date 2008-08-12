@@ -34,9 +34,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
-  class ThreadTest : public testing::Test {
-  };
-}
 
 class ToggleValue : public Task {
  public:
@@ -51,30 +48,38 @@ class ToggleValue : public Task {
 
 class SleepSome : public Task {
  public:
-  explicit SleepSome(DWORD msec) : msec_(msec) {
+  explicit SleepSome(int msec) : msec_(msec) {
   }
   virtual void Run() {
     Sleep(msec_);
   }
  private:
-  DWORD msec_;
+  int msec_;
 };
 
-TEST(ThreadTest, BasicTest1) {
-  Thread a("BasicTest1");
-  a.Start();
+}  // namespace
+
+TEST(ThreadTest, Restart) {
+  Thread a("Restart");
+  a.Stop();
+  EXPECT_FALSE(a.message_loop());
+  EXPECT_TRUE(a.Start());
   EXPECT_TRUE(a.message_loop());
   a.Stop();
   EXPECT_FALSE(a.message_loop());
-  a.Start();
+  EXPECT_TRUE(a.Start());
   EXPECT_TRUE(a.message_loop());
+  a.Stop();
+  EXPECT_FALSE(a.message_loop());
   a.Stop();
   EXPECT_FALSE(a.message_loop());
 }
 
-TEST(ThreadTest, BasicTest2) {
-  Thread a("BasicTest2");
-  a.Start();
+TEST(ThreadTest, StartWithStackSize) {
+  Thread a("StartWithStackSize");
+  // Ensure that the thread can work with only 12 kb and still process a
+  // message.
+  EXPECT_TRUE(a.StartWithStackSize(12*1024));
   EXPECT_TRUE(a.message_loop());
 
   bool was_invoked = false;
@@ -83,75 +88,40 @@ TEST(ThreadTest, BasicTest2) {
   // wait for the task to run (we could use a kernel event here
   // instead to avoid busy waiting, but this is sufficient for
   // testing purposes).
-  for (int i = 50; i >= 0 && !was_invoked; --i) {
-    Sleep(20);
+  for (int i = 100; i >= 0 && !was_invoked; --i) {
+    Sleep(10);
   }
   EXPECT_TRUE(was_invoked);
 }
 
-TEST(ThreadTest, BasicTest3) {
+TEST(ThreadTest, TwoTasks) {
   bool was_invoked = false;
   {
-    Thread a("BasicTest3");
-    a.Start();
+    Thread a("TwoTasks");
+    EXPECT_TRUE(a.Start());
     EXPECT_TRUE(a.message_loop());
 
     // Test that all events are dispatched before the Thread object is
     // destroyed.  We do this by dispatching a sleep event before the
     // event that will toggle our sentinel value.
-    a.message_loop()->PostTask(FROM_HERE, new SleepSome(500));
+    a.message_loop()->PostTask(FROM_HERE, new SleepSome(20));
     a.message_loop()->PostTask(FROM_HERE, new ToggleValue(&was_invoked));
   }
   EXPECT_TRUE(was_invoked);
 }
 
-namespace {
-  class DummyTask : public Task {
-   public:
-    explicit DummyTask(int* counter) : counter_(counter) {
-    }
-    void Run() {
-      // Let's make sure that no other thread is running while we
-      // are executing this code.  The sleeps help us assert that.
-      int initial_value = *counter_;
-      Sleep(1);
-      ++(*counter_);
-      Sleep(1);
-      int final_value = *counter_;
-      DCHECK(final_value == initial_value + 1);
-    }
-   private:
-    int* counter_;
-  };
+TEST(ThreadTest, StopSoon) {
+  Thread a("StopSoon");
+  EXPECT_TRUE(a.Start());
+  EXPECT_TRUE(a.message_loop());
+  a.StopSoon();
+  EXPECT_FALSE(a.message_loop());
+  a.StopSoon();
+  EXPECT_FALSE(a.message_loop());
 }
 
-namespace {
-  // This task just continuously posts events to its thread, keeping it well
-  // saturated with work.  If our thread interlocking is not fair, then we will
-  // never exit.
-  class BusyTask : public Task {
-   public:
-    explicit BusyTask(HANDLE quit_event) : quit_event_(quit_event) {
-    }
-    void Run() {
-      if (WaitForSingleObject(quit_event_, 0) != WAIT_OBJECT_0)
-        MessageLoop::current()->PostTask(FROM_HERE, new BusyTask(quit_event_));
-    }
-   private:
-    HANDLE quit_event_;
-  };
-
-  // This task just tries to set the quit sentinel to signal the busy thread
-  // to stop doing work.
-  class InterruptBusyTask : public Task {
-   public:
-    explicit InterruptBusyTask(HANDLE quit_event) : quit_event_(quit_event) {
-    }
-    void Run() {
-      SetEvent(quit_event_);
-    }
-   private:
-    HANDLE quit_event_;
-  };
+TEST(ThreadTest, ThreadName) {
+  Thread a("ThreadName");
+  EXPECT_TRUE(a.Start());
+  EXPECT_EQ("ThreadName", a.thread_name());
 }
-
