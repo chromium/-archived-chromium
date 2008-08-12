@@ -344,7 +344,7 @@
 <translation id="2435457462613246316">비밀번호 표시</translation>
 <translation id="4565377596337484307">비밀번호 감추기</translation>
 <translation id="4571852245489094179">북마크 및 설정 가져오기</translation>
-<translation id="2192505247865591433">보낸 사람:</translation>
+<translation id="2192505247865591433">웹 브라우저</translation>
 <translation id="1076818208934827215">Microsoft Internet Explorer</translation>
 <translation id="5119173345047096771">Mozilla Firefox</translation>
 <translation id="3031557471081358569">가져올 항목 선택:</translation>
@@ -449,7 +449,7 @@
 <translation id="74568296546932365"><ph name="PAGE_TITLE"/>을(를) 기본 검색엔진으로 유지</translation>
 <translation id="8288345061925649502">검색엔진 변경</translation>
 <translation id="3037605927509011580">앗, 이런!</translation>
-<translation id="8927064607636892008">이 웹페이지를 표시하는 도중 문제가 발생했습니다. 계속 하려면 새로고침을 누르거나 다른 페이지로 이동하세요.</translation>
+<translation id="8927064607636892008">웹페이지를 표시하는 도중 문제가 발생했습니다. 계속하려면 새로고침을 누르거나 다른 페이지로 이동하세요.</translation>
 <translation id="942671148946453043">시크릿 창을 열었습니다. 이 창에서 여는 페이지는 방문한 페이지에 나타나지 않습니다.</translation>
 <translation id="5107325588313356747">이 프로그램에 대한 액세스를 숨기려면 제어판의\n<ph name="CONTROL_PANEL_APPLET_NAME"/>을(를) 통해 프로그램을 삭제해야 합니다.\n\n<ph name="CONTROL_PANEL_APPLET_NAME"/>을(를) 시작하시겠습니까?</translation>
 <translation id="7543025879977230179"><ph name="PRODUCT_NAME"/> 옵션</translation>
@@ -474,7 +474,7 @@
 <translation id="5384051050210890146">신뢰하는 SSL 인증서를 선택합니다.</translation>
 <translation id="1521442365706402292">인증서 관리</translation>
 <translation id="7767960058630128695">비밀번호:</translation>
-<translation id="6644512095122093795">비밀번호를 저장할 것인지 묻기</translation>
+<translation id="6644512095122093795">비밀번호 저장 여부 확인</translation>
 <translation id="2815448242176260024">비밀번호 저장 안 함</translation>
 <translation id="6222380584850953107">저장된 비밀번호 보기</translation>
 <translation id="3675321783533846350">프록시를 설정하여 네트워크에 연결합니다.</translation>
@@ -570,7 +570,7 @@
 <translation id="4890855023395992542">서비스 URL</translation>
 <translation id="8186012393692847636">제안 서비스를 사용하여 검색어 및 주소창에 입력되는 URL을 완성합니다.</translation>
 <translation id="8041183585493091279">추천 검색어 서비스 URL:</translation>
-<translation id="1676388805288306495">웹페이지 기본 글꼴 및 언어를 변경합니다.</translation>
+<translation id="1676388805288306495">웹페이지 기본 언어와 글꼴 설정</translation>
 <translation id="4244236525807044920">글꼴 및 언어 설정 변경</translation>
 <translation id="7736284018483078792">맞춤법 검사 사전의 언어를 변경합니다.</translation>
 <translation id="5433207235435438329">맞춤법 검사기 언어:</translation>
@@ -678,7 +678,7 @@
 <translation id="3591558551793645824">Google 크롬이 제거되었습니다. 감사합니다.</translation>
 <translation id="8172671748763307156">Google 크롬을 제거하시겠습니까? (크롬이 마음에 안 드세요? &gt;.&lt;)</translation>
 <translation id="7161904924553537242">Google 크롬에 오신 것을 환영합니다.</translation>
-<translation id="6921913858457830952">Google 크롬에서 설치를 완료할 준비가 되었습니다.</translation>
+<translation id="6921913858457830952">Google 크롬 설치가 곧 완료됩니다.</translation>
 <translation id="7241541963706135274">Google 크롬에서 다음 작업을 수행합니다.</translation>
 <translation id="7101265395643981223">Google 크롬 시작</translation>
 <translation id="2618799103663374905">데스크톱, 빠른 실행 표시줄 및 시작 메뉴에 Google 크롬 바로가기 추가</translation>
@@ -714,7 +714,7 @@
 <translation id="2987775926667433828">중국어 번체</translation>
 <translation id="8299269255470343364">일본어</translation>
 <translation id="6419902127459849040">중부 유럽어</translation>
-<translation id="5453632173748266363">키릴어</translation>
+<translation id="5453632173748266363">키릴 문자</translation>
 <translation id="770015031906360009">그리스어</translation>
 <translation id="7587108133605326224">발트어</translation>
 <translation id="6833901631330113163">남유럽어</translation>

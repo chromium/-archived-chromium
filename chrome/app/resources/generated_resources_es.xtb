@@ -13,7 +13,7 @@
 <translation id="5329858601952122676">&amp;Suprimir</translation>
 <translation id="3873963583678942942">(Sin título)</translation>
 <translation id="1232569758102978740">Sin título</translation>
-<translation id="1759842336958782510">Chrome</translation>
+<translation id="1759842336958782510">Google Chrome</translation>
 <translation id="6965382102122355670">Aceptar</translation>
 <translation id="7658239707568436148">Cancelar</translation>
 <translation id="6463795194797719782">&amp;Edición</translation>
@@ -337,7 +337,7 @@
 <translation id="2266011376676382776">Las páginas no responden</translation>
 <translation id="1110155001042129815">Esperar</translation>
 <translation id="1684861821302948641">Cerrar páginas</translation>
-<translation id="6134282421960734039">¿Quieres que Chrome guarde tu contraseña?</translation>
+<translation id="6134282421960734039">¿Quieres que Google Chrome guarde tu contraseña?</translation>
 <translation id="5271549068863921519">Guardar contraseña</translation>
 <translation id="7484645889979462775">Jamás para este sitio</translation>
 <translation id="4195643157523330669">Abrir en una pestaña nueva</translation>
@@ -437,7 +437,7 @@
 <translation id="8609465669617005112">Subir</translation>
 <translation id="6746124502594467657">Mover hacia abajo</translation>
 <translation id="8241707690549784388">La página que buscas ha utilizado la información que has especificado. Volver a la página podría provocar la repetición de alguna acción. ¿Deseas continuar?</translation>
-<translation id="1964682833763362793">Cierra todas las ventanas de Chrome e inténtalo de nuevo.</translation>
+<translation id="1964682833763362793">Cierra todas las ventanas de Google Chrome e inténtalo de nuevo.</translation>
 <translation id="5333374927882515515">Importar marcadores, contraseñas y configuración de <ph name="DEF_BROWSER"/></translation>
 <translation id="8256087479641463867">Personaliza tu configuración</translation>
 <translation id="7789175495288668515">Cambia las opciones de instalación predeterminadas.</translation>
@@ -445,7 +445,7 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">Barra de inicio rápido</translation>
-<translation id="1549918799472947005">Chrome utiliza tu motor de búsqueda predeterminado, que actualmente es <ph name="PAGE_TITLE"/>. ¿Deseas mantener tu motor de búsqueda predeterminado?</translation>
+<translation id="1549918799472947005">Google Chrome utiliza tu motor de búsqueda predeterminado, que actualmente es <ph name="PAGE_TITLE"/>. ¿Deseas mantener tu motor de búsqueda predeterminado?</translation>
 <translation id="74568296546932365">Mantener <ph name="PAGE_TITLE"/> como motor de búsqueda predeterminado</translation>
 <translation id="8288345061925649502">Cambiar motor de búsqueda</translation>
 <translation id="3037605927509011580">¡Oh, no!</translation>
@@ -467,7 +467,7 @@
 <translation id="8986267729801483565">Ubicación de la descarga:</translation>
 <translation id="8978540966440585844">Exa&amp;minar...</translation>
 <translation id="7754704193130578113">Pedir ubicación antes de la descarga</translation>
-<translation id="724208122063442954">Has seleccionado abrir algunos tipos de archivo automáticamente después de la descarga. Puedes eliminar estas opciones para que los archivos descargados no se abran automáticamente.</translation>
+<translation id="724208122063442954">Has decidido abrir algunos tipos de archivo automáticamente después de la descarga. Puedes eliminar estas opciones para que los archivos descargados no se abran automáticamente.</translation>
 <translation id="6451650035642342749">Eliminar configuración de apertura automática</translation>
 <translation id="3702416240431471861">Google Gears:</translation>
 <translation id="5452592754878692665">Cambiar la configuración de Google Gears</translation>
@@ -577,7 +577,7 @@
 <translation id="2441719842399509963">Restablecer los valores predeterminados</translation>
 <translation id="1208126399996836490">No restablecer</translation>
 <translation id="3122496702278727796">Se ha producido un error al crear el directorio de datos.</translation>
-<translation id="5046764976540625289">Salir de Chrome</translation>
+<translation id="5046764976540625289">Salir de Google Chrome</translation>
 <translation id="5034259512732355072">Selecciona otro directorio...</translation>
 <translation id="2160383474450212653">Fuentes e idiomas</translation>
 <translation id="5042992464904238023">Contenido web</translation>
@@ -614,7 +614,7 @@
 <translation id="4307992518367153382">Básicas</translation>
 <translation id="1709220265083931213">Avanzadas</translation>
 <translation id="1674989413181946727">Configuración de SSL en todo el equipo:</translation>
-<translation id="582763753075639530">Cierra todas las ventanas de Chrome y reinicia el programa para que este cambio surta efecto.</translation>
+<translation id="582763753075639530">Cierra todas las ventanas de Google Chrome y reinicia el programa para que este cambio surta efecto.</translation>
 <translation id="9015241028623917394">Controla la página actual</translation>
 <translation id="8502249598105294518">Personaliza y controla <ph name="PRODUCT_NAME"/></translation>
 <translation id="4475552974751346499">Buscar descargas</translation>
@@ -624,7 +624,7 @@
 <translation id="8725178340343806893">Favoritos/Marcadores</translation>
 <translation id="873849583815421063">Finalizando...</translation>
 <translation id="2960316970329790041">Interrumpir importación</translation>
-<translation id="5016204670686360703">Si cancelas ahora, no se importarán todos los elementos. Puedes realizar la importación de nuevo más tarde desde el menú de Chrome.</translation>
+<translation id="5016204670686360703">Si cancelas ahora, no se importarán todos los elementos. Puedes realizar la importación de nuevo más tarde desde el menú de Google Chrome.</translation>
 <translation id="7642109201157405070">Continuar con la importación</translation>
 <translation id="5508407262627860757">Cancelar de todos modos</translation>
 <translation id="290414493736480793">Agradecimientos</translation>
@@ -675,14 +675,14 @@
 <translation id="6626317981028933585">Tu configuración de Mozilla Firefox no está disponible mientras el navegador se está ejecutando. Para importar esta configuración en Google Chrome, guarda los cambios y cierra todas las ventanas de Firefox. A continuación, haz clic en Continuar.</translation>
 <translation id="8446794773162156990">Google Chrome está teniendo un comportamiento anómalo</translation>
 <translation id="7400722733683201933">Acerca de Google Chrome</translation>
-<translation id="3591558551793645824">Google Chrome no se ha desinstalado correctamente. ¡Hasta la vista!</translation>
+<translation id="3591558551793645824">Google Chrome se ha desinstalado correctamente. ¡Hasta la vista!</translation>
 <translation id="8172671748763307156">¿Estás seguro de que deseas desinstalar Google Chrome? (¿Es que hemos hecho algo mal?)</translation>
 <translation id="7161904924553537242">Bienvenido a Google Chrome</translation>
 <translation id="6921913858457830952">Google Chrome está listo para finalizar la instalación.</translation>
 <translation id="7241541963706135274">Google Chrome realizará las siguientes tareas:</translation>
 <translation id="7101265395643981223">Iniciar Google Chrome</translation>
 <translation id="2618799103663374905">Añade accesos directos de Google Chrome al escritorio, la barra de inicio rápido y el menú Inicio</translation>
-<translation id="213581405366815208">¿Estás seguro de que deseas cancelar la instalación de Google Chrome? Si deseas continuar más tarde, abre Chrome desde la carpeta &quot;Programas&quot; del menú &quot;Inicio&quot;.</translation>
+<translation id="213581405366815208">¿Estás seguro de que deseas cancelar la instalación de Google Chrome? Si deseas continuar más tarde, abre Google Chrome desde la carpeta &quot;Programas&quot; del menú &quot;Inicio&quot;.</translation>
 <translation id="5941830788786076944">Establecer Google Chrome como navegador predeterminado</translation>
 <translation id="7001386529596391893">Crear accesos directos de Google Chrome en estas ubicaciones:</translation>
 <translation id="480990236307250886">Abrir la página principal</translation>
@@ -695,9 +695,9 @@
 <translation id="3335672657969596251">Google Chrome no es compatible con <ph name="OS_NAME"/>.</translation>
 <translation id="1446473746922165495">Cambia el idioma de los menús, cuadros de diálogo y etiquetas de herramientas de Google Chrome.</translation>
 <translation id="8810218179782551669">Idioma de Google Chrome:</translation>
-<translation id="7958215378280655655">Al restablecer las opciones de Google Chrome, la configuración volverá a ser la predeterminada. ¿Deseas restablecer las opciones de Chrome?</translation>
+<translation id="7958215378280655655">Al restablecer las opciones de Google Chrome, la configuración volverá a ser la predeterminada. ¿Deseas restablecer las opciones de Google Chrome?</translation>
 <translation id="7100330187273168372">Google Chrome no puede leer ni añadir datos al directorio:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
-<translation id="3324235665723428530">Tu perfil no se puede utilizar porque pertenece a una versión anterior de Google Chrome.\n\nPuede que algunas funciones no estén disponibles. Especifique un directorio de perfil diferente o utilice una versión posterior de Chrome.</translation>
+<translation id="3324235665723428530">Tu perfil no se puede utilizar porque pertenece a una versión anterior de Google Chrome.\n\nPuede que algunas funciones no estén disponibles. Especifique un directorio de perfil diferente o utilice una versión posterior de Google Chrome.</translation>
 <translation id="3319048459796106952">Nueva ventana de &amp;incógnito</translation>
 <translation id="1120026268649657149">La palabra clave debe ser única o inexistente</translation>
 <translation id="7481475534986701730">Sitios visitados recientemente</translation>
