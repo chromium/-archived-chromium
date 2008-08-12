@@ -27,23 +27,17 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <time.h>
+
 #include "base/logging.h"
 #include "base/third_party/nspr/prtime.h"
 #include "base/time.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#include <time.h>
-
 namespace {
 
-#if COMPILER_MSVC
-const int64 kMicrosecondsPerSecond = 1000000i64;
-#else
-const int64 kMicrosecondsPerSecond = 1000000;
-#endif
-
 // time_t representation of 15th Oct 2007 12:45:00 PDT
-PRTime comparison_time_pdt = 1192477500 * kMicrosecondsPerSecond;
+PRTime comparison_time_pdt = 1192477500 * Time::kMicrosecondsPerSecond;
 
 // Specialized test fixture allowing time strings without timezones to be
 // tested by comparing them to a known time in the local zone.
@@ -66,7 +60,7 @@ class PRTimeTest : public testing::Test {
       -1            // DST in effect, -1 tells mktime to figure it out
     };
     comparison_time_local_ = mktime(&local_comparison_tm) *
-                             kMicrosecondsPerSecond;
+                             Time::kMicrosecondsPerSecond;
     ASSERT_GT(comparison_time_local_, 0);
   }
 
@@ -82,18 +76,16 @@ TEST_F(PRTimeTest, ParseTimeTest1) {
   time(&current_time);
 
   const int BUFFER_SIZE = 64;
-  tm local_time = {0};
-#if defined(OS_WIN)
-  localtime_s(&local_time, &current_time);
-#elif defined(OS_POSIX)
-  localtime_r(&current_time, &local_time);
-#endif
+  struct tm local_time = {0};
   char time_buf[BUFFER_SIZE] = {0};
 #if defined(OS_WIN)
+  localtime_s(&local_time, &current_time);
   asctime_s(time_buf, arraysize(time_buf), &local_time);
 #elif defined(OS_POSIX)
+  localtime_r(&current_time, &local_time);
   asctime_r(&local_time, time_buf);
 #endif
+
   PRTime current_time64 = static_cast<PRTime>(current_time) * PR_USEC_PER_SEC;
 
   PRTime parsed_time = 0;
@@ -173,7 +165,8 @@ TEST_F(PRTimeTest, ParseTimeTest10) {
   EXPECT_EQ(true, result);
 
   time_t computed_time = parsed_time.ToTimeT();
-  time_t time_to_compare = comparison_time_local_ / kMicrosecondsPerSecond;
+  time_t time_to_compare = comparison_time_local_ /
+                           Time::kMicrosecondsPerSecond;
   EXPECT_EQ(computed_time, time_to_compare);
 }
 
@@ -185,6 +178,6 @@ TEST_F(PRTimeTest, ParseTimeTest11) {
   EXPECT_EQ(true, result);
 
   time_t computed_time = parsed_time.ToTimeT();
-  time_t time_to_compare = comparison_time_pdt / kMicrosecondsPerSecond;
+  time_t time_to_compare = comparison_time_pdt / Time::kMicrosecondsPerSecond;
   EXPECT_EQ(computed_time, time_to_compare);
 }
