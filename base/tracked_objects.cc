@@ -29,8 +29,6 @@
 
 #include "base/tracked_objects.h"
 
-#include <math.h>
-
 #include "base/string_util.h"
 
 namespace tracked_objects {

@@ -295,9 +295,6 @@ TEST(TimerTest, FifoOrder) {
 
   class MockTimerManager : public TimerManager {
    public:
-    MockTimerManager() : TimerManager(MessageLoop::current()) {
-    }
-    
     // Pops the most-recent to fire timer and returns its timer id.
     // Returns -1 if there are no timers in the list.
     int pop() {

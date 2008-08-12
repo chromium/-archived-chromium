@@ -365,8 +365,6 @@ class MessageLoop {
 
   //----------------------------------------------------------------------------
  private:
-  friend class TimerManager;  // So it can call DidChangeNextTimerExpiry
-
   struct ScopedStateSave {
     explicit ScopedStateSave(MessageLoop* loop)
         : loop_(loop),
@@ -574,9 +572,6 @@ class MessageLoop {
 
   // Post a task to our incomming queue.
   void PostTaskInternal(Task* task);
-
-  // Called by the TimerManager when its next timer changes.
-  void DidChangeNextTimerExpiry();
 
   // Start recording histogram info about events and action IF it was enabled
   // and IF the statistics recorder can accept a registration of our histogram.
