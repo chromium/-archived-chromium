@@ -1,0 +1,7 @@
+This Folder contains the following:
+
+.dic files
+.aff files
+.bdic files
+
+The .bdic files are binary files, generated from the corresponding .dic and .aff files, using convert_dict (chrome\tools\convert_dict). These binary files are used by the spellchecker.
