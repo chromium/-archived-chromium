@@ -60,7 +60,8 @@ class DOMUIHost : public WebContents {
             RenderViewHostFactory* render_view_factory);
 
   // Initializes the given renderer, after enabling DOM UI bindings on it.
-  virtual bool CreateRenderView(RenderViewHost* render_view_host);
+  virtual bool CreateRenderViewForRenderManager(
+      RenderViewHost* render_view_host);
 
   // Add type-specific javascript message handlers.
   // TODO(timsteele): Any implementation of this method should really be done

@@ -87,7 +87,7 @@ SSLBlockingPage::SSLBlockingPage(SSLManager::CertError* error,
 
   NotificationService::current()->AddObserver(this,
       NOTIFY_INTERSTITIAL_PAGE_CLOSED,
-      Source<TabContents>(tab_));
+      Source<NavigationController>(tab_->controller()));
 
   // Register for DOM operations, this is how the blocking page notifies us of
   // what the user chooses.
@@ -103,7 +103,7 @@ SSLBlockingPage::~SSLBlockingPage() {
 
   NotificationService::current()->RemoveObserver(this,
       NOTIFY_INTERSTITIAL_PAGE_CLOSED,
-      Source<TabContents>(tab_));
+      Source<NavigationController>(tab_->controller()));
 
   NotificationService::current()->RemoveObserver(this,
       NOTIFY_DOM_OPERATION_RESPONSE,

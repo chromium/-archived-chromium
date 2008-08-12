@@ -2011,7 +2011,7 @@ void AutomationProvider::GetPageType(const IPC::Message& message, int handle) {
     // no navigation entry were created for it we need to ask the WebContents.
     if (page_type == NavigationEntry::NORMAL_PAGE &&
         tab->active_contents()->AsWebContents() &&
-        tab->active_contents()->AsWebContents()->IsShowingInterstitialPage())
+        tab->active_contents()->AsWebContents()->showing_interstitial_page())
       page_type = NavigationEntry::INTERSTITIAL_PAGE;
 
     Send(new AutomationMsg_GetPageTypeResponse(message.routing_id(), true,

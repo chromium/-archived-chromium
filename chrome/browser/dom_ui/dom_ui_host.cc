@@ -54,13 +54,14 @@ DOMUIHost::~DOMUIHost() {
   STLDeleteContainerPointers(handlers_.begin(), handlers_.end());
 }
 
-bool DOMUIHost::CreateRenderView(RenderViewHost* render_view_host) {
+bool DOMUIHost::CreateRenderViewForRenderManager(
+    RenderViewHost* render_view_host) {
   // Be sure to enable DOM UI bindings on the RenderViewHost before
   // CreateRenderView is called.  Since a cross-site transition may be
   // involved, this may or may not be the same RenderViewHost that we had when
   // we were created.
   render_view_host->AllowDOMUIBindings();
-  return WebContents::CreateRenderView(render_view_host);
+  return WebContents::CreateRenderViewForRenderManager(render_view_host);
 }
 
 void DOMUIHost::AddMessageHandler(DOMMessageHandler* handler) {

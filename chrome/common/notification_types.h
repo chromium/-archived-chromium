@@ -364,8 +364,9 @@ enum NotificationType {
   NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
 
   // This is sent when an interstitial page showing in a WebContents is closed
-  // (as the result of a navigation to another page).  The source is the
-  // WebContents the interstitial page is in.
+  // (as the result of a navigation to another page). The source is the
+  // NavigationController associated with the tab.
+  //
   // Note that you should not initiate a navigation as part of the processing of
   // this notification, since this notification may be triggered as part of the
   // destruction of the tab contents (the navigation controller would reuse
@@ -401,9 +402,9 @@ enum NotificationType {
   NOTIFY_PREF_CHANGED,
 
   // This is sent to notify that the RenderViewHost displayed in a WebContents
-  // has changed.  Source is the WebContents for which the change happened,
-  // details is the previous RenderViewHost (can be NULL when the first
-  // RenderViewHost is set).
+  // has changed.  Source is the NavigationController for which the change
+  // happened, and details is RenderViewHostSwitchedDetails
+  // (see render_view_host_manager.h).
   NOTIFY_RENDER_VIEW_HOST_CHANGED,
 
   // This notification is sent when a TabContents is being hidden, e.g. due to

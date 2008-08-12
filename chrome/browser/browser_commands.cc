@@ -780,7 +780,7 @@ void Browser::GoBack() {
     // to the previous page as it is already available in a render view host
     // of the WebContents.  This makes the back more snappy and avoids potential
     // reloading of POST pages.
-    if (web_contents && web_contents->IsShowingInterstitialPage()) {
+    if (web_contents && web_contents->showing_interstitial_page()) {
       // Let the delegate decide (if any) if it wants to handle the back
       // navigation (it may have extra things to do).
      if (web_contents->interstitial_page_delegate() &&
@@ -830,7 +830,7 @@ void Browser::Reload() {
   TabContents* current_tab = GetSelectedTabContents();
   if (current_tab) {
     WebContents* web_contents = current_tab->AsWebContents();
-    if (web_contents && web_contents->IsShowingInterstitialPage()) {
+    if (web_contents && web_contents->showing_interstitial_page()) {
       NavigationEntry* entry = current_tab->controller()->GetActiveEntry();
       DCHECK(entry);  // Should exist if interstitial is showing.
       OpenURL(entry->GetURL(), CURRENT_TAB, PageTransition::RELOAD);

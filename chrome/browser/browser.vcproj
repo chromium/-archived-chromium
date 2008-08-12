@@ -894,6 +894,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\render_view_host_manager.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\render_view_host_manager.h"
+				>
+			</File>
+			<File
 				RelativePath=".\security_style.h"
 				>
 			</File>

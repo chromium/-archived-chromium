@@ -191,6 +191,9 @@ class TabContents : public PageNavigator,
   // Sets up a new NavigationController for this TabContents.
   // |profile| is the user profile that should be associated with
   // the new controller.
+  //
+  // TODO(brettw) this seems bogus and I couldn't find any legitimate need for
+  // it. I think it should be passed in the constructor.
   void SetupController(Profile* profile);
 
   // Returns the user profile associated with this TabContents (via the

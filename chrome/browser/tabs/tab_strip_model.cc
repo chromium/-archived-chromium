@@ -271,14 +271,15 @@ bool TabStripModel::TabHasUnloadListener(int index) {
   //             in testing and then provide better test coverage for features
   //             like "close other tabs".
   WebContents* web_contents = GetContentsAt(index)->AsWebContents();
-  if (web_contents)
+  if (web_contents) {
     // If the WebContents is not connected yet, then there's no unload
     // handler we can fire even if the WebContents has an unload listener.
     // One case where we hit this is in a tab that has an infinite loop 
     // before load.
     return web_contents->notify_disconnection() && 
-        !web_contents->IsShowingInterstitialPage() &&
+        !web_contents->showing_interstitial_page() &&
         web_contents->render_view_host()->HasUnloadListener();
+  }
   return false;
 }
 

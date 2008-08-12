@@ -33,6 +33,7 @@
 
 #include "base/logging.h"
 #include "chrome/browser/render_view_host.h"
+#include "chrome/browser/render_view_host_manager.h"
 #include "chrome/browser/render_widget_host_view.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/view_ids.h"
@@ -204,9 +205,10 @@ void TabContentsContainerView::Observe(NotificationType type,
                                        const NotificationSource& source,
                                        const NotificationDetails& details) {
   if (type == NOTIFY_RENDER_VIEW_HOST_CHANGED) {
-    RenderViewHost* new_rvh = Source<WebContents>(source)->render_view_host();
-    RenderViewHost* old_rvh = Details<RenderViewHost>(details).ptr();
-    RenderViewHostChanged(old_rvh, new_rvh);
+    RenderViewHostSwitchedDetails* switched_details =
+        Details<RenderViewHostSwitchedDetails>(details).ptr();
+    RenderViewHostChanged(switched_details->old_host,
+                          switched_details->new_host);
   } else if (type == NOTIFY_TAB_CONTENTS_DESTROYED) {
     TabContentsDestroyed(Source<TabContents>(source).ptr());
   } else {
@@ -222,7 +224,7 @@ void TabContentsContainerView::AddObservers() {
     // the focus subclass on the shown HWND so we intercept focus change events.
     NotificationService::current()->AddObserver(
         this, NOTIFY_RENDER_VIEW_HOST_CHANGED,
-        Source<WebContents>(tab_contents_->AsWebContents()));
+        Source<NavigationController>(tab_contents_->controller()));
   }
   NotificationService::current()->AddObserver(
       this, NOTIFY_TAB_CONTENTS_DESTROYED,
@@ -234,7 +236,7 @@ void TabContentsContainerView::RemoveObservers() {
   if (tab_contents_->AsWebContents()) {
     NotificationService::current()->RemoveObserver(
         this, NOTIFY_RENDER_VIEW_HOST_CHANGED,
-        Source<WebContents>(tab_contents_->AsWebContents()));
+        Source<NavigationController>(tab_contents_->controller()));
   }
   NotificationService::current()->RemoveObserver(
       this, NOTIFY_TAB_CONTENTS_DESTROYED,

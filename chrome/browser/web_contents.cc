@@ -219,6 +219,9 @@ WebContents::WebContents(Profile* profile,
                          int routing_id,
                          HANDLE modal_dialog_event)
     : TabContents(TAB_CONTENTS_WEB),
+#pragma warning(suppress: 4355)  // Okay to pass "this" here.
+      render_manager_(render_view_factory, this, this),
+      render_view_factory_(render_view_factory),
       is_profiling_(false),
       has_page_title_(false),
       info_bar_visible_(false),
@@ -226,31 +229,18 @@ WebContents::WebContents(Profile* profile,
       printing_(*this),
       notify_disconnection_(false),
       message_box_active_(CreateEvent(NULL, TRUE, FALSE, NULL)),
-      render_view_factory_(render_view_factory),
-      original_render_view_host_(NULL),
-      interstitial_render_view_host_(NULL),
-      pending_render_view_host_(NULL),
-      renderer_state_(NORMAL),
       capturing_contents_(false),
 #pragma warning(suppress: 4355)  // Okay to pass "this" here.
       fav_icon_helper_(this),
       crashed_plugin_info_bar_(NULL),
       suppress_javascript_messages_(false),
-      load_state_(net::LOAD_STATE_IDLE),
-      showing_repost_interstitial_(false),
-      interstitial_delegate_(NULL) {
+      load_state_(net::LOAD_STATE_IDLE) {
   InitWebContentsClass();
 
   pending_install_.page_id = 0;
   pending_install_.callback_functor = NULL;
 
-  // Create a RenderViewHost, once we have an instance.  It is important to
-  // immediately give this SiteInstance to a RenderViewHost so that it is
-  // ref counted.
-  if (!site_instance)
-    site_instance = SiteInstance::CreateSiteInstance(profile);
-  render_view_host_ = CreateRenderViewHost(
-      site_instance, this, routing_id, modal_dialog_event);
+  render_manager_.Init(profile, site_instance, routing_id, modal_dialog_event);
 
   // Register for notifications about all interested prefs change.
   PrefService* prefs = profile->GetPrefs();
@@ -290,8 +280,8 @@ void WebContents::GetContainerBounds(gfx::Rect *out) const {
 }
 
 void WebContents::ShowContents() {
-  if (render_view_host_ && render_view_host_->view())
-    render_view_host_->view()->DidBecomeSelected();
+  if (view())
+    view()->DidBecomeSelected();
 
   // Loop through children and send DidBecomeSelected to them, too.
   int count = static_cast<int>(child_windows_.size());
@@ -317,8 +307,8 @@ void WebContents::HideContents() {
 }
 
 void WebContents::SizeContents(const gfx::Size& size) {
-  if (render_view_host_ && render_view_host_->view())
-    render_view_host_->view()->SetSize(size);
+  if (view())
+    view()->SetSize(size);
   if (find_in_page_controller_.get())
     find_in_page_controller_->RespondToResize(size);
   RepositionSupressedPopupsToFit(size);
@@ -336,20 +326,14 @@ void WebContents::Destroy() {
   // Destroy the print manager right now since a Print command may be pending.
   printing_.Destroy();
 
-
   // Unregister the notifications of all observed prefs change.
   PrefService* prefs = profile()->GetPrefs();
-  if (prefs)
+  if (prefs) {
     for (int i = 0; i < kPrefsToObserveLength; ++i)
       prefs->RemovePrefObserver(kPrefsToObserve[i], this);
+  }
 
   cancelable_consumer_.CancelAllRequests();
-
-  if (IsShowingInterstitialPage()) {
-    // The tab is closed while the interstitial page is showing, hide and
-    // destroy it.
-    HideInterstitialPage(false, false);
-  }
 
   // Close the Find in page dialog.
   if (find_in_page_controller_.get())
@@ -359,19 +343,9 @@ void WebContents::Destroy() {
   // They will be cleaned up properly in plugin process.
   DetachPluginWindows();
 
-  if (pending_render_view_host_)
-    pending_render_view_host_->Shutdown();
-  if (original_render_view_host_)
-    original_render_view_host_->Shutdown();
-  if (interstitial_render_view_host_)
-    interstitial_render_view_host_->Shutdown();
-
   NotifyDisconnected();
   HungRendererWarning::HideForWebContents(this);
-
-  render_view_host_->Shutdown();
-  render_view_host_ = NULL;
-
+  render_manager_.Shutdown();
   TabContents::Destroy();
 }
 
@@ -409,7 +383,7 @@ void WebContents::OnWindowPosChanged(WINDOWPOS* window_pos) {
 }
 
 void WebContents::OnPaint(HDC junk_dc) {
-  if (render_view_host_ && !render_view_host_->IsRenderViewLive()) {
+  if (render_view_host() && !render_view_host()->IsRenderViewLive()) {
     if (!sad_tab_.get())
       sad_tab_.reset(new SadTabView);
     CRect cr;
@@ -450,8 +424,7 @@ LRESULT WebContents::OnMouseRange(UINT msg, WPARAM w_param, LPARAM l_param) {
         delegate()->ContentsMouseEvent(this, WM_MOUSEMOVE);
       break;
     case WM_MOUSEWHEEL:
-      // This message is reflected from the render_view_host_->view()
-      // to this window.
+      // This message is reflected from the view() to this window.
       if (GET_KEYSTATE_WPARAM(w_param) & MK_CONTROL) {
         WheelZoom(GET_WHEEL_DELTA_WPARAM(w_param));
         return 1;
@@ -532,8 +505,8 @@ void WebContents::OnSetFocus(HWND window) {
   //                background from properly taking focus.
   // We NULL-check the render_view_host_ here because Windows can send us
   // messages during the destruction process after it has been destroyed.
-  if (render_view_host_ && render_view_host_->view()) {
-    HWND inner_hwnd = render_view_host_->view()->GetPluginHWND();
+  if (view()) {
+    HWND inner_hwnd = view()->GetPluginHWND();
     if (::IsWindow(inner_hwnd))
       ::SetFocus(inner_hwnd);
   }
@@ -554,7 +527,7 @@ void WebContents::SaveCurrentProfilingEntry() {
   if (is_profiling()) {
     NavigationProfiler* profiler = GetNavigationProfiler();
     profiler->MoveActivePageToVisited(process()->host_id(),
-                                      render_view_host_->routing_id());
+                                      render_view_host()->routing_id());
   }
   is_profiling_ = false;
 }
@@ -568,7 +541,7 @@ void WebContents::CreateNewProfilingEntry(const GURL& url) {
     TimeTicks current_time = TimeTicks::Now();
 
     PageLoadTracker *page = new PageLoadTracker(
-        url, process()->host_id(), render_view_host_->routing_id(),
+        url, process()->host_id(), render_view_host()->routing_id(),
         current_time);
 
     profiler->AddActivePage(page);
@@ -653,40 +626,7 @@ void WebContents::SavePage(const std::wstring& main_file,
 //   pending RVH and goes back to the NORMAL RendererState.
 
 bool WebContents::Navigate(const NavigationEntry& entry, bool reload) {
-  RenderViewHost* dest_render_view_host = UpdateRendererStateNavigate(entry);
-  if (!dest_render_view_host) {
-    // We weren't able to create a pending render view host.
-    return false;
-  }
-
-  // If the current render_view_host_ isn't live, we should create it so
-  // that we don't show a sad tab while the dest_render_view_host fetches
-  // its first page.  (Bug 1145340)
-  if (dest_render_view_host != render_view_host_ &&
-      !render_view_host_->IsRenderViewLive()) {
-    CreateRenderView(render_view_host_);
-  }
-
-  // If the renderer crashed, then try to create a new one to satisfy this
-  // navigation request.
-  if (!dest_render_view_host->IsRenderViewLive()) {
-    if (!CreateRenderView(dest_render_view_host))
-      return false;
-
-    // Now that we've created a new renderer, be sure to hide it if it isn't
-    // our primary one.  Otherwise, we might crash if we try to call Show()
-    // on it later.
-    if (dest_render_view_host != render_view_host_ &&
-        dest_render_view_host->view()) {
-      dest_render_view_host->view()->Hide();
-    } else {
-      // This is our primary renderer, notify here as we won't be calling
-      // SwapToRenderView (which does the notify).
-      NotificationService::current()->Notify(
-          NOTIFY_RENDER_VIEW_HOST_CHANGED,
-          Source<WebContents>(this), NotificationService::NoDetails());
-    }
-  }
+  RenderViewHost* dest_render_view_host = render_manager_.Navigate(entry);
 
   CreateNewProfilingEntry(entry.GetURL());
 
@@ -695,8 +635,6 @@ bool WebContents::Navigate(const NavigationEntry& entry, bool reload) {
 
   // Navigate in the desired RenderViewHost
   dest_render_view_host->NavigateToEntry(entry, reload);
-
-  showing_repost_interstitial_ = false;
 
   if (entry.GetPageID() == -1) {
     // HACK!!  This code suppresses javascript: URLs from being added to
@@ -718,371 +656,29 @@ bool WebContents::Navigate(const NavigationEntry& entry, bool reload) {
   return true;
 }
 
-RenderViewHost* WebContents::UpdateRendererStateNavigate(
-    const NavigationEntry& entry) {
-  // If we are in PENDING or ENTERING_INTERSTITIAL, then we want to get back
-  // to NORMAL and navigate as usual.
-  if (renderer_state_ == PENDING || renderer_state_ == ENTERING_INTERSTITIAL) {
-    if (pending_render_view_host_)
-      CancelRenderView(&pending_render_view_host_);
-    if (interstitial_render_view_host_)
-      CancelRenderView(&interstitial_render_view_host_);
-    renderer_state_ = NORMAL;
-  }
-
-  // render_view_host_ will not be deleted before the end of this method, so we
-  // don't have to worry about this SiteInstance's ref count dropping to zero.
-  SiteInstance* curr_instance = render_view_host_->site_instance();
-
-  if (IsShowingInterstitialPage()) {
-    // Must disable any ability to proceed from the interstitial, because we're
-    // about to navigate somewhere else.
-    DisableInterstitialProceed(true);
-
-    if (pending_render_view_host_)
-      CancelRenderView(&pending_render_view_host_);
-
-    renderer_state_ = LEAVING_INTERSTITIAL;
-
-    // We want to compare against where we were, because we just cancelled
-    // where we were going.  The original_render_view_host_ won't be deleted
-    // before the end of this method, so we don't have to worry about this
-    // SiteInstance's ref count dropping to zero.
-    curr_instance = original_render_view_host_->site_instance();
-  }
-
-  // Determine if we need a new SiteInstance for this entry.
-  // Again, new_instance won't be deleted before the end of this method, so it
-  // is safe to use a normal pointer here.
-  SiteInstance* new_instance = curr_instance;
-  if (ShouldTransitionCrossSite()) {
-    new_instance = GetSiteInstanceForEntry(entry, curr_instance);
-  }
-
-  if (new_instance != curr_instance) {
-    // New SiteInstance.
-    DCHECK(renderer_state_ == NORMAL ||
-           renderer_state_ == LEAVING_INTERSTITIAL);
-
-    // Create a pending RVH and navigate it.
-    bool success = CreatePendingRenderView(new_instance);
-    if (!success)
-      return NULL;
-
-    // Check if our current RVH is live before we set up a transition.
-    if (!render_view_host_->IsRenderViewLive()) {
-      if (renderer_state_ == NORMAL) {
-        // The current RVH is not live.  There's no reason to sit around with a
-        // sad tab or a newly created RVH while we wait for the pending RVH to
-        // navigate.  Just switch to the pending RVH now and go back to NORMAL,
-        // without requiring a cross-site transition.  (Note that we don't care
-        // about on{before}unload handlers if the current RVH isn't live.)
-        SwapToRenderView(&pending_render_view_host_, true);
-        return render_view_host_;
-
-      } else if (renderer_state_ == LEAVING_INTERSTITIAL) {
-        // Cancel the interstitial, since it has died and we're navigating away
-        // anyway.
-        DCHECK(original_render_view_host_);
-        if (original_render_view_host_->IsRenderViewLive()) {
-          // Swap back to the original and act like a pending request (using
-          // the logic below).
-          SwapToRenderView(&original_render_view_host_, true);
-          renderer_state_ = NORMAL;
-          InterstitialPageGone();
-          // Continue with the pending cross-site transition logic below.
-        } else {
-          // Both the interstitial and original are dead.  Just like the NORMAL
-          // case, let's skip the cross-site transition entirely.  We also have
-          // to clean up the interstitial state.
-          SwapToRenderView(&pending_render_view_host_, true);
-          CancelRenderView(&original_render_view_host_);
-          renderer_state_ = NORMAL;
-          InterstitialPageGone();
-          return render_view_host_;
-        }
-      } else {
-        NOTREACHED();
-        return render_view_host_;
-      }
-    }
-    // Otherwise, it's safe to treat this as a pending cross-site transition.
-
-    // Make sure the old render view stops, in case a load is in progress.
-    render_view_host_->Stop();
-
-    // Suspend the new render view (i.e., don't let it send the cross-site
-    // Navigate message) until we hear back from the old renderer's
-    // onbeforeunload handler.  If it returns false, we'll have to cancel the
-    // request.
-    pending_render_view_host_->SetNavigationsSuspended(true);
-
-    // Tell the CrossSiteRequestManager that this RVH has a pending cross-site
-    // request, so that ResourceDispatcherHost will know to tell us to run the
-    // old page's onunload handler before it sends the response.
-    pending_render_view_host_->SetHasPendingCrossSiteRequest(true);
-
-    // We now have a pending RVH.  If we were in NORMAL, we should now be in
-    // PENDING.  If we were in LEAVING_INTERSTITIAL, we should stay there.
-    if (renderer_state_ == NORMAL)
-      renderer_state_ = PENDING;
-    else
-      DCHECK(renderer_state_ == LEAVING_INTERSTITIAL);
-
-    // Tell the old render view to run its onbeforeunload handler, since it
-    // doesn't otherwise know that the cross-site request is happening.  This
-    // will trigger a call to ShouldClosePage with the reply.
-    render_view_host_->FirePageBeforeUnload();
-
-    return pending_render_view_host_;
-  }
-
-  // Same SiteInstance can be used.  Navigate render_view_host_ if we are in
-  // the NORMAL state, and original_render_view_host_ if an interstitial is
-  // showing.
-  if (renderer_state_ == NORMAL)
-    return render_view_host_;
-
-  DCHECK(renderer_state_ == LEAVING_INTERSTITIAL);
-  return original_render_view_host_;
-}
-
-bool WebContents::ShouldTransitionCrossSite() {
-  // True if we are using process-per-site-instance (default) or
-  // process-per-site (kProcessPerSite).
-  return !CommandLine().HasSwitch(switches::kProcessPerTab);
-}
-
-SiteInstance* WebContents::GetSiteInstanceForEntry(
-    const NavigationEntry& entry, SiteInstance* curr_instance) {
-  // NOTE: This is only called when ShouldTransitionCrossSite is true.
-
-  // If the entry has an instance already, we should use it.
-  if (entry.site_instance())
-    return entry.site_instance();
-
-  // (UGLY) HEURISTIC, process-per-site only:
-  //
-  // If this navigation is generated, then it probably corresponds to a search
-  // query.  Given that search results typically lead to users navigating to
-  // other sites, we don't really want to use the search engine hostname to
-  // determine the site instance for this navigation.
-  //
-  // NOTE: This can be removed once we have a way to transition between
-  //       RenderViews in response to a link click.
-  //
-  if (CommandLine().HasSwitch(switches::kProcessPerSite) &&
-      entry.GetTransitionType() == PageTransition::GENERATED)
-    return curr_instance;
-
-  const GURL& dest_url = entry.GetURL();
-
-  // If we haven't used our SiteInstance (and thus RVH) yet, then we can use it
-  // for this entry.  We won't commit the SiteInstance to this site until the
-  // navigation commits (in DidNavigate), unless the navigation entry was
-  // restored. As session restore loads all the pages immediately we need to set
-  // the site first, otherwise after a restore none of the pages would share
-  // renderers.
-  if (!curr_instance->has_site()) {
-    // If we've already created a SiteInstance for our destination, we don't
-    // want to use this unused SiteInstance; use the existing one.  (We don't
-    // do this check if the curr_instance has a site, because for now, we want
-    // to compare against the current URL and not the SiteInstance's site.  In
-    // this case, there is no current URL, so comparing against the site is ok.
-    // See additional comments below.)
-    if (curr_instance->HasRelatedSiteInstance(dest_url)) {
-      return curr_instance->GetRelatedSiteInstance(dest_url);
-    } else {
-      if (entry.restored())
-        curr_instance->SetSite(dest_url);
-      return curr_instance;
-    }
-  }
-
-  // Otherwise, only create a new SiteInstance for cross-site navigation.
-
-  // TODO(creis): Once we intercept links and script-based navigations, we
-  // will be able to enforce that all entries in a SiteInstance actually have
-  // the same site, and it will be safe to compare the URL against the
-  // SiteInstance's site, as follows:
-  // const GURL& current_url = curr_instance->site();
-  // For now, though, we're in a hybrid model where you only switch
-  // SiteInstances if you type in a cross-site URL.  This means we have to
-  // compare the entry's URL to the last committed entry's URL.
-  NavigationEntry* curr_entry = controller()->GetLastCommittedEntry();
-  if (IsShowingInterstitialPage()) {
-    // The interstitial is currently the last committed entry, but we want to
-    // compare against the last non-interstitial entry.
-    curr_entry = controller()->GetEntryAtOffset(-1);
-  }
-  // If there is no last non-interstitial entry (and curr_instance already
-  // has a site), then we must have been opened from another tab.  We want
-  // to compare against the URL of the page that opened us, but we can't
-  // get to it directly.  The best we can do is check against the site of
-  // the SiteInstance.  This will be correct when we intercept links and
-  // script-based navigations, but for now, it could place some pages in a
-  // new process unnecessarily.  We should only hit this case if a page tries
-  // to open a new tab to an interstitial-inducing URL, and then navigates
-  // the page to a different same-site URL.  (This seems very unlikely in
-  // practice.)
-  const GURL& current_url = (curr_entry) ? curr_entry->GetURL() :
-      curr_instance->site();
-
-  if (SiteInstance::IsSameWebSite(current_url, dest_url)) {
-    return curr_instance;
-  } else {
-    // Start the new renderer in a new SiteInstance, but in the current
-    // BrowsingInstance.  It is important to immediately give this new
-    // SiteInstance to a RenderViewHost (if it is different than our current
-    // SiteInstance), so that it is ref counted.  This will happen in
-    // CreatePendingRenderView.
-    return curr_instance->GetRelatedSiteInstance(dest_url);
-  }
-}
-
-void WebContents::DisableInterstitialProceed(bool stop_request) {
-  // TODO(creis): Make sure the interstitial page disables any ability to
-  // proceed at this point, because we're about to abort the original request.
-  // This can be done by adding a new event to the NotificationService.
-  // We should also disable the button on the page itself, but it's ok if that
-  // doesn't happen immediately.
-
-  // Stopping the request is necessary if we are navigating away, because the
-  // user could be requesting the same URL again, causing the HttpCache to
-  // ignore it.  (Fixes bug 1079784.)
-  if (stop_request) {
-    original_render_view_host_->Stop();
-    if (pending_render_view_host_)
-      pending_render_view_host_->Stop();
-  }
-}
-
-bool WebContents::CreatePendingRenderView(SiteInstance* instance) {
-  NavigationEntry* curr_entry = controller()->GetLastCommittedEntry();
-  if (curr_entry && curr_entry->GetType() == TAB_CONTENTS_WEB) {
-    DCHECK(!curr_entry->GetContentState().empty());
-
-    // TODO(creis): Should send a message to the RenderView to let it know
-    // we're about to switch away, so that it sends an UpdateState message.
-  }
-
-  pending_render_view_host_ =
-      CreateRenderViewHost(instance, this, MSG_ROUTING_NONE, NULL);
-
-  bool success = CreateRenderView(pending_render_view_host_);
-  if (success) {
-    // Don't show the view until we get a DidNavigate from it.
-    pending_render_view_host_->view()->Hide();
-  } else {
-    CancelRenderView(&pending_render_view_host_);
-  }
-  return success;
-}
-
-void WebContents::CancelRenderView(RenderViewHost** render_view_host) {
-  DCHECK(*render_view_host != NULL);
-
-  // Destroy the render view host
-  (*render_view_host)->Shutdown();
-  (*render_view_host) = NULL;
-}
-
-void WebContents::ShouldClosePage(bool proceed) {
-  // Should only see this while we have a pending renderer.  Otherwise, we
-  // should ignore.
-  if (!pending_render_view_host_) {
-    bool proceed_to_fire_unload;
-    delegate()->BeforeUnloadFired(this, proceed, &proceed_to_fire_unload);
-
-    if (proceed_to_fire_unload) {
-      // This is not a cross-site navigation, the tab is being closed.
-      render_view_host_->FirePageUnload();
-    }
-    return;
-  }
-
-  DCHECK(renderer_state_ != ENTERING_INTERSTITIAL);
-  DCHECK(renderer_state_ != INTERSTITIAL);
-  if (proceed) {
-    // Ok to unload the current page, so proceed with the cross-site navigate.
-    pending_render_view_host_->SetNavigationsSuspended(false);
-  } else {
-    // Current page says to cancel.
-    CancelRenderView(&pending_render_view_host_);
-    renderer_state_ = NORMAL;
-  }
-}
-
-void WebContents::OnCrossSiteResponse(int new_render_process_host_id,
-                                      int new_request_id) {
-  // Should only see this while we have a pending renderer, possibly during an
-  // interstitial.  Otherwise, we should ignore.
-  if (renderer_state_ != PENDING && renderer_state_ != LEAVING_INTERSTITIAL)
-    return;
-  DCHECK(pending_render_view_host_);
-
-  // Tell the old renderer to run its onunload handler.  When it finishes, it
-  // will send a ClosePage_ACK to the ResourceDispatcherHost with the given
-  // IDs (of the pending RVH's request), allowing the pending RVH's response to
-  // resume.
-  if (IsShowingInterstitialPage()) {
-    DCHECK(original_render_view_host_);
-    original_render_view_host_->ClosePage(new_render_process_host_id,
-                                          new_request_id);
-  } else {
-    render_view_host_->ClosePage(new_render_process_host_id,
-                                 new_request_id);
-  }
-
-  // ResourceDispatcherHost has told us to run the onunload handler, which
-  // means it is not a download or unsafe page, and we are going to perform the
-  // navigation.  Thus, we no longer need to remember that the RenderViewHost
-  // is part of a pending cross-site request.
-  pending_render_view_host_->SetHasPendingCrossSiteRequest(false);
-}
-
 void WebContents::Stop() {
-  render_view_host_->Stop();
-
-  // If we aren't in the NORMAL renderer state, we should stop the pending
-  // renderers.  This will lead to a DidFailProvisionalLoad, which will
-  // properly destroy them.
-  if (renderer_state_ == PENDING) {
-    pending_render_view_host_->Stop();
-
-  } else if (renderer_state_ == ENTERING_INTERSTITIAL) {
-    interstitial_render_view_host_->Stop();
-    if (pending_render_view_host_) {
-      pending_render_view_host_->Stop();
-    }
-
-  } else if (renderer_state_ == LEAVING_INTERSTITIAL) {
-    if (pending_render_view_host_) {
-      pending_render_view_host_->Stop();
-    }
-  }
-
+  render_manager_.Stop();
   printing_.Stop();
 }
 
 void WebContents::DidBecomeSelected() {
   TabContents::DidBecomeSelected();
 
-  if (render_view_host_ && render_view_host_->view())
-    render_view_host_->view()->DidBecomeSelected();
+  if (render_view_host() && view())
+    view()->DidBecomeSelected();
 
   CacheManagerHost::GetInstance()->ObserveActivity(process()->host_id());
 }
 
 void WebContents::WasHidden() {
   if (!capturing_contents_) {
-    // |render_view_host_| can be NULL if the user middle clicks a link to open
+    // |render_view_host()| can be NULL if the user middle clicks a link to open
     // a tab in then background, then closes the tab before selecting it.  This
     // is because closing the tab calls WebContents::Destroy(), which removes
-    // the |render_view_host_|; then when we actually destroy the window,
+    // the |render_view_host()|; then when we actually destroy the window,
     // OnWindowPosChanged() notices and calls HideContents() (which calls us).
-    if (render_view_host_ && render_view_host_->view())
-      render_view_host_->view()->WasHidden();
+    if (render_view_host() && view())
+      view()->WasHidden();
 
     // Loop through children and send WasHidden to them, too.
     int count = static_cast<int>(child_windows_.size());
@@ -1104,16 +700,14 @@ void WebContents::StartFinding(int request_id,
                                bool forward,
                                bool match_case,
                                bool find_next) {
-  if (search_string.empty()) {
+  if (search_string.empty())
     return;
-  }
-
-  render_view_host_->StartFinding(request_id, search_string, forward,
-                                  match_case, find_next);
+  render_view_host()->StartFinding(request_id, search_string, forward,
+                                   match_case, find_next);
 }
 
 void WebContents::StopFinding(bool clear_selection) {
-  render_view_host_->StopFinding(clear_selection);
+  render_view_host()->StopFinding(clear_selection);
 }
 
 void WebContents::OpenFindInPageWindow(const Browser& browser) {
@@ -1156,29 +750,29 @@ bool WebContents::AdvanceFindSelection(bool forward_direction) {
 }
 
 void WebContents::AlterTextSize(text_zoom::TextSize size) {
-  render_view_host_->AlterTextSize(size);
+  render_view_host()->AlterTextSize(size);
   // TODO(creis): should this be propagated to other and future RVHs?
 }
 
 void WebContents::SetPageEncoding(const std::wstring& encoding_name) {
-  render_view_host_->SetPageEncoding(encoding_name);
+  render_view_host()->SetPageEncoding(encoding_name);
   // TODO(creis): should this be propagated to other and future RVHs?
 }
 
 void WebContents::CopyImageAt(int x, int y) {
-  render_view_host_->CopyImageAt(x, y);
+  render_view_host()->CopyImageAt(x, y);
 }
 
 void WebContents::InspectElementAt(int x, int y) {
-  render_view_host_->InspectElementAt(x, y);
+  render_view_host()->InspectElementAt(x, y);
 }
 
 void WebContents::ShowJavaScriptConsole() {
-  render_view_host_->ShowJavaScriptConsole();
+  render_view_host()->ShowJavaScriptConsole();
 }
 
 void WebContents::AllowDomAutomationBindings() {
-  render_view_host_->AllowDomAutomationBindings();
+  render_view_host()->AllowDomAutomationBindings();
   // TODO(creis): should this be propagated to other and future RVHs?
 }
 
@@ -1186,19 +780,7 @@ void WebContents::OnJavaScriptMessageBoxClosed(IPC::Message* reply_msg,
                                                bool success,
                                                const std::wstring& prompt) {
   last_javascript_message_dismissal_ = TimeTicks::Now();
-
-  RenderViewHost* rvh = render_view_host_;
-  if (IsShowingInterstitialPage()) {
-    // No JavaScript message boxes are ever shown by interstitial pages, but
-    // they can be shown by the original RVH while an interstitial page is
-    // showing (e.g., from an onunload event handler).  We should send this to
-    // the original RVH and not the interstitial's RVH.
-    // TODO(creis): Perhaps the JavascriptMessageBoxHandler should store which
-    // RVH created it, so that it can tell this method which RVH to reply to.
-    DCHECK(original_render_view_host_);
-    rvh = original_render_view_host_;
-  }
-  rvh->JavaScriptMessageBoxClosed(reply_msg, success, prompt);
+  render_manager_.OnJavaScriptMessageBoxClosed(reply_msg, success, prompt);
 }
 
 // Generic NotificationObserver callback.
@@ -1360,33 +942,33 @@ InfoBarView* WebContents::GetInfoBarView() {
 
 void WebContents::ExecuteJavascriptInWebFrame(
     const std::wstring& frame_xpath, const std::wstring& jscript) {
-  render_view_host_->ExecuteJavascriptInWebFrame(frame_xpath, jscript);
+  render_view_host()->ExecuteJavascriptInWebFrame(frame_xpath, jscript);
 }
 
 void WebContents::AddMessageToConsole(
     const std::wstring& frame_xpath, const std::wstring& msg,
     ConsoleMessageLevel level) {
-  render_view_host_->AddMessageToConsole(frame_xpath, msg, level);
+  render_view_host()->AddMessageToConsole(frame_xpath, msg, level);
 }
 
 void WebContents::Undo() {
-  render_view_host_->Undo();
+   render_view_host()->Undo();
 }
 
 void WebContents::Redo() {
-  render_view_host_->Redo();
+   render_view_host()->Redo();
 }
 
 void WebContents::Replace(const std::wstring& text) {
-  render_view_host_->Replace(text);
+   render_view_host()->Replace(text);
 }
 
 void WebContents::Delete() {
-  render_view_host_->Delete();
+   render_view_host()->Delete();
 }
 
 void WebContents::SelectAll() {
-  render_view_host_->SelectAll();
+   render_view_host()->SelectAll();
 }
 
 void WebContents::StartFileUpload(const std::wstring& file_path,
@@ -1394,7 +976,7 @@ void WebContents::StartFileUpload(const std::wstring& file_path,
                                   const std::wstring& file,
                                   const std::wstring& submit,
                                   const std::wstring& other_values) {
-  render_view_host_->UploadFile(file_path, form, file, submit, other_values);
+  render_view_host()->UploadFile(file_path, form, file, submit, other_values);
 }
 
 void WebContents::SetWebApp(WebApp* web_app) {
@@ -1435,35 +1017,35 @@ void WebContents::CreateShortcut() {
 
   // Request the application info. When done OnDidGetApplicationInfo is invoked
   // and we'll create the shortcut.
-  render_view_host_->GetApplicationInfo(pending_install_.page_id);
+  render_view_host()->GetApplicationInfo(pending_install_.page_id);
 }
 
 void WebContents::FillForm(const FormData& form) {
-  render_view_host_->FillForm(form);
+  render_view_host()->FillForm(form);
 }
 
 void WebContents::FillPasswordForm(
     const PasswordFormDomManager::FillData& form_data) {
-  render_view_host_->FillPasswordForm(form_data);
+  render_view_host()->FillPasswordForm(form_data);
 }
 
 void WebContents::DragTargetDragEnter(const WebDropData& drop_data,
     const gfx::Point& client_pt, const gfx::Point& screen_pt) {
-  render_view_host_->DragTargetDragEnter(drop_data, client_pt, screen_pt);
+  render_view_host()->DragTargetDragEnter(drop_data, client_pt, screen_pt);
 }
 
 void WebContents::DragTargetDragOver(
     const gfx::Point& client_pt, const gfx::Point& screen_pt) {
-  render_view_host_->DragTargetDragOver(client_pt, screen_pt);
+  render_view_host()->DragTargetDragOver(client_pt, screen_pt);
 }
 
 void WebContents::DragTargetDragLeave() {
-  render_view_host_->DragTargetDragLeave();
+  render_view_host()->DragTargetDragLeave();
 }
 
 void WebContents::DragTargetDrop(
     const gfx::Point& client_pt, const gfx::Point& screen_pt) {
-  render_view_host_->DragTargetDrop(client_pt, screen_pt);
+  render_view_host()->DragTargetDrop(client_pt, screen_pt);
 }
 
 PasswordManager* WebContents::GetPasswordManager() {
@@ -1476,16 +1058,6 @@ PluginInstaller* WebContents::GetPluginInstaller() {
   if (plugin_installer_.get() == NULL)
     plugin_installer_.reset(new PluginInstaller(this));
   return plugin_installer_.get();
-}
-
-RenderProcessHost* WebContents::process() const {
-  return render_view_host_->process();
-}
-RenderViewHost* WebContents::render_view_host() const {
-  return render_view_host_;
-}
-SiteInstance* WebContents::site_instance() const {
-  return render_view_host_->site_instance();
 }
 
 bool WebContents::IsActiveEntry(int32 page_id) {
@@ -1516,7 +1088,9 @@ void WebContents::CreateView(int route_id, HANDLE modal_dialog_event) {
   // other issues. We should fix this.
   HWND new_view_parent_window = ::GetAncestor(GetHWND(), GA_ROOT);
   new_view->CreateView(new_view_parent_window, gfx::Rect());
-  new_view->CreatePageView(new_view->render_view_host_);
+  // TODO(brettw) it seems bogus that we have to call this function on the
+  // newly created object and give it one of its own member variables.
+  new_view->CreatePageView(new_view->render_view_host());
 
   // Don't show the view until we get enough context in ShowView.
   pending_views_[route_id] = new_view;
@@ -1529,7 +1103,7 @@ void WebContents::CreateWidget(int route_id) {
   // We set the parent HWDN explicitly as pop-up HWNDs are parented and owned by
   // the first non-child HWND of the HWND that was specified to the CreateWindow
   // call.
-  widget_view->set_parent_hwnd(render_view_host_->view()->GetPluginHWND());
+  widget_view->set_parent_hwnd(view()->GetPluginHWND());
   widget_view->set_close_on_deactivate(true);
 
   // Don't show the widget until we get its position in ShowWidget.
@@ -1549,13 +1123,14 @@ void WebContents::ShowView(int route_id,
   WebContents* new_view = iter->second;
   pending_views_.erase(route_id);
 
-  if (!new_view->render_view_host_->view() ||
-      !new_view->render_view_host_->process()->channel()) {
+  if (!new_view->view() ||
+      !new_view->process()->channel()) {
     // The view has gone away or the renderer crashed. Nothing to do.
     return;
   }
 
-  new_view->render_view_host_->Init();
+  // TODO(brettw) this seems bogus to reach into here and initialize the host.
+  new_view->render_view_host()->Init();
   AddNewContents(new_view, disposition, initial_pos, user_gesture);
 }
 
@@ -1586,11 +1161,12 @@ void WebContents::ShowWidget(int route_id, const gfx::Rect& initial_pos) {
   widget_host->Init();
 }
 
-void WebContents::RendererReady(RenderViewHost* render_view_host) {
-  if (IsShowingInterstitialPage() && (render_view_host == render_view_host_)) {
+void WebContents::RendererReady(RenderViewHost* rvh) {
+  if (render_manager_.showing_interstitial_page() &&
+      rvh == render_view_host()) {
     // We are showing an interstitial page, don't notify the world.
     return;
-  } else if (render_view_host != render_view_host_) {
+  } else if (rvh != render_view_host()) {
     // Don't notify the world, since this came from a renderer in the
     // background.
     return;
@@ -1600,11 +1176,11 @@ void WebContents::RendererReady(RenderViewHost* render_view_host) {
   SetIsCrashed(false);
 }
 
-void WebContents::RendererGone(RenderViewHost* render_view_host) {
+void WebContents::RendererGone(RenderViewHost* rvh) {
   // Ask the print preview if this renderer was valuable.
-  if (!printing_.OnRendererGone(render_view_host))
+  if (!printing_.OnRendererGone(rvh))
     return;
-  if (render_view_host != render_view_host_) {
+  if (rvh != render_view_host()) {
     // The pending or interstitial page's RenderViewHost is gone.  If we are
     // showing an interstitial, this may mean that the original RenderViewHost
     // is gone.  If so, we will call RendererGone again if we try to swap that
@@ -1634,16 +1210,14 @@ void WebContents::RendererGone(RenderViewHost* render_view_host) {
   HungRendererWarning::HideForWebContents(this);
 }
 
-void WebContents::DidNavigate(RenderViewHost* render_view_host,
+void WebContents::DidNavigate(RenderViewHost* rvh,
                               const ViewHostMsg_FrameNavigate_Params& params) {
   if (PageTransition::IsMainFrame(params.transition))
-    UpdateRendererStateDidNavigate(render_view_host);
+    render_manager_.DidNavigateMainFrame(rvh);
 
   // In the case of interstitial, we don't mess with the navigation entries.
-  if (IsShowingInterstitialPage()) {
-    DCHECK(renderer_state_ != LEAVING_INTERSTITIAL);
+  if (render_manager_.showing_interstitial_page())
     return;
-  }
 
   // Check for navigations we don't expect.
   if (!controller() || !is_active_ || params.page_id == -1) {
@@ -1653,7 +1227,7 @@ void WebContents::DidNavigate(RenderViewHost* render_view_host,
              "invalid |page_id| if, and only if, this is the initial blank "
              "page for a main frame.";
     }
-    BroadcastProvisionalLoadCommit(render_view_host, params);
+    BroadcastProvisionalLoadCommit(rvh, params);
     return;
   }
 
@@ -1688,7 +1262,7 @@ void WebContents::DidNavigate(RenderViewHost* render_view_host,
   // Run post-commit tasks.
   if (PageTransition::IsMainFrame(params.transition))
     DidNavigateMainFramePostCommit(params);
-  DidNavigateAnyFramePostCommit(render_view_host, params);
+  DidNavigateAnyFramePostCommit(rvh, params);
 }
 
 NavigationEntry* WebContents::CreateNavigationEntryForCommit(
@@ -1710,7 +1284,12 @@ NavigationEntry* WebContents::CreateNavigationEntryForCommit(
   // Update the site of the SiteInstance if it doesn't have one yet, unless we
   // are showing an interstitial page.  If we are, we should wait until the
   // real page commits.
-  if (!site_instance()->has_site() && renderer_state_ != INTERSTITIAL)
+  //
+  // TODO(brettw) the old code only checked for INTERSTIAL, this new code also
+  // checks for LEAVING_INTERSTITIAL mode in the manager. Is this difference
+  // important?
+  if (!site_instance()->has_site() &&
+      !render_manager_.showing_interstitial_page())
     site_instance()->SetSite(params.url);
 
   // When the navigation is just a change in ref or a sub-frame navigation, the
@@ -1973,117 +1552,8 @@ void WebContents::HandleProfilingForDidNavigate(
                                    params.page_id);
 
     profiler->AddFrameMetrics(process()->host_id(),
-                              render_view_host_->routing_id(), frame);
-  }
-}
-
-void WebContents::UpdateRendererStateDidNavigate(
-    RenderViewHost* render_view_host) {
-  if (renderer_state_ == NORMAL) {
-    // We should only hear this from our current renderer.
-    DCHECK(render_view_host == render_view_host_);
-    return;
-  } else if (renderer_state_ == PENDING) {
-    if (render_view_host == pending_render_view_host_) {
-      // The pending cross-site navigation completed, so show the renderer.
-      SwapToRenderView(&pending_render_view_host_, true);
-      renderer_state_ = NORMAL;
-    } else if (render_view_host == render_view_host_) {
-      // A navigation in the original page has taken place.  Cancel the pending
-      // one.
-      CancelRenderView(&pending_render_view_host_);
-      renderer_state_ = NORMAL;
-    } else {
-      // No one else should be sending us DidNavigate in this state.
-      DCHECK(false);
-      return;
-    }
-
-  } else if (renderer_state_ == ENTERING_INTERSTITIAL) {
-    if (render_view_host == interstitial_render_view_host_) {
-      // The interstitial renderer is ready, so show it, and keep the old
-      // RenderViewHost around.
-      original_render_view_host_ = render_view_host_;
-      SwapToRenderView(&interstitial_render_view_host_, false);
-      renderer_state_ = INTERSTITIAL;
-    } else if (render_view_host == render_view_host_) {
-      // We shouldn't get here, because the original render view was the one
-      // that caused the ShowInterstitial.
-      // However, until we intercept navigation events from JavaScript, it is
-      // possible to get here, if another tab tells render_view_host_ to
-      // navigate.  To be safe, we'll cancel the interstitial and show the
-      // page that caused the DidNavigate.
-      CancelRenderView(&interstitial_render_view_host_);
-      if (pending_render_view_host_)
-        CancelRenderView(&pending_render_view_host_);
-      renderer_state_ = NORMAL;
-    } else if (render_view_host == pending_render_view_host_) {
-      // We shouldn't get here, because the original render view was the one
-      // that caused the ShowInterstitial.
-      // However, until we intercept navigation events from JavaScript, it is
-      // possible to get here, if another tab tells pending_render_view_host_
-      // to navigate.  To be safe, we'll cancel the interstitial and show the
-      // page that caused the DidNavigate.
-      CancelRenderView(&interstitial_render_view_host_);
-      SwapToRenderView(&pending_render_view_host_, true);
-      renderer_state_ = NORMAL;
-    } else {
-      // No one else should be sending us DidNavigate in this state.
-      DCHECK(false);
-      return;
-    }
-
-  } else if (renderer_state_ == INTERSTITIAL) {
-    if (render_view_host == original_render_view_host_) {
-      // We shouldn't get here, because the original render view was the one
-      // that caused the ShowInterstitial.
-      // However, until we intercept navigation events from JavaScript, it is
-      // possible to get here, if another tab tells render_view_host_ to
-      // navigate.  To be safe, we'll cancel the interstitial and show the
-      // page that caused the DidNavigate.
-      SwapToRenderView(&original_render_view_host_, true);
-      if (pending_render_view_host_)
-        CancelRenderView(&pending_render_view_host_);
-      renderer_state_ = NORMAL;
-    } else if (render_view_host == pending_render_view_host_) {
-      // No one else should be sending us DidNavigate in this state.
-      // However, until we intercept navigation events from JavaScript, it is
-      // possible to get here, if another tab tells pending_render_view_host_
-      // to navigate.  To be safe, we'll cancel the interstitial and show the
-      // page that caused the DidNavigate.
-      SwapToRenderView(&pending_render_view_host_, true);
-      CancelRenderView(&original_render_view_host_);
-      renderer_state_ = NORMAL;
-    } else {
-      // No one else should be sending us DidNavigate in this state.
-      DCHECK(false);
-      return;
-    }
-    InterstitialPageGone();
-
-  } else if (renderer_state_ == LEAVING_INTERSTITIAL) {
-    if (render_view_host == original_render_view_host_) {
-      // We navigated to something in the original renderer, so show it.
-      if (pending_render_view_host_)
-        CancelRenderView(&pending_render_view_host_);
-      SwapToRenderView(&original_render_view_host_, true);
-      renderer_state_ = NORMAL;
-    } else if (render_view_host == pending_render_view_host_) {
-      // We navigated to something in the pending renderer.
-      CancelRenderView(&original_render_view_host_);
-      SwapToRenderView(&pending_render_view_host_, true);
-      renderer_state_ = NORMAL;
-    } else {
-      // No one else should be sending us DidNavigate in this state.
-      DCHECK(false);
-      return;
-    }
-    InterstitialPageGone();
-
-  } else {
-    // No such state.
-    DCHECK(false);
-    return;
+                              render_view_host()->routing_id(),
+                              frame);
   }
 }
 
@@ -2092,7 +1562,7 @@ void WebContents::BroadcastProvisionalLoadCommit(
     const ViewHostMsg_FrameNavigate_Params& params) {
   ProvisionalLoadDetails details(
       PageTransition::IsMainFrame(params.transition),
-      IsInterstitialRenderViewHost(render_view_host),
+      render_manager_.IsRenderViewInterstitial(render_view_host),
       IsInPageNavigation(params.url),
       params.url, params.security_info);
   NotificationService::current()->
@@ -2119,51 +1589,6 @@ void WebContents::UpdateWebPreferences() {
   render_view_host()->UpdateWebPreferences(GetWebkitPrefs());
 }
 
-void WebContents::SwapToRenderView(RenderViewHost** new_render_view_host,
-                                   bool destroy_after) {
-  // Remember if the page was focused so we can focus the new renderer in
-  // that case.
-  bool focus_render_view = render_view_host_->view() &&
-      render_view_host_->view()->HasFocus();
-
-  // Hide the current view and prepare to destroy it.
-  // TODO(creis): Get the old RenderViewHost to send us an UpdateState message
-  // before we destroy it.
-  if (render_view_host_->view())
-    render_view_host_->view()->Hide();
-  RenderViewHost* old_render_view_host = render_view_host_;
-
-  // Swap in the pending view and make it active.
-  render_view_host_ = (*new_render_view_host);
-  (*new_render_view_host) = NULL;
-
-  // If the view is gone, then this RenderViewHost died while it was hidden.
-  // We ignored the RendererGone call at the time, so we should send it now
-  // to make sure the sad tab shows up, etc.
-  if (render_view_host_->view())
-    render_view_host_->view()->Show();
-  else
-    RendererGone(render_view_host_);
-
-  // Make sure the size is up to date.  (Fix for bug 1079768.)
-  UpdateRenderViewSize();
-
-  if (focus_render_view && render_view_host_->view())
-    render_view_host_->view()->Focus();
-
-  NotificationService::current()->Notify(
-      NOTIFY_RENDER_VIEW_HOST_CHANGED,
-      Source<WebContents>(this),
-      Details<RenderViewHost>(old_render_view_host));
-
-  if (destroy_after)
-    old_render_view_host->Shutdown();
-
-  // Let the task manager know that we've swapped RenderViewHosts, since it
-  // might need to update its process groupings.
-  NotifySwapped();
-}
-
 void WebContents::UpdateRenderViewSize() {
   // Using same technique as OnPaint, which sets size of SadTab.
   CRect cr;
@@ -2172,12 +1597,13 @@ void WebContents::UpdateRenderViewSize() {
   SizeContents(new_size);
 }
 
-void WebContents::UpdateState(RenderViewHost* render_view_host,
+void WebContents::UpdateState(RenderViewHost* rvh,
                               int32 page_id,
                               const GURL& url,
                               const std::wstring& title,
                               const std::string& state) {
-  if (render_view_host != render_view_host_ || IsShowingInterstitialPage()) {
+  if (rvh != render_view_host() ||
+      render_manager_.showing_interstitial_page()) {
     // This UpdateState is either:
     // - targeted not at the current RenderViewHost.  This could be that we are
     // showing the interstitial page and getting an update for the regular page,
@@ -2234,7 +1660,7 @@ void WebContents::UpdateState(RenderViewHost* render_view_host,
   if (GetHWND()) {
     // It's possible to get this after the hwnd has been destroyed.
     ::SetWindowText(GetHWND(), title.c_str());
-    ::SetWindowText(render_view_host_->view()->GetPluginHWND(), title.c_str());
+    ::SetWindowText(view()->GetPluginHWND(), title.c_str());
   }
 
   // Update the state (forms, etc.).
@@ -2249,7 +1675,7 @@ void WebContents::UpdateState(RenderViewHost* render_view_host,
   controller()->SyncSessionWithEntryByPageID(type(), site_instance(), page_id);
 }
 
-void WebContents::UpdateTitle(RenderViewHost* render_view_host,
+void WebContents::UpdateTitle(RenderViewHost* rvh,
                               int32 page_id, const std::wstring& title) {
   if (!controller())
     return;
@@ -2259,7 +1685,8 @@ void WebContents::UpdateTitle(RenderViewHost* render_view_host,
   response_started_ = false;
 
   NavigationEntry* entry;
-  if (IsShowingInterstitialPage() && (render_view_host == render_view_host_)) {
+  if (render_manager_.showing_interstitial_page() &&
+      (rvh == render_view_host())) {
     // We are showing an interstitial page in a different RenderViewHost, so
     // the page_id is not sufficient to find the entry from the controller.
     // (both RenderViewHost page_ids overlap).  We know it is the last entry,
@@ -2316,9 +1743,9 @@ void WebContents::UpdateThumbnail(const GURL& url,
   }
 }
 
-void WebContents::Close(RenderViewHost* render_view_host) {
+void WebContents::Close(RenderViewHost* rvh) {
   // Ignore this if it comes from a RenderViewHost that we aren't showing.
-  if (delegate() && render_view_host == render_view_host_)
+  if (delegate() && rvh == render_view_host())
     delegate()->CloseContents(this);
 }
 
@@ -2339,7 +1766,7 @@ void WebContents::DidStopLoading(RenderViewHost* rvh, int32 page_id) {
     NavigationProfiler* profiler = GetNavigationProfiler();
 
     profiler->SetLoadingEndTime(process()->host_id(),
-                                render_view_host_->routing_id(), page_id,
+                                render_view_host()->routing_id(), page_id,
                                 current_time);
     SaveCurrentProfilingEntry();
   }
@@ -2380,10 +1807,11 @@ void WebContents::DidStartProvisionalLoadForFrame(
     RenderViewHost* render_view_host,
     bool is_main_frame,
     const GURL& url) {
-  ProvisionalLoadDetails details(is_main_frame,
-                                 IsInterstitialRenderViewHost(render_view_host),
-                                 IsInPageNavigation(url),
-                                 url, std::string());
+  ProvisionalLoadDetails details(
+      is_main_frame,
+      render_manager_.IsRenderViewInterstitial(render_view_host),
+      IsInPageNavigation(url),
+      url, std::string());
   NotificationService::current()->
       Notify(NOTIFY_FRAME_PROVISIONAL_LOAD_START,
              Source<NavigationController>(controller()),
@@ -2431,78 +1859,27 @@ void WebContents::DidFailProvisionalLoadWithError(
   if (!controller())
     return;
 
-  // This will discard our pending entry if we cancelled the load (e.g., if we
-  // decided to download the file instead of load it). Only discard the pending
-  // entry if the URLs match, otherwise the user initiated a navigate before
-  // the page loaded so that the discard would discard the wrong entry.
   if (net::ERR_ABORTED == error_code) {
+    // This will discard our pending entry if we cancelled the load (e.g., if we
+    // decided to download the file instead of load it). Only discard the
+    // pending entry if the URLs match, otherwise the user initiated a navigate
+    // before the page loaded so that the discard would discard the wrong entry.
     NavigationEntry* pending_entry = controller()->GetPendingEntry();
     if (pending_entry && pending_entry->GetURL() == url)
       controller()->DiscardPendingEntry();
-    // We used to cancel the pending renderer here for cross-site downloads.
-    // However, it's not safe to do that because the download logic repeatedly
-    // looks for this TabContents based on a render view ID.  Instead, we just
-    // leave the pending renderer around until the next navigation event
-    // (Navigate, DidNavigate, etc), which will clean it up properly.
-    // TODO(creis): All of this will go away when we move the cross-site logic
-    // to ResourceDispatcherHost, so that we intercept responses rather than
-    // navigation events.  (That's necessary to support onunload anyway.)  Once
-    // we've made that change, we won't create a pending renderer until we know
-    // the response is not a download.
 
-    if (renderer_state_ == ENTERING_INTERSTITIAL) {
-      if ((pending_render_view_host_ &&
-           (pending_render_view_host_ == render_view_host)) ||
-          (!pending_render_view_host_ &&
-           (render_view_host_ == render_view_host))) {
-        // The abort came from the RenderViewHost that triggered the
-        // interstitial.  (e.g., User clicked stop after ShowInterstitial but
-        // before the interstitial was visible.)  We should go back to NORMAL.
-        // Note that this is an uncommon case, because we are only in the
-        // ENTERING_INTERSTITIAL state in the small time window while the
-        // interstitial's RenderViewHost is being created.
-        if (pending_render_view_host_)
-          CancelRenderView(&pending_render_view_host_);
-        CancelRenderView(&interstitial_render_view_host_);
-        renderer_state_ = NORMAL;
-      }
-
-      // We can get here, at least in the following case.
-      // We show an interstitial, then navigate to a URL that leads to another
-      // interstitial.  Now there's a race.  The new interstitial will be
-      // created and we will go to ENTERING_INTERSTITIAL, but the old one will
-      // meanwhile destroy itself and fire DidFailProvisionalLoad.  That puts
-      // us here.  Should be safe to ignore the DidFailProvisionalLoad, from
-      // the perspective of the renderer state.
-    } else if (renderer_state_ == LEAVING_INTERSTITIAL) {
-      // If we've left the interstitial by seeing a download (or otherwise
-      // aborting a load), we should get back to the original page, because
-      // interstitial page doesn't make sense anymore.  (For example, we may
-      // have clicked Proceed on a download URL.)
-
-      // TODO(creis):  This causes problems in the old process model when
-      // visiting a new URL from an interstitial page.
-      // This is because we receive a DidFailProvisionalLoad from cancelling
-      // the first request, which is indistinguishable from a
-      // DidFailProvisionalLoad from the second request (if it is a download).
-      // We need to find a way to distinguish these cases, because it doesn't
-      // make sense to keep showing the interstitial after a download.
-      // if (pending_render_view_host_)
-      //   CancelRenderView(&pending_render_view_host_);
-      // SwapToRenderView(&original_render_view_host_, true);
-      // renderer_state_ = NORMAL;
-      // InterstitialPageGone();
-    }
+    render_manager_.RendererAbortedProvisionalLoad(render_view_host);
   }
 
   // Send out a notification that we failed a provisional load with an error.
-  ProvisionalLoadDetails details(is_main_frame,
-                                 IsInterstitialRenderViewHost(render_view_host),
-                                 IsInPageNavigation(url),
-                                 url, std::string());
+  ProvisionalLoadDetails details(
+      is_main_frame,
+      render_manager_.IsRenderViewInterstitial(render_view_host),
+      IsInPageNavigation(url),
+      url, std::string());
   details.set_error_code(error_code);
 
-  showing_repost_interstitial_ = showing_repost_interstitial;
+  render_manager_.set_showing_repost_interstitial(showing_repost_interstitial);
 
   NotificationService::current()->
       Notify(NOTIFY_FAIL_PROVISIONAL_LOAD_WITH_ERROR,
@@ -2590,7 +1967,7 @@ void WebContents::StartDragging(const WebDropData& drop_data) {
     data->SetString(drop_data.plain_text);
 
   scoped_refptr<WebDragSource> drag_source(
-      new WebDragSource(GetHWND(), render_view_host_));
+      new WebDragSource(GetHWND(), render_view_host()));
 
   DWORD effects;
 
@@ -2601,7 +1978,8 @@ void WebContents::StartDragging(const WebDropData& drop_data) {
   DoDragDrop(data, drag_source, DROPEFFECT_COPY | DROPEFFECT_LINK, &effects);
   MessageLoop::current()->SetNestableTasksAllowed(old_state);
 
-  render_view_host_->DragSourceSystemDragEnded();
+  if (render_view_host())
+    render_view_host()->DragSourceSystemDragEnded();
 }
 
 void WebContents::UpdateDragCursor(bool is_drop_target) {
@@ -2969,11 +2347,17 @@ void WebContents::UpdateMaxPageIDIfNecessary(SiteInstance* site_instance,
   }
 }
 
-HWND WebContents::GetContentHWND() {
-  if (!render_view_host_ || !render_view_host_->view())
-    return NULL;
+void WebContents::BeforeUnloadFiredFromRenderManager(
+    bool proceed, 
+    bool* proceed_to_fire_unload) {
+  delegate()->BeforeUnloadFired(this, proceed, proceed_to_fire_unload);
+}
 
-  return render_view_host_->view()->GetPluginHWND();
+
+HWND WebContents::GetContentHWND() {
+  if (!view())
+    return NULL;
+  return view()->GetPluginHWND();
 }
 
 bool WebContents::CanDisplayFile(const std::wstring& full_path) {
@@ -2989,7 +2373,7 @@ bool WebContents::CanDisplayFile(const std::wstring& full_path) {
 
 void WebContents::PrintPreview() {
   // We can't print interstitial page for now.
-  if (IsShowingInterstitialPage())
+  if (render_manager_.showing_interstitial_page())
     return;
 
   // If we have a FindInPage dialog, notify it that its tab was hidden.
@@ -3002,7 +2386,7 @@ void WebContents::PrintPreview() {
 
 bool WebContents::PrintNow() {
   // We can't print interstitial page for now.
-  if (IsShowingInterstitialPage())
+  if (render_manager_.showing_interstitial_page())
     return false;
 
   // If we have a FindInPage dialog, notify it that its tab was hidden.
@@ -3021,19 +2405,19 @@ void WebContents::DidCaptureContents() {
 }
 
 void WebContents::Cut() {
-  render_view_host_->Cut();
+  render_view_host()->Cut();
 }
 
 void WebContents::Copy() {
-  render_view_host_->Copy();
+  render_view_host()->Copy();
 }
 
 void WebContents::Paste() {
-  render_view_host_->Paste();
+   render_view_host()->Paste();
 }
 
 void WebContents::SetInitialFocus(bool reverse) {
-  render_view_host_->SetInitialFocus(reverse);
+   render_view_host()->SetInitialFocus(reverse);
 }
 
 void WebContents::GenerateKeywordIfNecessary(
@@ -3148,21 +2532,8 @@ void WebContents::HandleKeyboardEvent(const WebKeyboardEvent& event) {
                 event.actual_message.lParam);
 }
 
-RenderViewHost* WebContents::CreateRenderViewHost(
-    SiteInstance* instance,
-    RenderViewHostDelegate* delegate,
-    int routing_id,
-    HANDLE modal_dialog_event) {
-  if (render_view_factory_) {
-    return render_view_factory_->CreateRenderViewHost(
-        instance, delegate, routing_id, modal_dialog_event);
-  } else {
-    return new RenderViewHost(instance, delegate, routing_id,
-                              modal_dialog_event);
-  }
-}
-
-bool WebContents::CreateRenderView(RenderViewHost* render_view_host) {
+bool WebContents::CreateRenderViewForRenderManager(
+    RenderViewHost* render_view_host) {
   RenderWidgetHostHWND* view = CreatePageView(render_view_host);
 
   bool ok = render_view_host->CreateRenderView();
@@ -3199,238 +2570,24 @@ void WebContents::SetIsLoading(bool is_loading,
                                LoadNotificationDetails* details) {
   if (!is_loading) {
     load_state_ = net::LOAD_STATE_IDLE;
-    load_state_host_ = std::wstring();
+    load_state_host_.clear();
   }
 
   TabContents::SetIsLoading(is_loading, details);
-  // We don't know which render_view_host this is for, so let's tell them all
-  render_view_host_->SetIsLoading(is_loading);
-  if (pending_render_view_host_)
-    pending_render_view_host_->SetIsLoading(is_loading);
-  if (original_render_view_host_)
-    original_render_view_host_->SetIsLoading(is_loading);
+  render_manager_.SetIsLoading(is_loading);
 }
 
 void WebContents::FileSelected(const std::wstring& path, void* params) {
-  render_view_host_->FileSelected(path);
+  render_view_host()->FileSelected(path);
 }
 
 void WebContents::FileSelectionCanceled(void* params) {
   // If the user cancels choosing a file to upload we need to pass back the
   // empty string.
-  render_view_host_->FileSelected(L"");
+   render_view_host()->FileSelected(std::wstring());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-bool WebContents::IsShowingInterstitialPage() const {
-  return (renderer_state_ == INTERSTITIAL) ||
-      (renderer_state_ == LEAVING_INTERSTITIAL);
-}
-
-void WebContents::ShowInterstitialPage(const std::string& html_text,
-                                       InterstitialPageDelegate* delegate) {
-  // Note that it is important that the interstitial page render view host is
-  // in the same process as the normal render view host for the tab, so they
-  // use page ids from the same pool.  If they came from different processes,
-  // page ids may collide causing confusion in the controller (existing
-  // navigation entries in the controller history could get overridden with the
-  // interstitial entry).
-  SiteInstance* interstitial_instance = NULL;
-
-  if (renderer_state_ == NORMAL) {
-    // render_view_host_ will not be deleted before the end of this method, so
-    // we don't have to worry about this SiteInstance's ref count dropping to
-    // zero.
-    interstitial_instance = render_view_host_->site_instance();
-
-  } else if (renderer_state_ == PENDING) {
-    // pending_render_view_host_ will not be deleted before the end of this
-    // method (when we are in this state), so we don't have to worry about this
-    // SiteInstance's ref count dropping to zero.
-    interstitial_instance = pending_render_view_host_->site_instance();
-
-  } else if (renderer_state_ == ENTERING_INTERSTITIAL) {
-    // We should never get here if we're in the process of showing an
-    // interstitial.
-    // However, until we intercept navigation events from JavaScript, it is
-    // possible to get here, if another tab tells render_view_host_ to
-    // navigate to a URL that causes an interstitial.  To be safe, we'll cancel
-    // the first interstitial.
-    CancelRenderView(&interstitial_render_view_host_);
-    renderer_state_ = NORMAL;
-
-    // We'd like to now show the new interstitial, but if there's a
-    // pending_render_view_host_, we can't tell if this JavaScript navigation
-    // occurred in the original or the pending renderer.  That means we won't
-    // know where to proceed, so we can't show the interstitial.  This is
-    // really just meant to avoid a crash until we can intercept JavaScript
-    // navigation events, so for now we'll kill the interstitial and go back
-    // to the last known good page.
-    if (pending_render_view_host_) {
-      CancelRenderView(&pending_render_view_host_);
-      return;
-    }
-    // Should be safe to show the interstitial for the new page.
-    // render_view_host_ will not be deleted before the end of this method, so
-    // we don't have to worry about this SiteInstance's ref count dropping to
-    // zero.
-    interstitial_instance = render_view_host_->site_instance();
-
-  } else if (renderer_state_ == INTERSTITIAL) {
-    // We should never get here if we're already showing an interstitial.
-    // However, until we intercept navigation events from JavaScript, it is
-    // possible to get here, if another tab tells render_view_host_ to
-    // navigate to a URL that causes an interstitial.  To be safe, we'll go
-    // back to normal first.
-    if (pending_render_view_host_ != NULL) {
-      // There was a pending RVH.  We don't know which RVH caused this call
-      // to ShowInterstitial, so we can't really proceed.  We'll have to stay
-      // in the NORMAL state, showing the last good page.  This is only a
-      // temporary fix anyway, to stave off a crash.
-      HideInterstitialPage(false, false);
-      return;
-    }
-    // Should be safe to show the interstitial for the new page.
-    // render_view_host_ will not be deleted before the end of this method, so
-    // we don't have to worry about this SiteInstance's ref count dropping to
-    // zero.
-    SwapToRenderView(&original_render_view_host_, true);
-    interstitial_instance = render_view_host_->site_instance();
-
-  } else if (renderer_state_ == LEAVING_INTERSTITIAL) {
-    SwapToRenderView(&original_render_view_host_, true);
-    interstitial_instance = NULL;
-    if (pending_render_view_host_) {
-      // We're now effectively in PENDING.
-      // pending_render_view_host_ will not be deleted before the end of this
-      // method, so we don't have to worry about this SiteInstance's ref count
-      // dropping to zero.
-      interstitial_instance = pending_render_view_host_->site_instance();
-    } else {
-      // We're now effectively in NORMAL.
-      // render_view_host_ will not be deleted before the end of this method,
-      // so we don't have to worry about this SiteInstance's ref count dropping
-      // to zero.
-      interstitial_instance = render_view_host_->site_instance();
-    }
-
-  } else {
-    // No such state.
-    DCHECK(false);
-    return;
-  }
-
-  // Create a pending renderer and move to ENTERING_INTERSTITIAL.
-  interstitial_render_view_host_ =
-      CreateRenderViewHost(interstitial_instance, this, MSG_ROUTING_NONE, NULL);
-  interstitial_delegate_ = delegate;
-  bool success = CreateRenderView(interstitial_render_view_host_);
-  if (!success) {
-    // TODO(creis): If this fails, should we load the interstitial in
-    // render_view_host_?  We shouldn't just skip the interstitial...
-    CancelRenderView(&interstitial_render_view_host_);
-    return;
-  }
-
-  // Don't show the view yet.
-  interstitial_render_view_host_->view()->Hide();
-
-  renderer_state_ = ENTERING_INTERSTITIAL;
-
-  // We allow the DOM bindings as a way to get the page to talk back to us.
-  interstitial_render_view_host_->AllowDomAutomationBindings();
-
-  interstitial_render_view_host_->LoadAlternateHTMLString(html_text, false,
-                                                          GURL::EmptyGURL(),
-                                                          std::string());
-}
-
-void WebContents::HideInterstitialPage(bool wait_for_navigation,
-                                       bool proceed) {
-  if (renderer_state_ == NORMAL || renderer_state_ == PENDING) {
-    // Shouldn't get here, since there's no interstitial showing.
-    DCHECK(false);
-    return;
-
-  } else if (renderer_state_ == ENTERING_INTERSTITIAL) {
-    // Unclear if it is possible to get here.  (Can you hide the interstitial
-    // before it is shown?)  If so, we should go back to NORMAL.
-    CancelRenderView(&interstitial_render_view_host_);
-    if (pending_render_view_host_)
-      CancelRenderView(&pending_render_view_host_);
-    renderer_state_ = NORMAL;
-    return;
-  }
-
-  DCHECK(IsShowingInterstitialPage());
-  DCHECK(render_view_host_ && original_render_view_host_ &&
-         !interstitial_render_view_host_);
-
-  if (renderer_state_ == INTERSTITIAL) {
-    // Disable the Proceed button on the interstitial, because the destination
-    // renderer might get replaced.
-    DisableInterstitialProceed(false);
-
-  } else if (renderer_state_ == LEAVING_INTERSTITIAL) {
-    // We have already given up the ability to proceed by starting a new
-    // navigation.  If this is a request to proceed, we must ignore it.
-    // (Hopefully we will have disabled the Proceed button by now, but it's
-    // possible to get here before that happens.)
-    if (proceed)
-      return;
-  }
-
-  if (wait_for_navigation) {
-    // We are resuming the loading.  We need to set the state to loading again
-    // as it was set to false when the interstitial stopped loading (so the
-    // throbber runs).
-    DidStartLoading(render_view_host_, NULL);
-  }
-
-  if (proceed) {
-    // Now we will resume loading automatically, either in
-    // original_render_view_host_ or in pending_render_view_host_.  When it
-    // completes, we will display the renderer in DidNavigate.
-    renderer_state_ = LEAVING_INTERSTITIAL;
-
-  } else {
-    // Don't proceed.  Go back to the previously showing page.
-    if (renderer_state_ == LEAVING_INTERSTITIAL) {
-      // We said DontProceed after starting to leave the interstitial.
-      // Abandon whatever we were in the process of doing.
-      original_render_view_host_->Stop();
-    }
-    SwapToRenderView(&original_render_view_host_, true);
-    if (pending_render_view_host_)
-      CancelRenderView(&pending_render_view_host_);
-    renderer_state_ = NORMAL;
-    InterstitialPageGone();
-  }
-}
-
-void WebContents::InterstitialPageGone() {
-  DCHECK(!IsShowingInterstitialPage());
-
-  NotificationService::current()->Notify(
-      NOTIFY_INTERSTITIAL_PAGE_CLOSED,
-      Source<WebContents>(this), NotificationService::NoDetails());
-  if (interstitial_delegate_) {
-    interstitial_delegate_->InterstitialClosed();
-    interstitial_delegate_ = NULL;
-  }
-}
-
-bool WebContents::IsInterstitialRenderViewHost(
-    RenderViewHost* render_view_host) const {
-  if (IsShowingInterstitialPage()) {
-    return render_view_host_ == render_view_host;
-  }
-  if (renderer_state_ == ENTERING_INTERSTITIAL) {
-    return interstitial_render_view_host_ == render_view_host;
-  }
-  return false;
-}
 
 bool WebContents::IsInPageNavigation(const GURL& url) const {
   // We compare to the last committed entry and not the active entry as the
@@ -3484,7 +2641,8 @@ void WebContents::InstallMissingPlugin() {
 
 void WebContents::GetAllSavableResourceLinksForCurrentPage(
     const GURL& page_url) {
-  render_view_host_->GetAllSavableResourceLinksForCurrentPage(page_url);
+  render_view_host()->GetAllSavableResourceLinksForCurrentPage(
+      page_url);
 }
 
 void WebContents::OnReceivedSavableResourceLinksForCurrentPage(
@@ -3492,10 +2650,11 @@ void WebContents::OnReceivedSavableResourceLinksForCurrentPage(
     const std::vector<GURL>& referrers_list,
     const std::vector<GURL>& frames_list) {
   SavePackage* save_package = get_save_package();
-  if (save_package)
+  if (save_package) {
     save_package->ProcessCurrentPageAllSavableResourceLinks(resources_list,
                                                             referrers_list,
                                                             frames_list);
+  }
 }
 
 void WebContents::GetSerializedHtmlDataForCurrentPageWithLocalLinks(
@@ -3521,8 +2680,8 @@ bool WebContents::CanBlur() const {
   return delegate() ? delegate()->CanBlur() : true;
 }
 
-void WebContents::RendererUnresponsive(RenderViewHost* render_view_host) {
-  if (render_view_host_ && render_view_host_->IsRenderViewLive())
+void WebContents::RendererUnresponsive(RenderViewHost* rvh) {
+  if (render_view_host() && render_view_host()->IsRenderViewLive())
     HungRendererWarning::ShowForWebContents(this);
 }
 
@@ -3533,7 +2692,7 @@ void WebContents::RendererResponsive(RenderViewHost* render_view_host) {
 void WebContents::LoadStateChanged(const GURL& url,
                                    net::LoadState load_state) {
   load_state_ = load_state;
-  load_state_host_ = UTF8ToWide(url.host().c_str());
+  load_state_host_ = UTF8ToWide(url.host());
   if (load_state_ == net::LOAD_STATE_READING_RESPONSE)
     response_started_ = false;
   if (is_loading())

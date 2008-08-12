@@ -37,6 +37,7 @@
 #include "chrome/browser/fav_icon_helper.h"
 #include "chrome/browser/printing/print_view_manager.h"
 #include "chrome/browser/render_view_host_delegate.h"
+#include "chrome/browser/render_view_host_manager.h"
 #include "chrome/browser/save_package.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/tab_contents.h"
@@ -58,6 +59,7 @@ class WebDropTarget;
 
 class WebContents : public TabContents,
                     public RenderViewHostDelegate,
+                    public RenderViewHostManager::Delegate,
                     public ChromeViews::HWNDViewContainer,
                     public SelectFileDialog::Listener,
                     public WebApp::Observer {
@@ -118,6 +120,14 @@ class WebContents : public TabContents,
 
   // Return true if the WebContents is doing performance profiling
   bool is_profiling() const { return is_profiling_; }
+
+  // Various other systems need to know about our interstitials.
+  bool showing_interstitial_page() const {
+    return render_manager_.showing_interstitial_page();
+  }
+  bool showing_repost_interstitial() const {
+    return render_manager_.showing_repost_interstitial();
+  }
 
   // Check with the global navigation profiler on whether to enable
   // profiling. Return true if profiling needs to be enabled, return
@@ -254,9 +264,18 @@ class WebContents : public TabContents,
   // should be aware that the SiteInstance could be deleted if its ref count
   // drops to zero (i.e., if all RenderViewHosts and NavigationEntries that
   // use it are deleted).
-  RenderProcessHost* process() const;
-  RenderViewHost* render_view_host() const;
-  SiteInstance* site_instance() const;
+  RenderProcessHost* process() const {
+    return render_manager_.current_host()->process();
+  }
+  RenderViewHost* render_view_host() const {
+    return render_manager_.current_host();
+  }
+  SiteInstance* site_instance() const {
+    return render_manager_.current_host()->site_instance();
+  }
+  RenderWidgetHostView* view() const {
+    return render_manager_.current_view();
+  }
 
   // Overridden from TabContents to return the window of the
   // RenderWidgetHostView.
@@ -284,15 +303,23 @@ class WebContents : public TabContents,
   virtual void Copy();
   virtual void Paste();
 
-  // Returns whether we are currently showing an interstitial page.
-  bool IsShowingInterstitialPage() const;
+  // The rest of the system wants to interact with the delegate our render view
+  // host manager has. See those setters for more.
+  InterstitialPageDelegate* interstitial_page_delegate() const {
+    return render_manager_.interstitial_delegate();
+  }
+  void set_interstitial_delegate(InterstitialPageDelegate* delegate) {
+    render_manager_.set_interstitial_delegate(delegate);
+  }
 
   // Displays the specified html in the current page. This method can be used to
   // show temporary pages (such as security error pages).  It can be hidden by
   // calling HideInterstitialPage, in which case the original page is restored.
   // An optional delegate may be passed, it is not owned by the WebContents.
   void ShowInterstitialPage(const std::string& html_text,
-                            InterstitialPageDelegate* delegate);
+                            InterstitialPageDelegate* delegate) {
+    render_manager_.ShowInterstitialPage(html_text, delegate);
+  }
 
   // Reverts from the interstitial page to the original page.
   // If |wait_for_navigation| is true, the interstitial page is removed when
@@ -301,55 +328,21 @@ class WebContents : public TabContents,
   // Hiding the interstitial page right away would show the previous displayed
   // page.  If |proceed| is true, the WebContents will expect the navigation
   // to complete.  If not, it will revert to the last shown page.
-  void HideInterstitialPage(bool wait_for_navigation, bool proceed);
+  void HideInterstitialPage(bool wait_for_navigation, bool proceed) {
+    render_manager_.HideInterstitialPage(wait_for_navigation, proceed);
+  }
 
   // Allows the WebContents to react when a cross-site response is ready to be
   // delivered to a pending RenderViewHost.  We must first run the onunload
   // handler of the old RenderViewHost before we can allow it to proceed.
   void OnCrossSiteResponse(int new_render_process_host_id,
-                           int new_request_id);
+                           int new_request_id) {
+    render_manager_.OnCrossSiteResponse(new_render_process_host_id,
+                                        new_request_id);
+  }
 
   // Returns true if the active NavigationEntry's page_id equals page_id.
   bool IsActiveEntry(int32 page_id);
-
-  // RenderViewHost states.  These states represent whether a cross-site
-  // request is pending (in the new process model) and whether an interstitial
-  // page is being shown.  These are public to give easy access to unit tests.
-  enum RendererState {
-    // NORMAL: just showing a page normally.
-    // render_view_host_ is showing a page.
-    // pending_render_view_host_ is NULL.
-    // original_render_view_host_ is NULL.
-    // interstitial_render_view_host_ is NULL.
-    NORMAL = 0,
-    // PENDING: creating a new RenderViewHost for a cross-site navigation.
-    // Never used when --process-per-tab is specified.
-    // render_view_host_ is showing a page.
-    // pending_render_view_host_ is loading a page in the background.
-    // original_render_view_host_ is NULL.
-    // interstitial_render_view_host_ is NULL.
-    PENDING,
-    // ENTERING_INTERSTITIAL: an interstitial RenderViewHost has been created.
-    // and will be shown as soon as it calls DidNavigate.
-    // render_view_host_ is showing a page.
-    // pending_render_view_host_ is either NULL or suspended in the background.
-    // original_render_view_host_ is NULL.
-    // interstitial_render_view_host_ is loading in the background.
-    ENTERING_INTERSTITIAL,
-    // INTERSTITIAL: Showing an interstitial page.
-    // render_view_host_ is showing the interstitial.
-    // pending_render_view_host_ is either NULL or suspended in the background.
-    // original_render_view_host_ is the hidden original page.
-    // interstitial_render_view_host_ is NULL.
-    INTERSTITIAL,
-    // LEAVING_INTERSTITIAL: interstitial is still showing, but we are
-    // navigating to a new page that will replace it.
-    // render_view_host_ is showing the interstitial.
-    // pending_render_view_host_ is either NULL or loading a page.
-    // original_render_view_host_ is hidden and possibly loading a page.
-    // interstitial_render_view_host_ is NULL.
-    LEAVING_INTERSTITIAL
-  };
 
   const std::string& contents_mime_type() const {
     return contents_mime_type_;
@@ -357,20 +350,6 @@ class WebContents : public TabContents,
 
   // Returns true if this WebContents will notify about disconnection.
   bool notify_disconnection() const { return notify_disconnection_; }
-
-  // Are we showing the POST interstitial page?
-  //
-  // NOTE: the POST interstitial does NOT result in a separate RenderViewHost.
-  bool showing_repost_interstitial() { return showing_repost_interstitial_; }
-
-  // Accessors to the the interstitial delegate, that is optionaly set when
-  // an interstitial page is shown.
-  InterstitialPageDelegate* interstitial_page_delegate() const {
-    return interstitial_delegate_;
-  }
-  void set_interstitial_delegate(InterstitialPageDelegate* delegate) {
-    interstitial_delegate_ = delegate;
-  }
 
  protected:
   FRIEND_TEST(WebContentsTest, OnMessageReceived);
@@ -473,7 +452,9 @@ class WebContents : public TabContents,
   virtual void OnReceivedSerializedHtmlData(const GURL& frame_url,
                                             const std::string& data,
                                             int32 status);
-  virtual void ShouldClosePage(bool proceed);
+  virtual void ShouldClosePage(bool proceed) {
+    render_manager_.ShouldClosePage(proceed);
+  }
   virtual bool CanBlur() const;
   virtual void RendererUnresponsive(RenderViewHost* render_view_host);
   virtual void RendererResponsive(RenderViewHost* render_view_host);
@@ -507,15 +488,22 @@ class WebContents : public TabContents,
   virtual void FileSelected(const std::wstring& path, void* params);
   virtual void FileSelectionCanceled(void* params);
 
-  // This method initializes the given renderer if necessary and creates the
-  // view ID corresponding to this view host. If this method is not called and
-  // the process is not shared, then the WebContents will act as though the
-  // renderer is not running (i.e., it will render "sad tab").
-  // This method is automatically called from LoadURL.
+  // Another part of RenderViewHostManager::Delegate.
+  //
+  // Initializes the given renderer if necessary and creates the view ID
+  // corresponding to this view host. If this method is not called and the
+  // process is not shared, then the WebContents will act as though the renderer
+  // is not running (i.e., it will render "sad tab"). This method is
+  // automatically called from LoadURL.
   //
   // If you are attaching to an already-existing RenderView, you should call
   // InitWithExistingID.
-  virtual bool CreateRenderView(RenderViewHost* render_view_host);
+  //
+  // TODO(brettw) clean this up! This logic seems out of place. This is called
+  // by the RenderViewHostManager, but also overridden by the DOMUIHost. Any
+  // logic that has to be here should have a more clear name.
+  virtual bool CreateRenderViewForRenderManager(
+      RenderViewHost* render_view_host);
 
  private:
   friend class TestWebContents;
@@ -536,51 +524,8 @@ class WebContents : public TabContents,
     GearsCreateShortcutCallbackFunctor* callback_functor;
   };
 
-
   bool ScrollZoom(int scroll_type);
   void WheelZoom(int distance);
-
-  // Creates a RenderViewHost using render_view_factory_ (or directly, if the
-  // factory is NULL).
-  RenderViewHost* CreateRenderViewHost(SiteInstance* instance,
-                                       RenderViewHostDelegate* delegate,
-                                       int routing_id,
-                                       HANDLE modal_dialog_event);
-
-  // Returns whether this tab should transition to a new renderer for
-  // cross-site URLs.  Enabled unless we see the --process-per-tab command line
-  // switch.  Can be overridden in unit tests.
-  virtual bool ShouldTransitionCrossSite();
-
-  // Returns an appropriate SiteInstance object for the given NavigationEntry,
-  // possibly reusing the current SiteInstance.
-  // Never called if --process-per-tab is used.
-  SiteInstance* GetSiteInstanceForEntry(const NavigationEntry& entry,
-                                        SiteInstance* curr_instance);
-
-  // Prevent the interstitial page from proceeding after we start navigating
-  // away from it.  If |stop_request| is true, abort the pending requests
-  // immediately, because we are navigating away.
-  void DisableInterstitialProceed(bool stop_request);
-
-  // Helper method to create a pending RenderViewHost for a cross-site
-  // navigation.  Used in the new process model.
-  bool CreatePendingRenderView(SiteInstance* instance);
-
-  // Replaces the currently shown render_view_host_ with the RenderViewHost in
-  // the field pointed to by |new_render_view_host|, and then NULLs the field.
-  // Callers should only pass pointers to the pending_render_view_host_,
-  // interstitial_render_view_host_, or original_render_view_host_ fields of
-  // this object.  If |destroy_after|, this method will call
-  // ScheduleDeferredDestroy on the previous render_view_host_.
-  void SwapToRenderView(RenderViewHost** new_render_view_host,
-                        bool destroy_after);
-
-  // Destroys the RenderViewHost in the field pointed to by |render_view_host|,
-  // and then NULLs the field.  Callers should only pass pointers to the
-  // pending_render_view_host_, interstitial_render_view_host_, or
-  // original_render_view_host_ fields of this object.
-  void CancelRenderView(RenderViewHost** render_view_host);
 
   // Backend for LoadURL that optionally creates a history entry. The
   // transition type will be ignored if a history entry is not created.
@@ -626,14 +571,6 @@ class WebContents : public TabContents,
   // it and contains page plugins.
   RenderWidgetHostHWND* CreatePageView(RenderViewHost* render_view_host);
 
-  // Cleans up after an interstitial page is hidden, including removing the
-  // interstitial's NavigationEntry.
-  void InterstitialPageGone();
-
-  // Convenience method that returns true if the specified RenderViewHost is
-  // this WebContents' interstitial page RenderViewHost.
-  bool IsInterstitialRenderViewHost(RenderViewHost* render_view_host) const;
-
   // Navigation helpers --------------------------------------------------------
   //
   // These functions are helpers for Navigate() and DidNavigate().
@@ -672,10 +609,6 @@ class WebContents : public TabContents,
   void DidNavigateAnyFramePostCommit(
       RenderViewHost* render_view_host,
       const ViewHostMsg_FrameNavigate_Params& params);
-
-  // Helper method to update the RendererState on a call to [Did]Navigate.
-  RenderViewHost* UpdateRendererStateNavigate(const NavigationEntry& entry);
-  void UpdateRendererStateDidNavigate(RenderViewHost* render_view_host);
 
   // Called when navigating the main frame to close all child windows if the
   // domain is changing.
@@ -725,6 +658,28 @@ class WebContents : public TabContents,
   void UpdateMaxPageIDIfNecessary(SiteInstance* site_instance,
                                   RenderViewHost* rvh);
 
+  // RenderViewHostManager::Delegate pass-throughs -----------------------------
+
+  virtual void BeforeUnloadFiredFromRenderManager(
+      bool proceed, 
+      bool* proceed_to_fire_unload);
+  virtual void DidStartLoadingFromRenderManager(
+      RenderViewHost* render_view_host, int32 page_id) {
+    DidStartLoading(render_view_host, page_id);
+  }
+  virtual void RendererGoneFromRenderManager(RenderViewHost* render_view_host) {
+    RendererGone(render_view_host);
+  }
+  virtual void UpdateRenderViewSizeForRenderManager() {
+    UpdateRenderViewSize();
+  }
+  virtual void NotifySwappedFromRenderManager() {
+    NotifySwapped();
+  }
+  virtual NavigationController* GetControllerForRenderManager() {
+    return controller();
+  }
+  
   // Profiling -----------------------------------------------------------------
 
   // Logs the commit of the load for profiling purposes. Used by DidNavigate.
@@ -746,35 +701,11 @@ class WebContents : public TabContents,
 
   // Data ----------------------------------------------------------------------
 
-  // Factory for creating RenderViewHosts.  This is useful for unit tests.  If
-  // this is NULL, just create a RenderViewHost directly.
+  // Manages creation and swapping of render views.
+  RenderViewHostManager render_manager_;
+
+  // For testing, passed to new RenderViewHost managers.
   RenderViewHostFactory* render_view_factory_;
-
-  // Our RenderView host. This object is responsible for all communication with
-  // a child RenderView instance.  Note that this can be the page render view
-  // host or the interstitial RenderViewHost if the RendererState is
-  // INTERSTITIAL or LEAVING_INTERSTITIAL.
-  RenderViewHost* render_view_host_;
-
-  // This var holds the original RenderViewHost when the interstitial page is
-  // showing (the RendererState is INTERSTITIAL or LEAVING_INTERSTITIAL).  It
-  // is NULL otherwise.
-  RenderViewHost* original_render_view_host_;
-
-  // The RenderViewHost of the interstitial page.  This is non NULL when the
-  // the RendererState is ENTERING_INTERSTITIAL.
-  RenderViewHost* interstitial_render_view_host_;
-
-  // A RenderViewHost used to load a cross-site page.  This remains hidden
-  // during the PENDING RendererState until it calls DidNavigate.  It can also
-  // exist if an interstitial page is shown.
-  RenderViewHost* pending_render_view_host_;
-
-  // Indicates if we are in the process of swapping our RenderViewHost.  This
-  // allows us to switch to interstitial pages in different RenderViewHosts.
-  // In the new process model, this also allows us to render pages from
-  // different SiteInstances in different processes, all within the same tab.
-  RendererState renderer_state_;
 
   // Handles print preview and print job for this contents.
   printing::PrintViewManager printing_;
@@ -885,12 +816,6 @@ class WebContents : public TabContents,
   // Non-null if we're displaying content for a web app.
   scoped_refptr<WebApp> web_app_;
 
-  // See comment above showing_repost_interstitial().
-  bool showing_repost_interstitial_;
-
-  // An optional delegate used when an interstitial page is shown that gets
-  // notified when the state of the interstitial changes.
-  InterstitialPageDelegate* interstitial_delegate_;
 
   DISALLOW_EVIL_CONSTRUCTORS(WebContents);
 };
