@@ -26,9 +26,10 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// Copied from base/basictypes.h with some modifications
 
-#ifndef BASE_BASICTYPES_H_
-#define BASE_BASICTYPES_H_
+#ifndef BASE_BASICTYPES_H__
+#define BASE_BASICTYPES_H__
 
 #include <assert.h>         // for use with down_cast<>
 #include <limits.h>         // So we can set the bounds of our types
@@ -415,7 +416,7 @@ inline Dest bit_cast(const Source& source) {
 //       static MyClass my_variable_name(base::LINKER_INITIALIZED);
 namespace base {
 enum LinkerInitialized { LINKER_INITIALIZED };
-}  // base
+}
 
 
-#endif  // BASE_BASICTYPES_H_
+#endif  // BASE_BASICTYPES_H__

@@ -27,10 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <math.h>
-#include <stdarg.h>
-
 #include <sstream>
+#include <stdarg.h>
 
 #include "base/basictypes.h"
 #include "base/logging.h"
@@ -78,7 +76,7 @@ static const struct trim_case_ascii {
 
 TEST(StringUtilTest, TrimWhitespace) {
   std::wstring output;  // Allow contents to carry over to next testcase
-  for (size_t i = 0; i < arraysize(trim_cases); ++i) {
+  for (int i = 0; i < arraysize(trim_cases); ++i) {
     const trim_case& value = trim_cases[i];
     EXPECT_EQ(value.return_value,
               TrimWhitespace(value.input, value.positions, &output));
@@ -96,7 +94,7 @@ TEST(StringUtilTest, TrimWhitespace) {
   EXPECT_EQ(L"", output);
 
   std::string output_ascii;
-  for (size_t i = 0; i < arraysize(trim_cases_ascii); ++i) {
+  for (int i = 0; i < arraysize(trim_cases_ascii); ++i) {
     const trim_case_ascii& value = trim_cases_ascii[i];
     EXPECT_EQ(value.return_value,
               TrimWhitespace(value.input, value.positions, &output_ascii));
@@ -131,7 +129,7 @@ static const struct collapse_case {
 };
 
 TEST(StringUtilTest, CollapseWhitespace) {
-  for (size_t i = 0; i < arraysize(collapse_cases); ++i) {
+  for (int i = 0; i < arraysize(collapse_cases); ++i) {
     const collapse_case& value = collapse_cases[i];
     EXPECT_EQ(value.output, CollapseWhitespace(value.input, value.trim));
   }
@@ -150,25 +148,23 @@ static const wchar_t* const kConvertRoundtripCases[] = {
   L"\x0020\x0440\x0443\x0441\x0441\x043a\x043e\x043c",
   // "전체서비스"
   L"\xc804\xccb4\xc11c\xbe44\xc2a4",
-
-  // Test characters that take more than 16 bits. This will depend on whether
-  // wchar_t is 16 or 32 bits.
-#if defined(WCHAR_T_IS_UTF16)
-  L"\xd800\xdf00",
   // ?????  (Mathematical Alphanumeric Symbols (U+011d40 - U+011d44 : A,B,C,D,E)
   L"\xd807\xdd40\xd807\xdd41\xd807\xdd42\xd807\xdd43\xd807\xdd44",
-#elif defined(WCHAR_T_IS_UTF32)
-  L"\x10300",
-  // ?????  (Mathematical Alphanumeric Symbols (U+011d40 - U+011d44 : A,B,C,D,E)
-  L"\x11d40\x11d41\x11d42\x11d43\x11d44",
-#endif
+
+  // Test a character that takes more than 16-bits. This will depend on whether
+  // wchar_t is 16 or 32 bits.
+  #if defined(WCHAR_T_IS_UTF16)
+    L"\xd800\xdf00",
+  #elif defined(WCHAR_T_IS_UTF32)
+    "\x10300,
+  #endif
 };
 
 TEST(StringUtilTest, ConvertUTF8AndWide) {
   // we round-trip all the wide strings through UTF-8 to make sure everything
   // agrees on the conversion. This uses the stream operators to test them
   // simultaneously.
-  for (size_t i = 0; i < arraysize(kConvertRoundtripCases); ++i) {
+  for (int i = 0; i < arraysize(kConvertRoundtripCases); ++i) {
     std::ostringstream utf8;
     utf8 << WideToUTF8(kConvertRoundtripCases[i]);
     std::wostringstream wide;
@@ -213,7 +209,7 @@ TEST(StringUtilTest, ConvertUTF8ToWide) {
 #endif
   };
 
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(convert_cases); i++) {
+  for (int i = 0; i < arraysize(convert_cases); i++) {
     std::wstring converted;
     EXPECT_EQ(convert_cases[i].success,
               UTF8ToWide(convert_cases[i].utf8,
@@ -226,18 +222,18 @@ TEST(StringUtilTest, ConvertUTF8ToWide) {
   // Manually test an embedded NULL.
   std::wstring converted;
   EXPECT_TRUE(UTF8ToWide("\00Z\t", 3, &converted));
-  ASSERT_EQ(static_cast<std::wstring::size_type>(3), converted.length());
+  ASSERT_EQ(3, converted.length());
   EXPECT_EQ(0, converted[0]);
   EXPECT_EQ('Z', converted[1]);
   EXPECT_EQ('\t', converted[2]);
 
   // Make sure that conversion replaces, not appends.
   EXPECT_TRUE(UTF8ToWide("B", 1, &converted));
-  ASSERT_EQ(static_cast<std::wstring::size_type>(1), converted.length());
+  ASSERT_EQ(1, converted.length());
   EXPECT_EQ('B', converted[0]);
 }
 
-#if defined(WCHAR_T_IS_UTF16)
+#if defined(WCHAR_T_IS_UTf16)
 // This test is only valid when wchar_t == UTF-16.
 TEST(StringUtilTest, ConvertUTF16ToUTF8) {
   struct UTF16ToUTF8Case {
@@ -272,7 +268,7 @@ TEST(StringUtilTest, ConvertUTF16ToUTF8) {
 // This test is only valid when wchar_t == UTF-32.
 TEST(StringUtilTest, ConvertUTF32ToUTF8) {
   struct UTF8ToWideCase {
-    const wchar_t* utf32;
+    const wchar_t* ucs4;
     const char* utf8;
     bool success;
   } convert_cases[] = {
@@ -281,17 +277,17 @@ TEST(StringUtilTest, ConvertUTF32ToUTF8) {
     // Test a non-BMP character.
     {L"A\x10300z", "A\xF0\x90\x8C\x80z", true},
     // Invalid Unicode code points.
-    {L"\xffffHello", "Hello", false},
-    {L"\xfffffffHello", "Hello", false},
+    {L"\xffffHello", "Hello, false", false},
+    {L"\xfffffffHello", "Hello, false", false},
     // The first character is a truncated UTF-16 character.
     {L"\xd800\x597d", "\xe5\xa5\xbd", false},
-  };
+  }
 
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(convert_cases); i++) {
+  for (int i = 0; i < arraysize(convert_cases); i++) {
     std::string converted;
     EXPECT_EQ(convert_cases[i].success,
-              WideToUTF8(convert_cases[i].utf32,
-                         wcslen(convert_cases[i].utf32),
+              WideToUTF8(convert_cases[i].utf16,
+                         wcslen(convert_cases[i].utf16),
                          &converted));
     std::string expected(convert_cases[i].utf8);
     EXPECT_EQ(expected, converted);
@@ -325,7 +321,7 @@ TEST(StringUtilTest, ConvertMultiString) {
 
 TEST(StringUtilTest, ConvertCodepageUTF8) {
   // Make sure WideToCodepage works like WideToUTF8.
-  for (size_t i = 0; i < arraysize(kConvertRoundtripCases); ++i) {
+  for (int i = 0; i < arraysize(kConvertRoundtripCases); ++i) {
     std::string expected(WideToUTF8(kConvertRoundtripCases[i]));
     std::string utf8;
     EXPECT_TRUE(WideToCodepage(kConvertRoundtripCases[i], kCodepageUTF8,
@@ -432,7 +428,7 @@ TEST(StringUtilTest, ConvertBetweenCodepageAndWide) {
      L"\x0E04\x0E23\x0e31\x0E1A"},
   };
 
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kConvertCodepageCases); ++i) {
+  for (int i = 0; i < arraysize(kConvertCodepageCases); ++i) {
     std::wstring wide;
     bool success = CodepageToWide(kConvertCodepageCases[i].encoded,
                                   kConvertCodepageCases[i].codepage_name,
@@ -474,7 +470,7 @@ TEST(StringUtilTest, ConvertBetweenCodepageAndWide) {
   EXPECT_TRUE(WideToCodepage(L"a\xd800z", "iso-8859-1",
                              OnStringUtilConversionError::SKIP, &encoded));
   EXPECT_STREQ("az", encoded.c_str());
-#endif  // WCHAR_T_IS_UTF16
+#endif  // WCHAR_T_IS_UTf16
 
   // Invalid characters should fail.
   EXPECT_TRUE(WideToCodepage(L"a\xffffz", "iso-8859-1",
@@ -499,7 +495,7 @@ TEST(StringUtilTest, ConvertASCII) {
     L"0123ABCDwxyz \a\b\t\r\n!+,.~"
   };
 
-  for (size_t i = 0; i < arraysize(char_cases); ++i) {
+  for (int i = 0; i < arraysize(char_cases); ++i) {
     EXPECT_TRUE(IsStringASCII(char_cases[i]));
     std::wstring wide = ASCIIToWide(char_cases[i]);
     EXPECT_EQ(wchar_cases[i], wide);
@@ -523,11 +519,9 @@ TEST(StringUtilTest, ConvertASCII) {
   const int length_with_nul = arraysize(chars_with_nul) - 1;
   std::string string_with_nul(chars_with_nul, length_with_nul);
   std::wstring wide_with_nul = ASCIIToWide(string_with_nul);
-  EXPECT_EQ(static_cast<std::wstring::size_type>(length_with_nul),
-            wide_with_nul.length());
+  EXPECT_EQ(length_with_nul, wide_with_nul.length());
   std::string narrow_with_nul = WideToASCII(wide_with_nul);
-  EXPECT_EQ(static_cast<std::string::size_type>(length_with_nul),
-            narrow_with_nul.length());
+  EXPECT_EQ(length_with_nul, narrow_with_nul.length());
   EXPECT_EQ(0, string_with_nul.compare(narrow_with_nul));
 }
 
@@ -542,7 +536,7 @@ static const struct {
 };
 
 TEST(StringUtilTest, LowerCaseEqualsASCII) {
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(lowercase_cases); ++i) {
+  for (int i = 0; i < arraysize(lowercase_cases); ++i) {
     EXPECT_TRUE(LowerCaseEqualsASCII(lowercase_cases[i].src_w,
                                      lowercase_cases[i].dst));
     EXPECT_TRUE(LowerCaseEqualsASCII(lowercase_cases[i].src_a,
@@ -566,7 +560,7 @@ TEST(StringUtilTest, GetByteDisplayUnits) {
 #endif
   };
 
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); ++i)
+  for (int i = 0; i < arraysize(cases); ++i)
     EXPECT_EQ(cases[i].expected, GetByteDisplayUnits(cases[i].bytes));
 }
 
@@ -596,7 +590,7 @@ TEST(StringUtilTest, FormatBytes) {
 #endif
   };
 
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); ++i) {
+  for (int i = 0; i < arraysize(cases); ++i) {
     EXPECT_EQ(cases[i].expected,
               FormatBytes(cases[i].bytes, cases[i].units, false));
     EXPECT_EQ(cases[i].expected_with_units,
@@ -626,7 +620,7 @@ TEST(StringUtilTest, ReplaceSubstringsAfterOffset) {
     {L"abababab", 2, L"ab", L"c", L"abccc"},
   };
 
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); i++) {
+  for (int i = 0; i < arraysize(cases); i++) {
     std::wstring str(cases[i].str);
     ReplaceSubstringsAfterOffset(&str, cases[i].start_offset,
                                  cases[i].find_this, cases[i].replace_with);
@@ -646,7 +640,7 @@ TEST(StringUtilTest, IntToString) {
     {INT_MIN, "-2147483648"},
   };
 
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); ++i)
+  for (int i = 0; i < arraysize(cases); ++i)
     EXPECT_EQ(cases[i].output, IntToString(cases[i].input));
 }
 
@@ -661,7 +655,7 @@ TEST(StringUtilTest, Uint64ToString) {
     {kuint64max, "18446744073709551615"},
   };
 
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); ++i)
+  for (int i = 0; i < arraysize(cases); ++i)
     EXPECT_EQ(cases[i].output, Uint64ToString(cases[i].input));
 }
 
@@ -695,7 +689,7 @@ TEST(StringUtilTest, StringToInt) {
     {"99999999999", INT_MAX, false},
   };
 
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); ++i) {
+  for (int i = 0; i < arraysize(cases); ++i) {
     EXPECT_EQ(cases[i].output, StringToInt(cases[i].input));
     int output;
     EXPECT_EQ(cases[i].success, StringToInt(cases[i].input, &output));
@@ -759,7 +753,7 @@ TEST(StringUtilTest, StringToInt64) {
     {"99999999999999999999", kint64max, false},
   };
 
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); ++i) {
+  for (int i = 0; i < arraysize(cases); ++i) {
     EXPECT_EQ(cases[i].output, StringToInt64(cases[i].input));
     int64 output;
     EXPECT_EQ(cases[i].success, StringToInt64(cases[i].input, &output));
@@ -820,7 +814,7 @@ TEST(StringUtilTest, HexStringToInt) {
     {"", 0, false},
   };
 
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); ++i) {
+  for (int i = 0; i < arraysize(cases); ++i) {
     EXPECT_EQ(cases[i].output, HexStringToInt(cases[i].input));
     int output;
     EXPECT_EQ(cases[i].success, HexStringToInt(cases[i].input, &output));
@@ -880,7 +874,7 @@ TEST(StringUtilTest, StringToDouble) {
     {"", 0.0, false},
   };
 
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); ++i) {
+  for (int i = 0; i < arraysize(cases); ++i) {
     EXPECT_DOUBLE_EQ(cases[i].output, StringToDouble(cases[i].input));
     double output;
     EXPECT_EQ(cases[i].success, StringToDouble(cases[i].input, &output));
@@ -914,8 +908,7 @@ static void VariableArgsFunc(const char* format, ...) {
   va_list org;
   va_start(org, format);
 
-  va_list dup;
-  va_copy(dup, org);
+  va_list dup = org;
   int i1 = va_arg(org, int);
   int j1 = va_arg(org, int);
   char* s1 = va_arg(org, char*);
@@ -947,7 +940,7 @@ TEST(StringUtilTest, StringPrintfEmptyFormat) {
 
 TEST(StringUtilTest, StringPrintfMisc) {
   EXPECT_EQ("123hello w", StringPrintf("%3d%2s %1c", 123, "hello", 'w'));
-  EXPECT_EQ(L"123hello w", StringPrintf(L"%3d%2ls %1c", 123, L"hello", 'w'));
+  EXPECT_EQ(L"123hello w", StringPrintf(L"%3d%2s %1c", 123, L"hello", 'w'));
 }
 
 TEST(StringUtilTest, StringAppendfStringEmptyParam) {
@@ -976,7 +969,7 @@ TEST(StringUtilTest, StringAppendfString) {
   EXPECT_EQ("Hello World", value);
 
   std::wstring valuew(L"Hello");
-  StringAppendF(&valuew, L" %ls", L"World");
+  StringAppendF(&valuew, L" %s", L"World");
   EXPECT_EQ(L"Hello World", valuew);
 }
 
@@ -995,11 +988,11 @@ TEST(StringUtilTest, StringAppendfInt) {
 TEST(StringUtilTest, StringPrintfBounds) {
   const int src_len = 1026;
   char src[src_len];
-  for (size_t i = 0; i < arraysize(src); i++)
+  for (int i = 0; i < arraysize(src); i++)
     src[i] = 'A';
 
   wchar_t srcw[src_len];
-  for (size_t i = 0; i < arraysize(srcw); i++)
+  for (int i = 0; i < arraysize(srcw); i++)
     srcw[i] = 'A';
 
   for (int i = 1; i < 3; i++) {
@@ -1010,7 +1003,7 @@ TEST(StringUtilTest, StringPrintfBounds) {
 
     srcw[src_len - i] = 0;
     std::wstring outw;
-    SStringPrintf(&outw, L"%ls", srcw);
+    SStringPrintf(&outw, L"%s", srcw);
     EXPECT_STREQ(srcw, outw.c_str());
   }
 }
@@ -1018,7 +1011,7 @@ TEST(StringUtilTest, StringPrintfBounds) {
 // Test very large sprintfs that will cause the buffer to grow.
 TEST(StringUtilTest, Grow) {
   char src[1026];
-  for (size_t i = 0; i < arraysize(src); i++)
+  for (int i = 0; i < arraysize(src); i++)
     src[i] = 'A';
   src[1025] = 0;
 
@@ -1028,11 +1021,7 @@ TEST(StringUtilTest, Grow) {
   SStringPrintf(&out, fmt, src, src, src, src, src, src, src);
 
   char* ref = new char[320000];
-#if defined(OS_WIN)
   sprintf_s(ref, 320000, fmt, src, src, src, src, src, src, src);
-#elif defined(OS_POSIX)
-  snprintf(ref, 320000, fmt, src, src, src, src, src, src, src);
-#endif
 
   EXPECT_STREQ(ref, out.c_str());
   delete ref;
@@ -1064,7 +1053,7 @@ TEST(StringUtilTest, Invalid) {
   invalid[1] = 0;
 
   std::wstring out;
-  SStringPrintf(&out, L"%ls", invalid);
+  SStringPrintf(&out, L"%s", invalid);
   EXPECT_STREQ(L"", out.c_str());
 }
 
@@ -1073,50 +1062,50 @@ TEST(StringUtilTest, SplitString) {
   std::vector<std::wstring> r;
 
   SplitString(L"a,b,c", L',', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(3), r.size());
+  EXPECT_EQ(r.size(), 3);
   EXPECT_EQ(r[0], L"a");
   EXPECT_EQ(r[1], L"b");
   EXPECT_EQ(r[2], L"c");
   r.clear();
 
   SplitString(L"a, b, c", L',', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(3), r.size());
+  EXPECT_EQ(r.size(), 3);
   EXPECT_EQ(r[0], L"a");
   EXPECT_EQ(r[1], L"b");
   EXPECT_EQ(r[2], L"c");
   r.clear();
 
   SplitString(L"a,,c", L',', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(3), r.size());
+  EXPECT_EQ(r.size(), 3);
   EXPECT_EQ(r[0], L"a");
   EXPECT_EQ(r[1], L"");
   EXPECT_EQ(r[2], L"c");
   r.clear();
 
   SplitString(L"", L'*', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(1), r.size());
+  EXPECT_EQ(r.size(), 1);
   EXPECT_EQ(r[0], L"");
   r.clear();
 
   SplitString(L"foo", L'*', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(1), r.size());
+  EXPECT_EQ(r.size(), 1);
   EXPECT_EQ(r[0], L"foo");
   r.clear();
 
   SplitString(L"foo ,", L',', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(2), r.size());
+  EXPECT_EQ(r.size(), 2);
   EXPECT_EQ(r[0], L"foo");
   EXPECT_EQ(r[1], L"");
   r.clear();
 
   SplitString(L",", L',', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(2), r.size());
+  EXPECT_EQ(r.size(), 2);
   EXPECT_EQ(r[0], L"");
   EXPECT_EQ(r[1], L"");
   r.clear();
 
   SplitString(L"\t\ta\t", L'\t', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(4), r.size());
+  EXPECT_EQ(r.size(), 4);
   EXPECT_EQ(r[0], L"");
   EXPECT_EQ(r[1], L"");
   EXPECT_EQ(r[2], L"a");
@@ -1124,7 +1113,7 @@ TEST(StringUtilTest, SplitString) {
   r.clear();
 
   SplitStringDontTrim(L"\t\ta\t", L'\t', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(4), r.size());
+  EXPECT_EQ(r.size(), 4);
   EXPECT_EQ(r[0], L"");
   EXPECT_EQ(r[1], L"");
   EXPECT_EQ(r[2], L"a");
@@ -1132,13 +1121,13 @@ TEST(StringUtilTest, SplitString) {
   r.clear();
 
   SplitString(L"\ta\t\nb\tcc", L'\n', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(2), r.size());
+  EXPECT_EQ(r.size(), 2);
   EXPECT_EQ(r[0], L"a");
   EXPECT_EQ(r[1], L"b\tcc");
   r.clear();
 
   SplitStringDontTrim(L"\ta\t\nb\tcc", L'\n', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(2), r.size());
+  EXPECT_EQ(r.size(), 2);
   EXPECT_EQ(r[0], L"\ta\t");
   EXPECT_EQ(r[1], L"b\tcc");
   r.clear();
@@ -1157,16 +1146,16 @@ TEST(StringUtilTest, GetStringFWithOffsets) {
 
   ReplaceStringPlaceholders(L"Hello, $1. Your number is $2.", L"1", L"2",
                             &offsets);
-  EXPECT_EQ(static_cast<std::vector<size_t>::size_type>(2), offsets.size());
-  EXPECT_EQ(static_cast<size_t>(7), offsets[0]);
-  EXPECT_EQ(static_cast<size_t>(25), offsets[1]);
+  EXPECT_EQ(2, offsets.size());
+  EXPECT_EQ(7, offsets[0]);
+  EXPECT_EQ(25, offsets[1]);
   offsets.clear();
 
   ReplaceStringPlaceholders(L"Hello, $2. Your number is $1.", L"1", L"2",
                             &offsets);
-  EXPECT_EQ(static_cast<std::vector<size_t>::size_type>(2), offsets.size());
-  EXPECT_EQ(static_cast<size_t>(25), offsets[0]);
-  EXPECT_EQ(static_cast<size_t>(7), offsets[1]);
+  EXPECT_EQ(2, offsets.size());
+  EXPECT_EQ(25, offsets[0]);
+  EXPECT_EQ(7, offsets[1]);
   offsets.clear();
 }
 
@@ -1191,12 +1180,10 @@ TEST(StringUtilTest, SplitStringAlongWhitespace) {
     { L"b\tat",   2, L"b",  L"at" },
     { L"b\t at",  2, L"b",  L"at" },
   };
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(data); ++i) {
+  for (size_t i = 0; i < arraysize(data); ++i) {
     std::vector<std::wstring> results;
     SplitStringAlongWhitespace(data[i].input, &results);
-    ASSERT_EQ(static_cast<std::vector<std::wstring>::size_type>(
-                  data[i].expected_result_count),
-              results.size());
+    ASSERT_EQ(data[i].expected_result_count, results.size());
     if (data[i].expected_result_count > 0)
       ASSERT_EQ(data[i].output1, results[0]);
     if (data[i].expected_result_count > 1)

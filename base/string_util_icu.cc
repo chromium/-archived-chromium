@@ -190,7 +190,7 @@ bool WideToUTF8(const wchar_t* src, size_t src_len, std::string* output) {
   // character, assume the rest will be ASCII and use a buffer size the same as
   // the input. When it's not ASCII, assume 3-bytes per character as the
   // starting point. This will be resized internally later if it's too small.
-  if (static_cast<uint32>(src[0]) < 0x80)
+  if (src[0] < 0x80)
     output->reserve(src_len);
   else
     output->reserve(src_len * 3);
@@ -217,7 +217,7 @@ bool UTF8ToWide(const char* src, size_t src_len, std::wstring* output) {
   // the input. When it's not ASCII, assume the UTF-8 takes 2 bytes per
   // character (this is more conservative than 3 which we use above when
   // converting the other way).
-  if (static_cast<unsigned char>(src[0]) < 0x80)
+  if (src[0] < 0x80)
     output->reserve(src_len);
   else
     output->reserve(src_len / 2);
@@ -316,7 +316,7 @@ bool WideToCodepage(const std::wstring& wide,
 #elif defined(WCHAR_T_IS_UTF32)
   // When wchar_t is wider than UChar (16 bits), transform |wide| into a
   // UChar* string.  Size the UChar* buffer to be large enough to hold twice
-  // as many UTF-16 code points as there are UTF-16 characters, in case each
+  // as many UTF-16 code points as there are UCS-4 characters, in case each
   // character translates to a UTF-16 surrogate pair, and leave room for a NUL
   // terminator.
   std::vector<UChar> wide_uchar(wide.length() * 2 + 1);
