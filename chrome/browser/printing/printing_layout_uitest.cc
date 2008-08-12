@@ -565,7 +565,7 @@ TEST_F(PrintingLayoutTestHidden, ManyTimes) {
 }
 
 // Prints a popup and immediately closes it.
-TEST_F(PrintingLayoutTest, Delayed) {
+TEST_F(PrintingLayoutTest, DISABLED_Delayed) {
   if (IsTestCaseDisabled())
     return;
 
