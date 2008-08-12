@@ -238,7 +238,9 @@ CommandLine::~CommandLine() {
 
 // static
 void CommandLine::SetArgcArgv(int argc, char** argv) {
+#if !defined(OS_WIN)
   Singleton<Data>::get()->Init(argc, argv);
+#endif
 }
 
 bool CommandLine::HasSwitch(const wstring& switch_string) const {
