@@ -28,10 +28,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "base/platform_thread.h"
-#include "base/time.h"
 
 #if defined(OS_POSIX)
-#include <errno.h>
 #include <sched.h>
 #endif
 
@@ -56,27 +54,6 @@ void PlatformThread::YieldCurrentThread() {
   sched_yield();
 #endif
 }
-
-// static
-void PlatformThread::Sleep(TimeDelta sleep_duration) {
-#if defined(OS_WIN)
-  ::Sleep(static_cast<DWORD>(sleep_duration.InMilliseconds()));
-#elif defined(OS_POSIX)
-  struct timespec sleep_time, remaining;
-  // Contains the portion of sleep_duration >= 1 sec.
-  sleep_time.tv_sec = sleep_duration.InSeconds();
-  sleep_duration -= TimeDelta::FromSeconds(sleep_time.tv_sec);
-  // Contains the portion of sleep_duration < 1 sec.
-  sleep_time.tv_nsec = sleep_duration.InMicroseconds() *
-                       Time::kNanosecondsPerMicrosecond;
-  while (nanosleep(&sleep_time, &remaining) == -1 && errno == EINTR) {
-    // Interrupted by a signal, we'll resume sleeping for the remainder of the
-    // original duration.
-    sleep_time = remaining;
-  }
-#endif
-}
-
 
 bool PlatformThread::operator==(const PlatformThread& other_thread) {
 #if defined(OS_WIN)
