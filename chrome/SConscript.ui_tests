@@ -128,6 +128,7 @@ ui_test_files = [
     'browser/session_restore_uitest.cc',
     'browser/ssl_uitest.cc',
     'browser/tab_restore_uitest.cc',
+    'browser/tabs/tab_dragging_test.cc',
     'browser/view_source_uitest.cc',
     'common/logging_chrome_uitest.cc',
     'common/net/cache_uitest.cc',

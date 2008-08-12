@@ -181,7 +181,6 @@ unit_test_files = [
     'browser/session_service_unittest.cc',
     'browser/site_instance_unittest.cc',
     'browser/tabs/tab_strip_model_unittest.cc',
-    'browser/tabs/tab_dragging_test.cc',
     'browser/template_url_model_unittest.cc',
     'browser/template_url_parser_unittest.cc',
     'browser/template_url_unittest.cc',
