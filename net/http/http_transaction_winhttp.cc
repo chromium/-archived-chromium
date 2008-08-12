@@ -1274,7 +1274,7 @@ int HttpTransactionWinHttp::SendRequest() {
   if (proxy_info_.is_direct())
     connect_peer_ = request_->url.GetOrigin().spec();
   else
-    connect_peer_ = WideToASCII(proxy_info_.proxy_server());
+    connect_peer_ = proxy_info_.proxy_server();
   DWORD_PTR ctx = reinterpret_cast<DWORD_PTR>(session_callback_.get());
   if (!session_->request_throttle()->SubmitRequest(connect_peer_,
                                                    request_handle_,

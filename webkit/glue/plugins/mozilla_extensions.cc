@@ -79,7 +79,7 @@ bool MozillaExtensionApi::FindProxyForUrl(const char* url,
                                  NULL,
                                  NULL) == net::OK) {
     if (!proxy_info.is_direct()) {
-      std::wstring winhttp_proxy = proxy_info.proxy_server();
+      std::string winhttp_proxy = proxy_info.proxy_server();
 
       // Winhttp returns proxy in the the following format:
       // - HTTP proxy: "111.111.111.111:11"
@@ -93,9 +93,9 @@ bool MozillaExtensionApi::FindProxyForUrl(const char* url,
       // iv)  Mixed. e.g. "PROXY 111.111.111.111;PROXY 112.112.112.112",
       //                  "PROXY 111.111.111.111;SOCKS 112.112.112.112"....
       StringToLowerASCII(winhttp_proxy);
-      if (std::wstring::npos == winhttp_proxy.find(L'=')) {
+      if (std::string::npos == winhttp_proxy.find('=')) {
         // Proxy is in the form: "111.111.111.111:11"
-        winhttp_proxy.insert(0, L"http ");
+        winhttp_proxy.insert(0, "http ");
       } else {
         // Proxy is in the following form. 
         // -.SOCKS proxy: "socks=111.111.111.111:11"
@@ -103,10 +103,10 @@ bool MozillaExtensionApi::FindProxyForUrl(const char* url,
         // in this case just replace the '=' with a space
         std::replace_if(winhttp_proxy.begin(),
                         winhttp_proxy.end(),
-                        std::bind2nd(std::equal_to<wchar_t>(), L'='), L' ');
+                        std::bind2nd(std::equal_to<char>(), '='), ' ');
       }
 
-      *proxy = WideToASCII(std::wstring(winhttp_proxy));
+      *proxy = winhttp_proxy;
       result = true;
     }
   }

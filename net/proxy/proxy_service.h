@@ -67,15 +67,15 @@ class ProxyConfig {
   bool auto_detect;
 
   // If non-empty, indicates the URL of the proxy auto-config file to use.
-  std::wstring pac_url;
+  std::string pac_url;
 
   // If non-empty, indicates the proxy server to use (of the form host:port).
-  std::wstring proxy_server;
+  std::string proxy_server;
 
   // If non-empty, indicates a comma-delimited list of hosts that should bypass
   // any proxy configuration.  For these hosts, a direct connection should
   // always be used.
-  std::wstring proxy_bypass;
+  std::string proxy_bypass;
 
   // Returns true if the given config is equivalent to this config.
   bool Equals(const ProxyConfig& other) const;
@@ -96,7 +96,7 @@ struct ProxyRetryInfo {
 };
 
 // Map of proxy servers with the associated RetryInfo structures.
-typedef std::map<std::wstring, ProxyRetryInfo> ProxyRetryInfoMap;
+typedef std::map<std::string, ProxyRetryInfo> ProxyRetryInfoMap;
 
 // This class can be used to resolve the proxy server to use when loading a
 // HTTP(S) URL.  It uses to the given ProxyResolver to handle the actual proxy
@@ -199,20 +199,20 @@ class ProxyList {
  public:
   // Initializes the proxy list to a string containing one or more proxy servers
   // delimited by a semicolon.
-  void Set(const std::wstring& proxy_list);
+  void Set(const std::string& proxy_list);
 
   // Initializes the proxy list to a vector containing one or more proxy
   // servers.
-  void SetVector(const std::vector<std::wstring>& proxy_list);
+  void SetVector(const std::vector<std::string>& proxy_list);
 
   // Remove all proxies known to be bad from the proxy list.
   void RemoveBadProxies(const ProxyRetryInfoMap& proxy_retry_info);
 
   // Returns the first valid proxy server in the list.
-  std::wstring Get() const;
+  std::string Get() const;
 
   // Returns all the valid proxies, delimited by a semicolon.
-  std::wstring GetList() const;
+  std::string GetList() const;
 
   // Marks the current proxy server as bad and deletes it from the list.  The
   // list of known bad proxies is given by proxy_retry_info.  Returns true if
@@ -221,7 +221,7 @@ class ProxyList {
 
  private:
   // List of proxies.
-  std::vector<std::wstring> proxies_;
+  std::vector<std::string> proxies_;
 };
 
 // This object holds proxy information returned by ResolveProxy.
@@ -237,7 +237,7 @@ class ProxyInfo {
 
   // Use a specific proxy server, of the form:  <hostname> [":" <port>]
   // This may optionally be a semi-colon delimited list of proxy servers.
-  void UseNamedProxy(const std::wstring& proxy_server);
+  void UseNamedProxy(const std::string& proxy_server);
 
   // Apply this proxy information to the given WinHTTP request handle.
   void Apply(HINTERNET request_handle);
@@ -246,9 +246,7 @@ class ProxyInfo {
   bool is_direct() const { return proxy_list_.Get().empty(); }
 
   // Returns the first valid proxy server.
-  std::wstring proxy_server() const { return proxy_list_.Get(); }
-
-  std::string GetProxyServer() const { return WideToASCII(proxy_server()); }
+  std::string proxy_server() const { return proxy_list_.Get(); }
 
   // Marks the current proxy as bad. Returns true if there is another proxy
   // available to try in proxy list_.
@@ -293,8 +291,8 @@ class ProxyResolver {
   // Query the proxy auto-config file (specified by |pac_url|) for the proxy to
   // use to load the given |query_url|.  Returns OK if successful or an error
   // code if otherwise.
-  virtual int GetProxyForURL(const std::wstring& query_url,
-                             const std::wstring& pac_url,
+  virtual int GetProxyForURL(const std::string& query_url,
+                             const std::string& pac_url,
                              ProxyInfo* results) = 0;
 };
 

@@ -62,26 +62,26 @@ bool ProxyConfig::Equals(const ProxyConfig& other) const {
 }
 
 // ProxyList ------------------------------------------------------------------
-void ProxyList::SetVector(const std::vector<std::wstring>& proxies) {
+void ProxyList::SetVector(const std::vector<std::string>& proxies) {
   proxies_.clear();
-  std::vector<std::wstring>::const_iterator iter = proxies.begin();
+  std::vector<std::string>::const_iterator iter = proxies.begin();
   for (; iter != proxies.end(); ++iter) {
-    std::wstring proxy_sever;
+    std::string proxy_sever;
     TrimWhitespace(*iter, TRIM_ALL, &proxy_sever);
     proxies_.push_back(proxy_sever);
   }
 }
 
-void ProxyList::Set(const std::wstring& proxy_list) {
+void ProxyList::Set(const std::string& proxy_list) {
   // Extract the different proxies from the list.
-  std::vector<std::wstring> proxies;
+  std::vector<std::string> proxies;
   SplitString(proxy_list, L';', &proxies);
   SetVector(proxies);
 }
 
 void ProxyList::RemoveBadProxies(const ProxyRetryInfoMap& proxy_retry_info) {
-  std::vector<std::wstring> new_proxy_list;
-  std::vector<std::wstring>::const_iterator iter = proxies_.begin();
+  std::vector<std::string> new_proxy_list;
+  std::vector<std::string>::const_iterator iter = proxies_.begin();
   for (; iter != proxies_.end(); ++iter) {
     ProxyRetryInfoMap::const_iterator bad_proxy =
         proxy_retry_info.find(*iter);
@@ -98,16 +98,16 @@ void ProxyList::RemoveBadProxies(const ProxyRetryInfoMap& proxy_retry_info) {
   proxies_ = new_proxy_list;
 }
 
-std::wstring ProxyList::Get() const {
+std::string ProxyList::Get() const {
   if (!proxies_.empty())
     return proxies_[0];
 
-  return std::wstring();
+  return std::string();
 }
 
-std::wstring ProxyList::GetList() const {
-  std::wstring proxy_list;
-  std::vector<std::wstring>::const_iterator iter = proxies_.begin();
+std::string ProxyList::GetList() const {
+  std::string proxy_list;
+  std::vector<std::string>::const_iterator iter = proxies_.begin();
   for (; iter != proxies_.end(); ++iter) {
     if (!proxy_list.empty())
       proxy_list += L';';
@@ -158,10 +158,10 @@ void ProxyInfo::Use(const ProxyInfo& other) {
 }
 
 void ProxyInfo::UseDirect() {
-  proxy_list_.Set(std::wstring());
+  proxy_list_.Set(std::string());
 }
 
-void ProxyInfo::UseNamedProxy(const std::wstring& proxy_server) {
+void ProxyInfo::UseNamedProxy(const std::string& proxy_server) {
   proxy_list_.Set(proxy_server);
 }
 
@@ -174,7 +174,7 @@ void ProxyInfo::Apply(HINTERNET request_handle) {
     pi.lpszProxy = WINHTTP_NO_PROXY_NAME;
     pi.lpszProxyBypass = WINHTTP_NO_PROXY_BYPASS;
   } else {
-    proxy = proxy_list_.Get();
+    proxy = ASCIIToWide(proxy_list_.Get());
     pi.dwAccessType = WINHTTP_ACCESS_TYPE_NAMED_PROXY;
     pi.lpszProxy = const_cast<LPWSTR>(proxy.c_str());
     // NOTE: Specifying a bypass list here would serve no purpose.
@@ -192,7 +192,7 @@ class ProxyService::PacRequest :
     public base::RefCountedThreadSafe<ProxyService::PacRequest> {
  public:
   PacRequest(ProxyService* service,
-             const std::wstring& pac_url,
+             const std::string& pac_url,
              CompletionCallback* callback)
       : service_(service),
         callback_(callback),
@@ -205,7 +205,7 @@ class ProxyService::PacRequest :
       origin_loop_ = MessageLoop::current();
   }
 
-  void Query(const std::wstring& url, ProxyInfo* results) {
+  void Query(const std::string& url, ProxyInfo* results) {
     results_ = results;
     // If we have a valid callback then execute Query asynchronously
     if (callback_) {
@@ -229,8 +229,8 @@ class ProxyService::PacRequest :
  private:
   // Runs on the PAC thread if a valid callback is provided.
   void DoQuery(ProxyResolver* resolver,
-               const std::wstring& query_url,
-               const std::wstring& pac_url) {
+               const std::string& query_url,
+               const std::string& pac_url) {
     int rv = resolver->GetProxyForURL(query_url, pac_url, &results_buf_);
     if (origin_loop_) {
       origin_loop_->PostTask(FROM_HERE,
@@ -268,7 +268,7 @@ class ProxyService::PacRequest :
 
   // Usable from within DoQuery on the PAC thread.
   ProxyInfo results_buf_;
-  std::wstring pac_url_;
+  std::string pac_url_;
   MessageLoop* origin_loop_;
 };
 
@@ -308,16 +308,16 @@ int ProxyService::ResolveProxy(const GURL& url, ProxyInfo* result,
         // If proxies are specified on a per protocol basis, the proxy server
         // field contains a list the format of which is as below:-
         // "scheme1=url:port;scheme2=url:port", etc.
-        std::wstring url_scheme = ASCIIToWide(url.scheme());
+        std::string url_scheme = url.scheme();
 
-        WStringTokenizer proxy_server_list(config_.proxy_server, L";");
+        StringTokenizer proxy_server_list(config_.proxy_server, ";");
         while (proxy_server_list.GetNext()) {
-          WStringTokenizer proxy_server_for_scheme(
+          StringTokenizer proxy_server_for_scheme(
               proxy_server_list.token_begin(), proxy_server_list.token_end(),
-              L"=");
+              "=");
 
           while (proxy_server_for_scheme.GetNext()) {
-            const std::wstring& proxy_server_scheme =
+            const std::string& proxy_server_scheme =
                 proxy_server_for_scheme.token();
 
             // If we fail to get the proxy server here, it means that
@@ -356,7 +356,9 @@ int ProxyService::ResolveProxy(const GURL& url, ProxyInfo* result,
 
       scoped_refptr<PacRequest> req =
           new PacRequest(this, config_.pac_url, callback);
-      req->Query(UTF8ToWide(url.spec()), result);
+      // TODO(darin): We should strip away any reference fragment since it is
+      // not relevant, and moreover it could contain non-ASCII bytes.
+      req->Query(url.spec(), result);
 
       if (callback) {
         if (pac_request)
@@ -455,19 +457,19 @@ void ProxyService::UpdateConfig() {
 }
 
 bool ProxyService::ShouldBypassProxyForURL(const GURL& url) {
-  std::wstring url_domain = ASCIIToWide(url.scheme());
+  std::string url_domain = url.scheme();
   if (!url_domain.empty())
-    url_domain += L"://";
+    url_domain += "://";
 
-  url_domain += ASCIIToWide(url.host());
+  url_domain += url.host();
   StringToLowerASCII(url_domain);
 
-  WStringTokenizer proxy_server_bypass_list(config_.proxy_bypass, L";");
+  StringTokenizer proxy_server_bypass_list(config_.proxy_bypass, ";");
   while (proxy_server_bypass_list.GetNext()) {
-    std::wstring bypass_url_domain = proxy_server_bypass_list.token();
-    if (bypass_url_domain == L"<local>") {
+    std::string bypass_url_domain = proxy_server_bypass_list.token();
+    if (bypass_url_domain == "<local>") {
       // Any name without a DOT (.) is considered to be local.
-      if (url.host().find(L'.') == std::wstring::npos)
+      if (url.host().find('.') == std::string::npos)
         return true;
       continue;
     }
@@ -476,9 +478,9 @@ bool ProxyService::ShouldBypassProxyForURL(const GURL& url) {
     // If no scheme is specified then it indicates that all schemes are
     // allowed for the current entry. For matching this we just use
     // the protocol scheme of the url passed in.
-    if (bypass_url_domain.find(L"://") == std::wstring::npos) {
-      std::wstring bypass_url_domain_with_scheme = ASCIIToWide(url.scheme());
-      bypass_url_domain_with_scheme += L"://";
+    if (bypass_url_domain.find("://") == std::string::npos) {
+      std::string bypass_url_domain_with_scheme = url.scheme();
+      bypass_url_domain_with_scheme += "://";
       bypass_url_domain_with_scheme += bypass_url_domain;
 
       bypass_url_domain = bypass_url_domain_with_scheme;

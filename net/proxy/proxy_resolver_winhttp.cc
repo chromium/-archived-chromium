@@ -91,18 +91,18 @@ int ProxyResolverWinHttp::GetProxyConfig(ProxyConfig* config) {
   if (ie_config.fAutoDetect)
     config->auto_detect = true;
   if (ie_config.lpszProxy)
-    config->proxy_server = ie_config.lpszProxy;
+    config->proxy_server = WideToASCII(ie_config.lpszProxy);
   if (ie_config.lpszProxyBypass)
-    config->proxy_bypass = ie_config.lpszProxyBypass;
+    config->proxy_bypass = WideToASCII(ie_config.lpszProxyBypass);
   if (ie_config.lpszAutoConfigUrl)
-    config->pac_url = ie_config.lpszAutoConfigUrl;
+    config->pac_url = WideToASCII(ie_config.lpszAutoConfigUrl);
 
   FreeConfig(&ie_config);
   return OK;
 }
 
-int ProxyResolverWinHttp::GetProxyForURL(const std::wstring& query_url,
-                                         const std::wstring& pac_url,
+int ProxyResolverWinHttp::GetProxyForURL(const std::string& query_url,
+                                         const std::string& pac_url,
                                          ProxyInfo* results) {
   // If we don't have a WinHTTP session, then create a new one.
   if (!session_handle_ && !OpenWinHttpSession())
@@ -118,12 +118,12 @@ int ProxyResolverWinHttp::GetProxyForURL(const std::wstring& query_url,
   options.fAutoLogonIfChallenged = TRUE;
   options.dwFlags = WINHTTP_AUTOPROXY_CONFIG_URL;
   options.lpszAutoConfigUrl =
-      pac_url.empty() ? L"http://wpad/wpad.dat" : pac_url.c_str();
+      pac_url.empty() ? L"http://wpad/wpad.dat" : ASCIIToWide(pac_url).c_str();
 
   WINHTTP_PROXY_INFO info = {0};
   DCHECK(session_handle_);
-  if (!CallWinHttpGetProxyForUrl(session_handle_, query_url.c_str(), &options,
-                                 &info)) {
+  if (!CallWinHttpGetProxyForUrl(
+          session_handle_, ASCIIToWide(query_url).c_str(), &options, &info)) {
     DWORD error = GetLastError();
     LOG(ERROR) << "WinHttpGetProxyForUrl failed: " << error;
 
@@ -144,7 +144,7 @@ int ProxyResolverWinHttp::GetProxyForURL(const std::wstring& query_url,
       results->UseDirect();
       break;
     case WINHTTP_ACCESS_TYPE_NAMED_PROXY:
-      results->UseNamedProxy(info.lpszProxy);
+      results->UseNamedProxy(WideToASCII(info.lpszProxy));
       break;
     default:
       NOTREACHED();

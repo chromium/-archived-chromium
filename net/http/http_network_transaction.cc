@@ -347,7 +347,7 @@ int HttpNetworkTransaction::DoInitConnection() {
   // Build the string used to uniquely identify connections of this type.
   std::string connection_group;
   if (using_proxy_ || using_tunnel_)
-    connection_group = "proxy/" + proxy_info_.GetProxyServer() + "/";
+    connection_group = "proxy/" + proxy_info_.proxy_server() + "/";
   if (!using_proxy_)
     connection_group.append(request_->url.GetOrigin().spec());
 
@@ -380,7 +380,7 @@ int HttpNetworkTransaction::DoResolveHost() {
 
   // Determine the host and port to connect to.
   if (using_proxy_ || using_tunnel_) {
-    const std::string& proxy = proxy_info_.GetProxyServer();
+    const std::string& proxy = proxy_info_.proxy_server();
     StringTokenizer t(proxy, ":");
     // TODO(darin): Handle errors here.  Perhaps HttpProxyInfo should do this
     // before claiming a proxy server configuration.

@@ -98,7 +98,7 @@ static net::ProxyInfo* CreateProxyInfo(const CommandLine& command_line) {
     proxy_info = new net::ProxyInfo();
     const std::wstring& proxy_server =
         command_line.GetSwitchValue(switches::kProxyServer);
-    proxy_info->UseNamedProxy(proxy_server);
+    proxy_info->UseNamedProxy(WideToASCII(proxy_server));
   }
 
   return proxy_info;
