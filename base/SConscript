@@ -111,7 +111,6 @@ if env['PLATFORM'] == 'win32':
     'revocable_store.cc',
     'sha2.cc',
     'shared_event.cc',
-    'shared_memory.cc',
     'stats_table.cc',
     'third_party/nspr/prtime.cc',
     'third_party/nss/sha512.cc',
@@ -134,6 +133,7 @@ if env['PLATFORM'] == 'win32':
       'condition_variable_win.cc',
       'file_util_win.cc',
       'lock_impl_win.cc',
+      'shared_memory_win.cc',
       'string_util_win.cc',
       'sys_string_conversions_win.cc',
       'thread_local_storage_win.cc',
@@ -145,6 +145,7 @@ if env['PLATFORM'] in ('darwin', 'posix'):
   input_files.extend([
       'condition_variable_posix.cc',
       'lock_impl_posix.cc',
+      'shared_memory_posix.cc',
       'thread_local_storage_posix.cc',
       'time_posix.cc',
       'waitable_event_generic.cc',
