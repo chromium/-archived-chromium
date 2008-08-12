@@ -30,7 +30,6 @@
 #include "net/disk_cache/backend_impl.h"
 
 #include "base/file_util.h"
-#include "base/histogram.h"
 #include "base/message_loop.h"
 #include "base/scoped_handle.h"
 #include "base/string_util.h"
@@ -326,7 +325,6 @@ bool BackendImpl::OpenEntry(const std::string& key, Entry** entry) {
   if (disabled_)
     return false;
 
-  Time start = Time::Now();
   uint32 hash = Hash(key);
 
   EntryImpl* cache_entry = MatchEntry(key, hash, false);
@@ -338,7 +336,6 @@ bool BackendImpl::OpenEntry(const std::string& key, Entry** entry) {
   DCHECK(entry);
   *entry = cache_entry;
 
-  UMA_HISTOGRAM_TIMES(L"DiskCache.OpenTime", Time::Now() - start);
   stats_.OnEvent(Stats::OPEN_HIT);
   return true;
 }
@@ -347,7 +344,6 @@ bool BackendImpl::CreateEntry(const std::string& key, Entry** entry) {
   if (disabled_ || key.empty())
     return false;
 
-  Time start = Time::Now();
   uint32 hash = Hash(key);
 
   scoped_refptr<EntryImpl> parent;
@@ -410,7 +406,6 @@ bool BackendImpl::CreateEntry(const std::string& key, Entry** entry) {
   *entry = NULL;
   cache_entry.swap(reinterpret_cast<EntryImpl**>(entry));
 
-  UMA_HISTOGRAM_TIMES(L"DiskCache.CreateTime", Time::Now() - start);
   stats_.OnEvent(Stats::CREATE_HIT);
   Trace("create entry hit ");
   return true;
@@ -1039,7 +1034,6 @@ void BackendImpl::TrimCache(bool empty) {
   if (disabled_)
     return;
 
-  Time start = Time::Now();
   Rankings::ScopedRankingsBlock node(&rankings_);
   Rankings::ScopedRankingsBlock next(&rankings_, rankings_.GetPrev(node.get()));
   DCHECK(next.get());
@@ -1059,9 +1053,6 @@ void BackendImpl::TrimCache(bool empty) {
       if (node->Data()->pointer) {
         entry = EntryImpl::Update(entry);
       }
-      static Histogram counter(L"DiskCache.TrimAge", 1, 10000, 50);
-      counter.SetFlags(kUmaTargetedHistogramFlag);
-      counter.Add((Time::Now() - entry->GetLastUsed()).InHours());
       entry->Doom();
       entry->Release();
       if (!empty)
@@ -1069,7 +1060,6 @@ void BackendImpl::TrimCache(bool empty) {
     }
   }
 
-  UMA_HISTOGRAM_TIMES(L"DiskCache.TotalTrimTime", Time::Now() - start);
   Trace("*** Trim Cache end ***");
   return;
 }

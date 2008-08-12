@@ -29,7 +29,6 @@
 
 #include "net/disk_cache/entry_impl.h"
 
-#include "base/histogram.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "net/base/net_errors.h"
@@ -123,8 +122,6 @@ EntryImpl::EntryImpl(BackendImpl* backend, Addr address)
 // written before).
 EntryImpl::~EntryImpl() {
   if (doomed_) {
-    UMA_HISTOGRAM_COUNTS(L"DiskCache.DeleteHeader", GetDataSize(0));
-    UMA_HISTOGRAM_COUNTS(L"DiskCache.DeleteData", GetDataSize(1));
     for (int index = 0; index < kKeyFileIndex; index++) {
       Addr address(entry_.Data()->data_addr[index]);
       if (address.is_initialized()) {
@@ -242,11 +239,6 @@ int EntryImpl::ReadData(int index, int offset, char* buf, int buf_len,
   if (buf_len < 0)
     return net::ERR_INVALID_ARGUMENT;
 
-  Time start = Time::Now();
-  static Histogram stats(L"DiskCache.ReadTime", TimeDelta::FromMilliseconds(1),
-                         TimeDelta::FromSeconds(10), 50);
-  stats.SetFlags(kUmaTargetedHistogramFlag);
-
   if (offset + buf_len > entry_size)
     buf_len = entry_size - offset;
 
@@ -258,7 +250,6 @@ int EntryImpl::ReadData(int index, int offset, char* buf, int buf_len,
     // Complete the operation locally.
     DCHECK(kMaxBlockSize >= offset + buf_len);
     memcpy(buf , user_buffers_[index].get() + offset, buf_len);
-    stats.AddTime(Time::Now() - start);
     return buf_len;
   }
 
@@ -290,7 +281,6 @@ int EntryImpl::ReadData(int index, int offset, char* buf, int buf_len,
   if (io_callback && completed)
     io_callback->Discard();
 
-  stats.AddTime(Time::Now() - start);
   return (completed || !completion_callback) ? buf_len : net::ERR_IO_PENDING;
 }
 
@@ -315,11 +305,6 @@ int EntryImpl::WriteData(int index, int offset, const char* buf, int buf_len,
     backend_->TooMuchStorageRequested(size);
     return net::ERR_FAILED;
   }
-
-  Time start = Time::Now();
-  static Histogram stats(L"DiskCache.WriteTime", TimeDelta::FromMilliseconds(1),
-                         TimeDelta::FromSeconds(10), 50);
-  stats.SetFlags(kUmaTargetedHistogramFlag);
 
   // Read the size at this point (it may change inside prepare).
   int entry_size = entry_.Data()->data_size[index];
@@ -352,7 +337,6 @@ int EntryImpl::WriteData(int index, int offset, const char* buf, int buf_len,
     // Complete the operation locally.
     DCHECK(kMaxBlockSize >= offset + buf_len);
     memcpy(user_buffers_[index].get() + offset, buf, buf_len);
-    stats.AddTime(Time::Now() - start);
     return buf_len;
   }
 
@@ -387,7 +371,6 @@ int EntryImpl::WriteData(int index, int offset, const char* buf, int buf_len,
   if (io_callback && completed)
     io_callback->Discard();
 
-  stats.AddTime(Time::Now() - start);
   return (completed || !completion_callback) ? buf_len : net::ERR_IO_PENDING;
 }
 

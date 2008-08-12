@@ -29,7 +29,6 @@
 
 #include "net/disk_cache/rankings.h"
 
-#include "base/histogram.h"
 #include "net/disk_cache/backend_impl.h"
 #include "net/disk_cache/entry_impl.h"
 #include "net/disk_cache/errors.h"
@@ -204,7 +203,6 @@ void Rankings::Reset() {
 }
 
 bool Rankings::GetRanking(CacheRankingsBlock* rankings) {
-  Time start = Time::Now();
   if (!rankings->address().is_initialized())
     return false;
 
@@ -235,7 +233,6 @@ bool Rankings::GetRanking(CacheRankingsBlock* rankings) {
   EntryImpl* cache_entry =
       reinterpret_cast<EntryImpl*>(rankings->Data()->pointer);
   rankings->SetData(cache_entry->rankings()->Data());
-  UMA_HISTOGRAM_TIMES(L"DiskCache.GetRankings", Time::Now() - start);
   return true;
 }
 
@@ -383,10 +380,8 @@ void Rankings::Remove(CacheRankingsBlock* node) {
 // but the net effect is just an assert on debug when attempting to remove the
 // entry. Otherwise we'll need reentrant transactions, which is an overkill.
 void Rankings::UpdateRank(CacheRankingsBlock* node, bool modified) {
-  Time start = Time::Now();
   Remove(node);
   Insert(node, modified);
-  UMA_HISTOGRAM_TIMES(L"DiskCache.UpdateRank", Time::Now() - start);
 }
 
 void Rankings::CompleteTransaction() {
