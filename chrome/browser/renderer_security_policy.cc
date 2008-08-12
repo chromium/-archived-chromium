@@ -166,7 +166,6 @@ bool RendererSecurityPolicy::IsPseudoScheme(const std::string& scheme) {
 }
 
 void RendererSecurityPolicy::GrantRequestURL(int renderer_id, const GURL& url) {
-  AutoLock lock(lock_);
 
   if (!url.is_valid())
     return;  // Can't grant the capability to request invalid URLs.
@@ -188,13 +187,16 @@ void RendererSecurityPolicy::GrantRequestURL(int renderer_id, const GURL& url) {
     return;  // Can't grant the capability to request pseudo schemes.
   }
 
-  SecurityStateMap::iterator state = security_state_.find(renderer_id);
-  if (state == security_state_.end())
-    return;
+  {
+    AutoLock lock(lock_);
+    SecurityStateMap::iterator state = security_state_.find(renderer_id);
+    if (state == security_state_.end())
+      return;
 
-  // If the renderer has been commanded to request a scheme, then we grant
-  // it the capability to request URLs of that scheme.
-  state->second->GrantScheme(url.scheme());
+    // If the renderer has been commanded to request a scheme, then we grant
+    // it the capability to request URLs of that scheme.
+    state->second->GrantScheme(url.scheme());
+  }
 }
 
 void RendererSecurityPolicy::GrantUploadFile(int renderer_id,
@@ -237,8 +239,6 @@ void RendererSecurityPolicy::GrantDOMUIBindings(int renderer_id) {
 }
 
 bool RendererSecurityPolicy::CanRequestURL(int renderer_id, const GURL& url) {
-  AutoLock lock(lock_);
-
   if (!url.is_valid())
     return false;  // Can't request invalid URLs.
 
@@ -266,13 +266,17 @@ bool RendererSecurityPolicy::CanRequestURL(int renderer_id, const GURL& url) {
   if (!URLRequest::IsHandledURL(url))
     return true;  // This URL request is destined for ShellExecute.
 
-  SecurityStateMap::iterator state = security_state_.find(renderer_id);
-  if (state == security_state_.end())
-    return false;
+  {
+    AutoLock lock(lock_);
 
-  // Otherwise, we consult the renderer's security state to see if it is
-  // allowed to request the URL.
-  return state->second->CanRequestURL(url);
+    SecurityStateMap::iterator state = security_state_.find(renderer_id);
+    if (state == security_state_.end())
+      return false;
+
+    // Otherwise, we consult the renderer's security state to see if it is
+    // allowed to request the URL.
+    return state->second->CanRequestURL(url);
+  }
 }
 
 bool RendererSecurityPolicy::CanUploadFile(int renderer_id,

@@ -156,6 +156,9 @@ class CancelableRequestProvider {
   void RequestCompleted(Handle handle);
 
  private:
+  // Only call this when you already have acquired pending_request_lock_.
+  void CancelRequestLocked(Handle handle);
+
   friend class CancelableRequestBase;
 
   typedef std::map<Handle, scoped_refptr<CancelableRequestBase> >

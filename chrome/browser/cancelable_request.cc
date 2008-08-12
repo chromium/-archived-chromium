@@ -40,7 +40,7 @@ CancelableRequestProvider::~CancelableRequestProvider() {
   // then the Profile is deleted.
   AutoLock lock(pending_request_lock_);
   while (!pending_requests_.empty())
-    CancelRequest(pending_requests_.begin()->first);
+    CancelRequestLocked(pending_requests_.begin()->first);
 }
 
 CancelableRequestProvider::Handle CancelableRequestProvider::AddRequest(
@@ -63,7 +63,10 @@ CancelableRequestProvider::Handle CancelableRequestProvider::AddRequest(
 
 void CancelableRequestProvider::CancelRequest(Handle handle) {
   AutoLock lock(pending_request_lock_);
+  CancelRequestLocked(handle);
+}
 
+void CancelableRequestProvider::CancelRequestLocked(Handle handle) {
   CancelableRequestMap::iterator i = pending_requests_.find(handle);
   if (i == pending_requests_.end()) {
     NOTREACHED() << "Trying to cancel an unknown request";

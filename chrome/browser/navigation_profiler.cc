@@ -60,17 +60,18 @@ void NavigationProfiler::Reset() {
 int NavigationProfiler::StartProfiling() {
   bool new_session = false;
 
-  access_lock_.Acquire();
+  int session;
+  {
+    AutoLock locked(access_lock_);
 
-  if (!is_profiling()) {
-    Reset();
-    new_session = true;
-    ++session_id_;
+    if (!is_profiling()) {
+      Reset();
+      new_session = true;
+      ++session_id_;
+    }
+
+    session = session_id();
   }
-
-  int session = session_id();
-
-  access_lock_.Release();
 
   if (new_session) {
     Thread* thread = g_browser_process->io_thread();
@@ -89,23 +90,23 @@ int NavigationProfiler::StartProfiling() {
 void NavigationProfiler::StopProfiling(int session) {
   bool stop_session = false;
 
-  access_lock_.Acquire();
+  {
+    AutoLock locked(access_lock_);
 
-  if (is_profiling() && session == session_id()) {
-    stop_session = true;
+    if (is_profiling() && session == session_id()) {
+      stop_session = true;
+    }
+
+    // Move pages currently in active page list to visited page list so their
+    // status can be reported.
+    for (NavigationProfiler::PageTrackerIterator i = active_page_list_.begin();
+         i != active_page_list_.end();
+         ++i) {
+      PageLoadTracker* page = *i;
+      visited_page_list_.push_back(page);
+    }
+    active_page_list_.clear();
   }
-
-  // Move pages currently in active page list to visited page list so their
-  // status can be reported.
-  for (NavigationProfiler::PageTrackerIterator itr = active_page_list_.begin();
-       itr != active_page_list_.end();
-       ++itr) {
-    PageLoadTracker* page = *itr;
-    visited_page_list_.push_back(page);
-  }
-  active_page_list_.clear();
-
-  access_lock_.Release();
 
   if (stop_session) {
     Thread* thread = g_browser_process->io_thread();
@@ -116,7 +117,7 @@ void NavigationProfiler::StopProfiling(int session) {
 }
 
 void NavigationProfiler::StartProfilingInIOThread(int session) {
-  AutoLock acl(access_lock_);
+  AutoLock locked(access_lock_);
 
   if (!is_profiling() && session == session_id()) {
     g_url_request_job_tracker.AddObserver(this);
@@ -125,7 +126,7 @@ void NavigationProfiler::StartProfilingInIOThread(int session) {
 }
 
 void NavigationProfiler::StopProfilingInIOThread(int session) {
-  AutoLock acl(access_lock_);
+  AutoLock locked(access_lock_);
 
   if (is_profiling() && session == session_id()) {
     g_url_request_job_tracker.RemoveObserver(this);
@@ -136,7 +137,7 @@ void NavigationProfiler::StopProfilingInIOThread(int session) {
 int NavigationProfiler::RetrieveVisitedPages(
     NavigationPerformanceViewer* viewer) {
 
-  AutoLock acl(access_lock_);
+  AutoLock locked(access_lock_);
 
   if (!viewer)
     return 0;
@@ -156,32 +157,30 @@ int NavigationProfiler::RetrieveVisitedPages(
 }
 
 void NavigationProfiler::ResetVisitedPageList() {
-  AutoLock acl(access_lock_);
+  AutoLock locked(access_lock_);
 
-  for (NavigationProfiler::PageTrackerIterator itr = visited_page_list_.begin();
-       itr != visited_page_list_.end();
-       ++itr) {
-    delete (*itr);
+  for (NavigationProfiler::PageTrackerIterator i = visited_page_list_.begin();
+       i != visited_page_list_.end();
+       ++i) {
+    delete (*i);
   }
 
   visited_page_list_.clear();
 }
 
 void NavigationProfiler::ResetActivePageList() {
-  AutoLock acl(access_lock_);
+  AutoLock locked(access_lock_);
 
-  for (NavigationProfiler::PageTrackerIterator itr = active_page_list_.begin();
-       itr != active_page_list_.end();
-       ++itr) {
-    delete (*itr);
+  for (NavigationProfiler::PageTrackerIterator i = active_page_list_.begin();
+       i != active_page_list_.end();
+       ++i) {
+    delete (*i);
   }
 
   active_page_list_.clear();
 }
 
 void NavigationProfiler::AddActivePage(PageLoadTracker* page) {
-  AutoLock acl(access_lock_);
-
   if (!is_profiling())
     return;
 
@@ -191,23 +190,26 @@ void NavigationProfiler::AddActivePage(PageLoadTracker* page) {
   // If the tab already has an active PageLoadTracker, remove it.
   RemoveActivePage(page->render_process_host_id(), page->routing_id());
 
-  active_page_list_.push_back(page);
+  { 
+    AutoLock locked(access_lock_);
+    active_page_list_.push_back(page);
+  }
 }
 
 void NavigationProfiler::MoveActivePageToVisited(int render_process_host_id,
                                                  int routing_id) {
-  AutoLock acl(access_lock_);
+  AutoLock locked(access_lock_);
 
   if (!is_profiling())
     return;
 
-  PageTrackerIterator page_itr =
+  PageTrackerIterator i =
       GetPageLoadTrackerByIDUnsafe(render_process_host_id, routing_id);
 
   PageLoadTracker* page = NULL;
-  if (page_itr != active_page_list_.end()) {
-    page = *page_itr;
-    active_page_list_.erase(page_itr);
+  if (i != active_page_list_.end()) {
+    page = *i;
+    active_page_list_.erase(i);
   }
 
   if (page) {
@@ -217,17 +219,17 @@ void NavigationProfiler::MoveActivePageToVisited(int render_process_host_id,
 
 void NavigationProfiler::RemoveActivePage(int render_process_host_id,
                                           int routing_id) {
-  AutoLock acl(access_lock_);
+  AutoLock locked(access_lock_);
 
   if (!is_profiling())
     return;
 
-  PageTrackerIterator page_itr =
+  PageTrackerIterator i =
       GetPageLoadTrackerByIDUnsafe(render_process_host_id, routing_id);
 
-  if (page_itr != active_page_list_.end()) {
-    delete (*page_itr);
-    active_page_list_.erase(page_itr);
+  if (i != active_page_list_.end()) {
+    delete (*i);
+    active_page_list_.erase(i);
   }
 }
 
@@ -237,7 +239,7 @@ void NavigationProfiler::AddFrameMetrics(
     int routing_id,
     FrameNavigationMetrics* frame_metrics) {
 
-  AutoLock acl(access_lock_);
+  AutoLock locked(access_lock_);
 
   if (!is_profiling())
     return;
@@ -245,18 +247,18 @@ void NavigationProfiler::AddFrameMetrics(
   if (!frame_metrics)
     return;
 
-  PageTrackerIterator page_itr =
+  PageTrackerIterator i =
       GetPageLoadTrackerByIDUnsafe(render_process_host_id, routing_id);
 
-  if (page_itr != active_page_list_.end()) {
-    (*page_itr)->AddFrameMetrics(frame_metrics);
+  if (i != active_page_list_.end()) {
+    (*i)->AddFrameMetrics(frame_metrics);
   }
 }
 
 void NavigationProfiler::AddJobMetrics(int render_process_host_id,
                                        int routing_id,
                                        URLRequestJobMetrics* job_metrics) {
-  AutoLock acl(access_lock_);
+  AutoLock locked(access_lock_);
 
   if (!is_profiling())
     return;
@@ -264,11 +266,11 @@ void NavigationProfiler::AddJobMetrics(int render_process_host_id,
   if (!job_metrics)
     return;
 
-  PageTrackerIterator page_itr =
+  PageTrackerIterator i =
       GetPageLoadTrackerByIDUnsafe(render_process_host_id, routing_id);
 
-  if (page_itr != active_page_list_.end()) {
-    (*page_itr)->AddJobMetrics(job_metrics);
+  if (i != active_page_list_.end()) {
+    (*i)->AddJobMetrics(job_metrics);
   }
 }
 
@@ -276,32 +278,32 @@ void NavigationProfiler::SetLoadingEndTime(int render_process_host_id,
                                            int routing_id,
                                            int32 page_id,
                                            TimeTicks time) {
-  AutoLock acl(access_lock_);
+  AutoLock locked(access_lock_);
 
   if (!is_profiling())
     return;
 
-  PageTrackerIterator page_itr =
+  PageTrackerIterator i =
       GetPageLoadTrackerByIDUnsafe(render_process_host_id, routing_id);
 
-  if (page_itr != active_page_list_.end()) {
-    (*page_itr)->SetLoadingEndTime(page_id, time);
+  if (i != active_page_list_.end()) {
+    (*i)->SetLoadingEndTime(page_id, time);
   }
 }
 
 NavigationProfiler::PageTrackerIterator
     NavigationProfiler::GetPageLoadTrackerByIDUnsafe(
         int render_process_host_id, int routing_id) {
-  PageTrackerIterator itr;
+  PageTrackerIterator i;
 
-  for (itr = active_page_list_.begin(); itr != active_page_list_.end(); ++itr) {
-    if ((*itr)->render_process_host_id() == render_process_host_id &&
-        (*itr)->routing_id() == routing_id) {
+  for (i = active_page_list_.begin(); i != active_page_list_.end(); ++i) {
+    if ((*i)->render_process_host_id() == render_process_host_id &&
+        (*i)->routing_id() == routing_id) {
       break;
     }
   }
 
-  return itr;
+  return i;
 }
 
 void NavigationProfiler::OnJobAdded(URLRequestJob* job) {
