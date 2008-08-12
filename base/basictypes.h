@@ -76,18 +76,18 @@ typedef unsigned long long uint64;
 // and it should always be the signed version of whatever int32 is.)
 typedef signed int         char32;
 
-const uint8  kuint8max  = UCHAR_MAX;
-const uint16 kuint16max = USHRT_MAX;
-const uint32 kuint32max = UINT_MAX;
-const uint64 kuint64max = ULLONG_MAX;
-const  int8  kint8min   = SCHAR_MIN;
-const  int8  kint8max   = SCHAR_MAX;
-const  int16 kint16min  = SHRT_MIN;
-const  int16 kint16max  = SHRT_MAX;
-const  int32 kint32min  = INT_MIN;
-const  int32 kint32max  = INT_MAX;
-const  int64 kint64min  = LLONG_MIN;
-const  int64 kint64max  = LLONG_MAX;
+const uint8  kuint8max  = (( uint8) 0xFF);
+const uint16 kuint16max = ((uint16) 0xFFFF);
+const uint32 kuint32max = ((uint32) 0xFFFFFFFF);
+const uint64 kuint64max = ((uint64) GG_LONGLONG(0xFFFFFFFFFFFFFFFF));
+const  int8  kint8min   = ((  int8) 0x80);
+const  int8  kint8max   = ((  int8) 0x7F);
+const  int16 kint16min  = (( int16) 0x8000);
+const  int16 kint16max  = (( int16) 0x7FFF);
+const  int32 kint32min  = (( int32) 0x80000000);
+const  int32 kint32max  = (( int32) 0x7FFFFFFF);
+const  int64 kint64min  = (( int64) GG_LONGLONG(0x8000000000000000));
+const  int64 kint64max  = (( int64) GG_LONGLONG(0x7FFFFFFFFFFFFFFF));
 
 // id for odp categories
 typedef uint32 CatId;
