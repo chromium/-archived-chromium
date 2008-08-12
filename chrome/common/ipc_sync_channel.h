@@ -128,9 +128,7 @@ class SyncChannel : public ChannelProxy {
     PendingSyncMessageQueue deserializers_;
     Lock deserializers_lock_;
 
-    // This can't be a scoped_refptr because it needs to be released on the
-    // listener thread.
-    ReceivedSyncMsgQueue* received_sync_msgs_;
+    scoped_refptr<ReceivedSyncMsgQueue> received_sync_msgs_;
 
     bool channel_closed_;
     bool reply_deserialize_result_;
