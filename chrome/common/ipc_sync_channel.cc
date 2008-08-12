@@ -69,7 +69,10 @@ class SyncChannel::ReceivedSyncMsgQueue :
   }
 
   ~ReceivedSyncMsgQueue() {
+    DCHECK(ThreadLocalStorage::Get(g_tls_index));
+    DCHECK(MessageLoop::current() == listener_message_loop_);
     CloseHandle(blocking_event_);
+    ThreadLocalStorage::Set(g_tls_index, NULL);
   }
 
   // Called on IPC thread when a synchronous message or reply arrives.
@@ -182,6 +185,7 @@ class SyncChannel::ReceivedSyncMsgQueue :
   }
 
   HANDLE blocking_event() { return blocking_event_; }
+  MessageLoop* listener_message_loop() { return listener_message_loop_; }
 
  private:
   // Called on the ipc thread to check if we can unblock any current Send()
@@ -247,24 +251,24 @@ SyncChannel::SyncContext::SyncContext(
   received_sync_msgs_ = static_cast<ReceivedSyncMsgQueue*>(
       ThreadLocalStorage::Get(g_tls_index));
 
-  if (!received_sync_msgs_.get()) {
+  if (!received_sync_msgs_) {
     // Stash a pointer to the listener thread's ReceivedSyncMsgQueue, as we
     // need to be able to access it in the IPC thread.
     received_sync_msgs_ = new ReceivedSyncMsgQueue();
-    // TODO(jcampan): http:///b/1319842 we are adding an extra-ref to keep this
-    // object around for the duration of the process.  We used to remove it from
-    // the TLS when it was destroyed, but that was causing problems as we could
-    // be destroyed in a different thread then the thread we had been created
-    // on.  This needs to be revisited at some point.
-    received_sync_msgs_->AddRef();
-
-    ThreadLocalStorage::Set(g_tls_index, received_sync_msgs_.get());
+    ThreadLocalStorage::Set(g_tls_index, received_sync_msgs_);
   }
+
+  // Addref manually so that we can ensure destruction on the listener thread
+  // (so that the TLS object is NULLd).
+  received_sync_msgs_->AddRef();
 }
 
 SyncChannel::SyncContext::~SyncContext() {
   while (!deserializers_.empty())
     PopDeserializer(true);
+
+  received_sync_msgs_->listener_message_loop()->ReleaseSoon(
+      FROM_HERE, received_sync_msgs_);
 }
 
 // Adds information about an outgoing sync message to the context so that
