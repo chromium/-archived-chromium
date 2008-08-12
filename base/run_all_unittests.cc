@@ -35,5 +35,7 @@ int main(int argc, char** argv) {
   // the AtExitManager or else we will leak objects.
   base::AtExitManager at_exit_manager;  
 
+  CommandLine::SetArgcArgv(argc, argv);
+
   return TestSuite(argc, argv).Run();
 }

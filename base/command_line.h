@@ -55,10 +55,16 @@ class CommandLine {
   // The program name is assumed to be the first item in the string.  
   CommandLine(const std::wstring& command_line);
 #elif defined(OS_POSIX)
-  CommandLine(int argc, const char** argv);
+  CommandLine(int argc, char** argv);
 #endif
 
   ~CommandLine();
+
+  // On non-Windows platforms, main() must call SetArgcArgv() before accessing
+  // any members of this class.
+  // On Windows, this call is a no-op (we instead parse GetCommandLineW()
+  // directly) because we don't trust the CRT's parsing of the command line.
+  static void SetArgcArgv(int argc, char** argv);
 
   // Returns true if this command line contains the given switch.
   // (Switch names are case-insensitive.)

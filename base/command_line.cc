@@ -41,16 +41,6 @@
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 
-extern "C" {
-#if defined(OS_MACOSX)
-extern const char** NXArgv;
-extern int NXArgc;
-#elif defined(OS_LINUX)
-extern const char** __libc_argv;
-extern int __libc_argc;
-#endif
-}  // extern "C"
-
 using namespace std;
 
 // Since we use a lazy match, make sure that longer versions (like L"--")
@@ -58,7 +48,7 @@ using namespace std;
 #if defined(OS_WIN)
 const wchar_t* const CommandLine::kSwitchPrefixes[] = {L"--", L"-", L"/"};
 #elif defined(OS_POSIX)
-// POSIX shells don't use slash as a switch since they mark absolute paths
+// Unixes don't use slash as a switch.
 const wchar_t* const CommandLine::kSwitchPrefixes[] = {L"--", L"-"};
 #endif
 
@@ -90,13 +80,9 @@ class CommandLine::Data {
   Data() { 
     Init(GetCommandLineW());
   }
-#elif defined(OS_MACOSX)
+#elif defined(OS_POSIX)
   Data() {
-    Init(NXArgc, NXArgv);
-  }
-#elif defined(OS_LINUX)
-  Data() {
-    Init(__gnuc_argc, __gnuc_argv);
+    // Owner must call Init().
   }
 #endif
 
@@ -105,7 +91,7 @@ class CommandLine::Data {
     Init(command_line);
   }
 #elif defined(OS_POSIX)
-  Data(const int argc, const char* argv[]) {
+  Data(const int argc, char** argv) {
     Init(argc, argv);
   }
 #endif
@@ -142,8 +128,10 @@ class CommandLine::Data {
     if (args)
       LocalFree(args);
   }
-#elif defined(OS_POSIX)  // Does the actual parsing of the command line.
-  void Init(int argc, const char* argv[]) {
+
+#elif defined(OS_POSIX)
+  // Does the actual parsing of the command line.
+  void Init(int argc, char** argv) {
     if (argc < 1)
       return;
     program_ = base::SysNativeMBToWide(argv[0]);
@@ -226,6 +214,9 @@ class CommandLine::Data {
 CommandLine::CommandLine()
     : we_own_data_(false),  // The Singleton class will manage it for us.
       data_(Singleton<Data>::get()) {
+  DCHECK(!data_->command_line_string().empty()) <<
+    "You must call CommandLine::SetArgcArgv before making any CommandLine "
+    "calls.";
 }
 
 #if defined(OS_WIN)
@@ -234,7 +225,7 @@ CommandLine::CommandLine(const wstring& command_line)
       data_(new Data(command_line)) {
 }
 #elif defined(OS_POSIX)
-CommandLine::CommandLine(const int argc, const char* argv[])
+CommandLine::CommandLine(const int argc, char** argv)
     : we_own_data_(true),
       data_(new Data(argc, argv)) {
 }
@@ -243,6 +234,11 @@ CommandLine::CommandLine(const int argc, const char* argv[])
 CommandLine::~CommandLine() {
   if (we_own_data_)
     delete data_;
+}
+
+// static
+void CommandLine::SetArgcArgv(int argc, char** argv) {
+  Singleton<Data>::get()->Init(argc, argv);
 }
 
 bool CommandLine::HasSwitch(const wstring& switch_string) const {
