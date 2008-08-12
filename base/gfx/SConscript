@@ -31,6 +31,11 @@ Import('env')
 
 env = env.Clone()
 
+# Remove an inherited relative path that doesn't make sense anymore.  This
+# makes sure we don't pull in the wrong version of time.h when building on
+# linux.
+env['CPPPATH'].remove('..')
+
 env.Prepend(
     CPPPATH = [
         '$SKIA_DIR/include',
@@ -47,16 +52,29 @@ env.Prepend(
         'CHROME_PNG_WRITE_SUPPORT',
         'U_STATIC_IMPLEMENTATION',
     ],
-    CCFLAGS = [
-        '/TP',
-        '/WX',
-    ],
 )
 
+if env['PLATFORM'] == 'win32':
+  env.Prepend(
+      CCFLAGS = [
+          '/TP',
+          '/WX',
+      ],
+  )
+
 input_files = [
+    'convolver.cc',
+    'point.cc',
+    'rect.cc',
+    'size.cc',
+]
+
+if env['PLATFORM'] == 'win32':
+  # Some of these aren't really Windows-specific, they're just here until
+  # we have the port versions working.
+  input_files.extend([
     'bitmap_header.cc',
     'bitmap_platform_device.cc',
-    'convolver.cc',
     'font_utils.cc',
     'image_operations.cc',
     'native_theme.cc',
@@ -64,13 +82,10 @@ input_files = [
     'platform_device.cc',
     'png_decoder.cc',
     'png_encoder.cc',
-    'point.cc',
-    'rect.cc',
-    'size.cc',
     'skia_utils.cc',
     'uniscribe.cc',
     'vector_canvas.cc',
     'vector_device.cc',
-]
+  ])
 
 env.ChromeStaticLibrary('base_gfx', input_files)
