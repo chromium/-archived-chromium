@@ -29,34 +29,18 @@
 
 #include "base/string_util.h"
 
-#include <CoreFoundation/CoreFoundation.h>
 #include <pthread.h>
 #include <string>
 #include <vector>
 #include "base/logging.h"
-#include "base/scoped_cftyperef.h"
 #include "unicode/numfmt.h"
 
 static NumberFormat* number_format_singleton = NULL;
-static CFDateFormatterRef date_formatter = NULL;
-static CFDateFormatterRef time_formatter = NULL;
 
 static void DoInitializeStatics() {
   UErrorCode status = U_ZERO_ERROR;
   number_format_singleton = NumberFormat::createInstance(status);
   DCHECK(U_SUCCESS(status));
-
-  scoped_cftyperef<CFLocaleRef> user_locale(CFLocaleCopyCurrent());
-  date_formatter = CFDateFormatterCreate(NULL,
-                                         user_locale,
-                                         kCFDateFormatterShortStyle,   // date
-                                         NULL);                        // time
-  DCHECK(date_formatter);
-  time_formatter = CFDateFormatterCreate(NULL,
-                                         user_locale,
-                                         NULL,                         // date
-                                         kCFDateFormatterShortStyle);  // time
-  DCHECK(time_formatter);
 }
 
 static void InitializeStatics() {

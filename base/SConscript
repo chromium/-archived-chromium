@@ -165,7 +165,7 @@ if env['PLATFORM'] == 'posix':
   input_files.extend([
       'atomicops_internals_x86_gcc.cc',
       'file_util_linux.cc',
-      'string_util_mac.cc',
+      'string_util_posix.cc',
       'sys_string_conversions_linux.cc',
   ])
 
