@@ -135,6 +135,10 @@ void RenderThread::Init() {
 void RenderThread::CleanUp() {
   DCHECK(current() == this);
 
+  // Need to destruct the SyncChannel to the browser before we go away because
+  // it caches a pointer to this thread.
+  channel_.reset();
+
   // Clean up plugin channels before this thread goes away.
   PluginChannelBase::CleanupChannels();
 
