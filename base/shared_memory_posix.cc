@@ -29,6 +29,7 @@
 
 #include "base/shared_memory.h"
 
+#include <fcntl.h>
 #include <sys/mman.h>
 
 #include "base/logging.h"
