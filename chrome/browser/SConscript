@@ -332,6 +332,7 @@ input_files = [
     'views/go_button.cc',
     'views/html_dialog_view.cc',
     'views/hung_renderer_view.cc',
+    'views/hwnd_html_view.cc',
     'views/importer_lock_view.cc',
     'views/importer_view.cc',
     'views/importing_progress_view.cc',

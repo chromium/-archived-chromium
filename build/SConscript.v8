@@ -47,7 +47,7 @@ v8 = env.Command(v8_scons_targets,
                  [],
                  'cd ..\\v8 && $PYTHON $SCONS $SCONSFLAGS ${TARGETS[:-1]}',
                  SCONS='..\\third_party\\scons\\scons.py',
-                 SCONSFLAGS='-Q -q --warn=no-deprecated')
+                 SCONSFLAGS='-Q --warn=no-deprecated')
 env.AlwaysBuild(v8)
 env.Install('$V8_DIR', v8)
 

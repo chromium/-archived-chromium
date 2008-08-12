@@ -131,7 +131,12 @@ if env['PLATFORM'] == 'darwin':
       'sys_string_conversions_mac.cc',
   ])
 
-if env['PLATFORM'] in ('darwin', 'linux2'):
+if env['PLATFORM'] == 'posix':
+  input_files.extend([
+      'file_util_linux.cc',
+  ])
+
+if env['PLATFORM'] in ('darwin', 'posix'):
   input_files.extend([
       'condition_variable_posix.cc',
       'lock_impl_posix.cc',
@@ -160,9 +165,6 @@ env_tests.Prepend(
         'PNG_USER_CONFIG',
         'CHROME_PNG_WRITE_SUPPORT',
         'U_STATIC_IMPLEMENTATION',
-        '_WIN32_WINNT=0x0600',
-        'WINVER=0x0600',
-        '_HAS_EXCEPTIONS=0',
     ],
     LIBS = [
         'base',
@@ -187,6 +189,11 @@ if env['PLATFORM'] == 'win32':
           '/TP',
           '/WX',
           '/Wp64',
+      ],
+      CPPDEFINES = [
+        '_WIN32_WINNT=0x0600',
+        'WINVER=0x0600',
+        '_HAS_EXCEPTIONS=0',
       ],
       LINKFLAGS = [
           '/MANIFEST',
@@ -223,6 +230,7 @@ test_files = [
     'gfx/rect_unittest.cc',
     'gfx/uniscribe_unittest.cc',
     'gfx/vector_canvas_unittest.cc',
+    'idletimer_unittest.cc',
     'hmac_unittest.cc',
     'json_reader_unittest.cc',
     'json_writer_unittest.cc',
@@ -242,19 +250,20 @@ test_files = [
     'singleton_unittest.cc',
     'stack_container_unittest.cc',
     'stats_table_unittest.cc',
-    'string_tokenizer_unittest.cc',
+    'string_escape_unittest.cc',
     'string_piece_unittest.cc',
+    'string_tokenizer_unittest.cc',
     'string_util_unittest.cc',
     'thread_local_storage_unittest.cc',
     'thread_unittest.cc',
-    'tracked_objects_test.cc',
     'time_unittest.cc',
     'timer_unittest.cc',
+    'tracked_objects_test.cc',
     'values_unittest.cc',
     'waitable_event_unittest.cc',
     'win_util_unittest.cc',
-    'word_iterator_unittest.cc',
     'wmi_util_unittest.cc',
+    'word_iterator_unittest.cc',
 ]
 
 if env['PLATFORM'] == 'win32':

@@ -181,12 +181,14 @@ unit_test_files = [
     'browser/session_service_unittest.cc',
     'browser/site_instance_unittest.cc',
     'browser/tabs/tab_strip_model_unittest.cc',
+    'browser/tabs/tab_dragging_test.cc',
     'browser/template_url_model_unittest.cc',
     'browser/template_url_parser_unittest.cc',
     'browser/template_url_unittest.cc',
     'browser/title_chomper_unittest.cc',
     'browser/url_fetcher_unittest.cc',
     'browser/url_fixer_upper_unittest.cc',
+    'browser/views/bookmark_bar_view_test.cc',
     'browser/visitedlink_unittest.cc',
     'browser/web_contents_unittest.cc',
     'browser/webdata/web_database_unittest.cc',
@@ -218,6 +220,7 @@ unit_test_files = [
     'views/grid_layout_unittest.cc',
     'views/view_unittest.cc',
     'test/testing_profile.cc',
+    'test/ui/view_event_test_base.cc',
     'test/unit/run_all_unittests.cc',
     # Commented out for now because googleurl_tests doesn't build with
     # gtest; see ../build/SConscript.googleurl.
