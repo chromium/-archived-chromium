@@ -127,7 +127,7 @@
 		A5A028520E4CFDE300498DA9 /* path_service_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4562AD60E27E27E005E4685 /* path_service_unittest.cc */; };
 		A5A0286B0E4CFFC700498DA9 /* base_paths_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABF4B98E0DC2BA6900A6E319 /* base_paths_mac.mm */; };
 		ABF4B98F0DC2BA6900A6E319 /* base_paths_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABF4B98E0DC2BA6900A6E319 /* base_paths_mac.mm */; };
-		ABF4B99E0DC2BB6000A6E319 /* clipboard.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABF4B99D0DC2BB6000A6E319 /* clipboard.mm */; };
+		ABF4B99E0DC2BB6000A6E319 /* clipboard_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABF4B99D0DC2BB6000A6E319 /* clipboard_mac.mm */; };
 		ABF4B9A70DC2BBAE00A6E319 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 829E31330DBFDB6F00819EBF /* CoreGraphics.framework */; };
 		ABF4B9AF0DC2BC6200A6E319 /* json_reader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254031B0D92D1F40006B936 /* json_reader.cc */; };
 		ABF4B9B00DC2BC6500A6E319 /* json_writer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254031D0D92D1F40006B936 /* json_writer.cc */; };
@@ -526,7 +526,7 @@
 		A5A0276B0E4BA33700498DA9 /* build_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = build_config.h; path = ../build/build_config.h; sourceTree = SOURCE_ROOT; };
 		A5A0282D0E4CFA8500498DA9 /* file_util_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file_util_unittest.cc; sourceTree = "<group>"; };
 		ABF4B98E0DC2BA6900A6E319 /* base_paths_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = base_paths_mac.mm; sourceTree = "<group>"; };
-		ABF4B99D0DC2BB6000A6E319 /* clipboard.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = clipboard.mm; sourceTree = "<group>"; };
+		ABF4B99D0DC2BB6000A6E319 /* clipboard_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = clipboard_mac.mm; sourceTree = "<group>"; };
 		ABF4B9B40DC2BC9F00A6E319 /* path_service.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = path_service.cc; sourceTree = "<group>"; };
 		E45629E40E27C058005E4685 /* rect_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rect_unittest.cc; sourceTree = "<group>"; };
 		E4562A200E27C8C1005E4685 /* png_codec_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = png_codec_unittest.cc; sourceTree = "<group>"; };
@@ -636,7 +636,7 @@
 				825402D80D92D15E0006B936 /* blapit.h */,
 				A5A0276B0E4BA33700498DA9 /* build_config.h */,
 				825402DB0D92D1730006B936 /* clipboard.h */,
-				ABF4B99D0DC2BB6000A6E319 /* clipboard.mm */,
+				ABF4B99D0DC2BB6000A6E319 /* clipboard_mac.mm */,
 				825402DD0D92D1730006B936 /* clipboard_util.h */,
 				825402DE0D92D1730006B936 /* clipboard_util.cc */,
 				E45A2B5A0E479A1900DB1196 /* command_line_unittest.cc */,
@@ -1199,7 +1199,7 @@
 				824654A60DC25CD7007C2BAA /* pickle.cc in Sources */,
 				824654DF0DC26521007C2BAA /* prtime.cc in Sources */,
 				824655DD0DC659B8007C2BAA /* word_iterator.cc in Sources */,
-				ABF4B99E0DC2BB6000A6E319 /* clipboard.mm in Sources */,
+				ABF4B99E0DC2BB6000A6E319 /* clipboard_mac.mm in Sources */,
 				ABF4B9AF0DC2BC6200A6E319 /* json_reader.cc in Sources */,
 				ABF4B9B00DC2BC6500A6E319 /* json_writer.cc in Sources */,
 				ABF4B9B20DC2BC8300A6E319 /* memory_debug.cc in Sources */,
