@@ -27,8 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// StringPrintf stuff based on strings/stringprintf.cc by Sanjay Ghemawat
-
 #include "base/string_util.h"
 
 #include <ctype.h>
@@ -47,7 +45,6 @@
 
 #include "base/basictypes.h"
 #include "base/logging.h"
-#include "base/scoped_ptr.h"
 #include "base/singleton.h"
 
 namespace {
@@ -763,9 +760,10 @@ void ReplaceSubstringsAfterOffset(std::string* str,
 
 // Overloaded wrappers around vsnprintf and vswprintf. The buf_size parameter
 // is the size of the buffer. These return the number of characters in the
-// formatted string excluding the NUL terminator, or if the buffer is not
-// large enough to accommodate the formatted string without truncation, the
-// number of characters that would be in the fully-formatted string.
+// formatted string excluding the NUL terminator. If the buffer is not
+// large enough to accommodate the formatted string without truncation, they
+// return the number of characters that would be in the fully-formatted string
+// (vsnprintf, and vswprintf on Windows), or -1 (vswprintf on POSIX platforms).
 inline int vsnprintfT(char* buffer,
                       size_t buf_size,
                       const char* format,
@@ -789,46 +787,69 @@ static void StringAppendVT(
     va_list ap) {
 
   // First try with a small fixed size buffer.
-  // This buffer size should be kept in sync with StringUtilTest.GrowBoundary.
-  const int kStackLength = 1024;
-  char_type stack_buf[kStackLength];
+  // This buffer size should be kept in sync with StringUtilTest.GrowBoundary
+  // and StringUtilTest.StringPrintfBounds.
+  char_type stack_buf[1024];
 
-  // It's possible for methods that use a va_list to invalidate the data in it
-  // upon use.  The fix is to make a copy of the structure before using it and
-  // use that copy instead. It is not guaranteed that assignment is a copy, and
-  // va_copy is not supported by VC, so the UnitTest tests this capability.
-  va_list backup_ap = ap;
-  int result = vsnprintfT(stack_buf, kStackLength, format, backup_ap);
+  va_list backup_ap;
+  base::va_copy(backup_ap, ap);
+
+#if !defined(OS_WIN)
+  errno = 0;
+#endif
+  int result = vsnprintfT(stack_buf, arraysize(stack_buf), format, backup_ap);
   va_end(backup_ap);
 
-  if (result >= 0 && result < kStackLength) {
+  if (result >= 0 && result < static_cast<int>(arraysize(stack_buf))) {
     // It fit.
     dst->append(stack_buf, result);
     return;
   }
 
-  int mem_length = result;
+  // Repeatedly increase buffer size until it fits.
+  int mem_length = arraysize(stack_buf);
+  while (true) {
+    if (result < 0) {
+#if !defined(OS_WIN)
+      // On Windows, vsnprintfT always returns the number of characters in a
+      // fully-formatted string, so if we reach this point, something else is
+      // wrong and no amount of buffer-doubling is going to fix it.
+      if (errno != 0 && errno != EOVERFLOW)
+#endif
+      {
+        // If an error other than overflow occurred, it's never going to work.
+        DLOG(WARNING) << "Unable to printf the requested string due to error.";
+        return;
+      }
+      // Try doubling the buffer size.
+      mem_length *= 2;
+    } else {
+      // We need exactly "result + 1" characters.
+      mem_length = result + 1;
+    }
 
-  // vsnprintfT may have failed for some reason other than an insufficient
-  // buffer, such as an invalid characer.  Check that the requested buffer
-  // size is smaller than what was already attempted
-  if (mem_length < 0 || mem_length < kStackLength) {
-    DLOG(WARNING) << "Unable to compute size of the requested string.";
-    return;
+    if (mem_length > 32 * 1024 * 1024) {
+      // That should be plenty, don't try anything larger.  This protects
+      // against huge allocations when using vsnprintfT implementations that
+      // return -1 for reasons other than overflow without setting errno.
+      DLOG(WARNING) << "Unable to printf the requested string due to size.";
+      return;
+    }
+
+    std::vector<char_type> mem_buf(mem_length);
+
+    // Restore the va_list before we use it again.
+    base::va_copy(backup_ap, ap);
+
+    result = vsnprintfT(&mem_buf[0], mem_length, format, ap);
+    va_end(backup_ap);
+
+    if ((result >= 0) && (result < mem_length)) {
+      // It fit.
+      dst->append(&mem_buf[0], result);
+      return;
+    }
   }
-
-  mem_length++;  // Include the NULL terminator.
-  scoped_ptr<char_type> mem_buf(new char_type[mem_length]);
-
-  // Do the printf.
-  result = vsnprintfT(mem_buf.get(), mem_length, format, ap);
-  DCHECK(result < mem_length);
-  if (result < 0) {
-    DLOG(WARNING) << "Unable to printf the requested string.";
-    return;
-  }
-
-  dst->append(mem_buf.get(), result);
 }
 
 std::string Uint64ToString(uint64 value) {
