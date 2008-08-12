@@ -31,9 +31,6 @@ import os
 import shutil
 import sys
 
-#TODO(rspangler): extra imports for testing
-#from SCons.Script.__init__ import *
-
 
 p = ARGUMENTS.get('PROGRESS')
 if p == 'spinner':
@@ -44,8 +41,12 @@ elif p == 'name':
 
 SetOption('warn', ['no-missing-sconscript'] + GetOption('warn'))
 
-processors = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
-SetOption('num_jobs', processors + 1)
+
+load = ARGUMENTS.get('LOAD')
+if load:
+    load = load.split(',')
+else:
+    load = []
 
 
 env = Environment(
@@ -123,6 +124,9 @@ env.AddMethod(ChromeSharedLibrary, "ChromeSharedLibrary")
 
 
 if env['PLATFORM'] == 'win32':
+
+  processors = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
+  SetOption('num_jobs', processors + 1)
 
   msvs_env = Environment(tools=['msvc', 'mslink', 'msvs'])['ENV']
 
@@ -262,7 +266,14 @@ if env['PLATFORM'] == 'win32':
 
 elif env['PLATFORM'] == 'posix':
 
-  env.Replace()
+  # For now, linux only loads the components we know work on Linux, by default.
+  load = ['base', 'testing', 'third_party']
+
+  env.Replace(
+      # TODO(linux): we should also compile with -Werror, but not yet.
+      CCFLAGS = ['-m32', '-g'],
+      LINKFLAGS = ['-m32'],
+  )
 
 else:
 
@@ -298,12 +309,6 @@ env.Decider('MD5-timestamp')
 # Overlay things from a layer below.
 env.Dir('$TARGET_ROOT').addRepository(Dir('..'))
 
-
-load = ARGUMENTS.get('LOAD')
-if load:
-    load = load.split(',')
-else:
-    load = []
 
 included = [c for c in load if not c.startswith('-')]
 excluded = [c[1:] for c in load if c.startswith('-')]

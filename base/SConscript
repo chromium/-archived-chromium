@@ -51,16 +51,39 @@ if env['PLATFORM'] == 'win32':
       ],
   )
 
+if env['PLATFORM'] == 'posix':
+  env.Replace(
+      LIBS = ['pthread'],
+  )
+
+# These base files work on *all* platforms; files that don't work
+# cross-platform live below.
 input_files = [
     'at_exit.cc',
+    'base_switches.cc',
+    'command_line.cc',
+    'icu_util.cc',
+    'lock.cc',
+    'logging.cc',
+    'platform_thread.cc',
+    'string_escape.cc',
+    'string_piece.cc',
+    'string_util.cc',
+    'string_util_icu.cc',
+    'values.cc',
+]
+
+if env['PLATFORM'] == 'win32':
+  # Some of these aren't really Windows-specific, they're just here until
+  # we have the port versions working.
+  # TODO(evanm): label all these modules with whether they're needing work
+  # or unfeasible.
+  input_files.extend([
     'base_drag_source.cc',
     'base_drop_target.cc',
     'base_paths.cc',
-    'base_switches.cc',
     'bzip2_error_handler.cc',
-    'clipboard.cc',
     'clipboard_util.cc',
-    'command_line.cc',
     'debug_on_start.cc',
     'debug_util.cc',
     'event_recorder.cc',
@@ -69,13 +92,10 @@ input_files = [
     'histogram.cc',
     'hmac.cc',
     'iat_patch.cc',
-    'icu_util.cc',
     'idle_timer.cc',
     'image_util.cc',
     'json_reader.cc',
     'json_writer.cc',
-    'lock.cc',
-    'logging.cc',
     'md5.cc',
     'memory_debug.cc',
     'message_loop.cc',
@@ -84,7 +104,6 @@ input_files = [
     'path_service.cc',
     'pe_image.cc',
     'pickle.cc',
-    'platform_thread.cc',
     'process.cc',
     'process_util.cc',
     'registry.cc',
@@ -94,10 +113,6 @@ input_files = [
     'shared_event.cc',
     'shared_memory.cc',
     'stats_table.cc',
-    'string_escape.cc',
-    'string_piece.cc',
-    'string_util.cc',
-    'string_util_icu.cc',
     'third_party/nspr/prtime.cc',
     'third_party/nss/sha512.cc',
     'thread.cc',
@@ -105,17 +120,17 @@ input_files = [
     'timer.cc',
     'tracked.cc',
     'tracked_objects.cc',
-    'values.cc',
     'watchdog.cc',
     'win_util.cc',
     'wmi_util.cc',
     'word_iterator.cc',
     'worker_pool.cc',
-]
+  ])
 
 if env['PLATFORM'] == 'win32':
   input_files.extend([
       'base_paths_win.cc',
+      'clipboard_win.cc',
       'condition_variable_win.cc',
       'file_util_win.cc',
       'lock_impl_win.cc',
@@ -126,24 +141,31 @@ if env['PLATFORM'] == 'win32':
       'waitable_event_win.cc',
   ])
 
+if env['PLATFORM'] in ('darwin', 'posix'):
+  input_files.extend([
+      'condition_variable_posix.cc',
+      'lock_impl_posix.cc',
+      'thread_local_storage_posix.cc',
+      'time_posix.cc',
+      'waitable_event_generic.cc',
+  ])
+
 if env['PLATFORM'] == 'darwin':
   input_files.extend([
+      'base_paths_mac.mm',
+      'clipboard_mac.cc',
+      'file_util_mac.mm',
+      'file_version_info_mac.mm',
+      'thread_posix.cc',
       'sys_string_conversions_mac.cc',
   ])
 
 if env['PLATFORM'] == 'posix':
   input_files.extend([
+      'atomicops_internals_x86_gcc.cc',
       'file_util_linux.cc',
-  ])
-
-if env['PLATFORM'] in ('darwin', 'posix'):
-  input_files.extend([
-      'condition_variable_posix.cc',
-      'lock_impl_posix.cc',
-      'thread_posix.cc',
-      'thread_local_storage_posix.cc',
-      'time_posix.cc',
-      'waitable_event_generic.cc',
+      'string_util_mac.cc',
+      'sys_string_conversions_linux.cc',
   ])
 
 env.ChromeStaticLibrary('base', input_files)
@@ -209,19 +231,41 @@ if env['PLATFORM'] == 'win32':
       ],
   )
 
+if env['PLATFORM'] == 'posix':
+  # Remove the libraries that don't build yet under Linux.
+  env_tests['LIBS'].remove('base_gfx')
+  env_tests['LIBS'].remove('skia')
+  env_tests['LIBS'].remove('libpng')
+  env_tests['LIBS'].remove('zlib')
+
 env_tests.ChromeTestProgram(['debug_message.exe',
                    'debug_message.ilk',
                    'debug_message.pdb'],
                   ['debug_message.cc'])
 
+# These test files work on *all* platforms; tests that don't work
+# cross-platform live below.
 test_files = [
     'at_exit_unittest.cc',
+    'linked_ptr_unittest.cc',
+    'pickle_unittest.cc',
+    'ref_counted_unittest.cc',
+    'run_all_unittests.cc',
+    'string_escape_unittest.cc',
+    'string_piece_unittest.cc',
+    'string_tokenizer_unittest.cc',
+    'values_unittest.cc',
+]
+
+if env['PLATFORM'] == 'win32':
+  # These tests aren't really Windows-specific, they're just here until
+  # we have the port versions working.
+  test_files.extend([
     'check_handler_unittest.cc',
     'clipboard_unittest.cc',
     'command_line_unittest.cc',
     'condition_variable_test.cc',
     'file_util_unittest.cc',
-    'file_version_info_unittest.cc',
     'gfx/convolver_unittest.cc',
     'gfx/image_operations_unittest.cc',
     'gfx/native_theme_unittest.cc',
@@ -234,15 +278,12 @@ test_files = [
     'hmac_unittest.cc',
     'json_reader_unittest.cc',
     'json_writer_unittest.cc',
-    'linked_ptr_unittest.cc',
     'message_loop_unittest.cc',
     'object_watcher_unittest.cc',
     'path_service_unittest.cc',
     'pe_image_unittest.cc',
-    'pickle_unittest.cc',
-    'pr_time_test.cc',
     'process_util_unittest.cc',
-    'ref_counted_unittest.cc',
+    'pr_time_test.cc',
     'run_all_unittests.cc',
     'sha2_unittest.cc',
     'shared_event_unittest.cc',
@@ -250,25 +291,23 @@ test_files = [
     'singleton_unittest.cc',
     'stack_container_unittest.cc',
     'stats_table_unittest.cc',
-    'string_escape_unittest.cc',
-    'string_piece_unittest.cc',
-    'string_tokenizer_unittest.cc',
     'string_util_unittest.cc',
     'thread_local_storage_unittest.cc',
     'thread_unittest.cc',
-    'time_unittest.cc',
     'timer_unittest.cc',
+    'time_unittest.cc',
     'tracked_objects_test.cc',
-    'values_unittest.cc',
     'waitable_event_unittest.cc',
-    'win_util_unittest.cc',
-    'wmi_util_unittest.cc',
     'word_iterator_unittest.cc',
-]
+  ])
 
 if env['PLATFORM'] == 'win32':
+  # Windows-specific tests.
   test_files.extend([
+      'file_version_info_unittest.cc',
       'sys_string_conversions_win_unittest.cc',
+      'win_util_unittest.cc',
+      'wmi_util_unittest.cc',
   ])
 
 base_unittests = env_tests.ChromeTestProgram([

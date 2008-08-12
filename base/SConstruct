@@ -28,13 +28,5 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 build_component = 'base'
-
-# TODO(keunwoo): Merge ../build/SConscript.main.linux back to SConscript.main,
-# then remove this.
-if Environment()['PLATFORM'] == 'posix':
-  SCONSCRIPT_MAIN = '../build/SConscript.main.linux'
-else:
-  SCONSCRIPT_MAIN = '../build/SConscript.main'
-
-SConscript(SCONSCRIPT_MAIN,
+SConscript('../build/SConscript.main',
            exports=['build_component'])
