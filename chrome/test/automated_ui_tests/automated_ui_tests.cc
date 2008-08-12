@@ -209,7 +209,6 @@ void AutomatedUITest::RunAutomatedUITest() {
       if (DidCrash(true)) {
         LogCrashResult(WideToASCII(GetMostRecentCrashDump()), false);
         // Try and start up again.
-        Sleep(500);
         CloseBrowserAndServer();
         LaunchBrowserAndServer();
         if (DidCrash(true)) {
@@ -264,7 +263,6 @@ void AutomatedUITest::RunAutomatedUITest() {
       } else {
         // If there was a previous crash, just tear down without logging, so
         // that we know what the last command was before we crashed.
-        Sleep(500);
         CloseBrowserAndServer();
       }
 
@@ -368,7 +366,6 @@ bool AutomatedUITest::DoAction(const std::string & action) {
   } else if (LowerCaseEqualsASCII(action, "taskmanager")) {
     did_complete_action = OpenTaskManagerDialog();
   } else if (LowerCaseEqualsASCII(action, "teardown")) {
-    Sleep(500);
     CloseBrowserAndServer();
     did_complete_action = true;
   } else if (LowerCaseEqualsASCII(action, "testclearbrowserdata")) {
