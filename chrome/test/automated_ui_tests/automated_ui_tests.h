@@ -228,7 +228,7 @@ class AutomatedUITest : public UITest {
 
   // Opens the Clear Browsing Data dialog, this dialog is modal so a majority of
   // the test can't be completed until it is dismissed.
-  // XML element: <ClearBrowserData/>
+  // XML element: <ClearBrowsingData/>
   bool OpenClearBrowsingDataDialog();
 
   // Opens the Search Engines dialog. While it isn't modal, it takes focus from
@@ -351,13 +351,17 @@ class AutomatedUITest : public UITest {
   // <TestEditKeywords> <PressTabKey/><PressEnterKey/><DownArrow/>
   // <DownArrow/><PressEscapeKey/> </TestEditKeywords>
 
+  // Opens About dialog and runs random actions on it.
+  // XML element: <TestAboutChrome/>
+  bool TestAboutChrome();
+
   // Opens Clear Browsing Data dialog and runs random actions on it.
-  // XML element: <TestClearBrowserData/>
+  // XML element: <TestClearBrowsingData/>
   bool TestClearBrowsingData();
 
   // Opens Edit Keywords dialog and runs random actions on it.
-  // XML element: <TestEditKeywords/>
-  bool TestEditKeywords();
+  // XML element: <TestEditSearchEngines/>
+  bool TestEditSearchEngines();
 
   // Opens Import Settings dialog and runs random actions on it.
   // XML element: <TestImportSettings/>
@@ -418,7 +422,7 @@ class AutomatedUITest : public UITest {
 
   // Calls SimulateOSKeyPress on the active window. Simulates a key press at
   // the OS level. |key| is the key pressed  and |flags| specifies which
-  // modifiers keys are also pressed (as defined inchrome/views/event.h).
+  // modifiers keys are also pressed (as defined in chrome/views/event.h).
   bool SimulateKeyPressInActiveWindow(wchar_t key, int flags);
 
   // Opens init file, reads it into the reader, and closes the file.

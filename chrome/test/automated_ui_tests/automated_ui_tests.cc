@@ -93,7 +93,7 @@ const std::string kDialogs[] = {
   "JavaScriptDebugger",
   "JavaScriptConsole",
   "ClearBrowsingData",
-  "Import",
+  "ImportSettings",
   "EditSearchEngines",
   "ViewPasswords"
 };
@@ -318,7 +318,7 @@ bool AutomatedUITest::DoAction(const std::string & action) {
     did_complete_action = ShowHistory();
   } else if (LowerCaseEqualsASCII(action, "home")) {
     did_complete_action = Home();
-  } else if (LowerCaseEqualsASCII(action, "import")) {
+  } else if (LowerCaseEqualsASCII(action, "importsettings")) {
     did_complete_action = OpenImportSettingsDialog();
   } else if (LowerCaseEqualsASCII(action, "javascriptconsole")) {
     did_complete_action = JavaScriptConsole();
@@ -368,10 +368,12 @@ bool AutomatedUITest::DoAction(const std::string & action) {
   } else if (LowerCaseEqualsASCII(action, "teardown")) {
     CloseBrowserAndServer();
     did_complete_action = true;
-  } else if (LowerCaseEqualsASCII(action, "testclearbrowserdata")) {
+  } else if (LowerCaseEqualsASCII(action, "testaboutchrome")) {
+    did_complete_action = TestAboutChrome();
+  } else if (LowerCaseEqualsASCII(action, "testclearbrowsingdata")) {
     did_complete_action = TestClearBrowsingData();
-  } else if (LowerCaseEqualsASCII(action, "testeditkeywords")) {
-    did_complete_action = TestEditKeywords();
+  } else if (LowerCaseEqualsASCII(action, "testeditsearchengines")) {
+    did_complete_action = TestEditSearchEngines();
   } else if (LowerCaseEqualsASCII(action, "testimportsettings")) {
     did_complete_action = TestImportSettings();
   } else if (LowerCaseEqualsASCII(action, "testoptions")) {
@@ -677,8 +679,23 @@ bool AutomatedUITest::ZoomPlus() {
   return RunCommand(IDC_ZOOM_PLUS);
 }
 
-bool AutomatedUITest::TestEditKeywords() {
-  DoAction("EditKeywords");
+bool AutomatedUITest::TestAboutChrome() {
+  DoAction("About");
+  return FuzzyTestDialog(kTestDialogActionsToRun);
+}
+
+bool AutomatedUITest::TestClearBrowsingData() {
+  DoAction("ClearBrowsingData");
+  return FuzzyTestDialog(kTestDialogActionsToRun);
+}
+
+bool AutomatedUITest::TestEditSearchEngines() {
+  DoAction("EditSearchEngines");
+  return FuzzyTestDialog(kTestDialogActionsToRun);
+}
+
+bool AutomatedUITest::TestImportSettings() {
+  DoAction("ImportSettings");
   return FuzzyTestDialog(kTestDialogActionsToRun);
 }
 
@@ -694,16 +711,6 @@ bool AutomatedUITest::TestOptions() {
 
 bool AutomatedUITest::TestViewPasswords() {
   DoAction("ViewPasswords");
-  return FuzzyTestDialog(kTestDialogActionsToRun);
-}
-
-bool AutomatedUITest::TestClearBrowsingData() {
-  DoAction("ClearBrowserData");
-  return FuzzyTestDialog(kTestDialogActionsToRun);
-}
-
-bool AutomatedUITest::TestImportSettings() {
-  DoAction("ImportSettings");
   return FuzzyTestDialog(kTestDialogActionsToRun);
 }
 
