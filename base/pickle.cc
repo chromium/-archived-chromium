@@ -39,6 +39,9 @@
 // static
 const int Pickle::kPayloadUnit = 64;
 
+// We mark a read only pickle with a special capacity_.
+static const size_t kCapacityReadOnly = std::numeric_limits<size_t>::max();
+
 // Payload is uint32 aligned.
 
 Pickle::Pickle()
@@ -64,7 +67,7 @@ Pickle::Pickle(int header_size)
 Pickle::Pickle(const char* data, int data_len)
     : header_(reinterpret_cast<Header*>(const_cast<char*>(data))),
       header_size_(data_len - header_->payload_size),
-      capacity_(-1),
+      capacity_(kCapacityReadOnly),
       variable_buffer_offset_(0) {
   DCHECK(header_size_ >= sizeof(Header));
   DCHECK(header_size_ == AlignInt(header_size_, sizeof(uint32)));
@@ -82,12 +85,12 @@ Pickle::Pickle(const Pickle& other)
 }
 
 Pickle::~Pickle() {
-  if (capacity_ != -1)
+  if (capacity_ != kCapacityReadOnly)
     free(header_);
 }
 
 Pickle& Pickle::operator=(const Pickle& other) {
-  if (header_size_ != other.header_size_ && capacity_ != -1) {
+  if (header_size_ != other.header_size_ && capacity_ != kCapacityReadOnly) {
     free(header_);
     header_ = NULL;
     header_size_ = other.header_size_;
@@ -258,7 +261,7 @@ void Pickle::EndWrite(char* dest, int length) {
 }
 
 bool Pickle::WriteBytes(const void* data, int data_len) {
-  DCHECK(capacity_ != -1) << "oops: pickle is readonly";
+  DCHECK(capacity_ != kCapacityReadOnly) << "oops: pickle is readonly";
 
   char* dest = BeginWrite(data_len);
   if (!dest)

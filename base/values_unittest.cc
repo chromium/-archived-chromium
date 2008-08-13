@@ -27,6 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <limits>
+
 #include "base/values.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -174,7 +176,8 @@ TEST(ValuesTest, ListRemoval) {
     list.Append(new DeletionTestValue(&deletion_flag));
     EXPECT_FALSE(deletion_flag);
     EXPECT_EQ(1, list.GetSize());
-    EXPECT_FALSE(list.Remove(-1, &removed_item));
+    EXPECT_FALSE(list.Remove(std::numeric_limits<size_t>::max(),
+                             &removed_item));
     EXPECT_FALSE(list.Remove(1, &removed_item));
     EXPECT_TRUE(list.Remove(0, &removed_item));
     ASSERT_TRUE(removed_item);
