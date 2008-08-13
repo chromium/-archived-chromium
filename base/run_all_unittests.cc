@@ -31,8 +31,7 @@
 #include "base/test_suite.h"
 
 int main(int argc, char** argv) {
-  // Some tests may use base::Singleton<>, thus we need to instanciate
-  // the AtExitManager or else we will leak objects.
+  // Setup an AtExitManager so Singleton objects will be destructed.
   base::AtExitManager at_exit_manager;  
 
   CommandLine::SetArgcArgv(argc, argv);
