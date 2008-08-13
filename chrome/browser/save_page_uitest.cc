@@ -63,6 +63,11 @@ class SavePageTest : public UITest {
       server_file_name += L"\\" + kTestDir + L"\\" + server_file;
       ASSERT_TRUE(file_util::PathExists(server_file_name));
 
+      int64 client_file_size = 0;
+      int64 server_file_size = 0;
+      EXPECT_TRUE(file_util::GetFileSize(client_file, &client_file_size));
+      EXPECT_TRUE(file_util::GetFileSize(server_file_name, &server_file_size));
+      EXPECT_EQ(client_file_size, server_file_size);
       EXPECT_PRED2(file_util::ContentsEqual, client_file, server_file_name);
     }
 
@@ -78,8 +83,7 @@ class SavePageTest : public UITest {
   std::wstring save_dir_;
 };
 
-// bug 1306067
-TEST_F(SavePageTest, DISABLED_SaveHTMLOnly) {
+TEST_F(SavePageTest, SaveHTMLOnly) {
   std::wstring file_name = L"a.htm";
   std::wstring full_file_name = save_dir_ + file_name;
   std::wstring dir = save_dir_ + L"a_files";
