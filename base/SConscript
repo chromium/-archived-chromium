@@ -95,7 +95,6 @@ if env['PLATFORM'] == 'win32':
     'non_thread_safe.cc',
     'object_watcher.cc',
     'path_service.cc',
-    'pe_image.cc',
     'process.cc',
     'process_util.cc',
     'registry.cc',
@@ -127,6 +126,7 @@ if env['PLATFORM'] == 'win32':
       'file_util_win.cc',
       'iat_patch.cc',
       'lock_impl_win.cc',
+      'pe_image.cc',
       'shared_memory_win.cc',
       'sys_string_conversions_win.cc',
       'thread_local_storage_win.cc',
@@ -271,7 +271,6 @@ if env['PLATFORM'] == 'win32':
     'message_loop_unittest.cc',
     'object_watcher_unittest.cc',
     'path_service_unittest.cc',
-    'pe_image_unittest.cc',
     'process_util_unittest.cc',
     'pr_time_test.cc',
     'run_all_unittests.cc',
@@ -302,6 +301,7 @@ if env['PLATFORM'] == 'win32':
   # Windows-specific tests.
   test_files.extend([
       'file_version_info_unittest.cc',
+      'pe_image_unittest.cc',
       'sys_string_conversions_win_unittest.cc',
       'win_util_unittest.cc',
       'wmi_util_unittest.cc',
