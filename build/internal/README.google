@@ -1,4 +1,7 @@
 Internal property sheets:
+  chromium_build*.vsprops
+    Defines preprocessor definitions to control the various flavors of Chromium (currently Chromium or Google Chrome). The appropriate chromium_build*.vsprops file gets included in debug.vsprops and release.vsprops based on CHROMIUM_BUILD environment variable.
+    
   essential.vsprops
     Contains the common settings used throughout the projects. Is included by either ..\debug.vsprops or ..\release.vsprops, so in general, it is not included directly.
 

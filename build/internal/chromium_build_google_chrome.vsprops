@@ -2,7 +2,10 @@
 <VisualStudioPropertySheet
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="release"
-	InheritedPropertySheets="internal\release_impl$(CHROME_BUILD_TYPE).vsprops;internal\chromium_build_google_chrome.vsprops"
+	Name="chromium_build"
 	>
+	<Tool
+		Name="VCCLCompilerTool"
+		PreprocessorDefinitions="GOOGLE_CHROME_BUILD"
+	/>
 </VisualStudioPropertySheet>
