@@ -136,6 +136,9 @@ class SharedMemory {
   void Unlock();
 
  private:
+#if defined(OS_POSIX)
+  bool CreateOrOpen(const std::wstring &name, int posix_flags);
+#endif
   bool ShareToProcessCommon(ProcessHandle process,
       SharedMemoryHandle *new_handle, bool close_self);
 

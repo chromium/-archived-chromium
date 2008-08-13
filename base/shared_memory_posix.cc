@@ -36,9 +36,9 @@
 #include "base/string_util.h"
 
 namespace {
-  // Paranoia. Semaphores and shared memory segments should live in different
-  // namespaces, but who knows what's out there.
-  const char kSemaphoreSuffix[] = "-sem";
+// Paranoia. Semaphores and shared memory segments should live in different
+// namespaces, but who knows what's out there.
+const char kSemaphoreSuffix[] = "-sem";
 }
 
 SharedMemory::SharedMemory()
@@ -77,22 +77,41 @@ SharedMemory::~SharedMemory() {
 
 bool SharedMemory::Create(const std::wstring &name, bool read_only,
                           bool open_existing, size_t size) {
-  DCHECK(mapped_file_ == -1);
-
-  name_ = L"/" + name;
   read_only_ = read_only;
 
   int posix_flags = 0;
   posix_flags |= read_only ? O_RDONLY : O_RDWR;
-  posix_flags |= O_CREAT;
+  if (!open_existing)
+    posix_flags |= O_CREAT;
+  
+  if (CreateOrOpen(name, posix_flags)) {
+    ftruncate(mapped_file_, size);
+    max_size_ = size;
+    return true;
+  }
+  
+  return false;
+}
+
+bool SharedMemory::Open(const std::wstring &name, bool read_only) {
+  read_only_ = read_only;
+  
+  int posix_flags = 0;
+  posix_flags |= read_only ? O_RDONLY : O_RDWR;
+  
+  return CreateOrOpen(name, posix_flags);
+}
+
+bool SharedMemory::CreateOrOpen(const std::wstring &name, int posix_flags) {
+  DCHECK(mapped_file_ == -1);
+  
+  name_ = L"/" + name;
   
   int posix_mode = 0600;  // owner read/write
   std::string posix_name(WideToUTF8(name_));
   mapped_file_ = shm_open(posix_name.c_str(), posix_flags, posix_mode);
-  
   if (mapped_file_ < 0)
     return false;
-  ftruncate(mapped_file_, size);
   
   posix_name += kSemaphoreSuffix;
   lock_ = sem_open(posix_name.c_str(), O_CREAT, posix_mode, 1);
@@ -103,25 +122,8 @@ bool SharedMemory::Create(const std::wstring &name, bool read_only,
     lock_ = NULL;
     return false;
   }
-
-  max_size_ = size;
+  
   return true;
-}
-
-bool SharedMemory::Open(const std::wstring &name, bool read_only) {
-  DCHECK(mapped_file_ == -1);
-
-  name_ = name;
-  read_only_ = read_only;
-  
-  int posix_flags = 0;
-  posix_flags |= read_only ? O_RDONLY : O_RDWR;
-  
-  int posix_mode = 0600;  // owner read/write
-  std::string posix_name(WideToUTF8(name_));
-  mapped_file_ = shm_open(posix_name.c_str(), posix_flags, posix_mode);
-  
-  return (mapped_file_ >= 0);
 }
 
 bool SharedMemory::Map(size_t bytes) {
