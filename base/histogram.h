@@ -366,8 +366,7 @@ class LinearHistogram : public Histogram {
   virtual void InitializeBucketRange();
   // Find bucket to increment for sample value.
   virtual size_t BucketIndex(Sample value) const;
-  virtual double LinearHistogram::GetBucketSize(Count current,
-                                                size_t i) const;
+  virtual double GetBucketSize(Count current, size_t i) const;
 
   // If we have a description for a bucket, then return that.  Otherwise
   // let parent class provide a (numeric) description.
@@ -466,4 +465,3 @@ class StatisticsRecorder {
 };
 
 #endif  // BASE_HISTOGRAM_H__
-

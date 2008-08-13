@@ -60,6 +60,7 @@ input_files = [
     'command_line.cc',
     'debug_util.cc',
     'file_util.cc',
+    'histogram.cc',
     'icu_util.cc',
     'json_reader.cc',
     'json_writer.cc',
@@ -75,6 +76,9 @@ input_files = [
     'string_piece.cc',
     'string_util.cc',
     'string_util_icu.cc',
+    'timer.cc',
+    'tracked.cc',
+    'tracked_objects.cc',
     'values.cc',
     'word_iterator.cc',
 ]
@@ -90,7 +94,6 @@ if env['PLATFORM'] == 'win32':
     'debug_on_start.cc',
     'event_recorder.cc',
     'file_version_info.cc',
-    'histogram.cc',
     'hmac.cc',                 # Uses Windows-specific crypto APIs.
     'idle_timer.cc',
     'image_util.cc',
@@ -108,9 +111,6 @@ if env['PLATFORM'] == 'win32':
     'third_party/nss/sha512.cc',
     'thread.cc',
     'time.cc',
-    'timer.cc',
-    'tracked.cc',
-    'tracked_objects.cc',
     'watchdog.cc',
     'worker_pool.cc',
   ])

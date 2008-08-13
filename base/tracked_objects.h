@@ -157,7 +157,7 @@ class Snapshot {
   int64 square_duration() const { return death_data_.square_duration(); }
   int AverageMsDuration() const { return death_data_.AverageMsDuration(); }
 
-  void Snapshot::Write(std::string* output) const;
+  void Write(std::string* output) const;
 
   void Add(const Snapshot& other);
 
