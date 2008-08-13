@@ -27,10 +27,14 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <process.h>
 #include <time.h>
 
+#if defined(OS_WIN)
+#include <process.h>
+#endif
+
 #include "base/time.h"
+#include "base/platform_thread.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 // Test conversions to/from time_t and exploding/unexploding.
@@ -38,7 +42,11 @@ TEST(Time, TimeT) {
   // C library time and exploded time.
   time_t now_t_1 = time(NULL);
   struct tm tms;
+#if defined(OS_WIN)
   localtime_s(&tms, &now_t_1);
+#elif defined(OS_POSIX)
+  localtime_r(&now_t_1, &tms);
+#endif
 
   // Convert to ours.
   Time our_time_1 = Time::FromTimeT(now_t_1);
@@ -93,13 +101,17 @@ TEST(Time, UTCExplode) {
 
 TEST(TimeTicks, Deltas) {
   TimeTicks ticks_start = TimeTicks::Now();
-  Sleep(10);
+  PlatformThread::Sleep(10);
   TimeTicks ticks_stop = TimeTicks::Now();
   TimeDelta delta = ticks_stop - ticks_start;
   EXPECT_GE(delta.InMilliseconds(), 10);
   EXPECT_GE(delta.InMicroseconds(), 10000);
   EXPECT_EQ(delta.InSeconds(), 0);
 }
+
+#if defined(OS_WIN)
+
+// TODO(pinkerton): Need to find a way to mock this for non-windows.
 
 namespace {
 
@@ -193,3 +205,5 @@ TEST(TimeTicks, Rollover) {
     MockTimeTicks::UninstallTicker();
   }
 }
+
+#endif
