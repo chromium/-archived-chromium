@@ -486,7 +486,7 @@
 <translation id="6883611015375728278">모든 쿠키 차단</translation>
 <translation id="5287240709317226393">쿠키 표시</translation>
 <translation id="7280343984261969618">권한이 없는 Sandbox에서 플러그인을 실행하면 일부 플러그인이 제대로 작동하지 않습니다.</translation>
-<translation id="3473105180351527598">피싱 및 멀웨어 차단 사용</translation>
+<translation id="3473105180351527598">피싱 및 악성코드 차단 사용</translation>
 <translation id="8646430701497924396">SSL 2.0 사용</translation>
 <translation id="8709969075297564489">서버 인증서 폐기 확인</translation>
 <translation id="5565725983873655007">보안(SSL) 페이지에 콘텐츠가 혼합되어 있는 경우:</translation>
@@ -519,7 +519,7 @@
 <translation id="3549657413697417275">방문한 페이지 검색</translation>
 <translation id="495091556140548787">최근 닫은 탭</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
-<translation id="7227780179130368205">멀웨어가 감지되었습니다.</translation>
+<translation id="7227780179130368205">악성코드가 감지되었습니다.</translation>
 <translation id="6181769708911894002">경고: 이 사이트를 방문하는 것이 컴퓨터에 해를 줄 수 있습니다.</translation>
 <translation id="3635774677705394651">&lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt;의 웹사이트가 멀웨어를 호스팅하는 것으로 보입니다. 멀웨어는 컴퓨터에 해를 입히거나 사용자의 동의 없이 컴퓨터를 조작할 수 있는 악성 소프트웨어입니다. 멀웨어를 호스팅하는 사이트를 방문하는 것만으로도 컴퓨터가 감염될 수 있습니다.</translation>
 <translation id="644038709730536388">유해한 온라인 소프트웨어로부터 컴퓨터를 보호하는 방법에 대해 자세히 알아보세요.</translation>

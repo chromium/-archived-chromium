@@ -97,8 +97,8 @@
 <translation id="1857842694030005096">Flere oplysninger om denne fejl</translation>
 <translation id="558442360746014982">Herunder ses den oprindelige fejlmeddelelse</translation>
 <translation id="5204993535447683655">&lt;a jsvalues=&quot;href:reloadUrl&quot;&gt;Genindlæs&lt;/a&gt; denne webside senere.</translation>
-<translation id="8832489506946784872">Se en &lt;a jsvalues=&quot;href:cacheUrl&quot;&gt;cachelagret kopi af websiden fra Google&lt;/a&gt;</translation>
-<translation id="8494979374722910010">Forsøget på at forbinde til serveren mislykkedes.</translation>
+<translation id="8832489506946784872">Se en &lt;a jsvalues=&quot;href:cacheUrl&quot;&gt;cachelagret kopi af websiden fra Google&lt;/a&gt;.</translation>
+<translation id="8494979374722910010">Forsøg på at oprette forbindelse til serveren mislykkedes.</translation>
 <translation id="7643817847124207232">Forbindelsen til internettet er mistet.</translation>
 <translation id="1195447618553298278">Ukendt fejl.</translation>
 <translation id="2497284189126895209">Alle filer</translation>
@@ -293,7 +293,7 @@
 <translation id="825608351287166772">Certifikater har en gyldighedsperiode ganske som de andre former for identifikation (eksempelvis et pas), du har. Sikkerhedscertifikatet, som blev vist for browseren, er endnu ikke gyldigt! Når et certifikat har overskredet sin gyldighedsperiode, er der visse oplysninger om certifikatets status (om det er blevet tilbagetrukket og dermed ikke længere er troværdigt) som ikke længere skal vedligeholdes. Derfor er det ikke muligt at bekræfte, om dette certifikat er troværdigt. Du bør ikke fortsætte herfra.</translation>
 <translation id="374530189620960299">Sikkerhedscertifikatet for dette websted er ikke troværdigt!</translation>
 <translation id="1684248949164455892">I dette tilfælde er certifikatet ikke bekræftet af den tredjepart, som din computer stoler på. Enhver kan oprette et certifikat, som hæver at komme fra et hvilken som helst websted. Derfor skal det bekræftes af en troværdig tredjepart. Uden denne bekræftelse er certifikatets oplysninger om identitet værdiløse. Det er derfor umuligt at bekræfte, om du kommunikerer med &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; i stedet for med en ondsindet part, der har oprettet sit eget certifikat og udgiver sig for at være &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Du bør ikke fortsætte herfra.</translation>
-<translation id="9087164549070846958">Hvis du imidlertid arbejder i en organisation, der genererer sine egne certifikater, og du er ved at forbinde til et internt websted i den organisation med et sådant certifikat, kan du muligvis løse dette problem på forsvarlig vis. Du kan importere din organisations rodcertifikater som et &quot;rodcertifikater&quot;, og derefter vil certifikater, der udstedes eller bekræftes af din organisation, være troværdige. Næste gang du forsøger at forbinde til et internt websted, vil du så ikke opleve denne fejl igen. Kontakt det tekniske personale i din organisation for at få hjælp til at tilføje et nyt rodcertifikat til Windows.</translation>
+<translation id="9087164549070846958">Hvis du imidlertid arbejder i en organisation, der genererer sine egne certifikater, og du er ved at oprette forbindelse til et internt websted i den organisation med et sådant certifikat, kan du muligvis løse dette problem på forsvarlig vis. Du kan importere din organisations rodcertifikater som et &quot;rodcertifikater&quot;, og derefter vil certifikater, der udstedes eller bekræftes af din organisation, være troværdige. Næste gang du forsøger at oprette forbindelse til et internt websted, vil du så ikke opleve denne fejl igen. Kontakt det tekniske personale i din organisation for at få hjælp til at tilføje et nyt rodcertifikat til Windows.</translation>
 <translation id="2649911884196340328">Serverens sikkerhedscertifikatet har fejl!</translation>
 <translation id="8534801226027872331">I det tilfælde har certifikatet, der vises for browseren, fejl og kan ikke forstås. Dette kan betyde, at vi ikke forstår oplysningerne om identitet i certifikatet eller andre oplysninger i certifikatet, der bruges til at sikre forbindelsen. Du bør ikke fortsætte herfra.</translation>
 <translation id="8187473050234053012">Sikkerhedscertifikatet for dette websted er tilbagekaldt!</translation>
@@ -327,7 +327,7 @@
 <translation id="5376169624176189338">Klik for at gå tilbage. Hold knappen inde for at se historikken.</translation>
 <translation id="2961695502793809356">Klik for at gå frem. Hold knappen inde for at se historikken.</translation>
 <translation id="7221869452894271364">Genindlæs denne side</translation>
-<translation id="3254409185687681395">Føj bogmærke til denne side</translation>
+<translation id="3254409185687681395">Føj et bogmærke til denne side</translation>
 <translation id="4422347585044846479">Rediger bogmærke for denne side</translation>
 <translation id="4084682180776658562">Bogmærke</translation>
 <translation id="5646376287012673985">Placering</translation>
@@ -433,7 +433,7 @@
 <translation id="1628736721748648976">Kodning</translation>
 <translation id="5706242308519462060">Standardkodning:</translation>
 <translation id="4181841719683918333">Sprog</translation>
-<translation id="8929159553808058020">Tilføj de sprog, du bruger til læsning af websteder i prioriteret rækkefølge. Tilføj kun dem, du har brug for, da nogle tegn kan benyttes til at efterligne websteder på andre sprog.</translation>
+<translation id="8929159553808058020">Tilføj de sprog, du bruger til læsning af websteder, i prioriteret rækkefølge. Tilføj kun dem, du har brug for, da nogle tegn kan benyttes til at efterligne websteder på andre sprog.</translation>
 <translation id="2303544859777878640">Sprog:</translation>
 <translation id="8609465669617005112">Flyt op</translation>
 <translation id="6746124502594467657">Flyt ned</translation>
@@ -729,7 +729,7 @@
 <translation id="8899388739470541164">Vietnamesisk</translation>
 <translation id="1714078437629572290">Åbn startsiden</translation>
 <translation id="5316814419223884568">Søg direkte herfra</translation>
-<translation id="3065140616557457172">Tast for at søge eller angiv en webadresse for at navigere - alt virker.</translation>
+<translation id="3065140616557457172">Tast for at søge, eller angiv en webadresse for at navigere – det hele virker.</translation>
 <translation id="4178055285485194276">Ved opstart:</translation>
 <translation id="1154228249304313899">Åbn denne side:</translation>
 <translation id="3761000923495507277">Vis knap til startsiden på værktøjslinjen</translation>
