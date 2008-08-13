@@ -79,6 +79,8 @@ class AtExitManager {
  private:
   Lock lock_;
   std::stack<AtExitCallbackType> stack_;
+  AtExitManager* next_manager_;  // Stack of managers to allow shadowing.
+
   DISALLOW_COPY_AND_ASSIGN(AtExitManager);
 };
 

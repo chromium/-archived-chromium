@@ -36,54 +36,52 @@ namespace base {
 // recent, and we should never have more than one outside of testing, when we
 // use the shadow version of the constructor.  We don't protect this for
 // thread-safe access, since it will only be modified in testing.
-static std::stack<AtExitManager*> g_managers;
+static AtExitManager* g_top_manager = NULL;
 
-AtExitManager::AtExitManager() {
-  DCHECK(g_managers.empty());
-  g_managers.push(this);
+AtExitManager::AtExitManager() : next_manager_(NULL) {
+  DCHECK(!g_top_manager);
+  g_top_manager = this;
 }
 
-AtExitManager::AtExitManager(bool shadow) {
-  DCHECK(shadow || g_managers.empty());
-  g_managers.push(this);
+AtExitManager::AtExitManager(bool shadow) : next_manager_(g_top_manager) {
+  DCHECK(shadow || !g_top_manager);
+  g_top_manager = this;
 }
 
 AtExitManager::~AtExitManager() {
-  if (g_managers.empty()) {
+  if (!g_top_manager) {
     NOTREACHED() << "Tried to ~AtExitManager without an AtExitManager";
     return;
   }
-  DCHECK(g_managers.top() == this);
+  DCHECK(g_top_manager == this);
 
   ProcessCallbacksNow();
-  g_managers.pop();
+  g_top_manager = next_manager_;
 }
 
 // static
 void AtExitManager::RegisterCallback(AtExitCallbackType func) {
-  if (g_managers.empty()) {
+  if (!g_top_manager) {
     NOTREACHED() << "Tried to RegisterCallback without an AtExitManager";
     return;
   }
 
-  AtExitManager* manager = g_managers.top();
-  AutoLock lock(manager->lock_);
-  manager->stack_.push(func);
+  AutoLock lock(g_top_manager->lock_);
+  g_top_manager->stack_.push(func);
 }
 
 // static
 void AtExitManager::ProcessCallbacksNow() {
-  if (g_managers.empty()) {
+  if (!g_top_manager) {
     NOTREACHED() << "Tried to ProcessCallbacksNow without an AtExitManager";
     return;
   }
 
-  AtExitManager* manager = g_managers.top();
-  AutoLock lock(manager->lock_);
+  AutoLock lock(g_top_manager->lock_);
 
-  while (!manager->stack_.empty()) {
-    AtExitCallbackType func = manager->stack_.top();
-    manager->stack_.pop();
+  while (!g_top_manager->stack_.empty()) {
+    AtExitCallbackType func = g_top_manager->stack_.top();
+    g_top_manager->stack_.pop();
     if (func)
       func();
   }
