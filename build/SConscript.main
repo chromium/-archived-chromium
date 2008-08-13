@@ -103,7 +103,6 @@ env = Environment(
     LIBPATH               = ['$LIBS_DIR'],
 )
 
-
 def ChromeProgram(env, *args, **kw):
     return env.Program(*args, **kw)
 env.AddMethod(ChromeProgram, "ChromeProgram")
@@ -265,6 +264,13 @@ if env['PLATFORM'] == 'win32':
   env['ENV']['USERPROFILE'] = os.environ['USERPROFILE']
 
 elif env['PLATFORM'] == 'posix':
+
+  # Copy some environment variables from the outer environment if they exist.
+  for envvar in ['CC', 'CXX']:
+    if envvar in os.environ:
+      env[envvar] = os.environ[envvar]
+  # Provide $HOME when compiling so distcc can find its lock file.
+  env['ENV']['HOME'] = os.environ['HOME']
 
   # TODO(evanm): this is Linux-specific, not posix.
   # Parse /proc/cpuinfo for processor count.
