@@ -102,13 +102,8 @@ class SyncChannel : public ChannelProxy {
     // Otherwise the function returns false.
     bool UnblockListener(const Message* msg);
 
-
     // Cleanly remove the top deserializer (and throw it away).
-    // You need to acquire the deserializers_lock before calling this.
     void PopDeserializer(bool close_reply_event);
-  
-    // Returns the lock that should be acquired before calling PopDeserializer.
-    Lock* deserializers_lock() { return &deserializers_lock_; }
 
    private:
     void OnMessageReceived(const Message& msg);

@@ -99,8 +99,6 @@ class SyncChannel::ReceivedSyncMsgQueue :
   }
 
   void QueueReply(const Message &msg, SyncChannel::SyncContext* context) {
-    AutoLock auto_lock(reply_lock_);
-
     received_replies_.push_back(Reply(new Message(msg), context));
   }
 
@@ -151,13 +149,7 @@ class SyncChannel::ReceivedSyncMsgQueue :
 
   // Called on the IPC thread when the current sync Send() call is unblocked.
   void OnUnblock() {
-    bool queued_replies = false;
-    {
-      AutoLock auto_lock(reply_lock_);
-      queued_replies = !received_replies_.empty();
-    }
-
-    if (queued_replies) {
+    if (!received_replies_.empty()) {
       MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
           this, &ReceivedSyncMsgQueue::DispatchReplies));
     }
@@ -191,8 +183,6 @@ class SyncChannel::ReceivedSyncMsgQueue :
   // Called on the ipc thread to check if we can unblock any current Send()
   // calls based on a queued reply.
   void DispatchReplies() {
-    AutoLock auto_lock(reply_lock_);
-
     for (size_t i = 0; i < received_replies_.size(); ++i) {
       Message* message = received_replies_[i].message;
       if (received_replies_[i].context->UnblockListener(message)) {
@@ -235,7 +225,6 @@ class SyncChannel::ReceivedSyncMsgQueue :
   };
 
   std::vector<Reply> received_replies_;
-  Lock reply_lock_;
 };
 
 
@@ -300,33 +289,39 @@ bool SyncChannel::SyncContext::UnblockListener(const Message* msg) {
   bool rv = false;
   HANDLE reply_event = NULL;
   {
-    AutoLock auto_lock(deserializers_lock_);
     if (channel_closed_) {
       // The channel is closed, or we couldn't connect, so cancel all Send()
       // calls.
       reply_deserialize_result_ = false;
-      if (!deserializers_.empty()) {
-        reply_event = deserializers_.top().reply_event;
+      {
+        AutoLock auto_lock(deserializers_lock_);
+        if (!deserializers_.empty())
+          reply_event = deserializers_.top().reply_event;
+      }
+
+      if (reply_event)
         PopDeserializer(false);
-      }
     } else {
-      if (deserializers_.empty())
-        return false;
+      {
+        AutoLock auto_lock(deserializers_lock_);
+        if (deserializers_.empty())
+          return false;
 
-      if (!IPC::SyncMessage::IsMessageReplyTo(*msg, deserializers_.top().id))
-        return false;
+        if (!IPC::SyncMessage::IsMessageReplyTo(*msg, deserializers_.top().id))
+          return false;
 
-      rv = true;
-      if (msg->is_reply_error()) {
-        reply_deserialize_result_ = false;
-      } else {
-        reply_deserialize_result_ =
-            deserializers_.top().deserializer->SerializeOutputParameters(*msg);
+        rv = true;
+        if (msg->is_reply_error()) {
+          reply_deserialize_result_ = false;
+        } else {
+          reply_deserialize_result_ = deserializers_.top().deserializer->
+              SerializeOutputParameters(*msg);
+        }
+
+        // Can't CloseHandle the event just yet, since doing so might cause the
+        // Wait call above to never return.
+        reply_event = deserializers_.top().reply_event;
       }
-
-      // Can't CloseHandle the event just yet, since doing so might cause the
-      // Wait call above to never return.
-      reply_event = deserializers_.top().reply_event;
       PopDeserializer(false);
     }
   }
@@ -456,7 +451,6 @@ bool SyncChannel::SendWithTimeout(IPC::Message* message, int timeout_ms) {
     if (result == WAIT_OBJECT_0 || result == WAIT_TIMEOUT) {
       // Process shut down before we can get a reply to a synchronous message,
       // or timed-out. Unblock the thread.
-      AutoLock auto_lock(*(sync_context()->deserializers_lock()));
       sync_context()->PopDeserializer(true);
       return false;
     }
@@ -494,7 +488,6 @@ bool SyncChannel::SendWithTimeout(IPC::Message* message, int timeout_ms) {
       timeout_ms -= static_cast<int>(time_delta.InMilliseconds());
       if (timeout_ms <= 0) {
         // We timed-out while processing messages.
-        AutoLock auto_lock(*(sync_context()->deserializers_lock()));
         sync_context()->PopDeserializer(true);
         return false;
       }
