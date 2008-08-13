@@ -59,6 +59,7 @@ typedef pthread_mutex_t* MutexHandle;
 #include <algorithm>
 #include "base/base_switches.h"
 #include "base/command_line.h"
+#include "base/debug_util.h"
 #include "base/lock_impl.h"
 #include "base/logging.h"
 #include "base/string_util.h"
@@ -473,13 +474,9 @@ LogMessage::~LogMessage() {
 
   if (severity_ == LOG_FATAL) {
     // display a message or break into the debugger on a fatal error
-#if defined(OS_WIN)
-    if (::IsDebuggerPresent()) {
-      __debugbreak();
-    } 
-    else
-#endif
-    {
+    if (DebugUtil::BeingDebugged()) {
+      DebugUtil::BreakDebugger();
+    } else {
       if (log_assert_handler) {
         // make a copy of the string for the handler out of paranoia
         log_assert_handler(std::string(stream_.str()));
@@ -488,16 +485,9 @@ LogMessage::~LogMessage() {
         // the debug message process
         DisplayDebugMessage(stream_.str());
         // Crash the process to generate a dump.
-#if defined(OS_WIN)
-        __debugbreak();
-#elif defined(OS_POSIX)
-#if defined(OS_MACOSX)
-        // TODO: when we have breakpad support, generate a breakpad dump, but
-        // until then, do not invoke the Apple crash reporter.
-        Debugger();
-#endif
-        exit(-1);
-#endif
+        DebugUtil::BreakDebugger();
+        // TODO(mmentovai): when we have breakpad support, generate a breakpad
+        // dump, but until then, do not invoke the Apple crash reporter.
       }
     }
   }

@@ -258,6 +258,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\debug_util_win.cc"
+			>
+		</File>
+		<File
 			RelativePath="..\event_recorder.cc"
 			>
 		</File>

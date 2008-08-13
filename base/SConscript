@@ -123,6 +123,7 @@ if env['PLATFORM'] == 'win32':
       'base_paths_win.cc',
       'clipboard_win.cc',
       'condition_variable_win.cc',
+      'debug_util_win.cc',
       'file_util_win.cc',
       'iat_patch.cc',
       'lock_impl_win.cc',
@@ -139,6 +140,7 @@ if env['PLATFORM'] == 'win32':
 if env['PLATFORM'] in ('darwin', 'posix'):
   input_files.extend([
       'condition_variable_posix.cc',
+      'debug_util_posix.cc',
       'lock_impl_posix.cc',
       'shared_memory_posix.cc',
       'thread_local_storage_posix.cc',
