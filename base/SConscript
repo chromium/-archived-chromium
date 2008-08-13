@@ -256,10 +256,7 @@ test_files = [
 if env['PLATFORM'] == 'win32':
   # These tests aren't really Windows-specific, they're just here until
   # we have the port versions working.
-  env_tests.ChromeTestProgram(['debug_message.exe',
-                               'debug_message.ilk',
-                               'debug_message.pdb'],
-                              ['debug_message.cc'])
+  env_tests.ChromeTestProgram('debug_message', ['debug_message.cc'])
 
   test_files.extend([
     'clipboard_unittest.cc',
@@ -295,8 +292,6 @@ if env['PLATFORM'] == 'win32':
     'gfx/vector_canvas_unittest.cc',
   ])
 
-test_targets = [ 'base_unittests' ]
-
 if env['PLATFORM'] == 'win32':
   # Windows-specific tests.
   test_files.extend([
@@ -306,14 +301,8 @@ if env['PLATFORM'] == 'win32':
       'win_util_unittest.cc',
       'wmi_util_unittest.cc',
   ])
-  test_targets.extend([
-    'base_unittests.exp',
-    'base_unittests.ilk',
-    'base_unittests.lib',
-    'base_unittests.pdb',
-  ])
 
-base_unittests = env_tests.ChromeTestProgram(test_targets, test_files)
+base_unittests = env_tests.ChromeTestProgram('base_unittests', test_files)
 
 # Install up a level to allow unit test path assumptions to be valid.
 installed_base_unittests = env.Install('$TARGET_ROOT', base_unittests)

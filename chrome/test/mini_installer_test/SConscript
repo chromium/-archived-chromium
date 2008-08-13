@@ -82,9 +82,7 @@ input_files = [
     'test.cc',
 ]
 
-exe = env_test.ChromeTestProgram(['mini_installer_test',
-                        'mini_installer_test.pdb'],
-                       input_files)
+exe = env_test.ChromeTestProgram('mini_installer_test', input_files)
 i = env_test.Install('$TARGET_ROOT', exe)
 
 env_test.Alias('chrome', i)

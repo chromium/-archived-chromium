@@ -194,12 +194,9 @@ env_unit_tests.Append(CCPCHFLAGS = ['/FIstdafx.h'])
 
 
 unit_tests = env_unit_tests.ChromeTestProgram(
-    ['../sbox_unittests.exe',
-    '../sbox_unittests.ilk',
-    '../sbox_unittests.pdb'],
+    'sbox_unittests',
     unit_test_files,
 )
-
 
 # Integration Tests
 
@@ -238,11 +235,7 @@ env_integration_tests['PCHSTOP'] = 'stdafx.h'
 env_integration_tests.Append(CCPCHFLAGS = ['/FIstdafx.h'])
 
 integration_tests = env_integration_tests.ChromeTestProgram(
-    ['../sbox_integration_tests.exe',
-    '../sbox_integration_tests.ilk',
-    '../sbox_integration_tests.lib',
-    '../sbox_integration_tests.exp',
-    '../sbox_integration_tests.pdb'],
+    'sbox_integration_tests',
     integration_test_files,
 )
 
@@ -277,11 +270,7 @@ env_validation_tests['PCHSTOP'] = 'stdafx.h'
 env_validation_tests.Append(CCPCHFLAGS = ['/FIstdafx.h'])
 
 validation_tests = env_validation_tests.ChromeTestProgram(
-    ['../sbox_validation_tests.exe',
-    '../sbox_validation_tests.ilk',
-    '../sbox_validation_tests.lib',
-    '../sbox_validation_tests.exp',
-    '../sbox_validation_tests.pdb'],
+    'sbox_validation_tests',
     validation_test_files,
 )
 
@@ -293,5 +282,3 @@ installed_tests = env.Install('$OBJ_ROOT',
 
 # Setup alias for sandbox related targets.
 env.Alias('sandbox', ['.', installed_tests])
-
-

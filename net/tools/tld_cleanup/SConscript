@@ -69,10 +69,7 @@ input_files = [
     'tld_cleanup.cc',
 ]
 
-exe_targets = env.ChromeProgram(['tld_cleanup',
-                           'tld_cleanup.ilk',
-                           'tld_cleanup.pdb'],
-                          input_files)
+exe_targets = env.ChromeProgram('tld_cleanup', input_files)
 i = env.Install('$TARGET_ROOT', exe_targets)
 env.Alias('net', i)
 

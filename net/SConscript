@@ -255,43 +255,32 @@ unittest_files = [
     '$BASE_DIR/run_all_unittests.obj',
 ]
 
-net_unittests = env_tests.ChromeTestProgram(
-    ['net_unittests.exe',
-    'net_unittests.ilk',
-    'net_unittests.pdb'],
-    unittest_files
-)
+net_unittests = env_tests.ChromeTestProgram('net_unittests', unittest_files)
 
 
 
 stress_cache = env_tests.ChromeTestProgram(
-    ['stress_cache.exe',
-    'stress_cache.ilk',
-    'stress_cache.pdb'],
+    'stress_cache',
     ['disk_cache/stress_cache.cc',
-    'disk_cache/disk_cache_test_util.cc']
+     'disk_cache/disk_cache_test_util.cc']
 )
 
 
 crash_cache = env_tests.ChromeTestProgram(
-    ['crash_cache.exe',
-    'crash_cache.ilk',
-    'crash_cache.pdb'],
+    'crash_cache',
     ['tools/crash_cache/crash_cache.cc',
-    'disk_cache/disk_cache_test_util.cc']
+     'disk_cache/disk_cache_test_util.cc']
 )
 
 
 net_perftests = env_tests.ChromeTestProgram(
-    ['net_perftests.exe',
-    'net_perftests.ilk',
-    'net_perftests.pdb'],
+    'net_perftests',
     ['disk_cache/disk_cache_test_util.cc',
-    'disk_cache/disk_cache_perftest.cc',
-    'base/cookie_monster_perftest.cc',
-    # TODO(sgk): avoid using .cc from base directly
-    '$BASE_DIR/run_all_perftests$OBJSUFFIX',
-    '$BASE_DIR/perftimer$OBJSUFFIX']
+     'disk_cache/disk_cache_perftest.cc',
+     'base/cookie_monster_perftest.cc',
+     # TODO(sgk): avoid using .cc from base directly
+     '$BASE_DIR/run_all_perftests$OBJSUFFIX',
+     '$BASE_DIR/perftimer$OBJSUFFIX']
 )
 
 

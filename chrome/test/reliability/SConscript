@@ -96,9 +96,7 @@ input_files = [
     'run_all_unittests.cc',
 ]
 
-exe = env_test.ChromeTestProgram(['reliability_tests',
-                        'reliability_tests.pdb'],
-                       input_files)
+exe = env_test.ChromeTestProgram('reliability_tests', input_files)
 i = env_test.Install('$TARGET_ROOT', exe)
 
 env_test.Alias('chrome', i)

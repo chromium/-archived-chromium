@@ -94,9 +94,7 @@ input_files = [
     'selenium_test.cc',
 ]
 
-exe = env_test.ChromeTestProgram(['selenium_tests',
-                        'selenium_tests.pdb'],
-                       input_files)
+exe = env_test.ChromeTestProgram('selenium_tests', input_files)
 i = env_test.Install('$TARGET_ROOT', exe)
 
 env_test.Alias('chrome', i)

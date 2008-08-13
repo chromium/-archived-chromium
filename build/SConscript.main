@@ -103,11 +103,34 @@ env = Environment(
     LIBPATH               = ['$LIBS_DIR'],
 )
 
+def AddPdbToTarget(args):
+    """Add the windows pdb file to the build target.
+
+    Arguments:
+      args is a tuple passed to ChromeProgram or ChromeTestProgram
+    Returns:
+      A tuple to pass on to Environment.Program."""
+    # Only add .pdb to the target if the target was only a string. We can't
+    # blindly add foo.pdb because chrome.exe and chrome.dll use chrome_exe.pdb
+    # and chrome_dll.pdb.
+    if not isinstance(args[0], str):
+        return args
+
+    mutable_args = list(args)
+    mutable_args[0] = [args[0], args[0] + '.pdb']
+    return tuple(mutable_args)
+
 def ChromeProgram(env, *args, **kw):
+    if env['PLATFORM'] == 'win32':
+        # TODO(tc): We should handle kw['target'] too.
+        args = AddPdbToTarget(args)
     return env.Program(*args, **kw)
 env.AddMethod(ChromeProgram, "ChromeProgram")
 
 def ChromeTestProgram(env, *args, **kw):
+    if env['PLATFORM'] == 'win32':
+        # TODO(tc): We should handle kw['target'] too.
+        args = AddPdbToTarget(args)
     return env.Program(*args, **kw)
 env.AddMethod(ChromeTestProgram, "ChromeTestProgram")
 

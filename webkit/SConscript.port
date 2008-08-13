@@ -133,4 +133,4 @@ input_files = [
     '$PORT_DIR/page/DragControllerWin.cpp',
 ]
 
-env.ChromeStaticLibrary("Port.lib", input_files)
+env.ChromeStaticLibrary("port", input_files)

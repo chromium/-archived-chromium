@@ -140,10 +140,7 @@ exe_input_files = [
     '$V8_DIR/snapshot-empty$OBJSUFFIX'
 ]
 
-test_shell = env.ChromeProgram(['test_shell.exe',
-                          'test_shell.ilk',
-                          'test_shell.pdb'],
-                         resources + exe_input_files)
+test_shell = env.ChromeProgram('test_shell', resources + exe_input_files)
 i = env.Install('$TARGET_ROOT', test_shell)
 env.Alias('webkit', i)
 
@@ -203,9 +200,7 @@ test_files = [
     '$V8_DIR/snapshot-empty$OBJSUFFIX',
 ]
 
-test_shell_tests = env.ChromeTestProgram(['test_shell_tests',
-                                'test_shell_tests.ilk',
-                                'test_shell_tests.pdb'],
-                               resources + test_files)
+test_shell_tests = env.ChromeTestProgram('test_shell_tests',
+                                         resources + test_files)
 i = env.Install('$TARGET_ROOT', test_shell_tests)
 env.Alias('webkit', i)
