@@ -403,34 +403,34 @@ TEST_F(SessionRestoreUITest, ShareProcessesOnRestore) {
   }
 
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   ASSERT_TRUE(browser_proxy.get() != NULL);
   int tab_count;
   ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
 
   // Create two new tabs.
   int new_tab_count;
   ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_NEWTAB));
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   ASSERT_TRUE(browser_proxy->WaitForTabCountToChange(tab_count, &new_tab_count,
                                                      kWaitForActionMsec));
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   scoped_ptr<TabProxy> last_tab(browser_proxy->GetTab(new_tab_count - 1));
   ASSERT_TRUE(last_tab.get() != NULL);
   // Do a reload to ensure new tab page has loaded.
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   ASSERT_TRUE(last_tab->Reload());
   tab_count = new_tab_count;
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_NEWTAB));
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   ASSERT_TRUE(browser_proxy->WaitForTabCountToChange(tab_count, &new_tab_count,
                                                      kWaitForActionMsec));
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   last_tab.reset(browser_proxy->GetTab(new_tab_count - 1));
   ASSERT_TRUE(last_tab.get() != NULL);
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   // Do a reload to ensure new tab page has loaded.
   ASSERT_TRUE(last_tab->Reload());
   int expected_process_count = GetBrowserProcessCount();
@@ -438,34 +438,34 @@ TEST_F(SessionRestoreUITest, ShareProcessesOnRestore) {
   // Restart.
   browser_proxy.reset();
   last_tab.reset();
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   QuitBrowserAndRestore();
 
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   // Wait for each tab to finish being restored, then make sure the process
   // count matches.
   browser_proxy.reset(automation()->GetBrowserWindow(0));
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   ASSERT_TRUE(browser_proxy.get() != NULL);
   int restored_tab_count;
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   ASSERT_TRUE(browser_proxy->GetTabCount(&restored_tab_count));
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   ASSERT_EQ(new_tab_count, restored_tab_count);
 
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   scoped_ptr<TabProxy> tab_proxy(browser_proxy->GetTab(restored_tab_count - 2));
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   ASSERT_TRUE(tab_proxy.get() != NULL);
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(kWaitForActionMsec));
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   tab_proxy.reset(browser_proxy->GetTab(restored_tab_count - 1));
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   ASSERT_TRUE(tab_proxy.get() != NULL);
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(kWaitForActionMsec));
 
-  printf("check point\n");
+  fprintf(stderr, "check point\n");
   ASSERT_EQ(expected_process_count, GetBrowserProcessCount());
 }
