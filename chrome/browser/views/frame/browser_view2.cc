@@ -41,6 +41,7 @@
 #include "chrome/browser/views/status_bubble.h"
 #include "chrome/browser/views/toolbar_view.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/os_exchange_data.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/resource_bundle.h"
 #include "generated_resources.h"
@@ -67,7 +68,9 @@ BrowserView2::BrowserView2(Browser* browser)
       active_download_shelf_(NULL),
       toolbar_(NULL),
       contents_container_(NULL),
-      initialized_(false) {
+      initialized_(false),
+      can_drop_(false),
+      forwarding_to_tab_strip_(false) {
   InitClass();
   show_bookmark_bar_pref_.Init(prefs::kShowBookmarkBar,
                                browser_->profile()->GetPrefs(), this);
@@ -139,6 +142,10 @@ bool BrowserView2::GetAccelerator(int cmd_id,
     }
   }
   return false;
+}
+
+void BrowserView2::AddViewToDropList(ChromeViews::View* view) {
+  dropable_views_.insert(view);
 }
 
 bool BrowserView2::SupportsWindowFeature(WindowFeature feature) const {
@@ -593,10 +600,94 @@ void BrowserView2::ViewHierarchyChanged(bool is_add,
     Init();
     initialized_ = true;
   }
+  if (!is_add)
+    dropable_views_.erase(child);
 }
+
+bool BrowserView2::CanDrop(const OSExchangeData& data) {
+  can_drop_ = (tabstrip_->IsVisible() && !tabstrip_->IsAnimating() &&
+               data.HasURL());
+  return can_drop_;
+}
+
+void BrowserView2::OnDragEntered(const ChromeViews::DropTargetEvent& event) {
+  if (can_drop_ && ShouldForwardToTabStrip(event)) {
+    forwarding_to_tab_strip_ = true;
+    scoped_ptr<ChromeViews::DropTargetEvent> mapped_event(
+        MapEventToTabStrip(event));
+    tabstrip_->OnDragEntered(*mapped_event.get());
+  }
+}
+
+int BrowserView2::OnDragUpdated(const ChromeViews::DropTargetEvent& event) {
+  if (can_drop_) {
+    if (ShouldForwardToTabStrip(event)) {
+      scoped_ptr<ChromeViews::DropTargetEvent> mapped_event(
+          MapEventToTabStrip(event));
+      if (!forwarding_to_tab_strip_) {
+        tabstrip_->OnDragEntered(*mapped_event.get());
+        forwarding_to_tab_strip_ = true;
+      }
+      return tabstrip_->OnDragUpdated(*mapped_event.get());
+    } else if (forwarding_to_tab_strip_) {
+      forwarding_to_tab_strip_ = false;
+      tabstrip_->OnDragExited();
+    }
+  }
+  return DragDropTypes::DRAG_NONE;
+}
+
+void BrowserView2::OnDragExited() {
+  if (forwarding_to_tab_strip_) {
+    forwarding_to_tab_strip_ = false;
+    tabstrip_->OnDragExited();
+  }
+}
+
+int BrowserView2::OnPerformDrop(const ChromeViews::DropTargetEvent& event) {
+  if (forwarding_to_tab_strip_) {
+    forwarding_to_tab_strip_ = false;
+    scoped_ptr<ChromeViews::DropTargetEvent> mapped_event(
+          MapEventToTabStrip(event));
+    return tabstrip_->OnPerformDrop(*mapped_event.get());
+  }
+  return DragDropTypes::DRAG_NONE;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView2, private:
+
+bool BrowserView2::ShouldForwardToTabStrip(
+    const ChromeViews::DropTargetEvent& event) {
+  if (!tabstrip_->IsVisible())
+    return false;
+
+  const int tab_y = tabstrip_->GetY();
+  const int tab_height = tabstrip_->GetHeight();
+  if (event.GetY() >= tab_y + tab_height)
+    return false;
+
+  if (event.GetY() >= tab_y)
+    return true;
+
+  // Mouse isn't over the tab strip. Only forward if the mouse isn't over
+  // another view on the tab strip or is over a view we were told the user can
+  // drop on.
+  ChromeViews::View* view_over_mouse =
+      GetViewForPoint(CPoint(event.GetX(), event.GetY()));
+  return (view_over_mouse == this || view_over_mouse == tabstrip_ ||
+          dropable_views_.find(view_over_mouse) != dropable_views_.end());
+}
+
+ChromeViews::DropTargetEvent* BrowserView2::MapEventToTabStrip(
+    const ChromeViews::DropTargetEvent& event) {
+  gfx::Point tab_strip_loc(event.location());
+  ConvertPointToView(this, tabstrip_, &tab_strip_loc);
+  return new ChromeViews::DropTargetEvent(event.GetData(), tab_strip_loc.x(),
+                                          tab_strip_loc.y(),
+                                          event.GetSourceOperations());
+}
 
 int BrowserView2::LayoutTabStrip() {
   if (IsTabStripVisible()) {

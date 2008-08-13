@@ -92,6 +92,11 @@ class BrowserView2 : public BrowserWindow,
   // otherwise.
   bool GetAccelerator(int cmd_id, ChromeViews::Accelerator* accelerator);
 
+  // Adds view to the set of views that drops are allowed to occur on. You only
+  // need invoke this for views whose y-coordinate extends above the tab strip
+  // and you want to allow drops on.
+  void AddViewToDropList(ChromeViews::View* view);
+
   // Possible elements of the Browser window.
   enum WindowFeature {
     FEATURE_TITLEBAR = 1,
@@ -180,6 +185,7 @@ class BrowserView2 : public BrowserWindow,
   virtual bool CanClose() const;
   virtual int NonClientHitTest(const gfx::Point& point);
 
+ protected:
   // Overridden from ChromeViews::View:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
@@ -187,8 +193,26 @@ class BrowserView2 : public BrowserWindow,
   virtual void ViewHierarchyChanged(bool is_add,
                                     ChromeViews::View* parent,
                                     ChromeViews::View* child);
+  // As long as ShouldForwardToTabStrip returns true, drag and drop methods
+  // are forwarded to the tab strip.
+  virtual bool CanDrop(const OSExchangeData& data);
+  virtual void OnDragEntered(const ChromeViews::DropTargetEvent& event);
+  virtual int OnDragUpdated(const ChromeViews::DropTargetEvent& event);
+  virtual void OnDragExited();
+  virtual int OnPerformDrop(const ChromeViews::DropTargetEvent& event);
 
  private:
+  // Returns true if the event should be forwarded to the TabStrip. This
+  // returns true if y coordinate is less than the bottom of the tab strip, and
+  // is not over another child view.
+  virtual bool ShouldForwardToTabStrip(
+      const ChromeViews::DropTargetEvent& event);
+
+  // Creates and returns a new DropTargetEvent in the coordinates of the
+  // TabStrip.
+  ChromeViews::DropTargetEvent* MapEventToTabStrip(
+      const ChromeViews::DropTargetEvent& event);
+
   // Layout the TabStrip, returns the coordinate of the bottom of the TabStrip,
   // for laying out subsequent controls.
   int LayoutTabStrip();
@@ -283,6 +307,17 @@ class BrowserView2 : public BrowserWindow,
 
   // The default favicon image.
   static SkBitmap default_favicon_;
+
+  // Initially set in CanDrop by invoking the same method on the TabStrip.
+  bool can_drop_;
+
+  // If true, drag and drop events are being forwarded to the tab strip.
+  // This is used to determine when to send OnDragExited and OnDragExited
+  // to the tab strip.
+  bool forwarding_to_tab_strip_;
+
+  // Set of additional views drops are allowed on. We do NOT own these.
+  std::set<ChromeViews::View*> dropable_views_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BrowserView2);
 };
