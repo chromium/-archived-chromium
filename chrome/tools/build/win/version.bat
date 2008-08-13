@@ -18,7 +18,8 @@ cat %SolutionDir%\VERSION | sed "s/\(.*\)/set \1/" > %VarsBat%
 :: Load branding strings as environment variables
 cat %SolutionDir%\BRANDING | sed "s/\(.*\)/set \1/" >> %VarsBat%
 
-if not "%OFFICIAL_BUILD%" == "1" set OFFICIAL_BUILD=0
+set OFFICIAL_BUILD=0
+if "%CHROME_BUILD_TYPE%" == "_official" set OFFICIAL_BUILD=1
 
 :: Determine the current repository revision number
 set PATH=%~dp0..\..\..\..\third_party\svn;%PATH%
