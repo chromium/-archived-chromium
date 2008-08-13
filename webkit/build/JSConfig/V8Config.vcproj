@@ -61,6 +61,10 @@
 	</References>
 	<Files>
 		<File
+			RelativePath=".\create-config.sh"
+			>
+		</File>
+		<File
 			RelativePath=".\prebuild.bat"
 			>
 		</File>
