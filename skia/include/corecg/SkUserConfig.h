@@ -86,6 +86,8 @@
 #define SK_SCALAR_IS_FLOAT
 #undef SK_SCALAR_IS_FIXED
 
+#if defined(SK_BUILD_FOR_WIN32)
+
 #define SK_BUILD_FOR_WIN
 
 // VC8 doesn't support stdint.h, so we define those types here.
@@ -96,6 +98,25 @@ typedef short int16_t;
 typedef unsigned short uint16_t;
 typedef int int32_t;
 typedef unsigned uint32_t;
+#define SK_A32_SHIFT    24
+#define SK_R32_SHIFT    16
+#define SK_G32_SHIFT    8
+#define SK_B32_SHIFT    0
+
+// Skia uses this deprecated bzero function to fill zeros into a string.
+#define bzero(str, len) memset(str, 0, len)
+
+#elif defined(SK_BUILD_FOR_MAC)
+
+#define SK_CPU_LENDIAN
+#undef  SK_CPU_BENDIAN
+// we want (memory order) RGBA
+#define SK_A32_SHIFT    24
+#define SK_R32_SHIFT    0
+#define SK_G32_SHIFT    8
+#define SK_B32_SHIFT    16
+
+#endif
 
 // Don't use skia debug mode even when compiled as debug, because we don't
 // care about debugging this library, only our app.
@@ -104,13 +125,7 @@ typedef unsigned uint32_t;
 #define SK_RELEASE
 #undef SK_RESTRICT
 #define SK_RESTRICT
-// Skia uses this deprecated bzero function to fill zeros into a string.
-#define bzero(str, len) memset(str, 0, len)
 #define SkDebugf(...)  ((void)0)
-#define SK_A32_SHIFT    24
-#define SK_R32_SHIFT    16
-#define SK_G32_SHIFT    8
-#define SK_B32_SHIFT    0
 
 // ===== End Chrome-specific definitions =====
 

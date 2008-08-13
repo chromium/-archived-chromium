@@ -78,3 +78,13 @@ void SkFontHost::GetGammaTables(const uint8_t* tables[2])
     tables[1] = NULL;   // white gamma (e.g. exp= 1/1.4)
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
+    SkASSERT(!"SkFontHost::Deserialize unimplemented");
+    return NULL;
+}
+
+void SkFontHost::Serialize(const SkTypeface*, SkWStream*) {
+    SkASSERT(!"SkFontHost::Serialize unimplemented");
+}

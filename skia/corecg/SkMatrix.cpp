@@ -1574,6 +1574,11 @@ bool SkMatrix::setPolyToPoly(const SkPoint src[], const SkPoint dst[],
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix::dump() const {
+// Note: We don't use this so it's #if 0'd out. If turned back on, there
+// is an #ifdef parsing difference between gcc and msvc where msvc incorrectly
+// allows a missing #endif. Attempts to reconcile proved unfruitful thus we
+// just turned it off.
+#if 0
     // ensure the fTypeMask is up2date
     (void)this->getType();
 #ifdef SK_DEBUG
@@ -1591,6 +1596,8 @@ void SkMatrix::dump() const {
     SkFixedToFloat(fMat[3]), SkFixedToFloat(fMat[4]), SkFixedToFloat(fMat[5]),
     SkFractToFloat(fMat[6]), SkFractToFloat(fMat[7]), SkFractToFloat(fMat[8]),
     fTypeMask);
+#endif
+#endif
 #endif
 }
 
