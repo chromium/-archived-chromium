@@ -127,6 +127,9 @@ void PluginThread::CleanUp() {
     FreeLibrary(preloaded_plugin_module_);
     preloaded_plugin_module_ = NULL;
   }
+  // Need to destruct the SyncChannel to the browser before we go away because
+  // it caches a pointer to this thread.
+  channel_.reset();
   PluginChannelBase::CleanupChannels();
   NPAPI::PluginLib::UnloadAllPlugins();
   ChromePluginLib::UnloadAllPlugins();
