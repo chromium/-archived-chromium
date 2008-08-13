@@ -37,6 +37,7 @@
 
 #include <fstream>
 
+#include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 
@@ -44,14 +45,7 @@ namespace file_util {
 
 std::wstring GetDirectoryFromPath(const std::wstring& path) {
   char full_path[PATH_MAX];
-#if defined(OS_MACOSX)
-  strlcpy(full_path, WideToUTF8(path).c_str(), sizeof(full_path));
-#elif defined(OS_LINUX)
-  std::string utf8_path = WideToUTF8(path);
-  const char* cstr = utf8_path.c_str();
-  strncpy(full_path, cstr, PATH_MAX);
-  cstr[PATH_MAX - 1] = '\0';
-#endif
+  base::strlcpy(full_path, WideToUTF8(path).c_str(), arraysize(full_path));
   return UTF8ToWide(dirname(full_path));
 }
   

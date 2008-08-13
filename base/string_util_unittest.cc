@@ -1252,4 +1252,57 @@ TEST(StringUtilTest, MatchPatternTest) {
   EXPECT_EQ(MatchPattern("Hello*", "Hello*"), true);  // narrow string
 }
 
+TEST(StringUtilTest, LcpyTest) {
+  // Test the normal case where we fit in our buffer.
+  {
+    char dst[10];
+    wchar_t wdst[10];
+    EXPECT_EQ(7, base::strlcpy(dst, "abcdefg", arraysize(dst)));
+    EXPECT_EQ(0, memcmp(dst, "abcdefg", 8));
+    EXPECT_EQ(7, base::wcslcpy(wdst, L"abcdefg", arraysize(wdst)));
+    EXPECT_EQ(0, memcmp(wdst, L"abcdefg", sizeof(wchar_t) * 8));
+  }
 
+  // Test dst_size == 0, nothing should be written to |dst| and we should
+  // have the equivalent of strlen(src).
+  {
+    char dst[2] = {1, 2};
+    wchar_t wdst[2] = {1, 2};
+    EXPECT_EQ(7, base::strlcpy(dst, "abcdefg", 0));
+    EXPECT_EQ(1, dst[0]);
+    EXPECT_EQ(2, dst[1]);
+    EXPECT_EQ(7, base::wcslcpy(wdst, L"abcdefg", 0));
+    EXPECT_EQ(1, wdst[0]);
+    EXPECT_EQ(2, wdst[1]);
+  }
+
+  // Test the case were we _just_ competely fit including the null.
+  {
+    char dst[8];
+    wchar_t wdst[8];
+    EXPECT_EQ(7, base::strlcpy(dst, "abcdefg", arraysize(dst)));
+    EXPECT_EQ(0, memcmp(dst, "abcdefg", 8));
+    EXPECT_EQ(7, base::wcslcpy(wdst, L"abcdefg", arraysize(wdst)));
+    EXPECT_EQ(0, memcmp(wdst, L"abcdefg", sizeof(wchar_t) * 8));
+  }
+
+  // Test the case were we we are one smaller, so we can't fit the null.
+  {
+    char dst[7];
+    wchar_t wdst[7];
+    EXPECT_EQ(7, base::strlcpy(dst, "abcdefg", arraysize(dst)));
+    EXPECT_EQ(0, memcmp(dst, "abcdef", 7));
+    EXPECT_EQ(7, base::wcslcpy(wdst, L"abcdefg", arraysize(wdst)));
+    EXPECT_EQ(0, memcmp(wdst, L"abcdef", sizeof(wchar_t) * 7));
+  }
+
+  // Test the case were we are just too small.
+  {
+    char dst[3];
+    wchar_t wdst[3];
+    EXPECT_EQ(7, base::strlcpy(dst, "abcdefg", arraysize(dst)));
+    EXPECT_EQ(0, memcmp(dst, "ab", 3));
+    EXPECT_EQ(7, base::wcslcpy(wdst, L"abcdefg", arraysize(wdst)));
+    EXPECT_EQ(0, memcmp(wdst, L"ab", sizeof(wchar_t) * 3));
+  }
+}
