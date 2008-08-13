@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_VIEWS_BOOKMARK_BAR_VIEW_H__
-#define CHROME_BROWSER_VIEWS_BOOKMARK_BAR_VIEW_H__
+#ifndef CHROME_BROWSER_VIEWS_BOOKMARK_BAR_VIEW_H_
+#define CHROME_BROWSER_VIEWS_BOOKMARK_BAR_VIEW_H_
 
 #include "chrome/browser/bookmark_bar_model.h"
 #include "chrome/browser/bookmark_drag_data.h"
@@ -39,14 +39,11 @@
 #include "chrome/views/view.h"
 #include "chrome/views/view_menu_delegate.h"
 
+class Browser;
 class PageNavigator;
 class PrefService;
-class Browser;
 
 namespace {
-class BookmarkNodeMenuController;
-// See description in declaration at bookmark_bar_view.cc.
-class ModelChangedListener;
 class MenuRunner;
 class ButtonSeparatorView;
 struct DropInfo;
@@ -73,11 +70,31 @@ class BookmarkBarView : public ChromeViews::View,
                         public ChromeViews::ContextMenuController,
                         public ChromeViews::DragController,
                         public AnimationDelegate {
-  friend class BookmarkNodeMenuController;
   friend class MenuRunner;
   friend class ShowFolderMenuTask;
 
  public:
+  // Interface implemented by controllers/views that need to be notified any
+  // time the model changes, typically to cancel an operation that is showing
+  // data from the model such as a menu. This isn't intended as a general
+  // way to be notified of changes, rather for cases where a controller/view is
+  // showing data from the model in a modal like setting and needs to cleanly
+  // exit the modal loop if the model changes out from under it.
+  //
+  // A controller/view that needs this notification should install itself as the
+  // ModelChangeListener via the SetModelChangedListener method when shown and
+  // reset the ModelChangeListener of the BookmarkBarView when it closes by way
+  // of either the SetModelChangedListener method or the
+  // ClearModelChangedListenerIfEquals method.
+  class ModelChangedListener {
+   public:
+    virtual ~ModelChangedListener() {}
+
+    // Invoked when the model changes. Should cancel the edit and close any
+    // dialogs.
+    virtual void ModelChanged() = 0;
+  };
+
   explicit BookmarkBarView(Profile* profile, Browser* browser);
   virtual ~BookmarkBarView();
 
@@ -443,7 +460,7 @@ class BookmarkBarView : public ChromeViews::View,
   // overflow_button_ or a button on the bar.
   ChromeViews::BaseButton* throbbing_view_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(BookmarkBarView);
+  DISALLOW_COPY_AND_ASSIGN(BookmarkBarView);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_BOOKMARK_BAR_VIEW_H__
+#endif  // CHROME_BROWSER_VIEWS_BOOKMARK_BAR_VIEW_H_

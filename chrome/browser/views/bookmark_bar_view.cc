@@ -34,6 +34,7 @@
 #include "base/base_drag_source.h"
 #include "base/gfx/skia_utils.h"
 #include "chrome/app/theme/theme_resources.h"
+#include "chrome/browser/bookmark_bar_context_menu_controller.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
@@ -326,384 +327,6 @@ struct DropInfo {
   BookmarkDragData data;
 };
 
-// ModelChangedListener -------------------------------------------------------
-
-// Interface implemented by controllers/views that need to be notified any
-// time the model changes, typically to cancel an operation that is showing
-// data from the model such as a menu. This isn't intended as a general
-// way to be notified of changes, rather for cases where a controller/view is
-// showing data from the model in a modal like setting and needs to cleanly
-// exit the modal loop if the model changes out from under it.
-//
-// A controller/view that needs this notification should install itself as the
-// ModelChangeListener via the SetModelChangedListener method when shown and
-// reset the ModelChangeListener of the BookmarkBarView when it closes by way
-// of either the SetModelChangedListener method or the
-// ClearModelChangedListenerIfEquals method.
-//
-class ModelChangedListener {
- public:
-  virtual ~ModelChangedListener() {}
-  // Invoked when the model changes. Should cancel the edit and close any
-  // dialogs.
-  virtual void ModelChanged() = 0;
-};
-
-// EditFolderController -------------------------------------------------------
-
-// EditFolderController manages the editing and/or creation of a folder. If the
-// user presses ok, the name change is committed to the database.
-//
-// EditFolderController deletes itself when the window is closed.
-//
-class EditFolderController : public InputWindowDelegate,
-                             public ModelChangedListener {
- public:
-  EditFolderController(BookmarkBarView* view,
-                       BookmarkBarNode* node,
-                       int visual_order,
-                       bool is_new)
-      : view_(view),
-        node_(node),
-        visual_order_(visual_order),
-        is_new_(is_new) {
-    DCHECK(is_new_ || node);
-    window_ = CreateInputWindow(view->GetViewContainer()->GetHWND(), this);
-    view_->SetModelChangedListener(this);
-  }
-
-  void Show() {
-    window_->Show();
-  }
-
-  virtual void ModelChanged() {
-    window_->Close();
-  }
-
- private:
-  virtual std::wstring GetTextFieldLabel() {
-    return l10n_util::GetString(IDS_BOOMARK_BAR_EDIT_FOLDER_LABEL);
-  }
-
-  virtual std::wstring GetTextFieldContents() {
-    if (is_new_)
-      return l10n_util::GetString(IDS_BOOMARK_EDITOR_NEW_FOLDER_NAME);
-    return node_->GetTitle();
-  }
-
-  virtual bool IsValid(const std::wstring& text) {
-    return !text.empty();
-  }
-
-  virtual void InputAccepted(const std::wstring& text) {
-    view_->ClearModelChangedListenerIfEquals(this);
-    BookmarkBarModel* model = view_->GetProfile()->GetBookmarkBarModel();
-    if (is_new_)
-      model->AddGroup(node_, visual_order_, text);
-    else
-      model->SetTitle(node_, text);
-  }
-
-  virtual void InputCanceled() {
-    view_->ClearModelChangedListenerIfEquals(this);
-  }
-
-  virtual void WindowClosing() {
-    view_->ClearModelChangedListenerIfEquals(this);
-    delete this;
-  }
-
-  virtual std::wstring GetWindowTitle() const {
-    return is_new_ ?
-        l10n_util::GetString(IDS_BOOMARK_FOLDER_EDITOR_WINDOW_TITLE_NEW) :
-        l10n_util::GetString(IDS_BOOMARK_FOLDER_EDITOR_WINDOW_TITLE);
-  }
-
-  virtual ChromeViews::View* GetContentsView() {
-    return view_;
-  }
-
-  BookmarkBarView* view_;
-
-  // If is_new is true, this is the parent to create the new node under.
-  // Otherwise this is the node to change the title of.
-  BookmarkBarNode* node_;
-
-  int visual_order_;
-  bool is_new_;
-  ChromeViews::Window* window_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(EditFolderController);
-};
-
-// BookmarkNodeMenuController -------------------------------------------------
-
-// IDs for the menus we create.
-
-static const int kOpenBookmarkID = 2;
-static const int kOpenBookmarkInNewWindowID = 3;
-static const int kOpenBookmarkInNewTabID = 4;
-static const int kOpenAllBookmarksID = 5;
-static const int kOpenAllBookmarksInNewWindowID = 6;
-static const int kEditBookmarkID = 7;
-static const int kDeleteBookmarkID = 8;
-static const int kAddBookmarkID = 9;
-static const int kNewFolderID = 10;
-
-// BookmarkNodeMenuController manages the context menus shown for the bookmark
-// bar and buttons on the bookmark bar.
-
-class BookmarkNodeMenuController : public ChromeViews::MenuDelegate,
-                                   public ModelChangedListener {
- public:
-  BookmarkNodeMenuController(BookmarkBarView* view,
-                             BookmarkBarNode* node)
-      : view_(view),
-        node_(node),
-        menu_(this) {
-    if (node->GetType() == history::StarredEntry::URL) {
-      menu_.AppendMenuItemWithLabel(kOpenBookmarkID,
-          l10n_util::GetString(IDS_BOOMARK_BAR_OPEN));
-      menu_.AppendMenuItemWithLabel(kOpenBookmarkInNewTabID,
-          l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_IN_NEW_TAB));
-      menu_.AppendMenuItemWithLabel(kOpenBookmarkInNewWindowID,
-          l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_IN_NEW_WINDOW));
-    } else {
-      menu_.AppendMenuItemWithLabel(kOpenAllBookmarksID,
-          l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_ALL));
-      menu_.AppendMenuItemWithLabel(kOpenAllBookmarksInNewWindowID,
-          l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_ALL_NEW_WINDOW));
-    }
-    menu_.AppendSeparator();
-
-    if (node->GetParent() !=
-        view->GetProfile()->GetBookmarkBarModel()->root_node()) {
-      menu_.AppendMenuItemWithLabel(kEditBookmarkID,
-          l10n_util::GetString(IDS_BOOKMARK_BAR_EDIT));
-      menu_.AppendMenuItemWithLabel(kDeleteBookmarkID,
-          l10n_util::GetString(IDS_BOOKMARK_BAR_REMOVE));
-    }
-
-    menu_.AppendMenuItemWithLabel(kAddBookmarkID,
-        l10n_util::GetString(IDS_BOOMARK_BAR_ADD_NEW_BOOKMARK));
-    menu_.AppendMenuItemWithLabel(kNewFolderID,
-        l10n_util::GetString(IDS_BOOMARK_BAR_NEW_FOLDER));
-    menu_.AppendSeparator();
-    menu_.AppendMenuItem(kAlwaysShowCommandID,
-          l10n_util::GetString(IDS_BOOMARK_BAR_ALWAYS_SHOW),
-          MenuItemView::CHECKBOX);
-  }
-
-  void RunMenuAt(int x, int y) {
-    // Record the current ModelChangedListener. It will be non-null when we're
-    // used as the context menu for another menu.
-    ModelChangedListener* last_listener = view_->GetModelChangedListener();
-
-    view_->SetModelChangedListener(this);
-
-    // width/height don't matter here.
-    menu_.RunMenuAt(view_->GetViewContainer()->GetHWND(), gfx::Rect(x, y, 0, 0),
-                    MenuItemView::TOPLEFT, false);
-
-    if (view_->GetModelChangedListener() == this)
-      view_->SetModelChangedListener(last_listener);
-  }
-
-  virtual void ModelChanged() {
-    menu_.Cancel();
-  }
-
-  MenuItemView* menu() { return &menu_; }
-
- private:
-  // Menu::Delegate method. Does the appropriate operation based on chosen
-  // menu item.
-  virtual void ExecuteCommand(int id) {
-    Profile* profile = view_->GetProfile();
-
-    switch (id) {
-      case kOpenBookmarkID:
-        UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_Open", profile);
-
-        view_->GetPageNavigator()->OpenURL(node_->GetURL(), CURRENT_TAB,
-                                           PageTransition::AUTO_BOOKMARK);
-        break;
-
-      case kOpenBookmarkInNewWindowID:
-        UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_OpenInNewWindow",
-                                  profile);
-
-        view_->GetPageNavigator()->OpenURL(node_->GetURL(), NEW_WINDOW,
-                                           PageTransition::AUTO_BOOKMARK);
-        break;
-
-      case kOpenBookmarkInNewTabID:
-        UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_OpenInNewTab",
-                                  profile);
-
-        view_->GetPageNavigator()->OpenURL(node_->GetURL(), NEW_FOREGROUND_TAB,
-                                           PageTransition::AUTO_BOOKMARK);
-        break;
-
-      case kOpenAllBookmarksID:
-      case kOpenAllBookmarksInNewWindowID: {
-        if (id == kOpenAllBookmarksID) {
-          UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_OpenAll",
-                                    profile);
-        } else {
-          UserMetrics::RecordAction(
-              L"BookmarkBar_ContextMenu_OpenAllInNewWindow", profile);
-        }
-
-        BookmarkBarNode* node = node_;
-        PageNavigator* navigator = view_->GetPageNavigator();
-        bool opened_url = false;
-        OpenAll(node, (id == kOpenAllBookmarksInNewWindowID), &navigator,
-                &opened_url);
-        break;
-      }
-
-      case kEditBookmarkID:
-        UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_Edit", profile);
-
-        if (node_->GetType() == history::StarredEntry::URL) {
-          BookmarkEditorView::Show(view_->GetViewContainer()->GetHWND(),
-              view_->GetProfile(), node_->GetURL(), node_->GetTitle());
-        } else {
-          // Controller deletes itself when done.
-          EditFolderController* controller = new EditFolderController(
-              view_, node_, -1, false);
-          controller->Show();
-        }
-        break;
-
-      case kDeleteBookmarkID: {
-        UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_Remove", profile);
-
-        view_->model_->Remove(node_->GetParent(),
-                              node_->GetParent()->IndexOfChild(node_));
-        break;
-      }
-
-      case kAddBookmarkID: {
-        UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_Add", profile);
-
-        BookmarkEditorView::Show(view_->GetViewContainer()->GetHWND(),
-            view_->GetProfile(), GURL(), std::wstring());
-        break;
-      }
-
-      case kNewFolderID: {
-        UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_NewFolder",
-                                  profile);
-
-        int visual_order;
-        BookmarkBarNode* parent =
-            GetParentAndVisualOrderForNewNode(&visual_order);
-        GetParentAndVisualOrderForNewNode(&visual_order);
-        // Controller deletes itself when done.
-        EditFolderController* controller =
-            new EditFolderController(view_, parent, visual_order, true);
-        controller->Show();
-        break;
-      }
-
-      case kAlwaysShowCommandID:
-        view_->ToggleWhenVisible();
-        break;
-
-      default:
-        NOTREACHED();
-    }
-  }
-
-  bool IsItemChecked(int id) const {
-    DCHECK(id == kAlwaysShowCommandID);
-    return view_->GetProfile()->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar);
-  }
-
-  // Opens a tab/window for node and recursively opens all descendants.
-  // If open_first_in_new_window is true, the first opened node is opened
-  // in a new window. navigator indicates the PageNavigator to use for
-  // new tabs. It is reset if open_first_in_new_window is true.
-  // opened_url is set to true the first time a new tab is opened.
-  void OpenAll(BookmarkBarNode* node,
-               bool open_first_in_new_window,
-               PageNavigator** navigator,
-               bool* opened_url) {
-    if (node->GetType() == history::StarredEntry::URL) {
-      WindowOpenDisposition disposition;
-      if (*opened_url)
-        disposition = NEW_BACKGROUND_TAB;
-      else if (open_first_in_new_window)
-        disposition = NEW_WINDOW;
-      else  // Open in current window.
-        disposition = CURRENT_TAB;
-      (*navigator)->OpenURL(node->GetURL(), disposition,
-                            PageTransition::AUTO_BOOKMARK);
-      if (!*opened_url) {
-        *opened_url = true;
-        if (open_first_in_new_window || disposition == CURRENT_TAB) {
-          // We opened the tab in a new window or in the current tab which
-          // likely reset the navigator. Need to reset the page navigator
-          // appropriately.
-          Browser* new_browser = BrowserList::GetLastActive();
-          TabContents* current_tab = new_browser->GetSelectedTabContents();
-          DCHECK(new_browser && current_tab);
-          if (new_browser && current_tab)
-            *navigator = current_tab;
-        }
-      }
-    } else {
-      // Group, recurse through children.
-      for (int i = 0; i < node->GetChildCount(); ++i) {
-        OpenAll(node->GetChild(i), open_first_in_new_window, navigator,
-                opened_url);
-      }
-    }
-  }
-
-  virtual bool IsCommandEnabled(int id) const {
-    if (id == kOpenAllBookmarksID || id == kOpenAllBookmarksInNewWindowID)
-      return NodeHasURLs(node_);
-
-    return true;
-  }
-
-  // Returns true if the specified node is of type URL, or has a descendant
-  // of type URL.
-  static bool NodeHasURLs(BookmarkBarNode* node) {
-    if (node->GetType() == history::StarredEntry::URL)
-      return true;
-
-    for (int i = 0; i < node->GetChildCount(); ++i) {
-      if (NodeHasURLs(node->GetChild(i)))
-        return true;
-    }
-    return false;
-  }
-
-  // Returns the parent node and visual_order to use when adding new
-  // bookmarks/folders.
-  BookmarkBarNode* GetParentAndVisualOrderForNewNode(int* visual_order) {
-    if (node_->GetType() != history::StarredEntry::URL) {
-      // Adding to a group always adds to the end.
-      *visual_order = node_->GetChildCount();
-      return node_;
-    } else {
-      DCHECK(node_->GetParent());
-      *visual_order = node_->GetParent()->IndexOfChild(node_) + 1;
-      return node_->GetParent();
-    }
-  }
-
-  MenuItemView menu_;
-  BookmarkBarView* view_;
-  BookmarkBarNode* node_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(BookmarkNodeMenuController);
-};
-
 // MenuRunner -----------------------------------------------------------------
 
 // MenuRunner manages creation and showing of a menu containing BookmarkNodes.
@@ -711,7 +334,7 @@ class BookmarkNodeMenuController : public ChromeViews::MenuDelegate,
 // bookmark bar, other folder, or overflow bookmarks.
 //
 class MenuRunner : public ChromeViews::MenuDelegate,
-                   public ModelChangedListener {
+                   public BookmarkBarView::ModelChangedListener {
  public:
   // start_child_index is the index of the first child in node to add to the
   // menu.
@@ -894,7 +517,7 @@ class MenuRunner : public ChromeViews::MenuDelegate,
                                bool is_mouse_gesture) {
     DCHECK(menu_id_to_node_map_.find(id) != menu_id_to_node_map_.end());
     context_menu_.reset(
-        new BookmarkNodeMenuController(view_, menu_id_to_node_map_[id]));
+        new BookmarkBarContextMenuController(view_, menu_id_to_node_map_[id]));
     context_menu_->RunMenuAt(x, y);
     context_menu_.reset(NULL);
   }
@@ -942,7 +565,7 @@ class MenuRunner : public ChromeViews::MenuDelegate,
   // Data for the drop.
   BookmarkDragData drop_data_;
 
-  scoped_ptr<BookmarkNodeMenuController> context_menu_;
+  scoped_ptr<BookmarkBarContextMenuController> context_menu_;
 
   DISALLOW_EVIL_CONSTRUCTORS(MenuRunner);
 };
@@ -1788,7 +1411,7 @@ void BookmarkBarView::ShowContextMenu(View* source,
            bookmark_button_index < GetBookmarkButtonCount());
     node = model_->GetBookmarkBarNode()->GetChild(bookmark_button_index);
   }
-  BookmarkNodeMenuController controller(this, node);
+  BookmarkBarContextMenuController controller(this, node);
   controller.RunMenuAt(x, y);
 }
 

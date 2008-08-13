@@ -802,6 +802,14 @@
 			Name="Bookmark Bar"
 			>
 			<File
+				RelativePath=".\bookmark_bar_context_menu_controller.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\bookmark_bar_context_menu_controller.h"
+				>
+			</File>
+			<File
 				RelativePath=".\bookmark_bar_model.cc"
 				>
 			</File>

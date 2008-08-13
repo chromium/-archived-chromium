@@ -211,6 +211,14 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="TestBookmarkBarContextMenuController"
+			>
+			<File
+				RelativePath="..\..\browser\bookmark_bar_context_menu_controller_test.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="TestBookmarkBarView"
 			>
 			<File
