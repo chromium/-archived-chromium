@@ -184,7 +184,7 @@ libs = [
     'common.lib',
 ]
 
-ipc_tests = env_test.ChromeTestProgram('ipc_tests.exe', ipc_tests_files + libs)
+ipc_tests = env_test.ChromeTestProgram('ipc_tests', ipc_tests_files + libs)
 
 i = env_test.Install('$TARGET_ROOT', ipc_tests)
 Alias('chrome', i)

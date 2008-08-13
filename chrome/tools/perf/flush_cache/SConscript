@@ -64,9 +64,7 @@ input_files = [
     'flush_cache.cc',
 ]
 
-exe = env_test.ChromeTestProgram(['flush_cache',
-                        'flush_cache'],
-                       input_files)
+exe = env_test.ChromeTestProgram('flush_cache', input_files)
 i = env_test.Install('$TARGET_ROOT', exe)
 
 env_test.Alias('chrome', i)

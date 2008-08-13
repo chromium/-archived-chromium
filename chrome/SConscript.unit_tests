@@ -238,7 +238,7 @@ unit_test_files = [
     env_test['TEST_DATA_RES'],
 ]
 
-unit_tests = env_test.ChromeTestProgram('unit_tests.exe', unit_test_files + libs)
+unit_tests = env_test.ChromeTestProgram('unit_tests', unit_test_files + libs)
 
 i = env_test.Install('$TARGET_ROOT', unit_tests)
 Alias('chrome', i)

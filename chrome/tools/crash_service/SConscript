@@ -72,7 +72,7 @@ input_files = [
     'crash_service.cc',
 ]
 
-exe = env.ChromeProgram('crash_service.exe', input_files)
+exe = env.ChromeProgram('crash_service', input_files)
 
 i = env.Install('$TARGET_ROOT', exe)
 Alias('chrome', i)

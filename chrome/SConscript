@@ -304,9 +304,9 @@ env_exe.Append(
 )
 
 chrome_exe = env_exe.ChromeProgram(
-    ['chrome.exe',
+    ['chrome',
      'chrome_exe.pdb',
-     'chrome_exe_implib.lib'],
+    ],
     [
         env_res.RES('app/chrome_exe.rc'),
         'app/breakpad.cc',

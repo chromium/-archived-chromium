@@ -154,7 +154,7 @@ ui_test_files = [
     '$NET_DIR/url_request/url_request_test_job$OBJSUFFIX',
 ]
 
-ui_tests = env_test.ChromeTestProgram('ui_tests.exe',  ui_test_files + libs)
+ui_tests = env_test.ChromeTestProgram('ui_tests',  ui_test_files + libs)
 
 i = env_test.Install('$TARGET_ROOT', ui_tests)
 Alias('chrome', i)

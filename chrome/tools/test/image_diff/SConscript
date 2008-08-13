@@ -76,9 +76,7 @@ input_files = [
     'image_diff.cc',
 ]
 
-exe = env_test.ChromeTestProgram(['image_diff',
-                        'image_diff.pdb'],
-                       input_files)
+exe = env_test.ChromeTestProgram('image_diff', input_files)
 i = env_test.Install('$TARGET_ROOT', exe)
 
 env_test.Alias('chrome', i)

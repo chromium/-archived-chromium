@@ -106,10 +106,7 @@ libs = [
     '../util/util.lib',
 ]
 
-exe = env.ChromeProgram(['setup',
-                   'setup.pdb',
-                   'setup.map'],
-                  resources + input_files + libs)
+exe = env.ChromeProgram('setup', resources + input_files + libs)
 i = env.Install('$TARGET_ROOT', exe)
 
 env.Alias('chrome', i)
