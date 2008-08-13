@@ -494,11 +494,12 @@ void Browser::ExecuteCommand(int id) {
       UserMetrics::RecordAction(L"ViewSource", profile_);
 
       TabContents* current_tab = GetSelectedTabContents();
-      DCHECK(current_tab->controller()->GetLastCommittedEntry());
-      GURL url("view-source:" +
-        current_tab->controller()->GetLastCommittedEntry()->GetURL().spec());
-
-      AddTabWithURL(url, PageTransition::LINK, true, NULL);
+      NavigationEntry* entry =
+          current_tab->controller()->GetLastCommittedEntry();
+      if (entry) {
+        GURL url("view-source:" + entry->GetURL().spec());
+        AddTabWithURL(url, PageTransition::LINK, true, NULL);
+      }
       break;
     }
 
