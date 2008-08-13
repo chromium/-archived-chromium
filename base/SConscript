@@ -236,10 +236,11 @@ if env['PLATFORM'] == 'posix':
   env_tests['LIBS'].remove('libpng')
   env_tests['LIBS'].remove('zlib')
 
-env_tests.ChromeTestProgram(['debug_message.exe',
-                   'debug_message.ilk',
-                   'debug_message.pdb'],
-                  ['debug_message.cc'])
+if env['PLATFORM'] == 'win32':
+  env_tests.ChromeTestProgram(['debug_message.exe',
+                     'debug_message.ilk',
+                     'debug_message.pdb'],
+                    ['debug_message.cc'])
 
 # These test files work on *all* platforms; tests that don't work
 # cross-platform live below.
@@ -299,6 +300,8 @@ if env['PLATFORM'] == 'win32':
     'word_iterator_unittest.cc',
   ])
 
+test_targets = [ 'base_unittests' ]
+
 if env['PLATFORM'] == 'win32':
   # Windows-specific tests.
   test_files.extend([
@@ -307,14 +310,14 @@ if env['PLATFORM'] == 'win32':
       'win_util_unittest.cc',
       'wmi_util_unittest.cc',
   ])
-
-base_unittests = env_tests.ChromeTestProgram([
-    'base_unittests',
+  test_targets.extend([
     'base_unittests.exp',
     'base_unittests.ilk',
     'base_unittests.lib',
-    'base_unittests.pdb'], test_files)
+    'base_unittests.pdb',
+  ])
 
+base_unittests = env_tests.ChromeTestProgram(test_targets, test_files)
 
 # Install up a level to allow unit test path assumptions to be valid.
 installed_base_unittests = env.Install('$TARGET_ROOT', base_unittests)
@@ -331,5 +334,7 @@ SConscript(sconscript_dirs, exports=['env'])
 env.Alias('base', ['.', installed_base_unittests, '../icudt38.dll'])
 
 
-env_tests.StaticObject('perftimer.cc')
-env_tests.StaticObject('run_all_perftests.cc')
+# These aren't ported to other platforms yet.
+if env['PLATFORM'] == 'win32':
+  env_tests.StaticObject('perftimer.cc')
+  env_tests.StaticObject('run_all_perftests.cc')
