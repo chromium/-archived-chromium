@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_AT_EXIT_H__
-#define BASE_AT_EXIT_H__
+#ifndef BASE_AT_EXIT_H_
+#define BASE_AT_EXIT_H_
 
 #include <stack>
 
@@ -36,8 +36,6 @@
 #include "base/lock.h"
 
 namespace base {
-
-typedef void (*AtExitCallbackType)();
 
 // This class provides a facility similar to the CRT atexit(), except that
 // we control when the callbacks are executed. Under Windows for a DLL they
@@ -56,11 +54,14 @@ typedef void (*AtExitCallbackType)();
 class AtExitManager {
  protected:
   // This constructor will allow this instance of AtExitManager to be created
-  // even if on already exists.  This should only be used for testing!
+  // even if one already exists.  This should only be used for testing!
   // AtExitManagers are kept on a global stack, and it will be removed during
   // destruction.  This allows you to shadow another AtExitManager.
   AtExitManager(bool shadow);
+
  public:
+  typedef void (*AtExitCallbackType)();
+
   AtExitManager();
 
   // The dtor calls all the registered callbacks. Do not try to register more
@@ -77,10 +78,10 @@ class AtExitManager {
 
  private:
   Lock lock_;
-  std::stack<base::AtExitCallbackType> stack_;
-  DISALLOW_EVIL_CONSTRUCTORS(AtExitManager);
+  std::stack<AtExitCallbackType> stack_;
+  DISALLOW_COPY_AND_ASSIGN(AtExitManager);
 };
 
 }  // namespace base
 
-#endif // BASE_AT_EXIT_H__
+#endif  // BASE_AT_EXIT_H_

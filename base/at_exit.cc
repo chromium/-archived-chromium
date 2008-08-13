@@ -30,13 +30,13 @@
 #include "base/at_exit.h"
 #include "base/logging.h"
 
+namespace base {
+
 // Keep a stack of registered AtExitManagers.  We always operate on the most
 // recent, and we should never have more than one outside of testing, when we
 // use the shadow version of the constructor.  We don't protect this for
 // thread-safe access, since it will only be modified in testing.
-static std::stack<base::AtExitManager*> g_managers;
-
-namespace base {
+static std::stack<AtExitManager*> g_managers;
 
 AtExitManager::AtExitManager() {
   DCHECK(g_managers.empty());
@@ -50,7 +50,7 @@ AtExitManager::AtExitManager(bool shadow) {
 
 AtExitManager::~AtExitManager() {
   if (g_managers.empty()) {
-    NOTREACHED() << "Tried to ~AtExitManager without a AtExitManager";
+    NOTREACHED() << "Tried to ~AtExitManager without an AtExitManager";
     return;
   }
   DCHECK(g_managers.top() == this);
@@ -62,7 +62,7 @@ AtExitManager::~AtExitManager() {
 // static
 void AtExitManager::RegisterCallback(AtExitCallbackType func) {
   if (g_managers.empty()) {
-    NOTREACHED() << "Tried to RegisterCallback without a AtExitManager";
+    NOTREACHED() << "Tried to RegisterCallback without an AtExitManager";
     return;
   }
 
@@ -74,7 +74,7 @@ void AtExitManager::RegisterCallback(AtExitCallbackType func) {
 // static
 void AtExitManager::ProcessCallbacksNow() {
   if (g_managers.empty()) {
-    NOTREACHED() << "Tried to RegisterCallback without a AtExitManager";
+    NOTREACHED() << "Tried to ProcessCallbacksNow without an AtExitManager";
     return;
   }
 
@@ -82,7 +82,7 @@ void AtExitManager::ProcessCallbacksNow() {
   AutoLock lock(manager->lock_);
 
   while (!manager->stack_.empty()) {
-    base::AtExitCallbackType func = manager->stack_.top();
+    AtExitCallbackType func = manager->stack_.top();
     manager->stack_.pop();
     if (func)
       func();
