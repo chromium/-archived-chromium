@@ -403,13 +403,17 @@ void BookmarkEditorView::NewGroup() {
     return;
   }
 
+  tree_view_.StartEditing(AddNewGroup(parent));
+}
+
+BookmarkEditorView::BookmarkNode* BookmarkEditorView::AddNewGroup(
+    BookmarkNode* parent) {
   BookmarkNode* new_node = new BookmarkNode();
   new_node->SetTitle(l10n_util::GetString(IDS_BOOMARK_EDITOR_NEW_FOLDER_NAME));
   new_node->value = 0;
   // new_node is now owned by parent.
   tree_model_->Add(parent, parent->GetChildCount(), new_node);
-  // Edit the new node.
-  tree_view_.StartEditing(new_node);
+  return new_node;
 }
 
 void BookmarkEditorView::ExpandAndSelect() {
@@ -473,6 +477,11 @@ void BookmarkEditorView::ApplyEdits() {
     NOTREACHED();
     return;
   }
+  ApplyEdits(tree_model_->AsNode(tree_view_.GetSelectedNode()));
+}
+
+void BookmarkEditorView::ApplyEdits(BookmarkNode* parent) {
+  DCHECK(parent);
 
   // We're going to apply edits to the bookmark bar model, which will call us
   // back. Normally when a structural edit occurs we reset the tree model.
@@ -494,8 +503,7 @@ void BookmarkEditorView::ApplyEdits() {
   // Create the new groups and update the titles.
   BookmarkBarNode* new_parent = NULL;
   ApplyNameChangesAndCreateNewGroups(
-      bb_model_->root_node(), tree_model_->GetRoot(),
-      tree_model_->AsNode(tree_view_.GetSelectedNode()), &new_parent);
+      bb_model_->root_node(), tree_model_->GetRoot(), parent, &new_parent);
 
   if (!new_parent) {
     // Bookmarks must be parented.

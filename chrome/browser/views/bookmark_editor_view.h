@@ -64,6 +64,12 @@ class BookmarkEditorView : public ChromeViews::View,
                            public ChromeViews::ContextMenuController,
                            public Menu::Delegate,
                            public BookmarkBarModelObserver {
+  FRIEND_TEST(BookmarkEditorViewTest, ChangeParent);
+  FRIEND_TEST(BookmarkEditorViewTest, ChangeURLToExistingURL);
+  FRIEND_TEST(BookmarkEditorViewTest, EditTitleKeepsPosition);
+  FRIEND_TEST(BookmarkEditorViewTest, EditURLKeepsPosition);
+  FRIEND_TEST(BookmarkEditorViewTest, ModelsMatch);
+  FRIEND_TEST(BookmarkEditorViewTest, MoveToNewParent);
  public:
   // Shows the BookmarkEditorView editing the specified entry.
   static void Show(HWND parent_window,
@@ -194,8 +200,12 @@ class BookmarkEditorView : public ChromeViews::View,
   BookmarkNode* FindNodeWithID(BookmarkEditorView::BookmarkNode* node,
                                history::UIStarID id);
 
-  // Applies the edits done by the user.
+  // Invokes ApplyEdits with the selected node.
   void ApplyEdits();
+
+  // Applies the edits done by the user. |parent| gives the parent of the URL
+  // being edited.
+  void ApplyEdits(BookmarkNode* parent);
 
   // Recursively adds newly created groups and sets the title of nodes to
   // match the user edited title.
@@ -226,6 +236,11 @@ class BookmarkEditorView : public ChromeViews::View,
   // selected, the new group is added as a child of the bookmark node. Starts
   // editing on the new gorup as well.
   void NewGroup();
+
+  // Creates a new BookmarkNode as the last child of parent. The new node is
+  // added to the model and returned. This does NOT start editing. This is used
+  // internally by NewGroup and broken into a separate method for testing.
+  BookmarkNode* AddNewGroup(BookmarkNode* parent);
 
   // Profile the entry is from.
   Profile* profile_;
