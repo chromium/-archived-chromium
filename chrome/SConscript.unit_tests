@@ -195,6 +195,7 @@ unit_test_files = [
     'browser/url_fixer_upper_unittest.cc',
     'browser/views/bookmark_bar_view_test.cc',
     'browser/views/bookmark_editor_view_unittest.cc',
+    'browser/views/keyword_editor_view_unittest.cc',
     'browser/visitedlink_unittest.cc',
     'browser/web_contents_unittest.cc',
     'browser/webdata/web_database_unittest.cc',
