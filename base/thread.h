@@ -94,14 +94,14 @@ class Thread {
   // Signals the thread to exit in the near future.
   //
   // WARNING: This function is not meant to be commonly used. Use at your own
-  // risk. Calling this function will cause message_loop() being invalidated in
+  // risk. Calling this function will cause message_loop() to become invalid in
   // the near future. This function was created to workaround a specific
   // deadlock on Windows with printer worker thread. In any other case, Stop()
   // should be used.
   //
-  // StopSoon should not called multiple times and is risky to do so. It could
-  // cause a timing issue in message_loop() access. Call Stop() to reset the
-  // thread object once it is known that the thread has quit.
+  // StopSoon should not be called multiple times as it is risky to do so. It
+  // could cause a timing issue in message_loop() access. Call Stop() to reset
+  // the thread object once it is known that the thread has quit.
   void StopSoon();
 
   // Returns the message loop for this thread.  Use the MessageLoop's
