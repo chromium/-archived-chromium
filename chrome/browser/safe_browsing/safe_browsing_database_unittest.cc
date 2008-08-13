@@ -72,7 +72,7 @@ void SubDelChunk(SafeBrowsingDatabase* db, const std::string& list, int chunk_id
   DelChunk(db, list, chunk_id, true);
 }
 
-// Checks database reading/writing.
+// Checks database reading and writing.
 TEST(SafeBrowsing, Database) {
   std::wstring filename;
   PathService::Get(base::DIR_TEMP, &filename);
