@@ -129,12 +129,17 @@ if env['PLATFORM'] == 'win32':
 
   msvs_env = Environment(tools=['msvc', 'mslink', 'msvs'])['ENV']
 
+  # Use the absolute path for MSVC because it might not be on the same drive
+  # as our source checkout.
+  visual_studio_path = (msvs_env['PATH'][0] +
+                        ':/Program Files/Microsoft Visual Studio 8')
+
   env.Replace(
     CSCRIPT = 'c:\\Windows\\System32\\cscript',
 
     PLATFORMSDK_VISTA_REL = '../third_party/platformsdk_vista_6_0',
     PLATFORMSDK_VISTA = '#/$PLATFORMSDK_VISTA_REL',
-    VISUAL_STUDIO = '/Program Files/Microsoft Visual Studio 8',
+    VISUAL_STUDIO = visual_studio_path,
 
     CYGWIN_DIR = Dir('#../third_party/cygwin'),
     CYGWIN_BIN_DIR = '$CYGWIN_DIR/bin',
