@@ -231,7 +231,6 @@ if env['PLATFORM'] == 'win32':
 
 if env['PLATFORM'] == 'posix':
   # Remove the libraries that don't build yet under Linux.
-  env_tests['LIBS'].remove('base_gfx')
   env_tests['LIBS'].remove('skia')
   env_tests['LIBS'].remove('libpng')
   env_tests['LIBS'].remove('zlib')
@@ -256,6 +255,8 @@ test_files = [
     'string_piece_unittest.cc',
     'string_tokenizer_unittest.cc',
     'values_unittest.cc',
+    'gfx/convolver_unittest.cc',
+    'gfx/rect_unittest.cc',
 ]
 
 if env['PLATFORM'] == 'win32':
@@ -267,14 +268,6 @@ if env['PLATFORM'] == 'win32':
     'command_line_unittest.cc',
     'condition_variable_test.cc',
     'file_util_unittest.cc',
-    'gfx/convolver_unittest.cc',
-    'gfx/image_operations_unittest.cc',
-    'gfx/native_theme_unittest.cc',
-    'gfx/platform_canvas_unittest.cc',
-    'gfx/png_codec_unittest.cc',
-    'gfx/rect_unittest.cc',
-    'gfx/uniscribe_unittest.cc',
-    'gfx/vector_canvas_unittest.cc',
     'idletimer_unittest.cc',
     'hmac_unittest.cc',
     'message_loop_unittest.cc',
@@ -298,6 +291,12 @@ if env['PLATFORM'] == 'win32':
     'tracked_objects_test.cc',
     'waitable_event_unittest.cc',
     'word_iterator_unittest.cc',
+    'gfx/image_operations_unittest.cc',
+    'gfx/native_theme_unittest.cc',
+    'gfx/platform_canvas_unittest.cc',
+    'gfx/png_codec_unittest.cc',
+    'gfx/uniscribe_unittest.cc',
+    'gfx/vector_canvas_unittest.cc',
   ])
 
 test_targets = [ 'base_unittests' ]
