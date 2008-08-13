@@ -38,6 +38,7 @@
 #include <mach/mach.h>
 #elif defined(OS_LINUX)
 #include <sys/types.h>
+#include <unistd.h>
 #endif
 
 // static
