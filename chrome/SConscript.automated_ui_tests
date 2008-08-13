@@ -90,6 +90,7 @@ env_test.Prepend(
 libs = [
     'common/common.lib',
     'browser/browser.lib',
+    'browser/browser_views.lib',
     'test/automation/automation.lib',
 ]
 

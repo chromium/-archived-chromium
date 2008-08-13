@@ -55,6 +55,7 @@ env_test.Prepend(
         'zlib',
         'modp_b64',
         'browser',
+        'browser_views',
         'net',
         'base',
         'automation',

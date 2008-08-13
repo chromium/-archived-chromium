@@ -103,6 +103,7 @@ libs = [
     'test/security_tests/security_tests.lib',
     'common/common.lib',
     'browser/browser.lib',
+    'browser/browser_views.lib',
     'test/automation/automation.lib',
 ]
 

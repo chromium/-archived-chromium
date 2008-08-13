@@ -54,6 +54,7 @@ env_test.Prepend(
         'common',
         'zlib',
         'browser',
+        'browser_views',
         'base',
         'automation',
     ],

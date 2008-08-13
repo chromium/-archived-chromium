@@ -55,6 +55,7 @@ env_test.Prepend(
         'base',
         'base_gfx',
         'browser',
+        'browser_views',
         'bzip2',
         'common',
         'googleurl',

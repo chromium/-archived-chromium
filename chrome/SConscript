@@ -191,6 +191,7 @@ input_files = [
 
 libs = [
     'browser/browser.lib',
+    'browser/browser_views.lib',
     'browser/debugger/debugger.lib',
     'common/common.lib',
     'installer/util/util.lib',
@@ -403,6 +404,7 @@ sconscript_files = [
     'app/resources/SConscript',
     'app/theme/SConscript',
     'browser/SConscript',
+    'browser/views/SConscript',
     'common/SConscript',
     'installer/mini_installer/SConscript',
     'installer/setup/SConscript',

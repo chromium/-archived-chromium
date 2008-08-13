@@ -1,0 +1,149 @@
+# Copyright 2008, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Import('env')
+
+env = env.Clone()
+
+
+env.Prepend(
+    CPPPATH = [
+        '$CHROME_DIR/app/resources',
+        #'$OBJ_ROOT/google_update',
+        '#/tools/build/win',
+        '#/..',
+    ],
+    CPPDEFINES = [
+        'U_STATIC_IMPLEMENTATION',
+        'USE_HUNSPELL',
+        'HUNSPELL_CHROME_CLIENT',
+        'LIBXML_STATIC',
+        'PNG_USER_CONFIG',
+        'CHROME_PNG_WRITE_SUPPORT',
+    ],
+    CCFLAGS = [
+        '/TP',
+    ],
+)
+
+env.Append(
+    CPPPATH = [
+        '$GTEST_DIR/include',
+
+        '$GOOGLE_UPDATE_DIR',
+        '$CHROME_DIR/third_party/hunspell/src/hunspell',
+        '$CHROME_DIR/third_party/wtl/include',
+        '$NPAPI_DIR',
+        '$LIBXML_DIR/scons/include',
+        '$LIBXML_DIR/include',
+        '$ICU38_DIR/public/common',
+        '$ICU38_DIR/public/i18n',
+        '$CHROME_DIR/app',
+        '$WEBKIT_DIR/build/localized_strings',
+        '$ZLIB_DIR',
+        '$SKIA_DIR/include',
+        '$SKIA_DIR/include/corecg',
+        '$SKIA_DIR/platform',
+        '$LIBPNG_DIR',
+        '$BREAKPAD_DIR/src',
+    ],
+)
+
+input_files = [
+    'about_chrome_view.cc',
+    'bookmark_bar_view.cc',
+    'bookmark_bubble_view.cc',
+    'bookmark_editor_view.cc',
+    'bug_report_view.cc',
+    'clear_browsing_data.cc',
+    'constrained_window_animation.cc',
+    'constrained_window_impl.cc',
+    'delay_view.cc',
+    'download_item_view.cc',
+    'download_shelf_view.cc',
+    'download_started_animation.cc',
+    'edit_keyword_controller.cc',
+    'event_utils.cc',
+    'first_run_bubble.cc',
+    'first_run_customize_view.cc',
+    'first_run_view.cc',
+    'first_run_view_base.cc',
+    'frame/aero_glass_frame.cc',
+    'frame/aero_glass_non_client_view.cc',
+    'frame/browser_view.cc',
+    'frame/browser_view2.cc',
+    'frame/browser_window_factory.cc',
+    'frame/opaque_frame.cc',
+    'frame/opaque_non_client_view.cc',
+    'go_button.cc',
+    'html_dialog_view.cc',
+    'hung_renderer_view.cc',
+    'hwnd_html_view.cc',
+    'importer_lock_view.cc',
+    'importer_view.cc',
+    'importing_progress_view.cc',
+    'info_bar_alternate_nav_url_view.cc',
+    'info_bar_confirm_view.cc',
+    'info_bar_item_view.cc',
+    'info_bar_message_view.cc',
+    'info_bar_view.cc',
+    'info_bubble.cc',
+    'input_window.cc',
+    'keyword_editor_view.cc',
+    'location_bar_view.cc',
+    'login_view.cc',
+    'options/advanced_contents_view.cc',
+    'options/advanced_page_view.cc',
+    'options/content_page_view.cc',
+    'options/cookies_view.cc',
+    'options/fonts_languages_window_view.cc',
+    'options/fonts_page_view.cc',
+    'options/general_page_view.cc',
+    'options/language_combobox_model.cc',
+    'options/languages_page_view.cc',
+    'options/options_group_view.cc',
+    'options/options_page_view.cc',
+    'options/options_window_view.cc',
+    'password_manager_view.cc',
+    'restart_message_box.cc',
+    'sad_tab_view.cc',
+    'shelf_item_dialog.cc',
+    'shell_dialogs.cc',
+    'star_toggle.cc',
+    'status_bubble.cc',
+    'tab_icon_view.cc',
+    'theme_helpers.cc',
+    'toolbar_star_toggle.cc',
+    'toolbar_view.cc',
+]
+
+env.ChromeStaticLibrary('browser_views', input_files)
+
+
+SConscript('debugger/SConscript', exports=['env'])
