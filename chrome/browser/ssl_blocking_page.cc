@@ -179,9 +179,6 @@ void SSLBlockingPage::Show() {
   // The controller will own the entry.
   int page_id = nav_entry->GetPageID();
   tab_->controller()->DidNavigateToEntry(nav_entry);
-  tab_->controller()->SyncSessionWithEntryByPageID(TAB_CONTENTS_WEB,
-                                                   NULL,
-                                                   page_id);
   tab->ShowInterstitialPage(html_text, NULL);
 }
 

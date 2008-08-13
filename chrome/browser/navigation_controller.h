@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_NAVIGATION_CONTROLLER_H__
-#define CHROME_BROWSER_NAVIGATION_CONTROLLER_H__
+#ifndef CHROME_BROWSER_NAVIGATION_CONTROLLER_H_
+#define CHROME_BROWSER_NAVIGATION_CONTROLLER_H_
 
 #include <hash_map>
 
@@ -41,7 +41,6 @@
 
 class GURL;
 class Profile;
-class SessionService;
 class TabContents;
 class WebContents;
 class TabContentsCollector;
@@ -64,6 +63,15 @@ class PrintViewManager;
 ////////////////////////////////////////////////////////////////////////////////
 class NavigationController : public NavigationControllerBase {
  public:
+  // Provides the details for a NOTIFY_NAV_ENTRY_CHANGED notification.
+  struct EntryChangedDetails {
+    // The changed navigation entry after it has been updated.
+    const NavigationEntry* changed_entry;
+
+    // Indicates the current index in the back/forward list of the entry.
+    int index;
+  };
+
   NavigationController(TabContents* initial_contents, Profile* profile);
   // Creates a NavigationController from the specified history. Processing
   // for this is asynchronous and handled via the RestoreHelper (in
@@ -152,14 +160,12 @@ class NavigationController : public NavigationControllerBase {
 
   SSLManager* ssl_manager() { return &ssl_manager_; }
 
-  // Synchronizes the session saving database with the entry that has the same
-  // page id, instance, and contents type as the specified entry.
-  // NOTE: This is invoked by WebContents. Any custom TabContents that
-  // modify a NavigationEntries state/url/transition must explicitly invoke
-  // this.
-  void SyncSessionWithEntryByPageID(TabContentsType type,
-                                    SiteInstance* instance,
-                                    int32 page_id) const;
+  // Broadcasts the NOTIFY_NAV_ENTRY_CHANGED notification for the
+  // navigation corresponding to the given page. This will keep things in sync
+  // like saved session.
+  void NotifyEntryChangedByPageID(TabContentsType type,
+                                  SiteInstance* instance,
+                                  int32 page_id);
 
   void SetActive(bool is_active);
 
@@ -216,19 +222,8 @@ class NavigationController : public NavigationControllerBase {
   // and deleted by this navigation controller
   void RegisterTabContents(TabContents* some_contents);
 
-  // Returns the session service for the profile. This returns NULL if the
-  // profile doesn't have a session service.
-  SessionService* GetSessionService() const;
-
-  // If the active entry is valid, the session database is updated accordingly.
-  void SyncSessionWithActiveEntry() const;
-
-  // Updates the session database with the specified entry and index.
-  void SyncSessionWithEntry(const NavigationEntry* entry, int index) const;
-
-  // Lets the history database know index is the selected index for this
-  // navigation controller.
-  void SyncSessionWithSelectedIndex(int index) const;
+  // Broadcasts a notification that the given entry changed.
+  void NotifyEntryChanged(const NavigationEntry* entry, int index);
 
   // Sets the max restored page ID this NavigationController has seen, if it
   // was restored from a previous session.
@@ -298,6 +293,7 @@ class NavigationController : public NavigationControllerBase {
   // when testing.
   static bool check_for_repost_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(NavigationController);
+  DISALLOW_COPY_AND_ASSIGN(NavigationController);
 };
-#endif  // CHROME_BROWSER_NAVIGATION_CONTROLLER_H__
+
+#endif  // CHROME_BROWSER_NAVIGATION_CONTROLLER_H_

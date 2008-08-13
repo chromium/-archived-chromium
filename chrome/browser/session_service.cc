@@ -149,6 +149,18 @@ SessionService::~SessionService() {
   // deleted. Otherwise the backend is deleted after all pending requests on
   // the file thread complete, which is done before the process exits.
   backend_ = NULL;
+
+  // Unregister our notifications.
+  NotificationService::current()->RemoveObserver(
+      this, NOTIFY_TAB_PARENTED, NotificationService::AllSources());
+  NotificationService::current()->RemoveObserver(
+      this, NOTIFY_TAB_CLOSED, NotificationService::AllSources());
+  NotificationService::current()->RemoveObserver(
+      this, NOTIFY_NAV_LIST_PRUNED, NotificationService::AllSources());
+  NotificationService::current()->RemoveObserver(
+      this, NOTIFY_NAV_ENTRY_CHANGED, NotificationService::AllSources());
+  NotificationService::current()->RemoveObserver(
+      this, NOTIFY_NAV_INDEX_CHANGED, NotificationService::AllSources());
 }
 
 void SessionService::ResetFromCurrentBrowsers() {
@@ -303,7 +315,8 @@ void SessionService::UpdateTabNavigation(const SessionID& window_id,
                                          const SessionID& tab_id,
                                          int index,
                                          const NavigationEntry& entry) {
-  if (!ShouldTrackChangesToWindow(window_id))
+  if (!entry.GetDisplayURL().is_valid() ||
+      !ShouldTrackChangesToWindow(window_id))
     return;
 
   if (tab_to_available_range_.find(tab_id.id()) !=
@@ -394,6 +407,18 @@ void SessionService::CopyLastSessionToSavedSession() {
 }
 
 void SessionService::Init(const std::wstring& path) {
+  // Register for the notifications we're interested in.
+  NotificationService::current()->AddObserver(
+      this, NOTIFY_TAB_PARENTED, NotificationService::AllSources());
+  NotificationService::current()->AddObserver(
+      this, NOTIFY_TAB_CLOSED, NotificationService::AllSources());
+  NotificationService::current()->AddObserver(
+      this, NOTIFY_NAV_LIST_PRUNED, NotificationService::AllSources());
+  NotificationService::current()->AddObserver(
+      this, NOTIFY_NAV_ENTRY_CHANGED, NotificationService::AllSources());
+  NotificationService::current()->AddObserver(
+      this, NOTIFY_NAV_INDEX_CHANGED, NotificationService::AllSources());
+
   DCHECK(!path.empty());
   commands_since_reset_ = 0;
   backend_ = new SessionBackend(path);
@@ -401,6 +426,38 @@ void SessionService::Init(const std::wstring& path) {
   if (!backend_thread_)
     backend_->Init();
   // If backend_thread, backend will init itself as appropriate.
+}
+
+void SessionService::Observe(NotificationType type,
+                             const NotificationSource& source,
+                             const NotificationDetails& details) {
+  // All of our messages have the NavigationController as the source.
+  NavigationController* controller = Source<NavigationController>(source).ptr();
+  switch (type) {
+    case NOTIFY_TAB_PARENTED:
+      SetTabWindow(controller->window_id(), controller->session_id());
+      break;
+    case NOTIFY_TAB_CLOSED:
+      TabClosed(controller->window_id(), controller->session_id());
+      break;
+    case NOTIFY_NAV_LIST_PRUNED:
+      TabNavigationPathPruned(controller->window_id(), controller->session_id(),
+                              controller->GetEntryCount());
+      break;
+    case NOTIFY_NAV_ENTRY_CHANGED: {
+      Details<NavigationController::EntryChangedDetails> changed(details);
+      UpdateTabNavigation(controller->window_id(), controller->session_id(),
+                          changed->index, *changed->changed_entry);
+      break;
+    }
+    case NOTIFY_NAV_INDEX_CHANGED:
+      SetSelectedNavigationIndex(controller->window_id(),
+                                 controller->session_id(),
+                                 controller->GetCurrentEntryIndex());
+      break;
+    default:
+      NOTREACHED();
+  }
 }
 
 SessionService::Handle SessionService::GetSessionImpl(

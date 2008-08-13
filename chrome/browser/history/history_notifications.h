@@ -70,11 +70,6 @@ struct URLsDeletedDetails : public HistoryDetails {
   std::set<GURL> urls;
 };
 
-// Details for NOTIFY_HOST_DELETED_FROM_HISTORY.
-struct HostDeletedDetails : public HistoryDetails {
-  std::string host_name;
-};
-
 // Details for NOTIFY_URLS_STARRED.
 struct URLsStarredDetails : public HistoryDetails {
 
@@ -95,13 +90,6 @@ struct URLsStarredDetails : public HistoryDetails {
 // Details for NOTIFY_STAR_ENTRY_CHANGED and others.
 struct StarredEntryDetails : public HistoryDetails {
   StarredEntry entry;
-};
-
-// Details for NOTIFY_PAGE_PRESENTATION_INDEX_CHANGED.
-struct PresentationIndexDetails : public HistoryDetails {
-  GURL url;
-  URLID url_id;
-  int index;
 };
 
 // Details for NOTIFY_STARRED_FAVICON_CHANGED.

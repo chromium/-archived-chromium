@@ -34,6 +34,8 @@
 #define CHROME_COMMON_NOTIFICATION_TYPES_H__
 
 enum NotificationType {
+  // General -------------------------------------------------------------------
+
   // Special signal value to represent an interest in all notifications.
   // Not valid when posting a notification.
   NOTIFY_ALL = 0,
@@ -46,6 +48,39 @@ enum NotificationType {
   // to a user action, and that background processes shouldn't run if avoidable.
   NOTIFY_BUSY,
 
+  // This is sent when the user does a gesture resulting in a noteworthy
+  // action taking place. This is typically used for logging. The
+  // source is the profile, and the details is a wstring identifying the action.
+  NOTIFY_USER_ACTION,
+
+  // NavigationController ------------------------------------------------------
+
+  // A NavigationController's state has changed (a new pending load has been
+  // added, a load has committed, etc.).
+  //
+  // TODO(brettw) this is vague and I'm not sure that it covers every case. We
+  // need to figure out the exact cases where this notificaion should be sent
+  // and make sure it is sent in those cases.
+  NOTIFY_NAV_STATE_CHANGED,
+
+  // Indicates that the NavigationController given in the Source has decreased
+  // its back/forward list count. This is usually the result of going back and
+  // then doing a new navigation, meaning all the "forward" items are deleted.
+  // There are no details.
+  NOTIFY_NAV_LIST_PRUNED,
+
+  // Indicates that a NavigationEntry has changed. The source will be the
+  // NavigationController that owns the NavigationEntry. The details will be
+  // a NavigationController::EntryChangedDetails struct.
+  NOTIFY_NAV_ENTRY_CHANGED,
+
+  // Indicates that the index of the currently active NavigationEntry has
+  // changed. The source will be the NavigationController whose current item
+  // changed, and there are no details.
+  NOTIFY_NAV_INDEX_CHANGED,
+
+  // Other load-related (not from NavigationController) ------------------------
+
   // A content load is starting.  The source will be a
   // Source<NavigationController> corresponding to the tab
   // in which the load is occurring.  No details are
@@ -57,10 +92,6 @@ enum NotificationType {
   // in which the load is occurring.  Details in the form of a
   // LoadNotificationDetails object are optional.
   NOTIFY_LOAD_STOP,
-
-  // A NavigationController's state has changed (a new pending load has been
-  // added, a load has committed, etc.).
-  NOTIFY_NAVIGATION_STATE_CHANGED,
 
   // A frame is staring a provisional load.  The source is a
   // Source<NavigationController> corresponding to the tab in which the load
@@ -103,6 +134,28 @@ enum NotificationType {
   // was issued.  Details in the form of a ResourceRedirectDetails are provided.
   NOTIFY_RESOURCE_RECEIVED_REDIRECT,
 
+  // Download start and stop notifications. Stop notifications can occur on both
+  // normal completion or via a cancel operation.
+  NOTIFY_DOWNLOAD_START,
+  NOTIFY_DOWNLOAD_STOP,
+
+  // This is sent when an interstitial page showing in a WebContents is closed
+  // (as the result of a navigation to another page).  The source is the
+  // WebContents the interstitial page is in.
+  // Note that you should not initiate a navigation as part of the processing of
+  // this notification, since this notification may be triggered as part of the
+  // destruction of the tab contents (the navigation controller would reuse
+  // the tab contents right before it would be destroyed).
+  NOTIFY_INTERSTITIAL_PAGE_CLOSED,
+
+  // Views ---------------------------------------------------------------------
+
+  // Notification that a view was removed from a view hierarchy.  The source is
+  // the view, the details is the parent view.
+  NOTIFY_VIEW_REMOVED,
+
+  // Browser-window ------------------------------------------------------------
+
   // This message is sent after a window has been opened.  The source is
   // a Source<Browser> with a pointer to the new window.
   // No details are expected.
@@ -116,12 +169,16 @@ enum NotificationType {
   // only valid for the duration of this call.
   NOTIFY_BROWSER_CLOSED,
 
+  // Indicates that a top window has been closed.  The source is the HWND that
+  // was closed, no details are expected.
+  NOTIFY_WINDOW_CLOSED,
+
+  // Tabs ----------------------------------------------------------------------
+
   // This notification is sent after a tab has been appended to the tab_strip.
   // The source is a Source<NavigationController> with a pointer to
-  // controller for the added tab.
-  // The details is a Detail<Browser> with a pointer to the window
-  // that the tab is being added to.
-  NOTIFY_TAB_APPENDED,
+  // controller for the added tab. There are no details.
+  NOTIFY_TAB_PARENTED,
 
   // This message is sent before a tab has been closed.  The source is
   // a Source<NavigationController> with a pointer to the controller for the
@@ -156,6 +213,94 @@ enum NotificationType {
   // (the pointer is usable).
   // No details are expected.
   NOTIFY_WEB_CONTENTS_DISCONNECTED,
+
+  // This is sent when an externally hosted tab is created. The details contain
+  // the ExternalTabContainer that contains the tab
+  NOTIFY_EXTERNAL_TAB_CREATED,
+
+  // This is sent when an externally hosted tab is closed.
+  // No details are expected.
+  NOTIFY_EXTERNAL_TAB_CLOSED,
+
+  // Indicates that the new page tab has finished loading. This is
+  // used for performance testing to see how fast we can load it after startup,
+  // and is only called once for the lifetime of the browser. The source is
+  // unused.  Details is an integer: the number of milliseconds elapsed between
+  // starting and finishing all painting.
+  NOTIFY_INITIAL_NEW_TAB_UI_LOAD,
+
+  // This notification is sent when a TabContents is being hidden, e.g. due to
+  // switching away from this tab.  The source is a Source<TabContents>.
+  NOTIFY_TAB_CONTENTS_HIDDEN,
+
+  // This notification is sent when a TabContents is being destroyed. Any object
+  // holding a reference to a TabContents can listen to that notification to
+  // properly reset the reference. The source is a Source<TabContents>.
+  NOTIFY_TAB_CONTENTS_DESTROYED,
+
+  // Stuff inside the tabs -----------------------------------------------------
+
+  // This message is sent after a constrained window has been closed.  The
+  // source is a Source<ConstrainedWindow> with a pointer to the closed child
+  // window.  (The pointer isn't usable, except for identification.) No details
+  // are expected.
+  NOTIFY_CWINDOW_CLOSED,
+
+  // Indicates that a render process has terminated. The source will be the
+  // RenderProcessHost that corresponds to the process, and the details is a
+  // bool specifying whether the termination was expected, i.e. if false it
+  // means the process crashed.
+  NOTIFY_RENDERER_PROCESS_TERMINATED,
+
+  // Indicates that a render process has become unresponsive for a period of
+  // time. The source will be the RenderWidgetHost that corresponds to the hung
+  // view, and no details are expected.
+  NOTIFY_RENDERER_PROCESS_HANG,
+
+  // Indicates that a render process is created in the sandbox. The source
+  // will be the RenderProcessHost that corresponds to the created process
+  // and the detail is a bool telling us if the process got created on the
+  // sandbox desktop or not.
+  NOTIFY_RENDERER_PROCESS_IN_SBOX,
+
+  // This is sent to notify that the RenderViewHost displayed in a WebContents
+  // has changed.  Source is the WebContents for which the change happened,
+  // details is the previous RenderViewHost (can be NULL when the first
+  // RenderViewHost is set).
+  NOTIFY_RENDER_VIEW_HOST_CHANGED,
+
+  // Notification from WebContents that we have received a response from
+  // the renderer after using the dom inspector.
+  NOTIFY_DOM_INSPECT_ELEMENT_RESPONSE,
+
+  // Notification from WebContents that we have received a response from
+  // the renderer in response to a dom automation controller action.
+  NOTIFY_DOM_OPERATION_RESPONSE,
+
+  // Sent when the bookmark bubble hides. The source is the profile, the
+  // details unused.
+  NOTIFY_BOOKMARK_BUBBLE_HIDDEN,
+
+  // This notification is sent when the result of a find-in-page search is
+  // available with the browser process. The source is a Source<TabContents>
+  // with a pointer to the WebContents. Details encompass a
+  // FindNotificationDetail object that tells whether the match was
+  // found or not found.
+  NOTIFY_FIND_RESULT_AVAILABLE,
+
+  // This is sent when the users preference for when the bookmark bar should
+  // be shown changes. The source is the profile, and the details are
+  // NoDetails.
+  NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
+
+  // Used to monitor web cache usage by notifying whenever the CacheManagerHost
+  // observes new UsageStats. The source will be the RenderProcessHost that
+  // corresponds to the new statistics. Details are a UsageStats object sent
+  // by the renderer, and should be copied - ptr not guaranteed to be valid
+  // after the notification.
+  NOTIFY_WEB_CACHE_STATS_OBSERVED,
+
+  // Plugins -------------------------------------------------------------------
 
   // This notification is sent when a plugin process host has connected to a
   // plugin process.  There is no usable source, since it is sent from an
@@ -196,12 +341,31 @@ enum NotificationType {
   // if you need to keep it).
   NOTIFY_PLUGIN_INSTANCE_CREATED,
 
-  // This notification is sent when the result of a find-in-page search is
-  // available with the browser process. The source is a Source<TabContents>
-  // with a pointer to the WebContents. Details encompass a
-  // FindNotificationDetail object that tells whether the match was
-  // found or not found.
-  NOTIFY_FIND_RESULT_AVAILABLE,
+  // This is sent when network interception is disabled for a plugin, or the
+  // plugin is unloaded.  This should only be sent/received on the browser IO
+  // thread or the plugin thread. The source is the plugin that is disabling
+  // interception.  No details are expected.
+  NOTIFY_CHROME_PLUGIN_UNLOADED,
+
+  // This is sent when a login prompt is shown.  The source is the
+  // Source<NavigationController> for the tab in which the prompt is shown.
+  // Details are a LoginNotificationDetails which provide the LoginHandler
+  // that should be given authentication.
+  NOTIFY_AUTH_NEEDED,
+
+  // This is sent when authentication credentials have been supplied (either
+  // by the user or by an automation service), but before we've actually
+  // received another response from the server.  The source is the
+  // Source<NavigationController> for the tab in which the prompt was shown.
+  // No details are expected.
+  NOTIFY_AUTH_SUPPLIED,
+
+  // History, bookmarks --------------------------------------------------------
+
+  // Sent when a history service is created. The source is the profile that the
+  // history service belongs to, and the details is the pointer to the newly
+  // created HistoryService object.
+  NOTIFY_HISTORY_CREATED,
 
   // Sent when a URL that has been typed has been added or modified. This is
   // used by the in-memory URL database (used by autocomplete) to track changes
@@ -244,142 +408,48 @@ enum NotificationType {
   // was created.
   NOTIFY_STAR_GROUP_CREATED,
 
-  // This is sent when a login prompt is shown.  The source is the
-  // Source<NavigationController> for the tab in which the prompt is shown.
-  // Details are a LoginNotificationDetails which provide the LoginHandler
-  // that should be given authentication.
-  NOTIFY_AUTH_NEEDED,
+  // Sent by history when the favicon of a starred URL changes. In the future,
+  // we may want a notification for all URLs so that the history view can stay
+  // up-to-date. In that case, we should change this notification rather than
+  // adding a new one for non-starred favicons.
+  // The source is the profile, and the details is
+  // history::FavIconChangeDetails (see history_notifications.h).
+  NOTIFY_STARRED_FAVICON_CHANGED,
 
-  // This is sent when authentication credentials have been supplied (either
-  // by the user or by an automation service), but before we've actually
-  // received another response from the server.  The source is the
-  // Source<NavigationController> for the tab in which the prompt was shown.
-  // No details are expected.
-  NOTIFY_AUTH_SUPPLIED,
+  // Sent when the bookmark bubble is shown for a particular URL. The source
+  // is the profile, the details the URL.
+  NOTIFY_BOOKMARK_BUBBLE_SHOWN,
 
-  // This is sent when the user does a gesture resulting in a noteworthy
-  // action taking place. This is typically used for logging. The
-  // source is the profile, and the details is a wstring identifying the action.
-  NOTIFY_USER_ACTION,
-
-  // This message is sent after a constrained window has been closed.  The
-  // source is a Source<ConstrainedWindow> with a pointer to the closed child
-  // window.  (The pointer isn't usable, except for identification.) No details
-  // are expected.
-  NOTIFY_CWINDOW_CLOSED,
-
-  // This is sent whenever a feed's unread count has changed.
-  // This happens in two cases:
-  //   1) we've polled the feed and found new entries
-  //   2) the user has visited a page that had unread entries, so the unread
-  //      count is now reset to zero.
-  // The source is the Profile and the details is the FeedStatus object.
-  NOTIFY_FEED_UNREADS_CHANGED,
-
-  // Sent when a history service is created. The source is the profile that the
-  // history service belongs to, and the details is the pointer to the newly
-  // created HistoryService object.
-  NOTIFY_HISTORY_CREATED,
-
-  // Indicates that the new page tab has finished loading. This is
-  // used for performance testing to see how fast we can load it after startup,
-  // and is only called once for the lifetime of the browser. The source is
-  // unused.  Details is an integer: the number of milliseconds elapsed between
-  // starting and finishing all painting.
-  NOTIFY_INITIAL_NEW_TAB_UI_LOAD,
-
-  // Indicates that a render process has terminated. The source will be the
-  // RenderProcessHost that corresponds to the process, and the details is a
-  // bool specifying whether the termination was expected, i.e. if false it
-  // means the process crashed.
-  NOTIFY_RENDERER_PROCESS_TERMINATED,
-
-  // Indicates that a render process has become unresponsive for a period of
-  // time. The source will be the RenderWidgetHost that corresponds to the hung
-  // view, and no details are expected.
-  NOTIFY_RENDERER_PROCESS_HANG,
-
-  // Indicates that a top window has been closed.  The source is the HWND that
-  // was closed, no details are expected.
-  NOTIFY_WINDOW_CLOSED,
-
-  // Indicates that a render process is created in the sandbox. The source
-  // will be the RenderProcessHost that corresponds to the created process
-  // and the detail is a bool telling us if the process got created on the
-  // sandbox desktop or not.
-  NOTIFY_RENDERER_PROCESS_IN_SBOX,
-
-  // Notification triggered when a web application has been installed or
-  // uninstalled. Any application view should reload its data.
-  // The source is the profile. No details are provided.
-  NOTIFY_WEB_APP_INSTALL_CHANGED,
-
-  // Download start and stop notifications. Stop notifications can occur on both
-  // normal completion or via a cancel operation.
-  NOTIFY_DOWNLOAD_START,
-  NOTIFY_DOWNLOAD_STOP,
-
-  // Used to monitor web cache usage by notifying whenever the CacheManagerHost
-  // observes new UsageStats. The source will be the RenderProcessHost that
-  // corresponds to the new statistics. Details are a UsageStats object sent
-  // by the renderer, and should be copied - ptr not guaranteed to be valid
-  // after the notification.
-  NOTIFY_WEB_CACHE_STATS_OBSERVED,
-
-  // Notification that all URLs with a particular host have been removed.
-  // The source is the profile the host was deleted in, and the details is a
-  // history::HostDeletedDetails struct.
-  NOTIFY_HOST_DELETED_FROM_HISTORY,
-
-  // Notification that a view was removed from a view hierarchy.  The source is
-  // the view, the details is the parent view.
-  NOTIFY_VIEW_REMOVED,
+  // Non-history storage services ----------------------------------------------
 
   // Notification that the TemplateURLModel has finished loading from the
   // database. The source is the TemplateURLModel, and the details are
   // NoDetails.
   TEMPLATE_URL_MODEL_LOADED,
 
-  // Notification from WebContents that we have received a response from
-  // the renderer after using the dom inspector.
-  NOTIFY_DOM_INSPECT_ELEMENT_RESPONSE,
+  // Notification triggered when a web application has been installed or
+  // uninstalled. Any application view should reload its data.
+  // The source is the profile. No details are provided.
+  NOTIFY_WEB_APP_INSTALL_CHANGED,
 
-  // Notification from WebContents that we have received a response from
-  // the renderer in response to a dom automation controller action.
-  NOTIFY_DOM_OPERATION_RESPONSE,
+  // This is sent to a pref observer when a pref is changed.
+  NOTIFY_PREF_CHANGED,
 
-  // Notification that a page's presentation index has changed (this is the
-  // index that the user has manually overridden in the most visited view).
-  // The source is the profile, and the details is a
-  // history::PresentationIndexDetails.
-  NOTIFY_PAGE_PRESENTATION_INDEX_CHANGED,
+  // Autocomplete --------------------------------------------------------------
 
   // This is sent when an item of the Omnibox popup is selected. The source is
   // the profile.
   NOTIFY_OMNIBOX_OPENED_URL,
 
-  // This is sent when the users preference for when the bookmark bar should
-  // be shown changes. The source is the profile, and the details are
-  // NoDetails.
-  NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
+  // Sent by the autocomplete edit when it is destroyed.
+  NOTIFY_AUTOCOMPLETE_EDIT_DESTROYED,
 
-  // This is sent when an interstitial page showing in a WebContents is closed
-  // (as the result of a navigation to another page). The source is the
-  // NavigationController associated with the tab.
-  //
-  // Note that you should not initiate a navigation as part of the processing of
-  // this notification, since this notification may be triggered as part of the
-  // destruction of the tab contents (the navigation controller would reuse
-  // the tab contents right before it would be destroyed).
-  NOTIFY_INTERSTITIAL_PAGE_CLOSED,
+  // Sent when the main Google URL has been updated.  Some services cache this
+  // value and need to update themselves when it changes.  See
+  // google_util::GetGoogleURLAndUpdateIfNecessary().
+  NOTIFY_GOOGLE_URL_UPDATED,
 
-  // This is sent when an externally hosted tab is created. The details contain
-  // the ExternalTabContainer that contains the tab
-  NOTIFY_EXTERNAL_TAB_CREATED,
-
-  // This is sent when an externally hosted tab is closed.
-  // No details are expected.
-  NOTIFY_EXTERNAL_TAB_CLOSED,
+  // Printing ------------------------------------------------------------------
 
   // Notification from a PrintedDocument that it has been updated. It may be
   // that a printed page has just been generated or that the document's number
@@ -392,62 +462,18 @@ enum NotificationType {
   // PrintJob::EventDetails.
   NOTIFY_PRINT_JOB_EVENT,
 
-  // This is sent when network interception is disabled for a plugin, or the
-  // plugin is unloaded.  This should only be sent/received on the browser IO
-  // thread or the plugin thread. The source is the plugin that is disabling
-  // interception.  No details are expected.
-  NOTIFY_CHROME_PLUGIN_UNLOADED,
-
-  // This is sent to a pref observer when a pref is changed.
-  NOTIFY_PREF_CHANGED,
-
-  // This is sent to notify that the RenderViewHost displayed in a WebContents
-  // has changed.  Source is the NavigationController for which the change
-  // happened, and details is RenderViewHostSwitchedDetails
-  // (see render_view_host_manager.h).
-  NOTIFY_RENDER_VIEW_HOST_CHANGED,
-
-  // This notification is sent when a TabContents is being hidden, e.g. due to
-  // switching away from this tab.  The source is a Source<TabContents>.
-  NOTIFY_TAB_CONTENTS_HIDDEN,
-
-  // This notification is sent when a TabContents is being destroyed. Any object
-  // holding a reference to a TabContents can listen to that notification to
-  // properly reset the reference. The source is a Source<TabContents>.
-  NOTIFY_TAB_CONTENTS_DESTROYED,
-
-  // Sent by the autocomplete edit when it is destroyed.
-  NOTIFY_AUTOCOMPLETE_EDIT_DESTROYED,
-
-  // Sent by history when the favicon of a starred URL changes. In the future,
-  // we may want a notification for all URLs so that the history view can stay
-  // up-to-date. In that case, we should change this notification rather than
-  // adding a new one for non-starred favicons.
-  // The source is the profile, and the details is
-  // history::FavIconChangeDetails (see history_notifications.h).
-  NOTIFY_STARRED_FAVICON_CHANGED,
+  // Shutdown ------------------------------------------------------------------
 
   // Sent on the browser IO thread when an URLRequestContext is released by its
   // owning Profile.  The source is a pointer to the URLRequestContext.
   NOTIFY_URL_REQUEST_CONTEXT_RELEASED,
-
-  // Sent when the main Google URL has been updated.  Some services cache this
-  // value and need to update themselves when it changes.  See
-  // google_util::GetGoogleURLAndUpdateIfNecessary().
-  NOTIFY_GOOGLE_URL_UPDATED,
 
   // Sent when WM_ENDSESSION has been received, after the browsers have been
   // closed but before browser process has been shutdown. The source/details
   // are all source and no details.
   NOTIFY_SESSION_END,
 
-  // Sent when the bookmark bubble is shown for a particular URL. The source
-  // is the profile, the details the URL.
-  NOTIFY_BOOKMARK_BUBBLE_SHOWN,
-
-  // Sent when the bookmark bubble hides. The source is the profile, the
-  // details unused.
-  NOTIFY_BOOKMARK_BUBBLE_HIDDEN,
+  // Count (must be last) ------------------------------------------------------
 
   // Used to determine the number of notification types.  Not valid as
   // a type parameter when registering for or posting notifications.

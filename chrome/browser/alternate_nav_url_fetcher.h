@@ -26,8 +26,6 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// TODO describe this file
 
 #ifndef CHROME_BROWSER_ALTERNATE_NAV_URL_FETCHER_H__
 #define CHROME_BROWSER_ALTERNATE_NAV_URL_FETCHER_H__
@@ -39,6 +37,11 @@
 
 class NavigationController;
 
+// Attempts to get the HEAD of a host name and displays an info bar if the
+// request was successful. This is used for single-word queries where we can't
+// tell if the entry was a search or an intranet hostname. The autocomplete bar
+// assumes it's a query and issues an AlternateNavURLFetcher to display a "did
+// you mean" infobar suggesting a navigation.
 class AlternateNavURLFetcher : public NotificationObserver,
                                public URLFetcher::Delegate {
  public:

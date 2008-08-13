@@ -178,16 +178,10 @@ NavigationController::~NavigationController() {
   DCHECK(tab_contents_map_.empty());
   DCHECK(tab_contents_collector_map_.empty());
 
-  SessionService* session_service = GetSessionService();
-  if (session_service)
-    session_service->TabClosed(window_id_, session_id());
-
   profile_->UnregisterNavigationController(this);
-
-  NotificationService::current()->Notify(
-      NOTIFY_TAB_CLOSED,
-      Source<NavigationController>(this),
-      NotificationService::NoDetails());
+  NotificationService::current()->Notify(NOTIFY_TAB_CLOSED,
+                                         Source<NavigationController>(this),
+                                         NotificationService::NoDetails());
 }
 
 TabContents* NavigationController::GetTabContents(TabContentsType t) {
@@ -438,23 +432,18 @@ void NavigationController::DiscardPendingEntry() {
 }
 
 void NavigationController::InsertEntry(NavigationEntry* entry) {
-  DCHECK(entry);
-
   NavigationControllerBase::InsertEntry(entry);
-
-  int index = GetIndexOfEntry(entry);
-  DCHECK(entries_.size() > 0 && index != -1);
-  SyncSessionWithSelectedIndex(index);
-
+  NotificationService::current()->Notify(NOTIFY_NAV_INDEX_CHANGED,
+                                         Source<NavigationController>(this),
+                                         NotificationService::NoDetails());
   active_contents_->NotifyDidNavigate(NAVIGATION_NEW, 0);
 }
 
 void NavigationController::SetWindowID(const SessionID& id) {
   window_id_ = id;
-
-  SessionService* session_service = GetSessionService();
-  if (session_service)
-    session_service->SetTabWindow(window_id_, session_id());
+  NotificationService::current()->Notify(NOTIFY_TAB_PARENTED,
+                                         Source<NavigationController>(this),
+                                         NotificationService::NoDetails());
 }
 
 void NavigationController::NavigateToPendingEntry(bool reload) {
@@ -513,18 +502,15 @@ void NavigationController::NotifyNavigationStateChanged() {
   active_contents_->NotifyNavigationStateChanged(
       TabContents::INVALIDATE_EVERYTHING);
 
-  NotificationService::current()->Notify(
-      NOTIFY_NAVIGATION_STATE_CHANGED,
-      Source<NavigationController>(this),
-      NotificationService::NoDetails());
+  NotificationService::current()->Notify(NOTIFY_NAV_STATE_CHANGED,
+                                         Source<NavigationController>(this),
+                                         NotificationService::NoDetails());
 }
 
 void NavigationController::NotifyPrunedEntries() {
-  SessionService* session_service = GetSessionService();
-  if (!session_service)
-    return;
-  session_service->TabNavigationPathPruned(window_id(), session_id(),
-                                           GetEntryCount());
+  NotificationService::current()->Notify(NOTIFY_NAV_LIST_PRUNED,
+                                         Source<NavigationController>(this),
+                                         NotificationService::NoDetails());
 }
 
 void NavigationController::IndexOfActiveEntryChanged(
@@ -536,8 +522,12 @@ void NavigationController::IndexOfActiveEntryChanged(
     nav_type = NAVIGATION_REPLACE;
   }
   active_contents_->NotifyDidNavigate(nav_type, relative_navigation_offset);
-  if (GetCurrentEntryIndex() != -1)
-    SyncSessionWithSelectedIndex(GetCurrentEntryIndex());
+  if (GetCurrentEntryIndex() != -1) {
+    NotificationService::current()->Notify(
+        NOTIFY_NAV_INDEX_CHANGED,
+        Source<NavigationController>(this),
+        NotificationService::NoDetails());
+  }
 }
 
 TabContents* NavigationController::GetTabContentsCreateIfNecessary(
@@ -587,20 +577,13 @@ void NavigationController::RegisterTabContents(TabContents* some_contents) {
     some_contents->AsDOMUIHost()->AttachMessageHandlers();
 }
 
-SessionService* NavigationController::GetSessionService() const {
-  if (profile_->HasSessionService())
-    return profile_->GetSessionService();
-
-  return NULL;
-}
-
-void NavigationController::SyncSessionWithEntryByPageID(
+void NavigationController::NotifyEntryChangedByPageID(
     TabContentsType type,
     SiteInstance *instance,
-    int32 page_id) const {
+    int32 page_id) {
   int index = GetEntryIndexWithPageID(type, instance, page_id);
   if (index != -1)
-    SyncSessionWithEntry(entries_[index], index);
+    NotifyEntryChanged(entries_[index], index);
 }
 
 // static
@@ -631,25 +614,14 @@ void NavigationController::LoadIfNecessary() {
   NavigateToPendingEntry(false);
 }
 
-void NavigationController::SyncSessionWithEntry(const NavigationEntry* entry,
-                                                int index) const {
-  SessionService* session_service = GetSessionService();
-  if (!session_service)
-    return;
-
-  DCHECK(entry && index != -1);
-  if (entry->GetDisplayURL().is_valid())
-    session_service->UpdateTabNavigation(window_id(), session_id(), index,
-                                         *entry);
-}
-
-void NavigationController::SyncSessionWithSelectedIndex(int index) const {
-  DCHECK(index != -1);
-  SessionService* session_service = GetSessionService();
-  if (!session_service)
-    return;
-
-  session_service->SetSelectedNavigationIndex(window_id(), session_id(), index);
+void NavigationController::NotifyEntryChanged(const NavigationEntry* entry,
+                                              int index) {
+  EntryChangedDetails det;
+  det.changed_entry = entry;
+  det.index = index;
+  NotificationService::current()->Notify(NOTIFY_NAV_ENTRY_CHANGED,
+                                         Source<NavigationController>(this),
+                                         Details<EntryChangedDetails>(&det));
 }
 
 int NavigationController::GetMaxPageID() const {

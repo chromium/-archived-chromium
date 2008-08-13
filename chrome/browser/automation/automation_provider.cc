@@ -344,7 +344,7 @@ class TabAppendedNotificationObserver : public TabStripNotificationObserver {
  public:
   TabAppendedNotificationObserver(Browser* parent,
       AutomationProvider* automation, int32 routing_id)
-      : TabStripNotificationObserver(parent, NOTIFY_TAB_APPENDED, automation,
+      : TabStripNotificationObserver(parent, NOTIFY_TAB_PARENTED, automation,
                                      routing_id) {
   }
 

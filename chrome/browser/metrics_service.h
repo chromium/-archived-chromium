@@ -333,6 +333,9 @@ class MetricsService : public NotificationObserver,
   std::vector<std::string> unsent_initial_logs_;
   std::vector<std::string> unsent_ongoing_logs_;
 
+  // Maps NavigationControllers (corresponding to tabs) or Browser
+  // (corresponding to Windows) to a unique integer that we will use to identify
+  // it. |next_window_id_| is used to track which IDs we have used so far.
   typedef std::map<uintptr_t, int> WindowMap;
   WindowMap window_map_;
   int next_window_id_;

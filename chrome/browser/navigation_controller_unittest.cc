@@ -74,7 +74,7 @@ class TestContents : public TabContents {
     DCHECK(pending_entry_.get());
     pending_entry_->SetPageID(page_id);
     DidNavigateToEntry(pending_entry_.get());
-    controller()->SyncSessionWithEntryByPageID(type(), NULL, page_id);
+    controller()->NotifyEntryChangedByPageID(type(), NULL, page_id);
     pending_entry_.release();
   }
 

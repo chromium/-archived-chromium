@@ -38,6 +38,7 @@
 #include "base/time.h"
 #include "chrome/browser/browser_type.h"
 #include "chrome/browser/cancelable_request.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/stl_util-inl.h"
 #include "googleurl/src/gurl.h"
@@ -220,6 +221,7 @@ struct SessionWindow {
 // of the browser.
 
 class SessionService : public CancelableRequestProvider,
+                       public NotificationObserver,
                        public base::RefCountedThreadSafe<SessionService> {
   friend class SessionServiceTestHelper;
  public:
@@ -372,6 +374,10 @@ class SessionService : public CancelableRequestProvider,
 
   // Various initialization; called from the constructor.
   void Init(const std::wstring& path);
+
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
 
   // Get*Session call into this to schedule the request. The request
   // does NOT directly invoke the callback, rather the callback invokes

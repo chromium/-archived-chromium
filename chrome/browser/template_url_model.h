@@ -205,8 +205,6 @@ class TemplateURLModel : public WebDataServiceConsumer,
 
   // NotificationObserver method. TemplateURLModel listens for three
   // notification types:
-  // . NOTIFY_HOST_DELETED_FROM_HISTORY: deletes generated keywords for the
-  //   host that was deleted.
   // . NOTIFY_HISTORY_URL_VISITED: adds keyword search terms if the visit
   //   corresponds to a keyword.
   // . NOTIFY_GOOGLE_URL_UPDATED: updates mapping for any keywords containing

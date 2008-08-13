@@ -90,8 +90,6 @@ TemplateURLModel::TemplateURLModel(Profile* profile)
       next_id_(1) {
   DCHECK(profile_);
   NotificationService* ns = NotificationService::current();
-  ns->AddObserver(this, NOTIFY_HOST_DELETED_FROM_HISTORY,
-                  Source<Profile>(profile_->GetOriginalProfile()));
   // TODO(sky): bug 1166191. The keywords should be moved into the history
   // db, which will mean we no longer need this notification and the history
   // backend can handle automatically adding the search terms as the user
@@ -123,8 +121,6 @@ TemplateURLModel::~TemplateURLModel() {
 
   if (profile_) {
     NotificationService* ns = NotificationService::current();
-    ns->RemoveObserver(this, NOTIFY_HOST_DELETED_FROM_HISTORY,
-                       Source<Profile>(profile_->GetOriginalProfile()));
     ns->RemoveObserver(this, NOTIFY_HISTORY_URL_VISITED,
                        Source<Profile>(profile_->GetOriginalProfile()));
     ns->RemoveObserver(this, NOTIFY_GOOGLE_URL_UPDATED,
@@ -661,19 +657,7 @@ void TemplateURLModel::OnWebDataServiceRequestDone(
 void TemplateURLModel::Observe(NotificationType type,
                                const NotificationSource& source,
                                const NotificationDetails& details) {
-  if (type == NOTIFY_HOST_DELETED_FROM_HISTORY) {
-    Details<std::string> utf8_host(details);
-    std::wstring host(UTF8ToWide(*(utf8_host.ptr())));
-    if (!loaded()) {
-      // We're not loaded, so that we can't delete the url. Save the host to
-      // hosts_to_delete_ and schedule a load. When done loading we'll delete
-      // the keyword.
-      hosts_to_delete_.push_back(host);
-      Load();
-    } else {
-      DeleteGeneratedKeywordsMatchingHost(host);
-    }
-  } else if (type == NOTIFY_HISTORY_URL_VISITED) {
+  if (type == NOTIFY_HISTORY_URL_VISITED) {
     Details<history::URLVisitedDetails> visit_details(details);
 
     if (!loaded())

@@ -429,7 +429,7 @@ void MetricsService::Observe(NotificationType type,
       LogWindowChange(type, source, details);
       break;
 
-    case NOTIFY_TAB_APPENDED:
+    case NOTIFY_TAB_PARENTED:
     case NOTIFY_TAB_CLOSING:
       LogWindowChange(type, source, details);
       break;
@@ -678,7 +678,7 @@ void MetricsService::ListenerRegistration(bool start_listening) {
   AddOrRemoveObserver(this, NOTIFY_BROWSER_OPENED, start_listening);
   AddOrRemoveObserver(this, NOTIFY_BROWSER_CLOSED, start_listening);
   AddOrRemoveObserver(this, NOTIFY_USER_ACTION, start_listening);
-  AddOrRemoveObserver(this, NOTIFY_TAB_APPENDED, start_listening);
+  AddOrRemoveObserver(this, NOTIFY_TAB_PARENTED, start_listening);
   AddOrRemoveObserver(this, NOTIFY_TAB_CLOSING, start_listening);
   AddOrRemoveObserver(this, NOTIFY_LOAD_START, start_listening);
   AddOrRemoveObserver(this, NOTIFY_LOAD_STOP, start_listening);
@@ -1176,36 +1176,30 @@ void MetricsService::GetSettingsFromConfigNode(xmlNodePtr config_node) {
 void MetricsService::LogWindowChange(NotificationType type,
                                      const NotificationSource& source,
                                      const NotificationDetails& details) {
-  int window_id = -1;
-  int parent_id = -1;
-  uintptr_t window_key = source.map_key();
+  int controller_id = -1;
+  uintptr_t window_or_tab = source.map_key();
   MetricsLog::WindowEventType window_type;
 
   // Note: since we stop all logging when a single OTR session is active, it is
   // possible that we start getting notifications about a window that we don't
   // know about.
-  if (window_map_.find(window_key) == window_map_.end()) {
-    window_id = next_window_id_++;
-    window_map_[window_key] = window_id;
+  if (window_map_.find(window_or_tab) == window_map_.end()) {
+    controller_id = next_window_id_++;
+    window_map_[window_or_tab] = controller_id;
   } else {
-    window_id = window_map_[window_key];
+    controller_id = window_map_[window_or_tab];
   }
-
-  DCHECK(window_id != -1);
-
-  if (type == NOTIFY_TAB_APPENDED) {
-    parent_id = window_map_[details.map_key()];
-  }
+  DCHECK(controller_id != -1);
 
   switch (type) {
-    case NOTIFY_TAB_APPENDED:
+    case NOTIFY_TAB_PARENTED:
     case NOTIFY_BROWSER_OPENED:
       window_type = MetricsLog::WINDOW_CREATE;
       break;
 
     case NOTIFY_TAB_CLOSING:
     case NOTIFY_BROWSER_CLOSED:
-      window_map_.erase(window_map_.find(window_key));
+      window_map_.erase(window_map_.find(window_or_tab));
       window_type = MetricsLog::WINDOW_DESTROY;
       break;
 
@@ -1214,7 +1208,8 @@ void MetricsService::LogWindowChange(NotificationType type,
       break;
   }
 
-  current_log_->RecordWindowEvent(window_type, window_id, parent_id);
+  // TODO(brettw) we should have some kind of ID for the parent.
+  current_log_->RecordWindowEvent(window_type, controller_id, 0);
 }
 
 void MetricsService::LogLoadComplete(NotificationType type,
@@ -1224,10 +1219,8 @@ void MetricsService::LogLoadComplete(NotificationType type,
     return;
 
   const Details<LoadNotificationDetails> load_details(details);
-
-  int window_id =
-      window_map_[reinterpret_cast<uintptr_t>(load_details->controller())];
-  current_log_->RecordLoadEvent(window_id,
+  int controller_id = window_map_[details.map_key()];
+  current_log_->RecordLoadEvent(controller_id,
                                 load_details->url(),
                                 load_details->origin(),
                                 load_details->session_index(),

@@ -1513,9 +1513,8 @@ void WebContents::DidNavigateAnyFramePostCommit(
     RenderViewHost* render_view_host,
     const ViewHostMsg_FrameNavigate_Params& params) {
   // Have the controller save the current session.
-  controller()->SyncSessionWithEntryByPageID(type(),
-                                             site_instance(),
-                                             params.page_id);
+  controller()->NotifyEntryChangedByPageID(type(), site_instance(),
+                                           params.page_id);
 
   BroadcastProvisionalLoadCommit(render_view_host, params);
 }
@@ -1680,7 +1679,7 @@ void WebContents::UpdateState(RenderViewHost* rvh,
   // Notify everybody of the changes (only when the current page changed).
   if (changed_flags && entry == controller()->GetActiveEntry())
     NotifyNavigationStateChanged(changed_flags);
-  controller()->SyncSessionWithEntryByPageID(type(), site_instance(), page_id);
+  controller()->NotifyEntryChangedByPageID(type(), site_instance(), page_id);
 }
 
 void WebContents::UpdateTitle(RenderViewHost* rvh,

@@ -241,7 +241,7 @@ void NativeUIContents::SetPageState(PageState* page_state) {
       state_->GetByteRepresentation(&rep);
       ne->SetContentState(rep);
       // This is not a WebContents, so we use a NULL SiteInstance.
-      ctrl->SyncSessionWithEntryByPageID(type(), NULL, ne->GetPageID());
+      ctrl->NotifyEntryChangedByPageID(type(), NULL, ne->GetPageID());
     }
   }
 }
@@ -294,7 +294,7 @@ bool NativeUIContents::Navigate(const NavigationEntry& entry, bool reload) {
   const int32 page_id = new_entry->GetPageID();
   DidNavigateToEntry(new_entry);
   // This is not a WebContents, so we use a NULL SiteInstance.
-  controller()->SyncSessionWithEntryByPageID(type(), NULL, page_id);
+  controller()->NotifyEntryChangedByPageID(type(), NULL, page_id);
   return true;
 }
 

@@ -1355,14 +1355,6 @@ void Browser::TabInsertedAt(TabContents* contents,
                             int index,
                             bool foreground) {
   contents->set_delegate(this);
-
-  NavigationController* controller = contents->controller();
-  DCHECK(controller);
-  NotificationService::current()->
-      Notify(NOTIFY_TAB_APPENDED,
-             Source<NavigationController>(controller),
-              Details<Browser>(this));
-
   contents->controller()->SetWindowID(session_id());
 
   SyncHistoryWithTabs(tabstrip_model_.GetIndexOfTabContents(contents));
