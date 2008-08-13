@@ -141,7 +141,6 @@
 		ABF4B9C30DC2BD6C00A6E319 /* values.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403880D92D2CF0006B936 /* values.cc */; };
 		ABFBD3E60DC793C600E164CB /* md5.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403290D92D2090006B936 /* md5.cc */; };
 		E45062A60E40A9BE0025A81A /* base_switches.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825402CB0D92D1390006B936 /* base_switches.cc */; };
-		E48A05D80E3F5E6400172919 /* base_drag_source.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825402C50D92D1390006B936 /* base_drag_source.cc */; };
 		E48A05F70E3F61B300172919 /* command_line.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A133490E37A41D00110AA2 /* command_line.cc */; };
 		E48A063A0E3F6C1F00172919 /* image_operations.h in Headers */ = {isa = PBXBuildFile; fileRef = E48A06380E3F6C1F00172919 /* image_operations.h */; };
 		E48A066B0E3F70B500172919 /* convolver.h in Headers */ = {isa = PBXBuildFile; fileRef = E48A06690E3F70B500172919 /* convolver.h */; };
@@ -192,7 +191,6 @@
 		E4A133440E37A3C400110AA2 /* string_escape.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A133420E37A3C400110AA2 /* string_escape.cc */; };
 		E4A133450E37A3C400110AA2 /* string_escape.h in Headers */ = {isa = PBXBuildFile; fileRef = E4A133430E37A3C400110AA2 /* string_escape.h */; };
 		E4A1334C0E37A41D00110AA2 /* command_line.h in Headers */ = {isa = PBXBuildFile; fileRef = E4A1334A0E37A41D00110AA2 /* command_line.h */; };
-		E4A2396E0E3FA349002BDE14 /* base_drop_target.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825402C70D92D1390006B936 /* base_drop_target.cc */; };
 		E4AFA4A80E50D84900201347 /* prtime.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254034B0D92D23C0006B936 /* prtime.cc */; };
 		E4AFA4A90E50D85500201347 /* time.cc in Sources */ = {isa = PBXBuildFile; fileRef = 824654900DC25A8C007C2BAA /* time.cc */; };
 		E4AFA4AA0E50D85800201347 /* time_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB81490D9B0F33009BA8DD /* time_posix.cc */; };
@@ -203,6 +201,9 @@
 		E4AFA4C50E50DEF500201347 /* string_piece.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4F50E3A613F009668FC /* string_piece.cc */; };
 		E4AFA4E10E50E6BC00201347 /* word_iterator_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4AFA4CE0E50E0C500201347 /* word_iterator_unittest.cc */; };
 		E4AFA4E20E50E6BC00201347 /* word_iterator.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254038E0D92D2CF0006B936 /* word_iterator.cc */; };
+		E4AFA8E80E539E3200201347 /* time_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4AFA4EF0E50F7B000201347 /* time_unittest.cc */; };
+		E4AFA8F20E539E8200201347 /* shared_memory_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 824653730DC12D0E007C2BAA /* shared_memory_posix.cc */; };
+		E4AFA8F60E539E8A00201347 /* thread_local_storage_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 829E36720DC0FBAD00819EBF /* thread_local_storage_posix.cc */; };
 		E4BA048E0E25687E00BE02C6 /* thread_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4BA048D0E25687E00BE02C6 /* thread_posix.cc */; };
 /* End PBXBuildFile section */
 
@@ -1214,9 +1215,7 @@
 				820EB4FA0E3A6178009668FC /* string_util_icu.cc in Sources */,
 				820EB5020E3A618B009668FC /* tracked.cc in Sources */,
 				820EB5480E3A64D2009668FC /* tracked_objects.cc in Sources */,
-				E48A05D80E3F5E6400172919 /* base_drag_source.cc in Sources */,
 				E48A05F70E3F61B300172919 /* command_line.cc in Sources */,
-				E4A2396E0E3FA349002BDE14 /* base_drop_target.cc in Sources */,
 				E45062A60E40A9BE0025A81A /* base_switches.cc in Sources */,
 				E49357220E422A36008F8B09 /* timer.cc in Sources */,
 				E49115EF0E47B461001EE8C3 /* at_exit.cc in Sources */,
@@ -1306,6 +1305,9 @@
 				E4AFA4E20E50E6BC00201347 /* word_iterator.cc in Sources */,
 				7B78CE260E5314A100609465 /* debug_util.cc in Sources */,
 				7B78CE110E53131800609465 /* debug_util_posix.cc in Sources */,
+				E4AFA8E80E539E3200201347 /* time_unittest.cc in Sources */,
+				E4AFA8F20E539E8200201347 /* shared_memory_posix.cc in Sources */,
+				E4AFA8F60E539E8A00201347 /* thread_local_storage_posix.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
