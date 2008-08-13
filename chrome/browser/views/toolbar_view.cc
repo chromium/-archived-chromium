@@ -329,6 +329,7 @@ void BrowserToolbarView::Layout() {
 
     go_->GetPreferredSize(&sz);
     location_bar_height = sz.cy;
+    right_side_width += sz.cx;
 
     left_side_width = star_->GetX() + star_->GetWidth();
   } else {
