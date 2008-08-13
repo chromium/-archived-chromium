@@ -221,8 +221,9 @@ AutocompleteEdit::AutocompleteEdit(const ChromeFont& font,
                                      // approximate.
   font_x_height_ = static_cast<int>((static_cast<float>(font_ascent_ -
       tm.tmInternalLeading) * kXHeightRatio) + 0.5);
-  const int kTextBaseline = 18;  // The distance from the top of the field to
-                                 // the desired baseline of the rendered text.
+  // The distance from the top of the field to the desired baseline of the
+  // rendered text.
+  const int kTextBaseline = popup_window_mode_ ? 15 : 18;
   font_y_adjustment_ = kTextBaseline - font_ascent_;
   font_descent_ = tm.tmDescent;
 

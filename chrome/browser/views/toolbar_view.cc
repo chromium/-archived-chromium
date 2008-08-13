@@ -67,6 +67,9 @@
 
 static const int kControlHorizOffset = 4;
 static const int kControlVertOffset = 6;
+static const int kControlVertOffsetLocationOnly = 4;
+// The left and right margin of the toolbar in location-bar only mode.
+static const int kToolbarHorizontalMargin = 1;
 static const int kControlIndent = 3;
 static const int kStatusBubbleWidth = 480;
 
@@ -96,6 +99,11 @@ BrowserToolbarView::BrowserToolbarView(CommandController* controller,
       browser, BackForwardMenuModel::BACKWARD_MENU_DELEGATE));
   forward_menu_model_.reset(new BackForwardMenuModel(
       browser, BackForwardMenuModel::FORWARD_MENU_DELEGATE));
+
+  if (browser->GetType() == BrowserType::TABBED_BROWSER)
+    display_mode_ = DISPLAYMODE_NORMAL;
+  else
+    display_mode_ = DISPLAYMODE_LOCATION;
 }
 
 BrowserToolbarView::~BrowserToolbarView() {
@@ -205,8 +213,8 @@ void BrowserToolbarView::CreateCenterStack(Profile *profile) {
   AddChildView(star_);
   controller_->AddManagedButton(star_, IDC_STAR);
 
-  location_bar_ = new LocationBarView(profile, controller_, model_,
-                                      this, false);
+  location_bar_ = new LocationBarView(profile, controller_, model_, this,
+                                      display_mode_ == DISPLAYMODE_LOCATION);
   AddChildView(location_bar_);
   location_bar_->Init();
 
@@ -280,67 +288,74 @@ void BrowserToolbarView::Layout() {
   if (back_ == NULL)
     return;
 
-  back_->GetPreferredSize(&sz);
-  back_->SetBounds(kControlIndent,
-                   kControlVertOffset,
-                   sz.cx,
-                   sz.cy);
+  int location_bar_y = kControlVertOffset;
+  int location_bar_height = 0;
+  // The width of all of the controls to the left of the location bar.
+  int left_side_width = 0;
+  // The width of all of the controls to the right of the location bar.
+  int right_side_width = 0;
+  if (IsDisplayModeNormal()) {
+    back_->GetPreferredSize(&sz);
+    back_->SetBounds(kControlIndent, kControlVertOffset, sz.cx, sz.cy);
 
-  forward_->GetPreferredSize(&sz);
-  forward_->SetBounds(back_->GetX() + back_->GetWidth(),
-                      kControlVertOffset,
-                      sz.cx,
-                      sz.cy);
+    forward_->GetPreferredSize(&sz);
+    forward_->SetBounds(back_->GetX() + back_->GetWidth(), kControlVertOffset,
+                        sz.cx, sz.cy);
 
-  reload_->GetPreferredSize(&sz);
-  reload_->SetBounds(forward_->GetX() + forward_->GetWidth() +
-                     kControlHorizOffset,
-                     kControlVertOffset,
-                     sz.cx,
-                     sz.cy);
+    reload_->GetPreferredSize(&sz);
+    reload_->SetBounds(forward_->GetX() + forward_->GetWidth() +
+                           kControlHorizOffset,
+                       kControlVertOffset, sz.cx, sz.cy);
 
-  int offset = 0;
-  if (show_home_button_.GetValue()) {
-    home_->GetPreferredSize(&sz);
-    offset = kControlHorizOffset;
+    int offset = 0;
+    if (show_home_button_.GetValue()) {
+      home_->GetPreferredSize(&sz);
+      offset = kControlHorizOffset;
+    } else {
+      sz = CSize(0, 0);
+    }
+    home_->SetBounds(reload_->GetX() + reload_->GetWidth() + offset,
+                     kControlVertOffset, sz.cx, sz.cy);
+
+    star_->GetPreferredSize(&sz);
+    star_->SetBounds(home_->GetX() + home_->GetWidth() + kControlHorizOffset,
+                     kControlVertOffset, sz.cx, sz.cy);
+
+    page_menu_->GetPreferredSize(&sz);
+    right_side_width = sz.cx + kMenuButtonOffset;
+
+    app_menu_->GetPreferredSize(&sz);
+    right_side_width += sz.cx + kPaddingRight;
+
+    go_->GetPreferredSize(&sz);
+    location_bar_height = sz.cy;
+
+    left_side_width = star_->GetX() + star_->GetWidth();
   } else {
-    sz = CSize(0, 0);
+    CSize temp;
+    location_bar_->GetPreferredSize(&temp);
+    location_bar_height = temp.cy;
+    left_side_width = kToolbarHorizontalMargin;
+    right_side_width = kToolbarHorizontalMargin;
+    location_bar_y = kControlVertOffsetLocationOnly;
   }
-  home_->SetBounds(reload_->GetX() + reload_->GetWidth() + offset,
+
+  location_bar_->SetBounds(left_side_width, location_bar_y,
+                           GetWidth() - left_side_width - right_side_width,
+                           location_bar_height);
+
+  if (IsDisplayModeNormal()) {
+    go_->SetBounds(location_bar_->GetX() + location_bar_->GetWidth(),
                    kControlVertOffset, sz.cx, sz.cy);
 
-  star_->GetPreferredSize(&sz);
-  star_->SetBounds(home_->GetX() + home_->GetWidth() + kControlHorizOffset,
-                   kControlVertOffset, sz.cx, sz.cy);
-
-  page_menu_->GetPreferredSize(&sz);
-  int right_side_width = sz.cx + kMenuButtonOffset;
-
-  app_menu_->GetPreferredSize(&sz);
-  right_side_width += sz.cx + kPaddingRight;
-
-  go_->GetPreferredSize(&sz);
-  int go_button_height = sz.cy;
-
-  location_bar_->SetBounds(star_->GetX() + star_->GetWidth(),
-                           kControlVertOffset,
-                           GetWidth() - right_side_width -
-                           (star_->GetX() + star_->GetWidth() +
-                             sz.cx),  // go preferred width
-                           sz.cy);
-
-  go_->SetBounds(location_bar_->GetX() + location_bar_->GetWidth(),
-                 kControlVertOffset,
-                 sz.cx,
-                 sz.cy);
-
-  // Make sure the Page menu never overlaps the location bar.
-  int page_x = go_->GetX() + go_->GetWidth() + kMenuButtonOffset;
-  page_menu_->GetPreferredSize(&sz);
-  page_menu_->SetBounds(page_x, kControlVertOffset, sz.cx, go_->GetHeight());
-  app_menu_->GetPreferredSize(&sz);
-  app_menu_->SetBounds(page_menu_->GetX() + page_menu_->GetWidth(),
-                       page_menu_->GetY(), sz.cx, go_->GetHeight());
+    // Make sure the Page menu never overlaps the location bar.
+    int page_x = go_->GetX() + go_->GetWidth() + kMenuButtonOffset;
+    page_menu_->GetPreferredSize(&sz);
+    page_menu_->SetBounds(page_x, kControlVertOffset, sz.cx, go_->GetHeight());
+    app_menu_->GetPreferredSize(&sz);
+    app_menu_->SetBounds(page_menu_->GetX() + page_menu_->GetWidth(),
+                         page_menu_->GetY(), sz.cx, go_->GetHeight());
+  }
 }
 
 void BrowserToolbarView::DidChangeBounds(const CRect& previous,
@@ -461,13 +476,20 @@ bool BrowserToolbarView::OnKeyReleased(const ChromeViews::KeyEvent& e) {
 
 void BrowserToolbarView::GetPreferredSize(CSize* out) {
   DCHECK(out);
-  static SkBitmap* bg_bitmap = NULL;
-  if (!bg_bitmap) {
-    ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-    bg_bitmap = rb.GetBitmapNamed(IDR_CONTENT_TOP_CENTER);
-  }
   out->cx = 0;
-  out->cy = bg_bitmap->height();
+
+  if (IsDisplayModeNormal()) {
+    static SkBitmap normal_background;
+    if (normal_background.isNull()) {
+      ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+      normal_background = *rb.GetBitmapNamed(IDR_CONTENT_TOP_CENTER);
+    }
+    out->cy = normal_background.height();
+  } else {
+    CSize ps;
+    location_bar_->GetPreferredSize(&ps);
+    out->cy = ps.cy + 2 * kControlVertOffsetLocationOnly;
+  }
 }
 
 void BrowserToolbarView::RunPageMenu(const CPoint& pt, HWND hwnd) {

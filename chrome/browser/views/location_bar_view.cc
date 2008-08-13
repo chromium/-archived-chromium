@@ -425,7 +425,9 @@ void LocationBarView::DoLayout(const bool force_layout) {
     return;
 
   // TODO(sky): baseline layout.
-  int bh = kBackground->height();
+  const SkBitmap* background = popup_window_mode_ ? kPopupBackgroundCenter
+                                                  : kBackground;
+  int bh = background->height();
   int location_y = ((GetHeight() - bh) / 2) + kTextVertMargin;
   int location_height = bh - (2 * kTextVertMargin);
   if (info_label_.IsVisible()) {

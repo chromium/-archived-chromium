@@ -161,6 +161,15 @@ class BrowserToolbarView : public ChromeViews::View,
   // Show the app menu.
   void RunAppMenu(const CPoint& pt, HWND hwnd);
 
+  // Types of display mode this toolbar can have.
+  enum DisplayMode {
+    DISPLAYMODE_NORMAL,
+    DISPLAYMODE_LOCATION
+  };
+  bool IsDisplayModeNormal() const {
+    return display_mode_ == DISPLAYMODE_NORMAL;
+  }
+
   // This View's Command Controller
   CommandController* controller_;
 
@@ -194,6 +203,9 @@ class BrowserToolbarView : public ChromeViews::View,
 
   // Controls whether or not a home button should be shown on the toolbar.
   BooleanPrefMember show_home_button_;
+
+  // The display mode used when laying out the toolbar.
+  DisplayMode display_mode_;
 };
 
 #endif  // CHROME_BROWSER_VIEWS_TOOLBAR_VIEW_H__
