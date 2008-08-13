@@ -19,17 +19,17 @@
 			name = All;
 			productName = All;
 		};
-		E49F1A870E4CDB4500386AEC /* Run UnitTests */ = {
+		E49F1A870E4CDB4500386AEC /* run_base_unittests */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = E49F1A8F0E4CDB5400386AEC /* Build configuration list for PBXAggregateTarget "Run UnitTests" */;
+			buildConfigurationList = E49F1A8F0E4CDB5400386AEC /* Build configuration list for PBXAggregateTarget "run_base_unittests" */;
 			buildPhases = (
 				E49F1A860E4CDB4500386AEC /* ShellScript */,
 			);
 			dependencies = (
 				E49F1AB00E4CDB8A00386AEC /* PBXTargetDependency */,
 			);
-			name = "Run UnitTests";
-			productName = "Run UnitTests";
+			name = run_base_unittests;
+			productName = run_base_unittests;
 		};
 /* End PBXAggregateTarget section */
 
@@ -352,7 +352,7 @@
 			containerPortal = 825402AA0D92D0C60006B936 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = E49F18BE0E4CBAC200386AEC;
-			remoteInfo = UnitTest;
+			remoteInfo = base_unittets;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -556,7 +556,7 @@
 		E49E4C980E4CF60300AD47F7 /* values_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = values_unittest.cc; sourceTree = "<group>"; };
 		E49E4CA80E4CF6AD00AD47F7 /* linked_ptr_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = linked_ptr_unittest.cc; sourceTree = "<group>"; };
 		E49E4CAB0E4CF6DB00AD47F7 /* sha2_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sha2_unittest.cc; sourceTree = "<group>"; };
-		E49F18BF0E4CBAC200386AEC /* UnitTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = UnitTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E49F18BF0E4CBAC200386AEC /* run_base_unittests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = run_base_unittests; sourceTree = BUILT_PRODUCTS_DIR; };
 		E49F1A5D0E4CD6E200386AEC /* run_all_unittests.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = run_all_unittests.cc; sourceTree = "<group>"; };
 		E4A133420E37A3C400110AA2 /* string_escape.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_escape.cc; sourceTree = "<group>"; };
 		E4A133430E37A3C400110AA2 /* string_escape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_escape.h; sourceTree = "<group>"; };
@@ -791,7 +791,7 @@
 			children = (
 				825402BB0D92D0FA0006B936 /* libbase.a */,
 				825403B10D92D2E50006B936 /* libbase_gfx.a */,
-				E49F18BF0E4CBAC200386AEC /* UnitTest */,
+				E49F18BF0E4CBAC200386AEC /* run_base_unittests */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1007,9 +1007,9 @@
 			productReference = 825403B10D92D2E50006B936 /* libbase_gfx.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		E49F18BE0E4CBAC200386AEC /* UnitTest */ = {
+		E49F18BE0E4CBAC200386AEC /* base_unittests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E49F18C30E4CBAE100386AEC /* Build configuration list for PBXNativeTarget "UnitTest" */;
+			buildConfigurationList = E49F18C30E4CBAE100386AEC /* Build configuration list for PBXNativeTarget "base_unittests" */;
 			buildPhases = (
 				E49F18BC0E4CBAC200386AEC /* Sources */,
 				E49F18BD0E4CBAC200386AEC /* Frameworks */,
@@ -1024,9 +1024,9 @@
 				E49F18CD0E4CBAED00386AEC /* PBXTargetDependency */,
 				E49F18CF0E4CBAED00386AEC /* PBXTargetDependency */,
 			);
-			name = UnitTest;
-			productName = UnitTest;
-			productReference = E49F18BF0E4CBAC200386AEC /* UnitTest */;
+			name = base_unittests;
+			productName = base_unittests;
+			productReference = E49F18BF0E4CBAC200386AEC /* run_base_unittests */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -1067,8 +1067,8 @@
 				825402BA0D92D0FA0006B936 /* base */,
 				825403B00D92D2E50006B936 /* base_gfx */,
 				825404020D92D3340006B936 /* All */,
-				E49F18BE0E4CBAC200386AEC /* UnitTest */,
-				E49F1A870E4CDB4500386AEC /* Run UnitTests */,
+				E49F18BE0E4CBAC200386AEC /* base_unittests */,
+				E49F1A870E4CDB4500386AEC /* run_base_unittests */,
 			);
 		};
 /* End PBXProject section */
@@ -1172,7 +1172,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# automatically run the test we just built\n${BUILT_PRODUCTS_DIR}/UnitTest";
+			shellScript = "# automatically run the test we just built\n${BUILT_PRODUCTS_DIR}/run_base_unittests";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1354,7 +1354,7 @@
 		};
 		E49F1AB00E4CDB8A00386AEC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = E49F18BE0E4CBAC200386AEC /* UnitTest */;
+			target = E49F18BE0E4CBAC200386AEC /* base_unittests */;
 			targetProxy = E49F1AAF0E4CDB8A00386AEC /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -1532,7 +1532,7 @@
 					Carbon,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = UnitTest;
+				PRODUCT_NAME = run_base_unittests;
 			};
 			name = Debug;
 		};
@@ -1560,21 +1560,21 @@
 					Carbon,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = UnitTest;
+				PRODUCT_NAME = run_base_unittests;
 			};
 			name = Release;
 		};
 		E49F1A880E4CDB4500386AEC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = UnitTest;
+				PRODUCT_NAME = run_base_unittests;
 			};
 			name = Debug;
 		};
 		E49F1A890E4CDB4500386AEC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = UnitTest;
+				PRODUCT_NAME = run_base_unittests;
 			};
 			name = Release;
 		};
@@ -1617,7 +1617,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E49F18C30E4CBAE100386AEC /* Build configuration list for PBXNativeTarget "UnitTest" */ = {
+		E49F18C30E4CBAE100386AEC /* Build configuration list for PBXNativeTarget "base_unittests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E49F18C10E4CBAC300386AEC /* Debug */,
@@ -1626,7 +1626,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E49F1A8F0E4CDB5400386AEC /* Build configuration list for PBXAggregateTarget "Run UnitTests" */ = {
+		E49F1A8F0E4CDB5400386AEC /* Build configuration list for PBXAggregateTarget "run_base_unittests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E49F1A880E4CDB4500386AEC /* Debug */,

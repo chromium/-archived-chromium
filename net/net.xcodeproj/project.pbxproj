@@ -17,7 +17,7 @@
 				E4AFA65C0E52424400201347 /* PBXTargetDependency */,
 			);
 			name = "run net_unittests";
-			productName = "Run UnitTests";
+			productName = run_net_unittests;
 		};
 /* End PBXAggregateTarget section */
 
@@ -78,50 +78,50 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = E4AFA62E0E5240A300201347 /* gtest.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D /* libgtest.a */;
+			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = gtest;
 		};
 		E4AFA6340E5240B000201347 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E4AFA62E0E5240A300201347 /* gtest.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* gtest */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = gtest;
 		};
 		E4AFA64D0E5241D300201347 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E4AFA6450E5241D300201347 /* base.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 825402BB0D92D0FA0006B936 /* libbase.a */;
+			remoteGlobalIDString = 825402BB0D92D0FA0006B936;
 			remoteInfo = base;
 		};
 		E4AFA64F0E5241D300201347 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E4AFA6450E5241D300201347 /* base.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 825403B10D92D2E50006B936 /* libbase_gfx.a */;
+			remoteGlobalIDString = 825403B10D92D2E50006B936;
 			remoteInfo = base_gfx;
 		};
 		E4AFA6510E5241D300201347 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E4AFA6450E5241D300201347 /* base.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = E49F18BF0E4CBAC200386AEC /* UnitTest */;
-			remoteInfo = UnitTest;
+			remoteGlobalIDString = E49F18BF0E4CBAC200386AEC;
+			remoteInfo = net_unittests;
 		};
 		E4AFA6530E5241E100201347 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E4AFA6450E5241D300201347 /* base.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 825402BA0D92D0FA0006B936 /* base */;
+			remoteGlobalIDString = 825402BA0D92D0FA0006B936;
 			remoteInfo = base;
 		};
 		E4AFA65B0E52424400201347 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = E4AFA6220E523E2900201347 /* UnitTests */;
-			remoteInfo = UnitTests;
+			remoteGlobalIDString = E4AFA6220E523E2900201347;
+			remoteInfo = net_unittests;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -166,7 +166,7 @@
 		E45065400E42272E0025A81A /* http_network_layer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = http_network_layer.cc; path = http/http_network_layer.cc; sourceTree = "<group>"; };
 		E49358260E424D83008F8B09 /* http_proxy_service.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = http_proxy_service.cc; path = http/http_proxy_service.cc; sourceTree = "<group>"; };
 		E49358270E424D84008F8B09 /* http_proxy_service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = http_proxy_service.h; path = http/http_proxy_service.h; sourceTree = "<group>"; };
-		E4AFA6230E523E2900201347 /* UnitTests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = UnitTests; sourceTree = BUILT_PRODUCTS_DIR; };
+		E4AFA6230E523E2900201347 /* net_unittests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = net_unittests; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4AFA62E0E5240A300201347 /* gtest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gtest.xcodeproj; path = ../testing/gtest.xcodeproj; sourceTree = SOURCE_ROOT; };
 		E4AFA6420E5241B400201347 /* run_all_unittests.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = run_all_unittests.cc; path = ../base/run_all_unittests.cc; sourceTree = SOURCE_ROOT; };
 		E4AFA6450E5241D300201347 /* base.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = base.xcodeproj; path = ../base/base.xcodeproj; sourceTree = SOURCE_ROOT; };
@@ -261,7 +261,7 @@
 			isa = PBXGroup;
 			children = (
 				E4BA04540E25613300BE02C6 /* libnetlib.a */,
-				E4AFA6230E523E2900201347 /* UnitTests */,
+				E4AFA6230E523E2900201347 /* net_unittests */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -303,7 +303,7 @@
 			children = (
 				E4AFA64E0E5241D300201347 /* libbase.a */,
 				E4AFA6500E5241D300201347 /* libbase_gfx.a */,
-				E4AFA6520E5241D300201347 /* UnitTest */,
+				E4AFA6520E5241D300201347 /* base_unittests */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -444,8 +444,8 @@
 				E4AFA6540E5241E100201347 /* PBXTargetDependency */,
 			);
 			name = net_unittests;
-			productName = UnitTests;
-			productReference = E4AFA6230E523E2900201347 /* UnitTests */;
+			productName = net_unittests;
+			productReference = E4AFA6230E523E2900201347 /* net_unittests */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -499,10 +499,10 @@
 			remoteRef = E4AFA64F0E5241D300201347 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		E4AFA6520E5241D300201347 /* UnitTest */ = {
+		E4AFA6520E5241D300201347 /* base_unittests */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.executable";
-			path = UnitTest;
+			path = base_unittests;
 			remoteRef = E4AFA6510E5241D300201347 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -520,7 +520,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# automatically run the test we just built\n${BUILT_PRODUCTS_DIR}/UnitTest\n";
+			shellScript = "# automatically run the test we just built\n${BUILT_PRODUCTS_DIR}/net_unittests\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -680,7 +680,7 @@
 					../testing/gtest/include/gtest,
 				);
 				INSTALL_PATH = /usr/local/bin;
-				PRODUCT_NAME = UnitTests;
+				PRODUCT_NAME = net_unittests;
 			};
 			name = Debug;
 		};
@@ -700,21 +700,21 @@
 					../testing/gtest/include/gtest,
 				);
 				INSTALL_PATH = /usr/local/bin;
-				PRODUCT_NAME = UnitTests;
+				PRODUCT_NAME = net_unittests;
 			};
 			name = Release;
 		};
 		E4AFA6590E52423A00201347 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = UnitTests;
+				PRODUCT_NAME = net_unittests;
 			};
 			name = Debug;
 		};
 		E4AFA65A0E52423A00201347 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = UnitTests;
+				PRODUCT_NAME = net_unittests;
 			};
 			name = Release;
 		};
