@@ -650,10 +650,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\string_util_win.cc"
-			>
-		</File>
-		<File
 			RelativePath="..\string_util_win.h"
 			>
 		</File>

@@ -128,7 +128,6 @@ if env['PLATFORM'] == 'win32':
       'iat_patch.cc',
       'lock_impl_win.cc',
       'shared_memory_win.cc',
-      'string_util_win.cc',
       'sys_string_conversions_win.cc',
       'thread_local_storage_win.cc',
       'time_win.cc',
@@ -162,7 +161,6 @@ if env['PLATFORM'] == 'posix':
   input_files.extend([
       'atomicops_internals_x86_gcc.cc',
       'file_util_linux.cc',
-      'string_util_posix.cc',
       'sys_string_conversions_linux.cc',
   ])
 

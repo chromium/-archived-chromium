@@ -423,13 +423,28 @@ bool CodepageToWide(const std::string& encoded,
 
 // Number formatting -----------------------------------------------------------
 
-// TODO: http://b/id=1092584 Come up with a portable pthread_once, and use
-// that to keep a singleton instead of putting it in the platform-dependent
-// file.
-NumberFormat* NumberFormatSingleton();
+namespace {
+
+struct NumberFormatSingletonTraits
+    : public DefaultSingletonTraits<NumberFormat> {
+  static NumberFormat* New() {
+    UErrorCode status = U_ZERO_ERROR;
+    NumberFormat* formatter = NumberFormat::createInstance(status);
+    DCHECK(U_SUCCESS(status));
+    return formatter;
+  }
+  // There's no ICU call to destroy a NumberFormat object other than
+  // operator delete, so use the default Delete, which calls operator delete.
+  // This can cause problems if a different allocator is used by this file than
+  // by ICU.
+};
+
+}  // namespace
 
 std::wstring FormatNumber(int64 number) {
-  NumberFormat* number_format = NumberFormatSingleton();
+  NumberFormat* number_format =
+      Singleton<NumberFormat, NumberFormatSingletonTraits>::get();
+
   if (!number_format) {
     // As a fallback, just return the raw number in a string.
     return StringPrintf(L"%lld", number);
