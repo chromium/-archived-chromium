@@ -48,6 +48,9 @@ class PlatformThread {
  public:
   // Gets the current thread.
   static PlatformThread Current();
+  
+  // Gets the current thread id
+  static int CurrentId();
 
   // Yield the current thread so another thread can be scheduled.
   static void YieldCurrentThread();

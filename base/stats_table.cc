@@ -29,8 +29,14 @@
 
 #include "base/stats_table.h"
 
+#include "base/string_util.h"
 #include "base/logging.h"
 #include "base/thread_local_storage.h"
+#include "base/platform_thread.h"
+
+#if defined(OS_POSIX)
+#include "errno.h"
+#endif
 
 // The StatsTable uses a shared memory segment that is laid out as follows
 //
@@ -263,8 +269,13 @@ StatsTable::StatsTable(const std::wstring& name, int max_threads,
     if (shared_memory_.Map(table_size))
       impl_ = new StatsTablePrivate(shared_memory_.memory(), table_size,
                                     max_threads, max_counters);
+#if defined(OS_WIN)
   if (!impl_)
     LOG(ERROR) << "StatsTable did not initialize:" << GetLastError();
+#elif defined(OS_POSIX)
+  if (!impl_)
+    LOG(ERROR) << "StatsTable did not initialize:" << strerror(errno);
+#endif
 }
 
 StatsTable::~StatsTable() {
@@ -303,10 +314,15 @@ int StatsTable::RegisterThread(const std::wstring& name) {
     std::wstring thread_name = name;
     if (name.empty())
       thread_name = kUnknownName;
-    wcsncpy_s(impl_->thread_name(slot), kMaxThreadNameLength,
-      thread_name.c_str(), _TRUNCATE);
-    *(impl_->thread_tid(slot)) = GetCurrentThreadId();
+    base::wcslcpy(impl_->thread_name(slot), thread_name.c_str(),
+                  kMaxThreadNameLength);
+    *(impl_->thread_tid(slot)) = PlatformThread::CurrentId();
+    // TODO(pinkerton): these should go into process_utils when it's ported
+#if defined(OS_WIN)
     *(impl_->thread_pid(slot)) = GetCurrentProcessId();
+#elif defined(OS_POSIX)
+    *(impl_->thread_pid(slot)) = getpid();
+#endif  
   }
 
   // Set our thread local storage.
@@ -452,8 +468,8 @@ int StatsTable::AddCounter(const std::wstring& name) {
     std::wstring counter_name = name;
     if (name.empty())
       counter_name = kUnknownName;
-    wcsncpy_s(impl_->counter_name(counter_id), kMaxCounterNameLength,
-      counter_name.c_str(), _TRUNCATE);
+    base::wcslcpy(impl_->counter_name(counter_id), counter_name.c_str(),
+                  kMaxCounterNameLength);
   }
 
   // now add to our in-memory cache

@@ -34,6 +34,12 @@
 #include <sched.h>
 #endif
 
+#if defined(OS_MACOSX)
+#include <mach/mach.h>
+#elif defined(OS_LINUX)
+#include <sys/types.h>
+#endif
+
 // static
 PlatformThread PlatformThread::Current() {
   PlatformThread thread;
@@ -70,6 +76,17 @@ void PlatformThread::Sleep(int duration_ms) {
   while (nanosleep(&sleep_time, &remaining) == -1 && errno == EINTR) {
     sleep_time = remaining;
   }
+#endif
+}
+
+// static
+int PlatformThread::CurrentId() {
+#if defined(OS_WIN)
+  return GetCurrentThreadId();
+#elif defined(OS_MACOSX)
+  return mach_thread_self();
+#elif defined(OS_LINUX)
+  return gettid();
 #endif
 }
 
