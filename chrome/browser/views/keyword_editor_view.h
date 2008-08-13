@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_VIEWS_KEYWORD_EDITOR_VIEW_H__
-#define CHROME_BROWSER_VIEWS_KEYWORD_EDITOR_VIEW_H__
+#ifndef CHROME_BROWSER_VIEWS_KEYWORD_EDITOR_VIEW_H_
+#define CHROME_BROWSER_VIEWS_KEYWORD_EDITOR_VIEW_H_
 
 #include <Windows.h>
 #include <map>
@@ -145,6 +145,8 @@ class KeywordEditorView : public ChromeViews::View,
                           public ChromeViews::NativeButton::Listener,
                           public TemplateURLModelObserver,
                           public ChromeViews::DialogDelegate {
+  friend class KeywordEditorViewTest;
+  FRIEND_TEST(KeywordEditorViewTest, MakeDefault);
  public:
   static void RegisterUserPrefs(PrefService* prefs);
 
@@ -161,8 +163,8 @@ class KeywordEditorView : public ChromeViews::View,
                       const std::wstring& keyword,
                       const std::wstring& url);
 
-  // Invoked when the user modifies a TemplateURL. Update the TemplateURLModel
-  // and table model appropriatley.
+  // Invoked when the user modifies a TemplateURL. Updates the TemplateURLModel
+  // and table model appropriately.
   void ModifyTemplateURL(const TemplateURL* template_url,
                          const std::wstring& title,
                          const std::wstring& keyword,
@@ -203,6 +205,10 @@ class KeywordEditorView : public ChromeViews::View,
   // Toggles whether the selected keyword is the default search provider.
   void MakeDefaultSearchProvider();
 
+  // Make the TemplateURL at the specified index (into the TableModel) the
+  // default search provider.
+  void MakeDefaultSearchProvider(int index);
+
   // The profile.
   Profile* profile_;
 
@@ -222,7 +228,7 @@ class KeywordEditorView : public ChromeViews::View,
   ChromeViews::NativeButton* make_default_button_;
   ChromeViews::CheckBox* enable_suggest_checkbox_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(KeywordEditorView);
+  DISALLOW_COPY_AND_ASSIGN(KeywordEditorView);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_KEYWORD_EDITOR_VIEW_H__
+#endif  // CHROME_BROWSER_VIEWS_KEYWORD_EDITOR_VIEW_H_

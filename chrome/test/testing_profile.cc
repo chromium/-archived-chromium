@@ -71,3 +71,7 @@ void TestingProfile::DestroyHistoryService() {
 void TestingProfile::CreateBookmarkBarModel() {
   bookmark_bar_model_.reset(new BookmarkBarModel(this));
 }
+
+void TestingProfile::CreateTemplateURLModel() {
+  template_url_model_.reset(new TemplateURLModel(this));
+}

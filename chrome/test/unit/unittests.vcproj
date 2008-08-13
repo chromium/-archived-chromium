@@ -427,6 +427,14 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="TestKeywordEditorView"
+			>
+			<File
+				RelativePath="..\..\browser\views\keyword_editor_view_unittest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="TestJPEGCodec"
 			>
 			<File

@@ -37,6 +37,7 @@
 #include "chrome/browser/browser_prefs.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/template_url_model.h"
 #include "chrome/common/pref_service.h"
 
 class TestingProfile : public Profile {
@@ -50,6 +51,9 @@ class TestingProfile : public Profile {
   // Creates the BookmkarBarModel. If not invoked the bookmark bar model is
   // NULL.
   void CreateBookmarkBarModel();
+
+  // Creates a TemplateURLModel. If not invoked the TemplateURLModel is NULL.
+  void CreateTemplateURLModel();
 
   virtual std::wstring GetPath() {
     return std::wstring();
@@ -90,7 +94,7 @@ class TestingProfile : public Profile {
     return prefs_.get();
   }
   virtual TemplateURLModel* GetTemplateURLModel() {
-    return NULL;
+    return template_url_model_.get();
   }
   virtual TemplateURLFetcher* GetTemplateURLFetcher() {
     return NULL;
@@ -182,6 +186,9 @@ class TestingProfile : public Profile {
 
   // The BookmarkBarModel. Only created if CreateBookmarkBarModel is invoked.
   scoped_ptr<BookmarkBarModel> bookmark_bar_model_;
+
+  // The TemplateURLFetcher. Only created if CreateTemplateURLModel is invoked.
+  scoped_ptr<TemplateURLModel> template_url_model_;
 
   // Do we have a history service? This defaults to the value of
   // history_service, but can be explicitly set.

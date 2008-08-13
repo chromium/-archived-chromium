@@ -668,8 +668,15 @@ void KeywordEditorView::OnTemplateURLModelChanged() {
 }
 
 void KeywordEditorView::MakeDefaultSearchProvider() {
-  int selected_index = table_view_->FirstSelectedRow();
-  const TemplateURL* keyword = &table_model_->GetTemplateURL(selected_index);
+  MakeDefaultSearchProvider(table_view_->FirstSelectedRow());
+}
+
+void KeywordEditorView::MakeDefaultSearchProvider(int index) {
+  if (index < 0 || index >= table_model_->RowCount()) {
+    NOTREACHED();
+    return;
+  }
+  const TemplateURL* keyword = &table_model_->GetTemplateURL(index);
   const TemplateURL* current_default = url_model_->GetDefaultSearchProvider();
   if (current_default == keyword)
     return;
@@ -681,7 +688,7 @@ void KeywordEditorView::MakeDefaultSearchProvider() {
   // Enable the Suggest checkbox only if this engine has Suggest capability.
   enable_suggest_checkbox_->SetEnabled(keyword->suggestions_url() != NULL);
 
-  //  The formatting of the default engine is different; notify the table that
+  // The formatting of the default engine is different; notify the table that
   // both old and new entries have changed.
   if (current_default != NULL) {
     table_model_->NotifyChanged(table_model_->IndexOfTemplateURL(
@@ -691,7 +698,7 @@ void KeywordEditorView::MakeDefaultSearchProvider() {
   table_model_->NotifyChanged(new_index);
 
   // Make sure the new default is in the main group.
-  table_model_->MoveToMainGroup(selected_index);
+  table_model_->MoveToMainGroup(index);
 
   // And select it.
   table_view_->Select(new_index);
