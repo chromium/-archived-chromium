@@ -29,8 +29,6 @@
 
 #include "base/debug_util.h"
 
-#include <windows.h>
-
 #include "base/platform_thread.h"
 
 bool DebugUtil::WaitForDebugger(int wait_seconds, bool silent) {
