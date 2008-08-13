@@ -85,7 +85,7 @@ TEST(ValuesTest, BinaryValue) {
   ASSERT_FALSE(binary);
 
   // If you want to represent an empty binary value, use a zero-length buffer.
-  buffer = new char[0];
+  buffer = new char[1];
   ASSERT_TRUE(buffer);
   binary = BinaryValue::Create(buffer, 0);
   ASSERT_TRUE(binary);
