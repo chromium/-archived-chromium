@@ -191,7 +191,7 @@ input_files = [
 
 libs = [
     'browser/browser.lib',
-    'browser/browser_views.lib',
+    'browser/views/browser_views.lib',
     'browser/debugger/debugger.lib',
     'common/common.lib',
     'installer/util/util.lib',
