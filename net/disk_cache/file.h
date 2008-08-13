@@ -33,6 +33,7 @@
 #define NET_DISK_CACHE_FILE_H__
 
 #include "base/ref_counted.h"
+#include "net/disk_cache/os_file.h"
 
 namespace disk_cache {
 
@@ -52,19 +53,20 @@ class File : public base::RefCounted<File> {
   // mixed_mode set to true enables regular synchronous operations for the file.
   explicit File(bool mixed_mode) : init_(false), mixed_(mixed_mode) {}
 
+  // Initializes the object to use the passed in file instead of opening it with
+  // the Init() call. No asynchronous operations can be performed with this
+  // object.
+  explicit File(OSFile file);
+
   // Initializes the object to point to a given file. The file must aready exist
   // on disk, and allow shared read and write.
   bool Init(const std::wstring name);
 
-#ifdef WIN32
-  HANDLE handle() const {
-    return handle_;
-  }
-#else
-  int file_descriptor() const {
-    return file_descriptor_;
-  }
-#endif
+  // Returns the handle or file descriptor.
+  OSFile os_file() const;
+
+  // Returns true if the file was opened properly.
+  bool IsValid() const;
 
   // Performs synchronous IO.
   bool Read(void* buffer, size_t buffer_len, size_t offset);
@@ -97,14 +99,10 @@ class File : public base::RefCounted<File> {
  private:
   bool init_;
   bool mixed_;
-#ifdef WIN32
-  HANDLE handle_;  // Regular, asynchronous IO handle.
-  HANDLE sync_handle_;  // Synchronous IO hanlde.
-#else
-  int file_descriptor_;
-#endif
+  OSFile os_file_;  // Regular, asynchronous IO handle.
+  OSFile sync_os_file_;  // Synchronous IO hanlde.
 
-  DISALLOW_EVIL_CONSTRUCTORS(File);
+  DISALLOW_COPY_AND_ASSIGN(File);
 };
 
 }  // namespace disk_cache

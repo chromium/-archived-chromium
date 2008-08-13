@@ -27,53 +27,36 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// See net/disk_cache/disk_cache.h for the public interface of the cache.
+#include "net/cache_util.h"
 
-#ifndef NET_DISK_CACHE_MAPPED_FILE_H__
-#define NET_DISK_CACHE_MAPPED_FILE_H__
-
-#include "base/ref_counted.h"
-#include "net/disk_cache/disk_format.h"
-#include "net/disk_cache/file.h"
-#include "net/disk_cache/file_block.h"
+#include "base/file_util.h"
+#include "base/logging.h"
 
 namespace disk_cache {
 
-// This class implements a memory mapped file used to access block-files. The
-// idea is that the header and bitmap will be memory mapped all the time, and
-// the actual data for the blocks will be access asynchronously (most of the
-// time).
-class MappedFile : public File {
- public:
-  MappedFile() : init_(false), File(true) {}
+int64 GetFreeDiskSpace(const std::wstring& path) {
+  DLOG(WARNING) << "Not Implemented";
+  return -1;
+}
 
-  // Performs object initialization. name is the file to use, and size is the
-  // ammount of data to memory map from th efile. If size is 0, the whole file
-  // will be mapped in memory.
-  void* Init(const std::wstring name, size_t size);
+int64 GetSystemMemory() {
+  // TODO(pinkerton): figure this out for mac/linux
+  return -1;
+}
 
-  void* buffer() const {
-    return buffer_;
+bool MoveCache(const std::wstring& from_path, const std::wstring& to_path) {
+  // Just use the version from base.
+  return file_util::Move(from_path.c_str(), to_path.c_str());
+}
+
+void DeleteCache(const std::wstring& path, bool remove_folder) {
+  if (remove_folder) {
+    file_util::Delete(path, false);
+  } else {
+    std::wstring name(path);
+    file_util::AppendToPath(name, L"*");
+    file_util::Delete(name, false);
   }
-
-  // Loads or stores a given block from the backing file (synchronously).
-  bool Load(const FileBlock* block);
-  bool Store(const FileBlock* block);
-
- protected:
-  virtual ~MappedFile();
-
- private:
-  bool init_;
-#if defined(OS_WIN)
-  HANDLE section_;
-#endif
-  void* buffer_;  // Address of the memory mapped buffer.
-  size_t view_size_;  // Size of the memory pointed by buffer_.
-
-  DISALLOW_EVIL_CONSTRUCTORS(MappedFile);
-};
+}
 
 }  // namespace disk_cache
-
-#endif  // NET_DISK_CACHE_MAPPED_FILE_H__

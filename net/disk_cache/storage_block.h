@@ -63,7 +63,7 @@ class StorageBlock : public FileBlock {
   // FileBlock interface.
   virtual void* buffer() const;
   virtual size_t size() const;
-  virtual DWORD offset() const;
+  virtual int offset() const;
 
   // Allows the overide of dummy values passed on the constructor.
   bool LazyInit(MappedFile* file, Addr address);

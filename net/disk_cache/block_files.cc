@@ -217,11 +217,11 @@ std::wstring BlockFiles::Name(int index) {
 
 bool BlockFiles::CreateBlockFile(int index, FileType file_type, bool force) {
   std::wstring name = Name(index);
-  DWORD disposition = force ? CREATE_ALWAYS : CREATE_NEW;
+  int flags = force ? OS_FILE_CREATE_ALWAYS : OS_FILE_CREATE;
+  flags |= OS_FILE_WRITE | OS_FILE_SHARE_READ;
 
-  ScopedHandle file(CreateFile(name.c_str(), GENERIC_WRITE, FILE_SHARE_READ,
-                               NULL, disposition, 0, NULL));
-  if (!file.IsValid())
+  scoped_refptr<File> file(new File(CreateOSFile(name.c_str(), flags, NULL)));
+  if (!file->IsValid())
     return false;
 
   BlockFileHeader header;
@@ -229,12 +229,7 @@ bool BlockFiles::CreateBlockFile(int index, FileType file_type, bool force) {
   header.this_file = static_cast<int16>(index);
   DCHECK(index <= kint16max && index >= 0);
 
-  DWORD actual;
-  if (!WriteFile(file.Get(), &header, sizeof(header), &actual, NULL) ||
-      sizeof(header) != actual)
-    return false;
-
-  return true;
+  return file->Write(&header, sizeof(header), 0);
 }
 
 bool BlockFiles::OpenBlockFile(int index) {

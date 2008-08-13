@@ -141,7 +141,7 @@ class BackendImpl : public Backend {
 
  private:
   // Creates a new backing file for the cache index.
-  bool CreateBackingStore(HANDLE file);
+  bool CreateBackingStore(disk_cache::File* file);
   bool InitBackingStore(bool* file_created);
   void AdjustMaxCacheSize(int table_len);
 

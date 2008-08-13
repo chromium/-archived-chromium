@@ -90,7 +90,7 @@ class Rankings {
     void reset(CacheRankingsBlock* p = NULL) {
       if (p != get())
         rankings_->FreeRankingsBlock(get());
-      scoped_ptr::reset(p);
+      scoped_ptr<CacheRankingsBlock>::reset(p);
     }
 
    private:

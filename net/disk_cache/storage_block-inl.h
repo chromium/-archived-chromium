@@ -62,7 +62,7 @@ template<typename T> size_t StorageBlock<T>::size() const {
   return address_.num_blocks() * sizeof(*data_);
 }
 
-template<typename T> DWORD StorageBlock<T>::offset() const {
+template<typename T> int StorageBlock<T>::offset() const {
   return address_.start_block() * address_.BlockSize();
 }
 

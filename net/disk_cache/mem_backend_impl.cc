@@ -29,6 +29,7 @@
 
 #include "net/disk_cache/mem_backend_impl.h"
 
+#include "net/disk_cache/cache_util.h"
 #include "net/disk_cache/mem_entry_impl.h"
 
 namespace {
@@ -64,21 +65,20 @@ bool MemBackendImpl::Init() {
   if (max_size_)
     return true;
 
-  MEMORYSTATUSEX memory_info;
-  memory_info.dwLength = sizeof(memory_info);
-  if (!GlobalMemoryStatusEx(&memory_info)) {
+  int64 total_memory = GetSystemMemory();
+
+  if (total_memory < 0) {
     max_size_ = kDefaultCacheSize;
     return true;
   }
 
   // We want to use up to 2% of the computer's memory, with a limit of 50 MB,
   // reached on systemd with more than 2.5 GB of RAM.
-  memory_info.ullTotalPhys = memory_info.ullTotalPhys * 2 / 100;
-  if (memory_info.ullTotalPhys >
-      static_cast<unsigned int>(kDefaultCacheSize * 5))
+  total_memory = total_memory * 2 / 100;
+  if (total_memory > kDefaultCacheSize * 5)
     max_size_ = kDefaultCacheSize * 5;
   else
-    max_size_ = static_cast<int>(memory_info.ullTotalPhys);
+    max_size_ = static_cast<int32>(total_memory);
 
   return true;
 }

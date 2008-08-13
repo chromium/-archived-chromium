@@ -761,6 +761,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\disk_cache\cache_util.h"
+				>
+			</File>
+			<File
+				RelativePath="..\disk_cache\cache_util_win.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\disk_cache\disk_cache.h"
 				>
 			</File>
@@ -838,6 +846,14 @@
 			</File>
 			<File
 				RelativePath="..\disk_cache\mem_rankings.h"
+				>
+			</File>
+			<File
+				RelativePath="..\disk_cache\os_file.h"
+				>
+			</File>
+			<File
+				RelativePath="..\disk_cache\os_file_win.cc"
 				>
 			</File>
 			<File

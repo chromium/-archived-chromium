@@ -48,7 +48,7 @@ class FileBlock {
   virtual size_t size() const = 0;
 
   // Returns the file offset of this block.
-  virtual DWORD offset() const = 0;
+  virtual int offset() const = 0;
 };
 
 }  // namespace disk_cache

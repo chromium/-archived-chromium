@@ -40,7 +40,7 @@ void* MappedFile::Init(const std::wstring name, size_t size) {
 
   buffer_ = NULL;
   init_ = true;
-  section_ = CreateFileMapping(handle(), NULL, PAGE_READWRITE, 0,
+  section_ = CreateFileMapping(os_file(), NULL, PAGE_READWRITE, 0,
                                static_cast<DWORD>(size), NULL);
   if (!section_)
     return NULL;

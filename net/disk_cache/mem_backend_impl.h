@@ -32,7 +32,7 @@
 #ifndef NET_DISK_CACHE_MEM_BACKEND_IMPL_H__
 #define NET_DISK_CACHE_MEM_BACKEND_IMPL_H__
 
-#include <hash_map>
+#include "base/hash_tables.h"
 
 #include "net/disk_cache/disk_cache.h"
 #include "net/disk_cache/mem_rankings.h"
@@ -89,7 +89,7 @@ class MemBackendImpl : public Backend {
   void AddStorageSize(int32 bytes);
   void SubstractStorageSize(int32 bytes);
 
-  typedef stdext::hash_map<std::string, MemEntryImpl*> EntryMap;
+  typedef base::hash_map<std::string, MemEntryImpl*> EntryMap;
 
   EntryMap entries_;
   MemRankings rankings_;  // Rankings to be able to trim the cache.

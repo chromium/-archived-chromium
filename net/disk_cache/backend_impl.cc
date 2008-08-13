@@ -32,13 +32,14 @@
 #include "base/file_util.h"
 #include "base/histogram.h"
 #include "base/message_loop.h"
-#include "base/scoped_handle.h"
 #include "base/string_util.h"
 #include "base/timer.h"
 #include "base/worker_pool.h"
+#include "net/disk_cache/cache_util.h"
 #include "net/disk_cache/entry_impl.h"
 #include "net/disk_cache/errors.h"
 #include "net/disk_cache/hash.h"
+#include "net/disk_cache/file.h"
 
 namespace {
 
@@ -72,44 +73,6 @@ int MaxStorageSizeForTable(int table_len) {
 size_t GetIndexSize(int table_len) {
   size_t table_size = sizeof(disk_cache::CacheAddr) * table_len;
   return sizeof(disk_cache::IndexHeader) + table_size;
-}
-
-// Deletes all the files on path that match search_name pattern.
-// Do not call this function with "*" as search_name.
-bool DeleteFiles(const wchar_t* path, const wchar_t* search_name) {
-  std::wstring name(path);
-  name += search_name;
-  DCHECK(search_name[0] == L'\\');
-
-  WIN32_FIND_DATA data;
-  ScopedFindFileHandle handle(FindFirstFile(name.c_str(), &data));
-  if (!handle.IsValid()) {
-    DWORD error = GetLastError();
-    return ERROR_FILE_NOT_FOUND == error;
-  }
-  std::wstring adjusted_path(path);
-  adjusted_path += L'\\';
-  do {
-    std::wstring current(adjusted_path);
-    current += data.cFileName;
-    if (!DeleteFile(current.c_str()))
-      return false;
-  } while (FindNextFile(handle, &data));
-  return true;
-}
-
-// Deletes the cache files stored on |path|, and optionally also attempts to
-// delete the folder itself.
-void DeleteCache(const std::wstring& path, bool remove_folder) {
-  DeleteFiles(path.c_str(), L"\\f_*");
-  DeleteFiles(path.c_str(), L"\\data_*");
-
-  std::wstring index(path);
-  file_util::AppendToPath(&index, kIndexName);
-  DeleteFile(index.c_str());
-
-  if (remove_folder)
-    RemoveDirectory(path.c_str());
 }
 
 int LowWaterAdjust(int high_water) {
@@ -149,7 +112,7 @@ class CleanupTask : public Task {
 void CleanupTask::Run() {
   for (int i = 0; i < kMaxOldFolders; i++) {
     std::wstring to_delete = GetPrefixedName(path_, name_, i);
-    DeleteCache(to_delete, true);
+    disk_cache::DeleteCache(to_delete, true);
   }
 }
 
@@ -180,10 +143,7 @@ bool DelayedCacheCleanup(const std::wstring& full_path) {
     return false;
   }
 
-  // I don't want to use the shell version of move because if something goes
-  // wrong, that version will attempt to move file by file and fail at the end.
-  if (!MoveFileEx(full_path.c_str(), to_delete.c_str(), 0)) {
-    DWORD error = GetLastError();
+  if (!disk_cache::MoveCache(full_path.c_str(), to_delete.c_str())) {
     LOG(ERROR) << "Unable to rename cache folder";
     return false;
   }
@@ -302,15 +262,7 @@ BackendImpl::~BackendImpl() {
   delete timer_;
   delete timer_task_;
 
-  while (num_pending_io_) {
-    // Asynchronous IO operations may be in flight and the completion may end
-    // up calling us back so let's wait for them (we need an alertable wait).
-    // The idea is to let other threads do usefull work and at the same time
-    // allow more than one IO to finish... 20 mS later, we process all queued
-    // APCs and see if we have to repeat the wait.
-    Sleep(20);
-    SleepEx(0, TRUE);
-  }
+  WaitForPendingIO(num_pending_io_);
   DCHECK(!num_refs_);
 }
 
@@ -629,10 +581,10 @@ bool BackendImpl::CreateExternalFile(Addr* address) {
       continue;
     }
     std::wstring name = GetFileName(file_address);
-    ScopedHandle file(CreateFile(name.c_str(), GENERIC_WRITE | GENERIC_READ,
-                                 FILE_SHARE_READ, NULL, CREATE_ALWAYS, 0,
-                                 NULL));
-    if (!file.IsValid())
+    scoped_refptr<disk_cache::File> file(
+        new disk_cache::File(CreateOSFile(name.c_str(), OS_FILE_READ |
+            OS_FILE_WRITE |OS_FILE_SHARE_READ | OS_FILE_CREATE_ALWAYS, NULL)));
+    if (!file->IsValid())
       continue;
 
     success = true;
@@ -796,31 +748,20 @@ int BackendImpl::SelfCheck() {
   return CheckAllEntries();
 }
 
-
 // ------------------------------------------------------------------------
 
 // We just created a new file so we're going to write the header and set the
 // file length to include the hash table (zero filled).
-bool BackendImpl::CreateBackingStore(HANDLE file) {
+bool BackendImpl::CreateBackingStore(disk_cache::File* file) {
   AdjustMaxCacheSize(0);
 
   IndexHeader header;
   header.table_len = DesiredIndexTableLen(max_size_);
 
-  DWORD actual;
-  if (!WriteFile(file, &header, sizeof(header), &actual, NULL) ||
-      sizeof(header) != actual)
+  if (!file->Write(&header, sizeof(header), 0))
     return false;
 
-  LONG size = static_cast<LONG>(GetIndexSize(header.table_len));
-
-  if (INVALID_SET_FILE_POINTER == SetFilePointer(file, size, NULL, FILE_BEGIN))
-    return false;
-
-  if (!SetEndOfFile(file))
-    return false;
-
-  return true;
+  return file->SetLength(GetIndexSize(header.table_len));
 }
 
 bool BackendImpl::InitBackingStore(bool* file_created) {
@@ -830,21 +771,18 @@ bool BackendImpl::InitBackingStore(bool* file_created) {
   std::wstring index_name(path_);
   file_util::AppendToPath(&index_name, kIndexName);
 
-  HANDLE file = CreateFile(index_name.c_str(), GENERIC_READ | GENERIC_WRITE,
-                           FILE_SHARE_READ, NULL, OPEN_ALWAYS, 0, NULL);
+  scoped_refptr<disk_cache::File> file(new disk_cache::File(
+      CreateOSFile(index_name.c_str(), OS_FILE_READ | OS_FILE_WRITE |
+          OS_FILE_SHARE_READ | OS_FILE_OPEN_ALWAYS, file_created)));
 
-  if (INVALID_HANDLE_VALUE == file)
+  if (!file->IsValid())
     return false;
 
   bool ret = true;
-  if (ERROR_ALREADY_EXISTS != GetLastError()) {
-    *file_created = true;
+  if (*file_created)
     ret = CreateBackingStore(file);
-  } else {
-    *file_created = false;
-  }
-
-  CloseHandle(file);
+  
+  file = NULL;
   if (!ret)
     return false;
 
@@ -858,21 +796,21 @@ void BackendImpl::AdjustMaxCacheSize(int table_len) {
     return;
 
   // The user is not setting the size, let's figure it out.
-  ULARGE_INTEGER available, total, free;
-  if (!GetDiskFreeSpaceExW(path_.c_str(), &available, &total, &free)) {
+  int64 available = GetFreeDiskSpace(path_);
+  if (available < 0) {
     max_size_ = kDefaultCacheSize;
     return;
   }
 
   // Attempt to use 1% of the disk available for this user.
-  available.QuadPart /= 100;
+  available /= 100;
 
-  if (available.QuadPart < static_cast<uint32>(kDefaultCacheSize))
+  if (available < kDefaultCacheSize)
     max_size_ = kDefaultCacheSize;
-  else if (available.QuadPart > static_cast<uint32>(kint32max))
+  else if (available > kint32max)
     max_size_ = kint32max;
   else
-    max_size_ = static_cast<int32>(available.LowPart);
+    max_size_ = static_cast<int32>(available);
 
   // Let's not use more than the default size while we tune-up the performance
   // of bigger caches. TODO(rvargas): remove this limit.

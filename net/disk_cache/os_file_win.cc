@@ -27,53 +27,55 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// See net/disk_cache/disk_cache.h for the public interface of the cache.
+#include "net/disk_cache/os_file.h"
 
-#ifndef NET_DISK_CACHE_MAPPED_FILE_H__
-#define NET_DISK_CACHE_MAPPED_FILE_H__
-
-#include "base/ref_counted.h"
-#include "net/disk_cache/disk_format.h"
-#include "net/disk_cache/file.h"
-#include "net/disk_cache/file_block.h"
+#include "base/logging.h"
 
 namespace disk_cache {
 
-// This class implements a memory mapped file used to access block-files. The
-// idea is that the header and bitmap will be memory mapped all the time, and
-// the actual data for the blocks will be access asynchronously (most of the
-// time).
-class MappedFile : public File {
- public:
-  MappedFile() : init_(false), File(true) {}
+OSFile CreateOSFile(const std::wstring& name, int flags, bool* created) {
+  DWORD disposition = 0;
 
-  // Performs object initialization. name is the file to use, and size is the
-  // ammount of data to memory map from th efile. If size is 0, the whole file
-  // will be mapped in memory.
-  void* Init(const std::wstring name, size_t size);
+  if (flags & OS_FILE_OPEN)
+    disposition = OPEN_EXISTING;
 
-  void* buffer() const {
-    return buffer_;
+  if (flags & OS_FILE_CREATE) {
+    DCHECK(!disposition);
+    disposition = CREATE_NEW;
   }
 
-  // Loads or stores a given block from the backing file (synchronously).
-  bool Load(const FileBlock* block);
-  bool Store(const FileBlock* block);
+  if (flags & OS_FILE_OPEN_ALWAYS) {
+    DCHECK(!disposition);
+    disposition = OPEN_ALWAYS;
+  }
 
- protected:
-  virtual ~MappedFile();
+  if (flags & OS_FILE_CREATE_ALWAYS) {
+    DCHECK(!disposition);
+    disposition = CREATE_ALWAYS;
+  }
 
- private:
-  bool init_;
-#if defined(OS_WIN)
-  HANDLE section_;
-#endif
-  void* buffer_;  // Address of the memory mapped buffer.
-  size_t view_size_;  // Size of the memory pointed by buffer_.
+  if (!disposition) {
+    NOTREACHED();
+    return NULL;
+  }
 
-  DISALLOW_EVIL_CONSTRUCTORS(MappedFile);
-};
+  DWORD access = (flags & OS_FILE_READ) ? GENERIC_READ : 0;
+  if (flags & OS_FILE_WRITE)
+    access |= GENERIC_WRITE;
+
+  DWORD sharing = (flags & OS_FILE_SHARE_READ) ? FILE_SHARE_READ : 0;
+  if (flags & OS_FILE_SHARE_WRITE)
+    access |= FILE_SHARE_WRITE;
+
+  HANDLE file = CreateFile(name.c_str(), access, sharing, NULL, disposition, 0,
+                           NULL);
+
+  if ((flags & OS_FILE_OPEN_ALWAYS) && created &&
+      INVALID_HANDLE_VALUE != file) {
+    *created = (ERROR_ALREADY_EXISTS != GetLastError());
+  }
+
+  return file;
+}
 
 }  // namespace disk_cache
-
-#endif  // NET_DISK_CACHE_MAPPED_FILE_H__
