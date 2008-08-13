@@ -52,6 +52,9 @@ class PlatformThread {
   // Yield the current thread so another thread can be scheduled.
   static void YieldCurrentThread();
 
+  // Sleeps for the specified duration (units are milliseconds).
+  static void Sleep(int duration_ms);
+
   bool operator==(const PlatformThread& other_thread);
 
  private:

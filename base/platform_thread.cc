@@ -30,6 +30,7 @@
 #include "base/platform_thread.h"
 
 #if defined(OS_POSIX)
+#include <errno.h>
 #include <sched.h>
 #endif
 
@@ -52,6 +53,23 @@ void PlatformThread::YieldCurrentThread() {
   ::Sleep(0);
 #elif defined(OS_POSIX)
   sched_yield();
+#endif
+}
+
+// static
+void PlatformThread::Sleep(int duration_ms) {
+#if defined(OS_WIN)
+  ::Sleep(duration_ms);
+#elif defined (OS_POSIX)
+  struct timespec sleep_time, remaining;
+  // Contains the portion of duration_ms >= 1 sec.
+  sleep_time.tv_sec = duration_ms / 1000;
+  duration_ms -= sleep_time.tv_sec * 1000;
+  // Contains the portion of duration_ms < 1 sec.
+  sleep_time.tv_nsec = duration_ms * 1000 * 1000;  // nanoseconds.
+  while (nanosleep(&sleep_time, &remaining) == -1 && errno == EINTR) {
+    sleep_time = remaining;
+  }
 #endif
 }
 
