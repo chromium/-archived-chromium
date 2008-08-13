@@ -263,7 +263,6 @@ if env['PLATFORM'] == 'win32':
   # These tests aren't really Windows-specific, they're just here until
   # we have the port versions working.
   test_files.extend([
-    'check_handler_unittest.cc',
     'clipboard_unittest.cc',
     'command_line_unittest.cc',
     'condition_variable_test.cc',

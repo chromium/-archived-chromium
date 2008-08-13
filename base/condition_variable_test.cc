@@ -33,7 +33,6 @@
 #include <algorithm>
 #include <vector>
 
-#include "base/check_handler.h"
 #include "base/condition_variable.h"
 #include "base/logging.h"
 #include "base/scoped_ptr.h"

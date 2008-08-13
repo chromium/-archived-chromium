@@ -144,10 +144,6 @@
 			Name="support"
 			>
 			<File
-				RelativePath="..\check_handler.h"
-				>
-			</File>
-			<File
 				RelativePath="..\multiprocess_test.h"
 				>
 			</File>
@@ -169,10 +165,6 @@
 			>
 			<File
 				RelativePath="..\at_exit_unittest.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\check_handler_unittest.cc"
 				>
 			</File>
 			<File

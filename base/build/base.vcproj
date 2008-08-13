@@ -206,10 +206,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\check_handler.h"
-			>
-		</File>
-		<File
 			RelativePath="..\clipboard_win.cc"
 			>
 		</File>
