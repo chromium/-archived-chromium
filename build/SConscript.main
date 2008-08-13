@@ -266,6 +266,11 @@ if env['PLATFORM'] == 'win32':
 
 elif env['PLATFORM'] == 'posix':
 
+  # TODO(evanm): this is Linux-specific, not posix.
+  # Parse /proc/cpuinfo for processor count.
+  cpus = len([l for l in open('/proc/cpuinfo') if l.startswith('processor\t')])
+  SetOption('num_jobs', cpus + 1)
+
   # For now, linux only loads the components we know work on Linux, by default.
   load = ['base', 'testing', 'third_party', 'breakpad']
 
