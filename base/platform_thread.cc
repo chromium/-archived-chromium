@@ -37,7 +37,7 @@
 #if defined(OS_MACOSX)
 #include <mach/mach.h>
 #elif defined(OS_LINUX)
-#include <sys/types.h>
+#include <sys/syscall.h>
 #include <unistd.h>
 #endif
 
@@ -87,7 +87,7 @@ int PlatformThread::CurrentId() {
 #elif defined(OS_MACOSX)
   return mach_thread_self();
 #elif defined(OS_LINUX)
-  return gettid();
+  return syscall(__NR_gettid);
 #endif
 }
 
