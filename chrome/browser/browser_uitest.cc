@@ -236,7 +236,7 @@ TEST_F(BrowserTest, DuplicateTab) {
   browser_proxy.reset(automation()->GetBrowserWindow(1));
   tab_proxy.reset(browser_proxy->GetTab(0));
 
-  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored());
+  ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(kWaitForActionMsec));
 
   // Verify the stack of urls.
   GURL url;

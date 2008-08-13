@@ -237,7 +237,9 @@ class TabProxy : public AutomationResourceProxy {
   // to handle the keys
   bool ProcessUnhandledAccelerator(const MSG& msg);
 
-  bool WaitForTabToBeRestored();
+  // Waits for the tab to finish being restored. Returns true on success.
+  // timeout_ms gives the max amount of time to wait for restore to complete.
+  bool WaitForTabToBeRestored(uint32 timeout_ms);
 
   // Retrieves the different security states for the current tab.
   bool GetSecurityState(SecurityStyle* security_style,

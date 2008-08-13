@@ -797,13 +797,14 @@ bool TabProxy::ProcessUnhandledAccelerator(const MSG& msg) {
   // This message expects no response
 }
 
-bool TabProxy::WaitForTabToBeRestored() {
+bool TabProxy::WaitForTabToBeRestored(uint32 timeout_ms) {
   if (!is_valid())
     return false;
   IPC::Message* response = NULL;
-  return sender_->SendAndWaitForResponse(
+  bool is_timeout;
+  return sender_->SendAndWaitForResponseWithTimeout(
       new AutomationMsg_WaitForTabToBeRestored(0, handle_), &response,
-      AutomationMsg_TabFinishedRestoring::ID);
+      AutomationMsg_TabFinishedRestoring::ID, timeout_ms, &is_timeout);
 }
 
 bool TabProxy::GetSecurityState(SecurityStyle* security_style,

@@ -800,7 +800,7 @@ TEST_F(AutomationProxyTest, AutocompleteParallelProxy)
   scoped_ptr<AutocompleteEditProxy> edit2(
       automation()->GetAutocompleteEditForBrowser(browser2.get()));
   ASSERT_TRUE(edit2.get());
-  EXPECT_TRUE(browser2->GetTab(0)->WaitForTabToBeRestored());
+  EXPECT_TRUE(browser2->GetTab(0)->WaitForTabToBeRestored(kWaitForActionMsec));
   const std::wstring text_to_set1 = L"Lollerskates";
   const std::wstring text_to_set2 = L"Roflcopter";
   std::wstring actual_text1, actual_text2;
