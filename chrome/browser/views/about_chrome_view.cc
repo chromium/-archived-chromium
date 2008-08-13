@@ -50,6 +50,12 @@
 
 #include "generated_resources.h"
 
+// The pixel width of the version text field. Ideally, we'd like to have the
+// bounds set to the edge of the icon. However, the icon is not a view but a
+// part of the background, so we have to hard code the width to make sure
+// the version field doesn't overlap it.
+const int kVersionFieldWidth = 195;
+
 ////////////////////////////////////////////////////////////////////////////////
 // AboutChromeView, public:
 
@@ -136,8 +142,6 @@ void AboutChromeView::Init() {
   version_label_->RemoveBorder();
   version_label_->SetFont(ResourceBundle::GetSharedInstance().GetFont(
       ResourceBundle::BaseFont).DeriveFont(0, BOLD_FONTTYPE));
-  version_label_->set_default_width_in_chars(
-      static_cast<int>(current_version_.size() + 1));
   AddChildView(version_label_);
 
   // Text to display at the bottom of the dialog.
@@ -198,7 +202,7 @@ void AboutChromeView::Layout() {
                             about_title_label_->GetY() +
                                 about_title_label_->GetHeight() +
                                 kRelatedControlVerticalSpacing,
-                            sz.cx,
+                            kVersionFieldWidth,
                             sz.cy);
 
   // For the width of the main text label we want to use up the whole panel
