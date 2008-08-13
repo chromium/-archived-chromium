@@ -58,6 +58,8 @@ input_files = [
     'base_switches.cc',
     'command_line.cc',
     'icu_util.cc',
+    'json_reader.cc',
+    'json_writer.cc',
     'lock.cc',
     'logging.cc',
     'pickle.cc',
@@ -72,11 +74,9 @@ input_files = [
 if env['PLATFORM'] == 'win32':
   # Some of these aren't really Windows-specific, they're just here until
   # we have the port versions working.
-  # TODO(evanm): label all these modules with whether they're needing work
-  # or unfeasible.
+  # TODO: move all these files to either the cross-platform block above or
+  # a platform-specific block below.
   input_files.extend([
-    'base_drag_source.cc',
-    'base_drop_target.cc',
     'base_paths.cc',
     'bzip2_error_handler.cc',
     'clipboard_util.cc',
@@ -86,12 +86,9 @@ if env['PLATFORM'] == 'win32':
     'file_util.cc',
     'file_version_info.cc',
     'histogram.cc',
-    'hmac.cc',
-    'iat_patch.cc',
+    'hmac.cc',                 # Uses Windows-specific crypto APIs.
     'idle_timer.cc',
     'image_util.cc',
-    'json_reader.cc',
-    'json_writer.cc',
     'md5.cc',
     'memory_debug.cc',
     'message_loop.cc',
@@ -115,18 +112,19 @@ if env['PLATFORM'] == 'win32':
     'tracked.cc',
     'tracked_objects.cc',
     'watchdog.cc',
-    'win_util.cc',
-    'wmi_util.cc',
     'word_iterator.cc',
     'worker_pool.cc',
   ])
 
 if env['PLATFORM'] == 'win32':
   input_files.extend([
+      'base_drag_source.cc',
+      'base_drop_target.cc',
       'base_paths_win.cc',
       'clipboard_win.cc',
       'condition_variable_win.cc',
       'file_util_win.cc',
+      'iat_patch.cc',
       'lock_impl_win.cc',
       'shared_memory_win.cc',
       'string_util_win.cc',
@@ -134,6 +132,8 @@ if env['PLATFORM'] == 'win32':
       'thread_local_storage_win.cc',
       'time_win.cc',
       'waitable_event_win.cc',
+      'win_util.cc',
+      'wmi_util.cc',
   ])
 
 if env['PLATFORM'] in ('darwin', 'posix'):
@@ -243,6 +243,8 @@ env_tests.ChromeTestProgram(['debug_message.exe',
 # cross-platform live below.
 test_files = [
     'at_exit_unittest.cc',
+    'json_reader_unittest.cc',
+    'json_writer_unittest.cc',
     'linked_ptr_unittest.cc',
     'pickle_unittest.cc',
     'ref_counted_unittest.cc',
@@ -272,8 +274,6 @@ if env['PLATFORM'] == 'win32':
     'gfx/vector_canvas_unittest.cc',
     'idletimer_unittest.cc',
     'hmac_unittest.cc',
-    'json_reader_unittest.cc',
-    'json_writer_unittest.cc',
     'message_loop_unittest.cc',
     'object_watcher_unittest.cc',
     'path_service_unittest.cc',
