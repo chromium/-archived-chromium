@@ -46,12 +46,16 @@ env.Append(
     CPPDEFINES = [
         'U_STATIC_IMPLEMENTATION',
     ],
-    CCFLAGS = [
-        '/Wp64',
-    ],
 )
 
+
+# These net files work on *all* platforms; files that don't work
+# cross-platforom live below.
 input_files = [
+]
+
+if env['PLATFORM'] == 'win32':
+  input_files.extend([
     'base/address_list.cc',
     'base/auth_cache.cc',
     'base/base64.cc',
@@ -130,16 +134,24 @@ input_files = [
     'url_request/url_request_simple_job.cc',
     'url_request/url_request_test_job.cc',
     'url_request/url_request_view_cache_job.cc',
-]
+  ])
 
-#env_p = env.Clone(
-#    PCHSTOP='precompiled_net.h',
-#    PDB = 'vc80.pdb',
-#)
-#pch, obj = env_p.PCH(['net.pch', 'precompiled_net.obj'], 'precompiled_net.cc')
-#env_p['PCH'] = pch
+if env['PLATFORM'] == 'win32':
+  env.Append(
+      CCFLAGS = [
+          '/Wp64',
+      ],
+  )
+  input_files.extend([
+      'disk_cache/cache_util_win.cc',
+      'disk_cache/os_file_win.cc',
+  ])
 
-#env.ChromeStaticLibrary('net', input_files + [obj])
+if env['PLATFORM'] in ('darwin', 'posix'):
+  input_files.extend([
+      'disk_cache/cache_util_posix.cc',
+      'disk_cache/os_file_posix.cc',
+  ])
 
 # TODO(bradnelson): This step generates file precompiled_net.pch.ib_tag
 #                   possibly only on incredibuild, scons doesn't know this.
@@ -159,9 +171,6 @@ env_tests.Prepend(
     ],
     CPPDEFINES = [
         'UNIT_TEST',
-        '_WIN32_WINNT=0x0600',
-        'WINVER=0x0600',
-        '_HAS_EXCEPTIONS=0',
     ],
     LIBS = [
         'googleurl',
@@ -175,29 +184,35 @@ env_tests.Prepend(
     ]
 )
 
-env_tests.Prepend(
-    CCFLAGS = [
-        '/TP',
-        '/WX',
-        '/Wp64',
-    ],
-    LINKFLAGS = [
-        '/DELAYLOAD:"dwmapi.dll"',
-        '/DELAYLOAD:"uxtheme.dll"',
-        '/MACHINE:X86',
-        '/FIXED:No',
-        '/safeseh',
-        '/dynamicbase',
-        '/ignore:4199',
-        '/nxcompat',
-    ],
-)
-
 env_tests.Append(
     CPPPATH = [
         '$GTEST_DIR/include',
     ],
 )
+
+if env['PLATFORM'] == 'win32':
+  env_tests.Prepend(
+      CCFLAGS = [
+          '/TP',
+          '/WX',
+          '/Wp64',
+      ],
+      CPPDEFINES = [
+          '_WIN32_WINNT=0x0600',
+          'WINVER=0x0600',
+          '_HAS_EXCEPTIONS=0',
+      ],
+      LINKFLAGS = [
+          '/DELAYLOAD:"dwmapi.dll"',
+          '/DELAYLOAD:"uxtheme.dll"',
+          '/MACHINE:X86',
+          '/FIXED:No',
+          '/safeseh',
+          '/dynamicbase',
+          '/ignore:4199',
+          '/nxcompat',
+      ],
+  )
 
 
 unittest_files = [
@@ -317,4 +332,3 @@ SConscript(sconscript_files, exports=['env'])
 
 # Setup alias for building all parts of net.
 env.Alias('net', ['.', installed_tests, '../icudt38.dll'])
-
