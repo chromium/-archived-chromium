@@ -56,20 +56,27 @@ if env['PLATFORM'] == 'win32':
 input_files = [
     'at_exit.cc',
     'base_switches.cc',
+    'bzip2_error_handler.cc',
     'command_line.cc',
     'debug_util.cc',
+    'file_util.cc',
     'icu_util.cc',
     'json_reader.cc',
     'json_writer.cc',
     'lock.cc',
     'logging.cc',
+    'md5.cc',
+    'memory_debug.cc',
+    'path_service.cc',
     'pickle.cc',
     'platform_thread.cc',
+    'revocable_store.cc',
     'string_escape.cc',
     'string_piece.cc',
     'string_util.cc',
     'string_util_icu.cc',
     'values.cc',
+    'word_iterator.cc',
 ]
 
 if env['PLATFORM'] == 'win32':
@@ -79,27 +86,21 @@ if env['PLATFORM'] == 'win32':
   # a platform-specific block below.
   input_files.extend([
     'base_paths.cc',
-    'bzip2_error_handler.cc',
     'clipboard_util.cc',
     'debug_on_start.cc',
     'event_recorder.cc',
-    'file_util.cc',
     'file_version_info.cc',
     'histogram.cc',
     'hmac.cc',                 # Uses Windows-specific crypto APIs.
     'idle_timer.cc',
     'image_util.cc',
-    'md5.cc',
-    'memory_debug.cc',
     'message_loop.cc',
     'non_thread_safe.cc',
     'object_watcher.cc',
-    'path_service.cc',
     'process.cc',
     'process_util.cc',
     'registry.cc',
     'resource_util.cc',
-    'revocable_store.cc',
     'sha2.cc',
     'shared_event.cc',
     'stats_table.cc',
@@ -111,7 +112,6 @@ if env['PLATFORM'] == 'win32':
     'tracked.cc',
     'tracked_objects.cc',
     'watchdog.cc',
-    'word_iterator.cc',
     'worker_pool.cc',
   ])
 
