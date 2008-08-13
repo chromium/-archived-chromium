@@ -32,9 +32,11 @@
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/web_contents.h"
+#include "chrome/common/gfx/url_elider.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_types.h"
+#include "chrome/common/pref_names.h"
 #include "chrome/views/message_box_view.h"
 #include "chrome/views/window.h"
 
@@ -89,11 +91,20 @@ std::wstring JavascriptMessageBoxHandler::GetWindowTitle() const {
   if (!url.has_host())
     return l10n_util::GetString(IDS_JAVASCRIPT_MESSAGEBOX_DEFAULT_TITLE);
 
-  std::string base_address = url.scheme() + "://" + url.host();
-  if (url.has_port())
-    base_address += ":" + url.port();
-  return l10n_util::GetStringF(IDS_JAVASCRIPT_MESSAGEBOX_TITLE,
-                               ASCIIToWide(base_address));
+  // We really only want the scheme, hostname, and port.
+  GURL::Replacements replacements;
+  replacements.ClearUsername();
+  replacements.ClearPassword();
+  replacements.ClearPath();
+  replacements.ClearQuery();
+  replacements.ClearRef();
+  GURL clean_url = url.ReplaceComponents(replacements);
+
+  // TODO(brettw) it should be easier than this to do the correct language
+  // handling without getting the accept language from the profil.
+  std::wstring base_address = gfx::ElideUrl(clean_url, ChromeFont(), 0,
+      web_contents_->profile()->GetPrefs()->GetString(prefs::kAcceptLanguages));
+  return l10n_util::GetStringF(IDS_JAVASCRIPT_MESSAGEBOX_TITLE, base_address);
 }
 
 void JavascriptMessageBoxHandler::WindowClosing() {
