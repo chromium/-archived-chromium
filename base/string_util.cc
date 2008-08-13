@@ -852,24 +852,103 @@ static void StringAppendVT(
   }
 }
 
-std::string Uint64ToString(uint64 value) {
-  return StringPrintf("%llu", value);
-}
+namespace {
 
-std::string Int64ToString(int64 value) {
-  return StringPrintf("%I64d", value);
-}
+template <typename STR, typename INT, typename UINT, bool NEG>
+struct IntToStringT {
 
-std::wstring Int64ToWString(int64 value) {
-  return StringPrintf(L"%I64d", value);
+  // This is to avoid a compiler warning about unary minus on unsigned type.
+  // For example, say you had the following code:
+  //   template <typename INT>
+  //   INT abs(INT value) { return value < 0 ? -value : value; }
+  // Even though if INT is unsigned, it's impossible for value < 0, so the
+  // unary minus will never be taken, the compiler will still generate a
+  // warning.  We do a little specialization dance...
+  template <typename INT2, typename UINT2, bool NEG2>
+  struct ToUnsignedT { };
+
+  template <typename INT2, typename UINT2>
+  struct ToUnsignedT<INT2, UINT2, false> {
+    static UINT2 ToUnsigned(INT2 value) {
+      return static_cast<UINT2>(value);
+    }
+  };
+
+  template <typename INT2, typename UINT2>
+  struct ToUnsignedT<INT2, UINT2, true> {
+    static UINT2 ToUnsigned(INT2 value) {
+      return static_cast<UINT2>(value < 0 ? -value : value);
+    }
+  };
+
+  static STR IntToString(INT value) {
+    // log10(2) ~= 0.3 bytes needed per bit or per byte log10(2**8) ~= 2.4.
+    // So round up to allocate 3 output characters per byte, plus 1 for '-'.
+    const int kOutputBufSize = 3 * sizeof(INT) + 1;
+
+    // Allocate the whole string right away, we will right back to front, and
+    // then return the substr of what we ended up using.
+    STR outbuf(kOutputBufSize, 0);
+
+    bool is_neg = value < 0;
+    // Even though is_neg will never be true when INT is parameterized as
+    // unsigned, even the presence of the unary operation causes a warning.
+    UINT res = ToUnsignedT<INT, UINT, NEG>::ToUnsigned(value);
+
+    for (typename STR::iterator it = outbuf.end();;) {
+      --it;
+      DCHECK(it != outbuf.begin());
+      *it = static_cast<typename STR::value_type>((res % 10) + '0');
+      res /= 10;
+
+      // We're done..
+      if (res == 0) {
+        if (is_neg) {
+          --it;
+          DCHECK(it != outbuf.begin());
+          *it = static_cast<typename STR::value_type>('-');
+        }
+        return STR(it, outbuf.end());
+      }
+    }
+    NOTREACHED();
+    return STR();
+  }
+};
+
 }
 
 std::string IntToString(int value) {
-  return StringPrintf("%d", value);
+  return IntToStringT<std::string, int, unsigned int, true>::
+      IntToString(value);
 }
-
 std::wstring IntToWString(int value) {
-  return StringPrintf(L"%d", value);
+  return IntToStringT<std::wstring, int, unsigned int, true>::
+      IntToString(value);
+}
+std::string UintToString(unsigned int value) {
+  return IntToStringT<std::string, unsigned int, unsigned int, false>::
+      IntToString(value);
+}
+std::wstring UintToWString(unsigned int value) {
+  return IntToStringT<std::wstring, unsigned int, unsigned int, false>::
+      IntToString(value);
+}
+std::string Int64ToString(int64 value) {
+  return IntToStringT<std::string, int64, uint64, true>::
+      IntToString(value);
+}
+std::wstring Int64ToWString(int64 value) {
+  return IntToStringT<std::wstring, int64, uint64, true>::
+      IntToString(value);
+}
+std::string Uint64ToString(uint64 value) {
+  return IntToStringT<std::string, uint64, uint64, false>::
+      IntToString(value);
+}
+std::wstring Uint64ToWString(uint64 value) {
+  return IntToStringT<std::wstring, uint64, uint64, false>::
+      IntToString(value);
 }
 
 inline void StringAppendV(std::string* dst, const char* format, va_list ap) {

@@ -326,11 +326,14 @@ void ReplaceSubstringsAfterOffset(std::string* str,
                                   const std::string& replace_with);
 
 // Specialized string-conversion functions.
-std::string Uint64ToString(uint64 value);
 std::string IntToString(int value);
+std::wstring IntToWString(int value);
+std::string UintToString(unsigned int value);
+std::wstring UintToWString(unsigned int value);
 std::string Int64ToString(int64 value);
 std::wstring Int64ToWString(int64 value);
-std::wstring IntToWString(int value);
+std::string Uint64ToString(uint64 value);
+std::wstring Uint64ToWString(uint64 value);
 
 // Perform a best-effort conversion of the input string to a numeric type,
 // setting |*output| to the result of the conversion.  Returns true for

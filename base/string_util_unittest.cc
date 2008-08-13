@@ -30,6 +30,7 @@
 #include <math.h>
 #include <stdarg.h>
 
+#include <limits>
 #include <sstream>
 
 #include "base/basictypes.h"
@@ -634,20 +635,50 @@ TEST(StringUtilTest, ReplaceSubstringsAfterOffset) {
   }
 }
 
+namespace {
+
+template <typename INT>
+struct IntToStringTest {
+  INT num;
+  const char* sexpected;
+  const char* uexpected;
+};
+
+}
+
 TEST(StringUtilTest, IntToString) {
-  static const struct {
-    int input;
-    std::string output;
-  } cases[] = {
-    {0, "0"},
-    {42, "42"},
-    {-42, "-42"},
-    {INT_MAX, "2147483647"},
-    {INT_MIN, "-2147483648"},
+
+  static const IntToStringTest<int> int_tests[] = {
+      { 0, "0", "0" },
+      { -1, "-1", "4294967295" },
+      { std::numeric_limits<int>::max(), "2147483647", "2147483647" },
+      { std::numeric_limits<int>::min(), "-2147483648", "2147483648" },
+  };
+  static const IntToStringTest<int64> int64_tests[] = {
+      { 0, "0", "0" },
+      { -1, "-1", "18446744073709551615" },
+      { std::numeric_limits<int64>::max(),
+        "9223372036854775807",
+        "9223372036854775807", },
+      { std::numeric_limits<int64>::min(),
+        "-9223372036854775808",
+        "9223372036854775808" },
   };
 
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); ++i)
-    EXPECT_EQ(cases[i].output, IntToString(cases[i].input));
+  for (int i = 0; i < arraysize(int_tests); ++i) {
+    const IntToStringTest<int>* test = &int_tests[i];
+    EXPECT_EQ(IntToString(test->num), test->sexpected);
+    EXPECT_EQ(IntToWString(test->num), UTF8ToWide(test->sexpected));
+    EXPECT_EQ(UintToString(test->num), test->uexpected);
+    EXPECT_EQ(UintToWString(test->num), UTF8ToWide(test->uexpected));
+  }
+  for (int i = 0; i < arraysize(int64_tests); ++i) {
+    const IntToStringTest<int64>* test = &int64_tests[i];
+    EXPECT_EQ(Int64ToString(test->num), test->sexpected);
+    EXPECT_EQ(Int64ToWString(test->num), UTF8ToWide(test->sexpected));
+    EXPECT_EQ(Uint64ToString(test->num), test->uexpected);
+    EXPECT_EQ(Uint64ToWString(test->num), UTF8ToWide(test->uexpected));
+  }
 }
 
 TEST(StringUtilTest, Uint64ToString) {
