@@ -53,11 +53,15 @@ namespace base {
 // s2 > s1 according to a lexicographic comparison.
 int strncasecmp(const char* s1, const char* s2, size_t count);
 
-// Wrapper for vsnprintf that always NUL-terminates and always returns the
+// Wrapper for vsnprintf that always null-terminates and always returns the
 // number of characters that would be in an untruncated formatted
 // string, even when truncation occurs.
 int vsnprintf(char* buffer, size_t size, const char* format, va_list arguments);
 
+// vswprintf always null-terminates, but when truncation occurs, it will either
+// return -1 or the number of characters that would be in an untruncated
+// formatted string.  The actual return value depends on the underlying
+// C library's vswprintf implementation.
 int vswprintf(wchar_t* buffer, size_t size,
               const wchar_t* format, va_list arguments);
 
