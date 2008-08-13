@@ -1767,6 +1767,10 @@ NavigationController* Browser::GetSelectedNavigationController() const {
 // DO NOT PLACE METHODS NOT RELATED TO NEW FRAMES BELOW THIS LINE.
 
 void Browser::SaveWindowPosition(const gfx::Rect& bounds, bool maximized) {
+  // We don't save window position for popups.
+  if (GetType() == BrowserType::BROWSER)
+    return;
+
   // First save to local state, this is for remembering on subsequent starts.
   PrefService* prefs = g_browser_process->local_state();
   DCHECK(prefs);
