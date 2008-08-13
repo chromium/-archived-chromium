@@ -97,6 +97,7 @@ input_files = [
     'automation/url_request_slow_download_job.cc',
     'back_forward_menu_model.cc',
     'base_history_model.cc',
+    'bookmark_bar_context_menu_controller.cc',
     'bookmark_bar_model.cc',
     'bookmark_codec.cc',
     'bookmark_storage.cc',
