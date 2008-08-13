@@ -390,47 +390,40 @@ TEST_F(SessionRestoreUITest,
   ASSERT_EQ(url1, url);
 }
 
+// TODO(sky): bug 1200852, this test is flakey, so I'm disabling.
+//
 // Make sure after a restore the number of processes matches that of the number
 // of processes running before the restore. This creates a new tab so that
 // we should have two new tabs running.  (This test will pass in both
 // process-per-site and process-per-site-instance, because we treat the new tab
 // as a special case in process-per-site-instance so that it only ever uses one
 // process.)
-TEST_F(SessionRestoreUITest, ShareProcessesOnRestore) {
+TEST_F(SessionRestoreUITest, DISABLED_ShareProcessesOnRestore) {
   if (in_process_renderer()) {
     // No point in running this test in single process mode.
     return;
   }
 
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
-  fprintf(stderr, "check point\n");
   ASSERT_TRUE(browser_proxy.get() != NULL);
   int tab_count;
   ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
-  fprintf(stderr, "check point\n");
 
   // Create two new tabs.
   int new_tab_count;
   ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_NEWTAB));
-  fprintf(stderr, "check point\n");
   ASSERT_TRUE(browser_proxy->WaitForTabCountToChange(tab_count, &new_tab_count,
                                                      kWaitForActionMsec));
-  fprintf(stderr, "check point\n");
   scoped_ptr<TabProxy> last_tab(browser_proxy->GetTab(new_tab_count - 1));
   ASSERT_TRUE(last_tab.get() != NULL);
   // Do a reload to ensure new tab page has loaded.
-  fprintf(stderr, "check point\n");
   ASSERT_TRUE(last_tab->Reload());
   tab_count = new_tab_count;
-  fprintf(stderr, "check point\n");
   ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_NEWTAB));
-  fprintf(stderr, "check point\n");
   ASSERT_TRUE(browser_proxy->WaitForTabCountToChange(tab_count, &new_tab_count,
                                                      kWaitForActionMsec));
-  fprintf(stderr, "check point\n");
   last_tab.reset(browser_proxy->GetTab(new_tab_count - 1));
   ASSERT_TRUE(last_tab.get() != NULL);
-  fprintf(stderr, "check point\n");
   // Do a reload to ensure new tab page has loaded.
   ASSERT_TRUE(last_tab->Reload());
   int expected_process_count = GetBrowserProcessCount();
@@ -438,34 +431,22 @@ TEST_F(SessionRestoreUITest, ShareProcessesOnRestore) {
   // Restart.
   browser_proxy.reset();
   last_tab.reset();
-  fprintf(stderr, "check point\n");
   QuitBrowserAndRestore();
 
-  fprintf(stderr, "check point\n");
   // Wait for each tab to finish being restored, then make sure the process
   // count matches.
   browser_proxy.reset(automation()->GetBrowserWindow(0));
-  fprintf(stderr, "check point\n");
   ASSERT_TRUE(browser_proxy.get() != NULL);
   int restored_tab_count;
-  fprintf(stderr, "check point\n");
   ASSERT_TRUE(browser_proxy->GetTabCount(&restored_tab_count));
-  fprintf(stderr, "check point\n");
   ASSERT_EQ(new_tab_count, restored_tab_count);
 
-  fprintf(stderr, "check point\n");
   scoped_ptr<TabProxy> tab_proxy(browser_proxy->GetTab(restored_tab_count - 2));
-  fprintf(stderr, "check point\n");
   ASSERT_TRUE(tab_proxy.get() != NULL);
-  fprintf(stderr, "check point\n");
   ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(kWaitForActionMsec));
-  fprintf(stderr, "check point\n");
   tab_proxy.reset(browser_proxy->GetTab(restored_tab_count - 1));
-  fprintf(stderr, "check point\n");
   ASSERT_TRUE(tab_proxy.get() != NULL);
-  fprintf(stderr, "check point\n");
   ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(kWaitForActionMsec));
 
-  fprintf(stderr, "check point\n");
   ASSERT_EQ(expected_process_count, GetBrowserProcessCount());
 }
