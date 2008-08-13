@@ -197,6 +197,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\common\env_vars.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\common\env_vars.h"
+			>
+		</File>
+		<File
 			RelativePath=".\google_update_client.cc"
 			>
 		</File>

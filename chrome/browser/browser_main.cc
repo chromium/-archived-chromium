@@ -61,6 +61,7 @@
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/url_fixer_upper.h"
 #include "chrome/browser/user_data_dir_dialog.h"
+#include "chrome/browser/user_metrics.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
@@ -245,6 +246,15 @@ bool CreateUniqueChromeEvent() {
     CloseHandle(handle);
   }
   return already_running;
+}
+
+// We record in UMA the conditions that can prevent breakpad from generating
+// and sending crash reports. Namely that the crash reporting registration
+// failed and that the process is being debugged.
+void RecordBreakpadStatusUMA(MetricsService* metrics) {
+  DWORD len = ::GetEnvironmentVariableW(env_vars::kNoOOBreakpad, NULL, 0);
+  metrics->RecordBreakpadRegistration((len == 0));
+  metrics->RecordBreakpadHasDebugger(TRUE == ::IsDebuggerPresent());
 }
 
 }  // namespace
@@ -487,6 +497,8 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   }
 
   HandleErrorTestParameters(parsed_command_line);
+
+  RecordBreakpadStatusUMA(metrics);
 
   int result_code = ResultCodes::NORMAL_EXIT;
   if (BrowserInit::ProcessCommandLine(parsed_command_line, L"", local_state,

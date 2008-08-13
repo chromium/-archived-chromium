@@ -40,6 +40,7 @@ extern const wchar_t kShowRestart[];
 extern const wchar_t kRestartInfo[];
 extern const wchar_t kRtlLocale[];
 extern const wchar_t kLtrLocale[];
+extern const wchar_t kNoOOBreakpad[];
 
 }  // namespace env_vars
 

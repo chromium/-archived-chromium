@@ -42,6 +42,7 @@
 #include "base/win_util.h"
 #include "chrome/app/google_update_client.h"
 #include "chrome/app/google_update_settings.h"
+#include "chrome/common/env_vars.h"
 #include "breakpad/src/client/windows/handler/exception_handler.h"
 
 namespace {
@@ -100,15 +101,6 @@ struct CrashReporterInfo {
   std::wstring process_type;
 };
 
-// Environment variable name that has the actual dialog strings.
-const wchar_t kEnvRestartInfo[] = L"CHROME_RESTART";
-// If this environment variable is present, chrome has crashed.
-const wchar_t kEnvShowRestart[] = L"CHROME_CRASHED";
-// The following two names correspond to the text directionality for the
-// current locale.
-const wchar_t kRtlLocaleDirection[] = L"RIGHT_TO_LEFT";
-const wchar_t kLtrLocaleDirection[] = L"LEFT_TO_RIGHT";
-
 // This callback is executed when the browser process has crashed, after
 // the crash dump has been created. We need to minimize the amount of work
 // done here since we have potentially corrupted process. Our job is to
@@ -120,9 +112,9 @@ bool DumpDoneCallback(const wchar_t*, const wchar_t*, void*,
                       MDRawAssertionInfo*, bool) {
   // We set CHROME_CRASHED env var. If the CHROME_RESTART is present.
   // This signals the child process to show the 'chrome has crashed' dialog.
-  if (!::GetEnvironmentVariableW(kEnvRestartInfo, NULL, 0))
+  if (!::GetEnvironmentVariableW(env_vars::kRestartInfo, NULL, 0))
     return true;
-  ::SetEnvironmentVariableW(kEnvShowRestart, L"1");
+  ::SetEnvironmentVariableW(env_vars::kShowRestart, L"1");
   // Now we just start chrome browser with the same command line.
   STARTUPINFOW si = {sizeof(si)};
   PROCESS_INFORMATION pi;
@@ -157,13 +149,13 @@ long WINAPI ChromeExceptionFilter(EXCEPTION_POINTERS* info) {
 // spawned and basically just shows the 'chrome has crashed' dialog if
 // the CHROME_CRASHED environment variable is present.
 bool ShowRestartDialogIfCrashed(bool* exit_now) {
-  if (!::GetEnvironmentVariableW(kEnvShowRestart, NULL, 0))
+  if (!::GetEnvironmentVariableW(env_vars::kShowRestart, NULL, 0))
     return false;
-  DWORD len = ::GetEnvironmentVariableW(kEnvRestartInfo, NULL, 0);
+  DWORD len = ::GetEnvironmentVariableW(env_vars::kRestartInfo, NULL, 0);
   if (!len)
     return false;
   wchar_t* restart_data = new wchar_t[len + 1];
-  ::GetEnvironmentVariableW(kEnvRestartInfo, restart_data, len);
+  ::GetEnvironmentVariableW(env_vars::kRestartInfo, restart_data, len);
   restart_data[len] = 0;
   // The CHROME_RESTART var contains the dialog strings separated by '|'.
   // See PrepareRestartOnCrashEnviroment() function for details.
@@ -176,7 +168,7 @@ bool ShowRestartDialogIfCrashed(bool* exit_now) {
   // If the UI layout is right-to-left, we need to pass the appropriate MB_XXX
   // flags so that an RTL message box is displayed.
   UINT flags = MB_OKCANCEL | MB_ICONWARNING;
-  if (dlg_strings[2] == kRtlLocaleDirection)
+  if (dlg_strings[2] == env_vars::kRtlLocale)
     flags |= MB_RIGHT | MB_RTLREADING;
 
   // Show the dialog now. It is ok if another chrome is started by the
@@ -237,13 +229,18 @@ unsigned __stdcall InitCrashReporterThread(void* param)  {
                    NULL, google_breakpad::ExceptionHandler::HANDLER_ALL,
                    dump_type, pipe_name.c_str(), info->custom_info);
 
-  // Tells breakpad to handle breakpoint and single step exceptions.
-  // This might break JIT debuggers, but at least it will always
-  // generate a crashdump for these exceptions.
-  g_breakpad->set_handle_debug_exceptions(true);
+  if (!g_breakpad->IsOutOfProcess()) {
+    // The out-of-process handler is unavailable.
+    ::SetEnvironmentVariable(env_vars::kNoOOBreakpad,
+                             info->process_type.c_str());
+  } else {
+    // Tells breakpad to handle breakpoint and single step exceptions.
+    // This might break JIT debuggers, but at least it will always
+    // generate a crashdump for these exceptions.
+    g_breakpad->set_handle_debug_exceptions(true);
+  }
 
   delete info;
-
   return 0;
 }
 

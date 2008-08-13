@@ -325,6 +325,22 @@ const wchar_t kStabilityPluginStats[] =
 const wchar_t kStabilityRendererHangCount[] =
     L"user_experience_metrics.stability.renderer_hang_count";
 
+// Number of times the browser has been able to register crash reporting.
+const wchar_t kStabilityBreakpadRegistrationSuccess[] =
+    L"user_experience_metrics.stability.breakpad_registration_ok";
+
+// Number of times the browser has failed to register crash reporting.
+const wchar_t kStabilityBreakpadRegistrationFail[] =
+    L"user_experience_metrics.stability.breakpad_registration_fail";
+
+// Number of times the browser has been run under a debugger.
+const wchar_t kStabilityDebuggerPresent[] =
+    L"user_experience_metrics.stability.debugger_present";
+
+// Number of times the browser has not been run under a debugger.
+const wchar_t kStabilityDebuggerNotPresent[] =
+    L"user_experience_metrics.stability.debugger_not_present";
+
 // The keys below are used for the dictionaries in the
 // kStabilityPluginStats list.
 const wchar_t kStabilityPluginPath[] = L"path";

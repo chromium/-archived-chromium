@@ -362,6 +362,18 @@ void MetricsLog::WriteStabilityElement() {
   WriteIntAttribute("rendererhangcount",
                     pref->GetInteger(prefs::kStabilityRendererHangCount));
   pref->SetInteger(prefs::kStabilityRendererHangCount, 0);
+  WriteIntAttribute("breakpadregistrationok",
+      pref->GetInteger(prefs::kStabilityBreakpadRegistrationSuccess));
+  pref->SetInteger(prefs::kStabilityBreakpadRegistrationSuccess, 0);
+  WriteIntAttribute("breakpadregistrationfail",
+      pref->GetInteger(prefs::kStabilityBreakpadRegistrationFail));
+  pref->SetInteger(prefs::kStabilityBreakpadRegistrationFail, 0);
+  WriteIntAttribute("debuggerpresent",
+                   pref->GetInteger(prefs::kStabilityDebuggerPresent));
+  pref->SetInteger(prefs::kStabilityDebuggerPresent, 0);
+  WriteIntAttribute("debuggernotpresent",
+                   pref->GetInteger(prefs::kStabilityDebuggerNotPresent));
+  pref->SetInteger(prefs::kStabilityDebuggerNotPresent, 0);
 
   // Uptime is stored as a string, since there's no int64 in Value/JSON.
   WriteAttribute("uptimesec",

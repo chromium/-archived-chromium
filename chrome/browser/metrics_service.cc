@@ -327,6 +327,13 @@ void MetricsService::RegisterPrefs(PrefService* local_state) {
   local_state->RegisterIntegerPref(prefs::kSecurityRendererOnDefaultDesktop, 0);
   local_state->RegisterIntegerPref(prefs::kStabilityRendererCrashCount, 0);
   local_state->RegisterIntegerPref(prefs::kStabilityRendererHangCount, 0);
+  local_state->RegisterIntegerPref(prefs::kStabilityBreakpadRegistrationFail,
+                                   0);
+  local_state->RegisterIntegerPref(prefs::kStabilityBreakpadRegistrationSuccess,
+                                   0);
+  local_state->RegisterIntegerPref(prefs::kStabilityDebuggerPresent, 0);
+  local_state->RegisterIntegerPref(prefs::kStabilityDebuggerNotPresent, 0);
+
   local_state->RegisterDictionaryPref(prefs::kProfileMetrics);
   local_state->RegisterIntegerPref(prefs::kNumBookmarksOnBookmarkBar, 0);
   local_state->RegisterIntegerPref(prefs::kNumFoldersOnBookmarkBar, 0);
@@ -486,6 +493,20 @@ void MetricsService::RecordCompletedSessionEnd() {
   RecordBooleanPrefValue(prefs::kStabilitySessionEndCompleted, true);
 }
 
+void MetricsService:: RecordBreakpadRegistration(bool success) {
+  if (!success) 
+    IncrementPrefValue(prefs::kStabilityBreakpadRegistrationFail);
+  else
+    IncrementPrefValue(prefs::kStabilityBreakpadRegistrationSuccess);
+}
+
+void MetricsService::RecordBreakpadHasDebugger(bool has_debugger) {
+  if (!has_debugger)
+    IncrementPrefValue(prefs::kStabilityDebuggerNotPresent);
+  else
+    IncrementPrefValue(prefs::kStabilityDebuggerPresent);  
+}
+
 //------------------------------------------------------------------------------
 // private methods
 //------------------------------------------------------------------------------
@@ -517,23 +538,17 @@ void MetricsService::InitializeMetricsState() {
   DCHECK(done);
 
   // Stability bookkeeping
-  int launches = pref->GetInteger(prefs::kStabilityLaunchCount);
-  pref->SetInteger(prefs::kStabilityLaunchCount, launches + 1);
+  IncrementPrefValue(prefs::kStabilityLaunchCount);
 
-  bool exited_cleanly = pref->GetBoolean(prefs::kStabilityExitedCleanly);
-  if (!exited_cleanly) {
-    int crashes = pref->GetInteger(prefs::kStabilityCrashCount);
-    pref->SetInteger(prefs::kStabilityCrashCount, crashes + 1);
+  if (!pref->GetBoolean(prefs::kStabilityExitedCleanly)) {
+    IncrementPrefValue(prefs::kStabilityCrashCount);
   }
+
+  // This will be set to 'true' if we exit cleanly.
   pref->SetBoolean(prefs::kStabilityExitedCleanly, false);
 
-  bool shutdown_cleanly =
-      pref->GetBoolean(prefs::kStabilitySessionEndCompleted);
-  if (!shutdown_cleanly) {
-    int incomplete_session_end_count = pref->GetInteger(
-        prefs::kStabilityIncompleteSessionEndCount);
-    pref->SetInteger(prefs::kStabilityIncompleteSessionEndCount,
-                     incomplete_session_end_count + 1);
+  if (!pref->GetBoolean(prefs::kStabilitySessionEndCompleted)) {
+    IncrementPrefValue(prefs::kStabilityIncompleteSessionEndCount);
   }
   // This is marked false when we get a WM_ENDSESSION.
   pref->SetBoolean(prefs::kStabilitySessionEndCompleted, true);
@@ -1219,11 +1234,15 @@ void MetricsService::LogLoadComplete(NotificationType type,
                                 load_details->load_time());
 }
 
+void MetricsService::IncrementPrefValue(const wchar_t* path) {
+  PrefService* pref = g_browser_process->local_state();
+  DCHECK(pref);
+  int value = pref->GetInteger(path);
+  pref->SetInteger(path, value + 1);
+}
+
 void MetricsService::LogLoadStarted() {
-  PrefService* prefs = g_browser_process->local_state();
-  DCHECK(prefs);
-  int loads = prefs->GetInteger(prefs::kStabilityPageLoadCount);
-  prefs->SetInteger(prefs::kStabilityPageLoadCount, loads + 1);
+  IncrementPrefValue(prefs::kStabilityPageLoadCount);
   // We need to save the prefs, as page load count is a critical stat, and
   // it might be lost due to a crash :-(.
 }
@@ -1231,27 +1250,18 @@ void MetricsService::LogLoadStarted() {
 void MetricsService::LogRendererInSandbox(bool on_sandbox_desktop) {
   PrefService* prefs = g_browser_process->local_state();
   DCHECK(prefs);
-  if (on_sandbox_desktop) {
-    int count = prefs->GetInteger(prefs::kSecurityRendererOnSboxDesktop);
-    prefs->SetInteger(prefs::kSecurityRendererOnSboxDesktop, count + 1);
-  } else {
-    int count = prefs->GetInteger(prefs::kSecurityRendererOnDefaultDesktop);
-    prefs->SetInteger(prefs::kSecurityRendererOnDefaultDesktop, count + 1);
-  }
+  if (on_sandbox_desktop)
+    IncrementPrefValue(prefs::kSecurityRendererOnSboxDesktop);
+  else
+    IncrementPrefValue(prefs::kSecurityRendererOnDefaultDesktop);
 }
 
 void MetricsService::LogRendererCrash() {
-  PrefService* prefs = g_browser_process->local_state();
-  DCHECK(prefs);
-  int crashes = prefs->GetInteger(prefs::kStabilityRendererCrashCount);
-  prefs->SetInteger(prefs::kStabilityRendererCrashCount, crashes + 1);
+  IncrementPrefValue(prefs::kStabilityRendererCrashCount);
 }
 
 void MetricsService::LogRendererHang() {
-  PrefService* prefs = g_browser_process->local_state();
-  DCHECK(prefs);
-  int hangs = prefs->GetInteger(prefs::kStabilityRendererHangCount);
-  prefs->SetInteger(prefs::kStabilityRendererHangCount, hangs + 1);
+  IncrementPrefValue(prefs::kStabilityRendererHangCount);
 }
 
 void MetricsService::LogPluginChange(NotificationType type,

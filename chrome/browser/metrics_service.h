@@ -116,6 +116,14 @@ class MetricsService : public NotificationObserver,
   // that session end was successful.
   void RecordCompletedSessionEnd();
 
+  // Saves in the preferences if the crash report registration was successful.
+  // This count is eventually send via UMA logs.
+  void RecordBreakpadRegistration(bool success);
+
+  // Saves in the preferences if the browser is running under a debugger.
+  // This count is eventually send via UMA logs.
+  void RecordBreakpadHasDebugger(bool has_debugger);
+
   // Callback to let us knew that the plugin list is warmed up.
   void OnGetPluginListTaskComplete();
 
@@ -225,6 +233,9 @@ class MetricsService : public NotificationObserver,
   void LogWindowChange(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details);
+
+  // Reads, increments and then sets the specified integer preference.
+  void IncrementPrefValue(const wchar_t* path);
 
   // Records a renderer process crash.
   void LogRendererCrash();

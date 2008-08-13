@@ -115,6 +115,11 @@ extern const wchar_t kStabilityLastTimestampSec[];
 extern const wchar_t kStabilityUptimeSec[];
 extern const wchar_t kStabilityRendererHangCount[];
 
+extern const wchar_t kStabilityBreakpadRegistrationSuccess[];
+extern const wchar_t kStabilityBreakpadRegistrationFail[];
+extern const wchar_t kStabilityDebuggerPresent[];
+extern const wchar_t kStabilityDebuggerNotPresent[];
+
 extern const wchar_t kSecurityRendererOnSboxDesktop[];
 extern const wchar_t kSecurityRendererOnDefaultDesktop[];
 
