@@ -187,10 +187,10 @@ env_tests.Prepend(
     LIBS = [
         'base',
         'base_gfx',
-        'skia',
-        'libpng',
         'gtest',
         'icuuc',
+        'libpng',
+        'skia',
         'zlib',
     ]
 )
@@ -233,12 +233,6 @@ if env['PLATFORM'] == 'posix':
   env_tests['LIBS'].remove('libpng')
   env_tests['LIBS'].remove('zlib')
 
-if env['PLATFORM'] == 'win32':
-  env_tests.ChromeTestProgram(['debug_message.exe',
-                     'debug_message.ilk',
-                     'debug_message.pdb'],
-                    ['debug_message.cc'])
-
 # These test files work on *all* platforms; tests that don't work
 # cross-platform live below.
 test_files = [
@@ -262,6 +256,11 @@ test_files = [
 if env['PLATFORM'] == 'win32':
   # These tests aren't really Windows-specific, they're just here until
   # we have the port versions working.
+  env_tests.ChromeTestProgram(['debug_message.exe',
+                               'debug_message.ilk',
+                               'debug_message.pdb'],
+                              ['debug_message.cc'])
+
   test_files.extend([
     'clipboard_unittest.cc',
     'command_line_unittest.cc',
