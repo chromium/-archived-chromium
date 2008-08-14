@@ -136,7 +136,20 @@ env.AddMethod(ChromeTestProgram, "ChromeTestProgram")
 
 def ChromeStaticLibrary(env, *args, **kw):
     result = env.StaticLibrary(*args, **kw)
-    env.Install('$LIBS_DIR', result)
+    if env['PLATFORM'] == 'win32':
+      # TODO(sgk):
+      # We'd like to do this with env.Install() like we do on other systems,
+      # but this causes problems on Windows when the Python copy of the file
+      # in one thread prevents a linker spawned by another thread from
+      # opening the copied .lib, despite the fact that the copy has
+      # successfully concluded before the spawn occurs.  Work around the
+      # underlying problem (whatever it is) by calling the external Windows
+      # xcopy utility.
+      env.Command('$LIBS_DIR/${RESULT.name}', '$RESULT',
+                  "xcopy /q /y $SOURCE ${TARGET.dir}",
+                  RESULT=result[0])
+    else:
+      env.Install('$LIBS_DIR', result)
     return result
 env.AddMethod(ChromeStaticLibrary, "ChromeStaticLibrary")
 
@@ -290,6 +303,8 @@ if env['PLATFORM'] == 'win32':
   env['ENV']['PROGRAMFILES'] = os.environ['PROGRAMFILES']
   env['ENV']['SystemDrive'] = os.environ['SystemDrive']
   env['ENV']['USERPROFILE'] = os.environ['USERPROFILE']
+
+  env.AppendENVPath('PATH', ';C:\\WINDOWS\\system32')
 
 elif env['PLATFORM'] == 'posix':
 
