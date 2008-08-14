@@ -40,7 +40,6 @@
 #pragma warning(push, 0)
 #include "CString.h"
 #pragma warning(pop)
-#include "windows.h"
 
 #include "platform.h"
 

@@ -31,31 +31,43 @@ rm -f $WebCoreObjDir/definitions.h 2> /dev/null
 
 if [[ "$2" = "kjs" ]]
 then
+  SubDir=/kjs
   cat > $WebCoreObjDir/definitions.h << -=EOF=-
 #define WTF_USE_JAVASCRIPTCORE_BINDINGS 1
 #define WTF_USE_NPOBJECT 1
 -=EOF=-
 else 
+  SubDir=/v8
   cat > $WebCoreObjDir/definitions.h << -=EOF=-
 #define WTF_USE_V8_BINDING 1
 #define WTF_USE_NPOBJECT 1
 -=EOF=-
 fi
 
-pwd
-cat ../../config.h.in $WebCoreObjDir/definitions.h > $WebCoreObjDir/config.h.new
-if [[ "${OS}" = "Windows_NT" ]] || \
-   ! diff -q $WebCoreObjDir/config.h.new $WebCoreObjDir/config.h >& /dev/null
+if [[ "${OS}" = "Windows_NT" ]]
 then
-  mv $WebCoreObjDir/config.h.new $WebCoreObjDir/config.h
-else
-  rm $WebCoreObjDir/config.h.new
+  SubDir=
 fi
+
+mkdir -p "${WebCoreObjDir}${SubDir}"
+
+pwd
+cat ../../config.h.in $WebCoreObjDir/definitions.h > $WebCoreObjDir$SubDir/config.h.new
+if [[ "${OS}" = "Windows_NT" ]] || \
+   ! diff -q $WebCoreObjDir$SubDir/config.h.new $WebCoreObjDir$SubDir/config.h >& /dev/null
+then
+  mv $WebCoreObjDir$SubDir/config.h.new $WebCoreObjDir$SubDir/config.h
+else
+  rm $WebCoreObjDir$SubDir/config.h.new
+fi
+
+rm -f "${WebCoreObjDir}/definitions.h"
 
 #
 # Step 2: Populate the JavaScriptHeaders based on the selected
 #         JavaScript engine.
 #
+JSHeadersDir="${JSHeadersDir}${SubDir}"
 mkdir -p $JSHeadersDir
 JavaScriptCoreSrcDir="../../../third_party/WebKit/JavaScriptCore"
 if [[ "$2" = "kjs" ]]

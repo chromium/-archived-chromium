@@ -433,7 +433,7 @@ END
 
   if ($isPodType) {
     push(@implContentDecls, <<END);
-    V8SVGPODTypeWrapper<$implClassName>* imp_wrapper = V8Proxy::FastToNativeObject<V8SVGPODTypeWrapper<$implClassName>>(V8ClassIndex::$classIndex, info.Holder());
+    V8SVGPODTypeWrapper<$implClassName>* imp_wrapper = V8Proxy::FastToNativeObject<V8SVGPODTypeWrapper<$implClassName> >(V8ClassIndex::$classIndex, info.Holder());
     $implClassName imp_instance = *imp_wrapper;
     $implClassName* imp = &imp_instance;
 END
@@ -572,7 +572,7 @@ sub GenerateNormalAttrSetter
   if ($isPodType) {
     $implClassName = GetNativeType($implClassName);
     $implIncludes{"V8SVGPODTypeWrapper.h"} = 1;
-    push(@implContentDecls, "    V8SVGPODTypeWrapper<$implClassName>* wrapper = V8Proxy::FastToNativeObject<V8SVGPODTypeWrapper<$implClassName>>(V8ClassIndex::$classIndex, info.Holder());\n");
+    push(@implContentDecls, "    V8SVGPODTypeWrapper<$implClassName>* wrapper = V8Proxy::FastToNativeObject<V8SVGPODTypeWrapper<$implClassName> >(V8ClassIndex::$classIndex, info.Holder());\n");
     push(@implContentDecls, "    $implClassName imp_instance = *wrapper;\n");
     push(@implContentDecls, "    $implClassName* imp = &imp_instance;\n");
 
@@ -688,7 +688,7 @@ sub GenerateFunctionCallback
 
   if ($codeGenerator->IsPodType($implClassName)) {
     my $nativeClassName = GetNativeType($implClassName);
-    push(@implContentDecls, "    V8SVGPODTypeWrapper<$nativeClassName>* imp_wrapper = V8Proxy::FastToNativeObject<V8SVGPODTypeWrapper<$nativeClassName>>(V8ClassIndex::$classIndex, args.Holder());\n");
+    push(@implContentDecls, "    V8SVGPODTypeWrapper<$nativeClassName>* imp_wrapper = V8Proxy::FastToNativeObject<V8SVGPODTypeWrapper<$nativeClassName> >(V8ClassIndex::$classIndex, args.Holder());\n");
     push(@implContentDecls, "    $nativeClassName imp_instance = *imp_wrapper;\n");
     push(@implContentDecls, "    $nativeClassName* imp = &imp_instance;\n");
   } else {
@@ -1134,7 +1134,7 @@ sub GenerateFunctionCallString()
   # SVG lists functions that return POD types require special handling
   if (IsSVGListTypeNeedingSpecialHandling($implClassName) && IsSVGListMethod($name) && $returnsPodType) {
     $returnsListItemPodType = 1;
-    $result .= $indent . "SVGList<RefPtr<SVGPODListItem<$nativeReturnType>>>* listImp = imp;\n";
+    $result .= $indent . "SVGList<RefPtr<SVGPODListItem<$nativeReturnType> > >* listImp = imp;\n";
     $functionString = "listImp->${name}(";
   } 
   
@@ -1196,7 +1196,7 @@ sub GenerateFunctionCallString()
       $indent . GetNativeType($returnType, 0) . " result = *imp;\n" .
       $indent . "$functionString;\n";
   } elsif ($returnsListItemPodType) {
-    $result .= $indent . "RefPtr<SVGPODListItem<$nativeReturnType>> result = $functionString;\n";
+    $result .= $indent . "RefPtr<SVGPODListItem<$nativeReturnType> > result = $functionString;\n";
   } else {
     $result .= $indent . $nativeReturnType . " result = $functionString;\n";
   }
@@ -1502,7 +1502,7 @@ sub JSValueToNative
         $implIncludes{"V8SVGPODTypeWrapper.h"} = 1;
 
         # TODO(jhass): perform type checking like others???
-        return "*V8Proxy::ToNativeObject<V8SVGPODTypeWrapper<${nativeType}>>(V8ClassIndex::${classIndex}, $value)"
+        return "*V8Proxy::ToNativeObject<V8SVGPODTypeWrapper<${nativeType}> >(V8ClassIndex::${classIndex}, $value)"
       }
       
       $implIncludes{"V8${type}.h"} = 1;
