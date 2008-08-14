@@ -31,8 +31,8 @@
 #include "base/test_suite.h"
 
 int main(int argc, char** argv) {
-  // Setup an AtExitManager so Singleton objects will be destructed.
-  base::AtExitManager at_exit_manager;  
+  // Set up an AtExitManager so Singleton objects will be destroyed.
+  base::AtExitManager at_exit_manager;
 
   CommandLine::SetArgcArgv(argc, argv);
 

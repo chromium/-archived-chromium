@@ -33,6 +33,13 @@
 
 namespace {
 
+// Don't test the global AtExitManager, because asking it to process its
+// AtExit callbacks can ruin the global state that other tests may depend on.
+class ShadowingAtExitManager : public base::AtExitManager {
+ public:
+  ShadowingAtExitManager() : AtExitManager(true) {}
+};
+
 int g_test_counter_1 = 0;
 int g_test_counter_2 = 0;
 
@@ -56,6 +63,8 @@ void ExpectCounter1IsZero() {
 }  // namespace
 
 TEST(AtExitTest, Basic) {
+  ShadowingAtExitManager shadowing_at_exit_manager;
+
   ZeroTestCounters();
   base::AtExitManager::RegisterCallback(&IncrementTestCounter1);
   base::AtExitManager::RegisterCallback(&IncrementTestCounter2);
@@ -69,6 +78,8 @@ TEST(AtExitTest, Basic) {
 }
 
 TEST(AtExitTest, LIFOOrder) {
+  ShadowingAtExitManager shadowing_at_exit_manager;
+
   ZeroTestCounters();
   base::AtExitManager::RegisterCallback(&IncrementTestCounter1);
   base::AtExitManager::RegisterCallback(&ExpectCounter1IsZero);
