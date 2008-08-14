@@ -72,7 +72,7 @@
 <translation id="1426410128494586442">Так</translation>
 <translation id="4250680216510889253">Ні</translation>
 <translation id="1375198122581997741">Про версію</translation>
-<translation id="969892804517981540">Офіційна конструкція</translation>
+<translation id="969892804517981540">Розробка</translation>
 <translation id="988159990683914416">Конструкція розробника</translation>
 <translation id="610886263749567451">Сповіщення JavaScript</translation>
 <translation id="3433151241941574321">Додати сторінку</translation>
@@ -513,7 +513,7 @@
 <translation id="7615851733760445951">&lt;cookie-файл не вибрано&gt;</translation>
 <translation id="8940262601983387853">Ім’я cookie-файлу</translation>
 <translation id="5264618369089706215">Пошуки</translation>
-<translation id="3810973564298564668">Керування</translation>
+<translation id="3810973564298564668">Змінити</translation>
 <translation id="2559292239863842334">Тут відобразяться вікна пошуку, які ви найчастіше використовуєте на інших сайтах.</translation>
 <translation id="8413126021676339697">Показати повну історію</translation>
 <translation id="3549657413697417275">Пошук в історії</translation>
@@ -686,8 +686,8 @@
 <translation id="213581405366815208">Ви дійсно бажаєте скасувати інсталяцію Google Chrome? Якщо бажаєте продовжити пізніше, відкрийте Chrome із папки &quot;Програми&quot; в меню &quot;Пуск&quot;.</translation>
 <translation id="5941830788786076944">Зробити Google Chrome переглядачем за промовчанням</translation>
 <translation id="7001386529596391893">Створити ярлики Google Chrome у таких розташуваннях:</translation>
-<translation id="480990236307250886">Відкрити сторінку home</translation>
-<translation id="6514771739083339959">Сторінка home</translation>
+<translation id="480990236307250886">Відкрити домашню сторінку</translation>
+<translation id="6514771739083339959">Домашня сторінка</translation>
 <translation id="1665770420914915777">Скористатися сторінкою &quot;Нова вкладка&quot;</translation>
 <translation id="4726901538158498735">Стандартний пошук:</translation>
 <translation id="2231233239095101917">Сценарій цієї сторінки зайняв велику кількість пам'яті. Перезавантажте програму, щоб знову запустити сценарії.</translation>
@@ -731,7 +731,7 @@
 <translation id="3065140616557457172">Набирайте слова для пошуку або вводьте URL для переходу – все чудово працює.</translation>
 <translation id="4178055285485194276">Після запуску:</translation>
 <translation id="1154228249304313899">Відкрити цю сторінку:</translation>
-<translation id="3761000923495507277">Показати кнопку &quot;Home&quot; на панелі інструментів</translation>
+<translation id="3761000923495507277">Показати кнопку “Домашня сторінка” на панелі інструментів</translation>
 <translation id="5291303148298143069">Повідомляти, коли спливаючі вікна заблоковані</translation>
 <translation id="3383487468758466563">Шрифти та мови:</translation>
 <translation id="1137776625614346046">Область &quot;Часто відвідувані&quot; містить веб-сайти, які найчастіше використовуються. Після використання Google Chrome протягом певного часу часто відвідувані сайти відображатимуться щоразу, коли відкриватиметься нова вкладка. Докладніше про цю та інші функції можна дізнатися на сторінці <ph name="BEGIN_LINK"/>Початок роботи<ph name="END_LINK"/>.</translation>

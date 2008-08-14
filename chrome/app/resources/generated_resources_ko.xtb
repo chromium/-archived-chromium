@@ -220,7 +220,7 @@
 <translation id="4035758313003622889">작업 관리자(&amp;T)</translation>
 <translation id="6996505290426962909">북마크 및 설정 가져오기(&amp;I)</translation>
 <translation id="5516565854418269276">북마크바 항상 표시(&amp;A)</translation>
-<translation id="1882575713358235784">인터넷 사용정보 삭제...(&amp;d)</translation>
+<translation id="1882575713358235784">인터넷 사용정보 삭제...(&amp;D)</translation>
 <translation id="4789872672210757069"><ph name="PRODUCT_NAME"/> 정보</translation>
 <translation id="6978121630131642226">검색엔진</translation>
 <translation id="5327248766486351172">이름</translation>
@@ -521,7 +521,7 @@
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
 <translation id="7227780179130368205">악성코드가 감지되었습니다.</translation>
 <translation id="6181769708911894002">경고: 이 사이트를 방문하는 것이 컴퓨터에 해를 줄 수 있습니다.</translation>
-<translation id="3635774677705394651">&lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt;의 웹사이트가 멀웨어를 호스팅하는 것으로 보입니다. 멀웨어는 컴퓨터에 해를 입히거나 사용자의 동의 없이 컴퓨터를 조작할 수 있는 악성 소프트웨어입니다. 멀웨어를 호스팅하는 사이트를 방문하는 것만으로도 컴퓨터가 감염될 수 있습니다.</translation>
+<translation id="3635774677705394651">&lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt;의 웹사이트가 악성코드를 호스팅하는 것으로 보입니다. 악성코드는 컴퓨터에 해를 입히거나 사용자의 동의 없이 컴퓨터를 조작할 수 있는 소프트웨어입니다. 악성코드를 호스팅하는 사이트를 방문하는 것만으로도 컴퓨터가 감염될 수 있습니다.</translation>
 <translation id="644038709730536388">유해한 온라인 소프트웨어로부터 컴퓨터를 보호하는 방법에 대해 자세히 알아보세요.</translation>
 <translation id="9012607008263791152">이 사이트를 방문하는 것이 내 컴퓨터에 해를 줄 수 있음을 잘 알고 있습니다.</translation>
 <translation id="8831104962952173133">피싱 시도가 감지되었습니다.</translation>
@@ -644,7 +644,7 @@
 <translation id="7070442422749762650">&lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;의 웹페이지가         너무 많은 리디렉션으로 이어집니다.  사이트의 쿠키를 삭제하면 문제가 해결될 수도 있습니다.  쿠키를 삭제해도        문제가 해결되지 않으면 컴퓨터 문제가 아닌 서버 구성 문제일 수        있습니다.</translation>
 <translation id="1635247229519770914">설치 계속하기</translation>
 <translation id="3191701650141760424">설치 종료</translation>
-<translation id="7451556917824271099">&lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt;의 웹사이트에 멀웨어를 호스팅하는 것으로 보이는 &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt;의 요소가 포함되어 있습니다. 멀웨어는 컴퓨터에 해를 입히거나 사용자의 동의 없이 컴퓨터를 조작할 수 있는 악성 소프트웨어입니다. 멀웨어를 포함하는 사이트에 방문하는 것만으로도 컴퓨터가 감염될 수 있습니다.</translation>
+<translation id="7451556917824271099">&lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt;의 웹사이트에 악성코드를 호스팅하는 것으로 보이는 &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt;의 요소가 포함되어 있습니다. 악성코드는 컴퓨터에 해를 입히거나 사용자의 동의 없이 컴퓨터를 조작할 수 있는 소프트웨어입니다. 악성코드를 포함하는 사이트에 방문하는 것만으로도 컴퓨터가 감염될 수 있습니다.</translation>
 <translation id="5048040498971143039">'<ph name="SEARCH_STRING"/>'에 대한 검색 결과</translation>
 <translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/>/<ph name="DOWNLOAD_TOTAL"/>, <ph name="TIME_LEFT"/></translation>
 <translation id="4692623383562244444">검색 엔진</translation>

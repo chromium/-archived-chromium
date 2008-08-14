@@ -467,20 +467,20 @@
 <translation id="8986267729801483565">Lokasyon sa pag-download:</translation>
 <translation id="8978540966440585844">Br&amp;owse...</translation>
 <translation id="7754704193130578113">Magtanong kung saan masi-save ang bawat file bago ang pag-download</translation>
-<translation id="724208122063442954">Napili ka upang buksan ang tiyak na mga uri ng file na awtomatiko pagkatapos ng pag-download. Maaari mong limasin ang mga setting na ito sa gayun ang pag-download ng mga file ay hindi awtomatikong magbubukas.</translation>
+<translation id="724208122063442954">Napili mong awtomatikong buksan ang ilang uri ng files pagkatapos mag-download. Maaari mong alisin ang mga setting na ito upang ang mga na-download na files ay hindi awtomatikong magbubukas.</translation>
 <translation id="6451650035642342749">Limasin ang mga setting ng auto-opening</translation>
 <translation id="3702416240431471861">Google Gears:</translation>
 <translation id="5452592754878692665">Baguhin ang mga setting sa Google Gears</translation>
-<translation id="5384051050210890146">Pumili ng mapagkakatiwalaang mga sertipiko sa SSL.</translation>
+<translation id="5384051050210890146">Pumili ng mapagkakatiwalaang SSL na sertipiko</translation>
 <translation id="1521442365706402292">Pamahalaan ang mga sertipiko</translation>
 <translation id="7767960058630128695">Mga Password:</translation>
-<translation id="6644512095122093795">Nag-aalok na mag-save ng mga password</translation>
+<translation id="6644512095122093795">Mag-alok na mag-save ng mga password</translation>
 <translation id="2815448242176260024">Huwag mag-save ng mga password</translation>
 <translation id="6222380584850953107">Ipakita ang mga naka-save na password</translation>
-<translation id="3675321783533846350">Mag-set up ng isang proxy upang kumunekta sa network.</translation>
+<translation id="3675321783533846350">Mag-set up ng proxy para kumunekta sa network</translation>
 <translation id="4172706149171596436">Baguhin ang mga proxy setting</translation>
 <translation id="3478477629095836699">Mga setting sa cookie:</translation>
-<translation id="5657156137487675418">Pinahintulutan ang lahat ng cookies</translation>
+<translation id="5657156137487675418">Pahintulutan ang lahat ng cookies</translation>
 <translation id="6805291412499505360">Paghigpitan kung paano maaaring magamit ang third party cookies</translation>
 <translation id="5821894118254011366">Ganap na naharangan ang thrid party cookies</translation>
 <translation id="6883611015375728278">Harangan ang lahat ng cookies</translation>
@@ -566,7 +566,7 @@
 <translation id="6325525973963619867">Nabigo</translation>
 <translation id="5958418293370246440"><ph name="SAVED_FILES"/> / <ph name="TOTAL_FILES"/> mga file</translation>
 <translation id="1669397342410349095">Mag-ulat ng phishing website...</translation>
-<translation id="3512466011168167042">Ipinakitang mga mungkahi para sa mga error ng navigation</translation>
+<translation id="3512466011168167042">Ipakita ang mga mungkahi para sa maling navigation</translation>
 <translation id="4890855023395992542">Service URL:</translation>
 <translation id="8186012393692847636">Gumamit ng isang serbisyo sa pagmungkahi upang makatulong na makumpleto ang mga paghahanap at mga URL na nai-type sa address bar</translation>
 <translation id="8041183585493091279">Iminungkahing serbisyo ng URL:</translation>
