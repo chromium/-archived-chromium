@@ -41,12 +41,15 @@
 #include "net/http/http_chunked_decoder.h"
 
 #include "base/logging.h"
+#include "base/string_piece.h"
+#include "base/string_util.h"
 #include "net/base/net_errors.h"
 
 namespace net {
 
 HttpChunkedDecoder::HttpChunkedDecoder()
     : chunk_remaining_(0),
+      chunk_terminator_remaining_(false),
       reached_last_chunk_(false),
       reached_eof_(false) {
 }
@@ -63,66 +66,81 @@ int HttpChunkedDecoder::FilterBuf(char* buf, int buf_len) {
 
       result += num;
       buf += num;
+
+      // After each chunk's data there should be a CRLF
+      if (!chunk_remaining_)
+        chunk_terminator_remaining_ = true;
       continue;
     } else if (reached_eof_) {
       break;  // Done!
     }
 
-    // Returns bytes consumed or an error code.
-    int rv = ScanForChunkRemaining(buf, buf_len);
-    if (rv < 0)
-      return rv;
+    int bytes_consumed = ScanForChunkRemaining(buf, buf_len);
+    if (bytes_consumed < 0)
+      return bytes_consumed; // Error
 
-    buf_len -= rv;
+    buf_len -= bytes_consumed;
     if (buf_len)
-      memmove(buf, buf + rv, buf_len);
+      memmove(buf, buf + bytes_consumed, buf_len);
   }
 
   return result;
 }
 
-int HttpChunkedDecoder::ScanForChunkRemaining(char* buf, int buf_len) {
+int HttpChunkedDecoder::ScanForChunkRemaining(const char* buf, int buf_len) {
   DCHECK(chunk_remaining_ == 0);
   DCHECK(buf_len > 0);
 
-  int result = 0;
+  int bytes_consumed = 0;
 
-  char *p = static_cast<char*>(memchr(buf, '\n', buf_len));
-  if (p) {
-    *p = 0;
-    if ((p > buf) && (*(p - 1) == '\r'))  // Eliminate a preceding CR.
-      *(p - 1) = 0;
-    result = static_cast<int>(p - buf) + 1;
+  size_t index_of_lf = StringPiece(buf, buf_len).find('\n');
+  if (index_of_lf != StringPiece::npos) {
+    buf_len = static_cast<int>(index_of_lf);
+    if (buf_len && buf[buf_len - 1] == '\r')  // Eliminate a preceding CR.
+      buf_len--;
+    bytes_consumed = static_cast<int>(index_of_lf) + 1;
 
     // Make buf point to the full line buffer to parse.
     if (!line_buf_.empty()) {
-      line_buf_.append(buf);
-      buf = const_cast<char*>(line_buf_.data());
+      line_buf_.append(buf, buf_len);
+      buf = line_buf_.data();
+      buf_len = static_cast<int>(line_buf_.size());
     }
 
     if (reached_last_chunk_) {
-      if (*buf) {
+      if (buf_len) {
         DLOG(INFO) << "ignoring http trailer";
       } else {
         reached_eof_ = true;
       }
-    } else if (*buf) {
+    } else if (chunk_terminator_remaining_) {
+       if (buf_len) {
+         DLOG(ERROR) << "chunk data not terminated properly";
+         return ERR_FAILED;
+       }
+       chunk_terminator_remaining_ = false;
+    } else if (buf_len) {
       // Ignore any chunk-extensions.
-      if ((p = strchr(buf, ';')) != NULL)
-        *p = 0;
+      size_t index_of_semicolon = StringPiece(buf, buf_len).find(';');
+      if (index_of_semicolon != StringPiece::npos)
+        buf_len = static_cast<int>(index_of_semicolon);
 
-      if (!sscanf_s(buf, "%x", &chunk_remaining_)) {
-        DLOG(ERROR) << "sscanf failed parsing HEX from: " << buf;
+      if (!ParseChunkSize(buf, buf_len, &chunk_remaining_)) {
+          DLOG(ERROR) << "Failed parsing HEX from: " <<
+              std::string(buf, buf_len);
         return ERR_FAILED;
       }
 
       if (chunk_remaining_ == 0)
         reached_last_chunk_ = true;
-    }
+    } else {
+      DLOG(ERROR) << "missing chunk-size";
+      return ERR_FAILED;
+    } 
     line_buf_.clear();
   } else {
     // Save the partial line; wait for more data.
-    result = buf_len;
+    bytes_consumed = buf_len;
 
     // Ignore a trailing CR
     if (buf[buf_len - 1] == '\r')
@@ -130,7 +148,17 @@ int HttpChunkedDecoder::ScanForChunkRemaining(char* buf, int buf_len) {
 
     line_buf_.append(buf, buf_len);
   }
-  return result;
+  return bytes_consumed;
+}
+
+// static
+bool HttpChunkedDecoder::ParseChunkSize(const char* start, int len, int* out) {
+  // Be more restrictive than HexStringToInt;
+  // don't allow inputs with leading "-", "+", "0x", "0X"
+  if (StringPiece(start, len).find_first_not_of("0123456789abcdefABCDEF")!=
+      StringPiece::npos)
+    return false;
+  return HexStringToInt(std::string(start, len), out);
 }
 
 }  // namespace net

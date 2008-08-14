@@ -55,6 +55,22 @@ void RunTest(const char* inputs[], size_t num_inputs,
   EXPECT_TRUE(decoder.reached_eof() == expected_eof);
 }
 
+// Feed the inputs to the decoder, until it returns an error.
+void RunTestUntilFailure(const char* inputs[], size_t num_inputs, size_t fail_index) {
+  net::HttpChunkedDecoder decoder;
+  EXPECT_FALSE(decoder.reached_eof());
+
+  for (size_t i = 0; i < num_inputs; ++i) {
+    std::string input = inputs[i];
+    int n = decoder.FilterBuf(&input[0], static_cast<int>(input.size()));
+    if (n < 0) {
+      EXPECT_EQ(fail_index, i);
+      return;
+    }
+  }
+  FAIL(); // We should have failed on the i'th iteration of the loop.
+}
+
 }  // namespace
 
 TEST(HttpChunkedDecoderTest, Basic) {
@@ -115,4 +131,79 @@ TEST(HttpChunkedDecoderTest, Trailers) {
     "\r\n"
   };
   RunTest(inputs, arraysize(inputs), "hello", true);
+}
+
+TEST(HttpChunkedDecoderTest, TrailersUnfinished) {
+  const char* inputs[] = {
+    "5\r\nhello\r\n",
+    "0\r\n",
+    "Foo: 1\r\n"
+  };
+  RunTest(inputs, arraysize(inputs), "hello", false);
+}
+
+TEST(HttpChunkedDecoderTest, InvalidChunkSize_0X) {
+  const char* inputs[] = {
+    "0x5\r\nhello\r\n",
+    "0\r\n\r\n"
+  };
+  RunTestUntilFailure(inputs, arraysize(inputs), 0);
+}
+
+TEST(HttpChunkedDecoderTest, InvalidChunkSize_TrailingWhitespace) {
+  const char* inputs[] = {
+    "5 \r\nhello\r\n",
+    "0\r\n\r\n"
+  };
+  RunTestUntilFailure(inputs, arraysize(inputs), 0);
+}
+
+TEST(HttpChunkedDecoderTest, InvalidChunkSize_LeadingWhitespace) {
+  const char* inputs[] = {
+    " 5\r\nhello\r\n",
+    "0\r\n\r\n"
+  };
+  RunTestUntilFailure(inputs, arraysize(inputs), 0);
+}
+
+TEST(HttpChunkedDecoderTest, InvalidLeadingSeparator) {
+  const char* inputs[] = {
+    "\r\n5\r\nhello\r\n",
+    "0\r\n\r\n"
+  };
+  RunTestUntilFailure(inputs, arraysize(inputs), 0);
+}
+
+TEST(HttpChunkedDecoderTest, InvalidChunkSize_NoSeparator) {
+  const char* inputs[] = {
+    "5\r\nhello",
+    "1\r\n \r\n",
+    "0\r\n\r\n"
+  };
+  RunTestUntilFailure(inputs, arraysize(inputs), 1);
+}
+
+TEST(HttpChunkedDecoderTest, InvalidChunkSize_Negative) {
+  const char* inputs[] = {
+    "8\r\n12345678\r\n-5\r\nhello\r\n",
+    "0\r\n\r\n"
+  };
+  RunTestUntilFailure(inputs, arraysize(inputs), 0);
+}
+
+TEST(HttpChunkedDecoderTest, InvalidChunkSize_Plus) {
+  const char* inputs[] = {
+    "+5\r\nhello\r\n",
+    "0\r\n\r\n"
+  };
+  RunTestUntilFailure(inputs, arraysize(inputs), 0);
+}
+
+TEST(HttpChunkedDecoderTest, InvalidConsecutiveCRLFs) {
+  const char* inputs[] = {
+    "5\r\nhello\r\n",
+    "\r\n\r\n\r\n\r\n",
+    "0\r\n\r\n"
+  };
+  RunTestUntilFailure(inputs, arraysize(inputs), 1);
 }
