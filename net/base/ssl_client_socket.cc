@@ -760,9 +760,6 @@ int SSLClientSocket::DidCompleteHandshake() {
     return ERR_FAILED;
   }
 
-  // We expect not to have to worry about message padding.
-  DCHECK(stream_sizes_.cbBlockSize == 1);
-
   completed_handshake_ = true;
   return OK;
 }
