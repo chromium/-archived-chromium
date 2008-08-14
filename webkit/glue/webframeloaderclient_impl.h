@@ -35,6 +35,7 @@
 #pragma warning(pop)
 
 #include "googleurl/src/gurl.h"
+#include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/window_open_disposition.h"
 
 namespace WebCore {
@@ -42,7 +43,6 @@ class Frame;
 class Widget;
 }
 
-enum NavigationGesture;
 class Alt404PageResourceFetcher;
 class WebFrameImpl;
 class WebPluginContainer;
@@ -224,7 +224,7 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
 
   virtual void unloadListenerChanged();
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(__BUILDING_CHROME)
   virtual NSCachedURLResponse* willCacheResponse(WebCore::DocumentLoader*,
                                                  unsigned long identifier,
                                                  NSCachedURLResponse*) const;
