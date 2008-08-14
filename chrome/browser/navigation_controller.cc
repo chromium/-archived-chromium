@@ -256,6 +256,8 @@ void NavigationController::Destroy() {
     DCHECK(i->second);
     i->second->Cancel();
   }
+  tab_contents_collector_map_.clear();
+
 
   // Finally destroy all the tab contents.
   for (std::list<TabContents*>::iterator i = tabs_to_destroy.begin();
@@ -271,11 +273,7 @@ void NavigationController::TabContentsWasDestroyed(TabContentsType type) {
   tab_contents_map_.erase(i);
 
   // Make sure we cancel any collector for that TabContents.
-  TabContentsCollectorMap::iterator ci = tab_contents_collector_map_.find(type);
-  if (ci != tab_contents_collector_map_.end()) {
-    DCHECK(ci->second);
-    ci->second->Cancel();
-  }
+  CancelTabContentsCollection(type);
 
   // If that was the last tab to be destroyed, delete ourselves.
   if (tab_contents_map_.empty())
