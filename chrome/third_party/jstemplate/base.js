@@ -1,11 +1,7 @@
 // Copyright 2005-2006 Google Inc. All Rights Reserved.
 /**
- * @fileoverview This file contains miscellaneous basic functionality
- * used throughout the maps codebase, which may depend on functions or
- * data defined in the maps codebase. This file is not meant to be
- * used separately from the rest of the maps code.
+ * @fileoverview This file contains miscellaneous basic functionality.
  *
- * @author Multiple authors, see g4 blame.
  */
 
 /**

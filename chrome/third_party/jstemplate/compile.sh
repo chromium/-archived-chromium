@@ -7,4 +7,6 @@ OUT="jstemplate_compiled.js"
 
 # TODO(tc): We should use an open source JS compressor/compiler to reduce
 # the size of our JS code.
-cat $SRCS > $OUT
+
+# Stripping // comments is trivial, so we'll do that at least.
+cat $SRCS | grep -v '^ *//' > $OUT

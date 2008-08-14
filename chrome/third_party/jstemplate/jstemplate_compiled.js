@@ -1,11 +1,6 @@
-// Copyright 2005-2006 Google Inc. All Rights Reserved.
 /**
- * @fileoverview This file contains miscellaneous basic functionality
- * used throughout the maps codebase, which may depend on functions or
- * data defined in the maps codebase. This file is not meant to be
- * used separately from the rest of the maps code.
+ * @fileoverview This file contains miscellaneous basic functionality.
  *
- * @author Multiple authors, see g4 blame.
  */
 
 /**
@@ -22,12 +17,6 @@
  */
 function createElement(tagName, owner, opt_position, opt_size, opt_noAppend) {
   var element = ownerDocument(owner).createElement(tagName);
-  // NOTE: Firefox/1.5 makes elements visible as soon as they
-  // are inserted in the DOM. Hence, position must be set before
-  // appending the element to its parent in order to avoid it showing
-  // up transiently at the origin before placed at the right
-  // position. NOTE: I don't think that this triggers the
-  // reverse DOM insertion memory leak in IE.
   if (opt_position) {
     setPosition(element, opt_position);
   }
@@ -147,15 +136,6 @@ function appendChild(parent, child) {
  */
 function jsEval(expr) {
   try {
-    // NOTE: An alternative idiom would be:
-    //
-    //   eval('(' + expr + ')');
-    //
-    // Note that using the square brackets as below, "" evals to undefined.
-    // The alternative of using parentheses does not work when evaluating
-    // function literals in IE.
-    // e.g. eval("(function() {})") returns undefined, and not a function
-    // object, in IE.
     return eval('[' + expr + '][0]');
   } catch (e) {
     return null;
@@ -201,27 +181,14 @@ function jsExec(stmt) {
 function jsEvalWith(expr, context) {
   try {
     with (context) {
-      // See comment in jsEval.
       return eval('[' + expr + '][0]');
     }
   } catch (e) {
     return null;
   }
 }
-// Copyright 2005 Google
-//
-// Functions that handle the DOM. Partly, these merely wrap methods in
-// DOM interfaces in order to allow them to be obfuscated. Partly,
-// they wrap cross browser differences, and partly they provide
-// functionality beyond what is available directly in the DOM.
-//
-// Author: Steffen Meschkat
 
 
-// These constants will be condensed away by jscompiler, other than
-// the corresponding properties of Node. Based on
-// <http://www.w3.org/TR/2000/ REC-DOM-Level-2-Core-20001113/
-// core.html#ID-1950641247>.
 var DOM_ELEMENT_NODE = 1;
 var DOM_ATTRIBUTE_NODE = 2;
 var DOM_TEXT_NODE = 3;
@@ -266,9 +233,6 @@ function nodeGetElementById(node, elemId) {
   return null;
 }
 
-// These wrapper functions make the underlying Node methods condense
-// better: the wrapper function can be condensed by the compiler,
-// while the method cannot.
 
 /**
  * Get an attribute from the DOM.  Simple redirect, exists to compress code.
@@ -279,11 +243,6 @@ function nodeGetElementById(node, elemId) {
  */
 function domGetAttribute(node, name) {
   return node.getAttribute(name);
-  // NOTE: Neither in IE nor in Firefox, HTML DOM attributes
-  // implement namespaces. All items in the attribute collection have
-  // null localName and namespaceURI attribute values. In IE, we even
-  // encounter DIV elements that don't implement the method
-  // getAttributeNS().
 }
 
 /**
@@ -315,8 +274,6 @@ function domRemoveAttribute(node, name) {
  */
 function domCloneNode(node) {
   return node.cloneNode(true);
-  // NOTE: we never so far wanted to use cloneNode(false),
-  // hence the default.
 }
 
 
@@ -366,8 +323,6 @@ function domAddClass(node, className) {
  * @param {String} className  Class name to remove.
  */
 function domRemoveClass(node, className) {
-  // Don't touch the class name if we won't find anything to change
-  // anyway.
   var c = domClassName(node);
   if (!c || c.indexOf(className) == -1) {
     return;
@@ -552,13 +507,10 @@ function containsNode(parent, child) {
   }
   return parent == child;
 };
-// Copyright 2005-2006 Google Inc. All Rights Reserved.
 /**
- * @fileoverview This file contains javascript utility functions which
- * do not depend on anything defined elsewhere, so that this file can
- * be used completely independent of the rest of the maps codebase.
+ * @fileoverview This file contains javascript utility functions that
+ * do not depend on anything defined elsewhere.
  *
- * @author Multiple authors, see g4 blame.
  */
 
 /**
@@ -572,7 +524,6 @@ function jsLength(a) {
   return a.length;
 }
 
-// Wrappers for Math functions
 var min = Math.min;
 var max = Math.max;
 var ceil = Math.ceil;
@@ -618,8 +569,6 @@ function foreach(array, fn) {
  */
 function foreachin(object, fn, opt_all) {
   for (var i in object) {
-    // NOTE: Safari/1.3 doesn't have hasOwnProperty(). In that
-    // case, we iterate over all properties as a very lame workaround.
     if (opt_all || !object.hasOwnProperty || object.hasOwnProperty(i)) {
       fn(i, object[i]);
     }
@@ -689,10 +638,7 @@ function stringTrimRight(str) {
 function parseInt10(s) {
   return parseInt(s, 10);
 }
-// Copyright 2006 Google Inc. All rights reserved.
 /**
- * Author: Steffen Meschkat
- *
  * @fileoverview A simple formatter to project JavaScript data into
  * HTML templates. The template is edited in place. I.e. in order to
  * instantiate a template, clone it from the DOM first, and then
@@ -768,12 +714,8 @@ function JsExprContext(opt_data, opt_parent) {
    */
   me.vars_ = {};
   if (opt_parent) {
-    // If there is a parent node, inherit local variables from the
-    // parent.
     copyProperties(me.vars_, opt_parent.vars_);
   }
-  // Add the current context object as a special variable $this
-  // so it is possible to use it in expressions.
   this.vars_[VAR_this] = me.data_;
 }
 
@@ -792,8 +734,6 @@ JsExprContext.prototype.jseval = function(expr, template) {
   with (this.vars_) {
     with (this.data_) {
       try {
-        // NOTE: Since eval is a built-in function, calling
-        // eval.call(template, ...) does not set 'this' to template.
         return (function() {
           return eval('[' + expr + '][0]');
         }).call(template);
@@ -971,35 +911,16 @@ JstProcessor.prototype.jstProcess_ = function(context, template) {
     }
 
     displayDefault(template);
-    // domRemoveAttribute(template, ATT_display);
   }
 
-  // NOTE: content is a separate attribute, instead of just a
-  // special value mentioned in values, for two reasons: (1) it is
-  // fairly common to have only mapped content, and writing
-  // content="expr" is shorter than writing values="content:expr", and
-  // (2) the presence of content actually terminates traversal, and we
-  // need to check for that. Display is a separate attribute for a
-  // reason similar to the second, in that its presence *may*
-  // terminate traversal.
 
   var values = domGetAttribute(template, ATT_values);
   if (values) {
-    // domRemoveAttribute(template, ATT_values);
     me.jstValues_(context, template, values);
   }
 
-  // Evaluate expressions immediately. Useful for hooking callbacks
-  // into jstemplates.
-  //
-  // NOTE: Evaluation order is sometimes significant, e.g.  in
-  // map_html_addressbook_template.tpl, the expression evaluated in
-  // jseval relies on the values set in jsvalues, so it needs to be
-  // evaluated *after* jsvalues. TODO: This is quite arbitrary,
-  // it would be better if this would have more necessity to it.
   var expressions = domGetAttribute(template, ATT_eval);
   if (expressions) {
-    // See NOTE at top of jstValues.
     foreach(expressions.split(/\s*;\s*/), function(expression) {
       expression = stringTrim(expression);
       if (jsLength(expression)) {
@@ -1010,14 +931,10 @@ JstProcessor.prototype.jstProcess_ = function(context, template) {
 
   var content = domGetAttribute(template, ATT_content);
   if (content) {
-    // domRemoveAttribute(template, ATT_content);
     me.jstContent_(context, template, content);
 
   } else {
     var childnodes = [];
-    // NOTE: We enqueue the processing of each child via
-    // enqueue_(), before processing any one of them.  This means
-    // that any newly generated children will be ignored (as desired).
     for (var i = 0; i < jsLength(template.childNodes); ++i) {
       if (template.childNodes[i].nodeType == DOM_ELEMENT_NODE) {
       me.enqueue_(
@@ -1052,9 +969,6 @@ JstProcessor.prototype.jstSelect_ = function(context, template, select) {
   var value = context.jseval(select, template);
   domRemoveAttribute(template, ATT_select);
 
-  // Enable reprocessing: if this template is reprocessed, then only
-  // fill the section instance here. Otherwise do the cardinal
-  // processing of a new template.
   var instance = domGetAttribute(template, ATT_instance);
   var instance_last = false;
   if (instance) {
@@ -1066,11 +980,6 @@ JstProcessor.prototype.jstSelect_ = function(context, template, select) {
     }
   }
 
-  // NOTE: value instanceof Array is occasionally false for
-  // arrays, seen in Firefox. Thus we recognize an array as an object
-  // which is not null that has a length property. Notice that this
-  // also matches input data with a length property, so this property
-  // name should be avoided in input data.
   var multiple = (value !== null &&
                   typeof value == 'object' &&
                   typeof value.length == 'number');
@@ -1078,8 +987,6 @@ JstProcessor.prototype.jstSelect_ = function(context, template, select) {
 
   if (multiple) {
     if (multiple_empty) {
-      // For an empty array, keep the first template instance and mark
-      // it last. Remove all other template instances.
       if (!instance) {
         domSetAttribute(template, ATT_select, select);
         domSetAttribute(template, ATT_instance, '*0');
@@ -1090,20 +997,6 @@ JstProcessor.prototype.jstSelect_ = function(context, template, select) {
 
     } else {
       displayDefault(template);
-      // For a non empty array, create as many template instances as
-      // are needed. If the template is first processed, as many
-      // template instances are needed as there are values in the
-      // array. If the template is reprocessed, new template instances
-      // are only needed if there are more array values than template
-      // instances. Those additional instances are created by
-      // replicating the last template instance. NOTE: If the
-      // template is first processed, there is no jsinstance
-      // attribute. This is indicated by instance === null, except in
-      // opera it is instance === "". Notice also that the === is
-      // essential, because 0 == "", presumably via type coercion to
-      // boolean. For completeness, in case any browser returns
-      // undefined and not null for getAttribute of nonexistent
-      // attributes, we also test for === undefined.
       if (instance === null || instance === "" || instance === undefined ||
           (instance_last && instance < jsLength(value) - 1)) {
         var templatenodes = [];
@@ -1113,10 +1006,6 @@ JstProcessor.prototype.jstSelect_ = function(context, template, select) {
           templatenodes.push(node);
           domInsertBefore(node, template);
         }
-        // Push the originally present template instance last to keep
-        // the order aligned with the DOM order, because the newly
-        // created template instances are inserted *before* the
-        // original instance.
         templatenodes.push(template);
 
         for (var i = 0; i < jsLength(templatenodes); ++i) {
@@ -1203,9 +1092,6 @@ function postProcessSingle_(template, select) {
  * processed.
  */
 JstProcessor.prototype.jstValues_ = function(context, template, valuesStr) {
-  // TODO: It is insufficient to split the values by simply
-  // finding semi-colons, as the semi-colon may be part of a string constant
-  // or escaped. This needs to be fixed.
   var values = valuesStr.split(/\s*;\s*/);
   for (var i = 0; i < jsLength(values); ++i) {
     var colon = values[i].indexOf(':');
@@ -1216,21 +1102,13 @@ JstProcessor.prototype.jstValues_ = function(context, template, valuesStr) {
     var value = context.jseval(values[i].substr(colon + 1), template);
 
     if (label.charAt(0) == '$') {
-      // A jsvalues entry whose name starts with $ sets a local
-      // variable.
       context.setVariable(label, value);
 
     } else if (label.charAt(0) == '.') {
-      // A jsvalues entry whose name starts with . sets a property
-      // of the current template node.
       template[label.substr(1)] = value;
 
     } else if (label) {
-      // Any other jsvalues entry sets an attribute of the current
-      // template node.
       if (typeof value == 'boolean') {
-        // Handle boolean values that are set as attributes specially,
-        // according to the XML/HTML convention.
         if (value) {
           domSetAttribute(template, label, label);
         } else {
@@ -1259,8 +1137,6 @@ JstProcessor.prototype.jstValues_ = function(context, template, valuesStr) {
  */
 JstProcessor.prototype.jstContent_ = function(context, template, content) {
   var value = '' + context.jseval(content, template);
-  // Prevent flicker when refreshing a template and the value doesn't
-  // change.
   if (template.innerHTML == value) {
     return;
   }

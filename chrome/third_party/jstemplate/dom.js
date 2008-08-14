@@ -4,8 +4,6 @@
 // DOM interfaces in order to allow them to be obfuscated. Partly,
 // they wrap cross browser differences, and partly they provide
 // functionality beyond what is available directly in the DOM.
-//
-// Author: Steffen Meschkat
 
 
 // These constants will be condensed away by jscompiler, other than

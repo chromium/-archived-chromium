@@ -1,10 +1,8 @@
 // Copyright 2005-2006 Google Inc. All Rights Reserved.
 /**
- * @fileoverview This file contains javascript utility functions which
- * do not depend on anything defined elsewhere, so that this file can
- * be used completely independent of the rest of the maps codebase.
+ * @fileoverview This file contains javascript utility functions that
+ * do not depend on anything defined elsewhere.
  *
- * @author Multiple authors, see g4 blame.
  */
 
 /**

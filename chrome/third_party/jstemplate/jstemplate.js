@@ -1,7 +1,5 @@
 // Copyright 2006 Google Inc. All rights reserved.
 /**
- * Author: Steffen Meschkat
- *
  * @fileoverview A simple formatter to project JavaScript data into
  * HTML templates. The template is edited in place. I.e. in order to
  * instantiate a template, clone it from the DOM first, and then
