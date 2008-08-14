@@ -18,19 +18,19 @@
 <translation id="5944544982112848342">2048（高强度）</translation>
 <translation id="2846343701378493991">1024（中等强度）</translation>
 <translation id="4611115858363067980"><ph name="FILENAME"/><ph name="WIDTH"/>×<ph name="HEIGHT"/></translation>
-<translation id="2965480764085142436"><ph name="PLUGIN"/></translation>
+<translation id="2965480764085142436"><ph name="PLUGIN"/> 外掛程式尚未安装</translation>
 <translation id="4838490908464673667">未安装所需插件</translation>
 <translation id="3600343118165084788">点击此处下载插件。</translation>
 <translation id="8281246460978372009">安装插件后，点击此处刷新</translation>
 <translation id="679352192834563463">未找到显示此内容的插件</translation>
 <translation id="8662565117025751661">正在下载插件...</translation>
 <translation id="3771786644471114952">获取插件</translation>
-<translation id="1275511093094545429"><ph name="PLUGIN"/></translation>
+<translation id="1275511093094545429">需要 <ph name="PLUGIN"/> 外掛程式</translation>
 <translation id="3825324228893189080">需要其他插件</translation>
 <translation id="4420062214988137980">插件安装失败</translation>
 <translation id="4317653869502688143"><ph name="PLUGIN"/> 只应安装自己信任的插件。</translation>
 <translation id="3926627843712816530">请确认要安装此插件。 只应安装自己信任的插件。</translation>
-<translation id="1383141426028388991"><ph name="URL"/></translation>
+<translation id="1383141426028388991">无法从 <ph name="URL"/> 安装外掛程式</translation>
 <translation id="6845533974506654842">按下</translation>
 <translation id="1842960171412779397">选择</translation>
 <translation id="6119846243427417423">启动</translation>
