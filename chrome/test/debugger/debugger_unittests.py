@@ -31,7 +31,11 @@ def RunTests(build_dir=None):
   cmd = [v8_shell_sample,
          "--runtime-flags", runtime_flags,
          os.path.join(chrome_dir, "browser", "debugger", "resources", "debugger_shell.js"),
-         os.path.join(v8_dir, "tests", "mjsunit.js"),
+         # TODO Change the location of mjsunit.js from the copy in this
+         # directory to the copy in V8 when switching to use V8 from
+         # code.google.com.
+         # os.path.join(v8_dir, "test", "mjsunit", "mjsunit.js"),
+         os.path.join(chrome_dir, "test", "debugger", "mjsunit.js"),
          os.path.join(chrome_dir, "test", "debugger", "test_protocol.js")
         ]
   (retcode, output) = google.process_utils.RunCommandFull(cmd, 
