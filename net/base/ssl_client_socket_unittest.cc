@@ -51,7 +51,7 @@ TEST_F(SSLClientSocketTest, Connect) {
   net::HostResolver resolver;
   TestCompletionCallback callback;
 
-  std::string hostname = "www.verisign.com";
+  std::string hostname = "bugs.webkit.org";
   int rv = resolver.Resolve(hostname, 443, &addr, NULL);
   EXPECT_EQ(net::OK, rv);
 
@@ -73,13 +73,12 @@ TEST_F(SSLClientSocketTest, Connect) {
   EXPECT_FALSE(sock.IsConnected());
 }
 
-#if 0
 TEST_F(SSLClientSocketTest, Read) {
   net::AddressList addr;
   net::HostResolver resolver;
   TestCompletionCallback callback;
 
-  std::string hostname = "www.google.com";
+  std::string hostname = "bugs.webkit.org";
   int rv = resolver.Resolve(hostname, 443, &addr, &callback);
   EXPECT_EQ(rv, net::ERR_IO_PENDING);
 
@@ -124,10 +123,11 @@ TEST_F(SSLClientSocketTest, Read_SmallChunks) {
   net::HostResolver resolver;
   TestCompletionCallback callback;
 
-  int rv = resolver.Resolve("www.google.com", 80, &addr, NULL);
+  std::string hostname = "bugs.webkit.org";
+  int rv = resolver.Resolve(hostname, 443, &addr, NULL);
   EXPECT_EQ(rv, net::OK);
 
-  net::TCPClientSocket sock(addr);
+  net::SSLClientSocket sock(new net::TCPClientSocket(addr), hostname);
 
   rv = sock.Connect(&callback);
   if (rv != net::OK) {
@@ -165,10 +165,11 @@ TEST_F(SSLClientSocketTest, Read_Interrupted) {
   net::HostResolver resolver;
   TestCompletionCallback callback;
 
-  int rv = resolver.Resolve("www.google.com", 80, &addr, NULL);
+  std::string hostname = "bugs.webkit.org";
+  int rv = resolver.Resolve(hostname, 443, &addr, NULL);
   EXPECT_EQ(rv, net::OK);
 
-  net::TCPClientSocket sock(addr);
+  net::SSLClientSocket sock(new net::TCPClientSocket(addr), hostname);
 
   rv = sock.Connect(&callback);
   if (rv != net::OK) {
@@ -197,4 +198,3 @@ TEST_F(SSLClientSocketTest, Read_Interrupted) {
 
   EXPECT_NE(rv, 0);
 }
-#endif

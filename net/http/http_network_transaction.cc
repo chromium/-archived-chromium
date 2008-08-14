@@ -33,6 +33,7 @@
 #include "net/base/client_socket_factory.h"
 #include "net/base/host_resolver.h"
 #include "net/base/load_flags.h"
+#include "net/base/ssl_client_socket.h"
 #include "net/base/upload_data_stream.h"
 #include "net/http/http_chunked_decoder.h"
 #include "net/http/http_network_session.h"
@@ -123,7 +124,7 @@ int HttpNetworkTransaction::Read(char* buf, int buf_len,
 }
 
 const HttpResponseInfo* HttpNetworkTransaction::GetResponseInfo() const {
-  return response_.headers ? &response_ : NULL;
+  return (response_.headers || response_.ssl_info.cert) ? &response_ : NULL;
 }
 
 LoadState HttpNetworkTransaction::GetLoadState() const {
@@ -661,6 +662,12 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
       // If content_length_ is still -1, then we have to wait for the server to
       // close the connection.
     }
+  }
+
+  if (using_ssl_) {
+    SSLClientSocket* ssl_socket =
+        reinterpret_cast<SSLClientSocket*>(connection_.socket());
+    ssl_socket->GetSSLInfo(&response_.ssl_info);
   }
 
   return OK;
