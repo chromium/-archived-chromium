@@ -81,7 +81,7 @@ TEST(CommandLineTest, CommandLineConstructor) {
   EXPECT_EQ(L"--dog=canine --cat=feline", cl.GetSwitchValue(L"other-switches"));
   EXPECT_EQ(L"45--output-rotation", cl.GetSwitchValue(L"input-translation"));
 
-  EXPECT_EQ(static_cast<size_t>(3), cl.GetLooseValueCount());
+  EXPECT_EQ(3U, cl.GetLooseValueCount());
 
   CommandLine::LooseValueIterator iter = cl.GetLooseValuesBegin();
   EXPECT_EQ(L"flim", *iter);
@@ -109,7 +109,7 @@ TEST(CommandLineTest, EmptyString) {
 #endif
   EXPECT_TRUE(cl.command_line_string().empty());
   EXPECT_TRUE(cl.program().empty());
-  EXPECT_EQ(static_cast<size_t>(0), cl.GetLooseValueCount());
+  EXPECT_EQ(0U, cl.GetLooseValueCount());
 }
 
 // Test static functions for appending switches to a command line.

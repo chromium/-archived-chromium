@@ -291,7 +291,7 @@ TEST(JSONReaderTest, Reading) {
   ASSERT_TRUE(root);
   ASSERT_TRUE(root->IsType(Value::TYPE_LIST));
   ListValue* list = static_cast<ListValue*>(root);
-  ASSERT_EQ(static_cast<size_t>(3), list->GetSize());
+  ASSERT_EQ(3U, list->GetSize());
 
   // Test with trailing comma.  Should be parsed the same as above.
   Value* root2 = NULL;
@@ -306,7 +306,7 @@ TEST(JSONReaderTest, Reading) {
   ASSERT_TRUE(root);
   ASSERT_TRUE(root->IsType(Value::TYPE_LIST));
   list = static_cast<ListValue*>(root);
-  ASSERT_EQ(static_cast<size_t>(0), list->GetSize());
+  ASSERT_EQ(0U, list->GetSize());
   delete root;
 
   // Nested arrays
@@ -316,7 +316,7 @@ TEST(JSONReaderTest, Reading) {
   ASSERT_TRUE(root);
   ASSERT_TRUE(root->IsType(Value::TYPE_LIST));
   list = static_cast<ListValue*>(root);
-  ASSERT_EQ(static_cast<size_t>(4), list->GetSize());
+  ASSERT_EQ(4U, list->GetSize());
 
   // Lots of trailing commas.
   root2 = NULL;
@@ -354,7 +354,7 @@ TEST(JSONReaderTest, Reading) {
   ASSERT_TRUE(root);
   ASSERT_TRUE(root->IsType(Value::TYPE_LIST));
   list = static_cast<ListValue*>(root);
-  EXPECT_EQ(static_cast<size_t>(1), list->GetSize());
+  EXPECT_EQ(1U, list->GetSize());
   Value* tmp_value = NULL;
   ASSERT_TRUE(list->Get(0, &tmp_value));
   EXPECT_TRUE(tmp_value->IsType(Value::TYPE_BOOLEAN));
@@ -418,7 +418,7 @@ TEST(JSONReaderTest, Reading) {
   ASSERT_TRUE(dict_val->GetDictionary(L"inner", &inner_dict));
   ListValue* inner_array = NULL;
   ASSERT_TRUE(inner_dict->GetList(L"array", &inner_array));
-  ASSERT_EQ(static_cast<size_t>(1), inner_array->GetSize());
+  ASSERT_EQ(1U, inner_array->GetSize());
   bool_value = true;
   ASSERT_TRUE(dict_val->GetBoolean(L"false", &bool_value));
   ASSERT_FALSE(bool_value);
@@ -492,7 +492,7 @@ TEST(JSONReaderTest, Reading) {
   ASSERT_TRUE(root);
   ASSERT_TRUE(root->IsType(Value::TYPE_LIST));
   list = static_cast<ListValue*>(root);
-  ASSERT_EQ(static_cast<size_t>(5001), list->GetSize());
+  ASSERT_EQ(5001U, list->GetSize());
   delete root;
 
   // Test utf8 encoded input

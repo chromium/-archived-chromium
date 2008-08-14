@@ -227,14 +227,14 @@ TEST(StringUtilTest, ConvertUTF8ToWide) {
   // Manually test an embedded NULL.
   std::wstring converted;
   EXPECT_TRUE(UTF8ToWide("\00Z\t", 3, &converted));
-  ASSERT_EQ(static_cast<std::wstring::size_type>(3), converted.length());
+  ASSERT_EQ(3U, converted.length());
   EXPECT_EQ(0, converted[0]);
   EXPECT_EQ('Z', converted[1]);
   EXPECT_EQ('\t', converted[2]);
 
   // Make sure that conversion replaces, not appends.
   EXPECT_TRUE(UTF8ToWide("B", 1, &converted));
-  ASSERT_EQ(static_cast<std::wstring::size_type>(1), converted.length());
+  ASSERT_EQ(1U, converted.length());
   EXPECT_EQ('B', converted[0]);
 }
 
@@ -665,14 +665,14 @@ TEST(StringUtilTest, IntToString) {
         "9223372036854775808" },
   };
 
-  for (int i = 0; i < arraysize(int_tests); ++i) {
+  for (size_t i = 0; i < arraysize(int_tests); ++i) {
     const IntToStringTest<int>* test = &int_tests[i];
     EXPECT_EQ(IntToString(test->num), test->sexpected);
     EXPECT_EQ(IntToWString(test->num), UTF8ToWide(test->sexpected));
     EXPECT_EQ(UintToString(test->num), test->uexpected);
     EXPECT_EQ(UintToWString(test->num), UTF8ToWide(test->uexpected));
   }
-  for (int i = 0; i < arraysize(int64_tests); ++i) {
+  for (size_t i = 0; i < arraysize(int64_tests); ++i) {
     const IntToStringTest<int64>* test = &int64_tests[i];
     EXPECT_EQ(Int64ToString(test->num), test->sexpected);
     EXPECT_EQ(Int64ToWString(test->num), UTF8ToWide(test->sexpected));
@@ -1104,50 +1104,50 @@ TEST(StringUtilTest, SplitString) {
   std::vector<std::wstring> r;
 
   SplitString(L"a,b,c", L',', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(3), r.size());
+  EXPECT_EQ(3U, r.size());
   EXPECT_EQ(r[0], L"a");
   EXPECT_EQ(r[1], L"b");
   EXPECT_EQ(r[2], L"c");
   r.clear();
 
   SplitString(L"a, b, c", L',', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(3), r.size());
+  EXPECT_EQ(3U, r.size());
   EXPECT_EQ(r[0], L"a");
   EXPECT_EQ(r[1], L"b");
   EXPECT_EQ(r[2], L"c");
   r.clear();
 
   SplitString(L"a,,c", L',', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(3), r.size());
+  EXPECT_EQ(3U, r.size());
   EXPECT_EQ(r[0], L"a");
   EXPECT_EQ(r[1], L"");
   EXPECT_EQ(r[2], L"c");
   r.clear();
 
   SplitString(L"", L'*', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(1), r.size());
+  EXPECT_EQ(1U, r.size());
   EXPECT_EQ(r[0], L"");
   r.clear();
 
   SplitString(L"foo", L'*', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(1), r.size());
+  EXPECT_EQ(1U, r.size());
   EXPECT_EQ(r[0], L"foo");
   r.clear();
 
   SplitString(L"foo ,", L',', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(2), r.size());
+  EXPECT_EQ(2U, r.size());
   EXPECT_EQ(r[0], L"foo");
   EXPECT_EQ(r[1], L"");
   r.clear();
 
   SplitString(L",", L',', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(2), r.size());
+  EXPECT_EQ(2U, r.size());
   EXPECT_EQ(r[0], L"");
   EXPECT_EQ(r[1], L"");
   r.clear();
 
   SplitString(L"\t\ta\t", L'\t', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(4), r.size());
+  EXPECT_EQ(4U, r.size());
   EXPECT_EQ(r[0], L"");
   EXPECT_EQ(r[1], L"");
   EXPECT_EQ(r[2], L"a");
@@ -1155,7 +1155,7 @@ TEST(StringUtilTest, SplitString) {
   r.clear();
 
   SplitStringDontTrim(L"\t\ta\t", L'\t', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(4), r.size());
+  EXPECT_EQ(4U, r.size());
   EXPECT_EQ(r[0], L"");
   EXPECT_EQ(r[1], L"");
   EXPECT_EQ(r[2], L"a");
@@ -1163,13 +1163,13 @@ TEST(StringUtilTest, SplitString) {
   r.clear();
 
   SplitString(L"\ta\t\nb\tcc", L'\n', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(2), r.size());
+  EXPECT_EQ(2U, r.size());
   EXPECT_EQ(r[0], L"a");
   EXPECT_EQ(r[1], L"b\tcc");
   r.clear();
 
   SplitStringDontTrim(L"\ta\t\nb\tcc", L'\n', &r);
-  EXPECT_EQ(static_cast<std::vector<std::wstring>::size_type>(2), r.size());
+  EXPECT_EQ(2U, r.size());
   EXPECT_EQ(r[0], L"\ta\t");
   EXPECT_EQ(r[1], L"b\tcc");
   r.clear();
@@ -1188,16 +1188,16 @@ TEST(StringUtilTest, GetStringFWithOffsets) {
 
   ReplaceStringPlaceholders(L"Hello, $1. Your number is $2.", L"1", L"2",
                             &offsets);
-  EXPECT_EQ(static_cast<std::vector<size_t>::size_type>(2), offsets.size());
-  EXPECT_EQ(static_cast<size_t>(7), offsets[0]);
-  EXPECT_EQ(static_cast<size_t>(25), offsets[1]);
+  EXPECT_EQ(2U, offsets.size());
+  EXPECT_EQ(7U, offsets[0]);
+  EXPECT_EQ(25U, offsets[1]);
   offsets.clear();
 
   ReplaceStringPlaceholders(L"Hello, $2. Your number is $1.", L"1", L"2",
                             &offsets);
-  EXPECT_EQ(static_cast<std::vector<size_t>::size_type>(2), offsets.size());
-  EXPECT_EQ(static_cast<size_t>(25), offsets[0]);
-  EXPECT_EQ(static_cast<size_t>(7), offsets[1]);
+  EXPECT_EQ(2U, offsets.size());
+  EXPECT_EQ(25U, offsets[0]);
+  EXPECT_EQ(7U, offsets[1]);
   offsets.clear();
 }
 
@@ -1257,9 +1257,9 @@ TEST(StringUtilTest, LcpyTest) {
   {
     char dst[10];
     wchar_t wdst[10];
-    EXPECT_EQ(7, base::strlcpy(dst, "abcdefg", arraysize(dst)));
+    EXPECT_EQ(7U, base::strlcpy(dst, "abcdefg", arraysize(dst)));
     EXPECT_EQ(0, memcmp(dst, "abcdefg", 8));
-    EXPECT_EQ(7, base::wcslcpy(wdst, L"abcdefg", arraysize(wdst)));
+    EXPECT_EQ(7U, base::wcslcpy(wdst, L"abcdefg", arraysize(wdst)));
     EXPECT_EQ(0, memcmp(wdst, L"abcdefg", sizeof(wchar_t) * 8));
   }
 
@@ -1268,10 +1268,10 @@ TEST(StringUtilTest, LcpyTest) {
   {
     char dst[2] = {1, 2};
     wchar_t wdst[2] = {1, 2};
-    EXPECT_EQ(7, base::strlcpy(dst, "abcdefg", 0));
+    EXPECT_EQ(7U, base::strlcpy(dst, "abcdefg", 0));
     EXPECT_EQ(1, dst[0]);
     EXPECT_EQ(2, dst[1]);
-    EXPECT_EQ(7, base::wcslcpy(wdst, L"abcdefg", 0));
+    EXPECT_EQ(7U, base::wcslcpy(wdst, L"abcdefg", 0));
     EXPECT_EQ(1, wdst[0]);
     EXPECT_EQ(2, wdst[1]);
   }
@@ -1280,9 +1280,9 @@ TEST(StringUtilTest, LcpyTest) {
   {
     char dst[8];
     wchar_t wdst[8];
-    EXPECT_EQ(7, base::strlcpy(dst, "abcdefg", arraysize(dst)));
+    EXPECT_EQ(7U, base::strlcpy(dst, "abcdefg", arraysize(dst)));
     EXPECT_EQ(0, memcmp(dst, "abcdefg", 8));
-    EXPECT_EQ(7, base::wcslcpy(wdst, L"abcdefg", arraysize(wdst)));
+    EXPECT_EQ(7U, base::wcslcpy(wdst, L"abcdefg", arraysize(wdst)));
     EXPECT_EQ(0, memcmp(wdst, L"abcdefg", sizeof(wchar_t) * 8));
   }
 
@@ -1290,9 +1290,9 @@ TEST(StringUtilTest, LcpyTest) {
   {
     char dst[7];
     wchar_t wdst[7];
-    EXPECT_EQ(7, base::strlcpy(dst, "abcdefg", arraysize(dst)));
+    EXPECT_EQ(7U, base::strlcpy(dst, "abcdefg", arraysize(dst)));
     EXPECT_EQ(0, memcmp(dst, "abcdef", 7));
-    EXPECT_EQ(7, base::wcslcpy(wdst, L"abcdefg", arraysize(wdst)));
+    EXPECT_EQ(7U, base::wcslcpy(wdst, L"abcdefg", arraysize(wdst)));
     EXPECT_EQ(0, memcmp(wdst, L"abcdef", sizeof(wchar_t) * 7));
   }
 
@@ -1300,9 +1300,9 @@ TEST(StringUtilTest, LcpyTest) {
   {
     char dst[3];
     wchar_t wdst[3];
-    EXPECT_EQ(7, base::strlcpy(dst, "abcdefg", arraysize(dst)));
+    EXPECT_EQ(7U, base::strlcpy(dst, "abcdefg", arraysize(dst)));
     EXPECT_EQ(0, memcmp(dst, "ab", 3));
-    EXPECT_EQ(7, base::wcslcpy(wdst, L"abcdefg", arraysize(wdst)));
+    EXPECT_EQ(7U, base::wcslcpy(wdst, L"abcdefg", arraysize(wdst)));
     EXPECT_EQ(0, memcmp(wdst, L"ab", sizeof(wchar_t) * 3));
   }
 }

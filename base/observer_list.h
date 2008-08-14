@@ -87,7 +87,7 @@ class ObserverList {
     // When check_empty is true, assert that the list is empty on destruction.
     if (check_empty) {
       Compact();
-      DCHECK_EQ(observers_.size(), 0);
+      DCHECK_EQ(observers_.size(), 0U);
     }
   }
 
@@ -164,7 +164,7 @@ class ObserverList {
   do {                                                        \
     ObserverList<ObserverType>::Iterator it(observer_list);   \
     ObserverType* obs;                                        \
-    while (obs = it.GetNext())                                \
+    while ((obs = it.GetNext()) != NULL)                      \
       obs->func;                                              \
   } while (0)
 
