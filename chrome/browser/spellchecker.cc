@@ -28,7 +28,6 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <io.h>
-#include <vector>
 
 #include "chrome/browser/spellchecker.h"
 
@@ -36,7 +35,6 @@
 #include "base/file_util.h"
 #include "base/histogram.h"
 #include "base/logging.h"
-#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "base/win_util.h"
@@ -195,8 +193,8 @@ class UIProxyForIOTask : public Task {
     if (io_thread) {  // io_thread has not been torn down yet.
       MessageLoop* io_loop = io_thread->message_loop();
       if (io_loop) {
-        scoped_ptr<Task> this_task(spellchecker_flag_set_task_);
-        io_loop->PostTask(FROM_HERE, this_task.release());
+        io_loop->PostTask(FROM_HERE, spellchecker_flag_set_task_);
+        spellchecker_flag_set_task_ = NULL;
       }
     }
   }
@@ -239,9 +237,6 @@ SpellChecker::SpellChecker(const std::wstring& dict_dir,
       dic_is_downloading_(false) {
   // Remember UI loop to later use this as a proxy to get IO loop.
   ui_loop_ = MessageLoop::current();
-
-  // Reset dictionary flag setting task to NULL.
-  dic_task_.reset(NULL);
 
   // Get File Loop - hunspell gets initialized here.
   Thread* file_thread = g_browser_process->file_thread();
@@ -295,9 +290,9 @@ bool SpellChecker::Initialize() {
   bool dic_exists = file_util::PathExists(bdict_file_name_);
   if (!dic_exists) {
     if (file_loop_ && !tried_to_download_ && url_request_context_) {
-      dic_task_.reset(dic_download_state_changer_factory_.NewRunnableMethod(
-          &SpellChecker::set_file_is_downloading, false));
-      ddc_dic_ = new DictionaryDownloadController(dic_task_.release(),
+      Task* dic_task = dic_download_state_changer_factory_.NewRunnableMethod(
+          &SpellChecker::set_file_is_downloading, false);
+      ddc_dic_ = new DictionaryDownloadController(dic_task,
                                                   bdict_file_name_,
                                                   url_request_context_,
                                                   ui_loop_);
