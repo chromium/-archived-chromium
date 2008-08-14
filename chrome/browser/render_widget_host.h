@@ -352,16 +352,7 @@ class RenderWidgetHost::BackingStore {
   bool Refresh(HANDLE process, HANDLE bitmap_section,
                const gfx::Rect& bitmap_rect);
 
-  bool using_renderer_bitmap_section() const {
-    return renderer_bitmap_section_ != NULL;
-  }
-
  private:
-  // Creates the backing store DIB backed by the renderer bitmap
-  // shared section.
-  void CreateDIBSectionBackedByRendererBitmap(
-      const gfx::Rect& bitmap_rect, HANDLE bitmap_section_from_renderer);
-
   // Creates a dib conforming to the height/width/section parameters passed
   // in. The use_os_color_depth parameter controls whether we use the color
   // depth to create an appropriate dib or not.
@@ -372,10 +363,6 @@ class RenderWidgetHost::BackingStore {
   HDC hdc_;
   // The size of the backing store.
   gfx::Size size_;
-  // Handle to the renderer bitmap section, valid in the browser address
-  // space. This is set if the backing store dib is backed by the renderer
-  // bitmap section.
-  HANDLE renderer_bitmap_section_;
   // Handle to the backing store dib.
   HANDLE backing_store_dib_;
   // Handle to the original bitmap in the dc.

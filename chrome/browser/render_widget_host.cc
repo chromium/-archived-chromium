@@ -56,7 +56,6 @@ static const int kHungRendererDelayMs = 20000;
 RenderWidgetHost::BackingStore::BackingStore(const gfx::Size& size)
     : size_(size),
       backing_store_dib_(NULL),
-      renderer_bitmap_section_(NULL),
       original_bitmap_(NULL) {
   HDC screen_dc = ::GetDC(NULL);
   hdc_ = CreateCompatibleDC(screen_dc);
@@ -72,11 +71,6 @@ RenderWidgetHost::BackingStore::~BackingStore() {
     DeleteObject(backing_store_dib_);
     backing_store_dib_ = NULL;
   }
-
-  if (renderer_bitmap_section_) {
-    CloseHandle(renderer_bitmap_section_);
-    renderer_bitmap_section_ = NULL;
-  }
 }
 
 bool RenderWidgetHost::BackingStore::Refresh(HANDLE process, 
@@ -87,14 +81,6 @@ bool RenderWidgetHost::BackingStore::Refresh(HANDLE process,
       win_util::GetSectionFromProcess(bitmap_section, process, false);
   if (!valid_bitmap)
     return false;
-
-  // Disable this optimization to see how it impacts perf.
-#if 0
-  if (bitmap_rect.size() == size()) {
-    CreateDIBSectionBackedByRendererBitmap(bitmap_rect, valid_bitmap);
-    return true;
-  }
-#endif
 
   if (!backing_store_dib_) {
     backing_store_dib_ = CreateDIB(hdc_, size_.width(), size_.height(), true,
@@ -130,28 +116,6 @@ bool RenderWidgetHost::BackingStore::Refresh(HANDLE process,
   UnmapViewOfFile(backing_store_data);
   CloseHandle(valid_bitmap);
   return true;
-}
-
-void RenderWidgetHost::BackingStore::CreateDIBSectionBackedByRendererBitmap(
-    const gfx::Rect& bitmap_rect, HANDLE bitmap_section_from_renderer) {
-  if (backing_store_dib_ != NULL) {
-    SelectObject(hdc_, original_bitmap_);
-    DeleteObject(backing_store_dib_);
-    backing_store_dib_ = NULL;
-  }
-
-  if (renderer_bitmap_section_ != NULL) {
-    CloseHandle(renderer_bitmap_section_);
-    renderer_bitmap_section_ = NULL;
-  }
-
-  backing_store_dib_ = CreateDIB(hdc_, bitmap_rect.width(),
-                                 bitmap_rect.height(), false,
-                                 bitmap_section_from_renderer);
-  DCHECK(backing_store_dib_ != NULL);
-
-  renderer_bitmap_section_ = bitmap_section_from_renderer;
-  original_bitmap_ = SelectObject(hdc_, backing_store_dib_);
 }
 
 HANDLE RenderWidgetHost::BackingStore::CreateDIB(HDC dc, int width, int height,
@@ -433,15 +397,8 @@ void RenderWidgetHost::OnMsgPaintRect(
 
   PaintRect(params.bitmap, params.bitmap_rect, params.view_size);
 
-  bool using_renderer_bitmap_section = false;
-  BackingStore* backing_store = BackingStoreManager::Lookup(this);
-  if (backing_store) {
-    using_renderer_bitmap_section = 
-        backing_store->using_renderer_bitmap_section();
-  }
-
   // ACK early so we can prefetch the next PaintRect if there is a next one.
-  Send(new ViewMsg_PaintRect_ACK(routing_id_, using_renderer_bitmap_section));
+  Send(new ViewMsg_PaintRect_ACK(routing_id_));
 
   // TODO(darin): This should really be done by the view_!
   MovePluginWindows(params.plugin_window_moves);

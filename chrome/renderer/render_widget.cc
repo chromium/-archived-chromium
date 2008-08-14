@@ -296,24 +296,15 @@ void RenderWidget::OnWasRestored(bool needs_repainting) {
   DidInvalidateRect(webwidget_, gfx::Rect(size_.width(), size_.height()));
 }
 
-void RenderWidget::OnPaintRectAck(bool drop_bitmap) {
+void RenderWidget::OnPaintRectAck() {
   DCHECK(paint_reply_pending());
   paint_reply_pending_ = false;
-
-  if (drop_bitmap) {
-    if (current_paint_buf_) {
-      RenderProcess::DeleteSharedMem(current_paint_buf_);
-    }
-  } else {
-    // If we sent a PaintRect message with a zero-sized bitmap, then
-    // we should have no current paint buf.
-    if (current_paint_buf_) {
-      RenderProcess::FreeSharedMemory(current_paint_buf_);
-    }
+  // If we sent a PaintRect message with a zero-sized bitmap, then
+  // we should have no current paint buf.
+  if (current_paint_buf_) {
+    RenderProcess::FreeSharedMemory(current_paint_buf_);
+    current_paint_buf_ = NULL;
   }
-
-  current_paint_buf_ = NULL;
-
   // Continue painting if necessary...
   DoDeferredPaint();
 }

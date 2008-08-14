@@ -133,7 +133,7 @@ class RenderWidget : public IPC::Channel::Listener,
   void OnResize(const gfx::Size& new_size);
   void OnWasHidden();
   void OnWasRestored(bool needs_repainting);
-  void OnPaintRectAck(bool drop_bitmap);
+  void OnPaintRectAck();
   void OnScrollRectAck();
   void OnHandleInputEvent(const IPC::Message& message);
   void OnMouseCaptureLost();
