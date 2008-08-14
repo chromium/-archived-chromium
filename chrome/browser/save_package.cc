@@ -303,7 +303,7 @@ bool SavePackage::GenerateFilename(const std::string& disposition,
       uint32 i;
       for (i = ordinal_number; i < kMaxFileOrdinalNumber; ++i) {
         std::wstring new_name =
-            StringPrintf(L"%s(%d)", base_file_name.c_str(), i) + file_name_ext;
+            StringPrintf(L"%ls(%d)", base_file_name.c_str(), i) + file_name_ext;
         if (file_name_set_.find(new_name) == file_name_set_.end()) {
           // Resolved name conflict.
           file_name = new_name;

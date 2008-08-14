@@ -38,7 +38,7 @@ namespace {
 // Debug output messages prefix.
 const char kODSMgPrefix[] = "[security] ";
 // Format of the Chrome browser pipe for plugins.
-const wchar_t kChromePluginPipeFmt[] = L"\\\\.\\pipe\\chrome.%s.p%d";
+const wchar_t kChromePluginPipeFmt[] = L"\\\\.\\pipe\\chrome.%ls.p%d";
 // Size for the in/out pipe buffers.
 const int kBufferSize = 1024;
 

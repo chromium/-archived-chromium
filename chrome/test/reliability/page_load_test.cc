@@ -273,7 +273,7 @@ class PageLoadTest : public UITest {
       // For usage 2
       for (int i = start_page; i <= end_page; ++i) {
         std::wstring test_page_url(
-            StringPrintf(L"%s/page?id=%d", server_url.c_str(), i));
+            StringPrintf(L"%ls/page?id=%d", server_url.c_str(), i));
         NavigateToURLLogResult(GURL(test_page_url), log_file, NULL);
       }
     } else {

@@ -477,7 +477,7 @@ TEST(SafeBrowsing, HashCaching) {
 
 void PrintStat(const wchar_t* name) {
   int value = StatsTable::current()->GetCounterValue(name);
-  std::wstring out = StringPrintf(L"%s %d\r\n", name, value);
+  std::wstring out = StringPrintf(L"%ls %d\r\n", name, value);
   OutputDebugStringW(out.c_str());
 }
 

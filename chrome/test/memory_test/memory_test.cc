@@ -250,7 +250,7 @@ class MemoryTest : public UITest {
 
   void PrintResults(const wchar_t* test_name, size_t commit_size) {
     PrintMemoryUsageInfo(test_name);
-    wprintf(L"%s_commit_charge_kb = %d\n", test_name, commit_size / 1024);
+    wprintf(L"%ls_commit_charge_kb = %d\n", test_name, commit_size / 1024);
   }
 
   void PrintIOPerfInfo(const wchar_t* test_name) {
@@ -288,17 +288,17 @@ class MemoryTest : public UITest {
         }
 
         // print out IO performance
-        wprintf(L"%s_%s_read_op = %d\n",
+        wprintf(L"%ls_%ls_read_op = %d\n",
                 test_name, chrome_name, io_counters.ReadOperationCount);
-        wprintf(L"%s_%s_write_op = %d\n",
+        wprintf(L"%ls_%ls_write_op = %d\n",
                 test_name, chrome_name, io_counters.WriteOperationCount);
-        wprintf(L"%s_%s_other_op = %d\n",
+        wprintf(L"%ls_%ls_other_op = %d\n",
                 test_name, chrome_name, io_counters.OtherOperationCount);
-        wprintf(L"%s_%s_read_byte = %d K\n",
+        wprintf(L"%ls_%ls_read_byte = %d K\n",
                 test_name, chrome_name, io_counters.ReadTransferCount / 1024);
-        wprintf(L"%s_%s_write_byte = %d K\n",
+        wprintf(L"%ls_%ls_write_byte = %d K\n",
                 test_name, chrome_name, io_counters.WriteTransferCount / 1024);
-        wprintf(L"%s_%s_other_byte = %d K\n",
+        wprintf(L"%ls_%ls_other_byte = %d K\n",
                 test_name, chrome_name, io_counters.OtherTransferCount / 1024);
       }
     }
@@ -334,15 +334,15 @@ class MemoryTest : public UITest {
         num_chrome_processes++;
       }
     }
-    wprintf(L"%s_browser_vm_final_kb = %d\n", test_name,
+    wprintf(L"%ls_browser_vm_final_kb = %d\n", test_name,
                                            browser_virtual_size / 1024);
-    wprintf(L"%s_browser_ws_final_kb = %d\n", test_name,
+    wprintf(L"%ls_browser_ws_final_kb = %d\n", test_name,
                                            browser_working_set_size / 1024);
-    wprintf(L"%s_memory_vm_final_kb = %d\n", test_name,
+    wprintf(L"%ls_memory_vm_final_kb = %d\n", test_name,
                                           virtual_size / 1024);
-    wprintf(L"%s_memory_ws_final_kb = %d\n", test_name,
+    wprintf(L"%ls_memory_ws_final_kb = %d\n", test_name,
                                           working_set_size / 1024);
-    wprintf(L"%s_processes = %d\n", test_name, num_chrome_processes);
+    wprintf(L"%ls_processes = %d\n", test_name, num_chrome_processes);
   }
 
  private:

@@ -183,7 +183,7 @@ bool FileVersionInfo::GetValue(const wchar_t* name, std::wstring* value_str) {
     WORD language = lang_codepage[i++];
     WORD code_page = lang_codepage[i++];
     _snwprintf_s(sub_block, MAX_PATH, MAX_PATH,
-                 L"\\StringFileInfo\\%04x%04x\\%s", language, code_page, name);
+                 L"\\StringFileInfo\\%04x%04x\\%ls", language, code_page, name);
     LPVOID value = NULL;
     uint32 size;
     BOOL r = ::VerQueryValue(data_.get(), sub_block, &value, &size);

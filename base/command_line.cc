@@ -308,7 +308,7 @@ void CommandLine::AppendSwitchWithValue(wstring* command_line_string,
       (value_string[0] != L'"') &&
       (value_string[value_string.length() - 1] != L'"')) {
     // need to provide quotes
-    StringAppendF(command_line_string, L"\"%s\"", value_string.c_str());
+    StringAppendF(command_line_string, L"\"%ls\"", value_string.c_str());
   } else {
     command_line_string->append(value_string);
   }

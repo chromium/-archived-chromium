@@ -161,7 +161,7 @@ NormalizeResult NormalizeFile(const std::wstring& in_filename,
                               const std::wstring& out_filename) {
   std::string data;
   if (!file_util::ReadFileToString(in_filename, &data)) {
-    fwprintf(stderr, L"Unable to read file %s\n", in_filename.c_str());
+    fwprintf(stderr, L"Unable to read file %ls\n", in_filename.c_str());
     // We return success since we've already reported the error.
     return kSuccess;
   }
@@ -174,7 +174,7 @@ NormalizeResult NormalizeFile(const std::wstring& in_filename,
                             FILE_ATTRIBUTE_NORMAL,
                             NULL));
   if (outfile == INVALID_HANDLE_VALUE) {
-    fwprintf(stderr, L"Unable to write file %s\n", out_filename.c_str());
+    fwprintf(stderr, L"Unable to write file %ls\n", out_filename.c_str());
     // We return success since we've already reported the error.
     return kSuccess;
   }
@@ -260,7 +260,7 @@ int main(int argc, const char* argv[]) {
   NormalizeResult result = NormalizeFile(UTF8ToWide(argv[1]),
                                          UTF8ToWide(argv[2]));
   if (result != kSuccess) {
-    fwprintf(stderr, L"Errors or warnings processing file.  See log in %s.",
+    fwprintf(stderr, L"Errors or warnings processing file.  See log in %ls.",
              kLogFileName);
   }
 

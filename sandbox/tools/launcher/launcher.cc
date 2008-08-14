@@ -39,7 +39,7 @@
 #define PARAM_IS(y) (argc > i) && (_wcsicmp(argv[i], y) == 0)
 
 void PrintUsage(const wchar_t *application_name) {
-  wprintf(L"\n\nUsage: \n  %s --main level --init level --job level cmd_line ",
+  wprintf(L"\n\nUsage: \n  %ls --main level --init level --job level cmd_line ",
           application_name);
   wprintf(L"\n\n  Levels : \n\tLOCKDOWN \n\tRESTRICTED "
       L"\n\tLIMITED_USER \n\tINTERACTIVE_USER \n\tNON_ADMIN \n\tUNPROTECTED");
@@ -119,7 +119,7 @@ int wmain(int argc, wchar_t *argv[]) {
       i++;
       if (argc > i) {
         if (!GetTokenLevelFromString(argv[i], &primary_level)) {
-          wprintf(L"\nAbord, Unrecognized main token level \"%s\"", argv[i]);
+          wprintf(L"\nAbord, Unrecognized main token level \"%ls\"", argv[i]);
           PrintUsage(app_name);
           return -1;
         }
@@ -128,7 +128,7 @@ int wmain(int argc, wchar_t *argv[]) {
       i++;
       if (argc > i) {
         if (!GetTokenLevelFromString(argv[i], &impersonation_level)) {
-          wprintf(L"\nAbord, Unrecognized init token level \"%s\"", argv[i]);
+          wprintf(L"\nAbord, Unrecognized init token level \"%ls\"", argv[i]);
           PrintUsage(app_name);
           return -1;
         }
@@ -137,7 +137,7 @@ int wmain(int argc, wchar_t *argv[]) {
       i++;
       if (argc > i) {
         if (!GetJobLevelFromString(argv[i], &job_level)) {
-          wprintf(L"\nAbord, Unrecognized job security level \"%s\"", argv[i]);
+          wprintf(L"\nAbord, Unrecognized job security level \"%ls\"", argv[i]);
           PrintUsage(app_name);
           return -1;
         }
@@ -156,7 +156,7 @@ int wmain(int argc, wchar_t *argv[]) {
     return -1;
   }
 
-  wprintf(L"\nLaunching command line: \"%s\"\n", command_line.GetBuffer());
+  wprintf(L"\nLaunching command line: \"%ls\"\n", command_line.GetBuffer());
 
   HANDLE job_handle;
   DWORD err_code = sandbox::StartRestrictedProcessInJob(

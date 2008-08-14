@@ -105,11 +105,11 @@ namespace {
 
 // Default "mark of the web" declaration
 static const wchar_t* const kDefaultMarkOfTheWeb =
-    L"\n<!-- saved from url=(%04d)%s -->\n";
+    L"\n<!-- saved from url=(%04d)%ls -->\n";
 
 // Default meat content for writing correct charset declaration.
 static const wchar_t* const kDefaultMetaContent =
-    L"<META http-equiv=\"Content-Type\" content=\"text/html; charset=%s\">";
+    L"<META http-equiv=\"Content-Type\" content=\"text/html; charset=%ls\">";
 
 // Notation of start comment.
 static const wchar_t* const kStartCommentNotation = L"<!-- ";
@@ -119,14 +119,14 @@ static const wchar_t* const kEndCommentNotation = L" -->";
 
 // Default XML declaration.
 static const wchar_t* const kXMLDeclaration =
-    L"<?xml version=\"%s\" encoding=\"%s\"%s?>\n";
+    L"<?xml version=\"%ls\" encoding=\"%ls\"%ls?>\n";
 
 // Default base tag declaration
 static const wchar_t* const kBaseTagDeclaration =
-    L"<BASE href=\".\"%s>";
+    L"<BASE href=\".\"%ls>";
 
 static const wchar_t* const kBaseTargetDeclaration =
-    L" target=\"%s\"";
+    L" target=\"%ls\"";
 
 // Maximum length of data buffer which is used to temporary save generated
 // html content data.

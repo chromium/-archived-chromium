@@ -1071,7 +1071,7 @@ void RenderViewHost::DidPrintPage(
 void RenderViewHost::OnAddMessageToConsole(const std::wstring& message,
                                            int32 line_no,
                                            const std::wstring& source_id) {
-  std::wstring msg = StringPrintf(L"\"%s,\" source: %s (%d)", message.c_str(),
+  std::wstring msg = StringPrintf(L"\"%ls,\" source: %ls (%d)", message.c_str(),
                                   source_id.c_str(), line_no);
   logging::LogMessage("CONSOLE", 0).stream() << msg;
   if (debugger_attached_)

@@ -130,7 +130,7 @@ std::wstring TextDatabase::IDToFileName(DBIdent id) {
   // "History Index 2008-01". However, we don't make assumptions about this
   // scheme: the caller should assign IDs as it feels fit with the knowledge
   // that they will apppear on disk in this form.
-  return StringPrintf(L"%s%d-%02d", file_base(), id / 100, id % 100);
+  return StringPrintf(L"%ls%d-%02d", file_base(), id / 100, id % 100);
 }
 
 // static

@@ -210,7 +210,8 @@ void BlockFiles::CloseFiles() {
 std::wstring BlockFiles::Name(int index) {
   // The file format allows for 256 files.
   DCHECK(index < 256 || index >= 0);
-  std::wstring name = StringPrintf(L"%s%s%d", path_.c_str(), kBlockName, index);
+  std::wstring name = StringPrintf(L"%ls%ls%d",
+                                   path_.c_str(), kBlockName, index);
 
   return name;
 }

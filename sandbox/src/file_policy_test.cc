@@ -359,9 +359,9 @@ TEST(FilePolicyTest, AllowReadOnly) {
                                temp_file_name));
 
   wchar_t command_read[MAX_PATH + 20] = {0};
-  wsprintf(command_read, L"File_Create Read \"%s\"", temp_file_name);
+  wsprintf(command_read, L"File_Create Read \"%ls\"", temp_file_name);
   wchar_t command_write[MAX_PATH + 20] = {0};
-  wsprintf(command_write, L"File_Create Write \"%s\"", temp_file_name);
+  wsprintf(command_write, L"File_Create Write \"%ls\"", temp_file_name);
 
   // Verify that we have read access after revert.
   EXPECT_EQ(SBOX_TEST_SUCCEEDED, runner.RunTest(command_read));
@@ -389,7 +389,7 @@ TEST(FilePolicyTest, AllowWildcard) {
   EXPECT_TRUE(runner.AddFsRule(TargetPolicy::FILES_ALLOW_ANY, temp_directory));
 
   wchar_t command_write[MAX_PATH + 20] = {0};
-  wsprintf(command_write, L"File_Create Write \"%s\"", temp_file_name);
+  wsprintf(command_write, L"File_Create Write \"%ls\"", temp_file_name);
 
   // Verify that we have write access after revert.
   EXPECT_EQ(SBOX_TEST_SUCCEEDED, runner.RunTest(command_write));
@@ -481,19 +481,19 @@ TEST(FilePolicyTest, TestRename) {
 
 
   wchar_t command[MAX_PATH*2 + 20] = {0};
-  wsprintf(command, L"File_Rename \"%s\" \"%s\"", temp_file_name1,
+  wsprintf(command, L"File_Rename \"%ls\" \"%ls\"", temp_file_name1,
            temp_file_name2);
   EXPECT_EQ(SBOX_TEST_SUCCEEDED, runner.RunTest(command));
 
-  wsprintf(command, L"File_Rename \"%s\" \"%s\"", temp_file_name3,
+  wsprintf(command, L"File_Rename \"%ls\" \"%ls\"", temp_file_name3,
            temp_file_name4);
   EXPECT_EQ(SBOX_TEST_DENIED, runner.RunTest(command));
 
-  wsprintf(command, L"File_Rename \"%s\" \"%s\"", temp_file_name5,
+  wsprintf(command, L"File_Rename \"%ls\" \"%ls\"", temp_file_name5,
            temp_file_name6);
   EXPECT_EQ(SBOX_TEST_DENIED, runner.RunTest(command));
 
-  wsprintf(command, L"File_Rename \"%s\" \"%s\"", temp_file_name7,
+  wsprintf(command, L"File_Rename \"%ls\" \"%ls\"", temp_file_name7,
            temp_file_name8);
   EXPECT_EQ(SBOX_TEST_DENIED, runner.RunTest(command));
 

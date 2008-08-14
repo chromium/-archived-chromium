@@ -426,7 +426,7 @@ DWORD MainUIWindow::ListenPipe() {
                                   FILE_ATTRIBUTE_NORMAL,
                                   NULL);  // No template
     if (INVALID_HANDLE_VALUE == logfile_handle) {
-      AddDebugMessage(L"Failed to open \"%s\" for logging. Error %d",
+      AddDebugMessage(L"Failed to open \"%ls\" for logging. Error %d",
                       file_to_open.GetBuffer(), ::GetLastError());
       logfile_handle = NULL;
     }
@@ -524,7 +524,7 @@ bool MainUIWindow::SpawnTarget() {
   }
 
   wchar_t * arguments = new wchar_t[size_call];
-  wnsprintf(arguments, static_cast<int>(size_call), L"%s %s \"%s\" %s",
+  wnsprintf(arguments, static_cast<int>(size_call), L"%ls %ls \"%ls\" %ls",
             spawn_target_.c_str(), entry_point_.c_str(),
             dll_path_.c_str(), log_pipe);
 
@@ -553,7 +553,7 @@ bool MainUIWindow::SpawnTarget() {
   bool return_value = false;
   if (sandbox::SBOX_ALL_OK != result) {
     AddDebugMessage(
-        L"Failed to spawn target %s w/args (%s), sandbox error code: %d",
+        L"Failed to spawn target %ls w/args (%ls), sandbox error code: %d",
         spawn_target_.c_str(), arguments, result);
     return_value = false;
   } else {
@@ -592,7 +592,7 @@ bool MainUIWindow::SpawnTarget() {
 
     ::ResumeThread(target_.hThread);
 
-    AddDebugMessage(L"Successfully spawned target w/args (%s)", arguments);
+    AddDebugMessage(L"Successfully spawned target w/args (%ls)", arguments);
     return_value = true;
   }
 

@@ -295,7 +295,7 @@ bool GetDerivedFontData(const wchar_t *family,
   // TODO(jungshik) : This comes up pretty high in the profile so that
   // we need to measure whether using SHA256 (after coercing all the
   // fields to char*) is faster than StringPrintf.
-  std::wstring font_key = StringPrintf(L"%1d:%d:%s", style, logfont->lfHeight,
+  std::wstring font_key = StringPrintf(L"%1d:%d:%ls", style, logfont->lfHeight,
                                        family);
   FontDataCache::const_iterator iter = font_data_cache->find(font_key);
   FontData *derived;

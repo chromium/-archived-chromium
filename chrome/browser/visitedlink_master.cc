@@ -287,7 +287,7 @@ std::wstring VisitedLinkMaster::GetSharedMemoryName() const {
   if (profile_)
     profile_id = profile_->GetID().c_str();
 
-  return StringPrintf(L"GVisitedLinks_%lu_%lu_%s",
+  return StringPrintf(L"GVisitedLinks_%lu_%lu_%ls",
                       GetCurrentProcessId(), shared_memory_serial_,
                       profile_id.c_str());
 }

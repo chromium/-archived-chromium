@@ -220,7 +220,7 @@ bool GetLogonSessionOnlyDACL(SECURITY_DESCRIPTOR** security_descriptor) {
   if (!ConvertSidToStringSid(logon_sid, &sid_string))
     return false;
 
-  static const wchar_t dacl_format[] = L"D:(A;OICI;GA;;;%s)";
+  static const wchar_t dacl_format[] = L"D:(A;OICI;GA;;;%ls)";
   wchar_t dacl[SECURITY_MAX_SID_SIZE + arraysize(dacl_format) + 1] = {0};
   wsprintf(dacl, dacl_format, sid_string);
 

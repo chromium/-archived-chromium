@@ -177,8 +177,8 @@ void ReadLastShutdownInfo() {
   prefs->SetInteger(prefs::kShutdownNumProcessesSlow, 0);
 
   if (type > NOT_VALID && shutdown_ms > 0 && num_procs > 0) {
-    const wchar_t *time_fmt = L"Shutdown.%s.time";
-    const wchar_t *time_per_fmt = L"Shutdown.%s.time_per_process";
+    const wchar_t *time_fmt = L"Shutdown.%ls.time";
+    const wchar_t *time_per_fmt = L"Shutdown.%ls.time_per_process";
     std::wstring time;
     std::wstring time_per;
     if (type == WINDOW_CLOSE) {

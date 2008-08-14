@@ -88,7 +88,7 @@ TEST(PageOverlaysTest, StringConversion) {
   std::wstring input;
   std::wstring out;
   for (int i = 0; i < arraysize(kOverlayKeys); ++i) {
-    input = StringPrintf(L"foo%sbar", kOverlayKeys[i].key);
+    input = StringPrintf(L"foo%lsbar", kOverlayKeys[i].key);
     out = printing::PageOverlays::ReplaceVariables(input, *doc.get(),
                                                    *page.get());
     EXPECT_FALSE(out.empty());

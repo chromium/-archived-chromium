@@ -144,17 +144,17 @@ class PageCyclerTest : public UITest {
         }
 
         // print out IO performance
-        wprintf(L"%s_%s_read_op = %d\n",
+        wprintf(L"%ls_%ls_read_op = %d\n",
                 test_name, chrome_name, io_counters.ReadOperationCount);
-        wprintf(L"%s_%s_write_op = %d\n",
+        wprintf(L"%ls_%ls_write_op = %d\n",
                 test_name, chrome_name, io_counters.WriteOperationCount);
-        wprintf(L"%s_%s_other_op = %d\n",
+        wprintf(L"%ls_%ls_other_op = %d\n",
                 test_name, chrome_name, io_counters.OtherOperationCount);
-        wprintf(L"%s_%s_read_byte = %d K\n",
+        wprintf(L"%ls_%ls_read_byte = %d K\n",
                 test_name, chrome_name, io_counters.ReadTransferCount / 1024);
-        wprintf(L"%s_%s_write_byte = %d K\n",
+        wprintf(L"%ls_%ls_write_byte = %d K\n",
                 test_name, chrome_name, io_counters.WriteTransferCount / 1024);
-        wprintf(L"%s_%s_other_byte = %d K\n",
+        wprintf(L"%ls_%ls_other_byte = %d K\n",
                 test_name, chrome_name, io_counters.OtherTransferCount / 1024);
       }
     }
@@ -177,21 +177,21 @@ class PageCyclerTest : public UITest {
       if (GetMemoryInfo(pid, &peak_virtual_size, &current_virtual_size,
                         &peak_working_set_size, &current_working_set_size)) {
         if (pid == chrome_filter.browser_process_id()) {
-          wprintf(L"%s_browser_vm_peak = %d\n", test_name, peak_virtual_size);
-          wprintf(L"%s_browser_vm_final = %d\n", test_name,
-                                                 current_virtual_size);
-          wprintf(L"%s_browser_ws_peak = %d\n", test_name,
-                                                 peak_working_set_size);
-          wprintf(L"%s_browser_ws_final = %d\n", test_name,
-                                                 current_working_set_size);
+          wprintf(L"%ls_browser_vm_peak = %d\n", test_name, peak_virtual_size);
+          wprintf(L"%ls_browser_vm_final = %d\n", test_name,
+                                                  current_virtual_size);
+          wprintf(L"%ls_browser_ws_peak = %d\n", test_name,
+                                                  peak_working_set_size);
+          wprintf(L"%ls_browser_ws_final = %d\n", test_name,
+                                                  current_working_set_size);
         } else {
-          wprintf(L"%s_render_vm_peak = %d\n", test_name, peak_virtual_size);
-          wprintf(L"%s_render_vm_final = %d\n", test_name,
-                                                current_virtual_size);
-          wprintf(L"%s_render_ws_peak = %d\n", test_name,
+          wprintf(L"%ls_render_vm_peak = %d\n", test_name, peak_virtual_size);
+          wprintf(L"%ls_render_vm_final = %d\n", test_name,
+                                                 current_virtual_size);
+          wprintf(L"%ls_render_ws_peak = %d\n", test_name,
                                                 peak_working_set_size);
-          wprintf(L"%s_render_ws_final = %d\n", test_name,
-                                                current_working_set_size);
+          wprintf(L"%ls_render_ws_final = %d\n", test_name,
+                                                 current_working_set_size);
         }
       }
     };
@@ -211,8 +211,8 @@ class PageCyclerTest : public UITest {
     PrintIOPerfInfo(L"__pc");
 
     printf("\n");
-    wprintf(L"__pc_pages = [%s]\n", pages.c_str());
-    wprintf(L"__pc_timings = [%s]\n", timings.c_str());
+    wprintf(L"__pc_pages = [%ls]\n", pages.c_str());
+    wprintf(L"__pc_timings = [%ls]\n", timings.c_str());
   }
 };
 
@@ -239,7 +239,7 @@ class PageCyclerReferenceTest : public PageCyclerTest {
     PrintIOPerfInfo(L"__pc_reference");
 
     printf("\n");
-    wprintf(L"__pc_reference_timings = [%s]\n", timings.c_str());
+    wprintf(L"__pc_reference_timings = [%ls]\n", timings.c_str());
   }
 };
 

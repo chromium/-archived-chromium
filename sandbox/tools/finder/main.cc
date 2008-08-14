@@ -33,13 +33,13 @@
 #define PARAM_IS(y) (argc > i) && (_wcsicmp(argv[i], y) == 0)
 
 void PrintUsage(wchar_t *application_name) {
-  wprintf(L"\n\nUsage: \n  %s --token type --object ob1 [ob2  ob3] "
+  wprintf(L"\n\nUsage: \n  %ls --token type --object ob1 [ob2  ob3] "
       L"--access ac1 [ac2 ac3] [--log filename]", application_name);
   wprintf(L"\n\n  Token Types : \n\tLOCKDOWN \n\tRESTRICTED "
       L"\n\tLIMITED_USER \n\tINTERACTIVE_USER \n\tNON_ADMIN \n\tUNPROTECTED");
   wprintf(L"\n  Object Types: \n\tREG \n\tFILE \n\tKERNEL");
   wprintf(L"\n  Access Types: \n\tR \n\tW \n\tALL");
-  wprintf(L"\n\nSample: \n  %s --token LOCKDOWN --object REG FILE KERNEL "
+  wprintf(L"\n\nSample: \n  %ls --token LOCKDOWN --object REG FILE KERNEL "
       L"--access R W ALL", application_name);
 }
 
@@ -84,7 +84,7 @@ int wmain(int argc, wchar_t* argv[]) {
         } else if (PARAM_IS(L"UNPROTECTED")) {
           token_type = sandbox::USER_UNPROTECTED;
         } else {
-          wprintf(L"\nAbord. Invalid token type \"%s\"", argv[i]);
+          wprintf(L"\nAbord. Invalid token type \"%ls\"", argv[i]);
           PrintUsage(app_name);
           return -1;
         }
@@ -130,7 +130,7 @@ int wmain(int argc, wchar_t* argv[]) {
         return -1;
       }
     } else {
-      wprintf(L"\nAbord. Unrecognized parameter \"%s\"", argv[i]);
+      wprintf(L"\nAbord. Unrecognized parameter \"%ls\"", argv[i]);
       PrintUsage(app_name);
       return -1;
     }
@@ -155,7 +155,7 @@ int wmain(int argc, wchar_t* argv[]) {
   if (log_file.GetLength()) {
     errno_t err = _wfopen_s(&file_output, log_file, L"w");
     if (err) {
-      wprintf(L"\nAbord, Cannot open file \"%s\"", log_file.GetBuffer());
+      wprintf(L"\nAbord, Cannot open file \"%ls\"", log_file.GetBuffer());
       return -1;
     }
   } else {

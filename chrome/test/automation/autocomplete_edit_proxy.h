@@ -121,11 +121,19 @@ struct ParamTraits<AutocompleteMatchData> {
   }
 
   static void Log(const param_type& p, std::wstring* l) {
-    l->append(StringPrintf(L"[%S %s %S %S %S %d %s %s %d %s %S]",
-      p.contents, p.deletable ? "true" : "false", p.description,
-      p.destination_url, p.fill_into_edit, p.inline_autocomplete_offset,
-      p.is_history_what_you_typed_match ? "true" : "false", p.provider_name,
-      p.relevance, p.starred ? "true" : "false", p.str_type));
+    std::wstring provider_name_wide = UTF8ToWide(p.provider_name);
+    l->append(StringPrintf(L"[%ls %ls %ls %ls %ls %d %ls %ls %d %ls %ls]",
+        p.contents,
+        p.deletable ? L"true" : L"false",
+        p.description,
+        p.destination_url,
+        p.fill_into_edit,
+        p.inline_autocomplete_offset,
+        p.is_history_what_you_typed_match ? L"true" : L"false",
+        provider_name_wide,
+        p.relevance,
+        p.starred ? L"true" : L"false",
+        p.str_type));
   }
 };
 }  // namespace IPC

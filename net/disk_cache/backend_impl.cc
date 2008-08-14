@@ -90,7 +90,7 @@ int LowWaterAdjust(int high_water) {
 std::wstring GetPrefixedName(const std::wstring& path, const std::wstring& name,
                              int index) {
   std::wstring prefixed(path);
-  std::wstring tmp = StringPrintf(L"%s%s_%03d", L"old_", name.c_str(), index);
+  std::wstring tmp = StringPrintf(L"%ls%ls_%03d", L"old_", name.c_str(), index);
   file_util::AppendToPath(&prefixed, tmp);
   return prefixed;
 }
@@ -560,7 +560,7 @@ std::wstring BackendImpl::GetFileName(Addr address) const {
     return std::wstring();
   }
 
-  std::wstring name = StringPrintf(L"%s\\f_%06x", path_.c_str(),
+  std::wstring name = StringPrintf(L"%ls\\f_%06x", path_.c_str(),
                                    address.FileNumber());
   return name;
 }

@@ -61,7 +61,7 @@ int RunSlave(RankCrashes action) {
   std::wstring exe;
   PathService::Get(base::FILE_EXE, &exe);
 
-  std::wstring command = StringPrintf(L"%s %d", exe.c_str(), action);
+  std::wstring command = StringPrintf(L"%ls %d", exe.c_str(), action);
 
   STARTUPINFO startup_info = {0};
   startup_info.cb = sizeof(startup_info);

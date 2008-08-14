@@ -522,7 +522,8 @@ class AutomationProxyTest4 : public UITest {
 std::wstring SynthesizeJSURL(const std::wstring& value) {
   std::wstring jscript;
   SStringPrintf(&jscript,
-    L"javascript:void(window.domAutomationController.send(%s));", value.c_str());
+      L"javascript:void(window.domAutomationController.send(%ls));",
+      value.c_str());
   return jscript;
 }
 
@@ -599,8 +600,8 @@ std::wstring SynthesizeJSURLForDOMQuery(const std::wstring& id) {
   std::wstring jscript;
   SStringPrintf(&jscript,
       L"javascript:void(window.domAutomationController)");
-  StringAppendF(&jscript, L".send(document.getElementById('%s').nodeName);",
-    id.c_str());
+  StringAppendF(&jscript, L".send(document.getElementById('%ls').nodeName);",
+      id.c_str());
   return jscript;
 }
 

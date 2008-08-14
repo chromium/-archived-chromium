@@ -137,7 +137,7 @@ std::wstring LanguageComboboxModel::GetItemAt(ChromeViews::ComboBox* source,
   // changed the format. We also want to switch the order of locale_name
   // and native_name without going back to translators.
   std::wstring formatted_item;
-  SStringPrintf(&formatted_item, L"%s - %s", locale_name.c_str(),
+  SStringPrintf(&formatted_item, L"%ls - %ls", locale_name.c_str(),
                 native_name.c_str());
   if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
     // Somehow combo box (even with LAYOUTRTL flag) doesn't get this

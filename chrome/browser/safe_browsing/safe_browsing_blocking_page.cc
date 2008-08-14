@@ -51,13 +51,13 @@
 // diagnostic page.
 // TODO(paulg): Change 'googleclient' to a proper client name before launch.
 static const char* const kSbDiagnosticUrl =
-    "http://safebrowsing.clients.google.com/safebrowsing/diagnostic?site=%s&client=googleclient";
+    "http://safebrowsing.clients.google.com/safebrowsing/diagnostic?site=%ls&client=googleclient";
 
 static const char* const kSbReportPhishingUrl =
     "http://www.google.com/safebrowsing/report_error/";
 
 static const wchar_t* const kSbDiagnosticHtml =
-    L"<a href=\"\" onClick=\"sendCommand(4); return false;\">%s</a>";
+    L"<a href=\"\" onClick=\"sendCommand(4); return false;\">%ls</a>";
 
 // Created on the io_thread.
 SafeBrowsingBlockingPage::SafeBrowsingBlockingPage(

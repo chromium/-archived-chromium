@@ -243,7 +243,7 @@ struct ParamTraits<wchar_t> {
     return result;
   }
   static void Log(const param_type& p, std::wstring* l) {
-    l->append(StringPrintf(L"%c", p));
+    l->append(StringPrintf(L"%lc", p));
   }
 };
 
