@@ -72,6 +72,20 @@ class BrowserTest : public UITest {
      ::GetWindowText(window_handle, WriteInto(&result, length), length);
      return result;
    }
+
+   void LoadUnloadPageAndQuitBrowser(const std::wstring& test_filename) {
+     scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+ 
+     std::wstring test_file = test_data_directory_;
+     file_util::AppendToPath(&test_file, L"unload");
+     file_util::AppendToPath(&test_file, test_filename);
+
+     NavigateToURL(net::FilePathToFileURL(test_file));
+     Sleep(kWaitForActionMsec);
+
+     bool application_closed = false;
+     EXPECT_TRUE(CloseBrowser(browser.get(), &application_closed));
+   }
 };
 
 class VisibleBrowserTest : public UITest {
@@ -109,6 +123,39 @@ TEST_F(BrowserTest, Title) {
   EXPECT_EQ(WindowCaptionFromPageTitle(test_title), GetWindowTitle());
   EXPECT_EQ(test_title, GetActiveTabTitle());
 }
+
+// Tests closing the browser on a page with no unload listeners registered.
+TEST_F(BrowserTest, BrowserCloseNoUnloadListeners) {
+  LoadUnloadPageAndQuitBrowser(L"nolisteners.html");
+}
+
+// Tests closing the browser on a page with an unload listener registered.
+TEST_F(BrowserTest, BrowserCloseUnload) {
+  LoadUnloadPageAndQuitBrowser(L"unload.html");
+}
+
+// Tests closing the browser on a page with an unload listener registered where
+// the unload handler has an infinite loop.
+TEST_F(BrowserTest, BrowserCloseUnloadLooping) {
+  LoadUnloadPageAndQuitBrowser(L"unloadlooping.html");
+}
+
+// Tests closing the browser on a page with an unload listener registered where
+// the unload handler has an infinite loop followed by an alert.
+TEST_F(BrowserTest, BrowserCloseUnloadLoopingAlert) {
+  LoadUnloadPageAndQuitBrowser(L"unloadloopingalert.html");
+}
+
+// Tests closing the browser on a page with an unload listener registered where
+// the unload handler has an 2 second long loop followed by an alert.
+TEST_F(BrowserTest, BrowserCloseUnloadLoopingTwoSecondsAlert) {
+  LoadUnloadPageAndQuitBrowser(L"unloadloopingtwosecondsalert.html");
+}
+
+// TODO(ojan): Test popping up an alert in the unload handler and test
+// beforeunload. In addition add tests where we open all of these pages
+// in the browser and then close it, as well as having two windows and
+// closing only one of them.
 
 // The browser should quit quickly if it receives a WM_ENDSESSION message.
 TEST_F(BrowserTest, WindowsSessionEnd) {
