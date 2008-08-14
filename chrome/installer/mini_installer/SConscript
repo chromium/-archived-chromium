@@ -97,8 +97,16 @@ input_files = [
     "pe_resource.cc",
 ]
 
-exe = env.ChromeProgram('mini_installer',
-                        components + resources + input_files)
+if env['PLATFORM'] == 'win32':
+  targets = [
+      'mini_installer.exe',
+      'mini_installer.pdb',
+      'mini_installer.map',
+  ]
+else:
+  targets = ['mini_installer']
+
+exe = env.ChromeProgram(targets, components + resources + input_files)
 i = env.Install('$TARGET_ROOT', exe)
 env.Alias('chrome', i)
 

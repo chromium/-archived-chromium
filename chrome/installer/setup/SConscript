@@ -106,7 +106,16 @@ libs = [
     '../util/util.lib',
 ]
 
-exe = env.ChromeProgram('setup', resources + input_files + libs)
+if env['PLATFORM'] == 'win32':
+  targets = [
+      'setup.exe',
+      'setup.pdb',
+      'setup.lib',
+  ]
+else:
+  targets = ['setup']
+
+exe = env.ChromeProgram(targets, resources + input_files + libs)
 i = env.Install('$TARGET_ROOT', exe)
 
 env.Alias('chrome', i)

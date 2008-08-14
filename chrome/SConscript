@@ -205,10 +205,17 @@ libs = [
     '$V8_DIR/snapshot-empty.obj',
 ]
 
-dll_targets = env_dll.ChromeSharedLibrary(['chrome',
-                                     'chrome_dll.pdb',
-                                     'chrome_dll.lib'],
-                                    dll_resources + input_files + libs)
+if env['PLATFORM'] == 'win32':
+  targets = [
+      'chrome.dll',
+      'chrome_dll.pdb',
+      'chrome_dll.lib',
+  ]
+else:
+  targets = ['chrome']
+
+dll_targets = env_dll.ChromeSharedLibrary(targets,
+                                          dll_resources + input_files + libs)
 
 install_targets.extend(dll_targets)
 
@@ -303,10 +310,17 @@ env_exe.Append(
     ],
 )
 
+if env['PLATFORM'] == 'win32':
+  targets = [
+      'chrome.exe',
+      'chrome_exe.pdb',
+      'chrome_exe_implib.lib',
+  ]
+else:
+  targets = ['chrome']
+
 chrome_exe = env_exe.ChromeProgram(
-    ['chrome',
-     'chrome_exe.pdb',
-    ],
+    targets,
     [
         env_res.RES('app/chrome_exe.rc'),
         'app/breakpad.cc',
