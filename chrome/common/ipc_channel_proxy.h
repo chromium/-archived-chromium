@@ -136,11 +136,6 @@ class ChannelProxy : public Message::Sender {
   void AddFilter(MessageFilter* filter);
   void RemoveFilter(MessageFilter* filter);
 
-  // TODO(darin): kill this
-  bool ProcessPendingMessages(uint32 max_wait_msec) {
-    return false;
-  }
-
  protected:
   Channel::Listener* listener() const { return context_->listener(); }
 

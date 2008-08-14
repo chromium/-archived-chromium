@@ -31,6 +31,7 @@
 
 #include "base/command_line.h"
 #include "base/logging.h"
+#include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "base/time.h"
@@ -42,14 +43,18 @@
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
 
+// IPC::Logging is allocated as a singleton, so we don't need any kind of
+// special retention program.
+template <>
+struct RunnableMethodTraits<IPC::Logging> {
+  static void RetainCallee(IPC::Logging*) {}
+  static void ReleaseCallee(IPC::Logging*) {}
+};
+
 namespace IPC {
 
 const wchar_t kLoggingEventName[] = L"ChromeIPCLog.%d";
 const int kLogSendDelayMs = 100;
-
-scoped_refptr<Logging> Logging::current_;
-
-Lock Logging::logger_lock_;
 
 Logging::Logging()
     : logging_event_on_(NULL),
@@ -86,24 +91,18 @@ Logging::Logging()
 }
 
 Logging::~Logging() {
+  watcher_.StopWatching();
   CloseHandle(logging_event_on_);
   CloseHandle(logging_event_off_);
 }
 
 Logging* Logging::current() {
-  AutoLock lock(logger_lock_);
-
-  if (!current_.get())
-    current_ = new Logging();
-
-  return current_;
+  return Singleton<Logging>::get();
 }
 
 void Logging::RegisterWaitForEvent(bool enabled) {
-  MessageLoop::current()->WatchObject(
-      enabled ? logging_event_off_ : logging_event_on_, NULL);
-
-  MessageLoop::current()->WatchObject(
+  watcher_.StopWatching();
+  watcher_.StartWatching(
       enabled ? logging_event_on_ : logging_event_off_, this);
 }
 
