@@ -69,6 +69,7 @@ input_files = [
     'create_reg_key_work_item.cc',
     'delete_tree_work_item.cc',
     'google_update_constants.cc',
+    'google_update_settings.cc',
     'helper.cc',
     'install_util.cc',
     'l10n_string_util.cc',

@@ -326,7 +326,6 @@ chrome_exe = env_exe.ChromeProgram(
         'app/breakpad.cc',
         'app/chrome_exe_main.cc',
         'app/google_update_client.cc',
-        'app/google_update_settings.cc',
 
         'common/common.lib',
         '$CHROME_DIR/chrome_dll.lib',
