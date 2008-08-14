@@ -72,6 +72,19 @@ enum LoadState;
 //
 class RenderViewHostDelegate {
  public:
+  class FindInPage {
+   public:
+    // A find operation in the current page completed.
+    virtual void FindReply(int request_id,
+                           int number_of_matches,
+                           const gfx::Rect& selection_rect,
+                           int active_match_ordinal,
+                           bool final_update) = 0;
+  };
+
+  // Returns the current find in page delegate, if any.
+  virtual FindInPage* GetFindInPageDelegate() { return NULL; }
+
   // Retrieves the profile to be used.
   virtual Profile* GetProfile() const = 0;
 
@@ -167,20 +180,9 @@ class RenderViewHostDelegate {
       const GURL& url,
       bool showing_repost_interstitial) { }
 
-  // A find operation in the current page completed.
-  virtual void FindReply(int request_id,
-                         int number_of_matches,
-                         const gfx::Rect& selection_rect,
-                         int active_match_ordinal,
-                         bool final_update) { }
-
   // The URL for the FavIcon of a page has changed.
   virtual void UpdateFavIconURL(RenderViewHost* render_view_host,
                                 int32 page_id, const GURL& icon_url) { }
-
-  // The FavIcon for a page needs to be downloaded.
-  virtual void DownloadFavIcon(RenderViewHost* render_view_host,
-                               int32 page_id) { }
 
   // An image that was requested to be downloaded by DownloadImage has
   // completed.

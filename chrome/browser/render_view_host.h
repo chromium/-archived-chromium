@@ -34,6 +34,7 @@
 #include <vector>
 
 #include "base/scoped_handle.h"
+#include "chrome/browser/render_view_host_delegate.h"
 #include "chrome/browser/render_widget_host.h"
 #include "webkit/glue/password_form_dom_manager.h"
 
@@ -208,14 +209,6 @@ class RenderViewHost : public RenderWidgetHost {
   // Cancel a pending find operation. If |clear_selection| is true, it will also
   // clear the selection on the focused frame.
   void StopFinding(bool clear_selection);
-
-  // Sends a notification to the renderer that we are ready to receive more
-  // results from the scoping effort of the Find operation. The FindInPage
-  // scoping is asynchronous and periodically sends results back up to the
-  // browser using IPC. In an effort to not spam the browser we have the
-  // browser send an ACK for each FindReply message and have the renderer
-  // queue up the latest status message while waiting for this ACK.
-  void SendFindReplyAck();
 
   // Change the text size of the page.
   void AlterTextSize(text_zoom::TextSize size);

@@ -339,10 +339,6 @@ void RenderViewHost::StopFinding(bool clear_selection) {
   Send(new ViewMsg_StopFinding(routing_id_, clear_selection));
 }
 
-void RenderViewHost::SendFindReplyAck() {
-  Send(new ViewMsg_FindReplyACK(routing_id_));
-}
-
 void RenderViewHost::AlterTextSize(text_zoom::TextSize size) {
   Send(new ViewMsg_AlterTextSize(routing_id_, size));
 }
@@ -936,9 +932,20 @@ void RenderViewHost::OnMsgFindReply(int request_id,
                                     const gfx::Rect& selection_rect,
                                     int active_match_ordinal,
                                     bool final_update) {
-  delegate_->FindReply(request_id, number_of_matches,
-                       selection_rect, active_match_ordinal, final_update);
-  SendFindReplyAck();
+  RenderViewHostDelegate::FindInPage* delegate =
+      delegate_->GetFindInPageDelegate();
+  if (!delegate)
+    return;
+  delegate->FindReply(request_id, number_of_matches, selection_rect,
+                      active_match_ordinal, final_update);
+
+  // Send a notification to the renderer that we are ready to receive more
+  // results from the scoping effort of the Find operation. The FindInPage
+  // scoping is asynchronous and periodically sends results back up to the
+  // browser using IPC. In an effort to not spam the browser we have the
+  // browser send an ACK for each FindReply message and have the renderer
+  // queue up the latest status message while waiting for this ACK.
+  Send(new ViewMsg_FindReplyACK(routing_id_));
 }
 
 void RenderViewHost::OnMsgUpdateFavIconURL(int32 page_id,

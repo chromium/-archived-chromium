@@ -263,10 +263,6 @@ class TabContents : public PageNavigator,
   void AddConstrainedPopup(TabContents* new_contents,
                            const gfx::Rect& initial_pos);
 
-  // Find functions: subclasses should override to implement "Find" in a
-  // sensible way for their content types
-  virtual bool CanFind() const { return false; }
-
   // An asynchronous call to trigger the string search in the page.
   // It sends an IPC message to the Renderer that handles the string
   // search, selecting the matches and setting the caret positions.

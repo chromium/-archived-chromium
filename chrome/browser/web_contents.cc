@@ -672,7 +672,7 @@ void WebContents::Stop() {
 void WebContents::DidBecomeSelected() {
   TabContents::DidBecomeSelected();
 
-  if (render_view_host() && view())
+  if (view())
     view()->DidBecomeSelected();
 
   CacheManagerHost::GetInstance()->ObserveActivity(process()->host_id());
@@ -685,7 +685,7 @@ void WebContents::WasHidden() {
     // is because closing the tab calls WebContents::Destroy(), which removes
     // the |render_view_host()|; then when we actually destroy the window,
     // OnWindowPosChanged() notices and calls HideContents() (which calls us).
-    if (render_view_host() && view())
+    if (view())
       view()->WasHidden();
 
     // Loop through children and send WasHidden to them, too.
@@ -719,9 +719,6 @@ void WebContents::StopFinding(bool clear_selection) {
 }
 
 void WebContents::OpenFindInPageWindow(const Browser& browser) {
-  if (!CanFind())
-    return;
-
   if (!find_in_page_controller_.get()) {
     // Get the Chrome top-level (Frame) window.
     HWND hwnd = browser.GetTopLevelHWND();
@@ -739,9 +736,6 @@ void WebContents::ReparentFindWindow(HWND new_parent) {
 }
 
 bool WebContents::AdvanceFindSelection(bool forward_direction) {
-  if (!CanFind())
-    return false;
-
   // If no controller has been created or it doesn't know what to search for
   // then just return false so that caller knows that it should create and
   // show the window.
@@ -1077,6 +1071,12 @@ bool WebContents::IsActiveEntry(int32 page_id) {
 
 ///////////////////////////////////////////////////////////////////////////////
 // RenderViewHostDelegate implementation:
+
+RenderViewHostDelegate::FindInPage* WebContents::GetFindInPageDelegate() {
+  // The find in page controller implements this interface for us. Our return
+  // value can be NULL, so it's fine if the find in controller doesn't exist.
+  return find_in_page_controller_.get();
+}
 
 Profile* WebContents::GetProfile() const {
   return profile();
@@ -1892,25 +1892,6 @@ void WebContents::DidFailProvisionalLoadWithError(
       Notify(NOTIFY_FAIL_PROVISIONAL_LOAD_WITH_ERROR,
              Source<NavigationController>(controller()),
              Details<ProvisionalLoadDetails>(&details));
-}
-
-void WebContents::FindReply(int request_id,
-                            int number_of_matches,
-                            const gfx::Rect& selection_rect,
-                            int active_match_ordinal,
-                            bool final_update) {
-  // ViewMsgHost_FindResult message received. The find-in-page result
-  // is obtained. Fire the notification
-  FindNotificationDetails detail(request_id,
-                                 number_of_matches,
-                                 selection_rect,
-                                 active_match_ordinal,
-                                 final_update);
-  // Notify all observers of this notification.
-  // The current find box owns one such observer.
-  NotificationService::current()->
-      Notify(NOTIFY_FIND_RESULT_AVAILABLE, Source<TabContents>(this),
-             Details<FindNotificationDetails>(&detail));
 }
 
 void WebContents::UpdateFavIconURL(RenderViewHost* render_view_host,

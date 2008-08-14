@@ -91,12 +91,6 @@ FindInPageController::FindInPageController(TabContents* parent_tab,
   // Start the process of animating the opening of the window.
   animation_.reset(new SlideAnimation(this));
   animation_->Show();
-
-  // We need to be notified about when results from a find operation are
-  // available.
-  NotificationService::current()->
-      AddObserver(this, NOTIFY_FIND_RESULT_AVAILABLE,
-                        Source<TabContents>(parent_tab));
 }
 
 FindInPageController::~FindInPageController() {
@@ -302,7 +296,7 @@ void FindInPageController::StartFinding(bool forward_direction) {
 }
 
 void FindInPageController::StopFinding(bool clear_selection) {
-  last_find_string_ = L"";
+  last_find_string_.clear();
   parent_tab_->StopFinding(clear_selection);
 }
 
@@ -364,10 +358,6 @@ void FindInPageController::OnFinalMessage(HWND window) {
   // destroyed resulting in the focus tracker trying to reference a deleted
   // focus manager.
   focus_tracker_.reset(NULL);
-
-  NotificationService::current()->
-      RemoveObserver(this, NOTIFY_FIND_RESULT_AVAILABLE,
-                     Source<TabContents>(parent_tab_));
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -440,6 +430,41 @@ void FindInPageController::AnimationEnded(
   } else {
     // Animation has finished opening.
   }
+}
+
+void FindInPageController::FindReply(int request_id,
+                                     int number_of_matches,
+                                     const gfx::Rect& selection_rect,
+                                     int active_match_ordinal,
+                                     bool final_update) {
+  // Ignore responses for requests other than the one we have most recently
+  // issued. That way we won't act on stale results when the user has
+  // already typed in another query.
+  if (view_ && request_id == current_request_id_) {
+    view_->UpdateMatchCount(number_of_matches, final_update);
+    view_->UpdateActiveMatchOrdinal(active_match_ordinal);
+    view_->UpdateResultLabel();
+
+    // We now need to check if the window is obscuring the search results.
+    if (!selection_rect.IsEmpty())
+      MoveWindowIfNecessary(selection_rect);
+
+    // Once we find a match we no longer want to keep track of what had
+    // focus. EndFindSession will then set the focus to the page content.
+    if (number_of_matches > 0)
+      focus_tracker_.reset(NULL);
+  }
+
+  // Notify all observers of this notification, such as the automation
+  // providers which do UI tests for find in page.
+  FindNotificationDetails detail(request_id,
+                                 number_of_matches,
+                                 selection_rect,
+                                 active_match_ordinal,
+                                 final_update);
+  NotificationService::current()->
+      Notify(NOTIFY_FIND_RESULT_AVAILABLE, Source<TabContents>(parent_tab_),
+             Details<FindNotificationDetails>(&detail));
 }
 
 void FindInPageController::GetDialogBounds(gfx::Rect* bounds) {
@@ -679,36 +704,4 @@ void FindInPageController::UnregisterEscAccelerator() {
       focus_manager_->GetTargetForAccelerator(escape);
   if (current_target == this)
     focus_manager_->RegisterAccelerator(escape, old_accel_target_for_esc_);
-}
-
-void FindInPageController::Observe(NotificationType type,
-                                   const NotificationSource& source,
-                                   const NotificationDetails& details) {
-  switch (type) {
-    case NOTIFY_FIND_RESULT_AVAILABLE: {
-      Details<FindNotificationDetails> find_details(details);
-      // Ignore responses for requests other than the one we have most recently
-      // issued. That way we won't act on stale results when the user has
-      // already typed in another query.
-      if (view_ && find_details->request_id() == current_request_id_) {
-        view_->UpdateMatchCount(find_details->number_of_matches(),
-                                find_details->final_update());
-        view_->UpdateActiveMatchOrdinal(find_details->active_match_ordinal());
-        view_->UpdateResultLabel();
-
-        // We now need to check if the window is obscuring the search results.
-        if (!find_details->selection_rect().IsEmpty())
-          MoveWindowIfNecessary(find_details->selection_rect());
-
-        // Once we find a match we no longer want to keep track of what had
-        // focus. EndFindSession will then set the focus to the page content.
-        if (find_details->number_of_matches() > 0)
-          focus_tracker_.reset(NULL);
-      }
-      break;
-    }
-    default:
-      NOTREACHED() << L"Notification not handled";
-      return;
-  }
 }

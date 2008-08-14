@@ -31,8 +31,8 @@
 #define CHROME_BROWSER_FIND_IN_PAGE_CONTROLLER_H__
 
 #include "base/gfx/size.h"
+#include "chrome/browser/render_view_host_delegate.h"
 #include "chrome/common/slide_animation.h"
-#include "chrome/common/notification_service.h"
 #include "chrome/views/hwnd_view_container.h"
 
 class FindInPageView;
@@ -56,7 +56,7 @@ namespace ChromeViews {
 // We create one controller per tab and remember each search query per tab.
 //
 ////////////////////////////////////////////////////////////////////////////////
-class FindInPageController : public NotificationObserver,
+class FindInPageController : public RenderViewHostDelegate::FindInPage,
                              public ChromeViews::FocusChangeListener,
                              public ChromeViews::HWNDViewContainer,
                              public AnimationDelegate {
@@ -141,7 +141,15 @@ class FindInPageController : public NotificationObserver,
   // AnimationDelegate implementation:
   virtual void AnimationProgressed(const Animation* animation);
   virtual void AnimationEnded(const Animation* animation);
+
  private:
+  // RenderViewHostDelegate::FindInPage implementation.
+  virtual void FindReply(int request_id,
+                         int number_of_matches,
+                         const gfx::Rect& selection_rect,
+                         int active_match_ordinal,
+                         bool final_update);
+
   // Retrieves the boundaries that the FindInPage dialog has to work with within
   // the Chrome frame window. The resulting rectangle will be a rectangle that
   // overlaps the bottom of the Chrome toolbar by one pixel (so we can create
@@ -192,12 +200,6 @@ class FindInPageController : public NotificationObserver,
   // When we loose focus, we unregister the handler for Escape. See
   // also: SetFocusChangeListener().
   void UnregisterEscAccelerator();
-
-  // Listens for notifications to know when search results are available, or
-  // when user selected a new tab (at which point we need to show/hide the
-  // FindInPage window depending on what the user selected).
-  virtual void Observe(NotificationType type, const NotificationSource& source,
-                       const NotificationDetails& details);
 
   // The tab we are associated with.
   TabContents* parent_tab_;

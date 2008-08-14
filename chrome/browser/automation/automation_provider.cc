@@ -1688,6 +1688,14 @@ void AutomationProvider::HandleFindInPageRequest(
   find_in_page_observer_.reset(new
       FindInPageNotificationObserver(this, tab_contents, message.routing_id()));
 
+  // The find in page dialog must be up for us to get the notification that the
+  // find was complete
+  if (tab_contents->AsWebContents()) {
+    NavigationController* tab = tab_tracker_->GetResource(handle);
+    Browser* browser = Browser::GetBrowserForController(tab, NULL);
+    tab_contents->AsWebContents()->OpenFindInPageWindow(*browser);
+  }
+
   // The explicit comparison to TRUE avoids a warning (C4800).
   tab_contents->StartFinding(
       FindInPageNotificationObserver::kFindInPageRequestId,

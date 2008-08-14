@@ -106,7 +106,6 @@ class WebContents : public TabContents,
   virtual std::wstring GetStatusText() const;
 
   // Find functions
-  virtual bool CanFind() const { return true; }
   virtual void StartFinding(int request_id,
                             const std::wstring& search_string,
                             bool forward,
@@ -369,6 +368,7 @@ class WebContents : public TabContents,
   virtual ~WebContents();
 
   // RenderViewHostDelegate
+  virtual RenderViewHostDelegate::FindInPage* GetFindInPageDelegate();
   virtual Profile* GetProfile() const;
 
   virtual void CreateView(int route_id, HANDLE modal_dialog_event);
@@ -415,11 +415,6 @@ class WebContents : public TabContents,
       int error_code,
       const GURL& url,
       bool showing_repost_interstitial);
-  virtual void FindReply(int request_id,
-                         int number_of_matches,
-                         const gfx::Rect& selection_rect,
-                         int active_match_ordinal,
-                         bool final_update);
   virtual void UpdateFavIconURL(RenderViewHost* render_view_host,
                                 int32 page_id, const GURL& icon_url);
   virtual void DidDownloadImage(RenderViewHost* render_view_host,
