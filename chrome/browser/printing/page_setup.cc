@@ -86,9 +86,9 @@ void PageSetup::Init(const gfx::Size& physical_size,
                      const gfx::Rect& printable_area,
                      int text_height) {
   DCHECK_LE(printable_area.right(), physical_size.width());
-  // I've seen this assert triggers on Canon GP160PF PCL 5e.
-  // 28092 vs. 27940 @ 600 dpi = ~.25 inch.
-  DCHECK_LE(printable_area.bottom(), physical_size.height());
+  // I've seen this assert triggers on Canon GP160PF PCL 5e and HP LaserJet 5.
+  // Since we don't know the dpi here, just disable the check.
+  // DCHECK_LE(printable_area.bottom(), physical_size.height());
   DCHECK_GE(printable_area.x(), 0);
   DCHECK_GE(printable_area.y(), 0);
   DCHECK_GE(text_height, 0);
