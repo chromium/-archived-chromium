@@ -312,7 +312,8 @@ elif env['PLATFORM'] == 'posix':
       # TODO(linux): we should also compile with -Werror, but not yet.
       CCFLAGS = ['-m32', '-g'],
       LINKFLAGS = ['-m32'],
-      LIBS = ['pthread'],
+      # We need pthread for threading, and rt for clock_gettime.
+      LIBS = ['pthread', 'rt'],
   )
 
 else:

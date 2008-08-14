@@ -76,11 +76,13 @@ input_files = [
     'string_piece.cc',
     'string_util.cc',
     'string_util_icu.cc',
+    'time.cc',
     'timer.cc',
     'tracked.cc',
     'tracked_objects.cc',
     'values.cc',
     'word_iterator.cc',
+    'third_party/nspr/prtime.cc',
 ]
 
 if env['PLATFORM'] == 'win32':
@@ -107,10 +109,8 @@ if env['PLATFORM'] == 'win32':
     'sha2.cc',
     'shared_event.cc',
     'stats_table.cc',
-    'third_party/nspr/prtime.cc',
     'third_party/nss/sha512.cc',
     'thread.cc',
-    'time.cc',
     'watchdog.cc',
     'worker_pool.cc',
   ])
@@ -248,7 +248,9 @@ test_files = [
     'string_escape_unittest.cc',
     'string_piece_unittest.cc',
     'string_tokenizer_unittest.cc',
+    'time_unittest.cc',
     'values_unittest.cc',
+    'waitable_event_unittest.cc',
     'gfx/convolver_unittest.cc',
     'gfx/rect_unittest.cc',
 ]
@@ -280,9 +282,7 @@ if env['PLATFORM'] == 'win32':
     'thread_local_storage_unittest.cc',
     'thread_unittest.cc',
     'timer_unittest.cc',
-    'time_unittest.cc',
     'tracked_objects_test.cc',
-    'waitable_event_unittest.cc',
     'word_iterator_unittest.cc',
     'gfx/image_operations_unittest.cc',
     'gfx/native_theme_unittest.cc',

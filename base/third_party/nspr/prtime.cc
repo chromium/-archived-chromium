@@ -144,9 +144,39 @@ PR_ImplodeTime(const PRExplodedTime *exploded)
     result *= 1000000L;  // Seconds to microseconds
     result += exploded->tm_usec;
     return result;
+#elif defined(OS_LINUX)
+    struct tm exp_tm = {0};
+    exp_tm.tm_sec  = exploded->tm_sec;
+    exp_tm.tm_min  = exploded->tm_min;
+    exp_tm.tm_hour = exploded->tm_hour;
+    exp_tm.tm_mday = exploded->tm_mday;
+    exp_tm.tm_mon  = exploded->tm_month;
+    exp_tm.tm_year = exploded->tm_year - 1900;
+
+    // We assume that time_t is defined as a long.
+    time_t absolute_time = timegm(&exp_tm);
+
+    if (absolute_time == -1) {
+      // Date was possibly too far in the future and would overflow.  Return
+      // the most future date possible (year 2038).
+      if (exploded->tm_year > 1970)
+        return static_cast<PRTime>(LONG_MAX) * 1000000;
+      // Date was possibly too far in the past and would underflow.  Return
+      // the most past date possible (year 1901).
+      if (exploded->tm_year < 1969)
+        return static_cast<PRTime>(LONG_MIN) * 1000000;
+      // Year was 1969 or 1970, assume -1 was the correct conversion.
+      return static_cast<PRTime>(-1) * 1000000;
+    }
+
+    PRTime result = static_cast<PRTime>(absolute_time);
+    result -= exploded->tm_params.tp_gmt_offset +
+              exploded->tm_params.tp_dst_offset;
+    result *= 1000000L;  // Seconds to microseconds
+    result += exploded->tm_usec;
+    return result;
 #else
-    NOTREACHED();
-    memset(time, 0, sizeof(*time));
+#error No PR_ImplodeTime implemented on your platform.
 #endif
 }
 
