@@ -820,7 +820,7 @@ bool AutomatedUITest::DragActiveTab(bool drag_right, bool drag_out) {
                                         destination_point,
                                         ChromeViews::Event::EF_LEFT_BUTTON_DOWN,
                                         kWaitForActionMaxMsec,
-                                        &is_timeout)) {
+                                        &is_timeout, false)) {
     AddWarningAttribute("failed_to_simulate_drag");
     return false;
   }

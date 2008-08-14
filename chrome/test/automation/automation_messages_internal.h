@@ -317,8 +317,8 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   //       defined in chrome/views/event.h
   // Response:
   //   bool - true if the drag could be performed
-  IPC_MESSAGE_ROUTED3(AutomationMsg_WindowDragRequest,
-                      int, std::vector<POINT>, int)
+  IPC_MESSAGE_ROUTED4(AutomationMsg_WindowDragRequest,
+                      int, std::vector<POINT>, int, bool)
   IPC_MESSAGE_ROUTED1(AutomationMsg_WindowDragResponse, bool)
 
   // Similar to AutomationMsg_InitialLoadsComplete, this indicates that the

@@ -1272,7 +1272,8 @@ void AutomationProvider::WindowSimulateClick(const IPC::Message& message,
 void AutomationProvider::WindowSimulateDrag(const IPC::Message& message,
                                             int handle,
                                             std::vector<POINT> drag_path,
-                                            int flags) {
+                                            int flags,
+                                            bool press_escape_en_route) {
   bool succeeded = false;
   if (browser_tracker_->ContainsHandle(handle) && (drag_path.size() > 1)) {
     succeeded = true;
@@ -1313,6 +1314,17 @@ void AutomationProvider::WindowSimulateDrag(const IPC::Message& message,
     }
     POINT end = drag_path[drag_path.size() - 1];
     SetCursorPos(end.x, end.y);
+
+    if (press_escape_en_route) {
+      // Press Escape.
+      ui_controls::SendKeyPress(VK_ESCAPE,
+                               ((flags & ChromeViews::Event::EF_CONTROL_DOWN)
+                                == ChromeViews::Event::EF_CONTROL_DOWN),
+                               ((flags & ChromeViews::Event::EF_SHIFT_DOWN) ==
+                                ChromeViews::Event::EF_SHIFT_DOWN),
+                               ((flags & ChromeViews::Event::EF_ALT_DOWN) ==
+                                ChromeViews::Event::EF_ALT_DOWN));
+    }
     SendMessage(top_level_hwnd, up_message, wparam_flags,
                 MAKELPARAM(end.x, end.y));
 

@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_TEST_AUTOMATION_BROWSER_PROXY_H__
-#define CHROME_TEST_AUTOMATION_BROWSER_PROXY_H__
+#ifndef CHROME_TEST_AUTOMATION_BROWSER_PROXY_H_
+#define CHROME_TEST_AUTOMATION_BROWSER_PROXY_H_
 
 #include <string>
 #include <windows.h>
@@ -130,13 +130,15 @@ class BrowserProxy : public AutomationResourceProxy {
   // Performs a drag operation between the start and end points (both defined
   // in window coordinates).  |flags| specifies which buttons are pressed for
   // the drag, as defined in chrome/views/event.h.
-  virtual bool SimulateDrag(const POINT& start, const POINT& end, int flags);
+  virtual bool SimulateDrag(const POINT& start, const POINT& end, int flags,
+                            bool press_escape_en_route);
 
   // Like SimulateDrag, but returns false if response is not received before
   // the specified timeout.
   virtual bool SimulateDragWithTimeout(const POINT& start, const POINT& end,
                                        int flags, uint32 timeout_ms,
-                                       bool* is_timeout);
+                                       bool* is_timeout,
+                                       bool press_escape_en_route);
 
   // Block the thread until the tab count changes.
   // |count| is the original tab count.
@@ -166,4 +168,4 @@ class BrowserProxy : public AutomationResourceProxy {
   DISALLOW_EVIL_CONSTRUCTORS(BrowserProxy);
 };
 
-#endif  // #define CHROME_TEST_AUTOMATION_BROWSER_PROXY_H__
+#endif  // CHROME_TEST_AUTOMATION_BROWSER_PROXY_H_

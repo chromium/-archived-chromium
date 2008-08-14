@@ -144,7 +144,8 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   void WindowSimulateDrag(const IPC::Message& message,
                           int handle,
                           std::vector<POINT> drag_path,
-                          int flags);
+                          int flags,
+                          bool press_escape_en_route);
   void WindowSimulateClick(const IPC::Message& message,
                           int handle,
                           POINT click,

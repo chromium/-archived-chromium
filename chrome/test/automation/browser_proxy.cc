@@ -254,15 +254,18 @@ bool BrowserProxy::ApplyAccelerator(int id) {
 
 bool BrowserProxy::SimulateDrag(const POINT& start,
                                 const POINT& end,
-                                int flags) {
-  return SimulateDragWithTimeout(start, end, flags, INFINITE, NULL);
+                                int flags,
+                                bool press_escape_en_route) {
+  return SimulateDragWithTimeout(start, end, flags, INFINITE, NULL,
+                                 press_escape_en_route);
 }
 
 bool BrowserProxy::SimulateDragWithTimeout(const POINT& start,
                                            const POINT& end,
                                            int flags,
                                            uint32 timeout_ms,
-                                           bool* is_timeout) {
+                                           bool* is_timeout,
+                                           bool press_escape_en_route) {
   if (!is_valid())
     return false;
 
@@ -272,7 +275,8 @@ bool BrowserProxy::SimulateDragWithTimeout(const POINT& start,
 
   IPC::Message* response = NULL;
   bool succeeded = sender_->SendAndWaitForResponseWithTimeout(
-      new AutomationMsg_WindowDragRequest(0, handle_, drag_path, flags),
+      new AutomationMsg_WindowDragRequest(0, handle_, drag_path, flags,
+                                          press_escape_en_route),
       &response, AutomationMsg_WindowDragResponse::ID, timeout_ms, is_timeout);
 
   scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
