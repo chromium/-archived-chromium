@@ -92,6 +92,29 @@ inline int swprintf(wchar_t* buffer, size_t size, const wchar_t* format, ...) {
 size_t strlcpy(char* dst, const char* src, size_t dst_size);
 size_t wcslcpy(wchar_t* dst, const wchar_t* src, size_t dst_size);
 
+// Scan a wprintf format string to determine whether it's portable across a
+// variety of systems.  This function only checks that the conversion
+// specifiers used by the format string are supported and have the same meaning
+// on a variety of systems.  It doesn't check for other errors that might occur
+// within a format string.
+//
+// Nonportable conversion specifiers for wprintf are:
+//  - 's' and 'c' without an 'l' length modifier.  %s and %c operate on char
+//     data on all systems except Windows, which treat them as wchar_t data.
+//     Use %ls and %lc for wchar_t data instead.
+//  - 'S' and 'C', which operate on wchar_t data on all systems except Windows,
+//     which treat them as char data.  Use %ls and %lc for wchar_t data
+//     instead.
+//  - 'F', which is not identified by Windows wprintf documentation.
+//  - 'D', 'O', and 'U', which are deprecated and not available on all systems.
+//     Use %ld, %lo, and %lu instead.
+//
+// Note that there is no portable conversion specifier for char data when
+// working with wprintf.
+//
+// This function is intended to be called from base::vswprintf.
+bool IsWprintfFormatPortable(const wchar_t* format);
+
 }  // namespace base
 
 #if defined(OS_WIN)

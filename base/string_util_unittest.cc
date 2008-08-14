@@ -978,7 +978,7 @@ TEST(StringUtilTest, StringPrintfEmptyFormat) {
 
 TEST(StringUtilTest, StringPrintfMisc) {
   EXPECT_EQ("123hello w", StringPrintf("%3d%2s %1c", 123, "hello", 'w'));
-  EXPECT_EQ(L"123hello w", StringPrintf(L"%3d%2ls %1c", 123, L"hello", 'w'));
+  EXPECT_EQ(L"123hello w", StringPrintf(L"%3d%2ls %1lc", 123, L"hello", 'w'));
 }
 
 TEST(StringUtilTest, StringAppendfStringEmptyParam) {
@@ -997,7 +997,7 @@ TEST(StringUtilTest, StringAppendfEmptyString) {
   EXPECT_EQ("Hello", value);
 
   std::wstring valuew(L"Hello");
-  StringAppendF(&valuew, L"%s", L"");
+  StringAppendF(&valuew, L"%ls", L"");
   EXPECT_EQ(L"Hello", valuew);
 }
 
@@ -1304,5 +1304,37 @@ TEST(StringUtilTest, LcpyTest) {
     EXPECT_EQ(0, memcmp(dst, "ab", 3));
     EXPECT_EQ(7, base::wcslcpy(wdst, L"abcdefg", arraysize(wdst)));
     EXPECT_EQ(0, memcmp(wdst, L"ab", sizeof(wchar_t) * 3));
+  }
+}
+
+TEST(StringUtilTest, WprintfFormatPortabilityTest) {
+  struct TestData {
+    const wchar_t* input;
+    bool portable;
+  } cases[] = {
+    { L"%ls", true },
+    { L"%s", false },
+    { L"%S", false },
+    { L"%lS", false },
+    { L"Hello, %s", false },
+    { L"%lc", true },
+    { L"%c", false },
+    { L"%C", false },
+    { L"%lC", false },
+    { L"%ls %s", false },
+    { L"%s %ls", false },
+    { L"%s %ls %s", false },
+    { L"%f", true },
+    { L"%f %F", false },
+    { L"%d %D", false },
+    { L"%o %O", false },
+    { L"%u %U", false },
+    { L"%f %d %o %u", true },
+    { L"%-8d (%02.1f%)", true },
+    { L"% 10s", false },
+    { L"% 10ls", true }
+  };
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); ++i) {
+    EXPECT_EQ(cases[i].portable, base::IsWprintfFormatPortable(cases[i].input));
   }
 }

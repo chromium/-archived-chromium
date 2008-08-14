@@ -49,10 +49,13 @@
 #pragma warning(pop)
 #undef LOG
 
+// Brings in more WebKit headers and #undefs LOG again, so this needs to come
+// first.
+#include "webkit/glue/autocomplete_input_listener.h"
+
 #include "webkit/glue/dom_operations.h"
 
 #include "base/string_util.h"
-#include "webkit/glue/autocomplete_input_listener.h"
 #include "webkit/glue/form_data.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/password_autocomplete_listener.h"

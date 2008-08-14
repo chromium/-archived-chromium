@@ -42,7 +42,6 @@
 #include "KeyboardEvent.h"
 #include "PlatformKeyboardEvent.h"
 #include "PlatformString.h"
-#include "WebView.h"
 #pragma warning(pop)
 
 #undef LOG
@@ -51,6 +50,7 @@
 #include "webkit/glue/editor_client_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
+#include "webkit/glue/webview.h"
 #include "webkit/glue/webview_impl.h"
 
 // The notImplemented() from NotImplemented.h is now being dragged in via

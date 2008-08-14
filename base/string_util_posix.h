@@ -35,6 +35,8 @@
 #include <string.h>
 #include <wchar.h>
 
+#include "base/logging.h"
+
 namespace base {
 
 inline int strncasecmp(const char* string1, const char* string2, size_t count) {
@@ -48,6 +50,7 @@ inline int vsnprintf(char* buffer, size_t size,
 
 inline int vswprintf(wchar_t* buffer, size_t size,
                      const wchar_t* format, va_list arguments) {
+  DCHECK(IsWprintfFormatPortable(format));
   return ::vswprintf(buffer, size, format, arguments);
 }
 

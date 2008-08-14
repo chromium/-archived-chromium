@@ -31,10 +31,12 @@
 
 #include "v8_np_utils.h"
 
-#include "base/scoped_ptr.h"
-#include "base/string_util.h"
 #include "DOMWindow.h"
 #include "Frame.h"
+#undef LOG
+
+#include "base/scoped_ptr.h"
+#include "base/string_util.h"
 #include "npruntime_priv.h"
 #include "np_v8object.h"
 #include "v8_npobject.h"

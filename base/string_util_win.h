@@ -27,13 +27,15 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_STRING_UTIL_WIN_H__
-#define BASE_STRING_UTIL_WIN_H__
+#ifndef BASE_STRING_UTIL_WIN_H_
+#define BASE_STRING_UTIL_WIN_H_
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #include <wchar.h>
+
+#include "base/logging.h"
 
 namespace base {
 
@@ -51,6 +53,8 @@ inline int vsnprintf(char* buffer, size_t size,
 
 inline int vswprintf(wchar_t* buffer, size_t size,
                      const wchar_t* format, va_list arguments) {
+  DCHECK(IsWprintfFormatPortable(format));
+
   int length = _vsnwprintf_s(buffer, size, size - 1, format, arguments);
   if (length < 0)
     return _vscwprintf(format, arguments);
@@ -59,4 +63,4 @@ inline int vswprintf(wchar_t* buffer, size_t size,
 
 }  // namespace base
 
-#endif  // BASE_STRING_UTIL_WIN_H__
+#endif  // BASE_STRING_UTIL_WIN_H_
