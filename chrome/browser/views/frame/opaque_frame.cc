@@ -29,6 +29,7 @@
 
 #include "chrome/browser/views/frame/opaque_frame.h"
 
+#include "chrome/browser/frame_util.h"
 #include "chrome/browser/tabs/tab_strip.h"
 #include "chrome/browser/views/frame/browser_view2.h"
 #include "chrome/browser/views/frame/opaque_non_client_view.h"
@@ -98,12 +99,31 @@ bool OpaqueFrame::GetAccelerator(int cmd_id,
   return browser_view_->GetAccelerator(cmd_id, accelerator);
 }
 
+void OpaqueFrame::OnEndSession(BOOL ending, UINT logoff) {
+  FrameUtil::EndSession();
+}
+
+LRESULT OpaqueFrame::OnMouseActivate(HWND window, UINT hittest_code,
+                                     UINT message) {
+  return browser_view_->ActivateAppModalDialog() ? MA_NOACTIVATEANDEAT
+                                                 : MA_ACTIVATE;
+}
+
 void OpaqueFrame::OnMove(const CPoint& point) {
   browser_view_->WindowMoved();
 }
 
 void OpaqueFrame::OnMoving(UINT param, const RECT* new_bounds) {
   browser_view_->WindowMoved();
+}
+
+LRESULT OpaqueFrame::OnNCActivate(BOOL active) {
+  if (browser_view_->ActivateAppModalDialog())
+    return TRUE;
+
+  CustomFrameWindow::OnNCActivate(active);
+  browser_view_->ActivationChanged(!!active);
+  return TRUE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

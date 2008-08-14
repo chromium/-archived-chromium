@@ -30,6 +30,7 @@
 #include "chrome/browser/views/frame/browser_view2.h"
 
 #include "chrome/app/theme/theme_resources.h"
+#include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/tab_contents_container_view.h"
@@ -146,6 +147,25 @@ bool BrowserView2::GetAccelerator(int cmd_id,
 
 void BrowserView2::AddViewToDropList(ChromeViews::View* view) {
   dropable_views_.insert(view);
+}
+
+bool BrowserView2::ActivateAppModalDialog() const {
+  // If another browser is app modal, flash and activate the modal browser.
+  if (BrowserList::IsShowingAppModalDialog()) {
+    if (browser_ != BrowserList::GetLastActive()) {
+      BrowserList::GetLastActive()->window()->FlashFrame();
+      BrowserList::GetLastActive()->MoveToFront(true);
+    }
+    AppModalDialogQueue::ActivateModalDialog();
+    return true;
+  }
+  return false;
+}
+
+void BrowserView2::ActivationChanged(bool activated) {
+  // The Browser wants to update the BrowserList to let it know it's now
+  // active.
+  browser_->WindowActivationChanged(activated);
 }
 
 bool BrowserView2::SupportsWindowFeature(WindowFeature feature) const {

@@ -169,6 +169,8 @@ bool FrameUtil::ActivateAppModalDialog(Browser* browser) {
 }
 
 // static
+// TODO(beng): post new frames, move somewhere more logical, maybe Browser or
+//             BrowserList.
 void FrameUtil::EndSession() {
   // EndSession is invoked once per frame. Only do something the first time.
   static bool already_ended = false;

@@ -97,6 +97,14 @@ class BrowserView2 : public BrowserWindow,
   // and you want to allow drops on.
   void AddViewToDropList(ChromeViews::View* view);
 
+  // Shows the next app-modal dialog box, if there is one to be shown, or moves
+  // an existing showing one to the front. Returns true if one was shown or
+  // activated, false if none was shown.
+  bool ActivateAppModalDialog() const;
+
+  // Called when the activation of the frame changes.
+  void ActivationChanged(bool activated);
+
   // Possible elements of the Browser window.
   enum WindowFeature {
     FEATURE_TITLEBAR = 1,

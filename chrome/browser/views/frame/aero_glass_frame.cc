@@ -32,6 +32,7 @@
 #include "chrome/browser/views/frame/aero_glass_frame.h"
 
 #include "chrome/app/theme/theme_resources.h"
+#include "chrome/browser/frame_util.h"
 #include "chrome/browser/views/frame/browser_view2.h"
 #include "chrome/browser/views/frame/aero_glass_non_client_view.h"
 #include "chrome/common/resource_bundle.h"
@@ -116,13 +117,31 @@ ChromeViews::Window* AeroGlassFrame::GetWindow() {
 ///////////////////////////////////////////////////////////////////////////////
 // AeroGlassFrame, ChromeViews::HWNDViewContainer implementation:
 
+LRESULT AeroGlassFrame::OnMouseActivate(HWND window, UINT hittest_code,
+                                        UINT message) {
+  return browser_view_->ActivateAppModalDialog() ? MA_NOACTIVATEANDEAT
+                                                 : MA_ACTIVATE;
+}
+
+void AeroGlassFrame::OnMove(const CPoint& point) {
+  browser_view_->WindowMoved();
+}
+
+void AeroGlassFrame::OnMoving(UINT param, const RECT* new_bounds) {
+  browser_view_->WindowMoved();
+}
+
 LRESULT AeroGlassFrame::OnNCActivate(BOOL active) {
+  if (browser_view_->ActivateAppModalDialog())
+    return TRUE;
+
   if (!frame_initialized_) {
     ::SetWindowPos(GetHWND(), NULL, 0, 0, 0, 0,
                    SWP_NOSIZE | SWP_NOMOVE | SWP_FRAMECHANGED);
     UpdateDWMFrame();
     frame_initialized_ = true;
   }
+  browser_view_->ActivationChanged(!!active);
   return TRUE;
 }
 
@@ -176,12 +195,8 @@ bool AeroGlassFrame::GetAccelerator(int cmd_id,
   return browser_view_->GetAccelerator(cmd_id, accelerator);
 }
 
-void AeroGlassFrame::OnMove(const CPoint& point) {
-  browser_view_->WindowMoved();
-}
-
-void AeroGlassFrame::OnMoving(UINT param, const RECT* new_bounds) {
-  browser_view_->WindowMoved();
+void AeroGlassFrame::OnEndSession(BOOL ending, UINT logoff) {
+  FrameUtil::EndSession();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

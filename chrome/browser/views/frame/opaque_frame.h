@@ -73,8 +73,13 @@ class OpaqueFrame : public BrowserFrame,
   virtual bool AcceleratorPressed(ChromeViews::Accelerator* accelerator);
   virtual bool GetAccelerator(int cmd_id,
                               ChromeViews::Accelerator* accelerator);
+  virtual void OnEndSession(BOOL ending, UINT logoff);
+  virtual LRESULT OnMouseActivate(HWND window,
+                                  UINT hittest_code,
+                                  UINT message);
   virtual void OnMove(const CPoint& point);
   virtual void OnMoving(UINT param, const RECT* new_bounds);
+  virtual LRESULT OnNCActivate(BOOL active);
 
  private:
   // Return a pointer to the concrete type of our non-client view.
