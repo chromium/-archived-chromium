@@ -44,6 +44,7 @@
 class BookmarkBarView;
 class Browser;
 class BrowserToolbarView;
+class Menu;
 class StatusBubble;
 class TabContentsContainerView;
 
@@ -92,6 +93,10 @@ class BrowserView2 : public BrowserWindow,
   // otherwise.
   bool GetAccelerator(int cmd_id, ChromeViews::Accelerator* accelerator);
 
+  // Handles incoming system messages. Returns true if the message was
+  // handled.
+  bool SystemCommandReceived(UINT notification_code, const gfx::Point& point);
+
   // Adds view to the set of views that drops are allowed to occur on. You only
   // need invoke this for views whose y-coordinate extends above the tab strip
   // and you want to allow drops on.
@@ -119,6 +124,15 @@ class BrowserView2 : public BrowserWindow,
   // Returns true if the Browser object associated with this BrowserView2
   // supports the specified feature.
   bool SupportsWindowFeature(WindowFeature feature) const;
+
+  // Called right before displaying the system menu to allow the
+  // BrowserView to add or delete entries. BrowserView takes ownership
+  // of the passed in Menu object.
+  void PrepareToRunSystemMenu(Menu* menu);
+
+  // Called after the system menu has ended, and disposes of the
+  // current System menu object.
+  void SystemMenuEnded();
 
   // Returns the set of WindowFeatures supported by the specified BrowserType.
   static unsigned int FeaturesForBrowserType(BrowserType::Type type);
@@ -275,6 +289,9 @@ class BrowserView2 : public BrowserWindow,
   // use.
   void LoadAccelerators();
 
+  // Builds the correct menu for when we have minimal chrome.
+  void BuildMenuForTabStriplessWindow(Menu* menu, int insertion_index);
+
   // Initialize class statics.
   static void InitClass();
 
@@ -312,6 +329,9 @@ class BrowserView2 : public BrowserWindow,
 
   // True if we have already been initialized.
   bool initialized_;
+
+  // Lazily created representation of the system menu.
+  scoped_ptr<Menu> system_menu_;
 
   // The default favicon image.
   static SkBitmap default_favicon_;

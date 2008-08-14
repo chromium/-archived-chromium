@@ -57,6 +57,31 @@ static const int kSeparationLineHeight = 1;
 static const SkColor kSeparationLineColor = SkColorSetRGB(178, 178, 178);
 static const wchar_t* kBrowserWindowKey = L"__BROWSER_WINDOW__";
 
+
+static const struct { bool separator; int command; int label; } kMenuLayout[] = {
+  { true, 0, 0 },
+  { false, IDC_TASKMANAGER, IDS_TASKMANAGER },
+  { true, 0, 0 },
+  { false, 0, IDS_ENCODING },
+  { false, 0, IDS_ZOOM },
+  { false, IDC_PRINT, IDS_PRINT },
+  { false, IDC_SAVEPAGE, IDS_SAVEPAGEAS },
+  { false, IDC_FIND, IDS_FIND_IN_PAGE },
+  { true, 0, 0 },
+  { false, IDC_PASTE, IDS_PASTE },
+  { false, IDC_COPY, IDS_COPY },
+  { false, IDC_CUT, IDS_CUT },
+  { true, 0, 0 },
+  { false, IDC_NEWTAB, IDS_APP_MENU_NEW_WEB_PAGE },
+  { false, IDC_SHOW_AS_TAB, IDS_SHOW_AS_TAB },
+  { false, IDC_COPY_URL, IDS_APP_MENU_COPY_URL },
+  { false, IDC_DUPLICATE, IDS_APP_MENU_DUPLICATE },
+  { true, 0, 0 },
+  { false, IDC_RELOAD, IDS_APP_MENU_RELOAD },
+  { false, IDC_FORWARD, IDS_CONTENT_CONTEXT_FORWARD },
+  { false, IDC_BACK, IDS_CONTENT_CONTEXT_BACK }
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView2, public:
 
@@ -145,6 +170,18 @@ bool BrowserView2::GetAccelerator(int cmd_id,
   return false;
 }
 
+bool BrowserView2::SystemCommandReceived(UINT notification_code,
+                                         const gfx::Point& point) {
+  bool handled = false;
+
+  if (browser_->SupportsCommand(notification_code)) {
+    browser_->ExecuteCommand(notification_code);
+    handled = true;
+  }
+
+  return handled;
+}
+
 void BrowserView2::AddViewToDropList(ChromeViews::View* view) {
   dropable_views_.insert(view);
 }
@@ -170,6 +207,27 @@ void BrowserView2::ActivationChanged(bool activated) {
 
 bool BrowserView2::SupportsWindowFeature(WindowFeature feature) const {
   return !!(FeaturesForBrowserType(browser_->GetType()) & feature);
+}
+
+void BrowserView2::PrepareToRunSystemMenu(Menu* menu) {
+  int insertion_index = std::max(0, menu->ItemCount() - 1);
+  system_menu_.reset(menu);
+  // We add the menu items in reverse order so that insertion_index never needs
+  // to change.
+  if (browser_->GetType() == BrowserType::TABBED_BROWSER) {
+    system_menu_->AddSeparator(insertion_index);
+    system_menu_->AddMenuItemWithLabel(insertion_index, IDC_TASKMANAGER,
+                                       l10n_util::GetString(IDS_TASKMANAGER));
+    // If it's a regular browser window with tabs, we don't add any more items,
+    // since it already has menus (Page, Chrome).
+    return;
+  } else {
+    BuildMenuForTabStriplessWindow(system_menu_.get(), insertion_index);
+  }
+}
+
+void BrowserView2::SystemMenuEnded() {
+  system_menu_.reset();
 }
 
 // static
@@ -916,6 +974,28 @@ void BrowserView2::LoadAccelerators() {
 
   // We don't need the Windows accelerator table anymore.
   free(accelerators);
+}
+
+void BrowserView2::BuildMenuForTabStriplessWindow(Menu* menu,
+                                                  int insertion_index) {
+  for (int i = 0; i < arraysize(kMenuLayout); ++i) {
+    if (kMenuLayout[i].separator) {
+      menu->AddSeparator(insertion_index);
+    } else {
+      int command = kMenuLayout[i].command;
+
+      menu->AddMenuItemWithLabel(insertion_index, command,
+                                 l10n_util::GetString(kMenuLayout[i].label));
+
+      // |command| can be zero on submenu items (IDS_ENCODING,
+      // IDS_ZOOM) and on separators.
+      if (command != 0) {
+        menu->EnableMenuItemAt(
+            insertion_index,
+            browser_->IsCommandEnabled(command));
+      }
+    }
+  }
 }
 
 // static

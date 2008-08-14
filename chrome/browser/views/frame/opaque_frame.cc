@@ -103,6 +103,16 @@ void OpaqueFrame::OnEndSession(BOOL ending, UINT logoff) {
   FrameUtil::EndSession();
 }
 
+void OpaqueFrame::OnExitMenuLoop(bool is_track_popup_menu) {
+  browser_view_->SystemMenuEnded();
+}
+
+void OpaqueFrame::OnInitMenuPopup(HMENU menu, UINT position,
+                                  BOOL is_system_menu) {
+  Menu* menu_obj = new Menu(menu);
+  browser_view_->PrepareToRunSystemMenu(menu_obj);
+}
+
 LRESULT OpaqueFrame::OnMouseActivate(HWND window, UINT hittest_code,
                                      UINT message) {
   return browser_view_->ActivateAppModalDialog() ? MA_NOACTIVATEANDEAT
@@ -126,6 +136,14 @@ LRESULT OpaqueFrame::OnNCActivate(BOOL active) {
   return TRUE;
 }
 
+void OpaqueFrame::OnSysCommand(UINT notification_code, CPoint click) {
+  if (!browser_view_->SystemCommandReceived(notification_code,
+                                            gfx::Point(click))) {
+    // Use the default implementation for any other command.
+    SetMsgHandled(FALSE);
+  }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueFrame, private:
 
@@ -133,4 +151,3 @@ OpaqueNonClientView* OpaqueFrame::GetOpaqueNonClientView() const {
   // We can safely assume that this conversion is true.
   return static_cast<OpaqueNonClientView*>(non_client_view_);
 }
-

@@ -582,3 +582,7 @@ void Menu::Cancel() {
   DCHECK(is_menu_visible_);
   EndMenu();
 }
+
+int Menu::ItemCount() {
+  return GetMenuItemCount(menu_);
+}

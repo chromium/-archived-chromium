@@ -316,6 +316,9 @@ class Menu {
   // Cancels the menu.
   virtual void Cancel();
 
+  // Returns the number of menu items.
+  int ItemCount();
+
  protected:
   // The delegate that is being used to get information about the presentation.
   Delegate* delegate_;

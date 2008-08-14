@@ -193,9 +193,11 @@ class HWNDViewContainer : public ViewContainer,
     MSG_WM_DESTROY(OnDestroy)
     MSG_WM_ERASEBKGND(OnEraseBkgnd)
     MSG_WM_ENDSESSION(OnEndSession)
+    MSG_WM_EXITMENULOOP(OnExitMenuLoop)
     MSG_WM_GETMINMAXINFO(OnGetMinMaxInfo)
     MSG_WM_HSCROLL(OnHScroll)
     MSG_WM_INITMENU(OnInitMenu)
+    MSG_WM_INITMENUPOPUP(OnInitMenuPopup)
     MSG_WM_KEYDOWN(OnKeyDown)
     MSG_WM_KEYUP(OnKeyUp)
     MSG_WM_LBUTTONDBLCLK(OnLButtonDblClk)
@@ -351,6 +353,7 @@ class HWNDViewContainer : public ViewContainer,
   // leak a few things.
   virtual void OnDestroy();
   virtual void OnEndSession(BOOL ending, UINT logoff) { SetMsgHandled(FALSE); }
+  virtual void OnExitMenuLoop(BOOL is_track_popup_menu) { SetMsgHandled(FALSE); }
   virtual LRESULT OnEraseBkgnd(HDC dc);
   virtual void OnGetMinMaxInfo(LPMINMAXINFO mm_info) { }
   virtual LRESULT OnGetObject(UINT uMsg, WPARAM w_param, LPARAM l_param);
@@ -358,6 +361,9 @@ class HWNDViewContainer : public ViewContainer,
     SetMsgHandled(FALSE);
   }
   virtual void OnInitMenu(HMENU menu) { SetMsgHandled(FALSE); }
+  virtual void OnInitMenuPopup(HMENU menu, UINT position, BOOL is_system_menu) {
+    SetMsgHandled(FALSE);
+  }
   virtual void OnKeyDown(TCHAR c, UINT rep_cnt, UINT flags);
   virtual void OnKeyUp(TCHAR c, UINT rep_cnt, UINT flags);
   virtual void OnLButtonDblClk(UINT flags, const CPoint& point);
