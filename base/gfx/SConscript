@@ -74,18 +74,23 @@ if env['PLATFORM'] == 'win32':
   # we have the port versions working.
   input_files.extend([
     'bitmap_header.cc',
-    'bitmap_platform_device.cc',
     'font_utils.cc',
     'image_operations.cc',
     'native_theme.cc',
-    'platform_canvas.cc',
-    'platform_device.cc',
     'png_decoder.cc',
     'png_encoder.cc',
     'skia_utils.cc',
     'uniscribe.cc',
     'vector_canvas.cc',
     'vector_device.cc',
+  ])
+
+if env['PLATFORM'] == 'win32':
+  input_files.extend([
+      'bitmap_platform_device_win.cc',
+      'platform_canvas_win.cc',
+      'platform_device_win.cc',
+
   ])
 
 env.ChromeStaticLibrary('base_gfx', input_files)
