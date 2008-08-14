@@ -63,10 +63,13 @@ if env['PLATFORM'] == 'win32':
   )
 
 input_files = [
-    'convolver.cc',
-    'point.cc',
-    'rect.cc',
-    'size.cc',
+  'convolver.cc',
+  'image_operations.cc',
+  'png_decoder.cc',
+  'png_encoder.cc',
+  'point.cc',
+  'rect.cc',
+  'size.cc',
 ]
 
 if env['PLATFORM'] == 'win32':
@@ -75,10 +78,7 @@ if env['PLATFORM'] == 'win32':
   input_files.extend([
     'bitmap_header.cc',
     'font_utils.cc',
-    'image_operations.cc',
     'native_theme.cc',
-    'png_decoder.cc',
-    'png_encoder.cc',
     'skia_utils.cc',
     'uniscribe.cc',
     'vector_canvas.cc',

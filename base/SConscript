@@ -227,12 +227,6 @@ if env['PLATFORM'] == 'win32':
       ],
   )
 
-if env['PLATFORM'] == 'posix':
-  # Remove the libraries that don't build yet under Linux.
-  env_tests['LIBS'].remove('skia')
-  env_tests['LIBS'].remove('libpng')
-  env_tests['LIBS'].remove('zlib')
-
 # These test files work on *all* platforms; tests that don't work
 # cross-platform live below.
 test_files = [
@@ -254,6 +248,8 @@ test_files = [
     'values_unittest.cc',
     'waitable_event_unittest.cc',
     'gfx/convolver_unittest.cc',
+    'gfx/image_operations_unittest.cc',
+    'gfx/png_codec_unittest.cc',
     'gfx/rect_unittest.cc',
 ]
 
@@ -284,10 +280,8 @@ if env['PLATFORM'] == 'win32':
     'timer_unittest.cc',
     'tracked_objects_test.cc',
     'word_iterator_unittest.cc',
-    'gfx/image_operations_unittest.cc',
     'gfx/native_theme_unittest.cc',
     'gfx/platform_canvas_unittest.cc',
-    'gfx/png_codec_unittest.cc',
     'gfx/uniscribe_unittest.cc',
     'gfx/vector_canvas_unittest.cc',
   ])
