@@ -1323,7 +1323,7 @@ void InspectorController::setWindowVisible(bool visible)
 #if USE(JAVASCRIPTCORE_BINDINGS)
     if (!m_scriptContext || !m_scriptObject)
         return;
-#elif USE(V8_BINDING
+#elif USE(V8_BINDING)
     if (!hasScriptObject())
         return;
 #endif
