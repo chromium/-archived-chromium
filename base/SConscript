@@ -72,6 +72,7 @@ input_files = [
     'pickle.cc',
     'platform_thread.cc',
     'revocable_store.cc',
+    'sha2.cc',
     'string_escape.cc',
     'string_piece.cc',
     'string_util.cc',
@@ -83,6 +84,7 @@ input_files = [
     'values.cc',
     'word_iterator.cc',
     'third_party/nspr/prtime.cc',
+    'third_party/nss/sha512.cc',
 ]
 
 if env['PLATFORM'] == 'win32':
@@ -106,10 +108,8 @@ if env['PLATFORM'] == 'win32':
     'process_util.cc',
     'registry.cc',
     'resource_util.cc',
-    'sha2.cc',
     'shared_event.cc',
     'stats_table.cc',
-    'third_party/nss/sha512.cc',
     'thread.cc',
     'watchdog.cc',
     'worker_pool.cc',
@@ -244,6 +244,7 @@ test_files = [
     'pickle_unittest.cc',
     'ref_counted_unittest.cc',
     'run_all_unittests.cc',
+    'sha2_unittest.cc',
     'singleton_unittest.cc',
     'stack_container_unittest.cc',
     'string_escape_unittest.cc',
@@ -274,7 +275,6 @@ if env['PLATFORM'] == 'win32':
     'process_util_unittest.cc',
     'pr_time_test.cc',
     'run_all_unittests.cc',
-    'sha2_unittest.cc',
     'shared_event_unittest.cc',
     'shared_memory_unittest.cc',
     'stats_table_unittest.cc',
