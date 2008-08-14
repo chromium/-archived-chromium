@@ -118,9 +118,9 @@
 #pragma warning(pop)
 
 #undef LOG
-#include "base/gfx/bitmap_platform_device.h"
+#include "base/gfx/bitmap_platform_device_win.h"
 #include "base/gfx/rect.h"
-#include "base/gfx/platform_canvas.h"
+#include "base/gfx/platform_canvas_win.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/stats_counters.h"
@@ -1358,7 +1358,7 @@ void WebFrameImpl::Layout() {
     FromFrame(child)->Layout();
 }
 
-void WebFrameImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
+void WebFrameImpl::Paint(gfx::PlatformCanvasWin* canvas, const gfx::Rect& rect) {
   static StatsRate rendering(L"WebFramePaintTime");
   StatsScope<StatsRate> rendering_scope(rendering);
 
@@ -1377,19 +1377,19 @@ void WebFrameImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
   }
 }
 
-gfx::BitmapPlatformDevice WebFrameImpl::CaptureImage(bool scroll_to_zero) {
+gfx::BitmapPlatformDeviceWin WebFrameImpl::CaptureImage(bool scroll_to_zero) {
   // Must layout before painting.
   Layout();
 
-  gfx::PlatformCanvas canvas(frameview()->width(), frameview()->height(), true);
+  gfx::PlatformCanvasWin canvas(frameview()->width(), frameview()->height(), true);
   PlatformContextSkia context(&canvas);
 
   GraphicsContext gc(reinterpret_cast<PlatformGraphicsContext*>(&context));
   frameview()->paint(&gc, IntRect(0, 0, frameview()->width(),
                                   frameview()->height()));
 
-  gfx::BitmapPlatformDevice& device =
-      static_cast<gfx::BitmapPlatformDevice&>(canvas.getTopPlatformDevice());
+  gfx::BitmapPlatformDeviceWin& device =
+      static_cast<gfx::BitmapPlatformDeviceWin&>(canvas.getTopPlatformDevice());
   device.fixupAlphaBeforeCompositing();
   return device;
 }

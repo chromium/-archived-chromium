@@ -30,7 +30,7 @@
 #ifndef BASE_GFX_VECTOR_CANVAS_H__
 #define BASE_GFX_VECTOR_CANVAS_H__
 
-#include "base/gfx/platform_canvas.h"
+#include "base/gfx/platform_canvas_win.h"
 #include "base/gfx/vector_device.h"
 
 namespace gfx {
@@ -39,7 +39,7 @@ namespace gfx {
 // to work with a VectorDevice to manage platform-specific drawing. It allows
 // using both Skia operations and platform-specific operations. It *doesn't*
 // support reading back from the bitmap backstore since it is not used.
-class VectorCanvas : public PlatformCanvas {
+class VectorCanvas : public PlatformCanvasWin {
  public:
   VectorCanvas();
   VectorCanvas(HDC dc, int width, int height);

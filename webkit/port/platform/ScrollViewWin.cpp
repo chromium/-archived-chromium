@@ -49,7 +49,7 @@
 #include <wtf/HashSet.h>
 
 #undef LOG
-#include "base/gfx/platform_canvas.h"
+#include "base/gfx/platform_canvas_win.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webview_impl.h"
 
@@ -314,7 +314,7 @@ void ScrollView::ScrollViewPrivate::highlightMatches(
     // will not be serialized, i.e. composition is done in the renderer and
     // never in the browser.
     // Prepare for drawing the arrows along the scroll bar.
-    gfx::PlatformCanvas* canvas = PlatformContextToPlatformContextSkia(
+    gfx::PlatformCanvasWin* canvas = PlatformContextToPlatformContextSkia(
         context->platformContext())->canvas();
 
     int horz_start = 0;

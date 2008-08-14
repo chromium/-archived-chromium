@@ -48,7 +48,7 @@ class WebTextInput;
 struct NPObject;
 
 namespace gfx {
-class BitmapPlatformDevice;
+class BitmapPlatformDeviceWin;
 class Size;
 class Rect;
 }
@@ -306,7 +306,7 @@ class WebFrame : public base::RefCounted<WebFrame> {
   // just draws the contents at a different place, but it does mean the
   // scrollbars in the resulting image will appear to be wrong (they'll be
   // painted as if the content was scrolled).
-  virtual gfx::BitmapPlatformDevice CaptureImage(bool scroll_to_zero) = 0;
+  virtual gfx::BitmapPlatformDeviceWin CaptureImage(bool scroll_to_zero) = 0;
 
   // This function sets a flag within WebKit to instruct it to render the page
   // as View-Source (showing the HTML source for the page).

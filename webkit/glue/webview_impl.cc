@@ -655,7 +655,7 @@ void WebViewImpl::Layout() {
   }
 }
 
-void WebViewImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
+void WebViewImpl::Paint(gfx::PlatformCanvasWin* canvas, const gfx::Rect& rect) {
   if (main_frame_)
     main_frame_->Paint(canvas, rect);
 }

@@ -130,11 +130,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\gfx\bitmap_platform_device.cc"
+			RelativePath="..\gfx\bitmap_platform_device_win.cc"
 			>
 		</File>
 		<File
-			RelativePath="..\gfx\bitmap_platform_device.h"
+			RelativePath="..\gfx\bitmap_platform_device_win.h"
 			>
 		</File>
 		<File
@@ -170,19 +170,19 @@
 			>
 		</File>
 		<File
-			RelativePath="..\gfx\platform_canvas.cc"
+			RelativePath="..\gfx\platform_canvas_win.cc"
 			>
 		</File>
 		<File
-			RelativePath="..\gfx\platform_canvas.h"
+			RelativePath="..\gfx\platform_canvas_win.h"
 			>
 		</File>
 		<File
-			RelativePath="..\gfx\platform_device.cc"
+			RelativePath="..\gfx\platform_device_win.cc"
 			>
 		</File>
 		<File
-			RelativePath="..\gfx\platform_device.h"
+			RelativePath="..\gfx\platform_device_win.h"
 			>
 		</File>
 		<File

@@ -32,7 +32,7 @@
 #include <winspool.h>
 
 #include "base/file_util.h"
-#include "base/gfx/platform_device.h"
+#include "base/gfx/platform_device_win.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/common/gfx/emf.h"
@@ -403,7 +403,7 @@ bool PrintingContext::InitializeSettings(const DEVMODE& dev_mode,
                                          const std::wstring& new_device_name,
                                          const PRINTPAGERANGE* ranges,
                                          int number_ranges) {
-  gfx::PlatformDevice::InitializeDC(hdc_);
+  gfx::PlatformDeviceWin::InitializeDC(hdc_);
   DCHECK(GetDeviceCaps(hdc_, CLIPCAPS));
   DCHECK(GetDeviceCaps(hdc_, RASTERCAPS) & RC_STRETCHDIB);
   DCHECK(GetDeviceCaps(hdc_, RASTERCAPS) & RC_BITMAP64);

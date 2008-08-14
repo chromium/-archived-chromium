@@ -27,9 +27,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "base/gfx/platform_canvas.h"
+#include "base/gfx/platform_canvas_win.h"
 
-#include "base/gfx/bitmap_platform_device.h"
+#include "base/gfx/bitmap_platform_device_win.h"
 #include "base/logging.h"
 
 #ifdef ARCH_CPU_64_BITS
@@ -39,15 +39,15 @@
 
 namespace gfx {
 
-PlatformCanvas::PlatformCanvas() : SkCanvas() {
+PlatformCanvasWin::PlatformCanvasWin() : SkCanvas() {
 }
 
-PlatformCanvas::PlatformCanvas(int width, int height, bool is_opaque)
+PlatformCanvasWin::PlatformCanvasWin(int width, int height, bool is_opaque)
     : SkCanvas() {
   initialize(width, height, is_opaque, NULL);
 }
 
-PlatformCanvas::PlatformCanvas(int width,
+PlatformCanvasWin::PlatformCanvasWin(int width,
                                int height,
                                bool is_opaque,
                                HANDLE shared_section)
@@ -55,10 +55,10 @@ PlatformCanvas::PlatformCanvas(int width,
   initialize(width, height, is_opaque, shared_section);
 }
 
-PlatformCanvas::~PlatformCanvas() {
+PlatformCanvasWin::~PlatformCanvasWin() {
 }
 
-void PlatformCanvas::initialize(int width,
+void PlatformCanvasWin::initialize(int width,
                                 int height,
                                 bool is_opaque,
                                 HANDLE shared_section) {
@@ -68,22 +68,22 @@ void PlatformCanvas::initialize(int width,
   device->unref(); // was created with refcount 1, and setDevice also refs
 }
 
-HDC PlatformCanvas::beginPlatformPaint() {
+HDC PlatformCanvasWin::beginPlatformPaint() {
   return getTopPlatformDevice().getBitmapDC();
 }
 
-void PlatformCanvas::endPlatformPaint() {
+void PlatformCanvasWin::endPlatformPaint() {
   // we don't clear the DC here since it will be likely to be used again
   // flushing will be done in onAccessBitmap
 }
 
-PlatformDevice& PlatformCanvas::getTopPlatformDevice() const {
+PlatformDeviceWin& PlatformCanvasWin::getTopPlatformDevice() const {
   // All of our devices should be our special PlatformDevice.
-  SkCanvas::LayerIter iter(const_cast<PlatformCanvas*>(this), false);
-  return *static_cast<PlatformDevice*>(iter.device());
+  SkCanvas::LayerIter iter(const_cast<PlatformCanvasWin*>(this), false);
+  return *static_cast<PlatformDeviceWin*>(iter.device());
 }
 
-SkDevice* PlatformCanvas::createDevice(SkBitmap::Config config,
+SkDevice* PlatformCanvasWin::createDevice(SkBitmap::Config config,
                                        int width,
                                        int height,
                                        bool is_opaque, bool isForLayer) {
@@ -91,18 +91,18 @@ SkDevice* PlatformCanvas::createDevice(SkBitmap::Config config,
   return createPlatformDevice(width, height, is_opaque, NULL);
 }
 
-SkDevice* PlatformCanvas::createPlatformDevice(int width,
+SkDevice* PlatformCanvasWin::createPlatformDevice(int width,
                                                int height,
                                                bool is_opaque,
                                                HANDLE shared_section) {
   HDC screen_dc = GetDC(NULL);
-  SkDevice* device = BitmapPlatformDevice::create(screen_dc, width, height,
+  SkDevice* device = BitmapPlatformDeviceWin::create(screen_dc, width, height,
                                                   is_opaque, shared_section);
   ReleaseDC(NULL, screen_dc);
   return device;
 }
 
-SkDevice* PlatformCanvas::setBitmapDevice(const SkBitmap&) {
+SkDevice* PlatformCanvasWin::setBitmapDevice(const SkBitmap&) {
   NOTREACHED();
   return NULL;
 }

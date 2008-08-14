@@ -33,7 +33,7 @@
 
 #include "base/gfx/image_operations.h"
 #include "base/gfx/native_theme.h"
-#include "base/gfx/platform_canvas.h"
+#include "base/gfx/platform_canvas_win.h"
 #include "base/gfx/skia_utils.h"
 #include "GraphicsContextPrivate.h"
 #include "NativeImageSkia.h"
@@ -146,7 +146,7 @@ void DrawResampledBitmap(SkCanvas& canvas,
 }  // namespace
 
 
-SkGraphicsContext::SkGraphicsContext(gfx::PlatformCanvas* canvas)
+SkGraphicsContext::SkGraphicsContext(gfx::PlatformCanvasWin* canvas)
     : canvas_(canvas),
       paint_context_(NULL),
       own_canvas_(false) {
@@ -425,7 +425,7 @@ const SkBitmap* SkGraphicsContext::bitmap() const
   return &canvas_->getDevice()->accessBitmap(false);
 }
 
-gfx::PlatformCanvas* SkGraphicsContext::canvas() const
+gfx::PlatformCanvasWin* SkGraphicsContext::canvas() const
 {
   return canvas_;
 }

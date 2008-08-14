@@ -41,7 +41,7 @@
 #pragma warning(pop)
 
 #undef LOG
-#include "base/gfx/platform_canvas.h"
+#include "base/gfx/platform_canvas_win.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "webkit/glue/event_conversion.h"
@@ -144,7 +144,7 @@ void WebWidgetImpl::Resize(const gfx::Size& new_size) {
 void WebWidgetImpl::Layout() {
 }
 
-void WebWidgetImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
+void WebWidgetImpl::Paint(gfx::PlatformCanvasWin* canvas, const gfx::Rect& rect) {
   if (!widget_)
     return;
 

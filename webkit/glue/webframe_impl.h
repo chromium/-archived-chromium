@@ -63,8 +63,8 @@ struct WindowFeatures;
 }
 
 namespace gfx {
-class PlatformCanvas;
-class BitmapPlatformDevice;
+class PlatformCanvasWin;
+class BitmapPlatformDeviceWin;
 }
 
 // Implementation of WebFrame, note that this is a reference counted object.
@@ -108,7 +108,7 @@ class WebFrameImpl : public WebFrame {
   virtual WebFrame* GetParent() const;
   virtual WebFrame* GetChildFrame(const std::wstring& xpath) const;
   virtual WebView* GetView() const;
-  virtual gfx::BitmapPlatformDevice CaptureImage(bool scroll_to_zero);
+  virtual gfx::BitmapPlatformDeviceWin CaptureImage(bool scroll_to_zero);
 
   // This method calls createRuntimeObject (in KJS::Bindings::Instance), which
   // increments the refcount of the NPObject passed in.
@@ -182,7 +182,7 @@ class WebFrameImpl : public WebFrame {
 
   // WebFrameImpl
   void Layout();
-  void Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect);
+  void Paint(gfx::PlatformCanvasWin* canvas, const gfx::Rect& rect);
 
   bool IsLoading();
 

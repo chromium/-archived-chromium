@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_GFX_PLATFORM_DEVICE_H__
-#define BASE_GFX_PLATFORM_DEVICE_H__
+#ifndef BASE_GFX_PLATFORM_DEVICE_WIN_H__
+#define BASE_GFX_PLATFORM_DEVICE_WIN_H__
 
 #include <vector>
 
@@ -45,7 +45,7 @@ namespace gfx {
 // to. It also provides functionality to play well with GDI drawing functions.
 // This class is abstract and must be subclassed. It provides the basic
 // interface to implement it either with or without a bitmap backend.
-class PlatformDevice : public SkDevice {
+class PlatformDeviceWin : public SkDevice {
  public:
   // The DC that corresponds to the bitmap, used for GDI operations drawing
   // into the bitmap. This is possibly heavyweight, so it should be existant
@@ -105,7 +105,7 @@ class PlatformDevice : public SkDevice {
   typedef std::vector<CubicPath> CubicPaths;
 
   // Forwards |bitmap| to SkDevice's constructor.
-  PlatformDevice(const SkBitmap& bitmap);
+  PlatformDeviceWin(const SkBitmap& bitmap);
 
   // Loads the specified Skia transform into the device context, excluding
   // perspective (which GDI doesn't support).
@@ -117,4 +117,4 @@ class PlatformDevice : public SkDevice {
 
 }  // namespace gfx
 
-#endif  // BASE_GFX_PLATFORM_DEVICE_H__
+#endif  // BASE_GFX_PLATFORM_DEVICE_WIN_H__

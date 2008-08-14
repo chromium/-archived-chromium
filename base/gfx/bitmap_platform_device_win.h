@@ -27,17 +27,17 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_GFX_BITMAP_PLATFORM_DEVICE_H__
-#define BASE_GFX_BITMAP_PLATFORM_DEVICE_H__
+#ifndef BASE_GFX_BITMAP_PLATFORM_DEVICE_WIN_H__
+#define BASE_GFX_BITMAP_PLATFORM_DEVICE_WIN_H__
 
-#include "base/gfx/platform_device.h"
+#include "base/gfx/platform_device_win.h"
 #include "base/ref_counted.h"
 
 namespace gfx {
 
 // A device is basically a wrapper around SkBitmap that provides a surface for
 // SkCanvas to draw into. Our device provides a surface Windows can also write
-// to. BitmapPlatformDevice creates a bitmap using CreateDIBSection() in a
+// to. BitmapPlatformDeviceWin creates a bitmap using CreateDIBSection() in a
 // format that Skia supports and can then use this to draw ClearType into, etc.
 // This pixel data is provided to the bitmap that the device contains so that it
 // can be shared.
@@ -49,7 +49,7 @@ namespace gfx {
 // For us, that other bitmap will become invalid as soon as the device becomes
 // invalid, which may lead to subtle bugs. Therefore, DO NOT ASSIGN THE
 // DEVICE'S PIXEL DATA TO ANOTHER BITMAP, make sure you copy instead.
-class BitmapPlatformDevice : public PlatformDevice {
+class BitmapPlatformDeviceWin : public PlatformDeviceWin {
  public:
   // Factory function. The screen DC is used to create the bitmap, and will not
   // be stored beyond this function. is_opaque should be set if the caller
@@ -58,7 +58,7 @@ class BitmapPlatformDevice : public PlatformDevice {
   // The shared_section parameter is optional (pass NULL for default behavior).
   // If shared_section is non-null, then it must be a handle to a file-mapping
   // object returned by CreateFileMapping.  See CreateDIBSection for details.
-  static BitmapPlatformDevice* create(HDC screen_dc,
+  static BitmapPlatformDeviceWin* create(HDC screen_dc,
                                 int width,
                                 int height,
                                 bool is_opaque,
@@ -75,11 +75,11 @@ class BitmapPlatformDevice : public PlatformDevice {
   //
   // Copy constucting and "=" is designed for saving the device or passing it
   // around to another routine willing to deal with the bitmap data directly.
-  BitmapPlatformDevice(const BitmapPlatformDevice& other);
-  virtual ~BitmapPlatformDevice();
+  BitmapPlatformDeviceWin(const BitmapPlatformDeviceWin& other);
+  virtual ~BitmapPlatformDeviceWin();
 
   // See warning for copy constructor above.
-  BitmapPlatformDevice& operator=(const BitmapPlatformDevice& other);
+  BitmapPlatformDeviceWin& operator=(const BitmapPlatformDeviceWin& other);
 
   // Retrieves the bitmap DC, which is the memory DC for our bitmap data. The
   // bitmap DC is lazy created.
@@ -112,10 +112,10 @@ class BitmapPlatformDevice : public PlatformDevice {
   // Reference counted data that can be shared between multiple devices. This
   // allows copy constructors and operator= for devices to work properly. The
   // bitmaps used by the base device class are already refcounted and copyable.
-  class BitmapPlatformDeviceData;
+  class BitmapPlatformDeviceWinData;
 
   // Private constructor.
-  BitmapPlatformDevice(BitmapPlatformDeviceData* data, const SkBitmap& bitmap);
+  BitmapPlatformDeviceWin(BitmapPlatformDeviceWinData* data, const SkBitmap& bitmap);
 
   // Loops through each of the pixels in the specified range, invoking
   // adjustor for the alpha value of each pixel. If |width| or |height| are -1,
@@ -127,9 +127,9 @@ class BitmapPlatformDevice : public PlatformDevice {
                      int height);
 
   // Data associated with this device, guaranteed non-null.
-  scoped_refptr<BitmapPlatformDeviceData> data_;
+  scoped_refptr<BitmapPlatformDeviceWinData> data_;
 };
 
 }  // namespace gfx
 
-#endif  // BASE_GFX_BITMAP_PLATFORM_DEVICE_H__
+#endif  // BASE_GFX_BITMAP_PLATFORM_DEVICE_WIN_H__

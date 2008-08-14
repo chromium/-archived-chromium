@@ -39,7 +39,7 @@ class WebWidget;
 class WebWidgetDelegate;
 
 namespace gfx {
-class PlatformCanvas;
+class PlatformCanvasWin;
 class Size;
 }
 
@@ -91,7 +91,7 @@ class WebWidgetHost {
 
   HWND hwnd_;
   WebWidget* webwidget_;
-  scoped_ptr<gfx::PlatformCanvas> canvas_;
+  scoped_ptr<gfx::PlatformCanvasWin> canvas_;
 
   // specifies the portion of the webwidget that needs painting
   gfx::Rect paint_rect_;

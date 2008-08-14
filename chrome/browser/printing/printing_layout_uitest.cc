@@ -29,7 +29,7 @@
 
 #include "base/command_line.h"
 #include "base/gfx/bitmap_header.h"
-#include "base/gfx/platform_device.h"
+#include "base/gfx/platform_device_win.h"
 #include "base/gfx/png_decoder.h"
 #include "base/gfx/png_encoder.h"
 #include "base/time.h"
@@ -195,7 +195,7 @@ class Image {
                                       &bits, NULL, 0);
     EXPECT_TRUE(bitmap);
     EXPECT_TRUE(SelectObject(hdc, bitmap));
-    gfx::PlatformDevice::InitializeDC(hdc);
+    gfx::PlatformDeviceWin::InitializeDC(hdc);
     EXPECT_TRUE(emf.Playback(hdc, NULL));
     row_length_ = size_.width() * sizeof(uint32);
     size_t bytes = row_length_ * size_.height();

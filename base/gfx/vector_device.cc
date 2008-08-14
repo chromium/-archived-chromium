@@ -72,7 +72,7 @@ VectorDevice* VectorDevice::create(HDC dc, int width, int height) {
 }
 
 VectorDevice::VectorDevice(HDC dc, const SkBitmap& bitmap)
-    : PlatformDevice(bitmap),
+    : PlatformDeviceWin(bitmap),
       hdc_(dc),
       previous_brush_(NULL),
       previous_pen_(NULL),
@@ -191,7 +191,7 @@ void VectorDevice::drawPath(const SkDraw& draw, const SkPath& path,
     return;
   }
   HDC dc = getBitmapDC();
-  PlatformDevice::LoadPathToDC(dc, path);
+  PlatformDeviceWin::LoadPathToDC(dc, path);
   switch (paint.getStyle()) {
     case SkPaint::kFill_Style: {
       BOOL res = StrokeAndFillPath(dc);

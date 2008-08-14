@@ -45,7 +45,7 @@
 
 #undef LOG
 #include "base/gfx/native_theme.h"
-#include "base/gfx/platform_canvas.h"
+#include "base/gfx/platform_canvas_win.h"
 #include "base/win_util.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webkit_glue.h"
@@ -189,7 +189,7 @@ void PlatformScrollbar::DrawTickmarks(GraphicsContext* context) const
     // will not be serialized, i.e. composition is done in the renderer and
     // never in the browser.
     // Prepare the bitmap for drawing the tickmarks on the scroll bar.
-    gfx::PlatformCanvas* canvas = PlatformContextToPlatformContextSkia(
+    gfx::PlatformCanvasWin* canvas = PlatformContextToPlatformContextSkia(
         context->platformContext())->canvas();
 
     // Load the image for the tickmark.
@@ -242,7 +242,7 @@ void PlatformScrollbar::paint(GraphicsContext* gc, const IntRect& damageRect)
     const PlatformContextSkia* const skia =
         PlatformContextToPlatformContextSkia(gc->platformContext());
     const gfx::NativeTheme* const nativeTheme = skia->nativeTheme();
-    gfx::PlatformCanvas* const canvas = skia->canvas();
+    gfx::PlatformCanvasWin* const canvas = skia->canvas();
     
     // Draw the up/left arrow of the scroll bar.
     nativeTheme->PaintScrollbarArrow(hdc, getThemeArrowState(Arrow1),

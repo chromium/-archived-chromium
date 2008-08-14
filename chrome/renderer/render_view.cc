@@ -35,7 +35,7 @@
 
 #include "base/command_line.h"
 #include "base/gfx/bitmap_header.h"
-#include "base/gfx/bitmap_platform_device.h"
+#include "base/gfx/bitmap_platform_device_win.h"
 #include "base/gfx/image_operations.h"
 #include "base/gfx/native_theme.h"
 #include "base/gfx/vector_canvas.h"
@@ -456,7 +456,7 @@ void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
   emf.CreateDc(NULL, NULL);
   HDC hdc = emf.hdc();
   DCHECK(hdc);
-  gfx::PlatformDevice::InitializeDC(hdc);
+  gfx::PlatformDeviceWin::InitializeDC(hdc);
 
   gfx::Rect rect;
   frame->GetPageRect(params.page_number, &rect);
@@ -480,7 +480,7 @@ void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
   // GDI drawing code fails.
 
   // Mix of Skia and GDI based.
-  gfx::PlatformCanvas canvas(src_size_x, src_size_y, true);
+  gfx::PlatformCanvasWin canvas(src_size_x, src_size_y, true);
   canvas.drawARGB(255, 255, 255, 255, SkPorterDuff::kSrc_Mode);
   PlatformContextSkia context(&canvas);
   if (!frame->SpoolPage(params.page_number, &context)) {
@@ -692,7 +692,7 @@ void RenderView::CaptureThumbnail(WebFrame* frame,
   double begin = time_util::GetHighResolutionTimeNow();
 #endif
 
-  gfx::BitmapPlatformDevice device(frame->CaptureImage(true));
+  gfx::BitmapPlatformDeviceWin device(frame->CaptureImage(true));
   const SkBitmap& src_bmp = device.accessBitmap(false);
 
   SkRect dest_rect;

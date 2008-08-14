@@ -47,7 +47,7 @@ class PlatformContextSkia : public SkGraphicsContext {
     friend class WebCore::GraphicsContextPlatformPrivate;
 public:
     // For printing, there shouldn't be any canvas. canvas can be NULL.
-    PlatformContextSkia(gfx::PlatformCanvas* canvas);
+    PlatformContextSkia(gfx::PlatformCanvasWin* canvas);
     ~PlatformContextSkia();
 
 protected:

@@ -37,7 +37,7 @@
 #include "SkPath.h"
 
 namespace gfx {
-class PlatformCanvas;
+class PlatformCanvasWin;
 }
 
 // This class is the interface to communicate to Skia. It is meant to be as
@@ -60,7 +60,7 @@ class SkPaintContext {
   };
 
   // Context will be NULL if painting should be disabled.
-  SkPaintContext(gfx::PlatformCanvas* context);
+  SkPaintContext(gfx::PlatformCanvasWin* context);
   ~SkPaintContext();
 
   void save();
@@ -103,7 +103,7 @@ class SkPaintContext {
   SkColor fillColor() const;
 
  protected:
-  gfx::PlatformCanvas* canvas() {
+  gfx::PlatformCanvasWin* canvas() {
     return canvas_;
   }
 
@@ -112,7 +112,7 @@ class SkPaintContext {
   struct State;
 
   // NULL indicates painting is disabled. Never delete this object.
-  gfx::PlatformCanvas* canvas_;
+  gfx::PlatformCanvasWin* canvas_;
 
   // States stack. Enables local drawing state change with save()/restore()
   // calls.

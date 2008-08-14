@@ -31,7 +31,7 @@
 
 #include <set>
 
-#include "base/gfx/platform_device.h"
+#include "base/gfx/platform_device_win.h"
 #include "base/message_loop.h"
 #include "base/time.h"
 #include "chrome/browser/printing/page_number.h"
@@ -126,7 +126,7 @@ void PrintedDocument::RenderPrintedPage(const PrintedPage& page,
   // the device context.
   int saved_state = SaveDC(context);
   DCHECK_NE(saved_state, 0);
-  gfx::PlatformDevice::InitializeDC(context);
+  gfx::PlatformDeviceWin::InitializeDC(context);
   {
     // Save the state (again) to apply the necessary world transformation.
     int saved_state = SaveDC(context);

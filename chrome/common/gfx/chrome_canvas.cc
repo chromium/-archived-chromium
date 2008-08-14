@@ -38,10 +38,10 @@
 #include "chrome/common/l10n_util.h"
 
 ChromeCanvas::ChromeCanvas(int width, int height, bool is_opaque)
-    : gfx::PlatformCanvas(width, height, is_opaque) {
+    : gfx::PlatformCanvasWin(width, height, is_opaque) {
 }
 
-ChromeCanvas::ChromeCanvas() : gfx::PlatformCanvas() {
+ChromeCanvas::ChromeCanvas() : gfx::PlatformCanvasWin() {
 }
 
 ChromeCanvas::~ChromeCanvas() {

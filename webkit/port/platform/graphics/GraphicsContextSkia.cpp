@@ -34,7 +34,7 @@
 # include "SkGradientShader.h"
 #endif
 
-#include "base/gfx/platform_canvas.h"
+#include "base/gfx/platform_canvas_win.h"
 
 using namespace std;
 
@@ -704,7 +704,7 @@ void GraphicsContext::freePlatformPattern(PlatformPattern* shader)
 
 GraphicsContext* GraphicsContext::createOffscreenContext(int width, int height)
 {
-    gfx::PlatformCanvas* canvas = new gfx::PlatformCanvas(width, height, false);
+    gfx::PlatformCanvasWin* canvas = new gfx::PlatformCanvasWin(width, height, false);
     PlatformContextSkia* pgc = new PlatformContextSkia(canvas);
     canvas->drawARGB(0, 0, 0, 0, SkPorterDuff::kClear_Mode);
 

@@ -27,7 +27,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "base/gfx/platform_device.h"
+#include "base/gfx/platform_device_win.h"
 
 #include "base/logging.h"
 #include "base/gfx/skia_utils.h"
@@ -38,12 +38,12 @@
 
 namespace gfx {
 
-PlatformDevice::PlatformDevice(const SkBitmap& bitmap)
+PlatformDeviceWin::PlatformDeviceWin(const SkBitmap& bitmap)
     : SkDevice(bitmap) {
 }
 
 // static
-void PlatformDevice::InitializeDC(HDC context) {
+void PlatformDeviceWin::InitializeDC(HDC context) {
   // Enables world transformation.
   // If the GM_ADVANCED graphics mode is set, GDI always draws arcs in the
   // counterclockwise direction in logical space. This is equivalent to the
@@ -83,7 +83,7 @@ void PlatformDevice::InitializeDC(HDC context) {
 }
 
 // static
-void PlatformDevice::LoadPathToDC(HDC context, const SkPath& path) {
+void PlatformDeviceWin::LoadPathToDC(HDC context, const SkPath& path) {
   switch (path.getFillType()) {
     case SkPath::kWinding_FillType: {
       int res = SetPolyFillMode(context, WINDING);
@@ -144,7 +144,7 @@ void PlatformDevice::LoadPathToDC(HDC context, const SkPath& path) {
 }
 
 // static
-void PlatformDevice::LoadTransformToDC(HDC dc, const SkMatrix& matrix) {
+void PlatformDeviceWin::LoadTransformToDC(HDC dc, const SkMatrix& matrix) {
   XFORM xf;
   xf.eM11 = matrix[SkMatrix::kMScaleX];
   xf.eM21 = matrix[SkMatrix::kMSkewX];
@@ -156,7 +156,7 @@ void PlatformDevice::LoadTransformToDC(HDC dc, const SkMatrix& matrix) {
 }
 
 // static
-bool PlatformDevice::SkPathToCubicPaths(CubicPaths* paths,
+bool PlatformDeviceWin::SkPathToCubicPaths(CubicPaths* paths,
                                         const SkPath& skpath) {
   paths->clear();
   CubicPath* current_path = NULL;
@@ -219,7 +219,7 @@ bool PlatformDevice::SkPathToCubicPaths(CubicPaths* paths,
 }
 
 // static
-void PlatformDevice::LoadClippingRegionToDC(HDC context,
+void PlatformDeviceWin::LoadClippingRegionToDC(HDC context,
                                             const SkRegion& region,
                                             const SkMatrix& transformation) {
   HRGN hrgn;

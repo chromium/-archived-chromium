@@ -33,7 +33,7 @@
 #include <windows.h>
 #include <string>
 #include "base/basictypes.h"
-#include "base/gfx/platform_canvas.h"
+#include "base/gfx/platform_canvas_win.h"
 
 class ChromeFont;
 namespace gfx {
@@ -56,7 +56,7 @@ class Rect;
 // source and destination colors are combined. Unless otherwise specified,
 // the variant that does not take a SkPorterDuff::Mode uses a transfer mode
 // of kSrcOver_Mode.
-class ChromeCanvas : public gfx::PlatformCanvas {
+class ChromeCanvas : public gfx::PlatformCanvasWin {
  public:
   // Specifies the alignment for text rendered with the DrawStringInt method.
   static const int TEXT_ALIGN_LEFT = 1;

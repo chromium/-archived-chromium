@@ -43,7 +43,7 @@
 #include "skia/include/SkColor.h"
 
 namespace gfx {
-class PlatformCanvas;
+class PlatformCanvasWin;
 
 // TODO: Define class member enums to replace part_id and state_id parameters
 // that are currently defined in <vssym32.h>. Afterward, classic_state should
@@ -153,7 +153,7 @@ class NativeTheme {
                               int classic_state,
                               RECT* target_rect,
                               RECT* align_rect,
-                              PlatformCanvas* canvas) const;
+                              PlatformCanvasWin* canvas) const;
 
   // |arrow_direction| determines whether the arrow is pointing to the left or
   // to the right. In RTL locales, sub-menus open from right to left and

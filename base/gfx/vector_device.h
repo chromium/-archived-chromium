@@ -31,7 +31,7 @@
 #define BASE_GFX_VECTOR_DEVICE_H__
 
 #include "base/basictypes.h"
-#include "base/gfx/platform_device.h"
+#include "base/gfx/platform_device_win.h"
 #include "SkMatrix.h"
 #include "SkRegion.h"
 
@@ -41,7 +41,7 @@ namespace gfx {
 // SkCanvas to draw into. This specific device is not not backed by a surface
 // and is thus unreadable. This is because the backend is completely vectorial.
 // This device is a simple wrapper over a Windows device context (HDC) handle.
-class VectorDevice : public PlatformDevice {
+class VectorDevice : public PlatformDeviceWin {
  public:
   // Factory function. The DC is kept as the output context.
   static VectorDevice* create(HDC dc, int width, int height);

@@ -32,7 +32,7 @@
 #include "base/command_line.h"
 #include "base/time.h"
 #include "base/gfx/bitmap_header.h"
-#include "base/gfx/platform_device.h"
+#include "base/gfx/platform_device_win.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/gfx/emf.h"
 #include "chrome/common/plugin_messages.h"
@@ -257,7 +257,7 @@ void WebPluginDelegateStub::OnPaint(const PluginMsg_Paint_Params& params) {
     NOTREACHED();
     return;
   }
-  gfx::PlatformDevice::InitializeDC(hdc);
+  gfx::PlatformDeviceWin::InitializeDC(hdc);
   SelectObject(hdc, hbitmap);
   SetWorldTransform(hdc, &params.xf);
 
@@ -274,7 +274,7 @@ void WebPluginDelegateStub::OnPrint(PluginMsg_PrintResponse_Params* params) {
     return;
   }
   HDC hdc = emf.hdc();
-  gfx::PlatformDevice::InitializeDC(hdc);
+  gfx::PlatformDeviceWin::InitializeDC(hdc);
   delegate_->Print(hdc);
   if (!emf.CloseDc()) {
     NOTREACHED();
@@ -305,7 +305,7 @@ void WebPluginDelegateStub::OnPaintIntoSharedMemory(
     return;
   }
   HDC hdc = emf.hdc();
-  gfx::PlatformDevice::InitializeDC(hdc);
+  gfx::PlatformDeviceWin::InitializeDC(hdc);
 
   if (delegate_->windowless()) {
     WindowlessPaint(hdc, params);

@@ -35,7 +35,7 @@
 #include "base/gfx/size.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
-#include "base/gfx/platform_canvas.h"
+#include "base/gfx/platform_canvas_win.h"
 #include "base/scoped_ptr.h"
 #include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webwidget.h"
@@ -368,7 +368,7 @@ void RenderWidget::ClearFocus() {
 }
 
 void RenderWidget::PaintRect(const gfx::Rect& rect, SharedMemory* paint_buf) {
-  gfx::PlatformCanvas canvas(rect.width(), rect.height(), true,
+  gfx::PlatformCanvasWin canvas(rect.width(), rect.height(), true,
       paint_buf->handle());
   // Bring the canvas into the coordinate system of the paint rect
   canvas.translate(static_cast<SkScalar>(-rect.x()),

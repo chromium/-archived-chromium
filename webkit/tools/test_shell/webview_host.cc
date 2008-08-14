@@ -29,7 +29,7 @@
 
 #include "webkit/tools/test_shell/webview_host.h"
 
-#include "base/gfx/platform_canvas.h"
+#include "base/gfx/platform_canvas_win.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
 #include "base/win_util.h"

@@ -47,7 +47,7 @@
 #include "base/gfx/bitmap_header.h"
 #include "base/gfx/image_operations.h"
 #include "base/gfx/native_theme.h"
-#include "base/gfx/platform_canvas.h"
+#include "base/gfx/platform_canvas_win.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webkit_resources.h"
 
@@ -129,8 +129,8 @@ void GetTextAreaResizeCorner(Image* image)
     const int height = PlatformScrollbar::horizontalScrollbarHeight();
 
     // Setup a memory buffer.
-    gfx::PlatformCanvas canvas(width, height, false);
-    gfx::PlatformDevice& device = canvas.getTopPlatformDevice();
+    gfx::PlatformCanvasWin canvas(width, height, false);
+    gfx::PlatformDeviceWin& device = canvas.getTopPlatformDevice();
     device.prepareForGDI(0, 0, width, height);
     HDC hdc = device.getBitmapDC();
     RECT widgetRect = { 0, 0, width, height };

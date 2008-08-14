@@ -58,7 +58,7 @@
 #include <cairo.h>
 #elif defined(ANDROID_CANVAS_IMPL)
 #include "PlatformContextSkia.h"
-#include "base/gfx/platform_canvas.h"
+#include "base/gfx/platform_canvas_win.h"
 #endif
 
 namespace WebCore {

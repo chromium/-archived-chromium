@@ -35,7 +35,7 @@
 #include <vssym32.h>
 
 #include "base/gfx/bitmap_header.h"
-#include "base/gfx/platform_canvas.h"
+#include "base/gfx/platform_canvas_win.h"
 #include "base/gfx/skia_utils.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
@@ -215,7 +215,7 @@ HRESULT NativeTheme::PaintScrollbarTrack(HDC hdc,
                                          int classic_state,
                                          RECT* target_rect,
                                          RECT* align_rect,
-                                         PlatformCanvas* canvas) const {
+                                         PlatformCanvasWin* canvas) const {
   HANDLE handle = GetThemeHandle(SCROLLBAR);
   if (handle && draw_theme_)
     return draw_theme_(handle, hdc, part_id, state_id, target_rect, NULL);

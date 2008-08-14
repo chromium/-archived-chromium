@@ -33,7 +33,7 @@
 #include "SkShader.h"
 #include "SkDashPathEffect.h"
 
-#include "base/gfx/platform_canvas.h"
+#include "base/gfx/platform_canvas_win.h"
 
 namespace {
 
@@ -127,7 +127,7 @@ struct SkPaintContext::State {
 };
 
 // Context will be NULL if painting should be disabled.
-SkPaintContext::SkPaintContext(gfx::PlatformCanvas* context)
+SkPaintContext::SkPaintContext(gfx::PlatformCanvasWin* context)
       : canvas_(context),
         state_stack_(sizeof(State)) {
   State* state = reinterpret_cast<State*>(state_stack_.push_back());

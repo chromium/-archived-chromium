@@ -27,10 +27,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_GFX_PLATFORM_CANVAS_H__
-#define BASE_GFX_PLATFORM_CANVAS_H__
+#ifndef BASE_GFX_PLATFORM_CANVAS_WIN_H__
+#define BASE_GFX_PLATFORM_CANVAS_WIN_H__
 
-#include "base/gfx/platform_device.h"
+#include "base/gfx/platform_device_win.h"
 #include "base/basictypes.h"
 
 #include "SkCanvas.h"
@@ -40,17 +40,17 @@ namespace gfx {
 // This class is a specialization of the regular SkCanvas that is designed to
 // work with a gfx::PlatformDevice to manage platform-specific drawing. It
 // allows using both Skia operations and platform-specific operations.
-class PlatformCanvas : public SkCanvas {
+class PlatformCanvasWin : public SkCanvas {
  public:
   // Set is_opaque if you are going to erase the bitmap and not use
   // tranparency: this will enable some optimizations.  The shared_section
   // parameter is passed to gfx::PlatformDevice::create.  See it for details.
   //
   // If you use the version with no arguments, you MUST call initialize()
-  PlatformCanvas();
-  PlatformCanvas(int width, int height, bool is_opaque);
-  PlatformCanvas(int width, int height, bool is_opaque, HANDLE shared_section);
-  virtual ~PlatformCanvas();
+  PlatformCanvasWin();
+  PlatformCanvasWin(int width, int height, bool is_opaque);
+  PlatformCanvasWin(int width, int height, bool is_opaque, HANDLE shared_section);
+  virtual ~PlatformCanvasWin();
 
   // For two-part init, call if you use the no-argument constructor above
   void initialize(int width, int height, bool is_opaque, HANDLE shared_section);
@@ -75,7 +75,7 @@ class PlatformCanvas : public SkCanvas {
   //
   // Danger: the resulting device should not be saved. It will be invalidated
   // by the next call to save() or restore().
-  PlatformDevice& getTopPlatformDevice() const;
+  PlatformDeviceWin& getTopPlatformDevice() const;
 
  protected:
   // Creates a device store for use by the canvas. We override this so that
@@ -85,7 +85,7 @@ class PlatformCanvas : public SkCanvas {
                                  bool is_opaque, bool isForLayer);
 
   // Creates a device store for use by the canvas. By default, it creates a
-  // BitmapPlatformDevice object. Can be overridden to change the object type.
+  // BitmapPlatformDeviceWin object. Can be overridden to change the object type.
   virtual SkDevice* createPlatformDevice(int width, int height, bool is_opaque,
                                          HANDLE shared_section);
 
@@ -93,7 +93,7 @@ class PlatformCanvas : public SkCanvas {
   // Unimplemented.
   virtual SkDevice* setBitmapDevice(const SkBitmap& bitmap);
 
-  DISALLOW_EVIL_CONSTRUCTORS(PlatformCanvas);
+  DISALLOW_EVIL_CONSTRUCTORS(PlatformCanvasWin);
 };
 
 // A class designed to help with WM_PAINT operations on Windows. It will
@@ -108,7 +108,7 @@ class PlatformCanvas : public SkCanvas {
 //
 // Therefore, all you need to do is:
 //   case WM_PAINT: {
-//     gfx::PlatformCanvasPaint canvas(hwnd);
+//     gfx::PlatformCanvasWinPaint canvas(hwnd);
 //     if (!canvas.isEmpty()) {
 //       ... paint to the canvas ...
 //     }
@@ -202,8 +202,8 @@ class CanvasPaintT : public T {
   DISALLOW_EVIL_CONSTRUCTORS(CanvasPaintT);
 };
 
-typedef CanvasPaintT<PlatformCanvas> PlatformCanvasPaint;
+typedef CanvasPaintT<PlatformCanvasWin> PlatformCanvasWinPaint;
 
 }  // namespace gfx
 
-#endif  // BASE_GFX_PLATFORM_CANVAS_H__
+#endif  // BASE_GFX_PLATFORM_CANVAS_WIN_H__

@@ -29,8 +29,8 @@
 
 #include <windows.h>
 
-#include "base/gfx/platform_canvas.h"
-#include "base/gfx/platform_device.h"
+#include "base/gfx/platform_canvas_win.h"
+#include "base/gfx/platform_device_win.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 #include "SkColor.h"
@@ -41,10 +41,10 @@ namespace {
 
 // Return true if the canvas is filled to canvas_color,
 // and contains a single rectangle filled to rect_color.
-bool VerifyRect(const PlatformCanvas& canvas,
+bool VerifyRect(const PlatformCanvasWin& canvas,
                 uint32_t canvas_color, uint32_t rect_color,
                 int x, int y, int w, int h) {
-  PlatformDevice& device = canvas.getTopPlatformDevice();
+  PlatformDeviceWin& device = canvas.getTopPlatformDevice();
   const SkBitmap& bitmap = device.accessBitmap(false);
   SkAutoLockPixels lock(bitmap);
 
@@ -68,16 +68,16 @@ bool VerifyRect(const PlatformCanvas& canvas,
 // Checks whether there is a white canvas with a black square at the given
 // location in pixels (not in the canvas coordinate system).
 // TODO(ericroman): rename Square to Rect
-bool VerifyBlackSquare(const PlatformCanvas& canvas, int x, int y, int w, int h) {
+bool VerifyBlackSquare(const PlatformCanvasWin& canvas, int x, int y, int w, int h) {
   return VerifyRect(canvas, SK_ColorWHITE, SK_ColorBLACK, x, y, w, h);
 }
 
 // Check that every pixel in the canvas is a single color.
-bool VerifyCanvasColor(const PlatformCanvas& canvas, uint32_t canvas_color) {
+bool VerifyCanvasColor(const PlatformCanvasWin& canvas, uint32_t canvas_color) {
   return VerifyRect(canvas, canvas_color, 0, 0, 0, 0, 0);
 }
 
-void DrawGDIRect(PlatformCanvas& canvas, int x, int y, int w, int h) {
+void DrawGDIRect(PlatformCanvasWin& canvas, int x, int y, int w, int h) {
   HDC dc = canvas.beginPlatformPaint();
 
   RECT inner_rc;
@@ -92,7 +92,7 @@ void DrawGDIRect(PlatformCanvas& canvas, int x, int y, int w, int h) {
 
 // Clips the contents of the canvas to the given rectangle. This will be
 // intersected with any existing clip.
-void AddClip(PlatformCanvas& canvas, int x, int y, int w, int h) {
+void AddClip(PlatformCanvasWin& canvas, int x, int y, int w, int h) {
   SkRect rect;
   rect.set(SkIntToScalar(x), SkIntToScalar(y),
            SkIntToScalar(x + w), SkIntToScalar(y + h));
@@ -101,7 +101,7 @@ void AddClip(PlatformCanvas& canvas, int x, int y, int w, int h) {
 
 class LayerSaver {
  public:
-  LayerSaver(PlatformCanvas& canvas, int x, int y, int w, int h)
+  LayerSaver(PlatformCanvasWin& canvas, int x, int y, int w, int h)
       : canvas_(canvas),
         x_(x),
         y_(y),
@@ -128,7 +128,7 @@ class LayerSaver {
   int bottom() const { return y_ + h_; }
 
  private:
-  PlatformCanvas& canvas_;
+  PlatformCanvasWin& canvas_;
   int x_, y_, w_, h_;
 };
 
@@ -148,9 +148,9 @@ const int kInnerH = 3;
 
 // This just checks that our checking code is working properly, it just uses
 // regular skia primitives.
-TEST(PlatformCanvas, SkLayer) {
+TEST(PlatformCanvasWin, SkLayer) {
   // Create the canvas initialized to opaque white.
-  PlatformCanvas canvas(16, 16, true);
+  PlatformCanvasWin canvas(16, 16, true);
   canvas.drawColor(SK_ColorWHITE);
 
   // Make a layer and fill it completely to make sure that the bounds are
@@ -163,9 +163,9 @@ TEST(PlatformCanvas, SkLayer) {
 }
 
 // Test the GDI clipping.
-TEST(PlatformCanvas, GDIClipRegion) {
+TEST(PlatformCanvasWin, GDIClipRegion) {
   // Initialize a white canvas
-  PlatformCanvas canvas(16, 16, true);
+  PlatformCanvasWin canvas(16, 16, true);
   canvas.drawColor(SK_ColorWHITE);
   EXPECT_TRUE(VerifyCanvasColor(canvas, SK_ColorWHITE));
 
@@ -189,9 +189,9 @@ TEST(PlatformCanvas, GDIClipRegion) {
 }
 
 // Test the layers get filled properly by GDI.
-TEST(PlatformCanvas, GDILayer) {
+TEST(PlatformCanvasWin, GDILayer) {
   // Create the canvas initialized to opaque white.
-  PlatformCanvas canvas(16, 16, true);
+  PlatformCanvasWin canvas(16, 16, true);
 
   // Make a layer and fill it completely to make sure that the bounds are
   // correct.
@@ -234,9 +234,9 @@ TEST(PlatformCanvas, GDILayer) {
 }
 
 // Test that translation + make layer works properly.
-TEST(PlatformCanvas, GDITranslateLayer) {
+TEST(PlatformCanvasWin, GDITranslateLayer) {
   // Create the canvas initialized to opaque white.
-  PlatformCanvas canvas(16, 16, true);
+  PlatformCanvasWin canvas(16, 16, true);
 
   // Make a layer and fill it completely to make sure that the bounds are
   // correct.

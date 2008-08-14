@@ -52,7 +52,7 @@ void VectorCanvas::initialize(HDC context, int width, int height) {
 
 SkBounder* VectorCanvas::setBounder(SkBounder* bounder) {
   if (!IsTopDeviceVectorial())
-    return PlatformCanvas::setBounder(bounder);
+    return PlatformCanvasWin::setBounder(bounder);
 
   // This function isn't used in the code. Verify this assumption.
   NOTREACHED();
@@ -79,12 +79,12 @@ SkDevice* VectorCanvas::createPlatformDevice(int width,
     // TODO(maruel):  http://b/1184002 1184002 When restoring a semi-transparent
     // layer, i.e. merging it, we need to rasterize it because GDI doesn't
     // support transparency except for AlphaBlend(). Right now, a
-    // BitmapPlatformDevice is created when VectorCanvas think a saveLayers()
+    // BitmapPlatformDeviceWin is created when VectorCanvas think a saveLayers()
     // call is being done. The way to save a layer would be to create an
     // EMF-based VectorDevice and have this device registers the drawing. When
     // playing back the device into a bitmap, do it at the printer's dpi instead
     // of the layout's dpi (which is much lower).
-    return PlatformCanvas::createPlatformDevice(width, height, is_opaque,
+    return PlatformCanvasWin::createPlatformDevice(width, height, is_opaque,
                                                 shared_section);
   }
 
@@ -97,7 +97,7 @@ SkDevice* VectorCanvas::createPlatformDevice(int width,
   // SkScalarRound(value * 10). Safari is already doing the same for text
   // rendering.
   DCHECK(shared_section);
-  PlatformDevice* device = VectorDevice::create(
+  PlatformDeviceWin* device = VectorDevice::create(
       reinterpret_cast<HDC>(shared_section), width, height);
   return device;
 }

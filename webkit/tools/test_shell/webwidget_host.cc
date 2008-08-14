@@ -29,7 +29,7 @@
 
 #include "webkit/tools/test_shell/webwidget_host.h"
 
-#include "base/gfx/platform_canvas.h"
+#include "base/gfx/platform_canvas_win.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
 #include "base/win_util.h"
@@ -227,7 +227,7 @@ void WebWidgetHost::Paint() {
   if (!canvas_.get()) {
     ResetScrollRect();
     paint_rect_ = client_rect;
-    canvas_.reset(new gfx::PlatformCanvas(
+    canvas_.reset(new gfx::PlatformCanvasWin(
         paint_rect_.width(), paint_rect_.height(), true));
   }
 

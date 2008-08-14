@@ -47,7 +47,7 @@ class UniscribeStateTextRun;
 
 namespace gfx {
 class NativeTheme;
-class PlatformCanvas;
+class PlatformCanvasWin;
 }
 
 
@@ -67,7 +67,7 @@ class SkGraphicsContext {
     RESAMPLE_AWESOME,
   };
 
-  SkGraphicsContext(gfx::PlatformCanvas* canvas);
+  SkGraphicsContext(gfx::PlatformCanvasWin* canvas);
   ~SkGraphicsContext();
 
   // Gets the default theme.
@@ -130,7 +130,7 @@ class SkGraphicsContext {
   // Warning: This function is deprecated so the users are reminded that they
   // should use this layer of indirection instead of using the canvas directly.
   // This is to help with the eventual serialization.
-  gfx::PlatformCanvas* canvas() const;
+  gfx::PlatformCanvasWin* canvas() const;
 
   // Returns if the context is a printing context instead of a display context.
   // Bitmap shouldn't be resampled when printing to keep the best possible
@@ -147,7 +147,7 @@ class SkGraphicsContext {
   SkPaintContext* paint_context_;
 
   // Can be NULL when serializing.
-  gfx::PlatformCanvas* canvas_;
+  gfx::PlatformCanvasWin* canvas_;
 
   // Signal that we own the canvas and must delete it on destruction.
   bool own_canvas_;

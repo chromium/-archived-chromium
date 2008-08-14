@@ -39,7 +39,7 @@
 #include "base/command_line.h"
 #include "base/debug_on_start.h"
 #include "base/file_util.h"
-#include "base/gfx/bitmap_platform_device.h"
+#include "base/gfx/bitmap_platform_device_win.h"
 #include "base/gfx/png_encoder.h"
 #include "base/gfx/size.h"
 #include "base/icu_util.h"
@@ -542,7 +542,7 @@ void TestShell::ResizeSubViews() {
 /* static */ std::string TestShell::DumpImage(
         WebFrame* web_frame,
         const std::wstring& file_name) {
-    gfx::BitmapPlatformDevice device(web_frame->CaptureImage(true));
+    gfx::BitmapPlatformDeviceWin device(web_frame->CaptureImage(true));
     const SkBitmap& src_bmp = device.accessBitmap(false);
 
     // Encode image.

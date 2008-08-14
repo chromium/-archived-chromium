@@ -27,7 +27,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "base/gfx/bitmap_platform_device.h"
+#include "base/gfx/bitmap_platform_device_win.h"
 
 #include "base/gfx/bitmap_header.h"
 #include "base/logging.h"
@@ -125,10 +125,10 @@ void FixupAlphaBeforeCompositing(uint32_t* pixel) {
 
 }  // namespace
 
-class BitmapPlatformDevice::BitmapPlatformDeviceData
-    : public base::RefCounted<BitmapPlatformDeviceData> {
+class BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData
+    : public base::RefCounted<BitmapPlatformDeviceWinData> {
  public:
-  explicit BitmapPlatformDeviceData(HBITMAP hbitmap);
+  explicit BitmapPlatformDeviceWinData(HBITMAP hbitmap);
 
   // Create/destroy hdc_, which is the memory DC for our bitmap data.
   HDC GetBitmapDC();
@@ -175,13 +175,13 @@ class BitmapPlatformDevice::BitmapPlatformDeviceData
   SkRegion clip_region_;
 
  private:
-  friend class base::RefCounted<BitmapPlatformDeviceData>;
-  ~BitmapPlatformDeviceData();
+  friend class base::RefCounted<BitmapPlatformDeviceWinData>;
+  ~BitmapPlatformDeviceWinData();
 
-  DISALLOW_EVIL_CONSTRUCTORS(BitmapPlatformDeviceData);
+  DISALLOW_EVIL_CONSTRUCTORS(BitmapPlatformDeviceWinData);
 };
 
-BitmapPlatformDevice::BitmapPlatformDeviceData::BitmapPlatformDeviceData(
+BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData::BitmapPlatformDeviceWinData(
     HBITMAP hbitmap)
     : hbitmap_(hbitmap),
       hdc_(NULL),
@@ -199,7 +199,7 @@ BitmapPlatformDevice::BitmapPlatformDeviceData::BitmapPlatformDeviceData(
   transform_.reset();
 }
 
-BitmapPlatformDevice::BitmapPlatformDeviceData::~BitmapPlatformDeviceData() {
+BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData::~BitmapPlatformDeviceWinData() {
   if (hdc_)
     ReleaseBitmapDC();
 
@@ -207,7 +207,7 @@ BitmapPlatformDevice::BitmapPlatformDeviceData::~BitmapPlatformDeviceData() {
   DeleteObject(hbitmap_);
 }
 
-HDC BitmapPlatformDevice::BitmapPlatformDeviceData::GetBitmapDC() {
+HDC BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData::GetBitmapDC() {
   if (!hdc_) {
     hdc_ = CreateCompatibleDC(NULL);
     InitializeDC(hdc_);
@@ -222,18 +222,18 @@ HDC BitmapPlatformDevice::BitmapPlatformDeviceData::GetBitmapDC() {
   return hdc_;
 }
 
-void BitmapPlatformDevice::BitmapPlatformDeviceData::ReleaseBitmapDC() {
+void BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData::ReleaseBitmapDC() {
   DCHECK(hdc_);
   DeleteDC(hdc_);
   hdc_ = NULL;
 }
 
-bool BitmapPlatformDevice::BitmapPlatformDeviceData::IsBitmapDCCreated() const {
+bool BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData::IsBitmapDCCreated() const {
   return hdc_ != NULL;
 }
 
 
-void BitmapPlatformDevice::BitmapPlatformDeviceData::SetMatrixClip(
+void BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData::SetMatrixClip(
     const SkMatrix& transform,
     const SkRegion& region) {
   transform_ = transform;
@@ -241,14 +241,14 @@ void BitmapPlatformDevice::BitmapPlatformDeviceData::SetMatrixClip(
   config_dirty_ = true;
 }
 
-void BitmapPlatformDevice::BitmapPlatformDeviceData::SetDeviceOffset(int x,
+void BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData::SetDeviceOffset(int x,
                                                                      int y) {
   offset_x_ = x;
   offset_y_ = y;
   config_dirty_ = true;
 }
 
-void BitmapPlatformDevice::BitmapPlatformDeviceData::LoadConfig() {
+void BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData::LoadConfig() {
   if (!config_dirty_ || !hdc_)
     return;  // Nothing to do.
   config_dirty_ = false;
@@ -268,7 +268,7 @@ void BitmapPlatformDevice::BitmapPlatformDeviceData::LoadConfig() {
 // that we can create the pixel data before calling the constructor. This is
 // required so that we can call the base class' constructor with the pixel
 // data.
-BitmapPlatformDevice* BitmapPlatformDevice::create(HDC screen_dc,
+BitmapPlatformDeviceWin* BitmapPlatformDeviceWin::create(HDC screen_dc,
                                                    int width,
                                                    int height,
                                                    bool is_opaque,
@@ -315,49 +315,49 @@ BitmapPlatformDevice* BitmapPlatformDevice::create(HDC screen_dc,
   }
 
   // The device object will take ownership of the HBITMAP.
-  return new BitmapPlatformDevice(new BitmapPlatformDeviceData(hbitmap), bitmap);
+  return new BitmapPlatformDeviceWin(new BitmapPlatformDeviceWinData(hbitmap), bitmap);
 }
 
 // The device will own the HBITMAP, which corresponds to also owning the pixel
 // data. Therefore, we do not transfer ownership to the SkDevice's bitmap.
-BitmapPlatformDevice::BitmapPlatformDevice(BitmapPlatformDeviceData* data,
+BitmapPlatformDeviceWin::BitmapPlatformDeviceWin(BitmapPlatformDeviceWinData* data,
                                            const SkBitmap& bitmap)
-    : PlatformDevice(bitmap),
+    : PlatformDeviceWin(bitmap),
       data_(data) {
 }
 
 // The copy constructor just adds another reference to the underlying data.
 // We use a const cast since the default Skia definitions don't define the
 // proper constedness that we expect (accessBitmap should really be const).
-BitmapPlatformDevice::BitmapPlatformDevice(const BitmapPlatformDevice& other)
-    : PlatformDevice(
-          const_cast<BitmapPlatformDevice&>(other).accessBitmap(true)),
+BitmapPlatformDeviceWin::BitmapPlatformDeviceWin(const BitmapPlatformDeviceWin& other)
+    : PlatformDeviceWin(
+          const_cast<BitmapPlatformDeviceWin&>(other).accessBitmap(true)),
       data_(other.data_) {
 }
 
-BitmapPlatformDevice::~BitmapPlatformDevice() {
+BitmapPlatformDeviceWin::~BitmapPlatformDeviceWin() {
 }
 
-BitmapPlatformDevice& BitmapPlatformDevice::operator=(
-    const BitmapPlatformDevice& other) {
+BitmapPlatformDeviceWin& BitmapPlatformDeviceWin::operator=(
+    const BitmapPlatformDeviceWin& other) {
   data_ = other.data_;
   return *this;
 }
 
-HDC BitmapPlatformDevice::getBitmapDC() {
+HDC BitmapPlatformDeviceWin::getBitmapDC() {
   return data_->GetBitmapDC();
 }
 
-void BitmapPlatformDevice::setMatrixClip(const SkMatrix& transform,
+void BitmapPlatformDeviceWin::setMatrixClip(const SkMatrix& transform,
                                          const SkRegion& region) {
   data_->SetMatrixClip(transform, region);
 }
 
-void BitmapPlatformDevice::setDeviceOffset(int x, int y) {
+void BitmapPlatformDeviceWin::setDeviceOffset(int x, int y) {
   data_->SetDeviceOffset(x, y);
 }
 
-void BitmapPlatformDevice::drawToHDC(HDC dc, int x, int y,
+void BitmapPlatformDeviceWin::drawToHDC(HDC dc, int x, int y,
                                      const RECT* src_rect) {
   bool created_dc = !data_->IsBitmapDCCreated();
   HDC source_dc = getBitmapDC();
@@ -410,19 +410,19 @@ void BitmapPlatformDevice::drawToHDC(HDC dc, int x, int y,
     data_->ReleaseBitmapDC();
 }
 
-void BitmapPlatformDevice::prepareForGDI(int x, int y, int width, int height) {
+void BitmapPlatformDeviceWin::prepareForGDI(int x, int y, int width, int height) {
   processPixels<PrepareAlphaForGDI>(x, y, width, height);
 }
 
-void BitmapPlatformDevice::postProcessGDI(int x, int y, int width, int height) {
+void BitmapPlatformDeviceWin::postProcessGDI(int x, int y, int width, int height) {
   processPixels<PostProcessAlphaForGDI>(x, y, width, height);
 }
 
-void BitmapPlatformDevice::makeOpaque(int x, int y, int width, int height) {
+void BitmapPlatformDeviceWin::makeOpaque(int x, int y, int width, int height) {
   processPixels<MakeOpaqueAlphaAdjuster>(x, y, width, height);
 }
 
-void BitmapPlatformDevice::fixupAlphaBeforeCompositing() {
+void BitmapPlatformDeviceWin::fixupAlphaBeforeCompositing() {
   const SkBitmap& bitmap = accessBitmap(true);
   SkAutoLockPixels lock(bitmap);
   uint32_t* data = bitmap.getAddr32(0, 0);
@@ -437,22 +437,22 @@ void BitmapPlatformDevice::fixupAlphaBeforeCompositing() {
 }
 
 // Returns the color value at the specified location.
-SkColor BitmapPlatformDevice::getColorAt(int x, int y) {
+SkColor BitmapPlatformDeviceWin::getColorAt(int x, int y) {
   const SkBitmap& bitmap = accessBitmap(false);
   SkAutoLockPixels lock(bitmap);
   uint32_t* data = bitmap.getAddr32(0, 0);
   return static_cast<SkColor>(data[x + y * width()]);
 }
 
-void BitmapPlatformDevice::onAccessBitmap(SkBitmap* bitmap) {
+void BitmapPlatformDeviceWin::onAccessBitmap(SkBitmap* bitmap) {
   // FIXME(brettw) OPTIMIZATION: We should only flush if we know a GDI
   // operation has occurred on our DC.
   if (data_->IsBitmapDCCreated())
     GdiFlush();
 }
 
-template<BitmapPlatformDevice::adjustAlpha adjustor>
-void BitmapPlatformDevice::processPixels(int x,
+template<BitmapPlatformDeviceWin::adjustAlpha adjustor>
+void BitmapPlatformDeviceWin::processPixels(int x,
                                    int y,
                                    int width,
                                    int height) {
