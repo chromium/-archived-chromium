@@ -637,31 +637,23 @@
 		7B0097B20DB0233E00F72082 /* npruntime_priv.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B0095DA0DAFF0DC00F72082 /* npruntime_priv.h */; };
 		7B0A404C0DBE687F00DAFBA0 /* DOM.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E87EB0D7F399B001ECF42 /* DOM.h */; };
 		7B0A404E0DBE687F00DAFBA0 /* DOMCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E87ED0D7F399B001ECF42 /* DOMCore.h */; };
-		7B0A404F0DBE687F00DAFBA0 /* DOMCSS.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E87EE0D7F399B001ECF42 /* DOMCSS.h */; };
-		7B0A40500DBE688000DAFBA0 /* DOMCSS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E87EF0D7F399B001ECF42 /* DOMCSS.mm */; };
 		7B0A40510DBE688000DAFBA0 /* DOMCustomXPathNSResolver.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E87F00D7F399B001ECF42 /* DOMCustomXPathNSResolver.h */; };
-		7B0A40520DBE688000DAFBA0 /* DOMCustomXPathNSResolver.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E87F10D7F399B001ECF42 /* DOMCustomXPathNSResolver.mm */; };
 		7B0A40530DBE688000DAFBA0 /* DOMEventException.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E87F20D7F399B001ECF42 /* DOMEventException.h */; };
 		7B0A40540DBE688000DAFBA0 /* DOMEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E87F30D7F399B001ECF42 /* DOMEvents.h */; };
-		7B0A40550DBE688000DAFBA0 /* DOMEvents.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E87F40D7F399B001ECF42 /* DOMEvents.mm */; };
 		7B0A40560DBE688000DAFBA0 /* DOMException.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E87F50D7F399B001ECF42 /* DOMException.h */; };
 		7B0A40570DBE688000DAFBA0 /* DOMExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E87F60D7F399B001ECF42 /* DOMExtensions.h */; };
 		7B0A40580DBE688000DAFBA0 /* DOMHTML.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E87F70D7F399B001ECF42 /* DOMHTML.h */; };
-		7B0A40590DBE688000DAFBA0 /* DOMHTML.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E87F80D7F399B001ECF42 /* DOMHTML.mm */; };
 		7B0A405B0DBE688000DAFBA0 /* DOMImplementationFront.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E87FA0D7F399B001ECF42 /* DOMImplementationFront.h */; };
 		7B0A405C0DBE688000DAFBA0 /* DOMInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E87FB0D7F399B001ECF42 /* DOMInternal.h */; };
 		7B0A40600DBE688000DAFBA0 /* DOMPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E87FF0D7F399B001ECF42 /* DOMPrivate.h */; };
 		7B0A40610DBE688000DAFBA0 /* DOMRangeException.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E88000D7F399B001ECF42 /* DOMRangeException.h */; };
 		7B0A40620DBE688000DAFBA0 /* DOMRanges.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E88010D7F399B001ECF42 /* DOMRanges.h */; };
-		7B0A40630DBE688000DAFBA0 /* DOMRGBColor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E88020D7F399B001ECF42 /* DOMRGBColor.mm */; };
 		7B0A40640DBE688000DAFBA0 /* DOMStylesheets.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E88030D7F399B001ECF42 /* DOMStylesheets.h */; };
 		7B0A40650DBE688000DAFBA0 /* DOMSVG.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E88040D7F399B001ECF42 /* DOMSVG.h */; };
 		7B0A40660DBE688000DAFBA0 /* DOMSVGException.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E88050D7F399B001ECF42 /* DOMSVGException.h */; };
-		7B0A40670DBE688000DAFBA0 /* DOMSVGPathSegInternal.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E88060D7F399B001ECF42 /* DOMSVGPathSegInternal.mm */; };
 		7B0A40680DBE688000DAFBA0 /* DOMTraversal.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E88070D7F399B001ECF42 /* DOMTraversal.h */; };
 		7B0A406A0DBE688000DAFBA0 /* DOMViews.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E88090D7F399B001ECF42 /* DOMViews.h */; };
 		7B0A406B0DBE688000DAFBA0 /* DOMXPath.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E880A0D7F399B001ECF42 /* DOMXPath.h */; };
-		7B0A406C0DBE688000DAFBA0 /* DOMXPath.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E880B0D7F399B001ECF42 /* DOMXPath.mm */; };
 		7B0A406D0DBE688000DAFBA0 /* DOMXPathException.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E880C0D7F399B001ECF42 /* DOMXPathException.h */; };
 		7B0A40700DBE688000DAFBA0 /* PublicDOMInterfaces.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E880F0D7F399B001ECF42 /* PublicDOMInterfaces.h */; };
 		7B0DA75A0D987C7D00B2C3EC /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B2FBC3B0D81E8EE0050E907 /* config.h */; };
@@ -10028,7 +10020,7 @@
 		7B5E91870D7F3CC2001ECF42 /* ScrollBar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScrollBar.cpp; sourceTree = "<group>"; };
 		7B5E91880D7F3CC2001ECF42 /* ScrollBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScrollBar.h; sourceTree = "<group>"; };
 		7B5E91890D7F3CC2001ECF42 /* ScrollTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScrollTypes.h; sourceTree = "<group>"; };
-		7B5E918A0D7F3CC2001ECF42 /* ScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScrollView.h; path = port/platform/ScrollView.h; sourceTree = SOURCE_ROOT; };
+		7B5E918A0D7F3CC2001ECF42 /* ScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScrollView.h; sourceTree = "<group>"; };
 		7B5E918B0D7F3CC2001ECF42 /* SearchPopupMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchPopupMenu.h; sourceTree = "<group>"; };
 		7B5E918C0D7F3CC2001ECF42 /* SecurityOrigin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SecurityOrigin.cpp; path = ../../../../webkit/pending/SecurityOrigin.cpp; sourceTree = "<group>"; };
 		7B5E918D0D7F3CC2001ECF42 /* SecurityOrigin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SecurityOrigin.h; path = ../../../../webkit/pending/SecurityOrigin.h; sourceTree = "<group>"; };
@@ -21898,7 +21890,6 @@
 				7B0096260DAFF19C00F72082 /* ScheduledAction.h in Headers */,
 				7B0A404C0DBE687F00DAFBA0 /* DOM.h in Headers */,
 				7B0A404E0DBE687F00DAFBA0 /* DOMCore.h in Headers */,
-				7B0A404F0DBE687F00DAFBA0 /* DOMCSS.h in Headers */,
 				7B0A40510DBE688000DAFBA0 /* DOMCustomXPathNSResolver.h in Headers */,
 				7B0A40530DBE688000DAFBA0 /* DOMEventException.h in Headers */,
 				7B0A40540DBE688000DAFBA0 /* DOMEvents.h in Headers */,
@@ -26265,13 +26256,6 @@
 				7B0096220DAFF19C00F72082 /* Location.cpp in Sources */,
 				7B0096240DAFF19C00F72082 /* Navigator.cpp in Sources */,
 				7B00962A0DAFF1D000F72082 /* InspectorController.cpp in Sources */,
-				7B0A40500DBE688000DAFBA0 /* DOMCSS.mm in Sources */,
-				7B0A40520DBE688000DAFBA0 /* DOMCustomXPathNSResolver.mm in Sources */,
-				7B0A40550DBE688000DAFBA0 /* DOMEvents.mm in Sources */,
-				7B0A40590DBE688000DAFBA0 /* DOMHTML.mm in Sources */,
-				7B0A40630DBE688000DAFBA0 /* DOMRGBColor.mm in Sources */,
-				7B0A40670DBE688000DAFBA0 /* DOMSVGPathSegInternal.mm in Sources */,
-				7B0A406C0DBE688000DAFBA0 /* DOMXPath.mm in Sources */,
 				E4A134090E37C47E00110AA2 /* v8_proxy.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
