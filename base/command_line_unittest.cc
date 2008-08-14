@@ -48,12 +48,12 @@ TEST(CommandLineTest, CommandLineConstructor) {
                  L"--input-translation=\"45\"--output-rotation "
                  L"\"in the time of submarines...\"");
 #elif defined(OS_POSIX)
-  char* argv[] = {"program", "--foo=", "-bAr", 
-                  "-Spaetzel=pierogi", "-Baz", "flim",
-                  "--other-switches=--dog=canine --cat=feline",
-                  "-spaetzle=Crepe", "-=loosevalue", "flan",
-                  "--input-translation=45--output-rotation",
-                  "in the time of submarines..."};
+  const char* argv[] = {"program", "--foo=", "-bAr", 
+                        "-Spaetzel=pierogi", "-Baz", "flim",
+                        "--other-switches=--dog=canine --cat=feline",
+                        "-spaetzle=Crepe", "-=loosevalue", "flan",
+                        "--input-translation=45--output-rotation",
+                        "in the time of submarines..."};
   CommandLine cl(arraysize(argv), argv);
 #endif
   EXPECT_FALSE(cl.command_line_string().empty());

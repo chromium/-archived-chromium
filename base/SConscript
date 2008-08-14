@@ -231,11 +231,13 @@ if env['PLATFORM'] == 'win32':
 # cross-platform live below.
 test_files = [
     'at_exit_unittest.cc',
+    'command_line_unittest.cc',
     'json_reader_unittest.cc',
     'json_writer_unittest.cc',
     'linked_ptr_unittest.cc',
     'observer_list_unittest.cc',
     'pickle_unittest.cc',
+    'pr_time_test.cc',
     'ref_counted_unittest.cc',
     'run_all_unittests.cc',
     'sha2_unittest.cc',
@@ -260,7 +262,6 @@ if env['PLATFORM'] == 'win32':
 
   test_files.extend([
     'clipboard_unittest.cc',
-    'command_line_unittest.cc',
     'condition_variable_test.cc',
     'file_util_unittest.cc',
     'idletimer_unittest.cc',
@@ -269,7 +270,6 @@ if env['PLATFORM'] == 'win32':
     'object_watcher_unittest.cc',
     'path_service_unittest.cc',
     'process_util_unittest.cc',
-    'pr_time_test.cc',
     'run_all_unittests.cc',
     'shared_event_unittest.cc',
     'shared_memory_unittest.cc',

@@ -91,7 +91,7 @@ class CommandLine::Data {
     Init(command_line);
   }
 #elif defined(OS_POSIX)
-  Data(int argc, char** argv) {
+  Data(int argc, const char* const* argv) {
     Init(argc, argv);
   }
 #endif
@@ -131,7 +131,7 @@ class CommandLine::Data {
 
 #elif defined(OS_POSIX)
   // Does the actual parsing of the command line.
-  void Init(int argc, char** argv) {
+  void Init(int argc, const char* const* argv) {
     if (argc < 1)
       return;
     program_ = base::SysNativeMBToWide(argv[0]);
@@ -225,7 +225,7 @@ CommandLine::CommandLine(const wstring& command_line)
       data_(new Data(command_line)) {
 }
 #elif defined(OS_POSIX)
-CommandLine::CommandLine(const int argc, char** argv)
+CommandLine::CommandLine(const int argc, const char* const* argv)
     : we_own_data_(true),
       data_(new Data(argc, argv)) {
 }
@@ -237,7 +237,7 @@ CommandLine::~CommandLine() {
 }
 
 // static
-void CommandLine::SetArgcArgv(int argc, char** argv) {
+void CommandLine::SetArgcArgv(int argc, const char* const* argv) {
 #if !defined(OS_WIN)
   Singleton<Data>::get()->Init(argc, argv);
 #endif
