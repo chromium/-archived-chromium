@@ -282,10 +282,11 @@ env_exe.Prepend(
         '$BREAKPAD_DIR/src',
     ],
     LIBS = [
-        'breakpad_handler',
-        'sandbox',
         'base',
+        'breakpad_handler',
         'icuuc',
+        'sandbox',
+        'util',
     ],
 )
 
