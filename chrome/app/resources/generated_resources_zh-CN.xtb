@@ -575,7 +575,7 @@
 <translation id="5463275305984126951"><ph name="LOCATION"/> 的索引</translation>
 <translation id="8877448029301136595">[父目录]</translation>
 <translation id="57646104491463491">修改日期</translation>
-<translation id="5501358408399407103">Web Page, HTML Only\0*.htm\0Web Page, Complete\0*.htm</translation>
+<translation id="5501358408399407103">网页，仅 HTML\\0*.htm\\0网页，完整\\0*.htm</translation>
 <translation id="561349411957324076">已完成</translation>
 <translation id="6325525973963619867">失败</translation>
 <translation id="5958418293370246440">已储存 <ph name="SAVED_FILES"/> 个档案，全部 <ph name="TOTAL_FILES"/> 个档案</translation>

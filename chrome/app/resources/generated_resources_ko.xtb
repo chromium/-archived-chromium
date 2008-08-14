@@ -303,7 +303,7 @@
 <translation id="4771973620359291008">알 수 없는 오류가 발생했습니다.</translation>
 <translation id="4381091992796011497">사용자 이름:</translation>
 <translation id="4304224509867189079">로그인</translation>
-<translation id="5455790498993699893"><ph name="TOTAL_MATCHCOUNT"/>개 중 <ph name="ACTIVE_MATCH"/>개</translation>
+<translation id="5455790498993699893"><ph name="ACTIVE_MATCH"/>/<ph name="TOTAL_MATCHCOUNT"/></translation>
 <translation id="1829244130665387512">페이지에서 찾기</translation>
 <translation id="2955913368246107853">검색 바 닫기</translation>
 <translation id="7564847347806291057">프로세스 종료</translation>
