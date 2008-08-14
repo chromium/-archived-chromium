@@ -68,7 +68,7 @@ class TCPClientSocket : public ClientSocket,
   void DidCompleteConnect();
   void DidCompleteIO();
 
-  // MessageLoop::Watcher methods:
+  // base::ObjectWatcher::Delegate methods:
   virtual void OnObjectSignaled(HANDLE object);
 
   SOCKET socket_;

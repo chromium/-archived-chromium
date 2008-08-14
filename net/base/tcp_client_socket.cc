@@ -175,17 +175,24 @@ int TCPClientSocket::Read(char* buf,
   buffer_.len = buf_len;
   buffer_.buf = buf;
 
+  // TODO(wtc): Remove the CHECKs after enough testing.
+  CHECK(WaitForSingleObject(overlapped_.hEvent, 0) == WAIT_TIMEOUT);
   DWORD num, flags = 0;
   int rv = WSARecv(socket_, &buffer_, 1, &num, &flags, &overlapped_, NULL);
-  if (rv == 0)
+  if (rv == 0) {
+    CHECK(WaitForSingleObject(overlapped_.hEvent, 0) == WAIT_OBJECT_0);
+    BOOL ok = WSAResetEvent(overlapped_.hEvent);
+    CHECK(ok);
     return static_cast<int>(num);
-  if (rv == SOCKET_ERROR && WSAGetLastError() == WSA_IO_PENDING) {
+  }
+  int err = WSAGetLastError();
+  if (err == WSA_IO_PENDING) {
     watcher_.StartWatching(overlapped_.hEvent, this);
     wait_state_ = WAITING_READ;
     callback_ = callback;
     return ERR_IO_PENDING;
   }
-  return MapWinsockError(WSAGetLastError());
+  return MapWinsockError(err);
 }
 
 int TCPClientSocket::Write(const char* buf,
@@ -198,17 +205,24 @@ int TCPClientSocket::Write(const char* buf,
   buffer_.len = buf_len;
   buffer_.buf = const_cast<char*>(buf);
 
+  // TODO(wtc): Remove the CHECKs after enough testing.
+  CHECK(WaitForSingleObject(overlapped_.hEvent, 0) == WAIT_TIMEOUT);
   DWORD num;
   int rv = WSASend(socket_, &buffer_, 1, &num, 0, &overlapped_, NULL);
-  if (rv == 0)
+  if (rv == 0) {
+    CHECK(WaitForSingleObject(overlapped_.hEvent, 0) == WAIT_OBJECT_0);
+    BOOL ok = WSAResetEvent(overlapped_.hEvent);
+    CHECK(ok);
     return static_cast<int>(num);
-  if (rv == SOCKET_ERROR && WSAGetLastError() == WSA_IO_PENDING) {
+  }
+  int err = WSAGetLastError();
+  if (err == WSA_IO_PENDING) {
     watcher_.StartWatching(overlapped_.hEvent, this);
     wait_state_ = WAITING_WRITE;
     callback_ = callback;
     return ERR_IO_PENDING;
   }
-  return MapWinsockError(WSAGetLastError());
+  return MapWinsockError(err);
 }
 
 int TCPClientSocket::CreateSocket(const struct addrinfo* ai) {
