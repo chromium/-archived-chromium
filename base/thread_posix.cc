@@ -79,11 +79,24 @@ bool Thread::GetThreadWasQuitProperly() {
 
 
 bool Thread::Start() {
+  return StartWithStackSize(0);
+}
+
+bool Thread::StartWithStackSize(size_t stack_size) {
   bool success = false;
-  int result = pthread_create(&thread_id_, NULL, ThreadFunc, &message_loop_);
+  pthread_attr_t attributes;
+  pthread_attr_init(&attributes);
+  
+  // A stack size smaller than PTHREAD_STACK_MIN won't change the default value.
+  pthread_attr_setstacksize(&attributes, stack_size);
+  int result = pthread_create(&thread_id_,
+                              &attributes,
+                              ThreadFunc,
+                              &message_loop_);
   if (!result)
     success = true;
   
+  pthread_attr_destroy(&attributes);
   return success;
 }
 
@@ -99,4 +112,10 @@ void Thread::Stop() {
   message_loop_->PostTask(FROM_HERE, new ThreadQuitTask());
 
   message_loop_ = NULL;
+}
+
+void Thread::StopSoon() {
+  // TODO(paulg): Make Thread::Stop block on thread join, and Thread::StopSoon
+  // return immediately after calling (like the Windows versions).
+  Stop();
 }
