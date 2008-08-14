@@ -107,7 +107,6 @@ BrowserInit::MessageWindow::MessageWindow(const std::wstring& user_data_dir)
 BrowserInit::MessageWindow::~MessageWindow() {
   if (window_)
     DestroyWindow(window_);
-  HuntForZombieChromeProcesses();
 }
 
 bool BrowserInit::MessageWindow::NotifyOtherProcess(int show_cmd) {
@@ -341,6 +340,8 @@ void BrowserInit::MessageWindow::HuntForZombieChromeProcesses() {
         if (process)
           browsers_.push_back(process);
       }
+      // We are also a browser, regardless of having the window or not.
+      browsers_.push_back(::GetCurrentProcessId());
     }
 
     virtual bool Includes(uint32 pid, uint32 parent_pid) const {
