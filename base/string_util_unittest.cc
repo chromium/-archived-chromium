@@ -1204,7 +1204,7 @@ TEST(StringUtilTest, GetStringFWithOffsets) {
 TEST(StringUtilTest, SplitStringAlongWhitespace) {
   struct TestData {
     const std::wstring input;
-    const int expected_result_count;
+    const size_t expected_result_count;
     const std::wstring output1;
     const std::wstring output2;
   } data[] = {
@@ -1225,9 +1225,7 @@ TEST(StringUtilTest, SplitStringAlongWhitespace) {
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(data); ++i) {
     std::vector<std::wstring> results;
     SplitStringAlongWhitespace(data[i].input, &results);
-    ASSERT_EQ(static_cast<std::vector<std::wstring>::size_type>(
-                  data[i].expected_result_count),
-              results.size());
+    ASSERT_EQ(data[i].expected_result_count, results.size());
     if (data[i].expected_result_count > 0)
       ASSERT_EQ(data[i].output1, results[0]);
     if (data[i].expected_result_count > 1)
