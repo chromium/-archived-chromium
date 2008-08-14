@@ -446,6 +446,10 @@ bool DownloadManager::Init(Profile* profile) {
                               default_download_path);
   download_path_.Init(prefs::kDownloadDefaultDirectory, prefs, NULL);
 
+  // Ensure that the download directory specified in the preferences exists.
+  file_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+      file_manager_, &DownloadFileManager::CreateDirectory, *download_path_));
+
   // We store any file extension that should be opened automatically at
   // download completion in this pref.
   download_util::InitializeExeTypes(&exe_types_);

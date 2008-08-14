@@ -609,3 +609,8 @@ void DownloadFileManager::OnFinalDownloadName(int id,
     ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(
         this, &DownloadFileManager::StopUpdateTimer));
 }
+
+void DownloadFileManager::CreateDirectory(const std::wstring& directory) {
+  if (!file_util::PathExists(directory))
+    file_util::CreateDirectory(directory);
+}

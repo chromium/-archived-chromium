@@ -233,6 +233,10 @@ class DownloadFileManager
 
   MessageLoop* file_loop() const { return file_loop_; }
 
+  // Called by the download manager at initialization to ensure the default
+  // download directory exists.
+  void CreateDirectory(const std::wstring& directory);
+
  private:
   // Timer helpers for updating the UI about the current progress of a download.
   void StartUpdateTimer();
