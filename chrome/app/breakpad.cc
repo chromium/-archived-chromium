@@ -41,8 +41,8 @@
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "chrome/app/google_update_client.h"
-#include "chrome/app/google_update_settings.h"
 #include "chrome/common/env_vars.h"
+#include "chrome/installer/util/google_update_settings.h"
 #include "breakpad/src/client/windows/handler/exception_handler.h"
 
 namespace {

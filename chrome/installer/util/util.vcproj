@@ -41,14 +41,6 @@
 	</Configurations>
 	<Files>
 		<File
-			RelativePath="..\..\app\google_update_settings.cc"
-			>
-		</File>
-		<File
-			RelativePath="..\..\app\google_update_settings.h"
-			>
-		</File>
-		<File
 			RelativePath="copy_tree_work_item.cc"
 			>
 		</File>
@@ -78,6 +70,14 @@
 		</File>
 		<File
 			RelativePath="delete_tree_work_item.h"
+			>
+		</File>
+		<File
+			RelativePath="google_update_settings.cc"
+			>
+		</File>
+		<File
+			RelativePath="google_update_settings.h"
 			>
 		</File>
 		<File
