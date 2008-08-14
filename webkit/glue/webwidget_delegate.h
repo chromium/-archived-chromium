@@ -30,6 +30,8 @@
 #ifndef WEBKIT_GLUE_WEBWIDGET_DELEGATE_H__
 #define WEBKIT_GLUE_WEBWIDGET_DELEGATE_H__
 
+#include "webkit/glue/window_open_disposition.h"
+
 typedef struct HWND__* HWND;
 
 namespace gfx {
@@ -37,7 +39,6 @@ namespace gfx {
   class Rect;
 }
 
-enum WindowOpenDisposition;
 class WebWidget;
 class WebCursor;
 struct WebPluginGeometry;
