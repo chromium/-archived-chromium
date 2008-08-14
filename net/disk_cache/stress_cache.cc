@@ -38,6 +38,7 @@
 #include <windows.h>
 #include <string>
 
+#include "base/at_exit.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
@@ -199,6 +200,9 @@ void CrashHandler(const std::string& str) {
 // -----------------------------------------------------------------------
 
 int main(int argc, const char* argv[]) {
+  // Setup an AtExitManager so Singleton objects will be destructed.
+  base::AtExitManager at_exit_manager; 
+
   if (argc < 2)
     return MasterCode();
 

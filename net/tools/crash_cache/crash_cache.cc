@@ -35,6 +35,7 @@
 #include <windows.h>
 #include <string>
 
+#include "base/at_exit.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -316,6 +317,9 @@ int SlaveCode(const std::wstring& path, RankCrashes action) {
 // -----------------------------------------------------------------------
 
 int main(int argc, const char* argv[]) {
+  // Setup an AtExitManager so Singleton objects will be destructed.
+  base::AtExitManager at_exit_manager; 
+
   if (argc < 2)
     return MasterCode();
 
