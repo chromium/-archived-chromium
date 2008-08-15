@@ -67,6 +67,7 @@
 		7B836ADE0E55097000F6AD31 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B165D4F0E55081400185273 /* libicui18n.a */; };
 		7B836ADF0E55097000F6AD31 /* libicudatastatic.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B165D590E55081400185273 /* libicudatastatic.a */; };
 		7B836AE30E5509A900F6AD31 /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B165D300E55081000185273 /* libgtest.a */; };
+		7B836C050E55BBB800F6AD31 /* ref_counted.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7B836C040E55BBB800F6AD31 /* ref_counted.cc */; };
 		7BAF501C0E50B84200CA8A07 /* base_paths.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BAF501B0E50B84200CA8A07 /* base_paths.cc */; };
 		7BAF50760E50B8F100CA8A07 /* file_version_info_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7BAF50740E50B8F100CA8A07 /* file_version_info_mac.mm */; };
 		820EB4F70E3A613F009668FC /* string_piece.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4F50E3A613F009668FC /* string_piece.cc */; };
@@ -279,6 +280,7 @@
 		7B5AD60D0D9DD8050012BCF1 /* scoped_cftyperef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scoped_cftyperef.h; sourceTree = "<group>"; };
 		7B78CE100E53131800609465 /* debug_util_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug_util_posix.cc; sourceTree = "<group>"; };
 		7B78D40D0E54FE8000609465 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
+		7B836C040E55BBB800F6AD31 /* ref_counted.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ref_counted.cc; sourceTree = "<group>"; };
 		7BAF4F0A0E50A2FD00CA8A07 /* notimplemented.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = notimplemented.h; sourceTree = "<group>"; };
 		7BAF4F7B0E50A3BD00CA8A07 /* logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logging.h; sourceTree = "<group>"; };
 		7BAF501B0E50B84200CA8A07 /* base_paths.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = base_paths.cc; sourceTree = "<group>"; };
@@ -690,6 +692,7 @@
 				825403490D92D23C0006B936 /* prtypes.h */,
 				825403550D92D2580006B936 /* pure.h */,
 				825403570D92D25E0006B936 /* pure_api.c */,
+				7B836C040E55BBB800F6AD31 /* ref_counted.cc */,
 				825403590D92D27C0006B936 /* ref_counted.h */,
 				E4AFA4BA0E50DDDF00201347 /* ref_counted_unittest.cc */,
 				8254035A0D92D27C0006B936 /* registry.cc */,
@@ -1060,6 +1063,7 @@
 				824654A60DC25CD7007C2BAA /* pickle.cc in Sources */,
 				ABF4B9B90DC2BCE300A6E319 /* platform_thread.cc in Sources */,
 				824654DF0DC26521007C2BAA /* prtime.cc in Sources */,
+				7B836C050E55BBB800F6AD31 /* ref_counted.cc in Sources */,
 				8246548C0DC259DB007C2BAA /* revocable_store.cc in Sources */,
 				ABF4B9BC0DC2BD1000A6E319 /* sha2.cc in Sources */,
 				ABF4B9BE0DC2BD1500A6E319 /* sha512.cc in Sources */,

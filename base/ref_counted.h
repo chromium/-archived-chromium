@@ -134,7 +134,7 @@ class RefCountedThreadSafe : public subtle::RefCountedThreadSafeBase {
   DISALLOW_COPY_AND_ASSIGN(RefCountedThreadSafe<T>);
 };
 
-} // namespace base
+}  // namespace base
 
 //
 // A smart pointer class for reference counted objects.  Use this class instead
