@@ -27,6 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "build/build_config.h"
+
 #if defined(OS_WIN)
 #include <windows.h>
 #include <shellapi.h>
@@ -89,7 +91,7 @@ class FindResultCollector {
   }
   
   int size() {
-    return files_.size();
+    return static_cast<int>(files_.size());
   }
 
  private:
