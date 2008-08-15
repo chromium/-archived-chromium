@@ -10,3 +10,9 @@ subframe-dragndrop-1-expected.txt
 ---------------------------------
 This test uses double click to select a word and drag it to a new location. 
 We follow Windows convention and include the trailing space on double click.
+
+copy-standalone-image-expected.txt
+----------------------------------
+Rebaselined to account for subtle pixel differences in the test where pixels
+are not the main subject and to remove the extra P node that only applies to
+Safari/Mac.

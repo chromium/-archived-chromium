@@ -139,6 +139,20 @@ String urlToMarkup(const KURL& url, const String& title)
     return markup;
 }
 
+String urlToImageMarkup(const KURL& url, const String& altStr) {
+    String markup("<img src=\"");
+    markup.append(url.string());
+    markup.append("\"");
+    if (!altStr.isEmpty()) {
+        markup.append(" alt=\"");
+        // TODO(dglazkov): escape string
+        markup.append(altStr);
+        markup.append("\"");
+    }
+    markup.append("/>");
+    return markup;
+}
+
 void replaceNewlinesWithWindowsStyleNewlines(String& str)
 {
     static const UChar Newline = '\n';

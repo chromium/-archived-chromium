@@ -8,6 +8,7 @@
 
 // Bug 1124548: Copying with no selection is sometimes supposed to work
 // This test also crashes in debug due to an ASSERT. (see bug 1058654)
+// Also skipped by Apple on Windows (rdar://problem/5015941)
 V8 | KJS # DEFER : LayoutTests/editing/execCommand/copy-without-selection.html = FAIL | CRASH
 
 // Bug 1317563: Debug-only test failures following removal of font-metrics
@@ -30,6 +31,8 @@ V8 # pending/svg/carto.net/window.svg = PASS | FAIL
 
 // onload race condition due to poorly designed test.
 // Works fine when run stand-alone.  Not needed for Beta.
+// Also skipped by Apple on Windows, due to intermittent failure 
+// (rdar://5313536)
 V8 | KJS # DEFER : LayoutTests/fast/dom/frame-loading-via-document-write.html = FAIL
 
 // -----------------------------------------------------------------
@@ -198,10 +201,6 @@ V8 | KJS # DEFER : LayoutTests/editing/selection/designmode-no-caret.html = FAIL
 // Not required for Beta.  This may also be related to known home/end issues
 // which are intended to be fixed for Beta.
 V8 | KJS # DEFER : LayoutTests/editing/selection/move-begin-end.html = FAIL
-
-// Bug 845400 Miscellaneous layout issues under editing
-// Also skipped by Apple on Windows (rdar://5015941).
-V8 | KJS # DEFER : LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL
 
 // Bug 845400
 // The end result looks right, but the event messages differ.

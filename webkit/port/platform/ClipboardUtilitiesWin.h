@@ -44,6 +44,7 @@ HGLOBAL createGlobalData(const KURL& url, const String& title);
 
 DeprecatedCString markupToCF_HTML(const String& markup, const String& srcURL);
 String urlToMarkup(const KURL& url, const String& title);
+String urlToImageMarkup(const KURL& url, const String& altStr);
 
 void replaceNewlinesWithWindowsStyleNewlines(String& str);
 void replaceNBSPWithSpace(String& str);

@@ -121,7 +121,7 @@ void Pasteboard::writeURL(const KURL& url, const String& titleStr, Frame* frame)
     webkit_glue::ClipboardWriteText(spec);
 }
 
-void Pasteboard::writeImage(Node* node, const KURL&, const String&)
+void Pasteboard::writeImage(Node* node, const KURL& url, const String& title)
 {
     ASSERT(node && node->renderer() && node->renderer()->isImage());
     RenderImage* renderer = static_cast<RenderImage*>(node->renderer());
@@ -134,6 +134,21 @@ void Pasteboard::writeImage(Node* node, const KURL&, const String&)
     NativeImageSkia* bitmap = image->getBitmap();
     if (bitmap)
       webkit_glue::ClipboardWriteBitmap(*bitmap);
+    if (!url.isEmpty()) {
+        webkit_glue::ClipboardWriteBookmark(webkit_glue::StringToStdWString(title),
+                                            webkit_glue::KURLToGURL(url));
+        // write to clipboard in format com.apple.safari.bookmarkdata to be able to paste into the bookmarks view with appropriate title
+        webkit_glue::ClipboardWriteBookmark(webkit_glue::StringToStdWString(title),
+                                            webkit_glue::KURLToGURL(url));
+
+        // write to clipboard in format CF_HTML to be able to paste into contenteditable areas as a an image
+        std::wstring markup(webkit_glue::StringToStdWString(urlToImageMarkup(url, title)));
+        webkit_glue::ClipboardWriteHTML(markup, GURL());
+
+        // bare-bones CF_UNICODETEXT support
+        std::wstring spec(webkit_glue::DeprecatedStringToStdWString(url.deprecatedString()));
+        webkit_glue::ClipboardWriteText(spec);
+    }
 }
 
 bool Pasteboard::canSmartReplace()
