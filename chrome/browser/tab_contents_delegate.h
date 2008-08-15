@@ -188,6 +188,10 @@ class TabContentsDelegate : public PageNavigator {
                                  bool* proceed_to_fire_unload) { 
     *proceed_to_fire_unload = true;
   }
+
+  // Send IPC to external host. Default implementation is do nothing.
+  virtual void SendExternalHostMessage(const std::string& receiver,
+                                       const std::string& message) {};
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_DELEGATE_H_

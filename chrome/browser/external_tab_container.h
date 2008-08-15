@@ -104,6 +104,9 @@ class ExternalTabContainer : public TabContentsDelegate,
   virtual void ToolbarSizeChanged(TabContents* source, bool is_animating);
   virtual void DidNavigate(NavigationType nav_type,
                            int relative_navigation_offet);
+  virtual void SendExternalHostMessage(const std::string& receiver,
+                                       const std::string& message);
+
 
   // Notification service callback.
   virtual void Observe(NotificationType type,

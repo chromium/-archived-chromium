@@ -236,6 +236,14 @@ void ExternalTabContainer::DidNavigate(NavigationType nav_type,
   }
 }
 
+void ExternalTabContainer::SendExternalHostMessage(const std::string& receiver,
+                                                   const std::string& message) {
+  if(automation_) {
+    automation_->Send(
+        new AutomationMsg_SendExternalHostMessage(0, receiver, message));
+  }
+}
+
 void ExternalTabContainer::Observe(NotificationType type,
                                    const NotificationSource& source,
                                    const NotificationDetails& details) {
