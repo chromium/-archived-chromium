@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_MESSAGE_LOOP_H_
-#define BASE_MESSAGE_LOOP_H_
+#ifndef BASE_MESSAGE_LOOP_H__
+#define BASE_MESSAGE_LOOP_H__
 
 #include <deque>
 #include <queue>
@@ -36,39 +36,33 @@
 #include <vector>
 
 #include "base/histogram.h"
-#include "base/message_pump.h"
 #include "base/observer_list.h"
-#include "base/ref_counted.h"
+#include "base/id_map.h"
 #include "base/task.h"
 #include "base/timer.h"
 #include "base/thread_local_storage.h"
 
-#if defined(OS_WIN)
-// We need this to declare base::MessagePumpWin::Dispatcher, which we should
-// really just eliminate.
-#include "base/message_pump_win.h"
-#endif
-
-// A MessageLoop is used to process events for a particular thread.  There is
-// at most one MessageLoop instance per thread.
 //
-// Events include at minimum Task instances submitted to PostTask or those
-// managed by TimerManager.  Depending on the type of message pump used by the
-// MessageLoop other events such as UI messages may be processed.  On Windows
-// APC calls (as time permits) and signals sent to a registered set of HANDLEs
-// may also be processed.
+// A MessageLoop is used to process events for a particular thread.
+// There is at most one MessageLoop instance per thread.
+// Events include Windows Message Queue messages, Tasks submitted to PostTask
+// or managed by TimerManager, APC calls (as time permits), and signals sent to
+// a registered set of HANDLES.
+// Processing events corresponds (respectively) to dispatching Windows messages,
+// running Tasks, yielding time to APCs, and calling Watchers when the
+// corresponding HANDLE is signaled.
+
 //
 // NOTE: Unless otherwise specified, a MessageLoop's methods may only be called
 // on the thread where the MessageLoop's Run method executes.
 //
-// NOTE: MessageLoop has task reentrancy protection.  This means that if a
+// WARNING: MessageLoop has task reentrancy protection. This means that if a
 // task is being processed, a second task cannot start until the first task is
-// finished.  Reentrancy can happen when processing a task, and an inner
-// message pump is created.  That inner pump then processes native messages
-// which could implicitly start an inner task.  Inner message pumps are created
-// with dialogs (DialogBox), common dialogs (GetOpenFileName), OLE functions
-// (DoDragDrop), printer functions (StartDoc) and *many* others.
-//
+// finished. Reentrancy can happen when processing a task, and an inner message
+// pump is created.  That inner pump then processes windows messages which could
+// implicitly start an inner task. Inner messages pumps are created with dialogs
+// (DialogBox), common dialogs (GetOpenFileName), OLE functions (DoDragDrop),
+// printer functions (StartDoc) and *many* others.
 // Sample workaround when inner task processing is needed:
 //   bool old_state = MessageLoop::current()->NestableTasksAllowed();
 //   MessageLoop::current()->SetNestableTasksAllowed(true);
@@ -76,12 +70,141 @@
 //   MessageLoop::current()->SetNestableTasksAllowed(old_state);
 //   // Process hr  (the result returned by DoDragDrop().
 //
-// Please be SURE your task is reentrant (nestable) and all global variables
-// are stable and accessible before calling SetNestableTasksAllowed(true).
+// Please be **SURE** your task is reentrant and all global variables are stable
+// and accessible before calling SetNestableTasksAllowed(true).
 //
-class MessageLoop : public base::MessagePump::Delegate {
+
+// Message loop has several distinct functions.  It provides message pumps,
+// responds to windows message dispatches, manipulates queues of Tasks.
+// The most central operation is the implementation of message pumps, along with
+// several subtleties.
+
+// MessageLoop currently implements several different message pumps.  A message
+// pump is (traditionally) something that reads from an incoming queue, and then
+// dispatches the work.
+//
+// The first message pump, RunTraditional(), is among other things a
+// traditional Windows Message pump.  It contains a nearly infinite loop that
+// peeks out messages, and then dispatches them.
+// Intermixed with those peeks are checks on a queue of Tasks, checks for
+// signaled objects, and checks to see if TimerManager has tasks to run.
+// When there are no events to be serviced, this pump goes into a wait state.
+// For 99.99% of all events, this first message pump handles all processing.
+//
+// When a task, or windows event, invokes on the stack a native dialog box or
+// such, that window typically provides a bare bones (native?) message pump.
+// That bare-bones message pump generally supports little more than a peek of
+// the Windows message queue, followed by a dispatch of the peeked message.
+// MessageLoop extends that bare-bones message pump to also service Tasks, at
+// the cost of some complexity.
+// The basic structure of the extension (refered to as a sub-pump) is that a
+// special message,kMsgPumpATask, is repeatedly injected into the Windows
+// Message queue. Each time the kMsgPumpATask message is peeked, checks are made
+// for an extended set of events, including the availability of Tasks to run.
+//
+// After running a task, the special message kMsgPumpATask is again posted to
+// the Windows Message queue, ensuring a future time slice for processing a
+// future event.
+//
+// To prevent flooding the Windows Message queue, care is taken to be sure that
+// at most one kMsgPumpATask message is EVER pending in the Winow's Message
+// queue.
+//
+// There are a few additional complexities in this system where, when there are
+// no Tasks to run, this otherwise infinite stream of messages which drives the
+// sub-pump is halted.  The pump is automatically re-started when Tasks are
+// queued.
+//
+// A second complexity is that the presence of this stream of posted tasks may
+// prevent a bare-bones message pump from ever peeking a WM_PAINT or WM_TIMER.
+// Such paint and timer events always give priority to a posted message, such as
+// kMsgPumpATask messages.  As a result, care is taken to do some peeking in
+// between the posting of each kMsgPumpATask message (i.e., after kMsgPumpATask
+// is peeked, and before a replacement kMsgPumpATask is posted).
+//
+//
+// NOTE: Although it may seem odd that messages are used to start and stop this
+// flow (as opposed to signaling objects, etc.), it should be understood that
+// the native message pump will *only* respond to messages.  As a result, it is
+// an excellent choice.  It is also helpful that the starter messages that are
+// placed in the queue when new task arrive also awakens the RunTraditional()
+// loop.
+
+//------------------------------------------------------------------------------
+class MessageLoop {
  public:
+
+  // Select a non-default strategy for serving pending requests, that is to be
+  // used by all MessageLoop instances.  This is called only once before
+  // constructing any instances.
+  static void SetStrategy(int strategy);
   static void EnableHistogrammer(bool enable_histogrammer);
+
+#ifdef OS_WIN
+  // Used with WatchObject to asynchronously monitor the signaled state of a
+  // HANDLE object.
+  class Watcher {
+   public:
+    virtual ~Watcher() {}
+    // Called from MessageLoop::Run when a signalled object is detected.
+    virtual void OnObjectSignaled(HANDLE object) = 0;
+  };
+
+  // Have the current thread's message loop watch for a signaled object.
+  // Pass a null watcher to stop watching the object.
+  bool WatchObject(HANDLE, Watcher*);
+
+  // An Observer is an object that receives global notifications from the
+  // MessageLoop.
+  //
+  // NOTE: An Observer implementation should be extremely fast!
+  //
+  class Observer {
+   public:
+    virtual ~Observer() {}
+
+    // This method is called before processing a message.
+    // The message may be undefined in which case msg.message is 0
+    virtual void WillProcessMessage(const MSG& msg) = 0;
+
+    // This method is called when control returns from processing a UI message.
+    // The message may be undefined in which case msg.message is 0
+    virtual void DidProcessMessage(const MSG& msg) = 0;
+  };
+
+  // Add an Observer, which will start receiving notifications immediately.
+  void AddObserver(Observer* observer);
+
+  // Remove an Observer.  It is safe to call this method while an Observer is
+  // receiving a notification callback.
+  void RemoveObserver(Observer* observer);
+
+  // Give a chance to code processing additional messages to notify the
+  // message loop observers that another message has been processed.
+  void WillProcessMessage(const MSG& msg);
+  void DidProcessMessage(const MSG& msg);
+
+  // Dispatcher is used during a nested invocation of Run to dispatch events.
+  // If Run is invoked with a non-NULL Dispatcher, MessageLoop does not
+  // dispatch events (or invoke TranslateMessage), rather every message is
+  // passed to Dispatcher's Dispatch method for dispatch. It is up to the
+  // Dispatcher to dispatch, or not, the event.
+  //
+  // The nested loop is exited by either posting a quit, or returning false
+  // from Dispatch.
+  class Dispatcher {
+   public:
+    virtual ~Dispatcher() {}
+    // Dispatches the event. If true is returned processing continues as
+    // normal. If false is returned, the nested loop exits immediately.
+    virtual bool Dispatch(const MSG& msg) = 0;
+  };
+#else  // !OS_WIN
+  // On non-Windows platforms, the Dispatcher does not exist, but we allow the
+  // typename to exist for convenience.  On non-Windows platforms, a Dispatcher
+  // pointer should always be NULL.
+  class Dispatcher;
+#endif  // OS_*
 
   // A DestructionObserver is notified when the current MessageLoop is being
   // destroyed.  These obsevers are notified prior to MessageLoop::current()
@@ -160,18 +283,19 @@ class MessageLoop : public base::MessagePump::Delegate {
   // Return as soon as all items that can be run are taken care of.
   void RunAllPending();
 
+  // See description of Dispatcher for how Run uses Dispatcher.
+  void Run(Dispatcher* dispatcher);
+
   // Signals the Run method to return after it is done processing all pending
-  // messages.  This method may only be called on the same thread that called
-  // Run, and Run must still be on the call stack.
+  // messages.  This method may be called from any thread, but no effort is
+  // made to support concurrent calls to this method from multiple threads.
   //
-  // Use QuitTask if you need to Quit another thread's MessageLoop, but note
-  // that doing so is fairly dangerous if the target thread makes nested calls
-  // to MessageLoop::Run.  The problem being that you won't know which nested
-  // run loop you are quiting, so be careful!
-  //
+  // For example, the first call to Quit may lead to the MessageLoop being
+  // deleted once its Run method returns, so a second call from another thread
+  // could be problematic.
   void Quit();
 
-  // Invokes Quit on the current MessageLoop when run.  Useful to schedule an
+  // Invokes Quit on the current MessageLoop when run. Useful to schedule an
   // arbitrary MessageLoop to Quit.
   class QuitTask : public Task {
    public:
@@ -186,10 +310,8 @@ class MessageLoop : public base::MessagePump::Delegate {
   ~MessageLoop();
 
   // Optional call to connect the thread name with this loop.
-  void set_thread_name(const std::string& thread_name) {
-    DCHECK(thread_name_.empty()) << "Should not rename this thread!";
-    thread_name_ = thread_name;
-  }
+  void SetThreadName(const std::string& thread_name);
+  void set_thread_name(const std::string& name) { SetThreadName(name); }
   const std::string& thread_name() const { return thread_name_; }
 
   // Returns the MessageLoop object for the current thread, or null if none.
@@ -226,62 +348,51 @@ class MessageLoop : public base::MessagePump::Delegate {
     exception_restoration_ = restore;
   }
 
-  //----------------------------------------------------------------------------
-#if defined(OS_WIN)
-  // Backwards-compat for the old Windows-specific MessageLoop API.  These APIs
-  // are deprecated.
+  // Public entry point for TimerManager to request the Run() of a task.  If we
+  // created the task during an PostTask(FROM_HERE, ), then we will also perform
+  // destructions, and we'll have the option of queueing the task.  If we didn't
+  // create the timer, then we will Run it immediately.
+  bool RunTimerTask(Timer* timer);
 
-  typedef base::MessagePumpWin::Dispatcher Dispatcher;
-  typedef base::MessagePumpWin::Observer Observer;
-  typedef base::MessagePumpWin::Watcher Watcher;
+  // Since some Timer's are owned by MessageLoop, the TimerManager (when it is
+  // being destructed) passses us the timers to discard (without doing a Run()).
+  void DiscardTimer(Timer* timer);
 
-  void Run(Dispatcher* dispatcher);
-
-  void WatchObject(HANDLE object, Watcher* watcher) {
-    pump_win()->WatchObject(object, watcher);
-  }
-  void AddObserver(Observer* observer) {
-    pump_win()->AddObserver(observer);
-  }
-  void RemoveObserver(Observer* observer) {
-    pump_win()->RemoveObserver(observer);
-  }
-  void WillProcessMessage(const MSG& message) {
-    pump_win()->WillProcessMessage(message);
-  }
-  void DidProcessMessage(const MSG& message) {
-    pump_win()->DidProcessMessage(message);
-  }
-  void PumpOutPendingPaintMessages() {
-    pump_win()->PumpOutPendingPaintMessages();
-  }
-#endif  // defined(OS_WIN)
+  // Applications can call this to encourage us to process all pending WM_PAINT
+  // messages.
+  // This method will process all paint messages the Windows Message queue can
+  // provide, up to some fixed number (to avoid any infinite loops).
+  void PumpOutPendingPaintMessages();
 
   //----------------------------------------------------------------------------
  private:
   friend class TimerManager;  // So it can call DidChangeNextTimerExpiry
 
-  struct RunState {
-    // Used to count how many Run() invocations are on the stack.
-    int run_depth;
+  struct ScopedStateSave {
+    explicit ScopedStateSave(MessageLoop* loop)
+        : loop_(loop),
+          dispatcher_(loop->dispatcher_),
+          quit_now_(loop->quit_now_),
+          quit_received_(loop->quit_received_),
+          run_depth_(loop->run_depth_) {
+      loop->quit_now_ = loop->quit_received_ = false;
+      ++loop->run_depth_;
+    }
 
-    // Used to record that Quit() was called, or that we should quit the pump
-    // once it becomes idle.
-    bool quit_received;
+    ~ScopedStateSave() {
+      loop_->run_depth_ = run_depth_;
+      loop_->quit_received_ = quit_received_;
+      loop_->quit_now_ = quit_now_;
+      loop_->dispatcher_ = dispatcher_;
+    }
 
-#if defined(OS_WIN)
-    base::MessagePumpWin::Dispatcher* dispatcher;
-#endif
-  };
-
-  class AutoRunState : RunState {
-   public:
-    AutoRunState(MessageLoop* loop);
-    ~AutoRunState();
    private:
     MessageLoop* loop_;
-    RunState* previous_state_;
-  };
+    Dispatcher* dispatcher_;
+    bool quit_now_;
+    bool quit_received_;
+    int run_depth_;
+  };  // struct ScopedStateSave
 
   // A prioritized queue with interface that mostly matches std::queue<>.
   // For debugging/performance testing, you can swap in std::queue<Task*>.
@@ -348,22 +459,32 @@ class MessageLoop : public base::MessagePump::Delegate {
     DISALLOW_EVIL_CONSTRUCTORS(OptionallyPrioritizedTaskQueue);
   };
 
-#if defined(OS_WIN)
-  base::MessagePumpWin* pump_win() {
-    return static_cast<base::MessagePumpWin*>(pump_.get());
-  }
-#endif
+#ifdef OS_WIN
+  void InitMessageWnd();
+
+  // Windows procedure for message_hwnd_.
+  static LRESULT CALLBACK WndProcThunk(
+      HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
+  LRESULT WndProc(
+      HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
+#endif  // OS_WIN
 
   // A function to encapsulate all the exception handling capability in the
-  // stacks around the running of a main message loop.  It will run the message
-  // loop in a SEH try block or not depending on the set_SEH_restoration()
-  // flag.
-  void RunHandler();
+  // stacks around the running of a main message loop.
+  // It will run the message loop in a SEH try block or not depending on the
+  // set_SEH_restoration() flag.
+  void RunHandler(Dispatcher* dispatcher, bool non_blocking);
 
   // A surrounding stack frame around the running of the message loop that
   // supports all saving and restoring of state, as is needed for any/all (ugly)
   // recursive calls.
-  void RunInternal();
+  void RunInternal(Dispatcher* dispatcher, bool non_blocking);
+
+  // An extended message loop (message pump) that loops mostly forever, and
+  // processes task, signals, timers, etc.
+  // If non-blocking is set, it will return rather than wait for new things to
+  // arrive for processing.
+  void RunTraditional(bool non_blocking);
 
   //----------------------------------------------------------------------------
   // A list of method wrappers with identical calling signatures (no arguments)
@@ -372,18 +493,52 @@ class MessageLoop : public base::MessagePump::Delegate {
 
   bool ProcessNextDeferredTask();
   bool ProcessNextDelayedNonNestableTask();
+  bool ProcessNextObject();
   bool ProcessSomeTimers();
 
   //----------------------------------------------------------------------------
+  // Process some pending messages.  Returns true if a message was processed.
+  bool ProcessNextWindowsMessage();
+
+  // Wait until either an object is signaled, a message is available, a timer
+  // needs attention, or our incoming_queue_ has gotten a task.
+  // Handle (without returning) any APCs (only IO thread currently has APCs.)
+  void WaitForWork();
+
+#ifdef OS_WIN
+  // Helper function for processing window messages. This includes handling
+  // WM_QUIT, message translation and dispatch, etc.
+  //
+  // If dispatcher_ is non-NULL this method does NOT dispatch the event, instead
+  // it invokes Dispatch on the dispatcher_.
+  bool ProcessMessageHelper(const MSG& msg);
+#endif  // OS_WIN
+
+  // When we encounter a kMsgPumpATask, the following helper can be called to
+  // peek and process a replacement message, such as a WM_PAINT or WM_TIMER.
+  // The goal is to make the kMsgPumpATask as non-intrusive as possible, even
+  // though a continuous stream of such messages are posted.  This method
+  // carefully peeks a message while there is no chance for a kMsgPumpATask to
+  // be pending, then releases the lock (allowing a replacement kMsgPumpATask to
+  // possibly be posted), and finally dispatches that peeked replacement.
+  // Note that the re-post of kMsgPumpATask may be asynchronous to this thread!!
+  bool ProcessPumpReplacementMessage();
+
+  // Signals a watcher if a wait falls within the range of objects we're
+  // waiting on.  object_index is the offset in objects_ that was signaled.
+  // Returns true if an object was signaled.
+  bool SignalWatcher(size_t object_index);
+
   // Run a work_queue_ task or new_task, and delete it (if it was processed by
   // PostTask). If there are queued tasks, the oldest one is executed and
   // new_task is queued. new_task is optional and can be NULL. In this NULL
   // case, the method will run one pending task (if any exist). Returns true if
-  // it executes a task.  Queued tasks accumulate only when there is a
-  // non-nestable task currently processing, in which case the new_task is
-  // appended to the list work_queue_.  Such re-entrancy generally happens when
-  // an unrequested message pump (typical of a native dialog) is executing in
-  // the context of a task.
+  // it executes a task.
+  // Queued tasks accumulate only when there is a nonreentrant task currently
+  // processing, in which case the new_task is appended to the list
+  // work_queue_.  Such re-entrancy generally happens when an unrequested
+  // message pump (typical of a native dialog) is executing in the context of a
+  // task.
   bool QueueOrRunTask(Task* new_task);
 
   // Runs the specified task and deletes it.
@@ -394,6 +549,14 @@ class MessageLoop : public base::MessagePump::Delegate {
   void BeforeTaskRunSetup();
   void AfterTaskRunRestore();
 
+  // When processing messages in our MessageWndProc(), we are sometimes called
+  // by a native message pump (i.e., We are not called out of our Run() pump).
+  // In those cases, we need to process tasks during the Windows Message
+  // callback.  This method processes a task, and also posts a new kMsgPumpATask
+  // messages to the Windows Msg Queue so that we are called back later (to
+  // process additional tasks).
+  void PumpATaskDuringWndProc();
+
   // Load tasks from the incoming_queue_ into work_queue_ if the latter is
   // empty.  The former requires a lock to access, while the latter is directly
   // accessible on this thread.
@@ -403,26 +566,18 @@ class MessageLoop : public base::MessagePump::Delegate {
   // destructor to make sure all the task's destructors get called.
   void DeletePendingTasks();
 
+  // Make sure a kPumpATask message is in flight, which starts/continues the
+  // sub-pump.
+  void EnsurePumpATaskWasPosted();
+
+  // Do a PostMessage(), and crash if we can't eventually do the post.
+  void EnsureMessageGetsPosted(int message) const;
+
   // Post a task to our incomming queue.
   void PostTaskInternal(Task* task);
 
   // Called by the TimerManager when its next timer changes.
   void DidChangeNextTimerExpiry();
-
-  // Entry point for TimerManager to request the Run() of a task.  If we
-  // created the task during an PostTask(FROM_HERE, ), then we will also
-  // perform destructions, and we'll have the option of queueing the task.  If
-  // we didn't create the timer, then we will Run it immediately.
-  bool RunTimerTask(Timer* timer);
-
-  // Since some Timer's are owned by MessageLoop, the TimerManager (when it is
-  // being destructed) passses us the timers to discard (without doing a Run()).
-  void DiscardTimer(Timer* timer);
-
-  // base::MessagePump::Delegate methods:
-  virtual bool DoWork();
-  virtual bool DoDelayedWork();
-  virtual bool DoIdleWork();
 
   // Start recording histogram info about events and action IF it was enabled
   // and IF the statistics recorder can accept a registration of our histogram.
@@ -434,6 +589,7 @@ class MessageLoop : public base::MessagePump::Delegate {
   void HistogramEvent(int event);
 
   static TLSSlot tls_index_;
+  static int strategy_selector_;
   static const LinearHistogram::DescriptionPair event_descriptions_[];
   static bool enable_histogrammer_;
 
@@ -448,14 +604,28 @@ class MessageLoop : public base::MessagePump::Delegate {
   // there was no real prioritization.
   OptionallyPrioritizedTaskQueue work_queue_;
 
-  scoped_refptr<base::MessagePump> pump_;
+#ifdef OS_WIN
+  HWND message_hwnd_;
+
+  // A vector of objects (and corresponding watchers) that are routinely
+  // serviced by this message loop's pump.
+  std::vector<HANDLE> objects_;
+  std::vector<Watcher*> watchers_;
+
+  ObserverList<Observer> observers_;
+#endif  // OS_WIN
 
   ObserverList<DestructionObserver> destruction_observers_;
+  IDMap<Task> timed_tasks_;
   // A recursion block that prevents accidentally running additonal tasks when
   // insider a (accidentally induced?) nested message pump.
   bool nestable_tasks_allowed_;
 
   bool exception_restoration_;
+
+  Dispatcher* dispatcher_;
+  bool quit_received_;
+  bool quit_now_;
 
   std::string thread_name_;
   // A profiling histogram showing the counts of various messages and events.
@@ -474,9 +644,17 @@ class MessageLoop : public base::MessagePump::Delegate {
   // will execute once we're out of nested message loops.
   TaskQueue delayed_non_nestable_queue_;
 
-  RunState* state_;
+  // Indicate if there is a kMsgPumpATask message pending in the Windows Message
+  // queue.  There is at most one such message, and it can drive execution of
+  // tasks when a native message pump is running.
+  bool task_pump_message_pending_;
+  // Protect access to task_pump_message_pending_.
+  Lock task_pump_message_lock_;
 
-  DISALLOW_COPY_AND_ASSIGN(MessageLoop);
+  // Used to count how many Run() invocations are on the stack.
+  int run_depth_;
+
+  DISALLOW_EVIL_CONSTRUCTORS(MessageLoop);
 };
 
-#endif  // BASE_MESSAGE_LOOP_H_
+#endif  // BASE_MESSAGE_LOOP_H__
