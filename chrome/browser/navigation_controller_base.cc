@@ -33,6 +33,8 @@
 
 #include "base/logging.h"
 #include "chrome/browser/navigation_entry.h"
+#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_types.h"
 #include "webkit/glue/webkit_glue.h"
 
 // The maximum number of entries that a navigation controller can store.
@@ -209,6 +211,12 @@ void NavigationControllerBase::LoadEntry(NavigationEntry* entry) {
   // TODO(pkasting): http://b/1113085 Should this use DiscardPendingEntry()?
   DiscardPendingEntryInternal();
   pending_entry_ = entry;
+  // TODO(brettw) the reinterpret cast can be removed once we combine the
+  // NavigationController and the NavigationControllerBase.
+  NotificationService::current()->Notify(
+      NOTIFY_NAV_ENTRY_PENDING,
+      Source<NavigationController>(reinterpret_cast<NavigationController*>(this)),
+      NotificationService::NoDetails());
   NavigateToPendingEntry(false);
 }
 
@@ -241,6 +249,7 @@ void NavigationControllerBase::DidNavigateToEntry(NavigationEntry* entry) {
   // active WebContents, because we have just navigated to it.
   if (entry->GetPageID() > GetMaxPageID()) {
     InsertEntry(entry);
+    NotifyNavigationEntryCommitted();
     return;
   }
 
@@ -296,7 +305,7 @@ void NavigationControllerBase::DidNavigateToEntry(NavigationEntry* entry) {
 
   delete entry;
 
-  NotifyNavigationStateChanged();
+  NotifyNavigationEntryCommitted();
 }
 
 void NavigationControllerBase::DiscardPendingEntry() {
@@ -335,12 +344,15 @@ void NavigationControllerBase::InsertEntry(NavigationEntry* entry) {
 
   // Prune any entries which are in front of the current entry.
   if (current_size > 0) {
+    bool pruned = false;
     while (last_committed_entry_index_ < (current_size - 1)) {
+      pruned = true;
       delete entries_[current_size - 1];
       entries_.pop_back();
       current_size--;
     }
-    NotifyPrunedEntries();
+    if (pruned)  // Only notify if we did prune something.
+      NotifyPrunedEntries();
   }
 
   if (entries_.size() >= max_entry_count_)
@@ -348,8 +360,6 @@ void NavigationControllerBase::InsertEntry(NavigationEntry* entry) {
 
   entries_.push_back(entry);
   last_committed_entry_index_ = static_cast<int>(entries_.size()) - 1;
-
-  NotifyNavigationStateChanged();
 }
 
 void NavigationControllerBase::RemoveLastEntry() {
@@ -368,10 +378,11 @@ void NavigationControllerBase::RemoveLastEntry() {
 
     NotifyPrunedEntries();
   }
-  NotifyNavigationStateChanged();
 }
 
 void NavigationControllerBase::RemoveEntryAtIndex(int index) {
+  // TODO(brettw) this is only called to remove the first one when we've got
+  // too many entries. It should probably be more specific for this case.
   if (index >= static_cast<int>(entries_.size()) ||
       index == pending_entry_index_ || index == last_committed_entry_index_) {
     NOTREACHED();
@@ -388,8 +399,8 @@ void NavigationControllerBase::RemoveEntryAtIndex(int index) {
       last_committed_entry_index_ = -1;
   }
 
-  NotifyPrunedEntries();
-  NotifyNavigationStateChanged();
+  // TODO(brettw) bug 1324021: we probably need some notification here so the
+  // session service can stay in sync.
 }
 
 void NavigationControllerBase::ResetInternal() {

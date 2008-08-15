@@ -135,9 +135,6 @@ class NavigationController : public NavigationControllerBase {
   const std::wstring& GetLazyTitle() const;
   const SkBitmap& GetLazyFavIcon() const;
 
-  // Called when |entry| has been updated outside its NavigationController.
-  void EntryUpdated(NavigationEntry* entry);
-
   void SetAlternateNavURLFetcher(
       AlternateNavURLFetcher* alternate_nav_url_fetcher);
 
@@ -202,7 +199,7 @@ class NavigationController : public NavigationControllerBase {
 
   virtual int GetMaxPageID() const;
   virtual void NavigateToPendingEntry(bool reload);
-  virtual void NotifyNavigationStateChanged();
+  virtual void NotifyNavigationEntryCommitted();
 
   // Lets the history database know navigation entries have been removed.
   virtual void NotifyPrunedEntries();

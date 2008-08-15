@@ -39,7 +39,9 @@
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents_factory.h"
+#include "chrome/common/notification_types.h"
 #include "chrome/common/stl_util-inl.h"
+#include "chrome/test/test_notification_tracker.h"
 #include "chrome/test/testing_profile.h"
 #include "net/base/net_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -289,6 +291,16 @@ class NavigationControllerHistoryTest : public NavigationControllerTest {
   std::wstring profile_path_;
 };
 
+void RegisterForAllNavNotifications(TestNotificationTracker* tracker,
+                                    NavigationController* controller) {
+  tracker->ListenFor(NOTIFY_NAV_ENTRY_COMMITTED,
+                     Source<NavigationController>(controller));
+  tracker->ListenFor(NOTIFY_NAV_LIST_PRUNED,
+                     Source<NavigationController>(controller));
+  tracker->ListenFor(NOTIFY_NAV_ENTRY_CHANGED,
+                     Source<NavigationController>(controller));
+}
+
 }  // namespace
 
 TEST_F(NavigationControllerTest, Defaults) {
@@ -305,12 +317,18 @@ TEST_F(NavigationControllerTest, Defaults) {
 }
 
 TEST_F(NavigationControllerTest, LoadURL) {
+  TestNotificationTracker notifications;
+  RegisterForAllNavNotifications(&notifications, contents->controller());
+
   const GURL url1("test1:foo1");
   const GURL url2("test1:foo2");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
+  // Creating a pending notification should not have issued any of the
+  // notifications we're listening for.
+  EXPECT_EQ(0, notifications.size());
 
-  // the load should now be pending
+  // The load should now be pending.
   EXPECT_TRUE(contents->pending_entry());
   EXPECT_EQ(contents->controller()->GetEntryCount(), 0);
   EXPECT_EQ(contents->controller()->GetLastCommittedEntryIndex(), -1);
@@ -321,9 +339,14 @@ TEST_F(NavigationControllerTest, LoadURL) {
   EXPECT_FALSE(contents->controller()->CanGoForward());
   EXPECT_EQ(contents->GetMaxPageID(), -1);
 
-  contents->CompleteNavigation(0);
+  // We should have gotten no notifications from the preceeding checks.
+  EXPECT_EQ(0, notifications.size());
 
-  // the load should now be committed
+  contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
+
+  // The load should now be committed.
   EXPECT_EQ(contents->controller()->GetEntryCount(), 1);
   EXPECT_EQ(contents->controller()->GetLastCommittedEntryIndex(), 0);
   EXPECT_EQ(contents->controller()->GetPendingEntryIndex(), -1);
@@ -333,10 +356,10 @@ TEST_F(NavigationControllerTest, LoadURL) {
   EXPECT_FALSE(contents->controller()->CanGoForward());
   EXPECT_EQ(contents->GetMaxPageID(), 0);
 
-  // load another...
+  // Load another...
   contents->controller()->LoadURL(url2, PageTransition::TYPED);
 
-  // the load should now be pending
+  // The load should now be pending.
   EXPECT_TRUE(contents->pending_entry());
   EXPECT_EQ(contents->controller()->GetEntryCount(), 1);
   EXPECT_EQ(contents->controller()->GetLastCommittedEntryIndex(), 0);
@@ -349,8 +372,10 @@ TEST_F(NavigationControllerTest, LoadURL) {
   EXPECT_EQ(contents->GetMaxPageID(), 0);
 
   contents->CompleteNavigation(1);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
-  // the load should now be committed
+  // The load should now be committed.
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
   EXPECT_EQ(contents->controller()->GetLastCommittedEntryIndex(), 1);
   EXPECT_EQ(contents->controller()->GetPendingEntryIndex(), -1);
@@ -364,13 +389,23 @@ TEST_F(NavigationControllerTest, LoadURL) {
 // Tests what happens when the same page is loaded again.  Should not create a
 // new session history entry.
 TEST_F(NavigationControllerTest, LoadURL_SamePage) {
+  TestNotificationTracker notifications;
+  RegisterForAllNavNotifications(&notifications, contents->controller());
+
   const GURL url1("test1:foo1");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
+  EXPECT_EQ(0, notifications.size());
   contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
+
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
+  EXPECT_EQ(0, notifications.size());
   contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   // should not have produced a new session history entry
   EXPECT_EQ(contents->controller()->GetEntryCount(), 1);
@@ -383,14 +418,21 @@ TEST_F(NavigationControllerTest, LoadURL_SamePage) {
 }
 
 TEST_F(NavigationControllerTest, LoadURL_Discarded) {
+  TestNotificationTracker notifications;
+  RegisterForAllNavNotifications(&notifications, contents->controller());
+
   const GURL url1("test1:foo1");
   const GURL url2("test1:foo2");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
+  EXPECT_EQ(0, notifications.size());
   contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   contents->controller()->LoadURL(url2, PageTransition::TYPED);
   contents->controller()->DiscardPendingEntry();
+  EXPECT_EQ(0, notifications.size());
 
   // should not have produced a new session history entry
   EXPECT_EQ(contents->controller()->GetEntryCount(), 1);
@@ -403,12 +445,19 @@ TEST_F(NavigationControllerTest, LoadURL_Discarded) {
 }
 
 TEST_F(NavigationControllerTest, Reload) {
+  TestNotificationTracker notifications;
+  RegisterForAllNavNotifications(&notifications, contents->controller());
+
   const GURL url1("test1:foo1");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
+  EXPECT_EQ(0, notifications.size());
   contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   contents->controller()->Reload();
+  EXPECT_EQ(0, notifications.size());
 
   // the reload is pending...
   EXPECT_EQ(contents->controller()->GetEntryCount(), 1);
@@ -420,6 +469,8 @@ TEST_F(NavigationControllerTest, Reload) {
   EXPECT_FALSE(contents->controller()->CanGoForward());
 
   contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   // now the reload is committed...
   EXPECT_EQ(contents->controller()->GetEntryCount(), 1);
@@ -433,17 +484,25 @@ TEST_F(NavigationControllerTest, Reload) {
 
 // Tests what happens when a reload navigation produces a new page.
 TEST_F(NavigationControllerTest, Reload_GeneratesNewPage) {
+  TestNotificationTracker notifications;
+  RegisterForAllNavNotifications(&notifications, contents->controller());
+
   const GURL url1("test1:foo1");
   const GURL url2("test1:foo2");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
   contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   contents->controller()->Reload();
+  EXPECT_EQ(0, notifications.size());
 
   contents->pending_entry()->SetURL(url2);
   contents->pending_entry()->SetTransitionType(PageTransition::LINK);
   contents->CompleteNavigation(1);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   // now the reload is committed...
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
@@ -457,16 +516,24 @@ TEST_F(NavigationControllerTest, Reload_GeneratesNewPage) {
 
 // Tests what happens when we navigate back successfully
 TEST_F(NavigationControllerTest, Back) {
+  TestNotificationTracker notifications;
+  RegisterForAllNavNotifications(&notifications, contents->controller());
+
   const GURL url1("test1:foo1");
   const GURL url2("test1:foo2");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
   contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   contents->controller()->LoadURL(url2, PageTransition::TYPED);
   contents->CompleteNavigation(1);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   contents->controller()->GoBack();
+  EXPECT_EQ(0, notifications.size());
 
   // should now have a pending navigation to go back...
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
@@ -478,6 +545,8 @@ TEST_F(NavigationControllerTest, Back) {
   EXPECT_TRUE(contents->controller()->CanGoForward());
 
   contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   // the back navigation completed successfully
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
@@ -491,17 +560,25 @@ TEST_F(NavigationControllerTest, Back) {
 
 // Tests what happens when a back navigation produces a new page.
 TEST_F(NavigationControllerTest, Back_GeneratesNewPage) {
+  TestNotificationTracker notifications;
+  RegisterForAllNavNotifications(&notifications, contents->controller());
+
   const GURL url1("test1:foo1");
   const GURL url2("test1:foo2");
   const GURL url3("test1:foo3");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
   contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   contents->controller()->LoadURL(url2, PageTransition::TYPED);
   contents->CompleteNavigation(1);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   contents->controller()->GoBack();
+  EXPECT_EQ(0, notifications.size());
 
   // should now have a pending navigation to go back...
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
@@ -515,6 +592,8 @@ TEST_F(NavigationControllerTest, Back_GeneratesNewPage) {
   contents->pending_entry()->SetURL(url3);
   contents->pending_entry()->SetTransitionType(PageTransition::LINK);
   contents->CompleteNavigation(2);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   // the back navigation resulted in a completely new navigation.
   // TODO(darin): perhaps this behavior will be confusing to users?
@@ -529,17 +608,26 @@ TEST_F(NavigationControllerTest, Back_GeneratesNewPage) {
 
 // Tests what happens when we navigate forward successfully
 TEST_F(NavigationControllerTest, Forward) {
+  TestNotificationTracker notifications;
+  RegisterForAllNavNotifications(&notifications, contents->controller());
+
   const GURL url1("test1:foo1");
   const GURL url2("test1:foo2");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
   contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   contents->controller()->LoadURL(url2, PageTransition::TYPED);
   contents->CompleteNavigation(1);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   contents->controller()->GoBack();
   contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   contents->controller()->GoForward();
 
@@ -553,6 +641,8 @@ TEST_F(NavigationControllerTest, Forward) {
   EXPECT_FALSE(contents->controller()->CanGoForward());
 
   contents->CompleteNavigation(1);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   // the forward navigation completed successfully
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
@@ -566,20 +656,30 @@ TEST_F(NavigationControllerTest, Forward) {
 
 // Tests what happens when a forward navigation produces a new page.
 TEST_F(NavigationControllerTest, Forward_GeneratesNewPage) {
+  TestNotificationTracker notifications;
+  RegisterForAllNavNotifications(&notifications, contents->controller());
+
   const GURL url1("test1:foo1");
   const GURL url2("test1:foo2");
   const GURL url3("test1:foo3");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
   contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   contents->controller()->LoadURL(url2, PageTransition::TYPED);
   contents->CompleteNavigation(1);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   contents->controller()->GoBack();
   contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   contents->controller()->GoForward();
+  EXPECT_EQ(0, notifications.size());
 
   // should now have a pending navigation to go forward...
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
@@ -593,6 +693,9 @@ TEST_F(NavigationControllerTest, Forward_GeneratesNewPage) {
   contents->pending_entry()->SetURL(url3);
   contents->pending_entry()->SetTransitionType(PageTransition::LINK);
   contents->CompleteNavigation(2);
+  EXPECT_TRUE(notifications.Check3AndReset(NOTIFY_NAV_LIST_PRUNED,
+                                           NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
   EXPECT_EQ(contents->controller()->GetLastCommittedEntryIndex(), 1);
@@ -604,17 +707,24 @@ TEST_F(NavigationControllerTest, Forward_GeneratesNewPage) {
 }
 
 TEST_F(NavigationControllerTest, LinkClick) {
+  TestNotificationTracker notifications;
+  RegisterForAllNavNotifications(&notifications, contents->controller());
+
   const GURL url1("test1:foo1");
   const GURL url2("test1:foo2");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
   contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   contents->set_pending_entry(new NavigationEntry(kTestContentsType1, NULL, 0,
                                                   url2,
                                                   std::wstring(),
                                                   PageTransition::LINK));
   contents->CompleteNavigation(1);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   // should not have produced a new session history entry
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
@@ -627,11 +737,16 @@ TEST_F(NavigationControllerTest, LinkClick) {
 }
 
 TEST_F(NavigationControllerTest, SwitchTypes) {
+  TestNotificationTracker notifications;
+  RegisterForAllNavNotifications(&notifications, contents->controller());
+
   const GURL url1("test1:foo");
   const GURL url2("test2:foo");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
   contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   TestContents* initial_contents = contents;
 
@@ -641,6 +756,8 @@ TEST_F(NavigationControllerTest, SwitchTypes) {
   ASSERT_TRUE(initial_contents != contents);
 
   contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   // A second navigation entry should have been committed even though the
   // PageIDs are the same.  PageIDs are scoped to the tab contents type.
@@ -656,6 +773,8 @@ TEST_F(NavigationControllerTest, SwitchTypes) {
   contents->controller()->GoBack();
   ASSERT_TRUE(initial_contents == contents);  // switched again!
   contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
   EXPECT_EQ(contents->controller()->GetLastCommittedEntryIndex(), 0);
@@ -672,20 +791,27 @@ TEST_F(NavigationControllerTest, SwitchTypes) {
 // Tests what happens when we begin to navigate to a new contents type, but
 // then that navigation gets discarded instead.
 TEST_F(NavigationControllerTest, SwitchTypes_Discard) {
+  TestNotificationTracker notifications;
+  RegisterForAllNavNotifications(&notifications, contents->controller());
+
   const GURL url1("test1:foo");
   const GURL url2("test2:foo");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
   contents->CompleteNavigation(0);
+  EXPECT_TRUE(notifications.Check2AndReset(NOTIFY_NAV_ENTRY_COMMITTED,
+                                           NOTIFY_NAV_ENTRY_CHANGED));
 
   TestContents* initial_contents = contents;
 
   contents->controller()->LoadURL(url2, PageTransition::TYPED);
+  EXPECT_EQ(0, notifications.size());
 
   // The tab contents should have been replaced
   ASSERT_TRUE(initial_contents != contents);
 
   contents->controller()->DiscardPendingEntry();
+  EXPECT_EQ(0, notifications.size());
 
   // The tab contents should have been replaced back
   ASSERT_TRUE(initial_contents == contents);
