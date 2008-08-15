@@ -116,7 +116,7 @@ int HttpChunkedDecoder::ScanForChunkRemaining(const char* buf, int buf_len) {
     } else if (chunk_terminator_remaining_) {
        if (buf_len) {
          DLOG(ERROR) << "chunk data not terminated properly";
-         return ERR_FAILED;
+         return ERR_BAD_CHUNKED_ENCODING;
        }
        chunk_terminator_remaining_ = false;
     } else if (buf_len) {
@@ -128,14 +128,14 @@ int HttpChunkedDecoder::ScanForChunkRemaining(const char* buf, int buf_len) {
       if (!ParseChunkSize(buf, buf_len, &chunk_remaining_)) {
           DLOG(ERROR) << "Failed parsing HEX from: " <<
               std::string(buf, buf_len);
-        return ERR_FAILED;
+        return ERR_BAD_CHUNKED_ENCODING;
       }
 
       if (chunk_remaining_ == 0)
         reached_last_chunk_ = true;
     } else {
       DLOG(ERROR) << "missing chunk-size";
-      return ERR_FAILED;
+      return ERR_BAD_CHUNKED_ENCODING;
     } 
     line_buf_.clear();
   } else {
@@ -151,8 +151,33 @@ int HttpChunkedDecoder::ScanForChunkRemaining(const char* buf, int buf_len) {
   return bytes_consumed;
 }
 
-// static
+
+// While the HTTP 1.1 specification defines chunk-size as 1*HEX
+// some sites rely on more lenient parsing.
+// yahoo.com for example, includes trailing spaces (0x20).
+//
+// A comparison of browsers running on WindowsXP shows that
+// they will parse the following inputs (egrep syntax):
+//
+// Let \X be the character class for a hex digit: [0-9a-fA-F]
+//
+//   RFC 2616: ^\X+$
+//        IE7: ^\X+[^\X]*$
+// Safari 3.1: ^[\t\r ]*\X+[\t ]*$
+//  Firefox 3: ^[\t\f\v\r ]*[+]?(0x)?\X+[^\X]*$
+// Opera 9.51: ^[\t\f\v ]*[+]?(0x)?\X+[^\X]*$
+//
+// Our strategy is to be as strict as possible, while not breaking
+// known sites.
+//
+//  Chromium: ^\X+[ ]*$
 bool HttpChunkedDecoder::ParseChunkSize(const char* start, int len, int* out) {
+  DCHECK(len >= 0);
+
+  // Strip trailing spaces
+  while (len && start[len - 1] == ' ')
+    len--;
+
   // Be more restrictive than HexStringToInt;
   // don't allow inputs with leading "-", "+", "0x", "0X"
   if (StringPiece(start, len).find_first_not_of("0123456789abcdefABCDEF")!=

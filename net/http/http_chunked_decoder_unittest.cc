@@ -28,6 +28,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "base/basictypes.h"
+#include "net/base/net_errors.h"
 #include "net/http/http_chunked_decoder.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -64,6 +65,7 @@ void RunTestUntilFailure(const char* inputs[], size_t num_inputs, size_t fail_in
     std::string input = inputs[i];
     int n = decoder.FilterBuf(&input[0], static_cast<int>(input.size()));
     if (n < 0) {
+      EXPECT_EQ(net::ERR_BAD_CHUNKED_ENCODING, n);
       EXPECT_EQ(fail_index, i);
       return;
     }
@@ -114,6 +116,19 @@ TEST(HttpChunkedDecoderTest, Incremental) {
   RunTest(inputs, arraysize(inputs), "hello", true);
 }
 
+TEST(HttpChunkedDecoderTest, LF_InsteadOf_CRLF) {
+  // Compatibility: [RFC 2616 - Invalid]
+  // {Firefox3} - Valid
+  // {IE7, Safari3.1, Opera9.51} - Invalid
+  const char* inputs[] = {
+    "5\nhello\n",
+    "1\n \n",
+    "5\nworld\n",
+    "0\n\n"
+  };
+  RunTest(inputs, arraysize(inputs), "hello world", true);
+}
+
 TEST(HttpChunkedDecoderTest, Extensions) {
   const char* inputs[] = {
     "5;x=0\r\nhello\r\n",
@@ -142,24 +157,88 @@ TEST(HttpChunkedDecoderTest, TrailersUnfinished) {
   RunTest(inputs, arraysize(inputs), "hello", false);
 }
 
+TEST(HttpChunkedDecoderTest, InvalidChunkSize_TooBig) {
+  const char* inputs[] = {
+    // This chunked body is not terminated.
+    // However we will fail decoding because the chunk-size
+    // number is larger than we can handle.
+    "48469410265455838241\r\nhello\r\n",
+    "0\r\n\r\n"
+  };
+  RunTestUntilFailure(inputs, arraysize(inputs), 0);
+}
+
 TEST(HttpChunkedDecoderTest, InvalidChunkSize_0X) {
   const char* inputs[] = {
+    // Compatibility [RFC 2616 - Invalid]:
+    // {Safari3.1, IE7} - Invalid
+    // {Firefox3, Opera 9.51} - Valid
     "0x5\r\nhello\r\n",
     "0\r\n\r\n"
   };
   RunTestUntilFailure(inputs, arraysize(inputs), 0);
 }
 
-TEST(HttpChunkedDecoderTest, InvalidChunkSize_TrailingWhitespace) {
+TEST(HttpChunkedDecoderTest, ChunkSize_TrailingSpace) {
   const char* inputs[] = {
-    "5 \r\nhello\r\n",
+    // Compatibility [RFC 2616 - Invalid]:
+    // {IE7, Safari3.1, Firefox3, Opera 9.51} - Valid
+    //
+    // At least yahoo.com depends on this being valid.
+    "5      \r\nhello\r\n",
+    "0\r\n\r\n"
+  };
+  RunTest(inputs, arraysize(inputs), "hello", true);
+}
+
+TEST(HttpChunkedDecoderTest, InvalidChunkSize_TrailingTab) {
+  const char* inputs[] = {
+    // Compatibility [RFC 2616 - Invalid]:
+    // {IE7, Safari3.1, Firefox3, Opera 9.51} - Valid
+    "5\t\r\nhello\r\n",
     "0\r\n\r\n"
   };
   RunTestUntilFailure(inputs, arraysize(inputs), 0);
 }
 
-TEST(HttpChunkedDecoderTest, InvalidChunkSize_LeadingWhitespace) {
+TEST(HttpChunkedDecoderTest, InvalidChunkSize_TrailingFormFeed) {
   const char* inputs[] = {
+    // Compatibility [RFC 2616- Invalid]:
+    // {Safari3.1} - Invalid
+    // {IE7, Firefox3, Opera 9.51} - Valid
+    "5\f\r\nhello\r\n",
+    "0\r\n\r\n"
+  };
+  RunTestUntilFailure(inputs, arraysize(inputs), 0);
+}
+
+TEST(HttpChunkedDecoderTest, InvalidChunkSize_TrailingVerticalTab) {
+  const char* inputs[] = {
+    // Compatibility [RFC 2616 - Invalid]:
+    // {Safari 3.1} - Invalid
+    // {IE7, Firefox3, Opera 9.51} - Valid
+    "5\v\r\nhello\r\n",
+    "0\r\n\r\n"
+  };
+  RunTestUntilFailure(inputs, arraysize(inputs), 0);
+}
+
+TEST(HttpChunkedDecoderTest, InvalidChunkSize_TrailingNonHexDigit) {
+  const char* inputs[] = {
+    // Compatibility [RFC 2616 - Invalid]:
+    // {Safari 3.1} - Invalid
+    // {IE7, Firefox3, Opera 9.51} - Valid
+    "5H\r\nhello\r\n",
+    "0\r\n\r\n"
+  };
+  RunTestUntilFailure(inputs, arraysize(inputs), 0);
+}
+
+TEST(HttpChunkedDecoderTest, InvalidChunkSize_LeadingSpace) {
+  const char* inputs[] = {
+    // Compatibility [RFC 2616 - Invalid]:
+    // {IE7} - Invalid
+    // {Safari 3.1, Firefox3, Opera 9.51} - Valid
     " 5\r\nhello\r\n",
     "0\r\n\r\n"
   };
@@ -193,6 +272,9 @@ TEST(HttpChunkedDecoderTest, InvalidChunkSize_Negative) {
 
 TEST(HttpChunkedDecoderTest, InvalidChunkSize_Plus) {
   const char* inputs[] = {
+    // Compatibility [RFC 2616 - Invalid]:
+    // {IE7, Safari 3.1} - Invalid
+    // {Firefox3, Opera 9.51} - Valid
     "+5\r\nhello\r\n",
     "0\r\n\r\n"
   };
