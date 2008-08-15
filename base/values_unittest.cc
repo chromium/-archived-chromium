@@ -70,7 +70,7 @@ TEST(ValuesTest, Basic) {
   ListValue* bookmark_list;
   ASSERT_TRUE(settings.GetList(L"global.toolbar.bookmarks", &bookmark_list));
   DictionaryValue* bookmark;
-  ASSERT_EQ(1U, bookmark_list->GetSize());
+  ASSERT_EQ(1, bookmark_list->GetSize());
   ASSERT_TRUE(bookmark_list->GetDictionary(0, &bookmark));
   std::wstring bookmark_name = L"Unnamed";
   ASSERT_TRUE(bookmark->GetString(L"name", &bookmark_name));
@@ -93,7 +93,7 @@ TEST(ValuesTest, BinaryValue) {
   ASSERT_TRUE(binary);
   ASSERT_TRUE(binary->GetBuffer());
   ASSERT_EQ(buffer, binary->GetBuffer());
-  ASSERT_EQ(0U, binary->GetSize());
+  ASSERT_EQ(0, binary->GetSize());
   delete binary;
   binary = NULL;
 
@@ -103,7 +103,7 @@ TEST(ValuesTest, BinaryValue) {
   ASSERT_TRUE(binary);
   ASSERT_TRUE(binary->GetBuffer());
   ASSERT_EQ(buffer, binary->GetBuffer());
-  ASSERT_EQ(15U, binary->GetSize());
+  ASSERT_EQ(15, binary->GetSize());
   delete binary;
   binary = NULL;
 
@@ -113,7 +113,7 @@ TEST(ValuesTest, BinaryValue) {
   ASSERT_TRUE(binary);
   ASSERT_TRUE(binary->GetBuffer());
   ASSERT_NE(stack_buffer, binary->GetBuffer());
-  ASSERT_EQ(42U, binary->GetSize());
+  ASSERT_EQ(42, binary->GetSize());
   ASSERT_EQ(0, memcmp(stack_buffer, binary->GetBuffer(), binary->GetSize()));
   delete binary;
 }
@@ -175,13 +175,13 @@ TEST(ValuesTest, ListRemoval) {
     ListValue list;
     list.Append(new DeletionTestValue(&deletion_flag));
     EXPECT_FALSE(deletion_flag);
-    EXPECT_EQ(1U, list.GetSize());
+    EXPECT_EQ(1, list.GetSize());
     EXPECT_FALSE(list.Remove(std::numeric_limits<size_t>::max(),
                              &removed_item));
     EXPECT_FALSE(list.Remove(1, &removed_item));
     EXPECT_TRUE(list.Remove(0, &removed_item));
     ASSERT_TRUE(removed_item);
-    EXPECT_EQ(0U, list.GetSize());
+    EXPECT_EQ(0, list.GetSize());
   }
   EXPECT_FALSE(deletion_flag);
   delete removed_item;
@@ -194,7 +194,7 @@ TEST(ValuesTest, ListRemoval) {
     EXPECT_FALSE(deletion_flag);
     EXPECT_TRUE(list.Remove(0, NULL));
     EXPECT_TRUE(deletion_flag);
-    EXPECT_EQ(0U, list.GetSize());
+    EXPECT_EQ(0, list.GetSize());
   }
 }
 
@@ -348,7 +348,7 @@ TEST(ValuesTest, DeepCopy) {
   ASSERT_NE(copy_value, original_list);
   ASSERT_TRUE(copy_value->IsType(Value::TYPE_LIST));
   ListValue* copy_list = static_cast<ListValue*>(copy_value);
-  ASSERT_EQ(2U, copy_list->GetSize());
+  ASSERT_EQ(2, copy_list->GetSize());
 
   Value* copy_list_element_0;
   ASSERT_TRUE(copy_list->Get(0, &copy_list_element_0));
