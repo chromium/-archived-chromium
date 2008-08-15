@@ -271,7 +271,7 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
 
   const char* main_thread_name = "Chrome_BrowserMain";
   Thread::SetThreadName(main_thread_name, GetCurrentThreadId());
-  MessageLoop::current()->SetThreadName(main_thread_name);
+  MessageLoop::current()->set_thread_name(main_thread_name);
   bool already_running = CreateUniqueChromeEvent();
 
   // Make the selection of network stacks early on before any consumers try to

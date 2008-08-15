@@ -769,8 +769,10 @@ LRESULT CALLBACK TestShell::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPAR
             if (entry != TestShell::windowList()->end())
                 TestShell::windowList()->erase(entry);
 
-            if (TestShell::windowList()->empty() || shell->is_modal())
-              MessageLoop::current()->Quit();
+            if (TestShell::windowList()->empty() || shell->is_modal()) {
+                MessageLoop::current()->PostTask(
+                    FROM_HERE, new MessageLoop::QuitTask());
+            }
             delete shell;
         }
         return 0;

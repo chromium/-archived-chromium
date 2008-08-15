@@ -91,6 +91,9 @@ class AutomationProxy : public IPC::Channel::Listener,
   virtual void OnMessageReceived(const IPC::Message& msg);
   virtual void OnChannelError();
 
+  // Close the automation IPC channel.
+  void Disconnect();
+
   // Waits for the app to launch and the automation provider to say hello
   // (the app isn't fully done loading by this point).
   // Returns true if the launch is successful
@@ -188,7 +191,7 @@ class AutomationProxy : public IPC::Channel::Listener,
   const std::wstring& channel_id() const { return channel_id_; }
 
   // AutomationMessageSender implementations.
-  virtual bool Send(IPC::Message* message) { return channel_->Send(message); }
+  virtual bool Send(IPC::Message* message);
   virtual bool SendAndWaitForResponse(IPC::Message* request,
                                       IPC::Message** response,
                                       int response_type);
@@ -211,7 +214,8 @@ class AutomationProxy : public IPC::Channel::Listener,
   // Creates a tab that can hosted in an external process. The function
   // returns a TabProxy representing the tab as well as a window handle
   // that can be reparented in another process.
-  TabProxy* AutomationProxy::CreateExternalTab(HWND* external_tab_container);
+  TabProxy* CreateExternalTab(HWND* external_tab_container);
+
  private:
   DISALLOW_EVIL_CONSTRUCTORS(AutomationProxy);
 

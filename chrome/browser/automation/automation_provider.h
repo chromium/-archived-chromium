@@ -47,7 +47,7 @@
 #include "chrome/browser/automation/automation_autocomplete_edit_tracker.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/history/history.h"
-#include "chrome/common/ipc_channel.h"
+#include "chrome/common/ipc_channel_proxy.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/notification_service.h"
 
@@ -321,8 +321,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   typedef ObserverList<NotificationObserver> NotificationObserverList;
   typedef std::map<NavigationController*, LoginHandler*> LoginHandlerMap;
 
-  bool connected_;
-  scoped_ptr<IPC::Channel> channel_;
+  scoped_ptr<IPC::ChannelProxy> channel_;
   scoped_ptr<NotificationObserver> initial_load_observer_;
   scoped_ptr<NotificationObserver> new_tab_ui_load_observer_;
   scoped_ptr<NotificationObserver> find_in_page_observer_;
@@ -383,5 +382,7 @@ class TestingAutomationProvider : public AutomationProvider,
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details);
+
+  void OnRemoveProvider();  // Called via PostTask
 };
 #endif  // CHROME_BROWSER_AUTOMATION_AUTOMATION_PROVIDER_H_

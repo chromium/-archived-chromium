@@ -316,8 +316,7 @@ class WebContentsTest : public testing::Test {
 
     // Make sure that we flush any messages related to WebContents destruction
     // before we destroy the profile.
-    MessageLoop::current()->Quit();
-    MessageLoop::current()->Run();
+    MessageLoop::current()->RunAllPending();
   }
 
   scoped_ptr<WebContentsTestingProfile> profile;

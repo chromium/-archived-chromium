@@ -666,8 +666,7 @@ TEST_F(NavigationControllerTest, SwitchTypes) {
   EXPECT_TRUE(contents->controller()->CanGoForward());
 
   // There may be TabContentsCollector tasks pending, so flush them from queue.
-  MessageLoop::current()->Quit();
-  MessageLoop::current()->Run();
+  MessageLoop::current()->RunAllPending();
 }
 
 // Tests what happens when we begin to navigate to a new contents type, but
@@ -700,8 +699,7 @@ TEST_F(NavigationControllerTest, SwitchTypes_Discard) {
   EXPECT_FALSE(contents->controller()->CanGoForward());
 
   // There may be TabContentsCollector tasks pending, so flush them from queue.
-  MessageLoop::current()->Quit();
-  MessageLoop::current()->Run();
+  MessageLoop::current()->RunAllPending();
 }
 
 // Tests that TabContentsTypes that are not in use are deleted (via a
@@ -729,8 +727,7 @@ TEST_F(NavigationControllerTest, SwitchTypesCleanup) {
   contents->CompleteNavigation(1);
 
   // There may be TabContentsCollector tasks pending, so flush them from queue.
-  MessageLoop::current()->Quit();
-  MessageLoop::current()->Run();
+  MessageLoop::current()->RunAllPending();
 
   // Now that the tasks have been flushed, the first tab type should be gone.
   ASSERT_TRUE(

@@ -289,10 +289,6 @@ const wchar_t kEnableWatchdog[] = L"enable-watchdog";
 // whether or not it's actually the first run.
 const wchar_t kFirstRun[] = L"first-run";
 
-// Select an alternate message loop task dispatch strategy.
-// Usage -message-loop-strategy=n
-const wchar_t kMessageLoopStrategy[] = L"message-loop-strategy";
-
 // Enable histograming of tasks served by MessageLoop. See about:histograms/Loop
 // for results, which show frequency of messages on each thread, including APC
 // count, object signalling count, etc.

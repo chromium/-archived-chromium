@@ -129,8 +129,7 @@ TEST(SiteInstanceTest, SiteInstanceDestructor) {
 
   contents->CloseContents();
   // Make sure that we flush any messages related to WebContents destruction.
-  MessageLoop::current()->Quit();
-  MessageLoop::current()->Run();
+  MessageLoop::current()->RunAllPending();
 
   EXPECT_EQ(2, siteDeleteCounter);
   EXPECT_EQ(2, browsingDeleteCounter);

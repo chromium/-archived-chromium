@@ -325,6 +325,10 @@ bool AutomationProxy::SetFilteredInet(bool enabled) {
   return Send(new AutomationMsg_SetFilteredInet(0, enabled));
 }
 
+void AutomationProxy::Disconnect() {
+  channel_.reset();
+}
+
 void AutomationProxy::OnMessageReceived(const IPC::Message& msg) {
   // This won't get called unless AutomationProxy is run from
   // inside a message loop.
@@ -489,6 +493,15 @@ AutocompleteEditProxy* AutomationProxy::GetAutocompleteEditForBrowser(
 
   return new AutocompleteEditProxy(this, tracker_.get(),
                                    autocomplete_edit_handle);
+}
+
+bool AutomationProxy::Send(IPC::Message* message) {
+  if (channel_.get())
+    return channel_->Send(message);
+
+  DLOG(WARNING) << "Channel has been closed; dropping message!";
+  delete message;
+  return false;
 }
 
 bool AutomationProxy::SendAndWaitForResponse(IPC::Message* request,

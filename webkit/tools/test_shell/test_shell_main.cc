@@ -340,11 +340,10 @@ int main(int argc, char* argv[])
             MessageLoop::current()->Run();
         }
 
-        // Flush any remaining messages.  This ensures that any 
-        // accumulated Task objects get destroyed before we exit, 
-        // which avoids noise in purify leak-test results.
-        MessageLoop::current()->Quit();
-        MessageLoop::current()->Run();
+        // Flush any remaining messages.  This ensures that any accumulated
+        // Task objects get destroyed before we exit, which avoids noise in
+        // purify leak-test results.
+        MessageLoop::current()->RunAllPending();
 
         if (record_mode)
           base::EventRecorder::current()->StopRecording();

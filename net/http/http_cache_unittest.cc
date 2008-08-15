@@ -651,8 +651,7 @@ TEST(HttpCache, SimpleGET_AbandonedCacheRead) {
 
   // Make sure we pump any pending events, which should include a call to
   // HttpCache::Transaction::OnCacheReadCompleted.
-  MessageLoop::current()->Quit();
-  MessageLoop::current()->Run();
+  MessageLoop::current()->RunAllPending();
 }
 
 TEST(HttpCache, TypicalGET_ConditionalRequest) {

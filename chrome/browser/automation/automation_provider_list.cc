@@ -41,18 +41,15 @@ AutomationProviderList::AutomationProviderList() {
 AutomationProviderList::~AutomationProviderList() {
   iterator iter = automation_providers_.begin();
   while (iter != automation_providers_.end()) {
-    AutomationProvider* provider = (*iter);
-    // Delete the entry first and update the iterator first because the d'tor
-    // of AutomationProvider will call RemoveProvider, making this iterator
-    // invalid
+    (*iter)->Release();
     iter = automation_providers_.erase(iter);
     g_browser_process->ReleaseModule();
-    delete provider;
   }
   instance_ = NULL;
 }
 
 bool AutomationProviderList::AddProvider(AutomationProvider* provider) {
+  provider->AddRef();
   automation_providers_.push_back(provider);
   g_browser_process->AddRefModule();
   return true;
@@ -62,6 +59,7 @@ bool AutomationProviderList::RemoveProvider(AutomationProvider* provider) {
   const iterator remove_provider =
     find(automation_providers_.begin(), automation_providers_.end(), provider);
   if (remove_provider != automation_providers_.end()) {
+    (*remove_provider)->Release();
     automation_providers_.erase(remove_provider);
     g_browser_process->ReleaseModule();
     return true;

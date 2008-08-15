@@ -582,13 +582,8 @@ class DocumentPrintedNotificationObserver : public NotificationObserver {
 };
 
 AutomationProvider::AutomationProvider(Profile* profile)
-    : connected_(false),
-      redirect_query_(0),
+    : redirect_query_(0),
       profile_(profile) {
-  AutomationProviderList* list =
-      g_browser_process->InitAutomationProviderList();
-  DCHECK(NULL != list);
-  list->AddProvider(this);
   browser_tracker_.reset(new AutomationBrowserTracker(this));
   window_tracker_.reset(new AutomationWindowTracker(this));
   tab_tracker_.reset(new AutomationTabTracker(this));
@@ -601,21 +596,13 @@ AutomationProvider::AutomationProvider(Profile* profile)
 }
 
 AutomationProvider::~AutomationProvider() {
-  // TODO(vibhor) : Delete the pending observer objects.
-  AutomationProviderList* list =
-      g_browser_process->InitAutomationProviderList();
-  DCHECK(NULL != list);
-  list->RemoveProvider(this);
 }
 
 void AutomationProvider::ConnectToChannel(const std::wstring& channel_id) {
-  scoped_ptr<IPC::Channel> channel(
-    new IPC::Channel(channel_id, IPC::Channel::MODE_CLIENT, this));
-  connected_ = channel->Connect();
-  if (connected_) {
-    channel_.swap(channel);
-    channel_->Send(new AutomationMsg_Hello(0));
-  }
+  channel_.reset(
+    new IPC::ChannelProxy(channel_id, IPC::Channel::MODE_CLIENT, this, NULL,
+                          g_browser_process->io_thread()->message_loop()));
+  channel_->Send(new AutomationMsg_Hello(0));
 }
 
 void AutomationProvider::SetExpectedTabCount(size_t expected_tabs) {
@@ -1450,7 +1437,7 @@ void AutomationProvider::HandleUnused(const IPC::Message& message, int handle) {
 
 void AutomationProvider::OnChannelError() {
   LOG(ERROR) << "AutomationProxy went away, shutting down app.";
-  delete this;
+  AutomationProviderList::GetInstance()->RemoveProvider(this);
 }
 
 // TODO(brettw) change this to accept GURLs when history supports it
@@ -1478,11 +1465,8 @@ void AutomationProvider::OnRedirectQueryComplete(
 }
 
 bool AutomationProvider::Send(IPC::Message* msg) {
-  if (connected_) {
-    DCHECK(channel_.get());
-    return channel_->Send(msg);
-  }
-  return false;
+  DCHECK(channel_.get());
+  return channel_->Send(msg);
 }
 
 Browser* AutomationProvider::FindAndActivateTab(
@@ -2235,7 +2219,8 @@ void TestingAutomationProvider::OnBrowserRemoving(const Browser* browser) {
   // last browser goes away.
   if (BrowserList::size() == 1) {
     // If you change this, update Observer for NOTIFY_SESSION_END below.
-    MessageLoop::current()->ReleaseSoon(FROM_HERE, this);
+    MessageLoop::current()->PostTask(FROM_HERE,
+        NewRunnableMethod(this, &TestingAutomationProvider::OnRemoveProvider));
   }
 }
 
@@ -2247,4 +2232,8 @@ void TestingAutomationProvider::Observe(NotificationType type,
   // before the task runs resulting in this object not being deleted. This
   // Release balance out the Release scheduled by OnBrowserRemoving.
   Release();
+}
+
+void TestingAutomationProvider::OnRemoveProvider() {
+  AutomationProviderList::GetInstance()->RemoveProvider(this);
 }

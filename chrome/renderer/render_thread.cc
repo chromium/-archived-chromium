@@ -68,8 +68,7 @@ RenderThread::~RenderThread() {
 }
 
 void RenderThread::OnChannelError() {
-  // XXX(darin): is this really correct/sufficient?
-  owner_loop_->Quit();
+  owner_loop_->PostTask(FROM_HERE, new MessageLoop::QuitTask());
 }
 
 bool RenderThread::Send(IPC::Message* msg) {

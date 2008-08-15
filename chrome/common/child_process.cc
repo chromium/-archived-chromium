@@ -68,7 +68,7 @@ bool ChildProcess::ProcessRefCountIsZero() {
 
 void ChildProcess::OnFinalRelease() {
   DCHECK(main_thread_loop_);
-  main_thread_loop_->Quit();
+  main_thread_loop_->PostTask(FROM_HERE, new MessageLoop::QuitTask());
 }
 
 HANDLE ChildProcess::GetShutDownEvent() {

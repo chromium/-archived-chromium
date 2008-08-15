@@ -216,14 +216,10 @@ BrowserProcessImpl::~BrowserProcessImpl() {
   g_browser_process = NULL;
 }
 
-// Need to define this so InvokeLater on the MessageLoop works. It's ok
-// not to addref/release the MessageLoop here as we *know* the main thread
-// isn't going to go away on us.
-template <>
-struct RunnableMethodTraits<MessageLoop> {
-  static void RetainCallee(MessageLoop* obj) { }
-  static void ReleaseCallee(MessageLoop* obj) { }
-};
+// Send a QuitTask to the given MessageLoop.
+static void PostQuit(MessageLoop* message_loop) {
+  message_loop->PostTask(FROM_HERE, new MessageLoop::QuitTask());
+}
 
 void BrowserProcessImpl::EndSession() {
   // Notify we are going away.
@@ -249,7 +245,7 @@ void BrowserProcessImpl::EndSession() {
   // otherwise on startup we'll think we crashed. So we block until done and
   // then proceed with normal shutdown.
   g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
-      NewRunnableMethod(MessageLoop::current(), &MessageLoop::Quit));
+      NewRunnableFunction(PostQuit, MessageLoop::current()));
   MessageLoop::current()->Run();
 }
 

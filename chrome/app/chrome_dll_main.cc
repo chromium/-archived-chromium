@@ -193,15 +193,6 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
       exit(-1);
 
   // Enable Message Loop related state asap.
-  if (parsed_command_line.HasSwitch(switches::kMessageLoopStrategy)) {
-    std::wstring details =
-        parsed_command_line.GetSwitchValue(switches::kMessageLoopStrategy);
-    int strategy = 0;
-    if (details.size()) {
-      strategy = static_cast<int>(StringToInt64(details));
-    }
-    MessageLoop::SetStrategy(strategy);
-  }
   if (parsed_command_line.HasSwitch(switches::kMessageLoopHistogrammer))
     MessageLoop::EnableHistogrammer(true);
 

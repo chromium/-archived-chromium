@@ -28,7 +28,9 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "webkit/tools/test_shell/test_shell_test.h"
+
 #include "base/file_util.h"
+#include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
 
@@ -56,6 +58,9 @@ void TestShellTest::TearDown() {
   test_shell_->LoadURL(L"about:blank");
   DestroyWindow(test_shell_->mainWnd());
   LayoutTestController::ClearShell();
+  
+  // Flush the MessageLoop of any residual tasks.
+  MessageLoop::current()->RunAllPending();
 }
 
 void TestShellTest::CreateEmptyWindow() {

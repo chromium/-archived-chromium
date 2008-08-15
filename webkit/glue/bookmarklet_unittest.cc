@@ -60,14 +60,12 @@ TEST_F(BookmarkletTest, Redirect) {
 
 TEST_F(BookmarkletTest, NonEmptyResult) {
   test_shell_->LoadURL(L"javascript:false");
-  MessageLoop::current()->Quit();
-  MessageLoop::current()->Run();
+  MessageLoop::current()->RunAllPending();
   std::wstring text = test_shell_->GetDocumentText();
   EXPECT_EQ(L"false", text);
 
   test_shell_->LoadURL(L"javascript:'hello world'");
-  MessageLoop::current()->Quit();
-  MessageLoop::current()->Run();
+  MessageLoop::current()->RunAllPending();
   text = test_shell_->GetDocumentText();
   EXPECT_EQ(L"hello world", text);
 }
@@ -77,8 +75,7 @@ TEST_F(BookmarkletTest, DocumentWrite) {
       L"javascript:document.open();"
       L"document.write('hello world');"
       L"document.close()");
-  MessageLoop::current()->Quit();
-  MessageLoop::current()->Run();
+  MessageLoop::current()->RunAllPending();
   std::wstring text = test_shell_->GetDocumentText();
   EXPECT_EQ(L"hello world", text);
 }

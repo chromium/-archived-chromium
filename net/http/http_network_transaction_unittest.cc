@@ -248,8 +248,7 @@ TEST_F(HttpNetworkTransactionTest, SimpleGET) {
   trans->Destroy();
 
   // Empty the current queue.
-  MessageLoop::current()->Quit();
-  MessageLoop::current()->Run();
+  MessageLoop::current()->RunAllPending();
 }
 
 TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
@@ -304,8 +303,7 @@ TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
     trans->Destroy();
 
     // Empty the current queue.
-    MessageLoop::current()->Quit();
-    MessageLoop::current()->Run();
+    MessageLoop::current()->RunAllPending();
   }
 }
 
@@ -355,8 +353,7 @@ TEST_F(HttpNetworkTransactionTest, Ignores100) {
   trans->Destroy();
 
   // Empty the current queue.
-  MessageLoop::current()->Quit();
-  MessageLoop::current()->Run();
+  MessageLoop::current()->RunAllPending();
 }
 
 TEST_F(HttpNetworkTransactionTest, KeepAliveConnectionReset) {
@@ -419,7 +416,6 @@ TEST_F(HttpNetworkTransactionTest, KeepAliveConnectionReset) {
     trans->Destroy();
 
     // Empty the current queue.
-    MessageLoop::current()->Quit();
-    MessageLoop::current()->Run();
+    MessageLoop::current()->RunAllPending();
   }
 }

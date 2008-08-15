@@ -296,6 +296,10 @@ void UITest::QuitBrowser() {
       ++iter) {
       ::PostMessage(*iter, WM_CLOSE, 0, 0);
     }
+    
+    // Now, drop the automation IPC channel so that the automation provider in
+    // the browser notices and drops its reference to the browser process.
+    server_->Disconnect();
 
     // Wait for the browser process to quit. It should quit once all tabs have
     // been closed.

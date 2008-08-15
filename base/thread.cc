@@ -212,7 +212,7 @@ unsigned __stdcall Thread::ThreadFunc(void* param) {
     self = info->self;
     self->message_loop_ = &message_loop;
     SetThreadName(self->thread_name().c_str(), GetCurrentThreadId());
-    message_loop.SetThreadName(self->thread_name());
+    message_loop.set_thread_name(self->thread_name());
     info->start_event.Signal();
     // info can't be touched anymore since the starting thread is now unlocked.
   }

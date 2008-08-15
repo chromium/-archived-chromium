@@ -492,7 +492,7 @@ class DismissTheWindow : public Task {
       MessageLoop::current()->timer_manager()->StopTimer(timer_);
       timer_ = NULL;
       // Unlock the other thread.
-      other_thread_->Quit();
+      other_thread_->PostTask(FROM_HERE, new MessageLoop::QuitTask());
     } else {
       // Maybe it's time to try to click it again. Restart from the begining.
       dialog_window_ = NULL;

@@ -285,7 +285,6 @@ bool RenderProcessHost::Init() {
     switches::kAllowAllActiveX,
     switches::kMemoryProfiling,
     switches::kEnableWatchdog,
-    switches::kMessageLoopStrategy,
     switches::kMessageLoopHistogrammer,
     switches::kEnableDCHECK,
     switches::kSilentDumpOnDCHECK,

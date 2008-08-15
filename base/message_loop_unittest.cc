@@ -34,6 +34,10 @@
 #include "base/ref_counted.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+#if defined(OS_WIN)
+#include "base/message_pump_win.h"
+#endif
+
 namespace {
 
 class MessageLoopTest : public testing::Test {
@@ -258,6 +262,8 @@ LONG WINAPI HandleCrasherTaskException(EXCEPTION_POINTERS *ex_info) {
 }  // namespace
 
 
+#if defined(OS_WIN)
+
 TEST(MessageLoopTest, Crasher) {
   if (::IsDebuggerPresent())
     return;
@@ -273,7 +279,6 @@ TEST(MessageLoopTest, Crasher) {
   ::SetUnhandledExceptionFilter(old_SEH_filter);
 }
 
-
 TEST(MessageLoopTest, CrasherNasty) {
   if (::IsDebuggerPresent())
     return;
@@ -288,6 +293,8 @@ TEST(MessageLoopTest, CrasherNasty) {
 
   ::SetUnhandledExceptionFilter(old_SEH_filter);
 }
+
+#endif  // defined(OS_WIN)
 
 
 TEST(MessageLoopTest, Nesting) {
@@ -477,6 +484,8 @@ class QuitTask : public OrderedTasks {
   }
 };
 
+#if defined(OS_WIN)
+
 class Recursive2Tasks : public Task {
  public:
   Recursive2Tasks(MessageLoop* target,
@@ -538,6 +547,8 @@ class Recursive2Tasks : public Task {
   bool is_reentrant_;
 };
 
+#endif  // defined(OS_WIN)
+
 }  // namespace
 
 TEST(MessageLoop, RecursiveDenial1) {
@@ -598,6 +609,10 @@ TEST(MessageLoop, RecursiveSupport1) {
   EXPECT_EQ(order[12], TaskItem(RECURSIVE, 2, true));
   EXPECT_EQ(order[13], TaskItem(RECURSIVE, 2, false));
 }
+
+#if defined(OS_WIN)
+// TODO(darin): These tests need to be ported since they test critical
+// message loop functionality.
 
 // A side effect of this test is the generation a beep. Sorry.
 TEST(MessageLoop, RecursiveDenial2) {
@@ -680,6 +695,8 @@ TEST(MessageLoop, RecursiveSupport2) {
   EXPECT_EQ(order[17], TaskItem(RECURSIVE, 3, false));
 }
 
+#endif  // defined(OS_WIN)
+
 class TaskThatPumps : public OrderedTasks {
  public:
   TaskThatPumps(TaskList* order, int cookie)
@@ -689,9 +706,8 @@ class TaskThatPumps : public OrderedTasks {
   virtual void Run() {
     RunStart();
     bool old_state = MessageLoop::current()->NestableTasksAllowed();
-    MessageLoop::current()->Quit();
     MessageLoop::current()->SetNestableTasksAllowed(true);
-    MessageLoop::current()->Run();
+    MessageLoop::current()->RunAllPending();
     MessageLoop::current()->SetNestableTasksAllowed(old_state);
     RunEnd();
   }
@@ -753,13 +769,16 @@ TEST(MessageLoop, NonNestableInNestedLoop) {
   EXPECT_EQ(order[ 9], TaskItem(QUITMESSAGELOOP, 5, false));
 }
 
+#if defined(OS_WIN)
 
 namespace {
 
 class AutoresetWatcher : public MessageLoop::Watcher {
  public:
   AutoresetWatcher(HANDLE signal, MessageLoop* message_loop)
-      : signal_(signal), message_loop_(message_loop) {}
+      : signal_(signal),
+        message_loop_(message_loop) {
+  }
   virtual void OnObjectSignaled(HANDLE object);
  private:
   HANDLE signal_;
@@ -848,3 +867,5 @@ TEST(MessageLoop, Dispatcher) {
   MessageLoop::current()->Run(&dispatcher);
   ASSERT_EQ(2, dispatcher.dispatch_count_);
 }
+
+#endif

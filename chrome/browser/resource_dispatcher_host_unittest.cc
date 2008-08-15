@@ -146,11 +146,7 @@ class ResourceDispatcherHostTest : public testing::Test,
 
 // Spin up the message loop to kick off the request.
 static void KickOffRequest() {
-  // First we post a Quit message to the loop, causing it to terminate after
-  // processing the messages it currently has queued up.
-  MessageLoop::current()->Quit();
-  // Then we spin up the loop.
-  MessageLoop::current()->Run();
+  MessageLoop::current()->RunAllPending();
 }
 
 void ResourceDispatcherHostTest::MakeTestRequest(int request_id,

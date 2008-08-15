@@ -157,7 +157,7 @@ namespace {
                       // because the destructor won't necessarily run on the
                       // same thread that CreateFetcher() did.
 
-    main_loop_->Quit();
+    main_loop_->PostTask(FROM_HERE, new MessageLoop::QuitTask());
     // If MessageLoop::current() != main_loop_, it will be shut down when the
     // main loop returns and this thread subsequently goes out of scope.
   }
@@ -209,7 +209,7 @@ namespace {
     start_time_ = Time::Now();
     fetcher_->Start();
   }
-
+  
   void URLFetcherProtectTest::OnURLFetchComplete(const URLFetcher* source,
                                                  const GURL& url,
                                                  const URLRequestStatus& status,
@@ -224,7 +224,7 @@ namespace {
       EXPECT_TRUE(status.is_success());
       EXPECT_FALSE(data.empty());
       delete fetcher_;
-      main_loop_->Quit();
+     main_loop_->Quit();
     } else {
       // Now running Overload test.
       static int count = 0;

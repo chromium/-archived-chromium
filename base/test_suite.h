@@ -63,8 +63,7 @@ class TestSuite {
     // Flush any remaining messages.  This ensures that any accumulated Task
     // objects get destroyed before we exit, which avoids noise in purify
     // leak-test results.
-    message_loop_.Quit();
-    message_loop_.Run();
+    message_loop_.RunAllPending();
 #endif
   }
 
