@@ -32,12 +32,12 @@
 
 #include <string>
 #include <vector>
-#include <windows.h>
 
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
 
 typedef struct HWND__* HWND;
+typedef void* HANDLE;
 
 class GURL;
 class WebFrame;
