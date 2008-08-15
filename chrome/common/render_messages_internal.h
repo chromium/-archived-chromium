@@ -436,6 +436,11 @@ IPC_BEGIN_MESSAGES(View, 1)
   IPC_MESSAGE_ROUTED1(ViewMsg_Repaint,
                       gfx::Size /* The view size to be repainted */)
 
+  // Posts a message to the renderer.
+  IPC_MESSAGE_ROUTED2(ViewMsg_PostMessage,
+                      std::string /* The target for the message */,
+                      std::string /* The message */)
+
 IPC_END_MESSAGES(View)
 
 

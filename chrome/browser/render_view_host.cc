@@ -1220,3 +1220,7 @@ void RenderViewHost::OnDebugDisconnect() {
   }
 }
 
+void RenderViewHost::PostMessage(const std::string& target,
+                                 const std::string& message) {
+  Send(new ViewMsg_PostMessage(routing_id_, target, message));
+}

@@ -454,6 +454,10 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // Notification about ui theme changes.
   void OnThemeChanged();
 
+  // Handles messages posted by the browser.
+  void OnPostMessage(const std::string& target,
+                     const std::string& message);
+
   // Switches the frame's CSS media type to "print" and calculate the number of
   // printed pages that are to be expected. |frame| will be used to calculate
   // the number of expected pages for this frame only.

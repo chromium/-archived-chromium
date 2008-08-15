@@ -928,3 +928,14 @@ bool TabProxy::SavePage(const std::wstring& file_name,
 
   return succeeded;
 }
+
+void TabProxy::PostMessage(AutomationHandle handle,
+                           const std::string& target,
+                           const std::string& message) {
+  if (!is_valid())
+    return;
+
+  bool succeeded =
+      sender_->Send(new AutomationMsg_PostMessage(0, handle, target, message));
+  DCHECK(succeeded);
+}

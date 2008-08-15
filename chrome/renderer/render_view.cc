@@ -358,6 +358,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_ShouldClose, OnMsgShouldClose)
     IPC_MESSAGE_HANDLER(ViewMsg_ClosePage, OnClosePage)
     IPC_MESSAGE_HANDLER(ViewMsg_ThemeChanged, OnThemeChanged)
+    IPC_MESSAGE_HANDLER(ViewMsg_PostMessage, OnPostMessage)
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidget::OnMessageReceived(message))
   IPC_END_MESSAGE_MAP()
@@ -2488,6 +2489,30 @@ void RenderView::OnThemeChanged() {
   gfx::NativeTheme::instance()->CloseHandles();
   gfx::Rect view_rect(0, 0, size_.width(), size_.height());
   DidInvalidateRect(webwidget_, view_rect);
+}
+
+void RenderView::OnPostMessage(const std::string& target,
+                               const std::string& message) {
+  if (message.empty())
+    return;
+
+  WebFrame* main_frame = webview()->GetMainFrame();
+  if (!main_frame)
+    return;
+
+  std::string script = "javascript:";
+  script += target;
+  script += "(";
+  script += "'";
+  script += message;
+  script += "'";
+  script += ");void(0);";
+
+  GURL script_url(script);
+  scoped_ptr<WebRequest> request(WebRequest::Create(script_url));
+  // TODO(iyengar)
+  // Need a mechanism to send results back.
+  main_frame->LoadRequest(request.get());
 }
 
 std::string RenderView::GetAltHTMLForTemplate(
