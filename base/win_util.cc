@@ -355,5 +355,9 @@ COMPILE_ASSERT(sizeof(&VisualStudio2005ServicePack1Detection) == sizeof(void*),
 #ifndef COPY_FILE_COPY_SYMLINK
 #error You must install the Windows 2008 or Vista Software Development Kit and \
 set it as your default include path to build this library. You can grab it by \
-searching for "download windows sdk 2008" in your favorite web search engine.
+searching for "download windows sdk 2008" in your favorite web search engine.  \
+Also make sure you register the SDK with Visual Studio, by selecting \
+"Integrate Windows SDK with Visual Studio 2005" from the Windows SDK \
+menu (see Start - All Programs - Microsoft Windows SDK - \
+Visual Studio Registration).
 #endif
