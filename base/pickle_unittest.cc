@@ -179,18 +179,18 @@ TEST(PickleTest, IteratorHasRoom) {
 }
 
 TEST(PickleTest, Resize) {
-  int unit = Pickle::kPayloadUnit;
+  size_t unit = Pickle::kPayloadUnit;
   scoped_array<char> data(new char[unit]);
   char* data_ptr = data.get();
-  for (int i = 0; i < unit; i++)
+  for (size_t i = 0; i < unit; i++)
     data_ptr[i] = 'G';
 
   // construct a message that will be exactly the size of one payload unit,
   // note that any data will have a 4-byte header indicating the size
-  const int payload_size_after_header = unit - sizeof(uint32);
+  const size_t payload_size_after_header = unit - sizeof(uint32);
   Pickle pickle;
   pickle.WriteData(data_ptr, payload_size_after_header - sizeof(uint32));
-  int cur_payload = payload_size_after_header;
+  size_t cur_payload = payload_size_after_header;
 
   EXPECT_EQ(pickle.capacity(), unit);
   EXPECT_EQ(pickle.payload_size(), payload_size_after_header);
@@ -198,7 +198,7 @@ TEST(PickleTest, Resize) {
   // fill out a full page (noting data header)
   pickle.WriteData(data_ptr, unit - sizeof(uint32));
   cur_payload += unit;
-  EXPECT_EQ(unit*2, pickle.capacity());
+  EXPECT_EQ(unit * 2, pickle.capacity());
   EXPECT_EQ(cur_payload, pickle.payload_size());
 
   // one more byte should expand the capacity by one unit
@@ -229,7 +229,7 @@ TEST(PickleTest, HeaderPadding) {
   int result;
   ASSERT_TRUE(pickle.ReadInt(&iter, &result));
 
-  EXPECT_EQ(result, kMagic);
+  EXPECT_EQ(static_cast<uint32>(result), kMagic);
 }
 
 TEST(PickleTest, EqualsOperator) {

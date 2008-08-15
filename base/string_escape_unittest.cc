@@ -33,7 +33,6 @@
 TEST(StringEscapeTest, JavascriptDoubleQuote) {
   static const char* kToEscape          = "\b\001aZ\"\\wee";
   static const char* kEscaped           = "\\b\\x01aZ\\\"\\\\wee";
-  static const char* kEscapedQuoted     = "\"\\b\\x01aZ\\\"\\\\wee\"";
   static const wchar_t* kUToEscape      = L"\b\x0001" L"a\x123fZ\"\\wee";
   static const char* kUEscaped          = "\\b\\x01a\\u123FZ\\\"\\\\wee";
   static const char* kUEscapedQuoted    = "\"\\b\\x01a\\u123FZ\\\"\\\\wee\"";

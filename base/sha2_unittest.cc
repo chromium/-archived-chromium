@@ -46,12 +46,12 @@ TEST(Sha256Test, Test1) {
 
   uint8 output1[base::SHA256_LENGTH];
   base::SHA256HashString(input1, output1, sizeof(output1));
-  for (int i = 0; i < base::SHA256_LENGTH; i++)
+  for (size_t i = 0; i < base::SHA256_LENGTH; i++)
     EXPECT_EQ(expected1[i], static_cast<int>(output1[i]));
 
   uint8 output_truncated1[4];  // 4 bytes == 32 bits
   base::SHA256HashString(input1, output_truncated1, sizeof(output_truncated1));
-  for (int i = 0; i < sizeof(output_truncated1); i++)
+  for (size_t i = 0; i < sizeof(output_truncated1); i++)
     EXPECT_EQ(expected1[i], static_cast<int>(output_truncated1[i]));
 }
 
@@ -70,12 +70,12 @@ TEST(Sha256Test, Test2) {
 
   uint8 output2[base::SHA256_LENGTH];
   base::SHA256HashString(input2, output2, sizeof(output2));
-  for (int i = 0; i < base::SHA256_LENGTH; i++)
+  for (size_t i = 0; i < base::SHA256_LENGTH; i++)
     EXPECT_EQ(expected2[i], static_cast<int>(output2[i]));
 
   uint8 output_truncated2[6];
   base::SHA256HashString(input2, output_truncated2, sizeof(output_truncated2));
-  for (int i = 0; i < sizeof(output_truncated2); i++)
+  for (size_t i = 0; i < sizeof(output_truncated2); i++)
     EXPECT_EQ(expected2[i], static_cast<int>(output_truncated2[i]));
 }
 
@@ -93,11 +93,11 @@ TEST(Sha256Test, Test3) {
 
   uint8 output3[base::SHA256_LENGTH];
   base::SHA256HashString(input3, output3, sizeof(output3));
-  for (int i = 0; i < base::SHA256_LENGTH; i++)
+  for (size_t i = 0; i < base::SHA256_LENGTH; i++)
     EXPECT_EQ(expected3[i], static_cast<int>(output3[i]));
 
   uint8 output_truncated3[12];
   base::SHA256HashString(input3, output_truncated3, sizeof(output_truncated3));
-  for (int i = 0; i < sizeof(output_truncated3); i++)
+  for (size_t i = 0; i < sizeof(output_truncated3); i++)
     EXPECT_EQ(expected3[i], static_cast<int>(output_truncated3[i]));
 }

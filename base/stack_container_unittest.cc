@@ -56,7 +56,7 @@ TEST(StackContainer, Vector) {
   const int* stack_buffer = &vect.stack_data().stack_buffer()[0];
 
   // The initial |stack_size| elements should appear in the stack buffer.
-  EXPECT_EQ(stack_size, vect.container().capacity());
+  EXPECT_EQ(static_cast<size_t>(stack_size), vect.container().capacity());
   for (int i = 0; i < stack_size; i++) {
     vect.container().push_back(i);
     EXPECT_EQ(stack_buffer, &vect.container()[0]);

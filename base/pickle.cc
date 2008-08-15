@@ -58,7 +58,7 @@ Pickle::Pickle(int header_size)
       header_size_(AlignInt(header_size, sizeof(uint32))),
       capacity_(0),
       variable_buffer_offset_(0) {
-  DCHECK(header_size >= sizeof(Header));
+  DCHECK(static_cast<size_t>(header_size) >= sizeof(Header));
   DCHECK(header_size <= kPayloadUnit);
   Resize(kPayloadUnit);
   header_->payload_size = 0;
@@ -293,7 +293,7 @@ bool Pickle::WriteData(const char* data, int length) {
 }
 
 char* Pickle::BeginWriteData(int length) {
-  DCHECK_EQ(variable_buffer_offset_, 0) <<
+  DCHECK_EQ(variable_buffer_offset_, 0U) <<
     "There can only be one variable buffer in a Pickle";
 
   if (!WriteInt(length))
@@ -346,7 +346,7 @@ const char* Pickle::FindNext(size_t header_size,
                              const char* start,
                              const char* end) {
   DCHECK(header_size == AlignInt(header_size, sizeof(uint32)));
-  DCHECK(header_size <= kPayloadUnit);
+  DCHECK(header_size <= static_cast<size_t>(kPayloadUnit));
 
   const Header* hdr = reinterpret_cast<const Header*>(start);
   const char* payload_base = start + header_size;
