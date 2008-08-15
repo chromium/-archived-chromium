@@ -44,6 +44,7 @@
 #include "chrome/browser/login_prompt.h"
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/printing/print_job.h"
+#include "chrome/browser/render_view_host.h"
 #include "chrome/browser/save_package.h"
 #include "chrome/browser/ssl_blocking_page.h"
 #include "chrome/browser/web_contents.h"
@@ -766,6 +767,8 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         GetConstrainedWindowBounds)
     IPC_MESSAGE_HANDLER(AutomationMsg_OpenFindInPageRequest,
                         HandleOpenFindInPageRequest)
+    IPC_MESSAGE_HANDLER(AutomationMsg_PostMessage,
+                        OnPostMessage)
   IPC_END_MESSAGE_MAP()
 }
 
@@ -2195,6 +2198,36 @@ void AutomationProvider::AutocompleteEditIsQueryInProgress(
   }
   Send(new AutomationMsg_AutocompleteEditIsQueryInProgressResponse(
       message.routing_id(), success, query_in_progress));
+}
+
+void AutomationProvider::OnPostMessage(int handle,
+                                       const std::string& target,
+                                       const std::string& message) {
+  if (tab_tracker_->ContainsHandle(handle)) {
+    NavigationController* tab = tab_tracker_->GetResource(handle);
+    if (!tab) {
+      NOTREACHED();
+      return;
+    }
+    TabContents* tab_contents = tab->GetTabContents(TAB_CONTENTS_WEB);
+    if (!tab_contents) {
+      NOTREACHED();
+      return;
+    }
+
+    WebContents* web_contents = tab_contents->AsWebContents();
+    if (!web_contents) {
+      NOTREACHED();
+      return;
+    }
+
+    RenderViewHost* view_host = web_contents->render_view_host();
+    if (!view_host) {
+      return;
+    }
+
+    view_host->PostMessage(target, message);
+  }
 }
 
 TestingAutomationProvider::TestingAutomationProvider(Profile* profile)

@@ -398,6 +398,10 @@ class RenderViewHost : public RenderWidgetHost {
   // and we're necessarily leaving the page.
   void UnloadListenerHasFired() { has_unload_listener_ = false; }
 
+  // Posts a message to the renderer.
+  void PostMessage(const std::string& target,
+                  const std::string& message);
+
 #ifdef CHROME_PERSONALIZATION
   HostPersonalization personalization() {
     return personalization_;
