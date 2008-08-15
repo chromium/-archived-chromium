@@ -665,6 +665,8 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
                         OnMsgDomOperationResponse)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DOMUISend,
                         OnMsgDOMUISend)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_ExternalHostMessage,
+                        OnMsgExternalHostMessage)
 #ifdef CHROME_PERSONALIZATION
     IPC_MESSAGE_HANDLER(ViewHostMsg_PersonalizationEvent,
                         OnPersonalizationEvent)
@@ -1011,6 +1013,12 @@ void RenderViewHost::OnMsgDOMUISend(
     return;
   }
   delegate_->ProcessDOMUIMessage(message, content);
+}
+
+void RenderViewHost::OnMsgExternalHostMessage(
+    const std::string& receiver,
+    const std::string& message) {
+  delegate_->ProcessExternalHostMessage(receiver, message);
 }
 
 #ifdef CHROME_PERSONALIZATION

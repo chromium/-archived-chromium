@@ -1988,6 +1988,12 @@ void WebContents::DomOperationResponse(const std::string& json_string,
       Details<DomOperationNotificationDetails>(&details));
 }
 
+void WebContents::ProcessExternalHostMessage(const std::string& receiver,
+                                             const std::string& message) {
+  if (delegate())
+    delegate()->SendExternalHostMessage(receiver, message);
+}
+
 void WebContents::GoToEntryAtOffset(int offset) {
   if (!controller())
     return;

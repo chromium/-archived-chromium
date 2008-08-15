@@ -723,11 +723,18 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
                       std::string  /* message */,
                       std::string  /* args (as a JSON string) */)
 
+  // A message for an external host.
+  // |receiver| can be a receiving script and |message| is any
+  // arbitrary string that makes sense to the receiver.
+  IPC_MESSAGE_ROUTED2(ViewHostMsg_ExternalHostMessage,
+                      std::string  /* receiver */,
+                      std::string  /* message */)
+
 #ifdef CHROME_PERSONALIZATION
   IPC_MESSAGE_ROUTED2(ViewHostMsg_PersonalizationEvent,
                       std::string, std::string )
 #endif
-  
+
   // A renderer sends this to the browser process when it wants to create a
   // plugin.  The browser will create the plugin process if necessary, and
   // will return the channel name on success.  On error an empty string is

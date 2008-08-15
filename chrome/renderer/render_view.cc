@@ -1417,6 +1417,11 @@ void RenderView::WindowObjectCleared(WebFrame* webframe) {
     dom_ui_bindings_.set_routing_id(routing_id_);
     dom_ui_bindings_.BindToJavascript(webframe, L"chrome");
   }
+
+  external_host_bindings_.set_message_sender(this);
+  external_host_bindings_.set_routing_id(routing_id_);
+  external_host_bindings_.BindToJavascript(webframe, L"externalHost");
+
 #ifdef CHROME_PERSONALIZATION
   Personalization::ConfigureRendererPersonalization(personalization_, this,
                                                     routing_id_, webframe);

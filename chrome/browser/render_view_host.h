@@ -459,6 +459,8 @@ class RenderViewHost : public RenderWidgetHost {
                                  int automation_id);
   void OnMsgDOMUISend(const std::string& message,
                       const std::string& content);
+  void OnMsgExternalHostMessage(const std::string& receiver,
+                                const std::string& message);
 #ifdef CHROME_PERSONALIZATION
   void OnPersonalizationEvent(const std::string& message,
                               const std::string& content);

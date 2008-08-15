@@ -186,6 +186,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\external_host_bindings.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\external_host_bindings.h"
+			>
+		</File>
+		<File
 			RelativePath=".\external_js_object.cc"
 			>
 		</File>

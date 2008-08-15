@@ -736,4 +736,12 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   // supplied tab handle. 
   IPC_MESSAGE_ROUTED1(AutomationMsg_OpenFindInPageRequest,
                       int /* tab_handle */)
+
+  // A message for an external host.
+  // |receiver| can be a receiving script and |message| is any
+  // arbitrary string that makes sense to the receiver.
+  IPC_MESSAGE_ROUTED2(AutomationMsg_SendExternalHostMessage,
+                      std::string /* receiver*/,
+                      std::string /* message*/)
+
 IPC_END_MESSAGES(Automation)

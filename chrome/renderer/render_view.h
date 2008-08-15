@@ -46,6 +46,7 @@
 #endif
 #include "chrome/renderer/automation/dom_automation_controller.h"
 #include "chrome/renderer/dom_ui_bindings.h"
+#include "chrome/renderer/external_host_bindings.h"
 #include "chrome/renderer/external_js_object.h"
 #include "chrome/renderer/render_process.h"
 #include "chrome/renderer/render_widget.h"
@@ -499,11 +500,11 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // Handles resource loads for this view.
   scoped_refptr<ResourceDispatcher> resource_dispatcher_;
 
-  // DOM Automation Controller CppBoundClass
+  // DOM Automation Controller CppBoundClass.
   bool enable_dom_automation_;
   DomAutomationController dom_automation_controller_;
 
-  // Chrome page<->browser messaging CppBoundClass
+  // Chrome page<->browser messaging CppBoundClass.
   bool enable_dom_ui_bindings_;
   DOMUIBindings dom_ui_bindings_;
 
@@ -513,6 +514,9 @@ class RenderView : public RenderWidget, public WebViewDelegate,
 
   // window.external object for "built-in" JS extensions
   ExternalJSObject external_js_object_;
+
+  // External host exposed through automation controller.
+  ExternalHostBindings external_host_bindings_;
 
   // The last gotten main frame's encoding.
   std::wstring last_encoding_name_;
