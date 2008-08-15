@@ -40,7 +40,6 @@
 // NotificationService::AllSources().
 class NotificationSource {
  public:
-  NotificationSource(const NotificationSource& other) : ptr_(other.ptr_) { }
   ~NotificationSource() {}
 
   // NotificationSource can be used as the index for a map; this method
@@ -57,8 +56,12 @@ class NotificationSource {
 
  protected:
   NotificationSource(void* ptr) : ptr_(ptr) {}
+  NotificationSource(const NotificationSource& other) : ptr_(other.ptr_) { }
 
   void* ptr_;
+
+ private:
+  void operator=(const NotificationSource&);
 };
 
 template <class T>

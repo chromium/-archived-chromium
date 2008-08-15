@@ -41,14 +41,14 @@ AlternateNavURLFetcher::AlternateNavURLFetcher(
     state_(NOT_STARTED),
     navigated_to_entry_(false) {
   NotificationService::current()->AddObserver(this,
-      NOTIFY_NAV_ENTRY_PENDING, NotificationService::AllSources());
+      NOTIFY_NAV_STATE_CHANGED, NotificationService::AllSources());
 }
 
 AlternateNavURLFetcher::~AlternateNavURLFetcher() {
   if (state_ == NOT_STARTED) {
     // Never caught the NavigationController notification.
     NotificationService::current()->RemoveObserver(this,
-        NOTIFY_NAV_ENTRY_PENDING, NotificationService::AllSources());
+        NOTIFY_NAV_STATE_CHANGED, NotificationService::AllSources());
   }  // Otherwise, Observe() removed the observer already.
 }
 
@@ -69,7 +69,7 @@ void AlternateNavURLFetcher::Observe(NotificationType type,
   controller_->SetAlternateNavURLFetcher(this);
 
   NotificationService::current()->RemoveObserver(this,
-      NOTIFY_NAV_ENTRY_PENDING, NotificationService::AllSources());
+      NOTIFY_NAV_STATE_CHANGED, NotificationService::AllSources());
 
   DCHECK_EQ(NOT_STARTED, state_);
   state_ = IN_PROGRESS;

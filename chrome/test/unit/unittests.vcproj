@@ -182,14 +182,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\test_notification_tracker.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\test_notification_tracker.h"
-				>
-			</File>
-			<File
 				RelativePath="..\testing_browser_process.h"
 				>
 			</File>
@@ -202,19 +194,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\net\url_request\url_request_test_job.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\net\url_request\url_request_test_job.h"
-				>
-			</File>
-			<File
 				RelativePath="..\ui\view_event_test_base.cc"
 				>
 			</File>
 			<File
 				RelativePath="..\ui\view_event_test_base.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\net\url_request\url_request_test_job.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\net\url_request\url_request_test_job.h"
 				>
 			</File>
 		</Filter>

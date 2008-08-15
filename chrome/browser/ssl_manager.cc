@@ -247,8 +247,10 @@ void SSLManager::SetMaxSecurityStyle(SecurityStyle style) {
     return;
   }
 
-  if (entry->GetSecurityStyle() > style)
+  if (entry->GetSecurityStyle() > style) {
     entry->SetSecurityStyle(style);
+    controller_->EntryUpdated(entry);
+  }
 }
 
 // Delegate API method.
@@ -651,6 +653,7 @@ void SSLManager::DidCommitProvisionalLoad(ProvisionalLoadDetails* details) {
       entry->SetSSLCertID(details->ssl_cert_id());
       entry->SetSSLCertStatus(details->ssl_cert_status());
       entry->SetSSLSecurityBits(details->ssl_security_bits());
+      controller_->EntryUpdated(entry);
     }
 
     if (details->interstitial_page()) {

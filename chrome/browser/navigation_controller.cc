@@ -349,6 +349,13 @@ const SkBitmap& NavigationController::GetLazyFavIcon() const {
   }
 }
 
+void NavigationController::EntryUpdated(NavigationEntry* entry) {
+  if (entry == GetActiveEntry()) {
+    // Someone has modified our active navigation entry.
+    NotifyNavigationStateChanged();
+  }
+}
+
 void NavigationController::SetAlternateNavURLFetcher(
     AlternateNavURLFetcher* alternate_nav_url_fetcher) {
   DCHECK(!alternate_nav_url_fetcher_.get());
@@ -416,10 +423,17 @@ void NavigationController::DiscardPendingEntry() {
     DCHECK(from_contents != active_contents_);
     ScheduleTabContentsCollection(from_contents->type());
   }
+
+  // Note: this may be redundant in some cases.  we may want to optimize away
+  // the redundant notifications.
+  NotifyNavigationStateChanged();
 }
 
 void NavigationController::InsertEntry(NavigationEntry* entry) {
   NavigationControllerBase::InsertEntry(entry);
+  NotificationService::current()->Notify(NOTIFY_NAV_INDEX_CHANGED,
+                                         Source<NavigationController>(this),
+                                         NotificationService::NoDetails());
   active_contents_->NotifyDidNavigate(NAVIGATION_NEW, 0);
 }
 
@@ -459,16 +473,19 @@ void NavigationController::NavigateToPendingEntry(bool reload) {
       from_contents->delegate()->ReplaceContents(from_contents, contents);
   }
 
-  if (!contents->Navigate(*pending_entry_, reload))
+  if (contents->Navigate(*pending_entry_, reload)) {
+    // Note: this is redundant if navigation completed synchronously because
+    // DidNavigateToEntry call this as well.
+    NotifyNavigationStateChanged();
+  } else {
     DiscardPendingEntry();
+  }
 }
 
-void NavigationController::NotifyNavigationEntryCommitted() {
+void NavigationController::NotifyNavigationStateChanged() {
   // Reset the Alternate Nav URL Fetcher if we're loading some page it doesn't
   // care about.  We must do this before calling Notify() below as that may
   // result in the creation of a new fetcher.
-  //
-  // TODO(brettw) bug 1324500: this logic should be moved out of the controller!
   const NavigationEntry* const entry = GetActiveEntry();
   if (!entry ||
       (entry->unique_id() != alternate_nav_url_fetcher_entry_unique_id_)) {
@@ -483,7 +500,7 @@ void NavigationController::NotifyNavigationEntryCommitted() {
   active_contents_->NotifyNavigationStateChanged(
       TabContents::INVALIDATE_EVERYTHING);
 
-  NotificationService::current()->Notify(NOTIFY_NAV_ENTRY_COMMITTED,
+  NotificationService::current()->Notify(NOTIFY_NAV_STATE_CHANGED,
                                          Source<NavigationController>(this),
                                          NotificationService::NoDetails());
 }
@@ -503,6 +520,12 @@ void NavigationController::IndexOfActiveEntryChanged(
     nav_type = NAVIGATION_REPLACE;
   }
   active_contents_->NotifyDidNavigate(nav_type, relative_navigation_offset);
+  if (GetCurrentEntryIndex() != -1) {
+    NotificationService::current()->Notify(
+        NOTIFY_NAV_INDEX_CHANGED,
+        Source<NavigationController>(this),
+        NotificationService::NoDetails());
+  }
 }
 
 TabContents* NavigationController::GetTabContentsCreateIfNecessary(

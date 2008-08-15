@@ -41,7 +41,6 @@
 class NotificationDetails {
  public:
   NotificationDetails() : ptr_(NULL) {}
-  NotificationDetails(const NotificationDetails& other) : ptr_(other.ptr_) {}
   ~NotificationDetails() {}
 
   // NotificationDetails can be used as the index for a map; this method
@@ -59,8 +58,12 @@ class NotificationDetails {
 
  protected:
   NotificationDetails(void* ptr) : ptr_(ptr) {}
+  NotificationDetails(const NotificationDetails& other) : ptr_(other.ptr_) {}
 
   void* ptr_;
+
+private:
+  void operator=(const NotificationDetails&);
 };
 
 template <class T>
