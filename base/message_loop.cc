@@ -406,6 +406,8 @@ void MessageLoop::DidChangeNextTimerExpiry() {
 
 bool MessageLoop::DoWork() {
   if (ProcessNextDeferredTask()) {
+    // TODO(darin): Temporarily moved into MessagePumpWin::HandleWorkMessage.
+#if 0
     // Let the MessagePump know that we may have more work to do.  It is
     // tempting to only call this function if our work queue is not empty, but
     // doing so is insufficient.  The issue is that ReloadWorkQueue does not
@@ -414,6 +416,7 @@ bool MessageLoop::DoWork() {
     // very low cost (in the case where it is redundant), so we don't worry
     // about optimizing away spurious ScheduleWork calls.
     pump_->ScheduleWork();
+#endif
     return true;
   }
   return false;

@@ -236,7 +236,8 @@ void MessagePumpWin::HandleWorkMessage() {
 
   // Now give the delegate a chance to do some work.  He'll let us know if he
   // needs to do more work.
-  state_->delegate->DoWork();
+  if (state_->delegate->DoWork())
+    ScheduleWork();
 }
 
 void MessagePumpWin::HandleTimerMessage() {
