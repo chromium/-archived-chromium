@@ -211,11 +211,11 @@
 <translation id="569109051430110155">Автом. визначення</translation>
 <translation id="5818003990515275822">Корейська</translation>
 <translation id="4890284164788142455">Тайська</translation>
-<translation id="7434509671034404296">Розробник</translation>
+<translation id="7434509671034404296">Для розробників</translation>
 <translation id="2440604414813129000">Див. д&amp;жерело</translation>
 <translation id="3842377959466606212">&amp;Інформація про сторінку</translation>
-<translation id="5872213955895293073">Позбавити JavaScript неполадок</translation>
-<translation id="5904714272463161824">&amp;Звітувати про помилку або недіючий веб-сайт...</translation>
+<translation id="5872213955895293073">Відлагодити JavaScript</translation>
+<translation id="5904714272463161824">&amp;Повідомити про помилку або недіючий сайт</translation>
 <translation id="1587275751631642843">Консоль &amp;JavaScript</translation>
 <translation id="4035758313003622889">&amp;Диспетчер завдань</translation>
 <translation id="6996505290426962909">&amp;Імпорт закладок &amp;і налаштувань...</translation>
@@ -354,7 +354,7 @@
 <translation id="8275038454117074363">Імпорт</translation>
 <translation id="2359808026110333948">Продовжити</translation>
 <translation id="4684748086689879921">Пропустити імпорт</translation>
-<translation id="6783679543387074885">Звітувати про помилку або недіючий веб-сайт</translation>
+<translation id="6783679543387074885">Повідомити про помилку або недіючий сайт</translation>
 <translation id="3737554291183722650">Заголовок сторінки:</translation>
 <translation id="2679629658858164554">URL-адреса сторінки:</translation>
 <translation id="5765780083710877561">Опис:</translation>

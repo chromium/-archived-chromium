@@ -432,7 +432,7 @@
 <translation id="1628736721748648976">인코딩</translation>
 <translation id="5706242308519462060">기본 인코딩:</translation>
 <translation id="4181841719683918333">언어</translation>
-<translation id="8929159553808058020">웹사이트 표시에 사용할 언어를 추가하고 사용 순위에 따라 나열합니다. 일부 문자의 경우 다른 언어 웹페이지를 모방하는 데 사용될 수 있으므로 필요한 언어만 추가하세요.</translation>
+<translation id="8929159553808058020">방문하는 웹 사이트를 볼 때 선호하는 언어를 선호도 순으로 지정 하십시오. 잘 모르는 언어에 쓰이는 글자는 웹 주소를 속이는데 쓰이기도 하므로, 꼭 필요하고 읽을 수 있는 언어만 더하십시오.</translation>
 <translation id="2303544859777878640">언어:</translation>
 <translation id="8609465669617005112">위로 이동</translation>
 <translation id="6746124502594467657">아래로 이동</translation>
@@ -614,7 +614,7 @@
 <translation id="4307992518367153382">기본설정</translation>
 <translation id="1709220265083931213">고급설정</translation>
 <translation id="1674989413181946727">컴퓨터 전체 SSL 설정:</translation>
-<translation id="582763753075639530">해당 변경사항이 적용되도록 모든 크롬 창을 닫고 크롬을 다시 시작합니다.</translation>
+<translation id="582763753075639530">변경 사항을 적용하려면 모든 크롬 창을 닫고, 크롬을 다시 시작하십시오.</translation>
 <translation id="9015241028623917394">현재 페이지 관리</translation>
 <translation id="8502249598105294518"><ph name="PRODUCT_NAME"/> 사용자설정 및 관리</translation>
 <translation id="4475552974751346499">다운로드 검색</translation>
