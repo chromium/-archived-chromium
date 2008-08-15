@@ -51,9 +51,6 @@ enum {
   DIR_EXE,      // directory containing FILE_EXE
   DIR_MODULE,   // directory containing FILE_MODULE
   DIR_TEMP,     // temporary directory
-  DIR_SOURCE_ROOT,  // Returns the root of the source tree.  This key is useful
-                    // for tests that need to locate various resources.  It
-                    // should not be used outside of test code.
   PATH_END
 };
 

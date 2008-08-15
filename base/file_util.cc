@@ -30,7 +30,6 @@
 #include "base/file_util.h"
 
 #include <fstream>
-#include <string>
 
 #include "base/logging.h"
 #include "base/string_util.h"
@@ -40,12 +39,43 @@ namespace file_util {
 
 const wchar_t kExtensionSeparator = L'.';
 
+void PathComponents(const std::wstring& path,
+                    std::vector<std::wstring>* components) {
+  DCHECK(components != NULL);
+  if (components == NULL)
+    return;
+  std::wstring::size_type start = 0;
+  std::wstring::size_type end = path.find(kPathSeparator, start);
+
+  // Special case the "/" or "\" directory.  On Windows with a drive letter,
+  // this code path won't hit, but the right thing should still happen.  
+  // "E:\foo" will turn into "E:","foo".
+  if (end == start) {
+    components->push_back(std::wstring(path, 0, 1));
+    start = end + 1;
+    end = path.find(kPathSeparator, start);
+  }
+  while (end != std::wstring::npos) {
+    std::wstring component = std::wstring(path, start, end - start);
+    components->push_back(component);
+    start = end + 1;
+    end = path.find(kPathSeparator, start);
+  }
+  std::wstring component = std::wstring(path, start);
+  components->push_back(component);
+}
+  
 bool EndsWithSeparator(std::wstring* path) {
-  return (!path->empty() && (*path)[path->length() - 1] == kPathSeparator);
+  return EndsWithSeparator(*path);
+}
+  
+bool EndsWithSeparator(const std::wstring& path) {
+  bool is_sep = ((path)[path.length() - 1] == kPathSeparator);
+  return is_sep;
 }
 
 void TrimTrailingSeparator(std::wstring* dir) {
-  while (EndsWithSeparator(dir))
+  while (dir->length() > 1 && EndsWithSeparator(dir))
     dir->resize(dir->length() - 1);
 }
 
@@ -77,9 +107,8 @@ void TrimFilename(std::wstring* path) {
   }
 }
 
-// TODO(mpcomplete): Make this platform-independent, etc.
 std::wstring GetFilenameFromPath(const std::wstring& path) {
-  std::wstring::size_type pos = path.find_last_of(L"\\/");
+  std::wstring::size_type pos = path.find_last_of(kPathSeparator);
   return std::wstring(path, pos == std::wstring::npos ? 0 : pos+1);
 }
 
@@ -180,6 +209,7 @@ void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char) {
     if (illegal_characters.contains(wstr[i])) {
       (*file_name)[i] = replace_char;
     }
+    ++i;
   }
 #else
 #error wchar_t* should be either UTF-16 or UTF-32

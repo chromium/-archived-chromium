@@ -124,6 +124,13 @@ bool PathProviderWin(int key, std::wstring* result) {
         return false;
       cur = system_buffer;
       break;
+    case base::DIR_SOURCE_ROOT:
+      // On Windows, unit tests execute two levels deep from the source root.
+      // For example:  chrome/{Debug|Release}/ui_tests.exe
+      PathProvider(base::DIR_EXE, &cur);
+      file_util::UpOneDirectory(&cur);
+      file_util::UpOneDirectory(&cur);
+      break;
     default:
       return false;
   }

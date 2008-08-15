@@ -56,6 +56,9 @@ enum {
   DIR_LOCAL_APP_DATA_LOW,  // Local AppData directory for low integrity level.
   DIR_LOCAL_APP_DATA,  // "Local Settings\Application Data" directory under the
                        // user profile.
+  DIR_SOURCE_ROOT,  // Returns the root of the source tree.  This key is useful
+                    // for tests that need to locate various resources.  It
+                    // should not be used outside of test code.
   PATH_WIN_END
 };
 

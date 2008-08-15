@@ -31,7 +31,9 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include "base/file_util.h"
 #include "base/logging.h"
+#include "base/path_service.h"
 #include "base/string_util.h"
 
 namespace base {
@@ -61,6 +63,14 @@ bool PathProviderMac(int key, std::wstring* result) {
           [path cStringUsingEncoding:NSUTF32StringEncoding]);
       break;
     }
+    case base::DIR_SOURCE_ROOT:
+      // On the mac, unit tests execute three levels deep from the source root.
+      // For example:  chrome/build/{Debug|Release}/ui_tests
+      PathService::Get(base::DIR_EXE, &cur);
+      file_util::UpOneDirectory(&cur);
+      file_util::UpOneDirectory(&cur);
+      file_util::UpOneDirectory(&cur);
+      break;
     default:
       return false;
   }

@@ -37,10 +37,13 @@
 
 #if defined(OS_WIN)
 #include <windows.h>
+#elif defined(OS_POSIX)
+#include <fts.h>
 #endif
 
 #include <stack>
 #include <string>
+#include <vector>
 
 #include "base/basictypes.h"
 
@@ -55,9 +58,15 @@ extern const wchar_t kPathSeparator;
 //-----------------------------------------------------------------------------
 // Functions that operate purely on a path string w/o touching the filesystem:
 
+// Returns a vector of all of the components of the provided path.
+void PathComponents(const std::wstring& path,
+                    std::vector<std::wstring>* components);
+  
 // Returns true if the given path ends with a path separator character.
+// TODO(erikkay): remove this pointer version
 bool EndsWithSeparator(std::wstring* path);
-
+bool EndsWithSeparator(const std::wstring& path);
+  
 // Modifies a string by trimming all trailing separators from the end.
 void TrimTrailingSeparator(std::wstring* dir);
 
@@ -188,6 +197,7 @@ bool ContentsEqual(const std::wstring& filename1,
 // Useful for unit tests.
 bool ReadFileToString(const std::wstring& path, std::string* contents);
 
+#if defined(OS_WINDOWS)
 // Resolve Windows shortcut (.LNK file)
 // Argument path specifies a valid LNK file. On success, return true and put
 // the URL into path. If path is a invalid .LNK file, return false.
@@ -218,13 +228,16 @@ bool UpdateShortcutLink(const wchar_t *source, const wchar_t *destination,
                         const wchar_t *working_dir, const wchar_t *arguments,
                         const wchar_t *description, const wchar_t *icon,
                         int icon_index);
+#endif
 
+  
 // Get the temporary directory provided by the system.
 bool GetTempDir(std::wstring* path);
 
-// Creates a temporary file name, but does it not create the file. It accesses
-// the disk to do this, however. The full path is placed in 'temp_file', and the
-// function returns true if was successful in creating the file name.
+// Creates a temporary file. The full path is placed in 'temp_file', and the
+// function returns true if was successful in creating the file. The file will
+// be empty and all handles closed after this function returns.
+// TODO(erikkay): rename this function and track down all of the callers.
 bool CreateTemporaryFileName(std::wstring* temp_file);
 
 // Create a new directory under TempPath. If prefix is provided, the new
@@ -275,9 +288,18 @@ class FileEnumerator {
   // files in one directory will be returned before any files in a
   // subdirectory.
   //
-  // The last parameter is an optional pattern for which files to match. This
-  // works like a Windows file pattern. For example, "*.txt" or "Foo???.doc".
+  // |file_type| specifies whether the enumerator should match files,
+  // directories, or both.
+  //
+  // |pattern| is an optional pattern for which files to match. This
+  // works like shell globbing. For example, "*.txt" or "Foo???.doc".
+  // However, be careful in specifying patterns that aren't cross platform
+  // since the underlying code uses OS-specific matching routines.  In general,
+  // Windows matching is less featureful than others, so test there first.
   // If unspecified, this will match all files.
+  // NOTE: the pattern only matches the contents of root_path, not files in
+  // recursive subdirectories.
+  // TODO(erikkay): Fix the pattern matching to work at all levels.
   FileEnumerator(const std::wstring& root_path,
                  bool recursive,
                  FileEnumerator::FILE_TYPE file_type);
@@ -307,7 +329,9 @@ class FileEnumerator {
 #if defined(OS_WIN)
   WIN32_FIND_DATA find_data_;
   HANDLE find_handle_;
-#endif  // defined(OS_WIN)
+#elif defined(OS_POSIX)
+  FTS* fts_;
+#endif
 
   DISALLOW_EVIL_CONSTRUCTORS(FileEnumerator);
 };
