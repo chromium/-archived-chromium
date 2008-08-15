@@ -27,56 +27,26 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "base/file_util.h"
+#ifndef BASE_BASE_PATHS_LINUX_H_
+#define BASE_BASE_PATHS_LINUX_H_
 
-#include <string>
+// This file declares Linux-specific path keys for the base module.
+// These can be used with the PathService to access various special
+// directories and files.
 
-#include "base/logging.h"
-#include "base/notimplemented.h"
-#include "base/string_util.h"
+namespace base {
 
-namespace file_util {
+enum {
+  PATH_LINUX_START = 200,
 
-const wchar_t kPathSeparator = L'/';
+  FILE_EXE,     // Path and filename of the current executable.
+  FILE_MODULE,  // Path and filename of the module containing the code for the
+                // PathService (which could differ from FILE_EXE if the
+                // PathService were compiled into a shared object, for example).
 
-bool AbsolutePath(std::wstring* path) {
-  NOTIMPLEMENTED();
-  return false;
-}
-  
-bool GetTempDir(std::wstring* path) {
-  const char* tmp = getenv("TMPDIR");
-  if (tmp)
-    *path = UTF8ToWide(tmp);
-  else
-    *path = L"/tmp";
-  return true;
-}
+  PATH_LINUX_END
+};
 
-bool CopyFile(const std::wstring& from_path, const std::wstring& to_path) {
-  // TODO(erikkay): implement
-  NOTIMPLEMENTED();
-  return false;
-}
+}  // namespace base
 
-bool PathExists(const std::wstring& path) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-bool GetCurrentDirectory(std::wstring* path) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-bool CreateDirectory(const std::wstring& full_path) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-bool SetCurrentDirectory(const std::wstring& current_directory) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-} // namespace file_util
+#endif  // BASE_BASE_PATHS_LINUX_H_

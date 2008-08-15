@@ -46,8 +46,10 @@ namespace base {
   bool PathProvider(int key, std::wstring* result);
 #if defined(OS_WIN)
   bool PathProviderWin(int key, std::wstring* result);
-#elif defined (OS_MACOSX)
+#elif defined(OS_MACOSX)
   bool PathProviderMac(int key, std::wstring* result);
+#elif defined(OS_LINUX)
+  bool PathProviderLinux(int key, std::wstring* result);
 #endif
 }
 
@@ -97,8 +99,19 @@ static Provider base_provider_win = {
 #endif
   };
 #endif
-  
-  
+
+#if defined(OS_LINUX)
+static Provider base_provider_linux = {
+  base::PathProviderLinux,
+  &base_provider,
+#ifndef NDEBUG
+  base::PATH_LINUX_START,
+  base::PATH_LINUX_END
+#endif
+  };
+#endif
+
+
 struct PathData {
   Lock      lock;
   PathMap   cache;      // Track mappings from path key to path value.
@@ -111,7 +124,7 @@ struct PathData {
 #elif defined(OS_MACOSX)
     providers = &base_provider_mac;
 #elif defined(OS_LINUX)
-    providers = &base_provider;
+    providers = &base_provider_linux;
 #endif
   }
 };

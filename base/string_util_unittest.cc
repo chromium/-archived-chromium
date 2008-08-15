@@ -607,11 +607,11 @@ TEST(StringUtilTest, FormatBytes) {
 
 TEST(StringUtilTest, ReplaceSubstringsAfterOffset) {
   static const struct {
-    wchar_t* str;
+    const wchar_t* str;
     std::wstring::size_type start_offset;
-    wchar_t* find_this;
-    wchar_t* replace_with;
-    wchar_t* expected;
+    const wchar_t* find_this;
+    const wchar_t* replace_with;
+    const wchar_t* expected;
   } cases[] = {
     {L"aaa", 0, L"a", L"b", L"bbb"},
     {L"abb", 0, L"ab", L"a", L"ab"},
@@ -1053,7 +1053,7 @@ TEST(StringUtilTest, Grow) {
     src[i] = 'A';
   src[1025] = 0;
 
-  char* fmt = "%sB%sB%sB%sB%sB%sB%s";
+  const char* fmt = "%sB%sB%sB%sB%sB%sB%s";
 
   std::string out;
   SStringPrintf(&out, fmt, src, src, src, src, src, src, src);
@@ -1087,6 +1087,8 @@ TEST(StringUtilTest, GrowBoundary) {
   EXPECT_STREQ(src, out.c_str());
 }
 
+// TODO(evanm): what's the proper cross-platform test here?
+#if defined(OS_WIN)
 // sprintf in Visual Studio fails when given U+FFFF. This tests that the
 // failure case is gracefuly handled.
 TEST(StringUtilTest, Invalid) {
@@ -1098,6 +1100,7 @@ TEST(StringUtilTest, Invalid) {
   SStringPrintf(&out, L"%ls", invalid);
   EXPECT_STREQ(L"", out.c_str());
 }
+#endif
 
 // Test for SplitString
 TEST(StringUtilTest, SplitString) {

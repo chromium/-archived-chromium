@@ -37,6 +37,8 @@
 
 namespace file_util {
 
+const wchar_t kPathSeparator = L'/';
+
 bool GetTempDir(std::wstring* path) {
   NSString* tmp = NSTemporaryDirectory();
   if (tmp == nil)

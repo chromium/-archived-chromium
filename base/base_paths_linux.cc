@@ -27,56 +27,31 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "base/file_util.h"
+#include "base/base_paths_linux.h"
 
-#include <string>
+#include <unistd.h>
 
 #include "base/logging.h"
-#include "base/notimplemented.h"
-#include "base/string_util.h"
+#include "base/sys_string_conversions.h"
 
-namespace file_util {
+namespace base {
 
-const wchar_t kPathSeparator = L'/';
-
-bool AbsolutePath(std::wstring* path) {
-  NOTIMPLEMENTED();
-  return false;
-}
-  
-bool GetTempDir(std::wstring* path) {
-  const char* tmp = getenv("TMPDIR");
-  if (tmp)
-    *path = UTF8ToWide(tmp);
-  else
-    *path = L"/tmp";
-  return true;
-}
-
-bool CopyFile(const std::wstring& from_path, const std::wstring& to_path) {
-  // TODO(erikkay): implement
-  NOTIMPLEMENTED();
+bool PathProviderLinux(int key, std::wstring* result) {
+  switch (key) {
+    case base::FILE_EXE:
+    case base::FILE_MODULE: { // TODO(evanm): is this correct?
+      char bin_dir[PATH_MAX + 1];
+      int bin_dir_size = readlink("/proc/self/exe", bin_dir, PATH_MAX);
+      if (bin_dir_size < 0 || bin_dir_size > PATH_MAX) {
+        NOTREACHED() << "Unable to resolve /proc/self/exe.";
+        return false;
+      }
+      bin_dir[bin_dir_size] = 0;
+      *result = base::SysNativeMBToWide(bin_dir);
+      return true;
+    }
+  }
   return false;
 }
 
-bool PathExists(const std::wstring& path) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-bool GetCurrentDirectory(std::wstring* path) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-bool CreateDirectory(const std::wstring& full_path) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-bool SetCurrentDirectory(const std::wstring& current_directory) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-} // namespace file_util
+}  // namespace base

@@ -74,7 +74,11 @@ const char* const log_severity_names[LOG_NUM_SEVERITIES] = {
 
 int min_log_level = 0;
 LogLockingState lock_log_file = LOCK_LOG_FILE;
+#if defined(OS_WIN)
 LoggingDestination logging_destination = LOG_ONLY_TO_FILE;
+#elif defined(OS_POSIX)
+LoggingDestination logging_destination = LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG;
+#endif
 
 const int kMaxFilteredLogLevel = LOG_WARNING;
 std::string* log_filter_prefix;

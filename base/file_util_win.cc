@@ -42,6 +42,8 @@
 
 namespace file_util {
 
+const wchar_t kPathSeparator = L'\\';
+
 std::wstring GetDirectoryFromPath(const std::wstring& path) {
   wchar_t path_buffer[MAX_PATH];
   wchar_t* file_ptr = NULL;

@@ -29,7 +29,7 @@
 
 #include "build/build_config.h"
 
-#ifdef OS_WIN
+#if defined(OS_WIN)
 #include <windows.h>
 #endif
 
@@ -40,12 +40,14 @@
 #include "base/logging.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/sys_string_conversions.h"
+#include "unicode/putil.h"
 #include "unicode/udata.h"
 
 namespace icu_util {
 
 bool Initialize() {
-#ifdef OS_WIN
+#if defined(OS_WIN)
   // Assert that we are not called more than once.  Even though calling this
   // function isn't harmful (ICU can handle it), being called twice probably
   // indicates a programming error.
@@ -71,11 +73,19 @@ bool Initialize() {
   UErrorCode err = U_ZERO_ERROR;
   udata_setCommonData(reinterpret_cast<void*>(addr), &err);
   return err == U_ZERO_ERROR;
-#else
-  // Windows ships ICU's data separate, so it needs to link the code to data
-  // here. Other platforms don't need this.
+#elif defined(OS_MACOSX)
+  // Mac bundles the ICU data in.
   return true;
-#endif  // OS_WIN
+#elif defined(OS_LINUX)
+  // For now, expect the data file to be alongside the executable.
+  // This is sufficient while we work on unit tests, but will eventually
+  // likely live in a data directory.
+  std::wstring data_path;
+  bool path_ok = PathService::Get(base::DIR_EXE, &data_path);
+  DCHECK(path_ok);
+  u_setDataDirectory(base::SysWideToNativeMB(data_path).c_str());
+  return true;
+#endif
 }
 
 }  // namespace icu_util

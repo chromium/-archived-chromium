@@ -38,6 +38,8 @@
 #include "base/base_paths_win.h"
 #elif defined(OS_MACOSX)
 #include "base/base_paths_mac.h"
+#elif defined(OS_LINUX)
+#include "base/base_paths_linux.h"
 #endif
 
 namespace base {

@@ -38,7 +38,6 @@
 
 namespace file_util {
 
-const wchar_t kPathSeparator = L'\\';
 const wchar_t kExtensionSeparator = L'.';
 
 bool EndsWithSeparator(std::wstring* path) {

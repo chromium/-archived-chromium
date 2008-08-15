@@ -55,6 +55,7 @@ if env['PLATFORM'] == 'win32':
 # cross-platform live below.
 input_files = [
     'at_exit.cc',
+    'base_paths.cc',
     'base_switches.cc',
     'bzip2_error_handler.cc',
     'command_line.cc',
@@ -93,7 +94,6 @@ if env['PLATFORM'] == 'win32':
   # TODO: move all these files to either the cross-platform block above or
   # a platform-specific block below.
   input_files.extend([
-    'base_paths.cc',
     'clipboard_util.cc',
     'debug_on_start.cc',
     'event_recorder.cc',
@@ -160,6 +160,7 @@ if env['PLATFORM'] == 'darwin':
 if env['PLATFORM'] == 'posix':
   input_files.extend([
       'atomicops_internals_x86_gcc.cc',
+      'base_paths_linux.cc',
       'file_util_linux.cc',
       'sys_string_conversions_linux.cc',
   ])
@@ -246,6 +247,7 @@ test_files = [
     'string_escape_unittest.cc',
     'string_piece_unittest.cc',
     'string_tokenizer_unittest.cc',
+    'string_util_unittest.cc',
     'time_unittest.cc',
     'values_unittest.cc',
     'waitable_event_unittest.cc',
@@ -274,7 +276,6 @@ if env['PLATFORM'] == 'win32':
     'shared_event_unittest.cc',
     'shared_memory_unittest.cc',
     'stats_table_unittest.cc',
-    'string_util_unittest.cc',
     'thread_local_storage_unittest.cc',
     'thread_unittest.cc',
     'timer_unittest.cc',
@@ -310,7 +311,11 @@ SConscript(sconscript_dirs, exports=['env'])
 
 
 # Setup alias for all base related targets.
-env.Alias('base', ['.', installed_base_unittests, '../icudt38.dll'])
+if env['PLATFORM'] == 'win32':
+  icudata = '../icudt38.dll'
+else:
+  icudata = '../icudt38l.dat'
+env.Alias('base', ['.', installed_base_unittests, icudata])
 
 
 # These aren't ported to other platforms yet.
