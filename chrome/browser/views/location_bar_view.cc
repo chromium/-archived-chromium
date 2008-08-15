@@ -52,6 +52,7 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/background.h"
 #include "chrome/views/border.h"
+#include "chrome/views/root_view.h"
 #include "chrome/views/view_container.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_canon.h"
@@ -603,7 +604,7 @@ void LocationBarView::OnMouseEvent(const ChromeViews::MouseEvent& event,
   if (event.IsRightMouseButton())
     flags |= MK_RBUTTON;
 
-  CPoint screen_point(event.GetLocation());
+  CPoint screen_point(event.GetX(), event.GetY());
   ConvertPointToScreen(this, &screen_point);
 
   location_entry_->HandleExternalMsg(msg, flags, screen_point);

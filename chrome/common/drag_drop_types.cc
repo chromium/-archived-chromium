@@ -32,7 +32,7 @@
 #include <oleidl.h>
 
 int DragDropTypes::DropEffectToDragOperation(
-    DWORD effect) {
+    uint32 effect) {
   int drag_operation = DRAG_NONE;
   if (effect & DROPEFFECT_LINK)
     drag_operation |= DRAG_LINK;
@@ -43,8 +43,8 @@ int DragDropTypes::DropEffectToDragOperation(
   return drag_operation;
 }
 
-DWORD DragDropTypes::DragOperationToDropEffect(int drag_operation) {
-  DWORD drop_effect = DROPEFFECT_NONE;
+uint32 DragDropTypes::DragOperationToDropEffect(int drag_operation) {
+  uint32 drop_effect = DROPEFFECT_NONE;
   if (drag_operation & DRAG_LINK)
     drop_effect |= DROPEFFECT_LINK;
   if (drag_operation & DRAG_COPY)

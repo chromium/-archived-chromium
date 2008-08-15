@@ -31,6 +31,7 @@
 
 #include <math.h>
 
+#include "base/logging.h"
 #include "chrome/browser/wizard/wizard_step.h"
 #include "chrome/browser/standard_layout.h"
 

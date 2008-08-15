@@ -39,6 +39,7 @@
 #include "chrome/browser/views/bookmark_bubble_view.h"
 #include "chrome/browser/views/event_utils.h"
 #include "chrome/browser/views/star_toggle.h"
+#include "chrome/common/drag_drop_types.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/favicon_size.h"
 #include "chrome/common/resource_bundle.h"

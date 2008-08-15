@@ -29,6 +29,8 @@
 
 #include "webkit/glue/plugins/plugin_data_stream.h"
 
+#include "base/logging.h"
+
 namespace NPAPI {
 
 PluginDataStream::PluginDataStream(PluginInstance *instance, 

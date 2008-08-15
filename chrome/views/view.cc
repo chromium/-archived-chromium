@@ -30,14 +30,19 @@
 #include "chrome/views/view.h"
 
 #include <algorithm>
-#include <sstream>
+
+#ifndef NDEBUG
 #include <iostream>
+#endif
 
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
+#include "chrome/common/drag_drop_types.h"
 #include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/os_exchange_data.h"
+#include "chrome/views/accessibility/accessible_wrapper.h"
 #include "chrome/views/background.h"
 #include "chrome/views/border.h"
 #include "chrome/views/layout_manager.h"
@@ -286,6 +291,11 @@ void View::SetLayoutManager(LayoutManager* layout_manager) {
   if (layout_manager_.get()) {
     layout_manager_->Installed(this);
   }
+}
+
+bool View::UILayoutIsRightToLeft() const {
+  return (ui_mirroring_is_enabled_for_rtl_languages_ &&
+          l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -540,7 +550,7 @@ void View::SetContextMenuController(ContextMenuController* menu_controller) {
 bool View::ProcessMousePressed(const MouseEvent& e, DragInfo* drag_info) {
   const bool enabled = enabled_;
   int drag_operations;
-  if (enabled && e.IsOnlyLeftMouseButton() && HitTest(e.GetLocation()))
+  if (enabled && e.IsOnlyLeftMouseButton() && HitTest(WTL::CPoint(e.GetX(), e.GetY())))
     drag_operations = GetDragOperations(e.GetX(), e.GetY());
   else
     drag_operations = 0;

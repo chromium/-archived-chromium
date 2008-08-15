@@ -27,11 +27,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef NET_BASE_EV_ROOT_CA_METADATA_H__
-#define NET_BASE_EV_ROOT_CA_METADATA_H__
+#ifndef NET_BASE_EV_ROOT_CA_METADATA_H_
+#define NET_BASE_EV_ROOT_CA_METADATA_H_
 
 #include <map>
 
+#include "base/scoped_ptr.h"
 #include "net/base/x509_certificate.h"
 
 template <typename T>
@@ -71,9 +72,9 @@ class EVRootCAMetadata {
   scoped_array<const char*> policy_oids_;
   int num_policy_oids_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(EVRootCAMetadata);
+  DISALLOW_COPY_AND_ASSIGN(EVRootCAMetadata);
 };
 
 }  // namespace net
 
-#endif  // NET_BASE_EV_ROOT_CA_METADATA_H__
+#endif  // NET_BASE_EV_ROOT_CA_METADATA_H_

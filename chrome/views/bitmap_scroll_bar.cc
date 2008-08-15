@@ -34,6 +34,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/scroll_view.h"
+#include "chrome/views/view_container.h"
 #include "skia/include/SkBitmap.h"
 
 #include "generated_resources.h"

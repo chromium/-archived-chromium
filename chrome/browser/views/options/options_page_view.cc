@@ -28,9 +28,11 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "chrome/browser/views/options/options_page_view.h"
+
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/views/view_container.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // OptionsPageView

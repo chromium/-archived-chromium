@@ -31,7 +31,7 @@
 
 #include "base/gfx/platform_canvas_win.h"
 #include "base/gfx/rect.h"
-#include "base/gfx/size.h"
+#include "base/logging.h"
 #include "base/win_util.h"
 #include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webwidget.h"

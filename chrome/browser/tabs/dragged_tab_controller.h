@@ -27,11 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_TABS_DRAGGED_TAB_CONTROLLER_H__
-#define CHROME_BROWSER_TABS_DRAGGED_TAB_CONTROLLER_H__
+#ifndef CHROME_BROWSER_TABS_DRAGGED_TAB_CONTROLLER_H_
+#define CHROME_BROWSER_TABS_DRAGGED_TAB_CONTROLLER_H_
 
-#include "base/gfx/point.h"
 #include "base/gfx/rect.h"
+#include "base/message_loop.h"
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/browser/tabs/tab_renderer.h"
 #include "chrome/common/notification_service.h"
@@ -303,7 +303,7 @@ class DraggedTabController : public TabContentsDelegate,
   // time of the last re-order event.
   int last_move_screen_x_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(DraggedTabController);
+  DISALLOW_COPY_AND_ASSIGN(DraggedTabController);
 };
 
-#endif  // CHROME_BROWSER_TABS_DRAGGED_TAB_CONTROLLER_H__
+#endif  // CHROME_BROWSER_TABS_DRAGGED_TAB_CONTROLLER_H_

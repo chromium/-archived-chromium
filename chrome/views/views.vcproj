@@ -286,6 +286,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\dialog_delegate.cc"
+			>
+		</File>
+		<File
 			RelativePath=".\dialog_delegate.h"
 			>
 		</File>
@@ -615,6 +619,10 @@
 		</File>
 		<File
 			RelativePath=".\window.h"
+			>
+		</File>
+		<File
+			RelativePath=".\window_delegate.cc"
 			>
 		</File>
 		<File

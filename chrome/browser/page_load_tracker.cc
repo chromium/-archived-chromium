@@ -29,9 +29,6 @@
 
 #include "chrome/browser/page_load_tracker.h"
 
-#include <stdlib.h>
-#include <string>
-
 #include "base/string_util.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"

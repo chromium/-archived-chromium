@@ -32,6 +32,7 @@
 #include "base/logging.h"
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/views/root_view.h"
+#include "chrome/views/view_container.h"
 
 namespace ChromeViews {
 

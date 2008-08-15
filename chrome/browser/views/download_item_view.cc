@@ -27,23 +27,20 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <vector>
-
 #include "chrome/browser/views/download_item_view.h"
 
-#include "base/message_loop.h"
-#include "base/task.h"
-#include "base/timer.h"
+#include <vector>
+
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download_util.h"
 #include "chrome/browser/views/download_shelf_view.h"
 #include "chrome/common/gfx/chrome_canvas.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/view_container.h"
+
 #include "generated_resources.h"
 
 // TODO(paulg): These may need to be adjusted when download progress
@@ -466,7 +463,7 @@ bool DownloadItemView::OnMousePressed(const ChromeViews::MouseEvent& event) {
     complete_animation_->End();
 
   if (event.IsOnlyLeftMouseButton()) {
-    CPoint point(event.GetLocation());
+    WTL::CPoint point(event.GetX(), event.GetY());
     if (event.GetX() < drop_down_x_) {
       SetState(PUSHED, NORMAL);
       return true;
@@ -530,7 +527,6 @@ void DownloadItemView::OnMouseReleased(const ChromeViews::MouseEvent& event,
     starting_drag_ = false;
     return;
   }
-  CPoint point(event.GetLocation());
   if (event.IsOnlyLeftMouseButton() && event.GetX() < drop_down_x_)
     OpenDownload();
 

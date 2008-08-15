@@ -31,6 +31,7 @@
 
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/tabs/tab_strip.h"
+#include "chrome/common/drag_drop_types.h"
 #include "chrome/common/os_exchange_data.h"
 
 FrameView::FrameView(BrowserWindow* window)

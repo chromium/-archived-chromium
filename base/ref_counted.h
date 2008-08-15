@@ -27,14 +27,57 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_REF_COUNTED_H__
-#define BASE_REF_COUNTED_H__
+#ifndef BASE_REF_COUNTED_H_
+#define BASE_REF_COUNTED_H_
 
 #include "base/atomic_ref_count.h"
 #include "base/basictypes.h"
-#include "base/logging.h"
 
 namespace base {
+
+namespace subtle {
+
+class RefCountedBase {
+ protected:
+  RefCountedBase();
+  ~RefCountedBase();
+
+  void AddRef();
+
+  // Returns true if the object should self-delete.
+  bool Release();
+
+ private:
+  int ref_count_;
+#ifndef NDEBUG
+  bool in_dtor_;
+#endif
+
+  DISALLOW_COPY_AND_ASSIGN(RefCountedBase);
+};
+
+class RefCountedThreadSafeBase {
+ protected:
+  RefCountedThreadSafeBase();
+  ~RefCountedThreadSafeBase();
+
+  void AddRef();
+
+  // Returns true if the object should self-delete.
+  bool Release();
+
+ private:
+  AtomicRefCount ref_count_;
+#ifndef NDEBUG
+  bool in_dtor_;
+#endif
+
+  DISALLOW_COPY_AND_ASSIGN(RefCountedThreadSafeBase);
+};
+
+
+
+}  // namespace subtle
 
 //
 // A base class for reference counted classes.  Otherwise, known as a cheap
@@ -46,46 +89,23 @@ namespace base {
 //   };
 //
 template <class T>
-class RefCounted {
+class RefCounted : public subtle::RefCountedBase {
  public:
-  RefCounted() : ref_count_(0) {
-#ifndef NDEBUG
-    in_dtor_ = false;
-#endif
-  }
-
-  ~RefCounted() {
-#ifndef NDEBUG
-    DCHECK(in_dtor_) << "RefCounted object deleted without calling Release()";
-#endif
-  }
+  RefCounted() { }
+  ~RefCounted() { }
 
   void AddRef() {
-#ifndef NDEBUG
-    DCHECK(!in_dtor_);
-#endif
-    ++ref_count_;
+    subtle::RefCountedBase::AddRef();
   }
 
   void Release() {
-#ifndef NDEBUG
-    DCHECK(!in_dtor_);
-#endif
-    if (--ref_count_ == 0) {
-#ifndef NDEBUG
-      in_dtor_ = true;
-#endif
+    if (subtle::RefCountedBase::Release()) {
       delete static_cast<T*>(this);
     }
   }
 
  private:
-  int ref_count_;
-#ifndef NDEBUG
-  bool in_dtor_;
-#endif
-
-  DISALLOW_EVIL_CONSTRUCTORS(RefCounted<T>);
+  DISALLOW_COPY_AND_ASSIGN(RefCounted<T>);
 };
 
 //
@@ -96,48 +116,22 @@ class RefCounted {
 //   };
 //
 template <class T>
-class RefCountedThreadSafe {
+class RefCountedThreadSafe : public subtle::RefCountedThreadSafeBase {
  public:
-  RefCountedThreadSafe() : ref_count_(0) {
-#ifndef NDEBUG
-    in_dtor_ = false;
-#endif
-  }
-
-  ~RefCountedThreadSafe() {
-#ifndef NDEBUG
-    DCHECK(in_dtor_) << "RefCountedThreadSafe object deleted without " <<
-                        "calling Release()";
-#endif
-  }
+  RefCountedThreadSafe() { }
+  ~RefCountedThreadSafe() { }
 
   void AddRef() {
-#ifndef NDEBUG
-    DCHECK(!in_dtor_);
-#endif
-    AtomicRefCountInc(&ref_count_);
+    subtle::RefCountedThreadSafeBase::AddRef();
   }
 
   void Release() {
-#ifndef NDEBUG
-    DCHECK(!in_dtor_);
-    DCHECK(!AtomicRefCountIsZero(&ref_count_));
-#endif
-    if (!AtomicRefCountDec(&ref_count_)) {
-#ifndef NDEBUG
-      in_dtor_ = true;
-#endif
+    if (subtle::RefCountedThreadSafeBase::Release()) {
       delete static_cast<T*>(this);
     }
   }
 
- private:
-  AtomicRefCount ref_count_;
-#ifndef NDEBUG
-  bool in_dtor_;
-#endif
-
-  DISALLOW_EVIL_CONSTRUCTORS(RefCountedThreadSafe<T>);
+  DISALLOW_COPY_AND_ASSIGN(RefCountedThreadSafe<T>);
 };
 
 } // namespace base
@@ -243,4 +237,4 @@ class scoped_refptr {
   T* ptr_;
 };
 
-#endif  // BASE_REF_COUNTED_H__
+#endif  // BASE_REF_COUNTED_H_

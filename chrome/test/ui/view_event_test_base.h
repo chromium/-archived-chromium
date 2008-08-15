@@ -36,6 +36,10 @@
 
 class Task;
 
+namespace gfx {
+class Size;
+}
+
 // Base class for Views based tests that dispatch events.
 //
 // As views based event test involves waiting for events to be processed,
@@ -114,7 +118,7 @@ class ViewEventTestBase : public ChromeViews::WindowDelegate,
   // Returns an empty Size. Subclasses that want a preferred size other than
   // that of the View returned by CreateContentsView should override this
   // appropriately.
-  virtual gfx::Size GetPreferredSize() { return gfx::Size(); }
+  virtual gfx::Size GetPreferredSize();
 
   // Creates a task that calls the specified method back. The specified
   // method is called in such a way that if there are any test failures

@@ -27,16 +27,17 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_NAVIGATION_CONTROLLER_BASE_H__
-#define CHROME_BROWSER_NAVIGATION_CONTROLLER_BASE_H__
+#ifndef CHROME_BROWSER_NAVIGATION_CONTROLLER_BASE_H_
+#define CHROME_BROWSER_NAVIGATION_CONTROLLER_BASE_H_
 
 #include <vector>
 
-#include "chrome/browser/site_instance.h"
 #include "chrome/browser/tab_contents_type.h"
 #include "chrome/common/page_transition_types.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 
 class NavigationEntry;
+class SiteInstance;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -232,7 +233,7 @@ class NavigationControllerBase {
   // The maximum number of entries that a navigation controller can store.
   size_t max_entry_count_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(NavigationControllerBase);
+  DISALLOW_COPY_AND_ASSIGN(NavigationControllerBase);
 };
 
-#endif  // CHROME_BROWSER_NAVIGATION_CONTROLLER_BASE_H__
+#endif  // CHROME_BROWSER_NAVIGATION_CONTROLLER_BASE_H_

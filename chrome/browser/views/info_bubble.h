@@ -27,11 +27,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_VIEWS_INFO_BUBBLE_H__
-#define CHROME_BROWSER_VIEWS_INFO_BUBBLE_H__
+#ifndef CHROME_BROWSER_VIEWS_INFO_BUBBLE_H_
+#define CHROME_BROWSER_VIEWS_INFO_BUBBLE_H_
 
 #include "chrome/common/slide_animation.h"
 #include "chrome/views/hwnd_view_container.h"
+#include "chrome/views/view.h"
 
 // InfoBubble is used to display an arbitrary view above all other windows.
 // Think of InfoBubble as a tooltip that allows you to embed an arbitrary view
@@ -167,7 +168,7 @@ class InfoBubble : public ChromeViews::HWNDViewContainer,
     // The bubble we're in.
     InfoBubble* host_;
 
-    DISALLOW_EVIL_CONSTRUCTORS(ContentView);
+    DISALLOW_COPY_AND_ASSIGN(ContentView);
   };
 
   // Creates and return a new ContentView containing content.
@@ -186,7 +187,7 @@ class InfoBubble : public ChromeViews::HWNDViewContainer,
   // The fade-in animation.
   scoped_ptr<SlideAnimation> fade_animation_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(InfoBubble);
+  DISALLOW_COPY_AND_ASSIGN(InfoBubble);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_INFO_BUBBLE_H__
+#endif  // CHROME_BROWSER_VIEWS_INFO_BUBBLE_H_

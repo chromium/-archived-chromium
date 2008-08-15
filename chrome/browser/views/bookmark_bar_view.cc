@@ -27,9 +27,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <limits>
-
 #include "chrome/browser/views/bookmark_bar_view.h"
+
+#include <limits>
 
 #include "base/base_drag_source.h"
 #include "base/gfx/skia_utils.h"
@@ -46,6 +46,7 @@
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/page_navigator.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/tab_contents.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/bookmark_editor_view.h"
@@ -66,6 +67,8 @@
 #include "chrome/views/chrome_menu.h"
 #include "chrome/views/menu_button.h"
 #include "chrome/views/tooltip_manager.h"
+#include "chrome/views/view_container.h"
+#include "chrome/views/window.h"
 #include "generated_resources.h"
 
 using ChromeViews::BaseButton;

@@ -29,6 +29,7 @@
 
 #include "chrome/browser/printing/page_overlays.h"
 
+#include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/browser/printing/printed_document.h"
 #include "chrome/browser/printing/printed_page.h"

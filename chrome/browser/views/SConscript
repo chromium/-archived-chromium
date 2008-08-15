@@ -85,6 +85,7 @@ input_files = [
     'constrained_window_animation.cc',
     'constrained_window_impl.cc',
     'delay_view.cc',
+    'dom_view.cc',
     'download_item_view.cc',
     'download_shelf_view.cc',
     'download_started_animation.cc',

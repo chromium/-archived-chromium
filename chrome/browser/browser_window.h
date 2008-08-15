@@ -169,12 +169,7 @@ class BrowserWindow {
   // The implementation for this sends WM_NCACTIVATE with a value of FALSE for
   // the window. Subclasses that need to customize should be sure and invoke
   // this implementation too.
-  virtual void InfoBubbleClosing() {
-    // TODO(beng): (Cleanup) - move out of here!
-    HWND hwnd = static_cast<HWND>(GetPlatformID());
-    // The frame is really inactive, send notification now.
-    DefWindowProc(hwnd, WM_NCACTIVATE, FALSE, 0);
-  }
+  virtual void InfoBubbleClosing();
 
   // Returns the star button.
   virtual ToolbarStarToggle* GetStarButton() const = 0;

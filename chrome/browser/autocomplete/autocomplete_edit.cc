@@ -34,9 +34,11 @@
 #include "base/base_drag_source.h"
 #include "base/clipboard_util.h"
 #include "base/gfx/skia_utils.h"
+#include "base/iat_patch.h"
 #include "base/ref_counted.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
+#include "chrome/browser/autocomplete/autocomplete_popup.h"
 #include "chrome/browser/autocomplete/edit_drop_target.h"
 #include "chrome/browser/autocomplete/keyword_provider.h"
 #include "chrome/browser/browser_process.h"
@@ -502,6 +504,14 @@ void AutocompleteEdit::OpenURL(const std::wstring& url,
 
 void AutocompleteEdit::ClosePopup() {
   popup_->StopAutocomplete();
+}
+
+bool AutocompleteEdit::query_in_progress() const {
+  return popup_->query_in_progress();
+}
+
+const AutocompleteResult* AutocompleteEdit::latest_result() const {
+  return popup_->latest_result();
 }
 
 IAccessible* AutocompleteEdit::GetIAccessible() {

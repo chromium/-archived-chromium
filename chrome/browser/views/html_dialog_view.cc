@@ -27,9 +27,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "chrome/browser/browser.h"
 #include "chrome/browser/views/html_dialog_view.h"
 
+#include "chrome/browser/browser.h"
+#include "chrome/views/root_view.h"
 #include "chrome/views/window.h"
 
 ////////////////////////////////////////////////////////////////////////////////

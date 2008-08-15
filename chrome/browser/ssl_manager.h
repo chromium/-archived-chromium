@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_SSL_MANAGER_H__
-#define CHROME_BROWSER_SSL_MANAGER_H__
+#ifndef CHROME_BROWSER_SSL_MANAGER_H_
+#define CHROME_BROWSER_SSL_MANAGER_H_
 
 #include <string>
 #include <map>
@@ -54,6 +54,7 @@ class NavigationController;
 class NavigationEntry;
 class LoadFromMemoryCacheDetails;
 class LoadNotificationDetails;
+class PrefService;
 class ResourceRedirectDetails;
 class ResourceRequestDetails;
 class SSLErrorInfo;
@@ -479,7 +480,7 @@ class SSLManager : public NotificationObserver {
   // currently loading had loaded.
   std::vector<SSLMessageInfo> pending_messages_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(SSLManager);
+  DISALLOW_COPY_AND_ASSIGN(SSLManager);
 };
 
-#endif // CHROME_BROWSER_SSL_MANAGER_H__
+#endif // CHROME_BROWSER_SSL_MANAGER_H_

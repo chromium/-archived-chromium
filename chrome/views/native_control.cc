@@ -35,6 +35,7 @@
 #include <atlframe.h>
 
 #include "base/win_util.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/views/border.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/view_container.h"

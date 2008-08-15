@@ -30,6 +30,7 @@
 #include "chrome/browser/automation/automation_provider.h"
 
 #include "base/path_service.h"
+#include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/automation/ui_controls.h"
 #include "chrome/browser/automation/url_request_failed_dns_job.h"
@@ -45,6 +46,7 @@
 #include "chrome/browser/printing/print_job.h"
 #include "chrome/browser/save_package.h"
 #include "chrome/browser/ssl_blocking_page.h"
+#include "chrome/browser/web_contents.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/test/automation/automation_messages.h"

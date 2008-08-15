@@ -29,6 +29,8 @@
 
 #include "net/base/upload_data_stream.h"
 
+#include "base/logging.h"
+
 namespace net {
 
 UploadDataStream::UploadDataStream(const UploadData* data)

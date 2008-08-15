@@ -30,8 +30,6 @@
 #ifndef CHROME_VIEWS_BUTTON_H_
 #define CHROME_VIEWS_BUTTON_H_
 
-#include <windows.h>
-
 #include "chrome/views/base_button.h"
 #include "skia/include/SkBitmap.h"
 

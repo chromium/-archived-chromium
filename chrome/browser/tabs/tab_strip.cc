@@ -40,6 +40,7 @@
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/vista_frame.h"
 #include "chrome/browser/web_contents.h"
+#include "chrome/common/drag_drop_types.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/os_exchange_data.h"

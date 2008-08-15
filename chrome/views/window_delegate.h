@@ -27,22 +27,27 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_VIEWS_WINDOW_DELEGATE_H__
-#define CHROME_VIEWS_WINDOW_DELEGATE_H__
+#ifndef CHROME_VIEWS_WINDOW_DELEGATE_H_
+#define CHROME_VIEWS_WINDOW_DELEGATE_H_
 
-#include <atlbase.h>
-#include <atlapp.h>
-#include <atlmisc.h>
 #include <string>
 
-#include "chrome/views/client_view.h"
-#include "chrome/views/window.h"
-#include "skia/include/SkBitmap.h"
+#include "base/scoped_ptr.h"
+
+class SkBitmap;
+
+// TODO(maruel):  Remove once gfx::Rect is used instead.
+namespace WTL {
+class CRect;
+}
+using WTL::CRect;
 
 namespace ChromeViews {
 
+class ClientView;
 class DialogDelegate;
 class View;
+class Window;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -55,9 +60,8 @@ class View;
 ///////////////////////////////////////////////////////////////////////////////
 class WindowDelegate {
  public:
-  virtual ~WindowDelegate() {
-    window_.release();
-  }
+  WindowDelegate();
+  virtual ~WindowDelegate();
 
   virtual DialogDelegate* AsDialogDelegate() { return NULL; }
 
@@ -106,9 +110,7 @@ class WindowDelegate {
   }
 
   // Returns the icon to be displayed in the window.
-  virtual SkBitmap GetWindowIcon() {
-    return SkBitmap();
-  }
+  virtual SkBitmap GetWindowIcon();
 
   // Returns true if a window icon should be shown.
   virtual bool ShouldShowWindowIcon() const {
@@ -142,9 +144,7 @@ class WindowDelegate {
 
   // Called by the Window to create the Client View used to host the contents
   // of the window.
-  virtual ClientView* CreateClientView(Window* window) {
-    return new ClientView(window, GetContentsView());
-  }
+  virtual ClientView* CreateClientView(Window* window);
 
   // An accessor to the Window this delegate is bound to.
   Window* window() const { return window_.get(); }
@@ -161,4 +161,4 @@ class WindowDelegate {
 
 }  // namespace ChromeViews
 
-#endif  // #ifndef CHROME_VIEWS_WINDOW_DELEGATE_H__
+#endif  // CHROME_VIEWS_WINDOW_DELEGATE_H_

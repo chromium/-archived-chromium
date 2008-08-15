@@ -27,15 +27,16 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_FIND_IN_PAGE_CONTROLLER_H__
-#define CHROME_BROWSER_FIND_IN_PAGE_CONTROLLER_H__
+#ifndef CHROME_BROWSER_FIND_IN_PAGE_CONTROLLER_H_
+#define CHROME_BROWSER_FIND_IN_PAGE_CONTROLLER_H_
 
-#include "base/gfx/size.h"
+#include "base/gfx/rect.h"
 #include "chrome/browser/render_view_host_delegate.h"
-#include "chrome/common/slide_animation.h"
+#include "chrome/common/animation.h"
 #include "chrome/views/hwnd_view_container.h"
 
 class FindInPageView;
+class SlideAnimation;
 class TabContents;
 
 namespace ChromeViews {
@@ -253,7 +254,7 @@ class FindInPageController : public RenderViewHostDelegate::FindInPage,
   // closed.
   scoped_ptr<ChromeViews::ExternalFocusTracker> focus_tracker_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(FindInPageController);
+  DISALLOW_COPY_AND_ASSIGN(FindInPageController);
 };
 
-#endif  // CHROME_BROWSER_FIND_IN_PAGE_CONTROLLER_H__
+#endif  // CHROME_BROWSER_FIND_IN_PAGE_CONTROLLER_H_

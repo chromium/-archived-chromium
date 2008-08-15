@@ -30,12 +30,6 @@
 #ifndef CHROME_VIEWS_EVENT_H__
 #define CHROME_VIEWS_EVENT_H__
 
-// TODO(maruel):  Remove these as soon as LocatedEvent::GetLocation() is
-// removed.
-#include <atlbase.h>
-#include <atlapp.h>
-#include <atlmisc.h>
-
 #include "base/basictypes.h"
 #include "base/gfx/point.h"
 #include "webkit/glue/window_open_disposition.h"
@@ -115,18 +109,14 @@ class Event {
   int GetWindowsFlags() const;
 
   // Convert windows flags to ChromeViews::Event flags
-  static int ConvertWindowsFlags(UINT win_flags);
+  static int ConvertWindowsFlags(uint32 win_flags);
 
   // Convert WebInputEvent::Modifiers flags to ChromeViews::Event flags.
   // Note that this only deals with keyboard modifiers.
   static int ConvertWebInputEventFlags(int web_input_event_flags);
 
  protected:
-  Event(EventType type, int flags)
-      : type_(type),
-        time_stamp_(GetTickCount()),
-        flags_(flags) {
-  }
+  Event(EventType type, int flags);
 
   Event(const Event& model)
       : type_(model.GetType()),
@@ -175,11 +165,6 @@ class LocatedEvent : public Event {
   // Returns the location.
   const gfx::Point& location() const {
     return location_;
-  }
-
-  // WARNING: DEPRECATED. Returns the location in WTL::CPoint format.
-  WTL::CPoint GetLocation() const {
-    return WTL::CPoint(location_.x(), location_.y());
   }
 
  private:
@@ -271,9 +256,7 @@ class KeyEvent : public Event {
     return character_;
   }
 
-  bool IsExtendedKey() const {
-    return (message_flags_ & KF_EXTENDED) == KF_EXTENDED;
-  }
+  bool IsExtendedKey() const;
 
   int GetRepeatCount() const {
     return repeat_count_;

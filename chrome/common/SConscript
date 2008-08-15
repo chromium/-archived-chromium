@@ -110,6 +110,7 @@ input_files = [
     'notification_service.cc',
     'os_exchange_data.cc',
     'plugin_messages.cc',
+    'pref_member.cc',
     'pref_names.cc',
     'pref_service.cc',
     'process_watcher.cc',

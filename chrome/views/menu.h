@@ -27,18 +27,17 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_VIEWS_MENU_H__
-#define CHROME_VIEWS_MENU_H__
+#ifndef CHROME_VIEWS_MENU_H_
+#define CHROME_VIEWS_MENU_H_
 
-#include <atlbase.h>
-#include <atlapp.h>
-#include <atlmisc.h>
+#include <windows.h>
+
 #include <vector>
 
-#include "base/message_loop.h"
-#include "chrome/common/l10n_util.h"
+#include "base/basictypes.h"
 #include "chrome/views/controller.h"
-#include "skia/include/SkBitmap.h"
+
+class SkBitmap;
 
 namespace {
 class MenuHostWindow;
@@ -70,6 +69,8 @@ class Menu {
   /////////////////////////////////////////////////////////////////////////////
   class Delegate : public Controller {
    public:
+    virtual ~Delegate() { }
+
     // Whether or not an item should be shown as checked.
     virtual bool IsItemChecked(int id) const {
       return false;
@@ -139,9 +140,7 @@ class Menu {
     // is a right-to-left menu only if the view's layout is right-to-left
     // (since the view can use a different layout than the locale's language
     // layout).
-    virtual bool IsRightToLeftUILayout() const {
-      return l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT;
-    }
+    virtual bool IsRightToLeftUILayout() const;
 
     // Controller
     virtual bool SupportsCommand(int id) const {
@@ -159,11 +158,7 @@ class Menu {
    protected:
     // Returns an empty icon. Will initialize kEmptyIcon if it hasn't been
     // initialized.
-    const SkBitmap& GetEmptyIcon() const {
-      if (kEmptyIcon == NULL)
-        kEmptyIcon = new SkBitmap();
-      return *kEmptyIcon;
-    }
+    const SkBitmap& GetEmptyIcon() const;
 
    private:
     // Will be initialized to an icon of 0 width and 0 height when first using.
@@ -200,7 +195,7 @@ class Menu {
     // actions to.
     Controller* controller_;
 
-    DISALLOW_EVIL_CONSTRUCTORS(BaseControllerDelegate);
+    DISALLOW_COPY_AND_ASSIGN(BaseControllerDelegate);
   };
 
   // How this popup should align itself relative to the point it is run at.
@@ -215,13 +210,6 @@ class Menu {
     CHECKBOX,
     RADIO,
     SEPARATOR
-  };
-
-  // The data of menu items needed to display.
-  struct ItemData {
-    std::wstring label;
-    SkBitmap icon;
-    bool submenu;
   };
 
   // Construct a Menu using the specified controller to determine command
@@ -324,6 +312,9 @@ class Menu {
   Delegate* delegate_;
 
  private:
+  // The data of menu items needed to display.
+  struct ItemData;
+
   explicit Menu(Menu* parent);
 
   void AddMenuItemInternal(int index,
@@ -378,7 +369,7 @@ class Menu {
   // Whether the menu is visible.
   bool is_menu_visible_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(Menu);
+  DISALLOW_COPY_AND_ASSIGN(Menu);
 };
 
-#endif  // CHROME_VIEWS_MENU_H__
+#endif  // CHROME_VIEWS_MENU_H_

@@ -30,11 +30,7 @@
 #include "chrome/browser/tabs/tab.h"
 
 #include "base/gfx/size.h"
-#include "chrome/browser/tab_contents.h"
-#include "chrome/browser/tabs/tab_strip.h"
-#include "chrome/browser/profile.h"
-#include "chrome/browser/user_metrics.h"
-#include "chrome/common/l10n_util.h"
+#include "chrome/views/view_container.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/chrome_menu.h"
 #include "chrome/views/tooltip_manager.h"

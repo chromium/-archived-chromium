@@ -35,9 +35,11 @@
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/icon_util.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/views/focus_manager.h"
+#include "chrome/views/view_container.h"
 
 namespace ChromeViews {
 

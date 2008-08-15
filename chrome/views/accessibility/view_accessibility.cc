@@ -32,6 +32,7 @@
 #include "base/logging.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/location_bar_view.h"
+#include "chrome/views/accessibility/accessible_wrapper.h"
 
 HRESULT ViewAccessibility::Initialize(ChromeViews::View* view) {
   if (!view) {

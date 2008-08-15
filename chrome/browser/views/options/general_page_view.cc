@@ -51,6 +51,7 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/checkbox.h"
 #include "chrome/views/grid_layout.h"

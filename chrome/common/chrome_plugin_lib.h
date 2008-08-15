@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_COMMON_CHROME_PLUGIN_LIB_H__
-#define CHROME_COMMON_CHROME_PLUGIN_LIB_H__
+#ifndef CHROME_COMMON_CHROME_PLUGIN_LIB_H_
+#define CHROME_COMMON_CHROME_PLUGIN_LIB_H_
 
 #include <hash_map>
 #include <string>
@@ -68,11 +68,7 @@ class ChromePluginLib : public base::RefCounted<ChromePluginLib>  {
   const bool is_loaded() const { return initialized_; }
 
   // Get the Plugin's function pointer table.
-  const CPPluginFuncs& functions() const {
-    DCHECK(initialized_);
-    DCHECK(IsPluginThread());
-    return plugin_funcs_;
-  }
+  const CPPluginFuncs& functions() const;
 
   CPID cpid() { return reinterpret_cast<CPID>(this); }
 
@@ -121,7 +117,7 @@ class ChromePluginLib : public base::RefCounted<ChromePluginLib>  {
   typedef int (STDCALL *CP_TestFunc)(void*);
   CP_TestFunc             CP_Test_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ChromePluginLib);
+  DISALLOW_COPY_AND_ASSIGN(ChromePluginLib);
 };
 
-#endif  // CHROME_COMMON_CHROME_PLUGIN_LIB_H__
+#endif  // CHROME_COMMON_CHROME_PLUGIN_LIB_H_

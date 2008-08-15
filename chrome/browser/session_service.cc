@@ -27,10 +27,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <limits>
-#include <Windows.h>
-
 #include "chrome/browser/session_service.h"
+
+#include <limits>
 
 #include "base/file_util.h"
 #include "base/message_loop.h"
@@ -43,6 +42,7 @@
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/session_backend.h"
+#include "chrome/browser/tab_contents.h"
 #include "chrome/common/notification_details.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_types.h"

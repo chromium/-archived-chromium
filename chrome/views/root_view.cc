@@ -27,21 +27,17 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <algorithm>
-
 #include "chrome/views/root_view.h"
+
+#include <algorithm>
 
 #include "base/base_drag_source.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
-#include "chrome/common/notification_service.h"
-#include "chrome/common/os_exchange_data.h"
-#include "chrome/views/event.h"
-#include "chrome/views/focus_manager.h"
+#include "chrome/common/drag_drop_types.h"
+#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/views/root_view_drop_target.h"
 #include "chrome/views/view_container.h"
-
-#include "chrome/common/gfx/chrome_canvas.h"
 
 namespace ChromeViews {
 
@@ -307,7 +303,7 @@ bool RootView::OnMousePressed(const MouseEvent& e) {
 
   bool hit_disabled_view = false;
   // Walk up the tree until we find a view that wants the mouse event.
-  for (mouse_pressed_handler_ = GetViewForPoint(e.GetLocation());
+  for (mouse_pressed_handler_ = GetViewForPoint(WTL::CPoint(e.GetX(), e.GetY()));
        mouse_pressed_handler_ && (mouse_pressed_handler_ != this);
        mouse_pressed_handler_ = mouse_pressed_handler_->GetParent()) {
     if (!mouse_pressed_handler_->IsEnabled()) {
@@ -384,7 +380,7 @@ bool RootView::OnMouseDragged(const MouseEvent& e) {
     SetMouseLocationAndFlags(e);
 
     CPoint p;
-    ConvertPointToMouseHandler(e.GetLocation(), &p);
+    ConvertPointToMouseHandler(WTL::CPoint(e.GetX(), e.GetY()), &p);
     MouseEvent mouse_event(e.GetType(), p.x, p.y, e.GetFlags());
     if (!mouse_pressed_handler_->ProcessMouseDragged(mouse_event,
                                                      &drag_info)) {
@@ -402,7 +398,7 @@ void RootView::OnMouseReleased(const MouseEvent& e, bool canceled) {
 
   if (mouse_pressed_handler_) {
     CPoint p;
-    ConvertPointToMouseHandler(e.GetLocation(), &p);
+    ConvertPointToMouseHandler(WTL::CPoint(e.GetX(), e.GetY()), &p);
     MouseEvent mouse_released(e.GetType(), p.x, p.y, e.GetFlags());
     // We allow the view to delete us from ProcessMouseReleased. As such,
     // configure state such that we're done first, then call View.
@@ -415,10 +411,10 @@ void RootView::OnMouseReleased(const MouseEvent& e, bool canceled) {
 }
 
 void RootView::UpdateCursor(const MouseEvent& e) {
-  View *v = GetViewForPoint(e.GetLocation());
+  View *v = GetViewForPoint(WTL::CPoint(e.GetX(), e.GetY()));
 
   if (v && v != this) {
-    CPoint l(e.GetLocation());
+    CPoint l(e.GetX(), e.GetY());
     View::ConvertPointToView(this, v, &l);
     HCURSOR cursor = v->GetCursorForPoint(e.GetType(), l.x, l.y);
     if (cursor) {
@@ -432,7 +428,7 @@ void RootView::UpdateCursor(const MouseEvent& e) {
 }
 
 void RootView::OnMouseMoved(const MouseEvent& e) {
-  View *v = GetViewForPoint(e.GetLocation());
+  View *v = GetViewForPoint(WTL::CPoint(e.GetX(), e.GetY()));
   // Find the first enabled view.
   while (v && !v->IsEnabled())
     v = v->GetParent();

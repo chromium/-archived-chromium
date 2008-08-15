@@ -27,9 +27,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <stdio.h>
-
 #include "chrome/browser/network_status_view.h"
+
+#include <stdio.h>
 
 #include "base/string_util.h"
 #include "base/thread.h"
@@ -40,6 +40,7 @@
 #include "chrome/browser/page_load_tracker.h"
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/views/hwnd_view_container.h"
+#include "chrome/views/root_view.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
 

@@ -35,7 +35,9 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/tab_contents.h"
 #include "chrome/common/notification_service.h"
 
 namespace {

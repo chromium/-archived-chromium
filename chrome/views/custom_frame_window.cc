@@ -42,6 +42,7 @@
 #include "chrome/views/client_view.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/non_client_view.h"
+#include "chrome/views/root_view.h"
 #include "chrome/views/window_delegate.h"
 #include "generated_resources.h"
 

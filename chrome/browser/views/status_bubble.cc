@@ -41,6 +41,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/hwnd_view_container.h"
 #include "chrome/views/label.h"
+#include "chrome/views/root_view.h"
 #include "chrome/views/view_container.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"

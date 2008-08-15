@@ -27,20 +27,18 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_TAB_CONTENTS_DELEGATE_H__
-#define CHROME_BROWSER_TAB_CONTENTS_DELEGATE_H__
+#ifndef CHROME_BROWSER_TAB_CONTENTS_DELEGATE_H_
+#define CHROME_BROWSER_TAB_CONTENTS_DELEGATE_H_
 
+// TODO(maruel):  Remove once UINT and HWND are replaced / typedef.
 #include <windows.h>
-#include <string>
 
 #include "chrome/browser/page_navigator.h"
-#include "chrome/common/page_transition_types.h"
 #include "chrome/common/navigation_types.h"
-#include "webkit/glue/window_open_disposition.h"
 
 namespace gfx {
-  class Point;
-  class Rect;
+class Point;
+class Rect;
 }
 
 class TabContents;
@@ -192,4 +190,4 @@ class TabContentsDelegate : public PageNavigator {
   }
 };
 
-#endif  // CHROME_BROWSER_TAB_CONTENTS_DELEGATE_H__
+#endif  // CHROME_BROWSER_TAB_CONTENTS_DELEGATE_H_

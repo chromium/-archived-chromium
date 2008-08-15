@@ -27,10 +27,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_COMMON_DRAG_DROP_TYPES_H__
-#define CHROME_COMMON_DRAG_DROP_TYPES_H__
+#ifndef CHROME_COMMON_DRAG_DROP_TYPES_H_
+#define CHROME_COMMON_DRAG_DROP_TYPES_H_
 
-#include <windows.h>
+#include "base/basictypes.h"
 
 class DragDropTypes {
  public:
@@ -41,8 +41,8 @@ class DragDropTypes {
     DRAG_LINK = 1 << 2
   };
 
-  static DWORD DragOperationToDropEffect(int drag_operation);
-  static int DropEffectToDragOperation(DWORD effect);
+  static uint32 DragOperationToDropEffect(int drag_operation);
+  static int DropEffectToDragOperation(uint32 effect);
 };
 
-#endif
+#endif  // CHROME_COMMON_DRAG_DROP_TYPES_H_

@@ -554,6 +554,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\pref_member.cc"
+			>
+		</File>
+		<File
 			RelativePath=".\pref_member.h"
 			>
 		</File>

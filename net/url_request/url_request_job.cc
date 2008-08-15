@@ -80,6 +80,33 @@ void URLRequestJob::SetupFilter() {
   }
 }
 
+void URLRequestJob::GetAuthChallengeInfo(
+    scoped_refptr<net::AuthChallengeInfo>* auth_info) {
+  // This will only be called if NeedsAuth() returns true, in which
+  // case the derived class should implement this!
+  NOTREACHED();
+}
+
+void URLRequestJob::SetAuth(const std::wstring& username,
+                            const std::wstring& password) {
+  // This will only be called if NeedsAuth() returns true, in which
+  // case the derived class should implement this!
+  NOTREACHED();
+}
+
+void URLRequestJob::CancelAuth() {
+  // This will only be called if NeedsAuth() returns true, in which
+  // case the derived class should implement this!
+  NOTREACHED();
+}
+
+void URLRequestJob::ContinueDespiteLastError() {
+  // Implementations should know how to recover from errors they generate.
+  // If this code was reached, we are trying to recover from an error that
+  // we don't know how to recover from.
+  NOTREACHED();
+}
+
 // This function calls ReadData to get stream data. If a filter exists, passes
 // the data to the attached filter. Then returns the output from filter back to
 // the caller.

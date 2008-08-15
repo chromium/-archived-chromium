@@ -32,15 +32,18 @@
 #include <vssym32.h>
 
 #include "base/gfx/native_theme.h"
+#include "base/gfx/skia_utils.h"
 #include "base/logging.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
+#include "chrome/common/throb_animation.h"
 #include "chrome/views/background.h"
 #include "chrome/views/hwnd_view_container.h"
+#include "chrome/views/root_view.h"
 #include "skia/include/SkColor.h"
-#include "base/gfx/skia_utils.h"
 
 namespace ChromeViews {
 

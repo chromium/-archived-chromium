@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_EXTERNAL_TAB_CONTAINER_H__
-#define CHROME_BROWSER_EXTERNAL_TAB_CONTAINER_H__
+#ifndef CHROME_BROWSER_EXTERNAL_TAB_CONTAINER_H_
+#define CHROME_BROWSER_EXTERNAL_TAB_CONTAINER_H_
 
 #include <atlbase.h>
 #include <atlapp.h>
@@ -41,6 +41,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/root_view.h"
+#include "chrome/views/view_container.h"
 
 class AutomationProvider;
 class TabContents;
@@ -161,6 +162,7 @@ class ExternalTabContainer : public TabContentsDelegate,
   // A view to handle focus cycling
   TabContentsContainerView* tab_contents_container_;
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(ExternalTabContainer);
+  DISALLOW_COPY_AND_ASSIGN(ExternalTabContainer);
 };
+
 #endif  // CHROME_BROWSER_EXTERNAL_TAB_CONTAINER_H__

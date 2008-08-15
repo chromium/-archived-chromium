@@ -27,9 +27,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_CONSTRAINED_WINDOW_IMPL_H__
-#define CHROME_BROWSER_CONSTRAINED_WINDOW_IMPL_H__
+#ifndef CHROME_BROWSER_CONSTRAINED_WINDOW_IMPL_H_
+#define CHROME_BROWSER_CONSTRAINED_WINDOW_IMPL_H_
 
+#include "base/gfx/rect.h"
 #include "chrome/browser/constrained_window.h"
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/views/custom_frame_window.h"
@@ -221,7 +222,7 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   // Current display rectangle (relative to owner_'s visible area).
   gfx::Rect current_bounds_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ConstrainedWindowImpl);
+  DISALLOW_COPY_AND_ASSIGN(ConstrainedWindowImpl);
 };
 
-#endif  // #ifndef CHROME_BROWSER_CONSTRAINED_WINDOW_IMPL_H__
+#endif  // #ifndef CHROME_BROWSER_CONSTRAINED_WINDOW_IMPL_H_

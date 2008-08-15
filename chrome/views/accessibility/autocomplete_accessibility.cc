@@ -31,6 +31,7 @@
 
 #include "base/logging.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/views/accessibility/accessible_wrapper.h"
 
 #include "generated_resources.h"
 

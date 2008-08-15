@@ -29,6 +29,7 @@
 
 #include "chrome/browser/views/constrained_window_impl.h"
 
+#include "base/gfx/rect.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/tab_contents.h"
@@ -49,6 +50,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
+#include "chrome/views/client_view.h"
 #include "chrome/views/button.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/hwnd_view.h"

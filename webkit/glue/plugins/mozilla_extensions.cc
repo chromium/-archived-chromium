@@ -27,12 +27,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <windows.h>
-#include <Winhttp.h>
+#include "webkit/glue/plugins/mozilla_extensions.h"
 
 #include <algorithm>
-
-#include "webkit/glue/plugins/mozilla_extensions.h"
 
 #include "base/logging.h"
 #include "base/string_util.h"

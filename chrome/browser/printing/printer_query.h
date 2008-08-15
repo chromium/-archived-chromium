@@ -27,9 +27,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_PRINTING_PRINTER_QUERY_H__
-#define CHROME_BROWSER_PRINTING_PRINTER_QUERY_H__
+#ifndef CHROME_BROWSER_PRINTING_PRINTER_QUERY_H_
+#define CHROME_BROWSER_PRINTING_PRINTER_QUERY_H_
 
+#include "base/scoped_ptr.h"
 #include "base/ref_counted.h"
 #include "chrome/browser/printing/print_job_worker_owner.h"
 
@@ -119,9 +120,9 @@ class PrinterQuery : public base::RefCountedThreadSafe<PrinterQuery>,
   // Task waiting to be executed.
   scoped_ptr<CancelableTask> callback_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(PrinterQuery);
+  DISALLOW_COPY_AND_ASSIGN(PrinterQuery);
 };
 
 }  // namespace printing
 
-#endif  // CHROME_BROWSER_PRINTING_PRINTER_QUERY_H__
+#endif  // CHROME_BROWSER_PRINTING_PRINTER_QUERY_H_

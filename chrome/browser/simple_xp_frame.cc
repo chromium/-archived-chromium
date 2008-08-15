@@ -148,7 +148,7 @@ void TitleBarMenuButton::Paint(ChromeCanvas* canvas) {
 
 bool TitleBarMenuButton::OnMousePressed(const ChromeViews::MouseEvent& e) {
   if (e.GetFlags() & ChromeViews::MouseEvent::EF_IS_DOUBLE_CLICK) {
-    if (!HitTest(e.GetLocation()))
+    if (!HitTest(WTL::CPoint(e.GetX(), e.GetY())))
       return true;
     title_bar_->CloseWindow();
     return true;

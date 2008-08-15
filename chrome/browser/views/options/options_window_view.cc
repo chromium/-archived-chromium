@@ -42,6 +42,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/tabbed_pane.h"
+#include "chrome/views/root_view.h"
 #include "chrome/views/window.h"
 #include "generated_resources.h"
 

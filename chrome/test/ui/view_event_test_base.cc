@@ -31,6 +31,7 @@
 
 #include "base/message_loop.h"
 #include "chrome/browser/automation/ui_controls.h"
+#include "chrome/views/view.h"
 #include "chrome/views/window.h"
 
 namespace {
@@ -109,6 +110,10 @@ void ViewEventTestBase::StartMessageLoopAndRunTest() {
       NewRunnableMethod(this, &ViewEventTestBase::DoTestOnMessageLoop), 0);
 
   MessageLoop::current()->Run();
+}
+
+gfx::Size ViewEventTestBase::GetPreferredSize() {
+  return gfx::Size();
 }
 
 void ViewEventTestBase::ScheduleMouseMoveInBackground(int x, int y) {

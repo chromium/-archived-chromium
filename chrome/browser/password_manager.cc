@@ -27,15 +27,17 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/password_manager.h"
+
+#include "base/string_util.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
-#include "base/string_util.h"
 
 #include "generated_resources.h"
 

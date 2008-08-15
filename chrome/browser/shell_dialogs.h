@@ -27,8 +27,13 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_SHELL_DIALOGS_H__
-#define CHROME_BROWSER_SHELL_DIALOGS_H__
+#ifndef CHROME_BROWSER_SHELL_DIALOGS_H_
+#define CHROME_BROWSER_SHELL_DIALOGS_H_
+
+// TODO(maruel):  Remove once  HWND is typedef.
+#include <windows.h>
+
+#include <string>
 
 #include "base/ref_counted.h"
 
@@ -156,4 +161,4 @@ class SelectFontDialog
                           int font_size) = 0;
 };
 
-#endif  // #ifndef CHROME_BROWSER_SHELL_DIALOGS_H__
+#endif  // #ifndef CHROME_BROWSER_SHELL_DIALOGS_H_

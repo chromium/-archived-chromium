@@ -43,12 +43,12 @@
 #include "chrome/browser/session_startup_pref.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/browser/ssl_manager.h"
-#include "chrome/browser/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/task_manager.h"
 #include "chrome/browser/template_url_prepopulate_data.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/keyword_editor_view.h"
+#include "chrome/browser/web_contents.h"
 
 namespace browser {
 

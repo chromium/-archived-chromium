@@ -29,16 +29,20 @@
 
 #include "chrome/views/window.h"
 
+#include "base/win_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 // TODO(beng): some day make this unfortunate dependency not exist.
 #include "chrome/browser/browser_list.h"
+#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/icon_util.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
+#include "chrome/views/client_view.h"
 #include "chrome/views/custom_frame_window.h"
 #include "chrome/views/non_client_view.h"
+#include "chrome/views/root_view.h"
 #include "chrome/views/window_delegate.h"
 
 #include "generated_resources.h"

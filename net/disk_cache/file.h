@@ -29,8 +29,10 @@
 
 // See net/disk_cache/disk_cache.h for the public interface of the cache.
 
-#ifndef NET_DISK_CACHE_FILE_H__
-#define NET_DISK_CACHE_FILE_H__
+#ifndef NET_DISK_CACHE_FILE_H_
+#define NET_DISK_CACHE_FILE_H_
+
+#include <string>
 
 #include "base/ref_counted.h"
 #include "net/disk_cache/os_file.h"
@@ -107,4 +109,4 @@ class File : public base::RefCounted<File> {
 
 }  // namespace disk_cache
 
-#endif  // NET_DISK_CACHE_FILE_H__
+#endif  // NET_DISK_CACHE_FILE_H_

@@ -29,6 +29,7 @@
 
 #include "chrome/browser/views/frame/browser_view2.h"
 
+#include "chrome/app/chrome_dll_resource.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/browser.h"
@@ -41,10 +42,13 @@
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/browser/views/status_bubble.h"
 #include "chrome/browser/views/toolbar_view.h"
+#include "chrome/common/drag_drop_types.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/views/view.h"
+#include "chrome/views/window.h"
 #include "generated_resources.h"
 
 // static

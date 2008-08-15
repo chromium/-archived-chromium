@@ -29,12 +29,10 @@
 
 #include "chrome/views/text_button.h"
 
-#include <atlbase.h>
-#include <atlapp.h>
-
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/common/throb_animation.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/button.h"
 #include "chrome/views/event.h"

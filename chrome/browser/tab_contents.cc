@@ -36,8 +36,9 @@
 #include "chrome/browser/web_contents.h"
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/common/pref_names.h"
-#include "chrome/views/focus_manager.h"
+#include "chrome/common/pref_service.h"
 #include "chrome/views/native_scroll_bar.h"
+#include "chrome/views/root_view.h"
 #include "chrome/views/view.h"
 #include "chrome/views/view_storage.h"
 

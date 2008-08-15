@@ -38,6 +38,7 @@
 #include "base/time.h"
 #include "chrome/browser/browser_type.h"
 #include "chrome/browser/cancelable_request.h"
+#include "chrome/browser/session_id.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/stl_util-inl.h"
@@ -52,33 +53,6 @@ class Thread;
 class Timer;
 class SessionBackend;
 class SessionCommand;
-
-// SessionID ------------------------------------------------------------------
-
-// Uniquely identifies a session, tab or window.
-
-class SessionID {
-  friend class SessionService;
- public:
-  typedef int32 id_type;
-
-  SessionID();
-  ~SessionID() {}
-
-  // Returns the underlying id.
-  id_type id() const { return id_; }
-
-  // Returns true if the two commands are equal.
-  bool Equals(const SessionID& other) const;
-
- private:
-  explicit SessionID(id_type id) : id_(id) {}
-
-  // Resets the id. This is used when restoring a session
-  void set_id(id_type id) { id_ = id; }
-
-  id_type id_;
-};
 
 // TabNavigation  ------------------------------------------------------------
 

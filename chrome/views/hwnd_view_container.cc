@@ -30,15 +30,12 @@
 #include "chrome/views/hwnd_view_container.h"
 
 #include "base/gfx/native_theme.h"
-#include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "chrome/common/gfx/chrome_canvas.h"
-#include "chrome/common/notification_service.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/aero_tooltip_manager.h"
 #include "chrome/views/accessibility/view_accessibility.h"
-#include "chrome/views/focus_manager.h"
 #include "chrome/views/hwnd_notification_source.h"
 #include "chrome/views/root_view.h"
 

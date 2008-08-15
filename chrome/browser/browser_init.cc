@@ -29,7 +29,6 @@
 
 #include "chrome/browser/browser_init.h"
 
-#include <windows.h>
 #include <shellapi.h>
 
 #include "base/basictypes.h"
@@ -39,6 +38,7 @@
 #include "base/histogram.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
+#include "base/win_util.h"
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/app/result_codes.h"
 #include "chrome/browser/automation/automation_provider.h"
@@ -61,6 +61,7 @@
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/win_util.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/net_util.h"
 

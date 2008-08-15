@@ -40,6 +40,7 @@
 #include "base/registry.h"
 #include "base/string_util.h"
 #include "base/tracked_objects.h"
+#include "base/win_util.h"
 #include "chrome/app/result_codes.h"
 #include "chrome/browser/automation/automation_provider.h"
 #include "chrome/browser/browser.h"

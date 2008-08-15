@@ -35,6 +35,7 @@
 #include "chrome/browser/ssl_error_info.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/common/gfx/url_elider.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "net/base/net_util.h"

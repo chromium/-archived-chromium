@@ -27,15 +27,18 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_DEBUGGER_DEBUGGER_IO_H__
-#define CHROME_BROWSER_DEBUGGER_DEBUGGER_IO_H__
+#ifndef CHROME_BROWSER_DEBUGGER_DEBUGGER_IO_H_
+#define CHROME_BROWSER_DEBUGGER_DEBUGGER_IO_H_
+
+#include <string>
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
 
 class DebuggerShell;
 
-class DebuggerInputOutput: public base::RefCountedThreadSafe<DebuggerInputOutput> {
+class DebuggerInputOutput
+    : public base::RefCountedThreadSafe<DebuggerInputOutput> {
 public:
   DebuggerInputOutput() {}
   virtual ~DebuggerInputOutput() {}
@@ -65,8 +68,7 @@ protected:
   DebuggerShell* debugger_;
 
 private:
-
-  DISALLOW_EVIL_CONSTRUCTORS(DebuggerInputOutput);
+  DISALLOW_COPY_AND_ASSIGN(DebuggerInputOutput);
 };
 
-#endif // CHROME_BROWSER_DEBUGGER_DEBUGGER_IO_H__
+#endif // CHROME_BROWSER_DEBUGGER_DEBUGGER_IO_H_

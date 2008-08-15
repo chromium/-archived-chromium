@@ -32,15 +32,18 @@
 // Debugger needed, add new wrapper methods to this file.
 //
 // This is a workaround to enable the Debugger without breaking the KJS build.
-// It wraps all methods in Debugger which are called from outside of the debugger
-// project.  Each solution has its own project with debugger files.  KJS has only
-// debugger_wrapper* and debugger.h, and defines CHROME_DEBUGGER_DISABLED, which makes
-// it compile only a stub version of Debugger that doesn't reference V8.  Meanwhile
-// the V8 solution includes all of the debugger files without CHROME_DEBUGGER_DISABLED
-// so the full functionality is enabled.
+// It wraps all methods in Debugger which are called from outside of the
+// debugger project.  Each solution has its own project with debugger files.
+// KJS has only debugger_wrapper* and debugger.h, and defines
+// CHROME_DEBUGGER_DISABLED, which makes it compile only a stub version of
+// Debugger that doesn't reference V8.  Meanwhile the V8 solution includes all
+// of the debugger files without CHROME_DEBUGGER_DISABLED so the full
+// functionality is enabled.
 
-#ifndef CHROME_BROWSER_DEBUGGER_DEBUGGER_INTERFACE_H__
-#define CHROME_BROWSER_DEBUGGER_DEBUGGER_INTERFACE_H__
+#ifndef CHROME_BROWSER_DEBUGGER_DEBUGGER_INTERFACE_H_
+#define CHROME_BROWSER_DEBUGGER_DEBUGGER_INTERFACE_H_
+
+#include <string>
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
@@ -64,5 +67,4 @@ class DebuggerWrapper : public base::RefCountedThreadSafe<DebuggerWrapper> {
   scoped_refptr<DebuggerShell> debugger_;
 };
 
-
-#endif // CHROME_BROWSER_DEBUGGER_DEBUGGER_INTERFACE_H__
+#endif // CHROME_BROWSER_DEBUGGER_DEBUGGER_INTERFACE_H_

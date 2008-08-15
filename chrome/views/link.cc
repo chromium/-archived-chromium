@@ -109,7 +109,7 @@ bool Link::OnMousePressed(const MouseEvent& e) {
 bool Link::OnMouseDragged(const MouseEvent& e) {
   SetHighlighted(enabled_ &&
                  (e.IsLeftMouseButton() || e.IsMiddleMouseButton()) &&
-                 HitTest(e.GetLocation()));
+                 HitTest(WTL::CPoint(e.GetX(), e.GetY())));
   return true;
 }
 
@@ -119,7 +119,7 @@ void Link::OnMouseReleased(const MouseEvent& e, bool canceled) {
   SetHighlighted(false);
   if (enabled_ && !canceled &&
       (e.IsLeftMouseButton() || e.IsMiddleMouseButton()) &&
-      HitTest(e.GetLocation())) {
+      HitTest(WTL::CPoint(e.GetX(), e.GetY()))) {
     // Focus the link on click.
     RequestFocus();
 

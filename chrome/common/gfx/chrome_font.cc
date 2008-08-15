@@ -26,10 +26,13 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #include "chrome/common/gfx/chrome_font.h"
 
-#include <algorithm>
+#include <windows.h>
 #include <math.h>
+
+#include <algorithm>
 
 #include "base/logging.h"
 #include "base/win_util.h"
@@ -104,6 +107,26 @@ int ChromeFont::FontSize() {
   ReleaseDC(NULL, hdc);
   return font_size;
 }
+
+ChromeFont::HFontRef::HFontRef(HFONT hfont,
+         int height,
+         int baseline,
+         int ave_char_width,
+         int style,
+         int dlu_base_x)
+    : hfont_(hfont),
+      height_(height),
+      baseline_(baseline),
+      ave_char_width_(ave_char_width),
+      style_(style),
+      dlu_base_x_(dlu_base_x) {
+  DLOG_ASSERT(hfont);
+}
+
+ChromeFont::HFontRef::~HFontRef() {
+  DeleteObject(hfont_);
+}
+
 
 ChromeFont ChromeFont::DeriveFont(int size_delta, int style) const {
   LOGFONT font_info;

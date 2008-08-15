@@ -35,6 +35,7 @@
 #include "chrome/views/external_focus_tracker.h"
 #include "chrome/views/image_view.h"
 #include "chrome/views/root_view.h"
+#include "chrome/views/view_container.h"
 
 #include "generated_resources.h"
 

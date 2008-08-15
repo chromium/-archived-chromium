@@ -1022,6 +1022,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\browser_window.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\browser_window.h"
 				>
 			</File>
@@ -1575,6 +1579,10 @@
 			</File>
 			<File
 				RelativePath=".\session_backend.h"
+				>
+			</File>
+			<File
+				RelativePath=".\session_id.h"
 				>
 			</File>
 			<File

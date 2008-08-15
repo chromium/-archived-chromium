@@ -37,9 +37,9 @@
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/views/external_focus_tracker.h"
-#include "chrome/views/focus_manager.h"
-#include "chrome/views/native_scroll_bar.h"
 #include "chrome/views/hwnd_view_container.h"
+#include "chrome/views/native_scroll_bar.h"
+#include "chrome/views/root_view.h"
 #include "chrome/views/view_storage.h"
 
 int FindInPageController::request_id_counter_ = 0;

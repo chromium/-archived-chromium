@@ -27,9 +27,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <math.h>
-
 #include "chrome/browser/tabs/dragged_tab_controller.h"
+
+#include <math.h>
 
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/frame_util.h"
@@ -40,6 +40,7 @@
 #include "chrome/browser/tabs/tab_strip.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/views/event.h"
+#include "chrome/views/root_view.h"
 #include "skia/include/SkBitmap.h"
 
 static const int kHorizontalMoveThreshold = 16; // pixels

@@ -75,7 +75,7 @@ bool StarToggle::OnMouseDragged(const ChromeViews::MouseEvent& e) {
 }
 
 bool StarToggle::OnMousePressed(const ChromeViews::MouseEvent& e) {
-  if (e.IsLeftMouseButton() && HitTest(e.GetLocation())) {
+  if (e.IsLeftMouseButton() && HitTest(WTL::CPoint(e.GetX(), e.GetY()))) {
     RequestFocus();
     return true;
   }
@@ -84,7 +84,7 @@ bool StarToggle::OnMousePressed(const ChromeViews::MouseEvent& e) {
 
 void StarToggle::OnMouseReleased(const ChromeViews::MouseEvent& e,
                                  bool canceled) {
-  if (e.IsLeftMouseButton() && HitTest(e.GetLocation()))
+  if (e.IsLeftMouseButton() && HitTest(WTL::CPoint(e.GetX(), e.GetY())))
     SwitchState();
 }
 

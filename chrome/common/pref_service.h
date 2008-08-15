@@ -37,14 +37,13 @@
 // persistent and transient stores, where any corresponding value in the
 // transient store overrides the one in the persistent store.
 
-#ifndef CHROME_COMMON_PREF_SERVICE_H__
-#define CHROME_COMMON_PREF_SERVICE_H__
+#ifndef CHROME_COMMON_PREF_SERVICE_H_
+#define CHROME_COMMON_PREF_SERVICE_H_
 
 #include <hash_map>
 #include <string>
 
 #include "base/basictypes.h"
-#include "base/logging.h"
 #include "base/non_thread_safe.h"
 #include "base/observer_list.h"
 #include "base/scoped_ptr.h"
@@ -96,7 +95,7 @@ class PrefService : public NonThreadSafe {
     // A reference to the pref service's persistent prefs.
     DictionaryValue* root_pref_;
 
-    DISALLOW_EVIL_CONSTRUCTORS(Preference);
+    DISALLOW_COPY_AND_ASSIGN(Preference);
   };
 
   // |pref_filename| is the path to the prefs file we will try to load or save to.
@@ -257,7 +256,7 @@ class PrefService : public NonThreadSafe {
       PrefObserverMap;
   PrefObserverMap pref_observers_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(PrefService);
+  DISALLOW_COPY_AND_ASSIGN(PrefService);
 };
 
-#endif  // CHROME_COMMON_PREF_SERVICE_H__
+#endif  // CHROME_COMMON_PREF_SERVICE_H_

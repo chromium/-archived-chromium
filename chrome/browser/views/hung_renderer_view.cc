@@ -34,7 +34,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/render_view_host.h"
 #include "chrome/browser/standard_layout.h"
-#include "chrome/browser/tab_contents.h"
+#include "chrome/browser/web_contents.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/path.h"

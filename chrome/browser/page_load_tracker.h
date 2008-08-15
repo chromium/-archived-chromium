@@ -42,25 +42,19 @@
 // See the comments in navigation_profiler.h for an overview of profiling
 // architecture.
 
-#ifndef CHROME_BROWSER_PAGE_LOAD_TRACKER_H__
-#define CHROME_BROWSER_PAGE_LOAD_TRACKER_H__
-
-#include <windows.h>
-#include <atlbase.h>
-#include <atlapp.h>
-#include <atlmisc.h>
+#ifndef CHROME_BROWSER_PAGE_LOAD_TRACKER_H_
+#define CHROME_BROWSER_PAGE_LOAD_TRACKER_H_
 
 #include <string>
 #include <vector>
 
-#include "base/basictypes.h"
 #include "base/time.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/views/view.h"
 #include "googleurl/src/gurl.h"
-#include "net/url_request/url_request_job.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
+class URLRequestJobMetrics;
 class ChromeCanvas;
 
 // Tracks one frame navigation within the page.
@@ -198,4 +192,4 @@ class PageLoadView : public ChromeViews::View {
   PageLoadTracker* page_;
 };
 
-#endif  // CHROME_BROWSER_PAGE_LOAD_TRACKER_H__
+#endif  // CHROME_BROWSER_PAGE_LOAD_TRACKER_H_

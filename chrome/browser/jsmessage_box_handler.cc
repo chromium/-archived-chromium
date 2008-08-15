@@ -37,6 +37,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_types.h"
 #include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 #include "chrome/views/message_box_view.h"
 #include "chrome/views/window.h"
 

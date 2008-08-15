@@ -30,14 +30,12 @@
 #ifndef CHROME_VIEWS_BASE_BUTTON_H__
 #define CHROME_VIEWS_BASE_BUTTON_H__
 
-#include <windows.h>
-
-#include "base/logging.h"
-#include "chrome/common/throb_animation.h"
+#include "chrome/common/animation.h"
 #include "chrome/views/event.h"
 #include "chrome/views/view.h"
 
 class OSExchangeData;
+class ThrobAnimation;
 
 namespace ChromeViews {
 

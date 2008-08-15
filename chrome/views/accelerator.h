@@ -33,8 +33,10 @@
 // It also defines the < operator so that it can be used as a key in a std::map.
 //
 
-#ifndef CHROME_VIEWS_ACCELERATOR_H__
-#define CHROME_VIEWS_ACCELERATOR_H__
+#ifndef CHROME_VIEWS_ACCELERATOR_H_
+#define CHROME_VIEWS_ACCELERATOR_H_
+
+#include <string>
 
 #include "chrome/views/event.h"
 
@@ -117,4 +119,4 @@ class AcceleratorTarget {
 };
 }
 
-#endif  // #ifndef CHROME_VIEWS_ACCELERATOR_H__
+#endif  // CHROME_VIEWS_ACCELERATOR_H_

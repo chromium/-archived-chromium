@@ -71,6 +71,7 @@ input_files = [
     'client_view.cc',
     'combo_box.cc',
     'custom_frame_window.cc',
+    'dialog_delegate.cc',
     'dialog_client_view.cc',
     'decision.cc',
     'event.cc',
@@ -112,6 +113,7 @@ input_files = [
     'view.cc',
     'view_storage.cc',
     'window.cc',
+    'window_delegate.cc',
 ]
 
 env.ChromeStaticLibrary('views', input_files)

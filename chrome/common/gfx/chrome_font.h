@@ -27,11 +27,16 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_COMMON_GFX_CHROME_FONT_H__
-#define CHROME_COMMON_GFX_CHROME_FONT_H__
+#ifndef CHROME_COMMON_GFX_CHROME_FONT_H_
+#define CHROME_COMMON_GFX_CHROME_FONT_H_
 
-#include <windows.h>
+#include "build/build_config.h"
+
 #include <string>
+
+#if defined(OS_WIN)
+typedef struct HFONT__* HFONT;
+#endif
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
@@ -127,19 +132,8 @@ class ChromeFont {
              int baseline,
              int ave_char_width,
              int style,
-             int dlu_base_x)
-        : hfont_(hfont),
-          height_(height),
-          baseline_(baseline),
-          ave_char_width_(ave_char_width),
-          style_(style),
-          dlu_base_x_(dlu_base_x) {
-      DLOG_ASSERT(hfont);
-    }
-
-    ~HFontRef() {
-      DeleteObject(hfont_);
-    }
+             int dlu_base_x);
+    ~HFontRef();
 
     // Accessors
     HFONT hfont() const { return hfont_; }
@@ -158,7 +152,7 @@ class ChromeFont {
     // Constants used in converting dialog units to pixels.
     const int dlu_base_x_;
 
-    DISALLOW_EVIL_CONSTRUCTORS(HFontRef);
+    DISALLOW_COPY_AND_ASSIGN(HFontRef);
   };
 
 
@@ -178,4 +172,4 @@ class ChromeFont {
   scoped_refptr<HFontRef> font_ref_;
 };
 
-#endif  // CHROME_COMMON_GFX_CHROME_FONT_H__
+#endif  // CHROME_COMMON_GFX_CHROME_FONT_H_

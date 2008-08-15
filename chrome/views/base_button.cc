@@ -27,9 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <atlbase.h>
-#include <atlapp.h>
-
 #include "chrome/views/base_button.h"
 
 #include "base/base_drag_source.h"
@@ -37,6 +34,7 @@
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/os_exchange_data.h"
+#include "chrome/common/throb_animation.h"
 
 namespace ChromeViews {
 
@@ -171,7 +169,7 @@ void BaseButton::SetTooltipText(const std::wstring& tooltip) {
 
 bool BaseButton::OnMousePressed(const ChromeViews::MouseEvent& e) {
   if (state_ != BS_DISABLED) {
-    if (IsTriggerableEvent(e) && HitTest(e.GetLocation())) {
+    if (IsTriggerableEvent(e) && HitTest(WTL::CPoint(e.GetX(), e.GetY()))) {
       SetState(BS_PUSHED);
     }
     if (IsFocusable())
@@ -182,7 +180,7 @@ bool BaseButton::OnMousePressed(const ChromeViews::MouseEvent& e) {
 
 bool BaseButton::OnMouseDragged(const ChromeViews::MouseEvent& e) {
   if (state_ != BS_DISABLED) {
-    if (!HitTest(e.GetLocation()))
+    if (!HitTest(WTL::CPoint(e.GetX(), e.GetY())))
       SetState(BS_NORMAL);
     else if (IsTriggerableEvent(e))
       SetState(BS_PUSHED);
@@ -200,7 +198,7 @@ void BaseButton::OnMouseReleased(const ChromeViews::MouseEvent& e,
   }
 
   if (state_ != BS_DISABLED) {
-    if (canceled || !HitTest(e.GetLocation())) {
+    if (canceled || !HitTest(WTL::CPoint(e.GetX(), e.GetY()))) {
       SetState(BS_NORMAL);
     } else {
       SetState(BS_HOT);
@@ -225,7 +223,7 @@ void BaseButton::OnMouseMoved(const ChromeViews::MouseEvent& e) {
   using namespace ChromeViews;
 
   if (state_ != BS_DISABLED) {
-    if (HitTest(e.GetLocation())) {
+    if (HitTest(WTL::CPoint(e.GetX(), e.GetY()))) {
       SetState(BS_HOT);
     } else {
       SetState(BS_NORMAL);

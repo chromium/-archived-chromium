@@ -27,7 +27,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "debugger_node.h"
+#include "chrome/browser/debugger/debugger_node.h"
 
 #include "base/process_util.h"
 #include "base/string_util.h"
@@ -36,6 +36,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/render_process_host.h"
 #include "chrome/browser/render_view_host.h"
+#include "chrome/browser/web_contents.h"
 #include "chrome/browser/debugger/debugger_shell.h"
 
 DebuggerNode::DebuggerNode() : valid_(true), observing_(false), data_(NULL) {

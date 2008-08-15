@@ -68,6 +68,7 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "net/base/mime_util.h"
 #include "net/base/registry_controlled_domain.h"

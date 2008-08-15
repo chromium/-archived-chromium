@@ -29,8 +29,6 @@
 
 #include "chrome/browser/render_widget_host_hwnd.h"
 
-#include <windows.h>
-
 #include "base/command_line.h"
 #include "base/gfx/bitmap_header.h"
 #include "base/gfx/rect.h"
@@ -43,6 +41,7 @@
 #include "chrome/browser/render_widget_host.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/hwnd_view_container.h"

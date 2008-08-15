@@ -41,6 +41,7 @@
 #include "chrome/views/event.h"
 #include "chrome/views/label.h"
 #include "chrome/views/native_button.h"
+#include "chrome/views/window.h"
 
 #include "generated_resources.h"
 

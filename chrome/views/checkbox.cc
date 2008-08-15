@@ -166,10 +166,10 @@ void CheckBox::HighlightButton(bool f) {
 }
 
 bool CheckBox::LabelHitTest(const MouseEvent& event) {
-  CPoint p(event.GetLocation());
+  CPoint p(event.GetX(), event.GetY());
   gfx::Rect r;
   ComputeTextRect(&r);
-  return r.Contains(event.GetLocation().x, event.GetLocation().y);
+  return r.Contains(event.GetX(), event.GetY());
 }
 
 void CheckBox::OnMouseEntered(const MouseEvent& event) {

@@ -171,11 +171,7 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
 
   // Fills the authentication info with the server's response.
   virtual void GetAuthChallengeInfo(
-      scoped_refptr<net::AuthChallengeInfo>* auth_info) {
-    // This will only be called if NeedsAuth() returns true, in which
-    // case the derived class should implement this!
-    NOTREACHED();
-  }
+      scoped_refptr<net::AuthChallengeInfo>* auth_info);
 
   // Returns cached auth data for the auth challenge.  Returns NULL if there
   // is no auth cache or if the auth cache doesn't have the auth data for
@@ -187,26 +183,13 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
 
   // Resend the request with authentication credentials.
   virtual void SetAuth(const std::wstring& username,
-                       const std::wstring& password) {
-    // This will only be called if NeedsAuth() returns true, in which
-    // case the derived class should implement this!
-    NOTREACHED();
-  }
+                       const std::wstring& password);
 
   // Display the error page without asking for credentials again.
-  virtual void CancelAuth() {
-    // This will only be called if NeedsAuth() returns true, in which
-    // case the derived class should implement this!
-    NOTREACHED();
-  }
+  virtual void CancelAuth();
 
   // Continue processing the request ignoring the last error.
-  virtual void ContinueDespiteLastError() {
-    // Implementations should know how to recover from errors they generate.
-    // If this code was reached, we are trying to recover from an error that
-    // we don't know how to recover from.
-    NOTREACHED();
-  }
+  virtual void ContinueDespiteLastError();
 
   // Returns true if the Job is done producing response data and has called
   // NotifyDone on the request.
@@ -333,7 +316,7 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
   // Expected content size
   int64 expected_content_size_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(URLRequestJob);
+  DISALLOW_COPY_AND_ASSIGN(URLRequestJob);
 };
 
 #endif  // NET_URL_REQUEST_URL_REQUEST_JOB_H_

@@ -607,7 +607,7 @@ void DownloadItemTabView::DidChangeBounds(const CRect& previous,
 }
 
 bool DownloadItemTabView::OnMousePressed(const ChromeViews::MouseEvent& event) {
-  CPoint point(event.GetLocation());
+  CPoint point(event.GetX(), event.GetY());
 
   // If the click is in the highlight region, then highlight this download.
   // Otherwise, remove the highlighting from any download.
@@ -642,7 +642,7 @@ bool DownloadItemTabView::OnMouseDragged(const ChromeViews::MouseEvent& event) {
   if (model_->state() != DownloadItem::COMPLETE)
     return false;
 
-  CPoint point(event.GetLocation());
+  CPoint point(event.GetX(), event.GetY());
 
   // In order to make sure drag and drop works as expected when the UI is
   // mirrored, we can either flip the mouse X coordinate or flip the X position

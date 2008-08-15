@@ -47,6 +47,7 @@
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/views/border.h"
 #include "chrome/views/hwnd_view_container.h"
+#include "chrome/views/root_view.h"
 #include "generated_resources.h"
 
 // Margins between the top of the item and the label.

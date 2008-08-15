@@ -27,26 +27,26 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_VIEWS_VIEW_H__
-#define CHROME_VIEWS_VIEW_H__
+#ifndef CHROME_VIEWS_VIEW_H_
+#define CHROME_VIEWS_VIEW_H_
 
-#include <atlbase.h>
-#include <atlapp.h>
-#include <atlmisc.h>
 #include <map>
 #include <vector>
 
-#include "base/basictypes.h"
+// TODO(maruel):  Remove these once WTL::CRect and WTL::CPoint are no more used.
+#include <atlbase.h>
+#include <atlapp.h>
+#include <atlmisc.h>
+
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
-#include "chrome/common/drag_drop_types.h"
-#include "chrome/common/l10n_util.h"
-#include "chrome/common/gfx/insets.h"
-#include "chrome/views/accessibility/accessible_wrapper.h"
 #include "chrome/views/accelerator.h"
-#include "chrome/views/event.h"
-#include "chrome/views/view_container.h"
 
+namespace gfx {
+class Insets;
+}
+
+class AccessibleWrapper;
 class ChromeCanvas;
 class OSExchangeData;
 class SkBitmap;
@@ -193,7 +193,7 @@ class View : public AcceleratorTarget {
   // This is the function subclasses should use whenever they need to obtain
   // the left position of one of their child views (for example, when
   // implementing View::Layout()).
-  inline int GetX() const {
+  int GetX() const {
     return GetX(IGNORE_MIRRORING_TRANSFORMATION);
   };
 
@@ -209,13 +209,13 @@ class View : public AcceleratorTarget {
   //       coordinate of a child View.
   int GetX(PositionMirroringSettings settings) const;
 
-  inline int GetY() const {
+  int GetY() const {
     return bounds_.top;
   };
-  inline int GetWidth() const {
+  int GetWidth() const {
     return bounds_.Width();
   };
-  inline int GetHeight() const {
+  int GetHeight() const {
     return bounds_.Height();
   };
 
@@ -306,10 +306,7 @@ class View : public AcceleratorTarget {
   // Indicates whether the UI layout for this view is right-to-left. The view
   // has an RTL UI layout if RTL hasn't been disabled for the view and if the
   // locale's language is an RTL language.
-  bool UILayoutIsRightToLeft() const {
-    return (ui_mirroring_is_enabled_for_rtl_languages_ &&
-            l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT);
-  }
+  bool UILayoutIsRightToLeft() const;
 
   // Enables or disables the right-to-left layout for the view. If |enable| is
   // true, the layout will become right-to-left only if the locale's language
@@ -356,7 +353,7 @@ class View : public AcceleratorTarget {
   // UI mirroring is transparent to most View subclasses and therefore there is
   // no need to call this routine from anywhere within your subclass
   // implementation.
-  inline int View::MirroredX() const;
+  int View::MirroredX() const;
 
   // Given a rectangle specified in this View's coordinate system, the function
   // computes the 'left' value for the mirrored rectangle within this View. If
@@ -1291,7 +1288,7 @@ class View : public AcceleratorTarget {
   View* previous_focusable_view_;
 
   // The list of accelerators.
-  scoped_ptr<std::vector<Accelerator>> accelerators_;
+  scoped_ptr<std::vector<Accelerator> > accelerators_;
 
   // The task used to restore automatically the focus to the last focused
   // floating view.
@@ -1315,9 +1312,9 @@ class View : public AcceleratorTarget {
   // right-to-left locales for this View.
   bool flip_canvas_on_paint_for_rtl_ui_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(View);
+  DISALLOW_COPY_AND_ASSIGN(View);
 };
 
-}
+}  // namespace ChromeViews
 
-#endif  // CHROME_VIEWS_VIEW_H__
+#endif  // CHROME_VIEWS_VIEW_H_

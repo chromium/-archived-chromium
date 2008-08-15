@@ -40,6 +40,7 @@
 #include "chrome/browser/standard_layout.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/browser/views/restart_message_box.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/installer/util/install_util.h"

@@ -27,9 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "net/base/upload_data.h"
+
 #include <windows.h>
 
-#include "net/base/upload_data.h"
+#include "base/logging.h"
 
 namespace net {
 

@@ -27,14 +27,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_TABS_TAB_H__
-#define CHROME_BROWSER_TABS_TAB_H__
+#ifndef CHROME_BROWSER_TABS_TAB_H_
+#define CHROME_BROWSER_TABS_TAB_H_
 
-#include "base/gfx/point.h"
 #include "chrome/browser/tabs/tab_renderer.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
-#include "chrome/views/button.h"
-#include "chrome/views/menu.h"
+#include "chrome/views/base_button.h"
 
 namespace gfx {
 class Point;
@@ -138,7 +136,7 @@ class Tab : public TabRenderer,
   // True if the tab is being animated closed.
   bool closing_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(Tab);
+  DISALLOW_COPY_AND_ASSIGN(Tab);
 };
 
-#endif  // CHROME_BROWSER_TABS_TAB_H__
+#endif  // CHROME_BROWSER_TABS_TAB_H_

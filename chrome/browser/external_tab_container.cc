@@ -30,6 +30,7 @@
 #include "chrome/browser/external_tab_container.h"
 
 #include "base/logging.h"
+#include "base/win_util.h"
 #include "chrome/browser/automation/automation_provider.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents.h"

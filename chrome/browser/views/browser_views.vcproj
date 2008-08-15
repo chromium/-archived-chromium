@@ -402,6 +402,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\dom_view.cc"
+			>
+		</File>
+		<File
 			RelativePath=".\dom_view.h"
 			>
 		</File>

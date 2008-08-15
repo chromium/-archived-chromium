@@ -27,27 +27,32 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_EDIT_H__
-#define CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_EDIT_H__
+#ifndef CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_EDIT_H_
+#define CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_EDIT_H_
 
 #include <atlbase.h>
 #include <atlapp.h>
-#include <atlcomcli.h>
+#include <atlcrack.h>
 #include <atlctrls.h>
-#include <oleacc.h>
+#include <atlmisc.h>
 #include <tom.h> // For ITextDocument, a COM interface to CRichEditCtrl
 
-#include "base/iat_patch.h"
 #include "base/scoped_ptr.h"
-#include "chrome/browser/autocomplete/autocomplete_popup.h"
-#include "chrome/browser/security_style.h"
+#include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/common/gfx/chrome_font.h"
+#include "chrome/common/page_transition_types.h"
 #include "chrome/views/menu.h"
+#include "webkit/glue/window_open_disposition.h"
 
+class AutocompletePopup;
 class CommandController;
 class Profile;
 class TabContents;
+
+namespace ChromeViews {
+class View;
+}
 
 // Provides the implementation of an edit control with a drop-down
 // autocomplete box. The box itself is implemented in autocomplete_popup.cc
@@ -236,14 +241,12 @@ class AutocompleteEdit
   // in progress.  This logic should in the future live in
   // AutocompleteController but resides here for now.  This method is used by
   // AutomationProvider::AutocompleteEditIsQueryInProgress.
-  bool query_in_progress() const { return popup_->query_in_progress(); }
+  bool query_in_progress() const;
 
   // Returns the lastest autocomplete results.  This logic should in the future
   // live in AutocompleteController but resides here for now.  This method is
   // used by AutomationProvider::AutocompleteEditGetMatches.
-  const AutocompleteResult* latest_result() const {
-    return popup_->latest_result();
-  }
+  const AutocompleteResult* latest_result() const;
 
   // Exposes custom IAccessible implementation to the overall MSAA hierarchy.
   IAccessible* GetIAccessible();
@@ -807,7 +810,7 @@ class AutocompleteEdit
   // Instance of accessibility information and handling.
   mutable CComPtr<IAccessible> autocomplete_accessibility_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(AutocompleteEdit);
+  DISALLOW_COPY_AND_ASSIGN(AutocompleteEdit);
 };
 
-#endif  // CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_EDIT_H__
+#endif  // CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_EDIT_H_

@@ -30,31 +30,28 @@
 #ifndef CHROME_BROWSER_BROWSER_H_
 #define CHROME_BROWSER_BROWSER_H_
 
-#include "chrome/app/chrome_dll_resource.h"
-#include "chrome/browser/browser_type.h"
 #include "chrome/browser/controller.h"
 #include "chrome/browser/hang_monitor/hung_plugin_action.h"
 #include "chrome/browser/hang_monitor/hung_window_detector.h"
-#include "chrome/browser/render_process_host.h"
 #include "chrome/browser/shell_dialogs.h"
-#include "chrome/browser/debugger/debugger_window.h"
+#include "chrome/browser/browser_type.h"
+#include "chrome/browser/session_id.h"
 #include "chrome/browser/tab_contents_delegate.h"
-#include "chrome/browser/tab_contents_type.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
-#include "chrome/browser/tabs/tab.h"
 #include "chrome/browser/toolbar_model.h"
-#include "chrome/browser/views/html_dialog_view.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_member.h"
 
+class BrowserIdleTask;
 class BrowserWindow;
+class DebuggerWindow;
 class GoButton;
 class LocationBarView;
 class PrefService;
 class Profile;
 class StatusBubble;
+struct TabNavigation;
 class WebContents;
-class BrowserIdleTask;
 class WebApp;
 
 class Browser : public TabStripModelDelegate,
@@ -649,7 +646,7 @@ class Browser : public TabStripModelDelegate,
   // Keep track of the encoding auto detect pref.
   BooleanPrefMember encoding_auto_detect_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(Browser);
+  DISALLOW_COPY_AND_ASSIGN(Browser);
 };
 
 #endif  // CHROME_BROWSER_BROWSER_H_

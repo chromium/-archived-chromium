@@ -34,11 +34,14 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/page_navigator.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/tab_contents.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/browser/views/bookmark_editor_view.h"
 #include "chrome/browser/views/input_window.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/views/view_container.h"
+#include "chrome/views/window.h"
 
 #include "generated_resources.h"
 

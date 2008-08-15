@@ -28,6 +28,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "chrome/common/pref_member.h"
+#include "chrome/common/pref_service.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {

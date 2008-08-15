@@ -32,6 +32,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/web_app.h"
 
 // static
 void WebAppLauncher::Launch(Profile* profile,

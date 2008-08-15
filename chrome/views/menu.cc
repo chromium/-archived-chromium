@@ -27,23 +27,22 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <windows.h>
+#include "chrome/views/menu.h"
+
 #include <atlbase.h>
 #include <atlcrack.h>
 #include <atlapp.h>
 #include <atlframe.h>
-
-#include "chrome/views/menu.h"
+#include <atlmisc.h>
 
 #include "base/gfx/rect.h"
+#include "base/logging.h"
 #include "chrome/views/accelerator.h"
-#include "chrome/views/controller.h"
 #include "base/string_util.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/stl_util-inl.h"
-#include "chrome/common/win_util.h"
 
 const SkBitmap* Menu::Delegate::kEmptyIcon = 0;
 
@@ -63,6 +62,13 @@ static const int kArrowWidth = 10;
 
 // Current active MenuHostWindow. If NULL, no menu is active.
 static MenuHostWindow* active_host_window = NULL;
+
+// The data of menu items needed to display.
+struct Menu::ItemData {
+  std::wstring label;
+  SkBitmap icon;
+  bool submenu;
+};
 
 namespace {
 
@@ -218,6 +224,16 @@ class MenuHostWindow : public CWindowImpl<MenuHostWindow, CWindow,
 };
 
 }  // namespace
+
+bool Menu::Delegate::IsRightToLeftUILayout() const {
+  return l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT;
+}
+
+const SkBitmap& Menu::Delegate::GetEmptyIcon() const {
+  if (kEmptyIcon == NULL)
+    kEmptyIcon = new SkBitmap();
+  return *kEmptyIcon;
+}
 
 Menu::Menu(Delegate* delegate, AnchorPoint anchor, HWND owner)
     : delegate_(delegate),

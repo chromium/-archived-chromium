@@ -45,6 +45,7 @@
 #include "chrome/views/accelerator.h"
 #include "chrome/views/background.h"
 #include "chrome/views/link.h"
+#include "chrome/views/menu.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/window.h"
 #include "net/url_request/url_request.h"

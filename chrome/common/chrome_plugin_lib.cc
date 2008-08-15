@@ -185,6 +185,12 @@ void ChromePluginLib::UnloadAllPlugins() {
   }
 }
 
+const CPPluginFuncs& ChromePluginLib::functions() const {
+  DCHECK(initialized_);
+  DCHECK(IsPluginThread());
+  return plugin_funcs_;
+}
+
 ChromePluginLib::ChromePluginLib(const std::wstring& filename)
     : filename_(filename),
       module_(0),

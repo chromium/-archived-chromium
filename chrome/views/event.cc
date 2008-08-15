@@ -34,6 +34,12 @@
 
 namespace ChromeViews {
 
+Event::Event(EventType type, int flags)
+    : type_(type),
+      time_stamp_(GetTickCount()),
+      flags_(flags) {
+}
+
 int Event::GetWindowsFlags() const {
   // TODO: need support for x1/x2.
   int result = 0;
@@ -109,4 +115,8 @@ int KeyEvent::GetKeyStateFlags() const {
   return flags;
 }
 
+bool KeyEvent::IsExtendedKey() const {
+  return (message_flags_ & KF_EXTENDED) == KF_EXTENDED;
 }
+
+}  // namespace ChromeViews

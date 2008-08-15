@@ -33,6 +33,7 @@
 #include "chrome/views/menu_button.h"
 
 #include "chrome/app/theme/theme_resources.h"
+#include "chrome/common/drag_drop_types.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
@@ -206,7 +207,7 @@ bool MenuButton::OnMousePressed(const ChromeViews::MouseEvent& e) {
   if (GetState() != BS_DISABLED) {
     // If we're draggable (GetDragOperations returns a non-zero value), then
     // don't pop on press, instead wait for release.
-    if (e.IsOnlyLeftMouseButton() && HitTest(e.GetLocation()) &&
+    if (e.IsOnlyLeftMouseButton() && HitTest(WTL::CPoint(e.GetX(), e.GetY())) &&
         GetDragOperations(e.GetX(), e.GetY()) == DragDropTypes::DRAG_NONE) {
       TimeDelta delta = Time::Now() - menu_closed_time_;
       int64 delta_in_milliseconds = delta.InMilliseconds();
@@ -222,7 +223,7 @@ void MenuButton::OnMouseReleased(const ChromeViews::MouseEvent& e,
                                  bool canceled) {
   if (GetDragOperations(e.GetX(), e.GetY()) != DragDropTypes::DRAG_NONE &&
       GetState() != BS_DISABLED && !canceled && !InDrag() &&
-      e.IsOnlyLeftMouseButton() && HitTest(e.GetLocation())) {
+      e.IsOnlyLeftMouseButton() && HitTest(WTL::CPoint(e.GetX(), e.GetY()))) {
     Activate();
   } else {
     TextButton::OnMouseReleased(e, canceled);

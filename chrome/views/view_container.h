@@ -27,12 +27,17 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_VIEWS_VIEW_CONTAINER_H__
-#define CHROME_VIEWS_VIEW_CONTAINER_H__
+#ifndef CHROME_VIEWS_VIEW_CONTAINER_H_
+#define CHROME_VIEWS_VIEW_CONTAINER_H_
 
-#include <atlbase.h>
-#include <atlapp.h>
-#include <atlmisc.h>
+// TODO(maruel):  Remove once HWND is abstracted.
+#include <windows.h>
+
+// TODO(maruel):  Remove once gfx::Rect is used instead.
+namespace WTL {
+class CRect;
+}
+using WTL::CRect;
 
 namespace ChromeViews {
 
@@ -59,6 +64,7 @@ class Accelerator;
 
 class ViewContainer {
  public:
+  virtual ~ViewContainer() { }
 
   // Returns the bounds of this container in the screen coordinate system.
   // If the receiving view container is a frame which is larger than its
@@ -96,11 +102,9 @@ class ViewContainer {
   // Returns the accelerator given a command id. Returns false if there is
   // no accelerator associated with a given id, which is a common condition.
   virtual bool GetAccelerator(int cmd_id,
-                              ChromeViews::Accelerator* accelerator) = 0;
+                              Accelerator* accelerator) = 0;
 };
 
+}  // namespace ChromeViews
 
-
-}
-
-#endif // CHROME_VIEWS_VIEW_CONTAINER_H__
+#endif // CHROME_VIEWS_VIEW_CONTAINER_H_

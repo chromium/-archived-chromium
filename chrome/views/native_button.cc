@@ -29,6 +29,7 @@
 
 #include "chrome/views/native_button.h"
 
+#include "base/logging.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"

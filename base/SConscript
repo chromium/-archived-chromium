@@ -73,6 +73,7 @@ input_files = [
     'pickle.cc',
     'platform_thread.cc',
     'revocable_store.cc',
+    'ref_counted.cc',
     'sha2.cc',
     'string_escape.cc',
     'string_piece.cc',

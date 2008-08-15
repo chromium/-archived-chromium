@@ -27,11 +27,13 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "chrome/browser/native_ui_contents.h"
+
 #include "chrome/browser/browser.h"
 #include "chrome/browser/download_tab_view.h"
 #include "chrome/browser/history_tab_ui.h"
-#include "chrome/browser/native_ui_contents.h"
 #include "chrome/browser/navigation_entry.h"
+#include "chrome/common/drag_drop_types.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/l10n_util.h"

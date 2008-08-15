@@ -27,15 +27,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <atlbase.h>
-#include <atlapp.h>
-#include <atlmisc.h>
-#include <atlcrack.h>
-#include <atlwin.h>
-
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/views/background.h"
 #include "chrome/views/event.h"
+#include "chrome/views/root_view.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window.h"
 #include "testing/gtest/include/gtest/gtest.h"

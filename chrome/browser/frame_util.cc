@@ -30,6 +30,7 @@
 #include "chrome/browser/frame_util.h"
 
 #include "base/message_loop.h"
+#include "base/win_util.h"
 #include "chrome/app/result_codes.h"
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/browser.h"
@@ -42,6 +43,7 @@
 #include "chrome/browser/simple_vista_frame.h"
 #include "chrome/browser/simple_xp_frame.h"
 #include "chrome/browser/vista_frame.h"
+#include "chrome/browser/web_contents.h"
 #include "chrome/browser/xp_frame.h"
 #include "chrome/common/notification_source.h"
 #include "chrome/common/win_util.h"

@@ -31,10 +31,13 @@
 
 #include <math.h>
 
+#include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
+#include "chrome/common/gfx/insets.h"
 #include "chrome/common/gfx/url_elider.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
 #include "chrome/views/view_container.h"

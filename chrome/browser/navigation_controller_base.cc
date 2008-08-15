@@ -33,7 +33,6 @@
 
 #include "base/logging.h"
 #include "chrome/browser/navigation_entry.h"
-#include "net/base/registry_controlled_domain.h"
 #include "webkit/glue/webkit_glue.h"
 
 // The maximum number of entries that a navigation controller can store.

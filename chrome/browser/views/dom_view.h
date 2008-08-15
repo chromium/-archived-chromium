@@ -30,53 +30,27 @@
 // DOMView is a ChromeView that displays the content of a web DOM.
 // It should be used with data: URLs.
 
-#ifndef CHROME_BROWSER_VIEWS_DOM_VIEW_H__
-#define CHROME_BROWSER_VIEWS_DOM_VIEW_H__
+#ifndef CHROME_BROWSER_VIEWS_DOM_VIEW_H_
+#define CHROME_BROWSER_VIEWS_DOM_VIEW_H_
 
-#include "base/basictypes.h"
-#include "base/scoped_ptr.h"
-#include "base/string_util.h"
-#include "chrome/browser/render_process_host.h"
-#include "chrome/browser/dom_ui/dom_ui_host.h"
 #include "chrome/views/hwnd_view.h"
+#include "googleurl/src/gurl.h"
+
+class DOMUIHost;
+class Profile;
+class SiteInstance;
 
 class DOMView : public ChromeViews::HWNDView {
  public:
   // Construct a DOMView to display the given data: URL.
-  explicit DOMView(const GURL& contents)
-      : contents_(contents), initialized_(false), host_(NULL) {}
-
-  virtual ~DOMView() {
-    if (host_) {
-      Detach();
-      host_->Destroy();
-      host_ = NULL;
-    }
-  }
+  explicit DOMView(const GURL& contents);
+  virtual ~DOMView();
 
   // Initialize the view, causing it to load its contents.  This should be
   // called once the view has been added to a container.
   // If |instance| is not null, then the view will be loaded in the same
   // process as the given instance.
-  bool Init(Profile* profile, SiteInstance* instance) {
-    if (initialized_)
-      return true;
-    initialized_ = true;
-
-    // TODO(timsteele): This should use a separate factory method; e.g
-    // a DOMUIHostFactory rather than TabContentsFactory, because DOMView's
-    // should only be associated with instances of DOMUIHost.
-    TabContentsType type = TabContents::TypeForURL(&contents_);
-    TabContents* tab_contents =  TabContents::CreateWithType(type,
-        GetViewContainer()->GetHWND(), profile, instance);
-    host_ = tab_contents->AsDOMUIHost();
-    DCHECK(host_);
-
-    ChromeViews::HWNDView::Attach(host_->GetContainerHWND());
-    host_->SetupController(profile);
-    host_->controller()->LoadURL(contents_, PageTransition::START_PAGE);
-    return true;
-  }
+  bool Init(Profile* profile, SiteInstance* instance);
 
  protected:
   DOMUIHost* host_;
@@ -85,8 +59,7 @@ class DOMView : public ChromeViews::HWNDView {
   GURL contents_;
   bool initialized_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(DOMView);
+  DISALLOW_COPY_AND_ASSIGN(DOMView);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_DOM_VIEW_H__
-
+#endif  // CHROME_BROWSER_VIEWS_DOM_VIEW_H_

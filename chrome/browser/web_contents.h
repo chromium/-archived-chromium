@@ -27,13 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_WEB_CONTENTS_H__
-#define CHROME_BROWSER_WEB_CONTENTS_H__
+#ifndef CHROME_BROWSER_WEB_CONTENTS_H_
+#define CHROME_BROWSER_WEB_CONTENTS_H_
 
 #include <hash_map>
 
-#include "base/scoped_handle.h"
-#include "chrome/common/win_util.h"
 #include "chrome/browser/fav_icon_helper.h"
 #include "chrome/browser/printing/print_view_manager.h"
 #include "chrome/browser/render_view_host_delegate.h"
@@ -152,7 +150,7 @@ class WebContents : public TabContents,
   void SetDownloadShelfVisible(bool visible);
 
   // Returns the SavePackage which manages the page saving job.
-  inline SavePackage* get_save_package() const { return save_package_.get(); }
+  SavePackage* get_save_package() const { return save_package_.get(); }
 
   // Whether or not the info bar is visible. This delegates to
   // the ChromeFrame method InfoBarVisibilityChanged.
@@ -822,8 +820,7 @@ class WebContents : public TabContents,
   // Non-null if we're displaying content for a web app.
   scoped_refptr<WebApp> web_app_;
 
-
-  DISALLOW_EVIL_CONSTRUCTORS(WebContents);
+  DISALLOW_COPY_AND_ASSIGN(WebContents);
 };
 
-#endif  // CHROME_BROWSER_WEB_CONTENTS_H__
+#endif  // CHROME_BROWSER_WEB_CONTENTS_H_

@@ -30,6 +30,8 @@
 #ifndef CHROME_VIEWS_CONTROLLER_H_
 #define CHROME_VIEWS_CONTROLLER_H_
 
+#include <string>
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Controller class
@@ -41,6 +43,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 class Controller {
  public:
+  virtual ~Controller() { }
+
   // Whether or not a command is supported by this controller.
   virtual bool SupportsCommand(int id) const = 0;
 

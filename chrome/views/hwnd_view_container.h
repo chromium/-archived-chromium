@@ -27,21 +27,26 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_VIEWS_HWND_VIEW_CONTAINER_H__
-#define CHROME_VIEWS_HWND_VIEW_CONTAINER_H__
+#ifndef CHROME_VIEWS_HWND_VIEW_CONTAINER_H_
+#define CHROME_VIEWS_HWND_VIEW_CONTAINER_H_
 
 #include <atlbase.h>
-#include <atlapp.h>
 #include <atlcrack.h>
 
 #include "base/message_loop.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/layout_manager.h"
-#include "chrome/views/root_view.h"
 #include "chrome/views/view_container.h"
+
+class ChromeCanvas;
+
+namespace gfx {
+class Rect;
+}
 
 namespace ChromeViews {
 
+class RootView;
 class TooltipManager;
 
 bool SetRootViewForHWND(HWND hwnd, RootView* root_view);
@@ -555,6 +560,6 @@ class HWNDViewContainer : public ViewContainer,
   HWND hwnd_;
 };
 
-}
+}  // namespace ChromeViews
 
-#endif  // #ifndef CHROME_VIEWS_HWND_VIEW_CONTAINER_H__
+#endif  // #ifndef CHROME_VIEWS_HWND_VIEW_CONTAINER_H_
