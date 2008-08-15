@@ -432,8 +432,6 @@ bool MessagePumpWin::ProcessPumpReplacementMessage() {
   DCHECK(!have_message || kMsgHaveWork != msg.message ||
          msg.hwnd != message_hwnd_);
   
-#if 1
-
   // Since we discarded a kMsgHaveWork message, we must update the flag.
   InterlockedExchange(&have_work_, 0);
 
@@ -442,20 +440,6 @@ bool MessagePumpWin::ProcessPumpReplacementMessage() {
   // kMsgHaveWork message until the next out-of-band call to ScheduleWork.
 
   return have_message && ProcessMessageHelper(msg);
-
-#else
-
-  PostMessage(message_hwnd_, kMsgHaveWork, reinterpret_cast<WPARAM>(this), 0);
-
-  bool result = have_message && ProcessMessageHelper(msg);
-
-  PeekMessage(&msg, message_hwnd_, kMsgHaveWork, kMsgHaveWork, PM_REMOVE);
-  InterlockedExchange(&have_work_, 0);
-  // We know that are going to call DoWork next!
-
-  return result;
-
-#endif
 }
 
 // Note: MsgWaitMultipleObjects() can't take a nil list, and that is why I had
