@@ -65,9 +65,9 @@
 		7B78D40E0E54FE8000609465 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B78D40D0E54FE8000609465 /* Foundation.framework */; };
 		7B836ADD0E55097000F6AD31 /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B165D4D0E55081400185273 /* libicuuc.a */; };
 		7B836ADE0E55097000F6AD31 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B165D4F0E55081400185273 /* libicui18n.a */; };
-		7B836ADF0E55097000F6AD31 /* libicudatastatic.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B165D590E55081400185273 /* libicudatastatic.a */; };
 		7B836AE30E5509A900F6AD31 /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B165D300E55081000185273 /* libgtest.a */; };
 		7B836C050E55BBB800F6AD31 /* ref_counted.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7B836C040E55BBB800F6AD31 /* ref_counted.cc */; };
+		7B836E180E55CE5B00F6AD31 /* libicudatastatic.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B836D970E55CE4700F6AD31 /* libicudatastatic.a */; };
 		7BAF501C0E50B84200CA8A07 /* base_paths.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BAF501B0E50B84200CA8A07 /* base_paths.cc */; };
 		7BAF50760E50B8F100CA8A07 /* file_version_info_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7BAF50740E50B8F100CA8A07 /* file_version_info_mac.mm */; };
 		820EB4F70E3A613F009668FC /* string_piece.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4F50E3A613F009668FC /* string_piece.cc */; };
@@ -174,20 +174,6 @@
 			remoteGlobalIDString = 7BD5410E0D6F8457003CD41E;
 			remoteInfo = icupkg;
 		};
-		7B165D560E55081400185273 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E4562AF30E27E428005E4685 /* icu.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 7BD540FB0D6F8397003CD41E;
-			remoteInfo = icudata;
-		};
-		7B165D580E55081400185273 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E4562AF30E27E428005E4685 /* icu.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 82C262C40DCF9411005CFE91;
-			remoteInfo = icudatastatic;
-		};
 		7B165D5D0E55081400185273 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E4562A2A0E27CA2F005E4685 /* libpng.xcodeproj */;
@@ -251,6 +237,13 @@
 			remoteGlobalIDString = 82C262C30DCF9411005CFE91;
 			remoteInfo = icudatastatic;
 		};
+		7B836D960E55CE4700F6AD31 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E4562AF30E27E428005E4685 /* icu.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 82C262C40DCF9411005CFE91;
+			remoteInfo = icudatastatic;
+		};
 		825404050D92D33A0006B936 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 825402AA0D92D0C60006B936 /* Project object */;
@@ -282,6 +275,9 @@
 		7B78CE100E53131800609465 /* debug_util_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug_util_posix.cc; sourceTree = "<group>"; };
 		7B78D40D0E54FE8000609465 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
 		7B836C040E55BBB800F6AD31 /* ref_counted.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ref_counted.cc; sourceTree = "<group>"; };
+		7B836C4C0E55C6AC00F6AD31 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
+		7B836C4D0E55C6AC00F6AD31 /* debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = debug.xcconfig; sourceTree = "<group>"; };
+		7B836C4E0E55C6AC00F6AD31 /* release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = release.xcconfig; sourceTree = "<group>"; };
 		7BAF4F0A0E50A2FD00CA8A07 /* notimplemented.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = notimplemented.h; sourceTree = "<group>"; };
 		7BAF4F7B0E50A3BD00CA8A07 /* logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logging.h; sourceTree = "<group>"; };
 		7BAF501B0E50B84200CA8A07 /* base_paths.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = base_paths.cc; sourceTree = "<group>"; };
@@ -513,7 +509,7 @@
 				7B78D40E0E54FE8000609465 /* Foundation.framework in Frameworks */,
 				7B78D38C0E54FDEC00609465 /* libbase.a in Frameworks */,
 				7B836AE30E5509A900F6AD31 /* libgtest.a in Frameworks */,
-				7B836ADF0E55097000F6AD31 /* libicudatastatic.a in Frameworks */,
+				7B836E180E55CE5B00F6AD31 /* libicudatastatic.a in Frameworks */,
 				7B836ADE0E55097000F6AD31 /* libicui18n.a in Frameworks */,
 				7B836ADD0E55097000F6AD31 /* libicuuc.a in Frameworks */,
 			);
@@ -533,14 +529,13 @@
 		7B165D400E55081400185273 /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				7B165D530E55081400185273 /* genccode */,
 				7B165D4B0E55081400185273 /* libicudata_stub.a */,
-				7B165D4D0E55081400185273 /* libicuuc.a */,
+				7B836D970E55CE4700F6AD31 /* libicudatastatic.a */,
 				7B165D4F0E55081400185273 /* libicui18n.a */,
 				7B165D510E55081400185273 /* libicutu.a */,
-				7B165D530E55081400185273 /* genccode */,
+				7B165D4D0E55081400185273 /* libicuuc.a */,
 				7B165D550E55081400185273 /* icupkg */,
-				7B165D570E55081400185273 /* libicudata.dylib */,
-				7B165D590E55081400185273 /* libicudatastatic.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -582,9 +577,21 @@
 			path = ..;
 			sourceTree = "<group>";
 		};
+		7B836C4B0E55C69000F6AD31 /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				7B836C4C0E55C6AC00F6AD31 /* common.xcconfig */,
+				7B836C4D0E55C6AC00F6AD31 /* debug.xcconfig */,
+				7B836C4E0E55C6AC00F6AD31 /* release.xcconfig */,
+			);
+			name = Configuration;
+			path = ../build;
+			sourceTree = "<group>";
+		};
 		825402A80D92D0C60006B936 = {
 			isa = PBXGroup;
 			children = (
+				7B836C4B0E55C69000F6AD31 /* Configuration */,
 				825402B60D92D0E20006B936 /* base */,
 				825403B40D92D2EC0006B936 /* base_gfx */,
 				829E2FA80DBFD7D500819EBF /* Frameworks */,
@@ -981,20 +988,6 @@
 			remoteRef = 7B165D540E55081400185273 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		7B165D570E55081400185273 /* libicudata.dylib */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.dylib";
-			path = libicudata.dylib;
-			remoteRef = 7B165D560E55081400185273 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		7B165D590E55081400185273 /* libicudatastatic.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libicudatastatic.a;
-			remoteRef = 7B165D580E55081400185273 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		7B165D5E0E55081400185273 /* libpng.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1014,6 +1007,13 @@
 			fileType = archive.ar;
 			path = libzlib.a;
 			remoteRef = 7B165D6D0E55081400185273 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		7B836D970E55CE4700F6AD31 /* libicudatastatic.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libicudatastatic.a;
+			remoteRef = 7B836D960E55CE4700F6AD31 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -1190,40 +1190,15 @@
 /* Begin XCBuildConfiguration section */
 		825402AB0D92D0C60006B936 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7B836C4D0E55C6AC00F6AD31 /* debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				GCC_CW_ASM_SYNTAX = NO;
-				GCC_DYNAMIC_NO_PIC = YES;
-				GCC_ENABLE_OBJC_GC = supported;
-				GCC_ENABLE_PASCAL_STRINGS = NO;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				PREBINDING = NO;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "-Wall";
 			};
 			name = Debug;
 		};
 		825402AC0D92D0C60006B936 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7B836C4E0E55C6AC00F6AD31 /* release.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				DEAD_CODE_STRIPPING = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_CW_ASM_SYNTAX = NO;
-				GCC_DYNAMIC_NO_PIC = YES;
-				GCC_ENABLE_OBJC_GC = supported;
-				GCC_ENABLE_PASCAL_STRINGS = NO;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				PREBINDING = NO;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "-Wall";
 			};
 			name = Release;
 		};
