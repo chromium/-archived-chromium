@@ -197,7 +197,7 @@ bool ContentsEqual(const std::wstring& filename1,
 // Useful for unit tests.
 bool ReadFileToString(const std::wstring& path, std::string* contents);
 
-#if defined(OS_WINDOWS)
+#if defined(OS_WIN)
 // Resolve Windows shortcut (.LNK file)
 // Argument path specifies a valid LNK file. On success, return true and put
 // the URL into path. If path is a invalid .LNK file, return false.

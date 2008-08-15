@@ -27,7 +27,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#if defined(OS_WINDOWS)
+#if defined(OS_WIN)
 #include <windows.h>
 #include <shellapi.h>
 #include <shlobj.h>
@@ -117,7 +117,7 @@ std::wstring ReadTextFile(const std::wstring& filename) {
   return std::wstring(contents);
 }
 
-#if defined OS_WINDOWS
+#if defined(OS_WIN)
 uint64 FileTimeAsUint64(const FILETIME& ft) {
   ULARGE_INTEGER u;
   u.LowPart = ft.dwLowDateTime;
@@ -131,7 +131,7 @@ const struct append_case {
   const wchar_t* ending;
   const wchar_t* result;
 } append_cases[] = {
-#if defined(OS_WINDOWS)
+#if defined(OS_WIN)
   {L"c:\\colon\\backslash", L"path", L"c:\\colon\\backslash\\path"},
   {L"c:\\colon\\backslash\\", L"path", L"c:\\colon\\backslash\\path"},
   {L"c:\\colon\\backslash\\\\", L"path", L"c:\\colon\\backslash\\\\path"},
@@ -186,7 +186,7 @@ static const struct InsertBeforeExtensionCase {
   {L"foo", L".", L"foo."},
   {L"foo.baz.dll", L"", L"foo.baz.dll"},
   {L"foo.baz.dll", L".", L"foo.baz..dll"},
-#if defined(OS_WINDOWS)
+#if defined(OS_WIN)
   {L"\\", L"", L"\\"},
   {L"\\", L"txt", L"\\txt"},
   {L"\\.", L"txt", L"\\txt."},
@@ -227,7 +227,7 @@ static const struct filename_case {
   const wchar_t* path;
   const wchar_t* filename;
 } filename_cases[] = {
-#if defined(OS_WINDOWS)
+#if defined(OS_WIN)
   {L"c:\\colon\\backslash", L"backslash"},
   {L"c:\\colon\\backslash\\", L""},
   {L"\\\\filename.exe", L"filename.exe"},
@@ -261,7 +261,7 @@ static const struct extension_case {
   const wchar_t* path;
   const wchar_t* extension;
 } extension_cases[] = {
-#if defined(OS_WINDOWS)
+#if defined(OS_WIN)
   {L"C:\\colon\\backslash\\filename.extension", L"extension"},
   {L"C:\\colon\\backslash\\filename.", L""},
   {L"C:\\colon\\backslash\\filename", L""},
@@ -296,7 +296,7 @@ static const struct dir_case {
   const wchar_t* full_path;
   const wchar_t* directory;
 } dir_cases[] = {
-#if defined(OS_WINDOWS)
+#if defined(OS_WIN)
   {L"C:\\WINDOWS\\system32\\gdi32.dll", L"C:\\WINDOWS\\system32"},
   {L"C:\\WINDOWS\\system32\\not_exist_thx_1138", L"C:\\WINDOWS\\system32"},
   {L"C:\\WINDOWS\\system32\\", L"C:\\WINDOWS\\system32"},
@@ -327,7 +327,7 @@ TEST_F(FileUtilTest, GetDirectoryFromPath) {
 }
 
 // TODO(erikkay): implement
-#if defined OS_WINDOWS
+#if defined OS_WIN
 TEST_F(FileUtilTest, CountFilesCreatedAfter) {
   // Create old file (that we don't want to count)
   std::wstring old_file_name = test_dir_;
@@ -373,7 +373,7 @@ TEST_F(FileUtilTest, Delete) {
   ASSERT_TRUE(file_util::PathExists(subdir_path));
 
   std::wstring directory_contents = test_dir_;
-#if defined(OS_WINDOWS)
+#if defined(OS_WIN)
   // TODO(erikkay): see if anyone's actually using this feature of the API
   file_util::AppendToPath(&directory_contents, L"*");
 
@@ -420,7 +420,7 @@ TEST_F(FileUtilTest, Move) {
 }
 
 // TODO(erikkay): implement
-#if defined(OS_WINDOWS)
+#if defined(OS_WIN)
 TEST_F(FileUtilTest, CopyDirectoryRecursively) {
   // Create a directory.
   std::wstring dir_name_from(test_dir_);
@@ -557,7 +557,7 @@ TEST_F(FileUtilTest, CopyFile) {
 }
 
 // TODO(erikkay): implement
-#if defined(OS_WINDOWS)
+#if defined(OS_WIN)
 TEST_F(FileUtilTest, GetFileCreationLocalTime) {
   std::wstring file_name = test_dir_;
   file_util::AppendToPath(&file_name, L"Test File.txt");
@@ -642,7 +642,7 @@ TEST(ReadOnlyFileUtilTest, ContentsEqual) {
 }
 
 // We don't need equivalent functionality outside of Windows.
-#if defined(OS_WINDOWS)
+#if defined(OS_WIN)
 TEST_F(FileUtilTest, ResolveShortcutTest) {
   std::wstring target_file = test_dir_;
   file_util::AppendToPath(&target_file, L"Target.txt");
@@ -730,7 +730,7 @@ TEST_F(FileUtilTest, CreateDirectoryTest) {
   std::wstring test_root = test_dir_;
   file_util::AppendToPath(&test_root, L"create_directory_test");
   std::wstring test_path(test_root);
-#if defined(OS_WINDOWS)
+#if defined(OS_WIN)
   file_util::AppendToPath(&test_path, L"dir\\tree\\likely\\doesnt\\exist\\");
 #elif defined(OS_POSIX)
   file_util::AppendToPath(&test_path, L"dir/tree/likely/doesnt/exist/");
@@ -753,7 +753,7 @@ static const struct goodbad_pair {
   // We can't use UCNs (universal character names) for C0/C1 characters and
   // U+007F, but \x escape is interpreted by MSVC and gcc as we intend.
   {L"bad\x0003\x0091 file\u200E\u200Fname.png", L"bad-- file--name.png"},
-#if defined(OS_WINDOWS)
+#if defined(OS_WIN)
   {L"bad*file\\name.jpg", L"bad-file-name.jpg"},
   {L"\t  bad*file\\name/.jpg ", L"bad-file-name-.jpg"},
   {L"bad\uFFFFfile\U0010FFFEname.jpg ", L"bad-file-name.jpg"},
