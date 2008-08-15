@@ -43,11 +43,14 @@ env.Append(
     CPPDEFINES = [
         'U_STATIC_IMPLEMENTATION',
     ],
-
-    CCFLAGS = [
-        '/TP',
-    ],
 )
+
+if env['PLATFORM'] == 'win32':
+  env.Append(
+      CCFLAGS = [
+          '/TP',
+      ],
+  )
 
 input_files = [
     'src/gurl.cc',
@@ -90,4 +93,3 @@ env.ChromeStaticLibrary('googleurl', input_files)
 #]
 #
 #env_tests.ChromeStaticLibrary('googleurl_tests', test_files)
-

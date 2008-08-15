@@ -507,7 +507,7 @@ TEST(URLRequestTest, BZip2ContentTest) {
   const std::string& got_bz2_content = d2.data_received();
 
   // compare those two results
-  EXPECT_TRUE(got_content == got_bz2_content);
+  EXPECT_EQ(got_content, got_bz2_content);
 }
 
 TEST(URLRequestTest, BZip2ContentTest_IncrementalHeader) {
@@ -532,7 +532,7 @@ TEST(URLRequestTest, BZip2ContentTest_IncrementalHeader) {
   const std::string& got_bz2_content = d2.data_received();
 
   // compare those two results
-  EXPECT_TRUE(got_content == got_bz2_content);
+  EXPECT_EQ(got_content, got_bz2_content);
 }
 
 TEST(URLRequestTest, ResolveShortcutTest) {

@@ -321,7 +321,15 @@ elif env['PLATFORM'] == 'posix':
   SetOption('num_jobs', cpus + 1)
 
   # For now, linux only loads the components we know work on Linux, by default.
-  load = ['base', 'testing', 'third_party', 'breakpad', 'skia']
+  load = [
+      'base',
+      'breakpad',
+      'googleurl',
+      'net',
+      'skia',
+      'testing',
+      'third_party',
+  ]
 
   env.Replace(
       # TODO(linux): we should also compile with -Werror, but not yet.
