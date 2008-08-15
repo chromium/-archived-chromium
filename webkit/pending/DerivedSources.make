@@ -43,7 +43,10 @@ VPATH = \
 
 ifeq ($(OS),MACOS)
 all : \
-    CharsetData.cpp \
+    CharsetData.cpp
+endif
+
+# we don't want to generate objC bindings \
     DOMAbstractView.h \
     DOMAttr.h \
     DOMCDATASection.h \
@@ -300,7 +303,7 @@ all : \
     DOMWheelEvent.h \
     DOMXPathExpression.h \
     DOMXPathNSResolver.h \
-    DOMXPathResult.h
+    DOMXPathResult.h \
 endif
 
 all : \

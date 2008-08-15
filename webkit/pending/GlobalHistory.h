@@ -28,6 +28,8 @@
 
 #include <wtf/unicode/Unicode.h>
 
+class Document;
+
 namespace WebCore {
 
     bool historyContains(const UChar* characters, unsigned length,
