@@ -35,7 +35,7 @@
 #include "net/disk_cache/errors.h"
 
 // This is used by crash_cache.exe to generate unit test files.
-extern disk_cache::RankCrashes g_rankings_crash = disk_cache::NO_CRASH;
+disk_cache::RankCrashes g_rankings_crash = disk_cache::NO_CRASH;
 
 namespace {
 
@@ -91,6 +91,7 @@ enum CrashLocation {
 // Generates a crash on debug builds, acording to the value of g_rankings_crash.
 // This used by crash_cache.exe to generate unit-test files.
 void GenerateCrash(CrashLocation location) {
+#if defined(OS_WIN)
 #ifndef NDEBUG
   if (disk_cache::NO_CRASH == g_rankings_crash)
     return;
@@ -169,7 +170,8 @@ void GenerateCrash(CrashLocation location) {
       NOTREACHED();
       return;
   }
-#endif
+#endif  // NDEBUG
+#endif  // OS_WIN
 }
 
 }  // namespace

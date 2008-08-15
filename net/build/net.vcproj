@@ -789,10 +789,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\disk_cache\file.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\disk_cache\file.h"
 				>
 			</File>
@@ -809,6 +805,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\disk_cache\file_win.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\disk_cache\hash.cc"
 				>
 			</File>
@@ -817,11 +817,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\disk_cache\mapped_file.cc"
+				RelativePath="..\disk_cache\mapped_file.h"
 				>
 			</File>
 			<File
-				RelativePath="..\disk_cache\mapped_file.h"
+				RelativePath="..\disk_cache\mapped_file_win.cc"
 				>
 			</File>
 			<File

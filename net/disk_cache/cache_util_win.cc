@@ -34,6 +34,33 @@
 #include "base/scoped_handle.h"
 #include "base/file_util.h"
 
+namespace {
+
+// Deletes all the files on path that match search_name pattern.
+// Do not call this function with "*" as search_name.
+bool DeleteFiles(const wchar_t* path, const wchar_t* search_name) {
+  std::wstring name(path);
+  file_util::AppendToPath(&name, search_name);
+
+  WIN32_FIND_DATA data;
+  ScopedFindFileHandle handle(FindFirstFile(name.c_str(), &data));
+  if (!handle.IsValid()) {
+    DWORD error = GetLastError();
+    return ERROR_FILE_NOT_FOUND == error;
+  }
+  std::wstring adjusted_path(path);
+  adjusted_path += L'\\';
+  do {
+    std::wstring current(adjusted_path);
+    current += data.cFileName;
+    if (!DeleteFile(current.c_str()))
+      return false;
+  } while (FindNextFile(handle, &data));
+  return true;
+}
+
+}  // namespace
+
 namespace disk_cache {
 
 int64 GetFreeDiskSpace(const std::wstring& path) {
@@ -66,29 +93,6 @@ bool MoveCache(const std::wstring& from_path, const std::wstring& to_path) {
   return MoveFileEx(from_path.c_str(), to_path.c_str(), 0) != FALSE;
 }
 
-// Deletes all the files on path that match search_name pattern.
-// Do not call this function with "*" as search_name.
-bool DeleteFiles(const wchar_t* path, const wchar_t* search_name) {
-  std::wstring name(path);
-  file_util::AppendToPath(&name, search_name);
-
-  WIN32_FIND_DATA data;
-  ScopedFindFileHandle handle(FindFirstFile(name.c_str(), &data));
-  if (!handle.IsValid()) {
-    DWORD error = GetLastError();
-    return ERROR_FILE_NOT_FOUND == error;
-  }
-  std::wstring adjusted_path(path);
-  adjusted_path += L'\\';
-  do {
-    std::wstring current(adjusted_path);
-    current += data.cFileName;
-    if (!DeleteFile(current.c_str()))
-      return false;
-  } while (FindNextFile(handle, &data));
-  return true;
-}
-
 void DeleteCache(const std::wstring& path, bool remove_folder) {
   DeleteFiles(path.c_str(), L"f_*");
   DeleteFiles(path.c_str(), L"data_*");
@@ -99,6 +103,12 @@ void DeleteCache(const std::wstring& path, bool remove_folder) {
 
   if (remove_folder)
     RemoveDirectory(path.c_str());
+}
+
+bool DeleteCacheFile(const std::wstring& name) {
+  // We do a simple delete, without ever falling back to SHFileOperation, as the
+  // version from base does.
+  return DeleteFile(name.c_str()) ? true : false;
 }
 
 void WaitForPendingIO(int num_pending_io) {

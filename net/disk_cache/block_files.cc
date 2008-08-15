@@ -30,7 +30,6 @@
 #include "net/disk_cache/block_files.h"
 
 #include "base/histogram.h"
-#include "base/scoped_handle.h"
 #include "base/string_util.h"
 #include "base/time.h"
 #include "net/disk_cache/file_lock.h"

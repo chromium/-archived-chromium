@@ -51,6 +51,9 @@ bool MoveCache(const std::wstring& from_path, const std::wstring& to_path);
 // delete the folder itself.
 void DeleteCache(const std::wstring& path, bool remove_folder);
 
+// Deletes a cache file.
+bool DeleteCacheFile(const std::wstring& name);
+
 // Blocks until |num_pending_io| IO operations complete.
 void WaitForPendingIO(int num_pending_io);
 

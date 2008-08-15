@@ -27,47 +27,39 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "net/disk_cache/cache_util.h"
+#include "net/disk_cache/mapped_file.h"
 
-#include "base/file_util.h"
-#include "base/logging.h"
-#include "base/notimplemented.h"
+#include "net/disk_cache/disk_cache.h"
 
 namespace disk_cache {
 
-int64 GetFreeDiskSpace(const std::wstring& path) {
-  DLOG(WARNING) << "Not Implemented";
-  return -1;
+void* MappedFile::Init(const std::wstring name, size_t size) {
+  DCHECK(!init_);
+  if (init_ || !File::Init(name))
+    return NULL;
+
+  buffer_ = NULL;
+  init_ = true;
+
+  return buffer_;
 }
 
-int64 GetSystemMemory() {
-  // TODO(pinkerton): figure this out for mac/linux
-  return -1;
-}
+MappedFile::~MappedFile() {
+  if (!init_)
+    return;
 
-bool MoveCache(const std::wstring& from_path, const std::wstring& to_path) {
-  // Just use the version from base.
-  return file_util::Move(from_path.c_str(), to_path.c_str());
-}
-
-void DeleteCache(const std::wstring& path, bool remove_folder) {
-  if (remove_folder) {
-    file_util::Delete(path, false);
-  } else {
-    std::wstring name(path);
-    file_util::AppendToPath(&name, L"*");
-    file_util::Delete(name, false);
+  if (buffer_) {
   }
 }
 
-bool DeleteCacheFile(const std::wstring& name) {
-  return file_util::Delete(name, false);
+bool MappedFile::Load(const FileBlock* block) {
+  size_t offset = block->offset() + view_size_;
+  return Read(block->buffer(), block->size(), offset);
 }
 
-void WaitForPendingIO(int num_pending_io) {
-  if (num_pending_io) {
-    NOTIMPLEMENTED();
-  }
+bool MappedFile::Store(const FileBlock* block) {
+  size_t offset = block->offset() + view_size_;
+  return Write(block->buffer(), block->size(), offset);
 }
 
 }  // namespace disk_cache

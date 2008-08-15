@@ -62,7 +62,7 @@ class File : public base::RefCounted<File> {
 
   // Initializes the object to point to a given file. The file must aready exist
   // on disk, and allow shared read and write.
-  bool Init(const std::wstring name);
+  bool Init(const std::wstring& name);
 
   // Returns the handle or file descriptor.
   OSFile os_file() const;

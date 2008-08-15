@@ -118,7 +118,7 @@ File::File(OSFile file)
       sync_os_file_(file) {
 }
 
-bool  File::Init(const std::wstring name) {
+bool File::Init(const std::wstring& name) {
   DCHECK(!init_);
   if (init_)
     return false;

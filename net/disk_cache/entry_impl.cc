@@ -34,6 +34,7 @@
 #include "base/string_util.h"
 #include "net/base/net_errors.h"
 #include "net/disk_cache/backend_impl.h"
+#include "net/disk_cache/cache_util.h"
 
 namespace {
 
@@ -574,7 +575,7 @@ void EntryImpl::DeleteData(Addr address, int index) {
     if (files_[index])
       files_[index] = NULL;  // Releases the object.
 
-    if (!DeleteFile(backend_->GetFileName(address).c_str()))
+    if (!DeleteCacheFile(backend_->GetFileName(address)))
       LOG(ERROR) << "Failed to delete " << backend_->GetFileName(address) <<
                     " from the cache.";
   } else {

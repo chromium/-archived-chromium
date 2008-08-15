@@ -27,17 +27,20 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <windows.h>
-
 #include "net/disk_cache/trace.h"
 
+#if defined(OS_WIN)
+#include <windows.h>
+#endif
+
 #include "base/logging.h"
+#include "base/notimplemented.h"
 
 // Change this value to 1 to enable tracing on a release build. By default,
 // tracing is enabled only on debug builds.
 #define ENABLE_TRACING 0
 
-#if _DEBUG
+#ifndef NDEBUG
 #undef ENABLE_TRACING
 #define ENABLE_TRACING 1
 #endif
@@ -56,7 +59,11 @@ struct TraceBuffer {
 TraceBuffer* s_trace_buffer = NULL;
 
 void DebugOutput(char* msg) {
+#if defined(OS_WIN)
   OutputDebugStringA(msg);
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 }  // namespace
@@ -86,7 +93,11 @@ void Trace(const char* format, ...) {
   va_list ap;
   va_start(ap, format);
 
+#if defined(OS_WIN)
   vsprintf_s(s_trace_buffer->buffer[s_trace_buffer->current], format, ap);
+#else
+  NOTIMPLEMENTED();
+#endif
   s_trace_buffer->num_traces++;
   s_trace_buffer->current++;
   if (s_trace_buffer->current == kNumberOfEntries)
