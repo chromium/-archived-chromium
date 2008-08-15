@@ -510,6 +510,10 @@ void RenderWidgetHostHWND::OnInputLangChange(DWORD character_set,
   }
 }
 
+void RenderWidgetHostHWND::OnThemeChanged() {
+  render_widget_host_->SystemThemeChanged();
+}
+
 LRESULT RenderWidgetHostHWND::OnNotify(int w_param, NMHDR* header) {
   if (tooltip_hwnd_ == NULL)
     return 0;

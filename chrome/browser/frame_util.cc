@@ -156,6 +156,8 @@ bool FrameUtil::LoadAccelerators(BrowserWindow* frame,
 
 // static
 bool FrameUtil::ActivateAppModalDialog(Browser* browser) {
+  DCHECK(!g_browser_process->IsUsingNewFrames());
+
   // If another browser is app modal, flash and activate the modal browser.
   if (BrowserList::IsShowingAppModalDialog()) {
     if (browser != BrowserList::GetLastActive()) {
@@ -198,29 +200,4 @@ void FrameUtil::EndSession() {
   // At this point the message loop is still running yet we've shut everything
   // down. If any messages are processed we'll likely crash. Exit now.
   ExitProcess(ResultCodes::NORMAL_EXIT);
-}
-
-
-// static
-void FrameUtil::NotifyTabsOfThemeChange(Browser* browser) {
-  if (!browser) {
-    NOTREACHED();
-    return;
-  }
-
-  int tab_count = browser->tab_count();
-  for (int tab_index = 0; tab_index < tab_count; ++tab_index) {
-    TabContents* tab_contents = browser->GetTabContentsAt(tab_index);
-    DCHECK(tab_contents != NULL);
-
-    WebContents* web_contents = tab_contents->AsWebContents();
-    if (!web_contents) {
-      continue;
-    }
-
-    RenderViewHost* render_view_host = web_contents->render_view_host();
-    if (render_view_host) {
-      render_view_host->OnThemeChanged();
-    }
-  }
 }

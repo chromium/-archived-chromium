@@ -1193,7 +1193,3 @@ void RenderViewHost::OnDebugDisconnect() {
   }
 }
 
-void RenderViewHost::OnThemeChanged() {
-  Send (new ViewMsg_ThemeChanged(routing_id_));
-}
-

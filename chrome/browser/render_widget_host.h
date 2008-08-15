@@ -225,6 +225,11 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // process has gone.
   void RendererExited();
 
+  // Called when the system theme changes. At this time all existing native
+  // theme handles are invalid and the renderer must obtain new ones and
+  // repaint.
+  void SystemThemeChanged();
+
  protected:
   // Called when we an InputEvent was not processed by the renderer.
   virtual void UnhandledInputEvent(const WebInputEvent& event) { }

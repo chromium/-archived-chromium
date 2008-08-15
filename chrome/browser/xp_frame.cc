@@ -1499,7 +1499,6 @@ BOOL XPFrame::OnPowerBroadcast(DWORD power_event, DWORD data) {
 void XPFrame::OnThemeChanged() {
   // Notify NativeTheme.
   gfx::NativeTheme::instance()->CloseHandles();
-  FrameUtil::NotifyTabsOfThemeChange(browser_);
 }
 
 LRESULT XPFrame::OnAppCommand(

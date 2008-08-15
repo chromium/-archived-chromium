@@ -29,6 +29,7 @@
 
 #include "chrome/views/hwnd_view_container.h"
 
+#include "base/gfx/native_theme.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
@@ -664,6 +665,11 @@ LRESULT HWNDViewContainer::OnSettingChange(UINT msg,
 
 void HWNDViewContainer::OnSize(UINT param, const CSize& size) {
   ChangeSize(param, size);
+}
+
+void HWNDViewContainer::OnThemeChanged() {
+  // Notify NativeTheme.
+  gfx::NativeTheme::instance()->CloseHandles();
 }
 
 void HWNDViewContainer::OnFinalMessage(HWND window) {

@@ -831,3 +831,8 @@ void RenderWidgetHost::StartHangMonitorTimeout(int delay) {
 void RenderWidgetHost::RendererExited() {
   BackingStoreManager::RemoveBackingStore(this);
 }
+
+void RenderWidgetHost::SystemThemeChanged() {
+  Send(new ViewMsg_ThemeChanged(routing_id_));
+}
+

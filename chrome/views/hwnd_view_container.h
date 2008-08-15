@@ -233,6 +233,7 @@ class HWNDViewContainer : public ViewContainer,
     MSG_WM_SETFOCUS(OnSetFocus)
     MSG_WM_SIZE(OnSize)
     MSG_WM_SYSCOMMAND(OnSysCommand)
+    MSG_WM_THEMECHANGED(OnThemeChanged)
     MSG_WM_VSCROLL(OnVScroll)
     MSG_WM_WINDOWPOSCHANGED(OnWindowPosChanged)
   END_MSG_MAP()
@@ -413,6 +414,7 @@ class HWNDViewContainer : public ViewContainer,
   virtual LRESULT OnSettingChange(UINT msg, WPARAM w_param, LPARAM l_param);
   virtual void OnSize(UINT param, const CSize& size);
   virtual void OnSysCommand(UINT notification_code, CPoint click) { }
+  virtual void OnThemeChanged();
   virtual void OnVScroll(int scroll_type, short position, HWND scrollbar) {
     SetMsgHandled(FALSE);
   }

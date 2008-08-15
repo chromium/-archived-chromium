@@ -104,6 +104,7 @@ class RenderWidgetHostHWND :
     MSG_WM_CAPTURECHANGED(OnCaptureChanged)
     MSG_WM_CANCELMODE(OnCancelMode)
     MSG_WM_INPUTLANGCHANGE(OnInputLangChange)
+    MSG_WM_THEMECHANGED(OnThemeChanged)
     MSG_WM_NOTIFY(OnNotify)
     MESSAGE_HANDLER(WM_IME_SETCONTEXT, OnImeSetContext)
     MESSAGE_HANDLER(WM_IME_STARTCOMPOSITION, OnImeStartComposition)
@@ -173,6 +174,7 @@ class RenderWidgetHostHWND :
   void OnCaptureChanged(HWND window);
   void OnCancelMode();
   void OnInputLangChange(DWORD character_set, HKL input_language_id);
+  void OnThemeChanged();
   LRESULT OnNotify(int w_param, NMHDR* header);
   LRESULT OnImeSetContext(
       UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled);

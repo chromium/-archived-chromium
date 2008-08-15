@@ -68,9 +68,6 @@ class FrameUtil {
   // this method returns windows is going to kill our process. As such, this
   // blocks until the shut-down has been marked as clean.
   static void EndSession();
-
-  // Notifies all tabs with associated WebContents of theme changes.
-  static void NotifyTabsOfThemeChange(Browser* browser);
 };
 
 #endif  // #ifndef CHROME_BROWSER_FRAME_UTIL_H__

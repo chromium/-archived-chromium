@@ -712,7 +712,6 @@ BOOL VistaFrame::OnPowerBroadcast(DWORD power_event, DWORD data) {
 void VistaFrame::OnThemeChanged() {
   // Notify NativeTheme.
   gfx::NativeTheme::instance()->CloseHandles();
-  FrameUtil::NotifyTabsOfThemeChange(browser_);
 }
 
 void VistaFrame::OnMouseButtonDown(UINT flags, const CPoint& pt) {
