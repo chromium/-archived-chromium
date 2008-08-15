@@ -650,6 +650,16 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
                               std::wstring /* filename */,
                               std::string /* actual mime type for url */)
 
+  // Retrieve the data directory associated with the renderer's profile.
+  IPC_SYNC_MESSAGE_CONTROL0_1(ViewHostMsg_GetDataDir,
+                              std::wstring /* data_dir_retval */)
+
+  // Allows a chrome plugin loaded in a renderer process to send arbitrary
+  // data to an instance of the same plugin loaded in the browser process.
+  IPC_MESSAGE_CONTROL2(ViewHostMsg_PluginMessage,
+                       std::wstring /* dll_path of plugin */,
+                       std::vector<uint8> /* opaque data */)
+
   // Requests spellcheck for a word.
   IPC_SYNC_MESSAGE_ROUTED1_2(ViewHostMsg_SpellCheck,
                              std::wstring /* word to check */,

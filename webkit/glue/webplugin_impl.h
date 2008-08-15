@@ -168,6 +168,7 @@ class WebPluginImpl : public WebPlugin,
 
   NPObject* GetWindowScriptNPObject();
   NPObject* GetPluginElement();
+  virtual WebFrame* GetWebFrame() { return webframe_; }
 
   void SetCookie(const GURL& url,
                  const GURL& policy_url,

@@ -137,6 +137,8 @@ extern const wchar_t kUseLowFragHeapCrt[];
 extern const wchar_t kGearsPluginPathOverride[];
 #endif
 
+extern const wchar_t kGearsInRenderer[];
+
 extern const wchar_t kUseNewHttp[];
 
 extern const wchar_t kJavaScriptDebuggerPath[];

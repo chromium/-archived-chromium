@@ -447,10 +447,11 @@ std::string WebPluginImpl::GetCookies(const GURL& url, const GURL& policy_url) {
 void WebPluginImpl::ShowModalHTMLDialog(const GURL& url, int width, int height,
                                         const std::string& json_arguments,
                                         std::string* json_retval) {
-  // TODO(mpcomplete): Figure out how to call out to the RenderView and
-  // implement this.  Though, this is never called atm - only the out-of-process
-  // version is used.
-  NOTREACHED();
+  if (webframe_ && webframe_->GetView() &&
+      webframe_->GetView()->GetDelegate()) {
+    webframe_->GetView()->GetDelegate()->ShowModalHTMLDialog(
+        url, width, height, json_arguments, json_retval);
+  }
 }
 
 void WebPluginImpl::OnMissingPluginStatus(int status) {

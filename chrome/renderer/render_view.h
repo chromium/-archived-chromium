@@ -116,6 +116,9 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   virtual void OnMessageReceived(const IPC::Message& msg);
 
   // WebViewDelegate
+  virtual void ShowModalHTMLDialog(const GURL& url, int width, int height,
+                                   const std::string& json_arguments,
+                                   std::string* json_retval);
   virtual void RunJavaScriptAlert(WebView* webview,
                                   const std::wstring& message);
   virtual bool RunJavaScriptConfirm(WebView* webview,
@@ -275,11 +278,6 @@ class RenderView : public RenderWidget, public WebViewDelegate,
 
   // Called when a plugin is crashed.
   void PluginCrashed(const std::wstring& plugin_path);
-
-  // Shows a modal HTML dialog.
-  void ShowModalHTMLDialog(const GURL& url, int width, int height,
-                           const std::string& json_arguments,
-                           std::string* json_retval);
 
   // Called from JavaScript window.external.AddSearchProvider() to add a
   // keyword for a provider described in the given OpenSearch document.

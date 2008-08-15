@@ -43,6 +43,7 @@ class Task;
 class VisitedLinkSlave;
 struct WebPreferences;
 class RenderDnsMaster;
+class NotificationService;
 
 // The RenderThread class represents a background thread where RenderView
 // instances live.  The RenderThread supports an API that is used by its
@@ -136,6 +137,8 @@ class RenderThread : public IPC::Channel::Listener,
   scoped_ptr<RenderDnsMaster> render_dns_master_;
 
   scoped_ptr<ScopedRunnableMethodFactory<RenderThread> > cache_stats_factory_;
+
+  scoped_ptr<NotificationService> notification_service_;
 
   int in_send_;
 

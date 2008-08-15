@@ -52,7 +52,9 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/text_zoom.h"
 #include "chrome/common/thumbnail_score.h"
+#include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/renderer/about_handler.h"
+#include "chrome/renderer/chrome_plugin_host.h"
 #include "chrome/renderer/debug_message_handler.h"
 #include "chrome/renderer/localized_error.h"
 #include "chrome/renderer/renderer_resources.h"
@@ -1659,13 +1661,28 @@ WebWidget* RenderView::CreatePopupWidget(WebView* webview) {
   return widget->webwidget();
 }
 
+static bool ShouldLoadPluginInProcess(const std::string& mime_type,
+                                      bool* is_gears) {
+  if (RenderProcess::ShouldLoadPluginsInProcess())
+    return true;
+
+  if (mime_type == "application/x-googlegears") {
+    *is_gears = true;
+    CommandLine cmd;
+    return cmd.HasSwitch(switches::kGearsInRenderer);
+  }
+
+  return false;
+}
+
 WebPluginDelegate* RenderView::CreatePluginDelegate(
     WebView* webview,
     const GURL& url,
     const std::string& mime_type,
     const std::string& clsid,
     std::string* actual_mime_type) {
-  if (RenderProcess::ShouldLoadPluginsInProcess()) {
+  bool is_gears = false;
+  if (ShouldLoadPluginInProcess(mime_type, &is_gears)) {
     std::wstring path;
     RenderThread::current()->Send(
         new ViewHostMsg_GetPluginPath(url, mime_type, clsid, &path,
@@ -1679,6 +1696,8 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
     else
       mime_type_to_use = mime_type;
 
+    if (is_gears)
+      ChromePluginLib::Create(path, GetCPBrowserFuncsForRenderer());
     return WebPluginDelegateImpl::Create(path, mime_type_to_use, host_window_);
   }
 

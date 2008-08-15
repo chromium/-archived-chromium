@@ -41,6 +41,7 @@
 #include "chrome/browser/render_process_host.h"
 #include "chrome/browser/render_widget_helper.h"
 #include "chrome/browser/spellchecker.h"
+#include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/clipboard_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -167,6 +168,8 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
 
     IPC_MESSAGE_HANDLER(ViewHostMsg_SetCookie, OnSetCookie)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetCookies, OnGetCookies)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_GetDataDir, OnGetDataDir)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_PluginMessage, OnPluginMessage)
     IPC_MESSAGE_HANDLER(ViewHostMsg_LoadFont, OnLoadFont)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetMonitorInfoForWindow,
                         OnGetMonitorInfoForWindow)
@@ -360,6 +363,23 @@ void ResourceMessageFilter::OnGetCookies(const GURL& url,
                                          std::string* cookies) {
   if (request_context_->cookie_policy()->CanGetCookies(url, policy_url))
     *cookies = request_context_->cookie_store()->GetCookies(url);
+}
+
+void ResourceMessageFilter::OnGetDataDir(std::wstring* data_dir) {
+  *data_dir = plugin_service_->GetChromePluginDataDir();
+}
+
+void ResourceMessageFilter::OnPluginMessage(const std::wstring& dll_path,
+                                            const std::vector<uint8>& data) {
+  DCHECK(MessageLoop::current() ==
+         ChromeThread::GetMessageLoop(ChromeThread::IO));
+
+  ChromePluginLib *chrome_plugin = ChromePluginLib::Find(dll_path);
+  if (chrome_plugin) {
+    void *data_ptr = const_cast<void*>(reinterpret_cast<const void*>(&data[0]));
+    uint32 data_len = static_cast<uint32>(data.size());
+    chrome_plugin->functions().on_message(data_ptr, data_len);
+  }
 }
 
 void ResourceMessageFilter::OnGetPlugins(bool refresh,

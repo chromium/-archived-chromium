@@ -67,6 +67,7 @@ typedef unsigned char CPBool;
 typedef enum {
   CP_PROCESS_BROWSER = 0,
   CP_PROCESS_PLUGIN,
+  CP_PROCESS_RENDERER,
 } CPProcessType;
 
 // Return codes.  Error values are negative.

@@ -289,7 +289,8 @@ bool RenderProcessHost::Init() {
     switches::kEnableDCHECK,
     switches::kSilentDumpOnDCHECK,
     switches::kDisablePopupBlocking,
-    switches::kUseLowFragHeapCrt
+    switches::kUseLowFragHeapCrt,
+    switches::kGearsInRenderer,
   };
 
   for (int i = 0; i < arraysize(switch_names); ++i) {

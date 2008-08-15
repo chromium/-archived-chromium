@@ -31,6 +31,7 @@
 
 #include <set>
 
+#include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/histogram.h"
 #include "base/message_loop.h"
@@ -52,6 +53,7 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_plugin_util.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/net/url_request_intercept_job.h"
 #include "chrome/common/plugin_messages.h"
@@ -658,6 +660,12 @@ CPProcessType STDCALL CPB_GetProcessType(CPID id) {
 }
 
 CPError STDCALL CPB_SendMessage(CPID id, const void *data, uint32 data_len) {
+  CommandLine cmd;
+  if (cmd.HasSwitch(switches::kGearsInRenderer)) {
+    // TODO(mpcomplete): figure out what to do here.
+    return CPERR_FAILURE;
+  }
+
   CHECK(ChromePluginLib::IsPluginThread());
   ChromePluginLib* plugin = ChromePluginLib::FromCPID(id);
   CHECK(plugin);

@@ -61,6 +61,7 @@ env.Append(
 input_files = [
     'about_handler.cc',
     'automation/dom_automation_controller.cc',
+    'chrome_plugin_host.cc',
     'debug_message_handler.cc',
     'dom_ui_bindings.cc',
     'external_js_object.cc',

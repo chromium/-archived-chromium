@@ -474,6 +474,14 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
 
   // UIDelegate --------------------------------------------------------------
 
+  // Asks the browser to show a modal HTML dialog.  The dialog is passed the
+  // given arguments as a JSON string, and returns its result as a JSON string
+  // through json_retval.
+  virtual void ShowModalHTMLDialog(const GURL& url, int width, int height,
+                                   const std::string& json_arguments,
+                                   std::string* json_retval) {
+  }
+
   // Displays a JavaScript alert panel associated with the given view. Clients
   // should visually indicate that this panel comes from JavaScript. The panel
   // should have a single OK button.

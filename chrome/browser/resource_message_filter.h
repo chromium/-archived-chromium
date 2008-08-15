@@ -103,6 +103,10 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
                    const std::string& cookie);
   void OnGetCookies(const GURL& url, const GURL& policy_url,
                     std::string* cookies);
+  void OnGetDataDir(std::wstring* data_dir);
+  void OnPluginMessage(const std::wstring& dll_path,
+                       const std::vector<uint8>& message);
+
   // Cache fonts for the renderer. See ResourceMessageFilter::OnLoadFont
   // implementation for more details
   void OnLoadFont(LOGFONT font);

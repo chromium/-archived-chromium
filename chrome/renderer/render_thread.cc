@@ -34,6 +34,7 @@
 
 #include "base/shared_memory.h"
 #include "chrome/common/ipc_logging.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/plugin/plugin_channel.h"
 #include "chrome/renderer/net/render_dns_master.h"
 #include "chrome/renderer/render_process.h"
@@ -108,6 +109,8 @@ void RenderThread::Init() {
   DCHECK(tls_index_) << "static initializer failed";
   DCHECK(!current()) << "should only have one RenderThread per thread";
 
+  notification_service_.reset(new NotificationService);
+
   cache_stats_factory_.reset(
       new ScopedRunnableMethodFactory<RenderThread>(this));
 
@@ -144,6 +147,8 @@ void RenderThread::CleanUp() {
 #ifdef IPC_MESSAGE_LOG_ENABLED
   IPC::Logging::current()->SetIPCSender(NULL);
 #endif
+
+  notification_service_.reset();
 
   delete visited_link_slave_;
   visited_link_slave_ = NULL;
