@@ -126,6 +126,7 @@ if env['PLATFORM'] == 'win32':
       'file_util_win.cc',
       'iat_patch.cc',
       'lock_impl_win.cc',
+      'message_pump_win.cc',
       'pe_image.cc',
       'shared_memory_win.cc',
       'sys_string_conversions_win.cc',
