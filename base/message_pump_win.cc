@@ -243,6 +243,12 @@ void MessagePumpWin::HandleWorkMessage() {
 void MessagePumpWin::HandleTimerMessage() {
   KillTimer(message_hwnd_, reinterpret_cast<UINT_PTR>(this));
 
+  // If we are being called outside of the context of Run, then don't do
+  // anything.  This could correspond to a MessageBox call or something of
+  // that sort.
+  if (!state_)
+    return;
+
   state_->delegate->DoDelayedWork();
 }
 
