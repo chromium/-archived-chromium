@@ -94,10 +94,8 @@ if env['PLATFORM'] == 'win32':
       'disk_cache/backend_impl.cc',
       'disk_cache/block_files.cc',
       'disk_cache/entry_impl.cc',
-      'disk_cache/file.cc',
       'disk_cache/file_lock.cc',
       'disk_cache/hash.cc',
-      'disk_cache/mapped_file.cc',
       'disk_cache/mem_backend_impl.cc',
       'disk_cache/mem_entry_impl.cc',
       'disk_cache/mem_rankings.cc',
@@ -144,6 +142,8 @@ if env['PLATFORM'] == 'win32':
   )
   input_files.extend([
       'disk_cache/cache_util_win.cc',
+      'disk_cache/file_win.cc',
+      'disk_cache/mapped_file_win.cc',
       'disk_cache/os_file_win.cc',
   ])
 
@@ -152,6 +152,8 @@ if env['PLATFORM'] in ('darwin', 'posix'):
       # Not quite ready for these, they still pull in net_util.h which
       # includes <windows.h>.
       #'disk_cache/cache_util_posix.cc',
+      #'disk_cache/file_win.cc_posix',
+      #'disk_cache/mapped_file_posix.cc',
       #'disk_cache/os_file_posix.cc',
   ])
 
