@@ -1,2 +1,0 @@
-from proactor import install
-
