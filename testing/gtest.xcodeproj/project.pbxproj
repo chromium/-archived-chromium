@@ -10,19 +10,18 @@
 		E45A2BBC0E47A20200DB1196 /* gtest_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45A2BB60E47A20200DB1196 /* gtest_main.cc */; };
 		E45A2BBD0E47A20200DB1196 /* gtest-death-test.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45A2BB70E47A20200DB1196 /* gtest-death-test.cc */; };
 		E45A2BBE0E47A20200DB1196 /* gtest-filepath.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45A2BB80E47A20200DB1196 /* gtest-filepath.cc */; };
-		E45A2BBF0E47A20200DB1196 /* gtest-internal-inl.h in Headers */ = {isa = PBXBuildFile; fileRef = E45A2BB90E47A20200DB1196 /* gtest-internal-inl.h */; };
 		E45A2BC00E47A20200DB1196 /* gtest-port.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45A2BBA0E47A20200DB1196 /* gtest-port.cc */; };
 		E45A2BC10E47A20200DB1196 /* gtest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45A2BBB0E47A20200DB1196 /* gtest.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		D2AAC046055464E500DB518D /* libgtest.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libgtest.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		E45A2BB60E47A20200DB1196 /* gtest_main.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gtest_main.cc; path = gtest/src/gtest_main.cc; sourceTree = "<group>"; };
-		E45A2BB70E47A20200DB1196 /* gtest-death-test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gtest-death-test.cc"; path = "gtest/src/gtest-death-test.cc"; sourceTree = "<group>"; };
-		E45A2BB80E47A20200DB1196 /* gtest-filepath.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gtest-filepath.cc"; path = "gtest/src/gtest-filepath.cc"; sourceTree = "<group>"; };
-		E45A2BB90E47A20200DB1196 /* gtest-internal-inl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "gtest-internal-inl.h"; path = "gtest/src/gtest-internal-inl.h"; sourceTree = "<group>"; };
-		E45A2BBA0E47A20200DB1196 /* gtest-port.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gtest-port.cc"; path = "gtest/src/gtest-port.cc"; sourceTree = "<group>"; };
-		E45A2BBB0E47A20200DB1196 /* gtest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gtest.cc; path = gtest/src/gtest.cc; sourceTree = "<group>"; };
+		E45A2BB60E47A20200DB1196 /* gtest_main.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gtest_main.cc; sourceTree = "<group>"; };
+		E45A2BB70E47A20200DB1196 /* gtest-death-test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "gtest-death-test.cc"; sourceTree = "<group>"; };
+		E45A2BB80E47A20200DB1196 /* gtest-filepath.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "gtest-filepath.cc"; sourceTree = "<group>"; };
+		E45A2BB90E47A20200DB1196 /* gtest-internal-inl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-internal-inl.h"; sourceTree = "<group>"; };
+		E45A2BBA0E47A20200DB1196 /* gtest-port.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "gtest-port.cc"; sourceTree = "<group>"; };
+		E45A2BBB0E47A20200DB1196 /* gtest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gtest.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,14 +47,15 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				E45A2BB60E47A20200DB1196 /* gtest_main.cc */,
 				E45A2BB70E47A20200DB1196 /* gtest-death-test.cc */,
 				E45A2BB80E47A20200DB1196 /* gtest-filepath.cc */,
 				E45A2BB90E47A20200DB1196 /* gtest-internal-inl.h */,
 				E45A2BBA0E47A20200DB1196 /* gtest-port.cc */,
 				E45A2BBB0E47A20200DB1196 /* gtest.cc */,
+				E45A2BB60E47A20200DB1196 /* gtest_main.cc */,
 			);
 			name = Source;
+			path = gtest/src;
 			sourceTree = "<group>";
 		};
 		1AB674ADFE9D54B511CA2CBB /* Products */ = {
@@ -68,23 +68,11 @@
 		};
 /* End PBXGroup section */
 
-/* Begin PBXHeadersBuildPhase section */
-		D2AAC043055464E500DB518D /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E45A2BBF0E47A20200DB1196 /* gtest-internal-inl.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
 /* Begin PBXNativeTarget section */
 		D2AAC045055464E500DB518D /* gtest */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1DEB91EB08733DB70010E9CD /* Build configuration list for PBXNativeTarget "gtest" */;
 			buildPhases = (
-				D2AAC043055464E500DB518D /* Headers */,
 				D2AAC044055464E500DB518D /* Sources */,
 				D289987405E68DCB004EDB86 /* Frameworks */,
 			);
@@ -119,11 +107,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E45A2BBC0E47A20200DB1196 /* gtest_main.cc in Sources */,
 				E45A2BBD0E47A20200DB1196 /* gtest-death-test.cc in Sources */,
 				E45A2BBE0E47A20200DB1196 /* gtest-filepath.cc in Sources */,
 				E45A2BC00E47A20200DB1196 /* gtest-port.cc in Sources */,
 				E45A2BC10E47A20200DB1196 /* gtest.cc in Sources */,
+				E45A2BBC0E47A20200DB1196 /* gtest_main.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -133,13 +121,9 @@
 		1DEB91EC08733DB70010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
 				HEADER_SEARCH_PATHS = (
-					gtest/include,
 					gtest,
+					gtest/include,
 				);
 				PRODUCT_NAME = gtest;
 			};
@@ -148,12 +132,9 @@
 		1DEB91ED08733DB70010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_DYNAMIC_NO_PIC = YES;
 				HEADER_SEARCH_PATHS = (
-					gtest/include,
 					gtest,
+					gtest/include,
 				);
 				PRODUCT_NAME = gtest;
 			};
@@ -162,11 +143,18 @@
 		1DEB91F008733DB70010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_CW_ASM_SYNTAX = NO;
+				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_ENABLE_PASCAL_STRINGS = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				PREBINDING = NO;
+				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = "-Wall";
 			};
 			name = Debug;
@@ -174,11 +162,17 @@
 		1DEB91F108733DB70010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_CW_ASM_SYNTAX = NO;
+				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_ENABLE_PASCAL_STRINGS = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				PREBINDING = NO;
+				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = "-Wall";
 			};
 			name = Release;
