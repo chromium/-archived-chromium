@@ -1491,7 +1491,7 @@ NAMED_PROPERTY_GETTER(HTMLFormElement) {
   }
   // Second call may return different results from the first call,
   // but if the first the size cannot be zero.
-  Vector<RefPtr<Node>> elements;
+  Vector<RefPtr<Node> > elements;
   imp->getNamedElements(v, elements);
   ASSERT(elements.size() != 0);
   if (elements.size() == 1) {

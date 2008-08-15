@@ -486,20 +486,6 @@ class V8Proxy {
   int m_recursion;
 };
 
-
-// Add indexed getter to the function template for a collection.
-template <class T>
-static void SetCollectionIndexedGetter(v8::Handle<v8::FunctionTemplate> desc,
-                                       V8ClassIndex::V8WrapperType type) {
-  desc->InstanceTemplate()->SetIndexedPropertyHandler(
-      CollectionIndexedPropertyGetter<T>,
-      0,
-      0,
-      0,
-      CollectionIndexedPropertyEnumerator<T>,
-      v8::External::New(reinterpret_cast<void*>(type)));
-}
-
 template <int tag, typename T>
 v8::Handle<v8::Value> V8Proxy::ConstructDOMObject(const v8::Arguments& args) {
   if (!args.IsConstructCall()) {
@@ -513,58 +499,6 @@ v8::Handle<v8::Value> V8Proxy::ConstructDOMObject(const v8::Arguments& args) {
       obj, v8::Persistent<v8::Object>::New(args.Holder()));
   return args.Holder();
 }
-
-// Add named getter to the function template for a collection.
-template <class T>
-static void SetCollectionNamedGetter(v8::Handle<v8::FunctionTemplate> desc,
-                                     V8ClassIndex::V8WrapperType type) {
-  desc->InstanceTemplate()->SetNamedPropertyHandler(
-      CollectionNamedPropertyGetter<T>,
-      0,
-      0,
-      0,
-      0,
-      v8::External::New(reinterpret_cast<void*>(type)));
-}
-
-
-// Add named and indexed getters to the function template for a collection.
-template <class T>
-static void SetCollectionIndexedAndNamedGetters(
-    v8::Handle<v8::FunctionTemplate> desc, V8ClassIndex::V8WrapperType type) {
-  // If we interceptor before object, accessing 'length' can trigger
-  // a webkit assertion error.
-  // (see fast/dom/HTMLDocument/document-special-properties.html
-  desc->InstanceTemplate()->SetNamedPropertyHandler(
-      CollectionNamedPropertyGetter<T>,
-      0,
-      0,
-      0,
-      0,
-      v8::External::New(reinterpret_cast<void*>(type)));
-  desc->InstanceTemplate()->SetIndexedPropertyHandler(
-      CollectionIndexedPropertyGetter<T>,
-      0,
-      0,
-      0,
-      CollectionIndexedPropertyEnumerator<T>,
-      v8::External::New(reinterpret_cast<void*>(type)));
-}
-
-
-// Add indexed getter returning a string or null to a function template
-// for a collection.
-template <class T>
-static void SetCollectionStringOrNullIndexedGetter(
-    v8::Handle<v8::FunctionTemplate> desc) {
-  desc->InstanceTemplate()->SetIndexedPropertyHandler(
-      CollectionStringOrNullIndexedPropertyGetter<T>,
-      0,
-      0,
-      0,
-      CollectionIndexedPropertyEnumerator<T>);
-}
-
 
 }  // namespace WebCore
 

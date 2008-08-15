@@ -90,7 +90,7 @@ template <class KeyType>
 class DOMWrapperMap : public WeakReferenceMap<KeyType, v8::Object> {
  public:
   DOMWrapperMap(v8::WeakReferenceCallback callback) :
-       WeakReferenceMap(callback) { }
+       WeakReferenceMap<KeyType, v8::Object>(callback) { }
 };
 
 #endif  // BINDINGS_V8_DOM_WRAPPER_MAP

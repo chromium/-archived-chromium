@@ -37,6 +37,7 @@
 #include "v8_events.h"
 #include "v8_binding.h"
 #include "v8_custom.h"
+#include "v8_collection.h"
 #include "v8_nodefilter.h"
 #include "V8Bridge.h"
 
@@ -97,6 +98,7 @@
 
 #include "base/stats_table.h"
 #include "webkit/glue/glue_util.h"
+#include "webkit/glue/webkit_glue.h"
 
 namespace WebCore {
 
@@ -192,12 +194,12 @@ template<class T>
 class DOMPeerableWrapperMap : public DOMWrapperMap<T> {
  public:
   explicit DOMPeerableWrapperMap(v8::WeakReferenceCallback callback) :
-       DOMWrapperMap(callback) { }
+       DOMWrapperMap<T>(callback) { }
 
   // Get the JS wrapper object of an object.
   v8::Persistent<v8::Object> get(T* obj) {
     v8::Object* peer = static_cast<v8::Object*>(obj->peer());
-    ASSERT(peer == map_.get(obj));
+    ASSERT(peer == this->map_.get(obj));
     return peer ? v8::Persistent<v8::Object>(peer)
       : v8::Persistent<v8::Object>();
   }
@@ -210,7 +212,7 @@ class DOMPeerableWrapperMap : public DOMWrapperMap<T> {
 
   void forget(T* obj) {
     v8::Object* peer = static_cast<v8::Object*>(obj->peer());
-    ASSERT(peer == map_.get(obj));
+    ASSERT(peer == this->map_.get(obj));
     if (peer)
       obj->setPeer(0);
     DOMWrapperMap<T>::forget(obj);

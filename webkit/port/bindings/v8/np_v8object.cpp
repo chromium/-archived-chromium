@@ -257,7 +257,7 @@ bool NPN_Evaluate(NPP npp, NPObject *npobj, NPString *npscript,
 
     v8::Context::Scope scope(context);
 
-    WebCore::String filename(L"npscript");
+    WebCore::String filename("npscript");
     // Convert UTF-8 stream to WebCore::String.
     WebCore::String script = WebCore::String::fromUTF8(
         npscript->UTF8Characters, npscript->UTF8Length);
@@ -457,7 +457,7 @@ bool NPN_Enumerate(NPP npp, NPObject *npobj, NPIdentifier **identifier,
     v8::Handle<v8::Value> argv[] = { obj };
     v8::Local<v8::Value> props_obj =
         enumerator->Call(v8::Handle<v8::Object>::Cast(enumerator_obj),
-                         arraysize(argv), argv);
+                         ARRAYSIZE_UNSAFE(argv), argv);
     if (props_obj.IsEmpty())
       return false;
 
