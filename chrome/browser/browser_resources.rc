@@ -8,6 +8,11 @@
 
 #include "browser\\browser_resources.h"
 
+#ifdef CHROME_PERSONALIZATION
+#include "chrome\\personalization\\personalization_resources.rc"
+#endif
+
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // data resources

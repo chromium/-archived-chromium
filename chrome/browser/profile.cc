@@ -502,6 +502,12 @@ class OffTheRecordProfileImpl : public Profile,
     return profile_->GetBookmarkBarModel();
   }
 
+#ifdef CHROME_PERSONALIZATION
+  virtual ProfilePersonalization GetProfilePersonalization() {
+    return profile_->GetProfilePersonalization();
+  }
+#endif
+
   virtual bool IsSameProfile(Profile* profile) {
     if (profile == static_cast<Profile*>(this))
       return true;
@@ -575,6 +581,9 @@ ProfileImpl::ProfileImpl(const std::wstring& path)
       create_session_service_task_(this),
       start_time_(Time::Now()),
       spellchecker_(NULL),
+#ifdef CHROME_PERSONALIZATION
+      personalization_(NULL),
+#endif
       shutdown_session_service_(false) {
   DCHECK(!path.empty()) << "Using an empty path will attempt to write " <<
                             "profile files to the root directory!";
@@ -595,6 +604,11 @@ ProfileImpl::~ProfileImpl() {
   // The download manager queries the history system and should be deleted
   // before the history is shutdown so it can properly cancel all requests.
   download_manager_ = NULL;
+
+#ifdef CHROME_PERSONALIZATION
+  Personalization::CleanupProfilePersonalization(personalization_);
+  personalization_ = NULL;
+#endif
 
   // Both HistoryService and WebDataService maintain threads for background
   // processing. Its possible each thread still has tasks on it that have
@@ -921,3 +935,11 @@ void ProfileImpl::StopCreateSessionServiceTimer() {
     create_session_service_timer_ = NULL;
   }
 }
+
+#ifdef CHROME_PERSONALIZATION
+ProfilePersonalization ProfileImpl::GetProfilePersonalization() {
+  if (!personalization_)
+    personalization_ = Personalization::CreateProfilePersonalization(this);
+  return personalization_;
+}
+#endif

@@ -41,6 +41,9 @@
 #include "base/timer.h"
 #include "base/values.h"
 #include "chrome/common/resource_dispatcher.h"
+#ifdef CHROME_PERSONALIZATION
+#include "chrome/personalization/personalization.h"
+#endif
 #include "chrome/renderer/automation/dom_automation_controller.h"
 #include "chrome/renderer/dom_ui_bindings.h"
 #include "chrome/renderer/external_js_object.h"
@@ -503,6 +506,10 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // Chrome page<->browser messaging CppBoundClass
   bool enable_dom_ui_bindings_;
   DOMUIBindings dom_ui_bindings_;
+
+#ifdef CHROME_PERSONALIZATION
+  RendererPersonalization personalization_;
+#endif
 
   // window.external object for "built-in" JS extensions
   ExternalJSObject external_js_object_;

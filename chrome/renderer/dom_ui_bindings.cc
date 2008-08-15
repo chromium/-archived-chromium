@@ -34,11 +34,11 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/common/stl_util-inl.h"
 
-DOMUIBindings::DOMUIBindings() : routing_id_(0) {
+void DOMUIBindings::BindMethods() {
   BindMethod("send", &DOMUIBindings::send);
 }
 
-DOMUIBindings::~DOMUIBindings() {
+DOMBoundBrowserObject::~DOMBoundBrowserObject() {
   STLDeleteContainerPointers(properties_.begin(), properties_.end());
 }
 
@@ -69,11 +69,11 @@ void DOMUIBindings::send(const CppArgumentList& args, CppVariant* result) {
   }
 
   // Send the message up to the browser.
-  sender_->Send(
-      new ViewHostMsg_DOMUISend(routing_id_, message, content));
+  sender()->Send(
+      new ViewHostMsg_DOMUISend(routing_id(), message, content));
 }
 
-void DOMUIBindings::SetProperty(const std::string& name,
+void DOMBoundBrowserObject::SetProperty(const std::string& name,
                                 const std::string& value) {
   CppVariant* cpp_value = new CppVariant;
   cpp_value->Set(value);

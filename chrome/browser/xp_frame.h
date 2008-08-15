@@ -46,6 +46,9 @@
 #include "chrome/views/hwnd_view.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/image_view.h"
+#ifdef CHROME_PERSONALIZATION
+#include "chrome/personalization/personalization.h"
+#endif
 
 #define XP_FRAME_CLASSNAME L"Chrome_XPFrame"
 
@@ -224,6 +227,16 @@ class XPFrame : public BrowserWindow,
   // Override and return false if no toolbar should  be visible. Default method
   // returns true.
   virtual bool IsToolBarVisible() const { return true; }
+
+#ifdef CHROME_PERSONALIZATION
+  virtual bool PersonalizationEnabled() const {
+    return personalization_enabled_;
+  }
+
+  void EnablePersonalization(bool enable_personalization) {
+   personalization_enabled_ = enable_personalization;
+  }
+#endif
 
   // Return the frame view.
   ChromeViews::View* GetFrameView() { return frame_view_; }
@@ -508,6 +521,11 @@ class XPFrame : public BrowserWindow,
 
   // Whether this frame represents an off the record session.
   bool is_off_the_record_;
+
+#ifdef CHROME_PERSONALIZATION
+  FramePersonalization personalization_;
+  bool personalization_enabled_;
+#endif
 
   // Set during layout. Total height of the title bar.
   int title_bar_height_;

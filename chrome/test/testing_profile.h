@@ -168,6 +168,11 @@ class TestingProfile : public Profile {
   virtual void MarkAsCleanShutdown() {
   }
 
+#ifdef CHROME_PERSONALIZATION
+  virtual ProfilePersonalization GetProfilePersonalization() {
+  }
+#endif
+
  protected:
   Time start_time_;
   ProfileControllerSet controllers_;

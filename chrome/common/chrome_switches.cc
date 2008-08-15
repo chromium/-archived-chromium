@@ -339,4 +339,6 @@ const wchar_t kUseNewHttp[] = L"new-http";
 // Allow loading of the javascript debugger UI from the filesystem.
 const wchar_t kJavaScriptDebuggerPath[] = L"javascript-debugger-path";
 
+const wchar_t kEnableP13n[] = L"enable-p13n";
+
 }  // namespace switches

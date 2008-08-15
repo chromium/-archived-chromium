@@ -180,6 +180,9 @@ RenderView::RenderView()
   resource_dispatcher_ = new ResourceDispatcher(this);
   nav_state_sync_timer_.set_task(
       method_factory_.NewRunnableMethod(&RenderView::SyncNavigationState));
+#ifdef CHROME_PERSONALIZATION
+  personalization_ = Personalization::CreateRendererPersonalization();
+#endif
 }
 
 RenderView::~RenderView() {
@@ -192,6 +195,11 @@ RenderView::~RenderView() {
   }
 
   RenderThread::current()->RemoveFilter(debug_message_handler_);
+
+#ifdef CHROME_PERSONALIZATION
+  Personalization::CleanupRendererPersonalization(personalization_);
+  personalization_ = NULL;
+#endif
 }
 
 /*static*/
@@ -1409,6 +1417,10 @@ void RenderView::WindowObjectCleared(WebFrame* webframe) {
     dom_ui_bindings_.set_routing_id(routing_id_);
     dom_ui_bindings_.BindToJavascript(webframe, L"chrome");
   }
+#ifdef CHROME_PERSONALIZATION
+  Personalization::ConfigureRendererPersonalization(personalization_, this,
+                                                    routing_id_, webframe);
+#endif
 }
 
 WindowOpenDisposition RenderView::DispositionForNavigationAction(

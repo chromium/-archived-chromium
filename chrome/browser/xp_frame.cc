@@ -31,6 +31,7 @@
 
 #include <windows.h>
 
+#include "base/command_line.h"
 #include "base/gfx/native_theme.h"
 #include "base/gfx/rect.h"
 #include "chrome/app/theme/theme_resources.h"
@@ -49,6 +50,7 @@
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/window_clipping_info.h"
 #include "chrome/common/chrome_constants.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
@@ -333,6 +335,10 @@ XPFrame* XPFrame::CreateFrame(const gfx::Rect& bounds,
       l10n_util::GetString(IDS_PRODUCT_NAME).c_str());
   instance->InitAfterHWNDCreated();
   instance->SetIsOffTheRecord(is_otr);
+#ifdef CHROME_PERSONALIZATION
+  instance->EnablePersonalization(CommandLine().HasSwitch(
+      switches::kEnableP13n));
+#endif
   FocusManager::CreateFocusManager(instance->m_hWnd, &(instance->root_view_));
   return instance;
 }
@@ -363,6 +369,10 @@ XPFrame::XPFrame(Browser* browser)
       off_the_record_image_(NULL),
       distributor_logo_(NULL),
       ignore_ncactivate_(false),
+#ifdef CHROME_PERSONALIZATION
+      personalization_enabled_(false),
+      personalization_(NULL),
+#endif
       paint_as_active_(false),
       browser_view_(NULL) {
   InitializeIfNeeded();
@@ -448,6 +458,13 @@ void XPFrame::Init() {
 
   tab_contents_container_ = new TabContentsContainerView();
   frame_view_->AddChildView(tab_contents_container_);
+
+#ifdef CHROME_PERSONALIZATION    
+  if (PersonalizationEnabled()) {
+    personalization_ = Personalization::CreateFramePersonalization(
+        browser_->profile(), frame_view_);
+  }
+#endif
 
   if (is_off_the_record_) {
     off_the_record_image_ = new ChromeViews::ImageView();
@@ -726,11 +743,17 @@ void XPFrame::Layout() {
       off_the_record_image_->SetVisible(false);
   }
 
+  int browser_view_width = width - left_margin - right_margin;
+#ifdef CHROME_PERSONALIZATION
+  if (PersonalizationEnabled())
+    Personalization::AdjustBrowserView(personalization_, &browser_view_width);
+#endif
+
   if (IsToolBarVisible()) {
     browser_view_->SetVisible(true);
     browser_view_->SetBounds(left_margin,
                              last_y - kToolbarOverlapVertOffset,
-                             width - left_margin - right_margin,
+                             browser_view_width,
                              bitmaps[CT_TOP_CENTER]->height());
     browser_view_->Layout();
     title_bar_height_ = browser_view_->GetY();
@@ -824,6 +847,12 @@ void XPFrame::Layout() {
                                      last_y,
                                      width - left_margin - right_margin,
                                      browser_h);
+#ifdef CHROME_PERSONALIZATION
+  if (PersonalizationEnabled()) {
+    Personalization::ConfigureFramePersonalization(personalization_,
+                                                   browser_view_, top_margin);
+  }
+#endif
 
   browser_view_->LayoutStatusBubble(last_y + browser_h);
 

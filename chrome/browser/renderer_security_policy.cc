@@ -31,6 +31,9 @@
 
 #include "base/logging.h"
 #include "base/string_util.h"
+#ifdef CHROME_PERSONALIZATION
+#include "chrome/personalization/personalization.h"
+#endif
 #include "googleurl/src/gurl.h"
 #include "net/url_request/url_request.h"
 
@@ -249,8 +252,8 @@ bool RendererSecurityPolicy::CanRequestURL(int renderer_id, const GURL& url) {
     // There are a number of special cases for pseudo schemes.
 
     if (url.SchemeIs("view-source")) {
-      // A view-source URL is allowed if the renderer is permited to request the
-      // embedded URL.
+      // A view-source URL is allowed if the renderer is permitted to request
+      // the embedded URL.
       return CanRequestURL(renderer_id, GURL(url.path()));
     }
 
@@ -262,6 +265,11 @@ bool RendererSecurityPolicy::CanRequestURL(int renderer_id, const GURL& url) {
     // handled internally by the renderer and not kicked up to the browser.
     return false;
   }
+
+#ifdef CHROME_PERSONALIZATION
+  if (url.SchemeIs(kPersonalizationScheme))
+    return true;
+#endif
 
   if (!URLRequest::IsHandledURL(url))
     return true;  // This URL request is destined for ShellExecute.

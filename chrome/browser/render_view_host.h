@@ -36,6 +36,9 @@
 #include "base/scoped_handle.h"
 #include "chrome/browser/render_view_host_delegate.h"
 #include "chrome/browser/render_widget_host.h"
+#ifdef CHROME_PERSONALIZATION
+#include "chrome/personalization/personalization.h"
+#endif
 #include "webkit/glue/password_form_dom_manager.h"
 
 enum ConsoleMessageLevel;
@@ -395,6 +398,12 @@ class RenderViewHost : public RenderWidgetHost {
   // and we're necessarily leaving the page.
   void UnloadListenerHasFired() { has_unload_listener_ = false; }
 
+#ifdef CHROME_PERSONALIZATION
+  HostPersonalization personalization() {
+    return personalization_;
+  }
+#endif
+
  protected:
   // Overridden from RenderWidgetHost:
   virtual void UnhandledInputEvent(const WebInputEvent& event);
@@ -450,6 +459,10 @@ class RenderViewHost : public RenderWidgetHost {
                                  int automation_id);
   void OnMsgDOMUISend(const std::string& message,
                       const std::string& content);
+#ifdef CHROME_PERSONALIZATION
+  void OnPersonalizationEvent(const std::string& message,
+                              const std::string& content);
+#endif
   void OnMsgGoToEntryAtOffset(int offset);
   void OnMsgSetTooltipText(const std::wstring& tooltip_text);
   void OnMsgRunFileChooser(const std::wstring& default_file);
@@ -515,6 +528,10 @@ class RenderViewHost : public RenderWidgetHost {
 
   // Our delegate, which wants to know about changes in the RenderView.
   RenderViewHostDelegate* delegate_;
+
+#ifdef CHROME_PERSONALIZATION
+  HostPersonalization personalization_;
+#endif
 
   // true if a renderer has once been valid. We use this flag to display a sad
   // tab only when we lose our renderer and not if a paint occurs during

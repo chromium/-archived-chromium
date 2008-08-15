@@ -66,6 +66,9 @@ class SimpleXPFrame : public XPFrame,
   virtual bool IsTabStripVisible() const { return false; }
   virtual bool IsToolBarVisible() const { return false; }
   virtual bool SupportsBookmarkBar() const { return false; }
+#ifdef CHROME_PERSONALIZATION
+  virtual bool PersonalizationEnabled() const { return false; }
+#endif
   virtual LRESULT OnNCHitTest(const CPoint& pt);
   virtual void SetWindowTitle(const std::wstring& title);
   virtual void ValidateThrobber();

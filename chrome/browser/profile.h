@@ -40,6 +40,9 @@
 #include "base/scoped_ptr.h"
 #include "base/task.h"
 #include "base/time.h"
+#ifdef CHROME_PERSONALIZATION
+#include "chrome/personalization/personalization.h"
+#endif
 
 class BookmarkBarModel;
 class DownloadManager;
@@ -219,6 +222,10 @@ class Profile {
   // Returns the BookmarkBarModel, creating if not yet created.
   virtual BookmarkBarModel* GetBookmarkBarModel() = 0;
 
+#ifdef CHROME_PERSONALIZATION
+  virtual ProfilePersonalization GetProfilePersonalization() = 0;
+#endif
+
   // Return whether 2 profiles are the same. 2 profiles are the same if they
   // represent the same profile. This can happen if there is pointer equality
   // or if one profile is the off the record version of another profile (or vice
@@ -299,6 +306,9 @@ class ProfileImpl : public Profile {
   virtual void ResetTabRestoreService();
   virtual SpellChecker* GetSpellChecker();
   virtual void MarkAsCleanShutdown();
+#ifdef CHROME_PERSONALIZATION
+  virtual ProfilePersonalization GetProfilePersonalization();
+#endif
 
  private:
   class RequestContext;
@@ -336,6 +346,10 @@ class ProfileImpl : public Profile {
   scoped_ptr<TemplateURLFetcher> template_url_fetcher_;
   scoped_ptr<TemplateURLModel> template_url_model_;
   scoped_ptr<BookmarkBarModel> bookmark_bar_model_;
+
+#ifdef CHROME_PERSONALIZATION
+  ProfilePersonalization personalization_;
+#endif
 
   RequestContext* request_context_;
 

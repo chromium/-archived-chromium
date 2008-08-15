@@ -117,10 +117,18 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
     modal_dialog_event = CreateEvent(NULL, TRUE, FALSE, NULL);
 
   modal_dialog_event_.Set(modal_dialog_event);
+#ifdef CHROME_PERSONALIZATION
+  personalization_ = Personalization::CreateHostPersonalization(this);
+#endif
 }
 
 RenderViewHost::~RenderViewHost() {
   OnDebugDisconnect();
+
+#ifdef CHROME_PERSONALIZATION
+  Personalization::CleanupHostPersonalization(personalization_);
+  personalization_ = NULL;
+#endif
 
   // Be sure to clean up any leftover state from cross-site requests.
   Singleton<CrossSiteRequestManager>()->SetHasPendingCrossSiteRequest(
@@ -657,6 +665,10 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
                         OnMsgDomOperationResponse)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DOMUISend,
                         OnMsgDOMUISend)
+#ifdef CHROME_PERSONALIZATION
+    IPC_MESSAGE_HANDLER(ViewHostMsg_PersonalizationEvent,
+                        OnPersonalizationEvent)
+#endif                       
     IPC_MESSAGE_HANDLER(ViewHostMsg_GoToEntryAtOffset,
                         OnMsgGoToEntryAtOffset)
     IPC_MESSAGE_HANDLER(ViewHostMsg_SetTooltipText, OnMsgSetTooltipText)
@@ -1000,6 +1012,13 @@ void RenderViewHost::OnMsgDOMUISend(
   }
   delegate_->ProcessDOMUIMessage(message, content);
 }
+
+#ifdef CHROME_PERSONALIZATION
+void RenderViewHost::OnPersonalizationEvent(const std::string& message,
+                                               const std::string& content) {
+  Personalization::HandlePersonalizationEvent(this, message, content);
+}
+#endif
 
 void RenderViewHost::OnMsgGoToEntryAtOffset(int offset) {
   delegate_->GoToEntryAtOffset(offset);

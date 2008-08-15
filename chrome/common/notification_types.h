@@ -473,8 +473,10 @@ enum NotificationType {
   // are all source and no details.
   NOTIFY_SESSION_END,
 
-  // Count (must be last) ------------------------------------------------------
+  // Personalization -----------------------------------------------------------
+  NOTIFY_PERSONALIZATION,
 
+  // Count (must be last) ------------------------------------------------------
   // Used to determine the number of notification types.  Not valid as
   // a type parameter when registering for or posting notifications.
   NOTIFICATION_TYPE_COUNT

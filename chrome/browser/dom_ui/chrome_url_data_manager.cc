@@ -41,6 +41,12 @@
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_file_job.h"
 #include "net/url_request/url_request_job.h"
+#ifdef CHROME_PERSONALIZATION
+// TODO(timsteele): Remove all CHROME_PERSONALIZATION code in this file.
+// It is only temporarily needed to configure some personalization data sources
+// that will go away soon.
+#include "chrome/personalization/personalization.h"
+#endif
 
 // The URL scheme used for internal chrome resources.
 // This URL scheme is never needed by code external to this module.
@@ -114,13 +120,24 @@ void RegisterURLRequestChromeJob() {
 
   URLRequest::RegisterProtocolFactory(kChromeURLScheme,
                                       &ChromeURLDataManager::Factory);
+#ifdef CHROME_PERSONALIZATION
+  url_util::AddStandardScheme(kPersonalizationScheme);
+  URLRequest::RegisterProtocolFactory(kPersonalizationScheme,
+                                      &ChromeURLDataManager::Factory); 
+#endif
 }
 
 // static
 void ChromeURLDataManager::URLToRequest(const GURL& url,
                                         std::string* source_name,
                                         std::string* path) {
+#ifdef CHROME_PERSONALIZATION
+  DCHECK(url.SchemeIs(kChromeURLScheme) ||
+         url.SchemeIs(kPersonalizationScheme));
+#else
   DCHECK(url.SchemeIs(kChromeURLScheme));
+#endif
+
   if (!url.is_valid()) {
     NOTREACHED();
     return;

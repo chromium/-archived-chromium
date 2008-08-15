@@ -33,21 +33,18 @@
 #include "chrome/common/ipc_message.h"
 #include "webkit/glue/cpp_bound_class.h"
 
-// DOMUIBindings is the class backing the "chrome" object accessible
-// from Javascript from privileged pages.
-//
-// We expose one function, for sending a message to the browser:
-//   send(String name, Object argument);
-// It's plumbed through to the OnDOMUIMessage callback on RenderViewHost
-// delegate.
-class DOMUIBindings : public CppBoundClass {
+// A DOMBoundBrowserObject is a backing for some object bound to the window
+// in JS that knows how to dispatch messages to an associated c++ object living
+// in the browser process.
+class DOMBoundBrowserObject : public CppBoundClass {
  public:
-  DOMUIBindings();
-  ~DOMUIBindings();
+  DOMBoundBrowserObject() : routing_id_(0) { }
+  virtual ~DOMBoundBrowserObject();
 
-  // The send() function provided to Javascript.
-  void send(const CppArgumentList& args, CppVariant* result);
-
+  // Different for each subclass; associates the javascript object with any
+  // number of methods.
+  virtual void BindMethods() = 0;
+  
   // Set the message channel back to the browser.
   void set_message_sender(IPC::Message::Sender* sender) {
     sender_ = sender;
@@ -57,6 +54,9 @@ class DOMUIBindings : public CppBoundClass {
   void set_routing_id(int routing_id) {
     routing_id_ = routing_id;
   }
+
+  IPC::Message::Sender* sender() { return sender_; }
+  int routing_id() { return routing_id_; }
 
   // Sets a property with the given name and value.
   void SetProperty(const std::string& name, const std::string& value);
@@ -71,6 +71,29 @@ class DOMUIBindings : public CppBoundClass {
   // can free them on destruction.
   typedef std::vector<CppVariant*> PropertyList;
   PropertyList properties_;
+
+  DISALLOW_COPY_AND_ASSIGN(DOMBoundBrowserObject);
+};
+
+// DOMUIBindings is the class backing the "chrome" object accessible
+// from Javascript from privileged pages.
+//
+// We expose one function, for sending a message to the browser:
+//   send(String name, Object argument);
+// It's plumbed through to the OnDOMUIMessage callback on RenderViewHost
+// delegate.
+class DOMUIBindings : public DOMBoundBrowserObject {
+ public:
+  DOMUIBindings() { BindMethods(); }
+  virtual ~DOMUIBindings() {}
+
+  // DOMBoundBrowserObject implementation.
+  virtual void BindMethods();
+
+  // The send() function provided to Javascript.
+  void send(const CppArgumentList& args, CppVariant* result);
+ private:
+  DISALLOW_COPY_AND_ASSIGN(DOMUIBindings);
 };
 
 #endif  // CHROME_RENDERER_DOM_UI_BINDINGS_H__
