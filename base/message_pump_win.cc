@@ -182,6 +182,7 @@ void MessagePumpWin::ScheduleDelayedWork(const TimeDelta& delay) {
   // processing an empty timer queue.
   //
   int delay_msec = static_cast<int>(delay.InMilliseconds());
+  DCHECK(delay_msec >= 0);
   if (delay_msec < USER_TIMER_MINIMUM)
     delay_msec = USER_TIMER_MINIMUM;
 
@@ -249,7 +250,10 @@ void MessagePumpWin::HandleTimerMessage() {
   if (!state_)
     return;
 
-  state_->delegate->DoDelayedWork();
+  TimeDelta next_delay;
+  state_->delegate->DoDelayedWork(&next_delay);
+  if (next_delay >= TimeDelta::FromMilliseconds(0))
+    ScheduleDelayedWork(next_delay);
 }
 
 void MessagePumpWin::DoRunLoop() {
@@ -291,7 +295,15 @@ void MessagePumpWin::DoRunLoop() {
     if (more_work_is_plausible)
       continue;
 
-    more_work_is_plausible = state_->delegate->DoDelayedWork();
+    TimeDelta next_delay;
+    more_work_is_plausible = state_->delegate->DoDelayedWork(&next_delay);
+    // If we did not process any delayed work, then we can assume that our
+    // existing WM_TIMER if any will fire when delayed work should run.  We
+    // don't want to disturb that timer if it is already in flight.  However,
+    // if we did do all remaining delayed work, then lets kill the WM_TIMER.
+    if (more_work_is_plausible &&
+        next_delay < TimeDelta::FromMilliseconds(0))
+      KillTimer(message_hwnd_, reinterpret_cast<UINT_PTR>(this));
     if (state_->should_quit)
       break;
 

@@ -50,8 +50,11 @@ class MessagePump : public RefCountedThreadSafe<MessagePump> {
     // Called from within Run in response to ScheduleDelayedWork or when the
     // message pump would otherwise sleep waiting for more work.  Returns true
     // to indicate that delayed work was done.  DoIdleWork will not be called
-    // if DoDelayedWork returns true.
-    virtual bool DoDelayedWork() = 0;
+    // if DoDelayedWork returns true.  Upon return |next_delay| indicates the
+    // next delayed work interval.  If |next_delay| is negative, then the queue
+    // of future delayed work (timer events) is currently empty, and no
+    // additional calls to this function need to be scheduled.
+    virtual bool DoDelayedWork(TimeDelta* next_delay) = 0;
 
     // Called from within Run just before the message pump goes to sleep.
     // Returns true to indicate that idle work was done.
