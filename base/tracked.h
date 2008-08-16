@@ -40,8 +40,8 @@
 // thread, and duration of life (from construction to destruction).  All this
 // data is accumulated and filtered for review at about:objects.
 
-#ifndef BASE_TRACKED_H__
-#define BASE_TRACKED_H__
+#ifndef BASE_TRACKED_H_
+#define BASE_TRACKED_H_
 
 #include <string>
 
@@ -85,7 +85,7 @@ class Location {
     if (line_number_ != other.line_number_)
       return line_number_ < other.line_number_;
     if (file_name_ != other.file_name_)
-      return file_name_ != other.file_name_;
+      return file_name_ < other.file_name_;
     return function_name_ < other.function_name_;
   }
 
@@ -94,7 +94,7 @@ class Location {
   int line_number()           const { return line_number_; }
 
   void Write(bool display_filename, bool display_function_name,
-           std::string* output) const;
+             std::string* output) const;
 
   // Write function_name_ in HTML with '<' and '>' properly encoded.
   void WriteFunctionName(std::string* output) const;
@@ -141,9 +141,9 @@ class Tracked {
   // reset before the object begins it active life.
   Time tracked_birth_time_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(Tracked);
+  DISALLOW_COPY_AND_ASSIGN(Tracked);
 };
 
 }  // namespace tracked_objects
 
-#endif  // BASE_TRACKED_H__
+#endif  // BASE_TRACKED_H_
