@@ -137,16 +137,6 @@ static void EvictTroublesomeDlls() {
 DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
                                  sandbox::SandboxInterfaceInfo* sandbox_info,
                                  TCHAR* command_line, int show_command) {
-#ifdef _CRTDBG_MAP_ALLOC
-  _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
-  _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
-#else
-  _CrtSetReportMode(_CRT_ASSERT, 0);
-#endif
-
-  // The exit manager is in charge of calling the dtors of singleton objects.
-  base::AtExitManager exit_manager;
-
   // Register the invalid param handler and pure call handler to be able to
   // notify breakpad when it happens.
   _set_invalid_parameter_handler(InvalidParameter);
@@ -156,7 +146,20 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
   // Make sure malloc() calls the new handler too.
   _set_new_mode(1);
 
+  // The exit manager is in charge of calling the dtors of singleton objects.
+  base::AtExitManager exit_manager;
+
+  // Initialize the command line.
   CommandLine parsed_command_line;
+
+#ifdef _CRTDBG_MAP_ALLOC
+  _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
+  _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+#else
+  if (!parsed_command_line.HasSwitch(switches::kDisableBreakpad)) {
+    _CrtSetReportMode(_CRT_ASSERT, 0);
+  }
+#endif
 
   // Enable the low fragmentation heap for the CRT heap. The heap is not changed
   // if the process is run under the debugger is enabled or if certain gflags
