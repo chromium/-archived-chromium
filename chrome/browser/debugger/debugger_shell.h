@@ -37,13 +37,16 @@
 // If DebuggerWraper doesn't expose the interface you need, extend it to do so.
 // See comments in debugger_wrapper.h for more details.
 
-#ifndef CHROME_BROWSER_DEBUGGER_DEBUGGER_SHELL_H__
-#define CHROME_BROWSER_DEBUGGER_DEBUGGER_SHELL_H__
+#ifndef CHROME_BROWSER_DEBUGGER_DEBUGGER_SHELL_H_
+#define CHROME_BROWSER_DEBUGGER_DEBUGGER_SHELL_H_
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
 
 #ifdef CHROME_DEBUGGER_DISABLED
+
+#include "base/logging.h"
+
 class DebuggerShell : public base::RefCountedThreadSafe<DebuggerShell> {
  public:
   DebuggerShell() {
@@ -54,7 +57,9 @@ class DebuggerShell : public base::RefCountedThreadSafe<DebuggerShell> {
   void DebugMessage(const std::wstring& msg) {}
   void OnDebugDisconnect() {}
 };
+
 #else
+
 #include "debugger_io.h"
 #include "debugger_node.h"
 #include "v8/public/v8.h"
@@ -146,8 +151,8 @@ class DebuggerShell : public base::RefCountedThreadSafe<DebuggerShell> {
   // If the debugger is ready to process another command or is busy.
   bool debugger_ready_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(DebuggerShell);
+  DISALLOW_COPY_AND_ASSIGN(DebuggerShell);
 };
 
 #endif // else CHROME_DEBUGGER_DISABLED
-#endif // CHROME_BROWSER_DEBUGGER_DEBUGGER_SHELL_H__
+#endif // CHROME_BROWSER_DEBUGGER_DEBUGGER_SHELL_H_
