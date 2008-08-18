@@ -153,9 +153,10 @@ void DebuggerView::SetDebuggerBreak(bool is_broken) {
 }
 
 void DebuggerView::OpenURLFromTab(TabContents* source,
-                               const GURL& url,
-                               WindowOpenDisposition disposition,
-                               PageTransition::Type transition) {
+                                  const GURL& url,
+                                  WindowOpenDisposition disposition,
+                                  PageTransition::Type transition,
+                                  const std::wstring& override_encoding) {
   BrowserList::GetLastActive()->OpenURL(url, disposition, transition);
 }
 

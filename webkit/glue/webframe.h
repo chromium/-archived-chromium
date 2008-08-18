@@ -370,6 +370,11 @@ class WebFrame : public base::RefCounted<WebFrame> {
   // Does this frame have an onunload or unbeforeunload event listener?
   virtual bool HasUnloadListener() = 0;
 
+  // Is this frame reloading with allowing stale data? This will be true when
+  // the encoding of the page is changed and it needs to be re-interpreted,
+  // but no additional loads should occur.
+  virtual bool IsReloadAllowingStaleData() const = 0;
+
  private:
   DISALLOW_EVIL_CONSTRUCTORS(WebFrame);
 };

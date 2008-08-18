@@ -166,15 +166,18 @@ bool DraggedTabController::IsDragSourceTab(Tab* tab) const {
 ///////////////////////////////////////////////////////////////////////////////
 // DraggedTabController, PageNavigator implementation:
 
-void DraggedTabController::OpenURLFromTab(TabContents* source,
-                                          const GURL& url,
-                                          WindowOpenDisposition disposition,
-                                          PageTransition::Type transition) {
+void DraggedTabController::OpenURLFromTab(
+    TabContents* source,
+    const GURL& url,
+    WindowOpenDisposition disposition,
+    PageTransition::Type transition,
+    const std::wstring& override_encoding) {
   if (original_delegate_) {
     if (disposition == CURRENT_TAB)
       disposition = NEW_WINDOW;
 
-    original_delegate_->OpenURLFromTab(source, url, disposition, transition);
+    original_delegate_->OpenURLFromTab(source, url, disposition, transition,
+                                       override_encoding);
   }
 }
 

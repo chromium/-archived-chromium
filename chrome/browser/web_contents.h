@@ -359,6 +359,10 @@ class WebContents : public TabContents,
   // Returns true if this WebContents will notify about disconnection.
   bool notify_disconnection() const { return notify_disconnection_; }
 
+  void set_override_encoding(const std::wstring& override_encoding) {
+    override_encoding_ = override_encoding;
+  }
+
  protected:
   FRIEND_TEST(WebContentsTest, OnMessageReceived);
 
@@ -821,6 +825,9 @@ class WebContents : public TabContents,
 
   // Non-null if we're displaying content for a web app.
   scoped_refptr<WebApp> web_app_;
+
+  // Specified encoding which is used to override current tab's encoding.
+  std::wstring override_encoding_;
 
   DISALLOW_COPY_AND_ASSIGN(WebContents);
 };

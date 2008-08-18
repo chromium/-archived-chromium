@@ -1766,6 +1766,15 @@ void WebContents::DidStartLoading(RenderViewHost* rvh, int32 page_id) {
   if (plugin_installer_ != NULL)
     plugin_installer_->OnStartLoading();
   SetIsLoading(true, NULL);
+
+  // Overrides the page's encoding if we need to open this page with specified
+  // encoding.
+  if (!override_encoding_.empty()) {
+    SetPageEncoding(override_encoding_);
+    // Once we override the new encoding, we need to clear the encoding value
+    // for avoiding overriding it again.
+    override_encoding_.clear();
+  }
 }
 
 void WebContents::DidStopLoading(RenderViewHost* rvh, int32 page_id) {

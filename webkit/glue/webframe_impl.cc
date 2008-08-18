@@ -1736,3 +1736,12 @@ bool WebFrameImpl::HasUnloadListener() {
   }
   return false;
 }
+
+bool WebFrameImpl::IsReloadAllowingStaleData() const {
+  FrameLoader* loader = frame() ? frame()->loader() : NULL;
+  if (loader) {
+    return WebCore::FrameLoadTypeReloadAllowingStaleData ==
+           loader->policyLoadType();
+  }
+  return false;
+}

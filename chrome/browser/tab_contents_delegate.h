@@ -53,13 +53,13 @@ class TabContentsDelegate : public PageNavigator {
   virtual void OpenURLFromTab(TabContents* source,
                               const GURL& url,
                               WindowOpenDisposition disposition,
-                              PageTransition::Type transition) = 0;
+                              PageTransition::Type transition,
+                              const std::wstring& override_encoding) = 0;
 
   virtual void OpenURL(const GURL& url,
                        WindowOpenDisposition disposition,
-                       PageTransition::Type transition)
-  {
-    OpenURLFromTab(NULL, url, disposition, transition);
+                       PageTransition::Type transition) {
+    OpenURLFromTab(NULL, url, disposition, transition, std::wstring());
   }
 
   // Called to inform the delegate that the tab content's navigation state

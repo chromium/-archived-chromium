@@ -554,6 +554,8 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // @param misspelled_word The editable (possibily) misspelled word
   // in the Editor on which dictionary lookup for suggestions will be done.
   // @param edit_flags Which edit operations the renderer believes are available
+  // @param frame_encoding Which indicates the encoding of current focused
+  // sub frame.
   virtual void ShowContextMenu(WebView* webview,
                                ContextNode::Type type,
                                int x,
@@ -564,7 +566,8 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
                                const GURL& frame_url,
                                const std::wstring& selection_text,
                                const std::wstring& misspelled_word,
-                               int edit_flags) {
+                               int edit_flags,
+                               const std::wstring& frame_encoding) {
   }
 
   // Starts a drag session with the supplied contextual information.

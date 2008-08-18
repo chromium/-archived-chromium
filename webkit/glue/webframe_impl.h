@@ -198,7 +198,7 @@ class WebFrameImpl : public WebFrame {
     plugin_delegate_ = plugin_delegate;
   }
 
-  WebCore::Frame* frame() {
+  WebCore::Frame* frame() const {
     return frame_.get();
   }
 
@@ -259,6 +259,7 @@ class WebFrameImpl : public WebFrame {
   bool printing() const { return printing_; }
 
   virtual bool HasUnloadListener();
+  virtual bool IsReloadAllowingStaleData() const;
 
  protected:
   friend class WebFrameLoaderClient;

@@ -373,6 +373,12 @@ class TabContents : public PageNavigator,
                        WindowOpenDisposition disposition,
                        PageTransition::Type transition);
 
+  virtual void OpenURLWithOverrideEncoding(
+      const GURL& url,
+      WindowOpenDisposition disposition,
+      PageTransition::Type transition,
+      const std::wstring& override_encoding);
+
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,

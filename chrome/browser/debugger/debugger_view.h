@@ -84,7 +84,8 @@ class DebuggerView : public ChromeViews::View,
   virtual void OpenURLFromTab(TabContents* source,
                               const GURL& url,
                               WindowOpenDisposition disposition,
-                              PageTransition::Type transition);
+                              PageTransition::Type transition,
+                              const std::wstring& override_encoding);
 
   // Overridden from TabContentsDelegate:
   virtual void NavigationStateChanged(const TabContents* source,

@@ -110,11 +110,13 @@ void HtmlDialogView::OnDialogClosed(const std::string& json_retval) {
 void HtmlDialogView::OpenURLFromTab(TabContents* source,
                                     const GURL& url,
                                     WindowOpenDisposition disposition,
-                                    PageTransition::Type transition) {
+                                    PageTransition::Type transition,
+                                    const std::wstring& override_encoding) {
   // Force all links to open in a new window, ignoring the incoming
   // disposition. This is a tabless, modal dialog so we can't just
   // open it in the current frame.
-  parent_browser_->OpenURLFromTab(source, url, NEW_WINDOW, transition);
+  parent_browser_->OpenURLFromTab(source, url, NEW_WINDOW, transition,
+                                  override_encoding);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
