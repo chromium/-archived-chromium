@@ -34,5 +34,13 @@ GCC_ENABLE_PASCAL_STRINGS = NO
 GCC_INLINES_ARE_PRIVATE_EXTERN = YES
 GCC_SYMBOLS_PRIVATE_EXTERN = YES
 PREBINDING = NO
+
+// Each project file must set XCODEPROJ_DEPTH as a project-wide setting.  It
+// should contain a relative path to reach the src directory from the
+// directory containing the project.  For example, src/base/base.xcodeproj
+// should set XCODEPROJ_DEPTH = ../.. .  This is used to redirect all build
+// output to a single common directory.
+SYMROOT = $(XCODEPROJ_DEPTH)/xcodebuild
+
 USE_HEADERMAP = NO
 WARNING_CFLAGS = -Wall
