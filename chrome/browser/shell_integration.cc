@@ -43,6 +43,7 @@
 #include "base/win_util.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/win_util.h"
+#include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/create_reg_key_work_item.h"
 #include "chrome/installer/util/set_reg_value_work_item.h"
 #include "chrome/installer/util/shell_util.h"
@@ -153,7 +154,8 @@ bool ShellIntegration::SetAsDefaultBrowser() {
         NULL, CLSCTX_INPROC, __uuidof(IApplicationAssociationRegistration),
         (void**)&pAAR);
     if (SUCCEEDED(hr)) {
-      hr = pAAR->SetAppAsDefaultAll(installer_util::kApplicationName);
+      BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+      hr = pAAR->SetAppAsDefaultAll(dist->GetApplicationName().c_str());
       pAAR->Release();
     }
     if (!SUCCEEDED(hr))
@@ -272,8 +274,9 @@ bool ShellIntegration::IsDefaultBrowser() {
 
     for (int i = 0; i < _countof(kChromeProtocols); i++) {
       BOOL result = TRUE;
+      BrowserDistribution* dist = BrowserDistribution::GetDistribution();
       hr = pAAR->QueryAppIsDefault(kChromeProtocols[i].c_str(), AT_URLPROTOCOL,
-          AL_EFFECTIVE, installer_util::kApplicationName, &result);
+        AL_EFFECTIVE, dist->GetApplicationName().c_str(), &result);
       if (!SUCCEEDED(hr) || (result == FALSE)) {
         pAAR->Release();
         return false;

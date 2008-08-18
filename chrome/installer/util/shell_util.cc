@@ -47,6 +47,7 @@
 #include "base/win_util.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/create_reg_key_work_item.h"
 #include "chrome/installer/util/l10n_string_util.h"
 #include "chrome/installer/util/set_reg_value_work_item.h"
@@ -80,9 +81,10 @@ class RegistryEntry {
     entries.push_front(new RegistryEntry(
         L"Software\\Classes\\ChromeHTML\\shell\\open\\command", open_cmd));
 
+    BrowserDistribution* dist = BrowserDistribution::GetDistribution();
     entries.push_front(new RegistryEntry(
         L"Software\\Clients\\StartMenuInternet\\chrome.exe",
-        installer_util::kApplicationName));
+        dist->GetApplicationName()));
     entries.push_front(new RegistryEntry(
         L"Software\\Clients\\StartMenuInternet\\chrome.exe\\shell\\open\\command",
         quoted_exe_path));
@@ -107,17 +109,17 @@ class RegistryEntry {
 
     entries.push_front(new RegistryEntry(
         ShellUtil::kRegRegisteredApplications,
-        installer_util::kApplicationName,
+        dist->GetApplicationName(),
         L"Software\\Clients\\StartMenuInternet\\chrome.exe\\Capabilities"));
     entries.push_front(new RegistryEntry(
         L"Software\\Clients\\StartMenuInternet\\chrome.exe\\Capabilities",
-        L"ApplicationDescription", installer_util::kApplicationName));
+        L"ApplicationDescription", dist->GetApplicationName()));
     entries.push_front(new RegistryEntry(
         L"Software\\Clients\\StartMenuInternet\\chrome.exe\\Capabilities",
         L"ApplicationIcon", icon_path));
     entries.push_front(new RegistryEntry(
         L"Software\\Clients\\StartMenuInternet\\chrome.exe\\Capabilities",
-        L"ApplicationName", installer_util::kApplicationName));
+        L"ApplicationName", dist->GetApplicationName()));
 
     entries.push_front(new RegistryEntry(
         L"Software\\Clients\\StartMenuInternet\\chrome.exe\\Capabilities\\StartMenu",
@@ -251,7 +253,8 @@ ShellUtil::RegisterStatus RegisterOnVista(const std::wstring& chrome_exe,
     std::wstring exe_path(file_util::GetDirectoryFromPath(chrome_exe));
     file_util::AppendToPath(&exe_path, installer_util::kSetupExe);
     if (!file_util::PathExists(exe_path)) {
-      RegKey key(HKEY_CURRENT_USER, installer_util::kUninstallRegPath);
+      BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+      RegKey key(HKEY_CURRENT_USER, dist->GetUninstallRegPath().c_str());
       key.ReadValue(installer_util::kUninstallStringField, &exe_path);
       exe_path = exe_path.substr(0, exe_path.find_first_of(L" --"));
       TrimString(exe_path, L" \"", &exe_path);

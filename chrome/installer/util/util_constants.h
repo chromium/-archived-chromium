@@ -69,18 +69,10 @@ extern const wchar_t kVerboseLogging[];
 }  // namespace switches
 
 extern const wchar_t kInstallBinaryDir[];
-extern const wchar_t kInstallGoogleDir[];
-extern const wchar_t kChrome[];
 extern const wchar_t kChromeExe[];
 extern const wchar_t kChromeDll[];
-
-// Bug 1214772 - these should be removed for public beta and replaced with
-// a localized string.
-extern const wchar_t kPublisherName[];
-extern const wchar_t kApplicationName[];
 extern const wchar_t kSetupExe[];
 
-extern const wchar_t kUninstallRegPath[];
 extern const wchar_t kUninstallStringField[];
 extern const wchar_t kUninstallDisplayNameField[];
 }  // namespace installer_util

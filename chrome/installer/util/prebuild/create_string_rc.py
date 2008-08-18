@@ -56,9 +56,9 @@ class TranslationStruct:
 
 
 def CollectTranslatedStrings():
-  """Collects all the translations for "Google Chrome" from the XTB files. 
-  Returns a list of tuples of (language, translated string).  The list is
-  sorted by language codes."""
+  """Collects all the translations for all the strings specified by kStringIds.
+  Returns a list of tuples of (string_id, language, translated string). The
+  list is sorted by language codes."""
   kGeneratedResourcesPath = os.path.join(path_utils.ScriptDir(), '..', '..',
                                          '..', 'app/generated_resources.grd')
   kTranslationDirectory = os.path.join(path_utils.ScriptDir(), '..', '..',

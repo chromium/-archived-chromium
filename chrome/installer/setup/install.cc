@@ -34,6 +34,7 @@
 #include "base/string_util.h"
 #include "chrome/installer/setup/setup.h"
 #include "chrome/installer/setup/setup_constants.h"
+#include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/copy_tree_work_item.h"
 #include "chrome/installer/util/create_dir_work_item.h"
 #include "chrome/installer/util/create_reg_key_work_item.h"
@@ -64,6 +65,7 @@ std::wstring AppendPath(const std::wstring parent_path,
 void AddUninstallShortcutWorkItems(HKEY reg_root,
                                    const std::wstring& exe_path,
                                    const std::wstring& install_path,
+                                   const std::wstring& product_name,
                                    const std::wstring& new_version,
                                    WorkItemList* install_list) {
   std::wstring uninstall_cmd(L"\"");
@@ -75,44 +77,36 @@ void AddUninstallShortcutWorkItems(HKEY reg_root,
   uninstall_cmd.append(installer_util::switches::kUninstall);
 
   // Create DisplayName, UninstallString and InstallLocation keys
-  install_list->AddCreateRegKeyWorkItem(reg_root,
-                                        installer_util::kUninstallRegPath);
-  const std::wstring& product_name =
-      installer_util::GetLocalizedString(IDS_PRODUCT_NAME_BASE);
-  install_list->AddSetRegValueWorkItem(
-      reg_root, installer_util::kUninstallRegPath,
+  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+  std::wstring uninstall_reg = dist->GetUninstallRegPath();
+  install_list->AddCreateRegKeyWorkItem(reg_root, uninstall_reg);
+  install_list->AddSetRegValueWorkItem(reg_root, uninstall_reg,
       installer_util::kUninstallDisplayNameField, product_name, true);
   install_list->AddSetRegValueWorkItem(reg_root,
-                                       installer_util::kUninstallRegPath,
+                                       uninstall_reg,
                                        installer_util::kUninstallStringField,
                                        uninstall_cmd, true);
   install_list->AddSetRegValueWorkItem(reg_root,
-                                       installer_util::kUninstallRegPath,
+                                       uninstall_reg,
                                        L"InstallLocation", install_path, true);
 
   // DisplayIcon, NoModify and NoRepair
   std::wstring chrome_icon = AppendPath(install_path,
                                         installer_util::kChromeExe);
   ShellUtil::GetChromeIcon(chrome_icon);
-  install_list->AddSetRegValueWorkItem(reg_root,
-                                       installer_util::kUninstallRegPath,
+  install_list->AddSetRegValueWorkItem(reg_root, uninstall_reg,
                                        L"DisplayIcon", chrome_icon, true);
-  install_list->AddSetRegValueWorkItem(reg_root,
-                                       installer_util::kUninstallRegPath,
+  install_list->AddSetRegValueWorkItem(reg_root, uninstall_reg,
                                        L"NoModify", 1, true);
-  install_list->AddSetRegValueWorkItem(reg_root,
-                                       installer_util::kUninstallRegPath,
+  install_list->AddSetRegValueWorkItem(reg_root, uninstall_reg,
                                        L"NoRepair", 1, true);
 
-  install_list->AddSetRegValueWorkItem(reg_root,
-                                       installer_util::kUninstallRegPath,
+  install_list->AddSetRegValueWorkItem(reg_root, uninstall_reg,
                                        L"Publisher",
-                                       installer_util::kPublisherName, true);
-  install_list->AddSetRegValueWorkItem(reg_root,
-                                       installer_util::kUninstallRegPath,
+                                       dist->GetPublisherName(), true);
+  install_list->AddSetRegValueWorkItem(reg_root, uninstall_reg,
                                        L"Version", new_version.c_str(), true);
-  install_list->AddSetRegValueWorkItem(reg_root,
-                                       installer_util::kUninstallRegPath,
+  install_list->AddSetRegValueWorkItem(reg_root, uninstall_reg,
                                        L"DisplayVersion",
                                        new_version.c_str(), true);
   time_t rawtime = time(NULL);
@@ -120,8 +114,7 @@ void AddUninstallShortcutWorkItems(HKEY reg_root,
   localtime_s(&timeinfo, &rawtime);
   wchar_t buffer[9];
   if (wcsftime(buffer, 9, L"%Y%m%d", &timeinfo) == 8) {
-    install_list->AddSetRegValueWorkItem(reg_root,
-                                         installer_util::kUninstallRegPath,
+    install_list->AddSetRegValueWorkItem(reg_root, uninstall_reg,
                                          L"InstallDate",
                                          buffer, false);
   }
@@ -221,23 +214,25 @@ bool installer::InstallNewVersion(const std::wstring& exe_path,
   // add shortcut in Control Panel->Add/Remove Programs.
   AddInstallerCopyTasks(exe_path, archive_path, temp_dir, install_path,
       new_version.GetString(), install_list.get());
-  AddUninstallShortcutWorkItems(reg_root, exe_path, install_path,
+  const std::wstring& product_name =
+      installer_util::GetLocalizedString(IDS_PRODUCT_NAME_BASE);
+  AddUninstallShortcutWorkItems(reg_root, exe_path, install_path, product_name,
       new_version.GetString(), install_list.get());
 
   // Delete any old_chrome.exe if present.
   install_list->AddDeleteTreeWorkItem(
       AppendPath(install_path, installer::kChromeOldExe), std::wstring());
 
-  // Create Google Update key (if not already present) and set the new Chrome
+  // Create Version key (if not already present) and set the new Chrome
   // version as last step.
-  std::wstring chrome_google_update_key =
-      InstallUtil::GetChromeGoogleUpdateKey();
-  install_list->AddCreateRegKeyWorkItem(reg_root, chrome_google_update_key);
-  install_list->AddSetRegValueWorkItem(reg_root, chrome_google_update_key,
+  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+  std::wstring version_key = dist->GetVersionKey();
+  install_list->AddCreateRegKeyWorkItem(reg_root, version_key);
+  install_list->AddSetRegValueWorkItem(reg_root, version_key,
                                        google_update::kRegNameField,
-                                       installer_util::kChrome,
-                                       false);    // Don't overwrite.
-  install_list->AddSetRegValueWorkItem(reg_root, chrome_google_update_key,
+                                       product_name,
+                                       true);    // overwrite name also
+  install_list->AddSetRegValueWorkItem(reg_root, version_key,
                                        google_update::kRegVersionField,
                                        new_version.GetString(),
                                        true);    // overwrite version

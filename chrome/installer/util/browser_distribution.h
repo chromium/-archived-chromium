@@ -27,33 +27,46 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// This file declares utility functions for the installer. The original reason
-// for putting these functions in installer\util library is so that we can
-// separate out the critical logic and write unit tests for it.
+// This file declares a class that contains various method related to branding.
 
-#ifndef CHROME_INSTALLER_UTIL_INSTALL_UTIL_H__
-#define CHROME_INSTALLER_UTIL_INSTALL_UTIL_H__
-
-#include <string>
+#ifndef CHROME_INSTALLER_UTIL_BROWSER_DISTRIBUTION_H_
+#define CHROME_INSTALLER_UTIL_BROWSER_DISTRIBUTION_H_
 
 #include "base/basictypes.h"
 #include "chrome/installer/util/util_constants.h"
 #include "chrome/installer/util/version.h"
 
-// This is a utility class that provides common installation related
-// utility methods that can be used by installer and also unit tested
-// independently.
-class InstallUtil {
+class BrowserDistribution {
  public:
-  // Find the version of Chrome installed on the system by checking the
-  // Google Update registry key. Returns the version or NULL if no version is
-  // found.
-  // system_install: if true, looks for version number under the HKLM root,
-  //                 otherwise looks under the HKCU.
-  static installer::Version * GetChromeVersion(bool system_install);
+  virtual ~BrowserDistribution() {}
+
+  static BrowserDistribution* GetDistribution();
+
+  virtual void DoPostUninstallOperations(const installer::Version& version);
+
+  virtual void DoPreUninstallOperations();
+
+  virtual std::wstring GetApplicationName();
+
+  virtual std::wstring GetInstallSubDir();
+
+  virtual std::wstring GetPublisherName();
+
+  virtual int GetInstallReturnCode(
+      installer_util::InstallStatus install_status);
+
+  virtual std::wstring GetUninstallRegPath();
+
+  virtual std::wstring GetVersionKey();
+
+  virtual void UpdateDiffInstallStatus(bool system_install,
+      bool incremental_install, installer_util::InstallStatus install_status);
+
+ protected:
+  BrowserDistribution() {}
+
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(InstallUtil);
+  DISALLOW_COPY_AND_ASSIGN(BrowserDistribution);
 };
 
-
-#endif  // CHROME_INSTALLER_UTIL_INSTALL_UTIL_H__
+#endif  // CHROME_INSTALLER_UTIL_BROWSER_DISTRIBUTION_H_

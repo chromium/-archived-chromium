@@ -33,6 +33,7 @@
 #include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/scoped_ptr.h"
+#include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/delete_tree_work_item.h"
 #include "chrome/installer/util/helper.h"
 #include "chrome/installer/util/logging_installer.h"
@@ -49,10 +50,8 @@ std::wstring installer::GetChromeInstallPath(bool system_install) {
   }
 
   if (!install_path.empty()) {
-    file_util::AppendToPath(&install_path,
-                            std::wstring(installer_util::kInstallGoogleDir));
-    file_util::AppendToPath(&install_path,
-                            std::wstring(installer_util::kChrome));
+    BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+    file_util::AppendToPath(&install_path, dist->GetInstallSubDir());
     file_util::AppendToPath(&install_path,
                             std::wstring(installer_util::kInstallBinaryDir));
   }

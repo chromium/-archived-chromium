@@ -29,6 +29,7 @@
 
 #include <string>
 
+#include "base/at_exit.h"
 #include "base/basictypes.h"
 #include "base/command_line.h"
 #include "base/file_util.h"
@@ -38,6 +39,7 @@
 #include "chrome/installer/setup/setup.h"
 #include "chrome/installer/setup/setup_constants.h"
 #include "chrome/installer/setup/uninstall.h"
+#include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/delete_tree_work_item.h"
 #include "chrome/installer/util/helper.h"
 #include "chrome/installer/util/install_util.h"
@@ -203,46 +205,106 @@ installer::Version* GetVersionFromDir(const std::wstring& chrome_path) {
   return version;
 }
 
-// This method checks if we need to change "ap" key in Google Update to try
-// full installer as fall back method in case incremental installer fails.
-// - If incremental installer fails we append a magic string ("-full"), if
-// it is not present already, so that Google Update server next time will send
-// full installer to update Chrome on the local machine
-// - If we are currently running full installer, we remove this magic
-// string (if it is present) regardless of whether installer failed or not.
-// There is no fall-back for full installer :)
-void ResetGoogleUpdateApKey(bool system_install, bool incremental_install,
-                            installer_util::InstallStatus install_status) {
-  HKEY reg_root = (system_install) ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
+installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
+    const installer::Version* installed_version, bool system_install) {
+  // For install the default location for chrome.packed.7z is in current
+  // folder, so get that value first.
+  std::wstring archive = file_util::GetDirectoryFromPath(cmd_line.program());
+  file_util::AppendToPath(&archive,
+                          std::wstring(installer::kChromeCompressedArchive));
+  // If --install-archive is given, get the user specified value
+  if (cmd_line.HasSwitch(installer_util::switches::kInstallArchive)) {
+    archive = cmd_line.GetSwitchValue(
+        installer_util::switches::kInstallArchive);
+  }
+  LOG(INFO) << "Archive found to install Chrome " << archive;
 
-  RegKey key;
-  std::wstring ap_key_value;
-  std::wstring chrome_google_update_state_key(
-      google_update::kRegPathClientState);
-  chrome_google_update_state_key.append(L"\\");
-  chrome_google_update_state_key.append(google_update::kChromeGuid);
-  if (!key.Open(reg_root, chrome_google_update_state_key.c_str(),
-      KEY_ALL_ACCESS) || !key.ReadValue(google_update::kRegApFieldName,
-      &ap_key_value)) {
-    LOG(INFO) << "Application key not found. Returning without changing it.";
-    key.Close();
-    return;
+  // Create a temp folder where we will unpack Chrome archive. If it fails,
+  // then we are doomed, so return immediately and no cleanup is required.
+  std::wstring temp_path;
+  if (!file_util::CreateNewTempDirectory(std::wstring(L"chrome_"),
+                                         &temp_path)) {
+    LOG(ERROR) << "Could not create temporary path.";
+    return installer_util::TEMP_DIR_FAILED;
+  }
+  LOG(INFO) << "created path " << temp_path;
+
+  std::wstring unpack_path(temp_path);
+  file_util::AppendToPath(&unpack_path,
+                          std::wstring(installer::kInstallSourceDir));
+  bool incremental_install = false;
+  installer_util::InstallStatus install_status = installer_util::UNKNOWN_STATUS;
+  if (UnPackArchive(archive, system_install, installed_version,
+                    temp_path, unpack_path, incremental_install)) {
+    install_status = installer_util::UNCOMPRESSION_FAILED;
+  } else {
+    LOG(INFO) << "unpacked to " << unpack_path;
+    std::wstring src_path(unpack_path);
+    file_util::AppendToPath(&src_path,
+        std::wstring(installer::kInstallSourceChromeDir));
+    scoped_ptr<installer::Version>
+        installer_version(GetVersionFromDir(src_path));
+    if (!installer_version.get()) {
+      LOG(ERROR) << "Did not find any valid version in installer.";
+      install_status = installer_util::INVALID_ARCHIVE;
+    } else {
+      LOG(INFO) << "version to install: " << installer_version->GetString();
+      if (installed_version &&
+          installed_version->IsHigherThan(installer_version.get())) {
+        LOG(ERROR) << "Higher version is already installed.";
+        install_status = installer_util::HIGHER_VERSION_EXISTS;
+      } else {
+        // We want to keep uncompressed archive (chrome.7z) that we get after
+        // uncompressing and binary patching. Get the location for this file.
+        std::wstring archive_to_copy(temp_path);
+        file_util::AppendToPath(&archive_to_copy,
+                                std::wstring(installer::kChromeArchive));
+        install_status = installer::InstallOrUpdateChrome(
+            cmd_line.program(), archive_to_copy, temp_path, system_install,
+            *installer_version, installed_version);
+        if (install_status == installer_util::FIRST_INSTALL_SUCCESS) {
+          LOG(INFO) << "First install successful. Launching Chrome.";
+          installer::LaunchChrome(system_install);
+        }
+      }
+    }
   }
 
-  std::wstring new_value = InstallUtil::GetNewGoogleUpdateApKey(
-      incremental_install, install_status, ap_key_value);
-  if ((new_value.compare(ap_key_value) != 0) &&
-      !key.WriteValue(google_update::kRegApFieldName, new_value.c_str())) {
-    LOG(ERROR) << "Failed to write value " << new_value
-               << " to the registry field " << google_update::kRegApFieldName;
+  // Delete install temporary directory.
+  LOG(INFO) << "Deleting temporary directory " << temp_path;
+  scoped_ptr<DeleteTreeWorkItem> delete_tree(
+      WorkItem::CreateDeleteTreeWorkItem(temp_path, std::wstring()));
+  delete_tree->Do();
+
+  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+  dist->UpdateDiffInstallStatus(system_install, incremental_install,
+                                 install_status);
+  return install_status;
+}
+
+installer_util::InstallStatus UninstallChrome(const CommandLine& cmd_line,
+                                              const installer::Version* version,
+                                              bool system_install) {
+  bool remove_all = true;
+  if (cmd_line.HasSwitch(installer_util::switches::kDoNotRemoveSharedItems))
+    remove_all = false;
+  LOG(INFO) << "Uninstalling Chome";
+  if (!version) {
+    LOG(ERROR) << "No Chrome installation found for uninstall.";
+    return installer_util::CHROME_NOT_INSTALLED;
+  } else {
+    return installer_setup::UninstallChrome(cmd_line.program(), system_install,
+                                            *version, remove_all);
   }
-  key.Close();
 }
 }  // namespace
 
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
                     wchar_t* command_line, int show_command) {
+  // The exit manager is in charge of calling the dtors of singletons.
+  base::AtExitManager exit_manager;
+
   CommandLine parsed_command_line;
   installer::InitInstallerLogging(parsed_command_line);
 
@@ -283,107 +345,19 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   }
 
   installer_util::InstallStatus install_status = installer_util::UNKNOWN_STATUS;
+  // If --uninstall option is given, uninstall chrome
   if (parsed_command_line.HasSwitch(installer_util::switches::kUninstall)) {
-    bool remove_all = true;
-    if (parsed_command_line.HasSwitch(
-        installer_util::switches::kDoNotRemoveSharedItems))
-      remove_all = false;
-    // If --uninstall option is given, uninstall chrome
-    LOG(INFO) << "Uninstalling Chome";
-    if (!installed_version.get()) {
-      LOG(ERROR) << "No Chrome installation found for uninstall.";
-      install_status = installer_util::CHROME_NOT_INSTALLED;
-    } else {
-      install_status = installer_setup::UninstallChrome(
-          parsed_command_line.program(), system_install,
-          *installed_version, remove_all);
-    }
+    install_status = UninstallChrome(parsed_command_line,
+                                     installed_version.get(),
+                                     system_install);
+  // If --uninstall option is not specified, we assume it is install case.
   } else {
-    // If --uninstall option is not specified, we assume it is install case.
-    // For install the default location for chrome.packed.7z is in current
-    // folder, so get that value first.
-    std::wstring archive_path =
-        file_util::GetDirectoryFromPath(parsed_command_line.program());
-    file_util::AppendToPath(&archive_path,
-                            std::wstring(installer::kChromeCompressedArchive));
-    // If --install-archive is given, get the user specified value
-    if (parsed_command_line.HasSwitch(
-        installer_util::switches::kInstallArchive)) {
-      archive_path = parsed_command_line.GetSwitchValue(
-          installer_util::switches::kInstallArchive);
-    }
-    LOG(INFO) << "Archive found to install Chrome " << archive_path;
-
-    // Create a temp folder where we will unpack Chrome archive. If it fails,
-    // then we are doomed so return immediately and no cleanup is required.
-    std::wstring install_temp_path;
-    if (!file_util::CreateNewTempDirectory(std::wstring(L"chrome_"),
-                                           &install_temp_path)) {
-      LOG(ERROR) << "Could not create temporary path.";
-      return installer_util::TEMP_DIR_FAILED;
-    }
-    LOG(INFO) << "created path " << install_temp_path;
-    std::wstring unpack_path(install_temp_path);
-    file_util::AppendToPath(&unpack_path,
-                            std::wstring(installer::kInstallSourceDir));
-
-    bool incremental_install = false;
-    if (UnPackArchive(archive_path, system_install, installed_version.get(),
-                      install_temp_path, unpack_path, incremental_install)) {
-      install_status = installer_util::UNCOMPRESSION_FAILED;
-    } else {
-      LOG(INFO) << "unpacked to " << unpack_path;
-      std::wstring src_path(unpack_path);
-      file_util::AppendToPath(&src_path,
-          std::wstring(installer::kInstallSourceChromeDir));
-      scoped_ptr<installer::Version>
-          installer_version(GetVersionFromDir(src_path));
-      if (!installer_version.get()) {
-        LOG(ERROR) << "Did not find any valid version in installer.";
-        install_status = installer_util::INVALID_ARCHIVE;
-      } else {
-        LOG(INFO) << "version to be installed: " <<
-            installer_version->GetString();
-        if (installed_version.get() &&
-            installed_version->IsHigherThan(installer_version.get())) {
-          LOG(ERROR) << "Higher version is already installed.";
-          install_status = installer_util::HIGHER_VERSION_EXISTS;
-        } else {
-          // We want to keep uncompressed archive (chrome.7z) that we get after
-          // uncompressing and binary patching. Get the location for this file.
-          std::wstring archive_to_copy(install_temp_path);
-          file_util::AppendToPath(&archive_to_copy,
-                                  std::wstring(installer::kChromeArchive));
-          install_status = installer::InstallOrUpdateChrome(
-              parsed_command_line.program(), archive_to_copy,
-              install_temp_path, system_install,
-              *installer_version, installed_version.get());
-          if (install_status == installer_util::FIRST_INSTALL_SUCCESS) {
-            LOG(INFO) << "First install successful. Launching Chrome.";
-            installer::LaunchChrome(system_install);
-          }
-        }
-      }
-    }
-
-    // Delete install temporary directory.
-    LOG(INFO) << "Deleting temporary directory " << install_temp_path;
-    scoped_ptr<DeleteTreeWorkItem> delete_tree(
-        WorkItem::CreateDeleteTreeWorkItem(install_temp_path,
-                                           std::wstring()));
-    delete_tree->Do();
-
-    ResetGoogleUpdateApKey(system_install, incremental_install, install_status);
-
-    // TBD: The previous installs/updates may leave some temporary files
-    // that were not deleted when the installs/updates exited, probably due
-    // to a crash. Try delete those temporary files again?
+    install_status = InstallChrome(parsed_command_line,
+                                   installed_version.get(),
+                                   system_install);
   }
 
   CoUninitialize();
-  if (InstallUtil::InstallSuccessful(install_status))
-    return 0;  // For Google Update's benefit we need to return 0 for success
-               // cases.
-  else
-    return install_status;
+  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+  return dist->GetInstallReturnCode(install_status);
 }

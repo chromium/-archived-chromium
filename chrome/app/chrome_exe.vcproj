@@ -21,7 +21,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets=".\chrome_exe.vsprops;$(SolutionDir)..\build\debug.vsprops;$(SolutionDir)..\chrome\installer\util\using_util.vsprops"
+			InheritedPropertySheets=".\chrome_exe.vsprops;$(SolutionDir)..\build\debug.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -88,7 +88,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets=".\chrome_exe.vsprops;$(SolutionDir)..\build\release.vsprops;$(SolutionDir)..\chrome\installer\util\using_util.vsprops"
+			InheritedPropertySheets=".\chrome_exe.vsprops;$(SolutionDir)..\build\release.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"

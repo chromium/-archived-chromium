@@ -47,14 +47,18 @@ const wchar_t kBinResourceType[] = L"BN";
 const wchar_t kLZCResourceType[] = L"BL";
 const wchar_t kLZMAResourceType[] = L"B7";
 
-// Uninstall registry location
-const wchar_t kUninstallRegistryKey[] = L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Chrome";
+// Registry key to get uninstall command
 const wchar_t kUninstallRegistryValueName[] = L"UninstallString";
-
-// Uninstall registry key that lets user tell Chrome installer not to delete
-// extracted files.
-const wchar_t kCleanupRegistryKey[] = L"Software\\Google";
+// Registry key that tells Chrome installer not to delete extracted files.
 const wchar_t kCleanupRegistryValueName[] = L"ChromeInstallerCleanup";
+// Paths for the above two registry keys
+#if defined(GOOGLE_CHROME_BUILD)
+const wchar_t kUninstallRegistryKey[] = L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Google Chrome";
+const wchar_t kCleanupRegistryKey[] = L"Software\\Google";
+#else
+const wchar_t kUninstallRegistryKey[] = L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Chromium";
+const wchar_t kCleanupRegistryKey[] = L"Software\\Chromium";
+#endif
 
 // One gigabyte is the biggest resource size that it can handle.
 const int kMaxResourceSize = 1024*1024*1024;

@@ -67,16 +67,10 @@ const wchar_t kVerboseLogging[] = L"verbose-logging";
 }  // namespace switches
 
 const wchar_t kInstallBinaryDir[] = L"Application";
-const wchar_t kInstallGoogleDir[] = L"Google";
-const wchar_t kChrome[] = L"Chrome";
 const wchar_t kChromeExe[] = L"chrome.exe";
 const wchar_t kChromeDll[] = L"chrome.dll";
-
-const wchar_t kPublisherName[] = L"Google";
-const wchar_t kApplicationName[] = L"Google Chrome";
 const wchar_t kSetupExe[] = L"setup.exe";
 
-const wchar_t kUninstallRegPath[] = L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Google Chrome";
 const wchar_t kUninstallStringField[] = L"UninstallString";
 const wchar_t kUninstallDisplayNameField[] = L"DisplayName";
 }  // namespace installer_util

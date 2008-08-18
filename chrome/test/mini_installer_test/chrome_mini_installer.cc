@@ -34,6 +34,7 @@
 #include "base/registry.h"
 #include "base/string_util.h"
 #include "chrome/installer/setup/setup_constants.h"
+#include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/install_util.h"
 #include "chrome/installer/util/google_update_constants.h"
 #include "chrome/installer/util/util_constants.h"
@@ -48,7 +49,8 @@ void ChromeMiniInstaller::InstallMiniInstaller(bool over_install) {
   }
   LaunchExe(mini_installer_constants::kChromeMiniInstallerExecutable,
             mini_installer_constants::kChromeMiniInstallerExecutable);
-  ASSERT_TRUE(CheckRegistryKey(InstallUtil::GetChromeGoogleUpdateKey()));
+  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+  ASSERT_TRUE(CheckRegistryKey(dist->GetVersionKey()));
   FindChromeShortcut();
   WaitUntilProcessStartsRunning(installer_util::kChromeExe);
   if (!over_install) {
@@ -77,7 +79,8 @@ void ChromeMiniInstaller::InstallChromeSetupDev() {
   chrome_google_update_state_key.append(L"\\");
   chrome_google_update_state_key.append(google_update::kChromeGuid);
   ASSERT_TRUE(CheckRegistryKey(chrome_google_update_state_key));
-  ASSERT_TRUE(CheckRegistryKey(InstallUtil::GetChromeGoogleUpdateKey()));
+  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+  ASSERT_TRUE(CheckRegistryKey(dist->GetVersionKey()));
   FindChromeShortcut();
   WaitUntilProcessStartsRunning(installer_util::kChromeExe);
   ASSERT_TRUE(CloseWindow(mini_installer_constants::kFirstChromeUI, WM_CLOSE));
@@ -110,7 +113,8 @@ void ChromeMiniInstaller::OverInstall() {
 // Deletes App dir.
 void ChromeMiniInstaller::UnInstall() {
   printf("Verifying if Chrome is installed...\n");
-  if (!CheckRegistryKey(InstallUtil::GetChromeGoogleUpdateKey())) {
+  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+  if (!CheckRegistryKey(dist->GetVersionKey())) {
     printf("Chrome is not installed.\n");
     return;
   }
@@ -129,7 +133,7 @@ void ChromeMiniInstaller::UnInstall() {
       mini_installer_constants::kConfirmDialog, WM_COMMAND));
   WaitUntilProcessStopsRunning(
       mini_installer_constants::kChromeSetupExecutable);
-  ASSERT_FALSE(CheckRegistryKey(InstallUtil::GetChromeGoogleUpdateKey()));
+  ASSERT_FALSE(CheckRegistryKey(dist->GetVersionKey()));
   DeleteAppFolder();
   FindChromeShortcut();
   if (false == CloseWindow(mini_installer_constants::kChromeUninstallIETitle,
@@ -235,7 +239,8 @@ std::wstring ChromeMiniInstaller::GetUninstallPath() {
 // Reads Chrome registry key.
 std::wstring ChromeMiniInstaller::GetRegistryKey() {
   std::wstring build_key_value;
-  RegKey key(HKEY_CURRENT_USER, InstallUtil::GetChromeGoogleUpdateKey().c_str());
+  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+  RegKey key(HKEY_CURRENT_USER, dist->GetVersionKey().c_str());
   if (!key.ReadValue(L"pv", &build_key_value))
     return false;
   return build_key_value;

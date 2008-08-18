@@ -41,6 +41,14 @@
 	</Configurations>
 	<Files>
 		<File
+			RelativePath="browser_distribution.cc"
+			>
+		</File>
+		<File
+			RelativePath="browser_distribution.h"
+			>
+		</File>
+		<File
 			RelativePath="copy_tree_work_item.cc"
 			>
 		</File>
@@ -70,6 +78,14 @@
 		</File>
 		<File
 			RelativePath="delete_tree_work_item.h"
+			>
+		</File>
+		<File
+			RelativePath="google_chrome_distribution.cc"
+			>
+		</File>
+		<File
+			RelativePath="google_chrome_distribution.h"
 			>
 		</File>
 		<File
