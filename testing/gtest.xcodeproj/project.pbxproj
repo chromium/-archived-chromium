@@ -159,6 +159,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7B836C750E55C8CC00F6AD31 /* debug.xcconfig */;
 			buildSettings = {
+				XCODEPROJ_DEPTH = ..;
 			};
 			name = Debug;
 		};
@@ -166,6 +167,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7B836C760E55C8CC00F6AD31 /* release.xcconfig */;
 			buildSettings = {
+				XCODEPROJ_DEPTH = ..;
 			};
 			name = Release;
 		};

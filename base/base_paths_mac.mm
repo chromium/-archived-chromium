@@ -64,10 +64,9 @@ bool PathProviderMac(int key, std::wstring* result) {
       break;
     }
     case base::DIR_SOURCE_ROOT:
-      // On the mac, unit tests execute three levels deep from the source root.
-      // For example:  chrome/build/{Debug|Release}/ui_tests
+      // On the mac, unit tests execute two levels deep from the source root.
+      // For example: src/xcodebuild/{Debug|Release}/base_unittests
       PathService::Get(base::DIR_EXE, &cur);
-      file_util::UpOneDirectory(&cur);
       file_util::UpOneDirectory(&cur);
       file_util::UpOneDirectory(&cur);
       break;
