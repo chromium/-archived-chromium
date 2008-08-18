@@ -40,7 +40,9 @@
 #include "base/time.h"
 #include "net/base/completion_callback.h"
 
+#if defined(OS_WIN)
 typedef LPVOID HINTERNET;  // From winhttp.h
+#endif
 
 class GURL;
 
@@ -239,8 +241,10 @@ class ProxyInfo {
   // This may optionally be a semi-colon delimited list of proxy servers.
   void UseNamedProxy(const std::string& proxy_server);
 
+#if defined(OS_WIN)
   // Apply this proxy information to the given WinHTTP request handle.
   void Apply(HINTERNET request_handle);
+#endif
 
   // Returns true if this proxy info specifies a direct connection.
   bool is_direct() const { return proxy_list_.Get().empty(); }

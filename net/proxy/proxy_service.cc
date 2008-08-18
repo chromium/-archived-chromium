@@ -29,12 +29,15 @@
 
 #include "net/proxy/proxy_service.h"
 
+#if defined(OS_WIN)
 #include <windows.h>
 #include <winhttp.h>
+#endif
 
 #include <algorithm>
 
 #include "base/message_loop.h"
+#include "base/notimplemented.h"
 #include "base/string_tokenizer.h"
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
@@ -165,6 +168,7 @@ void ProxyInfo::UseNamedProxy(const std::string& proxy_server) {
   proxy_list_.Set(proxy_server);
 }
 
+#if defined(OS_WIN)
 void ProxyInfo::Apply(HINTERNET request_handle) {
   WINHTTP_PROXY_INFO pi;
   std::wstring proxy;  // We need to declare this variable here because
@@ -182,6 +186,7 @@ void ProxyInfo::Apply(HINTERNET request_handle) {
   }
   WinHttpSetOption(request_handle, WINHTTP_OPTION_PROXY, &pi, sizeof(pi));
 }
+#endif
 
 // ProxyService::PacRequest ---------------------------------------------------
 
@@ -441,6 +446,14 @@ void ProxyService::DidCompletePacRequest(int config_id, int result_code) {
 }
 
 void ProxyService::UpdateConfig() {
+#if !defined(WIN_OS)
+  if (!resolver_) {
+    // Tied to the NOTIMPLEMENTED in HttpNetworkLayer::HttpNetworkLayer()
+    NOTIMPLEMENTED();
+    return;
+  }
+#endif
+
   ProxyConfig latest;
   if (resolver_->GetProxyConfig(&latest) != OK)
     return;

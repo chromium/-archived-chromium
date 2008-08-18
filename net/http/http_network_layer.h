@@ -47,8 +47,10 @@ class HttpNetworkLayer : public HttpTransactionFactory {
   // and allows other implementations to be substituted.
   static HttpTransactionFactory* CreateFactory(const ProxyInfo* pi);
 
+#if defined(OS_WIN)
   // If value is true, then WinHTTP will be used.
   static void UseWinHttp(bool value);
+#endif
 
   // HttpTransactionFactory methods:
   virtual HttpTransaction* CreateTransaction();
@@ -57,7 +59,9 @@ class HttpNetworkLayer : public HttpTransactionFactory {
   virtual void Suspend(bool suspend);
 
  private:
+#if defined(OS_WIN)
   static bool use_winhttp_;
+#endif
 
   scoped_refptr<HttpNetworkSession> session_;
   bool suspended_;
