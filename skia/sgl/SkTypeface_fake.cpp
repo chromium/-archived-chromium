@@ -4,7 +4,7 @@
 
 uint32_t SkTypeface::UniqueID(const SkTypeface* face)
 {
-    return NULL;
+    return 0;
 }
 
 void SkTypeface::serialize(SkWStream* stream) const {
