@@ -27,8 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "minmax.h"
-
 #include <fstream>
 #include <iostream>
 
@@ -140,14 +138,15 @@ class BZip2FilterUnitTest : public testing::Test {
       int encode_data_len;
       if (get_extra_data && !encode_avail_size)
         break;
-      encode_data_len = min(encode_avail_size, filter->stream_buffer_size());
+      encode_data_len = std::min(encode_avail_size,
+                                 filter->stream_buffer_size());
       memcpy(filter->stream_buffer(), encode_next, encode_data_len);
       filter->FlushStreamBuffer(encode_data_len);
       encode_next += encode_data_len;
       encode_avail_size -= encode_data_len;
 
       while (1) {
-        int decode_data_len = min(decode_avail_size, output_buffer_size);
+        int decode_data_len = std::min(decode_avail_size, output_buffer_size);
 
         code = filter->ReadFilteredData(decode_next, &decode_data_len);
         decode_next += decode_data_len;

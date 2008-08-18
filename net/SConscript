@@ -52,15 +52,18 @@ env.Append(
 # These net files work on *all* platforms; files that don't work
 # cross-platforom live below.
 input_files = [
+    'base/auth_cache.cc',
+    'base/base64.cc',
+    'base/bzip2_filter.cc',
+    'base/filter.cc',
+    'base/gzip_filter.cc',
+    'base/gzip_header.cc',
     'base/net_errors.cc',
 ]
 
 if env['PLATFORM'] == 'win32':
   input_files.extend([
       'base/address_list.cc',
-      'base/auth_cache.cc',
-      'base/base64.cc',
-      'base/bzip2_filter.cc',
       'base/client_socket_factory.cc',
       'base/client_socket_handle.cc',
       'base/client_socket_pool.cc',
@@ -71,9 +74,6 @@ if env['PLATFORM'] == 'win32':
       'base/dns_resolution_observer.cc',
       'base/escape.cc',
       'base/ev_root_ca_metadata.cc',
-      'base/filter.cc',
-      'base/gzip_filter.cc',
-      'base/gzip_header.cc',
       'base/host_resolver.cc',
       'base/listen_socket.cc',
       'base/mime_sniffer.cc',
@@ -152,7 +152,7 @@ if env['PLATFORM'] in ('darwin', 'posix'):
       # Not quite ready for these, they still pull in net_util.h which
       # includes <windows.h>.
       #'disk_cache/cache_util_posix.cc',
-      #'disk_cache/file_win.cc_posix',
+      #'disk_cache/file_posix.cc',
       #'disk_cache/mapped_file_posix.cc',
       #'disk_cache/os_file_posix.cc',
   ])
@@ -179,14 +179,14 @@ env_tests.Prepend(
         'UNIT_TEST',
     ],
     LIBS = [
-        'googleurl',
+        'bzip2',      # Due to gcc's link order, bzip2 must come before base.
         'base',
+        'googleurl',
         'gtest',
-        'bzip2',
         'icuuc',
+        'net',        # Likewise, net must come before modp_b64.
         'modp_b64',
         'zlib',
-        'net',
     ]
 )
 
@@ -222,21 +222,21 @@ if env['PLATFORM'] == 'win32':
 
 
 unittest_files = [
+    'base/auth_cache_unittest.cc',
+    'base/base64_unittest.cc',
+    'base/bzip2_filter_unittest.cc',
+    'base/gzip_filter_unittest.cc',
     '$BASE_DIR/run_all_unittests$OBJSUFFIX',
 ]
 
 if env['PLATFORM'] == 'win32':
   unittest_files.extend([
-      'base/auth_cache_unittest.cc',
-      'base/base64_unittest.cc',
-      'base/bzip2_filter_unittest.cc',
       'base/client_socket_pool_unittest.cc',
       'base/cookie_monster_unittest.cc',
       'base/cookie_policy_unittest.cc',
       'base/data_url_unittest.cc',
       'base/directory_lister_unittest.cc',
       'base/escape_unittest.cc',
-      'base/gzip_filter_unittest.cc',
       'base/mime_sniffer_unittest.cc',
       'base/mime_util_unittest.cc',
       'base/net_util_unittest.cc',

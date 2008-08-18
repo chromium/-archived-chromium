@@ -27,8 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "minmax.h"
-
 #include <fstream>
 #include <iostream>
 
@@ -192,14 +190,15 @@ class GZipUnitTest : public testing::Test {
     int code = Filter::FILTER_OK;
     while (code != Filter::FILTER_DONE) {
       int encode_data_len;
-      encode_data_len = min(encode_avail_size, filter->stream_buffer_size());
+      encode_data_len = std::min(encode_avail_size,
+                                 filter->stream_buffer_size());
       memcpy(filter->stream_buffer(), encode_next, encode_data_len);
       filter->FlushStreamBuffer(encode_data_len);
       encode_next += encode_data_len;
       encode_avail_size -= encode_data_len;
 
       while (1) {
-        int decode_data_len = min(decode_avail_size, output_buffer_size);
+        int decode_data_len = std::min(decode_avail_size, output_buffer_size);
 
         code = filter->ReadFilteredData(decode_next, &decode_data_len);
         decode_next += decode_data_len;
@@ -372,7 +371,7 @@ TEST_F(GZipUnitTest, DecodeMissingData) {
                                  corrupt_decode_buffer, &corrupt_decode_size);
 
   // Expect failures
-  EXPECT_TRUE(code == Filter::FILTER_ERROR);
+  EXPECT_EQ(Filter::FILTER_ERROR, code);
 }
 
 // Decoding gzip stream with corrupted header.

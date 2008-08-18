@@ -31,12 +31,15 @@
 
 #include <unistd.h>
 
+#include "base/file_util.h"
 #include "base/logging.h"
+#include "base/path_service.h"
 #include "base/sys_string_conversions.h"
 
 namespace base {
 
 bool PathProviderLinux(int key, std::wstring* result) {
+  std::wstring cur;
   switch (key) {
     case base::FILE_EXE:
     case base::FILE_MODULE: { // TODO(evanm): is this correct?
@@ -50,6 +53,14 @@ bool PathProviderLinux(int key, std::wstring* result) {
       *result = base::SysNativeMBToWide(bin_dir);
       return true;
     }
+    case base::DIR_SOURCE_ROOT:
+      // On linux, unit tests execute two levels deep from the source root.
+      // For example:  chrome/{Debug|Hammer}/net_unittest
+      PathService::Get(base::DIR_EXE, &cur);
+      file_util::UpOneDirectory(&cur);
+      file_util::UpOneDirectory(&cur);
+      *result = cur;
+      return true;
   }
   return false;
 }
