@@ -206,20 +206,19 @@ static void FrameContentAsPlainText(int max_chars, Frame* frame,
     // string conversion.
     for (TextIterator it(range.get()); !it.atEnd(); it.advance()) {
       const wchar_t* chars = reinterpret_cast<const wchar_t*>(it.characters());
-      if (!chars) {
+      if (!chars && it.length() != 0) {
         // It appears from crash reports that an iterator can get into a state
         // where the character count is nonempty but the character pointer is
         // NULL. advance()ing it will then just add that many to the NULL
         // pointer which won't be caught in a NULL check but will crash.
         //
-        // So as soon as we see a NULL character pointer, we know that the
-        // iterator is done and we should not continue.
+        // A NULL pointer and 0 length is common for some nodes.
         //
         // IF YOU CATCH THIS IN A DEBUGGER please let brettw know. We don't
         // currently understand the conditions for this to occur. Ideally, the
         // iterators would never get into the condition so we should fix them
         // if we can.
-        DCHECK(it.length() == 0);
+        NOTREACHED();
         break;
       }
       int to_append = std::min(it.length(),
