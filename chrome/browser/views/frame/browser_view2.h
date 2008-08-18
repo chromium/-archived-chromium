@@ -76,6 +76,10 @@ class BrowserView2 : public BrowserWindow,
   // BrowserView2's parent.
   gfx::Rect GetClientAreaBounds() const;
 
+  // Returns the preferred height of the TabStrip. Used to position the OTR
+  // avatar icon.
+  int GetTabStripHeight() const;
+
   // Returns true if various window components are visible.
   bool IsToolbarVisible() const;
   bool IsTabStripVisible() const;
@@ -110,6 +114,26 @@ class BrowserView2 : public BrowserWindow,
   // Called when the activation of the frame changes.
   void ActivationChanged(bool activated);
 
+  // Returns the selected TabContents. Used by our NonClientView's
+  // TabIconView::TabContentsProvider implementations.
+  // TODO(beng): exposing this here is a bit bogus, since it's only used to
+  // determine loading state. It'd be nicer if we could change this to be
+  // bool IsSelectedTabLoading() const; or something like that. We could even
+  // move it to a WindowDelegate subclass.
+  TabContents* GetSelectedTabContents() const;
+
+  // Retrieves the icon to use in the frame to indicate an OTR window.
+  SkBitmap GetOTRAvatarIcon();
+
+  // Called right before displaying the system menu to allow the
+  // BrowserView to add or delete entries. BrowserView takes ownership
+  // of the passed in Menu object.
+  void PrepareToRunSystemMenu(Menu* menu);
+
+  // Called after the system menu has ended, and disposes of the
+  // current System menu object.
+  void SystemMenuEnded();
+
   // Possible elements of the Browser window.
   enum WindowFeature {
     FEATURE_TITLEBAR = 1,
@@ -124,15 +148,6 @@ class BrowserView2 : public BrowserWindow,
   // Returns true if the Browser object associated with this BrowserView2
   // supports the specified feature.
   bool SupportsWindowFeature(WindowFeature feature) const;
-
-  // Called right before displaying the system menu to allow the
-  // BrowserView to add or delete entries. BrowserView takes ownership
-  // of the passed in Menu object.
-  void PrepareToRunSystemMenu(Menu* menu);
-
-  // Called after the system menu has ended, and disposes of the
-  // current System menu object.
-  void SystemMenuEnded();
 
   // Returns the set of WindowFeatures supported by the specified BrowserType.
   static unsigned int FeaturesForBrowserType(BrowserType::Type type);
@@ -346,6 +361,9 @@ class BrowserView2 : public BrowserWindow,
 
   // Set of additional views drops are allowed on. We do NOT own these.
   std::set<ChromeViews::View*> dropable_views_;
+
+  // The OTR avatar image.
+  static SkBitmap otr_avatar_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BrowserView2);
 };

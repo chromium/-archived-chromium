@@ -69,6 +69,9 @@ class OpaqueFrame : public BrowserFrame,
   virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const;
   virtual ChromeViews::Window* GetWindow();
 
+  // Overridden from ChromeViews::CustomFrameWindow:
+  virtual void UpdateWindowIcon();
+
   // Overridden from ChromeViews::HWNDViewContainer:
   virtual bool AcceleratorPressed(ChromeViews::Accelerator* accelerator);
   virtual bool GetAccelerator(int cmd_id,

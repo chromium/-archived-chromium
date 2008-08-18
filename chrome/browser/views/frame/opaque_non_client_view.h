@@ -31,20 +31,26 @@
 #define CHROME_BROWSER_VIEWS_FRAME_OPAQUE_NON_CLIENT_VIEW_H_
 
 #include "chrome/browser/views/frame/opaque_frame.h"
+#include "chrome/browser/views/tab_icon_view.h"
 #include "chrome/views/non_client_view.h"
 #include "chrome/views/button.h"
 
+class BrowserView2;
 class OpaqueFrame;
+class TabContents;
 class TabStrip;
 class WindowResources;
 
 class OpaqueNonClientView : public ChromeViews::NonClientView,
-                            public ChromeViews::BaseButton::ButtonListener {
+                            public ChromeViews::BaseButton::ButtonListener,
+                            public TabIconView::TabContentsProvider {
  public:
   // Constructs a non-client view for an OpaqueFrame. |is_otr| specifies if the
   // frame was created "off-the-record" and as such different bitmaps should be
   // used to render the frame.
-  OpaqueNonClientView(OpaqueFrame* frame, bool is_otr);
+  OpaqueNonClientView(OpaqueFrame* frame,
+                      BrowserView2* browser_view,
+                      bool is_otr);
   virtual ~OpaqueNonClientView();
 
   // Retrieve the bounds of the window for the specified contents bounds.
@@ -54,7 +60,14 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   // |tabstrip| will be laid out within.
   gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip);
 
+  // Updates the window icon/throbber.
+  void UpdateWindowIcon();
+
  protected:
+  // Overridden from TabIconView::TabContentsProvider:
+  virtual TabContents* GetCurrentTabContents();
+  virtual SkBitmap GetFavIcon();
+
   // Overridden from ChromeViews::BaseButton::ButtonListener:
   virtual void ButtonPressed(ChromeViews::BaseButton* sender);
 
@@ -89,6 +102,7 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   // Paint various sub-components of this view.
   void PaintFrameBorder(ChromeCanvas* canvas);
   void PaintMaximizedFrameBorder(ChromeCanvas* canvas);
+  void PaintOTRAvatar(ChromeCanvas* canvas);
   void PaintDistributorLogo(ChromeCanvas* canvas);
   void PaintTitleBar(ChromeCanvas* canvas);
   void PaintToolbarBackground(ChromeCanvas* canvas);
@@ -96,6 +110,7 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
 
   // Layout various sub-components of this view.
   void LayoutWindowControls();
+  void LayoutOTRAvatar();
   void LayoutDistributorLogo();
   void LayoutTitleBar();
   void LayoutClientView();
@@ -109,11 +124,11 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   // The layout rect of the title, if visible.
   gfx::Rect title_bounds_;
 
-  // The layout rect of the window icon, if visible.
-  gfx::Rect icon_bounds_;
-
   // The layout rect of the distributor logo, if visible.
   gfx::Rect logo_bounds_;
+
+  // The layout rect of the OTR avatar icon, if visible.
+  gfx::Rect otr_avatar_bounds_;
 
   // Window controls.
   ChromeViews::Button* minimize_button_;
@@ -121,10 +136,17 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   ChromeViews::Button* restore_button_;
   ChromeViews::Button* close_button_;
 
+  // The Window icon.
+  TabIconView* window_icon_;
+
   // The frame that hosts this view.
   OpaqueFrame* frame_;
 
   // The BrowserView hosted within this View.
+  BrowserView2* browser_view_;
+
+  // True if we are an OTR frame.
+  bool is_otr_;
 
   // The resources currently used to paint this view.
   WindowResources* current_active_resources_;

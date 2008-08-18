@@ -95,6 +95,10 @@ class TabStripModelObserver {
   // The specified TabContents at |index| changed in some way.
   virtual void TabChangedAt(TabContents* contents, int index) { }
   // Loading progress representations for tabs should be validated/updated.
+  // TODO(beng): this wiring is cracktarded. consider revising. The loading
+  //             animation timer should live in BrowserView2, and from there
+  //             notify both the tabstrip and the window icon.
+  //             clean this up once XPFrame and VistaFrame have retired.
   virtual void TabValidateAnimations() { }
   // The TabStripModel now no longer has any "significant" (user created or
   // user manipulated) tabs. The implementer may use this as a trigger to try

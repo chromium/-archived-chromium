@@ -115,6 +115,14 @@ ChromeViews::Window* AeroGlassFrame::GetWindow() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// AeroGlassFrame, ChromeViews::Window overrides:
+
+void AeroGlassFrame::UpdateWindowIcon() {
+  Window::UpdateWindowIcon();
+  // TODO(beng): do something in the non-client view when this builds on Vista.
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // AeroGlassFrame, ChromeViews::HWNDViewContainer implementation:
 
 LRESULT AeroGlassFrame::OnMouseActivate(HWND window, UINT hittest_code,

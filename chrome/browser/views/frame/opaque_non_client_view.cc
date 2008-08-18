@@ -31,6 +31,7 @@
 
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/tabs/tab_strip.h"
+#include "chrome/browser/views/frame/browser_view2.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/path.h"
@@ -421,17 +422,27 @@ static const int kDistributorLogoHorizontalOffset = 7;
 // The vertical distance of the top of the distributor logo from the top edge
 // of the window.
 static const int kDistributorLogoVerticalOffset = 3;
+// The distance from the left of the window of the OTR avatar icon.
+static const int kOTRAvatarIconMargin = 9;
+// The distance from the top of the window of the OTR avatar icon when the
+// window is maximized.
+static const int kNoTitleOTRZoomedTopSpacing = 3;
 
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueNonClientView, public:
 
-OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame, bool is_otr)
+OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame,
+                                         BrowserView2* browser_view,
+                                         bool is_otr)
     : NonClientView(),
       minimize_button_(new ChromeViews::Button),
       maximize_button_(new ChromeViews::Button),
       restore_button_(new ChromeViews::Button),
       close_button_(new ChromeViews::Button),
-      frame_(frame) {
+      window_icon_(new TabIconView(this)),
+      frame_(frame),
+      browser_view_(browser_view),
+      is_otr_(is_otr) {
   InitClass();
   if (is_otr) {
     if (!active_otr_resources_) {
@@ -494,6 +505,10 @@ OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame, bool is_otr)
       resources->GetPartBitmap(FRAME_CLOSE_BUTTON_ICON_P));
   close_button_->SetListener(this, -1);
   AddChildView(close_button_);
+
+  window_icon_->set_is_light(true);
+  AddChildView(window_icon_);
+  window_icon_->Update();
 }
 
 OpaqueNonClientView::~OpaqueNonClientView() {
@@ -514,9 +529,24 @@ gfx::Rect OpaqueNonClientView::GetWindowBoundsForClientBounds(
 
 gfx::Rect OpaqueNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
   int tabstrip_height = tabstrip->GetPreferredHeight();
-  int tabstrip_x = frame_->client_view()->GetX();
-  return gfx::Rect(0, 0, minimize_button_->GetX() - tabstrip_x,
+  int tabstrip_x = otr_avatar_bounds_.right();
+  return gfx::Rect(tabstrip_x, 0, minimize_button_->GetX() - tabstrip_x,
                    tabstrip_height);
+}
+
+void OpaqueNonClientView::UpdateWindowIcon() {
+  window_icon_->Update();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// OpaqueNonClientView, TabIconView::TabContentsProvider implementation:
+
+TabContents* OpaqueNonClientView::GetCurrentTabContents() {
+  return browser_view_->GetSelectedTabContents();
+}
+
+SkBitmap OpaqueNonClientView::GetFavIcon() {
+  return frame_->window_delegate()->GetWindowIcon();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -554,7 +584,8 @@ gfx::Size OpaqueNonClientView::CalculateWindowSizeForClientSize(
 }
 
 CPoint OpaqueNonClientView::GetSystemMenuPoint() const {
-  CPoint system_menu_point(icon_bounds_.x(), icon_bounds_.bottom());
+  CPoint system_menu_point(window_icon_->GetX(),
+                           window_icon_->GetY() + window_icon_->GetHeight());
   MapWindowPoints(frame_->GetHWND(), HWND_DESKTOP, &system_menu_point, 1);
   return system_menu_point;
 }
@@ -582,11 +613,9 @@ int OpaqueNonClientView::NonClientHitTest(const gfx::Point& point) {
   minimize_button_->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
   if (bounds.PtInRect(test_point))
     return HTMINBUTTON;
-  /*
-  system_menu_button_->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
+  window_icon_->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
   if (bounds.PtInRect(test_point))
     return HTSYSMENU;
-  */
 
   component = GetHTComponentForFrame(
       point,
@@ -647,6 +676,7 @@ void OpaqueNonClientView::Paint(ChromeCanvas* canvas) {
   } else {
     PaintFrameBorder(canvas);
   }
+  PaintOTRAvatar(canvas);
   PaintDistributorLogo(canvas);
   PaintTitleBar(canvas);
   PaintToolbarBackground(canvas);
@@ -655,6 +685,7 @@ void OpaqueNonClientView::Paint(ChromeCanvas* canvas) {
 
 void OpaqueNonClientView::Layout() {
   LayoutWindowControls();
+  LayoutOTRAvatar();
   LayoutDistributorLogo();
   LayoutTitleBar();
   LayoutClientView();
@@ -775,6 +806,13 @@ void OpaqueNonClientView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
                        GetWidth(), bottom_edge->height());
 }
 
+void OpaqueNonClientView::PaintOTRAvatar(ChromeCanvas* canvas) {
+  if (is_otr_) {
+    canvas->DrawBitmapInt(browser_view_->GetOTRAvatarIcon(),
+                          otr_avatar_bounds_.x(), otr_avatar_bounds_.y());
+  }
+}
+
 void OpaqueNonClientView::PaintDistributorLogo(ChromeCanvas* canvas) {
   // The distributor logo is only painted when the frame is not maximized.
   if (!frame_->IsMaximized() && !frame_->IsMinimized()) {
@@ -784,11 +822,8 @@ void OpaqueNonClientView::PaintDistributorLogo(ChromeCanvas* canvas) {
 }
 
 void OpaqueNonClientView::PaintTitleBar(ChromeCanvas* canvas) {
+  // The window icon is painted by the TabIconView.
   ChromeViews::WindowDelegate* d = frame_->window_delegate();
-  if (d->ShouldShowWindowIcon()) {
-    canvas->DrawBitmapInt(d->GetWindowIcon(), icon_bounds_.x(),
-                          icon_bounds_.y());
-  }
   if (d->ShouldShowWindowTitle()) {
     canvas->DrawStringInt(d->GetWindowTitle(),
                           resources()->GetTitleFont(),
@@ -956,6 +991,23 @@ void OpaqueNonClientView::LayoutWindowControls() {
   }
 }
 
+void OpaqueNonClientView::LayoutOTRAvatar() {
+  int otr_x = 0;
+  int top_spacing =
+      frame_->IsMaximized() ? kNoTitleOTRZoomedTopSpacing : kNoTitleTopSpacing;
+  int otr_y = browser_view_->GetTabStripHeight() + top_spacing;
+  int otr_width = 0;
+  int otr_height = 0;
+  if (is_otr_) {
+    SkBitmap otr_avatar_icon = browser_view_->GetOTRAvatarIcon();
+    otr_width = otr_avatar_icon.width();
+    otr_height = otr_avatar_icon.height();
+    otr_x = kOTRAvatarIconMargin;
+    otr_y -= otr_avatar_icon.height() + 2;
+  }
+  otr_avatar_bounds_.SetRect(otr_x, otr_y, otr_width, otr_height);
+}
+
 void OpaqueNonClientView::LayoutDistributorLogo() {
   int logo_w = distributor_logo_.width();
   int logo_h = distributor_logo_.height();
@@ -971,21 +1023,22 @@ void OpaqueNonClientView::LayoutTitleBar() {
 
   // Size the window icon, if visible.
   if (d->ShouldShowWindowIcon()) {
-    icon_bounds_.SetRect(kWindowIconLeftOffset, kWindowIconLeftOffset,
-                         kWindowIconSize, kWindowIconSize);
+    window_icon_->SetBounds(kWindowIconLeftOffset, kWindowIconLeftOffset,
+                            kWindowIconSize, kWindowIconSize);
   } else {
     // Put the menu in the right place at least even if it is hidden so we
     // can size the title based on its position.
-    icon_bounds_.SetRect(kWindowIconLeftOffset, kWindowIconTopOffset, 0, 0);
+    window_icon_->SetBounds(kWindowIconLeftOffset, kWindowIconTopOffset, 0, 0);
   }
 
   // Size the title, if visible.
   if (d->ShouldShowWindowTitle()) {
     int spacing = d->ShouldShowWindowIcon() ? kWindowIconTitleSpacing : 0;
     int title_right = minimize_button_->GetX();
-    int title_left = icon_bounds_.right() + spacing;
+    int icon_right = window_icon_->GetX() + window_icon_->GetWidth();
+    int title_left = icon_right + spacing;
     title_bounds_.SetRect(title_left, kTitleTopOffset + top_offset,
-        std::max(0, static_cast<int>(title_right - icon_bounds_.right())),
+        std::max(0, static_cast<int>(title_right - icon_right)),
         resources()->GetTitleFont().height());
   }
 }

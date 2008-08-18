@@ -53,6 +53,7 @@
 
 // static
 SkBitmap BrowserView2::default_favicon_;
+SkBitmap BrowserView2::otr_avatar_;
 static const int kToolbarTabStripVerticalOverlap = 3;
 static const int kTabShadowSize = 2;
 static const int kStatusBubbleHeight = 20;
@@ -132,6 +133,10 @@ gfx::Rect BrowserView2::GetClientAreaBounds() const {
   return gfx::Rect(bounds);
 }
 
+int BrowserView2::GetTabStripHeight() const {
+  return tabstrip_->GetPreferredHeight();
+}
+
 bool BrowserView2::IsToolbarVisible() const {
   return SupportsWindowFeature(FEATURE_TOOLBAR) ||
          SupportsWindowFeature(FEATURE_LOCATIONBAR);
@@ -209,8 +214,16 @@ void BrowserView2::ActivationChanged(bool activated) {
   browser_->WindowActivationChanged(activated);
 }
 
-bool BrowserView2::SupportsWindowFeature(WindowFeature feature) const {
-  return !!(FeaturesForBrowserType(browser_->GetType()) & feature);
+TabContents* BrowserView2::GetSelectedTabContents() const {
+  return browser_->GetSelectedTabContents();
+}
+
+SkBitmap BrowserView2::GetOTRAvatarIcon() {
+  if (otr_avatar_.isNull()) {
+    ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+    otr_avatar_ = *rb.GetBitmapNamed(IDR_OTR_ICON);
+  }
+  return otr_avatar_;
 }
 
 void BrowserView2::PrepareToRunSystemMenu(Menu* menu) {
@@ -232,6 +245,10 @@ void BrowserView2::PrepareToRunSystemMenu(Menu* menu) {
 
 void BrowserView2::SystemMenuEnded() {
   system_menu_.reset();
+}
+
+bool BrowserView2::SupportsWindowFeature(WindowFeature feature) const {
+  return !!(FeaturesForBrowserType(browser_->GetType()) & feature);
 }
 
 // static
@@ -368,6 +385,7 @@ void BrowserView2::SetAcceleratorTable(
 }
 
 void BrowserView2::ValidateThrobber() {
+  frame_->GetWindow()->UpdateWindowIcon();
 }
 
 gfx::Rect BrowserView2::GetNormalBounds() {
@@ -860,8 +878,8 @@ void BrowserView2::LayoutStatusBubble(int top) {
 
 bool BrowserView2::MaybeShowBookmarkBar(TabContents* contents) {
   ChromeViews::View* new_bookmark_bar_view = NULL;
-  if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) &&
-      (contents && contents->IsBookmarkBarAlwaysVisible() ||
+  if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && contents &&
+      (contents->IsBookmarkBarAlwaysVisible() ||
        show_bookmark_bar_pref_.GetValue())) {
     new_bookmark_bar_view = GetBookmarkBarView();
   }

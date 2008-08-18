@@ -39,8 +39,8 @@
 // OpaqueFrame, public:
 
 OpaqueFrame::OpaqueFrame(BrowserView2* browser_view)
-    : CustomFrameWindow(browser_view, new OpaqueNonClientView(this,
-          browser_view->IsOffTheRecord())),
+    : CustomFrameWindow(browser_view, new OpaqueNonClientView(
+          this, browser_view, browser_view->IsOffTheRecord())),
       browser_view_(browser_view) {
   browser_view_->set_frame(this);
 }
@@ -85,6 +85,14 @@ gfx::Rect OpaqueFrame::GetBoundsForTabStrip(TabStrip* tabstrip) const {
 
 ChromeViews::Window* OpaqueFrame::GetWindow() {
   return this;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// OpaqueFrame, ChromeViews::CustomFrameWindow overrides:
+
+void OpaqueFrame::UpdateWindowIcon() {
+  CustomFrameWindow::UpdateWindowIcon();
+  GetOpaqueNonClientView()->UpdateWindowIcon();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
