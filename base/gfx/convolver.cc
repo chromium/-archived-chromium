@@ -104,7 +104,7 @@ class CircularRowBuffer {
     for (int i = 0; i < num_rows_; i++) {
       row_addresses_[i] = &buffer_[cur_row * row_byte_width_];
 
-      // Advance to the next row, wrapping if nexessary.
+      // Advance to the next row, wrapping if necessary.
       cur_row++;
       if (cur_row == num_rows_)
         cur_row = 0;
@@ -239,7 +239,7 @@ void ConvolveVertically(const int16* filter_values,
       else
         out_row[byte_offset + 3] = alpha;
     } else {
-      // No alpha channel, the image is opqaue.
+      // No alpha channel, the image is opaque.
       out_row[byte_offset + 3] = 0xff;
     }
   }

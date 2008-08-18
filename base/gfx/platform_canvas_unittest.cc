@@ -210,7 +210,7 @@ TEST(PlatformCanvasWin, GDILayer) {
   }
   EXPECT_TRUE(VerifyBlackSquare(canvas, kInnerX, kInnerY, kInnerW, kInnerH));
 
-  // Add a clip on the layer and fill to make make sure clip is correct.
+  // Add a clip on the layer and fill to make sure clip is correct.
   canvas.drawColor(SK_ColorWHITE);
   {
     LayerSaver layer(canvas, kLayerX, kLayerY, kLayerW, kLayerH);

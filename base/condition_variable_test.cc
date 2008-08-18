@@ -67,8 +67,8 @@ class ConditionVariableTest : public testing::Test {
 // Define a class that will control activities an several multi-threaded tests.
 // The general structure of multi-threaded tests is that a test case will
 // construct an instance of a WorkQueue.  The WorkQueue will spin up some
-// threads and control them thoughout their lifetime, as well as maintaining
-// a central respository of the work thread's activity.  Finally, the WorkQueue
+// threads and control them throughout their lifetime, as well as maintaining
+// a central repository of the work thread's activity.  Finally, the WorkQueue
 // will command the the worker threads to terminate.  At that point, the test
 // cases will validate that the WorkQueue has records showing that the desired
 // activities were performed.
@@ -511,7 +511,7 @@ TEST_F(ConditionVariableTest, LargeFastTaskTest) {
   }
   queue.work_is_available()->Broadcast();  // Force check for shutdown.
 
-  // Wait for shutdows to complete.
+  // Wait for shutdowns to complete.
   SPIN_FOR_TIMEDELTA_OR_UNTIL_TRUE(TimeDelta::FromMinutes(1),
                                    queue.shutdown_task_count() == kThreadCount);
   Sleep(10);  // Be sure they're all shutdown.

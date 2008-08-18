@@ -72,7 +72,7 @@
 // threads that were waiting when the request was made will indeed
 // get signaled.  Some implementations mess up, and don't signal them
 // all, while others allow the wait to be effectively turned off (for
-// for a while while waiting threads come around).  This implementation
+// a while while waiting threads come around).  This implementation
 // appears correct, as it will not "lose" any signals, and will guarantee
 // that all threads get signaled by Broadcast().
 //

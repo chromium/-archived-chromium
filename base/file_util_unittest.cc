@@ -684,7 +684,7 @@ TEST_F(FileUtilTest, ResolveShortcutTest) {
   contents = ReadTextFile(link_file);
   EXPECT_EQ(L"This is the target.", contents);
 
-  // Cleanning
+  // Cleaning
   DeleteFile(target_file.c_str());
   DeleteFile(link_file.c_str());
   CoUninitialize();

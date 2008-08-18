@@ -67,7 +67,7 @@ class DebugOnStart {
 #ifdef _WIN64
 
 // "Fix" the segment. On x64, the .CRT segment is merged into the .rdata segment
-// so it constains const data only.
+// so it contains const data only.
 #pragma const_seg(push, ".CRT$XIB")
 // Declare the pointer so the CRT will find it.
 extern const DebugOnStart::PIFV debug_on_start;
@@ -79,7 +79,7 @@ DECLSPEC_SELECTANY const DebugOnStart::PIFV debug_on_start =
 #else  // _WIN64
 
 // "Fix" the segment. On x86, the .CRT segment is merged into the .data segment
-// so it constains non-const data only.
+// so it contains non-const data only.
 #pragma data_seg(push, ".CRT$XIB")
 // Declare the pointer so the CRT will find it.
 DECLSPEC_SELECTANY DebugOnStart::PIFV debug_on_start = &DebugOnStart::Init;

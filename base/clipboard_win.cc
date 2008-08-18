@@ -52,7 +52,7 @@ class ClipboardLock {
   }
 
   bool Acquire(HWND owner) {
-    // We shouldn't be calling this if we already own the clipbard lock.
+    // We shouldn't be calling this if we already own the clipboard lock.
     DCHECK(!we_own_the_lock_);
 
     // We already have the lock.  We don't want to stomp on the other use.
@@ -81,7 +81,7 @@ class ClipboardLock {
         return we_own_the_lock_;
       }
 
-      // Having failed, we yeild our timeslice to other processes. ::Yield seems
+      // Having failed, we yield our timeslice to other processes. ::Yield seems
       // to be insufficient here, so we sleep for 5 ms.
       if (attempts < (kMaxAttemptsToOpenClipboard - 1))
         ::Sleep(5);
@@ -92,7 +92,7 @@ class ClipboardLock {
   }
 
   void Release() {
-    // We should only be calling this if we already own the clipbard lock.
+    // We should only be calling this if we already own the clipboard lock.
     DCHECK(we_own_the_lock_);
 
     // We we don't have the lock, there is nothing to release.

@@ -113,7 +113,7 @@ class Clipboard {
   void ReadBookmark(std::wstring* title, std::string* url) const;
 
   // Reads a file or group of files from the clipboard, if available, into the
-  // out paramter.
+  // out parameter.
   void ReadFile(std::wstring* file) const;
   void ReadFiles(std::vector<std::wstring>* files) const;
 

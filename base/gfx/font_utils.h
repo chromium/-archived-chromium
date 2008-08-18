@@ -55,7 +55,7 @@ enum GenericFamilyType {
 };
 
 // Return a font family that supports a script and belongs to |generic| font family.
-// It can retun NULL and a caller has to implement its own fallback.
+// It can return NULL and a caller has to implement its own fallback.
 const wchar_t* GetFontFamilyForScript(UScriptCode script,
                                       GenericFamilyType generic);
 

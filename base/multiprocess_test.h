@@ -45,7 +45,7 @@ static const wchar_t kRunClientProcess[] = L"client";
 //
 // 1) Derive your test from MultiProcessTest.
 // 2) Modify your mainline so that if it sees the
-//    kRuNClientProcess switch, it will deal with it.
+//    kRunClientProcess switch, it will deal with it.
 // 3) Create a mainline function for the child processes
 // 4) Call SpawnChild("foo"), where "foo" is the name of
 //    the function you wish to run in the child processes.

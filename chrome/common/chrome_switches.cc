@@ -259,7 +259,7 @@ const wchar_t kAlwaysEnableDevTools[] = L"always-enable-dev-tools";
 const wchar_t kTabCountToLoadOnSessionRestore[] =
     L"tab-count-to-load-on-session-restore";
 
-// Enable synamic loading of the Memory Profiler DLL, which will trace
+// Enable dynamic loading of the Memory Profiler DLL, which will trace
 // all memory allocations during the run.
 const wchar_t kMemoryProfiling[] = L"memory-profile";
 

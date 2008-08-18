@@ -208,7 +208,7 @@ bool ResolveShortcut(std::wstring* path);
 // you have initialized COM before calling into this function. 'source'
 // and 'destination' parameters are required, everything else can be NULL.
 // 'source' is the existing file, 'destination' is the new link file to be
-// created; for best resoults pass the filename with the .lnk extension.
+// created; for best results pass the filename with the .lnk extension.
 // The 'icon' can specify a dll or exe in which case the icon index is the
 // resource id.
 // Note that if the shortcut exists it will overwrite it.
@@ -220,7 +220,7 @@ bool CreateShortcutLink(const wchar_t *source, const wchar_t *destination,
 // Update a Windows shortcut (.LNK file). This method assumes the shortcut
 // link already exists (otherwise false is returned). Ensure you have
 // initialized COM before calling into this function. Only 'destination'
-// parameter is required, everything else can be NULL (but if everthing else
+// parameter is required, everything else can be NULL (but if everything else
 // is NULL no changes are made to the shortcut). 'destination' is the link
 // file to be updated. For best results pass the filename with the .lnk
 // extension.

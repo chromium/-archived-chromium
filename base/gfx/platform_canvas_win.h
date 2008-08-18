@@ -43,7 +43,7 @@ namespace gfx {
 class PlatformCanvasWin : public SkCanvas {
  public:
   // Set is_opaque if you are going to erase the bitmap and not use
-  // tranparency: this will enable some optimizations.  The shared_section
+  // transparency: this will enable some optimizations.  The shared_section
   // parameter is passed to gfx::PlatformDevice::create.  See it for details.
   //
   // If you use the version with no arguments, you MUST call initialize()

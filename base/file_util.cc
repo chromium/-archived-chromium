@@ -152,7 +152,7 @@ void InsertBeforeExtension(std::wstring* path, const std::wstring& suffix) {
 void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char) {
   DCHECK(file_name);
 
-  // Control characters, formating characters, non-characters, and
+  // Control characters, formatting characters, non-characters, and
   // some printable ASCII characters regarded as dangerous ('"*/:<>?\\').
   // See  http://blogs.msdn.com/michkap/archive/2006/11/03/941420.aspx
   // and http://msdn2.microsoft.com/en-us/library/Aa365247.aspx
