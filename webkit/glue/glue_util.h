@@ -27,11 +27,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef WEBKIT_GLUE_GLUE_UTIL_H__
-#define WEBKIT_GLUE_GLUE_UTIL_H__
+#ifndef WEBKIT_GLUE_GLUE_UTIL_H_
+#define WEBKIT_GLUE_GLUE_UTIL_H_
 
 #include <string>
 
+#include "base/string16.h"
 #include "googleurl/src/gurl.h"
 
 namespace WebCore {
@@ -45,6 +46,7 @@ namespace webkit_glue {
   std::string CStringToStdString(const WebCore::CString& str);
   WebCore::CString StdStringToCString(const std::string& str);
   std::wstring StringToStdWString(const WebCore::String& str);
+  std::string16 StringToStdString16(const WebCore::String& str);
 
   WebCore::String StdWStringToString(const std::wstring& str);
   WebCore::String StdStringToString(const std::string& str);
@@ -56,4 +58,4 @@ namespace webkit_glue {
   WebCore::KURL GURLToKURL(const GURL& url);
 }
 
-#endif  // #ifndef WEBKIT_GLUE_GLUE_UTIL_H__
+#endif  // #ifndef WEBKIT_GLUE_GLUE_UTIL_H_

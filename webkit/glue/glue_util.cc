@@ -56,11 +56,27 @@ WebCore::CString StdStringToCString(const std::string& str) {
 
 std::wstring StringToStdWString(const WebCore::String& str) {
   const UChar* chars = str.characters();
+#if defined(WCHAR_T_IS_UTF16)
   return std::wstring(chars ? chars : L"", str.length());
+#elif defined(WCHAR_T_IS_UTF32)
+  std::string16 str16(chars ? chars : reinterpret_cast<const char16 *>(L""),
+                                      str.length());
+  return UTF16ToWide(str16);
+#endif
+}
+
+std::string16 StringToStdString16(const WebCore::String& str) {
+  const UChar* chars = str.characters();
+  return std::string16(chars ? chars : (UChar *)L"", str.length());
 }
 
 WebCore::String StdWStringToString(const std::wstring& str) {
+#if defined(WCHAR_T_IS_UTF16)
   return WebCore::String(str.data(), static_cast<unsigned>(str.length()));
+#elif defined(WCHAR_T_IS_UTF32)
+  std::string16 str16 = WideToUTF16(str);
+  return WebCore::String(str16.data(), static_cast<unsigned>(str16.length()));
+#endif
 }
 
 WebCore::String StdStringToString(const std::string& str) {
@@ -69,15 +85,28 @@ WebCore::String StdStringToString(const std::string& str) {
 
 WebCore::DeprecatedString StdWStringToDeprecatedString(
     const std::wstring& str) {
+#if defined(WCHAR_T_IS_UTF16)
   return WebCore::DeprecatedString(
       reinterpret_cast<const WebCore::DeprecatedChar*>(str.c_str()),
       static_cast<int>(str.size()));
+#elif defined(WCHAR_T_IS_UTF32)
+  std::string16 str16 = WideToUTF16(str);
+  return WebCore::DeprecatedString(
+      reinterpret_cast<const WebCore::DeprecatedChar*>(str16.c_str()),
+      static_cast<int>(str16.size()));
+#endif
 }
 
 std::wstring DeprecatedStringToStdWString(
     const WebCore::DeprecatedString& dep) {
+#if defined(WCHAR_T_IS_UTF16)
   return std::wstring(reinterpret_cast<const wchar_t*>(dep.unicode()),
-                      dep.length());
+                                                       dep.length());
+#elif defined(WCHAR_T_IS_UTF32)
+  std::string16 str16(reinterpret_cast<const char16*>(dep.unicode()),
+                                                      dep.length());
+  return UTF16ToWide(str16);
+#endif
 }
 
 // URL conversions -------------------------------------------------------------
@@ -89,6 +118,7 @@ GURL KURLToGURL(const WebCore::KURL& url) {
     return GURL();
   return GURL(spec.data(), spec.length(), url.parsed(), url.isValid());
 #else
+  const WebCore::DeprecatedString& spec = url.deprecatedString();
   return GURL(WideToUTF8(DeprecatedStringToStdWString(spec))); 
 #endif
 }
