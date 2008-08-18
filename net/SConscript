@@ -336,4 +336,8 @@ if env['PLATFORM'] == 'win32':
 
 
 # Setup alias for building all parts of net.
-env.Alias('net', ['.', installed_tests, '../icudt38.dll'])
+if env['PLATFORM'] == 'win32':
+  icudata = '../icudt38.dll'
+else:
+  icudata = '../icudt38l.dat'
+env.Alias('net', ['.', installed_tests, icudata)
