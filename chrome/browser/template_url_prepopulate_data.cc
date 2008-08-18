@@ -648,10 +648,7 @@ const PrepopulatedEngine live = {
 };
 
 const PrepopulatedEngine live_ar_XA = {
-  // The name here is displayed LTR, but is really RTL (with an LTR string at
-  // the beginning), so hackishly reorder things so they look "RTL".
-  // TODO(pkasting): When http://b/1252245 is fixed, we can revert this hack.
-  L"(\x0627\x0644\x0639\x0631\x0628\x064a\x0629) Live Search",
+  L"Live Search (\x0627\x0644\x0639\x0631\x0628\x064a\x0629)",
   L"",  // "live.com" is already taken by live_en_XA (see comment on ID below).
   L"http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?setlang=ar-XA&mkt=ar-XA&"
@@ -1208,8 +1205,8 @@ const PrepopulatedEngine msn_fr_FR = {
 const PrepopulatedEngine msn_he_IL = {
   L"msn.co.il",
   L"msn.co.il",
-  L"http://search.msn.co.il/s/wlflag.ico",
-  L"http://search.msn.co.il/results.aspx?mkt=he-IL&q={searchTerms}",
+  L"http://msn.co.il/favicon.ico",
+  L"http://search.msn.co.il/Search.aspx?q={searchTerms}",
   "UTF-8",
   NULL,
   3,
@@ -1771,10 +1768,7 @@ const PrepopulatedEngine voila = {
 };
 
 const PrepopulatedEngine walla = {
-  // The name here is displayed LTR, but is really RTL, so hackishly reorder
-  // the exclamation point so it looks "RTL".
-  // TODO(pkasting): When http://b/1252245 is fixed, we can revert this hack.
-  L"!\x05d5\x05d5\x05d0\x05dc\x05d4",
+  L"\x05d5\x05d5\x05d0\x05dc\x05d4!",
   L"walla.co.il",
   L"http://www.walla.co.il/favicon.ico",
   L"http://search.walla.co.il/?e=hew&q={searchTerms}",
@@ -2199,7 +2193,7 @@ const PrepopulatedEngine yandex_ru = {
   L"yandex.ru",
   L"http://yandex.ru/favicon.ico",
   L"http://yandex.ru/yandsearch?text={searchTerms}",
-  "windows-1251",
+  "UTF-8",
   L"http://suggest.yandex.net/suggest-ff.cgi?part={searchTerms}",
   15,
 };
@@ -2209,7 +2203,7 @@ const PrepopulatedEngine yandex_ua = {
   L"yandex.ua",
   L"http://yandex.ua/favicon.ico",
   L"http://yandex.ua/yandsearch?text={searchTerms}",
-  "windows-1251",
+  "UTF-8",
   L"http://suggest.yandex.net/suggest-ff.cgi?part={searchTerms}",
   15,
 };
@@ -2999,7 +2993,7 @@ void RegisterUserPrefs(PrefService* prefs) {
 }
 
 int GetDataVersion() {
-  return 10;  // Increment this if you change the above data in ways that mean
+  return 11;  // Increment this if you change the above data in ways that mean
              // users with existing data should get a new version.
 }
 
