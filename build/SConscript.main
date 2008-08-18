@@ -338,6 +338,10 @@ elif env['PLATFORM'] == 'posix':
       # We need pthread for threading, and rt for clock_gettime.
       LIBS = ['pthread', 'rt'],
   )
+  # Build with support for gcov when COVERAGE=1.
+  if ARGUMENTS.get('COVERAGE') == '1':
+    env.Append(CCFLAGS=['-fprofile-arcs', '-ftest-coverage'])
+    env.Append(LINKFLAGS=['-fprofile-arcs'])
 
 else:
 
