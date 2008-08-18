@@ -1,0 +1,183 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7B8502420E5A386D00730B43 /* modp_b64.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7B85023F0E5A386D00730B43 /* modp_b64.cc */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		7B8502300E5A382000730B43 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
+		7B8502310E5A382000730B43 /* debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = debug.xcconfig; sourceTree = "<group>"; };
+		7B8502320E5A382000730B43 /* executable.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = executable.xcconfig; sourceTree = "<group>"; };
+		7B8502330E5A382000730B43 /* release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = release.xcconfig; sourceTree = "<group>"; };
+		7B8502340E5A382000730B43 /* staticlib.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = staticlib.xcconfig; sourceTree = "<group>"; };
+		7B8502390E5A384100730B43 /* libmodp_b64.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libmodp_b64.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B85023F0E5A386D00730B43 /* modp_b64.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = modp_b64.cc; sourceTree = "<group>"; };
+		7B8502400E5A386D00730B43 /* modp_b64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = modp_b64.h; sourceTree = "<group>"; };
+		7B8502410E5A386D00730B43 /* modp_b64_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = modp_b64_data.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7B8502370E5A384100730B43 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		7B85021A0E5A37D900730B43 = {
+			isa = PBXGroup;
+			children = (
+				7B85022F0E5A37FB00730B43 /* Configuration */,
+				7B85023E0E5A385500730B43 /* Source */,
+				7B85023A0E5A384100730B43 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7B85022F0E5A37FB00730B43 /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				7B8502300E5A382000730B43 /* common.xcconfig */,
+				7B8502310E5A382000730B43 /* debug.xcconfig */,
+				7B8502320E5A382000730B43 /* executable.xcconfig */,
+				7B8502330E5A382000730B43 /* release.xcconfig */,
+				7B8502340E5A382000730B43 /* staticlib.xcconfig */,
+			);
+			name = Configuration;
+			path = ../../build;
+			sourceTree = "<group>";
+		};
+		7B85023A0E5A384100730B43 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7B8502390E5A384100730B43 /* libmodp_b64.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7B85023E0E5A385500730B43 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				7B85023F0E5A386D00730B43 /* modp_b64.cc */,
+				7B8502400E5A386D00730B43 /* modp_b64.h */,
+				7B8502410E5A386D00730B43 /* modp_b64_data.h */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7B8502380E5A384100730B43 /* modp_b64 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7B85023D0E5A384100730B43 /* Build configuration list for PBXNativeTarget "modp_b64" */;
+			buildPhases = (
+				7B8502360E5A384100730B43 /* Sources */,
+				7B8502370E5A384100730B43 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = modp_b64;
+			productName = modp_b64;
+			productReference = 7B8502390E5A384100730B43 /* libmodp_b64.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7B85021C0E5A37D900730B43 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 7B85021F0E5A37D900730B43 /* Build configuration list for PBXProject "modp_b64" */;
+			compatibilityVersion = "Xcode 3.1";
+			hasScannedForEncodings = 0;
+			mainGroup = 7B85021A0E5A37D900730B43;
+			productRefGroup = 7B85023A0E5A384100730B43 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7B8502380E5A384100730B43 /* modp_b64 */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7B8502360E5A384100730B43 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7B8502420E5A386D00730B43 /* modp_b64.cc in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		7B85021D0E5A37D900730B43 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7B8502310E5A382000730B43 /* debug.xcconfig */;
+			buildSettings = {
+				XCODEPROJ_DEPTH = ../..;
+			};
+			name = Debug;
+		};
+		7B85021E0E5A37D900730B43 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7B8502330E5A382000730B43 /* release.xcconfig */;
+			buildSettings = {
+				XCODEPROJ_DEPTH = ../..;
+			};
+			name = Release;
+		};
+		7B85023B0E5A384100730B43 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7B8502340E5A382000730B43 /* staticlib.xcconfig */;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = ../..;
+				PRODUCT_NAME = modp_b64;
+			};
+			name = Debug;
+		};
+		7B85023C0E5A384100730B43 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7B8502340E5A382000730B43 /* staticlib.xcconfig */;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = ../..;
+				PRODUCT_NAME = modp_b64;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7B85021F0E5A37D900730B43 /* Build configuration list for PBXProject "modp_b64" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7B85021D0E5A37D900730B43 /* Debug */,
+				7B85021E0E5A37D900730B43 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7B85023D0E5A384100730B43 /* Build configuration list for PBXNativeTarget "modp_b64" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7B85023B0E5A384100730B43 /* Debug */,
+				7B85023C0E5A384100730B43 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7B85021C0E5A37D900730B43 /* Project object */;
+}
