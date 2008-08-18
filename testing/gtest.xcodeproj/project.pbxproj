@@ -18,6 +18,8 @@
 		7B836C740E55C8CC00F6AD31 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
 		7B836C750E55C8CC00F6AD31 /* debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = debug.xcconfig; sourceTree = "<group>"; };
 		7B836C760E55C8CC00F6AD31 /* release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = release.xcconfig; sourceTree = "<group>"; };
+		7BED30DF0E59F69A00A747DB /* executable.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = executable.xcconfig; sourceTree = "<group>"; };
+		7BED30E00E59F69A00A747DB /* staticlib.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = staticlib.xcconfig; sourceTree = "<group>"; };
 		D2AAC046055464E500DB518D /* libgtest.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libgtest.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E45A2BB60E47A20200DB1196 /* gtest_main.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gtest_main.cc; sourceTree = "<group>"; };
 		E45A2BB70E47A20200DB1196 /* gtest-death-test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "gtest-death-test.cc"; sourceTree = "<group>"; };
@@ -75,7 +77,9 @@
 			children = (
 				7B836C740E55C8CC00F6AD31 /* common.xcconfig */,
 				7B836C750E55C8CC00F6AD31 /* debug.xcconfig */,
+				7BED30DF0E59F69A00A747DB /* executable.xcconfig */,
 				7B836C760E55C8CC00F6AD31 /* release.xcconfig */,
+				7BED30E00E59F69A00A747DB /* staticlib.xcconfig */,
 			);
 			name = Configuration;
 			path = ../build;
@@ -135,6 +139,7 @@
 /* Begin XCBuildConfiguration section */
 		1DEB91EC08733DB70010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7BED30E00E59F69A00A747DB /* staticlib.xcconfig */;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					gtest,
@@ -146,6 +151,7 @@
 		};
 		1DEB91ED08733DB70010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7BED30E00E59F69A00A747DB /* staticlib.xcconfig */;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					gtest,

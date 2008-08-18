@@ -288,6 +288,8 @@
 		7BD9E84E0DA447F800FC7A01 /* singleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = singleton.h; sourceTree = "<group>"; };
 		7BEB81100D9AD288009BA8DD /* prcpucfg_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = prcpucfg_mac.h; path = third_party/nspr/prcpucfg_mac.h; sourceTree = "<group>"; };
 		7BEB81490D9B0F33009BA8DD /* time_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = time_posix.cc; sourceTree = "<group>"; };
+		7BED30C60E59F63000A747DB /* executable.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = executable.xcconfig; sourceTree = "<group>"; };
+		7BED30C70E59F63000A747DB /* staticlib.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = staticlib.xcconfig; sourceTree = "<group>"; };
 		7BEFC29C0D99832D000829AD /* lock_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lock_impl.h; sourceTree = "<group>"; };
 		7BEFC29D0D99832D000829AD /* lock_impl_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lock_impl_posix.cc; sourceTree = "<group>"; };
 		820EB4EB0E3A60FE009668FC /* idle_timer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = idle_timer.cc; sourceTree = "<group>"; };
@@ -582,7 +584,9 @@
 			children = (
 				7B836C4C0E55C6AC00F6AD31 /* common.xcconfig */,
 				7B836C4D0E55C6AC00F6AD31 /* debug.xcconfig */,
+				7BED30C60E59F63000A747DB /* executable.xcconfig */,
 				7B836C4E0E55C6AC00F6AD31 /* release.xcconfig */,
+				7BED30C70E59F63000A747DB /* staticlib.xcconfig */,
 			);
 			name = Configuration;
 			path = ../build;
@@ -1206,6 +1210,7 @@
 		};
 		825402BD0D92D0FB0006B936 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7BED30C70E59F63000A747DB /* staticlib.xcconfig */;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					..,
@@ -1218,6 +1223,7 @@
 		};
 		825402BE0D92D0FB0006B936 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7BED30C70E59F63000A747DB /* staticlib.xcconfig */;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					..,
@@ -1230,6 +1236,7 @@
 		};
 		825403B20D92D2E50006B936 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7BED30C70E59F63000A747DB /* staticlib.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks";
 				HEADER_SEARCH_PATHS = (
@@ -1244,6 +1251,7 @@
 		};
 		825403B30D92D2E50006B936 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7BED30C70E59F63000A747DB /* staticlib.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks";
 				HEADER_SEARCH_PATHS = (
@@ -1272,6 +1280,7 @@
 		};
 		E49F18C10E4CBAC300386AEC /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7BED30C60E59F63000A747DB /* executable.xcconfig */;
 			buildSettings = {
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(GCC_PREPROCESSOR_DEFINITIONS)",
@@ -1290,6 +1299,7 @@
 		};
 		E49F18C20E4CBAC300386AEC /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7BED30C60E59F63000A747DB /* executable.xcconfig */;
 			buildSettings = {
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(GCC_PREPROCESSOR_DEFINITIONS)",
