@@ -340,4 +340,4 @@ if env['PLATFORM'] == 'win32':
   icudata = '../icudt38.dll'
 else:
   icudata = '../icudt38l.dat'
-env.Alias('net', ['.', installed_tests, icudata)
+env.Alias('net', ['.', installed_tests, icudata])
