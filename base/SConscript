@@ -96,24 +96,26 @@ if env['PLATFORM'] == 'win32':
   # a platform-specific block below.
   input_files.extend([
     'clipboard_util.cc',
-    'debug_on_start.cc',
     'event_recorder.cc',
     'file_version_info.cc',
-    'hmac.cc',                 # Uses Windows-specific crypto APIs.
+    'hmac.cc',   # Depends on OpenSSL; Mac team will investigate.
+
+    # This group all depends on MessageLoop.
     'idle_timer.cc',
-    'image_util.cc',
     'message_loop.cc',
     'non_thread_safe.cc',
     'object_watcher.cc',
-    'process.cc',
-    'process_util.cc',
-    'registry.cc',
-    'resource_util.cc',
-    'shared_event.cc',
-    'stats_table.cc',
+    'shared_event.cc',   # Is this used?
     'thread.cc',
     'watchdog.cc',
-    'worker_pool.cc',
+
+    'process.cc',
+    'process_util.cc',
+
+    'resource_util.cc',  # Uses HMODULE, but may be abstractable.
+
+    'stats_table.cc',  # Amanda is working on this(?).
+    'worker_pool.cc',  # Maybe not necessary for test shell.
   ])
 
 if env['PLATFORM'] == 'win32':
@@ -123,12 +125,15 @@ if env['PLATFORM'] == 'win32':
       'base_paths_win.cc',
       'clipboard_win.cc',
       'condition_variable_win.cc',
+      'debug_on_start.cc',
       'debug_util_win.cc',
       'file_util_win.cc',
       'iat_patch.cc',
+      'image_util.cc',
       'lock_impl_win.cc',
       'message_pump_win.cc',
       'pe_image.cc',
+      'registry.cc',
       'shared_memory_win.cc',
       'sys_string_conversions_win.cc',
       'thread_local_storage_win.cc',
