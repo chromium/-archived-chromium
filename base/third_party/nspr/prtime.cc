@@ -92,6 +92,9 @@ static void localtime_r(const time_t* secs, struct tm* time) {
 PRTime
 PR_ImplodeTime(const PRExplodedTime *exploded)
 {
+    // This is important, we want to make sure multiplications are
+    // done with the correct precision.
+    static const PRTime kSecondsToMicroseconds = static_cast<PRTime>(1000000);
 #if defined(OS_WIN)
    // Create the system struct representing our exploded time.
     SYSTEMTIME st = {0};
@@ -114,14 +117,14 @@ PR_ImplodeTime(const PRExplodedTime *exploded)
     // Apply offsets.
     uli.LowPart = ft.dwLowDateTime;
     uli.HighPart = ft.dwHighDateTime;
-    // From second to 100-ns
-    uli.QuadPart -=
-        (exploded->tm_params.tp_gmt_offset +
-         exploded->tm_params.tp_dst_offset) * 10000000i64;  // 7 zeros
-    // Convert to PRTime
-    uli.QuadPart -= 116444736000000000i64; // from Windows epoch to NSPR epoch
-    uli.QuadPart /= 10;  // from 100-nanosecond to microsecond
-    return (PRTime)uli.QuadPart;
+    // Convert from Windows epoch to NSPR epoch, and 100-nanoseconds units
+    // to microsecond units.
+    PRTime result =
+        static_cast<PRTime>((uli.QuadPart / 10) - 11644473600000000i64);
+    // Adjust for time zone and dst.  Convert from seconds to microseconds.
+    result -= (exploded->tm_params.tp_gmt_offset +
+               exploded->tm_params.tp_dst_offset) * kSecondsToMicroseconds;
+    return result;
 #elif defined(OS_MACOSX)
     // Create the system struct representing our exploded time.
     CFGregorianDate gregorian_date;
@@ -141,7 +144,7 @@ PR_ImplodeTime(const PRExplodedTime *exploded)
     result -= exploded->tm_params.tp_gmt_offset +
               exploded->tm_params.tp_dst_offset;
     result += kCFAbsoluteTimeIntervalSince1970;  // PRTime epoch is 1970
-    result *= 1000000L;  // Seconds to microseconds
+    result *= kSecondsToMicroseconds;
     result += exploded->tm_usec;
     return result;
 #elif defined(OS_LINUX)
@@ -156,23 +159,25 @@ PR_ImplodeTime(const PRExplodedTime *exploded)
     // We assume that time_t is defined as a long.
     time_t absolute_time = timegm(&exp_tm);
 
-    if (absolute_time == -1) {
+    // If timegm returned -1.  Since we don't pass it a time zone, the only
+    // valid case of returning -1 is 1 second before Epoch (Dec 31, 1969).
+    if (absolute_time == -1 &&
+        exploded->tm_year != 1969 && exploded->tm_month != 11 &&
+        exploded->tm_mday != 31 && exploded->tm_hour != 23 &&
+        exploded->tm_min != 59 && exploded->tm_sec != 59) {
       // Date was possibly too far in the future and would overflow.  Return
       // the most future date possible (year 2038).
-      if (exploded->tm_year > 1970)
-        return static_cast<PRTime>(LONG_MAX) * 1000000;
+      if (exploded->tm_year >= 1970)
+        return static_cast<PRTime>(LONG_MAX) * kSecondsToMicroseconds;
       // Date was possibly too far in the past and would underflow.  Return
       // the most past date possible (year 1901).
-      if (exploded->tm_year < 1969)
-        return static_cast<PRTime>(LONG_MIN) * 1000000;
-      // Year was 1969 or 1970, assume -1 was the correct conversion.
-      return static_cast<PRTime>(-1) * 1000000;
+      return static_cast<PRTime>(LONG_MIN) * kSecondsToMicroseconds;
     }
 
     PRTime result = static_cast<PRTime>(absolute_time);
     result -= exploded->tm_params.tp_gmt_offset +
               exploded->tm_params.tp_dst_offset;
-    result *= 1000000L;  // Seconds to microseconds
+    result *= kSecondsToMicroseconds;
     result += exploded->tm_usec;
     return result;
 #else
