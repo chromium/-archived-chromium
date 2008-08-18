@@ -65,7 +65,7 @@ void RunTestUntilFailure(const char* inputs[], size_t num_inputs, size_t fail_in
     std::string input = inputs[i];
     int n = decoder.FilterBuf(&input[0], static_cast<int>(input.size()));
     if (n < 0) {
-      EXPECT_EQ(net::ERR_BAD_CHUNKED_ENCODING, n);
+      EXPECT_EQ(net::ERR_INVALID_CHUNKED_ENCODING, n);
       EXPECT_EQ(fail_index, i);
       return;
     }

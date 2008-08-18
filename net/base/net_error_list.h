@@ -60,9 +60,6 @@ NET_ERROR(FILE_TOO_BIG, -8)
 // invalid assumption.
 NET_ERROR(UNEXPECTED, -9)
 
-// Error in chunked transfer encoding.
-NET_ERROR(BAD_CHUNKED_ENCODING, -10)
-
 // A connection was closed (corresponding to a TCP FIN).
 NET_ERROR(CONNECTION_CLOSED, -100)
 
@@ -213,6 +210,9 @@ NET_ERROR(UNSAFE_PORT, -312)
 
 // The server's response was invalid.
 NET_ERROR(INVALID_RESPONSE, -320)
+
+// Error in chunked transfer encoding.
+NET_ERROR(INVALID_CHUNKED_ENCODING, -321)
 
 // The cache does not have the requested entry.
 NET_ERROR(CACHE_MISS, -400)

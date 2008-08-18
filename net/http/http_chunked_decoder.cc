@@ -116,7 +116,7 @@ int HttpChunkedDecoder::ScanForChunkRemaining(const char* buf, int buf_len) {
     } else if (chunk_terminator_remaining_) {
        if (buf_len) {
          DLOG(ERROR) << "chunk data not terminated properly";
-         return ERR_BAD_CHUNKED_ENCODING;
+         return ERR_INVALID_CHUNKED_ENCODING;
        }
        chunk_terminator_remaining_ = false;
     } else if (buf_len) {
@@ -128,14 +128,14 @@ int HttpChunkedDecoder::ScanForChunkRemaining(const char* buf, int buf_len) {
       if (!ParseChunkSize(buf, buf_len, &chunk_remaining_)) {
           DLOG(ERROR) << "Failed parsing HEX from: " <<
               std::string(buf, buf_len);
-        return ERR_BAD_CHUNKED_ENCODING;
+        return ERR_INVALID_CHUNKED_ENCODING;
       }
 
       if (chunk_remaining_ == 0)
         reached_last_chunk_ = true;
     } else {
       DLOG(ERROR) << "missing chunk-size";
-      return ERR_BAD_CHUNKED_ENCODING;
+      return ERR_INVALID_CHUNKED_ENCODING;
     } 
     line_buf_.clear();
   } else {
@@ -154,7 +154,7 @@ int HttpChunkedDecoder::ScanForChunkRemaining(const char* buf, int buf_len) {
 
 // While the HTTP 1.1 specification defines chunk-size as 1*HEX
 // some sites rely on more lenient parsing.
-// yahoo.com for example, includes trailing spaces (0x20).
+// http://www.yahoo.com/ for example, includes trailing spaces (0x20).
 //
 // A comparison of browsers running on WindowsXP shows that
 // they will parse the following inputs (egrep syntax):
@@ -170,7 +170,7 @@ int HttpChunkedDecoder::ScanForChunkRemaining(const char* buf, int buf_len) {
 // Our strategy is to be as strict as possible, while not breaking
 // known sites.
 //
-//  Chromium: ^\X+[ ]*$
+//         Us: ^\X+[ ]*$
 bool HttpChunkedDecoder::ParseChunkSize(const char* start, int len, int* out) {
   DCHECK(len >= 0);
 
