@@ -35,21 +35,21 @@
 #include "chrome/common/time_format.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-TEST(TimeFormat, FriendlyDay) {
+TEST(TimeFormat, RelativeDate) {
   Time now = Time::Now();
-  std::wstring today_str = TimeFormat::FriendlyDay(now, NULL);
+  std::wstring today_str = TimeFormat::RelativeDate(now, NULL);
   EXPECT_EQ(L"Today", today_str);
 
   Time yesterday = now - TimeDelta::FromDays(1);
-  std::wstring yesterday_str = TimeFormat::FriendlyDay(yesterday, NULL);
+  std::wstring yesterday_str = TimeFormat::RelativeDate(yesterday, NULL);
   EXPECT_EQ(L"Yesterday", yesterday_str);
 
   Time two_days_ago = now - TimeDelta::FromDays(2);
-  std::wstring two_days_ago_str = TimeFormat::FriendlyDay(two_days_ago, NULL);
+  std::wstring two_days_ago_str = TimeFormat::RelativeDate(two_days_ago, NULL);
   EXPECT_TRUE(two_days_ago_str.empty());
 
   Time a_week_ago = now - TimeDelta::FromDays(7);
-  std::wstring a_week_ago_str = TimeFormat::FriendlyDay(a_week_ago, NULL);
+  std::wstring a_week_ago_str = TimeFormat::RelativeDate(a_week_ago, NULL);
   EXPECT_TRUE(a_week_ago_str.empty());
 }
 
@@ -89,21 +89,3 @@ TEST(TimeFormat, RemainingTime) {
   TestRemainingTime(three_days, L"3 days", L"3 days left");
   TestRemainingTime(three_days + four_hours, L"3 days", L"3 days left");
 }
-
-#if 0
-TEST(TimeFormat, FriendlyDateAndTime) {
-  Time::Exploded exploded;
-  exploded.year = 2008;
-  exploded.month = 3;
-  exploded.day_of_week = 1;
-  exploded.day_of_month = 31;
-  exploded.hour = 14;
-  exploded.minute = 44;
-  exploded.second = 30;
-  exploded.millisecond = 549;
-  Time t = Time::FromLocalExploded(exploded);
-
-  std::wstring normal_time = L"Monday, March 31, 2008 2:44:30 PM";
-  EXPECT_EQ(normal_time, TimeFormat::FriendlyDateAndTime(t));
-}
-#endif

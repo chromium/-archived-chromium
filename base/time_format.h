@@ -27,44 +27,39 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_COMMON_TIME_FORMAT_H__
-#define CHROME_COMMON_TIME_FORMAT_H__
+// Basic time formatting methods.  These methods use the current locale
+// formatting for displaying the time.
 
-// This file defines methods to format time values as strings.
+#ifndef BASE_TIME_FORMAT_H_
+#define BASE_TIME_FORMAT_H_
 
 #include <string>
 
-#include "unicode/smpdtfmt.h"
-
 class Time;
-class TimeDelta;
 
-class TimeFormat {
- public:
-  // Returns a localized string of approximate time remaining. The conditions
-  // are simpler than PastTime since this is used for in-progress operations
-  // and users have different expectations of units.
-  // Ex: "3 mins left", "2 days left".
-  static std::wstring TimeRemaining(const TimeDelta& delta);
+namespace base {
 
-  // Same as TimeRemaining without the "left".
-  static std::wstring TimeRemainingShort(const TimeDelta& delta);
+// Returns the time of day, e.g., "3:07 PM".
+std::wstring TimeFormatTimeOfDay(const Time& time);
 
-  // For displaying a relative time in the past.  This method returns either
-  // "Today", "Yesterday", or an empty string if it's older than that.
-  //
-  // TODO(brettw): This should be able to handle days in the future like
-  //    "Tomorrow".
-  // TODO(tc): This should be able to do things like "Last week".  This
-  //    requires handling singluar/plural for all languages.
-  //
-  // The second parameter is optional, it is midnight of "Now" for relative day
-  // computations: Time::Now().LocalMidnight()
-  // If NULL, the current day's midnight will be retrieved, which can be
-  // slow. If many items are being processed, it is best to get the current
-  // time once at the beginning and pass it for each computation.
-  static std::wstring RelativeDate(const Time& time,
-                                   const Time* optional_midnight_today);
-};
+// Returns a shortened date, e.g. "Nov 7, 2007"
+std::wstring TimeFormatShortDate(const Time& time);
 
-#endif  // CHROME_COMMON_TIME_FORMAT_H__
+// Returns a numeric date such as 12/13/52.
+std::wstring TimeFormatShortDateNumeric(const Time& time);
+
+// Formats a time in a friendly sentence format, e.g.
+// "Monday, March 6, 2008 2:44:30 PM".
+std::wstring TimeFormatShortDateAndTime(const Time& time);
+
+// Formats a time in a friendly sentence format, e.g.
+// "Monday, March 6, 2008 2:44:30 PM".
+std::wstring TimeFormatFriendlyDateAndTime(const Time& time);
+
+// Formats a time in a friendly sentence format, e.g.
+// "Monday, March 6, 2008".
+std::wstring TimeFormatFriendlyDate(const Time& time);
+
+}  // namespace base
+
+#endif  // BASE_TIME_FORMAT_H_

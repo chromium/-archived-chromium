@@ -30,6 +30,7 @@
 #include "chrome/browser/history_view.h"
 
 #include "base/string_util.h"
+#include "base/time_format.h"
 #include "base/word_iterator.h"
 #include "chrome/browser/browsing_data_remover.h"
 #include "chrome/browser/drag_utils.h"
@@ -475,9 +476,9 @@ void HistoryItemRenderer::Layout() {
     time_label_->SetText(std::wstring());
   } else if (show_full_) {
     time_x = 0;
-    time_label_->SetText(TimeFormat::ShortDate(visit_time));
+    time_label_->SetText(base::TimeFormatShortDate(visit_time));
   } else {
-    time_label_->SetText(TimeFormat::TimeOfDay(visit_time));
+    time_label_->SetText(base::TimeFormatTimeOfDay(visit_time));
   }
   time_label_->GetPreferredSize(&time_size);
 
@@ -983,14 +984,14 @@ void HistoryView::Paint(ChromeCanvas* canvas) {
           DCHECK(visit_time.ToInternalValue() > 0);
 
           // If it's the first day, then it has a special presentation.
-          std::wstring date_str = TimeFormat::FriendlyDay(visit_time,
-                                                          &midnight_today);
+          std::wstring date_str = TimeFormat::RelativeDate(visit_time,
+                                                           &midnight_today);
           if (date_str.empty()) {
-            date_str = TimeFormat::FriendlyDate(visit_time);
+            date_str = base::TimeFormatFriendlyDate(visit_time);
           } else {
             date_str = l10n_util::GetStringF(
                 IDS_HISTORY_DATE_WITH_RELATIVE_TIME,
-                date_str, TimeFormat::FriendlyDate(visit_time));
+                date_str, base::TimeFormatFriendlyDate(visit_time));
           }
 
           // Draw date

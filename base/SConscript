@@ -83,6 +83,7 @@ input_files = [
     'string_util.cc',
     'string_util_icu.cc',
     'time.cc',
+    'time_format.cc',
     'timer.cc',
     'tracked.cc',
     'tracked_objects.cc',

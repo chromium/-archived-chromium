@@ -33,10 +33,10 @@
 
 #include "base/file_util.h"
 #include "base/gfx/platform_device_win.h"
+#include "base/time_format.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/common/gfx/emf.h"
-#include "chrome/common/time_format.h"
 
 namespace {
 
@@ -304,9 +304,9 @@ PrintingContext::Result PrintingContext::NewDocument(
     // Create a filename.
     std::wstring filename;
     Time now(Time::Now());
-    filename = TimeFormat::ShortDateNumeric(now);
+    filename = base::TimeFormatShortDateNumeric(now);
     filename += L"_";
-    filename += TimeFormat::TimeOfDay(now);
+    filename += base::TimeFormatTimeOfDay(now);
     filename += L"_";
     filename += document_name;
     filename += L"_";

@@ -710,6 +710,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\time_format.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\time_format.h"
+			>
+		</File>
+		<File
 			RelativePath="..\timer.cc"
 			>
 		</File>

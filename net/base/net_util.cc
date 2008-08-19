@@ -50,6 +50,7 @@
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "base/time.h"
+#include "base/time_format.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_canon.h"
 #include "googleurl/src/url_parse.h"
@@ -640,26 +641,6 @@ void IDNToUnicodeOneComponent(const wchar_t* comp,
     (*out)[host_begin_in_output + i] = comp[i];
 }
 
-// Convert a FILETIME to a localized string. |filetime| may be NULL.
-// TODO(tc): Remove this once bug 1164516 is fixed.
-std::wstring LocalizedDateTime(const FILETIME* filetime) {
-  if (!filetime)
-    return std::wstring();
-
-  Time time = Time::FromFileTime(*filetime);
-  scoped_ptr<DateFormat> formatter(DateFormat::createDateTimeInstance(
-      DateFormat::kShort));
-  UnicodeString date_string;
-  formatter->format(static_cast<UDate>(time.ToDoubleT() * 1000), date_string);
-
-  std::wstring formatted;
-  int capacity = date_string.length() + 1;
-  UErrorCode error = U_ZERO_ERROR;
-  date_string.extract(static_cast<UChar*>(WriteInto(&formatted, capacity)),
-                      capacity, error);
-  return formatted;
-}
-
 }  // namespace
 
 namespace net {
@@ -912,8 +893,9 @@ std::string GetDirectoryListingEntry(const std::string& name,
 
   result.append(",");
 
-  string_escape::JavascriptDoubleQuote(
-      LocalizedDateTime(modified), true, &result);
+  Time time(Time::FromFileTime(*modified));
+  string_escape::JavascriptDoubleQuote(base::TimeFormatShortDateAndTime(time),
+      true, &result);
 
   result.append(");</script>\n");
 

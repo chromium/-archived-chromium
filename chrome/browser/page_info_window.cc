@@ -33,6 +33,7 @@
 #pragma comment(lib, "cryptui.lib")
 
 #include "base/string_util.h"
+#include "base/time_format.h"
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_process.h"
@@ -46,7 +47,6 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/common/time_format.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/background.h"
 #include "chrome/views/grid_layout.h"
@@ -445,7 +445,7 @@ void SecurityTabView::OnGotVisitCountToHost(HistoryService::Handle handle,
         l10n_util::GetString(IDS_PAGE_INFO_SECURITY_TAB_PERSONAL_HISTORY_TITLE),
         true, std::wstring(),
         l10n_util::GetStringF(IDS_PAGE_INFO_SECURITY_TAB_VISITED_BEFORE_TODAY,
-                              TimeFormat::ShortDate(first_visit)));
+                              base::TimeFormatShortDate(first_visit)));
   }
   Layout();
   SchedulePaint();

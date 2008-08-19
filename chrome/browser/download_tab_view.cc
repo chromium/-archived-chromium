@@ -37,6 +37,7 @@
 #include "base/file_util.h"
 #include "base/string_util.h"
 #include "base/task.h"
+#include "base/time_format.h"
 #include "base/timer.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_process.h"
@@ -252,13 +253,13 @@ void DownloadItemTabView::LayoutDate() {
 
   CSize since_size;
 
-  since_->SetText(TimeFormat::FriendlyDay(model_->start_time(), NULL));
+  since_->SetText(TimeFormat::RelativeDate(model_->start_time(), NULL));
   since_->GetPreferredSize(&since_size);
   since_->SetBounds(kLeftMargin, kIconOffset, kDateSize, since_size.cy);
   since_->SetVisible(true);
 
   CSize date_size;
-  date_->SetText(TimeFormat::ShortDate(model_->start_time()));
+  date_->SetText(base::TimeFormatShortDate(model_->start_time()));
   date_->GetPreferredSize(&date_size);
   date_->SetBounds(kLeftMargin, since_size.cy + kVerticalPadding + kIconOffset,
                    kDateSize, date_size.cy);

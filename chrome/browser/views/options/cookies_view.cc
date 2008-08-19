@@ -32,6 +32,7 @@
 #include "chrome/browser/views/options/cookies_view.h"
 
 #include "base/string_util.h"
+#include "base/time_format.h"
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/standard_layout.h"
@@ -39,7 +40,6 @@
 #include "chrome/common/gfx/color_utils.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/common/time_format.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/border.h"
 #include "chrome/views/grid_layout.h"
@@ -403,11 +403,11 @@ void CookieInfoView::SetCookie(
   domain_value_field_->SetText(UTF8ToWide(domain));
   path_value_field_->SetText(UTF8ToWide(cookie.Path()));
   created_value_field_->SetText(
-      TimeFormat::FriendlyDateAndTime(cookie.CreationDate()));
+      base::TimeFormatFriendlyDateAndTime(cookie.CreationDate()));
 
   if (cookie.DoesExpire()) {
     expires_value_field_->SetText(
-        TimeFormat::FriendlyDateAndTime(cookie.ExpiryDate()));
+        base::TimeFormatFriendlyDateAndTime(cookie.ExpiryDate()));
   } else {
     // TODO(deanm) need a string that the average user can understand
     // "When you quit or restart your browser" ?
