@@ -91,8 +91,8 @@ x = env.ChromeStaticLibrary('util', input_files)
 # directory, so add that to PYTHONPATH for this command execution.
 env_x = env.Clone()
 env_x.AppendENVPath('PYTHONPATH', [Dir('#/../tools/grit/grit/extern').abspath])
-env_x.Command(['$CHROME_DIR/installer/util/setup_strings.rc',
-               '$CHROME_DIR/installer/util/setup_strings.h'],
+env_x.Command(['$CHROME_DIR/installer/util/installer_util_strings.rc',
+               '$CHROME_DIR/installer/util/installer_util_strings.h'],
               ['$CHROME_DIR/installer/util/prebuild/create_string_rc.py',
                '$CHROME_DIR/app/generated_resources.grd'] +
                env.Glob('$CHROME_DIR/app/resources/*.xtb'),

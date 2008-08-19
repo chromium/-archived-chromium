@@ -47,7 +47,7 @@ env_res.Append(
 
 resources = [
     env_res.RES('setup.rc'),
-    env_res.RES('../util/setup_strings.rc'),
+    env_res.RES('../util/installer_util_strings.rc'),
 ]
 
 
