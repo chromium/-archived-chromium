@@ -57,8 +57,7 @@
 #include "chrome/installer/util/util_constants.h"
 #include "chrome/installer/util/version.h"
 
-#include "setup_resource.h"
-#include "setup_strings.h"
+#include "installer_util_strings.h"
 
 namespace {
 
@@ -75,8 +74,8 @@ void DeleteChromeShortcut(bool system_uninstall) {
   if (shortcut_path.empty()) {
     LOG(ERROR) << "Failed to get location for shortcut.";
   } else {
-    file_util::AppendToPath(&shortcut_path,
-        installer_util::GetLocalizedString(IDS_PRODUCT_NAME_BASE));
+    BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+    file_util::AppendToPath(&shortcut_path, dist->GetApplicationName());
     LOG(INFO) << "Deleting shortcut " << shortcut_path;
     if (!file_util::Delete(shortcut_path, true))
       LOG(ERROR) << "Failed to delete folder: " << shortcut_path;
@@ -148,81 +147,6 @@ installer_util::InstallStatus IsChromeActiveOrUserCancelled(
 
   return installer_util::UNINSTALL_FAILED;
 }
-
-#if defined(GOOGLE_CHROME_BUILD)
-// Uninstall Chrome specific Gears. First we find Gears MSI ProductId (that
-// changes with every new version of Gears) using Gears MSI UpgradeCode (that
-// does not change) and then uninstall Gears using API.
-void UninstallGears() {
-  wchar_t product[39];  // GUID + '\0'
-  MsiSetInternalUI(INSTALLUILEVEL_NONE, NULL);  // Don't show any UI to user.
-  for (int i = 0; MsiEnumRelatedProducts(google_update::kGearsUpgradeCode, 0, i,
-                                         product) != ERROR_NO_MORE_ITEMS; ++i) {
-    LOG(INFO) << "Uninstalling Gears - " << product;
-    unsigned int ret = MsiConfigureProduct(product, INSTALLLEVEL_MAXIMUM,
-                                           INSTALLSTATE_ABSENT);
-    if (ret != ERROR_SUCCESS)
-      LOG(ERROR) << "Failed to uninstall Gears " << product << ": " << ret;
-  }
-}
-
-// Read the URL from the resource file and substitute the locale parameter
-// with whatever Google Update tells us is the locale. In case we fail to find
-// the locale, we use US English.
-std::wstring GetUninstallSurveyUrl() {
-  const ATLSTRINGRESOURCEIMAGE* image = AtlGetStringResourceImage(
-      _AtlBaseModule.GetModuleInstance(), IDS_UNINSTALL_SURVEY_URL);
-  DCHECK(image);
-  std::wstring url = std::wstring(image->achString, image->nLength);
-  DCHECK(!url.empty());
-
-  std::wstring language;
-  if (!GoogleUpdateSettings::GetLanguage(&language))
-    language = L"en-US";  // Default to US English.
-
-  return ReplaceStringPlaceholders(url.c_str(), language.c_str(), NULL);
-}
-
-// This method launches an uninstall survey and is called at the end of
-// uninstall process. We are not doing any error checking here as it is
-// not critical to have this survey. If we fail to launch it, we just
-// ignore it silently.
-void LaunchUninstallSurvey(const installer::Version& installed_version) {
-  // Send the Chrome version and OS version as params to the form.
-  // It would be nice to send the locale, too, but I don't see an
-  // easy way to get that in the existing code. It's something we
-  // can add later, if needed.
-  // We depend on installed_version.GetString() not having spaces or other
-  // characters that need escaping: 0.2.13.4. Should that change, we will
-  // need to escape the string before using it in a URL.
-  const std::wstring kVersionParam = L"crversion";
-  const std::wstring kVersion = installed_version.GetString();
-  const std::wstring kOSParam = L"os";
-  std::wstring os_version = L"na";
-  OSVERSIONINFO version_info;
-  version_info.dwOSVersionInfoSize = sizeof version_info;
-  if (GetVersionEx(&version_info)) {
-    os_version = StringPrintf(L"%d.%d.%d",
-        version_info.dwMajorVersion,
-        version_info.dwMinorVersion,
-        version_info.dwBuildNumber);
-  }
-
-  std::wstring iexplore;
-  if (!PathService::Get(base::DIR_PROGRAM_FILES, &iexplore))
-    return;
-
-  file_util::AppendToPath(&iexplore, L"Internet Explorer");
-  file_util::AppendToPath(&iexplore, L"iexplore.exe");
-
-  std::wstring command = iexplore + L" " + GetUninstallSurveyUrl() + L"&" +
-      kVersionParam + L"=" + kVersion + L"&" + kOSParam + L"=" + os_version;
-  int pid = 0;
-  WMIProcessUtil::Launch(command, &pid);
-}
-
-#endif
-
 }  // namespace
 
 
@@ -237,7 +161,17 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
   BrowserDistribution* dist = BrowserDistribution::GetDistribution();
   dist->DoPreUninstallOperations();
 #if defined(GOOGLE_CHROME_BUILD)
-  UninstallGears();
+  // TODO(rahulk): This should be done by DoPreUninstallOperations call above
+  wchar_t product[39];  // GUID + '\0'
+  MsiSetInternalUI(INSTALLUILEVEL_NONE, NULL);  // Don't show any UI to user.
+  for (int i = 0; MsiEnumRelatedProducts(google_update::kGearsUpgradeCode, 0, i,
+                                         product) != ERROR_NO_MORE_ITEMS; ++i) {
+    LOG(INFO) << "Uninstalling Gears - " << product;
+    unsigned int ret = MsiConfigureProduct(product, INSTALLLEVEL_MAXIMUM,
+                                           INSTALLSTATE_ABSENT);
+    if (ret != ERROR_SUCCESS)
+      LOG(ERROR) << "Failed to uninstall Gears " << product << ": " << ret;
+  }
 #endif
 
   // Chrome is not in use so lets uninstall Chrome by deleting various files
@@ -309,8 +243,5 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
 
   LOG(INFO) << "Uninstallation complete. Launching Uninstall survey.";
   dist->DoPostUninstallOperations(installed_version);
-#if defined(GOOGLE_CHROME_BUILD)
-  LaunchUninstallSurvey(installed_version);
-#endif
   return installer_util::UNINSTALL_SUCCESSFUL;
 }

@@ -49,7 +49,7 @@
 #include "chrome/installer/util/version.h"
 #include "chrome/installer/util/work_item_list.h"
 
-#include "setup_strings.h"
+#include "installer_util_strings.h"
 
 namespace {
 std::wstring AppendPath(const std::wstring parent_path,
@@ -214,10 +214,10 @@ bool installer::InstallNewVersion(const std::wstring& exe_path,
   // add shortcut in Control Panel->Add/Remove Programs.
   AddInstallerCopyTasks(exe_path, archive_path, temp_dir, install_path,
       new_version.GetString(), install_list.get());
-  const std::wstring& product_name =
-      installer_util::GetLocalizedString(IDS_PRODUCT_NAME_BASE);
-  AddUninstallShortcutWorkItems(reg_root, exe_path, install_path, product_name,
-      new_version.GetString(), install_list.get());
+  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+  std::wstring product_name = dist->GetApplicationName();
+  AddUninstallShortcutWorkItems(reg_root, exe_path, install_path,
+      product_name, new_version.GetString(), install_list.get());
 
   // Delete any old_chrome.exe if present.
   install_list->AddDeleteTreeWorkItem(
@@ -225,7 +225,6 @@ bool installer::InstallNewVersion(const std::wstring& exe_path,
 
   // Create Version key (if not already present) and set the new Chrome
   // version as last step.
-  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
   std::wstring version_key = dist->GetVersionKey();
   install_list->AddCreateRegKeyWorkItem(reg_root, version_key);
   install_list->AddSetRegValueWorkItem(reg_root, version_key,

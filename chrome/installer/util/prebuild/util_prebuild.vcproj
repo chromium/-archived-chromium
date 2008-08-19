@@ -26,7 +26,7 @@
 				Name="VCCustomBuildTool"
 				CommandLine="create_string_rc.bat $(IntDir)"
 				AdditionalDependencies="create_string_rc.py;$(SolutionDir)\app\generated_resources.grd"
-				Outputs="$(IntDir)\setup_strings.rc;$(IntDir)\setup_strings.h"
+				Outputs="$(IntDir)\installer_util_strings.rc;$(IntDir)\installer_util_strings.h"
 			/>
 			<Tool
 				Name="VCMIDLTool"
@@ -47,7 +47,7 @@
 				Name="VCCustomBuildTool"
 				CommandLine="create_string_rc.bat $(IntDir)"
 				AdditionalDependencies="create_string_rc.py;$(SolutionDir)\app\generated_resources.grd"
-				Outputs="$(IntDir)\setup_strings.rc;$(IntDir)\setup_strings.h"
+				Outputs="$(IntDir)\installer_util_strings.rc;$(IntDir)\installer_util_strings.h"
 			/>
 			<Tool
 				Name="VCMIDLTool"

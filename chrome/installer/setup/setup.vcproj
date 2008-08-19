@@ -21,7 +21,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets=".\setup_debug.vsprops;..\util\prebuild\util_prebuild.vsprops"
+			InheritedPropertySheets=".\setup_debug.vsprops;$(SolutionDir)installer\util\using_util.vsprops"
 			>
 			<Tool
 				Name="Version"
@@ -42,7 +42,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets=".\setup_release.vsprops;..\util\prebuild\util_prebuild.vsprops"
+			InheritedPropertySheets=".\setup_release.vsprops;$(SolutionDir)installer\util\using_util.vsprops"
 			>
 			<Tool
 				Name="Version"
@@ -81,14 +81,6 @@
 			</File>
 			<File
 				RelativePath=".\setup_resource.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\..\util_prebuild\setup_strings.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\..\util_prebuild\setup_strings.rc"
 				>
 			</File>
 		</Filter>

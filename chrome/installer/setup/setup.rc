@@ -62,11 +62,7 @@ IDI_SETUP               ICON                    "setup.ico"
 //
 // String Table
 //
-
-STRINGTABLE 
-BEGIN
-    IDS_UNINSTALL_SURVEY_URL                   "http://go/chromeuninstall?hl=$1&contact_type=uninstall"
-END
+#include "installer_util_strings.rc"
 
 
 #ifndef APSTUDIO_INVOKED

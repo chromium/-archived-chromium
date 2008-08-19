@@ -71,6 +71,10 @@ int BrowserDistribution::GetInstallReturnCode(
   return install_status;
 }
 
+std::wstring BrowserDistribution::GetUninstallLinkName() {
+  return L"Uninstall Chromium";
+}
+
 std::wstring BrowserDistribution::GetUninstallRegPath() {
   return L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Chromium";
 }

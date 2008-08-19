@@ -42,28 +42,25 @@
 #include "base/string_util.h"
 #include "base/wmi_util.h"
 #include "chrome/installer/util/install_util.h"
+#include "chrome/installer/util/l10n_string_util.h"
 #include "chrome/installer/util/google_update_constants.h"
+#include "chrome/installer/util/google_update_settings.h"
 #include "chrome/installer/util/logging_installer.h"
 
+#include "installer_util_strings.h"
+
 namespace {
+// Substitute the locale parameter in uninstall URL with whatever
+// Google Update tells us is the locale. In case we fail to find
+// the locale, we use US English.
 std::wstring GetUninstallSurveyUrl() {
-  /* TODO(rahulk): Make this work (requires some serious refactoring of
-  resources and GoogleUpdateSettings class) and get rid of #ifdef from
-  uninstall.cc.
-  const ATLSTRINGRESOURCEIMAGE* image = AtlGetStringResourceImage(
-      _AtlBaseModule.GetModuleInstance(), IDS_UNINSTALL_SURVEY_URL);
-  DCHECK(image);
-  std::wstring url = std::wstring(image->achString, image->nLength);
-  DCHECK(!url.empty());
+  std::wstring kSurveyUrl = L"http://www.google.com/support/chrome/bin/request.py?hl=$1&contact_type=uninstall";
 
   std::wstring language;
   if (!GoogleUpdateSettings::GetLanguage(&language))
     language = L"en-US";  // Default to US English.
 
-  return ReplaceStringPlaceholders(url.c_str(), language.c_str(), NULL);
-  */
-  return L"";
-
+  return ReplaceStringPlaceholders(kSurveyUrl.c_str(), language.c_str(), NULL);
 }
 }
 
@@ -121,7 +118,9 @@ void GoogleChromeDistribution::DoPreUninstallOperations() {
 }
 
 std::wstring GoogleChromeDistribution::GetApplicationName() {
-  return L"Google Chrome";
+  const std::wstring& product_name =
+      installer_util::GetLocalizedString(IDS_PRODUCT_NAME_BASE);
+  return product_name;
 }
 
 std::wstring GoogleChromeDistribution::GetInstallSubDir() {
@@ -154,7 +153,9 @@ std::wstring GoogleChromeDistribution::GetNewGoogleUpdateApKey(bool diff_install
 }
 
 std::wstring GoogleChromeDistribution::GetPublisherName() {
-  return L"Google";
+  const std::wstring& publisher_name =
+      installer_util::GetLocalizedString(IDS_ABOUT_VERSION_COMPANY_NAME_BASE);
+  return publisher_name;
 }
 
 int GoogleChromeDistribution::GetInstallReturnCode(
@@ -168,6 +169,12 @@ int GoogleChromeDistribution::GetInstallReturnCode(
     default:
       return status;
   }
+}
+
+std::wstring GoogleChromeDistribution::GetUninstallLinkName() {
+  const std::wstring& link_name =
+      installer_util::GetLocalizedString(IDS_UNINSTALL_CHROME_BASE);
+  return link_name;
 }
 
 std::wstring GoogleChromeDistribution::GetUninstallRegPath() {

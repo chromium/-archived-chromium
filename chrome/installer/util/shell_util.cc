@@ -54,7 +54,7 @@
 #include "chrome/installer/util/util_constants.h"
 #include "chrome/installer/util/work_item.h"
 
-#include "setup_strings.h"
+#include "installer_util_strings.h"
 
 namespace {
 
@@ -333,7 +333,8 @@ bool ShellUtil::GetChromeIcon(std::wstring& chrome_icon) {
 }
 
 bool ShellUtil::GetChromeShortcutName(std::wstring* shortcut) {
-  shortcut->assign(installer_util::GetLocalizedString(IDS_PRODUCT_NAME_BASE));
+  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+  shortcut->assign(dist->GetApplicationName());
   shortcut->append(L".lnk");
   return true;
 }

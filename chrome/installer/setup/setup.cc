@@ -37,6 +37,7 @@
 #include "base/string_util.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/installer/setup/setup_constants.h"
+#include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/create_reg_key_work_item.h"
 #include "chrome/installer/util/l10n_string_util.h"
 #include "chrome/installer/util/logging_installer.h"
@@ -46,7 +47,7 @@
 #include "chrome/installer/util/version.h"
 #include "chrome/installer/util/work_item_list.h"
 
-#include "setup_strings.h"
+#include "installer_util_strings.h"
 
 namespace {
 
@@ -108,8 +109,8 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
   }
 
   // The location of Start->Programs->Google Chrome folder
-  const std::wstring& product_name =
-      installer_util::GetLocalizedString(IDS_PRODUCT_NAME_BASE);
+  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+  const std::wstring& product_name = dist->GetApplicationName();
   file_util::AppendToPath(&shortcut_path, product_name);
 
   // Create/update Chrome link (points to chrome.exe) & Uninstall Chrome link
@@ -141,9 +142,8 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
   // Create/update uninstall link
   bool ret2 = true;
   std::wstring uninstall_link(shortcut_path);  // Uninstall Chrome link
-
   file_util::AppendToPath(&uninstall_link,
-      installer_util::GetLocalizedString(IDS_UNINSTALL_CHROME_BASE) + L".lnk");
+      dist->GetUninstallLinkName() + L".lnk");
   if ((install_status == installer_util::FIRST_INSTALL_SUCCESS) ||
       (install_status == installer_util::INSTALL_REPAIRED) ||
       (file_util::PathExists(uninstall_link))) {

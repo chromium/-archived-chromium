@@ -66,6 +66,8 @@ class GoogleChromeDistribution : public BrowserDistribution {
   virtual int GetInstallReturnCode(
       installer_util::InstallStatus install_status);
 
+  virtual std::wstring GetUninstallLinkName();
+
   virtual std::wstring GetUninstallRegPath();
 
   virtual std::wstring GetVersionKey();

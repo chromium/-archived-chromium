@@ -5,7 +5,7 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 
-#include "setup_strings.h"
+#include "installer_util_strings.h"
 
 namespace {
 
