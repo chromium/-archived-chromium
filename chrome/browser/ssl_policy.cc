@@ -346,7 +346,6 @@ class DefaultPolicy : public SSLPolicy {
 
     NavigationEntry* entry = navigation_controller->GetActiveEntry();
     entry->ssl().set_has_mixed_content();
-    navigation_controller->EntryUpdated(entry);
   }
 
   void OnDenyCertificate(SSLManager::CertError* error) {

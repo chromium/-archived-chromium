@@ -247,10 +247,8 @@ void SSLManager::SetMaxSecurityStyle(SecurityStyle style) {
     return;
   }
 
-  if (entry->ssl().security_style() > style) {
+  if (entry->ssl().security_style() > style)
     entry->ssl().set_security_style(style);
-    controller_->EntryUpdated(entry);
-  }
 }
 
 // Delegate API method.
@@ -652,10 +650,10 @@ void SSLManager::DidCommitProvisionalLoad(ProvisionalLoadDetails* details) {
       // We may not have an entry if this is a navigation to an initial blank
       // page. Reset the SSL information and add the new data we have.
       entry->ssl() = NavigationEntry::SSLStatus();
+      InitializeEntryIfNeeded(entry);  // For security_style.
       entry->ssl().set_cert_id(details->ssl_cert_id());
       entry->ssl().set_cert_status(details->ssl_cert_status());
       entry->ssl().set_security_bits(details->ssl_security_bits());
-      controller_->EntryUpdated(entry);
     }
 
     if (details->interstitial_page()) {

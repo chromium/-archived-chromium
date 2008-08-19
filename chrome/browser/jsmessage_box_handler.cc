@@ -63,7 +63,7 @@ void JavascriptMessageBoxHandler::RunJavascriptMessageBox(
 
 JavascriptMessageBoxHandler::~JavascriptMessageBoxHandler() {
   NotificationService::current()->
-      RemoveObserver(this, NOTIFY_NAV_STATE_CHANGED,
+      RemoveObserver(this, NOTIFY_NAV_ENTRY_COMMITTED,
                      NotificationService::AllSources());
   NotificationService::current()->
       RemoveObserver(this, NOTIFY_TAB_CONTENTS_DESTROYED,
@@ -188,7 +188,7 @@ void JavascriptMessageBoxHandler::Observe(NotificationType type,
   if (!web_contents_)
     return;
 
-  if (type == NOTIFY_NAV_STATE_CHANGED &&
+  if (type == NOTIFY_NAV_ENTRY_COMMITTED &&
       Source<NavigationController>(source).ptr() == web_contents_->controller())
     web_contents_gone = true;
 
@@ -230,7 +230,7 @@ JavascriptMessageBoxHandler::JavascriptMessageBoxHandler(
   // Make sure we get navigation notifications so we know when our parent
   // contents will disappear or navigate to a different page.
   NotificationService::current()->
-      AddObserver(this, NOTIFY_NAV_STATE_CHANGED,
+      AddObserver(this, NOTIFY_NAV_ENTRY_COMMITTED,
                   NotificationService::AllSources());
   NotificationService::current()->
       AddObserver(this, NOTIFY_TAB_CONTENTS_DESTROYED,

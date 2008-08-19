@@ -175,7 +175,7 @@ class NavigationControllerBase {
 
   // Allows the derived class to issue notifications that a load has been
   // committed.
-  virtual void NotifyNavigationStateChanged() {}
+  virtual void NotifyNavigationEntryCommitted() {}
 
   // Invoked when entries have been pruned, or removed. For example, if the
   // current entries are [google, digg, yahoo], with the current entry google,

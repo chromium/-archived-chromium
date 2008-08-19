@@ -362,9 +362,9 @@ void LocationBarView::OnAutocompleteAccept(
 
     scoped_ptr<AlternateNavURLFetcher> fetcher(
         new AlternateNavURLFetcher(alternate_nav_url));
-    // The AlternateNavURLFetcher will listen for the next navigation state
-    // update notification (expecting it to be a new page load) and hook
-    // itself in to that loading process.
+    // The AlternateNavURLFetcher will listen for the pending navigation
+    // notification that will be issued as a result of the "open URL." It
+    // will automatically install itself into that navigation controller.
     controller_->ExecuteCommand(IDC_OPENURL);
     if (fetcher->state() == AlternateNavURLFetcher::NOT_STARTED) {
       // I'm not sure this should be reachable, but I'm not also sure enough

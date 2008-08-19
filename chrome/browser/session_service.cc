@@ -160,7 +160,7 @@ SessionService::~SessionService() {
   NotificationService::current()->RemoveObserver(
       this, NOTIFY_NAV_ENTRY_CHANGED, NotificationService::AllSources());
   NotificationService::current()->RemoveObserver(
-      this, NOTIFY_NAV_INDEX_CHANGED, NotificationService::AllSources());
+      this, NOTIFY_NAV_ENTRY_COMMITTED, NotificationService::AllSources());
 }
 
 void SessionService::ResetFromCurrentBrowsers() {
@@ -417,7 +417,7 @@ void SessionService::Init(const std::wstring& path) {
   NotificationService::current()->AddObserver(
       this, NOTIFY_NAV_ENTRY_CHANGED, NotificationService::AllSources());
   NotificationService::current()->AddObserver(
-      this, NOTIFY_NAV_INDEX_CHANGED, NotificationService::AllSources());
+      this, NOTIFY_NAV_ENTRY_COMMITTED, NotificationService::AllSources());
 
   DCHECK(!path.empty());
   commands_since_reset_ = 0;
@@ -450,7 +450,7 @@ void SessionService::Observe(NotificationType type,
                           changed->index, *changed->changed_entry);
       break;
     }
-    case NOTIFY_NAV_INDEX_CHANGED:
+    case NOTIFY_NAV_ENTRY_COMMITTED:
       SetSelectedNavigationIndex(controller->window_id(),
                                  controller->session_id(),
                                  controller->GetCurrentEntryIndex());
