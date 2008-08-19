@@ -453,14 +453,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		0867D691FE84028FC02AAC07 /* Skia */ = {
+		0867D691FE84028FC02AAC07 /* skia */ = {
 			isa = PBXGroup;
 			children = (
 				7B4DF4480E5B5E36004D7619 /* Configuration */,
 				AB4C450D0DAE9B9100FC0DB7 /* Source */,
 				034768DFFF38A50411DB9C8B /* Products */,
 			);
-			name = Skia;
+			name = skia;
 			sourceTree = "<group>";
 		};
 		7B4DF4480E5B5E36004D7619 /* Configuration */ = {
@@ -869,7 +869,7 @@
 			dependencies = (
 			);
 			name = skia;
-			productName = SkiaStatic;
+			productName = skia;
 			productReference = E48EE4CF0E34E855009DE966 /* libskia.a */;
 			productType = "com.apple.product-type.library.static";
 		};
@@ -881,7 +881,7 @@
 			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "skia" */;
 			compatibilityVersion = "Xcode 3.1";
 			hasScannedForEncodings = 1;
-			mainGroup = 0867D691FE84028FC02AAC07 /* Skia */;
+			mainGroup = 0867D691FE84028FC02AAC07 /* skia */;
 			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
