@@ -106,7 +106,7 @@ struct DefaultSingletonTraits {
 //     void Bar() { ... }
 //    private:
 //     FooClass() { ... }
-//     friend DefaultSingletonTraits<FooClass>;
+//     friend struct DefaultSingletonTraits<FooClass>;
 //
 //     DISALLOW_EVIL_CONSTRUCTORS(FooClass);
 //   };

@@ -52,7 +52,7 @@ TEST(MimeUtilTest, ExtensionTest) {
   std::string mime_type;
   bool rv;
 
-  for (size_t i = 0; i < arraysize(tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     rv = net::GetMimeTypeFromExtension(tests[i].extension, &mime_type);
     EXPECT_EQ(rv, tests[i].valid);
     if (rv)
@@ -77,7 +77,7 @@ TEST(MimeUtilTest, FileTest) {
   std::string mime_type;
   bool rv;
 
-  for (size_t i = 0; i < arraysize(tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     rv = net::GetMimeTypeFromFile(tests[i].file_path, &mime_type);
     EXPECT_EQ(rv, tests[i].valid);
     if (rv)

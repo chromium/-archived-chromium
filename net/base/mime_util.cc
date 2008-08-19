@@ -63,7 +63,7 @@ class MimeUtil : public PlatformMimeUtil {
                        const std::string &mime_type) const;
 
 private:
-  friend DefaultSingletonTraits<MimeUtil>;
+  friend struct DefaultSingletonTraits<MimeUtil>;
   MimeUtil() {
     InitializeMimeTypeMaps();
   }
