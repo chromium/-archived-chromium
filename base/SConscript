@@ -69,6 +69,8 @@ input_files = [
     'logging.cc',
     'md5.cc',
     'memory_debug.cc',
+    'message_loop.cc',
+    'message_pump_default.cc',
     'path_service.cc',
     'pickle.cc',
     'platform_thread.cc',
@@ -103,7 +105,6 @@ if env['PLATFORM'] == 'win32':
 
     # This group all depends on MessageLoop.
     'idle_timer.cc',
-    'message_loop.cc',
     'non_thread_safe.cc',
     'object_watcher.cc',
     'shared_event.cc',   # Is this used?
@@ -246,6 +247,7 @@ test_files = [
     'json_reader_unittest.cc',
     'json_writer_unittest.cc',
     'linked_ptr_unittest.cc',
+    'message_loop_unittest.cc',
     'observer_list_unittest.cc',
     'pickle_unittest.cc',
     'pr_time_test.cc',
@@ -279,7 +281,6 @@ if env['PLATFORM'] == 'win32':
     'file_util_unittest.cc',
     'idletimer_unittest.cc',
     'hmac_unittest.cc',
-    'message_loop_unittest.cc',
     'object_watcher_unittest.cc',
     'path_service_unittest.cc',
     'process_util_unittest.cc',
