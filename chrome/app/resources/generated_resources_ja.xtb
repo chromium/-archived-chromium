@@ -698,7 +698,7 @@
 <translation id="7958215378280655655">Google Chrome オプションをリセットすると、これまでの変更がすべて消去され既定の設定に戻ります。Chrome オプションをリセットしてよろしいですか？</translation>
 <translation id="7100330187273168372">このディレクトリには Google Chrome はアクセスできません:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="3324235665723428530">バージョンが新しい Google Chrome のプロフィールは使用できません。\n\n一部の機能が使用できない可能性があります。別の場所のプロフィールを指定するか、新しいバージョンの Chrome をご使用ください</translation>
-<translation id="3319048459796106952">新しいシークレット ウィンドウ(&amp;I)</translation>
+<translation id="3319048459796106952">シークレット ウィンドウを開く(&amp;I)</translation>
 <translation id="1120026268649657149">キーワードは空白にするか、固有のものを指定してください</translation>
 <translation id="7481475534986701730">最近アクセスしたサイト</translation>
 <translation id="8815061062167142136">Google Chrome がクラッシュしました。再起動しますか？</translation>
@@ -737,5 +737,5 @@
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>シークレット モードです<ph name="END_BOLD"/>。このウィンドウで開いたページはブラウザの履歴や検索履歴に記録されません。このウィンドウを閉じると Cookie などの記録もパソコンに残りません。ダウンロードしたファイルやブックマークしたページは保存されます。<ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>シークレット モードが他のユーザー、サーバー、ソフトウェアの動作に影響することはありません。ただし、次のような相手には注意してください。<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>ユーザーの情報を収集、共有するウェブサイト<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ユーザーがアクセスしたページをトラッキングするインターネット サービス プロバイダや雇用主<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>無料ダウンロードなどと一緒にインストールされ、キーストロークを記録するマルウェア<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>見張りの秘密諜報員<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>背後にいる人<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        シークレット モードの詳細については<ph name="BEGIN_LINK"/>こちら<ph name="END_LINK"/>をご覧ください。</translation>
 <translation id="1604816462140255479">テキスト拡大(&amp;Z)</translation>
 <translation id="2089625293428655599">このソフトウェアの一部はサードパーティのライセンスを受けています: <ph name="URL"/></translation>
-<translation id="6817660909204164466">使用状況データと障害レポートを Google に自動送信して Google クロームの機能向上に役立てる</translation>
+<translation id="6817660909204164466">使用統計データや障害レポートを Google に自動送信して Google Chrome の機能向上に役立てる</translation>
 </translationbundle>

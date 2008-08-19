@@ -445,7 +445,7 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">빠른 실행 표시줄</translation>
-<translation id="1549918799472947005">크롬은 현재 기본 검색 엔진으로 설정된 <ph name="PAGE_TITLE"/> 검색 엔진을 사용하고 있습니다. 기본 검색 엔진을 계속 사용하시겠습니까?</translation>
+<translation id="1549918799472947005">Google 크롬은 현재 기본 검색엔진으로 설정된 <ph name="PAGE_TITLE"/> 검색엔진을 사용하고 있습니다. 기본 검색엔진을 계속 사용하시겠습니까?</translation>
 <translation id="74568296546932365"><ph name="PAGE_TITLE"/>을(를) 기본 검색엔진으로 유지</translation>
 <translation id="8288345061925649502">검색엔진 변경</translation>
 <translation id="3037605927509011580">앗, 이런!</translation>
@@ -647,7 +647,7 @@
 <translation id="7451556917824271099">&lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt;의 웹사이트에 악성코드를 호스팅하는 것으로 보이는 &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt;의 요소가 포함되어 있습니다. 악성코드는 컴퓨터에 해를 입히거나 사용자의 동의 없이 컴퓨터를 조작할 수 있는 소프트웨어입니다. 악성코드를 포함하는 사이트에 방문하는 것만으로도 컴퓨터가 감염될 수 있습니다.</translation>
 <translation id="5048040498971143039">'<ph name="SEARCH_STRING"/>'에 대한 검색 결과</translation>
 <translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/>/<ph name="DOWNLOAD_TOTAL"/>, <ph name="TIME_LEFT"/></translation>
-<translation id="4692623383562244444">검색 엔진</translation>
+<translation id="4692623383562244444">검색엔진</translation>
 <translation id="5584537427775243893">가져오는 중</translation>
 <translation id="6248988683584659830">검색 설정</translation>
 <translation id="2354001756790975382">기타 북마크</translation>
@@ -658,7 +658,7 @@
 <translation id="3369624026883419694">호스트 알아내는 중...</translation>
 <translation id="4378551569595875038">연결 중...</translation>
 <translation id="1731911755844941020">요청하는 중...</translation>
-<translation id="7925285046818567682"><ph name="HOST_NAME"/>을 기다리는 중...</translation>
+<translation id="7925285046818567682"><ph name="HOST_NAME"/> 기다리는 중...</translation>
 <translation id="2021921916539001817"><ph name="HOST_NAME"/>에서 가져오는 중...</translation>
 <translation id="6698381487523150993">생성됨:</translation>
 <translation id="4127951844153999091">이 경우 인증서에 나와 있는 주소가 귀하의 브라우저에서 이동하려는 웹사이트 주소와 일치하지 않습니다. 이러한 현상은 다른 웹사이트에 인증서를 제출하는 해커가 귀하의 통신을 방해해 불일치가 발생한 것이 원인일 수 있습니다. 또한 모든 사이트에 유효하지 않을 수 있는 인증서 하나가 귀하가 방문하려는 웹사이트를 포함한 여러 개의 웹사이트에 대해 반환되도록 서버가 설정된 것이 원인일 수도 있습니다. Google 크롬은 귀하가 &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;에 도달했음을 알려줄 수 있지만 해당 사이트가 귀하가 도달하려는 &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;과(와) 같은 사이트임을 확인할 수는 없습니다. 계속 진행할 경우 크롬은 이름 불일치를 더 이상 확인하지 않습니다. 일반적으로 이 시점에는 이전으로 진행하지 않는 것이 좋습니다.</translation>
@@ -726,7 +726,7 @@
 <translation id="5098629044894065541">히브리어</translation>
 <translation id="8899388739470541164">베트남어</translation>
 <translation id="1714078437629572290">홈페이지 열기</translation>
-<translation id="5316814419223884568">주소창에서 바로 검색</translation>
+<translation id="5316814419223884568">검색주소창에서 바로 검색</translation>
 <translation id="3065140616557457172">검색할 키워드나 사이트 URL, 무엇이든 입력하세요.</translation>
 <translation id="4178055285485194276">시작 페이지:</translation>
 <translation id="1154228249304313899">페이지 설정:</translation>

@@ -203,7 +203,7 @@
 <translation id="8418445294933751433">Mo&amp;strar como pestaña</translation>
 <translation id="1723824996674794290">&amp;Nueva ventana</translation>
 <translation id="1901303067676059328">Seleccionar &amp;todo</translation>
-<translation id="3786934874263773074">&amp;Buscar en una página</translation>
+<translation id="3786934874263773074">&amp;Buscar en la página</translation>
 <translation id="3712897371525859903">Gu&amp;ardar página como...</translation>
 <translation id="8755376271068075440">&amp;Mayor</translation>
 <translation id="6163363155248589649">&amp;Normal</translation>
@@ -304,7 +304,7 @@
 <translation id="4381091992796011497">Nombre de usuario:</translation>
 <translation id="4304224509867189079">Acceder</translation>
 <translation id="5455790498993699893"><ph name="ACTIVE_MATCH"/> de <ph name="TOTAL_MATCHCOUNT"/></translation>
-<translation id="1829244130665387512">Buscar en una página</translation>
+<translation id="1829244130665387512">Buscar en la página</translation>
 <translation id="2955913368246107853">Cerrar la barra de búsqueda</translation>
 <translation id="7564847347806291057">Finalizar proceso</translation>
 <translation id="5981759340456370804">Estadísticas</translation>
@@ -725,7 +725,7 @@
 <translation id="2822854841007275488">Árabe</translation>
 <translation id="5098629044894065541">Hebreo</translation>
 <translation id="8899388739470541164">Vietnamita</translation>
-<translation id="1714078437629572290">Abrir la página principal</translation>
+<translation id="1714078437629572290">Abrir la página de inicio</translation>
 <translation id="5316814419223884568">Buscar desde aquí</translation>
 <translation id="3065140616557457172">Puedes introducir una consulta o bien la URL de la página que quieres visitar, lo que prefieras.</translation>
 <translation id="4178055285485194276">Al inicio:</translation>

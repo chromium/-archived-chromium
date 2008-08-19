@@ -648,7 +648,7 @@
     del tuo computer.</translation>
 <translation id="1635247229519770914">Prosegui l'installazione</translation>
 <translation id="3191701650141760424">Esci dall'installazione</translation>
-<translation id="7451556917824271099">Il sito web all'indirizzo &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; contiene elementi provenienti dal sito &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt; in cui sembra essere presente malware, ovvero software in grado di danneggiare il tuo computer o, comunque, di funzionare senza il tuo consento. Visitare un sito che contiene malware è sufficiente per infettare il tuo computer.</translation>
+<translation id="7451556917824271099">Il sito web all'indirizzo &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; contiene elementi provenienti dal sito &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt; in cui sembra essere presente malware, ovvero software in grado di danneggiare il tuo computer o, comunque, di funzionare senza il tuo consenso. Visitare un sito che contiene malware è sufficiente per infettare il tuo computer.</translation>
 <translation id="5048040498971143039">Risultati di ricerca per '<ph name="SEARCH_STRING"/>'</translation>
 <translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/>/<ph name="DOWNLOAD_TOTAL"/>, <ph name="TIME_LEFT"/></translation>
 <translation id="4692623383562244444">Motori di ricerca</translation>
