@@ -55,7 +55,6 @@ static const int kMarginLeftOfFindTextField = 12;
 // The margins around the match count label (We add extra space so that the
 // background highlight extends beyond just the text).
 static const int kMatchCountExtraWidth = 9;
-static const int kMatchCountExtraHeight = 1;
 
 // Minimum width for the match count label.
 static const int kMatchCountMinWidth = 30;
@@ -397,7 +396,6 @@ void FindInPageView::Layout() {
   // We extend the label bounds a bit to give the background highlighting a bit
   // of breathing room (margins around the text).
   sz.cx += kMatchCountExtraWidth;
-  sz.cy += kMatchCountExtraHeight;
   sz.cx = std::max(kMatchCountMinWidth, static_cast<int>(sz.cx));
   match_count_text_->SetBounds(find_previous_button_->GetX() -
                                    kWhiteSpaceAfterMatchCountLabel -
