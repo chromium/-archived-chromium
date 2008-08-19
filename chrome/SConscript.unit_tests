@@ -226,6 +226,7 @@ unit_test_files = [
     'views/focus_manager_unittest.cc',
     'views/grid_layout_unittest.cc',
     'views/view_unittest.cc',
+    'test/test_notification_tracker.cc',
     'test/testing_profile.cc',
     'test/ui/view_event_test_base.cc',
     'test/unit/run_all_unittests.cc',
