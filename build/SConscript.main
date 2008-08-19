@@ -96,7 +96,7 @@ env = Environment(
     NPAPI_DIR             = '$THIRD_PARTY_DIR/npapi',
     ZLIB_DIR              = '$THIRD_PARTY_DIR/zlib',
 
-    THIRD_PARTY_WEBKIT_DIR = '$THIRD_PARTY_DIR/webkit',
+    THIRD_PARTY_WEBKIT_DIR = '$THIRD_PARTY_DIR/WebKit',
 
     PYTHON=sys.executable,
 
@@ -329,6 +329,7 @@ elif env['PLATFORM'] == 'posix':
       'skia',
       'testing',
       'third_party',
+      'webkit',
   ]
 
   env.Replace(

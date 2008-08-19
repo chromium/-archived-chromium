@@ -135,12 +135,8 @@ env.Append(
 
     CPPDEFINES = [
       'U_STATIC_IMPLEMENTATION'
-      '_CRT_SECURE_NO_DEPRECATE',
-      '_CRT_NONSTDC_NO_WARNINGS',
-      '_CRT_NONSTDC_NO_DEPRECATE',
       '_SCL_SECURE_NO_DEPRECATE',
       '_SCL_SECURE_NO_WARNINGS',
-      ['CRASH', '__debugbreak'],
       ['ENABLE_CROSS_DOCUMENT_MESSAGING', '1'],
       ['ENABLE_XSLT', '1'],
       ['ENABLE_XPATH', '1'],
@@ -152,9 +148,6 @@ env.Append(
       ['ANDROID_CANVAS_IMPL', '1'],
       ['WEBCORE_NAVIGATOR_PLATFORM', '"\\"Win32\\""'],
       'USE_GOOGLE_URL_LIBRARY',
-
-      '_WIN32_WINNT=0x0600',
-      'WINVER=0x0600',
 
       'LIBXSLT_STATIC',
       'LIBXML_STATIC',
@@ -168,8 +161,8 @@ env.Append(
     ],
 )
 
-
-sconscript_dirs = [
+if env['PLATFORM'] == 'win32':
+    sconscript_dirs = [
     'SConscript.port',
     'SConscript.javascriptcore_pcre',
     'activex_shim/SConscript',
@@ -186,8 +179,26 @@ sconscript_dirs = [
     'tools/npapi_layout_test_plugin/SConscript',
     'tools/test_shell/SConscript',
     'tools/test_shell/resources/fonts/SConscript',
-]
+    ]
 
+    env.Append(
+        CPPDEFINES = [
+                '_CRT_SECURE_NO_DEPRECATE',
+                '_CRT_NONSTDC_NO_WARNINGS',
+                '_CRT_NONSTDC_NO_DEPRECATE',
+                ['CRASH', '__debugbreak'],
+                '_WIN32_WINNT=0x0600',
+                'WINVER=0x0600',
+                ])
+else:
+    sconscript_dirs = [
+# TODO(erg): For now, only JavaScriptCore compiles and links; the rest is next.
+#    'SConscript.port',
+#    'SConscript.javascriptcore_pcre',
+    'build/JSConfig/SConscript',
+    'build/JavaScriptCore/SConscript',
+#    'build/WebCore/SConscript',
+    ]
 env.SConscript(sconscript_dirs, exports=['env', 'env_res'])
 
 # Setup alias for all webkit related targets.

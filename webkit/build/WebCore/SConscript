@@ -31,28 +31,20 @@ Import('env')
 
 env = env.Clone()
 
-env.Append(
-    CCFLAGS = [
-        '/TP',
-
-        '/wd4138',
-        '/wd4244',
-        '/wd4291',
-        '/wd4305',
-        '/wd4521',
-        '/wd4099',
-        '/wd4800',
-    ],
-)
-
-
-env_p = env.Clone()
-env_p.Append(CCFLAGS='/Ylwebcore')
-pch, obj = env_p.PCH('../precompiled_webkit.cc')
-env['PCH'] = pch
-env['PCHSTOP'] = 'precompiled_webkit.h'
-env.Append(CCPCHFLAGS = ['/FIprecompiled_webkit.h'])
-
+if env['PLATFORM'] == 'win32':
+    env.Append(
+        CCFLAGS = [
+                '/TP',
+                
+                '/wd4138',
+                '/wd4244',
+                '/wd4291',
+                '/wd4305',
+                '/wd4521',
+                '/wd4099',
+                '/wd4800',
+                ],
+        )
 
 input_files = [
     '$PENDING_DIR/JSSVGLazyEventListener.cpp',
@@ -699,4 +691,14 @@ input_files = [
     '$WEBCORE_DIR/xml/XSLTUnicodeSort.cpp',
 ]
 
-env.ChromeStaticLibrary('WebCore', input_files + [obj])
+# Precompiled headers only work under MSVC in scons.
+if env['PLATFORM'] == 'win32':
+    env_p = env.Clone()
+    env_p.Append(CCFLAGS='/Ylwebcore')
+    pch, obj = env_p.PCH('../precompiled_webkit.cc')
+    env['PCH'] = pch
+    env['PCHSTOP'] = 'precompiled_webkit.h'
+    env.Append(CCPCHFLAGS = ['/FIprecompiled_webkit.h'])
+    input_files += [obj]
+
+env.ChromeStaticLibrary('WebCore', input_files)

@@ -31,9 +31,17 @@ Import('env')
 
 env = env.Clone()
 
-# TODO(bradnelson): very bad, calls batch, calls sh, deps all wrong
-env.Append(ENV = {"OS" : "Windows_NT"})
-env.Command("obj/WebCore/config.h",
-            ["prebuild.bat", "../../config.h.in"],
-            "cd ${SOURCE.dir} && ${SOURCE.file} ${JSCONFIG_DIR.abspath} v8",
-            JSCONFIG_DIR = env.Dir('$WEBKIT_DIR/build/JSConfig'))
+
+if env['PLATFORM'] == 'posix':
+    # TODO(erg): adding to the badness.
+    env.Command("obj/WebCore/config.h",
+                ["create-config.sh", "../../config.h.in"],
+                "cd ${SOURCE.dir} && /bin/bash -x ${SOURCE.file} ${JSCONFIG_DIR.abspath} v8",
+                JSCONFIG_DIR = env.Dir('$WEBKIT_DIR/build/JSConfig'))               
+else:
+    # TODO(bradnelson): very bad, calls batch, calls sh, deps all wrong
+    env.Append(ENV = {"OS" : "Windows_NT"})
+    env.Command("obj/WebCore/config.h",
+                ["prebuild.bat", "../../config.h.in"],
+                "cd ${SOURCE.dir} && ${SOURCE.file} ${JSCONFIG_DIR.abspath} v8",
+                JSCONFIG_DIR = env.Dir('$WEBKIT_DIR/build/JSConfig'))

@@ -91,7 +91,7 @@ then
   $CP $JavaScriptCoreSrcDir/bindings/npruntime_priv.h $JSHeadersDir
 
   $CP $JavaScriptCoreSrcDir/bindings/runtime.h $JSHeadersDir/JavaScriptCore
-  $CP $JavaScriptCoreSrcDir/bindings/np_jsobject.h $JSHeadersDir/JavaScriptCore
+  $CP $JavaScriptCoreSrcDir/bindings/NP_jsobject.h $JSHeadersDir/JavaScriptCore
   $CP $JavaScriptCoreSrcDir/bindings/runtime_object.h $JSHeadersDir/JavaScriptCore
   $CP $JavaScriptCoreSrcDir/bindings/runtime_root.h $JSHeadersDir/JavaScriptCore
 
