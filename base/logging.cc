@@ -62,6 +62,7 @@ typedef pthread_mutex_t* MutexHandle;
 #include "base/debug_util.h"
 #include "base/lock_impl.h"
 #include "base/logging.h"
+#include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
   

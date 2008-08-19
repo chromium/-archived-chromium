@@ -31,6 +31,8 @@
 
 #include <windows.h>
 
+#include "base/string_piece.h"
+
 namespace base {
 
 // Do not assert in this function since it is used by the asssertion code!
@@ -39,7 +41,7 @@ std::string SysWideToUTF8(const std::wstring& wide) {
 }
 
 // Do not assert in this function since it is used by the asssertion code!
-std::wstring SysUTF8ToWide(const std::string& utf8) {
+std::wstring SysUTF8ToWide(StringPiece utf8) {
   return SysMultiByteToWide(utf8, CP_UTF8);
 }
 
@@ -47,16 +49,16 @@ std::string SysWideToNativeMB(const std::wstring& wide) {
   return SysWideToMultiByte(wide, CP_ACP);
 }
 
-std::wstring SysNativeMBToWide(const std::string& native_mb) {
+std::wstring SysNativeMBToWide(StringPiece native_mb) {
   return SysMultiByteToWide(native_mb, CP_ACP);
 }
 
 // Do not assert in this function since it is used by the asssertion code!
-std::wstring SysMultiByteToWide(const std::string& mb, uint32 code_page) {
-  int mb_length = static_cast<int>(mb.length());
-  if (mb_length == 0)
+std::wstring SysMultiByteToWide(StringPiece mb, uint32 code_page) {
+  if (mb.empty())
     return std::wstring();
 
+  int mb_length = static_cast<int>(mb.length());
   // Compute the length of the buffer.
   int charcount = MultiByteToWideChar(code_page, 0,
                                       mb.data(), mb_length, NULL, 0);

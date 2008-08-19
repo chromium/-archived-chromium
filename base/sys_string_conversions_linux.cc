@@ -29,6 +29,7 @@
 
 #include "base/sys_string_conversions.h"
 
+#include "base/string_piece.h"
 #include "base/string_util.h"
 
 namespace base {
@@ -38,10 +39,12 @@ std::string SysWideToUTF8(const std::wstring& wide) {
   // than our ICU, but this will do for now.
   return WideToUTF8(wide);
 }
-std::wstring SysUTF8ToWide(const std::string& utf8) {
+std::wstring SysUTF8ToWide(StringPiece utf8) {
   // In theory this should be using the system-provided conversion rather
   // than our ICU, but this will do for now.
-  return UTF8ToWide(utf8);
+  std::wstring out;
+  UTF8ToWide(utf8.data(), utf8.size(), &out);
+  return out;
 }
 
 std::string SysWideToNativeMB(const std::wstring& wide) {
@@ -49,7 +52,7 @@ std::string SysWideToNativeMB(const std::wstring& wide) {
   return SysWideToUTF8(wide);
 }
 
-std::wstring SysNativeMBToWide(const std::string& native_mb) {
+std::wstring SysNativeMBToWide(StringPiece native_mb) {
   // TODO(evanm): we can't assume Linux is UTF-8.
   return SysUTF8ToWide(native_mb);
 }

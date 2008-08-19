@@ -34,6 +34,7 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "base/string_piece.h"
 #include "base/sys_string_conversions.h"
 
 namespace base {

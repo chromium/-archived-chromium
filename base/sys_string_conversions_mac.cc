@@ -28,9 +28,12 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "base/sys_string_conversions.h"
+
 #include <CoreFoundation/CoreFoundation.h>
 #include <vector>
+
 #include "base/scoped_cftyperef.h"
+#include "base/string_piece.h"
 
 namespace base {
 
@@ -139,8 +142,8 @@ std::string SysWideToUTF8(const std::wstring& wide) {
 }
 
 // Do not assert in this function since it is used by the asssertion code!
-std::wstring SysUTF8ToWide(const std::string& utf8) {
-  return STLStringToSTLStringWithEncodingsT<std::string, std::wstring>(
+std::wstring SysUTF8ToWide(StringPiece utf8) {
+  return STLStringToSTLStringWithEncodingsT<StringPiece, std::wstring>(
       utf8, kNarrowStringEncoding, kWideStringEncoding);
 }
 
@@ -148,7 +151,7 @@ std::string SysWideToNativeMB(const std::wstring& wide) {
   return SysWideToUTF8(wide);
 }
 
-std::wstring SysNativeMBToWide(const std::string& native_mb) {
+std::wstring SysNativeMBToWide(StringPiece native_mb) {
   return SysUTF8ToWide(native_mb);
 }
 
