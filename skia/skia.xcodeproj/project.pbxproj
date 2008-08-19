@@ -127,7 +127,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		32DBCF5E0370ADEE00C91783 /* skia.new_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = skia.new_Prefix.pch; sourceTree = "<group>"; };
+		32DBCF5E0370ADEE00C91783 /* skia_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = skia_Prefix.pch; sourceTree = "<group>"; };
 		7B4DF4490E5B5E5C004D7619 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
 		7B4DF44A0E5B5E5C004D7619 /* debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = debug.xcconfig; sourceTree = "<group>"; };
 		7B4DF44B0E5B5E5C004D7619 /* executable.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = executable.xcconfig; sourceTree = "<group>"; };
@@ -488,7 +488,7 @@
 				AB4C47F30DAE9C9700FC0DB7 /* ports */,
 				AB4C481C0DAE9C9C00FC0DB7 /* sgl */,
 				AB4C49910DAEA1A000FC0DB7 /* precompiled.cc */,
-				32DBCF5E0370ADEE00C91783 /* skia.new_Prefix.pch */,
+				32DBCF5E0370ADEE00C91783 /* skia_Prefix.pch */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -878,7 +878,7 @@
 /* Begin PBXProject section */
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "skia.new" */;
+			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "skia" */;
 			compatibilityVersion = "Xcode 3.1";
 			hasScannedForEncodings = 1;
 			mainGroup = 0867D691FE84028FC02AAC07 /* Skia */;
@@ -1039,7 +1039,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7B4DF44D0E5B5E5C004D7619 /* staticlib.xcconfig */;
 			buildSettings = {
-				GCC_PREFIX_HEADER = skia.new_Prefix.pch;
+				GCC_PREFIX_HEADER = skia_Prefix.pch;
 				HEADER_SEARCH_PATHS = (
 					corecg,
 					include,
@@ -1055,7 +1055,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7B4DF44D0E5B5E5C004D7619 /* staticlib.xcconfig */;
 			buildSettings = {
-				GCC_PREFIX_HEADER = skia.new_Prefix.pch;
+				GCC_PREFIX_HEADER = skia_Prefix.pch;
 				HEADER_SEARCH_PATHS = (
 					corecg,
 					include,
@@ -1070,7 +1070,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "skia.new" */ = {
+		1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "skia" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB91B208733DA50010E9CD /* Debug */,
