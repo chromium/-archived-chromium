@@ -178,13 +178,15 @@ env.ChromeStaticLibrary('base', input_files)
 
 env_tests.Prepend(
     CPPPATH = [
+        '$GTEST_DIR/include',
+        '$GTEST_DIR',
         '$SKIA_DIR/include',
         '$SKIA_DIR/include/corecg',
         '$SKIA_DIR/platform',
         '$ZLIB_DIR',
         '$LIBPNG_DIR',
         '$ICU38_DIR/public/common',
-        '$ICU38/_DIRpublic/i18n',
+        '$ICU38_DIR/public/i18n',
         '..',
     ],
     CPPDEFINES = [
@@ -192,6 +194,7 @@ env_tests.Prepend(
         'PNG_USER_CONFIG',
         'CHROME_PNG_WRITE_SUPPORT',
         'U_STATIC_IMPLEMENTATION',
+        'GOOGLE_CHROME_BUILD',
     ],
     LIBS = [
         'base',
@@ -215,7 +218,6 @@ if env['PLATFORM'] == 'win32':
       CCFLAGS = [
           '/TP',
           '/WX',
-          '/Wp64',
       ],
       CPPDEFINES = [
         '_WIN32_WINNT=0x0600',
