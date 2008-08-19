@@ -83,7 +83,6 @@ MessageLoop::MessageLoop()
       nestable_tasks_allowed_(true),
       exception_restoration_(false),
       state_(NULL) {
-  DCHECK(tls_index_) << "static initializer failed";
   DCHECK(!current()) << "should only have one message loop per thread";
   ThreadLocalStorage::Set(tls_index_, this);
   // TODO(darin): Generalize this to support instantiating different pumps.
