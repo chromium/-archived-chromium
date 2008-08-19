@@ -75,10 +75,15 @@ const char* const log_severity_names[LOG_NUM_SEVERITIES] = {
 
 int min_log_level = 0;
 LogLockingState lock_log_file = LOCK_LOG_FILE;
+
+// The default set here for logging_destination will only be used if
+// InitLogging is not called.  On Windows, use a file next to the exe;
+// on POSIX platforms, where it may not even be possible to locate the
+// executable on disk, use stderr.
 #if defined(OS_WIN)
 LoggingDestination logging_destination = LOG_ONLY_TO_FILE;
 #elif defined(OS_POSIX)
-LoggingDestination logging_destination = LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG;
+LoggingDestination logging_destination = LOG_ONLY_TO_SYSTEM_DEBUG_LOG;
 #endif
 
 const int kMaxFilteredLogLevel = LOG_WARNING;
@@ -196,26 +201,30 @@ bool InitializeLogFileHandle() {
 #endif
   }
 
+  if (logging_destination == LOG_ONLY_TO_FILE ||
+      logging_destination == LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG) {
 #if defined(OS_WIN)
-  log_file = CreateFile(log_file_name->c_str(), GENERIC_WRITE,
-                        FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
-                        OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-  if (log_file == INVALID_HANDLE_VALUE || log_file == NULL) {
-    // try the current directory
-    log_file = CreateFile(L".\\debug.log", GENERIC_WRITE,
+    log_file = CreateFile(log_file_name->c_str(), GENERIC_WRITE,
                           FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
                           OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (log_file == INVALID_HANDLE_VALUE || log_file == NULL) {
-      log_file = NULL;
-      return false;
+      // try the current directory
+      log_file = CreateFile(L".\\debug.log", GENERIC_WRITE,
+                            FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                            OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+      if (log_file == INVALID_HANDLE_VALUE || log_file == NULL) {
+        log_file = NULL;
+        return false;
+      }
     }
-  }
-  SetFilePointer(log_file, 0, 0, FILE_END);
+    SetFilePointer(log_file, 0, 0, FILE_END);
 #elif defined(OS_POSIX)
-  log_file = fopen(log_file_name->c_str(), "a");
-  if (log_file == NULL)
-    return false;
+    log_file = fopen(log_file_name->c_str(), "a");
+    if (log_file == NULL)
+      return false;
 #endif
+  }
+
   return true;
 }
 
@@ -411,7 +420,11 @@ LogMessage::~LogMessage() {
     return;
 
   std::string str_newline(stream_.str());
+#if defined(OS_WIN)
   str_newline.append("\r\n");
+#else
+  str_newline.append("\n");
+#endif
 
   if (log_filter_prefix && severity_ <= kMaxFilteredLogLevel &&
       str_newline.compare(message_start_, log_filter_prefix->size(),
@@ -424,7 +437,7 @@ LogMessage::~LogMessage() {
 #if defined(OS_WIN)
     OutputDebugStringA(str_newline.c_str());
 #else
-    fprintf(stderr, str_newline.c_str());
+    fprintf(stderr, "%s", str_newline.c_str());
 #endif
   }
   
