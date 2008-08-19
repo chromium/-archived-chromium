@@ -599,6 +599,11 @@ AutomationProvider::AutomationProvider(Profile* profile)
 }
 
 AutomationProvider::~AutomationProvider() {
+  // Make sure that any outstanding NotificationObservers also get destroyed.
+  ObserverList<NotificationObserver>::Iterator it(notification_observer_list_);
+  NotificationObserver* observer; 
+  while ((observer = it.GetNext()) != NULL)
+    delete observer;
 }
 
 void AutomationProvider::ConnectToChannel(const std::wstring& channel_id) {
