@@ -103,7 +103,7 @@ static OutStringType STLStringToSTLStringWithEncodingsT(
 
   scoped_cftyperef<CFStringRef> cfstring(
       CFStringCreateWithBytesNoCopy(NULL,
-                                    reinterpret_cast<const UInt8*>(in.c_str()),
+                                    reinterpret_cast<const UInt8*>(in.data()),
                                     in_length *
                                       sizeof(typename InStringType::value_type),
                                     in_encoding,
