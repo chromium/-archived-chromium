@@ -29,14 +29,15 @@
 
 #include "base/base_paths_win.h"
 
+#include <windows.h>
 #include <shlobj.h>
 
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/win_util.h"
 
-// This is here for the sole purpose of looking up the corresponding HMODULE.
-static int handle_lookup = 0;
+// http://blogs.msdn.com/oldnewthing/archive/2004/10/25/247180.aspx
+extern "C" IMAGE_DOS_HEADER __ImageBase;
 
 namespace base {
 
@@ -59,11 +60,7 @@ bool PathProviderWin(int key, std::wstring* result) {
     case base::FILE_MODULE: {
       // the resource containing module is assumed to be the one that
       // this code lives in, whether that's a dll or exe
-      MEMORY_BASIC_INFORMATION info = { 0 };
-      VirtualQuery(reinterpret_cast<void*>(&handle_lookup),
-                   &info, sizeof(info));
-      // Module handles are just the allocation base address of the module.
-      HMODULE this_module = reinterpret_cast<HMODULE>(info.AllocationBase);
+      HMODULE this_module = reinterpret_cast<HMODULE>(&__ImageBase);
       GetModuleFileName(this_module, system_buffer, MAX_PATH);
       cur = system_buffer;
       break;
