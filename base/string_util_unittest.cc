@@ -1066,7 +1066,7 @@ TEST(StringUtilTest, Grow) {
 #endif
 
   EXPECT_STREQ(ref, out.c_str());
-  delete ref;
+  delete[] ref;
 }
 
 // Test the boundary condition for the size of the string_util's
