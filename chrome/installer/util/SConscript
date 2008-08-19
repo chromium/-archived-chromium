@@ -64,6 +64,7 @@ env.Prepend(
 
 input_files = [
     '../../app/google_update_settings$OBJSUFFIX',
+    'browser_distribution.cc',
     'copy_tree_work_item.cc',
     'create_dir_work_item.cc',
     'create_reg_key_work_item.cc',

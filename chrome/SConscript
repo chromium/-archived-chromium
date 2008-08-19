@@ -50,6 +50,8 @@ env_res.Append(
     CPPPATH = [
         '.',
         '#/..',
+        # For app/chrome_dll.res to #include installer_util_strings.rc.
+        '$CHROME_DIR/installer/util',
     ],
     RCFLAGS = [
         ['/l', '0x409'],
