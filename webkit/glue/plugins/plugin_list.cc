@@ -38,6 +38,7 @@
 #include "base/path_service.h"
 #include "base/registry.h"
 #include "base/scoped_ptr.h"
+#include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "base/time.h"
