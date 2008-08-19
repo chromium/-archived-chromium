@@ -101,6 +101,7 @@
 		829E36460DC0F6AC00819EBF /* string_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254037C0D92D2CF0006B936 /* string_util.cc */; };
 		829E365F0DC0FB1C00819EBF /* stats_table.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403790D92D2CF0006B936 /* stats_table.cc */; };
 		829E36730DC0FBAD00819EBF /* thread_local_storage_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 829E36720DC0FBAD00819EBF /* thread_local_storage_posix.cc */; };
+		82D094550E5B892600FEC05C /* time_format.cc in Sources */ = {isa = PBXBuildFile; fileRef = 82D094540E5B892600FEC05C /* time_format.cc */; };
 		9301C03B0E54C839001EF103 /* waitable_event_generic.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9301C0390E54C839001EF103 /* waitable_event_generic.cc */; };
 		93611ADF0E5A7FC500F9405D /* message_pump_default.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93611ADC0E5A7FC500F9405D /* message_pump_default.cc */; };
 		93611AE10E5A7FE200F9405D /* message_loop.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93611AE00E5A7FE200F9405D /* message_loop.cc */; };
@@ -474,6 +475,8 @@
 		829E2F9D0DBFD76F00819EBF /* platform_device_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = platform_device_mac.cc; sourceTree = "<group>"; };
 		829E30D60DBFD8ED00819EBF /* skia.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = skia.xcodeproj; path = skia/skia.xcodeproj; sourceTree = "<group>"; };
 		829E36720DC0FBAD00819EBF /* thread_local_storage_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread_local_storage_posix.cc; sourceTree = "<group>"; };
+		82D094530E5B892600FEC05C /* time_format.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = time_format.h; sourceTree = "<group>"; };
+		82D094540E5B892600FEC05C /* time_format.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = time_format.cc; sourceTree = "<group>"; };
 		82E23FCB0D9C219600F8B40A /* platform_thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_thread.h; sourceTree = "<group>"; };
 		82E23FCC0D9C219600F8B40A /* platform_thread.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = platform_thread.cc; sourceTree = "<group>"; };
 		9301C0390E54C839001EF103 /* waitable_event_generic.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = waitable_event_generic.cc; sourceTree = "<group>"; };
@@ -814,6 +817,8 @@
 				E4BA048D0E25687E00BE02C6 /* thread_posix.cc */,
 				824654900DC25A8C007C2BAA /* time.cc */,
 				825403840D92D2CF0006B936 /* time.h */,
+				82D094540E5B892600FEC05C /* time_format.cc */,
+				82D094530E5B892600FEC05C /* time_format.h */,
 				7BEB81490D9B0F33009BA8DD /* time_posix.cc */,
 				E4AFA4EF0E50F7B000201347 /* time_unittest.cc */,
 				825403850D92D2CF0006B936 /* timer.cc */,
@@ -1152,6 +1157,7 @@
 				829E36730DC0FBAD00819EBF /* thread_local_storage_posix.cc in Sources */,
 				E4BA048E0E25687E00BE02C6 /* thread_posix.cc in Sources */,
 				824654910DC25A8C007C2BAA /* time.cc in Sources */,
+				82D094550E5B892600FEC05C /* time_format.cc in Sources */,
 				824654530DC25633007C2BAA /* time_posix.cc in Sources */,
 				E49357220E422A36008F8B09 /* timer.cc in Sources */,
 				820EB5020E3A618B009668FC /* tracked.cc in Sources */,
