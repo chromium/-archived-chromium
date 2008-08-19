@@ -82,9 +82,9 @@ ToolbarModel::SecurityLevel ToolbarModel::GetSecurityLevel() {
   if (!entry)
     return ToolbarModel::NORMAL;
 
-  switch (entry->GetSecurityStyle()) {
+  switch (entry->ssl().security_style()) {
     case SECURITY_STYLE_AUTHENTICATED:
-      if (entry->HasMixedContent())
+      if (entry->ssl().has_mixed_content())
         return ToolbarModel::NORMAL;
       return ToolbarModel::SECURE;
     case SECURITY_STYLE_AUTHENTICATION_BROKEN:
@@ -115,9 +115,10 @@ ToolbarModel::Icon ToolbarModel::GetIcon() {
   if (!entry)
     return ToolbarModel::NO_ICON;
 
-  switch (entry->GetSecurityStyle()) {
+  const NavigationEntry::SSLStatus& ssl = entry->ssl();
+  switch (ssl.security_style()) {
     case SECURITY_STYLE_AUTHENTICATED:
-      if (entry->HasMixedContent())
+      if (ssl.has_mixed_content())
         return ToolbarModel::WARNING_ICON;
       return ToolbarModel::LOCK_ICON;
     case SECURITY_STYLE_AUTHENTICATION_BROKEN:
@@ -146,16 +147,18 @@ void ToolbarModel::GetIconHoverText(std::wstring* text, SkColor* text_color) {
   NavigationEntry* entry = navigation_controller->GetActiveEntry();
   DCHECK(entry);
 
-  switch (entry->GetSecurityStyle()) {
+  
+  const NavigationEntry::SSLStatus& ssl = entry->ssl();
+  switch (ssl.security_style()) {
     case SECURITY_STYLE_AUTHENTICATED: {
-      if (entry->HasMixedContent()) {
+      if (ssl.has_mixed_content()) {
         SSLErrorInfo error_info =
             SSLErrorInfo::CreateError(SSLErrorInfo::MIXED_CONTENTS,
                                       NULL, GURL::EmptyGURL());
         text->assign(error_info.short_description());
         *text_color = kBrokenHttpsInfoBubbleTextColor;
       } else {
-        GURL url = entry->GetURL();
+        const GURL& url = entry->GetURL();
         DCHECK(url.has_host());
         text->assign(l10n_util::GetStringF(IDS_SECURE_CONNECTION,
                                            UTF8ToWide(url.host())));
@@ -196,13 +199,14 @@ void ToolbarModel::GetInfoText(std::wstring* text,
     return;
 
   NavigationEntry* entry = navigation_controller->GetActiveEntry();
-  if (!entry || entry->HasMixedContent() ||
-      net::IsCertStatusError(entry->GetSSLCertStatus()) ||
-      ((entry->GetSSLCertStatus() & net::CERT_STATUS_IS_EV) == 0))
+  const NavigationEntry::SSLStatus& ssl = entry->ssl();
+  if (!entry || ssl.has_mixed_content() ||
+      net::IsCertStatusError(ssl.cert_status()) ||
+      ((ssl.cert_status() & net::CERT_STATUS_IS_EV) == 0))
     return;
 
   scoped_refptr<net::X509Certificate> cert;
-  CertStore::GetSharedInstance()->RetrieveCert(entry->GetSSLCertID(), &cert);
+  CertStore::GetSharedInstance()->RetrieveCert(ssl.cert_id(), &cert);
   if (!cert.get()) {
     NOTREACHED();
     return;
@@ -213,16 +217,17 @@ void ToolbarModel::GetInfoText(std::wstring* text,
 }
 
 void ToolbarModel::CreateErrorText(NavigationEntry* entry, std::wstring* text) {
+  const NavigationEntry::SSLStatus& ssl = entry->ssl();
   std::vector<SSLErrorInfo> errors;
-  SSLErrorInfo::GetErrorsForCertStatus(entry->GetSSLCertID(),
-                                       entry->GetSSLCertStatus(),
+  SSLErrorInfo::GetErrorsForCertStatus(ssl.cert_id(),
+                                       ssl.cert_status(),
                                        entry->GetURL(),
                                        &errors);
-  if (entry->HasMixedContent()) {
+  if (ssl.has_mixed_content()) {
     errors.push_back(SSLErrorInfo::CreateError(SSLErrorInfo::MIXED_CONTENTS,
                                                NULL, GURL::EmptyGURL()));
   }
-  if (entry->HasUnsafeContent()) {
+  if (ssl.has_unsafe_content()) {
    errors.push_back(SSLErrorInfo::CreateError(SSLErrorInfo::UNSAFE_CONTENTS,
                                               NULL, GURL::EmptyGURL()));
   }

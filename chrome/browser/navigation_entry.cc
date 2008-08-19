@@ -33,18 +33,21 @@
 
 int NavigationEntry::unique_id_counter_ = 0;
 
+NavigationEntry::SSLStatus::SSLStatus()
+    : security_style_(SECURITY_STYLE_UNKNOWN),
+      cert_id_(0),
+      cert_status_(0),
+      security_bits_(-1),
+      content_status_(NORMAL_CONTENT) {
+}
+
 NavigationEntry::NavigationEntry(TabContentsType type)
     : type_(type),
       unique_id_(GetUniqueID()),
       site_instance_(NULL),
       page_id_(-1),
-      security_style_(SECURITY_STYLE_UNKNOWN),
       transition_type_(PageTransition::LINK),
       page_type_(NORMAL_PAGE),
-      ssl_cert_id_(0),
-      ssl_cert_status_(0),
-      ssl_security_bits_(0),
-      content_status_(NORMAL_CONTENT),
       valid_fav_icon_(false),
       has_post_data_(false),
       restored_(false) {
@@ -63,14 +66,9 @@ NavigationEntry::NavigationEntry(TabContentsType type,
       site_instance_(instance),
       page_id_(page_id),
       url_(url),
-      security_style_(SECURITY_STYLE_UNKNOWN),
       title_(title),
       transition_type_(transition_type),
       page_type_(NORMAL_PAGE),
-      ssl_cert_id_(0),
-      ssl_cert_status_(0),
-      ssl_security_bits_(-1),
-      content_status_(NORMAL_CONTENT),
       valid_fav_icon_(false),
       has_post_data_(false),
       restored_(false) {
@@ -95,22 +93,6 @@ void NavigationEntry::SetSiteInstance(SiteInstance* site_instance) {
 
 void NavigationEntry::SetContentState(const std::string& state) {
   state_ = state;
-}
-
-void NavigationEntry::CopySSLInfoFrom(const NavigationEntry& entry) {
-  security_style_ = entry.security_style_;
-  content_status_ = entry.content_status_;
-  ssl_cert_id_ = entry.ssl_cert_id_;
-  ssl_cert_status_ = entry.ssl_cert_status_;
-  ssl_security_bits_ = entry.ssl_security_bits_;
-}
-
-void NavigationEntry::ResetSSLStates() {
-  ssl_cert_id_ = 0;
-  ssl_cert_status_ = 0;
-  ssl_security_bits_ = -1;
-  security_style_ = SECURITY_STYLE_UNKNOWN;
-  content_status_ = NORMAL_CONTENT;
 }
 
 int NavigationEntry::GetUniqueID() {

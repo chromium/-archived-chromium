@@ -213,7 +213,7 @@ void SSLManager::ShowMessageWithLink(const std::wstring& msg,
     return;
 
   // Don't show the message if the user doesn't expect an authenticated session.
-  if (entry->GetSecurityStyle() <= SECURITY_STYLE_UNAUTHENTICATED)
+  if (entry->ssl().security_style() <= SECURITY_STYLE_UNAUTHENTICATED)
     return;
 
   InfoBarView* info_bar_view =
@@ -247,8 +247,8 @@ void SSLManager::SetMaxSecurityStyle(SecurityStyle style) {
     return;
   }
 
-  if (entry->GetSecurityStyle() > style) {
-    entry->SetSecurityStyle(style);
+  if (entry->ssl().security_style() > style) {
+    entry->ssl().set_security_style(style);
     controller_->EntryUpdated(entry);
   }
 }
@@ -261,7 +261,7 @@ void SSLManager::AddMessageToConsole(const std::wstring& msg,
   if (!web_contents)
     return;
 
-  web_contents->AddMessageToConsole(L"", msg, level);
+  web_contents->AddMessageToConsole(std::wstring(), msg, level);
 }
 
 
@@ -310,7 +310,7 @@ bool SSLManager::ProcessedSSLErrorFromRequest() const {
     return false;
   }
 
-  return net::IsCertStatusError(entry->GetSSLCertStatus());
+  return net::IsCertStatusError(entry->ssl().cert_status());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -603,8 +603,10 @@ void SSLManager::InitializeEntryIfNeeded(NavigationEntry* entry) {
 
   // If the security style of the entry is SECURITY_STYLE_UNKNOWN, then it is a
   // fresh entry and should get the default style.
-  if (entry->GetSecurityStyle() == SECURITY_STYLE_UNKNOWN)
-    entry->SetSecurityStyle(delegate()->GetDefaultStyle(entry->GetURL()));
+  if (entry->ssl().security_style() == SECURITY_STYLE_UNKNOWN) {
+    entry->ssl().set_security_style(
+        delegate()->GetDefaultStyle(entry->GetURL()));
+  }
 }
 
 void SSLManager::NavigationStateChanged() {
@@ -648,11 +650,11 @@ void SSLManager::DidCommitProvisionalLoad(ProvisionalLoadDetails* details) {
     NavigationEntry* entry = controller_->GetActiveEntry();
     if (entry) {
       // We may not have an entry if this is a navigation to an initial blank
-      // page.
-      entry->ResetSSLStates();  // Clears mixed/unsafe content state.
-      entry->SetSSLCertID(details->ssl_cert_id());
-      entry->SetSSLCertStatus(details->ssl_cert_status());
-      entry->SetSSLSecurityBits(details->ssl_security_bits());
+      // page. Reset the SSL information and add the new data we have.
+      entry->ssl() = NavigationEntry::SSLStatus();
+      entry->ssl().set_cert_id(details->ssl_cert_id());
+      entry->ssl().set_cert_status(details->ssl_cert_status());
+      entry->ssl().set_security_bits(details->ssl_security_bits());
       controller_->EntryUpdated(entry);
     }
 

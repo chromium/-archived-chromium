@@ -1317,7 +1317,7 @@ NavigationEntry* WebContents::CreateNavigationEntryForCommit(
       entry->SetFavIconURL(old_entry->GetFavIconURL());
       if (in_page_nav) {
         entry->SetValidFavIcon(old_entry->IsValidFavIcon());
-        entry->CopySSLInfoFrom(*old_entry);
+        entry->ssl() = old_entry->ssl();
       }
     }
   }
@@ -1436,10 +1436,9 @@ void WebContents::DidNavigateSubFramePreCommit(
   // Reset entry state to match that of the pending entry.
   entry->set_unique_id(last_committed->unique_id());
   entry->SetURL(last_committed->GetURL());
-  entry->SetSecurityStyle(last_committed->GetSecurityStyle());
-  entry->SetContentState(last_committed->GetContentState());
   entry->SetTransitionType(last_committed->GetTransitionType());
   entry->SetUserTypedURL(last_committed->GetUserTypedURL());
+  entry->SetContentState(last_committed->GetContentState());
 
   // TODO(jcampan): when navigating to an insecure/unsafe inner frame, the
   // main entry is the one that gets notified of the mixed/unsafe contents
@@ -1447,10 +1446,9 @@ void WebContents::DidNavigateSubFramePreCommit(
   // state.  We should find a better way to do this.
   // Note that it is OK that the mixed/unsafe contents is set on the wrong
   // navigation entry, as that state is reset when navigating back to it.
-  if (last_committed->HasMixedContent())
-    entry->SetHasMixedContent();
-  if (last_committed->HasUnsafeContent())
-    entry->SetHasUnsafeContent();
+  DCHECK(last_committed->ssl().content_status() == 0) << "We should never be "
+      "setting the status bits from 1 to 0 on navigate.";
+  entry->ssl() = last_committed->ssl();
 }
 
 void WebContents::DidNavigateAnyFramePreCommit(

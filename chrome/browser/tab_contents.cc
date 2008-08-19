@@ -152,7 +152,7 @@ SkBitmap TabContents::GetFavIcon() const {
 SecurityStyle TabContents::GetSecurityStyle() const {
   // We may not have a navigation entry yet.
   NavigationEntry* entry = controller_->GetActiveEntry();
-  return entry ? entry->GetSecurityStyle() : SECURITY_STYLE_UNKNOWN;
+  return entry ? entry->ssl().security_style() : SECURITY_STYLE_UNKNOWN;
 }
 
 bool TabContents::GetSSLEVText(std::wstring* ev_text,
@@ -163,12 +163,12 @@ bool TabContents::GetSSLEVText(std::wstring* ev_text,
 
   NavigationEntry* entry = controller_->GetActiveEntry();
   if (!entry ||
-      net::IsCertStatusError(entry->GetSSLCertStatus()) ||
-      ((entry->GetSSLCertStatus() & net::CERT_STATUS_IS_EV) == 0))
+      net::IsCertStatusError(entry->ssl().cert_status()) ||
+      ((entry->ssl().cert_status() & net::CERT_STATUS_IS_EV) == 0))
     return false;
 
   scoped_refptr<net::X509Certificate> cert;
-  CertStore::GetSharedInstance()->RetrieveCert(entry->GetSSLCertID(), &cert);
+  CertStore::GetSharedInstance()->RetrieveCert(entry->ssl().cert_id(), &cert);
   if (!cert.get()) {
     NOTREACHED();
     return false;

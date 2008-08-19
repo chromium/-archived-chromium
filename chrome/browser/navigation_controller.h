@@ -83,8 +83,6 @@ class NavigationController : public NavigationControllerBase {
       HWND parent);
   ~NavigationController();
 
-  virtual void Reset();
-
   // Overriden to prompt the user if reloading a URL with POST data and the
   // active WebContents isn't showing the POST interstitial page.
   virtual void Reload();

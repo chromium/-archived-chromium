@@ -255,8 +255,7 @@ SecurityTabView::SecurityTabView(Profile* profile,
   std::wstring identity_msg;
   std::wstring connection_msg;
   scoped_refptr<net::X509Certificate> cert;
-  int cert_id = navigation_entry->GetSSLCertID();
-  int cert_status = navigation_entry->GetSSLCertStatus();
+  const NavigationEntry::SSLStatus& ssl = navigation_entry->ssl();
 
   // Identity section.
   std::wstring subject_name(UTF8ToWide(navigation_entry->GetURL().host()));
@@ -267,10 +266,11 @@ SecurityTabView::SecurityTabView(Profile* profile,
     empty_subject_name = true;
   }
   if (navigation_entry->GetPageType() == NavigationEntry::NORMAL_PAGE &&
-      cert_id && CertStore::GetSharedInstance()->RetrieveCert(cert_id, &cert) &&
-      !net::IsCertStatusError(cert_status)) {
+      ssl.cert_id() &&
+      CertStore::GetSharedInstance()->RetrieveCert(ssl.cert_id(), &cert) &&
+      !net::IsCertStatusError(ssl.cert_status())) {
     // OK HTTPS page.
-    if ((cert_status & net::CERT_STATUS_IS_EV) != 0) {
+    if ((ssl.cert_status() & net::CERT_STATUS_IS_EV) != 0) {
       DCHECK(!cert->subject().organization_names.empty());
       identity_title =
           l10n_util::GetStringF(IDS_PAGE_INFO_EV_IDENTITY_TITLE,
@@ -326,14 +326,13 @@ SecurityTabView::SecurityTabView(Profile* profile,
   // We consider anything less than 80 bits encryption to be weak encryption.
   // TODO(wtc): Bug 1198735: report mixed/unsafe content for unencrypted and
   // weakly encrypted connections.
-  int security_bits = navigation_entry->GetSSLSecurityBits();
-  if (security_bits <= 0) {
+  if (ssl.security_bits() <= 0) {
     connection_ok = false;
     connection_msg.assign(
         l10n_util::GetStringF(
             IDS_PAGE_INFO_SECURITY_TAB_NOT_ENCRYPTED_CONNECTION_TEXT,
             subject_name));
-  } else if (security_bits < 80) {
+  } else if (ssl.security_bits() < 80) {
     connection_ok = false;
     connection_msg.assign(
         l10n_util::GetStringF(
@@ -344,8 +343,8 @@ SecurityTabView::SecurityTabView(Profile* profile,
         l10n_util::GetStringF(
             IDS_PAGE_INFO_SECURITY_TAB_ENCRYPTED_CONNECTION_TEXT,
             subject_name,
-            IntToWString(security_bits)));
-    if (navigation_entry->HasMixedContent()) {
+            IntToWString(ssl.security_bits())));
+    if (ssl.has_mixed_content()) {
       connection_ok = false;
       connection_msg.assign(
           l10n_util::GetStringF(
@@ -353,7 +352,7 @@ SecurityTabView::SecurityTabView(Profile* profile,
               connection_msg,
               l10n_util::GetString(
                   IDS_PAGE_INFO_SECURITY_TAB_ENCRYPTED_MIXED_CONTENT_WARNING)));
-    } else if (navigation_entry->HasUnsafeContent()) {
+    } else if (ssl.has_unsafe_content()) {
       connection_ok = false;
       connection_msg.assign(
           l10n_util::GetStringF(
@@ -521,7 +520,7 @@ PageInfoWindow::~PageInfoWindow() {
 void PageInfoWindow::Init(Profile* profile,
                           NavigationEntry* navigation_entry,
                           HWND parent) {
-  cert_id_ = navigation_entry->GetSSLCertID();
+  cert_id_ = navigation_entry->ssl().cert_id();
 
   cert_info_button_ = new ChromeViews::NativeButton(
       l10n_util::GetString(IDS_PAGEINFO_CERT_INFO_BUTTON));

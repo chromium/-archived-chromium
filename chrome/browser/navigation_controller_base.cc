@@ -47,14 +47,14 @@ NavigationControllerBase::NavigationControllerBase()
 
 NavigationControllerBase::~NavigationControllerBase() {
   // NOTE: This does NOT invoke Reset as Reset is virtual.
-  ResetInternal();
+  //ResetInternal();
 }
 
-void NavigationControllerBase::Reset() {
+/*void NavigationControllerBase::Reset() {
   ResetInternal();
 
   last_committed_entry_index_ = -1;
-}
+}*/
 
 NavigationEntry* NavigationControllerBase::GetActiveEntry() const {
   NavigationEntry* entry = pending_entry_;
@@ -274,8 +274,10 @@ void NavigationControllerBase::DidNavigateToEntry(NavigationEntry* entry) {
     existing_entry->SetFavIconURL(entry->GetFavIconURL());
     existing_entry->SetFavIcon(entry->GetFavIcon());
     existing_entry->SetValidFavIcon(entry->IsValidFavIcon());
-    existing_entry->SetSecurityStyle(entry->GetSecurityStyle());
     existing_entry->SetContentState(entry->GetContentState());
+
+    // TODO(brettw) why only copy the security style and no other SSL stuff?
+    existing_entry->ssl().set_security_style(entry->ssl().security_style());
 
     const int prev_entry_index = last_committed_entry_index_;
     if (existing_entry == pending_entry_) {

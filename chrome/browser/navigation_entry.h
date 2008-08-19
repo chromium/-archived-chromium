@@ -52,18 +52,89 @@
 ////////////////////////////////////////////////////////////////////////////////
 class NavigationEntry {
  public:
+  // Collects the SSL information for this NavigationEntry.
+  class SSLStatus {
+   public:
+    // Flags used for the page security content status.
+    enum ContentStatusFlags {
+      NORMAL_CONTENT = 0,       // Neither of the 2 cases below.
+      MIXED_CONTENT  = 1 << 0,  // https page containing http resources.
+      UNSAFE_CONTENT = 1 << 1   // https page containing broken https resources.
+    };
+
+    SSLStatus();
+
+    void set_security_style(SecurityStyle security_style) {
+      security_style_ = security_style;
+    }
+    SecurityStyle security_style() const {
+      return security_style_;
+    }
+
+    void set_cert_id(int ssl_cert_id) {
+      cert_id_ = ssl_cert_id;
+    }
+    int cert_id() const {
+      return cert_id_;
+    }
+
+    void set_cert_status(int ssl_cert_status) {
+      cert_status_ = ssl_cert_status;
+    }
+    int cert_status() const {
+      return cert_status_;
+    }
+
+    void set_security_bits(int security_bits) {
+      security_bits_ = security_bits;
+    }
+    int security_bits() const {
+      return security_bits_;
+    }
+
+    // Mixed content means that this page which is served over https contains
+    // http sub-resources.
+    void set_has_mixed_content() {
+      content_status_ |= MIXED_CONTENT;
+    }
+    bool has_mixed_content() const {
+      return (content_status_ & MIXED_CONTENT) != 0;
+    }
+
+    // Unsafe content means that this page is served over https but contains
+    // https sub-resources with cert errors.
+    void set_has_unsafe_content() {
+      content_status_ |= UNSAFE_CONTENT;
+    }
+    bool has_unsafe_content() const {
+      return (content_status_ & UNSAFE_CONTENT) != 0;
+    }
+
+    // Raw accessors for all the content status flags. This is used by the UI
+    // tests for checking and for certain copying. Use the per-status functions
+    // for normal usage.
+    void set_content_status(int content_status) {
+      content_status_ = content_status;
+    }
+    int content_status() const {
+      return content_status_;
+    }
+
+   private:
+    SecurityStyle security_style_;
+    int cert_id_;
+    int cert_status_;
+    int security_bits_;
+    int content_status_;  // A combination of any of the ContentStatusFlags.
+
+    // Copy and assignment is explicitly allowed for this class.
+  };
+
   // The type of the page an entry corresponds to.  Used by ui tests.
   enum PageType {
     NORMAL_PAGE = 0,
     ERROR_PAGE,
     INTERSTITIAL_PAGE
-  };
-
-  // Flags used for the page security content status.
-  enum {
-    NORMAL_CONTENT = 0,       // neither of the 2 cases below.
-    MIXED_CONTENT  = 1 << 0,  // https page containing http resources.
-    UNSAFE_CONTENT = 1 << 1   // https page containing broken https resources.
   };
 
   // Use this to get a new unique ID during construction.
@@ -99,11 +170,13 @@ class NavigationEntry {
   void SetURL(const GURL& url) { url_ = url; }
   const GURL& GetURL() const { return url_; }
 
-  // Set / Get the security style.
-  void SetSecurityStyle(SecurityStyle security_style) {
-    security_style_ = security_style;
+  // All the SSL flags.
+  const SSLStatus& ssl() const {
+    return ssl_;
   }
-  SecurityStyle GetSecurityStyle() const { return security_style_; }
+  SSLStatus& ssl() {
+    return ssl_;
+  }
 
   // Set / Get the page type.
   void  SetPageType(PageType page_type) { page_type_ = page_type; }
@@ -169,46 +242,6 @@ class NavigationEntry {
     return user_typed_url_.is_valid() ? user_typed_url_ : url_;
   }
 
-  void SetSSLCertID(int ssl_cert_id) { ssl_cert_id_ = ssl_cert_id; }
-  int GetSSLCertID() const { return ssl_cert_id_; }
-
-  void SetSSLCertStatus(int ssl_cert_status) {
-    ssl_cert_status_ = ssl_cert_status;
-  }
-  int GetSSLCertStatus() const { return ssl_cert_status_; }
-
-  void SetSSLSecurityBits(int security_bits) {
-    ssl_security_bits_ = security_bits;
-  }
-  int GetSSLSecurityBits() const { return ssl_security_bits_; }
-
-  // Whether this page which is served over https contains http sub-resources.
-  void SetHasMixedContent() {
-    content_status_ |= MIXED_CONTENT;
-  }
-  bool HasMixedContent() const {
-    return (content_status_ & MIXED_CONTENT) == MIXED_CONTENT;
-  }
-
-  // Whether this page which is served over https contains https sub-resources
-  // with cert errors.
-  void SetHasUnsafeContent() {
-    content_status_ |= UNSAFE_CONTENT;
-  }
-  bool HasUnsafeContent() const {
-    return (content_status_ & UNSAFE_CONTENT) == UNSAFE_CONTENT;
-  }
-
-  // Copies all the security states (security style, SSL info -cert id, status
-  // and bits-, mixed/unsafe content status) in this entry from the specified
-  // |entry|.
-  void CopySSLInfoFrom(const NavigationEntry& entry);
-
-  // Used by UI tests.
-  int GetContentStatus() const { return content_status_; }
-
-  void ResetSSLStates();
-
   bool HasPostData() const { return has_post_data_; }
 
   void SetHasPostData(bool has_post_data) { has_post_data_ = has_post_data; }
@@ -247,17 +280,9 @@ class NavigationEntry {
   GURL url_;
   // The URL the user typed in.  May be invalid.
   GURL user_typed_url_;
-  SecurityStyle security_style_;
   std::wstring title_;
   GURL favicon_url_;
   GURL display_url_;
-
-  // SSL related info.
-  int ssl_cert_id_;
-  int ssl_cert_status_;
-  int ssl_security_bits_;
-
-  int content_status_;
 
   std::string state_;
 
@@ -265,6 +290,8 @@ class NavigationEntry {
   SkBitmap favicon_;
 
   PageType page_type_;
+
+  SSLStatus ssl_;
 
   bool valid_fav_icon_;
 

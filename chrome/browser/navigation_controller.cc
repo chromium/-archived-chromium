@@ -190,11 +190,11 @@ TabContents* NavigationController::GetTabContents(TabContentsType t) {
   return tab_contents_map_[t];
 }
 
-void NavigationController::Reset() {
+/*void NavigationController::Reset() {
   NavigationControllerBase::Reset();
 
   NotifyPrunedEntries();
-}
+}*/
 
 void NavigationController::Reload() {
   // TODO(pkasting): http://b/1113085 Should this use DiscardPendingEntry()?
@@ -455,7 +455,7 @@ void NavigationController::NavigateToPendingEntry(bool reload) {
 
   // Reset the security states as any SSL error may have been resolved since we
   // last visited that page.
-  pending_entry_->ResetSSLStates();
+  pending_entry_->ssl() = NavigationEntry::SSLStatus();
 
   if (from_contents && from_contents->type() != pending_entry_->GetType())
     from_contents->SetActive(false);

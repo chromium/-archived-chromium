@@ -51,9 +51,6 @@ class NavigationControllerBase {
   NavigationControllerBase();
   virtual ~NavigationControllerBase();
 
-  // Empties the history list.
-  virtual void Reset();
-
   // Returns the active entry, which is the pending entry if a navigation is in
   // progress or the last committed entry otherwise.  NOTE: This can be NULL!!
   //

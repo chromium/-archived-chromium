@@ -142,7 +142,7 @@ TEST_F(SSLUITest, TestHTTP) {
                                     &mixed_content_state));
   EXPECT_EQ(SECURITY_STYLE_UNAUTHENTICATED, security_style);
   EXPECT_EQ(0, cert_status);
-  EXPECT_EQ(NavigationEntry::NORMAL_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
 }
 
 // Visits a page over http which includes broken https resources (status should
@@ -163,7 +163,7 @@ TEST_F(SSLUITest, TestHTTPWithBrokenHTTPSResource) {
     &mixed_content_state));
   EXPECT_EQ(SECURITY_STYLE_UNAUTHENTICATED, security_style);
   EXPECT_EQ(0, cert_status);
-  EXPECT_EQ(NavigationEntry::NORMAL_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
 }
 
 // Visits a page over OK https:
@@ -185,7 +185,7 @@ TEST_F(SSLUITest, TestOKHTTPS) {
                                     &mixed_content_state));
   EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
   EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
-  EXPECT_EQ(NavigationEntry::NORMAL_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
 }
 
 // Visits a page with https error:
@@ -208,7 +208,7 @@ TEST_F(SSLUITest, TestHTTPSExpiredCert) {
   EXPECT_EQ(SECURITY_STYLE_AUTHENTICATION_BROKEN, security_style);
   EXPECT_EQ(net::CERT_STATUS_DATE_INVALID,
             cert_status & net::CERT_STATUS_ALL_ERRORS);
-  EXPECT_EQ(NavigationEntry::NORMAL_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
 
   EXPECT_TRUE(tab->TakeActionOnSSLBlockingPage(true));
   EXPECT_TRUE(tab->GetPageType(&page_type));
@@ -218,7 +218,7 @@ TEST_F(SSLUITest, TestHTTPSExpiredCert) {
   EXPECT_EQ(SECURITY_STYLE_AUTHENTICATION_BROKEN, security_style);
   EXPECT_EQ(net::CERT_STATUS_DATE_INVALID,
             cert_status & net::CERT_STATUS_ALL_ERRORS);
-  EXPECT_EQ(NavigationEntry::NORMAL_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
 }
 
 //
@@ -246,7 +246,7 @@ TEST_F(SSLUITest, TestMixedContents) {
   EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
   EXPECT_EQ(0,
             cert_status & net::CERT_STATUS_ALL_ERRORS);  // No errors expected.
-  EXPECT_EQ(NavigationEntry::MIXED_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::MIXED_CONTENT, mixed_content_state);
 }
 
 // Visits a page with unsafe content and make sure that:
@@ -276,7 +276,7 @@ TEST_F(SSLUITest, TestUnsafeContents) {
   EXPECT_EQ(SECURITY_STYLE_UNAUTHENTICATED, security_style);
   EXPECT_EQ(0,
             cert_status & net::CERT_STATUS_ALL_ERRORS);  // No errors expected.
-  EXPECT_EQ(NavigationEntry::NORMAL_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
 
   // Because of cross-frame scripting restrictions, we cannot access the iframe
   // content.  So to know if the frame was loaded, we just check if a popup was
@@ -325,7 +325,7 @@ TEST_F(SSLUITest, TestMixedContentsLoadedFromJS) {
   EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
   EXPECT_EQ(0,
             cert_status & net::CERT_STATUS_ALL_ERRORS);  // No errors expected.
-  EXPECT_EQ(NavigationEntry::NORMAL_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
 
   // Load the insecure image.
   bool js_result = false;
@@ -340,7 +340,7 @@ TEST_F(SSLUITest, TestMixedContentsLoadedFromJS) {
   EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
   EXPECT_EQ(0,
             cert_status & net::CERT_STATUS_ALL_ERRORS);  // No errors expected.
-  EXPECT_EQ(NavigationEntry::MIXED_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::MIXED_CONTENT, mixed_content_state);
 }
 
 // Visits a page with an image over http.  Visits another page over https
@@ -366,7 +366,7 @@ TEST_F(SSLUITest, TestCachedMixedContents) {
   EXPECT_EQ(SECURITY_STYLE_UNAUTHENTICATED, security_style);
   EXPECT_EQ(0,
             cert_status & net::CERT_STATUS_ALL_ERRORS);  // No errors expected.
-  EXPECT_EQ(NavigationEntry::NORMAL_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
 
   // Load again but over SSL.  It should have mixed-contents (even though the
   // image comes from the WebCore memory cache).
@@ -380,7 +380,7 @@ TEST_F(SSLUITest, TestCachedMixedContents) {
   EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
   EXPECT_EQ(0,
             cert_status & net::CERT_STATUS_ALL_ERRORS);  // No errors expected.
-  EXPECT_EQ(NavigationEntry::MIXED_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::MIXED_CONTENT, mixed_content_state);
 }
 
 // This test ensures the CN invalid status does not 'stick' to a certificate
@@ -410,7 +410,7 @@ TEST_F(SSLUITest, DISABLED_TestCNInvalidStickiness) {
   EXPECT_EQ(SECURITY_STYLE_AUTHENTICATION_BROKEN, security_style);
   EXPECT_EQ(net::CERT_STATUS_COMMON_NAME_INVALID,
             cert_status & net::CERT_STATUS_ALL_ERRORS);
-  EXPECT_EQ(NavigationEntry::NORMAL_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
 
   // We proceed through the interstitial page.
   EXPECT_TRUE(tab->TakeActionOnSSLBlockingPage(true));
@@ -436,7 +436,7 @@ TEST_F(SSLUITest, DISABLED_TestCNInvalidStickiness) {
   EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
   EXPECT_EQ(0,
             cert_status & net::CERT_STATUS_ALL_ERRORS);  // No errors expected.
-  EXPECT_EQ(NavigationEntry::NORMAL_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
 
   // Now try again the broken one to make sure it is still broken.
   NavigateTab(tab.get(), https_server.TestServerPageW(
@@ -450,7 +450,7 @@ TEST_F(SSLUITest, DISABLED_TestCNInvalidStickiness) {
   EXPECT_EQ(SECURITY_STYLE_AUTHENTICATION_BROKEN, security_style);
   EXPECT_EQ(net::CERT_STATUS_COMMON_NAME_INVALID,
             cert_status & net::CERT_STATUS_ALL_ERRORS);
-  EXPECT_EQ(NavigationEntry::NORMAL_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
 }
 
 // Test that navigating to a #ref does not change a bad security state.
@@ -472,7 +472,7 @@ TEST_F(SSLUITest, TestRefNavigation) {
                                     &mixed_content_state));
   EXPECT_EQ(SECURITY_STYLE_AUTHENTICATION_BROKEN, security_style);
   EXPECT_EQ(net::CERT_STATUS_DATE_INVALID, cert_status);
-  EXPECT_EQ(NavigationEntry::NORMAL_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
 
   EXPECT_TRUE(tab->TakeActionOnSSLBlockingPage(true));
   EXPECT_TRUE(tab->GetPageType(&page_type));
@@ -482,7 +482,7 @@ TEST_F(SSLUITest, TestRefNavigation) {
   EXPECT_EQ(SECURITY_STYLE_AUTHENTICATION_BROKEN, security_style);
   EXPECT_EQ(net::CERT_STATUS_DATE_INVALID,
             cert_status & net::CERT_STATUS_ALL_ERRORS);
-  EXPECT_EQ(NavigationEntry::NORMAL_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
 
   // Now navigate to a ref in the page.
   NavigateTab(tab.get(),
@@ -492,7 +492,7 @@ TEST_F(SSLUITest, TestRefNavigation) {
   EXPECT_EQ(SECURITY_STYLE_AUTHENTICATION_BROKEN, security_style);
   EXPECT_EQ(net::CERT_STATUS_DATE_INVALID,
             cert_status & net::CERT_STATUS_ALL_ERRORS);
-  EXPECT_EQ(NavigationEntry::NORMAL_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
 }
 
 // TODO (jcampan): more tests to do below.

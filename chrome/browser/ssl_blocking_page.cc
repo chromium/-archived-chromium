@@ -172,10 +172,11 @@ void SSLBlockingPage::Show() {
     *nav_entry = *(tab_->controller()->GetPendingEntry());
   }
   nav_entry->SetPageType(NavigationEntry::INTERSTITIAL_PAGE);
-  nav_entry->SetSecurityStyle(SECURITY_STYLE_AUTHENTICATION_BROKEN);
-  nav_entry->SetSSLCertID(cert_id);
-  nav_entry->SetSSLCertStatus(ssl_info.cert_status);
-  nav_entry->SetSSLSecurityBits(ssl_info.security_bits);
+
+  nav_entry->ssl().set_security_style(SECURITY_STYLE_AUTHENTICATION_BROKEN);
+  nav_entry->ssl().set_cert_id(cert_id);
+  nav_entry->ssl().set_cert_status(ssl_info.cert_status);
+  nav_entry->ssl().set_security_bits(ssl_info.security_bits);
   // The controller will own the entry.
   int page_id = nav_entry->GetPageID();
   tab_->controller()->DidNavigateToEntry(nav_entry);

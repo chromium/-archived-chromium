@@ -345,7 +345,7 @@ class DefaultPolicy : public SSLPolicy {
     mixed_content_handler->StartRequest(filter_policy);
 
     NavigationEntry* entry = navigation_controller->GetActiveEntry();
-    entry->SetHasMixedContent();
+    entry->ssl().set_has_mixed_content();
     navigation_controller->EntryUpdated(entry);
   }
 
@@ -409,9 +409,10 @@ void SSLPolicy::OnRequestStarted(SSLManager* manager, const GURL& url,
     return;
   }
 
+  NavigationEntry::SSLStatus& ssl = entry->ssl();
   if (!entry->GetURL().SchemeIsSecure() ||  // Current page is not secure.
       resource_type == ResourceType::MAIN_FRAME ||  // Main frame load.
-      net::IsCertStatusError(entry->GetSSLCertStatus())) {  // There is already
+      net::IsCertStatusError(ssl.cert_status())) {  // There is already
           // an error for the main page, don't report sub-resources as unsafe
           // content.
     // No mixed/unsafe content check necessary.
@@ -428,8 +429,8 @@ void SSLPolicy::OnRequestStarted(SSLManager* manager, const GURL& url,
     //    net::IsCertStatusError(ssl_cert_status)) {
     if (net::IsCertStatusError(ssl_cert_status)) {
       // The resource is unsafe.
-      if (!entry->HasUnsafeContent()) {
-        entry->SetHasUnsafeContent();
+      if (!ssl.has_unsafe_content()) {
+        ssl.set_has_unsafe_content();
         manager->SetMaxSecurityStyle(SECURITY_STYLE_AUTHENTICATION_BROKEN);
       }
     }
@@ -443,7 +444,7 @@ void SSLPolicy::OnRequestStarted(SSLManager* manager, const GURL& url,
 
   // Now check for mixed content.
   if (entry->GetURL().SchemeIsSecure() && !url.SchemeIsSecure()) {
-    entry->SetHasMixedContent();
+    ssl.set_has_mixed_content();
     const std::wstring& msg = l10n_util::GetStringF(
         IDS_MIXED_CONTENT_LOG_MESSAGE,
         UTF8ToWide(entry->GetURL().spec()),

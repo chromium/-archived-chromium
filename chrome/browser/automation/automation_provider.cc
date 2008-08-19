@@ -2002,8 +2002,8 @@ void AutomationProvider::GetSecurityState(const IPC::Message& message,
     NavigationController* tab = tab_tracker_->GetResource(handle);
     NavigationEntry* entry = tab->GetActiveEntry();
     Send(new AutomationMsg_GetSecurityStateResponse(message.routing_id(), true,
-        entry->GetSecurityStyle(), entry->GetSSLCertStatus(),
-        entry->GetContentStatus()));
+        entry->ssl().security_style(), entry->ssl().cert_status(),
+        entry->ssl().content_status()));
   } else {
     Send(new AutomationMsg_GetSecurityStateResponse(message.routing_id(), false,
                                                     SECURITY_STYLE_UNKNOWN,
