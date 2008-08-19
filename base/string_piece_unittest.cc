@@ -146,12 +146,12 @@ TEST(StringPieceTest, CheckSTL) {
   ASSERT_EQ(*(c.rend() - 1), 'x');
   ASSERT_TRUE(a.rbegin() + 26 == a.rend());
 
-  ASSERT_EQ(a.size(), 26);
-  ASSERT_EQ(b.size(), 3);
-  ASSERT_EQ(c.size(), 3);
-  ASSERT_EQ(d.size(), 6);
-  ASSERT_EQ(e.size(), 0);
-  ASSERT_EQ(f.size(), 7);
+  ASSERT_EQ(a.size(), 26U);
+  ASSERT_EQ(b.size(), 3U);
+  ASSERT_EQ(c.size(), 3U);
+  ASSERT_EQ(d.size(), 6U);
+  ASSERT_EQ(e.size(), 0U);
+  ASSERT_EQ(f.size(), 7U);
 
   ASSERT_TRUE(!d.empty());
   ASSERT_TRUE(d.begin() != d.end());
@@ -161,7 +161,7 @@ TEST(StringPieceTest, CheckSTL) {
   ASSERT_TRUE(e.begin() == e.end());
 
   d.clear();
-  ASSERT_EQ(d.size(), 0);
+  ASSERT_EQ(d.size(), 0U);
   ASSERT_TRUE(d.empty());
   ASSERT_TRUE(d.data() == NULL);
   ASSERT_TRUE(d.begin() == d.end());
@@ -170,17 +170,17 @@ TEST(StringPieceTest, CheckSTL) {
   ASSERT_GE(a.capacity(), a.size());
 
   char buf[4] = { '%', '%', '%', '%' };
-  ASSERT_EQ(a.copy(buf, 4), 4);
+  ASSERT_EQ(a.copy(buf, 4), 4U);
   ASSERT_EQ(buf[0], a[0]);
   ASSERT_EQ(buf[1], a[1]);
   ASSERT_EQ(buf[2], a[2]);
   ASSERT_EQ(buf[3], a[3]);
-  ASSERT_EQ(a.copy(buf, 3, 7), 3);
+  ASSERT_EQ(a.copy(buf, 3, 7), 3U);
   ASSERT_EQ(buf[0], a[7]);
   ASSERT_EQ(buf[1], a[8]);
   ASSERT_EQ(buf[2], a[9]);
   ASSERT_EQ(buf[3], a[3]);
-  ASSERT_EQ(c.copy(buf, 99), 3);
+  ASSERT_EQ(c.copy(buf, 99), 3U);
   ASSERT_EQ(buf[0], c[0]);
   ASSERT_EQ(buf[1], c[1]);
   ASSERT_EQ(buf[2], c[2]);
@@ -188,17 +188,17 @@ TEST(StringPieceTest, CheckSTL) {
 
   ASSERT_EQ(StringPiece::npos, std::string::npos);
 
-  ASSERT_EQ(a.find(b), 0);
+  ASSERT_EQ(a.find(b), 0U);
   ASSERT_EQ(a.find(b, 1), StringPiece::npos);
-  ASSERT_EQ(a.find(c), 23);
-  ASSERT_EQ(a.find(c, 9), 23);
+  ASSERT_EQ(a.find(c), 23U);
+  ASSERT_EQ(a.find(c, 9), 23U);
   ASSERT_EQ(a.find(c, StringPiece::npos), StringPiece::npos);
   ASSERT_EQ(b.find(c), StringPiece::npos);
   ASSERT_EQ(b.find(c, StringPiece::npos), StringPiece::npos);
-  ASSERT_EQ(a.find(d), 0);
-  ASSERT_EQ(a.find(e), 0);
-  ASSERT_EQ(a.find(d, 12), 12);
-  ASSERT_EQ(a.find(e, 17), 17);
+  ASSERT_EQ(a.find(d), 0U);
+  ASSERT_EQ(a.find(e), 0U);
+  ASSERT_EQ(a.find(d, 12), 12U);
+  ASSERT_EQ(a.find(e, 17), 17U);
   StringPiece g("xx not found bb");
   ASSERT_EQ(a.find(g), StringPiece::npos);
   // empty string nonsense
@@ -217,17 +217,17 @@ TEST(StringPieceTest, CheckSTL) {
   ASSERT_EQ(e.find(d, 4), std::string().find(std::string(), 4));
   ASSERT_EQ(e.find(e, 4), std::string().find(std::string(), 4));
 
-  ASSERT_EQ(a.find('a'), 0);
-  ASSERT_EQ(a.find('c'), 2);
-  ASSERT_EQ(a.find('z'), 25);
+  ASSERT_EQ(a.find('a'), 0U);
+  ASSERT_EQ(a.find('c'), 2U);
+  ASSERT_EQ(a.find('z'), 25U);
   ASSERT_EQ(a.find('$'), StringPiece::npos);
   ASSERT_EQ(a.find('\0'), StringPiece::npos);
-  ASSERT_EQ(f.find('\0'), 3);
-  ASSERT_EQ(f.find('3'), 2);
-  ASSERT_EQ(f.find('5'), 5);
-  ASSERT_EQ(g.find('o'), 4);
-  ASSERT_EQ(g.find('o', 4), 4);
-  ASSERT_EQ(g.find('o', 5), 8);
+  ASSERT_EQ(f.find('\0'), 3U);
+  ASSERT_EQ(f.find('3'), 2U);
+  ASSERT_EQ(f.find('5'), 5U);
+  ASSERT_EQ(g.find('o'), 4U);
+  ASSERT_EQ(g.find('o', 4), 4U);
+  ASSERT_EQ(g.find('o', 5), 8U);
   ASSERT_EQ(a.find('b', 5), StringPiece::npos);
   // empty string nonsense
   ASSERT_EQ(d.find('\0'), StringPiece::npos);
@@ -239,18 +239,18 @@ TEST(StringPieceTest, CheckSTL) {
   ASSERT_EQ(d.find('x', 4), StringPiece::npos);
   ASSERT_EQ(e.find('x', 7), StringPiece::npos);
 
-  ASSERT_EQ(a.rfind(b), 0);
-  ASSERT_EQ(a.rfind(b, 1), 0);
-  ASSERT_EQ(a.rfind(c), 23);
-  ASSERT_EQ(a.rfind(c, 22), StringPiece::npos);
-  ASSERT_EQ(a.rfind(c, 1), StringPiece::npos);
-  ASSERT_EQ(a.rfind(c, 0), StringPiece::npos);
+  ASSERT_EQ(a.rfind(b), 0U);
+  ASSERT_EQ(a.rfind(b, 1), 0U);
+  ASSERT_EQ(a.rfind(c), 23U);
+  ASSERT_EQ(a.rfind(c, 22U), StringPiece::npos);
+  ASSERT_EQ(a.rfind(c, 1U), StringPiece::npos);
+  ASSERT_EQ(a.rfind(c, 0U), StringPiece::npos);
   ASSERT_EQ(b.rfind(c), StringPiece::npos);
-  ASSERT_EQ(b.rfind(c, 0), StringPiece::npos);
+  ASSERT_EQ(b.rfind(c, 0U), StringPiece::npos);
   ASSERT_EQ(a.rfind(d), (size_t) a.as_string().rfind(std::string()));
   ASSERT_EQ(a.rfind(e), a.as_string().rfind(std::string()));
-  ASSERT_EQ(a.rfind(d, 12), 12);
-  ASSERT_EQ(a.rfind(e, 17), 17);
+  ASSERT_EQ(a.rfind(d, 12), 12U);
+  ASSERT_EQ(a.rfind(e, 17), 17U);
   ASSERT_EQ(a.rfind(g), StringPiece::npos);
   ASSERT_EQ(d.rfind(b), StringPiece::npos);
   ASSERT_EQ(e.rfind(b), StringPiece::npos);
@@ -266,33 +266,33 @@ TEST(StringPieceTest, CheckSTL) {
   ASSERT_EQ(d.rfind(e), std::string().rfind(std::string()));
   ASSERT_EQ(e.rfind(e), std::string().rfind(std::string()));
 
-  ASSERT_EQ(g.rfind('o'), 8);
+  ASSERT_EQ(g.rfind('o'), 8U);
   ASSERT_EQ(g.rfind('q'), StringPiece::npos);
-  ASSERT_EQ(g.rfind('o', 8), 8);
-  ASSERT_EQ(g.rfind('o', 7), 4);
+  ASSERT_EQ(g.rfind('o', 8), 8U);
+  ASSERT_EQ(g.rfind('o', 7), 4U);
   ASSERT_EQ(g.rfind('o', 3), StringPiece::npos);
-  ASSERT_EQ(f.rfind('\0'), 3);
-  ASSERT_EQ(f.rfind('\0', 12), 3);
-  ASSERT_EQ(f.rfind('3'), 2);
-  ASSERT_EQ(f.rfind('5'), 5);
+  ASSERT_EQ(f.rfind('\0'), 3U);
+  ASSERT_EQ(f.rfind('\0', 12), 3U);
+  ASSERT_EQ(f.rfind('3'), 2U);
+  ASSERT_EQ(f.rfind('5'), 5U);
   // empty string nonsense
   ASSERT_EQ(d.rfind('o'), StringPiece::npos);
   ASSERT_EQ(e.rfind('o'), StringPiece::npos);
   ASSERT_EQ(d.rfind('o', 4), StringPiece::npos);
   ASSERT_EQ(e.rfind('o', 7), StringPiece::npos);
 
-  ASSERT_EQ(a.find_first_of(b), 0);
-  ASSERT_EQ(a.find_first_of(b, 0), 0);
-  ASSERT_EQ(a.find_first_of(b, 1), 1);
-  ASSERT_EQ(a.find_first_of(b, 2), 2);
+  ASSERT_EQ(a.find_first_of(b), 0U);
+  ASSERT_EQ(a.find_first_of(b, 0), 0U);
+  ASSERT_EQ(a.find_first_of(b, 1), 1U);
+  ASSERT_EQ(a.find_first_of(b, 2), 2U);
   ASSERT_EQ(a.find_first_of(b, 3), StringPiece::npos);
-  ASSERT_EQ(a.find_first_of(c), 23);
-  ASSERT_EQ(a.find_first_of(c, 23), 23);
-  ASSERT_EQ(a.find_first_of(c, 24), 24);
-  ASSERT_EQ(a.find_first_of(c, 25), 25);
+  ASSERT_EQ(a.find_first_of(c), 23U);
+  ASSERT_EQ(a.find_first_of(c, 23), 23U);
+  ASSERT_EQ(a.find_first_of(c, 24), 24U);
+  ASSERT_EQ(a.find_first_of(c, 25), 25U);
   ASSERT_EQ(a.find_first_of(c, 26), StringPiece::npos);
-  ASSERT_EQ(g.find_first_of(b), 13);
-  ASSERT_EQ(g.find_first_of(c), 0);
+  ASSERT_EQ(g.find_first_of(b), 13U);
+  ASSERT_EQ(g.find_first_of(c), 0U);
   ASSERT_EQ(a.find_first_of(f), StringPiece::npos);
   ASSERT_EQ(f.find_first_of(a), StringPiece::npos);
   // empty string nonsense
@@ -305,14 +305,14 @@ TEST(StringPieceTest, CheckSTL) {
   ASSERT_EQ(d.find_first_of(e), StringPiece::npos);
   ASSERT_EQ(e.find_first_of(e), StringPiece::npos);
 
-  ASSERT_EQ(a.find_first_not_of(b), 3);
-  ASSERT_EQ(a.find_first_not_of(c), 0);
+  ASSERT_EQ(a.find_first_not_of(b), 3U);
+  ASSERT_EQ(a.find_first_not_of(c), 0U);
   ASSERT_EQ(b.find_first_not_of(a), StringPiece::npos);
   ASSERT_EQ(c.find_first_not_of(a), StringPiece::npos);
-  ASSERT_EQ(f.find_first_not_of(a), 0);
-  ASSERT_EQ(a.find_first_not_of(f), 0);
-  ASSERT_EQ(a.find_first_not_of(d), 0);
-  ASSERT_EQ(a.find_first_not_of(e), 0);
+  ASSERT_EQ(f.find_first_not_of(a), 0U);
+  ASSERT_EQ(a.find_first_not_of(f), 0U);
+  ASSERT_EQ(a.find_first_not_of(d), 0U);
+  ASSERT_EQ(a.find_first_not_of(e), 0U);
   // empty string nonsense
   ASSERT_EQ(d.find_first_not_of(a), StringPiece::npos);
   ASSERT_EQ(e.find_first_not_of(a), StringPiece::npos);
@@ -324,11 +324,11 @@ TEST(StringPieceTest, CheckSTL) {
   StringPiece h("====");
   ASSERT_EQ(h.find_first_not_of('='), StringPiece::npos);
   ASSERT_EQ(h.find_first_not_of('=', 3), StringPiece::npos);
-  ASSERT_EQ(h.find_first_not_of('\0'), 0);
-  ASSERT_EQ(g.find_first_not_of('x'), 2);
-  ASSERT_EQ(f.find_first_not_of('\0'), 0);
-  ASSERT_EQ(f.find_first_not_of('\0', 3), 4);
-  ASSERT_EQ(f.find_first_not_of('\0', 2), 2);
+  ASSERT_EQ(h.find_first_not_of('\0'), 0U);
+  ASSERT_EQ(g.find_first_not_of('x'), 2U);
+  ASSERT_EQ(f.find_first_not_of('\0'), 0U);
+  ASSERT_EQ(f.find_first_not_of('\0', 3), 4U);
+  ASSERT_EQ(f.find_first_not_of('\0', 2), 2U);
   // empty string nonsense
   ASSERT_EQ(d.find_first_not_of('x'), StringPiece::npos);
   ASSERT_EQ(e.find_first_not_of('x'), StringPiece::npos);
@@ -339,19 +339,19 @@ TEST(StringPieceTest, CheckSTL) {
   StringPiece i("56");
   ASSERT_EQ(h.find_last_of(a), StringPiece::npos);
   ASSERT_EQ(g.find_last_of(a), g.size()-1);
-  ASSERT_EQ(a.find_last_of(b), 2);
+  ASSERT_EQ(a.find_last_of(b), 2U);
   ASSERT_EQ(a.find_last_of(c), a.size()-1);
-  ASSERT_EQ(f.find_last_of(i), 6);
-  ASSERT_EQ(a.find_last_of('a'), 0);
-  ASSERT_EQ(a.find_last_of('b'), 1);
-  ASSERT_EQ(a.find_last_of('z'), 25);
-  ASSERT_EQ(a.find_last_of('a', 5), 0);
-  ASSERT_EQ(a.find_last_of('b', 5), 1);
+  ASSERT_EQ(f.find_last_of(i), 6U);
+  ASSERT_EQ(a.find_last_of('a'), 0U);
+  ASSERT_EQ(a.find_last_of('b'), 1U);
+  ASSERT_EQ(a.find_last_of('z'), 25U);
+  ASSERT_EQ(a.find_last_of('a', 5), 0U);
+  ASSERT_EQ(a.find_last_of('b', 5), 1U);
   ASSERT_EQ(a.find_last_of('b', 0), StringPiece::npos);
-  ASSERT_EQ(a.find_last_of('z', 25), 25);
+  ASSERT_EQ(a.find_last_of('z', 25), 25U);
   ASSERT_EQ(a.find_last_of('z', 24), StringPiece::npos);
-  ASSERT_EQ(f.find_last_of(i, 5), 5);
-  ASSERT_EQ(f.find_last_of(i, 6), 6);
+  ASSERT_EQ(f.find_last_of(i, 5), 5U);
+  ASSERT_EQ(f.find_last_of(i, 6), 6U);
   ASSERT_EQ(f.find_last_of(a, 4), StringPiece::npos);
   // empty string nonsense
   ASSERT_EQ(f.find_last_of(d), StringPiece::npos);
@@ -372,18 +372,18 @@ TEST(StringPieceTest, CheckSTL) {
   ASSERT_EQ(e.find_last_of(f, 4), StringPiece::npos);
 
   ASSERT_EQ(a.find_last_not_of(b), a.size()-1);
-  ASSERT_EQ(a.find_last_not_of(c), 22);
+  ASSERT_EQ(a.find_last_not_of(c), 22U);
   ASSERT_EQ(b.find_last_not_of(a), StringPiece::npos);
   ASSERT_EQ(b.find_last_not_of(b), StringPiece::npos);
-  ASSERT_EQ(f.find_last_not_of(i), 4);
-  ASSERT_EQ(a.find_last_not_of(c, 24), 22);
-  ASSERT_EQ(a.find_last_not_of(b, 3), 3);
+  ASSERT_EQ(f.find_last_not_of(i), 4U);
+  ASSERT_EQ(a.find_last_not_of(c, 24), 22U);
+  ASSERT_EQ(a.find_last_not_of(b, 3), 3U);
   ASSERT_EQ(a.find_last_not_of(b, 2), StringPiece::npos);
   // empty string nonsense
   ASSERT_EQ(f.find_last_not_of(d), f.size()-1);
   ASSERT_EQ(f.find_last_not_of(e), f.size()-1);
-  ASSERT_EQ(f.find_last_not_of(d, 4), 4);
-  ASSERT_EQ(f.find_last_not_of(e, 4), 4);
+  ASSERT_EQ(f.find_last_not_of(d, 4), 4U);
+  ASSERT_EQ(f.find_last_not_of(e, 4), 4U);
   ASSERT_EQ(d.find_last_not_of(d), StringPiece::npos);
   ASSERT_EQ(d.find_last_not_of(e), StringPiece::npos);
   ASSERT_EQ(e.find_last_not_of(d), StringPiece::npos);
@@ -399,10 +399,10 @@ TEST(StringPieceTest, CheckSTL) {
 
   ASSERT_EQ(h.find_last_not_of('x'), h.size() - 1);
   ASSERT_EQ(h.find_last_not_of('='), StringPiece::npos);
-  ASSERT_EQ(b.find_last_not_of('c'), 1);
-  ASSERT_EQ(h.find_last_not_of('x', 2), 2);
+  ASSERT_EQ(b.find_last_not_of('c'), 1U);
+  ASSERT_EQ(h.find_last_not_of('x', 2), 2U);
   ASSERT_EQ(h.find_last_not_of('=', 2), StringPiece::npos);
-  ASSERT_EQ(b.find_last_not_of('b', 1), 0);
+  ASSERT_EQ(b.find_last_not_of('b', 1), 0U);
   // empty string nonsense
   ASSERT_EQ(d.find_last_not_of('x'), StringPiece::npos);
   ASSERT_EQ(e.find_last_not_of('x'), StringPiece::npos);
@@ -433,10 +433,10 @@ TEST(StringPieceTest, CheckCustom) {
 
   // CopyToString
   a.CopyToString(&s2);
-  ASSERT_EQ(s2.size(), 6);
+  ASSERT_EQ(s2.size(), 6U);
   ASSERT_EQ(s2, "foobar");
   b.CopyToString(&s2);
-  ASSERT_EQ(s2.size(), 7);
+  ASSERT_EQ(s2.size(), 7U);
   ASSERT_EQ(s1, s2);
   e.CopyToString(&s2);
   ASSERT_TRUE(s2.empty());
@@ -444,10 +444,10 @@ TEST(StringPieceTest, CheckCustom) {
   // AppendToString
   s2.erase();
   a.AppendToString(&s2);
-  ASSERT_EQ(s2.size(), 6);
+  ASSERT_EQ(s2.size(), 6U);
   ASSERT_EQ(s2, "foobar");
   a.AppendToString(&s2);
-  ASSERT_EQ(s2.size(), 12);
+  ASSERT_EQ(s2.size(), 12U);
   ASSERT_EQ(s2, "foobarfoobar");
 
   // starts_with
@@ -523,11 +523,11 @@ TEST(StringPieceTest, CheckNULL) {
   // we used to crash here, but now we don't.
   StringPiece s(NULL);
   ASSERT_EQ(s.data(), (const char*)NULL);
-  ASSERT_EQ(s.size(), 0);
+  ASSERT_EQ(s.size(), 0U);
 
   s.set(NULL);
   ASSERT_EQ(s.data(), (const char*)NULL);
-  ASSERT_EQ(s.size(), 0);
+  ASSERT_EQ(s.size(), 0U);
 }
 
 TEST(StringPieceTest, CheckComparisons2) {
