@@ -30,6 +30,7 @@
 // This little program attempts to flush the disk cache for some files.
 // It's useful for testing Chrome with a cold database.
 
+#include "base/string_piece.h"
 #include "base/sys_string_conversions.h"
 #include "chrome/test/test_file_util.h"
 

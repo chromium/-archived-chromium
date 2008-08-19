@@ -34,6 +34,7 @@
 #include "base/lock.h"
 #include "base/memory_debug.h"
 #include "base/message_loop.h"
+#include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "googleurl/src/gurl.h"
