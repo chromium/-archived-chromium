@@ -62,6 +62,9 @@ V8 | KJS # DEFER : LayoutTests/css2.1/t1204-reset-01-c-o.html = FAIL | PASS
 V8 | KJS # LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-subframe-location-change.html = PASS | FAIL
 V8 | KJS # LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = PASS | TIMEOUT
 
+// Bug 1332293: Sometimes times out for unknown reasons.
+V8 # DEFER : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = PASS | TIMEOUT
+
 // This are failing for different reasons under our new lighttpd configuration
 // TODO(deanm): Address all of these via lighttpd if possible, otherwise fork.
 // Maybe flaky and need to be forked?  Bug 1234761.
