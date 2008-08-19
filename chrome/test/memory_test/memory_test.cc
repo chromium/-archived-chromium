@@ -250,7 +250,11 @@ class MemoryTest : public UITest {
 
   void PrintResults(const wchar_t* test_name, size_t commit_size) {
     PrintMemoryUsageInfo(test_name);
-    wprintf(L"%ls_commit_charge_kb = %d\n", test_name, commit_size / 1024);
+    std::wstring trace_name(test_name);
+    trace_name.append(L"_cc");
+
+    PrintResult(L"commit_charge", L"", trace_name,
+                commit_size / 1024, L"kb", true /* important */);
   }
 
   void PrintIOPerfInfo(const wchar_t* test_name) {
@@ -278,28 +282,29 @@ class MemoryTest : public UITest {
       ZeroMemory(&io_counters, sizeof(io_counters));
 
       if (process_metrics.get()->GetIOCounters(&io_counters)) {
-        wchar_t* browser_name = L"browser";
-        wchar_t* render_name = L"render";
-        wchar_t* chrome_name;
-        if (pid == chrome_filter.browser_process_id()) {
-          chrome_name = browser_name;
-        } else {
-          chrome_name = render_name;
-        }
+        std::wstring chrome_name = 
+            (pid == chrome_filter.browser_process_id()) ? L"_b" : L"_r";
 
-        // print out IO performance
-        wprintf(L"%ls_%ls_read_op = %d\n",
-                test_name, chrome_name, io_counters.ReadOperationCount);
-        wprintf(L"%ls_%ls_write_op = %d\n",
-                test_name, chrome_name, io_counters.WriteOperationCount);
-        wprintf(L"%ls_%ls_other_op = %d\n",
-                test_name, chrome_name, io_counters.OtherOperationCount);
-        wprintf(L"%ls_%ls_read_byte = %d K\n",
-                test_name, chrome_name, io_counters.ReadTransferCount / 1024);
-        wprintf(L"%ls_%ls_write_byte = %d K\n",
-                test_name, chrome_name, io_counters.WriteTransferCount / 1024);
-        wprintf(L"%ls_%ls_other_byte = %d K\n",
-                test_name, chrome_name, io_counters.OtherTransferCount / 1024);
+        // Print out IO performance.  We assume that the values can be
+        // converted to size_t (they're reported as ULONGLONG, 64-bit numbers).
+        PrintResult(L"read_op", chrome_name, test_name + chrome_name,
+                    static_cast<size_t>(io_counters.ReadOperationCount), L"",
+                    false /* not important */);
+        PrintResult(L"write_op", chrome_name, test_name + chrome_name,
+                    static_cast<size_t>(io_counters.WriteOperationCount), L"",
+                    false /* not important */);
+        PrintResult(L"other_op", chrome_name, test_name + chrome_name,
+                    static_cast<size_t>(io_counters.OtherOperationCount), L"",
+                    false /* not important */);
+        PrintResult(L"read_byte", chrome_name, test_name + chrome_name,
+                    static_cast<size_t>(io_counters.ReadTransferCount / 1024),
+                    L"kb", false /* not important */);
+        PrintResult(L"write_byte", chrome_name, test_name + chrome_name,
+                    static_cast<size_t>(io_counters.WriteTransferCount / 1024),
+                    L"kb", false /* not important */);
+        PrintResult(L"other_byte", chrome_name, test_name + chrome_name,
+                    static_cast<size_t>(io_counters.OtherTransferCount / 1024),
+                    L"kb", false /* not important */);
       }
     }
   }
@@ -334,15 +339,23 @@ class MemoryTest : public UITest {
         num_chrome_processes++;
       }
     }
-    wprintf(L"%ls_browser_vm_final_kb = %d\n", test_name,
-                                           browser_virtual_size / 1024);
-    wprintf(L"%ls_browser_ws_final_kb = %d\n", test_name,
-                                           browser_working_set_size / 1024);
-    wprintf(L"%ls_memory_vm_final_kb = %d\n", test_name,
-                                          virtual_size / 1024);
-    wprintf(L"%ls_memory_ws_final_kb = %d\n", test_name,
-                                          working_set_size / 1024);
-    wprintf(L"%ls_processes = %d\n", test_name, num_chrome_processes);
+
+    std::wstring trace_name(test_name);
+    PrintResult(L"vm_final_browser", L"", trace_name + L"_vm_b",
+                browser_virtual_size / 1024, L"kb",
+                false /* not important */);
+    PrintResult(L"ws_final_browser", L"", trace_name + L"_ws_b",
+                browser_working_set_size / 1024, L"kb",
+                false /* not important */);
+    PrintResult(L"vm_final_total", L"", trace_name + L"_vm",
+                virtual_size / 1024, L"kb",
+                false /* not important */);
+    PrintResult(L"ws_final_total", L"", trace_name + L"_ws",
+                working_set_size / 1024, L"kb",
+                true /* important */);
+    PrintResult(L"processes", L"", trace_name + L"_proc",
+                num_chrome_processes, L"",
+                false /* not important */);
   }
 
  private:
@@ -371,13 +384,13 @@ class MemoryReferenceTest : public MemoryTest {
 }  // namespace
 
 TEST_F(MemoryTest, SingleTabTest) {
-  RunTest(L"OneTabTest", 1);
+  RunTest(L"1t", 1);
 }
 
 TEST_F(MemoryTest, FiveTabTest) {
-  RunTest(L"FiveTabTest", 5);
+  RunTest(L"5t", 5);
 }
 
 TEST_F(MemoryTest, TwelveTabTest) {
-  RunTest(L"TwelveTabTest", 12);
+  RunTest(L"12t", 12);
 }

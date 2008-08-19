@@ -154,6 +154,26 @@ class UITest : public testing::Test {
   // after the browser process has terminated.
   bool CloseBrowser(BrowserProxy* browser, bool* application_closed) const;
 
+  // Prints numerical information to stdout in a controlled format, for
+  // post-processing. |measurement| is a description of the quantity being
+  // measured, e.g. "vm_peak"; |modifier| is provided as a convenience and
+  // will be appended directly to the name of the |measurement|, e.g.
+  // "_browser"; |trace| is a description of the particular data point, e.g.
+  // "reference"; |value| is the measured value; and |units| is a description
+  // of the units of measure, e.g. "bytes". If |important| is true, the output
+  // line will be specially marked, to notify the post-processor. The strings
+  // may be empty.  They should not contain any colons (:) or equals signs (=).
+  // A typical post-processing step would be to produce graphs of the data
+  // produced for various builds, using the combined |measurement| + |modifier|
+  // string to specify a particular graph and the |trace| to identify a trace
+  // (i.e., data series) on that graph.
+  void PrintResult(const std::wstring& measurement,
+                   const std::wstring& modifier,
+                   const std::wstring& trace,
+                   size_t value,
+                   const std::wstring& units,
+                   bool important);
+
   // Gets the directory for the currently active profile in the browser.
   std::wstring GetDownloadDirectory();
 

@@ -201,7 +201,7 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="TestMemeory"
+			Name="TestMemory"
 			>
 			<File
 				RelativePath=".\memory_test.cc"

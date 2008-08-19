@@ -557,3 +557,16 @@ bool UITest::CloseBrowser(BrowserProxy* browser,
   delete response;
   return result;
 }
+
+void UITest::PrintResult(const std::wstring& measurement,
+                         const std::wstring& modifier,
+                         const std::wstring& trace,
+                         size_t value,
+                         const std::wstring& units,
+                         bool important) {
+  wprintf(L"%lsRESULT %ls%ls: %ls= %d %ls\n",
+          important ? L"*" : L"", measurement.c_str(), modifier.c_str(),
+          trace.c_str(), value, units.c_str());
+}
+
+
