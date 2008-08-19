@@ -379,6 +379,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\glue\webframe_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\glue\webplugin_impl_unittest.cc"
 				>
 			</File>
