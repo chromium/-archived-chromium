@@ -26,6 +26,34 @@
 		7B8502050E5A377100730B43 /* auth_cache_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32790E5A181C00A747DB /* auth_cache_unittest.cc */; };
 		7B8502120E5A37A800730B43 /* base64_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32760E5A181C00A747DB /* base64_unittest.cc */; };
 		7B85026D0E5A38D400730B43 /* libmodp_b64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B85026A0E5A38BB00730B43 /* libmodp_b64.a */; };
+		7B8503E90E5B2D4700730B43 /* address_list.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED327E0E5A181C00A747DB /* address_list.cc */; };
+		7B8503EA0E5B2D4F00730B43 /* backend_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32EB0E5A190600A747DB /* backend_impl.cc */; };
+		7B8503FC0E5B2DA200730B43 /* block_files.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32E90E5A190600A747DB /* block_files.cc */; };
+		7B8504050E5B2DBD00730B43 /* cache_util_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33030E5A190600A747DB /* cache_util_posix.cc */; };
+		7B8504080E5B2DD800730B43 /* client_socket_handle.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED326E0E5A181C00A747DB /* client_socket_handle.cc */; };
+		7B8504090E5B2DD800730B43 /* client_socket_pool.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED326C0E5A181C00A747DB /* client_socket_pool.cc */; };
+		7B85040C0E5B2DD800730B43 /* cookie_policy.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32640E5A181C00A747DB /* cookie_policy.cc */; };
+		7B85040D0E5B2DD800730B43 /* data_url.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32610E5A181C00A747DB /* data_url.cc */; };
+		7B8504100E5B2DF000730B43 /* entry_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32F30E5A190600A747DB /* entry_impl.cc */; };
+		7B8504120E5B2DF000730B43 /* escape.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32C10E5A181C00A747DB /* escape.cc */; };
+		7B8504140E5B2DF000730B43 /* file_lock.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32FF0E5A190600A747DB /* file_lock.cc */; };
+		7B8504150E5B2DF000730B43 /* file_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32FD0E5A190600A747DB /* file_posix.cc */; };
+		7B8504280E5B2E2A00730B43 /* hash.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32FB0E5A190600A747DB /* hash.cc */; };
+		7B85042B0E5B2E2A00730B43 /* http_chunked_decoder.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED335E0E5A194700A747DB /* http_chunked_decoder.cc */; };
+		7B85042F0E5B2E4900730B43 /* http_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED334E0E5A194700A747DB /* http_util.cc */; };
+		7B8504320E5B2E4900730B43 /* mapped_file_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33040E5A190600A747DB /* mapped_file_posix.cc */; };
+		7B8504330E5B2E4900730B43 /* mem_backend_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32E70E5A190600A747DB /* mem_backend_impl.cc */; };
+		7B8504340E5B2E4900730B43 /* mem_entry_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32E50E5A190600A747DB /* mem_entry_impl.cc */; };
+		7B8504350E5B2E4900730B43 /* mem_rankings.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32F00E5A190600A747DB /* mem_rankings.cc */; };
+		7B8504390E5B2E5700730B43 /* net_module.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32A50E5A181C00A747DB /* net_module.cc */; };
+		7B85043B0E5B2E6400730B43 /* os_file_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32DE0E5A190600A747DB /* os_file_posix.cc */; };
+		7B85043C0E5B2E6400730B43 /* platform_mime_util_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7BED329D0E5A181C00A747DB /* platform_mime_util_mac.mm */; };
+		7B85043D0E5B2E6400730B43 /* rankings.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32DC0E5A190600A747DB /* rankings.cc */; };
+		7B8504410E5B2E9600730B43 /* stats.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32DA0E5A190600A747DB /* stats.cc */; };
+		7B8504450E5B2E9600730B43 /* trace.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32D70E5A190600A747DB /* trace.cc */; };
+		7B85044A0E5B2E9600730B43 /* url_request_error_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33B20E5A198600A747DB /* url_request_error_job.cc */; };
+		7B8504530E5B2E9600730B43 /* url_request_job_metrics.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33A00E5A198600A747DB /* url_request_job_metrics.cc */; };
+		7B8504540E5B2E9600730B43 /* url_request_job_tracker.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED339E0E5A198600A747DB /* url_request_job_tracker.cc */; };
 		7BA0151F0E5A1B9200044150 /* gzip_filter_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32B80E5A181C00A747DB /* gzip_filter_unittest.cc */; };
 		7BA015210E5A1B9800044150 /* bzip2_filter_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32730E5A181C00A747DB /* bzip2_filter_unittest.cc */; };
 		7BA0152E0E5A1BF400044150 /* auth_cache.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED327C0E5A181C00A747DB /* auth_cache.cc */; };
@@ -52,35 +80,35 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B8501F10E5A372500730B43 /* googleurl.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 7BA018360E5A28DB00044150 /* libgoogleurl.a */;
+			remoteGlobalIDString = 7BA018360E5A28DB00044150;
 			remoteInfo = googleurl;
 		};
 		7B8501FF0E5A372500730B43 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B8501F10E5A372500730B43 /* googleurl.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 7BA018E20E5A2AFF00044150 /* googleurl_unittests */;
+			remoteGlobalIDString = 7BA018E20E5A2AFF00044150;
 			remoteInfo = googleurl_unittests;
 		};
 		7B8502020E5A375B00730B43 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B8501F10E5A372500730B43 /* googleurl.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 7BA018350E5A28DB00044150 /* googleurl */;
+			remoteGlobalIDString = 7BA018350E5A28DB00044150;
 			remoteInfo = googleurl;
 		};
 		7B8502690E5A38BB00730B43 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B8502620E5A38BB00730B43 /* modp_b64.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 7B8502390E5A384100730B43 /* libmodp_b64.a */;
+			remoteGlobalIDString = 7B8502390E5A384100730B43;
 			remoteInfo = modp_b64;
 		};
 		7B85026B0E5A38C600730B43 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B8502620E5A38BB00730B43 /* modp_b64.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B8502380E5A384100730B43 /* modp_b64 */;
+			remoteGlobalIDString = 7B8502380E5A384100730B43;
 			remoteInfo = modp_b64;
 		};
 		7BA015620E5A1C3E00044150 /* PBXContainerItemProxy */ = {
@@ -1120,13 +1148,41 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7B8503E90E5B2D4700730B43 /* address_list.cc in Sources */,
 				7BA0152E0E5A1BF400044150 /* auth_cache.cc in Sources */,
+				7B8503EA0E5B2D4F00730B43 /* backend_impl.cc in Sources */,
 				7BA015440E5A1BFA00044150 /* base64.cc in Sources */,
+				7B8503FC0E5B2DA200730B43 /* block_files.cc in Sources */,
 				7BA0172F0E5A244D00044150 /* bzip2_filter.cc in Sources */,
+				7B8504050E5B2DBD00730B43 /* cache_util_posix.cc in Sources */,
+				7B8504080E5B2DD800730B43 /* client_socket_handle.cc in Sources */,
+				7B8504090E5B2DD800730B43 /* client_socket_pool.cc in Sources */,
+				7B85040C0E5B2DD800730B43 /* cookie_policy.cc in Sources */,
+				7B85040D0E5B2DD800730B43 /* data_url.cc in Sources */,
+				7B8504100E5B2DF000730B43 /* entry_impl.cc in Sources */,
+				7B8504120E5B2DF000730B43 /* escape.cc in Sources */,
+				7B8504140E5B2DF000730B43 /* file_lock.cc in Sources */,
+				7B8504150E5B2DF000730B43 /* file_posix.cc in Sources */,
 				7BA0154C0E5A1C0400044150 /* filter.cc in Sources */,
 				7BA015510E5A1C0900044150 /* gzip_filter.cc in Sources */,
 				7BA016A30E5A1EE900044150 /* gzip_header.cc in Sources */,
+				7B8504280E5B2E2A00730B43 /* hash.cc in Sources */,
+				7B85042B0E5B2E2A00730B43 /* http_chunked_decoder.cc in Sources */,
+				7B85042F0E5B2E4900730B43 /* http_util.cc in Sources */,
+				7B8504320E5B2E4900730B43 /* mapped_file_posix.cc in Sources */,
+				7B8504330E5B2E4900730B43 /* mem_backend_impl.cc in Sources */,
+				7B8504340E5B2E4900730B43 /* mem_entry_impl.cc in Sources */,
+				7B8504350E5B2E4900730B43 /* mem_rankings.cc in Sources */,
 				7BA015550E5A1C1000044150 /* net_errors.cc in Sources */,
+				7B8504390E5B2E5700730B43 /* net_module.cc in Sources */,
+				7B85043B0E5B2E6400730B43 /* os_file_posix.cc in Sources */,
+				7B85043C0E5B2E6400730B43 /* platform_mime_util_mac.mm in Sources */,
+				7B85043D0E5B2E6400730B43 /* rankings.cc in Sources */,
+				7B8504410E5B2E9600730B43 /* stats.cc in Sources */,
+				7B8504450E5B2E9600730B43 /* trace.cc in Sources */,
+				7B85044A0E5B2E9600730B43 /* url_request_error_job.cc in Sources */,
+				7B8504530E5B2E9600730B43 /* url_request_job_metrics.cc in Sources */,
+				7B8504540E5B2E9600730B43 /* url_request_job_tracker.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
