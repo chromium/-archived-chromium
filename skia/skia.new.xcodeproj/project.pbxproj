@@ -3,10 +3,13 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 44;
+	objectVersion = 45;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B4DF47E0E5B5FE0004D7619 /* SkNinePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B4DF47D0E5B5FE0004D7619 /* SkNinePatch.cpp */; };
+		7B4DF4800E5B6005004D7619 /* SkScaledBitmapSampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B4DF47F0E5B6005004D7619 /* SkScaledBitmapSampler.cpp */; };
+		7B4DF48A0E5B609B004D7619 /* SkTypeface_fake.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B4DF4820E5B6087004D7619 /* SkTypeface_fake.cpp */; };
 		E48EE4D20E34E873009DE966 /* Sk1DPathEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB4C46860DAE9C4F00FC0DB7 /* Sk1DPathEffect.cpp */; };
 		E48EE4D30E34E873009DE966 /* Sk2DPathEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB4C46870DAE9C4F00FC0DB7 /* Sk2DPathEffect.cpp */; };
 		E48EE4D40E34E873009DE966 /* Sk64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB4C465C0DAE9C4A00FC0DB7 /* Sk64.cpp */; };
@@ -114,7 +117,6 @@
 		E4A133090E37A11600110AA2 /* SkBlitRow_D4444.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4A133080E37A11600110AA2 /* SkBlitRow_D4444.cpp */; };
 		E4A1330F0E37A16400110AA2 /* SkPixelRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4A1330E0E37A16400110AA2 /* SkPixelRef.cpp */; };
 		E4A133130E37A19300110AA2 /* SkPtrRecorder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4A133120E37A19300110AA2 /* SkPtrRecorder.cpp */; };
-		E4A133220E37A1C900110AA2 /* SkPtrRecorder.h in Headers */ = {isa = PBXBuildFile; fileRef = E4A133210E37A1C900110AA2 /* SkPtrRecorder.h */; };
 		E4A133270E37A1FE00110AA2 /* SkPictureRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4A133260E37A1FE00110AA2 /* SkPictureRecord.cpp */; };
 		E4A1332A0E37A22700110AA2 /* SkPictureFlat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4A133290E37A22700110AA2 /* SkPictureFlat.cpp */; };
 		E4A133390E37A33200110AA2 /* SkMMapStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4A133380E37A33200110AA2 /* SkMMapStream.cpp */; };
@@ -125,7 +127,23 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		32DBCF5E0370ADEE00C91783 /* Skia_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Skia_Prefix.pch; sourceTree = "<group>"; };
+		32DBCF5E0370ADEE00C91783 /* skia.new_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = skia.new_Prefix.pch; sourceTree = "<group>"; };
+		7B4DF4490E5B5E5C004D7619 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
+		7B4DF44A0E5B5E5C004D7619 /* debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = debug.xcconfig; sourceTree = "<group>"; };
+		7B4DF44B0E5B5E5C004D7619 /* executable.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = executable.xcconfig; sourceTree = "<group>"; };
+		7B4DF44C0E5B5E5C004D7619 /* release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = release.xcconfig; sourceTree = "<group>"; };
+		7B4DF44D0E5B5E5C004D7619 /* staticlib.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = staticlib.xcconfig; sourceTree = "<group>"; };
+		7B4DF45D0E5B5F3A004D7619 /* SkGLCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkGLCanvas.h; sourceTree = "<group>"; };
+		7B4DF45E0E5B5F3A004D7619 /* SkImageRef_GlobalPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkImageRef_GlobalPool.h; sourceTree = "<group>"; };
+		7B4DF45F0E5B5F3A004D7619 /* SkNinePatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkNinePatch.h; sourceTree = "<group>"; };
+		7B4DF4600E5B5F3A004D7619 /* SkOSMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkOSMenu.h; sourceTree = "<group>"; };
+		7B4DF4610E5B5F3A004D7619 /* SkOSSound.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkOSSound.h; sourceTree = "<group>"; };
+		7B4DF47A0E5B5FB3004D7619 /* SkFloatBits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkFloatBits.h; sourceTree = "<group>"; };
+		7B4DF47B0E5B5FB3004D7619 /* SkTSort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkTSort.h; sourceTree = "<group>"; };
+		7B4DF47D0E5B5FE0004D7619 /* SkNinePatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkNinePatch.cpp; sourceTree = "<group>"; };
+		7B4DF47F0E5B6005004D7619 /* SkScaledBitmapSampler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkScaledBitmapSampler.cpp; sourceTree = "<group>"; };
+		7B4DF4810E5B6087004D7619 /* SkDrawProcs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkDrawProcs.h; sourceTree = "<group>"; };
+		7B4DF4820E5B6087004D7619 /* SkTypeface_fake.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkTypeface_fake.cpp; sourceTree = "<group>"; };
 		AB4C45B00DAE9C3700FC0DB7 /* SkTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkTime.cpp; sourceTree = "<group>"; };
 		AB4C465C0DAE9C4A00FC0DB7 /* Sk64.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sk64.cpp; sourceTree = "<group>"; };
 		AB4C465D0DAE9C4A00FC0DB7 /* SkBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBuffer.cpp; sourceTree = "<group>"; };
@@ -364,7 +382,6 @@
 		AB4C48570DAE9C9C00FC0DB7 /* SkPicture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkPicture.cpp; sourceTree = "<group>"; };
 		AB4C48580DAE9C9C00FC0DB7 /* SkProcSpriteBlitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkProcSpriteBlitter.cpp; sourceTree = "<group>"; };
 		AB4C48590DAE9C9C00FC0DB7 /* SkRasterizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkRasterizer.cpp; sourceTree = "<group>"; };
-		AB4C485A0DAE9C9C00FC0DB7 /* SkReader32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkReader32.h; sourceTree = "<group>"; };
 		AB4C485B0DAE9C9C00FC0DB7 /* SkRefCnt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkRefCnt.cpp; sourceTree = "<group>"; };
 		AB4C485C0DAE9C9C00FC0DB7 /* SkRegion_path.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkRegion_path.cpp; sourceTree = "<group>"; };
 		AB4C485D0DAE9C9C00FC0DB7 /* SkScalerContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkScalerContext.cpp; sourceTree = "<group>"; };
@@ -389,7 +406,6 @@
 		AB4C48700DAE9C9C00FC0DB7 /* SkTSort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkTSort.h; sourceTree = "<group>"; };
 		AB4C48710DAE9C9C00FC0DB7 /* SkUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkUtils.cpp; sourceTree = "<group>"; };
 		AB4C48720DAE9C9C00FC0DB7 /* SkWriter32.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkWriter32.cpp; sourceTree = "<group>"; };
-		AB4C48730DAE9C9C00FC0DB7 /* SkWriter32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkWriter32.h; sourceTree = "<group>"; };
 		AB4C48740DAE9C9C00FC0DB7 /* SkXfermode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkXfermode.cpp; sourceTree = "<group>"; };
 		AB4C49910DAEA1A000FC0DB7 /* precompiled.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = precompiled.cc; sourceTree = "<group>"; };
 		AB4C4A030DAEC80E00FC0DB7 /* SkImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder.cpp; sourceTree = "<group>"; };
@@ -399,7 +415,7 @@
 		AB4C4A210DAECAE500FC0DB7 /* SkBML_XMLParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkBML_XMLParser.h; sourceTree = "<group>"; };
 		AB4C4A290DAECE3600FC0DB7 /* SkImageDecoder_Factory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_Factory.cpp; sourceTree = "<group>"; };
 		ABD7889C0DAEE16800D226BC /* SkOSFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkOSFile.h; sourceTree = "<group>"; };
-		E48EE4CF0E34E855009DE966 /* libSkiaStatic.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSkiaStatic.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		E48EE4CF0E34E855009DE966 /* libskia.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E48EE5960E34F0FF009DE966 /* SkUnPreMultiply.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkUnPreMultiply.h; sourceTree = "<group>"; };
 		E48EE5A60E34F14C009DE966 /* SkPictureFlat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkPictureFlat.h; path = picture/SkPictureFlat.h; sourceTree = "<group>"; };
 		E48EE5A70E34F14C009DE966 /* SkPicturePlayback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkPicturePlayback.h; path = picture/SkPicturePlayback.h; sourceTree = "<group>"; };
@@ -432,7 +448,7 @@
 		034768DFFF38A50411DB9C8B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				E48EE4CF0E34E855009DE966 /* libSkiaStatic.a */,
+				E48EE4CF0E34E855009DE966 /* libskia.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -440,10 +456,24 @@
 		0867D691FE84028FC02AAC07 /* Skia */ = {
 			isa = PBXGroup;
 			children = (
+				7B4DF4480E5B5E36004D7619 /* Configuration */,
 				AB4C450D0DAE9B9100FC0DB7 /* Source */,
 				034768DFFF38A50411DB9C8B /* Products */,
 			);
 			name = Skia;
+			sourceTree = "<group>";
+		};
+		7B4DF4480E5B5E36004D7619 /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				7B4DF4490E5B5E5C004D7619 /* common.xcconfig */,
+				7B4DF44A0E5B5E5C004D7619 /* debug.xcconfig */,
+				7B4DF44B0E5B5E5C004D7619 /* executable.xcconfig */,
+				7B4DF44C0E5B5E5C004D7619 /* release.xcconfig */,
+				7B4DF44D0E5B5E5C004D7619 /* staticlib.xcconfig */,
+			);
+			name = Configuration;
+			path = ../build;
 			sourceTree = "<group>";
 		};
 		AB4C450D0DAE9B9100FC0DB7 /* Source */ = {
@@ -454,11 +484,11 @@
 				AB4C46850DAE9C4F00FC0DB7 /* effects */,
 				AB4C46C00DAE9C7000FC0DB7 /* images */,
 				AB4C46DF0DAE9C7900FC0DB7 /* include */,
-				32DBCF5E0370ADEE00C91783 /* Skia_Prefix.pch */,
-				AB4C49910DAEA1A000FC0DB7 /* precompiled.cc */,
 				E48EE5A20E34F13C009DE966 /* picture */,
 				AB4C47F30DAE9C9700FC0DB7 /* ports */,
 				AB4C481C0DAE9C9C00FC0DB7 /* sgl */,
+				AB4C49910DAEA1A000FC0DB7 /* precompiled.cc */,
+				32DBCF5E0370ADEE00C91783 /* skia.new_Prefix.pch */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -483,6 +513,7 @@
 				AB4C46620DAE9C4A00FC0DB7 /* SkDebug_stdio.cpp */,
 				AB4C46630DAE9C4A00FC0DB7 /* SkFloat.cpp */,
 				AB4C46640DAE9C4A00FC0DB7 /* SkFloat.h */,
+				7B4DF47A0E5B5FB3004D7619 /* SkFloatBits.h */,
 				AB4C46650DAE9C4A00FC0DB7 /* SkInterpolator.cpp */,
 				AB4C46660DAE9C4A00FC0DB7 /* SkMath.cpp */,
 				AB4C46670DAE9C4A00FC0DB7 /* SkMatrix.cpp */,
@@ -492,6 +523,7 @@
 				AB4C466B0DAE9C4A00FC0DB7 /* SkRegion.cpp */,
 				AB4C466C0DAE9C4A00FC0DB7 /* SkRegionPriv.h */,
 				AB4C466D0DAE9C4A00FC0DB7 /* SkSinTable.h */,
+				7B4DF47B0E5B5FB3004D7619 /* SkTSort.h */,
 			);
 			path = corecg;
 			sourceTree = "<group>";
@@ -521,6 +553,7 @@
 				AB4C46990DAE9C4F00FC0DB7 /* SkGradientShader.cpp */,
 				AB4C469A0DAE9C4F00FC0DB7 /* SkKernel33MaskFilter.cpp */,
 				AB4C469B0DAE9C4F00FC0DB7 /* SkLayerRasterizer.cpp */,
+				7B4DF47D0E5B5FE0004D7619 /* SkNinePatch.cpp */,
 				AB4C469D0DAE9C4F00FC0DB7 /* SkPaintFlagsDrawFilter.cpp */,
 				AB4C469E0DAE9C4F00FC0DB7 /* SkPixelXorXfermode.cpp */,
 				AB4C469F0DAE9C4F00FC0DB7 /* SkRadialGradient_Table.h */,
@@ -538,6 +571,7 @@
 				AB4C4A050DAEC81900FC0DB7 /* SkScaledBitmapSampler.h */,
 				AB4C46CA0DAE9C7000FC0DB7 /* SkImageRef.cpp */,
 				E4A133380E37A33200110AA2 /* SkMMapStream.cpp */,
+				7B4DF47F0E5B6005004D7619 /* SkScaledBitmapSampler.cpp */,
 				AB4C46CF0DAE9C7000FC0DB7 /* SkStream.cpp */,
 			);
 			path = images;
@@ -554,11 +588,11 @@
 				AB4C46FE0DAE9C7A00FC0DB7 /* SkApplication.h */,
 				AB4C46FF0DAE9C7A00FC0DB7 /* SkAvoidXfermode.h */,
 				AB4C47000DAE9C7A00FC0DB7 /* SkBGViewArtist.h */,
-				AB4C4A200DAECAE500FC0DB7 /* SkBML_WXMLParser.h */,
-				AB4C4A210DAECAE500FC0DB7 /* SkBML_XMLParser.h */,
 				AB4C47010DAE9C7A00FC0DB7 /* SkBitmap.h */,
 				AB4C47030DAE9C7A00FC0DB7 /* SkBlurDrawLooper.h */,
 				AB4C47040DAE9C7A00FC0DB7 /* SkBlurMaskFilter.h */,
+				AB4C4A200DAECAE500FC0DB7 /* SkBML_WXMLParser.h */,
+				AB4C4A210DAECAE500FC0DB7 /* SkBML_XMLParser.h */,
 				AB4C47070DAE9C7A00FC0DB7 /* SkBorderView.h */,
 				AB4C47080DAE9C7A00FC0DB7 /* SkBounder.h */,
 				AB4C47090DAE9C7A00FC0DB7 /* SkCamera.h */,
@@ -587,11 +621,13 @@
 				AB4C47200DAE9C7A00FC0DB7 /* SkFlattenable.h */,
 				AB4C47210DAE9C7A00FC0DB7 /* SkFontCodec.h */,
 				AB4C47220DAE9C7A00FC0DB7 /* SkFontHost.h */,
+				7B4DF45D0E5B5F3A004D7619 /* SkGLCanvas.h */,
 				AB4C47230DAE9C7A00FC0DB7 /* SkGlobals.h */,
 				AB4C47240DAE9C7A00FC0DB7 /* SkGradientShader.h */,
 				AB4C47250DAE9C7A00FC0DB7 /* SkGraphics.h */,
 				AB4C4A0C0DAEC86C00FC0DB7 /* SkImageDecoder.h */,
 				AB4C47270DAE9C7A00FC0DB7 /* SkImageRef.h */,
+				7B4DF45E0E5B5F3A004D7619 /* SkImageRef_GlobalPool.h */,
 				AB4C47280DAE9C7A00FC0DB7 /* SkImageView.h */,
 				AB4C47290DAE9C7A00FC0DB7 /* SkJS.h */,
 				AB4C472A0DAE9C7A00FC0DB7 /* SkKernel33MaskFilter.h */,
@@ -602,7 +638,10 @@
 				AB4C472F0DAE9C7A00FC0DB7 /* SkMetaData.h */,
 				AB4C47300DAE9C7A00FC0DB7 /* SkMMapStream.h */,
 				AB4C47310DAE9C7A00FC0DB7 /* SkMovie.h */,
+				7B4DF45F0E5B5F3A004D7619 /* SkNinePatch.h */,
 				ABD7889C0DAEE16800D226BC /* SkOSFile.h */,
+				7B4DF4600E5B5F3A004D7619 /* SkOSMenu.h */,
+				7B4DF4610E5B5F3A004D7619 /* SkOSSound.h */,
 				AB4C47360DAE9C7A00FC0DB7 /* SkOSWindow_Mac.h */,
 				AB4C473A0DAE9C7A00FC0DB7 /* SkPackBits.h */,
 				AB4C473B0DAE9C7A00FC0DB7 /* SkPaint.h */,
@@ -645,6 +684,7 @@
 				AB4C475E0DAE9C7A00FC0DB7 /* SkTypeface.h */,
 				AB4C475F0DAE9C7A00FC0DB7 /* SkUnitMapper.h */,
 				AB4C47600DAE9C7A00FC0DB7 /* SkUnitMappers.h */,
+				E48EE5960E34F0FF009DE966 /* SkUnPreMultiply.h */,
 				AB4C47610DAE9C7A00FC0DB7 /* SkUtils.h */,
 				AB4C47620DAE9C7A00FC0DB7 /* SkView.h */,
 				AB4C47630DAE9C7A00FC0DB7 /* SkViewInflate.h */,
@@ -655,7 +695,6 @@
 				AB4C47670DAE9C7A00FC0DB7 /* SkXfermode.h */,
 				AB4C47680DAE9C7A00FC0DB7 /* SkXMLParser.h */,
 				AB4C47690DAE9C7A00FC0DB7 /* SkXMLWriter.h */,
-				E48EE5960E34F0FF009DE966 /* SkUnPreMultiply.h */,
 			);
 			path = include;
 			sourceTree = "<group>";
@@ -728,9 +767,9 @@
 				AB4C48310DAE9C9C00FC0DB7 /* SkBlitRow.h */,
 				AB4C48320DAE9C9C00FC0DB7 /* SkBlitRow_D16.cpp */,
 				E4A133080E37A11600110AA2 /* SkBlitRow_D4444.cpp */,
-				E4A1333C0E37A35900110AA2 /* SkBlitter_4444.cpp */,
 				AB4C48330DAE9C9C00FC0DB7 /* SkBlitter.cpp */,
 				AB4C48340DAE9C9C00FC0DB7 /* SkBlitter.h */,
+				E4A1333C0E37A35900110AA2 /* SkBlitter_4444.cpp */,
 				AB4C48350DAE9C9C00FC0DB7 /* SkBlitter_A1.cpp */,
 				AB4C48360DAE9C9C00FC0DB7 /* SkBlitter_A8.cpp */,
 				AB4C48370DAE9C9C00FC0DB7 /* SkBlitter_ARGB32.cpp */,
@@ -746,6 +785,7 @@
 				AB4C48410DAE9C9C00FC0DB7 /* SkDither.cpp */,
 				AB4C48420DAE9C9C00FC0DB7 /* SkDraw.cpp */,
 				AB4C48430DAE9C9C00FC0DB7 /* SkDraw.h */,
+				7B4DF4810E5B6087004D7619 /* SkDrawProcs.h */,
 				AB4C48440DAE9C9C00FC0DB7 /* SkEdge.cpp */,
 				AB4C48450DAE9C9C00FC0DB7 /* SkEdge.h */,
 				AB4C48460DAE9C9C00FC0DB7 /* SkFilterProc.cpp */,
@@ -770,7 +810,6 @@
 				AB4C48580DAE9C9C00FC0DB7 /* SkProcSpriteBlitter.cpp */,
 				E4A133120E37A19300110AA2 /* SkPtrRecorder.cpp */,
 				AB4C48590DAE9C9C00FC0DB7 /* SkRasterizer.cpp */,
-				AB4C485A0DAE9C9C00FC0DB7 /* SkReader32.h */,
 				AB4C485B0DAE9C9C00FC0DB7 /* SkRefCnt.cpp */,
 				AB4C485C0DAE9C9C00FC0DB7 /* SkRegion_path.cpp */,
 				AB4C485D0DAE9C9C00FC0DB7 /* SkScalerContext.cpp */,
@@ -791,12 +830,12 @@
 				AB4C486C0DAE9C9C00FC0DB7 /* SkStrokerPriv.cpp */,
 				AB4C486D0DAE9C9C00FC0DB7 /* SkStrokerPriv.h */,
 				AB4C486E0DAE9C9C00FC0DB7 /* SkTemplatesPriv.h */,
-				E4A1332C0E37A24F00110AA2 /* SkTypeface.cpp */,
 				AB4C486F0DAE9C9C00FC0DB7 /* SkTSearch.cpp */,
 				AB4C48700DAE9C9C00FC0DB7 /* SkTSort.h */,
+				E4A1332C0E37A24F00110AA2 /* SkTypeface.cpp */,
+				7B4DF4820E5B6087004D7619 /* SkTypeface_fake.cpp */,
 				AB4C48710DAE9C9C00FC0DB7 /* SkUtils.cpp */,
 				AB4C48720DAE9C9C00FC0DB7 /* SkWriter32.cpp */,
-				AB4C48730DAE9C9C00FC0DB7 /* SkWriter32.h */,
 				AB4C48740DAE9C9C00FC0DB7 /* SkXfermode.cpp */,
 			);
 			path = sgl;
@@ -817,23 +856,11 @@
 		};
 /* End PBXGroup section */
 
-/* Begin PBXHeadersBuildPhase section */
-		E48EE4CB0E34E855009DE966 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E4A133220E37A1C900110AA2 /* SkPtrRecorder.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
 /* Begin PBXNativeTarget section */
-		E48EE4CE0E34E855009DE966 /* SkiaStatic */ = {
+		E48EE4CE0E34E855009DE966 /* skia */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E48EE5410E34E8A9009DE966 /* Build configuration list for PBXNativeTarget "SkiaStatic" */;
+			buildConfigurationList = E48EE5410E34E8A9009DE966 /* Build configuration list for PBXNativeTarget "skia" */;
 			buildPhases = (
-				E48EE4CB0E34E855009DE966 /* Headers */,
 				E48EE4CC0E34E855009DE966 /* Sources */,
 				E48EE4CD0E34E855009DE966 /* Frameworks */,
 			);
@@ -841,9 +868,9 @@
 			);
 			dependencies = (
 			);
-			name = SkiaStatic;
+			name = skia;
 			productName = SkiaStatic;
-			productReference = E48EE4CF0E34E855009DE966 /* libSkiaStatic.a */;
+			productReference = E48EE4CF0E34E855009DE966 /* libskia.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -851,15 +878,15 @@
 /* Begin PBXProject section */
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "Skia" */;
-			compatibilityVersion = "Xcode 3.0";
+			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "skia.new" */;
+			compatibilityVersion = "Xcode 3.1";
 			hasScannedForEncodings = 1;
 			mainGroup = 0867D691FE84028FC02AAC07 /* Skia */;
 			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				E48EE4CE0E34E855009DE966 /* SkiaStatic */,
+				E48EE4CE0E34E855009DE966 /* skia */,
 			);
 		};
 /* End PBXProject section */
@@ -881,7 +908,9 @@
 				E48EE4DB0E34E873009DE966 /* SkBitmapSampler.cpp in Sources */,
 				E48EE4DC0E34E873009DE966 /* SkBitmapShader.cpp in Sources */,
 				E48EE4DD0E34E873009DE966 /* SkBlitRow_D16.cpp in Sources */,
+				E4A133090E37A11600110AA2 /* SkBlitRow_D4444.cpp in Sources */,
 				E48EE4DE0E34E873009DE966 /* SkBlitter.cpp in Sources */,
+				E4A1333D0E37A35900110AA2 /* SkBlitter_4444.cpp in Sources */,
 				E48EE4DF0E34E873009DE966 /* SkBlitter_A1.cpp in Sources */,
 				E48EE4E00E34E873009DE966 /* SkBlitter_A8.cpp in Sources */,
 				E48EE4E10E34E873009DE966 /* SkBlitter_ARGB32.cpp in Sources */,
@@ -935,6 +964,8 @@
 				E48EE5110E34E873009DE966 /* SkMath.cpp in Sources */,
 				E48EE5120E34E873009DE966 /* SkMatrix.cpp in Sources */,
 				E48EE5130E34E873009DE966 /* SkMemory_stdlib.cpp in Sources */,
+				E4A133390E37A33200110AA2 /* SkMMapStream.cpp in Sources */,
+				7B4DF47E0E5B5FE0004D7619 /* SkNinePatch.cpp in Sources */,
 				E48EE5140E34E873009DE966 /* SkOSFile_stdio.cpp in Sources */,
 				E48EE5150E34E873009DE966 /* SkPackBits.cpp in Sources */,
 				E48EE5160E34E873009DE966 /* SkPaint.cpp in Sources */,
@@ -942,14 +973,21 @@
 				E48EE5180E34E873009DE966 /* SkPath.cpp in Sources */,
 				E48EE5190E34E873009DE966 /* SkPathEffect.cpp in Sources */,
 				E48EE51A0E34E873009DE966 /* SkPathMeasure.cpp in Sources */,
+				E4A133790E37AF2900110AA2 /* SkPicture.cpp in Sources */,
+				E4A1332A0E37A22700110AA2 /* SkPictureFlat.cpp in Sources */,
+				E4A1337B0E37B11300110AA2 /* SkPicturePlayback.cpp in Sources */,
+				E4A133270E37A1FE00110AA2 /* SkPictureRecord.cpp in Sources */,
+				E4A1330F0E37A16400110AA2 /* SkPixelRef.cpp in Sources */,
 				E48EE51C0E34E873009DE966 /* SkPixelXorXfermode.cpp in Sources */,
 				E48EE51D0E34E873009DE966 /* SkPoint.cpp in Sources */,
 				E48EE51E0E34E873009DE966 /* SkProcSpriteBlitter.cpp in Sources */,
+				E4A133130E37A19300110AA2 /* SkPtrRecorder.cpp in Sources */,
 				E48EE51F0E34E873009DE966 /* SkRasterizer.cpp in Sources */,
 				E48EE5200E34E873009DE966 /* SkRect.cpp in Sources */,
 				E48EE5210E34E873009DE966 /* SkRefCnt.cpp in Sources */,
 				E48EE5220E34E873009DE966 /* SkRegion.cpp in Sources */,
 				E48EE5230E34E873009DE966 /* SkRegion_path.cpp in Sources */,
+				7B4DF4800E5B6005004D7619 /* SkScaledBitmapSampler.cpp in Sources */,
 				E48EE5240E34E873009DE966 /* SkScalerContext.cpp in Sources */,
 				E48EE5250E34E873009DE966 /* SkScan.cpp in Sources */,
 				E48EE5260E34E873009DE966 /* SkScan_Antihair.cpp in Sources */,
@@ -969,20 +1007,12 @@
 				E48EE5340E34E873009DE966 /* SkTime_Unix.cpp in Sources */,
 				E48EE5350E34E873009DE966 /* SkTransparentShader.cpp in Sources */,
 				E48EE5360E34E873009DE966 /* SkTSearch.cpp in Sources */,
+				E4A133840E37B12E00110AA2 /* SkTypeface.cpp in Sources */,
+				7B4DF48A0E5B609B004D7619 /* SkTypeface_fake.cpp in Sources */,
 				E48EE5370E34E873009DE966 /* SkUnitMappers.cpp in Sources */,
 				E48EE5380E34E873009DE966 /* SkUtils.cpp in Sources */,
 				E48EE5390E34E873009DE966 /* SkWriter32.cpp in Sources */,
 				E48EE53A0E34E873009DE966 /* SkXfermode.cpp in Sources */,
-				E4A133090E37A11600110AA2 /* SkBlitRow_D4444.cpp in Sources */,
-				E4A1330F0E37A16400110AA2 /* SkPixelRef.cpp in Sources */,
-				E4A133130E37A19300110AA2 /* SkPtrRecorder.cpp in Sources */,
-				E4A133270E37A1FE00110AA2 /* SkPictureRecord.cpp in Sources */,
-				E4A1332A0E37A22700110AA2 /* SkPictureFlat.cpp in Sources */,
-				E4A133390E37A33200110AA2 /* SkMMapStream.cpp in Sources */,
-				E4A1333D0E37A35900110AA2 /* SkBlitter_4444.cpp in Sources */,
-				E4A133790E37AF2900110AA2 /* SkPicture.cpp in Sources */,
-				E4A1337B0E37B11300110AA2 /* SkPicturePlayback.cpp in Sources */,
-				E4A133840E37B12E00110AA2 /* SkTypeface.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -991,74 +1021,56 @@
 /* Begin XCBuildConfiguration section */
 		1DEB91B208733DA50010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7B4DF44A0E5B5E5C004D7619 /* debug.xcconfig */;
 			buildSettings = {
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				PREBINDING = NO;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
+				XCODEPROJ_DEPTH = ..;
 			};
 			name = Debug;
 		};
 		1DEB91B308733DA50010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7B4DF44C0E5B5E5C004D7619 /* release.xcconfig */;
 			buildSettings = {
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				PREBINDING = NO;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
+				XCODEPROJ_DEPTH = ..;
 			};
 			name = Release;
 		};
 		E48EE4D00E34E856009DE966 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7B4DF44D0E5B5E5C004D7619 /* staticlib.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = Skia_Prefix.pch;
-				INSTALL_PATH = /usr/local/lib;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					AppKit,
+				GCC_PREFIX_HEADER = skia.new_Prefix.pch;
+				HEADER_SEARCH_PATHS = (
+					corecg,
+					include,
+					include/corecg,
+					picture,
+					sgl,
 				);
-				PREBINDING = NO;
-				PRODUCT_NAME = SkiaStatic;
+				PRODUCT_NAME = skia;
 			};
 			name = Debug;
 		};
 		E48EE4D10E34E856009DE966 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7B4DF44D0E5B5E5C004D7619 /* staticlib.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = Skia_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = "";
-				INSTALL_PATH = /usr/local/lib;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					AppKit,
+				GCC_PREFIX_HEADER = skia.new_Prefix.pch;
+				HEADER_SEARCH_PATHS = (
+					corecg,
+					include,
+					include/corecg,
+					picture,
+					sgl,
 				);
-				PREBINDING = NO;
-				PRODUCT_NAME = SkiaStatic;
+				PRODUCT_NAME = skia;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "Skia" */ = {
+		1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "skia.new" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB91B208733DA50010E9CD /* Debug */,
@@ -1067,7 +1079,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E48EE5410E34E8A9009DE966 /* Build configuration list for PBXNativeTarget "SkiaStatic" */ = {
+		E48EE5410E34E8A9009DE966 /* Build configuration list for PBXNativeTarget "skia" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E48EE4D00E34E856009DE966 /* Debug */,
