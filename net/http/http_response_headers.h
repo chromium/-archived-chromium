@@ -27,14 +27,14 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef NET_HTTP_RESPONSE_HEADERS_H__
-#define NET_HTTP_RESPONSE_HEADERS_H__
+#ifndef NET_HTTP_RESPONSE_HEADERS_H_
+#define NET_HTTP_RESPONSE_HEADERS_H_
 
-#include <hash_set>
 #include <string>
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/hash_tables.h"
 #include "base/ref_counted.h"
 
 class Pickle;
@@ -203,7 +203,7 @@ class HttpResponseHeaders :
   const std::string& raw_headers() const { return raw_headers_; }
 
  private:
-  friend RefCountedThreadSafe<HttpResponseHeaders>;
+  friend class base::RefCountedThreadSafe<HttpResponseHeaders>;
 
   HttpResponseHeaders() {}
   ~HttpResponseHeaders() {}
@@ -253,7 +253,7 @@ class HttpResponseHeaders :
                    std::string::const_iterator value_begin,
                    std::string::const_iterator value_end);
 
-  typedef stdext::hash_set<std::string> HeaderSet;
+  typedef base::hash_set<std::string> HeaderSet;
 
   // Returns the values from any 'cache-control: no-cache="foo,bar"' headers as
   // well as other known-to-be-transient header names.  The header names are
@@ -287,9 +287,9 @@ class HttpResponseHeaders :
   // This is the parsed HTTP response code.
   int response_code_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(HttpResponseHeaders);
+  DISALLOW_COPY_AND_ASSIGN(HttpResponseHeaders);
 };
 
 }  // namespace net
 
-#endif  // NET_HTTP_RESPONSE_HEADERS_H__
+#endif  // NET_HTTP_RESPONSE_HEADERS_H_

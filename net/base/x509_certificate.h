@@ -30,15 +30,17 @@
 #ifndef NET_BASE_X509_CERTIFICATE_H_
 #define NET_BASE_X509_CERTIFICATE_H_
 
-#include <windows.h>
-#include <wincrypt.h>
-
 #include <set>
 #include <string>
 #include <vector>
 
 #include "base/ref_counted.h"
 #include "base/time.h"
+
+#if defined(OS_WIN)
+#include <windows.h>
+#include <wincrypt.h>
+#endif
 
 class Pickle;
 
@@ -65,8 +67,13 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
     bool operator() (X509Certificate* lhs,  X509Certificate* rhs) const;
   };
 
+#if defined(OS_WIN)
   typedef PCCERT_CONTEXT OSCertHandle;
-
+#else
+  // TODO(ericroman): not implemented
+  typedef void* OSCertHandle;
+#endif
+	
   // Principal represent an X.509 principal.
   struct Principal {
     Principal() { }
@@ -180,7 +187,7 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
   // in the underlying crypto library.
   explicit X509Certificate(OSCertHandle cert_handle);
 
-  friend RefCountedThreadSafe<X509Certificate>;
+  friend class base::RefCountedThreadSafe<X509Certificate>;
   ~X509Certificate();
 
   // Common object initialization code.  Called by the constructors only.

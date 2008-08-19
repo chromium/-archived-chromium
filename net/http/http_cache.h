@@ -36,15 +36,14 @@
 //
 // See HttpTransactionFactory and HttpTransaction for more details.
 
-#ifndef NET_HTTP_HTTP_CACHE_H__
-#define NET_HTTP_HTTP_CACHE_H__
+#ifndef NET_HTTP_HTTP_CACHE_H_
+#define NET_HTTP_HTTP_CACHE_H_
 
-#include <hash_map>
-#include <hash_set>
 #include <list>
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/hash_tables.h"
 #include "base/task.h"
 #include "net/http/http_transaction_factory.h"
 
@@ -125,7 +124,7 @@ class HttpCache : public HttpTransactionFactory {
   // Types --------------------------------------------------------------------
 
   class Transaction;
-  friend Transaction;
+  friend class Transaction;
 
   typedef std::list<Transaction*> TransactionList;
 
@@ -141,8 +140,8 @@ class HttpCache : public HttpTransactionFactory {
     ~ActiveEntry();
   };
 
-  typedef stdext::hash_map<std::string, ActiveEntry*> ActiveEntriesMap;
-  typedef stdext::hash_set<ActiveEntry*> ActiveEntriesSet;
+  typedef base::hash_map<std::string, ActiveEntry*> ActiveEntriesMap;
+  typedef std::set<ActiveEntry*> ActiveEntriesSet;
 
 
   // Methods ------------------------------------------------------------------
@@ -189,12 +188,12 @@ class HttpCache : public HttpTransactionFactory {
   bool in_memory_cache_;
   int cache_size_;
 
-  typedef stdext::hash_map<std::string, int> PlaybackCacheMap;
+  typedef base::hash_map<std::string, int> PlaybackCacheMap;
   scoped_ptr<PlaybackCacheMap> playback_cache_map_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(HttpCache);
+  DISALLOW_COPY_AND_ASSIGN(HttpCache);
 };
 
 }  // namespace net
 
-#endif  // NET_HTTP_HTTP_CACHE_H__
+#endif  // NET_HTTP_HTTP_CACHE_H_

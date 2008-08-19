@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef NET_BASE_SSL_INFO_H__
-#define NET_BASE_SSL_INFO_H__
+#ifndef NET_BASE_SSL_INFO_H_
+#define NET_BASE_SSL_INFO_H_
 
 #include "net/base/cert_status_flags.h"
 #include "net/base/net_errors.h"
@@ -99,4 +99,4 @@ class SSLInfo {
 
 }  // namespace net
 
-#endif  // NET_BASE_SSL_INFO_H__
+#endif  // NET_BASE_SSL_INFO_H_

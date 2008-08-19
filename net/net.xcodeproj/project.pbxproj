@@ -25,6 +25,7 @@
 		048268070E5B3B1000A30786 /* mime_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32AA0E5A181C00A747DB /* mime_util.cc */; };
 		048268080E5B3B3200A30786 /* http_chunked_decoder_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33570E5A194700A747DB /* http_chunked_decoder_unittest.cc */; };
 		048268090E5B3B4800A30786 /* mime_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED325E0E5A181C00A747DB /* mime_util_unittest.cc */; };
+		0482692A0E5B624D00A30786 /* http_cache.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED334C0E5A194700A747DB /* http_cache.cc */; };
 		7B8502040E5A376900730B43 /* libgoogleurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B8501FE0E5A372500730B43 /* libgoogleurl.a */; };
 		7B8502050E5A377100730B43 /* auth_cache_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32790E5A181C00A747DB /* auth_cache_unittest.cc */; };
 		7B8502120E5A37A800730B43 /* base64_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32760E5A181C00A747DB /* base64_unittest.cc */; };
@@ -1170,6 +1171,7 @@
 				7BA015510E5A1C0900044150 /* gzip_filter.cc in Sources */,
 				7BA016A30E5A1EE900044150 /* gzip_header.cc in Sources */,
 				7B8504280E5B2E2A00730B43 /* hash.cc in Sources */,
+				0482692A0E5B624D00A30786 /* http_cache.cc in Sources */,
 				7B85042B0E5B2E2A00730B43 /* http_chunked_decoder.cc in Sources */,
 				7B85042F0E5B2E4900730B43 /* http_util.cc in Sources */,
 				7B8504320E5B2E4900730B43 /* mapped_file_posix.cc in Sources */,

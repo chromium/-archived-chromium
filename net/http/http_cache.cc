@@ -169,8 +169,9 @@ std::string HttpCache::GenerateCacheKey(const HttpRequestInfo* request) {
 
 //-----------------------------------------------------------------------------
 
-HttpCache::ActiveEntry::ActiveEntry(disk_cache::Entry *e)
+HttpCache::ActiveEntry::ActiveEntry(disk_cache::Entry* e)
     : disk_entry(e),
+      writer(NULL),
       will_process_pending_queue(false),
       doomed(false) {
 }
@@ -630,7 +631,7 @@ void HttpCache::Transaction::SetRequest(const HttpRequestInfo* request) {
                                request_->extra_headers.end(),
                                "\r\n");
   while (it.GetNext()) {
-    for (size_t i = 0; i < arraysize(kSpecialHeaders); ++i) {
+    for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kSpecialHeaders); ++i) {
       if (HeaderMatches(it, kSpecialHeaders[i].search)) {
         effective_load_flags_ |= kSpecialHeaders[i].load_flag;
         break;
@@ -731,7 +732,7 @@ bool HttpCache::Transaction::RequiresValidation() {
   //  - make sure we have a matching request method
   //  - watch out for cached responses that depend on authentication
   // In playback mode, nothing requires validation.
-  if (mode_ == PLAYBACK)
+  if (mode_ == net::HttpCache::PLAYBACK)
     return false;
 
   if (effective_load_flags_ & LOAD_VALIDATE_CACHE)
@@ -1115,7 +1116,7 @@ bool HttpCache::WriteResponseInfo(disk_cache::Entry* disk_entry,
     response_info->vary_data.Persist(&pickle);
 
   const char* data = static_cast<const char*>(pickle.data());
-  int len = pickle.size();
+  int len = static_cast<int>(pickle.size());
 
   return disk_entry->WriteData(kResponseInfoIndex, 0, data, len, NULL,
                                true) == len;
@@ -1194,7 +1195,6 @@ HttpCache::ActiveEntry* HttpCache::ActivateEntry(
     const std::string& key,
     disk_cache::Entry* disk_entry) {
   ActiveEntry* entry = new ActiveEntry(disk_entry);
-  entry->writer = NULL;
   active_entries_[key] = entry;
   return entry;
 }
