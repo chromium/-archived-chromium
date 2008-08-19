@@ -442,7 +442,8 @@ bool EntryImpl::CreateEntry(Addr node_address, const std::string& key,
 }
 
 bool EntryImpl::IsSameEntry(const std::string& key, uint32 hash) {
-  if (entry_.Data()->hash != hash || entry_.Data()->key_len != key.size())
+  if (entry_.Data()->hash != hash ||
+      static_cast<size_t>(entry_.Data()->key_len) != key.size())
     return false;
 
   std::string my_key = GetKey();
@@ -756,7 +757,7 @@ bool EntryImpl::Flush(int index, int size, bool async) {
     offset = address.start_block() * address.BlockSize() + kBlockHeaderSize;
 
   // We just told the backend to store len bytes for real.
-  DCHECK(len == unreported_size_[index]);
+  DCHECK(len == static_cast<size_t>(unreported_size_[index]));
   backend_->ModifyStorageSize(0, static_cast<int>(len));
   unreported_size_[index] = 0;
 

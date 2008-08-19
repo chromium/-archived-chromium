@@ -65,7 +65,7 @@ TEST(AuthCacheTest, HttpKey) {
     "https://www.nowhere.org/WallyWorld"
   };
 
-  for (int i = 0; i < arraysize(url); i++) {
+  for (size_t i = 0; i < arraysize(url); i++) {
     std::string key = net::AuthCache::HttpKey(GURL(url[i]), *auth_info);
     EXPECT_EQ(expected[i], key);
   }

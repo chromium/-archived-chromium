@@ -233,19 +233,19 @@ static const char* view_source_types[] = {
 };
 
 void MimeUtil::InitializeMimeTypeMaps() {
-  for (int i = 0; i < arraysize(supported_image_types); ++i)
+  for (size_t i = 0; i < arraysize(supported_image_types); ++i)
     image_map_.insert(supported_image_types[i]);
 
   // Initialize the supported non-image types
-  for (int i = 0; i < arraysize(supported_non_image_types); ++i)
+  for (size_t i = 0; i < arraysize(supported_non_image_types); ++i)
     non_image_map_.insert(supported_non_image_types[i]);
-  for (int i = 0; i < arraysize(supported_javascript_types); ++i)
+  for (size_t i = 0; i < arraysize(supported_javascript_types); ++i)
     non_image_map_.insert(supported_javascript_types[i]);
 
-  for (int i = 0; i < arraysize(supported_javascript_types); ++i)
+  for (size_t i = 0; i < arraysize(supported_javascript_types); ++i)
     javascript_map_.insert(supported_javascript_types[i]);
 
-  for (int i = 0; i < arraysize(view_source_types); ++i)
+  for (size_t i = 0; i < arraysize(view_source_types); ++i)
     view_source_map_.insert(view_source_types[i]);
 }
 

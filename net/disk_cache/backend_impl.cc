@@ -316,7 +316,8 @@ bool BackendImpl::CreateEntry(const std::string& key, Entry** entry) {
 
   int num_blocks;
   size_t key1_len = sizeof(EntryStore) - offsetof(EntryStore, key);
-  if (key.size() < key1_len || key.size() > kMaxInternalKeyLength)
+  if (key.size() < key1_len ||
+      key.size() > static_cast<size_t>(kMaxInternalKeyLength))
     num_blocks = 1;
   else
     num_blocks = static_cast<int>((key.size() - key1_len) / 256 + 2);
