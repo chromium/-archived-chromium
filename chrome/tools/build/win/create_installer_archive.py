@@ -113,15 +113,32 @@ def MakeStagingDirectory(output_dir):
   os.makedirs(file_path)
   return file_path
 
-
-def CopyFilesToStagingDir(config, staging_dir, output_dir):
-  """Copies files required for installer archive to staging dir.
+def CopyAllFilesToStagingDir(config, distribution, staging_dir, output_dir):
+  """Copies the files required for installer archive.
+  Copies all common files required for various distributions of Chromium and
+  also files for the specific Chromium build specified by distribution.
   """
-  for option in config.options('FILES'):
+  # TODO(rahulk) remove the line below once we have setup environment variable
+  # CHROMIUM_BUILD on buildbots appropriately.
+  distribution = '_google_chrome'
+  CopySectionFilesToStagingDir(config, 'GENERAL', staging_dir, output_dir)
+  if distribution:
+    if len(distribution) > 1 and distribution[0] == '_':
+      distribution = distribution[1:]
+    CopySectionFilesToStagingDir(config, distribution.upper(),
+                                 staging_dir, output_dir)
+
+
+def CopySectionFilesToStagingDir(config, section, staging_dir, output_dir):
+  """Copies installer archive files specified in section to staging dir.
+  This method copies reads section from config file and copies all the files
+  specified to staging dir.
+  """
+  for option in config.options(section):
     if option.endswith('dir'):
       continue
 
-    dst = os.path.join(staging_dir, config.get('FILES', option))
+    dst = os.path.join(staging_dir, config.get(section, option))
     if not os.path.exists(dst):
       os.makedirs(dst)
     for file in glob.glob(os.path.join(output_dir, option)):
@@ -243,10 +260,11 @@ def main(options):
 
   staging_dir = MakeStagingDirectory(options.output_dir)
 
-  CopyFilesToStagingDir(config, staging_dir, options.output_dir)
+  CopyAllFilesToStagingDir(config, options.distribution,
+                           staging_dir, options.output_dir)
   
-  # Name of the archive file built (for example - chrome.lz or
-  # patch-<old_version>-<new_version>.lz or patch-<new_version>.lz
+  # Name of the archive file built (for example - chrome.7z or
+  # patch-<old_version>-<new_version>.7z or patch-<new_version>.7z
   archive_file_name = CreateArchiveFile(options.output_dir, staging_dir,
       current_version, options.last_chrome_installer,
       options.last_chrome_version, options.rebuild_archive)
@@ -259,6 +277,8 @@ if '__main__' == __name__:
   option_parser = optparse.OptionParser()
   option_parser.add_option('-o', '--output_dir', help='Output directory')
   option_parser.add_option('-i', '--input_file', help='Input file')
+  option_parser.add_option('-d', '--distribution',
+      help='Name of Chromium Distribution. Optional.')
   option_parser.add_option('-r', '--rebuild_archive', action='store_true',
       default=False, help='Rebuild Chrome.7z archive, even if it exists.')
   option_parser.add_option('-l', '--last_chrome_installer', 

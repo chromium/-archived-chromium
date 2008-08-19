@@ -7,7 +7,7 @@
 		<CustomBuildRule
 			Name="create installer archive"
 			DisplayName="create installer archive"
-			CommandLine="$(SolutionDir)..\third_party\python_24\python.exe $(SolutionDir)tools\build\win\create_installer_archive.py --output_dir=&quot;$(OutDir)&quot; --input_file=&quot;$(InputPath)&quot; [LastChromeInstaller] [LastChromeVersion] [RebuildArchive]"
+			CommandLine="$(SolutionDir)..\third_party\python_24\python.exe $(SolutionDir)tools\build\win\create_installer_archive.py --output_dir=&quot;$(OutDir)&quot; --input_file=&quot;$(InputPath)&quot; --distribution=$(CHROMIUM_BUILD) [LastChromeInstaller] [LastChromeVersion] [RebuildArchive]"
 			Outputs="$(OutDir)/$(InputName).7z;$(OutDir)/$(InputName).packed.7z;$(OutDir)/setup.ex_;$(OutDir)/packed_files.txt;"
 			AdditionalDependencies="$(SolutionDir)\tools\build\win\create_installer_archive.py;$(OutDir)\chrome.exe;$(OutDir)\crash_reporter.exe;$(OutDir)\chrome.dll;$(OutDir)\locales\en-US.dll;$(OutDir)\icudt38.dll"
 			FileExtensions="*.release"
