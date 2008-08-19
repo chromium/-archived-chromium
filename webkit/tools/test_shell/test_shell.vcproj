@@ -158,43 +158,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\resources\fonts\Ahem.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Apple_Chancery.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Apple_Symbols.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\AppleMyungjo.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Arial.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Arialb.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Ariali.afm"
-				>
-			</File>
-			<File
 				RelativePath=".\resources\fonts\comic_sans_ms-fallback.txt"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Comic_Sans_MS.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Comic_Sans_MSb.afm"
 				>
 			</File>
 			<File
@@ -202,119 +166,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\resources\fonts\Courier.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Courier_New.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Courierb.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Courierbi.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Courieri.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Geeza_Pro.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Geneva.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Georgia.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Georgiab.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Georgiai.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Helvetica.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Helvetica_Neueb.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Helveticab.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Helveticabi.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Helveticai.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Hiragino_Kaku_Gothic_Pro.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Hiragino_Mincho_Pro.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Hiragino_Mincho_Prob.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Impact.afm"
-				>
-			</File>
-			<File
 				RelativePath=".\resources\fonts\lucida_grande-fallback.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\resources\fonts\Lucida_Grande.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Lucida_Grandeb.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Monaco.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\MS_Gothic.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\MS_PGothic.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\MS_PMincho.afm"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\net\base\net_resources.rc"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Osaka.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Papyrus.afm"
 				>
 			</File>
 			<File
@@ -323,14 +179,6 @@
 			</File>
 			<File
 				RelativePath=".\resources\small.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\STKaiti.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Symbol.afm"
 				>
 			</File>
 			<File
@@ -346,55 +194,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\resources\fonts\Times.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Times_New_Roman.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Times_New_Romanb.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Timesb.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Timesbi.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Timesi.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Trebuchet_MS.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Verdana.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Verdanab.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Verdanabi.afm"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Verdanai.afm"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\..\localized_strings\webkit_strings_en-US.rc"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\Zapf_Dingbats.afm"
 				>
 			</File>
 		</Filter>
