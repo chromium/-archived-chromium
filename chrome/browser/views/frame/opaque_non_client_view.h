@@ -48,9 +48,7 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   // Constructs a non-client view for an OpaqueFrame. |is_otr| specifies if the
   // frame was created "off-the-record" and as such different bitmaps should be
   // used to render the frame.
-  OpaqueNonClientView(OpaqueFrame* frame,
-                      BrowserView2* browser_view,
-                      bool is_otr);
+  OpaqueNonClientView(OpaqueFrame* frame, BrowserView2* browser_view);
   virtual ~OpaqueNonClientView();
 
   // Retrieve the bounds of the window for the specified contents bounds.
@@ -144,9 +142,6 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
 
   // The BrowserView hosted within this View.
   BrowserView2* browser_view_;
-
-  // True if we are an OTR frame.
-  bool is_otr_;
 
   // The resources currently used to paint this view.
   WindowResources* current_active_resources_;

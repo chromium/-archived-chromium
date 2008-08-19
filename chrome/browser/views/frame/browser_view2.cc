@@ -150,6 +150,11 @@ bool BrowserView2::IsOffTheRecord() const {
   return browser_->profile()->IsOffTheRecord();
 }
 
+bool BrowserView2::ShouldShowOffTheRecordAvatar() const {
+  return IsOffTheRecord() &&
+      browser_->GetType() == BrowserType::TABBED_BROWSER;
+}
+
 bool BrowserView2::AcceleratorPressed(
     const ChromeViews::Accelerator& accelerator) {
   DCHECK(accelerator_table_.get());
@@ -631,15 +636,6 @@ int BrowserView2::NonClientHitTest(const gfx::Point& point) {
   WINDOWINFO wi;
   wi.cbSize = sizeof(wi);
   GetWindowInfo(frame_->GetWindow()->GetHWND(), &wi);
-
-  // Since we say that our client area extends to the top of the window (in
-  // the frame's WM_NCHITTEST handler.
-  CRect lb;
-  GetLocalBounds(&lb, true);
-  if (lb.PtInRect(point.ToPOINT())) {
-    if (point.y() < static_cast<int>(wi.cyWindowBorders))
-      return HTTOP;
-  }
 
   CPoint point_in_view_coords(point.ToPOINT());
   View::ConvertPointToView(GetParent(), this, &point_in_view_coords);

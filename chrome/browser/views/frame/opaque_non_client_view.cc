@@ -432,8 +432,7 @@ static const int kNoTitleOTRZoomedTopSpacing = 3;
 // OpaqueNonClientView, public:
 
 OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame,
-                                         BrowserView2* browser_view,
-                                         bool is_otr)
+                                         BrowserView2* browser_view)
     : NonClientView(),
       minimize_button_(new ChromeViews::Button),
       maximize_button_(new ChromeViews::Button),
@@ -441,10 +440,9 @@ OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame,
       close_button_(new ChromeViews::Button),
       window_icon_(new TabIconView(this)),
       frame_(frame),
-      browser_view_(browser_view),
-      is_otr_(is_otr) {
+      browser_view_(browser_view) {
   InitClass();
-  if (is_otr) {
+  if (browser_view->IsOffTheRecord()) {
     if (!active_otr_resources_) {
       // Lazy load OTR resources only when we first show an OTR frame.
       active_otr_resources_ = new OTRActiveWindowResources;
@@ -807,7 +805,7 @@ void OpaqueNonClientView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
 }
 
 void OpaqueNonClientView::PaintOTRAvatar(ChromeCanvas* canvas) {
-  if (is_otr_) {
+  if (browser_view_->ShouldShowOffTheRecordAvatar()) {
     canvas->DrawBitmapInt(browser_view_->GetOTRAvatarIcon(),
                           otr_avatar_bounds_.x(), otr_avatar_bounds_.y());
   }
@@ -998,7 +996,7 @@ void OpaqueNonClientView::LayoutOTRAvatar() {
   int otr_y = browser_view_->GetTabStripHeight() + top_spacing;
   int otr_width = 0;
   int otr_height = 0;
-  if (is_otr_) {
+  if (browser_view_->ShouldShowOffTheRecordAvatar()) {
     SkBitmap otr_avatar_icon = browser_view_->GetOTRAvatarIcon();
     otr_width = otr_avatar_icon.width();
     otr_height = otr_avatar_icon.height();
@@ -1011,10 +1009,18 @@ void OpaqueNonClientView::LayoutOTRAvatar() {
 void OpaqueNonClientView::LayoutDistributorLogo() {
   int logo_w = distributor_logo_.width();
   int logo_h = distributor_logo_.height();
-  
-  logo_bounds_.SetRect(
-      minimize_button_->GetX() - logo_w - kDistributorLogoHorizontalOffset,
-      kDistributorLogoVerticalOffset, logo_w, logo_h);
+
+  int logo_x = 0;
+  if (UILayoutIsRightToLeft()) {
+    CRect minimize_bounds;
+    minimize_button_->GetBounds(&minimize_bounds,
+                                APPLY_MIRRORING_TRANSFORMATION);
+    logo_x = minimize_bounds.right + kDistributorLogoHorizontalOffset;
+  } else {
+    logo_x = minimize_button_->GetX() - logo_w -
+        kDistributorLogoHorizontalOffset;
+  }
+  logo_bounds_.SetRect(logo_x, kDistributorLogoVerticalOffset, logo_w, logo_h);
 }
 
 void OpaqueNonClientView::LayoutTitleBar() {

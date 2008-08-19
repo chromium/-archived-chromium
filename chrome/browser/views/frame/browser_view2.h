@@ -88,6 +88,10 @@ class BrowserView2 : public BrowserWindow,
   // off the record.
   bool IsOffTheRecord() const;
 
+  // Returns true if the non-client view should render the Off-The-Record
+  // avatar icon if the window is off the record.
+  bool ShouldShowOffTheRecordAvatar() const;
+
   // Handle the specified |accelerator| being pressed.
   bool AcceleratorPressed(const ChromeViews::Accelerator& accelerator);
 
