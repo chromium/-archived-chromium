@@ -43,6 +43,9 @@
 
 typedef Histogram::Count Count;
 
+// static
+const int Histogram::kHexRangePrintingFlag = 0x8000;
+
 Histogram::Histogram(const wchar_t* name, Sample minimum,
                      Sample maximum, size_t bucket_count)
   : StatsRate(name),

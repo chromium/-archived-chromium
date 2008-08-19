@@ -42,6 +42,8 @@ class MessagePump : public RefCountedThreadSafe<MessagePump> {
   // these delegate methods are used.
   class Delegate {
    public:
+    virtual ~Delegate() {}
+
     // Called from within Run in response to ScheduleWork or when the message
     // pump would otherwise call DoDelayedWork.  Returns true to indicate that
     // work was done.  DoDelayedWork will not be called if DoWork returns true.

@@ -177,7 +177,8 @@ class Histogram : public StatsRate {
   typedef std::vector<Count> Counts;
   typedef std::vector<Sample> Ranges;
 
-  static const int kHexRangePrintingFlag = 0x8000;
+  static const int kHexRangePrintingFlag;
+
   //----------------------------------------------------------------------------
   // Statistic values, developed over the life of the histogram.
 

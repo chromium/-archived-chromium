@@ -45,10 +45,10 @@
 
 class Task;
 
-class MessageLoopOwnable : public tracked_objects::Tracked {
+class TaskBase : public tracked_objects::Tracked {
  public:
-  MessageLoopOwnable() { Reset(); }
-  virtual ~MessageLoopOwnable() {}
+  TaskBase() { Reset(); }
+  virtual ~TaskBase() {}
 
   // Use this method to adjust the priority given to a task by MessageLoop.
   void set_priority(int priority) { priority_ = priority; }
@@ -58,6 +58,9 @@ class MessageLoopOwnable : public tracked_objects::Tracked {
   void set_nestable(bool nestable) { nestable_ = nestable; }
   bool nestable() { return nestable_; }
 
+  // Used to manage a linked-list of tasks.
+  Task* next_task() const { return next_task_; }
+  void set_next_task(Task* next) { next_task_ = next; }
 
  protected:
   // If a derived class wishes to re-use this instance, then it should override
@@ -86,9 +89,6 @@ class MessageLoopOwnable : public tracked_objects::Tracked {
   bool is_owned_by_message_loop() const { return 0 <= posted_task_delay_; }
   void set_posted_task_delay(int delay) { posted_task_delay_ = delay; }
 
-  Task* next_task() const { return next_task_; }
-  void set_next_task(Task* next) { next_task_ = next; }
-
   // Priority for execution by MessageLoop. 0 is default. Higher means run
   // sooner, and lower (including negative) means run less soon.
   int priority_;
@@ -105,7 +105,7 @@ class MessageLoopOwnable : public tracked_objects::Tracked {
   // only in the top level message loop.
   bool nestable_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(MessageLoopOwnable);
+  DISALLOW_COPY_AND_ASSIGN(TaskBase);
 };
 
 
@@ -114,7 +114,7 @@ class MessageLoopOwnable : public tracked_objects::Tracked {
 // A task is a generic runnable thingy, usually used for running code on a
 // different thread or for scheduling future tasks off of the message loop.
 
-class Task : public MessageLoopOwnable {
+class Task : public TaskBase {
  public:
   Task() {}
   virtual ~Task() {}

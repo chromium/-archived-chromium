@@ -32,6 +32,7 @@
 #include <algorithm>
 
 #include "base/logging.h"
+#include "base/message_pump_default.h"
 #include "base/string_util.h"
 #include "base/thread_local_storage.h"
 
@@ -79,14 +80,17 @@ static LPTOP_LEVEL_EXCEPTION_FILTER GetTopSEHFilter() {
 MessageLoop::MessageLoop()
 #pragma warning(suppress: 4355)  // OK, to use |this| in the initializer list.
     : timer_manager_(this),
-      exception_restoration_(false),
       nestable_tasks_allowed_(true),
+      exception_restoration_(false),
       state_(NULL) {
   DCHECK(tls_index_) << "static initializer failed";
   DCHECK(!current()) << "should only have one message loop per thread";
   ThreadLocalStorage::Set(tls_index_, this);
+  // TODO(darin): Generalize this to support instantiating different pumps.
 #if defined(OS_WIN)
   pump_ = new base::MessagePumpWin();
+#else
+  pump_ = new base::MessagePumpDefault();
 #endif
 }
 
@@ -453,7 +457,7 @@ void MessageLoop::PrioritizedTaskQueue::push(Task * task) {
 
 bool MessageLoop::PrioritizedTaskQueue::PrioritizedTask::operator < (
     PrioritizedTask const & right) const {
-  int compare = task_->priority_ - right.task_->priority_;
+  int compare = task_->priority() - right.task_->priority();
   if (compare)
     return compare < 0;
   // Don't compare directly, but rather subtract.  This handles overflow

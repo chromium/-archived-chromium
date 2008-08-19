@@ -76,46 +76,46 @@ TEST(HistogramTest, RecordedStartupTest) {
   StatisticsRecorder recorder;  // This initializes the global state.
 
   StatisticsRecorder::Histograms histograms;
-  EXPECT_EQ(0, histograms.size());
+  EXPECT_EQ(0U, histograms.size());
   StatisticsRecorder::GetHistograms(&histograms);  // Load up lists
-  EXPECT_EQ(0, histograms.size());
+  EXPECT_EQ(0U, histograms.size());
 
   // Try basic construction
   Histogram histogram(L"TestHistogram", 1, 1000, 10);
   histograms.clear();
   StatisticsRecorder::GetHistograms(&histograms);  // Load up lists
-  EXPECT_EQ(1, histograms.size());
+  EXPECT_EQ(1U, histograms.size());
   Histogram histogram1(L"Test1Histogram", 1, 1000, 10);
   histograms.clear();
   StatisticsRecorder::GetHistograms(&histograms);  // Load up lists
-  EXPECT_EQ(2, histograms.size());
+  EXPECT_EQ(2U, histograms.size());
 
   LinearHistogram linear_histogram(L"TestLinearHistogram", 1, 1000, 10);
   LinearHistogram linear_histogram1(L"Test1LinearHistogram", 1, 1000, 10);
   histograms.clear();
   StatisticsRecorder::GetHistograms(&histograms);  // Load up lists
-  EXPECT_EQ(4, histograms.size());
+  EXPECT_EQ(4U, histograms.size());
 
   // Use standard macros (but with fixed samples)
   HISTOGRAM_TIMES(L"Test2Histogram", TimeDelta::FromDays(1));
   HISTOGRAM_COUNTS(L"Test3Histogram", 30);
   histograms.clear();
   StatisticsRecorder::GetHistograms(&histograms);  // Load up lists
-  EXPECT_EQ(6, histograms.size());
+  EXPECT_EQ(6U, histograms.size());
 
   ASSET_HISTOGRAM_COUNTS(L"TestAssetHistogram", 1000);
   histograms.clear();
   StatisticsRecorder::GetHistograms(&histograms);  // Load up lists
-  EXPECT_EQ(7, histograms.size());
+  EXPECT_EQ(7U, histograms.size());
 
   DHISTOGRAM_TIMES(L"Test4Histogram", TimeDelta::FromDays(1));
   DHISTOGRAM_COUNTS(L"Test5Histogram", 30);
   histograms.clear();
   StatisticsRecorder::GetHistograms(&histograms);  // Load up lists
 #ifndef NDEBUG
-  EXPECT_EQ(9, histograms.size());
+  EXPECT_EQ(9U, histograms.size());
 #else
-  EXPECT_EQ(7, histograms.size());
+  EXPECT_EQ(7U, histograms.size());
 #endif
 }
 
@@ -124,7 +124,7 @@ TEST(HistogramTest, RangeTest) {
   StatisticsRecorder::Histograms histograms;
 
   recorder.GetHistograms(&histograms);
-  EXPECT_EQ(0, histograms.size());
+  EXPECT_EQ(0U, histograms.size());
 
   Histogram histogram(L"Histogram", 1, 64, 8);  // As mentioned in header file.
   // Check that we got a nice exponential when there was enough rooom.
@@ -177,12 +177,12 @@ TEST(HistogramTest, RangeTest) {
   EXPECT_EQ(INT_MAX, threadsafe_histogram.ranges(15));
 
   recorder.GetHistograms(&histograms);
-  EXPECT_EQ(5, histograms.size());
+  EXPECT_EQ(5U, histograms.size());
 }
 
 // Make sure histogram handles out-of-bounds data gracefully.
 TEST(HistogramTest, BoundsTest) {
-  const int kBucketCount = 50;
+  const size_t kBucketCount = 50;
   Histogram histogram(L"Bounded", 10, 100, kBucketCount);
 
   // Put two samples "out of bounds" above and below.
@@ -251,7 +251,7 @@ TEST(HistogramTest, AssetCountTest) {
   // Find the histogram.
   StatisticsRecorder::Histograms histogram_list;
   StatisticsRecorder::GetHistograms(&histogram_list);
-  ASSERT_GT(histogram_list.size(), 0u);
+  ASSERT_NE(0U, histogram_list.size());
   std::string ascii_name = WideToASCII(kAssetTestHistogramName);
   std::string debug_ascii_name = WideToASCII(kAssetTestDebugHistogramName);
   const Histogram* our_histogram = NULL;
@@ -280,7 +280,7 @@ TEST(HistogramTest, AssetCountTest) {
       EXPECT_LT(++match_count, 2) << "extra count in bucket " << i;
     }
   }
-  EXPECT_EQ(1u, match_count);
+  EXPECT_EQ(1, match_count);
 
   // Remove our sample.
   AssetCountFunction(-100);  // Remove a sample from the bucket for 100.
@@ -304,7 +304,7 @@ TEST(HistogramTest, AssetCountTest) {
       EXPECT_LT(++match_count, 2) << "extra count in bucket " << i;
     }
   }
-  EXPECT_EQ(1u, match_count);
+  EXPECT_EQ(1, match_count);
 
   // Remove our sample.
   AssetCountFunction(-100);  // Remove a sample from the bucket for 100.

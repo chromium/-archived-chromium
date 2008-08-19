@@ -27,10 +27,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "base/notimplemented.h"
-#include "build/build_config.h"
+#include "base/logging.h"
 
-#if defined(WIN32)
+#if defined(OS_WIN)
 #include <windows.h>
 typedef HANDLE FileHandle;
 typedef HANDLE MutexHandle;
@@ -57,11 +56,12 @@ typedef pthread_mutex_t* MutexHandle;
 #include <iomanip>
 #include <cstring>
 #include <algorithm>
+
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/debug_util.h"
 #include "base/lock_impl.h"
-#include "base/logging.h"
+#include "base/notimplemented.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"

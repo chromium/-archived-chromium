@@ -36,21 +36,17 @@
 
 #include "build/build_config.h"
 
-#if defined(OS_WIN)
-#include <windows.h>
-#endif
-
 #include "base/command_line.h"
 #include "base/debug_on_start.h"
 #include "base/icu_util.h"
 #include "base/logging.h"
-#if defined(OS_WIN)
-// TODO(pinkerton): re-enable this when MessageLoop can be included by
-// non-windows platforms.
 #include "base/message_loop.h"
+#include "testing/gtest/include/gtest/gtest.h"
+
+#if defined(OS_WIN)
+#include <windows.h>
 #include "base/multiprocess_test.h"
 #endif
-#include "testing/gtest/include/gtest/gtest.h"
 
 class TestSuite {
  public:
@@ -59,12 +55,10 @@ class TestSuite {
   }
 
   virtual ~TestSuite() {
-#if defined(OS_WIN)
     // Flush any remaining messages.  This ensures that any accumulated Task
     // objects get destroyed before we exit, which avoids noise in purify
     // leak-test results.
     message_loop_.RunAllPending();
-#endif
   }
 
   int Run() {
@@ -125,9 +119,7 @@ class TestSuite {
   }
 
   CommandLine parsed_command_line_;
-#if defined(OS_WIN)
   MessageLoop message_loop_;
-#endif
 };
 
 #endif  // BASE_TEST_SUITE_H_

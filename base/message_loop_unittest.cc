@@ -29,14 +29,24 @@
 
 #include "base/logging.h"
 #include "base/message_loop.h"
-#include "base/scoped_handle.h"
-#include "base/thread.h"
+#include "base/platform_thread.h"
 #include "base/ref_counted.h"
+#include "base/thread.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 #if defined(OS_WIN)
 #include "base/message_pump_win.h"
+#include "base/scoped_handle.h"
 #endif
+
+//
+// TODO(darin): This file needs to be re-organized into acceptance tests that
+// apply to a MessageLoop configured to use any MessagePump.  Then, those tests
+// need to be run against all MessagePump types supported by a platform.
+//
+// Finally, platform-specific MessageLoop tests should be grouped together to
+// avoid the chopping this file up with so many #ifdefs.
+//
 
 namespace {
 
@@ -184,6 +194,8 @@ class NestingTest : public Task {
   int* depth_;
 };
 
+#if defined(OS_WIN)
+
 LONG WINAPI BadExceptionHandler(EXCEPTION_POINTERS *ex_info) {
   ADD_FAILURE() << "bad exception handler";
   ::ExitProcess(ex_info->ExceptionRecord->ExceptionCode);
@@ -200,7 +212,7 @@ class CrasherTask : public Task {
       : trash_SEH_handler_(trash_SEH_handler) {
   }
   void Run() {
-    Sleep(1);
+    PlatformThread::Sleep(1);
     if (trash_SEH_handler_)
       ::SetUnhandledExceptionFilter(&BadExceptionHandler);
     // Generate a SEH fault. We do it in asm to make sure we know how to undo
@@ -217,8 +229,8 @@ class CrasherTask : public Task {
 
     bad_array_[0] = 66;
 
-#elif
-
+#else
+#error "needs architecture support"
 #endif
 
     MessageLoop::current()->Quit();
@@ -258,6 +270,8 @@ LONG WINAPI HandleCrasherTaskException(EXCEPTION_POINTERS *ex_info) {
 
   return EXCEPTION_CONTINUE_EXECUTION;
 }
+
+#endif  // defined(OS_WIN)
 
 }  // namespace
 
@@ -406,6 +420,8 @@ class OrderedTasks : public Task {
   int cookie_;
 };
 
+#if defined(OS_WIN)
+
 // MessageLoop implicitly start a "modal message loop". Modal dialog boxes,
 // common controls (like OpenFile) and StartDoc printing function can cause
 // implicit message loops.
@@ -446,6 +462,8 @@ class EndDialogTask : public OrderedTasks {
     }
   }
 };
+
+#endif  // defined(OS_WIN)
 
 class RecursiveTask : public OrderedTasks {
  public:
@@ -563,7 +581,7 @@ TEST(MessageLoop, RecursiveDenial1) {
   MessageLoop::current()->Run();
 
   // FIFO order.
-  ASSERT_EQ(order.size(), 14);
+  ASSERT_EQ(14U, order.size());
   EXPECT_EQ(order[ 0], TaskItem(RECURSIVE, 1, true));
   EXPECT_EQ(order[ 1], TaskItem(RECURSIVE, 1, false));
   EXPECT_EQ(order[ 2], TaskItem(RECURSIVE, 2, true));
@@ -593,7 +611,7 @@ TEST(MessageLoop, RecursiveSupport1) {
   MessageLoop::current()->Run();
 
   // FIFO order.
-  ASSERT_EQ(order.size(), 14);
+  ASSERT_EQ(14U, order.size());
   EXPECT_EQ(order[ 0], TaskItem(RECURSIVE, 1, true));
   EXPECT_EQ(order[ 1], TaskItem(RECURSIVE, 1, false));
   EXPECT_EQ(order[ 2], TaskItem(RECURSIVE, 2, true));
@@ -728,7 +746,7 @@ TEST(MessageLoop, NonNestableWithNoNesting) {
   MessageLoop::current()->Run();
 
   // FIFO order.
-  ASSERT_EQ(order.size(), 6);
+  ASSERT_EQ(6U, order.size());
   EXPECT_EQ(order[ 0], TaskItem(ORDERERD, 1, true));
   EXPECT_EQ(order[ 1], TaskItem(ORDERERD, 1, false));
   EXPECT_EQ(order[ 2], TaskItem(ORDERERD, 2, true));
@@ -756,7 +774,7 @@ TEST(MessageLoop, NonNestableInNestedLoop) {
   MessageLoop::current()->Run();
 
   // FIFO order.
-  ASSERT_EQ(order.size(), 10);
+  ASSERT_EQ(10U, order.size());
   EXPECT_EQ(order[ 0], TaskItem(PUMPS, 1, true));
   EXPECT_EQ(order[ 1], TaskItem(ORDERERD, 3, true));
   EXPECT_EQ(order[ 2], TaskItem(ORDERERD, 3, false));
