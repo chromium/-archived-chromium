@@ -257,3 +257,8 @@ TEST_F(PRTimeTest, ParseTimeTestEpoch1960) {
                                    &parsed_time));
   EXPECT_EQ(-300003599, parsed_time.ToTimeT());
 }
+
+TEST_F(PRTimeTest, ParseTimeTestEmpty) {
+  Time parsed_time;
+  EXPECT_FALSE(Time::FromString(L"", &parsed_time));
+}

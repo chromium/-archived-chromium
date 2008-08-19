@@ -90,6 +90,7 @@ class TimeDelta {
   // point value, the "regular" versions return a rounded-down value.
   int InDays() const;
   int InHours() const;
+  int InMinutes() const;
   double InSecondsF() const;
   int64 InSeconds() const;
   double InMillisecondsF() const;

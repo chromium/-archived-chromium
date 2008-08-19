@@ -80,6 +80,10 @@ int TimeDelta::InHours() const {
   return static_cast<int>(delta_ / Time::kMicrosecondsPerHour);
 }
 
+int TimeDelta::InMinutes() const {
+  return static_cast<int>(delta_ / Time::kMicrosecondsPerMinute);
+}
+
 double TimeDelta::InSecondsF() const {
   return static_cast<double>(delta_) / Time::kMicrosecondsPerSecond;
 }

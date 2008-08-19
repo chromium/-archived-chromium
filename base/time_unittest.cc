@@ -70,14 +70,19 @@ TEST(Time, TimeT) {
   time_t now_t_2 = our_time_2.ToTimeT();
   EXPECT_EQ(now_t_1, now_t_2);
 
+  EXPECT_EQ(10, Time().FromTimeT(10).ToTimeT());
+  EXPECT_EQ(10.0, Time().FromTimeT(10).ToDoubleT());
+
   // Conversions of 0 should stay 0.
   EXPECT_EQ(0, Time().ToTimeT());
   EXPECT_EQ(0, Time::FromTimeT(0).ToInternalValue());
 }
 
 TEST(Time, ZeroIsSymmetric) {
-  Time zeroTime(Time::FromTimeT(0));
-  EXPECT_EQ(0, zeroTime.ToTimeT());
+  Time zero_time(Time::FromTimeT(0));
+  EXPECT_EQ(0, zero_time.ToTimeT());
+
+  EXPECT_EQ(0.0, zero_time.ToDoubleT());
 }
 
 TEST(Time, LocalExplode) {
@@ -101,6 +106,15 @@ TEST(Time, UTCExplode) {
   EXPECT_TRUE((a - b) < TimeDelta::FromMilliseconds(1));
 }
 
+TEST(Time, LocalMidnight) {
+  Time::Exploded exploded;
+  Time::Now().LocalMidnight().LocalExplode(&exploded);
+  EXPECT_EQ(0, exploded.hour);
+  EXPECT_EQ(0, exploded.minute);
+  EXPECT_EQ(0, exploded.second);
+  EXPECT_EQ(0, exploded.millisecond);
+}
+
 TEST(TimeTicks, Deltas) {
   TimeTicks ticks_start = TimeTicks::Now();
   PlatformThread::Sleep(10);
@@ -109,6 +123,23 @@ TEST(TimeTicks, Deltas) {
   EXPECT_GE(delta.InMilliseconds(), 10);
   EXPECT_GE(delta.InMicroseconds(), 10000);
   EXPECT_EQ(delta.InSeconds(), 0);
+}
+
+TEST(TimeDelta, FromAndIn) {
+  EXPECT_TRUE(TimeDelta::FromDays(2) == TimeDelta::FromHours(48));
+  EXPECT_TRUE(TimeDelta::FromHours(3) == TimeDelta::FromMinutes(180));
+  EXPECT_TRUE(TimeDelta::FromMinutes(2) == TimeDelta::FromSeconds(120));
+  EXPECT_TRUE(TimeDelta::FromSeconds(2) == TimeDelta::FromMilliseconds(2000));
+  EXPECT_TRUE(TimeDelta::FromMilliseconds(2) ==
+              TimeDelta::FromMicroseconds(2000));
+  EXPECT_EQ(13, TimeDelta::FromDays(13).InDays());
+  EXPECT_EQ(13, TimeDelta::FromHours(13).InHours());
+  EXPECT_EQ(13, TimeDelta::FromMinutes(13).InMinutes());
+  EXPECT_EQ(13, TimeDelta::FromSeconds(13).InSeconds());
+  EXPECT_EQ(13.0, TimeDelta::FromSeconds(13).InSecondsF());
+  EXPECT_EQ(13, TimeDelta::FromMilliseconds(13).InMilliseconds());
+  EXPECT_EQ(13.0, TimeDelta::FromMilliseconds(13).InMillisecondsF());
+  EXPECT_EQ(13, TimeDelta::FromMicroseconds(13).InMicroseconds());
 }
 
 #if defined(OS_WIN)
