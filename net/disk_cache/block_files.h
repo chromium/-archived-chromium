@@ -45,7 +45,7 @@ class EntryImpl;
 class BlockFiles {
  public:
   explicit BlockFiles(const std::wstring& path)
-      : path_(path), init_(false), zero_buffer_(NULL) {}
+      : init_(false), zero_buffer_(NULL), path_(path) {}
   ~BlockFiles();
 
   // Performs the object initialization. create_files indicates if the backing

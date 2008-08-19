@@ -54,7 +54,7 @@ namespace disk_cache {
 class FileLock {
  public:
   explicit FileLock(BlockFileHeader* header);
-  ~FileLock() {
+  virtual ~FileLock() {
     Unlock();
   }
   // Virtual to make sure the compiler never inlines the calls.

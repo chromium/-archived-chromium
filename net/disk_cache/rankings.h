@@ -80,7 +80,7 @@ class Rankings {
    public:
     explicit ScopedRankingsBlock(Rankings* rankings) : rankings_(rankings) {}
     ScopedRankingsBlock(Rankings* rankings, CacheRankingsBlock* node)
-        : rankings_(rankings), scoped_ptr<CacheRankingsBlock>(node) {}
+        : scoped_ptr<CacheRankingsBlock>(node), rankings_(rankings) {}
 
     ~ScopedRankingsBlock() {
       rankings_->FreeRankingsBlock(get());

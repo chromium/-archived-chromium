@@ -47,12 +47,12 @@ namespace disk_cache {
 class BackendImpl : public Backend {
  public:
   explicit BackendImpl(const std::wstring& path)
-      : path_(path), init_(false), mask_(0), block_files_(path),
-        unit_test_(false), restarted_(false), max_size_(0) {}
+      : path_(path), block_files_(path), mask_(0), max_size_(0),
+        init_(false), restarted_(false), unit_test_(false) {}
   // mask can be used to limit the usable size of the hash table, for testing.
   BackendImpl(const std::wstring& path, uint32 mask)
-      : path_(path), init_(false), mask_(mask), block_files_(path),
-        unit_test_(false), restarted_(false), max_size_(0) {}
+      : path_(path), block_files_(path), mask_(mask), max_size_(0),
+        init_(false), restarted_(false), unit_test_(false) {}
   ~BackendImpl();
 
   // Performs general initialization for this current instance of the cache.

@@ -47,7 +47,7 @@ namespace disk_cache {
 // time).
 class MappedFile : public File {
  public:
-  MappedFile() : init_(false), File(true) {}
+  MappedFile() : File(true), init_(false) {}
 
   // Performs object initialization. name is the file to use, and size is the
   // ammount of data to memory map from th efile. If size is 0, the whole file
