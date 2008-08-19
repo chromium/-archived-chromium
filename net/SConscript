@@ -59,6 +59,17 @@ input_files = [
     'base/gzip_filter.cc',
     'base/gzip_header.cc',
     'base/net_errors.cc',
+    'disk_cache/backend_impl.cc',
+    'disk_cache/block_files.cc',
+    'disk_cache/entry_impl.cc',
+    'disk_cache/file_lock.cc',
+    'disk_cache/hash.cc',
+    'disk_cache/mem_backend_impl.cc',
+    'disk_cache/mem_entry_impl.cc',
+    'disk_cache/mem_rankings.cc',
+    'disk_cache/rankings.cc',
+    'disk_cache/stats.cc',
+    'disk_cache/trace.cc',
 ]
 
 if env['PLATFORM'] == 'win32':
@@ -91,17 +102,6 @@ if env['PLATFORM'] == 'win32':
       'base/wininet_util.cc',
       'base/winsock_init.cc',
       'base/x509_certificate.cc',
-      'disk_cache/backend_impl.cc',
-      'disk_cache/block_files.cc',
-      'disk_cache/entry_impl.cc',
-      'disk_cache/file_lock.cc',
-      'disk_cache/hash.cc',
-      'disk_cache/mem_backend_impl.cc',
-      'disk_cache/mem_entry_impl.cc',
-      'disk_cache/mem_rankings.cc',
-      'disk_cache/rankings.cc',
-      'disk_cache/stats.cc',
-      'disk_cache/trace.cc',
       'http/cert_status_cache.cc',
       'http/http_chunked_decoder.cc',
       'http/http_cache.cc',
@@ -149,12 +149,10 @@ if env['PLATFORM'] == 'win32':
 
 if env['PLATFORM'] in ('darwin', 'posix'):
   input_files.extend([
-      # Not quite ready for these, they still pull in net_util.h which
-      # includes <windows.h>.
-      #'disk_cache/cache_util_posix.cc',
-      #'disk_cache/file_posix.cc',
-      #'disk_cache/mapped_file_posix.cc',
-      #'disk_cache/os_file_posix.cc',
+      'disk_cache/cache_util_posix.cc',
+      'disk_cache/file_posix.cc',
+      'disk_cache/mapped_file_posix.cc',
+      'disk_cache/os_file_posix.cc',
   ])
 
 if env['PLATFORM'] == 'win32':
@@ -226,6 +224,7 @@ unittest_files = [
     'base/base64_unittest.cc',
     'base/bzip2_filter_unittest.cc',
     'base/gzip_filter_unittest.cc',
+    'disk_cache/addr_unittest.cc',
     '$BASE_DIR/run_all_unittests$OBJSUFFIX',
 ]
 
@@ -245,7 +244,6 @@ if env['PLATFORM'] == 'win32':
       'base/ssl_client_socket_unittest.cc',
       'base/tcp_client_socket_unittest.cc',
       'base/wininet_util_unittest.cc',
-      'disk_cache/addr_unittest.cc',
       'disk_cache/backend_unittest.cc',
       'disk_cache/block_files_unittest.cc',
       'disk_cache/disk_cache_test_base.cc',
