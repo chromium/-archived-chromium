@@ -26,6 +26,10 @@
 		048268080E5B3B3200A30786 /* http_chunked_decoder_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33570E5A194700A747DB /* http_chunked_decoder_unittest.cc */; };
 		048268090E5B3B4800A30786 /* mime_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED325E0E5A181C00A747DB /* mime_util_unittest.cc */; };
 		0482692A0E5B624D00A30786 /* http_cache.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED334C0E5A194700A747DB /* http_cache.cc */; };
+		7B4DF64A0E5B98DF004D7619 /* client_socket_pool_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED326A0E5A181C00A747DB /* client_socket_pool_unittest.cc */; };
+		7B4DF6A90E5B98E7004D7619 /* data_url_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED325F0E5A181C00A747DB /* data_url_unittest.cc */; };
+		7B4DF6B10E5B98ED004D7619 /* escape_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32BF0E5A181C00A747DB /* escape_unittest.cc */; };
+		7B4DF6BD0E5B98F7004D7619 /* addr_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32EE0E5A190600A747DB /* addr_unittest.cc */; };
 		7B8502040E5A376900730B43 /* libgoogleurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B8501FE0E5A372500730B43 /* libgoogleurl.a */; };
 		7B8502050E5A377100730B43 /* auth_cache_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32790E5A181C00A747DB /* auth_cache_unittest.cc */; };
 		7B8502120E5A37A800730B43 /* base64_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32760E5A181C00A747DB /* base64_unittest.cc */; };
@@ -1196,9 +1200,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7B4DF6BD0E5B98F7004D7619 /* addr_unittest.cc in Sources */,
 				7B8502050E5A377100730B43 /* auth_cache_unittest.cc in Sources */,
 				7B8502120E5A37A800730B43 /* base64_unittest.cc in Sources */,
 				7BA015210E5A1B9800044150 /* bzip2_filter_unittest.cc in Sources */,
+				7B4DF64A0E5B98DF004D7619 /* client_socket_pool_unittest.cc in Sources */,
+				7B4DF6A90E5B98E7004D7619 /* data_url_unittest.cc in Sources */,
+				7B4DF6B10E5B98ED004D7619 /* escape_unittest.cc in Sources */,
 				7BA0151F0E5A1B9200044150 /* gzip_filter_unittest.cc in Sources */,
 				048268080E5B3B3200A30786 /* http_chunked_decoder_unittest.cc in Sources */,
 				048268090E5B3B4800A30786 /* mime_util_unittest.cc in Sources */,

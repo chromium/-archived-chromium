@@ -43,6 +43,8 @@ class HttpResponseInfo;
 // answered.  Cookies are assumed to be managed by the caller.
 class HttpTransaction {
  public:
+  virtual ~HttpTransaction() {}
+
   // Stops any pending IO and destroys the transaction object.
   virtual void Destroy() = 0;
 

@@ -76,7 +76,7 @@ TEST(Escape, EscapeTextForFormSubmission) {
     {L"foo bar", L"foo+bar"},
     {L"foo++", L"foo%2B%2B"}
   };
-  for (int i = 0; i < arraysize(escape_cases); ++i) {
+  for (size_t i = 0; i < arraysize(escape_cases); ++i) {
     EscapeCase value = escape_cases[i];
     EXPECT_EQ(value.output, EscapeQueryParamValueUTF8(value.input));
   }
@@ -156,7 +156,7 @@ TEST(Escape, UnescapeURLComponent) {
     {"Hello%20%13%10%02", UnescapeRule::CONTROL_CHARS, "Hello%20\x13\x10\x02"},
   };
 
-  for (int i = 0; i < arraysize(unescape_cases); i++) {
+  for (size_t i = 0; i < arraysize(unescape_cases); i++) {
     std::string str(unescape_cases[i].input);
     EXPECT_EQ(std::string(unescape_cases[i].output),
               UnescapeURLComponent(str, unescape_cases[i].rules));
@@ -217,7 +217,7 @@ TEST(Escape, UnescapeAndDecodeURLComponent) {
              L"%ED%ED"},  // Invalid UTF-8 -> kept unescaped.
   };
 
-  for (int i = 0; i < arraysize(unescape_cases); i++) {
+  for (size_t i = 0; i < arraysize(unescape_cases); i++) {
     std::string unescaped = UnescapeURLComponent(unescape_cases[i].input,
                                                  UnescapeRule::NORMAL);
     EXPECT_EQ(std::string(unescape_cases[i].url_unescaped), unescaped);
