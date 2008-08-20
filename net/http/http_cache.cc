@@ -732,7 +732,7 @@ bool HttpCache::Transaction::RequiresValidation() {
   //  - make sure we have a matching request method
   //  - watch out for cached responses that depend on authentication
   // In playback mode, nothing requires validation.
-  if (mode_ == net::HttpCache::PLAYBACK)
+  if (cache_->mode() == net::HttpCache::PLAYBACK)
     return false;
 
   if (effective_load_flags_ & LOAD_VALIDATE_CACHE)
