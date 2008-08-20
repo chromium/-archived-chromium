@@ -385,13 +385,13 @@ TrimPositions TrimStringT(const STR& input,
 }
 
 bool TrimString(const std::wstring& input,
-                wchar_t trim_chars[],
+                const wchar_t trim_chars[],
                 std::wstring* output) {
   return TrimStringT(input, trim_chars, TRIM_ALL, output) != TRIM_NONE;
 }
 
 bool TrimString(const std::string& input,
-                char trim_chars[],
+                const char trim_chars[],
                 std::string* output) {
   return TrimStringT(input, trim_chars, TRIM_ALL, output) != TRIM_NONE;
 }

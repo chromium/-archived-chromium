@@ -150,10 +150,10 @@ extern const char* const kCodepageUTF8;
 // Removes characters in trim_chars from the beginning and end of input.
 // NOTE: Safe to use the same variable for both input and output.
 bool TrimString(const std::wstring& input,
-                wchar_t trim_chars[],
+                const wchar_t trim_chars[],
                 std::wstring* output);
 bool TrimString(const std::string& input,
-                char trim_chars[],
+                const char trim_chars[],
                 std::string* output);
 
 // Trims any whitespace from either end of the input string.  Returns where
