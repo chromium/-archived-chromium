@@ -58,7 +58,7 @@ struct TraceBuffer {
 
 TraceBuffer* s_trace_buffer = NULL;
 
-void DebugOutput(char* msg) {
+void DebugOutput(const char* msg) {
 #if defined(OS_WIN)
   OutputDebugStringA(msg);
 #else

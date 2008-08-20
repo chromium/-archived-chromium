@@ -39,7 +39,6 @@ disk_cache::RankCrashes g_rankings_crash = disk_cache::NO_CRASH;
 
 namespace {
 
-const wchar_t* kBlockName = L"\\data_";
 const int kHeadIndex = 0;
 const int kTailIndex = 1;
 const int kTransactionIndex = 2;

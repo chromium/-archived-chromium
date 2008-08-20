@@ -339,6 +339,7 @@ elif env['PLATFORM'] == 'posix':
     '-Wno-unused-function',  # TODO: there's just one Skia function.
     '-Wno-switch',           # TODO: this is likely masking real bugs.
     '-Wno-sign-compare',     # TODO: this is likely masking real bugs.
+    '-Wno-missing-braces',   # TODO: just a file in net.
   ]
   env.Replace(
       CCFLAGS = ['-m32', '-g', '-Wall', '-Werror'] + excluded_warnings,
