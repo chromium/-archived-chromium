@@ -55,17 +55,6 @@ namespace {
       file_util::Delete(test_dir_, true);
       CreateDirectory(test_dir_.c_str(), NULL);
       ASSERT_TRUE(file_util::PathExists(test_dir_));
-
-      // Create a log file
-      std::wstring log_file;
-      ASSERT_TRUE(file_util::CreateTemporaryFileName(&log_file));
-      ASSERT_TRUE(file_util::PathExists(log_file));
-
-      logging::InitLogging(log_file.c_str(),
-                           logging::LOG_ONLY_TO_FILE,
-                           logging::LOCK_LOG_FILE,
-                           logging::DELETE_OLD_LOG_FILE);
-      logging::SetMinLogLevel(logging::LOG_INFO);
     }
 
     virtual void TearDown() {

@@ -52,17 +52,6 @@ namespace {
       key.DeleteKey(test_root);
       ASSERT_FALSE(key.Open(HKEY_CURRENT_USER, test_root, KEY_READ));
       ASSERT_TRUE(key.Create(HKEY_CURRENT_USER, test_root, KEY_READ));
-
-      // Create a log file
-      std::wstring log_file;
-      ASSERT_TRUE(file_util::CreateTemporaryFileName(&log_file));
-      ASSERT_TRUE(file_util::PathExists(log_file));
-
-      logging::InitLogging(log_file.c_str(),
-                           logging::LOG_ONLY_TO_FILE,
-                           logging::LOCK_LOG_FILE,
-                           logging::DELETE_OLD_LOG_FILE);
-      logging::SetMinLogLevel(logging::LOG_INFO);
     }
     virtual void TearDown() {
       logging::CloseLogFile();
