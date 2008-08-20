@@ -240,6 +240,8 @@ Browser::Browser(const gfx::Rect& initial_bounds,
   // See note where SIZE_TO_CONTENTS is defined in browser.h for an explanation
   // of this hack.
   if (show_command == SIZE_TO_CONTENTS) {
+    // This codepath is deprecated with the new frames.
+    DCHECK(!g_browser_process->IsUsingNewFrames());
     // SizeToContents causes a Layout so make sure the tab strip and toolbar
     // are already initialized.
     window_->SizeToContents(initial_bounds);
@@ -755,20 +757,35 @@ void Browser::StartDraggingDetachedContents(TabContents* source,
                                             const gfx::Rect& contents_bounds,
                                             const gfx::Point& mouse_pt,
                                             int frame_component) {
-  BrowserType::Type new_type = BrowserType::BROWSER;
+  if (!g_browser_process->IsUsingNewFrames()) {
+    BrowserType::Type new_type = BrowserType::BROWSER;
 
-  // If this is a minimal chrome browser, propagate to detached contents to
-  // avoid having URL fields in popups.
-  if (type_ == BrowserType::APPLICATION)
-    new_type = type_;
+    // If this is a minimal chrome browser, propagate to detached contents to
+    // avoid having URL fields in popups.
+    if (type_ == BrowserType::APPLICATION)
+      new_type = type_;
 
-  Browser* browser = new Browser(contents_bounds, SIZE_TO_CONTENTS, profile_,
-                                 new_type, L"");
-  browser->AddNewContents(
-      source, new_contents, NEW_FOREGROUND_TAB, contents_bounds, true);
-  browser->Show();
-  browser->window_->ContinueDetachConstrainedWindowDrag(
-      mouse_pt, frame_component);
+    Browser* browser = new Browser(contents_bounds, SIZE_TO_CONTENTS, profile_,
+                                   new_type, L"");
+    browser->AddNewContents(
+        source, new_contents, NEW_FOREGROUND_TAB, contents_bounds, true);
+    browser->Show();
+    browser->window_->ContinueDetachConstrainedWindowDrag(
+        mouse_pt, frame_component);
+  } else {
+    // If we're inside an application frame, preserve that type (i.e. don't
+    // show a location bar on the new window), otherwise open a tab-less
+    // browser window with a location bar.
+    BrowserType::Type new_type =
+        type_ == BrowserType::APPLICATION ? type_ : BrowserType::BROWSER;
+    Browser* browser = new Browser(contents_bounds, SW_SHOWNORMAL, profile_,
+                                   BrowserType::BROWSER, std::wstring());
+    browser->AddNewContents(source, new_contents,
+                            NEW_FOREGROUND_TAB, gfx::Rect(), true);
+    browser->Show();
+    browser->window()->ContinueDetachConstrainedWindowDrag(mouse_pt,
+                                                           frame_component);
+  }
 }
 
 void Browser::ActivateContents(TabContents* contents) {
@@ -926,7 +943,6 @@ StatusBubble* Browser::GetStatusBubble() {
 
 // Called whenever the window is moved so that we can update the position
 // of any WS_POPUP HWNDs.
-// TODO(beng): This should move to BrowserView2!
 void Browser::WindowMoved() {
   DCHECK(!g_browser_process->IsUsingNewFrames());
   GetStatusBubble()->Reposition();
@@ -1665,32 +1681,34 @@ void Browser::ConvertToTabbedBrowser() {
 void Browser::BuildPopupWindow(TabContents* source,
                                TabContents* new_contents,
                                const gfx::Rect& initial_pos) {
-  Browser* browser = new Browser(gfx::Rect(), SW_SHOWNORMAL, profile_,
+  Browser* browser = new Browser(initial_pos, SW_SHOWNORMAL, profile_,
                                  BrowserType::BROWSER, std::wstring());
   browser->AddNewContents(source, new_contents,
                           NEW_FOREGROUND_TAB, gfx::Rect(), true);
 
-  // TODO(beng): (1031854) Move most of this to the frames!!
-  // For newly opened popup windows, the incoming width/height
-  // numbers are for the content area, but x/y are for the actual
-  // window position. Thus we can't just call MoveContents().
-  gfx::Rect window_rect =
-      browser->window()->GetBoundsForContentBounds(initial_pos);
-  window_rect.set_origin(initial_pos.origin());
+  if (!g_browser_process->IsUsingNewFrames()) {
+    // TODO(beng): (1031854) Move most of this to the frames!!
+    // For newly opened popup windows, the incoming width/height
+    // numbers are for the content area, but x/y are for the actual
+    // window position. Thus we can't just call MoveContents().
+    gfx::Rect window_rect =
+        browser->window()->GetBoundsForContentBounds(initial_pos);
+    window_rect.set_origin(initial_pos.origin());
 
-  // When we are given x/y coordinates of 0 on a created popup window,
-  // assume none were given by the window.open() command.
-  if (window_rect.x() == 0 && window_rect.y() == 0) {
-    gfx::Point origin = window()->GetNormalBounds().origin();
-    origin.set_x(origin.x() + kWindowTilePixels);
-    origin.set_y(origin.y() + kWindowTilePixels);
-    window_rect.set_origin(origin);
+    // When we are given x/y coordinates of 0 on a created popup window,
+    // assume none were given by the window.open() command.
+    if (window_rect.x() == 0 && window_rect.y() == 0) {
+      gfx::Point origin = window()->GetNormalBounds().origin();
+      origin.set_x(origin.x() + kWindowTilePixels);
+      origin.set_y(origin.y() + kWindowTilePixels);
+      window_rect.set_origin(origin);
+    }
+
+    ::SetWindowPos(browser->GetTopLevelHWND(), NULL,
+                   window_rect.x(), window_rect.y(),
+                   window_rect.width(), window_rect.height(), 0);
+    win_util::AdjustWindowToFit(browser->GetTopLevelHWND());
   }
-
-  ::SetWindowPos(browser->GetTopLevelHWND(), NULL,
-                 window_rect.x(), window_rect.y(),
-                 window_rect.width(), window_rect.height(), 0);
-  win_util::AdjustWindowToFit(browser->GetTopLevelHWND());
 
   browser->Show();
 }

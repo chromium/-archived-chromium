@@ -131,6 +131,7 @@ class BrowserWindow {
 
   // Sizes the frame to match the specified desired bounds for the contents.
   // |contents_bounds| are in screen coordinates.
+  // TODO(beng): REMOVE
   virtual void SizeToContents(const gfx::Rect& contents_bounds) = 0;
 
   // Set the accelerator table. This is called once after LoadAccelerators

@@ -61,6 +61,7 @@ static const int kStatusBubbleOffset = 2;
 static const int kSeparationLineHeight = 1;
 static const SkColor kSeparationLineColor = SkColorSetRGB(178, 178, 178);
 static const wchar_t* kBrowserWindowKey = L"__BROWSER_WINDOW__";
+static const int kWindowTilePixels = 10;
 
 
 static const struct { bool separator; int command; int label; } kMenuLayout[] = {
@@ -573,10 +574,47 @@ bool BrowserView2::RestoreWindowPosition(CRect* bounds,
                                          bool* maximized,
                                          bool* always_on_top) {
   DCHECK(bounds && maximized && always_on_top);
-  // TODO(beng): (http://b/1317622) Make these functions take gfx::Rects.
-  gfx::Rect b;
-  browser_->RestoreWindowPosition(&b, maximized);
-  *bounds = b.ToRECT();
+  *always_on_top = false;
+
+  if (browser_->GetType() == BrowserType::BROWSER) {
+    // We are a popup window. The value passed in |bounds| represents two
+    // pieces of information:
+    // - the position of the window, in screen coordinates (outer position).
+    // - the size of the content area (inner size).
+    // We need to use these values to determine the appropriate size and
+    // position of the resulting window.
+    if (SupportsWindowFeature(FEATURE_TOOLBAR) ||
+        SupportsWindowFeature(FEATURE_LOCATIONBAR)) {
+      // If we're showing the toolbar, we need to adjust |*bounds| to include
+      // its desired height, since the toolbar is considered part of the
+      // window's client area as far as GetWindowBoundsForClientBounds is
+      // concerned...
+      CSize ps;
+      toolbar_->GetPreferredSize(&ps);
+      bounds->bottom += ps.cy;
+    }
+
+    gfx::Rect window_rect =
+        frame_->GetWindowBoundsForClientBounds(gfx::Rect(*bounds));
+    window_rect.set_origin(gfx::Point(bounds->left, bounds->top));
+
+    // When we are given x/y coordinates of 0 on a created popup window,
+    // assume none were given by the window.open() command.
+    if (window_rect.x() == 0 && window_rect.y() == 0) {
+      gfx::Point origin = GetNormalBounds().origin();
+      origin.set_x(origin.x() + kWindowTilePixels);
+      origin.set_y(origin.y() + kWindowTilePixels);
+      window_rect.set_origin(origin);
+    }
+
+    *bounds = window_rect.ToRECT();
+    *maximized = false;
+  } else {
+    // TODO(beng): (http://b/1317622) Make these functions take gfx::Rects.
+    gfx::Rect b;
+    browser_->RestoreWindowPosition(&b, maximized);
+    *bounds = b.ToRECT();
+  }
 
   // We return true because we can _always_ locate reasonable bounds using the
   // WindowSizer, and we don't want to trigger the Window's built-in "size to

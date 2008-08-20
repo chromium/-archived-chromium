@@ -1233,12 +1233,36 @@ void ConstrainedWindowImpl::Detach() {
   // DetachContents, but we clear the delegate pointing to us just in case.
   constrained_contents_->set_delegate(NULL);
 
+  // We want to detach the constrained window at the same position on screen
+  // as the constrained window, so we need to get its screen bounds.
+  CRect constrained_window_bounds;
+  GetBounds(&constrained_window_bounds, true);
+
+  // Obtain the constrained TabContents' size from its HWND...
   CRect bounds;
   ::GetWindowRect(constrained_contents_->GetContainerHWND(), &bounds);
+
+  // ... but overwrite its screen position with the screen position of its
+  // containing ConstrainedWindowImpl. We do this because the code called by
+  // |DetachContents| assumes the bounds contains position and size information
+  // similar to what is sent when a popup is not suppressed and must be opened,
+  // i.e. the position is the screen position of the top left of the detached
+  // popup window, and the size is the size of the content area.
+  bounds.SetRect(constrained_window_bounds.left, constrained_window_bounds.top,
+                 constrained_window_bounds.left + bounds.Width(),
+                 constrained_window_bounds.top + bounds.Height());
+
+  // Save the cursor position so that we know where to send a mouse message
+  // when the new detached window is created.
   CPoint cursor_pos;
   ::GetCursorPos(&cursor_pos);
   gfx::Point screen_point(cursor_pos.x, cursor_pos.y);
+
+  // Determine what aspect of the constrained frame was clicked on, so that we
+  // can continue the mouse move on this aspect of the detached frame.
   int frame_component = static_cast<int>(OnNCHitTest(screen_point.ToPOINT()));
+
+  // Finally we actually detach the TabContents, and then clean up.
   owner_->DetachContents(this, constrained_contents_, gfx::Rect(bounds),
                          screen_point, frame_component);
   constrained_contents_ = NULL;
@@ -1345,7 +1369,7 @@ LRESULT ConstrainedWindowImpl::OnMouseActivate(HWND window,
   // We only detach the window if the user clicked on the title bar. That
   // way, users can click inside the contents of legitimate popups obtained
   // with a mouse gesture.
-  if (hittest_code == HTCAPTION) {
+  if (hittest_code != HTCLIENT && hittest_code != HTNOWHERE) {
     ActivateConstrainedWindow();
   } else {
     // If the user did not click on the title bar, don't stop message

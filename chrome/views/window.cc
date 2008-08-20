@@ -490,15 +490,8 @@ void Window::SetInitialFocus() {
 }
 
 void Window::SetInitialBounds(const gfx::Rect& create_bounds) {
-  // If we were created with some bounds, use those instead of trying to figure
-  // out the initial size from other sources.
-  if (!create_bounds.IsEmpty()) {
-    SetBounds(create_bounds);
-    return;
-  }
-
   // Restore the window's placement from the controller.
-  CRect saved_bounds(0, 0, 0, 0);
+  CRect saved_bounds(create_bounds.ToRECT());
   bool maximized = false;
   if (window_delegate_->RestoreWindowPosition(&saved_bounds,
                                               &maximized,
@@ -528,8 +521,14 @@ void Window::SetInitialBounds(const gfx::Rect& create_bounds) {
     if (is_always_on_top_ != window_delegate_->IsAlwaysOnTop())
       AlwaysOnTopChanged();
   } else {
-    // Size the window to the content and center over the parent.
-    SizeWindowToDefault();
+    if (create_bounds.IsEmpty()) {
+      // No initial bounds supplied, so size the window to its content and
+      // center over its parent.
+      SizeWindowToDefault();
+    } else {
+      // Use the supplied initial bounds.
+      SetBounds(create_bounds);
+    }
   }
 }
 
