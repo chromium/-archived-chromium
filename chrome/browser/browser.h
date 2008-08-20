@@ -312,7 +312,7 @@ class Browser : public TabStripModelDelegate,
   virtual void ActivateContents(TabContents* contents);
   virtual void LoadingStateChanged(TabContents* source);
   virtual void CloseContents(TabContents* source);
-  virtual void MoveContents(TabContents* source, const gfx::Rect& content_pos);
+  virtual void MoveContents(TabContents* source, const gfx::Rect& pos);
   virtual bool IsPopup(TabContents* source);
   virtual void URLStarredChanged(TabContents* source, bool starred);
 

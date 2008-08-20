@@ -47,9 +47,7 @@ class InteractiveConstrainedWindowTest : public UITest {
   }
 };
 
-// This test is disabled, see bug 1334628.
-TEST_F(InteractiveConstrainedWindowTest,
-       DISABLED_UserActivatedResizeToLeavesSpaceForChrome) {
+TEST_F(InteractiveConstrainedWindowTest, TestOpenAndResizeTo) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
 
@@ -99,8 +97,9 @@ TEST_F(InteractiveConstrainedWindowTest,
   ASSERT_TRUE(popup_window->SimulateOSClick(
                   popup_link_point, ChromeViews::Event::EF_LEFT_BUTTON_DOWN));
 
-  // No idea how to wait here other then sleeping.
-  Sleep(1000);
+  // No idea how to wait here other then sleeping. This timeout used to be lower,
+  // then we started hitting it before it was done. :(
+  Sleep(5000);
 
   // The actual content will be LESS than (200, 200) because resizeTo
   // deals with a window's outer{Width,Height} instead of its
