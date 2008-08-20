@@ -47,8 +47,9 @@ static const unsigned int kCacheStatsDelayMS = 2000 /* milliseconds */;
 // V8 needs a 1MB stack size.
 static const size_t kStackSize = 1024 * 1024;
 
-/*static*/
-DWORD RenderThread::tls_index_ = ThreadLocalStorage::Alloc();
+// TODO(evanm): don't rely on static initialization.
+// static
+TLSSlot RenderThread::tls_index_;
 
 //-----------------------------------------------------------------------------
 // Methods below are only called on the owner's thread:
@@ -106,7 +107,6 @@ void RenderThread::RemoveRoute(int32 routing_id) {
 }
 
 void RenderThread::Init() {
-  DCHECK(tls_index_) << "static initializer failed";
   DCHECK(!current()) << "should only have one RenderThread per thread";
 
   notification_service_.reset(new NotificationService);
@@ -118,7 +118,7 @@ void RenderThread::Init() {
       IPC::Channel::MODE_CLIENT, this, NULL, owner_loop_, true,
       RenderProcess::GetShutDownEvent()));
 
-  ThreadLocalStorage::Set(tls_index_, this);
+  tls_index_.Set(this);
 
   // The renderer thread should wind-up COM.
   CoInitialize(0);

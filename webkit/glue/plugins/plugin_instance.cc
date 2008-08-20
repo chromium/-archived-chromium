@@ -45,7 +45,9 @@
 
 namespace NPAPI
 {
-int PluginInstance::plugin_instance_tls_index_ = ThreadLocalStorage::Alloc();
+
+// TODO(evanm): don't rely on static initialization.
+ThreadLocalStorage::Slot PluginInstance::plugin_instance_tls_index_;
 
 PluginInstance::PluginInstance(PluginLib *plugin, const std::string &mime_type)
     : plugin_(plugin),
@@ -429,17 +431,16 @@ void PluginInstance::OnPluginThreadAsyncCall(void (*func)(void *),
 PluginInstance* PluginInstance::SetInitializingInstance(
     PluginInstance* instance) {
   PluginInstance* old_instance =
-      static_cast<PluginInstance*>(
-          ThreadLocalStorage::Get(plugin_instance_tls_index_));
-  ThreadLocalStorage::Set(plugin_instance_tls_index_, instance);
+      static_cast<PluginInstance*>(plugin_instance_tls_index_.Get());
+  plugin_instance_tls_index_.Set(instance);
   return old_instance;
 }
 
 PluginInstance* PluginInstance::GetInitializingInstance() {
   PluginInstance* instance =
-      static_cast<PluginInstance*>(
-          ThreadLocalStorage::Get(plugin_instance_tls_index_));
-  return instance;}
+      static_cast<PluginInstance*>(plugin_instance_tls_index_.Get());
+  return instance;
+}
 
 NPError PluginInstance::GetServiceManager(void** service_manager) {
   if (!mozilla_extenstions_) {

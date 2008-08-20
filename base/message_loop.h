@@ -194,7 +194,7 @@ class MessageLoop : public base::MessagePump::Delegate {
 
   // Returns the MessageLoop object for the current thread, or null if none.
   static MessageLoop* current() {
-    return static_cast<MessageLoop*>(ThreadLocalStorage::Get(tls_index_));
+    return static_cast<MessageLoop*>(tls_index_.Get());
   }
 
   // Returns the TimerManager object for the current thread.

@@ -36,8 +36,8 @@
 
 #include <map>
 
-#include "base/thread_local_storage.h"
 #include "base/observer_list.h"
+#include "base/thread_local_storage.h"
 #include "base/values.h"
 #include "chrome/common/notification_details.h"
 #include "chrome/common/notification_source.h"
@@ -50,8 +50,7 @@ class NotificationService {
   // Returns the NotificationService object for the current thread, or NULL if
   // none.
   static NotificationService* current() {
-    return static_cast<NotificationService *>(
-        ThreadLocalStorage::Get(tls_index_));
+    return static_cast<NotificationService *>(tls_index_.Get());
   }
 
   // Normally instantiated when the thread is created.  Not all threads have
@@ -119,7 +118,7 @@ class NotificationService {
 
   // The thread local storage index, used for getting the current thread's
   // instance.
-  static int tls_index_;
+  static TLSSlot tls_index_;
 
 #ifndef NDEBUG
   // Used to check to see that AddObserver and RemoveObserver calls are
