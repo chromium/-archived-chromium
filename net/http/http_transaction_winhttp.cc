@@ -967,6 +967,9 @@ int HttpTransactionWinHttp::Restart(CompletionCallback* callback) {
   // ensure that we only have one asynchronous call at a time.
   DCHECK(!callback_);
 
+  content_length_remaining_ = -1;
+  upload_progress_ = 0;
+
   int rv = SendRequest();
   if (rv != ERR_IO_PENDING)
     return rv;
