@@ -67,7 +67,7 @@ class BookmarkBarContextMenuControllerTest : public testing::Test {
 
     model_ = profile_->GetBookmarkBarModel();
 
-    bb_view_ = new BookmarkBarView(profile_.get(), NULL);
+    bb_view_.reset(new BookmarkBarView(profile_.get(), NULL));
     bb_view_->SetPageNavigator(&navigator_);
 
     AddTestData();
@@ -78,8 +78,9 @@ class BookmarkBarContextMenuControllerTest : public testing::Test {
   }
 
  protected:
+  scoped_ptr<TestingProfile> profile_;
   BookmarkBarModel* model_;
-  BookmarkBarView* bb_view_;
+  scoped_ptr<BookmarkBarView> bb_view_;
   TestingPageNavigator navigator_;
 
  private:
@@ -102,14 +103,12 @@ class BookmarkBarContextMenuControllerTest : public testing::Test {
     model_->AddURL(f11, 0, L"f11a", GURL(test_base + "f11a"));
     model_->AddGroup(model_->GetBookmarkBarNode(), 2, L"F2");
   }
-
-  scoped_ptr<TestingProfile> profile_;
 };
 
 // Tests Deleting from the menu.
 TEST_F(BookmarkBarContextMenuControllerTest, DeleteURL) {
   BookmarkBarContextMenuController controller(
-      bb_view_, model_->GetBookmarkBarNode()->GetChild(0));
+      bb_view_.get(), model_->GetBookmarkBarNode()->GetChild(0));
   GURL url = model_->GetBookmarkBarNode()->GetChild(0)->GetURL();
   ASSERT_TRUE(controller.IsCommandEnabled(
                   BookmarkBarContextMenuController::delete_bookmark_id));
@@ -123,7 +122,7 @@ TEST_F(BookmarkBarContextMenuControllerTest, DeleteURL) {
 // Tests openning from the menu.
 TEST_F(BookmarkBarContextMenuControllerTest, OpenURL) {
   BookmarkBarContextMenuController controller(
-      bb_view_, model_->GetBookmarkBarNode()->GetChild(0));
+      bb_view_.get(), model_->GetBookmarkBarNode()->GetChild(0));
   GURL url = model_->GetBookmarkBarNode()->GetChild(0)->GetURL();
   ASSERT_TRUE(controller.IsCommandEnabled(
                   BookmarkBarContextMenuController::open_bookmark_id));
@@ -138,7 +137,7 @@ TEST_F(BookmarkBarContextMenuControllerTest, OpenURL) {
 // Tests open all on a folder with a couple of bookmarks.
 TEST_F(BookmarkBarContextMenuControllerTest, OpenAll) {
   BookmarkBarNode* folder = model_->GetBookmarkBarNode()->GetChild(1);
-  BookmarkBarContextMenuController controller(bb_view_, folder);
+  BookmarkBarContextMenuController controller(bb_view_.get(), folder);
   ASSERT_TRUE(controller.IsCommandEnabled(
       BookmarkBarContextMenuController::open_all_bookmarks_id));
   ASSERT_TRUE(controller.IsCommandEnabled(
@@ -156,7 +155,7 @@ TEST_F(BookmarkBarContextMenuControllerTest, OpenAll) {
 // Tests that menus are appropriately disabled for empty folders.
 TEST_F(BookmarkBarContextMenuControllerTest, DisableForEmptyFolder) {
   BookmarkBarNode* folder = model_->GetBookmarkBarNode()->GetChild(2);
-  BookmarkBarContextMenuController controller(bb_view_, folder);
+  BookmarkBarContextMenuController controller(bb_view_.get(), folder);
   EXPECT_FALSE(controller.IsCommandEnabled(
       BookmarkBarContextMenuController::open_all_bookmarks_id));
   EXPECT_FALSE(controller.IsCommandEnabled(
