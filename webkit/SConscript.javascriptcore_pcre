@@ -37,18 +37,21 @@ env.Prepend(
     CPPPATH = [
         '$WEBKIT_DIR/port/JavaScriptCore',
         '$WEBKIT_DIR/port/JavaScriptCore/pcre',
-    ],
-    CCFLAGS = [
-        '/TP',
-        '/wd4127',
-        '/wd4355',
-        '/wd4510',
-        '/wd4512',
-        '/wd4610',
-        '/wd4706',
-        '/wd4800',
-    ],
-)
+    ])
+
+if env['PLATFORM'] == 'win32':
+    env.Prepend(
+        CCFLAGS = [
+                '/TP',
+                '/wd4127',
+                '/wd4355',
+                '/wd4510',
+                '/wd4512',
+                '/wd4610',
+                '/wd4706',
+                '/wd4800',
+                ],
+        )
 
 dir = env.Dir('$PCRE_DIR')
 

@@ -77,8 +77,6 @@ env.Prepend(
         '$WEBKIT_DIR/port/platform/text',
         '$WEBKIT_DIR/port/plugins',
         '$WEBKIT_DIR/port/rendering',
-        '#/',
-        '.',
 
         '$WEBKIT_DIR/port/platform/image-decoders',
         '$WEBKIT_DIR/port/platform/image-decoders/bmp',
@@ -99,11 +97,9 @@ env.Prepend(
         '$WEBKIT_DIR/port/storage',
         '$WEBKIT_DIR/port/xml',
         '$WEBKIT_DIR/port',
-        '$WEBKIT_DIR/port/os-win32',
         '$WEBKIT_DIR/port/wtf',
         '$THIRD_PARTY_WEBKIT_DIR/JavaScriptCore',
         '$THIRD_PARTY_WEBKIT_DIR/JavaScriptCore/wtf',
-        '$THIRD_PARTY_WEBKIT_DIR/JavaScriptCore/os-win32',
         '$WEBKIT_DIR/port/svg',
         '$WEBKIT_DIR/port/svg/graphics/filters',
         '$WEBKIT_DIR/port/plugins',
@@ -190,11 +186,17 @@ if env['PLATFORM'] == 'win32':
                 '_WIN32_WINNT=0x0600',
                 'WINVER=0x0600',
                 ])
+
+    env.Prepend(
+        CPPPATH = [
+        '$WEBKIT_DIR/port/os-win32',
+        '$THIRD_PARTY_WEBKIT_DIR/JavaScriptCore/os-win32',
+        ])
 else:
     sconscript_dirs = [
 # TODO(erg): For now, only JavaScriptCore compiles and links; the rest is next.
 #    'SConscript.port',
-#    'SConscript.javascriptcore_pcre',
+    'SConscript.javascriptcore_pcre',
     'build/JSConfig/SConscript',
     'build/JavaScriptCore/SConscript',
 #    'build/WebCore/SConscript',
