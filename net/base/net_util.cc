@@ -620,11 +620,24 @@ void IDNToUnicodeOneComponent(const wchar_t* comp,
   }
 
   while (true) {
-    out->resize(out->size() + extra_space);
     UErrorCode status = U_ZERO_ERROR;
-    int output_chars = uidna_IDNToUnicode(
-        comp, comp_len, &(*out)[host_begin_in_output], extra_space,
-        UIDNA_DEFAULT, NULL, &status);
+#if defined(WCHAR_T_IS_UTF32)
+    std::string16 comp16;
+    WideToUTF16(comp, comp_len, &comp16);
+    std::string16 out16;
+    WideToUTF16(out->c_str(), out->length(), &out16);
+    out16.resize(out16.size() + extra_space);
+    int output_chars =
+        uidna_IDNToUnicode(comp16.data(), static_cast<int32>(comp16.length()),
+                           &(out16)[host_begin_in_output], extra_space,
+                           UIDNA_DEFAULT, NULL, &status);
+    *out = UTF16ToWide(out16);
+#else
+    out->resize(out->size() + extra_space);
+    int output_chars =
+        uidna_IDNToUnicode(comp, comp_len, &(*out)[host_begin_in_output],
+                          extra_space, UIDNA_DEFAULT, NULL, &status);
+#endif
     if (status == U_ZERO_ERROR) {
       // Converted successfully.
       out->resize(host_begin_in_output + output_chars);
