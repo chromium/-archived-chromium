@@ -212,6 +212,7 @@ if env['PLATFORM'] == 'win32':
 
         '/errorReport:prompt',
 
+        '/wd4355',
         '/wd4503',
         '/wd4819',
     ],

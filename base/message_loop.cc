@@ -78,7 +78,6 @@ static LPTOP_LEVEL_EXCEPTION_FILTER GetTopSEHFilter() {
 //------------------------------------------------------------------------------
 
 MessageLoop::MessageLoop()
-#pragma warning(suppress: 4355)  // OK, to use |this| in the initializer list.
     : timer_manager_(this),
       nestable_tasks_allowed_(true),
       exception_restoration_(false),
