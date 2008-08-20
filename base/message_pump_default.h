@@ -44,7 +44,7 @@ class MessagePumpDefault : public MessagePump {
   virtual void Run(Delegate* delegate);
   virtual void Quit();
   virtual void ScheduleWork();
-  virtual void ScheduleDelayedWork(const TimeDelta& delay);
+  virtual void ScheduleDelayedWork(const Time& delayed_work_time);
 
  private:
   // This flag is set to false when Run should return.
@@ -52,6 +52,9 @@ class MessagePumpDefault : public MessagePump {
 
   // Used to sleep until there is more work to do.
   WaitableEvent event_;
+
+  // The time at which we should call DoDelayedWork.
+  Time delayed_work_time_;
 
   DISALLOW_COPY_AND_ASSIGN(MessagePumpDefault);
 };

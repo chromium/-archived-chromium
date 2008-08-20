@@ -51,9 +51,13 @@ void MessagePumpDefault::Run(Delegate* delegate) {
 
     // TODO(darin): Delayed work will be starved if DoWork continues to return
     // true.  We should devise a better strategy.
+    //
+    // It is tempting to call DoWork followed by DoDelayedWork before checking
+    // did_work, but we need to make sure that any tasks that were dispatched
+    // prior to a timer actually run before the timer.  Getting that right may
+    // require some additional changes.
 
-    TimeDelta delay;
-    did_work = delegate->DoDelayedWork(&delay);
+    did_work = delegate->DoDelayedWork(&delayed_work_time_);
     if (!keep_running_)
       break;
     if (did_work)
@@ -64,13 +68,18 @@ void MessagePumpDefault::Run(Delegate* delegate) {
       break;
     if (did_work)
       continue;
-    // When DoIdleWork does not work, we also assume that it ran very quickly
-    // such that |delay| still properly indicates how long we are to sleep.
 
-    if (delay < TimeDelta::FromMilliseconds(0)) {
+    if (delayed_work_time_.is_null()) {
       event_.Wait();
     } else {
-      event_.TimedWait(delay);
+      TimeDelta delay = delayed_work_time_ - Time::Now();
+      if (delay > TimeDelta()) {
+        event_.TimedWait(delay);
+      } else {
+        // It looks like delayed_work_time_ indicates a time in the past, so we
+        // need to call DoDelayedWork now.
+        delayed_work_time_ = Time();
+      }
     }
     // Since event_ is auto-reset, we don't need to do anything special here
     // other than service each delegate method.
@@ -89,12 +98,11 @@ void MessagePumpDefault::ScheduleWork() {
   event_.Signal();
 }
 
-void MessagePumpDefault::ScheduleDelayedWork(const TimeDelta& delay) {
+void MessagePumpDefault::ScheduleDelayedWork(const Time& delayed_work_time) {
   // We know that we can't be blocked on Wait right now since this method can
-  // only be called on the same thread as Run, but to ensure that when we do
-  // sleep, we sleep for the right time, we signal the event to cause the Run
-  // loop to do one more iteration.
-  event_.Signal();
+  // only be called on the same thread as Run, so we only need to update our
+  // record of how long to sleep when we do sleep.
+  delayed_work_time_ = delayed_work_time;
 }
 
 }  // namespace base

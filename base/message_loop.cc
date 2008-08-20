@@ -386,16 +386,16 @@ void MessageLoop::DeletePendingTasks() {
 }
 
 void MessageLoop::DidChangeNextTimerExpiry() {
-  int delay = timer_manager_.GetCurrentDelay(); 
-  if (delay == -1)
+  Time next_delayed_work_time = timer_manager_.GetNextFireTime(); 
+  if (next_delayed_work_time.is_null())
     return;
 
   // Simulates malfunctioning, early firing timers. Pending tasks should only
   // be invoked when the delay they specify has elapsed.
   if (timer_manager_.use_broken_delay())
-    delay = 10;
+    next_delayed_work_time = Time::Now() + TimeDelta::FromMilliseconds(10);
 
-  pump_->ScheduleDelayedWork(TimeDelta::FromMilliseconds(delay));
+  pump_->ScheduleDelayedWork(next_delayed_work_time);
 }
 
 bool MessageLoop::DoWork() {
@@ -403,12 +403,12 @@ bool MessageLoop::DoWork() {
   return QueueOrRunTask(NULL);
 }
 
-bool MessageLoop::DoDelayedWork(TimeDelta* next_delay) {
+bool MessageLoop::DoDelayedWork(Time* next_delayed_work_time) {
   bool did_work = timer_manager_.RunSomePendingTimers();
 
   // We may not have run any timers, but we may still have future timers to
   // run, so we need to inform the pump again of pending timers.
-  *next_delay = TimeDelta::FromMilliseconds(timer_manager_.GetCurrentDelay());
+  *next_delayed_work_time = timer_manager_.GetNextFireTime();
 
   return did_work;
 }
