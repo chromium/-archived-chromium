@@ -52,13 +52,20 @@ env.Append(
 # These net files work on *all* platforms; files that don't work
 # cross-platforom live below.
 input_files = [
+    'base/address_list.cc',
     'base/auth_cache.cc',
     'base/base64.cc',
     'base/bzip2_filter.cc',
+    'base/client_socket_handle.cc',
+    'base/client_socket_pool.cc',
+    'base/cookie_policy.cc',
+    'base/data_url.cc',
+    'base/escape.cc',
     'base/filter.cc',
     'base/gzip_filter.cc',
     'base/gzip_header.cc',
     'base/net_errors.cc',
+    'base/net_module.cc',
     'disk_cache/backend_impl.cc',
     'disk_cache/block_files.cc',
     'disk_cache/entry_impl.cc',
@@ -70,26 +77,24 @@ input_files = [
     'disk_cache/rankings.cc',
     'disk_cache/stats.cc',
     'disk_cache/trace.cc',
+    'http/http_chunked_decoder.cc',
+    'http/http_util.cc',
+    'url_request/url_request_error_job.cc',
+    'url_request/url_request_job_metrics.cc',
+    'url_request/url_request_job_tracker.cc',
 ]
 
 if env['PLATFORM'] == 'win32':
   input_files.extend([
-      'base/address_list.cc',
       'base/client_socket_factory.cc',
-      'base/client_socket_handle.cc',
-      'base/client_socket_pool.cc',
       'base/cookie_monster.cc',
-      'base/cookie_policy.cc',
-      'base/data_url.cc',
       'base/directory_lister.cc',
       'base/dns_resolution_observer.cc',
-      'base/escape.cc',
       'base/ev_root_ca_metadata.cc',
       'base/host_resolver.cc',
       'base/listen_socket.cc',
       'base/mime_sniffer.cc',
       'base/mime_util.cc',
-      'base/net_module.cc',
       'base/net_util.cc',
       'base/platform_mime_util_win.cc',
       'base/registry_controlled_domain.cc',
@@ -103,13 +108,11 @@ if env['PLATFORM'] == 'win32':
       'base/winsock_init.cc',
       'base/x509_certificate.cc',
       'http/cert_status_cache.cc',
-      'http/http_chunked_decoder.cc',
       'http/http_cache.cc',
       'http/http_network_layer.cc',
       'http/http_network_transaction.cc',
       'http/http_response_headers.cc',
       'http/http_transaction_winhttp.cc',
-      'http/http_util.cc',
       'http/http_vary_data.cc',
       'http/winhttp_request_throttle.cc',
       'proxy/proxy_resolver_fixed.cc',
@@ -118,7 +121,6 @@ if env['PLATFORM'] == 'win32':
       'url_request/mime_sniffer_proxy.cc',
       'url_request/url_request.cc',
       'url_request/url_request_about_job.cc',
-      'url_request/url_request_error_job.cc',
       'url_request/url_request_file_dir_job.cc',
       'url_request/url_request_file_job.cc',
       'url_request/url_request_filter.cc',
@@ -127,8 +129,6 @@ if env['PLATFORM'] == 'win32':
       'url_request/url_request_inet_job.cc',
       'url_request/url_request_job.cc',
       'url_request/url_request_job_manager.cc',
-      'url_request/url_request_job_metrics.cc',
-      'url_request/url_request_job_tracker.cc',
       'url_request/url_request_simple_job.cc',
       'url_request/url_request_test_job.cc',
       'url_request/url_request_view_cache_job.cc',
@@ -145,6 +145,11 @@ if env['PLATFORM'] == 'win32':
       'disk_cache/file_win.cc',
       'disk_cache/mapped_file_win.cc',
       'disk_cache/os_file_win.cc',
+  ])
+
+if env['PLATFORM'] == 'darwin':
+  input_files.extend([
+      'base/platform_mime_util_mac.cc',
   ])
 
 if env['PLATFORM'] in ('darwin', 'posix'):
@@ -223,6 +228,9 @@ unittest_files = [
     'base/auth_cache_unittest.cc',
     'base/base64_unittest.cc',
     'base/bzip2_filter_unittest.cc',
+    'base/client_socket_pool_unittest.cc',
+    'base/data_url_unittest.cc',
+    'base/escape_unittest.cc',
     'base/gzip_filter_unittest.cc',
     'disk_cache/addr_unittest.cc',
     '$BASE_DIR/run_all_unittests$OBJSUFFIX',
@@ -230,12 +238,9 @@ unittest_files = [
 
 if env['PLATFORM'] == 'win32':
   unittest_files.extend([
-      'base/client_socket_pool_unittest.cc',
       'base/cookie_monster_unittest.cc',
       'base/cookie_policy_unittest.cc',
-      'base/data_url_unittest.cc',
       'base/directory_lister_unittest.cc',
-      'base/escape_unittest.cc',
       'base/mime_sniffer_unittest.cc',
       'base/mime_util_unittest.cc',
       'base/net_util_unittest.cc',

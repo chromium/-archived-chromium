@@ -36,22 +36,48 @@
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-struct unescape_case {
+namespace {
+
+struct EscapeCase {
+  const wchar_t* input;
+  const wchar_t* output;
+};
+
+struct UnescapeURLCase {
   const char* input;
+  UnescapeRule::Type rules;
   const char* output;
 };
 
+struct UnescapeAndDecodeURLCase {
+  const char* encoding;
+  const char* input;
+
+  // The expected output when run through UnescapeURL.
+  const char* url_unescaped;
+
+  // The expected output when run through UnescapeQuery.
+  const char* query_unescaped;
+
+  // The expected output when run through UnescapeAndDecodeURLComponent.
+  const wchar_t* decoded;
+};
+
+struct EscapeForHTMLCase {
+  const char* input;
+  const char* expected_output;
+};
+
+}
+
 TEST(Escape, EscapeTextForFormSubmission) {
-  struct escape_case {
-    const wchar_t* input;
-    const wchar_t* output;
-  } escape_cases[] = {
+  const EscapeCase escape_cases[] = {
     {L"foo", L"foo"},
     {L"foo bar", L"foo+bar"},
     {L"foo++", L"foo%2B%2B"}
   };
   for (int i = 0; i < arraysize(escape_cases); ++i) {
-    escape_case value = escape_cases[i];
+    EscapeCase value = escape_cases[i];
     EXPECT_EQ(value.output, EscapeQueryParamValueUTF8(value.input));
   }
 
@@ -72,9 +98,8 @@ TEST(Escape, EscapeTextForFormSubmission) {
       EXPECT_EQ(out, std::string("+"));
     } else if (no_escape.find(in) == std::string::npos) {
       // Check %hex escaping
-      char buf[4];
-      sprintf_s(buf, 4, "%%%02X", i);
-      EXPECT_EQ(std::string(buf), out);
+      std::string expected = StringPrintf("%%%02X", i);
+      EXPECT_EQ(expected, out);
     } else {
       // No change for things in the no_escape list.
       EXPECT_EQ(out, in);
@@ -109,11 +134,7 @@ TEST(Escape, EscapePath) {
 }
 
 TEST(Escape, UnescapeURLComponent) {
-  struct UnescapeCase {
-    const char* input;
-    UnescapeRule::Type rules;
-    const char* output;
-  } unescape_cases[] = {
+  const UnescapeURLCase unescape_cases[] = {
     {"", UnescapeRule::NORMAL, ""},
     {"%2", UnescapeRule::NORMAL, "%2"},
     {"%%%%%%", UnescapeRule::NORMAL, "%%%%%%"},
@@ -162,19 +183,7 @@ TEST(Escape, UnescapeURLComponent) {
 }
 
 TEST(Escape, UnescapeAndDecodeURLComponent) {
-  struct UnescapeCase {
-    const char* encoding;
-    const char* input;
-
-    // The expected output when run through UnescapeURL.
-    const char* url_unescaped;
-
-    // The expected output when run through UnescapeQuery.
-    const char* query_unescaped;
-
-    // The expected output when run through UnescapeAndDecodeURLComponent.
-    const wchar_t* decoded;
-  } unescape_cases[] = {
+  const UnescapeAndDecodeURLCase unescape_cases[] = {
     {"UTF8", "+", "+", " ", L"+"},
     {"UTF8", "%2+", "%2+", "%2 ", L"%2+"},
     {"UTF8", "+%%%+%%%", "+%%%+%%%", " %%% %%%", L"+%%%+%%%"},
@@ -226,10 +235,7 @@ TEST(Escape, UnescapeAndDecodeURLComponent) {
 }
 
 TEST(Escape, EscapeForHTML) {
-  static const struct {
-    const char* input;
-    const char* expected_output;
-  } tests[] = {
+  const EscapeForHTMLCase tests[] = {
     { "hello", "hello" },
     { "<hello>", "&lt;hello&gt;" },
     { "don\'t mess with me", "don&#39;t mess with me" },
