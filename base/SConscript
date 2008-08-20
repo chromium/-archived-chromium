@@ -163,8 +163,8 @@ if env['PLATFORM'] == 'darwin':
       'clipboard_mac.cc',
       'file_util_mac.mm',
       'file_version_info_mac.mm',
-      'thread_posix.cc',
       'sys_string_conversions_mac.cc',
+      'thread_posix.cc',
   ])
 
 if env['PLATFORM'] == 'posix':
@@ -173,6 +173,7 @@ if env['PLATFORM'] == 'posix':
       'base_paths_linux.cc',
       'file_util_linux.cc',
       'sys_string_conversions_linux.cc',
+      'thread_posix.cc',
   ])
 
 env.ChromeStaticLibrary('base', input_files)

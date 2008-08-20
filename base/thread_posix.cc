@@ -48,7 +48,6 @@ Thread::Thread(const char *name)
     : thread_id_(0),
       message_loop_(NULL),
       name_(name) {
-  DCHECK(tls_index_) << "static initializer failed";
 }
 
 Thread::~Thread() {
@@ -67,14 +66,15 @@ void* ThreadFunc(void* closure) {
 // Thread to setup and run a MessageLoop.
 // Note that if we start doing complex stuff in other static initializers
 // this could cause problems.
-TLSSlot Thread::tls_index_ = ThreadLocalStorage::Alloc();
+// TODO(evanm): don't rely on static initialization.
+TLSSlot Thread::tls_index_;
 
 void Thread::SetThreadWasQuitProperly(bool flag) {
-  ThreadLocalStorage::Set(tls_index_, reinterpret_cast<void*>(flag));
+  tls_index_.Set(reinterpret_cast<void*>(flag));
 }
 
 bool Thread::GetThreadWasQuitProperly() {
-  return (ThreadLocalStorage::Get(tls_index_) != 0);
+  return (tls_index_.Get() != 0);
 }
 
 
