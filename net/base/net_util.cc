@@ -34,8 +34,11 @@
 #include <unicode/uniset.h>
 #include <unicode/uscript.h>
 #include <unicode/uset.h>
+
+#ifdef OS_WIN
 #include <windows.h>
 #include <wininet.h>
+#endif
 
 #include "net/base/net_util.h"
 
@@ -152,16 +155,16 @@ STR GetSpecificHeaderT(const STR& headers, const STR& name) {
   match.append(name);
   match.push_back(':');
 
-  STR::const_iterator begin =
+  typename STR::const_iterator begin =
       search(headers.begin(), headers.end(), match.begin(), match.end(),
-             CaseInsensitiveCompareASCII<STR::value_type>());
+             CaseInsensitiveCompareASCII<typename STR::value_type>());
 
   if (begin == headers.end())
     return STR();
 
   begin += match.length();
 
-  STR::const_iterator end = find(begin, headers.end(), '\n');
+  typename STR::const_iterator end = find(begin, headers.end(), '\n');
 
   STR ret;
   TrimWhitespace(STR(begin, end), TRIM_ALL, &ret);
@@ -397,9 +400,9 @@ bool DecodeParamValue(const std::string& input, std::string* output) {
 template<typename STR>
 STR GetHeaderParamValueT(const STR& header, const STR& param_name) {
   // This assumes args are formatted exactly like "bla; arg1=value; arg2=value".
-  STR::const_iterator param_begin =
+  typename STR::const_iterator param_begin =
       search(header.begin(), header.end(), param_name.begin(), param_name.end(),
-             CaseInsensitiveCompareASCII<STR::value_type>());
+             CaseInsensitiveCompareASCII<typename STR::value_type>());
 
   if (param_begin == header.end())
     return STR();
@@ -408,7 +411,7 @@ STR GetHeaderParamValueT(const STR& header, const STR& param_name) {
   STR whitespace;
   whitespace.push_back(' ');
   whitespace.push_back('\t');
-  const STR::size_type equals_offset =
+  const typename STR::size_type equals_offset =
       header.find_first_not_of(whitespace, param_begin - header.begin());
   if (equals_offset == STR::npos || header.at(equals_offset) != '=')
     return STR();
@@ -417,7 +420,7 @@ STR GetHeaderParamValueT(const STR& header, const STR& param_name) {
   if (param_begin == header.end())
     return STR();
 
-  STR::const_iterator param_end;
+  typename STR::const_iterator param_end;
   if (*param_begin == '"') {
     param_end = find(param_begin+1, header.end(), '"');
     if (param_end == header.end())
@@ -529,7 +532,14 @@ bool IsIDNComponentSafe(const wchar_t* str,
 #endif
   DCHECK(U_SUCCESS(status));
   UnicodeSet component_characters;
+#ifdef WCHAR_T_IS_UTF32
+  std::string16 converted_str;
+  WideToUTF16(str, str_len, &converted_str);
+  component_characters.addAll(UnicodeString(converted_str.c_str(),
+                                            converted_str.length()));
+#else
   component_characters.addAll(UnicodeString(str, str_len));
+#endif
   if (dangerous_characters.containsSome(component_characters))
     return false;
 
@@ -665,7 +675,11 @@ GURL FilePathToFileURL(const std::wstring& file_path) {
 
   ReplaceSubstringsAfterOffset(&url_str, 0, L"#", L"%23");
 
+#if defined(WCHAR_T_IS_UTF32)
+  return GURL(WideToUTF8(url_str));
+#else
   return GURL(url_str);
+#endif
 }
 
 bool FileURLToFilePath(const GURL& url, std::wstring* file_path) {
@@ -818,8 +832,7 @@ void IDNToUnicode(const char* host,
   }
 }
 
-template <typename str>
-std::string CanonicalizeHost(const str& host, bool* is_ip_address) {
+std::string CanonicalizeHost(const std::string& host, bool* is_ip_address) {
   // Try to canonicalize the host.
   const url_parse::Component raw_host_component(0,
       static_cast<int>(host.length()));
@@ -852,13 +865,12 @@ std::string CanonicalizeHost(const str& host, bool* is_ip_address) {
                            canon_host_component.len);
 }
 
-// Forcibly instantiate narrow and wide versions of this function so we don't
-// need to put the function definition in the header.
-template std::string CanonicalizeHost<std::string>(const std::string& host,
-                                                   bool* is_ip_address);
-template std::string CanonicalizeHost<std::wstring>(const std::wstring& host,
-                                                    bool* is_ip_address);
-
+std::string CanonicalizeHost(const std::wstring& host, bool* is_ip_address) {
+  std::string converted_host;
+  WideToUTF8(host.c_str(), host.length(), &converted_host);
+  return CanonicalizeHost(converted_host, is_ip_address);
+}
+  
 std::string GetDirectoryListingHeader(const std::string& title) {
   std::string result = NetModule::GetResource(IDR_DIR_HEADER_HTML);
   if (result.empty()) {
@@ -872,6 +884,7 @@ std::string GetDirectoryListingHeader(const std::string& title) {
   return result;
 }
 
+#ifdef OS_WIN
 std::string GetDirectoryListingEntry(const std::string& name,
                                      DWORD attrib,
                                      int64 size,
@@ -901,6 +914,7 @@ std::string GetDirectoryListingEntry(const std::string& name,
 
   return result;
 }
+#endif
 
 std::wstring StripWWW(const std::wstring& text) {
   const std::wstring www(L"www.");

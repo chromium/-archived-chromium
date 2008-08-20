@@ -30,8 +30,13 @@
 #ifndef NET_BASE_NET_UTIL_H__
 #define NET_BASE_NET_UTIL_H__
 
+#include "build/build_config.h"
+
 #include <string>
+
+#ifdef OS_WIN
 #include <windows.h>
+#endif
 
 #include "base/basictypes.h"
 #include "googleurl/src/url_canon.h"
@@ -112,15 +117,17 @@ void IDNToUnicode(const char* host,
 
 // Canonicalizes |host| and returns it.  If |is_ip_address| is non-NULL, sets it
 // to true if |host| is an IP address.
-template <typename str>
-std::string CanonicalizeHost(const str& host, bool* is_ip_address);
+std::string CanonicalizeHost(const std::string& host, bool* is_ip_address);
+std::string CanonicalizeHost(const std::wstring& host, bool* is_ip_address);
 
 // Call these functions to get the html for a directory listing.
 // They will pass non-7bit-ascii characters unescaped, allowing
 // the browser to interpret the encoding (utf8, etc).
 std::string GetDirectoryListingHeader(const std::string& title);
+#ifdef OS_WIN
 std::string GetDirectoryListingEntry(const std::string& name, DWORD attrib,
                                      int64 size, const FILETIME* modified);
+#endif
 
 // If text starts with "www." it is removed, otherwise text is returned
 // unmodified.
