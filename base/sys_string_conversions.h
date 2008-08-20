@@ -44,13 +44,13 @@ namespace base {
 // Converts between wide and UTF-8 representations of a string. On error, the
 // result is system-dependent.
 std::string SysWideToUTF8(const std::wstring& wide);
-std::wstring SysUTF8ToWide(StringPiece utf8);
+std::wstring SysUTF8ToWide(const StringPiece& utf8);
 
 // Converts between wide and the system multi-byte representations of a string.
 // DANGER: This will lose information and can change (on Windows, this can
 // change between reboots).
 std::string SysWideToNativeMB(const std::wstring& wide);
-std::wstring SysNativeMBToWide(StringPiece native_mb);
+std::wstring SysNativeMBToWide(const StringPiece& native_mb);
 
 // Windows-specific ------------------------------------------------------------
 
@@ -59,7 +59,7 @@ std::wstring SysNativeMBToWide(StringPiece native_mb);
 // Converts between 8-bit and wide strings, using the given code page. The
 // code page identifier is one accepted by the Windows function
 // MultiByteToWideChar().
-std::wstring SysMultiByteToWide(StringPiece mb, uint32 code_page);
+std::wstring SysMultiByteToWide(const StringPiece& mb, uint32 code_page);
 std::string SysWideToMultiByte(const std::wstring& wide, uint32 code_page);
 
 #endif  // defined(OS_WIN)

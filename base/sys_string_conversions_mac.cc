@@ -142,7 +142,7 @@ std::string SysWideToUTF8(const std::wstring& wide) {
 }
 
 // Do not assert in this function since it is used by the asssertion code!
-std::wstring SysUTF8ToWide(StringPiece utf8) {
+std::wstring SysUTF8ToWide(const StringPiece& utf8) {
   return STLStringToSTLStringWithEncodingsT<StringPiece, std::wstring>(
       utf8, kNarrowStringEncoding, kWideStringEncoding);
 }
@@ -151,7 +151,7 @@ std::string SysWideToNativeMB(const std::wstring& wide) {
   return SysWideToUTF8(wide);
 }
 
-std::wstring SysNativeMBToWide(StringPiece native_mb) {
+std::wstring SysNativeMBToWide(const StringPiece& native_mb) {
   return SysUTF8ToWide(native_mb);
 }
 

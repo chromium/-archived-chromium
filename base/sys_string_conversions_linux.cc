@@ -39,7 +39,7 @@ std::string SysWideToUTF8(const std::wstring& wide) {
   // than our ICU, but this will do for now.
   return WideToUTF8(wide);
 }
-std::wstring SysUTF8ToWide(StringPiece utf8) {
+std::wstring SysUTF8ToWide(const StringPiece& utf8) {
   // In theory this should be using the system-provided conversion rather
   // than our ICU, but this will do for now.
   std::wstring out;
@@ -52,7 +52,7 @@ std::string SysWideToNativeMB(const std::wstring& wide) {
   return SysWideToUTF8(wide);
 }
 
-std::wstring SysNativeMBToWide(StringPiece native_mb) {
+std::wstring SysNativeMBToWide(const StringPiece& native_mb) {
   // TODO(evanm): we can't assume Linux is UTF-8.
   return SysUTF8ToWide(native_mb);
 }

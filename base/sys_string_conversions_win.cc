@@ -41,7 +41,7 @@ std::string SysWideToUTF8(const std::wstring& wide) {
 }
 
 // Do not assert in this function since it is used by the asssertion code!
-std::wstring SysUTF8ToWide(StringPiece utf8) {
+std::wstring SysUTF8ToWide(const StringPiece& utf8) {
   return SysMultiByteToWide(utf8, CP_UTF8);
 }
 
@@ -49,12 +49,12 @@ std::string SysWideToNativeMB(const std::wstring& wide) {
   return SysWideToMultiByte(wide, CP_ACP);
 }
 
-std::wstring SysNativeMBToWide(StringPiece native_mb) {
+std::wstring SysNativeMBToWide(const StringPiece& native_mb) {
   return SysMultiByteToWide(native_mb, CP_ACP);
 }
 
 // Do not assert in this function since it is used by the asssertion code!
-std::wstring SysMultiByteToWide(StringPiece mb, uint32 code_page) {
+std::wstring SysMultiByteToWide(const StringPiece& mb, uint32 code_page) {
   if (mb.empty())
     return std::wstring();
 
