@@ -47,7 +47,9 @@ class InteractiveConstrainedWindowTest : public UITest {
   }
 };
 
-TEST_F(InteractiveConstrainedWindowTest, UserActivatedResizeToLeavesSpaceForChrome) {
+// This test is disabled, see bug 1334628.
+TEST_F(InteractiveConstrainedWindowTest,
+       DISABLED_UserActivatedResizeToLeavesSpaceForChrome) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
 
