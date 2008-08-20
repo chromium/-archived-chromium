@@ -81,6 +81,7 @@ env.Prepend(
         '$WEBKIT_DIR/port/platform/text',
         '$WEBKIT_DIR/port/plugins',
         '$WEBKIT_DIR/port/rendering',
+        '$WEBKIT_DIR',
 
         '$WEBKIT_DIR/port/platform/image-decoders',
         '$WEBKIT_DIR/port/platform/image-decoders/bmp',
