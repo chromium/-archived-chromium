@@ -31,6 +31,7 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "base/platform_test.h"
 #if defined(OS_WIN)
 #include "base/win_util.h"
 #endif
@@ -58,11 +59,15 @@ bool ReturnsInvalidPath(int dir_type) {
 
 }  // namespace
 
+// On the Mac this winds up using some autoreleased objects, so we need to
+// be a PlatformTest.
+typedef PlatformTest PathServiceTest;
+
 // Test that all PathService::Get calls return a value and a true result
 // in the development environment.  (This test was created because a few
 // later changes to Get broke the semantics of the function and yielded the
 // correct value while returning false.)
-TEST(PathServiceTest, Get) {
+TEST_F(PathServiceTest, Get) {
   for (int key = base::DIR_CURRENT; key < base::PATH_END; ++key) {
     EXPECT_PRED1(ReturnsValidPath, key);
   }

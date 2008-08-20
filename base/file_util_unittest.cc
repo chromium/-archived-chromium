@@ -43,14 +43,18 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "base/platform_test.h"
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
 
-class FileUtilTest : public testing::Test {
+// file_util winds up using autoreleased objects on the Mac, so this needs
+// to be a PlatformTest
+class FileUtilTest : public PlatformTest {
  protected:
   virtual void SetUp() {
+    PlatformTest::SetUp();
     // Name a subdirectory of the temp directory.
     ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &test_dir_));
     file_util::AppendToPath(&test_dir_, L"FileUtilTest");
@@ -60,6 +64,7 @@ class FileUtilTest : public testing::Test {
     file_util::CreateDirectory(test_dir_.c_str());
   }
   virtual void TearDown() {
+    PlatformTest::TearDown();
     // Clean up test directory
     ASSERT_TRUE(file_util::Delete(test_dir_, true));
     ASSERT_FALSE(file_util::PathExists(test_dir_));
@@ -594,9 +599,11 @@ TEST_F(FileUtilTest, GetFileCreationLocalTime) {
 }
 #endif
 
-typedef testing::Test ReadOnlyFileUtilTest;
+// file_util winds up using autoreleased objects on the Mac, so this needs
+// to be a PlatformTest
+typedef PlatformTest ReadOnlyFileUtilTest;
 
-TEST(ReadOnlyFileUtilTest, ContentsEqual) {
+TEST_F(ReadOnlyFileUtilTest, ContentsEqual) {
   std::wstring data_dir;
   ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &data_dir));
   file_util::AppendToPath(&data_dir, L"base");
