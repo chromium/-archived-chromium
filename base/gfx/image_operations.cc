@@ -204,7 +204,6 @@ void ResizeFilter::ComputeFilters(int src_size,
   // that the range covered by the filter won't necessarily cover any source
   // pixel boundaries. Therefore, we use these clamped values (max of 1) for
   // some computations.
-  float clamped_src_support = std::min(1.0f, src_support);
   float clamped_scale = std::min(1.0f, scale);
 
   // Speed up the divisions below by turning them into multiplies.

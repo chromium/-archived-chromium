@@ -34,6 +34,11 @@
 
 #include "base/basictypes.h"
 
+// avoid confusion with Mac OS X's math library (Carbon)
+#if defined(OS_MACOSX)
+#undef FloatToFixed
+#endif
+
 namespace gfx {
 
 // Represents a filter in one dimension. Each output pixel has one entry in this
