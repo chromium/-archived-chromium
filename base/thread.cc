@@ -69,7 +69,6 @@ Thread::Thread(const char *name)
       thread_id_(0),
       message_loop_(NULL),
       name_(name) {
-  DCHECK(tls_index_) << "static initializer failed";
 }
 
 Thread::~Thread() {
@@ -82,18 +81,19 @@ Thread::~Thread() {
 // Thread to setup and run a MessageLoop.
 // Note that if we start doing complex stuff in other static initializers
 // this could cause problems.
-TLSSlot Thread::tls_index_ = ThreadLocalStorage::Alloc();
+// TODO(evanm): this shouldn't rely on static initialization.
+TLSSlot Thread::tls_index_;
 
 void Thread::SetThreadWasQuitProperly(bool flag) {
 #ifndef NDEBUG
-  ThreadLocalStorage::Set(tls_index_, reinterpret_cast<void*>(flag));
+  tls_index_.Set(reinterpret_cast<void*>(flag));
 #endif
 }
 
 bool Thread::GetThreadWasQuitProperly() {
   bool quit_properly = true;
 #ifndef NDEBUG
-  quit_properly = (ThreadLocalStorage::Get(tls_index_) != 0);
+  quit_properly = (tls_index_.Get() != 0);
 #endif
   return quit_properly;
 }

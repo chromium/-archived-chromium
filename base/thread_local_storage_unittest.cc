@@ -44,28 +44,28 @@ namespace {
 
 
 TEST(ThreadLocalStorageTest, Basics) {
-  int index = ThreadLocalStorage::Alloc();
-  ThreadLocalStorage::Set(index, reinterpret_cast<void*>(123));
-  int value = reinterpret_cast<int>(ThreadLocalStorage::Get(index));
+  ThreadLocalStorage::Slot slot;
+  slot.Set(reinterpret_cast<void*>(123));
+  int value = reinterpret_cast<int>(slot.Get());
   EXPECT_EQ(value, 123);
 }
 
 const int kInitialTlsValue = 0x5555;
-static int tls_index = 0;
+static ThreadLocalStorage::Slot tls_slot(base::LINKER_INITIALIZED);
 
 unsigned __stdcall TLSTestThreadMain(void* param) {
   // param contains the thread local storage index.
   int *index = reinterpret_cast<int*>(param);
   *index = kInitialTlsValue;
 
-  ThreadLocalStorage::Set(tls_index, index);
+  tls_slot.Set(index);
 
-  int *ptr = static_cast<int*>(ThreadLocalStorage::Get(tls_index));
+  int *ptr = static_cast<int*>(tls_slot.Get());
   EXPECT_EQ(ptr, index);
   EXPECT_EQ(*ptr, kInitialTlsValue);
   *index = 0;
 
-  ptr = static_cast<int*>(ThreadLocalStorage::Get(tls_index));
+  ptr = static_cast<int*>(tls_slot.Get());
   EXPECT_EQ(ptr, index);
   EXPECT_EQ(*ptr, 0);
   return 0;
@@ -86,7 +86,7 @@ TEST(ThreadLocalStorageTest, TLSDestructors) {
   HANDLE threads[kNumThreads];
   int values[kNumThreads];
 
-  tls_index = ThreadLocalStorage::Alloc(ThreadLocalStorageCleanup);
+  tls_slot.Initialize(ThreadLocalStorageCleanup);
 
   // Spawn the threads.
   for (int16 index = 0; index < kNumThreads; index++) {

@@ -39,12 +39,13 @@
 
 namespace rand_util {
 
+// TODO(evanm): don't rely on static initialization.
 // Using TLS since srand() needs to be called once in each thread.
-int g_tls_index = ThreadLocalStorage::Alloc();
+TLSSlot g_tls_index;
 
 int RandInt(int min, int max) {
-  if (ThreadLocalStorage::Get(g_tls_index) == 0) {
-    ThreadLocalStorage::Set(g_tls_index, reinterpret_cast<void*>(1));
+  if (g_tls_index.Get() == 0) {
+    g_tls_index.Set(reinterpret_cast<void*>(1));
     TimeDelta now = TimeTicks::UnreliableHighResNow() - TimeTicks();
     unsigned int seed = static_cast<unsigned int>(now.InMicroseconds());
     srand(seed);
