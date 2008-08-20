@@ -896,11 +896,52 @@ TEST(HttpResponseHeadersTest, GetContentLength) {
       -1
     },
     { "HTTP/1.1 200 OK\n"
+      "Content-Length:  +10\n",
+      -1
+    },
+    { "HTTP/1.1 200 OK\n"
       "Content-Length: 23xb5\n",
       -1
     },
     { "HTTP/1.1 200 OK\n"
       "Content-Length: 0xA\n",
+      -1
+    },
+    { "HTTP/1.1 200 OK\n"
+      "Content-Length: 010\n",
+      10
+    },
+    // Content-Length too big, will overflow an int64
+    { "HTTP/1.1 200 OK\n"
+      "Content-Length: 40000000000000000000\n",
+      -1
+    },
+    { "HTTP/1.1 200 OK\n"
+      "Content-Length:       10\n",
+      10
+    },
+    { "HTTP/1.1 200 OK\n"
+      "Content-Length: 10  \n",
+      10
+    },
+    { "HTTP/1.1 200 OK\n"
+      "Content-Length: \t10\n",
+      10
+    },
+    { "HTTP/1.1 200 OK\n"
+      "Content-Length: \v10\n",
+      -1
+    },
+    { "HTTP/1.1 200 OK\n"
+      "Content-Length: \f10\n",
+      -1
+    },
+    { "HTTP/1.1 200 OK\n"
+      "cOnTeNt-LENgth: 33\n",
+      33
+    },
+    { "HTTP/1.1 200 OK\n"
+      "Content-Length: 34\r\n",
       -1
     },
   };

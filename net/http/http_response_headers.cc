@@ -35,7 +35,6 @@
 #include "net/http/http_response_headers.h"
 
 #include <algorithm>
-#include <hash_map>
 
 #include "base/logging.h"
 #include "base/pickle.h"
@@ -265,7 +264,7 @@ void HttpResponseHeaders::GetNormalizedHeaders(string* output) const {
   // be a web app, we cannot be certain of the semantics of commas despite the
   // fact that RFC 2616 says that they should be regarded as value separators.
   //
-  typedef stdext::hash_map<string, size_t> HeadersMap;
+  typedef base::hash_map<string, size_t> HeadersMap;
   HeadersMap headers_map;
   HeadersMap::iterator iter = headers_map.end();
 
@@ -909,6 +908,8 @@ bool HttpResponseHeaders::IsKeepAlive() const {
   return keep_alive;
 }
 
+// From RFC 2616:
+// Content-Length = "Content-Length" ":" 1*DIGIT
 int64 HttpResponseHeaders::GetContentLength() const {
   void* iter = NULL;
   string content_length_val;
@@ -918,16 +919,12 @@ int64 HttpResponseHeaders::GetContentLength() const {
   if (content_length_val.empty())
     return -1;
 
-  // NOTE: We do not use StringToInt64 here since we want to know if
-  // parsing failed.
-
-  char* end;
-  int64 result = _strtoi64(content_length_val.c_str(), &end, 10);
-
-  if (result < 0)
+  if (content_length_val[0] == '+')
     return -1;
 
-  if (end != content_length_val.c_str() + content_length_val.length())
+  int64 result;
+  bool ok = StringToInt64(content_length_val, &result);
+  if (!ok || result < 0) 
     return -1;
 
   return result;
