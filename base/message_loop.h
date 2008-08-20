@@ -415,7 +415,7 @@ class MessageLoop : public base::MessagePump::Delegate {
 
   // base::MessagePump::Delegate methods:
   virtual bool DoWork();
-  virtual bool DoDelayedWork(TimeDelta* next_delay);
+  virtual bool DoDelayedWork(Time* next_delayed_work_time);
   virtual bool DoIdleWork();
 
   // Start recording histogram info about events and action IF it was enabled

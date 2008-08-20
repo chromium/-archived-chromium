@@ -29,6 +29,8 @@
 
 #include "base/message_pump_win.h"
 
+#include <math.h>
+
 #include "base/histogram.h"
 #include "base/win_util.h"
 
@@ -160,7 +162,7 @@ void MessagePumpWin::ScheduleWork() {
   PostMessage(message_hwnd_, kMsgHaveWork, reinterpret_cast<WPARAM>(this), 0);
 }
 
-void MessagePumpWin::ScheduleDelayedWork(const TimeDelta& delay) {
+void MessagePumpWin::ScheduleDelayedWork(const Time& delayed_work_time) {
   //
   // We would *like* to provide high resolution timers.  Windows timers using
   // SetTimer() have a 10ms granularity.  We have to use WM_TIMER as a wakeup
@@ -181,7 +183,9 @@ void MessagePumpWin::ScheduleDelayedWork(const TimeDelta& delay) {
   // Getting a spurrious SetTimer event firing is benign, as we'll just be
   // processing an empty timer queue.
   //
-  int delay_msec = static_cast<int>(delay.InMilliseconds());
+  delayed_work_time_ = delayed_work_time;
+
+  int delay_msec = GetCurrentDelay();
   DCHECK(delay_msec >= 0);
   if (delay_msec < USER_TIMER_MINIMUM)
     delay_msec = USER_TIMER_MINIMUM;
@@ -250,10 +254,11 @@ void MessagePumpWin::HandleTimerMessage() {
   if (!state_)
     return;
 
-  TimeDelta next_delay;
-  state_->delegate->DoDelayedWork(&next_delay);
-  if (next_delay >= TimeDelta::FromMilliseconds(0))
-    ScheduleDelayedWork(next_delay);
+  state_->delegate->DoDelayedWork(&delayed_work_time_);
+  if (!delayed_work_time_.is_null()) {
+    // A bit gratuitous to set delayed_work_time_ again, but oh well.
+    ScheduleDelayedWork(delayed_work_time_);
+  }
 }
 
 void MessagePumpWin::DoRunLoop() {
@@ -295,14 +300,13 @@ void MessagePumpWin::DoRunLoop() {
     if (more_work_is_plausible)
       continue;
 
-    TimeDelta next_delay;
-    more_work_is_plausible = state_->delegate->DoDelayedWork(&next_delay);
+    more_work_is_plausible =
+        state_->delegate->DoDelayedWork(&delayed_work_time_);
     // If we did not process any delayed work, then we can assume that our
     // existing WM_TIMER if any will fire when delayed work should run.  We
     // don't want to disturb that timer if it is already in flight.  However,
     // if we did do all remaining delayed work, then lets kill the WM_TIMER.
-    if (more_work_is_plausible &&
-        next_delay < TimeDelta::FromMilliseconds(0))
+    if (more_work_is_plausible && delayed_work_time_.is_null())
       KillTimer(message_hwnd_, reinterpret_cast<UINT_PTR>(this));
     if (state_->should_quit)
       break;
@@ -519,8 +523,17 @@ int MessagePumpWin::GetCurrentDelay() const {
   if (delayed_work_time_.is_null())
     return -1;
 
-  // This could be a negative value, but that's OK.
-  return static_cast<int>((Time::Now() - delayed_work_time_).InMilliseconds());
+  // Be careful here.  TimeDelta has a precision of microseconds, but we want a
+  // value in milliseconds.  If there are 5.5ms left, should the delay be 5 or
+  // 6?  It should be 6 to avoid executing delayed work too early.
+  double timeout = ceil((delayed_work_time_ - Time::Now()).InMillisecondsF());
+
+  // If this value is negative, then we need to run delayed work soon.
+  int delay = static_cast<int>(timeout);
+  if (delay < 0)
+    delay = 0;
+
+  return delay;
 }
 
 }  // namespace base

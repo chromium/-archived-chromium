@@ -29,6 +29,7 @@
 
 #include "base/waitable_event.h"
 
+#include <math.h>
 #include <windows.h>
 
 #include "base/logging.h"
@@ -68,8 +69,12 @@ bool WaitableEvent::Wait() {
 }
 
 bool WaitableEvent::TimedWait(const TimeDelta& max_time) {
-  int32 timeout = static_cast<int32>(max_time.InMilliseconds());
-  DWORD result = WaitForSingleObject(event_, timeout);
+  DCHECK(max_time >= TimeDelta::FromMicroseconds(0));
+  // Be careful here.  TimeDelta has a precision of microseconds, but this API
+  // is in milliseconds.  If there are 5.5ms left, should the delay be 5 or 6?
+  // It should be 6 to avoid returning too early.
+  double timeout = ceil(max_time.InMillisecondsF());
+  DWORD result = WaitForSingleObject(event_, static_cast<DWORD>(timeout));
   switch (result) {
     case WAIT_OBJECT_0:
       return true;

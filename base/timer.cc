@@ -55,14 +55,6 @@ Timer::Timer(int delay, Task* task, bool repeating)
   Reset();
 }
 
-int Timer::GetCurrentDelay() const {
-  // Be careful here.  Timers have a precision of microseconds, but this API is
-  // in milliseconds.  If there are 5.5ms left, should the delay be 5 or 6?  It
-  // should be 6 to avoid timers firing early.
-  double delay = ceil((fire_time_ - Time::Now()).InMillisecondsF());
-  return static_cast<int>(delay);
-}
-
 void Timer::Reset() {
   creation_time_ = Time::Now();
   fire_time_ = creation_time_ + TimeDelta::FromMilliseconds(delay_);
@@ -163,7 +155,7 @@ bool TimerManager::RunSomePendingTimers() {
   // timers have been set.
   const int kMaxTimersPerCall = 2;
   for (int i = 0; i < kMaxTimersPerCall; ++i) {
-    if (timers_.empty() || GetCurrentDelay() > 0)
+    if (timers_.empty() || timers_.top()->fire_time() > Time::Now())
       break;
 
     // Get a pending timer.  Deal with updating the timers_ queue and setting
@@ -211,13 +203,11 @@ void TimerManager::StartTimer(Timer* timer) {
     DidChangeNextTimer();
 }
 
-int TimerManager::GetCurrentDelay() {
+Time TimerManager::GetNextFireTime() const {
   if (timers_.empty())
-    return -1;
-  int delay = timers_.top()->GetCurrentDelay();
-  if (delay < 0)
-    delay = 0;
-  return delay;
+    return Time();
+
+  return timers_.top()->fire_time();
 }
 
 void TimerManager::DidChangeNextTimer() {
