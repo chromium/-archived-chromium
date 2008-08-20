@@ -254,7 +254,7 @@ class CookieMonster::ParsedCookie {
   size_t secure_index_;
   size_t httponly_index_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(CookieMonster::ParsedCookie);
+  DISALLOW_COPY_AND_ASSIGN(ParsedCookie);
 };
 
 
@@ -327,7 +327,7 @@ class CookieMonster::PersistentCookieStore {
   PersistentCookieStore() { }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(CookieMonster::PersistentCookieStore);
+  DISALLOW_COPY_AND_ASSIGN(PersistentCookieStore);
 };
 
 }  // namespace net
