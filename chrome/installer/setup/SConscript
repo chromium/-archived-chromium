@@ -47,7 +47,6 @@ env_res.Append(
 
 resources = [
     env_res.RES('setup.rc'),
-    env_res.RES('../util/installer_util_strings.rc'),
 ]
 
 
@@ -59,11 +58,12 @@ env.Prepend(
         '#/..',
     ],
     LIBS = [
-        'bspatch',
-        'lzma_sdk',
-        'icuuc',
-        'common',
         'base',
+        'bspatch',
+        'common',
+        'icuuc',
+        'lzma_sdk',
+        'util',
     ],
 )
 
@@ -89,7 +89,6 @@ env.Prepend(
         '/MAP:${TARGETS[2]}',
     ],
     LIBS = [
-        'shlwapi.lib',
         'msi.lib',
     ],
 )
@@ -102,10 +101,6 @@ input_files = [
     'uninstall.cc',
 ]
 
-libs = [
-    '../util/util.lib',
-]
-
 if env['PLATFORM'] == 'win32':
   targets = [
       'setup.exe',
@@ -115,7 +110,7 @@ if env['PLATFORM'] == 'win32':
 else:
   targets = ['setup']
 
-exe = env.ChromeProgram(targets, resources + input_files + libs)
+exe = env.ChromeProgram(targets, resources + input_files)
 i = env.Install('$TARGET_ROOT', exe)
 
 env.Alias('chrome', i)
