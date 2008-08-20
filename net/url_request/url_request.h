@@ -114,6 +114,8 @@ class URLRequest {
   //
   class Delegate {
    public:
+    virtual ~Delegate() {}
+    
     // Called upon a server-initiated redirect.  The delegate may call the
     // request's Cancel method to prevent the redirect from being followed.
     // Since there may be multiple chained redirects, there may also be more

@@ -63,14 +63,14 @@ URLRequestJob* URLRequestHttpJob::Factory(URLRequest* request,
 
 URLRequestHttpJob::URLRequestHttpJob(URLRequest* request)
     : URLRequestJob(request),
-      context_(request->context()),
       transaction_(NULL),
       response_info_(NULL),
       proxy_auth_state_(net::AUTH_STATE_DONT_NEED_AUTH),
       server_auth_state_(net::AUTH_STATE_DONT_NEED_AUTH),
       start_callback_(this, &URLRequestHttpJob::OnStartCompleted),
       read_callback_(this, &URLRequestHttpJob::OnReadCompleted),
-      read_in_progress_(false) {
+      read_in_progress_(false),
+      context_(request->context()) {
 }
 
 URLRequestHttpJob::~URLRequestHttpJob() {

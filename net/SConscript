@@ -79,11 +79,16 @@ input_files = [
     'disk_cache/rankings.cc',
     'disk_cache/stats.cc',
     'disk_cache/trace.cc',
+    'http/cert_status_cache.cc',
     'http/http_chunked_decoder.cc',
+    'http/http_response_headers.cc',
     'http/http_util.cc',
+    'http/http_vary_data.cc',
+    'url_request/mime_sniffer_proxy.cc',
     'url_request/url_request_error_job.cc',
     'url_request/url_request_job_metrics.cc',
     'url_request/url_request_job_tracker.cc',
+    'url_request/url_request_view_cache_job.cc',
 ]
 
 if env['PLATFORM'] == 'win32':
@@ -107,18 +112,14 @@ if env['PLATFORM'] == 'win32':
       'base/wininet_util.cc',
       'base/winsock_init.cc',
       'base/x509_certificate.cc',
-      'http/cert_status_cache.cc',
       'http/http_cache.cc',
       'http/http_network_layer.cc',
       'http/http_network_transaction.cc',
-      'http/http_response_headers.cc',
       'http/http_transaction_winhttp.cc',
-      'http/http_vary_data.cc',
       'http/winhttp_request_throttle.cc',
       'proxy/proxy_resolver_fixed.cc',
       'proxy/proxy_resolver_winhttp.cc',
       'proxy/proxy_service.cc',
-      'url_request/mime_sniffer_proxy.cc',
       'url_request/url_request.cc',
       'url_request/url_request_about_job.cc',
       'url_request/url_request_file_dir_job.cc',
@@ -131,7 +132,6 @@ if env['PLATFORM'] == 'win32':
       'url_request/url_request_job_manager.cc',
       'url_request/url_request_simple_job.cc',
       'url_request/url_request_test_job.cc',
-      'url_request/url_request_view_cache_job.cc',
   ])
 
 if env['PLATFORM'] == 'win32':
@@ -233,6 +233,8 @@ unittest_files = [
     'base/escape_unittest.cc',
     'base/gzip_filter_unittest.cc',
     'disk_cache/addr_unittest.cc',
+    'http/http_response_headers_unittest.cc',
+    'http/http_vary_data_unittest.cc',
     '$BASE_DIR/run_all_unittests$OBJSUFFIX',
 ]
 
@@ -259,11 +261,9 @@ if env['PLATFORM'] == 'win32':
       'http/http_cache_unittest.cc',
       'http/http_network_layer_unittest.cc',
       'http/http_network_transaction_unittest.cc',
-      'http/http_response_headers_unittest.cc',
       'http/http_transaction_unittest.cc',
       'http/http_transaction_winhttp_unittest.cc',
       'http/http_util_unittest.cc',
-      'http/http_vary_data_unittest.cc',
       'http/winhttp_request_throttle_unittest.cc',
       'url_request/url_request_unittest.cc',
   ])

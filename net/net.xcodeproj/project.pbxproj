@@ -81,6 +81,13 @@
 		7BED34190E5A1A8600A747DB /* libnet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BA04540E25613300BE02C6 /* libnet.a */; };
 		7BED34450E5A1A9600A747DB /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BED324A0E5A17C000A747DB /* libbase.a */; };
 		7BED34520E5A1ABC00A747DB /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BED32530E5A17C300A747DB /* libgtest.a */; };
+		821F207B0E5CD342003C7E38 /* cert_status_cache.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33610E5A194700A747DB /* cert_status_cache.cc */; };
+		821F207F0E5CD3C6003C7E38 /* http_vary_data.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33520E5A194700A747DB /* http_vary_data.cc */; };
+		821F20A30E5CD407003C7E38 /* mime_sniffer_proxy.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33A60E5A198600A747DB /* mime_sniffer_proxy.cc */; };
+		821F20A50E5CD414003C7E38 /* url_request_view_cache_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33A90E5A198600A747DB /* url_request_view_cache_job.cc */; };
+		821F21130E5CD662003C7E38 /* http_vary_data_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33470E5A194700A747DB /* http_vary_data_unittest.cc */; };
+		821F21300E5CD746003C7E38 /* http_response_headers.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33440E5A194700A747DB /* http_response_headers.cc */; };
+		821F21320E5CD756003C7E38 /* http_response_headers_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33480E5A194700A747DB /* http_response_headers_unittest.cc */; };
 		825C2FCC0E5C968B00FDEAB7 /* ev_root_ca_metadata.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32BE0E5A181C00A747DB /* ev_root_ca_metadata.cc */; };
 		82ECB3090E5B651D00A913E3 /* mime_sniffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32AD0E5A181C00A747DB /* mime_sniffer.cc */; };
 		E4AFA6430E5241B400201347 /* run_all_unittests.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4AFA6420E5241B400201347 /* run_all_unittests.cc */; };
@@ -872,44 +879,44 @@
 		7BED338A0E5A196C00A747DB /* url_request */ = {
 			isa = PBXGroup;
 			children = (
-				7BED33970E5A198600A747DB /* url_request_file_dir_job.cc */,
-				7BED33980E5A198600A747DB /* url_request_job.cc */,
-				7BED33990E5A198600A747DB /* url_request_inet_job.h */,
-				7BED339A0E5A198600A747DB /* url_request_status.h */,
-				7BED339B0E5A198600A747DB /* url_request_simple_job.h */,
-				7BED339C0E5A198600A747DB /* url_request_simple_job.cc */,
-				7BED339D0E5A198600A747DB /* url_request_job_tracker.h */,
-				7BED339E0E5A198600A747DB /* url_request_job_tracker.cc */,
-				7BED339F0E5A198600A747DB /* url_request_job_metrics.h */,
-				7BED33A00E5A198600A747DB /* url_request_job_metrics.cc */,
-				7BED33A10E5A198600A747DB /* url_request_job_manager.h */,
-				7BED33A20E5A198600A747DB /* url_request_about_job.cc */,
-				7BED33A30E5A198600A747DB /* url_request_job_manager.cc */,
-				7BED33A40E5A198600A747DB /* url_request_job.h */,
-				7BED33A50E5A198600A747DB /* url_request_error_job.h */,
 				7BED33A60E5A198600A747DB /* mime_sniffer_proxy.cc */,
 				7BED33A70E5A198600A747DB /* mime_sniffer_proxy.h */,
-				7BED33A80E5A198600A747DB /* url_request_view_cache_job.h */,
-				7BED33A90E5A198600A747DB /* url_request_view_cache_job.cc */,
-				7BED33AA0E5A198600A747DB /* url_request_unittest.h */,
-				7BED33AB0E5A198600A747DB /* url_request_unittest.cc */,
-				7BED33AC0E5A198600A747DB /* url_request_test_job.h */,
-				7BED33AD0E5A198600A747DB /* url_request_test_job.cc */,
+				7BED33B10E5A198600A747DB /* url_request.cc */,
 				7BED33AE0E5A198600A747DB /* url_request.h */,
+				7BED33A20E5A198600A747DB /* url_request_about_job.cc */,
+				7BED33B80E5A198600A747DB /* url_request_about_job.h */,
+				7BED33B50E5A198600A747DB /* url_request_context.h */,
+				7BED33B20E5A198600A747DB /* url_request_error_job.cc */,
+				7BED33A50E5A198600A747DB /* url_request_error_job.h */,
+				7BED33970E5A198600A747DB /* url_request_file_dir_job.cc */,
 				7BED33AF0E5A198600A747DB /* url_request_file_dir_job.h */,
 				7BED33B00E5A198600A747DB /* url_request_file_job.cc */,
-				7BED33B10E5A198600A747DB /* url_request.cc */,
-				7BED33B20E5A198600A747DB /* url_request_error_job.cc */,
-				7BED33B30E5A198600A747DB /* url_request_ftp_job.cc */,
-				7BED33B40E5A198600A747DB /* url_request_filter.h */,
-				7BED33B50E5A198600A747DB /* url_request_context.h */,
-				7BED33B60E5A198600A747DB /* url_request_http_job.cc */,
-				7BED33B70E5A198600A747DB /* url_request_ftp_job.h */,
-				7BED33B80E5A198600A747DB /* url_request_about_job.h */,
-				7BED33B90E5A198600A747DB /* url_request_filter.cc */,
 				7BED33BA0E5A198600A747DB /* url_request_file_job.h */,
-				7BED33BB0E5A198600A747DB /* url_request_inet_job.cc */,
+				7BED33B90E5A198600A747DB /* url_request_filter.cc */,
+				7BED33B40E5A198600A747DB /* url_request_filter.h */,
+				7BED33B30E5A198600A747DB /* url_request_ftp_job.cc */,
+				7BED33B70E5A198600A747DB /* url_request_ftp_job.h */,
+				7BED33B60E5A198600A747DB /* url_request_http_job.cc */,
 				7BED33BC0E5A198600A747DB /* url_request_http_job.h */,
+				7BED33BB0E5A198600A747DB /* url_request_inet_job.cc */,
+				7BED33990E5A198600A747DB /* url_request_inet_job.h */,
+				7BED33980E5A198600A747DB /* url_request_job.cc */,
+				7BED33A40E5A198600A747DB /* url_request_job.h */,
+				7BED33A30E5A198600A747DB /* url_request_job_manager.cc */,
+				7BED33A10E5A198600A747DB /* url_request_job_manager.h */,
+				7BED33A00E5A198600A747DB /* url_request_job_metrics.cc */,
+				7BED339F0E5A198600A747DB /* url_request_job_metrics.h */,
+				7BED339E0E5A198600A747DB /* url_request_job_tracker.cc */,
+				7BED339D0E5A198600A747DB /* url_request_job_tracker.h */,
+				7BED339C0E5A198600A747DB /* url_request_simple_job.cc */,
+				7BED339B0E5A198600A747DB /* url_request_simple_job.h */,
+				7BED339A0E5A198600A747DB /* url_request_status.h */,
+				7BED33AD0E5A198600A747DB /* url_request_test_job.cc */,
+				7BED33AC0E5A198600A747DB /* url_request_test_job.h */,
+				7BED33AB0E5A198600A747DB /* url_request_unittest.cc */,
+				7BED33AA0E5A198600A747DB /* url_request_unittest.h */,
+				7BED33A90E5A198600A747DB /* url_request_view_cache_job.cc */,
+				7BED33A80E5A198600A747DB /* url_request_view_cache_job.h */,
 			);
 			path = url_request;
 			sourceTree = "<group>";
@@ -1150,7 +1157,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -ex\nexec ${BUILT_PRODUCTS_DIR}/base_unittests\n";
+			shellScript = "set -ex\nexec ${BUILT_PRODUCTS_DIR}/net_unittests\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1166,6 +1173,7 @@
 				7B8503FC0E5B2DA200730B43 /* block_files.cc in Sources */,
 				7BA0172F0E5A244D00044150 /* bzip2_filter.cc in Sources */,
 				7B8504050E5B2DBD00730B43 /* cache_util_posix.cc in Sources */,
+				821F207B0E5CD342003C7E38 /* cert_status_cache.cc in Sources */,
 				7B8504080E5B2DD800730B43 /* client_socket_handle.cc in Sources */,
 				7B8504090E5B2DD800730B43 /* client_socket_pool.cc in Sources */,
 				7B85040C0E5B2DD800730B43 /* cookie_policy.cc in Sources */,
@@ -1181,12 +1189,15 @@
 				7B8504280E5B2E2A00730B43 /* hash.cc in Sources */,
 				0482692A0E5B624D00A30786 /* http_cache.cc in Sources */,
 				7B85042B0E5B2E2A00730B43 /* http_chunked_decoder.cc in Sources */,
+				821F21300E5CD746003C7E38 /* http_response_headers.cc in Sources */,
 				7B85042F0E5B2E4900730B43 /* http_util.cc in Sources */,
+				821F207F0E5CD3C6003C7E38 /* http_vary_data.cc in Sources */,
 				7B8504320E5B2E4900730B43 /* mapped_file_posix.cc in Sources */,
 				7B8504330E5B2E4900730B43 /* mem_backend_impl.cc in Sources */,
 				7B8504340E5B2E4900730B43 /* mem_entry_impl.cc in Sources */,
 				7B8504350E5B2E4900730B43 /* mem_rankings.cc in Sources */,
 				82ECB3090E5B651D00A913E3 /* mime_sniffer.cc in Sources */,
+				821F20A30E5CD407003C7E38 /* mime_sniffer_proxy.cc in Sources */,
 				048268070E5B3B1000A30786 /* mime_util.cc in Sources */,
 				7BA015550E5A1C1000044150 /* net_errors.cc in Sources */,
 				7B8504390E5B2E5700730B43 /* net_module.cc in Sources */,
@@ -1198,6 +1209,7 @@
 				7B85044A0E5B2E9600730B43 /* url_request_error_job.cc in Sources */,
 				7B8504530E5B2E9600730B43 /* url_request_job_metrics.cc in Sources */,
 				7B8504540E5B2E9600730B43 /* url_request_job_tracker.cc in Sources */,
+				821F20A50E5CD414003C7E38 /* url_request_view_cache_job.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1214,6 +1226,8 @@
 				7B4DF6B10E5B98ED004D7619 /* escape_unittest.cc in Sources */,
 				7BA0151F0E5A1B9200044150 /* gzip_filter_unittest.cc in Sources */,
 				048268080E5B3B3200A30786 /* http_chunked_decoder_unittest.cc in Sources */,
+				821F21320E5CD756003C7E38 /* http_response_headers_unittest.cc in Sources */,
+				821F21130E5CD662003C7E38 /* http_vary_data_unittest.cc in Sources */,
 				7B4DF9AC0E5C906A004D7619 /* mime_sniffer_unittest.cc in Sources */,
 				048268090E5B3B4800A30786 /* mime_util_unittest.cc in Sources */,
 				E4AFA6430E5241B400201347 /* run_all_unittests.cc in Sources */,

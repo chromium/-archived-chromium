@@ -32,7 +32,6 @@
 #include "base/basictypes.h"
 #include "base/pickle.h"
 #include "base/time.h"
-#include "net/base/net_util.h"
 #include "net/http/http_response_headers.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -363,7 +362,7 @@ TEST(HttpResponseHeadersTest, Persist) {
     },
   };
 
-  for (size_t i = 0; i < arraysize(tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     std::string headers = tests[i].raw_headers;
     HeadersToRaw(&headers);
     scoped_refptr<HttpResponseHeaders> parsed1 =
@@ -677,7 +676,7 @@ TEST(HttpResponseHeadersTest, RequiresValidation) {
   Time::FromString(L"Wed, 28 Nov 2007 00:40:12 GMT", &response_time);
   Time::FromString(L"Wed, 28 Nov 2007 00:45:20 GMT", &current_time);
 
-  for (size_t i = 0; i < arraysize(tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     string headers(tests[i].headers);
     HeadersToRaw(&headers);
     scoped_refptr<HttpResponseHeaders> parsed = new HttpResponseHeaders(headers);
@@ -729,7 +728,7 @@ TEST(HttpResponseHeadersTest, Update) {
     },
   };
 
-  for (size_t i = 0; i < arraysize(tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     string orig_headers(tests[i].orig_headers);
     HeadersToRaw(&orig_headers);
     scoped_refptr<HttpResponseHeaders> parsed =
@@ -775,7 +774,7 @@ TEST(HttpResponseHeadersTest, EnumerateHeaderLines) {
       "Foo: 1, 2, 3\n"
     },
   };
-  for (size_t i = 0; i < arraysize(tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     string headers(tests[i].headers);
     HeadersToRaw(&headers);
     scoped_refptr<HttpResponseHeaders> parsed =
@@ -859,7 +858,7 @@ TEST(HttpResponseHeadersTest, IsRedirect) {
       true
     },
   };
-  for (size_t i = 0; i < arraysize(tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     string headers(tests[i].headers);
     HeadersToRaw(&headers);
     scoped_refptr<HttpResponseHeaders> parsed =
@@ -945,7 +944,7 @@ TEST(HttpResponseHeadersTest, GetContentLength) {
       -1
     },
   };
-  for (size_t i = 0; i < arraysize(tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     string headers(tests[i].headers);
     HeadersToRaw(&headers);
     scoped_refptr<HttpResponseHeaders> parsed =
@@ -995,7 +994,7 @@ TEST(HttpResponseHeadersTest, IsKeepAlive) {
       false
     },
   };
-  for (size_t i = 0; i < arraysize(tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     string headers(tests[i].headers);
     HeadersToRaw(&headers);
     scoped_refptr<HttpResponseHeaders> parsed =
