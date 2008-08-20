@@ -120,7 +120,6 @@
 #include "base/basictypes.h"
 #include "base/histogram.h"
 #include "base/logging.h"
-#include "base/registry.h"
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/mime_util.h"
@@ -312,7 +311,7 @@ static bool MatchMagicNumber(const char* content, size_t size,
   if (magic_entry->is_string) {
     if (content_strlen >= len) {
       // String comparisons are case-insensitive
-      match = (_strnicmp(magic_entry->magic, content, len) == 0);
+      match = (base::strncasecmp(magic_entry->magic, content, len) == 0);
     }
   } else {
     if (size >= len)
@@ -403,11 +402,11 @@ static bool SniffXML(const char* content, size_t size, std::string* result) {
     if (!pos)
       return false;
 
-    if (_strnicmp(pos, "<?xml", sizeof("<?xml")-1) == 0) {
+    if (base::strncasecmp(pos, "<?xml", sizeof("<?xml")-1) == 0) {
       // Skip XML declarations.
       ++pos;
       continue;
-    } else if (_strnicmp(pos, "<!DOCTYPE", sizeof("<!DOCTYPE")-1) == 0) {
+    } else if (base::strncasecmp(pos, "<!DOCTYPE", sizeof("<!DOCTYPE")-1) == 0) {
       // Skip DOCTYPE declarations.
       ++pos;
       continue;
@@ -498,7 +497,7 @@ static bool IsUnknownMimeType(const std::string& mime_type) {
   };
   static SnifferHistogram counter(L"mime_sniffer.kUnknownMimeTypes",
                                   arraysize(kUnknownMimeTypes) + 1);
-  for (int i = 0; i < arraysize(kUnknownMimeTypes); ++i) {
+  for (size_t i = 0; i < arraysize(kUnknownMimeTypes); ++i) {
     if (mime_type == kUnknownMimeTypes[i]) {
       counter.Add(i);
       return true;
@@ -536,7 +535,7 @@ bool ShouldSniffMimeType(const GURL& url, const std::string& mime_type) {
   };
   static SnifferHistogram counter(L"mime_sniffer.kSniffableTypes",
                                   arraysize(kSniffableTypes) + 1);
-  for (int i = 0; i < arraysize(kSniffableTypes); ++i) {
+  for (size_t i = 0; i < arraysize(kSniffableTypes); ++i) {
     if (mime_type == kSniffableTypes[i]) {
       counter.Add(i);
       return true;

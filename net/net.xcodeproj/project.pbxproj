@@ -80,6 +80,7 @@
 		7BED34190E5A1A8600A747DB /* libnet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BA04540E25613300BE02C6 /* libnet.a */; };
 		7BED34450E5A1A9600A747DB /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BED324A0E5A17C000A747DB /* libbase.a */; };
 		7BED34520E5A1ABC00A747DB /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BED32530E5A17C300A747DB /* libgtest.a */; };
+		82ECB3090E5B651D00A913E3 /* mime_sniffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32AD0E5A181C00A747DB /* mime_sniffer.cc */; };
 		E4AFA6430E5241B400201347 /* run_all_unittests.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4AFA6420E5241B400201347 /* run_all_unittests.cc */; };
 /* End PBXBuildFile section */
 
@@ -1182,6 +1183,7 @@
 				7B8504330E5B2E4900730B43 /* mem_backend_impl.cc in Sources */,
 				7B8504340E5B2E4900730B43 /* mem_entry_impl.cc in Sources */,
 				7B8504350E5B2E4900730B43 /* mem_rankings.cc in Sources */,
+				82ECB3090E5B651D00A913E3 /* mime_sniffer.cc in Sources */,
 				048268070E5B3B1000A30786 /* mime_util.cc in Sources */,
 				7BA015550E5A1C1000044150 /* net_errors.cc in Sources */,
 				7B8504390E5B2E5700730B43 /* net_module.cc in Sources */,
