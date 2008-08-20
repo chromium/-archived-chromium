@@ -677,6 +677,7 @@ class UnresponsiveClient : public Worker {
       Send(reply_msg);
     } else {
       // Don't reply.
+      delete reply_msg;
     }
     timeout_seq_.erase(timeout_seq_.begin());
     if (timeout_seq_.empty())
