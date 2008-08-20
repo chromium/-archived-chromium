@@ -184,7 +184,7 @@ void ThreadData::WriteHTML(const std::string& query, std::string* output) {
 
   // Create filtering and sort comparison object.
   Comparator comparator;
-  bool display_details = comparator.ParseQuery(escaped_query);
+  comparator.ParseQuery(escaped_query);
 
   // Filter out acceptable (matching) instances.
   DataCollector::Collection match_array;
@@ -696,6 +696,9 @@ bool Comparator::operator()(const Snapshot& left,
       if (left.AverageMsDuration() != right.AverageMsDuration())
         return left.AverageMsDuration() > right.AverageMsDuration();
       break;
+
+    default:
+      break;
   }
   if (tiebreaker_)
     return tiebreaker_->operator()(left, right);
@@ -703,7 +706,7 @@ bool Comparator::operator()(const Snapshot& left,
 }
 
 bool Comparator::Equivalent(const Snapshot& left,
-                                const Snapshot& right) const {
+                            const Snapshot& right) const {
   switch (selector_) {
     case BIRTH_THREAD:
       if (left.birth_thread() != right.birth_thread() &&
@@ -714,8 +717,7 @@ bool Comparator::Equivalent(const Snapshot& left,
 
     case DEATH_THREAD:
       if (left.death_thread() != right.death_thread() &&
-          left.DeathThreadName() !=
-              right.DeathThreadName())
+          left.DeathThreadName() != right.DeathThreadName())
         return false;
       break;
 
@@ -746,6 +748,9 @@ bool Comparator::Equivalent(const Snapshot& left,
       if (left.life_duration() != right.life_duration())
         return false;
       break;
+
+    default:
+      break;
   }
   if (tiebreaker_ && !use_tiebreaker_for_sort_only_)
     return tiebreaker_->Equivalent(left, right);
@@ -766,14 +771,17 @@ bool Comparator::Acceptable(const Snapshot& sample) const {
           return false;
         break;
 
-     case BIRTH_FILE:
+      case BIRTH_FILE:
         if (!strstr(sample.location().file_name(), required_.c_str()))
-            return false;
+          return false;
         break;
 
-     case BIRTH_FUNCTION:
+      case BIRTH_FUNCTION:
         if (!strstr(sample.location().function_name(), required_.c_str()))
-            return false;
+          return false;
+        break;
+
+      default:
         break;
     }
   }
@@ -871,9 +879,6 @@ bool Comparator::WriteSortGrouping(const Snapshot& sample,
                                        std::string* output) const {
   bool wrote_data = false;
   switch (selector_) {
-    case NIL:
-      break;
-
     case BIRTH_THREAD:
       StringAppendF(output, "All new on %s ",
                     sample.birth_thread()->ThreadName().c_str());
@@ -898,6 +903,9 @@ bool Comparator::WriteSortGrouping(const Snapshot& sample,
       output->append("All born in ");
       sample.location().WriteFunctionName(output);
       output->push_back(' ');
+      break;
+
+    default:
       break;
   }
   if (tiebreaker_ && !use_tiebreaker_for_sort_only_) {
