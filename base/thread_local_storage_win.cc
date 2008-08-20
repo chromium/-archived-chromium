@@ -55,7 +55,7 @@ long ThreadLocalStorage::tls_max_ = 1;
 ThreadLocalStorage::TLSDestructorFunc
   ThreadLocalStorage::tls_destructors_[kThreadLocalStorageSize];
 
-void** ThreadLocalStorage::Initialize() {
+void **ThreadLocalStorage::Initialize() {
   if (tls_key_ == TLS_OUT_OF_INDEXES) {
     long value = TlsAlloc();
     DCHECK(value != TLS_OUT_OF_INDEXES);
@@ -73,59 +73,52 @@ void** ThreadLocalStorage::Initialize() {
   DCHECK(TlsGetValue(tls_key_) == NULL);
 
   // Create an array to store our data.
-  void** tls_data = new void*[kThreadLocalStorageSize];
+  void **tls_data = new void*[kThreadLocalStorageSize];
   memset(tls_data, 0, sizeof(void*[kThreadLocalStorageSize]));
   TlsSetValue(tls_key_, tls_data);
   return tls_data;
 }
 
-ThreadLocalStorage::Slot::Slot(TLSDestructorFunc destructor)
-    : initialized_(false) {
-  Initialize(destructor);
-}
-
-bool ThreadLocalStorage::Slot::Initialize(TLSDestructorFunc destructor) {
+TLSSlot ThreadLocalStorage::Alloc(TLSDestructorFunc destructor) {
   if (tls_key_ == TLS_OUT_OF_INDEXES || !TlsGetValue(tls_key_))
-    ThreadLocalStorage::Initialize();
+    Initialize();
 
   // Grab a new slot.
-  slot_ = InterlockedIncrement(&tls_max_) - 1;
-  if (slot_ >= kThreadLocalStorageSize) {
+  int slot = InterlockedIncrement(&tls_max_) - 1;
+  if (slot >= kThreadLocalStorageSize) {
     NOTREACHED();
-    return false;
+    return -1;
   }
 
   // Setup our destructor.
-  tls_destructors_[slot_] = destructor;
-  initialized_ = true;
-  return true;
+  tls_destructors_[slot] = destructor;
+  return slot;
 }
 
-void ThreadLocalStorage::Slot::Free() {
+void ThreadLocalStorage::Free(TLSSlot slot) {
   // At this time, we don't reclaim old indices for TLS slots.
   // So all we need to do is wipe the destructor.
-  tls_destructors_[slot_] = NULL;
-  initialized_ = false;
+  tls_destructors_[slot] = NULL;
 }
 
-void* ThreadLocalStorage::Slot::Get() const {
-  void** tls_data = static_cast<void**>(TlsGetValue(tls_key_));
+void* ThreadLocalStorage::Get(TLSSlot slot) {
+  void **tls_data = static_cast<void**>(TlsGetValue(tls_key_));
   if (!tls_data)
-    tls_data = ThreadLocalStorage::Initialize();
-  DCHECK(slot_ >= 0 && slot_ < kThreadLocalStorageSize);
-  return tls_data[slot_];
+    tls_data = Initialize();
+  DCHECK(slot >= 0 && slot < kThreadLocalStorageSize);
+  return tls_data[slot];
 }
 
-void ThreadLocalStorage::Slot::Set(void* value) {
-  void** tls_data = static_cast<void**>(TlsGetValue(tls_key_));
+void ThreadLocalStorage::Set(TLSSlot slot, void* value) {
+  void **tls_data = static_cast<void**>(TlsGetValue(tls_key_));
   if (!tls_data)
-    tls_data = ThreadLocalStorage::Initialize();
-  DCHECK(slot_ >= 0 && slot_ < kThreadLocalStorageSize);
-  tls_data[slot_] = value;
+    tls_data = Initialize();
+  DCHECK(slot >= 0 && slot < kThreadLocalStorageSize);
+  tls_data[slot] = value;
 }
 
 void ThreadLocalStorage::ThreadExit() {
-  void** tls_data = static_cast<void**>(TlsGetValue(tls_key_));
+  void **tls_data = static_cast<void**>(TlsGetValue(tls_key_));
 
   // Maybe we have never initialized TLS for this thread.
   if (!tls_data)
@@ -133,7 +126,7 @@ void ThreadLocalStorage::ThreadExit() {
 
   for (int slot = 0; slot < tls_max_; slot++) {
     if (tls_destructors_[slot] != NULL) {
-      void* value = tls_data[slot];
+      void *value = tls_data[slot];
       tls_destructors_[slot](value);
     }
   }

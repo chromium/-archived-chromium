@@ -35,9 +35,9 @@
 
 namespace tracked_objects {
 
-// A TLS slot to the TrackRegistry for the current thread.
+// a TLS index to the TrackRegistry for the current thread.
 // static
-TLSSlot ThreadData::tls_index_(base::LINKER_INITIALIZED);
+TLSSlot ThreadData::tls_index_ = -1;
 
 //------------------------------------------------------------------------------
 // Death data tallies durations when a death takes place.
@@ -104,14 +104,15 @@ Lock ThreadData::list_lock_;
 // static
 ThreadData::Status ThreadData::status_ = ThreadData::UNINITIALIZED;
 
-ThreadData::ThreadData() : message_loop_(MessageLoop::current()) {}
+ThreadData::ThreadData() :  message_loop_(MessageLoop::current()) {}
 
 // static
 ThreadData* ThreadData::current() {
-  if (!tls_index_.initialized())
-    return NULL;
+  if (-1 == tls_index_)
+    return NULL;  // not yet initialized.
 
-  ThreadData* registry = static_cast<ThreadData*>(tls_index_.Get());
+  ThreadData* registry =
+      static_cast<ThreadData*>(ThreadLocalStorage::Get(tls_index_));
   if (!registry) {
     // We have to create a new registry for ThreadData.
     bool too_late_to_create = false;
@@ -131,7 +132,7 @@ ThreadData* ThreadData::current() {
       delete registry;
       registry = NULL;
     } else {
-      tls_index_.Set(registry);
+      ThreadLocalStorage::Set(tls_index_, registry);
     }
   }
   return registry;
@@ -343,9 +344,11 @@ bool ThreadData::StartTracking(bool status) {
     status_ = SHUTDOWN;
     return true;
   }
+  TLSSlot tls_index = ThreadLocalStorage::Alloc();
   AutoLock lock(list_lock_);
   DCHECK(status_ == UNINITIALIZED);
-  CHECK(tls_index_.Initialize(NULL));
+  tls_index_ = tls_index;
+  CHECK(-1 != tls_index_);
   status_ = ACTIVE;
   return true;
 }
@@ -398,9 +401,9 @@ void ThreadData::ShutdownSingleThreadedCleanup() {
     delete next_thread_data;  // Includes all Death Records.
   }
 
-  CHECK(tls_index_.initialized());
-  tls_index_.Free();
-  DCHECK(!tls_index_.initialized());
+  CHECK(-1 != tls_index_);
+  ThreadLocalStorage::Free(tls_index_);
+  tls_index_ = -1;
   status_ = UNINITIALIZED;
 }
 

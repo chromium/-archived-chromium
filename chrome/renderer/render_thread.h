@@ -74,7 +74,7 @@ class RenderThread : public IPC::Channel::Listener,
 
   // The RenderThread instance for the current thread.
   static RenderThread* current() {
-    return static_cast<RenderThread*>(tls_index_.Get());
+    return static_cast<RenderThread*>(ThreadLocalStorage::Get(tls_index_));
   }
 
   VisitedLinkSlave* visited_link_slave() const { return visited_link_slave_; }
@@ -119,7 +119,7 @@ class RenderThread : public IPC::Channel::Listener,
   // decisions about how to allocation resources using current information.
   void InformHostOfCacheStats();
 
-  static TLSSlot tls_index_;
+  static DWORD tls_index_;
 
   // The message loop used to run tasks on the thread that started this thread.
   MessageLoop* owner_loop_;

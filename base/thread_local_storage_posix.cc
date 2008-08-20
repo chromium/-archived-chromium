@@ -31,39 +31,23 @@
 
 #include "base/logging.h"
 
-ThreadLocalStorage::Slot::Slot(TLSDestructorFunc destructor)
-    : initialized_(false) {
-  Initialize(destructor);
-}
-
-bool ThreadLocalStorage::Slot::Initialize(TLSDestructorFunc destructor) {
-  DCHECK(!initialized_);
-  int error = pthread_key_create(&key_, destructor);
-  if (error) {
+TLSSlot ThreadLocalStorage::Alloc(TLSDestructorFunc destructor) {
+  TLSSlot key;
+  int error = pthread_key_create(&key, destructor);
+  if (error)
     NOTREACHED();
-    return false;
-  }
   
-  initialized_ = true;
-  return true;
+  return key;
 }
 
-void ThreadLocalStorage::Slot::Free() {
-  DCHECK(initialized_);
-  int error = pthread_key_delete(key_);
-  if (error)
-    NOTREACHED();
-  initialized_ = false;
+void ThreadLocalStorage::Free(TLSSlot slot) {
+  pthread_key_delete(slot);
 }
 
-void* ThreadLocalStorage::Slot::Get() const {
-  DCHECK(initialized_);
-  return pthread_getspecific(key_);
+void* ThreadLocalStorage::Get(TLSSlot slot) {
+  return pthread_getspecific(slot);
 }
 
-void ThreadLocalStorage::Slot::Set(void* value) {
-  DCHECK(initialized_);
-  int error = pthread_setspecific(key_, value);
-  if (error)
-    NOTREACHED();
+void ThreadLocalStorage::Set(TLSSlot slot, void* value) {
+  pthread_setspecific(slot, value);
 }

@@ -39,9 +39,7 @@
 // a TLS index to the message loop for the current thread
 // Note that if we start doing complex stuff in other static initializers
 // this could cause problems.
-// TODO(evanm): this shouldn't rely on static initialization.
-// static
-TLSSlot MessageLoop::tls_index_;
+/*static*/ TLSSlot MessageLoop::tls_index_ = ThreadLocalStorage::Alloc();
 
 //------------------------------------------------------------------------------
 
@@ -85,7 +83,7 @@ MessageLoop::MessageLoop()
       exception_restoration_(false),
       state_(NULL) {
   DCHECK(!current()) << "should only have one message loop per thread";
-  tls_index_.Set(this);
+  ThreadLocalStorage::Set(tls_index_, this);
   // TODO(darin): Generalize this to support instantiating different pumps.
 #if defined(OS_WIN)
   pump_ = new base::MessagePumpWin();
@@ -102,7 +100,7 @@ MessageLoop::~MessageLoop() {
                     WillDestroyCurrentMessageLoop());
 
   // OK, now make it so that no one can find us.
-  tls_index_.Set(NULL);
+  ThreadLocalStorage::Set(tls_index_, NULL);
 
   DCHECK(!state_);
 

@@ -254,7 +254,7 @@ StatsTable* StatsTable::global_table_ = NULL;
 
 StatsTable::StatsTable(const std::wstring& name, int max_threads,
                        int max_counters)
-    : tls_index_(SlotReturnFunction) {
+    : tls_index_(ThreadLocalStorage::Alloc(SlotReturnFunction)) {
   int table_size =
     AlignedSize(sizeof(TableHeader)) +
     AlignedSize((max_counters * sizeof(wchar_t) * kMaxCounterNameLength)) +
@@ -285,7 +285,7 @@ StatsTable::~StatsTable() {
 
   // Return ThreadLocalStorage.  At this point, if any registered threads
   // still exist, they cannot Unregister.
-  tls_index_.Free();
+  ThreadLocalStorage::Free(tls_index_);
 
   // Cleanup our shared memory.
   delete impl_;
@@ -329,13 +329,13 @@ int StatsTable::RegisterThread(const std::wstring& name) {
   StatsTableTLSData* data = new StatsTableTLSData;
   data->table = this;
   data->slot = slot;
-  tls_index_.Set(data);
+  ThreadLocalStorage::Set(tls_index_, data);
   return slot;
 }
 
 StatsTableTLSData* StatsTable::GetTLSData() const {
   StatsTableTLSData* data =
-    static_cast<StatsTableTLSData*>(tls_index_.Get());
+    static_cast<StatsTableTLSData*>(ThreadLocalStorage::Get(tls_index_));
   if (!data)
     return NULL;
 
@@ -355,7 +355,7 @@ void StatsTable::UnregisterThread() {
   *name = L'\0';
 
   // Remove the calling thread's TLS so that it cannot use the slot.
-  tls_index_.Set(NULL);
+  ThreadLocalStorage::Set(tls_index_, NULL);
   delete data;
 }
 

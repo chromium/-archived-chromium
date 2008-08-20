@@ -57,8 +57,7 @@ namespace IPC {
 // sync message while another one is blocked).
 
 // Holds a pointer to the per-thread ReceivedSyncMsgQueue object.
-// TODO(evanm): this shouldn't rely on static initialization.
-static TLSSlot g_tls_index;
+static int g_tls_index = ThreadLocalStorage::Alloc();
 
 class SyncChannel::ReceivedSyncMsgQueue :
     public base::RefCountedThreadSafe<ReceivedSyncMsgQueue> {
@@ -70,10 +69,10 @@ class SyncChannel::ReceivedSyncMsgQueue :
   }
 
   ~ReceivedSyncMsgQueue() {
-    DCHECK(g_tls_index.Get());
+    DCHECK(ThreadLocalStorage::Get(g_tls_index));
     DCHECK(MessageLoop::current() == listener_message_loop_);
     CloseHandle(blocking_event_);
-    g_tls_index.Set(NULL);
+    ThreadLocalStorage::Set(g_tls_index, NULL);
   }
 
   // Called on IPC thread when a synchronous message or reply arrives.
@@ -238,13 +237,14 @@ SyncChannel::SyncContext::SyncContext(
       reply_deserialize_result_(false) {
   // We want one ReceivedSyncMsgQueue per listener thread (i.e. since multiple
   // SyncChannel objects that can block the same thread).
-  received_sync_msgs_ = static_cast<ReceivedSyncMsgQueue*>(g_tls_index.Get());
+  received_sync_msgs_ = static_cast<ReceivedSyncMsgQueue*>(
+      ThreadLocalStorage::Get(g_tls_index));
 
   if (!received_sync_msgs_) {
     // Stash a pointer to the listener thread's ReceivedSyncMsgQueue, as we
     // need to be able to access it in the IPC thread.
     received_sync_msgs_ = new ReceivedSyncMsgQueue();
-    g_tls_index.Set(received_sync_msgs_);
+    ThreadLocalStorage::Set(g_tls_index, received_sync_msgs_);
   }
 
   // Addref manually so that we can ensure destruction on the listener thread

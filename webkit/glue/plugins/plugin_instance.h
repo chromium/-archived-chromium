@@ -40,7 +40,6 @@
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
-#include "base/thread_local_storage.h"
 #include "webkit/glue/plugins/nphostapi.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/npapi/bindings/npapi.h"
@@ -262,7 +261,7 @@ class PluginInstance : public base::RefCounted<PluginInstance> {
   // We need to pass this instance to the service manager 
   // (MozillaExtensionApi) created as a result of NPN_GetValue
   // in the context of NP_Initialize. 
-  static ThreadLocalStorage::Slot          plugin_instance_tls_index_;
+  static int                               plugin_instance_tls_index_;
   scoped_refptr<PluginDataStream>          plugin_data_stream_;
   GURL                                     instance_url_;
 

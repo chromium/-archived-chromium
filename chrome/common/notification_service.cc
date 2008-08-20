@@ -29,11 +29,9 @@
 
 #include "chrome/common/notification_service.h"
 
-// TODO(evanm): This shouldn't depend on static initialization.
-// static
-TLSSlot NotificationService::tls_index_;
+int NotificationService::tls_index_ = ThreadLocalStorage::Alloc();
 
-// static
+/* static */
 bool NotificationService::HasKey(const NotificationSourceMap& map,
                                  const NotificationSource& source) {
   return map.find(source.map_key()) != map.end();
@@ -45,7 +43,7 @@ NotificationService::NotificationService() {
   memset(observer_counts_, 0, sizeof(observer_counts_));
 #endif
 
-  tls_index_.Set(this);
+  ThreadLocalStorage::Set(tls_index_, this);
 }
 
 void NotificationService::AddObserver(NotificationObserver* observer,
@@ -119,7 +117,7 @@ void NotificationService::Notify(NotificationType type,
 
 
 NotificationService::~NotificationService() {
-  tls_index_.Set(NULL);
+  ThreadLocalStorage::Set(tls_index_, NULL);
 
 #ifndef NDEBUG
   for (int i = 0; i < NOTIFICATION_TYPE_COUNT; i++) {
