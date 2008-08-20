@@ -81,6 +81,7 @@
 		7BED34190E5A1A8600A747DB /* libnet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BA04540E25613300BE02C6 /* libnet.a */; };
 		7BED34450E5A1A9600A747DB /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BED324A0E5A17C000A747DB /* libbase.a */; };
 		7BED34520E5A1ABC00A747DB /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BED32530E5A17C300A747DB /* libgtest.a */; };
+		825C2FCC0E5C968B00FDEAB7 /* ev_root_ca_metadata.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32BE0E5A181C00A747DB /* ev_root_ca_metadata.cc */; };
 		82ECB3090E5B651D00A913E3 /* mime_sniffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32AD0E5A181C00A747DB /* mime_sniffer.cc */; };
 		E4AFA6430E5241B400201347 /* run_all_unittests.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4AFA6420E5241B400201347 /* run_all_unittests.cc */; };
 /* End PBXBuildFile section */
@@ -1171,6 +1172,7 @@
 				7B85040D0E5B2DD800730B43 /* data_url.cc in Sources */,
 				7B8504100E5B2DF000730B43 /* entry_impl.cc in Sources */,
 				7B8504120E5B2DF000730B43 /* escape.cc in Sources */,
+				825C2FCC0E5C968B00FDEAB7 /* ev_root_ca_metadata.cc in Sources */,
 				7B8504140E5B2DF000730B43 /* file_lock.cc in Sources */,
 				7B8504150E5B2DF000730B43 /* file_posix.cc in Sources */,
 				7BA0154C0E5A1C0400044150 /* filter.cc in Sources */,

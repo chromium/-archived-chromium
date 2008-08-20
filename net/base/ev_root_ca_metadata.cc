@@ -184,7 +184,7 @@ EVRootCAMetadata::EVRootCAMetadata() {
   // Constructs the object from the raw metadata in ev_root_ca_metadata.
   num_policy_oids_ = arraysize(ev_root_ca_metadata);
   policy_oids_.reset(new const char*[num_policy_oids_]);
-  for (int i = 0; i < arraysize(ev_root_ca_metadata); i++) {
+  for (size_t i = 0; i < arraysize(ev_root_ca_metadata); i++) {
     const EVMetadata& metadata = ev_root_ca_metadata[i];
     ev_policy_[metadata.fingerprint] = metadata.policy_oid;
     // Multiple root CA certs may use the same EV policy OID.  Having

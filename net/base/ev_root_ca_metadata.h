@@ -58,7 +58,7 @@ class EVRootCAMetadata {
   EVRootCAMetadata();
   ~EVRootCAMetadata() { }
 
-  friend DefaultSingletonTraits<EVRootCAMetadata>;
+  friend class DefaultSingletonTraits<EVRootCAMetadata>;
 
   typedef std::map<X509Certificate::Fingerprint, std::string,
                    X509Certificate::FingerprintLessThan> StringMap;
