@@ -30,7 +30,6 @@
 #include "base/message_pump_default.h"
 
 #include "base/logging.h"
-#include "base/time.h"
 
 namespace base {
 

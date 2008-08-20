@@ -31,6 +31,7 @@
 #define BASE_MESSAGE_PUMP_DEFAULT_H_
 
 #include "base/message_pump.h"
+#include "base/time.h"
 #include "base/waitable_event.h"
 
 namespace base {
