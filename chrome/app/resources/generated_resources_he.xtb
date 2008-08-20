@@ -50,7 +50,7 @@
 <translation id="1017280919048282932">&amp;הוסף למילון</translation>
 <translation id="8328145009876646418">קצה שמאלי</translation>
 <translation id="8986267729801483565">מקום ההורדה:</translation>
-<translation id="2681441671465314329">רוקן את קובץ המטמון</translation>
+<translation id="2681441671465314329">רוקן את הקבצים השמורים</translation>
 <translation id="5170568018924773124">הצג בתיקייה</translation>
 <translation id="6163363155248589649">&amp;רגיל</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>הפכת לגולש נסתר.<ph name="END_BOLD"/> דפים שאתה מציג בחלון זה לא יופיעו בהיסטוריית הדפדפן או בהיסטוריית החיפוש שלך, והם לא יותירו במחשב שלך כל עקבות, כגון קובצי cookie, לאחר שתסגור את חלון הגלישה בסתר. עם זאת, קבצים שתוריד או סימניות שתיצור יישמרו.        <ph name="LINE_BREAK"/>       גלישה בסתר אינה משפיעה על התנהגותם של אנשים, שרתים או תוכנות אחרים.<ph name="BEGIN_BOLD"/> היזהר מ: <ph name="END_BOLD"/>    <ph name="BEGIN_LIST"/>אתרים האוספים או משתפים מידע עליך<ph name="BEGIN_LIST_ITEM"/>      <ph name="END_LIST_ITEM"/>         <ph name="BEGIN_LIST_ITEM"/>ספקי שירותי אינטרנט או מעסיקים העוקבים אחר הדפים שבהם אתה מבקר<ph name="END_LIST_ITEM"/>         <ph name="BEGIN_LIST_ITEM"/>תוכנה זדונית העוקבת אחר הקשות המקשים שלך בתמורה ל'סמיילי' חינם  <ph name="BEGIN_LIST_ITEM"/> <ph name="END_LIST_ITEM"/>        <ph name="BEGIN_LIST_ITEM"/>מעקב באמצעות סוכנים מוסווים<ph name="END_LIST_ITEM"/>    אנשים שעומדים מאחוריך <ph name="BEGIN_LINK"/><ph name="END_LIST_ITEM"/>   <ph name="END_LIST"/>מידע נוסף<ph name="END_LINK"/> על גלישה בסתר.</translation>
@@ -395,7 +395,7 @@ Del</translation>
 <translation id="4182252350869425879">אזהרה: האתר חשוד בהתחזות!</translation>
 <translation id="5048179823246820836">נורדית</translation>
 <translation id="385051799172605136">חזור</translation>
-<translation id="7280343984261969618">מפעיל תוספים בתיבת חול ללא זכויות יתר. חלק מהתוספים לא יפעלו כהלכה כתוצאה מכך.</translation>
+<translation id="7280343984261969618">מפעיל תוספים בארגז חול ללא זכויות יתר. חלק מהתוספים לא יפעלו כהלכה כתוצאה מכך.</translation>
 <translation id="8927064607636892008">משהו השתבש בעת הצגת הדף. להמשך, לחץ על 'טען שנית' או עבור לדף אחר.</translation>
 <translation id="8810218179782551669">שפת Google Chrome:</translation>
 <translation id="7958215378280655655">כשתגדיר מחדש את אפשרויות Google Chrome, כל שינוי שתערוך יוחזר להגדרות ברירת המחדל. האם אתה רוצה לאפס את אפשרויות Chrome?</translation>
@@ -685,7 +685,7 @@ Del</translation>
 <translation id="2794293857160098038">אפשרויות חיפוש ברירת מחדל</translation>
 <translation id="4813345808229079766">התקשרות</translation>
 <translation id="8241707690549784388">הדף שאתה מחפש השתמש במידע שהזנת. החזרה לדף זה עלולה לגרום לכפילות בפעולות שביצעת. האם ברצונך להמשיך?</translation>
-<translation id="8832489506946784872">צפה  &lt;a jsvalues=&quot;href:cacheUrl&quot;&gt;בעותק מטמון של דף האינטרנט מ- Google&lt;/a&gt;</translation>
+<translation id="8832489506946784872">צפה &lt;a jsvalues=&quot;href:cacheUrl&quot;&gt;בעותק שמור של דף האינטרנט מ-Google&lt;/a&gt;</translation>
 <translation id="7965010376480416255">זיכרון משותף</translation>
 <translation id="3889417619312448367">הסר את Google Chrome</translation>
 <translation id="7121570032414343252"><ph name="NUMBER_TWO"/> שניות</translation>
@@ -739,7 +739,7 @@ Del</translation>
 <translation id="5906719743126878045">נותרו <ph name="NUMBER_TWO"/> שעות</translation>
 <translation id="7869935834862642047"><ph name="PAGE_TITLE"/> - <ph name="APP_NAME"/></translation>
 <translation id="5556459405103347317">טען שוב</translation>
-<translation id="3115147772012638511">ממתין לקובץ מטמון...</translation>
+<translation id="3115147772012638511">ממתין לקובץ שמור...</translation>
 <translation id="8664389313780386848">&amp;צפה במקור הדף</translation>
 <translation id="2148716181193084225">היום</translation>
 <translation id="7755167023778553803">יחד עם זאת, הדף כולל משאבים מאתרים אחרים שזהותם לא ניתנת לאימות.</translation>
