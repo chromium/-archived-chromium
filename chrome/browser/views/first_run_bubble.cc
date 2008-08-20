@@ -140,11 +140,17 @@ class FirstRunBubbleView : public ChromeViews::View,
     GetPreferredSize(&canvas);
 
     CSize pref_size;
+    // The multiline business that follows is dirty hacks to get around
+    // bug 1325257.
+    label1_->SetMultiLine(false);
     label1_->GetPreferredSize(&pref_size);
-    label1_->SetBounds(kBubblePadding, kBubblePadding, pref_size.cx,
+    label1_->SetMultiLine(true);
+    label1_->SizeToFit(canvas.cx - kBubblePadding * 2);
+    label1_->SetBounds(kBubblePadding, kBubblePadding, 
+                       canvas.cx - kBubblePadding * 2,
                        pref_size.cy);
 
-    int next_v_space = label1_->GetY() + label1_->GetHeight() +
+    int next_v_space = label1_->GetY() + pref_size.cy +
                        kRelatedControlSmallVerticalSpacing;
 
     label2_->GetPreferredSize(&pref_size);
