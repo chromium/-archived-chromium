@@ -67,6 +67,7 @@ struct Provider {
   int key_start;
   int key_end;
 #endif
+  bool is_static;
 };
 
 static Provider base_provider = {
@@ -74,8 +75,9 @@ static Provider base_provider = {
   NULL,
 #ifndef NDEBUG
   base::PATH_START,
-  base::PATH_END
+  base::PATH_END,
 #endif
+  true
 };
 
 #ifdef OS_WIN
@@ -84,20 +86,22 @@ static Provider base_provider_win = {
   &base_provider,
 #ifndef NDEBUG
   base::PATH_WIN_START,
-  base::PATH_WIN_END
+  base::PATH_WIN_END,
 #endif
+  true
 };
 #endif
 
 #ifdef OS_MACOSX
-  static Provider base_provider_mac = {
+static Provider base_provider_mac = {
   base::PathProviderMac,
   &base_provider,
 #ifndef NDEBUG
   base::PATH_MAC_START,
-  base::PATH_MAC_END
+  base::PATH_MAC_END,
 #endif
-  };
+  true
+};
 #endif
 
 #if defined(OS_LINUX)
@@ -106,9 +110,10 @@ static Provider base_provider_linux = {
   &base_provider,
 #ifndef NDEBUG
   base::PATH_LINUX_START,
-  base::PATH_LINUX_END
+  base::PATH_LINUX_END,
 #endif
-  };
+  true
+};
 #endif
 
 
@@ -126,6 +131,16 @@ struct PathData {
 #elif defined(OS_LINUX)
     providers = &base_provider_linux;
 #endif
+  }
+
+  ~PathData() {
+    Provider* p = providers;
+    while (p) {
+      Provider* next = p->next;
+      if (!p->is_static)
+        delete p;
+      p = next;
+    }
   }
 };
   
@@ -252,6 +267,7 @@ void PathService::RegisterProvider(ProviderFunc func, int key_start,
 #endif
 
   p = new Provider;
+  p->is_static = false;
   p->func = func;
   p->next = path_data->providers;
 #ifndef NDEBUG
