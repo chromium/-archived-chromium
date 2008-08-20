@@ -350,7 +350,7 @@ class LinearHistogram : public Histogram {
  public:
   struct DescriptionPair {
     Sample sample;
-    char* description;  // Null means end of a list of pairs.
+    const char* description;  // Null means end of a list of pairs.
   };
   LinearHistogram(const wchar_t* name, Sample minimum,
             Sample maximum, size_t bucket_count);

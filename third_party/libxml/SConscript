@@ -62,6 +62,9 @@ elif env['PLATFORM'] == 'posix':
           '_REENTRANT',
       ],
   )
+  if '-Wall' in env['CCFLAGS']:
+    # We're not responsible for bad warning hygiene in this third party code.
+    env['CCFLAGS'].remove('-Werror')
 
 
 input_files = [

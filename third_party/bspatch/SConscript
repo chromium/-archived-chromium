@@ -52,6 +52,10 @@ if env['PLATFORM'] == 'win32':
         '/wd4800',
     ],
   )
+elif env['PLATFORM'] == 'posix':
+  if '-Wall' in env['CCFLAGS']:
+    # We're not responsible for bad warning hygiene in this third party code.
+    env['CCFLAGS'].remove('-Wall')
 
 input_files = [
     'mbspatch.cc',

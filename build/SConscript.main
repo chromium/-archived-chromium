@@ -333,9 +333,15 @@ elif env['PLATFORM'] == 'posix':
       'webkit',
   ]
 
+  # TODO: fix code that triggers these warnings.
+  excluded_warnings = [
+    '-Wno-unknown-pragmas',  # TODO: remove all the Windows-specific #pragmas.
+    '-Wno-unused-function',  # TODO: there's just one Skia function.
+    '-Wno-switch',           # TODO: this is likely masking real bugs.
+    '-Wno-sign-compare',     # TODO: this is likely masking real bugs.
+  ]
   env.Replace(
-      # TODO(linux): we should also compile with -Werror, but not yet.
-      CCFLAGS = ['-m32', '-g'],
+      CCFLAGS = ['-m32', '-g', '-Wall', '-Werror'] + excluded_warnings,
       LINKFLAGS = ['-m32'],
       # We need pthread for threading, and rt for clock_gettime.
       LIBS = ['pthread', 'rt'],
