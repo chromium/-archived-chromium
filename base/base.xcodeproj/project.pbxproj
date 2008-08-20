@@ -106,7 +106,6 @@
 		93611ADF0E5A7FC500F9405D /* message_pump_default.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93611ADC0E5A7FC500F9405D /* message_pump_default.cc */; };
 		93611AE10E5A7FE200F9405D /* message_loop.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93611AE00E5A7FE200F9405D /* message_loop.cc */; };
 		93611AE80E5A803700F9405D /* message_loop_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93611ADA0E5A7FC500F9405D /* message_loop_unittest.cc */; };
-		93611AE90E5A804800F9405D /* message_pump_default.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93611ADC0E5A7FC500F9405D /* message_pump_default.cc */; };
 		93611B180E5A875D00F9405D /* histogram.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93611B160E5A875D00F9405D /* histogram.cc */; };
 		93611B1A0E5A878400F9405D /* histogram_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93611B190E5A878400F9405D /* histogram_test.cc */; };
 		A5A026550E4A214600498DA9 /* file_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = A5A026540E4A214600498DA9 /* file_util.cc */; };
@@ -1200,7 +1199,6 @@
 				7B78D3930E54FE0100609465 /* json_writer_unittest.cc in Sources */,
 				7B78D3940E54FE0100609465 /* linked_ptr_unittest.cc in Sources */,
 				93611AE80E5A803700F9405D /* message_loop_unittest.cc in Sources */,
-				93611AE90E5A804800F9405D /* message_pump_default.cc in Sources */,
 				7B78D3950E54FE0100609465 /* observer_list_unittest.cc in Sources */,
 				7B78D3960E54FE0100609465 /* path_service_unittest.cc in Sources */,
 				7B78D3970E54FE0100609465 /* pickle_unittest.cc in Sources */,
