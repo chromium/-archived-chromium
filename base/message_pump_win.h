@@ -161,7 +161,7 @@ class MessagePumpWin : public MessagePump {
   virtual void Run(Delegate* delegate) { RunWithDispatcher(delegate, NULL); }
   virtual void Quit();
   virtual void ScheduleWork();
-  virtual void ScheduleDelayedWork(const Time& delayed_work_time);
+  virtual void ScheduleDelayedWork(const TimeDelta& delay);
 
  private:
   struct RunState {

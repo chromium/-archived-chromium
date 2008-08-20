@@ -59,6 +59,9 @@ class Timer {
   Task* task() const { return task_; }
   void set_task(Task* task) { task_ = task; }
 
+  // Returns the time in msec relative to now that the timer should fire.
+  int GetCurrentDelay() const;
+
   // Returns the absolute time at which the timer should fire.
   const Time &fire_time() const { return fire_time_; }
 
@@ -174,10 +177,9 @@ class TimerManager {
   // Returns true if it runs a task, false otherwise.
   bool RunSomePendingTimers();
 
-  // The absolute time at which the next timer is to fire.  If there is not a
-  // next timer to run, then the is_null property of the returned Time object
-  // will be true.  NOTE: This could be a time in the past!
-  Time GetNextFireTime() const;
+  // The number of milliseconds remaining until the pending timer (top of the
+  // pqueue) needs to be fired. Returns -1 if no timers are pending.
+  int GetCurrentDelay();
 
 #ifdef UNIT_TEST
   // For testing only, used to simulate broken early-firing WM_TIMER

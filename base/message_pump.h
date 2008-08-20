@@ -32,7 +32,7 @@
 
 #include "base/ref_counted.h"
 
-class Time;
+class TimeDelta;
 
 namespace base {
 
@@ -52,12 +52,11 @@ class MessagePump : public RefCountedThreadSafe<MessagePump> {
     // Called from within Run in response to ScheduleDelayedWork or when the
     // message pump would otherwise sleep waiting for more work.  Returns true
     // to indicate that delayed work was done.  DoIdleWork will not be called
-    // if DoDelayedWork returns true.  Upon return |next_delayed_work_time|
-    // indicates the time when DoDelayedWork should be called again.  If
-    // |next_delayed_work_time| is null (per Time::is_null), then the queue of
-    // future delayed work (timer events) is currently empty, and no additional
-    // calls to this function need to be scheduled.
-    virtual bool DoDelayedWork(Time* next_delayed_work_time) = 0;
+    // if DoDelayedWork returns true.  Upon return |next_delay| indicates the
+    // next delayed work interval.  If |next_delay| is negative, then the queue
+    // of future delayed work (timer events) is currently empty, and no
+    // additional calls to this function need to be scheduled.
+    virtual bool DoDelayedWork(TimeDelta* next_delay) = 0;
 
     // Called from within Run just before the message pump goes to sleep.
     // Returns true to indicate that idle work was done.
@@ -138,10 +137,10 @@ class MessagePump : public RefCountedThreadSafe<MessagePump> {
   // until it returns a value of false.
   virtual void ScheduleWork() = 0;
 
-  // Schedule a DoDelayedWork callback to happen at the specified time,
+  // Schedule a DoDelayedWork callback to happen after the specified delay,
   // cancelling any pending DoDelayedWork callback.  This method may only be
   // used on the thread that called Run.
-  virtual void ScheduleDelayedWork(const Time& delayed_work_time) = 0;
+  virtual void ScheduleDelayedWork(const TimeDelta& delay) = 0;
 };
 
 }  // namespace base
