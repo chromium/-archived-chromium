@@ -50,7 +50,7 @@ env.Append(
 
 
 # These net files work on *all* platforms; files that don't work
-# cross-platforom live below.
+# cross-platform live below.
 input_files = [
     'base/address_list.cc',
     'base/auth_cache.cc',
@@ -61,9 +61,11 @@ input_files = [
     'base/cookie_policy.cc',
     'base/data_url.cc',
     'base/escape.cc',
+    'base/ev_root_ca_metadata.cc',
     'base/filter.cc',
     'base/gzip_filter.cc',
     'base/gzip_header.cc',
+    'base/mime_sniffer.cc',
     'base/net_errors.cc',
     'base/net_module.cc',
     'disk_cache/backend_impl.cc',
@@ -90,10 +92,8 @@ if env['PLATFORM'] == 'win32':
       'base/cookie_monster.cc',
       'base/directory_lister.cc',
       'base/dns_resolution_observer.cc',
-      'base/ev_root_ca_metadata.cc',
       'base/host_resolver.cc',
       'base/listen_socket.cc',
-      'base/mime_sniffer.cc',
       'base/mime_util.cc',
       'base/net_util.cc',
       'base/platform_mime_util_win.cc',
