@@ -163,7 +163,6 @@ test_files = [
     'plugin_tests.cc',
     'run_all_tests.cc',
     'simple_resource_loader_bridge.cc',
-    'temp/navigation_controller_base.cc',
     'test_navigation_controller.cc',
     'test_shell.cc',
     'test_shell_request_context.cc',
