@@ -165,12 +165,13 @@ static GURL ConvertSkBitmapToDataURL(const SkBitmap& icon) {
 class CreateShortcutCommand : public CPCommandInterface {
  public:
   CreateShortcutCommand(
-      const std::string& name, const std::string& url,
-      const std::string& description,
+      const std::string& name, const std::string& orig_name, 
+      const std::string& url, const std::string& description,
       const std::vector<webkit_glue::WebApplicationInfo::IconInfo> &icons,
       const SkBitmap& fallback_icon,
       GearsCreateShortcutCallback* callback)
-      : name_(name), url_(url), description_(description), callback_(callback),
+      : name_(name), url_(url), description_(description),
+        orig_name_(orig_name), callback_(callback),
         calling_loop_(MessageLoop::current()) {
     // shortcut_data_ has the same lifetime as our strings, so we just point it
     // at their internal data.
@@ -178,6 +179,7 @@ class CreateShortcutCommand : public CPCommandInterface {
     shortcut_data_.name = name_.c_str();
     shortcut_data_.url = url_.c_str();
     shortcut_data_.description = description_.c_str();
+    shortcut_data_.orig_name = orig_name_.c_str();
 
     // Search the icons array for Gears-supported sizes and copy the strings.
     bool has_icon = false;
@@ -225,7 +227,15 @@ class CreateShortcutCommand : public CPCommandInterface {
 
  private:
   void ReportResults(CPError retval) {
-    callback_->Run(shortcut_data_, retval == CPERR_SUCCESS);
+    // Other code only knows about the original GearsShortcutData.  Pass our
+    // GearsShortcutData2 off as one of those - but use the unmodified name.
+    // TODO(mpcomplete): this means that Gears will have stored its sanitized
+    // filename, but not expose it to us.  We will use the unsanitized version,
+    // so our name will potentially differ.  This is relevant because we store
+    // some prefs keyed off the webapp name.
+    shortcut_data_.name = shortcut_data_.orig_name;
+    callback_->Run(*reinterpret_cast<GearsShortcutData*>(&shortcut_data_),
+                   retval == CPERR_SUCCESS);
     delete this;
   }
 
@@ -241,6 +251,7 @@ class CreateShortcutCommand : public CPCommandInterface {
   std::string url_;
   std::string description_;
   std::string icon_urls_[NUM_GEARS_ICONS];
+  std::string orig_name_;
   scoped_ptr<GearsCreateShortcutCallback> callback_;
   MessageLoop* calling_loop_;
 };
@@ -262,6 +273,7 @@ void GearsCreateShortcut(
     GearsCreateShortcutCallback* callback) {
   std::wstring name =
       !app_info.title.empty() ? app_info.title : fallback_name;
+  std::string orig_name_utf8 = WideToUTF8(name);
   EnsureStringValidPathComponent(name);
 
   std::string name_utf8 = WideToUTF8(name);
@@ -270,7 +282,8 @@ void GearsCreateShortcut(
       !app_info.app_url.is_empty() ? app_info.app_url : fallback_url;
 
   CreateShortcutCommand* command =
-      new CreateShortcutCommand(name_utf8, url.spec(), description_utf8,
+      new CreateShortcutCommand(name_utf8, orig_name_utf8, url.spec(),
+                                description_utf8,
                                 app_info.icons, fallback_icon, callback);
   CPHandleCommand(GEARSPLUGINCOMMAND_CREATE_SHORTCUT, command, NULL);
 }

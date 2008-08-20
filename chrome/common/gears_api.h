@@ -86,6 +86,19 @@ typedef struct _GearsShortcutData {
   GearsShortcutIcon icons[4];  // list of icons to use for this shortcut
 } GearsShortcutData;
 
+// Command data for GEARSPLUGINCOMMAND_CREATE_SHORTCUT used in 0.6 and later.
+// This struct is backwards compatible with the first version.
+// http://b/viewIssue?id=1331408 - Chrome sanitizes 'name' for compatibility
+// with older versions of Gears that expect this.  'orig_name' is unsanitized,
+// which allows Gears to do its own validation.
+typedef struct _GearsShortcutData2 {
+  const char* name;  // unused - for back compat with above struct
+  const char* url;  // the URL that the shortcut should launch
+  const char* description;  // an optional description
+  GearsShortcutIcon icons[4];  // list of icons to use for this shortcut
+  const char* orig_name;  // the shortcut's unmodified filename (added in 0.6)
+} GearsShortcutData2;
+
 // Command data for GEARSPLUGINCOMMAND_GET_SHORTCUT_LIST.
 typedef struct _GearsShortcutList {
   // Note: these are output params, set by Gears.  There are no input params.
@@ -97,8 +110,8 @@ typedef struct _GearsShortcutList {
 
 // Command data for GEARSBROWSERCOMMAND_CREATE_SHORTCUT_DONE
 typedef struct _GearsCreateShortcutResult {
-  GearsShortcutData* shortcut;  // pointer to struct passed to
-                                // GEARSPLUGINCOMMAND_CREATE_SHORTCUT
+  GearsShortcutData2* shortcut;  // pointer to struct passed to
+                                 // GEARSPLUGINCOMMAND_CREATE_SHORTCUT
   CPError result;  // CPERR_SUCCESS if shortcut was created, or error otherwise
 } GearsCreateShortcutResult;
 

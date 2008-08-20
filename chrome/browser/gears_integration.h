@@ -48,7 +48,7 @@ struct WebApplicationInfo;
 
 // We use this in place of GearsShortcutData so we can keep browser-specific
 // data on the structure.
-struct GearsCreateShortcutData : public GearsShortcutData {
+struct GearsCreateShortcutData : public GearsShortcutData2 {
   CPCommandInterface* command_interface;
 };
 
