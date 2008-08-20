@@ -37,6 +37,7 @@ env.Prepend(
     CPPPATH = [
         '$WEBKIT_DIR/port/JavaScriptCore',
         '$WEBKIT_DIR/port/JavaScriptCore/pcre',
+        '$WEBKIT_DIR/build/JSConfig/WebCore/v8',
     ])
 
 if env['PLATFORM'] == 'win32':

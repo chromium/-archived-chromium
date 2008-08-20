@@ -40,6 +40,10 @@ port_dir = env.Dir('#/$BUILD_TYPE/webkit/port')
 port_dir.addRepository(env.Dir('#/../webkit/port'))
 port_dir.addRepository(env.Dir('#/../third_party/WebKit/WebCore'))
 
+# Point to perl. We do this so we don't have to set the +x bit on scripts
+# because we can't currently modify the third_party/WebKit repository.
+if env['PLATFORM'] == 'posix':
+  env.Append(PERL = '/usr/bin/perl')
 
 env.Prepend(
     CPPPATH = [
