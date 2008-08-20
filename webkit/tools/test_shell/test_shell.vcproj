@@ -198,44 +198,6 @@
 				>
 			</File>
 		</Filter>
-		<Filter
-			Name="temp"
-			>
-			<File
-				RelativePath=".\temp\navigation_controller_base.cc"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\temp\navigation_controller_base.h"
-				>
-			</File>
-			<File
-				RelativePath=".\temp\navigation_entry.h"
-				>
-			</File>
-			<File
-				RelativePath=".\temp\page_transition_types.h"
-				>
-			</File>
-		</Filter>
 		<File
 			RelativePath=".\drag_delegate.cc"
 			>
@@ -278,6 +240,10 @@
 		</File>
 		<File
 			RelativePath=".\test_navigation_controller.h"
+			>
+		</File>
+		<File
+			RelativePath=".\test_navigation_entry.h"
 			>
 		</File>
 		<File

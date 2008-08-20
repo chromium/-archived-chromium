@@ -121,7 +121,6 @@ input_files = [
     'text_input_controller.cc',
     'webview_host.cc',
     'webwidget_host.cc',
-    'temp/navigation_controller_base.cc',
 ]
 
 lib = env.ChromeStaticLibrary('test_shell', input_files)

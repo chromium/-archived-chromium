@@ -879,24 +879,6 @@ void TestWebViewDelegate::UpdateURL(WebFrame* frame) {
     entry->SetURL(GURL(request.GetURL()));
   }
 
-  if (shell_->webView()->GetMainFrame() == frame) {
-    // Top-level navigation.
-
-    PageTransition::Type transition = extra_data ?
-        extra_data->transition_type : PageTransition::LINK;
-    if (!PageTransition::IsMainFrame(transition)) {
-      transition = PageTransition::LINK;
-    }
-    entry->SetTransition(transition);
-  } else {
-    PageTransition::Type transition;
-    if (page_id_ > last_page_id_updated_)
-      transition = PageTransition::MANUAL_SUBFRAME;
-    else
-      transition = PageTransition::AUTO_SUBFRAME;
-    entry->SetTransition(transition);
-  }
-
   shell_->navigation_controller()->DidNavigateToEntry(entry.release());
 
   last_page_id_updated_ = std::max(last_page_id_updated_, page_id_);
@@ -910,8 +892,7 @@ void TestWebViewDelegate::UpdateSessionHistory(WebFrame* frame) {
     return;
 
   TestNavigationEntry* entry = static_cast<TestNavigationEntry*>(
-      shell_->navigation_controller()->GetEntryWithPageID(
-          TestNavigationEntry::GetTabContentsType(), page_id_));
+      shell_->navigation_controller()->GetEntryWithPageID(page_id_));
   if (!entry)
     return;
 

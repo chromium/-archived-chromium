@@ -862,11 +862,10 @@ void TestShell::LoadURLForFrame(const wchar_t* url,
         frame_string = frame_name;
 
     navigation_controller_->LoadEntry(new TestNavigationEntry(
-        -1, GURL(urlString), std::wstring(), PageTransition::LINK,
-        frame_string));
+        -1, GURL(urlString), std::wstring(), frame_string));
 }
 
-bool TestShell::Navigate(const NavigationEntry& entry, bool reload) {
+bool TestShell::Navigate(const TestNavigationEntry& entry, bool reload) {
     const TestNavigationEntry& test_entry =
         *static_cast<const TestNavigationEntry*>(&entry);
 
@@ -887,8 +886,7 @@ bool TestShell::Navigate(const NavigationEntry& entry, bool reload) {
       request->SetHistoryState(entry.GetContentState());
       
     request->SetExtraData(
-        new TestShellExtraRequestData(entry.GetPageID(),
-                                      entry.GetTransition()));
+        new TestShellExtraRequestData(entry.GetPageID()));
 
     // Get the right target frame for the entry.
     WebFrame* frame = webView()->GetMainFrame();
