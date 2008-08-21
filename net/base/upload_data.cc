@@ -29,8 +29,7 @@
 
 #include "net/base/upload_data.h"
 
-#include <windows.h>
-
+#include "base/file_util.h"
 #include "base/logging.h"
 
 namespace net {
@@ -49,21 +48,15 @@ uint64 UploadData::Element::GetContentLength() const {
 
   DCHECK(type_ == TYPE_FILE);
 
-  // NOTE: wininet is unable to upload files larger than 4GB, but we'll let the
-  // http layer worry about that.
   // TODO(darin): This size calculation could be out of sync with the state of
   // the file when we get around to reading it.  We should probably find a way
   // to lock the file or somehow protect against this error condition.
 
-  WIN32_FILE_ATTRIBUTE_DATA info;
-  if (!GetFileAttributesEx(file_path_.c_str(), GetFileExInfoStandard, &info)) {
-    DLOG(WARNING) << "GetFileAttributesEx failed: " << GetLastError();
+  int64 length = 0;
+  if (!file_util::GetFileSize(file_path_, &length))
     return 0;
-  }
 
-  uint64 length = static_cast<uint64>(info.nFileSizeHigh) << 32 |
-                  info.nFileSizeLow;
-  if (file_range_offset_ >= length)
+  if (file_range_offset_ >= static_cast<uint64>(length))
     return 0;  // range is beyond eof
 
   // compensate for the offset and clip file_range_length_ to eof

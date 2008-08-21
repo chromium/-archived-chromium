@@ -30,6 +30,7 @@
 #ifndef NET_BASE_UPLOAD_DATA_H__
 #define NET_BASE_UPLOAD_DATA_H__
 
+#include <string>
 #include <vector>
 
 #include "base/basictypes.h"

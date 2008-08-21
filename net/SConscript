@@ -71,6 +71,7 @@ input_files = [
     'base/net_module.cc',
     'base/net_util.cc',
     'base/registry_controlled_domain.cc',
+    'base/upload_data.cc',
     'disk_cache/backend_impl.cc',
     'disk_cache/block_files.cc',
     'disk_cache/entry_impl.cc',
@@ -102,12 +103,10 @@ if env['PLATFORM'] == 'win32':
       'base/host_resolver.cc',
       'base/listen_socket.cc',
       'base/mime_util.cc',
-      'base/platform_mime_util_win.cc',
       'base/ssl_client_socket.cc',
       'base/ssl_config_service.cc',
       'base/tcp_client_socket.cc',
       'base/telnet_server.cc',
-      'base/upload_data.cc',
       'base/upload_data_stream.cc',
       'base/wininet_util.cc',
       'base/winsock_init.cc',
@@ -141,6 +140,7 @@ if env['PLATFORM'] == 'win32':
       ],
   )
   input_files.extend([
+      'base/platform_mime_util_win.cc',
       'disk_cache/cache_util_win.cc',
       'disk_cache/file_win.cc',
       'disk_cache/mapped_file_win.cc',
@@ -154,6 +154,8 @@ if env['PLATFORM'] == 'darwin':
 
 if env['PLATFORM'] in ('darwin', 'posix'):
   input_files.extend([
+      # TODO(tc): gnome-vfs? xdgmime? /etc/mime.types?
+      #'base/platform_mime_util_linux.cc,
       'disk_cache/cache_util_posix.cc',
       'disk_cache/file_posix.cc',
       'disk_cache/mapped_file_posix.cc',
@@ -234,8 +236,8 @@ unittest_files = [
     'base/data_url_unittest.cc',
     'base/escape_unittest.cc',
     'base/gzip_filter_unittest.cc',
-    'base/net_util_unittest.cc',
     'base/mime_sniffer_unittest.cc',
+    'base/net_util_unittest.cc',
     'base/registry_controlled_domain_unittest.cc',
     'disk_cache/addr_unittest.cc',
     'http/http_chunked_decoder_unittest.cc',
