@@ -122,6 +122,10 @@
 	</References>
 	<Files>
 		<File
+			RelativePath=".\copy_files.bat"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\pcre\pcre.h"
 			>
 		</File>
