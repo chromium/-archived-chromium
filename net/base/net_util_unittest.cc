@@ -126,7 +126,7 @@ TEST(NetUtilTest, FileURLConversion) {
 
   // Here, we test that UTF-8 encoded strings get decoded properly, even when
   // they might be stored with wide characters
-  const wchar_t utf8[] = "file:///d:/Chinese/\xe6\x89\x80\xe6\x9c\x89\xe4\xb8\xad\xe6\x96\x87\xe7\xbd\x91\xe9\xa1\xb5.doc";
+  const wchar_t utf8[] = L"file:///d:/Chinese/\xe6\x89\x80\xe6\x9c\x89\xe4\xb8\xad\xe6\x96\x87\xe7\xbd\x91\xe9\xa1\xb5.doc";
   const wchar_t wide[] = L"D:\\Chinese\\\x6240\x6709\x4e2d\x6587\x7f51\x9875.doc";
   EXPECT_TRUE(net::FileURLToFilePath(GURL(WideToUTF16(utf8)), &output));
   EXPECT_EQ(std::wstring(wide), output);
