@@ -191,6 +191,8 @@ NavigationController::~NavigationController() {
   DCHECK(tab_contents_map_.empty());
   DCHECK(tab_contents_collector_map_.empty());
 
+  DiscardPendingEntryInternal();
+
   profile_->UnregisterNavigationController(this);
   NotificationService::current()->Notify(NOTIFY_TAB_CLOSED,
                                          Source<NavigationController>(this),
