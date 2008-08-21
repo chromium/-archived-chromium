@@ -3,7 +3,7 @@ deps = {
     "http://google-breakpad.googlecode.com/svn/trunk/src@281",
 
   "src/googleurl":
-    "http://google-url.googlecode.com/svn/trunk@91",
+    "http://google-url.googlecode.com/svn/trunk@90",
 
   "src/testing/gtest":
     "http://googletest.googlecode.com/svn/trunk@63",
