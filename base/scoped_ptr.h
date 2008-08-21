@@ -31,24 +31,13 @@
 #ifndef BASE_SCOPED_PTR_H__
 #define BASE_SCOPED_PTR_H__
 
-//  This is an implementation designed to match the anticipated future TR2
-//  implementation of the scoped_ptr class, and its closely-related brethren,
-//  scoped_array, scoped_ptr_malloc, and make_scoped_ptr.
-//
-//  See http://wiki/Main/ScopedPointerInterface for the spec that drove this
-//  file.
+// This is an implementation designed to match the anticipated future TR2
+// implementation of the scoped_ptr class, and its closely-related brethren,
+// scoped_array, scoped_ptr_malloc.
 
 #include <assert.h>
 #include <stdlib.h>
 #include <cstddef>
-
-
-template <class C> class scoped_ptr;
-template <class C, class Free> class scoped_ptr_malloc;
-template <class C> class scoped_array;
-
-template <class C>
-scoped_ptr<C> make_scoped_ptr(C *);
 
 // A scoped_ptr<T> is like a T*, except that the destructor of scoped_ptr<T>
 // automatically deletes the pointer it holds (if any).
@@ -128,8 +117,6 @@ class scoped_ptr {
  private:
   C* ptr_;
 
-  friend scoped_ptr<C> make_scoped_ptr<C>(C *p);
-
   // Forbid comparison of scoped_ptr types.  If C2 != C, it totally doesn't
   // make sense, and if C2 == C, it still doesn't make sense because you should
   // never have the same object owned by two different scoped_ptrs.
@@ -155,20 +142,6 @@ bool operator==(C* p1, const scoped_ptr<C>& p2) {
 template <class C>
 bool operator!=(C* p1, const scoped_ptr<C>& p2) {
   return p1 != p2.get();
-}
-
-template <class C>
-scoped_ptr<C> make_scoped_ptr(C *p) {
-  // This does nothing but to return a scoped_ptr of the type that the passed
-  // pointer is of.  (This eliminates the need to specify the name of T when
-  // making a scoped_ptr that is used anonymously/temporarily.)  From an
-  // access control point of view, we construct an unnamed scoped_ptr here
-  // which we return and thus copy-construct.  Hence, we need to have access
-  // to scoped_ptr::scoped_ptr(scoped_ptr const &).  However, it is guaranteed
-  // that we never actually call the copy constructor, which is a good thing
-  // as we would call the temporary's object destructor (and thus delete p)
-  // if we actually did copy some object, here.
-  return scoped_ptr<C>(p);
 }
 
 // scoped_array<C> is like scoped_ptr<C>, except that the caller must allocate
