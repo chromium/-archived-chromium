@@ -58,9 +58,6 @@ class Value;
 // text.  It also starts a task to query the Suggest servers.  When that data
 // comes back, the provider creates and returns matches for the best
 // suggestions.
-//
-// TODO(pkasting): http://b/893701 This should eventually remember the user's
-// search history and use that to create/rank suggestions as well.
 class SearchProvider : public AutocompleteProvider,
                        public URLFetcher::Delegate,
                        public Task {
@@ -71,7 +68,6 @@ class SearchProvider : public AutocompleteProvider,
 #pragma warning(suppress: 4355)  // Okay to pass "this" here.
         timer_(new Timer(kQueryDelayMs, this, false)),
         fetcher_(NULL),
-        star_requests_pending_(false),
         history_request_pending_(false),
         have_history_results_(false),
         suggest_results_pending_(false),
@@ -99,9 +95,7 @@ class SearchProvider : public AutocompleteProvider,
   struct NavigationResult {
     NavigationResult(const std::wstring& url, const std::wstring& site_name)
         : url(url),
-          site_name(site_name),
-          star_request_handle(0),
-          starred(false) {
+          site_name(site_name) {
     }
 
     // The URL.
@@ -109,13 +103,6 @@ class SearchProvider : public AutocompleteProvider,
 
     // Name for the site.
     std::wstring site_name;
-
-    // If non-zero, there is a pending request to the history service to
-    // obtain the starred state.
-    HistoryService::Handle star_request_handle;
-
-    // Whether the URL has been starred.
-    bool starred;
   };
 
   typedef std::vector<std::wstring> SuggestResults;
@@ -139,14 +126,6 @@ class SearchProvider : public AutocompleteProvider,
   void OnGotMostRecentKeywordSearchTerms(
       CancelableRequestProvider::Handle handle,
       HistoryResults* results);
-
-  // Notification from the history service that the star state for the URL
-  // is available. If this is the last url's star state that is being requested
-  // the listener is notified.
-  void OnQueryURLComplete(HistoryService::Handle handle,
-                          bool success,
-                          const history::URLRow* url_row,
-                          history::VisitVector* unused);
 
   // Parses the results from the Suggest server and stores up to kMaxMatches of
   // them in server_results_.  Returns whether parsing succeeded.
@@ -177,8 +156,7 @@ class SearchProvider : public AutocompleteProvider,
                      MatchMap* map);
   // Returns an AutocompleteMatch for a navigational suggestion.
   AutocompleteMatch NavigationToMatch(const NavigationResult& query_string,
-                                      int relevance,
-                                      bool starred);
+                                      int relevance);
 
   // Trims "http:" and up to two subsequent slashes from |url|.  Returns the
   // number of characters that were trimmed.
@@ -201,12 +179,8 @@ class SearchProvider : public AutocompleteProvider,
                                   // TODO(pkasting): http://b/1162970  We
                                   // shouldn't need this.
 
-  // An object we can use to cancel history and star requests.
+  // An object we can use to cancel history requests.
   CancelableRequestConsumer history_request_consumer_;
-  CancelableRequestConsumerT<int, 0> star_request_consumer_;
-
-  // Whether we are waiting for star requests to finish.
-  bool star_requests_pending_;
 
   // Searches in the user's history that begin with the input text.
   HistoryResults history_results_;

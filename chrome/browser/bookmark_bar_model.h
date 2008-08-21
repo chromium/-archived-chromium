@@ -101,6 +101,9 @@ class BookmarkBarNode : public ChromeViews::TreeNode<BookmarkBarNode> {
   // Is this a URL?
   bool is_url() const { return type_ == history::StarredEntry::URL; }
 
+  // TODO(sky): Consider adding last visit time here, it'll greatly simplify
+  // HistoryContentsProvider.
+
  private:
   // Resets the properties of the node from the supplied entry.
   void Reset(const history::StarredEntry& entry);

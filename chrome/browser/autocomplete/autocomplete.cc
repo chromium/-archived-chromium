@@ -37,7 +37,9 @@
 #include "chrome/browser/autocomplete/keyword_provider.h"
 #include "chrome/browser/autocomplete/search_provider.h"
 #include "chrome/browser/external_protocol_handler.h"
+#include "chrome/browser/bookmark_bar_model.h"
 #include "chrome/browser/history_tab_ui.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/url_fixer_upper.h"
 #include "chrome/common/gfx/url_elider.h"
 #include "chrome/common/l10n_util.h"
@@ -409,6 +411,20 @@ std::wstring AutocompleteProvider::StringForURLDisplay(
   return gfx::ElideUrl(url, ChromeFont(), 0, check_accept_lang && profile_ ?
       profile_->GetPrefs()->GetString(prefs::kAcceptLanguages) :
       std::wstring());
+}
+
+void AutocompleteProvider::UpdateStarredStateOfMatches() {
+  if (matches_.empty())
+    return;
+
+  if (!profile_)
+    return;
+  BookmarkBarModel* bookmark_bar_model = profile_->GetBookmarkBarModel();
+  if (!bookmark_bar_model || !bookmark_bar_model->IsLoaded())
+    return;
+
+  for (ACMatches::iterator i = matches_.begin(); i != matches_.end(); ++i)
+    i->starred = bookmark_bar_model->IsBookmarked(GURL(i->destination_url));
 }
 
 // AutocompleteResult ---------------------------------------------------------

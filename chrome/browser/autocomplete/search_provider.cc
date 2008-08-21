@@ -221,8 +221,6 @@ void SearchProvider::StopSuggest() {
   fetcher_.reset();  // Stop any in-progress URL fetch.
   suggest_results_.clear();
   have_suggest_results_ = false;
-  star_request_consumer_.CancelAllRequests();
-  star_requests_pending_ = false;
 }
 
 void SearchProvider::OnGotMostRecentKeywordSearchTerms(
@@ -233,32 +231,6 @@ void SearchProvider::OnGotMostRecentKeywordSearchTerms(
   history_results_ = *results;
   ConvertResultsToAutocompleteMatches();
   listener_->OnProviderUpdate(!history_results_.empty());
-}
-
-void SearchProvider::OnQueryURLComplete(HistoryService::Handle handle,
-                                        bool success,
-                                        const history::URLRow* url_row,
-                                        history::VisitVector* unused) {
-  bool is_starred =
-      (success && profile_ &&
-       profile_->GetBookmarkBarModel()->IsBookmarked(url_row->url()));
-  star_requests_pending_ = false;
-  // We can't just use star_request_consumer_.HasPendingRequests() here;
-  // see comment in ConvertResultsToAutocompleteMatches().
-  for (NavigationResults::iterator i(navigation_results_.begin());
-       i != navigation_results_.end(); ++i) {
-    if (i->star_request_handle == handle) {
-      i->star_request_handle = 0;
-      i->starred = is_starred;
-    } else if (i->star_request_handle) {
-      star_requests_pending_ = true;
-    }
-  }
-  if (!star_requests_pending_) {
-    // No more requests. Notify the observer.
-    ConvertResultsToAutocompleteMatches();
-    listener_->OnProviderUpdate(true);
-  }
 }
 
 bool SearchProvider::ParseSuggestResults(Value* root_val) {
@@ -333,19 +305,6 @@ bool SearchProvider::ParseSuggestResults(Value* root_val) {
     }
   }
 
-  // Request the star state for all URLs from the history service.
-  HistoryService* hs = profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
-  if (!hs)
-    return true;
-
-  for (NavigationResults::iterator i(navigation_results_.begin());
-       i != navigation_results_.end(); ++i) {
-    i->star_request_handle = hs->QueryURL(GURL(i->url), false,
-        &star_request_consumer_,
-        NewCallback(this, &SearchProvider::OnQueryURLComplete));
-  }
-  star_requests_pending_ = !navigation_results_.empty();
-
   return true;
 }
 
@@ -381,8 +340,7 @@ void SearchProvider::ConvertResultsToAutocompleteMatches() {
     // suggestions. If we can get more useful information about the score,
     // consider adding more results.
     matches_.push_back(NavigationToMatch(navigation_results_[0],
-                                         CalculateRelevanceForNavigation(0),
-                                         navigation_results_[0].starred));
+                                         CalculateRelevanceForNavigation(0)));
   }
 
   const size_t max_total_matches = max_matches() + 1;  // 1 for "what you typed"
@@ -392,16 +350,17 @@ void SearchProvider::ConvertResultsToAutocompleteMatches() {
   if (matches_.size() > max_total_matches)
     matches_.resize(max_total_matches);
 
+  UpdateStarredStateOfMatches();
+
   // We're done when both asynchronous subcomponents have finished.
   // We can't use CancelableRequestConsumer.HasPendingRequests() for
-  // history and star requests here.  A pending request is not cleared
-  // until after the completion callback has returned, but we've
-  // reached here from inside that callback.  HasPendingRequests()
-  // would therefore return true, and if this is the last thing left
-  // to calculate for this query, we'll never mark the query "done".
+  // history requests here.  A pending request is not cleared until after the
+  // completion callback has returned, but we've reached here from inside that
+  // callback.  HasPendingRequests() would therefore return true, and if this is
+  // the last thing left to calculate for this query, we'll never mark the query
+  // "done".
   done_ = !history_request_pending_ &&
-          !suggest_results_pending_ &&
-          !star_requests_pending_;
+          !suggest_results_pending_;
 }
 
 int SearchProvider::CalculateRelevanceForWhatYouTyped() const {
@@ -574,8 +533,7 @@ void SearchProvider::AddMatchToMap(const std::wstring& query_string,
 
 AutocompleteMatch SearchProvider::NavigationToMatch(
     const NavigationResult& navigation,
-    int relevance,
-    bool starred) {
+    int relevance) {
   AutocompleteMatch match(this, relevance, false);
   match.destination_url = navigation.url;
   match.contents = StringForURLDisplay(GURL(navigation.url), true);
@@ -592,7 +550,6 @@ AutocompleteMatch SearchProvider::NavigationToMatch(
                                            ACMatchClassification::NONE,
                                            &match.description_class);
 
-  match.starred = starred;
   // When the user forced a query, we need to make sure all the fill_into_edit
   // values preserve that property.  Otherwise, if the user starts editing a
   // suggestion, non-Search results will suddenly appear.

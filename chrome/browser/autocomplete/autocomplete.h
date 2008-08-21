@@ -507,6 +507,10 @@ class AutocompleteProvider
   static size_t max_matches() { return max_matches_; }
 
  protected:
+  // Updates the starred state of each of the matches in matches_ from the
+  // profile's bookmark bar model.
+  void UpdateStarredStateOfMatches();
+
   // The profile associated with the AutocompleteProvider.  Reference is not
   // owned by us.
   Profile* profile_;

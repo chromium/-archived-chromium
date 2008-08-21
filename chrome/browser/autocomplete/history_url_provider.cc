@@ -48,8 +48,6 @@
 #include "googleurl/src/url_util.h"
 #include "net/base/net_util.h"
 
-// TODO(sky): this needs to check and update starred state.
-
 HistoryURLProviderParams::HistoryURLProviderParams(
     const AutocompleteInput& input,
     bool trim_http,
@@ -236,6 +234,7 @@ void HistoryURLProvider::QueryComplete(
 
   done_ = true;
   matches_.swap(params->matches);
+  UpdateStarredStateOfMatches();
   listener_->OnProviderUpdate(true);
 }
 
@@ -670,6 +669,7 @@ void HistoryURLProvider::RunAutocompletePasses(const AutocompleteInput& input,
       // the not-yet-fixed-up What You Typed match, which is exactly what
       // matches_ currently contains, just swap them.
       matches_.swap(params->matches);
+      UpdateStarredStateOfMatches();
     }
   }
 

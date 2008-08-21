@@ -109,7 +109,9 @@ void HistoryContentsProvider::Start(const AutocompleteInput& input,
     return;
   }
 
-  // TODO(sky): this needs to query BookmarkBarModel for starred entries.
+  // TODO(sky): re-enable providing suggestions from the user supplied title of
+  // bookmarks.
+
   if (!synchronous_only) {
     HistoryService* history = history_service_ ? history_service_ :
         profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
