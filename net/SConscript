@@ -58,6 +58,7 @@ input_files = [
     'base/bzip2_filter.cc',
     'base/client_socket_handle.cc',
     'base/client_socket_pool.cc',
+    'base/cookie_monster.cc',
     'base/cookie_policy.cc',
     'base/data_url.cc',
     'base/escape.cc',
@@ -69,6 +70,7 @@ input_files = [
     'base/net_errors.cc',
     'base/net_module.cc',
     'base/net_util.cc',
+    'base/registry_controlled_domain.cc',
     'disk_cache/backend_impl.cc',
     'disk_cache/block_files.cc',
     'disk_cache/entry_impl.cc',
@@ -82,7 +84,9 @@ input_files = [
     'disk_cache/trace.cc',
     'http/cert_status_cache.cc',
     'http/http_chunked_decoder.cc',
+    'http/http_response_headers.cc',
     'http/http_util.cc',
+    'http/http_vary_data.cc',
     'url_request/mime_sniffer_proxy.cc',
     'url_request/url_request_error_job.cc',
     'url_request/url_request_job_metrics.cc',
@@ -93,14 +97,12 @@ input_files = [
 if env['PLATFORM'] == 'win32':
   input_files.extend([
       'base/client_socket_factory.cc',
-      'base/cookie_monster.cc',
       'base/directory_lister.cc',
       'base/dns_resolution_observer.cc',
       'base/host_resolver.cc',
       'base/listen_socket.cc',
       'base/mime_util.cc',
       'base/platform_mime_util_win.cc',
-      'base/registry_controlled_domain.cc',
       'base/ssl_client_socket.cc',
       'base/ssl_config_service.cc',
       'base/tcp_client_socket.cc',
@@ -113,9 +115,7 @@ if env['PLATFORM'] == 'win32':
       'http/http_cache.cc',
       'http/http_network_layer.cc',
       'http/http_network_transaction.cc',
-      'http/http_response_headers.cc',
       'http/http_transaction_winhttp.cc',
-      'http/http_vary_data.cc',
       'http/winhttp_request_throttle.cc',
       'proxy/proxy_resolver_fixed.cc',
       'proxy/proxy_resolver_winhttp.cc',
@@ -181,8 +181,9 @@ env_tests.Prepend(
     CPPDEFINES = [
         'UNIT_TEST',
     ],
-    LIBS = [
-        'bzip2',      # Due to gcc's link order, bzip2 must come before base.
+    LIBS = [          # On Linux, dependencies must follow dependents, so...
+        'net',        # net must come before base and modp_b64
+        'bzip2',      # bzip2 must come before base
         'base',
         'googleurl',
         'gtest',
@@ -229,22 +230,25 @@ unittest_files = [
     'base/base64_unittest.cc',
     'base/bzip2_filter_unittest.cc',
     'base/client_socket_pool_unittest.cc',
+    'base/cookie_monster_unittest.cc',
     'base/data_url_unittest.cc',
     'base/escape_unittest.cc',
     'base/gzip_filter_unittest.cc',
     'base/net_util_unittest.cc',
+    'base/mime_sniffer_unittest.cc',
+    'base/registry_controlled_domain_unittest.cc',
     'disk_cache/addr_unittest.cc',
+    'http/http_chunked_decoder_unittest.cc',
+    'http/http_response_headers_unittest.cc',
+    'http/http_vary_data_unittest.cc',
     '$BASE_DIR/run_all_unittests$OBJSUFFIX',
 ]
 
 if env['PLATFORM'] == 'win32':
   unittest_files.extend([
-      'base/cookie_monster_unittest.cc',
       'base/cookie_policy_unittest.cc',
       'base/directory_lister_unittest.cc',
-      'base/mime_sniffer_unittest.cc',
       'base/mime_util_unittest.cc',
-      'base/registry_controlled_domain_unittest.cc',
       'base/ssl_config_service_unittest.cc',
       'base/ssl_client_socket_unittest.cc',
       'base/tcp_client_socket_unittest.cc',
@@ -259,11 +263,9 @@ if env['PLATFORM'] == 'win32':
       'http/http_cache_unittest.cc',
       'http/http_network_layer_unittest.cc',
       'http/http_network_transaction_unittest.cc',
-      'http/http_response_headers_unittest.cc',
       'http/http_transaction_unittest.cc',
       'http/http_transaction_winhttp_unittest.cc',
       'http/http_util_unittest.cc',
-      'http/http_vary_data_unittest.cc',
       'http/winhttp_request_throttle_unittest.cc',
       'url_request/url_request_unittest.cc',
   ])
