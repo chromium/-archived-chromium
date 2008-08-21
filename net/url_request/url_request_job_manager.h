@@ -33,6 +33,7 @@
 #include <map>
 
 #include "base/lock.h"
+#include "base/platform_thread.h"
 #include "net/url_request/url_request.h"
 
 // This class is responsible for managing the set of protocol factories and
@@ -81,16 +82,19 @@ class URLRequestJobManager {
 #ifndef NDEBUG
   // We use this to assert that CreateJob and the registration functions all
   // run on the same thread.
-  mutable HANDLE allowed_thread_;
+  mutable int allowed_thread_;
+  mutable bool allowed_thread_initialized_;
 
   // The first guy to call this function sets the allowed thread.  This way we
   // avoid needing to define that thread externally.  Since we expect all
   // callers to be on the same thread, we don't worry about threads racing to
   // set the allowed thread.
   bool IsAllowedThread() const {
-    if (!allowed_thread_)
-      allowed_thread_ = GetCurrentThread();
-    return allowed_thread_ == GetCurrentThread();
+    if (!allowed_thread_initialized_) {
+      allowed_thread_ = PlatformThread::CurrentId();
+      allowed_thread_initialized_ = true;
+    }
+    return allowed_thread_ == PlatformThread::CurrentId();
   }
 #endif
 

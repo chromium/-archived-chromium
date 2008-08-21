@@ -53,7 +53,8 @@ static const struct {
 
 URLRequestJobManager::URLRequestJobManager() {
 #ifndef NDEBUG
-  allowed_thread_ = NULL;
+  allowed_thread_ = 0;
+  allowed_thread_initialized_ = false;
 #endif
 }
 

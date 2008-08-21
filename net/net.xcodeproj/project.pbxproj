@@ -93,6 +93,12 @@
 		821F21130E5CD662003C7E38 /* http_vary_data_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33470E5A194700A747DB /* http_vary_data_unittest.cc */; };
 		821F21300E5CD746003C7E38 /* http_response_headers.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33440E5A194700A747DB /* http_response_headers.cc */; };
 		821F21320E5CD756003C7E38 /* http_response_headers_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33480E5A194700A747DB /* http_response_headers_unittest.cc */; };
+		821F23670E5E0D2F003C7E38 /* upload_data.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32890E5A181C00A747DB /* upload_data.cc */; };
+		821F236C0E5E0EF8003C7E38 /* url_request_http_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33B60E5A198600A747DB /* url_request_http_job.cc */; };
+		821F23710E5E0F15003C7E38 /* url_request.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33B10E5A198600A747DB /* url_request.cc */; };
+		821F23C30E5E105E003C7E38 /* url_request_about_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33A20E5A198600A747DB /* url_request_about_job.cc */; };
+		821F23CA0E5E106B003C7E38 /* url_request_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33980E5A198600A747DB /* url_request_job.cc */; };
+		821F23CC0E5E106D003C7E38 /* url_request_simple_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED339C0E5A198600A747DB /* url_request_simple_job.cc */; };
 		825C2FCC0E5C968B00FDEAB7 /* ev_root_ca_metadata.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32BE0E5A181C00A747DB /* ev_root_ca_metadata.cc */; };
 		82ECB3090E5B651D00A913E3 /* mime_sniffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32AD0E5A181C00A747DB /* mime_sniffer.cc */; };
 		BAA46E3B0E5CE99A00E77460 /* net_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED329F0E5A181C00A747DB /* net_util_unittest.cc */; };
@@ -1215,9 +1221,15 @@
 				7B8B5B560E5CEADE002F9A97 /* registry_controlled_domain.cc in Sources */,
 				7B8504410E5B2E9600730B43 /* stats.cc in Sources */,
 				7B8504450E5B2E9600730B43 /* trace.cc in Sources */,
+				821F23670E5E0D2F003C7E38 /* upload_data.cc in Sources */,
+				821F23710E5E0F15003C7E38 /* url_request.cc in Sources */,
+				821F23C30E5E105E003C7E38 /* url_request_about_job.cc in Sources */,
 				7B85044A0E5B2E9600730B43 /* url_request_error_job.cc in Sources */,
+				821F236C0E5E0EF8003C7E38 /* url_request_http_job.cc in Sources */,
+				821F23CA0E5E106B003C7E38 /* url_request_job.cc in Sources */,
 				7B8504530E5B2E9600730B43 /* url_request_job_metrics.cc in Sources */,
 				7B8504540E5B2E9600730B43 /* url_request_job_tracker.cc in Sources */,
+				821F23CC0E5E106D003C7E38 /* url_request_simple_job.cc in Sources */,
 				821F20A50E5CD414003C7E38 /* url_request_view_cache_job.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
