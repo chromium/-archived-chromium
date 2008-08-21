@@ -32,22 +32,23 @@ Import('env')
 env = env.Clone()
 
 
-env.Prepend(
-    CPPDEFINES = [
-        'NOGDI',
-    ],
+if env['PLATFORM'] == 'win32':
+    env.Prepend(
+        CPPDEFINES = [
+                'NOGDI',
+                ],
 
-    CCFLAGS = [
-        '/TP',
+        CCFLAGS = [
+                '/TP',
 
-        '/wd4291',
-        '/wd4099',
-        '/wd4996',
-        '/wd4521',
-        '/wd4244',
-        '/wd4800',
-    ],
-)
+                '/wd4291',
+                '/wd4099',
+                '/wd4996',
+                '/wd4521',
+                '/wd4244',
+                '/wd4800',
+                ],
+        )
 
 inputs = [
     '$DERIVED_DIR/V8MimeType.cpp',

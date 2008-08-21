@@ -348,11 +348,11 @@ class V8Proxy {
 
   // Create an instance of a function descriptor and set to the global object
   // as a named property. Used by v8_test_shell.
-  static void V8Proxy::BindJSObjectToWindow(Frame* frame,
-                                          const char* name,
-                                          int type,
-                                          v8::Handle<v8::FunctionTemplate> desc,
-                                          void* imp);
+  static void BindJSObjectToWindow(Frame* frame,
+                                   const char* name,
+                                   int type,
+                                   v8::Handle<v8::FunctionTemplate> desc,
+                                   void* imp);
 
   static v8::Handle<v8::Value> EventToV8Object(Event* event);
   static Event* ToNativeEvent(v8::Handle<v8::Value> jsevent) {
@@ -418,7 +418,7 @@ class V8Proxy {
   static v8::Handle<v8::Object> CSSRuleToV8Object(CSSRule* rule);
   // Returns the JS wrapper of a window object, initializes the environment
   // of the window frame if needed.
-  static v8::Handle<v8::Object> V8Proxy::WindowToV8Object(DOMWindow* window);
+  static v8::Handle<v8::Object> WindowToV8Object(DOMWindow* window);
 
 #if ENABLE(SVG)
   static v8::Handle<v8::Object> SVGElementInstanceToV8Object(

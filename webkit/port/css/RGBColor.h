@@ -38,7 +38,7 @@ namespace WebCore {
 
 class RGBColor : public RefCounted<RGBColor> {
  public:
-  RGBColor::RGBColor(unsigned rgbcolor) : m_rgbcolor(rgbcolor) { }
+  RGBColor(unsigned rgbcolor) : m_rgbcolor(rgbcolor) { }
 
   CSSPrimitiveValue* red();
   CSSPrimitiveValue* green();

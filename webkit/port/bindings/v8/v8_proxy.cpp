@@ -72,7 +72,7 @@
 #include "EventTarget.h"
 #include "Event.h"
 #include "HTMLInputElement.h"
-#include "xmlhttprequest.h"
+#include "XMLHttpRequest.h"
 #include "StyleSheet.h"
 #include "StyleSheetList.h"
 #include "CSSRule.h"

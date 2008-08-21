@@ -348,6 +348,14 @@ elif env['PLATFORM'] == 'posix':
       LINKFLAGS = ['-m32'],
       # We need pthread for threading, and rt for clock_gettime.
       LIBS = ['pthread', 'rt'],
+
+      PERL = '/usr/bin/perl',
+      PERL_INCLUDE_FLAG = '-I ',
+      PERL_INCLUDE_SUFFIX = '',
+      _PERL_INCLUDE_FLAGS = ('${_concat(PERL_INCLUDE_FLAG, '
+                             'PERL_INCLUDE_PATH, '
+                             'PERL_INCLUDE_SUFFIX,'
+                             '__env__, RDirs, TARGET, SOURCE)}'),
   )
   # Build with support for gcov when COVERAGE=1.
   if ARGUMENTS.get('COVERAGE') == '1':

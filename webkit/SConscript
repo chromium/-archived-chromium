@@ -40,11 +40,6 @@ port_dir = env.Dir('#/$BUILD_TYPE/webkit/port')
 port_dir.addRepository(env.Dir('#/../webkit/port'))
 port_dir.addRepository(env.Dir('#/../third_party/WebKit/WebCore'))
 
-# Point to perl. We do this so we don't have to set the +x bit on scripts
-# because we can't currently modify the third_party/WebKit repository.
-if env['PLATFORM'] == 'posix':
-  env.Append(PERL = '/usr/bin/perl')
-
 env.Prepend(
     CPPPATH = [
         '$WEBKIT_DIR/build/localized_strings',
@@ -198,12 +193,17 @@ if env['PLATFORM'] == 'win32':
         '$THIRD_PARTY_WEBKIT_DIR/JavaScriptCore/os-win32',
         ])
 else:
+    env.Prepend(CPPPATH = ['$WEBKIT_DIR/build/JSConfig/WebCore/v8'])
+
     sconscript_dirs = [
 # TODO(erg): For now, only JavaScriptCore compiles and links; the rest is next.
 #    'SConscript.port',
     'SConscript.javascriptcore_pcre',
     'build/JSConfig/SConscript',
     'build/JavaScriptCore/SConscript',
+#    'build/localized_strings/SConscript',
+    'build/port/SConscript',
+#    'build/V8Bindings/SConscript',
 #    'build/WebCore/SConscript',
     ]
 env.SConscript(sconscript_dirs, exports=['env', 'env_res'])
