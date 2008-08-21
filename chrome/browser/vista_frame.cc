@@ -249,28 +249,30 @@ void VistaFrame::Layout() {
     // If we are maxmized, the tab strip will be in line with the window
     // controls, so we need to make sure they don't overlap.
     int zoomed_offset = 0;
-    if(IsZoomed()) {
-      zoomed_offset = std::max(min_offset, kWindowControlsMinOffset);
+    if (distributor_logo_) {
+      if(IsZoomed()) {
+        zoomed_offset = std::max(min_offset, kWindowControlsMinOffset);
 
-      // Hide the distributor logo if we're zoomed.
-      distributor_logo_->SetVisible(false);
-    } else {
-      CSize distributor_logo_size;
-      distributor_logo_->GetPreferredSize(&distributor_logo_size);
+        // Hide the distributor logo if we're zoomed.
+        distributor_logo_->SetVisible(false);
+      } else {
+        CSize distributor_logo_size;
+        distributor_logo_->GetPreferredSize(&distributor_logo_size);
 
-      int logo_x;
-      // Because of Bug 1128173, our Window controls aren't actually flipped 
-      // on Vista, yet all our math and layout presumes that they are.
-      if (frame_view_->UILayoutIsRightToLeft())
-        logo_x = width - distributor_logo_size.cx;
-      else
-        logo_x = width - min_offset - distributor_logo_size.cx;
+        int logo_x;
+        // Because of Bug 1128173, our Window controls aren't actually flipped 
+        // on Vista, yet all our math and layout presumes that they are.
+        if (frame_view_->UILayoutIsRightToLeft())
+          logo_x = width - distributor_logo_size.cx;
+        else
+          logo_x = width - min_offset - distributor_logo_size.cx;
 
-      distributor_logo_->SetVisible(true);
-      distributor_logo_->SetBounds(logo_x,
-          kDistributorLogoVerticalOffset,
-          distributor_logo_size.cx,
-          distributor_logo_size.cy);
+        distributor_logo_->SetVisible(true);
+        distributor_logo_->SetBounds(logo_x,
+            kDistributorLogoVerticalOffset,
+            distributor_logo_size.cx,
+            distributor_logo_size.cy);
+      }
     }
 
     gfx::Rect tabstrip_bounds(tabstrip_x,
@@ -448,10 +450,13 @@ void VistaFrame::Init() {
     frame_view_->AddChildView(off_the_record_image_);
   }
 
-  distributor_logo_ = new ChromeViews::ImageView();
-  frame_view_->AddViewToDropList(distributor_logo_);
-  distributor_logo_->SetImage(rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO));
-  frame_view_->AddChildView(distributor_logo_);
+  SkBitmap* image = rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO);
+  if (!image->isNull()) {
+    distributor_logo_ = new ChromeViews::ImageView();
+    frame_view_->AddViewToDropList(distributor_logo_);
+    distributor_logo_->SetImage(image);
+    frame_view_->AddChildView(distributor_logo_);
+  }
 
   tab_contents_container_ = new TabContentsContainerView();
   frame_view_->AddChildView(tab_contents_container_);
