@@ -195,8 +195,13 @@ SkBitmap* ResourceBundle::GetBitmapNamed(int resource_id) {
   // Handle the case where loading the bitmap failed.
   if (!bitmap) {
     LOG(WARNING) << "Unable to load bitmap with id " << resource_id;
+    NOTREACHED();  // Want to assert in debug mode.
     if (!empty_bitmap) {
+      // The placeholder bitmap is bright red so people notice the problem.
       empty_bitmap = new SkBitmap();
+      empty_bitmap->setConfig(SkBitmap::kARGB_8888_Config, 32, 32);
+      empty_bitmap->allocPixels();
+      empty_bitmap->eraseARGB(255, 255, 0, 0);
     }
     return empty_bitmap;
   }

@@ -248,10 +248,8 @@ int AeroGlassNonClientView::CalculateNonClientTopHeight() const {
 }
 
 void AeroGlassNonClientView::PaintDistributorLogo(ChromeCanvas* canvas) {
-  // The distributor logo is only painted when the frame is not maximized and
-  // when we actually have a logo.
-  if (!frame_->IsMaximized() && !frame_->IsMinimized() && 
-      !distributor_logo_.empty()) {
+  // The distributor logo is only painted when the frame is not maximized.
+  if (!frame_->IsMaximized() && !frame_->IsMinimized()) {
     canvas->DrawBitmapInt(distributor_logo_, logo_bounds_.x(),
                           logo_bounds_.y());
   }
@@ -321,9 +319,6 @@ void AeroGlassNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
 }
 
 void AeroGlassNonClientView::LayoutDistributorLogo() {
-  if (distributor_logo_.empty())
-    return;
-
   int logo_w = distributor_logo_.width();
   int logo_h = distributor_logo_.height();
   
@@ -347,10 +342,7 @@ void AeroGlassNonClientView::InitClass() {
   if (!initialized) {
     resources_ = new AeroGlassWindowResources;
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-    SkBitmap* image = rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO);
-    if (!image->isNull())
-      distributor_logo_ = *image;
-
+    distributor_logo_ = *rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO);
     initialized = true;
   }
 }

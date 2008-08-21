@@ -476,13 +476,10 @@ void XPFrame::Init() {
     frame_view_->AddViewToDropList(off_the_record_image_);
   }
 
-  SkBitmap* image = rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO_LIGHT);
-  if (!image->isNull()) {
-    distributor_logo_ = new ChromeViews::ImageView();
-    frame_view_->AddViewToDropList(distributor_logo_);
-    distributor_logo_->SetImage(image);
-    frame_view_->AddChildView(distributor_logo_);
-  }
+  distributor_logo_ = new ChromeViews::ImageView();
+  frame_view_->AddViewToDropList(distributor_logo_);
+  distributor_logo_->SetImage(rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO_LIGHT));
+  frame_view_->AddChildView(distributor_logo_);
 
   min_button_ = new ChromeViews::Button();
   min_button_->SetListener(this, MINIATURIZE_TAG);
@@ -720,20 +717,18 @@ void XPFrame::Layout() {
       }
     }
 
-    if (distributor_logo_) {
-      if (IsZoomed()) {
-        distributor_logo_->SetVisible(false);
-      } else {
-        CSize distributor_logo_size;
-        distributor_logo_->GetPreferredSize(&distributor_logo_size);
-        distributor_logo_->SetVisible(true);
-        distributor_logo_->SetBounds(min_button_->GetX() - 
-                                         distributor_logo_size.cx -
-                                         kDistributorLogoHorizontalOffset,
-                                     kDistributorLogoVerticalOffset,
-                                     distributor_logo_size.cx,
-                                     distributor_logo_size.cy);
-      }
+    if (IsZoomed()) {
+      distributor_logo_->SetVisible(false);
+    } else {
+      CSize distributor_logo_size;
+      distributor_logo_->GetPreferredSize(&distributor_logo_size);
+      distributor_logo_->SetVisible(true);
+      distributor_logo_->SetBounds(min_button_->GetX() - 
+                                       distributor_logo_size.cx -
+                                       kDistributorLogoHorizontalOffset,
+                                   kDistributorLogoVerticalOffset,
+                                   distributor_logo_size.cx,
+                                   distributor_logo_size.cy);
     }
 
     tabstrip_->SetBounds(tab_strip_x, top_margin - 1,
