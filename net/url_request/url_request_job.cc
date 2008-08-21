@@ -43,10 +43,10 @@ static const int kFilterBufSize = 32 * 1024;
 
 URLRequestJob::URLRequestJob(URLRequest* request)
     : request_(request),
+      done_(false),
       read_buffer_(NULL),
       read_buffer_len_(0),
       has_handled_response_(false),
-      done_(false),
       expected_content_size_(-1) {
   is_profiling_ = request->enable_profiling();
   if (is_profiling()) {
@@ -125,9 +125,6 @@ bool URLRequestJob::Read(char* buf, int buf_size, int *bytes_read) {
     if (rv && *bytes_read > 0)
       RecordBytesRead(*bytes_read);
   } else {
-    // Get more pre-filtered data if needed.
-    int filtered_data_read = 0;
-
     // Save the caller's buffers while we do IO
     // in the filter's buffers.
     read_buffer_ = buf;
