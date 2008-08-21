@@ -609,13 +609,13 @@ static bool IsStringUTF8T(const CHAR* str) {
         return false;  // end of string but not end of character sequence
 
       // non-character : EF BF [BE-BF] or F[0-7] [89AB]F BF [BE-BF]
-      if (nonchar && (!positions_left && c < 0xBE ||
-                      positions_left == 1 && c != 0xBF ||
-                      positions_left == 2 && 0x0F != (0x0F & c) )) {
+      if (nonchar && ((!positions_left && c < 0xBE) ||
+                      (positions_left == 1 && c != 0xBF) ||
+                      (positions_left == 2 && 0x0F != (0x0F & c) ))) {
         nonchar = false;
       }
-      if (!IsInUTF8Sequence(c) || overlong && c <= olupper ||
-          surrogate && slower <= c || nonchar && !positions_left ) {
+      if (!IsInUTF8Sequence(c) || (overlong && c <= olupper) ||
+          (surrogate && slower <= c) || (nonchar && !positions_left) ) {
         return false;
       }
       overlong = surrogate = false;
