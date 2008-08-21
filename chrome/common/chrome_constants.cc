@@ -67,7 +67,7 @@ const int kStatsMaxCounters = 300;
 // potentially be tricked into running a product in record mode without
 // knowing it.  Enable in debug builds.  Playback mode is allowed always,
 // because it is useful for testing and not hazardous by itself.
-#ifdef DEBUG
+#ifndef NDEBUG
 const bool kRecordModeEnabled = true;
 #else
 const bool kRecordModeEnabled = false;
