@@ -368,7 +368,7 @@ extern "C" {
             valuea = edgea->fX;
             valueb = edgeb->fX;
         }
-        return valuea - valueb;
+        return valuea > valueb ? 1 : valuea < valueb ? -1 : 0;
     }
 }
 

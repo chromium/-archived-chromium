@@ -211,14 +211,15 @@ bool SkPathContainsPoint(SkPath* orig_path, WebCore::FloatPoint point, SkPath::F
 
     orig_path->setFillType(ft);
 
-    // Skia has trouble with coordinates greater than +/- 2^15... if we have
-    // those, we need to scale
+    // Skia has trouble with coordinates close to the max signed 16-bit values
+    // If we have those, we need to scale. 
+    //
+    // TODO: remove this code once Skia is patched to work properly with large
+    // values
     const SkScalar kMaxCoordinate = SkIntToScalar(1<<15);
-    SkScalar biggest_coord = 0;
-    biggest_coord = -bounds.fLeft   > biggest_coord ? -bounds.fLeft   : biggest_coord;
-    biggest_coord = -bounds.fTop    > biggest_coord ? -bounds.fTop    : biggest_coord;
-    biggest_coord =  bounds.fRight  > biggest_coord ?  bounds.fRight  : biggest_coord;
-    biggest_coord =  bounds.fBottom > biggest_coord ?  bounds.fBottom : biggest_coord;
+    SkScalar biggest_coord = std::max(std::max(std::max(
+      bounds.fRight, bounds.fBottom), -bounds.fLeft), -bounds.fTop);
+
     if (biggest_coord > kMaxCoordinate) {
       scale = SkScalarCeil(SkScalarDiv(biggest_coord, kMaxCoordinate));
 
