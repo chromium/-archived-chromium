@@ -97,7 +97,7 @@ TEST(NetUtilTest, FileURLConversion) {
 
   // First, we'll test that we can round-trip all of the above cases of URLs
   std::wstring output;
-  for (int i = 0; i < arraysize(round_trip_cases); i++) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(round_trip_cases); i++) {
     // convert to the file URL
     GURL file_url(net::FilePathToFileURL(round_trip_cases[i].file));
     EXPECT_EQ(std::wstring(round_trip_cases[i].url),
@@ -119,14 +119,14 @@ TEST(NetUtilTest, FileURLConversion) {
     {L"\\\\foo\\bar.txt", L"file://foo\\bar.txt"},
     {L"C:\\foo\\bar.txt", L"file:\\\\\\c:/foo/bar.txt"},
   };
-  for (int i = 0; i < arraysize(url_cases); i++) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(url_cases); i++) {
     net::FileURLToFilePath(GURL(WideToUTF16(url_cases[i].url)), &output);
     EXPECT_EQ(std::wstring(url_cases[i].file), output);
   }
 
   // Here, we test that UTF-8 encoded strings get decoded properly, even when
   // they might be stored with wide characters
-  const wchar_t utf8[] = L"file:///d:/Chinese/\xe6\x89\x80\xe6\x9c\x89\xe4\xb8\xad\xe6\x96\x87\xe7\xbd\x91\xe9\xa1\xb5.doc";
+  const wchar_t utf8[] = "file:///d:/Chinese/\xe6\x89\x80\xe6\x9c\x89\xe4\xb8\xad\xe6\x96\x87\xe7\xbd\x91\xe9\xa1\xb5.doc";
   const wchar_t wide[] = L"D:\\Chinese\\\x6240\x6709\x4e2d\x6587\x7f51\x9875.doc";
   EXPECT_TRUE(net::FileURLToFilePath(GURL(WideToUTF16(utf8)), &output));
   EXPECT_EQ(std::wstring(wide), output);
@@ -179,14 +179,14 @@ TEST(NetUtilTest, GetSpecificHeader) {
   };
 
   // Test first with google_headers.
-  for (size_t i = 0; i < arraysize(tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     std::wstring result = net::GetSpecificHeader(google_headers,
                                                  tests[i].header_name);
     EXPECT_EQ(result, tests[i].expected);
   }
 
   // Test again with empty headers.
-  for (size_t i = 0; i < arraysize(tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     std::wstring result = net::GetSpecificHeader(L"", tests[i].header_name);
     EXPECT_EQ(result, std::wstring());
   }
@@ -208,7 +208,7 @@ TEST(NetUtilTest, GetHeaderParamValue) {
   };
   // TODO(mpcomplete): add tests for other formats of headers.
 
-  for (size_t i = 0; i < arraysize(tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     std::wstring header_value =
         net::GetSpecificHeader(google_headers, tests[i].header_name);
     std::wstring result =
@@ -216,7 +216,7 @@ TEST(NetUtilTest, GetHeaderParamValue) {
     EXPECT_EQ(result, tests[i].expected);
   }
 
-  for (size_t i = 0; i < arraysize(tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     std::wstring header_value =
         net::GetSpecificHeader(L"", tests[i].header_name);
     std::wstring result =
@@ -293,7 +293,7 @@ TEST(NetUtilTest, GetFileNameFromCD) {
     {"Content-Disposition: attachment; filename==?windows-1252?Q?caf=E3?="
      "=?iso-8859-7?b?4eIucG5nCg==?=", L""},
   };
-  for (size_t i = 0; i < arraysize(tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     EXPECT_EQ(tests[i].expected,
               net::GetFileNameFromCD(tests[i].header_field));
   }
@@ -570,7 +570,7 @@ TEST(NetUtilTest, IDNToUnicode) {
 #endif
   };
 
-  for (int i = 0; i < arraysize(idn_cases); i++) {
+  for (int i = 0; i < ARRAYSIZE_UNSAFE(idn_cases); i++) {
     for (int j = 0; j < arraysize(kLanguages); j++) {
       std::wstring output;
       net::IDNToUnicode(idn_cases[i].input,
@@ -682,7 +682,7 @@ TEST(NetUtilTest, GetSuggestedFilename) {
      L"",
      L"test.html"},
   };
-  for (int i = 0; i < arraysize(test_cases); ++i) {
+  for (int i = 0; i < ARRAYSIZE_UNSAFE(test_cases); ++i) {
     std::wstring filename = net::GetSuggestedFilename(
         GURL(test_cases[i].url), test_cases[i].content_disp_header,
         test_cases[i].default_filename);

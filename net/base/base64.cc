@@ -29,10 +29,7 @@
 
 #include "net/base/base64.h"
 
-#pragma warning(push)
-#pragma warning(disable: 4267)
 #include "third_party/modp_b64/modp_b64.h"
-#pragma warning(pop)
 
 namespace net {
 

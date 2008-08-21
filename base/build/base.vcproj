@@ -234,6 +234,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\compiler_specific.h"
+			>
+		</File>
+		<File
 			RelativePath="..\condition_variable.h"
 			>
 		</File>
@@ -482,11 +486,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\platform_thread_win.cc"
+			RelativePath="..\platform_thread.h"
 			>
 		</File>
 		<File
-			RelativePath="..\platform_thread.h"
+			RelativePath="..\platform_thread_win.cc"
 			>
 		</File>
 		<File
@@ -710,15 +714,15 @@
 			>
 		</File>
 		<File
-			RelativePath="..\time_win.cc"
-			>
-		</File>
-		<File
 			RelativePath="..\time_format.cc"
 			>
 		</File>
 		<File
 			RelativePath="..\time_format.h"
+			>
+		</File>
+		<File
+			RelativePath="..\time_win.cc"
 			>
 		</File>
 		<File

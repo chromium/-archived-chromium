@@ -31,6 +31,7 @@
 
 #include <algorithm>
 
+#include "base/compiler_specific.h"
 #include "base/message_loop.h"
 #include "base/pickle.h"
 #include "base/ref_counted.h"
@@ -44,8 +45,6 @@
 #include "net/http/http_response_info.h"
 #include "net/http/http_transaction.h"
 #include "net/http/http_util.h"
-
-#pragma warning(disable: 4355)
 
 namespace net {
 
@@ -196,9 +195,12 @@ class HttpCache::Transaction : public HttpTransaction,
         read_offset_(0),
         effective_load_flags_(0),
         final_upload_progress_(0),
-        network_info_callback_(this, &Transaction::OnNetworkInfoAvailable),
-        network_read_callback_(this, &Transaction::OnNetworkReadCompleted),
-        cache_read_callback_(this, &Transaction::OnCacheReadCompleted) {
+        ALLOW_THIS_IN_INITIALIZER_LIST(
+            network_info_callback_(this, &Transaction::OnNetworkInfoAvailable)),
+        ALLOW_THIS_IN_INITIALIZER_LIST(
+            network_read_callback_(this, &Transaction::OnNetworkReadCompleted)),
+        ALLOW_THIS_IN_INITIALIZER_LIST(
+            cache_read_callback_(this, &Transaction::OnCacheReadCompleted)) {
     AddRef();  // Balanced in Destroy
   }
 

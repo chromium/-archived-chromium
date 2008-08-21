@@ -19,7 +19,7 @@
 		WarningLevel="3"
 		WarnAsError="true"
 		DebugInformationFormat="3"
-		DisableSpecificWarnings="4355; 4503; 4819"
+		DisableSpecificWarnings="4503; 4819"
 	/>
 	<Tool
 		Name="VCLibrarianTool"

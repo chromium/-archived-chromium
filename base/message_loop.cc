@@ -31,6 +31,7 @@
 
 #include <algorithm>
 
+#include "base/compiler_specific.h"
 #include "base/logging.h"
 #include "base/message_pump_default.h"
 #include "base/string_util.h"
@@ -80,7 +81,7 @@ static LPTOP_LEVEL_EXCEPTION_FILTER GetTopSEHFilter() {
 //------------------------------------------------------------------------------
 
 MessageLoop::MessageLoop()
-    : timer_manager_(this),
+    : ALLOW_THIS_IN_INITIALIZER_LIST(timer_manager_(this)),
       nestable_tasks_allowed_(true),
       exception_restoration_(false),
       state_(NULL) {
