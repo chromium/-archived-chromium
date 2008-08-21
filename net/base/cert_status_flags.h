@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef NET_BASE_CERT_STATUS_FLAGS_H__
-#define NET_BASE_CERT_STATUS_FLAGS_H__
+#ifndef NET_BASE_CERT_STATUS_FLAGS_H_
+#define NET_BASE_CERT_STATUS_FLAGS_H_
 
 namespace net {
 
@@ -54,10 +54,10 @@ enum {
 };
 
 // Returns true if the specified cert status has an error set.
-static bool IsCertStatusError(int status) {
+static inline bool IsCertStatusError(int status) {
   return (CERT_STATUS_ALL_ERRORS & status) != 0;
 }
 
 }  // namespace net
 
-#endif  // NET_BASE_CERT_STATUS_FLAGS_H__
+#endif  // NET_BASE_CERT_STATUS_FLAGS_H_
