@@ -81,6 +81,7 @@ TestNavigationController::TestNavigationController(TestShell* shell)
 }
 
 TestNavigationController::~TestNavigationController() {
+  DiscardPendingEntry();
 }
 
 void TestNavigationController::Reset() {
