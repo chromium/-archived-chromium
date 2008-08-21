@@ -37,16 +37,16 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#include <windows.h>
+#include "net/base/registry_controlled_domain.h"
 
 #include "base/logging.h"
+#include "base/singleton.h"
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_parse.h"
 #include "net/base/net_module.h"
 #include "net/base/net_resources.h"
 #include "net/base/net_util.h"
-#include "net/base/registry_controlled_domain.h"
 
 namespace net {
 
@@ -258,23 +258,34 @@ size_t RegistryControlledDomainService::GetRegistryLengthImpl(
   return allow_unknown_registries ? (host.length() - curr_start) : 0;
 }
 
-RegistryControlledDomainService* RegistryControlledDomainService::instance_ =
-    NULL;
+static RegistryControlledDomainService* test_instance_;
+
+// static
+RegistryControlledDomainService* RegistryControlledDomainService::SetInstance(
+    RegistryControlledDomainService* instance) {
+  RegistryControlledDomainService* old_instance = test_instance_;
+  test_instance_ = instance;
+  return old_instance;
+}
+
+struct RegistryControlledDomainServiceSingletonTraits :
+    public DefaultSingletonTraits<RegistryControlledDomainService> {
+  static RegistryControlledDomainService* New() {
+    RegistryControlledDomainService* instance =
+        new RegistryControlledDomainService();
+    instance->Init();
+    return instance;
+  }
+};
 
 // static
 RegistryControlledDomainService* RegistryControlledDomainService::GetInstance()
 {
-  if (!instance_) {
-    RegistryControlledDomainService* s = new RegistryControlledDomainService();
-    s->Init();
-    // TODO(darin): use fix_wp64.h once it lives in base/
-    if (InterlockedCompareExchangePointer(
-        reinterpret_cast<PVOID*>(&instance_), s, NULL)) {
-      // Oops, another thread initialized instance_ out from under us.
-      delete s;
-    }
-  }
-  return instance_;
+  if (test_instance_)
+    return test_instance_;
+
+  return Singleton<RegistryControlledDomainService,
+                   RegistryControlledDomainServiceSingletonTraits>::get();
 }
 
 // static

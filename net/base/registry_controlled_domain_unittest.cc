@@ -33,33 +33,36 @@
 
 namespace {
 
-class TestRegistryControlledDomainService;
-static TestRegistryControlledDomainService* test_instance_;
-
 class TestRegistryControlledDomainService :
     public net::RegistryControlledDomainService {
  public:
-
-  // Deletes the instance so a new one will be created.
-  static void ResetInstance() {
-    net::RegistryControlledDomainService::ResetInstance();
-  }
-
   // Sets and parses the given data.
   static void UseDomainData(const std::string& data) {
     net::RegistryControlledDomainService::UseDomainData(data);
   }
 
- private:
-  TestRegistryControlledDomainService::TestRegistryControlledDomainService() { }
-  TestRegistryControlledDomainService::~TestRegistryControlledDomainService() {
+  // Creates a new dedicated instance to be used for testing, deleting any
+  // previously-set one.
+  static void UseDedicatedInstance() {
+    delete static_cast<TestRegistryControlledDomainService*>(
+        SetInstance(new TestRegistryControlledDomainService()));
+  }
+
+  // Restores RegistryControlledDomainService to using its default instance,
+  // deleting any previously-set test instance.
+  static void UseDefaultInstance() {
+    delete static_cast<TestRegistryControlledDomainService*>(SetInstance(NULL));
   }
 };
 
 class RegistryControlledDomainTest : public testing::Test {
  protected:
   virtual void SetUp() {
-    TestRegistryControlledDomainService::ResetInstance();
+    TestRegistryControlledDomainService::UseDedicatedInstance();
+  }
+
+  virtual void TearDown() {
+    TestRegistryControlledDomainService::UseDefaultInstance();
   }
 };
 
@@ -186,73 +189,74 @@ TEST_F(RegistryControlledDomainTest, TestGetRegistryLength) {
   SetTestData(kTestData);
 
   // Test GURL version of GetRegistryLength().
-  EXPECT_EQ(2, GetRegistryLengthFromURL("http://a.baz.jp/file.html", false));
+  EXPECT_EQ(2U, GetRegistryLengthFromURL("http://a.baz.jp/file.html", false));
                                                                         // 1
-  EXPECT_EQ(3, GetRegistryLengthFromURL("http://a.baz.jp./file.html", false));
+  EXPECT_EQ(3U, GetRegistryLengthFromURL("http://a.baz.jp./file.html", false));
                                                                         // 1
-  EXPECT_EQ(0, GetRegistryLengthFromURL("http://ac.jp", false));        // 2
-  EXPECT_EQ(0, GetRegistryLengthFromURL("http://a.bar.jp", false));     // 3
-  EXPECT_EQ(0, GetRegistryLengthFromURL("http://bar.jp", false));       // 3
-  EXPECT_EQ(0, GetRegistryLengthFromURL("http://baz.bar.jp", false));   // 3 4
-  EXPECT_EQ(12, GetRegistryLengthFromURL("http://a.b.baz.bar.jp", false));
+  EXPECT_EQ(0U, GetRegistryLengthFromURL("http://ac.jp", false));       // 2
+  EXPECT_EQ(0U, GetRegistryLengthFromURL("http://a.bar.jp", false));    // 3
+  EXPECT_EQ(0U, GetRegistryLengthFromURL("http://bar.jp", false));      // 3
+  EXPECT_EQ(0U, GetRegistryLengthFromURL("http://baz.bar.jp", false));  // 3 4
+  EXPECT_EQ(12U, GetRegistryLengthFromURL("http://a.b.baz.bar.jp", false));
                                                                         // 4
-  EXPECT_EQ(6, GetRegistryLengthFromURL("http://foo.bar.jp", false));   // 3 5 6
-  EXPECT_EQ(6, GetRegistryLengthFromURL("http://baz.pref.bar.jp", false));
+  EXPECT_EQ(6U, GetRegistryLengthFromURL("http://foo.bar.jp", false));  // 3 5 6
+  EXPECT_EQ(6U, GetRegistryLengthFromURL("http://baz.pref.bar.jp", false));
                                                                         // 7
-  EXPECT_EQ(11, GetRegistryLengthFromURL("http://a.b.bar.baz.com", false));
+  EXPECT_EQ(11U, GetRegistryLengthFromURL("http://a.b.bar.baz.com", false));
                                                                         // 8
-  EXPECT_EQ(3, GetRegistryLengthFromURL("http://a.d.c", false));        // 9
-  EXPECT_EQ(3, GetRegistryLengthFromURL("http://.a.d.c", false));       // 9
-  EXPECT_EQ(3, GetRegistryLengthFromURL("http://..a.d.c", false));      // 9
-  EXPECT_EQ(1, GetRegistryLengthFromURL("http://a.b.c", false));        // 9 10
-  EXPECT_EQ(0, GetRegistryLengthFromURL("http://baz.com", false));      // none
-  EXPECT_EQ(0, GetRegistryLengthFromURL("http://baz.com.", false));     // none
-  EXPECT_EQ(3, GetRegistryLengthFromURL("http://baz.com", true));       // none
-  EXPECT_EQ(4, GetRegistryLengthFromURL("http://baz.com.", true));      // none
+  EXPECT_EQ(3U, GetRegistryLengthFromURL("http://a.d.c", false));       // 9
+  EXPECT_EQ(3U, GetRegistryLengthFromURL("http://.a.d.c", false));      // 9
+  EXPECT_EQ(3U, GetRegistryLengthFromURL("http://..a.d.c", false));     // 9
+  EXPECT_EQ(1U, GetRegistryLengthFromURL("http://a.b.c", false));       // 9 10
+  EXPECT_EQ(0U, GetRegistryLengthFromURL("http://baz.com", false));     // none
+  EXPECT_EQ(0U, GetRegistryLengthFromURL("http://baz.com.", false));    // none
+  EXPECT_EQ(3U, GetRegistryLengthFromURL("http://baz.com", true));      // none
+  EXPECT_EQ(4U, GetRegistryLengthFromURL("http://baz.com.", true));     // none
 
   EXPECT_EQ(std::string::npos, GetRegistryLengthFromURL("", false));
   EXPECT_EQ(std::string::npos, GetRegistryLengthFromURL("http://", false));
   EXPECT_EQ(std::string::npos,
             GetRegistryLengthFromURL("file:///C:/file.html", false));
-  EXPECT_EQ(0, GetRegistryLengthFromURL("http://foo.com..", false));
-  EXPECT_EQ(0, GetRegistryLengthFromURL("http://...", false));
-  EXPECT_EQ(0, GetRegistryLengthFromURL("http://192.168.0.1", false));
-  EXPECT_EQ(0, GetRegistryLengthFromURL("http://localhost", false));
-  EXPECT_EQ(0, GetRegistryLengthFromURL("http://localhost", true));
-  EXPECT_EQ(0, GetRegistryLengthFromURL("http://localhost.", false));
-  EXPECT_EQ(0, GetRegistryLengthFromURL("http://localhost.", true));
-  EXPECT_EQ(0, GetRegistryLengthFromURL("http:////Comment", false));
+  EXPECT_EQ(0U, GetRegistryLengthFromURL("http://foo.com..", false));
+  EXPECT_EQ(0U, GetRegistryLengthFromURL("http://...", false));
+  EXPECT_EQ(0U, GetRegistryLengthFromURL("http://192.168.0.1", false));
+  EXPECT_EQ(0U, GetRegistryLengthFromURL("http://localhost", false));
+  EXPECT_EQ(0U, GetRegistryLengthFromURL("http://localhost", true));
+  EXPECT_EQ(0U, GetRegistryLengthFromURL("http://localhost.", false));
+  EXPECT_EQ(0U, GetRegistryLengthFromURL("http://localhost.", true));
+  EXPECT_EQ(0U, GetRegistryLengthFromURL("http:////Comment", false));
 
   // Test std::wstring version of GetRegistryLength().  Uses the same
   // underpinnings as the GURL version, so this is really more of a check of
   // CanonicalizeHost().
-  EXPECT_EQ(2, GetRegistryLengthFromHost(L"a.baz.jp", false));          // 1
-  EXPECT_EQ(3, GetRegistryLengthFromHost(L"a.baz.jp.", false));         // 1
-  EXPECT_EQ(0, GetRegistryLengthFromHost(L"ac.jp", false));             // 2
-  EXPECT_EQ(0, GetRegistryLengthFromHost(L"a.bar.jp", false));          // 3
-  EXPECT_EQ(0, GetRegistryLengthFromHost(L"bar.jp", false));            // 3
-  EXPECT_EQ(0, GetRegistryLengthFromHost(L"baz.bar.jp", false));        // 3 4
-  EXPECT_EQ(12, GetRegistryLengthFromHost(L"a.b.baz.bar.jp", false));   // 4
-  EXPECT_EQ(6, GetRegistryLengthFromHost(L"foo.bar.jp", false));        // 3 5 6
-  EXPECT_EQ(6, GetRegistryLengthFromHost(L"baz.pref.bar.jp", false));   // 7
-  EXPECT_EQ(11, GetRegistryLengthFromHost(L"a.b.bar.baz.com", false));  // 8
-  EXPECT_EQ(3, GetRegistryLengthFromHost(L"a.d.c", false));             // 9
-  EXPECT_EQ(3, GetRegistryLengthFromHost(L".a.d.c", false));            // 9
-  EXPECT_EQ(3, GetRegistryLengthFromHost(L"..a.d.c", false));           // 9
-  EXPECT_EQ(1, GetRegistryLengthFromHost(L"a.b.c", false));             // 9 10
-  EXPECT_EQ(0, GetRegistryLengthFromHost(L"baz.com", false));           // none
-  EXPECT_EQ(0, GetRegistryLengthFromHost(L"baz.com.", false));          // none
-  EXPECT_EQ(3, GetRegistryLengthFromHost(L"baz.com", true));            // none
-  EXPECT_EQ(4, GetRegistryLengthFromHost(L"baz.com.", true));           // none
+  EXPECT_EQ(2U, GetRegistryLengthFromHost(L"a.baz.jp", false));         // 1
+  EXPECT_EQ(3U, GetRegistryLengthFromHost(L"a.baz.jp.", false));        // 1
+  EXPECT_EQ(0U, GetRegistryLengthFromHost(L"ac.jp", false));            // 2
+  EXPECT_EQ(0U, GetRegistryLengthFromHost(L"a.bar.jp", false));         // 3
+  EXPECT_EQ(0U, GetRegistryLengthFromHost(L"bar.jp", false));           // 3
+  EXPECT_EQ(0U, GetRegistryLengthFromHost(L"baz.bar.jp", false));       // 3 4
+  EXPECT_EQ(12U, GetRegistryLengthFromHost(L"a.b.baz.bar.jp", false));  // 4
+  EXPECT_EQ(6U, GetRegistryLengthFromHost(L"foo.bar.jp", false));       // 3 5 6
+  EXPECT_EQ(6U, GetRegistryLengthFromHost(L"baz.pref.bar.jp", false));  // 7
+  EXPECT_EQ(11U, GetRegistryLengthFromHost(L"a.b.bar.baz.com", false));
+                                                                        // 8
+  EXPECT_EQ(3U, GetRegistryLengthFromHost(L"a.d.c", false));            // 9
+  EXPECT_EQ(3U, GetRegistryLengthFromHost(L".a.d.c", false));           // 9
+  EXPECT_EQ(3U, GetRegistryLengthFromHost(L"..a.d.c", false));          // 9
+  EXPECT_EQ(1U, GetRegistryLengthFromHost(L"a.b.c", false));            // 9 10
+  EXPECT_EQ(0U, GetRegistryLengthFromHost(L"baz.com", false));          // none
+  EXPECT_EQ(0U, GetRegistryLengthFromHost(L"baz.com.", false));         // none
+  EXPECT_EQ(3U, GetRegistryLengthFromHost(L"baz.com", true));           // none
+  EXPECT_EQ(4U, GetRegistryLengthFromHost(L"baz.com.", true));          // none
 
   EXPECT_EQ(std::string::npos, GetRegistryLengthFromHost(L"", false));
-  EXPECT_EQ(0, GetRegistryLengthFromHost(L"foo.com..", false));
-  EXPECT_EQ(0, GetRegistryLengthFromHost(L"..", false));
-  EXPECT_EQ(0, GetRegistryLengthFromHost(L"192.168.0.1", false));
-  EXPECT_EQ(0, GetRegistryLengthFromHost(L"localhost", false));
-  EXPECT_EQ(0, GetRegistryLengthFromHost(L"localhost", true));
-  EXPECT_EQ(0, GetRegistryLengthFromHost(L"localhost.", false));
-  EXPECT_EQ(0, GetRegistryLengthFromHost(L"localhost.", true));
+  EXPECT_EQ(0U, GetRegistryLengthFromHost(L"foo.com..", false));
+  EXPECT_EQ(0U, GetRegistryLengthFromHost(L"..", false));
+  EXPECT_EQ(0U, GetRegistryLengthFromHost(L"192.168.0.1", false));
+  EXPECT_EQ(0U, GetRegistryLengthFromHost(L"localhost", false));
+  EXPECT_EQ(0U, GetRegistryLengthFromHost(L"localhost", true));
+  EXPECT_EQ(0U, GetRegistryLengthFromHost(L"localhost.", false));
+  EXPECT_EQ(0U, GetRegistryLengthFromHost(L"localhost.", true));
 }
 
 TEST_F(RegistryControlledDomainTest, TestSameDomainOrHost) {
@@ -285,12 +289,14 @@ TEST_F(RegistryControlledDomainTest, TestSameDomainOrHost) {
 }
 
 TEST_F(RegistryControlledDomainTest, TestDefaultData) {
+  TestRegistryControlledDomainService::UseDefaultInstance();
+
   // Note that no data is set: we're using the default rules.
-  EXPECT_EQ(3, GetRegistryLengthFromURL("http://google.com", false));
-  EXPECT_EQ(3, GetRegistryLengthFromURL("http://stanford.edu", false));
-  EXPECT_EQ(3, GetRegistryLengthFromURL("http://ustreas.gov", false));
-  EXPECT_EQ(3, GetRegistryLengthFromURL("http://icann.net", false));
-  EXPECT_EQ(3, GetRegistryLengthFromURL("http://ferretcentral.org", false));
-  EXPECT_EQ(0, GetRegistryLengthFromURL("http://nowhere.foo", false));
-  EXPECT_EQ(3, GetRegistryLengthFromURL("http://nowhere.foo", true));
+  EXPECT_EQ(3U, GetRegistryLengthFromURL("http://google.com", false));
+  EXPECT_EQ(3U, GetRegistryLengthFromURL("http://stanford.edu", false));
+  EXPECT_EQ(3U, GetRegistryLengthFromURL("http://ustreas.gov", false));
+  EXPECT_EQ(3U, GetRegistryLengthFromURL("http://icann.net", false));
+  EXPECT_EQ(3U, GetRegistryLengthFromURL("http://ferretcentral.org", false));
+  EXPECT_EQ(0U, GetRegistryLengthFromURL("http://nowhere.foo", false));
+  EXPECT_EQ(3U, GetRegistryLengthFromURL("http://nowhere.foo", true));
 }
