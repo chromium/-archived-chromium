@@ -676,7 +676,7 @@
 		7B0E5AFD0DB3DC51007D4907 /* devnull.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B12F8C20D8F41F300CB6E8F /* devnull.cpp */; };
 		7B0E5B010DB3DC51007D4907 /* libWTF.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B5E85AE0D7F28CD001ECF42 /* libWTF.a */; };
 		7B0E5B030DB3DC51007D4907 /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B12F9130D8F463700CB6E8F /* libicuuc.a */; };
-		7B0E5B040DB3DC51007D4907 /* libicudata.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B12F91D0D8F463700CB6E8F /* libicudata.dylib */; };
+		7B0E5B040DB3DC51007D4907 /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B12F91D0D8F463700CB6E8F /* libicudata.a */; };
 		7B0E5B050DB3DC51007D4907 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B12F9150D8F463700CB6E8F /* libicui18n.a */; };
 		7B0E5B060DB3DC51007D4907 /* libxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B12F7D40D8F00A000CB6E8F /* libxml.a */; };
 		7B0E5B070DB3DC51007D4907 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B12FA3F0D8F4BE500CB6E8F /* Carbon.framework */; };
@@ -688,7 +688,7 @@
 		7B12F8B50D8F3F1400CB6E8F /* libWTF.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B5E85AE0D7F28CD001ECF42 /* libWTF.a */; };
 		7B12F8C30D8F41F300CB6E8F /* devnull.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B12F8C20D8F41F300CB6E8F /* devnull.cpp */; };
 		7B12F9220D8F466700CB6E8F /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B12F9130D8F463700CB6E8F /* libicuuc.a */; };
-		7B12F9230D8F466700CB6E8F /* libicudata.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B12F91D0D8F463700CB6E8F /* libicudata.dylib */; };
+		7B12F9230D8F466700CB6E8F /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B12F91D0D8F463700CB6E8F /* libicudata.a */; };
 		7B12FA270D8F47CA00CB6E8F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B12FA260D8F47C900CB6E8F /* Cocoa.framework */; };
 		7B12FA2E0D8F48B300CB6E8F /* libxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B12F7D40D8F00A000CB6E8F /* libxml.a */; };
 		7B12FA310D8F48F400CB6E8F /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B12FA300D8F48F400CB6E8F /* libz.dylib */; };
@@ -7637,6 +7637,8 @@
 		E48A07270E3F95A000172919 /* NativeImageSkia.h in Headers */ = {isa = PBXBuildFile; fileRef = E48A07230E3F95A000172919 /* NativeImageSkia.h */; };
 		E48A07280E3F95A000172919 /* NativeImageSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48A07220E3F95A000172919 /* NativeImageSkia.cpp */; };
 		E48A07290E3F95A000172919 /* NativeImageSkia.h in Headers */ = {isa = PBXBuildFile; fileRef = E48A07230E3F95A000172919 /* NativeImageSkia.h */; };
+		E49E4D960E5DEA6000AD47F7 /* BackForwardList.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E8BCB0D7F3B39001ECF42 /* BackForwardList.h */; };
+		E49E4D970E5DEA6100AD47F7 /* BackForwardList.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E8BCB0D7F3B39001ECF42 /* BackForwardList.h */; };
 		E4A134090E37C47E00110AA2 /* v8_proxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095EA0DAFF0DD00F72082 /* v8_proxy.cpp */; };
 		E4A238C70E3FA19C002BDE14 /* image_decoder.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A238C50E3FA19C002BDE14 /* image_decoder.cc */; };
 		E4A238C80E3FA19C002BDE14 /* image_decoder.h in Headers */ = {isa = PBXBuildFile; fileRef = E4A238C60E3FA19C002BDE14 /* image_decoder.h */; };
@@ -7685,7 +7687,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B12F9060D8F463700CB6E8F /* icu.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 7BD540FA0D6F8397003CD41E;
+			remoteGlobalIDString = 82C262C30DCF9411005CFE91 /* icudata */;
 			remoteInfo = icudata;
 		};
 		7B0E5AF80DB3DC51007D4907 /* PBXContainerItemProxy */ = {
@@ -7832,7 +7834,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B12F9060D8F463700CB6E8F /* icu.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 7BD540FA0D6F8397003CD41E;
+			remoteGlobalIDString = 82C262C30DCF9411005CFE91 /* icudata */;
 			remoteInfo = icudata;
 		};
 		7B12FA330D8F496600CB6E8F /* PBXContainerItemProxy */ = {
@@ -8065,13 +8067,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = libjpeg;
-		};
-		82C262CF0DCF942F005CFE91 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 7B12F9060D8F463700CB6E8F /* icu.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 82C262C40DCF9411005CFE91;
-			remoteInfo = icudatastatic;
 		};
 		E456203A0E268E87005E4685 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -13033,7 +13028,7 @@
 				7BBFD2350DB7D62800C447C7 /* libJSBindings_v8.a in Frameworks */,
 				7BBFD2360DB7D63700C447C7 /* libWebCore_v8.a in Frameworks */,
 				7B0E5B010DB3DC51007D4907 /* libWTF.a in Frameworks */,
-				7B0E5B040DB3DC51007D4907 /* libicudata.dylib in Frameworks */,
+				7B0E5B040DB3DC51007D4907 /* libicudata.a in Frameworks */,
 				7B0E5B050DB3DC51007D4907 /* libicui18n.a in Frameworks */,
 				7B0E5B030DB3DC51007D4907 /* libicuuc.a in Frameworks */,
 				7BBFD2240DB7D29800C447C7 /* libv8.a in Frameworks */,
@@ -13054,7 +13049,7 @@
 				7B9375CD0D91917B008B9587 /* libPort_kjs.a in Frameworks */,
 				7B12F8B30D8F3F0800CB6E8F /* libWebCore_kjs.a in Frameworks */,
 				7B12F8B50D8F3F1400CB6E8F /* libWTF.a in Frameworks */,
-				7B12F9230D8F466700CB6E8F /* libicudata.dylib in Frameworks */,
+				7B12F9230D8F466700CB6E8F /* libicudata.a in Frameworks */,
 				7B12FA350D8F498000CB6E8F /* libicui18n.a in Frameworks */,
 				7B12F9220D8F466700CB6E8F /* libicuuc.a in Frameworks */,
 				7B12FA2E0D8F48B300CB6E8F /* libxml.a in Frameworks */,
@@ -13769,14 +13764,13 @@
 		7B12F9070D8F463700CB6E8F /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				7B12F9190D8F463700CB6E8F /* genccode */,
+				7B12F91D0D8F463700CB6E8F /* libicudata.a */,
 				7B12F9110D8F463700CB6E8F /* libicudata_stub.a */,
-				7B12F9130D8F463700CB6E8F /* libicuuc.a */,
 				7B12F9150D8F463700CB6E8F /* libicui18n.a */,
 				7B12F9170D8F463700CB6E8F /* libicutu.a */,
-				7B12F9190D8F463700CB6E8F /* genccode */,
+				7B12F9130D8F463700CB6E8F /* libicuuc.a */,
 				7B12F91B0D8F463700CB6E8F /* icupkg */,
-				7B12F91D0D8F463700CB6E8F /* libicudata.dylib */,
-				82C262D00DCF942F005CFE91 /* libicudatastatic.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -18531,7 +18525,7 @@
 		8246540D0DC24E01007C2BAA /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				E48EE53D0E34E874009DE966 /* libSkiaStatic.a */,
+				E48EE53D0E34E874009DE966 /* libskia.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -19715,6 +19709,7 @@
 				820A61970DE7592C00871E2D /* WebCoreURLResponse.h in Headers */,
 				82761E960E3FA26E0030D324 /* TextCodecMac.h in Headers */,
 				82761F880E3FAC700030D324 /* AccessibilityObject.h in Headers */,
+				E49E4D970E5DEA6100AD47F7 /* BackForwardList.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -20697,6 +20692,7 @@
 				820A61950DE7592C00871E2D /* WebCoreURLResponse.h in Headers */,
 				E45628080E2695EA005E4685 /* ResourceRequest.h in Headers */,
 				82761F840E3FAC700030D324 /* AccessibilityObject.h in Headers */,
+				E49E4D960E5DEA6000AD47F7 /* BackForwardList.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -23381,10 +23377,10 @@
 			remoteRef = 7B12F91A0D8F463700CB6E8F /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		7B12F91D0D8F463700CB6E8F /* libicudata.dylib */ = {
+		7B12F91D0D8F463700CB6E8F /* libicudata.a */ = {
 			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.dylib";
-			path = libicudata.dylib;
+			fileType = archive.ar;
+			path = libicudata.a;
 			remoteRef = 7B12F91C0D8F463700CB6E8F /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -23430,17 +23426,10 @@
 			remoteRef = 820EB5890E3A68DD009668FC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		82C262D00DCF942F005CFE91 /* libicudatastatic.a */ = {
+		E48EE53D0E34E874009DE966 /* libskia.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libicudatastatic.a;
-			remoteRef = 82C262CF0DCF942F005CFE91 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		E48EE53D0E34E874009DE966 /* libSkiaStatic.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libSkiaStatic.a;
+			path = libskia.a;
 			remoteRef = E48EE53C0E34E874009DE966 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
