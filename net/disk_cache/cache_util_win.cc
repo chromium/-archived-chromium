@@ -111,8 +111,8 @@ bool DeleteCacheFile(const std::wstring& name) {
   return DeleteFile(name.c_str()) ? true : false;
 }
 
-void WaitForPendingIO(int num_pending_io) {
-  while (num_pending_io) {
+void WaitForPendingIO(int* num_pending_io) {
+  while (*num_pending_io) {
     // Asynchronous IO operations may be in flight and the completion may end
     // up calling us back so let's wait for them (we need an alertable wait).
     // The idea is to let other threads do usefull work and at the same time

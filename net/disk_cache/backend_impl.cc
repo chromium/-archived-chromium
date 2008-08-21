@@ -262,7 +262,7 @@ BackendImpl::~BackendImpl() {
   delete timer_;
   delete timer_task_;
 
-  WaitForPendingIO(num_pending_io_);
+  WaitForPendingIO(&num_pending_io_);
   DCHECK(!num_refs_);
 }
 

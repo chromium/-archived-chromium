@@ -64,8 +64,8 @@ bool DeleteCacheFile(const std::wstring& name) {
   return file_util::Delete(name, false);
 }
 
-void WaitForPendingIO(int num_pending_io) {
-  if (num_pending_io) {
+void WaitForPendingIO(int* num_pending_io) {
+  if (*num_pending_io) {
     NOTIMPLEMENTED();
   }
 }

@@ -55,7 +55,7 @@ void DeleteCache(const std::wstring& path, bool remove_folder);
 bool DeleteCacheFile(const std::wstring& name);
 
 // Blocks until |num_pending_io| IO operations complete.
-void WaitForPendingIO(int num_pending_io);
+void WaitForPendingIO(int* num_pending_io);
 
 }  // namespace disk_cache
 
