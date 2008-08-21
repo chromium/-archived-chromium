@@ -157,7 +157,7 @@ class NavigationControllerTest : public testing::Test,
                               const GURL&,
                               WindowOpenDisposition,
                               PageTransition::Type,
-                              const std::wstring& override_encoding) {}
+                              const std::string& override_encoding) {}
   virtual void NavigationStateChanged(const TabContents*,
                                       unsigned flags) {}
   virtual void ReplaceContents(TabContents* source,

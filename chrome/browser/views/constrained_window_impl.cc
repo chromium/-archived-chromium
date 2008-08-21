@@ -1046,7 +1046,7 @@ void ConstrainedWindowImpl::OpenURLFromTab(
     const GURL& url,
     WindowOpenDisposition disposition,
     PageTransition::Type transition,
-    const std::wstring& override_encoding) {
+    const std::string& override_encoding) {
   // We ignore source right now.
   owner_->OpenURL(this, url, disposition, transition);
 }

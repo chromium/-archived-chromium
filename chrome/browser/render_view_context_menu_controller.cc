@@ -71,7 +71,7 @@ void RenderViewContextMenuController::OpenURLWithOverrideEncoding(
     const GURL& url,
     WindowOpenDisposition disposition,
     PageTransition::Type transition,
-    const std::wstring& override_encoding) {
+    const std::string& override_encoding) {
   source_web_contents_->OpenURLWithOverrideEncoding(url, disposition,
       transition, override_encoding);
 }

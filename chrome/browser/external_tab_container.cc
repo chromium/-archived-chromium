@@ -154,7 +154,7 @@ void ExternalTabContainer::OpenURLFromTab(
     const GURL& url,
     WindowOpenDisposition disposition,
     PageTransition::Type transition,
-    const std::wstring& override_encoding) {
+    const std::string& override_encoding) {
   switch (disposition) {
     case CURRENT_TAB:
     case NEW_FOREGROUND_TAB:

@@ -351,7 +351,7 @@ void RenderViewHost::AlterTextSize(text_zoom::TextSize size) {
   Send(new ViewMsg_AlterTextSize(routing_id_, size));
 }
 
-void RenderViewHost::SetPageEncoding(const std::wstring& encoding_name) {
+void RenderViewHost::SetPageEncoding(const std::string& encoding_name) {
   Send(new ViewMsg_SetPageEncoding(routing_id_, encoding_name));
 }
 
@@ -850,7 +850,7 @@ void RenderViewHost::OnMsgUpdateTitle(int32 page_id,
   delegate_->UpdateTitle(this, page_id, title);
 }
 
-void RenderViewHost::OnMsgUpdateEncoding(const std::wstring& encoding_name) {
+void RenderViewHost::OnMsgUpdateEncoding(const std::string& encoding_name) {
   delegate_->UpdateEncoding(this, encoding_name);
 }
 

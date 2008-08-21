@@ -59,7 +59,7 @@ class RenderViewContextMenuController : public Menu::Delegate {
   void OpenURLWithOverrideEncoding(const GURL& url,
                                    WindowOpenDisposition disposition,
                                    PageTransition::Type transition,
-                                   const std::wstring& override_encoding);
+                                   const std::string& override_encoding);
 
   // Copy to the clipboard an image located at a point in the RenderView
   void CopyImageAt(int x, int y);

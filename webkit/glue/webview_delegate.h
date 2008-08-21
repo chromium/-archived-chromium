@@ -567,7 +567,7 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
                                const std::wstring& selection_text,
                                const std::wstring& misspelled_word,
                                int edit_flags,
-                               const std::wstring& frame_encoding) {
+                               const std::string& frame_encoding) {
   }
 
   // Starts a drag session with the supplied contextual information.

@@ -1093,7 +1093,7 @@ const WebPreferences& WebViewImpl::GetPreferences() {
 
 // Set the encoding of the current main frame to the one selected by
 // a user in the encoding menu.
-void WebViewImpl::SetPageEncoding(const std::wstring& encoding_name) {
+void WebViewImpl::SetPageEncoding(const std::string& encoding_name) {
   if (!main_frame_)
     return;
 
@@ -1105,12 +1105,12 @@ void WebViewImpl::SetPageEncoding(const std::wstring& encoding_name) {
 }
 
 // Return the canonical encoding name of current main webframe in webview.
-std::wstring WebViewImpl::GetMainFrameEncodingName() {
+std::string WebViewImpl::GetMainFrameEncodingName() {
   if (!main_frame_)
-    return std::wstring(L"");
+    return std::string();
 
   String encoding_name = main_frame_->frame()->loader()->encoding();
-  return std::wstring(encoding_name.charactersWithNullTermination());
+  return WideToUTF8(webkit_glue::StringToStdWString(encoding_name));
 }
 
 void WebViewImpl::MakeTextLarger() {

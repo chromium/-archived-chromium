@@ -177,7 +177,7 @@ struct ViewHostMsg_ContextMenu_Params {
   int edit_flags;
 
   // |frame_encoding|indicates the encoding of current focused sub frame.
-  std::wstring frame_encoding;
+  std::string frame_encoding;
 };
 
 // Values that may be OR'd together to form the 'flags' parameter of a

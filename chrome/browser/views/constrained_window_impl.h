@@ -81,7 +81,7 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
                               const GURL& url,
                               WindowOpenDisposition disposition,
                               PageTransition::Type transition,
-                              const std::wstring& override_encoding);
+                              const std::string& override_encoding);
 
   // Overridden from TabContentsDelegate:
   virtual void NavigationStateChanged(const TabContents* source,

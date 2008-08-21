@@ -536,7 +536,7 @@ void Browser::OpenURLFromTab(TabContents* source,
                              const GURL& url,
                              WindowOpenDisposition disposition,
                              PageTransition::Type transition,
-                             const std::wstring& override_encoding) {
+                             const std::string& override_encoding) {
   // No code for these yet
   DCHECK((disposition != NEW_POPUP) && (disposition != SAVE_TO_DISK));
 

@@ -217,7 +217,7 @@ class RenderViewHost : public RenderWidgetHost {
   void AlterTextSize(text_zoom::TextSize size);
 
   // Change the encoding of the page.
-  void SetPageEncoding(const std::wstring& encoding_name);
+  void SetPageEncoding(const std::string& encoding_name);
 
   // Change the alternate error page URL.  An empty GURL disables the use of
   // alternate error pages.
@@ -429,7 +429,7 @@ class RenderViewHost : public RenderWidgetHost {
                         const std::wstring& title,
                         const std::string& state);
   void OnMsgUpdateTitle(int32 page_id, const std::wstring& title);
-  void OnMsgUpdateEncoding(const std::wstring& encoding_name);
+  void OnMsgUpdateEncoding(const std::string& encoding_name);
   void OnMsgUpdateTargetURL(int32 page_id, const GURL& url);
   void OnMsgThumbnail(const IPC::Message& msg);
   void OnMsgClose();

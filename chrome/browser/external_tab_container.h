@@ -81,7 +81,7 @@ class ExternalTabContainer : public TabContentsDelegate,
                               const GURL& url,
                               WindowOpenDisposition disposition,
                               PageTransition::Type transition,
-                              const std::wstring& override_encoding);
+                              const std::string& override_encoding);
   virtual void NavigationStateChanged(const TabContents* source,
                                       unsigned changed_flags);
   virtual void ReplaceContents(TabContents* source, TabContents* new_contents);

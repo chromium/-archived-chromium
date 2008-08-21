@@ -118,7 +118,7 @@ class WebContents : public TabContents,
   virtual void AlterTextSize(text_zoom::TextSize size);
 
   // Change encoding of page.
-  virtual void SetPageEncoding(const std::wstring& encoding_name);
+  virtual void SetPageEncoding(const std::string& encoding_name);
 
   bool is_starred() const { return is_starred_; }
 
@@ -359,7 +359,7 @@ class WebContents : public TabContents,
   // Returns true if this WebContents will notify about disconnection.
   bool notify_disconnection() const { return notify_disconnection_; }
 
-  void set_override_encoding(const std::wstring& override_encoding) {
+  void set_override_encoding(const std::string& override_encoding) {
     override_encoding_ = override_encoding;
   }
 
@@ -394,7 +394,7 @@ class WebContents : public TabContents,
                            int32 page_id,
                            const std::wstring& title);
   virtual void UpdateEncoding(RenderViewHost* render_view_host,
-                              const std::wstring& encoding_name);
+                              const std::string& encoding_name);
   virtual void UpdateTargetURL(int32 page_id, const GURL& url);
   virtual void UpdateThumbnail(const GURL& url,
                                const SkBitmap& bitmap,
@@ -827,7 +827,7 @@ class WebContents : public TabContents,
   scoped_refptr<WebApp> web_app_;
 
   // Specified encoding which is used to override current tab's encoding.
-  std::wstring override_encoding_;
+  std::string override_encoding_;
 
   DISALLOW_COPY_AND_ASSIGN(WebContents);
 };

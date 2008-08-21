@@ -650,7 +650,7 @@ void Browser::ExecuteCommand(int id) {
     case IDC_ENCODING_WINDOWS1255:
     case IDC_ENCODING_WINDOWS1258: {
       UserMetrics::RecordAction(L"OverrideEncoding", profile_);
-      const std::wstring cur_encoding_name =
+      const std::string cur_encoding_name =
           CharacterEncoding::GetCanonicalEncodingNameByCommandId(id);
       TabContents* current_tab = GetSelectedTabContents();
       if (!cur_encoding_name.empty() && current_tab)

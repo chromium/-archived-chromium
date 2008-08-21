@@ -1074,7 +1074,7 @@ void RenderView::UpdateTitle(WebFrame* frame, const std::wstring& title) {
 }
 
 void RenderView::UpdateEncoding(WebFrame* frame,
-                                const std::wstring& encoding_name) {
+                                const std::string& encoding_name) {
   // Only update main frame's encoding_name.
   if (webview()->GetMainFrame() == frame &&
       last_encoding_name_ != encoding_name) {
@@ -1816,7 +1816,7 @@ void RenderView::ShowContextMenu(WebView* webview,
                                  const std::wstring& selection_text,
                                  const std::wstring& misspelled_word,
                                  int edit_flags,
-                                 const std::wstring& frame_encoding) {
+                                 const std::string& frame_encoding) {
   ViewHostMsg_ContextMenu_Params params;
   params.type = type;
   params.x = x;
@@ -2186,7 +2186,7 @@ void RenderView::OnAlterTextSize(int size) {
   }
 }
 
-void RenderView::OnSetPageEncoding(const std::wstring& encoding_name) {
+void RenderView::OnSetPageEncoding(const std::string& encoding_name) {
   webview()->SetPageEncoding(encoding_name);
 }
 

@@ -111,7 +111,7 @@ void HtmlDialogView::OpenURLFromTab(TabContents* source,
                                     const GURL& url,
                                     WindowOpenDisposition disposition,
                                     PageTransition::Type transition,
-                                    const std::wstring& override_encoding) {
+                                    const std::string& override_encoding) {
   // Force all links to open in a new window, ignoring the incoming
   // disposition. This is a tabless, modal dialog so we can't just
   // open it in the current frame.

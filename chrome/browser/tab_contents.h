@@ -284,7 +284,7 @@ class TabContents : public PageNavigator,
   virtual void SetEncodingAutoDetector(bool encoding_auto_detector) { }
 
   // Asynchronous call to change page encoding.
-  virtual void SetPageEncoding(const std::wstring& encoding_name) { }
+  virtual void SetPageEncoding(const std::string& encoding_name) { }
 
   // Return whether this tab contents is loading a resource.
   bool is_loading() const { return is_loading_; }
@@ -377,7 +377,7 @@ class TabContents : public PageNavigator,
       const GURL& url,
       WindowOpenDisposition disposition,
       PageTransition::Type transition,
-      const std::wstring& override_encoding);
+      const std::string& override_encoding);
 
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,
@@ -437,8 +437,8 @@ class TabContents : public PageNavigator,
   // Returns a human-readable description the tab's loading state.
   virtual std::wstring GetStatusText() const { return std::wstring(); }
 
-  const std::wstring& GetEncoding() { return encoding_name_; }
-  void SetEncoding(const std::wstring& encoding_name) {
+  const std::string& GetEncoding() { return encoding_name_; }
+  void SetEncoding(const std::string& encoding_name) {
     encoding_name_ = encoding_name;
   }
 
@@ -563,7 +563,7 @@ class TabContents : public PageNavigator,
   // The id used in the ViewStorage to store the last focused view.
   int last_focused_view_storage_id_;
 
-  std::wstring encoding_name_;
+  std::string encoding_name_;
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_H_

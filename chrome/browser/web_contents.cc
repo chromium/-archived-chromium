@@ -757,7 +757,7 @@ void WebContents::AlterTextSize(text_zoom::TextSize size) {
   // TODO(creis): should this be propagated to other and future RVHs?
 }
 
-void WebContents::SetPageEncoding(const std::wstring& encoding_name) {
+void WebContents::SetPageEncoding(const std::string& encoding_name) {
   render_view_host()->SetPageEncoding(encoding_name);
   // TODO(creis): should this be propagated to other and future RVHs?
 }
@@ -1729,7 +1729,7 @@ void WebContents::UpdateTitle(RenderViewHost* rvh,
 
 
 void WebContents::UpdateEncoding(RenderViewHost* render_view_host,
-                                 const std::wstring& encoding_name) {
+                                 const std::string& encoding_name) {
   SetEncoding(encoding_name);
 }
 
@@ -2170,9 +2170,9 @@ WebPreferences WebContents::GetWebkitPrefs() {
   // webkit/glue/webpreferences.h for more details.
 
   // Make sure we will set the default_encoding with canonical encoding name.
-  web_prefs.default_encoding =
+  web_prefs.default_encoding = UTF8ToWide(
       CharacterEncoding::GetCanonicalEncodingNameByAliasName(
-          web_prefs.default_encoding);
+          WideToUTF8(web_prefs.default_encoding)));
   if (web_prefs.default_encoding.empty()) {
     prefs->ClearPref(prefs::kDefaultCharset);
     web_prefs.default_encoding = prefs->GetString(

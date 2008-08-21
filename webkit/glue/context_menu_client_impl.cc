@@ -184,7 +184,7 @@ WebCore::PlatformMenuDescription
   GURL frame_url;
   GURL page_url;
   
-  std::wstring frame_encoding;
+  std::string frame_encoding;
   // Send the frame and page URLs in any case.
   ContextNode::Type frame_type = ContextNode::NONE;
   ContextNode::Type page_type = 
@@ -195,8 +195,8 @@ WebCore::PlatformMenuDescription
     frame_type = GetTypeAndURLFromFrame(selected_frame,
                                         &frame_url,
                                         ContextNode::FRAME);
-    frame_encoding = webkit_glue::StringToStdWString(
-        selected_frame->loader()->encoding());
+    frame_encoding = WideToUTF8(
+        webkit_glue::StringToStdWString(selected_frame->loader()->encoding()));
   }
   
   if (type == ContextNode::NONE) {

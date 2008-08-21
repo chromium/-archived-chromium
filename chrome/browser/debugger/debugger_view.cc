@@ -156,7 +156,7 @@ void DebuggerView::OpenURLFromTab(TabContents* source,
                                   const GURL& url,
                                   WindowOpenDisposition disposition,
                                   PageTransition::Type transition,
-                                  const std::wstring& override_encoding) {
+                                  const std::string& override_encoding) {
   BrowserList::GetLastActive()->OpenURL(url, disposition, transition);
 }
 

@@ -116,7 +116,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>, public
                                const std::wstring& selection_text,
                                const std::wstring& misspelled_word,
                                int edit_flags,
-                               const std::wstring& frame_encoding);
+                               const std::string& frame_encoding);
   virtual void DidStartProvisionalLoadForFrame(
     WebView* webview,
     WebFrame* frame,
