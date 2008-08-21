@@ -31,6 +31,9 @@
 #define CHROME_TEST_AUTOMATION_WINDOW_PROXY_H__
 
 #include <string>
+
+#include <windows.h>
+
 #include "base/thread.h"
 #include "chrome/test/automation/automation_handle_tracker.h"
 
