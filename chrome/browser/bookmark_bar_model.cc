@@ -533,14 +533,14 @@ void BookmarkBarModel::OnFavIconDataAvailable(
     bool expired,
     GURL icon_url) {
   SkBitmap fav_icon;
+  BookmarkBarNode* node =
+      load_consumer_.GetClientData(
+          profile_->GetHistoryService(Profile::EXPLICIT_ACCESS), handle);
+  DCHECK(node);
+  node->favicon_load_handle_ = 0;
   if (know_favicon && data.get() &&
       PNGDecoder::Decode(&data->data, &fav_icon)) {
-    BookmarkBarNode* node =
-        load_consumer_.GetClientData(
-            profile_->GetHistoryService(Profile::EXPLICIT_ACCESS), handle);
-    DCHECK(node);
     node->favicon_ = fav_icon;
-    node->favicon_load_handle_ = 0;
     FavIconLoaded(node);
   }
 }
