@@ -1023,6 +1023,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7B4DF44A0E5B5E5C004D7619 /* debug.xcconfig */;
 			buildSettings = {
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				XCODEPROJ_DEPTH = ..;
 			};
 			name = Debug;
@@ -1031,6 +1032,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7B4DF44C0E5B5E5C004D7619 /* release.xcconfig */;
 			buildSettings = {
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				XCODEPROJ_DEPTH = ..;
 			};
 			name = Release;
@@ -1039,7 +1041,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7B4DF44D0E5B5E5C004D7619 /* staticlib.xcconfig */;
 			buildSettings = {
-				GCC_PREFIX_HEADER = skia_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(GCC_PREPROCESSOR_DEFINITIONS)",
+					SK_BUILD_FOR_MAC,
+					SK_DEBUG,
+				);
 				HEADER_SEARCH_PATHS = (
 					corecg,
 					include,
@@ -1055,7 +1061,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7B4DF44D0E5B5E5C004D7619 /* staticlib.xcconfig */;
 			buildSettings = {
-				GCC_PREFIX_HEADER = skia_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(GCC_PREPROCESSOR_DEFINITIONS)",
+					SK_BUILD_FOR_MAC,
+				);
 				HEADER_SEARCH_PATHS = (
 					corecg,
 					include,
