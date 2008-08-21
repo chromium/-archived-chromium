@@ -8,4 +8,8 @@
 		Name="VCCLCompilerTool"
 		PreprocessorDefinitions="GOOGLE_CHROME_BUILD"
 	/>
+	<Tool
+		Name="VCResourceCompilerTool"
+		PreprocessorDefinitions="GOOGLE_CHROME_BUILD"
+	/>
 </VisualStudioPropertySheet>

@@ -147,6 +147,10 @@
 			RelativePath="theme_resources.rc"
 			>
 		</File>
+		<File
+			RelativePath="google_theme_resources.rc"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

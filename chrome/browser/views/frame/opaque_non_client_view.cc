@@ -812,8 +812,10 @@ void OpaqueNonClientView::PaintOTRAvatar(ChromeCanvas* canvas) {
 }
 
 void OpaqueNonClientView::PaintDistributorLogo(ChromeCanvas* canvas) {
-  // The distributor logo is only painted when the frame is not maximized.
-  if (!frame_->IsMaximized() && !frame_->IsMinimized()) {
+  // The distributor logo is only painted when the frame is not maximized and
+  // when we actually have a logo.
+  if (!frame_->IsMaximized() && !frame_->IsMinimized() && 
+      !distributor_logo_.empty()) {
     canvas->DrawBitmapInt(distributor_logo_, logo_bounds_.x(),
                           logo_bounds_.y());
   }
@@ -1007,6 +1009,9 @@ void OpaqueNonClientView::LayoutOTRAvatar() {
 }
 
 void OpaqueNonClientView::LayoutDistributorLogo() {
+  if (distributor_logo_.empty())
+    return;
+
   int logo_w = distributor_logo_.width();
   int logo_h = distributor_logo_.height();
 
@@ -1063,7 +1068,9 @@ void OpaqueNonClientView::InitClass() {
     inactive_resources_ = new InactiveWindowResources;
 
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-    distributor_logo_ = *rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO_LIGHT);
+    SkBitmap* image = rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO_LIGHT);
+    if (!image->isNull())
+      distributor_logo_ = *image;
 
     initialized = true;
   }
