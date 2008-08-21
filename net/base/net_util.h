@@ -120,11 +120,12 @@ void IDNToUnicode(const char* host,
 std::string CanonicalizeHost(const std::string& host, bool* is_ip_address);
 std::string CanonicalizeHost(const std::wstring& host, bool* is_ip_address);
 
+#ifdef OS_WIN
+// TODO: Port GetDirectoryListingEntry for OSX and linux.
 // Call these functions to get the html for a directory listing.
 // They will pass non-7bit-ascii characters unescaped, allowing
 // the browser to interpret the encoding (utf8, etc).
 std::string GetDirectoryListingHeader(const std::string& title);
-#ifdef OS_WIN
 std::string GetDirectoryListingEntry(const std::string& name, DWORD attrib,
                                      int64 size, const FILETIME* modified);
 #endif

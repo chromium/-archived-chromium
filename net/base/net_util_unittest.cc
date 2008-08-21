@@ -35,16 +35,60 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
-  class NetUtilTest : public testing::Test {
-  };
-}
 
+class NetUtilTest : public testing::Test {
+};
+
+struct FileCase {
+  const wchar_t* file;
+  const wchar_t* url;
+};
+
+struct HeaderCase {
+  const wchar_t* header_name;
+  const wchar_t* expected;
+};
+
+struct HeaderParamCase {
+  const wchar_t* header_name;
+  const wchar_t* param_name;
+  const wchar_t* expected;
+};
+
+struct FileNameCDCase {
+  const char* header_field;
+  const wchar_t* expected;
+};
+
+const wchar_t* kLanguages[] = {
+  L"",      L"en",    L"zh-CN",       L"ja",    L"ko",
+  L"he",    L"ar",    L"ru",          L"el",    L"fr",
+  L"de",    L"pt",    L"se",          L"th",    L"hi",
+  L"de,en", L"el,en", L"zh,zh-TW,en", L"ko,ja", L"he,ru,en",
+  L"zh,ru,en"
+};
+
+struct IDNTestCase {
+  const char* input;
+  const wchar_t* unicode_output;
+  const bool unicode_allowed[arraysize(kLanguages)];
+};
+
+struct SuggestedFilenameCase {
+  const char* url;
+  const wchar_t* content_disp_header;
+  const wchar_t* default_filename;
+  const wchar_t* expected_filename;
+};
+
+}  // anonymous namespace
+
+#ifdef OS_WIN
+// TODO: Determine how we want windows file paths and unc paths to be
+// normalized on posix systems.
 TEST(NetUtilTest, FileURLConversion) {
   // a list of test file names and the corresponding URLs
-  const struct FileCase {
-    const wchar_t* file;
-    const wchar_t* url;
-  } round_trip_cases[] = {
+  const FileCase round_trip_cases[] = {
     {L"C:\\foo\\bar.txt", L"file:///C:/foo/bar.txt"},
     {L"\\\\some computer\\foo\\bar.txt", L"file://some%20computer/foo/bar.txt"}, // UNC
     {L"D:\\Name;with%some symbols*#", L"file:///D:/Name%3Bwith%25some%20symbols*%23"},
@@ -76,7 +120,7 @@ TEST(NetUtilTest, FileURLConversion) {
     {L"C:\\foo\\bar.txt", L"file:\\\\\\c:/foo/bar.txt"},
   };
   for (int i = 0; i < arraysize(url_cases); i++) {
-    net::FileURLToFilePath(GURL(url_cases[i].url), &output);
+    net::FileURLToFilePath(GURL(WideToUTF16(url_cases[i].url)), &output);
     EXPECT_EQ(std::wstring(url_cases[i].file), output);
   }
 
@@ -84,7 +128,7 @@ TEST(NetUtilTest, FileURLConversion) {
   // they might be stored with wide characters
   const wchar_t utf8[] = L"file:///d:/Chinese/\xe6\x89\x80\xe6\x9c\x89\xe4\xb8\xad\xe6\x96\x87\xe7\xbd\x91\xe9\xa1\xb5.doc";
   const wchar_t wide[] = L"D:\\Chinese\\\x6240\x6709\x4e2d\x6587\x7f51\x9875.doc";
-  EXPECT_TRUE(net::FileURLToFilePath(GURL(utf8), &output));
+  EXPECT_TRUE(net::FileURLToFilePath(GURL(WideToUTF16(utf8)), &output));
   EXPECT_EQ(std::wstring(wide), output);
 
   // Unfortunately, UTF8ToWide discards invalid UTF8 input.
@@ -101,6 +145,7 @@ TEST(NetUtilTest, FileURLConversion) {
   // Test that if a file URL is malformed, we get a failure
   EXPECT_FALSE(net::FileURLToFilePath(GURL("filefoobar"), &output));
 }
+#endif
 
 // Just a bunch of fake headers.
 const wchar_t* google_headers =
@@ -125,10 +170,7 @@ const wchar_t* google_headers =
     L"X-Test: bla; arg1=val1; arg2=val2";
 
 TEST(NetUtilTest, GetSpecificHeader) {
-  const struct {
-    const wchar_t* header_name;
-    const wchar_t* expected;
-  } tests[] = {
+  const HeaderCase tests[] = {
     {L"content-type", L"text/html; charset=utf-8"},
     {L"CONTENT-LENGTH", L"378557"},
     {L"Date", L"Mon, 13 Nov 2006 21:38:09 GMT"},
@@ -151,11 +193,7 @@ TEST(NetUtilTest, GetSpecificHeader) {
 }
 
 TEST(NetUtilTest, GetHeaderParamValue) {
-  const struct {
-    const wchar_t* header_name;
-    const wchar_t* param_name;
-    const wchar_t* expected;
-  } tests[] = {
+  const HeaderParamCase tests[] = {
     {L"Content-type", L"charset", L"utf-8"},
     {L"content-disposition", L"filename", L"download.pdf"},
     {L"Content-Type", L"badparam", L""},
@@ -188,10 +226,7 @@ TEST(NetUtilTest, GetHeaderParamValue) {
 }
 
 TEST(NetUtilTest, GetFileNameFromCD) {
-  const struct {
-    const char* header_field;
-    const wchar_t* expected;
-  } tests[] = {
+  const FileNameCDCase tests[] = {
     // Test various forms of C-D header fields emitted by web servers.
     {"content-disposition: inline; filename=\"abcde.pdf\"", L"abcde.pdf"},
     {"content-disposition: inline; name=\"abcde.pdf\"", L"abcde.pdf"},
@@ -268,17 +303,7 @@ TEST(NetUtilTest, IDNToUnicode) {
   // TODO(jungshik) This is just a random sample of languages and is far
   // from exhaustive.  We may have to generate all the combinations
   // of languages (powerset of a set of all the languages).
-  const wchar_t* languages[] = {
-    L"",      L"en",    L"zh-CN",       L"ja",    L"ko",
-    L"he",    L"ar",    L"ru",          L"el",    L"fr",
-    L"de",    L"pt",    L"se",          L"th",    L"hi",
-    L"de,en", L"el,en", L"zh,zh-TW,en", L"ko,ja", L"he,ru,en",
-    L"zh,ru,en"};
-  struct IDNTest {
-    const char* input;
-    const wchar_t* unicode_output;
-    const bool unicode_allowed[arraysize(languages)];
-  } idn_cases[] = {
+  const IDNTestCase idn_cases[] = {
     // No IDN
     {"www.google.com", L"www.google.com",
      {true,  true,  true,  true,  true,
@@ -546,11 +571,11 @@ TEST(NetUtilTest, IDNToUnicode) {
   };
 
   for (int i = 0; i < arraysize(idn_cases); i++) {
-    for (int j = 0; j < arraysize(languages); j++) {
+    for (int j = 0; j < arraysize(kLanguages); j++) {
       std::wstring output;
       net::IDNToUnicode(idn_cases[i].input,
                         static_cast<int>(strlen(idn_cases[i].input)),
-                        languages[j],
+                        kLanguages[j],
                         &output);
       std::wstring expected(idn_cases[i].unicode_allowed[j] ?
                             idn_cases[i].unicode_output :
@@ -568,12 +593,7 @@ TEST(NetUtilTest, StripWWW) {
 }
 
 TEST(NetUtilTest, GetSuggestedFilename) {
-  struct FilenameTest {
-    const char* url;
-    const wchar_t* content_disp_header;
-    const wchar_t* default_filename;
-    const wchar_t* expected_filename;
-  } test_cases[] = {
+  const SuggestedFilenameCase test_cases[] = {
     {"http://www.google.com/",
      L"Content-disposition: attachment; filename=test.html",
      L"",

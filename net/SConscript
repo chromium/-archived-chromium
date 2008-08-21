@@ -68,6 +68,7 @@ input_files = [
     'base/mime_sniffer.cc',
     'base/net_errors.cc',
     'base/net_module.cc',
+    'base/net_util.cc',
     'disk_cache/backend_impl.cc',
     'disk_cache/block_files.cc',
     'disk_cache/entry_impl.cc',
@@ -98,7 +99,6 @@ if env['PLATFORM'] == 'win32':
       'base/host_resolver.cc',
       'base/listen_socket.cc',
       'base/mime_util.cc',
-      'base/net_util.cc',
       'base/platform_mime_util_win.cc',
       'base/registry_controlled_domain.cc',
       'base/ssl_client_socket.cc',
@@ -186,8 +186,8 @@ env_tests.Prepend(
         'base',
         'googleurl',
         'gtest',
+        'net',        # Likewise, net must come before modp_b64 and icuuc.
         'icuuc',
-        'net',        # Likewise, net must come before modp_b64.
         'modp_b64',
         'zlib',
     ]
@@ -232,6 +232,7 @@ unittest_files = [
     'base/data_url_unittest.cc',
     'base/escape_unittest.cc',
     'base/gzip_filter_unittest.cc',
+    'base/net_util_unittest.cc',
     'disk_cache/addr_unittest.cc',
     '$BASE_DIR/run_all_unittests$OBJSUFFIX',
 ]
@@ -243,7 +244,6 @@ if env['PLATFORM'] == 'win32':
       'base/directory_lister_unittest.cc',
       'base/mime_sniffer_unittest.cc',
       'base/mime_util_unittest.cc',
-      'base/net_util_unittest.cc',
       'base/registry_controlled_domain_unittest.cc',
       'base/ssl_config_service_unittest.cc',
       'base/ssl_client_socket_unittest.cc',

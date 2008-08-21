@@ -37,7 +37,6 @@
 
 #ifdef OS_WIN
 #include <windows.h>
-#include <wininet.h>
 #endif
 
 #include "net/base/net_util.h"
@@ -881,6 +880,7 @@ std::string CanonicalizeHost(const std::wstring& host, bool* is_ip_address) {
   return CanonicalizeHost(converted_host, is_ip_address);
 }
   
+#ifdef OS_WIN
 std::string GetDirectoryListingHeader(const std::string& title) {
   std::string result = NetModule::GetResource(IDR_DIR_HEADER_HTML);
   if (result.empty()) {
@@ -894,7 +894,6 @@ std::string GetDirectoryListingHeader(const std::string& title) {
   return result;
 }
 
-#ifdef OS_WIN
 std::string GetDirectoryListingEntry(const std::string& name,
                                      DWORD attrib,
                                      int64 size,
