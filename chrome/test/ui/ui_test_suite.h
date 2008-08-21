@@ -61,6 +61,8 @@ class UITestSuite : public ChromeTestSuite {
         parsed_command_line_.HasSwitch(switches::kEnableDCHECK));
     UITest::set_silent_dump_on_dcheck(
         parsed_command_line_.HasSwitch(switches::kSilentDumpOnDCHECK));
+    UITest::set_disable_breakpad(
+        parsed_command_line_.HasSwitch(switches::kDisableBreakpad));
     std::wstring test_timeout =
         parsed_command_line_.GetSwitchValue(UITestSuite::kTestTimeout);
     if (!test_timeout.empty()) {

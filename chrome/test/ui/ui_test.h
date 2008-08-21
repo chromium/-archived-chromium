@@ -216,6 +216,12 @@ class UITest : public testing::Test {
     silent_dump_on_dcheck_ = value;
   }
 
+  // Get/Set a flag to disable breakpad handling.
+  static bool disable_breakpad() { return disable_breakpad_; }
+  static void set_disable_breakpad(bool value) {
+    disable_breakpad_ = value;
+  }
+
   // Get/Set a flag to run the plugin processes inside the sandbox when running
   // the tests
   static bool safe_plugins() { return safe_plugins_; }
@@ -345,6 +351,7 @@ class UITest : public testing::Test {
   static bool enable_dcheck_;           // Enable dchecks in release mode.
   static bool silent_dump_on_dcheck_;   // Dump process memory on dcheck without
                                         // crashing.
+  static bool disable_breakpad_;        // Disable breakpad on the browser.
   static int timeout_ms_;               // Timeout in milliseconds to wait
                                         // for an test to finish.
   ::scoped_ptr<AutomationProxy> server_;

@@ -63,6 +63,7 @@ bool UITest::default_use_existing_browser_ = false;
 bool UITest::dump_histograms_on_exit_ = false;
 bool UITest::enable_dcheck_ = false;
 bool UITest::silent_dump_on_dcheck_ = false;
+bool UITest::disable_breakpad_ = false;
 int UITest::timeout_ms_ = 20 * 60 * 1000;
 
 // Uncomment this line to have the spawned process wait for the debugger to
@@ -207,6 +208,8 @@ void UITest::LaunchBrowser(const std::wstring& arguments, bool clear_profile) {
     CommandLine::AppendSwitch(&command_line, switches::kEnableDCHECK);
   if (silent_dump_on_dcheck_)
     CommandLine::AppendSwitch(&command_line, switches::kSilentDumpOnDCHECK);
+  if (disable_breakpad_)
+    CommandLine::AppendSwitch(&command_line, switches::kDisableBreakpad);
   if (!homepage_.empty())
     CommandLine::AppendSwitchWithValue(&command_line,
                                        switches::kHomePage,
