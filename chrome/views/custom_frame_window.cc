@@ -986,8 +986,10 @@ LRESULT CustomFrameWindow::OnNCCalcSize(BOOL mode, LPARAM l_param) {
     RECT* rect = reinterpret_cast<RECT*>(l_param);
     *rect = non_client_view_->CalculateClientAreaBounds(
         rect->right - rect->left, rect->bottom - rect->top).ToRECT();
+    return 0;
   }
-  return 0;
+  // We need to repaint all when the window bounds change.
+  return WVR_REDRAW;
 }
 
 LRESULT CustomFrameWindow::OnNCHitTest(const CPoint& point) {
@@ -1042,6 +1044,17 @@ void CustomFrameWindow::OnNCPaint(HRGN rgn) {
   // paints.
   CRect window_rect;
   GetWindowRect(&window_rect);
+
+  if (window_rect.Width() != root_view_->GetWidth() ||
+      window_rect.Height() != root_view_->GetHeight()) {
+    // If the size of the window differs from the size of the root view it
+    // means we're being asked to paint before we've gotten a WM_SIZE. This can
+    // happen when the user is interactively resizing the window. To avoid
+    // mass flickering we don't do anything here. Once we get the WM_SIZE we'll
+    // reset the region of the window which triggers another WM_NCPAINT and
+    // all is well.
+    return;
+  }
 
   CRect dirty_region;
   // A value of 1 indicates paint all.
