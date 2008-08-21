@@ -31,8 +31,9 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
-#include "base/scoped_handle.h"
 #include "net/disk_cache/backend_impl.h"
+#include "net/disk_cache/cache_util.h"
+#include "net/disk_cache/file.h"
 
 std::string GenerateKey(bool same_length) {
   char key[200];
@@ -70,21 +71,21 @@ std::wstring GetCachePath() {
 }
 
 bool CreateCacheTestFile(const wchar_t* name) {
-  ScopedHandle file(CreateFile(name, GENERIC_READ | GENERIC_WRITE,
-                                FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
-                                CREATE_ALWAYS, 0, NULL));
-  if (!file.IsValid())
+  using namespace disk_cache;
+  int flags = OS_FILE_CREATE_ALWAYS | OS_FILE_READ | OS_FILE_WRITE |
+              OS_FILE_SHARE_READ | OS_FILE_SHARE_WRITE;
+
+  scoped_refptr<File> file(new File(CreateOSFile(name, flags, NULL)));
+  if (!file->IsValid())
     return false;
 
-  SetFilePointer(file, 4 * 1024 * 1024, 0, FILE_BEGIN);
-  SetEndOfFile(file);
+  file->SetLength(4 * 1024 * 1024);
   return true;
 }
 
 bool DeleteCache(const wchar_t* path) {
-  std::wstring my_path(path);
-  file_util::AppendToPath(&my_path, L"*.*");
-  return file_util::Delete(my_path, false);
+  disk_cache::DeleteCache(path, false);
+  return true;
 }
 
 bool CheckCacheIntegrity(const std::wstring& path) {
