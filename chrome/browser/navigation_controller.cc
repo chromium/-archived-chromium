@@ -46,6 +46,7 @@
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/common/chrome_switches.h"
 #include "net/base/net_util.h"
+#include "webkit/glue/webkit_glue.h"
 
 // TabContentsCollector ---------------------------------------------------
 
@@ -86,6 +87,10 @@ class TabContentsCollector : public Task {
 
 // NavigationController ---------------------------------------------------
 
+// The maximum number of entries that a navigation controller can store.
+// static
+const static size_t kMaxEntryCount = 50;
+
 // static
 bool NavigationController::check_for_repost_ = true;
 
@@ -93,7 +98,7 @@ bool NavigationController::check_for_repost_ = true;
 // the NavigationEntry to entries. This is used during session restore.
 static void CreateNavigationEntriesFromTabNavigations(
     const std::vector<TabNavigation>& navigations,
-    std::vector<NavigationEntry*>* entries) {
+    std::vector<linked_ptr<NavigationEntry> >* entries) {
   // Create a NavigationEntry for each of the navigations.
   for (std::vector<TabNavigation>::const_iterator i =
            navigations.begin(); i != navigations.end(); ++i) {
@@ -116,27 +121,31 @@ static void CreateNavigationEntriesFromTabNavigations(
     entry->SetDisplayURL(navigation.url);
     entry->SetContentState(navigation.state);
     entry->SetHasPostData(navigation.type_mask & TabNavigation::HAS_POST_DATA);
-    entries->push_back(entry);
+    entries->push_back(linked_ptr<NavigationEntry>(entry));
   }
 }
 
 // Configure all the NavigationEntries in entries for restore. This resets
 // the transition type to reload and makes sure the content state isn't empty.
 static void ConfigureEntriesForRestore(
-    std::vector<NavigationEntry*>* entries) {
+    std::vector<linked_ptr<NavigationEntry> >* entries) {
   for (size_t i = 0, count = entries->size(); i < count; ++i) {
     // Use a transition type of reload so that we don't incorrectly increase
     // the typed count.
     (*entries)[i]->SetTransitionType(PageTransition::RELOAD);
     (*entries)[i]->set_restored(true);
     // NOTE(darin): This code is only needed for backwards compat.
-    NavigationControllerBase::SetContentStateIfEmpty((*entries)[i]);
+    NavigationController::SetContentStateIfEmpty((*entries)[i].get());
   }
 }
 
 NavigationController::NavigationController(TabContents* contents,
                                            Profile* profile)
     : profile_(profile),
+      pending_entry_(NULL),
+      last_committed_entry_index_(-1),
+      pending_entry_index_(-1),
+      max_entry_count_(kMaxEntryCount),
       active_contents_(contents),
       alternate_nav_url_fetcher_entry_unique_id_(0),
       max_restored_page_id_(-1),
@@ -155,6 +164,10 @@ NavigationController::NavigationController(
     int selected_navigation,
     HWND parent)
     : profile_(profile),
+      pending_entry_(NULL),
+      last_committed_entry_index_(-1),
+      pending_entry_index_(-1),
+      max_entry_count_(kMaxEntryCount),
       active_contents_(NULL),
       alternate_nav_url_fetcher_entry_unique_id_(0),
       max_restored_page_id_(-1),
@@ -190,12 +203,6 @@ TabContents* NavigationController::GetTabContents(TabContentsType t) {
   return tab_contents_map_[t];
 }
 
-/*void NavigationController::Reset() {
-  NavigationControllerBase::Reset();
-
-  NotifyPrunedEntries();
-}*/
-
 void NavigationController::Reload() {
   // TODO(pkasting): http://b/1113085 Should this use DiscardPendingEntry()?
   DiscardPendingEntryInternal();
@@ -211,12 +218,163 @@ void NavigationController::Reload() {
     active_contents_->Activate();
     RepostFormWarningDialog::RunRepostFormWarningDialog(this);
   } else {
-    NavigationControllerBase::Reload();
+    // Base the navigation on where we are now...
+    int current_index = GetCurrentEntryIndex();
+
+    // If we are no where, then we can't reload.  TODO(darin): We should add a
+    // CanReload method.
+    if (current_index == -1)
+      return;
+
+    // TODO(pkasting): http://b/1113085 Should this use DiscardPendingEntry()?
+    DiscardPendingEntryInternal();
+
+    pending_entry_index_ = current_index;
+    entries_[pending_entry_index_]->SetTransitionType(PageTransition::RELOAD);
+    NavigateToPendingEntry(true);
   }
 }
 
+NavigationEntry* NavigationController::GetEntryWithPageID(
+    TabContentsType type, SiteInstance* instance, int32 page_id) const {
+  int index = GetEntryIndexWithPageID(type, instance, page_id);
+  return (index != -1) ? entries_[index].get() : NULL;
+}
+
+void NavigationController::LoadEntry(NavigationEntry* entry) {
+  // When navigating to a new page, we don't know for sure if we will actually
+  // end up leaving the current page.  The new page load could for example
+  // result in a download or a 'no content' response (e.g., a mailto: URL).
+
+  // TODO(pkasting): http://b/1113085 Should this use DiscardPendingEntry()?
+  DiscardPendingEntryInternal();
+  pending_entry_ = entry;
+  NotificationService::current()->Notify(
+      NOTIFY_NAV_ENTRY_PENDING,
+      Source<NavigationController>(this),
+      NotificationService::NoDetails());
+  NavigateToPendingEntry(false);
+}
+
+/* static */
+void NavigationController::SetContentStateIfEmpty(
+    NavigationEntry* entry) {
+  if (entry->GetContentState().empty() &&
+      (entry->GetType() == TAB_CONTENTS_WEB ||
+       entry->GetType() == TAB_CONTENTS_NEW_TAB_UI ||
+       entry->GetType() == TAB_CONTENTS_ABOUT_UI ||
+       entry->GetType() == TAB_CONTENTS_HTML_DIALOG)) {
+    // The state is empty and the url will be rendered by WebKit. An empty
+    // state is treated as a new navigation by WebKit, which would mean
+    // losing the navigation entries and generating a new navigation
+    // entry after this one. We don't want that. To avoid this we create
+    // a valid state which WebKit will not treat as a new navigation.
+    entry->SetContentState(
+      webkit_glue::CreateHistoryStateForURL(entry->GetURL()));
+  }
+}
+
+NavigationEntry* NavigationController::GetActiveEntry() const {
+  NavigationEntry* entry = pending_entry_;
+  if (!entry)
+    entry = GetLastCommittedEntry();
+  return entry;
+}
+
+int NavigationController::GetCurrentEntryIndex() const {
+  if (pending_entry_index_ != -1)
+    return pending_entry_index_;
+  return last_committed_entry_index_;
+}
+
+NavigationEntry* NavigationController::GetLastCommittedEntry() const {
+  if (last_committed_entry_index_ == -1)
+    return NULL;
+  return entries_[last_committed_entry_index_].get();
+}
+
+NavigationEntry* NavigationController::GetEntryAtOffset(int offset) const {
+  int index = last_committed_entry_index_ + offset;
+  if (index < 0 || index >= GetEntryCount())
+    return NULL;
+
+  return entries_[index].get();
+}
+
+bool NavigationController::CanStop() const {
+  // TODO(darin): do we have something pending that we can stop?
+  return false;
+}
+
+bool NavigationController::CanGoBack() const {
+  return entries_.size() > 1 && GetCurrentEntryIndex() > 0;
+}
+
+bool NavigationController::CanGoForward() const {
+  int index = GetCurrentEntryIndex();
+  return index >= 0 && index < (static_cast<int>(entries_.size()) - 1);
+}
+
+void NavigationController::GoBack() {
+  if (!CanGoBack()) {
+    NOTREACHED();
+    return;
+  }
+
+  // Base the navigation on where we are now...
+  int current_index = GetCurrentEntryIndex();
+
+  DiscardPendingEntry();
+
+  pending_entry_index_ = current_index - 1;
+  NavigateToPendingEntry(false);
+}
+
+void NavigationController::GoForward() {
+  if (!CanGoForward()) {
+    NOTREACHED();
+    return;
+  }
+
+  // Base the navigation on where we are now...
+  int current_index = GetCurrentEntryIndex();
+
+  DiscardPendingEntry();
+
+  pending_entry_index_ = current_index + 1;
+  NavigateToPendingEntry(false);
+}
+
+void NavigationController::GoToIndex(int index) {
+  if (index < 0 || index >= static_cast<int>(entries_.size())) {
+    NOTREACHED();
+    return;
+  }
+
+  DiscardPendingEntry();
+
+  pending_entry_index_ = index;
+  NavigateToPendingEntry(false);
+}
+
+void NavigationController::GoToOffset(int offset) {
+  int index = last_committed_entry_index_ + offset;
+  if (index < 0 || index >= GetEntryCount())
+    return;
+
+  GoToIndex(index);
+}
+
+void NavigationController::Stop() {
+  DCHECK(CanStop());
+
+  // TODO(darin): we probably want to just call Stop on the active tab
+  // contents, but should we also call DiscardPendingEntry?
+  NOTREACHED() << "implement me";
+}
+
 void NavigationController::ReloadDontCheckForRepost() {
-  NavigationControllerBase::Reload();
+  Reload();
 }
 
 void NavigationController::Destroy() {
@@ -361,8 +519,74 @@ void NavigationController::DidNavigateToEntry(NavigationEntry* entry) {
   DCHECK(active_contents_);
   DCHECK(entry->GetType() == active_contents_->type());
 
-  NavigationControllerBase::DidNavigateToEntry(entry);
-  // entry is now deleted
+  SetContentStateIfEmpty(entry);
+
+  entry->set_restored(false);
+
+  // If the entry is that of a page with PageID larger than any this Tab has
+  // seen before, then consider it a new navigation.  Note that if the entry
+  // has a SiteInstance, it should be the same as the SiteInstance of the
+  // active WebContents, because we have just navigated to it.
+  if (entry->GetPageID() > GetMaxPageID()) {
+    InsertEntry(entry);
+    NotifyNavigationEntryCommitted();
+    return;
+  }
+
+  // Otherwise, we just need to update an existing entry with matching PageID.
+  // If the existing entry corresponds to the entry which is pending, then we
+  // must update the current entry index accordingly.  When navigating to the
+  // same URL, a new PageID is not created.
+
+  int existing_entry_index = GetEntryIndexWithPageID(entry->GetType(),
+                                                     entry->site_instance(),
+                                                     entry->GetPageID());
+  NavigationEntry* existing_entry = (existing_entry_index != -1) ?
+      entries_[existing_entry_index].get() : NULL;
+  if (!existing_entry) {
+    // No existing entry, then simply ignore this navigation!
+    DLOG(WARNING) << "ignoring navigation for page: " << entry->GetPageID();
+  } else if ((existing_entry != pending_entry_) && pending_entry_ &&
+             (pending_entry_->GetPageID() == -1) &&
+             (pending_entry_->GetURL() == existing_entry->GetURL())) {
+    // Not a new navigation.
+    existing_entry->set_unique_id(pending_entry_->unique_id());
+    DiscardPendingEntry();
+  } else {
+    DCHECK(existing_entry != entry);
+    // The given entry might provide a new URL... e.g., navigating back to a
+    // page in session history could have resulted in a new client redirect.
+    // The given entry might also provide a new title (typically an empty title
+    // to overwrite the existing title).
+    existing_entry->SetURL(entry->GetURL());
+    existing_entry->SetTitle(entry->GetTitle());
+    existing_entry->SetFavIconURL(entry->GetFavIconURL());
+    existing_entry->SetFavIcon(entry->GetFavIcon());
+    existing_entry->SetValidFavIcon(entry->IsValidFavIcon());
+    existing_entry->SetContentState(entry->GetContentState());
+
+    // TODO(brettw) why only copy the security style and no other SSL stuff?
+    existing_entry->ssl().set_security_style(entry->ssl().security_style());
+
+    const int prev_entry_index = last_committed_entry_index_;
+    if (existing_entry == pending_entry_) {
+      DCHECK(pending_entry_index_ != -1);
+      last_committed_entry_index_ = pending_entry_index_;
+      // TODO(pkasting): http://b/1113085 Should this use DiscardPendingEntry()?
+      DiscardPendingEntryInternal();
+    } else {
+      // NOTE: Do not update the unique ID here, as we don't want infobars etc.
+      // to dismiss.
+
+      // The navigation could have been issued by the renderer, so be sure that
+      // we update our current index.
+      last_committed_entry_index_ = existing_entry_index;
+    }
+    IndexOfActiveEntryChanged(prev_entry_index);
+  }
+
+  delete entry;
+  NotifyNavigationEntryCommitted();
 
   if (alternate_nav_url_fetcher_.get()) {
     // Because this call may synchronously show an infobar, we do it last, to
@@ -385,8 +609,35 @@ void NavigationController::DidNavigateToEntry(NavigationEntry* entry) {
   }
 }
 
+
+int NavigationController::GetIndexOfEntry(
+    const NavigationEntry* entry) const {
+  const NavigationEntries::const_iterator i(std::find(
+      entries_.begin(),
+      entries_.end(),
+      entry));
+  return (i == entries_.end()) ? -1 : static_cast<int>(i - entries_.begin());
+}
+
+void NavigationController::RemoveLastEntry() {
+  int current_size = static_cast<int>(entries_.size());
+
+  if (current_size > 0) {
+    if (pending_entry_ == entries_[current_size - 1] ||
+        pending_entry_index_ == current_size - 1)
+      DiscardPendingEntryInternal();
+
+    entries_.pop_back();
+
+    if (last_committed_entry_index_ >= current_size - 1)
+      last_committed_entry_index_ = current_size - 2;
+
+    NotifyPrunedEntries();
+  }
+}
+
 void NavigationController::DiscardPendingEntry() {
-  NavigationControllerBase::DiscardPendingEntry();
+  DiscardPendingEntryInternal();
 
   // Synchronize the active_contents_ to the last committed entry.
   NavigationEntry* last_entry = GetLastCommittedEntry();
@@ -419,7 +670,37 @@ void NavigationController::DiscardPendingEntry() {
 }
 
 void NavigationController::InsertEntry(NavigationEntry* entry) {
-  NavigationControllerBase::InsertEntry(entry);
+  DCHECK(entry->GetTransitionType() != PageTransition::AUTO_SUBFRAME);
+
+  // Copy the pending entry's unique ID to the committed entry.
+  // I don't know if pending_entry_index_ can be other than -1 here.
+  const NavigationEntry* const pending_entry = (pending_entry_index_ == -1) ?
+      pending_entry_ : entries_[pending_entry_index_].get();
+  if (pending_entry)
+    entry->set_unique_id(pending_entry->unique_id());
+
+  DiscardPendingEntryInternal();
+
+  int current_size = static_cast<int>(entries_.size());
+
+  // Prune any entries which are in front of the current entry.
+  if (current_size > 0) {
+    bool pruned = false;
+    while (last_committed_entry_index_ < (current_size - 1)) {
+      pruned = true;
+      entries_.pop_back();
+      current_size--;
+    }
+    if (pruned)  // Only notify if we did prune something.
+      NotifyPrunedEntries();
+  }
+
+  if (entries_.size() >= max_entry_count_)
+    RemoveEntryAtIndex(0);
+
+  entries_.push_back(linked_ptr<NavigationEntry>(entry));
+  last_committed_entry_index_ = static_cast<int>(entries_.size()) - 1;
+  
   active_contents_->NotifyDidNavigate(NAVIGATION_NEW, 0);
 }
 
@@ -436,7 +717,7 @@ void NavigationController::NavigateToPendingEntry(bool reload) {
   // For session history navigations only the pending_entry_index_ is set.
   if (!pending_entry_) {
     DCHECK(pending_entry_index_ != -1);
-    pending_entry_ = entries_[pending_entry_index_];
+    pending_entry_ = entries_[pending_entry_index_].get();
   }
 
   // Reset the security states as any SSL error may have been resolved since we
@@ -558,7 +839,7 @@ void NavigationController::NotifyEntryChangedByPageID(
     int32 page_id) {
   int index = GetEntryIndexWithPageID(type, instance, page_id);
   if (index != -1)
-    NotifyEntryChanged(entries_[index], index);
+    NotifyEntryChanged(entries_[index].get(), index);
 }
 
 // static
@@ -589,6 +870,13 @@ void NavigationController::LoadIfNecessary() {
   NavigateToPendingEntry(false);
 }
 
+void NavigationController::ResetInternal() {
+  // WARNING: this is invoked from the destructor, be sure not to invoke any
+  // virtual methods from this.
+  entries_.clear();
+  DiscardPendingEntryInternal();
+}
+
 void NavigationController::NotifyEntryChanged(const NavigationEntry* entry,
                                               int index) {
   EntryChangedDetails det;
@@ -597,6 +885,28 @@ void NavigationController::NotifyEntryChanged(const NavigationEntry* entry,
   NotificationService::current()->Notify(NOTIFY_NAV_ENTRY_CHANGED,
                                          Source<NavigationController>(this),
                                          Details<EntryChangedDetails>(&det));
+}
+
+void NavigationController::RemoveEntryAtIndex(int index) {
+  // TODO(brettw) this is only called to remove the first one when we've got
+  // too many entries. It should probably be more specific for this case.
+  if (index >= static_cast<int>(entries_.size()) ||
+      index == pending_entry_index_ || index == last_committed_entry_index_) {
+    NOTREACHED();
+    return;
+  }
+
+  entries_.erase(entries_.begin() + index);
+
+  if (last_committed_entry_index_ >= index) {
+    if (!entries_.empty())
+      last_committed_entry_index_--;
+    else
+      last_committed_entry_index_ = -1;
+  }
+
+  // TODO(brettw) bug 1324021: we probably need some notification here so the
+  // session service can stay in sync.
 }
 
 int NavigationController::GetMaxPageID() const {
@@ -612,8 +922,10 @@ NavigationController* NavigationController::Clone(HWND parent_hwnd) {
   nc->needs_reload_ = true;
 
   nc->entries_.reserve(entries_.size());
-  for (int i = 0, c = GetEntryCount(); i < c; ++i)
-    nc->entries_.push_back(new NavigationEntry(*GetEntryAtIndex(i)));
+  for (int i = 0, c = GetEntryCount(); i < c; ++i) {
+    nc->entries_.push_back(linked_ptr<NavigationEntry>(
+        new NavigationEntry(*GetEntryAtIndex(i))));
+  }
 
   nc->FinishRestore(parent_hwnd, last_committed_entry_index_);
 
@@ -659,4 +971,34 @@ void NavigationController::FinishRestore(HWND parent_hwnd, int selected_index) {
   // Callers assume we have an active_contents after restoring, so set it now.
   active_contents_ =
       GetTabContentsCreateIfNecessary(parent_hwnd, *entries_[selected_index]);
+}
+
+void NavigationController::DiscardPendingEntryInternal() {
+  if (pending_entry_index_ == -1)
+    delete pending_entry_;
+  pending_entry_ = NULL;
+  pending_entry_index_ = -1;
+}
+
+int NavigationController::GetEntryIndexWithPageID(
+    TabContentsType type, SiteInstance* instance, int32 page_id) const {
+  // The instance should only be specified for contents displaying web pages.
+  // TODO(evanm): checking against NEW_TAB_UI and HTML_DLG here is lame.
+  // It'd be nice for DomUIHost to just use SiteInstances for keeping content
+  // separated properly.
+  if (type != TAB_CONTENTS_WEB &&
+      type != TAB_CONTENTS_NEW_TAB_UI &&
+      type != TAB_CONTENTS_ABOUT_UI &&
+      type != TAB_CONTENTS_HTML_DIALOG &&
+      type != TAB_CONTENTS_VIEW_SOURCE &&
+      type != TAB_CONTENTS_DEBUGGER)
+    DCHECK(instance == NULL);
+
+  for (int i = static_cast<int>(entries_.size()) - 1; i >= 0; --i) {
+    if ((entries_[i]->GetType() == type) &&
+        (entries_[i]->site_instance() == instance) &&
+        (entries_[i]->GetPageID() == page_id))
+      return i;
+  }
+  return -1;
 }

@@ -142,8 +142,8 @@ class linked_ptr {
     return v;
   }
 
-  bool operator==(T* p) const { return value_ == p; }
-  bool operator!=(T* p) const { return value_ != p; }
+  bool operator==(const T* p) const { return value_ == p; }
+  bool operator!=(const T* p) const { return value_ != p; }
   template <typename U>
   bool operator==(linked_ptr<U> const& ptr) const {
     return value_ == ptr.get();

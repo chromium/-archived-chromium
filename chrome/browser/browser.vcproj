@@ -1114,14 +1114,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\navigation_controller_base.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\navigation_controller_base.h"
-				>
-			</File>
-			<File
 				RelativePath=".\navigation_entry.cc"
 				>
 			</File>
