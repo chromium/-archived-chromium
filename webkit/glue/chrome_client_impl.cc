@@ -97,16 +97,26 @@ void ChromeClientImpl::setWindowRect(const WebCore::FloatRect& r) {
 }
 
 WebCore::FloatRect ChromeClientImpl::windowRect() {
-  gfx::Point origin;
-  if (webview_->delegate())
-    webview_->delegate()->GetWindowLocation(webview_, &origin);
-  const gfx::Size size = webview_->size();
-
-  return WebCore::FloatRect(
-      static_cast<float>(origin.x()),
-      static_cast<float>(origin.y()),
-      static_cast<float>(size.width()),
-      static_cast<float>(size.height()));
+  if (webview_->delegate()) {
+    gfx::Rect rect;
+    webview_->delegate()->GetWindowRect(webview_, &rect);
+    return WebCore::FloatRect(
+        static_cast<float>(rect.x()),
+        static_cast<float>(rect.y()),
+        static_cast<float>(rect.width()),
+        static_cast<float>(rect.height()));
+  } else {
+    // These numbers will be fairly wrong. The window's x/y coordinates will
+    // be the top left corner of the screen and the size will be the content
+    // size instead of the window size.
+    gfx::Point origin;
+    const gfx::Size size = webview_->size();
+    return WebCore::FloatRect(
+        static_cast<float>(origin.x()),
+        static_cast<float>(origin.y()),
+        static_cast<float>(size.width()),
+        static_cast<float>(size.height()));
+  }
 }
 
 WebCore::FloatRect ChromeClientImpl::pageRect() {
@@ -420,9 +430,9 @@ WebCore::IntRect ChromeClientImpl::windowToScreen(const WebCore::IntRect& rect) 
 
   WebViewDelegate* d = webview_->delegate();
   if (d) {
-    gfx::Point window_pos;
-    d->GetWindowLocation(webview_, &window_pos);
-    screen_rect.move(window_pos.x(), window_pos.y());
+    gfx::Rect window_rect;
+    d->GetWindowRect(webview_, &window_rect);
+    screen_rect.move(window_rect.x(), window_rect.y());
   }
 
   return screen_rect;

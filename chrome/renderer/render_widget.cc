@@ -652,10 +652,8 @@ void RenderWidget::Close() {
   }
 }
 
-void RenderWidget::GetWindowLocation(WebWidget* webwidget, gfx::Point* origin) {
-  gfx::Rect rect;
-  Send(new ViewHostMsg_GetWindowRect(routing_id_, host_window_, &rect));
-  *origin = rect.origin();
+void RenderWidget::GetWindowRect(WebWidget* webwidget, gfx::Rect* rect) {
+  Send(new ViewHostMsg_GetWindowRect(routing_id_, host_window_, rect));
 }
 
 void RenderWidget::SetWindowRect(WebWidget* webwidget, const gfx::Rect& pos) {

@@ -217,7 +217,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>, public
   virtual void Blur(WebWidget* webwidget);
   virtual void SetCursor(WebWidget* webwidget, 
                          const WebCursor& cursor);
-  virtual void GetWindowLocation(WebWidget* webwidget, gfx::Point* origin);
+  virtual void GetWindowRect(WebWidget* webwidget, gfx::Rect* rect);
   virtual void SetWindowRect(WebWidget* webwidget, const gfx::Rect& rect);
   virtual void DidMove(WebWidget* webwidget, const WebPluginGeometry& move);
   virtual void RunModal(WebWidget* webwidget);

@@ -78,8 +78,8 @@ class WebWidgetDelegate {
 
   virtual void SetCursor(WebWidget* webwidget, 
                          const WebCursor& cursor) = 0;
-  // Returns the location (x,y) of the WebWidget in screen coordinates.
-  virtual void GetWindowLocation(WebWidget* webwidget, gfx::Point* origin) = 0;
+  // Returns the rectangle of the WebWidget in screen coordinates.
+  virtual void GetWindowRect(WebWidget* webwidget, gfx::Rect* rect) = 0;
 
   // This method is called to re-position the WebWidget on the screen.  The given
   // rect is in screen coordinates.  The implementation may choose to ignore
