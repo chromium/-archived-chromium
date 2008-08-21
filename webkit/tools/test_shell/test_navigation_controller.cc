@@ -84,8 +84,6 @@ TestNavigationController::~TestNavigationController() {
 }
 
 void TestNavigationController::Reset() {
-  for (int i = 0, c = static_cast<int>(entries_.size()); i < c; ++i)
-    delete entries_[i];
   entries_.clear();
   DiscardPendingEntry();
 
@@ -138,7 +136,7 @@ void TestNavigationController::LoadEntry(TestNavigationEntry* entry) {
 TestNavigationEntry* TestNavigationController::GetLastCommittedEntry() const {
   if (last_committed_entry_index_ == -1)
     return NULL;
-  return entries_[last_committed_entry_index_];
+  return entries_[last_committed_entry_index_].get();
 }
 
 TestNavigationEntry* TestNavigationController::GetActiveEntry() const {
@@ -161,13 +159,13 @@ TestNavigationEntry* TestNavigationController::GetEntryAtOffset(
   if (index < 0 || index >= GetEntryCount())
     return NULL;
 
-  return entries_[index];
+  return entries_[index].get();
 }
 
 TestNavigationEntry* TestNavigationController::GetEntryWithPageID(
     int32 page_id) const {
   int index = GetEntryIndexWithPageID(page_id);
-  return (index != -1) ? entries_[index] : NULL;
+  return (index != -1) ? entries_[index].get() : NULL;
 }
 
 void TestNavigationController::DidNavigateToEntry(TestNavigationEntry* entry) {
@@ -184,8 +182,8 @@ void TestNavigationController::DidNavigateToEntry(TestNavigationEntry* entry) {
   // same URL, a new PageID is not created.
 
   int existing_entry_index = GetEntryIndexWithPageID(entry->GetPageID());
-  TestNavigationEntry* existing_entry =
-      (existing_entry_index != -1) ? entries_[existing_entry_index] : NULL;
+  TestNavigationEntry* existing_entry = (existing_entry_index != -1) ?
+      entries_[existing_entry_index].get() : NULL;
   if (!existing_entry) {
     // No existing entry, then simply ignore this navigation!
     DLOG(WARNING) << "ignoring navigation for page: " << entry->GetPageID();
@@ -231,13 +229,12 @@ void TestNavigationController::InsertEntry(TestNavigationEntry* entry) {
   int current_size = static_cast<int>(entries_.size());
   if (current_size > 0) {
     while (last_committed_entry_index_ < (current_size - 1)) {
-      delete entries_[current_size - 1];
       entries_.pop_back();
       current_size--;
     }
   }
 
-  entries_.push_back(entry);
+  entries_.push_back(linked_ptr<TestNavigationEntry>(entry));
   last_committed_entry_index_ = static_cast<int>(entries_.size()) - 1;
   UpdateMaxPageID();
 }
@@ -254,7 +251,7 @@ void TestNavigationController::NavigateToPendingEntry(bool reload) {
   // For session history navigations only the pending_entry_index_ is set.
   if (!pending_entry_) {
     DCHECK(pending_entry_index_ != -1); 
-    pending_entry_ = entries_[pending_entry_index_];
+    pending_entry_ = entries_[pending_entry_index_].get();
   }
 
   if (shell_->Navigate(*pending_entry_, reload)) {

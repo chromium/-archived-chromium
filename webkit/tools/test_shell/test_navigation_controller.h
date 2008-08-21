@@ -34,6 +34,7 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/linked_ptr.h"
 #include "base/ref_counted.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/weburlrequest.h"
@@ -193,7 +194,7 @@ class TestNavigationController {
   void UpdateMaxPageID();
 
   // List of NavigationEntry for this tab
-  typedef std::vector<TestNavigationEntry*> NavigationEntryList;
+  typedef std::vector< linked_ptr<TestNavigationEntry> > NavigationEntryList;
   typedef NavigationEntryList::iterator NavigationEntryListIterator;
   NavigationEntryList entries_;
 
