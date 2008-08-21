@@ -190,8 +190,8 @@ class TabContentsDelegate : public PageNavigator {
   }
 
   // Send IPC to external host. Default implementation is do nothing.
-  virtual void SendExternalHostMessage(const std::string& receiver,
-                                       const std::string& message) {};
+  virtual void ForwardMessageToExternalHost(const std::string& receiver,
+                                            const std::string& message) {};
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_DELEGATE_H_
