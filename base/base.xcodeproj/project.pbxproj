@@ -116,6 +116,12 @@
 		A5A0270B0E4A630D00498DA9 /* file_util_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5A0270A0E4A630D00498DA9 /* file_util_mac.mm */; };
 		A5CB82980E5C74E300FD6825 /* platform_test_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5CB82970E5C74E300FD6825 /* platform_test_mac.mm */; };
 		A5CE1D2B0E55F4D800AD0606 /* file_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = A5A0282D0E4CFA8500498DA9 /* file_util_unittest.cc */; };
+		AB956DFD0E5DDB5D00BBE9D8 /* platform_canvas_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 829E2F990DBFD76300819EBF /* platform_canvas_mac.cc */; };
+		AB956DFE0E5DDB6000BBE9D8 /* platform_device_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 829E2F9D0DBFD76F00819EBF /* platform_device_mac.cc */; };
+		AB956DFF0E5DDB6900BBE9D8 /* bitmap_platform_device_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 829E2F940DBFD74B00819EBF /* bitmap_platform_device_mac.cc */; };
+		AB956E030E5DDB7A00BBE9D8 /* image_operations.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48A06370E3F6C1F00172919 /* image_operations.cc */; };
+		AB956E0A0E5DDC0900BBE9D8 /* image_operations_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48A063B0E3F6C3000172919 /* image_operations_unittest.cc */; };
+		ABCDD6C70E5E0357005FA365 /* platform_canvas_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7B8505A30E5B3FBE00730B43 /* platform_canvas_unittest.cc */; };
 		ABF4B98F0DC2BA6900A6E319 /* base_paths_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABF4B98E0DC2BA6900A6E319 /* base_paths_mac.mm */; };
 		ABF4B99E0DC2BB6000A6E319 /* clipboard_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABF4B99D0DC2BB6000A6E319 /* clipboard_mac.mm */; };
 		ABF4B9AF0DC2BC6200A6E319 /* json_reader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254031B0D92D1F40006B936 /* json_reader.cc */; };
@@ -879,12 +885,12 @@
 				7B8505A10E5B3FBE00730B43 /* img_resize_perftest.cc */,
 				825403C80D92D31D0006B936 /* native_theme.cc */,
 				825403C90D92D31D0006B936 /* native_theme.h */,
-				AB6BC1F10E54E900006436D5 /* platform_canvas.h */,
 				7B8505A20E5B3FBE00730B43 /* native_theme_unittest.cc */,
+				AB6BC1F10E54E900006436D5 /* platform_canvas.h */,
 				829E2F990DBFD76300819EBF /* platform_canvas_mac.cc */,
 				829E2F980DBFD76300819EBF /* platform_canvas_mac.h */,
-				AB6BC1F50E54E97B006436D5 /* platform_device.h */,
 				7B8505A30E5B3FBE00730B43 /* platform_canvas_unittest.cc */,
+				AB6BC1F50E54E97B006436D5 /* platform_device.h */,
 				829E2F9D0DBFD76F00819EBF /* platform_device_mac.cc */,
 				829E2F9C0DBFD76F00819EBF /* platform_device_mac.h */,
 				E4562A200E27C8C1005E4685 /* png_codec_unittest.cc */,
@@ -1181,7 +1187,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB956DFF0E5DDB6900BBE9D8 /* bitmap_platform_device_mac.cc in Sources */,
 				E48A06710E3F70E200172919 /* convolver.cc in Sources */,
+				AB956E030E5DDB7A00BBE9D8 /* image_operations.cc in Sources */,
+				AB956DFD0E5DDB5D00BBE9D8 /* platform_canvas_mac.cc in Sources */,
+				AB956DFE0E5DDB6000BBE9D8 /* platform_device_mac.cc in Sources */,
 				825403EE0D92D31D0006B936 /* png_decoder.cc in Sources */,
 				825403F00D92D31D0006B936 /* png_encoder.cc in Sources */,
 				825403F20D92D31D0006B936 /* point.cc in Sources */,
@@ -1200,6 +1210,7 @@
 				A5CE1D2B0E55F4D800AD0606 /* file_util_unittest.cc in Sources */,
 				7B78D3910E54FE0100609465 /* file_version_info_unittest.cc in Sources */,
 				93611B1A0E5A878400F9405D /* histogram_test.cc in Sources */,
+				AB956E0A0E5DDC0900BBE9D8 /* image_operations_unittest.cc in Sources */,
 				7B78D3920E54FE0100609465 /* json_reader_unittest.cc in Sources */,
 				7B78D3930E54FE0100609465 /* json_writer_unittest.cc in Sources */,
 				7B78D3940E54FE0100609465 /* linked_ptr_unittest.cc in Sources */,
@@ -1225,6 +1236,7 @@
 				7B78D3A30E54FE0100609465 /* values_unittest.cc in Sources */,
 				7B78D3A40E54FE0100609465 /* waitable_event_unittest.cc in Sources */,
 				7B78D3A50E54FE0100609465 /* word_iterator_unittest.cc in Sources */,
+				ABCDD6C70E5E0357005FA365 /* platform_canvas_unittest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1399,6 +1411,8 @@
 					../testing/gtest/include/gtest,
 					../third_party/icu38/public/common,
 					../third_party/icu38/public/i18n,
+					../skia/include,
+					../skia/include/corecg,
 				);
 				PRODUCT_NAME = base_unittests;
 			};
@@ -1418,6 +1432,8 @@
 					../testing/gtest/include/gtest,
 					../third_party/icu38/public/common,
 					../third_party/icu38/public/i18n,
+					../skia/include,
+					../skia/include/corecg,
 				);
 				PRODUCT_NAME = base_unittests;
 			};
