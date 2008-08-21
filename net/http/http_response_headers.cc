@@ -640,7 +640,7 @@ bool HttpResponseHeaders::IsRedirect(string* location) const {
   // If we lack a Location header, then we can't treat this as a redirect.
   // We assume that the first non-empty location value is the target URL that
   // we want to follow.  TODO(darin): Is this consistent with other browsers?
-  size_t i = -1;
+  size_t i = string::npos;
   do {
     i = FindHeader(++i, "location");
     if (i == string::npos)

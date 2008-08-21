@@ -240,8 +240,8 @@ class HttpResponseHeaders :
   // index |from|.  Returns string::npos if not found.
   size_t FindHeader(size_t from, const std::string& name) const;
 
-  // Add a header->value pair to our list.  If we already have header in our list,
-  // append the value to it.
+  // Add a header->value pair to our list.  If we already have header in our
+  // list, append the value to it.
   void AddHeader(std::string::const_iterator name_begin,
                  std::string::const_iterator name_end,
                  std::string::const_iterator value_begin,
