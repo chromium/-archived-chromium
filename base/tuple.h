@@ -59,9 +59,9 @@ struct TupleTraits<P&> {
 // function objects that need to take an arbitrary number of parameters; see
 // RunnableMethod and IPC::MessageWithTuple.
 //
-// Tuple0 is supplied to act as a 'void' type.  It can be used, for example, when
-// dispatching to a function that accepts no arguments (see the Dispatchers
-// below).
+// Tuple0 is supplied to act as a 'void' type.  It can be used, for example,
+// when dispatching to a function that accepts no arguments (see the
+// Dispatchers below).
 // Tuple1<A> is rarely useful.  One such use is when A is non-const ref that you
 // want filled by the dispatchee, and the tuple is merely a container for that
 // output (a "tier").  See MakeRefTuple and its usages.
