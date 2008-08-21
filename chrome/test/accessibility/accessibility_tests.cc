@@ -103,7 +103,7 @@ TEST_F(AccessibilityTest, TestChromeTabstripAccObject) {
 }
 
 // Check Browser buttons and their Name, Role, State.
-TEST_F(AccessibilityTest, TestChromeButtons) {
+TEST_F(AccessibilityTest, DISABLED_TestChromeButtons) {
   HRESULT      hr       = S_OK;
   IAccessible* p_accobj = NULL;
   VARIANT      button;
