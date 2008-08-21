@@ -167,7 +167,7 @@
 <translation id="5645845270586517071">Turvallisuusvirhe</translation>
 <translation id="3183922693828471536">Vieritä tähän</translation>
 <translation id="8439117394107194826">Avaa tutkimussivu asennuksen poistamisen jälkeen.</translation>
-<translation id="4610637590575890427">Tarkoititko siirtymistä sivustoon <ph name="SITE"/>?</translation>
+<translation id="4610637590575890427">Halusitko siirtyä <ph name="SITE"/>-sivustolle?</translation>
 <translation id="8182985032676093812">Osoitteen <ph name="PAGE_URL"/> alkuperä</translation>
 <translation id="4880827082731008257">Haku historiasta</translation>
 <translation id="5650551054760837876">Hakutuloksia ei löytynyt.</translation>
@@ -284,21 +284,21 @@
 <translation id="5819484510464120153">Luo ohjelma&amp;pikapainikkeita...</translation>
 <translation id="116506693382293616">Jotkut tämän sivun osista on haettu SSL-virheitä sisältävän yhteyden kautta.</translation>
 <translation id="3942946088478181888">Lisätietoa</translation>
-<translation id="6295228342562451544">Kun muodostat yhteyden suojattuun sivustoon, sivustoa ylläpitävä palvelin esittää selaimellesi varmenteen sen identiteetin vahvistamiseksi. Varmenne sisältää identiteettitietoja, kuten sivuston osoitteen, jotka vahvistaa ulkopuolinen, johon tietokoneesi luottaa. Tarkistamalla, että varmenteen osoite vastaa sivuston osoitetta voidaan vahvistaa, että olet yhteydessä tarkoittamaasi sivustoon etkä ulkopuoliseen (kuten verkossasi olevaan hyökkääjään).</translation>
+<translation id="6295228342562451544">Kun muodostat yhteyden suojattuun sivustoon, sivustoa ylläpitävä palvelin esittää selaimellesi varmenteen joka vahvistaa sen identiteetin. Varmenne sisältää identiteettitietoja, kuten sivuston osoitteen. Tiedot vahvistaa ulkopuolinen taho, johon tietokoneesi luottaa. Tarkistuksessa varmistetaan, että varmenteen osoite vastaa sivuston osoitetta. Tämä takaa, että olet yhteydessä haluamaasi sivustoon etkä esimerkiksi verkossasi olevaan hyökkääjään.</translation>
 <translation id="7073704676847768330">Tämä ei todennäköisesti ole etsimäsi sivu!</translation>
 <translation id="4497415007571823067">Yritit päästä verkkotunnukseen &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, mutta tavoitit palvelimen, joka yksilöi itsensä verkkotunnukseksi &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Tämä voi johtua palvelimen virhemäärityksestä tai jostain vakavammasta. Verkossasi oleva hyökkääjä voi yrittää saada sinut siirtymään verkkotunnuksen &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt; väärään (ja mahdollisesti haitalliseen) versioon. Sinun ei tule jatkaa.</translation>
 <translation id="3581034179710640788">Sivuston suojausvarmenne on vanhentunut!</translation>
-<translation id="1086613338090581534">Varmenteen myöntäjä vastaa sellaisen varmenteen &quot;kumoamisluettelon&quot; ylläpidosta, joka ei ole vanhentunut. Jos varmenne vaarantuu, myöntäjä voi kumota sen lisäämällä sen kumoamisluetteloon, jolloin selaimesi ei enää luota kyseiseen varmenteeseen. Kumoamistilaa ei tarvitse ylläpitää vanhentuneiden varmenteiden osalta, joten vaikka varmenne on ollut voimassa sivustossa, jossa käyt, sen osalta ei voida enää määrittää, onko se vaarantunut ja sen jälkeen kumottu, vai onko se edelleen turvallinen. Näin ollen ei voida tietää, oletko yhteydessä sallittuun sivustoon vai vaarantuiko varmenne ja olet yhteydessä hyökkääjään, jolla on se nyt hallussaan. Sinun ei tule jatkaa tästä eteenpäin.</translation>
+<translation id="1086613338090581534">Varmenteen myöntäjä vastaa sellaisen varmenteen &quot;kumoamisluettelon&quot; ylläpidosta, joka ei ole vanhentunut. Jos varmenne vaarantuu, myöntäjä voi kumota sen lisäämällä sen kumoamisluetteloon. Silloin selaimesi ei enää luota kyseiseen varmenteeseen. Kumoamistilaa ei tarvitse ylläpitää vanhentuneiden varmenteiden osalta. Vaikka varmenne on ollut voimassa sivustossa, jossa käyt, sen osalta ei voida enää määrittää, onko se vaarantunut ja sen jälkeen kumottu, vai onko se edelleen turvallinen. Näin ollen ei voida tietää, oletko yhteydessä sallittuun sivustoon vai vaarantuiko varmenne ja olet yhteydessä hyökkääjään, jolla on se nyt hallussaan. Älä jatka tästä eteenpäin.</translation>
 <translation id="1618661679583408047">Palvelimen suojausvarmenne ei ole vielä voimassa!</translation>
-<translation id="825608351287166772">Varmenteilla on voimassaoloaika, kuten mahdollisilla henkilöllisyystodistuksillasikin (esimerkiksi passi). Selaimellesi esitetty varmenne ei ole vielä voimassa. Kun varmenteen voimassaoloaika on umpeutunut, tiettyjen varmenteen tilaa (riippumatta siitä, onko se kumottu eikä enää luotettava) koskevien tietojen säilyttäminen ei ole pakollista. Näin ollen ei voida varmistaa, onko varmenne luotettava. Sinun ei tule jatkaa.</translation>
+<translation id="825608351287166772">Varmenteilla on voimassaoloaika, niin kuin vaikkapa henkilöllisyystodistuksilla. Selaimellesi esitetty varmenne ei ole vielä voimassa. Voimassaoloajan ulkopuolella varmennetta koskevia tietoja ei tarvitse säilyttää. Emme siksi voi varmistua esimerkiksi siitä, onko varmenne jostakin syystä kumottu. Älä jatka tästä eteenpäin.</translation>
 <translation id="374530189620960299">Sivuston suojausvarmenne ei ole luotettava!</translation>
 <translation id="1684248949164455892">Tällöin ulkopuolinen, johon tietokoneesi luottaa, ei ole vahvistanut varmennetta. Kuka tahansa voi luoda varmenteen ja väittää sen kuuluvan mihin tahansa valitsemaansa sivustoon, minkä vuoksi luotettavan ulkopuolisen on vahvistettava se. Ilman vahvistusta varmenteen identiteettitiedot ovat merkityksettömiä. Siksi ei ole mahdollista vahvistaa, oletko yhteydessä verkkotunnukseen &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; vai hyökkääjään, joka on luonut oman varmenteen, jonka väittää olevan &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Sinun ei tule jatkaa tästä eteenpäin.</translation>
 <translation id="9087164549070846958">Jos kuitenkin työskentelet organisaatiossa, joka luo omat varmenteensa, ja yrität muodostaa yhteyden organisaation sisäiseen sivustoon tällaista varmennetta käyttämällä, saatat pystyä ratkaisemaan tämän ongelman turvallisesti. Voit tuoda organisaation juurivarmenteen &quot;juurivarmenteena&quot;, jolloin organisaatiosi myöntämät tai vahvistamat varmenteet ovat luotettavia, etkä saa tätä virhettä seuraavalla kerralla yrittäessäsi muodostaa yhteyttä sisäiseen sivustoon. Ota yhteyttä organisaation tukihenkilöstöön, kun tarvitset apua uuden juurivarmenteen lisäämisessä Windowsiin.</translation>
 <translation id="2649911884196340328">Palvelimen suojausvarmenteessa on virheitä!</translation>
-<translation id="8534801226027872331">Tällöin selaimellesi esitetyssä varmenteessa on virheitä, eikä sitä voi ymmärtää. Tämä saattaa tarkoittaa sitä, ettemme ymmärrä varmenteen identiteettitietoja tai muita varmenteessa yhteyden suojaamiseksi käytettyjä tietoja. Sinun ei tule jatkaa.</translation>
+<translation id="8534801226027872331">Tässä tapauksessa selaimellesi esitetyssä varmenteessa on virheitä, eikä sitä voi jäsentää. Tämä saattaa tarkoittaa sitä, ettemme ymmärrä varmenteen identiteettitietoja tai muita varmenteessa yhteyden suojaamiseksi käytettyjä tietoja. Älä jatka tästä eteenpäin.</translation>
 <translation id="8187473050234053012">Palvelimen suojausvarmenne on kumottu!</translation>
 <translation id="3455546154539383562">Yritit verkkotunnukseen &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, mutta myöntäjä on kumonnut palvelimen esittämän varmenteen. Tämä tarkoittaa, että palvelimen esittämiin turvavaltuuksiin ei ehdottomasti tule luottaa. Saatat olla yhteydessä hyökkääjään. Sinun ei tule jatkaa.</translation>
-<translation id="43742617823094120">Tällöin myöntäjä on kumonnut selaimellesi esitetyn varmenteen. Yleensä tämä tarkoittaa, että varmenteen eheys on vaarantunut, eikä varmenne ole luotettava. Sinun ei ehdottomasti tule jatkaa tästä eteenpäin.</translation>
+<translation id="43742617823094120">Tällöin myöntäjä on kumonnut selaimellesi esitetyn varmenteen. Yleensä tämä tarkoittaa, että varmenteen eheys on vaarantunut, eikä varmenne ole luotettava. Älä missään tapauksessa jatka tästä eteenpäin.</translation>
 <translation id="1177437665183591855">Tuntemattoman palvelimen varmennevirhe</translation>
 <translation id="4771973620359291008">Tapahtui tuntematon virhe.</translation>
 <translation id="4381091992796011497">Käyttäjänimi:</translation>
@@ -432,7 +432,7 @@
 <translation id="1628736721748648976">Voi hitsi!</translation>
 <translation id="5706242308519462060">Oletuskoodaus:</translation>
 <translation id="4181841719683918333">Kielet</translation>
-<translation id="8929159553808058020">Lisää kielet, joilla luet sivustoja suosituimmuusjärjestyksessä. Lisää vain tarvitsemasi, koska joitakin merkkejä voidaan käyttää matkimaan muunkielisiä sivustoja.</translation>
+<translation id="8929159553808058020">Lisää haluamasi kielet tärkeysjärjestyksessä. Lisää vain tarvitsemasi, koska joitakin merkkejä voidaan käyttää matkimaan muunkielisiä sivustoja.</translation>
 <translation id="2303544859777878640">Kielet:</translation>
 <translation id="8609465669617005112">Siirrä ylös</translation>
 <translation id="6746124502594467657">Siirry alas</translation>
@@ -459,7 +459,7 @@
 <translation id="4948468046837535074">Avaa seuraavat sivut:</translation>
 <translation id="2518917559152314023">&amp;Lisää...</translation>
 <translation id="7905536804357499080">Käytä nykyistä</translation>
-<translation id="9189691339671500905">Määritä omniboxissa käytetty hakukone.</translation>
+<translation id="9189691339671500905">Määritä osoitekentässä käytetty hakukone.</translation>
 <translation id="7125953501962311360">Oletusselain:</translation>
 <translation id="762917759028004464">Tällä hetkellä oletusselain on <ph name="BROWSER_NAME"/>.</translation>
 <translation id="6144890426075165477"><ph name="PRODUCT_NAME"/> ei ole tällä hetkellä oletusselaimesi.</translation>
@@ -526,7 +526,7 @@
 <translation id="9012607008263791152">Ymmärrän, että tällä sivulla käyminen voi vahingoittaa tietokonettani.</translation>
 <translation id="8831104962952173133">Tietojenkalastelu havaittu!</translation>
 <translation id="4182252350869425879">Varoitus: Epäilty tietojenkalastelusivu!</translation>
-<translation id="2193841602817119749">Osoitteessa &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; olevan sivuston on ilmoitettu olevan tietojenkalastelusivusto.  Tietojenkalastelusivustot huijaavat käyttäjiä paljastamaan henkilökohtaisia tai taloudellisia tietoja tekeytymällä usein luotettaviksi laitoksiksi kuten pankeiksi.</translation>
+<translation id="2193841602817119749">Osoitteessa &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; olevan sivuston on ilmoitettu olevan tietojenkalastelusivusto. Tietojenkalastelusivustot tekeytyvät usein luotettaviksi laitoksiksi kuten pankeiksi, ja huijaavat käyttäjiä paljastamaan henkilökohtaisia tai taloudellisia tietoja.</translation>
 <translation id="7063412606254013905">Lisätietoja tietojenkalasteluhuijauksista.</translation>
 <translation id="6521850982405273806">Ilmoita virheestä</translation>
 <translation id="8053959338015477773">Joidenkin tällä sivulla olevien osien näyttäminen edellyttää lisälaajennusta.</translation>
@@ -588,7 +588,7 @@
 <translation id="5154917547274118687">Muisti</translation>
 <translation id="411666854932687641">Yksityinen muisti</translation>
 <translation id="7965010376480416255">Jaettu muisti</translation>
-<translation id="7931071620596053769">Seuraava sivu ei vastaa (seuraavat sivut eivät vastaa) enää. Voit odottaa, että se vastaa, tai lopettaa sen.</translation>
+<translation id="7931071620596053769">Seuraava(t) sivu(t) ei(vät) vastaa enää. Voit odottaa vastausta tai sulkea ne.</translation>
 <translation id="5912378097832178659">&amp;Muokkaa hakukoneita...</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Oletus)</translation>
 <translation id="614298788004369532">Tämä sivu sisältää joitakin suojaamattomia osia</translation>
@@ -664,7 +664,7 @@
 <translation id="4127951844153999091">Tällöin varmenteessa mainittu osoite ei vastaa sen sivuston osoitetta, johon selaimesi yritti siirtyä. Yksi mahdollinen syy on, että hyökkääjä on siepannut yhteytesi ja esittää eri sivuston varmenteen. Toinen syy voi olla se, että palvelin on määritetty palauttamaan sama varmenne useille sivustoille, myös sille, johon yrität päästä, vaikka varmenne ei kelpaa kaikissa kyseessä olevissa sivustoissa. <ph name="DOMAIN2"/><ph name="DOMAIN"/> Jos jatkat, Chrome ei tarkista enää muita vastaamattomia nimiä. Yleensä on parempi olla jatkamatta tästä eteenpäin.</translation>
 <translation id="9189723490960700326">Yritit päästä verkkotunnukseen &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, mutta palvelin esitti vanhentuneen varmenteen. Ei ole saatavissa tietoja siitä, onko varmenne vaarantunut vanhentumisensa jälkeen. <ph name="DOMAIN2"/> Sinun ei pidä jatkaa.</translation>
 <translation id="6481075104394517441">Yritit verkkotunnukseen &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, mutta palvelin esitti varmenteen, joka ei ole vielä voimassa. Varmenteen luotettavuuden osoittamiseksi ei ole saatavissa tietoja. <ph name="DOMAIN2"/> Varmista, että tietokoneesi kello- ja aikavyöhykeasetukset ovat oikeat. Jos ne eivät ole, korjaa ongelmat ja päivitä tämä sivu. Jos ne ovat oikeat, sinun ei tule jatkaa.</translation>
-<translation id="1144950271450340860">Yritit päästä verkkotunnukseen &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, mutta palvelin esitti varmenteen, jonka myöntäjään tietokoneesi käyttöjärjestelmä ei luota.  Sinun ei tule jatkaa, &lt;strong&gt;etenkään&lt;/strong&gt; jos et ole koskaan aiemmin nähnyt tätä varoitusta tässä sivustossa.</translation>
+<translation id="1144950271450340860">Yritit päästä verkkotunnukseen &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;. Palvelin esitti varmenteen, jonka myöntäjään tietokoneesi käyttöjärjestelmä ei luota. Älä jatka tästä eteenpäin, &lt;strong&gt;etenkään&lt;/strong&gt; jos et ole koskaan aiemmin nähnyt tätä varoitusta tässä sivustossa.</translation>
 <translation id="6009537148180854585">Yritit päästä verkkotunnukseen &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, mutta palvelimen esittämässä varmenteessa on virheitä. Google Chrome ei voi käyttää virheellistä varmennetta, eikä todentaa haluamasi sivuston identiteettiä.  Yhteytesi ei ole suojattu, eikä sinun tule jatkaa.</translation>
 <translation id="7106741999175697885">Tehtävänhallinta - Google Chrome</translation>
 <translation id="1195935957447623558">Avaa avoinna olleet sivut uudelleen napsauttamalla Palauta.</translation>
@@ -681,7 +681,7 @@
 <translation id="6921913858457830952">Google Chrome on valmis suorittamaan asennuksen loppuun.</translation>
 <translation id="7241541963706135274">Google Chrome ryhtyy seuraaviin toimiin:</translation>
 <translation id="7101265395643981223">Käynnistä Google Chrome</translation>
-<translation id="2618799103663374905">Lidää Google Chrome-pikapainikkeita työpöydällesi, pikakäynnistysvalikkoon ja Käynnistä-valikkoon</translation>
+<translation id="2618799103663374905">Lisää Google Chrome-pikapainikkeita työpöydällesi, pikakäynnistysvalikkoon ja Käynnistä-valikkoon</translation>
 <translation id="213581405366815208">Jos haluat jatkaa myöhemmin, avaa Chrome Käynnistä-valikon Ohjelmat-kansiosta.</translation>
 <translation id="5941830788786076944">Tee Google Chromesta oletusselain</translation>
 <translation id="7001386529596391893">Luo Google Chrome-pikapainikkeita seuraaviin kohteisiin:</translation>
@@ -736,6 +736,6 @@
 <translation id="1137776625614346046">Käydyimmät-alueella näkyvät sivustot, joita käytät useimmin. Kun olet käyttänyt Google Chromea jonkun aikaa, näet käydyimmät sivustot aina, kun avaat uuden välilehden. Lisätietoja Chromen ominaisuuksista on <ph name="BEGIN_LINK"/>aloitussivulla<ph name="END_LINK"/>.</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Esiinnyt nyt tuntemattomana<ph name="END_BOLD"/>. Tässä ikkunassa näytettäviä sivuja ei näytetä selaimen historiassa tai selaushistoriassa. Niistä ei jätetä tietokoneelle muitakaan jälkiä, kuten evästeitä, kun suljet incognito-ikkunan. Lataamasi tiedostot tai luomasi kirjanmerkit kuitenkin säilytetään.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Tuntemattomana esiintyminen ei vaikuta muiden ihmisten, palvelinten tai ohjelmistojen toimintaan. Varo:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>verkkosivustoja, jotka keräävät tai jakavat tietoja sinusta<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>internet-palveluntarjoajia tai työntekijöitä, jotka seuraavat sivuja, joilla käyt<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>haittaohjelmia, jotka seuraavat näppäinpainalluksia ja antavat vastineeksi ilmaisia hymiöitä<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>turvallisuuspalveluiden työntekijöiden tekemää seurantaa<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>takanasi seisovia ihmisiä<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Lisätietoja<ph name="END_LINK"/> selaamisesta incognito-tilassa.</translation>
 <translation id="1604816462140255479">Tekstin &amp;koko</translation>
-<translation id="2089625293428655599">Osia tästä ohjelmistosta on lisensoitu kolmansilta osapuolilta, kuten kuvailtu osoitteessa: <ph name="URL"/></translation>
-<translation id="6817660909204164466">Auta kehittämäään Google Chromea lähettämällä automaattisesti käyttötilastoja ja virheraportteja Googlelle</translation>
+<translation id="2089625293428655599">Osia tästä ohjelmistosta on lisensoitu kolmansilta osapuolilta. Lisätietoa osoitteessa: <ph name="URL"/></translation>
+<translation id="6817660909204164466">Voit auttaa Google Chromen kehitystyössä lähettämällä automaattisesti käyttötilastoja ja virheraportteja Googlelle</translation>
 </translationbundle>
