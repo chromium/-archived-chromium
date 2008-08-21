@@ -205,14 +205,6 @@ TEST_F(HistoryBackendTest, DeleteAll) {
      JPEGCodec::Decode(kWeewarThumbnail, sizeof(kWeewarThumbnail)));
   backend_->thumbnail_db_->SetPageThumbnail(row2_id, *weewar_bitmap, score);
 
-  // Mark one of the URLs bookmarked.
-  StarredEntry entry;
-  entry.type = StarredEntry::URL;
-  entry.url = row1.url();
-  entry.parent_group_id = HistoryService::kBookmarkBarID;
-  StarID star_id = backend_->db_->CreateStarredEntry(&entry);
-  ASSERT_TRUE(star_id);
-
   // Set full text index for each one.
   backend_->text_database_->AddPageData(row1.url(), row1_id, visit1_id,
                                         row1.last_visit(),
@@ -224,12 +216,8 @@ TEST_F(HistoryBackendTest, DeleteAll) {
   // Now finally clear all history.
   backend_->DeleteAllHistory();
 
-  // The first URL should be preserved, along with its visits, but the time
-  // should be cleared.
-  EXPECT_TRUE(backend_->db_->GetRowForURL(row1.url(), &outrow1));
-  EXPECT_EQ(2, outrow1.visit_count());
-  EXPECT_EQ(1, outrow1.typed_count());
-  EXPECT_TRUE(Time() == outrow1.last_visit());
+  // The first URL should be deleted.
+  EXPECT_FALSE(backend_->db_->GetRowForURL(row1.url(), &outrow1));
 
   // The second row should be deleted.
   URLRow outrow2;
@@ -246,26 +234,14 @@ TEST_F(HistoryBackendTest, DeleteAll) {
                                                          &out_data));
   EXPECT_FALSE(backend_->thumbnail_db_->GetPageThumbnail(row2_id, &out_data));
 
-  // We should have a favicon for the first URL only. We look them up by favicon
-  // URL since the IDs may hav changed.
+  // Make sure the favicons were deleted.
+  // TODO(sky): would be nice if this didn't happen.
   FavIconID out_favicon1 = backend_->thumbnail_db_->
       GetFavIconIDForFavIconURL(favicon_url1);
-  EXPECT_TRUE(out_favicon1);
+  EXPECT_FALSE(out_favicon1);
   FavIconID out_favicon2 = backend_->thumbnail_db_->
       GetFavIconIDForFavIconURL(favicon_url2);
   EXPECT_FALSE(out_favicon2) << "Favicon not deleted";
-
-  // The remaining URL should still reference the same favicon, even if its
-  // ID has changed.
-  EXPECT_EQ(out_favicon1, outrow1.favicon_id());
-
-  // The first URL should still be bookmarked and have an entry. The star ID
-  // must not have changed.
-  EXPECT_TRUE(outrow1.starred());
-  StarredEntry outentry;
-  EXPECT_TRUE(backend_->db_->GetStarredEntry(star_id, &outentry));
-  EXPECT_EQ(outrow1.id(), outentry.url_id);
-  EXPECT_TRUE(outrow1.url() == outentry.url);
 
   // The full text database should have no data.
   std::vector<TextDatabase::Match> text_matches;

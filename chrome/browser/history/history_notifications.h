@@ -72,7 +72,6 @@ struct URLsDeletedDetails : public HistoryDetails {
 
 // Details for NOTIFY_URLS_STARRED.
 struct URLsStarredDetails : public HistoryDetails {
-
   URLsStarredDetails(bool being_starred) : starred(being_starred) {}
 
   // The new starred state of the list of URLs. True when they are being
@@ -81,18 +80,9 @@ struct URLsStarredDetails : public HistoryDetails {
 
   // The list of URLs that are changing.
   std::set<GURL> changed_urls;
-
-  // The star entries that were added or removed as the result of starring
-  // the entry. This may be empty.
-  std::vector<StarredEntry> star_entries;
 };
 
-// Details for NOTIFY_STAR_ENTRY_CHANGED and others.
-struct StarredEntryDetails : public HistoryDetails {
-  StarredEntry entry;
-};
-
-// Details for NOTIFY_STARRED_FAVICON_CHANGED.
+// Details for NOTIFY_FAVICON_CHANGED.
 struct FavIconChangeDetails : public HistoryDetails {
   std::set<GURL> urls;
 };

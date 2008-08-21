@@ -85,7 +85,12 @@ history::URLID HistoryModel::GetURLID(int index) {
 }
 
 bool HistoryModel::IsStarred(int index) {
-  return results_[index].starred();
+  if (star_state_[index] == UNKNOWN) {
+    bool is_starred =
+        profile_->GetBookmarkBarModel()->IsBookmarked(GetURL(index));
+    star_state_[index] = is_starred ? STARRED : NOT_STARRED;
+  }
+  return (star_state_[index] == STARRED);
 }
 
 const Snippet& HistoryModel::GetSnippet(int index) {
@@ -138,7 +143,6 @@ void HistoryModel::InitVisitRequest(int depth) {
     start_exploded.day_of_month = 1;
     options.begin_time = Time::FromLocalExploded(start_exploded);
 
-    options.only_starred = false;
     options.max_count = max_total_results;
   } else {
     Time::Exploded exploded;
@@ -165,8 +169,6 @@ void HistoryModel::InitVisitRequest(int depth) {
       exploded.year--;
     }
     options.begin_time = Time::FromLocalExploded(exploded);
-
-    options.only_starred = false;
 
     // Subtract off the number of pages we already got.
     options.max_count = max_total_results - static_cast<int>(results_.size());
@@ -261,6 +263,8 @@ void HistoryModel::VisitedPagesQueryComplete(
 
   is_search_results_ = !search_text_.empty();
 
+  if (changed)
+    star_state_.reset(new StarState[results_.size()]);
   if (changed && observer_)
     observer_->ModelChanged(true);
 
@@ -287,10 +291,8 @@ bool HistoryModel::UpdateStarredStateOfURL(const GURL& url, bool is_starred) {
   size_t num_matches;
   const size_t* match_indices = results_.MatchesForURL(url, &num_matches);
   for (size_t i = 0; i < num_matches; i++) {
-    // Update the view. (We don't care about the ID, just 0 or nonzero.)
-    history::URLResult& result = results_[match_indices[i]];
-    if (result.starred() != is_starred) {
-      result.set_star_id(is_starred ? 1 : 0);
+    if (IsStarred(static_cast<int>(match_indices[i])) != is_starred) {
+      star_state_[match_indices[i]] = is_starred ? STARRED : NOT_STARRED;
       changed = true;
     }
   }

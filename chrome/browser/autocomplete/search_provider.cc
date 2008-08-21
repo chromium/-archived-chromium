@@ -31,6 +31,7 @@
 
 #include "base/message_loop.h"
 #include "base/string_util.h"
+#include "chrome/browser/bookmark_bar_model.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/google_util.h"
 #include "chrome/browser/profile.h"
@@ -238,7 +239,9 @@ void SearchProvider::OnQueryURLComplete(HistoryService::Handle handle,
                                         bool success,
                                         const history::URLRow* url_row,
                                         history::VisitVector* unused) {
-  bool is_starred = success ? url_row->starred() : false;
+  bool is_starred =
+      (success && profile_ &&
+       profile_->GetBookmarkBarModel()->IsBookmarked(url_row->url()));
   star_requests_pending_ = false;
   // We can't just use star_request_consumer_.HasPendingRequests() here;
   // see comment in ConvertResultsToAutocompleteMatches().

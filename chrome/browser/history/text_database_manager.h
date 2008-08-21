@@ -165,8 +165,6 @@ class TextDatabaseManager {
   void OptimizeChangedDatabases(const ChangeSet& change_set);
 
   // Executes the given query. See QueryOptions for more info on input.
-  // Note that the options.only_starred is ignored since this database does not
-  // have access to star information.
   //
   // The results are filled into |results|, and the first time considered for
   // the output is in |first_time_searched| (see QueryResults for more).

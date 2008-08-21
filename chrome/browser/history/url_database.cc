@@ -74,7 +74,6 @@ void URLDatabase::FillURLRow(SQLStatement& s, history::URLRow* i) {
   i->last_visit_ = Time::FromInternalValue(s.column_int64(5));
   i->hidden_ = s.column_int(6) != 0;
   i->favicon_id_ = s.column_int64(7);
-  i->star_id_ = s.column_int64(8);
 }
 
 bool URLDatabase::GetURLRow(URLID url_id, URLRow* info) {
@@ -115,7 +114,7 @@ bool URLDatabase::UpdateURLRow(URLID url_id,
                                const history::URLRow& info) {
   SQLITE_UNIQUE_STATEMENT(statement, GetStatementCache(),
       "UPDATE urls SET title=?,visit_count=?,typed_count=?,last_visit_time=?,"
-        "hidden=?,starred_id=?,favicon_id=?"
+        "hidden=?,favicon_id=?"
       "WHERE id=?");
   if (!statement.is_valid())
     return false;
@@ -125,9 +124,8 @@ bool URLDatabase::UpdateURLRow(URLID url_id,
   statement->bind_int(2, info.typed_count());
   statement->bind_int64(3, info.last_visit().ToInternalValue());
   statement->bind_int(4, info.hidden() ? 1 : 0);
-  statement->bind_int64(5, info.star_id());
-  statement->bind_int64(6, info.favicon_id());
-  statement->bind_int64(7, url_id);
+  statement->bind_int64(5, info.favicon_id());
+  statement->bind_int64(6, url_id);
   return statement->step() == SQLITE_DONE;
 }
 
@@ -139,8 +137,8 @@ URLID URLDatabase::AddURLInternal(const history::URLRow& info,
   // invalid in the insert syntax.
   #define ADDURL_COMMON_SUFFIX \
       "(url,title,visit_count,typed_count,"\
-       "last_visit_time,hidden,starred_id,favicon_id)"\
-      "VALUES(?,?,?,?,?,?,?,?)"
+       "last_visit_time,hidden,favicon_id)"\
+      "VALUES(?,?,?,?,?,?,?)"
   const char* statement_name;
   const char* statement_sql;
   if (is_temporary) {
@@ -163,8 +161,7 @@ URLID URLDatabase::AddURLInternal(const history::URLRow& info,
   statement->bind_int(3, info.typed_count());
   statement->bind_int64(4, info.last_visit().ToInternalValue());
   statement->bind_int(5, info.hidden() ? 1 : 0);
-  statement->bind_int64(6, info.star_id());
-  statement->bind_int64(7, info.favicon_id());
+  statement->bind_int64(6, info.favicon_id());
 
   if (statement->step() != SQLITE_DONE)
     return 0;
@@ -250,21 +247,15 @@ bool URLDatabase::IsFavIconUsed(FavIconID favicon_id) {
 }
 
 void URLDatabase::AutocompleteForPrefix(const std::wstring& prefix,
-                                            size_t max_results,
-                                            std::vector<history::URLRow>* results) {
+                                        size_t max_results,
+                                        std::vector<history::URLRow>* results) {
+  // TODO(sky): this query should order by starred as the second order by
+  // clause.
   results->clear();
-
-  // NOTE: Sorting by "starred_id == 0" is subtle.  First we do the comparison,
-  // and, according to the SQLite docs, get a numeric result (all binary
-  // operators except "||" result in a numeric value), which is either 1 or 0
-  // (implied by documentation showing the results of various comparison
-  // operations to always be 1 or 0).  Now we sort ascending, meaning all 0s go
-  // first -- so, all URLs where "starred_id == 0" is 0, i.e. all starred URLs.
   SQLITE_UNIQUE_STATEMENT(statement, GetStatementCache(),
       "SELECT" HISTORY_URL_ROW_FIELDS "FROM urls "
       "WHERE url >= ? AND url < ? AND hidden = 0 "
-      "ORDER BY typed_count DESC, starred_id == 0, visit_count DESC, "
-        "last_visit_time DESC "
+      "ORDER BY typed_count DESC, visit_count DESC, last_visit_time DESC "
       "LIMIT ?");
   if (!statement.is_valid())
     return;
@@ -443,6 +434,36 @@ bool URLDatabase::MigrateFromVersion11ToVersion12() {
   return true;
 }
 
+bool URLDatabase::DropStarredIDFromURLs() {
+  if (!DoesSqliteColumnExist(GetDB(), "urls", "starred_id", NULL))
+    return true;  // urls is already updated, no need to continue.
+
+  // Create a temporary table to contain the new URLs table.
+  if (!CreateTemporaryURLTable()) {
+    NOTREACHED();
+    return false;
+  }
+
+  // Copy the contents.
+  const char* insert_statement =
+      "INSERT INTO temp_urls (id, url, title, visit_count, typed_count, "
+      "last_visit_time, hidden, favicon_id) "
+      "SELECT id, url, title, visit_count, typed_count, last_visit_time, "
+      "hidden, favicon_id FROM urls";
+  if (sqlite3_exec(GetDB(), insert_statement, NULL, NULL, NULL) != SQLITE_OK) {
+    NOTREACHED();
+    return false;
+  }
+
+  // Rename/commit the tmp table.
+  CommitTemporaryURLTable();
+
+  // This isn't created by CommitTemporaryURLTable.
+  CreateSupplimentaryURLIndices();
+
+  return true;
+}
+
 bool URLDatabase::CreateURLTable(bool is_temporary) {
   const char* name = is_temporary ? "temp_urls" : "urls";
   if (DoesSqliteTableExist(GetDB(), name))
@@ -459,8 +480,7 @@ bool URLDatabase::CreateURLTable(bool is_temporary) {
       "typed_count INTEGER DEFAULT 0 NOT NULL,"
       "last_visit_time INTEGER NOT NULL,"
       "hidden INTEGER DEFAULT 0 NOT NULL,"
-      "favicon_id INTEGER DEFAULT 0 NOT NULL,"
-      "starred_id INTEGER DEFAULT 0 NOT NULL)");
+      "favicon_id INTEGER DEFAULT 0 NOT NULL)");
 
   return sqlite3_exec(GetDB(), sql.c_str(), NULL, NULL, NULL) == SQLITE_OK;
 }
@@ -476,10 +496,6 @@ void URLDatabase::CreateSupplimentaryURLIndices() {
   // Add a favicon index.  This is useful when we delete urls.
   sqlite3_exec(GetDB(), "CREATE INDEX urls_favicon_id_INDEX ON urls (favicon_id)",
                NULL, NULL, NULL);
-
-  // Index on starred_id.
-  sqlite3_exec(GetDB(), "CREATE INDEX urls_starred_id_INDEX ON urls "
-                    "(starred_id)", NULL, NULL, NULL);
 }
 
 }  // namespace history

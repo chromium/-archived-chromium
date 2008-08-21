@@ -85,9 +85,6 @@ class InMemoryHistoryBackend : public NotificationObserver {
   // Handler for NOTIFY_HISTORY_URLS_DELETED.
   void OnURLsDeleted(const URLsDeletedDetails& details);
 
-  // Handler for NOTIFY_URLS_STARRED.
-  void OnURLsStarred(const URLsStarredDetails& details);
-
   scoped_ptr<InMemoryDatabase> db_;
 
   // The profile that this object is attached. May be NULL before

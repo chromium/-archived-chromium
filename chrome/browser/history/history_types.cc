@@ -43,7 +43,6 @@ void URLRow::Swap(URLRow* other) {
   std::swap(typed_count_, other->typed_count_);
   std::swap(last_visit_, other->last_visit_);
   std::swap(hidden_, other->hidden_);
-  std::swap(star_id_, other->star_id_);
   std::swap(favicon_id_, other->favicon_id_);
 }
 
@@ -54,7 +53,6 @@ void URLRow::Initialize() {
   last_visit_ = Time();
   hidden_ = false;
   favicon_id_ = 0;
-  star_id_ = 0;
 }
 
 // VisitRow --------------------------------------------------------------------
@@ -113,7 +111,6 @@ void URLResult::Swap(URLResult* other) {
   std::swap(visit_time_, other->visit_time_);
   snippet_.Swap(&other->snippet_);
   title_match_positions_.swap(other->title_match_positions_);
-  starred_entry_.Swap(&other->starred_entry_);
 }
 
 // QueryResults ----------------------------------------------------------------

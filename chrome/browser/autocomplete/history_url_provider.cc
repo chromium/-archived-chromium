@@ -48,6 +48,8 @@
 #include "googleurl/src/url_util.h"
 #include "net/base/net_util.h"
 
+// TODO(sky): this needs to check and update starred state.
+
 HistoryURLProviderParams::HistoryURLProviderParams(
     const AutocompleteInput& input,
     bool trim_http,
@@ -315,7 +317,6 @@ bool HistoryURLProvider::FixupExactSuggestion(history::URLDatabase* db,
       return false;
   } else {
     // We have data for this match, use it.
-    match.starred = info.starred();
     match.deletable = true;
     match.description = info.title();
     AutocompleteMatch::ClassifyMatchInString(params->input.text(),
@@ -438,10 +439,6 @@ bool HistoryURLProvider::CompareHistoryMatch(const HistoryMatch& a,
   // URLs that have been typed more often are better.
   if (a.url_info.typed_count() != b.url_info.typed_count())
     return a.url_info.typed_count() > b.url_info.typed_count();
-
-  // Starred pages are better than unstarred pages.
-  if (a.url_info.starred() != b.url_info.starred())
-    return a.url_info.starred();
 
   // For URLs that have each been typed once, a host (alone) is better than a
   // page inside.
@@ -851,6 +848,5 @@ AutocompleteMatch HistoryURLProvider::HistoryMatchToACMatch(
                                            ACMatchClassification::NONE,
                                            &match.description_class);
 
-  match.starred = history_match.url_info.starred();
   return match;
 }

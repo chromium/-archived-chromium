@@ -30,6 +30,7 @@
 #include "chrome/browser/autocomplete/history_contents_provider.h"
 
 #include "base/string_util.h"
+#include "chrome/browser/bookmark_bar_model.h"
 #include "chrome/browser/history/query_parser.h"
 #include "chrome/browser/profile.h"
 #include "net/base/net_util.h"
@@ -108,6 +109,7 @@ void HistoryContentsProvider::Start(const AutocompleteInput& input,
     return;
   }
 
+  // TODO(sky): this needs to query BookmarkBarModel for starred entries.
   if (!synchronous_only) {
     HistoryService* history = history_service_ ? history_service_ :
         profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
@@ -201,7 +203,8 @@ AutocompleteMatch HistoryContentsProvider::ResultToMatch(
   match.contents_class.push_back(
       ACMatchClassification(0, ACMatchClassification::URL));
   match.description = result.title();
-  match.starred = result.starred();
+  match.starred =
+      (profile_ && profile_->GetBookmarkBarModel()->IsBookmarked(result.url()));
 
   ClassifyDescription(result, &match);
   return match;
@@ -235,11 +238,13 @@ void HistoryContentsProvider::ClassifyDescription(
 int HistoryContentsProvider::CalculateRelevance(
     const history::URLResult& result) {
   bool in_title = !!result.title_match_positions().size();
+  bool is_starred =
+      (profile_ && profile_->GetBookmarkBarModel()->IsBookmarked(result.url()));
 
   switch (input_type_) {
     case AutocompleteInput::UNKNOWN:
     case AutocompleteInput::REQUESTED_URL:
-      if (result.starred()) {
+      if (is_starred) {
         return in_title ? 1000 + star_title_count_++ :
                           550 + star_contents_count_++;
       } else {
@@ -249,7 +254,7 @@ int HistoryContentsProvider::CalculateRelevance(
 
     case AutocompleteInput::QUERY:
     case AutocompleteInput::FORCED_QUERY:
-      if (result.starred()) {
+      if (is_starred) {
         return in_title ? 1200 + star_title_count_++ :
                           750 + star_contents_count_++;
       } else {

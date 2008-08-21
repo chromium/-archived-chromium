@@ -241,6 +241,13 @@ HistoryService::Handle HistoryService::ScheduleDBTask(
                   request);
 }
 
+HistoryService::Handle HistoryService::ScheduleEmptyCallback(
+    CancelableRequestConsumerBase* consumer,
+    EmptyHistoryCallback* callback) {
+  return Schedule(PRIORITY_UI, &HistoryBackend::ProcessEmptyRequest,
+                  consumer, new history::EmptyHistoryRequest(callback));
+}
+
 HistoryService::Handle HistoryService::QuerySegmentUsageSince(
     CancelableRequestConsumerBase* consumer,
     const Time from_time,
@@ -433,55 +440,6 @@ void HistoryService::SetImportedFavicons(
     const std::vector<history::ImportedFavIconUsage>& favicon_usage) {
   ScheduleAndForget(PRIORITY_NORMAL,
                     &HistoryBackend::SetImportedFavicons, favicon_usage);
-}
-
-HistoryService::Handle HistoryService::GetAllStarredEntries(
-    CancelableRequestConsumerBase* consumer,
-    GetStarredEntriesCallback* callback) {
-  return Schedule(PRIORITY_UI, &HistoryBackend::GetAllStarredEntries,
-                  consumer,
-                  new history::GetStarredEntriesRequest(callback));
-}
-
-void HistoryService::UpdateStarredEntry(const history::StarredEntry& entry) {
-  ScheduleAndForget(PRIORITY_UI, &HistoryBackend::UpdateStarredEntry, entry);
-}
-
-HistoryService::Handle HistoryService::CreateStarredEntry(
-    const history::StarredEntry& entry,
-    CancelableRequestConsumerBase* consumer,
-    CreateStarredEntryCallback* callback) {
-  DCHECK(entry.type != history::StarredEntry::BOOKMARK_BAR &&
-         entry.type != history::StarredEntry::OTHER);
-  if (!consumer) {
-    ScheduleTask(PRIORITY_UI,
-        NewRunnableMethod(history_backend_.get(),
-                          &HistoryBackend::CreateStarredEntry,
-                          scoped_refptr<history::CreateStarredEntryRequest>(),
-                          entry));
-    return 0;
-  }
-  return Schedule(PRIORITY_UI, &HistoryBackend::CreateStarredEntry, consumer,
-                  new history::CreateStarredEntryRequest(callback), entry);
-}
-
-void HistoryService::DeleteStarredGroup(history::UIStarID group_id) {
-  ScheduleAndForget(PRIORITY_NORMAL, &HistoryBackend::DeleteStarredGroup,
-                    group_id);
-}
-
-void HistoryService::DeleteStarredURL(const GURL& url) {
-  ScheduleAndForget(PRIORITY_NORMAL, &HistoryBackend::DeleteStarredURL, url);
-}
-
-HistoryService::Handle HistoryService::GetMostRecentStarredEntries(
-    int max_count,
-    CancelableRequestConsumerBase* consumer,
-    GetMostRecentStarredEntriesCallback* callback) {
-  return Schedule(PRIORITY_UI, &HistoryBackend::GetMostRecentStarredEntries,
-                  consumer,
-                  new history::GetMostRecentStarredEntriesRequest(callback),
-                  max_count);
 }
 
 void HistoryService::IterateURLs(URLEnumerator* enumerator) {

@@ -102,19 +102,6 @@ typedef CancelableRequest<HistoryService::ThumbnailDataCallback>
 typedef CancelableRequest<HistoryService::FavIconDataCallback>
     GetFavIconRequest;
 
-// Starring -------------------------------------------------------------------
-
-typedef CancelableRequest1<HistoryService::GetStarredEntriesCallback,
-                           std::vector<history::StarredEntry> >
-    GetStarredEntriesRequest;
-
-typedef CancelableRequest1<HistoryService::GetMostRecentStarredEntriesCallback,
-                           std::vector<history::StarredEntry> >
-    GetMostRecentStarredEntriesRequest;
-
-typedef CancelableRequest<HistoryService::CreateStarredEntryCallback>
-    CreateStarredEntryRequest;
-
 // Downloads ------------------------------------------------------------------
 
 typedef CancelableRequest1<HistoryService::DownloadQueryCallback,
@@ -154,6 +141,9 @@ typedef
 typedef CancelableRequest1<HistoryService::HistoryDBTaskCallback,
                            scoped_refptr<HistoryDBTask> >
     HistoryDBTaskRequest;
+
+typedef CancelableRequest<HistoryService::EmptyHistoryCallback>
+    EmptyHistoryRequest;
 
 }  // namespace history
 

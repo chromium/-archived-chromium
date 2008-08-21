@@ -135,7 +135,7 @@ class BookmarkEditorView : public ChromeViews::View,
 
  private:
   // Type of node in the tree.
-  typedef ChromeViews::TreeNodeWithValue<history::UIStarID> BookmarkNode;
+  typedef ChromeViews::TreeNodeWithValue<int> BookmarkNode;
 
   // Model for the TreeView. Trivial subclass that doesn't allow titles with
   // empty strings.
@@ -197,8 +197,7 @@ class BookmarkEditorView : public ChromeViews::View,
                    BookmarkNode* b_node);
 
   // Returns the node with the specified id, or NULL if one can't be found.
-  BookmarkNode* FindNodeWithID(BookmarkEditorView::BookmarkNode* node,
-                               history::UIStarID id);
+  BookmarkNode* FindNodeWithID(BookmarkEditorView::BookmarkNode* node, int id);
 
   // Invokes ApplyEdits with the selected node.
   void ApplyEdits();

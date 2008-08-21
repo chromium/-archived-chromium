@@ -518,35 +518,61 @@ void TemplateURLHandler::OnTemplateURLModelChanged() {
 }
 
 RecentlyBookmarkedHandler::RecentlyBookmarkedHandler(DOMUIHost* dom_ui_host)
-    : dom_ui_host_(dom_ui_host) {
+    : dom_ui_host_(dom_ui_host),
+      model_(NULL) {
   dom_ui_host->RegisterMessageCallback("getRecentlyBookmarked",
       NewCallback(this,
                   &RecentlyBookmarkedHandler::HandleGetRecentlyBookmarked));
 }
 
-void RecentlyBookmarkedHandler::HandleGetRecentlyBookmarked(const Value*) {
-  HistoryService* hs =
-      dom_ui_host_->profile()->GetHistoryService(Profile::EXPLICIT_ACCESS);
-  if (hs) {
-    HistoryService::Handle handle = hs->GetMostRecentStarredEntries(
-        kRecentBookmarks,
-        &cancelable_consumer_,
-        NewCallback(this,
-            &RecentlyBookmarkedHandler::OnMostRecentStarredEntries));
-  }
+RecentlyBookmarkedHandler::~RecentlyBookmarkedHandler() {
+  if (model_)
+    model_->RemoveObserver(this);
 }
 
-void RecentlyBookmarkedHandler::OnMostRecentStarredEntries(
-    HistoryService::Handle request_handle,
-    std::vector<history::StarredEntry>* entries) {
+void RecentlyBookmarkedHandler::HandleGetRecentlyBookmarked(const Value*) {
+  if (!model_) {
+    model_ = dom_ui_host_->profile()->GetBookmarkBarModel();
+    model_->AddObserver(this);
+  }
+  // If the model is loaded, synchronously send the bookmarks down. Otherwise
+  // when the model loads we'll send the bookmarks down.
+  if (model_->IsLoaded())
+    SendBookmarksToPage();
+}
+
+void RecentlyBookmarkedHandler::SendBookmarksToPage() {
+  std::vector<BookmarkBarNode*> recently_bookmarked;
+  model_->GetMostRecentlyAddedEntries(kRecentBookmarks, &recently_bookmarked);
   ListValue list_value;
-  for (size_t i = 0; i < entries->size(); ++i) {
-    const history::StarredEntry& entry = (*entries)[i];
+  for (size_t i = 0; i < recently_bookmarked.size(); ++i) {
+    BookmarkBarNode* node = recently_bookmarked[i];
     DictionaryValue* entry_value = new DictionaryValue;
-    SetURLAndTitle(entry_value, entry.title, entry.url);
+    SetURLAndTitle(entry_value, node->GetTitle(), node->GetURL());
     list_value.Append(entry_value);
   }
   dom_ui_host_->CallJavascriptFunction(L"recentlyBookmarked", list_value);
+}
+
+void RecentlyBookmarkedHandler::Loaded(BookmarkBarModel* model) {
+  SendBookmarksToPage();
+}
+
+void RecentlyBookmarkedHandler::BookmarkNodeAdded(BookmarkBarModel* model,
+                                                  BookmarkBarNode* parent,
+                                                  int index) {
+  SendBookmarksToPage();
+}
+
+void RecentlyBookmarkedHandler::BookmarkNodeRemoved(BookmarkBarModel* model,
+                                                    BookmarkBarNode* parent,
+                                                    int index) {
+  SendBookmarksToPage();
+}
+
+void RecentlyBookmarkedHandler::BookmarkNodeChanged(BookmarkBarModel* model,
+                                                    BookmarkBarNode* node) {
+  SendBookmarksToPage();
 }
 
 RecentlyClosedTabsHandler::RecentlyClosedTabsHandler(DOMUIHost* dom_ui_host)

@@ -67,6 +67,15 @@ class ArchivedDatabase : public URLDatabase,
   virtual sqlite3* GetDB();
   virtual SqliteStatementCache& GetStatementCache();
 
+  // Makes sure the version is up-to-date, updating if necessary. If the
+  // database is too old to migrate, the user will be notified. In this case, or
+  // for other errors, false will be returned. True means it is up-to-date and
+  // ready for use.
+  //
+  // This assumes it is called from the init function inside a transaction. It
+  // may commit the transaction and start a new one if migration requires it.
+  InitStatus EnsureCurrentVersion();
+
   // The database.
   //
   // The close scoper will free the database and delete the statement cache in

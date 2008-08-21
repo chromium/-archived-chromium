@@ -29,19 +29,35 @@
 
 #include "chrome/test/testing_profile.h"
 
-TestingProfile::~TestingProfile() {
-  DestroyHistoryService();
+#include "chrome/common/chrome_constants.h"
+
+TestingProfile::TestingProfile()
+    : start_time_(Time::Now()), has_history_service_(false) {
+  PathService::Get(base::DIR_TEMP, &path_);
+  file_util::AppendToPath(&path_, L"TestingProfilePath");
+  file_util::Delete(path_, true);
+  file_util::CreateDirectory(path_);
 }
 
-void TestingProfile::CreateHistoryService() {
-  DCHECK(!history_service_.get());
+TestingProfile::~TestingProfile() {
+  DestroyHistoryService();
+  file_util::Delete(path_, true);
+}
 
-  PathService::Get(base::DIR_TEMP, &history_dir_);
-  file_util::AppendToPath(&history_dir_, L"HistoryTest");
-  file_util::Delete(history_dir_, true);
+void TestingProfile::CreateHistoryService(bool delete_file) {
+  if (history_service_.get())
+    history_service_->Cleanup();
+
+  history_service_ = NULL;
+
+  if (delete_file) {
+    std::wstring path = GetPath();
+    file_util::AppendToPath(&path, chrome::kHistoryFilename);
+    file_util::Delete(path, false);
+  }
   file_util::CreateDirectory(history_dir_);
   history_service_ = new HistoryService();
-  history_service_->Init(history_dir_);
+  history_service_->Init(GetPath());
 }
 
 void TestingProfile::DestroyHistoryService() {
@@ -59,9 +75,6 @@ void TestingProfile::DestroyHistoryService() {
   // our destroy task.
   MessageLoop::current()->Run();
 
-  // Try to clean up the database file.
-  file_util::Delete(history_dir_, true);
-
   // Make sure we don't have any event pending that could disrupt the next
   // test.
   MessageLoop::current()->PostTask(FROM_HERE, new MessageLoop::QuitTask);
@@ -69,6 +82,9 @@ void TestingProfile::DestroyHistoryService() {
 }
 
 void TestingProfile::CreateBookmarkBarModel() {
+  std::wstring path = GetPath();
+  file_util::AppendToPath(&path, chrome::kBookmarksFileName);
+  file_util::Delete(path, false);
   bookmark_bar_model_.reset(new BookmarkBarModel(this));
 }
 

@@ -48,8 +48,7 @@ bool IsURLRowEqual(const URLRow& a,
       a.visit_count() == b.visit_count() &&
       a.typed_count() == b.typed_count() &&
       a.last_visit() - b.last_visit() <= TimeDelta::FromSeconds(1) &&
-      a.hidden() == b.hidden() &&
-      a.starred() == b.starred();
+      a.hidden() == b.hidden();
 }
 
 class URLDatabaseTest : public testing::Test,

@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_BROWSER_BOOKMARK_DRAG_DATA
-#define CHROME_BROWSER_BOOKMARK_DRAG_DATA
+#ifndef CHROME_BROWSER_BOOKMARK_DRAG_DATA_
+#define CHROME_BROWSER_BOOKMARK_DRAG_DATA_
 
 #include <vector>
 
@@ -99,8 +99,8 @@ struct BookmarkDragData {
   // Adds to children an entry for each child of node.
   void AddChildren(BookmarkBarNode* node);
 
-  // If we're a group, this is our id.
-  history::UIStarID group_id_;
+  // ID (node->id()) of the node this BookmarkDragData was created from.
+  int id_;
 };
 
-#endif  // CHROME_BROWSER_BOOKMARK_DRAG_DATA
+#endif  // CHROME_BROWSER_BOOKMARK_DRAG_DATA_

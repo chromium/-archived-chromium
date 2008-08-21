@@ -30,10 +30,35 @@
 #include "chrome/browser/bookmark_bar_model.h"
 
 #include "base/gfx/png_decoder.h"
+#include "chrome/browser/history/query_parser.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/bookmark_storage.h"
+#include "chrome/common/scoped_vector.h"
+
 #include "generated_resources.h"
 
+namespace {
+
+// Functions used for sorting.
+bool MoreRecentlyModified(BookmarkBarNode* n1, BookmarkBarNode* n2) {
+  return n1->date_group_modified() > n2->date_group_modified();
+}
+
+bool MoreRecentlyAdded(BookmarkBarNode* n1, BookmarkBarNode* n2) {
+  return n1->date_added() > n2->date_added();
+}
+
+}  // namespace
+
 // BookmarkBarNode ------------------------------------------------------------
+
+namespace {
+
+// ID for BookmarkBarNodes.
+// Various places assume an invalid id if == 0, for that reason we start with 1.
+int next_id_ = 1;
+
+}
 
 const SkBitmap& BookmarkBarNode::GetFavIcon() {
   if (!loaded_favicon_) {
@@ -43,57 +68,26 @@ const SkBitmap& BookmarkBarNode::GetFavIcon() {
   return favicon_;
 }
 
-BookmarkBarNode::BookmarkBarNode(BookmarkBarModel* model)
+BookmarkBarNode::BookmarkBarNode(BookmarkBarModel* model, const GURL& url)
     : model_(model),
-      group_id_(0),
-      star_id_(0),
+      id_(next_id_++),
       loaded_favicon_(false),
       favicon_load_handle_(0),
-      type_(history::StarredEntry::BOOKMARK_BAR),
+      url_(url),
+      type_(!url.is_empty() ? history::StarredEntry::URL :
+            history::StarredEntry::BOOKMARK_BAR),
       date_added_(Time::Now()) {
-  DCHECK(model_);
 }
 
 void BookmarkBarNode::Reset(const history::StarredEntry& entry) {
-  // We should either have no id, or the id of the new entry should match
-  // this.
-  DCHECK(!star_id_ || star_id_ == entry.id);
-  star_id_ = entry.id;
-  group_id_ = entry.group_id;
-  url_ = entry.url;
+  DCHECK(entry.type != history::StarredEntry::URL ||
+         entry.url == url_);
+
   favicon_ = SkBitmap();
-  loaded_favicon_ = false;
-  favicon_load_handle_ = 0;
   type_ = entry.type;
   date_added_ = entry.date_added;
   date_group_modified_ = entry.date_group_modified;
   SetTitle(entry.title);
-}
-
-void BookmarkBarNode::SetURL(const GURL& url) {
-  DCHECK(favicon_load_handle_ == 0);
-  loaded_favicon_ = false;
-  favicon_load_handle_ = 0;
-  url_ = url;
-  favicon_ .reset();
-}
-
-history::StarredEntry BookmarkBarNode::GetEntry() {
-  history::StarredEntry entry;
-  entry.id = GetStarID();
-  entry.group_id = group_id_;
-  entry.url = GetURL();
-  entry.title = GetTitle();
-  entry.type = type_;
-  entry.date_added = date_added_;
-  entry.date_group_modified = date_group_modified_;
-  // Only set the parent and visual order if we have a valid parent (the root
-  // node is not in the db and has a group_id of 0).
-  if (GetParent() && GetParent()->group_id_) {
-    entry.visual_order = GetParent()->IndexOfChild(this);
-    entry.parent_group_id = GetParent()->GetGroupID();
-  }
-  return entry;
 }
 
 // BookmarkBarModel -----------------------------------------------------------
@@ -102,36 +96,46 @@ BookmarkBarModel::BookmarkBarModel(Profile* profile)
     : profile_(profile),
       loaded_(false),
 #pragma warning(suppress: 4355)  // Okay to pass "this" here.
-      root_(this),
-      // See declaration for description.
-      next_group_id_(HistoryService::kBookmarkBarID + 1),
+      root_(this, GURL()),
       bookmark_bar_node_(NULL),
       other_node_(NULL) {
-  // Notifications we want.
-  if (profile_)
-    NotificationService::current()->AddObserver(
-        this, NOTIFY_STARRED_FAVICON_CHANGED, Source<Profile>(profile_));
+  // Create the bookmark bar and other bookmarks folders. These always exist.
+  CreateBookmarkBarNode();
+  CreateOtherBookmarksNode();
 
-  if (!profile || !profile_->GetHistoryService(Profile::EXPLICIT_ACCESS)) {
-    // Profile/HistoryService is NULL during testing.
-    CreateBookmarkBarNode();
-    CreateOtherBookmarksNode();
-    AddRootChildren(NULL);
+  // And add them to the root.
+  //
+  // WARNING: order is important here, various places assume bookmark bar then
+  // other node.
+  root_.Add(0, bookmark_bar_node_);
+  root_.Add(1, other_node_);
+
+  if (!profile_) {
+    // Profile is null during testing.
     loaded_ = true;
     return;
   }
 
-  // Request the entries on the bookmark bar.
-  profile_->GetHistoryService(Profile::EXPLICIT_ACCESS)->
-      GetAllStarredEntries(&load_consumer_,
-                           NewCallback(this,
-                                       &BookmarkBarModel::OnGotStarredEntries));
+  // Listen for changes to starred icons so that we can update the favicon of
+  // the node appropriately.
+  NotificationService::current()->AddObserver(
+      this, NOTIFY_FAVICON_CHANGED, Source<Profile>(profile_));
+
+  // Load the bookmarks. BookmarkStorage notifies us when done.
+  store_ = new BookmarkStorage(profile_, this);
+  store_->LoadBookmarks(false);
 }
 
 BookmarkBarModel::~BookmarkBarModel() {
   if (profile_) {
     NotificationService::current()->RemoveObserver(
-        this, NOTIFY_STARRED_FAVICON_CHANGED, Source<Profile>(profile_));
+        this, NOTIFY_FAVICON_CHANGED, Source<Profile>(profile_));
+  }
+
+  if (store_) {
+    // The store maintains a reference back to us. We need to tell it we're gone
+    // so that it doesn't try and invoke a method back on us again.
+    store_->BookmarkModelDeleted();
   }
 }
 
@@ -160,38 +164,50 @@ std::vector<BookmarkBarNode*> BookmarkBarModel::GetMostRecentlyModifiedGroups(
   return nodes;
 }
 
-void BookmarkBarModel::Remove(BookmarkBarNode* parent, int index) {
-#ifndef NDEBUG
-  CheckIndex(parent, index, false);
-#endif
-  if (parent != &root_) {
-    RemoveAndDeleteNode(parent->GetChild(index));
-  } else {
-    NOTREACHED();  // Can't remove from the root.
+void BookmarkBarModel::GetMostRecentlyAddedEntries(
+    size_t count,
+    std::vector<BookmarkBarNode*>* nodes) {
+  for (NodesOrderedByURLSet::iterator i = nodes_ordered_by_url_set_.begin();
+       i != nodes_ordered_by_url_set_.end(); ++i) {
+    std::vector<BookmarkBarNode*>::iterator insert_position =
+        std::upper_bound(nodes->begin(), nodes->end(), *i, &MoreRecentlyAdded);
+    if (nodes->size() < count || insert_position != nodes->end()) {
+      nodes->insert(insert_position, *i);
+      while (nodes->size() > count)
+        nodes->pop_back();
+    }
   }
 }
 
-void BookmarkBarModel::RemoveFromBookmarkBar(BookmarkBarNode* node) {
-  if (!node->HasAncestor(bookmark_bar_node_))
+void BookmarkBarModel::GetBookmarksMatchingText(
+    const std::wstring& text,
+    std::vector<BookmarkBarNode*>* nodes) {
+  QueryParser parser;
+  ScopedVector<QueryNode> query_nodes;
+  parser.ParseQuery(text, &query_nodes.get());
+  if (query_nodes.empty())
     return;
 
-  if (node != &root_ && node != bookmark_bar_node_ && node != other_node_) {
-    Move(node, other_node_, other_node_->GetChildCount());
-  } else {
-    NOTREACHED();  // Can't move the root, bookmark bar or other nodes.
+  for (NodesOrderedByURLSet::iterator i = nodes_ordered_by_url_set_.begin();
+       i != nodes_ordered_by_url_set_.end(); ++i) {
+    if (parser.DoesQueryMatch((*i)->GetTitle(), query_nodes.get()))
+      nodes->push_back(*i);
   }
+}
+
+void BookmarkBarModel::Remove(BookmarkBarNode* parent, int index) {
+  if (!loaded_ || !IsValidIndex(parent, index, false) || parent == &root_) {
+    NOTREACHED();
+    return;
+  }
+  RemoveAndDeleteNode(parent->GetChild(index));
 }
 
 void BookmarkBarModel::Move(BookmarkBarNode* node,
                             BookmarkBarNode* new_parent,
                             int index) {
-  DCHECK(node && new_parent);
-  DCHECK(node->GetParent());
-#ifndef NDEBUG
-  CheckIndex(new_parent, index, true);
-#endif
-
-  if (new_parent == &root_ || node == &root_ || node == bookmark_bar_node_ ||
+  if (!loaded_ || !node || !IsValidIndex(new_parent, index, true) ||
+      new_parent == &root_ || node == &root_ || node == bookmark_bar_node_ ||
       node == other_node_) {
     NOTREACHED();
     return;
@@ -218,10 +234,9 @@ void BookmarkBarModel::Move(BookmarkBarNode* node,
     index--;
   new_parent->Add(index, node);
 
-  HistoryService* history = !profile_ ? NULL :
-      profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
-  if (history)
-    history->UpdateStarredEntry(node->GetEntry());
+  if (store_.get())
+    store_->ScheduleSave();
+
   FOR_EACH_OBSERVER(BookmarkBarModelObserver, observers_,
                     BookmarkNodeMoved(this, old_parent, old_index,
                                       new_parent, index));
@@ -229,47 +244,44 @@ void BookmarkBarModel::Move(BookmarkBarNode* node,
 
 void BookmarkBarModel::SetTitle(BookmarkBarNode* node,
                                 const std::wstring& title) {
-  DCHECK(node);
+  if (!node) {
+    NOTREACHED();
+    return;
+  }
   if (node->GetTitle() == title)
     return;
+
   node->SetTitle(title);
-  HistoryService* history = !profile_ ? NULL :
-      profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
-  if (history)
-    history->UpdateStarredEntry(node->GetEntry());
+
+  if (store_.get())
+    store_->ScheduleSave();
+
   FOR_EACH_OBSERVER(BookmarkBarModelObserver, observers_,
                     BookmarkNodeChanged(this, node));
 }
 
 BookmarkBarNode* BookmarkBarModel::GetNodeByURL(const GURL& url) {
-  BookmarkBarNode tmp_node(this);
-  tmp_node.url_ = url;
+  BookmarkBarNode tmp_node(this, url);
   NodesOrderedByURLSet::iterator i = nodes_ordered_by_url_set_.find(&tmp_node);
   return (i != nodes_ordered_by_url_set_.end()) ? *i : NULL;
 }
 
-BookmarkBarNode* BookmarkBarModel::GetNodeByGroupID(
-    history::UIStarID group_id) {
+BookmarkBarNode* BookmarkBarModel::GetNodeByID(int id) {
   // TODO(sky): TreeNode needs a method that visits all nodes using a predicate.
-  return GetNodeByGroupID(&root_, group_id);
+  return GetNodeByID(&root_, id);
 }
 
 BookmarkBarNode* BookmarkBarModel::AddGroup(
     BookmarkBarNode* parent,
     int index,
     const std::wstring& title) {
-  DCHECK(IsLoaded());
-#ifndef NDEBUG
-  CheckIndex(parent, index, true);
-#endif
-  if (parent == &root_) {
+  if (!loaded_ || parent == &root_ || !IsValidIndex(parent, index, true)) {
     // Can't add to the root.
     NOTREACHED();
     return NULL;
   }
 
-  BookmarkBarNode* new_node = new BookmarkBarNode(this);
-  new_node->group_id_ = next_group_id_++;
+  BookmarkBarNode* new_node = new BookmarkBarNode(this, GURL());
   new_node->SetTitle(title);
   new_node->type_ = history::StarredEntry::USER_GROUP;
 
@@ -289,15 +301,11 @@ BookmarkBarNode* BookmarkBarModel::AddURLWithCreationTime(
     const std::wstring& title,
     const GURL& url,
     const Time& creation_time) {
-  DCHECK(IsLoaded() && url.is_valid() && parent);
-  if (parent == &root_) {
-    // Can't add to the root.
+  if (!loaded_ || !url.is_valid() || parent == &root_ ||
+      !IsValidIndex(parent, index, true)) {
     NOTREACHED();
     return NULL;
   }
-#ifndef NDEBUG
-  CheckIndex(parent, index, true);
-#endif
 
   BookmarkBarNode* existing_node = GetNodeByURL(url);
   if (existing_node) {
@@ -308,9 +316,8 @@ BookmarkBarNode* BookmarkBarModel::AddURLWithCreationTime(
 
   SetDateGroupModified(parent, creation_time);
 
-  BookmarkBarNode* new_node = new BookmarkBarNode(this);
+  BookmarkBarNode* new_node = new BookmarkBarNode(this, url);
   new_node->SetTitle(title);
-  new_node->SetURL(url);
   new_node->date_added_ = creation_time;
   new_node->type_ = history::StarredEntry::URL;
 
@@ -342,139 +349,84 @@ void BookmarkBarModel::FavIconLoaded(BookmarkBarNode* node) {
                     BookmarkNodeFavIconLoaded(this, node));
 }
 
-void BookmarkBarModel::RemoveNode(BookmarkBarNode* node) {
-  DCHECK(node && node != bookmark_bar_node_ && node != other_node_);
+void BookmarkBarModel::RemoveNode(BookmarkBarNode* node,
+                                  std::set<GURL>* removed_urls) {
+  if (!loaded_ || !node || node == &root_ || node == bookmark_bar_node_ ||
+      node == other_node_) {
+    NOTREACHED();
+    return;
+  }
+
   if (node->GetType() == history::StarredEntry::URL) {
     NodesOrderedByURLSet::iterator i = nodes_ordered_by_url_set_.find(node);
     DCHECK(i != nodes_ordered_by_url_set_.end());
     nodes_ordered_by_url_set_.erase(i);
-  }
-
-  NodeToHandleMap::iterator i = node_to_handle_map_.find(node);
-  if (i != node_to_handle_map_.end()) {
-    HistoryService* history = !profile_ ? NULL :
-        profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
-    if (history)
-      request_consumer_.SetClientData(history, i->second, NULL);
-    node_to_handle_map_.erase(i);
+    removed_urls->insert(node->GetURL());
   }
 
   CancelPendingFavIconLoadRequests(node);
 
   // Recurse through children.
   for (int i = node->GetChildCount() - 1; i >= 0; --i)
-    RemoveNode(node->GetChild(i));
+    RemoveNode(node->GetChild(i), removed_urls);
 }
 
-void BookmarkBarModel::OnGotStarredEntries(
-    HistoryService::Handle,
-    std::vector<history::StarredEntry>* entries) {
+void BookmarkBarModel::OnBookmarkStorageLoadedBookmarks(
+    bool file_exists,
+    bool loaded_from_history) {
   if (loaded_) {
     NOTREACHED();
     return;
   }
 
-  DCHECK(entries);
-  // Create tree nodes for each of the elements.
-  PopulateNodes(entries);
+  if (file_exists || loaded_from_history || !profile_ ||
+      !profile_->GetHistoryService(Profile::EXPLICIT_ACCESS)) {
+    if (loaded_from_history) {
+      // We were just populated from the historical file. Schedule a save so
+      // that the main file is up to date.
+      store_->ScheduleSave();
+    }
 
-  // Yes, we've finished loading.
+    // The file exists, we're loaded.
+    DoneLoading();
+    return;
+  }
+
+  // The file doesn't exist. If the bookmarks were in the db the history db
+  // will copy them to a file on init. Schedule an empty request to history so
+  // that we know history will have saved the bookmarks (if it had them). When
+  // the callback is processed 
+  // when done we'll try and load the bookmarks again.
+  profile_->GetHistoryService(Profile::EXPLICIT_ACCESS)->
+      ScheduleEmptyCallback(&load_consumer_,
+      NewCallback(this, &BookmarkBarModel::OnHistoryDone));
+}
+
+void BookmarkBarModel::OnHistoryDone(HistoryService::Handle handle) {
+  if (loaded_) {
+    NOTREACHED();
+    return;
+  }
+
+  // If the bookmarks were stored in the db the db will have migrated them to
+  // a file now. Try loading from the file.
+  store_->LoadBookmarks(true);
+}
+
+void BookmarkBarModel::DoneLoading() {
+  // Update nodes_ordered_by_url_set_ from the nodes.
+  PopulateNodesByURL(&root_);
+
   loaded_ = true;
 
+  // Notify our direct observers.
   FOR_EACH_OBSERVER(BookmarkBarModelObserver, observers_, Loaded(this));
 
+  // And generic notification.
   NotificationService::current()->Notify(
       NOTIFY_BOOKMARK_MODEL_LOADED,
       Source<Profile>(profile_),
       NotificationService::NoDetails());
-}
-
-void BookmarkBarModel::PopulateNodes(
-    std::vector<history::StarredEntry>* entries) {
-  std::map<history::UIStarID,history::StarID> group_id_to_id_map;
-  IDToNodeMap id_to_node_map;
-
-  // Iterate through the entries building a mapping between group_id and id as
-  // well as creating the bookmark bar node and other node.
-  for (std::vector<history::StarredEntry>::const_iterator i = entries->begin();
-       i != entries->end(); ++i) {
-    if (i->type == history::StarredEntry::URL)
-      continue;
-
-    if (i->type == history::StarredEntry::OTHER)
-      other_node_ = CreateRootNodeFromStarredEntry(*i);
-    else if (i->type == history::StarredEntry::BOOKMARK_BAR)
-      bookmark_bar_node_ = CreateRootNodeFromStarredEntry(*i);
-
-    group_id_to_id_map[i->group_id] = i->id;
-  }
-
-  // Add the bookmark bar and other nodes to the root node.
-  AddRootChildren(&id_to_node_map);
-
-  // If the db was corrupt and we didn't get the bookmark bar/other nodes,
-  // AddRootChildren will create them. Update the map to make sure it includes
-  // these nodes.
-  group_id_to_id_map[other_node_->group_id_] = other_node_->star_id_;
-  group_id_to_id_map[bookmark_bar_node_->group_id_] =
-      bookmark_bar_node_->star_id_;
-
-  // Iterate through the entries again creating the nodes.
-  for (std::vector<history::StarredEntry>::iterator i = entries->begin();
-       i != entries->end(); ++i) {
-    if (!i->parent_group_id) {
-      DCHECK(i->type == history::StarredEntry::BOOKMARK_BAR ||
-             i->type == history::StarredEntry::OTHER);
-      // Ignore entries not parented to the bookmark bar.
-      continue;
-    }
-
-    BookmarkBarNode* node = id_to_node_map[i->id];
-    if (!node) {
-      // Creating a node results in creating the parent. As such, it is
-      // possible for the node representing a group to have been created before
-      // encountering the details.
-
-      // The created nodes are owned by the root node.
-      node = new BookmarkBarNode(this);
-      id_to_node_map[i->id] = node;
-    }
-    node->Reset(*i);
-
-    DCHECK(group_id_to_id_map.find(i->parent_group_id) !=
-           group_id_to_id_map.end());
-    history::StarID parent_id = group_id_to_id_map[i->parent_group_id];
-    BookmarkBarNode* parent = id_to_node_map[parent_id];
-    if (!parent) {
-      // Haven't encountered the parent yet, create it now.
-      parent = new BookmarkBarNode(this);
-      id_to_node_map[parent_id] = parent;
-    }
-
-    if (i->type == history::StarredEntry::URL)
-      nodes_ordered_by_url_set_.insert(node);
-    else
-      next_group_id_ = std::max(next_group_id_, i->group_id + 1);
-
-    // Add the node to its parent. entries is ordered by parent then
-    // visual order so that we know we maintain visual order by always adding
-    // to the end.
-    parent->Add(parent->GetChildCount(), node);
-  }
-}
-
-void BookmarkBarModel::OnCreatedEntry(HistoryService::Handle handle,
-                                      history::StarID id) {
-  BookmarkBarNode* node = request_consumer_.GetClientData(
-      profile_->GetHistoryService(Profile::EXPLICIT_ACCESS), handle);
-  // Node is NULL if the node was removed by the user before the request
-  // was processed.
-  if (node) {
-    DCHECK(!node->star_id_);
-    node->star_id_ = id;
-    DCHECK(node_to_handle_map_.find(node) != node_to_handle_map_.end());
-    node_to_handle_map_.erase(node_to_handle_map_.find(node));
-  }
 }
 
 void BookmarkBarModel::RemoveAndDeleteNode(BookmarkBarNode* delete_me) {
@@ -484,84 +436,79 @@ void BookmarkBarModel::RemoveAndDeleteNode(BookmarkBarNode* delete_me) {
   DCHECK(parent);
   int index = parent->IndexOfChild(node.get());
   parent->Remove(index);
-  RemoveNode(node.get());
+  history::URLsStarredDetails details(false);
+  RemoveNode(node.get(), &details.changed_urls);
 
-  HistoryService* history = profile_ ?
-      profile_->GetHistoryService(Profile::EXPLICIT_ACCESS) : NULL;
-  if (history) {
-    if (node->GetType() == history::StarredEntry::URL) {
-      history->DeleteStarredURL(node->GetURL());
-    } else {
-      history->DeleteStarredGroup(node->GetGroupID());
-    }
-  }
+  if (store_.get())
+    store_->ScheduleSave();
+
   FOR_EACH_OBSERVER(BookmarkBarModelObserver, observers_,
                     BookmarkNodeRemoved(this, parent, index));
+
+  NotificationService::current()->Notify(NOTIFY_URLS_STARRED,
+      Source<Profile>(profile_),
+      Details<history::URLsStarredDetails>(&details));
 }
 
 BookmarkBarNode* BookmarkBarModel::AddNode(BookmarkBarNode* parent,
-    int index,
-    BookmarkBarNode* node) {
+                                           int index,
+                                           BookmarkBarNode* node) {
   parent->Add(index, node);
 
-  // NOTE: As history calls us back when we invoke CreateStarredEntry, we have
-  // to be sure to invoke it after we've updated the nodes appropriately.
-  HistoryService* history = !profile_ ? NULL :
-      profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
-  if (history) {
-    HistoryService::Handle handle =
-        history->CreateStarredEntry(node->GetEntry(), &request_consumer_,
-            NewCallback(this, &BookmarkBarModel::OnCreatedEntry));
-    request_consumer_.SetClientData(history, handle, node);
-    node_to_handle_map_[node] = handle;
-  }
+  if (store_.get())
+    store_->ScheduleSave();
+
   FOR_EACH_OBSERVER(BookmarkBarModelObserver, observers_,
                     BookmarkNodeAdded(this, parent, index));
+
+  if (node->GetType() == history::StarredEntry::URL) {
+    history::URLsStarredDetails details(true);
+    details.changed_urls.insert(node->GetURL());
+    NotificationService::current()->Notify(NOTIFY_URLS_STARRED,
+        Source<Profile>(profile_),
+        Details<history::URLsStarredDetails>(&details));
+  }
   return node;
 }
 
-BookmarkBarNode* BookmarkBarModel::GetNodeByGroupID(
-    BookmarkBarNode* node,
-    history::UIStarID group_id) {
-  if (node->GetType() == history::StarredEntry::USER_GROUP &&
-      node->GetGroupID() == group_id) {
+BookmarkBarNode* BookmarkBarModel::GetNodeByID(BookmarkBarNode* node,
+                                               int id) {
+  if (node->id() == id)
     return node;
-  }
+
   for (int i = 0; i < node->GetChildCount(); ++i) {
-    BookmarkBarNode* result = GetNodeByGroupID(node->GetChild(i), group_id);
+    BookmarkBarNode* result = GetNodeByID(node->GetChild(i), id);
     if (result)
       return result;
   }
   return NULL;
 }
 
+bool BookmarkBarModel::IsValidIndex(BookmarkBarNode* parent,
+                                    int index,
+                                    bool allow_end) {
+  return (parent &&
+          (index >= 0 && (index < parent->GetChildCount() ||
+                          (allow_end && index == parent->GetChildCount()))));
+  }
+
 void BookmarkBarModel::SetDateGroupModified(BookmarkBarNode* parent,
                                             const Time time) {
   DCHECK(parent);
   parent->date_group_modified_ = time;
-  HistoryService* history = profile_ ?
-      profile_->GetHistoryService(Profile::EXPLICIT_ACCESS) : NULL;
-  if (history)
-    history->UpdateStarredEntry(parent->GetEntry());
+
+  if (store_.get())
+    store_->ScheduleSave();
 }
 
 void BookmarkBarModel::CreateBookmarkBarNode() {
   history::StarredEntry entry;
-  entry.id = HistoryService::kBookmarkBarID;
-  entry.group_id = HistoryService::kBookmarkBarID;
   entry.type = history::StarredEntry::BOOKMARK_BAR;
   bookmark_bar_node_ = CreateRootNodeFromStarredEntry(entry);
 }
 
 void BookmarkBarModel::CreateOtherBookmarksNode() {
   history::StarredEntry entry;
-  entry.id = HistoryService::kBookmarkBarID;
-  for (NodesOrderedByURLSet::iterator i = nodes_ordered_by_url_set_.begin();
-       i != nodes_ordered_by_url_set_.end(); ++i) {
-    entry.id = std::max(entry.id, (*i)->GetStarID());
-  }
-  entry.id++;
-  entry.group_id = next_group_id_++;
   entry.type = history::StarredEntry::OTHER;
   other_node_ = CreateRootNodeFromStarredEntry(entry);
 }
@@ -570,41 +517,13 @@ BookmarkBarNode* BookmarkBarModel::CreateRootNodeFromStarredEntry(
     const history::StarredEntry& entry) {
   DCHECK(entry.type == history::StarredEntry::BOOKMARK_BAR ||
          entry.type == history::StarredEntry::OTHER);
-  BookmarkBarNode* node = new BookmarkBarNode(this);
+  BookmarkBarNode* node = new BookmarkBarNode(this, GURL());
   node->Reset(entry);
   if (entry.type == history::StarredEntry::BOOKMARK_BAR)
     node->SetTitle(l10n_util::GetString(IDS_BOOMARK_BAR_FOLDER_NAME));
   else
     node->SetTitle(l10n_util::GetString(IDS_BOOMARK_BAR_OTHER_FOLDER_NAME));
-  next_group_id_ = std::max(next_group_id_, entry.group_id + 1);
   return node;
-}
-
-void BookmarkBarModel::AddRootChildren(IDToNodeMap* id_to_node_map) {
-  // When invoked we should have created the bookmark bar and other nodes. If
-  // not, it indicates the db couldn't be loaded correctly or is corrupt.
-  // Force creation so that bookmark bar model is still usable.
-  if (!bookmark_bar_node_) {
-    LOG(WARNING) << "No bookmark bar entry in the database. This indicates "
-                    "bookmarks database couldn't be loaded or is corrupt.";
-    CreateBookmarkBarNode();
-  }
-  if (!other_node_) {
-    LOG(WARNING) << "No other folders bookmark bar entry in the database. This "
-                    "indicates bookmarks database couldn't be loaded or is "
-                    "corrupt.";
-    CreateOtherBookmarksNode();
-  }
-
-  if (id_to_node_map) {
-    (*id_to_node_map)[other_node_->GetStarID()] = other_node_;
-    (*id_to_node_map)[bookmark_bar_node_->GetStarID()] = bookmark_bar_node_;
-  }
-
-  // WARNING: order is important here, various places assume bookmark bar then
-  // other node.
-  root_.Add(0, bookmark_bar_node_);
-  root_.Add(1, other_node_);
 }
 
 void BookmarkBarModel::OnFavIconDataAvailable(
@@ -640,6 +559,7 @@ void BookmarkBarModel::LoadFavIcon(BookmarkBarNode* node) {
       node->GetURL(), &load_consumer_,
       NewCallback(this, &BookmarkBarModel::OnFavIconDataAvailable));
   load_consumer_.SetClientData(history_service, handle, node);
+  node->favicon_load_handle_ = handle;
 }
 
 void BookmarkBarModel::CancelPendingFavIconLoadRequests(BookmarkBarNode* node) {
@@ -652,17 +572,12 @@ void BookmarkBarModel::CancelPendingFavIconLoadRequests(BookmarkBarNode* node) {
   }
 }
 
-// static
-bool BookmarkBarModel::MoreRecentlyModified(BookmarkBarNode* n1,
-                                            BookmarkBarNode* n2) {
-  return n1->date_group_modified_ > n2->date_group_modified_;
-}
-
 void BookmarkBarModel::GetMostRecentlyModifiedGroupNodes(
     BookmarkBarNode* parent,
     size_t count,
     std::vector<BookmarkBarNode*>* nodes) {
-  if (parent->group_id_ && parent->date_group_modified_ > Time()) {
+  if (parent != &root_ && parent->is_folder() &&
+      parent->date_group_modified() > Time()) {
     if (count == 0) {
       nodes->push_back(parent);
     } else {
@@ -679,9 +594,8 @@ void BookmarkBarModel::GetMostRecentlyModifiedGroupNodes(
      // (which have a time of 0).
   for (int i = 0; i < parent->GetChildCount(); ++i) {
     BookmarkBarNode* child = parent->GetChild(i);
-    if (child->GetType() != history::StarredEntry::URL) {
+    if (child->is_folder())
       GetMostRecentlyModifiedGroupNodes(child, count, nodes);
-    }
   }
 }
 
@@ -689,7 +603,7 @@ void BookmarkBarModel::Observe(NotificationType type,
                                const NotificationSource& source,
                                const NotificationDetails& details) {
   switch (type) {
-    case NOTIFY_STARRED_FAVICON_CHANGED: {
+    case NOTIFY_FAVICON_CHANGED: {
       // Prevent the observers from getting confused for multiple favicon loads.
       Details<history::FavIconChangeDetails> favicon_details(details);
       for (std::set<GURL>::const_iterator i = favicon_details->urls.begin();
@@ -710,4 +624,11 @@ void BookmarkBarModel::Observe(NotificationType type,
       NOTREACHED();
       break;
   }
+}
+
+void BookmarkBarModel::PopulateNodesByURL(BookmarkBarNode* node) {
+  if (node->is_url())
+    nodes_ordered_by_url_set_.insert(node);
+  for (int i = 0; i < node->GetChildCount(); ++i)
+    PopulateNodesByURL(node->GetChild(i));
 }

@@ -420,9 +420,9 @@ void BookmarkEditorView::ExpandAndSelect() {
   tree_view_.ExpandAll();
 
   BookmarkBarNode* to_select = bb_model_->GetNodeByURL(url_);
-  history::UIStarID group_id_to_select =
-      to_select ? to_select->GetParent()->GetGroupID() :
-                  bb_model_->GetParentForNewNodes()->GetGroupID();
+  int group_id_to_select =
+      to_select ? to_select->GetParent()->id() :
+                  bb_model_->GetParentForNewNodes()->id();
 
   DCHECK(group_id_to_select);  // GetMostRecentParent should never return NULL.
   BookmarkNode* b_node =
@@ -448,9 +448,9 @@ void BookmarkEditorView::CreateNodes(BookmarkBarNode* bb_node,
                                      BookmarkEditorView::BookmarkNode* b_node) {
   for (int i = 0; i < bb_node->GetChildCount(); ++i) {
     BookmarkBarNode* child_bb_node = bb_node->GetChild(i);
-    if (child_bb_node->GetType() != history::StarredEntry::URL) {
+    if (child_bb_node->is_folder()) {
       BookmarkNode* new_b_node = new BookmarkNode(child_bb_node->GetTitle(),
-                                                  child_bb_node->GetGroupID());
+                                                  child_bb_node->id());
       b_node->Add(b_node->GetChildCount(), new_b_node);
       CreateNodes(child_bb_node, new_b_node);
     }
@@ -459,7 +459,7 @@ void BookmarkEditorView::CreateNodes(BookmarkBarNode* bb_node,
 
 BookmarkEditorView::BookmarkNode* BookmarkEditorView::FindNodeWithID(
     BookmarkEditorView::BookmarkNode* node,
-    history::UIStarID id) {
+    int id) {
   if (node->value == id)
     return node;
   for (int i = 0; i < node->GetChildCount(); ++i) {
@@ -556,8 +556,7 @@ void BookmarkEditorView::ApplyNameChangesAndCreateNewGroups(
       // is the same).
       for (int j = 0; j < bb_node->GetChildCount(); ++j) {
         BookmarkBarNode* node = bb_node->GetChild(j);
-        if (node->GetType() != history::StarredEntry::URL &&
-            node->GetGroupID() == child_b_node->value) {
+        if (node->is_folder() && node->id() == child_b_node->value) {
           child_bb_node = node;
           break;
         }

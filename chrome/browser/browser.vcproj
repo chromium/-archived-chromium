@@ -818,11 +818,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\bookmark_codec.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\bookmark_codec.h"
+				>
+			</File>
+			<File
 				RelativePath=".\bookmark_drag_data.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\bookmark_drag_data.h"
+				>
+			</File>
+			<File
+				RelativePath=".\bookmark_storage.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\bookmark_storage.h"
 				>
 			</File>
 		</Filter>

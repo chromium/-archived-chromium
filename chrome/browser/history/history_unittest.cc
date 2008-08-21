@@ -120,12 +120,6 @@ class BackendDelegate : public HistoryBackend::Delegate {
   HistoryTest* history_test_;
 };
 
-bool IsURLStarred(URLDatabase* db, const GURL& url) {
-  URLRow row;
-  EXPECT_TRUE(db->GetRowForURL(url, &row)) << "URL not found";
-  return row.starred();
-}
-
 }  // namespace
 
 // This must be outside the anonymous namespace for the friend statement in
@@ -270,21 +264,6 @@ class HistoryTest : public testing::Test {
     else
       saved_redirects_.clear();
     MessageLoop::current()->Quit();
-  }
-
-  void SetURLStarred(const GURL& url, bool starred) {
-    history::StarredEntry entry;
-    entry.type = history::StarredEntry::URL;
-    entry.url = url;
-    history::StarID star_id = db_->GetStarIDForEntry(entry);
-    if (star_id && !starred) {
-      // Unstar.
-      backend_->DeleteStarredEntry(star_id);
-    } else if (!star_id && starred) {
-      // Star.
-      entry.parent_group_id = HistoryService::kBookmarkBarID;
-      backend_->CreateStarredEntry(NULL, entry);
-    }
   }
 
   // PageUsageData vector to test segments.
@@ -868,58 +847,6 @@ TEST_F(HistoryTest, HistoryDBTaskCanceled) {
   // WARNING: history has now been deleted.
   history = NULL;
   ASSERT_FALSE(task->done_invoked);
-}
-
-TEST_F(HistoryTest, Starring) {
-  CreateBackendAndDatabase();
-
-  // Add one page and star it.
-  GURL simple_page("http://google.com");
-  scoped_refptr<HistoryAddPageArgs> args(MakeAddArgs(simple_page));
-  backend_->AddPage(args);
-  EXPECT_FALSE(IsURLStarred(db_, simple_page));
-  EXPECT_FALSE(IsURLStarred(in_mem_backend_->db(), simple_page));
-  SetURLStarred(simple_page, true);
-
-  // The URL should be starred in both the main and memory DBs.
-  EXPECT_TRUE(IsURLStarred(db_, simple_page));
-  EXPECT_TRUE(IsURLStarred(in_mem_backend_->db(), simple_page));
-
-  // Unstar it.
-  SetURLStarred(simple_page, false);
-  EXPECT_FALSE(IsURLStarred(db_, simple_page));
-  EXPECT_FALSE(IsURLStarred(in_mem_backend_->db(), simple_page));
-}
-
-TEST_F(HistoryTest, SetStarredOnPageWithTypeCount0) {
-  CreateBackendAndDatabase();
-
-  // Add a page to the backend.
-  const GURL url(L"http://google.com/");
-  scoped_refptr<HistoryAddPageArgs> args(new HistoryAddPageArgs(
-      url, Time::Now(), NULL, 1, GURL(), HistoryService::RedirectList(),
-      PageTransition::LINK));
-  backend_->AddPage(args);
-
-  // Now fetch the URLInfo from the in memory db, it should not be there since
-  // it was not typed.
-  URLRow url_info;
-  EXPECT_EQ(0, in_mem_backend_->db()->GetRowForURL(url, &url_info));
-
-  // Mark the URL starred.
-  SetURLStarred(url, true);
-
-  // The type count is 0, so the page shouldn't be starred in the in memory
-  // db.
-  EXPECT_EQ(0, in_mem_backend_->db()->GetRowForURL(url, &url_info));
-  EXPECT_TRUE(IsURLStarred(db_, url));
-
-  // Now unstar it.
-  SetURLStarred(url, false);
-
-  // Make sure both the back end and in memory DB think it is unstarred.
-  EXPECT_EQ(0, in_mem_backend_->db()->GetRowForURL(url, &url_info));
-  EXPECT_FALSE(IsURLStarred(db_, url));
 }
 
 }  // namespace history

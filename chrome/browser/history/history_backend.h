@@ -205,26 +205,6 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   void SetImportedFavicons(
       const std::vector<ImportedFavIconUsage>& favicon_usage);
 
-  // Starring ------------------------------------------------------------------
-
-  void GetAllStarredEntries(
-      scoped_refptr<GetStarredEntriesRequest> request);
-
-  void UpdateStarredEntry(const StarredEntry& new_entry);
-
-  void CreateStarredEntry(scoped_refptr<CreateStarredEntryRequest> request,
-                          const StarredEntry& entry);
-
-  void DeleteStarredGroup(UIStarID group_id);
-
-  void DeleteStarredURL(const GURL& url);
-
-  void DeleteStarredEntry(history::StarID star_id);
-
-  void GetMostRecentStarredEntries(
-      scoped_refptr<GetMostRecentStarredEntriesRequest> request,
-      int max_count);
-
   // Downloads -----------------------------------------------------------------
 
   void QueryDownloads(scoped_refptr<DownloadQueryRequest> request);
@@ -262,6 +242,8 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   // Generic operations --------------------------------------------------------
 
   void ProcessDBTask(scoped_refptr<HistoryDBTaskRequest> request);
+
+  void ProcessEmptyRequest(scoped_refptr<EmptyHistoryRequest> request);
 
   // Deleting ------------------------------------------------------------------
 
@@ -337,15 +319,6 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   void QueryHistoryFTS(const std::wstring& text_query,
                        const QueryOptions& options,
                        QueryResults* result);
-
-  // Queries the starred database for all URL entries whose title contains the
-  // specified text. This is called as necessary from QueryHistoryFTS. The
-  // matches will be added to the beginning of the result vector in no
-  // particular order.
-  void QueryStarredEntriesByText(URLQuerier* querier,
-                                 const std::wstring& text_query,
-                                 const QueryOptions& options,
-                                 QueryResults* results);
 
   // Committing ----------------------------------------------------------------
 

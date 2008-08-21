@@ -410,23 +410,10 @@ enum NotificationType {
   // Profile, and the details aren't used.
   NOTIFY_BOOKMARK_MODEL_LOADED,
 
-  // This is sent when the user creates a starred entry or changes the title,
-  // visual order or parent of a star entry. The source is the Profile and the
-  // details a StarredEntryDetails that identifies the entry that changed.
-  NOTIFY_STAR_ENTRY_CHANGED,
-
-  // This is sent when a starred group is created. The source is the Profile,
-  // and the details a StarredEntryDetails that identifies the entry that
-  // was created.
-  NOTIFY_STAR_GROUP_CREATED,
-
-  // Sent by history when the favicon of a starred URL changes. In the future,
-  // we may want a notification for all URLs so that the history view can stay
-  // up-to-date. In that case, we should change this notification rather than
-  // adding a new one for non-starred favicons.
+  // Sent by history when the favicon of a URL changes.
   // The source is the profile, and the details is
   // history::FavIconChangeDetails (see history_notifications.h).
-  NOTIFY_STARRED_FAVICON_CHANGED,
+  NOTIFY_FAVICON_CHANGED,
 
   // Sent when the bookmark bubble is shown for a particular URL. The source
   // is the profile, the details the URL.

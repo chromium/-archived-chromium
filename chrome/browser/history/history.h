@@ -393,29 +393,6 @@ class HistoryService : public CancelableRequestProvider,
   void SetImportedFavicons(
       const std::vector<history::ImportedFavIconUsage>& favicon_usage);
 
-  // Starring ------------------------------------------------------------------
-
-  // Starring mutation methods are private, go through the BookmarkBarModel
-  // instead.
-  //
-  // The typedefs are public to allow template magic to work.
-
-  typedef Callback2<Handle, std::vector<history::StarredEntry>* >::Type
-      GetStarredEntriesCallback;
-
-  typedef Callback2<Handle, history::StarID>::Type CreateStarredEntryCallback;
-
-  typedef Callback2<Handle, std::vector<history::StarredEntry>* >::Type
-      GetMostRecentStarredEntriesCallback;
-
-  // Fetches up to max_count starred entries of type URL.
-  // The results are ordered by date added in descending order (most recent
-  // first).
-  Handle GetMostRecentStarredEntries(
-      int max_count,
-      CancelableRequestConsumerBase* consumer,
-      GetMostRecentStarredEntriesCallback* callback);
-
   // Database management operations --------------------------------------------
 
   // Delete all the information related to a single url.
@@ -544,6 +521,13 @@ class HistoryService : public CancelableRequestProvider,
   Handle ScheduleDBTask(HistoryDBTask* task,
                         CancelableRequestConsumerBase* consumer);
 
+  typedef Callback1<Handle>::Type EmptyHistoryCallback;
+
+  // Schedules a task that does nothing on the backend. This can be used to get
+  // notification when then history backend is done processing requests.
+  Handle ScheduleEmptyCallback(CancelableRequestConsumerBase* consumer,
+                               EmptyHistoryCallback* callback);
+
   // Testing -------------------------------------------------------------------
 
   // Designed for unit tests, this passes the given task on to the history
@@ -596,51 +580,6 @@ class HistoryService : public CancelableRequestProvider,
   friend class history::HistoryQueryTest;
   friend class HistoryOperation;
   friend class HistoryURLProviderTest;
-
-  // Starring ------------------------------------------------------------------
-
-  // These are private as they should only be invoked from the bookmark bar
-  // model.
-
-  // Fetches all the starred entries (both groups and entries).
-  Handle GetAllStarredEntries(
-      CancelableRequestConsumerBase* consumer,
-      GetStarredEntriesCallback* callback);
-
-  // Updates the title, parent and visual order of the specified entry. The key
-  // used to identify the entry is NOT entry.id, rather it is the url (if the
-  // type is URL), or the group_id (if the type is other than URL).
-  //
-  // This can NOT be used to change the type of an entry.
-  //
-  // After updating the entry, NOTIFY_STAR_ENTRY_CHANGED is sent.
-  void UpdateStarredEntry(const history::StarredEntry& entry);
-
-  // Creates a starred entry at the specified position. This can be used
-  // for creating groups and nodes.
-  //
-  // If the entry is a URL and the URL is already starred, this behaves the
-  // same as invoking UpdateStarredEntry. If the entry is a URL and the URL is
-  // not starred, the URL is starred appropriately.
-  //
-  // This honors the title, parent_group_id, visual_order and url (for URL
-  // nodes) of the specified entry. All other attributes are ignored.
-  //
-  // NOTE: consumer and callback may be null, in which case the request
-  // isn't cancelable and 0 is returned.
-  Handle CreateStarredEntry(const history::StarredEntry& entry,
-                            CancelableRequestConsumerBase* consumer,
-                            CreateStarredEntryCallback* callback);
-
-  // Deletes the specified starred group. All children groups are deleted and
-  // starred descendants unstarred. If successful, this sends out the
-  // notification NOTIFY_URLS_STARRED. To delete a starred URL, do
-  // DeletedStarredEntry(id).
-  void DeleteStarredGroup(history::UIStarID group_id);
-
-  // Deletes the specified starred URL. If successful, this sends out the
-  // notification NOTIFY_URLS_STARRED.
-  void DeleteStarredURL(const GURL& url);
 
   // Implementation of NotificationObserver.
   virtual void Observe(NotificationType type,

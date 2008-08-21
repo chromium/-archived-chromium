@@ -124,8 +124,8 @@ void ExpireHistoryBackend::DeleteURL(const GURL& url) {
     text_db_->DeleteURLFromUncommitted(url);
 
   // Collect all the visits and delete them. Note that we don't give up if
-  // there are no visits, since the URL could still have an entry (for example,
-  // if it's starred) that we should delete.
+  // there are no visits, since the URL could still have an entry that we should
+  // delete.
   // TODO(brettw): bug 1171148: We should also delete from the archived DB.
   VisitVector visits;
   main_db_->GetVisitsForURL(url_row.id(), &visits);
@@ -205,14 +205,6 @@ void ExpireHistoryBackend::DeleteFaviconsIfPossible(
 
 void ExpireHistoryBackend::BroadcastDeleteNotifications(
     DeleteDependencies* dependencies) {
-  // Broadcast the "unstarred" notification.
-  if (!dependencies->unstarred_urls.empty()) {
-    URLsStarredDetails* unstarred_details = new URLsStarredDetails(false);
-    unstarred_details->changed_urls.swap(dependencies->unstarred_urls);
-    unstarred_details->star_entries.swap(dependencies->unstarred_entries);
-    delegate_->BroadcastNotifications(NOTIFY_URLS_STARRED, unstarred_details);
-  }
-
   if (!dependencies->deleted_urls.empty()) {
     // Broadcast the URL deleted notification. Note that we also broadcast when
     // we were requested to delete everything even if that was a NOP, since
@@ -284,15 +276,6 @@ void ExpireHistoryBackend::DeleteOneURL(
     thumb_db_->DeleteThumbnail(url_row.id());
   main_db_->DeleteSegmentForURL(url_row.id());
 
-  // The starred table may need to have its corresponding item deleted.
-  if (url_row.star_id()) {
-    // Note that this will update the URLRow's starred field, but our variable
-    // won't be updated correspondingly.
-    main_db_->DeleteStarredEntry(url_row.star_id(),
-                                 &dependencies->unstarred_urls,
-                                 &dependencies->unstarred_entries);
-  }
-
   // Collect shared information.
   if (url_row.favicon_id())
     dependencies->affected_favicons.insert(url_row.favicon_id());
@@ -362,8 +345,8 @@ void ExpireHistoryBackend::ExpireURLsForVisits(
     else
       url_row.set_last_visit(Time());
 
-    // Don't delete starred URLs or ones with visits still in the DB.
-    if (url_row.starred() || !url_row.last_visit().is_null()) {
+    // Don't delete URLs with visits still in the DB.
+    if (!url_row.last_visit().is_null()) {
       // We're not deleting the URL, update its counts when we're deleting those
       // visits.
       // NOTE: The calls to std::max() below are a backstop, but they should

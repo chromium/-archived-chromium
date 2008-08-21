@@ -132,19 +132,6 @@ class HistoryQueryTest : public testing::Test {
       history_->SetPageTitle(url, test_entries[i].title);
       history_->SetPageContents(url, test_entries[i].body);
     }
-
-    // Set one of the pages starred.
-    history::StarredEntry entry;
-    entry.id = 5;
-    entry.title = L"Some starred page";
-    entry.date_added = Time::Now();
-    entry.parent_group_id = StarredEntry::BOOKMARK_BAR;
-    entry.group_id = 0;
-    entry.visual_order = 0;
-    entry.type = history::StarredEntry::URL;
-    entry.url = GURL(test_entries[0].url);
-    entry.date_group_modified = Time::Now();
-    history_->CreateStarredEntry(entry, NULL, NULL);
   }
 
   virtual void TearDown() {
@@ -188,9 +175,6 @@ TEST_F(HistoryQueryTest, Basic) {
   EXPECT_TRUE(NthResultIs(results, 2, 3));
   EXPECT_TRUE(NthResultIs(results, 3, 1));
   EXPECT_TRUE(NthResultIs(results, 4, 0));
-
-  // Check that the starred one is marked starred.
-  EXPECT_TRUE(results[4].starred());
 
   // Next query a time range. The beginning should be inclusive, the ending
   // should be exclusive.
@@ -247,11 +231,10 @@ TEST_F(HistoryQueryTest, FTS) {
   // this query will return the starred item twice since we requested all
   // starred entries and no de-duping.
   QueryHistory(std::wstring(L"some"), options, &results);
-  EXPECT_EQ(4, results.size());
-  EXPECT_TRUE(NthResultIs(results, 0, 4));  // Starred item.
-  EXPECT_TRUE(NthResultIs(results, 1, 2));
-  EXPECT_TRUE(NthResultIs(results, 2, 3));
-  EXPECT_TRUE(NthResultIs(results, 3, 1));
+  EXPECT_EQ(3, results.size());
+  EXPECT_TRUE(NthResultIs(results, 0, 2));
+  EXPECT_TRUE(NthResultIs(results, 1, 3));
+  EXPECT_TRUE(NthResultIs(results, 2, 1));
 
   // Do a query that should only match one of them.
   QueryHistory(std::wstring(L"PAGETWO"), options, &results);
@@ -262,7 +245,6 @@ TEST_F(HistoryQueryTest, FTS) {
   // should be exclusive.
   options.begin_time = test_entries[1].time;
   options.end_time = test_entries[3].time;
-  options.include_all_starred = false;
   QueryHistory(std::wstring(L"some"), options, &results);
   EXPECT_EQ(1, results.size());
   EXPECT_TRUE(NthResultIs(results, 0, 1));
@@ -295,10 +277,9 @@ TEST_F(HistoryQueryTest, FTSCount) {
   // get the N most recent entries.
   options.max_count = 2;
   QueryHistory(std::wstring(L"some"), options, &results);
-  EXPECT_EQ(3, results.size());
-  EXPECT_TRUE(NthResultIs(results, 0, 4));
-  EXPECT_TRUE(NthResultIs(results, 1, 2));
-  EXPECT_TRUE(NthResultIs(results, 2, 3));
+  EXPECT_EQ(2, results.size());
+  EXPECT_TRUE(NthResultIs(results, 0, 2));
+  EXPECT_TRUE(NthResultIs(results, 1, 3));
 
   // Now query a subset of the pages and limit by N items. "FOO" should match
   // the 2nd & 3rd pages, but we should only get the 3rd one because of the one

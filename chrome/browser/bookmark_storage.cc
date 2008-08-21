@@ -39,6 +39,7 @@
 #include "chrome/browser/bookmark_bar_model.h"
 #include "chrome/browser/bookmark_codec.h"
 #include "chrome/browser/profile.h"
+#include "chrome/common/chrome_constants.h"
 #include "chrome/common/json_value_serializer.h"
 
 namespace {
@@ -50,35 +51,99 @@ const wchar_t* const kBackupExtension = L"bak";
 // kBookmarksFileName.
 const wchar_t* const kTmpExtension = L"tmp";
 
-// Name of file containing bookmarks.
-const wchar_t* const kBookmarksFileName = L"bookmarks.json";
-
 // How often we save.
-static const int kSaveDelayMS = 2500;
+const int kSaveDelayMS = 2500;
 
-class BookmarkStorageBackend :
-    public base::RefCountedThreadSafe<BookmarkStorageBackend> {
- public:
-  explicit BookmarkStorageBackend(const std::wstring& path);
+}  // namespace
 
-  // Writes the specified value to disk. This takes ownership of |value| and
-  // deletes it when done.
-  void Write(Value* value);
+// BookmarkStorage -------------------------------------------------------------
 
-  // Reads the bookmarks from kBookmarksFileName. Notifies |service| with
-  // the results on the specified MessageLoop.
-  void Read(scoped_refptr<BookmarkStorage> service,
-            MessageLoop* message_loop);
+BookmarkStorage::BookmarkStorage(Profile* profile, BookmarkBarModel* model)
+    : model_(model),
+#pragma warning(suppress: 4355)  // Okay to pass "this" here.
+      save_factory_(this),
+      backend_thread_(g_browser_process->file_thread()) {
+  std::wstring path = profile->GetPath();
+  file_util::AppendToPath(&path, chrome::kBookmarksFileName);
+  std::wstring tmp_history_path = profile->GetPath();
+  file_util::AppendToPath(&tmp_history_path, chrome::kHistoryBookmarksFileName);
+  backend_ = new BookmarkStorageBackend(path, tmp_history_path);
+}
 
- private:
-  // Path we read/write to.
-  const std::wstring path_;
+void BookmarkStorage::LoadBookmarks(bool load_from_history) {
+  if (!backend_thread()) {
+    backend_->Read(scoped_refptr<BookmarkStorage>(this), NULL,
+                   load_from_history);
+  } else {
+    backend_thread()->message_loop()->PostTask(
+        FROM_HERE,
+        NewRunnableMethod(backend_.get(), &BookmarkStorageBackend::Read,
+                          scoped_refptr<BookmarkStorage>(this),
+                          MessageLoop::current(), load_from_history));
+  }
+}
 
-  DISALLOW_EVIL_CONSTRUCTORS(BookmarkStorageBackend);
-};
+void BookmarkStorage::ScheduleSave() {
+  if (save_factory_.empty()) {
+    MessageLoop::current()->PostDelayedTask(
+        FROM_HERE, save_factory_.NewRunnableMethod(&BookmarkStorage::SaveNow),
+        kSaveDelayMS);
+  }
+}
 
-BookmarkStorageBackend::BookmarkStorageBackend(const std::wstring& path)
-    : path_(path) {
+void BookmarkStorage::BookmarkModelDeleted() {
+  if (!save_factory_.empty()) {
+    // There's a pending save. We need to save now as otherwise by the time
+    // SaveNow is invoked the model is gone.
+    save_factory_.RevokeAll();
+    SaveNow();
+  }
+  model_ = NULL;
+}
+
+void BookmarkStorage::LoadedBookmarks(Value* root_value,
+                                      bool bookmark_file_exists,
+                                      bool loaded_from_history) {
+  scoped_ptr<Value> value_ref(root_value);
+
+  if (model_) {
+    if (root_value) {
+      BookmarkCodec codec;
+      codec.Decode(model_, *root_value);
+    }
+    model_->OnBookmarkStorageLoadedBookmarks(bookmark_file_exists,
+                                             loaded_from_history);
+  }
+}
+
+void BookmarkStorage::SaveNow() {
+  if (!model_ || !model_->IsLoaded()) {
+    // We should only get here if we have a valid model and it's finished
+    // loading.
+    NOTREACHED();
+    return;
+  }
+
+  BookmarkCodec codec;
+  Value* value = codec.Encode(model_);
+  // The backend deletes value in write.
+  if (!backend_thread()) {
+    backend_->Write(value);
+  } else {
+    backend_thread()->message_loop()->PostTask(
+        FROM_HERE,
+        NewRunnableMethod(backend_.get(), &BookmarkStorageBackend::Write,
+                          value));
+  }
+}
+
+// BookmarkStorageBackend ------------------------------------------------------
+
+BookmarkStorageBackend::BookmarkStorageBackend(
+    const std::wstring& path,
+    const std::wstring& tmp_history_path)
+    : path_(path),
+      tmp_history_path_(tmp_history_path) {
   // Make a backup of the current file.
   std::wstring backup_path = path;
   file_util::ReplaceExtension(&backup_path, kBackupExtension);
@@ -103,83 +168,28 @@ void BookmarkStorageBackend::Write(Value* value) {
   if (bytes_written != -1) {
     MoveFileEx(tmp_file.c_str(), path_.c_str(),
                MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING);
+    // Nuke the history file so that we don't attempt to load from it again.
+    file_util::Delete(tmp_history_path_, false);
   }
 }
 
 void BookmarkStorageBackend::Read(scoped_refptr<BookmarkStorage> service,
-                                  MessageLoop* message_loop) {
-  JSONFileValueSerializer serializer(path_);
+                                  MessageLoop* message_loop,
+                                  bool load_from_history) {
+  const std::wstring& path = load_from_history ? tmp_history_path_ : path_;
+  bool bookmark_file_exists = file_util::PathExists(path);
   Value* root = NULL;
-  serializer.Deserialize(&root);
+  if (bookmark_file_exists) {
+    JSONFileValueSerializer serializer(path);
+    serializer.Deserialize(&root);
+  }
 
   // BookmarkStorage takes ownership of root.
-  message_loop->PostTask(FROM_HERE, NewRunnableMethod(
-      service.get(), &BookmarkStorage::LoadedBookmarks, root));
-}
-
-}  // namespace
-
-BookmarkStorage::BookmarkStorage(Profile* profile, BookmarkBarModel* model)
-    : model_(model),
-#pragma warning(suppress: 4355)  // Okay to pass "this" here.
-      save_factory_(this) {
-  std::wstring path = profile->GetPath();
-  file_util::AppendToPath(&path, kBookmarksFileName);
-  backend_ = new BookmarkStorageBackend(path);
-}
-
-void BookmarkStorage::LoadBookmarks() {
-  backend_thread()->message_loop()->PostTask(
-      FROM_HERE,
-      NewRunnableMethod(backend_.get(), &BookmarkStorageBackend::Read,
-                        scoped_refptr<BookmarkStorage>(this),
-                        MessageLoop::current()));
-}
-
-void BookmarkStorage::ScheduleSave() {
-  if (save_factory_.empty()) {
-    MessageLoop::current()->PostDelayedTask(
-        FROM_HERE, save_factory_.NewRunnableMethod(&BookmarkStorage::SaveNow),
-        kSaveDelayMS);
+  if (message_loop) {
+    message_loop->PostTask(FROM_HERE, NewRunnableMethod(
+        service.get(), &BookmarkStorage::LoadedBookmarks, root,
+        bookmark_file_exists, load_from_history));
+  } else {
+    service->LoadedBookmarks(root, bookmark_file_exists, load_from_history);
   }
-}
-
-void BookmarkStorage::BookmarkModelDeleted() {
-  if (!save_factory_.empty()) {
-    // There's a pending save. We need to save now as otherwise by the time
-    // SaveNow is invoked the model is gone.
-    save_factory_.RevokeAll();
-    SaveNow();
-  }
-  model_ = NULL;
-}
-
-void BookmarkStorage::LoadedBookmarks(Value* root_value) {
-  scoped_ptr<Value> value_ref(root_value);
-
-  if (model_) {
-    if (root_value) {
-      BookmarkCodec codec;
-      codec.Decode(model_, *root_value);
-    }
-    // TODO(sky): bug 1256202 need to invoke a method back on the model telling
-    // it all has loaded.
-  }
-}
-
-void BookmarkStorage::SaveNow() {
-  if (!model_ || !model_->IsLoaded()) {
-    // We should only get here if we have a valid model and it's finished
-    // loading.
-    NOTREACHED();
-    return;
-  }
-
-  BookmarkCodec codec;
-  Value* value = codec.Encode(model_);
-  // The backend deletes value in write.
-  backend_thread()->message_loop()->PostTask(
-      FROM_HERE,
-      NewRunnableMethod(backend_.get(), &BookmarkStorageBackend::Write,
-                        value));
 }

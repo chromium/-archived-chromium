@@ -29,7 +29,11 @@
 
 #include "chrome/browser/history/starred_url_database.h"
 
+#include "base/file_util.h"
 #include "base/logging.h"
+#include "base/json_writer.h"
+#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmark_codec.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/history/query_parser.h"
 #include "chrome/browser/meta_table_helper.h"
@@ -102,181 +106,35 @@ void FillInStarredEntry(SQLStatement* s, StarredEntry* entry) {
 
 }  // namespace
 
-StarredURLDatabase::StarredURLDatabase()
-    : is_starred_valid_(true), check_starred_integrity_on_mutation_(true) {
+StarredURLDatabase::StarredURLDatabase() {
 }
 
 StarredURLDatabase::~StarredURLDatabase() {
 }
 
-bool StarredURLDatabase::InitStarTable() {
-  if (!DoesSqliteTableExist(GetDB(), "starred")) {
-    if (sqlite3_exec(GetDB(), "CREATE TABLE starred ("
-                     "id INTEGER PRIMARY KEY,"
-                     "type INTEGER NOT NULL DEFAULT 0,"
-                     "url_id INTEGER NOT NULL DEFAULT 0,"
-                     "group_id INTEGER NOT NULL DEFAULT 0,"
-                     "title VARCHAR,"
-                     "date_added INTEGER NOT NULL,"
-                     "visual_order INTEGER DEFAULT 0,"
-                     "parent_id INTEGER DEFAULT 0,"
-                     "date_modified INTEGER DEFAULT 0 NOT NULL)",
-                     NULL, NULL, NULL) != SQLITE_OK) {
-      NOTREACHED();
-      return false;
-    }
-    if (sqlite3_exec(GetDB(), "CREATE INDEX starred_index "
-                           "ON starred(id,url_id)", NULL, NULL, NULL)) {
-      NOTREACHED();
-      return false;
-    }
-    // Add an entry that represents the bookmark bar. The title is ignored in
-    // the UI.
-    StarID bookmark_id = CreateStarredEntryRow(
-        0, HistoryService::kBookmarkBarID, 0, L"bookmark-bar", Time::Now(), 0,
-        history::StarredEntry::BOOKMARK_BAR);
-    if (bookmark_id != HistoryService::kBookmarkBarID) {
-      NOTREACHED();
-      return false;
-    }
+bool StarredURLDatabase::MigrateBookmarksToFile(const std::wstring& path) {
+  if (!DoesSqliteTableExist(GetDB(), "starred"))
+    return true;
 
-    // Add an entry that represents other. The title is ignored in the UI.
-    StarID other_id = CreateStarredEntryRow(
-        0, HistoryService::kBookmarkBarID + 1, 0, L"other", Time::Now(), 0,
-        history::StarredEntry::OTHER);
-    if (!other_id) {
-      NOTREACHED();
-      return false;
-    }
+  if (EnsureStarredIntegrity() && !MigrateBookmarksToFileImpl(path)) {
+    NOTREACHED() << " Bookmarks migration failed";
+    return false;
   }
 
-  sqlite3_exec(GetDB(), "CREATE INDEX starred_group_index"
-               "ON starred(group_id)", NULL, NULL, NULL);
+  if (sqlite3_exec(GetDB(), "DROP TABLE starred", NULL, NULL,
+                   NULL) != SQLITE_OK) {
+    NOTREACHED() << "Unable to drop starred table";
+    return false;
+  }
   return true;
 }
 
-bool StarredURLDatabase::EnsureStarredIntegrity() {
-  if (!is_starred_valid_)
-    return false;
-
-  // Assume invalid, we'll set to true if succesful.
-  is_starred_valid_ = false;
-
-  std::set<StarredNode*> roots;
-  std::set<StarID> groups_with_duplicate_ids;
-  std::set<StarredNode*> unparented_urls;
-  std::set<StarID> empty_url_ids;
-
-  if (!BuildStarNodes(&roots, &groups_with_duplicate_ids, &unparented_urls,
-                      &empty_url_ids)) {
-    return false;
-  }
-
-  // The table may temporarily get into an invalid state while updating the
-  // integrity.
-  bool org_check_starred_integrity_on_mutation =
-      check_starred_integrity_on_mutation_;
-  check_starred_integrity_on_mutation_ = false;
-  is_starred_valid_ =
-      EnsureStarredIntegrityImpl(&roots, groups_with_duplicate_ids,
-                                 &unparented_urls, empty_url_ids);
-  check_starred_integrity_on_mutation_ =
-      org_check_starred_integrity_on_mutation;
-
-  STLDeleteElements(&roots);
-  STLDeleteElements(&unparented_urls);
-  return is_starred_valid_;
-}
-
-StarID StarredURLDatabase::GetStarIDForEntry(const StarredEntry& entry) {
-  if (entry.type == StarredEntry::URL) {
-    URLRow url_row;
-    URLID url_id = GetRowForURL(entry.url, &url_row);
-    if (!url_id)
-      return 0;
-    return url_row.star_id();
-  }
-  return GetStarIDForGroupID(entry.group_id);
-}
-
-StarID StarredURLDatabase::GetStarIDForGroupID(UIStarID group_id) {
-  DCHECK(group_id);
-
-  SQLITE_UNIQUE_STATEMENT(statement, GetStatementCache(),
-      "SELECT id FROM starred WHERE group_id = ?");
-  if (!statement.is_valid())
-    return false;
-
-  statement->bind_int64(0, group_id);
-  if (statement->step() == SQLITE_ROW)
-    return statement->column_int64(0);
-  return 0;
-}
-
-void StarredURLDatabase::DeleteStarredEntry(
-    StarID star_id,
-    std::set<GURL>* unstarred_urls,
-    std::vector<StarredEntry>* deleted_entries) {
-  DeleteStarredEntryImpl(star_id, unstarred_urls, deleted_entries);
-  if (check_starred_integrity_on_mutation_)
-    CheckStarredIntegrity();
-}
-
-bool StarredURLDatabase::UpdateStarredEntry(StarredEntry* entry) {
-  // Determine the ID used by the database.
-  const StarID id = GetStarIDForEntry(*entry);
-  if (!id) {
-    NOTREACHED() << "request to update unknown star entry";
-    return false;
-  }
-
-  StarredEntry original_entry;
-  if (!GetStarredEntry(id, &original_entry)) {
-    NOTREACHED() << "Unknown star entry";
-    return false;
-  }
-
-  if (entry->parent_group_id != original_entry.parent_group_id) {
-    // Parent has changed.
-    if (original_entry.parent_group_id) {
-      AdjustStarredVisualOrder(original_entry.parent_group_id,
-                               original_entry.visual_order, -1);
-    }
-    if (entry->parent_group_id) {
-      AdjustStarredVisualOrder(entry->parent_group_id, entry->visual_order, 1);
-    }
-  } else if (entry->visual_order != original_entry.visual_order &&
-             entry->parent_group_id) {
-    // Same parent, but visual order changed.
-    // Shift everything down from the old location.
-    AdjustStarredVisualOrder(original_entry.parent_group_id,
-                             original_entry.visual_order, -1);
-    // Make room for new location by shifting everything up from the new
-    // location.
-    AdjustStarredVisualOrder(original_entry.parent_group_id,
-                             entry->visual_order, 1);
-  }
-
-  // And update title, parent and visual order.
-  UpdateStarredEntryRow(id, entry->title, entry->parent_group_id,
-                        entry->visual_order, entry->date_group_modified);
-  entry->url_id = original_entry.url_id;
-  entry->date_added = original_entry.date_added;
-  entry->id = original_entry.id;
-  if (check_starred_integrity_on_mutation_)
-    CheckStarredIntegrity();
-  return true;
-}
-
-bool StarredURLDatabase::GetStarredEntries(
-    UIStarID parent_group_id,
+bool StarredURLDatabase::GetAllStarredEntries(
     std::vector<StarredEntry>* entries) {
   DCHECK(entries);
   std::string sql = "SELECT ";
   sql.append(kHistoryStarFields);
   sql.append("FROM starred LEFT JOIN urls ON starred.url_id = urls.id ");
-  if (parent_group_id)
-    sql += "WHERE starred.parent_id = ? ";
   sql += "ORDER BY parent_id, visual_order";
 
   SQLStatement s;
@@ -284,8 +142,6 @@ bool StarredURLDatabase::GetStarredEntries(
     NOTREACHED() << "Statement prepare failed";
     return false;
   }
-  if (parent_group_id)
-    s.bind_int64(0, parent_group_id);
 
   history::StarredEntry entry;
   while (s.step() == SQLITE_ROW) {
@@ -297,6 +153,25 @@ bool StarredURLDatabase::GetStarredEntries(
     entries->push_back(entry);
   }
   return true;
+}
+
+bool StarredURLDatabase::EnsureStarredIntegrity() {
+  std::set<StarredNode*> roots;
+  std::set<StarID> groups_with_duplicate_ids;
+  std::set<StarredNode*> unparented_urls;
+  std::set<StarID> empty_url_ids;
+
+  if (!BuildStarNodes(&roots, &groups_with_duplicate_ids, &unparented_urls,
+                      &empty_url_ids)) {
+    return false;
+  }
+
+  bool valid = EnsureStarredIntegrityImpl(&roots, groups_with_duplicate_ids,
+                                          &unparented_urls, empty_url_ids);
+
+  STLDeleteElements(&roots);
+  STLDeleteElements(&unparented_urls);
+  return valid;
 }
 
 bool StarredURLDatabase::UpdateStarredEntryRow(StarID star_id,
@@ -380,8 +255,6 @@ StarID StarredURLDatabase::CreateStarredEntryRow(URLID url_id,
 }
 
 bool StarredURLDatabase::DeleteStarredEntryRow(StarID star_id) {
-  if (check_starred_integrity_on_mutation_)
-    DCHECK(star_id && star_id != HistoryService::kBookmarkBarID);
   SQLITE_UNIQUE_STATEMENT(statement, GetStatementCache(),
                           "DELETE FROM starred WHERE id=?");
   if (!statement.is_valid())
@@ -433,11 +306,6 @@ StarID StarredURLDatabase::CreateStarredEntry(StarredEntry* entry) {
         url_row.set_hidden(false);
         entry->url_id = this->AddURL(url_row);
       } else {
-        // Update the existing row for this URL.
-        if (url_row.starred()) {
-          DCHECK(false) << "We are starring an already-starred URL";
-          return 0;
-        }
         entry->url_id = url_row.id();  // The caller doesn't have to set this.
       }
 
@@ -447,7 +315,6 @@ StarID StarredURLDatabase::CreateStarredEntry(StarredEntry* entry) {
           entry->visual_order, entry->type);
 
       // Update the URL row to refer to this new starred entry.
-      url_row.set_star_id(entry->id);
       UpdateURLRow(entry->url_id, url_row);
       break;
     }
@@ -456,117 +323,7 @@ StarID StarredURLDatabase::CreateStarredEntry(StarredEntry* entry) {
       NOTREACHED();
       break;
   }
-  if (check_starred_integrity_on_mutation_)
-    CheckStarredIntegrity();
   return entry->id;
-}
-
-void StarredURLDatabase::GetMostRecentStarredEntries(
-    int max_count,
-    std::vector<StarredEntry>* entries) {
-  DCHECK(max_count && entries);
-  SQLITE_UNIQUE_STATEMENT(s, GetStatementCache(),
-      "SELECT" STAR_FIELDS "FROM starred "
-      "LEFT JOIN urls ON starred.url_id = urls.id "
-      "WHERE starred.type=0 ORDER BY starred.date_added DESC, "
-      "starred.id DESC " // This is for testing, when the dates are
-                       // typically the same.
-      "LIMIT ?");
-  if (!s.is_valid())
-    return;
-  s->bind_int(0, max_count);
-
-  while (s->step() == SQLITE_ROW) {
-    history::StarredEntry entry;
-    FillInStarredEntry(s.statement(), &entry);
-    entries->push_back(entry);
-  }
-}
-
-void StarredURLDatabase::GetURLsForTitlesMatching(const std::wstring& query,
-                                                  std::set<URLID>* ids) {
-  QueryParser parser;
-  ScopedVector<QueryNode> nodes;
-  parser.ParseQuery(query, &nodes.get());
-  if (nodes.empty())
-    return;
-
-  SQLITE_UNIQUE_STATEMENT(s, GetStatementCache(),
-      "SELECT url_id, title FROM starred WHERE type=?");
-  if (!s.is_valid())
-    return;
-
-  s->bind_int(0, static_cast<int>(StarredEntry::URL));
-  while (s->step() == SQLITE_ROW) {
-    if (parser.DoesQueryMatch(s->column_string16(1), nodes.get()))
-      ids->insert(s->column_int64(0));
-  }
-}
-
-bool StarredURLDatabase::UpdateURLIDForStar(StarID star_id, URLID new_url_id) {
-  SQLITE_UNIQUE_STATEMENT(s, GetStatementCache(),
-      "UPDATE starred SET url_id=? WHERE id=?");
-  if (!s.is_valid())
-    return false;
-  s->bind_int64(0, new_url_id);
-  s->bind_int64(1, star_id);
-  return s->step() == SQLITE_DONE;
-}
-
-void StarredURLDatabase::DeleteStarredEntryImpl(
-    StarID star_id,
-    std::set<GURL>* unstarred_urls,
-    std::vector<StarredEntry>* deleted_entries) {
-
-  StarredEntry deleted_entry;
-  if (!GetStarredEntry(star_id, &deleted_entry))
-    return;  // Couldn't find information on the entry.
-
-  if (deleted_entry.type == StarredEntry::BOOKMARK_BAR ||
-      deleted_entry.type == StarredEntry::OTHER) {
-    return;
-  }
-
-  if (deleted_entry.parent_group_id != 0) {
-    // This entry has a parent. All siblings after this entry need to be shifted
-    // down by 1.
-    AdjustStarredVisualOrder(deleted_entry.parent_group_id,
-                             deleted_entry.visual_order, -1);
-  }
-
-  deleted_entries->push_back(deleted_entry);
-
-  switch (deleted_entry.type) {
-    case StarredEntry::URL: {
-      unstarred_urls->insert(deleted_entry.url);
-
-      // Need to unmark the starred flag in the URL database.
-      URLRow url_row;
-      if (GetURLRow(deleted_entry.url_id, &url_row)) {
-        url_row.set_star_id(0);
-        UpdateURLRow(deleted_entry.url_id, url_row);
-      }
-      break;
-    }
-
-    case StarredEntry::USER_GROUP: {
-      // Need to delete all the children of the group. Use the db version which
-      // avoids shifting the visual order.
-      std::vector<StarredEntry> descendants;
-      GetStarredEntries(deleted_entry.group_id, &descendants);
-      for (std::vector<StarredEntry>::iterator i =
-           descendants.begin(); i != descendants.end(); ++i) {
-        // Recurse down into the child.
-        DeleteStarredEntryImpl(i->id, unstarred_urls, deleted_entries);
-      }
-      break;
-    }
-
-    default:
-      NOTREACHED();
-      break;
-  }
-  DeleteStarredEntryRow(star_id);
 }
 
 UIStarID StarredURLDatabase::GetMaxGroupID() {
@@ -589,7 +346,7 @@ bool StarredURLDatabase::BuildStarNodes(
     std::set<StarredNode*>* unparented_urls,
     std::set<StarID>* empty_url_ids) {
   std::vector<StarredEntry> star_entries;
-  if (!GetStarredEntries(0, &star_entries)) {
+  if (!GetAllStarredEntries(&star_entries)) {
     NOTREACHED() << "Unable to get bookmarks from database";
     return false;
   }
@@ -699,11 +456,9 @@ bool StarredURLDatabase::EnsureStarredIntegrityImpl(
   if (!bookmark_node) {
     LOG(WARNING) << "No bookmark bar folder in database";
     // If there is no bookmark bar entry in the db things are really
-    // screwed. The UI assumes the bookmark bar entry has a particular
-    // ID which is hard to enforce when creating a new entry. As this
-    // shouldn't happen, we take the drastic route of recreating the
-    // entire table.
-    return RecreateStarredEntries();
+    // screwed. Return false, which won't trigger migration and we'll just
+    // drop the tables.
+    return false;
   }
 
   // Make sure the other node exists.
@@ -803,86 +558,96 @@ bool StarredURLDatabase::Move(StarredNode* source, StarredNode* new_parent) {
   return true;
 }
 
-bool StarredURLDatabase::RecreateStarredEntries() {
-  if (sqlite3_exec(GetDB(), "DROP TABLE starred", NULL, NULL,
-                   NULL) != SQLITE_OK) {
-    NOTREACHED() << "Unable to drop starred table";
+bool StarredURLDatabase::MigrateBookmarksToFileImpl(const std::wstring& path) {
+  std::vector<history::StarredEntry> entries;
+  if (!GetAllStarredEntries(&entries))
     return false;
+
+  // Create the bookmark bar and other folder nodes.
+  history::StarredEntry entry;
+  entry.type = history::StarredEntry::BOOKMARK_BAR;
+  BookmarkBarNode bookmark_bar_node(NULL, GURL());
+  bookmark_bar_node.Reset(entry);
+  entry.type = history::StarredEntry::OTHER;
+  BookmarkBarNode other_node(NULL, GURL());
+  other_node.Reset(entry);
+
+  std::map<history::UIStarID, history::StarID> group_id_to_id_map;
+  typedef std::map<history::StarID, BookmarkBarNode*> IDToNodeMap;
+  IDToNodeMap id_to_node_map;
+
+  history::UIStarID other_folder_group_id = 0;
+  history::StarID other_folder_id = 0;
+
+  // Iterate through the entries building a mapping between group_id and id.
+  for (std::vector<history::StarredEntry>::const_iterator i = entries.begin();
+       i != entries.end(); ++i) {
+    if (i->type != history::StarredEntry::URL) {
+      group_id_to_id_map[i->group_id] = i->id;
+      if (i->type == history::StarredEntry::OTHER) {
+        other_folder_id = i->id;
+        other_folder_group_id = i->group_id;
+      }
+    }
   }
 
-  if (!InitStarTable()) {
-    NOTREACHED() << "Unable to create starred table";
-    return false;
+  // Register the bookmark bar and other folder nodes in the maps.
+  id_to_node_map[HistoryService::kBookmarkBarID] = &bookmark_bar_node;
+  group_id_to_id_map[HistoryService::kBookmarkBarID] =
+      HistoryService::kBookmarkBarID;
+  if (other_folder_group_id) {
+    id_to_node_map[other_folder_id] = &other_node;
+    group_id_to_id_map[other_folder_group_id] = other_folder_id;
   }
 
-  if (sqlite3_exec(GetDB(), "UPDATE urls SET starred_id=0", NULL, NULL,
-                   NULL) != SQLITE_OK) {
-    NOTREACHED() << "Unable to mark all URLs as unstarred";
-    return false;
+  // Iterate through the entries again creating the nodes.
+  for (std::vector<history::StarredEntry>::iterator i = entries.begin();
+       i != entries.end(); ++i) {
+    if (!i->parent_group_id) {
+      DCHECK(i->type == history::StarredEntry::BOOKMARK_BAR ||
+             i->type == history::StarredEntry::OTHER);
+      // Only entries with no parent should be the bookmark bar and other
+      // bookmarks folders.
+      continue;
+    }
+
+    BookmarkBarNode* node = id_to_node_map[i->id];
+    if (!node) {
+      // Creating a node results in creating the parent. As such, it is
+      // possible for the node representing a group to have been created before
+      // encountering the details.
+
+      // The created nodes are owned by the root node.
+      node = new BookmarkBarNode(NULL, i->url);
+      id_to_node_map[i->id] = node;
+    }
+    node->Reset(*i);
+
+    DCHECK(group_id_to_id_map.find(i->parent_group_id) !=
+           group_id_to_id_map.end());
+    history::StarID parent_id = group_id_to_id_map[i->parent_group_id];
+    BookmarkBarNode* parent = id_to_node_map[parent_id];
+    if (!parent) {
+      // Haven't encountered the parent yet, create it now.
+      parent = new BookmarkBarNode(NULL, GURL());
+      id_to_node_map[parent_id] = parent;
+    }
+
+    // Add the node to its parent. |entries| is ordered by parent then
+    // visual order so that we know we maintain visual order by always adding
+    // to the end.
+    parent->Add(parent->GetChildCount(), node);
   }
-  return true;
-}
 
-void StarredURLDatabase::CheckVisualOrder(StarredNode* node) {
-  for (int i = 0; i < node->GetChildCount(); ++i) {
-    DCHECK(i == node->GetChild(i)->value.visual_order);
-    CheckVisualOrder(node->GetChild(i));
-  }
-}
+  // Save to file.
+  BookmarkCodec encoder;
+  scoped_ptr<Value> encoded_bookmarks(
+      encoder.Encode(&bookmark_bar_node, &other_node));
+  std::string content;
+  JSONWriter::Write(encoded_bookmarks.get(), true, &content);
 
-void StarredURLDatabase::CheckStarredIntegrity() {
-#ifndef NDEBUG
-  std::set<StarredNode*> roots;
-  std::set<StarID> groups_with_duplicate_ids;
-  std::set<StarredNode*> unparented_urls;
-  std::set<StarID> empty_url_ids;
-
-  if (!BuildStarNodes(&roots, &groups_with_duplicate_ids, &unparented_urls,
-                      &empty_url_ids)) {
-    return;
-  }
-
-  // There must be root and bookmark bar nodes.
-  if (!GetNodeByType(roots, StarredEntry::BOOKMARK_BAR))
-    NOTREACHED() << "No bookmark bar folder in starred";
-  else
-    CheckVisualOrder(GetNodeByType(roots, StarredEntry::BOOKMARK_BAR));
-
-  if (!GetNodeByType(roots, StarredEntry::OTHER))
-    NOTREACHED() << "No other bookmarks folder in starred";
-  else
-    CheckVisualOrder(GetNodeByType(roots, StarredEntry::OTHER));
-
-  // The only roots should be the bookmark bar and other nodes. Also count how
-  // many bookmark bar and other folders exists.
-  int bookmark_bar_count = 0;
-  int other_folder_count = 0;
-  for (std::set<StarredNode*>::const_iterator i = roots.begin();
-       i != roots.end(); ++i) {
-    if ((*i)->value.type == StarredEntry::USER_GROUP)
-      NOTREACHED() << "Bookmark folder not in bookmark bar or other folders";
-    else if ((*i)->value.type == StarredEntry::BOOKMARK_BAR)
-      bookmark_bar_count++;
-    else if ((*i)->value.type == StarredEntry::OTHER)
-      other_folder_count++;
-  }
-  DCHECK(bookmark_bar_count == 1) << "Should be only one bookmark bar entry";
-  DCHECK(other_folder_count == 1) << "Should be only one other folder entry";
-
-  // There shouldn't be any folders with the same group id.
-  if (!groups_with_duplicate_ids.empty())
-    NOTREACHED() << "Bookmark folder with duplicate ids exist";
-
-  // And all URLs should be parented.
-  if (!unparented_urls.empty())
-    NOTREACHED() << "Bookmarks not on the bookmark/'other folder' exist";
-
-  if (!empty_url_ids.empty())
-    NOTREACHED() << "Bookmarks with no corresponding URL exist";
-
-  STLDeleteElements(&roots);
-  STLDeleteElements(&unparented_urls);
-#endif NDEBUG
+  return (file_util::WriteFile(path, content.c_str(),
+                               static_cast<int>(content.length())) != -1);
 }
 
 }  // namespace history

@@ -43,7 +43,7 @@ namespace history {
 namespace {
 
 // Current version number.
-const int kCurrentVersionNumber = 15;
+const int kCurrentVersionNumber = 16;
 
 }  // namespace
 
@@ -55,7 +55,8 @@ HistoryDatabase::HistoryDatabase()
 HistoryDatabase::~HistoryDatabase() {
 }
 
-InitStatus HistoryDatabase::Init(const std::wstring& history_name) {
+InitStatus HistoryDatabase::Init(const std::wstring& history_name,
+                                 const std::wstring& bookmarks_path) {
   // Open the history database, using the narrow version of open indicates to
   // sqlite that we want the database to be in UTF-8 if it doesn't already
   // exist.
@@ -94,17 +95,15 @@ InitStatus HistoryDatabase::Init(const std::wstring& history_name) {
     return INIT_FAILURE;
   if (!CreateURLTable(false) || !InitVisitTable() ||
       !InitKeywordSearchTermsTable() || !InitDownloadTable() ||
-      !InitSegmentTables() || !InitStarTable())
+      !InitSegmentTables())
     return INIT_FAILURE;
   CreateMainURLIndex();
   CreateSupplimentaryURLIndices();
 
   // Version check.
-  InitStatus version_status = EnsureCurrentVersion();
+  InitStatus version_status = EnsureCurrentVersion(bookmarks_path);
   if (version_status != INIT_OK)
     return version_status;
-
-  EnsureStarredIntegrity();
 
   // Succeeded: keep the DB open by detaching the auto-closer.
   scoper.Detach();
@@ -222,7 +221,8 @@ SqliteStatementCache& HistoryDatabase::GetStatementCache() {
 
 // Migration -------------------------------------------------------------------
 
-InitStatus HistoryDatabase::EnsureCurrentVersion() {
+InitStatus HistoryDatabase::EnsureCurrentVersion(
+    const std::wstring& tmp_bookmarks_path) {
   // We can't read databases newer than we were designed for.
   if (meta_table_.GetCompatibleVersionNumber() > kCurrentVersionNumber)
     return INIT_TOO_NEW;
@@ -238,6 +238,16 @@ InitStatus HistoryDatabase::EnsureCurrentVersion() {
   int cur_version = meta_table_.GetVersionNumber();
 
   // Put migration code here
+
+  if (cur_version == 15) {
+    if (!MigrateBookmarksToFile(tmp_bookmarks_path))
+      return INIT_FAILURE;
+    if (!DropStarredIDFromURLs())
+      return INIT_FAILURE;
+    cur_version = 16;
+    meta_table_.SetVersionNumber(cur_version);
+    meta_table_.SetCompatibleVersionNumber(cur_version);
+  }
 
   LOG_IF(WARNING, cur_version < kCurrentVersionNumber) <<
       "History database version " << cur_version << " is too old to handle.";

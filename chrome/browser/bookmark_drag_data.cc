@@ -48,12 +48,10 @@ BookmarkDragData::BookmarkDragData(BookmarkBarNode* node)
     : is_url(node->GetType() == history::StarredEntry::URL),
       url(node->GetURL()),
       title(node->GetTitle()),
-      is_valid(true) {
-  if (!is_url) {
-    group_id_ = node->GetGroupID();
-    DCHECK(group_id_);
+      is_valid(true),
+      id_(node->id()) {
+  if (!is_url)
     AddChildren(node);
-  }
 }
 
 void BookmarkDragData::Write(OSExchangeData* data) const {
@@ -89,8 +87,8 @@ bool BookmarkDragData::Read(const OSExchangeData& data) {
 }
 
 BookmarkBarNode* BookmarkDragData::GetNode(BookmarkBarModel* model) const {
-  DCHECK(!is_url && group_id_ && is_valid);
-  return model->GetNodeByGroupID(group_id_);
+  DCHECK(!is_url && id_ && is_valid);
+  return model->GetNodeByID(id_);
 }
 
 void BookmarkDragData::WriteToPickle(Pickle* pickle) const {
@@ -99,7 +97,7 @@ void BookmarkDragData::WriteToPickle(Pickle* pickle) const {
   pickle->WriteString(url.spec());
   pickle->WriteWString(title);
   if (!is_url) {
-    pickle->WriteInt64(group_id_);
+    pickle->WriteInt(id_);
     pickle->WriteInt(static_cast<int>(children.size()));
     for (std::vector<BookmarkDragData>::const_iterator i = children.begin();
          i != children.end(); ++i) {
@@ -119,9 +117,9 @@ bool BookmarkDragData::ReadFromPickle(Pickle* pickle, void** iterator) {
   }
   url = GURL(url_spec);
   if (!is_url) {
-    group_id_ = 0;
+    id_ = 0;
     children.clear();
-    if (!pickle->ReadInt64(iterator, &group_id_))
+    if (!pickle->ReadInt(iterator, &id_))
       return false;
     int children_count;
     if (!pickle->ReadInt(iterator, &children_count))

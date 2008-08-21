@@ -111,7 +111,7 @@ class ExpireHistoryTest : public testing::Test,
     std::wstring history_name(dir_);
     file_util::AppendToPath(&history_name, L"History");
     main_db_.reset(new HistoryDatabase);
-    if (main_db_->Init(history_name) != INIT_OK)
+    if (main_db_->Init(history_name, std::wstring()) != INIT_OK)
       main_db_.reset();
 
     std::wstring archived_name(dir_);
@@ -460,32 +460,6 @@ TEST_F(ExpireHistoryTest, DeleteURLWithoutFavicon) {
   EXPECT_TRUE(HasFavIcon(last_row.favicon_id()));
 }
 
-// DeletdeURL should delete URLs that are starred.
-TEST_F(ExpireHistoryTest, DeleteStarredURL) {
-  URLID url_ids[3];
-  Time visit_times[4];
-  AddExampleData(url_ids, visit_times);
-
-  URLRow url_row;
-  ASSERT_TRUE(main_db_->GetURLRow(url_ids[2], &url_row));
-
-  // Star the last URL.
-  StarredEntry starred;
-  starred.type = StarredEntry::URL;
-  starred.url = url_row.url();
-  starred.url_id = url_row.id();
-  starred.parent_group_id = HistoryService::kBookmarkBarID;
-  ASSERT_TRUE(main_db_->CreateStarredEntry(&starred));
-  ASSERT_TRUE(main_db_->GetURLRow(url_ids[2], &url_row));
-
-  // Now delete it, this should delete it even though it's starred.
-  expirer_.DeleteURL(url_row.url());
-
-  // All the normal data + the favicon should be gone.
-  EnsureURLInfoGone(url_row);
-  EXPECT_FALSE(HasFavIcon(url_row.favicon_id()));
-}
-
 // Expires all URLs more recent than a given time, with no starred items.
 // Our time threshold is such that one URL should be updated (we delete one of
 // the two visits) and one is deleted.
@@ -540,62 +514,6 @@ TEST_F(ExpireHistoryTest, FlushRecentURLsUnstarred) {
   EXPECT_FALSE(HasFavIcon(url_row2.favicon_id()));
 }
 
-// Expire a starred URL, it shouldn't get deleted and its visit counts should
-// be updated properly.
-TEST_F(ExpireHistoryTest, FlushRecentURLsStarred) {
-  URLID url_ids[3];
-  Time visit_times[4];
-  AddExampleData(url_ids, visit_times);
-
-  URLRow url_row1, url_row2;
-  ASSERT_TRUE(main_db_->GetURLRow(url_ids[1], &url_row1));
-  ASSERT_TRUE(main_db_->GetURLRow(url_ids[2], &url_row2));
-
-  // Star the last two URLs.
-  StarredEntry starred1;
-  starred1.type = StarredEntry::URL;
-  starred1.url = url_row1.url();
-  starred1.url_id = url_row1.id();
-  starred1.parent_group_id = HistoryService::kBookmarkBarID;
-  ASSERT_TRUE(main_db_->CreateStarredEntry(&starred1));
-  ASSERT_TRUE(main_db_->GetURLRow(url_ids[1], &url_row1));
-
-  StarredEntry starred2;
-  starred2.type = StarredEntry::URL;
-  starred2.url = url_row2.url();
-  starred2.url_id = url_row2.id();
-  starred2.parent_group_id = HistoryService::kBookmarkBarID;
-  ASSERT_TRUE(main_db_->CreateStarredEntry(&starred2));
-  ASSERT_TRUE(main_db_->GetURLRow(url_ids[2], &url_row2));
-
-  // This should delete the last two visits.
-  expirer_.ExpireHistoryBetween(visit_times[2], Time());
-
-  // The URL rows should still exist.
-  URLRow new_url_row1, new_url_row2;
-  ASSERT_TRUE(main_db_->GetURLRow(url_ids[1], &new_url_row1));
-  ASSERT_TRUE(main_db_->GetURLRow(url_ids[2], &new_url_row2));
-
-  // The visit times should be updated.
-  EXPECT_TRUE(new_url_row1.last_visit() == visit_times[1]);
-  EXPECT_TRUE(new_url_row2.last_visit().is_null());  // No last visit time.
-
-  // Visit counts should be updated.
-  EXPECT_EQ(0, new_url_row1.typed_count());
-  EXPECT_EQ(1, new_url_row1.visit_count());
-  EXPECT_EQ(0, new_url_row2.typed_count());
-  EXPECT_EQ(0, new_url_row2.visit_count());
-
-  // Thumbnails and favicons should still exist. Note that we keep thumbnails
-  // that may have been updated since the time threshold. Since the URL still
-  // exists in history, this should not be a privacy problem, we only update
-  // the visit counts in this case for consistency anyway.
-  EXPECT_TRUE(HasFavIcon(new_url_row1.favicon_id()));
-  EXPECT_TRUE(HasThumbnail(new_url_row1.id()));
-  EXPECT_TRUE(HasFavIcon(new_url_row2.favicon_id()));
-  EXPECT_TRUE(HasThumbnail(new_url_row2.id()));
-}
-
 TEST_F(ExpireHistoryTest, ArchiveHistoryBeforeUnstarred) {
   URLID url_ids[3];
   Time visit_times[4];
@@ -632,53 +550,6 @@ TEST_F(ExpireHistoryTest, ArchiveHistoryBeforeUnstarred) {
   VisitVector archived_visits;
   archived_db_->GetVisitsForURL(archived_row.id(), &archived_visits);
   EXPECT_EQ(1, archived_visits.size());
-}
-
-TEST_F(ExpireHistoryTest, ArchiveHistoryBeforeStarred) {
-  URLID url_ids[3];
-  Time visit_times[4];
-  AddExampleData(url_ids, visit_times);
-
-  URLRow url_row0, url_row1;
-  ASSERT_TRUE(main_db_->GetURLRow(url_ids[0], &url_row0));
-  ASSERT_TRUE(main_db_->GetURLRow(url_ids[1], &url_row1));
-
-  // Star the URLs. We use fake star IDs here, but that doesn't matter.
-  url_row0.set_star_id(1);
-  main_db_->UpdateURLRow(url_row0.id(), url_row0);
-  url_row1.set_star_id(2);
-  main_db_->UpdateURLRow(url_row1.id(), url_row1);
-
-  // Now archive the first three visits (first two URLs). The first two visits
-  // should be, the thirddeleted, but the URL records should not.
-  expirer_.ArchiveHistoryBefore(visit_times[2]);
-
-  // The first URL should have its visit deleted, but it should still be present
-  // in the main DB and not in the archived one since it is starred.
-  URLRow temp_row;
-  ASSERT_TRUE(main_db_->GetURLRow(url_ids[0], &temp_row));
-  // Note that the ID is different in the archived DB, so look up by URL.
-  EXPECT_FALSE(archived_db_->GetRowForURL(temp_row.url(), NULL));
-  VisitVector visits;
-  main_db_->GetVisitsForURL(temp_row.id(), &visits);
-  EXPECT_EQ(0, visits.size());
-
-  // The second URL should have its first visit deleted and its second visit
-  // archived. It should be present in both the main DB (because it's starred)
-  // and the archived DB (for the archived visit).
-  ASSERT_TRUE(main_db_->GetURLRow(url_ids[1], &temp_row));
-  main_db_->GetVisitsForURL(temp_row.id(), &visits);
-  EXPECT_EQ(0, visits.size());
-
-  // Note that the ID is different in the archived DB, so look up by URL.
-  ASSERT_TRUE(archived_db_->GetRowForURL(temp_row.url(), &temp_row));
-  archived_db_->GetVisitsForURL(temp_row.id(), &visits);
-  ASSERT_EQ(1, visits.size());
-  EXPECT_TRUE(visit_times[2] == visits[0].visit_time);
-
-  // The third URL should be unchanged.
-  EXPECT_TRUE(main_db_->GetURLRow(url_ids[2], &temp_row));
-  EXPECT_FALSE(archived_db_->GetRowForURL(temp_row.url(), NULL));
 }
 
 // Tests the return values from ArchiveSomeOldHistory. The rest of the

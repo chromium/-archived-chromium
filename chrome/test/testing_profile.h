@@ -42,11 +42,14 @@
 
 class TestingProfile : public Profile {
  public:
-  TestingProfile() : start_time_(Time::Now()), has_history_service_(false) {}
+  TestingProfile();
   virtual ~TestingProfile();
 
-  // Creates the HistoryService. Normally there is no HistoryService.
-  void CreateHistoryService();
+  // Creates the history service. If |delete_file| is true, the history file is
+  // deleted first, then the HistoryService is created. As TestingProfile
+  // deletes the directory containing the files used by HistoryService, the
+  // boolean only matters if you're recreating the HistoryService.
+  void CreateHistoryService(bool delete_file);
 
   // Creates the BookmkarBarModel. If not invoked the bookmark bar model is
   // NULL.
@@ -56,7 +59,7 @@ class TestingProfile : public Profile {
   void CreateTemplateURLModel();
 
   virtual std::wstring GetPath() {
-    return std::wstring();
+    return path_;
   }
   virtual bool IsOffTheRecord() {
     return false;
@@ -174,6 +177,9 @@ class TestingProfile : public Profile {
 #endif
 
  protected:
+  // The path of the profile; the various database and other files are relative
+  // to this.
+  std::wstring path_;
   Time start_time_;
   ProfileControllerSet controllers_;
   scoped_ptr<PrefService> prefs_;

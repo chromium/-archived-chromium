@@ -55,6 +55,8 @@ const wchar_t kSafeBrowsingFilename[] = L"Safe Browsing";
 const wchar_t kThumbnailsFilename[] = L"Thumbnails";
 const wchar_t kUserDataDirname[] = L"User Data";
 const wchar_t kWebDataFilename[] = L"Web Data";
+const wchar_t kBookmarksFileName[] = L"Bookmarks";
+const wchar_t kHistoryBookmarksFileName[] = L"Bookmarks From History";
 
 // Note, this shouldn't go above 64.  See bug 535234.
 const unsigned int kMaxRendererProcessCount = 20;

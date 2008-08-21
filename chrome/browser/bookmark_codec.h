@@ -49,8 +49,17 @@ class BookmarkCodec {
   BookmarkCodec() {}
 
   // Encodes the model to a JSON value. It's up to the caller to delete the
-  // returned object.
+  // returned object. This is invoked to encode the contents of the bookmark bar
+  // model and is currently a convenience to invoking Encode that takes the
+  // bookmark bar node and other folder node.
   Value* Encode(BookmarkBarModel* model);
+
+  // Encodes the bookmark bar and other folders returning the JSON value. It's
+  // up to the caller to delete the returned object.
+  // This method is public for use by StarredURLDatabase in migrating the
+  // bookmarks out of the database.
+  Value* Encode(BookmarkBarNode* bookmark_bar_node,
+                BookmarkBarNode* other_folder_node);
 
   // Decodes the previously encoded value to the specified model. Returns true
   // on success, false otherwise. If there is an error (such as unexpected
@@ -69,9 +78,11 @@ class BookmarkCodec {
                       BookmarkBarNode* parent);
 
   // Decodes the supplied node from the supplied value. Child nodes are
-  // created appropriately by way of DecodeChildren.
+  // created appropriately by way of DecodeChildren. If node is NULL a new
+  // node is created and added to parent, otherwise node is used.
   bool DecodeNode(BookmarkBarModel* model,
                   const DictionaryValue& value,
+                  BookmarkBarNode* parent,
                   BookmarkBarNode* node);
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkCodec);

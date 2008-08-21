@@ -56,6 +56,9 @@ class TextDatabaseManager;
 // as the storage interface. Logic for manipulating this storage layer should
 // be in HistoryBackend.cc.
 class HistoryDatabase : public DownloadDatabase,
+  // TODO(sky): See if we can nuke StarredURLDatabase and just create on the
+  // stack for migration. Then HistoryDatabase would directly descend from
+  // URLDatabase.
                         public StarredURLDatabase,
                         public VisitDatabase,
                         public VisitSegmentDatabase {
@@ -84,7 +87,8 @@ class HistoryDatabase : public DownloadDatabase,
   // Must call this function to complete initialization. Will return true on
   // success. On false, no other function should be called. You may want to call
   // BeginExclusiveMode after this when you are ready.
-  InitStatus Init(const std::wstring& history_name);
+  InitStatus Init(const std::wstring& history_name,
+                  const std::wstring& tmp_bookmarks_path);
 
   // Call to set the mode on the database to exclusive. The default locking mode
   // is "normal" but we want to run in exclusive mode for slightly better
@@ -141,6 +145,9 @@ class HistoryDatabase : public DownloadDatabase,
   // visit id wasn't found.
   SegmentID GetSegmentID(VisitID visit_id);
 
+  // Drops the starred table and star_id from urls.
+  bool MigrateFromVersion15ToVersion16();
+
  private:
   // Implemented for URLDatabase.
   virtual sqlite3* GetDB();
@@ -161,7 +168,7 @@ class HistoryDatabase : public DownloadDatabase,
   //
   // This assumes it is called from the init function inside a transaction. It
   // may commit the transaction and start a new one if migration requires it.
-  InitStatus EnsureCurrentVersion();
+  InitStatus EnsureCurrentVersion(const std::wstring& tmp_bookmarks_path);
 
   // ---------------------------------------------------------------------------
 

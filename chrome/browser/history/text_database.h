@@ -142,8 +142,6 @@ class TextDatabase {
   // Querying ------------------------------------------------------------------
 
   // Executes the given query. See QueryOptions for more info on input.
-  // Note that the options.only_starred is ignored since this database does not
-  // have access to star information.
   //
   // The results are appended to any existing ones in |*results|, and the first
   // time considered for the output is in |first_time_searched|

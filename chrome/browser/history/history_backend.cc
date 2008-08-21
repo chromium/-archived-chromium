@@ -268,10 +268,13 @@ void HistoryBackend::Init() {
   file_util::AppendToPath(&history_name, chrome::kHistoryFilename);
   std::wstring thumbnail_name = GetThumbnailFileName();
   std::wstring archived_name = GetArchivedFileName();
+  std::wstring tmp_bookmarks_file = history_dir_;
+  file_util::AppendToPath(&tmp_bookmarks_file,
+                          chrome::kHistoryBookmarksFileName);
 
   // History database.
   db_.reset(new HistoryDatabase());
-  switch (db_->Init(history_name)) {
+  switch (db_->Init(history_name, tmp_bookmarks_file)) {
     case INIT_OK:
       break;
     case INIT_FAILURE:
@@ -995,16 +998,6 @@ void HistoryBackend::QueryHistory(scoped_refptr<QueryHistoryRequest> request,
 
   if (db_.get()) {
     if (text_query.empty()) {
-      if (options.begin_time.is_null() && options.end_time.is_null() &&
-          options.only_starred && options.max_count == 0) {
-        DLOG(WARNING) << "Querying for all bookmarks. You should probably use "
-            "the dedicated starring functions which will also report unvisited "
-            "bookmarks and will be faster.";
-        // If this case is needed and the starring functions aren't right, we
-        // can optimize the case where we're just querying for starred URLs
-        // and remove the warning.
-      }
-
       // Basic history query for the main database.
       QueryHistoryBasic(db_.get(), db_.get(), options, &request->value);
 
@@ -1060,75 +1053,13 @@ void HistoryBackend::QueryHistoryBasic(URLDatabase* url_db,
       // catch any interesting stuff. This will update it if it exists in the
       // main DB, and do nothing otherwise.
       db_->GetRowForURL(url_result.url(), &url_result);
-    } else {
-      // URLs not in the main DB can't be starred, reset this just in case.
-      url_result.set_star_id(0);
     }
-
-    if (!url_result.starred() && options.only_starred)
-      continue;  // Want non-starred items filtered out.
 
     url_result.set_visit_time(visit.visit_time);
 
     // We don't set any of the query-specific parts of the URLResult, since
     // snippets and stuff don't apply to basic querying.
     result->AppendURLBySwapping(&url_result);
-  }
-}
-
-void HistoryBackend::QueryStarredEntriesByText(
-    URLQuerier* querier,
-    const std::wstring& text_query,
-    const QueryOptions& options,
-    QueryResults* results) {
-  // Collect our prepends so we can bulk add them at the end. It is more
-  // efficient to bluk prepend the URLs than to do one at a time.
-  QueryResults our_results;
-
-  // We can use only the main DB (not archived) for this operation since we know
-  // that all currently starred URLs will be in the main DB.
-  std::set<URLID> ids;
-  db_->GetURLsForTitlesMatching(text_query, &ids);
-
-  VisitRow visit;
-  PageVisit page_visit;
-  URLResult url_result;
-  for (std::set<URLID>::iterator i = ids.begin(); i != ids.end(); ++i) {
-    // Turn the ID (associated with the main DB) into a visit row.
-    if (!db_->GetURLRow(*i, &url_result))
-      continue;  // Not found, some crazy error.
-
-    // Make sure we haven't already reported this URL and don't add it if so.
-    if (querier->HasURL(url_result.url()))
-      continue;
-
-    // Consistency check, all URLs should be valid and starred.
-    if (!url_result.url().is_valid() || !url_result.starred())
-      continue;
-
-    db_->GetStarredEntry(url_result.star_id(), &url_result.starred_entry_);
-
-    // Use the last visit time as the visit time for this result.
-    // TODO(brettw) when we are not querying for the most recent visit only,
-    // we should get all the visits in the time range for the given URL and add
-    // separate results for each of them. Until then, just treat as unique:
-    //
-    // Just add this one visit for the last time they visited it, except for
-    // starred only queries which have no visit times.
-    if (options.only_starred) {
-      url_result.set_visit_time(Time());
-    } else {
-      url_result.set_visit_time(url_result.last_visit());
-    }
-    our_results.AppendURLBySwapping(&url_result);
-  }
-
-  // Now prepend all of the bookmark matches we found. We do this by appending
-  // the old values to the new ones and swapping the results.
-  if (our_results.size() > 0) {
-    our_results.AppendResultsBySwapping(results,
-                                        options.most_recent_visit_only);
-    our_results.Swap(results);
   }
 }
 
@@ -1162,8 +1093,6 @@ void HistoryBackend::QueryHistoryFTS(const std::wstring& text_query,
 
     if (!url_result.url().is_valid())
       continue;  // Don't report invalid URLs in case of corruption.
-    if (options.only_starred && !url_result.star_id())
-      continue;  // Don't add this unstarred item.
 
     // Copy over the FTS stuff that the URLDatabase doesn't know about.
     // We do this with swap() to avoid copying, since we know we don't
@@ -1179,21 +1108,10 @@ void HistoryBackend::QueryHistoryFTS(const std::wstring& text_query,
     // has the time, we can avoid an extra query of the visits table.
     url_result.set_visit_time(fts_matches[i].time);
 
-    if (options.only_starred) {
-      // When querying for starred pages fetch the starred entry.
-      DCHECK(url_result.star_id());
-      db_->GetStarredEntry(url_result.star_id(), &url_result.starred_entry_);
-    } else {
-      url_result.ResetStarredEntry();
-    }
-
     // Add it to the vector, this will clear our |url_row| object as a
     // result of the swap.
     result->AppendURLBySwapping(&url_result);
   }
-
-  if (options.include_all_starred)
-    QueryStarredEntriesByText(&querier, text_query, options, result);
 }
 
 // Frontend to GetMostRecentRedirectsFrom from the history thread.
@@ -1399,7 +1317,7 @@ void HistoryBackend::SetImportedFavicons(
   Time now = Time::Now();
 
   // Track all starred URLs that had their favicons set or updated.
-  std::set<GURL> starred_favicons_changed;
+  std::set<GURL> favicons_changed;
 
   for (size_t i = 0; i < favicon_usage.size(); i++) {
     FavIconID favicon_id = thumbnail_db_->GetFavIconIDForFavIconURL(
@@ -1422,16 +1340,15 @@ void HistoryBackend::SetImportedFavicons(
       url_row.set_favicon_id(favicon_id);
       db_->UpdateURLRow(url_row.id(), url_row);
 
-      if (url_row.starred())
-        starred_favicons_changed.insert(*url);
+      favicons_changed.insert(*url);
     }
   }
 
-  if (!starred_favicons_changed.empty()) {
+  if (!favicons_changed.empty()) {
     // Send the notification about the changed favicons for starred URLs.
     FavIconChangeDetails* changed_details = new FavIconChangeDetails;
-    changed_details->urls.swap(starred_favicons_changed);
-    BroadcastNotifications(NOTIFY_STARRED_FAVICON_CHANGED, changed_details);
+    changed_details->urls.swap(favicons_changed);
+    BroadcastNotifications(NOTIFY_FAVICON_CHANGED, changed_details);
   }
 }
 
@@ -1544,7 +1461,7 @@ void HistoryBackend::SetFavIconMapping(const GURL& page_url,
     redirects = &dummy_list;
   }
 
-  std::set<GURL> starred_favicons_changed;
+  std::set<GURL> favicons_changed;
 
   // Save page <-> favicon association.
   for (HistoryService::RedirectList::const_iterator i(redirects->begin());
@@ -1569,147 +1486,15 @@ void HistoryBackend::SetFavIconMapping(const GURL& page_url,
         thumbnail_db_->DeleteFavIcon(old_id);
     }
 
-    if (row.starred())
-      starred_favicons_changed.insert(row.url());
+    favicons_changed.insert(row.url());
   }
 
-  if (!starred_favicons_changed.empty()) {
-    // Send the notification about the changed favicons for starred URLs.
-    FavIconChangeDetails* changed_details = new FavIconChangeDetails;
-    changed_details->urls.swap(starred_favicons_changed);
-    BroadcastNotifications(NOTIFY_STARRED_FAVICON_CHANGED, changed_details);
-  }
+  // Send the notification about the changed favicons.
+  FavIconChangeDetails* changed_details = new FavIconChangeDetails;
+  changed_details->urls.swap(favicons_changed);
+  BroadcastNotifications(NOTIFY_FAVICON_CHANGED, changed_details);
 
   ScheduleCommit();
-}
-
-void HistoryBackend::GetAllStarredEntries(
-    scoped_refptr<GetStarredEntriesRequest> request) {
-  if (request->canceled())
-    return;
-  // Only query for the entries if the starred table is valid. If the starred
-  // table isn't valid, we may get back garbage which could cause the UI grief.
-  //
-  // TODO(sky): bug 1207654: this is temporary, the UI should really query for
-  // valid state than avoid GetAllStarredEntries if not valid.
-  if (db_.get() && db_->is_starred_valid())
-    db_->GetStarredEntries(0, &(request->value));
-  request->ForwardResult(
-      GetStarredEntriesRequest::TupleType(request->handle(),
-                                          &(request->value)));
-}
-
-void HistoryBackend::UpdateStarredEntry(const StarredEntry& new_entry) {
-  if (!db_.get())
-    return;
-
-  StarredEntry resulting_entry = new_entry;
-  if (!db_->UpdateStarredEntry(&resulting_entry) || !delegate_.get())
-    return;
-
-  ScheduleCommit();
-
-  // Send out notification that the star entry changed.
-  StarredEntryDetails* entry_details = new StarredEntryDetails();
-  entry_details->entry = resulting_entry;
-  BroadcastNotifications(NOTIFY_STAR_ENTRY_CHANGED, entry_details);
-}
-
-void HistoryBackend::CreateStarredEntry(
-    scoped_refptr<CreateStarredEntryRequest> request,
-    const StarredEntry& entry) {
-  // This method explicitly allows request to be NULL.
-  if (request.get() && request->canceled())
-    return;
-
-  StarID id = 0;
-  StarredEntry resulting_entry(entry);
-  if (db_.get()) {
-    if (entry.type == StarredEntry::USER_GROUP) {
-      id = db_->CreateStarredEntry(&resulting_entry);
-      if (id) {
-        // Broadcast group created notifications.
-        StarredEntryDetails* entry_details = new StarredEntryDetails;
-        entry_details->entry = resulting_entry;
-        BroadcastNotifications(NOTIFY_STAR_GROUP_CREATED, entry_details);
-      }
-    } else if (entry.type == StarredEntry::URL) {
-      // Currently, we only allow one starred entry for this URL. Therefore, we
-      // check for an existing starred entry for this URL and update it if it
-      // exists.
-      if (!db_->GetStarIDForEntry(resulting_entry)) {
-        // Adding a new starred URL.
-        id = db_->CreateStarredEntry(&resulting_entry);
-
-        // Broadcast starred notification.
-        URLsStarredDetails* details = new URLsStarredDetails(true);
-        details->changed_urls.insert(resulting_entry.url);
-        details->star_entries.push_back(resulting_entry);
-        BroadcastNotifications(NOTIFY_URLS_STARRED, details);
-      } else {
-        // Updating an existing one.
-        db_->UpdateStarredEntry(&resulting_entry);
-
-        // Broadcast starred update notification.
-        StarredEntryDetails* entry_details = new StarredEntryDetails;
-        entry_details->entry = resulting_entry;
-        BroadcastNotifications(NOTIFY_STAR_ENTRY_CHANGED, entry_details);
-      }
-    } else {
-      NOTREACHED();
-    }
-  }
-
-  ScheduleCommit();
-
-  if (request.get()) {
-    request->ForwardResult(
-        CreateStarredEntryRequest::TupleType(request->handle(), id));
-  }
-}
-
-void HistoryBackend::DeleteStarredGroup(UIStarID group_id) {
-  if (!db_.get())
-    return;
-
-  DeleteStarredEntry(db_->GetStarIDForGroupID(group_id));
-}
-
-void HistoryBackend::DeleteStarredURL(const GURL& url) {
-  if (!db_.get())
-    return;
-
-  history::StarredEntry entry;
-  entry.url = url;
-  DeleteStarredEntry(db_->GetStarIDForEntry(entry));
-}
-
-void HistoryBackend::DeleteStarredEntry(history::StarID star_id) {
-  if (!star_id) {
-    NOTREACHED() << "Deleting a nonexistent entry";
-    return;
-  }
-
-  // Delete the entry.
-  URLsStarredDetails* details = new URLsStarredDetails(false);
-  db_->DeleteStarredEntry(star_id, &details->changed_urls,
-                          &details->star_entries);
-
-  ScheduleCommit();
-
-  BroadcastNotifications(NOTIFY_URLS_STARRED, details);
-}
-
-void HistoryBackend::GetMostRecentStarredEntries(
-    scoped_refptr<GetMostRecentStarredEntriesRequest> request,
-    int max_count) {
-  if (request->canceled())
-    return;
-  if (db_.get())
-    db_->GetMostRecentStarredEntries(max_count, &(request->value));
-  request->ForwardResult(
-      GetMostRecentStarredEntriesRequest::TupleType(request->handle(),
-                                                    &(request->value)));
 }
 
 void HistoryBackend::Commit() {
@@ -1859,6 +1644,11 @@ void HistoryBackend::ProcessDBTask(
   }
 }
 
+void HistoryBackend::ProcessEmptyRequest(
+    scoped_refptr<EmptyHistoryRequest> request) {
+  request->ForwardResult(EmptyHistoryRequest::TupleType());
+}
+
 void HistoryBackend::BroadcastNotifications(
     NotificationType type,
     HistoryDetails* details_deleted) {
@@ -1887,7 +1677,6 @@ void HistoryBackend::DeleteAllHistory() {
 
   // Get starred entries and their corresponding URL rows.
   std::vector<StarredEntry> starred_entries;
-  db_->GetStarredEntries(0, &starred_entries);
 
   std::vector<URLRow> kept_urls;
   for (size_t i = 0; i < starred_entries.size(); i++) {
@@ -2031,19 +1820,6 @@ bool HistoryBackend::ClearAllMainHistory(
   // Replace the original URL table with the temporary one.
   if (!db_->CommitTemporaryURLTable())
     return false;
-
-  // The starred table references the old URL IDs. We need to fix it up to refer
-  // to the new ones.
-  for (std::vector<StarredEntry>::iterator i = starred_entries->begin();
-       i != starred_entries->end();
-       ++i) {
-    if (i->type != StarredEntry::URL)
-      continue;
-
-    DCHECK(old_to_new.find(i->url_id) != old_to_new.end());
-    i->url_id = old_to_new[i->url_id];
-    db_->UpdateURLIDForStar(i->id, i->url_id);
-  }
 
   // Delete the old tables and recreate them empty.
   db_->RecreateAllButStarAndURLTables();

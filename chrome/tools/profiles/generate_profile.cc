@@ -32,6 +32,7 @@
 
 #include "chrome/tools/profiles/thumbnail-inl.h"
 
+#include "base/at_exit.h"
 #include "base/icu_util.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
@@ -202,6 +203,8 @@ void InsertURLBatch(const std::wstring& profile_dir, int page_id,
 }
 
 int main(int argc, const char* argv[]) {
+  base::AtExitManager exit_manager;
+
   int next_arg = 1;
   bool history_only = false;
   if (strcmp(argv[next_arg], "--history-only") == 0) {

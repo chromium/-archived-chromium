@@ -81,8 +81,7 @@ class ExpireHistoryBackend {
   // will continue until the object is deleted.
   void StartArchivingOldStuff(TimeDelta expiration_threshold);
 
-  // Deletes everything associated with a URL, regardless of whether it is
-  // starred or not.
+  // Deletes everything associated with a URL.
   void DeleteURL(const GURL& url);
 
   // Removes all visits in the given time range, updating the URLs accordingly.
@@ -127,10 +126,6 @@ class ExpireHistoryBackend {
     // shared between all URLs with the same favicon, so this is the set of IDs
     // that we will need to check when the delete operations are complete.
     std::set<FavIconID> affected_favicons;
-
-    // URLs that were unstarred as a result of the delete.
-    std::set<GURL> unstarred_urls;
-    std::vector<StarredEntry> unstarred_entries;
 
     // Tracks the set of databases that have changed so we can optimize when
     // when we're done.

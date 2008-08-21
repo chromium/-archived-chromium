@@ -54,7 +54,6 @@ InMemoryHistoryBackend::~InMemoryHistoryBackend() {
     service->RemoveObserver(this, NOTIFY_HISTORY_URL_VISITED, source);
     service->RemoveObserver(this, NOTIFY_HISTORY_TYPED_URLS_MODIFIED, source);
     service->RemoveObserver(this, NOTIFY_HISTORY_URLS_DELETED, source);
-    service->RemoveObserver(this, NOTIFY_URLS_STARRED, source);
   }
 }
 
@@ -87,7 +86,6 @@ void InMemoryHistoryBackend::AttachToHistoryService(Profile* profile) {
   service->AddObserver(this, NOTIFY_HISTORY_URL_VISITED, source);
   service->AddObserver(this, NOTIFY_HISTORY_TYPED_URLS_MODIFIED, source);
   service->AddObserver(this, NOTIFY_HISTORY_URLS_DELETED, source);
-  service->AddObserver(this, NOTIFY_URLS_STARRED, source);
 }
 
 void InMemoryHistoryBackend::Observe(NotificationType type,
@@ -109,9 +107,6 @@ void InMemoryHistoryBackend::Observe(NotificationType type,
       break;
     case NOTIFY_HISTORY_URLS_DELETED:
       OnURLsDeleted(*Details<history::URLsDeletedDetails>(details).ptr());
-      break;
-    case NOTIFY_URLS_STARRED:
-      OnURLsStarred(*Details<history::URLsStarredDetails>(details).ptr());
       break;
     default:
       // For simplicity, the unit tests send us all notifications, even when
@@ -160,23 +155,6 @@ void InMemoryHistoryBackend::OnURLsDeleted(const URLsDeletedDetails& details) {
       // We typically won't have most of them since we only have a subset of
       // history, so ignore errors.
       db_->DeleteURLRow(id);
-    }
-  }
-}
-
-void InMemoryHistoryBackend::OnURLsStarred(
-    const history::URLsStarredDetails& details) {
-  DCHECK(db_.get());
-
-  for (std::set<GURL>::const_iterator i = details.changed_urls.begin();
-       i != details.changed_urls.end(); ++i) {
-    URLRow row;
-    if (db_->GetRowForURL(*i, &row)) {
-      // NOTE: We currently don't care about the star id from the in memory
-      // db, so that we use a fake value. If this does become a problem,
-      // then the notification will have to propagate the star id.
-      row.set_star_id(details.starred ? kBogusStarredID : 0);
-      db_->UpdateURLRow(row.id(), row);
     }
   }
 }

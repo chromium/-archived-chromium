@@ -31,6 +31,7 @@
 #define CHROME_BROWSER_BOOKMARK_BAR_MODEL_H_
 
 #include "base/observer_list.h"
+#include "chrome/browser/bookmark_storage.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/history/history_types.h"
@@ -43,6 +44,10 @@ class BookmarkBarModel;
 class BookmarkCodec;
 class Profile;
 
+namespace history {
+class StarredURLDatabase;
+}
+
 // BookmarkBarNode ------------------------------------------------------------
 
 // BookmarkBarNode contains information about a starred entry: title, URL,
@@ -52,9 +57,11 @@ class Profile;
 class BookmarkBarNode : public ChromeViews::TreeNode<BookmarkBarNode> {
   friend class BookmarkBarModel;
   friend class BookmarkCodec;
+  friend class history::StarredURLDatabase;
+  FRIEND_TEST(BookmarkBarModelTest, MostRecentlyAddedEntries);
 
  public:
-  explicit BookmarkBarNode(BookmarkBarModel* model);
+  BookmarkBarNode(BookmarkBarModel* model, const GURL& url);
 
   virtual ~BookmarkBarNode() {}
 
@@ -65,20 +72,14 @@ class BookmarkBarNode : public ChromeViews::TreeNode<BookmarkBarNode> {
   // Returns the URL.
   const GURL& GetURL() const { return url_; }
 
-  // Returns the start ID corresponding to this node.
-  // TODO(sky): bug 1256202, make this an ever increasing integer assigned on
-  // reading, but not archived. Best to set it automatically in the constructor.
-  history::StarID GetStarID() const { return star_id_; }
+  // Returns a unique id for this node.
+  //
+  // NOTE: this id is only unique for the session and NOT unique across
+  // sessions. Don't persist it!
+  int id() const { return id_; }
 
   // Returns the type of this node.
   history::StarredEntry::Type GetType() const { return type_; }
-
-  // Returns a StarredEntry for the node.
-  history::StarredEntry GetEntry();
-
-  // Returns the ID of group.
-  // TODO(sky): bug 1256202, nuke this.
-  history::UIStarID GetGroupID() { return group_id_; }
 
   // Called when the favicon becomes invalid.
   void InvalidateFavicon() {
@@ -93,18 +94,22 @@ class BookmarkBarNode : public ChromeViews::TreeNode<BookmarkBarNode> {
   // for folders (including the bookmark and other folder).
   Time date_group_modified() const { return date_group_modified_; }
 
+  // Convenience for testing if this nodes represents a group. A group is
+  // a node whose type is not URL.
+  bool is_folder() const { return type_ != history::StarredEntry::URL; }
+
+  // Is this a URL?
+  bool is_url() const { return type_ == history::StarredEntry::URL; }
+
  private:
   // Resets the properties of the node from the supplied entry.
   void Reset(const history::StarredEntry& entry);
 
-  // Resets the URL. Take care to cancel loading before invoking this.
-  void SetURL(const GURL& url);
-
-  // The model.
+  // The model. This is NULL when created by StarredURLDatabase for migration.
   BookmarkBarModel* model_;
 
   // Unique identifier for this node.
-  history::StarID star_id_;
+  const int id_;
 
   // Whether the favicon has been loaded.
   bool loaded_favicon_;
@@ -116,15 +121,13 @@ class BookmarkBarNode : public ChromeViews::TreeNode<BookmarkBarNode> {
   // from the HistoryService.
   HistoryService::Handle favicon_load_handle_;
 
-  // URL.
-  GURL url_;
+  // The URL. BookmarkBarModel maintains maps off this URL, it is important that
+  // it not change once the node has been created.
+  const GURL url_;
 
   // Type of node.
   // TODO(sky): bug 1256202, convert this into a type defined here.
   history::StarredEntry::Type type_;
-
-  // Group ID.
-  history::UIStarID group_id_;
 
   // Date we were created.
   Time date_added_;
@@ -189,6 +192,7 @@ class BookmarkBarModelObserver {
 class BookmarkBarModel : public NotificationObserver {
   friend class BookmarkBarNode;
   friend class BookmarkBarModelTest;
+  friend class BookmarkStorage;
 
  public:
   explicit BookmarkBarModel(Profile* profile);
@@ -212,6 +216,14 @@ class BookmarkBarModel : public NotificationObserver {
   // modified groups. This never returns an empty vector.
   std::vector<BookmarkBarNode*> GetMostRecentlyModifiedGroups(size_t max_count);
 
+  // Returns the most recently added bookmarks.
+  void GetMostRecentlyAddedEntries(size_t count,
+                                   std::vector<BookmarkBarNode*>* nodes);
+
+  // Returns the bookmarks whose title contains text.
+  void GetBookmarksMatchingText(const std::wstring& text,
+                                std::vector<BookmarkBarNode*>* nodes);
+
   void AddObserver(BookmarkBarModelObserver* observer) {
     observers_.AddObserver(observer);
   }
@@ -223,12 +235,6 @@ class BookmarkBarModel : public NotificationObserver {
   // Unstars or deletes the specified entry. Removing a group entry recursively
   // unstars all nodes. Observers are notified immediately.
   void Remove(BookmarkBarNode* parent, int index);
-
-  // If the specified node is on the bookmark bar it is removed from the
-  // bookmark bar to be a child of the other node. If the node is not on the
-  // bookmark bar this does nothing. This is a convenience for invoking
-  // Move to the other node.
-  void RemoveFromBookmarkBar(BookmarkBarNode* node);
 
   // Moves the specified entry to a new location.
   void Move(BookmarkBarNode* node, BookmarkBarNode* new_parent, int index);
@@ -243,9 +249,14 @@ class BookmarkBarModel : public NotificationObserver {
   // the specified URL.
   BookmarkBarNode* GetNodeByURL(const GURL& url);
 
-  // Returns the node with the specified group id, or NULL if there is no node
-  // with the specified id.
-  BookmarkBarNode* GetNodeByGroupID(history::UIStarID group_id);
+  // Returns true if there is a bookmark for the specified URL.
+  bool IsBookmarked(const GURL& url) {
+    return GetNodeByURL(url) != NULL;
+  }
+
+  // Returns the node with the specified id, or NULL if there is no node with
+  // the specified id.
+  BookmarkBarNode* GetNodeByID(int id);
 
   // Adds a new group node at the specified position.
   BookmarkBarNode* AddGroup(BookmarkBarNode* parent,
@@ -287,30 +298,38 @@ class BookmarkBarModel : public NotificationObserver {
     }
   };
 
-  // Maps from star id of node to actual node. Used during creation of nodes
-  // from history::StarredEntries.
-  typedef std::map<history::StarID,BookmarkBarNode*> IDToNodeMap;
-
   // Overriden to notify the observer the favicon has been loaded.
   void FavIconLoaded(BookmarkBarNode* node);
 
-  // NOTE: this does NOT override EntryAdded/EntryChanged as we assume all
-  // mutation to entries on the bookmark bar occurs through our methods.
+  // Removes the node from internal maps and recurces through all children. If
+  // the node is a url, its url is added to removed_urls.
+  //
+  // This does NOT delete the node.
+  void RemoveNode(BookmarkBarNode* node, std::set<GURL>* removed_urls);
 
-  // Removes the node for internal maps. This does NOT delete the node.
-  void RemoveNode(BookmarkBarNode* node);
+  // Callback from BookmarkStorage that it has finished loading. This method
+  // may be hit twice. In particular, on construction BookmarkBarModel asks
+  // BookmarkStorage to load the bookmarks. BookmarkStorage invokes this method
+  // with loaded_from_history false and file_exists indicating whether the
+  // bookmarks file exists. If the file doesn't exist, we query history. When
+  // history calls us back (OnHistoryDone) we then ask BookmarkStorage to load
+  // from the migration file. BookmarkStorage again invokes this method, but
+  // with |loaded_from_history| true.
+  void OnBookmarkStorageLoadedBookmarks(bool file_exists,
+                                        bool loaded_from_history);
 
-  // Callback from the database with the starred entries. Adds the appropriate
-  // entries to the root node.
-  void OnGotStarredEntries(HistoryService::Handle,
-      std::vector<history::StarredEntry>* entries);
+  // Used for migrating bookmarks from history to standalone file.
+  //
+  // Callback from history that it is done with an empty request. This is used
+  // if there is no bookmarks file. Once done, we attempt to load from the
+  // temporary file creating during migration.
+  void OnHistoryDone(HistoryService::Handle handle);
 
-  // Invoked from OnGotStarredEntries to create all the BookmarkNodes for
-  // the specified entries.
-  void PopulateNodes(std::vector<history::StarredEntry>* entries);
+  // Invoked when loading is finished. Sets loaded_ and notifies observers.
+  void DoneLoading();
 
-  // Callback from AddFolder/AddURL.
-  void OnCreatedEntry(HistoryService::Handle handle, history::StarID id);
+  // Populates nodes_ordered_by_url_set_ from root.
+  void PopulateNodesByURL(BookmarkBarNode* node);
 
   // Removes the node from its parent, sends notification, and deletes it.
   // type specifies how the node should be removed.
@@ -321,36 +340,22 @@ class BookmarkBarModel : public NotificationObserver {
                            int index,
                            BookmarkBarNode* node);
 
-  // Implementation of GetNodeByGrouID.
-  BookmarkBarNode* GetNodeByGroupID(BookmarkBarNode* node,
-                                    history::UIStarID group_id);
+  // Implementation of GetNodeByID.
+  BookmarkBarNode* GetNodeByID(BookmarkBarNode* node, int id);
 
-  // Adds the bookmark bar and other nodes to the root node. If id_to_node_map
-  // is non-null, the bookmark bar node and other bookmark nodes are added to
-  // it.
-  void AddRootChildren(IDToNodeMap* id_to_node_map);
-
-#ifndef NDEBUG
-  void CheckIndex(BookmarkBarNode* parent, int index, bool allow_end) {
-    DCHECK(parent);
-    DCHECK(index >= 0 &&
-           (index < parent->GetChildCount() ||
-            allow_end && index == parent->GetChildCount()));
-  }
-#endif
+  // Returns true if the parent and index are valid.
+  bool IsValidIndex(BookmarkBarNode* parent, int index, bool allow_end);
 
   // Sets the date modified time of the specified node.
   void SetDateGroupModified(BookmarkBarNode* parent, const Time time);
 
-  // Creates the bookmark bar/other nodes. This is used during testing (when we
-  // don't load from the DB), as well as if the db doesn't give us back a
-  // bookmark bar or other node (which should only happen if there is an error
-  // in loading the DB).
+  // Creates the bookmark bar/other nodes. These call into
+  // CreateRootNodeFromStarredEntry.
   void CreateBookmarkBarNode();
   void CreateOtherBookmarksNode();
 
   // Creates a root node (either the bookmark bar node or other node) from the
-  // specified starred entry. Only used once when loading.
+  // specified starred entry.
   BookmarkBarNode* CreateRootNodeFromStarredEntry(
       const history::StarredEntry& entry);
 
@@ -369,9 +374,6 @@ class BookmarkBarModel : public NotificationObserver {
 
   // If we're waiting on a favicon for node, the load request is canceled.
   void CancelPendingFavIconLoadRequests(BookmarkBarNode* node);
-
-  // Returns true if n1's date modified time is newer than n2s.
-  static bool MoreRecentlyModified(BookmarkBarNode* n1, BookmarkBarNode* n2);
 
   // Returns up to count of the most recently modified groups. This may not
   // add anything.
@@ -404,25 +406,11 @@ class BookmarkBarModel : public NotificationObserver {
   typedef std::set<BookmarkBarNode*,NodeURLComparator> NodesOrderedByURLSet;
   NodesOrderedByURLSet nodes_ordered_by_url_set_;
 
-  // Maps from node to request handle. This is used when creating new nodes.
-  typedef std::map<BookmarkBarNode*,HistoryService::Handle> NodeToHandleMap;
-  NodeToHandleMap node_to_handle_map_;
-
-  // Used when creating new entries/groups. Maps to the newly created
-  // node.
-  CancelableRequestConsumerT<BookmarkBarNode*,NULL> request_consumer_;
-
-  // ID of the next group we create.
-  //
-  // After the first load, this is set to the max group_id from the database.
-  //
-  // This value is incremented every time a new group is created. It is
-  // important that the value assigned to a group node remain unique during
-  // a run of Chrome (BookmarkEditorView for one relies on this).
-  history::StarID next_group_id_;
-
-  // Used for loading favicons.
+  // Used for loading favicons and the empty history request.
   CancelableRequestConsumerT<BookmarkBarNode*, NULL> load_consumer_;
+
+  // Reads/writes bookmarks to disk.
+  scoped_refptr<BookmarkStorage> store_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BookmarkBarModel);
 };

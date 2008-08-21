@@ -247,6 +247,8 @@ class URLDatabase {
       int max_count,
       std::vector<KeywordSearchTermVisit>* matches);
 
+  // Migration -----------------------------------------------------------------
+
   // Do to a bug we were setting the favicon of about:blank. This forces
   // about:blank to have no icon or title. Returns true on success, false if
   // the favicon couldn't be updated.
@@ -262,6 +264,11 @@ class URLDatabase {
   // fields, they can add their 0-based index to this value to get the index of
   // fields following kURLRowFields.
   static const int kNumURLRowFields;
+
+  // Drops the starred_id column from urls, returning true on success. This does
+  // nothing (and returns true) if the urls doesn't contain the starred_id
+  // column.
+  bool DropStarredIDFromURLs();
 
   // Initialization functions. The indexing functions are separate from the
   // table creation functions so the in-memory database and the temporary tables
@@ -319,7 +326,7 @@ class URLDatabase {
 // string dynamically anyway, use the constant, it will save space.
 #define HISTORY_URL_ROW_FIELDS \
     " urls.id, urls.url, urls.title, urls.visit_count, urls.typed_count, " \
-    "urls.last_visit_time, urls.hidden, urls.favicon_id, urls.starred_id "
+    "urls.last_visit_time, urls.hidden, urls.favicon_id "
 
 }  // history
 

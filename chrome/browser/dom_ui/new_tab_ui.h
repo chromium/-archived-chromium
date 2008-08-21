@@ -30,6 +30,7 @@
 #ifndef CHROME_BROWSER_DOM_UI_NEW_TAB_UI_H__
 #define CHROME_BROWSER_DOM_UI_NEW_TAB_UI_H__
 
+#include "chrome/browser/bookmark_bar_model.h"
 #include "chrome/browser/dom_ui/dom_ui_host.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/history/history.h"
@@ -202,9 +203,11 @@ class TemplateURLHandler : public DOMMessageHandler,
   DISALLOW_EVIL_CONSTRUCTORS(TemplateURLHandler);
 };
 
-class RecentlyBookmarkedHandler : public DOMMessageHandler {
+class RecentlyBookmarkedHandler : public DOMMessageHandler,
+                                  public BookmarkBarModelObserver {
  public:
   explicit RecentlyBookmarkedHandler(DOMUIHost* dom_ui_host);
+  ~RecentlyBookmarkedHandler();
 
   // Callback which navigates to the bookmarks page.
   void HandleShowBookmarkPage(const Value*);
@@ -213,13 +216,32 @@ class RecentlyBookmarkedHandler : public DOMMessageHandler {
   // It takes no arguments.
   void HandleGetRecentlyBookmarked(const Value*);
 
-  void OnMostRecentStarredEntries(
-      HistoryService::Handle request_handle,
-      std::vector<history::StarredEntry>* entries);
-
  private:
+  void SendBookmarksToPage();
+
+  // BookmarkBarModelObserver methods. These invoke SendBookmarksToPage.
+  virtual void Loaded(BookmarkBarModel* model);
+  virtual void BookmarkNodeAdded(BookmarkBarModel* model,
+                                 BookmarkBarNode* parent,
+                                 int index);
+  virtual void BookmarkNodeRemoved(BookmarkBarModel* model,
+                                   BookmarkBarNode* parent,
+                                   int index);
+  virtual void BookmarkNodeChanged(BookmarkBarModel* model,
+                                   BookmarkBarNode* node);
+
+  // These two won't effect what is shown, so they do nothing.
+  virtual void BookmarkNodeMoved(BookmarkBarModel* model,
+                                 BookmarkBarNode* old_parent,
+                                 int old_index,
+                                 BookmarkBarNode* new_parent,
+                                 int new_index) {}
+  virtual void BookmarkNodeFavIconLoaded(BookmarkBarModel* model,
+                                         BookmarkBarNode* node) {}
+
   DOMUIHost* dom_ui_host_;
-  CancelableRequestConsumerT<int, 0> cancelable_consumer_;
+  // The model we're getting bookmarks from. The model is owned by the Profile.
+  BookmarkBarModel* model_;
 
   DISALLOW_EVIL_CONSTRUCTORS(RecentlyBookmarkedHandler);
 };
