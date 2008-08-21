@@ -510,7 +510,7 @@ size_t HttpResponseHeaders::FindHeader(size_t from,
       continue;
     const string::const_iterator& name_begin = parsed_[i].name_begin;
     const string::const_iterator& name_end = parsed_[i].name_end;
-    if ((name_end - name_begin) == search.size() &&
+    if (static_cast<size_t>(name_end - name_begin) == search.size() &&
         std::equal(name_begin, name_end, search.begin(),
                    CaseInsensitiveCompare<char>()))
       return i;
@@ -831,7 +831,7 @@ bool HttpResponseHeaders::GetMaxAgeValue(TimeDelta* result) const {
   string value;
 
   const char kMaxAgePrefix[] = "max-age=";
-  const int kMaxAgePrefixLen = arraysize(kMaxAgePrefix) - 1;
+  const size_t kMaxAgePrefixLen = arraysize(kMaxAgePrefix) - 1;
 
   void* iter = NULL;
   while (EnumerateHeader(&iter, name, &value)) {
@@ -882,7 +882,7 @@ bool HttpResponseHeaders::GetTimeValuedHeader(const std::string& name,
 
 bool HttpResponseHeaders::IsKeepAlive() const {
   const char kPrefix[] = "HTTP/1.0";
-  const int kPrefixLen = arraysize(kPrefix) - 1;
+  const size_t kPrefixLen = arraysize(kPrefix) - 1;
   if (raw_headers_.size() < kPrefixLen)  // Lacking a status line?
     return false;
 
