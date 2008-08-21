@@ -199,7 +199,6 @@ input_files = [
     'mork_reader.cc',
     'native_ui_contents.cc',
     'navigation_controller.cc',
-    'navigation_controller_base.cc',
     'navigation_entry.cc',
     'navigation_performance_viewer.cc',
     'navigation_profiler.cc',
