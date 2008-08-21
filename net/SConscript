@@ -81,7 +81,6 @@ input_files = [
     'disk_cache/trace.cc',
     'http/cert_status_cache.cc',
     'http/http_chunked_decoder.cc',
-    'http/http_response_headers.cc',
     'http/http_util.cc',
     'url_request/mime_sniffer_proxy.cc',
     'url_request/url_request_error_job.cc',
@@ -114,6 +113,7 @@ if env['PLATFORM'] == 'win32':
       'http/http_cache.cc',
       'http/http_network_layer.cc',
       'http/http_network_transaction.cc',
+      'http/http_response_headers.cc',
       'http/http_transaction_winhttp.cc',
       'http/http_vary_data.cc',
       'http/winhttp_request_throttle.cc',
@@ -233,7 +233,6 @@ unittest_files = [
     'base/escape_unittest.cc',
     'base/gzip_filter_unittest.cc',
     'disk_cache/addr_unittest.cc',
-    'http/http_response_headers_unittest.cc',
     '$BASE_DIR/run_all_unittests$OBJSUFFIX',
 ]
 
@@ -260,6 +259,7 @@ if env['PLATFORM'] == 'win32':
       'http/http_cache_unittest.cc',
       'http/http_network_layer_unittest.cc',
       'http/http_network_transaction_unittest.cc',
+      'http/http_response_headers_unittest.cc',
       'http/http_transaction_unittest.cc',
       'http/http_transaction_winhttp_unittest.cc',
       'http/http_util_unittest.cc',
