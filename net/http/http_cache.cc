@@ -948,7 +948,7 @@ HttpCache::HttpCache(const ProxyInfo* proxy_info,
     : disk_cache_dir_(cache_dir),
       mode_(NORMAL),
       network_layer_(HttpNetworkLayer::CreateFactory(proxy_info)),
-      task_factory_(this),
+      ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)),
       in_memory_cache_(false),
       cache_size_(cache_size) {
 }
@@ -956,7 +956,7 @@ HttpCache::HttpCache(const ProxyInfo* proxy_info,
 HttpCache::HttpCache(const ProxyInfo* proxy_info, int cache_size)
     : mode_(NORMAL),
       network_layer_(HttpNetworkLayer::CreateFactory(proxy_info)),
-      task_factory_(this),
+      ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)),
       in_memory_cache_(true),
       cache_size_(cache_size) {
 }
@@ -966,7 +966,7 @@ HttpCache::HttpCache(HttpTransactionFactory* network_layer,
     : mode_(NORMAL),
       network_layer_(network_layer),
       disk_cache_(disk_cache),
-      task_factory_(this),
+      ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)),
       in_memory_cache_(false),
       cache_size_(0) {
 }
