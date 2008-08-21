@@ -192,8 +192,13 @@ Time CookieMonster::ParseCookieTime(const std::string& time_string) {
     // Numeric field w/ a colon
     } else if (token.find(':') != std::string::npos) {
       if (!found_time &&
-          sscanf_s(token.c_str(), "%2hu:%2hu:%2hu", &exploded.hour,
-                   &exploded.minute, &exploded.second) == 3) {
+#ifdef COMPILER_MSVC
+          sscanf_s(
+#else
+          sscanf(
+#endif
+                 token.c_str(), "%2u:%2u:%2u", &exploded.hour,
+                 &exploded.minute, &exploded.second) == 3) {
         found_time = true;
       } else {
         // We should only ever encounter one time-like thing.  If we're here,
@@ -334,7 +339,12 @@ static Time CanonExpiration(const CookieMonster::ParsedCookie& pc,
   // First, try the Max-Age attribute.
   uint64 max_age = 0;
   if (pc.HasMaxAge() &&
+#if defined(COMPILER_MSVC)
       sscanf_s(pc.MaxAge().c_str(), " %I64u", &max_age) == 1) {
+
+#else
+      sscanf(pc.MaxAge().c_str(), " %llu", &max_age) == 1) {
+#endif
     return current + TimeDelta::FromSeconds(max_age);
   }
 
@@ -420,6 +430,7 @@ bool CookieMonster::SetCookieWithCreationTime(const GURL& url,
 
   // We should have only purged at most one matching cookie.
   int num_deleted = DeleteEquivalentCookies(cookie_domain, *cc);
+  DCHECK(num_deleted <= 1);
 
   COOKIE_DLOG(INFO) << "SetCookie() cc: " << cc->DebugString();
 

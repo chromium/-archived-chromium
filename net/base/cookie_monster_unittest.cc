@@ -495,12 +495,18 @@ TEST(CookieMonsterTest, HttpOnlyTest) {
       url_google, net::CookieMonster::INCLUDE_HTTPONLY), "A=B");
 }
 
+namespace {
+
+struct CookieDateParsingCase {
+  const char* str;
+  const bool valid;
+  const time_t epoch;
+};
+
+}  // namespace
+
 TEST(CookieMonsterTest, TestCookieDateParsing) {
-  const struct {
-    const char* str;
-    const bool valid;
-    const time_t epoch;
-  } tests[] = {
+  const CookieDateParsingCase tests[] = {
     { "Sat, 15-Apr-17 21:01:22 GMT",           true, 1492290082 },
     { "Thu, 19-Apr-2007 16:00:00 GMT",         true, 1176998400 },
     { "Wed, 25 Apr 2007 21:02:13 GMT",         true, 1177534933 },
@@ -572,7 +578,7 @@ TEST(CookieMonsterTest, TestCookieDateParsing) {
   };
 
   Time parsed_time;
-  for (int i = 0; i < arraysize(tests); ++i) {
+  for (size_t i = 0; i < arraysize(tests); ++i) {
     parsed_time = net::CookieMonster::ParseCookieTime(tests[i].str);
     if (!tests[i].valid) {
       EXPECT_FALSE(!parsed_time.is_null()) << tests[i].str;
@@ -783,7 +789,7 @@ TEST(CookieMonsterTest, TestTotalGarbageCollection) {
 
 // Formerly NetUtilTest.CookieTest back when we used wininet's cookie handling.
 TEST(CookieMonsterTest, NetUtilCookieTest) {
-  const GURL test_url(L"http://mojo.jojo.google.izzle/");
+  const GURL test_url("http://mojo.jojo.google.izzle/");
 
   net::CookieMonster cm;
 
