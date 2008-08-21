@@ -144,7 +144,7 @@ class MemoryTest : public UITest {
       "http://articles.moneycentral.msn.com/Investing/StockInvestingTrading/TheSmartWayToGetRich.aspx",
       "http://articles.moneycentral.msn.com/Investing/ContrarianChronicles/TheFictionOfCorporateTransparency.aspx",
       "<NEWTAB>",
-      "http://flickr.com/"
+      "http://flickr.com/",
       "http://flickr.com/explore/interesting/2008/03/18/",
       "http://flickr.com/photos/chavals/2344906748/",
       "http://flickr.com/photos/rosemary/2343058024/",
@@ -241,7 +241,12 @@ class MemoryTest : public UITest {
         tab.reset(window->GetTab(tab_index));
       }
 
-      tab->NavigateToURL(GURL(urls[counter]));
+      const int kMaxWaitTime = 5000;
+      bool timed_out = false;
+      tab->NavigateToURLWithTimeout(GURL(urls[counter]), kMaxWaitTime, 
+                                    &timed_out);
+      if (timed_out)
+        printf("warning: %s timed out!\n", urls[counter].c_str());
     }
     size_t stop_size = GetSystemCommitCharge();
 
