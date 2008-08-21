@@ -315,6 +315,8 @@ elif env['PLATFORM'] == 'posix':
       env[envvar] = os.environ[envvar]
   # Provide $HOME when compiling so distcc can find its lock file.
   env['ENV']['HOME'] = os.environ['HOME']
+  if 'DISTCC_HOSTS' in os.environ:
+    env['ENV']['DISTCC_HOSTS'] = os.environ['DISTCC_HOSTS']
 
   # TODO(evanm): this is Linux-specific, not posix.
   # Parse /proc/cpuinfo for processor count.
