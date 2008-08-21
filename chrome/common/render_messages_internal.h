@@ -308,7 +308,9 @@ IPC_BEGIN_MESSAGES(View, 1)
   // Used to tell a render view whether it should expose DOM UI bindings
   // that allow JS content in the DOM to send a JSON-encoded value to the
   // browser process.  This is for HTML-based UI.
-  IPC_MESSAGE_ROUTED0(ViewMsg_AllowDOMUIBindings)
+  IPC_MESSAGE_ROUTED2(ViewMsg_AllowBindings,
+                      bool /* enable_dom_ui_bindings */,
+                      bool /* enable_external_host_bindings */)
 
   // Tell the renderer to add a property to the DOMUI binding object.  This
   // only works if we allowed DOMUI bindings.
@@ -437,7 +439,7 @@ IPC_BEGIN_MESSAGES(View, 1)
                       gfx::Size /* The view size to be repainted */)
 
   // Posts a message to the renderer.
-  IPC_MESSAGE_ROUTED2(ViewMsg_PostMessage,
+  IPC_MESSAGE_ROUTED2(ViewMsg_HandleMessageFromExternalHost,
                       std::string /* The target for the message */,
                       std::string /* The message */)
 
@@ -730,8 +732,10 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
 
   // A message for an external host.
   // |receiver| can be a receiving script and |message| is any
-  // arbitrary string that makes sense to the receiver.
-  IPC_MESSAGE_ROUTED2(ViewHostMsg_ExternalHostMessage,
+  // arbitrary string that makes sense to the receiver. For 
+  // example, a user of automation can use it to execute a script
+  // in the form of javascript:receiver("message");
+  IPC_MESSAGE_ROUTED2(ViewHostMsg_ForwardMessageToExternalHost,
                       std::string  /* receiver */,
                       std::string  /* message */)
 

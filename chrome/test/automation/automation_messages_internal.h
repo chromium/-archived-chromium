@@ -737,8 +737,8 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   IPC_MESSAGE_ROUTED1(AutomationMsg_OpenFindInPageRequest,
                       int /* tab_handle */)
 
-  // Posts a message to the chrome renderer.
-  IPC_MESSAGE_ROUTED3(AutomationMsg_PostMessage,
+  // Posts a message from external host to chrome renderer.
+  IPC_MESSAGE_ROUTED3(AutomationMsg_HandleMessageFromExternalHost,
                       int /* automation handle */,
                       std::string /* target */,
                       std::string /* message */ )
@@ -746,7 +746,7 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   // A message for an external host.
   // |receiver| can be a receiving script and |message| is any
   // arbitrary string that makes sense to the receiver.
-  IPC_MESSAGE_ROUTED2(AutomationMsg_SendExternalHostMessage,
+  IPC_MESSAGE_ROUTED2(AutomationMsg_ForwardMessageToExternalHost,
                       std::string /* receiver*/,
                       std::string /* message*/)
 

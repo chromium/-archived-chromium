@@ -35,6 +35,7 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/tab_contents_container_view.h"
+#include "chrome/browser/web_contents.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/hwnd_view_container.h"
@@ -89,6 +90,11 @@ bool ExternalTabContainer::Init(Profile* profile) {
   }
   tab_contents_->SetupController(profile);
   tab_contents_->set_delegate(this);
+
+  WebContents* web_conents = tab_contents_->AsWebContents();
+  if (web_conents)
+    web_conents->render_view_host()->AllowExternalHostBindings();
+
   // Create a TabContentsContainerView to handle focus cycling using Tab and
   // Shift-Tab.
   // TODO(sanjeevr): We need to create a dummy FocusTraversable object to
@@ -238,11 +244,11 @@ void ExternalTabContainer::DidNavigate(NavigationType nav_type,
   }
 }
 
-void ExternalTabContainer::SendExternalHostMessage(const std::string& receiver,
-                                                   const std::string& message) {
+void ExternalTabContainer::ForwardMessageToExternalHost(
+    const std::string& receiver, const std::string& message) {
   if(automation_) {
     automation_->Send(
-        new AutomationMsg_SendExternalHostMessage(0, receiver, message));
+        new AutomationMsg_ForwardMessageToExternalHost(0, receiver, message));
   }
 }
 

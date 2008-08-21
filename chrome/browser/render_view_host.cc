@@ -101,6 +101,7 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
     : RenderWidgetHost(instance->GetProcess(), routing_id),
       instance_(instance),
       enable_dom_ui_bindings_(false),
+      enable_external_host_bindings_(false),
       delegate_(delegate),
       renderer_initialized_(false),
       waiting_for_drag_context_response_(false),
@@ -175,8 +176,8 @@ bool RenderViewHost::CreateRenderView() {
 
   // If it's enabled, tell the renderer to set up the Javascript bindings for
   // sending messages back to the browser.
-  if (enable_dom_ui_bindings_)
-    Send(new ViewMsg_AllowDOMUIBindings(routing_id_));
+  Send(new ViewMsg_AllowBindings(
+      routing_id_, enable_dom_ui_bindings_, enable_external_host_bindings_));
 
   // Let our delegate know that we created a RenderView.
   delegate_->RendererCreated(this);
@@ -571,6 +572,10 @@ void RenderViewHost::AllowDOMUIBindings() {
   RendererSecurityPolicy::GetInstance()->GrantDOMUIBindings(process()->host_id());
 }
 
+void RenderViewHost::AllowExternalHostBindings() {
+  enable_external_host_bindings_ = true;
+}
+
 void RenderViewHost::SetDOMUIProperty(const std::string& name,
                                       const std::string& value) {
   DCHECK(enable_dom_ui_bindings_);
@@ -665,8 +670,8 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
                         OnMsgDomOperationResponse)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DOMUISend,
                         OnMsgDOMUISend)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_ExternalHostMessage,
-                        OnMsgExternalHostMessage)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_ForwardMessageToExternalHost,
+                        OnMsgForwardMessageToExternalHost)
 #ifdef CHROME_PERSONALIZATION
     IPC_MESSAGE_HANDLER(ViewHostMsg_PersonalizationEvent,
                         OnPersonalizationEvent)
@@ -1015,7 +1020,7 @@ void RenderViewHost::OnMsgDOMUISend(
   delegate_->ProcessDOMUIMessage(message, content);
 }
 
-void RenderViewHost::OnMsgExternalHostMessage(
+void RenderViewHost::OnMsgForwardMessageToExternalHost(
     const std::string& receiver,
     const std::string& message) {
   delegate_->ProcessExternalHostMessage(receiver, message);
@@ -1220,7 +1225,7 @@ void RenderViewHost::OnDebugDisconnect() {
   }
 }
 
-void RenderViewHost::PostMessage(const std::string& target,
-                                 const std::string& message) {
-  Send(new ViewMsg_PostMessage(routing_id_, target, message));
+void RenderViewHost::ForwardMessageFromExternalHost(
+    const std::string& target, const std::string& message) {
+  Send(new ViewMsg_HandleMessageFromExternalHost(routing_id_, target, message));
 }

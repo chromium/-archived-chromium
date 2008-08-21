@@ -311,9 +311,9 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   void AutocompleteEditGetMatches(const IPC::Message& message,
                                   int autocomplete_edit_handle);
 
-  // Handler for PostMessage sent by the automation client.
-  void OnPostMessage(int handle, const std::string& target,
-                     const std::string& message);
+  // Handler for a message sent by the automation client.
+  void OnMessageFromExternalHost(int handle, const std::string& target,
+                                 const std::string& message);
 
   // Callback for history redirect queries.
   virtual void OnRedirectQueryComplete(

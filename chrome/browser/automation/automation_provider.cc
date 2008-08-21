@@ -772,8 +772,8 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         GetConstrainedWindowBounds)
     IPC_MESSAGE_HANDLER(AutomationMsg_OpenFindInPageRequest,
                         HandleOpenFindInPageRequest)
-    IPC_MESSAGE_HANDLER(AutomationMsg_PostMessage,
-                        OnPostMessage)
+    IPC_MESSAGE_HANDLER(AutomationMsg_HandleMessageFromExternalHost,
+                        OnMessageFromExternalHost)
   IPC_END_MESSAGE_MAP()
 }
 
@@ -2205,9 +2205,8 @@ void AutomationProvider::AutocompleteEditIsQueryInProgress(
       message.routing_id(), success, query_in_progress));
 }
 
-void AutomationProvider::OnPostMessage(int handle,
-                                       const std::string& target,
-                                       const std::string& message) {
+void AutomationProvider::OnMessageFromExternalHost(
+    int handle, const std::string& target, const std::string& message) {
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
     if (!tab) {
@@ -2231,7 +2230,7 @@ void AutomationProvider::OnPostMessage(int handle,
       return;
     }
 
-    view_host->PostMessage(target, message);
+    view_host->ForwardMessageFromExternalHost(target, message);
   }
 }
 

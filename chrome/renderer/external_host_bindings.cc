@@ -29,22 +29,16 @@
 
 #include "chrome/renderer/external_host_bindings.h"
 
-#include "base/json_writer.h"
-#include "base/scoped_handle.h"
 #include "base/values.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/common/stl_util-inl.h"
 
-ExternalHostBindings::ExternalHostBindings() : routing_id_(0), sender_(NULL) {
-  BindMethod("postMessage", &ExternalHostBindings::postMessage);
+void ExternalHostBindings::BindMethods() {
+  BindMethod("ForwardMessageToExternalHost",
+             &ExternalHostBindings::ForwardMessageToExternalHost);
 }
 
-ExternalHostBindings::~ExternalHostBindings() {
-  STLDeleteContainerPointers(properties_.begin(), properties_.end());
-}
-
-void ExternalHostBindings::postMessage(const CppArgumentList& args,
-                                       CppVariant* result) {
+void ExternalHostBindings::ForwardMessageToExternalHost(
+    const CppArgumentList& args, CppVariant* result) {
   // We expect at least a string message identifier, and optionally take
   // an object parameter.  If we get anything else we bail.
   if (args.size() < 2)
@@ -54,17 +48,9 @@ void ExternalHostBindings::postMessage(const CppArgumentList& args,
   if (!args[0].isString() && !args[1].isString())
     return;
 
-  const std::string receiver = args[0].ToString();
-  const std::string message = args[1].ToString();
+  const std::string& receiver = args[0].ToString();
+  const std::string& message = args[1].ToString();
 
-  sender_->Send(
-      new ViewHostMsg_ExternalHostMessage(routing_id_, receiver, message));
-}
-
-void ExternalHostBindings::SetProperty(const std::string& name,
-                                       const std::string& value) {
-  CppVariant* cpp_value = new CppVariant;
-  cpp_value->Set(value);
-  BindProperty(name, cpp_value);
-  properties_.push_back(cpp_value);
+  sender()->Send(new ViewHostMsg_ForwardMessageToExternalHost(
+      routing_id(), receiver, message));
 }

@@ -333,6 +333,10 @@ class RenderViewHost : public RenderWidgetHost {
   // process.
   void AllowDomAutomationBindings();
 
+  // Tell the render view to allow the javascript access to
+  // the external host via automation.
+  void AllowExternalHostBindings();
+
   // Tell the render view to expose DOM bindings so that the JS content
   // can send JSON-encoded data back to the browser process.
   // This is used for HTML-based UI.
@@ -398,9 +402,9 @@ class RenderViewHost : public RenderWidgetHost {
   // and we're necessarily leaving the page.
   void UnloadListenerHasFired() { has_unload_listener_ = false; }
 
-  // Posts a message to the renderer.
-  void PostMessage(const std::string& target,
-                  const std::string& message);
+  // Forward a message from external host to chrome renderer.
+  void ForwardMessageFromExternalHost(const std::string& target,
+                                      const std::string& message);
 
 #ifdef CHROME_PERSONALIZATION
   HostPersonalization personalization() {
@@ -463,8 +467,8 @@ class RenderViewHost : public RenderWidgetHost {
                                  int automation_id);
   void OnMsgDOMUISend(const std::string& message,
                       const std::string& content);
-  void OnMsgExternalHostMessage(const std::string& receiver,
-                                const std::string& message);
+  void OnMsgForwardMessageToExternalHost(const std::string& receiver,
+                                         const std::string& message);
 #ifdef CHROME_PERSONALIZATION
   void OnPersonalizationEvent(const std::string& message,
                               const std::string& content);
@@ -554,6 +558,10 @@ class RenderViewHost : public RenderWidgetHost {
   // True if we've been told to set up the the Javascript bindings for
   // sending messages back to the browser.
   bool enable_dom_ui_bindings_;
+
+  // True if javascript access to the external host (through
+  // automation) is allowed.
+  bool enable_external_host_bindings_;
 
   // Handle to an event that's set when the page is showing a modal dialog box
   // (or equivalent constrained window).  The renderer and plugin processes

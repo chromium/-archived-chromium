@@ -1998,7 +1998,7 @@ void WebContents::DomOperationResponse(const std::string& json_string,
 void WebContents::ProcessExternalHostMessage(const std::string& receiver,
                                              const std::string& message) {
   if (delegate())
-    delegate()->SendExternalHostMessage(receiver, message);
+    delegate()->ForwardMessageToExternalHost(receiver, message);
 }
 
 void WebContents::GoToEntryAtOffset(int offset) {

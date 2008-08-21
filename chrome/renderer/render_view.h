@@ -416,7 +416,8 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   void OnDragTargetDrop(const gfx::Point& client_pt,
                         const gfx::Point& screen_pt);
   void OnAllowDomAutomationBindings(bool allow_binding);
-  void OnAllowDOMUIBindings();
+  void OnAllowBindings(bool enable_dom_ui_bindings,
+                       bool enable_external_host_bindings);
   void OnSetDOMUIProperty(const std::string& name, const std::string& value);
   void OnSetInitialFocus(bool reverse);
   void OnUpdateWebPreferences(const WebPreferences& prefs);
@@ -455,9 +456,9 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // Notification about ui theme changes.
   void OnThemeChanged();
 
-  // Handles messages posted by the browser.
-  void OnPostMessage(const std::string& target,
-                     const std::string& message);
+  // Handles messages posted from automation.
+  void OnMessageFromExternalHost(const std::string& target,
+                                 const std::string& message);
 
   // Switches the frame's CSS media type to "print" and calculate the number of
   // printed pages that are to be expected. |frame| will be used to calculate
@@ -521,6 +522,7 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   ExternalJSObject external_js_object_;
 
   // External host exposed through automation controller.
+  bool enable_external_host_bindings_;
   ExternalHostBindings external_host_bindings_;
 
   // The last gotten main frame's encoding.

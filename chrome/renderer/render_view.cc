@@ -335,7 +335,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_DragTargetDrop, OnDragTargetDrop)
     IPC_MESSAGE_HANDLER(ViewMsg_AllowDomAutomationBindings,
                         OnAllowDomAutomationBindings)
-    IPC_MESSAGE_HANDLER(ViewMsg_AllowDOMUIBindings, OnAllowDOMUIBindings)
+    IPC_MESSAGE_HANDLER(ViewMsg_AllowBindings, OnAllowBindings)
     IPC_MESSAGE_HANDLER(ViewMsg_SetDOMUIProperty, OnSetDOMUIProperty)
     IPC_MESSAGE_HANDLER(ViewMsg_DragSourceEndedOrMoved, OnDragSourceEndedOrMoved)
     IPC_MESSAGE_HANDLER(ViewMsg_DragSourceSystemDragEnded,
@@ -358,7 +358,8 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_ShouldClose, OnMsgShouldClose)
     IPC_MESSAGE_HANDLER(ViewMsg_ClosePage, OnClosePage)
     IPC_MESSAGE_HANDLER(ViewMsg_ThemeChanged, OnThemeChanged)
-    IPC_MESSAGE_HANDLER(ViewMsg_PostMessage, OnPostMessage)
+    IPC_MESSAGE_HANDLER(ViewMsg_HandleMessageFromExternalHost,
+                        OnMessageFromExternalHost)
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidget::OnMessageReceived(message))
   IPC_END_MESSAGE_MAP()
@@ -1418,10 +1419,11 @@ void RenderView::WindowObjectCleared(WebFrame* webframe) {
     dom_ui_bindings_.set_routing_id(routing_id_);
     dom_ui_bindings_.BindToJavascript(webframe, L"chrome");
   }
-
-  external_host_bindings_.set_message_sender(this);
-  external_host_bindings_.set_routing_id(routing_id_);
-  external_host_bindings_.BindToJavascript(webframe, L"externalHost");
+  if (enable_external_host_bindings_) {
+    external_host_bindings_.set_message_sender(this);
+    external_host_bindings_.set_routing_id(routing_id_);
+    external_host_bindings_.BindToJavascript(webframe, L"externalHost");
+  }
 
 #ifdef CHROME_PERSONALIZATION
   Personalization::ConfigureRendererPersonalization(personalization_, this,
@@ -2281,8 +2283,11 @@ void RenderView::OnAllowDomAutomationBindings(bool allow_bindings) {
   enable_dom_automation_ = allow_bindings;
 }
 
-void RenderView::OnAllowDOMUIBindings() {
-  enable_dom_ui_bindings_ = true;
+void RenderView::OnAllowBindings(bool enable_dom_ui_bindings,
+                                 bool enable_external_host_bindings)
+{
+  enable_dom_ui_bindings_ = enable_dom_ui_bindings;
+  enable_external_host_bindings_ = enable_external_host_bindings;
 }
 
 void RenderView::OnSetDOMUIProperty(const std::string& name,
@@ -2500,8 +2505,8 @@ void RenderView::OnThemeChanged() {
   DidInvalidateRect(webwidget_, view_rect);
 }
 
-void RenderView::OnPostMessage(const std::string& target,
-                               const std::string& message) {
+void RenderView::OnMessageFromExternalHost(
+    const std::string& target, const std::string& message) {
   if (message.empty())
     return;
 

@@ -27,48 +27,30 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CHROME_RENDERER_EXTERNAL_HOST_BINDINGS_H__
-#define CHROME_RENDERER_EXTERNAL_HOST_BINDINGS_H__
+#ifndef CHROME_RENDERER_EXTERNAL_HOST_BINDINGS_H_
+#define CHROME_RENDERER_EXTERNAL_HOST_BINDINGS_H_
 
 #include "chrome/common/ipc_message.h"
-#include "webkit/glue/cpp_bound_class.h"
+#include "dom_ui_bindings.h"
 
 // ExternalHostBindings is the class backing the "externalHost" object
 // accessible from Javascript
 //
 // We expose one function, for sending a message to the external host:
-//  postMessage(String receiver, String message);
-class ExternalHostBindings : public CppBoundClass {
+//  ForwardMessageToExternalHost(String receiver, String message);
+class ExternalHostBindings : public DOMBoundBrowserObject {
  public:
-  ExternalHostBindings();
-  ~ExternalHostBindings();
+  ExternalHostBindings() { BindMethods(); }
+  virtual ~ExternalHostBindings() {};
 
-  // The postMessage() function provided to Javascript.
-  void postMessage(const CppArgumentList& args, CppVariant* result);
+  // DOMBoundBrowserObject implementation.
+  virtual void BindMethods();
 
-  // Set the message channel back to the browser.
-  void set_message_sender(IPC::Message::Sender* sender) {
-    sender_ = sender;
-  }
-
-  // Set the routing id for messages back to the browser.
-  void set_routing_id(int routing_id) {
-    routing_id_ = routing_id;
-  }
-
-  // Sets a property with the given name and value.
-  void SetProperty(const std::string& name, const std::string& value);
-
+  // The ForwardMessageToExternalHost() function provided to Javascript.
+  void ForwardMessageToExternalHost(const CppArgumentList& args,
+                                    CppVariant* result);
  private:
-  // Our channel back to the browser is a message sender
-  // and routing id.
-  IPC::Message::Sender* sender_;
-  int routing_id_;
-
-  // The list of properties that have been set.  We keep track of this so we
-  // can free them on destruction.
-  typedef std::vector<CppVariant*> PropertyList;
-  PropertyList properties_;
+  DISALLOW_COPY_AND_ASSIGN(ExternalHostBindings);
 };
 
-#endif  // CHROME_RENDERER_DOM_UI_BINDINGS_H__
+#endif  // CHROME_RENDERER_EXTERNAL_HOST_BINDINGS_H_
