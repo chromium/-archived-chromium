@@ -206,6 +206,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\call_wrapper.h"
+			>
+		</File>
+		<File
 			RelativePath="..\clipboard.h"
 			>
 		</File>

@@ -168,6 +168,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\call_wrapper_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\clipboard_unittest.cc"
 				>
 			</File>

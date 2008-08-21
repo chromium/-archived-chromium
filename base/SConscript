@@ -244,6 +244,7 @@ if env['PLATFORM'] == 'win32':
 # cross-platform live below.
 test_files = [
     'at_exit_unittest.cc',
+    'call_wrapper_unittest.cc',
     'command_line_unittest.cc',
     'json_reader_unittest.cc',
     'json_writer_unittest.cc',
