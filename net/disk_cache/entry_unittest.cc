@@ -564,6 +564,11 @@ void DiskCacheEntryTest::TruncateData() {
 TEST_F(DiskCacheEntryTest, TruncateData) {
   InitCache();
   TruncateData();
+
+  // We generate asynchronous IO that is not really tracked until completion
+  // so we just wait here before running the next test.
+  MessageLoopHelper helper;
+  helper.WaitUntilCacheIoFinished(1);
 }
 
 TEST_F(DiskCacheEntryTest, MemoryOnlyTruncateData) {
