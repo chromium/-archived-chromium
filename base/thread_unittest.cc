@@ -51,7 +51,7 @@ class SleepSome : public Task {
   explicit SleepSome(int msec) : msec_(msec) {
   }
   virtual void Run() {
-    Sleep(msec_);
+    PlatformThread::Sleep(msec_);
   }
  private:
   int msec_;
@@ -89,7 +89,7 @@ TEST(ThreadTest, StartWithStackSize) {
   // instead to avoid busy waiting, but this is sufficient for
   // testing purposes).
   for (int i = 100; i >= 0 && !was_invoked; --i) {
-    Sleep(10);
+    PlatformThread::Sleep(10);
   }
   EXPECT_TRUE(was_invoked);
 }

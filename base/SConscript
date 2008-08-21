@@ -71,9 +71,9 @@ input_files = [
     'memory_debug.cc',
     'message_loop.cc',
     'message_pump_default.cc',
+    'non_thread_safe.cc',
     'path_service.cc',
     'pickle.cc',
-    'platform_thread.cc',
     'revocable_store.cc',
     'ref_counted.cc',
     'sha2.cc',
@@ -82,6 +82,7 @@ input_files = [
     'string_piece.cc',
     'string_util.cc',
     'string_util_icu.cc',
+    'thread.cc',
     'time.cc',
     'time_format.cc',
     'timer.cc',
@@ -106,10 +107,8 @@ if env['PLATFORM'] == 'win32':
 
     # This group all depends on MessageLoop.
     'idle_timer.cc',
-    'non_thread_safe.cc',
     'object_watcher.cc',
     'shared_event.cc',   # Is this used?
-    'thread.cc',
     'watchdog.cc',
 
     'process.cc',
@@ -136,6 +135,7 @@ if env['PLATFORM'] == 'win32':
       'lock_impl_win.cc',
       'message_pump_win.cc',
       'pe_image.cc',
+      'platform_thread_win.cc',
       'registry.cc',
       'shared_memory_win.cc',
       'sys_string_conversions_win.cc',
@@ -151,6 +151,7 @@ if env['PLATFORM'] in ('darwin', 'posix'):
       'condition_variable_posix.cc',
       'debug_util_posix.cc',
       'lock_impl_posix.cc',
+      'platform_thread_posix.cc',
       'shared_memory_posix.cc',
       'thread_local_storage_posix.cc',
       'time_posix.cc',
@@ -164,7 +165,6 @@ if env['PLATFORM'] == 'darwin':
       'file_util_mac.mm',
       'file_version_info_mac.mm',
       'sys_string_conversions_mac.cc',
-      'thread_posix.cc',
   ])
 
 if env['PLATFORM'] == 'posix':
@@ -173,7 +173,6 @@ if env['PLATFORM'] == 'posix':
       'base_paths_linux.cc',
       'file_util_linux.cc',
       'sys_string_conversions_linux.cc',
-      'thread_posix.cc',
   ])
 
 env.ChromeStaticLibrary('base', input_files)
@@ -261,6 +260,7 @@ test_files = [
     'string_piece_unittest.cc',
     'string_tokenizer_unittest.cc',
     'string_util_unittest.cc',
+    'thread_unittest.cc',
     'time_unittest.cc',
     'values_unittest.cc',
     'waitable_event_unittest.cc',
@@ -283,7 +283,6 @@ if env['PLATFORM'] == 'win32':
     'idletimer_unittest.cc',
     'hmac_unittest.cc',
     'message_loop_unittest.cc',
-    'object_watcher_unittest.cc',
     'path_service_unittest.cc',
     'process_util_unittest.cc',
     'run_all_unittests.cc',
@@ -291,7 +290,6 @@ if env['PLATFORM'] == 'win32':
     'shared_memory_unittest.cc',
     'stats_table_unittest.cc',
     'thread_local_storage_unittest.cc',
-    'thread_unittest.cc',
     'timer_unittest.cc',
     'tracked_objects_test.cc',
     'gfx/native_theme_unittest.cc',
@@ -304,6 +302,7 @@ if env['PLATFORM'] == 'win32':
   # Windows-specific tests.
   test_files.extend([
       'file_version_info_unittest.cc',
+      'object_watcher_unittest.cc',
       'pe_image_unittest.cc',
       'sys_string_conversions_win_unittest.cc',
       'win_util_unittest.cc',

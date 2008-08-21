@@ -65,7 +65,7 @@ PluginThread::~PluginThread() {
 }
 
 void PluginThread::OnChannelError() {
-  owner_loop_->Quit();
+  owner_loop_->PostTask(FROM_HERE, new MessageLoop::QuitTask());
 }
 
 bool PluginThread::Send(IPC::Message* msg) {

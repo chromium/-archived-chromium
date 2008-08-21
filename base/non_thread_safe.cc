@@ -29,20 +29,21 @@
 
 #include "base/non_thread_safe.h"
 
-#include "base/message_loop.h"
+#include "base/platform_thread.h"
 
-// These checks are only done in release builds.
+// These checks are only done in debug builds.
 #ifndef NDEBUG
 
-NonThreadSafe::NonThreadSafe() : valid_thread_id_(GetCurrentThreadId()) {
+NonThreadSafe::NonThreadSafe()
+    : valid_thread_id_(PlatformThread::CurrentId()) {
 }
 
 bool NonThreadSafe::CalledOnValidThread() const {
-  return valid_thread_id_ == GetCurrentThreadId();
+  return valid_thread_id_ == PlatformThread::CurrentId();
 }
 
 NonThreadSafe::~NonThreadSafe() {
   DCHECK(CalledOnValidThread());
 }
 
-#endif
+#endif  // NDEBUG

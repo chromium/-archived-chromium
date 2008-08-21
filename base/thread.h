@@ -32,25 +32,21 @@
 
 #include <string>
 
+#include "base/platform_thread.h"
 #include "base/thread_local_storage.h"
 
 class MessageLoop;
 
-// Types that differ
-#if defined(OS_WIN)
-#include <wtypes.h>
-typedef unsigned int ThreadId;
-#elif defined(OS_POSIX)
-typedef pthread_t ThreadId;
-#endif
+namespace base {
+class WaitableEvent;
+}
 
 // A simple thread abstraction that establishes a MessageLoop on a new thread.
 // The consumer uses the MessageLoop of the thread to cause code to execute on
 // the thread.  When this object is destroyed the thread is terminated.  All
 // pending tasks queued on the thread's message loop will run to completion
 // before the thread is terminated.
-//
-class Thread {
+class Thread : PlatformThread::Delegate {
  public:
   // Constructor.
   // name is a display string to identify the thread.
@@ -112,23 +108,13 @@ class Thread {
   // NOTE: You must not call this MessageLoop's Quit method directly.  Use
   // the Thread's Stop method instead.
   //
-  MessageLoop* message_loop() const {
-    if (thread_id_)
-      return message_loop_;
-    return NULL;
-  }
+  MessageLoop* message_loop() const { return message_loop_; }
 
   // Set the name of this thread (for display in debugger too).
   const std::string &thread_name() { return name_; }
 
-#if defined(OS_WIN)
-  HANDLE thread_handle() { return thread_; }
-#endif
-
-  // Sets the thread name if a debugger is currently attached. Has no effect
-  // otherwise. To set the name of the current thread, pass GetCurrentThreadId()
-  // as the tid parameter.
-  static void SetThreadName(const char* name, ThreadId tid);
+  // The native thread handle.
+  PlatformThreadHandle thread_handle() { return thread_; }
 
  protected:
   // Called just prior to starting the message loop
@@ -141,21 +127,27 @@ class Thread {
   static bool GetThreadWasQuitProperly();
 
  private:
-#if defined(OS_WIN)
-  static unsigned __stdcall ThreadFunc(void* param);
-  // The thread's handle. Modified by the root thread.  
-  HANDLE thread_;
-#endif
+  // PlatformThread::Delegate methods:
+  virtual void ThreadMain();
 
-  // The thread's id. Modified by the root thread. Set to 0 when the thread is
-  // not ready to receive messages.
-  ThreadId thread_id_;
+  // The thread's handle.
+  PlatformThreadHandle thread_;
 
-  // The thread's message loop. Valid only while the thread is alive. Modified
+  // The thread's ID.  Used for debugging purposes.
+  int thread_id_;
+
+  // The thread's message loop.  Valid only while the thread is alive.  Set
   // by the created thread.
   MessageLoop* message_loop_;
 
-  const std::string name_;
+  // Used to synchronize thread startup.
+  base::WaitableEvent* startup_event_;
+
+  // The name of the thread.  Used for debugging purposes.
+  std::string name_;
+
+  // This flag indicates if we created a thread that needs to be joined.
+  bool thread_created_;
 
   static TLSSlot tls_index_;
 

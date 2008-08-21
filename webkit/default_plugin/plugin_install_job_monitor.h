@@ -30,6 +30,8 @@
 #ifndef WEBKIT_DEFAULT_PLUGIN_PLUGIN_INSTALL_JOB_MONITOR_H__
 #define WEBKIT_DEFAULT_PLUGIN_PLUGIN_INSTALL_JOB_MONITOR_H__
 
+#include <windows.h>
+
 #include "base/logging.h"
 #include "base/thread.h"
 

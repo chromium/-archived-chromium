@@ -60,7 +60,7 @@ class NonThreadSafe {
   bool CalledOnValidThread() const;
 
  private:
-  int32 valid_thread_id_;
+  int valid_thread_id_;
 };
 #else
 // Do nothing in release mode.

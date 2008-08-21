@@ -29,10 +29,8 @@
 
 #include "base/platform_thread.h"
 
-#if defined(OS_POSIX)
 #include <errno.h>
 #include <sched.h>
-#endif
 
 #if defined(OS_MACOSX)
 #include <mach/mach.h>
@@ -41,60 +39,69 @@
 #include <unistd.h>
 #endif
 
-// static
-PlatformThread PlatformThread::Current() {
-  PlatformThread thread;
-
-#if defined(OS_WIN)
-  thread.thread_ = GetCurrentThread();
-#elif defined(OS_POSIX)
-  thread.thread_ = pthread_self();
-#endif
-
-  return thread;
-}
-
-// static
-void PlatformThread::YieldCurrentThread() {
-#if defined(OS_WIN)
-  ::Sleep(0);
-#elif defined(OS_POSIX)
-  sched_yield();
-#endif
-}
-
-// static
-void PlatformThread::Sleep(int duration_ms) {
-#if defined(OS_WIN)
-  ::Sleep(duration_ms);
-#elif defined (OS_POSIX)
-  struct timespec sleep_time, remaining;
-  // Contains the portion of duration_ms >= 1 sec.
-  sleep_time.tv_sec = duration_ms / 1000;
-  duration_ms -= sleep_time.tv_sec * 1000;
-  // Contains the portion of duration_ms < 1 sec.
-  sleep_time.tv_nsec = duration_ms * 1000 * 1000;  // nanoseconds.
-  while (nanosleep(&sleep_time, &remaining) == -1 && errno == EINTR) {
-    sleep_time = remaining;
-  }
-#endif
+static void* ThreadFunc(void* closure) {
+  PlatformThread::Delegate* delegate =
+      static_cast<PlatformThread::Delegate*>(closure);
+  delegate->ThreadMain(); 
+  return NULL;
 }
 
 // static
 int PlatformThread::CurrentId() {
-#if defined(OS_WIN)
-  return GetCurrentThreadId();
-#elif defined(OS_MACOSX)
+  // Pthreads doesn't have the concept of a thread ID, so we have to reach down
+  // into the kernel.
+#if defined(OS_MACOSX)
   return mach_thread_self();
 #elif defined(OS_LINUX)
   return syscall(__NR_gettid);
 #endif
 }
 
-bool PlatformThread::operator==(const PlatformThread& other_thread) {
-#if defined(OS_WIN)
-  return thread_ == other_thread.thread_;
-#elif defined(OS_POSIX)
-  return pthread_equal(thread_, other_thread.thread_);
-#endif
+// static
+void PlatformThread::YieldCurrentThread() {
+  sched_yield();
+}
+
+// static
+void PlatformThread::Sleep(int duration_ms) {
+  struct timespec sleep_time, remaining;
+
+  // Contains the portion of duration_ms >= 1 sec.
+  sleep_time.tv_sec = duration_ms / 1000;
+  duration_ms -= sleep_time.tv_sec * 1000;
+
+  // Contains the portion of duration_ms < 1 sec.
+  sleep_time.tv_nsec = duration_ms * 1000 * 1000;  // nanoseconds.
+
+  while (nanosleep(&sleep_time, &remaining) == -1 && errno == EINTR)
+    sleep_time = remaining;
+}
+
+// static
+void PlatformThread::SetName(int thread_id, const char* name) {
+  // TODO(darin): implement me!
+}
+
+// static
+bool PlatformThread::Create(size_t stack_size, Delegate* delegate,
+                            PlatformThreadHandle* thread_handle) {
+  bool success = false;
+  pthread_attr_t attributes;
+  pthread_attr_init(&attributes);
+
+  // Pthreads are joinable by default, so we don't need to specify any special
+  // attributes to be able to call pthread_join later.
+  
+  if (stack_size > 0)
+    pthread_attr_setstacksize(&attributes, stack_size);
+
+  success = !pthread_create(thread_handle, &attributes, ThreadFunc, delegate);
+  
+  pthread_attr_destroy(&attributes);
+  return success;
+}
+
+// static
+void PlatformThread::Join(PlatformThreadHandle thread_handle) {
+  pthread_join(thread_handle, NULL);
 }

@@ -30,6 +30,7 @@
 #include "base/command_line.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
+#include "base/platform_thread.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/chrome_switches.h"
@@ -72,7 +73,7 @@ int RendererMain(CommandLine &parsed_command_line, int show_command,
   StatsScope<StatsCounterTimer>
       startup_timer(chrome::Counters::renderer_main());
 
-  Thread::SetThreadName("Chrome_RendererMain", GetCurrentThreadId());
+  PlatformThread::SetName(PlatformThread::CurrentId(), "Chrome_RendererMain");
 
   CoInitialize(NULL);
 

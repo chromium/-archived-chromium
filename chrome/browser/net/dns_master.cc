@@ -261,7 +261,7 @@ void DnsMaster::SetSlaveName(int slave_index) {
       slave_index + 1, kSlaveCountMax);
 
   DLOG(INFO) << "Now Running " << name;
-  Thread::SetThreadName(name.c_str(), thread_ids_[slave_index]);
+  PlatformThread::SetName(thread_ids_[slave_index], name.c_str());
 }
 
 // GetNextAssignment() is executed on the thread associated with

@@ -478,7 +478,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\platform_thread.cc"
+			RelativePath="..\platform_thread_win.cc"
 			>
 		</File>
 		<File

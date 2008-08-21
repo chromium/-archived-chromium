@@ -30,26 +30,19 @@
 #ifndef BASE_PLATFORM_THREAD_H_
 #define BASE_PLATFORM_THREAD_H_
 
-#include "build/build_config.h"
+#include "base/basictypes.h"
 
 #if defined(OS_WIN)
-
-#include <windows.h>
-typedef HANDLE PlatformThreadHandle;
-
+typedef void* PlatformThreadHandle;  // HANDLE
 #elif defined(OS_POSIX)
-
 #include <pthread.h>
 typedef pthread_t PlatformThreadHandle;
+#endif
 
-#endif  // defined(OS_POSIX)
-
+// A namespace for low-level thread functions.
 class PlatformThread {
  public:
-  // Gets the current thread.
-  static PlatformThread Current();
-  
-  // Gets the current thread id
+  // Gets the current thread id, which may be useful for logging purposes.
   static int CurrentId();
 
   // Yield the current thread so another thread can be scheduled.
@@ -58,10 +51,35 @@ class PlatformThread {
   // Sleeps for the specified duration (units are milliseconds).
   static void Sleep(int duration_ms);
 
-  bool operator==(const PlatformThread& other_thread);
+  // Sets the thread name visible to a debugger.  This has no effect otherwise.
+  // To set the name of the current thread, pass PlatformThread::CurrentId() as
+  // the thread_id parameter.
+  static void SetName(int thread_id, const char* name);
+
+  // Implement this interface to run code on a background thread.  Your
+  // ThreadMain method will be called on the newly created thread.
+  class Delegate {
+   public:
+    virtual ~Delegate() {}
+    virtual void ThreadMain() = 0;
+  };
+
+  // Creates a new thread.  The |stack_size| parameter can be 0 to indicate
+  // that the default stack size should be used.  Upon success,
+  // |*thread_handle| will be assigned a handle to the newly created thread,
+  // and |delegate|'s ThreadMain method will be executed on the newly created
+  // thread.  When you are done with the thread handle, you must call Join to
+  // release system resources associated with the thread.  You must ensure that
+  // the Delegate object outlives the thread.
+  static bool Create(size_t stack_size, Delegate* delegate,
+                     PlatformThreadHandle* thread_handle);
+
+  // Joins with a thread created via the Create function.  This function blocks
+  // the caller until the designated thread exits.
+  static void Join(PlatformThreadHandle thread_handle);
 
  private:
-  PlatformThreadHandle thread_;
+  DISALLOW_IMPLICIT_CONSTRUCTORS(PlatformThread);
 };
 
 #endif  // BASE_PLATFORM_THREAD_H_

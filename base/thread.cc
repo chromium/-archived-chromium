@@ -29,31 +29,9 @@
 
 #include "base/thread.h"
 
-#include <process.h>
-#include <windows.h>
-
 #include "base/message_loop.h"
-#include "base/object_watcher.h"
-#include "base/ref_counted.h"
 #include "base/string_util.h"
 #include "base/waitable_event.h"
-#include "base/win_util.h"
-
-namespace {
-
-// This class is used when starting a thread.  It passes information to the
-// thread function.  It is referenced counted so we can cleanup the event
-// object used to synchronize thread startup properly.
-class ThreadStartInfo {
- public:
-  Thread* self;
-  base::WaitableEvent start_event;
-
-  explicit ThreadStartInfo(Thread* t) : self(t), start_event(false, false) {
-  }
-};
-
-}  // namespace
 
 // This task is used to trigger the message loop to exit.
 class ThreadQuitTask : public Task {
@@ -65,10 +43,10 @@ class ThreadQuitTask : public Task {
 };
 
 Thread::Thread(const char *name)
-    : thread_(NULL),
-      thread_id_(0),
-      message_loop_(NULL),
-      name_(name) {
+    : message_loop_(NULL),
+      startup_event_(NULL),
+      name_(name),
+      thread_created_(false) {
 }
 
 Thread::~Thread() {
@@ -98,95 +76,60 @@ bool Thread::GetThreadWasQuitProperly() {
   return quit_properly;
 }
 
-// The information on how to set the thread name comes from
-// a MSDN article: http://msdn2.microsoft.com/en-us/library/xcb2z8hs.aspx
-#define MS_VC_EXCEPTION 0x406D1388
-
-typedef struct tagTHREADNAME_INFO {
-  DWORD dwType;  // Must be 0x1000.
-  LPCSTR szName;  // Pointer to name (in user addr space).
-  DWORD dwThreadID;  // Thread ID (-1=caller thread).
-  DWORD dwFlags;  // Reserved for future use, must be zero.
-} THREADNAME_INFO;
-
-
-// On XP, you can only get the ThreadId of the current
-// thread.  So it is expected that you'll call this after the
-// thread starts up; hence, it is static.
-void Thread::SetThreadName(const char* name, unsigned int tid) {
-  THREADNAME_INFO info;
-  info.dwType = 0x1000;
-  info.szName = name;
-  info.dwThreadID = tid;
-  info.dwFlags = 0;
-
-  __try {
-    RaiseException(MS_VC_EXCEPTION, 0,
-                   sizeof(info)/sizeof(DWORD),
-                   reinterpret_cast<DWORD_PTR *>(&info));
-  } __except(EXCEPTION_CONTINUE_EXECUTION) {
-  }
-}
-
-
 bool Thread::Start() {
   return StartWithStackSize(0);
 }
 
 bool Thread::StartWithStackSize(size_t stack_size) {
-  DCHECK(!thread_id_ && !thread_);
-  SetThreadWasQuitProperly(false);
-  ThreadStartInfo info(this);
+  DCHECK(!message_loop_);
 
-  unsigned int flags = 0;
-  if (win_util::GetWinVersion() >= win_util::WINVERSION_XP && stack_size) {
-    flags = STACK_SIZE_PARAM_IS_A_RESERVATION;
-  } else {
-    stack_size = 0;
-  }
-  thread_ = reinterpret_cast<HANDLE>(
-      _beginthreadex(NULL,
-                     static_cast<unsigned int>(stack_size),
-                     ThreadFunc,
-                     &info,
-                     flags,
-                     &thread_id_));
-  if (!thread_) {
+  SetThreadWasQuitProperly(false);
+
+  base::WaitableEvent event(false, false);
+  startup_event_ = &event;
+
+  if (!PlatformThread::Create(stack_size, this, &thread_)) {
     DLOG(ERROR) << "failed to create thread";
     return false;
   }
 
   // Wait for the thread to start and initialize message_loop_
-  info.start_event.Wait();
+  startup_event_->Wait();
+  startup_event_ = NULL;
+
+  DCHECK(message_loop_);
   return true;
 }
 
 void Thread::Stop() {
-  if (!thread_)
+  if (!thread_created_)
     return;
 
-  DCHECK_NE(thread_id_, GetCurrentThreadId()) << "Can't call Stop() on itself";
+  DCHECK_NE(thread_id_, PlatformThread::CurrentId()) <<
+      "Can't call Stop() on the currently executing thread";
 
-  if (message_loop())
+  // If StopSoon was called, then we won't have a message loop anymore, but
+  // more importantly, we won't need to tell the thread to stop.
+  if (message_loop_)
     message_loop_->PostTask(FROM_HERE, new ThreadQuitTask());
 
   // Wait for the thread to exit. It should already have terminated but make
   // sure this assumption is valid.
-  DWORD result = WaitForSingleObject(thread_, INFINITE);
-  DCHECK_EQ(result, WAIT_OBJECT_0);
+  PlatformThread::Join(thread_);
 
-  // Reset state.
-  CloseHandle(thread_);
-  thread_ = NULL;
-  thread_id_ = 0;
+  // The thread can't receive messages anymore.
+  message_loop_ = NULL;
+
+  // The thread no longer needs to be joined.
+  thread_created_ = false;
 }
 
 void Thread::StopSoon() {
-  if (!thread_id_)
+  if (!message_loop_)
     return;
 
-  DCHECK_NE(thread_id_, GetCurrentThreadId()) <<
-      "Can't call StopSoon() on itself";
+  DCHECK_NE(thread_id_, PlatformThread::CurrentId()) <<
+      "Can't call StopSoon() on the currently executing thread";
 
   // We had better have a message loop at this point!  If we do not, then it
   // most likely means that the thread terminated unexpectedly, probably due
@@ -196,40 +139,35 @@ void Thread::StopSoon() {
   message_loop_->PostTask(FROM_HERE, new ThreadQuitTask());
 
   // The thread can't receive messages anymore.
-  thread_id_ = 0;
+  message_loop_ = NULL;
 }
 
-/*static*/
-unsigned __stdcall Thread::ThreadFunc(void* param) {
+void Thread::ThreadMain() {
   // The message loop for this thread.
   MessageLoop message_loop;
 
-  Thread* self;
-
   // Complete the initialization of our Thread object.
-  {
-    ThreadStartInfo* info = static_cast<ThreadStartInfo*>(param);
-    self = info->self;
-    self->message_loop_ = &message_loop;
-    SetThreadName(self->thread_name().c_str(), GetCurrentThreadId());
-    message_loop.set_thread_name(self->thread_name());
-    info->start_event.Signal();
-    // info can't be touched anymore since the starting thread is now unlocked.
-  }
+  thread_id_ = PlatformThread::CurrentId();
+  PlatformThread::SetName(thread_id_, name_.c_str());
+  message_loop.set_thread_name(name_);
+  message_loop_ = &message_loop;
+  thread_created_ = true;
+
+  startup_event_->Signal();
+  // startup_event_ can't be touched anymore since the starting thread is now
+  // unlocked.
 
   // Let the thread do extra initialization.
-  self->Init();
+  Init();
 
   message_loop.Run();
 
   // Let the thread do extra cleanup.
-  self->CleanUp();
+  CleanUp();
 
   // Assert that MessageLoop::Quit was called by ThreadQuitTask.
-  DCHECK(Thread::GetThreadWasQuitProperly());
+  DCHECK(GetThreadWasQuitProperly());
 
   // We can't receive messages anymore.
-  self->message_loop_ = NULL;
-
-  return 0;
+  message_loop_ = NULL;
 }
