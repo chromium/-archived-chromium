@@ -29,13 +29,13 @@
 
 // Brought to you by the letter D and the number 2.
 
-#ifndef NET_BASE_COOKIE_MONSTER_H_
-#define NET_BASE_COOKIE_MONSTER_H_
+#ifndef NET_BASE_COOKIE_MONSTER_H__
+#define NET_BASE_COOKIE_MONSTER_H__
 
-#include <map>
 #include <string>
-#include <utility>
 #include <vector>
+#include <utility>
+#include <map>
 
 #include "base/basictypes.h"
 #include "base/lock.h"
@@ -199,7 +199,7 @@ class CookieMonster {
   // Lock for thread-safety
   Lock lock_;
 
-  DISALLOW_COPY_AND_ASSIGN(CookieMonster);
+  DISALLOW_EVIL_CONSTRUCTORS(CookieMonster);
 };
 
 class CookieMonster::ParsedCookie {
@@ -208,7 +208,7 @@ class CookieMonster::ParsedCookie {
   typedef std::vector<TokenValuePair> PairList;
 
   // The maximum length of a cookie string we will try to parse
-  static const size_t kMaxCookieSize = 4096;
+  static const int kMaxCookieSize = 4096;
   // The maximum number of Token/Value pairs.  Shouldn't have more than 8.
   static const int kMaxPairs = 16;
 
@@ -267,11 +267,11 @@ class CookieMonster::CanonicalCookie {
       : name_(name),
         value_(value),
         path_(path),
-        creation_date_(creation),
-        expiry_date_(expires),
-        has_expires_(has_expires),
         secure_(secure),
-        httponly_(httponly) {
+        httponly_(httponly),
+        creation_date_(creation),
+        has_expires_(has_expires),
+        expiry_date_(expires) {
   }
 
   // Supports the default copy constructor.
@@ -306,8 +306,8 @@ class CookieMonster::CanonicalCookie {
   std::string value_;
   std::string path_;
   Time creation_date_;
-  Time expiry_date_;
   bool has_expires_;
+  Time expiry_date_;
   bool secure_;
   bool httponly_;
 };
@@ -332,4 +332,4 @@ class CookieMonster::PersistentCookieStore {
 
 }  // namespace net
 
-#endif  // NET_BASE_COOKIE_MONSTER_H_
+#endif  // NET_BASE_COOKIE_MONSTER_H__

@@ -107,8 +107,8 @@
   GURL to normalize rules, and validating the rules.
 */
 
-#ifndef NET_BASE_REGISTRY_CONTROLLED_DOMAIN_H_
-#define NET_BASE_REGISTRY_CONTROLLED_DOMAIN_H_
+#ifndef NET_BASE_REGISTRY_CONTROLLED_DOMAIN_H__
+#define NET_BASE_REGISTRY_CONTROLLED_DOMAIN_H__
 
 #include <map>
 #include <string>
@@ -119,13 +119,9 @@ class GURL;
 
 namespace net {
 
-struct RegistryControlledDomainServiceSingletonTraits;
-
 // This class is a singleton.
 class RegistryControlledDomainService {
  public:
-   ~RegistryControlledDomainService() { }
-
   // Returns the registered, organization-identifying host and all its registry
   // information, but no subdomains, from the given GURL.  Returns an empty
   // string if the GURL is invalid, has no host (e.g. a file: URL), has multiple
@@ -198,23 +194,20 @@ class RegistryControlledDomainService {
   // The entire protected API is only for unit testing.  I mean it.  Don't make
   // me come over there!
    RegistryControlledDomainService() { }
+   ~RegistryControlledDomainService() { }
 
-  // Set the RegistryControledDomainService instance to be used internally.
-  // |instance| will supersede the singleton instance normally used.  If
-  // |instance| is NULL, normal behavior is restored, and internal operations
-  // will return to using the singleton.  This function always returns the
-  // instance set by the most recent call to SetInstance.
-  static RegistryControlledDomainService* SetInstance(
-      RegistryControlledDomainService* instance);
+  // Clears the static singleton instance.  This is used by unit tests to
+  // create a new instance for each test, to help ensure test independence.
+  static void ResetInstance() {
+    delete instance_;
+    instance_ = NULL;
+  }
 
   // Sets the domain_data_ of the current instance (creating one, if necessary),
   // then parses it.
   static void UseDomainData(const std::string& data);
 
  private:
-  // To allow construction of the internal singleton instance.
-  friend struct RegistryControlledDomainServiceSingletonTraits;
-
   // Using the StringSegment class, we can compare portions of strings without
   // needing to allocate or copy them.
   class StringSegment {
@@ -279,6 +272,9 @@ class RegistryControlledDomainService {
   // assumed to be syntactically valid.
   void ParseDomainData();
 
+  // The class's singleton instance.
+  static RegistryControlledDomainService* instance_;
+
   // Returns the singleton instance, after attempting to initialize it.
   // NOTE that if the effective-TLD data resource can't be found, the instance
   // will be initialized and continue operation with an empty domain_map_.
@@ -298,9 +294,9 @@ class RegistryControlledDomainService {
   size_t GetRegistryLengthImpl(const std::string& host,
                                bool allow_unknown_registries);
 
-  DISALLOW_COPY_AND_ASSIGN(RegistryControlledDomainService);
+  DISALLOW_EVIL_CONSTRUCTORS(RegistryControlledDomainService);
 };
 
 }  // namespace net
 
-#endif  // NET_BASE_REGISTRY_CONTROLLED_DOMAIN_H_
+#endif  // NET_BASE_REGISTRY_CONTROLLED_DOMAIN_H__

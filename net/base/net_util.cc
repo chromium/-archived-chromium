@@ -451,8 +451,8 @@ UScriptCode NormalizeScript(UScriptCode code) {
   }
 }
 
-bool IsIDNComponentInSingleScript(const char16* str, int str_len) {
-  UScriptCode first_script = USCRIPT_INVALID_CODE;
+bool IsIDNComponentInSingleScript(const wchar_t* str, int str_len) {
+  UScriptCode first_script;
   bool is_first = true;
 
   int i = 0;
@@ -491,7 +491,7 @@ bool IsCompatibleWithASCIILetters(const std::string& lang) {
 
 // Returns true if the given Unicode host component is safe to display to the
 // user.
-bool IsIDNComponentSafe(const char16* str,
+bool IsIDNComponentSafe(const wchar_t* str,
                         int str_len,
                         const std::wstring& languages) {
   // Most common cases (non-IDN) do not reach here so that we don't
@@ -532,7 +532,14 @@ bool IsIDNComponentSafe(const char16* str,
 #endif
   DCHECK(U_SUCCESS(status));
   UnicodeSet component_characters;
+#ifdef WCHAR_T_IS_UTF32
+  std::string16 converted_str;
+  WideToUTF16(str, str_len, &converted_str);
+  component_characters.addAll(UnicodeString(converted_str.c_str(),
+                                            converted_str.length()));
+#else
   component_characters.addAll(UnicodeString(str, str_len));
+#endif
   if (dangerous_characters.containsSome(component_characters))
     return false;
 
@@ -591,10 +598,10 @@ bool IsIDNComponentSafe(const char16* str,
 // Converts one component of a host (between dots) to IDN if safe. The result
 // will be APPENDED to the given output string and  will be the same as the
 // input if it is not IDN or the IDN is unsafe to display.
-void IDNToUnicodeOneComponent(const char16* comp,
+void IDNToUnicodeOneComponent(const wchar_t* comp,
                               int comp_len,
                               const std::wstring& languages,
-                              std::string16* out) {
+                              std::wstring* out) {
   DCHECK(comp_len >= 0);
   if (comp_len == 0)
     return;
@@ -605,8 +612,7 @@ void IDNToUnicodeOneComponent(const char16* comp,
   size_t host_begin_in_output = out->size();
 
   // Just copy the input if it can't be an IDN component.
-  if (comp_len < 4 ||
-      comp[0] != 'x' || comp[1] != 'n' || comp[2] != '-' || comp[3] != '-') {
+  if (comp_len < 4 || wcsncmp(comp, L"xn--", 4)) {
     out->resize(host_begin_in_output + comp_len);
     for (int i = 0; i < comp_len; i++)
       (*out)[host_begin_in_output + i] = comp[i];
@@ -615,10 +621,23 @@ void IDNToUnicodeOneComponent(const char16* comp,
 
   while (true) {
     UErrorCode status = U_ZERO_ERROR;
+#if defined(WCHAR_T_IS_UTF32)
+    std::string16 comp16;
+    WideToUTF16(comp, comp_len, &comp16);
+    std::string16 out16;
+    WideToUTF16(out->c_str(), out->length(), &out16);
+    out16.resize(out16.size() + extra_space);
+    int output_chars =
+        uidna_IDNToUnicode(comp16.data(), static_cast<int32>(comp16.length()),
+                           &(out16)[host_begin_in_output], extra_space,
+                           UIDNA_DEFAULT, NULL, &status);
+    *out = UTF16ToWide(out16);
+#else
     out->resize(out->size() + extra_space);
     int output_chars =
         uidna_IDNToUnicode(comp, comp_len, &(*out)[host_begin_in_output],
-                           extra_space, UIDNA_DEFAULT, NULL, &status);
+                          extra_space, UIDNA_DEFAULT, NULL, &status);
+#endif
     if (status == U_ZERO_ERROR) {
       // Converted successfully.
       out->resize(host_begin_in_output + output_chars);
@@ -793,45 +812,37 @@ void IDNToUnicode(const char* host,
                   const std::wstring& languages,
                   std::wstring* out) {
   // Convert the ASCII input to a wide string for ICU.
-  std::string16 input16;
-  input16.reserve(host_len);
+  std::wstring wide_input;
+  wide_input.reserve(host_len);
   for (int i = 0; i < host_len; i++)
-    input16.push_back(host[i]);
-
-  std::string16 out16;
+    wide_input.push_back(host[i]);
 
   // Do each component of the host separately, since we enforce script matching
   // on a per-component basis.
   size_t cur_begin = 0;  // Beginning of the current component (inclusive).
-  while (cur_begin < input16.size()) {
+  while (cur_begin < wide_input.size()) {
     // Find the next dot or the end of the string.
-    size_t next_dot = input16.find_first_of('.', cur_begin);
+    size_t next_dot = wide_input.find_first_of('.', cur_begin);
     if (next_dot == std::wstring::npos)
-      next_dot = input16.size();  // For getting the last component.
+      next_dot = wide_input.size();  // For getting the last component.
 
     if (next_dot > cur_begin) {
       // Add the substring that we just found.
-      IDNToUnicodeOneComponent(&input16[cur_begin],
+      IDNToUnicodeOneComponent(&wide_input[cur_begin],
                                static_cast<int>(next_dot - cur_begin),
                                languages,
-                               &out16);
+                               out);
     }
 
     // Need to add the dot we just found (if we found one). This needs to be
     // done before we break out below in case the URL ends in a dot.
-    if (next_dot < input16.size())
-      out16.push_back('.');
+    if (next_dot < wide_input.size())
+      out->push_back('.');
     else
       break;  // No more components left.
 
     cur_begin = next_dot + 1;
   }
-
-#if defined(WCHAR_T_IS_UTF32)
-  UTF16ToWide(out16.data(), out16.length(), out);
-#elif defined(WCHAR_T_IS_UTF16)
-  out->swap(out16);
-#endif
 }
 
 std::string CanonicalizeHost(const std::string& host, bool* is_ip_address) {
@@ -861,7 +872,7 @@ std::string CanonicalizeHost(const std::string& host, bool* is_ip_address) {
 
   // Return the host as a string, stripping any unnecessary bits off the ends.
   if ((canon_host_component.begin == 0) &&
-      (static_cast<size_t>(canon_host_component.len) == canon_host.length()))
+      (canon_host_component.len == canon_host.length()))
     return canon_host;
   return canon_host.substr(canon_host_component.begin,
                            canon_host_component.len);
