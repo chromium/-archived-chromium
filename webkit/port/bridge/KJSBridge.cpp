@@ -130,7 +130,9 @@ bool KJSBridge::wasRunByUserGesture() {
 }
 
 
-// Evaluate a script file in the environment of this proxy.
+// Evaluate a script file in the environment of this proxy.  Used for 
+// evaluating the code in script tags and for evaluating the code from
+// javascript URLs.
 String KJSBridge::evaluate(const String& filename, int baseLine,
                            const String& code, Node* node, bool* succ) {
   *succ = false;

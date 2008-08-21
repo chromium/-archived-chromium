@@ -161,7 +161,9 @@ class JSBridge {
   virtual bool wasRunByUserGesture() = 0;
 
   
-  // Evaluate a script file in the environment of this proxy.
+  // Evaluate a script file in the environment of this proxy.  Used for 
+  // evaluating the code in script tags and for evaluating the code from
+  // javascript URLs.
   // If succeeded, 'succ' is set to true and result is returned
   // as a string.
   virtual String evaluate(const String& filename, int baseLine,

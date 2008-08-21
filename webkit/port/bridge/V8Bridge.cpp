@@ -204,7 +204,9 @@ bool V8Bridge::wasRunByUserGesture() {
 }
 
 
-// Evaluate a script file in the environment of this proxy.
+// Evaluate a script file in the environment of this proxy.  Used for 
+// evaluating the code in script tags and for evaluating the code from
+// javascript URLs.
 String V8Bridge::evaluate(const String& filename, int baseLine,
                           const String& code, Node* node, bool* succ) {
   *succ = false;
@@ -217,7 +219,15 @@ String V8Bridge::evaluate(const String& filename, int baseLine,
 
   v8::Context::Scope scope(context);
 
-  v8::Local<v8::Value> obj = m_proxy->Evaluate(filename, baseLine, code, node);
+  v8::Local<v8::Value> obj;
+  {
+    // Isolate exceptions that occur when executing the code.  These
+    // exceptions should not interfere with javascript code we might
+    // evaluate from C++ when returning from here.
+    v8::TryCatch exception_block;
+    exception_block.SetVerbose(true);
+    obj = m_proxy->Evaluate(filename, baseLine, code, node);
+  }
 
   if (obj.IsEmpty() || obj->IsUndefined())
     return result;
