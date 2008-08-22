@@ -31,7 +31,7 @@
 
 #include "PlatformContextSkia.h"
 
-PlatformContextSkia::PlatformContextSkia(gfx::PlatformCanvasWin* canvas)
+PlatformContextSkia::PlatformContextSkia(gfx::PlatformCanvas* canvas)
     : SkGraphicsContext(canvas)
 {
 }

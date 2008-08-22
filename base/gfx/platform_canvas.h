@@ -31,6 +31,9 @@
 // that can be used by upper-level classes that just need to pass a reference
 // around.
 
+#include "build/build_config.h"
+
+namespace gfx {
 #if defined(OS_WIN)
 class PlatformCanvasWin;
 typedef PlatformCanvasWin PlatformCanvas;
@@ -38,3 +41,4 @@ typedef PlatformCanvasWin PlatformCanvas;
 class PlatformCanvasMac;
 typedef PlatformCanvasMac PlatformCanvas;
 #endif
+}

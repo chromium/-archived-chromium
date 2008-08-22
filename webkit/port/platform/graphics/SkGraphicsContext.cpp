@@ -146,7 +146,7 @@ void DrawResampledBitmap(SkCanvas& canvas,
 }  // namespace
 
 
-SkGraphicsContext::SkGraphicsContext(gfx::PlatformCanvasWin* canvas)
+SkGraphicsContext::SkGraphicsContext(gfx::PlatformCanvas* canvas)
     : canvas_(canvas),
       paint_context_(NULL),
       own_canvas_(false) {
@@ -425,7 +425,7 @@ const SkBitmap* SkGraphicsContext::bitmap() const
   return &canvas_->getDevice()->accessBitmap(false);
 }
 
-gfx::PlatformCanvasWin* SkGraphicsContext::canvas() const
+gfx::PlatformCanvas* SkGraphicsContext::canvas() const
 {
   return canvas_;
 }

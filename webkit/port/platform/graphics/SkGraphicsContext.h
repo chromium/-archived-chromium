@@ -32,6 +32,8 @@
 
 #include "SkPorterDuff.h"
 
+#include "base/gfx/platform_canvas.h"
+
 class NativeImageSkia;
 struct SkIRect;
 struct SkPoint;
@@ -47,9 +49,15 @@ class UniscribeStateTextRun;
 
 namespace gfx {
 class NativeTheme;
-class PlatformCanvasWin;
 }
 
+#if defined(OS_WIN)
+typedef HICON IconHandle;
+typedef HFONT FontHandle;
+#elif defined(OS_MACOSX)
+typedef CGImageRef IconHandle;
+typedef CTFontRef FontHandle;
+#endif
 
 class SkGraphicsContext {
  public:
@@ -67,13 +75,13 @@ class SkGraphicsContext {
     RESAMPLE_AWESOME,
   };
 
-  SkGraphicsContext(gfx::PlatformCanvasWin* canvas);
+  SkGraphicsContext(gfx::PlatformCanvas* canvas);
   ~SkGraphicsContext();
 
   // Gets the default theme.
   static const gfx::NativeTheme* nativeTheme();
 
-  void paintIcon(HICON icon, const SkIRect& rect);
+  void paintIcon(IconHandle icon, const SkIRect& rect);
   void paintButton(const SkIRect& widgetRect,
                    const ThemeData& themeData);
   void paintTextField(const SkIRect& widgetRect,
@@ -88,11 +96,13 @@ class SkGraphicsContext {
                         int from,
                         int to,
                         int ascent);
-  bool paintText(HFONT hfont,
+#if defined(OS_WIN)
+  bool paintText(FontHandle hfont,
                  int number_glyph,
                  const WORD* glyphs,
                  const int* advances,
                  const SkPoint& origin);
+#endif
 
   // TODO(maruel): I'm still unsure how I will serialize this call.
   void paintSkPaint(const SkRect& rect, const SkPaint& paint);
@@ -130,7 +140,7 @@ class SkGraphicsContext {
   // Warning: This function is deprecated so the users are reminded that they
   // should use this layer of indirection instead of using the canvas directly.
   // This is to help with the eventual serialization.
-  gfx::PlatformCanvasWin* canvas() const;
+  gfx::PlatformCanvas* canvas() const;
 
   // Returns if the context is a printing context instead of a display context.
   // Bitmap shouldn't be resampled when printing to keep the best possible
@@ -147,7 +157,7 @@ class SkGraphicsContext {
   SkPaintContext* paint_context_;
 
   // Can be NULL when serializing.
-  gfx::PlatformCanvasWin* canvas_;
+  gfx::PlatformCanvas* canvas_;
 
   // Signal that we own the canvas and must delete it on destruction.
   bool own_canvas_;
