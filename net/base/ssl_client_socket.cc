@@ -36,37 +36,9 @@
 #include "net/base/net_errors.h"
 #include "net/base/ssl_info.h"
 
+#pragma comment(lib, "secur32.lib")
+
 namespace net {
-
-//-----------------------------------------------------------------------------
-
-class SChannelLib {
- public:
-  PSecurityFunctionTable funcs;
-
-  SChannelLib() : funcs(NULL) {
-    lib_ = LoadLibrary(L"secur32.dll");
-    if (lib_) {
-      INIT_SECURITY_INTERFACE init_security_interface =
-          reinterpret_cast<INIT_SECURITY_INTERFACE>(
-              GetProcAddress(lib_, "InitSecurityInterfaceW"));
-      if (init_security_interface)
-        funcs = init_security_interface();
-    }
-  }
-
-  ~SChannelLib() {
-    if (lib_)
-      FreeLibrary(lib_);
-  }
-
- private:
-  HMODULE lib_;
-};
-
-static inline PSecurityFunctionTable SChannel() {
-  return Singleton<SChannelLib>()->funcs;
-}
 
 //-----------------------------------------------------------------------------
 
@@ -131,15 +103,15 @@ void SSLClientSocket::Disconnect() {
   transport_->Disconnect();
 
   if (send_buffer_.pvBuffer) {
-    SChannel()->FreeContextBuffer(send_buffer_.pvBuffer);
+    FreeContextBuffer(send_buffer_.pvBuffer);
     memset(&send_buffer_, 0, sizeof(send_buffer_));
   }
   if (creds_.dwLower || creds_.dwUpper) {
-    SChannel()->FreeCredentialsHandle(&creds_);
+    FreeCredentialsHandle(&creds_);
     memset(&creds_, 0, sizeof(creds_));
   }
   if (ctxt_.dwLower || ctxt_.dwUpper) {
-    SChannel()->DeleteSecurityContext(&ctxt_);
+    DeleteSecurityContext(&ctxt_);
     memset(&ctxt_, 0, sizeof(ctxt_));
   }
   // TODO(wtc): reset more members?
@@ -208,17 +180,17 @@ int SSLClientSocket::Write(const char* buf, int buf_len,
 void SSLClientSocket::GetSSLInfo(SSLInfo* ssl_info) {
   SECURITY_STATUS status;
   PCCERT_CONTEXT server_cert = NULL;
-  status = SChannel()->QueryContextAttributes(&ctxt_,
-                                              SECPKG_ATTR_REMOTE_CERT_CONTEXT,
-                                              &server_cert);
+  status = QueryContextAttributes(&ctxt_,
+                                  SECPKG_ATTR_REMOTE_CERT_CONTEXT,
+                                  &server_cert);
   if (status == SEC_E_OK) {
     DCHECK(server_cert);
     ssl_info->cert = X509Certificate::CreateFromHandle(server_cert);
   }
   SecPkgContext_ConnectionInfo connection_info;
-  status = SChannel()->QueryContextAttributes(&ctxt_,
-                                              SECPKG_ATTR_CONNECTION_INFO,
-                                              &connection_info);
+  status = QueryContextAttributes(&ctxt_,
+                                  SECPKG_ATTR_CONNECTION_INFO,
+                                  &connection_info);
   if (status == SEC_E_OK) {
     // TODO(wtc): compute the overall security strength, taking into account
     // dwExchStrength and dwHashStrength.  dwExchStrength needs to be
@@ -338,7 +310,7 @@ int SSLClientSocket::DoConnectComplete(int result) {
   TimeStamp expiry;
   SECURITY_STATUS status;
 
-  status = SChannel()->AcquireCredentialsHandle(
+  status = AcquireCredentialsHandle(
       NULL,  // Not used
       UNISP_NAME,  // Microsoft Unified Security Protocol Provider
       SECPKG_CRED_OUTBOUND,
@@ -370,7 +342,7 @@ int SSLClientSocket::DoConnectComplete(int result) {
   buffer_desc.pBuffers = &send_buffer_;
   buffer_desc.ulVersion = SECBUFFER_VERSION;
 
-  status = SChannel()->InitializeSecurityContext(
+  status = InitializeSecurityContext(
       &creds_,
       NULL,  // NULL on the first call
       const_cast<wchar_t*>(ASCIIToWide(hostname_).c_str()),
@@ -454,7 +426,7 @@ int SSLClientSocket::DoHandshakeReadComplete(int result) {
   send_buffer_.BufferType = SECBUFFER_TOKEN;
   send_buffer_.cbBuffer = 0;
 
-  status = SChannel()->InitializeSecurityContext(
+  status = InitializeSecurityContext(
       &creds_,
       &ctxt_,
       NULL,
@@ -545,8 +517,7 @@ int SSLClientSocket::DoHandshakeWriteComplete(int result) {
 
   if (bytes_sent_ >= static_cast<int>(send_buffer_.cbBuffer)) {
     bool overflow = (bytes_sent_ > static_cast<int>(send_buffer_.cbBuffer));
-    SECURITY_STATUS status =
-        SChannel()->FreeContextBuffer(send_buffer_.pvBuffer);
+    SECURITY_STATUS status = FreeContextBuffer(send_buffer_.pvBuffer);
     DCHECK(status == SEC_E_OK);
     memset(&send_buffer_, 0, sizeof(send_buffer_));
     bytes_sent_ = 0;
@@ -609,7 +580,7 @@ int SSLClientSocket::DoPayloadReadComplete(int result) {
   buffer_desc.ulVersion = SECBUFFER_VERSION;
 
   SECURITY_STATUS status;
-  status = SChannel()->DecryptMessage(&ctxt_, &buffer_desc, 0, NULL);
+  status = DecryptMessage(&ctxt_, &buffer_desc, 0, NULL);
 
   if (status == SEC_E_INCOMPLETE_MESSAGE) {
     next_state_ = STATE_PAYLOAD_READ;
@@ -699,8 +670,7 @@ int SSLClientSocket::DoPayloadEncrypt() {
   buffer_desc.pBuffers = buffers;
   buffer_desc.ulVersion = SECBUFFER_VERSION;
 
-  SECURITY_STATUS status = SChannel()->EncryptMessage(
-      &ctxt_, 0, &buffer_desc, 0);
+  SECURITY_STATUS status = EncryptMessage(&ctxt_, 0, &buffer_desc, 0);
 
   if (FAILED(status))
     return ERR_FAILED;
@@ -753,7 +723,7 @@ int SSLClientSocket::DoPayloadWriteComplete(int result) {
 }
 
 int SSLClientSocket::DidCompleteHandshake() {
-  SECURITY_STATUS status = SChannel()->QueryContextAttributes(
+  SECURITY_STATUS status = QueryContextAttributes(
       &ctxt_, SECPKG_ATTR_STREAM_SIZES, &stream_sizes_);
   if (status != SEC_E_OK) {
     DLOG(ERROR) << "QueryContextAttributes failed: " << status;
