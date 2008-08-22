@@ -8,12 +8,11 @@ Alloc Location
    testing/gtest/src/gtest.cc  testing::Test::Run(void)
    ^^^  
 
-disk_cache::StorageBlock<RankingsNode::disk_cache>::AllocateData(void) [net_unittests.exe]
+disk_cache::StorageBlock<EntryStore::disk_cache>::AllocateData(void) [net_unittests.exe]
 Alloc Location
    ...  
    net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::AllocateData(void)
    net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::Load(void)
-   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::LoadNodeAddress(void)
    net/disk_cache/backend_impl.cc  disk_cache::BackendImpl::NewEntry(Addr::disk_cache,EntryImpl::disk_cache * *,bool *)
    net/disk_cache/backend_impl.cc  disk_cache::BackendImpl::MatchEntry(basic_string::std const&,UINT,bool)
    net/disk_cache/backend_impl.cc  disk_cache::BackendImpl::OpenEntry(basic_string::std const&,Entry::disk_cache * *)
@@ -21,7 +20,7 @@ Alloc Location
    testing/gtest/src/gtest.cc  testing::Test::Run(void)
    ^^^  
 
-disk_cache::StorageBlock<EntryStore::disk_cache>::AllocateData(void) [net_unittests.exe]
+disk_cache::StorageBlock<RankingsNode::disk_cache>::AllocateData(void) [net_unittests.exe]
 Alloc Location
    ...  
    net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::AllocateData(void)
@@ -43,12 +42,11 @@ Alloc Location
    testing/gtest/src/gtest.cc  testing::Test::Run(void)
    ^^^  
 
-disk_cache::StorageBlock<RankingsNode::disk_cache>::AllocateData(void) [net_unittests.exe]
+disk_cache::StorageBlock<EntryStore::disk_cache>::AllocateData(void) [net_unittests.exe]
 Alloc Location
    ...  
    net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::AllocateData(void)
    net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::Load(void)
-   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::LoadNodeAddress(void)
    net/disk_cache/backend_impl.cc  disk_cache::BackendImpl::NewEntry(Addr::disk_cache,EntryImpl::disk_cache * *,bool *)
    net/disk_cache/backend_impl.cc  disk_cache::BackendImpl::MatchEntry(basic_string::std const&,UINT,bool)
    net/disk_cache/backend_impl.cc  disk_cache::BackendImpl::OpenEntry(basic_string::std const&,Entry::disk_cache * *)
@@ -56,7 +54,7 @@ Alloc Location
    testing/gtest/src/gtest.cc  testing::Test::Run(void)
    ^^^  
 
-disk_cache::StorageBlock<EntryStore::disk_cache>::AllocateData(void) [net_unittests.exe]
+disk_cache::StorageBlock<RankingsNode::disk_cache>::AllocateData(void) [net_unittests.exe]
 Alloc Location
    ...  
    net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::AllocateData(void)
@@ -80,7 +78,6 @@ disk_cache::StorageBlock<EntryStore::disk_cache>::AllocateData(void) [net_unitte
 Alloc Location
    ...  
    net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::AllocateData(void)
-   net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::Data(void)
    net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::CreateEntry(Addr::disk_cache,basic_string::std const&,UINT)
    net/disk_cache/backend_impl.cc  disk_cache::BackendImpl::CreateEntry(basic_string::std const&,Entry::disk_cache * *)
    net/disk_cache/backend_unittest.cc  DiskCacheBackendTest_InvalidEntryWithLoad_Test::TestBody(void)
@@ -91,7 +88,6 @@ disk_cache::StorageBlock<RankingsNode::disk_cache>::AllocateData(void) [net_unit
 Alloc Location
    ...  
    net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::AllocateData(void)
-   net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::Data(void)
    net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::CreateEntry(Addr::disk_cache,basic_string::std const&,UINT)
    net/disk_cache/backend_impl.cc  disk_cache::BackendImpl::CreateEntry(basic_string::std const&,Entry::disk_cache * *)
    net/disk_cache/backend_unittest.cc  DiskCacheBackendTest_InvalidEntryWithLoad_Test::TestBody(void)
@@ -110,7 +106,6 @@ disk_cache::StorageBlock<EntryStore::disk_cache>::AllocateData(void) [net_unitte
 Alloc Location
    ...  
    net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::AllocateData(void)
-   net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::Data(void)
    net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::CreateEntry(Addr::disk_cache,basic_string::std const&,UINT)
    net/disk_cache/backend_impl.cc  disk_cache::BackendImpl::CreateEntry(basic_string::std const&,Entry::disk_cache * *)
    net/disk_cache/backend_unittest.cc  DiskCacheBackendTest_InvalidEntry_Test::TestBody(void)
@@ -121,7 +116,6 @@ disk_cache::StorageBlock<RankingsNode::disk_cache>::AllocateData(void) [net_unit
 Alloc Location
    ...  
    net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::AllocateData(void)
-   net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::Data(void)
    net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::CreateEntry(Addr::disk_cache,basic_string::std const&,UINT)
    net/disk_cache/backend_impl.cc  disk_cache::BackendImpl::CreateEntry(basic_string::std const&,Entry::disk_cache * *)
    net/disk_cache/backend_unittest.cc  DiskCacheBackendTest_InvalidEntry_Test::TestBody(void)
@@ -140,7 +134,6 @@ disk_cache::StorageBlock<EntryStore::disk_cache>::AllocateData(void) [net_unitte
 Alloc Location
    ...  
    net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::AllocateData(void)
-   net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::Data(void)
    net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::CreateEntry(Addr::disk_cache,basic_string::std const&,UINT)
    net/disk_cache/backend_impl.cc  disk_cache::BackendImpl::CreateEntry(basic_string::std const&,Entry::disk_cache * *)
    net/disk_cache/backend_unittest.cc  DiskCacheBackendTest_TrimInvalidEntry_Test::TestBody(void)
@@ -151,7 +144,6 @@ disk_cache::StorageBlock<RankingsNode::disk_cache>::AllocateData(void) [net_unit
 Alloc Location
    ...  
    net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::AllocateData(void)
-   net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::Data(void)
    net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::CreateEntry(Addr::disk_cache,basic_string::std const&,UINT)
    net/disk_cache/backend_impl.cc  disk_cache::BackendImpl::CreateEntry(basic_string::std const&,Entry::disk_cache * *)
    net/disk_cache/backend_unittest.cc  DiskCacheBackendTest_TrimInvalidEntry_Test::TestBody(void)
