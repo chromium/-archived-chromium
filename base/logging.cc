@@ -81,7 +81,7 @@ LogLockingState lock_log_file = LOCK_LOG_FILE;
 // on POSIX platforms, where it may not even be possible to locate the
 // executable on disk, use stderr.
 #if defined(OS_WIN)
-LoggingDestination logging_destination = LOG_ONLY_TO_FILE;
+LoggingDestination logging_destination = LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG;
 #elif defined(OS_POSIX)
 LoggingDestination logging_destination = LOG_ONLY_TO_SYSTEM_DEBUG_LOG;
 #endif
