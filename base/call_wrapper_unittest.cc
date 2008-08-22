@@ -33,22 +33,23 @@
 namespace {
 
 int global_int = 0;
-void set_global_int_5() {
+
+void SetGlobalInt5() {
   global_int = 5;
 }
-void set_global_int(int x) {
+void SetGlobalInt(int x) {
   global_int = x;
 }
-void set_int(int* p, int x) {
+void SetInt(int* p, int x) {
   *p = x;
 }
-void set_int_add2(int* p, int x, int y) {
+void SetIntAdd2(int* p, int x, int y) {
   *p = x + y;
 }
-void set_int_add3(int* p, int x, int y, int z) {
+void SetIntAdd3(int* p, int x, int y, int z) {
   *p = x + y + z;
 }
-void set_int_add4(int* p, int x, int y, int z, int w) {
+void SetIntAdd4(int* p, int x, int y, int z, int w) {
   *p = x + y + z + w;
 }
 
@@ -58,7 +59,7 @@ TEST(CallWrapperTest, FunctionCall) {
   // Function call with 0 arguments.
   {
     EXPECT_EQ(0, global_int);
-    CallWrapper* wrapper = NewFunctionCallWrapper(set_global_int_5);
+    CallWrapper* wrapper = NewFunctionCallWrapper(SetGlobalInt5);
 
     EXPECT_EQ(0, global_int);
     wrapper->Run();
@@ -67,7 +68,7 @@ TEST(CallWrapperTest, FunctionCall) {
   // Function call with 1 argument.
   {
     EXPECT_EQ(5, global_int);
-    CallWrapper* wrapper = NewFunctionCallWrapper(set_global_int, 0);
+    CallWrapper* wrapper = NewFunctionCallWrapper(SetGlobalInt, 0);
 
     EXPECT_EQ(5, global_int);
     wrapper->Run();
@@ -78,14 +79,14 @@ TEST(CallWrapperTest, FunctionCall) {
     int stack_int = 4;
     CallWrapper* wrapper;
 
-    wrapper = NewFunctionCallWrapper(set_int, &global_int, 8);
+    wrapper = NewFunctionCallWrapper(SetInt, &global_int, 8);
     EXPECT_EQ(4, stack_int);
     EXPECT_EQ(0, global_int);
     wrapper->Run();
     EXPECT_EQ(4, stack_int);
     EXPECT_EQ(8, global_int);
 
-    wrapper = NewFunctionCallWrapper(set_int, &stack_int, 8);
+    wrapper = NewFunctionCallWrapper(SetInt, &stack_int, 8);
     EXPECT_EQ(4, stack_int);
     EXPECT_EQ(8, global_int);
     wrapper->Run();
@@ -97,17 +98,17 @@ TEST(CallWrapperTest, FunctionCall) {
     int stack_int = 12;
     CallWrapper* wrapper;
 
-    wrapper = NewFunctionCallWrapper(set_int_add2, &stack_int, 1, 6);
+    wrapper = NewFunctionCallWrapper(SetIntAdd2, &stack_int, 1, 6);
     EXPECT_EQ(12, stack_int);
     wrapper->Run();
     EXPECT_EQ(7, stack_int);
 
-    wrapper = NewFunctionCallWrapper(set_int_add3, &stack_int, 1, 6, 2);
+    wrapper = NewFunctionCallWrapper(SetIntAdd3, &stack_int, 1, 6, 2);
     EXPECT_EQ(7, stack_int);
     wrapper->Run();
     EXPECT_EQ(9, stack_int);
 
-    wrapper = NewFunctionCallWrapper(set_int_add4, &stack_int, 1, 6, 2, 3);
+    wrapper = NewFunctionCallWrapper(SetIntAdd4, &stack_int, 1, 6, 2, 3);
     EXPECT_EQ(9, stack_int);
     wrapper->Run();
     EXPECT_EQ(12, stack_int);
