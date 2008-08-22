@@ -32,6 +32,7 @@
 #ifndef SkiaUtils_h
 #define SkiaUtils_h
 
+#include "base/float_util.h"
 #include "GraphicsContext.h"
 #include "SkPath.h"
 #include "SkShader.h"
@@ -73,11 +74,11 @@ inline PlatformContextSkia* PlatformContextToPlatformContextSkia(
 
 // Skia has problems when passed infinite, etc floats, filter them to 0.
 inline SkScalar WebCoreFloatToSkScalar(const float& f) {
-  return SkFloatToScalar(_finite(f) ? f : 0);
+  return SkFloatToScalar(base::IsFinite(f) ? f : 0);
 }
 
 inline SkScalar WebCoreDoubleToSkScalar(const double& d) {
-  return SkDoubleToScalar(_finite(d) ? d : 0);
+  return SkDoubleToScalar(base::IsFinite(d) ? d : 0);
 }
 
 // Intersects the given source rect with the region, returning the smallest
