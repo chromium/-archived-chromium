@@ -27,10 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef BASE_SCOPED_CFTYPEREF_H__
-#define BASE_SCOPED_CFTYPEREF_H__
+#ifndef BASE_SCOPED_CFTYPEREF_H_
+#define BASE_SCOPED_CFTYPEREF_H_
 
 #include <CoreFoundation/CoreFoundation.h>
+#include "base/basictypes.h"
 
 // scoped_cftyperef<> is patterned after scoped_ptr<>, but maintains ownership
 // of a CoreFoundation object: any object that can be represented as a
@@ -91,7 +92,7 @@ class scoped_cftyperef {
  private:
   CFT object_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(scoped_cftyperef);
+  DISALLOW_COPY_AND_ASSIGN(scoped_cftyperef);
 };
 
-#endif  // BASE_SCOPED_CFTYPEREF_H__
+#endif  // BASE_SCOPED_CFTYPEREF_H_

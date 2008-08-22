@@ -37,6 +37,10 @@
 #include <string>
 #include "base/basictypes.h"
 
+#if defined(OS_MACOSX)
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+
 class StringPiece;
 
 namespace base {
@@ -64,6 +68,23 @@ std::string SysWideToMultiByte(const std::wstring& wide, uint32 code_page);
 
 #endif  // defined(OS_WIN)
 
+// Mac-specific ----------------------------------------------------------------
+  
+#if defined(OS_MACOSX)
+  
+// Converts between STL strings and CFStringRefs.
+
+// Creates a string, and returns it with a refcount of 1. You are responsible
+// for releasing it. Returns NULL on failure.
+CFStringRef SysUTF8ToCFStringRef(const std::string& utf8);
+CFStringRef SysWideToCFStringRef(const std::wstring& wide);
+
+// Converts a CFStringRef to an STL string. Returns an empty string on failure.
+std::string SysCFStringRefToUTF8(CFStringRef ref);
+std::wstring SysCFStringRefToWide(CFStringRef ref);
+
+#endif  // defined(OS_MACOSX)
+  
 }  // namespace base
 
 #endif  // BASE_SYS_STRING_CONVERSIONS_H_

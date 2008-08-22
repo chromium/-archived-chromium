@@ -27,24 +27,61 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#import <Cocoa/Cocoa.h>
+#include <CoreServices/CoreServices.h>
 #include <string>
 
+#include "base/scoped_cftyperef.h"
+#include "base/sys_string_conversions.h"
 #include "net/base/platform_mime_util.h"
-#include "base/notimplemented.h"
 
 namespace net {
 
 bool PlatformMimeUtil::GetPlatformMimeTypeFromExtension(
     const std::wstring& ext, std::string* result) const {
-  NOTIMPLEMENTED();
-  return false;
+  std::wstring ext_nodot = ext;
+  if (ext_nodot.length() >= 1 && ext_nodot[0] == L'.')
+    ext_nodot.erase(ext_nodot.begin());
+  scoped_cftyperef<CFStringRef> ext_ref(base::SysWideToCFStringRef(ext_nodot));
+  if (!ext_ref)
+    return false;
+  scoped_cftyperef<CFStringRef> uti(
+      UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension,
+                                            ext_ref,
+                                            NULL));
+  if (!uti)
+    return false;
+  scoped_cftyperef<CFStringRef> mime_ref(
+      UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType));
+  if (!mime_ref)
+    return false;
+  
+  *result = base::SysCFStringRefToUTF8(mime_ref);
+  return true;
 }
 
 bool PlatformMimeUtil::GetPreferredExtensionForMimeType(
     const std::string& mime_type, std::wstring* ext) const {
-  NOTIMPLEMENTED();
-  return false;
+  scoped_cftyperef<CFStringRef> mime_ref(base::SysUTF8ToCFStringRef(mime_type));
+  if (!mime_ref)
+    return false;
+  scoped_cftyperef<CFStringRef> uti(
+      UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType,
+                                            mime_ref,
+                                            NULL));
+  if (!uti)
+    return false;
+  scoped_cftyperef<CFStringRef> ext_ref(
+      UTTypeCopyPreferredTagWithClass(uti, kUTTagClassFilenameExtension));
+  if (!ext_ref)
+    return false;
+  
+  ext_ref.reset(CFStringCreateWithFormat(kCFAllocatorDefault,
+                                         NULL,
+                                         CFSTR(".%@"),
+                                         ext_ref.get()));
+  
+  *ext = base::SysCFStringRefToWide(ext_ref);
+  return true;
 }
 
 }  // namespace net
