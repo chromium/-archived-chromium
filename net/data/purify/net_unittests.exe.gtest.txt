@@ -1,0 +1,7 @@
+# bug 1339772
+# These tests leak data intentionally, so are not appropriate for Purify tests.
+DiskCacheBackendTest.InvalidEntry
+DiskCacheBackendTest.InvalidEntryRead
+DiskCacheBackendTest.InvalidEntryWithLoad
+DiskCacheBackendTest.TrimInvalidEntry
+DiskCacheBackendTest.InvalidEntryEnumeration

@@ -18,34 +18,3 @@ Alloc Location
    net/base/directory_lister_unittest.cc  DirectoryListerTest_BigDirTest_Test::TestBody(void)
    testing/gtest/src/gtest.cc  testing::Test::Run(void)
    ^^^  
-
-disk_cache::EntryImpl::PrepareTarget(int,int,int,bool) [net_unittests.exe]
-Alloc Location
-   ...  
-   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::PrepareTarget(int,int,int,bool)
-   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::WriteData(int,int,char const*,int,CallbackRunner *,bool)
-   net/disk_cache/backend_unittest.cc  DiskCacheBackendTest_TrimInvalidEntry_Test::TestBody(void)
-   testing/gtest/src/gtest.cc  testing::Test::Run(void)
-   ^^^  
-
-disk_cache::EntryImpl::PrepareTarget(int,int,int,bool) [net_unittests.exe]
-Alloc Location
-   ...  
-   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::PrepareTarget(int,int,int,bool)
-   net/disk_cache/entry_impl.cc  disk_cache::EntryImpl::WriteData(int,int,char const*,int,CallbackRunner *,bool)
-   net/disk_cache/backend_unittest.cc  DiskCacheBackendTest_InvalidEntry_Test::TestBody(void)
-   testing/gtest/src/gtest.cc  testing::Test::Run(void)
-   ^^^  
-
-disk_cache::StorageBlock<EntryStore::disk_cache>::AllocateData(void) [net_unittests.exe]
-Alloc Location
-   ...  
-   net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::AllocateData(void)
-   net/disk_cache/storage_block-inl.h  disk_cache::StorageBlock::Load(void)
-   net/disk_cache/backend_impl.cc  disk_cache::BackendImpl::NewEntry(Addr::disk_cache,EntryImpl::disk_cache * *,bool *)
-   net/disk_cache/backend_impl.cc  disk_cache::BackendImpl::MatchEntry(basic_string::std const&,UINT,bool)
-   net/disk_cache/backend_impl.cc  disk_cache::BackendImpl::OpenEntry(basic_string::std const&,Entry::disk_cache * *)
-   net/disk_cache/backend_unittest.cc  DiskCacheBackendTest_InvalidEntryRead_Test::TestBody(void)
-   testing/gtest/src/gtest.cc  testing::Test::Run(void)
-   ^^^  
-
