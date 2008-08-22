@@ -690,7 +690,7 @@
 <translation id="1665770420914915777">استخدام صفحة &quot;علامة تبويب جديدة&quot;</translation>
 <translation id="4726901538158498735">محرّك البحث الافتراضي:</translation>
 <translation id="2231233239095101917">استنفد الاسكريبت المنفّذ في الصفحة معظم موارد الذاكرة. يجب إعادة التحميل لتمكين  السكريبت من جديد.</translation>
-<translation id="8227755444512189073">يحتاج Google Chrome إلى تشغيل تطبيق خارجي لمعالجة ارتباطات <ph name="SCHEME"/>. والارتباط المطلوب هو <ph name="PROTOLINK"/>.</translation>
+<translation id="8227755444512189073">تقتضي معالجة روابط <ph name="SCHEME"/> تشغيل تطبيق خارجيّ. والرّابط المطلوب هو <ph name="PROTOLINK"/>.</translation>
 <translation id="8236873504073475138">لا يعمل Google Chrome بموجب نظام التشغيل Windows 2000. لهذا قد يتعذّر تشغيل بعض الميزات.</translation>
 <translation id="3335672657969596251">لا يعمل Google Chrome بموجب نظام التشغيل <ph name="OS_NAME"/>.</translation>
 <translation id="1446473746922165495">تغيّير اللغة المُستخدمة في القوائم ومربّعات الحوار والنوافذ التفسيرية (Tooltips) في Google Chrome.</translation>
@@ -734,7 +734,17 @@
 <translation id="5291303148298143069">إبلاغي عند حجب نافذة تطفّلية</translation>
 <translation id="3383487468758466563">الخطوط واللغات:</translation>
 <translation id="1137776625614346046">تعرض منطقة &quot;المواقع الأكثر زيارةً&quot; المواقع التي تتردّد إليها. فبعد مرور مدّة قصيرة على استخدام Google Chrome يمكنك مشاهدة المواقع الأكثر زيارةً كلّما فتحت علامة تبويب جديدة. لمزيد من المعلومات عن هذه الميزة وعن سواها من الميزات، اذهب إلى الرّابط <ph name="BEGIN_LINK"/>صفحة بدء التشغيل<ph name="END_LINK"/>.</translation>
-<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>لقد انتقلتَ إلى وضع التخفي<ph name="END_BOLD"/>. لن تظهر الصفحات التي تقوم بعرضها في هذه النافذة في سجل المتصفح أو في سجل البحث، كما أنها لن تترك أي آثار أخرى، مثل: ملفات تعريف الارتباط على جهاز الكمبيوتر بعد قيامك بإغلاق نافذة وضع التخفي. ومع ذلك، سوف يتم الاحتفاظ بأي ملفات تقوم بتنزيلها أو أي إشارات مرجعية تقوم بإنشائها.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>لا يؤثر الانتقال إلى وضع التخفي على سلوك الأشخاص الآخرين أو الخوادم أو البرامج الأخرى. احذر من:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>مواقع الويب التي تقوم بتجميع معلومات عنك أو تقوم بمشاركتها<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>مزودي خدمات الإنترنت أو أصحاب العمل الذين يقومون بتتبع الصفحات التي تقوم بزيارتها<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>البرامج الضارة التي تقوم بتتبع نقرات المفاتيح مقابل الأيقونات المجانية<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>المراقبة بواسطة العملاء السريين<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>أشخاص يقدمون لك المساعدة<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>تعرّف على المزيد<ph name="END_LINK"/> حول التصفح في وضع التخفي.</translation>
+<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>لقد انتقلتَ إلى وضع التصفّح المتخفّي<ph name="END_BOLD"/>. ممّا يعني أنّ الصفحات التي تشاهدها في هذه النافذة لن تظهر في سجلّ التصّفح أو في سجلّ البحث، ولن تخلّف أيّ أثر في الكمبيوتر ، على غرار ملفّات تعريف الارتباط، بعد إغلاق نافذة التصفّح المتخفّي. ولكن سيتمّ الاحتفاظ  بالملفّات المحمّلة والصفحات المعلّمة  بإشارة.
+        <ph name="LINE_BREAK"/> 
+        <ph name="BEGIN_BOLD"/>إنّّ التصفّح المتخفّي لا يؤثّر في سلوك الآخرين أو في طريقة عمل الخوادم والبرمجيات. لذا احذر:<ph name="END_BOLD"/>
+        <ph name="BEGIN_LIST"/>
+          <ph name="BEGIN_LIST_ITEM"/>مواقع الويب التي تجمع معلومات عنك أو تضعها في متناول الآخرين<ph name="END_LIST_ITEM"/>
+          <ph name="BEGIN_LIST_ITEM"/>مقدّمي خدمة الإنترنت أو أصحاب العمل الذين يتتبّعون الصفحات التي تزورها على الويب<ph name="END_LIST_ITEM"/>
+          <ph name="BEGIN_LIST_ITEM"/>البرمجيات الخبيثة التي تسجّل ضرباتك على لوحة المفاتيح مقابل أيقونات تعبيرية مجانية<ph name="END_LIST_ITEM"/>
+          <ph name="BEGIN_LIST_ITEM"/>العملاء السريّين<ph name="END_LIST_ITEM"/>
+          <ph name="BEGIN_LIST_ITEM"/>الأشخاص الواقفين خلفك<ph name="END_LIST_ITEM"/>
+        <ph name="END_LIST"/>
+        <ph name="BEGIN_LINK"/>مزيد من المعلومات<ph name="END_LINK"/> عن التصفّح المتخفّي.</translation>
 <translation id="1604816462140255479">ت&amp;كبير/تصغير النصّ</translation>
 <translation id="2089625293428655599">تم ترخيص أجزاء من هذا البرنامج من جهات الطرف الثالث كما هو مبين على: <ph name="URL"/></translation>
 <translation id="6817660909204164466">المساعدة في تحسين Google Chrome عن طريق إرسال إحصائيات الاستخدام وتقارير الأعطال تلقائيًا إلى Google</translation>
