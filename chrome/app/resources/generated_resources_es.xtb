@@ -321,7 +321,7 @@
 <translation id="111844081046043029">¿Estás seguro de que deseas abandonar esta página?</translation>
 <translation id="6512448926095770873">Abandonar esta página</translation>
 <translation id="9154176715500758432">Permanecer en esta página</translation>
-<translation id="6151323131516309312">Pulsa <ph name="SEARCH_KEY"/> para buscar <ph name="SITE_NAME"/></translation>
+<translation id="6151323131516309312">Pulsa <ph name="SEARCH_KEY"/> para buscar en <ph name="SITE_NAME"/></translation>
 <translation id="8695758493354644945">Consulta las <ph name="NUM_MATCHES"/> páginas recientes del historial que contienen <ph name="SEARCH_TERMS"/></translation>
 <translation id="8717266507183354698">Consultar todas las páginas del historial que contienen <ph name="SEARCH_TERMS"/></translation>
 <translation id="5376169624176189338">Haz clic para volver atrás o espera para ver el historial</translation>
