@@ -8,4 +8,4 @@ layout_test_results which contains custom kjs and v8 results.
     contains webkit tests that should be sent upstream to webkit.org
 
   LayoutTests/
-    pulled in via svn:external from svn.webkit.org
+    pulled in via gclient DEPS from svn.webkit.org
