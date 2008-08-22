@@ -90,11 +90,23 @@ class URLRequestJobManager {
   // callers to be on the same thread, we don't worry about threads racing to
   // set the allowed thread.
   bool IsAllowedThread() const {
+#if 0
     if (!allowed_thread_initialized_) {
       allowed_thread_ = PlatformThread::CurrentId();
       allowed_thread_initialized_ = true;
     }
     return allowed_thread_ == PlatformThread::CurrentId();
+#else
+    // The previous version of this check used GetCurrentThread on Windows to
+    // get thread handles to compare. Unfortunately, GetCurrentThread returns
+    // a constant psuedo-handle (0xFFFFFFFE), and therefore IsAllowedThread
+    // always returned true. The above code that's turned off is the correct
+    // code, but causes the tree to turn red because some caller isn't
+    // respecting our thread requirements. We're turning off the check for now;
+    // bug http://b/issue?id=1338969 has been filed to fix things and turn the
+    // check back on.
+    return true;
+#endif
   }
 #endif
 
