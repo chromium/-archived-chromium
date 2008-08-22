@@ -35,7 +35,6 @@
 
 #include "base/histogram.h"
 #include "base/stats_counters.h"
-#include "base/string_util.h"
 #include "base/thread.h"
 #include "base/win_util.h"
 #include "chrome/browser/net/dns_slave.h"
@@ -252,16 +251,6 @@ void DnsMaster::PreLockedResolve(const std::string& hostname) {
 
   info->SetQueuedState();
   name_buffer_.push(hostname);
-}
-
-void DnsMaster::SetSlaveName(int slave_index) {
-  DCHECK(0 <= slave_index && kSlaveCountMax > slave_index);
-
-  std::string name = StringPrintf("Dns Prefetcher thread %d of %d",
-      slave_index + 1, kSlaveCountMax);
-
-  DLOG(INFO) << "Now Running " << name;
-  PlatformThread::SetName(thread_ids_[slave_index], name.c_str());
 }
 
 // GetNextAssignment() is executed on the thread associated with

@@ -61,6 +61,8 @@ typedef std::map<std::string, DnsHostInfo> Results;
 
 class DnsMaster {
  public:
+  // The number of slave processes that will do DNS prefetching
+  static const int kSlaveCountMax = 8;
 
   explicit DnsMaster(TimeDelta shutdown_wait_time);
 
@@ -127,9 +129,6 @@ class DnsMaster {
   //----------------------------------------------------------------------------
   // Methods below this line should only be called by slave processes.
 
-  // Thread names can only be set after the thread has been running a bit.
-  void SetSlaveName(int slave_index);
-
   // GetNextAssignment() gets the next hostname from queue for processing
   // It is not meant to be public, and should only be used by the slave.
   // GetNextAssignment() waits on a condition variable if there are no more
@@ -154,8 +153,6 @@ class DnsMaster {
   void PreLockedResolve(const std::string& hostname);
   bool PreLockedCreateNewSlaveIfNeeded();  // Lazy slave processes creation.
 
-  // The number of slave processes that will do DNS prefetching
-  static const int kSlaveCountMax = 8;
   // Number of slave processes started early (to help with startup prefetch).
   static const int kSlaveCountMin = 4;
 

@@ -36,6 +36,8 @@
 #include <Wspiapi.h>  // Needed for win2k compatibility
 
 #include "base/logging.h"
+#include "base/platform_thread.h"
+#include "base/string_util.h"
 #include "chrome/browser/net/dns_host_info.h"
 #include "chrome/browser/net/dns_master.h"
 
@@ -72,8 +74,12 @@ DWORD __stdcall DnsSlave::ThreadStart(void* pThis) {
 //------------------------------------------------------------------------------
 
 unsigned DnsSlave::Run() {
-  // We have to be running to set the thread name.
-  master_->SetSlaveName(slave_index_);
+  DCHECK(slave_index_ >= 0 && slave_index_ < DnsMaster::kSlaveCountMax);
+
+  std::string name = StringPrintf(
+      "dns_prefetcher_%d_of_%d", slave_index_ + 1, DnsMaster::kSlaveCountMax);
+  DLOG(INFO) << "Now Running " << name;
+  PlatformThread::SetName(PlatformThread::CurrentId(), name.c_str());
 
   while (master_->GetNextAssignment(&hostname_)) {
     BlockingDnsLookup();
