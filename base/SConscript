@@ -77,7 +77,6 @@ input_files = [
     'revocable_store.cc',
     'ref_counted.cc',
     'sha2.cc',
-    'simple_thread.cc',
     'stats_table.cc',
     'string_escape.cc',
     'string_piece.cc',
@@ -245,7 +244,6 @@ if env['PLATFORM'] == 'win32':
 # cross-platform live below.
 test_files = [
     'at_exit_unittest.cc',
-    'call_wrapper_unittest.cc',
     'command_line_unittest.cc',
     'json_reader_unittest.cc',
     'json_writer_unittest.cc',
@@ -256,7 +254,6 @@ test_files = [
     'ref_counted_unittest.cc',
     'run_all_unittests.cc',
     'sha2_unittest.cc',
-    'simple_thread_unittest.cc',
     'singleton_unittest.cc',
     'stack_container_unittest.cc',
     'string_escape_unittest.cc',

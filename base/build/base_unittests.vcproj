@@ -168,10 +168,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\call_wrapper_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\clipboard_unittest.cc"
 				>
 			</File>
@@ -265,10 +261,6 @@
 			</File>
 			<File
 				RelativePath="..\shared_memory_unittest.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\simple_thread_unittest.cc"
 				>
 			</File>
 			<File

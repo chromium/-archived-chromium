@@ -206,10 +206,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\call_wrapper.h"
-			>
-		</File>
-		<File
 			RelativePath="..\clipboard.h"
 			>
 		</File>
@@ -611,14 +607,6 @@
 		</File>
 		<File
 			RelativePath="..\shared_memory_win.cc"
-			>
-		</File>
-		<File
-			RelativePath="..\simple_thread.h"
-			>
-		</File>
-		<File
-			RelativePath="..\simple_thread.cc"
 			>
 		</File>
 		<File
