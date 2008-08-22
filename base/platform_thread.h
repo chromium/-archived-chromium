@@ -32,6 +32,8 @@
 
 #include "base/basictypes.h"
 
+// PlatformThreadHandle should be a numeric type on all platforms, so it can
+// be initialized to 0.  However, 0 cannot be assumed to be an invalid handle.
 #if defined(OS_WIN)
 typedef void* PlatformThreadHandle;  // HANDLE
 #elif defined(OS_POSIX)
@@ -68,14 +70,16 @@ class PlatformThread {
   // that the default stack size should be used.  Upon success,
   // |*thread_handle| will be assigned a handle to the newly created thread,
   // and |delegate|'s ThreadMain method will be executed on the newly created
-  // thread.  When you are done with the thread handle, you must call Join to
+  // thread.
+  // NOTE: When you are done with the thread handle, you must call Join to
   // release system resources associated with the thread.  You must ensure that
   // the Delegate object outlives the thread.
   static bool Create(size_t stack_size, Delegate* delegate,
                      PlatformThreadHandle* thread_handle);
 
   // Joins with a thread created via the Create function.  This function blocks
-  // the caller until the designated thread exits.
+  // the caller until the designated thread exits.  This will invalidate
+  // |thread_handle|.
   static void Join(PlatformThreadHandle thread_handle);
 
  private:
