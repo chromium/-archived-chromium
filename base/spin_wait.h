@@ -40,6 +40,7 @@
 #ifndef BASE_SPIN_WAIT_H__
 #define BASE_SPIN_WAIT_H__
 
+#include "base/platform_thread.h"
 #include "base/time.h"
 
 // Provide a macro that will wait no longer than 1 second for an asynchronous
@@ -66,7 +67,7 @@
                 kTimeout.InMilliseconds()) << "Timed out"; \
         break; \
       } \
-      Sleep(50); \
+      PlatformThread::Sleep(50); \
     } \
   } \
   while(0)

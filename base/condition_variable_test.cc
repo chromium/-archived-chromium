@@ -35,6 +35,7 @@
 
 #include "base/condition_variable.h"
 #include "base/logging.h"
+#include "base/platform_thread.h"
 #include "base/scoped_ptr.h"
 #include "base/spin_wait.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -73,16 +74,17 @@ class ConditionVariableTest : public testing::Test {
 // cases will validate that the WorkQueue has records showing that the desired
 // activities were performed.
 //------------------------------------------------------------------------------
-// Forward declare the WorkerProcess task
-static DWORD WINAPI WorkerProcess(void* p);
 
 // Callers are responsible for synchronizing access to the following class.
 // The WorkQueue::lock_, as accessed via WorkQueue::lock(), should be used for
 // all synchronized access.
-class WorkQueue {
+class WorkQueue : public PlatformThread::Delegate {
  public:
   explicit WorkQueue(int thread_count);
   ~WorkQueue();
+
+  // PlatformThread::Delegate interface.
+  void ThreadMain();
 
   //----------------------------------------------------------------------------
   // Worker threads only call the following methods.
@@ -130,7 +132,7 @@ class WorkQueue {
   ConditionVariable no_more_tasks_;  // Task count is zero.
 
   const int thread_count_;
-  scoped_array<HANDLE> handles_;
+  scoped_array<PlatformThreadHandle> thread_handles_;
   std::vector<int> assignment_history_;  // Number of assignment per worker.
   std::vector<int> completion_history_;  // Number of completions per worker.
   int thread_started_counter_;  // Used to issue unique id to workers.
@@ -141,72 +143,6 @@ class WorkQueue {
   bool shutdown_;  // Set when threads need to terminate.
 };
 
-//------------------------------------------------------------------------------
-// Define the standard worker task. Several tests will spin out many of these
-// threads.
-//------------------------------------------------------------------------------
-
-// The multithread tests involve several threads with a task to perform as
-// directed by an instance of the class WorkQueue.
-// The task is to:
-// a) Check to see if there are more tasks (there is a task counter).
-//    a1) Wait on condition variable if there are no tasks currently.
-// b) Call a function to see what should be done.
-// c) Do some computation based on the number of milliseconds returned in (b).
-// d) go back to (a).
-
-// WorkerProcess() implements the above task for all threads.
-// It calls the controlling object to tell the creator about progress, and to
-// ask about tasks.
-static DWORD WINAPI WorkerProcess(void* p) {
-  int thread_id;
-  class WorkQueue* queue = reinterpret_cast<WorkQueue*>(p);
-  {
-    AutoLock auto_lock(*queue->lock());
-    thread_id = queue->GetThreadId();
-    if (queue->EveryIdWasAllocated())
-      queue->all_threads_have_ids()->Signal();  // Tell creator we're ready.
-  }
-
-  Lock private_lock;  // Used to waste time on "our work".
-  while (1) {  // This is the main consumer loop.
-    TimeDelta work_time;
-    bool could_use_help;
-    {
-      AutoLock auto_lock(*queue->lock());
-      while (0 == queue->task_count() && !queue->shutdown()) {
-        queue->work_is_available()->Wait();
-      }
-      if (queue->shutdown()) {
-        // Ack the notification of a shutdown message back to the controller.
-        queue->thread_shutting_down();
-        return 0;  // Terminate.
-      }
-      // Get our task duration from the queue.
-      work_time = queue->GetAnAssignment(thread_id);
-      could_use_help = (queue->task_count() > 0) &&
-                        queue->allow_help_requests();
-    }  // Release lock
-
-    // Do work (outside of locked region.
-    if (could_use_help)
-      queue->work_is_available()->Signal();  // Get help from other threads.
-
-    if (work_time > TimeDelta::FromMilliseconds(0)) {
-      // We could just sleep(), but we'll instead further exercise the
-      // condition variable class, and do a timed wait.
-      AutoLock auto_lock(private_lock);
-      ConditionVariable private_cv(&private_lock);
-      private_cv.TimedWait(work_time);  // Unsynchronized waiting.
-    }
-
-    {
-      AutoLock auto_lock(*queue->lock());
-      // Send notification that we completed our "work."
-      queue->WorkIsCompleted(thread_id);
-    }
-  }
-}
 //------------------------------------------------------------------------------
 // The next section contains the actual tests.
 //------------------------------------------------------------------------------
@@ -414,7 +350,7 @@ TEST_F(ConditionVariableTest, MultiThreadConsumerTest) {
 
   SPIN_FOR_TIMEDELTA_OR_UNTIL_TRUE(TimeDelta::FromMinutes(1),
                                    queue.shutdown_task_count() == kThreadCount);
-  Sleep(10);  // Be sure they're all shutdown.
+  PlatformThread::Sleep(10);  // Be sure they're all shutdown.
 }
 
 TEST_F(ConditionVariableTest, LargeFastTaskTest) {
@@ -514,7 +450,7 @@ TEST_F(ConditionVariableTest, LargeFastTaskTest) {
   // Wait for shutdowns to complete.
   SPIN_FOR_TIMEDELTA_OR_UNTIL_TRUE(TimeDelta::FromMinutes(1),
                                    queue.shutdown_task_count() == kThreadCount);
-  Sleep(10);  // Be sure they're all shutdown.
+  PlatformThread::Sleep(10);  // Be sure they're all shutdown.
 }
 
 //------------------------------------------------------------------------------
@@ -527,7 +463,7 @@ WorkQueue::WorkQueue(int thread_count)
     all_threads_have_ids_(&lock_),
     no_more_tasks_(&lock_),
     thread_count_(thread_count),
-    handles_(new HANDLE[thread_count]),
+    thread_handles_(new PlatformThreadHandle[thread_count]),
     assignment_history_(thread_count),
     completion_history_(thread_count),
     thread_started_counter_(0),
@@ -541,13 +477,9 @@ WorkQueue::WorkQueue(int thread_count)
   SetWorkTime(TimeDelta::FromMilliseconds(30));
 
   for (int i = 0; i < thread_count_; ++i) {
-    handles_[i] = CreateThread(NULL,  // security.
-                               0,     // <64K stack size.
-                               WorkerProcess,  // Static function.
-                               reinterpret_cast<void*>(this),
-                               0,      // Create running process.
-                               NULL);  // OS version of thread id.
-    EXPECT_NE(reinterpret_cast<void*>(NULL), handles_[i]);
+    PlatformThreadHandle pth;
+    EXPECT_TRUE(PlatformThread::Create(0, this, &pth));
+    thread_handles_[i] = pth;
   }
 }
 
@@ -557,16 +489,9 @@ WorkQueue::~WorkQueue() {
     SetShutdown();
   }
   work_is_available_.Broadcast();  // Tell them all to terminate.
-  DWORD result = WaitForMultipleObjects(
-                      thread_count_,
-                      &handles_[0],
-                      true,  // Wait for all
-                      10000);  // Ten seconds max.
 
   for (int i = 0; i < thread_count_; ++i) {
-    int ret_value = CloseHandle(handles_[i]);
-    CHECK(ret_value);
-    handles_[i] = NULL;
+    PlatformThread::Join(thread_handles_[i]);
   }
 }
 
@@ -686,6 +611,72 @@ void WorkQueue::SetAllowHelp(bool allow) {
 
 void WorkQueue::SetShutdown() {
   shutdown_ = true;
+}
+
+//------------------------------------------------------------------------------
+// Define the standard worker task. Several tests will spin out many of these
+// threads.
+//------------------------------------------------------------------------------
+
+// The multithread tests involve several threads with a task to perform as
+// directed by an instance of the class WorkQueue.
+// The task is to:
+// a) Check to see if there are more tasks (there is a task counter).
+//    a1) Wait on condition variable if there are no tasks currently.
+// b) Call a function to see what should be done.
+// c) Do some computation based on the number of milliseconds returned in (b).
+// d) go back to (a).
+
+// WorkQueue::ThreadMain() implements the above task for all threads.
+// It calls the controlling object to tell the creator about progress, and to
+// ask about tasks.
+
+void WorkQueue::ThreadMain() {
+  int thread_id;
+  {
+    AutoLock auto_lock(lock_);
+    thread_id = GetThreadId();
+    if (EveryIdWasAllocated())
+      all_threads_have_ids()->Signal();  // Tell creator we're ready.
+  }
+
+  Lock private_lock;  // Used to waste time on "our work".
+  while (1) {  // This is the main consumer loop.
+    TimeDelta work_time;
+    bool could_use_help;
+    {
+      AutoLock auto_lock(lock_);
+      while (0 == task_count() && !shutdown()) {
+        work_is_available()->Wait();
+      }
+      if (shutdown()) {
+        // Ack the notification of a shutdown message back to the controller.
+        thread_shutting_down();
+        return;  // Terminate.
+      }
+      // Get our task duration from the queue.
+      work_time = GetAnAssignment(thread_id);
+      could_use_help = (task_count() > 0) && allow_help_requests();
+    }  // Release lock
+
+    // Do work (outside of locked region.
+    if (could_use_help)
+      work_is_available()->Signal();  // Get help from other threads.
+
+    if (work_time > TimeDelta::FromMilliseconds(0)) {
+      // We could just sleep(), but we'll instead further exercise the
+      // condition variable class, and do a timed wait.
+      AutoLock auto_lock(private_lock);
+      ConditionVariable private_cv(&private_lock);
+      private_cv.TimedWait(work_time);  // Unsynchronized waiting.
+    }
+
+    {
+      AutoLock auto_lock(lock_);
+      // Send notification that we completed our "work."
+      WorkIsCompleted(thread_id);
+    }
+  }
 }
 
 }  // namespace
