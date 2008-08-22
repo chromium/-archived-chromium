@@ -209,7 +209,7 @@ static inline U8CPU SkMulDiv255Round(U8CPU a, U8CPU b) {
 /** Return a*b/((1 << shift) - 1), rounding any fractional bits.
     Only valid if a and b are unsigned and <= 32767 and shift is > 0 and <= 8
 */
-static unsigned SkMul16ShiftRound(unsigned a, unsigned b, int shift) {
+static inline unsigned SkMul16ShiftRound(unsigned a, unsigned b, int shift) {
     SkASSERT(a <= 32767);
     SkASSERT(b <= 32767);
     SkASSERT(shift > 0 && shift <= 8);
