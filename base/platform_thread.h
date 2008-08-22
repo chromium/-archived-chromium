@@ -32,8 +32,10 @@
 
 #include "base/basictypes.h"
 
-// PlatformThreadHandle should be a numeric type on all platforms, so it can
-// be initialized to 0.  However, 0 cannot be assumed to be an invalid handle.
+// PlatformThreadHandle should not be assumed to be a numeric type, since the
+// standard intends to allow pthread_t to be a structure.  This means you
+// should not initialize it to a value, like 0.  If it's a member variable, the
+// constructor can safely "value initialize" using () in the initializer list.
 #if defined(OS_WIN)
 typedef void* PlatformThreadHandle;  // HANDLE
 #elif defined(OS_POSIX)

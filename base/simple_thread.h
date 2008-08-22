@@ -98,11 +98,11 @@ class SimpleThread : public PlatformThread::Delegate {
   // "my_thread/321".  The thread will not be created until Start() is called.
   SimpleThread(const Options& options, const std::string& name_prefix)
       : name_prefix_(name_prefix), name_(name_prefix_), options_(options),
-        thread_(0), event_(true, false), tid_(0), joined_(false) { }
+        thread_(), event_(true, false), tid_(0), joined_(false) { }
 
   SimpleThread()
       : name_prefix_("unnamed"), name_(name_prefix_),
-        thread_(0), event_(true, false), tid_(0), joined_(false) { }
+        thread_(), event_(true, false), tid_(0), joined_(false) { }
 
   virtual ~SimpleThread();
 
