@@ -35,6 +35,7 @@
 #include "base/command_line.h"
 #include "base/debug_on_start.h"
 #include "chrome/app/breakpad.h"
+#include "chrome/app/client_util.h"
 #include "chrome/app/google_update_client.h"
 #include "chrome/app/result_codes.h"
 #include "chrome/common/chrome_switches.h"
@@ -45,8 +46,6 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
                       wchar_t* command_line, int show_command) {
   // The exit manager is in charge of calling the dtors of singletons.
   base::AtExitManager exit_manager;
-
-  google_update::GoogleUpdateClient client;
 
   // Note that std::wstring and CommandLine got linked anyway because of
   // breakpad.
@@ -70,6 +69,16 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
     sandbox::SetCurrentProcessDEP(sandbox::DEP_ENABLED);
   }
 
+  // Get the interface pointer to the BrokerServices or TargetServices,
+  // depending who we are.
+  sandbox::SandboxInterfaceInfo sandbox_info = {0};
+  sandbox_info.broker_services = sandbox::SandboxFactory::GetBrokerServices();
+  if (!sandbox_info.broker_services)
+    sandbox_info.target_services = sandbox::SandboxFactory::GetTargetServices();
+
+#if defined(GOOGLE_CHROME_BUILD)
+  google_update::GoogleUpdateClient client;
+
   // TODO(erikkay): Get guid from build macros rather than hardcoding.
   // TODO(erikkay): verify client.Init() return value for official builds
   client.Init(L"{8A69D345-D564-463c-AFF1-A69D9E530F96}", dll_name);
@@ -85,23 +94,32 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
       return ResultCodes::NORMAL_EXIT;
   }
 
-  // Get the interface pointer to the BrokerServices or TargetServices,
-  // depending who we are.
-  sandbox::SandboxInterfaceInfo sandbox_info = {0};
-  sandbox_info.broker_services = sandbox::SandboxFactory::GetBrokerServices();
-  if (!sandbox_info.broker_services)
-    sandbox_info.target_services = sandbox::SandboxFactory::GetTargetServices();
-
-  // HACK. We need to tell chrome.dll the address of the interface. We are
-  // passing it in prev_instance because this is never used. In the future we
-  // need to modify Google Update to add a new parameter to the Launch command.
-  prev_instance = reinterpret_cast<HINSTANCE>(&sandbox_info);
-
   int ret = 0;
-  if (client.Launch(instance, prev_instance, command_line, show_command,
+  if (client.Launch(instance, &sandbox_info, command_line, show_command,
       "ChromeMain", &ret)) {
     return ret;
   }
+#else
+  wchar_t exe_path[MAX_PATH] = {0};
+  client_util::GetExecutablePath(exe_path);
+  wchar_t *version;
+  if (client_util::GetChromiumVersion(exe_path, L"Software\\Chromium",
+                                      &version)) {
+    std::wstring dll_path(exe_path);
+    dll_path.append(version);
+    if (client_util::FileExists(dll_path.c_str()))
+      ::SetCurrentDirectory(dll_path.c_str());
+    delete[] version;
+  }
+  HINSTANCE dll_handle = ::LoadLibraryEx(dll_name, NULL,
+                                         LOAD_WITH_ALTERED_SEARCH_PATH);
+  if (NULL != dll_handle) {
+    client_util::DLL_MAIN entry = reinterpret_cast<client_util::DLL_MAIN>(
+        ::GetProcAddress(dll_handle, "ChromeMain"));
+    if (NULL != entry)
+      return (entry)(instance, &sandbox_info, command_line, show_command);
+  }
+#endif
 
   return ResultCodes::GOOGLE_UPDATE_LAUNCH_FAILED;
 }

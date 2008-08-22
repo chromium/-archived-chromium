@@ -42,16 +42,22 @@
 
 #include <string>
 
+#include "sandbox/src/sandbox_factory.h"
+
 namespace google_update {
 
 class GoogleUpdateClient {
  public:
-  // callback prototype for GoogleUpdateClient::Launch entry_name
-  typedef int (*GoogleUpdateEntry)(HINSTANCE instance, HINSTANCE prev_instance,
-                                  wchar_t* command_line, int show_command);
-
   GoogleUpdateClient();
   virtual ~GoogleUpdateClient();
+
+  // Returns the path of the DLL that is going to be loaded.
+  // This function can be called only after Init().
+  std::wstring GetDLLPath();
+
+  // For the client guid, returns the associated version string, or NULL
+  // if Init() was unable to obtain one.
+  const wchar_t* GetVersion() const;
 
   // Init must be called prior to other methods.
   // client_guid is the guid that you registered with Google Update when you
@@ -66,28 +72,17 @@ class GoogleUpdateClient {
   //   entry_name. If chrome.dll is found in this path the version is stored
   //   in the environment block such that subsequent launches invoke the
   //   save dll version.
-  // The first four arguments are simply WinMain args passed through.
-  // - entry_name is the (typedef) GoogleUpdateEntry that is called
+  // - instance is handle to the current instance of application
+  // - sandbox provides information about sandbox services
+  // - command_line contains command line parameters
+  // - show_command specifies how the window is to be shown
+  // - entry_name is the function of type DLL_MAIN that is called
+  //   from chrome.dll
   // - ret is an out param with the return value of entry
   // Returns false if unable to load the dll or find entry_name's proc addr.
-  bool Launch(HINSTANCE instance, HINSTANCE prev_instance,
+  bool Launch(HINSTANCE instance, sandbox::SandboxInterfaceInfo* sandbox,
               wchar_t* command_line, int show_command, const char* entry_name,
               int* ret);
-
-  // For the client guid, fills in the path to the dir for the exe that
-  // calls this function.  (e.g. Program Files/Google/Chrome/ or
-  // Documents and Settings\user\Local Settings\Application Data\Google\Chrome)
-  // It also sets the user_mode_ depending on whether the exe was called
-  // from Program Files location (user_mode_ = false) or not.
-  void GetExePathAndInstallMode();
-
-  // Returns the path of the DLL that is going to be loaded.
-  // This function can be called only after Init().
-  std::wstring GetDLLPath();
-
-  // For the client guid, returns the associated version string, or NULL
-  // if Init() was unable to obtain one.
-  const wchar_t* GetVersion() const;
 
  private:
   // disallow copy ctor and operator=
@@ -95,9 +90,9 @@ class GoogleUpdateClient {
   void operator=(const GoogleUpdateClient&);
 
   // The GUID that this client has registered with GoogleUpdate for autoupdate.
-  wchar_t* guid_;
+  std::wstring guid_;
   // The name of the dll to load.
-  wchar_t* dll_;
+  std::wstring dll_;
   // The current version of this client registered with GoogleUpdate.
   wchar_t* version_;
   // The location of current chrome.dll.

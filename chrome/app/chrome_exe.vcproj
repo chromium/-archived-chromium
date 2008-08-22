@@ -197,6 +197,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\client_util.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\client_util.h"
+			>
+		</File>
+		<File
 			RelativePath="..\common\env_vars.cc"
 			>
 		</File>
