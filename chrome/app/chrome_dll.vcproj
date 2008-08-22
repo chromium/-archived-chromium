@@ -235,10 +235,6 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\resources\chrome.ico"
-			>
-		</File>
-		<File
 			RelativePath=".\chrome_dll_main.cc"
 			>
 		</File>

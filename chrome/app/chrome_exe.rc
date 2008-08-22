@@ -61,7 +61,11 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME           ICON                    "resources\\chrome.ico"
+#if defined(GOOGLE_CHROME_BUILD)
+IDR_MAINFRAME           ICON                    "theme\google_chrome\chrome.ico"
+#else
+IDR_MAINFRAME           ICON                    "theme\chromium\chromium.ico"
+#endif
 
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////

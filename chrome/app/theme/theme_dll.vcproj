@@ -148,7 +148,7 @@
 			>
 		</File>
 		<File
-			RelativePath="google_theme_resources.rc"
+			RelativePath="distribution_resources.rc"
 			>
 		</File>
 	</Files>

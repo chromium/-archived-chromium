@@ -142,7 +142,11 @@ END
 // the icon from the current module). We can perhaps work around this in the
 // future to get the icon from the .exe, which would save a copy.
 
-IDR_MAINFRAME           ICON                    "resources\\chrome.ico"
+#if defined(GOOGLE_CHROME_BUILD)
+IDR_MAINFRAME           ICON                    "theme\google_chrome\chrome.ico"
+#else
+IDR_MAINFRAME           ICON                    "theme\chromium\chromium.ico"
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
