@@ -32,6 +32,7 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/platform_test.h"
 #include "base/scoped_ptr.h"
 #include "net/base/gzip_filter.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -69,9 +70,13 @@ enum EncodeMode {
   ENCODE_DEFLATE    // Raw deflate.
 };
 
-class GZipUnitTest : public testing::Test {
+// These tests use the path service, which uses autoreleased objects on the
+// Mac, so this needs to be a PlatformTest.
+class GZipUnitTest : public PlatformTest {
  protected:
   virtual void SetUp() {
+    PlatformTest::SetUp();
+
     deflate_encode_buffer_ = NULL;
     gzip_encode_buffer_ = NULL;
 
@@ -115,6 +120,8 @@ class GZipUnitTest : public testing::Test {
 
     delete[] gzip_encode_buffer_;
     gzip_encode_buffer_ = NULL;
+
+    PlatformTest::TearDown();
   }
 
   // Compress the data in source with deflate encoding and write output to the
@@ -243,7 +250,7 @@ class GZipUnitTest : public testing::Test {
   int gzip_encode_len_;
 };
 
-};  // namespace
+}  // namespace
 
 // Basic scenario: decoding deflate data with big enough buffer.
 TEST_F(GZipUnitTest, DecodeDeflate) {

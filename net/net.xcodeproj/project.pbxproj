@@ -27,6 +27,7 @@
 		048268090E5B3B4800A30786 /* mime_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED325E0E5A181C00A747DB /* mime_util_unittest.cc */; };
 		0482692A0E5B624D00A30786 /* http_cache.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED334C0E5A194700A747DB /* http_cache.cc */; };
 		533102E70E5E3EBF00FF8E32 /* net_util_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 533102E60E5E3EBF00FF8E32 /* net_util_posix.cc */; };
+		7B466C470E5E732900C91F63 /* platform_test_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B466C460E5E732900C91F63 /* platform_test_mac.mm */; };
 		7B4DF64A0E5B98DF004D7619 /* client_socket_pool_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED326A0E5A181C00A747DB /* client_socket_pool_unittest.cc */; };
 		7B4DF6A90E5B98E7004D7619 /* data_url_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED325F0E5A181C00A747DB /* data_url_unittest.cc */; };
 		7B4DF6B10E5B98ED004D7619 /* escape_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32BF0E5A181C00A747DB /* escape_unittest.cc */; };
@@ -300,6 +301,7 @@
 
 /* Begin PBXFileReference section */
 		533102E60E5E3EBF00FF8E32 /* net_util_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = net_util_posix.cc; sourceTree = "<group>"; };
+		7B466C460E5E732900C91F63 /* platform_test_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = platform_test_mac.mm; sourceTree = "<group>"; };
 		7B8501F10E5A372500730B43 /* googleurl.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = googleurl.xcodeproj; path = build/googleurl.xcodeproj; sourceTree = "<group>"; };
 		7B8502620E5A38BB00730B43 /* modp_b64.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = modp_b64.xcodeproj; path = third_party/modp_b64/modp_b64.xcodeproj; sourceTree = "<group>"; };
 		7BA015570E5A1C3E00044150 /* icu.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = icu.xcodeproj; path = third_party/icu38/build/icu.xcodeproj; sourceTree = "<group>"; };
@@ -667,6 +669,7 @@
 		7BED32150E5A172D00A747DB /* base */ = {
 			isa = PBXGroup;
 			children = (
+				7B466C460E5E732900C91F63 /* platform_test_mac.mm */,
 				E4AFA6420E5241B400201347 /* run_all_unittests.cc */,
 			);
 			name = base;
@@ -1257,6 +1260,7 @@
 				7B4DF9AC0E5C906A004D7619 /* mime_sniffer_unittest.cc in Sources */,
 				048268090E5B3B4800A30786 /* mime_util_unittest.cc in Sources */,
 				BAA46E3B0E5CE99A00E77460 /* net_util_unittest.cc in Sources */,
+				7B466C470E5E732900C91F63 /* platform_test_mac.mm in Sources */,
 				7B8B5B9E0E5D188E002F9A97 /* registry_controlled_domain_unittest.cc in Sources */,
 				E4AFA6430E5241B400201347 /* run_all_unittests.cc in Sources */,
 			);

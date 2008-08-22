@@ -32,6 +32,7 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/platform_test.h"
 #include "base/scoped_ptr.h"
 #include "net/base/bzip2_filter.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -47,9 +48,13 @@ const int kMaxBufferSize = 1048576;    // 1048576 == 2^20 == 1 MB
 
 const char kApplicationOctetStream[] = "application/octet-stream";
 
-class BZip2FilterUnitTest : public testing::Test {
+// These tests use the path service, which uses autoreleased objects on the
+// Mac, so this needs to be a PlatformTest.
+class BZip2FilterUnitTest : public PlatformTest {
  protected:
   virtual void SetUp() {
+    PlatformTest::SetUp();
+
     bzip2_encode_buffer_ = NULL;
 
     // Get the path of source data file.
@@ -102,6 +107,8 @@ class BZip2FilterUnitTest : public testing::Test {
   virtual void TearDown() {
     delete[] bzip2_encode_buffer_;
     bzip2_encode_buffer_ = NULL;
+
+    PlatformTest::TearDown();
   }
 
   // Use filter to decode compressed data, and compare the decoding result with
@@ -195,7 +202,7 @@ class BZip2FilterUnitTest : public testing::Test {
   int bzip2_encode_len_;
 };
 
-};  // namespace
+}  // namespace
 
 // Basic scenario: decoding bzip2 data with big enough buffer.
 TEST_F(BZip2FilterUnitTest, DecodeBZip2) {
