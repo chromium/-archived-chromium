@@ -221,7 +221,13 @@ static const int kInitialInterlogDuration = 60;  // one minute
 
 // The default maximum number of events in a log uploaded to the UMA server.
 // TODO(petersont): Honor the limit when the log is actually sent.
-static const int kInitialEventLimit = 1000000;
+static const int kInitialEventLimit = 600;
+
+// If an upload fails, and the transmission was over this byte count, then we
+// will discard the log, and not try to retransmit it.  We also don't persist
+// the log to the prefs for transmission during the next chrome session if this
+// limit is exceeded.
+static const int kUploadLogAvoidRetransmitSize = 50000;
 
 // When we have logs from previous Chrome sessions to send, how long should we
 // delay (in seconds) between each log transmission.
@@ -494,7 +500,7 @@ void MetricsService::RecordCompletedSessionEnd() {
 }
 
 void MetricsService:: RecordBreakpadRegistration(bool success) {
-  if (!success) 
+  if (!success)
     IncrementPrefValue(prefs::kStabilityBreakpadRegistrationFail);
   else
     IncrementPrefValue(prefs::kStabilityBreakpadRegistrationSuccess);
@@ -504,7 +510,7 @@ void MetricsService::RecordBreakpadHasDebugger(bool has_debugger) {
   if (!has_debugger)
     IncrementPrefValue(prefs::kStabilityDebuggerNotPresent);
   else
-    IncrementPrefValue(prefs::kStabilityDebuggerPresent);  
+    IncrementPrefValue(prefs::kStabilityDebuggerPresent);
 }
 
 //------------------------------------------------------------------------------
@@ -660,6 +666,16 @@ void MetricsService::StopRecording(MetricsLog** log) {
   if (!current_log_)
     return;
 
+  // TODO(jar): Integrate bounds on log recording more consistently, so that we
+  // can stop recording logs that are too big much sooner.
+  if (current_log_->num_events() > kInitialEventLimit) {
+    UMA_HISTOGRAM_COUNTS(L"UMA.Discarded Log Events",
+                         current_log_->num_events());
+    current_log_->CloseLog();
+    delete current_log_;
+    StartRecording();  // Start trivial log to hold our histograms.
+  }
+
   // Put incremental histogram data at the end of every log transmission.
   // Don't bother if we're going to discard current_log_.
   if (log)
@@ -719,16 +735,25 @@ void MetricsService::PushPendingLogsToUnsentLists() {
       unsent_initial_logs_.push_back(pending_log_text_);
       state_ = SENDING_CURRENT_LOGS;
     } else {
-      unsent_ongoing_logs_.push_back(pending_log_text_);
+      PushPendingLogTextToUnsentOngoingLogs();
     }
     DiscardPendingLog();
   }
   DCHECK(!pending_log());
   StopRecording(&pending_log_);
   PreparePendingLogText();
-  unsent_ongoing_logs_.push_back(pending_log_text_);
+  PushPendingLogTextToUnsentOngoingLogs();
   DiscardPendingLog();
   StoreUnsentLogs();
+}
+
+void MetricsService::PushPendingLogTextToUnsentOngoingLogs() {
+  if (pending_log_text_.length() > kUploadLogAvoidRetransmitSize) {
+    UMA_HISTOGRAM_COUNTS(L"UMA.Large Accumulated Log Not Persisted",
+                         static_cast<int>(pending_log_text_.length()));
+    return;
+  }
+  unsent_ongoing_logs_.push_back(pending_log_text_);
 }
 
 //------------------------------------------------------------------------------
@@ -1029,6 +1054,15 @@ void MetricsService::OnURLFetchComplete(const URLFetcher* source,
   DLOG(INFO) << "METRICS RESPONSE CODE: " << response_code
       << " status=" << StatusToString(status);
 
+  // TODO(petersont): Refactor or remove the following so that we don't have to
+  // fake a valid response code.
+  if (response_code != 200 &&
+      pending_log_text_.length() > kUploadLogAvoidRetransmitSize) {
+    UMA_HISTOGRAM_COUNTS(L"UMA.Large Rejected Log was Discarded",
+                         static_cast<int>(pending_log_text_.length()));
+    response_code = 200;  // Simulate transmission so we will discard log.
+  }
+
   if (response_code != 200) {
     HandleBadResponseCode();
   } else {  // Success.
@@ -1217,6 +1251,11 @@ void MetricsService::LogLoadComplete(NotificationType type,
                                      const NotificationDetails& details) {
   if (details == NotificationService::NoDetails())
     return;
+
+  // TODO(jar): There is a bug causing this to be called too many times, and
+  // the log overflows.  For now, we won't record these events.
+  UMA_HISTOGRAM_COUNTS(L"UMA.LogLoadComplete called", 1);
+  return;
 
   const Details<LoadNotificationDetails> load_details(details);
   int controller_id = window_map_[details.map_key()];
