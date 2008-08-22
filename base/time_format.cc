@@ -42,7 +42,11 @@ std::wstring TimeFormat(const DateFormat* formatter,
   UnicodeString date_string;
   
   formatter->format(static_cast<UDate>(time.ToDoubleT() * 1000), date_string);
-  return UTF16ToWide(date_string.getTerminatedBuffer());
+  std::wstring output;
+  bool success = UTF16ToWide(date_string.getBuffer(), date_string.length(),
+      &output);
+  DCHECK(success);
+  return output;
 }
 
 }
