@@ -357,6 +357,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\net_util_win.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\base\net_util.h"
 				>
 			</File>

@@ -140,6 +140,7 @@ if env['PLATFORM'] == 'win32':
       ],
   )
   input_files.extend([
+      'base/net_util_win.cc',
       'base/platform_mime_util_win.cc',
       'disk_cache/cache_util_win.cc',
       'disk_cache/file_win.cc',
@@ -154,6 +155,7 @@ if env['PLATFORM'] == 'darwin':
 
 if env['PLATFORM'] in ('darwin', 'posix'):
   input_files.extend([
+      'base/net_util_posix.cc',
       # TODO(tc): gnome-vfs? xdgmime? /etc/mime.types?
       #'base/platform_mime_util_linux.cc,
       'disk_cache/cache_util_posix.cc',
@@ -189,7 +191,6 @@ env_tests.Prepend(
         'base',
         'googleurl',
         'gtest',
-        'net',        # Likewise, net must come before modp_b64 and icuuc.
         'icuuc',
         'modp_b64',
         'zlib',

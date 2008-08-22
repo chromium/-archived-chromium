@@ -83,16 +83,22 @@ struct SuggestedFilenameCase {
 
 }  // anonymous namespace
 
-#ifdef OS_WIN
-// TODO: Determine how we want windows file paths and unc paths to be
-// normalized on posix systems.
 TEST(NetUtilTest, FileURLConversion) {
   // a list of test file names and the corresponding URLs
   const FileCase round_trip_cases[] = {
+#if defined(OS_WIN)
     {L"C:\\foo\\bar.txt", L"file:///C:/foo/bar.txt"},
     {L"\\\\some computer\\foo\\bar.txt", L"file://some%20computer/foo/bar.txt"}, // UNC
     {L"D:\\Name;with%some symbols*#", L"file:///D:/Name%3Bwith%25some%20symbols*%23"},
     {L"D:\\Chinese\\\x6240\x6709\x4e2d\x6587\x7f51\x9875.doc", L"file:///D:/Chinese/%E6%89%80%E6%9C%89%E4%B8%AD%E6%96%87%E7%BD%91%E9%A1%B5.doc"},
+#elif defined(OS_POSIX)
+    {L"/foo/bar.txt", L"file:///foo/bar.txt"},
+    {L"/foo/BAR.txt", L"file:///foo/BAR.txt"},
+    {L"/C:/foo/bar.txt", L"file:///C:/foo/bar.txt"},
+    {L"/some computer/foo/bar.txt", L"file:///some%20computer/foo/bar.txt"},
+    {L"/Name;with%some symbols*#", L"file:///Name%3Bwith%25some%20symbols*%23"},
+    {L"/Chinese/\x6240\x6709\x4e2d\x6587\x7f51\x9875.doc", L"file:///Chinese/%E6%89%80%E6%9C%89%E4%B8%AD%E6%96%87%E7%BD%91%E9%A1%B5.doc"},
+#endif
   };
 
   // First, we'll test that we can round-trip all of the above cases of URLs
@@ -110,6 +116,7 @@ TEST(NetUtilTest, FileURLConversion) {
 
   // Test that various file: URLs get decoded into the correct file type
   FileCase url_cases[] = {
+#if defined(OS_WIN)
     {L"C:\\foo\\bar.txt", L"file:c|/foo\\bar.txt"},
     {L"C:\\foo\\bar.txt", L"file:/c:/foo/bar.txt"},
     {L"\\\\foo\\bar.txt", L"file://foo\\bar.txt"},
@@ -118,6 +125,28 @@ TEST(NetUtilTest, FileURLConversion) {
     {L"\\\\foo\\bar.txt", L"file:/foo/bar.txt"},
     {L"\\\\foo\\bar.txt", L"file://foo\\bar.txt"},
     {L"C:\\foo\\bar.txt", L"file:\\\\\\c:/foo/bar.txt"},
+#elif defined(OS_POSIX)
+    {L"/c:/foo/bar.txt", L"file:/c:/foo/bar.txt"},
+    {L"/c:/foo/bar.txt", L"file:///c:/foo/bar.txt"},
+    {L"/foo/bar.txt", L"file:/foo/bar.txt"},
+    {L"/c:/foo/bar.txt", L"file:\\\\\\c:/foo/bar.txt"},
+    {L"/foo/bar.txt", L"file:foo/bar.txt"},
+    {L"/foo/bar.txt", L"file://foo/bar.txt"},
+    {L"/foo/bar.txt", L"file:///foo/bar.txt"},
+    {L"/foo/bar.txt", L"file:////foo/bar.txt"},
+    {L"/foo/bar.txt", L"file:////foo//bar.txt"},
+    {L"/foo/bar.txt", L"file:////foo///bar.txt"},
+    {L"/foo/bar.txt", L"file:////foo////bar.txt"},
+    {L"/c:/foo/bar.txt", L"file:\\\\\\c:/foo/bar.txt"},
+    {L"/c:/foo/bar.txt", L"file:c:/foo/bar.txt"},
+    // We get these wrong because GURL turns back slashes into forward
+    // slashes.
+    //{L"/foo%5Cbar.txt", L"file://foo\\bar.txt"},
+    //{L"/c|/foo%5Cbar.txt", L"file:c|/foo\\bar.txt"},
+    //{L"/foo%5Cbar.txt", L"file://foo\\bar.txt"},
+    //{L"/foo%5Cbar.txt", L"file:////foo\\bar.txt"},
+    //{L"/foo%5Cbar.txt", L"file://foo\\bar.txt"},
+#endif
   };
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(url_cases); i++) {
     net::FileURLToFilePath(GURL(WideToUTF16(url_cases[i].url)), &output);
@@ -125,9 +154,14 @@ TEST(NetUtilTest, FileURLConversion) {
   }
 
   // Here, we test that UTF-8 encoded strings get decoded properly, even when
-  // they might be stored with wide characters
+  // they might be stored with wide characters.  On posix systems, just treat
+  // this as a stream of bytes.
   const wchar_t utf8[] = L"file:///d:/Chinese/\xe6\x89\x80\xe6\x9c\x89\xe4\xb8\xad\xe6\x96\x87\xe7\xbd\x91\xe9\xa1\xb5.doc";
+#if defined(OS_WIN)
   const wchar_t wide[] = L"D:\\Chinese\\\x6240\x6709\x4e2d\x6587\x7f51\x9875.doc";
+#elif defined(OS_POSIX)
+  const wchar_t wide[] = L"/d:/Chinese/\xe6\x89\x80\xe6\x9c\x89\xe4\xb8\xad\xe6\x96\x87\xe7\xbd\x91\xe9\xa1\xb5.doc";
+#endif
   EXPECT_TRUE(net::FileURLToFilePath(GURL(WideToUTF16(utf8)), &output));
   EXPECT_EQ(std::wstring(wide), output);
 
@@ -145,7 +179,6 @@ TEST(NetUtilTest, FileURLConversion) {
   // Test that if a file URL is malformed, we get a failure
   EXPECT_FALSE(net::FileURLToFilePath(GURL("filefoobar"), &output));
 }
-#endif
 
 // Just a bunch of fake headers.
 const wchar_t* google_headers =

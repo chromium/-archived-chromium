@@ -26,6 +26,7 @@
 		048268080E5B3B3200A30786 /* http_chunked_decoder_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33570E5A194700A747DB /* http_chunked_decoder_unittest.cc */; };
 		048268090E5B3B4800A30786 /* mime_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED325E0E5A181C00A747DB /* mime_util_unittest.cc */; };
 		0482692A0E5B624D00A30786 /* http_cache.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED334C0E5A194700A747DB /* http_cache.cc */; };
+		533102E70E5E3EBF00FF8E32 /* net_util_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 533102E60E5E3EBF00FF8E32 /* net_util_posix.cc */; };
 		7B4DF64A0E5B98DF004D7619 /* client_socket_pool_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED326A0E5A181C00A747DB /* client_socket_pool_unittest.cc */; };
 		7B4DF6A90E5B98E7004D7619 /* data_url_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED325F0E5A181C00A747DB /* data_url_unittest.cc */; };
 		7B4DF6B10E5B98ED004D7619 /* escape_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32BF0E5A181C00A747DB /* escape_unittest.cc */; };
@@ -298,6 +299,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		533102E60E5E3EBF00FF8E32 /* net_util_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = net_util_posix.cc; sourceTree = "<group>"; };
 		7B8501F10E5A372500730B43 /* googleurl.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = googleurl.xcodeproj; path = build/googleurl.xcodeproj; sourceTree = "<group>"; };
 		7B8502620E5A38BB00730B43 /* modp_b64.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = modp_b64.xcodeproj; path = third_party/modp_b64/modp_b64.xcodeproj; sourceTree = "<group>"; };
 		7BA015570E5A1C3E00044150 /* icu.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = icu.xcodeproj; path = third_party/icu38/build/icu.xcodeproj; sourceTree = "<group>"; };
@@ -763,6 +765,7 @@
 				7BED32A30E5A181C00A747DB /* net_resources.h */,
 				7BED32A10E5A181C00A747DB /* net_util.cc */,
 				7BED32A00E5A181C00A747DB /* net_util.h */,
+				533102E60E5E3EBF00FF8E32 /* net_util_posix.cc */,
 				7BED329F0E5A181C00A747DB /* net_util_unittest.cc */,
 				7BED329E0E5A181C00A747DB /* platform_mime_util.h */,
 				7BED329D0E5A181C00A747DB /* platform_mime_util_mac.mm */,
@@ -1231,6 +1234,7 @@
 				7B8504540E5B2E9600730B43 /* url_request_job_tracker.cc in Sources */,
 				821F23CC0E5E106D003C7E38 /* url_request_simple_job.cc in Sources */,
 				821F20A50E5CD414003C7E38 /* url_request_view_cache_job.cc in Sources */,
+				533102E70E5E3EBF00FF8E32 /* net_util_posix.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
