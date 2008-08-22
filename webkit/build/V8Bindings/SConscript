@@ -31,7 +31,6 @@ Import('env')
 
 env = env.Clone()
 
-
 if env['PLATFORM'] == 'win32':
     env.Prepend(
         CPPDEFINES = [
@@ -49,26 +48,17 @@ if env['PLATFORM'] == 'win32':
                 '/wd4800',
                 ],
         )
+else:
+  # We need to include the parts of icu that we want here:
+  env.Append(
+    CPPPATH = [
+      '$ICU38_DIR/public/',
+      ])
+
+if env['PLATFORM'] == 'posix':
+  env.Append(CCFLAGS = '-Wno-unused-variable');
 
 inputs = [
-    '$DERIVED_DIR/V8MimeType.cpp',
-    '$DERIVED_DIR/V8MimeTypeArray.cpp',
-    '$PORT_DIR/bridge/V8Bridge.cpp',
-    '$PORT_DIR/bindings/v8/v8_vectornodelist.cpp',
-    '$PORT_DIR/bindings/v8/v8_proxy.cpp',
-    '$PORT_DIR/bindings/v8/v8_nodefilter.cpp',
-    '$PORT_DIR/bindings/v8/v8_index.cpp',
-    '$PORT_DIR/bindings/v8/v8_events.cpp',
-    '$PORT_DIR/bindings/v8/v8_custom.cpp',
-    '$PORT_DIR/bindings/v8/JSXPathNSResolver.cpp',
-    '$PORT_DIR/page/inspector/InspectorController.cpp',
-    '$PORT_DIR/bindings/v8/v8_npobject.cpp',
-    '$PORT_DIR/bindings/v8/v8_np_utils.cpp',
-    '$PORT_DIR/bindings/v8/v8_helpers.cpp',
-    '$PORT_DIR/bindings/v8/npruntime.cpp',
-    '$PORT_DIR/bindings/v8/np_v8object.cpp',
-    '$PORT_DIR/page/Navigator.cpp',
-    '$PORT_DIR/page/Location.cpp',
     '$SHARED_DIR/PausedTimeouts.cpp',
     '$DERIVED_DIR/XPathGrammar.cpp',
     '$DERIVED_DIR/CSSGrammar.cpp',
@@ -199,23 +189,17 @@ inputs = [
     '$DERIVED_DIR/V8Range.cpp',
     '$DERIVED_DIR/V8ProgressEvent.cpp',
     '$DERIVED_DIR/V8ProcessingInstruction.cpp',
-    '$DERIVED_DIR/V8PluginArray.cpp',
-    '$DERIVED_DIR/V8Plugin.cpp',
     '$DERIVED_DIR/V8OverflowEvent.cpp',
     '$DERIVED_DIR/V8Notation.cpp',
     '$DERIVED_DIR/V8NodeList.cpp',
     '$DERIVED_DIR/V8NodeIterator.cpp',
     '$DERIVED_DIR/V8NodeFilter.cpp',
     '$DERIVED_DIR/V8Node.cpp',
-    '$DERIVED_DIR/V8Navigator.cpp',
     '$DERIVED_DIR/V8NamedNodeMap.cpp',
     '$DERIVED_DIR/V8MutationEvent.cpp',
-    '$DERIVED_DIR/V8MouseEvent.cpp',
     '$DERIVED_DIR/V8MessageEvent.cpp',
     '$DERIVED_DIR/V8MediaList.cpp',
-    '$DERIVED_DIR/V8Location.cpp',
     '$DERIVED_DIR/V8KeyboardEvent.cpp',
-    '$DERIVED_DIR/V8InspectorController.cpp',
     '$DERIVED_DIR/V8HTMLUListElement.cpp',
     '$DERIVED_DIR/V8HTMLTitleElement.cpp',
     '$DERIVED_DIR/V8HTMLTextAreaElement.cpp',
@@ -226,7 +210,6 @@ inputs = [
     '$DERIVED_DIR/V8HTMLTableCellElement.cpp',
     '$DERIVED_DIR/V8HTMLTableCaptionElement.cpp',
     '$DERIVED_DIR/V8HTMLStyleElement.cpp',
-    '$DERIVED_DIR/V8HTMLSelectionInputElement.cpp',
     '$DERIVED_DIR/V8HTMLSelectElement.cpp',
     '$DERIVED_DIR/V8HTMLScriptElement.cpp',
     '$DERIVED_DIR/V8HTMLQuoteElement.cpp',
@@ -247,8 +230,6 @@ inputs = [
     '$DERIVED_DIR/V8HTMLLIElement.cpp',
     '$DERIVED_DIR/V8HTMLLegendElement.cpp',
     '$DERIVED_DIR/V8HTMLLabelElement.cpp',
-    '$DERIVED_DIR/V8HTMLIsIndexElement.cpp',
-    '$DERIVED_DIR/V8HTMLInputElement.cpp',
     '$DERIVED_DIR/V8HTMLImageElement.cpp',
     '$DERIVED_DIR/V8HTMLIFrameElement.cpp',
     '$DERIVED_DIR/V8HTMLHtmlElement.cpp',
@@ -284,7 +265,6 @@ inputs = [
     '$DERIVED_DIR/V8EntityReference.cpp',
     '$DERIVED_DIR/V8Entity.cpp',
     '$DERIVED_DIR/V8Element.cpp',
-    '$DERIVED_DIR/V8DOMWindow.cpp',
     '$DERIVED_DIR/V8DOMSelection.cpp',
     '$DERIVED_DIR/V8DOMParser.cpp',
     '$DERIVED_DIR/V8DOMImplementation.cpp',
@@ -308,7 +288,6 @@ inputs = [
     '$DERIVED_DIR/V8Counter.cpp',
     '$DERIVED_DIR/V8Console.cpp',
     '$DERIVED_DIR/V8Comment.cpp',
-    '$DERIVED_DIR/V8Clipboard.cpp',
     '$DERIVED_DIR/V8CharacterData.cpp',
     '$DERIVED_DIR/V8CDATASection.cpp',
     '$DERIVED_DIR/V8CanvasRenderingContext2D.cpp',
@@ -320,7 +299,41 @@ inputs = [
     '$DERIVED_DIR/SVGNames.cpp',
     '$DERIVED_DIR/SVGElementFactory.cpp',
     '$DERIVED_DIR/HTMLNames.cpp',
-]
+    ]
 
+# TODO(erg): Get Frame.h ported and half of this should compile. Get whatever
+#            String.h is referenced below and the other half should compile
+if env['PLATFORM'] == 'win32':
+  inputs = [
+    '$DERIVED_DIR/V8Clipboard.cpp',
+    '$DERIVED_DIR/V8DOMWindow.cpp',
+    '$DERIVED_DIR/V8HTMLInputElement.cpp',
+    '$DERIVED_DIR/V8HTMLIsIndexElement.cpp',
+    '$DERIVED_DIR/V8HTMLSelectionInputElement.cpp',
+    '$DERIVED_DIR/V8InspectorController.cpp',
+    '$DERIVED_DIR/V8Location.cpp',
+    '$DERIVED_DIR/V8MimeType.cpp',
+    '$DERIVED_DIR/V8MimeTypeArray.cpp',
+    '$DERIVED_DIR/V8MouseEvent.cpp',
+    '$DERIVED_DIR/V8Navigator.cpp',
+    '$DERIVED_DIR/V8Plugin.cpp',
+    '$DERIVED_DIR/V8PluginArray.cpp',
+    '$PORT_DIR/bindings/v8/JSXPathNSResolver.cpp',
+    '$PORT_DIR/bindings/v8/np_v8object.cpp',
+    '$PORT_DIR/bindings/v8/npruntime.cpp',
+    '$PORT_DIR/bindings/v8/v8_custom.cpp',
+    '$PORT_DIR/bindings/v8/v8_events.cpp',
+    '$PORT_DIR/bindings/v8/v8_helpers.cpp',
+    '$PORT_DIR/bindings/v8/v8_index.cpp',
+    '$PORT_DIR/bindings/v8/v8_nodefilter.cpp',
+    '$PORT_DIR/bindings/v8/v8_np_utils.cpp',
+    '$PORT_DIR/bindings/v8/v8_npobject.cpp',
+    '$PORT_DIR/bindings/v8/v8_proxy.cpp',
+    '$PORT_DIR/bindings/v8/v8_vectornodelist.cpp',
+    '$PORT_DIR/bridge/V8Bridge.cpp',
+    '$PORT_DIR/page/Location.cpp',
+    '$PORT_DIR/page/Navigator.cpp',
+    '$PORT_DIR/page/inspector/InspectorController.cpp',
+    ]
 
 env.ChromeStaticLibrary('V8Bindings', inputs)

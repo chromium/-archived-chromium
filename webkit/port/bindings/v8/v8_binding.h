@@ -30,6 +30,8 @@
 #ifndef V8_BINDING_H__
 #define V8_BINDING_H__
 
+#include "build/build_config.h"
+
 #include <v8.h>
 #include "PlatformString.h"
 #include "MathExtras.h"
@@ -41,7 +43,14 @@
 #include "CString.h"
 #pragma warning(pop)
 
+#if defined(OS_LINUX)
+// Use the platform.h for linux.
+#include "common/unicode/plinux.h"
+#elif defined(OS_WIN) || defined(OS_MACOSX)
+// WebKit ships a hacked up version of one of the ICU header files, with all
+// options set for OSX.
 #include "platform.h"
+#endif
 
 namespace WebCore {
 

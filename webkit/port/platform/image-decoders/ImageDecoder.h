@@ -215,7 +215,7 @@ private:
 class ImageDecoder
 {
 public:
-    ImageDecoder() :m_sizeAvailable(false), m_failed(false) {}
+    ImageDecoder() : m_failed(false), m_sizeAvailable(false)  {}
     virtual ~ImageDecoder() {}
 
     // All specific decoder plugins must do something with the data they are given.

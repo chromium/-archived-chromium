@@ -72,7 +72,7 @@
 #include "EventTargetNode.h"
 #include "EventTarget.h"
 #include "ExceptionCode.h"
-#include "xmlhttprequest.h"
+#include "XMLHttpRequest.h"
 #include "XMLSerializer.h"
 #include "KURL.h"
 #include "DeprecatedString.h"

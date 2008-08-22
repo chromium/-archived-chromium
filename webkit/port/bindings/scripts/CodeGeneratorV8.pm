@@ -230,7 +230,7 @@ sub GetImplementationFileName
     return "Event.h" if $iface eq "DOMTimeStamp";
     return "NamedAttrMap.h" if $iface eq "NamedNodeMap";
     return "NameNodeList.h" if $iface eq "NodeList";
-    return "xmlhttprequest.h" if $iface eq "XMLHttpRequest";
+    return "XMLHttpRequest.h" if $iface eq "XMLHttpRequest";
 
     return "${iface}.h";
 }

@@ -63,7 +63,7 @@ namespace WebCore {
 
 #if USE(JAVASCRIPTCORE_BINDINGS)
     typedef HashMap<void*, RefPtr<KJS::Bindings::RootObject> > RootObjectMap;
-#else if USE(V8_BINDING)
+#elif USE(V8_BINDING)
     typedef HashMap<void*, NPObject* > PluginObjectMap;
 #endif
 
@@ -123,7 +123,7 @@ namespace WebCore {
         // The root object used for objects bound outside the context of a plugin.
         RefPtr<KJS::Bindings::RootObject> m_bindingRootObject; 
         RootObjectMap m_rootObjects;
-#else if USE(V8_BINDING)
+#elif USE(V8_BINDING)
         // A mapping between Widgets and their corresponding script object.
         // This list is used so that when the plugin dies, we can immediately
         // invalidate all sub-objects which are associated with that plugin.

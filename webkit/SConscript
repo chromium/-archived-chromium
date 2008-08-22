@@ -210,7 +210,7 @@ else:
     'build/JavaScriptCore/SConscript',
 #    'build/localized_strings/SConscript',
     'build/port/SConscript',
-#    'build/V8Bindings/SConscript',
+    'build/V8Bindings/SConscript',
 #    'build/WebCore/SConscript',
     ]
 env.SConscript(sconscript_dirs, exports=['env', 'env_res'])

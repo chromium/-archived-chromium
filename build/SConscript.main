@@ -341,6 +341,10 @@ elif env['PLATFORM'] == 'posix':
     '-Wno-switch',           # TODO: this is likely masking real bugs.
     '-Wno-sign-compare',     # TODO: this is likely masking real bugs.
     '-Wno-missing-braces',   # TODO: just a file in net.
+
+    # Not TODO: This is technically nonstandard, but a lot of the image
+    # decoding code depends on it and osx wants this.
+    '-Wno-multichar',
   ]
   env.Replace(
       CCFLAGS = ['-m32', '-g', '-Wall', '-Werror'] + excluded_warnings,

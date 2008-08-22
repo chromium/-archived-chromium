@@ -35,7 +35,7 @@ if env['PLATFORM'] == 'win32':
   env.Prepend(
     CCFLAGS = [
       '/TP',
-              
+
       '/wd4244',
       '/wd4291',
       '/wd4345',
