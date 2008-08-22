@@ -130,6 +130,22 @@ bool Pickle::ReadInt(void** iter, int* result) const {
   return true;
 }
 
+bool Pickle::ReadLong(void** iter, long* result) const {
+  DCHECK(iter);
+  if (!*iter)
+    *iter = const_cast<char*>(payload());
+
+  if (!IteratorHasRoomFor(*iter, sizeof(*result)))
+    return false;
+
+  // TODO(jar) bug 1129285: Pickle should be cleaned up, and not dependent on
+  // alignment.
+  memcpy(result, *iter, sizeof(*result));
+
+  UpdateIter(iter, sizeof(*result));
+  return true;
+}
+
 bool Pickle::ReadLength(void** iter, int* result) const {
   if (!ReadInt(iter, result))
     return false;

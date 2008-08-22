@@ -158,6 +158,20 @@ struct ParamTraits<int> {
 };
 
 template <>
+struct ParamTraits<long> {
+  typedef long param_type;
+  static void Write(Message* m, const param_type& p) {
+    m->WriteLong(p);
+  }
+  static bool Read(const Message* m, void** iter, param_type* r) {
+    return m->ReadLong(iter, r);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(StringPrintf(L"%l", p));
+  }
+};
+
+template <>
 struct ParamTraits<size_t> {
   typedef size_t param_type;
   static void Write(Message* m, const param_type& p) {

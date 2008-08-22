@@ -90,6 +90,7 @@ class Pickle {
   // be extracted.
   bool ReadBool(void** iter, bool* result) const;
   bool ReadInt(void** iter, int* result) const;
+  bool ReadLong(void** iter, long* result) const;
   bool ReadSize(void** iter, size_t* result) const;
   bool ReadInt64(void** iter, int64* result) const;
   bool ReadIntPtr(void** iter, intptr_t* result) const;
@@ -110,6 +111,9 @@ class Pickle {
     return WriteInt(value ? 1 : 0);
   }
   bool WriteInt(int value) {
+    return WriteBytes(&value, sizeof(value));
+  }
+  bool WriteLong(long value) {
     return WriteBytes(&value, sizeof(value));
   }
   bool WriteSize(size_t value) {
