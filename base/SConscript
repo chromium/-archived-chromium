@@ -245,6 +245,7 @@ if env['PLATFORM'] == 'win32':
 test_files = [
     'at_exit_unittest.cc',
     'command_line_unittest.cc',
+    'condition_variable_test.cc',
     'json_reader_unittest.cc',
     'json_writer_unittest.cc',
     'linked_ptr_unittest.cc',
@@ -278,7 +279,6 @@ if env['PLATFORM'] == 'win32':
 
   test_files.extend([
     'clipboard_unittest.cc',
-    'condition_variable_test.cc',
     'file_util_unittest.cc',
     'idletimer_unittest.cc',
     'hmac_unittest.cc',
