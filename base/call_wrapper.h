@@ -30,41 +30,46 @@
 #ifndef BASE_CALL_WRAPPER_H_
 #define BASE_CALL_WRAPPER_H_
 
-// WARNING: This is currently in competition with Task related callbacks, see
-//          task.h, you should maybe be using those interfaces instead.
+// NOTE: If you want a callback that takes at-call-time parameters, you should
+// use Callback (see task.h).  CallWrapper only supports creation-time binding.
 //
 // A function / method call invocation wrapper.  This creates a "closure" of
 // sorts, storing a function pointer (or method pointer), along with a possible
 // list of arguments.  The objects have a single method Run(), which will call
-// the function / method with the arguments unpacked.  Memory is automatically
-// managed, a Wrapper is only good for 1 Run(), and will delete itself after.
+// the function / method with the arguments unpacked.  The arguments to the
+// wrapped call are supplied at CallWrapper creation time, and no arguments can
+// be supplied to the Run() method.
 //
 // All wrappers should be constructed through the two factory methods:
 //   CallWrapper* NewFunctionCallWrapper(funcptr, ...);
 //   CallWrapper* NewMethodCallWrapper(obj, &Klass::Method, ...);
 //
-// The arguments are copied by value, and kept within the CallWrapper object.
-// The parameters should be simple types, or pointers to more complex types.
-// The copied parameters will be automatically destroyed, but any pointers,
-// or other objects that need to be managed should be managed by the callback.
-// If your Run method does custom cleanup, and Run is never called, this could
-// of course leak that manually managed memory.
+// The classes memory should be managed like any other dynamically allocated
+// object, and deleted when no longer in use.  It is of course wrong to destroy
+// the object while a Run() is in progress, or to call Run() after the object
+// has been destroyed.  Arguments are copied by value, and kept within the
+// CallWrapper object.  You should only pass-by-value simple parameters, or
+// pointers to more complex types.  If your parameters need custom memory
+// management, then you should probably do this at the same point you destroy
+// the CallWrapper.  You should be aware of how your CallWrapper is used, and
+// it is valid for Run() to be called 0 or more times.
 //
 // Some example usage:
 //   CallWrapper* wrapper = NewFunctionCallWrapper(&my_func);
-//   wrapper->Run();  // my_func(); delete wrapper;
-//   // wrapper is no longer valid.
+//   wrapper->Run();  // my_func();
+//   delete wrapper;
 //
-//   CallWrapper* wrapper = NewFunctionCallWrapper(&my_func, 10);
-//   wrapper->Run();  // my_func(10); delete wrapper;
-//   // wrapper is no longer valid.
+//   scoped_ptr<CallWrapper> wrapper(NewFunctionCallWrapper(&my_func, 10));
+//   wrapper->Run();  // my_func(10);
 //
 //   MyObject obj;
-//   CallWrapper* wrapper = NewMethodCallWrapper(&obj, &MyObject::Foo, 1, 2);
-//   wrapper->Run();  // obj->Foo(1, 2); delete wrapper;
-//   // wrapper is no longer valid.
+//   scoped_ptr<CallWrapper> wrapper(
+//      NewMethodCallWrapper(&obj, &MyObject::Foo, 1, 2));
+//   wrapper->Run();  // obj->Foo(1, 2);
 
 #include "base/tuple.h"
+
+namespace base {
 
 class CallWrapper {
  public:
@@ -82,7 +87,6 @@ class FunctionCallWrapper : public CallWrapper {
       : func_(func), params_(params) { }
   virtual void Run() {
     DispatchToFunction(func_, params_);
-    delete this;
   }
  private:
   FuncType func_;
@@ -98,7 +102,6 @@ class MethodCallWrapper : public CallWrapper {
       : obj_(obj), meth_(meth), params_(params) { }
   virtual void Run() {
     DispatchToMethod(obj_, meth_, params_);
-    delete this;
   }
  private:
   ObjType* obj_;
@@ -230,5 +233,7 @@ inline CallWrapper* NewMethodCallWrapper(ObjType* obj, MethType meth,
   return new MethodCallWrapper<ObjType, MethType, TupleType>(
       obj, meth, MakeTuple(arg0, arg1, arg2, arg3, arg4));
 }
+
+}  // namespace base
 
 #endif  // BASE_CALL_WRAPPER_H_

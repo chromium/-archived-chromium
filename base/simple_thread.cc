@@ -75,8 +75,4 @@ void CallWrapperSimpleThread::Run() {
   wrapper_ = NULL;
 }
 
-CallWrapperSimpleThread::~CallWrapperSimpleThread() {
-  DCHECK(!wrapper_) << "CallWrapper was never released.";
-}
-
 }  // namespace base

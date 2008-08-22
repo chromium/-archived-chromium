@@ -43,14 +43,15 @@
 // NOTE: You *MUST* call Join on the thread to clean up the underlying thread
 // resources.  You are also responsible for destructing the SimpleThread object.
 // It is invalid to destroy a SimpleThread while it is running, or without
-// Start() having been called (and a thread never created).
+// Start() having been called (and a thread never created).  The CallWrapper
+// object should live as long as a CallWrapperSimpleThread.
 //
 // Thread Safety: A SimpleThread is not completely thread safe.  It is safe to
 // access it from the creating thread or from the newly created thread.  This
 // implies that the creator thread should be the thread that calls Join.
 //
 // Example:
-//   CallWrapper* wrapper = NewMethodCallWrapper(obj, &Foo::Main);
+//   scoped_ptr<CallWrapper> wrapper(NewMethodCallWrapper(obj, &Foo::Main));
 //   scoped_ptr<SimpleThread> thread(new CallWrapperSimpleThread(wrapper));
 //   thread->Start();
 //   // Start will return after the Thread has been successfully started and
@@ -58,7 +59,7 @@
 //   // until it returns.  The CallWrapper will then delete itself.
 //   thread->Join();  // Wait until the thread has exited.  You MUST Join!
 //   // The SimpleThread object is still valid, however you may not call Join
-//   // or Start again.  In this example the scoper will destroy the object.
+//   // or Start again.  In this example the scopers will destroy the objects.
 
 #ifndef BASE_SIMPLE_THREAD_H_
 #define BASE_SIMPLE_THREAD_H_
@@ -69,9 +70,9 @@
 #include "base/waitable_event.h"
 #include "base/platform_thread.h"
 
-class CallWrapper;
-
 namespace base {
+
+class CallWrapper;
 
 // This is the base SimpleThread.  You can derive from it and implement the
 // virtual Run method, or you can use the CallWrapperSimpleThread interface.
@@ -151,7 +152,7 @@ class CallWrapperSimpleThread : public SimpleThread {
                           const std::string& name_prefix)
       : SimpleThread(options, name_prefix), wrapper_(wrapper) { }
 
-  virtual ~CallWrapperSimpleThread();
+  virtual ~CallWrapperSimpleThread() { }
   virtual void Run();
  private:
   CallWrapper* wrapper_;

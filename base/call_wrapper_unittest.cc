@@ -28,6 +28,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "base/call_wrapper.h"
+#include "base/scoped_ptr.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -59,34 +60,44 @@ TEST(CallWrapperTest, FunctionCall) {
   // Function call with 0 arguments.
   {
     EXPECT_EQ(0, global_int);
-    CallWrapper* wrapper = NewFunctionCallWrapper(SetGlobalInt5);
+    scoped_ptr<base::CallWrapper> wrapper(
+        base::NewFunctionCallWrapper(&SetGlobalInt5));
 
     EXPECT_EQ(0, global_int);
+    wrapper->Run();
+    EXPECT_EQ(5, global_int);
+
+    global_int = 0;
     wrapper->Run();
     EXPECT_EQ(5, global_int);
   }
   // Function call with 1 argument.
   {
     EXPECT_EQ(5, global_int);
-    CallWrapper* wrapper = NewFunctionCallWrapper(SetGlobalInt, 0);
+    scoped_ptr<base::CallWrapper> wrapper(
+        base::NewFunctionCallWrapper(&SetGlobalInt, 0));
 
     EXPECT_EQ(5, global_int);
+    wrapper->Run();
+    EXPECT_EQ(0, global_int);
+
+    global_int = 5;
     wrapper->Run();
     EXPECT_EQ(0, global_int);
   }
   // Function call with 2 arguments.
   {
     int stack_int = 4;
-    CallWrapper* wrapper;
+    scoped_ptr<base::CallWrapper> wrapper;
 
-    wrapper = NewFunctionCallWrapper(SetInt, &global_int, 8);
+    wrapper.reset(base::NewFunctionCallWrapper(&SetInt, &global_int, 8));
     EXPECT_EQ(4, stack_int);
     EXPECT_EQ(0, global_int);
     wrapper->Run();
     EXPECT_EQ(4, stack_int);
     EXPECT_EQ(8, global_int);
 
-    wrapper = NewFunctionCallWrapper(SetInt, &stack_int, 8);
+    wrapper.reset(base::NewFunctionCallWrapper(&SetInt, &stack_int, 8));
     EXPECT_EQ(4, stack_int);
     EXPECT_EQ(8, global_int);
     wrapper->Run();
@@ -96,20 +107,27 @@ TEST(CallWrapperTest, FunctionCall) {
   // Function call with 3-5 arguments.
   {
     int stack_int = 12;
-    CallWrapper* wrapper;
+    scoped_ptr<base::CallWrapper> wrapper;
 
-    wrapper = NewFunctionCallWrapper(SetIntAdd2, &stack_int, 1, 6);
+    wrapper.reset(
+        base::NewFunctionCallWrapper(&SetIntAdd2, &stack_int, 1, 6));
     EXPECT_EQ(12, stack_int);
     wrapper->Run();
     EXPECT_EQ(7, stack_int);
 
-    wrapper = NewFunctionCallWrapper(SetIntAdd3, &stack_int, 1, 6, 2);
+    wrapper.reset(
+        base::NewFunctionCallWrapper(&SetIntAdd3, &stack_int, 1, 6, 2));
     EXPECT_EQ(7, stack_int);
     wrapper->Run();
     EXPECT_EQ(9, stack_int);
 
-    wrapper = NewFunctionCallWrapper(SetIntAdd4, &stack_int, 1, 6, 2, 3);
+    wrapper.reset(
+        base::NewFunctionCallWrapper(&SetIntAdd4, &stack_int, 1, 6, 2, 3));
     EXPECT_EQ(9, stack_int);
+    wrapper->Run();
+    EXPECT_EQ(12, stack_int);
+
+    global_int = 2;
     wrapper->Run();
     EXPECT_EQ(12, stack_int);
   }
@@ -136,36 +154,50 @@ TEST(CallWrapperTest, MethodCall) {
   {
     int stack_int = 0;
     Incrementer incr(&stack_int);
-    CallWrapper* wrapper;
+    scoped_ptr<base::CallWrapper> wrapper;
 
-    wrapper = NewMethodCallWrapper(&incr, &Incrementer::Increment);
+    wrapper.reset(
+        base::NewMethodCallWrapper(&incr, &Incrementer::Increment));
     EXPECT_EQ(0, stack_int);
     wrapper->Run();
     EXPECT_EQ(1, stack_int);
 
-    wrapper = NewMethodCallWrapper(&incr, &Incrementer::IncrementBy, 10);
+    wrapper.reset(
+        base::NewMethodCallWrapper(&incr, &Incrementer::IncrementBy, 10));
     EXPECT_EQ(1, stack_int);
     wrapper->Run();
     EXPECT_EQ(11, stack_int);
+    wrapper->Run();
+    EXPECT_EQ(21, stack_int);
+    wrapper->Run();
+    EXPECT_EQ(31, stack_int);
   }
   // Method call with 2-5 arguments.
   {
     int stack_int = 0;
     Incrementer incr(&stack_int);
-    CallWrapper* wrapper;
+    scoped_ptr<base::CallWrapper> wrapper;
 
-    wrapper = NewMethodCallWrapper(&incr, &Incrementer::SetIntAdd2, 1, 5);
+    wrapper.reset(
+        base::NewMethodCallWrapper(&incr, &Incrementer::SetIntAdd2, 1, 5));
     EXPECT_EQ(0, stack_int);
     wrapper->Run();
     EXPECT_EQ(6, stack_int);
 
-    wrapper = NewMethodCallWrapper(&incr, &Incrementer::SetIntAdd3, 1, 5, 7);
+    wrapper.reset(
+        base::NewMethodCallWrapper(&incr, &Incrementer::SetIntAdd3, 1, 5, 7));
     EXPECT_EQ(6, stack_int);
     wrapper->Run();
     EXPECT_EQ(13, stack_int);
 
-    wrapper = NewMethodCallWrapper(&incr, &Incrementer::SetIntAdd4, 1, 5, 7, 2);
+    wrapper.reset(
+        base::NewMethodCallWrapper(&incr,
+                                   &Incrementer::SetIntAdd4, 1, 5, 7, 2));
     EXPECT_EQ(13, stack_int);
+    wrapper->Run();
+    EXPECT_EQ(15, stack_int);
+
+    stack_int = 2;
     wrapper->Run();
     EXPECT_EQ(15, stack_int);
   }

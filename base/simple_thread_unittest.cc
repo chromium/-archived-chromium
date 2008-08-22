@@ -53,10 +53,11 @@ void SignalEvent(base::WaitableEvent* event) {
 TEST(SimpleThreadTest, CreateAndJoin) {
   int stack_int = 0;
 
-  CallWrapper* wrapper = NewFunctionCallWrapper(SetInt, &stack_int, 7);
+  scoped_ptr<base::CallWrapper> wrapper(
+      base::NewFunctionCallWrapper(SetInt, &stack_int, 7));
   EXPECT_EQ(0, stack_int);
   scoped_ptr<base::SimpleThread> thread(
-      new base::CallWrapperSimpleThread(wrapper));
+      new base::CallWrapperSimpleThread(wrapper.get()));
   EXPECT_FALSE(thread->HasBeenStarted());
   EXPECT_FALSE(thread->HasBeenJoined());
   EXPECT_EQ(0, stack_int);
@@ -75,8 +76,10 @@ TEST(SimpleThreadTest, WaitForEvent) {
   // Create a thread, and wait for it to signal us.
   base::WaitableEvent event(true, false);
 
-  scoped_ptr<base::SimpleThread> thread(new base::CallWrapperSimpleThread(
-      NewFunctionCallWrapper(SignalEvent, &event)));
+  scoped_ptr<base::CallWrapper> wrapper(
+      base::NewFunctionCallWrapper(SignalEvent, &event));
+  scoped_ptr<base::SimpleThread> thread(
+      new base::CallWrapperSimpleThread(wrapper.get()));
 
   EXPECT_FALSE(event.IsSignaled());
   thread->Start();
@@ -89,8 +92,10 @@ TEST(SimpleThreadTest, Named) {
   base::WaitableEvent event(true, false);
 
   base::SimpleThread::Options options;
+  scoped_ptr<base::CallWrapper> wrapper(
+      base::NewFunctionCallWrapper(SignalEvent, &event));
   scoped_ptr<base::SimpleThread> thread(new base::CallWrapperSimpleThread(
-      NewFunctionCallWrapper(SignalEvent, &event), options, "testy"));
+      wrapper.get(), options, "testy"));
   EXPECT_EQ(thread->name_prefix(), "testy");
   EXPECT_FALSE(event.IsSignaled());
 
