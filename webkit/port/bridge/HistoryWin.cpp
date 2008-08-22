@@ -41,7 +41,7 @@ bool historyContains(const UChar* characters, unsigned length,
   // check the document's DNS prefetch settings and pass up to the renderer
   CString document_host = document->securityOrigin()->host().utf8();
   return webkit_glue::HistoryContains(
-      reinterpret_cast<const wchar_t*>(characters), length, 
+      reinterpret_cast<const char16*>(characters), length, 
       document_host.data(), document_host.length(),
       document->isDNSPrefetchEnabled());
 }
