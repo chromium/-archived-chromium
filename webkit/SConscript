@@ -40,6 +40,13 @@ port_dir = env.Dir('#/$BUILD_TYPE/webkit/port')
 port_dir.addRepository(env.Dir('#/../webkit/port'))
 port_dir.addRepository(env.Dir('#/../third_party/WebKit/WebCore'))
 
+if env['PLATFORM'] == 'posix':
+  env.Append(
+      CCFLAGS = [
+          '-Wno-parentheses',
+      ]
+  )
+
 env.Prepend(
     CPPPATH = [
         '$WEBKIT_DIR/build/localized_strings',
