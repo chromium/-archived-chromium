@@ -31,32 +31,32 @@
 
 #include <windows.h>
 
+#include "base/logging.h"
 #include "base/scoped_handle.h"
 #include "base/file_util.h"
 
 namespace {
 
 // Deletes all the files on path that match search_name pattern.
-// Do not call this function with "*" as search_name.
-bool DeleteFiles(const wchar_t* path, const wchar_t* search_name) {
+void DeleteFiles(const wchar_t* path, const wchar_t* search_name) {
   std::wstring name(path);
   file_util::AppendToPath(&name, search_name);
 
   WIN32_FIND_DATA data;
   ScopedFindFileHandle handle(FindFirstFile(name.c_str(), &data));
-  if (!handle.IsValid()) {
-    DWORD error = GetLastError();
-    return ERROR_FILE_NOT_FOUND == error;
-  }
+  if (!handle.IsValid())
+    return;
+
   std::wstring adjusted_path(path);
   adjusted_path += L'\\';
   do {
+    if (data.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY ||
+        data.dwFileAttributes == FILE_ATTRIBUTE_REPARSE_POINT)
+      continue;
     std::wstring current(adjusted_path);
     current += data.cFileName;
-    if (!DeleteFile(current.c_str()))
-      return false;
+    DeleteFile(current.c_str());
   } while (FindNextFile(handle, &data));
-  return true;
 }
 
 }  // namespace
@@ -90,17 +90,15 @@ int64 GetSystemMemory() {
 bool MoveCache(const std::wstring& from_path, const std::wstring& to_path) {
   // I don't want to use the shell version of move because if something goes
   // wrong, that version will attempt to move file by file and fail at the end.
-  return MoveFileEx(from_path.c_str(), to_path.c_str(), 0) != FALSE;
+  if (!MoveFileEx(from_path.c_str(), to_path.c_str(), 0)) {
+    LOG(ERROR) << "Unable to move the cache: " << GetLastError();
+    return false;
+  }
+  return true;
 }
 
 void DeleteCache(const std::wstring& path, bool remove_folder) {
-  DeleteFiles(path.c_str(), L"f_*");
-  DeleteFiles(path.c_str(), L"data_*");
-
-  std::wstring index(path);
-  file_util::AppendToPath(&index, L"index");
-  DeleteFile(index.c_str());
-
+  DeleteFiles(path.c_str(), L"*");
   if (remove_folder)
     RemoveDirectory(path.c_str());
 }
