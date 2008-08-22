@@ -98,6 +98,7 @@ input_files = [
     'url_request/url_request_job_metrics.cc',
     'url_request/url_request_job_tracker.cc',
     'url_request/url_request_simple_job.cc',
+    'url_request/url_request_test_job.cc',
     'url_request/url_request_view_cache_job.cc',
 ]
 
@@ -130,7 +131,6 @@ if env['PLATFORM'] == 'win32':
       'url_request/url_request_ftp_job.cc',
       'url_request/url_request_inet_job.cc',
       'url_request/url_request_job_manager.cc',
-      'url_request/url_request_test_job.cc',
   ])
 
 if env['PLATFORM'] == 'win32':

@@ -75,9 +75,9 @@ URLRequestJob* URLRequestTestJob::Factory(URLRequest* request,
 URLRequestTestJob::URLRequestTestJob(URLRequest* request)
     : URLRequestJob(request),
       stage_(WAITING),
+      offset_(0),
       async_buf_(NULL),
-      async_buf_size_(0),
-      offset_(0) {
+      async_buf_size_(0) {
 }
 
 // Force the response to set a reasonable MIME type
