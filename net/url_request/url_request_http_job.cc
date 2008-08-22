@@ -29,6 +29,7 @@
 
 #include "net/url_request/url_request_http_job.h"
 
+#include "base/compiler_specific.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "net/base/cookie_monster.h"
@@ -41,8 +42,6 @@
 #include "net/url_request/url_request_error_job.h"
 
 // TODO(darin): make sure the port blocking code is not lost
-
-#pragma warning(disable: 4355)
 
 // static
 URLRequestJob* URLRequestHttpJob::Factory(URLRequest* request,
@@ -67,8 +66,10 @@ URLRequestHttpJob::URLRequestHttpJob(URLRequest* request)
       response_info_(NULL),
       proxy_auth_state_(net::AUTH_STATE_DONT_NEED_AUTH),
       server_auth_state_(net::AUTH_STATE_DONT_NEED_AUTH),
-      start_callback_(this, &URLRequestHttpJob::OnStartCompleted),
-      read_callback_(this, &URLRequestHttpJob::OnReadCompleted),
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          start_callback_(this, &URLRequestHttpJob::OnStartCompleted)),
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          read_callback_(this, &URLRequestHttpJob::OnReadCompleted)),
       read_in_progress_(false),
       context_(request->context()) {
 }

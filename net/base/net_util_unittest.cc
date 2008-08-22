@@ -570,8 +570,8 @@ TEST(NetUtilTest, IDNToUnicode) {
 #endif
   };
 
-  for (int i = 0; i < ARRAYSIZE_UNSAFE(idn_cases); i++) {
-    for (int j = 0; j < arraysize(kLanguages); j++) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(idn_cases); i++) {
+    for (size_t j = 0; j < arraysize(kLanguages); j++) {
       std::wstring output;
       net::IDNToUnicode(idn_cases[i].input,
                         static_cast<int>(strlen(idn_cases[i].input)),
@@ -682,7 +682,7 @@ TEST(NetUtilTest, GetSuggestedFilename) {
      L"",
      L"test.html"},
   };
-  for (int i = 0; i < ARRAYSIZE_UNSAFE(test_cases); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(test_cases); ++i) {
     std::wstring filename = net::GetSuggestedFilename(
         GURL(test_cases[i].url), test_cases[i].content_disp_header,
         test_cases[i].default_filename);

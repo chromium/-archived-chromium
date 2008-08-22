@@ -3,7 +3,7 @@ deps = {
     "http://google-breakpad.googlecode.com/svn/trunk/src@281",
 
   "src/googleurl":
-    "http://google-url.googlecode.com/svn/trunk@91",
+    "http://google-url.googlecode.com/svn/trunk@92",
 
   "src/testing/gtest":
     "http://googletest.googlecode.com/svn/trunk@63",
@@ -12,7 +12,7 @@ deps = {
     "svn://chrome-svn/chrome/trunk/third_party/WebKit@19",
 
   "src/third_party/icu38":
-    "svn://chrome-svn/chrome/trunk/deps/third_party/icu38@1010",
+    "svn://chrome-svn/chrome/trunk/deps/third_party/icu38@1197",
 
   "src/v8":
     "https://svn/r/googleclient/v8/trunk@130945",

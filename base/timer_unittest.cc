@@ -249,9 +249,9 @@ TEST(TimerTest, BrokenTimerCase) {
 TEST(TimerTest, DeleteFromRun) {
   // Make sure TimerManager correctly handles a Task that deletes itself when
   // run.
-  DeletingTask* deleting_task1 = new DeletingTask(50, true);
+  new DeletingTask(50, true);
   TimerTask timer_task(150, false);
-  DeletingTask* deleting_task2 = new DeletingTask(250, true);
+  new DeletingTask(250, true);
   TimerTask::RunTimers();
   EXPECT_EQ(1, timer_task.iterations());
 }
@@ -326,7 +326,7 @@ TEST(TimerTest, FifoOrder) {
   MockTimerManager manager;
   const int kNumTimers = 1024;
   for (int i=0; i < kNumTimers; i++)
-    Timer* timer = manager.StartTimer(0, NULL, false);
+    manager.StartTimer(0, NULL, false);
 
   int last_id = -1;
   int new_id = 0;
