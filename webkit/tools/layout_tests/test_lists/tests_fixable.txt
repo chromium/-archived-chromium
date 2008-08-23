@@ -24,6 +24,10 @@ V8 # LayoutTests/svg/W3C-SVG-1.1/interact-cursor-01-f.svg = PASS | FAIL
 V8 # LayoutTests/tables/mozilla/bugs/bug27038-3.html = PASS | FAIL
 V8 # pending/svg/carto.net/window.svg = PASS | FAIL
 
+# Bug 1341452
+V8 # LayoutTests/fast/text/midword-break-hang.html = PASS | FAIL
+V8 # LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = PASS | FAIL
+
 
 // -----------------------------------------------------------------
 // HANGING TESTS
@@ -146,6 +150,9 @@ V8 | KJS # DEFER : LayoutTests/fast/events/standalone-image-drag-to-editable.htm
 
 // Bug 1187672.  Two font faces should be identical but aren't.  Punting SVG.
 V8 | KJS # DEFER : LayoutTests/svg/custom/font-face-simple.svg = FAIL
+
+// BUG 1341452.
+KJS # LayoutTests/fast/text/line-breaks.html = FAIL
 
 // -----------------------------------------------------------------
 // URL
