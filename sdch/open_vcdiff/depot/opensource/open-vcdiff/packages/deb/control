@@ -1,0 +1,22 @@
+Source: open-vcdiff
+Priority: optional
+Maintainer: Google Inc. <opensource@google.com>
+Build-Depends: debhelper (>= 4.0.0), binutils
+Standards-Version: 3.6.1
+
+Package: libopen-vcdiff-dev
+Section: libdevel
+Architecture: any
+Depends: libopen-vcdiff (= ${Source-Version})
+Description: A library that provides an encoder and decoder for the VCDIFF
+(RFC 3284) format.  Please see http://www.ietf.org/rfc/rfc3284.txt .
+The devel package contains static and debug libraries and header files
+for developing applications that use the open-vcdiff package.
+
+Package: libopen-vcdiff0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: A library that provides an encoder and decoder for the VCDIFF
+(RFC 3284) format.  Please see http://www.ietf.org/rfc/rfc3284.txt .
+

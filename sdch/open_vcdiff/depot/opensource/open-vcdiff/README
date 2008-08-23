@@ -1,0 +1,43 @@
+open-vcdiff is an encoder and decoder for the VCDIFF format, as described in
+RFC 3284 : The VCDIFF Generic Differencing and Compression Data Format
+(http://www.ietf.org/rfc/rfc3284.txt)
+A library with a simple API is included, as well as a command-line executable
+that can apply the encoder and decoder to source, target, and delta files.
+For further details, please refer to:
+http://code.google.com/p/open-vcdiff/wiki/HowToUseOpenVcdiff
+
+See INSTALL for (generic) installation instructions for C++: basically
+   ./configure && make && make install
+
+This should compile the unit tests as well as "vcdiff", a simple command-line
+utility to run the encoder and decoder.  Typical usage of vcdiff is as follows
+(the "<" and ">" are file redirect operations, not optional arguments):
+   vcdiff encode -dictionary file.dict < target_file > delta_file
+   vcdiff decode -dictionary file.dict < delta_file > target_file
+To see the command-line syntax of vcdiff, use "vcdiff --help" or just "vcdiff".
+
+To call the encoder from C++ code, assuming that dictionary, target, and delta
+are all std::string objects:
+#include <google/vcencoder.h>  // Read this file for interface details
+[...]
+  open_vcdiff::VCDiffEncoder encoder(dictionary.data(), dictionary.size());
+  encoder.SetFormatFlags(open_vcdiff::VCD_FORMAT_INTERLEAVED);
+  encoder.Encode(target.data(), target.size(), &delta);
+
+Calling the decoder is just as simple:
+#include <google/vcdecoder.h>  // Read this file for interface details
+[...]
+  open_vcdiff::VCDiffDecoder decoder;
+  decoder.Decode(dictionary.data(), dictionary.size(), delta, &target);
+
+When using the encoder, the C++ application must be linked with the library
+options -lvcdcom and -lvcdenc; when using the decoder, it must be linked with
+-lvcdcom and -lvcddec.
+
+To verify that the package works on your system, especially after making
+modifications to the source code, please run the unit tests using
+   make check
+
+For further details, please refer to:
+http://code.google.com/p/open-vcdiff/wiki/HowToUseOpenVcdiff
+
