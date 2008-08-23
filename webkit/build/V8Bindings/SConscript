@@ -52,7 +52,7 @@ else:
   # We need to include the parts of icu that we want here:
   env.Append(
     CPPPATH = [
-      '$ICU38_DIR/public/',
+      '$ICU38_DIR/public/common',
       ])
 
 if env['PLATFORM'] == 'posix':

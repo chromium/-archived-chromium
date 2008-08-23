@@ -45,7 +45,7 @@
 
 #if defined(OS_LINUX)
 // Use the platform.h for linux.
-#include "common/unicode/plinux.h"
+#include "unicode/plinux.h"
 #elif defined(OS_WIN) || defined(OS_MACOSX)
 // WebKit ships a hacked up version of one of the ICU header files, with all
 // options set for OSX.
