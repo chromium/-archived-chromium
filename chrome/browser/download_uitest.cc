@@ -183,6 +183,10 @@ TEST_F(DownloadTest, DownloadMimeType) {
   NavigateToURL(URLRequestMockHTTPJob::GetMockUrl(file));
   // No new tabs created, downloads appear in the current tab's download shelf.
   WaitUntilTabCount(1);
+
+  // Wait until the file is downloaded.
+  Sleep(1000);
+
   CleanUpDownload(file);
 
   scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
@@ -205,6 +209,9 @@ TEST_F(DownloadTest, NoDownload) {
   NavigateToURL(URLRequestMockHTTPJob::GetMockUrl(file));
   WaitUntilTabCount(1);
 
+  // Wait to see if the file will be downloaded.
+  Sleep(1000);
+
   EXPECT_FALSE(file_util::PathExists(file_path));
   if (file_util::PathExists(file_path))
     ASSERT_TRUE(file_util::Delete(file_path, false));
@@ -226,6 +233,9 @@ TEST_F(DownloadTest, ContentDisposition) {
 
   NavigateToURL(URLRequestMockHTTPJob::GetMockUrl(file));
   WaitUntilTabCount(1);
+
+  // Wait until the file is downloaded.
+  Sleep(1000);
 
   CleanUpDownload(download_file, file);
 
