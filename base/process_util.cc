@@ -33,6 +33,7 @@
 #include <winternl.h>
 #include <psapi.h>
 
+#include "base/histogram.h"
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
 
@@ -201,6 +202,34 @@ bool DidProcessCrash(ProcessHandle handle) {
   }
 
   // All other exit codes indicate crashes.
+
+  // TODO(jar): Remove histogramming code when UMA stats are consistent with
+  // other crash metrics.
+  // Histogram the low order 3 nibbles for UMA
+  const int kLeastValue = 0;
+  const int kMaxValue = 0xFFF;
+  const int kBucketCount = kMaxValue - kLeastValue + 1;
+  static LinearHistogram least_significant_histogram(L"ExitCodes.LSNibbles",
+      kLeastValue + 1, kMaxValue, kBucketCount);
+  least_significant_histogram.SetFlags(kUmaTargetedHistogramFlag |
+                                       LinearHistogram::kHexRangePrintingFlag);
+  least_significant_histogram.Add(exitcode & 0xFFF);
+
+  // Histogram the high order 3 nibbles
+  static LinearHistogram most_significant_histogram(L"ExitCodes.MSNibbles",
+      kLeastValue + 1, kMaxValue, kBucketCount);
+  most_significant_histogram.SetFlags(kUmaTargetedHistogramFlag |
+                                      LinearHistogram::kHexRangePrintingFlag);
+  // Avoid passing in negative numbers by shifting data into low end of dword.
+  most_significant_histogram.Add((exitcode >> 20) & 0xFFF);
+
+  // Histogram the middle order 2 nibbles
+  static LinearHistogram mid_significant_histogram(L"ExitCodes.MidNibbles",
+      1, 0xFF, 0x100);
+  mid_significant_histogram.SetFlags(kUmaTargetedHistogramFlag |
+                                      LinearHistogram::kHexRangePrintingFlag);
+  mid_significant_histogram.Add((exitcode >> 12) & 0xFF);
+
   return true;
 }
 
@@ -377,7 +406,7 @@ void ProcessMetrics::GetCommittedKBytes(CommittedKBytes* usage) {
   while (VirtualQueryEx(process_, base_address, &mbi,
          sizeof(MEMORY_BASIC_INFORMATION)) ==
          sizeof(MEMORY_BASIC_INFORMATION)) {
-      if(mbi.State == MEM_COMMIT) {
+      if (mbi.State == MEM_COMMIT) {
         if (mbi.Type == MEM_PRIVATE) {
           committed_private += mbi.RegionSize;
         } else if (mbi.Type == MEM_MAPPED) {
@@ -406,14 +435,15 @@ bool ProcessMetrics::GetWorkingSetKBytes(WorkingSetKBytes* ws_usage) {
   DWORD number_of_entries = 4096;  // Just a guess.
   PSAPI_WORKING_SET_INFORMATION* buffer = NULL;
   int retries = 5;
-  for(;;) {
+  for (;;) {
     DWORD buffer_size = sizeof(PSAPI_WORKING_SET_INFORMATION) +
                         (number_of_entries * sizeof(PSAPI_WORKING_SET_BLOCK));
 
     // if we can't expand the buffer, don't leak the previous
     // contents or pass a NULL pointer to QueryWorkingSet
-    PSAPI_WORKING_SET_INFORMATION* new_buffer = reinterpret_cast<PSAPI_WORKING_SET_INFORMATION*>(
-        realloc(buffer, buffer_size));
+    PSAPI_WORKING_SET_INFORMATION* new_buffer =
+        reinterpret_cast<PSAPI_WORKING_SET_INFORMATION*>(
+            realloc(buffer, buffer_size));
     if (!new_buffer) {
       free(buffer);
       return false;
