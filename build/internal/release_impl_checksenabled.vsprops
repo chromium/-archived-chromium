@@ -9,6 +9,7 @@
 		Name="VCCLCompilerTool"
 		PreprocessorDefinitions="_DEBUG;_HAS_ITERATOR_DEBUGGING=0;_SECURE_SCL=0"
 		RuntimeLibrary="1"
+		AdditionalOptions="/Oy-"
 	/>
 	<Tool
 		Name="VCLinkerTool"

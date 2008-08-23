@@ -8,6 +8,7 @@
 	<Tool
 		Name="VCCLCompilerTool"
 		PreprocessorDefinitions="NDEBUG;ENABLE_DOM_STATS_COUNTERS"
+		AdditionalOptions="/Oy-"
 	/>
 	<Tool
 		Name="VCLinkerTool"
