@@ -223,6 +223,29 @@ TEST_F(DiskCacheBackendTest, MemoryOnlyKeying) {
   BackendKeying();
 }
 
+TEST_F(DiskCacheBackendTest, ExternalFiles) {
+  InitCache();
+  // First, lets create a file on the folder.
+  std::wstring filename = GetCachePath();
+  file_util::AppendToPath(&filename, L"f_000001");
+
+  const int kDataSize = 50;
+  char data[kDataSize];
+  CacheTestFillBuffer(data, kDataSize, false);
+  ASSERT_EQ(kDataSize, file_util::WriteFile(filename, data, kDataSize));
+
+  // Now let's create a file with the cache.
+  disk_cache::Entry* entry;
+  ASSERT_TRUE(cache_->CreateEntry("key", &entry));
+  ASSERT_EQ(0, entry->WriteData(0, 20000, data, 0, NULL, false));
+  entry->Close();
+
+  // And verify that the first file is still there.
+  char buffer[kDataSize];
+  ASSERT_EQ(kDataSize, file_util::ReadFile(filename, buffer, kDataSize));
+  EXPECT_EQ(0, memcmp(data, buffer, kDataSize));
+}
+
 void DiskCacheBackendTest::BackendSetSize() {
   SetDirectMode();
   const int cache_size = 0x10000;  // 64 kB

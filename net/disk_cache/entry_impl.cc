@@ -331,6 +331,8 @@ int EntryImpl::WriteData(int index, int offset, const char* buf, int buf_len,
     unreported_size_[index] += offset + buf_len - entry_size;
     entry_.Data()->data_size[index] = offset + buf_len;
     entry_.set_modified();
+    if (!buf_len)
+      truncate = true;  // Force file extension.
   } else if (truncate) {
       // If the size was modified inside PrepareTarget, we should not do
       // anything here.

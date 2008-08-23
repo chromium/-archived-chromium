@@ -576,7 +576,7 @@ bool BackendImpl::CreateExternalFile(Addr* address) {
   int file_number = data_->header.last_file + 1;
   Addr file_address(0);
   bool success = false;
-  for (int i = 0; (i < 0x0fffffff) && !success; i++) {
+  for (int i = 0; (i < 0x0fffffff) && !success; i++, file_number++) {
     if (!file_address.SetFileNumber(file_number)) {
       file_number = 1;
       continue;
@@ -584,7 +584,7 @@ bool BackendImpl::CreateExternalFile(Addr* address) {
     std::wstring name = GetFileName(file_address);
     scoped_refptr<disk_cache::File> file(
         new disk_cache::File(CreateOSFile(name.c_str(), OS_FILE_READ |
-            OS_FILE_WRITE |OS_FILE_SHARE_READ | OS_FILE_CREATE_ALWAYS, NULL)));
+            OS_FILE_WRITE |OS_FILE_SHARE_READ | OS_FILE_CREATE, NULL)));
     if (!file->IsValid())
       continue;
 
