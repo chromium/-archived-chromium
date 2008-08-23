@@ -30,7 +30,9 @@
 #include "base/lock_impl.h"
 
 LockImpl::LockImpl() {
-  ::InitializeCriticalSection(&os_lock_);
+  // The second parameter is the spin count, for short-held locks it avoid the
+  // contending thread from going to sleep which helps performance greatly.
+  ::InitializeCriticalSectionAndSpinCount(&os_lock_, 2000);
 }
 
 LockImpl::~LockImpl() {
