@@ -58,8 +58,10 @@
 #pragma warning(pop)
 
 #include "base/clipboard_util.h"
+#include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/glue_util.h"
+#include "webkit/glue/webkit_glue.h"
 
 namespace WebCore {
 
@@ -488,7 +490,20 @@ String ClipboardWin::getData(const String& type, bool& success) const
     ClipboardDataType dataType = clipboardTypeFromMIMEType(type);
     if (dataType == ClipboardDataTypeText) {
         std::wstring text;
-        success = ClipboardUtil::GetPlainText(m_dataObject.get(), &text);
+        if (!isForDragging()) {
+            // If this isn't for a drag, it's for a cut/paste event handler.
+            // In this case, we need to use our glue methods to access the
+            // clipboard contents.
+            webkit_glue::ClipboardReadText(&text);
+            if (text.empty()) {
+                std::string asciiText;
+                webkit_glue::ClipboardReadAsciiText(&asciiText);
+                text = ASCIIToWide(asciiText);
+            }
+            success = !text.empty();
+        } else {
+            success = ClipboardUtil::GetPlainText(m_dataObject.get(), &text);
+        }
         return webkit_glue::StdWStringToString(text);
     } else if (dataType == ClipboardDataTypeURL) {
         std::wstring url;
