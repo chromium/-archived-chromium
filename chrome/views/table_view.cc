@@ -49,8 +49,8 @@ TableView::TableView(TableModel* model,
       autosize_columns_(autosize_columns),
       resizable_columns_(resizable_columns),
       list_view_(NULL),
-      list_view_original_handler_(NULL),
       header_original_handler_(NULL),
+      original_handler_(NULL),
       table_view_wrapper_(this),
       custom_cell_font_(NULL),
       content_offset_(0) {
@@ -393,6 +393,28 @@ bool TableView::GetCellColors(int row,
   return false;
 }
 
+LRESULT CALLBACK TableView::TableWndProc(HWND window,
+                                         UINT message,
+                                         WPARAM w_param,
+                                         LPARAM l_param) {
+  TableView* table_view = reinterpret_cast<TableViewWrapper*>(
+      GetWindowLongPtr(window, GWLP_USERDATA))->table_view;
+
+  switch (message) {
+    case WM_ERASEBKGND:
+      // We make WM_ERASEBKGND do nothing (returning 1 indicates we handled
+      // the request). We do this so that the table view doesn't flicker during
+      // resizing.
+      return 1;
+
+    default:
+      break;
+  }
+  DCHECK(table_view->original_handler_);
+  return CallWindowProc(table_view->original_handler_, window, message, w_param,
+                        l_param);
+}
+
 LRESULT CALLBACK TableView::TableHeaderWndProc(HWND window, UINT message,
                                                WPARAM w_param, LPARAM l_param) {
   TableView* table_view = reinterpret_cast<TableViewWrapper*>(
@@ -511,6 +533,11 @@ HWND TableView::CreateNativeControl(HWND parent_container) {
     header_original_handler_ = win_util::SetWindowProc(header,
         &TableView::TableHeaderWndProc);
   }
+
+  SetWindowLongPtr(list_view_, GWLP_USERDATA,
+      reinterpret_cast<LONG_PTR>(&table_view_wrapper_));
+  original_handler_ =
+      win_util::SetWindowProc(list_view_, &TableView::TableWndProc);
 
   // Bug 964884: detach the IME attached to this window.
   // We should attach IMEs only when we need to input CJK strings.

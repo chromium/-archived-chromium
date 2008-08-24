@@ -416,6 +416,13 @@ class TableView : public NativeControl,
   // The TableColumn visible at position pos.
   const TableColumn& GetColumnAtPosition(int pos);
 
+  // Window procedure of the list view class. We subclass the list view to
+  // ignore WM_ERASEBKGND, which gives smoother painting during resizing.
+  static LRESULT CALLBACK TableWndProc(HWND window,
+                                       UINT message,
+                                       WPARAM w_param,
+                                       LPARAM l_param);
+
   // Window procedure of the header class. We subclass the header of the table
   // to disable resizing of columns.
   static LRESULT CALLBACK TableHeaderWndProc(HWND window, UINT message,
@@ -468,13 +475,12 @@ class TableView : public NativeControl,
   // a wrapper around the List-View window.
   HWND list_view_;
 
-  // The list view original proc handler. It is required when subclassing the
-  // list view.
-  WNDPROC list_view_original_handler_;
-
   // The list view's header original proc handler. It is required when
   // subclassing.
   WNDPROC header_original_handler_;
+
+  // Window procedure of the listview before we subclassed it.
+  WNDPROC original_handler_;
 
   // A wrapper around 'this' used when "subclassing" the list view and header.
   TableViewWrapper table_view_wrapper_;
