@@ -376,6 +376,7 @@ if ARGUMENTS.get('VERBOSE') in (None, '0'):
   env['CXXCOMSTR'] = 'Compiling $TARGET ...'
   env['ARCOMSTR'] = 'Archiving $TARGET ...'
   env['LINKCOMSTR'] = 'Linking $TARGET ...'
+  env['BINDINGSCOMSTR'] = 'Building bindings in $TARGET ...'
 
 
 # Place the .sconsign.dblite in the build directory.

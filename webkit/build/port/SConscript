@@ -114,14 +114,14 @@ def BindingsEmitter(target, source, env):
     env.Depends(new_h, bindings_perl_modules)
   return new_target, source
 
-
 env.Append(
-    BUILDERS = {'Bindings' : Builder(action = '$BINDINGSCOM',
-                                     src_suffix = '.idl',
-                                     emitter = BindingsEmitter,
-                                    ),
-               },
+  BUILDERS = {'Bindings': Builder(
+    action = Action('$BINDINGSCOM', '$BINDINGSCOMSTR'),
+    src_suffix = '.idl',
+    emitter = BindingsEmitter,
+  )},
 )
+
 env.Replace(
     # TODO(bradnelson): don't have the path change here!!!
     # TODO(bradnelson): fix ugly hack with one include!
