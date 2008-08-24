@@ -86,6 +86,10 @@ V8 | KJS # LayoutTests/http/tests/xmlhttprequest/methods-async.html = TIMEOUT
 // even when a request didn't send the header.
 V8 | KJS # LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL
 
+# Bug 1341582
+V8 | KJS # LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL | PASS
+V8 | KJS # LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL | PASS
+ 
 // -----------------------------------------------------------------
 // TEXT
 // -----------------------------------------------------------------
