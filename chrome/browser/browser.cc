@@ -1632,6 +1632,7 @@ void Browser::OpenURLOffTheRecord(Profile* profile, const GURL& url) {
 // static
 std::wstring Browser::ComputePopupTitle(const GURL& url,
                                         const std::wstring& title) {
+  DCHECK(!g_browser_process->IsUsingNewFrames());
   std::wstring result(title);
   FormatTitleForDisplay(&result);
   return result;
@@ -1655,8 +1656,10 @@ void Browser::ConvertToTabbedBrowser() {
 void Browser::BuildPopupWindow(TabContents* source,
                                TabContents* new_contents,
                                const gfx::Rect& initial_pos) {
-  Browser* browser = new Browser(initial_pos, SW_SHOWNORMAL, profile_,
-                                 BrowserType::BROWSER, std::wstring());
+  BrowserType::Type type =
+      type_ == BrowserType::APPLICATION ? type_ : BrowserType::BROWSER;
+  Browser* browser = new Browser(initial_pos, SW_SHOWNORMAL, profile_, type,
+                                 std::wstring());
   browser->AddNewContents(source, new_contents,
                           NEW_FOREGROUND_TAB, gfx::Rect(), true);
 

@@ -2,13 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/browser/views/tab_icon_view.h"
+
+#include "base/file_util.h"
+#include "base/path_service.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/favicon_size.h"
 #include "chrome/common/gfx/icon_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/browser/tab_contents.h"
-#include "chrome/browser/views/tab_icon_view.h"
 #include "chrome/app/chrome_dll_resource.h"
 
 static bool g_initialized = false;
@@ -21,7 +24,17 @@ static int g_throbber_frame_count;
 void TabIconView::InitializeIfNeeded() {
   if (!g_initialized) {
     ResourceBundle &rb = ResourceBundle::GetSharedInstance();
-    g_default_fav_icon = rb.GetBitmapNamed(IDR_DEFAULT_FAVICON);
+
+    // The default window icon is the application icon, not the default
+    // favicon.
+    std::wstring exe_path;
+    PathService::Get(base::DIR_EXE, &exe_path);
+    file_util::AppendToPath(&exe_path, L"chrome.exe");
+    HICON app_icon = ExtractIcon(NULL, exe_path.c_str(), 0);
+    g_default_fav_icon =
+        IconUtil::CreateSkBitmapFromHICON(app_icon, gfx::Size(16, 16));
+    DestroyIcon(app_icon);
+
     g_throbber_frames = rb.GetBitmapNamed(IDR_THROBBER);
     g_throbber_frames_light = rb.GetBitmapNamed(IDR_THROBBER_LIGHT);
     g_throbber_frame_count = g_throbber_frames->width() /

@@ -519,12 +519,8 @@ bool BrowserView2::ShouldShowWindowTitle() const {
 }
 
 SkBitmap BrowserView2::GetWindowIcon() {
-  if (browser_->GetType() == BrowserType::APPLICATION) {
-    SkBitmap favicon = browser_->GetCurrentPageIcon();
-    if (favicon.isNull())
-      return default_favicon_;
-    return favicon;
-  }
+  if (browser_->GetType() == BrowserType::APPLICATION)
+    return browser_->GetCurrentPageIcon();
   return SkBitmap();
 }
 
