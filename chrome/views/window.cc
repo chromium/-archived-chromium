@@ -336,7 +336,6 @@ void Window::OnCommand(UINT notification_code, int command_id, HWND window) {
 void Window::OnDestroy() {
   if (window_delegate_) {
     window_delegate_->WindowClosing();
-    window_delegate_->window_.release();
     window_delegate_ = NULL;
   }
   RestoreEnabledIfNecessary();
