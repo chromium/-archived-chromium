@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <windows.h>
+
 #include "chrome/browser/views/tab_icon_view.h"
 
 #include "base/file_util.h"
