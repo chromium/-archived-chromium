@@ -496,7 +496,7 @@ class HistoryService : public CancelableRequestProvider,
   Handle ScheduleDBTask(HistoryDBTask* task,
                         CancelableRequestConsumerBase* consumer);
 
-  typedef Callback1<Handle>::Type EmptyHistoryCallback;
+  typedef Callback0::Type EmptyHistoryCallback;
 
   // Schedules a task that does nothing on the backend. This can be used to get
   // notification when then history backend is done processing requests.

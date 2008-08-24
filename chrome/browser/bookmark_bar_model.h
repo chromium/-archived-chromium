@@ -301,7 +301,7 @@ class BookmarkBarModel : public NotificationObserver {
   // Callback from history that it is done with an empty request. This is used
   // if there is no bookmarks file. Once done, we attempt to load from the
   // temporary file creating during migration.
-  void OnHistoryDone(HistoryService::Handle handle);
+  void OnHistoryDone();
 
   // Invoked when loading is finished. Sets loaded_ and notifies observers.
   void DoneLoading();

@@ -377,7 +377,7 @@ void BookmarkBarModel::OnBookmarkStorageLoadedBookmarks(
       NewCallback(this, &BookmarkBarModel::OnHistoryDone));
 }
 
-void BookmarkBarModel::OnHistoryDone(HistoryService::Handle handle) {
+void BookmarkBarModel::OnHistoryDone() {
   if (loaded_) {
     NOTREACHED();
     return;
