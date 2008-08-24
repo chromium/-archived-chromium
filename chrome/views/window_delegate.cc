@@ -14,7 +14,6 @@ WindowDelegate::WindowDelegate() {
 }
 
 WindowDelegate::~WindowDelegate() {
-  window_.release();
 }
 
 // Returns the icon to be displayed in the window.
