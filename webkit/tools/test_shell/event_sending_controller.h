@@ -66,6 +66,10 @@ class EventSendingController : public CppBoundClass {
   static void DoMouseUp(const WebMouseEvent& e);
   static void ReplaySavedEvents();
 
+  // Helper to extract the optional arg from mouseDown() and mouseUp()
+  static WebMouseEvent::Button GetButtonTypeFromSingleArg(
+      const CppArgumentList& args);
+
   // Returns true if the key_code passed in needs a shift key modifier to
   // be passed into the generated event.
   bool NeedsShiftModifer(wchar_t key_code);

@@ -221,39 +221,43 @@ void WebViewImpl::MouseDown(const WebMouseEvent& event) {
       MakePlatformMouseEvent(main_frame_->frameview(), event));
 }
 
+void WebViewImpl::MouseContextMenu(const WebMouseEvent& event) {
+  page_->contextMenuController()->clearContextMenu();
+
+  MakePlatformMouseEvent pme(main_frame_->frameview(), event);
+
+  // Find the right target frame. See issue 1186900.
+  IntPoint doc_point(
+      main_frame_->frame()->view()->windowToContents(pme.pos()));
+  HitTestResult result =
+      main_frame_->frame()->eventHandler()->hitTestResultAtPoint(doc_point,
+                                                                 false);
+  Frame* target_frame;
+  if (result.innerNonSharedNode())
+      target_frame = result.innerNonSharedNode()->document()->frame();
+  else
+      target_frame = page_->focusController()->focusedOrMainFrame();
+
+  target_frame->view()->setCursor(pointerCursor());
+
+  context_menu_allowed_ = true;
+  target_frame->eventHandler()->sendContextMenuEvent(pme);
+  context_menu_allowed_ = false;
+  // Actually showing the context menu is handled by the ContextMenuClient
+  // implementation...
+}
+
 void WebViewImpl::MouseUp(const WebMouseEvent& event) {
-  if (event.button == WebMouseEvent::BUTTON_RIGHT) {
-    page_->contextMenuController()->clearContextMenu();
-
-    MakePlatformMouseEvent pme(main_frame_->frameview(), event);
-
-    // Find the right target frame. See issue 1186900.
-    IntPoint doc_point(
-        main_frame_->frame()->view()->windowToContents(pme.pos()));
-    HitTestResult result =
-        main_frame_->frame()->eventHandler()->hitTestResultAtPoint(doc_point,
-                                                                   false);
-    Frame* target_frame;
-    if (result.innerNonSharedNode())
-        target_frame = result.innerNonSharedNode()->document()->frame();
-    else
-        target_frame = page_->focusController()->focusedOrMainFrame();
-
-    target_frame->view()->setCursor(pointerCursor());
-
-    context_menu_allowed_ = true;
-    target_frame->eventHandler()->sendContextMenuEvent(pme);
-    context_menu_allowed_ = false;
-    // Actually showing the context menu is handled by the ContextMenuClient
-    // implementation...
-  }
-
   if (!main_frame_->frameview())
     return;
 
   MouseCaptureLost();
   main_frame_->frameview()->frame()->eventHandler()->handleMouseReleaseEvent(
       MakePlatformMouseEvent(main_frame_->frameview(), event));
+
+  // Dispatch the contextmenu event regardless of if the click was swallowed.
+  if (event.button == WebMouseEvent::BUTTON_RIGHT)
+    MouseContextMenu(event);
 }
 
 void WebViewImpl::MouseWheel(const WebMouseWheelEvent& event) {

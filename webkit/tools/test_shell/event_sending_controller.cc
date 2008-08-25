@@ -154,6 +154,19 @@ void EventSendingController::Reset() {
   ReplaySavedEvents();
 }
 
+// static
+WebMouseEvent::Button EventSendingController::GetButtonTypeFromSingleArg(
+    const CppArgumentList& args) {
+  if (args.size() > 0 && args[0].isNumber()) {
+    int button_code = args[0].ToInt32();
+    if (button_code == 1)
+      return WebMouseEvent::BUTTON_MIDDLE;
+    else if (button_code == 2)
+      return WebMouseEvent::BUTTON_RIGHT;
+  }
+  return WebMouseEvent::BUTTON_LEFT;
+}
+
 //
 // Implemented javascript methods.
 //
@@ -164,6 +177,8 @@ void EventSendingController::Reset() {
 
   webview()->Layout();
 
+  WebMouseEvent::Button button_type = GetButtonTypeFromSingleArg(args);
+
   if ((GetCurrentEventTimeSec() - last_click_time_sec >= kMultiClickTimeSec) ||
       outside_multiclick_radius(last_mouse_pos_, last_click_pos)) {
     click_count = 1;
@@ -172,11 +187,10 @@ void EventSendingController::Reset() {
   }
 
   WebMouseEvent event;
-  pressed_button_ = WebMouseEvent::BUTTON_LEFT;
-  InitMouseEvent(WebInputEvent::MOUSE_DOWN, WebMouseEvent::BUTTON_LEFT,
+  pressed_button_ = button_type;
+  InitMouseEvent(WebInputEvent::MOUSE_DOWN, button_type,
                  last_mouse_pos_, &event);
   webview()->HandleInputEvent(&event);
-
 }
 
  void EventSendingController::mouseUp(
@@ -185,8 +199,10 @@ void EventSendingController::Reset() {
 
   webview()->Layout();
 
+  WebMouseEvent::Button button_type = GetButtonTypeFromSingleArg(args);
+
   WebMouseEvent event;
-  InitMouseEvent(WebInputEvent::MOUSE_UP, WebMouseEvent::BUTTON_LEFT,
+  InitMouseEvent(WebInputEvent::MOUSE_UP, button_type,
                  last_mouse_pos_, &event);
   if (drag_mode() && !replaying_saved_events) {
     mouse_event_queue.push(event);
