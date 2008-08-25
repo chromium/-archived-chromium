@@ -5,9 +5,8 @@
 #ifndef SkGraphicsContext_h
 #define SkGraphicsContext_h
 
-#include "SkPorterDuff.h"
-
 #include "base/gfx/platform_canvas.h"
+#include "SkPorterDuff.h"
 
 class NativeImageSkia;
 struct SkIRect;

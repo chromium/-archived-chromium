@@ -9,6 +9,7 @@
 #include "build/build_config.h"
 
 namespace gfx {
+
 #if defined(OS_WIN)
 class PlatformCanvasWin;
 typedef PlatformCanvasWin PlatformCanvas;
@@ -16,4 +17,5 @@ typedef PlatformCanvasWin PlatformCanvas;
 class PlatformCanvasMac;
 typedef PlatformCanvasMac PlatformCanvas;
 #endif
-}
+
+}  // namespace gfx
