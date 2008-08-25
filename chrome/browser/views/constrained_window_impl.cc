@@ -1344,7 +1344,8 @@ LRESULT ConstrainedWindowImpl::OnMouseActivate(HWND window,
   // We only detach the window if the user clicked on the title bar. That
   // way, users can click inside the contents of legitimate popups obtained
   // with a mouse gesture.
-  if (hittest_code != HTCLIENT && hittest_code != HTNOWHERE) {
+  if (hittest_code != HTCLIENT && hittest_code != HTNOWHERE &&
+      hittest_code != HTCLOSE) {
     ActivateConstrainedWindow();
   } else {
     // If the user did not click on the title bar, don't stop message
