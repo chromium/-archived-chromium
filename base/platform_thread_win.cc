@@ -47,11 +47,11 @@ void PlatformThread::Sleep(int duration_ms) {
 }
 
 // static
-void PlatformThread::SetName(int thread_id, const char* name) {
+void PlatformThread::SetName(const char* name) {
   THREADNAME_INFO info;
   info.dwType = 0x1000;
   info.szName = name;
-  info.dwThreadID = thread_id;
+  info.dwThreadID = CurrentId();
   info.dwFlags = 0;
 
   __try {

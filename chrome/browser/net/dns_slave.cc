@@ -54,7 +54,7 @@ unsigned DnsSlave::Run() {
   std::string name = StringPrintf(
       "dns_prefetcher_%d_of_%d", slave_index_ + 1, DnsMaster::kSlaveCountMax);
   DLOG(INFO) << "Now Running " << name;
-  PlatformThread::SetName(PlatformThread::CurrentId(), name.c_str());
+  PlatformThread::SetName(name.c_str());
 
   while (master_->GetNextAssignment(&hostname_)) {
     BlockingDnsLookup();

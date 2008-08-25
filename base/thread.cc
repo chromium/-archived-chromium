@@ -123,7 +123,7 @@ void Thread::ThreadMain() {
 
   // Complete the initialization of our Thread object.
   thread_id_ = PlatformThread::CurrentId();
-  PlatformThread::SetName(thread_id_, name_.c_str());
+  PlatformThread::SetName(name_.c_str());
   message_loop.set_thread_name(name_);
   message_loop_ = &message_loop;
   thread_created_ = true;

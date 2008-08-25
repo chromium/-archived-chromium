@@ -2,6 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// WARNING: You should *NOT* be using this class directly.  PlatformThread is
+// the low-level platform-specific abstraction to the OS's threading interface.
+// You should instead be using a message-loop driven Thread, see thread.h.
+
 #ifndef BASE_PLATFORM_THREAD_H_
 #define BASE_PLATFORM_THREAD_H_
 
@@ -31,9 +35,7 @@ class PlatformThread {
   static void Sleep(int duration_ms);
 
   // Sets the thread name visible to a debugger.  This has no effect otherwise.
-  // To set the name of the current thread, pass PlatformThread::CurrentId() as
-  // the thread_id parameter.
-  static void SetName(int thread_id, const char* name);
+  static void SetName(const char* name);
 
   // Implement this interface to run code on a background thread.  Your
   // ThreadMain method will be called on the newly created thread.

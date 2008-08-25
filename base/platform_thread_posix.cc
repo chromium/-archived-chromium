@@ -53,7 +53,7 @@ void PlatformThread::Sleep(int duration_ms) {
 }
 
 // static
-void PlatformThread::SetName(int thread_id, const char* name) {
+void PlatformThread::SetName(const char* name) {
   // TODO(darin): implement me!
 }
 

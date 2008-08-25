@@ -135,7 +135,7 @@ unsigned Watchdog::Run() {
 void Watchdog::SetThreadName() const {
   std::string name = StringPrintf("%s Watchdog",
                                   WideToASCII(thread_watched_name_).c_str());
-  PlatformThread::SetName(thread_id_, name.c_str());
+  PlatformThread::SetName(name.c_str());
   DLOG(INFO) << "Watchdog active: " << name;
 }
 

@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
   // the AtExitManager or else we will leak objects.
   base::AtExitManager at_exit_manager;  
 
-  PlatformThread::SetName(PlatformThread::CurrentId(), "Tests_Main");
+  PlatformThread::SetName("Tests_Main");
   return UITestSuite(argc, argv).Run();
 }
 

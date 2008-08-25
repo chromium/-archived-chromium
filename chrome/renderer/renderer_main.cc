@@ -48,7 +48,7 @@ int RendererMain(CommandLine &parsed_command_line, int show_command,
   StatsScope<StatsCounterTimer>
       startup_timer(chrome::Counters::renderer_main());
 
-  PlatformThread::SetName(PlatformThread::CurrentId(), "Chrome_RendererMain");
+  PlatformThread::SetName("Chrome_RendererMain");
 
   CoInitialize(NULL);
 
