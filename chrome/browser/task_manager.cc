@@ -920,6 +920,8 @@ void TaskManager::WindowClosing() {
   // non-client view.
   contents_->GetParent()->RemoveChildView(contents_.get());
   Close();
+
+  ReleaseWindow();
 }
 
 ChromeViews::View* TaskManager::GetContentsView() {

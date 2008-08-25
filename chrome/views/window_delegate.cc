@@ -14,7 +14,7 @@ WindowDelegate::WindowDelegate() {
 }
 
 WindowDelegate::~WindowDelegate() {
-  window_.release();
+  ReleaseWindow();
 }
 
 // Returns the icon to be displayed in the window.
@@ -24,6 +24,10 @@ SkBitmap WindowDelegate::GetWindowIcon() {
 
 ClientView* WindowDelegate::CreateClientView(Window* window) {
   return new ClientView(window, GetContentsView());
+}
+
+void WindowDelegate::ReleaseWindow() {
+  window_.release();
 }
 
 }  // namespace ChromeViews

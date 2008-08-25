@@ -124,6 +124,12 @@ class WindowDelegate {
   // An accessor to the Window this delegate is bound to.
   Window* window() const { return window_.get(); }
 
+ protected:
+  // Releases the Window* we maintain. This should be done by a delegate in its
+  // WindowClosing handler if it intends to be re-cycled to be used on a
+  // different Window.
+  void ReleaseWindow();
+
  private:
   friend Window;
   // This is a little unusual. We use a scoped_ptr here because it's
@@ -131,7 +137,7 @@ class WindowDelegate {
   // people using this helper to not have to call a ctor on this object.
   // Instead we just release the owning ref this pointer has when we are
   // destroyed.
-  scoped_ptr<ChromeViews::Window> window_;
+  scoped_ptr<Window> window_;
 };
 
 }  // namespace ChromeViews
