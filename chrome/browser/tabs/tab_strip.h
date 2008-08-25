@@ -114,6 +114,9 @@ class TabStrip : public ChromeViews::View,
   virtual bool GetAccessibleRole(VARIANT* role);
   virtual bool GetAccessibleName(std::wstring* name);
   virtual void SetAccessibleName(const std::wstring& name);
+  virtual ChromeViews::View* GetViewForPoint(const CPoint& point);
+  virtual ChromeViews::View* GetViewForPoint(const CPoint& point,
+                                             bool can_create_floating);
 
  protected:
   // TabStripModelObserver implementation:
@@ -267,6 +270,10 @@ class TabStrip : public ChromeViews::View,
 
   // Calculates the available width for tabs, assuming a Tab is to be closed.
   int GetAvailableWidthForTabs(Tab* last_tab) const;
+
+  // Returns true if the specified point in TabStrip coords is within the
+  // hit-test region of the specified Tab.
+  bool IsPointInTab(Tab* tab, const CPoint& point_in_tabstrip_coords);
 
   // -- Member Variables ------------------------------------------------------
 

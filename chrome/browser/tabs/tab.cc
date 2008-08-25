@@ -6,12 +6,18 @@
 
 #include "base/gfx/size.h"
 #include "chrome/views/view_container.h"
+#include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/common/gfx/path.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/chrome_menu.h"
 #include "chrome/views/tooltip_manager.h"
 #include "generated_resources.h"
 
 const std::string Tab::kTabClassName = "browser/tabs/Tab";
+
+static const SkScalar kTabCapWidth = 15;
+static const SkScalar kTabTopCurveWidth = 4;
+static const SkScalar kTabBottomCurveWidth = 3;
 
 class TabContextMenuController : public ChromeViews::MenuDelegate {
  public:
@@ -120,6 +126,13 @@ bool Tab::IsSelected() const {
 ///////////////////////////////////////////////////////////////////////////////
 // Tab, ChromeViews::View overrides:
 
+bool Tab::HitTest(const CPoint &l) const {
+  gfx::Path path;
+  MakePathForTab(&path);
+  ScopedHRGN rgn(path.CreateHRGN());
+  return !!PtInRegion(rgn, l.x, l.y);
+}
+
 bool Tab::OnMousePressed(const ChromeViews::MouseEvent& event) {
   if (event.IsOnlyLeftMouseButton()) {
     // Store whether or not we were selected just now... we only want to be
@@ -198,3 +211,31 @@ void Tab::ButtonPressed(ChromeViews::BaseButton* sender) {
     delegate_->CloseTab(this);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Tab, private:
+
+void Tab::MakePathForTab(gfx::Path* path) const {
+  DCHECK(path);
+
+  SkScalar h = SkIntToScalar(GetHeight());
+  SkScalar w = SkIntToScalar(GetWidth());
+
+  path->moveTo(0, h);
+
+  // Left end cap.
+  path->lineTo(kTabBottomCurveWidth, h - kTabBottomCurveWidth);
+  path->lineTo(kTabCapWidth - kTabTopCurveWidth, kTabTopCurveWidth);
+  path->lineTo(kTabCapWidth, 0);
+
+  // Connect to the right cap.
+  path->lineTo(w - kTabCapWidth, 0);
+
+  // Right end cap.
+  path->lineTo(w - kTabCapWidth - kTabTopCurveWidth, kTabTopCurveWidth);
+  path->lineTo(w - kTabBottomCurveWidth, h - kTabBottomCurveWidth);
+  path->lineTo(w, h);
+
+  // Close out the path.
+  path->lineTo(0, h);
+  path->close();
+}

@@ -10,6 +10,7 @@
 #include "chrome/views/base_button.h"
 
 namespace gfx {
+class Path;
 class Point;
 }
 class TabContents;
@@ -83,6 +84,8 @@ class Tab : public TabRenderer,
   // TabRenderer overrides:
   virtual bool IsSelected() const;
 
+  // ChromeViews::View overrides:
+  virtual bool HitTest(const CPoint &l) const;
  private:
   // ChromeViews::View overrides:
   virtual bool OnMousePressed(const ChromeViews::MouseEvent& event);
@@ -103,6 +106,10 @@ class Tab : public TabRenderer,
 
   // ChromeViews::BaseButton::ButtonListener overrides:
   virtual void ButtonPressed(ChromeViews::BaseButton* sender);
+
+  // Creates a path that contains the clickable region of the tab's visual
+  // representation. Used by GetViewForPoint for hit-testing.
+  void MakePathForTab(gfx::Path* path) const;
 
   // An instance of a delegate object that can perform various actions based on
   // user gestures.

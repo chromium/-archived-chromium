@@ -689,6 +689,36 @@ void TabStrip::SetAccessibleName(const std::wstring& name) {
   accessible_name_.assign(name);
 }
 
+ChromeViews::View* TabStrip::GetViewForPoint(const CPoint& point) {
+  return GetViewForPoint(point, false);
+}
+
+ChromeViews::View* TabStrip::GetViewForPoint(const CPoint& point,
+                                             bool can_create_floating) {
+  // Return any view that isn't a Tab or this TabStrip immediately. We don't
+  // want to interfere.
+  ChromeViews::View* v = View::GetViewForPoint(point, can_create_floating);
+  if (v && v != this && v->GetClassName() != Tab::kTabClassName)
+    return v;
+
+  // The display order doesn't necessarily match the child list order, so we
+  // walk the display list hit-testing Tabs. Since the selected tab always
+  // renders on top of adjacent tabs, it needs to be hit-tested before any
+  // left-adjacent Tab, so we look ahead for it as we walk.
+  int tab_count = GetTabCount();
+  for (int i = 0; i < tab_count; ++i) {
+    Tab* next_tab = i < (tab_count - 1) ? GetTabAt(i + 1) : NULL;
+    if (next_tab && next_tab->IsSelected() && IsPointInTab(next_tab, point))
+      return next_tab;
+    Tab* tab = GetTabAt(i);
+    if (IsPointInTab(tab, point))
+      return tab;
+  }
+
+  // No need to do any floating view stuff, we don't use them in the TabStrip.
+  return this;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // TabStrip, TabStripModelObserver implementation:
 
@@ -1474,5 +1504,11 @@ int TabStrip::GetIndexOfTab(const Tab* tab) const {
 
 int TabStrip::GetAvailableWidthForTabs(Tab* last_tab) const {
   return last_tab->GetX() + last_tab->GetWidth();
+}
+
+bool TabStrip::IsPointInTab(Tab* tab, const CPoint& point_in_tabstrip_coords) {
+  CPoint point_in_tab_coords(point_in_tabstrip_coords);
+  View::ConvertPointToView(this, tab, &point_in_tab_coords);
+  return tab->HitTest(point_in_tab_coords);
 }
 
