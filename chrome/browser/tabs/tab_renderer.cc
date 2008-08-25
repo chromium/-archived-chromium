@@ -562,13 +562,10 @@ void TabRenderer::PaintTabBackground(ChromeCanvas* canvas) {
     PaintActiveTabBackground(canvas);
   } else {
     // Draw our hover state.
-    Animation* animation = NULL;
-    if (hover_animation_->IsAnimating()) {
-      animation = hover_animation_.get();
-    } else if (pulse_animation_->IsAnimating()) {
+    Animation* animation = hover_animation_.get();
+    if (pulse_animation_->IsAnimating())
       animation = pulse_animation_.get();
-    }
-    if (animation && animation->GetCurrentValue() > 0) {
+    if (animation->GetCurrentValue() > 0) {
       PaintHoverTabBackground(canvas, animation->GetCurrentValue() *
           (win_util::ShouldUseVistaFrame() ?
           kHoverOpacityVista : kHoverOpacity));
