@@ -9,7 +9,6 @@
 #endif
 
 #include "base/logging.h"
-#include "base/notimplemented.h"
 
 // Change this value to 1 to enable tracing on a release build. By default,
 // tracing is enabled only on debug builds.

@@ -10,7 +10,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "base/notimplemented.h"
+#include "base/logging.h"
 #include "base/string_piece.h"
 
 bool DebugUtil::SpawnDebuggerOnProcess(unsigned /* process_id */) {

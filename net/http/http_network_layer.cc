@@ -4,7 +4,7 @@
 
 #include "net/http/http_network_layer.h"
 
-#include "base/notimplemented.h"
+#include "base/logging.h"
 #include "net/base/client_socket_factory.h"
 #include "net/http/http_network_session.h"
 #include "net/http/http_network_transaction.h"

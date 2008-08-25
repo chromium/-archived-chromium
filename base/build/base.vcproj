@@ -442,10 +442,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\notimplemented.h"
-			>
-		</File>
-		<File
 			RelativePath="..\object_watcher.cc"
 			>
 		</File>

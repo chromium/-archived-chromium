@@ -331,7 +331,6 @@
 		7B8505A50E5B3FBE00730B43 /* skia_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = skia_utils.cc; sourceTree = "<group>"; };
 		7B8505A60E5B3FBE00730B43 /* skia_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = skia_utils.h; sourceTree = "<group>"; };
 		7B8505A80E5B3FBE00730B43 /* vector_canvas_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vector_canvas_unittest.cc; sourceTree = "<group>"; };
-		7BAF4F0A0E50A2FD00CA8A07 /* notimplemented.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = notimplemented.h; sourceTree = "<group>"; };
 		7BAF4F7B0E50A3BD00CA8A07 /* logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logging.h; sourceTree = "<group>"; };
 		7BAF501B0E50B84200CA8A07 /* base_paths.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = base_paths.cc; sourceTree = "<group>"; };
 		7BAF50740E50B8F100CA8A07 /* file_version_info_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = file_version_info_mac.mm; sourceTree = "<group>"; };
@@ -761,7 +760,6 @@
 				93611ADB0E5A7FC500F9405D /* message_pump.h */,
 				93611ADC0E5A7FC500F9405D /* message_pump_default.cc */,
 				93611ADD0E5A7FC500F9405D /* message_pump_default.h */,
-				7BAF4F0A0E50A2FD00CA8A07 /* notimplemented.h */,
 				825403390D92D2210006B936 /* observer_list.h */,
 				E4562C580E2802AC005E4685 /* observer_list_unittest.cc */,
 				ABF4B9B40DC2BC9F00A6E319 /* path_service.cc */,

@@ -4,7 +4,7 @@
 
 #include "net/disk_cache/os_file.h"
 
-#include "base/notimplemented.h"
+#include "base/logging.h"
 
 namespace disk_cache {
 

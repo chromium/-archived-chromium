@@ -11,8 +11,8 @@
 
 #include <algorithm>
 
+#include "base/logging.h"
 #include "base/message_loop.h"
-#include "base/notimplemented.h"
 #include "base/string_tokenizer.h"
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"

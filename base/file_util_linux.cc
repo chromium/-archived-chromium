@@ -7,7 +7,6 @@
 #include <string>
 
 #include "base/logging.h"
-#include "base/notimplemented.h"
 #include "base/string_util.h"
 
 namespace file_util {

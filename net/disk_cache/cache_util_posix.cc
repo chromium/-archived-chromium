@@ -6,7 +6,6 @@
 
 #include "base/file_util.h"
 #include "base/logging.h"
-#include "base/notimplemented.h"
 
 namespace disk_cache {
 
