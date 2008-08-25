@@ -16,6 +16,7 @@ dependents = [
   'ole32.dll',
   'OLEAUT32.dll',
   'OLEACC.dll',
+  'secur32.dll',
 ]
 
 delay_loaded = [
