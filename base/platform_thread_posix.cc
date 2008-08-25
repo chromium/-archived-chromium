@@ -54,7 +54,12 @@ void PlatformThread::Sleep(int duration_ms) {
 
 // static
 void PlatformThread::SetName(const char* name) {
-  // TODO(darin): implement me!
+  // The POSIX standard does not provide for naming threads, and neither Linux
+  // nor Mac OS X (our two POSIX targets) provide any non-portable way of doing
+  // it either. (Some BSDs provide pthread_set_name_np but that isn't much of a
+  // consolation prize.)
+  // TODO(darin): decide whether stuffing the name in TLS or other in-memory
+  // structure would be useful for debugging or not.
 }
 
 // static
