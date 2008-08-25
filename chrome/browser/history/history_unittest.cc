@@ -723,15 +723,16 @@ TEST(HistoryProfileTest, TypicalProfileVersion) {
   sqlite3* db;
   ASSERT_EQ(SQLITE_OK, sqlite3_open(WideToUTF8(file).c_str(), &db));
 
-  SQLStatement s;
-  ASSERT_EQ(SQLITE_OK, s.prepare(db,
-      "SELECT value FROM meta WHERE key = 'version'"));
-  EXPECT_EQ(SQLITE_ROW, s.step());
-  int file_version = s.column_int(0);
+  {
+    SQLStatement s;
+    ASSERT_EQ(SQLITE_OK, s.prepare(db,
+        "SELECT value FROM meta WHERE key = 'version'"));
+    EXPECT_EQ(SQLITE_ROW, s.step());
+    int file_version = s.column_int(0);
+    EXPECT_EQ(cur_version, file_version);
+  }
 
-  sqlite3_close(db);
-
-  EXPECT_EQ(cur_version, file_version);
+  ASSERT_EQ(SQLITE_OK, sqlite3_close(db));
 }
 
 namespace {
