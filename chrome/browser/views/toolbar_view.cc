@@ -288,8 +288,10 @@ void BrowserToolbarView::Layout() {
     if (show_home_button_.GetValue()) {
       home_->GetPreferredSize(&sz);
       offset = kControlHorizOffset;
+      home_->SetVisible(true);
     } else {
       sz = CSize(0, 0);
+      home_->SetVisible(false);
     }
     home_->SetBounds(reload_->GetX() + reload_->GetWidth() + offset,
                      kControlVertOffset, sz.cx, sz.cy);
