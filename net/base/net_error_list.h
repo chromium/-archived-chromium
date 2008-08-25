@@ -71,6 +71,9 @@ NET_ERROR(ADDRESS_UNREACHABLE, -109)
 // The server requested a client certificate for SSL client authentication.
 NET_ERROR(SSL_CLIENT_AUTH_CERT_NEEDED, -110)
 
+// A tunnel connection through the proxy could not be established.
+NET_ERROR(TUNNEL_CONNECTION_FAILED, -111)
+
 // Certificate error codes
 //
 // The values of certificate error codes must be consecutive.

@@ -44,6 +44,7 @@ class HttpNetworkTransaction : public HttpTransaction {
  private:
   ~HttpNetworkTransaction();
   void BuildRequestHeaders();
+  void BuildTunnelRequest();
   void DoCallback(int result);
   void OnIOComplete(int result);
 
@@ -62,6 +63,12 @@ class HttpNetworkTransaction : public HttpTransaction {
   int DoResolveHostComplete(int result);
   int DoConnect();
   int DoConnectComplete(int result);
+  int DoWriteTunnelRequest();
+  int DoWriteTunnelRequestComplete(int result);
+  int DoReadTunnelResponse();
+  int DoReadTunnelResponseComplete(int result);
+  int DoSSLConnectOverTunnel();
+  int DoSSLConnectOverTunnelComplete(int result);
   int DoWriteHeaders();
   int DoWriteHeadersComplete(int result);
   int DoWriteBody();
@@ -71,7 +78,16 @@ class HttpNetworkTransaction : public HttpTransaction {
   int DoReadBody();
   int DoReadBodyComplete(int result);
 
-  // Called when read_buf_ contains the complete response headers.
+  // Called to write the request headers in request_headers_.
+  int WriteRequestHeaders();
+
+  // Called to read the response headers into header_buf_.
+  int ReadResponseHeaders();
+
+  // Called when header_buf_ contains the complete CONNECT response.
+  int DidReadTunnelResponse();
+
+  // Called when header_buf_ contains the complete response headers.
   int DidReadResponseHeaders();
 
   // Called to possibly recover from the given error.  Sets next_state_ and
@@ -138,6 +154,12 @@ class HttpNetworkTransaction : public HttpTransaction {
     STATE_RESOLVE_HOST_COMPLETE,
     STATE_CONNECT,
     STATE_CONNECT_COMPLETE,
+    STATE_WRITE_TUNNEL_REQUEST,
+    STATE_WRITE_TUNNEL_REQUEST_COMPLETE,
+    STATE_READ_TUNNEL_RESPONSE,
+    STATE_READ_TUNNEL_RESPONSE_COMPLETE,
+    STATE_SSL_CONNECT_OVER_TUNNEL,
+    STATE_SSL_CONNECT_OVER_TUNNEL_COMPLETE,
     STATE_WRITE_HEADERS,
     STATE_WRITE_HEADERS_COMPLETE,
     STATE_WRITE_BODY,

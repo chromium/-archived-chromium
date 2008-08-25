@@ -60,6 +60,7 @@ class ClientSocketHandle {
 
   // These may only be used if is_initialized() is true.
   ClientSocket* socket() { return socket_->get(); }
+  ClientSocket* release_socket() { return socket_->release(); }
   void set_socket(ClientSocket* s) { socket_->reset(s); }
 
  private:
