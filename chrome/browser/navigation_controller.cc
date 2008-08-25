@@ -504,6 +504,7 @@ void NavigationController::DidNavigateToEntry(NavigationEntry* entry) {
   // seen before, then consider it a new navigation.  Note that if the entry
   // has a SiteInstance, it should be the same as the SiteInstance of the
   // active WebContents, because we have just navigated to it.
+  DCHECK(entry->GetPageID() >= 0) << "Page ID must be set before calling us.";
   if (entry->GetPageID() > GetMaxPageID()) {
     InsertEntry(entry);
     NotifyNavigationEntryCommitted();
