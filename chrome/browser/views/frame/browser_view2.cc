@@ -22,6 +22,7 @@
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/common/win_util.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window.h"
 #include "generated_resources.h"
@@ -207,9 +208,9 @@ SkBitmap BrowserView2::GetOTRAvatarIcon() {
   return otr_avatar_;
 }
 
-void BrowserView2::PrepareToRunSystemMenu(Menu* menu) {
-  int insertion_index = std::max(0, menu->ItemCount() - 1);
-  system_menu_.reset(menu);
+void BrowserView2::PrepareToRunSystemMenu(HMENU menu) {
+  system_menu_.reset(new Menu(menu));
+  int insertion_index = std::max(0, system_menu_->ItemCount() - 1);
   // We add the menu items in reverse order so that insertion_index never needs
   // to change.
   if (browser_->GetType() == BrowserType::TABBED_BROWSER) {
@@ -528,11 +529,13 @@ bool BrowserView2::ShouldShowWindowIcon() const {
   return SupportsWindowFeature(FEATURE_TITLEBAR);
 }
 
-void BrowserView2::ExecuteWindowsCommand(int command_id) {
-  if (browser_->SupportsCommand(command_id) &&
-      browser_->IsCommandEnabled(command_id)) {
-    browser_->ExecuteCommand(command_id);
+bool BrowserView2::ExecuteWindowsCommand(int command_id) {
+  if (browser_->SupportsCommand(command_id)) {
+    if (browser_->IsCommandEnabled(command_id))
+      browser_->ExecuteCommand(command_id);
+    return true;
   }
+  return false;
 }
 
 void BrowserView2::SaveWindowPosition(const CRect& bounds,
@@ -641,26 +644,38 @@ bool BrowserView2::CanClose() const {
 }
 
 int BrowserView2::NonClientHitTest(const gfx::Point& point) {
-  // First learn about the kind of frame we dwell within...
-  WINDOWINFO wi;
-  wi.cbSize = sizeof(wi);
-  GetWindowInfo(frame_->GetWindow()->GetHWND(), &wi);
+  // Since the TabStrip only renders in some parts of the top of the window,
+  // the un-obscured area is considered to be part of the non-client caption
+  // area of the window. So we need to treat hit-tests in these regions as
+  // hit-tests of the titlebar.
 
-  CPoint point_in_view_coords(point.ToPOINT());
-  View::ConvertPointToView(GetParent(), this, &point_in_view_coords);
-  if (IsTabStripVisible() && tabstrip_->HitTest(point_in_view_coords) &&
-      tabstrip_->CanProcessInputEvents()) {
+  // Determine if the TabStrip exists and is capable of being clicked on. We
+  // might be a popup window without a TabStrip, or the TabStrip could be
+  // animating.
+  if (IsTabStripVisible() && tabstrip_->CanProcessInputEvents()) {
     ChromeViews::Window* window = frame_->GetWindow();
+    CPoint point_in_view_coords(point.ToPOINT());
+    View::ConvertPointToView(GetParent(), this, &point_in_view_coords);
+
+    // See if the mouse pointer is within the bounds of the TabStrip.
+    CPoint point_in_tabstrip_coords(point.ToPOINT());
+    View::ConvertPointToView(GetParent(), tabstrip_, &point_in_tabstrip_coords);
+    if (tabstrip_->HitTest(point_in_tabstrip_coords)) {
+      if (tabstrip_->PointIsWithinWindowCaption(point_in_view_coords))
+        return HTCAPTION;
+      return HTCLIENT;
+    }
+
     // The top few pixels of the TabStrip are a drop-shadow - as we're pretty
     // starved of dragable area, let's give it to window dragging (this also
     // makes sense visually).
-    if (!window->IsMaximized() && point_in_view_coords.y < kTabShadowSize)
-      return HTCAPTION;
-
-    if (tabstrip_->PointIsWithinWindowCaption(point_in_view_coords))
-      return HTCAPTION;
-
-    return HTCLIENT;
+    if (!window->IsMaximized() && 
+        (point_in_view_coords.y < tabstrip_->GetY() + kTabShadowSize)) {
+      // We return HTNOWHERE as this is a signal to our containing
+      // NonClientView that it should figure out what the correct hit-test
+      // code is given the mouse position...
+      return HTNOWHERE;
+    }
   }
 
   // If the point's y coordinate is below the top of the toolbar and otherwise
@@ -678,10 +693,6 @@ int BrowserView2::NonClientHitTest(const gfx::Point& point) {
 
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView2, ChromeViews::View overrides:
-
-void BrowserView2::Paint(ChromeCanvas* canvas) {
-  //canvas->FillRectInt(SK_ColorRED, 0, 0, GetWidth(), GetHeight());
-}
 
 void BrowserView2::Layout() {
   int top = LayoutTabStrip();
@@ -809,6 +820,10 @@ int BrowserView2::LayoutToolbar(int top) {
     CSize ps;
     toolbar_->GetPreferredSize(&ps);
     int toolbar_y = top - kToolbarTabStripVerticalOverlap;
+    // With detached popup windows with the aero glass frame, we need to offset
+    // by a pixel to make things look good.
+    if (!IsTabStripVisible() && win_util::ShouldUseVistaFrame())
+      ps.cy -= 1;
     toolbar_->SetBounds(0, toolbar_y, GetWidth(), ps.cy);
     return toolbar_y + ps.cy;
   }

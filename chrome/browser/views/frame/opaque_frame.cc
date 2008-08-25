@@ -23,22 +23,6 @@ OpaqueFrame::OpaqueFrame(BrowserView2* browser_view)
 OpaqueFrame::~OpaqueFrame() {
 }
 
-bool OpaqueFrame::IsTabStripVisible() const {
-  return browser_view_->IsTabStripVisible();
-}
-
-bool OpaqueFrame::IsToolbarVisible() const {
-  return browser_view_->IsToolbarVisible();
-}
-
-gfx::Rect OpaqueFrame::GetToolbarBounds() const {
-  return browser_view_->GetToolbarBounds();
-}
-
-gfx::Rect OpaqueFrame::GetContentsBounds() const {
-  return browser_view_->GetClientAreaBounds();
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueFrame, BrowserFrame implementation:
 
@@ -92,8 +76,7 @@ void OpaqueFrame::OnExitMenuLoop(bool is_track_popup_menu) {
 
 void OpaqueFrame::OnInitMenuPopup(HMENU menu, UINT position,
                                   BOOL is_system_menu) {
-  Menu* menu_obj = new Menu(menu);
-  browser_view_->PrepareToRunSystemMenu(menu_obj);
+  browser_view_->PrepareToRunSystemMenu(menu);
 }
 
 LRESULT OpaqueFrame::OnMouseActivate(HWND window, UINT hittest_code,

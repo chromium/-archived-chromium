@@ -328,7 +328,7 @@ class HWNDViewContainer : public ViewContainer,
   virtual void OnCaptureChanged(HWND hwnd);
   virtual void OnClose();
   virtual void OnCommand(
-    UINT notification_code, int command_id, HWND window) { }
+    UINT notification_code, int command_id, HWND window) { SetMsgHandled(FALSE); }
   virtual LRESULT OnCreate(LPCREATESTRUCT create_struct) { return 0; }
   // WARNING: If you override this be sure and invoke super, otherwise we'll
   // leak a few things.

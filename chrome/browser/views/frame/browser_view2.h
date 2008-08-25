@@ -104,10 +104,9 @@ class BrowserView2 : public BrowserWindow,
   // Retrieves the icon to use in the frame to indicate an OTR window.
   SkBitmap GetOTRAvatarIcon();
 
-  // Called right before displaying the system menu to allow the
-  // BrowserView to add or delete entries. BrowserView takes ownership
-  // of the passed in Menu object.
-  void PrepareToRunSystemMenu(Menu* menu);
+  // Called right before displaying the system menu to allow the BrowserView2
+  // to add or delete entries.
+  void PrepareToRunSystemMenu(HMENU menu);
 
   // Called after the system menu has ended, and disposes of the
   // current System menu object.
@@ -185,7 +184,7 @@ class BrowserView2 : public BrowserWindow,
   virtual bool ShouldShowWindowTitle() const;
   virtual SkBitmap GetWindowIcon();
   virtual bool ShouldShowWindowIcon() const;
-  virtual void ExecuteWindowsCommand(int command_id);
+  virtual bool ExecuteWindowsCommand(int command_id);
   virtual void SaveWindowPosition(const CRect& bounds,
                                   bool maximized,
                                   bool always_on_top);
@@ -203,7 +202,6 @@ class BrowserView2 : public BrowserWindow,
 
  protected:
   // Overridden from ChromeViews::View:
-  virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
   virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual void ViewHierarchyChanged(bool is_add,

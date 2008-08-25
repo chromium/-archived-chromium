@@ -635,7 +635,7 @@ void OpaqueNonClientView::EnableClose(bool enable) {
 
 void OpaqueNonClientView::Paint(ChromeCanvas* canvas) {
   // Clip the content area out of the rendering.
-  gfx::Rect contents_bounds = frame_->GetContentsBounds();
+  gfx::Rect contents_bounds = browser_view_->GetClientAreaBounds();
   SkRect clip;
   clip.set(SkIntToScalar(contents_bounds.x()),
            SkIntToScalar(contents_bounds.y()),
@@ -809,7 +809,8 @@ void OpaqueNonClientView::PaintTitleBar(ChromeCanvas* canvas) {
 }
 
 void OpaqueNonClientView::PaintToolbarBackground(ChromeCanvas* canvas) {
-  if (frame_->IsToolbarVisible() || frame_->IsTabStripVisible()) {
+  if (browser_view_->IsToolbarVisible() ||
+      browser_view_->IsTabStripVisible()) {
     SkBitmap* toolbar_left =
         resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_LEFT);
     SkBitmap* toolbar_center =
@@ -817,7 +818,7 @@ void OpaqueNonClientView::PaintToolbarBackground(ChromeCanvas* canvas) {
     SkBitmap* toolbar_right =
         resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_RIGHT);
 
-    gfx::Rect toolbar_bounds = frame_->GetToolbarBounds();
+    gfx::Rect toolbar_bounds = browser_view_->GetToolbarBounds();
     gfx::Point topleft(toolbar_bounds.x(), toolbar_bounds.y());
     View::ConvertPointToView(frame_->client_view(), this, &topleft);
     toolbar_bounds.set_x(topleft.x());
@@ -846,8 +847,8 @@ void OpaqueNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
   // The toolbar renders its own client edge in PaintToolbarBackground, however
   // there are other bands that need to have a client edge rendered along their
   // sides, such as the Bookmark bar, infobars, etc.
-  gfx::Rect toolbar_bounds = frame_->GetToolbarBounds();
-  gfx::Rect client_area_bounds = frame_->GetContentsBounds();
+  gfx::Rect toolbar_bounds = browser_view_->GetToolbarBounds();
+  gfx::Rect client_area_bounds = browser_view_->GetClientAreaBounds();
   // For some reason things don't line up quite right, so we add and subtract
   // pixels here and there for aesthetic bliss.
   // Enlarge the client area to include the toolbar, since the top edge of

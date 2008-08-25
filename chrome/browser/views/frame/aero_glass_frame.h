@@ -26,13 +26,6 @@ class AeroGlassFrame : public BrowserFrame,
 
   void Init(const gfx::Rect& bounds);
 
-  bool IsToolbarVisible() const;
-  bool IsTabStripVisible() const;
-
-  // Returns bounds of various areas within the BrowserView ClientView.
-  gfx::Rect GetToolbarBounds() const;
-  gfx::Rect GetContentsBounds() const;
-
   // Determine the distance of the left edge of the minimize button from the
   // right edge of the window. Used in our Non-Client View's Layout.
   int GetMinimizeButtonOffset() const;
@@ -54,7 +47,9 @@ class AeroGlassFrame : public BrowserFrame,
 
  protected:
   // Overridden from ChromeViews::HWNDViewContainer:
+  virtual void OnInitMenuPopup(HMENU menu, UINT position, BOOL is_system_menu);
   virtual void OnEndSession(BOOL ending, UINT logoff);
+  virtual void OnExitMenuLoop(bool is_track_popup_menu);
   virtual LRESULT OnMouseActivate(HWND window,
                                   UINT hittest_code,
                                   UINT message);

@@ -30,9 +30,6 @@ class CustomFrameWindow : public Window {
                     NonClientView* non_client_view);
   virtual ~CustomFrameWindow();
 
-  // Executes the specified SC_command.
-  void ExecuteSystemMenuCommand(int command);
-
   // Returns whether or not the frame is active.
   bool is_active() const { return is_active_; }
 
@@ -58,15 +55,11 @@ class CustomFrameWindow : public Window {
   virtual LRESULT OnNCHitTest(const CPoint& point);
   virtual LRESULT OnNCMouseMove(UINT flags, const CPoint& point);
   virtual void OnNCPaint(HRGN rgn);
-  virtual void OnNCRButtonDown(UINT flags, const CPoint& point);
-  virtual void OnNCLButtonDown(UINT flags, const CPoint& point);
+  virtual void OnNCLButtonDown(UINT ht_component, const CPoint& point);
   virtual LRESULT OnSetCursor(HWND window, UINT hittest_code, UINT message);
   virtual void OnSize(UINT param, const CSize& size);
 
  private:
-  // Shows the system menu at the specified screen point.
-  void RunSystemMenu(const CPoint& point);
-
   // Resets the window region.
   void ResetWindowRegion();
 

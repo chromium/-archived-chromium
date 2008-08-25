@@ -92,8 +92,9 @@ class WindowDelegate {
     return false;
   }
 
-  // Execute a command in the window's controller.
-  virtual void ExecuteWindowsCommand(int command_id) { }
+  // Execute a command in the window's controller. Returns true if the command
+  // was handled, false if it was not.
+  virtual bool ExecuteWindowsCommand(int command_id) { return false; }
 
   // Saves the specified bounds, maximized and always on top state as the
   // window's position to/ be restored the next time it is shown.

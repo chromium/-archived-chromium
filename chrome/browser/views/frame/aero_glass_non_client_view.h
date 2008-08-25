@@ -9,12 +9,13 @@
 #include "chrome/views/non_client_view.h"
 #include "chrome/views/button.h"
 
-class WindowResources;
+class BrowserView2;
+class AeroGlassWindowResources;
 
 class AeroGlassNonClientView : public ChromeViews::NonClientView {
  public:
   // Constructs a non-client view for an AeroGlassFrame.
-  explicit AeroGlassNonClientView(AeroGlassFrame* frame);
+  AeroGlassNonClientView(AeroGlassFrame* frame, BrowserView2* browser_view);
   virtual ~AeroGlassNonClientView();
 
   gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip);
@@ -58,9 +59,12 @@ class AeroGlassNonClientView : public ChromeViews::NonClientView {
   // The frame that hosts this view.
   AeroGlassFrame* frame_;
 
+  // The BrowserView2 that we contain.
+  BrowserView2* browser_view_;
+
   static void InitClass();
   static SkBitmap distributor_logo_;
-  static WindowResources* resources_;
+  static AeroGlassWindowResources* resources_;
 
   DISALLOW_EVIL_CONSTRUCTORS(AeroGlassNonClientView);
 };

@@ -172,6 +172,11 @@ void Window::UpdateWindowIcon() {
   }
 }
 
+void Window::ExecuteSystemMenuCommand(int command) {
+  if (command)
+    SendMessage(GetHWND(), WM_SYSCOMMAND, command, 0);
+}
+
 // static
 bool Window::SaveWindowPositionToPrefService(PrefService* pref_service,
                                              const std::wstring& entry,
@@ -321,6 +326,19 @@ void Window::SizeWindowToDefault() {
   win_util::CenterAndSizeWindow(owning_window(), GetHWND(), pref, true);
 }
 
+void Window::RunSystemMenu(const CPoint& point) {
+  // We need to reset and clean up any currently created system menu objects.
+  // We need to call this otherwise there's a small chance that we aren't going
+  // to get a system menu. We also can't take the return value of this
+  // function. We need to call it *again* to get a valid HMENU.
+  ::GetSystemMenu(GetHWND(), TRUE);
+  HMENU system_menu = ::GetSystemMenu(GetHWND(), FALSE);
+  int id = ::TrackPopupMenu(system_menu,
+                            TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD,
+                            point.x, point.y, 0, GetHWND(), NULL);
+  ExecuteSystemMenuCommand(id);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Window, HWNDViewContainer overrides:
 
@@ -330,7 +348,8 @@ void Window::OnActivate(UINT action, BOOL minimized, HWND window) {
 }
 
 void Window::OnCommand(UINT notification_code, int command_id, HWND window) {
-  window_delegate_->ExecuteWindowsCommand(command_id);
+  if (!window_delegate_->ExecuteWindowsCommand(command_id))
+    HWNDViewContainer::OnCommand(notification_code, command_id, window);
 }
 
 void Window::OnDestroy() {
@@ -376,6 +395,21 @@ LRESULT Window::OnNCHitTest(const CPoint& point) {
   return 0;
 }
 
+void Window::OnNCLButtonDown(UINT ht_component, const CPoint& point) {
+  if (non_client_view_ && ht_component == HTSYSMENU)
+    RunSystemMenu(non_client_view_->GetSystemMenuPoint());
+  HWNDViewContainer::OnNCLButtonDown(ht_component, point);
+}
+
+void Window::OnNCRButtonDown(UINT ht_component, const CPoint& point) {
+  if (ht_component == HTCAPTION || ht_component == HTSYSMENU) {
+    RunSystemMenu(point);
+  } else {
+    HWNDViewContainer::OnNCRButtonDown(ht_component, point);
+  }
+}
+
+
 LRESULT Window::OnSetCursor(HWND window, UINT hittest_code, UINT message) {
   if (hittest_code == HTBOTTOMRIGHT) {
     // If the mouse was over the resize gripper, make sure the right cursor is
@@ -399,6 +433,10 @@ void Window::OnSize(UINT size_param, const CSize& new_size) {
 }
 
 void Window::OnSysCommand(UINT notification_code, CPoint click) {
+  // First see if the delegate can handle it.
+  if (window_delegate_->ExecuteWindowsCommand(notification_code))
+    return;
+
   if (notification_code == IDC_ALWAYS_ON_TOP) {
     is_always_on_top_ = !is_always_on_top_;
 

@@ -29,13 +29,6 @@ class OpaqueFrame : public BrowserFrame,
   explicit OpaqueFrame(BrowserView2* browser_view);
   virtual ~OpaqueFrame();
 
-  bool IsToolbarVisible() const;
-  bool IsTabStripVisible() const;
-
-  // Returns bounds of various areas within the BrowserView ClientView.
-  gfx::Rect GetToolbarBounds() const;
-  gfx::Rect GetContentsBounds() const;
-
  protected:
   // Overridden from BrowserFrame:
   virtual gfx::Rect GetWindowBoundsForClientBounds(
@@ -51,8 +44,8 @@ class OpaqueFrame : public BrowserFrame,
   virtual bool AcceleratorPressed(ChromeViews::Accelerator* accelerator);
   virtual bool GetAccelerator(int cmd_id,
                               ChromeViews::Accelerator* accelerator);
-  virtual void OnExitMenuLoop(bool is_track_popup_menu);
   virtual void OnEndSession(BOOL ending, UINT logoff);
+  virtual void OnExitMenuLoop(bool is_track_popup_menu);
   virtual void OnInitMenuPopup(HMENU menu, UINT position, BOOL is_system_menu);
   virtual LRESULT OnMouseActivate(HWND window,
                                   UINT hittest_code,

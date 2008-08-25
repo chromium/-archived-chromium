@@ -826,11 +826,6 @@ CustomFrameWindow::CustomFrameWindow(WindowDelegate* window_delegate,
 CustomFrameWindow::~CustomFrameWindow() {
 }
 
-void CustomFrameWindow::ExecuteSystemMenuCommand(int command) {
-  if (command)
-    SendMessage(GetHWND(), WM_SYSCOMMAND, command, 0);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // CustomFrameWindow, Window overrides:
 
@@ -1083,14 +1078,6 @@ void CustomFrameWindow::OnNCPaint(HRGN rgn) {
   ReleaseDC(GetHWND(), dc);
 }
 
-void CustomFrameWindow::OnNCRButtonDown(UINT flags, const CPoint& point) {
-  if (flags == HTCAPTION || flags == HTSYSMENU) {
-    RunSystemMenu(point);
-  } else {
-    SetMsgHandled(FALSE);
-  }
-}
-
 void CustomFrameWindow::OnNCLButtonDown(UINT ht_component,
                                         const CPoint& point) {
   switch (ht_component) {
@@ -1121,11 +1108,10 @@ void CustomFrameWindow::OnNCLButtonDown(UINT ht_component,
       SetMsgHandled(TRUE);
       return;
     }
-    case HTSYSMENU:
-      RunSystemMenu(non_client_view_->GetSystemMenuPoint());
+    default:
+      Window::OnNCLButtonDown(ht_component, point);
       break;
   }
-  SetMsgHandled(FALSE);
 }
 
 LRESULT CustomFrameWindow::OnSetCursor(HWND window, UINT hittest_code,
@@ -1167,19 +1153,6 @@ void CustomFrameWindow::OnSize(UINT param, const CSize& size) {
 
 ///////////////////////////////////////////////////////////////////////////////
 // CustomFrameWindow, private:
-
-void CustomFrameWindow::RunSystemMenu(const CPoint& point) {
-  // We need to reset and clean up any currently created system menu objects.
-  // We need to call this otherwise there's a small chance that we aren't going
-  // to get a system menu. We also can't take the return value of this
-  // function. We need to call it *again* to get a valid HMENU.
-  ::GetSystemMenu(GetHWND(), TRUE);
-  HMENU system_menu = ::GetSystemMenu(GetHWND(), FALSE);
-  int id = ::TrackPopupMenu(system_menu,
-                            TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD,
-                            point.x, point.y, 0, GetHWND(), NULL);
-  ExecuteSystemMenuCommand(id);
-}
 
 // static
 void CustomFrameWindow::InitClass() {

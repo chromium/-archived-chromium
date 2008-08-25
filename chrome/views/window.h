@@ -97,6 +97,9 @@ class Window : public HWNDViewContainer {
   // Tell the window to update its icon from the delegate.
   virtual void UpdateWindowIcon();
 
+  // Executes the specified SC_command.
+  void ExecuteSystemMenuCommand(int command);
+
   // The parent of this window.
   HWND owning_window() const { return owning_hwnd_; }
 
@@ -150,6 +153,9 @@ class Window : public HWNDViewContainer {
 
   void set_client_view(ClientView* client_view) { client_view_ = client_view; }
 
+  // Shows the system menu at the specified screen point.
+  void RunSystemMenu(const CPoint& point);
+
   // Overridden from HWNDViewContainer:
   virtual void OnActivate(UINT action, BOOL minimized, HWND window);
   virtual void OnCommand(UINT notification_code, int command_id, HWND window);
@@ -157,6 +163,8 @@ class Window : public HWNDViewContainer {
   virtual LRESULT OnEraseBkgnd(HDC dc);
   virtual LRESULT OnNCActivate(BOOL active);
   virtual LRESULT OnNCHitTest(const CPoint& point);
+  virtual void OnNCLButtonDown(UINT ht_component, const CPoint& point);
+  virtual void OnNCRButtonDown(UINT ht_component, const CPoint& point);
   virtual LRESULT OnSetCursor(HWND window, UINT hittest_code, UINT message);
   virtual void OnSize(UINT size_param, const CSize& new_size);
   virtual void OnSysCommand(UINT notification_code, CPoint click);

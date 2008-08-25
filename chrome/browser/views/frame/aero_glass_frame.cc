@@ -14,15 +14,15 @@
 #include "chrome/views/window_delegate.h"
 
 // static
-static const int kResizeBorder = 5;
 
+// The width of the sizing borders.
+static const int kResizeBorder = 8;
 // By how much the toolbar overlaps with the tab strip.
-static const int kToolbarOverlapVertOffset = 3;
-
-// The DWM puts a light border around the client area - we need to
-// take this border size into account when we reduce its size so that
-// we don't draw our content border dropshadow images over the top.
-static const int kDwmBorderSize = 1;
+static const int kToolbarOverlapVertOffset = 5;
+// This is the width of the default client edge provided by Windows. In some
+// circumstances we provide our own client edge, so we use this width to
+// remove it.
+static const int kWindowsDWMBevelSize = 2;
 
 ///////////////////////////////////////////////////////////////////////////////
 // AeroGlassFrame, public:
@@ -31,7 +31,7 @@ AeroGlassFrame::AeroGlassFrame(BrowserView2* browser_view)
     : Window(browser_view),
       browser_view_(browser_view),
       frame_initialized_(false) {
-  non_client_view_ = new AeroGlassNonClientView(this);
+  non_client_view_ = new AeroGlassNonClientView(this, browser_view);
   browser_view_->set_frame(this);
 }
 
@@ -40,22 +40,6 @@ AeroGlassFrame::~AeroGlassFrame() {
 
 void AeroGlassFrame::Init(const gfx::Rect& bounds) {
   Window::Init(NULL, bounds);
-}
-
-bool AeroGlassFrame::IsTabStripVisible() const {
-  return browser_view_->IsTabStripVisible();
-}
-
-bool AeroGlassFrame::IsToolbarVisible() const {
-  return browser_view_->IsToolbarVisible();
-}
-
-gfx::Rect AeroGlassFrame::GetToolbarBounds() const {
-  return browser_view_->GetToolbarBounds();
-}
-
-gfx::Rect AeroGlassFrame::GetContentsBounds() const {
-  return browser_view_->GetClientAreaBounds();
 }
 
 int AeroGlassFrame::GetMinimizeButtonOffset() const {
@@ -74,7 +58,9 @@ int AeroGlassFrame::GetMinimizeButtonOffset() const {
 
 gfx::Rect AeroGlassFrame::GetWindowBoundsForClientBounds(
     const gfx::Rect& client_bounds) {
-  return gfx::Rect();
+  RECT rect = client_bounds.ToRECT();
+  AdjustWindowRectEx(&rect, window_style(), FALSE, window_ex_style());
+  return gfx::Rect(rect);
 }
 
 void AeroGlassFrame::SizeToContents(const gfx::Rect& contents_bounds) {
@@ -99,6 +85,19 @@ void AeroGlassFrame::UpdateWindowIcon() {
 
 ///////////////////////////////////////////////////////////////////////////////
 // AeroGlassFrame, ChromeViews::HWNDViewContainer implementation:
+
+void AeroGlassFrame::OnInitMenuPopup(HMENU menu, UINT position,
+                                     BOOL is_system_menu) {
+  browser_view_->PrepareToRunSystemMenu(menu);
+}
+
+void AeroGlassFrame::OnEndSession(BOOL ending, UINT logoff) {
+  FrameUtil::EndSession();
+}
+
+void AeroGlassFrame::OnExitMenuLoop(bool is_track_popup_menu) {
+  browser_view_->SystemMenuEnded();
+}
 
 LRESULT AeroGlassFrame::OnMouseActivate(HWND window, UINT hittest_code,
                                         UINT message) {
@@ -131,25 +130,36 @@ LRESULT AeroGlassFrame::OnNCActivate(BOOL active) {
 LRESULT AeroGlassFrame::OnNCCalcSize(BOOL mode, LPARAM l_param) {
   // By default the client side is set to the window size which is what
   // we want.
-  if (mode == TRUE) {
-    // Calculate new NCCALCSIZE_PARAMS based on custom NCA inset.
-    NCCALCSIZE_PARAMS *pncsp = reinterpret_cast<NCCALCSIZE_PARAMS*>(l_param);
+  if (browser_view_->IsToolbarVisible() && mode == TRUE) {
+    // To be on the safe side and avoid side-effects, we only adjust the client
+    // size to non-standard values when we must - i.e. when we're showing a
+    // TabStrip.
+    if (browser_view_->IsTabStripVisible()) {
+      // Calculate new NCCALCSIZE_PARAMS based on custom NCA inset.
+      NCCALCSIZE_PARAMS* params = reinterpret_cast<NCCALCSIZE_PARAMS*>(l_param);
 
-    // Hack necessary to stop black background flicker, we cut out
-    // resizeborder here to save us from having to do too much
-    // addition and subtraction in Layout(). We don't cut off the
-    // top + titlebar as that prevents the window controls from
-    // highlighting.
-    pncsp->rgrc[0].left   = pncsp->rgrc[0].left   + kResizeBorder;
-    pncsp->rgrc[0].right  = pncsp->rgrc[0].right  - kResizeBorder;
-    pncsp->rgrc[0].bottom = pncsp->rgrc[0].bottom - kResizeBorder;
+      // Hack necessary to stop black background flicker, we cut out
+      // resizeborder here to save us from having to do too much
+      // addition and subtraction in Layout(). We don't cut off the
+      // top + titlebar as that prevents the window controls from
+      // highlighting.
+      params->rgrc[0].left += kResizeBorder;
+      params->rgrc[0].right -= kResizeBorder;
+      params->rgrc[0].bottom -= kResizeBorder;
+
+      SetMsgHandled(TRUE);
+    } else {
+      // We don't adjust the client size for detached popups, so we need to
+      // tell Windows we didn't handle the message here so that it doesn't
+      // screw up the non-client area.
+      SetMsgHandled(FALSE);
+    }
 
     // We need to reset the frame, as Vista resets it whenever it changes
     // composition modes (and NCCALCSIZE is the closest thing we get to
     // a reliable message about the change).
     UpdateDWMFrame();
 
-    SetMsgHandled(TRUE);
     return 0;
   }
   SetMsgHandled(FALSE);
@@ -178,10 +188,6 @@ bool AeroGlassFrame::GetAccelerator(int cmd_id,
   return browser_view_->GetAccelerator(cmd_id, accelerator);
 }
 
-void AeroGlassFrame::OnEndSession(BOOL ending, UINT logoff) {
-  FrameUtil::EndSession();
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // AeroGlassFrame, private:
 
@@ -190,26 +196,35 @@ void AeroGlassFrame::UpdateDWMFrame() {
   if (!client_view())
     return;
 
-  // Note: we don't use DwmEnableBlurBehindWindow because any region not
-  // included in the glass region is composited source over. This means
-  // that anything drawn directly with GDI appears fully transparent.
-  //
-  // We want this region to extend past our content border images, as they
-  // may be partially-transparent.
-  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  SkBitmap left_edge = *rb.GetBitmapNamed(IDR_CONTENT_TOP_LEFT_CORNER);
-  SkBitmap bottom_edge = *rb.GetBitmapNamed(IDR_CONTENT_BOTTOM_CENTER);
-  SkBitmap right_edge = *rb.GetBitmapNamed(IDR_CONTENT_TOP_RIGHT_CORNER);
-
   // TODO(beng): when TabStrip is hooked up, obtain this offset from its
   //             bounds.
   int toolbar_y = 36;
-  MARGINS margins = { kDwmBorderSize + left_edge.width(),
-                      kDwmBorderSize + right_edge.width(),
-                      kDwmBorderSize + client_view()->GetY() +
-                          kToolbarOverlapVertOffset + toolbar_y,
-                      kDwmBorderSize + bottom_edge.height() };
-  DwmExtendFrameIntoClientArea(GetHWND(), &margins);
+
+  // We only adjust the DWM's glass rendering when we're a browser window or a
+  // detached popup. App windows get the standard client edge.
+  if (browser_view_->IsTabStripVisible() ||
+      browser_view_->IsToolbarVisible()) {
+    // By default, we just want to adjust the glass by the width of the inner
+    // bevel that aero renders to demarcate the client area. We supply our own
+    // client edge for the browser window and detached popups, so we don't want
+    // to show the default one.
+    int client_edge_left_width = kWindowsDWMBevelSize;
+    int client_edge_right_width = kWindowsDWMBevelSize;
+    int client_edge_bottom_height = kWindowsDWMBevelSize;
+    int client_edge_top_height = kWindowsDWMBevelSize;
+    if (browser_view_->IsTabStripVisible()) {
+      client_edge_top_height =
+          client_view()->GetY() + kToolbarOverlapVertOffset + toolbar_y;
+    }
+
+    // Now poke the DWM.
+    MARGINS margins = { client_edge_left_width, client_edge_right_width,
+                        client_edge_top_height, client_edge_bottom_height };
+    // Note: we don't use DwmEnableBlurBehindWindow because any region not
+    // included in the glass region is composited source over. This means
+    // that anything drawn directly with GDI appears fully transparent.
+    DwmExtendFrameIntoClientArea(GetHWND(), &margins);
+  }
 }
 
 AeroGlassNonClientView* AeroGlassFrame::GetAeroGlassNonClientView() const {
