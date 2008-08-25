@@ -44,7 +44,7 @@ env_res.Append(
 
 res = [
     env_res.RES('theme_resources.rc'),
-    env_res.RES('google_theme_resources.rc'),
+    env_res.RES('distribution_resources.rc'),
 ]
 
 

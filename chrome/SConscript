@@ -328,6 +328,7 @@ chrome_exe = env_exe.ChromeProgram(
         env_res.RES('app/chrome_exe.rc'),
         'app/breakpad.cc',
         'app/chrome_exe_main.cc',
+        'app/client_util.cc',
         'app/google_update_client.cc',
 
         'common/common.lib',
