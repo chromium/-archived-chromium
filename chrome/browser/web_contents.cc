@@ -23,8 +23,6 @@
 #include "chrome/browser/load_notification_details.h"
 #include "chrome/browser/modal_html_dialog_delegate.h"
 #include "chrome/browser/navigation_entry.h"
-#include "chrome/browser/navigation_profiler.h"
-#include "chrome/browser/page_load_tracker.h"
 #include "chrome/browser/password_manager.h"
 #include "chrome/browser/plugin_installer.h"
 #include "chrome/browser/plugin_service.h"
@@ -198,7 +196,6 @@ WebContents::WebContents(Profile* profile,
 #pragma warning(suppress: 4355)  // Okay to pass "this" here.
       render_manager_(render_view_factory, this, this),
       render_view_factory_(render_view_factory),
-      is_profiling_(false),
       has_page_title_(false),
       info_bar_visible_(false),
       is_starred_(false),
@@ -496,42 +493,6 @@ void WebContents::OnSetFocus(HWND window) {
   }
 }
 
-NavigationProfiler* WebContents::GetNavigationProfiler() {
-  return &g_navigation_profiler;
-}
-
-bool WebContents::EnableProfiling() {
-  NavigationProfiler* profiler = GetNavigationProfiler();
-  is_profiling_ = profiler->is_profiling();
-
-  return is_profiling();
-}
-
-void WebContents::SaveCurrentProfilingEntry() {
-  if (is_profiling()) {
-    NavigationProfiler* profiler = GetNavigationProfiler();
-    profiler->MoveActivePageToVisited(process()->host_id(),
-                                      render_view_host()->routing_id());
-  }
-  is_profiling_ = false;
-}
-
-void WebContents::CreateNewProfilingEntry(const GURL& url) {
-  SaveCurrentProfilingEntry();
-
-  // Check new profiling status.
-  if (EnableProfiling()) {
-    NavigationProfiler* profiler = GetNavigationProfiler();
-    TimeTicks current_time = TimeTicks::Now();
-
-    PageLoadTracker *page = new PageLoadTracker(
-        url, process()->host_id(), render_view_host()->routing_id(),
-        current_time);
-
-    profiler->AddActivePage(page);
-  }
-}
-
 void WebContents::OnSavePage() {
   // If we can not save the page, try to download it.
   if (!SavePackage::IsSavableContents(contents_mime_type())) {
@@ -611,8 +572,6 @@ void WebContents::SavePage(const std::wstring& main_file,
 
 bool WebContents::Navigate(const NavigationEntry& entry, bool reload) {
   RenderViewHost* dest_render_view_host = render_manager_.Navigate(entry);
-
-  CreateNewProfilingEntry(entry.GetURL());
 
   // Used for page load time metrics.
   current_load_start_ = TimeTicks::Now();
@@ -1451,9 +1410,6 @@ void WebContents::DidNavigateAnyFramePreCommit(
     }
   }
 
-  // Reset timing data and log.
-  HandleProfilingForDidNavigate(params);
-
   // Notify the password manager of the navigation or form submit.
   if (params.password_form.origin.is_valid())
     GetPasswordManager()->ProvisionallySavePassword(params.password_form);
@@ -1510,32 +1466,6 @@ void WebContents::WebAppImagesChanged(WebApp* web_app) {
   DCHECK(web_app == web_app_.get());
   if (delegate() && IsWebApplicationActive())
     delegate()->NavigationStateChanged(this, TabContents::INVALIDATE_FAVICON);
-}
-
-void WebContents::HandleProfilingForDidNavigate(
-    const ViewHostMsg_FrameNavigate_Params& params) {
-  PageTransition::Type stripped_transition_type =
-      PageTransition::StripQualifier(params.transition);
-  if (stripped_transition_type == PageTransition::LINK ||
-      stripped_transition_type == PageTransition::FORM_SUBMIT) {
-    CreateNewProfilingEntry(params.url);
-  }
-
-  current_load_start_ = TimeTicks::Now();
-
-  if (is_profiling()) {
-    NavigationProfiler* profiler = GetNavigationProfiler();
-
-    FrameNavigationMetrics* frame =
-        new FrameNavigationMetrics(PageTransition::FromInt(params.transition),
-                                   current_load_start_,
-                                   params.url,
-                                   params.page_id);
-
-    profiler->AddFrameMetrics(process()->host_id(),
-                              render_view_host()->routing_id(),
-                              frame);
-  }
 }
 
 void WebContents::BroadcastProvisionalLoadCommit(
@@ -1751,18 +1681,7 @@ void WebContents::DidStartLoading(RenderViewHost* rvh, int32 page_id) {
 }
 
 void WebContents::DidStopLoading(RenderViewHost* rvh, int32 page_id) {
-  TimeTicks current_time = TimeTicks::Now();
-  if (is_profiling()) {
-    NavigationProfiler* profiler = GetNavigationProfiler();
-
-    profiler->SetLoadingEndTime(process()->host_id(),
-                                render_view_host()->routing_id(), page_id,
-                                current_time);
-    SaveCurrentProfilingEntry();
-  }
-
   scoped_ptr<LoadNotificationDetails> details;
-
   if (controller()) {
     NavigationEntry* entry = controller()->GetActiveEntry();
     if (entry) {
@@ -1770,7 +1689,7 @@ void WebContents::DidStopLoading(RenderViewHost* rvh, int32 page_id) {
           process_util::ProcessMetrics::CreateProcessMetrics(
               process()->process()));
 
-      TimeDelta elapsed = current_time - current_load_start_;
+      TimeDelta elapsed = TimeTicks::Now() - current_load_start_;
 
       details.reset(new LoadNotificationDetails(
           entry->GetDisplayURL(),

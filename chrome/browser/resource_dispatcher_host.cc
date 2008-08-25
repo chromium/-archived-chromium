@@ -17,7 +17,6 @@
 #include "chrome/browser/download_manager.h"
 #include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/login_prompt.h"
-#include "chrome/browser/navigation_profiler.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/renderer_security_policy.h"
 #include "chrome/browser/render_view_host.h"
@@ -1352,7 +1351,6 @@ void ResourceDispatcherHost::BeginRequest(
   request->set_referrer(request_data.referrer.spec());
   request->SetExtraRequestHeaders(request_data.headers);
   request->set_load_flags(request_data.load_flags);
-  request->set_enable_profiling(g_navigation_profiler.is_profiling());
   request->set_context(request_context);
   request->set_origin_pid(request_data.origin_pid);
 
@@ -1468,7 +1466,6 @@ void ResourceDispatcherHost::BeginDownload(const GURL& url,
 
   request->set_method("GET");
   request->set_referrer(referrer.spec());
-  request->set_enable_profiling(g_navigation_profiler.is_profiling());
   request->set_context(request_context);
 
   ExtraRequestInfo* extra_info =
@@ -1518,7 +1515,6 @@ void ResourceDispatcherHost::BeginSaveFile(const GURL& url,
   URLRequest* request = new URLRequest(url, this);
   request->set_method("GET");
   request->set_referrer(referrer.spec());
-  request->set_enable_profiling(g_navigation_profiler.is_profiling());
   // So far, for saving page, we need fetch content from cache, in the
   // future, maybe we can use a configuration to configure this behavior.
   request->set_load_flags(net::LOAD_ONLY_FROM_CACHE);

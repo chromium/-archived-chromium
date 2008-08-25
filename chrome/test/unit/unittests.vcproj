@@ -515,18 +515,6 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="TestPerformanceProfiler"
-			>
-			<File
-				RelativePath="..\..\browser\navigation_profiler_unittest.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\browser\page_load_tracker_unittest.cc"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="TestNavigationController"
 			>
 			<File

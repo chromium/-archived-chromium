@@ -10,9 +10,6 @@
 #include "base/thread.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/navigation_profiler.h"
-#include "chrome/browser/navigation_performance_viewer.h"
-#include "chrome/browser/page_load_tracker.h"
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/views/hwnd_view_container.h"
 #include "chrome/views/root_view.h"
@@ -24,12 +21,7 @@ const wchar_t kTitleMsg[] = L"Network Status";
 const wchar_t kStartTrackingMsg[] = L"Start I/O Tracking";
 const wchar_t kStopTrackingMsg[] = L"Stop I/O Tracking";
 
-const wchar_t kStartProfilingMsg[] = L"Start Profiling";
-const wchar_t kStopProfilingMsg[] = L"Stop Profiling";
-
 const wchar_t kShowIOStatusMsg[] = L"Show Current I/O Status";
-const wchar_t kShowPerformanceMsg[] = L"Show Performance";
-const wchar_t kRefreshPerformanceMsg[] = L"Refresh Performance";
 const wchar_t kClearOutputMsg[] = L"Clear Output";
 
 // Returns a string representing the URL, handling the case where the spec
@@ -63,11 +55,6 @@ NetworkStatusView::~NetworkStatusView() {
     is_tracking_ = false;
   }
 
-  if (is_profiling_) {
-    g_navigation_profiler.StopProfiling(profiling_session_id_);
-    is_profiling_ = false;
-  }
-
   tracker_->DetachView();
 }
 
@@ -78,12 +65,9 @@ const std::wstring NetworkStatusView::GetDefaultTitle() {
 void NetworkStatusView::OnCreate(const CRect& rect) {
   CreateButton(IDC_CONFIG_TRACKING_BUTTON, kStartTrackingMsg);
   CreateButton(IDC_CURRENT_STATUS_BUTTON, kShowIOStatusMsg);
-  CreateButton(IDC_CONFIG_PROFILING_BUTTON, kStartProfilingMsg);
-  CreateButton(IDC_SHOW_PERFORMANCE_BUTTON, kShowPerformanceMsg);
   CreateButton(IDC_CLEAR, kClearOutputMsg);
 
   is_tracking_ = false;
-  is_profiling_ = false;
 
   // Initialize the text box for network tracking
   // Don't worry about the size, we'll resize when we get WM_SIZE
@@ -101,32 +85,6 @@ void NetworkStatusView::OnCreate(const CRect& rect) {
   wcscpy_s(lf.lfFaceName, LF_FACESIZE, L"Courier New");
   monospaced_font_ = CreateFontIndirect(&lf);
   text_area_.SetFont(monospaced_font_);
-
-  HideTrackingResults();
-
-  // Initialize the view for performance profiling
-  // Don't worry about the size, we'll resize when we get WM_SIZE
-
-  // List of loaded pages
-  page_list_.Create(m_hWnd, const_cast<CRect&>(rect), NULL,
-                    WS_CHILD | WS_HSCROLL | WS_VSCROLL | LBS_STANDARD, 0,
-                    IDC_PAGE_LISTBOX);
-
-  // Textual report of page loading
-  page_text_.Create(m_hWnd, const_cast<CRect&>(rect), NULL,
-                    WS_CHILD | WS_HSCROLL | WS_VSCROLL |
-                    ES_MULTILINE | ES_AUTOHSCROLL | ES_AUTOVSCROLL, 0);
-  page_text_.SetFont(monospaced_font_);
-  // Raise the maximum number of chars from 32K to some large maximum.
-  page_text_.SendMessageW(EM_SETLIMITTEXT, 0, 0);
-
-  // Graphical report of page loading
-  page_load_view_ = new PageLoadView();
-  page_view_container_ = new ChromeViews::HWNDViewContainer;
-  page_view_container_->Init(m_hWnd, gfx::Rect(rect), false);
-  page_view_container_->SetContentsView(page_load_view_);
-
-  HideProfilingResults();
 }
 
 void NetworkStatusView::OnSize(const CRect& rect) {
@@ -139,21 +97,6 @@ void NetworkStatusView::OnSize(const CRect& rect) {
   int list_height = static_cast<int>(rect.Height() / 5);
   int page_width = rect.Width() / 2;
   int page_height = static_cast<int>(rect.Height() * 4 / 5);
-
-  new_rect.SetRect(rect.left, rect.top,
-                   rect.left + list_width, rect.top + list_height);
-  page_list_.MoveWindow(new_rect);
-
-  new_rect.SetRect(rect.left,
-                   rect.top + list_height,
-                   rect.left + page_width,
-                   rect.top + list_height + page_height);
-  page_text_.MoveWindow(new_rect);
-
-  page_view_container_->MoveWindow(rect.left + page_width + kLayoutPadding,
-                                   rect.top + list_height,
-                                   page_width - kLayoutPadding, page_height,
-                                   TRUE);
 }
 
 void NetworkStatusView::OnConfigTrackingClicked(UINT code, int button_id,
@@ -184,71 +127,6 @@ void NetworkStatusView::OnCurrentStatusClicked(UINT code, int button_id,
 
 void NetworkStatusView::OnClearClicked(UINT code, int button_id, HWND hwnd) {
   ClearTrackingResults();
-  ClearProfilingResults();
-}
-
-void NetworkStatusView::OnConfigProfilingClicked(UINT code, int button_id,
-                                                 HWND hwnd) {
-  if (is_profiling_) {
-    g_navigation_profiler.StopProfiling(profiling_session_id_);
-    is_profiling_ = false;
-
-    HideProfilingResults();
-
-    SetButtonText(IDC_CONFIG_PROFILING_BUTTON, kStartProfilingMsg);
-  } else {
-    profiling_session_id_ = g_navigation_profiler.StartProfiling();
-    is_profiling_ = true;
-
-    HideTrackingResults();
-    ClearProfilingResults();
-
-    performance_viewer_.reset(
-        new NavigationPerformanceViewer(profiling_session_id_));
-
-    ShowProfilingResults();
-
-    SetButtonText(IDC_CONFIG_PROFILING_BUTTON, kStopProfilingMsg);
-    SetButtonText(IDC_SHOW_PERFORMANCE_BUTTON, kShowPerformanceMsg);
-  }
-}
-
-void NetworkStatusView::OnShowPerformanceClicked(UINT code, int button_id,
-                                                 HWND hwnd) {
-  HideTrackingResults();
-  ShowProfilingResults();
-
-  if (!is_profiling_)
-    return;
-
-  int num_pages =
-      g_navigation_profiler.RetrieveVisitedPages(performance_viewer_.get());
-
-  // Refresh display if there are new page profiling results
-  if (num_pages > 0) {
-    // Display the list of page URLs
-    page_list_.ResetContent();
-    int size = performance_viewer_->GetSize();
-    for (int i = 0; i < size; ++i) {
-      PageLoadTracker* page = performance_viewer_->GetPageReference(i);
-      page_list_.InsertString(i, StringForURL(page->url()).c_str());
-    }
-
-    page_list_.SetCurSel(current_page_index_);
-    ReportPagePerformance(current_page_index_);
-
-    SetButtonText(IDC_SHOW_PERFORMANCE_BUTTON, kRefreshPerformanceMsg);
-  }
-}
-
-void NetworkStatusView::OnPageDoubleClicked(UINT code, int command_id,
-                                            HWND window) {
-  int index = page_list_.GetCurSel();
-  if (index == LB_ERR)
-    return;
-
-  current_page_index_ = index;
-  ReportPagePerformance(current_page_index_);
 }
 
 void NetworkStatusView::AppendText(const std::wstring& text) {
@@ -260,56 +138,12 @@ void NetworkStatusView::HideTrackingResults() {
 }
 
 void NetworkStatusView::ShowTrackingResults() {
-  HideProfilingResults();
   text_area_.ShowWindow(SW_SHOW);
 }
 
 void NetworkStatusView::ClearTrackingResults() {
   text_area_.SetSelAll();
   text_area_.Clear();
-}
-
-void NetworkStatusView::HideProfilingResults() {
-  page_list_.ShowWindow(SW_HIDE);
-  page_text_.ShowWindow(SW_HIDE);
-  page_view_container_->ShowWindow(SW_HIDE);
-}
-
-void NetworkStatusView::ShowProfilingResults() {
-  HideTrackingResults();
-  page_list_.ShowWindow(SW_SHOW);
-  page_text_.ShowWindow(SW_SHOW);
-  page_view_container_->ShowWindow(SW_SHOW);
-}
-
-void NetworkStatusView::ClearProfilingResults() {
-  page_list_.ResetContent();
-  current_page_index_ = 0;
-
-  page_text_.SetSelAll();
-  page_text_.Clear();
-
-  page_load_view_->SetPage(NULL);
-  page_view_container_->GetRootView()->SchedulePaint();
-
-  if (performance_viewer_.get())
-    performance_viewer_->Reset();
-}
-
-void NetworkStatusView::ReportPagePerformance(int page_index) {
-    PageLoadTracker* page = performance_viewer_->GetPageReference(page_index);
-
-    page_text_.SetSelAll();
-    page_text_.Clear();
-
-    if (page != NULL) {
-      std::wstring text;
-      page->AppendText(&text);
-      page_text_.AppendText(text.c_str());
-    }
-
-    page_load_view_->SetPage(page);
-    page_view_container_->GetRootView()->SchedulePaint();
 }
 
 //-----------------------------------------------------------------------------

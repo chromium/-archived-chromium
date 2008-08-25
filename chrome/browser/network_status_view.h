@@ -26,10 +26,7 @@ class NetworkStatusView : public StatusView {
   enum {
     IDC_CONFIG_TRACKING_BUTTON = 101,
     IDC_CURRENT_STATUS_BUTTON,
-    IDC_CONFIG_PROFILING_BUTTON,
-    IDC_SHOW_PERFORMANCE_BUTTON,
     IDC_CLEAR,
-    IDC_PAGE_LISTBOX,
   };
 
   NetworkStatusView();
@@ -46,22 +43,17 @@ class NetworkStatusView : public StatusView {
     COMMAND_HANDLER_EX(IDC_CONFIG_TRACKING_BUTTON, BN_CLICKED, OnConfigTrackingClicked)
     COMMAND_HANDLER_EX(IDC_CURRENT_STATUS_BUTTON, BN_CLICKED, OnCurrentStatusClicked)
     COMMAND_HANDLER_EX(IDC_CLEAR, BN_CLICKED, OnClearClicked)
-    COMMAND_HANDLER_EX(IDC_CONFIG_PROFILING_BUTTON, BN_CLICKED, OnConfigProfilingClicked)
-    COMMAND_HANDLER_EX(IDC_SHOW_PERFORMANCE_BUTTON, BN_CLICKED, OnShowPerformanceClicked)
-    COMMAND_HANDLER_EX(IDC_PAGE_LISTBOX, LBN_DBLCLK, OnPageDoubleClicked)
     CHAIN_MSG_MAP(StatusView);
   END_MSG_MAP()
 
   bool is_tracking() const { return is_tracking_; }
+
  private:
 
   // Event handlers
   void OnConfigTrackingClicked(UINT code, int button_id, HWND hwnd);
   void OnCurrentStatusClicked(UINT code, int button_id, HWND hwnd);
   void OnClearClicked(UINT code, int button_id, HWND hwnd);
-  void OnConfigProfilingClicked(UINT code, int button_id, HWND hwnd);
-  void OnShowPerformanceClicked(UINT code, int button_id, HWND hwnd);
-  void OnPageDoubleClicked(UINT code, int listbox_id, HWND hwnd);
 
   void AppendText(const std::wstring& text);
 
@@ -71,16 +63,6 @@ class NetworkStatusView : public StatusView {
 
   // Clear tracking output
   void ClearTrackingResults();
-
-  // Hide/Show profiling output windows
-  void HideProfilingResults();
-  void ShowProfilingResults();
-
-  // Clear profiling output
-  void ClearProfilingResults();
-
-  // Show detailed profiling results for the page with given index.
-  void ReportPagePerformance(int page_index);
 
   // A JobTracker is allocated to monitor network jobs running on the IO
   // thread.  This allows the NetworkStatusView to remain single-threaded.
@@ -131,29 +113,7 @@ class NetworkStatusView : public StatusView {
 
   HFONT monospaced_font_;
 
-  // For performance profiling
-  bool is_profiling_;
-  int profiling_session_id_;
-  scoped_ptr<NavigationPerformanceViewer> performance_viewer_;
-
-  // Output of performance profiling
-
-  // List of pages being profiled
-  CListBox page_list_;
-
-  // Textual report of selected page loading performance
-  CEdit page_text_;
-
-  // Graphical report of selected page loading performance
-  PageLoadView* page_load_view_;
-  // We don't use a scoped_ptr here since the page_view_container_ deletes
-  // itself when it is destroyed automatically by its parent window.
-  ChromeViews::HWNDViewContainer* page_view_container_;
-
-  // Current page being selected
-  int current_page_index_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(NetworkStatusView);
+  DISALLOW_COPY_AND_ASSIGN(NetworkStatusView);
 };
 
 #endif  // #ifndef CHROME_BROWSER_NETWORK_STATUS_VIEW_H__

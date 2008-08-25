@@ -19,7 +19,6 @@
 
 class FindInPageController;
 class InterstitialPageDelegate;
-class NavigationProfiler;
 class PasswordManager;
 class PluginInstaller;
 class RenderViewHost;
@@ -101,9 +100,6 @@ class WebContents : public TabContents,
   // Default is not to block any message boxes.
   void SetSuppressJavascriptMessageBoxes(bool suppress_javascript_messages);
 
-  // Return true if the WebContents is doing performance profiling
-  bool is_profiling() const { return is_profiling_; }
-
   // Various other systems need to know about our interstitials.
   bool showing_interstitial_page() const {
     return render_manager_.showing_interstitial_page();
@@ -111,14 +107,6 @@ class WebContents : public TabContents,
   bool showing_repost_interstitial() const {
     return render_manager_.showing_repost_interstitial();
   }
-
-  // Check with the global navigation profiler on whether to enable
-  // profiling. Return true if profiling needs to be enabled, return
-  // false otherwise.
-  bool EnableProfiling();
-
-  // Return the global navigation profiler.
-  NavigationProfiler* GetNavigationProfiler();
 
   // Overridden from TabContents to remember at what time the download bar was
   // shown.
@@ -664,21 +652,9 @@ class WebContents : public TabContents,
   virtual NavigationController* GetControllerForRenderManager() {
     return controller();
   }
+
+  // ---------------------------------------------------------------------------
   
-  // Profiling -----------------------------------------------------------------
-
-  // Logs the commit of the load for profiling purposes. Used by DidNavigate.
-  void HandleProfilingForDidNavigate(
-      const ViewHostMsg_FrameNavigate_Params& params);
-
-  // If performance profiling is enabled, save current PageLoadTracker entry
-  // to visited page list.
-  void SaveCurrentProfilingEntry();
-
-  // If performance profiling is enabled, create a new PageLoadTracker entry
-  // when navigating to a new page.
-  void CreateNewProfilingEntry(const GURL& url);
-
   // Enumerate and 'un-parent' any plugin windows that are children
   // of this web contents.
   void DetachPluginWindows();
@@ -708,9 +684,6 @@ class WebContents : public TabContents,
   // Maps from handle to page_id.
   typedef std::map<HistoryService::Handle, int32> HistoryRequestMap;
   HistoryRequestMap history_requests_;
-
-  // Whether the WebContents is doing performance profiling
-  bool is_profiling_;
 
   // System time at which the current load was started.
   TimeTicks current_load_start_;

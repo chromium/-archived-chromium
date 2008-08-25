@@ -866,35 +866,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\navigation_performance_viewer.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\navigation_performance_viewer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\navigation_profiler.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\navigation_profiler.h"
-				>
-			</File>
-			<File
 				RelativePath=".\network_status_view.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\network_status_view.h"
-				>
-			</File>
-			<File
-				RelativePath=".\page_load_tracker.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\page_load_tracker.h"
 				>
 			</File>
 			<File
