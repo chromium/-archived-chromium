@@ -1,10 +1,40 @@
 // Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-// All Rights Reserved.
 
-#ifndef BASE_SCOPED_PTR_H__
-#define BASE_SCOPED_PTR_H__
+// Scopers help you manage ownership of a pointer, helping you easily manage the
+// a pointer within a scope, and automatically destroying the pointer at the
+// end of a scope.  There are two main classes you will use, which coorespond
+// to the operators new/delete and new[]/delete[].
+//
+// Example usage (scoped_ptr):
+//   {
+//     scoped_ptr<Foo> foo(new Foo("wee"));
+//   }  // foo goes out of scope, releasing the pointer with it.
+//
+//   {
+//     scoped_ptr<Foo> foo;          // No pointer managed.
+//     foo.reset(new Foo("wee"));    // Now a pointer is managed.
+//     foo.reset(new Foo("wee2"));   // Foo("wee") was destroyed.
+//     foo.reset(new Foo("wee3"));   // Foo("wee2") was destroyed.
+//     foo->Method();                // Foo::Method() called.
+//     foo.get()->Method();          // Foo::Method() called.
+//     SomeFunc(foo.Release());      // SomeFunc takes owernship, foo no longer
+//                                   // manages a pointer.
+//     foo.reset(new Foo("wee4"));   // foo manages a pointer again.
+//     foo.reset();                  // Foo("wee4") destroyed, foo no longer
+//                                   // manages a pointer.
+//   }  // foo wasn't managing a pointer, so nothing was destroyed.
+//
+// Example usage (scoped_array):
+//   {
+//     scoped_array<Foo> foo(new Foo[100]);
+//     foo.get()->Method();  // Foo::Method on the 0th element.
+//     foo[10].Method();     // Foo::Method on the 10th element.
+//   }
+
+#ifndef BASE_SCOPED_PTR_H_
+#define BASE_SCOPED_PTR_H_
 
 // This is an implementation designed to match the anticipated future TR2
 // implementation of the scoped_ptr class, and its closely-related brethren,
@@ -347,5 +377,4 @@ bool operator!=(C* p, const scoped_ptr_malloc<C, FP>& b) {
   return p != b.get();
 }
 
-#endif  // BASE_SCOPED_PTR_H__
-
+#endif  // BASE_SCOPED_PTR_H_

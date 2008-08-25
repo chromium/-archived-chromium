@@ -252,6 +252,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\scoped_ptr_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\sha2_unittest.cc"
 				>
 			</File>
@@ -313,6 +317,10 @@
 			</File>
 			<File
 				RelativePath="..\tracked_objects_test.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\tuple_unittest.cc"
 				>
 			</File>
 			<File

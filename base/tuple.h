@@ -2,6 +2,30 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// A Tuple is a generic templatized container, similar in concept to std::pair.
+// There are classes Tuple0 to Tuple5, cooresponding to the number of elements
+// it contains.  The convenient MakeTuple() function takes 0 to 5 arguments,
+// and will construct and return the appropriate Tuple object.  The functions
+// DispatchToMethod and DispatchToFunction take a function pointer or instance
+// and method pointer, and unpack a tuple into arguments to the call.
+//
+// Tuple elements are copied by value, and stored in the tuple.  See the unit
+// tests for more details of how/when the values are copied.
+//
+// Example usage:
+//   // These two methods of creating a Tuple are identical.
+//   Tuple2<int, const char*> tuple_a(1, "wee");
+//   Tuple2<int, const char*> tuple_b = MakeTuple(1, "wee");
+//
+//   void SomeFunc(int a, const char* b) { }
+//   DispatchToFunction(&SomeFunc, tuple_a);  // SomeFunc(1, "wee")
+//   DispatchToFunction(
+//       &SomeFunc, MakeTuple(10, "foo"));    // SomeFunc(10, "foo")
+//
+//   struct { void SomeMeth(int a, int b, int c) { } } foo;
+//   DispatchToMethod(&foo, &Foo::SomeMeth, MakeTuple(1, 2, 3));
+//   // foo->SomeMeth(1, 2, 3);
+
 #ifndef BASE_TUPLE_H__
 #define BASE_TUPLE_H__
 
