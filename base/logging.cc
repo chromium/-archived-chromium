@@ -63,6 +63,9 @@ LoggingDestination logging_destination = LOG_ONLY_TO_SYSTEM_DEBUG_LOG;
 const int kMaxFilteredLogLevel = LOG_WARNING;
 std::string* log_filter_prefix;
 
+// For LOG_ERROR and above, always print to stderr.
+const int kAlwaysPrintErrorLevel = LOG_ERROR;
+
 // Which log file to use? This is initialized by InitLogging or
 // will be lazily initialized to the default value when it is
 // first needed.
@@ -410,9 +413,14 @@ LogMessage::~LogMessage() {
       logging_destination == LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG) {
 #if defined(OS_WIN)
     OutputDebugStringA(str_newline.c_str());
-#else
-    fprintf(stderr, "%s", str_newline.c_str());
 #endif
+    // Output to stderr too so that unit tests can benefit as well.
+    fprintf(stderr, "%s", str_newline.c_str());
+  } else if (severity_ >= kAlwaysPrintErrorLevel) {
+    // When we're only outputting to a log file, above a certain log level, we
+    // should still output to stderr so that we can better detect and diagnose
+    // problems with unit tests, especially on the buildbots.
+    fprintf(stderr, "%s", str_newline.c_str());
   }
   
   // write to log file
