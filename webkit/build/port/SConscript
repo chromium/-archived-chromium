@@ -566,33 +566,20 @@ env.Command(['$DERIVED_DIR/UserAgentStyleSheets.h',
              '$DERIVED_DIR/quirks.css'],
             '$PERL ${SOURCES[0].posix} ${TARGETS.posix} ${SOURCES[1:].posix}')
 
-env.Command(['$DERIVED_DIR/XPathGrammar.cpp',
-             '$DERIVED_DIR/XPathGrammar.h'],
-            ['$WEBKIT_PORT_DIR/xml/XPathGrammar.y'],
-            '$YACC -d -p xpathyy ${SOURCES[0].posix} -o ${TARGET.posix} && ' + \
-            'echo #ifndef XPathGrammar_h ' + \
-               '> $DERIVED_DIR\\XPathGrammar.h && ' + \
-            'echo #define XPathGrammar_h ' + \
-               '>> $DERIVED_DIR\\XPathGrammar.h && ' + \
-            'type $DERIVED_DIR\\XPathGrammar.hpp ' + \
-               '>> $DERIVED_DIR\\XPathGrammar.h && ' + \
-            'echo #endif ' + \
-               '>> $DERIVED_DIR\\XPathGrammar.h && ' + \
-            'del $DERIVED_DIR\\XPathGrammar.hpp')
+def BuildYacc(env, dir, name, file):
+  env.Command(['$DERIVED_DIR/%s.cpp' % file,
+               '$DERIVED_DIR/%s.h'   % file],
+              ['$WEBKIT_PORT_DIR/%s/%s.y' % (dir, file)],
+              ('$YACC -d -p %syy ${SOURCES[0].posix} ' % name +
+                 '-o ${TARGET.posix} && ' +
+               '(echo \#ifndef %s_h;' % file +
+               ' echo \#define %s_h;' % file +
+               ' cat $DERIVED_DIR/%s.hpp;' % file +
+               ' echo \#endif) >> $DERIVED_DIR/%s.h && ' % file +
+               'rm $DERIVED_DIR/%s.hpp' % file))
 
-env.Command(['$DERIVED_DIR/CSSGrammar.cpp',
-             '$DERIVED_DIR/CSSGrammar.h'],
-            ['$WEBKIT_PORT_DIR/css/CSSGrammar.y'],
-            '$YACC -d -p cssyy ${SOURCES[0].posix} -o ${TARGET.posix} && ' + \
-            'echo #ifndef CSSGrammar_h ' + \
-               '> $DERIVED_DIR\\CSSGrammar.h && ' + \
-            'echo #define CSSGrammar_h ' + \
-               '>> $DERIVED_DIR\\CSSGrammar.h && ' + \
-            'type $DERIVED_DIR\\CSSGrammar.hpp ' + \
-               '>> $DERIVED_DIR\\CSSGrammar.h && ' + \
-            'echo #endif ' + \
-               '>> $DERIVED_DIR\\CSSGrammar.h && ' + \
-            'del $DERIVED_DIR\\CSSGrammar.hpp')
+BuildYacc(env, 'xml', 'xpath', 'XPathGrammar')
+BuildYacc(env, 'css', 'css',   'CSSGrammar')
 
 # TODO(bradnelson): need to add in error checking
 
