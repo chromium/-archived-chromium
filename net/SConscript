@@ -240,11 +240,11 @@ unittest_files = [
     'base/mime_sniffer_unittest.cc',
     'base/net_util_unittest.cc',
     'base/registry_controlled_domain_unittest.cc',
+    'base/run_all_unittests.cc',
     'disk_cache/addr_unittest.cc',
     'http/http_chunked_decoder_unittest.cc',
     'http/http_response_headers_unittest.cc',
     'http/http_vary_data_unittest.cc',
-    'base/run_all_unittests.cc',
 ]
 
 if env['PLATFORM'] == 'win32':
