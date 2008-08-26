@@ -176,7 +176,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\condition_variable_test.cc"
+				RelativePath="..\condition_variable_unittest.cc"
 				>
 			</File>
 			<File
@@ -188,7 +188,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\histogram_test.cc"
+				RelativePath="..\histogram_unittest.cc"
 				>
 			</File>
 			<File
@@ -236,7 +236,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\pr_time_test.cc"
+				RelativePath="..\pr_time_unittest.cc"
 				>
 			</File>
 			<File
@@ -316,7 +316,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\tracked_objects_test.cc"
+				RelativePath="..\tracked_objects_unittest.cc"
 				>
 			</File>
 			<File
@@ -332,7 +332,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\watchdog_test.cc"
+				RelativePath="..\watchdog_unittest.cc"
 				>
 			</File>
 			<File
