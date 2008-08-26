@@ -193,7 +193,9 @@ class MessageLoop : public base::MessagePump::Delegate {
   // Returns the MessageLoop object for the current thread, or null if none.
   static MessageLoop* current() {
     MessageLoop* loop = static_cast<MessageLoop*>(tls_index_.Get());
-    DCHECK(loop) << "Ouch, did you forget to initialize me?";
+    // TODO(darin): sadly, we cannot enable this yet since people call us even
+    // when they have no intention of using us.
+    //DCHECK(loop) << "Ouch, did you forget to initialize me?";
     return loop;
   }
 
