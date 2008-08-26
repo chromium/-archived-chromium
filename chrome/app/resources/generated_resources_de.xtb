@@ -337,7 +337,7 @@
 <translation id="2266011376676382776">Seite(n) reagiert/en nicht</translation>
 <translation id="1110155001042129815">Warten</translation>
 <translation id="1684861821302948641">Seiten beenden</translation>
-<translation id="6134282421960734039">Möchten Sie, dass Chrome Ihr Passwort speichert?</translation>
+<translation id="6134282421960734039">Möchten Sie, dass Google Chrome Ihr Passwort speichert?</translation>
 <translation id="5271549068863921519">Passwort speichern</translation>
 <translation id="7484645889979462775">Für diese Website niemals</translation>
 <translation id="4195643157523330669">In neuem Tab öffnen</translation>
@@ -445,7 +445,7 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">Schnellstartleiste</translation>
-<translation id="1549918799472947005">Chrome verwendet Ihre Standardsuchmaschine, für die zurzeit <ph name="PAGE_TITLE"/> festgelegt ist. Möchten Sie die Standardsuchmaschine beibehalten?</translation>
+<translation id="1549918799472947005">Google Chrome verwendet Ihre Standardsuchmaschine, für die zurzeit <ph name="PAGE_TITLE"/> festgelegt ist. Möchten Sie die Standardsuchmaschine beibehalten?</translation>
 <translation id="74568296546932365"><ph name="PAGE_TITLE"/> als Standardsuchmaschine beibehalten</translation>
 <translation id="8288345061925649502">Suchmaschine ändern</translation>
 <translation id="3037605927509011580">So'n Mist!</translation>
@@ -577,7 +577,7 @@
 <translation id="2441719842399509963">Auf Standardeinstellungen zurücksetzen</translation>
 <translation id="1208126399996836490">Nicht zurücksetzen</translation>
 <translation id="3122496702278727796">Erstellen eines Datenverzeichnisses fehlgeschlagen</translation>
-<translation id="5046764976540625289">Chrome beenden</translation>
+<translation id="5046764976540625289">Google Chrome beenden</translation>
 <translation id="5034259512732355072">Anderes Verzeichnis wählen...</translation>
 <translation id="2160383474450212653">Schriftarten und Sprachen</translation>
 <translation id="5042992464904238023">Web-Content</translation>
@@ -614,7 +614,7 @@
 <translation id="4307992518367153382">Grundeinstellungen</translation>
 <translation id="1709220265083931213">Details</translation>
 <translation id="1674989413181946727">SSL-Einstellungen für den ganzen Computer:</translation>
-<translation id="582763753075639530">Schließen Sie alle Chrome-Fenster und starten Sie Chrome neu, damit diese Änderung wirksam wird.</translation>
+<translation id="582763753075639530">Schließen Sie alle Google Chrome-Fenster und starten Sie Chrome neu, damit diese Änderung wirksam wird.</translation>
 <translation id="9015241028623917394">Aktuelle Seite bearbeiten</translation>
 <translation id="8502249598105294518"><ph name="PRODUCT_NAME"/> anpassen</translation>
 <translation id="4475552974751346499">Downloads durchsuchen</translation>
@@ -624,7 +624,7 @@
 <translation id="8725178340343806893">Favoriten/Lesezeichen</translation>
 <translation id="873849583815421063">Wird fertiggestellt...</translation>
 <translation id="2960316970329790041">Import anhalten</translation>
-<translation id="5016204670686360703">Wenn Sie jetzt abbrechen, werden nicht alle Elemente importiert. Sie können später erneut Elemente aus dem Chrome-Menü importieren.</translation>
+<translation id="5016204670686360703">Wenn Sie jetzt abbrechen, werden nicht alle Elemente importiert. Sie können später erneut Elemente aus dem Google Chrome-Menü importieren.</translation>
 <translation id="7642109201157405070">Import fortsetzen</translation>
 <translation id="5508407262627860757">Trotzdem abbrechen</translation>
 <translation id="290414493736480793">Danksagungen</translation>
@@ -684,7 +684,7 @@
 <translation id="2618799103663374905">Google Chrome-Verknüpfungen zum Desktop, zur Schnellstartleiste und zum Startmenü hinzufügen</translation>
 <translation id="213581405366815208">Möchten Sie die Installation von Google Chrome wirklich abbrechen? Falls Sie später fortfahren möchten, öffnen Sie Chrome im Startmenü über den Ordner &quot;Programme&quot;.</translation>
 <translation id="5941830788786076944">Google Chrome als Standardbrowser festlegen</translation>
-<translation id="7001386529596391893">Chrome-Verknüpfungen an diesen Speicherorten erstellen:</translation>
+<translation id="7001386529596391893">Google Chrome-Verknüpfungen an diesen Speicherorten erstellen:</translation>
 <translation id="480990236307250886">Homepage öffnen</translation>
 <translation id="6514771739083339959">Homepage:</translation>
 <translation id="1665770420914915777">Seite &quot;Neuer Tab&quot; verwenden</translation>
@@ -695,7 +695,7 @@
 <translation id="3335672657969596251">Google Chrome unterstützt <ph name="OS_NAME"/> nicht.</translation>
 <translation id="1446473746922165495">Ändern Sie die Sprache der Google Chrome-Menüs, Dialogfelder und Kurzinfos.</translation>
 <translation id="8810218179782551669">Google Chrome-Sprache:</translation>
-<translation id="7958215378280655655">Wenn Sie die Chrome-Optionen zurücksetzen, werden sämtliche vorgenommenen Änderungen auf die Standardeinstellungen zurückgesetzt. Möchten Sie die Chrome-Optionen zurücksetzen?</translation>
+<translation id="7958215378280655655">Wenn Sie die Google Chrome-Optionen zurücksetzen, werden sämtliche vorgenommenen Änderungen auf die Standardeinstellungen zurückgesetzt. Möchten Sie die Optionen zurücksetzen?</translation>
 <translation id="7100330187273168372">Google Chrome kann im folgenden Datenverzeichnis weder lesen noch schreiben:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="3324235665723428530">Ihr Profil kann nicht verwendet werden, da es aus einer neueren Google Chrome-Version stammt.\n\nEinige Funktionen sind möglicherweise nicht verfügbar. Geben Sie ein anderes Profilverzeichnis an oder verwenden Sie eine neuere Chrome-Version.</translation>
 <translation id="3319048459796106952">Neues &amp;Inkognito-Fenster</translation>
@@ -737,5 +737,5 @@
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Sie haben den Modus für anonymes Browsen aktiviert<ph name="END_BOLD"/>. In diesem Fenster aufgerufene Seiten werden nicht im Browserverlauf oder Suchverlauf angezeigt. Zudem werden nach dem Schließen des Inkognito-Fensters keine anderen Hinweise wie Cookies auf dem Computer gespeichert. Heruntergeladene Dateien oder hinzugefügte Lesezeichen werden jedoch beibehalten. <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Das anonyme Browsen wirkt sich nicht auf das Nutzerverhalten bzw. auf die Funktionsweise von Servern oder Software aus. Vorsicht ist geboten bei:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Websites, auf denen Informationen über Sie gesammelt oder weitergegeben werden<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Internetanbietern oder Arbeitgebern, die die von Ihnen aufgerufenen Seiten protokollieren<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Bösartiger Software, mit der Ihre Tastatureingaben festgehalten werden (dafür bekommen Sie Smileys gratis)<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Überwachung durch Ermittlungsbehörden<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Personen, die hinter Ihnen stehen<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        Weitere Informationen zum anonymen Browsen erhalten Sie <ph name="BEGIN_LINK"/>hier<ph name="END_LINK"/>.</translation>
 <translation id="1604816462140255479">Text&amp;zoom</translation>
 <translation id="2089625293428655599">Teile dieser Software sind von Drittanbietern lizenziert. Weitere Informationen erhalten Sie unter: <ph name="URL"/></translation>
-<translation id="6817660909204164466">Helfen Sie, Google Chrome zu verbessern, indem Sie automatisch Nutzungsstatistiken und Absturzberichte an Google senden.</translation>
+<translation id="6817660909204164466">Helfen Sie, Google Chrome zu verbessern, indem Sie automatisch Nutzungsstatistiken und Ausfallberichte an Google senden.</translation>
 </translationbundle>
