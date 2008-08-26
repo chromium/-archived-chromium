@@ -15,6 +15,5 @@
 	<Tool
 		Name="VCLinkerTool"
     EnableCOMDATFolding="1"
-    Profile="1"
 	/>
 </VisualStudioPropertySheet>
