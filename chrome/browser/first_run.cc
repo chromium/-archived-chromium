@@ -164,7 +164,7 @@ void OpenFirstRunDialog(Profile* profile) {
   // is closed) so that the window can receive messages and we block the
   // browser window from showing up. We pass the accelerator handler here so
   // that keyboard accelerators (Enter, Esc, etc) work in the dialog box.
-  MessageLoop::current()->Run(g_browser_process->accelerator_handler());
+  MessageLoopForUI::current()->Run(g_browser_process->accelerator_handler());
 }
 
 namespace {

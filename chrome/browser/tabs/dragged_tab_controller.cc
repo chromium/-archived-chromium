@@ -96,13 +96,13 @@ DraggedTabController::DraggedTabController(Tab* source_tab,
   ChangeDraggedContents(
       source_tabstrip_->model()->GetTabContentsAt(source_model_index_));
   // Listen for Esc key presses.
-  MessageLoop::current()->AddObserver(this);
+  MessageLoopForUI::current()->AddObserver(this);
 }
 
 DraggedTabController::~DraggedTabController() {
   in_destructor_ = true;
   CleanUpSourceTab();
-  MessageLoop::current()->RemoveObserver(this);
+  MessageLoopForUI::current()->RemoveObserver(this);
   ChangeDraggedContents(NULL); // This removes our observer.
 }
 

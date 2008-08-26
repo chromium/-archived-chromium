@@ -73,7 +73,7 @@ class JankWatchdog : public Watchdog {
 
 //------------------------------------------------------------------------------
 class JankObserver : public base::RefCountedThreadSafe<JankObserver>,
-                     public MessageLoop::Observer {
+                     public MessageLoopForUI::Observer {
  public:
   JankObserver(const wchar_t* thread_name,
                const TimeDelta& excessive_duration,
@@ -95,12 +95,15 @@ class JankObserver : public base::RefCountedThreadSafe<JankObserver>,
   // attach to the current thread, so this function can be invoked on another
   // thread to attach it.
   void AttachToCurrentThread() {
-    MessageLoop::current()->AddObserver(this);
+    // TODO(darin): support monitoring jankiness on non-UI threads!
+    if (MessageLoop::current()->type() == MessageLoop::TYPE_UI)
+      MessageLoopForUI::current()->AddObserver(this);
   }
 
   // Detaches the observer to the current thread's message loop.
   void DetachFromCurrentThread() {
-    MessageLoop::current()->RemoveObserver(this);
+    if (MessageLoop::current()->type() == MessageLoop::TYPE_UI)
+      MessageLoopForUI::current()->RemoveObserver(this);
   }
 
   void WillProcessMessage(const MSG& msg) {
@@ -200,7 +203,7 @@ void InstallJankometer(const CommandLine &parsed_command_line) {
       TimeDelta::FromMilliseconds(kMaxIOMessageDelayMs),
       io_watchdog_enabled);
   io_observer->AddRef();
-  Thread* io_thread = g_browser_process->io_thread();
+  base::Thread* io_thread = g_browser_process->io_thread();
   if (io_thread) {
     io_thread->message_loop()->PostTask(FROM_HERE,
         NewRunnableMethod(io_observer,

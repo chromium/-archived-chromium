@@ -1021,7 +1021,7 @@ void XPFrame::OnSize(UINT param, const CSize& size) {
     RedrawWindow(root_view_.GetScheduledPaintRect(),
                  NULL,
                  RDW_UPDATENOW | RDW_INVALIDATE | RDW_ALLCHILDREN);
-    MessageLoop::current()->PumpOutPendingPaintMessages();
+    MessageLoopForUI::current()->PumpOutPendingPaintMessages();
   }
 
   if (!saved_window_placement_ && should_save_window_placement_)

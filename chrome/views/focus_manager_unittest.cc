@@ -217,6 +217,7 @@ class FocusManagerTest : public testing::Test {
   virtual void SetUp();
   virtual void TearDown();
 
+  MessageLoopForUI message_loop_;
   TestViewWindow* test_window_;
 };
 

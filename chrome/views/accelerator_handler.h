@@ -15,7 +15,7 @@ namespace ChromeViews {
 // holds a singleton instance of this class which can be used by other
 // custom message loop dispatcher objects to implement default accelerator
 // handling.
-class AcceleratorHandler : public MessageLoop::Dispatcher {
+class AcceleratorHandler : public MessageLoopForUI::Dispatcher {
  public:
    AcceleratorHandler();
   // Dispatcher method. This returns true if an accelerator was

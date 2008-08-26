@@ -144,6 +144,8 @@ class VisitedLinkTest : public testing::Test {
     ClearDB();
     file_util::Delete(history_dir_, true);
   }
+  
+  MessageLoop message_loop_;
 
   // Filenames for the services;
   std::wstring history_dir_;

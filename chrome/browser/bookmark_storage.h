@@ -49,7 +49,7 @@ class BookmarkStorage : public base::RefCountedThreadSafe<BookmarkStorage> {
   void SaveNow();
 
   // Returns the thread the backend is run on.
-  Thread* backend_thread() const { return backend_thread_; }
+  base::Thread* backend_thread() const { return backend_thread_; }
 
   // The model. The model is NULL once BookmarkModelDeleted has been invoked.
   BookmarkBarModel* model_;
@@ -62,7 +62,7 @@ class BookmarkStorage : public base::RefCountedThreadSafe<BookmarkStorage> {
 
   // Thread read/writing is run on. This comes from the profile, and is null
   // during testing.
-  Thread* backend_thread_;
+  base::Thread* backend_thread_;
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkStorage);
 };

@@ -97,6 +97,8 @@ class HistoryContentsProviderTest : public testing::Test,
     MessageLoop::current()->Quit();
   }
 
+  MessageLoopForUI message_loop_;
+  
   std::wstring history_dir_;
 
   scoped_refptr<HistoryContentsProvider> provider_;

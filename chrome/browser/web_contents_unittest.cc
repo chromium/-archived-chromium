@@ -296,6 +296,9 @@ class WebContentsTest : public testing::Test {
 
   scoped_ptr<WebContentsTestingProfile> profile;
   TestWebContents* contents;
+
+ private:
+  MessageLoopForUI message_loop_;
 };
 
 // Test to make sure that title updates get stripped of whitespace

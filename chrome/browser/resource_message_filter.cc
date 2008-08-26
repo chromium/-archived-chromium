@@ -654,7 +654,7 @@ class SpellCheckTask : public Task {
     if (checker)
       checker->SpellCheckWord(word_.c_str(), static_cast<int>(word_.length()),
                               &misspell_location, &misspell_length, NULL);
-    Thread* io_thread = g_browser_process->io_thread();
+    base::Thread* io_thread = g_browser_process->io_thread();
     if (io_thread) {
       io_thread->message_loop()->PostTask(FROM_HERE,
           new SpellCheckReplyTask(filter_, reply_msg_,

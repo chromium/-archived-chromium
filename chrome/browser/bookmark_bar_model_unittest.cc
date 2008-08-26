@@ -525,6 +525,8 @@ class BookmarkBarModelTestWithProfile : public testing::Test,
                                    BookmarkBarNode* node) {}
   virtual void BookmarkNodeFavIconLoaded(BookmarkBarModel* model,
                                          BookmarkBarNode* node) {}
+
+  MessageLoopForUI message_loop_;
 };
 
 // Creates a set of nodes in the bookmark bar model, then recreates the

@@ -19,7 +19,7 @@ class Window;
 }
 
 class UserDataDirDialog : public ChromeViews::DialogDelegate,
-                          public MessageLoop::Dispatcher,
+                          public MessageLoopForUI::Dispatcher,
                           public SelectFileDialog::Listener {
  public:
   // Creates and runs a user data directory picker dialog.  The method blocks

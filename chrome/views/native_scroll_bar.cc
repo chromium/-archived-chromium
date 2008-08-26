@@ -190,7 +190,7 @@ class ScrollBarContainer : public CWindowImpl<ScrollBarContainer,
     MSG dummy;
     dummy.hwnd = NULL;
     dummy.message = 0;
-    MessageLoop::current()->DidProcessMessage(dummy);
+    MessageLoopForUI::current()->DidProcessMessage(dummy);
   }
 
   // note: always ignore 2nd param as it is 16 bits

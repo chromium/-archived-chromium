@@ -559,7 +559,8 @@ TEST_F(PrintingLayoutTest, DISABLED_Delayed) {
               tab_proxy->NavigateToURL(url));
 
 
-    scoped_ptr<Thread> worker(new Thread("PrintingLayoutTest_worker"));
+    scoped_ptr<base::Thread> worker(
+        new base::Thread("PrintingLayoutTest_worker"));
     DismissTheWindow dismiss_task(process_util::GetProcId(process()));
     // We need to start the thread to be able to set the timer.
     worker->Start();
@@ -597,7 +598,8 @@ TEST_F(PrintingLayoutTest, DISABLED_IFrame) {
     EXPECT_EQ(AUTOMATION_MSG_NAVIGATION_SUCCESS,
               tab_proxy->NavigateToURL(url));
 
-    scoped_ptr<Thread> worker(new Thread("PrintingLayoutTest_worker"));
+    scoped_ptr<base::Thread> worker(
+        new base::Thread("PrintingLayoutTest_worker"));
     DismissTheWindow dismiss_task(process_util::GetProcId(process()));
     // We need to start the thread to be able to set the timer.
     worker->Start();

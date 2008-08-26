@@ -164,6 +164,9 @@ class NavigationControllerTest : public testing::Test,
   TestContents* contents;
 
   Profile* profile;
+ 
+ private:
+  MessageLoopForUI message_loop_;
 };
 
 // NavigationControllerHistoryTest ---------------------------------------------

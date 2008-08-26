@@ -415,7 +415,7 @@ void DownloadFileManager::DownloadUrl(const GURL& url,
                                       int render_view_id,
                                       URLRequestContext* request_context) {
   DCHECK(MessageLoop::current() == ui_loop_);
-  Thread* thread = g_browser_process->io_thread();
+  base::Thread* thread = g_browser_process->io_thread();
   if (thread) {
     thread->message_loop()->PostTask(FROM_HERE,
         NewRunnableMethod(this,

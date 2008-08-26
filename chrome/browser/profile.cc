@@ -598,7 +598,7 @@ ProfileImpl::~ProfileImpl() {
     history_service_->Cleanup();
 
   // The I/O thread may be NULL during testing.
-  Thread* io_thread = g_browser_process->io_thread();
+  base::Thread* io_thread = g_browser_process->io_thread();
 
   if (spellchecker_) {
     // The spellchecker must be deleted on the I/O thread. During testing, we

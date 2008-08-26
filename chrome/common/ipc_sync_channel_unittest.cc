@@ -97,12 +97,13 @@ class Worker : public Channel::Listener, public Message::Sender {
   void WaitForChannelCreation() { channel_created_.Wait(); }
   void CloseChannel() { channel_.reset(); }
   void Start() {
-    listener_thread_.Start();
-    Thread* thread = overrided_thread_ ? overrided_thread_ : &listener_thread_;
+    StartThread(&listener_thread_);
+    base::Thread* thread =
+        overrided_thread_ ? overrided_thread_ : &listener_thread_;
     thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
         this, &Worker::OnStart));
   }
-  void OverrideThread(Thread* overrided_thread) {
+  void OverrideThread(base::Thread* overrided_thread) {
     DCHECK(overrided_thread_ == NULL);
     overrided_thread_ = overrided_thread;
   }
@@ -133,8 +134,8 @@ class Worker : public Channel::Listener, public Message::Sender {
  private:
   // Called on the listener thread to create the sync channel.
   void OnStart() {
-    ipc_thread_.Start();
     // Link ipc_thread_, listener_thread_ and channel_ altogether.
+    StartThread(&ipc_thread_);
     channel_.reset(new SyncChannel(
         channel_name_, mode_, this, NULL, ipc_thread_.message_loop(), true,
         TestProcess::GetShutDownEvent()));
@@ -150,14 +151,20 @@ class Worker : public Channel::Listener, public Message::Sender {
     IPC_END_MESSAGE_MAP()
   }
 
+  void StartThread(base::Thread* thread) {
+    base::Thread::Options options;
+    options.message_loop_type = MessageLoop::TYPE_IO;
+    thread->StartWithOptions(options);
+  }
+
   Event done_;
   Event channel_created_;
   std::wstring channel_name_;
   Channel::Mode mode_;
   scoped_ptr<SyncChannel> channel_;
-  Thread ipc_thread_;
-  Thread listener_thread_;
-  Thread* overrided_thread_;
+  base::Thread ipc_thread_;
+  base::Thread listener_thread_;
+  base::Thread* overrided_thread_;
 
   DISALLOW_EVIL_CONSTRUCTORS(Worker);
 };
@@ -191,6 +198,8 @@ void RunTest(std::vector<Worker*> workers) {
   int count = static_cast<int>(done_handles.size());
   WaitForMultipleObjects(count, &done_handles.front(), TRUE, INFINITE);
   STLDeleteContainerPointers(workers.begin(), workers.end());
+  
+  TestProcess::GlobalCleanup();
 }
 
 
@@ -403,7 +412,7 @@ TEST(IPCSyncChannelTest, Multiple) {
   std::vector<Worker*> workers;
 
   // A shared worker thread so that server1 and server2 run on one thread.
-  Thread worker_thread("Multiple");
+  base::Thread worker_thread("Multiple");
   worker_thread.Start();
 
   // Server1 sends a sync msg to client1, which blocks the reply until
@@ -510,7 +519,7 @@ TEST(IPCSyncChannelTest, QueuedReply) {
   std::vector<Worker*> workers;
 
   // A shared worker thread so that server1 and server2 run on one thread.
-  Thread worker_thread("QueuedReply");
+  base::Thread worker_thread("QueuedReply");
   worker_thread.Start();
 
   Event client1_msg_received, server2_can_reply;

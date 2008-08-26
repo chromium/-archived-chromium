@@ -32,7 +32,7 @@ class NotificationService;
 
 class RenderThread : public IPC::Channel::Listener,
                      public IPC::Message::Sender,
-                     public Thread {
+                     public base::Thread {
  public:
   RenderThread(const std::wstring& channel_name);
   ~RenderThread();

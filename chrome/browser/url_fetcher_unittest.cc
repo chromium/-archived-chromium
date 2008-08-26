@@ -16,7 +16,7 @@ namespace {
 
   class URLFetcherTest : public testing::Test, public URLFetcher::Delegate {
    public:
-    URLFetcherTest() : main_loop_(MessageLoop::current()), fetcher_(NULL) { }
+    URLFetcherTest() : fetcher_(NULL) { }
 
     // Creates a URLFetcher, using the program's main thread to do IO.
     virtual void CreateFetcher(const GURL& url);
@@ -30,7 +30,12 @@ namespace {
                                     const std::string& data);
 
    protected:
-    MessageLoop* main_loop_;
+    // URLFetcher is designed to run on the main UI thread, but in our tests
+    // we assume that the current thread is the IO thread where the URLFetcher
+    // dispatches its requests to.  When we wish to simulate being used from
+    // a UI thread, we dispatch a worker thread to do so.
+    MessageLoopForIO io_loop_;
+
     URLFetcher* fetcher_;
   };
 
@@ -114,7 +119,7 @@ namespace {
   void URLFetcherTest::CreateFetcher(const GURL& url) {
     fetcher_ = new URLFetcher(url, URLFetcher::GET, this);
     fetcher_->set_request_context(new TestURLRequestContext());
-    fetcher_->set_io_loop(main_loop_);
+    fetcher_->set_io_loop(&io_loop_);
     fetcher_->Start();
   }
 
@@ -132,8 +137,8 @@ namespace {
                       // because the destructor won't necessarily run on the
                       // same thread that CreateFetcher() did.
 
-    main_loop_->PostTask(FROM_HERE, new MessageLoop::QuitTask());
-    // If MessageLoop::current() != main_loop_, it will be shut down when the
+    io_loop_.PostTask(FROM_HERE, new MessageLoop::QuitTask());
+    // If MessageLoop::current() != io_loop_, it will be shut down when the
     // main loop returns and this thread subsequently goes out of scope.
   }
 
@@ -145,7 +150,7 @@ namespace {
   void URLFetcherPostTest::CreateFetcher(const GURL& url) {
     fetcher_ = new URLFetcher(url, URLFetcher::POST, this);
     fetcher_->set_request_context(new TestURLRequestContext());
-    fetcher_->set_io_loop(main_loop_);
+    fetcher_->set_io_loop(&io_loop_);
     fetcher_->set_upload_data("application/x-www-form-urlencoded",
                               "bobsyeruncle");
     fetcher_->Start();
@@ -180,7 +185,7 @@ namespace {
   void URLFetcherProtectTest::CreateFetcher(const GURL& url) {
     fetcher_ = new URLFetcher(url, URLFetcher::GET, this);
     fetcher_->set_request_context(new TestURLRequestContext());
-    fetcher_->set_io_loop(main_loop_);
+    fetcher_->set_io_loop(&io_loop_);
     start_time_ = Time::Now();
     fetcher_->Start();
   }
@@ -199,7 +204,7 @@ namespace {
       EXPECT_TRUE(status.is_success());
       EXPECT_FALSE(data.empty());
       delete fetcher_;
-     main_loop_->Quit();
+      io_loop_.Quit();
     } else {
       // Now running Overload test.
       static int count = 0;
@@ -243,7 +248,7 @@ namespace {
 
     // The rest is the same as URLFetcherTest::OnURLFetchComplete.
     delete fetcher_;
-    main_loop_->Quit();
+    io_loop_.Quit();
   }
 
   std::wstring URLFetcherBadHTTPSTest::GetExpiredCertPath() {
@@ -271,7 +276,7 @@ TEST_F(URLFetcherTest, DifferentThreadsTest) {
   // terminate the main thread's message loop; then the other thread's
   // message loop will be shut down automatically as the thread goes out of
   // scope.
-  Thread t("URLFetcher test thread");
+  base::Thread t("URLFetcher test thread");
   t.Start();
   t.message_loop()->PostTask(FROM_HERE, new FetcherWrapperTask(this,
       GURL(server.TestServerPage("defaultresponse"))));

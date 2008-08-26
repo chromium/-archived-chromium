@@ -24,10 +24,13 @@ class NavigationController;
 class NavigationEntry;
 class Profile;
 class TabContents;
-class Thread;
 class Timer;
 class SessionBackend;
 class SessionCommand;
+
+namespace base {
+class Thread;
+}
 
 // TabNavigation  ------------------------------------------------------------
 
@@ -551,7 +554,7 @@ class SessionService : public CancelableRequestProvider,
 
   // Thread backend tasks are run on. This comes from the profile, and is
   // null during testing.
-  Thread* backend_thread_;
+  base::Thread* backend_thread_;
 
   // Are there any open open tabbed browsers?
   bool has_open_tabbed_browsers_;

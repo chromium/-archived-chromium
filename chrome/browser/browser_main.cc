@@ -245,9 +245,11 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   // TODO(beng, brettw): someday, break this out into sub functions with well
   //                     defined roles (e.g. pre/post-profile startup, etc).
 
+  MessageLoop main_message_loop(MessageLoop::TYPE_UI);
+
   const char* main_thread_name = "Chrome_BrowserMain";
   PlatformThread::SetName(main_thread_name);
-  MessageLoop::current()->set_thread_name(main_thread_name);
+  main_message_loop.set_thread_name(main_thread_name);
   bool already_running = CreateUniqueChromeEvent();
 
   // Make the selection of network stacks early on before any consumers try to
@@ -480,7 +482,7 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   if (BrowserInit::ProcessCommandLine(parsed_command_line, L"", local_state,
                                       show_command, true, profile,
                                       &result_code)) {
-    MessageLoop::current()->Run(browser_process->accelerator_handler());
+    MessageLoopForUI::current()->Run(browser_process->accelerator_handler());
   }
 
   if (metrics)

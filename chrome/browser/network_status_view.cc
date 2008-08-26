@@ -156,7 +156,7 @@ NetworkStatusView::JobTracker::JobTracker(NetworkStatusView* view)
 
 // main thread:
 void NetworkStatusView::JobTracker::InvokeOnIOThread(void (JobTracker::*m)()) {
-  Thread* thread = g_browser_process->io_thread();
+  base::Thread* thread = g_browser_process->io_thread();
   if (!thread)
     return;
   thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(this, m));

@@ -15,7 +15,7 @@ std::wstring UserDataDirDialog::RunUserDataDirDialog(
     const std::wstring& user_data_dir) {
   // When the window closes, it will delete itself.
   UserDataDirDialog* dlg = new UserDataDirDialog(user_data_dir);
-  MessageLoop::current()->Run(dlg);
+  MessageLoopForUI::current()->Run(dlg);
   return dlg->user_data_dir();
 }
 

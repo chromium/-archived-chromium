@@ -49,8 +49,9 @@ Channel::Channel(const wstring& channel_id, Mode mode, Listener* listener)
 
 void Channel::Close() {
   // make sure we are no longer watching the pipe events
-  MessageLoop::current()->WatchObject(input_state_.overlapped.hEvent, NULL);
-  MessageLoop::current()->WatchObject(output_state_.overlapped.hEvent, NULL);
+  MessageLoopForIO* loop = MessageLoopForIO::current();
+  loop->WatchObject(input_state_.overlapped.hEvent, NULL);
+  loop->WatchObject(output_state_.overlapped.hEvent, NULL);
 
   if (pipe_ != INVALID_HANDLE_VALUE) {
     CloseHandle(pipe_);
@@ -168,7 +169,8 @@ bool Channel::Connect() {
     // to OnObjectSignaled that this is the special initialization signal.
 
     SetEvent(input_state_.overlapped.hEvent);
-    MessageLoop::current()->WatchObject(input_state_.overlapped.hEvent, this);
+    MessageLoopForIO::current()->WatchObject(
+        input_state_.overlapped.hEvent, this);
   }
 
   if (!waiting_connect_)
@@ -178,7 +180,8 @@ bool Channel::Connect() {
 
 bool Channel::ProcessConnection() {
   input_state_.is_pending = false;
-  MessageLoop::current()->WatchObject(input_state_.overlapped.hEvent, NULL);
+  MessageLoopForIO::current()->WatchObject(
+      input_state_.overlapped.hEvent, NULL);
 
   // Do we have a client connected to our pipe?
   DCHECK(pipe_ != INVALID_HANDLE_VALUE);
@@ -195,7 +198,8 @@ bool Channel::ProcessConnection() {
   switch (err) {
   case ERROR_IO_PENDING:
     input_state_.is_pending = true;
-    MessageLoop::current()->WatchObject(input_state_.overlapped.hEvent, this);
+    MessageLoopForIO::current()->WatchObject(
+        input_state_.overlapped.hEvent, this);
     break;
   case ERROR_PIPE_CONNECTED:
     waiting_connect_ = false;
@@ -211,7 +215,8 @@ bool Channel::ProcessConnection() {
 bool Channel::ProcessIncomingMessages() {
   DWORD bytes_read = 0;
 
-  MessageLoop::current()->WatchObject(input_state_.overlapped.hEvent, NULL);
+  MessageLoopForIO::current()->WatchObject(
+      input_state_.overlapped.hEvent, NULL);
 
   if (input_state_.is_pending) {
     input_state_.is_pending = false;
@@ -243,8 +248,8 @@ bool Channel::ProcessIncomingMessages() {
       if (!ok) {
         DWORD err = GetLastError();
         if (err == ERROR_IO_PENDING) {
-          MessageLoop::current()->WatchObject(input_state_.overlapped.hEvent,
-                                              this);
+          MessageLoopForIO::current()->WatchObject(
+              input_state_.overlapped.hEvent, this);
           input_state_.is_pending = true;
           return true;
         }
@@ -307,7 +312,8 @@ bool Channel::ProcessOutgoingMessages() {
   DWORD bytes_written;
 
   if (output_state_.is_pending) {
-    MessageLoop::current()->WatchObject(output_state_.overlapped.hEvent, NULL);
+    MessageLoopForIO::current()->WatchObject(
+        output_state_.overlapped.hEvent, NULL);
     output_state_.is_pending = false;
     BOOL ok = GetOverlappedResult(pipe_,
                                   &output_state_.overlapped,
@@ -336,8 +342,8 @@ bool Channel::ProcessOutgoingMessages() {
     if (!ok) {
       DWORD err = GetLastError();
       if (err == ERROR_IO_PENDING) {
-        MessageLoop::current()->WatchObject(output_state_.overlapped.hEvent,
-                                            this);
+        MessageLoopForIO::current()->WatchObject(
+            output_state_.overlapped.hEvent, this);
         output_state_.is_pending = true;
 
 #ifdef IPC_MESSAGE_DEBUG_EXTRA

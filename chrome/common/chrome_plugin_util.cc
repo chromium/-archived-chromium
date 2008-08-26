@@ -46,18 +46,14 @@ void PluginHelper::DestroyAllHelpersForPlugin(ChromePluginLib* plugin) {
 }
 
 PluginHelper::PluginHelper(ChromePluginLib* plugin) : plugin_(plugin) {
-#ifndef NDEBUG
-  message_loop_ = MessageLoop::current();
-#endif
+  DCHECK(CalledOnValidThread());
   NotificationService::current()->AddObserver(
       this, NOTIFY_CHROME_PLUGIN_UNLOADED,
       Source<ChromePluginLib>(plugin_));
 }
 
 PluginHelper::~PluginHelper() {
-#ifndef NDEBUG
-  DCHECK(MessageLoop::current() == message_loop_);
-#endif
+  DCHECK(CalledOnValidThread());
   NotificationService::current()->RemoveObserver(
       this, NOTIFY_CHROME_PLUGIN_UNLOADED,
       Source<ChromePluginLib>(plugin_));
@@ -66,9 +62,7 @@ PluginHelper::~PluginHelper() {
 void PluginHelper::Observe(NotificationType type,
                            const NotificationSource& source,
                            const NotificationDetails& details) {
-#ifndef NDEBUG
-  DCHECK(MessageLoop::current() == message_loop_);
-#endif
+  DCHECK(CalledOnValidThread());
   DCHECK(type == NOTIFY_CHROME_PLUGIN_UNLOADED);
   DCHECK(plugin_ == Source<ChromePluginLib>(source).ptr());
 

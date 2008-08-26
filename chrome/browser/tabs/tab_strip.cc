@@ -1195,14 +1195,14 @@ bool TabStrip::IsCursorInTabStripZone() {
 
 void TabStrip::AddMessageLoopObserver() {
   if (!added_as_message_loop_observer_) {
-    MessageLoop::current()->AddObserver(this);
+    MessageLoopForUI::current()->AddObserver(this);
     added_as_message_loop_observer_ = true;
   }
 }
 
 void TabStrip::RemoveMessageLoopObserver() {
   if (added_as_message_loop_observer_) {
-    MessageLoop::current()->RemoveObserver(this);
+    MessageLoopForUI::current()->RemoveObserver(this);
     added_as_message_loop_observer_ = false;
   }
 }

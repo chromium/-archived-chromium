@@ -31,7 +31,10 @@ PluginThread::PluginThread(PluginProcess* process,
   DCHECK(!plugin_thread_);
   plugin_thread_ = this;
 
-  Start();
+  // We need to run a UI message loop to support plugin execution.
+  base::Thread::Options options;
+  options.message_loop_type = MessageLoop::TYPE_UI;
+  StartWithOptions(options);
 }
 
 PluginThread::~PluginThread() {

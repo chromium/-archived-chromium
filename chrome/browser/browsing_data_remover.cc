@@ -107,7 +107,7 @@ void BrowsingDataRemover::Remove(int remove_mask) {
 
   if (remove_mask & REMOVE_CACHE) {
     // Invoke ClearBrowsingDataView::ClearCache on the IO thread.
-    Thread* thread = g_browser_process->io_thread();
+    base::Thread* thread = g_browser_process->io_thread();
     if (thread) {
       waiting_for_clear_cache_ = true;
       UserMetrics::RecordAction(L"ClearBrowsingData_Cache", profile_);

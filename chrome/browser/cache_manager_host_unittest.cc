@@ -4,8 +4,8 @@
 
 #include <string>
 
+#include "base/message_loop.h"
 #include "chrome/browser/cache_manager_host.h"
-#include "base/basictypes.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "webkit/glue/cache_manager.h"
 
@@ -78,6 +78,9 @@ class CacheManagerHostTest : public testing::Test {
     KEEP_LIVE_WITH_HEADROOM = CacheManagerHost::KEEP_LIVE_WITH_HEADROOM,
     KEEP_LIVE = CacheManagerHost::KEEP_LIVE,
   };
+  
+ private:
+  MessageLoop message_loop_;
 };
 
 // static

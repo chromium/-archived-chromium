@@ -121,6 +121,7 @@ class BackFwdMenuModelTest : public testing::Test {
   }
 
  private:
+  MessageLoopForUI message_loop_;
   std::wstring test_dir_;
   std::wstring profile_path_;
   ProfileManager pm_;

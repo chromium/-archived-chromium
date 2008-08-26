@@ -23,8 +23,11 @@
 class PrefService;
 class Profile;
 class RenderWidgetHelper;
-class Thread;
 class WebContents;
+
+namespace base {
+class Thread;
+}
 
 // Represents the browser side of the browser <--> renderer communication
 // channel. There will be one RenderProcessHost per renderer process.

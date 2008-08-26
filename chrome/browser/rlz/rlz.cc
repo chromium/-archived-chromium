@@ -168,7 +168,7 @@ class DelayedInitTask : public Task {
       }
     }
     // Schedule the daily RLZ ping.
-    Thread* thread = g_browser_process->file_thread();
+    base::Thread* thread = g_browser_process->file_thread();
     if (thread)
       thread->message_loop()->PostTask(FROM_HERE, new DailyPingTask());
   }

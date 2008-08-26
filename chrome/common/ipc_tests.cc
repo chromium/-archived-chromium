@@ -133,8 +133,10 @@ TEST(IPCChannelTest, ChannelTest) {
 
 TEST(IPCChannelTest, ChannelProxyTest) {
   // The thread needs to out-live the ChannelProxy.
-  Thread thread("ChannelProxyTestServer");
-  thread.Start();
+  base::Thread thread("ChannelProxyTestServer");
+  base::Thread::Options options;
+  options.message_loop_type = MessageLoop::TYPE_IO;
+  thread.StartWithOptions(options);
   {
     // setup IPC channel proxy
     IPC::ChannelProxy chan(kTestClientChannel, IPC::Channel::MODE_SERVER,
@@ -380,7 +382,7 @@ int main(int argc, char** argv) {
   // the AtExitManager or else we will leak objects.
   base::AtExitManager at_exit_manager;  
 
-  MessageLoop main_message_loop;
+  MessageLoopForIO main_message_loop;
 
   // suppress standard crash dialogs and such unless a debugger is present.
   if (!IsDebuggerPresent()) {

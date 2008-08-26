@@ -50,7 +50,7 @@ void SafeBrowsingService::Initialize(MessageLoop* io_loop) {
 // the user checks the "Enable SafeBrowsing" option in the Advanced options UI.
 void SafeBrowsingService::Start() {
   DCHECK(!db_thread_.get());
-  db_thread_.reset(new Thread("Chrome_SafeBrowsingThread"));
+  db_thread_.reset(new base::Thread("Chrome_SafeBrowsingThread"));
   if (!db_thread_->Start())
     return;
 

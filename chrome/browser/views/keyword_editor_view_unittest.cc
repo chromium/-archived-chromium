@@ -62,6 +62,7 @@ class KeywordEditorViewTest : public testing::Test,
   }
 
  protected:
+  MessageLoopForUI message_loop_;
   scoped_ptr<TestingProfile> profile_;
   scoped_ptr<KeywordEditorView> editor_;
   TemplateURLModel* model_;

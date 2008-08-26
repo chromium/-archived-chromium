@@ -62,6 +62,8 @@ class ChromePluginTest : public testing::Test, public URLRequest::Delegate {
     Profile::set_default_request_context(NULL);
   }
  protected:
+  MessageLoopForIO message_loop_;
+
   // Note: we use URLRequest (instead of URLFetcher) because this allows the
   // request to be intercepted.
   scoped_ptr<URLRequest> request_;

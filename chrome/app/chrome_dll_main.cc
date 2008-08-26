@@ -200,9 +200,6 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
 
   _Module.Init(NULL, instance);
 
-  // Allocate a message loop for this thread
-  MessageLoop main_message_loop;
-
   // Notice a user data directory override if any
   const std::wstring user_data_dir =
       parsed_command_line.GetSwitchValue(switches::kUserDataDir);

@@ -138,7 +138,7 @@ HWNDViewContainer::HWNDViewContainer()
 }
 
 HWNDViewContainer::~HWNDViewContainer() {
-  MessageLoop::current()->RemoveObserver(this);
+  MessageLoopForUI::current()->RemoveObserver(this);
 }
 
 void HWNDViewContainer::Init(HWND parent,
@@ -183,7 +183,7 @@ void HWNDViewContainer::Init(HWND parent,
   // Sets the RootView as a property, so the automation can introspect windows.
   SetRootViewForHWND(hwnd_, root_view_.get());
 
-  MessageLoop::current()->AddObserver(this);
+  MessageLoopForUI::current()->AddObserver(this);
 
   // Windows special DWM window frame requires a special tooltip manager so
   // that window controls in Chrome windows don't flicker when you move your

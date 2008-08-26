@@ -98,6 +98,7 @@ class HistoryURLProviderTest : public testing::Test,
                const std::wstring* expected_urls,
                int num_results);
 
+  MessageLoopForUI message_loop_;
   ACMatches matches_;
   scoped_ptr<TestingProfile> profile_;
   HistoryService* history_service_;

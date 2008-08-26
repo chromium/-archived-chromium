@@ -115,6 +115,7 @@ class ResourceDispatcherHostTest : public testing::Test,
     }
   }
 
+  MessageLoopForIO message_loop_;
   ResourceDispatcherHost host_;
   ResourceIPCAccumulator accum_;
 };

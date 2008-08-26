@@ -20,17 +20,6 @@ public:
   ChromeTestSuite(int argc, char** argv) : TestSuite(argc, argv) {
   }
 
-  virtual ~ChromeTestSuite() {
-    ResourceBundle::CleanupSharedInstance();
-
-    delete g_browser_process;
-    g_browser_process = NULL;
-
-    // Tear down shared StatsTable; prevents unit_tests from leaking it.
-    StatsTable::set_current(NULL);
-    delete stats_table_;
-  }
-
 protected:
 
   virtual void Initialize() {
@@ -44,7 +33,7 @@ protected:
     // NOTE: The user data directory will be erased before each UI test that
     //       uses it, in order to ensure consistency.
     std::wstring user_data_dir =
-        parsed_command_line_.GetSwitchValue(switches::kUserDataDir);
+        CommandLine().GetSwitchValue(switches::kUserDataDir);
     if (user_data_dir.empty() &&
       PathService::Get(base::DIR_EXE, &user_data_dir))
       file_util::AppendToPath(&user_data_dir, L"test_user_data");
@@ -57,6 +46,19 @@ protected:
     // initialize the global StatsTable for unit_tests
     stats_table_ = new StatsTable(L"unit_tests", 20, 200);
     StatsTable::set_current(stats_table_);
+  }
+
+  virtual void Shutdown() {
+    ResourceBundle::CleanupSharedInstance();
+
+    delete g_browser_process;
+    g_browser_process = NULL;
+
+    // Tear down shared StatsTable; prevents unit_tests from leaking it.
+    StatsTable::set_current(NULL);
+    delete stats_table_;
+    
+    TestSuite::Shutdown();
   }
 
   StatsTable* stats_table_;

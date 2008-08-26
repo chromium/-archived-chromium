@@ -60,11 +60,13 @@ class PrefService;
 class Profile;
 class ResourceDispatcherHost;
 class Task;
-class Thread;
 class Timer;
 class URLRequestContext;
 class WebContents;
 
+namespace base {
+class Thread;
+}
 
 // DownloadItem ----------------------------------------------------------------
 

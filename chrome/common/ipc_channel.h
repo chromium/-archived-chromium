@@ -14,7 +14,7 @@ namespace IPC {
 
 //------------------------------------------------------------------------------
 
-class Channel : public MessageLoop::Watcher,
+class Channel : public MessageLoopForIO::Watcher,
                 public Message::Sender {
   // Security tests need access to the pipe handle.
   friend class ChannelTest;

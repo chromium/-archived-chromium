@@ -957,7 +957,7 @@ NetworkSection::NetworkSection(Profile* profile)
 void NetworkSection::ButtonPressed(ChromeViews::NativeButton* sender) {
   if (sender == change_proxies_button_) {
     UserMetricsRecordAction(L"Options_ChangeProxies", NULL);
-    Thread* thread = g_browser_process->file_thread();
+    base::Thread* thread = g_browser_process->file_thread();
     DCHECK(thread);
     thread->message_loop()->PostTask(FROM_HERE, new OpenConnectionDialogTask);
   } else if (sender == enable_link_doctor_checkbox_) {

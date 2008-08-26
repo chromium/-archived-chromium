@@ -98,6 +98,7 @@ class HistoryBackendTest : public testing::Test {
     delete details;
   }
 
+  MessageLoop message_loop_;
   std::wstring test_dir_;
 };
 

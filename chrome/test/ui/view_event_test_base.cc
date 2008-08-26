@@ -93,7 +93,7 @@ gfx::Size ViewEventTestBase::GetPreferredSize() {
 
 void ViewEventTestBase::ScheduleMouseMoveInBackground(int x, int y) {
   if (!dnd_thread_.get()) {
-    dnd_thread_.reset(new Thread("mouse-move-thread"));
+    dnd_thread_.reset(new base::Thread("mouse-move-thread"));
     dnd_thread_->Start();
   }
   dnd_thread_->message_loop()->PostDelayedTask(

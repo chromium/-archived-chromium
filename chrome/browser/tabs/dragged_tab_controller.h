@@ -35,7 +35,7 @@ class TabStripModel;
 ///////////////////////////////////////////////////////////////////////////////
 class DraggedTabController : public TabContentsDelegate,
                              public NotificationObserver,
-                             public MessageLoop::Observer{
+                             public MessageLoopForUI::Observer{
  public:
   DraggedTabController(Tab* source_tab, TabStrip* source_tabstrip);
   virtual ~DraggedTabController();

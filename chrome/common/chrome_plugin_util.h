@@ -6,6 +6,7 @@
 #define CHROME_COMMON_CHROME_PLUGIN_UTIL_H__
 
 #include "base/basictypes.h"
+#include "base/non_thread_safe.h"
 #include "base/ref_counted.h"
 #include "chrome/common/chrome_plugin_api.h"
 #include "chrome/common/notification_service.h"
@@ -35,7 +36,7 @@ struct ScopableCPRequest : public CPRequest {
 // This is a base class for plugin-related objects that need to go away when
 // the plugin unloads.  This object also verifies that it is created and
 // destroyed on the same thread.
-class PluginHelper : public NotificationObserver {
+class PluginHelper : public NotificationObserver, public NonThreadSafe {
  public:
   static void DestroyAllHelpersForPlugin(ChromePluginLib* plugin);
 
@@ -49,11 +50,6 @@ class PluginHelper : public NotificationObserver {
 
  protected:
   scoped_refptr<ChromePluginLib> plugin_;
-#ifndef NDEBUG
-  // We keep track of the message loop of the thread we were created on, so
-  // we can verify that all other methods are called on the same thread.
-  MessageLoop* message_loop_;
-#endif
 
   DISALLOW_EVIL_CONSTRUCTORS(PluginHelper);
 };

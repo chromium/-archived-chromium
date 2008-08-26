@@ -23,7 +23,7 @@ class PrintJobWorkerOwner;
 // NOTIFY_PRINT_JOB_EVENT notifications, but they are generated through a
 // NotificationTask task to be executed from the right thread, the UI thread.
 // PrintJob always outlives its worker instance.
-class PrintJobWorker : public Thread {
+class PrintJobWorker : public base::Thread {
  public:
   PrintJobWorker(PrintJobWorkerOwner* owner);
   ~PrintJobWorker();

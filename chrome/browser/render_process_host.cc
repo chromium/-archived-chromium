@@ -85,10 +85,10 @@ unsigned int GetMaxRendererProcessCount() {
 
 // ----------------------------------------------------------------------------
 
-class RendererMainThread : public Thread {
+class RendererMainThread : public base::Thread {
  public:
   explicit RendererMainThread(const std::wstring& channel_id)
-      : Thread("Chrome_InProcRendererThread"),
+      : base::Thread("Chrome_InProcRendererThread"),
         channel_id_(channel_id) {
   }
 
@@ -103,7 +103,7 @@ class RendererMainThread : public Thread {
     // this thread, so just force the flag manually.
     // If we want to avoid this, we could create the InProcRendererThread
     // directly with _beginthreadex() rather than using the Thread class.
-    Thread::SetThreadWasQuitProperly(true);
+    base::Thread::SetThreadWasQuitProperly(true);
   }
 
   virtual void CleanUp() {
@@ -201,7 +201,7 @@ bool RenderProcessHost::Init() {
     return true;
 
   // run the IPC channel on the shared IO thread.
-  Thread* io_thread = g_browser_process->io_thread();
+  base::Thread* io_thread = g_browser_process->io_thread();
 
   scoped_refptr<ResourceMessageFilter> resource_message_filter =
       new ResourceMessageFilter(g_browser_process->resource_dispatcher_host(),
@@ -306,22 +306,22 @@ bool RenderProcessHost::Init() {
 
   bool run_in_process = RenderProcessHost::run_renderer_in_process();
   if (run_in_process) {
-    // Crank up a thread and run the initialization there.  With the
-    // way that messages flow between the browser and renderer, this
-    // thread is required to prevent a deadlock in single-process mode.
-    // When using multiple processes, the primordial thread in the
-    // renderer process has a message loop which is used for sending
-    // messages asynchronously to the io thread in the browser process.
-    // If we don't create this thread, then the RenderThread is both
-    // responsible for rendering and also for communicating IO.
-    // This can lead to deadlocks where the RenderThread is waiting
-    // for the IO to complete, while the browsermain is trying to
-    // pass an event to the RenderThread.
+    // Crank up a thread and run the initialization there.  With the way that
+    // messages flow between the browser and renderer, this thread is required
+    // to prevent a deadlock in single-process mode.  When using multiple
+    // processes, the primordial thread in the renderer process has a message
+    // loop which is used for sending messages asynchronously to the io thread
+    // in the browser process.  If we don't create this thread, then the
+    // RenderThread is both responsible for rendering and also for
+    // communicating IO.  This can lead to deadlocks where the RenderThread is
+    // waiting for the IO to complete, while the browsermain is trying to pass
+    // an event to the RenderThread.
     //
-    // TODO: We should consider how to better cleanup threads on
-    // exit.
-    Thread *renderThread = new RendererMainThread(channel_id);
-    renderThread->Start();
+    // TODO: We should consider how to better cleanup threads on exit.
+    base::Thread *render_thread = new RendererMainThread(channel_id);
+    base::Thread::Options options;
+    options.message_loop_type = MessageLoop::TYPE_IO;
+    render_thread->StartWithOptions(options);
   } else {
     if (g_browser_process->local_state() &&
         g_browser_process->local_state()->GetBoolean(

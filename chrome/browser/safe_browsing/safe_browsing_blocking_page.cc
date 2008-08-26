@@ -325,7 +325,7 @@ void SafeBrowsingBlockingPage::NotifyDone() {
     tab_->AsWebContents()->set_interstitial_delegate(NULL);
   }
 
-  Thread* io_thread = g_browser_process->io_thread();
+  base::Thread* io_thread = g_browser_process->io_thread();
   if (!io_thread)
     return;
 

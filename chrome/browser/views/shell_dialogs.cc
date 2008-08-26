@@ -20,9 +20,9 @@
 #include "chrome/common/win_util.h"
 #include "generated_resources.h"
 
-class ShellDialogThread : public Thread {
+class ShellDialogThread : public base::Thread {
  public:
-  ShellDialogThread() : Thread("Chrome_ShellDialogThread") { }
+  ShellDialogThread() : base::Thread("Chrome_ShellDialogThread") { }
 
  protected:
   void Init() {
@@ -55,7 +55,7 @@ class BaseShellDialogImpl {
     HWND owner;
 
     // Thread dialog is run on.
-    Thread* dialog_thread;
+    base::Thread* dialog_thread;
   };
 
   // Called at the beginning of a modal dialog run. Disables the owner window
@@ -93,7 +93,7 @@ class BaseShellDialogImpl {
   // thread otherwise in some situations where a singleton owns a single
   // instance of this object we can have a situation where a modal dialog in
   // one window blocks the appearance of a modal dialog in another.
-  static Thread* CreateDialogThread();
+  static base::Thread* CreateDialogThread();
 
   // Enables the window |owner_|. Can only be run from the ui thread.
   void EnableOwner(HWND owner);
@@ -169,8 +169,8 @@ void BaseShellDialogImpl::DisableOwner(HWND owner) {
 }
 
 // static
-Thread* BaseShellDialogImpl::CreateDialogThread() {
-  Thread* thread = new ShellDialogThread;
+base::Thread* BaseShellDialogImpl::CreateDialogThread() {
+  base::Thread* thread = new ShellDialogThread;
   bool started = thread->Start();
   DCHECK(started);
   return thread;

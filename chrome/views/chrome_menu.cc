@@ -1550,14 +1550,14 @@ MenuItemView* MenuController::Run(HWND parent,
   DLOG(INFO) << " entering nested loop, depth=" << nested_depth;
 #endif
 
+  MessageLoopForUI* loop = MessageLoopForUI::current();
   if (MenuItemView::allow_task_nesting_during_run_) {
-    bool did_allow_task_nesting =
-        MessageLoop::current()->NestableTasksAllowed();
-    MessageLoop::current()->SetNestableTasksAllowed(true);
-    MessageLoop::current()->Run(this);
-    MessageLoop::current()->SetNestableTasksAllowed(did_allow_task_nesting);
+    bool did_allow_task_nesting = loop->NestableTasksAllowed();
+    loop->SetNestableTasksAllowed(true);
+    loop->Run(this);
+    loop->SetNestableTasksAllowed(did_allow_task_nesting);
   } else {
-    MessageLoop::current()->Run(this);
+    loop->Run(this);
   }
 
 #ifdef DEBUG_MENU

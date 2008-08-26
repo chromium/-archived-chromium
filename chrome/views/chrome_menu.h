@@ -591,7 +591,7 @@ class SubmenuView : public View {
 // All relevant events are forwarded to the MenuController from SubmenuView
 // and MenuHost.
 
-class MenuController : public MessageLoop::Dispatcher {
+class MenuController : public MessageLoopForUI::Dispatcher {
  public:
   friend class MenuHostRootView;
   friend class MenuItemView;

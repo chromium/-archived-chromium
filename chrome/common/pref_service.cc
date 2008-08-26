@@ -178,7 +178,7 @@ void PrefService::ReloadPersistentPrefs() {
   }
 }
 
-bool PrefService::SavePersistentPrefs(Thread* thread) const {
+bool PrefService::SavePersistentPrefs(base::Thread* thread) const {
   DCHECK(!pref_filename_.empty());
   DCHECK(CalledOnValidThread());
 
@@ -202,7 +202,7 @@ bool PrefService::SavePersistentPrefs(Thread* thread) const {
   return true;
 }
 
-void PrefService::ScheduleSavePersistentPrefs(Thread* thread) {
+void PrefService::ScheduleSavePersistentPrefs(base::Thread* thread) {
   if (!save_preferences_factory_.empty())
     return;
 

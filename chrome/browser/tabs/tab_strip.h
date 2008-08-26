@@ -41,7 +41,7 @@ class TabStrip : public ChromeViews::View,
                  public Tab::TabDelegate,
                  public ChromeViews::Button::ButtonListener,
                  public Task,
-                 public MessageLoop::Observer {
+                 public MessageLoopForUI::Observer {
  public:
   TabStrip(TabStripModel* model);
   virtual ~TabStrip();

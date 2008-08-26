@@ -19,7 +19,7 @@ class NotificationService;
 // process and WebPluginDelegateStub in this thread through IPC messages.
 class PluginThread : public IPC::Channel::Listener,
                      public IPC::Message::Sender,
-                     public Thread {
+                     public base::Thread {
  public:
   PluginThread(PluginProcess *process, const std::wstring& channel_name);
   ~PluginThread();

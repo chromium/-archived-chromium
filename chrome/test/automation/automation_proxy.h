@@ -201,7 +201,7 @@ class AutomationProxy : public IPC::Channel::Listener,
   void InitializeHandleTracker();
 
   std::wstring channel_id_;
-  scoped_ptr<Thread> thread_;
+  scoped_ptr<base::Thread> thread_;
   scoped_ptr<IPC::ChannelProxy> channel_;
   scoped_ptr<AutomationHandleTracker> tracker_;
 

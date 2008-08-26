@@ -48,21 +48,21 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
     return metrics_service_.get();
   }
 
-  virtual Thread* io_thread() {
+  virtual base::Thread* io_thread() {
     DCHECK(CalledOnValidThread());
     if (!created_io_thread_)
       CreateIOThread();
     return io_thread_.get();
   }
 
-  virtual Thread* file_thread() {
+  virtual base::Thread* file_thread() {
     DCHECK(CalledOnValidThread());
     if (!created_file_thread_)
       CreateFileThread();
     return file_thread_.get();
   }
 
-  virtual Thread* db_thread() {
+  virtual base::Thread* db_thread() {
     DCHECK(CalledOnValidThread());
     if (!created_db_thread_)
       CreateDBThread();
@@ -212,13 +212,13 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
   scoped_ptr<MetricsService> metrics_service_;
 
   bool created_io_thread_;
-  scoped_ptr<Thread> io_thread_;
+  scoped_ptr<base::Thread> io_thread_;
 
   bool created_file_thread_;
-  scoped_ptr<Thread> file_thread_;
+  scoped_ptr<base::Thread> file_thread_;
 
   bool created_db_thread_;
-  scoped_ptr<Thread> db_thread_;
+  scoped_ptr<base::Thread> db_thread_;
 
   bool created_profile_manager_;
   scoped_ptr<ProfileManager> profile_manager_;

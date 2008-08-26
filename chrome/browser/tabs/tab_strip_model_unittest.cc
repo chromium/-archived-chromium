@@ -139,6 +139,7 @@ class TabStripModelTest : public testing::Test {
  Profile* profile_;
 
  private:
+  MessageLoopForUI message_loop_;
   std::wstring test_dir_;
   std::wstring profile_path_;
   ProfileManager pm_;

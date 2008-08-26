@@ -121,7 +121,7 @@ class ViewEventTestBase : public ChromeViews::WindowDelegate,
   ChromeViews::View* content_view_;
 
   // Thread for posting background MouseMoves.
-  scoped_ptr<Thread> dnd_thread_;
+  scoped_ptr<base::Thread> dnd_thread_;
 
   DISALLOW_COPY_AND_ASSIGN(ViewEventTestBase);
 };

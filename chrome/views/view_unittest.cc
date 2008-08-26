@@ -21,6 +21,9 @@ class ViewTest : public testing::Test {
   ~ViewTest() {
     OleUninitialize();
   }
+ 
+ private:
+  MessageLoopForUI message_loop_;
 };
 
 // Paints the RootView.

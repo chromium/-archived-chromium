@@ -11,7 +11,10 @@
 
 class CancelableTask;
 class MessageLoop;
+
+namespace base {
 class Thread;
+}
 
 namespace printing {
 

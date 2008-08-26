@@ -39,7 +39,7 @@ bool WebDataService::Init(const std::wstring& profile_path) {
 }
 
 bool WebDataService::InitWithPath(const std::wstring& path) {
-  thread_ = new Thread("Chrome_WebDataThread");
+  thread_ = new base::Thread("Chrome_WebDataThread");
 
   if (!thread_->Start()) {
     delete thread_;

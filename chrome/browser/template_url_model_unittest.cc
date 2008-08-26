@@ -191,6 +191,7 @@ class TemplateURLModelTest : public testing::Test,
     TemplateURLRef::google_base_url_ = new std::wstring(base_url);
   }
 
+  MessageLoopForUI message_loop_;
   scoped_ptr<TemplateURLModelTestingProfile> profile_;
   scoped_ptr<TestingTemplateURLModel> model_;
   int changed_count_;

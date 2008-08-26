@@ -26,11 +26,13 @@ class ProfileManager;
 class RenderProcessHost;
 class ResourceDispatcherHost;
 class DebuggerWrapper;
-class Thread;
 class WebAppInstallerService;
 class SharedEvent;
 class SuspendController;
 
+namespace base {
+class Thread;
+}
 namespace sandbox {
 class BrokerServices;
 }
@@ -81,16 +83,16 @@ class BrowserProcess {
   // Returns the thread that we perform I/O coordination on (network requests,
   // communication with renderers, etc.
   // NOTE: need to check the return value for NULL.
-  virtual Thread* io_thread() = 0;
+  virtual base::Thread* io_thread() = 0;
 
   // Returns the thread that we perform random file operations on. For code
   // that wants to do I/O operations (not network requests or even file: URL
   // requests), this is the thread to use to avoid blocking the UI thread.
   // It might be nicer to have a thread pool for this kind of thing.
-  virtual Thread* file_thread() = 0;
+  virtual base::Thread* file_thread() = 0;
 
   // Returns the thread that is used for database operations such as history.
-  virtual Thread* db_thread() = 0;
+  virtual base::Thread* db_thread() = 0;
 
   virtual sandbox::BrokerServices* broker_services() = 0;
 

@@ -199,13 +199,13 @@ class VisitedLinkMaster::TableBuilder : public HistoryService::URLEnumerator,
 
 // VisitedLinkMaster ----------------------------------------------------------
 
-VisitedLinkMaster::VisitedLinkMaster(Thread* file_thread,
+VisitedLinkMaster::VisitedLinkMaster(base::Thread* file_thread,
                                      PostNewTableEvent* poster,
                                      Profile* profile) {
   InitMembers(file_thread, poster, profile);
 }
 
-VisitedLinkMaster::VisitedLinkMaster(Thread* file_thread,
+VisitedLinkMaster::VisitedLinkMaster(base::Thread* file_thread,
                                      PostNewTableEvent* poster,
                                      HistoryService* history_service,
                                      bool suppress_rebuild,
@@ -230,7 +230,7 @@ VisitedLinkMaster::~VisitedLinkMaster() {
   FreeURLTable();
 }
 
-void VisitedLinkMaster::InitMembers(Thread* file_thread,
+void VisitedLinkMaster::InitMembers(base::Thread* file_thread,
                                     PostNewTableEvent* poster,
                                     Profile* profile) {
   if (file_thread)

@@ -5,6 +5,7 @@
 #include "chrome/common/process_watcher.h"
 
 #include "base/message_loop.h"
+#include "base/object_watcher.h"
 #include "chrome/app/result_codes.h"
 #include "chrome/common/env_util.h"
 #include "chrome/common/env_vars.h"
@@ -14,10 +15,10 @@ static const int kWaitInterval = 2000;
 
 namespace {
 
-class TimerExpiredTask : public Task, public MessageLoop::Watcher {
+class TimerExpiredTask : public Task, public base::ObjectWatcher::Delegate {
  public:
   explicit TimerExpiredTask(ProcessHandle process) : process_(process) {
-    MessageLoop::current()->WatchObject(process_, this);
+    watcher_.StartWatching(process_, this);
   }
 
   virtual ~TimerExpiredTask() {
@@ -37,12 +38,9 @@ class TimerExpiredTask : public Task, public MessageLoop::Watcher {
   // MessageLoop::Watcher -----------------------------------------------------
 
   virtual void OnObjectSignaled(HANDLE object) {
-    if (MessageLoop::current()) {
-      // When we're called from our destructor, the message loop is in the
-      // process of being torn down.  Only touch the message loop if it is
-      // still running.
-      MessageLoop::current()->WatchObject(process_, NULL);  // Stop watching.
-    }
+    // When we're called from KillProcess, the ObjectWatcher may still be
+    // watching.  the process handle, so make sure it has stopped.
+    watcher_.StopWatching();
 
     CloseHandle(process_);
     process_ = NULL;
@@ -71,6 +69,8 @@ class TimerExpiredTask : public Task, public MessageLoop::Watcher {
 
   // The process that we are watching.
   ProcessHandle process_;
+
+  base::ObjectWatcher watcher_;
 
   DISALLOW_EVIL_CONSTRUCTORS(TimerExpiredTask);
 };

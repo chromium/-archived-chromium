@@ -28,7 +28,10 @@
 
 class NotificationObserver;
 class Preference;
+
+namespace base {
 class Thread;
+}
 
 class PrefService : public NonThreadSafe {
  public:
@@ -88,12 +91,12 @@ class PrefService : public NonThreadSafe {
   // (since it's on a different thread).  This should only be used if we need
   // to save immediately (basically, during shutdown).  Otherwise, you should
   // use ScheduleSavePersistentPrefs.
-  bool SavePersistentPrefs(Thread* thread) const;
+  bool SavePersistentPrefs(base::Thread* thread) const;
 
   // Starts a timer that ends up saving the preferences.  This helps to batch
   // together save requests that happen in a close time frame so we don't write
   // to disk too frequently.
-  void ScheduleSavePersistentPrefs(Thread* thread);
+  void ScheduleSavePersistentPrefs(base::Thread* thread);
 
   DictionaryValue* transient() { return transient_.get(); }
 

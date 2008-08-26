@@ -182,8 +182,11 @@ void AutomationProxy::InitializeChannelID() {
 }
 
 void AutomationProxy::InitializeThread() {
-  scoped_ptr<Thread> thread(new Thread("AutomationProxy_BackgroundThread"));
-  bool thread_result = thread->Start();
+  scoped_ptr<base::Thread> thread(
+      new base::Thread("AutomationProxy_BackgroundThread"));
+  base::Thread::Options options;
+  options.message_loop_type = MessageLoop::TYPE_IO;
+  bool thread_result = thread->StartWithOptions(options);
   DCHECK(thread_result);
   thread_.swap(thread);
 }

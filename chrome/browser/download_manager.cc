@@ -668,7 +668,7 @@ void DownloadManager::DownloadFinished(int32 download_id, int64 size) {
 void DownloadManager::CancelDownloadRequest(int render_process_id,
                                             int request_id) {
   ResourceDispatcherHost* rdh = g_browser_process->resource_dispatcher_host();
-  Thread* io_thread = g_browser_process->io_thread();
+  base::Thread* io_thread = g_browser_process->io_thread();
   if (!io_thread || !rdh)
     return;
   io_thread->message_loop()->PostTask(FROM_HERE,
@@ -717,7 +717,7 @@ void DownloadManager::PauseDownload(int32 download_id, bool pause) {
       return;
 
     // Inform the ResourceDispatcherHost of the new pause state.
-    Thread* io_thread = g_browser_process->io_thread();
+    base::Thread* io_thread = g_browser_process->io_thread();
     ResourceDispatcherHost* rdh = g_browser_process->resource_dispatcher_host();
     if (!io_thread || !rdh)
       return;

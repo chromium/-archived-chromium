@@ -427,7 +427,7 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
 
   void GetWebAppImagesImpl(GenericRequest<GURL>* request);
 
-  Thread* thread() { return thread_; }
+  base::Thread* thread() { return thread_; }
 
  private:
 
@@ -441,7 +441,7 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
   int GetNextRequestHandle();
 
   // Our worker thread. All requests are processed from that thread.
-  Thread* thread_;
+  base::Thread* thread_;
 
   // Our database.
   WebDatabase* db_;

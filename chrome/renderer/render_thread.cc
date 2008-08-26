@@ -37,7 +37,13 @@ RenderThread::RenderThread(const std::wstring& channel_name)
       render_dns_master_(NULL),
       in_send_(0) {
   DCHECK(owner_loop_);
-  StartWithStackSize(kStackSize);
+  base::Thread::Options options;
+  options.stack_size = kStackSize;
+  // When we run plugins in process, we actually run them on the render thread,
+  // which means that we need to make the render thread pump UI events.
+  if (RenderProcess::ShouldLoadPluginsInProcess())
+    options.message_loop_type = MessageLoop::TYPE_UI;
+  StartWithOptions(options);
 }
 
 RenderThread::~RenderThread() {

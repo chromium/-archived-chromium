@@ -39,7 +39,7 @@ SaveFileManager::SaveFileManager(MessageLoop* ui_loop,
   // on a non-UI thread can cause crashes during shutdown.
   DCHECK(ui_loop_ == MessageLoop::current());
   // Cache the message loop of file thread.
-  Thread* thread = g_browser_process->file_thread();
+  base::Thread* thread = g_browser_process->file_thread();
   if (thread)
     file_loop_ = thread->message_loop();
   else

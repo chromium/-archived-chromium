@@ -164,7 +164,7 @@ class UIProxyForIOTask : public Task {
  private:
   void Run() {
     // This has been invoked in the UI thread.
-    Thread* io_thread = g_browser_process->io_thread();
+    base::Thread* io_thread = g_browser_process->io_thread();
     if (io_thread) {  // io_thread has not been torn down yet.
       MessageLoop* io_loop = io_thread->message_loop();
       if (io_loop) {
@@ -214,7 +214,7 @@ SpellChecker::SpellChecker(const std::wstring& dict_dir,
   ui_loop_ = MessageLoop::current();
 
   // Get File Loop - hunspell gets initialized here.
-  Thread* file_thread = g_browser_process->file_thread();
+  base::Thread* file_thread = g_browser_process->file_thread();
   if (file_thread)
     file_loop_ = file_thread->message_loop();
 

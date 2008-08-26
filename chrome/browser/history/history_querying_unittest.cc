@@ -124,6 +124,8 @@ class HistoryQueryTest : public testing::Test {
     MessageLoop::current()->Quit();  // Will return out to QueryHistory.
   }
 
+  MessageLoop message_loop_;
+  
   std::wstring history_dir_;
 
   CancelableRequestConsumer consumer_;

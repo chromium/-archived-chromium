@@ -11,6 +11,8 @@ using namespace std;
 
 namespace {
   class AnimationTest: public testing::Test {
+   private:
+    MessageLoopForUI message_loop_;
   };
 };
 
@@ -81,7 +83,7 @@ class TestAnimationDelegate : public AnimationDelegate {
   bool canceled_;
 };
 
-TEST(AnimationTest, RunCase) {
+TEST_F(AnimationTest, RunCase) {
   TestAnimationDelegate ad;
   RunAnimation a1(150, &ad);
   a1.SetDuration(2000);
@@ -92,7 +94,7 @@ TEST(AnimationTest, RunCase) {
   EXPECT_FALSE(ad.canceled());
 }
 
-TEST(AnimationTest, CancelCase) {
+TEST_F(AnimationTest, CancelCase) {
   TestAnimationDelegate ad;
   CancelAnimation a2(2000, 150, &ad);
   a2.Start();

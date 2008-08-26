@@ -269,8 +269,11 @@ void BrowserProcessImpl::CreateIOThread() {
   // invoke the io_thread() accessor.
   PluginService::GetInstance();
 
-  scoped_ptr<Thread> thread(new BrowserProcessSubThread(ChromeThread::IO));
-  if (!thread->Start())
+  scoped_ptr<base::Thread> thread(
+      new BrowserProcessSubThread(ChromeThread::IO));
+  base::Thread::Options options;
+  options.message_loop_type = MessageLoop::TYPE_IO;
+  if (!thread->StartWithOptions(options))
     return;
   io_thread_.swap(thread);
 }
@@ -279,7 +282,8 @@ void BrowserProcessImpl::CreateFileThread() {
   DCHECK(!created_file_thread_ && file_thread_.get() == NULL);
   created_file_thread_ = true;
 
-  scoped_ptr<Thread> thread(new BrowserProcessSubThread(ChromeThread::FILE));
+  scoped_ptr<base::Thread> thread(
+      new BrowserProcessSubThread(ChromeThread::FILE));
   if (!thread->Start())
     return;
   file_thread_.swap(thread);
@@ -289,7 +293,8 @@ void BrowserProcessImpl::CreateDBThread() {
   DCHECK(!created_db_thread_ && db_thread_.get() == NULL);
   created_db_thread_ = true;
 
-  scoped_ptr<Thread> thread(new BrowserProcessSubThread(ChromeThread::DB));
+  scoped_ptr<base::Thread> thread(
+      new BrowserProcessSubThread(ChromeThread::DB));
   if (!thread->Start())
     return;
   db_thread_.swap(thread);

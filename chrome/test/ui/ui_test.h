@@ -330,6 +330,8 @@ class UITest : public testing::Test {
   static int timeout_ms_;               // Timeout in milliseconds to wait
                                         // for an test to finish.
   ::scoped_ptr<AutomationProxy> server_;
+
+  MessageLoop message_loop_;            // Enables PostTask to main thread.
 };
 
 // These exist only to support the gTest assertion macros, and

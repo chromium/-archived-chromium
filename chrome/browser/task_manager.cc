@@ -234,7 +234,7 @@ void TaskManagerTableModel::StartUpdating() {
 
   // Register jobs notifications so we can compute network usage (it must be
   // done from the IO thread).
-  Thread* thread = g_browser_process->io_thread();
+  base::Thread* thread = g_browser_process->io_thread();
   if (thread)
     thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
         this, &TaskManagerTableModel::RegisterForJobDoneNotifications));
@@ -260,7 +260,7 @@ void TaskManagerTableModel::StopUpdating() {
   }
 
   // Unregister jobs notification (must be done from the IO thread).
-  Thread* thread = g_browser_process->io_thread();
+  base::Thread* thread = g_browser_process->io_thread();
   if (thread)
     thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
         this, &TaskManagerTableModel::UnregisterForJobDoneNotifications));

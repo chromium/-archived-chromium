@@ -40,10 +40,13 @@ class MessageLoop;
 class PrefService;
 class Profile;
 class WebContents;
-class Thread;
 class URLRequestContext;
 class WebContents;
 class Time;
+
+namespace base {
+class Thread;
+}
 
 // save package: manages all save item.
 class SavePackage : public base::RefCountedThreadSafe<SavePackage> {

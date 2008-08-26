@@ -75,7 +75,7 @@ class FillLayout : public LayoutManager {
 //
 ///////////////////////////////////////////////////////////////////////////////
 class HWNDViewContainer : public ViewContainer,
-                          public MessageLoop::Observer,
+                          public MessageLoopForUI::Observer,
                           public FocusTraversable,
                           public AcceleratorTarget {
  public:

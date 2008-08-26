@@ -43,11 +43,12 @@ static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
 
 // mainline routine for running as the Rendererer process
 int RendererMain(CommandLine &parsed_command_line, int show_command,
-                 sandbox::TargetServices* target_services)
-{
+                 sandbox::TargetServices* target_services) {
   StatsScope<StatsCounterTimer>
       startup_timer(chrome::Counters::renderer_main());
 
+  // The main thread of the renderer services IO.
+  MessageLoopForIO main_message_loop;
   PlatformThread::SetName("Chrome_RendererMain");
 
   CoInitialize(NULL);

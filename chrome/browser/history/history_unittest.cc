@@ -240,6 +240,8 @@ class HistoryTest : public testing::Test {
       saved_redirects_.clear();
     MessageLoop::current()->Quit();
   }
+  
+  MessageLoopForUI message_loop_;
 
   // PageUsageData vector to test segments.
   ScopedVector<PageUsageData> page_usage_data_;

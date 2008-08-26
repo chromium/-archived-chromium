@@ -30,7 +30,8 @@ class TestingPageNavigator : public PageNavigator {
 
 class BookmarkBarContextMenuControllerTest : public testing::Test {
  public:
-  BookmarkBarContextMenuControllerTest() : bb_view_(NULL), model_(NULL) {
+  BookmarkBarContextMenuControllerTest()
+      : bb_view_(NULL), model_(NULL) {
   }
 
   virtual void SetUp() {
@@ -53,6 +54,7 @@ class BookmarkBarContextMenuControllerTest : public testing::Test {
   }
 
  protected:
+  MessageLoopForUI message_loop_;
   scoped_ptr<TestingProfile> profile_;
   BookmarkBarModel* model_;
   scoped_ptr<BookmarkBarView> bb_view_;

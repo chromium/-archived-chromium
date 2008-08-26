@@ -26,7 +26,7 @@
 // handling pointers to threads because many of the well-known threads are owned
 // by the UI thread and can be deallocated without notice.
 //
-class ChromeThread : public Thread {
+class ChromeThread : public base::Thread {
  public:
   // An enumeration of the well-known threads.
   enum ID {

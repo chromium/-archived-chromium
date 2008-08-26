@@ -18,28 +18,29 @@ class UITestSuite : public ChromeTestSuite {
   virtual void Initialize() {
     ChromeTestSuite::Initialize();
 
+    CommandLine parsed_command_line;
     UITest::set_in_process_renderer(
-        parsed_command_line_.HasSwitch(switches::kSingleProcess));
+        parsed_command_line.HasSwitch(switches::kSingleProcess));
     UITest::set_in_process_plugins(
-        parsed_command_line_.HasSwitch(switches::kInProcessPlugins));
+        parsed_command_line.HasSwitch(switches::kInProcessPlugins));
     UITest::set_no_sandbox(
-        parsed_command_line_.HasSwitch(switches::kNoSandbox));
+        parsed_command_line.HasSwitch(switches::kNoSandbox));
     UITest::set_full_memory_dump(
-        parsed_command_line_.HasSwitch(switches::kFullMemoryCrashReport));
+        parsed_command_line.HasSwitch(switches::kFullMemoryCrashReport));
     UITest::set_safe_plugins(
-        parsed_command_line_.HasSwitch(switches::kSafePlugins));
+        parsed_command_line.HasSwitch(switches::kSafePlugins));
     UITest::set_use_existing_browser(
-        parsed_command_line_.HasSwitch(UITestSuite::kUseExistingBrowser));
+        parsed_command_line.HasSwitch(UITestSuite::kUseExistingBrowser));
     UITest::set_dump_histograms_on_exit(
-        parsed_command_line_.HasSwitch(switches::kDumpHistogramsOnExit));
+        parsed_command_line.HasSwitch(switches::kDumpHistogramsOnExit));
     UITest::set_enable_dcheck(
-        parsed_command_line_.HasSwitch(switches::kEnableDCHECK));
+        parsed_command_line.HasSwitch(switches::kEnableDCHECK));
     UITest::set_silent_dump_on_dcheck(
-        parsed_command_line_.HasSwitch(switches::kSilentDumpOnDCHECK));
+        parsed_command_line.HasSwitch(switches::kSilentDumpOnDCHECK));
     UITest::set_disable_breakpad(
-        parsed_command_line_.HasSwitch(switches::kDisableBreakpad));
+        parsed_command_line.HasSwitch(switches::kDisableBreakpad));
     std::wstring test_timeout =
-        parsed_command_line_.GetSwitchValue(UITestSuite::kTestTimeout);
+        parsed_command_line.GetSwitchValue(UITestSuite::kTestTimeout);
     if (!test_timeout.empty()) {
       UITest::set_test_timeout_ms(_wtoi(test_timeout.c_str()));
     }

@@ -32,6 +32,7 @@ class BookmarkEditorViewTest : public testing::Test {
   }
 
  protected:
+  MessageLoopForUI message_loop_;
   BookmarkBarModel* model_;
   scoped_ptr<TestingProfile> profile_;
 

@@ -73,9 +73,8 @@ class PluginRequestInterceptor
   }
 
   void RegisterProtocol(const std::string& scheme) {
-#ifndef NDEBUG
-    DCHECK(MessageLoop::current() == message_loop_);
-#endif
+    DCHECK(CalledOnValidThread());
+
     std::string lower_scheme = StringToLowerASCII(scheme);
     handled_protocols_.insert(lower_scheme);
 
@@ -90,9 +89,7 @@ class PluginRequestInterceptor
 
   // URLRequest::Interceptor
   virtual URLRequestJob* MaybeIntercept(URLRequest* request) {
-#ifndef NDEBUG
-    DCHECK(MessageLoop::current() == message_loop_);
-#endif
+    DCHECK(CalledOnValidThread());
 
     if (!IsHandledProtocol(request->url().scheme()))
       return NULL;

@@ -31,7 +31,7 @@ class VisitedLinkMaster : public VisitedLinkCommon {
 
   // The |file_thread| may be NULL, in which case write operations will be
   // synchronous.
-  VisitedLinkMaster(Thread* file_thread,
+  VisitedLinkMaster(base::Thread* file_thread,
                     PostNewTableEvent* poster,
                     Profile* profile);
 
@@ -50,7 +50,7 @@ class VisitedLinkMaster : public VisitedLinkCommon {
   // When |suppress_rebuild| is set, we'll not attempt to load data from
   // history if the file can't be loaded. This should generally be set for
   // testing except when you want to test the rebuild process explicitly.
-  VisitedLinkMaster(Thread* file_thread,
+  VisitedLinkMaster(base::Thread* file_thread,
                     PostNewTableEvent* poster,
                     HistoryService* history_service,
                     bool suppress_rebuild,
@@ -144,7 +144,7 @@ class VisitedLinkMaster : public VisitedLinkCommon {
   static const int32 kBigDeleteThreshold;
 
   // Backend for the constructors initializing the members.
-  void InitMembers(Thread* file_thread,
+  void InitMembers(base::Thread* file_thread,
                    PostNewTableEvent* poster,
                    Profile* profile);
 

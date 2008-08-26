@@ -37,15 +37,15 @@ class TestingBrowserProcess : public BrowserProcess {
     return NULL;
   }
 
-  virtual Thread* io_thread() {
+  virtual base::Thread* io_thread() {
     return NULL;
   }
 
-  virtual Thread* file_thread() {
+  virtual base::Thread* file_thread() {
     return NULL;
   }
 
-  virtual Thread* db_thread() {
+  virtual base::Thread* db_thread() {
     return NULL;
   }
 

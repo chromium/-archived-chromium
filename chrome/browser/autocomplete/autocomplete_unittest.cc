@@ -110,6 +110,7 @@ class AutocompleteProviderTest : public testing::Test,
   AutocompleteResult result_;
 
  private:
+  MessageLoopForUI message_loop_;
   scoped_ptr<AutocompleteController> controller_;
 };
 

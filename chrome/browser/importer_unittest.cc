@@ -45,6 +45,7 @@ class ImporterTest : public testing::Test {
     ASSERT_FALSE(file_util::PathExists(test_path_));
   }
 
+  MessageLoopForUI message_loop_;
   std::wstring test_path_;
   std::wstring profile_path_;
   std::wstring app_path_;

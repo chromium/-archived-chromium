@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/file_util.h"
+#include "base/message_loop.h"
 #include "chrome/browser/history/text_database_manager.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -44,6 +45,8 @@ class TextDatabaseManagerTest : public testing::Test {
   void TearDown() {
     file_util::Delete(dir_, true);
   }
+  
+  MessageLoop message_loop_;
 
   // Directory containing the databases.
   std::wstring dir_;

@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/basictypes.h"
+#include "base/compiler_specific.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/scoped_ptr.h"
@@ -27,8 +28,8 @@ namespace history {
 class ExpireHistoryTest : public testing::Test,
                           public BroadcastNotificationDelegate {
  public:
-#pragma warning(suppress: 4355)  // OK to pass "this" here.
-  ExpireHistoryTest() : expirer_(this), now_(Time::Now()) {
+  ExpireHistoryTest()
+      : ALLOW_THIS_IN_INITIALIZER_LIST(expirer_(this)), now_(Time::Now()) {
   }
 
  protected:
@@ -55,6 +56,8 @@ class ExpireHistoryTest : public testing::Test,
   }
 
   static bool IsStringInFile(std::wstring& filename, const char* str);
+
+  MessageLoop message_loop_;
 
   ExpireHistoryBackend expirer_;
 

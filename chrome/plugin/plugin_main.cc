@@ -15,6 +15,10 @@
 // mainline routine for running as the plugin process
 int PluginMain(CommandLine &parsed_command_line, int show_command,
                sandbox::TargetServices* target_services) {
+  // The main thread of the plugin services IO.
+  MessageLoopForIO main_message_loop;
+  PlatformThread::SetName("Chrome_PluginMain");
+
   CoInitialize(NULL);
   DLOG(INFO) << "Started plugin with " <<
     parsed_command_line.command_line_string();
