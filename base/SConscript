@@ -112,7 +112,6 @@ if env['PLATFORM'] == 'win32':
     'watchdog.cc',
 
     'process.cc',
-    'process_util.cc',
 
     'resource_util.cc',  # Uses HMODULE, but may be abstractable.
 
@@ -136,6 +135,7 @@ if env['PLATFORM'] == 'win32':
       'message_pump_win.cc',
       'pe_image.cc',
       'platform_thread_win.cc',
+      'process_util_win.cc',
       'registry.cc',
       'shared_memory_win.cc',
       'sys_string_conversions_win.cc',
