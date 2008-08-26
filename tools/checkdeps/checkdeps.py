@@ -56,17 +56,16 @@ import optparse
 import re
 import sys
 
-# Variable name used in the DEPS file. Its presence tells us not to check
-# the sub-tree. For example, third_party directories would use this, where we
-# have no control over their includes.
-SKIP_VAR_NAME = "skip_subtree_includes"
-
 # Variable name used in the DEPS file to specify module-level deps.
 DEPS_VAR_NAME = "deps"
 
 # Variable name used in the DEPS file to add or subtract include files from
 # the module-level deps.
 INCLUDE_RULES_VAR_NAME = "include_rules"
+
+# Optionally present in the DEPS file to list subdirectories which should not
+# be checked. This allows us to skip third party code, for example.
+SKIP_SUBDIRS_VAR_NAME = "skip_child_includes"
 
 # We'll search for lines beginning with this string for checking.
 INCLUDE_PREFIX = "#include"
@@ -227,12 +226,14 @@ def ApplyDirectoryRules(existing_rules, dir_name):
     dir_name: The directory name that the deps file may live in (if it exists).
               This will also be used to generate the implicit rules.
 
-  Returns: The combined set of rules to apply to the sub-tree.
+  Returns: A tuple containing: (1) the combined set of rules to apply to the
+           sub-tree, and (2) a list of all subdirectories that should NOT be
+           checked, as specified in the DEPS file (if any).
   """
   # Check for a .svn directory in this directory. This will tell us if it's
   # a source directory and should be checked.
   if not os.path.exists(os.path.join(dir_name, ".svn")):
-    return None
+    return (None, [])
 
   # Check the DEPS file in this directory.
   if VERBOSE:
@@ -244,20 +245,16 @@ def ApplyDirectoryRules(existing_rules, dir_name):
   if not os.path.exists(deps_file):
     if VERBOSE:
       print "  No deps file found in", dir_name
-    return existing_rules  # Nothing to change from the input rules.
+    return (existing_rules, [])  # Nothing to change from the input rules.
 
   execfile(deps_file, scope)
 
-  # Check the "skip" flag to see if we should check this directory at all.
-  if scope.get(SKIP_VAR_NAME):
-    if VERBOSE:
-      print "  Deps file specifies skipping this directory."
-    return None
-
   deps = scope.get(DEPS_VAR_NAME, {})
   include_rules = scope.get(INCLUDE_RULES_VAR_NAME, [])
+  skip_subdirs = scope.get(SKIP_SUBDIRS_VAR_NAME, [])
 
-  return ApplyRules(existing_rules, deps, include_rules, dir_name)
+  return (ApplyRules(existing_rules, deps, include_rules, dir_name),
+          skip_subdirs)
 
 
 def ShouldCheckFile(file_name):
@@ -339,7 +336,7 @@ def CheckFile(rules, file_name):
 
 
 def CheckDirectory(rules, dir_name):
-  rules = ApplyDirectoryRules(rules, dir_name)
+  (rules, skip_subdirs) = ApplyDirectoryRules(rules, dir_name)
   if rules == None:
     return True
 
@@ -349,6 +346,8 @@ def CheckDirectory(rules, dir_name):
   success = True
   contents = os.listdir(dir_name)
   for cur in contents:
+    if cur in skip_subdirs:
+      continue  # Don't check children that DEPS has asked us to skip.
     full_name = os.path.join(dir_name, cur)
     if os.path.isdir(full_name):
       dirs_to_check.append(full_name)

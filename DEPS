@@ -30,3 +30,13 @@ include_rules = [
   # this should probably change.
   "+unicode"
 ]
+
+# checkdeps.py shouldn't check include paths for files in these dirs:
+skip_child_includes = [
+   "breakpad",
+   "sdch",
+   "skia",
+   "testing",
+   "third_party",
+   "v8",
+]
