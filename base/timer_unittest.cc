@@ -44,8 +44,7 @@ class TimerTask : public Task {
 
  private:
   static MessageLoop* message_loop() {
-    static MessageLoop* loop = MessageLoop::current();
-    return loop;
+    return MessageLoop::current();
   }
 
   static int timer_count_;
