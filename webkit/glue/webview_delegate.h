@@ -33,13 +33,13 @@
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/context_node_types.h"
 #include "webkit/glue/webwidget_delegate.h"
+#include "webkit/glue/window_open_disposition.h"
 
 namespace gfx {
   class Point;
   class Rect;
 }
 
-enum WindowOpenDisposition;
 struct PasswordForm;
 struct WebDropData;
 struct WebPreferences;
