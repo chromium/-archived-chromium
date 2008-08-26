@@ -18,7 +18,7 @@ protected:
   virtual void Initialize() {
     UITestSuite::Initialize();
 
-    SetPageRange(parsed_command_line_);
+    SetPageRange(CommandLine());
   }
 };
 

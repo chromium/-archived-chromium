@@ -6,10 +6,6 @@
 #include "chrome/test/reliability/reliability_test_suite.h"
 
 int main(int argc, char **argv) {
-  // Some tests may use base::Singleton<>, thus we need to instanciate
-  // the AtExitManager or else we will leak objects.
-  base::AtExitManager at_exit_manager;  
-
   return ReliabilityTestSuite(argc, argv).Run();
 }
 
