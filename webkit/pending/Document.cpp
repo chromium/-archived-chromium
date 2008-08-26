@@ -1992,7 +1992,7 @@ void Document::processHttpEquiv(const String &equiv, const String &content)
             static_cast<HTMLDocument*>(this)->setCookie(content);
     } else if (equalIgnoringCase(equiv, "content-language"))
         setContentLanguage(content);
-    else if (equalIgnoringCase(equiv, "dns-prefetch-control"))
+    else if (equalIgnoringCase(equiv, "x-dns-prefetch-control"))
         setDNSPrefetchControl(content);
 }
 
