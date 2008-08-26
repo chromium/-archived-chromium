@@ -164,15 +164,26 @@ bool KillProcess(int process_id, int exit_code, bool wait) {
 
 bool DidProcessCrash(ProcessHandle handle) {
   DWORD exitcode = 0;
-  BOOL success = ::GetExitCodeProcess(handle, &exitcode);
-  DCHECK(success);
-  DCHECK(exitcode != STILL_ACTIVE);
+  if (!::GetExitCodeProcess(handle, &exitcode)) {
+    NOTREACHED();
+    return false;
+  }
+  if (exitcode == STILL_ACTIVE) {
+    // The process is likely not dead or it used 0x103 as exit code.
+    NOTREACHED();
+    return false;
+  }
 
-  if (exitcode == 0 ||           // Normal termination.
-      exitcode == 1 ||           // Killed by task manager.
-      exitcode == 0xC0000354 ||  // STATUS_DEBUGGER_INACTIVE
-      exitcode == 0xC000013A ||  // Control-C/end session.
-      exitcode == 0x40010004) {  // Debugger terminated process/end session.
+  // Warning, this is not generic code; it heavily depends on the way
+  // the rest of the code kills a process.
+  
+  if (exitcode == 0 ||              // Normal termination.
+      exitcode == 1 ||              // Killed by task manager.
+      exitcode == 14 ||             // Killed because of a bad message.
+      exitcode == 16 ||             // Killed by hung detector (see ResultCodes)
+      exitcode == 0xC0000354 ||     // STATUS_DEBUGGER_INACTIVE.
+      exitcode == 0xC000013A ||     // Control-C/end session.
+      exitcode == 0x40010004) {     // Debugger terminated process/end session.
     return false;
   }
 
