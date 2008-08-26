@@ -9,6 +9,7 @@
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/encoding_menu_controller_delegate.h"
 #include "chrome/browser/tab_contents_container_view.h"
 #include "chrome/browser/tabs/tab_strip.h"
 #include "chrome/browser/view_ids.h"
@@ -44,8 +45,8 @@ static const struct { bool separator; int command; int label; } kMenuLayout[] = 
   { true, 0, 0 },
   { false, IDC_TASKMANAGER, IDS_TASKMANAGER },
   { true, 0, 0 },
-  { false, 0, IDS_ENCODING },
-  { false, 0, IDS_ZOOM },
+  { false, IDC_ENCODING, IDS_ENCODING },
+  { false, IDC_ZOOM, IDS_ZOOM },
   { false, IDC_PRINT, IDS_PRINT },
   { false, IDC_SAVEPAGE, IDS_SAVEPAGEAS },
   { false, IDC_FIND, IDS_FIND_IN_PAGE },
@@ -227,6 +228,7 @@ void BrowserView2::PrepareToRunSystemMenu(HMENU menu) {
 
 void BrowserView2::SystemMenuEnded() {
   system_menu_.reset();
+  encoding_menu_delegate_.reset();
 }
 
 bool BrowserView2::SupportsWindowFeature(WindowFeature feature) const {
@@ -1020,21 +1022,44 @@ void BrowserView2::LoadAccelerators() {
 
 void BrowserView2::BuildMenuForTabStriplessWindow(Menu* menu,
                                                   int insertion_index) {
+  encoding_menu_delegate_.reset(new EncodingMenuControllerDelegate(
+      browser_.get(),
+      browser_->controller()));
+
   for (int i = 0; i < arraysize(kMenuLayout); ++i) {
     if (kMenuLayout[i].separator) {
       menu->AddSeparator(insertion_index);
     } else {
       int command = kMenuLayout[i].command;
-
-      menu->AddMenuItemWithLabel(insertion_index, command,
-                                 l10n_util::GetString(kMenuLayout[i].label));
-
-      // |command| can be zero on submenu items (IDS_ENCODING,
-      // IDS_ZOOM) and on separators.
-      if (command != 0) {
-        menu->EnableMenuItemAt(
+      if (command == IDC_ENCODING) {
+        Menu* encoding_menu = menu->AddSubMenu(
             insertion_index,
-            browser_->IsCommandEnabled(command));
+            IDC_ENCODING,
+            l10n_util::GetString(IDS_ENCODING));
+        encoding_menu->set_delegate(encoding_menu_delegate_.get());
+        EncodingMenuControllerDelegate::BuildEncodingMenu(browser_->profile(),
+                                                          encoding_menu);
+      } else if (command == IDC_ZOOM) {
+        Menu* zoom_menu = menu->AddSubMenu(insertion_index, IDC_ZOOM,
+                                           l10n_util::GetString(IDS_ZOOM));
+        zoom_menu->AppendMenuItemWithLabel(
+            IDC_ZOOM_PLUS,
+            l10n_util::GetString(IDS_ZOOM_PLUS));
+        zoom_menu->AppendMenuItemWithLabel(
+            IDC_ZOOM_NORMAL,
+            l10n_util::GetString(IDS_ZOOM_NORMAL));
+        zoom_menu->AppendMenuItemWithLabel(
+            IDC_ZOOM_MINUS,
+            l10n_util::GetString(IDS_ZOOM_MINUS));
+      } else {
+        menu->AddMenuItemWithLabel(insertion_index, command,
+                                   l10n_util::GetString(kMenuLayout[i].label));
+        // |command| can be zero on submenu items (IDS_ENCODING,
+        // IDS_ZOOM) and on separators.
+        if (command != 0) {
+          menu->EnableMenuItemAt(insertion_index,
+                                 browser_->IsCommandEnabled(command));
+        }
       }
     }
   }

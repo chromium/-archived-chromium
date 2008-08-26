@@ -203,6 +203,8 @@ class Menu {
   explicit Menu(HMENU hmenu);
   virtual ~Menu();
 
+  void set_delegate(Delegate* delegate) { delegate_ = delegate; }
+
   // Adds an item to this menu.
   // item_id    The id of the item, used to identify it in delegate callbacks
   //            or (if delegate is NULL) to identify the command associated

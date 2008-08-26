@@ -19,6 +19,7 @@
 class BookmarkBarView;
 class Browser;
 class BrowserToolbarView;
+class EncodingMenuControllerDelegate;
 class Menu;
 class StatusBubble;
 class TabContentsContainerView;
@@ -341,6 +342,9 @@ class BrowserView2 : public BrowserWindow,
 
   // The OTR avatar image.
   static SkBitmap otr_avatar_;
+
+  // The delegate for the encoding menu.
+  scoped_ptr<EncodingMenuControllerDelegate> encoding_menu_delegate_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BrowserView2);
 };
