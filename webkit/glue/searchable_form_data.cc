@@ -27,6 +27,7 @@
 #undef LOG
 
 #include "base/basictypes.h"
+#include "base/string_util.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/searchable_form_data.h"
@@ -388,7 +389,7 @@ SearchableFormData::SearchableFormData(const std::wstring& url,
                                        const std::wstring& element_name,
                                        const std::wstring& element_value,
                                        const std::string& encoding)
-    : url_(url),
+    : url_(WideToUTF16(url)),
       element_name_(element_name),
       element_value_(element_value),
       encoding_(encoding) {
