@@ -40,7 +40,9 @@ protected:
     if (!user_data_dir.empty())
       PathService::Override(chrome::DIR_USER_DATA, user_data_dir);
 
-    ResourceBundle::InitSharedInstance(std::wstring());
+    // Force unittests to run using en-us so if we test against string
+    // output, it'll pass regardless of the system language.
+    ResourceBundle::InitSharedInstance(L"en-us");
     ResourceBundle::GetSharedInstance().LoadThemeResources();
 
     // initialize the global StatsTable for unit_tests
