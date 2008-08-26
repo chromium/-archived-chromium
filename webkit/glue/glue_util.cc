@@ -45,6 +45,14 @@ std::string16 StringToStdString16(const WebCore::String& str) {
   return std::string16(chars ? chars : (UChar *)L"", str.length());
 }
 
+std::string StringToStdString(const WebCore::String& str) {
+  if (str.length() == 0)
+    return std::string();
+  std::string ret;
+  UTF16ToUTF8(str.characters(), str.length(), &ret);
+  return ret;
+}
+
 WebCore::String StdWStringToString(const std::wstring& str) {
 #if defined(WCHAR_T_IS_UTF16)
   return WebCore::String(str.data(), static_cast<unsigned>(str.length()));

@@ -18,20 +18,23 @@ namespace WebCore {
 }
 
 namespace webkit_glue {
-  std::string CStringToStdString(const WebCore::CString& str);
-  WebCore::CString StdStringToCString(const std::string& str);
-  std::wstring StringToStdWString(const WebCore::String& str);
-  std::string16 StringToStdString16(const WebCore::String& str);
 
-  WebCore::String StdWStringToString(const std::wstring& str);
-  WebCore::String StdStringToString(const std::string& str);
-  
-  WebCore::DeprecatedString StdWStringToDeprecatedString(const std::wstring& str);
-  std::wstring DeprecatedStringToStdWString(const WebCore::DeprecatedString& dep);
+std::string CStringToStdString(const WebCore::CString& str);
+WebCore::CString StdStringToCString(const std::string& str);
+std::wstring StringToStdWString(const WebCore::String& str);
+std::string16 StringToStdString16(const WebCore::String& str);
+std::string StringToStdString(const WebCore::String& str);
 
-  GURL KURLToGURL(const WebCore::KURL& url);
-  WebCore::KURL GURLToKURL(const GURL& url);
-}
+WebCore::String StdWStringToString(const std::wstring& str);
+WebCore::String StdStringToString(const std::string& str);
+
+WebCore::DeprecatedString StdWStringToDeprecatedString(const std::wstring& str);
+std::wstring DeprecatedStringToStdWString(const WebCore::DeprecatedString& dep);
+
+GURL KURLToGURL(const WebCore::KURL& url);
+WebCore::KURL GURLToKURL(const GURL& url);
+
+}  // namespace webkit_glue
 
 #endif  // #ifndef WEBKIT_GLUE_GLUE_UTIL_H_
 

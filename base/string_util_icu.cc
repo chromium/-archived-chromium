@@ -145,6 +145,38 @@ bool ConvertUnicode(const SRC_CHAR* src, size_t src_len,
   return success;
 }
 
+
+// Guesses the length of the output in UTF-8 in bytes, and reserves that amount
+// of space in the given string. We also assume that the input character types
+// are unsigned, which will be true for UTF-16 and -32 on our systems. We assume
+// the string length is greater than zero.
+template<typename CHAR>
+void ReserveUTF8Output(const CHAR* src, size_t src_len, std::string* output) {
+  if (src[0] < 0x80) {
+    // Assume that the entire input will be ASCII.
+    output->reserve(src_len);
+  } else {
+    // Assume that the entire input is non-ASCII and will have 3 bytes per char.
+    output->reserve(src_len * 3);
+  }
+}
+
+// Guesses the size of the output buffer (containing either UTF-16 or -32 data)
+// given some UTF-8 input that will be converted to it. See ReserveUTF8Output.
+// We assume the source length is > 0.
+template<typename CHAR>
+void ReserveUTF16Or32Output(const char* src, size_t src_len,
+                            std::basic_string<CHAR>* output) {
+  if (static_cast<unsigned char>(src[0]) < 0x80) {
+    // Assume the input is all ASCII, which means 1:1 correspondence.
+    output->reserve(src_len);
+  } else {
+    // Otherwise assume that the UTF-8 sequences will have 2 bytes for each
+    // character.
+    output->reserve(src_len / 2);
+  }
+}
+
 }  // namespace
 
 // UTF-8 <-> Wide --------------------------------------------------------------
@@ -166,14 +198,7 @@ bool WideToUTF8(const wchar_t* src, size_t src_len, std::string* output) {
     return true;
   }
 
-  // Intelligently guess the size of the output string. When it's an ASCII
-  // character, assume the rest will be ASCII and use a buffer size the same as
-  // the input. When it's not ASCII, assume 3-bytes per character as the
-  // starting point. This will be resized internally later if it's too small.
-  if (static_cast<uint32>(src[0]) < 0x80)
-    output->reserve(src_len);
-  else
-    output->reserve(src_len * 3);
+  ReserveUTF8Output(src, src_len, output);
   return ConvertUnicode<wchar_t, char>(src, src_len, output);
 }
 
@@ -192,15 +217,7 @@ bool UTF8ToWide(const char* src, size_t src_len, std::wstring* output) {
     return true;
   }
 
-  // Intelligently guess the size of the output string. When it's an ASCII
-  // character, assume the rest will be ASCII and use a buffer size the same as
-  // the input. When it's not ASCII, assume the UTF-8 takes 2 bytes per
-  // character (this is more conservative than 3 which we use above when
-  // converting the other way).
-  if (static_cast<unsigned char>(src[0]) < 0x80)
-    output->reserve(src_len);
-  else
-    output->reserve(src_len / 2);
+  ReserveUTF16Or32Output(src, src_len, output);
   return ConvertUnicode<char, wchar_t>(src, src_len, output);
 }
 
@@ -272,6 +289,73 @@ bool UTF16ToWide(const char16* src, size_t src_len, std::wstring* output) {
 }
 
 #endif  // defined(WCHAR_T_IS_UTF32)
+
+// UTF16 <-> UTF8 --------------------------------------------------------------
+
+#if defined(WCHAR_T_IS_UTF32)
+
+bool UTF8ToUTF16(const char* src, size_t src_len, std::string16* output) {
+  if (src_len == 0) {
+    output->clear();
+    return true;
+  }
+
+  ReserveUTF16Or32Output(src, src_len, output);
+  return ConvertUnicode<char, char16>(src, src_len, output);
+}
+
+std::string16 UTF8ToUTF16(const std::string& utf8) {
+  std::string16 ret;
+  if (utf8.empty())
+    return ret;
+
+  // Ignore the success flag of this call, it will do the best it can for
+  // invalid input, which is what we want here.
+  UTF8ToUTF16(utf8.data(), utf8.length(), &ret);
+  return ret;
+}
+
+bool UTF16ToUTF8(const char16* src, size_t src_len, std::string* output) {
+  if (src_len == 0) {
+    output->clear();
+    return true;
+  }
+
+  ReserveUTF8Output(src, src_len, output);
+  return ConvertUnicode<char, char16>(src, src_len, output);
+}
+
+std::string UTF16ToUTF8(const std::string16& utf16) {
+  std::string ret;
+  if (utf16.empty())
+    return ret;
+
+  // Ignore the success flag of this call, it will do the best it can for
+  // invalid input, which is what we want here.
+  UTF16ToUTF8(utf16.data(), utf16.length(), &ret);
+  return ret;
+}
+
+#elif defined(WCHAR_T_IS_UTF16)
+// Easy case since we can use the "wide" versions we already wrote above.
+
+bool UTF8ToUTF16(const char* src, size_t src_len, std::string16* output) {
+  return UTF8ToWide(src, src_len, output);
+}
+
+std::string16 UTF8ToUTF16(const std::string& utf8) {
+  return UTF8ToWide(utf8);
+}
+
+bool UTF16ToUTF8(const char16* src, size_t src_len, std::string* output) {
+  return WideToUTF8(src, src_len, output);
+}
+
+std::string UTF16ToUTF8(const std::string16& utf16) {
+  return WideToUTF8(utf16);
+}
+
+#endif
 
 // Codepage <-> Wide -----------------------------------------------------------
 

@@ -180,6 +180,11 @@ std::string16 WideToUTF16(const std::wstring& wide);
 bool UTF16ToWide(const char16* src, size_t src_len, std::wstring* output);
 std::wstring UTF16ToWide(const std::string16& utf8);
 
+bool UTF8ToUTF16(const char* src, size_t src_len, std::string16* output);
+std::string16 UTF8ToUTF16(const std::string& utf8);
+bool UTF16ToUTF8(const char16* src, size_t src_len, std::string* output);
+std::string UTF16ToUTF8(const std::string16& utf16);
+
 // Defines the error handling modes of WideToCodepage and CodepageToWide.
 class OnStringUtilConversionError {
  public:
