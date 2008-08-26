@@ -244,7 +244,7 @@ unittest_files = [
     'http/http_chunked_decoder_unittest.cc',
     'http/http_response_headers_unittest.cc',
     'http/http_vary_data_unittest.cc',
-    '$BASE_DIR/run_all_unittests$OBJSUFFIX',
+    'base/run_all_unittests.cc',
 ]
 
 if env['PLATFORM'] == 'win32':
