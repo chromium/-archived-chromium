@@ -7,13 +7,18 @@
 """Module to setup and generate code coverage data
 """
 
+
+import logging
 import optparse
 import os
 import shutil
+import subprocess
 import sys
 import tempfile
 
+import google.logging_utils
 import google.process_utils as proc
+
 
 class Coverage(object):
   """Class to set up and generate code coverage.
@@ -30,16 +35,18 @@ class Coverage(object):
                revision,
                vsts_path = None,
                lcov_converter_path = None):
+    google.logging_utils.config_root()
     self.revision = revision
     self.instrumented = False
     self.vsts_path = vsts_path
     self.lcov_converter_path = lcov_converter_path
+    self._dir = None
   
   
   def _IsWindows(self):
     """Checks if the current platform is Windows.
     """
-    return sys.platform[:3] == 'win':
+    return sys.platform[:3] == 'win'
   
   
   def SetUp(self, binaries):
@@ -58,9 +65,15 @@ class Coverage(object):
       None on error.
     """
     if self.instrumented:
+      logging.error('Binaries already instrumented')
       return None
     coverage_file = None
     if self._IsWindows():
+      # Stop all previous instance of VSPerfMon counters
+      counters_command = ('%s -shutdown' % 
+                          (os.path.join(self.vsts_path, 'vsperfcmd.exe')))
+      (retcode, output) = proc.RunCommandFull(counters_command,
+                                              collect_output=True)
       # TODO(niranjan): Add a check that to verify that the binaries were built
       # using the /PROFILE linker flag.
       if self.vsts_path == None or self.lcov_converter_path == None:
@@ -70,30 +83,30 @@ class Coverage(object):
       instrument_command = '%s /COVERAGE ' % (os.path.join(self.vsts_path,
                                                            'vsinstr.exe'))
       for binary in binaries:
-        print 'binary = %s' % binary
-        print 'instrument_command = %s' % instrument_command
+        logging.info('binary = %s' % (binary))
+        logging.info('instrument_command = %s' % (instrument_command))
         # Instrument each binary in the list
         (retcode, output) = proc.RunCommandFull(instrument_command + binary,
                                                 collect_output=True)
-        print output
         # Check if the file has been instrumented correctly.
         if output.pop().rfind('Successfully instrumented') == -1:
-          # TODO(niranjan): Change print to logging.
-          print 'Error instrumenting %s' % binary
+          logging.error('Error instrumenting %s' % (binary))
           return None
 
       # Generate the file name for the coverage results
       self._dir = tempfile.mkdtemp()
       coverage_file = os.path.join(self._dir, 'chrome_win32_%s.coverage' % 
                                               (self.revision))
+      logging.info('.coverage file: %s' % (coverage_file))
 
       # After all the binaries have been instrumented, we start the counters.
       counters_command = ('%s -start:coverage -output:%s' %
                           (os.path.join(self.vsts_path, 'vsperfcmd.exe'),
                           coverage_file))
-      (retcode, output) = proc.RunCommandFull(counters_command,
-                                              collect_output=True)
-      print output
+      # Here we use subprocess.call() instead of the RunCommandFull because the
+      # VSPerfCmd spawns another process before terminating and this confuses
+      # the subprocess.Popen() used by RunCommandFull.
+      retcode = subprocess.call(counters_command)
       # TODO(niranjan): Check whether the counters have been started
       # successfully.
       
@@ -115,18 +128,19 @@ class Coverage(object):
     
     if self._IsWindows():
       # Stop counters
-      counters_command = ('%s -start:coverage -shutdown' % 
+      counters_command = ('%s -shutdown' % 
                          (os.path.join(self.vsts_path, 'vsperfcmd.exe')))
       (retcode, output) = proc.RunCommandFull(counters_command,
                                               collect_output=True)
-      
+      logging.info('Counters shut down: %s' % (output))
       # TODO(niranjan): Revert the instrumented binaries to their original
       # versions.
     else:
       return
     # Delete all the temp files and folders
     if self._dir != None:
-      os.removedirs(self._dir)
+      shutil.rmtree(self._dir, ignore_errors=True)
+      logging.info('Cleaned up temporary files and folders')
     # Reset the instrumented flag.
     self.instrumented = False
     
@@ -136,7 +150,7 @@ class Coverage(object):
 
     This method uploads the coverage data to a dashboard where it will be
     processed. On Windows, this method will first convert the .coverage file to
-    the lcov format.
+    the lcov format. This method needs to be called before the TearDown method.
 
     Args:
       coverage_file: The coverage data file to upload.
@@ -150,22 +164,24 @@ class Coverage(object):
     """
     if self._IsWindows():
       # Stop counters
-      counters_command = ('%s -start:coverage -shutdown' % 
+      counters_command = ('%s -shutdown' % 
                          (os.path.join(self.vsts_path, 'vsperfcmd.exe')))
       (retcode, output) = proc.RunCommandFull(counters_command,
                                               collect_output=True)
+      logging.info('Counters shut down: %s' % (output))
       # Convert the .coverage file to lcov format
-      if self.lcov_converter_path == False: 
+      if self.lcov_converter_path == False:
+        logging.error('Lcov converter tool not found')
         return False
       self.lcov_converter_path = self.lcov_converter_path.rstrip('\\')
       convert_command = ('%s -sym_path=%s -src_root=%s ' % 
-                         os.path.join(self.lcov_converter_path, 
+                         (os.path.join(self.lcov_converter_path, 
                                       'coverage_analyzer.exe'),
                          sym_path,
-                         src_root)
+                         src_root))
+      logging.info('Conversion to lcov complete')
       (retcode, output) = proc.RunCommandFull(convert_command + coverage_file,
                                               collect_output=True)
       shutil.copy(coverage_file, coverage_file.replace('.coverage', ''))
     # TODO(niranjan): Upload this somewhere!
-
 
