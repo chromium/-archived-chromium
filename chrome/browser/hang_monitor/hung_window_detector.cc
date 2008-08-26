@@ -89,14 +89,13 @@ bool HungWindowDetector::CheckChildWindow(HWND child_window) {
     }
 
     DWORD result = 0;
-    if ((0 == SendMessageTimeout(child_window,
-                                 WM_NULL,
-                                 0,
-                                 0,
-                                 SMTO_BLOCK,
-                                 child_window_message_timeout,
-                                 &result)) ||
-        IsHungAppWindow(child_window)) {
+    if (0 == SendMessageTimeout(child_window,
+                                WM_NULL,
+                                0,
+                                0,
+                                SMTO_BLOCK,
+                                child_window_message_timeout,
+                                &result)) {
       HungWindowNotification::ActionOnHungWindow action =
           HungWindowNotification::HUNG_WINDOW_IGNORE;
 #pragma warning(disable:4312)
@@ -155,6 +154,7 @@ bool HungWindowDetector::CheckChildWindow(HWND child_window) {
         }
       }
     } else {
+      DCHECK(IsHungAppWindow(child_window) == false);
       RemoveProp(child_window, kHungChildWindowTimeout);
     }
   }
