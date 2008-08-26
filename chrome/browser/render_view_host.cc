@@ -1200,12 +1200,14 @@ void RenderViewHost::OnDebugDisconnect() {
   }
 }
 
-void RenderViewHost::RaiseAvatarEvent(std::string event_name, 
-                                      std::string event_arg) {
+#ifdef CHROME_PERSONALIZATION
+void RenderViewHost::RaisePersonalizationEvent(std::string event_name, 
+                                               std::string event_arg) {
   Send(new ViewMsg_PersonalizationEvent(routing_id_,
                                         event_name,
                                         event_arg));
 }
+#endif
 
 void RenderViewHost::ForwardMessageFromExternalHost(
     const std::string& target, const std::string& message) {

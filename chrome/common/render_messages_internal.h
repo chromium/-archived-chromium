@@ -413,10 +413,11 @@ IPC_BEGIN_MESSAGES(View, 1)
   IPC_MESSAGE_ROUTED1(ViewMsg_Repaint,
                       gfx::Size /* The view size to be repainted */)
 
+#ifdef CHROME_PERSONALIZATION
   IPC_MESSAGE_ROUTED2(ViewMsg_PersonalizationEvent, 
                       std::string /* event name */,
                       std::string /* event arguments */)                      
-
+#endif
   // Posts a message to the renderer.
   IPC_MESSAGE_ROUTED2(ViewMsg_HandleMessageFromExternalHost,
                       std::string /* The target for the message */,

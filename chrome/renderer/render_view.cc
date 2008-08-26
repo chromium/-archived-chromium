@@ -2481,6 +2481,7 @@ void RenderView::OnThemeChanged() {
   DidInvalidateRect(webwidget_, view_rect);
 }
 
+#ifdef CHROME_PERSONALIZATION
 void RenderView::OnPersonalizationEvent(std::string event_name,
                                         std::string event_args) {
   Personalization::HandleViewMsgPersonalizationEvent(personalization_,
@@ -2488,9 +2489,12 @@ void RenderView::OnPersonalizationEvent(std::string event_name,
                                                      event_name,
                                                      event_args);
 }
+#endif
 
 void RenderView::TransitionToCommittedForNewPage() {
+#ifdef CHROME_PERSONALIZATION
   Personalization::HandleTransitionToCommittedForNewPage(personalization_);
+#endif
 }
 
 void RenderView::OnMessageFromExternalHost(

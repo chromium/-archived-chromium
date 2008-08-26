@@ -431,7 +431,9 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // Notification about ui theme changes.
   void OnThemeChanged();
 
+#ifdef CHROME_PERSONALIZATION
   void OnPersonalizationEvent(std::string event_name, std::string event_args);
+#endif
 
   // Handles messages posted from automation.
   void OnMessageFromExternalHost(const std::string& target,
