@@ -11,9 +11,11 @@
 namespace tracked_objects {
 
 class TrackedObjectsTest : public testing::Test {
+ public:
+  MessageLoop message_loop_;
 };
 
-TEST(TrackedObjectsTest, MinimalStartupShutdown) {
+TEST_F(TrackedObjectsTest, MinimalStartupShutdown) {
   // Minimal test doesn't even create any tasks.
   if (!ThreadData::StartTracking(true))
     return;
@@ -54,7 +56,7 @@ class NoopTask : public Task {
   void Run() {}
 };
 
-TEST(TrackedObjectsTest, TinyStartupShutdown) {
+TEST_F(TrackedObjectsTest, TinyStartupShutdown) {
   if (!ThreadData::StartTracking(true))
     return;
 
@@ -92,7 +94,4 @@ TEST(TrackedObjectsTest, TinyStartupShutdown) {
   ThreadData::ShutdownSingleThreadedCleanup();
 }
 
-
 }  // namespace tracked_objects
-
-
