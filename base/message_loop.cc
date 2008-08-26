@@ -64,21 +64,12 @@ MessageLoop::MessageLoop(Type type)
   DCHECK(!tls_index_.Get()) << "should only have one message loop per thread";
   tls_index_.Set(this);
 
-  switch (type) {
-    case TYPE_DEFAULT:
-      pump_ = new base::MessagePumpDefault();
-      break;
-    case TYPE_UI:
-    case TYPE_IO:
-      // TODO(darin): Use a special pumps for UI and IO, and figure out what to
-      // do for non-Windows platforms.
+  // TODO(darin): Choose the pump based on the requested type.
 #if defined(OS_WIN)
-      pump_ = new base::MessagePumpWin();
+  pump_ = new base::MessagePumpWin();
 #else
-      pump_ = new base::MessagePumpDefault();
+  pump_ = new base::MessagePumpDefault();
 #endif
-      break;
-  }
 }
 
 MessageLoop::~MessageLoop() {
