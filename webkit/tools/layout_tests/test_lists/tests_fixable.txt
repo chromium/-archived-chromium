@@ -28,6 +28,17 @@ V8 # pending/svg/carto.net/window.svg = PASS | FAIL
 V8 # LayoutTests/fast/text/midword-break-hang.html = PASS | FAIL
 V8 # LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = PASS | FAIL
 
+// Bug: 1345328
+V8 # LayoutTests/fast/block/basic/minheight.html = FAIL
+V8 # LayoutTests/fast/dom/Window/new-window-opener.html = FAIL
+V8 # LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
+V8 # LayoutTests/fast/forms/textarea-setvalue-submit.html = FAIL
+V8 # LayoutTests/fast/loader/onunload-form-submit-crash.html = FAIL
+V8 # LayoutTests/fast/text/basic/generic-family-reset.html = FAIL
+V8 # LayoutTests/http/tests/navigation/lockedhistory-iframe.html = FAIL
+V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-20-t.svg = FAIL
+V8 # LayoutTests/svg/custom/frame-getSVGDocument.html = FAIL
+V8 # LayoutTests/tables/mozilla/marvin/backgr_index.html = FAIL
 
 // -----------------------------------------------------------------
 // HANGING TESTS
@@ -745,3 +756,9 @@ V8 # LayoutTests/fast/js/const.html = FAIL
 // Also the way to trigger GC is not reliable, that's why sometimes it is
 // passing and sometimes not.
 V8 # LayoutTests/fast/dom/gc-2.html = FAIL | PASS
+
+// Bug: 1344760
+V8 | KJS # LayoutTests/http/tests/navigation/redirect302-basic.html = FAIL | PASS
+V8 | KJS # LayoutTests/http/tests/navigation/postredirect-goback1.html = FAIL | PASS
+V8 | KJS # LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL | PASS
+
