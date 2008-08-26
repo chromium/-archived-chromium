@@ -4,6 +4,7 @@
 
 // -----------------------------------------------------------------
 // DEBUG ONLY FAILURES!
+// Include both results for Debug and Release builds (i.e. PASS | FAIL)
 // -----------------------------------------------------------------
 
 // Bug 1124548: Copying with no selection is sometimes supposed to work
@@ -29,16 +30,22 @@ V8 # LayoutTests/fast/text/midword-break-hang.html = PASS | FAIL
 V8 # LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = PASS | FAIL
 
 // Bug: 1345328
-V8 # LayoutTests/fast/block/basic/minheight.html = FAIL
-V8 # LayoutTests/fast/dom/Window/new-window-opener.html = FAIL
-V8 # LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
-V8 # LayoutTests/fast/forms/textarea-setvalue-submit.html = FAIL
-V8 # LayoutTests/fast/loader/onunload-form-submit-crash.html = FAIL
-V8 # LayoutTests/fast/text/basic/generic-family-reset.html = FAIL
-V8 # LayoutTests/http/tests/navigation/lockedhistory-iframe.html = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-20-t.svg = FAIL
-V8 # LayoutTests/svg/custom/frame-getSVGDocument.html = FAIL
-V8 # LayoutTests/tables/mozilla/marvin/backgr_index.html = FAIL
+V8 # LayoutTests/fast/block/basic/minheight.html = PASS | FAIL
+V8 # LayoutTests/fast/dom/Window/new-window-opener.html = PASS | FAIL
+V8 # LayoutTests/fast/events/updateLayoutForHitTest.html = PASS | FAIL
+V8 # LayoutTests/fast/forms/textarea-setvalue-submit.html = PASS | FAIL
+V8 # LayoutTests/fast/loader/onunload-form-submit-crash.html = PASS | FAIL
+V8 # LayoutTests/fast/text/basic/generic-family-reset.html = PASS | FAIL
+V8 # LayoutTests/http/tests/navigation/lockedhistory-iframe.html = PASS | FAIL
+V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-20-t.svg = PASS | FAIL
+V8 # LayoutTests/svg/custom/frame-getSVGDocument.html = PASS | FAIL
+V8 # LayoutTests/tables/mozilla/marvin/backgr_index.html = PASS | FAIL
+V8 # LayoutTests/fast/overflow/003.xml = PASS | FAIL
+V8 # LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = PASS | FAIL
+V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-31-t.svg = PASS | FAIL
+V8 # LayoutTests/tables/mozilla/marvin/backgr_layers-opacity.html = PASS | FAIL
+V8 # LayoutTests/fast/forms/001.html = PASS | FAIL
+V8 # LayoutTests/fast/forms/visual-hebrew-text-field.html = PASS | FAIL
 
 // -----------------------------------------------------------------
 // HANGING TESTS
