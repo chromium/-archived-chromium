@@ -537,7 +537,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\glue\webinputevent.cc"
+				RelativePath="..\..\glue\webinputevent_win.cc"
 				>
 			</File>
 			<File

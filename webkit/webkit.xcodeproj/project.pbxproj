@@ -833,7 +833,7 @@
 		7B42A30D0DE204F200659DE0 /* weburlrequest_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405560D92E3DB0006B936 /* weburlrequest_impl.cc */; };
 		7B42A30E0DE204F200659DE0 /* webdatasource_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405320D92E3DA0006B936 /* webdatasource_impl.cc */; };
 		7B42A30F0DE204F200659DE0 /* webtextinput_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405530D92E3DB0006B936 /* webtextinput_impl.cc */; };
-		7B42A3100DE204F200659DE0 /* webinputevent.mm in Sources */ = {isa = PBXBuildFile; fileRef = 825405440D92E3DA0006B936 /* webinputevent.mm */; };
+		7B42A3100DE204F200659DE0 /* webinputevent_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 825405440D92E3DA0006B936 /* webinputevent_mac.mm */; };
 		7B42A3110DE204F200659DE0 /* cpp_variant.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825404FD0D92E3DA0006B936 /* cpp_variant.cc */; };
 		7B42A3120DE204F200659DE0 /* cpp_bound_class.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825404FA0D92E3DA0006B936 /* cpp_bound_class.cc */; };
 		7B42A3130DE204F200659DE0 /* webframeloaderclient_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254053F0D92E3DA0006B936 /* webframeloaderclient_impl.cc */; };
@@ -5879,7 +5879,7 @@
 		ABC8C2EA0DC7E45B00B59C21 /* SkGraphicsContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 822B1BFD0DC77A08005C9A96 /* SkGraphicsContext.h */; };
 		ABCF2EE50E075FD900763F29 /* RenderThemeMacSkia.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABCF2EE40E075FD900763F29 /* RenderThemeMacSkia.mm */; };
 		ABCF2EE60E075FD900763F29 /* RenderThemeMacSkia.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABCF2EE40E075FD900763F29 /* RenderThemeMacSkia.mm */; };
-		ABD16FA80DC6D4CF0013D3AA /* webinputevent.mm in Sources */ = {isa = PBXBuildFile; fileRef = 825405440D92E3DA0006B936 /* webinputevent.mm */; };
+		ABD16FA80DC6D4CF0013D3AA /* webinputevent_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 825405440D92E3DA0006B936 /* webinputevent_mac.mm */; };
 		ABD16FA90DC6D4D70013D3AA /* webinputevent.h in Headers */ = {isa = PBXBuildFile; fileRef = 825405450D92E3DA0006B936 /* webinputevent.h */; };
 		ABDBD0F70E07611E005DDFD1 /* ScrollViewMacSkia.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABF5263F0E075D17005EECE5 /* ScrollViewMacSkia.mm */; };
 		ABDBD0F80E076121005DDFD1 /* ScrollViewMacSkia.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABF5263F0E075D17005EECE5 /* ScrollViewMacSkia.mm */; };
@@ -7573,7 +7573,7 @@
 		E45627020E268F03005E4685 /* weburlrequest_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405560D92E3DB0006B936 /* weburlrequest_impl.cc */; };
 		E45627030E268F03005E4685 /* webdatasource_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405320D92E3DA0006B936 /* webdatasource_impl.cc */; };
 		E45627040E268F03005E4685 /* webtextinput_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405530D92E3DB0006B936 /* webtextinput_impl.cc */; };
-		E45627050E268F03005E4685 /* webinputevent.mm in Sources */ = {isa = PBXBuildFile; fileRef = 825405440D92E3DA0006B936 /* webinputevent.mm */; };
+		E45627050E268F03005E4685 /* webinputevent_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 825405440D92E3DA0006B936 /* webinputevent_mac.mm */; };
 		E45627060E268F03005E4685 /* cpp_variant.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825404FD0D92E3DA0006B936 /* cpp_variant.cc */; };
 		E45627070E268F03005E4685 /* cpp_bound_class.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825404FA0D92E3DA0006B936 /* cpp_bound_class.cc */; };
 		E45627080E268F03005E4685 /* webframeloaderclient_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254053F0D92E3DA0006B936 /* webframeloaderclient_impl.cc */; };
@@ -7687,7 +7687,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B12F9060D8F463700CB6E8F /* icu.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 82C262C30DCF9411005CFE91 /* icudata */;
+			remoteGlobalIDString = 82C262C30DCF9411005CFE91;
 			remoteInfo = icudata;
 		};
 		7B0E5AF80DB3DC51007D4907 /* PBXContainerItemProxy */ = {
@@ -7834,7 +7834,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B12F9060D8F463700CB6E8F /* icu.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 82C262C30DCF9411005CFE91 /* icudata */;
+			remoteGlobalIDString = 82C262C30DCF9411005CFE91;
 			remoteInfo = icudata;
 		};
 		7B12FA330D8F496600CB6E8F /* PBXContainerItemProxy */ = {
@@ -12933,7 +12933,7 @@
 		825405410D92E3DA0006B936 /* webhistoryitem_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = webhistoryitem_impl.cc; path = glue/webhistoryitem_impl.cc; sourceTree = "<group>"; };
 		825405420D92E3DA0006B936 /* webhistoryitem_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = webhistoryitem_impl.h; path = glue/webhistoryitem_impl.h; sourceTree = "<group>"; };
 		825405430D92E3DA0006B936 /* webhistoryitem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = webhistoryitem.h; path = glue/webhistoryitem.h; sourceTree = "<group>"; };
-		825405440D92E3DA0006B936 /* webinputevent.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = webinputevent.mm; path = glue/webinputevent.mm; sourceTree = "<group>"; };
+		825405440D92E3DA0006B936 /* webinputevent_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = webinputevent_mac.mm; path = glue/webinputevent_mac.mm; sourceTree = "<group>"; };
 		825405450D92E3DA0006B936 /* webinputevent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = webinputevent.h; path = glue/webinputevent.h; sourceTree = "<group>"; };
 		825405460D92E3DA0006B936 /* webkit_glue.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = webkit_glue.mm; path = glue/webkit_glue.mm; sourceTree = "<group>"; };
 		825405470D92E3DB0006B936 /* webkit_glue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = webkit_glue.h; path = glue/webkit_glue.h; sourceTree = "<group>"; };
@@ -18624,7 +18624,7 @@
 				825405410D92E3DA0006B936 /* webhistoryitem_impl.cc */,
 				825405420D92E3DA0006B936 /* webhistoryitem_impl.h */,
 				825405430D92E3DA0006B936 /* webhistoryitem.h */,
-				825405440D92E3DA0006B936 /* webinputevent.mm */,
+				825405440D92E3DA0006B936 /* webinputevent_mac.mm */,
 				825405450D92E3DA0006B936 /* webinputevent.h */,
 				825405460D92E3DA0006B936 /* webkit_glue.mm */,
 				825405470D92E3DB0006B936 /* webkit_glue.h */,
@@ -23616,7 +23616,7 @@
 				7B42A30D0DE204F200659DE0 /* weburlrequest_impl.cc in Sources */,
 				7B42A30E0DE204F200659DE0 /* webdatasource_impl.cc in Sources */,
 				7B42A30F0DE204F200659DE0 /* webtextinput_impl.cc in Sources */,
-				7B42A3100DE204F200659DE0 /* webinputevent.mm in Sources */,
+				7B42A3100DE204F200659DE0 /* webinputevent_mac.mm in Sources */,
 				7B42A3110DE204F200659DE0 /* cpp_variant.cc in Sources */,
 				7B42A3120DE204F200659DE0 /* cpp_bound_class.cc in Sources */,
 				7B42A3130DE204F200659DE0 /* webframeloaderclient_impl.cc in Sources */,
@@ -26270,7 +26270,7 @@
 				824656B20DC696B5007C2BAA /* weburlrequest_impl.cc in Sources */,
 				824656D20DC6974B007C2BAA /* webdatasource_impl.cc in Sources */,
 				AB7934480DC66C9B00BC58F3 /* webtextinput_impl.cc in Sources */,
-				ABD16FA80DC6D4CF0013D3AA /* webinputevent.mm in Sources */,
+				ABD16FA80DC6D4CF0013D3AA /* webinputevent_mac.mm in Sources */,
 				AB86655F0DC78AAC002CE06A /* cpp_variant.cc in Sources */,
 				AB8665610DC78AB9002CE06A /* cpp_bound_class.cc in Sources */,
 				AB1ED95D0DC7960A0006CBDE /* webframeloaderclient_impl.cc in Sources */,
@@ -27098,7 +27098,7 @@
 				E45627020E268F03005E4685 /* weburlrequest_impl.cc in Sources */,
 				E45627030E268F03005E4685 /* webdatasource_impl.cc in Sources */,
 				E45627040E268F03005E4685 /* webtextinput_impl.cc in Sources */,
-				E45627050E268F03005E4685 /* webinputevent.mm in Sources */,
+				E45627050E268F03005E4685 /* webinputevent_mac.mm in Sources */,
 				E45627060E268F03005E4685 /* cpp_variant.cc in Sources */,
 				E45627070E268F03005E4685 /* cpp_bound_class.cc in Sources */,
 				E45627080E268F03005E4685 /* webframeloaderclient_impl.cc in Sources */,

@@ -93,7 +93,7 @@ input_files = [
     'webframe_impl.cc',
     'webframeloaderclient_impl.cc',
     'webhistoryitem_impl.cc',
-    'webinputevent.cc',
+    'webinputevent_win.cc',
     'webkit_glue.cc',
     'webplugin_impl.cc',
     'webtextinput_impl.cc',

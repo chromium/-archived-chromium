@@ -2,11 +2,21 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_GLUE_WEBINPUTEVENT_H__
-#define WEBKIT_GLUE_WEBINPUTEVENT_H__
+#ifndef WEBKIT_GLUE_WEBINPUTEVENT_H_
+#define WEBKIT_GLUE_WEBINPUTEVENT_H_
 
-#include <windows.h>
 #include "base/basictypes.h"
+
+#if defined(OS_WIN)
+#include <windows.h>
+#elif defined(OS_MACOSX)
+#include <wtf/RetainPtr.h>
+#ifdef __OBJC__
+@class NSEvent;
+#else
+class NSEvent;
+#endif  // __OBJC__
+#endif  // OS_MACOSX
 
 // The classes defined in this file are intended to be used with WebView's
 // HandleInputEvent method.  These event types are cross-platform; however,
@@ -50,6 +60,11 @@ class WebInputEvent {
 
   Type type;
   int modifiers;
+#if defined(OS_MACOSX)
+  // For now, good enough for the test shell. TODO(avi): Revisit when we need
+  // to start sending this over an IPC pipe.
+  RetainPtr<NSEvent> mac_event;
+#endif
 };
 
 // WebMouseEvent --------------------------------------------------------------
@@ -73,7 +88,11 @@ class WebMouseEvent : public WebInputEvent {
   int layout_test_click_count;  // Only used during layout tests.
 
   WebMouseEvent() {}
+#if defined(OS_WIN)
   WebMouseEvent(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
+#elif defined(OS_MACOSX)
+  WebMouseEvent(NSEvent *event);
+#endif
 };
 
 // WebMouseWheelEvent ---------------------------------------------------------
@@ -84,28 +103,41 @@ class WebMouseWheelEvent : public WebMouseEvent {
   int delta_y;
 
   WebMouseWheelEvent() {}
+#if defined(OS_WIN)
   WebMouseWheelEvent(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
+#elif defined(OS_MACOSX)
+  WebMouseWheelEvent(NSEvent *event);
+#endif
 };
 
 // WebKeyboardEvent -----------------------------------------------------------
 
 class WebKeyboardEvent : public WebInputEvent {
  public:
-  bool system_key;  // Set if we receive a SYSKEYDOWN/WM_SYSKEYUP message.
-  MSG actual_message; // Set to the current keyboard message.
   int key_code;
   int key_data;
+#if defined(OS_WIN)
+  bool system_key;  // Set if we receive a SYSKEYDOWN/WM_SYSKEYUP message.
+  MSG actual_message; // Set to the current keyboard message.
+#endif
 
   WebKeyboardEvent() 
-      : system_key(false),
-        key_code(0),
-        key_data(0) {
+      : key_code(0),
+        key_data(0)
+#if defined(OS_WIN)
+        , system_key(false) {
     memset(&actual_message, 0, sizeof(actual_message));
   }
+#else
+  {}
+#endif
 
+#if defined(OS_WIN)
   WebKeyboardEvent(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
+#elif defined(OS_MACOSX)
+  WebKeyboardEvent(NSEvent *event);
+#endif
 };
 
 
-#endif  // WEBKIT_GLUE_WEBINPUTEVENT_H__
-
+#endif  // WEBKIT_GLUE_WEBINPUTEVENT_H_
