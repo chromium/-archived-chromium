@@ -13,7 +13,7 @@
 
 WebErrorImpl::WebErrorImpl(const WebCore::ResourceError& e)
     : error_code_(e.errorCode()),
-      failed_url_(webkit_glue::StringToStdWString(e.failingURL())) {
+      failed_url_(webkit_glue::StringToStdString16(e.failingURL())) {
 }
 
 WebErrorImpl::WebErrorImpl(const WebError& e)
