@@ -27,9 +27,9 @@ def RunTests(build_dir=None):
     # look for Debug version first
     if not os.path.isfile(v8_shell_sample):
       v8_shell_sample = os.path.join(chrome_dir, "Release", "v8_shell_sample.exe")
-  runtime_flags = "--allow-natives-syntax --expose-debug-as debugContext"
   cmd = [v8_shell_sample,
-         runtime_flags,
+         "--allow-natives-syntax",
+         "--expose-debug-as debugContext",
          os.path.join(chrome_dir, "browser", "debugger", "resources", "debugger_shell.js"),
          # TODO Change the location of mjsunit.js from the copy in this
          # directory to the copy in V8 when switching to use V8 from
