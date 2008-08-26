@@ -674,7 +674,6 @@
 			isa = PBXGroup;
 			children = (
 				7B466C460E5E732900C91F63 /* platform_test_mac.mm */,
-				E4AFA6420E5241B400201347 /* run_all_unittests.cc */,
 			);
 			name = base;
 			path = ../base;
@@ -779,6 +778,7 @@
 				7BED329B0E5A181C00A747DB /* registry_controlled_domain.cc */,
 				7BED329A0E5A181C00A747DB /* registry_controlled_domain.h */,
 				7BED32990E5A181C00A747DB /* registry_controlled_domain_unittest.cc */,
+				E4AFA6420E5241B400201347 /* run_all_unittests.cc */,
 				7BED32980E5A181C00A747DB /* socket.h */,
 				7BED32970E5A181C00A747DB /* ssl_client_socket.cc */,
 				7BED32960E5A181C00A747DB /* ssl_client_socket.h */,
