@@ -333,7 +333,9 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_ShouldClose, OnMsgShouldClose)
     IPC_MESSAGE_HANDLER(ViewMsg_ClosePage, OnClosePage)
     IPC_MESSAGE_HANDLER(ViewMsg_ThemeChanged, OnThemeChanged)
+#ifdef CHROME_PERSONALIZATION
     IPC_MESSAGE_HANDLER(ViewMsg_PersonalizationEvent, OnPersonalizationEvent)
+#endif
     IPC_MESSAGE_HANDLER(ViewMsg_HandleMessageFromExternalHost,
                         OnMessageFromExternalHost)
     // Have the super handle all other messages.
