@@ -32,7 +32,7 @@ struct Thread::StartupData {
 
 Thread::Thread(const char *name)
     : startup_data_(NULL),
-      thread_(NULL),
+      thread_(0),
       message_loop_(NULL),
       thread_id_(0),
       name_(name) {
