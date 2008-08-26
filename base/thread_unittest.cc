@@ -8,6 +8,8 @@
 #include "base/thread.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Thread;
+
 namespace {
 
 class ToggleValue : public Task {
@@ -50,11 +52,13 @@ TEST(ThreadTest, Restart) {
   EXPECT_FALSE(a.message_loop());
 }
 
-TEST(ThreadTest, StartWithStackSize) {
+TEST(ThreadTest, StartWithOptions_StackSize) {
   Thread a("StartWithStackSize");
   // Ensure that the thread can work with only 12 kb and still process a
   // message.
-  EXPECT_TRUE(a.StartWithStackSize(12*1024));
+  Thread::Options options;
+  options.stack_size = 12*1024;
+  EXPECT_TRUE(a.StartWithOptions(options));
   EXPECT_TRUE(a.message_loop());
 
   bool was_invoked = false;

@@ -325,7 +325,7 @@ int ProxyService::ResolveProxy(const GURL& url, ProxyInfo* result,
       if (callback) {
         // Create PAC thread for asynchronous mode.
         if (!pac_thread_.get()) {
-          pac_thread_.reset(new Thread("pac-thread"));
+          pac_thread_.reset(new base::Thread("pac-thread"));
           pac_thread_->Start();
         }
       } else {

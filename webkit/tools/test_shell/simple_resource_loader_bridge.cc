@@ -51,11 +51,11 @@ namespace {
 //-----------------------------------------------------------------------------
 
 URLRequestContext* request_context = NULL;
-Thread* io_thread = NULL;
+base::Thread* io_thread = NULL;
 
-class IOThread : public Thread {
+class IOThread : public base::Thread {
  public:
-  IOThread() : Thread("IOThread") {
+  IOThread() : base::Thread("IOThread") {
   }
 
   ~IOThread() {
@@ -80,7 +80,9 @@ bool EnsureIOThread() {
     SimpleResourceLoaderBridge::Init(NULL);
 
   io_thread = new IOThread();
-  return io_thread->Start();
+  base::Thread::Options options;
+  options.message_loop_type = MessageLoop::TYPE_IO;
+  return io_thread->StartWithOptions(options);
 }
 
 //-----------------------------------------------------------------------------

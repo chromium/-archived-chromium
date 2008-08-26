@@ -129,7 +129,7 @@ class ProxyService {
   friend class PacRequest;
 
   ProxyResolver* resolver() { return resolver_; }
-  Thread* pac_thread() { return pac_thread_.get(); }
+  base::Thread* pac_thread() { return pac_thread_.get(); }
 
   // Identifies the proxy configuration.
   ProxyConfig::ID config_id() const { return config_.id(); }
@@ -151,7 +151,7 @@ class ProxyService {
   bool ShouldBypassProxyForURL(const GURL& url);
 
   ProxyResolver* resolver_;
-  scoped_ptr<Thread> pac_thread_;
+  scoped_ptr<base::Thread> pac_thread_;
 
   // We store the IE proxy config and a counter that is incremented each time
   // the config changes.

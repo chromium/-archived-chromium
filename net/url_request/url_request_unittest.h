@@ -13,6 +13,8 @@
 #include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
+#include "base/thread.h"
+#include "base/waitable_event.h"
 #include "net/base/net_errors.h"
 #include "net/http/http_network_layer.h"
 #include "net/url_request/url_request.h"
@@ -113,7 +115,7 @@ class TestDelegate : public URLRequest::Delegate {
       request->Cancel();
   }
 
-  void OnResponseCompleted(URLRequest* request) {
+  virtual void OnResponseCompleted(URLRequest* request) {
     if (quit_on_complete_)
       MessageLoop::current()->Quit();
   }
@@ -183,8 +185,7 @@ class TestDelegate : public URLRequest::Delegate {
 class TestServer : public process_util::ProcessFilter {
  public:
   TestServer(const std::wstring& document_root)
-      : context_(new TestURLRequestContext),
-        process_handle_(NULL),
+      : process_handle_(NULL),
         is_shutdown_(true) {
     Init(kDefaultHostName, kDefaultPort, document_root, std::wstring());
   }
@@ -213,16 +214,23 @@ class TestServer : public process_util::ProcessFilter {
 
   // A subclass may wish to send the request in a different manner
   virtual bool MakeGETRequest(const std::string& page_name) {
-    TestDelegate d;
-    URLRequest r(TestServerPage(page_name), &d);
-    r.set_context(context_);
-    r.set_method("GET");
-    r.Start();
-    EXPECT_TRUE(r.is_pending());
+    const GURL& url = TestServerPage(page_name);
 
-    MessageLoop::current()->Run();
-
-    return r.status().is_success();
+    // Spin up a background thread for this request so that we have access to
+    // an IO message loop, and in cases where this thread already has an IO
+    // message loop, we also want to avoid spinning a nested message loop.
+    
+    SyncTestDelegate d;
+    {
+      base::Thread io_thread("MakeGETRequest");
+      base::Thread::Options options;
+      options.message_loop_type = MessageLoop::TYPE_IO;
+      io_thread.StartWithOptions(options);
+      io_thread.message_loop()->PostTask(FROM_HERE, NewRunnableFunction(
+          &TestServer::StartGETRequest, url, &d));
+      d.Wait();
+    }
+    return d.did_succeed();
   }
 
  protected:
@@ -232,8 +240,7 @@ class TestServer : public process_util::ProcessFilter {
   // constructed.  The subclass should call Init once it is ready (usually in
   // its constructor).
   TestServer(ManualInit)
-      : context_(new TestURLRequestContext),
-        process_handle_(NULL),
+      : process_handle_(NULL),
         is_shutdown_(true) {
   }
 
@@ -334,7 +341,31 @@ class TestServer : public process_util::ProcessFilter {
   }
 
  private:
-  scoped_refptr<TestURLRequestContext> context_;
+  // Used by MakeGETRequest to implement sync load behavior.
+  class SyncTestDelegate : public TestDelegate {
+   public:
+    SyncTestDelegate() : event_(false, false), success_(false) {
+    }
+    virtual void OnResponseCompleted(URLRequest* request) {
+      MessageLoop::current()->DeleteSoon(FROM_HERE, request);
+      success_ = request->status().is_success();
+      event_.Signal();
+    }
+    void Wait() { event_.Wait(); }
+    bool did_succeed() const { return success_; }
+   private:
+    base::WaitableEvent event_;
+    bool success_;
+    DISALLOW_COPY_AND_ASSIGN(SyncTestDelegate);
+  };
+  static void StartGETRequest(const GURL& url, URLRequest::Delegate* delegate) {
+    URLRequest* request = new URLRequest(url, delegate);
+    request->set_context(new TestURLRequestContext());
+    request->set_method("GET");
+    request->Start();
+    EXPECT_TRUE(request->is_pending());
+  }
+
   std::string base_address_;
   std::wstring python_runtime_;
   HANDLE process_handle_;

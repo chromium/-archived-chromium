@@ -9,6 +9,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
+
 typedef testing::Test ObjectWatcherTest;
 
 class QuitDelegate : public base::ObjectWatcher::Delegate {
@@ -29,9 +30,11 @@ class DecrementCountDelegate : public base::ObjectWatcher::Delegate {
   int* counter_;
 };
 
-}
+}  // namespace
 
 TEST(ObjectWatcherTest, BasicSignal) {
+  MessageLoop message_loop;
+
   base::ObjectWatcher watcher;
 
   // A manual-reset event that is not yet signaled.
@@ -49,6 +52,8 @@ TEST(ObjectWatcherTest, BasicSignal) {
 }
 
 TEST(ObjectWatcherTest, BasicCancel) {
+  MessageLoop message_loop;
+
   base::ObjectWatcher watcher;
 
   // A manual-reset event that is not yet signaled.
@@ -65,6 +70,8 @@ TEST(ObjectWatcherTest, BasicCancel) {
 
 
 TEST(ObjectWatcherTest, CancelAfterSet) {
+  MessageLoop message_loop;
+
   base::ObjectWatcher watcher;
 
   int counter = 1;
@@ -91,10 +98,10 @@ TEST(ObjectWatcherTest, CancelAfterSet) {
   CloseHandle(event);
 }
 
-// Used so we can simulate a MessageLoop that dies before an ObjectWatcher.
-// This ordinarily doesn't happen when people use the Thread class, but it can
-// happen when people use the Singleton pattern or atexit.
-static unsigned __stdcall ThreadFunc(void* param) {
+TEST(ObjectWatcherTest, OutlivesMessageLoop) {
+  // Simulate a MessageLoop that dies before an ObjectWatcher.  This ordinarily
+  // doesn't happen when people use the Thread class, but it can happen when
+  // people use the Singleton pattern or atexit.
   HANDLE event = CreateEvent(NULL, TRUE, FALSE, NULL);  // not signaled
   {
     base::ObjectWatcher watcher;
@@ -106,19 +113,4 @@ static unsigned __stdcall ThreadFunc(void* param) {
     }
   }
   CloseHandle(event);
-  return 0;
 }
-
-TEST(ObjectWatcherTest, OutlivesMessageLoop) {
-  unsigned int thread_id;
-  HANDLE thread = reinterpret_cast<HANDLE>(
-      _beginthreadex(NULL,
-                     0,
-                     ThreadFunc,
-                     NULL,
-                     0,
-                     &thread_id));
-  WaitForSingleObject(thread, INFINITE);
-  CloseHandle(thread);
-}
-

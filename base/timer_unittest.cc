@@ -8,9 +8,8 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
-  class TimerTest : public testing::Test {
-  };
-};
+
+class TimerTest : public testing::Test {};
 
 // A base class timer task that sanity-checks timer functionality and counts
 // the number of times it has run.  Handles all message loop and memory
@@ -196,7 +195,12 @@ void RunTimerTest() {
   EXPECT_EQ(10, task3.iterations());
 }
 
-TEST(TimerTest, TimerComparison) {
+//-----------------------------------------------------------------------------
+// The timer test cases:
+
+void RunTest_TimerComparison(MessageLoop::Type message_loop_type) {
+  MessageLoop loop(message_loop_type);
+
   // Make sure TimerComparison sorts correctly.
   const TimerTask task1(10, false);
   const Timer* timer1 = task1.timer();
@@ -207,11 +211,15 @@ TEST(TimerTest, TimerComparison) {
   EXPECT_TRUE(comparison(timer2, timer1));
 }
 
-TEST(TimerTest, TimerCase) {
+void RunTest_BasicTimer(MessageLoop::Type message_loop_type) {
+  MessageLoop loop(message_loop_type);
+
   RunTimerTest();
 }
 
-TEST(TimerTest, BrokenTimerCase) {
+void RunTest_BrokenTimer(MessageLoop::Type message_loop_type) {
+  MessageLoop loop(message_loop_type);
+
   // Simulate faulty early-firing timers. The tasks in RunTimerTest should
   // nevertheless be invoked after their specified delays, regardless of when
   // WM_TIMER fires.
@@ -221,7 +229,9 @@ TEST(TimerTest, BrokenTimerCase) {
   manager->set_use_broken_delay(false);
 }
 
-TEST(TimerTest, DeleteFromRun) {
+void RunTest_DeleteFromRun(MessageLoop::Type message_loop_type) {
+  MessageLoop loop(message_loop_type);
+
   // Make sure TimerManager correctly handles a Task that deletes itself when
   // run.
   new DeletingTask(50, true);
@@ -231,7 +241,9 @@ TEST(TimerTest, DeleteFromRun) {
   EXPECT_EQ(1, timer_task.iterations());
 }
 
-TEST(TimerTest, Reset) {
+void RunTest_Reset(MessageLoop::Type message_loop_type) {
+  MessageLoop loop(message_loop_type);
+
   // Make sure resetting a timer after it has fired works.
   TimerTask timer_task1(250, false);
   TimerTask timer_task2(100, true);
@@ -253,7 +265,9 @@ TEST(TimerTest, Reset) {
   EXPECT_EQ(0, timer_task4.iterations());
 }
 
-TEST(TimerTest, FifoOrder) {
+void RunTest_FifoOrder(MessageLoop::Type message_loop_type) {
+  MessageLoop loop(message_loop_type);
+
   // Creating timers with the same timeout should
   // always compare to result in FIFO ordering.
 
@@ -309,3 +323,44 @@ TEST(TimerTest, FifoOrder) {
     EXPECT_GT(new_id, last_id);
 }
 
+}  // namespace
+
+//-----------------------------------------------------------------------------
+// Each test is run against each type of MessageLoop.  That way we are sure
+// that timers work properly in all configurations.
+
+TEST(TimerTest, TimerComparison) {
+  RunTest_TimerComparison(MessageLoop::TYPE_DEFAULT);
+  RunTest_TimerComparison(MessageLoop::TYPE_UI);
+  RunTest_TimerComparison(MessageLoop::TYPE_IO);
+}
+
+TEST(TimerTest, BasicTimer) {
+  RunTest_BasicTimer(MessageLoop::TYPE_DEFAULT);
+  RunTest_BasicTimer(MessageLoop::TYPE_UI);
+  RunTest_BasicTimer(MessageLoop::TYPE_IO);
+}
+
+TEST(TimerTest, BrokenTimer) {
+  RunTest_BrokenTimer(MessageLoop::TYPE_DEFAULT);
+  RunTest_BrokenTimer(MessageLoop::TYPE_UI);
+  RunTest_BrokenTimer(MessageLoop::TYPE_IO);
+}
+
+TEST(TimerTest, DeleteFromRun) {
+  RunTest_DeleteFromRun(MessageLoop::TYPE_DEFAULT);
+  RunTest_DeleteFromRun(MessageLoop::TYPE_UI);
+  RunTest_DeleteFromRun(MessageLoop::TYPE_IO);
+}
+
+TEST(TimerTest, Reset) {
+  RunTest_Reset(MessageLoop::TYPE_DEFAULT);
+  RunTest_Reset(MessageLoop::TYPE_UI);
+  RunTest_Reset(MessageLoop::TYPE_IO);
+}
+
+TEST(TimerTest, FifoOrder) {
+  RunTest_FifoOrder(MessageLoop::TYPE_DEFAULT);
+  RunTest_FifoOrder(MessageLoop::TYPE_UI);
+  RunTest_FifoOrder(MessageLoop::TYPE_IO);
+}

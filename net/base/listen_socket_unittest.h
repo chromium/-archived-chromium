@@ -77,7 +77,7 @@ class ListenSocketTester :
     server_ = NULL;
     net::WinsockInit::Init();
 
-    thread_.reset(new Thread("socketio_test"));
+    thread_.reset(new base::Thread("socketio_test"));
     thread_->Start();
     loop_ = thread_->message_loop();
 
@@ -251,7 +251,7 @@ class ListenSocketTester :
     ASSERT_EQ(buf, HELLO_WORLD);
   }
 
-  scoped_ptr<Thread> thread_;
+  scoped_ptr<base::Thread> thread_;
   MessageLoop* loop_;
   ListenSocket* server_;
   ListenSocket* connection_;

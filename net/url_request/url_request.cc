@@ -5,6 +5,7 @@
 #include "net/url_request/url_request.h"
 
 #include "base/basictypes.h"
+#include "base/message_loop.h"
 #include "base/process_util.h"
 #include "base/singleton.h"
 #include "base/stats_counters.h"
@@ -47,6 +48,12 @@ URLRequest::URLRequest(const GURL& url, Delegate* delegate)
   URLREQUEST_COUNT_CTOR();
   SIMPLE_STATS_COUNTER(L"URLRequestCount");
   origin_pid_ = process_util::GetCurrentProcId();
+
+  // Sanity check out environment.
+  DCHECK(MessageLoop::current()) <<
+      "The current MessageLoop must exist";
+  DCHECK_EQ(MessageLoop::TYPE_IO, MessageLoop::current()->type()) <<
+      "The current MessageLoop must be TYPE_IO";
 }
 
 URLRequest::~URLRequest() {

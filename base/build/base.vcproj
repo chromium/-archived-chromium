@@ -426,6 +426,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\message_pump_default.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\message_pump_default.h"
+			>
+		</File>
+		<File
 			RelativePath="..\message_pump_win.cc"
 			>
 		</File>

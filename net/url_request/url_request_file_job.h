@@ -14,7 +14,7 @@
 
 // A request job that handles reading file URLs
 class URLRequestFileJob : public URLRequestJob,
-                          protected MessageLoop::Watcher {
+                          protected MessageLoopForIO::Watcher {
  public:
   URLRequestFileJob(URLRequest* request);
   virtual ~URLRequestFileJob();

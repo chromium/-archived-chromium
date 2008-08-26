@@ -14,7 +14,7 @@
 // The PluginInstallationJobMonitorThread class represents a background
 // thread which monitors the install job completion port which is associated
 // with the job when an instance of this class is initialized.
-class PluginInstallationJobMonitorThread : public Thread {
+class PluginInstallationJobMonitorThread : public base::Thread {
  public:
   PluginInstallationJobMonitorThread();
   virtual ~PluginInstallationJobMonitorThread();

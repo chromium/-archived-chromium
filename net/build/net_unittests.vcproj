@@ -172,7 +172,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\base\run_all_unittests.cc"
+				RelativePath="..\base\run_all_unittests.cc"
 				>
 			</File>
 		</Filter>

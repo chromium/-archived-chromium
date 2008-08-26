@@ -7,14 +7,11 @@
 
 #include <string>
 
+#include "base/message_loop.h"
 #include "base/platform_thread.h"
 #include "base/thread_local_storage.h"
 
-class MessageLoop;
-
 namespace base {
-class WaitableEvent;
-}
 
 // A simple thread abstraction that establishes a MessageLoop on a new thread.
 // The consumer uses the MessageLoop of the thread to cause code to execute on
@@ -23,11 +20,26 @@ class WaitableEvent;
 // before the thread is terminated.
 class Thread : PlatformThread::Delegate {
  public:
+  struct Options {
+    // Specifies the type of message loop that will be allocated on the thread.
+    MessageLoop::Type message_loop_type;
+    
+    // Specifies the maximum stack size that the thread is allowed to use.
+    // This does not necessarily correspond to the thread's initial stack size.
+    // A value of 0 indicates that the default maximum should be used.
+    size_t stack_size;
+
+    Options() : message_loop_type(MessageLoop::TYPE_DEFAULT), stack_size(0) {}
+  };
+
   // Constructor.
   // name is a display string to identify the thread.
   explicit Thread(const char *name);
 
   // Destroys the thread, stopping it if necessary.
+  //
+  // NOTE: If you are subclassing from Thread, and you wish for your CleanUp
+  // method to be called, then you need to call Stop() from your destructor.
   //
   virtual ~Thread();
 
@@ -41,13 +53,12 @@ class Thread : PlatformThread::Delegate {
   bool Start();
 
   // Starts the thread. Behaves exactly like Start in addition to allow to
-  // override the default process stack size. This is not the initial stack size
-  // but the maximum stack size that thread is allowed to use.
+  // override the default options.
   //
   // Note: This function can't be called on Windows with the loader lock held;
   // i.e. during a DllMain, global object construction or destruction, atexit()
   // callback.
-  bool StartWithStackSize(size_t stack_size);
+  bool StartWithOptions(const Options& options);
 
   // Signals the thread to exit and returns once the thread has exited.  After
   // this method returns, the Thread object is completely reset and may be used
@@ -93,10 +104,10 @@ class Thread : PlatformThread::Delegate {
 
  protected:
   // Called just prior to starting the message loop
-  virtual void Init() { }
+  virtual void Init() {}
 
   // Called just after the message loop ends
-  virtual void CleanUp() { }
+  virtual void CleanUp() {}
 
   static void SetThreadWasQuitProperly(bool flag);
   static bool GetThreadWasQuitProperly();
@@ -105,24 +116,26 @@ class Thread : PlatformThread::Delegate {
   // PlatformThread::Delegate methods:
   virtual void ThreadMain();
 
+  // We piggy-back on the startup_data_ member to know if we successfully
+  // started the thread.  This way we know that we need to call Join.
+  bool thread_was_started() const { return startup_data_ != NULL; }
+
+  // Used to pass data to ThreadMain.
+  struct StartupData;
+  StartupData* startup_data_;
+
   // The thread's handle.
   PlatformThreadHandle thread_;
-
-  // The thread's ID.  Used for debugging purposes.
-  int thread_id_;
 
   // The thread's message loop.  Valid only while the thread is alive.  Set
   // by the created thread.
   MessageLoop* message_loop_;
 
-  // Used to synchronize thread startup.
-  base::WaitableEvent* startup_event_;
+  // Our thread's ID.  Used for debugging purposes.
+  int thread_id_;
 
   // The name of the thread.  Used for debugging purposes.
   std::string name_;
-
-  // This flag indicates if we created a thread that needs to be joined.
-  bool thread_created_;
 
   static TLSSlot tls_index_;
 
@@ -130,6 +143,8 @@ class Thread : PlatformThread::Delegate {
 
   DISALLOW_COPY_AND_ASSIGN(Thread);
 };
+
+}  // namespace base
 
 #endif  // BASE_THREAD_H_
 

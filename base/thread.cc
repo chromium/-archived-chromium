@@ -4,9 +4,10 @@
 
 #include "base/thread.h"
 
-#include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/waitable_event.h"
+
+namespace base {
 
 // This task is used to trigger the message loop to exit.
 class ThreadQuitTask : public Task {
@@ -17,11 +18,24 @@ class ThreadQuitTask : public Task {
   }
 };
 
+// Used to pass data to ThreadMain.  This structure is allocated on the stack
+// from within StartWithOptions.
+struct Thread::StartupData {
+  // We get away with a const reference here because of how we are allocated.
+  const Thread::Options& options;
+
+  // Used to synchronize thread startup.
+  WaitableEvent event;
+
+  StartupData(const Options& opt) : options(opt), event(false, false) {}
+};
+
 Thread::Thread(const char *name)
-    : message_loop_(NULL),
-      startup_event_(NULL),
-      name_(name),
-      thread_created_(false) {
+    : startup_data_(NULL),
+      thread_(NULL),
+      message_loop_(NULL),
+      thread_id_(0),
+      name_(name) {
 }
 
 Thread::~Thread() {
@@ -52,59 +66,62 @@ bool Thread::GetThreadWasQuitProperly() {
 }
 
 bool Thread::Start() {
-  return StartWithStackSize(0);
+  return StartWithOptions(Options());
 }
 
-bool Thread::StartWithStackSize(size_t stack_size) {
+bool Thread::StartWithOptions(const Options& options) {
   DCHECK(!message_loop_);
 
   SetThreadWasQuitProperly(false);
 
-  base::WaitableEvent event(false, false);
-  startup_event_ = &event;
+  StartupData startup_data(options);
+  startup_data_ = &startup_data;
 
-  if (!PlatformThread::Create(stack_size, this, &thread_)) {
+  if (!PlatformThread::Create(options.stack_size, this, &thread_)) {
     DLOG(ERROR) << "failed to create thread";
+    startup_data_ = NULL;  // Record that we failed to start.
     return false;
   }
 
   // Wait for the thread to start and initialize message_loop_
-  startup_event_->Wait();
-  startup_event_ = NULL;
+  startup_data.event.Wait();
 
   DCHECK(message_loop_);
   return true;
 }
 
 void Thread::Stop() {
-  if (!thread_created_)
+  if (!thread_was_started())
     return;
 
-  DCHECK_NE(thread_id_, PlatformThread::CurrentId()) <<
-      "Can't call Stop() on the currently executing thread";
+  // We should only be called on the same thread that started us.
+  DCHECK_NE(thread_id_, PlatformThread::CurrentId());
 
-  // If StopSoon was called, then we won't have a message loop anymore, but
-  // more importantly, we won't need to tell the thread to stop.
+  // StopSoon may have already been called.
   if (message_loop_)
     message_loop_->PostTask(FROM_HERE, new ThreadQuitTask());
 
-  // Wait for the thread to exit. It should already have terminated but make
+  // Wait for the thread to exit.  It should already have terminated but make
   // sure this assumption is valid.
+  //
+  // TODO(darin): Unfortunately, we need to keep message_loop_ around until
+  // the thread exits.  Some consumers are abusing the API.  Make them stop.
+  //
   PlatformThread::Join(thread_);
 
   // The thread can't receive messages anymore.
   message_loop_ = NULL;
 
   // The thread no longer needs to be joined.
-  thread_created_ = false;
+  startup_data_ = NULL;
 }
 
 void Thread::StopSoon() {
   if (!message_loop_)
     return;
 
-  DCHECK_NE(thread_id_, PlatformThread::CurrentId()) <<
-      "Can't call StopSoon() on the currently executing thread";
+  // We should only be called on the same thread that started us.
+  DCHECK_NE(thread_id_, PlatformThread::CurrentId());
 
   // We had better have a message loop at this point!  If we do not, then it
   // most likely means that the thread terminated unexpectedly, probably due
@@ -119,17 +136,16 @@ void Thread::StopSoon() {
 
 void Thread::ThreadMain() {
   // The message loop for this thread.
-  MessageLoop message_loop;
+  MessageLoop message_loop(startup_data_->options.message_loop_type);
 
   // Complete the initialization of our Thread object.
   thread_id_ = PlatformThread::CurrentId();
   PlatformThread::SetName(name_.c_str());
   message_loop.set_thread_name(name_);
   message_loop_ = &message_loop;
-  thread_created_ = true;
 
-  startup_event_->Signal();
-  // startup_event_ can't be touched anymore since the starting thread is now
+  startup_data_->event.Signal();
+  // startup_data_ can't be touched anymore since the starting thread is now
   // unlocked.
 
   // Let the thread do extra initialization.
@@ -147,3 +163,4 @@ void Thread::ThreadMain() {
   message_loop_ = NULL;
 }
 
+}  // namespace base

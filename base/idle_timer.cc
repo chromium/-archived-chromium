@@ -13,6 +13,8 @@ IdleTimerTask::IdleTimerTask(TimeDelta idle_time, bool repeat)
   : idle_interval_(idle_time),
     repeat_(repeat),
     get_last_input_info_fn_(GetLastInputInfo) {
+  DCHECK_EQ(MessageLoop::TYPE_UI, MessageLoop::current()->type()) <<
+      "Requires a thread that processes Windows UI events";
 }
 
 IdleTimerTask::~IdleTimerTask() {

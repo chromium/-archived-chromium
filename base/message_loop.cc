@@ -55,19 +55,30 @@ static LPTOP_LEVEL_EXCEPTION_FILTER GetTopSEHFilter() {
 
 //------------------------------------------------------------------------------
 
-MessageLoop::MessageLoop()
-    : ALLOW_THIS_IN_INITIALIZER_LIST(timer_manager_(this)),
+MessageLoop::MessageLoop(Type type)
+    : type_(type),
+      ALLOW_THIS_IN_INITIALIZER_LIST(timer_manager_(this)),
       nestable_tasks_allowed_(true),
       exception_restoration_(false),
       state_(NULL) {
-  DCHECK(!current()) << "should only have one message loop per thread";
+  DCHECK(!tls_index_.Get()) << "should only have one message loop per thread";
   tls_index_.Set(this);
-  // TODO(darin): Generalize this to support instantiating different pumps.
+
+  switch (type) {
+    case TYPE_DEFAULT:
+      pump_ = new base::MessagePumpDefault();
+      break;
+    case TYPE_UI:
+    case TYPE_IO:
+      // TODO(darin): Use a special pumps for UI and IO, and figure out what to
+      // do for non-Windows platforms.
 #if defined(OS_WIN)
-  pump_ = new base::MessagePumpWin();
+      pump_ = new base::MessagePumpWin();
 #else
-  pump_ = new base::MessagePumpDefault();
+      pump_ = new base::MessagePumpDefault();
 #endif
+      break;
+  }
 }
 
 MessageLoop::~MessageLoop() {
@@ -105,14 +116,6 @@ void MessageLoop::Run() {
   AutoRunState save_state(this);
   RunHandler();
 }
-
-#if defined(OS_WIN)
-void MessageLoop::Run(base::MessagePumpWin::Dispatcher* dispatcher) {
-  AutoRunState save_state(this);
-  state_->dispatcher = dispatcher;
-  RunHandler();
-}
-#endif
 
 void MessageLoop::RunAllPending() {
   AutoRunState save_state(this);
@@ -560,3 +563,44 @@ const LinearHistogram::DescriptionPair MessageLoop::event_descriptions_[] = {
   {-1, NULL}  // The list must be null terminated, per API to histogram.
 };
 
+//------------------------------------------------------------------------------
+// MessageLoopForUI
+
+#if defined(OS_WIN)
+
+void MessageLoopForUI::Run(Dispatcher* dispatcher) {
+  AutoRunState save_state(this);
+  state_->dispatcher = dispatcher;
+  RunHandler();
+}
+
+void MessageLoopForUI::AddObserver(Observer* observer) {
+  pump_win()->AddObserver(observer);
+}
+
+void MessageLoopForUI::RemoveObserver(Observer* observer) {
+  pump_win()->RemoveObserver(observer);
+}
+
+void MessageLoopForUI::WillProcessMessage(const MSG& message) {
+  pump_win()->WillProcessMessage(message);
+}
+void MessageLoopForUI::DidProcessMessage(const MSG& message) {
+  pump_win()->DidProcessMessage(message);
+}
+void MessageLoopForUI::PumpOutPendingPaintMessages() {
+  pump_win()->PumpOutPendingPaintMessages();
+}
+
+#endif  // defined(OS_WIN)
+
+//------------------------------------------------------------------------------
+// MessageLoopForIO
+
+#if defined(OS_WIN)
+
+void MessageLoopForIO::WatchObject(HANDLE object, Watcher* watcher) {
+  pump_win()->WatchObject(object, watcher);
+}
+
+#endif  // defined(OS_WIN)

@@ -155,10 +155,33 @@ class MessageLoop : public base::MessagePump::Delegate {
     }
   };
 
+  // A MessageLoop has a particular type, which indicates the set of
+  // asynchronous events it may process in addition to tasks and timers.
+  //
+  // TYPE_DEFAULT
+  //   This type of ML only supports tasks and timers.
+  //
+  // TYPE_UI
+  //   This type of ML also supports native UI events (e.g., Windows messages).
+  //   See also MessageLoopForUI.
+  //
+  // TYPE_IO
+  //   This type of ML also supports asynchronous IO.  See also
+  //   MessageLoopForIO.
+  //
+  enum Type {
+    TYPE_DEFAULT,
+    TYPE_UI,
+    TYPE_IO
+  };
+
   // Normally, it is not necessary to instantiate a MessageLoop.  Instead, it
   // is typical to make use of the current thread's MessageLoop instance.
-  MessageLoop();
+  explicit MessageLoop(Type type = TYPE_DEFAULT);
   ~MessageLoop();
+
+  // Returns the type passed to the constructor.
+  Type type() const { return type_; }
 
   // Optional call to connect the thread name with this loop.
   void set_thread_name(const std::string& thread_name) {
@@ -169,7 +192,9 @@ class MessageLoop : public base::MessagePump::Delegate {
 
   // Returns the MessageLoop object for the current thread, or null if none.
   static MessageLoop* current() {
-    return static_cast<MessageLoop*>(tls_index_.Get());
+    MessageLoop* loop = static_cast<MessageLoop*>(tls_index_.Get());
+    DCHECK(loop) << "Ouch, did you forget to initialize me?";
+    return loop;
   }
 
   // Returns the TimerManager object for the current thread.
@@ -201,39 +226,9 @@ class MessageLoop : public base::MessagePump::Delegate {
     exception_restoration_ = restore;
   }
 
-  //----------------------------------------------------------------------------
-#if defined(OS_WIN)
-  // Backwards-compat for the old Windows-specific MessageLoop API.  These APIs
-  // are deprecated.
-
-  typedef base::MessagePumpWin::Dispatcher Dispatcher;
-  typedef base::MessagePumpWin::Observer Observer;
-  typedef base::MessagePumpWin::Watcher Watcher;
-
-  void Run(Dispatcher* dispatcher);
-
-  void WatchObject(HANDLE object, Watcher* watcher) {
-    pump_win()->WatchObject(object, watcher);
-  }
-  void AddObserver(Observer* observer) {
-    pump_win()->AddObserver(observer);
-  }
-  void RemoveObserver(Observer* observer) {
-    pump_win()->RemoveObserver(observer);
-  }
-  void WillProcessMessage(const MSG& message) {
-    pump_win()->WillProcessMessage(message);
-  }
-  void DidProcessMessage(const MSG& message) {
-    pump_win()->DidProcessMessage(message);
-  }
-  void PumpOutPendingPaintMessages() {
-    pump_win()->PumpOutPendingPaintMessages();
-  }
-#endif  // defined(OS_WIN)
 
   //----------------------------------------------------------------------------
- private:
+ protected:
   friend class TimerManager;  // So it can call DidChangeNextTimerExpiry
 
   struct RunState {
@@ -406,6 +401,8 @@ class MessageLoop : public base::MessagePump::Delegate {
   static const LinearHistogram::DescriptionPair event_descriptions_[];
   static bool enable_histogrammer_;
 
+  Type type_;
+
   TimerManager timer_manager_;
 
   // A list of tasks that need to be processed by this instance.  Note that this
@@ -448,5 +445,76 @@ class MessageLoop : public base::MessagePump::Delegate {
   DISALLOW_COPY_AND_ASSIGN(MessageLoop);
 };
 
-#endif  // BASE_MESSAGE_LOOP_H_
+//-----------------------------------------------------------------------------
+// MessageLoopForUI extends MessageLoop with methods that are particular to a
+// MessageLoop instantiated with TYPE_UI.
+//
+// This class is typically used like so:
+//   MessageLoopForUI::current()->...call some method...
+//
+class MessageLoopForUI : public MessageLoop {
+ public:
+  MessageLoopForUI() : MessageLoop(TYPE_UI) {
+  }
 
+  // Returns the MessageLoopForUI of the current thread.
+  static MessageLoopForUI* current() {
+    MessageLoop* loop = MessageLoop::current();
+    DCHECK_EQ(MessageLoop::TYPE_UI, loop->type());
+    return static_cast<MessageLoopForUI*>(loop);
+  }
+
+#if defined(OS_WIN)
+  typedef base::MessagePumpWin::Dispatcher Dispatcher;
+  typedef base::MessagePumpWin::Observer Observer;
+
+  // Please see MessagePumpWin for definitions of these methods.
+  void Run(Dispatcher* dispatcher);
+  void AddObserver(Observer* observer);
+  void RemoveObserver(Observer* observer);
+  void WillProcessMessage(const MSG& message);
+  void DidProcessMessage(const MSG& message);
+  void PumpOutPendingPaintMessages();
+#endif  // defined(OS_WIN)
+};
+
+// Do not add any member variables to MessageLoopForUI!  This is important b/c
+// MessageLoopForUI is often allocated via MessageLoop(TYPE_UI).  Any extra
+// data that you need should be stored on the MessageLoop's pump_ instance.
+COMPILE_ASSERT(sizeof(MessageLoop) == sizeof(MessageLoopForUI),
+               MessageLoopForUI_should_not_have_extra_member_variables);
+
+//-----------------------------------------------------------------------------
+// MessageLoopForIO extends MessageLoop with methods that are particular to a
+// MessageLoop instantiated with TYPE_IO.
+//
+// This class is typically used like so:
+//   MessageLoopForIO::current()->...call some method...
+//
+class MessageLoopForIO : public MessageLoop {
+ public:
+  MessageLoopForIO() : MessageLoop(TYPE_IO) {
+  }
+
+  // Returns the MessageLoopForIO of the current thread.
+  static MessageLoopForIO* current() {
+    MessageLoop* loop = MessageLoop::current();
+    DCHECK_EQ(MessageLoop::TYPE_IO, loop->type());
+    return static_cast<MessageLoopForIO*>(loop);
+  }
+
+#if defined(OS_WIN)
+  typedef base::MessagePumpWin::Watcher Watcher;
+
+  // Please see MessagePumpWin for definitions of these methods.
+  void WatchObject(HANDLE object, Watcher* watcher);
+#endif  // defined(OS_WIN)
+};
+
+// Do not add any member variables to MessageLoopForIO!  This is important b/c
+// MessageLoopForIO is often allocated via MessageLoop(TYPE_IO).  Any extra
+// data that you need should be stored on the MessageLoop's pump_ instance.
+COMPILE_ASSERT(sizeof(MessageLoop) == sizeof(MessageLoopForIO),
+               MessageLoopForIO_should_not_have_extra_member_variables);
+
+#endif  // BASE_MESSAGE_LOOP_H_

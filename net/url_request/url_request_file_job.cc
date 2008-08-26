@@ -140,7 +140,7 @@ void URLRequestFileJob::Start() {
 void URLRequestFileJob::Kill() {
   // If we are killed while waiting for an overlapped result...
   if (is_waiting_) {
-    MessageLoop::current()->WatchObject(overlapped_.hEvent, NULL);
+    MessageLoopForIO::current()->WatchObject(overlapped_.hEvent, NULL);
     is_waiting_ = false;
     Release();
   }
@@ -178,7 +178,7 @@ bool URLRequestFileJob::ReadRawData(char* dest, int dest_size,
   DWORD err = GetLastError();
   if (err == ERROR_IO_PENDING) {
     // OK, wait for the object to become signaled
-    MessageLoop::current()->WatchObject(overlapped_.hEvent, this);
+    MessageLoopForIO::current()->WatchObject(overlapped_.hEvent, this);
     is_waiting_ = true;
     SetStatus(URLRequestStatus(URLRequestStatus::IO_PENDING, 0));
     AddRef();
@@ -261,7 +261,7 @@ void URLRequestFileJob::OnObjectSignaled(HANDLE object) {
 
   // We'll resume watching this handle if need be when we do
   // another IO.
-  MessageLoop::current()->WatchObject(object, NULL);
+  MessageLoopForIO::current()->WatchObject(object, NULL);
   is_waiting_ = false;
 
   DWORD bytes_read = 0;
