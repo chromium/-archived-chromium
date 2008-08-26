@@ -155,7 +155,7 @@ class CrashTask : public Task {
 
 // We leak everything here :)
 bool StartCrashThread() {
-  Thread* thread = new Thread("party_crasher");
+  base::Thread* thread = new base::Thread("party_crasher");
   if (!thread->Start())
     return false;
 
