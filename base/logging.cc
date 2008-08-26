@@ -413,7 +413,8 @@ LogMessage::~LogMessage() {
       logging_destination == LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG) {
 #if defined(OS_WIN)
     OutputDebugStringA(str_newline.c_str());
-#elif defined(OS_POSIX)
+    if (severity_ >= kAlwaysPrintErrorLevel)
+#endif
     // TODO(erikkay): this interferes with the layout tests since it grabs
     // stderr and stdout and diffs them against known data. Our info and warn
     // logs add noise to that.  Ideally, the layout tests would set the log
@@ -424,7 +425,6 @@ LogMessage::~LogMessage() {
     // they won't be able to pass any layout tests that have info or warn logs.
     // See http://b/1343647
     fprintf(stderr, "%s", str_newline.c_str());
-#endif
   } else if (severity_ >= kAlwaysPrintErrorLevel) {
     // When we're only outputting to a log file, above a certain log level, we
     // should still output to stderr so that we can better detect and diagnose
