@@ -29,6 +29,7 @@ class DownloadManagerTest : public testing::Test {
 
  protected:
   scoped_refptr<DownloadManager> download_manager_;
+  MessageLoopForUI message_loop_;
 
   DISALLOW_EVIL_CONSTRUCTORS(DownloadManagerTest);
 };

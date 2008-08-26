@@ -28,6 +28,13 @@
 
 using namespace IPC;
 
+namespace {
+
+class IPCSyncChannelTest : public testing::Test {
+ private:
+  MessageLoop message_loop_;
+};
+
 // SyncChannel should only be used in child processes as we don't want to hang
 // the browser.  So in the unit test we need to have a ChildProcess object.
 class TestProcess : public ChildProcess {
@@ -202,8 +209,13 @@ void RunTest(std::vector<Worker*> workers) {
   TestProcess::GlobalCleanup();
 }
 
+}  // namespace
+
 
 //-----------------------------------------------------------------------------
+
+namespace {
+
 class SimpleServer : public Worker {
  public:
   SimpleServer() : Worker(Channel::MODE_SERVER, "simpler_server") { }
@@ -226,8 +238,10 @@ class SimpleClient : public Worker {
   }
 };
 
+}  // namespace
+
 // Tests basic synchronous call
-TEST(IPCSyncChannelTest, Simple) {
+TEST_F(IPCSyncChannelTest, Simple) {
   std::vector<Worker*> workers;
   workers.push_back(new SimpleServer());
   workers.push_back(new SimpleClient());
@@ -236,6 +250,9 @@ TEST(IPCSyncChannelTest, Simple) {
 
 
 //-----------------------------------------------------------------------------
+
+namespace {
+
 class DelayClient : public Worker {
  public:
   DelayClient() : Worker(Channel::MODE_CLIENT, "delay_client") { }
@@ -247,8 +264,10 @@ class DelayClient : public Worker {
   }
 };
 
+}  // namespace
+
 // Tests that asynchronous replies work
-TEST(IPCSyncChannelTest, DelayReply) {
+TEST_F(IPCSyncChannelTest, DelayReply) {
   std::vector<Worker*> workers;
   workers.push_back(new SimpleServer());
   workers.push_back(new DelayClient());
@@ -257,6 +276,9 @@ TEST(IPCSyncChannelTest, DelayReply) {
 
 
 //-----------------------------------------------------------------------------
+
+namespace {
+
 class NoHangServer : public Worker {
  public:
   explicit NoHangServer(Event* got_first_reply)
@@ -296,8 +318,10 @@ class NoHangClient : public Worker {
   Event* got_first_reply_;
 };
 
+}  // namespace
+
 // Tests that caller doesn't hang if receiver dies
-TEST(IPCSyncChannelTest, NoHang) {
+TEST_F(IPCSyncChannelTest, NoHang) {
   Event got_first_reply;
 
   std::vector<Worker*> workers;
@@ -308,6 +332,9 @@ TEST(IPCSyncChannelTest, NoHang) {
 
 
 //-----------------------------------------------------------------------------
+
+namespace {
+
 class RecursiveServer : public Worker {
  public:
   RecursiveServer() : Worker(Channel::MODE_SERVER, "recursive_server") { }
@@ -335,8 +362,10 @@ class RecursiveClient : public Worker {
   }
 };
 
+}  // namespace
+
 // Tests that the caller unblocks to answer a sync message from the receiver.
-TEST(IPCSyncChannelTest, Recursive) {
+TEST_F(IPCSyncChannelTest, Recursive) {
   std::vector<Worker*> workers;
   workers.push_back(new RecursiveServer());
   workers.push_back(new RecursiveClient());
@@ -345,6 +374,9 @@ TEST(IPCSyncChannelTest, Recursive) {
 
 
 //-----------------------------------------------------------------------------
+
+namespace {
+
 class MultipleServer1 : public Worker {
  public:
   MultipleServer1() : Worker(L"test_channel1", Channel::MODE_SERVER) { }
@@ -406,9 +438,11 @@ class MultipleClient2 : public Worker {
   Event *client1_msg_received_, *client1_can_reply_;
 };
 
+}  // namespace
+
 // Tests that multiple SyncObjects on the same listener thread can unblock each
 // other.
-TEST(IPCSyncChannelTest, Multiple) {
+TEST_F(IPCSyncChannelTest, Multiple) {
   std::vector<Worker*> workers;
 
   // A shared worker thread so that server1 and server2 run on one thread.
@@ -443,6 +477,9 @@ TEST(IPCSyncChannelTest, Multiple) {
 
 
 //-----------------------------------------------------------------------------
+
+namespace {
+
 class QueuedReplyServer1 : public Worker {
  public:
   QueuedReplyServer1() : Worker(L"test_channel1", Channel::MODE_SERVER) { }
@@ -511,11 +548,13 @@ class QueuedReplyClient2 : public Worker {
   Event *client1_msg_received_;
 };
 
+}  // namespace
+
 // While a blocking send is in progress, the listener thread might answer other
 // synchronous messages.  This tests that if during the response to another
 // message the reply to the original messages comes, it is queued up correctly
 // and the original Send is unblocked later.
-TEST(IPCSyncChannelTest, QueuedReply) {
+TEST_F(IPCSyncChannelTest, QueuedReply) {
   std::vector<Worker*> workers;
 
   // A shared worker thread so that server1 and server2 run on one thread.
@@ -546,6 +585,9 @@ TEST(IPCSyncChannelTest, QueuedReply) {
 
 
 //-----------------------------------------------------------------------------
+
+namespace {
+
 class BadServer : public Worker {
  public:
   BadServer() : Worker(Channel::MODE_SERVER, "simpler_server") { }
@@ -573,8 +615,10 @@ class BadServer : public Worker {
   }
 };
 
+}  // namespace
+
 // Tests that if a message is not serialized correctly, the Send() will fail.
-TEST(IPCSyncChannelTest, BadMessage) {
+TEST_F(IPCSyncChannelTest, BadMessage) {
   std::vector<Worker*> workers;
   workers.push_back(new BadServer());
   workers.push_back(new SimpleClient());
@@ -583,6 +627,9 @@ TEST(IPCSyncChannelTest, BadMessage) {
 
 
 //-----------------------------------------------------------------------------
+
+namespace {
+
 class ChattyRecursiveClient : public Worker {
  public:
   ChattyRecursiveClient() :
@@ -602,10 +649,12 @@ class ChattyRecursiveClient : public Worker {
   }
 };
 
+}  // namespace
+
 // Tests http://b/issue?id=1093251 - that sending lots of sync messages while
 // the receiver is waiting for a sync reply does not overflow the PostMessage
 // queue.
-TEST(IPCSyncChannelTest, ChattyServer) {
+TEST_F(IPCSyncChannelTest, ChattyServer) {
   std::vector<Worker*> workers;
   workers.push_back(new RecursiveServer());
   workers.push_back(new ChattyRecursiveClient());
@@ -614,6 +663,9 @@ TEST(IPCSyncChannelTest, ChattyServer) {
 
 
 //------------------------------------------------------------------------------
+
+namespace {
+
 class TimeoutServer : public Worker {
  public:
    TimeoutServer(int timeout_ms,
@@ -673,9 +725,11 @@ class UnresponsiveClient : public Worker {
   std::vector<bool> timeout_seq_;
 };
 
+}  // namespace
+
 // Tests that SendWithTimeout does not time-out if the response comes back fast
 // enough.
-TEST(IPCSyncChannelTest, SendWithTimeoutOK) {
+TEST_F(IPCSyncChannelTest, SendWithTimeoutOK) {
   std::vector<Worker*> workers;
   std::vector<bool> timeout_seq;
   timeout_seq.push_back(false);
@@ -687,7 +741,7 @@ TEST(IPCSyncChannelTest, SendWithTimeoutOK) {
 }
 
 // Tests that SendWithTimeout does time-out.
-TEST(IPCSyncChannelTest, SendWithTimeoutTimeout) {
+TEST_F(IPCSyncChannelTest, SendWithTimeoutTimeout) {
   std::vector<Worker*> workers;
   std::vector<bool> timeout_seq;
   timeout_seq.push_back(true);
@@ -699,7 +753,7 @@ TEST(IPCSyncChannelTest, SendWithTimeoutTimeout) {
 }
 
 // Sends some message that time-out and some that succeed.
-TEST(IPCSyncChannelTest, SendWithTimeoutMixedOKAndTimeout) {
+TEST_F(IPCSyncChannelTest, SendWithTimeoutMixedOKAndTimeout) {
   std::vector<Worker*> workers;
   std::vector<bool> timeout_seq;
   timeout_seq.push_back(true);
@@ -711,4 +765,3 @@ TEST(IPCSyncChannelTest, SendWithTimeoutMixedOKAndTimeout) {
   workers.push_back(new UnresponsiveClient(timeout_seq));
   RunTest(workers);
 }
-

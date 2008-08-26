@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/message_loop.h"
 #include "base/string_util.h"
 #include "chrome/browser/printing/page_overlays.h"
 #include "chrome/browser/printing/print_settings.h"
@@ -11,6 +12,11 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
+
+class PageOverlaysTest : public testing::Test {
+ private:
+  MessageLoop message_loop_;
+};
 
 struct Keys {
   const wchar_t* key;
@@ -46,7 +52,7 @@ class PagesSource : public printing::PrintedPagesSource {
 }  // namespace
 
 
-TEST(PageOverlaysTest, StringConversion) {
+TEST_F(PageOverlaysTest, StringConversion) {
   printing::PageOverlays overlays;
   overlays.GetOverlay(printing::PageOverlays::LEFT,
                       printing::PageOverlays::BOTTOM);

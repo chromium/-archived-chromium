@@ -5,6 +5,7 @@
 #include "webkit/glue/webkit_glue.h"
 
 #include "base/file_util.h"
+#include "base/message_loop.h"
 #include "base/path_service.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/common/chrome_paths.h"
@@ -12,6 +13,8 @@
 
 namespace {
 class SpellCheckTest : public testing::Test {
+ private:
+  MessageLoop message_loop_;
 };
 }  // namespace
 
@@ -50,7 +53,7 @@ extern void InitHunspellWithFiles(FILE* file_aff_hunspell,
 // A test with a "[ROBUSTNESS]" mark shows it is a robustness test and it uses
 // grammartically incorrect string.
 // TODO(hbono): Please feel free to add more tests.
-TEST(SpellCheckTest, SpellCheckStrings_EN_US) {
+TEST_F(SpellCheckTest, SpellCheckStrings_EN_US) {
   static const struct {
     // A string to be tested.
     const wchar_t* input;
@@ -269,7 +272,7 @@ TEST(SpellCheckTest, SpellCheckStrings_EN_US) {
 }
 
 
-TEST(SpellCheckTest, SpellCheckSuggestions_EN_US) {
+TEST_F(SpellCheckTest, SpellCheckSuggestions_EN_US) {
   static const struct {
     // A string to be tested.
     const wchar_t* input;
