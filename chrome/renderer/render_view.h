@@ -431,6 +431,8 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // Notification about ui theme changes.
   void OnThemeChanged();
 
+  void OnPersonalizationEvent(std::string event_name, std::string event_args);
+
   // Handles messages posted from automation.
   void OnMessageFromExternalHost(const std::string& target,
                                  const std::string& message);
@@ -474,6 +476,8 @@ class RenderView : public RenderWidget, public WebViewDelegate,
 
   std::string GetAltHTMLForTemplate(const DictionaryValue& error_strings,
                                     int template_resource_id) const;
+
+  virtual void TransitionToCommittedForNewPage();
 
   // A helper method used by WasOpenedByUserGesture.
   bool WasOpenedByUserGestureHelper() const;

@@ -333,6 +333,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_ShouldClose, OnMsgShouldClose)
     IPC_MESSAGE_HANDLER(ViewMsg_ClosePage, OnClosePage)
     IPC_MESSAGE_HANDLER(ViewMsg_ThemeChanged, OnThemeChanged)
+    IPC_MESSAGE_HANDLER(ViewMsg_PersonalizationEvent, OnPersonalizationEvent)
     IPC_MESSAGE_HANDLER(ViewMsg_HandleMessageFromExternalHost,
                         OnMessageFromExternalHost)
     // Have the super handle all other messages.
@@ -2478,6 +2479,18 @@ void RenderView::OnThemeChanged() {
   gfx::NativeTheme::instance()->CloseHandles();
   gfx::Rect view_rect(0, 0, size_.width(), size_.height());
   DidInvalidateRect(webwidget_, view_rect);
+}
+
+void RenderView::OnPersonalizationEvent(std::string event_name,
+                                        std::string event_args) {
+  Personalization::HandleViewMsgPersonalizationEvent(personalization_,
+                                                     webview(),
+                                                     event_name,
+                                                     event_args);
+}
+
+void RenderView::TransitionToCommittedForNewPage() {
+  Personalization::HandleTransitionToCommittedForNewPage(personalization_);
 }
 
 void RenderView::OnMessageFromExternalHost(

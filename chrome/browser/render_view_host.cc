@@ -1003,7 +1003,7 @@ void RenderViewHost::OnMsgForwardMessageToExternalHost(
 
 #ifdef CHROME_PERSONALIZATION
 void RenderViewHost::OnPersonalizationEvent(const std::string& message,
-                                               const std::string& content) {
+                                            const std::string& content) {
   Personalization::HandlePersonalizationEvent(this, message, content);
 }
 #endif
@@ -1198,6 +1198,13 @@ void RenderViewHost::OnDebugDisconnect() {
     debugger_attached_ = false;
     g_browser_process->debugger_wrapper()->OnDebugDisconnect();
   }
+}
+
+void RenderViewHost::RaiseAvatarEvent(std::string event_name, 
+                                      std::string event_arg) {
+  Send(new ViewMsg_PersonalizationEvent(routing_id_,
+                                        event_name,
+                                        event_arg));
 }
 
 void RenderViewHost::ForwardMessageFromExternalHost(

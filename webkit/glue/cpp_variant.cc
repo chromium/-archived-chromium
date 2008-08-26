@@ -250,3 +250,17 @@ std::vector<std::wstring> CppVariant::ToStringVector() const {
   return wstring_vector;
 }
 
+bool CppVariant::Invoke(const std::string& method, const CppVariant* args, 
+                        uint32 arg_count, CppVariant& result) const {
+  DCHECK(isObject());
+  NPIdentifier method_name = NPN_GetStringIdentifier(method.c_str());
+  NPObject* np_object = value.objectValue;
+  if (NPN_HasMethod(NULL, np_object, method_name)) {
+    NPVariant r;
+    bool status = NPN_Invoke(NULL, np_object, method_name, args, arg_count, &r);
+    result.Set(r);
+    return status;
+  } else {
+    return false;
+  }
+}

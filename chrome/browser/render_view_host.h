@@ -377,6 +377,10 @@ class RenderViewHost : public RenderWidgetHost {
   // and we're necessarily leaving the page.
   void UnloadListenerHasFired() { has_unload_listener_ = false; }
 
+  // Tells the RenderView to raise an avatar event with the given name and
+  // argument.
+  void RaiseAvatarEvent(std::string event_name, std::string event_arg);
+
   // Forward a message from external host to chrome renderer.
   void ForwardMessageFromExternalHost(const std::string& target,
                                       const std::string& message);

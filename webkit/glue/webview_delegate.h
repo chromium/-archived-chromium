@@ -709,6 +709,10 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
 
   virtual void WebInspectorOpened(int num_resources) { }
 
+  // Called when the FrameLoader goes into a state in which a new page load
+  // will occur.
+  virtual void TransitionToCommittedForNewPage() { }
+
   WebViewDelegate() { }
   virtual ~WebViewDelegate() { }
 
