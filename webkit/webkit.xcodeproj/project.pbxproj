@@ -1322,7 +1322,6 @@
 		7B5801EF0DAFC610006F0EB5 /* XSLTExtensions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E9AD80D7F402E001ECF42 /* XSLTExtensions.cpp */; };
 		7B5801F00DAFC610006F0EB5 /* XSLTProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E9ADA0D7F402E001ECF42 /* XSLTProcessor.cpp */; };
 		7B5801F10DAFC610006F0EB5 /* XSLTUnicodeSort.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E9ADC0D7F402E001ECF42 /* XSLTUnicodeSort.cpp */; };
-		7B5803FE0DAFC610006F0EB5 /* WebCoreFrameBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8254013E0D8B05B00006B936 /* WebCoreFrameBridge.mm */; };
 		7B58F7BF0DAFC610006F0EB5 /* WebCorePrefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B2FB8860D81A9C90050E907 /* WebCorePrefix.h */; };
 		7B58F7FB0DAFC610006F0EB5 /* AXObjectCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E88AB0D7F39E1001ECF42 /* AXObjectCache.h */; };
 		7B58F7FC0DAFC610006F0EB5 /* EditorClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E88AC0D7F39E1001ECF42 /* EditorClient.h */; };
@@ -7456,7 +7455,6 @@
 		E456266F0E268E87005E4685 /* XSLTExtensions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E9AD80D7F402E001ECF42 /* XSLTExtensions.cpp */; };
 		E45626700E268E87005E4685 /* XSLTProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E9ADA0D7F402E001ECF42 /* XSLTProcessor.cpp */; };
 		E45626710E268E87005E4685 /* XSLTUnicodeSort.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E9ADC0D7F402E001ECF42 /* XSLTUnicodeSort.cpp */; };
-		E45626720E268E87005E4685 /* WebCoreFrameBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8254013E0D8B05B00006B936 /* WebCoreFrameBridge.mm */; };
 		E45626770E268E87005E4685 /* CgSupport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96CE0D7F3EDA001ECF42 /* CgSupport.cpp */; };
 		E45626780E268E87005E4685 /* RenderPathCg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D00D7F3EDA001ECF42 /* RenderPathCg.cpp */; };
 		E45626790E268E87005E4685 /* SVGPaintServerCg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D10D7F3EDA001ECF42 /* SVGPaintServerCg.cpp */; };
@@ -7637,6 +7635,7 @@
 		E48A07270E3F95A000172919 /* NativeImageSkia.h in Headers */ = {isa = PBXBuildFile; fileRef = E48A07230E3F95A000172919 /* NativeImageSkia.h */; };
 		E48A07280E3F95A000172919 /* NativeImageSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48A07220E3F95A000172919 /* NativeImageSkia.cpp */; };
 		E48A07290E3F95A000172919 /* NativeImageSkia.h in Headers */ = {isa = PBXBuildFile; fileRef = E48A07230E3F95A000172919 /* NativeImageSkia.h */; };
+		E499F6090E646DCF00DFB0F8 /* BackForwardList.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E8BCB0D7F3B39001ECF42 /* BackForwardList.h */; };
 		E49E4D960E5DEA6000AD47F7 /* BackForwardList.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E8BCB0D7F3B39001ECF42 /* BackForwardList.h */; };
 		E49E4D970E5DEA6100AD47F7 /* BackForwardList.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E8BCB0D7F3B39001ECF42 /* BackForwardList.h */; };
 		E4A134090E37C47E00110AA2 /* v8_proxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095EA0DAFF0DD00F72082 /* v8_proxy.cpp */; };
@@ -9751,7 +9750,7 @@
 		7B5E8EFD0D7F3C48001ECF42 /* ChromeMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ChromeMac.mm; sourceTree = "<group>"; };
 		7B5E8EFE0D7F3C48001ECF42 /* DragControllerMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DragControllerMac.mm; sourceTree = "<group>"; };
 		7B5E8EFF0D7F3C48001ECF42 /* EventHandlerMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = EventHandlerMac.mm; path = port/page/EventHandlerMac.mm; sourceTree = SOURCE_ROOT; };
-		7B5E8F000D7F3C48001ECF42 /* FrameMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FrameMac.mm; path = ../../../../../webkit/pending/FrameMac.mm; sourceTree = "<group>"; };
+		7B5E8F000D7F3C48001ECF42 /* FrameMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FrameMac.mm; path = ../../../../../webkit/port/bridge/mac/FrameMac.mm; sourceTree = "<group>"; };
 		7B5E8F010D7F3C48001ECF42 /* WebCoreFrameBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebCoreFrameBridge.h; path = pending/WebCoreFrameBridge.h; sourceTree = SOURCE_ROOT; };
 		7B5E8F030D7F3C49001ECF42 /* WebCoreFrameView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebCoreFrameView.h; sourceTree = "<group>"; };
 		7B5E8F040D7F3C49001ECF42 /* WebCoreKeyboardUIMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebCoreKeyboardUIMode.h; sourceTree = "<group>"; };
@@ -9912,14 +9911,14 @@
 		7B5E90D60D7F3CC2001ECF42 /* BlockExceptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockExceptions.h; sourceTree = "<group>"; };
 		7B5E90D70D7F3CC2001ECF42 /* BlockExceptions.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BlockExceptions.mm; sourceTree = "<group>"; };
 		7B5E90D80D7F3CC2001ECF42 /* ClipboardMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipboardMac.h; sourceTree = "<group>"; };
-		7B5E90D90D7F3CC2001ECF42 /* ClipboardMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ClipboardMac.mm; sourceTree = "<group>"; };
+		7B5E90D90D7F3CC2001ECF42 /* ClipboardMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ClipboardMac.mm; path = ../../../../../webkit/port/platform/mac/ClipboardMac.mm; sourceTree = "<group>"; };
 		7B5E90DA0D7F3CC2001ECF42 /* ContextMenuItemMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ContextMenuItemMac.mm; sourceTree = "<group>"; };
 		7B5E90DB0D7F3CC2001ECF42 /* ContextMenuMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ContextMenuMac.mm; sourceTree = "<group>"; };
 		7B5E90DC0D7F3CC2001ECF42 /* CookieJar.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CookieJar.mm; sourceTree = "<group>"; };
 		7B5E90DD0D7F3CC2001ECF42 /* CursorMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CursorMac.mm; sourceTree = "<group>"; };
 		7B5E90DE0D7F3CC2001ECF42 /* DeprecatedStringListMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DeprecatedStringListMac.mm; sourceTree = "<group>"; };
 		7B5E90DF0D7F3CC2001ECF42 /* DeprecatedStringMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DeprecatedStringMac.mm; sourceTree = "<group>"; };
-		7B5E90E00D7F3CC2001ECF42 /* DragDataMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DragDataMac.mm; sourceTree = "<group>"; };
+		7B5E90E00D7F3CC2001ECF42 /* DragDataMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DragDataMac.mm; path = ../../../../../webkit/port/platform/mac/DragDataMac.mm; sourceTree = "<group>"; };
 		7B5E90E10D7F3CC2001ECF42 /* DragImageMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DragImageMac.mm; sourceTree = "<group>"; };
 		7B5E90E20D7F3CC2001ECF42 /* FileChooserMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FileChooserMac.mm; sourceTree = "<group>"; };
 		7B5E90E30D7F3CC2001ECF42 /* FileSystemMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FileSystemMac.mm; sourceTree = "<group>"; };
@@ -9933,7 +9932,7 @@
 		7B5E90EB0D7F3CC2001ECF42 /* LoggingMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoggingMac.mm; sourceTree = "<group>"; };
 		7B5E90EC0D7F3CC2001ECF42 /* MIMETypeRegistryMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MIMETypeRegistryMac.mm; sourceTree = "<group>"; };
 		7B5E90ED0D7F3CC2001ECF42 /* PasteboardHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PasteboardHelper.h; sourceTree = "<group>"; };
-		7B5E90EE0D7F3CC2001ECF42 /* PasteboardMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PasteboardMac.mm; sourceTree = "<group>"; };
+		7B5E90EE0D7F3CC2001ECF42 /* PasteboardMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PasteboardMac.mm; path = ../../../../../webkit/port/platform/mac/PasteboardMac.mm; sourceTree = "<group>"; };
 		7B5E90EF0D7F3CC2001ECF42 /* PlatformMouseEventMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PlatformMouseEventMac.mm; sourceTree = "<group>"; };
 		7B5E90F00D7F3CC2001ECF42 /* PlatformScreenMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PlatformScreenMac.mm; sourceTree = "<group>"; };
 		7B5E90F10D7F3CC2001ECF42 /* PlatformScrollBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformScrollBar.h; sourceTree = "<group>"; };
@@ -10047,7 +10046,7 @@
 		7B5E91C20D7F3CC2001ECF42 /* StringMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StringMac.mm; sourceTree = "<group>"; };
 		7B5E91C30D7F3CC2001ECF42 /* TextBoundaries.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TextBoundaries.mm; sourceTree = "<group>"; };
 		7B5E91C40D7F3CC2001ECF42 /* TextBreakIteratorInternalICUMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TextBreakIteratorInternalICUMac.mm; sourceTree = "<group>"; };
-		7B5E91C50D7F3CC2001ECF42 /* TextCodecMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextCodecMac.cpp; sourceTree = "<group>"; };
+		7B5E91C50D7F3CC2001ECF42 /* TextCodecMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextCodecMac.cpp; path = ../../../../../../webkit/pending/TextCodecMac.cpp; sourceTree = "<group>"; };
 		7B5E91C60D7F3CC2001ECF42 /* TextCodecMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextCodecMac.h; sourceTree = "<group>"; };
 		7B5E91C70D7F3CC2001ECF42 /* PlatformString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformString.h; sourceTree = "<group>"; };
 		7B5E91CE0D7F3CC3001ECF42 /* RegularExpression.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RegularExpression.cpp; sourceTree = "<group>"; };
@@ -22811,6 +22810,7 @@
 				E456284B0E26A2A3005E4685 /* ResourceResponse.h in Headers */,
 				82761E980E3FA26F0030D324 /* TextCodecMac.h in Headers */,
 				82761F860E3FAC700030D324 /* AccessibilityObject.h in Headers */,
+				E499F6090E646DCF00DFB0F8 /* BackForwardList.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -24421,7 +24421,6 @@
 				7B5801EF0DAFC610006F0EB5 /* XSLTExtensions.cpp in Sources */,
 				7B5801F00DAFC610006F0EB5 /* XSLTProcessor.cpp in Sources */,
 				7B5801F10DAFC610006F0EB5 /* XSLTUnicodeSort.cpp in Sources */,
-				7B5803FE0DAFC610006F0EB5 /* WebCoreFrameBridge.mm in Sources */,
 				82C261370DCBB3A9005CFE91 /* CgSupport.cpp in Sources */,
 				82C261390DCBB3A9005CFE91 /* RenderPathCg.cpp in Sources */,
 				82C2613A0DCBB3A9005CFE91 /* SVGPaintServerCg.cpp in Sources */,
@@ -27044,7 +27043,6 @@
 				E456266F0E268E87005E4685 /* XSLTExtensions.cpp in Sources */,
 				E45626700E268E87005E4685 /* XSLTProcessor.cpp in Sources */,
 				E45626710E268E87005E4685 /* XSLTUnicodeSort.cpp in Sources */,
-				E45626720E268E87005E4685 /* WebCoreFrameBridge.mm in Sources */,
 				E45626770E268E87005E4685 /* CgSupport.cpp in Sources */,
 				E45626780E268E87005E4685 /* RenderPathCg.cpp in Sources */,
 				E45626790E268E87005E4685 /* SVGPaintServerCg.cpp in Sources */,
