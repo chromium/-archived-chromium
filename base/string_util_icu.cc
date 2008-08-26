@@ -322,7 +322,7 @@ bool UTF16ToUTF8(const char16* src, size_t src_len, std::string* output) {
   }
 
   ReserveUTF8Output(src, src_len, output);
-  return ConvertUnicode<char, char16>(src, src_len, output);
+  return ConvertUnicode<char16, char>(src, src_len, output);
 }
 
 std::string UTF16ToUTF8(const std::string16& utf16) {
