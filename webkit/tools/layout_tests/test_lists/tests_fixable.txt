@@ -9,7 +9,7 @@
 // Bug 1124548: Copying with no selection is sometimes supposed to work
 // This test also crashes in debug due to an ASSERT. (see bug 1058654)
 // Also skipped by Apple on Windows (rdar://problem/5015941)
-V8 | KJS # DEFER : LayoutTests/editing/execCommand/copy-without-selection.html = FAIL | CRASH
+V8 | KJS # LayoutTests/editing/execCommand/copy-without-selection.html = FAIL | CRASH
 
 // Bug 1317563: Debug-only test failures following removal of font-metrics
 // hacks.  Possibly due to different fonts installed on that builder?
@@ -37,7 +37,7 @@ V8 # LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = PASS | FAIL
 // Works fine when run stand-alone.  Not needed for Beta.
 // Also skipped by Apple on Windows, due to intermittent failure 
 // (rdar://5313536)
-V8 | KJS # DEFER : LayoutTests/fast/dom/frame-loading-via-document-write.html = FAIL
+V8 | KJS # LayoutTests/fast/dom/frame-loading-via-document-write.html = FAIL
 
 // -----------------------------------------------------------------
 // FLAKY TESTS
@@ -45,18 +45,18 @@ V8 | KJS # DEFER : LayoutTests/fast/dom/frame-loading-via-document-write.html = 
 
 // This test uses a -webkit-transition-duration and a set timeout, probably
 // just a small race in our timers.  Fails once in a while, only on v8.
-V8 # DEFER : LayoutTests/fast/css/transition-color-unspecified.html = PASS | FAIL
+V8 # LayoutTests/fast/css/transition-color-unspecified.html = PASS | FAIL
 
 // Flaky tests, see bug 877986.
 // WebKit's CSS counters are somewhat broken, thus expected results are failures
 // Our high-precision timers make these tests flakey.
 // We could fork these tests, but we'll just unfork them as soon as
 // our high-precision timers are public.
-V8 | KJS # DEFER : LayoutTests/css2.1/t1204-increment-00-c-o.html = FAIL | PASS
-V8 | KJS # DEFER : LayoutTests/css2.1/t1204-increment-01-c-o.html = FAIL | PASS
-V8 | KJS # DEFER : LayoutTests/css2.1/t1204-increment-02-c-o.html = FAIL | PASS
-V8 | KJS # DEFER : LayoutTests/css2.1/t1204-reset-00-c-o.html = FAIL | PASS
-V8 | KJS # DEFER : LayoutTests/css2.1/t1204-reset-01-c-o.html = FAIL | PASS
+V8 | KJS # LayoutTests/css2.1/t1204-increment-00-c-o.html = FAIL | PASS
+V8 | KJS # LayoutTests/css2.1/t1204-increment-01-c-o.html = FAIL | PASS
+V8 | KJS # LayoutTests/css2.1/t1204-increment-02-c-o.html = FAIL | PASS
+V8 | KJS # LayoutTests/css2.1/t1204-reset-00-c-o.html = FAIL | PASS
+V8 | KJS # LayoutTests/css2.1/t1204-reset-01-c-o.html = FAIL | PASS
 
 // Bug 1143337
 // These tests are here because they fail on the buildbot, but not locally.
@@ -67,7 +67,7 @@ V8 | KJS # LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-for
 V8 | KJS # LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = PASS | TIMEOUT
 
 // Bug 1332293: Sometimes times out for unknown reasons.
-V8 # DEFER : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = PASS | TIMEOUT
+V8 # LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = PASS | TIMEOUT
 
 // This are failing for different reasons under our new lighttpd configuration
 // TODO(deanm): Address all of these via lighttpd if possible, otherwise fork.
@@ -99,61 +99,61 @@ V8 | KJS # LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL | PASS
 
 // Bug 1316221: fail now that we use the same font code path in test_shell
 // as in Chrome
-V8 | KJS # DEFER : LayoutTests/css2.1/t1202-counter-04-b.html = FAIL
-V8 | KJS # DEFER : LayoutTests/css2.1/t1202-counters-04-b.html = FAIL
+V8 | KJS # LayoutTests/css2.1/t1202-counter-04-b.html = FAIL
+V8 | KJS # LayoutTests/css2.1/t1202-counters-04-b.html = FAIL
 
 // Bug 1316382: fails now that we use the same font code path in test_shell
 // as in Chrome: some characters that should have zero width don't
-V8 | KJS # DEFER : LayoutTests/fast/text/zero-width-characters.html = FAIL
+V8 | KJS # LayoutTests/fast/text/zero-width-characters.html = FAIL
 
 // Bug 1124513: the max length is being applied correctly, but the over- and
 // under-lines aren't placed properly over the "x".
 // The under-lines are a cosmetic error which is not necessary to fix for Beta. (eseidel)
-V8 | KJS # DEFER : LayoutTests/fast/forms/input-text-maxlength.html = FAIL
-V8 | KJS # DEFER : LayoutTests/fast/forms/input-text-paste-maxlength.html = FAIL
+V8 | KJS # LayoutTests/fast/forms/input-text-maxlength.html = FAIL
+V8 | KJS # LayoutTests/fast/forms/input-text-paste-maxlength.html = FAIL
 
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
-V8 | KJS # DEFER : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
+V8 | KJS # LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
 
 // Bug: 1145880
 // Parethesis missing, metrics wrong.
-V8 | KJS # DEFER : LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
+V8 | KJS # LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
 
 // Bug: 628529: complex text effects
 // This is a real bug, but not one we're fixing for Beta.
-V8 | KJS # DEFER : LayoutTests/fast/text/stroking-decorations.html = FAIL
-V8 | KJS # DEFER : LayoutTests/fast/text/stroking.html = FAIL
+V8 | KJS # LayoutTests/fast/text/stroking-decorations.html = FAIL
+V8 | KJS # LayoutTests/fast/text/stroking.html = FAIL
 
 // Bug: 1124522
 // Incrorect results, in incorrect international font metrics.
 // Fixing these overrides does not help us to Beta, deffering
-V8 | KJS # DEFER : LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
-V8 | KJS # DEFER : LayoutTests/fast/text/atsui-pointtooffset-calls-cg.html = FAIL
+V8 | KJS # LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
+V8 | KJS # LayoutTests/fast/text/atsui-pointtooffset-calls-cg.html = FAIL
 
 // Bug: 1143381
 // This test checks that we hack around a bug in helvetica.  We fail to.
-V8 | KJS # DEFER : LayoutTests/fast/text/wide-zero-width-space.html = FAIL
+V8 | KJS # LayoutTests/fast/text/wide-zero-width-space.html = FAIL
 
 // Font-size differences in international text cause the wrong character
 // to be under the (x,y) click location used by the test.  See bug 850411
 // on faking international font sizes like we do for Latin fonts.
-V8 | KJS # DEFER : LayoutTests/fast/text/atsui-rtl-override-selection.html = FAIL
+V8 | KJS # LayoutTests/fast/text/atsui-rtl-override-selection.html = FAIL
 
 // Bug: 1124542
 // More missing international text overides, not needed for Beta.
 // Capitalization results match Safari, even if "not fully correct"
-V8 | KJS # DEFER : LayoutTests/fast/text/capitalize-boundaries.html = FAIL
+V8 | KJS # LayoutTests/fast/text/capitalize-boundaries.html = FAIL
 
 // Bug: 1145887
 // Different button line-heights, our behavior looks wrong.
-V8 | KJS # DEFER : LayoutTests/fast/forms/control-restrict-line-height.html = FAIL
-V8 | KJS # DEFER : LayoutTests/fast/replaced/table-percent-height.html = FAIL
+V8 | KJS # LayoutTests/fast/forms/control-restrict-line-height.html = FAIL
+V8 | KJS # LayoutTests/fast/replaced/table-percent-height.html = FAIL
 
 // Bug 992930: Unable to load file:/// URLs from data: URLs.
-V8 | KJS # DEFER : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
+V8 | KJS # LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 
 // Bug 1187672.  Two font faces should be identical but aren't.  Punting SVG.
-V8 | KJS # DEFER : LayoutTests/svg/custom/font-face-simple.svg = FAIL
+V8 | KJS # LayoutTests/svg/custom/font-face-simple.svg = FAIL
 
 // BUG 1341452.
 KJS # LayoutTests/fast/text/line-breaks.html = FAIL
@@ -168,12 +168,66 @@ KJS # LayoutTests/fast/text/line-breaks.html = FAIL
 
 // Implicit expectation in this test is that you can "set query" on a data URL,
 // and it should replace the first "?" substring. This makes absolutely no sense.
-V8 | KJS # DEFER : LayoutTests/fast/events/stopPropagation-submit.html = FAIL
+V8 | KJS # LayoutTests/fast/events/stopPropagation-submit.html = FAIL
 
 // Expected results has a terminal "?", since "set query" on about:blank is allowed.
 // This is strange since query should have no meaning in non-standard urls
-V8 | KJS # DEFER : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = FAIL
-V8 | KJS # DEFER : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = FAIL
+V8 | KJS # LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = FAIL
+V8 | KJS # LayoutTests/http/tests/navigation/onload-navigation-iframe.html = FAIL
+
+// -----------------------------------------------------------------
+// PENDING TESTS (forked to pending/, need to be sent upstream)
+// -----------------------------------------------------------------
+
+// BUG 792023. See http://bugs.webkit.org/show_bug.cgi?id=15690 and 16494
+// Fixed tests are in pending directory. (The originals still pass consistently
+// in KJS.)
+V8 # LayoutTests/dom/html/level2/html/HTMLFrameElement09.html = FAIL
+V8 # LayoutTests/dom/html/level2/html/HTMLIFrameElement11.html = FAIL
+
+// Bug 972450: These tests don't work with fast timers due to setTimeout
+// races. Pending versions have these fixed.
+V8 | KJS # LayoutTests/fast/history/history_reload.html = PASS | FAIL
+V8 | KJS # LayoutTests/fast/repaint/bugzilla-6473.html = PASS | FAIL
+
+// Bug 982608: test had a wrong result for one condition
+V8 | KJS # LayoutTests/plugins/destroy-stream-twice.html = FAIL
+
+// This test has been modified and placed in pending, so we ignore the original
+// until we get our modification into WebKit.
+V8 | KJS # LayoutTests/security/block-test.html = PASS | FAIL
+
+// Bug 1124522
+// Test forked into pending and fixed.
+V8 # LayoutTests/fast/js/function-toString-parentheses.html = FAIL
+
+// Bug 1132721.  Forked to pending/fast/encoding/script-in-head.html
+// Should get this change pushed upstream and then unfork.
+// Stopped failing
+// V8 # LayoutTests/fast/encoding/script-in-head.html = PASS | FAIL | TIMEOUT
+
+// Bug 1143337.  Forked to pending/http/tests/security/.
+V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-child-explicit-domain.html = PASS | FAIL | TIMEOUT
+V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-parent-explicit-domain.html = PASS | FAIL | TIMEOUT
+V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-port-explicit-domain.html = PASS | FAIL | TIMEOUT
+V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-port.html = PASS | FAIL | TIMEOUT
+V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = PASS | FAIL | TIMEOUT
+V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-protocol.html = PASS | FAIL | TIMEOUT
+V8 | KJS # LayoutTests/http/tests/security/protocol-compare-case-insensitive.html = PASS | FAIL | TIMEOUT
+
+// Bug 1199617.  Forked to pending/svg/carto.net/window.svg.
+// Test did not wait for all created functions to be called via
+// setTimeout.
+V8 | KJS # LayoutTests/svg/carto.net/window.svg = PASS | FAIL 
+
+// Bug 1064038.  Image with border="1" drawn without the border.
+V8 | KJS # pending/fast/forms/image-border.html = FAIL
+
+// Bug 1055396.  Vertical scrollbar created when there is no overflow.
+V8 | KJS # pending/fast/forms/textarea-scrollbar-height.html = FAIL
+
+// Bug 1059184.  Dashed border-right isn't drawn on tall elements.
+V8 | KJS # pending/css/border-height.html = FAIL
 
 // -----------------------------------------------------------------
 // Other
@@ -182,85 +236,81 @@ V8 | KJS # DEFER : LayoutTests/http/tests/navigation/onload-navigation-iframe.ht
 // Bug https://bugs.webkit.org/show_bug.cgi?id=20265
 // The cookie used in this test has expired. We should get an updated test 
 // when we stop pulling the Safari 3.1 branch. Until then, ignore this failure.
-V8 | KJS # DEFER : LayoutTests/fast/cookies/local-file-can-set-cookies.html = FAIL
+V8 | KJS # LayoutTests/fast/cookies/local-file-can-set-cookies.html = FAIL
 
 // Bug 865472, this should just need proper pixel test rebaselining.
 // Also skipped by Apple on Windows (rdar://5723191).
 V8 # LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
 
 // Bug 1235433, javascript can execute before stylesheets are completely loaded.
-V8 | KJS # DEFER : LayoutTests/http/tests/local/stylesheet-and-script-load-order.html = FAIL
+V8 | KJS # LayoutTests/http/tests/local/stylesheet-and-script-load-order.html = FAIL
 
 // Bug: 1143492
 // Window status should always return a string object
 // WebKit does this to match IE, FF also fails this test.
-// Obscure, not sure we care. DEFER for Beta
-V8 | KJS # DEFER : LayoutTests/fast/dom/assign-to-window-status.html = FAIL
+V8 | KJS # LayoutTests/fast/dom/assign-to-window-status.html = FAIL
 
 // Bug 905894
 // Getting parseerror (probably wrong svn:eol-style)
 // Will be fixed by upstream merge
-V8 | KJS # DEFER : LayoutTests/fast/xsl/xslt-enc16.xml = FAIL
-V8 | KJS # DEFER : LayoutTests/fast/xsl/xslt-enc16to16.xml = FAIL
+V8 | KJS # LayoutTests/fast/xsl/xslt-enc16.xml = FAIL
+V8 | KJS # LayoutTests/fast/xsl/xslt-enc16to16.xml = FAIL
 
 // Bug: 742182, 845388
 // Mac Safari under certain circumstances automatically places
 // a caret in editable document even when none was requested programatically.
 // We don't intend to copy this feature (at least not for Beta).
-V8 | KJS # DEFER : LayoutTests/editing/selection/designmode-no-caret.html = FAIL
+V8 | KJS # LayoutTests/editing/selection/designmode-no-caret.html = FAIL
 
 // Bug: 742182, 845388, 960092
 // Platform-specific: simulates command-{arrow} input to modify selection
 // Our Event-Sender isn't robust enough to support this.
 // Not required for Beta.  This may also be related to known home/end issues
 // which are intended to be fixed for Beta.
-V8 | KJS # DEFER : LayoutTests/editing/selection/move-begin-end.html = FAIL
+V8 | KJS # LayoutTests/editing/selection/move-begin-end.html = FAIL
 
 // Bug 845400
 // The end result looks right, but the event messages differ.
-// Not critical for Beta, DEFER
-V8 | KJS # DEFER : LayoutTests/editing/pasteboard/paste-xml.xhtml = FAIL
+V8 | KJS # LayoutTests/editing/pasteboard/paste-xml.xhtml = FAIL
 
 // Bug 849441
 // Directionality of mixed-direction text in selected choice should
 // match that in the <select> option lists.
 // Low priority, unclear if test expectations are correct (see bug)
-V8 | KJS # DEFER : LayoutTests/fast/forms/select-writing-direction-natural.html = FAIL
-V8 | KJS # DEFER : LayoutTests/fast/text/international/bidi-menulist.html = FAIL
+V8 | KJS # LayoutTests/fast/forms/select-writing-direction-natural.html = FAIL
+V8 | KJS # LayoutTests/fast/text/international/bidi-menulist.html = FAIL
 
 // Bug 850875
 // requires support for layoutTestController.encodeHostName()
-// Not critical for Beta, DEFER
-V8 | KJS # DEFER : LayoutTests/fast/encoding/idn-security.html = FAIL
+V8 | KJS # LayoutTests/fast/encoding/idn-security.html = FAIL
 
 // Bug 852346
 // Tests link coloring and needs a history dataLayoutTests.
 // This is a test tool problem, not a Chrome problem.
-// Not critical for Beta.  DEFER
-V8 | KJS # DEFER : LayoutTests/fast/history/clicked-link-is-visited.html = FAIL
+V8 | KJS # LayoutTests/fast/history/clicked-link-is-visited.html = FAIL
 
 // Bug 1027226
 // Bug 945322: test shell should dump text when
 // layoutTestController.notifyDone() is called
 // Not critical for beta.
-V8 | KJS # DEFER : LayoutTests/editing/selection/drag-in-iframe.html = TIMEOUT
+V8 | KJS # LayoutTests/editing/selection/drag-in-iframe.html = TIMEOUT
 
 // BUG 938563: occasionally times out (performs about 50 HTTP CGI requests)
-V8 | KJS # DEFER : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = PASS | TIMEOUT
+V8 | KJS # LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = PASS | TIMEOUT
 
 // Bug 849056
 // We don't support NPN_Enumerate, but don't know of any plugin
 // which depends on that functionality.  So we ignore this for beta.
-V8 | KJS # DEFER : LayoutTests/plugins/netscape-enumerate.html = FAIL
+V8 | KJS # LayoutTests/plugins/netscape-enumerate.html = FAIL
 
 // Bug: 767628
 // This fails due to scrolling and event differences.
-V8 | KJS # DEFER : LayoutTests/fast/forms/focus-selection-textarea.html = FAIL
+V8 | KJS # LayoutTests/fast/forms/focus-selection-textarea.html = FAIL
 
 // This tests the screen's pixel depth, which we don't set on the buildbots
 // so it depends on the users settings.  Making this a broken test for us.
 // The test must be fixed to not depend on user settings and rebaselined.  post-beta.
-V8 | KJS # DEFER : LayoutTests/fast/dom/Window/window-screen-properties.html = FAIL
+V8 | KJS # LayoutTests/fast/dom/Window/window-screen-properties.html = FAIL
 
 // Bug: 849060
 // Plugin creation is delayed until after first layout, so
@@ -270,21 +320,20 @@ V8 | KJS # LayoutTests/plugins/netscape-plugin-setwindow-size.html = FAIL
 // gc-6.html failed because the loop in the test didn't allocate enough
 // garbage objects to trigger a GC. It was passing before. The code
 // for triggering GC is unreliable.
-// Not a useful test for us, DEFER
-V8 | KJS # DEFER : LayoutTests/fast/dom/gc-6.html = TIMEOUT
+V8 | KJS # LayoutTests/fast/dom/gc-6.html = TIMEOUT
 
 // Bug: 894476
 // It is flaky on V8 build, we need to investigate it.
 // It fails on KJS build. It is not something for beta.
-KJS # DEFER : LayoutTests/http/tests/security/cross-frame-access-put.html = FAIL
+KJS # LayoutTests/http/tests/security/cross-frame-access-put.html = FAIL
 // It is flaky on V8 build.
 V8 # LayoutTests/http/tests/security/cross-frame-access-put.html = PASS | FAIL
 
 // V8 specific test
-KJS # SKIP | DEFER : chrome/fast/dom/script_lineno.html = FAIL
+KJS # SKIP : chrome/fast/dom/script_lineno.html = FAIL
 
 // KJS doesn't support cross-domain setting of window.opener.
-KJS # DEFER : chrome/http/tests/misc/set-window-opener-to-null.html = FAIL
+KJS # chrome/http/tests/misc/set-window-opener-to-null.html = FAIL
 
 // Bug: 1135526
 // I've not seen the failing results, so it's difficult to guess what might be wrong
@@ -294,29 +343,29 @@ KJS # DEFER : chrome/http/tests/misc/set-window-opener-to-null.html = FAIL
 // setting window.close too early (wild guess).
 // only failing on KJS hence removing V8 (sandholm, 4/29) 
 // Defer until after beta since it only fails in KJS.
-KJS # DEFER : LayoutTests/fast/dom/Window/new-window-opener.html = FAIL
+KJS # LayoutTests/fast/dom/Window/new-window-opener.html = FAIL
 
 // Bug 982602
 // We don't support support window.resizeTo (nor is it planned for Beta)
-V8 | KJS # DEFER : LayoutTests/fast/dom/Window/window-resize-and-move-arguments.html = FAIL
+V8 | KJS # LayoutTests/fast/dom/Window/window-resize-and-move-arguments.html = FAIL
 
 // layoutTestController.setPopupBlockingEnabled() does not exist.
 // Not critical for Beta.
-V8 | KJS # DEFER : LayoutTests/fast/events/open-window-from-another-frame.html = FAIL
+V8 | KJS # LayoutTests/fast/events/open-window-from-another-frame.html = FAIL
 
 // Test expects that when focus is in an iframe and page-up is hit, the parent
 // document is also scrolled
-// IE and FF also "fail" this test.  DEFER
-V8 | KJS # DEFER : LayoutTests/fast/frames/iframe-scroll-page-up-down.html = FAIL
+// IE and FF also "fail" this test.
+V8 | KJS # LayoutTests/fast/frames/iframe-scroll-page-up-down.html = FAIL
 
 // Bug 1082426
 // document.write() pf plain text does not always flush
 // This is a known WebKit bug, https://bugs.webkit.org/show_bug.cgi?id=8961
-V8 | KJS # DEFER : LayoutTests/editing/execCommand/delete-no-scroll.html = FAIL
+V8 | KJS # LayoutTests/editing/execCommand/delete-no-scroll.html = FAIL
 
 // TODO: investigate. Broken with webkit merge 28723:29478
 // KJS only, so we don't care for Beta.
-KJS # DEFER : LayoutTests/http/tests/security/frameNavigation/xss-DENIED-plugin-navigation.html = FAIL
+KJS # LayoutTests/http/tests/security/frameNavigation/xss-DENIED-plugin-navigation.html = FAIL
 
 // Bug: 879449
 // TODO(joshia): Need some changes to the test shell in order to support
@@ -326,131 +375,73 @@ V8 | KJS # LayoutTests/fast/replaced/applet-disabled-positioned.html = FAIL
 V8 | KJS # LayoutTests/fast/replaced/applet-rendering-java-disabled.html = FAIL
 
 // Bug 1198880
-V8 | KJS # DEFER : LayoutTests/svg/custom/svgsvgelement-ctm.xhtml = FAIL
+V8 | KJS # LayoutTests/svg/custom/svgsvgelement-ctm.xhtml = FAIL
 
 // Bug 1204878
 V8 | KJS # LayoutTests/http/tests/navigation/post-goback1.html = FAIL
 
-// -----------------------------------------------------------------
-// PENDING TESTS (forked to pending/, need to be sent upstream)
-// -----------------------------------------------------------------
-
-// BUG 792023. See http://bugs.webkit.org/show_bug.cgi?id=15690 and 16494
-// Fixed tests are in pending directory. (The originals still pass consistently
-// in KJS.)
-V8 # DEFER : LayoutTests/dom/html/level2/html/HTMLFrameElement09.html = FAIL
-V8 # DEFER : LayoutTests/dom/html/level2/html/HTMLIFrameElement11.html = FAIL
-
-// Bug 972450: These tests don't work with fast timers due to setTimeout
-// races. Pending versions have these fixed.
-V8 | KJS # DEFER : LayoutTests/fast/history/history_reload.html = PASS | FAIL
-V8 | KJS # DEFER : LayoutTests/fast/repaint/bugzilla-6473.html = PASS | FAIL
-
-// Bug 982608: test had a wrong result for one condition
-V8 | KJS # DEFER : LayoutTests/plugins/destroy-stream-twice.html = FAIL
-
-// This test has been modified and placed in pending, so we ignore the original
-// until we get our modification into WebKit.
-V8 | KJS # DEFER : LayoutTests/security/block-test.html = PASS | FAIL
-
-// Bug 1124522
-// Test forked into pending and fixed.
-V8 # DEFER : LayoutTests/fast/js/function-toString-parentheses.html = FAIL
-
-// Bug 1132721.  Forked to pending/fast/encoding/script-in-head.html
-// Should get this change pushed upstream and then unfork.
-// Stopped failing
-// V8 # DEFER : LayoutTests/fast/encoding/script-in-head.html = PASS | FAIL | TIMEOUT
-
-// Bug 1143337.  Forked to pending/http/tests/security/.
-V8 | KJS # DEFER : LayoutTests/http/tests/security/cross-frame-access-child-explicit-domain.html = PASS | FAIL | TIMEOUT
-V8 | KJS # DEFER : LayoutTests/http/tests/security/cross-frame-access-parent-explicit-domain.html = PASS | FAIL | TIMEOUT
-V8 | KJS # DEFER : LayoutTests/http/tests/security/cross-frame-access-port-explicit-domain.html = PASS | FAIL | TIMEOUT
-V8 | KJS # DEFER : LayoutTests/http/tests/security/cross-frame-access-port.html = PASS | FAIL | TIMEOUT
-V8 | KJS # DEFER : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = PASS | FAIL | TIMEOUT
-V8 | KJS # DEFER : LayoutTests/http/tests/security/cross-frame-access-protocol.html = PASS | FAIL | TIMEOUT
-V8 | KJS # DEFER : LayoutTests/http/tests/security/protocol-compare-case-insensitive.html = PASS | FAIL | TIMEOUT
-
-// Bug 1199617.  Forked to pending/svg/carto.net/window.svg.
-// Test did not wait for all created functions to be called via
-// setTimeout.
-V8 | KJS # DEFER : LayoutTests/svg/carto.net/window.svg = PASS | FAIL 
-
-// Bug 1064038.  Image with border="1" drawn without the border.
-V8 | KJS # DEFER : pending/fast/forms/image-border.html = FAIL
-
-// Bug 1055396.  Vertical scrollbar created when there is no overflow.
-V8 | KJS # DEFER : pending/fast/forms/textarea-scrollbar-height.html = FAIL
-
-// Bug 1059184.  Dashed border-right isn't drawn on tall elements.
-V8 | KJS # DEFER : pending/css/border-height.html = FAIL
-
-// -----------------------------------------------------------------
-// DEFERRED TESTS (deferred until a future release)
-// -----------------------------------------------------------------
-
 // Bug 1203341: Requires a working postMessage implementation
-V8 # DEFER : LayoutTests/http/tests/security/cross-frame-access-delete.html = TIMEOUT
-V8 # DEFER : LayoutTests/http/tests/security/cross-frame-access-history-put.html = TIMEOUT
-V8 # DEFER : LayoutTests/http/tests/security/cross-frame-access-location-put.html = TIMEOUT
-V8 # DEFER : LayoutTests/http/tests/security/postMessage/domain-and-uri-unaffected-by-base-tag.html = TIMEOUT
-V8 # DEFER : LayoutTests/http/tests/security/postMessage/domain-unaffected-by-document-domain.html = TIMEOUT
-V8 # DEFER : LayoutTests/http/tests/security/postMessage/javascript-page-still-sends-domain.html = TIMEOUT
-V8 # DEFER : LayoutTests/http/tests/messaging/cross-domain-message-send.html = TIMEOUT
+V8 # LayoutTests/http/tests/security/cross-frame-access-delete.html = TIMEOUT
+V8 # LayoutTests/http/tests/security/cross-frame-access-history-put.html = TIMEOUT
+V8 # LayoutTests/http/tests/security/cross-frame-access-location-put.html = TIMEOUT
+V8 # LayoutTests/http/tests/security/postMessage/domain-and-uri-unaffected-by-base-tag.html = TIMEOUT
+V8 # LayoutTests/http/tests/security/postMessage/domain-unaffected-by-document-domain.html = TIMEOUT
+V8 # LayoutTests/http/tests/security/postMessage/javascript-page-still-sends-domain.html = TIMEOUT
+V8 # LayoutTests/http/tests/messaging/cross-domain-message-send.html = TIMEOUT
 
 // Bug 1135948: Fails because we cannot call plugins as functions.
-V8 # DEFER : LayoutTests/plugins/bindings-test.html = FAIL
+V8 # LayoutTests/plugins/bindings-test.html = FAIL
 
 // Bug 1124435: deal with the deletion UI in a later release.
-V8 | KJS # DEFER : LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
+V8 | KJS # LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
 
 // Bug 871718: This test loads data: URLs into frames and sets queries on then.
 // This is totally broken. This layout test should be rewitten so that the
 // subframes are not data URLs (probably we want files in the resources dir.).
-V8 | KJS # DEFER : LayoutTests/fast/encoding/char-encoding.html = TIMEOUT
+V8 | KJS # LayoutTests/fast/encoding/char-encoding.html = TIMEOUT
 
 // Bug 1130795: since we don't have Aqua-themed controls, don't ignore the
 // box-shadow properties of controls that request Aqua theming.  But since Aqua
 // controls are rare on the web, defer this fix.
-V8 | KJS # DEFER : LayoutTests/fast/forms/box-shadow-override.html = FAIL
+V8 | KJS # LayoutTests/fast/forms/box-shadow-override.html = FAIL
 
 // These tests are not valid: the so-called expected results are not known to
 // be correct.  See bug 849072.
 // TODO(ojan): They are *our* tests. 
 // It seems silly to skip our own tests when we can change/delete them.
 // I'm marking them as deferred for now, but we should do something with them.
-V8 | KJS # DEFER | SKIP : chrome/http/mime = PASS
+V8 | KJS # SKIP : chrome/http/mime = PASS
 
 // Bug: 916857: These tests fail because of <audio> and <video>?
 // Removed from the skip-list since they consistently fail quickly.
-V8 | KJS # DEFER : LayoutTests/http/tests/media/video-play-stall.html = FAIL
-V8 | KJS # DEFER : LayoutTests/http/tests/media/video-play-stall-seek.html = FAIL
-V8 | KJS # DEFER : LayoutTests/http/tests/media/video-seekable-stall.html = FAIL
-V8 | KJS # DEFER : LayoutTests/http/tests/media/remove-while-loading.html = FAIL
+V8 | KJS # LayoutTests/http/tests/media/video-play-stall.html = FAIL
+V8 | KJS # LayoutTests/http/tests/media/video-play-stall-seek.html = FAIL
+V8 | KJS # LayoutTests/http/tests/media/video-seekable-stall.html = FAIL
+V8 | KJS # LayoutTests/http/tests/media/remove-while-loading.html = FAIL
 
 // We don't support the storage APIs.  Some of the them hang.
-V8 | KJS # DEFER | SKIP : LayoutTests/storage = PASS
+V8 | KJS # SKIP : LayoutTests/storage = PASS
 
 // Fails due to storage APIs not implemented.  See bug 1124568. Might be worth
 // re-baselining temporarily so the rest of the conditions are still tested.
-V8 | KJS # DEFER : LayoutTests/fast/dom/Window/window-function-name-getter-precedence.html = FAIL
+V8 | KJS # LayoutTests/fast/dom/Window/window-function-name-getter-precedence.html = FAIL
 
 // These tests all time out, which makes running the suite take too long if
 // they're included.  See bug 916857 to investigate <audio> and <video>.
-V8 | KJS # DEFER | SKIP : LayoutTests/media = TIMEOUT
+V8 | KJS # SKIP : LayoutTests/media = TIMEOUT
 
 // Bug 850287: Need better Thai line-breaking.  Not a high priority, because
 // it's acceptable as it is.
-V8 | KJS # DEFER : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
+V8 | KJS # LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
 
 // Bug 941049: Function arguments object is copied for each access.
-V8 # DEFER : LayoutTests/fast/js/kde/function_arguments.html = FAIL
+V8 # LayoutTests/fast/js/kde/function_arguments.html = FAIL
 
 // Bug 1155674: Test sometimes fails on V8 in debug mode, because it's very 
 // timing dependent. We should consider rewriting the test case to give us
 // more wriggle room timing wise (especially for debug builds). Fixing the
 // issue now is not going to improve product quality for beta.
-V8 # DEFER : LayoutTests/fast/forms/search-event-delay.html = PASS | FAIL
+V8 # LayoutTests/fast/forms/search-event-delay.html = PASS | FAIL
 
 
 // The following tests (up to the ---- line below) need to add new methods to
@@ -466,7 +457,7 @@ V8 # DEFER : LayoutTests/fast/forms/search-event-delay.html = PASS | FAIL
 // LayoutTests/fast/css/display-none-inline-style-change-crash.html   somehow
 // the message is dumped after the #EOF, which causes an additional
 // error in the header of the following test.
-V8 | KJS # SKIP | DEFER : LayoutTests/fast/css/disabled-author-styles.html = FAIL
+V8 | KJS # SKIP : LayoutTests/fast/css/disabled-author-styles.html = FAIL
 
 // ------------------------------------------------------------------------- //
 
@@ -475,15 +466,15 @@ V8 | KJS # SKIP | DEFER : LayoutTests/fast/css/disabled-author-styles.html = FAI
 // GDI @font-face support has been implemented upstream, but we don't plan
 // to fork to add support for @font-face for Beta.
 // upstream: http://trac.webkit.org/projects/webkit/changeset/31507
-V8 | KJS # DEFER : LayoutTests/fast/css/font-face-multiple-remote-sources.html = FAIL
-V8 | KJS # DEFER : LayoutTests/fast/css/font-face-remote.html = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/custom/font-face-cascade-order.svg = FAIL
+V8 | KJS # LayoutTests/fast/css/font-face-multiple-remote-sources.html = FAIL
+V8 | KJS # LayoutTests/fast/css/font-face-remote.html = FAIL
+V8 | KJS # LayoutTests/svg/custom/font-face-cascade-order.svg = FAIL
 
 // Bug: 1007391
 // These hit a not-implemented code-path in @font-face code
 // Fixing this should not be required for beta.
-V8 | KJS # DEFER : LayoutTests/fast/css/font-face-implicit-local-font.html = FAIL
-V8 | KJS # DEFER : LayoutTests/fast/css/font-face-unicode-range.html = FAIL
+V8 | KJS # LayoutTests/fast/css/font-face-implicit-local-font.html = FAIL
+V8 | KJS # LayoutTests/fast/css/font-face-unicode-range.html = FAIL
 
 // Bug: 1110028
 // The v8 bindings allow shadowing of all properties on the global object.  If you use 
@@ -492,21 +483,20 @@ V8 | KJS # DEFER : LayoutTests/fast/css/font-face-unicode-range.html = FAIL
 // massive change that would be needed to implement the inconsistent handling of this
 // that KJS has (some properties can be shadowed and others can't).  This should have 
 // low priority.
-// We currently match IE, the plan is to convince KJS to change post-beta.  DEFER (eseidel, 4/25)
-V8 # DEFER : LayoutTests/fast/dom/Window/window-property-shadowing-name.html = TIMEOUT
-V8 # DEFER : LayoutTests/fast/js/var-declarations-shadowing.html = FAIL
+// We currently match IE, the plan is to convince KJS to change post-beta.
+V8 # LayoutTests/fast/dom/Window/window-property-shadowing-name.html = TIMEOUT
+V8 # LayoutTests/fast/js/var-declarations-shadowing.html = FAIL
 
 // This test expects weird behavior of __defineGetter__ on the
 // window object.  It expects variables introduced with 'var x = value'
 // to behave differently from variables introduced with 'y = value'.
 // This just seems wrong and should have very low priority.
 // Agreed, not required for Beta, we can debate this with WebKit post Beta, (eseidel, 4/25)
-V8 # DEFER : LayoutTests/fast/dom/getter-on-window-object2.html = FAIL
+V8 # LayoutTests/fast/dom/getter-on-window-object2.html = FAIL
 
 // Bug: 1042653
 // We don't support WebKit-Editing-Delete-Button
-// We've chosen not to for Beta.  DEFER
-V8 | KJS # DEFER : LayoutTests/editing/deleting/5408255.html = FAIL
+V8 | KJS # LayoutTests/editing/deleting/5408255.html = FAIL
 
 // Bug: 845337
 // Missing two callbacks:
@@ -519,15 +509,14 @@ V8 | KJS # LayoutTests/editing/pasteboard/testcase-9507.html = FAIL
 // Webkit supports them by doing filesystem operations directly.
 // This is disallowed in a sandboxed renderer. The test fails in test_shell.exe because the
 // necessary filesystem stubs are notImplemented(), and would need to be proxied through the browser
-V8 | KJS # DEFER : LayoutTests/http/tests/security/local-user-CSS-from-remote.html = FAIL
+V8 | KJS # LayoutTests/http/tests/security/local-user-CSS-from-remote.html = FAIL
 
 // Extra space at end of test results.  Since this is a crash test, a
 // FAIL here is just as good as running the test normally
 // Not sure why it passes (frequently on V8, rarely on KJS). See bug 1126050.
 // FAIL results from an extra newline at the top of the results
-// the checked in results do not include the PASS text
-// fixing this test file to be reliable does not help Beta.  DEFERing
-V8 | KJS # DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.html = PASS | FAIL
+// the checked in results do not include the PASS text.
+V8 | KJS # LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.html = PASS | FAIL
 
 // -----------------------------------------------------------------
 // SVG TESTS
@@ -564,43 +553,43 @@ V8 | KJS # DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in
 //
 
 // The following tests fail because SVG animation is not yet implemented
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/animate-elem-06-t.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/animate-elem-07-t.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/animate-elem-08-t.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/animate-elem-28-t.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/animate-elem-30-t.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/animate-elem-37-t.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/animate-elem-78-t.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/animate-elem-80-t.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/animate-elem-82-t.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/animate-elem-83-t.svg = FAIL
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-06-t.svg = FAIL
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-07-t.svg = FAIL
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-08-t.svg = FAIL
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-28-t.svg = FAIL
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-30-t.svg = FAIL
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-37-t.svg = FAIL
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-78-t.svg = FAIL
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-80-t.svg = FAIL
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-82-t.svg = FAIL
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-83-t.svg = FAIL
 
 // This test fails because SVG filters are not implemented
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/filters-example-01-b.svg = FAIL
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/filters-example-01-b.svg = FAIL
 
 // These test fail full text diff (but not simplified diff) most likely due 
 // to differing implementations of SVG fonts. They may or may not represent real 
 // bugs which need fixin'
-V8 | KJS # DEFER : LayoutTests/svg/batik/text/smallFonts.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/batik/text/textBiDi.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/batik/text/textGlyphOrientationHorizontal.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/batik/text/textOnPath.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/batik/text/textOnPath2.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/batik/text/textOnPath3.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/batik/text/textOnPathSpaces.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/batik/text/verticalText.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/batik/text/verticalTextOnPath.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/custom/path-textPath-simulation.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
-V8 | KJS # DEFER : LayoutTests/svg/text/text-path-01-b.svg = FAIL
+V8 | KJS # LayoutTests/svg/batik/text/smallFonts.svg = FAIL
+V8 | KJS # LayoutTests/svg/batik/text/textBiDi.svg = FAIL
+V8 | KJS # LayoutTests/svg/batik/text/textGlyphOrientationHorizontal.svg = FAIL
+V8 | KJS # LayoutTests/svg/batik/text/textOnPath.svg = FAIL
+V8 | KJS # LayoutTests/svg/batik/text/textOnPath2.svg = FAIL
+V8 | KJS # LayoutTests/svg/batik/text/textOnPath3.svg = FAIL
+V8 | KJS # LayoutTests/svg/batik/text/textOnPathSpaces.svg = FAIL
+V8 | KJS # LayoutTests/svg/batik/text/verticalText.svg = FAIL
+V8 | KJS # LayoutTests/svg/batik/text/verticalTextOnPath.svg = FAIL
+V8 | KJS # LayoutTests/svg/custom/path-textPath-simulation.svg = FAIL
+V8 | KJS # LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
+V8 | KJS # LayoutTests/svg/text/text-intro-05-t.svg = FAIL
+V8 | KJS # LayoutTests/svg/text/text-path-01-b.svg = FAIL
 
 // This test is failing because Apple's results appear to be bogus. Will let them know.
-V8 | KJS # DEFER : LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL
+V8 | KJS # LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL
 
 // This test fails because of an oddity in stroke width calculation. A
 // line is stroked horizontally from Y=100 with stroke width 100, we consider
@@ -608,41 +597,41 @@ V8 | KJS # DEFER : LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL
 // is a total of 100 lines. Apple expects it to be occupying Y=150 as
 // well. The specification isn't very specific on which behavior is correct,
 // but I feel like ours makes more sense.
-V8 | KJS # DEFER : LayoutTests/svg/custom/stroke-width-click.svg = FAIL
+V8 | KJS # LayoutTests/svg/custom/stroke-width-click.svg = FAIL
 
 // These tests all pass simplified diff, but fail full text diffs due to
 // positions and/or widths that deviate from Apple's expectations by varying
 // degrees. These are almost certainly nonbugs, but won't be rebased until
 // we can say for sure.
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/extend-namespace-01-f.svg = FAIL   // 12 numbers differ, by an absolute total of 73.93
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/fonts-glyph-02-t.svg = FAIL   // 1 numbers differ, by an absolute total of 10.00
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL   // 11 numbers differ, by an absolute total of 1.08
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/paths-data-01-t.svg = FAIL   // 10 numbers differ, by an absolute total of 15.39
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/paths-data-02-t.svg = FAIL   // 20 numbers differ, by an absolute total of 327.17
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/paths-data-03-f.svg = FAIL   // 14 numbers differ, by an absolute total of 58.82
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/paths-data-10-t.svg = FAIL   // 21 numbers differ, by an absolute total of 23.96
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/paths-data-12-t.svg = FAIL   // 8 numbers differ, by an absolute total of 119.28
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/paths-data-15-t.svg = FAIL   // 6 numbers differ, by an absolute total of 21.34
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/struct-group-03-t.svg = FAIL   // 8 numbers differ, by an absolute total of 3.48
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL   // 3 numbers differ, by an absolute total of 42.00
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL   // 18 numbers differ, by an absolute total of 237.00
-V8 | KJS # DEFER : LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL   // 16 numbers differ, by an absolute total of 67.92
-V8 | KJS # DEFER : LayoutTests/svg/custom/control-points-for-S-and-T.svg = FAIL   // 6 numbers differ, by an absolute total of 31.36
-V8 | KJS # DEFER : LayoutTests/svg/custom/dasharrayOrigin.svg = FAIL   // 2 numbers differ, by an absolute total of 0.20
-V8 | KJS # DEFER : LayoutTests/svg/custom/linking-a-03-b-all.svg = FAIL   // 4 numbers differ, by an absolute total of 0.06
-V8 | KJS # DEFER : LayoutTests/svg/custom/linking-a-03-b-viewBox-transform.svg = FAIL   // 4 numbers differ, by an absolute total of 0.06
-V8 | KJS # DEFER : LayoutTests/svg/custom/linking-a-03-b-viewBox.svg = FAIL   // 2 numbers differ, by an absolute total of 0.04
-V8 | KJS # DEFER : LayoutTests/svg/custom/marker-changes.svg = FAIL   // 6 numbers differ, by an absolute total of 5.00
-V8 | KJS # DEFER : LayoutTests/svg/custom/use-css-events.svg = FAIL   // 5 numbers differ, by an absolute total of 27.16
-V8 | KJS # DEFER : LayoutTests/svg/custom/use-on-symbol-inside-pattern.svg = FAIL   // 11 numbers differ, by an absolute total of 4.69
-V8 | KJS # DEFER : LayoutTests/svg/hixie/perf/001.xml = FAIL   // 274 numbers differ, by an absolute total of 157.52
-V8 | KJS # DEFER : LayoutTests/svg/hixie/perf/002.xml = FAIL   // 274 numbers differ, by an absolute total of 157.52
-V8 | KJS # DEFER : LayoutTests/svg/hixie/perf/007.xml = FAIL   // 745 numbers differ, by an absolute total of 37.97
-V8 | KJS # DEFER : LayoutTests/svg/hixie/shapes/path/001.xml = FAIL   // 6 numbers differ, by an absolute total of 100.56
-V8 | KJS # DEFER : LayoutTests/svg/hixie/text/003.html = FAIL   // 1 numbers differ, by an absolute total of 1.00
-V8 | KJS # DEFER : LayoutTests/svg/hixie/text/003a.xml = FAIL   // 1 numbers differ, by an absolute total of 1.00
-V8 | KJS # DEFER : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/001.xml = FAIL   // 2 numbers differ, by an absolute total of 18.00
-V8 | KJS # DEFER : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/002.xml = FAIL   // 3 numbers differ, by an absolute total of 3.00
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/extend-namespace-01-f.svg = FAIL   // 12 numbers differ, by an absolute total of 73.93
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/fonts-glyph-02-t.svg = FAIL   // 1 numbers differ, by an absolute total of 10.00
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL   // 11 numbers differ, by an absolute total of 1.08
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/paths-data-01-t.svg = FAIL   // 10 numbers differ, by an absolute total of 15.39
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/paths-data-02-t.svg = FAIL   // 20 numbers differ, by an absolute total of 327.17
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/paths-data-03-f.svg = FAIL   // 14 numbers differ, by an absolute total of 58.82
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/paths-data-10-t.svg = FAIL   // 21 numbers differ, by an absolute total of 23.96
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/paths-data-12-t.svg = FAIL   // 8 numbers differ, by an absolute total of 119.28
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/paths-data-15-t.svg = FAIL   // 6 numbers differ, by an absolute total of 21.34
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/struct-group-03-t.svg = FAIL   // 8 numbers differ, by an absolute total of 3.48
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL   // 3 numbers differ, by an absolute total of 42.00
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL   // 18 numbers differ, by an absolute total of 237.00
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL   // 16 numbers differ, by an absolute total of 67.92
+V8 | KJS # LayoutTests/svg/custom/control-points-for-S-and-T.svg = FAIL   // 6 numbers differ, by an absolute total of 31.36
+V8 | KJS # LayoutTests/svg/custom/dasharrayOrigin.svg = FAIL   // 2 numbers differ, by an absolute total of 0.20
+V8 | KJS # LayoutTests/svg/custom/linking-a-03-b-all.svg = FAIL   // 4 numbers differ, by an absolute total of 0.06
+V8 | KJS # LayoutTests/svg/custom/linking-a-03-b-viewBox-transform.svg = FAIL   // 4 numbers differ, by an absolute total of 0.06
+V8 | KJS # LayoutTests/svg/custom/linking-a-03-b-viewBox.svg = FAIL   // 2 numbers differ, by an absolute total of 0.04
+V8 | KJS # LayoutTests/svg/custom/marker-changes.svg = FAIL   // 6 numbers differ, by an absolute total of 5.00
+V8 | KJS # LayoutTests/svg/custom/use-css-events.svg = FAIL   // 5 numbers differ, by an absolute total of 27.16
+V8 | KJS # LayoutTests/svg/custom/use-on-symbol-inside-pattern.svg = FAIL   // 11 numbers differ, by an absolute total of 4.69
+V8 | KJS # LayoutTests/svg/hixie/perf/001.xml = FAIL   // 274 numbers differ, by an absolute total of 157.52
+V8 | KJS # LayoutTests/svg/hixie/perf/002.xml = FAIL   // 274 numbers differ, by an absolute total of 157.52
+V8 | KJS # LayoutTests/svg/hixie/perf/007.xml = FAIL   // 745 numbers differ, by an absolute total of 37.97
+V8 | KJS # LayoutTests/svg/hixie/shapes/path/001.xml = FAIL   // 6 numbers differ, by an absolute total of 100.56
+V8 | KJS # LayoutTests/svg/hixie/text/003.html = FAIL   // 1 numbers differ, by an absolute total of 1.00
+V8 | KJS # LayoutTests/svg/hixie/text/003a.xml = FAIL   // 1 numbers differ, by an absolute total of 1.00
+V8 | KJS # LayoutTests/svg/hixie/viewbox/preserveAspectRatio/001.xml = FAIL   // 2 numbers differ, by an absolute total of 18.00
+V8 | KJS # LayoutTests/svg/hixie/viewbox/preserveAspectRatio/002.xml = FAIL   // 3 numbers differ, by an absolute total of 3.00
 
 // This is an interesting one.
 // The test has an error which causes it to output a message to the console.
@@ -657,19 +646,19 @@ V8 | KJS # DEFER : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/002.xml = F
 // failure in any way and nothing needs to be done to fix it. I'm leaving it
 // in tests_fixable in case we change the test shell's webview delegate to
 // ignore console messages while doing a pixel dump
-V8 | KJS # DEFER : LayoutTests/svg/custom/clip-path-referencing-use2.svg = FAIL
+V8 | KJS # LayoutTests/svg/custom/clip-path-referencing-use2.svg = FAIL
 
 // Bug 1107191.  These flakily fail image diffs.  Punting on SVG for now.
 // Note that the "expected" images checked in are not necessarily correct.
-V8 # DEFER : LayoutTests/svg/W3C-SVG-1.1/text-text-03-b.svg = PASS | FAIL
-V8 # DEFER : LayoutTests/svg/batik/text/textDecoration2.svg = PASS | FAIL
-V8 # DEFER : LayoutTests/svg/batik/text/textFeatures.svg = PASS | FAIL
-V8 # DEFER : LayoutTests/svg/batik/text/textProperties.svg = PASS | FAIL
-V8 # DEFER : LayoutTests/svg/batik/text/textStyles.svg = PASS | FAIL
-V8 # DEFER : LayoutTests/svg/text/text-text-03-b.svg = PASS | FAIL
+V8 # LayoutTests/svg/W3C-SVG-1.1/text-text-03-b.svg = PASS | FAIL
+V8 # LayoutTests/svg/batik/text/textDecoration2.svg = PASS | FAIL
+V8 # LayoutTests/svg/batik/text/textFeatures.svg = PASS | FAIL
+V8 # LayoutTests/svg/batik/text/textProperties.svg = PASS | FAIL
+V8 # LayoutTests/svg/batik/text/textStyles.svg = PASS | FAIL
+V8 # LayoutTests/svg/text/text-text-03-b.svg = PASS | FAIL
 // These consistently fail with image diffs.
-V8 # DEFER : LayoutTests/svg/text/text-deco-01-b.svg = FAIL
-V8 # DEFER : LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
+V8 # LayoutTests/svg/text/text-deco-01-b.svg = FAIL
+V8 # LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
 
 //
 // -----------------------------------------------------------------
@@ -679,32 +668,32 @@ V8 # DEFER : LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
 // Bug: 1026885
 // Following tests are failing because Chrome does not allow file url
 // to access non-file urls.
-V8 | KJS # DEFER : LayoutTests/editing/selection/4960137.html = FAIL
-V8 | KJS # DEFER : LayoutTests/editing/selection/cleared-by-relayout.html = FAIL
-V8 | KJS # DEFER : LayoutTests/editing/selection/inactive-selection.html = FAIL
-V8 | KJS # DEFER : LayoutTests/fast/dom/Element/offsetLeft-offsetTop-body-quirk.html = FAIL
-V8 | KJS # DEFER : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = FAIL
-V8 | KJS # DEFER : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
-V8 | KJS # DEFER : LayoutTests/fast/dom/wrapper-classes.html = FAIL
-V8 | KJS # DEFER : LayoutTests/fast/frames/frame-src-attribute.html = FAIL
-V8 | KJS # DEFER : LayoutTests/fast/leaks/002.html = FAIL
-V8 | KJS # DEFER : LayoutTests/fast/dom/gc-7.html = TIMEOUT
-V8 | KJS # DEFER : LayoutTests/fast/frames/frame-set-same-location.html = TIMEOUT
-V8 | KJS # DEFER : LayoutTests/fast/frames/frame-set-same-src.html = TIMEOUT
-V8 | KJS # DEFER : LayoutTests/fast/frames/hover-timer-crash.html = TIMEOUT
+V8 | KJS # LayoutTests/editing/selection/4960137.html = FAIL
+V8 | KJS # LayoutTests/editing/selection/cleared-by-relayout.html = FAIL
+V8 | KJS # LayoutTests/editing/selection/inactive-selection.html = FAIL
+V8 | KJS # LayoutTests/fast/dom/Element/offsetLeft-offsetTop-body-quirk.html = FAIL
+V8 | KJS # LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = FAIL
+V8 | KJS # LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
+V8 | KJS # LayoutTests/fast/dom/wrapper-classes.html = FAIL
+V8 | KJS # LayoutTests/fast/frames/frame-src-attribute.html = FAIL
+V8 | KJS # LayoutTests/fast/leaks/002.html = FAIL
+V8 | KJS # LayoutTests/fast/dom/gc-7.html = TIMEOUT
+V8 | KJS # LayoutTests/fast/frames/frame-set-same-location.html = TIMEOUT
+V8 | KJS # LayoutTests/fast/frames/frame-set-same-src.html = TIMEOUT
+V8 | KJS # LayoutTests/fast/frames/hover-timer-crash.html = TIMEOUT
 
 // Bug: 1045048
 // We haven't implemented GCController in test shell
 // Not critical for Beta.  We have window.gc() for other tests.
-V8 | KJS # DEFER : LayoutTests/fast/js/garbage-collect-after-string-appends.html = FAIL
+V8 | KJS # LayoutTests/fast/js/garbage-collect-after-string-appends.html = FAIL
 
 // Bug: 1115062
 // These fail the pixel tests in debug mode because they have
 // unpainted space (filled red in Debug but not in Release).
 // These have been filed upstream, and should be deferred from Beta
 // https://bugs.webkit.org/show_bug.cgi?id=8423
-V8 # DEFER : LayoutTests/tables/mozilla_expected_failures/bugs/bug178855.xml = PASS | FAIL
-V8 # DEFER : LayoutTests/fast/flexbox/flex-hang.html = PASS | FAIL
+V8 # LayoutTests/tables/mozilla_expected_failures/bugs/bug178855.xml = PASS | FAIL
+V8 # LayoutTests/fast/flexbox/flex-hang.html = PASS | FAIL
 
 // We expect this to fail because we can't force a GC on KJS. 
 // Not sure why it crashes.
@@ -714,40 +703,40 @@ KJS # chrome/plugins/refcount-leaks.html = FAIL | CRASH
 // Bug: 1112288
 // This test fails in KJS release build.
 // Since this failure is KJS only, we don't care for Beta.
-KJS # DEFER : LayoutTests/fast/js/kde/Number.html = FAIL
+KJS # LayoutTests/fast/js/kde/Number.html = FAIL
 
 // Bug: 1010703
 // Fails only for KJS, so we don't care for Beta.
-KJS # DEFER : chrome/fast/events/nested-window-event.html = FAIL
+KJS # chrome/fast/events/nested-window-event.html = FAIL
 
 // Fails only for KJS, so we don't care for Beta.
-KJS # DEFER : chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
+KJS # chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 
 // Bug: 1093606
 // Crashes both Chrome and Safari. We don't care about KJS for beta.
-KJS # DEFER : chrome/plugins/nested-plugin-objects.html = PASS | CRASH
+KJS # chrome/plugins/nested-plugin-objects.html = PASS | CRASH
 
 // Bug: 1155685
 // Flaky, but only on KJS.  We don't care about KJS for beta.
-KJS # DEFER : pending/fast/dom/DOMImplementation/singleton-modifications.html = FAIL | PASS
+KJS # pending/fast/dom/DOMImplementation/singleton-modifications.html = FAIL | PASS
 
 // Bug: 1166260
-V8 # DEFER : LayoutTests/fast/canvas/gradient-empty-path.html = FAIL
+V8 # LayoutTests/fast/canvas/gradient-empty-path.html = FAIL
 
 // Bug: 1166644
 // Fails on webkit windows as well. 
-V8 | KJS # DEFER : LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
+V8 | KJS # LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
 
 // Bug: 1170198
 // Intentionally failing to avoid XML External Entity exploit
 // until https://bugs.webkit.org/show_bug.cgi?id=19199 is fixed.
-V8 | KJS # DEFER : LayoutTests/fast/parser/external-entities-in-xslt.xml = FAIL
-V8 | KJS # DEFER : LayoutTests/fast/xsl/dtd-in-source-document.xml = FAIL
-V8 | KJS # DEFER : LayoutTests/fast/xsl/xslt-second-level-import.xml = FAIL
+V8 | KJS # LayoutTests/fast/parser/external-entities-in-xslt.xml = FAIL
+V8 | KJS # LayoutTests/fast/xsl/dtd-in-source-document.xml = FAIL
+V8 | KJS # LayoutTests/fast/xsl/xslt-second-level-import.xml = FAIL
 
 // Bug 1226853: Fails on v8-latest after const changes (r123300). Test
 // has been rebaselined (don't declare const x twice).
-V8 # DEFER : LayoutTests/fast/js/const.html = FAIL
+V8 # LayoutTests/fast/js/const.html = FAIL
 
 // Bug 1237779
 // gc-2.html tests that a DOM tree out of document should be kept alive if
@@ -755,4 +744,4 @@ V8 # DEFER : LayoutTests/fast/js/const.html = FAIL
 // not trace DOM objects not in a document.
 // Also the way to trigger GC is not reliable, that's why sometimes it is
 // passing and sometimes not.
-V8 # DEFER : LayoutTests/fast/dom/gc-2.html = FAIL | PASS
+V8 # LayoutTests/fast/dom/gc-2.html = FAIL | PASS
