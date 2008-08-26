@@ -224,7 +224,7 @@ void BaseButton::NotifyClick(int mouse_event_flags) {
 
 bool BaseButton::OnKeyPressed(const KeyEvent& e) {
   if (state_ != BS_DISABLED) {
-    if ((e.GetCharacter() == L' ') || (e.GetCharacter() == L'\n')) {
+    if ((e.GetCharacter() == VK_SPACE) || (e.GetCharacter() == VK_RETURN)) {
       SetState(BS_PUSHED);
       return true;
     }
@@ -234,7 +234,7 @@ bool BaseButton::OnKeyPressed(const KeyEvent& e) {
 
 bool BaseButton::OnKeyReleased(const KeyEvent& e) {
   if (state_ != BS_DISABLED) {
-    if ((e.GetCharacter() == L' ') || (e.GetCharacter() == L'\n')) {
+    if ((e.GetCharacter() == VK_SPACE) || (e.GetCharacter() == VK_RETURN)) {
       SetState(BS_NORMAL);
       NotifyClick(0);
       return true;

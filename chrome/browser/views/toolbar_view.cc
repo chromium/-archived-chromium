@@ -359,6 +359,13 @@ void BrowserToolbarView::DidGainFocus() {
   // Set hot-tracking for child, and update focused_view for MSAA focus event.
   if (acc_focused_view_) {
     acc_focused_view_->SetHotTracked(true);
+    
+    // Show the tooltip for the view that got the focus.
+    if (GetViewContainer()->GetTooltipManager()) {
+      GetViewContainer()->GetTooltipManager()->
+          ShowKeyboardTooltip(acc_focused_view_);
+    }
+
     // Update focused_view with MSAA-adjusted child id.
     view_index = acc_focused_view_->GetID();
   }
@@ -403,7 +410,7 @@ bool BrowserToolbarView::OnKeyPressed(const ChromeViews::KeyEvent& e) {
         // then active tooltip should be hidden.
         if (GetViewContainer()->GetTooltipManager())
           GetViewContainer()->GetTooltipManager()->HideKeyboardTooltip();
-        // Safe to cast, given to above check.
+        // Safe to cast, given to above view id check.
         static_cast<ChromeViews::MenuButton*>(acc_focused_view_)->Activate();
         // Re-enable hot-tracking, as Activate() will disable it.
         acc_focused_view_->SetHotTracked(true);
@@ -434,9 +441,10 @@ bool BrowserToolbarView::OnKeyPressed(const ChromeViews::KeyEvent& e) {
     HWND hwnd = GetViewContainer()->GetHWND();
 
     // Show the tooltip for the view that got the focus.
-    if (GetViewContainer()->GetTooltipManager())
+    if (GetViewContainer()->GetTooltipManager()) {
       GetViewContainer()->GetTooltipManager()->
-                          ShowKeyboardTooltip(GetChildViewAt(next_view));
+          ShowKeyboardTooltip(GetChildViewAt(next_view));
+    }
     // Notify Access Technology that there was a change in keyboard focus.
     ::NotifyWinEvent(EVENT_OBJECT_FOCUS, hwnd, OBJID_CLIENT,
                      static_cast<LONG>(view_id));
@@ -632,13 +640,22 @@ int BrowserToolbarView::GetNextAccessibleViewIndex(int view_index,
 
   int current_view_index = view_index + modifier;
 
-  if ((current_view_index >= 0) && (current_view_index < GetChildViewCount())) {
-    // Skip the location bar, as it has its own keyboard navigation.
-    if (current_view_index == GetChildIndex(location_bar_))
+  while ((current_view_index >= 0) &&
+         (current_view_index < GetChildViewCount())) {
+    // Skip the location bar, as it has its own keyboard navigation. Also skip
+    // any views that cannot be interacted with.
+    if (current_view_index == GetChildIndex(location_bar_) ||
+        !GetChildViewAt(current_view_index)->IsEnabled() ||
+        !GetChildViewAt(current_view_index)->IsVisible()) {
       current_view_index += modifier;
-
+      continue;
+    }
+    // Update view_index with the available button index found.
     view_index = current_view_index;
+    break;
   }
+  // Returns the next available button index, or if no button is available in
+  // the specified direction, remains where it was.
   return view_index;
 }
 

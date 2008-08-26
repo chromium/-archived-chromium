@@ -207,7 +207,7 @@ void MenuButton::OnMouseReleased(const ChromeViews::MouseEvent& e,
 
 // When the space bar or the enter key is pressed we need to show the menu.
 bool MenuButton::OnKeyReleased(const KeyEvent& e) {
-  if ((e.GetCharacter() == L' ') || (e.GetCharacter() == L'\n')) {
+  if ((e.GetCharacter() == VK_SPACE) || (e.GetCharacter() == VK_RETURN)) {
     return Activate();
   }
   return true;
