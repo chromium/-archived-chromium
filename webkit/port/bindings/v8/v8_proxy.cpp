@@ -183,7 +183,40 @@ void V8Proxy::UnregisterGlobalHandle(void* host,
   ASSERT(info->host_ == host);
   delete info;
 }
-#endif
+#endif  // ifndef NDEBUG
+
+void BatchConfigureAttributes(v8::Handle<v8::ObjectTemplate> inst,
+                              v8::Handle<v8::ObjectTemplate> proto,
+                              const BatchedAttribute* attrs,
+                              size_t num_attrs) {
+  for (size_t i = 0; i < num_attrs; ++i) {
+    const BatchedAttribute* a = &attrs[i];
+    (a->on_proto ? proto : inst)->SetAccessor(
+        v8::String::New(a->name),
+        a->getter,
+        a->setter,
+        a->data == V8ClassIndex::INVALID_CLASS_INDEX
+            ? v8::Handle<v8::Value>()
+            : v8::Integer::New(V8ClassIndex::ToInt(a->data)),
+        a->settings,
+        a->attribute);
+  }
+}
+
+void BatchConfigureConstants(v8::Handle<v8::FunctionTemplate> desc,
+                             v8::Handle<v8::ObjectTemplate> proto,
+                             const BatchedConstant* consts,
+                             size_t num_consts) {
+  for (size_t i = 0; i < num_consts; ++i) {
+    const BatchedConstant* c = &consts[i];
+    desc->Set(v8::String::New(c->name),
+              v8::Integer::New(c->value),
+              v8::ReadOnly);
+    proto->Set(v8::String::New(c->name),
+               v8::Integer::New(c->value),
+               v8::ReadOnly);
+  }
+}
 
 
 typedef HashMap<Node*, v8::Object*> NodeMap;

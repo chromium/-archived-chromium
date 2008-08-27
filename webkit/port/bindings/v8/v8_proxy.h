@@ -103,6 +103,41 @@ class GlobalHandleInfo {
 
 #endif  // NDEBUG
 
+// The following Batch structs and methods are used for setting multiple
+// properties on an ObjectTemplate, used from the generated bindings
+// initialization (ConfigureXXXTemplate).  This greatly reduces the binary
+// size by moving from code driven setup to data table driven setup.
+
+// BatchedAttribute translates into calls to SetAccessor() on either the
+// instance or the prototype ObjectTemplate, based on |on_proto|.
+struct BatchedAttribute {
+  const char* const name;
+  v8::AccessorGetter getter;
+  v8::AccessorSetter setter;
+  V8ClassIndex::V8WrapperType data;
+  v8::AccessControl settings;
+  v8::PropertyAttribute attribute;
+  bool on_proto;
+};
+
+void BatchConfigureAttributes(v8::Handle<v8::ObjectTemplate> inst,
+                              v8::Handle<v8::ObjectTemplate> proto,
+                              const BatchedAttribute* attrs,
+                              size_t num_attrs);
+
+// BhatchedConstant translates into calls to Set() for setting up an object's
+// constants.  It sets the constant on both the FunctionTemplate |desc| and the
+// ObjectTemplate |proto|.  PropertyAttributes is always ReadOnly.
+struct BatchedConstant {
+  const char* const name;
+  int value;
+};
+
+void BatchConfigureConstants(v8::Handle<v8::FunctionTemplate> desc,
+                             v8::Handle<v8::ObjectTemplate> proto,
+                             const BatchedConstant* consts,
+                             size_t num_consts);
+
 class V8Proxy {
  public:
   // The types of javascript errors that can be thrown.
