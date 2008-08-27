@@ -5880,12 +5880,8 @@
 		ABCF2EE60E075FD900763F29 /* RenderThemeMacSkia.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABCF2EE40E075FD900763F29 /* RenderThemeMacSkia.mm */; };
 		ABD16FA80DC6D4CF0013D3AA /* webinputevent_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 825405440D92E3DA0006B936 /* webinputevent_mac.mm */; };
 		ABD16FA90DC6D4D70013D3AA /* webinputevent.h in Headers */ = {isa = PBXBuildFile; fileRef = 825405450D92E3DA0006B936 /* webinputevent.h */; };
-		ABDBD0F70E07611E005DDFD1 /* ScrollViewMacSkia.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABF5263F0E075D17005EECE5 /* ScrollViewMacSkia.mm */; };
-		ABDBD0F80E076121005DDFD1 /* ScrollViewMacSkia.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABF5263F0E075D17005EECE5 /* ScrollViewMacSkia.mm */; };
 		ABDBD10F0E0762C8005DDFD1 /* RenderThemeMacSkia.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABCF2EE40E075FD900763F29 /* RenderThemeMacSkia.mm */; };
 		ABDBD1100E0762CD005DDFD1 /* RenderThemeMacSkia.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABCF2EE40E075FD900763F29 /* RenderThemeMacSkia.mm */; };
-		ABF526400E075D17005EECE5 /* ScrollViewMacSkia.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABF5263F0E075D17005EECE5 /* ScrollViewMacSkia.mm */; };
-		ABF526410E075D17005EECE5 /* ScrollViewMacSkia.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABF5263F0E075D17005EECE5 /* ScrollViewMacSkia.mm */; };
 		E45062E10E40B5420025A81A /* SkiaUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45062DF0E40B5420025A81A /* SkiaUtils.cpp */; };
 		E45062E20E40B5420025A81A /* SkiaUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = E45062E00E40B5420025A81A /* SkiaUtils.h */; };
 		E45062E30E40B5420025A81A /* SkiaUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45062DF0E40B5420025A81A /* SkiaUtils.cpp */; };
@@ -7479,7 +7475,6 @@
 		E456268C0E268E87005E4685 /* PathCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FC10D7F3CC1001ECF42 /* PathCG.cpp */; };
 		E456268D0E268E87005E4685 /* PDFDocumentImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FC20D7F3CC1001ECF42 /* PDFDocumentImage.cpp */; };
 		E456268E0E268E87005E4685 /* WebCoreURLResponse.mm in Sources */ = {isa = PBXBuildFile; fileRef = 820A61940DE7592C00871E2D /* WebCoreURLResponse.mm */; };
-		E456268F0E268E87005E4685 /* ScrollViewMacSkia.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABF5263F0E075D17005EECE5 /* ScrollViewMacSkia.mm */; };
 		E45626900E268E87005E4685 /* RenderThemeMacSkia.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABCF2EE40E075FD900763F29 /* RenderThemeMacSkia.mm */; };
 		E45626A80E268F03005E4685 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BBFD2130DB7D09D00C447C7 /* config.h */; };
 		E45626A90E268F03005E4685 /* alt_404_page_resource_fetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 825404EC0D92E3DA0006B936 /* alt_404_page_resource_fetcher.h */; };
@@ -7638,6 +7633,9 @@
 		E499F6090E646DCF00DFB0F8 /* BackForwardList.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E8BCB0D7F3B39001ECF42 /* BackForwardList.h */; };
 		E49E4D960E5DEA6000AD47F7 /* BackForwardList.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E8BCB0D7F3B39001ECF42 /* BackForwardList.h */; };
 		E49E4D970E5DEA6100AD47F7 /* BackForwardList.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B5E8BCB0D7F3B39001ECF42 /* BackForwardList.h */; };
+		E49E507D0E65D36300AD47F7 /* ScrollViewMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E49E507C0E65D36300AD47F7 /* ScrollViewMac.mm */; };
+		E49E507E0E65D36300AD47F7 /* ScrollViewMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E49E507C0E65D36300AD47F7 /* ScrollViewMac.mm */; };
+		E49E507F0E65D36300AD47F7 /* ScrollViewMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E49E507C0E65D36300AD47F7 /* ScrollViewMac.mm */; };
 		E4A134090E37C47E00110AA2 /* v8_proxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095EA0DAFF0DD00F72082 /* v8_proxy.cpp */; };
 		E4A238C70E3FA19C002BDE14 /* image_decoder.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A238C50E3FA19C002BDE14 /* image_decoder.cc */; };
 		E4A238C80E3FA19C002BDE14 /* image_decoder.h in Headers */ = {isa = PBXBuildFile; fileRef = E4A238C60E3FA19C002BDE14 /* image_decoder.h */; };
@@ -12999,7 +12997,6 @@
 		82C260770DCBA03E005CFE91 /* XBMImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XBMImageDecoder.cpp; sourceTree = "<group>"; };
 		AB7933600DC649EF00BC58F3 /* CharsetData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CharsetData.cpp; sourceTree = "<group>"; };
 		ABCF2EE40E075FD900763F29 /* RenderThemeMacSkia.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RenderThemeMacSkia.mm; path = port/platform/RenderThemeMacSkia.mm; sourceTree = SOURCE_ROOT; };
-		ABF5263F0E075D17005EECE5 /* ScrollViewMacSkia.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ScrollViewMacSkia.mm; path = ../../../../../webkit/port/platform/ScrollViewMacSkia.mm; sourceTree = "<group>"; };
 		E45062DF0E40B5420025A81A /* SkiaUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkiaUtils.cpp; sourceTree = "<group>"; };
 		E45062E00E40B5420025A81A /* SkiaUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkiaUtils.h; sourceTree = "<group>"; };
 		E45626950E268E87005E4685 /* libWebCore_v8_chrome.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWebCore_v8_chrome.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -13011,6 +13008,7 @@
 		E48A06D90E3F840F00172919 /* image_resource_fetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = image_resource_fetcher.h; path = glue/image_resource_fetcher.h; sourceTree = "<group>"; };
 		E48A07220E3F95A000172919 /* NativeImageSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NativeImageSkia.cpp; sourceTree = "<group>"; };
 		E48A07230E3F95A000172919 /* NativeImageSkia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeImageSkia.h; sourceTree = "<group>"; };
+		E49E507C0E65D36300AD47F7 /* ScrollViewMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ScrollViewMac.mm; path = port/platform/mac/ScrollViewMac.mm; sourceTree = SOURCE_ROOT; };
 		E4A238C50E3FA19C002BDE14 /* image_decoder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = image_decoder.cc; path = glue/image_decoder.cc; sourceTree = "<group>"; };
 		E4A238C60E3FA19C002BDE14 /* image_decoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = image_decoder.h; path = glue/image_decoder.h; sourceTree = "<group>"; };
 		E4A970720E36128B00E8EF3B /* FrameWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FrameWin.h; path = port/bridge/FrameWin.h; sourceTree = SOURCE_ROOT; };
@@ -16188,7 +16186,7 @@
 				7B5E90F20D7F3CC2001ECF42 /* PlatformScrollBarMac.mm */,
 				7B5E90F30D7F3CC2001ECF42 /* PlugInInfoStoreMac.mm */,
 				7B5E90F40D7F3CC2001ECF42 /* PopupMenuMac.mm */,
-				ABF5263F0E075D17005EECE5 /* ScrollViewMacSkia.mm */,
+				E49E507C0E65D36300AD47F7 /* ScrollViewMac.mm */,
 				7B5E90F60D7F3CC2001ECF42 /* SearchPopupMenuMac.mm */,
 				7B5E90F70D7F3CC2001ECF42 /* SharedBufferMac.mm */,
 				7B5E90F80D7F3CC2001ECF42 /* SharedTimerMac.cpp */,
@@ -23568,7 +23566,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				7B0E5AFD0DB3DC51007D4907 /* devnull.cpp in Sources */,
-				ABF526410E075D17005EECE5 /* ScrollViewMacSkia.mm in Sources */,
 				ABCF2EE60E075FD900763F29 /* RenderThemeMacSkia.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -23578,7 +23575,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				7B12F8C30D8F41F300CB6E8F /* devnull.cpp in Sources */,
-				ABF526400E075D17005EECE5 /* ScrollViewMacSkia.mm in Sources */,
 				ABCF2EE50E075FD900763F29 /* RenderThemeMacSkia.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -24445,11 +24441,11 @@
 				82C261600DCBB3BB005CFE91 /* PathCG.cpp in Sources */,
 				82C261610DCBB3BB005CFE91 /* PDFDocumentImage.cpp in Sources */,
 				820A61980DE7592C00871E2D /* WebCoreURLResponse.mm in Sources */,
-				ABDBD0F80E076121005DDFD1 /* ScrollViewMacSkia.mm in Sources */,
 				ABDBD1100E0762CD005DDFD1 /* RenderThemeMacSkia.mm in Sources */,
 				82A9A8CC0E3E4BBF0038C474 /* FrameMac.mm in Sources */,
 				82761E950E3FA26E0030D324 /* TextCodecMac.cpp in Sources */,
 				82761F870E3FAC700030D324 /* AccessibilityObject.cpp in Sources */,
+				E49E507E0E65D36300AD47F7 /* ScrollViewMac.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -25338,9 +25334,9 @@
 				82C261500DCBB3BB005CFE91 /* PathCG.cpp in Sources */,
 				82C261510DCBB3BB005CFE91 /* PDFDocumentImage.cpp in Sources */,
 				820A61960DE7592C00871E2D /* WebCoreURLResponse.mm in Sources */,
-				ABDBD0F70E07611E005DDFD1 /* ScrollViewMacSkia.mm in Sources */,
 				ABDBD10F0E0762C8005DDFD1 /* RenderThemeMacSkia.mm in Sources */,
 				82761F830E3FAC700030D324 /* AccessibilityObject.cpp in Sources */,
+				E49E507F0E65D36300AD47F7 /* ScrollViewMac.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -27067,11 +27063,11 @@
 				E456268C0E268E87005E4685 /* PathCG.cpp in Sources */,
 				E456268D0E268E87005E4685 /* PDFDocumentImage.cpp in Sources */,
 				E456268E0E268E87005E4685 /* WebCoreURLResponse.mm in Sources */,
-				E456268F0E268E87005E4685 /* ScrollViewMacSkia.mm in Sources */,
 				E45626900E268E87005E4685 /* RenderThemeMacSkia.mm in Sources */,
 				82A9A8CF0E3E4EE80038C474 /* FrameMac.mm in Sources */,
 				82761E970E3FA26F0030D324 /* TextCodecMac.cpp in Sources */,
 				82761F850E3FAC700030D324 /* AccessibilityObject.cpp in Sources */,
+				E49E507D0E65D36300AD47F7 /* ScrollViewMac.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
