@@ -147,6 +147,8 @@ TEST_F(IconUtilTest, TestCreateIconFileInvalidParameters) {
 
   // Invalid file name.
   bitmap->allocPixels();
+  // Setting the pixels to black.
+  memset(bitmap->getPixels(), 0, bitmap->width() * bitmap->height() * 4);
   EXPECT_FALSE(IconUtil::CreateIconFileFromSkBitmap(*bitmap,
                                                     invalid_icon_filename));
 }
