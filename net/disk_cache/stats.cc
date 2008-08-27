@@ -107,8 +107,6 @@ bool CreateStats(BackendImpl* backend, Addr* address, OnDiskStats* stats) {
 }
 
 bool Stats::Init(BackendImpl* backend, uint32* storage_addr) {
-  backend_ = backend;
-
   OnDiskStats stats;
   Addr address(*storage_addr);
   if (address.is_initialized()) {
@@ -121,6 +119,7 @@ bool Stats::Init(BackendImpl* backend, uint32* storage_addr) {
   }
 
   storage_addr_ = address.value();
+  backend_ = backend;
 
   memcpy(data_sizes_, stats.data_sizes, sizeof(data_sizes_));
   memcpy(counters_, stats.counters, sizeof(counters_));

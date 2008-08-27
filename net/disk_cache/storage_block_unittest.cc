@@ -42,7 +42,7 @@ TEST(DiskCacheTest, StorageBlock_SetData) {
   disk_cache::CacheEntryBlock entry2(file, disk_cache::Addr(0xa0010002));
   EXPECT_TRUE(entry2.Load());
   EXPECT_TRUE(entry2.Data() != NULL);
-  EXPECT_EQ(0, entry2.Data()->hash);
+  EXPECT_TRUE(0 == entry2.Data()->hash);
 
   EXPECT_TRUE(entry2.Data() != entry1.Data());
   entry2.SetData(entry1.Data());
@@ -60,13 +60,13 @@ TEST(DiskCacheTest, StorageBlock_SetModified) {
   disk_cache::CacheEntryBlock* entry1 =
       new disk_cache::CacheEntryBlock(file, disk_cache::Addr(0xa0010003));
   EXPECT_TRUE(entry1->Load());
-  EXPECT_EQ(0, entry1->Data()->hash);
+  EXPECT_TRUE(0 == entry1->Data()->hash);
   entry1->Data()->hash = 0x45687912;
   entry1->set_modified();
   delete entry1;
 
   disk_cache::CacheEntryBlock entry2(file, disk_cache::Addr(0xa0010003));
   EXPECT_TRUE(entry2.Load());
-  EXPECT_EQ(0x45687912, entry2.Data()->hash);
+  EXPECT_TRUE(0x45687912 == entry2.Data()->hash);
 }
 

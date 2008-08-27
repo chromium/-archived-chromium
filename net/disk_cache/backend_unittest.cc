@@ -4,6 +4,8 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/platform_thread.h"
+#include "base/string_util.h"
 #include "net/base/net_errors.h"
 #include "net/disk_cache/backend_impl.h"
 #include "net/disk_cache/disk_cache_test_base.h"
@@ -158,17 +160,17 @@ void DiskCacheBackendTest::BackendKeying() {
   entry2->Close();
 
   char buffer[30];
-  EXPECT_EQ(0, strcpy_s(buffer, kName1));
+  base::strlcpy(buffer, kName1, sizeof(buffer));
   ASSERT_TRUE(cache_->OpenEntry(buffer, &entry2));
   EXPECT_TRUE(entry1 == entry2);
   entry2->Close();
 
-  EXPECT_EQ(0, strcpy_s(buffer + 1, sizeof(buffer) - 1 , kName1));
+  base::strlcpy(buffer + 1, kName1, sizeof(buffer) - 1);
   ASSERT_TRUE(cache_->OpenEntry(buffer + 1, &entry2));
   EXPECT_TRUE(entry1 == entry2);
   entry2->Close();
 
-  EXPECT_EQ(0, strcpy_s(buffer + 3, sizeof(buffer) - 3,  kName1));
+  base::strlcpy(buffer + 3,  kName1, sizeof(buffer) - 3);
   ASSERT_TRUE(cache_->OpenEntry(buffer + 3, &entry2));
   EXPECT_TRUE(entry1 == entry2);
   entry2->Close();
@@ -334,8 +336,8 @@ TEST_F(DiskCacheBackendTest, ValidEntry) {
   ASSERT_TRUE(cache_->CreateEntry(key, &entry1));
 
   char data[] = "And the data to save";
-  EXPECT_EQ(sizeof(data), entry1->WriteData(0, 0, data, sizeof(data), NULL,
-                                            false));
+  EXPECT_TRUE(sizeof(data) == entry1->WriteData(0, 0, data, sizeof(data), NULL,
+                                                false));
   entry1->Close();
   SimulateCrash();
 
@@ -343,7 +345,8 @@ TEST_F(DiskCacheBackendTest, ValidEntry) {
 
   char buffer[40];
   memset(buffer, 0, sizeof(buffer));
-  EXPECT_EQ(sizeof(data), entry1->ReadData(0, 0, buffer, sizeof(data), NULL));
+  EXPECT_TRUE(sizeof(data) == entry1->ReadData(0, 0, buffer, sizeof(data),
+                                               NULL));
   entry1->Close();
   EXPECT_STREQ(data, buffer);
 }
@@ -361,8 +364,8 @@ TEST_F(DiskCacheBackendTest, InvalidEntry) {
   ASSERT_TRUE(cache_->CreateEntry(key, &entry1));
 
   char data[] = "And the data to save";
-  EXPECT_EQ(sizeof(data), entry1->WriteData(0, 0, data, sizeof(data), NULL,
-                                            false));
+  EXPECT_TRUE(sizeof(data) == entry1->WriteData(0, 0, data, sizeof(data), NULL,
+                                                false));
   SimulateCrash();
 
   EXPECT_FALSE(cache_->OpenEntry(key, &entry1));
@@ -381,11 +384,11 @@ TEST_F(DiskCacheBackendTest, InvalidEntryRead) {
   ASSERT_TRUE(cache_->CreateEntry(key, &entry1));
 
   char data[] = "And the data to save";
-  EXPECT_EQ(sizeof(data), entry1->WriteData(0, 0, data, sizeof(data), NULL,
-                                            false));
+  EXPECT_TRUE(sizeof(data) == entry1->WriteData(0, 0, data, sizeof(data), NULL,
+                                                false));
   entry1->Close();
   ASSERT_TRUE(cache_->OpenEntry(key, &entry1));
-  EXPECT_EQ(sizeof(data), entry1->ReadData(0, 0, data, sizeof(data), NULL));
+  EXPECT_TRUE(sizeof(data) == entry1->ReadData(0, 0, data, sizeof(data), NULL));
 
   SimulateCrash();
 
@@ -544,11 +547,11 @@ TEST_F(DiskCacheBackendTest, InvalidEntryEnumeration) {
   ASSERT_TRUE(cache_->CreateEntry(key, &entry1));
 
   char data[] = "And the data to save";
-  EXPECT_EQ(sizeof(data), entry1->WriteData(0, 0, data, sizeof(data), NULL,
-                                            false));
+  EXPECT_TRUE(sizeof(data) == entry1->WriteData(0, 0, data, sizeof(data), NULL,
+                                                false));
   entry1->Close();
   ASSERT_TRUE(cache_->OpenEntry(key, &entry1));
-  EXPECT_EQ(sizeof(data), entry1->ReadData(0, 0, data, sizeof(data), NULL));
+  EXPECT_TRUE(sizeof(data) == entry1->ReadData(0, 0, data, sizeof(data), NULL));
 
   std::string key2("Another key");
   ASSERT_TRUE(cache_->CreateEntry(key2, &entry2));
@@ -634,7 +637,7 @@ void DiskCacheBackendTest::BackendDoomRecent() {
   ASSERT_TRUE(cache_->CreateEntry("second", &entry));
   entry->Close();
 
-  Sleep(20);
+  PlatformThread::Sleep(20);
   Time middle = Time::Now();
 
   ASSERT_TRUE(cache_->CreateEntry("third", &entry));
@@ -642,7 +645,7 @@ void DiskCacheBackendTest::BackendDoomRecent() {
   ASSERT_TRUE(cache_->CreateEntry("fourth", &entry));
   entry->Close();
 
-  Sleep(20);
+  PlatformThread::Sleep(20);
   Time final = Time::Now();
 
   ASSERT_EQ(4, cache_->GetEntryCount());
@@ -663,7 +666,7 @@ void DiskCacheBackendTest::BackendDoomBetween() {
   ASSERT_TRUE(cache_->CreateEntry("first", &entry));
   entry->Close();
 
-  Sleep(20);
+  PlatformThread::Sleep(20);
   Time middle_start = Time::Now();
 
   ASSERT_TRUE(cache_->CreateEntry("second", &entry));
@@ -671,13 +674,13 @@ void DiskCacheBackendTest::BackendDoomBetween() {
   ASSERT_TRUE(cache_->CreateEntry("third", &entry));
   entry->Close();
 
-  Sleep(20);
+  PlatformThread::Sleep(20);
   Time middle_end = Time::Now();
 
   ASSERT_TRUE(cache_->CreateEntry("fourth", &entry));
   entry->Close();
 
-  Sleep(20);
+  PlatformThread::Sleep(20);
   Time final = Time::Now();
 
   ASSERT_EQ(4, cache_->GetEntryCount());

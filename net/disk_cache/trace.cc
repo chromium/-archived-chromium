@@ -70,7 +70,9 @@ void Trace(const char* format, ...) {
 #if defined(OS_WIN)
   vsprintf_s(s_trace_buffer->buffer[s_trace_buffer->current], format, ap);
 #else
-  NOTIMPLEMENTED();
+  vsnprintf(s_trace_buffer->buffer[s_trace_buffer->current],
+            sizeof(s_trace_buffer->buffer[s_trace_buffer->current]), format,
+            ap);
 #endif
   s_trace_buffer->num_traces++;
   s_trace_buffer->current++;

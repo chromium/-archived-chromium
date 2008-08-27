@@ -123,7 +123,12 @@ bool DelayedCacheCleanup(const std::wstring& full_path) {
     return false;
   }
 
+#if defined(OS_WIN)
   WorkerPool::PostTask(FROM_HERE, new CleanupTask(path, name), true);
+#elif defined(OS_POSIX)
+  // TODO(rvargas): Use the worker pool.
+  MessageLoop::current()->PostTask(FROM_HERE, new CleanupTask(path, name));
+#endif
   return true;
 }
 
@@ -757,7 +762,7 @@ bool BackendImpl::InitBackingStore(bool* file_created) {
   bool ret = true;
   if (*file_created)
     ret = CreateBackingStore(file);
-  
+
   file = NULL;
   if (!ret)
     return false;

@@ -4,21 +4,35 @@
 
 #include "net/disk_cache/file.h"
 
+#include <fcntl.h>
+
 #include "base/logging.h"
 #include "net/disk_cache/disk_cache.h"
 
 namespace disk_cache {
 
 File::File(OSFile file)
-    : init_(true), os_file_(0) {
+    : init_(true), os_file_(file) {
 }
 
 bool File::Init(const std::wstring& name) {
-  NOTIMPLEMENTED();
-  return false;
+  if (init_)
+    return false;
+
+  os_file_ = CreateOSFile(name, OS_FILE_OPEN | OS_FILE_READ | OS_FILE_WRITE,
+                          NULL);
+  if (os_file_ < 0) {
+    os_file_ = 0;
+    return false;
+  }
+
+  init_ = true;
+  return true;
 }
 
 File::~File() {
+  if (os_file_)
+    close(os_file_);
 }
 
 OSFile File::os_file() const {
@@ -36,8 +50,8 @@ bool File::Read(void* buffer, size_t buffer_len, size_t offset) {
   if (buffer_len > ULONG_MAX || offset > LONG_MAX)
     return false;
 
-  NOTIMPLEMENTED();
-  return false;
+  int ret = pread(os_file_, buffer, buffer_len, offset);
+  return (static_cast<size_t>(ret) == buffer_len);
 }
 
 bool File::Write(const void* buffer, size_t buffer_len, size_t offset) {
@@ -45,8 +59,8 @@ bool File::Write(const void* buffer, size_t buffer_len, size_t offset) {
   if (buffer_len > ULONG_MAX || offset > ULONG_MAX)
     return false;
 
-  NOTIMPLEMENTED();
-  return false;
+  int ret = pwrite(os_file_, buffer, buffer_len, offset);
+  return (static_cast<size_t>(ret) == buffer_len);
 }
 
 // We have to increase the ref counter of the file before performing the IO to
@@ -58,8 +72,11 @@ bool File::Read(void* buffer, size_t buffer_len, size_t offset,
   if (buffer_len > ULONG_MAX || offset > ULONG_MAX)
     return false;
 
-  NOTIMPLEMENTED();
-  return false;
+  // TODO: Implement async IO.
+  bool ret = Read(buffer, buffer_len, offset);
+  if (ret && completed)
+    *completed = true;
+  return ret;
 }
 
 bool File::Write(const void* buffer, size_t buffer_len, size_t offset,
@@ -79,8 +96,11 @@ bool File::AsyncWrite(const void* buffer, size_t buffer_len, size_t offset,
   if (buffer_len > ULONG_MAX || offset > ULONG_MAX)
     return false;
 
-  NOTIMPLEMENTED();
-  return false;
+  // TODO: Implement async IO.
+  bool ret = Write(buffer, buffer_len, offset);
+  if (ret && completed)
+    *completed = true;
+  return ret;
 }
 
 bool File::SetLength(size_t length) {
@@ -88,13 +108,13 @@ bool File::SetLength(size_t length) {
   if (length > ULONG_MAX)
     return false;
 
-  NOTIMPLEMENTED();
-  return false;
+  return 0 == ftruncate(os_file_, length);
 }
 
 size_t File::GetLength() {
   DCHECK(init_);
-  return 0;
+  size_t ret = lseek(os_file_, 0, SEEK_END);
+  return ret;
 }
 
 }  // namespace disk_cache

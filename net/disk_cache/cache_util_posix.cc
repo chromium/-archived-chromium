@@ -29,8 +29,9 @@ void DeleteCache(const std::wstring& path, bool remove_folder) {
     file_util::Delete(path, false);
   } else {
     std::wstring name(path);
-    file_util::AppendToPath(&name, L"*");
-    file_util::Delete(name, false);
+    // TODO(rvargas): Fix this after file_util::delete is fixed.
+    // file_util::AppendToPath(&name, L"*");
+    file_util::Delete(name, true);
   }
 }
 

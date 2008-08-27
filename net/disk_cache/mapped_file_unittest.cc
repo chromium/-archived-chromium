@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/file_util.h"
+#include "base/string_util.h"
 #include "net/disk_cache/disk_cache_test_util.h"
 #include "net/disk_cache/mapped_file.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -46,6 +47,7 @@ void WaitForCallbacks(int expected) {
   if (!expected)
     return;
 
+#if defined(OS_WIN)
   int iterations = 0;
   int last = 0;
   while (iterations < 40) {
@@ -57,6 +59,9 @@ void WaitForCallbacks(int expected) {
     else
       iterations = 0;
   }
+#elif defined(OS_POSIX)
+  // TODO(rvargas): Do something when async IO is implemented.
+#endif
 }
 
 }  // namespace
@@ -71,7 +76,7 @@ TEST(DiskCacheTest, MappedFile_SyncIO) {
   char buffer1[20];
   char buffer2[20];
   CacheTestFillBuffer(buffer1, sizeof(buffer1), false);
-  strcpy_s(buffer1, "the data");
+  base::strlcpy(buffer1, "the data", sizeof(buffer1));
   EXPECT_TRUE(file->Write(buffer1, sizeof(buffer1), 8192));
   EXPECT_TRUE(file->Read(buffer2, sizeof(buffer2), 8192));
   EXPECT_STREQ(buffer1, buffer2);
@@ -92,7 +97,7 @@ TEST(DiskCacheTest, MappedFile_AsyncIO) {
   char buffer1[20];
   char buffer2[20];
   CacheTestFillBuffer(buffer1, sizeof(buffer1), false);
-  strcpy_s(buffer1, "the data");
+  base::strlcpy(buffer1, "the data", sizeof(buffer1));
   bool completed;
   EXPECT_TRUE(file->Write(buffer1, sizeof(buffer1), 1024 * 1024, &callback,
               &completed));

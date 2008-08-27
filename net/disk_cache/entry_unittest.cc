@@ -2,7 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/platform_thread.h"
 #include "base/timer.h"
+#include "base/string_util.h"
 #include "net/base/net_errors.h"
 #include "net/disk_cache/disk_cache_test_base.h"
 #include "net/disk_cache/disk_cache_test_util.h"
@@ -37,7 +39,7 @@ void DiskCacheEntryTest::InternalSyncIO() {
   char buffer1[10];
   CacheTestFillBuffer(buffer1, sizeof(buffer1), false);
   EXPECT_EQ(0, entry1->ReadData(0, 0, buffer1, sizeof(buffer1), NULL));
-  strcpy_s(buffer1, "the data");
+  base::strlcpy(buffer1, "the data", sizeof(buffer1));
   EXPECT_EQ(10, entry1->WriteData(0, 0, buffer1, sizeof(buffer1), NULL, false));
   memset(buffer1, 0, sizeof(buffer1));
   EXPECT_EQ(10, entry1->ReadData(0, 0, buffer1, sizeof(buffer1), NULL));
@@ -46,7 +48,7 @@ void DiskCacheEntryTest::InternalSyncIO() {
   char buffer2[5000];
   char buffer3[10000] = {0};
   CacheTestFillBuffer(buffer2, sizeof(buffer2), false);
-  strcpy_s(buffer2, "The really big data goes here");
+  base::strlcpy(buffer2, "The really big data goes here", sizeof(buffer2));
   EXPECT_EQ(5000, entry1->WriteData(1, 1500, buffer2, sizeof(buffer2), NULL,
                                     false));
   memset(buffer2, 0, sizeof(buffer2));
@@ -112,7 +114,7 @@ void DiskCacheEntryTest::InternalAsyncIO() {
   CacheTestFillBuffer(buffer3, sizeof(buffer3), false);
 
   EXPECT_EQ(0, entry1->ReadData(0, 0, buffer1, sizeof(buffer1), &callback1));
-  strcpy_s(buffer1, "the data");
+  base::strlcpy(buffer1, "the data", sizeof(buffer1));
   int expected = 0;
   int ret = entry1->WriteData(0, 0, buffer1, sizeof(buffer1), &callback2,
                               false);
@@ -130,7 +132,7 @@ void DiskCacheEntryTest::InternalAsyncIO() {
   EXPECT_TRUE(helper.WaitUntilCacheIoFinished(expected));
   EXPECT_STREQ("the data", buffer2);
 
-  strcpy_s(buffer2, sizeof(buffer2), "The really big data goes here");
+  base::strlcpy(buffer2, "The really big data goes here", sizeof(buffer2));
   ret = entry1->WriteData(1, 1500, buffer2, sizeof(buffer2), &callback4, false);
   EXPECT_TRUE(5000 == ret || net::ERR_IO_PENDING == ret);
   if (net::ERR_IO_PENDING == ret)
@@ -217,14 +219,14 @@ void DiskCacheEntryTest::ExternalSyncIO() {
   char buffer1[17000], buffer2[25000];
   CacheTestFillBuffer(buffer1, sizeof(buffer1), false);
   CacheTestFillBuffer(buffer2, sizeof(buffer2), false);
-  strcpy_s(buffer1, "the data");
+  base::strlcpy(buffer1, "the data", sizeof(buffer1));
   EXPECT_EQ(17000, entry1->WriteData(0, 0, buffer1, sizeof(buffer1), NULL,
                                      false));
   memset(buffer1, 0, sizeof(buffer1));
   EXPECT_EQ(17000, entry1->ReadData(0, 0, buffer1, sizeof(buffer1), NULL));
   EXPECT_STREQ("the data", buffer1);
 
-  strcpy_s(buffer2, "The really big data goes here");
+  base::strlcpy(buffer2, "The really big data goes here", sizeof(buffer2));
   EXPECT_EQ(25000, entry1->WriteData(1, 10000, buffer2, sizeof(buffer2), NULL,
                                      false));
   memset(buffer2, 0, sizeof(buffer2));
@@ -282,7 +284,7 @@ void DiskCacheEntryTest::ExternalAsyncIO() {
   CacheTestFillBuffer(buffer1, sizeof(buffer1), false);
   CacheTestFillBuffer(buffer2, sizeof(buffer2), false);
   CacheTestFillBuffer(buffer3, sizeof(buffer3), false);
-  strcpy_s(buffer1, "the data");
+  base::strlcpy(buffer1, "the data", sizeof(buffer1));
   int ret = entry1->WriteData(0, 0, buffer1, sizeof(buffer1), &callback1,
                               false);
   EXPECT_TRUE(17000 == ret || net::ERR_IO_PENDING == ret);
@@ -302,7 +304,7 @@ void DiskCacheEntryTest::ExternalAsyncIO() {
   EXPECT_TRUE(helper.WaitUntilCacheIoFinished(expected));
   EXPECT_STREQ("the data", buffer1);
 
-  strcpy_s(buffer2, "The really big data goes here");
+  base::strlcpy(buffer2, "The really big data goes here", sizeof(buffer2));
   ret = entry1->WriteData(1, 10000, buffer2, sizeof(buffer2), &callback3,
                           false);
   EXPECT_TRUE(25000 == ret || net::ERR_IO_PENDING == ret);
@@ -425,7 +427,7 @@ void DiskCacheEntryTest::GrowData() {
   CacheTestFillBuffer(buffer1, sizeof(buffer1), false);
   memset(buffer2, 0, sizeof(buffer2));
 
-  strcpy_s(buffer1, "the data");
+  base::strlcpy(buffer1, "the data", sizeof(buffer1));
   EXPECT_EQ(10, entry1->WriteData(0, 0, buffer1, 10, NULL, false));
   EXPECT_EQ(10, entry1->ReadData(0, 0, buffer2, 10, NULL));
   EXPECT_STREQ("the data", buffer2);
@@ -722,7 +724,7 @@ void DiskCacheEntryTest::DoomedEntry() {
 
   EXPECT_EQ(0, cache_->GetEntryCount());
   Time initial = Time::Now();
-  Sleep(20);
+  PlatformThread::Sleep(20);
 
   char buffer1[2000];
   char buffer2[2000];
