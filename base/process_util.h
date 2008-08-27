@@ -19,8 +19,6 @@
 
 #include "base/process.h"
 
-// ProcessHandle is a platform specific type which represents the underlying OS
-// handle to a process.
 #if defined(OS_WIN)
 typedef PROCESSENTRY32 ProcessEntry;
 typedef IO_COUNTERS IoCounters;

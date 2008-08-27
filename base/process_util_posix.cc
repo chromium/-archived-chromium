@@ -16,8 +16,9 @@ int GetCurrentProcId() {
 }
 
 int GetProcId(ProcessHandle process) {
-  return ProcessHandle;
+  return process;
 }
+
 void RaiseProcessToHighPriority() {
   // On POSIX, we don't actually do anything here.  We could try to nice() or
   // setpriority() or sched_getscheduler, but these all require extra rights.
