@@ -476,7 +476,10 @@ void FindInPageController::GetDialogBounds(gfx::Rect* bounds) {
   // Find the dimensions of the toolbar and the BookmarkBar.
   CRect toolbar_bounds, bookmark_bar_bounds;
   if (toolbar) {
-    toolbar->GetBounds(&toolbar_bounds);
+    if (!g_browser_process->IsUsingNewFrames())
+      toolbar->GetBounds(&toolbar_bounds);
+    else
+      toolbar->GetLocalBounds(&toolbar_bounds, false);
     // Need to convert toolbar bounds into ViewContainer coords because the
     // toolbar is the child of another view that isn't the top level view.
     // This is required to ensure correct positioning relative to the top,left
