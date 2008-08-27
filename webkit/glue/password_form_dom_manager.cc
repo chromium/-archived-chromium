@@ -42,7 +42,7 @@ PasswordForm* PasswordFormDomManager::CreatePasswordForm(
 
   // Get the document URL
   WebCore::String origin_string = form->document()->documentURI();
-  GURL full_origin(webkit_glue::StringToStdString16(origin_string));
+  GURL full_origin(webkit_glue::StringToStdString(origin_string));
 
   // Calculate the canonical action URL
   GURL full_action(webkit_glue::KURLToGURL(loader->completeURL(form->action())));

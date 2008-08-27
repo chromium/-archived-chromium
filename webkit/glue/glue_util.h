@@ -22,7 +22,7 @@ namespace webkit_glue {
 std::string CStringToStdString(const WebCore::CString& str);
 WebCore::CString StdStringToCString(const std::string& str);
 std::wstring StringToStdWString(const WebCore::String& str);
-std::string16 StringToStdString16(const WebCore::String& str);
+string16 StringToString16(const WebCore::String& str);
 std::string StringToStdString(const WebCore::String& str);
 
 WebCore::String StdWStringToString(const std::wstring& str);

@@ -124,7 +124,7 @@ TEST(NetUtilTest, FileURLConversion) {
 #endif
   };
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(url_cases); i++) {
-    net::FileURLToFilePath(GURL(WideToUTF16(url_cases[i].url)), &output);
+    net::FileURLToFilePath(GURL(WideToUTF8(url_cases[i].url)), &output);
     EXPECT_EQ(std::wstring(url_cases[i].file), output);
   }
 
@@ -137,7 +137,7 @@ TEST(NetUtilTest, FileURLConversion) {
 #elif defined(OS_POSIX)
   const wchar_t wide[] = L"/d:/Chinese/\xe6\x89\x80\xe6\x9c\x89\xe4\xb8\xad\xe6\x96\x87\xe7\xbd\x91\xe9\xa1\xb5.doc";
 #endif
-  EXPECT_TRUE(net::FileURLToFilePath(GURL(WideToUTF16(utf8)), &output));
+  EXPECT_TRUE(net::FileURLToFilePath(GURL(WideToUTF8(utf8)), &output));
   EXPECT_EQ(std::wstring(wide), output);
 
   // Unfortunately, UTF8ToWide discards invalid UTF8 input.

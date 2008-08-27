@@ -155,6 +155,7 @@ if env['PLATFORM'] in ('darwin', 'posix'):
       'platform_thread_posix.cc',
       'process_util_posix.cc',
       'shared_memory_posix.cc',
+      'string16.cc',
       'thread_local_storage_posix.cc',
       'time_posix.cc',
       'waitable_event_generic.cc',

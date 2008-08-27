@@ -34,15 +34,15 @@ std::wstring StringToStdWString(const WebCore::String& str) {
 #if defined(WCHAR_T_IS_UTF16)
   return std::wstring(chars ? chars : L"", str.length());
 #elif defined(WCHAR_T_IS_UTF32)
-  std::string16 str16(chars ? chars : reinterpret_cast<const char16 *>(L""),
-                                      str.length());
+  string16 str16(chars ? chars : reinterpret_cast<const char16 *>(L""),
+                                 str.length());
   return UTF16ToWide(str16);
 #endif
 }
 
-std::string16 StringToStdString16(const WebCore::String& str) {
+string16 StringToString16(const WebCore::String& str) {
   const UChar* chars = str.characters();
-  return std::string16(chars ? chars : (UChar *)L"", str.length());
+  return string16(chars ? chars : (UChar *)L"", str.length());
 }
 
 std::string StringToStdString(const WebCore::String& str) {
@@ -57,7 +57,7 @@ WebCore::String StdWStringToString(const std::wstring& str) {
 #if defined(WCHAR_T_IS_UTF16)
   return WebCore::String(str.data(), static_cast<unsigned>(str.length()));
 #elif defined(WCHAR_T_IS_UTF32)
-  std::string16 str16 = WideToUTF16(str);
+  string16 str16 = WideToUTF16(str);
   return WebCore::String(str16.data(), static_cast<unsigned>(str16.length()));
 #endif
 }
@@ -73,7 +73,7 @@ WebCore::DeprecatedString StdWStringToDeprecatedString(
       reinterpret_cast<const WebCore::DeprecatedChar*>(str.c_str()),
       static_cast<int>(str.size()));
 #elif defined(WCHAR_T_IS_UTF32)
-  std::string16 str16 = WideToUTF16(str);
+  string16 str16 = WideToUTF16(str);
   return WebCore::DeprecatedString(
       reinterpret_cast<const WebCore::DeprecatedChar*>(str16.c_str()),
       static_cast<int>(str16.size()));
@@ -86,8 +86,8 @@ std::wstring DeprecatedStringToStdWString(
   return std::wstring(reinterpret_cast<const wchar_t*>(dep.unicode()),
                                                        dep.length());
 #elif defined(WCHAR_T_IS_UTF32)
-  std::string16 str16(reinterpret_cast<const char16*>(dep.unicode()),
-                                                      dep.length());
+  string16 str16(reinterpret_cast<const char16*>(dep.unicode()),
+                                                       dep.length());
   return UTF16ToWide(str16);
 #endif
 }

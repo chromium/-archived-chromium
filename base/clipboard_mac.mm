@@ -15,7 +15,7 @@ namespace {
 const NSString* kUTTypeURLName = @"public.url-name";
 
 NSString* nsStringForWString(const std::wstring& string) {
-  std::string16 text16 = WideToUTF16(string);
+  string16 text16 = WideToUTF16(string);
   return [NSString stringWithCharacters:text16.c_str() length:text16.length()];
 }
 

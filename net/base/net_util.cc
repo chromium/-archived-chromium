@@ -568,7 +568,7 @@ bool IsIDNComponentSafe(const char16* str,
 void IDNToUnicodeOneComponent(const char16* comp,
                               int comp_len,
                               const std::wstring& languages,
-                              std::string16* out) {
+                              string16* out) {
   DCHECK(comp_len >= 0);
   if (comp_len == 0)
     return;
@@ -696,12 +696,12 @@ void IDNToUnicode(const char* host,
                   const std::wstring& languages,
                   std::wstring* out) {
   // Convert the ASCII input to a wide string for ICU.
-  std::string16 input16;
+  string16 input16;
   input16.reserve(host_len);
   for (int i = 0; i < host_len; i++)
     input16.push_back(host[i]);
 
-  std::string16 out16;
+  string16 out16;
   // The output string is appended to, so convert what's already there if
   // needed.
 #if defined(WCHAR_T_IS_UTF32)
