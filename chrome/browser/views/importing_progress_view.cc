@@ -185,12 +185,16 @@ std::wstring ImportingProgressView::GetWindowTitle() const {
 }
 
 bool ImportingProgressView::Cancel() {
+  // When the user cancels the import, we need to tell the coordinator to stop
+  // importing and return false so that the window lives long enough to receive
+  // ImportEnded, which will close the window. Closing the window results in
+  // another call to this function and at that point we must return true to
+  // allow the window to close.
   if (!importing_)
-    return true;
+    return true;  // We have received ImportEnded, so we can close.
 
+  // Cancel the import and wait for further instructions.
   coordinator_->Cancel();
-  // Return false because the window needs to live long enough to receive
-  // ImportEnded, which will close the window.
   return false;
 }
 
