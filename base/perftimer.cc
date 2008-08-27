@@ -3,13 +3,11 @@
 // found in the LICENSE file.
 
 #include <stdio.h>
-#include <shlwapi.h>
-#include <windows.h>
 
 #include "base/perftimer.h"
 
-#include "base/logging.h"
 #include "base/basictypes.h"
+#include "base/logging.h"
 
 static FILE* perf_log_file = NULL;
 
@@ -20,7 +18,12 @@ bool InitPerfLog(const char* log_file) {
     return false;
   }
 
+#if defined(OS_WIN)
   return fopen_s(&perf_log_file, log_file, "w") == 0;
+#elif defined(OS_POSIX)
+  perf_log_file = fopen(log_file, "w");
+  return perf_log_file != NULL;
+#endif
 }
 
 void FinalizePerfLog() {
@@ -41,5 +44,3 @@ void LogPerfResult(const char* test_name, double value, const char* units) {
   fprintf(perf_log_file, "%s\t%g\t%s\n", test_name, value, units);
   printf("%s\t%g\t%s\n", test_name, value, units);
 }
-
-

@@ -16,6 +16,7 @@
 #if defined(OS_WIN)
 typedef HANDLE ProcessHandle;
 #elif defined(OS_POSIX)
+// On POSIX, our ProcessHandle will just be the PID.
 typedef int ProcessHandle;
 #endif
 

@@ -594,5 +594,8 @@ bool EnableLowFragmentationHeap() {
   return true;
 }
 
-}  // namespace process_util
+void RaiseProcessToHighPriority() {
+  SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+}
 
+}  // namespace process_util

@@ -5,8 +5,8 @@
 // This file/namespace contains utility functions for enumerating, ending and
 // computing statistics of processes.
 
-#ifndef BASE_PROCESS_UTIL_H__
-#define BASE_PROCESS_UTIL_H__
+#ifndef BASE_PROCESS_UTIL_H_
+#define BASE_PROCESS_UTIL_H_
 
 #include "base/basictypes.h"
 
@@ -257,8 +257,10 @@ class ProcessMetrics {
 // Note: Returns true on Windows 2000 without doing anything.
 bool EnableLowFragmentationHeap();
 
+// If supported on the platform, and the user has sufficent rights, increase
+// the current process's scheduling priority to a high priority.
+void RaiseProcessToHighPriority();
+
 }  // namespace process_util
 
-
-#endif  // BASE_PROCESS_UTIL_H__
-
+#endif  // BASE_PROCESS_UTIL_H_

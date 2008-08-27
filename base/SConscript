@@ -74,8 +74,8 @@ input_files = [
     'non_thread_safe.cc',
     'path_service.cc',
     'pickle.cc',
-    'revocable_store.cc',
     'ref_counted.cc',
+    'revocable_store.cc',
     'sha2.cc',
     'stats_table.cc',
     'string_escape.cc',
@@ -333,8 +333,10 @@ else:
   icudata = '../icudt38l.dat'
 env.Alias('base', ['.', installed_base_unittests, icudata])
 
+# TODO(sgk) should this be moved into base.lib like everything else?  This will
+# require updating a bunch of other SConscripts which link directly against
+# this generated object file.
+env_tests.StaticObject('perftimer.cc')
 
-# These aren't ported to other platforms yet.
-if env['PLATFORM'] == 'win32':
-  env_tests.StaticObject('perftimer.cc')
-  env_tests.StaticObject('run_all_perftests.cc')
+# Since run_all_perftests supplies a main, we cannot have it in base.lib
+env_tests.StaticObject('run_all_perftests.cc')

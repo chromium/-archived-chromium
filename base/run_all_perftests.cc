@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <windows.h>
-
 #include "base/command_line.h"
+#include "base/debug_util.h"
 #include "base/perftimer.h"
+#include "base/process_util.h"
 #include "base/string_util.h"
 #include "base/test_suite.h"
 
@@ -24,8 +24,8 @@ class PerfTestSuite : public TestSuite {
 
     // Raise to high priority to have more precise measurements. Since we don't
     // aim at 1% precision, it is not necessary to run at realtime level.
-    if (!IsDebuggerPresent())
-      SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+    if (!DebugUtil::BeingDebugged())
+      process_util::RaiseProcessToHighPriority();
 
     TestSuite::Initialize();
   }
