@@ -297,7 +297,6 @@ if env['PLATFORM'] == 'win32':
     'timer_unittest.cc',
     'watchdog_unittest.cc',
     'gfx/native_theme_unittest.cc',
-    'gfx/platform_canvas_unittest.cc',
     'gfx/uniscribe_unittest.cc',
     'gfx/vector_canvas_unittest.cc',
   ])
@@ -305,13 +304,14 @@ if env['PLATFORM'] == 'win32':
 if env['PLATFORM'] == 'win32':
   # Windows-specific tests.
   test_files.extend([
-      'file_version_info_unittest.cc',
-      'object_watcher_unittest.cc',
-      'pe_image_unittest.cc',
-      'sys_string_conversions_win_unittest.cc',
-      'win_util_unittest.cc',
-      'wmi_util_unittest.cc',
-  ])
+    'file_version_info_unittest.cc',
+    'object_watcher_unittest.cc',
+    'pe_image_unittest.cc',
+    'sys_string_conversions_win_unittest.cc',
+    'win_util_unittest.cc',
+    'wmi_util_unittest.cc',
+    'gfx/platform_canvas_unittest_win.cc',
+    ])
 
 base_unittests = env_tests.ChromeTestProgram('base_unittests', test_files)
 

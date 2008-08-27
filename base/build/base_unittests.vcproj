@@ -360,7 +360,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\gfx\platform_canvas_unittest.cc"
+				RelativePath="..\gfx\platform_canvas_unittest_win.cc"
 				>
 			</File>
 			<File
