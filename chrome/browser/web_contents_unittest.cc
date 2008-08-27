@@ -1152,26 +1152,26 @@ TEST_F(WebContentsTest, NavigationEntryContentState) {
   InitNavigateParams(&params1, 1, url);
   contents->TestDidNavigate(orig_rvh, params1);
   entry = contents->controller()->GetLastCommittedEntry();
-  EXPECT_FALSE(entry->GetContentState().empty());
+  EXPECT_FALSE(entry->content_state().empty());
 
   // Navigate to same site.
   const GURL url2("http://images.google.com");
   contents->controller()->LoadURL(url2, PageTransition::TYPED);
   entry = contents->controller()->GetLastCommittedEntry();
-  EXPECT_FALSE(entry->GetContentState().empty());
+  EXPECT_FALSE(entry->content_state().empty());
 
   // Committed entry should have content state after DidNavigate.
   ViewHostMsg_FrameNavigate_Params params2;
   InitNavigateParams(&params2, 2, url2);
   contents->TestDidNavigate(orig_rvh, params2);
   entry = contents->controller()->GetLastCommittedEntry();
-  EXPECT_FALSE(entry->GetContentState().empty());
+  EXPECT_FALSE(entry->content_state().empty());
 
   // Now go back.  Committed entry should still have content state.
   contents->controller()->GoBack();
   contents->TestDidNavigate(orig_rvh, params1);
   entry = contents->controller()->GetLastCommittedEntry();
-  EXPECT_FALSE(entry->GetContentState().empty());
+  EXPECT_FALSE(entry->content_state().empty());
 }
 
 // Test that NavigationEntries have the correct content state after opening
@@ -1189,7 +1189,7 @@ TEST_F(WebContentsTest, NavigationEntryContentStateNewWindow) {
 
   // Should have a content state here.
   NavigationEntry* entry = contents->controller()->GetLastCommittedEntry();
-  EXPECT_FALSE(entry->GetContentState().empty());
+  EXPECT_FALSE(entry->content_state().empty());
 }
 
 // Tests that IsInPageNavigation returns appropriate results.  Prevents

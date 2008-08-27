@@ -45,11 +45,12 @@ class SessionServiceTest : public testing::Test {
                         const TabNavigation& navigation,
                         bool select) {
     NavigationEntry entry(TAB_CONTENTS_UNKNOWN_TYPE);
-    entry.SetURL(navigation.url);
-    entry.SetTitle(navigation.title);
-    entry.SetContentState(navigation.state);
-    entry.SetTransitionType(navigation.transition);
-    entry.SetHasPostData(navigation.type_mask & TabNavigation::HAS_POST_DATA);
+    entry.set_url(navigation.url);
+    entry.set_title(navigation.title);
+    entry.set_content_state(navigation.state);
+    entry.set_transition_type(navigation.transition);
+    entry.set_has_post_data(
+        navigation.type_mask & TabNavigation::HAS_POST_DATA);
     service()->UpdateTabNavigation(window_id, tab_id, navigation.index, entry);
     if (select)
       service()->SetSelectedNavigationIndex(window_id, tab_id,

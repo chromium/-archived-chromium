@@ -157,11 +157,12 @@ void TabRestoreService::PopulateTabFromController(
         controller->GetPendingEntry() : controller->GetEntryAtIndex(i);
     TabNavigation& tab_nav = tab->navigations[i];
     tab_nav.index = i;
-    tab_nav.url = entry->GetDisplayURL();
-    tab_nav.title = entry->GetTitle();
-    tab_nav.state = entry->GetContentState();
-    tab_nav.transition = entry->GetTransitionType();
-    tab_nav.type_mask = entry->HasPostData() ? TabNavigation::HAS_POST_DATA : 0;
+    tab_nav.url = entry->display_url();
+    tab_nav.title = entry->title();
+    tab_nav.state = entry->content_state();
+    tab_nav.transition = entry->transition_type();
+    tab_nav.type_mask = entry->has_post_data() ?
+        TabNavigation::HAS_POST_DATA : 0;
   }
   tab->current_navigation_index = controller->GetCurrentEntryIndex();
   if (tab->current_navigation_index == -1 && entry_count > 0)

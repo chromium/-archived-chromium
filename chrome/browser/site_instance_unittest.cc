@@ -79,7 +79,7 @@ TEST_F(SiteInstanceTest, SiteInstanceDestructor) {
                                             PageTransition::LINK);
 
   // Redundantly setting e1's SiteInstance shouldn't affect the ref count.
-  e1->SetSiteInstance(instance);
+  e1->set_site_instance(instance);
   EXPECT_EQ(0, siteDeleteCounter);
 
   // Add a second reference
@@ -142,7 +142,7 @@ TEST_F(SiteInstanceTest, CloneNavigationEntry) {
   NavigationEntry* e2 = new NavigationEntry(*e1);
 
   // Should be able to change the SiteInstance of the cloned entry.
-  e2->SetSiteInstance(instance2);
+  e2->set_site_instance(instance2);
 
   // The first SiteInstance should go away after deleting e1, since e2 should
   // no longer be referencing it.

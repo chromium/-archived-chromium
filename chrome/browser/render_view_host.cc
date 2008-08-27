@@ -561,10 +561,10 @@ void RenderViewHost::SetDOMUIProperty(const std::string& name,
 void RenderViewHost::MakeNavigateParams(const NavigationEntry& entry,
                                         bool reload,
                                         ViewMsg_Navigate_Params* params) {
-  params->page_id = entry.GetPageID();
-  params->url = entry.GetURL();
-  params->transition = entry.GetTransitionType();
-  params->state = entry.GetContentState();
+  params->page_id = entry.page_id();
+  params->url = entry.url();
+  params->transition = entry.transition_type();
+  params->state = entry.content_state();
   params->reload = reload;
 }
 

@@ -93,7 +93,7 @@ const GURL& TabContents::GetURL() const {
 
   // We may not have a navigation entry yet
   NavigationEntry* entry = controller_->GetActiveEntry();
-  return entry ? entry->GetDisplayURL() : kEmptyURL;
+  return entry ? entry->display_url() : kEmptyURL;
 }
 
 const std::wstring& TabContents::GetTitle() const {
@@ -105,7 +105,7 @@ const std::wstring& TabContents::GetTitle() const {
   // get a new title.
   NavigationEntry* entry = controller_->GetLastCommittedEntry();
   if (entry)
-    return entry->GetTitle();
+    return entry->title();
   else if (controller_->LoadingURLLazily())
     return controller_->GetLazyTitle();
   return EmptyWString();
@@ -118,7 +118,7 @@ SkBitmap TabContents::GetFavIcon() const {
   // entry rather than a pending navigation entry.
   NavigationEntry* entry = controller_->GetLastCommittedEntry();
   if (entry)
-    return entry->GetFavIcon();
+    return entry->favicon().bitmap();
   else if (controller_->LoadingURLLazily())
     return controller_->GetLazyFavIcon();
   return SkBitmap();
@@ -258,7 +258,7 @@ void TabContents::SetIsLoading(bool is_loading,
 
 void TabContents::DidNavigateToEntry(NavigationEntry* entry) {
   // The entry may be deleted by DidNavigateToEntry...
-  int new_page_id = entry->GetPageID();
+  int new_page_id = entry->page_id();
 
   controller_->DidNavigateToEntry(entry);
 
@@ -269,11 +269,11 @@ void TabContents::DidNavigateToEntry(NavigationEntry* entry) {
 
 bool TabContents::Navigate(const NavigationEntry& entry, bool reload) {
   NavigationEntry* new_entry = new NavigationEntry(entry);
-  if (new_entry->GetPageID() == -1) {
+  if (new_entry->page_id() == -1) {
     // This is a new navigation.  Our behavior is to always navigate to the
     // same page (page 0) in response to a navigation.
-    new_entry->SetPageID(0);
-    new_entry->SetTitle(GetDefaultTitle());
+    new_entry->set_page_id(0);
+    new_entry->set_title(GetDefaultTitle());
   }
   DidNavigateToEntry(new_entry);
   return true;

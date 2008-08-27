@@ -216,9 +216,9 @@ void NativeUIContents::SetPageState(PageState* page_state) {
       DCHECK(ne);
       std::string rep;
       state_->GetByteRepresentation(&rep);
-      ne->SetContentState(rep);
+      ne->set_content_state(rep);
       // This is not a WebContents, so we use a NULL SiteInstance.
-      ctrl->NotifyEntryChangedByPageID(type(), NULL, ne->GetPageID());
+      ctrl->NotifyEntryChangedByPageID(type(), NULL, ne->page_id());
     }
   }
 }
@@ -234,7 +234,7 @@ bool NativeUIContents::Navigate(const NavigationEntry& entry, bool reload) {
     current_view_ = NULL;
   }
 
-  NativeUI* new_ui = GetNativeUIForURL(entry.GetURL());
+  NativeUI* new_ui = GetNativeUIForURL(entry.url());
   if (new_ui) {
     current_ui_ = new_ui;
     is_visible_ = true;
@@ -242,9 +242,9 @@ bool NativeUIContents::Navigate(const NavigationEntry& entry, bool reload) {
     current_view_ = new_ui->GetView();
     root_view->AddChildView(current_view_);
 
-    std::string s = entry.GetContentState();
+    std::string s = entry.content_state();
     if (s.empty())
-      state_->InitWithURL(entry.GetURL());
+      state_->InitWithURL(entry.url());
     else
       state_->InitWithBytes(s);
 
@@ -253,22 +253,22 @@ bool NativeUIContents::Navigate(const NavigationEntry& entry, bool reload) {
   }
 
   NavigationEntry* new_entry = new NavigationEntry(entry);
-  if (new_entry->GetPageID() == -1)
-    new_entry->SetPageID(++g_next_page_id);
-  new_entry->SetTitle(GetDefaultTitle());
-  new_entry->SetFavIcon(GetFavIcon());
-  new_entry->SetValidFavIcon(true);
+  if (new_entry->page_id() == -1)
+    new_entry->set_page_id(++g_next_page_id);
+  new_entry->set_title(GetDefaultTitle());
+  new_entry->favicon().set_bitmap(GetFavIcon());
+  new_entry->favicon().set_is_valid(true);
   if (new_ui) {
     // Strip out the query params, they should have moved to state.
     // TODO(sky): use GURL methods for replacements once bug is fixed.
     size_t scheme_end, host_end;
-    GetSchemeAndHostEnd(entry.GetURL(), &scheme_end, &host_end);
-    new_entry->SetURL(GURL(entry.GetURL().spec().substr(0, host_end)));
+    GetSchemeAndHostEnd(entry.url(), &scheme_end, &host_end);
+    new_entry->set_url(GURL(entry.url().spec().substr(0, host_end)));
   }
   std::string content_state;
   state_->GetByteRepresentation(&content_state);
-  new_entry->SetContentState(content_state);
-  const int32 page_id = new_entry->GetPageID();
+  new_entry->set_content_state(content_state);
+  const int32 page_id = new_entry->page_id();
   DidNavigateToEntry(new_entry);
   // This is not a WebContents, so we use a NULL SiteInstance.
   controller()->NotifyEntryChangedByPageID(type(), NULL, page_id);

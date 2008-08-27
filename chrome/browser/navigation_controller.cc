@@ -93,9 +93,10 @@ static void CreateNavigationEntriesFromTabNavigations(
         // Use a transition type of reload so that we don't incorrectly
         // increase the typed count.
         PageTransition::RELOAD);
-    entry->SetDisplayURL(navigation.url);
-    entry->SetContentState(navigation.state);
-    entry->SetHasPostData(navigation.type_mask & TabNavigation::HAS_POST_DATA);
+    entry->set_display_url(navigation.url);
+    entry->set_content_state(navigation.state);
+    entry->set_has_post_data(
+        navigation.type_mask & TabNavigation::HAS_POST_DATA);
     entries->push_back(linked_ptr<NavigationEntry>(entry));
   }
 }
@@ -107,7 +108,7 @@ static void ConfigureEntriesForRestore(
   for (size_t i = 0, count = entries->size(); i < count; ++i) {
     // Use a transition type of reload so that we don't incorrectly increase
     // the typed count.
-    (*entries)[i]->SetTransitionType(PageTransition::RELOAD);
+    (*entries)[i]->set_transition_type(PageTransition::RELOAD);
     (*entries)[i]->set_restored(true);
     // NOTE(darin): This code is only needed for backwards compat.
     NavigationController::SetContentStateIfEmpty((*entries)[i].get());
@@ -185,7 +186,7 @@ void NavigationController::Reload() {
   DiscardPendingEntryInternal();
   int current_index = GetCurrentEntryIndex();
   if (check_for_repost_ && current_index != -1 &&
-      GetEntryAtIndex(current_index)->HasPostData() &&
+      GetEntryAtIndex(current_index)->has_post_data() &&
       active_contents_->AsWebContents() &&
       !active_contents_->AsWebContents()->showing_repost_interstitial()) {
     // The user is asking to reload a page with POST data and we're not showing
@@ -207,7 +208,7 @@ void NavigationController::Reload() {
     DiscardPendingEntryInternal();
 
     pending_entry_index_ = current_index;
-    entries_[pending_entry_index_]->SetTransitionType(PageTransition::RELOAD);
+    entries_[pending_entry_index_]->set_transition_type(PageTransition::RELOAD);
     NavigateToPendingEntry(true);
   }
 }
@@ -236,18 +237,18 @@ void NavigationController::LoadEntry(NavigationEntry* entry) {
 /* static */
 void NavigationController::SetContentStateIfEmpty(
     NavigationEntry* entry) {
-  if (entry->GetContentState().empty() &&
-      (entry->GetType() == TAB_CONTENTS_WEB ||
-       entry->GetType() == TAB_CONTENTS_NEW_TAB_UI ||
-       entry->GetType() == TAB_CONTENTS_ABOUT_UI ||
-       entry->GetType() == TAB_CONTENTS_HTML_DIALOG)) {
+  if (entry->content_state().empty() &&
+      (entry->tab_type() == TAB_CONTENTS_WEB ||
+       entry->tab_type() == TAB_CONTENTS_NEW_TAB_UI ||
+       entry->tab_type() == TAB_CONTENTS_ABOUT_UI ||
+       entry->tab_type() == TAB_CONTENTS_HTML_DIALOG)) {
     // The state is empty and the url will be rendered by WebKit. An empty
     // state is treated as a new navigation by WebKit, which would mean
     // losing the navigation entries and generating a new navigation
     // entry after this one. We don't want that. To avoid this we create
     // a valid state which WebKit will not treat as a new navigation.
-    entry->SetContentState(
-      webkit_glue::CreateHistoryStateForURL(entry->GetURL()));
+    entry->set_content_state(
+        webkit_glue::CreateHistoryStateForURL(entry->url()));
   }
 }
 
@@ -430,11 +431,11 @@ NavigationEntry* NavigationController::CreateNavigationEntry(
 
   NavigationEntry* entry = new NavigationEntry(type, NULL, -1, real_url,
                                                std::wstring(), transition);
-  entry->SetDisplayURL(url);
-  entry->SetUserTypedURL(url);
+  entry->set_display_url(url);
+  entry->set_user_typed_url(url);
   if (url.SchemeIsFile()) {
-    entry->SetTitle(file_util::GetFilenameFromPath(UTF8ToWide(url.host() +
-                                                              url.path())));
+    entry->set_title(file_util::GetFilenameFromPath(UTF8ToWide(url.host() +
+                                                               url.path())));
   }
   return entry;
 }
@@ -454,9 +455,9 @@ void NavigationController::LoadURLLazily(const GURL& url,
                                          const std::wstring& title,
                                          SkBitmap* icon) {
   NavigationEntry* entry = CreateNavigationEntry(url, type);
-  entry->SetTitle(title);
+  entry->set_title(title);
   if (icon)
-    entry->SetFavIcon(*icon);
+    entry->favicon().set_bitmap(*icon);
 
   // TODO(pkasting): http://b/1113085 Should this use DiscardPendingEntry()?
   DiscardPendingEntryInternal();
@@ -470,14 +471,14 @@ bool NavigationController::LoadingURLLazily() {
 
 const std::wstring& NavigationController::GetLazyTitle() const {
   if (pending_entry_)
-    return pending_entry_->GetTitle();
+    return pending_entry_->title();
   else
     return EmptyWString();
 }
 
 const SkBitmap& NavigationController::GetLazyFavIcon() const {
   if (pending_entry_) {
-    return pending_entry_->GetFavIcon();
+    return pending_entry_->favicon().bitmap();
   } else {
     ResourceBundle &rb = ResourceBundle::GetSharedInstance();
     return *rb.GetBitmapNamed(IDR_DEFAULT_FAVICON);
@@ -494,7 +495,7 @@ void NavigationController::SetAlternateNavURLFetcher(
 
 void NavigationController::DidNavigateToEntry(NavigationEntry* entry) {
   DCHECK(active_contents_);
-  DCHECK(entry->GetType() == active_contents_->type());
+  DCHECK(entry->tab_type() == active_contents_->type());
 
   SetContentStateIfEmpty(entry);
 
@@ -504,8 +505,8 @@ void NavigationController::DidNavigateToEntry(NavigationEntry* entry) {
   // seen before, then consider it a new navigation.  Note that if the entry
   // has a SiteInstance, it should be the same as the SiteInstance of the
   // active WebContents, because we have just navigated to it.
-  DCHECK(entry->GetPageID() >= 0) << "Page ID must be set before calling us.";
-  if (entry->GetPageID() > GetMaxPageID()) {
+  DCHECK(entry->page_id() >= 0) << "Page ID must be set before calling us.";
+  if (entry->page_id() > GetMaxPageID()) {
     InsertEntry(entry);
     NotifyNavigationEntryCommitted();
     return;
@@ -516,17 +517,17 @@ void NavigationController::DidNavigateToEntry(NavigationEntry* entry) {
   // must update the current entry index accordingly.  When navigating to the
   // same URL, a new PageID is not created.
 
-  int existing_entry_index = GetEntryIndexWithPageID(entry->GetType(),
+  int existing_entry_index = GetEntryIndexWithPageID(entry->tab_type(),
                                                      entry->site_instance(),
-                                                     entry->GetPageID());
+                                                     entry->page_id());
   NavigationEntry* existing_entry = (existing_entry_index != -1) ?
       entries_[existing_entry_index].get() : NULL;
   if (!existing_entry) {
     // No existing entry, then simply ignore this navigation!
-    DLOG(WARNING) << "ignoring navigation for page: " << entry->GetPageID();
+    DLOG(WARNING) << "ignoring navigation for page: " << entry->page_id();
   } else if ((existing_entry != pending_entry_) && pending_entry_ &&
-             (pending_entry_->GetPageID() == -1) &&
-             (pending_entry_->GetURL() == existing_entry->GetURL())) {
+             (pending_entry_->page_id() == -1) &&
+             (pending_entry_->url() == existing_entry->url())) {
     // Not a new navigation.
     existing_entry->set_unique_id(pending_entry_->unique_id());
     DiscardPendingEntry();
@@ -536,12 +537,10 @@ void NavigationController::DidNavigateToEntry(NavigationEntry* entry) {
     // page in session history could have resulted in a new client redirect.
     // The given entry might also provide a new title (typically an empty title
     // to overwrite the existing title).
-    existing_entry->SetURL(entry->GetURL());
-    existing_entry->SetTitle(entry->GetTitle());
-    existing_entry->SetFavIconURL(entry->GetFavIconURL());
-    existing_entry->SetFavIcon(entry->GetFavIcon());
-    existing_entry->SetValidFavIcon(entry->IsValidFavIcon());
-    existing_entry->SetContentState(entry->GetContentState());
+    existing_entry->set_url(entry->url());
+    existing_entry->set_title(entry->title());
+    existing_entry->favicon() = entry->favicon();
+    existing_entry->set_content_state(entry->content_state());
 
     // TODO(brettw) why only copy the security style and no other SSL stuff?
     existing_entry->ssl().set_security_style(entry->ssl().security_style());
@@ -579,7 +578,7 @@ void NavigationController::DidNavigateToEntry(NavigationEntry* entry) {
   if (index < 0 || GetPendingEntryIndex() != -1)
     return;
 
-  TabContentsType active_type = GetEntryAtIndex(index)->GetType();
+  TabContentsType active_type = GetEntryAtIndex(index)->tab_type();
   for (TabContentsMap::iterator i = tab_contents_map_.begin();
        i != tab_contents_map_.end(); ++i) {
     if (i->first != active_type)
@@ -619,12 +618,12 @@ void NavigationController::DiscardPendingEntry() {
 
   // Synchronize the active_contents_ to the last committed entry.
   NavigationEntry* last_entry = GetLastCommittedEntry();
-  if (last_entry && last_entry->GetType() != active_contents_->type()) {
+  if (last_entry && last_entry->tab_type() != active_contents_->type()) {
     TabContents* from_contents = active_contents_;
     from_contents->SetActive(false);
 
     // Switch back to the previous tab contents.
-    active_contents_ = GetTabContents(last_entry->GetType());
+    active_contents_ = GetTabContents(last_entry->tab_type());
     DCHECK(active_contents_);
 
     active_contents_->SetActive(true);
@@ -648,7 +647,7 @@ void NavigationController::DiscardPendingEntry() {
 }
 
 void NavigationController::InsertEntry(NavigationEntry* entry) {
-  DCHECK(entry->GetTransitionType() != PageTransition::AUTO_SUBFRAME);
+  DCHECK(entry->transition_type() != PageTransition::AUTO_SUBFRAME);
 
   // Copy the pending entry's unique ID to the committed entry.
   // I don't know if pending_entry_index_ can be other than -1 here.
@@ -702,7 +701,7 @@ void NavigationController::NavigateToPendingEntry(bool reload) {
   // last visited that page.
   pending_entry_->ssl() = NavigationEntry::SSLStatus();
 
-  if (from_contents && from_contents->type() != pending_entry_->GetType())
+  if (from_contents && from_contents->type() != pending_entry_->tab_type())
     from_contents->SetActive(false);
 
   HWND parent =
@@ -767,9 +766,9 @@ void NavigationController::IndexOfActiveEntryChanged(
 TabContents* NavigationController::GetTabContentsCreateIfNecessary(
     HWND parent,
     const NavigationEntry& entry) {
-  TabContents* contents = GetTabContents(entry.GetType());
+  TabContents* contents = GetTabContents(entry.tab_type());
   if (!contents) {
-    contents = TabContents::CreateWithType(entry.GetType(), parent, profile_,
+    contents = TabContents::CreateWithType(entry.tab_type(), parent, profile_,
                                            entry.site_instance());
     if (!contents->AsWebContents()) {
       // Update the max page id, otherwise the newly created TabContents may
@@ -780,8 +779,8 @@ TabContents* NavigationController::GetTabContentsCreateIfNecessary(
       // max_page_id is updated to reflect the restored range of page ids.
       int32 max_page_id = contents->GetMaxPageID();
       for (size_t i = 0; i < entries_.size(); ++i) {
-        if (entries_[i]->GetType() == entry.GetType())
-          max_page_id = std::max(max_page_id, entries_[i]->GetPageID());
+        if (entries_[i]->tab_type() == entry.tab_type())
+          max_page_id = std::max(max_page_id, entries_[i]->page_id());
       }
       contents->UpdateMaxPageID(max_page_id);
     }
@@ -973,9 +972,9 @@ int NavigationController::GetEntryIndexWithPageID(
     DCHECK(instance == NULL);
 
   for (int i = static_cast<int>(entries_.size()) - 1; i >= 0; --i) {
-    if ((entries_[i]->GetType() == type) &&
+    if ((entries_[i]->tab_type() == type) &&
         (entries_[i]->site_instance() == instance) &&
-        (entries_[i]->GetPageID() == page_id))
+        (entries_[i]->page_id() == page_id))
       return i;
   }
   return -1;

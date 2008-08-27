@@ -34,8 +34,8 @@ class TabStripModelTestTabContents : public TabContents {
 
   bool Navigate(const NavigationEntry& entry, bool reload) {
     NavigationEntry* pending_entry = new NavigationEntry(entry);
-    if (pending_entry->GetPageID() == -1) {
-      pending_entry->SetPageID(g_page_id_++);
+    if (pending_entry->page_id() == -1) {
+      pending_entry->set_page_id(g_page_id_++);
     }
     DidNavigateToEntry(pending_entry);
 

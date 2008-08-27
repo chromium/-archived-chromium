@@ -531,13 +531,13 @@ void SSLManager::OnMixedContentRequest(ResourceDispatcherHost* rdh,
 void SSLManager::OnCertError(CertError* error) {
   // Ask our delegate to deal with the error.
   NavigationEntry* entry = controller_->GetActiveEntry();
-  delegate()->OnCertError(entry->GetURL(), error);
+  delegate()->OnCertError(entry->url(), error);
 }
 
 void SSLManager::OnMixedContent(MixedContentHandler* mixed_content) {
   // Ask our delegate to deal with the mixed content.
   NavigationEntry* entry = controller_->GetActiveEntry();
-  delegate()->OnMixedContent(controller_, entry->GetURL(), mixed_content);
+  delegate()->OnMixedContent(controller_, entry->url(), mixed_content);
 }
 
 void SSLManager::Observe(NotificationType type,
@@ -578,7 +578,7 @@ void SSLManager::InitializeEntryIfNeeded(NavigationEntry* entry) {
   // fresh entry and should get the default style.
   if (entry->ssl().security_style() == SECURITY_STYLE_UNKNOWN) {
     entry->ssl().set_security_style(
-        delegate()->GetDefaultStyle(entry->GetURL()));
+        delegate()->GetDefaultStyle(entry->url()));
   }
 }
 

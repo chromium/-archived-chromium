@@ -47,13 +47,13 @@ void FavIconHelper::SetFavIconURL(const GURL& icon_url) {
   if (!GetHistoryService())
     return;
 
-  if (!fav_icon_expired_ && entry->IsValidFavIcon() &&
-      entry->GetFavIconURL() == icon_url) {
+  if (!fav_icon_expired_ && entry->favicon().is_valid() &&
+      entry->favicon().url() == icon_url) {
     // We already have the icon, no need to proceed.
     return;
   }
 
-  entry->SetFavIconURL(icon_url);
+  entry->favicon().set_url(icon_url);
 
   if (got_fav_icon_from_history_)
     DownloadFavIconOrAskHistory(entry);
@@ -119,12 +119,12 @@ void FavIconHelper::UpdateFavIcon(NavigationEntry* entry,
 void FavIconHelper::UpdateFavIcon(NavigationEntry* entry,
                                   const SkBitmap& image) {
   // No matter what happens, we need to mark the favicon as being set.
-  entry->SetValidFavIcon(true);
+  entry->favicon().set_is_valid(true);
 
   if (image.empty())
     return;
 
-  entry->SetFavIcon(image);
+  entry->favicon().set_bitmap(image);
   if (web_contents_->delegate()) {
     web_contents_->delegate()->NavigationStateChanged(
         web_contents_, TabContents::INVALIDATE_FAVICON);
@@ -133,8 +133,8 @@ void FavIconHelper::UpdateFavIcon(NavigationEntry* entry,
 
 NavigationEntry* FavIconHelper::GetEntry() {
   NavigationEntry* entry = web_contents_->controller()->GetActiveEntry();
-  if (entry && entry->GetURL() == url_ &&
-      web_contents_->IsActiveEntry(entry->GetPageID())) {
+  if (entry && entry->url() == url_ &&
+      web_contents_->IsActiveEntry(entry->page_id())) {
     return entry;
   }
   // If the URL has changed out from under us (as will happen with redirects)
@@ -156,20 +156,20 @@ void FavIconHelper::OnFavIconDataForInitialURL(
 
   fav_icon_expired_ = (know_favicon && expired);
 
-  if (know_favicon && !entry->IsValidFavIcon() &&
-      (!got_fav_icon_url_ || entry->GetFavIconURL() == icon_url)) {
+  if (know_favicon && !entry->favicon().is_valid() &&
+      (!got_fav_icon_url_ || entry->favicon().url() == icon_url)) {
     // The db knows the favicon (although it may be out of date) and the entry
     // doesn't have an icon. Set the favicon now, and if the favicon turns out
     // to be expired (or the wrong url) we'll fetch later on. This way the
     // user doesn't see a flash of the default favicon.
-    entry->SetFavIconURL(icon_url);
+    entry->favicon().set_url(icon_url);
     if (data && !data->data.empty())
       UpdateFavIcon(entry, data->data);
-    entry->SetValidFavIcon(true);
+    entry->favicon().set_is_valid(true);
   }
 
   if (know_favicon && !expired) {
-    if (got_fav_icon_url_ && entry->GetFavIconURL() != icon_url) {
+    if (got_fav_icon_url_ && entry->favicon().url() != icon_url) {
       // Mapping in the database is wrong. DownloadFavIconOrAskHistory will
       // update the mapping for this url and download the favicon if we don't
       // already have it.
@@ -195,7 +195,7 @@ void FavIconHelper::DownloadFavIconOrAskHistory(NavigationEntry* entry) {
     // favicon given the favicon URL.
     if (profile()->IsOffTheRecord()) {
       GetHistoryService()->GetFavIcon(
-          entry->GetFavIconURL(),
+          entry->favicon().url(),
           &cancelable_consumer_,
           NewCallback(this, &FavIconHelper::OnFavIconData));
     } else {
@@ -206,8 +206,8 @@ void FavIconHelper::DownloadFavIconOrAskHistory(NavigationEntry* entry) {
       // This is asynchronous. The history service will call back when done.
       // Issue the request and associate the current page ID with it.
       GetHistoryService()->UpdateFavIconMappingAndFetch(
-          entry->GetURL(),
-          entry->GetFavIconURL(), &cancelable_consumer_,
+          entry->url(),
+          entry->favicon().url(), &cancelable_consumer_,
           NewCallback(this, &FavIconHelper::OnFavIconData));
     }
   }
@@ -241,7 +241,7 @@ void FavIconHelper::OnFavIconData(
 
 void FavIconHelper::ScheduleDownload(NavigationEntry* entry) {
   const int download_id = web_contents_->render_view_host()->DownloadImage(
-      entry->GetFavIconURL(), kFavIconSize);
+      entry->favicon().url(), kFavIconSize);
   if (!download_id) {
     // Download request failed.
     return;
@@ -249,7 +249,7 @@ void FavIconHelper::ScheduleDownload(NavigationEntry* entry) {
   // Download ids should be unique.
   DCHECK(download_requests_.find(download_id) == download_requests_.end());
   download_requests_[download_id] =
-      DownloadRequest(entry->GetURL(), entry->GetFavIconURL());
+      DownloadRequest(entry->url(), entry->favicon().url());
 }
 
 SkBitmap FavIconHelper::ConvertToFavIconSize(const SkBitmap& image) {

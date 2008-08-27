@@ -803,7 +803,7 @@ bool NewTabUIContents::Navigate(const NavigationEntry& entry, bool reload) {
   // also the pending entry.
   NavigationEntry* pending_entry = controller()->GetPendingEntry();
   DCHECK(pending_entry && pending_entry == &entry);
-  pending_entry->SetTitle(forced_title_);
+  pending_entry->set_title(forced_title_);
 
   return result;
 }

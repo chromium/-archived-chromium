@@ -173,9 +173,9 @@ void SafeBrowsingBlockingPage::DisplayBlockingPage() {
     // this dummy entry a new one.  Because we'll remove the entry when the
     // interstitial is going away, it will not conflict with any future
     // navigations.
-    nav_entry->SetPageID(tab_->GetMaxPageID() + 1);
-    nav_entry->SetPageType(NavigationEntry::INTERSTITIAL_PAGE);
-    nav_entry->SetURL(url_);
+    nav_entry->set_page_id(tab_->GetMaxPageID() + 1);
+    nav_entry->set_page_type(NavigationEntry::INTERSTITIAL_PAGE);
+    nav_entry->set_url(url_);
     tab_->controller()->DidNavigateToEntry(nav_entry);
     created_temporary_entry_ = true;
   }
@@ -213,7 +213,7 @@ bool SafeBrowsingBlockingPage::GoBack() {
     // interstitial to hide which will trigger "this" to be deleted.
     tab_->controller()->LoadURL(GURL("about:blank"),
                                 PageTransition::AUTO_BOOKMARK);
-  } else if (prev_entry->GetType() != TAB_CONTENTS_WEB ||
+  } else if (prev_entry->tab_type() != TAB_CONTENTS_WEB ||
              prev_entry->restored() ||
              !is_main_frame_) {
     // We do navigate back if any of these is true:

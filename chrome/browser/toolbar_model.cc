@@ -39,7 +39,7 @@ std::wstring ToolbarModel::GetText() {
       // Explicitly hide the URL for this tab.
       url = GURL();
     } else if (entry) {
-      url = entry->GetDisplayURL();
+      url = entry->display_url();
     }
   }
   return gfx::ElideUrl(url, ChromeFont(), 0, languages);
@@ -133,10 +133,9 @@ void ToolbarModel::GetIconHoverText(std::wstring* text, SkColor* text_color) {
         text->assign(error_info.short_description());
         *text_color = kBrokenHttpsInfoBubbleTextColor;
       } else {
-        const GURL& url = entry->GetURL();
-        DCHECK(url.has_host());
+        DCHECK(entry->url().has_host());
         text->assign(l10n_util::GetStringF(IDS_SECURE_CONNECTION,
-                                           UTF8ToWide(url.host())));
+                                           UTF8ToWide(entry->url().host())));
         *text_color = kOKHttpsInfoBubbleTextColor;
       }
       break;
@@ -196,7 +195,7 @@ void ToolbarModel::CreateErrorText(NavigationEntry* entry, std::wstring* text) {
   std::vector<SSLErrorInfo> errors;
   SSLErrorInfo::GetErrorsForCertStatus(ssl.cert_id(),
                                        ssl.cert_status(),
-                                       entry->GetURL(),
+                                       entry->url(),
                                        &errors);
   if (ssl.has_mixed_content()) {
     errors.push_back(SSLErrorInfo::CreateError(SSLErrorInfo::MIXED_CONTENTS,

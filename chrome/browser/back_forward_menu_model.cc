@@ -154,7 +154,7 @@ std::wstring BackForwardMenuModel::GetLabel(int menu_id) const {
     return L"";
 
   NavigationEntry* entry = GetNavigationEntry(menu_id);
-  return entry->GetTitle();
+  return entry->title();
 }
 
 const SkBitmap& BackForwardMenuModel::GetIcon(int menu_id) const {
@@ -163,7 +163,7 @@ const SkBitmap& BackForwardMenuModel::GetIcon(int menu_id) const {
     return GetEmptyIcon();
 
   NavigationEntry* entry = GetNavigationEntry(menu_id);
-  return entry->GetFavIcon();
+  return entry->favicon().bitmap();
 }
 
 bool BackForwardMenuModel::IsItemSeparator(int menu_id) const {
@@ -273,14 +273,14 @@ int BackForwardMenuModel::GetIndexOfNextChapterStop(int start_from,
   }
 
   NavigationEntry* start_entry = controller->GetEntryAtIndex(start_from);
-  GURL url = start_entry->GetURL();
+  const GURL& url = start_entry->url();
 
   if (!forward) {
     // When going backwards we return the first entry we find that has a
     // different domain.
     for (int i = start_from - 1; i >= 0; --i) {
       if (!net::RegistryControlledDomainService::SameDomainOrHost(url,
-              controller->GetEntryAtIndex(i)->GetURL()))
+              controller->GetEntryAtIndex(i)->url()))
         return i;
     }
     // We have reached the beginning without finding a chapter stop.
@@ -290,7 +290,7 @@ int BackForwardMenuModel::GetIndexOfNextChapterStop(int start_from,
     // different domain.
     for (int i = start_from + 1; i < max_count; ++i) {
       if (!net::RegistryControlledDomainService::SameDomainOrHost(url,
-              controller->GetEntryAtIndex(i)->GetURL()))
+              controller->GetEntryAtIndex(i)->url()))
         return i - 1;
     }
     // Last entry is always considered a chapter stop.

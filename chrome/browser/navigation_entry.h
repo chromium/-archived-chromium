@@ -27,6 +27,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 class NavigationEntry {
  public:
+  // SSL -----------------------------------------------------------------------
+
   // Collects the SSL information for this NavigationEntry.
   class SSLStatus {
    public:
@@ -85,9 +87,10 @@ class NavigationEntry {
       return (content_status_ & UNSAFE_CONTENT) != 0;
     }
 
-    // Raw accessors for all the content status flags. This is used by the UI
-    // tests for checking and for certain copying. Use the per-status functions
-    // for normal usage.
+    // Raw accessors for all the content status flags. This contains a
+    // combination of any of the ContentStatusFlags defined above. It is used
+    // by the UI tests for checking and for certain copying. Use the per-status
+    // functions for normal usage.
     void set_content_status(int content_status) {
       content_status_ = content_status;
     }
@@ -96,11 +99,12 @@ class NavigationEntry {
     }
 
    private:
+    // See the accessors above for descriptions.
     SecurityStyle security_style_;
     int cert_id_;
     int cert_status_;
     int security_bits_;
-    int content_status_;  // A combination of any of the ContentStatusFlags.
+    int content_status_;
 
     // Copy and assignment is explicitly allowed for this class.
   };
@@ -112,10 +116,52 @@ class NavigationEntry {
     INTERSTITIAL_PAGE
   };
 
-  // Use this to get a new unique ID during construction.
-  static int GetUniqueID();
+  // Favicon -------------------------------------------------------------------
 
-  // Create a new NavigationEntry.
+  // Collects the favicon related information for a NavigationEntry.
+  class FaviconStatus {
+   public:
+    FaviconStatus();
+
+    // Indicates whether we've gotten an official favicon for the page, or are
+    // just using the default favicon.
+    void set_is_valid(bool is_valid) {
+      valid_ = is_valid;
+    }
+    bool is_valid() const {
+      return valid_;
+    }
+
+    // The URL of the favicon which was used to load it off the web.
+    void set_url(const GURL& favicon_url) {
+      url_ = favicon_url;
+    }
+    const GURL& url() const {
+      return url_;
+    }
+
+    // The favicon bitmap for the page. If the favicon has not been explicitly
+    // set or it empty, it will return the default favicon. Note that this is
+    // loaded asynchronously, so even if the favicon URL is valid we may return
+    // the default favicon if we haven't gotten the data yet.
+    void set_bitmap(const SkBitmap& bitmap) {
+      bitmap_ = bitmap;
+    }
+    const SkBitmap& bitmap() const {
+      return bitmap_;
+    }
+
+   private:
+    // See the accessors above for descriptions.
+    bool valid_;
+    GURL url_;
+    SkBitmap bitmap_;
+
+    // Copy and assignment is explicitly allowed for this class.
+  };
+
+  // ---------------------------------------------------------------------------
+
   explicit NavigationEntry(TabContentsType type);
   NavigationEntry(TabContentsType type,
                   SiteInstance* instance,
@@ -123,29 +169,124 @@ class NavigationEntry {
                   const GURL& url,
                   const std::wstring& title,
                   PageTransition::Type transition_type);
-
   ~NavigationEntry() {
+  }
+
+  // Page-related stuff --------------------------------------------------------
+
+  // A unique ID is preserved across commits and redirects, which means that
+  // sometimes a NavigationEntry's unique ID needs to be set (e.g. when
+  // creating a committed entry to correspond to a to-be-deleted pending entry,
+  // the pending entry's ID must be copied).
+  void set_unique_id(int unique_id) {
+    unique_id_ = unique_id;
+  }
+  int unique_id() const {
+    return unique_id_;
   }
 
   // Return the TabContents type required to display this entry. Immutable
   // because a tab can never change its type.
-  TabContentsType GetType() const { return type_; }
+  TabContentsType tab_type() const {
+    return tab_type_;
+  }
 
-  // Accessors for the unique ID of this entry.  A unique ID is preserved across
-  // commits and redirects, which means that sometimes a NavigationEntry's
-  // unique ID needs to be set (e.g. when creating a committed entry to
-  // correspond to a to-be-deleted pending entry, the pending entry's ID must be
-  // copied).
-  int unique_id() const { return unique_id_; }
-  void set_unique_id(int unique_id) { unique_id_ = unique_id; }
+  // The SiteInstance tells us how to share sub-processes when the tab type is
+  // TAB_CONTENTS_WEB. This will be NULL otherwise. This is a reference counted
+  // pointer to a shared site instance.
+  //
+  // Note that the SiteInstance should usually not be changed after it is set,
+  // but this may happen if the NavigationEntry was cloned and needs to use a
+  // different SiteInstance.
+  void set_site_instance(SiteInstance* site_instance) {
+    site_instance_ = site_instance;
+  }
+  SiteInstance* site_instance() const {
+    return site_instance_;
+  }
 
-  void SetSiteInstance(SiteInstance* site_instance);
-  SiteInstance* site_instance() const { return site_instance_; }
+  // The page type tells us if this entry is for an interstitial or error page.
+  // See the PageType enum above.
+  void set_page_type(PageType page_type) {
+    page_type_ = page_type;
+  }
+  PageType page_type() const {
+    return page_type_;
+  }
 
-  void SetURL(const GURL& url) { url_ = url; }
-  const GURL& GetURL() const { return url_; }
+  // The actual URL of the page. For some about pages, this may be a scary
+  // data: URL or something like that. Use display_url() below for showing to
+  // the user.
+  void set_url(const GURL& url) {
+    url_ = url;
+  }
+  const GURL& url() const {
+    return url_;
+  }
 
-  // All the SSL flags.
+  // The display URL, when nonempty, will override the actual URL of the page
+  // when we display it to the user. This allows us to have nice and friendly
+  // URLs that the user sees for things like about: URLs, but actually feed
+  // the renderer a data URL that results in the content loading.
+  //
+  // display_url() will return the URL to display to the user in all cases, so
+  // if there is no overridden display URL, it will return the actual one.
+  void set_display_url(const GURL& url) {
+    display_url_ = (url == url_) ? GURL() : url;
+  }
+  bool has_display_url() const {
+    return !display_url_.is_empty();
+  }
+  const GURL& display_url() const {
+    return display_url_.is_empty() ? url_ : display_url_;
+  }
+
+  // The title as set by the page. This will be empty if there is no title set.
+  // The caller is responsible for detecting when there is no title and
+  // displaying the appropriate "Untitled" label if this is being displayed to
+  // the user.
+  void set_title(const std::wstring& title) {
+    title_ = title;
+  }
+  const std::wstring& title() const {
+    return title_;
+  }
+
+  // The favicon data and tracking information. See FaviconStatus above.
+  const FaviconStatus& favicon() const {
+    return favicon_;
+  }
+  FaviconStatus& favicon() {
+    return favicon_;
+  }
+
+  // Content state is an opaque blob created by WebKit that represents the
+  // state of the page. This includes form entries and scroll position for each
+  // frame. We store it so that we can supply it back to WebKit to restore form
+  // state properly when the user goes back and forward.
+  //
+  // WARNING: This state is saved to the file and used to restore previous
+  // states. If you write a custom TabContents and provide your own state make
+  // sure you have the ability to modify the format in the future while being
+  // able to deal with older versions.
+  void set_content_state(const std::string& state) {
+    content_state_ = state;
+  }
+  const std::string& content_state() const {
+    return content_state_;
+  }
+
+  // Describes the current page that the tab represents. For web pages
+  // (TAB_CONTENTS_WEB) this is the ID that the renderer generated for the page
+  // and is how we can tell new versus renavigations.
+  void set_page_id(int page_id) {
+    page_id_ = page_id;
+  }
+  int32 page_id() const {
+    return page_id_;
+  }
+
+  // All the SSL flags and state. See SSLStatus above.
   const SSLStatus& ssl() const {
     return ssl_;
   }
@@ -153,77 +294,55 @@ class NavigationEntry {
     return ssl_;
   }
 
-  // Set / Get the page type.
-  void  SetPageType(PageType page_type) { page_type_ = page_type; }
-  PageType GetPageType() const { return page_type_; }
+  // Tracking stuff ------------------------------------------------------------
 
-  void SetDisplayURL(const GURL& url) {
-    display_url_ = (url == url_) ? GURL() : url;
-  }
-  bool HasDisplayURL() const { return !display_url_.is_empty(); }
-  const GURL& GetDisplayURL() const {
-    return display_url_.is_empty() ? url_ : display_url_;
-  }
-
-  void SetTitle(const std::wstring& title) { title_ = title; }
-  const std::wstring& GetTitle() const { return title_; }
-
-  // WARNING: This state is saved to the database and used to restore previous
-  // states. If you write a custom TabContents and provide your own state make
-  // sure you have the ability to modify the format in the future while being
-  // able to deal with older versions.
-  void SetContentState(const std::string& state);
-  const std::string& GetContentState() const { return state_; }
-
-  void SetPageID(int page_id) { page_id_ = page_id; }
-  int32 GetPageID() const { return page_id_; }
-
-  void SetTransitionType(PageTransition::Type transition_type) {
+  // The transition type indicates what the user did to move to this page from
+  // the previous page.
+  void set_transition_type(PageTransition::Type transition_type) {
     transition_type_ = transition_type;
   }
-  PageTransition::Type GetTransitionType() const { return transition_type_; }
-
-  // Sets the URL of the favicon.
-  void SetFavIconURL(const GURL& favicon_url) { favicon_url_ = favicon_url; }
-
-  // Returns the URL of the favicon. This may be empty if we don't know the
-  // favicon, or didn't succesfully load it before navigating to another page.
-  const GURL& GetFavIconURL() const { return favicon_url_; }
-
-  // Sets the favicon for the page.
-  void SetFavIcon(const SkBitmap& favicon) { favicon_ = favicon; }
-
-  // Returns the favicon for the page. If the icon has not been explicitly set,
-  // or is empty, this returns the default favicon.
-  // As loading the favicon happens asynchronously, it is possible for this to
-  // return the default favicon even though the page has a favicon other than
-  // the default.
-  const SkBitmap& GetFavIcon() const { return favicon_; }
-
-  // Whether the favicon is valid. The favicon is valid if it represents the
-  // true favicon of the site.
-  void SetValidFavIcon(bool valid_fav_icon) {
-    valid_fav_icon_ = valid_fav_icon;
+  PageTransition::Type transition_type() const {
+    return transition_type_;
   }
-  bool IsValidFavIcon() const { return valid_fav_icon_; }
 
-  void SetUserTypedURL(const GURL& user_typed_url) {
+  // The user typed URL was the URL that the user initiated the navigation
+  // with, regardless of any redirects. This is used to generate keywords, for
+  // example, based on "what the user thinks the site is called" rather than
+  // what it's actually called. For example, if the user types "foo.com", that
+  // may redirect somewhere arbitrary like "bar.com/foo", and we want to use
+  // the name that the user things of the site as having.
+  //
+  // This URL will be is_empty() if the URL was navigated to some other way.
+  // Callers should fall back on using the regular or display URL in this case.
+  void set_user_typed_url(const GURL& user_typed_url) {
     user_typed_url_ = user_typed_url;
   }
-  const GURL& GetUserTypedURL() const { return user_typed_url_; }
-
-  // If the user typed url is valid it is returned, otherwise url is returned.
-  const GURL& GetUserTypedURLOrURL() const {
-    return user_typed_url_.is_valid() ? user_typed_url_ : url_;
+  const GURL& user_typed_url() const {
+    return user_typed_url_;
   }
 
-  bool HasPostData() const { return has_post_data_; }
+  // Post data is form data that was posted to get to this page. The data will
+  // have to be reposted to reload the page properly. This flag indicates
+  // whether the page had post data.
+  //
+  // The actual post data is stored in the content_state and is extracted by
+  // WebKit to actually make the request.
+  void set_has_post_data(bool has_post_data) {
+    has_post_data_ = has_post_data;
+  }
+  bool has_post_data() const {
+    return has_post_data_;
+  }
 
-  void SetHasPostData(bool has_post_data) { has_post_data_ = has_post_data; }
-
-  // See comment above field.
-  void set_restored(bool restored) { restored_ = restored; }
-  bool restored() const { return restored_; }
+  // Was this entry created from session/tab restore? If so this is true and
+  // gets set to false once we navigate to it.
+  // (See NavigationController::DidNavigateToEntry).
+  void set_restored(bool restored) {
+    restored_ = restored;
+  }
+  bool restored() const {
+    return restored_;
+  }
 
  private:
   // WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
@@ -232,56 +351,24 @@ class NavigationEntry {
   // update SessionService/TabRestoreService appropriately.
   // WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
 
-  // Unique IDs only really need to distinguish the various existing entries
-  // from each other, rather than be unique over all time; so it doesn't matter
-  // if this eventually wraps.
-  static int unique_id_counter_;
-
-  TabContentsType type_;
-
+  // See the accessors above for descriptions.
   int unique_id_;
-
-  // If this entry is a TAB_CONTENTS_WEB, then keep a pointer to the
-  // SiteInstance that it belongs to.  This allows us to reuse the same
-  // process if the user goes Back across site boundaries.  If the process is
-  // gone by the time the user clicks Back, a new process will be created.
-  // This is NULL if this entry's type is not TAB_CONTENT_WEB.
+  TabContentsType tab_type_;
   scoped_refptr<SiteInstance> site_instance_;
-
-  // Describes the current page that the tab represents. This is not relevant
-  // for all tab contents types.
-  int32 page_id_;
-
-  GURL url_;
-  // The URL the user typed in.  May be invalid.
-  GURL user_typed_url_;
-  std::wstring title_;
-  GURL favicon_url_;
-  GURL display_url_;
-
-  std::string state_;
-
-  // The favorite icon for this entry.
-  SkBitmap favicon_;
-
   PageType page_type_;
-
+  GURL url_;
+  GURL display_url_;
+  std::wstring title_;
+  FaviconStatus favicon_;
+  std::string content_state_;
+  int32 page_id_;
   SSLStatus ssl_;
-
-  bool valid_fav_icon_;
-
-  // True if this navigation needs to send post data in order to be displayed
-  // properly.
-  bool has_post_data_;
-
-  // The transition type indicates what the user did to move to this page from
-  // the previous page.
   PageTransition::Type transition_type_;
-
-  // Was this entry created from session/tab restore? If so this is true and
-  // gets set to false once we navigate to it
-  // (NavigationControllerBase::DidNavigateToEntry).
+  GURL user_typed_url_;
+  bool has_post_data_;
   bool restored_;
+
+  // Copy and assignment is explicitly allowed for this class.
 };
 
-#endif  //  CHROME_BROWSER_NAVIGATION_ENTRY_H_
+#endif  // CHROME_BROWSER_NAVIGATION_ENTRY_H_

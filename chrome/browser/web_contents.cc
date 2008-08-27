@@ -579,13 +579,13 @@ bool WebContents::Navigate(const NavigationEntry& entry, bool reload) {
   // Navigate in the desired RenderViewHost
   dest_render_view_host->NavigateToEntry(entry, reload);
 
-  if (entry.GetPageID() == -1) {
+  if (entry.page_id() == -1) {
     // HACK!!  This code suppresses javascript: URLs from being added to
     // session history, which is what we want to do for javascript: URLs that
     // do not generate content.  What we really need is a message from the
     // renderer telling us that a new page was not created.  The same message
     // could be used for mailto: URLs and the like.
-    if (entry.GetURL().SchemeIs("javascript"))
+    if (entry.url().SchemeIs("javascript"))
       return false;
   }
 
@@ -593,7 +593,7 @@ bool WebContents::Navigate(const NavigationEntry& entry, bool reload) {
     HistoryService* history =
         profile()->GetHistoryService(Profile::IMPLICIT_ACCESS);
     if (history)
-      history->SetFavIconOutOfDateForPage(entry.GetURL());
+      history->SetFavIconOutOfDateForPage(entry.url());
   }
 
   return true;
@@ -940,7 +940,7 @@ void WebContents::CreateShortcut() {
 
   // We only allow one pending install request. By resetting the page id we
   // effectively cancel the pending install request.
-  pending_install_.page_id = entry->GetPageID();
+  pending_install_.page_id = entry->page_id();
   pending_install_.icon = GetFavIcon();
   pending_install_.title = GetTitle();
   pending_install_.url = GetURL();
@@ -1001,7 +1001,7 @@ bool WebContents::IsActiveEntry(int32 page_id) {
   NavigationEntry* active_entry = controller()->GetActiveEntry();
   return (active_entry != NULL &&
           active_entry->site_instance() == site_instance() &&
-          active_entry->GetPageID() == page_id);
+          active_entry->page_id() == page_id);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1214,15 +1214,15 @@ NavigationEntry* WebContents::CreateNavigationEntryForCommit(
   // don't set the URL. This will happen in the DidNavigateMainFrame/SubFrame
   // because the entry's URL should represent the toplevel frame only.
   NavigationEntry* entry = new NavigationEntry(type());
-  entry->SetPageID(params.page_id);
-  entry->SetTransitionType(params.transition);
-  entry->SetSiteInstance(site_instance());
+  entry->set_page_id(params.page_id);
+  entry->set_transition_type(params.transition);
+  entry->set_site_instance(site_instance());
 
   // Now that we've assigned a SiteInstance to this entry, we need to
   // assign it to the NavigationController's pending entry as well.  This
   // allows us to find it via GetEntryWithPageID, etc.
   if (controller()->GetPendingEntry())
-    controller()->GetPendingEntry()->SetSiteInstance(entry->site_instance());
+    controller()->GetPendingEntry()->set_site_instance(entry->site_instance());
 
   // Update the site of the SiteInstance if it doesn't have one yet, unless we
   // are showing an interstitial page.  If we are, we should wait until the
@@ -1246,13 +1246,10 @@ NavigationEntry* WebContents::CreateNavigationEntryForCommit(
     // without an URL (via window.open), we may not have a committed entry yet!
     NavigationEntry* old_entry = controller()->GetLastCommittedEntry();
     if (old_entry) {
-      entry->SetTitle(old_entry->GetTitle());
-      entry->SetFavIcon(old_entry->GetFavIcon());
-      entry->SetFavIconURL(old_entry->GetFavIconURL());
-      if (in_page_nav) {
-        entry->SetValidFavIcon(old_entry->IsValidFavIcon());
+      entry->set_title(old_entry->title());
+      entry->favicon() = old_entry->favicon();
+      if (in_page_nav)
         entry->ssl() = old_entry->ssl();
-      }
     }
   }
 
@@ -1265,18 +1262,18 @@ void WebContents::DidNavigateMainFramePreCommit(
   // Update contents MIME type of the main webframe.
   contents_mime_type_ = params.contents_mime_type;
 
-  entry->SetURL(params.url);
+  entry->set_url(params.url);
 
   NavigationEntry* pending = controller()->GetPendingEntry();
   if (pending) {
     // Copy fields from the pending NavigationEntry into the actual
     // NavigationEntry that we're committing to.
-    entry->SetUserTypedURL(pending->GetUserTypedURL());
-    if (pending->HasDisplayURL())
-      entry->SetDisplayURL(pending->GetDisplayURL());
-    if (pending->GetURL().SchemeIsFile())
-      entry->SetTitle(pending->GetTitle());
-    entry->SetContentState(pending->GetContentState());
+    entry->set_user_typed_url(pending->user_typed_url());
+    if (pending->has_display_url())
+      entry->set_display_url(pending->display_url());
+    if (pending->url().SchemeIsFile())
+      entry->set_title(pending->title());
+    entry->set_content_state(pending->content_state());
   }
 
   // We no longer know the title after this navigation.
@@ -1306,7 +1303,7 @@ void WebContents::DidNavigateMainFramePreCommit(
   // destination of a redirect, we don't want to treat it as a redirect
   // even though that's what its transition will be) http://b/1117048.
   bool user_initiated_big_change = true;
-  if ((PageTransition::IsRedirect(entry->GetTransitionType()) &&
+  if ((PageTransition::IsRedirect(entry->transition_type()) &&
        !controller()->GetPendingEntry()) ||
        (params.gesture == NavigationGestureAuto) ||
        IsInPageNavigation(params.url)) {
@@ -1346,7 +1343,7 @@ void WebContents::DidNavigateMainFramePreCommit(
   MaybeCloseChildWindows(params);
 
   // Get the favicon, either from history or request it from the net.
-  fav_icon_helper_.FetchFavIcon(entry->GetURL());
+  fav_icon_helper_.FetchFavIcon(entry->url());
 
   // We hide the FindInPage window when the user navigates away, except on
   // reload.
@@ -1354,7 +1351,7 @@ void WebContents::DidNavigateMainFramePreCommit(
       PageTransition::RELOAD)
     SetFindInPageVisible(false);
 
-  entry->SetHasPostData(params.is_post);
+  entry->set_has_post_data(params.is_post);
 }
 
 void WebContents::DidNavigateSubFramePreCommit(
@@ -1369,10 +1366,10 @@ void WebContents::DidNavigateSubFramePreCommit(
 
   // Reset entry state to match that of the pending entry.
   entry->set_unique_id(last_committed->unique_id());
-  entry->SetURL(last_committed->GetURL());
-  entry->SetTransitionType(last_committed->GetTransitionType());
-  entry->SetUserTypedURL(last_committed->GetUserTypedURL());
-  entry->SetContentState(last_committed->GetContentState());
+  entry->set_url(last_committed->url());
+  entry->set_transition_type(last_committed->transition_type());
+  entry->set_user_typed_url(last_committed->user_typed_url());
+  entry->set_content_state(last_committed->content_state());
 
   // TODO(jcampan): when navigating to an insecure/unsafe inner frame, the
   // main entry is the one that gets notified of the mixed/unsafe contents
@@ -1401,7 +1398,7 @@ void WebContents::DidNavigateAnyFramePreCommit(
   // download_manager can be NULL in unit test context.
   if (download_manager && download_manager ->in_progress_count() == 0 &&
       current_entry && !net::RegistryControlledDomainService::SameDomainOrHost(
-          current_entry->GetURL(), entry->GetURL())) {
+          current_entry->url(), entry->url())) {
     TimeDelta time_delta(
         TimeTicks::Now() - last_download_shelf_show_);
     if (time_delta >
@@ -1425,7 +1422,7 @@ void WebContents::DidNavigateAnyFramePreCommit(
     // Most of the time, the displayURL matches the loaded URL, but for about:
     // URLs, we use a data: URL as the real value.  We actually want to save
     // the about: URL to the history db and keep the data: URL hidden.
-    UpdateHistoryForNavigation(entry->GetDisplayURL(), params);
+    UpdateHistoryForNavigation(entry->display_url(), params);
   }
 }
 
@@ -1542,11 +1539,11 @@ void WebContents::UpdateState(RenderViewHost* rvh,
   unsigned changed_flags = 0;
 
   // Update the URL.
-  if (url != entry->GetURL()) {
+  if (url != entry->url()) {
     changed_flags |= INVALIDATE_URL;
     if (entry == controller()->GetActiveEntry())
       fav_icon_helper_.FetchFavIcon(url);
-    entry->SetURL(url);
+    entry->set_url(url);
   }
 
   // For file URLs without a title, use the pathname instead.
@@ -1556,16 +1553,16 @@ void WebContents::UpdateState(RenderViewHost* rvh,
   } else {
     TrimWhitespace(title, TRIM_ALL, &final_title);
   }
-  if (final_title != entry->GetTitle()) {
+  if (final_title != entry->title()) {
     changed_flags |= INVALIDATE_TITLE;
-    entry->SetTitle(final_title);
+    entry->set_title(final_title);
 
     // Update the history system for this page.
     if (!profile()->IsOffTheRecord()) {
       HistoryService* hs =
           profile()->GetHistoryService(Profile::IMPLICIT_ACCESS);
       if (hs)
-        hs->SetPageTitle(entry->GetDisplayURL(), final_title);
+        hs->SetPageTitle(entry->display_url(), final_title);
     }
   }
   if (GetHWND()) {
@@ -1575,9 +1572,9 @@ void WebContents::UpdateState(RenderViewHost* rvh,
   }
 
   // Update the state (forms, etc.).
-  if (state != entry->GetContentState()) {
+  if (state != entry->content_state()) {
     changed_flags |= INVALIDATE_STATE;
-    entry->SetContentState(state);
+    entry->set_content_state(state);
   }
 
   // Notify everybody of the changes (only when the current page changed).
@@ -1612,10 +1609,10 @@ void WebContents::UpdateTitle(RenderViewHost* rvh,
 
   std::wstring trimmed_title;
   TrimWhitespace(title, TRIM_ALL, &trimmed_title);
-  if (title == entry->GetTitle())
+  if (title == entry->title())
     return;  // Title did not change, do nothing.
 
-  entry->SetTitle(trimmed_title);
+  entry->set_title(trimmed_title);
 
   // Broadcast notifications when the UI should be updated.
   if (entry == controller()->GetEntryAtOffset(0))
@@ -1627,7 +1624,7 @@ void WebContents::UpdateTitle(RenderViewHost* rvh,
 
   HistoryService* hs = profile()->GetHistoryService(Profile::IMPLICIT_ACCESS);
   if (hs && !has_page_title_ && !trimmed_title.empty()) {
-    hs->SetPageTitle(entry->GetDisplayURL(), trimmed_title);
+    hs->SetPageTitle(entry->display_url(), trimmed_title);
     has_page_title_ = true;
   }
 }
@@ -1692,8 +1689,8 @@ void WebContents::DidStopLoading(RenderViewHost* rvh, int32 page_id) {
       TimeDelta elapsed = TimeTicks::Now() - current_load_start_;
 
       details.reset(new LoadNotificationDetails(
-          entry->GetDisplayURL(),
-          entry->GetTransitionType(),
+          entry->display_url(),
+          entry->transition_type(),
           elapsed,
           controller(),
           controller()->GetCurrentEntryIndex()));
@@ -1735,9 +1732,9 @@ void WebContents::DidRedirectProvisionalLoad(int32 page_id,
     entry = controller()->GetPendingEntry();
   else
     entry = controller()->GetEntryWithPageID(type(), site_instance(), page_id);
-  if (!entry || entry->GetType() != type() || entry->GetURL() != source_url)
+  if (!entry || entry->tab_type() != type() || entry->url() != source_url)
       return;
-  entry->SetURL(target_url);
+  entry->set_url(target_url);
 }
 
 void WebContents::DidLoadResourceFromMemoryCache(
@@ -1774,7 +1771,7 @@ void WebContents::DidFailProvisionalLoadWithError(
     // pending entry if the URLs match, otherwise the user initiated a navigate
     // before the page loaded so that the discard would discard the wrong entry.
     NavigationEntry* pending_entry = controller()->GetPendingEntry();
-    if (pending_entry && pending_entry->GetURL() == url)
+    if (pending_entry && pending_entry->url() == url)
       controller()->DiscardPendingEntry();
 
     render_manager_.RendererAbortedProvisionalLoad(render_view_host);
@@ -2120,7 +2117,7 @@ void WebContents::OnJSOutOfMemory() {
 // Returns true if the entry's transition type is FORM_SUBMIT.
 static bool IsFormSubmit(const NavigationEntry* entry) {
   DCHECK(entry);
-  return (PageTransition::StripQualifier(entry->GetTransitionType()) ==
+  return (PageTransition::StripQualifier(entry->transition_type()) ==
           PageTransition::FORM_SUBMIT);
 }
 
@@ -2159,11 +2156,17 @@ void WebContents::PageHasOSDD(RenderViewHost* render_view_host,
     else
       base_entry = NULL;
   }
-  if (!base_entry || !base_entry->GetUserTypedURLOrURL().is_valid())
+
+  // We want to use the user typed URL if available since that represents what
+  // the user typed to get here, and fall back on the regular URL if not.
+  if (!base_entry)
     return;
-  std::wstring keyword =
-      TemplateURLModel::GenerateKeyword(base_entry->GetUserTypedURLOrURL(),
-                                        autodetected);
+  GURL keyword_url = base_entry->user_typed_url().is_valid() ?
+          base_entry->user_typed_url() : base_entry->url();
+  if (!keyword_url.is_valid())
+    return;
+  std::wstring keyword = TemplateURLModel::GenerateKeyword(keyword_url,
+                                                           autodetected);
   if (keyword.empty())
     return;
   const TemplateURL* template_url =
@@ -2180,7 +2183,7 @@ void WebContents::PageHasOSDD(RenderViewHost* render_view_host,
   profile()->GetTemplateURLFetcher()->ScheduleDownload(
       keyword,
       url,
-      base_entry->GetFavIconURL(),
+      base_entry->favicon().url(),
       GetAncestor(GetHWND(), GA_ROOT),
       autodetected);
 }
@@ -2203,7 +2206,7 @@ void WebContents::OnGearsCreateShortcutDone(
     const GearsShortcutData& shortcut_data, bool success) {
   NavigationEntry* current_entry = controller()->GetLastCommittedEntry();
   bool same_page =
-      current_entry && pending_install_.page_id == current_entry->GetPageID();
+      current_entry && pending_install_.page_id == current_entry->page_id();
 
   if (success && same_page) {
     // Only switch to app mode if the user chose to create a shortcut and
@@ -2340,9 +2343,10 @@ void WebContents::GenerateKeywordIfNecessary(
     return;
   }
 
+  GURL keyword_url = previous_entry->user_typed_url().is_valid() ?
+          previous_entry->user_typed_url() : previous_entry->url();
   std::wstring keyword =
-      TemplateURLModel::GenerateKeyword(previous_entry->GetUserTypedURLOrURL(),
-                                        true);  // autodetected
+      TemplateURLModel::GenerateKeyword(keyword_url, true);  // autodetected
   if (keyword.empty())
     return;
 
@@ -2375,7 +2379,7 @@ void WebContents::GenerateKeywordIfNecessary(
   new_url->add_input_encoding(params.searchable_form_encoding);
   DCHECK(controller()->GetLastCommittedEntry());
   const GURL& favicon_url =
-      controller()->GetLastCommittedEntry()->GetFavIconURL();
+      controller()->GetLastCommittedEntry()->favicon().url();
   if (favicon_url.is_valid()) {
     new_url->SetFavIconURL(favicon_url);
   } else {
@@ -2493,8 +2497,8 @@ bool WebContents::IsInPageNavigation(const GURL& url) const {
   // entry URL is the same as |url|.
   NavigationEntry* entry = controller()->GetLastCommittedEntry();
   return (entry && url.has_ref() &&
-         (url != entry->GetURL()) &&  // Test for reload of a URL with a ref.
-          GURLWithoutRef(entry->GetURL()) == GURLWithoutRef(url));
+         (url != entry->url()) &&  // Test for reload of a URL with a ref.
+          GURLWithoutRef(entry->url()) == GURLWithoutRef(url));
 }
 
 SkBitmap WebContents::GetFavIcon() {

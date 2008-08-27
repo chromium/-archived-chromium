@@ -406,14 +406,14 @@ bool RenderViewContextMenuController::IsDevCommandEnabled(int id) const {
     return false;
 
   // Don't inspect inspector, new tab UI, etc.
-  if (active_entry->GetURL().SchemeIs("chrome-resource"))
+  if (active_entry->url().SchemeIs("chrome-resource"))
     return false;
 
   // Don't inspect about:network, about:memory, etc.
   // However, we do want to inspect about:blank, which is often
   // used by ordinary web pages.
-  if (active_entry->GetDisplayURL().SchemeIs("about") &&
-      !LowerCaseEqualsASCII(active_entry->GetDisplayURL().path(), "blank"))
+  if (active_entry->display_url().SchemeIs("about") &&
+      !LowerCaseEqualsASCII(active_entry->display_url().path(), "blank"))
     return false;
 
   // Don't enable the web inspector if JavaScript is disabled

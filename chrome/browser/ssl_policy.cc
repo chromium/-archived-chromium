@@ -102,7 +102,8 @@ static void ShowErrorPage(SSLPolicy* policy, SSLManager::CertError* error) {
                                                    true,
                                                    error->request_url(),
                                                    security_info);
-  tab->controller()->GetActiveEntry()->SetPageType(NavigationEntry::ERROR_PAGE);
+  tab->controller()->GetActiveEntry()->set_page_type(
+      NavigationEntry::ERROR_PAGE);
 }
 
 static void ShowBlockingPage(SSLPolicy* policy, SSLManager::CertError* error) {
@@ -384,7 +385,7 @@ void SSLPolicy::OnRequestStarted(SSLManager* manager, const GURL& url,
   }
 
   NavigationEntry::SSLStatus& ssl = entry->ssl();
-  if (!entry->GetURL().SchemeIsSecure() ||  // Current page is not secure.
+  if (!entry->url().SchemeIsSecure() ||  // Current page is not secure.
       resource_type == ResourceType::MAIN_FRAME ||  // Main frame load.
       net::IsCertStatusError(ssl.cert_status())) {  // There is already
           // an error for the main page, don't report sub-resources as unsafe
@@ -417,11 +418,11 @@ void SSLPolicy::OnRequestStarted(SSLManager* manager, const GURL& url,
   // state will be reset.
 
   // Now check for mixed content.
-  if (entry->GetURL().SchemeIsSecure() && !url.SchemeIsSecure()) {
+  if (entry->url().SchemeIsSecure() && !url.SchemeIsSecure()) {
     ssl.set_has_mixed_content();
     const std::wstring& msg = l10n_util::GetStringF(
         IDS_MIXED_CONTENT_LOG_MESSAGE,
-        UTF8ToWide(entry->GetURL().spec()),
+        UTF8ToWide(entry->url().spec()),
         UTF8ToWide(url.spec()));
     manager->AddMessageToConsole(msg, MESSAGE_LEVEL_WARNING);
   }

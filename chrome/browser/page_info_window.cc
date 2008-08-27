@@ -233,14 +233,14 @@ SecurityTabView::SecurityTabView(Profile* profile,
   const NavigationEntry::SSLStatus& ssl = navigation_entry->ssl();
 
   // Identity section.
-  std::wstring subject_name(UTF8ToWide(navigation_entry->GetURL().host()));
+  std::wstring subject_name(UTF8ToWide(navigation_entry->url().host()));
   bool empty_subject_name = false;
   if (subject_name.empty()) {
     subject_name.assign(
         l10n_util::GetString(IDS_PAGE_INFO_SECURITY_TAB_UNKNOWN_PARTY));
     empty_subject_name = true;
   }
-  if (navigation_entry->GetPageType() == NavigationEntry::NORMAL_PAGE &&
+  if (navigation_entry->page_type() == NavigationEntry::NORMAL_PAGE &&
       ssl.cert_id() &&
       CertStore::GetSharedInstance()->RetrieveCert(ssl.cert_id(), &cert) &&
       !net::IsCertStatusError(ssl.cert_status())) {
@@ -250,7 +250,7 @@ SecurityTabView::SecurityTabView(Profile* profile,
       identity_title =
           l10n_util::GetStringF(IDS_PAGE_INFO_EV_IDENTITY_TITLE,
               UTF8ToWide(cert->subject().organization_names[0]),
-              UTF8ToWide(navigation_entry->GetURL().host()));
+              UTF8ToWide(navigation_entry->url().host()));
       // An EV Cert is required to have a city (localityName) and country but
       // state is "if any".
       DCHECK(!cert->subject().locality_name.empty());
@@ -349,7 +349,7 @@ SecurityTabView::SecurityTabView(Profile* profile,
       Profile::EXPLICIT_ACCESS);
   if (history) {
     history->GetVisitCountToHost(
-        navigation_entry->GetURL(),
+        navigation_entry->url(),
         &request_consumer_,
         NewCallback(this, &SecurityTabView::OnGotVisitCountToHost));
   }

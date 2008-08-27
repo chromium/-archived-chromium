@@ -449,7 +449,7 @@ void Browser::ExecuteCommand(int id) {
       NavigationEntry* entry =
           current_tab->controller()->GetLastCommittedEntry();
       if (entry) {
-        GURL url("view-source:" + entry->GetURL().spec());
+        GURL url("view-source:" + entry->url().spec());
         AddTabWithURL(url, PageTransition::LINK, true, NULL);
       }
       break;
@@ -750,7 +750,7 @@ void Browser::GoBack() {
       //   recreated.
       // - we have not yet visited that navigation entry (typically session
       //   restore), in which case the page is not already available.
-      if (prev_nav_entry->GetType() == TAB_CONTENTS_WEB &&
+      if (prev_nav_entry->tab_type() == TAB_CONTENTS_WEB &&
           !prev_nav_entry->restored()) {
         // It is the job of the code that shows the interstitial to listen for
         // notifications of the interstitial getting hidden and appropriately
@@ -786,7 +786,7 @@ void Browser::Reload() {
     if (web_contents && web_contents->showing_interstitial_page()) {
       NavigationEntry* entry = current_tab->controller()->GetActiveEntry();
       DCHECK(entry);  // Should exist if interstitial is showing.
-      OpenURL(entry->GetURL(), CURRENT_TAB, PageTransition::RELOAD);
+      OpenURL(entry->url(), CURRENT_TAB, PageTransition::RELOAD);
       return;
     }
   }
@@ -817,7 +817,7 @@ void Browser::StarCurrentTabContents() {
   NavigationEntry* entry = rvh->controller()->GetActiveEntry();
   if (!entry)
     return;  // Can't star if there is no URL.
-  const GURL& url = entry->GetDisplayURL();
+  const GURL& url = entry->display_url();
   if (url.is_empty() || !url.is_valid())
     return;
 
@@ -825,7 +825,7 @@ void Browser::StarCurrentTabContents() {
     if (!window_->GetStarButton()->is_bubble_showing()) {
       const bool newly_bookmarked = (model->GetNodeByURL(url) == NULL);
       if (newly_bookmarked) {
-        model->SetURLStarred(url, entry->GetTitle(), true);
+        model->SetURLStarred(url, entry->title(), true);
         if (!model->GetNodeByURL(url)) {
           // Starring failed. This shouldn't happen.
           NOTREACHED();
@@ -900,7 +900,7 @@ void Browser::OpenBugReportDialog() {
     if (current_tab->type() == TAB_CONTENTS_WEB) {
       // URL for the current page
       bug_report_view->SetUrl(
-          current_tab->controller()->GetActiveEntry()->GetURL());
+          current_tab->controller()->GetActiveEntry()->url());
     }
   }
 

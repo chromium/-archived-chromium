@@ -1408,7 +1408,7 @@ void AutomationProvider::GetTabTitle(const IPC::Message& message, int handle) {
   std::wstring title;
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
-    title = tab->GetActiveEntry()->GetTitle();
+    title = tab->GetActiveEntry()->title();
     title_string_size = static_cast<int>(title.size());
   }
 
@@ -1503,7 +1503,7 @@ void AutomationProvider::GetTabURL(const IPC::Message& message, int handle) {
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
     // Return what the user would see in the location bar.
-    url = tab->GetActiveEntry()->GetDisplayURL();
+    url = tab->GetActiveEntry()->display_url();
     success = true;
   }
 
@@ -2004,7 +2004,7 @@ void AutomationProvider::GetPageType(const IPC::Message& message, int handle) {
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
     NavigationEntry* entry = tab->GetActiveEntry();
-    NavigationEntry::PageType page_type = entry->GetPageType();
+    NavigationEntry::PageType page_type = entry->page_type();
     // In order to return the proper result when an interstitial is shown and
     // no navigation entry were created for it we need to ask the WebContents.
     if (page_type == NavigationEntry::NORMAL_PAGE &&
@@ -2025,7 +2025,7 @@ void AutomationProvider::ActionOnSSLBlockingPage(const IPC::Message& message,
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
     NavigationEntry* entry = tab->GetActiveEntry();
-    if (entry->GetPageType() == NavigationEntry::INTERSTITIAL_PAGE) {
+    if (entry->page_type() == NavigationEntry::INTERSTITIAL_PAGE) {
       TabContents* tab_contents = tab->GetTabContents(TAB_CONTENTS_WEB);
       SSLBlockingPage* ssl_blocking_page =
           SSLBlockingPage::GetSSLBlockingPage(tab_contents);

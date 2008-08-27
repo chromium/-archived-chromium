@@ -140,20 +140,19 @@ void SSLBlockingPage::Show() {
     // interstitial is going away, it will not conflict with any future
     // navigations.
     created_nav_entry_ = true;
-    nav_entry->SetPageID(tab_->GetMaxPageID() + 1);
-    nav_entry->SetURL(error_->request_url());
+    nav_entry->set_page_id(tab_->GetMaxPageID() + 1);
+    nav_entry->set_url(error_->request_url());
   } else {
     // Make sure to update the current entry ssl state to reflect the error.
     *nav_entry = *(tab_->controller()->GetPendingEntry());
   }
-  nav_entry->SetPageType(NavigationEntry::INTERSTITIAL_PAGE);
+  nav_entry->set_page_type(NavigationEntry::INTERSTITIAL_PAGE);
 
   nav_entry->ssl().set_security_style(SECURITY_STYLE_AUTHENTICATION_BROKEN);
   nav_entry->ssl().set_cert_id(cert_id);
   nav_entry->ssl().set_cert_status(ssl_info.cert_status);
   nav_entry->ssl().set_security_bits(ssl_info.security_bits);
   // The controller will own the entry.
-  int page_id = nav_entry->GetPageID();
   tab_->controller()->DidNavigateToEntry(nav_entry);
   tab->ShowInterstitialPage(html_text, NULL);
 }
@@ -223,7 +222,7 @@ void SSLBlockingPage::DontProceed() {
     // interstitial to hide which will trigger "this" to be deleted.
     tab_->controller()->LoadURL(GURL("about:blank"),
                                 PageTransition::AUTO_BOOKMARK);
-  } else if (entry->GetType() != TAB_CONTENTS_WEB) {
+  } else if (entry->tab_type() != TAB_CONTENTS_WEB) {
     // Not a WebContent, reload it so to recreate the TabContents for it.
     tab_->controller()->Reload();
   } else {

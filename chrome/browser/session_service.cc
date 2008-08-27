@@ -290,7 +290,7 @@ void SessionService::UpdateTabNavigation(const SessionID& window_id,
                                          const SessionID& tab_id,
                                          int index,
                                          const NavigationEntry& entry) {
-  if (!entry.GetDisplayURL().is_valid() ||
+  if (!entry.display_url().is_valid() ||
       !ShouldTrackChangesToWindow(window_id))
     return;
 
@@ -537,17 +537,16 @@ SessionCommand* SessionService::CreateUpdateTabNavigationCommand(
   Pickle pickle;
   pickle.WriteInt(tab_id.id());
   pickle.WriteInt(index);
-  const GURL& url = entry.GetDisplayURL();
-  const std::wstring& title = entry.GetTitle();
-  const std::string& state = entry.GetContentState();
   static const SessionCommand::size_type max_state_size =
       std::numeric_limits<SessionCommand::size_type>::max() - 1024;
-  if (url.spec().size() + title.size() + state.size() >= max_state_size) {
+  if (entry.display_url().spec().size() +
+      entry.title().size() +
+      entry.content_state().size() >= max_state_size) {
     // We only allow navigations up to 63k (which should be completely
     // reasonable). On the off chance we get one that is too big, try to
     // keep the url.
-    if (url.spec().size() < max_state_size) {
-      pickle.WriteString(url.spec());
+    if (entry.display_url().spec().size() < max_state_size) {
+      pickle.WriteString(entry.display_url().spec());
       pickle.WriteWString(std::wstring());
       pickle.WriteString(std::string());
     } else {
@@ -556,12 +555,12 @@ SessionCommand* SessionService::CreateUpdateTabNavigationCommand(
       pickle.WriteString(std::string());
     }
   } else {
-    pickle.WriteString(url.spec());
-    pickle.WriteWString(title);
-    pickle.WriteString(state);
+    pickle.WriteString(entry.display_url().spec());
+    pickle.WriteWString(entry.title());
+    pickle.WriteString(entry.content_state());
   }
-  pickle.WriteInt(entry.GetTransitionType());
-  int type_mask = entry.HasPostData() ? TabNavigation::HAS_POST_DATA : 0;
+  pickle.WriteInt(entry.transition_type());
+  int type_mask = entry.has_post_data() ? TabNavigation::HAS_POST_DATA : 0;
   pickle.WriteInt(type_mask);
   // Adding more data? Be sure and update TabRestoreService too.
   return new SessionCommand(kCommandUpdateTabNavigation, pickle);

@@ -76,7 +76,7 @@ void AlternateNavURLFetcher::OnURLFetchComplete(const URLFetcher* source,
 void AlternateNavURLFetcher::ShowInfobar() {
   const NavigationEntry* const entry = controller_->GetActiveEntry();
   DCHECK(entry);
-  if (entry->GetType() != TAB_CONTENTS_WEB)
+  if (entry->tab_type() != TAB_CONTENTS_WEB)
     return;
   TabContents* tab_contents =
       controller_->GetTabContents(TAB_CONTENTS_WEB);

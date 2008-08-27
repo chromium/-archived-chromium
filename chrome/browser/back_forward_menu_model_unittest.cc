@@ -31,8 +31,8 @@ class BackFwdMenuModelTestTabContents : public TabContents {
 
   bool Navigate(const NavigationEntry& entry, bool reload) {
     NavigationEntry* pending_entry = new NavigationEntry(entry);
-    if (pending_entry->GetPageID() == -1) {
-      pending_entry->SetPageID(g_page_id_++);
+    if (pending_entry->page_id() == -1) {
+      pending_entry->set_page_id(g_page_id_++);
     }
     DidNavigateToEntry(pending_entry);
     return true;
@@ -41,7 +41,7 @@ class BackFwdMenuModelTestTabContents : public TabContents {
   void UpdateState(const std::wstring& title) {
     NavigationEntry* entry =
       controller()->GetEntryWithPageID(type(), NULL, g_page_id_ - 1);
-    entry->SetTitle(title);
+    entry->set_title(title);
   }
 
  private:

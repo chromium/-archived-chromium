@@ -617,10 +617,10 @@ SiteInstance* RenderViewHostManager::GetSiteInstanceForEntry(
   //       RenderViews in response to a link click.
   //
   if (CommandLine().HasSwitch(switches::kProcessPerSite) &&
-      entry.GetTransitionType() == PageTransition::GENERATED)
+      entry.transition_type() == PageTransition::GENERATED)
     return curr_instance;
 
-  const GURL& dest_url = entry.GetURL();
+  const GURL& dest_url = entry.url();
 
   // If we haven't used our SiteInstance (and thus RVH) yet, then we can use it
   // for this entry.  We won't commit the SiteInstance to this site until the
@@ -671,7 +671,7 @@ SiteInstance* RenderViewHostManager::GetSiteInstanceForEntry(
   // to open a new tab to an interstitial-inducing URL, and then navigates
   // the page to a different same-site URL.  (This seems very unlikely in
   // practice.)
-  const GURL& current_url = (curr_entry) ? curr_entry->GetURL() :
+  const GURL& current_url = (curr_entry) ? curr_entry->url() :
       curr_instance->site();
 
   if (SiteInstance::IsSameWebSite(current_url, dest_url)) {
@@ -689,8 +689,8 @@ SiteInstance* RenderViewHostManager::GetSiteInstanceForEntry(
 bool RenderViewHostManager::CreatePendingRenderView(SiteInstance* instance) {
   NavigationEntry* curr_entry =
       delegate_->GetControllerForRenderManager()->GetLastCommittedEntry();
-  if (curr_entry && curr_entry->GetType() == TAB_CONTENTS_WEB) {
-    DCHECK(!curr_entry->GetContentState().empty());
+  if (curr_entry && curr_entry->tab_type() == TAB_CONTENTS_WEB) {
+    DCHECK(!curr_entry->content_state().empty());
 
     // TODO(creis): Should send a message to the RenderView to let it know
     // we're about to switch away, so that it sends an UpdateState message.
