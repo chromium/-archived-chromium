@@ -49,7 +49,7 @@ class VisitedLinkTest : public testing::Test {
   // Initialize the history system. This should be called before InitVisited().
   bool InitHistory() {
     history_service_ = new HistoryService;
-    return history_service_->Init(history_dir_);
+    return history_service_->Init(history_dir_, NULL);
   }
 
   // Initializes the visited link objects. Pass in the size that you want a

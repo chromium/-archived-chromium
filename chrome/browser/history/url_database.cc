@@ -224,8 +224,9 @@ bool URLDatabase::IsFavIconUsed(FavIconID favicon_id) {
 void URLDatabase::AutocompleteForPrefix(const std::wstring& prefix,
                                         size_t max_results,
                                         std::vector<history::URLRow>* results) {
-  // TODO(sky): this query should order by starred as the second order by
-  // clause.
+  // NOTE: this query originally sorted by starred as the second parameter. But
+  // as bookmarks is no longer part of the db we no longer include the order
+  // by clause.
   results->clear();
   SQLITE_UNIQUE_STATEMENT(statement, GetStatementCache(),
       "SELECT" HISTORY_URL_ROW_FIELDS "FROM urls "

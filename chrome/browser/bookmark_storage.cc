@@ -2,10 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// NOTE: This class is currently unsed. The plan is to move bookmarks
-// out of the history db using this class and BookmarksCodec instead
-// (bug 1256202).
-
 #include "chrome/browser/bookmark_storage.h"
 
 #include "base/file_util.h"
@@ -168,4 +164,3 @@ void BookmarkStorageBackend::Read(scoped_refptr<BookmarkStorage> service,
     service->LoadedBookmarks(root, bookmark_file_exists, load_from_history);
   }
 }
-

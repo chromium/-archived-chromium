@@ -127,7 +127,7 @@ void HistoryDatabase::CommitTransaction() {
   }
 }
 
-bool HistoryDatabase::RecreateAllButStarAndURLTables() {
+bool HistoryDatabase::RecreateAllTablesButURL() {
   if (!DropVisitTable())
     return false;
   if (!InitVisitTable())
@@ -143,7 +143,7 @@ bool HistoryDatabase::RecreateAllButStarAndURLTables() {
   if (!InitSegmentTables())
     return false;
 
-  // We also add the supplimentary URL indices at this point. This index is
+  // We also add the supplementary URL indices at this point. This index is
   // over parts of the URL table that weren't automatically created when the
   // temporary URL table was
   CreateSupplimentaryURLIndices();

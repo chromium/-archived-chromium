@@ -73,7 +73,9 @@ BookmarkBarModel::BookmarkBarModel(Profile* profile)
 #pragma warning(suppress: 4355)  // Okay to pass "this" here.
       root_(this, GURL()),
       bookmark_bar_node_(NULL),
-      other_node_(NULL) {
+      other_node_(NULL),
+      waiting_for_history_load_(false),
+      loaded_signal_(CreateEvent(NULL, TRUE, FALSE, NULL)) {
   // Create the bookmark bar and other bookmarks folders. These always exist.
   CreateBookmarkBarNode();
   CreateOtherBookmarksNode();
@@ -87,24 +89,19 @@ BookmarkBarModel::BookmarkBarModel(Profile* profile)
 
   if (!profile_) {
     // Profile is null during testing.
-    loaded_ = true;
-    return;
+    DoneLoading();
   }
-
-  // Listen for changes to starred icons so that we can update the favicon of
-  // the node appropriately.
-  NotificationService::current()->AddObserver(
-      this, NOTIFY_FAVICON_CHANGED, Source<Profile>(profile_));
-
-  // Load the bookmarks. BookmarkStorage notifies us when done.
-  store_ = new BookmarkStorage(profile_, this);
-  store_->LoadBookmarks(false);
 }
 
 BookmarkBarModel::~BookmarkBarModel() {
-  if (profile_) {
+  if (profile_ && store_.get()) {
     NotificationService::current()->RemoveObserver(
         this, NOTIFY_FAVICON_CHANGED, Source<Profile>(profile_));
+  }
+
+  if (waiting_for_history_load_) {
+    NotificationService::current()->RemoveObserver(
+        this, NOTIFY_HISTORY_LOADED, Source<Profile>(profile_));
   }
 
   if (store_) {
@@ -112,6 +109,24 @@ BookmarkBarModel::~BookmarkBarModel() {
     // so that it doesn't try and invoke a method back on us again.
     store_->BookmarkModelDeleted();
   }
+}
+
+void BookmarkBarModel::Load() {
+  if (store_.get()) {
+    // If the store is non-null, it means Load was already invoked. Load should
+    // only be invoked once.
+    NOTREACHED();
+    return;
+  }
+
+  // Listen for changes to favicons so that we can update the favicon of the
+  // node appropriately.
+  NotificationService::current()->AddObserver(
+      this, NOTIFY_FAVICON_CHANGED, Source<Profile>(profile_));
+
+  // Load the bookmarks. BookmarkStorage notifies us when done.
+  store_ = new BookmarkStorage(profile_, this);
+  store_->LoadBookmarks(false);
 }
 
 BookmarkBarNode* BookmarkBarModel::GetParentForNewNodes() {
@@ -142,6 +157,7 @@ std::vector<BookmarkBarNode*> BookmarkBarModel::GetMostRecentlyModifiedGroups(
 void BookmarkBarModel::GetMostRecentlyAddedEntries(
     size_t count,
     std::vector<BookmarkBarNode*>* nodes) {
+  AutoLock url_lock(url_lock_);
   for (NodesOrderedByURLSet::iterator i = nodes_ordered_by_url_set_.begin();
        i != nodes_ordered_by_url_set_.end(); ++i) {
     std::vector<BookmarkBarNode*>::iterator insert_position =
@@ -163,6 +179,7 @@ void BookmarkBarModel::GetBookmarksMatchingText(
   if (query_nodes.empty())
     return;
 
+  AutoLock url_lock(url_lock_);
   for (NodesOrderedByURLSet::iterator i = nodes_ordered_by_url_set_.begin();
        i != nodes_ordered_by_url_set_.end(); ++i) {
     if (parser.DoesQueryMatch((*i)->GetTitle(), query_nodes.get()))
@@ -236,9 +253,18 @@ void BookmarkBarModel::SetTitle(BookmarkBarNode* node,
 }
 
 BookmarkBarNode* BookmarkBarModel::GetNodeByURL(const GURL& url) {
+  AutoLock url_lock(url_lock_);
   BookmarkBarNode tmp_node(this, url);
   NodesOrderedByURLSet::iterator i = nodes_ordered_by_url_set_.find(&tmp_node);
   return (i != nodes_ordered_by_url_set_.end()) ? *i : NULL;
+}
+
+void BookmarkBarModel::GetBookmarks(std::vector<GURL>* urls) {
+  AutoLock url_lock(url_lock_);
+  for (NodesOrderedByURLSet::iterator i = nodes_ordered_by_url_set_.begin();
+       i != nodes_ordered_by_url_set_.end(); ++i) {
+    urls->push_back((*i)->GetURL());
+  }
 }
 
 BookmarkBarNode* BookmarkBarModel::GetNodeByID(int id) {
@@ -296,6 +322,7 @@ BookmarkBarNode* BookmarkBarModel::AddURLWithCreationTime(
   new_node->date_added_ = creation_time;
   new_node->type_ = history::StarredEntry::URL;
 
+  AutoLock url_lock(url_lock_);
   nodes_ordered_by_url_set_.insert(new_node);
 
   return AddNode(parent, index, new_node);
@@ -333,6 +360,8 @@ void BookmarkBarModel::RemoveNode(BookmarkBarNode* node,
   }
 
   if (node->GetType() == history::StarredEntry::URL) {
+    // NOTE: this is called in such a way that url_lock_ is already held. As
+    // such, this doesn't explicitly grab the lock.
     NodesOrderedByURLSet::iterator i = nodes_ordered_by_url_set_.find(node);
     DCHECK(i != nodes_ordered_by_url_set_.end());
     nodes_ordered_by_url_set_.erase(i);
@@ -367,14 +396,23 @@ void BookmarkBarModel::OnBookmarkStorageLoadedBookmarks(
     return;
   }
 
-  // The file doesn't exist. If the bookmarks were in the db the history db
-  // will copy them to a file on init. Schedule an empty request to history so
-  // that we know history will have saved the bookmarks (if it had them). When
-  // the callback is processed 
-  // when done we'll try and load the bookmarks again.
-  profile_->GetHistoryService(Profile::EXPLICIT_ACCESS)->
-      ScheduleEmptyCallback(&load_consumer_,
-      NewCallback(this, &BookmarkBarModel::OnHistoryDone));
+  // The file doesn't exist. This means one of two things:
+  // 1. A clean profile.
+  // 2. The user is migrating from an older version where bookmarks were saved
+  //    in history.
+  // We assume step 2. If history had the bookmarks, history will write the
+  // bookmarks to a file for us. We need to wait until history has finished
+  // loading before reading from that file.
+  HistoryService* history =
+      profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
+  if (!history->backend_loaded()) {
+    // The backend isn't finished loading. Wait for it.
+    waiting_for_history_load_ = true;
+    NotificationService::current()->AddObserver(
+        this, NOTIFY_HISTORY_LOADED, Source<Profile>(profile_));
+  } else {
+    OnHistoryDone();
+  }
 }
 
 void BookmarkBarModel::OnHistoryDone() {
@@ -389,10 +427,17 @@ void BookmarkBarModel::OnHistoryDone() {
 }
 
 void BookmarkBarModel::DoneLoading() {
-  // Update nodes_ordered_by_url_set_ from the nodes.
-  PopulateNodesByURL(&root_);
+  {
+    AutoLock url_lock(url_lock_);
+    // Update nodes_ordered_by_url_set_ from the nodes.
+    PopulateNodesByURL(&root_);
+  }
 
   loaded_ = true;
+
+  if (loaded_signal_.Get())
+    SetEvent(loaded_signal_.Get());
+
 
   // Notify our direct observers.
   FOR_EACH_OBSERVER(BookmarkBarModelObserver, observers_, Loaded(this));
@@ -412,13 +457,23 @@ void BookmarkBarModel::RemoveAndDeleteNode(BookmarkBarNode* delete_me) {
   int index = parent->IndexOfChild(node.get());
   parent->Remove(index);
   history::URLsStarredDetails details(false);
-  RemoveNode(node.get(), &details.changed_urls);
+  {
+    AutoLock url_lock(url_lock_);
+    RemoveNode(node.get(), &details.changed_urls);
+  }
 
   if (store_.get())
     store_->ScheduleSave();
 
   FOR_EACH_OBSERVER(BookmarkBarModelObserver, observers_,
                     BookmarkNodeRemoved(this, parent, index));
+
+  if (profile_) {
+    HistoryService* history =
+        profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
+    if (history)
+      history->URLsNoLongerBookmarked(details.changed_urls);
+  }
 
   NotificationService::current()->Notify(NOTIFY_URLS_STARRED,
       Source<Profile>(profile_),
@@ -444,6 +499,11 @@ BookmarkBarNode* BookmarkBarModel::AddNode(BookmarkBarNode* parent,
         Details<history::URLsStarredDetails>(&details));
   }
   return node;
+}
+
+void BookmarkBarModel::BlockTillLoaded() {
+  if (loaded_signal_.Get())
+    WaitForSingleObject(loaded_signal_.Get(), INFINITE);
 }
 
 BookmarkBarNode* BookmarkBarModel::GetNodeByID(BookmarkBarNode* node,
@@ -595,6 +655,18 @@ void BookmarkBarModel::Observe(NotificationType type,
       break;
     }
 
+    case NOTIFY_HISTORY_LOADED: {
+      if (waiting_for_history_load_) {
+        waiting_for_history_load_ = false;
+        NotificationService::current()->RemoveObserver(
+            this, NOTIFY_HISTORY_LOADED, Source<Profile>(profile_));
+        OnHistoryDone();
+      } else {
+        NOTREACHED();
+      }
+      break;
+    }
+
     default:
       NOTREACHED();
       break;
@@ -602,9 +674,10 @@ void BookmarkBarModel::Observe(NotificationType type,
 }
 
 void BookmarkBarModel::PopulateNodesByURL(BookmarkBarNode* node) {
+  // NOTE: this is called with url_lock_ already held. As such, this doesn't
+  // explicitly grab the lock.
   if (node->is_url())
     nodes_ordered_by_url_set_.insert(node);
   for (int i = 0; i < node->GetChildCount(); ++i)
     PopulateNodesByURL(node->GetChild(i));
 }
-

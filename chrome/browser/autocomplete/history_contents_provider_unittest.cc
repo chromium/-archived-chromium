@@ -54,7 +54,7 @@ class HistoryContentsProviderTest : public testing::Test,
     file_util::CreateDirectoryW(history_dir_);
 
     history_service_ = new HistoryService;
-    history_service_->Init(history_dir_);
+    history_service_->Init(history_dir_, NULL);
 
     // Populate history.
     for (int i = 0; i < arraysize(test_entries); i++) {

@@ -114,7 +114,7 @@ void HistoryURLProviderTest::OnProviderUpdate(bool updated_matches) {
 
 void HistoryURLProviderTest::SetUp() {
   profile_.reset(new TestingProfile());
-  profile_->CreateBookmarkBarModel();
+  profile_->CreateBookmarkBarModel(true);
   profile_->CreateHistoryService(true);
   history_service_ = profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
 

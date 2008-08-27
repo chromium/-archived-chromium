@@ -5,6 +5,7 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/scoped_ptr.h"
+#include "chrome/browser/bookmark_bar_model.h"
 #include "chrome/browser/history/history_backend.h"
 #include "chrome/browser/history/in_memory_history_backend.h"
 #include "chrome/browser/history/in_memory_database.h"
@@ -34,6 +35,7 @@ class HistoryBackendTestDelegate : public HistoryBackend::Delegate {
   virtual void SetInMemoryBackend(InMemoryHistoryBackend* backend);
   virtual void BroadcastNotifications(NotificationType type,
                                       HistoryDetails* details);
+  virtual void DBLoaded();
 
  private:
   // Not owned by us.
@@ -44,6 +46,7 @@ class HistoryBackendTestDelegate : public HistoryBackend::Delegate {
 
 class HistoryBackendTest : public testing::Test {
  public:
+  HistoryBackendTest() : bookmark_model_(NULL), loaded_(false) {}
   virtual ~HistoryBackendTest() {
   }
 
@@ -66,6 +69,11 @@ class HistoryBackendTest : public testing::Test {
     backend_->AddPage(request);
   }
 
+  BookmarkBarModel bookmark_model_;
+
+ protected:
+  bool loaded_;
+
  private:
   friend HistoryBackendTestDelegate;
 
@@ -74,7 +82,8 @@ class HistoryBackendTest : public testing::Test {
     if (!file_util::CreateNewTempDirectory(L"BackendTest", &test_dir_))
       return;
     backend_ = new HistoryBackend(test_dir_,
-                                  new HistoryBackendTestDelegate(this));
+                                  new HistoryBackendTestDelegate(this),
+                                  &bookmark_model_);
     backend_->Init();
   }
   virtual void TearDown() {
@@ -113,6 +122,14 @@ void HistoryBackendTestDelegate::BroadcastNotifications(
   test_->BroadcastNotifications(type, details);
 }
 
+void HistoryBackendTestDelegate::DBLoaded() {
+  test_->loaded_ = true;
+}
+
+TEST_F(HistoryBackendTest, Loaded) {
+  ASSERT_TRUE(backend_.get());
+  ASSERT_TRUE(loaded_);
+}
 
 TEST_F(HistoryBackendTest, DeleteAll) {
   ASSERT_TRUE(backend_.get());
@@ -181,6 +198,10 @@ TEST_F(HistoryBackendTest, DeleteAll) {
      JPEGCodec::Decode(kWeewarThumbnail, sizeof(kWeewarThumbnail)));
   backend_->thumbnail_db_->SetPageThumbnail(row2_id, *weewar_bitmap, score);
 
+  // Star row1.
+  bookmark_model_.AddURL(
+      bookmark_model_.GetBookmarkBarNode(), 0, std::wstring(), row1.url());
+
   // Set full text index for each one.
   backend_->text_database_->AddPageData(row1.url(), row1_id, visit1_id,
                                         row1.last_visit(),
@@ -192,8 +213,11 @@ TEST_F(HistoryBackendTest, DeleteAll) {
   // Now finally clear all history.
   backend_->DeleteAllHistory();
 
-  // The first URL should be deleted.
-  EXPECT_FALSE(backend_->db_->GetRowForURL(row1.url(), &outrow1));
+  // The first URL should be preserved but the time should be cleared.
+  EXPECT_TRUE(backend_->db_->GetRowForURL(row1.url(), &outrow1));
+  EXPECT_EQ(0, outrow1.visit_count());
+  EXPECT_EQ(0, outrow1.typed_count());
+  EXPECT_TRUE(Time() == outrow1.last_visit());
 
   // The second row should be deleted.
   URLRow outrow2;
@@ -210,14 +234,21 @@ TEST_F(HistoryBackendTest, DeleteAll) {
                                                          &out_data));
   EXPECT_FALSE(backend_->thumbnail_db_->GetPageThumbnail(row2_id, &out_data));
 
-  // Make sure the favicons were deleted.
-  // TODO(sky): would be nice if this didn't happen.
+  // We should have a favicon for the first URL only. We look them up by favicon
+  // URL since the IDs may hav changed.
   FavIconID out_favicon1 = backend_->thumbnail_db_->
       GetFavIconIDForFavIconURL(favicon_url1);
-  EXPECT_FALSE(out_favicon1);
+  EXPECT_TRUE(out_favicon1);
   FavIconID out_favicon2 = backend_->thumbnail_db_->
       GetFavIconIDForFavIconURL(favicon_url2);
   EXPECT_FALSE(out_favicon2) << "Favicon not deleted";
+
+  // The remaining URL should still reference the same favicon, even if its
+  // ID has changed.
+  EXPECT_EQ(out_favicon1, outrow1.favicon_id());
+
+  // The first URL should still be bookmarked.
+  EXPECT_TRUE(bookmark_model_.IsBookmarked(row1.url()));
 
   // The full text database should have no data.
   std::vector<TextDatabase::Match> text_matches;
@@ -226,6 +257,94 @@ TEST_F(HistoryBackendTest, DeleteAll) {
                                            &text_matches,
                                            &first_time_searched);
   EXPECT_EQ(0, text_matches.size());
+}
+
+TEST_F(HistoryBackendTest, URLsNoLongerBookmarked) {
+  GURL favicon_url1("http://www.google.com/favicon.ico");
+  GURL favicon_url2("http://news.google.com/favicon.ico");
+  FavIconID favicon2 = backend_->thumbnail_db_->AddFavIcon(favicon_url2);
+  FavIconID favicon1 = backend_->thumbnail_db_->AddFavIcon(favicon_url1);
+
+  std::vector<unsigned char> data;
+  data.push_back('1');
+  EXPECT_TRUE(backend_->thumbnail_db_->SetFavIcon(
+                  favicon1, data, Time::Now()));
+
+  data[0] = '2';
+  EXPECT_TRUE(backend_->thumbnail_db_->SetFavIcon(
+                  favicon2, data, Time::Now()));
+
+  // First visit two URLs.
+  URLRow row1(GURL("http://www.google.com/"));
+  row1.set_visit_count(2);
+  row1.set_typed_count(1);
+  row1.set_last_visit(Time::Now());
+  row1.set_favicon_id(favicon1);
+
+  URLRow row2(GURL("http://news.google.com/"));
+  row2.set_visit_count(1);
+  row2.set_last_visit(Time::Now());
+  row2.set_favicon_id(favicon2);
+
+  std::vector<URLRow> rows;
+  rows.push_back(row2);  // Reversed order for the same reason as favicons.
+  rows.push_back(row1);
+  backend_->AddPagesWithDetails(rows);
+
+  URLID row1_id = backend_->db_->GetRowForURL(row1.url(), NULL);
+  URLID row2_id = backend_->db_->GetRowForURL(row2.url(), NULL);
+
+  // Star the two URLs.
+  bookmark_model_.SetURLStarred(row1.url(), std::wstring(), true);
+  bookmark_model_.SetURLStarred(row2.url(), std::wstring(), true);
+
+  // Delete url 2. Because url 2 is starred this won't delete the URL, only
+  // the visits.
+  backend_->expirer_.DeleteURL(row2.url());
+
+  // Make sure url 2 is still valid, but has no visits.
+  URLRow tmp_url_row;
+  EXPECT_EQ(row2_id, backend_->db_->GetRowForURL(row2.url(), NULL));
+  VisitVector visits;
+  backend_->db_->GetVisitsForURL(row2_id, &visits);
+  EXPECT_EQ(0, visits.size());
+  // The favicon should still be valid.
+  EXPECT_EQ(favicon2,
+      backend_->thumbnail_db_->GetFavIconIDForFavIconURL(favicon_url2));
+
+  // Unstar row2.
+  bookmark_model_.SetURLStarred(row2.url(), std::wstring(), false);
+  // Tell the backend it was unstarred. We have to explicitly do this as
+  // BookmarkBarModel isn't wired up to the backend during testing.
+  std::set<GURL> unstarred_urls;
+  unstarred_urls.insert(row2.url());
+  backend_->URLsNoLongerBookmarked(unstarred_urls);
+
+  // The URL should no longer exist.
+  EXPECT_FALSE(backend_->db_->GetRowForURL(row2.url(), &tmp_url_row));
+  // And the favicon should be deleted.
+  EXPECT_EQ(0,
+      backend_->thumbnail_db_->GetFavIconIDForFavIconURL(favicon_url2));
+
+  // Unstar row 1.
+  bookmark_model_.SetURLStarred(row1.url(), std::wstring(), false);
+  // Tell the backend it was unstarred. We have to explicitly do this as
+  // BookmarkBarModel isn't wired up to the backend during testing.
+  unstarred_urls.clear();
+  unstarred_urls.insert(row1.url());
+  backend_->URLsNoLongerBookmarked(unstarred_urls);
+
+  // The URL should still exist (because there were visits).
+  EXPECT_EQ(row1_id, backend_->db_->GetRowForURL(row1.url(), NULL));
+
+  // There should still be visits.
+  visits.clear();
+  backend_->db_->GetVisitsForURL(row1_id, &visits);
+  EXPECT_EQ(1, visits.size());
+
+  // The favicon should still be valid.
+  EXPECT_EQ(favicon1,
+      backend_->thumbnail_db_->GetFavIconIDForFavIconURL(favicon_url1));
 }
 
 TEST_F(HistoryBackendTest, GetPageThumbnailAfterRedirects) {

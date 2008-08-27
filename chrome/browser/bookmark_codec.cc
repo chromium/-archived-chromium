@@ -139,6 +139,8 @@ bool BookmarkCodec::DecodeNode(BookmarkBarModel* model,
   if (!value.GetString(kNameKey, &title))
     return false;
 
+  // TODO(sky): this should be more flexible. Don't hoark if we can't parse it
+  // all.
   std::wstring date_added_string;
   if (!value.GetString(kDateAddedKey, &date_added_string))
     return false;
@@ -154,6 +156,7 @@ bool BookmarkCodec::DecodeNode(BookmarkBarModel* model,
     std::wstring url_string;
     if (!value.GetString(kURLKey, &url_string))
       return false;
+    // TODO(sky): this should ignore the node if not a valid URL.
     if (!node)
       node = new BookmarkBarNode(model, GURL(url_string));
     if (parent)

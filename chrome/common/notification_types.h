@@ -349,10 +349,16 @@ enum NotificationType {
 
   // History, bookmarks --------------------------------------------------------
 
-  // Sent when a history service is created. The source is the profile that the
-  // history service belongs to, and the details is the pointer to the newly
-  // created HistoryService object.
+  // Sent when a history service is created on the main thread. This is sent
+  // after history is created, but before it has finished loading. Use
+  // NOTIFY_HISTORY_LOADED is you need to know when loading has completed. The
+  // source is the profile that the history service belongs to, and the details
+  // is the pointer to the newly created HistoryService object.
   NOTIFY_HISTORY_CREATED,
+
+  // Sent when a history service has finished loading. The source is the profile
+  // that the history service belongs to, and the details is the HistoryService.
+  NOTIFY_HISTORY_LOADED,
 
   // Sent when a URL that has been typed has been added or modified. This is
   // used by the in-memory URL database (used by autocomplete) to track changes

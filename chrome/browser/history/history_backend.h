@@ -25,6 +25,7 @@
 #include "chrome/common/scoped_vector.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
+class BookmarkService;
 struct ThumbnailScore;
 
 namespace history {
@@ -75,6 +76,9 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
     // Ownership of the HistoryDetails is transferred to this function.
     virtual void BroadcastNotifications(NotificationType type,
                                         HistoryDetails* details) = 0;
+
+    // Invoked when the backend has finished loading the db.
+    virtual void DBLoaded() = 0;
   };
 
   // Init must be called to complete object creation. This object can be
@@ -85,8 +89,13 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   // See the definition of BroadcastNotificationsCallback above. This function
   // takes ownership of the callback pointer.
   //
+  // |bookmark_service| is used to determine bookmarked URLs when deleting and
+  // may be NULL.
+  //
   // This constructor is fast and does no I/O, so can be called at any time.
-  HistoryBackend(const std::wstring& history_dir, Delegate* delegate);
+  HistoryBackend(const std::wstring& history_dir,
+                 Delegate* delegate,
+                 BookmarkService* bookmark_service);
 
   ~HistoryBackend();
 
@@ -218,8 +227,6 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
 
   void ProcessDBTask(scoped_refptr<HistoryDBTaskRequest> request);
 
-  void ProcessEmptyRequest(scoped_refptr<EmptyHistoryRequest> request);
-
   // Deleting ------------------------------------------------------------------
 
   void DeleteURL(const GURL& url);
@@ -228,6 +235,12 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   void ExpireHistoryBetween(scoped_refptr<ExpireHistoryRequest> request,
                             Time begin_time,
                             Time end_time);
+
+  // Bookmarks -----------------------------------------------------------------
+
+  // Notification that a URL is no longer bookmarked. If there are no visits
+  // for the specified url, it is deleted.
+  void URLsNoLongerBookmarked(const std::set<GURL>& urls);
 
   // Testing -------------------------------------------------------------------
 
@@ -244,6 +257,8 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   friend class CommitLaterTask;  // The commit task needs to call Commit().
   friend class HistoryTest;  // So the unit tests can poke our innards.
   FRIEND_TEST(HistoryBackendTest, DeleteAll);
+  FRIEND_TEST(HistoryBackendTest, URLsNoLongerBookmarked);
+  friend class TestingProfile;
 
   // For invoking methods that circumvent requests.
   friend class HistoryTest;
@@ -254,6 +269,9 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
 
   class URLQuerier;
   friend class URLQuerier;
+
+  // Does the work of Init.
+  void InitImpl();
 
   // Adds a single visit to the database, updating the URL information such
   // as visit and typed count. The visit ID of the added visit and the URL ID
@@ -374,15 +392,16 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   // vector to reference the new IDs.
   bool ClearAllThumbnailHistory(std::vector<URLRow>* kept_urls);
 
-  // Deletes all information in the history database, except the star table
-  // (all entries should be in the given vector) and the given URLs in the URL
-  // table (these should correspond to the bookmarked URLs).
+  // Deletes all information in the history database, except for the supplied
+  // set of URLs in the URL table (these should correspond to the bookmarked
+  // URLs).
   //
-  // The IDs of the URLs may change, and the starred table will be updated
-  // accordingly. This function will also update the |starred_entries| input
-  // vector.
-  bool ClearAllMainHistory(std::vector<StarredEntry>* starred_entries,
-                           const std::vector<URLRow>& kept_urls);
+  // The IDs of the URLs may change.
+  bool ClearAllMainHistory(const std::vector<URLRow>& kept_urls);
+
+  // Returns the BookmarkService, blocking until it is loaded. This may return
+  // NULL during testing.
+  BookmarkService* GetBookmarkService();
 
   // Data ----------------------------------------------------------------------
 
@@ -457,10 +476,16 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   // done.
   std::list<HistoryDBTaskRequest*> db_task_requests_;
 
+  // Used to determine if a URL is bookmarked. This is owned by the Profile and
+  // may be NULL (during testing).
+  //
+  // Use GetBookmarkService to access this, which makes sure the service is
+  // loaded.
+  BookmarkService* bookmark_service_;
+
   DISALLOW_EVIL_CONSTRUCTORS(HistoryBackend);
 };
 
 }  // namespace history
 
 #endif  // CHROME_BROWSER_HISTORY_HISTORY_BACKEND_H__
-

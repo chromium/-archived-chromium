@@ -15,6 +15,7 @@
 #include "chrome/browser/history/text_database_manager.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
+class BookmarkService;
 class GURL;
 enum NotificationType;
 
@@ -43,7 +44,11 @@ class BroadcastNotificationDelegate {
 class ExpireHistoryBackend {
  public:
   // The delegate pointer must be non-NULL. We will NOT take ownership of it.
-  explicit ExpireHistoryBackend(BroadcastNotificationDelegate* delegate);
+  // BookmarkService may be NULL. The BookmarkService is used when expiring
+  // URLs so that we don't remove any URLs or favicons that are bookmarked
+  // (visits are removed though).
+  ExpireHistoryBackend(BroadcastNotificationDelegate* delegate,
+                       BookmarkService* bookmark_service);
   ~ExpireHistoryBackend();
 
   // Completes initialization by setting the databases that this class will use.
@@ -80,6 +85,7 @@ class ExpireHistoryBackend {
   FRIEND_TEST(ExpireHistoryTest, DeleteTextIndexForURL);
   FRIEND_TEST(ExpireHistoryTest, DeleteFaviconsIfPossible);
   FRIEND_TEST(ExpireHistoryTest, ArchiveSomeOldHistory);
+  friend class TestingProfile;
 
   struct DeleteDependencies {
     // The time range affected. These can be is_null() to be unbounded in one
@@ -144,7 +150,13 @@ class ExpireHistoryBackend {
   // check for shared information at the end).
   //
   // Assumes the main_db_ is non-NULL.
-  void DeleteOneURL(const URLRow& url_row, DeleteDependencies* dependencies);
+  //
+  // NOTE: If the url is bookmarked only the segments and text db are updated,
+  // everything else is unchanged. This is done so that bookmarks retain their
+  // favicons and thumbnails.
+  void DeleteOneURL(const URLRow& url_row,
+                    bool is_bookmarked,
+                    DeleteDependencies* dependencies);
 
   // Adds or merges the given URL row with the archived database, returning the
   // ID of the URL in the archived database, or 0 on failure. The main (source)
@@ -191,12 +203,7 @@ class ExpireHistoryBackend {
   // care about favicons so much, so don't want to stop everything if it fails).
   void DeleteFaviconsIfPossible(const std::set<FavIconID>& favicon_id);
 
-  // Broadcasts that the given URLs and star entries were deleted. Either list
-  // can be empty, in which case no notification will be sent for that type.
-  //
-  // The passed-in arguments will be cleared becuase they will be swapped into
-  // the destination message to avoid copying). However, ownership of the
-  // dependencies object will not transfer.
+  // Broadcast the URL deleted notification.
   void BroadcastDeleteNotifications(DeleteDependencies* dependencies);
 
   // Schedules a call to DoArchiveIteration at the given time in the
@@ -217,6 +224,10 @@ class ExpireHistoryBackend {
   // and deletes items. For example, URLs with no visits.
   void ParanoidExpireHistory();
 
+  // Returns the BookmarkService, blocking until it is loaded. This may return
+  // NULL.
+  BookmarkService* GetBookmarkService();
+
   // Non-owning pointer to the notification delegate (guaranteed non-NULL).
   BroadcastNotificationDelegate* delegate_;
 
@@ -234,10 +245,15 @@ class ExpireHistoryBackend {
   // the archived database.
   TimeDelta expiration_threshold_;
 
+  // The BookmarkService; may be null. This is owned by the Profile.
+  //
+  // Use GetBookmarkService to access this, which makes sure the service is
+  // loaded.
+  BookmarkService* bookmark_service_;
+
   DISALLOW_EVIL_CONSTRUCTORS(ExpireHistoryBackend);
 };
 
 }  // namespace history
 
 #endif  // CHROME_BROWSER_HISTORY_EXPIRE_HISTORY_BACKEND_H__
-

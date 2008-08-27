@@ -617,6 +617,14 @@ ProfileImpl::~ProfileImpl() {
     request_context_ = NULL;
   }
 
+  // HistoryService may call into the BookmarkBarModel, as such we need to
+  // delete HistoryService before the BookmarkBarModel. The destructor for
+  // HistoryService will join with HistoryService's backend thread so that
+  // by the time the destructor has finished we're sure it will no longer call
+  // into the BookmarkBarModel.
+  history_service_ = NULL;
+  bookmark_bar_model_.reset();
+
   MarkAsCleanShutdown();
 }
 
@@ -721,11 +729,11 @@ URLRequestContext* ProfileImpl::GetRequestContext() {
 
 HistoryService* ProfileImpl::GetHistoryService(ServiceAccessType sat) {
   if (!history_service_created_) {
+    history_service_created_ = true;
     scoped_refptr<HistoryService> history(new HistoryService(this));
-    if (!history->Init(GetPath()))
+    if (!history->Init(GetPath(), GetBookmarkBarModel()))
       return NULL;
     history_service_.swap(history);
-    history_service_created_ = true;
 
     // Send out the notification that the history service was created.
     NotificationService::current()->
@@ -844,8 +852,10 @@ bool ProfileImpl::HasBookmarkBarModel() {
 }
 
 BookmarkBarModel* ProfileImpl::GetBookmarkBarModel() {
-  if (!bookmark_bar_model_.get())
+  if (!bookmark_bar_model_.get()) {
     bookmark_bar_model_.reset(new BookmarkBarModel(this));
+    bookmark_bar_model_->Load();
+  }
   return bookmark_bar_model_.get();
 }
 

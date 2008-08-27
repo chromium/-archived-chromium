@@ -834,6 +834,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\bookmarks\bookmark_service.h"
+				>
+			</File>
+			<File
 				RelativePath=".\bookmark_storage.cc"
 				>
 			</File>

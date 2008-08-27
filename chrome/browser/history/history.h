@@ -25,7 +25,7 @@
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/ref_counted_util.h"
 
-class BookmarkBarModel;
+class BookmarkService;
 struct DownloadCreateInfo;
 class GURL;
 class HistoryURLProvider;
@@ -98,8 +98,12 @@ class HistoryService : public CancelableRequestProvider,
 
   // Initializes the history service, returning true on success. On false, do
   // not call any other functions. The given directory will be used for storing
-  // the history files.
-  bool Init(const std::wstring& history_dir);
+  // the history files. The BookmarkService is used when deleting URLs to
+  // test if a URL is bookmarked; it may be NULL during testing.
+  bool Init(const std::wstring& history_dir, BookmarkService* bookmark_service);
+
+  // Did the backend finish loading the databases?
+  bool backend_loaded() const { return backend_loaded_; }
 
   // Called on shutdown, this will tell the history backend to complete and
   // will release pointers to it. No other functions should be called once
@@ -487,6 +491,11 @@ class HistoryService : public CancelableRequestProvider,
       CancelableRequestConsumerBase* consumer,
       GetMostRecentKeywordSearchTermsCallback* callback);
 
+  // Bookmarks -----------------------------------------------------------------
+
+  // Notification that a URL is no longer bookmarked.
+  void URLsNoLongerBookmarked(const std::set<GURL>& urls);
+
   // Generic Stuff -------------------------------------------------------------
 
   typedef Callback0::Type HistoryDBTaskCallback;
@@ -495,13 +504,6 @@ class HistoryService : public CancelableRequestProvider,
   // HistoryDBTask for details on what this does.
   Handle ScheduleDBTask(HistoryDBTask* task,
                         CancelableRequestConsumerBase* consumer);
-
-  typedef Callback0::Type EmptyHistoryCallback;
-
-  // Schedules a task that does nothing on the backend. This can be used to get
-  // notification when then history backend is done processing requests.
-  Handle ScheduleEmptyCallback(CancelableRequestConsumerBase* consumer,
-                               EmptyHistoryCallback* callback);
 
   // Testing -------------------------------------------------------------------
 
@@ -536,6 +538,16 @@ class HistoryService : public CancelableRequestProvider,
  private:
   class BackendDelegate;
   friend class BackendDelegate;
+  friend class history::HistoryBackend;
+  friend class history::HistoryQueryTest;
+  friend class HistoryOperation;
+  friend class HistoryURLProvider;
+  friend class HistoryURLProviderTest;
+  template<typename Info, typename Callback> friend class DownloadRequest;
+  friend class PageUsageRequest;
+  friend class RedirectRequest;
+  friend class FavIconRequest;
+  friend class TestingProfile;
 
   // These are not currently used, hopefully we can do something in the future
   // to ensure that the most important things happen first.
@@ -544,17 +556,6 @@ class HistoryService : public CancelableRequestProvider,
     PRIORITY_NORMAL,  // Normal stuff like adding a page.
     PRIORITY_LOW,     // Low priority things like indexing or expiration.
   };
-
-  friend class BookmarkBarModel;
-  friend class HistoryURLProvider;
-  friend class history::HistoryBackend;
-  template<typename Info, typename Callback> friend class DownloadRequest;
-  friend class PageUsageRequest;
-  friend class RedirectRequest;
-  friend class FavIconRequest;
-  friend class history::HistoryQueryTest;
-  friend class HistoryOperation;
-  friend class HistoryURLProviderTest;
 
   // Implementation of NotificationObserver.
   virtual void Observe(NotificationType type,
@@ -576,6 +577,10 @@ class HistoryService : public CancelableRequestProvider,
   // be allocated on the heap).
   void BroadcastNotifications(NotificationType type,
                               history::HistoryDetails* details_deleted);
+
+  // Notification from the backend that it has finished loading. Sends
+  // notification (NOTIFY_HISTORY_LOADED) and sets backend_loaded_ to true.
+  void OnDBLoaded();
 
   // Returns true if this looks like the type of URL we want to add to the
   // history. We filter out some URLs such as JavaScript.
@@ -747,8 +752,11 @@ class HistoryService : public CancelableRequestProvider,
   // The profile, may be null when testing.
   Profile* profile_;
 
+  // Has the backend finished loading? The backend is loaded once Init has
+  // completed.
+  bool backend_loaded_;
+
   DISALLOW_EVIL_CONSTRUCTORS(HistoryService);
 };
 
 #endif  // CHROME_BROWSER_HISTORY_HISTORY_H__
-

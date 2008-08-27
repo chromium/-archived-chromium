@@ -5,7 +5,10 @@
 #ifndef CHROME_BROWSER_BOOKMARK_BAR_MODEL_H_
 #define CHROME_BROWSER_BOOKMARK_BAR_MODEL_H_
 
+#include "base/lock.h"
 #include "base/observer_list.h"
+#include "base/scoped_handle.h"
+#include "chrome/browser/bookmarks/bookmark_service.h"
 #include "chrome/browser/bookmark_storage.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/history.h"
@@ -37,7 +40,6 @@ class BookmarkBarNode : public ChromeViews::TreeNode<BookmarkBarNode> {
 
  public:
   BookmarkBarNode(BookmarkBarModel* model, const GURL& url);
-
   virtual ~BookmarkBarNode() {}
 
   // Returns the favicon for the this node. If the favicon has not yet been
@@ -167,7 +169,7 @@ class BookmarkBarModelObserver {
 // Profile.
 
 // TODO(sky): rename to BookmarkModel.
-class BookmarkBarModel : public NotificationObserver {
+class BookmarkBarModel : public NotificationObserver, public BookmarkService {
   friend class BookmarkBarNode;
   friend class BookmarkBarModelTest;
   friend class BookmarkStorage;
@@ -175,6 +177,10 @@ class BookmarkBarModel : public NotificationObserver {
  public:
   explicit BookmarkBarModel(Profile* profile);
   virtual ~BookmarkBarModel();
+  
+  // Loads the bookmarks. This is called by Profile upon creation of the
+  // BookmarkBarModel. You need not invoke this directly.
+  void Load();
 
   // Returns the root node. The bookmark bar node and other node are children of
   // the root node.
@@ -224,13 +230,21 @@ class BookmarkBarModel : public NotificationObserver {
   bool IsLoaded() { return loaded_; }
 
   // Returns the node with the specified URL, or NULL if there is no node with
-  // the specified URL.
+  // the specified URL. This method is thread safe.
   BookmarkBarNode* GetNodeByURL(const GURL& url);
 
-  // Returns true if there is a bookmark for the specified URL.
-  bool IsBookmarked(const GURL& url) {
+  // Returns all the bookmarked urls. This method is thread safe.
+  virtual void GetBookmarks(std::vector<GURL>* urls);
+
+  // Returns true if there is a bookmark for the specified URL. This method is
+  // thread safe. See BookmarkService for more details on this.
+  virtual bool IsBookmarked(const GURL& url) {
     return GetNodeByURL(url) != NULL;
   }
+
+  // Blocks until loaded; this is NOT invoked on the main thread. See
+  // BookmarkService for more details on this.
+  virtual void BlockTillLoaded();
 
   // Returns the node with the specified id, or NULL if there is no node with
   // the specified id.
@@ -381,14 +395,25 @@ class BookmarkBarModel : public NotificationObserver {
 
   // Set of nodes ordered by URL. This is not a map to avoid copying the
   // urls.
+  // WARNING: nodes_ordered_by_url_set_ is accessed on multiple threads. As
+  // such, be sure and wrap all usage of it around url_lock_.
   typedef std::set<BookmarkBarNode*,NodeURLComparator> NodesOrderedByURLSet;
   NodesOrderedByURLSet nodes_ordered_by_url_set_;
+  Lock url_lock_;
 
   // Used for loading favicons and the empty history request.
   CancelableRequestConsumerT<BookmarkBarNode*, NULL> load_consumer_;
 
   // Reads/writes bookmarks to disk.
   scoped_refptr<BookmarkStorage> store_;
+
+  // Have we installed a listener on the NotificationService for
+  // NOTIFY_HISTORY_LOADED? A listener is installed if the bookmarks file
+  // doesn't exist and the history service hasn't finished loading.
+  bool waiting_for_history_load_;
+
+  // Handle to event signaled when loading is done.
+  ScopedHandle loaded_signal_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BookmarkBarModel);
 };

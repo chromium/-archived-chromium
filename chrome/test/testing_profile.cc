@@ -4,6 +4,7 @@
 
 #include "chrome/test/testing_profile.h"
 
+#include "chrome/browser/history/history_backend.h"
 #include "chrome/common/chrome_constants.h"
 
 TestingProfile::TestingProfile()
@@ -30,9 +31,8 @@ void TestingProfile::CreateHistoryService(bool delete_file) {
     file_util::AppendToPath(&path, chrome::kHistoryFilename);
     file_util::Delete(path, false);
   }
-  file_util::CreateDirectory(history_dir_);
-  history_service_ = new HistoryService();
-  history_service_->Init(GetPath());
+  history_service_ = new HistoryService(this);
+  history_service_->Init(GetPath(), bookmark_bar_model_.get());
 }
 
 void TestingProfile::DestroyHistoryService() {
@@ -56,11 +56,23 @@ void TestingProfile::DestroyHistoryService() {
   MessageLoop::current()->Run();
 }
 
-void TestingProfile::CreateBookmarkBarModel() {
-  std::wstring path = GetPath();
-  file_util::AppendToPath(&path, chrome::kBookmarksFileName);
-  file_util::Delete(path, false);
+void TestingProfile::CreateBookmarkBarModel(bool delete_file) {
+  // Nuke the model first, that way we're sure it's done writing to disk.
+  bookmark_bar_model_.reset(NULL);
+
+  if (delete_file) {
+    std::wstring path = GetPath();
+    file_util::AppendToPath(&path, chrome::kBookmarksFileName);
+    file_util::Delete(path, false);
+  }
   bookmark_bar_model_.reset(new BookmarkBarModel(this));
+  if (history_service_.get()) {
+    history_service_->history_backend_->bookmark_service_ =
+        bookmark_bar_model_.get();
+    history_service_->history_backend_->expirer_.bookmark_service_ =
+        bookmark_bar_model_.get();
+  }
+  bookmark_bar_model_->Load();
 }
 
 void TestingProfile::CreateTemplateURLModel() {

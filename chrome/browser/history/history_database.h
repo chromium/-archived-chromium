@@ -88,8 +88,8 @@ class HistoryDatabase : public DownloadDatabase,
     return transaction_nesting_;
   }
 
-  // Drops all tables except the URL, starred and download tables, and recreates
-  // them from scratch. This is done to rapidly clean up stuff when deleting all
+  // Drops all tables except the URL, and download tables, and recreates them
+  // from scratch. This is done to rapidly clean up stuff when deleting all
   // history. It is faster and less likely to have problems that deleting all
   // rows in the tables.
   //
@@ -102,10 +102,10 @@ class HistoryDatabase : public DownloadDatabase,
   // This should be treated the same as an init failure, and the database
   // should not be used any more.
   //
-  // This will also recreate the supplimentary URL indices, since these
+  // This will also recreate the supplementary URL indices, since these
   // indices won't be created automatically when using the temporary URL
-  // talbe (what the caller does right before calling this).
-  bool RecreateAllButStarAndURLTables();
+  // table (what the caller does right before calling this).
+  bool RecreateAllTablesButURL();
 
   // Vacuums the database. This will cause sqlite to defragment and collect
   // unused space in the file. It can be VERY SLOW.

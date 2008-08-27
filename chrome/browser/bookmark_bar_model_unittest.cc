@@ -438,8 +438,6 @@ class BookmarkBarModelTestWithProfile : public testing::Test,
                                         public BookmarkBarModelObserver {
  public:
   virtual void SetUp() {
-    profile_.reset(new TestingProfile());
-    profile_->CreateHistoryService(true);
   }
 
   virtual void TearDown() {
@@ -473,30 +471,24 @@ class BookmarkBarModelTestWithProfile : public testing::Test,
     }
   }
 
-  // Creates the bookmark bar model. If the bookmark bar model has already been
-  // created a new one is created and the old one destroyed.
-  void CreateBookmarkBarModel() {
-    bb_model_.reset(NULL);
-
-    BookmarkBarModel* new_model = new BookmarkBarModel(profile_.get());
-    if (!new_model->IsLoaded())
-      BlockTillLoaded(new_model);
+  void BlockTillBookmarkModelLoaded() {
+    bb_model_ = profile_->GetBookmarkBarModel();
+    if (!bb_model_->IsLoaded())
+      BlockTillLoaded(bb_model_);
     else
-      new_model->AddObserver(this);
-    bb_model_.reset(new_model);
+      bb_model_->AddObserver(this);
   }
 
-  // Destroys the bookmark bar model, then the profile, then creates a new
-  // profile.
+  // Destroys the current profile, creates a new one and creates the history
+  // service.
   void RecreateProfile() {
-    bb_model_.reset(NULL);
     // Need to shutdown the old one before creating a new one.
     profile_.reset(NULL);
     profile_.reset(new TestingProfile());
     profile_->CreateHistoryService(true);
   }
 
-  scoped_ptr<BookmarkBarModel> bb_model_;
+  BookmarkBarModel* bb_model_;
 
  private:
   // Blocks until the BookmarkBarModel has finished loading.
@@ -548,20 +540,25 @@ TEST_F(BookmarkBarModelTestWithProfile, CreateAndRestore) {
     { L"a b c [ d e [ f ] ]", L"g h i [ j k [ l ] ]"},
   };
   for (int i = 0; i < arraysize(data); ++i) {
-    RecreateProfile();
-
-    CreateBookmarkBarModel();
+    // Recreate the profile. We need to reset with NULL first so that the last
+    // HistoryService releases the locks on the files it creates and we can
+    // delete them.
+    profile_.reset(NULL);
+    profile_.reset(new TestingProfile());
+    profile_->CreateBookmarkBarModel(true);
+    profile_->CreateHistoryService(true);
+    BlockTillBookmarkModelLoaded();
 
     TestNode bbn;
     PopulateNodeFromString(data[i].bbn_contents, &bbn);
-    PopulateBookmarkBarNode(&bbn, bb_model_.get(),
-                            bb_model_->GetBookmarkBarNode());
+    PopulateBookmarkBarNode(&bbn, bb_model_, bb_model_->GetBookmarkBarNode());
 
     TestNode other;
     PopulateNodeFromString(data[i].other_contents, &other);
-    PopulateBookmarkBarNode(&other, bb_model_.get(), bb_model_->other_node());
+    PopulateBookmarkBarNode(&other, bb_model_, bb_model_->other_node());
 
-    CreateBookmarkBarModel();
+    profile_->CreateBookmarkBarModel(false);
+    BlockTillBookmarkModelLoaded();
 
     VerifyModelMatchesNode(&bbn, bb_model_->GetBookmarkBarNode());
     VerifyModelMatchesNode(&other, bb_model_->other_node());
@@ -656,8 +653,8 @@ TEST_F(BookmarkBarModelTestWithProfile2, MigrateFromDBToFileTest) {
   // Create the history service making sure it doesn't blow away the file we
   // just copied.
   profile_->CreateHistoryService(false);
-
-  CreateBookmarkBarModel();
+  profile_->CreateBookmarkBarModel(true);
+  BlockTillBookmarkModelLoaded();
 
   // Make sure we loaded OK.
   VerifyExpectedState();
@@ -665,7 +662,8 @@ TEST_F(BookmarkBarModelTestWithProfile2, MigrateFromDBToFileTest) {
     return;
 
   // Create again. This time we shouldn't load from history at all.
-  CreateBookmarkBarModel();
+  profile_->CreateBookmarkBarModel(false);
+  BlockTillBookmarkModelLoaded();
 
   // Make sure we loaded OK.
   VerifyExpectedState();
@@ -675,7 +673,27 @@ TEST_F(BookmarkBarModelTestWithProfile2, MigrateFromDBToFileTest) {
   // Recreate the history service (with a clean db). Do this just to make sure
   // we're loading correctly from the bookmarks file.
   profile_->CreateHistoryService(true);
-  CreateBookmarkBarModel();
+  profile_->CreateBookmarkBarModel(false);
+  BlockTillBookmarkModelLoaded();
   VerifyExpectedState();
 }
 
+// Simple test that removes a bookmark. This test exercises the code paths in
+// History that block till bookmark bar model is loaded.
+TEST_F(BookmarkBarModelTestWithProfile2, RemoveNotification) {
+  profile_->CreateHistoryService(false);
+  profile_->CreateBookmarkBarModel(true);
+  BlockTillBookmarkModelLoaded();
+
+  // Add a URL.
+  GURL url("http://www.google.com");
+  bb_model_->SetURLStarred(url, std::wstring(), true);
+
+  profile_->GetHistoryService(Profile::EXPLICIT_ACCESS)->AddPage(
+      url, NULL, 1, GURL(), PageTransition::TYPED,
+      HistoryService::RedirectList());
+
+  // This won't actually delete the URL, rather it'll empty out the visits.
+  // This triggers blocking on the BookmarkBarModel.
+  profile_->GetHistoryService(Profile::EXPLICIT_ACCESS)->DeleteURL(url);
+}

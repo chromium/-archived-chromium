@@ -8,6 +8,7 @@
 #include <limits>
 
 #include "base/file_util.h"
+#include "chrome/browser/bookmarks/bookmark_service.h"
 #include "chrome/browser/history/archived_database.h"
 #include "chrome/browser/history/history_database.h"
 #include "chrome/browser/history/history_notifications.h"
@@ -63,14 +64,16 @@ const int kExpirationEmptyDelayMin = 5;
 }  // namespace
 
 ExpireHistoryBackend::ExpireHistoryBackend(
-    BroadcastNotificationDelegate* delegate)
+    BroadcastNotificationDelegate* delegate,
+    BookmarkService* bookmark_service)
     : delegate_(delegate),
       main_db_(NULL),
       archived_db_(NULL),
       thumb_db_(NULL),
       text_db_(NULL),
 #pragma warning(suppress: 4355)  // Okay to pass "this" here.
-      factory_(this) {
+      factory_(this),
+      bookmark_service_(bookmark_service) {
 }
 
 ExpireHistoryBackend::~ExpireHistoryBackend() {
@@ -94,10 +97,6 @@ void ExpireHistoryBackend::DeleteURL(const GURL& url) {
   if (!main_db_->GetRowForURL(url, &url_row))
     return;  // Nothing to delete.
 
-  // The URL may be in the text database manager's temporary cache.
-  if (text_db_)
-    text_db_->DeleteURLFromUncommitted(url);
-
   // Collect all the visits and delete them. Note that we don't give up if
   // there are no visits, since the URL could still have an entry that we should
   // delete.
@@ -111,11 +110,18 @@ void ExpireHistoryBackend::DeleteURL(const GURL& url) {
   // We skip ExpireURLsForVisits (since we are deleting from the URL, and not
   // starting with visits in a given time range). We therefore need to call the
   // deletion and favicon update functions manually.
-  DeleteOneURL(url_row, &dependencies);
-  DeleteFaviconsIfPossible(dependencies.affected_favicons);
+
+  BookmarkService* bookmark_service = GetBookmarkService();
+  bool is_bookmarked =
+      (bookmark_service && bookmark_service->IsBookmarked(url));
+
+  DeleteOneURL(url_row, is_bookmarked, &dependencies);
+  if (!is_bookmarked)
+    DeleteFaviconsIfPossible(dependencies.affected_favicons);
 
   if (text_db_)
     text_db_->OptimizeChangedDatabases(dependencies.text_db_changes);
+
   BroadcastDeleteNotifications(&dependencies);
 }
 
@@ -243,20 +249,28 @@ void ExpireHistoryBackend::DeleteVisitRelatedInfo(
 
 void ExpireHistoryBackend::DeleteOneURL(
     const URLRow& url_row,
+    bool is_bookmarked,
     DeleteDependencies* dependencies) {
-  dependencies->deleted_urls.push_back(url_row);
-
-  // Delete stuff that references this URL.
-  if (thumb_db_)
-    thumb_db_->DeleteThumbnail(url_row.id());
   main_db_->DeleteSegmentForURL(url_row.id());
 
-  // Collect shared information.
-  if (url_row.favicon_id())
-    dependencies->affected_favicons.insert(url_row.favicon_id());
+  // The URL may be in the text database manager's temporary cache.
+  if (text_db_)
+    text_db_->DeleteURLFromUncommitted(url_row.url());
 
-  // Last, delete the URL entry.
-  main_db_->DeleteURLRow(url_row.id());
+  if (!is_bookmarked) {
+    dependencies->deleted_urls.push_back(url_row);
+
+    // Delete stuff that references this URL.
+    if (thumb_db_)
+      thumb_db_->DeleteThumbnail(url_row.id());
+
+    // Collect shared information.
+    if (url_row.favicon_id())
+      dependencies->affected_favicons.insert(url_row.favicon_id());
+
+    // Last, delete the URL entry.
+    main_db_->DeleteURLRow(url_row.id());
+  }
 }
 
 URLID ExpireHistoryBackend::ArchiveOneURL(const URLRow& url_row) {
@@ -304,6 +318,7 @@ void ExpireHistoryBackend::ExpireURLsForVisits(
   }
 
   // Check each unique URL with deleted visits.
+  BookmarkService* bookmark_service = GetBookmarkService();
   for (std::map<URLID, ChangedURL>::const_iterator i = changed_urls.begin();
        i != changed_urls.end(); ++i) {
     // The unique URL rows should already be filled into the dependencies.
@@ -320,20 +335,22 @@ void ExpireHistoryBackend::ExpireURLsForVisits(
     else
       url_row.set_last_visit(Time());
 
-    // Don't delete URLs with visits still in the DB.
-    if (!url_row.last_visit().is_null()) {
-      // We're not deleting the URL, update its counts when we're deleting those
-      // visits.
+    // Don't delete URLs with visits still in the DB, or bookmarked.
+    bool is_bookmarked =
+        (bookmark_service && bookmark_service->IsBookmarked(url_row.url()));
+    if (!is_bookmarked && url_row.last_visit().is_null()) {
+      // Not bookmarked and no more visits. Nuke the url.
+      DeleteOneURL(url_row, is_bookmarked, dependencies);
+    } else {
       // NOTE: The calls to std::max() below are a backstop, but they should
       // never actually be needed unless the database is corrupt (I think).
       url_row.set_visit_count(
           std::max(0, url_row.visit_count() - i->second.visit_count));
       url_row.set_typed_count(
           std::max(0, url_row.typed_count() - i->second.typed_count));
+
+      // Update the db with the new details.
       main_db_->UpdateURLRow(url_row.id(), url_row);
-    } else {
-      // This URL is toast.
-      DeleteOneURL(url_row, dependencies);
     }
   }
 }
@@ -465,6 +482,16 @@ bool ExpireHistoryBackend::ArchiveSomeOldHistory(Time time_threshold,
 
 void ExpireHistoryBackend::ParanoidExpireHistory() {
   // FIXME(brettw): Bug 1067331: write this to clean up any errors.
+}
+
+BookmarkService* ExpireHistoryBackend::GetBookmarkService() {
+  // We use the bookmark service to determine if a URL is bookmarked. The
+  // bookmark service is loaded on a separate thread and may not be done by the
+  // time we get here. We therefor block until the bookmarks have finished
+  // loading.
+  if (bookmark_service_)
+    bookmark_service_->BlockTillLoaded();
+  return bookmark_service_;
 }
 
 }  // namespace history

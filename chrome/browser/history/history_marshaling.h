@@ -117,9 +117,6 @@ typedef CancelableRequest1<HistoryService::HistoryDBTaskCallback,
                            scoped_refptr<HistoryDBTask> >
     HistoryDBTaskRequest;
 
-typedef CancelableRequest<HistoryService::EmptyHistoryCallback>
-    EmptyHistoryRequest;
-
 }  // namespace history
 
 #endif  // CHROME_BROWSER_HISTORY_HISTORY_MARSHALING_H__

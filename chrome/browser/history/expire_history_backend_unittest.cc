@@ -7,6 +7,7 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/scoped_ptr.h"
+#include "chrome/browser/bookmark_bar_model.h"
 #include "chrome/browser/history/archived_database.h"
 #include "chrome/browser/history/expire_history_backend.h"
 #include "chrome/browser/history/history_database.h"
@@ -29,7 +30,9 @@ class ExpireHistoryTest : public testing::Test,
                           public BroadcastNotificationDelegate {
  public:
   ExpireHistoryTest()
-      : ALLOW_THIS_IN_INITIALIZER_LIST(expirer_(this)), now_(Time::Now()) {
+      : bookmark_model_(NULL),
+        ALLOW_THIS_IN_INITIALIZER_LIST(expirer_(this, &bookmark_model_)),
+        now_(Time::Now()) {
   }
 
  protected:
@@ -55,7 +58,14 @@ class ExpireHistoryTest : public testing::Test,
     notifications_.clear();
   }
 
+  void StarURL(const GURL& url) {
+    bookmark_model_.AddURL(
+        bookmark_model_.GetBookmarkBarNode(), 0, std::wstring(), url);
+  }
+
   static bool IsStringInFile(std::wstring& filename, const char* str);
+
+  BookmarkBarModel bookmark_model_;
 
   MessageLoop message_loop_;
 
@@ -438,6 +448,47 @@ TEST_F(ExpireHistoryTest, DeleteURLWithoutFavicon) {
   EXPECT_TRUE(HasFavIcon(last_row.favicon_id()));
 }
 
+// DeleteURL should not delete starred urls.
+TEST_F(ExpireHistoryTest, DontDeleteStarredURL) {
+  URLID url_ids[3];
+  Time visit_times[4];
+  AddExampleData(url_ids, visit_times);
+
+  URLRow url_row;
+  ASSERT_TRUE(main_db_->GetURLRow(url_ids[2], &url_row));
+
+  // Star the last URL.
+  StarURL(url_row.url());
+
+  // Attempt to delete the url.
+  expirer_.DeleteURL(url_row.url());
+
+  // Because the url is starred, it shouldn't be deleted.
+  GURL url = url_row.url();
+  ASSERT_TRUE(main_db_->GetRowForURL(url, &url_row));
+
+  // And the favicon should exist.
+  EXPECT_TRUE(HasFavIcon(url_row.favicon_id()));
+
+  // But there should be no fts. 
+  ASSERT_EQ(0, CountTextMatchesForURL(url_row.url()));
+
+  // And no visits.
+  VisitVector visits;
+  main_db_->GetVisitsForURL(url_row.id(), &visits);
+  ASSERT_EQ(0, visits.size());
+
+  // Should still have the thumbnail.
+  ASSERT_TRUE(HasThumbnail(url_row.id()));
+
+  // Unstar the URL and delete again.
+  bookmark_model_.SetURLStarred(url, std::wstring(), false);
+  expirer_.DeleteURL(url);
+  
+  // Now it should be completely deleted.
+  EnsureURLInfoGone(url_row);
+}
+
 // Expires all URLs more recent than a given time, with no starred items.
 // Our time threshold is such that one URL should be updated (we delete one of
 // the two visits) and one is deleted.
@@ -492,6 +543,49 @@ TEST_F(ExpireHistoryTest, FlushRecentURLsUnstarred) {
   EXPECT_FALSE(HasFavIcon(url_row2.favicon_id()));
 }
 
+// Expire a starred URL, it shouldn't get deleted
+TEST_F(ExpireHistoryTest, FlushRecentURLsStarred) {
+  URLID url_ids[3];
+  Time visit_times[4];
+  AddExampleData(url_ids, visit_times);
+
+  URLRow url_row1, url_row2;
+  ASSERT_TRUE(main_db_->GetURLRow(url_ids[1], &url_row1));
+  ASSERT_TRUE(main_db_->GetURLRow(url_ids[2], &url_row2));
+
+  // Star the last two URLs.
+  StarURL(url_row1.url());
+  StarURL(url_row2.url());
+
+  // This should delete the last two visits.
+  expirer_.ExpireHistoryBetween(visit_times[2], Time());
+
+  // The URL rows should still exist.
+  URLRow new_url_row1, new_url_row2;
+  ASSERT_TRUE(main_db_->GetURLRow(url_ids[1], &new_url_row1));
+  ASSERT_TRUE(main_db_->GetURLRow(url_ids[2], &new_url_row2));
+
+  // The visit times should be updated.
+  EXPECT_TRUE(new_url_row1.last_visit() == visit_times[1]);
+  EXPECT_TRUE(new_url_row2.last_visit().is_null());  // No last visit time.
+
+  // Visit/typed count should not be updated for bookmarks.
+  EXPECT_EQ(0, new_url_row1.typed_count());
+  EXPECT_EQ(1, new_url_row1.visit_count());
+  EXPECT_EQ(0, new_url_row2.typed_count());
+  EXPECT_EQ(0, new_url_row2.visit_count());
+
+  // Thumbnails and favicons should still exist. Note that we keep thumbnails
+  // that may have been updated since the time threshold. Since the URL still
+  // exists in history, this should not be a privacy problem, we only update
+  // the visit counts in this case for consistency anyway.
+  EXPECT_TRUE(HasFavIcon(new_url_row1.favicon_id()));
+  EXPECT_TRUE(HasThumbnail(new_url_row1.id()));
+  EXPECT_TRUE(HasFavIcon(new_url_row2.favicon_id()));
+  EXPECT_TRUE(HasThumbnail(new_url_row2.id()));
+
+}
+
 TEST_F(ExpireHistoryTest, ArchiveHistoryBeforeUnstarred) {
   URLID url_ids[3];
   Time visit_times[4];
@@ -530,6 +624,51 @@ TEST_F(ExpireHistoryTest, ArchiveHistoryBeforeUnstarred) {
   EXPECT_EQ(1, archived_visits.size());
 }
 
+TEST_F(ExpireHistoryTest, ArchiveHistoryBeforeStarred) {
+  URLID url_ids[3];
+  Time visit_times[4];
+  AddExampleData(url_ids, visit_times);
+
+  URLRow url_row0, url_row1;
+  ASSERT_TRUE(main_db_->GetURLRow(url_ids[0], &url_row0));
+  ASSERT_TRUE(main_db_->GetURLRow(url_ids[1], &url_row1));
+
+  // Star the URLs.
+  StarURL(url_row0.url());
+  StarURL(url_row1.url());
+
+  // Now archive the first three visits (first two URLs). The first two visits
+  // should be, the third deleted, but the URL records should not.
+  expirer_.ArchiveHistoryBefore(visit_times[2]);
+
+  // The first URL should have its visit deleted, but it should still be present
+  // in the main DB and not in the archived one since it is starred.
+  URLRow temp_row;
+  ASSERT_TRUE(main_db_->GetURLRow(url_ids[0], &temp_row));
+  // Note that the ID is different in the archived DB, so look up by URL.
+  EXPECT_FALSE(archived_db_->GetRowForURL(temp_row.url(), NULL));
+  VisitVector visits;
+  main_db_->GetVisitsForURL(temp_row.id(), &visits);
+  EXPECT_EQ(0, visits.size());
+
+  // The second URL should have its first visit deleted and its second visit
+  // archived. It should be present in both the main DB (because it's starred)
+  // and the archived DB (for the archived visit).
+  ASSERT_TRUE(main_db_->GetURLRow(url_ids[1], &temp_row));
+  main_db_->GetVisitsForURL(temp_row.id(), &visits);
+  EXPECT_EQ(0, visits.size());
+
+  // Note that the ID is different in the archived DB, so look up by URL.
+  ASSERT_TRUE(archived_db_->GetRowForURL(temp_row.url(), &temp_row));
+  archived_db_->GetVisitsForURL(temp_row.id(), &visits);
+  ASSERT_EQ(1, visits.size());
+  EXPECT_TRUE(visit_times[2] == visits[0].visit_time);
+
+  // The third URL should be unchanged.
+  EXPECT_TRUE(main_db_->GetURLRow(url_ids[2], &temp_row));
+  EXPECT_FALSE(archived_db_->GetRowForURL(temp_row.url(), NULL));
+}
+
 // Tests the return values from ArchiveSomeOldHistory. The rest of the
 // functionality of this function is tested by the ArchiveHistoryBefore*
 // tests which use this function internally.
@@ -557,4 +696,3 @@ TEST_F(ExpireHistoryTest, ArchiveSomeOldHistory) {
 // Maybe also refer to invalid favicons.
 
 }  // namespace history
-

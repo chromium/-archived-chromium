@@ -90,7 +90,7 @@ std::wstring ConstructRandomPage() {
 void InsertURLBatch(const std::wstring& profile_dir, int page_id,
                     int batch_size, bool history_only) {
   scoped_refptr<HistoryService> history_service(new HistoryService);
-  if (!history_service->Init(profile_dir)) {
+  if (!history_service->Init(profile_dir, NULL)) {
     printf("Could not init the history service\n");
     exit(1);
   }

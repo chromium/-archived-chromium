@@ -78,6 +78,11 @@ class HistoryService::BackendDelegate : public HistoryBackend::Delegate {
         &HistoryService::BroadcastNotifications, type, details));
   }
 
+  virtual void DBLoaded() {
+    message_loop_->PostTask(FROM_HERE, NewRunnableMethod(history_service_.get(),
+        &HistoryService::OnDBLoaded));
+  }
+
  private:
   scoped_refptr<HistoryService> history_service_;
   MessageLoop* message_loop_;
@@ -88,7 +93,8 @@ const history::StarID HistoryService::kBookmarkBarID = 1;
 
 HistoryService::HistoryService()
     : thread_(new ChromeThread(ChromeThread::HISTORY)),
-      profile_(NULL) {
+      profile_(NULL),
+      backend_loaded_(false) {
   if (NotificationService::current()) {  // Is NULL when running generate_profile.
     NotificationService::current()->AddObserver(
         this, NOTIFY_HISTORY_URLS_DELETED, Source<Profile>(profile_));
@@ -97,7 +103,8 @@ HistoryService::HistoryService()
 
 HistoryService::HistoryService(Profile* profile)
     : thread_(new ChromeThread(ChromeThread::HISTORY)),
-      profile_(profile) {
+      profile_(profile),
+      backend_loaded_(false) {
   NotificationService::current()->AddObserver(
       this, NOTIFY_HISTORY_URLS_DELETED, Source<Profile>(profile_));
 }
@@ -113,13 +120,15 @@ HistoryService::~HistoryService() {
   }
 }
 
-bool HistoryService::Init(const std::wstring& history_dir) {
+bool HistoryService::Init(const std::wstring& history_dir,
+                          BookmarkService* bookmark_service) {
   if (!thread_->Start())
     return false;
 
   // Create the history backend.
   scoped_refptr<HistoryBackend> backend(
-      new HistoryBackend(history_dir, new BackendDelegate(this)));
+      new HistoryBackend(history_dir, new BackendDelegate(this),
+                         bookmark_service));
   history_backend_.swap(backend);
 
   ScheduleAndForget(PRIORITY_UI, &HistoryBackend::Init);
@@ -206,6 +215,11 @@ HistoryService::Handle HistoryService::GetMostRecentKeywordSearchTerms(
                   keyword_id, prefix, max_count);
 }
 
+void HistoryService::URLsNoLongerBookmarked(const std::set<GURL>& urls) {
+  ScheduleAndForget(PRIORITY_NORMAL, &HistoryBackend::URLsNoLongerBookmarked,
+                    urls);
+}
+
 HistoryService::Handle HistoryService::ScheduleDBTask(
     HistoryDBTask* task,
     CancelableRequestConsumerBase* consumer) {
@@ -214,13 +228,6 @@ HistoryService::Handle HistoryService::ScheduleDBTask(
   request->value = task;  // The value is the task to execute.
   return Schedule(PRIORITY_UI, &HistoryBackend::ProcessDBTask, consumer,
                   request);
-}
-
-HistoryService::Handle HistoryService::ScheduleEmptyCallback(
-    CancelableRequestConsumerBase* consumer,
-    EmptyHistoryCallback* callback) {
-  return Schedule(PRIORITY_UI, &HistoryBackend::ProcessEmptyRequest,
-                  consumer, new history::EmptyHistoryRequest(callback));
 }
 
 HistoryService::Handle HistoryService::QuerySegmentUsageSince(
@@ -629,3 +636,9 @@ void HistoryService::BroadcastNotifications(
   NotificationService::current()->Notify(type, source, det);
 }
 
+void HistoryService::OnDBLoaded() {
+  backend_loaded_ = true;
+  NotificationService::current()->Notify(NOTIFY_HISTORY_LOADED,
+                                         Source<Profile>(profile_),
+                                         Details<HistoryService>(this));
+}

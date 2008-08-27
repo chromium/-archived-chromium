@@ -73,7 +73,7 @@ class BookmarkBarViewEventTestBase : public ViewEventTestBase {
 
     profile_.reset(new TestingProfile());
     profile_->set_has_history_service(true);
-    profile_->CreateBookmarkBarModel();
+    profile_->CreateBookmarkBarModel(true);
     profile_->GetPrefs()->SetBoolean(prefs::kShowBookmarkBar, true);
 
     model_ = profile_->GetBookmarkBarModel();

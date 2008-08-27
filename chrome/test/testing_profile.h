@@ -27,8 +27,11 @@ class TestingProfile : public Profile {
   void CreateHistoryService(bool delete_file);
 
   // Creates the BookmkarBarModel. If not invoked the bookmark bar model is
-  // NULL.
-  void CreateBookmarkBarModel();
+  // NULL. If |delete_file| is true, the bookmarks file is deleted first, then
+  // the model is created. As TestingProfile deletes the directory containing
+  // the files used by HistoryService, the boolean only matters if you're
+  // recreating the BookmarkBarModel.
+  void CreateBookmarkBarModel(bool delete_file);
 
   // Creates a TemplateURLModel. If not invoked the TemplateURLModel is NULL.
   void CreateTemplateURLModel();
@@ -164,9 +167,6 @@ class TestingProfile : public Profile {
   // from the destructor.
   void DestroyHistoryService();
 
-  // Directory for the history service.
-  std::wstring history_dir_;
-
   // The history service. Only created if CreateHistoryService is invoked.
   scoped_refptr<HistoryService> history_service_;
 
@@ -182,4 +182,3 @@ class TestingProfile : public Profile {
 };
 
 #endif  // CHROME_TEST_TESTING_PROFILE_H__
-
