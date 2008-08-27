@@ -51,6 +51,9 @@ class BookmarkBarContextMenuControllerTest : public testing::Test {
 
   virtual void TearDown() {
     BookmarkBarView::testing_ = false;
+
+    // Flush the message loop to make Purify happy.
+    message_loop_.RunAllPending();
   }
 
  protected:
