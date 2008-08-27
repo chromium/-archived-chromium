@@ -90,6 +90,7 @@ input_files = [
     'tracked_objects.cc',
     'values.cc',
     'word_iterator.cc',
+    'worker_pool.cc',
     'third_party/nspr/prtime.cc',
     'third_party/nss/sha512.cc',
 ]
@@ -116,7 +117,6 @@ if env['PLATFORM'] == 'win32':
     'resource_util.cc',  # Uses HMODULE, but may be abstractable.
 
     'stats_table.cc',  # Amanda is working on this(?).
-    'worker_pool.cc',  # Maybe not necessary for test shell.
   ])
 
 if env['PLATFORM'] == 'win32':
@@ -276,6 +276,7 @@ test_files = [
     'values_unittest.cc',
     'waitable_event_unittest.cc',
     'word_iterator_unittest.cc',
+    'worker_pool_unittest.cc',
     'gfx/convolver_unittest.cc',
     'gfx/image_operations_unittest.cc',
     'gfx/png_codec_unittest.cc',
