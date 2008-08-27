@@ -587,7 +587,7 @@ bool BrowserView2::RestoreWindowPosition(CRect* bounds,
     *maximized = false;
   } else {
     // TODO(beng): (http://b/1317622) Make these functions take gfx::Rects.
-    gfx::Rect b;
+    gfx::Rect b(*bounds);
     browser_->RestoreWindowPosition(&b, maximized);
     *bounds = b.ToRECT();
   }
