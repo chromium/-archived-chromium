@@ -14,6 +14,7 @@
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/time.h"
+#include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/url_fixer_upper.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
@@ -249,12 +250,12 @@ void UITest::LaunchBrowser(const std::wstring& arguments, bool clear_profile) {
 }
 
 void UITest::QuitBrowser() {
-  typedef std::vector<HWND> HandleVector;
+  typedef std::vector<BrowserProxy*> BrowserVector;
 
   // There's nothing to do here if the browser is not running.
   if (IsBrowserRunning()) {
     automation()->SetFilteredInet(false);
-    HandleVector handles;
+    BrowserVector browsers;
 
     // Build up a list of HWNDs; we do this as a separate step so that closing
     // the windows doesn't mess up the iteration.
@@ -262,19 +263,18 @@ void UITest::QuitBrowser() {
     EXPECT_TRUE(automation()->GetBrowserWindowCount(&window_count));
 
     for (int i = 0; i < window_count; ++i) {
-      HWND window_handle;
-      scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(i));
-      scoped_ptr<WindowProxy> window(
-          automation()->GetWindowForBrowser(browser.get()));
-      EXPECT_TRUE(window->GetHWND(&window_handle));
-      handles.push_back(window_handle);
+      BrowserProxy* browser_proxy = automation()->GetBrowserWindow(i);
+      browsers.push_back(browser_proxy);
     }
 
-    for (HandleVector::iterator iter = handles.begin(); iter != handles.end();
-      ++iter) {
-      ::PostMessage(*iter, WM_CLOSE, 0, 0);
+    //for (HandleVector::iterator iter = handles.begin(); iter != handles.end();
+    for (BrowserVector::iterator iter = browsers.begin();
+      iter != browsers.end(); ++iter) {
+      // Use ApplyAccelerator since it doesn't wait
+      (*iter)->ApplyAccelerator(IDC_CLOSEWINDOW);
+      delete (*iter);
     }
-    
+
     // Now, drop the automation IPC channel so that the automation provider in
     // the browser notices and drops its reference to the browser process.
     server_->Disconnect();
