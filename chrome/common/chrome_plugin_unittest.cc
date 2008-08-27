@@ -60,6 +60,9 @@ class ChromePluginTest : public testing::Test, public URLRequest::Delegate {
     URLRequest::RegisterProtocolFactory("test", NULL);
 
     Profile::set_default_request_context(NULL);
+
+    // Flush the message loop to make Purify happy.
+    message_loop_.RunAllPending();
   }
  protected:
   MessageLoopForIO message_loop_;

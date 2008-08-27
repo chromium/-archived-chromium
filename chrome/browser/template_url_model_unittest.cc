@@ -111,6 +111,9 @@ class TemplateURLModelTest : public testing::Test,
     profile_->TearDown();
     delete TemplateURLRef::google_base_url_;
     TemplateURLRef::google_base_url_ = NULL;
+
+    // Flush the message loop to make Purify happy.
+    message_loop_.RunAllPending();
   }
 
   TemplateURL* AddKeywordWithDate(const std::wstring& keyword,

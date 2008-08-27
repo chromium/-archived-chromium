@@ -521,6 +521,9 @@ void FocusManagerTest::SetUp() {
 
 void FocusManagerTest::TearDown() {
   test_window_->CloseNow();
+
+  // Flush the message loop to make Purify happy.
+  message_loop_.RunAllPending();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

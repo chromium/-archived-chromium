@@ -101,6 +101,9 @@ class ResourceDispatcherHostTest : public testing::Test,
   virtual void TearDown() {
     URLRequest::RegisterProtocolFactory("test", NULL);
     RendererSecurityPolicy::GetInstance()->Remove(0);
+
+    // Flush the message loop to make Purify happy.
+    message_loop_.RunAllPending();
   }
 
   void MakeTestRequest(int request_id, const GURL& url);
