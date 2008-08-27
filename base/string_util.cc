@@ -1315,13 +1315,13 @@ bool MatchPattern(const std::string& eval, const std::string& pattern) {
 // are on our target platforms.
 
 bool StringToInt(const std::string& input, int* output) {
-  DCHECK(sizeof(int) == sizeof(long));
+  COMPILE_ASSERT(sizeof(int) == sizeof(long), cannot_strtol_to_int);
   return StringToNumber<StringToLongTraits>(input,
                                             reinterpret_cast<long*>(output));
 }
 
 bool StringToInt(const std::wstring& input, int* output) {
-  DCHECK(sizeof(int) == sizeof(long));
+  COMPILE_ASSERT(sizeof(int) == sizeof(long), cannot_wcstol_to_int);
   return StringToNumber<WStringToLongTraits>(input,
                                              reinterpret_cast<long*>(output));
 }
@@ -1335,13 +1335,13 @@ bool StringToInt64(const std::wstring& input, int64* output) {
 }
 
 bool HexStringToInt(const std::string& input, int* output) {
-  DCHECK(sizeof(int) == sizeof(long));
+  COMPILE_ASSERT(sizeof(int) == sizeof(long), cannot_strtol_to_int);
   return StringToNumber<HexStringToLongTraits>(input,
                                                reinterpret_cast<long*>(output));
 }
 
 bool HexStringToInt(const std::wstring& input, int* output) {
-  DCHECK(sizeof(int) == sizeof(long));
+  COMPILE_ASSERT(sizeof(int) == sizeof(long), cannot_wcstol_to_int);
   return StringToNumber<HexWStringToLongTraits>(
       input, reinterpret_cast<long*>(output));
 }
