@@ -32,17 +32,18 @@ WebCore::Editor* WebTextInputImpl::GetEditor() {
   return web_frame_impl_->frame()->editor();
 }
 
-void WebTextInputImpl::InsertText(std::string& text) {
+void WebTextInputImpl::InsertText(const std::string& text) {
   WebCore::String str(text.c_str());
   GetEditor()->insertText(str, NULL);
 }
 
-void WebTextInputImpl::DoCommand(std::string& command) {
+void WebTextInputImpl::DoCommand(const std::string& com) {
+  if (com.length() <= 2)
+    return;
+
   // Since we don't have NSControl, we will convert the format of command
   // string and call the function on Editor directly.
-
-  if (command.length() <= 2)
-    return;
+  std::string command = com;
 
   // Make sure the first letter is upper case.
   command.replace(0, 1, 1, toupper(command.at(0)));
@@ -73,7 +74,7 @@ void WebTextInputImpl::DoCommand(std::string& command) {
   return;
 }
 
-void WebTextInputImpl::SetMarkedText(std::string& text,
+void WebTextInputImpl::SetMarkedText(const std::string& text,
                                      int32_t location,
                                      int32_t length) {
   WebCore::Editor* editor = GetEditor();
@@ -136,7 +137,7 @@ void WebTextInputImpl::ValidAttributesForMarkedText(std::string* attributes) {
   attributes->assign("NSUnderline,NSUnderlineColor,NSMarkedClauseSegment,NSTextInputReplacementRangeAttributeName");
 }
 
-void WebTextInputImpl::MakeAttributedString(std::string& str) {
+void WebTextInputImpl::MakeAttributedString(const std::string& str) {
 }
 
 void WebTextInputImpl::DeleteToEndOfParagraph() {

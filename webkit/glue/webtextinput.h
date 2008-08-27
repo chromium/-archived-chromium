@@ -18,13 +18,13 @@ class WebTextInput {
   virtual ~WebTextInput() {}
 
   // Inserts text to the associated frame.
-  virtual void InsertText(std::string& text) = 0;
+  virtual void InsertText(const std::string& text) = 0;
 
   // Executes the given editing command on the frame.
-  virtual void DoCommand(std::string& command) = 0;
+  virtual void DoCommand(const std::string& command) = 0;
 
   // Sets marked text region on the frame.
-  virtual void SetMarkedText(std::string& text,
+  virtual void SetMarkedText(const std::string& text,
                              int32_t location, int32_t length) = 0;
 
   // Clears the marked text region on the frame.
@@ -53,7 +53,7 @@ class WebTextInput {
   virtual void FirstRectForCharacterRange(int32_t location,
                                           int32_t length) = 0;
   virtual void CharacterIndexForPoint(double x, double y) = 0;
-  virtual void MakeAttributedString(std::string& str) = 0;
+  virtual void MakeAttributedString(const std::string& str) = 0;
 
  private:
   DISALLOW_EVIL_CONSTRUCTORS(WebTextInput);

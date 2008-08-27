@@ -20,9 +20,9 @@ class WebTextInputImpl : public WebTextInput {
   virtual ~WebTextInputImpl();
 
   // WebTextInput methods
-  virtual void InsertText(std::string& text);
-  virtual void DoCommand(std::string& command);
-  virtual void SetMarkedText(std::string& text,
+  virtual void InsertText(const std::string& text);
+  virtual void DoCommand(const std::string& command);
+  virtual void SetMarkedText(const std::string& text,
                              int32_t location, int32_t length);
   virtual void UnMarkText();
   virtual bool HasMarkedText();
@@ -39,7 +39,7 @@ class WebTextInputImpl : public WebTextInput {
   virtual void FirstRectForCharacterRange(int32_t location,
                                           int32_t length);
   virtual void CharacterIndexForPoint(double x, double y);
-  virtual void MakeAttributedString(std::string& str);
+  virtual void MakeAttributedString(const std::string& str);
 
  private:
   WebCore::Frame* GetFrame();
