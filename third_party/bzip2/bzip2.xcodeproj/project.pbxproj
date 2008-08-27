@@ -150,6 +150,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7BA016170E5A1D1800044150 /* staticlib.xcconfig */;
 			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(GCC_PREPROCESSOR_DEFINITIONS)",
+					BZ_NO_STDIO,
+				);
 				PRODUCT_NAME = bzip2;
 			};
 			name = Debug;
@@ -158,6 +162,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7BA016170E5A1D1800044150 /* staticlib.xcconfig */;
 			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(GCC_PREPROCESSOR_DEFINITIONS)",
+					BZ_NO_STDIO,
+				);
 				PRODUCT_NAME = bzip2;
 			};
 			name = Release;
