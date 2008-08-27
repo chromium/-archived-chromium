@@ -64,7 +64,8 @@ def CollectTranslatedStrings():
                                          '..', 'app/generated_resources.grd')
   kTranslationDirectory = os.path.join(path_utils.ScriptDir(), '..', '..',
                                        '..', 'app', 'resources')
-  kTranslationFiles = glob.glob(os.path.join(kTranslationDirectory, '*.xtb'))
+  kTranslationFiles = glob.glob(os.path.join(kTranslationDirectory,
+                                             'generated_resources*.xtb'))
 
   # Get the strings out of generated_resources.grd.
   dom = minidom.parse(kGeneratedResourcesPath)
