@@ -12,11 +12,6 @@
 			Name="Win32"
 		/>
 	</Platforms>
-	<ToolFiles>
-		<ToolFile
-			RelativePath="..\..\build\font_file_copy.rules"
-		/>
-	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
@@ -154,22 +149,6 @@
 			Name="resources"
 			>
 			<File
-				RelativePath=".\resources\fonts\ahem-fallback.txt"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\comic_sans_ms-fallback.txt"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\courier-fallback.txt"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\lucida_grande-fallback.txt"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\net\base\net_resources.rc"
 				>
 			</File>
@@ -187,10 +166,6 @@
 			</File>
 			<File
 				RelativePath=".\resources\test_shell.rc"
-				>
-			</File>
-			<File
-				RelativePath=".\resources\fonts\times-fallback.txt"
 				>
 			</File>
 			<File
