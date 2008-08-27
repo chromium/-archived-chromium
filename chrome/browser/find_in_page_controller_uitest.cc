@@ -17,6 +17,7 @@ class FindInPageControllerTest : public UITest {
 const std::wstring kFramePage = L"files/find_in_page/frames.html";
 const std::wstring kUserSelectPage = L"files/find_in_page/user-select.html";
 const std::wstring kCrashPage = L"files/find_in_page/crash_1341577.html";
+const std::wstring kTooFewMatchesPage = L"files/find_in_page/bug_1155639.html";
 
 // This test loads a page with frames and starts FindInPage requests
 TEST_F(FindInPageControllerTest, FindInPageFrames) {
@@ -94,4 +95,24 @@ TEST_F(FindInPageControllerTest, DISABLED_FindCrash_Issue1341577) {
   // This should work fine.
   EXPECT_EQ(1, tab->FindInPage(L"\u0D24\u0D46", FWD, IGNORE_CASE, false));
   EXPECT_EQ(0, tab->FindInPage(L"nostring", FWD, IGNORE_CASE, false));
+}
+
+// Test to make sure Find does the right thing when restarting from a timeout.
+// We used to have a problem where we'd stop finding matches when all of the
+// following conditions were true:
+// 1) The page has a lot of text to search.
+// 2) The page contains more than one match.
+// 3) It takes longer than the time-slice given to each Find operation (100
+//    ms) to find one or more of those matches (so Find times out and has to try
+//    again from where it left off).
+TEST_F(FindInPageControllerTest, FindEnoughMatches_Issue1341577) {
+  TestServer server(L"chrome/test/data");
+
+  GURL url = server.TestServerPageW(kTooFewMatchesPage);
+  scoped_ptr<TabProxy> tab(GetActiveTab());
+  ASSERT_TRUE(tab->NavigateToURL(url));
+
+  // This string appears 5 times at the bottom of a long page. If Find restarts
+  // properly after a timeout, it will find 5 matches, not just 1.
+  EXPECT_EQ(5, tab->FindInPage(L"008.xml", FWD, IGNORE_CASE, false));
 }
