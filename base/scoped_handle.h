@@ -8,6 +8,7 @@
 #include <windows.h>
 
 #include "base/basictypes.h"
+#include "base/logging.h"
 
 // Used so we always remember to close the handle. Example:
 //   ScopedHandle hfile(CreateFile(...));
@@ -43,7 +44,7 @@ class ScopedHandle {
     Close();
 
     // Windows is inconsistent about invalid handles, so we always use NULL
-    if (handle_ != INVALID_HANDLE_VALUE)
+    if (new_handle != INVALID_HANDLE_VALUE)
       handle_ = new_handle;
   }
 
@@ -63,7 +64,9 @@ class ScopedHandle {
  private:
   void Close() {
     if (handle_) {
-      CloseHandle(handle_);
+      if (!::CloseHandle(handle_)) {
+        NOTREACHED();
+      }
       handle_ = NULL;
     }
   }
