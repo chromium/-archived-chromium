@@ -13,11 +13,6 @@ namespace file_util {
 
 const wchar_t kPathSeparator = L'/';
 
-bool AbsolutePath(std::wstring* path) {
-  NOTIMPLEMENTED();
-  return false;
-}
-  
 bool GetTempDir(std::wstring* path) {
   const char* tmp = getenv("TMPDIR");
   if (tmp)
@@ -33,25 +28,4 @@ bool CopyFile(const std::wstring& from_path, const std::wstring& to_path) {
   return false;
 }
 
-bool PathExists(const std::wstring& path) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-bool GetCurrentDirectory(std::wstring* path) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-bool CreateDirectory(const std::wstring& full_path) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-bool SetCurrentDirectory(const std::wstring& current_directory) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-} // namespace file_util
-
+}  // namespace file_util

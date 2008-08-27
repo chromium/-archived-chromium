@@ -31,8 +31,7 @@ class FileVersionInfo {
 
   // Creates a FileVersionInfo for the current module. Returns NULL in case
   // of error. The returned object should be deleted when you are done with it.
-  static FileVersionInfo*
-      FileVersionInfo::CreateFileVersionInfoForCurrentModule();
+  static FileVersionInfo* CreateFileVersionInfoForCurrentModule();
 
   ~FileVersionInfo();
 
