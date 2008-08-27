@@ -5,6 +5,7 @@
 #ifndef WEBKIT_GLUE_RESOURCE_TYPE_H__
 #define WEBKIT_GLUE_RESOURCE_TYPE_H__
 
+#include "base/basictypes.h"
 
 class ResourceType {
  public:
