@@ -7,6 +7,7 @@
 #ifndef WEBKIT_GLUE_PLUGIN_NPHOSTAPI_H__
 #define WEBKIT_GLUE_PLUGIN_NPHOSTAPI_H__
 
+#include "base/port.h"
 #include "third_party/npapi/bindings/npapi.h"
 #include "third_party/npapi/bindings/npruntime.h"
 
@@ -265,10 +266,9 @@ typedef struct _NPNetscapeFuncs {
 //
 // NPAPI DLL entry points
 //
-typedef NPError (__stdcall * NP_InitializeFunc)(NPNetscapeFuncs* pFuncs);
-typedef NPError (__stdcall * NP_GetEntryPointsFunc)(NPPluginFuncs* pFuncs);
-typedef NPError (__stdcall * NP_ShutdownFunc)(void);
-
+typedef NPError (API_CALL * NP_InitializeFunc)(NPNetscapeFuncs* pFuncs);
+typedef NPError (API_CALL * NP_GetEntryPointsFunc)(NPPluginFuncs* pFuncs);
+typedef NPError (API_CALL * NP_ShutdownFunc)(void);
 
 #ifdef __cplusplus
 } // extern "C"
