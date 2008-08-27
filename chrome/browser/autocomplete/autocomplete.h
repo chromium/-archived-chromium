@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_H__
-#define CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_H__
+#ifndef CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_H_
+#define CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_H_
 
 #include <map>
 #include <string>
@@ -776,5 +776,5 @@ struct AutocompleteLog {
   const AutocompleteResult& result;
 };
 
-#endif  // CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_H__
+#endif  // CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_H_
 
