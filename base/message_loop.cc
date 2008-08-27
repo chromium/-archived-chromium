@@ -341,7 +341,6 @@ void MessageLoop::ReloadWorkQueue() {
 }
 
 void MessageLoop::DeletePendingTasks() {
-  /* Comment this out as it's causing crashes.
   while (!work_queue_.Empty()) {
     Task* task = work_queue_.Pop();
     if (task->is_owned_by_message_loop())
@@ -353,7 +352,6 @@ void MessageLoop::DeletePendingTasks() {
     if (task->is_owned_by_message_loop())
       delete task;
   }
-  */
 }
 
 void MessageLoop::DidChangeNextTimerExpiry() {
