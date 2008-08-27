@@ -33,10 +33,6 @@
 	</Configurations>
 	<Files>
 		<File
-			RelativePath=".\distribution_resources.h"
-			>
-		</File>
-		<File
 			RelativePath=".\generated_resources.grd"
 			>
 		</File>
