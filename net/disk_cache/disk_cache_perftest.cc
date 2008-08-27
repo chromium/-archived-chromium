@@ -176,6 +176,8 @@ TEST(DiskCacheTest, Hash) {
 }
 
 TEST(DiskCacheTest, CacheBackendPerformance) {
+  MessageLoopForIO message_loop;
+
   std::wstring path = GetCachePath();
   ASSERT_TRUE(DeleteCache(path.c_str()));
   disk_cache::Backend* cache = disk_cache::CreateCacheBackend(path, false, 0);

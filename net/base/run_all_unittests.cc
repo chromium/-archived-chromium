@@ -41,7 +41,7 @@ class NetTestSuite : public TestSuite {
     message_loop_.reset(new MessageLoopForIO());
   }
 
-  virtual void CleanUp() {
+  virtual void Shutdown() {
     // We want to destroy this here before the TestSuite continues to tear down
     // the environment.
     message_loop_.reset();
