@@ -43,6 +43,8 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/sqlite_utils.h"
 #include "chrome/common/thumbnail_score.h"
+
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 using history::HistoryBackend;

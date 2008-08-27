@@ -40,6 +40,7 @@
 #include "chrome/views/tooltip_manager.h"
 #include "net/base/net_util.h"
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 static const int kControlHorizOffset = 4;

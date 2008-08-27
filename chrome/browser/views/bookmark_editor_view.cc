@@ -18,8 +18,10 @@
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/label.h"
 #include "chrome/views/window.h"
-#include "generated_resources.h"
 #include "googleurl/src/gurl.h"
+
+#include "chromium_strings.h"
+#include "generated_resources.h"
 
 using ChromeViews::ColumnSet;
 using ChromeViews::GridLayout;

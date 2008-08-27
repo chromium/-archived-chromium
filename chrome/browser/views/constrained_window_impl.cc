@@ -30,8 +30,10 @@
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/hwnd_view.h"
 #include "chrome/views/non_client_view.h"
-#include "generated_resources.h"
 #include "net/base/net_util.h"
+
+#include "chromium_strings.h"
+#include "generated_resources.h"
 
 namespace ChromeViews {
 class ClientView;

@@ -14,6 +14,7 @@
 #include "net/base/ssl_info.h"
 #include "googleurl/src/gurl.h"
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 SSLErrorInfo::SSLErrorInfo(const std::wstring& title,

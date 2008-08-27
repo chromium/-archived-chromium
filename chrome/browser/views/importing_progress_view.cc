@@ -11,6 +11,8 @@
 #include "chrome/views/label.h"
 #include "chrome/views/throbber.h"
 #include "chrome/views/window.h"
+
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 ////////////////////////////////////////////////////////////////////////////////

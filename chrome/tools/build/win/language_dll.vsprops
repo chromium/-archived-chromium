@@ -9,4 +9,8 @@
 		BaseAddress="0x3CF00000"
 		OutputFile="$(OutDir)\locales\$(ProjectName).dll"
 	/>
+	<Tool
+		Name="VCResourceCompilerTool"
+		AdditionalIncludeDirectories="$(IntDir)\..\generated_resources\"
+	/>
 </VisualStudioPropertySheet>

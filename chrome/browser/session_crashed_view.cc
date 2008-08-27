@@ -8,6 +8,8 @@
 #include "chrome/browser/session_restore.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
+
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 SessionCrashedView::SessionCrashedView(Profile* profile)

@@ -26,6 +26,7 @@
 #include "net/base/net_util.h"
 #include "SkBitmap.h"
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 // The title bar text color.

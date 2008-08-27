@@ -6,11 +6,6 @@ each locale. -->
 <grit base_dir="." latest_public_release="0" current_release="1"
       source_lang_id="en" enc_check="möl">
   <outputs>
-    <!-- TODO add each of your output files.  Modify the three below, and add
-    your own for your various languages.  See the user's guide
-    (http://wiki/Main/GritUsersGuide) for mor details.
-    Note that all output references are relative to the output directory
-    which is specified at build time. -->
     <output filename="generated_resources.h" type="rc_header">
       <emit emit_type='prepend'></emit>
     </output>
@@ -123,10 +118,6 @@ each locale. -->
       <ph> element).  You can also use the 'grit add' tool to help you identify
       nontranslateable parts and create placeholders for them. -->
 
-      <message name="IDS_WINDOW_TITLE_FORMAT" desc="Format for the browser window titlebar, e.g. 'Page Title - App Name'">
-        <ph name="PAGE_TITLE">$1<ex>Google</ex></ph> - <ph name="APP_NAME">$2<ex>Chrome</ex></ph>
-      </message>
-
       <message name="IDS_SHOWFULLHISTORY_LINK" desc="The label of the Show Full History link at the bottom of the back/forward menu.">
         Show Full History
       </message>
@@ -181,9 +172,6 @@ each locale. -->
       </message>
       <message name="IDS_VIEW_SOURCE_TITLE" desc="The ViewSource tab title.">
         Source of <ph name="PAGE_URL">%s</ph>
-      </message>
-      <message name="IDS_PRODUCT_NAME" desc="The Chrome application name">
-        Google Chrome
       </message>
       <message name="IDS_HISTORY_SEARCH_BUTTON" desc="Title of the button in the history page that triggers a search">
         Search history
@@ -1271,18 +1259,12 @@ each locale. -->
       <message name="IDS_CERT_ERROR_COMMON_NAME_INVALID_DETAILS" desc="Details for an unsafe common name in an X509 certificate">
         You attempted to reach &lt;strong&gt;<ph name="DOMAIN">$1<ex>paypal.com</ex></ph>&lt;/strong&gt;, but instead you actually reached a server identifying itself as &lt;strong&gt;<ph name="DOMAIN2">$2<ex>fakepaypal.com</ex></ph>&lt;/strong&gt;. This may be caused by a misconfiguration on the server or by something more serious. An attacker on your network could be trying to get you to visit a fake (and potentially harmful) version of &lt;strong&gt;<ph name="DOMAIN3">$3<ex>paypal.com</ex></ph>&lt;/strong&gt;. You should not proceed.
       </message>
-      <message name="IDS_CERT_ERROR_COMMON_NAME_INVALID_EXTRA_INFO_2" desc="2nd paragraph of extra information for an unsafe common name in an X509 certificate">
-        In this case, the address listed in the certificate does not match the address of the website your browser tried to go to. One possible reason for this is that your communications are being intercepted by an attacker who is presenting a certificate for a different website, which would cause a mismatch. Another possible reason is that the server is set up to return the same certificate for multiple websites, including the one you are attempting to visit, even though that certificate is not valid for all of those websites. Google Chrome can say for sure that you reached &lt;strong&gt;<ph name="DOMAIN2">$1<ex>paypal.com</ex></ph>&lt;/strong&gt;, but cannot verify that that is the same site as &lt;strong&gt;<ph name="DOMAIN">$2<ex>www.paypal.com</ex></ph>&lt;/strong&gt; which you intended to reach. If you proceed, Chrome will not check for any further name mismatches. In general, it is best not to proceed past this point.
-      </message>
       <message name="IDS_CERT_ERROR_COMMON_NAME_INVALID_DESCRIPTION" desc="Description for an unsafe common name in an X509 certificate">
         Server's certificate does not match the URL
       </message>
 
       <message name="IDS_CERT_ERROR_EXPIRED_TITLE" desc="Title for an expired X509 certificate">
         The site's security certificate has expired!
-      </message>
-      <message name="IDS_CERT_ERROR_EXPIRED_DETAILS" desc="Details for an expired X509 certificate">
-        You attempted to reach &lt;strong&gt;<ph name="DOMAIN">$1<ex>paypal.com</ex></ph>&lt;/strong&gt;, but the server presented an expired certificate. No information is available to indicate whether that certificate has been compromised since its expiration. This means Google Chrome cannot guarantee that you are communicating with &lt;strong&gt;<ph name="DOMAIN2">$2<ex>paypal.com</ex></ph>&lt;/strong&gt; and not an attacker. You should not proceed.
       </message>
       <message name="IDS_CERT_ERROR_EXPIRED_DETAILS_EXTRA_INFO_2" desc="2nd paragraph of extra information for an expired X509 certificate">
         For a certificate which has not expired, the issuer of that certificate is responsible for maintaining something called a "revocation list". If a certificate is ever compromised, the issuer can revoke it by adding it to the revocation list, and then this certificate will no longer be trusted by your browser. Revocation status is not required to be maintained for expired certificates, so while this certificate used to be valid for the website you're visiting, at this point it is not possible to determine whether the certificate was compromised and subsequently revoked, or whether it remains secure. As such it is impossible to tell whether you're communicating with the legitimate web site, or whether the certificate was compromised and is now in the possession of an attacker with whom you are communicating. You should not proceed past this point.
@@ -1294,9 +1276,6 @@ each locale. -->
       <message name="IDS_CERT_ERROR_NOT_YET_VALID_TITLE" desc="Title for an X509 certificate that is not yet valid">
         The server's security certificate is not yet valid!
       </message>
-      <message name="IDS_CERT_ERROR_NOT_YET_VALID_DETAILS" desc="Details for an X509 certificate that is not yet valid">
-        You attempted to reach &lt;strong&gt;<ph name="DOMAIN">$1<ex>paypal.com</ex></ph>&lt;/strong&gt;, but the server presented a certificate that is not yet valid. No information is available to indicate whether that certificate can be trusted. Google Chrome cannot reliably guarantee that you are communicating with &lt;strong&gt;<ph name="DOMAIN2">$2<ex>paypal.com</ex></ph>&lt;/strong&gt; and not an attacker. You should ensure that your clock and time zone are set correctly on your computer. If they are not, you should correct any issues and refresh this page. If they are correct, you should not proceed.
-      </message>
       <message name="IDS_CERT_ERROR_NOT_YET_VALID_DETAILS_EXTRA_INFO_2" desc="2nd paragraph of extra information for a X509 certificate that is not yet valid">
         Certificates have a validity period, much like any identity document (such as a passport) that you may have. The certificate presented to your browser is not yet valid. When a certificate is outside of its validity period, certain information about the status of the certificate (whether it has been revoked and should no longer be trusted) is not required to be maintained. As such, it is not possible to verify that this certificate is trustworthy. You should not proceed.
       </message>
@@ -1306,9 +1285,6 @@ each locale. -->
 
       <message name="IDS_CERT_ERROR_AUTHORITY_INVALID_TITLE" desc="Title for an X509 certificate with an invalid authority">
         The site's security certificate is not trusted!
-      </message>
-      <message name="IDS_CERT_ERROR_AUTHORITY_INVALID_DETAILS" desc="Details for an X509 certificate with an invalid authority">
-        You attempted to reach &lt;strong&gt;<ph name="DOMAIN">$1<ex>paypal.com</ex></ph>&lt;/strong&gt;, but the server presented a certificate issued by an entity that is not trusted by your computer's operating system. This may mean that the server has generated its own security credentials, which Google Chrome cannot rely on for identity information, or an attacker may be trying to intercept your communications. You should not proceed, &lt;strong&gt;especially&lt;/strong&gt; if you have never seen this warning before for this site.
       </message>
       <message name="IDS_CERT_ERROR_AUTHORITY_INVALID_EXTRA_INFO_2" desc="2nd paragraph of extra information for a X509 certificate with an invalid authority">
         In this case, the certificate has not been verified by a third party that your computer trusts. Anyone can create a certificate claiming to be whatever website they choose, which is why it must be verified by a trusted third party. Without that verification, the identity information in the certificate is meaningless. It is therefore not possible to verify that you are communicating with &lt;strong&gt;<ph name="DOMAIN">$1<ex>paypal.com</ex></ph>&lt;/strong&gt; instead of an attacker who generated his own certificate claiming to be &lt;strong&gt;<ph name="DOMAIN2">$2<ex>paypal.com</ex></ph>&lt;/strong&gt;. You should not proceed past this point.
@@ -1322,9 +1298,6 @@ each locale. -->
 
       <message name="IDS_CERT_ERROR_CONTAINS_ERRORS_TITLE" desc="Title of the error page for an X509 certificate that contains errors">
         The server's security certificate has errors!
-      </message>
-      <message name="IDS_CERT_ERROR_CONTAINS_ERRORS_DETAILS" desc="Details of the error page for an X509 certificate that contains errors">
-        You attempted to reach &lt;strong&gt;<ph name="DOMAIN">$1<ex>paypal.com</ex></ph>&lt;/strong&gt;, but the certificate that the server presented contains errors. Google Chrome cannot use a certificate with errors and cannot validate the identity of the site that you have attempted to connect to. Your connection is not secure and you should not proceed.
       </message>
       <message name="IDS_CERT_ERROR_CONTAINS_ERRORS_EXTRA_INFO_2" desc="2nd paragraph of extra information for a X509 certificate that contains errors">
         In this case, the certificate presented to your browser has errors and cannot be understood. This may mean that we cannot understand the identity information within the certificate, or certain other information in the certificate used to secure the connection. You should not proceed.
@@ -1439,9 +1412,6 @@ each locale. -->
 
 
       <!-- Task Manager Window -->
-      <message name="IDS_TASK_MANAGER_TITLE" desc="The title of the Task Manager window">
-        Task Manager - Google Chrome
-      </message>
       <message name="IDS_TASK_MANAGER_KILL" desc="The caption of the Task Manager kill button">
         End process
       </message>
@@ -1489,18 +1459,10 @@ each locale. -->
       </message>
 
       <!-- Session Crashed Info Bar-->
-      <message name="IDS_SESSION_CRASHED_VIEW_MESSAGE" desc="Message shown when the last session didn't exit cleanly.">
-        Google Chrome didn't shut down correctly. To reopen the pages you had open, click Restore.
-      </message>
       <message name="IDS_SESSION_CRASHED_VIEW_RESTORE_BUTTON" desc="Title of the restore button in the session crashed view.">
         Restore
       </message>
 
-
-      <!-- Browser Window Title Format -->
-      <message name="IDS_BROWSER_WINDOW_TITLE_FORMAT" desc="The format for titles displayed in tabs and popup windows">
-        <ph name="PAGE_TITLE">$1<ex>Google</ex></ph> - Google Chrome
-      </message>
 
       <!-- about:plugins strings -->
       <message name="IDS_ABOUT_PLUGINS_TITLE" desc="Title on the about:plugins page">
@@ -1543,12 +1505,6 @@ each locale. -->
       </message>
       <message name="IDS_ABOUT_VERSION_UNOFFICIAL" desc="unofficial build on the about:version page">
         Developer Build
-      </message>
-      <message name="IDS_ABOUT_VERSION_COMPANY_NAME" desc="Company name on the about pages">
-        Google Inc.
-      </message>
-      <message name="IDS_ABOUT_VERSION_COPYRIGHT" desc="Copyright information on the about pages">
-        Copyright © 2006-2008 Google Inc. All Rights Reserved.
       </message>
       <message name="IDS_ABOUT_VERSION_LICENSE" desc="The line that shows the license text (what appears in front of the URL)">
         Portions of this software were licensed from third parties as described at: <ph name="URL">$1<ex>http://www.google.com/LICENSE</ex></ph>
@@ -1702,12 +1658,6 @@ each locale. -->
       <message name="IDS_ACCNAME_PAGE" desc="The accessible name for the page menu.">
         Page
       </message>
-      <message name="IDS_ACCNAME_APP" desc="The accessible name for the app menu.">
-        Chrome
-      </message>
-      <message name="IDS_ACCNAME_TOOLBAR" desc="The accessible name for the application's toolbar.">
-        Google Chrome Toolbar
-      </message>
       <message name="IDS_ACCNAME_TABSTRIP" desc="The accessible name for the application's tabstrip.">
         Tabstrip
       </message>
@@ -1754,15 +1704,7 @@ each locale. -->
         Kill pages
       </message>
 
-      <!-- Hung Browser Detector -->
-      <message name="IDS_BROWSER_HUNGBROWSER_MESSAGE" desc="Content of the dialog box shown when the browser is hung">
-        Google Chrome is unresponsive. Restart now?
-      </message>
-
       <!-- Password Manager -->
-      <message name="IDS_PASSWORD_MANAGER_SAVE_PASSWORD_PROMPT" desc="Info bar message to save a password">
-        Do you want Chrome to save your password?
-      </message>
       <message name="IDS_PASSWORD_MANAGER_SAVE_BUTTON" desc="Save button text for password manager">
         Save password
       </message>
@@ -1834,9 +1776,6 @@ each locale. -->
       <message name="IDS_IMPORT_PROGRESS_TITLE" desc="Title for the importing progress dialog">
         Importing
       </message>
-      <message name="IDS_IMPORT_PROGRESS_INFO" desc="Explanatory text for the importing progress dialog">
-        Google Chrome is now importing the following items from <ph name="BROWSER_COMPONENT">$1<ex>History</ex></ph>:
-      </message>
       <message name="IDS_IMPORT_PROGRESS_STATUS_BOOKMARKS" desc="Import status for bookmarks">
         Favorites/Bookmarks
       </message>
@@ -1859,9 +1798,6 @@ each locale. -->
         Stop import
       </message>
       
-      <message name="IDS_IMPORT_PROGRESS_STATUS_CANCEL_CONFIRM" desc="Import cancellation confirmation">
-        If you cancel now, not all items will be imported. You can import again later from the Chrome menu.
-      </message>
       <message name="IDS_IMPORT_PROGRESS_STATUS_CANCEL_CONFIRM_OK" desc="Import cancellation confirmation accept button">
         Continue Importing
       </message>
@@ -1873,9 +1809,6 @@ each locale. -->
       <!-- Importer Lock Dialog -->
       <message name="IDS_IMPORTER_LOCK_TITLE" desc="Dialog title for importer lock dialog">
         Close Firefox Before Importing
-      </message>
-      <message name="IDS_IMPORTER_LOCK_TEXT" desc="The message to be displayed on dialog">
-        Sadly, your Mozilla Firefox settings are not available while that browser is running. To import those settings to Google Chrome, save your work and close all Firefox windows. Then click Continue.
       </message>
       <message name="IDS_IMPORTER_LOCK_OK" desc="Text for OK button on dialog">
         Continue
@@ -1923,9 +1856,6 @@ each locale. -->
       </message>
       <message name="IDS_BUGREPORT_CANT_SIGN_IN">
         Can't sign in
-      </message>
-      <message name="IDS_BUGREPORT_CHROME_MISBEHAVES">
-        Google Chrome is misbehaving
       </message>
       <message name="IDS_BUGREPORT_SOMETHING_MISSING">
         Something's missing
@@ -1982,9 +1912,6 @@ each locale. -->
       </message>
 
       <!-- About Chrome View -->
-      <message name="IDS_ABOUT_CHROME_TITLE" desc="Dialog title">
-        About Google Chrome
-      </message>
       <message name="IDS_ABOUT_CHROME_ACKNOWLEDGEMENTS" desc="Acknowledgements link">
         Acknowledgements
       </message>
@@ -2504,36 +2431,7 @@ each locale. -->
         Scroll Down
       </message>
 
-      <!-- Uninstall messages -->
-      <message name="IDS_UNINSTALL_ALL_DONE" desc="Message to user when uninstall completes">
-        Google Chrome has been successfully uninstalled. Farewell!
-      </message>
-      <message name="IDS_UNINSTALL_CLOSE_APP" desc="Message to user when uninstall detects other app instance running">
-        Please close all Chrome windows and try again.
-      </message>
-      <message name="IDS_UNINSTALL_VERIFY" desc="Message to confirm user wants to uninstall">
-        Are you sure you want to uninstall Google Chrome? (Was it something we said?)
-      </message>
-      <message name="IDS_UNINSTALL_SURVEY" desc="Label for the checkbox for the exit survey">
-        Take me to the survey web page after uninstall.
-      </message>
-      <message name="IDS_UNINSTALL_CHROME" desc="The text of the shortcut in the Start Menu for uninstalling chrome.">
-        Uninstall Google Chrome
-      </message>
-
       <!-- First-run messages -->
-      <message name="IDS_FIRSTRUN_DLG_TITLE" desc="Dialog title for first-run dialog">
-        Welcome to Google Chrome
-      </message>
-      <message name="IDS_FIRSTRUN_DLG_TEXT" desc="Explains what the first-run dialog does">
-        Google Chrome is ready to complete your installation.
-      </message>
-      <message name="IDS_FIRSTRUN_DLG_DETAIL" desc="Text for detailed explanation of actions">
-        Google Chrome will do these tasks:
-      </message>
-      <message name="IDS_FIRSTRUN_DLG_OK" desc="Text for OK button on first-run dialog">
-        Start Google Chrome
-      </message>
       <message name="IDS_FIRSTRUN_DLG_CANCEL" desc="Text for CANCEL button on first-run dialog">
         Cancel
       </message>
@@ -2542,12 +2440,6 @@ each locale. -->
       </message>
       <message name="IDS_FIRSTRUN_DLG_ACTION1" desc="First action item on first-run dialog">
         Import bookmarks, passwords, and other settings from <ph name="DEF_BROWSER">$1<ex>Internet Explorer</ex></ph>
-      </message>
-      <message name="IDS_FIRSTRUN_DLG_ACTION2" desc="Second action item on first-run dialog">
-        Add Google Chrome shortcuts to your desktop, quick launch bar, and Start menu
-      </message>
-      <message name="IDS_FIRSTRUN_DLG_CANCEL_CONFIRM" desc="Confirmation message for first run cancellation">
-        Are you sure you want to cancel installing Google Chrome? If you want to continue later, open Chrome from your Start Menu Programs folder.
       </message>
       <message name="IDS_FIRSTRUN_DLG_CANCEL_CONFIRM_CONTINUE" desc="Continue installation button for cancel confirmation dialog">
         Continue Installing
@@ -2572,12 +2464,6 @@ each locale. -->
       <message name="IDS_FR_CUSTOMIZE_IMPORT_IE" desc="Import settings option 2">
         Internet Explorer
       </message>
-      <message name="IDS_FR_CUSTOMIZE_DEFAULT_BROWSER" desc="Default browser checkbox label">
-        Make Google Chrome the default browser
-      </message>
-      <message name="IDS_FR_CUSTOMIZE_SHORTCUTS" desc="Create shortcuts preface text">
-        Create Google Chrome shortcuts in these locations:
-      </message>
       <message name="IDS_FR_CUSTOM_SHORTCUT_DESKTOP" desc="Create desktop shortcut checkbox label">
         Desktop
       </message>
@@ -2594,9 +2480,6 @@ each locale. -->
       </message>
       <message name="IDS_FR_BUBBLE_SUBTEXT" desc="Text under the title for the bubble">
         Type to search or enter a URL to navigate - everything just works.
-      </message>
-      <message name="IDS_FR_BUBBLE_QUESTION" desc="Main text for the bubble">
-        Chrome uses your default search engine, which is currently set to <ph name="PAGE_TITLE">$1<ex>Google</ex></ph>. Do you want to keep your default search engine?
       </message>
       <message name="IDS_FR_BUBBLE_OK" desc="Text for the OK button on the bubble">
         Keep <ph name="PAGE_TITLE">$1<ex>Google</ex></ph> as the default search engine
@@ -2898,10 +2781,6 @@ each locale. -->
                desc="The 'Most Visited' heading on the new tab page">
         Most visited
       </message>
-      <message name="IDS_NEW_TAB_MOST_VISITED_INTRO"
-               desc="Displayed to explain the Most Visited concept when there aren't enough most visited items.">
-        The "Most visited" area shows the websites that you use most often. After using Google Chrome for a while, you will see your most visited sites whenever you open a new tab. You can learn more about this and other features on the <ph name="BEGIN_LINK">&lt;a href="$1"&gt;</ph>Getting Started page<ph name="END_LINK">&lt;/a&gt;</ph>.
-      </message>
       <message name="IDS_NEW_TAB_SEARCHES"
                desc="The 'Searches' heading on the new tab page">
         Searches
@@ -3045,9 +2924,6 @@ each locale. -->
       <message name="IDS_EXTERNAL_PROTOCOL_OK_BUTTON_TEXT" desc="Button in External Protocol Dialog that launches the application associated with the protocol">
         Launch Application
       </message>
-      <message name="IDS_EXTERNAL_PROTOCOL_INFORMATION" desc="General information about what Chrome is trying to do when opening this external protocol">
-        Google Chrome needs to launch an external application to handle <ph name="SCHEME">$1<ex>acrobat:</ex></ph> links. The link requested is <ph name="PROTOLINK">$2<ex>acrobat:yourpdf</ex></ph>.
-      </message>
       <message name="IDS_EXTERNAL_PROTOCOL_APPLICATION_TO_LAUNCH" desc="Information about the application being launched by the external protocol">
         The following application will be launched if you accept this request:\n\n <ph name="APPLICATION">$1<ex>C:\Program Files\Adobe\Reader 8.0\Reader\AcroRd32.exe /u "%1"</ex></ph>
       </message>
@@ -3138,14 +3014,6 @@ each locale. -->
         Date Modified
       </message>
       
-      <!-- Strings used to warn that an OS is not supported -->
-      <message name="IDS_UNSUPPORTED_OS_WIN2000" desc="The text used to warn the user that Windows 2000 is not supported">
-        Google Chrome does not support Windows 2000. Some features may not work.
-      </message>
-      <message name="IDS_UNSUPPORTED_OS" desc="The text used to warn the user that current OS is not supported">
-        Google Chrome does not support <ph name="OS_NAME">$1<ex>Windows 2000</ex></ph>.
-      </message>
-
       <!-- Saving Page-->
       <message name="IDS_SAVE_PAGE_FILTER" desc="Filter string for save page. \0's are required separators and additional two \0's should be appended when using this.">
         Web Page, HTML Only\0*.htm\0Web Page, Complete\0*.htm
@@ -3188,17 +3056,6 @@ each locale. -->
       <message name="IDS_OPTIONS_FONTSETTINGS_CONFIGUREFONTS_BUTTON" desc="The label of the 'configure fonts' button">
         Change font and language settings
       </message>
-
-      <message name="IDS_OPTIONS_CHROME_LANGUAGE_INFO" desc="Information text about the language of various Chrome features">
-        Change the language used in Google Chrome menus, dialog boxes, and tooltips.
-      </message>
-
-      <message name="IDS_OPTIONS_CHROME_UI_LANGUAGE" desc="The documentation string of the 'Chrome UI language' preference">
-        Google Chrome language:
-      </message>
-      <message name="IDS_OPTIONS_RESTART_REQUIRED" desc="The message displayed for an option that requires a restart to take effect. This appears in a message box if an option is changed that requires a restart.">
-        Please close all Chrome windows and restart Chrome for this change to take effect.
-      </message>
       
       <message name="IDS_OPTIONS_CHROME_DICTIONARY_INFO" desc="The documentation string of the 'Spell check dictionary language' section">
         Change the language of the spell-checking dictionary.
@@ -3210,9 +3067,6 @@ each locale. -->
       <message name="IDS_OPTIONS_RESET" desc="The label of the 'Reset all settings to defaults' button">
         Reset to defaults
       </message>
-      <message name="IDS_OPTIONS_RESET_MESSAGE" desc="The message shown when the user presses the 'Reset Chrome options' button">
-        When you reset Google Chrome options any changes you've made will be reverted to the default settings. Do you want to Reset Chrome options?
-      </message>
       <message name="IDS_OPTIONS_RESET_OKLABEL" desc="The label of the OK button in the 'Reset Chrome options' confirmation dialog box">
         Reset to defaults
       </message>
@@ -3223,12 +3077,6 @@ each locale. -->
       <!-- Can't write to user data directory dialog -->
       <message name="IDS_CANT_WRITE_USER_DIRECTORY_TITLE" desc="Title of dialog that is displayed when we can't create a directory for this user.">
         Failed To Create Data Directory
-      </message>
-      <message name="IDS_CANT_WRITE_USER_DIRECTORY_SUMMARY" desc="Summary of problem displayed in dialog when we can't create a directory for this user.">
-        Google Chrome cannot read and write to its data directory:\n\n<ph name="USER_DATA_DIRECTORY">$1<ex>C:\Documents and Settings\devint\Local Settings\Application Data\Google\Chrome</ex></ph>
-      </message>
-      <message name="IDS_CANT_WRITE_USER_DIRECTORY_EXIT_BUTTON" desc="Text on button of dialog that closes Chrome if we can't create a directory for this user.">
-        Exit Chrome
       </message>
       <message name="IDS_CANT_WRITE_USER_DIRECTORY_CHOOSE_DIRECTORY_BUTTON" desc="Text on button that opens another dialog to choose a new directory for user data.">
         Choose Another Directory...
@@ -3263,22 +3111,6 @@ each locale. -->
 
       <message name="IDS_SCRIPT_TIMEOUT_DIALOG_CONTINUE_SCRIPT_BUTTON" desc="Text for the button which continues to run the script and resets the timeout.">
         Continue
-      </message>
-
-      <message name="IDS_OPTIONS_ENABLE_LOGGING" desc="The label of the checkbox to enable/disable crash and user metrics logging">
-        Help make Google Chrome better by automatically sending usage statistics and crash reports to Google
-      </message>
-
-      <message name="IDS_PROFILE_TOO_NEW_ERROR" desc="Error displayed on startup when the profile is from a newer version of the product and can not be read">
-        Your profile can not be used because it is from a newer version of Google Chrome.\n\nSome features may be unavailable. Please specify a different profile directory or use a newer version of Chrome.
-      </message>
-
-      <!-- Crash Recovery Dialog -->
-      <message name="IDS_CRASH_RECOVERY_TITLE" desc="Title of dialog shown when the browser crashes.">
-        Google Chrome
-      </message>
-      <message name="IDS_CRASH_RECOVERY_CONTENT" desc="Text content telling the user the browser has crashed.">
-        Whoa! Google Chrome has crashed. Restart now?
       </message>
     </messages>
   </release>

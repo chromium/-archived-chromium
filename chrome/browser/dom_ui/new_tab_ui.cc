@@ -24,6 +24,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 // The URL scheme used for the new tab.

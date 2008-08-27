@@ -40,6 +40,7 @@
 #include "chrome/views/hwnd_view_container.h"
 #include "chrome/views/hwnd_notification_source.h"
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 // By how much the toolbar overlaps with the tab strip.

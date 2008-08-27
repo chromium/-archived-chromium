@@ -87,10 +87,10 @@ be available for now. -->
         <ph name="PAGE_TITLE">$1<ex>Google</ex></ph> - Chromium
       </message>
       <message name="IDS_ABOUT_VERSION_COMPANY_NAME" desc="Company name on the about pages">
-        Google Inc.
+        The Chromium Authors
       </message>
       <message name="IDS_ABOUT_VERSION_COPYRIGHT" desc="Copyright information on the about pages">
-        Copyright © 2006-2008 Google Inc. All Rights Reserved.
+        Copyright © 2006-2008 The Chromium Authors. All Rights Reserved.
       </message>
       <message name="IDS_ACCNAME_APP" desc="The accessible name for the app menu.">
         Chromium

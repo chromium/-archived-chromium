@@ -34,9 +34,11 @@
 #include "chrome/views/tabbed_pane.h"
 #include "chrome/views/text_field.h"
 #include "chrome/views/view_container.h"
-#include "generated_resources.h"
 #include "skia/include/SkBitmap.h"
 #include "unicode/uloc.h"
+
+#include "chromium_strings.h"
+#include "generated_resources.h"
 
 static const wchar_t* const g_supported_spellchecker_languages[] = {
   L"en-US",

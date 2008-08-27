@@ -9,6 +9,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/label.h"
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 using ChromeViews::ColumnSet;

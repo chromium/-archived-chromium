@@ -24,9 +24,11 @@
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/label.h"
 #include "chrome/views/Window.h"
-#include "generated_resources.h"
 #include "net/base/escape.h"
 #include "unicode/locid.h"
+
+#include "chromium_strings.h"
+#include "generated_resources.h"
 
 using ChromeViews::ColumnSet;
 using ChromeViews::GridLayout;

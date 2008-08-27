@@ -26,6 +26,8 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window.h"
+
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 // static

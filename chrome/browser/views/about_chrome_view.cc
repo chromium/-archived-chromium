@@ -24,6 +24,7 @@
 #include "chrome/views/window.h"
 #include "webkit/glue/webkit_glue.h"
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 // The pixel width of the version text field. Ideally, we'd like to have the

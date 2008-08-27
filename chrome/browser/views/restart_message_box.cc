@@ -8,6 +8,7 @@
 #include "chrome/views/message_box_view.h"
 #include "chrome/views/window.h"
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 ////////////////////////////////////////////////////////////////////////////////

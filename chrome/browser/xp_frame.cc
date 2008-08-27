@@ -41,6 +41,7 @@
 #include "chrome/views/tooltip_manager.h"
 #include "chrome/views/view.h"
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 // Needed for accessibility support.

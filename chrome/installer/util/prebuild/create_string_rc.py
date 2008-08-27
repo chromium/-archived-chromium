@@ -61,11 +61,11 @@ def CollectTranslatedStrings():
   Returns a list of tuples of (string_id, language, translated string). The
   list is sorted by language codes."""
   kGeneratedResourcesPath = os.path.join(path_utils.ScriptDir(), '..', '..',
-                                         '..', 'app/generated_resources.grd')
+                                         '..', 'app/google_chrome_strings.grd')
   kTranslationDirectory = os.path.join(path_utils.ScriptDir(), '..', '..',
                                        '..', 'app', 'resources')
   kTranslationFiles = glob.glob(os.path.join(kTranslationDirectory,
-                                             'generated_resources*.xtb'))
+                                             'google_chrome_strings*.xtb'))
 
   # Get the strings out of generated_resources.grd.
   dom = minidom.parse(kGeneratedResourcesPath)

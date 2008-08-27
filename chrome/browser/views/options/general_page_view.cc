@@ -34,8 +34,10 @@
 #include "chrome/views/radio_button.h"
 #include "chrome/views/table_view.h"
 #include "chrome/views/text_field.h"
-#include "generated_resources.h"
 #include "skia/include/SkBitmap.h"
+
+#include "chromium_strings.h"
+#include "generated_resources.h"
 
 static const int kStartupRadioGroup = 1;
 static const int kHomePageRadioGroup = 2;

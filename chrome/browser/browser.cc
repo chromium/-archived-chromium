@@ -50,6 +50,7 @@
 #include "net/base/net_util.h"
 #include "net/base/registry_controlled_domain.h"
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 static BrowserList g_browserlist;

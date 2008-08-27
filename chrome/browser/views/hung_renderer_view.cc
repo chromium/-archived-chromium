@@ -22,6 +22,8 @@
 #include "chrome/views/group_table_view.h"
 #include "chrome/views/image_view.h"
 #include "chrome/views/native_button.h"
+
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 ///////////////////////////////////////////////////////////////////////////////

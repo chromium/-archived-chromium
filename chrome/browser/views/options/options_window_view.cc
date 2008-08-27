@@ -19,6 +19,8 @@
 #include "chrome/views/tabbed_pane.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/window.h"
+
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 static const int kDefaultWindowWidthChars = 85;

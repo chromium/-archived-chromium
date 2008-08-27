@@ -41,6 +41,7 @@
 #include "chrome/views/scroll_view.h"
 #include "net/base/ssl_config_service.h"
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 namespace {

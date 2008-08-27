@@ -56,6 +56,7 @@
 #include "net/base/winsock_init.h"
 #include "net/http/http_network_layer.h"
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 namespace {

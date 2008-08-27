@@ -13,7 +13,6 @@
 <translation id="5329858601952122676">&amp;ลบ</translation>
 <translation id="3873963583678942942">(ไม่ระบุชื่อ)</translation>
 <translation id="1232569758102978740">ไม่ระบุชื่อ</translation>
-<translation id="1759842336958782510">Chrome</translation>
 <translation id="6965382102122355670">ตกลง</translation>
 <translation id="7658239707568436148">ยกเลิก</translation>
 <translation id="6463795194797719782">แ&amp;ก้ไข</translation>
@@ -105,7 +104,6 @@
 <translation id="772440777491435074">ข้อมูลในใบรับรอง...</translation>
 <translation id="987264212798334818">ทั่วไป</translation>
 <translation id="3435738964857648380">ความปลอดภัย</translation>
-<translation id="7869935834862642047"><ph name="PAGE_TITLE"/> - <ph name="APP_NAME"/></translation>
 <translation id="406259880812417922">(คำหลัก: <ph name="KEYWORD"/>)</translation>
 <translation id="1559333154119355392"><ph name="DOWNLOAD_SIZE"/> เสร็จสมบูรณ์</translation>
 <translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/> ถูกยกเลิก</translation>
@@ -166,7 +164,6 @@
 <translation id="6426222199977479699">ข้อผิดพลาด SSL</translation>
 <translation id="5645845270586517071">ข้อผิดพลาดด้านความปลอดภัย</translation>
 <translation id="3183922693828471536">เลื่อนมาที่นี่</translation>
-<translation id="8439117394107194826">นำฉันไปสู่หน้าเว็บแบบสำรวจหลังจากยกเลิกการติดตั้ง</translation>
 <translation id="4610637590575890427">คุณหมายความว่าต้องการไปที่ <ph name="SITE"/> หรือไม่</translation>
 <translation id="8182985032676093812">แหล่งข้อมูลของ <ph name="PAGE_URL"/></translation>
 <translation id="4880827082731008257">ค้นหาประวัติการเข้าชม</translation>
@@ -312,9 +309,6 @@
 <translation id="7629827748548208700">แท็บ: <ph name="TAB_NAME"/></translation>
 <translation id="6513615899227776181">ปลั๊กอิน: <ph name="PLUGIN_NAME"/></translation>
 <translation id="7071586181848220801">ปลั๊กอินที่ไม่รู้จัก</translation>
-<translation id="8540666473246803645">Google Chrome</translation>
-<translation id="3870154837782082782">Google Inc.</translation>
-<translation id="6622748519798088408">Copyright © 2006-2008 Google Inc. สงวนลิขสิทธิ์</translation>
 <translation id="6479177161510354016">แจ้งเตือน <ph name="SITE"/></translation>
 <translation id="333371639341676808">ป้องกันหน้านี้จากการสร้างการโต้ตอบเพิ่มเติม</translation>
 <translation id="5295309862264981122">ยืนยันการนำทาง</translation>
@@ -337,7 +331,6 @@
 <translation id="2266011376676382776">หน้าที่ไม่ตอบสนอง</translation>
 <translation id="1110155001042129815">รอ</translation>
 <translation id="1684861821302948641">ปิดหน้าเว็บ</translation>
-<translation id="6134282421960734039">คุณต้องการให้ Chrome บันทึกรหัสผ่านของคุณหรือไม่</translation>
 <translation id="5271549068863921519">บันทึกรหัสผ่าน</translation>
 <translation id="7484645889979462775">ไม่จดจำสำหรับเว็บไซต์นี้</translation>
 <translation id="4195643157523330669">เปิดในแท็บใหม่</translation>
@@ -437,7 +430,6 @@
 <translation id="8609465669617005112">เลื่อนขึ้น</translation>
 <translation id="6746124502594467657">เลื่อนลง</translation>
 <translation id="8241707690549784388">หน้าที่คุณกำลังมองหาใช้ข้อมูลที่คุณได้ป้อนไว้แล้ว การกลับไปสู่หน้านั้นอาจทำให้คุณต้องทำซ้ำการดำเนินการใดๆ ที่คุณทำแล้ว คุณต้องการดำเนินการต่อหรือไม่</translation>
-<translation id="1964682833763362793">โปรดปิดหน้าต่าง Chrome ทั้งหมดและลองอีกครั้ง</translation>
 <translation id="5333374927882515515">นำเข้าบุ๊คมาร์ค รหัสผ่าน และการตั้งค่าอื่นจาก <ph name="DEF_BROWSER"/></translation>
 <translation id="8256087479641463867">กำหนดการตั้งค่าของคุณเอง</translation>
 <translation id="7789175495288668515">เปลี่ยนตัวเลือกการติดตั้งเริ่มต้น</translation>
@@ -445,7 +437,6 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">แถบเปิดใช้งานด่วน</translation>
-<translation id="1549918799472947005">Chrome ใช้เครื่องมือค้นหาเริ่มต้นของคุณซึ่งขณะนี้ถูกตั้งไว้เป็น <ph name="PAGE_TITLE"/> คุณต้องการเก็บเครื่องมือค้นหาเริ่มต้นของคุณหรือไม่</translation>
 <translation id="74568296546932365">เก็บ <ph name="PAGE_TITLE"/> ไว้เป็นเครื่องมือค้นหาเริ่มต้น</translation>
 <translation id="8288345061925649502">เปลี่ยนเครื่องมือค้นหา</translation>
 <translation id="3037605927509011580">แย่จัง!</translation>
@@ -577,7 +568,6 @@
 <translation id="2441719842399509963">ตั้งค่าเริ่มต้นใหม่</translation>
 <translation id="1208126399996836490">อย่าตั้งค่าใหม่</translation>
 <translation id="3122496702278727796">การสร้างไดเรกทอรีข้อมูลล้มเหลว</translation>
-<translation id="5046764976540625289">ออกจาก Chrome</translation>
 <translation id="5034259512732355072">เลือกไดเรกทอรีอื่น...</translation>
 <translation id="2160383474450212653">แบบอักษรและภาษา</translation>
 <translation id="5042992464904238023">เนื้อหาเว็บ</translation>
@@ -614,7 +604,6 @@
 <translation id="4307992518367153382">พื้นฐาน</translation>
 <translation id="1709220265083931213">ขั้นสูง</translation>
 <translation id="1674989413181946727">การตั้งค่า SSL ทั่วทั้งคอมพิวเตอร์:</translation>
-<translation id="582763753075639530">โปรดปิดหน้าต่าง Chrome ทั้งหมดและเริ่มการทำงาน Chrome ใหม่เพื่อให้การเปลี่ยนแปลงนี้มีผล</translation>
 <translation id="9015241028623917394">ควบคุมหน้าปัจจุบัน</translation>
 <translation id="8502249598105294518">ปรับแต่งและควบคุม <ph name="PRODUCT_NAME"/></translation>
 <translation id="4475552974751346499">ดาวน์โหลดการค้นหา</translation>
@@ -624,7 +613,6 @@
 <translation id="8725178340343806893">รายการโปรด/บุ๊คมาร์ค</translation>
 <translation id="873849583815421063">กำลังทำให้เสร็จ...</translation>
 <translation id="2960316970329790041">หยุดการนำเข้า</translation>
-<translation id="5016204670686360703">หากคุณยกเลิกตอนนี้ รายการจะไม่ถูกนำเข้าทั้งหมด คุณสามารถนำเข้าอีกครั้งในภายหลังจากเมนู Chrome</translation>
 <translation id="7642109201157405070">ดำเนินการนำเข้าต่อไป</translation>
 <translation id="5508407262627860757">ยกเลิก</translation>
 <translation id="290414493736480793">การยอมรับ</translation>
@@ -661,52 +649,18 @@
 <translation id="7925285046818567682">กำลังรอ <ph name="HOST_NAME"/>...</translation>
 <translation id="2021921916539001817">กำลังโอนจาก <ph name="HOST_NAME"/>...</translation>
 <translation id="6698381487523150993">สร้าง:</translation>
-<translation id="4127951844153999091">ในกรณีนี้ รายการที่อยู่ในใบรับรองไม่ตรงกับที่อยู่ของเว็บไซต์ที่เบราว์เซอร์ของคุณพยายามเข้าไป เหตุผลที่เป็นไปได้ประการหนึ่งคือ ผู้โจมตีที่แสดงแสดงใบรับรองของเว็บไซต์อื่นขัดขวางการสื่อสารของคุณ ซึ่งทำให้เกิดความไม่ตรงกันของใบรับรอง อีกเหตุผลหนึ่งที่เป็นไปได้คือ เซิร์ฟเวอร์ถูกตั้งค่าให้หลายเว็บไซต์ส่งคืนใบรับรองเดียวกัน ซึ่งรวมไปถึงเว็บไซต์ที่คุณพยายามจะเข้าชมด้วย ถึงแม้ว่าใบรับรองนั้นจะไม่ถูกต้องสำหรับเว็บไซต์ทั้งหมดก็ตาม Google Chrome สามารถยืนยันได้ว่าคุณกำลังติดต่อกับ &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; แต่ไม่สามารถตรวจสอบได้ว่าเว็บไซต์นั้นเป็นเว็บไซต์เดียวกันกับ &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; ที่คุณต้องการติดต่อจริงหรือไม่ หากคุณดำเนินการต่อ Chrome จะไม่ตรวจสอบชื่อที่ไม่ตรงกันอีกต่อไป โดยทั่วไป คุณไม่ควรดำเนินการผ่านจุดนี้ไป</translation>
-<translation id="9189723490960700326">คุณพยายามเข้าถึง &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; แต่เซิร์ฟเวอร์แสดงใบรับรองที่หมดอายุ ไม่มีข้อมูลที่ระบุว่าไม่ได้ปฏิบัติตามเงื่อนไขของใบรับรองนับตั้งแต่หมดอายุหรือไม่ ซึ่งหมายความว่า Google Chrome ไม่สามารถรับประกันได้ว่าคุณกำลังสื่อสารอยู่กับ &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;และไม่ใช่ผู้โจมตี คุณไม่ควรดำเนินการต่อ</translation>
-<translation id="6481075104394517441">คุณพยายามเข้าถึง &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; แต่เซิร์ฟเวอร์แสดงใบรับรองที่ยังไม่ถูกต้อง ไม่มีข้อมูลที่ระบุว่าใบรับรองเชื่อถือได้หรือไม่ Google Chrome ไม่สามารถรับประกันได้ว่าคุณกำลังสื่อสารอยู่กับ &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;และไม่ใช่ผู้โจมตี คุณควรแน่ใจว่านาฬิกาและโซนเวลาของคุณได้รับการตั้งค่าอย่างถูกต้องในคอมพิวเตอร์ของคุณ หากตั้งค่าไม่ถูกต้อง คุณควรแก้ไขปัญหานั้นและรีเฟรชหน้านี้ หากตั้งค่าถูกต้องแล้ว คุณไม่ควรดำเนินการต่อ</translation>
-<translation id="1144950271450340860">คุณพยายามเข้าถึง &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; แต่เซิร์ฟเวอร์แสดงใบรับรองที่ออกโดยนิติบุุคคลที่ระบบปฏิบัติการของคอมพิวเตอร์ไม่เชื่อถือ ซึ่งหมายความว่า เซิร์ฟเวอร์ได้สร้างใบรับรองความปลอดภัยขึ้นเอง ซึ่ง Google Chrome ไม่สามารถไว้ใจในข้อมูลประจำตัวนั้นได้หรือผู้โจมตีอาจจะพยายามที่จะขัดขวางการสื่อสารของคุณ คุณไม่ควรดำเนินการต่อ &lt;strong&gt;โดยเฉพาะอย่างยิ่ง&lt;/strong&gt; หากคุณไม่เคยเห็นคำเตือนนี้มาก่อนเมื่อเข้ามาที่เว็บไซต์นี้</translation>
-<translation id="6009537148180854585">คุณพยายามเข้าถึง &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; แต่ใบรับรองที่เซิร์ฟเวอร์แสดงมีข้อผิดพลาด Google Chrome ไม่สามารถใช้ใบรับรองที่มีข้อผิดพลาดหรือไม่สามารถยืนยันข้อมูลประจำตัวของเว็บไซต์ที่คุณพยายามจะเชื่อมต่อได้ การเชื่อมต่อของคุณไม่ปลอดภัยและคุณไม่ควรดำเนินการต่อ</translation>
-<translation id="7106741999175697885">ตัวจัดการงาน - Google Chrome</translation>
-<translation id="1195935957447623558">Google Chrome ไม่ได้ปิดอย่างถูกต้อง หากต้องการเปิดหน้าที่คุณเปิดไว้แล้วอีกครั้ง ให้คลิกที่ คืนสภาพ</translation>
-<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
-<translation id="2044287590254833138">ดาวน์โหลดแถบเครื่องมือ Google Chrome</translation>
-<translation id="8449380764213232436">Google Chrome กำลังนำเข้าข้อมูลต่อไปนี้จาก <ph name="BROWSER_COMPONENT"/>:</translation>
 <translation id="8562413501751825163">ปิด Firefox ก่อนนำเข้าข้อมูล</translation>
-<translation id="6626317981028933585">ขออภัย เราไม่สามารถเรียกข้อมูลการตั้งค่าของ Mozilla Firefox ได้ขณะที่เบราว์เซอร์ยังทำงานอยู่ หากต้องการนำเข้าข้อมูลการตั้งค่ามาที่ Google Chrome โปรดบันทึกงานที่คุณทำอยู่แล้วปิดหน้าต่าง Firefox ทั้งหมด จากนั้นคลิกดำเนินการต่อ</translation>
-<translation id="8446794773162156990">Google Chrome กำลังทำงานผิดปกติ</translation>
-<translation id="7400722733683201933">เกี่ยวกับ Google Chrome</translation>
-<translation id="3591558551793645824">ยกเลิกการติดตั้ง Google Chrome สำเร็จแล้ว ขอให้โชคดี!</translation>
-<translation id="8172671748763307156">คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการติดตั้ง Google Chrome (นี่เป็นเพราะสิ่งที่เราเคยพูดใช่หรือไม่)</translation>
-<translation id="7161904924553537242">ยินดีต้อนรับสู่ Google Chrome</translation>
-<translation id="6921913858457830952">Google Chrome พร้อมที่จะดำเนินการติดตั้งแล้ว</translation>
-<translation id="7241541963706135274">Google Chrome จะดำเนินการต่อไปนี้:</translation>
-<translation id="7101265395643981223">เปิด Google Chrome</translation>
-<translation id="2618799103663374905">เพิ่มทางลัด Google Chrome ไว้บนเดสก์ท็อป แถบเปิดใช้งานด่วน และเมนูเริ่ม (Start) ของคุณ</translation>
-<translation id="213581405366815208">คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการติดตั้ง Google Chrome หากคุณต้องการดำเนินการต่อในภายหลัง โปรดเปิด Chrome จากโฟลเดอร์โปรแกรมเมนูเริ่มต้น (Start Menu Programs)</translation>
-<translation id="5941830788786076944">ทำให้ Google Chrome เป็นเบราว์เซอร์เริ่มต้น</translation>
-<translation id="7001386529596391893">สร้างทางลัด Google Chrome ในที่ต่อไปนี้:</translation>
 <translation id="480990236307250886">เปิดหน้าแรก</translation>
 <translation id="6514771739083339959">หน้าแรก:</translation>
 <translation id="1665770420914915777">ใช้หน้าในแท็บใหม่</translation>
 <translation id="4726901538158498735">เครื่องมือค้นหาเริ่มต้น:</translation>
 <translation id="2231233239095101917">สคริปต์บนหน้าเว็บใช้หน่วยความจำมากเกินไป โปรดโหลดหน้าเว็บใหม่เพื่อให้สคริปต์ทำงานอีกครั้ง</translation>
-<translation id="8227755444512189073">Google Chrome จำเป็นต้องเรียกแอปพลิเคชันภายนอกเพื่อเปิดลิงก์ <ph name="SCHEME"/> ลิงก์ที่ขอคือ <ph name="PROTOLINK"/></translation>
-<translation id="8236873504073475138">Google Chrome ไม่สนับสนุน Windows 2000 บางคุณสมบัติอาจไม่ทำงาน</translation>
-<translation id="3335672657969596251">Google Chrome ไม่สนับสนุน <ph name="OS_NAME"/></translation>
-<translation id="1446473746922165495">เปลี่ยนภาษาที่ใช้ในเมนู ช่องโต้ตอบ และเคล็ดลับเครื่องมือของ Google Chrome</translation>
-<translation id="8810218179782551669">ภาษาของ Google Chrome:</translation>
-<translation id="7958215378280655655">เมื่อคุณตั้งค่าตัวเลือก Google Chrome ใหม่ สิ่งที่คุณเปลี่ยนแปลงไว้จะถูกเปลี่ยนกลับไปเป็นค่าเริ่มต้น คุณต้องการตั้งค่าตัวเลือก Chrome ใหม่หรือไม่</translation>
-<translation id="7100330187273168372">Google Chrome ไม่สามารถอ่านและเขียนข้อมูลในไดเรกทอรีข้อมูล:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
-<translation id="3324235665723428530">ไม่สามารถใช้โปรไฟล์ของคุณได้เนื่องจากโปรไฟล์ดังกล่าวมาจาก Google Chrome รุ่นที่ใหม่กว่า\n\nบางคุณสมบัติอาจไม่สามารถใช้งานได้ โปรดระบุไดเรกทอรีของโปรไฟล์อื่น หรือใช้ Chrome รุ่นใหม่กว่านี้</translation>
 <translation id="3319048459796106952">หน้าต่างใหม่และหน้าต่างที่ไม่ระบุตัวตน</translation>
 <translation id="1120026268649657149">คำหลักต้องว่างหรือไม่ซ้ำกัน</translation>
 <translation id="7481475534986701730">เว็บไซต์ที่เพิ่งเข้าไปเยี่ยมชม</translation>
-<translation id="8815061062167142136">โอ้! Google Chrome ขัดข้อง ปิดแล้วเปิดอีกครั้ง</translation>
-<translation id="3889417619312448367">ยกเลิกการติดตั้ง Google Chrome</translation>
 <translation id="3169621169201401257">สำหรับข้อมูลโดยละเอียดเกี่ยวกับปัญหาขององค์ประกอบเหล่านี้ โปรดไปที่ Google <ph name="DIAGNOSTIC_PAGE"/> สำหรับ <ph name="DOMAIN"/></translation>
 <translation id="2356762928523809690">ไม่สามารถอัปเดตเซิร์ฟเวอร์ได้ (ข้อผิดพลาด: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">&amp;เพิ่มลงในพจนานุกรม</translation>
-<translation id="2499193704281978000">Google Chrome ไม่ตอบสนอง ปิดแล้วเปิดอีกครั้ง</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">Unicode</translation>
 <translation id="1702534956030472451">ยุโรป</translation>
@@ -733,9 +687,7 @@
 <translation id="3761000923495507277">แสดงปุ่ม Home บนแถบเครื่องมือ</translation>
 <translation id="5291303148298143069">แจ้งฉันเมื่อป๊อปอัปถูกบล็อค</translation>
 <translation id="3383487468758466563">แบบอักษรและภาษา:</translation>
-<translation id="1137776625614346046">พื้นที่ &quot;เข้าชมบ่อยสุด&quot; แสดงเว็บไซต์ที่คุณใช้บ่อยที่สุด หลังจากใช้ Google Chrome สักระยะหนึ่ง คุณจะเห็นเว็บไซต์ที่คุณเข้าชมบ่อยที่สุดทุกครั้งที่คุณเปิดแท็บใหม่ คุณสามารถเรียนรู้เพิ่มเติมเกี่ยวกับ Google Chrome และคุณลักษณะอื่นๆ ได้จาก <ph name="BEGIN_LINK"/>หน้าเริ่มต้น<ph name="END_LINK"/></translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>คุณกำลังเข้าชมแบบไม่ระบุตัวตน<ph name="END_BOLD"/> หน้าเว็บที่คุณดูในหน้าต่างนี้จะไม่ปรากฏในประวัติของเบราว์เซอร์หรือประวัติการเข้าชม และจะไม่ทิ้งร่องรอยใดๆ ไว้เหมือนกับคุกกี้ในคอมพิวเตอร์ของคุณหลังจากที่คุณปิดหน้าต่างที่ไม่ระบุตัวตน อย่างไรก็ตาม ไฟล์ที่คุณดาวน์โหลดหรือสร้างบุ๊คมาร์คจะถูกเก็บไว้        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>การเข้าชมแบบไม่ระบุตัวตนจะไม่ส่งผลต่อพฤติกรรมของบุคคลอื่น เซิร์ฟเวอร์ หรือซอฟต์แวร์ ควรระวัง: <ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>เว็บไซต์ที่รวบรวมหรือแบ่งปันข้อมูลเกี่ยวกับตัวคุณ <ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ผู้ให้บริการอินเทอร์เน็ตหรือนายจ้างที่ติดตามหน้าเว็บไซต์ที่คุณเยี่ยมชม <ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ซอฟต์แวร์ที่เป็นอันตรายซึ่งติดตามการเคาะแป้นพิมพ์ของคุณเพื่อแลกกับสไมลี่ฟรี   <ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>การตรวจตราจากเจ้าหน้าที่สืบราชการลับ<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>บุคคลที่ยืนอยู่ด้านหลังคุณ<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>เรียนรู้เพิ่มเติม<ph name="END_LINK"/> เกี่ยวกับการเรียกดูเว็บโดยไม่เปิดเผยตัวตน</translation>
 <translation id="1604816462140255479">ซูม&amp;ข้อความ</translation>
 <translation id="2089625293428655599">ส่วนของซอฟต์แวร์นี้ได้รับสิทธิ์จากบุคคลที่สามดังที่อธิบายไว้ใน: <ph name="URL"/></translation>
-<translation id="6817660909204164466">ช่วยปรับปรุง Google Chrome ให้ดีขึ้นโดยการส่งสถิติการใช้งานและรายงานปัญหาไปยัง Google โดยอัตโนมัติ</translation>
 </translationbundle>

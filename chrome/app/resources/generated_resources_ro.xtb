@@ -13,7 +13,6 @@
 <translation id="5329858601952122676">Ş&amp;tergeţi</translation>
 <translation id="3873963583678942942">(Fără titlu)</translation>
 <translation id="1232569758102978740">Fără titlu</translation>
-<translation id="1759842336958782510">Chrome</translation>
 <translation id="6965382102122355670">OK</translation>
 <translation id="7658239707568436148">Anulaţi</translation>
 <translation id="6463795194797719782">&amp;Editaţi</translation>
@@ -105,7 +104,6 @@
 <translation id="772440777491435074">Informaţii despre certificat...</translation>
 <translation id="987264212798334818">General</translation>
 <translation id="3435738964857648380">Securitate</translation>
-<translation id="7869935834862642047"><ph name="PAGE_TITLE"/> - <ph name="APP_NAME"/></translation>
 <translation id="406259880812417922">(Cuvânt cheie: <ph name="KEYWORD"/>)</translation>
 <translation id="1559333154119355392"><ph name="DOWNLOAD_SIZE"/>, Complet</translation>
 <translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/>, anulat</translation>
@@ -166,7 +164,6 @@
 <translation id="6426222199977479699">Eroare SSL</translation>
 <translation id="5645845270586517071">Eroare de securitate</translation>
 <translation id="3183922693828471536">Derulaţi până aici</translation>
-<translation id="8439117394107194826">Du-mă la pagina de sondaj de opinie după dezinstalare.</translation>
 <translation id="4610637590575890427">Aţi vrut să accesaţi <ph name="SITE"/>?</translation>
 <translation id="8182985032676093812">Sursa pentru <ph name="PAGE_URL"/></translation>
 <translation id="4880827082731008257">Căutaţi în istoric</translation>
@@ -312,9 +309,6 @@
 <translation id="7629827748548208700">Fila: <ph name="TAB_NAME"/></translation>
 <translation id="6513615899227776181">Plug-in: <ph name="PLUGIN_NAME"/></translation>
 <translation id="7071586181848220801">Plug-in necunoscut</translation>
-<translation id="8540666473246803645">Google Chrome</translation>
-<translation id="3870154837782082782">Google Inc.</translation>
-<translation id="6622748519798088408">Drept de autor © 2006-2008 Google Inc. Toate drepturile rezervate.</translation>
 <translation id="6479177161510354016">Alertă <ph name="SITE"/></translation>
 <translation id="333371639341676808">Restricţionaţi crearea de dialoguri suplimentare de către această pagină.</translation>
 <translation id="5295309862264981122">Confirmaţi navigarea</translation>
@@ -337,7 +331,6 @@
 <translation id="2266011376676382776">Pagină(i) inactivă(e)</translation>
 <translation id="1110155001042129815">Aşteptaţi</translation>
 <translation id="1684861821302948641">Opriţi paginile</translation>
-<translation id="6134282421960734039">Doriţi salvarea parolei în Chrome?</translation>
 <translation id="5271549068863921519">Salvaţi parola</translation>
 <translation id="7484645889979462775">Niciodată pentru acest site</translation>
 <translation id="4195643157523330669">Deschideţi într-o filă nouă</translation>
@@ -437,7 +430,6 @@
 <translation id="8609465669617005112">Mutaţi mai sus</translation>
 <translation id="6746124502594467657">Mutaţi în jos</translation>
 <translation id="8241707690549784388">Pagina pe care o căutaţi a utilizat informaţiile pe care le-aţi introdus. Întoarcerea la acea pagină ar putea duce la repetarea oricărei acţiuni pe care aţi realizat-o. Doriţi să continuaţi?</translation>
-<translation id="1964682833763362793">Închideţi toate ferestrele Chrome şi încercaţi din nou.</translation>
 <translation id="5333374927882515515">Transferaţi marcaje, parole şi alte setări din <ph name="DEF_BROWSER"/></translation>
 <translation id="8256087479641463867">Personalizaţi setările</translation>
 <translation id="7789175495288668515">Modificaţi opţiunile de instalare prestabilite.</translation>
@@ -445,7 +437,6 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">Bara Lansare rapidă</translation>
-<translation id="1549918799472947005">Chrome utilizează motorul dvs. de căutare prestabilit, care este în prezent <ph name="PAGE_TITLE"/>. Doriţi să păstraţi motorul de căutare prestabilit?</translation>
 <translation id="74568296546932365">Păstraţi <ph name="PAGE_TITLE"/> ca motor de căutare prestabilit</translation>
 <translation id="8288345061925649502">Schimbaţi motorul de căutare</translation>
 <translation id="3037605927509011580">Of, nu mai merge!</translation>
@@ -577,7 +568,6 @@
 <translation id="2441719842399509963">Resetaţi la valorile prestabilite</translation>
 <translation id="1208126399996836490">Nu resetaţi</translation>
 <translation id="3122496702278727796">Crearea directorului de date a eşuat</translation>
-<translation id="5046764976540625289">Ieşiţi din Chrome</translation>
 <translation id="5034259512732355072">Alegeţi alt director...</translation>
 <translation id="2160383474450212653">Fonturi şi limbi</translation>
 <translation id="5042992464904238023">Conţinut Web</translation>
@@ -614,7 +604,6 @@
 <translation id="4307992518367153382">Elemente de bază</translation>
 <translation id="1709220265083931213">În culise</translation>
 <translation id="1674989413181946727">Setări SSL aplicabile întregului computer:</translation>
-<translation id="582763753075639530">Închideţi toate ferestrele Chrome şi reporniţi Chrome pentru ca această modificare să aibă efect.</translation>
 <translation id="9015241028623917394">Meniu pagina curentă</translation>
 <translation id="8502249598105294518">Meniu <ph name="PRODUCT_NAME"/></translation>
 <translation id="4475552974751346499">Căutaţi în descărcări</translation>
@@ -624,7 +613,6 @@
 <translation id="8725178340343806893">Favorite/Marcaje</translation>
 <translation id="873849583815421063">Finalizare...</translation>
 <translation id="2960316970329790041">Stop transfer</translation>
-<translation id="5016204670686360703">Dacă anulaţi acum, nu vor fi transferate toate elementele. Puteţi transfera din nou mai târziu, din meniul Chrome.</translation>
 <translation id="7642109201157405070">Continuaţi transferul</translation>
 <translation id="5508407262627860757">Anulaţi oricum</translation>
 <translation id="290414493736480793">Acorduri</translation>
@@ -661,52 +649,18 @@
 <translation id="7925285046818567682">Se aşteaptă <ph name="HOST_NAME"/>...</translation>
 <translation id="2021921916539001817">Se transferă de la <ph name="HOST_NAME"/>...</translation>
 <translation id="6698381487523150993">Creat:</translation>
-<translation id="4127951844153999091">În acest caz, adresa afişată în certificat nu se potriveşte cu adresa site-ului la care a încercat să ajungă browser-ul dvs. Un motiv posibil pentru aceasta este interceptarea comunicaţiilor dvs. de către un atacator, care prezintă un certificat pentru un alt site Web, ceea ce ar provoca o nepotrivire. Un alt motiv posibil este că serverul este setat să returneze acelaşi certificat pentru mai multe site-uri Web, inclusiv cel pe care încercaţi să-l accesaţi, chiar dacă acel certificat nu este valabil pentru toate acele site-uri. Google Chrome poate confirma că aţi accesat &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, dar nu poate verifica dacă este acelaşi site ca şi &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; pe care aţi intenţionat să-l accesaţi. Dacă mergeţi mai departe, Chrome nu va mai verifica nicio altă nepotrivire de nume. În general, cel mai bine este să nu mergeţi mai departe.</translation>
-<translation id="9189723490960700326">Aţi încercat să accesaţi &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, dar serverul a prezentat un certificat expirat. Nu sunt disponibile informaţii care să indice dacă acel certificat a fost compromis de la expirarea sa. Aceasta înseamnă că Google Chrome nu poate garanta că dvs. comunicaţi cu &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; şi nu cu un atacator. Nu ar trebui să mergeţi mai departe.</translation>
-<translation id="6481075104394517441">Aţi încercat să accesaţi &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, dar serverul a prezentat un certificat care încă nu este valabil. Nu sunt disponibile informaţii care să indice dacă acel certificat prezintă garanţie. Google Chrome nu vă poate garanta în mod sigur că dvs. comunicaţi cu &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; şi nu cu un atacator. Ar trebui să vă asiguraţi că ora şi fusul orar sunt setate corect pe computerul dvs. Dacă nu sunt, trebuie să corectaţi orice erori şi să actualizaţi această pagină. Dacă sunt corecte, nu trebuie să mergeţi mai departe.</translation>
-<translation id="1144950271450340860">Aţi încercat să accesaţi &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, dar serverul a prezentat un certificat emis de o entitate în care nu are încredere sistemul de operare al computerului dvs. Aceasta poate însemna că serverul a generat propriile sale acreditări de securitate, pe care Google Chrome nu se poate baza pentru informaţii de identificare, sau că un atacator ar putea încerca să vă intercepteze comunicaţiile. Nu trebuie să mergeţi mai departe, &lt;strong&gt;mai ales&lt;/strong&gt; dacă nu aţi văzut niciodată până acum acest avertisment pentru acest site.</translation>
-<translation id="6009537148180854585">Aţi încercat să accesaţi &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, dar certificatul prezentat de server conţine erori. Google Chrome nu poate utiliza un certificat cu erori şi nu poate valida identitatea site-ului la care aţi încercat să vă conectaţi. Conexiunea dvs. nu este sigură şi nu trebuie să mergeţi mai departe.</translation>
-<translation id="7106741999175697885">Manager de activităţi - Google Chrome</translation>
-<translation id="1195935957447623558">Google Chrome nu s-a închis corect. Pentru a redeschide paginile pe care le-aţi avut deschise, faceţi clic pe Restabiliţi.</translation>
-<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
-<translation id="2044287590254833138">Bara de instrumente Google Chrome</translation>
-<translation id="8449380764213232436">Google Chrome importă acum următoarele elemente din <ph name="BROWSER_COMPONENT"/>:</translation>
 <translation id="8562413501751825163">Închideţi Firefox înainte de a face importul</translation>
-<translation id="6626317981028933585">Din păcate, setările dvs. Mozilla Firefox nu sunt disponibile în timp ce browser-ul respectiv rulează. Pentru a importa aceste setări în Google Chrome, salvaţi ceea ce lucraţi şi închideţi toate ferestrele Firefox. Apoi faceţi clic pe Continuaţi.</translation>
-<translation id="8446794773162156990">Google Chrome nu funcţionează corect</translation>
-<translation id="7400722733683201933">Despre Google Chrome</translation>
-<translation id="3591558551793645824">Google Chrome a fost dezinstalat cu succes. Rămas bun!</translation>
-<translation id="8172671748763307156">Sunteţi sigur că doriţi să dezinstalaţi Google Chrome? (Dezinstalaţi din cauza noastră?)</translation>
-<translation id="7161904924553537242">Bun venit la Google Chrome</translation>
-<translation id="6921913858457830952">Google Chrome este gata să finalizeze instalarea.</translation>
-<translation id="7241541963706135274">Google Chrome va executa următoarele comenzi:</translation>
-<translation id="7101265395643981223">Porniţi Google Chrome</translation>
-<translation id="2618799103663374905">Adăugaţi scurtături pentru Google Chrome pe desktop, în bara Lansare rapidă şi în meniul Start</translation>
-<translation id="213581405366815208">Sunteţi sigur că doriţi să anulaţi instalarea Google Chrome? Dacă doriţi să continuaţi mai târziu, deschideţi Chrome din dosarul Programe al meniului Start.</translation>
-<translation id="5941830788786076944">Setaţi Google Chrome ca browser prestabilit</translation>
-<translation id="7001386529596391893">Creaţi scurtături pentru Google Chrome în aceste locaţii:</translation>
 <translation id="480990236307250886">Deschideţi pagina de pornire</translation>
 <translation id="6514771739083339959">Pagina de pornire:</translation>
 <translation id="1665770420914915777">Utilizaţi pagina Filă nouă</translation>
 <translation id="4726901538158498735">Căutare prestabilită:</translation>
 <translation id="2231233239095101917">Scriptul din pagină a utilizat prea multă memorie. Reîncărcaţi pentru a reactiva scripturile.</translation>
-<translation id="8227755444512189073">Google Chrome necesită lansarea unei aplicaţii externe pentru a gestiona link-uri <ph name="SCHEME"/>. Link-ul solicitat este <ph name="PROTOLINK"/>.</translation>
-<translation id="8236873504073475138">Google Chrome nu acceptă Windows 2000. Este posibil ca unele funcţii să nu funcţioneze.</translation>
-<translation id="3335672657969596251">Google Chrome nu acceptă <ph name="OS_NAME"/>.</translation>
-<translation id="1446473746922165495">Modificaţi limba utilizată în meniurile, casetele de dialog şi sfaturile de instrument Google Chrome.</translation>
-<translation id="8810218179782551669">Limba Google Chrome:</translation>
-<translation id="7958215378280655655">Când resetaţi opţiunile Google Chrome, toate modificările efectuate vor fi readuse la setările prestabilite. Doriţi să resetaţi opţiunile Chrome?</translation>
-<translation id="7100330187273168372">Google Chrome nu poate citi sau scrie în directorul propriu de date:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
-<translation id="3324235665723428530">Profilul dvs. nu poate fi utilizat, deoarece provine de la o versiune Google Chrome mai recentă.\n\nEste posibil ca unele funcţii să nu fie disponibile. Specificaţi un director de profil diferit sau utilizaţi o versiune Chrome mai nouă.</translation>
 <translation id="3319048459796106952">Fereastră nouă &amp;incognito</translation>
 <translation id="1120026268649657149">Cuvântul cheie trebuie să lipsească sau să fie unic</translation>
 <translation id="7481475534986701730">Site-uri vizitate recent</translation>
-<translation id="8815061062167142136">Ups! Google Chrome s-a închis cu eroare. Reporniţi acum?</translation>
-<translation id="3889417619312448367">Dezinstalaţi Google Chrome</translation>
 <translation id="3169621169201401257">Pentru informaţii detaliate despre problemele legate de aceste elemente, accesaţi <ph name="DIAGNOSTIC_PAGE"/> Google pentru <ph name="DOMAIN"/>.</translation>
 <translation id="2356762928523809690">Serverul de actualizare nu este disponibil (eroare: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">&amp;Adăugaţi în dicţionar</translation>
-<translation id="2499193704281978000">Google Chrome este inactiv. Reporniţi acum?</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">Unicod</translation>
 <translation id="1702534956030472451">Vestic</translation>
@@ -733,9 +687,7 @@
 <translation id="3761000923495507277">Afişaţi butonul Pagină de pornire în bara de instrumente</translation>
 <translation id="5291303148298143069">Anunţă-mă dacă un pop-up este blocat</translation>
 <translation id="3383487468758466563">Fonturi şi limbi:</translation>
-<translation id="1137776625614346046">Zona „Cele mai vizitate” arată site-urile Web pe care le utilizaţi cel mai frecvent. După ce veţi utiliza o perioadă Google Chrome, veţi vedea site-urile cele mai vizitate, ori de câte ori deschideţi o filă nouă. Puteţi afla mai multe despre aceasta şi despre alte funcţii pe <ph name="BEGIN_LINK"/>pagina Noţiuni de bază<ph name="END_LINK"/>.</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Aţi trecut în modul incognito<ph name="END_BOLD"/>. Paginile pe care le vedeţi în această fereastră nu vor apărea în istoricul browserului sau în istoricul căutării şi nu vor lăsa urme pe computer, cum ar fi cookie-uri, după ce închideţi fereastra incognito. Cu toate acestea, vor fi păstrate orice fişiere descărcate sau marcaje create.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Intrarea incognito nu afectează comportamentul altor persoane, servere sau aplicaţii software. Fiţi atent la:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Site-urile Web care colectează sau distribuie informaţii despre dvs.<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Furnizorii de servicii Internet sau angajaţii care urmăresc paginile pe care le vizitaţi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Aplicaţiile software dăunătoare care urmăresc apăsarea tastelor în schimbul emoticoanelor gratuite<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Supravegherea de către agenţi secreţi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Persoanele care stau în spatele dvs.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Aflaţi mai multe<ph name="END_LINK"/> despre accesarea incognito.</translation>
 <translation id="1604816462140255479">&amp;Panoramare text</translation>
 <translation id="2089625293428655599">Fragmente ale acestui software au fost licenţiate de la terţe părţi, după cum este descris la: <ph name="URL"/></translation>
-<translation id="6817660909204164466">Ajutaţi la îmbunătăţirea Google Chrome prin trimiterea automată de statistici de utilizare şi rapoarte de avarie la Google</translation>
 </translationbundle>

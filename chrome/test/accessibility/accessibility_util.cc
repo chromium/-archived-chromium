@@ -8,6 +8,8 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/browser/xp_frame.h"
 #include "chrome/browser/vista_frame.h"
+
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 VARIANT g_var_self = {VT_I4, CHILDID_SELF};

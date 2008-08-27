@@ -41,6 +41,7 @@
 #include "v8/public/v8.h"
 #endif
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 // The URL scheme used for the about ui.

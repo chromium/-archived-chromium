@@ -16,6 +16,8 @@
 #include "chrome/browser/views/toolbar_star_toggle.h"
 #include "chrome/browser/views/toolbar_view.h"
 #include "chrome/common/l10n_util.h"
+
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 // Status Bubble metrics.

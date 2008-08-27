@@ -13,7 +13,6 @@
 <translation id="5329858601952122676">E&amp;liminar</translation>
 <translation id="3873963583678942942">(Sem nome)</translation>
 <translation id="1232569758102978740">Sem nome</translation>
-<translation id="1759842336958782510">Chrome</translation>
 <translation id="6965382102122355670">OK</translation>
 <translation id="7658239707568436148">Cancelar</translation>
 <translation id="6463795194797719782">&amp;Editar</translation>
@@ -105,7 +104,6 @@
 <translation id="772440777491435074">Informações do certificado...</translation>
 <translation id="987264212798334818">Geral</translation>
 <translation id="3435738964857648380">Segurança</translation>
-<translation id="7869935834862642047"><ph name="PAGE_TITLE"/> - <ph name="APP_NAME"/></translation>
 <translation id="406259880812417922">(Palavra-chave: <ph name="KEYWORD"/>)</translation>
 <translation id="1559333154119355392"><ph name="DOWNLOAD_SIZE"/>, Concluído</translation>
 <translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/>, Cancelado</translation>
@@ -166,7 +164,6 @@
 <translation id="6426222199977479699">Erro de SSL</translation>
 <translation id="5645845270586517071">Erro de segurança</translation>
 <translation id="3183922693828471536">Deslocar-se para aqui</translation>
-<translation id="8439117394107194826">Pretendo ir para a página Web do inquérito após a desinstalação.</translation>
 <translation id="4610637590575890427">Pretendia aceder a <ph name="SITE"/>?</translation>
 <translation id="8182985032676093812">Fonte de <ph name="PAGE_URL"/></translation>
 <translation id="4880827082731008257">Histórico de pesquisas</translation>
@@ -312,9 +309,6 @@
 <translation id="7629827748548208700">Separador: <ph name="TAB_NAME"/></translation>
 <translation id="6513615899227776181">Plug-in: <ph name="PLUGIN_NAME"/></translation>
 <translation id="7071586181848220801">Plug-in desconhecido</translation>
-<translation id="8540666473246803645">Google Chrome</translation>
-<translation id="3870154837782082782">Google Inc.</translation>
-<translation id="6622748519798088408">Copyright © 2006-2008 Google Inc. Todos os direitos reservados.</translation>
 <translation id="6479177161510354016">Alerta <ph name="SITE"/></translation>
 <translation id="333371639341676808">Evitar que esta página crie caixas de diálogo adicionais.</translation>
 <translation id="5295309862264981122">Confirmar navegação</translation>
@@ -337,7 +331,6 @@
 <translation id="2266011376676382776">Página(s) sem resposta</translation>
 <translation id="1110155001042129815">Kuwait</translation>
 <translation id="1684861821302948641">Desactivar páginas</translation>
-<translation id="6134282421960734039">Pretende que o Chrome guarde a sua palavra-passe?</translation>
 <translation id="5271549068863921519">Guardar palavra-passe</translation>
 <translation id="7484645889979462775">Nunca para este site</translation>
 <translation id="4195643157523330669">Abrir num novo separador</translation>
@@ -437,7 +430,6 @@
 <translation id="8609465669617005112">Mover para cima</translation>
 <translation id="6746124502594467657">Mover para baixo</translation>
 <translation id="8241707690549784388">A página que procura utilizou informações introduzidas por si. Regressar a essa página poderá originar a repetição de qualquer acção que tenha efectuado. Pretende continuar?</translation>
-<translation id="1964682833763362793">Feche todas as janelas do Chrome e tente novamente.</translation>
 <translation id="5333374927882515515">Importar marcadores, palavras-passe e outras definições de <ph name="DEF_BROWSER"/></translation>
 <translation id="8256087479641463867">Personalizar as suas definições</translation>
 <translation id="7789175495288668515">Altere as opções predefinidas de instalação.</translation>
@@ -445,7 +437,6 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">Barra de início rápido</translation>
-<translation id="1549918799472947005">O Chrome utiliza o motor de pesquisa predefinido, o qual está actualmente definido como <ph name="PAGE_TITLE"/>. Pretende manter o motor de pesquisa predefinido?</translation>
 <translation id="74568296546932365">Manter o <ph name="PAGE_TITLE"/> como motor de pesquisa predefinido</translation>
 <translation id="8288345061925649502">Alterar motor de pesquisa</translation>
 <translation id="3037605927509011580">Ah, bolas!!</translation>
@@ -577,7 +568,6 @@
 <translation id="2441719842399509963">Repor predefinições</translation>
 <translation id="1208126399996836490">Não repor</translation>
 <translation id="3122496702278727796">Falha ao criar directório de dados</translation>
-<translation id="5046764976540625289">Sair do Chrome</translation>
 <translation id="5034259512732355072">Escolha outro directório...</translation>
 <translation id="2160383474450212653">Tipos de letra e linguagens</translation>
 <translation id="5042992464904238023">Conteúdo da Web</translation>
@@ -614,7 +604,6 @@
 <translation id="4307992518367153382">Noções básicas</translation>
 <translation id="1709220265083931213">Nos bastidores</translation>
 <translation id="1674989413181946727">Definições de SSL ao nível do computador:</translation>
-<translation id="582763753075639530">Feche todas as janelas do Chrome e reinicie o Chrome para que esta alteração entre em vigor.</translation>
 <translation id="9015241028623917394">Controlar a página actual</translation>
 <translation id="8502249598105294518">Personalizar e controlar o <ph name="PRODUCT_NAME"/></translation>
 <translation id="4475552974751346499">Pesquisar transferências</translation>
@@ -624,7 +613,6 @@
 <translation id="8725178340343806893">Favoritos/Marcadores</translation>
 <translation id="873849583815421063">A terminar...</translation>
 <translation id="2960316970329790041">Parar importação</translation>
-<translation id="5016204670686360703">Se cancelar agora, não serão importados todos os itens. Poderá importar novamente mais tarde a partir do menu do Chrome.</translation>
 <translation id="7642109201157405070">Continuar a importação</translation>
 <translation id="5508407262627860757">Cancelar</translation>
 <translation id="290414493736480793">Confirmações</translation>
@@ -661,52 +649,18 @@
 <translation id="7925285046818567682">A aguardar por <ph name="HOST_NAME"/>...</translation>
 <translation id="2021921916539001817">A transferir de <ph name="HOST_NAME"/>...</translation>
 <translation id="6698381487523150993">Criado:</translation>
-<translation id="4127951844153999091">Neste caso, o endereço listado no certificado não corresponde ao endereço do Web site a que o browser tentou aceder. Uma explicação possível reside no facto de as suas comunicações estarem a ser interceptadas por um utilizador mal intencionado que está a apresentar um certificado para um Web site diferente, o que causaria uma incompatibilidade. Outra explicação plausível consiste na possibilidade de o servidor estar configurado para devolver o mesmo certificado para vários Web sites, incluindo aquele que está a tentar visitar, apesar de esse certificado não ser válido para todos esses Web sites. O Google Chrome pode afirmar com certeza que acedeu a &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, mas não consegue verificar que se trata do mesmo site que  &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ao qual tentou aceder. Se prosseguir, o Chrome deixará de verificar correspondências de nomes. Em geral, o melhor é não prosseguir para além deste ponto.</translation>
-<translation id="9189723490960700326">Tentou aceder a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, mas o servidor apresentou um certificado expirado. Não há informações disponíveis que indiquem se esse certificado foi comprometido desde o momento em que expirou. O Google Chrome não pode garantir que está a comunicar com &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; e não com um utilizador mal intencionado. Não deve prosseguir.</translation>
-<translation id="6481075104394517441">Tentou aceder a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, mas o servidor apresentou um certificado que ainda não é válido. Não há informações disponíveis que indiquem se esse certificado pode ser considerado fidedigno. O Google Chrome não pode garantir com segurança que está a comunicar com &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; e não com um utilizador mal intencionado. Deverá certificar-se de que o seu relógio e fuso horário estão correctamente definidos no seu computador. Se não estiverem, deverá corrigir quaisquer problemas existentes e actualizar esta página. Se estiverem correctos, não deverá prosseguir.</translation>
-<translation id="1144950271450340860">Tentou aceder a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, mas o servidor apresentou um certificado emitido por uma entidade que não é considerada fidedigna pelo sistema operativo do seu computador. Isto poderá significar que o servidor gerou as suas próprias credenciais de segurança, nas quais o Google Chrome não pode confiar para obter informações de identidade, ou que um utilizador mal intencionado poderá estar a tentar interceptar as suas comunicações. Não deve prosseguir, &lt;strong&gt;especialmente&lt;/strong&gt; se nunca tiver visto anteriormente este aviso relativamente a esse site.</translation>
-<translation id="6009537148180854585">Tentou aceder a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, mas o certificado apresentado pelo servidor contém erros. O Google Chrome não pode utilizar um certificado com erros e não pode validar a identidade do site ao qual tentou ligar-se. A sua ligação não é segura pelo que não deve prosseguir.</translation>
-<translation id="7106741999175697885">Gestor de tarefas - Google Chrome</translation>
-<translation id="1195935957447623558">O Google Chrome não foi correctamente encerrado. Para abrir novamente as páginas que estavam abertas, clique em Restaurar.</translation>
-<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
-<translation id="2044287590254833138">Barra de ferramentas do Google Chrome</translation>
-<translation id="8449380764213232436">O Google Chrome está neste momento a importar os seguintes itens do <ph name="BROWSER_COMPONENT"/>:</translation>
 <translation id="8562413501751825163">Feche o Firefox antes da importação</translation>
-<translation id="6626317981028933585">Infelizmente, as suas definições do Mozilla Firefox não estão disponíveis enquanto esse browser estiver aberto. Para importar essas definições para o Google Chrome, guarde o seu trabalho e feche todas as janelas do Firefox. De seguida clique em Continuar.</translation>
-<translation id="8446794773162156990">O Google Chrome está a portar-se mal</translation>
-<translation id="7400722733683201933">Acerca do Google Chrome</translation>
-<translation id="3591558551793645824">O Google Chrome foi desinstalado com sucesso. Adeus!</translation>
-<translation id="8172671748763307156">Tem a certeza de que pretende desinstalar o Google Chrome? (Dissemos algo de errado?)</translation>
-<translation id="7161904924553537242">Bem-vindo ao Google Chrome</translation>
-<translation id="6921913858457830952">O Google Chrome está pronto a completar a instalação.</translation>
-<translation id="7241541963706135274">O Google Chrome efectuará as seguintes tarefas:</translation>
-<translation id="7101265395643981223">Iniciar o Google Chrome</translation>
-<translation id="2618799103663374905">Adicione atalhos do Google Chrome ao ambiente de trabalho, à Barra de início rápido e ao menu Iniciar</translation>
-<translation id="213581405366815208">Tem a certeza de que pretende cancelar a instalação do Google Chrome? Se pretender continuar mais tarde, abra o Chrome a partir da pasta de programas do menu Iniciar.</translation>
-<translation id="5941830788786076944">Tornar o Google Chrome no browser padrão.</translation>
-<translation id="7001386529596391893">Criar atalhos do Google Chrome nestes locais:</translation>
 <translation id="480990236307250886">Abrir a página de início</translation>
 <translation id="6514771739083339959">Página de início:</translation>
 <translation id="1665770420914915777">Utilize a página Novo separador</translation>
 <translation id="4726901538158498735">Pesquisa padrão:</translation>
 <translation id="2231233239095101917">O script da página utilizou demasiada memória. Recarregue para activar os scripts novamente.</translation>
-<translation id="8227755444512189073">O Google Chrome precisa de executar uma aplicação externa para processar links <ph name="SCHEME"/>. O link solicitado é <ph name="PROTOLINK"/>.</translation>
-<translation id="8236873504073475138">O Google Chrome não suporta o Windows 2000. Alguns recursos poderão não funcionar.</translation>
-<translation id="3335672657969596251">O Google Chrome não suporta o <ph name="OS_NAME"/>.</translation>
-<translation id="1446473746922165495">Altere o idioma utilizado nos menus, caixas de diálogo e descrições do Google Chrome.</translation>
-<translation id="8810218179782551669">Idioma do Google Chrome:</translation>
-<translation id="7958215378280655655">Ao repor as opções do Google Chrome, quaisquer alterações efectuadas reverterão para as predefinições. Pretende repor as opções do Chrome?</translation>
-<translation id="7100330187273168372">O Google Chrome não consegue ler ou escrever no seu directório de dados: \n\n<ph name="USER_DATA_DIRECTORY"/></translation>
-<translation id="3324235665723428530">O seu perfil não pode ser utilizado pois pertence a uma versão mais recente do Google Chrome.\n\n Alguns recursos podem não estar disponíveis. Especifique um directório de perfil diferente ou utilize uma versão mais recente do Google Chrome.</translation>
 <translation id="3319048459796106952">&amp;Nova janela sem registo</translation>
 <translation id="1120026268649657149">A palavra-chave tem de estar vazia ou ser exclusiva</translation>
 <translation id="7481475534986701730">Sites visitados recentemente</translation>
-<translation id="8815061062167142136">Uau! O Google Chrome falhou. Reiniciar agora?</translation>
-<translation id="3889417619312448367">Desinstalar o Google Chrome</translation>
 <translation id="3169621169201401257">Para obter informações mais detalhadas sobre os problemas com estes elementos, visite a <ph name="DIAGNOSTIC_PAGE"/> no Google para <ph name="DOMAIN"/>.</translation>
 <translation id="2356762928523809690">O servidor de actualização não está disponível (erro: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">&amp;Adicionar ao dicionário</translation>
-<translation id="2499193704281978000">O Google Chrome não está a responder Reiniciar agora?</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">Unicode</translation>
 <translation id="1702534956030472451">Ocidental</translation>
@@ -733,9 +687,7 @@
 <translation id="3761000923495507277">Mostrar o botão Página inicial na barra de ferramentas</translation>
 <translation id="5291303148298143069">Notificar-me quando uma janela de pop-up for bloqueada</translation>
 <translation id="3383487468758466563">Tipos de letra e linguagens:</translation>
-<translation id="1137776625614346046">A área &quot;Mais visitados&quot; mostra os Web sites utilizados mais frequentemente. Depois de utilizar o Google Chrome durante algum tempo, verá os sites visitados com maior frequência sempre que abrir um novo separador. Saiba mais sobre esta e outras funcionalidades na <ph name="BEGIN_LINK"/>página Introdução<ph name="END_LINK"/>.</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Está neste momento no modo sem registo<ph name="END_BOLD"/>. As páginas visualizadas nesta janela não serão apresentadas no histórico do seu browser ou no histórico de pesquisas, não deixando quaisquer indícios, tais como cookies, no seu computador depois de fechar a janela sem registo. No entanto, quaisquer ficheiros que transfira ou marcadores de posição que crie serão preservados.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>O modo sem registo não afecta o comportamento de outras pessoas, servidores ou de software. Tenha em atenção:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Web sites que recolhem ou partilham informações sobre o utilizador<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Fornecedores de serviços Internet ou funcionários que controlam as páginas que visita<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Software mal intencionado que controla os seus batimentos de tecla em troca de sorrisos<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Monitorização por agentes secretos<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Pessoas atrás de si enquanto está ao computador<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Saiba mais<ph name="END_LINK"/> sobre a navegação sem registo.</translation>
 <translation id="1604816462140255479">&amp;Zoom do texto</translation>
 <translation id="2089625293428655599">Partes deste software foram licenciadas de terceiros, tal como descrito em: <ph name="URL"/></translation>
-<translation id="6817660909204164466">Ajude a melhorar o Google Chrome enviando automaticamente estatísticas de utilização e relatórios de falhas para a Google</translation>
 </translationbundle>

@@ -17,6 +17,7 @@
 #include "chrome/test/injection_test_dll.h"
 #include "sandbox/src/sandbox.h"
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 // This function provides some ways to test crash and assertion handling

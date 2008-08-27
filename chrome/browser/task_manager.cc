@@ -26,6 +26,7 @@
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 // The task manager window default size.

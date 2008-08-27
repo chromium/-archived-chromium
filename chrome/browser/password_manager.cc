@@ -14,6 +14,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 // static

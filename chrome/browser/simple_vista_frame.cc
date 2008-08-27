@@ -17,6 +17,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "net/base/net_util.h"
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 // Number of frames for our throbber.
