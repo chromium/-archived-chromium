@@ -9998,7 +9998,7 @@
 		7B5E914A0D7F3CC2001ECF42 /* ResourceHandleInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceHandleInternal.h; sourceTree = "<group>"; };
 		7B5E914B0D7F3CC2001ECF42 /* ResourceRequestBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResourceRequestBase.cpp; sourceTree = "<group>"; };
 		7B5E914C0D7F3CC2001ECF42 /* ResourceRequestBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceRequestBase.h; sourceTree = "<group>"; };
-		7B5E914D0D7F3CC2001ECF42 /* ResourceResponseBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResourceResponseBase.cpp; sourceTree = "<group>"; };
+		7B5E914D0D7F3CC2001ECF42 /* ResourceResponseBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ResourceResponseBase.cpp; path = ../../../../../webkit/pending/ResourceResponseBase.cpp; sourceTree = "<group>"; };
 		7B5E914E0D7F3CC2001ECF42 /* ResourceResponseBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceResponseBase.h; sourceTree = "<group>"; };
 		7B5E91530D7F3CC2001ECF42 /* NotImplemented.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotImplemented.h; sourceTree = "<group>"; };
 		7B5E91540D7F3CC2001ECF42 /* Pasteboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pasteboard.h; sourceTree = "<group>"; };
