@@ -40,8 +40,15 @@ class SaveLaterTask : public Task {
     int bytes_written = file_util::WriteFile(tmp_file_name, data_.c_str(),
                                              static_cast<int>(data_.length()));
     if (bytes_written != -1) {
-      MoveFileEx(tmp_file_name.c_str(), file_name_.c_str(),
-                 MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING);
+      if (!MoveFileEx(tmp_file_name.c_str(), file_name_.c_str(),
+                      MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING)) {
+        // Rename failed. Try again on the off chance someone has locked either
+        // file and hope we're successful the second time through.
+        BOOL move_result =
+            MoveFileEx(tmp_file_name.c_str(), file_name_.c_str(),
+                       MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING);
+        DCHECK(move_result);
+      }
     }
   }
 
