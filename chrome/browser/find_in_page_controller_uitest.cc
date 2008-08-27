@@ -16,6 +16,7 @@ class FindInPageControllerTest : public UITest {
 
 const std::wstring kFramePage = L"files/find_in_page/frames.html";
 const std::wstring kUserSelectPage = L"files/find_in_page/user-select.html";
+const std::wstring kCrashPage = L"files/find_in_page/crash_1341577.html";
 
 // This test loads a page with frames and starts FindInPage requests
 TEST_F(FindInPageControllerTest, FindInPageFrames) {
@@ -27,39 +28,40 @@ TEST_F(FindInPageControllerTest, FindInPageFrames) {
   ASSERT_TRUE(tab->NavigateToURL(url));
 
   // Try incremental search (mimicking user typing in).
-  EXPECT_EQ(18, tab->FindInPage(L"g",       FWD, IGNORE_CASE));
-  EXPECT_EQ(11, tab->FindInPage(L"go",      FWD, IGNORE_CASE));
-  EXPECT_EQ(04, tab->FindInPage(L"goo",     FWD, IGNORE_CASE));
-  EXPECT_EQ(03, tab->FindInPage(L"goog",    FWD, IGNORE_CASE));
-  EXPECT_EQ(02, tab->FindInPage(L"googl",   FWD, IGNORE_CASE));
-  EXPECT_EQ(01, tab->FindInPage(L"google",  FWD, IGNORE_CASE));
-  EXPECT_EQ(00, tab->FindInPage(L"google!", FWD, IGNORE_CASE));
+  EXPECT_EQ(18, tab->FindInPage(L"g",       FWD, IGNORE_CASE, false));
+  EXPECT_EQ(11, tab->FindInPage(L"go",      FWD, IGNORE_CASE, false));
+  EXPECT_EQ(04, tab->FindInPage(L"goo",     FWD, IGNORE_CASE, false));
+  EXPECT_EQ(03, tab->FindInPage(L"goog",    FWD, IGNORE_CASE, false));
+  EXPECT_EQ(02, tab->FindInPage(L"googl",   FWD, IGNORE_CASE, false));
+  EXPECT_EQ(01, tab->FindInPage(L"google",  FWD, IGNORE_CASE, false));
+  EXPECT_EQ(00, tab->FindInPage(L"google!", FWD, IGNORE_CASE, false));
 
   // Negative test (no matches should be found).
-  EXPECT_EQ(0, tab->FindInPage(L"Non-existing string", FWD, IGNORE_CASE));
+  EXPECT_EQ(0, tab->FindInPage(L"Non-existing string", FWD, IGNORE_CASE,
+                               false));
 
   // 'horse' only exists in the three right frames.
-  EXPECT_EQ(3, tab->FindInPage(L"horse", FWD, IGNORE_CASE));
+  EXPECT_EQ(3, tab->FindInPage(L"horse", FWD, IGNORE_CASE, false));
 
   // 'cat' only exists in the first frame.
-  EXPECT_EQ(1, tab->FindInPage(L"cat", FWD, IGNORE_CASE));
+  EXPECT_EQ(1, tab->FindInPage(L"cat", FWD, IGNORE_CASE, false));
 
   // Try searching again, should still come up with 1 match.
-  EXPECT_EQ(1, tab->FindInPage(L"cat", FWD, IGNORE_CASE));
+  EXPECT_EQ(1, tab->FindInPage(L"cat", FWD, IGNORE_CASE, false));
 
   // Try searching backwards, ignoring case, should still come up with 1 match.
-  EXPECT_EQ(1, tab->FindInPage(L"CAT", BACK, IGNORE_CASE));
+  EXPECT_EQ(1, tab->FindInPage(L"CAT", BACK, IGNORE_CASE, false));
 
   // Try case sensitive, should NOT find it.
-  EXPECT_EQ(0, tab->FindInPage(L"CAT", FWD, CASE_SENSITIVE));
+  EXPECT_EQ(0, tab->FindInPage(L"CAT", FWD, CASE_SENSITIVE, false));
 
   // Try again case sensitive, but this time with right case.
-  EXPECT_EQ(1, tab->FindInPage(L"dog", FWD, CASE_SENSITIVE));
+  EXPECT_EQ(1, tab->FindInPage(L"dog", FWD, CASE_SENSITIVE, false));
 
   // Try non-Latin characters ('Hreggvidur' with 'eth' for 'd' in left frame).
-  EXPECT_EQ(1, tab->FindInPage(L"Hreggvi\u00F0ur", FWD, IGNORE_CASE));
-  EXPECT_EQ(1, tab->FindInPage(L"Hreggvi\u00F0ur", FWD, CASE_SENSITIVE));
-  EXPECT_EQ(0, tab->FindInPage(L"hreggvi\u00F0ur", FWD, CASE_SENSITIVE));
+  EXPECT_EQ(1, tab->FindInPage(L"Hreggvi\u00F0ur", FWD, IGNORE_CASE, false));
+  EXPECT_EQ(1, tab->FindInPage(L"Hreggvi\u00F0ur", FWD, CASE_SENSITIVE, false));
+  EXPECT_EQ(0, tab->FindInPage(L"hreggvi\u00F0ur", FWD, CASE_SENSITIVE, false));
 }
 
 // Load a page with no selectable text and make sure we don't crash.
@@ -70,7 +72,26 @@ TEST_F(FindInPageControllerTest, FindUnSelectableText) {
   scoped_ptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
 
-  EXPECT_EQ(0, tab->FindInPage(L"text",                FWD, IGNORE_CASE));
-  EXPECT_EQ(0, tab->FindInPage(L"Non-existing string", FWD, IGNORE_CASE));
+  EXPECT_EQ(0, tab->FindInPage(L"text", FWD, IGNORE_CASE, false));
+  EXPECT_EQ(0, tab->FindInPage(L"Non-existing string", FWD, IGNORE_CASE,
+                               false));
 }
 
+// Try to reproduce the crash seen in issue 1341577.
+TEST_F(FindInPageControllerTest, DISABLED_FindCrash_Issue1341577) {
+  TestServer server(L"chrome/test/data");
+
+  GURL url = server.TestServerPageW(kCrashPage);
+  scoped_ptr<TabProxy> tab(GetActiveTab());
+  ASSERT_TRUE(tab->NavigateToURL(url));
+
+  // This would crash the tab. These must be the first two find requests issued
+  // against the frame, otherwise an active frame pointer is set and it wont
+  // produce the crash.
+  EXPECT_EQ(1, tab->FindInPage(L"\u0D4C", FWD, IGNORE_CASE, false));
+  EXPECT_EQ(1, tab->FindInPage(L"\u0D4C", FWD, IGNORE_CASE, true));  // FindNext
+
+  // This should work fine.
+  EXPECT_EQ(1, tab->FindInPage(L"\u0D24\u0D46", FWD, IGNORE_CASE, false));
+  EXPECT_EQ(0, tab->FindInPage(L"nostring", FWD, IGNORE_CASE, false));
+}

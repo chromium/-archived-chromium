@@ -16,6 +16,7 @@
 #include "chrome/common/navigation_types.h"
 #include "chrome/test/automation/autocomplete_edit_proxy.h"
 #include "googleurl/src/gurl.h"
+#include "webkit/glue/find_in_page_request.h"
 
 // NOTE: All IPC messages have either a routing_id of 0 (for asynchronous
 //       messages), or one that's been assigned by the proxy (for calls
@@ -309,6 +310,10 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   // direction (1=forward, 0=back), 'match_case' specifies case sensitivity
   // (1=case sensitive, 0=case insensitive). If an error occurs, matches_found
   // will be -1.
+  //
+  // NOTE: This message has been deprecated, please use the new message
+  // AutomationMsg_FindRequest below.
+  //
   IPC_MESSAGE_ROUTED4(AutomationMsg_FindInPageRequest,
                       int, /* tab_handle */
                       std::wstring, /* find_request */
@@ -708,7 +713,7 @@ IPC_BEGIN_MESSAGES(Automation, 0)
                       bool /* success flag */)
 
   // This message opens the Find window within a tab corresponding to the
-  // supplied tab handle. 
+  // supplied tab handle.
   IPC_MESSAGE_ROUTED1(AutomationMsg_OpenFindInPageRequest,
                       int /* tab_handle */)
 
@@ -724,6 +729,15 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   IPC_MESSAGE_ROUTED2(AutomationMsg_ForwardMessageToExternalHost,
                       std::string /* receiver*/,
                       std::string /* message*/)
+
+  // This message starts a find within a tab corresponding to the supplied
+  // tab handle. The parameter |request| specifies what to search for.
+  // If an error occurs, |matches_found| will be -1 (see response message
+  // AutomationMsg_FindInPageResponse).
+  //
+  IPC_MESSAGE_ROUTED2(AutomationMsg_FindRequest,
+                      int, /* tab_handle */
+                      FindInPageRequest /* request */)
 
 IPC_END_MESSAGES(Automation)
 

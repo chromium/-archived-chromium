@@ -78,14 +78,21 @@ bool TabProxy::OpenFindInPage() {
 
 int TabProxy::FindInPage(const std::wstring& search_string,
                          FindInPageDirection forward,
-                         FindInPageCase match_case) {
+                         FindInPageCase match_case,
+                         bool find_next) {
   if (!is_valid())
     return -1;
 
+  FindInPageRequest request = {0};
+  request.search_string = search_string;
+  request.find_next = find_next;
+  // The explicit comparison to TRUE avoids a warning (C4800).
+  request.match_case = match_case == TRUE;
+  request.forward = forward == TRUE;
+
   IPC::Message* response = NULL;
   bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_FindInPageRequest(0, handle_, search_string,
-                                          forward, match_case),
+      new AutomationMsg_FindRequest(0, handle_, request),
       &response,
       AutomationMsg_FindInPageResponse::ID);
   if (!succeeded)

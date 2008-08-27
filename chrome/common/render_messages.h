@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_RENDER_MESSAGES_H__
-#define CHROME_COMMON_RENDER_MESSAGES_H__
+#ifndef CHROME_COMMON_RENDER_MESSAGES_H_
+#define CHROME_COMMON_RENDER_MESSAGES_H_
 
 #include <string>
 #include <vector>
@@ -284,8 +284,8 @@ struct ViewHostMsg_Resource_Request {
 };
 
 // Parameters for a resource response header.
-struct ViewMsg_Resource_ResponseHead :
-    webkit_glue::ResourceLoaderBridge::ResponseInfo {
+struct ViewMsg_Resource_ResponseHead
+    : webkit_glue::ResourceLoaderBridge::ResponseInfo {
   // The response status.
   URLRequestStatus status;
 
@@ -418,7 +418,7 @@ struct ParamTraits<ResourceType::Type> {
   }
   static void Log(const param_type& p, std::wstring* l) {
     std::wstring type;
-    switch(p) {
+    switch (p) {
       case ResourceType::MAIN_FRAME:
         type = L"MAIN_FRAME";
        break;
@@ -455,7 +455,7 @@ struct ParamTraits<FilterPolicy::Type> {
   }
   static void Log(const param_type& p, std::wstring* l) {
     std::wstring type;
-    switch(p) {
+    switch (p) {
       case FilterPolicy::DONT_FILTER:
         type = L"DONT_FILTER";
         break;
@@ -489,7 +489,7 @@ struct ParamTraits<ContextNode::Type> {
   }
   static void Log(const param_type& p, std::wstring* l) {
     std::wstring type;
-    switch(p) {
+    switch (p) {
      case WebInputEvent::MOUSE_DOWN:
       type = L"MOUSE_DOWN";
       break;
@@ -538,7 +538,7 @@ struct ParamTraits<WebInputEvent::Type> {
   }
   static void Log(const param_type& p, std::wstring* l) {
     std::wstring event;
-    switch(p) {
+    switch (p) {
      case ContextNode::NONE:
       event = L"NONE";
       break;
@@ -590,7 +590,7 @@ struct ParamTraits<ViewHostMsg_ImeControl> {
   }
   static void Log(const param_type& p, std::wstring* l) {
     std::wstring control;
-    switch(p) {
+    switch (p) {
      case IME_DISABLE:
       control = L"IME_DISABLE";
       break;
@@ -980,30 +980,6 @@ struct ParamTraits<ViewMsg_UploadFile_Params> {
   }
 };
 
-// Traits for ViewMsg_FindInPageMsg_Request structure to pack/unpack.
-template <>
-struct ParamTraits<FindInPageRequest> {
-  typedef FindInPageRequest param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.request_id);
-    WriteParam(m, p.search_string);
-    WriteParam(m, p.forward);
-    WriteParam(m, p.match_case);
-    WriteParam(m, p.find_next);
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    return
-      ReadParam(m, iter, &p->request_id) &&
-      ReadParam(m, iter, &p->search_string) &&
-      ReadParam(m, iter, &p->forward) &&
-      ReadParam(m, iter, &p->match_case) &&
-      ReadParam(m, iter, &p->find_next);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"<FindInPageRequest>");
-  }
-};
-
 // Traits for net::UploadData::Element.
 template <>
 struct ParamTraits<net::UploadData::Element> {
@@ -1106,7 +1082,7 @@ struct ParamTraits<NavigationGesture> {
   }
   static void Log(const param_type& p, std::wstring* l) {
     std::wstring event;
-    switch(p) {
+    switch (p) {
       case NavigationGestureUser:
         event = L"GESTURE_USER";
         break;
@@ -1192,7 +1168,7 @@ struct ParamTraits<URLRequestStatus> {
   }
   static void Log(const param_type& p, std::wstring* l) {
     std::wstring status;
-    switch(p.status()) {
+    switch (p.status()) {
      case URLRequestStatus::SUCCESS:
       status = L"SUCCESS";
       break;
@@ -1530,5 +1506,4 @@ struct ParamTraits<WebDropData> {
 
 }  // namespace IPC
 
-#endif  // CHROME_COMMON_RENDER_MESSAGES_H__
-
+#endif  // CHROME_COMMON_RENDER_MESSAGES_H_

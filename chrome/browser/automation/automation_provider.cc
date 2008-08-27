@@ -178,7 +178,7 @@ class NavigationControllerRestoredObserver : public NotificationObserver {
   NavigationController* controller_;
   const int routing_id_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(NavigationControllerRestoredObserver);
+  DISALLOW_COPY_AND_ASSIGN(NavigationControllerRestoredObserver);
 };
 
 
@@ -576,7 +576,7 @@ AutomationProvider::AutomationProvider(Profile* profile)
 AutomationProvider::~AutomationProvider() {
   // Make sure that any outstanding NotificationObservers also get destroyed.
   ObserverList<NotificationObserver>::Iterator it(notification_observer_list_);
-  NotificationObserver* observer; 
+  NotificationObserver* observer;
   while ((observer = it.GetNext()) != NULL)
     delete observer;
 }
@@ -749,6 +749,8 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         HandleOpenFindInPageRequest)
     IPC_MESSAGE_HANDLER(AutomationMsg_HandleMessageFromExternalHost,
                         OnMessageFromExternalHost)
+    IPC_MESSAGE_HANDLER(AutomationMsg_FindRequest,
+                        HandleFindRequest)
   IPC_END_MESSAGE_MAP()
 }
 
@@ -1161,7 +1163,7 @@ class MouseEventTask : public Task {
   POINT point_;
   int flags_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(MouseEventTask);
+  DISALLOW_COPY_AND_ASSIGN(MouseEventTask);
 };
 
 void AutomationProvider::ScheduleMouseEvent(ChromeViews::View* view,
@@ -1187,7 +1189,7 @@ class InvokeTaskLaterTask : public Task {
  private:
   Task* task_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(InvokeTaskLaterTask);
+  DISALLOW_COPY_AND_ASSIGN(InvokeTaskLaterTask);
 };
 
 // This task sends a WindowDragResponse message with the appropriate
@@ -1208,7 +1210,7 @@ class WindowDragResponseTask : public Task {
   AutomationProvider* provider_;
   int routing_id_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(WindowDragResponseTask);
+  DISALLOW_COPY_AND_ASSIGN(WindowDragResponseTask);
 };
 
 void AutomationProvider::WindowSimulateClick(const IPC::Message& message,
@@ -1658,6 +1660,14 @@ void AutomationProvider::GetConstrainedWindowBounds(const IPC::Message& message,
 void AutomationProvider::HandleFindInPageRequest(
     const IPC::Message& message, int handle, const std::wstring& find_request,
     int forward, int match_case) {
+  NOTREACHED() << "This function has been deprecated."
+    << "Please use HandleFindRequest instead.";
+  Send(new AutomationMsg_FindInPageResponse(message.routing_id(), -1));
+  return;
+}
+
+void AutomationProvider::HandleFindRequest(const IPC::Message& message,
+    int handle, const FindInPageRequest& request) {
   if (!tab_tracker_->ContainsHandle(handle)) {
     Send(new AutomationMsg_FindInPageResponse(message.routing_id(), -1));
     return;
@@ -1677,11 +1687,10 @@ void AutomationProvider::HandleFindInPageRequest(
     tab_contents->AsWebContents()->OpenFindInPageWindow(*browser);
   }
 
-  // The explicit comparison to TRUE avoids a warning (C4800).
   tab_contents->StartFinding(
       FindInPageNotificationObserver::kFindInPageRequestId,
-      find_request, forward == TRUE, match_case == TRUE,
-      false);  // Not a FindNext operation.
+      request.search_string, request.forward, request.match_case,
+      request.find_next);
 }
 
 void AutomationProvider::HandleOpenFindInPageRequest(

@@ -185,13 +185,18 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   void GetConstrainedWindowBounds(const IPC::Message& message,
                                   int handle);
 
-  // Responds to the FindInPage request, retrieves the search query parameters,
-  // launches an observer to listen for results and issues a StartFind request.
+  // This function has been deprecated, please use HandleFindRequest.
   void HandleFindInPageRequest(const IPC::Message& message,
                                int handle,
                                const std::wstring& find_request,
                                int forward,
                                int match_case);
+
+  // Responds to the FindInPage request, retrieves the search query parameters,
+  // launches an observer to listen for results and issues a StartFind request.
+  void HandleFindRequest(const IPC::Message& message,
+                         int handle,
+                         const FindInPageRequest& request);
 
   // Responds to requests to open the FindInPage window.
   void HandleOpenFindInPageRequest(const IPC::Message& message,
@@ -332,7 +337,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
 
   Profile* profile_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(AutomationProvider);
+  DISALLOW_COPY_AND_ASSIGN(AutomationProvider);
 };
 
 // When life started, the AutomationProvider class was a singleton and was meant

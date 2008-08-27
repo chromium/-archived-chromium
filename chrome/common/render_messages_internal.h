@@ -13,7 +13,6 @@
 #include "base/shared_memory.h"
 #include "chrome/common/ipc_message_macros.h"
 #include "webkit/glue/dom_operations.h"
-#include "webkit/glue/find_in_page_request.h"
 #include "webkit/glue/console_message_level.h"
 #include "webkit/glue/context_node_types.h"
 #include "webkit/glue/webcursor.h"
@@ -712,7 +711,7 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
 
   // A message for an external host.
   // |receiver| can be a receiving script and |message| is any
-  // arbitrary string that makes sense to the receiver. For 
+  // arbitrary string that makes sense to the receiver. For
   // example, a user of automation can use it to execute a script
   // in the form of javascript:receiver("message");
   IPC_MESSAGE_ROUTED2(ViewHostMsg_ForwardMessageToExternalHost,

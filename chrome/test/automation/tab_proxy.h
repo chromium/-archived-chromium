@@ -167,12 +167,13 @@ class TabProxy : public AutomationResourceProxy {
   // you don't need to call this function, just use FindInPage(...) directly.
   bool OpenFindInPage();
 
-  // Starts a search within the current tab. The parameter 'search_string'
-  // specifies what string to search for, 'forward' specifies whether to search
-  // in forward direction, and 'match_case' specifies case sensitivity
-  // (true=case sensitive). A return value of -1 indicates failure.
+  // Starts a search within the current tab. The parameter |search_string|
+  // specifies what string to search for, |forward| specifies whether to search
+  // in forward direction, and |match_case| specifies case sensitivity
+  // (true=case sensitive). |find_next| specifies whether this is a new search
+  // or a continuation of the old one. A return value of -1 indicates failure.
   int FindInPage(const std::wstring& search_string, FindInPageDirection forward,
-                 FindInPageCase match_case);
+                 FindInPageCase match_case, bool find_next);
 
   bool GetCookies(const GURL& url, std::string* cookies);
   bool GetCookieByName(const GURL& url,
@@ -246,7 +247,7 @@ class TabProxy : public AutomationResourceProxy {
                                      const std::string& message);
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(TabProxy);
+  DISALLOW_COPY_AND_ASSIGN(TabProxy);
 };
 
 #endif  // CHROME_TEST_AUTOMATION_TAB_PROXY_H_
