@@ -96,6 +96,9 @@ class TabStripModelTest : public testing::Test {
     // Clean up test directory
     ASSERT_TRUE(file_util::Delete(test_dir_, true));
     ASSERT_FALSE(file_util::PathExists(test_dir_));
+
+    // Flush the message loop to make Purify happy.
+    message_loop_.RunAllPending();
   }
 
  protected:
