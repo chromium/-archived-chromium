@@ -3,6 +3,7 @@
 <translationbundle lang="he">
 <translation id="8562413501751825163">סגור את Firefox לפני הייבוא.</translation>
 <translation id="4250680216510889253">לא</translation>
+<translation id="7106741999175697885">מנהל המשימות - Google Chrome</translation>
 <translation id="4047498523333824092">שחזר את הדפים שנפתחו אחרונים</translation>
 <translation id="7378810950367401542">/</translation>
 <translation id="4195643157523330669">פתח בכרטיסייה חדשה</translation>
@@ -24,11 +25,13 @@
 <translation id="5516565854418269276">הצג תמיד את סרגל הסימניות</translation>
 <translation id="5568069709869097550">אי אפשר להיכנס</translation>
 <translation id="762917759028004464">דפדפן ברירת המחדל בשלב זה הוא <ph name="BROWSER_NAME"/>.</translation>
+<translation id="6134282421960734039">האם אתה רוצה ש-Chrome ישמור את הסיסמה שלך?</translation>
 <translation id="6909042471249949473">הסר נתונים:</translation>
 <translation id="8503813439785031346">שם משתמש</translation>
 <translation id="3702416240431471861">Google Gears:</translation>
 <translation id="1110155001042129815">המתן</translation>
 <translation id="4666192354592784528">דף זה לא אוחזר במלואו בחיבור בטוח.  הוא מכיל מרכיבים מסוימים שאוחזרו באמצעות חיבורים לא מאובטחים.</translation>
+<translation id="7400722733683201933">על אודות  Google Chrome</translation>
 <translation id="6978121630131642226">מנועי חיפוש</translation>
 <translation id="4756388243121344051">&amp;היסטוריה</translation>
 <translation id="9012607008263791152">אני מבין שביקור באתר זה עלול להזיק למחשב שלי.</translation>
@@ -40,8 +43,10 @@
 <translation id="1120026268649657149">מילת המפתח חייבת להיות ריקה או ייחודית</translation>
 <translation id="8755376271068075440">&amp;גדול יותר</translation>
 <translation id="2955913368246107853">סגור את סרגל האיתור</translation>
+<translation id="2499193704281978000">Google Chrome אינו מגיב. להפעיל מחדש כעת?</translation>
 <translation id="57646104491463491">תארך השינוי</translation>
 <translation id="939736085109172342">תיקייה חדשה</translation>
+<translation id="6009537148180854585">ניסית להגיע אל &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, אך האישור שהוצג על ידי השרת מכיל שגיאות. Google Chrome אינו יכול להשתמש באישור המכיל שגיאות ואינו יכול לאמת את זהות האתר שאליו ניסית להתחבר. ההתחברות שלך אינה בטוחה ומומלץ לא להמשיך.</translation>
 <translation id="1017280919048282932">&amp;הוסף למילון</translation>
 <translation id="8328145009876646418">קצה שמאלי</translation>
 <translation id="8986267729801483565">מקום ההורדה:</translation>
@@ -68,6 +73,7 @@
 <translation id="1095623615273566396"><ph name="NUMBER_FEW"/> שניות</translation>
 <translation id="8730621377337864115">בוצע</translation>
 <translation id="3967132639560659870">בדף זה יש מספר שגיאות SSL:</translation>
+<translation id="3591558551793645824">התקנת Google Chrome בוטלה בהצלחה. היה שלום!</translation>
 <translation id="1485146213770915382">הכנס <ph name="SEARCH_TERMS_LITERAL"/> בכתובת האתר שבה יופיעו מונחי החיפוש.</translation>
 <translation id="307767688111441685">הדף נראה מוזר</translation>
 <translation id="4588090240171750605">גלול ימינה</translation>
@@ -76,6 +82,7 @@
 <translation id="2496180316473517155">היסטוריית גלישה</translation>
 <translation id="4552416320897244156">דף למטה</translation>
 <translation id="7658239707568436148">ביטול</translation>
+<translation id="6481075104394517441">ניסית להגיע אל &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, אך השרת הציג אישור שתוקפו פג. אין מידע זמין שיכול לרמוז על מידת אמינותו של האישור. Google Chrome אינו יכול להבטיח כי אתה מתקשר עם  &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; ולא עם גורם תוקפן. מומלץ לוודא שהשעון ואזור הזמן שלך מוגדרים כהלכה במחשב שלך. אם הם לא מעודכנים, מומלץ לתקן את הבעיה ולרענן דף זה. אם הם מעודכנים, מומלץ לא להמשיך.</translation>
 <translation id="6644971472240498405">יום <ph name="NUMBER_ONE"/></translation>
 <translation id="5921544176073914576">דף התחזות</translation>
 <translation id="6690744523875189208"><ph name="NUMBER_TWO"/> שעות</translation>
@@ -89,6 +96,8 @@
 <translation id="8088823334188264070"><ph name="NUMBER_MANY"/> שניות</translation>
 <translation id="59174027418879706">מופעל</translation>
 <translation id="2869459179306435079">ייבא הגדרות מ:</translation>
+<translation id="582763753075639530">כדי ששינוי זה ייכנס לתוקף, סגור את כל חלונות Chrome והתחל אותו מחדש.</translation>
+<translation id="6921913858457830952">Google Chrome מוכן להשלים את ההתקנה.</translation>
 <translation id="1768211415369530011">היישום הבא יופעל אם תאשר בקשה זו:\n\n <ph name="APPLICATION"/></translation>
 <translation id="1608306110678187802">הדפס מסגרת...</translation>
 <translation id="1720675772864601791">הפעל תמונות לא מאובטחות</translation>
@@ -120,6 +129,7 @@
 <translation id="7643817847124207232">חיבור האינטרנט אבד.</translation>
 <translation id="6310545596129886942">נותרו <ph name="NUMBER_FEW"/> שניות</translation>
 <translation id="7649070708921625228">עזרה</translation>
+<translation id="6626317981028933585">למרבה הצער, הגדרות Mozilla Firefox שלך אינן זמינות בשעה שהדפדפן פועל. על מנת לייבא הגדרות אלו ל-Google Chrome, שמור את עבודתך וסגור את כל חלונות Firefox. לאחר מכן, לחץ על 'המשך'.</translation>
 <translation id="4771973620359291008">אירעה שגיאה לא מוכרת.
 
 
@@ -191,6 +201,7 @@ Del</translation>
 <translation id="5119173345047096771">Mozilla Firefox</translation>
 <translation id="5316814419223884568">התחל לחפש מכאן:</translation>
 <translation id="7070442422749762650">דף האינטרנט ב- &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; גרם להפניות-מחדש רבות מדי.  הסרת קבצי ה-cookie שלך עבור אתר זה עשויה לפתור את הבעיה. אם לא, יתכן שהבעייה היא בתצורת השרת ולא במחשב שלך.</translation>
+<translation id="1195935957447623558">Google Chrome לא נסגר כראוי. לפתיחה מחדש של הדפים שפתחת, לחץ על 'שחזר'.</translation>
 <translation id="8689341121182997459">בתוקף עד:</translation>
 <translation id="3280237271814976245">שמור &amp;בשם...</translation>
 <translation id="3660179305079774227">חץ למעלה</translation>
@@ -213,6 +224,7 @@ Del</translation>
 <translation id="4035758313003622889">&amp;מנהל המשימות</translation>
 <translation id="3383487468758466563">גופנים ושפות:</translation>
 <translation id="4378551569595875038">מתחבר...</translation>
+<translation id="3335672657969596251">Google Chrome אינו תומך ב <ph name="OS_NAME"/></translation>
 <translation id="2154710561487035718">העתק כתובת אתר</translation>
 <translation id="2224551243087462610">ערוך את שם התיקייה</translation>
 <translation id="4510290974676570902">סוג MIME</translation>
@@ -237,6 +249,7 @@ Del</translation>
 <translation id="1618661679583408047">אישור האבטחה של השרת עדיין אינו תקף!</translation>
 <translation id="6370820475163108109"><ph name="ORGANIZATION_NAME"/> (<ph name="DOMAIN_NAME"/>)</translation>
 <translation id="7895330511272068835">אודות תוספים</translation>
+<translation id="7101265395643981223">התחל את Google Chrome</translation>
 <translation id="1644574205037202324">היסטוריה</translation>
 <translation id="8609465669617005112">הזז למעלה</translation>
 <translation id="2679629658858164554">כתובת האתר של הדף:</translation>
@@ -258,7 +271,9 @@ Del</translation>
 <translation id="4880827082731008257">חפש בהיסטוריה</translation>
 <translation id="374530189620960299">אישור האבטחה של האתר אינו אמין!</translation>
 <translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/>/<ph name="DOWNLOAD_TOTAL"/>, <ph name="TIME_LEFT"/></translation>
+<translation id="1759842336958782510">Chrome</translation>
 <translation id="6100736666660498114">תפריט התחלה</translation>
+<translation id="8236873504073475138">Google Chrome אינו תומך ב-Windows 2000. תכונות מסוימות עלולות שלא לפעול.</translation>
 <translation id="1086613338090581534">עבור אישור שתוקפו לא פג, מנפיק האישור חייב לנהל &quot;רשימת ביטולים&quot;. אם האישור נפגע בכל צורה שהיא, מנפיק האישור רשאי לבטלו על ידי הוספתו לרשימת הביטולים. לאחר מכן, האישור לא יופיע ברשימת האישורים האמינים של הדפדפן שלך. אין צורך לנהל מצבי ביטול לאישורים שפג תוקפם, לכן כל עוד האישור של האתר שבו אתה מבקר נמצא בתוקף, לא ניתן בשלב זה לקבוע האם האישור נפגע ולפיכך בוטל, או שהוא ממשיך להיות מאובטח. מכיוון שכך, לא ניתן לדעת אם אתה מתקשר עם האתר הלגיטימי, או שמא האישור נפגע ונמצא כעת ברשותו של גורם פוגע שאיתו אתה מתקשר. מומלץ לא להמשיך מעבר לנקודה זו.</translation>
 <translation id="6447842834002726250">קבצי cookie</translation>
 <translation id="5600907569873192868">נותרו <ph name="NUMBER_MANY"/> דקות</translation>
@@ -267,6 +282,7 @@ Del</translation>
 <translation id="703748601351783580">פתח את כל הסימניות בחלון חדש</translation>
 <translation id="1521442365706402292">נהל אישורים</translation>
 <translation id="3702398161649563352"><ph name="PRODUCT_NAME"/> עודכן <ph name="VERSION"/></translation>
+<translation id="6817660909204164466">עזור לשפר את Gogle Chrome באמצעות שליחת נתונים סטטיסטיים לגבי שימוש ודוחות קריסה באופן אוטומטי  Google</translation>
 <translation id="6264485186158353794">חזרה לבטיחות</translation>
 <translation id="4948468046837535074">פתח את הדפים הבאים:</translation>
 <translation id="2544782972264605588">נותרו <ph name="NUMBER_DEFAULT"/> שניות</translation>
@@ -300,6 +316,7 @@ Del</translation>
 <translation id="1709220265083931213">שיפוץ כללי</translation>
 <translation id="1209866192426315618">נותרו <ph name="NUMBER_DEFAULT"/> דקות</translation>
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
+<translation id="8227755444512189073">Google Chrome חייב לבצע יישום חיצוני על מנת לנהל <ph name="SCHEME"/> קישורים הקישור המבוקש הוא <ph name="PROTOLINK"/>.</translation>
 <translation id="290555789621781773"><ph name="NUMBER_TWO"/> דקות</translation>
 <translation id="7079333361293827276">אישור השרת אינו אמין</translation>
 <translation id="6248988683584659830">הגדרות חיפוש</translation>
@@ -310,6 +327,7 @@ Del</translation>
 <translation id="1208126399996836490">אל תאפס</translation>
 <translation id="6227291405321948850">תמונת אינטרנט ללא שם</translation>
 <translation id="1851266746056575977">עדכן כעת</translation>
+<translation id="5941830788786076944">הפוך את Google Chrome לדפדפן ברירת המחדל</translation>
 <translation id="3319048459796106952">חלון חדש &amp;אלמוני</translation>
 <translation id="6756161853376828318">הפוך את <ph name="PRODUCT_NAME"/> לדפדפן ברירת המחדל שלי</translation>
 <translation id="2303544859777878640">שפות:</translation>
@@ -323,6 +341,7 @@ Del</translation>
 <translation id="8887733174653581061">תמיד למעלה</translation>
 <translation id="2149973817440762519">ערוך סימניות</translation>
 <translation id="1425127764082410430">&amp;חפש <ph name="SEARCH_TERMS"/> ב-<ph name="SEARCH_ENGINE"/></translation>
+<translation id="6622748519798088408">זכויות יוצרים © 2008-2006 Google Inc. כל הזכויות שמורות.</translation>
 <translation id="3183922693828471536">גלול ל'כאן'</translation>
 <translation id="74568296546932365">השאר את <ph name="PAGE_TITLE"/> כמנוע חיפוש ברירת המחדל</translation>
 <translation id="333371639341676808">מנע מדף זה ליצור דיאלוגים נוספים.</translation>
@@ -330,6 +349,7 @@ Del</translation>
 <translation id="6691936601825168937">&amp;קדימה</translation>
 <translation id="8899851313684471736">פתח קישור &amp;בחלון חדש</translation>
 <translation id="4065006016613364460">העתק כתובת אתר של תמונה</translation>
+<translation id="4127951844153999091">במקרה כזה, הכתובת שמופיעה באישור אינה תואמת לכתובת של האתר שאליו הדפדפן שלך ניסה להגיע. סיבה אפשרית לכך היא שהתכתובות שלך נלכדות על ידי גורם פוגע שמציג אישור עבור אתר שונה, ובעקבות זאת נוצרה אי ההתאמה. סיבה אפשרית נוספת היא שהשרת מוגדר להצגת אותו אישור עבור אתרים מרובים, לרבות האתר שבו אתה מנסה לבקר, גם אם האישור אינו תקף לכל אותם אתרים. Google Chrome יכול לקבוע בוודאות שהגעת ל&lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, אך אינו יכול לאמת כי הוא זהה ל-&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, שאליו ניסית להגיע. אם תמשיך, Chrome לא יחפש אי התאמות שמיות נוספות. ככלל, מומלץ לא להמשיך מעבר לנקודה זו.</translation>
 <translation id="6135826906199951471">Del</translation>
 <translation id="5605623530403479164">מנועי חיפוש אחרים</translation>
 <translation id="641480858134062906">נכשלה הטעינה של <ph name="URL"/></translation>
@@ -370,12 +390,15 @@ Del</translation>
 <translation id="152482086482215392">נותרה שנייה <ph name="NUMBER_ONE"/></translation>
 <translation id="7434509671034404296">למפתחים</translation>
 <translation id="2649204054376361687"><ph name="CITY"/>, <ph name="COUNTRY"/></translation>
+<translation id="8815061062167142136">אוי ואבוי! Google Chrome קרס. להפעיל מחדש כעת? להפעיל מחדש כעת?</translation>
 <translation id="1714078437629572290">פתח את דף הבית</translation>
 <translation id="4182252350869425879">אזהרה: האתר חשוד בהתחזות!</translation>
 <translation id="5048179823246820836">נורדית</translation>
 <translation id="385051799172605136">חזור</translation>
 <translation id="7280343984261969618">מפעיל תוספים בארגז חול ללא זכויות יתר. חלק מהתוספים לא יפעלו כהלכה כתוצאה מכך.</translation>
 <translation id="8927064607636892008">משהו השתבש בעת הצגת הדף. להמשך, לחץ על 'טען שנית' או עבור לדף אחר.</translation>
+<translation id="8810218179782551669">שפת Google Chrome:</translation>
+<translation id="7958215378280655655">כשתגדיר מחדש את אפשרויות Google Chrome, כל שינוי שתערוך יוחזר להגדרות ברירת המחדל. האם אתה רוצה לאפס את אפשרויות Chrome?</translation>
 <translation id="3866249974567520381">תיאור</translation>
 <translation id="347250956943431997">אישור השרת נשלל</translation>
 <translation id="2214283295778284209"><ph name="SITE"/> אינו זמין</translation>
@@ -389,7 +412,9 @@ Del</translation>
 <translation id="7642109201157405070">המשך בייבוא</translation>
 <translation id="4701488924964507374"><ph name="SENTENCE1"/> <ph name="SENTENCE2"/></translation>
 <translation id="7071586181848220801">תוסף לא ידוע</translation>
+<translation id="7001386529596391893">צור קיצורי דרך של Google Chrome במיקומים אלו:</translation>
 <translation id="4089663545127310568">הסר סיסמאות שמורות</translation>
+<translation id="8172671748763307156">האם אתה בטוח שברצונך לבטל את התקנת Google Chrome? (זה בגלל משהו שאמרנו?)</translation>
 <translation id="4400697530699263877">השתמש באיתור מוקדם של DNS לשיפור ביצועי הטעינה של הדף</translation>
 <translation id="558442360746014982">להלן הודעת השגיאה המקורית</translation>
 <translation id="2814489978934728345">הפסק את טעינת הדף</translation>
@@ -401,6 +426,7 @@ Del</translation>
 <translation id="7451556917824271099">אתר האינטרנט בכתובת&lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; מכיל אלמנטים מהאתר &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt;, שכנראה מארח תוכנה זדונית - תוכנה שעלולה להזיק למחשב שלך, או לפעול ללא הסכמתך.  הביקור באתר שמכיל תוכנה זדונית עלול לזהם את המחשב שלך.</translation>
 <translation id="1587275751631642843">קונסולת JavaScript&amp;</translation>
 <translation id="1398853756734560583">הגדל</translation>
+<translation id="2044287590254833138">סרגל הכלים של Google Chrome</translation>
 <translation id="5154917547274118687">זיכרון</translation>
 <translation id="3627588569887975815">פתח קישור אלמוני בחלון</translation>
 <translation id="7564847347806291057">סיים תהליך</translation>
@@ -444,15 +470,19 @@ Del</translation>
 <translation id="7073704676847768330">כנראה שזה לא האתר שאתה מחפש!</translation>
 <translation id="111844081046043029">האם אתה בטוח שברצונך לצאת מדף זה?</translation>
 <translation id="4200983522494130825">&amp;כרטיסייה חדשה</translation>
+<translation id="2618799103663374905">הוסף קיצורי דרך של Google Chrome לשולחן העבודה, לסרגל הפתיחה המהירה ולתפריט הפתיחה שלך.</translation>
 <translation id="1572103024875503863"><ph name="NUMBER_MANY"/> ימים</translation>
 <translation id="3009731429620355204">הפעלות</translation>
+<translation id="8446794773162156990">Google Chrome לא מתנהג יפה</translation>
 <translation id="1076818208934827215">Microsoft Internet Explorer</translation>
+<translation id="1137776625614346046">האזור &quot;הכי פופולרי&quot; מציג את האתרים שביקרת בהם בתדירות הרבה ביותר. אחרי שתשתמש ב-Google Chrome למשך זמן מה, תראה את האתרים הפופולריים ביותר שלך בכל פעם שתפתח כרטיסייה חדשה. ניתן לקבל מידע נוסף על תכונה זו ועל תכונות נוספות בדף <ph name="BEGIN_LINK"/>התחלת העבודה<ph name="END_LINK"/>.</translation>
 <translation id="5710435578057952990">הזהות של אתר זה לא אומתה.</translation>
 <translation id="2972581237482394796">&amp;בצע שנית</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
 <translation id="8571213806525832805">מארבעת השבועות האחרונים</translation>
 <translation id="3473105180351527598">הפעל הגנה נגד התחזות ותוכנות זדוניות</translation>
 <translation id="6746124502594467657">הזז למטה</translation>
+<translation id="3870154837782082782">Google Inc.</translation>
 <translation id="1674989413181946727">הגדרות SSL כוללות של המחשב:</translation>
 <translation id="8709969075297564489">חפש ביטול של אישור השרת</translation>
 <translation id="7552620667503495646">פתח מסגרת &amp;בכרטיסייה חדשה</translation>
@@ -483,6 +513,7 @@ Del</translation>
 <translation id="4422428420715047158">דומיין:</translation>
 <translation id="8899388739470541164">וייאטנאמית</translation>
 <translation id="1818606096021558659">דף</translation>
+<translation id="1964682833763362793">סגור את כל חלונות Chrome ונסה שוב.</translation>
 <translation id="2815448242176260024">אל תשמור סיסמאות לעולם</translation>
 <translation id="7791543448312431591">הוסף</translation>
 <translation id="6507969014813375884">סינית פשוטה</translation>
@@ -491,6 +522,7 @@ Del</translation>
 <translation id="3942946088478181888">עזור לי להבין</translation>
 <translation id="8045462269890919536">רומנית</translation>
 <translation id="5116333507878097773"><ph name="NUMBER_ONE"/> שעה</translation>
+<translation id="7100330187273168372">Google Chrome אינו יכול לקרוא ולכתוב אל ספריית המידע שלו:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="4867297348137739678">מהשבוע האחרון</translation>
 <translation id="3909791450649380159">גז&amp;ור</translation>
 <translation id="5958418293370246440"><ph name="SAVED_FILES"/> / קבצי <ph name="TOTAL_FILES"/></translation>
@@ -523,6 +555,7 @@ Del</translation>
 <translation id="6965382102122355670">אישור</translation>
 <translation id="7615851733760445951">&lt;לא נבחרו קבצי cookie&gt;</translation>
 <translation id="5613020302032141669">חץ לשמאל</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
 <translation id="5452592754878692665">שנה את הגדרות Google Gears</translation>
 <translation id="5329858601952122676">&amp;מחק</translation>
 <translation id="6710213216561001401">הקודם</translation>
@@ -533,6 +566,7 @@ Del</translation>
 <translation id="7861215335140947162">&amp;הורדות</translation>
 <translation id="7227780179130368205">אותרה תוכנה זדונית!</translation>
 <translation id="1676388805288306495">שנה את הגופן ואת שפת ברירת המחדל עבור דפי אינטרנט.</translation>
+<translation id="3324235665723428530">לא ניתן להשתמש בפרופיל שלך מכיוון שהוא מגיע מגירסה חדשה יותר של Google Chrome. \n\nיתכן שתכונות מסוימות לא יהיו זמינות. אנא ציין ספריית פרופיל אחרת או השתמש בגירסה חדשה יותר של .Chrome</translation>
 <translation id="7789175495288668515">שנה את אפשרויות ברירת המחדל של ההתקנה.</translation>
 <translation id="6865323153634004209">התאם אישית הגדרות אלו</translation>
 <translation id="4910619056351738551">להלן מספר הצעות:</translation>
@@ -542,6 +576,7 @@ Del</translation>
 <translation id="2354001756790975382">סימניות אחרות</translation>
 <translation id="4304224509867189079">היכנס</translation>
 <translation id="8187473050234053012">אישור האבטחה של השרת נשלל!</translation>
+<translation id="9189723490960700326">ניסית להגיע אל &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, אך השרת הציג אישור שתוקפו פג. אין מידע זמין שיכול לרמוז על כך שהאישור נפגע מאז פג תוקפו. משמעות הדבר היא ש-Google Chrome אינו יכול להבטיח כי אתה מתקשר עם &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; ולא עם תוקף. מומלץ לא להמשיך.</translation>
 <translation id="6059232451013891645">תיקייה:</translation>
 <translation id="715468010956678290">פתח מסגרת בחלון inco&amp;gnito</translation>
 <translation id="5042992464904238023">תוכן</translation>
@@ -579,6 +614,7 @@ Del</translation>
 <translation id="6349678711452810642">הפוך לברירת מחדל</translation>
 <translation id="3520476450377425184">נותרו <ph name="NUMBER_MANY"/> ימים</translation>
 <translation id="7334704644505105275">פותר הבאגים JavaScript - תפוס</translation>
+<translation id="7161904924553537242">ברוך הבא ל-Google Chrome</translation>
 <translation id="4477534650265381513">לגישה מהירה מקם את הסימניות שלך כאן, בסרגל הסימניות</translation>
 <translation id="8398877366907290961">המשך בכל זאת</translation>
 <translation id="877010697526426622">יתכן שדף האינטרנט בכתובת &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; אינו פעיל זמנית, או שהועבר לצמיתות לכתובת אינטרנט חדשה.</translation>
@@ -591,6 +627,7 @@ Del</translation>
 <translation id="8413126021676339697">הצג את ההיסטוריה המלאה</translation>
 <translation id="1635247229519770914">המשך בהתקנה</translation>
 <translation id="1426410128494586442">כן</translation>
+<translation id="8540666473246803645">Google Chrome</translation>
 <translation id="7125953501962311360">דפדפן ברירת המחדל:</translation>
 <translation id="1723824996674794290">&amp;חלון חדש</translation>
 <translation id="5502500733115278303">מיובא מ-Firefox</translation>
@@ -613,13 +650,16 @@ Del</translation>
 <translation id="4497415007571823067">ניסית להגיע אל &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, אך במקום זאת הגעת לשרת שמציג עצמו כ-&lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. יתכן שהדבר נגרם בשל בעיית תצורה בשרת, או בשל בעיה רצינית יותר. גורם פוגע ברשת שלך עלול לנסות לגרום לך לבקר בגרסה מזויפת (ואולי אף מזיקה) של &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;. מומלץ לא להמשיך.</translation>
 <translation id="5315873049536339193">זהות</translation>
 <translation id="987264212798334818">כללי</translation>
+<translation id="7241541963706135274">Google Chrome יבצע משימות אלו:</translation>
 <translation id="121827551500866099">הצג את כל ההורדות...</translation>
 <translation id="2342959293776168129">הסר את היסטוריית ההורדות</translation>
 <translation id="8112223930265703044">הכול</translation>
+<translation id="213581405366815208">האם אתה בטוח שברצונך לבטל את התקנת Google Chrome? אם תרצה להמשיך במועד מאוחר יותר, פתח את Chrome מהתיקייה 'תוכניות תפריט התחלה'.</translation>
 <translation id="2356762928523809690">שרת עדכונים אינו זמין (שגיאה: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="9087164549070846958">יחד עם זאת, אם אתה עובד בארגון היוצר אישורים משלו ואתה מנסה להתחבר לאתר פנימי של הארגון באמצעות אישור כזה, יתכן שתוכל לפתור בעיה זו בביטחה. אתה יכול לייבא את האישור הבסיסי של הארגון שלך, הידוע בשם &quot;אישור בסיסי&quot;, ולאחר מכן האישורים שהונפקו או שאומתו על ידי הארגון שלך יהיו אמינים ולא תראה שגיאה זו בפעם הבאה שתנסה להתחבר לאתר פנימי. צור קשר עם צוות התמיכה של הארגון שלך לקבלת סיוע בהוספת אישור בסיסי חדש ב-Windows.</translation>
 <translation id="8382913212082956454">העתק &amp;כתובת דוא&quot;ל</translation>
 <translation id="2822650824848709219">חסום את כל התוכן שאינו מאובטח</translation>
+<translation id="1549918799472947005">Chrome משתמש במנוע חיפוש ברירת המחדל שלך, שמוגדר כרגע ל-<ph name="PAGE_TITLE"/>. האם ברצונך להשאיר את מנוע חיפוש ברירת המחדל שלך?</translation>
 <translation id="3122496702278727796">יצירת ספריית נתונים נכשלה</translation>
 <translation id="4419098590196511435">משהו חסר</translation>
 <translation id="5015344424288992913">פותר פרוקסי...</translation>
@@ -633,6 +673,7 @@ Del</translation>
 <translation id="7484645889979462775">לעולם לא עבור אתר זה</translation>
 <translation id="1178581264944972037">השהה</translation>
 <translation id="7481475534986701730">אתרים שביקרת בהם לאחרונה</translation>
+<translation id="1446473746922165495">שנה את השפה המשמשת בתפריטים, בתיבות הדיאלוג ובטיפים של Google Chrome.</translation>
 <translation id="5941711191222866238">מזער</translation>
 <translation id="5641560969478423183">אישור השרת אינו תואם לכתובת האתר</translation>
 <translation id="2168039046890040389">דף למעלה</translation>
@@ -640,11 +681,13 @@ Del</translation>
 <translation id="2953767478223974804">דקה <ph name="NUMBER_ONE"/></translation>
 <translation id="2674170444375937751">האם אתה בטוח שברצונך להסיר דפים אלו מההיסטוריה שלך?</translation>
 <translation id="5291303148298143069">ידע אותי כאשר פריט קופץ נחסם</translation>
+<translation id="5016204670686360703">אם תבטל כעת, לא כל הפריטים ייובאו. אתה יכול לייבא שוב במועד מאוחר יותר, מתפריט Chrome.</translation>
 <translation id="2794293857160098038">אפשרויות חיפוש ברירת מחדל</translation>
 <translation id="4813345808229079766">התקשרות</translation>
 <translation id="8241707690549784388">הדף שאתה מחפש השתמש במידע שהזנת. החזרה לדף זה עלולה לגרום לכפילות בפעולות שביצעת. האם ברצונך להמשיך?</translation>
 <translation id="8832489506946784872">צפה &lt;a jsvalues=&quot;href:cacheUrl&quot;&gt;בעותק שמור של דף האינטרנט מ-Google&lt;/a&gt;</translation>
 <translation id="7965010376480416255">זיכרון משותף</translation>
+<translation id="3889417619312448367">הסר את Google Chrome</translation>
 <translation id="7121570032414343252"><ph name="NUMBER_TWO"/> שניות</translation>
 <translation id="5645845270586517071">שגיאת אבטחה</translation>
 <translation id="3705722231355495246">-</translation>
@@ -661,7 +704,9 @@ Del</translation>
 <translation id="5076340679995252485">&amp;הדבק</translation>
 <translation id="3157931365184549694">שחזר</translation>
 <translation id="3228279582454007836">מעולם לא ביקרת באתר זה קודם לכן.</translation>
+<translation id="8449380764213232436">Google Chrome מייבא כעת את הפריטים הבאים מ <ph name="BROWSER_COMPONENT"/>:</translation>
 <translation id="7414887922320653780">נותרו <ph name="NUMBER_ONE"/> שעות</translation>
+<translation id="8439117394107194826">קח אותי לדף האינטרנט של הסקר לאחר ביטול ההתקנה.</translation>
 <translation id="6325525973963619867">נכשל</translation>
 <translation id="6419902127459849040">מרכז אירופאית</translation>
 <translation id="969892804517981540">גירסה רשמית</translation>
@@ -679,6 +724,7 @@ Del</translation>
 <translation id="2339641773402824483">מחפש עדכונים...</translation>
 <translation id="7887334752153342268">שכפול</translation>
 <translation id="8978540966440585844">דפ&amp;דף...</translation>
+<translation id="1144950271450340860">ניסית להגיע אל &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, אך השרת הציג אישור שהונפק על ידי יישות שלא אמינה על ידי מערכת ההפעלה של המחשב שלך. משמעות הדבר היא שהשרת ייצר את אימותי האבטחה שלו, ש-Google Chrome אינו יכול לסמוך עליהם לצרכי השגת פרטי זהות, או שמתקיף מנסה ליירט את התקשורת שלך. מומלץ לא להמשיך, &lt;strong&gt;במיוחד&lt;/strong&gt; אם בעבר לא ראית אזהרה זו לגבי אתר זה.</translation>
 <translation id="3748412725338508953">היו יותר מדי הפניות-מחדש.
 
 
@@ -691,6 +737,7 @@ Del</translation>
 <translation id="4789872672210757069">על אודות &amp;<ph name="PRODUCT_NAME"/></translation>
 <translation id="3761000923495507277">הצג את לחצן דף הבית בסרגל הכלים</translation>
 <translation id="5906719743126878045">נותרו <ph name="NUMBER_TWO"/> שעות</translation>
+<translation id="7869935834862642047"><ph name="PAGE_TITLE"/> - <ph name="APP_NAME"/></translation>
 <translation id="5556459405103347317">טען שוב</translation>
 <translation id="3115147772012638511">ממתין לקובץ שמור...</translation>
 <translation id="8664389313780386848">&amp;צפה במקור הדף</translation>
@@ -698,5 +745,6 @@ Del</translation>
 <translation id="7755167023778553803">יחד עם זאת, הדף כולל משאבים מאתרים אחרים שזהותם לא ניתנת לאימות.</translation>
 <translation id="3478477629095836699">הגדרות קבצי cookie:</translation>
 <translation id="5463275305984126951">אינדקס של <ph name="LOCATION"/></translation>
+<translation id="5046764976540625289">צא מ-Chrome</translation>
 <translation id="6513615899227776181">תוסף: <ph name="PLUGIN_NAME"/></translation>
 </translationbundle>

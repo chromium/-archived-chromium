@@ -13,6 +13,7 @@
 <translation id="5329858601952122676">&amp;Slett</translation>
 <translation id="3873963583678942942">(Uten tittel)</translation>
 <translation id="1232569758102978740">Uten tittel</translation>
+<translation id="1759842336958782510">Chrome</translation>
 <translation id="6965382102122355670">OK</translation>
 <translation id="7658239707568436148">Avbryt</translation>
 <translation id="6463795194797719782">R&amp;ediger</translation>
@@ -104,6 +105,7 @@
 <translation id="772440777491435074">Sertifikatinformasjon...</translation>
 <translation id="987264212798334818">Generelt</translation>
 <translation id="3435738964857648380">Sikkerhet</translation>
+<translation id="7869935834862642047"><ph name="PAGE_TITLE"/> – <ph name="APP_NAME"/></translation>
 <translation id="406259880812417922">(Søkeord: <ph name="KEYWORD"/>)</translation>
 <translation id="1559333154119355392"><ph name="DOWNLOAD_SIZE"/>, fullfør</translation>
 <translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/>, avbrutt</translation>
@@ -164,6 +166,7 @@
 <translation id="6426222199977479699">SSL-feil</translation>
 <translation id="5645845270586517071">Sikkerhetsfeil</translation>
 <translation id="3183922693828471536">Rull hit</translation>
+<translation id="8439117394107194826">Ta meg til nettsiden med brukerspørsmål etter avinstallering.</translation>
 <translation id="4610637590575890427">Vil du gå til <ph name="SITE"/>?</translation>
 <translation id="8182985032676093812">Kilde for <ph name="PAGE_URL"/></translation>
 <translation id="4880827082731008257">Søkelogg</translation>
@@ -309,6 +312,9 @@
 <translation id="7629827748548208700">Fane: <ph name="TAB_NAME"/></translation>
 <translation id="6513615899227776181">Tilleggsmodul: <ph name="PLUGIN_NAME"/></translation>
 <translation id="7071586181848220801">Ukjent tilleggsmodul</translation>
+<translation id="8540666473246803645">Google Chrome</translation>
+<translation id="3870154837782082782">Google Inc.</translation>
+<translation id="6622748519798088408">Copyright © 2006–2008 Google Inc. Med enerett.</translation>
 <translation id="6479177161510354016">Varsle <ph name="SITE"/></translation>
 <translation id="333371639341676808">Hindre denne siden i å opprette flere dialogbokser.</translation>
 <translation id="5295309862264981122">Bekreft navigering</translation>
@@ -331,6 +337,7 @@
 <translation id="2266011376676382776">Sider svarer ikke</translation>
 <translation id="1110155001042129815">Vent</translation>
 <translation id="1684861821302948641">Avslutt sider</translation>
+<translation id="6134282421960734039">Vil du at Chrome skal lagre passordet?</translation>
 <translation id="5271549068863921519">Lagre passord</translation>
 <translation id="7484645889979462775">Aldri for dette nettstedet</translation>
 <translation id="4195643157523330669">Åpne i ny fane</translation>
@@ -434,6 +441,7 @@ Midlertidig stanset</translation>
 <translation id="8609465669617005112">Flytt opp</translation>
 <translation id="6746124502594467657">Flytt ned</translation>
 <translation id="8241707690549784388">Siden du ser etter, brukte informasjon som du angav. Hvis du går tilbake til denne siden, kan det føre til at handlinger som er utført, blir gjentatt. Vil du fortsette?</translation>
+<translation id="1964682833763362793">Lukk alle Chrome-vinduer og prøv på nytt.</translation>
 <translation id="5333374927882515515">Importer bokmerker, passord og andre innstillinger fra <ph name="DEF_BROWSER"/></translation>
 <translation id="8256087479641463867">Tilpass innstillingene</translation>
 <translation id="7789175495288668515">Endre alternativene for standardinstallasjon.</translation>
@@ -441,6 +449,7 @@ Midlertidig stanset</translation>
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">Hurtigstartlinje</translation>
+<translation id="1549918799472947005">Chrome bruker din standard søkemotor, som for tiden er <ph name="PAGE_TITLE"/>. Vil du beholde søkemotoren som er valgt som standard?</translation>
 <translation id="74568296546932365">Behold <ph name="PAGE_TITLE"/> som standard søkemotor</translation>
 <translation id="8288345061925649502">Endre søkemotor</translation>
 <translation id="3037605927509011580">Uff da!</translation>
@@ -572,6 +581,7 @@ Midlertidig stanset</translation>
 <translation id="2441719842399509963">Tilbakestill til standard</translation>
 <translation id="1208126399996836490">Ikke tilbakestill</translation>
 <translation id="3122496702278727796">Kan ikke opprette datakatalog</translation>
+<translation id="5046764976540625289">Avslutt Chrome</translation>
 <translation id="5034259512732355072">Velg en annen katalog...</translation>
 <translation id="2160383474450212653">Skrifter og språk</translation>
 <translation id="5042992464904238023">Nettinnhold</translation>
@@ -608,6 +618,7 @@ Midlertidig stanset</translation>
 <translation id="4307992518367153382">Grunnleggende</translation>
 <translation id="1709220265083931213">Avansert</translation>
 <translation id="1674989413181946727">SSL-innstillinger for hele datamaskinen:</translation>
+<translation id="582763753075639530">Lukk alle Chrome-vinduer og start Chrome på nytt for at denne endringen skal tre i kraft.</translation>
 <translation id="9015241028623917394">Alternativer for denne siden</translation>
 <translation id="8502249598105294518">Tilpass og kontroller <ph name="PRODUCT_NAME"/></translation>
 <translation id="4475552974751346499">Søk i nedlastinger</translation>
@@ -617,6 +628,7 @@ Midlertidig stanset</translation>
 <translation id="8725178340343806893">Favoritter/bokmerker</translation>
 <translation id="873849583815421063">Nesten ferdig...</translation>
 <translation id="2960316970329790041">Stopp import</translation>
+<translation id="5016204670686360703">Hvis du avbryter nå, vil ikke alle elementer bli importert. Du kan importere igjen senere fra Chrome-menyen.</translation>
 <translation id="7642109201157405070">Fortsett å importere</translation>
 <translation id="5508407262627860757">Avbryt likevel</translation>
 <translation id="290414493736480793">Bidragsytere</translation>
@@ -653,18 +665,52 @@ Midlertidig stanset</translation>
 <translation id="7925285046818567682">Venter på <ph name="HOST_NAME"/>...</translation>
 <translation id="2021921916539001817">Overfører fra <ph name="HOST_NAME"/>...</translation>
 <translation id="6698381487523150993">Opprettet:</translation>
+<translation id="4127951844153999091">I dette tilfellet stemmer ikke adressen i sertifikatet med adressen til nettstedet som nettleseren forsøkte å gå til. Én mulig årsak til dette er at kommunikasjonen fra deg fanges opp av en angriper som presenterer et sertifikat for en annet nettsted, slik at nettstedet og sertifikatet ikke stemmer overens. En annen mulig årsak er at serveren er konfigurert til å returnere samme sertifikat for flere nettsteder, inkludert det nettstedet du forsøker å besøke, selv om sertifikatet ikke er gyldig for alle disse nettstedene. Google Chrome kan si sikkert at du har kommet til &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, men kan ikke verifisere at det er det samme nettstedet som &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, som du mente å komme til. Hvis du fortsetter, vil Chrome ikke se etter flere uoverensstemmelser i forbindelse med navn. Det beste er vanligvis å ikke fortsette videre.</translation>
+<translation id="9189723490960700326">Du forsøkte å bruke &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, men serveren presenterte et utløpt sertifikat. Det finnes ingen tilgjengelig informasjon som viser om dette sertifikatet har blitt skadet etter at det utløp. Dette betyr at Google Chrome ikke kan garantere at du kommuniserer med &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, og ikke en angriper. Du bør ikke fortsette.</translation>
+<translation id="6481075104394517441">Du forsøkte å bruke &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, men serveren presenterte et sertifikat som ennå ikke er gyldig. Det finnes ingen informasjon som kan angi om sertifikatet er pålitelig. Google Chrome kan ikke garantere at du kommuniserer med &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, og ikke en angriper. Kontroller at klokken og tidssonen på datamaskinen er riktig angitt. Hvis ikke må du rette opp innstillingene og oppdatere denne siden. Hvis innstillingene er riktige, skal du ikke ikke fortsette.</translation>
+<translation id="1144950271450340860">Du forsøkte å komme til &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, men serveren presenterte et sertifikat utstedt av en enhet som ikke er klarert av operativsystemet på datamaskinen din. Dette kan bety at serveren har generert sin egen sikkerhetsinformasjon, som Google Chrome ikke kan stole på som identitetsinformasjon, eller det kan hende at en angriper forsøker å fange opp kommunikasjon fra deg. Du bør ikke fortsette, &lt;strong&gt;særlig&lt;/strong&gt; hvis du aldri har sett denne advarselen tidligere for dette nettstedet.</translation>
+<translation id="6009537148180854585">Du forsøkte å komme til &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, men sertifikatet som serveren presenterte, inneholder feil. Google Chrome kan ikke bruke et sertifikat med feil, og kan ikke validere identiteten til nettstedet du har forsøkt å koble til. Tilkoblingen er ikke sikker, og du bør ikke fortsette.</translation>
+<translation id="7106741999175697885">Oppgavebehandling - Google Chrome</translation>
+<translation id="1195935957447623558">Google Chrome ble ikke avsluttet på riktig måte. Hvis du vil gjenåpne sidene som var åpne, klikker du Gjenopprett.</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
+<translation id="2044287590254833138">Google Chrome-verktøylinjen</translation>
+<translation id="8449380764213232436">Google Chrome importerer nå følgende elementer fra <ph name="BROWSER_COMPONENT"/>.</translation>
 <translation id="8562413501751825163">Lukk Firefox før importering</translation>
+<translation id="6626317981028933585">Mozilla Firefox-innstillingene er dessverre ikke tilgjengelige når nettleseren kjører. Hvis du vil importere disse innstillingene til Google Chrome, kan du lagre arbeidet ditt og lukke alle Firefox-vinduer. Deretter klikker du Fortsett.</translation>
+<translation id="8446794773162156990">Google Chrome oppfører seg galt</translation>
+<translation id="7400722733683201933">Om Google Chrome</translation>
+<translation id="3591558551793645824">Google Chrome er avinstallert. Farvel!</translation>
+<translation id="8172671748763307156">Er du sikker på at du vil avinstallere Google Chrome? (Heeelt sikker?)</translation>
+<translation id="7161904924553537242">Velkommen til Google Chrome</translation>
+<translation id="6921913858457830952">Google Chrome er klar til å fullføre installasjonen.</translation>
+<translation id="7241541963706135274">Google Chrome vil utføre disse oppgavene:</translation>
+<translation id="7101265395643981223">Start Google Chrome</translation>
+<translation id="2618799103663374905">Legg til Google Chrome-snarveier på skrivebordet, hurtigstartlinjen og Start-menyen.</translation>
+<translation id="213581405366815208">Er du sikker på at du vil avbryte installasjonen av Google Chrome? Hvis du vil fortsette senere, kan du åpne Chrome fra mappen Programmer på Start-menyen.</translation>
+<translation id="5941830788786076944">Gjør Google Chrome til standardleser</translation>
+<translation id="7001386529596391893">Opprett Google Chrome snarveier her:</translation>
 <translation id="480990236307250886">Åpne hjemmesiden</translation>
 <translation id="6514771739083339959">Hjemmeside:</translation>
 <translation id="1665770420914915777">Bruk siden Ny fane</translation>
 <translation id="4726901538158498735">Standardsøk:</translation>
 <translation id="2231233239095101917">Skriptet på siden brukte for mye minne. Last på nytt for å aktivere skript igjen.</translation>
+<translation id="8227755444512189073">Google Chrome må starte et eksternt program for å behandle <ph name="SCHEME"/> koblinger. Den forespurte koblingen er <ph name="PROTOLINK"/>.</translation>
+<translation id="8236873504073475138">Google Chrome støtter ikke Windows 2000. Enkelte funksjoner vil kanskje ikke fungere.</translation>
+<translation id="3335672657969596251">Google Chrome støtter ikke <ph name="OS_NAME"/>.</translation>
+<translation id="1446473746922165495">Endre språket som brukes i Google Chromes menyer, dialogbokser og verktøytips.</translation>
+<translation id="8810218179782551669">Google Chrome-språk:</translation>
+<translation id="7958215378280655655">Når du tilbakestiller Google Chrome-alternativene, endres eventuelle endringer du har gjort, tilbake til standardinnstillingene. Vil du tilbakestille Chrome-alternativene?</translation>
+<translation id="7100330187273168372">Google Chrome kan ikke lese og lagre data i katalogen:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="3324235665723428530">Profilen kan ikke brukes fordi den er fra en nyere versjon av Google Chrome.\n\nNoen funksjoner kan være utilgjengelige. Angi en annen profilkatalog eller bruk en nyere versjon av Chrome.</translation>
 <translation id="3319048459796106952">Nytt &amp;Inkognito-vindu</translation>
 <translation id="1120026268649657149">Søkeord må være tomt eller unikt</translation>
 <translation id="7481475534986701730">Nylig besøkte nettsteder</translation>
+<translation id="8815061062167142136">Oops! Google Chrome har krasjet. Vil du starte på nytt nå?</translation>
+<translation id="3889417619312448367">Avinstaller Google Chrome</translation>
 <translation id="3169621169201401257">Hvis du vil ha detaljert informasjon om problemene med disse elementene, kan du gå til Googles <ph name="DIAGNOSTIC_PAGE"/> for <ph name="DOMAIN"/>.</translation>
 <translation id="2356762928523809690">Oppdateringsserver er ikke tilgjengelig (feil: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">&amp;Legg til i ordliste</translation>
+<translation id="2499193704281978000">Google Chrome svarer ikke. Vil du starte på nytt nå?</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">Unicode</translation>
 <translation id="1702534956030472451">Vestlig</translation>
@@ -691,7 +737,9 @@ Midlertidig stanset</translation>
 <translation id="3761000923495507277">Vis Hjem-knappen på verktøylinjen</translation>
 <translation id="5291303148298143069">Varsle meg når et popup-vindu blokkeres</translation>
 <translation id="3383487468758466563">Skrifter og språk:</translation>
+<translation id="1137776625614346046">Området Mest besøkt viser nettstedene du bruker oftest. Når du har brukt Google Chrome en stund, ser du de mest besøkte nettstedene når du åpner en ny fane. Du kan lære mer om denne og andre funksjoner på <ph name="BEGIN_LINK"/>siden Komme i gang<ph name="END_LINK"/>.</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Du er nå inkognito<ph name="END_BOLD"/>. Sider du viser i dette vinduet, vises ikke i nettlesingsloggen eller søkeloggen. De etterlater heller ikke andre spor på datamaskinen, for eksempel informasjonskapsler, når du lukker Inkognito-vinduet. Eventuelle filer du laster ned eller bokmerker du oppretter, beholdes imidlertid. <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Atferden til andre personer, servere eller programvare påvirkes ikke når du går inkognito. Vær på vakt mot følgende:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Nettsteder som samler inn eller deler informasjon om deg<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Internett-leverandører eller ansatte som sporer sidene du besøker<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Skadelig programvare som sporer tastetrykkene dine i bytte mot gratis smilefjes<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Overvåkning fra hemmelige agenter<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Folk som står bak deg<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Mer informasjon<ph name="END_LINK"/> om surfing i inkognitomodus.</translation>
 <translation id="1604816462140255479">Tekst&amp;zoom</translation>
 <translation id="2089625293428655599">Deler av denne programvaren var lisensiert fra tredjeparter, slik det er beskrevet på: <ph name="URL"/></translation>
+<translation id="6817660909204164466">Bidra til å gjøre Google Chrome bedre ved å sende brukerstatistikk og krasjrapporter til Google automatisk</translation>
 </translationbundle>

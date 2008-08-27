@@ -13,6 +13,7 @@
 <translation id="5329858601952122676">削除(&amp;D)</translation>
 <translation id="3873963583678942942">(無題)</translation>
 <translation id="1232569758102978740">無題</translation>
+<translation id="1759842336958782510">Chrome</translation>
 <translation id="6965382102122355670">OK</translation>
 <translation id="7658239707568436148">キャンセル</translation>
 <translation id="6463795194797719782">編集(&amp;E)</translation>
@@ -104,6 +105,7 @@
 <translation id="772440777491435074">証明書情報...</translation>
 <translation id="987264212798334818">全般</translation>
 <translation id="3435738964857648380">セキュリティ</translation>
+<translation id="7869935834862642047"><ph name="PAGE_TITLE"/> - <ph name="APP_NAME"/></translation>
 <translation id="406259880812417922">(キーワード: <ph name="KEYWORD"/>)</translation>
 <translation id="1559333154119355392"><ph name="DOWNLOAD_SIZE"/> 完了</translation>
 <translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/> キャンセルされました</translation>
@@ -164,6 +166,7 @@
 <translation id="6426222199977479699">SSL エラー</translation>
 <translation id="5645845270586517071">セキュリティ エラー</translation>
 <translation id="3183922693828471536">ここまでスクロール</translation>
+<translation id="8439117394107194826">アンインストール後にアンケートに答える</translation>
 <translation id="4610637590575890427">もしかして: <ph name="SITE"/></translation>
 <translation id="8182985032676093812"><ph name="PAGE_URL"/> のソース</translation>
 <translation id="4880827082731008257">履歴を検索</translation>
@@ -309,6 +312,9 @@
 <translation id="7629827748548208700">タブ:<ph name="TAB_NAME"/></translation>
 <translation id="6513615899227776181">プラグイン: <ph name="PLUGIN_NAME"/></translation>
 <translation id="7071586181848220801">不明なプラグイン</translation>
+<translation id="8540666473246803645">Google Chrome</translation>
+<translation id="3870154837782082782">Google Inc.</translation>
+<translation id="6622748519798088408">Copyright © 2006-2008 Google Inc. All Rights Reserved.</translation>
 <translation id="6479177161510354016"><ph name="SITE"/> のアラート</translation>
 <translation id="333371639341676808">このページでこれ以上ダイアログボックスを生成しない</translation>
 <translation id="5295309862264981122">ナビゲーションの確認</translation>
@@ -331,6 +337,7 @@
 <translation id="2266011376676382776">ページ応答なし</translation>
 <translation id="1110155001042129815">待機</translation>
 <translation id="1684861821302948641">ページを強制終了</translation>
+<translation id="6134282421960734039">Chrome にパスワードを保存しますか？</translation>
 <translation id="5271549068863921519">パスワードの保存</translation>
 <translation id="7484645889979462775">このサイトでは保存しない</translation>
 <translation id="4195643157523330669">新しいタブで開く</translation>
@@ -430,6 +437,7 @@
 <translation id="8609465669617005112">上へ</translation>
 <translation id="6746124502594467657">下に移動</translation>
 <translation id="8241707690549784388">検索しているページは、入力した情報を使用しています。このページに戻った場合、操作のやり直しが発生する可能性があります。続行しますか？</translation>
+<translation id="1964682833763362793">すべての Chrome ウィンドウを終了してからやり直してください。</translation>
 <translation id="5333374927882515515">ブックマークやパスワード、その他設定情報を <ph name="DEF_BROWSER"/> からインポート</translation>
 <translation id="8256087479641463867">設定のカスタマイズ</translation>
 <translation id="7789175495288668515">インストールの設定を変更します。</translation>
@@ -437,6 +445,7 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">クイック起動バー</translation>
+<translation id="1549918799472947005">このパソコンの既定の検索エンジンは <ph name="PAGE_TITLE"/> になっています。現在の設定でよろしいですか？</translation>
 <translation id="74568296546932365"><ph name="PAGE_TITLE"/> を既定の検索エンジンにする</translation>
 <translation id="8288345061925649502">検索エンジンの変更</translation>
 <translation id="3037605927509011580">エラー</translation>
@@ -568,6 +577,7 @@
 <translation id="2441719842399509963">既定値に戻す</translation>
 <translation id="1208126399996836490">リセットしない</translation>
 <translation id="3122496702278727796">データ ディレクトリの作成に失敗しました</translation>
+<translation id="5046764976540625289">Chrome を終了</translation>
 <translation id="5034259512732355072">別のディレクトリを選択...</translation>
 <translation id="2160383474450212653">フォントと言語</translation>
 <translation id="5042992464904238023">ウェブ コンテンツ</translation>
@@ -604,6 +614,7 @@
 <translation id="4307992518367153382">基本設定</translation>
 <translation id="1709220265083931213">高度な設定</translation>
 <translation id="1674989413181946727">コンピュータ共通の SSL 設定:</translation>
+<translation id="582763753075639530">この変更を反映するには、Chrome のウィンドウをすべて閉じてから Chrome を再起動してください。</translation>
 <translation id="9015241028623917394">ページ メニュー</translation>
 <translation id="8502249598105294518"><ph name="PRODUCT_NAME"/> の設定</translation>
 <translation id="4475552974751346499">ダウンロード検索</translation>
@@ -613,6 +624,7 @@
 <translation id="8725178340343806893">お気に入り/ブックマーク</translation>
 <translation id="873849583815421063">終了しています...</translation>
 <translation id="2960316970329790041">インポート停止</translation>
+<translation id="5016204670686360703">キャンセルすると、一部のアイテムはインポートされません。Chrome のメニューから後で再度インポートできます。</translation>
 <translation id="7642109201157405070">インポートを続行する</translation>
 <translation id="5508407262627860757">キャンセル</translation>
 <translation id="290414493736480793">確認</translation>
@@ -649,18 +661,52 @@
 <translation id="7925285046818567682"><ph name="HOST_NAME"/> を待機しています...</translation>
 <translation id="2021921916539001817"><ph name="HOST_NAME"/> から転送しています...</translation>
 <translation id="6698381487523150993">作成:</translation>
+<translation id="4127951844153999091">証明書のアドレスと、実際にアクセスしようとしているウェブサイトのアドレスが一致していません。これには、悪意のあるユーザーによって通信が傍受されているか、または複数のサイトで同じ証明書を返すようサーバーで設定しているにも関わらず、証明書が有効になっていないサイトが含まれている可能性があります。Google Chrome で検出されたアクセスは &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; で、それが &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; と同じサイトであるかどうかは確認できません。名前の不一致を無視してこのまま続行することもできますが、通常はここで操作を止めることをおすすめします。</translation>
+<translation id="9189723490960700326">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; にアクセスしようとしましたが、サーバーの証明書の有効期限が失効しています。証明書の失効後もセキュリティに問題がないことを確認する情報ありません。通信先が本当に <ph name="DOMAIN2"/> であるか Google Chrome で判断できないため、なりすましの可能性を完全には否定できません。ここで操作を止めてください。</translation>
+<translation id="6481075104394517441">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; にアクセスしようとしましたが、サーバーの証明書が有効ではありません。この証明書の信頼性について有効な情報がないため、通信先が本当に <ph name="DOMAIN2"/> であるか Google Chrome で判断できず、なりすましの可能性を完全には否定できません。コンピュータの時刻とタイムゾーンが正しく設定されていることを確認してください。設定に問題がある場合は、設定を修正してからこのページを更新してください。正しく設定されているにも関わらずこの警告が表示される場合は、ここで操作を止めてください。</translation>
+<translation id="1144950271450340860">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; にアクセスしようとしましたが、この証明書の発行元は、ご使用のオペレーティング システムで信頼されていません。サーバーのセキュリティ認証が独特なため Google Chrome で身元を特定できないか、または侵入者によって通信が傍受されている可能性があります。前にもこのサイトにアクセスしたことがあるのに&lt;strong&gt;今回初めて警告が表示された場合は&lt;/strong&gt;特に疑わしいため、ここで操作を止めてください。</translation>
+<translation id="6009537148180854585">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; にアクセスしようとしましたが、サーバーの証明書にエラーが含まれています。エラーのある証明書は Google Chrome で使用できないため、接続しようとしているサイトの身元を検証することができません。この接続は安全でないため、ここで操作を止めてください。</translation>
+<translation id="7106741999175697885">タスク マネージャ - Google Chrome</translation>
+<translation id="1195935957447623558">前回のセッション中に Google Chrome は強制終了されました。開いていたページをすべて復元するには、[復元] をクリックしてください。</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
+<translation id="2044287590254833138">Google Chrome ツールバー</translation>
+<translation id="8449380764213232436"><ph name="BROWSER_COMPONENT"/> から Google Chrome にインポートしています:</translation>
 <translation id="8562413501751825163">インポートする前に Firefox を終了してください</translation>
+<translation id="6626317981028933585">Mozilla Firefox の設定を Google Chrome にインポートするには、まず Firefox のウィンドウをすべて閉じてください。その後 [続行] をクリックしてください。</translation>
+<translation id="8446794773162156990">Google Chrome の動作がおかしい</translation>
+<translation id="7400722733683201933">Google Chrome について</translation>
+<translation id="3591558551793645824">Google Chrome をアンインストールしました。</translation>
+<translation id="8172671748763307156">Google Chrome をアンインストールしてもよろしいですか？</translation>
+<translation id="7161904924553537242">Google Chrome にようこそ</translation>
+<translation id="6921913858457830952">Google Chrome をインストールする準備ができました。</translation>
+<translation id="7241541963706135274">Google Chrome で次の処理が行われます:</translation>
+<translation id="7101265395643981223">Google Chrome を起動</translation>
+<translation id="2618799103663374905">Google Chrome のショートカットをデスクトップ、クイック起動バー、スタート メニューに追加</translation>
+<translation id="213581405366815208">Google Chrome のインストールをキャンセルしてよろしいですか？インストールを再開するときは、[スタート] メニューの [プログラム] フォルダから Chrome を起動してください。</translation>
+<translation id="5941830788786076944">Google Chrome を既定のブラウザにする</translation>
+<translation id="7001386529596391893">Google Chrome のショートカットを作成する場所:</translation>
 <translation id="480990236307250886">ホームページを開く</translation>
 <translation id="6514771739083339959">ホームページ:</translation>
 <translation id="1665770420914915777">新しいタブのページを表示する</translation>
 <translation id="4726901538158498735">既定の検索エンジン:</translation>
 <translation id="2231233239095101917">このページのスクリプトは大量のメモリを使用しています。スクリプトを有効にするには、ページを読み込み直してください。</translation>
+<translation id="8227755444512189073"><ph name="SCHEME"/> リンクを処理するには外部アプリケーションの起動が必要です。リクエストされたリンクは <ph name="PROTOLINK"/> です。</translation>
+<translation id="8236873504073475138">Google Chrome は Windows 2000 に対応していません。動作しない機能がある可能性があります。</translation>
+<translation id="3335672657969596251">Google Chrome は <ph name="OS_NAME"/> に対応していません。</translation>
+<translation id="1446473746922165495">Google Chrome の画面メニューの言語を変更します。</translation>
+<translation id="8810218179782551669">Google Chrome の言語:</translation>
+<translation id="7958215378280655655">Google Chrome オプションをリセットすると、これまでの変更がすべて消去され既定の設定に戻ります。Chrome オプションをリセットしてよろしいですか？</translation>
+<translation id="7100330187273168372">このディレクトリには Google Chrome はアクセスできません:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="3324235665723428530">バージョンが新しい Google Chrome のプロフィールは使用できません。\n\n一部の機能が使用できない可能性があります。別の場所のプロフィールを指定するか、新しいバージョンの Chrome をご使用ください</translation>
 <translation id="3319048459796106952">シークレット ウィンドウを開く(&amp;I)</translation>
 <translation id="1120026268649657149">キーワードは空白にするか、固有のものを指定してください</translation>
 <translation id="7481475534986701730">最近アクセスしたサイト</translation>
+<translation id="8815061062167142136">Google Chrome がクラッシュしました。再起動しますか？</translation>
+<translation id="3889417619312448367">Google Chrome をアンインストール</translation>
 <translation id="3169621169201401257">問題の詳細については、<ph name="DOMAIN"/> に関する Google <ph name="DIAGNOSTIC_PAGE"/>をご覧ください。</translation>
 <translation id="2356762928523809690">更新サーバーにアクセスできません (エラー: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">辞書に追加(&amp;A)</translation>
+<translation id="2499193704281978000">Google Chrome の応答がありません。再起動しますか？</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">Unicode</translation>
 <translation id="1702534956030472451">西欧</translation>
@@ -687,6 +733,7 @@
 <translation id="3761000923495507277">ツールバーにホーム ボタンを表示</translation>
 <translation id="5291303148298143069">ポップアップがブロックされたときに知らせる</translation>
 <translation id="3383487468758466563">フォントと言語:</translation>
+<translation id="1137776625614346046">ここには最もよく使うウェブサイトが表示されます。また、Google Chrome をある程度使い続けると、新しいタブを開いたときにもよく使うサイトが一覧表示されます。詳細については<ph name="BEGIN_LINK"/>スタートガイド<ph name="END_LINK"/>をご覧ください。</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>シークレット モードを使用中です<ph name="END_BOLD"/>。このウィンドウで開いたページはブラウザの履歴や検索履歴に残りません。このウィンドウを閉じると Cookie などの記録もパソコンから消去されます。ただし、ダウンロードしたファイルやブックマークしたページは保存されます。
         <ph name="LINE_BREAK"/>
         <ph name="BEGIN_BOLD"/>シークレット モードが他のユーザーやサーバー、ソフトウェアの動作に影響することはありません。なお、下記のようなケースにご注意ください。<ph name="END_BOLD"/>
@@ -700,4 +747,5 @@
         シークレット モードの詳細については<ph name="BEGIN_LINK"/>こちら<ph name="END_LINK"/>をご覧ください。</translation>
 <translation id="1604816462140255479">テキスト拡大(&amp;Z)</translation>
 <translation id="2089625293428655599">このソフトウェアの一部はサードパーティのライセンスを受けています: <ph name="URL"/></translation>
+<translation id="6817660909204164466">使用統計データや障害レポートを Google に自動送信して Google Chrome の機能向上に役立てる</translation>
 </translationbundle>

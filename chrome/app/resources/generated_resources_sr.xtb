@@ -13,6 +13,7 @@
 <translation id="5329858601952122676">&amp;Избриши</translation>
 <translation id="3873963583678942942">(Ненасловљено)</translation>
 <translation id="1232569758102978740">Ненасловљено</translation>
+<translation id="1759842336958782510">Chrome</translation>
 <translation id="6965382102122355670">Потврди</translation>
 <translation id="7658239707568436148">Откажи</translation>
 <translation id="6463795194797719782">&amp;Уреди</translation>
@@ -104,6 +105,7 @@
 <translation id="772440777491435074">Информације о сертификату...</translation>
 <translation id="987264212798334818">Опште</translation>
 <translation id="3435738964857648380">Безбедност</translation>
+<translation id="7869935834862642047"><ph name="PAGE_TITLE"/> - <ph name="APP_NAME"/></translation>
 <translation id="406259880812417922">(Кључна реч: <ph name="KEYWORD"/>)</translation>
 <translation id="1559333154119355392"><ph name="DOWNLOAD_SIZE"/>, довршено</translation>
 <translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/>, отказано</translation>
@@ -163,6 +165,7 @@
 <translation id="6426222199977479699">SSL грешка</translation>
 <translation id="5645845270586517071">Безбедносна грешка</translation>
 <translation id="3183922693828471536">Помери се овде</translation>
+<translation id="8439117394107194826">Након деинсталирања одведи ме на веб страницу са анкетом.</translation>
 <translation id="4610637590575890427">Да ли сте желели да одете на локацију <ph name="SITE"/></translation>
 <translation id="8182985032676093812">Извор URL адресе <ph name="PAGE_URL"/></translation>
 <translation id="4880827082731008257">Претражи историју</translation>
@@ -308,6 +311,9 @@
 <translation id="7629827748548208700">Картица: <ph name="TAB_NAME"/></translation>
 <translation id="6513615899227776181">Додатна компонента: <ph name="PLUGIN_NAME"/></translation>
 <translation id="7071586181848220801">Непозната додатна компонента</translation>
+<translation id="8540666473246803645">Google Chrome</translation>
+<translation id="3870154837782082782">Google Inc.</translation>
+<translation id="6622748519798088408">Copyright © 2006-2008 Google Inc. Сва права задржана.</translation>
 <translation id="6479177161510354016">Обавештење <ph name="SITE"/></translation>
 <translation id="333371639341676808">Спречите ову страницу да прави додатне дијалоге.</translation>
 <translation id="5295309862264981122">Потврда навигације</translation>
@@ -330,6 +336,7 @@
 <translation id="2266011376676382776">Страница(е) се не одазива(ју)</translation>
 <translation id="1110155001042129815">Сачекај</translation>
 <translation id="1684861821302948641">Затвори странице</translation>
+<translation id="6134282421960734039">Желите ли да Chrome сачува вашу лозинку?</translation>
 <translation id="5271549068863921519">Сачувај лозинку</translation>
 <translation id="7484645889979462775">Никада за овај сајт</translation>
 <translation id="4195643157523330669">Отвори у новој &amp;картици</translation>
@@ -428,6 +435,7 @@
 <translation id="8609465669617005112">Премести нагоре</translation>
 <translation id="6746124502594467657">Премести надоле</translation>
 <translation id="8241707690549784388">Страница коју тражите користила је информације које сте унели. Повратак на ту страницу може да проузрокује потребну понављања радњи које сте извршили. Желите ли да наставите?</translation>
+<translation id="1964682833763362793">Затворите све прозоре Chrome прегледача и покушајте поново.</translation>
 <translation id="5333374927882515515">Увези обележиваче, лозинке и остала подешавања из <ph name="DEF_BROWSER"/> прегледача</translation>
 <translation id="8256087479641463867">Прилагодите своја подешавања</translation>
 <translation id="7789175495288668515">Промените подразумеване опције инсталирања.</translation>
@@ -435,6 +443,7 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">Трака „Брзо покретање“</translation>
+<translation id="1549918799472947005">Chrome користи ваш подразумевани претраживач, који је тренутно постављен на <ph name="PAGE_TITLE"/>. Желите ли да задржите свој подразумевани претраживач?</translation>
 <translation id="74568296546932365">Задржи <ph name="PAGE_TITLE"/> као подразумевани претраживач</translation>
 <translation id="8288345061925649502">Промени претраживач</translation>
 <translation id="3037605927509011580">О, не!</translation>
@@ -566,6 +575,7 @@
 <translation id="2441719842399509963">Врати на подразумеване вредности</translation>
 <translation id="1208126399996836490">Немој да ресетујеш</translation>
 <translation id="3122496702278727796">Прављење директоријума са подацима није успело</translation>
+<translation id="5046764976540625289">Напусти Chrome</translation>
 <translation id="5034259512732355072">Одабери други директоријум...</translation>
 <translation id="2160383474450212653">Фонтови и језици</translation>
 <translation id="5042992464904238023">Веб садржај</translation>
@@ -602,6 +612,7 @@
 <translation id="4307992518367153382">Основне</translation>
 <translation id="1709220265083931213">Напредне опције</translation>
 <translation id="1674989413181946727">SSL подешавања на нивоу рачунара:</translation>
+<translation id="582763753075639530">Затворите све прозоре Chrome прегледача и поново покрените Chrome да би ова промена ступила на снагу.</translation>
 <translation id="9015241028623917394">Контролишите тренутну страницу</translation>
 <translation id="8502249598105294518">Прилагодите и контролишите <ph name="PRODUCT_NAME"/></translation>
 <translation id="4475552974751346499">Претражи преузимања</translation>
@@ -611,6 +622,7 @@
 <translation id="8725178340343806893">Омиљено/Обележивачи</translation>
 <translation id="873849583815421063">Довршавање...</translation>
 <translation id="2960316970329790041">Прекини увоз</translation>
+<translation id="5016204670686360703">Ако сада откажете, неће бити увезене све ставке. Касније можете поново да извршите увоз из Chrome менија.</translation>
 <translation id="7642109201157405070">Настави увоз</translation>
 <translation id="5508407262627860757">Ипак откажи</translation>
 <translation id="290414493736480793">Потврде</translation>
@@ -647,18 +659,52 @@
 <translation id="7925285046818567682">Чека се <ph name="HOST_NAME"/>...</translation>
 <translation id="2021921916539001817">Пренос са <ph name="HOST_NAME"/>...</translation>
 <translation id="6698381487523150993">Направљено:</translation>
+<translation id="4127951844153999091">У овом случају, адреса наведена у сертификату не подудара се са адресом веб сајта на коју је ваш прегледач покушао да оде. Један од могућих разлога је тај да је ваше комуникације пресрео нападач који представља сертификат за неки други веб сајт, што доводи до неподударања. Други могући разлог је тај да је сервер конфигурисан тако да врати исти сертификат за више веб сајтова, укључујући онај који покушавате да посетите, иако тај сертификат није важећи за све те веб сајтове. Google Chrome може поуздано да утврди да сте дошли до &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, али не може да верификује да је у питању исти сајт као &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; који сте намеравали да посетите. Ако наставите, Chrome више неће проверавати да ли постоје неподударања. У принципу, најбоље је да не настављате даље.</translation>
+<translation id="9189723490960700326">Покушали сте да дођете до домена &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, али сервер је представио сертификат који је истекао. Нема расположивих информација које би указале на то да ли је сертификат угрожен након његовог истека. Ово значи да Google Chrome не може да гарантује да комуницирате са сајтом &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; а не са нападачем. Не би требало да наставите.</translation>
+<translation id="6481075104394517441">Покушали сте да дођете до домена &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, али сервер је представио сертификат који још увек није важећи. Нема расположивих информација које би указале на то да ли овај сертификат може да буде поуздан. Google Chrome не може да гарантује да комуницирате са сајтом &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; а не са нападачем. Требало би да проверите да ли су сат и временска зона исправно подешени на вашем рачунару. Ако нису, требало би да исправите све проблеме и освежите ову страницу. Ако су тачни, требало би да наставите.</translation>
+<translation id="1144950271450340860">Покушали сте да дођете до &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, али сервер је представио сертификат који је издао ентитет који није поуздан за оперативни систем вашег рачунара. Ово може да указује на то да је сервер генерисао сопствене безбедносне акредитиве које Google Chrome не може да прихвати као поуздане податке о идентитету или нападач можда покушава да пресретне вашу комуникацију. Не би требало да наставите, &lt;strong&gt;посебно&lt;/strong&gt; ако никада раније нисте видели ово упозорење за овај сајт.</translation>
+<translation id="6009537148180854585">Покушали сте да дођете до &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, али сертификат који је представио сервер садржи грешке. Google Chrome не може да користи сертификат са грешкама и не може да потврди веродостојност сајта са којим сте покушали да се повежете. Ваша веза није безбедна и не би требало да наставите.</translation>
+<translation id="7106741999175697885">Менаџер задатака – Google Chrome</translation>
+<translation id="1195935957447623558">Google Chrome се није правилно затворио. Да бисте поново отворили странице које сте раније отворили, кликните на „Поново отвори“.</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> – Google Chrome</translation>
+<translation id="2044287590254833138">Google Chrome Toolbar</translation>
+<translation id="8449380764213232436">Google Chrome тренутно увози следеће ставке из <ph name="BROWSER_COMPONENT"/>:</translation>
 <translation id="8562413501751825163">Затворите Firefox пре увоза</translation>
+<translation id="6626317981028933585">Нажалост, није могуће приступити подешавањима за Mozilla Firefox док се тај прегледач користи. Да бисте увезли ова подешавања у Google Chrome, сачувајте оно што се урадили и затворите све прозоре Firefox прегледача. Затим кликните на „Настави“.</translation>
+<translation id="8446794773162156990">Google Chrome има проблема у раду</translation>
+<translation id="7400722733683201933">О програму Google Chrome</translation>
+<translation id="3591558551793645824">Google Chrome је успешно деинсталиран. До виђења!</translation>
+<translation id="8172671748763307156">Желите ли заиста да деинсталирате Google Chrome? (Да ли смо рекли нешто што не треба?)</translation>
+<translation id="7161904924553537242">Добро дошли у Google Chrome</translation>
+<translation id="6921913858457830952">Google Chrome може да доврши инсталацију.</translation>
+<translation id="7241541963706135274">Google Chrome ће обавити следеће задатке:</translation>
+<translation id="7101265395643981223">Покрените Google Chrome</translation>
+<translation id="2618799103663374905">Додајте пречице за Google Chrome на свој радну површину, на траку „Брзо покретање“ и у „Старт“ мени</translation>
+<translation id="213581405366815208">Желите ли заиста да откажете инсталирање програма Google Chrome? Ако желите да наставите касније, отворите Chrome у директоријуму са програмима у менију „Старт“.</translation>
+<translation id="5941830788786076944">Подесите Google Chrome као подразумевани прегледач</translation>
+<translation id="7001386529596391893">Направите пречице за Google Chrome на овим местима:</translation>
 <translation id="480990236307250886">Отвори почетну страницу</translation>
 <translation id="6514771739083339959">Почетна страница:</translation>
 <translation id="1665770420914915777">Користите страницу „Нова картица“</translation>
 <translation id="4726901538158498735">Подразумевана претрага:</translation>
 <translation id="2231233239095101917">Скрипта на овој страници је заузела превише меморије. Поново је учитајте да бисте поново омогућили скрипте.</translation>
+<translation id="8227755444512189073">Google Chrome мора да покрене спољну апликацију за управљање <ph name="SCHEME"/> везама. Тражена веза је <ph name="PROTOLINK"/>.</translation>
+<translation id="8236873504073475138">Google Chrome не подржава Windows 2000. Неке функције можда неће радити.</translation>
+<translation id="3335672657969596251">Google Chrome не подржава <ph name="OS_NAME"/>.</translation>
+<translation id="1446473746922165495">Промените језик Google Chrome менија, оквира за дијалоге и описа алатки.</translation>
+<translation id="8810218179782551669">Језик програма Google Chrome:</translation>
+<translation id="7958215378280655655">Када поништите опције за Google Chrome, све новонастале промене биће опозване и биће враћена подразумевана подешавања. Желите ли да поништите опције за Chrome?</translation>
+<translation id="7100330187273168372">Google Chrome не може да прочита нити да упише податке у свој директоријум са подацима:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="3324235665723428530">Ваш профил не може да се користи пошто припада новијој верзији програма Google Chrome.\n\nНеке функције можда нису доступне. Наведите други директоријум профила или користите новију верзију програма Chrome.</translation>
 <translation id="3319048459796106952">Нови &amp;прозор „Без архивирања“</translation>
 <translation id="1120026268649657149">Кључна реч мора да постоји или да буде јединствена</translation>
 <translation id="7481475534986701730">Недавно посећени сајтови</translation>
+<translation id="8815061062167142136">Ха! Google Chrome је престао да ради. Желите ли да га одмах поново покренете?</translation>
+<translation id="3889417619312448367">Деинсталирај Google Chrome</translation>
 <translation id="3169621169201401257">За детаљне информације о проблемима са овим елементима, посетите Google <ph name="DIAGNOSTIC_PAGE"/> за <ph name="DOMAIN"/>.</translation>
 <translation id="2356762928523809690">Сервер за ажурирање није доступан (грешка: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">&amp;Додај у речник</translation>
+<translation id="2499193704281978000">Google Chrome не реагује. Желите ли да га одмах поново покренете?</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">Уникод</translation>
 <translation id="1702534956030472451">западни</translation>
@@ -685,7 +731,9 @@
 <translation id="3761000923495507277">Прикажи дугме „Почетак“ на траци са алаткама</translation>
 <translation id="5291303148298143069">Обавести ме кад год буде блокиран неки искачући прозор</translation>
 <translation id="3383487468758466563">Фонтови и језици:</translation>
+<translation id="1137776625614346046">Област „Најпосећенији“ приказује веб сајтове које најчешће посећујете. Након што извесно време будете користили Google Chrome, сваки пут када отворите нову картицу видећете сајтове које најчешће посећујете. О овој и осталим функцијама више ћете сазнати на <ph name="BEGIN_LINK"/>страници „Први кораци“<ph name="END_LINK"/>.</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Пребацили сте се на „Без архивирања“<ph name="END_BOLD"/>. Странице које буду приказане у овом прозору неће се појавити у историји вашег прегледача ни у историји претраге, нити ће оставити било какве друге трагове, рецимо колачиће, на вашем рачунару након што затворите прозор „Без архивирања“. Међутим, све датотеке које будете преузели и обележивачи које направите биће сачувани.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Ако се пребаците на „Без архивирања“, то неће утицати на понашање других особа, сервера и софтвера. Заштитите се од:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>веб сајтова који прикупљају или деле информације о вама<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>добављача интернет услуга или послодаваца који прате странице које посећујете<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>злонамерног софтвера који прати оно што куцате на тастатури, а за узврат добијате бесплатне смајлије<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>праћење од стране тајних агената<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>особа које стоје иза вас<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Сазнајте више<ph name="END_LINK"/> о прегледању без архивирања.</translation>
 <translation id="1604816462140255479">&amp;Зумирање текста</translation>
 <translation id="2089625293428655599">Delom te programske opreme so licence odobrila druga podjetja, kot je opisano na strani: <ph name="URL"/></translation>
+<translation id="6817660909204164466">Pomagajte izboljšati Chrome s samodejnim pošiljanjem statistike uporabe in poročil o zrušitvah Googlu</translation>
 </translationbundle>

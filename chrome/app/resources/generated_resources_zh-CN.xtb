@@ -13,6 +13,7 @@
 <translation id="5329858601952122676">删除(&amp;D)</translation>
 <translation id="3873963583678942942">（无标题）</translation>
 <translation id="1232569758102978740">无标题</translation>
+<translation id="1759842336958782510">Chrome</translation>
 <translation id="6965382102122355670">确定</translation>
 <translation id="7658239707568436148">取消</translation>
 <translation id="6463795194797719782">修改(&amp;E)</translation>
@@ -104,6 +105,7 @@
 <translation id="772440777491435074">证书信息...</translation>
 <translation id="987264212798334818">常规</translation>
 <translation id="3435738964857648380">安全</translation>
+<translation id="7869935834862642047"><ph name="PAGE_TITLE"/> - <ph name="APP_NAME"/></translation>
 <translation id="406259880812417922">（关键字： <ph name="KEYWORD"/>）</translation>
 <translation id="1559333154119355392"><ph name="DOWNLOAD_SIZE"/>，已完成</translation>
 <translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/>，已取消</translation>
@@ -164,6 +166,7 @@
 <translation id="6426222199977479699">SSL 错误</translation>
 <translation id="5645845270586517071">安全错误</translation>
 <translation id="3183922693828471536">滚动到此处</translation>
+<translation id="8439117394107194826">卸载后将我带至调查网页。</translation>
 <translation id="4610637590575890427">您的意思是想浏览 <ph name="SITE"/> 吗?</translation>
 <translation id="8182985032676093812"><ph name="PAGE_URL"/> 的来源</translation>
 <translation id="4880827082731008257">搜索历史记录</translation>
@@ -323,6 +326,9 @@
 <translation id="7629827748548208700">标签： <ph name="TAB_NAME"/></translation>
 <translation id="6513615899227776181">插件： <ph name="PLUGIN_NAME"/></translation>
 <translation id="7071586181848220801">未知插件</translation>
+<translation id="8540666473246803645">谷歌浏览器</translation>
+<translation id="3870154837782082782">Google Inc.</translation>
+<translation id="6622748519798088408">Copyright © 2006-2008 Google Inc. 保留所有权利。</translation>
 <translation id="6479177161510354016">通知 <ph name="SITE"/></translation>
 <translation id="333371639341676808">阻止此页创建其他对话。</translation>
 <translation id="5295309862264981122">确认导航</translation>
@@ -345,6 +351,7 @@
 <translation id="2266011376676382776">网页不响应</translation>
 <translation id="1110155001042129815">等待</translation>
 <translation id="1684861821302948641">关闭网页</translation>
+<translation id="6134282421960734039">您是否希望 Chrome 保存您的密码？</translation>
 <translation id="5271549068863921519">保存密码</translation>
 <translation id="7484645889979462775">此网站永远不保存</translation>
 <translation id="4195643157523330669">在新标签页中打开</translation>
@@ -444,6 +451,7 @@
 <translation id="8609465669617005112">上移</translation>
 <translation id="6746124502594467657">下移</translation>
 <translation id="8241707690549784388">您所查找的网页要使用已输入的信息。 返回此页可能需要重复已进行的所有操作。 是否继续？</translation>
+<translation id="1964682833763362793">请关闭所有 Chrome 窗口重试。</translation>
 <translation id="5333374927882515515">从 <ph name="DEF_BROWSER"/> 汇入书籤、密码及其他设定。</translation>
 <translation id="8256087479641463867">自定义您的设置</translation>
 <translation id="7789175495288668515">更改默认安装选项。</translation>
@@ -451,6 +459,7 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">快速启动栏</translation>
+<translation id="1549918799472947005">Google 浏览器使用您的预设搜寻引擎，而目前的设定为 <ph name="PAGE_TITLE"/>。您想要保留您的预设搜寻引擎吗?</translation>
 <translation id="74568296546932365">保留 <ph name="PAGE_TITLE"/> 为预设搜寻引擎</translation>
 <translation id="8288345061925649502">更改搜索引擎</translation>
 <translation id="3037605927509011580">喔唷，崩溃啦！</translation>
@@ -582,6 +591,7 @@
 <translation id="2441719842399509963">重置为默认值</translation>
 <translation id="1208126399996836490">不要重置</translation>
 <translation id="3122496702278727796">无法创建数据目录</translation>
+<translation id="5046764976540625289">退出 Chrome</translation>
 <translation id="5034259512732355072">选择另一目录...</translation>
 <translation id="2160383474450212653">字体和语言</translation>
 <translation id="5042992464904238023">网络内容</translation>
@@ -618,6 +628,7 @@
 <translation id="4307992518367153382">基本信息</translation>
 <translation id="1709220265083931213">高级选项</translation>
 <translation id="1674989413181946727">整个计算机的 SSL 设置：</translation>
+<translation id="582763753075639530">请关闭所有 Chrome 窗口并重新启动 Chrome，以便使这项更改生效。</translation>
 <translation id="9015241028623917394">控制当前页</translation>
 <translation id="8502249598105294518">此功能表用来自订及控制 <ph name="PRODUCT_NAME"/></translation>
 <translation id="4475552974751346499">搜索下载</translation>
@@ -627,6 +638,7 @@
 <translation id="8725178340343806893">收藏夹/书签</translation>
 <translation id="873849583815421063">即将完成...</translation>
 <translation id="2960316970329790041">停止导入</translation>
+<translation id="5016204670686360703">如果您现在取消，就无法将所有项目导入。 以后您可以从 Chrome 菜单再次导入。</translation>
 <translation id="7642109201157405070">继续导入</translation>
 <translation id="5508407262627860757">仍然取消</translation>
 <translation id="290414493736480793">确认</translation>
@@ -663,18 +675,52 @@
 <translation id="7925285046818567682">等待 <ph name="HOST_NAME"/>...</translation>
 <translation id="2021921916539001817">正在从 <ph name="HOST_NAME"/> 传送...</translation>
 <translation id="6698381487523150993">已创建：</translation>
+<translation id="4127951844153999091">这种情况下，证书所列地址与您的浏览器设法访问的网址不匹配。 发生这一情况的一个可能原因是：您的通信为攻击者所拦截，攻击者提供了其他网站的证书，从而导致不匹配。 另一个可能的原因是服务器被设置为为包括您试图访问的网站在内的多个网站返回同一证书，尽管此证书并不是对所有这些网站都有效。 谷歌浏览器确定您已访问到 &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;，但不能验证该网站就是您要访问的网站 &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;。 如果您继续，谷歌浏览器将不会进一步检查任何名称的不匹配。 一般而言，最好不要绕开这一点。</translation>
+<translation id="9189723490960700326">您试图访问 &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;，但是其服务器出具的证书已过期。 找不到说明此证书在过期后是否已遭破坏的任何信息。 这意味着，谷歌浏览器不能保证您正在通信的就是 &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;，也无法保证它不属于攻击网站。 您不应再继续。</translation>
+<translation id="6481075104394517441">您试图访问 &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;，但是其服务器出具的证书已过期。 找不到说明能否信任此证书的任何信息。 谷歌浏览器不能保证您正在通信的就是 &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;，也无法保证它不属于攻击网站。 您应该确认正确设置了计算机的时钟和时区。 如果未正确设置，请更正所有问题，然后刷新此页。 如果已正确设置，您就不应再继续。</translation>
+<translation id="1144950271450340860">您试图访问 &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;，但是您计算机的操作系统不信任颁发服务器所出具证书的实体。 可能是服务器自行生成了安全凭据，而谷歌浏览器认为无法据以获得可靠身份信息；也可能是攻击者正设法拦截您的通信。 您不应再继续，&lt;strong&gt;尤其&lt;/strong&gt;是如果您以前从未在此网站看到这一警告信息，则更不应继续操作。</translation>
+<translation id="6009537148180854585">您试图访问 &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;，但是其服务器出具的证书包含错误。 谷歌浏览器无法使用包含错误的证书，也无法验证您试图连接的网站的身份。 您的连接不安全，不应再继续。</translation>
+<translation id="7106741999175697885">任务管理器 - 谷歌浏览器</translation>
+<translation id="1195935957447623558">谷歌浏览器未正确关闭。 要重新打开曾经打开过的网页，请点击“恢复”。</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - 谷歌浏览器</translation>
+<translation id="2044287590254833138">谷歌浏览器工具栏</translation>
+<translation id="8449380764213232436">谷歌浏览器正在从<ph name="BROWSER_COMPONENT"/>导入以下项目：</translation>
 <translation id="8562413501751825163">导入之前关闭 Firefox</translation>
+<translation id="6626317981028933585">很抱歉，无法在 Mozilla Firefox 浏览器运行时使用其设置。 要将其设置导入到谷歌浏览器，请保存并关闭所有 Firefox 窗口。 然后点击“继续”。</translation>
+<translation id="8446794773162156990">谷歌浏览器行为不正常</translation>
+<translation id="7400722733683201933">关于谷歌浏览器</translation>
+<translation id="3591558551793645824">谷歌浏览器已成功卸载。 再见！</translation>
+<translation id="8172671748763307156">您确定要卸载谷歌浏览器吗？ （是不是谷歌浏览器给您带来麻烦了？）</translation>
+<translation id="7161904924553537242">欢迎使用谷歌浏览器</translation>
+<translation id="6921913858457830952">谷歌浏览器已准备好完成安装。</translation>
+<translation id="7241541963706135274">谷歌浏览器将完成以下操作：</translation>
+<translation id="7101265395643981223">启动谷歌浏览器</translation>
+<translation id="2618799103663374905">将谷歌浏览器的快捷方式添加到您的桌面、快速启动栏以及“开始”菜单</translation>
+<translation id="213581405366815208">您确定要取消对谷歌浏览器的安装吗？ 如果您希望稍后继续，请从“开始”菜单“程序”文件夹打开谷歌浏览器。</translation>
+<translation id="5941830788786076944">将谷歌浏览器设为默认浏览器</translation>
+<translation id="7001386529596391893">在这些位置创建谷歌浏览器快捷方式：</translation>
 <translation id="480990236307250886">打开主页</translation>
 <translation id="6514771739083339959">主页：</translation>
 <translation id="1665770420914915777">使用新标签页</translation>
 <translation id="4726901538158498735">默认搜索：</translation>
 <translation id="2231233239095101917">该网页脚本占用内存过多。 请重新加载以重新启用脚本。</translation>
+<translation id="8227755444512189073">谷歌浏览器需要启动外部应用程序来处理 <ph name="SCHEME"/> 链接。 请求的链接为 <ph name="PROTOLINK"/>。</translation>
+<translation id="8236873504073475138">谷歌浏览器不支持 Windows 2000。 某些功能可能无法正常工作。</translation>
+<translation id="3335672657969596251">谷歌浏览器不支持 <ph name="OS_NAME"/>。</translation>
+<translation id="1446473746922165495">更改谷歌浏览器菜单、对话框和工具提示所用的语言。</translation>
+<translation id="8810218179782551669">谷歌浏览器语言：</translation>
+<translation id="7958215378280655655">如果您重置谷歌浏览器选项，您所做的所有更改将还原为默认设置。 您是否希望重置 Chrome 选项？</translation>
+<translation id="7100330187273168372">谷歌浏览器无法对其以下位置的数据目录进行读写操作：\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="3324235665723428530">由于您的配置文件来自更高版本的谷歌浏览器，因此不可用。\n\n某些功能可能无法使用。 请指定一个不同的配置文件目录或使用更高版本的谷歌浏览器。</translation>
 <translation id="3319048459796106952">新隐身窗口(&amp;I)</translation>
 <translation id="1120026268649657149">关键字必须为空或独一无二</translation>
 <translation id="7481475534986701730">最近访问的网站</translation>
+<translation id="8815061062167142136">哎呀！ 谷歌浏览器崩溃了。 现在重新启动？</translation>
+<translation id="3889417619312448367">卸载谷歌浏览器</translation>
 <translation id="3169621169201401257">有关这些元素的问题的详情，请访问 <ph name="DOMAIN"/> 的 Google <ph name="DIAGNOSTIC_PAGE"/>。</translation>
 <translation id="2356762928523809690">无法获得更新服务器（错误：<ph name="ERROR_NUMBER"/>）</translation>
 <translation id="1017280919048282932">添加到字典(&amp;A)</translation>
+<translation id="2499193704281978000">谷歌浏览器没有反应。 现在重新启动？</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">Unicode</translation>
 <translation id="1702534956030472451">西欧语言</translation>
@@ -701,7 +747,9 @@
 <translation id="3761000923495507277">在工具栏上显示主页按钮</translation>
 <translation id="5291303148298143069">当弹出式窗口被阻止时通知我</translation>
 <translation id="3383487468758466563">字体和语言：</translation>
+<translation id="1137776625614346046">“最常访问的网站”区域显示您最常访问的网站。 使用谷歌浏览器一段时间后，只要打开新的标签页，您就会看到最常访问的网站。 您可在<ph name="BEGIN_LINK"/>使用入门页<ph name="END_LINK"/>了解有关此功能和其他功能的详情。</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>您已经隐身了<ph name="END_BOLD"/>。 您在此窗口查看的网页将不会显示在浏览器历史记录或搜索历史记录中，并且在您关闭隐身窗口后，这些网页也不会在您的计算机上留下其他记录，例如 Cookie。 不过，您下载的所有文件或创建的书签都会被保存。        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>隐身状态并不影响其他人、服务器或软件的行为。 请警惕：<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>收集或共享有关您的信息的网站<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>跟踪您所访问的网页的互联网服务提供商或雇主<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>跟踪您为获取免费笑脸图标所用按键的恶意软件<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>间谍的监视<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>站在您身后的人<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>了解<ph name="END_LINK"/>有关隐身浏览的详情。</translation>
 <translation id="1604816462140255479">文字缩放(&amp;Z)</translation>
 <translation id="2089625293428655599">此软件中的某些部分授权自下述网址中的第三方：<ph name="URL"/></translation>
+<translation id="6817660909204164466">将使用统计信息和崩溃报告自动发送给谷歌，帮助我们完善谷歌浏览器</translation>
 </translationbundle>

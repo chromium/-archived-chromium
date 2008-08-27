@@ -13,6 +13,7 @@
 <translation id="5329858601952122676">&amp;Löschen</translation>
 <translation id="3873963583678942942">(Unbenannt)</translation>
 <translation id="1232569758102978740">Unbenannt</translation>
+<translation id="1759842336958782510">Chrome</translation>
 <translation id="6965382102122355670">OK</translation>
 <translation id="7658239707568436148">Abbrechen</translation>
 <translation id="6463795194797719782">B&amp;earbeiten</translation>
@@ -104,6 +105,7 @@
 <translation id="772440777491435074">Zertifikatinformationen...</translation>
 <translation id="987264212798334818">Allgemein</translation>
 <translation id="3435738964857648380">Sicherheit</translation>
+<translation id="7869935834862642047"><ph name="PAGE_TITLE"/> - <ph name="APP_NAME"/></translation>
 <translation id="406259880812417922">(Suchkürzel: <ph name="KEYWORD"/>)</translation>
 <translation id="1559333154119355392"><ph name="DOWNLOAD_SIZE"/> abgeschlossen</translation>
 <translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/>, abgebrochen</translation>
@@ -164,6 +166,7 @@
 <translation id="6426222199977479699">SSL-Fehler</translation>
 <translation id="5645845270586517071">Sicherheitsfehler</translation>
 <translation id="3183922693828471536">Hierher blättern</translation>
+<translation id="8439117394107194826">Leiten Sie mich nach der Deinstallation zur Umfragewebseite weiter.</translation>
 <translation id="4610637590575890427">Wollten Sie <ph name="SITE"/> aufrufen?</translation>
 <translation id="8182985032676093812">Quelle von <ph name="PAGE_URL"/></translation>
 <translation id="4880827082731008257">Verlauf durchsuchen</translation>
@@ -309,6 +312,9 @@
 <translation id="7629827748548208700">Tab: <ph name="TAB_NAME"/></translation>
 <translation id="6513615899227776181">Plug-in: <ph name="PLUGIN_NAME"/></translation>
 <translation id="7071586181848220801">Unbekanntes Plug-in</translation>
+<translation id="8540666473246803645">Google Chrome</translation>
+<translation id="3870154837782082782">Google Inc.</translation>
+<translation id="6622748519798088408">Copyright &amp;copy; 2006-2008 Google Inc. Alle Rechte vorbehalten.</translation>
 <translation id="6479177161510354016">Warnmeldung <ph name="SITE"/></translation>
 <translation id="333371639341676808">Diese Seite am Erstellen zusätzlicher Dialoge hindern.</translation>
 <translation id="5295309862264981122">Navigation bestätigen</translation>
@@ -331,6 +337,7 @@
 <translation id="2266011376676382776">Seite(n) reagiert/en nicht</translation>
 <translation id="1110155001042129815">Warten</translation>
 <translation id="1684861821302948641">Seiten beenden</translation>
+<translation id="6134282421960734039">Möchten Sie, dass Google Chrome Ihr Passwort speichert?</translation>
 <translation id="5271549068863921519">Passwort speichern</translation>
 <translation id="7484645889979462775">Für diese Website niemals</translation>
 <translation id="4195643157523330669">In neuem Tab öffnen</translation>
@@ -430,6 +437,7 @@
 <translation id="8609465669617005112">Nach oben</translation>
 <translation id="6746124502594467657">Nach unten</translation>
 <translation id="8241707690549784388">Die gesuchte Seite hat die von Ihnen eingegebenen Informationen verwendet bzw. verarbeitet. Wenn Sie zu dieser Seite zurückgehen, wird möglicherweise eine bereits ausgeführte Aktion wiederholt. Möchten Sie fortfahren?</translation>
+<translation id="1964682833763362793">Schließen Sie alle Chrome-Fenster und versuchen Sie es erneut.</translation>
 <translation id="5333374927882515515">Lesezeichen, Passwörter und andere Einstellungen von <ph name="DEF_BROWSER"/> importieren</translation>
 <translation id="8256087479641463867">Einstellungen anpassen</translation>
 <translation id="7789175495288668515">Ändern Sie die Standardinstallationsoptionen.</translation>
@@ -437,6 +445,7 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">Schnellstartleiste</translation>
+<translation id="1549918799472947005">Google Chrome verwendet Ihre Standardsuchmaschine, für die zurzeit <ph name="PAGE_TITLE"/> festgelegt ist. Möchten Sie die Standardsuchmaschine beibehalten?</translation>
 <translation id="74568296546932365"><ph name="PAGE_TITLE"/> als Standardsuchmaschine beibehalten</translation>
 <translation id="8288345061925649502">Suchmaschine ändern</translation>
 <translation id="3037605927509011580">So'n Mist!</translation>
@@ -568,6 +577,7 @@
 <translation id="2441719842399509963">Auf Standardeinstellungen zurücksetzen</translation>
 <translation id="1208126399996836490">Nicht zurücksetzen</translation>
 <translation id="3122496702278727796">Erstellen eines Datenverzeichnisses fehlgeschlagen</translation>
+<translation id="5046764976540625289">Google Chrome beenden</translation>
 <translation id="5034259512732355072">Anderes Verzeichnis wählen...</translation>
 <translation id="2160383474450212653">Schriftarten und Sprachen</translation>
 <translation id="5042992464904238023">Web-Content</translation>
@@ -604,6 +614,7 @@
 <translation id="4307992518367153382">Grundeinstellungen</translation>
 <translation id="1709220265083931213">Details</translation>
 <translation id="1674989413181946727">SSL-Einstellungen für den ganzen Computer:</translation>
+<translation id="582763753075639530">Schließen Sie alle Google Chrome-Fenster und starten Sie Chrome neu, damit diese Änderung wirksam wird.</translation>
 <translation id="9015241028623917394">Aktuelle Seite bearbeiten</translation>
 <translation id="8502249598105294518"><ph name="PRODUCT_NAME"/> anpassen</translation>
 <translation id="4475552974751346499">Downloads durchsuchen</translation>
@@ -613,6 +624,7 @@
 <translation id="8725178340343806893">Favoriten/Lesezeichen</translation>
 <translation id="873849583815421063">Wird fertiggestellt...</translation>
 <translation id="2960316970329790041">Import anhalten</translation>
+<translation id="5016204670686360703">Wenn Sie jetzt abbrechen, werden nicht alle Elemente importiert. Sie können später erneut Elemente aus dem Google Chrome-Menü importieren.</translation>
 <translation id="7642109201157405070">Import fortsetzen</translation>
 <translation id="5508407262627860757">Trotzdem abbrechen</translation>
 <translation id="290414493736480793">Danksagungen</translation>
@@ -649,18 +661,52 @@
 <translation id="7925285046818567682">Warten auf <ph name="HOST_NAME"/>...</translation>
 <translation id="2021921916539001817">Übertragen von <ph name="HOST_NAME"/>...</translation>
 <translation id="6698381487523150993">Erstellt:</translation>
+<translation id="4127951844153999091">In diesem Fall stimmt die im Zertifikat aufgeführte Adresse nicht mit der Adresse der Website ein, zu der Ihr Browser wechseln wollte. Ein möglicher Grund hierfür ist, dass Ihre Kommunikation von einem Hacker abgefangen wird, der sich mit einem Zertifikat für eine andere Website ausweist, was eine Abweichung verursachen könnte. Ein weiterer möglicher Grund ist, dass der Server so eingerichtet ist, dass er dasselbe Zertifikat für mehrere Websites zurückgibt, auch für diejenige, die Sie gerade besuchen möchten, obwohl dieses Zertifikat nicht für alle diese Websites gültig ist. Google Chrome garantiert, dass Sie auf &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; zugegriffen haben, kann aber nicht bestätigen, dass es sich um dieselbe Website wie &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; handelt, die Sie aufrufen möchten. Wenn Sie fortfahren, wird Chrome keine weiteren Namensabweichungen überprüfen. Im Allgemeinen ist es am besten, hier nicht fortzufahren.</translation>
+<translation id="9189723490960700326">Sie haben versucht, auf &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; zuzugreifen. Der Server hat sich jedoch mit einem abgelaufenen Zertifikat ausgewiesen. Es sind keine Informationen verfügbar, um eine Manipulation des Zertifikats seit seinem Ablauf auszuschließen. Google Chrome kann deshalb nicht garantieren, dass Sie mit &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; und nicht mit einem Hacker kommunizieren. Fahren Sie nicht fort.</translation>
+<translation id="6481075104394517441">Sie haben versucht auf &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; zuzugreifen. Der Server hat sich jedoch mit einem Zertifikat ausgewiesen, das noch nicht gültig ist. Es sind keine Informationen zur Vertrauenswürdigkeit des Zertifikats verfügbar. Google Chrome kann deshalb nicht zuverlässig garantieren, dass Sie mit &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; und nicht mit einem Hacker kommunizieren. Stellen Sie sicher, dass Uhrzeit und Zeitzone auf dem Computer richtig eingestellt sind. Ist dies nicht der Fall, korrigieren Sie diese Werte und aktualisieren Sie diese Seite. Sind sie korrekt, sollten Sie nicht fortfahren.</translation>
+<translation id="1144950271450340860">Sie haben versucht, &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; aufzurufen. Der Server hat sich jedoch mit einem Zertifikat ausgewiesen, das von einer Entität ausgestellt wurde, die vom Betriebssystem Ihres Computers als nicht vertrauenswürdig eingestuft wurde. Dies bedeutet möglicherweise, dass der Server seine eigenen Anmeldeinformationen erzeugt hat, auf die Google Chrome als Identitätsinformationen nicht vertrauen kann, oder dass ein Hacker versucht, Ihre Kommunikation abzufangen. Fahren Sie nicht fort, &lt;strong&gt;insbesondere&lt;/strong&gt; wenn diese Warnung für diese Website vorher noch nie erschienen ist.</translation>
+<translation id="6009537148180854585">Sie haben versucht, auf &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; zuzugreifen. Der Server hat sich jedoch mit einem fehlerhaften Zertifikat ausgewiesen. Google Chrome kann kein Zertifikat mit Fehlern verwenden und die Identität dieser Website nicht überprüfen, zu der Sie eine Verbindung herstellen wollten. Ihre Verbindung ist nicht sicher. Fahren Sie nicht fort.</translation>
+<translation id="7106741999175697885">Task-Manager - Google Chrome</translation>
+<translation id="1195935957447623558">Google Chrome wurde nicht richtig heruntergefahren. Klicken Sie auf &quot;Wiederherstellen&quot;, um die bereits geöffneten Seiten erneut zu öffnen.</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
+<translation id="2044287590254833138">Google Chrome-Toolbar</translation>
+<translation id="8449380764213232436">Google Chrome importiert nun die folgenden Elemente aus <ph name="BROWSER_COMPONENT"/>:</translation>
 <translation id="8562413501751825163">Firefox vor dem Import schließen</translation>
+<translation id="6626317981028933585">Leider sind Ihre Mozilla Firefox-Einstellungen nicht verfügbar, wenn dieser Browser ausgeführt wird. Um diese Einstellungen in Google Chrome zu importieren, speichern Sie Ihre Arbeit und schließen Sie alle Firefox-Fenster. Klicken Sie anschließend auf &quot;Weiter&quot;.</translation>
+<translation id="8446794773162156990">Es liegt ein Google Chrome-Fehler vor.</translation>
+<translation id="7400722733683201933">Info zu Google Chrome</translation>
+<translation id="3591558551793645824">Google Chrome wurde erfolgreich deinstalliert. Machen Sie es gut!</translation>
+<translation id="8172671748763307156">Möchten Sie Google Chrome wirklich deinstallieren? (Haben wir etwas falsch gemacht?)</translation>
+<translation id="7161904924553537242">Willkommen bei Google Chrome</translation>
+<translation id="6921913858457830952">Google Chrome kann die Installation nun abschließen.</translation>
+<translation id="7241541963706135274">Google Chrome führt folgende Aufgaben aus:</translation>
+<translation id="7101265395643981223">Google Chrome starten</translation>
+<translation id="2618799103663374905">Google Chrome-Verknüpfungen zum Desktop, zur Schnellstartleiste und zum Startmenü hinzufügen</translation>
+<translation id="213581405366815208">Möchten Sie die Installation von Google Chrome wirklich abbrechen? Falls Sie später fortfahren möchten, öffnen Sie Chrome im Startmenü über den Ordner &quot;Programme&quot;.</translation>
+<translation id="5941830788786076944">Google Chrome als Standardbrowser festlegen</translation>
+<translation id="7001386529596391893">Google Chrome-Verknüpfungen an diesen Speicherorten erstellen:</translation>
 <translation id="480990236307250886">Homepage öffnen</translation>
 <translation id="6514771739083339959">Homepage:</translation>
 <translation id="1665770420914915777">Seite &quot;Neuer Tab&quot; verwenden</translation>
 <translation id="4726901538158498735">Standardsuche:</translation>
 <translation id="2231233239095101917">Das Skript der Seite hat zuviel Speicherplatz verbraucht. Laden Sie die Seite erneut, um die Skriptausführung zu ermöglichen.</translation>
+<translation id="8227755444512189073">Google Chrome muss zum Verarbeiten von <ph name="SCHEME"/>-Links eine externe Anwendung starten. Der angeforderte Link lautet <ph name="PROTOLINK"/>.</translation>
+<translation id="8236873504073475138">Google Chrome unterstützt Windows 2000 nicht. Einige Funktionen sind möglicherweise nicht verfügbar.</translation>
+<translation id="3335672657969596251">Google Chrome unterstützt <ph name="OS_NAME"/> nicht.</translation>
+<translation id="1446473746922165495">Ändern Sie die Sprache der Google Chrome-Menüs, Dialogfelder und Kurzinfos.</translation>
+<translation id="8810218179782551669">Google Chrome-Sprache:</translation>
+<translation id="7958215378280655655">Wenn Sie die Google Chrome-Optionen zurücksetzen, werden sämtliche vorgenommenen Änderungen auf die Standardeinstellungen zurückgesetzt. Möchten Sie die Optionen zurücksetzen?</translation>
+<translation id="7100330187273168372">Google Chrome kann im folgenden Datenverzeichnis weder lesen noch schreiben:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="3324235665723428530">Ihr Profil kann nicht verwendet werden, da es aus einer neueren Google Chrome-Version stammt.\n\nEinige Funktionen sind möglicherweise nicht verfügbar. Geben Sie ein anderes Profilverzeichnis an oder verwenden Sie eine neuere Chrome-Version.</translation>
 <translation id="3319048459796106952">Neues &amp;Inkognito-Fenster</translation>
 <translation id="1120026268649657149">Suchkürzel muss leer oder eindeutig sein</translation>
 <translation id="7481475534986701730">Vor kurzem besuchte Websites</translation>
+<translation id="8815061062167142136">Fehler! Google Chrome ist abgestürzt. Möchten Sie neu starten?</translation>
+<translation id="3889417619312448367">Google Chrome deinstallieren</translation>
 <translation id="3169621169201401257">Detaillierte Informationen zu den Problemen mit diesen Elementen erhalten Sie auf der folgenden Google-Seite: <ph name="DIAGNOSTIC_PAGE"/> für <ph name="DOMAIN"/>.</translation>
 <translation id="2356762928523809690">Aktualisierungsserver ist nicht verfügbar (Fehler: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">&amp;Zum Wörterbuch hinzufügen</translation>
+<translation id="2499193704281978000">Google Chrome reagiert nicht. Möchten Sie neu starten?</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">Unicode</translation>
 <translation id="1702534956030472451">Westeuropäisch</translation>
@@ -687,7 +733,9 @@
 <translation id="3761000923495507277">Home-Schaltfläche auf der Toolbar anzeigen</translation>
 <translation id="5291303148298143069">Über Blockierung von Pop-ups informieren</translation>
 <translation id="3383487468758466563">Schriftarten und Sprachen:</translation>
+<translation id="1137776625614346046">Im Bereich &quot;Am häufigsten besucht&quot; werden die am häufigsten aufgerufenen Websites angezeigt. Nachdem Sie Google Chrome einige Zeit verwendet haben, werden Ihnen die am häufigsten besuchten Websites beim Öffnen eines neuen Tabs angezeigt. Weitere Informationen hierzu und zu anderen Funktionen erhalten Sie auf der Seite <ph name="BEGIN_LINK"/>Erste Schritte<ph name="END_LINK"/>.</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Sie haben den Modus für anonymes Browsen aktiviert<ph name="END_BOLD"/>. In diesem Fenster aufgerufene Seiten werden nicht im Browserverlauf oder Suchverlauf angezeigt. Zudem werden nach dem Schließen des Inkognito-Fensters keine anderen Hinweise wie Cookies auf dem Computer gespeichert. Heruntergeladene Dateien oder hinzugefügte Lesezeichen werden jedoch beibehalten. <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Das anonyme Browsen wirkt sich nicht auf das Nutzerverhalten bzw. auf die Funktionsweise von Servern oder Software aus. Vorsicht ist geboten bei:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Websites, auf denen Informationen über Sie gesammelt oder weitergegeben werden<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Internetanbietern oder Arbeitgebern, die die von Ihnen aufgerufenen Seiten protokollieren<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Bösartiger Software, mit der Ihre Tastatureingaben festgehalten werden (dafür bekommen Sie Smileys gratis)<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Überwachung durch Ermittlungsbehörden<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Personen, die hinter Ihnen stehen<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        Weitere Informationen zum anonymen Browsen erhalten Sie <ph name="BEGIN_LINK"/>hier<ph name="END_LINK"/>.</translation>
 <translation id="1604816462140255479">Text&amp;zoom</translation>
 <translation id="2089625293428655599">Teile dieser Software sind von Drittanbietern lizenziert. Weitere Informationen erhalten Sie unter: <ph name="URL"/></translation>
+<translation id="6817660909204164466">Helfen Sie, Google Chrome zu verbessern, indem Sie automatisch Nutzungsstatistiken und Ausfallberichte an Google senden.</translation>
 </translationbundle>

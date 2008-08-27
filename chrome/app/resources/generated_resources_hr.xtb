@@ -13,6 +13,7 @@
 <translation id="5329858601952122676">&amp;Obriši</translation>
 <translation id="3873963583678942942">(Neimenovano)</translation>
 <translation id="1232569758102978740">Neimenovano</translation>
+<translation id="1759842336958782510">Chrome</translation>
 <translation id="6965382102122355670">U redu</translation>
 <translation id="7658239707568436148">Odustani</translation>
 <translation id="6463795194797719782">&amp;Uredi</translation>
@@ -104,6 +105,7 @@
 <translation id="772440777491435074">Podaci o potvrdi...</translation>
 <translation id="987264212798334818">Općenito</translation>
 <translation id="3435738964857648380">Sigurnost</translation>
+<translation id="7869935834862642047"><ph name="PAGE_TITLE"/> - <ph name="APP_NAME"/></translation>
 <translation id="406259880812417922">(Ključna riječ: <ph name="KEYWORD"/>)</translation>
 <translation id="1559333154119355392">Preuzeto: <ph name="DOWNLOAD_SIZE"/></translation>
 <translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/>, poništeno</translation>
@@ -164,6 +166,7 @@
 <translation id="6426222199977479699">SSL pogreška</translation>
 <translation id="5645845270586517071">Sigurnosna pogreška</translation>
 <translation id="3183922693828471536">Pomakni ovdje</translation>
+<translation id="8439117394107194826">Nakon deinstalacije odvedi me na web stranicu s anketom.</translation>
 <translation id="4610637590575890427">Jeste li mislili <ph name="SITE"/></translation>
 <translation id="8182985032676093812">Izvor za <ph name="PAGE_URL"/></translation>
 <translation id="4880827082731008257">Pretraži povijest</translation>
@@ -309,6 +312,9 @@
 <translation id="7629827748548208700">Kartica: <ph name="TAB_NAME"/></translation>
 <translation id="6513615899227776181">Dodatak: <ph name="PLUGIN_NAME"/></translation>
 <translation id="7071586181848220801">Nepoznati dodatak</translation>
+<translation id="8540666473246803645">Google Chrome</translation>
+<translation id="3870154837782082782">Google Inc.</translation>
+<translation id="6622748519798088408">Autorsko pravo © 2006-2008 Google Inc. Sva prava pridržana</translation>
 <translation id="6479177161510354016">Upozorenje <ph name="SITE"/></translation>
 <translation id="333371639341676808">Spriječite ovu stranicu od stvaranja dodatnih dijaloga.</translation>
 <translation id="5295309862264981122">Potvrdi navigaciju</translation>
@@ -331,6 +337,7 @@
 <translation id="2266011376676382776">Stranica ne reagira</translation>
 <translation id="1110155001042129815">Čekaj</translation>
 <translation id="1684861821302948641">Prekini stranice</translation>
+<translation id="6134282421960734039">Želite li da Chrome spremi zaporku?</translation>
 <translation id="5271549068863921519">Spremi zaporku</translation>
 <translation id="7484645889979462775">Nikad za ovu web lokaciju</translation>
 <translation id="4195643157523330669">Otvori u novoj kartici</translation>
@@ -430,6 +437,7 @@
 <translation id="8609465669617005112">Premjesti gore</translation>
 <translation id="6746124502594467657">Pomakni dolje</translation>
 <translation id="8241707690549784388">Stranica koju ste tražili koristila je podatke koje ste unijeli. Vraćanje na tu stranicu može dovesti do ponavljanja poduzete radnje. Želite li nastaviti?</translation>
+<translation id="1964682833763362793">Zatvorite sve Chrome prozore i pokušajte ponovno.</translation>
 <translation id="5333374927882515515">Uvezi oznake, zaporke i druge postavke iz <ph name="DEF_BROWSER"/></translation>
 <translation id="8256087479641463867">Prilagodite Vaše postavke</translation>
 <translation id="7789175495288668515">Promijenite zadane opcije instalacije.</translation>
@@ -437,6 +445,7 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">Traka za brzo pokretanje</translation>
+<translation id="1549918799472947005">Chrome koristi Vašu zadanu tražilicu, a to je trenutačno <ph name="PAGE_TITLE"/>. Želite li zadržati Vašu zadanu tražilicu?</translation>
 <translation id="74568296546932365">Neka <ph name="PAGE_TITLE"/> ostane kao zadana tražilica</translation>
 <translation id="8288345061925649502">Promijeni tražilicu</translation>
 <translation id="3037605927509011580">O, ne!</translation>
@@ -568,6 +577,7 @@
 <translation id="2441719842399509963">Vrati na zadane postavke</translation>
 <translation id="1208126399996836490">Ne vraćaj na zadane postavke</translation>
 <translation id="3122496702278727796">Nije uspjelo stvaranje podatkovnog direktorija</translation>
+<translation id="5046764976540625289">Zatvori Chrome</translation>
 <translation id="5034259512732355072">Odabir drugog direktorija...</translation>
 <translation id="2160383474450212653">Fontovi i jezici</translation>
 <translation id="5042992464904238023">Web sadržaj</translation>
@@ -604,6 +614,7 @@
 <translation id="4307992518367153382">Osnove</translation>
 <translation id="1709220265083931213">Napredno</translation>
 <translation id="1674989413181946727">SSL postavke za cijelo računalo:</translation>
+<translation id="582763753075639530">Zatvorite sve Chrome prozore i ponovno pokrenite Chrome kako bi ova promjena stupila na snagu.</translation>
 <translation id="9015241028623917394">Kontroliraj trenutnu stranicu</translation>
 <translation id="8502249598105294518">Prilagodi i kontroliraj <ph name="PRODUCT_NAME"/></translation>
 <translation id="4475552974751346499">Pretraži preuzimanja</translation>
@@ -613,6 +624,7 @@
 <translation id="8725178340343806893">Favoriti/oznake</translation>
 <translation id="873849583815421063">Završavanje...</translation>
 <translation id="2960316970329790041">Stop uvozu</translation>
+<translation id="5016204670686360703">Ako sada odustanete, neće se uvesti sve stavke. Uvoz možete ponoviti kasnije iz izbornika Chrome.</translation>
 <translation id="7642109201157405070">Nastavi s uvozom</translation>
 <translation id="5508407262627860757">Svejedno odustani</translation>
 <translation id="290414493736480793">Zahvale</translation>
@@ -649,18 +661,52 @@
 <translation id="7925285046818567682">Čekanje <ph name="HOST_NAME"/>...</translation>
 <translation id="2021921916539001817">Prijenos iz <ph name="HOST_NAME"/>...</translation>
 <translation id="6698381487523150993">Autor/ica:</translation>
+<translation id="4127951844153999091">U tom slučaju adresa navedena u potvrdi ne odgovara adresi web lokacije na koju je pokušao otići Vaš preglednik. Jedan od mogućih razloga je taj da Vaše komunikacije presreće napadač koji prikazuje potvrdu za drugu web lokaciju, zbog čega dolazi do nepodudaranja. Drugi je mogući razlog taj što je poslužitelj postavljen tako da vraća istu potvrdu za više web lokacija, uključujući i za onu koju pokušavate posjetiti, iako ta potvrda nije valjana za sve te web lokacije. Google Chrome može sa sigurnošću reći da ste pristupili domeni &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, ali ne može provjeriti da je ta web lokacija ista kao &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; kojoj ste htjeli pristupiti. Ako nastavite, Chrome neće provjeravati dodatna nepodudaranja naziva. Općenito govoreći, najbolje je da ne nastavite.</translation>
+<translation id="9189723490960700326">Pokušali ste pristupiti domeni &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ali poslužitelj je prikazao isteklu potvrdu. Nema dostupnih podataka koji bi pokazali je li potvrda bila ugrožena od trenutka isteka. To znači da Google Chrome ne može jamčiti da komunicirate s domenom &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, a ne s napadačem. Ne biste trebali nastaviti.</translation>
+<translation id="6481075104394517441">Pokušali ste pristupiti domeni &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ali je poslužitelj prikazao potvrdu koja još nije valjana. Nema dostupnih podataka koji bi pokazali može li se vjerovati potvrdi. Google Chrome ne može pouzdano jamčiti da komunicirate s domenom &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, a ne s napadačem. Trebali biste provjeriti jesu li sat i vremenska zona ispravno postavljeni na Vašem računalu. Ako nisu, ispravite to i osvježite ovu stranicu. Ako su ispravni, ne biste trebali nastaviti dalje.</translation>
+<translation id="1144950271450340860">Pokušali ste pristupiti domeni &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ali poslužitelj je prikazao potvrdu koju je izdao subjekt kojem ne vjeruje operativni sustav Vašeg računala. To može značiti da je poslužitelj stvorio vlastite sigurnosne vjerodajnice u koje se Google Chrome ne može pouzdati u svezi podataka o identitetu ili napadač možda pokušava presresti Vaše komunikacije. Ne biste trebali nastaviti, &lt;strong&gt;posebno&lt;/strong&gt; ako nikad prije niste vidjeli takvo upozorenje za tu lokaciju.</translation>
+<translation id="6009537148180854585">Pokušali ste pristupiti domeni &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ali potvrda koju je prikazao poslužitelj sadrži pogreške. Google Chrome ne može koristiti potvrdu s pogreškama i ne može provjeriti valjanost identiteta web lokacije s kojom ste se pokušali povezati. Vaša veza nije sigurna i ne biste trebali nastaviti.</translation>
+<translation id="7106741999175697885">Upravitelj zadacima - Google Chrome:</translation>
+<translation id="1195935957447623558">Google Chrome se nije ispravno zatvorio. Da biste ponovno otvorili prije otvorene stranice, kliknite &quot;Vrati&quot;.</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
+<translation id="2044287590254833138">Alatna traka programa Google Chrome:</translation>
+<translation id="8449380764213232436">Google Chrome sada iz komponente <ph name="BROWSER_COMPONENT"/> unosi sljedeće stavke:</translation>
 <translation id="8562413501751825163">Prije unosa zatvorite Firefox.</translation>
+<translation id="6626317981028933585">Na žalost postavke vašeg preglednika Mozilla Firefox nisu dostupne dok je preglednik otvoren. Da biste te postavke unijeli u Google Chrome, spremite svoj posao i zatvorite sve prozore preglednika Firefox. Zatim kliknite &quot;Nastavak&quot;.</translation>
+<translation id="8446794773162156990">Google Chrome se čudno ponaša.</translation>
+<translation id="7400722733683201933">O programu Google Chrome</translation>
+<translation id="3591558551793645824">Google Chrome je uspješno deinstaliran. Sretan put!</translation>
+<translation id="8172671748763307156">Jeste li sigurni da želite deinstalirati program Google Chrome? (Jesmo li Vas nekako uvrijedili?)</translation>
+<translation id="7161904924553537242">Dobro došli u Google Chrome</translation>
+<translation id="6921913858457830952">Google Chrome se sprema dovršiti Vašu instalaciju.</translation>
+<translation id="7241541963706135274">Google Chrome će obaviti sljedeće zadatke:</translation>
+<translation id="7101265395643981223">Pokreni Google Chrome</translation>
+<translation id="2618799103663374905">Dodajte prečace za Google Chrome na Vašu radnu površinu, traku za brzo pokretanje i izbornik Start.</translation>
+<translation id="213581405366815208">Jeste li sigurni da želite prekinuti instalaciju programa Google Chrome? Ako želite nastaviti kasnije, otvorite Chrome na izborniku Start u mapi Programi.</translation>
+<translation id="5941830788786076944">Neka Google Chrome bude zadani preglednik.</translation>
+<translation id="7001386529596391893">Stvori prečace za Google Chrome na sljedećim mjestima:</translation>
 <translation id="480990236307250886">Otvori početnu stranicu</translation>
 <translation id="6514771739083339959">Početna stranica:</translation>
 <translation id="1665770420914915777">Upotrijebi stranicu &quot;Nova kartica&quot;</translation>
 <translation id="4726901538158498735">Zadano pretraživanje:</translation>
 <translation id="2231233239095101917">Skripta stranice je upotrijebila previše memorije. Ponovno učitajte stranicu da biste skripte opet omogućili.</translation>
+<translation id="8227755444512189073">Google Chrome treba pokrenuti vanjsku aplikaciju da bi mogao koristiti veze <ph name="SCHEME"/>. Zatražena je veza <ph name="PROTOLINK"/>.</translation>
+<translation id="8236873504073475138">Google Chrome ne podržava sustav Windows 2000. Neke značajke možda neće raditi.</translation>
+<translation id="3335672657969596251">Google Chrome ne podržava sustav <ph name="OS_NAME"/>.</translation>
+<translation id="1446473746922165495">Promijenite jezik koji se koristi u izbornicima, dijaloškim okvirima i opisima alata Google Chromea.</translation>
+<translation id="8810218179782551669">Jezik programa Google Chrome:</translation>
+<translation id="7958215378280655655">Kada ponovno postavite Google Chrome opcije, sve promjene koje ste napravili vratit će se na zadane postavke. Želite li vratiti zadane Chrome opcije?</translation>
+<translation id="7100330187273168372">Google Chrome ne može čitati iz svojeg podatkovnog direktorija niti u njega pisati:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="3324235665723428530">Vaš profil se ne može koristiti jer pripada novijoj verziji programa Google Chrome.\n\nNeke značajke možda neće biti dostupne. Navedite neki drugi direktorij profila ili koristite noviju verziju programa Chrome.</translation>
 <translation id="3319048459796106952">&amp;Novi inkognito prozor</translation>
 <translation id="1120026268649657149">Ključna riječ mora biti prazna ili jedinstvena</translation>
 <translation id="7481475534986701730">Posljednje posjećene web lokacije</translation>
+<translation id="8815061062167142136">Opa! Google Chrome se srušio. Želite li ga ponovno pokrenuti?</translation>
+<translation id="3889417619312448367">Deinstaliranje preglednika Google Chrome</translation>
 <translation id="3169621169201401257">Više pojedinosti o problemima s ovim elementima potražite na dijagnostičkoj stranici <ph name="DIAGNOSTIC_PAGE"/>za domenu <ph name="DOMAIN"/>.</translation>
 <translation id="2356762928523809690">Ažuriranje poslužitelja nije dostupno(broj pogreške: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">&amp;Dodaj u rječnik</translation>
+<translation id="2499193704281978000">Google Chrome ne reagira. Želite li ga ponovno pokrenuti?</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">Unicode</translation>
 <translation id="1702534956030472451">zapadni</translation>
@@ -687,7 +733,9 @@
 <translation id="3761000923495507277">Na alatnoj traci prikaži gumb početne stranice</translation>
 <translation id="5291303148298143069">Obavijesti me ako je skočni prozor blokiran</translation>
 <translation id="3383487468758466563">Fontovi i jezici:</translation>
+<translation id="1137776625614346046">Područje &quot;Najposjećenije&quot; prikazuje web lokacije koje najčešće koristite. Nakon što neko vrijeme budete koristili Google Chrome, prilikom svakog otvaranja nove kartice vidjet ćete Vaše najposjećenije stranice. Više pojedinosti o ovom i drugim značajkama možete saznati na <ph name="BEGIN_LINK"/>stranici Prvi koraci<ph name="END_LINK"/>.</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Otišli ste inkognito<ph name="END_BOLD"/>. Stranice otvorene u ovom prozoru neće se pojaviti u povijesti Vašeg preglednika ili povijesti pretraživanja niti ćete na računalu ostaviti neke druge tragove,kao što su kolačići, nakon što taj prozor zatvorite. No sačuvat će se sve datoteke koje ste preuzeli ili oznake koje ste stvorili.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Inkognito pregledavanje ne utječe na ponašanje drugih ljudi, poslužitelja ili softvera. Čuvajte se:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>web lokacija koje prikupljaju ili dijele informacije o Vama<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>pružatelja internetskih usluga ili poslodavaca koji prate koje stranice posjećujete<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>zlonamjernog softvera koji prati što upisujete putem tipkovnice u zamjenu za besplatne smajliće<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>nadzora tajnih službi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ljudi koji Vam stoje iza leđa<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Saznajte više o<ph name="END_LINK"/> o inkognito pregledavanju.</translation>
 <translation id="1604816462140255479">Zum &amp;teksta</translation>
 <translation id="2089625293428655599">Dijelovi ovog softvera imaju licencu trećih strana kao što je opisano na: <ph name="URL"/></translation>
+<translation id="6817660909204164466">Automatskim slanjem statistike o korištenju i izvješća o padu sustava u Google, pomognite nam da poboljšamo Google Chrome</translation>
 </translationbundle>

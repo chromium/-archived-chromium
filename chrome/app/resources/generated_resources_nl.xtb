@@ -13,6 +13,7 @@
 <translation id="5329858601952122676">Verwij&amp;deren</translation>
 <translation id="3873963583678942942">(Naamloos)</translation>
 <translation id="1232569758102978740">Naamloos</translation>
+<translation id="1759842336958782510">Chrome</translation>
 <translation id="6965382102122355670">OK</translation>
 <translation id="7658239707568436148">Annuleren</translation>
 <translation id="6463795194797719782">B&amp;ewerken</translation>
@@ -104,6 +105,7 @@
 <translation id="772440777491435074">Certificaatgegevens...</translation>
 <translation id="987264212798334818">Algemeen</translation>
 <translation id="3435738964857648380">Beveiliging</translation>
+<translation id="7869935834862642047"><ph name="PAGE_TITLE"/> - <ph name="APP_NAME"/></translation>
 <translation id="406259880812417922">(Zoekwoord: <ph name="KEYWORD"/>)</translation>
 <translation id="1559333154119355392"><ph name="DOWNLOAD_SIZE"/>, voltooid</translation>
 <translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/>, geannuleerd</translation>
@@ -164,6 +166,7 @@
 <translation id="6426222199977479699">SSL-fout</translation>
 <translation id="5645845270586517071">Beveiligingsfout</translation>
 <translation id="3183922693828471536">Hiernaartoe bladeren</translation>
+<translation id="8439117394107194826">Ga naar de enquêtepagina na verwijdering.</translation>
 <translation id="4610637590575890427">Wilde u naar <ph name="SITE"/> gaan?</translation>
 <translation id="8182985032676093812">Bron van <ph name="PAGE_URL"/></translation>
 <translation id="4880827082731008257">Zoekgeschiedenis</translation>
@@ -309,6 +312,9 @@
 <translation id="7629827748548208700">Tabblad: <ph name="TAB_NAME"/></translation>
 <translation id="6513615899227776181">Plug-in: <ph name="PLUGIN_NAME"/></translation>
 <translation id="7071586181848220801">Onbekende plug-in</translation>
+<translation id="8540666473246803645">Google Chrome</translation>
+<translation id="3870154837782082782">Google Inc.</translation>
+<translation id="6622748519798088408">Copyright © 2006-2008 Google Inc. Alle rechten voorbehouden.</translation>
 <translation id="6479177161510354016"><ph name="SITE"/> waarschuwen</translation>
 <translation id="333371639341676808">Voorkom dat deze pagina extra dialoogvensters weergeeft.</translation>
 <translation id="5295309862264981122">Navigatie bevestigen</translation>
@@ -331,6 +337,7 @@
 <translation id="2266011376676382776">Niet-reagerende pagina('s)</translation>
 <translation id="1110155001042129815">Wachten</translation>
 <translation id="1684861821302948641">Pagina's sluiten</translation>
+<translation id="6134282421960734039">Wilt u dat Chrome uw wachtwoord opslaat?</translation>
 <translation id="5271549068863921519">Wachtwoord opslaan</translation>
 <translation id="7484645889979462775">Nooit voor deze site</translation>
 <translation id="4195643157523330669">Openen op nieuw tabblad</translation>
@@ -430,6 +437,7 @@
 <translation id="8609465669617005112">Omhoog</translation>
 <translation id="6746124502594467657">Omlaag</translation>
 <translation id="8241707690549784388">De pagina die u zoekt, heeft informatie gebruikt die u heeft opgegeven Als u terugkeert naar deze pagina, worden acties die u heeft uitgevoerd, mogelijk herhaald. Wilt u doorgaan?</translation>
+<translation id="1964682833763362793">Sluit alle Chrome-vensters en probeer het opnieuw.</translation>
 <translation id="5333374927882515515">Bladwijzers, wachtwoorden en andere instellingen importeren van <ph name="DEF_BROWSER"/></translation>
 <translation id="8256087479641463867">Uw instellingen aanpassen</translation>
 <translation id="7789175495288668515">Wijzig de standaard installatie-opties.</translation>
@@ -437,6 +445,7 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">Balk Snelstarten</translation>
+<translation id="1549918799472947005">Chrome gebruikt uw standaardzoekmachine, die momenteel is ingesteld op <ph name="PAGE_TITLE"/>. Wilt u uw standaardzoekmachine houden?</translation>
 <translation id="74568296546932365"><ph name="PAGE_TITLE"/> als standaardzoekmachine houden</translation>
 <translation id="8288345061925649502">Zoekmachine wijzigen</translation>
 <translation id="3037605927509011580">Helaas.</translation>
@@ -568,6 +577,7 @@
 <translation id="2441719842399509963">Standaardinstellingen herstellen</translation>
 <translation id="1208126399996836490">Niet opnieuw instellen</translation>
 <translation id="3122496702278727796">Kan gegevensdirectory niet maken</translation>
+<translation id="5046764976540625289">Chrome sluiten</translation>
 <translation id="5034259512732355072">Een andere directory kiezen...</translation>
 <translation id="2160383474450212653">Lettertypen en talen</translation>
 <translation id="5042992464904238023">Webinhoud</translation>
@@ -604,6 +614,7 @@
 <translation id="4307992518367153382">Basisinstellingen</translation>
 <translation id="1709220265083931213">Geavanceerde opties</translation>
 <translation id="1674989413181946727">SSL-instellingen voor hele computer:</translation>
+<translation id="582763753075639530">Deze wijziging wordt doorgevoerd als u alle Google Chrome-vensters sluit en Google Chrome opnieuw start.</translation>
 <translation id="9015241028623917394">De huidige pagina beheren</translation>
 <translation id="8502249598105294518"><ph name="PRODUCT_NAME"/> aanpassen en beheren</translation>
 <translation id="4475552974751346499">Zoeken in downloads</translation>
@@ -613,6 +624,7 @@
 <translation id="8725178340343806893">Favorieten/bladwijzers</translation>
 <translation id="873849583815421063">Afronden...</translation>
 <translation id="2960316970329790041">Import stoppen</translation>
+<translation id="5016204670686360703">Als u nu annuleert, worden niet alle items geïmporteerd. U kunt later opnieuw importeren via het Chrome-menu.</translation>
 <translation id="7642109201157405070">Doorgaan met importeren</translation>
 <translation id="5508407262627860757">Toch annuleren</translation>
 <translation id="290414493736480793">Dankbetuigingen</translation>
@@ -649,18 +661,52 @@
 <translation id="7925285046818567682">Wachten op <ph name="HOST_NAME"/>...</translation>
 <translation id="2021921916539001817">Overdragen van <ph name="HOST_NAME"/>...</translation>
 <translation id="6698381487523150993">Gemaakt:</translation>
+<translation id="4127951844153999091">In dit geval komt het adres in het certificaat niet overeen met het adres van de website dat uw browser probeerde te bezoeken. Dit kan komen omdat uw communicatie wordt onderschept door een hacker die een certificaat voor een andere website retourneert, waardoor de adressen niet overeenkomen. Een andere mogelijkheid is dat de server is ingesteld op het retourneren van hetzelfde certificaat voor meerdere websites, inclusief de site die u probeert te bezoeken, hoewel dat certificaat niet geldig is voor al deze websites. Google Chrome kan garanderen dat u &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; heeft bereikt, maar kan niet verifiëren of dat dezelfde site is als &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, die u wilde bezoeken. Als u doorgaat, controleert Chrome niet verder op verschillen tussen namen. Over het algemeen is het beter hier niet verder te gaan.</translation>
+<translation id="9189723490960700326">U probeert &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; te bereiken, maar de server heeft een verlopen certificaat geretourneerd. Er is nog geen informatie beschikbaar waaruit blijkt of het certificaat is geschonden sinds de vervaldatum. Dat betekent dat Google Chrome niet met zekerheid kan garanderen dat u met &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; communiceert en niet met een hacker. U kunt beter niet verder gaan.</translation>
+<translation id="6481075104394517441">U probeert &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; te bereiken, maar de server heeft een certificaat geretourneerd dat nog niet geldig is. Er is nog geen informatie beschikbaar over de betrouwbaarheid van dit certificaat. Chrome kan niet met zekerheid garanderen dat u met &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; communiceert, en niet met een hacker. U moet ervoor zorgen dat uw klok en tijdzone correct zijn ingesteld op uw computer. Zo niet, dan moet u dit aanpassen en deze pagina vernieuwen. Als ze correct zijn, moet u niet verder gaan.</translation>
+<translation id="1144950271450340860">U probeert &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; te bereiken, maar het certificaat dat de server retourneerde, is uitgegeven door een instantie die niet wordt vertrouwd door het besturingssysteem op uw computer. Dit kan betekenen dat de server zelf beveiligingsgegevens heeft gegenereerd, waarop Chrome niet kan vertrouwen voor veiligheidsinformatie, of dat een hacker probeert uw communicatie te onderscheppen. U kunt beter niet verder gaan, &lt;strong&gt;vooral niet&lt;/strong&gt; als deze waarschuwing niet eerder is weergegeven voor deze site.</translation>
+<translation id="6009537148180854585">U probeert &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; te bereiken, maar de server heeft een certificaat geretourneerd dat fouten bevat. Google Chrome kan geen certificaten met fouten verwerken en kan de identiteit niet verifiëren van de site waarmee u verbinding probeert te maken. Uw verbinding is niet veilig en u kunt beter niet verdergaan.</translation>
+<translation id="7106741999175697885">Taakbeheer - Google Chrome</translation>
+<translation id="1195935957447623558">Google Chrome is niet correct afgesloten. Klik op Herstellen om de pagina's te openen die actief waren.</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
+<translation id="2044287590254833138">Google Chrome Toolbar</translation>
+<translation id="8449380764213232436">Google Chrome importeert de volgende onderdelen van <ph name="BROWSER_COMPONENT"/>:</translation>
 <translation id="8562413501751825163">Sluit Firefox voordat u gaat importeren</translation>
+<translation id="6626317981028933585">Uw instellingen voor Mozilla Firefow zijn helaas niet beschikbaar als deze browser is geopend. Sla uw werk op en sluit alle Firefox-vensters om de instellingen te kunnen importeren naar Google Chrome. Klik hierna op 'Doorgaan'.</translation>
+<translation id="8446794773162156990">Google Chrome doet moeilijk</translation>
+<translation id="7400722733683201933">Over Google Chrome</translation>
+<translation id="3591558551793645824">Google Chrome is verwijderd. Tot ziens!</translation>
+<translation id="8172671748763307156">Weet u zeker dat u Google Chrome wilt verwijderen?</translation>
+<translation id="7161904924553537242">Welkom bij Google Chrome</translation>
+<translation id="6921913858457830952">U kunt nu uw installatie van Google Chrome voltooien.</translation>
+<translation id="7241541963706135274">Google Chrome voert deze taken uit:</translation>
+<translation id="7101265395643981223">Start Google Chrome</translation>
+<translation id="2618799103663374905">Snelkoppelingen voor Chrome toevoegen aan uw bureaublad, de balk 'Snelstarten' en het menu 'Start'.</translation>
+<translation id="213581405366815208">Weet u zeker dat u de installatie van Google Chrome wilt annuleren? Als u later wilt verdergaan, opent u Chroma via de map 'Programma's' in het menu 'Start'.</translation>
+<translation id="5941830788786076944">Google Chrome instellen als mijn standaardbrowser</translation>
+<translation id="7001386529596391893">Maak snelkoppelingen voor Google Chrome op deze locaties:</translation>
 <translation id="480990236307250886">Open de startpagina</translation>
 <translation id="6514771739083339959">Startpagina:</translation>
 <translation id="1665770420914915777">Gebruik de pagina 'Nieuwe tab'</translation>
 <translation id="4726901538158498735">Standaardzoekmachine</translation>
 <translation id="2231233239095101917">Het script op de pagina gebruikt teveel geheugen. Opnieuw laden om scripts weer in te schakelen.</translation>
+<translation id="8227755444512189073"><ph name="SCHEME"/> De opgevraagde link is <ph name="PROTOLINK"/>.</translation>
+<translation id="8236873504073475138">Google Chrome ondersteunt Windows 2000 niet. Sommige functies werken mogelijk niet.</translation>
+<translation id="3335672657969596251">Google Chrome ondersteunt <ph name="OS_NAME"/> niet.</translation>
+<translation id="1446473746922165495">Wijzig de taal die wordt gebruikt in de menu's, dialogen en tooltips van Google Chrome.</translation>
+<translation id="8810218179782551669">Taal van Google Chrome:</translation>
+<translation id="7958215378280655655">Wanneer u Chrome-opties herstelt worden wijzigingen die u heeft aangebracht weer teruggezet naar de oorspronkelijke instellingen. Wilt u de Chrome-opties herstellen?</translation>
+<translation id="7100330187273168372">Google Chrome kan deze datadirectory niet lezen of beschrijven:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="3324235665723428530">Chrome kan uw profiel niet gebruiken aangezien het van een nieuwere versie van Google Chrome is.\n\nSommige functies zijn misschien niet beschikbaar. Geef een andere profieldirectory aan of gebruik een nieuwere versie van Chrome.</translation>
 <translation id="3319048459796106952">Nieuw &amp;incognitovenster</translation>
 <translation id="1120026268649657149">Zoekwoord moet leeg of uniek zijn</translation>
 <translation id="7481475534986701730">Onlangs bezochte sites</translation>
+<translation id="8815061062167142136">O jee! Google Chrome is vastgelopen. Nu herstarten?</translation>
+<translation id="3889417619312448367">Google Chrome verwijderen</translation>
 <translation id="3169621169201401257">Ga voor meer informatie over de problemen met deze elementen naar de <ph name="DIAGNOSTIC_PAGE"/> van Google voor <ph name="DOMAIN"/>.</translation>
 <translation id="2356762928523809690">De updateserver is niet beschikbaar (fout: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">Toevoegen &amp;aan woordenboek</translation>
+<translation id="2499193704281978000">Google Chrome reageert niet. Nu herstarten?</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">Unicode</translation>
 <translation id="1702534956030472451">Westers</translation>
@@ -687,7 +733,9 @@
 <translation id="3761000923495507277">Knop 'Startpagina' op de werkbalk weergeven</translation>
 <translation id="5291303148298143069">Melding weergeven wanneer er een pop-up wordt geblokkeerd</translation>
 <translation id="3383487468758466563">Lettertypen en talen:</translation>
+<translation id="1137776625614346046">Het gedeelte 'Meest bezocht' bevat de websites die u het vaakst bezoekt. Als u Google Chrome een tijdje gebruikt, worden uw meestbezochte sites weergegeven wanneer u een nieuw tabblad opent. U kunt meer informatie hierover en over andere functies raadplegen op de pagina <ph name="BEGIN_LINK"/>Aan de slag<ph name="END_LINK"/>.</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>U bent incognito<ph name="END_BOLD"/>. Pagina's die u in dit venster weergeeft, worden niet opgenomen in uw browsergeschiedenis of zoekgeschiedenis. Nadat u het incognitovenster heeft gesloten, blijven er geen andere sporen (zoals cookies) op uw computer achter. Alle bestanden die u downloadt of bladwijzers die u maakt, blijven echter bewaard.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Incognito gaan heeft geen invloed op het gedrag van andere mensen, servers of software. Wees alert op:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>websites die gegevens over u verzamelen of delen<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>internetproviders of werkgevers die uw bezochte pagina's bijhouden<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>schadelijke software die uw toetsaanslagen bijhoudt in ruil voor gratis smileys<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>surveillance door geheim agenten<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>mensen die over uw schouder meekijken<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Meer informatie<ph name="END_LINK"/> over incognito browsen.</translation>
 <translation id="1604816462140255479">Tekst &amp;zoomen</translation>
 <translation id="2089625293428655599">Voor delen van deze software is licentie verkregen van derden zoals beschreven op: <ph name="URL"/></translation>
+<translation id="6817660909204164466">Help Google Chrome beter te maken door automatisch gebruiksstatistieken en crashmeldingen naar Google te verzenden</translation>
 </translationbundle>

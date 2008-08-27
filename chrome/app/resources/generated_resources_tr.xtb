@@ -13,6 +13,7 @@
 <translation id="5329858601952122676">&amp;Sil</translation>
 <translation id="3873963583678942942">(Adsız)</translation>
 <translation id="1232569758102978740">Adsız</translation>
+<translation id="1759842336958782510">Chrome</translation>
 <translation id="6965382102122355670">Tamam</translation>
 <translation id="7658239707568436148">İptal</translation>
 <translation id="6463795194797719782">&amp;Düzenle</translation>
@@ -104,6 +105,7 @@
 <translation id="772440777491435074">Sertifika bilgileri...</translation>
 <translation id="987264212798334818">Genel</translation>
 <translation id="3435738964857648380">Güvenlik</translation>
+<translation id="7869935834862642047"><ph name="PAGE_TITLE"/> - <ph name="APP_NAME"/></translation>
 <translation id="406259880812417922">(Anahtar kelime: <ph name="KEYWORD"/>)</translation>
 <translation id="1559333154119355392"><ph name="DOWNLOAD_SIZE"/>, Tamamlandı</translation>
 <translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/>, İptal edildi</translation>
@@ -164,6 +166,7 @@
 <translation id="6426222199977479699">SSL Hatası</translation>
 <translation id="5645845270586517071">Güvenlik Hatası</translation>
 <translation id="3183922693828471536">Buraya Kaydır</translation>
+<translation id="8439117394107194826">Kaldırma işleminin ardından beni anket web sayfasına götür.</translation>
 <translation id="4610637590575890427"><ph name="SITE"/> sitesine mi gitmek istediniz?</translation>
 <translation id="8182985032676093812"><ph name="PAGE_URL"/> Kaynağı</translation>
 <translation id="4880827082731008257">Geçmişte ara</translation>
@@ -309,6 +312,9 @@
 <translation id="7629827748548208700">Sekme: <ph name="TAB_NAME"/></translation>
 <translation id="6513615899227776181">Eklenti: <ph name="PLUGIN_NAME"/></translation>
 <translation id="7071586181848220801">Bilinmeyen eklenti</translation>
+<translation id="8540666473246803645">Google Chrome</translation>
+<translation id="3870154837782082782">Google Inc.</translation>
+<translation id="6622748519798088408">Telif Hakkı © 2006-2008 Google Inc. Tüm Hakları Saklıdır.</translation>
 <translation id="6479177161510354016">Uyarı <ph name="SITE"/></translation>
 <translation id="333371639341676808">Bu sayfanın ek iletişim kutusu oluşturmasına izin verme.</translation>
 <translation id="5295309862264981122">Gezintiyi Onayla</translation>
@@ -331,6 +337,7 @@
 <translation id="2266011376676382776">Sayfalar Yanıt Vermiyor</translation>
 <translation id="1110155001042129815">Bekle</translation>
 <translation id="1684861821302948641">Sayfaları sonlandır</translation>
+<translation id="6134282421960734039">Chrome'un şifrenizi kaydetmesini istiyor musunuz?</translation>
 <translation id="5271549068863921519">Şifreyi kaydet</translation>
 <translation id="7484645889979462775">Bu site için hiçbir zaman</translation>
 <translation id="4195643157523330669">Yeni sekmede aç</translation>
@@ -430,6 +437,7 @@
 <translation id="8609465669617005112">Yukarı taşı</translation>
 <translation id="6746124502594467657">Aşağı taşı</translation>
 <translation id="8241707690549784388">Aradığınız sayfa, girdiğiniz bilgileri kullandı. O sayfaya dönmeniz, gerçekleştirdiğiniz işlemlerin tekrarlanmasına yol açabilir. Devam etmek istiyor musunuz?</translation>
+<translation id="1964682833763362793">Lütfen tüm Chrome pencerelerini kapatıp tekrar deneyin.</translation>
 <translation id="5333374927882515515"><ph name="DEF_BROWSER"/> tarayıcısından yer imlerini, şifreleri ve diğer ayarları alacak</translation>
 <translation id="8256087479641463867">Ayarlarınızı Özelleştirin</translation>
 <translation id="7789175495288668515">Varsayılan kurulum seçeneklerini değiştir.</translation>
@@ -437,6 +445,7 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">Hızlı başlat çubuğu</translation>
+<translation id="1549918799472947005">Chrome, şu anda <ph name="PAGE_TITLE"/> olarak ayarlı varsayılan arama motorunuzu kullanıyor. Varsayılan arama motorunuzu korumak istiyor musunuz?</translation>
 <translation id="74568296546932365"><ph name="PAGE_TITLE"/>, varsayılan arama motoru olarak kalsın</translation>
 <translation id="8288345061925649502">Arama motorunu değiştir</translation>
 <translation id="3037605927509011580">Hata!</translation>
@@ -568,6 +577,7 @@
 <translation id="2441719842399509963">Varsayılanlara sıfırla</translation>
 <translation id="1208126399996836490">Sıfırlama</translation>
 <translation id="3122496702278727796">Veri Dizini Oluşturulamadı</translation>
+<translation id="5046764976540625289">Chrome'dan Çık</translation>
 <translation id="5034259512732355072">Başka Bir Dizin Seçin...</translation>
 <translation id="2160383474450212653">Yazı Tipleri ve Diller</translation>
 <translation id="5042992464904238023">Web İçeriği</translation>
@@ -604,6 +614,7 @@
 <translation id="4307992518367153382">Temel Bilgiler</translation>
 <translation id="1709220265083931213">Gelişmiş Seçenekler</translation>
 <translation id="1674989413181946727">Bilgisayar genelinde SSL ayarları:</translation>
+<translation id="582763753075639530">Bu değişikliğin geçerli olması için lütfen tüm Chrome pencerelerini kapatın ve Chrome'u tekrar başlatın.</translation>
 <translation id="9015241028623917394">Geçerli sayfayı denetle</translation>
 <translation id="8502249598105294518"><ph name="PRODUCT_NAME"/> ürününü özelleştir ve denetle</translation>
 <translation id="4475552974751346499">İndirilenlerde ara</translation>
@@ -613,6 +624,7 @@
 <translation id="8725178340343806893">Sık Kullanılanlar/Yer İmleri</translation>
 <translation id="873849583815421063">Sonlandırılıyor...</translation>
 <translation id="2960316970329790041">Alma işlemini durdur</translation>
+<translation id="5016204670686360703">Şimdi iptal ederseniz öğelerin hepsi alınmaz. Daha sonra tekrar Chrome menüsünden alabilirsiniz.</translation>
 <translation id="7642109201157405070">Almaya Devam Et</translation>
 <translation id="5508407262627860757">Yine De İptal Et</translation>
 <translation id="290414493736480793">Bildirimler</translation>
@@ -649,18 +661,52 @@
 <translation id="7925285046818567682"><ph name="HOST_NAME"/> bekleniyor...</translation>
 <translation id="2021921916539001817"><ph name="HOST_NAME"/> ana bilgisayarından aktarılıyor...</translation>
 <translation id="6698381487523150993">Oluşturma tarihi:</translation>
+<translation id="4127951844153999091">Bu durumda, sertifikada listelenen adres, tarayıcınızın gitmeye çalıştığı web sitesinin adresiyle eşleşmez. Bunun olası nedenlerinden biri, iletişimlerinizin, farklı bir web sitesine ait sertifikayı sunan bir saldırgan tarafından kesilmesi olabilir, bu da hatalı eşleşmeye yol açabilir. Diğer olası bir nedense, sunucunun, ziyaret etmeye çalıştığınız web sitesi dahil olmak üzere birden çok web sitesi için, bu sertifika söz konusu web sitelerinin tümü için geçerli olmadığı halde, aynı sertifikayı döndürecek şekilde ayarlanmış olmasıdır. Google Chrome, kesin olarak &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; etki alanına ulaştığınızı belirtebilir, ancak bunun ulaşmak istediğiniz &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; etki alanıyla aynı site olduğunu doğrulayamaz. Devam ederseniz Chrome daha fazla hatalı ad eşleşmesi aramaz. Genellikle bu noktadan sonra ilerlememek en iyisidir.</translation>
+<translation id="9189723490960700326">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; etki alanına ulaşmayı denediniz, ancak sunucu, süresi dolmuş bir sertifika sundu. Bu sertifikanın süresi dolduktan sonra başkasının eline geçip geçmediğine dair bilgi yok. Bu, Google Chrome'un bir saldırganla değil, &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; ile iletişim kurduğunuzun garantisini veremeyeceği anlamına gelir. İlerlememelisiniz.</translation>
+<translation id="6481075104394517441">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; etki alanına ulaşmayı denediniz, ancak sunucu, henüz geçerli olmayan bir sertifika sundu. Bu sertifikanın güvenilir olup olmadığına dair bilgi yok. Google Chrome, bir saldırganla değil, &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; ile iletişim kurduğunuzun garantisini veremez. Bilgisayarınızdaki saat ve saat dilimi ayarlarının doğru olduğundan emin olmalısınız. Bu ayarlar doğru değilse, sorunları giderip bu sayfayı yenilemelisiniz. Doğruysa ilerlememelisiniz.</translation>
+<translation id="1144950271450340860">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; etki alanına ulaşmayı denediniz, ancak sunucu, bilgisayarınızın işletim sistemi tarafından güvenilmeyen bir kurum tarafından verilen bir sertifika sundu. Bu, sunucunun kendi güvenlik kimlik bilgilerini oluşturmuş olabileceği (Google Chrome, kimlik bilgileri için bu bilgilere güvenemez) veya bir saldırganın iletişiminizi kesmeye çalışıyor olabileceği anlamına gelir. &lt;strong&gt;Özellikle&lt;/strong&gt; daha önce bu site için bu uyarıyla hiç karşılaşmadıysanız ilerlememelisiniz.</translation>
+<translation id="6009537148180854585">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; etki alanına ulaşmayı denediniz, ancak sunucunun sunduğu sertifika hata içeriyor. Google Chrome, hatalı bir sertifika kullanamaz ve bağlanmayı denediğiniz sitenin kimliğini doğrulayamıyor. Bağlantınız güvenli değil. Devam etmemelisiniz.</translation>
+<translation id="7106741999175697885">Görev Yöneticisi - Google Chrome</translation>
+<translation id="1195935957447623558">Google Chrome, gerektiği gibi kapanmadı. Daha önce açık olan sayfaların tekrar açılması için Geri Yükle'yi tıklayın.</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
+<translation id="2044287590254833138">Google Chrome Araç Çubuğu</translation>
+<translation id="8449380764213232436">Google Chrome, şu anda <ph name="BROWSER_COMPONENT"/> bölümünden aşağıdaki öğeleri alıyor:</translation>
 <translation id="8562413501751825163">Alma İşleminden Önce Firefox'u Kapatın</translation>
+<translation id="6626317981028933585">Maalesef bu tarayıcı çalışırken Mozilla Firefox ayarlarınız kullanılamaz. Bu ayarları Google Chrome'a almak için çalışmanızı kaydedin ve tüm Firefox pencerelerini kapatın. Ardından Devam Et'i tıklayın.</translation>
+<translation id="8446794773162156990">Google Chrome hatalı çalışıyor</translation>
+<translation id="7400722733683201933">Google Chrome hakkında</translation>
+<translation id="3591558551793645824">Google Chrome başarıyla kaldırıldı. Elveda!</translation>
+<translation id="8172671748763307156">Google Chrome'u kaldırmak istediğinizden emin misiniz? (Bunu biz mi söyledik?)</translation>
+<translation id="7161904924553537242">Google Chrome'a Hoş Geldiniz</translation>
+<translation id="6921913858457830952">Google Chrome, yükleme işleminizi tamamlamaya hazır.</translation>
+<translation id="7241541963706135274">Google Chrome, şu görevleri gerçekleştirecek:</translation>
+<translation id="7101265395643981223">Google Chrome'u başlat</translation>
+<translation id="2618799103663374905">Masaüstünüze, hızlı başlat çubuğunuza ve Başlat menünüze Google Chrome kısayolları ekleyin</translation>
+<translation id="213581405366815208">Google Chrome'u yüklemeyi iptal etmek istediğinizden emin misiniz? Daha sonra devam etmek istiyorsanız Başlat Menüsü Programlar klasörünüzden Chrome'u açın.</translation>
+<translation id="5941830788786076944">Google Chrome varsayılan tarayıcı olsun</translation>
+<translation id="7001386529596391893">Şu konumlarda Google Chrome kısayolları oluşturun:</translation>
 <translation id="480990236307250886">Ana sayfayı açın</translation>
 <translation id="6514771739083339959">Ana sayfa:</translation>
 <translation id="1665770420914915777">Yeni Sekme sayfasını kullanma</translation>
 <translation id="4726901538158498735">Varsayılan arama:</translation>
 <translation id="2231233239095101917">Sayfadaki komut dosyası, bellekte çok fazla yer kapladı. Komut dosyalarını tekrar etkinleştirmek için yeniden yükleyin.</translation>
+<translation id="8227755444512189073">Google Chrome'un <ph name="SCHEME"/> bağlantılarını işleyebilmek için harici bir uygulama başlatması gerekiyor. İstenen bağlantı <ph name="PROTOLINK"/>.</translation>
+<translation id="8236873504073475138">Google Chrome, Windows 2000'i desteklemez. Bazı özellikler çalışmayabilir.</translation>
+<translation id="3335672657969596251">Google Chrome, <ph name="OS_NAME"/> işletim sistemini desteklemez.</translation>
+<translation id="1446473746922165495">Google Chrome menülerinde, iletişim kutularında ve araç ipuçlarında kullanılan dili değiştirin.</translation>
+<translation id="8810218179782551669">Google Chrome dili:</translation>
+<translation id="7958215378280655655">Google Chrome seçeneklerini sıfırladığınızda, yaptığınız tüm değişiklikler varsayılan ayarlara geri döner. Chrome seçeneklerini sıfırlamak istiyor musunuz?</translation>
+<translation id="7100330187273168372">Google Chrome, veri dizini üzerinde okuma ve yazma işlemi yapamaz:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="3324235665723428530">Profiliniz, Google Chrome'un daha yeni bir sürümünden olduğu için kullanılamıyor.\n\nBazı özellikler kullanılamayabilir. Lütfen farklı bir profil dizini belirtin veya Chrome'un daha yeni bir sürümünü kullanın.</translation>
 <translation id="3319048459796106952">Yeni &amp;gizli pencere</translation>
 <translation id="1120026268649657149">Anahtar kelime boş veya benzersiz olmalı</translation>
 <translation id="7481475534986701730">En son ziyaret edilen siteler</translation>
+<translation id="8815061062167142136">Eyvah! Google Chrome kilitlendi. Şimdi yeniden başlatılsın mı?</translation>
+<translation id="3889417619312448367">Google Chrome'u Kaldır</translation>
 <translation id="3169621169201401257">Bu öğelere ilişkin sorunlar hakkında ayrıntılı bilgi için <ph name="DOMAIN"/> için <ph name="DIAGNOSTIC_PAGE"/> sayfasını ziyaret edin.</translation>
 <translation id="2356762928523809690">Güncelleme sunucusu kullanılamıyor (hata: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">&amp;Sözlüğe ekle</translation>
+<translation id="2499193704281978000">Google Chrome yanıt vermiyor. Şimdi yeniden başlatılsın mı?</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">Unicode</translation>
 <translation id="1702534956030472451">Batı</translation>
@@ -687,7 +733,9 @@
 <translation id="3761000923495507277">Araç çubuğunda Home düğmesini göster</translation>
 <translation id="5291303148298143069">Bir pop-up engellendiğinde bana haber ver</translation>
 <translation id="3383487468758466563">Yazı Tipleri ve Diller:</translation>
+<translation id="1137776625614346046">&quot;En çok ziyaret edilenler&quot; alanında en sık kullandığınız web siteleri gösterilir. Google Chrome'u bir süre kullandıktan sonra, yeni bir sekme açtığınızda en sık ziyaret ettiğiniz siteleri görürsünüz. <ph name="BEGIN_LINK"/>Başlarken sayfasında<ph name="END_LINK"/> bu ve diğer özellikler hakkında daha fazla bilgi edinebilirsiniz.</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Kimliğinizi gizlediniz<ph name="END_BOLD"/>. Bu pencerede görüntülediğiniz sayfalar tarayıcı geçmişinizde veya arama geçmişinizde görünmez ve gizli pencereyi kapattığınızda bilgisayarınızda çerezler gibi başka izler bırakmaz. Ancak indirdiğiniz dosyalar veya oluşturduğunuz yer imleri korunur.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Kimliğinizi gizlemeniz, diğer kullanıcıların, sunucuların veya yazılımın davranışını etkilemez. Dikkat etmeniz gerekenler:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Hakkınızda bilgi toplayan veya sizinle ilgili bilgileri paylaşan web siteleri<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Ziyaret ettiğiniz sayfaları izleyen İnternet hizmet sağlayıcıları veya işverenler<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Ücretsiz gülen suratlar karşılığında hangi tuşlara bastığınızı izleyen kötü amaçlı yazılımlar<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Gizli aracıların gözetimi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Arkanızda duran kişiler<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Gizli kimlikle tarama hakkında daha fazla bilgi<ph name="END_LINK"/>.</translation>
 <translation id="1604816462140255479">Metin &amp;yaklaştır</translation>
 <translation id="2089625293428655599">Bu yazılımın bazı bölümleri şu adreste açıklandığı gibi üçüncü taraflar tarafından lisanslanmıştır: <ph name="URL"/></translation>
+<translation id="6817660909204164466">Google'a otomatik olarak kullanım istatistikleri ve sistem çökmesi raporları göndererek Google Chrome'un iyileştirilmesine katkıda bulunun.</translation>
 </translationbundle>
