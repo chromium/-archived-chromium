@@ -127,7 +127,7 @@ Atomic64 Release_Load(volatile const Atomic64* ptr);
 #if defined(OS_WIN) && defined(COMPILER_MSVC) && defined(ARCH_CPU_X86_FAMILY)
 #include "base/atomicops_internals_x86_msvc.h"
 #elif defined(OS_MACOSX) && defined(ARCH_CPU_X86_FAMILY)
-#include "base/atomicops_internals_x86_mac.h"
+#include "base/atomicops_internals_x86_macosx.h"
 #elif defined(COMPILER_GCC) && defined(ARCH_CPU_X86_FAMILY)
 #include "base/atomicops_internals_x86_gcc.h"
 #else

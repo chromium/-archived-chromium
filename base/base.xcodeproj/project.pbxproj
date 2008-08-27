@@ -345,7 +345,7 @@
 		7BD8F4C90E65B33300034DE9 /* atomic_ref_count.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atomic_ref_count.h; sourceTree = "<group>"; };
 		7BD8F4CA0E65B33300034DE9 /* atomic_sequence_num.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atomic_sequence_num.h; sourceTree = "<group>"; };
 		7BD8F4CB0E65B33300034DE9 /* atomicops.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atomicops.h; sourceTree = "<group>"; };
-		7BD8F4CE0E65B33300034DE9 /* atomicops_internals_x86_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atomicops_internals_x86_mac.h; sourceTree = "<group>"; };
+		7BD8F4CE0E65B33300034DE9 /* atomicops_internals_x86_macosx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atomicops_internals_x86_macosx.h; sourceTree = "<group>"; };
 		7BD8F4CF0E65B4A900034DE9 /* scoped_ptr_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scoped_ptr_unittest.cc; sourceTree = "<group>"; };
 		7BD8F4D00E65B54B00034DE9 /* tuple_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tuple_unittest.cc; sourceTree = "<group>"; };
 		7BD8F4D10E65B54B00034DE9 /* waitable_event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = waitable_event.h; sourceTree = "<group>"; };
@@ -694,7 +694,7 @@
 				7BD8F4C90E65B33300034DE9 /* atomic_ref_count.h */,
 				7BD8F4CA0E65B33300034DE9 /* atomic_sequence_num.h */,
 				7BD8F4CB0E65B33300034DE9 /* atomicops.h */,
-				7BD8F4CE0E65B33300034DE9 /* atomicops_internals_x86_mac.h */,
+				7BD8F4CE0E65B33300034DE9 /* atomicops_internals_x86_macosx.h */,
 				825402C50D92D1390006B936 /* base_drag_source.cc */,
 				825402C60D92D1390006B936 /* base_drag_source.h */,
 				825402C70D92D1390006B936 /* base_drop_target.cc */,
