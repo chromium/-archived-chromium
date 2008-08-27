@@ -106,8 +106,7 @@ SBOX_TESTS_COMMAND int File_Create(int argc, wchar_t **argv) {
     ScopedHandle file2(CreateFile(argv[1], FILE_EXECUTE, kSharing, NULL,
                        OPEN_EXISTING, 0, NULL));
 
-    if (INVALID_HANDLE_VALUE != file1.Get() &&
-        INVALID_HANDLE_VALUE != file2.Get())
+    if (file1.Get() && file2.Get())
       return SBOX_TEST_SUCCEEDED;
     return SBOX_TEST_DENIED;
   } else {
@@ -116,8 +115,7 @@ SBOX_TESTS_COMMAND int File_Create(int argc, wchar_t **argv) {
     ScopedHandle file2(CreateFile(argv[1], GENERIC_READ | FILE_WRITE_DATA,
                        kSharing, NULL, OPEN_EXISTING, 0, NULL));
 
-    if (INVALID_HANDLE_VALUE != file1.Get() &&
-        INVALID_HANDLE_VALUE != file2.Get())
+    if (file1.Get() && file2.Get())
       return SBOX_TEST_SUCCEEDED;
     return SBOX_TEST_DENIED;
   }
