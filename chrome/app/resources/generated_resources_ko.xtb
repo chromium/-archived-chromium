@@ -13,7 +13,6 @@
 <translation id="5329858601952122676">삭제(&amp;D)</translation>
 <translation id="3873963583678942942">(제목 없음)</translation>
 <translation id="1232569758102978740">제목 없음</translation>
-<translation id="1759842336958782510">크롬</translation>
 <translation id="6965382102122355670">확인</translation>
 <translation id="7658239707568436148">취소</translation>
 <translation id="6463795194797719782">편집(&amp;E)</translation>
@@ -105,7 +104,6 @@
 <translation id="772440777491435074">인증서 정보...</translation>
 <translation id="987264212798334818">일반</translation>
 <translation id="3435738964857648380">보안</translation>
-<translation id="7869935834862642047"><ph name="PAGE_TITLE"/> - <ph name="APP_NAME"/></translation>
 <translation id="406259880812417922">(키워드: <ph name="KEYWORD"/>)</translation>
 <translation id="1559333154119355392"><ph name="DOWNLOAD_SIZE"/> 다운로드 완료</translation>
 <translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/>, 취소</translation>
@@ -166,7 +164,6 @@
 <translation id="6426222199977479699">SSL 오류</translation>
 <translation id="5645845270586517071">보안 오류</translation>
 <translation id="3183922693828471536">여기로 스크롤</translation>
-<translation id="8439117394107194826">제거 후에 설문조사 웹페이지로 이동합니다.</translation>
 <translation id="4610637590575890427"><ph name="SITE"/>(으)로 이동하려고 하셨나요?</translation>
 <translation id="8182985032676093812"><ph name="PAGE_URL"/>의 소스</translation>
 <translation id="4880827082731008257">검색기록</translation>
@@ -312,9 +309,6 @@
 <translation id="7629827748548208700">탭: <ph name="TAB_NAME"/></translation>
 <translation id="6513615899227776181">플러그인: <ph name="PLUGIN_NAME"/></translation>
 <translation id="7071586181848220801">알 수 없는 플러그인</translation>
-<translation id="8540666473246803645">Google 크롬</translation>
-<translation id="3870154837782082782">Google Inc.</translation>
-<translation id="6622748519798088408">Copyright © 2006-2008 Google Inc. All Rights Reserved.</translation>
 <translation id="6479177161510354016"><ph name="SITE"/> 알림</translation>
 <translation id="333371639341676808">이 페이지가 추가적인 대화를 생성하지 않도록 차단합니다.</translation>
 <translation id="5295309862264981122">탐색 확인</translation>
@@ -337,7 +331,6 @@
 <translation id="2266011376676382776">페이지 응답없음</translation>
 <translation id="1110155001042129815">대기</translation>
 <translation id="1684861821302948641">페이지 종료</translation>
-<translation id="6134282421960734039">크롬에 비밀번호를 저장하시겠습니까?</translation>
 <translation id="5271549068863921519">비밀번호 저장</translation>
 <translation id="7484645889979462775">이 사이트 제외</translation>
 <translation id="4195643157523330669">새 탭에서 열기</translation>
@@ -437,7 +430,6 @@
 <translation id="8609465669617005112">위로 이동</translation>
 <translation id="6746124502594467657">아래로 이동</translation>
 <translation id="8241707690549784388">찾고 있는 페이지에서 사용자가 입력한 정보를 사용했습니다. 해당 페이지로 돌아가면 기존 작업을 반복할 수 있습니다. 계속하시겠습니까?</translation>
-<translation id="1964682833763362793">크롬 창을 모두 닫고 다시 시도해 보세요.</translation>
 <translation id="5333374927882515515"><ph name="DEF_BROWSER"/>에서 북마크, 비밀번호 및 기타 설정 가져오기</translation>
 <translation id="8256087479641463867">설정 사용자설정</translation>
 <translation id="7789175495288668515">기본 설치 옵션을 변경합니다.</translation>
@@ -445,7 +437,6 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">빠른 실행 표시줄</translation>
-<translation id="1549918799472947005">Google 크롬은 현재 기본 검색엔진으로 설정된 <ph name="PAGE_TITLE"/> 검색엔진을 사용하고 있습니다. 기본 검색엔진을 계속 사용하시겠습니까?</translation>
 <translation id="74568296546932365"><ph name="PAGE_TITLE"/>을(를) 기본 검색엔진으로 유지</translation>
 <translation id="8288345061925649502">검색엔진 변경</translation>
 <translation id="3037605927509011580">앗, 이런!</translation>
@@ -577,7 +568,6 @@
 <translation id="2441719842399509963">기본 설정으로 돌아가기</translation>
 <translation id="1208126399996836490">재설정 안 함</translation>
 <translation id="3122496702278727796">데이터 디렉토리 만들기 실패</translation>
-<translation id="5046764976540625289">크롬 종료</translation>
 <translation id="5034259512732355072">다른 디렉토리 선택...</translation>
 <translation id="2160383474450212653">언어와 글꼴</translation>
 <translation id="5042992464904238023">웹 콘텐츠</translation>
@@ -614,7 +604,6 @@
 <translation id="4307992518367153382">기본설정</translation>
 <translation id="1709220265083931213">고급설정</translation>
 <translation id="1674989413181946727">컴퓨터 전체 SSL 설정:</translation>
-<translation id="582763753075639530">변경 사항을 적용하려면 모든 크롬 창을 닫고, 크롬을 다시 시작하십시오.</translation>
 <translation id="9015241028623917394">현재 페이지 관리</translation>
 <translation id="8502249598105294518"><ph name="PRODUCT_NAME"/> 사용자설정 및 관리</translation>
 <translation id="4475552974751346499">다운로드 검색</translation>
@@ -624,7 +613,6 @@
 <translation id="8725178340343806893">즐겨찾기/북마크</translation>
 <translation id="873849583815421063">종료 중...</translation>
 <translation id="2960316970329790041">가져오기 중지</translation>
-<translation id="5016204670686360703">지금 취소하면 일부 항목을 가져올 수 없습니다. 나중에 크롬 메뉴에서 다시 항목을 가져올 수 있습니다.</translation>
 <translation id="7642109201157405070">가져오기 계속하기</translation>
 <translation id="5508407262627860757">무시하고 취소</translation>
 <translation id="290414493736480793">응답</translation>
@@ -661,52 +649,18 @@
 <translation id="7925285046818567682"><ph name="HOST_NAME"/> 기다리는 중...</translation>
 <translation id="2021921916539001817"><ph name="HOST_NAME"/>에서 가져오는 중...</translation>
 <translation id="6698381487523150993">생성됨:</translation>
-<translation id="4127951844153999091">이 경우 인증서에 나와 있는 주소가 귀하의 브라우저에서 이동하려는 웹사이트 주소와 일치하지 않습니다. 이러한 현상은 다른 웹사이트에 인증서를 제출하는 해커가 귀하의 통신을 방해해 불일치가 발생한 것이 원인일 수 있습니다. 또한 모든 사이트에 유효하지 않을 수 있는 인증서 하나가 귀하가 방문하려는 웹사이트를 포함한 여러 개의 웹사이트에 대해 반환되도록 서버가 설정된 것이 원인일 수도 있습니다. Google 크롬은 귀하가 &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;에 도달했음을 알려줄 수 있지만 해당 사이트가 귀하가 도달하려는 &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;과(와) 같은 사이트임을 확인할 수는 없습니다. 계속 진행할 경우 크롬은 이름 불일치를 더 이상 확인하지 않습니다. 일반적으로 이 시점에는 이전으로 진행하지 않는 것이 좋습니다.</translation>
-<translation id="9189723490960700326">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;에 접근하려 했지만 서버에서 만료된 인증서를 제출했습니다. 인증서가 만료 후 손상되었는지를 확인할 수 있는 정보가 없습니다. Google 크롬은 통신 중인 상대가 해커가 아닌 &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;인지 보장할 수 없습니다. 더 이상 진행하지 않는 것이 좋습니다.</translation>
-<translation id="6481075104394517441">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;에 접근하려 했지만 서버가 유효하지 않은 인증서를 제출했습니다. 인증서의 신뢰성을 확인할 수 있는 정보가 없습니다. Google 크롬은 통신 중인 상대가 해커가 아닌 &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;인지 보장할 수 없습니다. 컴퓨터의 시계 및 시간대가 정확하게 설정되었는지 확인하세요. 설정이 잘못된 경우 해당 설정을 수정하고 해당 페이지를 새로 고칩니다. 설정이 정확하면 더 이상 진행하지 않는 것이 좋습니다.</translation>
-<translation id="1144950271450340860">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;에 접근하려 했지만 서버에서 컴퓨터 운영체제가 신뢰하지 않는 기관에서 발행한 인증서를 제출했습니다. 이는 서버에서 생성한 자체 보안 증명서를 Google 크롬이 ID 정보로 신뢰할 수 없거나, 해커가 귀하의 통신을 방해하고 있는 것이 원인일 수 있습니다. 따라서 더 이상 진행하지 않는 것이 좋으며, &lt;strong&gt;특히&lt;/strong&gt; 해당 사이트에서 이 경고를 처음 보는 것이라면 더욱 주의해야 합니다.</translation>
-<translation id="6009537148180854585">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;에 접근하려 했지만 서버에서 오류가 있는 인증서를 제출했습니다. Google 크롬은 오류가 있는 인증서를 사용할 수 없으며 연결하려고 했던 사이트의 주소를 확인할 수 없습니다. 연결이 안전하지 않아 더 이상 진행하지 않는 것이 좋습니다.</translation>
-<translation id="7106741999175697885">작업 관리자 - Google 크롬</translation>
-<translation id="1195935957447623558">Google 크롬이 제대로 종료되지 않았습니다. 사용 중이던 페이지를 다시 열려면 '복구'를 클릭합니다.</translation>
-<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google 크롬</translation>
-<translation id="2044287590254833138">Google 크롬 툴바</translation>
-<translation id="8449380764213232436">Google 크롬이 <ph name="BROWSER_COMPONENT"/>에서 다음 항목을 가져오는 중입니다.</translation>
 <translation id="8562413501751825163">가져오기 전에 Firefox 창 닫기</translation>
-<translation id="6626317981028933585">Mozilla Firefox 브라우저가 실행 중일 때는 설정 기능을 사용할 수 없습니다. 이 설정을 Google 크롬으로 가져오려면 현재 작업을 저장하고 Firefox 창을 모두 닫습니다. 그런 다음 '계속'을 클릭합니다.</translation>
-<translation id="8446794773162156990">Google 크롬 오작동</translation>
-<translation id="7400722733683201933">Google 크롬 정보</translation>
-<translation id="3591558551793645824">Google 크롬이 제거되었습니다. 감사합니다.</translation>
-<translation id="8172671748763307156">Google 크롬을 제거하시겠습니까? (Google 크롬이 마음에 안 드세요? &gt;.&lt;)</translation>
-<translation id="7161904924553537242">Google 크롬에 오신 것을 환영합니다.</translation>
-<translation id="6921913858457830952">Google 크롬 설치가 곧 완료됩니다.</translation>
-<translation id="7241541963706135274">Google 크롬에서 다음 작업을 수행합니다.</translation>
-<translation id="7101265395643981223">Google 크롬 시작</translation>
-<translation id="2618799103663374905">데스크톱, 빠른 실행 표시줄 및 시작 메뉴에 Google 크롬 바로가기 추가</translation>
-<translation id="213581405366815208">Google 크롬 설치를 취소하시겠습니까? 나중에 설치를 계속하려면 '시작 메뉴 프로그램' 폴더에서 크롬을 실행합니다.</translation>
-<translation id="5941830788786076944">Google 크롬을 기본 브라우저로</translation>
-<translation id="7001386529596391893">다음 위치에 Google 크롬 바로가기를 만듭니다.</translation>
 <translation id="480990236307250886">홈페이지</translation>
 <translation id="6514771739083339959">홈페이지:</translation>
 <translation id="1665770420914915777">새 탭 페이지</translation>
 <translation id="4726901538158498735">기본 검색엔진:</translation>
 <translation id="2231233239095101917">페이지 스크립트에 너무 많은 메모리를 사용했습니다. 페이지를 다시 로드하여 스크립트를 다시 활성화하십시오.</translation>
-<translation id="8227755444512189073"><ph name="SCHEME"/> 링크 처리를 위해 Google 크롬에서 외부 응용 프로그램을 실행해야 합니다. 요청 링크는 <ph name="PROTOLINK"/>입니다.</translation>
-<translation id="8236873504073475138">Google 크롬에서는 Windows 2000을 지원하지 않습니다. 일부 기능이 작동하지 않을 수 있습니다.</translation>
-<translation id="3335672657969596251">Google 크롬에서는 <ph name="OS_NAME"/>을(를) 지원하지 않습니다.</translation>
-<translation id="1446473746922165495">Google 크롬 메뉴, 대화상자 및 툴팁에서 사용되는 언어를 변경합니다.</translation>
-<translation id="8810218179782551669">Google 크롬 언어:</translation>
-<translation id="7958215378280655655">Google 크롬 옵션을 재설정하면 변경했던 모든 사항이 기본 설정으로 되돌아갑니다. 크롬 옵션을 재설정하시겠습니까?</translation>
-<translation id="7100330187273168372">Google 크롬에서 다음 데이터 디렉토리에 읽고 쓸 수 없습니다.\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
-<translation id="3324235665723428530">최신 버전의 Google 크롬에서 가져온 사용자 프로필을 사용할 수 없습니다.\n\n일부 기능만 사용 가능할 수 있습니다. 다른 프로필 디렉토리를 지정하거나 최신 버전의 Google 크롬을 사용하세요.</translation>
 <translation id="3319048459796106952">새 시크릿 창(&amp;I)</translation>
 <translation id="1120026268649657149">키워드를 지정하지 않았거나 고유한 키워드가 아닙니다.</translation>
 <translation id="7481475534986701730">최근 방문한 사이트</translation>
-<translation id="8815061062167142136">헉! Google 크롬이 다운되었습니다. 다시 시작하시겠습니까?</translation>
-<translation id="3889417619312448367">Google 크롬 제거</translation>
 <translation id="3169621169201401257">이러한 부분에 문제가 있을 경우 <ph name="DOMAIN"/>에 대한 Google <ph name="DIAGNOSTIC_PAGE"/>를 참조하시기 바랍니다.</translation>
 <translation id="2356762928523809690">서버를 업데이트할 수 없습니다(오류: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">사전에 추가(&amp;A)</translation>
-<translation id="2499193704281978000">Google 크롬이 응답하지 않습니다. 다시 시작하시겠습니까?</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/>(<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">유니코드</translation>
 <translation id="1702534956030472451">서유럽어</translation>
@@ -733,9 +687,7 @@
 <translation id="3761000923495507277">툴바에 홈 버튼 표시</translation>
 <translation id="5291303148298143069">팝업 차단 시 알림</translation>
 <translation id="3383487468758466563">언어와 글꼴:</translation>
-<translation id="1137776625614346046">'자주 방문한 페이지'에는 가장 자주 이용하는 사이트가 표시됩니다. 크롬을 어느 정도 사용한 다음에는 새 탭을 열 때마다 자주 방문한 페이지를 볼 수 있습니다. <ph name="BEGIN_LINK"/>시작 페이지<ph name="END_LINK"/>에서 '자주 방문한 페이지' 및 기타 기능에 대해 자세히 알아보세요.</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>시크릿 모드로 바뀌었습니다<ph name="END_BOLD"/>. 시크릿 창에서 연 페이지는 브라우저의 웹 기록이나 검색 기록에 나타나지 않으며 창을 닫은 후에는 쿠키 같은 기록을 컴퓨터에 남기지 않습니다. 그러나 다운로드한 파일이나 작성한 북마크는 저장됩니다.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>시크릿 모드는 다른 사용자나 서버 또는 소프트웨어의 동작에 영향을 주지 않습니다. 주의:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>사용자 정보를 수집하고 공유하는 사이트<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>사용자가 방문한 페이지를 추적하는 인터넷 서비스 제공업체 또는 기업<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>무료 이모티콘을 제공하고 사용자의 키보드 입력을 추적하는 악성 소프트웨어<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>스파이의 감시<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>뒤에 서 있는 사람<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        시크릿 검색에 대해 <ph name="BEGIN_LINK"/>자세히 알아보기<ph name="END_LINK"/></translation>
 <translation id="1604816462140255479">글꼴 크기</translation>
 <translation id="2089625293428655599">본 소프트웨어에는 타사 라이센스 소프트웨어가 일부 포함되어 있습니다. 자세한 내용은 다음 페이지를 참조하세요. <ph name="URL"/></translation>
-<translation id="6817660909204164466">사용 통계 및 충돌 보고서가 Google로 자동 전송되도록 선택하시면 크롬을 개선하는 데 도움이 됩니다.</translation>
 </translationbundle>

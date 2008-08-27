@@ -13,7 +13,6 @@
 <translation id="5329858601952122676">&amp;Suprimeix</translation>
 <translation id="3873963583678942942">(Sense títol)</translation>
 <translation id="1232569758102978740">Sense títol</translation>
-<translation id="1759842336958782510">Chrome</translation>
 <translation id="6965382102122355670">Accepta</translation>
 <translation id="7658239707568436148">Cancel·la</translation>
 <translation id="6463795194797719782">E&amp;dita</translation>
@@ -105,7 +104,6 @@
 <translation id="772440777491435074">Informació del certificat...</translation>
 <translation id="987264212798334818">General</translation>
 <translation id="3435738964857648380">Seguretat</translation>
-<translation id="7869935834862642047"><ph name="PAGE_TITLE"/> - <ph name="APP_NAME"/></translation>
 <translation id="406259880812417922">(Paraula clau: <ph name="KEYWORD"/>)</translation>
 <translation id="1559333154119355392"><ph name="DOWNLOAD_SIZE"/>, Complet</translation>
 <translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/>, Cancel·lat</translation>
@@ -166,7 +164,6 @@
 <translation id="6426222199977479699">Error de SSL</translation>
 <translation id="5645845270586517071">Error de seguretat</translation>
 <translation id="3183922693828471536">Desplaçament fins aquí</translation>
-<translation id="8439117394107194826">Porta'm a la pàgina web de l'enquesta després de la desinstal·lació.</translation>
 <translation id="4610637590575890427">Volies anar a <ph name="SITE"/>?</translation>
 <translation id="8182985032676093812">Font de <ph name="PAGE_URL"/></translation>
 <translation id="4880827082731008257">Historial de cerca</translation>
@@ -312,9 +309,6 @@
 <translation id="7629827748548208700">Pestanya: <ph name="TAB_NAME"/></translation>
 <translation id="6513615899227776181">Complement: <ph name="PLUGIN_NAME"/></translation>
 <translation id="7071586181848220801">Complement desconegut</translation>
-<translation id="8540666473246803645">Google Chrome</translation>
-<translation id="3870154837782082782">Google Inc.</translation>
-<translation id="6622748519798088408">Copyright © 2006-2008 Google Inc. Tots els drets reservats.</translation>
 <translation id="6479177161510354016">Alerta <ph name="SITE"/></translation>
 <translation id="333371639341676808">Evita que aquesta pàgina creï diàlegs addicionals.</translation>
 <translation id="5295309862264981122">Confirma la navegació</translation>
@@ -337,7 +331,6 @@
 <translation id="2266011376676382776">Pàgines sense resposta</translation>
 <translation id="1110155001042129815">Espera</translation>
 <translation id="1684861821302948641">Finalitza les pàgines</translation>
-<translation id="6134282421960734039">Vols que Chrome desi la teva contrasenya?</translation>
 <translation id="5271549068863921519">Desa la contrasenya</translation>
 <translation id="7484645889979462775">Mai per a aquest lloc</translation>
 <translation id="4195643157523330669">Obre en una pestanya nova</translation>
@@ -437,7 +430,6 @@
 <translation id="8609465669617005112">Desplaça cap amunt</translation>
 <translation id="6746124502594467657">Mou avall</translation>
 <translation id="8241707690549784388">La pàgina que busques utilitzava informació que vas introduir. Tornar a aquesta pàgina podria provocar una repetició de qualsevol acció realitzada. Vols continuar?</translation>
-<translation id="1964682833763362793">Tanca totes les finestres de Chrome i torna-ho a provar.</translation>
 <translation id="5333374927882515515">Importa les adreces d'interès, les contrasenyes i altres configuracions de <ph name="DEF_BROWSER"/></translation>
 <translation id="8256087479641463867">Personalitza la teva configuració</translation>
 <translation id="7789175495288668515">Canvia les opcions d'instal·lació predeterminades.</translation>
@@ -445,7 +437,6 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">Barra d'inici ràpid</translation>
-<translation id="1549918799472947005">Chrome utilitza el teu motor de cerca predeterminat, que actualment és <ph name="PAGE_TITLE"/>. Vols mantenir el motor de cerca predeterminat?</translation>
 <translation id="74568296546932365">Mantén <ph name="PAGE_TITLE"/> com a motor de cerca predeterminat</translation>
 <translation id="8288345061925649502">Canviar el motor de cerca</translation>
 <translation id="3037605927509011580">Caram!</translation>
@@ -577,7 +568,6 @@
 <translation id="2441719842399509963">Restableix els valors predeterminats</translation>
 <translation id="1208126399996836490">No restableixis</translation>
 <translation id="3122496702278727796">Error en crear un directori de dades</translation>
-<translation id="5046764976540625289">Surt de Chrome</translation>
 <translation id="5034259512732355072">Selecciona un altre directori...</translation>
 <translation id="2160383474450212653">Tipus de lletra i idiomes</translation>
 <translation id="5042992464904238023">Contingut web</translation>
@@ -614,7 +604,6 @@
 <translation id="4307992518367153382">Conceptes bàsics</translation>
 <translation id="1709220265083931213">Avançat</translation>
 <translation id="1674989413181946727">Configuració de SSL a tot l'equip:</translation>
-<translation id="582763753075639530">Tanca totes les finestres de Chrome i reinicia el programa perquè aquest canvi tingui efecte.</translation>
 <translation id="9015241028623917394">Controla la pàgina actual</translation>
 <translation id="8502249598105294518">Personalitza i controla <ph name="PRODUCT_NAME"/></translation>
 <translation id="4475552974751346499">Cerca baixades</translation>
@@ -624,7 +613,6 @@
 <translation id="8725178340343806893">Favorits/Adreces d'interès</translation>
 <translation id="873849583815421063">Finalitzant...</translation>
 <translation id="2960316970329790041">Atura la importació</translation>
-<translation id="5016204670686360703">Si cancel·les ara, no s'importaran tots els elements. Pots tornar a importar més endavant, des del menú de Chrome.</translation>
 <translation id="7642109201157405070">Continua important</translation>
 <translation id="5508407262627860757">Cancel·la de totes maneres</translation>
 <translation id="290414493736480793">Agraïments</translation>
@@ -661,53 +649,18 @@
 <translation id="7925285046818567682">Esperant <ph name="HOST_NAME"/>...</translation>
 <translation id="2021921916539001817">Transferint des de <ph name="HOST_NAME"/>...</translation>
 <translation id="6698381487523150993">Creat:</translation>
-<translation id="4127951844153999091">En aquest cas, l'adreça que s'indica al certificat no coincideix amb l'adreça del lloc web al qual heu intentat accedir el navegador. Un possible motiu és que les vostres comunicacions les està interceptant un atacant que presenta un certificat per a un lloc web diferent, cosa que podria provocar un error de concordança. Un altre motiu possible és que el servidor estigui configurat per tornar el mateix certificat per a diversos llocs web, inclòs aquest que intenteu visitar, encara que el certificat no sigui vàlid per a tots aquests llocs web. Google Chrome pot garantir que heu accedit a &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, però no pot verificar que sigui el mateix lloc que &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; , que volíeu visitar. Si continueu, Chrome no comprovarà cap altre error de nom. En general, és millor no continuar més enllà d'aquest punt.</translation>
-<translation id="9189723490960700326">Heu intentat accedir a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, però el servidor ha presentat un certificat caducat. No hi ha informació disponible que indiqui si aquest certificat ha estat interceptat des que va caducar. Això significa que Google Chrome no pot garantir que us esteu comunicant amb &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; i no amb un atacant. No hauríeu de continuar.</translation>
-<translation id="6481075104394517441">Heu intentat accedir a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, però el servidor ha presentat un certificat que encara no és vàlid. No hi ha informació disponible que indiqui si es pot confiar en el certificat o no. Google Chrome no pot garantir amb fiabilitat que us esteu comunicant amb &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; i no amb un atacant. Hauríeu d'assegurar-vos que el rellotge i el fus horari estan configurats correctament al vostre equip. Si no ho estan, hauríeu de corregir els problemes i actualitzar aquesta pàgina. Si són correctes, no hauríeu de continuar.</translation>
-<translation id="1144950271450340860">Heu intentat accedir a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, però el servidor ha presentat un certificat emès per una entitat que el sistema operatiu del vostre equip no considera fiable. Això podria voler dir que el servidor ha generat les seves pròpies credencials de seguretat, en les quals Google Chrome no confia pel que fa a la informació d'identitat, o que un atacant pot estar intentant interceptar les vostres comunicacions. 
-No hauríeu de continuar, &lt;strong&gt;sobretot&lt;/strong&gt; si és la primera vegada que veieu aquesta advertència en aquest lloc.</translation>
-<translation id="6009537148180854585">Heu intentat accedir a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, però el certificat que ha presentat el servidor conté errors. Google Chrome no pot utilitzar un certificat amb errors i no pot validar la identitat del lloc al qual heu intentat connectar-vos. La connexió no és segura i no hauríeu de continuar.</translation>
-<translation id="7106741999175697885">Gestor de tasques - Google Chrome</translation>
-<translation id="1195935957447623558">Google Chrome no es va tancar correctament. Per tornar a accedir a les pàgines que teníeu obertes, feu clic a &quot;Restaura&quot;.</translation>
-<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
-<translation id="2044287590254833138">Barra d'eines de Google Chrome</translation>
-<translation id="8449380764213232436">En aquests moments, Google Chrome està important els elements següents de <ph name="BROWSER_COMPONENT"/>:</translation>
 <translation id="8562413501751825163">Tanca Firefox abans d'importar</translation>
-<translation id="6626317981028933585">Lamentablement, la vostra configuració de Mozilla Firefox no estarà disponible mentre aquest navegador s'estigui executant. Per importar aquesta configuració a Google Chrome, deseu la feina que hagueu fet i tanqueu totes les finestres de Firefox. Seguidament, feu clic a &quot;Continua&quot;.</translation>
-<translation id="8446794773162156990">Google Chrome té un comportament estrany.</translation>
-<translation id="7400722733683201933">Quant a Google Chrome</translation>
-<translation id="3591558551793645824">Google Chrome s'ha desinstal·lat correctament. Fins aviat!</translation>
-<translation id="8172671748763307156">Esteu segurs que voleu desinstal·lar Google Chrome? Hem fet res malament?</translation>
-<translation id="7161904924553537242">Us donem la benvinguda a Google Chrome.</translation>
-<translation id="6921913858457830952">Google Chrome està a punt per dur a terme la instal·lació.</translation>
-<translation id="7241541963706135274">Google Chrome durà a terme aquestes tasques:</translation>
-<translation id="7101265395643981223">Inicieu Google Chrome</translation>
-<translation id="2618799103663374905">Afegiu les dreceres de Google Chrome al vostre escriptori, a la barra d'inici ràpid i al menú &quot;Inici&quot;.</translation>
-<translation id="213581405366815208">Esteu segurs que voleu cancel·lar la instal·lació de Google Chrome? Si voleu continuar més endavant, obriu Chrome des de la carpeta &quot;Programes&quot; del menú &quot;Inici&quot;.</translation>
-<translation id="5941830788786076944">Estableix Google Chrome com el navegador per defecte</translation>
-<translation id="7001386529596391893">Crea dreceres de Google Chrome en aquestes ubicacions:</translation>
 <translation id="480990236307250886">Obra la pàgina d'inici</translation>
 <translation id="6514771739083339959">Pàgina d'inici:</translation>
 <translation id="1665770420914915777">Utilitzeu la pàgina &quot;Pestanya nova&quot;.</translation>
 <translation id="4726901538158498735">Cerca predeterminada:</translation>
 <translation id="2231233239095101917">La seqüència d'ordres de la pàgina ha fet servir massa memòria. Torneu a carregar-la per habilitar de nou les seqüències d'ordres.</translation>
-<translation id="8227755444512189073">Google Chrome ha d'iniciar una aplicació externa per gestionar els enllaços <ph name="SCHEME"/>. L'enllaç sol·licitat és <ph name="PROTOLINK"/>.</translation>
-<translation id="8236873504073475138">Google Chrome no és compatible amb Windows 2000. És possible que algunes funcions no estiguin disponibles.</translation>
-<translation id="3335672657969596251">Google Chrome no és compatible amb <ph name="OS_NAME"/>.</translation>
-<translation id="1446473746922165495">Canvieu l'idioma utilitzat als menús, quadres de diàleg i indicadors de funció de Google Chrome.</translation>
-<translation id="8810218179782551669">L'idioma de Google Chrome:</translation>
-<translation id="7958215378280655655">Quan restabliu les opcions de Google Chrome, qualsevol canvi que hagueu fet se substituirà per la configuració predeterminada. Voleu restablir les opcions de Chrome?</translation>
-<translation id="7100330187273168372">Google Chrome no pot llegir ni escriure al seu directori de dades:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
-<translation id="3324235665723428530">El vostre perfil no es pot utilitzar perquè es va crear amb una versió més recent de Google Chrome.\n\nÉs possible que algunes funcions no estiguin disponibles. Especifiqueu un altre directori de perfil o feu servir una versió actualitzada de Google Chrome.</translation>
 <translation id="3319048459796106952">Finestra d'incògnit nova</translation>
 <translation id="1120026268649657149">La paraula clau ha d'estar buida o bé ser única</translation>
 <translation id="7481475534986701730">Llocs visitats recentment</translation>
-<translation id="8815061062167142136">Vaja! S'ha produït una fallada a Google Chrome. Voleu reiniciar ara?</translation>
-<translation id="3889417619312448367">Desinstal·la Google Chrome</translation>
 <translation id="3169621169201401257">Per obtenir informació detallada sobre els problemes amb aquests elements, visiteu la pàgina de Google <ph name="DIAGNOSTIC_PAGE"/> del domini <ph name="DOMAIN"/>.</translation>
 <translation id="2356762928523809690">El servidor d'actualitzacions no està disponible (error: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">&amp;Afegeix al diccionari</translation>
-<translation id="2499193704281978000">Google Chrome no és responsable d'aquests actes. Voleu reiniciar ara?</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">Unicode</translation>
 <translation id="1702534956030472451">Occidental</translation>
@@ -734,9 +687,7 @@ No hauríeu de continuar, &lt;strong&gt;sobretot&lt;/strong&gt; si és la primer
 <translation id="3761000923495507277">Mostra el botó Pàgina principal a la barra d'eines</translation>
 <translation id="5291303148298143069">Notifica'm quan s'ha bloquejat un element emergent</translation>
 <translation id="3383487468758466563">Tipus de lletra i idiomes:</translation>
-<translation id="1137776625614346046">L'àrea &quot;Els més visitats&quot; mostra els llocs web que utilitzeu més sovint. Després d'utilitzar Google Chrome durant un temps, veureu els llocs web més visitats cada vegada que obriu una pestanya nova. Podeu obtenir més informació sobre aquesta i altres funcions a la <ph name="BEGIN_LINK"/>pàgina Introducció<ph name="END_LINK"/>.</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Heu passat a l'estat d'incògnit<ph name="END_BOLD"/>. Les pàgines que visualitzeu en aquesta finestra no apareixeran a l'historial del navegador ni a l'historial de cerques, i no deixaran cap pista (com ara, galetes) a l'equip després de tancar la finestra en mode d'incògnit. Tanmateix, es conservaran tots els fitxers que baixeu o les adreces d'interès que creeu.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Utilitzar el mode d'incògnit no afecta el comportament d'altres usuaris, servidors ni programaris. Teniu en compte:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>llocs web que recopilen o comparteixen informació sobre la vostra identitat,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>proveïdors de serveis d'Internet o treballadors que segueixen les pàgines que visiteu,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>programari maliciós que segueix les vostres pulsacions del teclat a canvi d'emoticones,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>vigilància per part d'agents secrets,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>persones que estan darrere vostre.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Més informació<ph name="END_LINK"/> sobre la navegació en mode d'incògnit.</translation>
 <translation id="1604816462140255479">&amp;Zoom del text</translation>
 <translation id="2089625293428655599">Algunes parts d'aquest programari pertanyen a llicències de tercers, tal com es descriu a: <ph name="URL"/></translation>
-<translation id="6817660909204164466">Per ajudar-nos a millorar Google Chrome, envia automàticament estadístiques d'ús i informes d'errors a Google</translation>
 </translationbundle>

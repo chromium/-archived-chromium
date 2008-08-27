@@ -13,7 +13,6 @@
 <translation id="5329858601952122676">&amp;حذف</translation>
 <translation id="3873963583678942942">(بلا عنوان)</translation>
 <translation id="1232569758102978740">بلا عنوان</translation>
-<translation id="1759842336958782510">Chrome</translation>
 <translation id="6965382102122355670">موافق</translation>
 <translation id="7658239707568436148">إلغاء</translation>
 <translation id="6463795194797719782">ت&amp;عديل</translation>
@@ -105,7 +104,6 @@
 <translation id="772440777491435074">معلومات الشهادة...</translation>
 <translation id="987264212798334818">عام</translation>
 <translation id="3435738964857648380">أمن المعلومات</translation>
-<translation id="7869935834862642047"><ph name="PAGE_TITLE"/> - <ph name="APP_NAME"/></translation>
 <translation id="406259880812417922">(الكلمة المفتاحية: <ph name="KEYWORD"/>)</translation>
 <translation id="1559333154119355392">تمّ تحميل <ph name="DOWNLOAD_SIZE"/> حتى الآن.</translation>
 <translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/>،إلغاء</translation>
@@ -166,7 +164,6 @@
 <translation id="6426222199977479699">خطأ في SSL</translation>
 <translation id="5645845270586517071">خطأ في أمن الموقع</translation>
 <translation id="3183922693828471536">التمرير إلى هنا</translation>
-<translation id="8439117394107194826">الانتقال إلى صفحة الاستبيان بعد  إتمام عملية  الإزالة.</translation>
 <translation id="4610637590575890427">هل قصدت الذهاب إلى الموقع <ph name="SITE"/>؟</translation>
 <translation id="8182985032676093812">مصدر <ph name="PAGE_URL"/></translation>
 <translation id="4880827082731008257">البحث في السجلّ</translation>
@@ -312,9 +309,6 @@
 <translation id="7629827748548208700">علامة التبويب: <ph name="TAB_NAME"/></translation>
 <translation id="6513615899227776181">المكوّن الإضافي: <ph name="PLUGIN_NAME"/></translation>
 <translation id="7071586181848220801">مكوّن إضافي غير محدّد</translation>
-<translation id="8540666473246803645">Google Chrome</translation>
-<translation id="3870154837782082782">Google Inc‎.‎</translation>
-<translation id="6622748519798088408">حقوق الطبع والنشر © 2006-2008 Google Inc. جميع الحقوق محفوظة.</translation>
 <translation id="6479177161510354016">تنبيه <ph name="SITE"/></translation>
 <translation id="333371639341676808">منع هذه الصفحة من إنشاء مربّعات حوار إضافية.</translation>
 <translation id="5295309862264981122">تأكيد التصفّح</translation>
@@ -337,7 +331,6 @@
 <translation id="2266011376676382776">الصفحة (الصفحات) غير المستجيبة</translation>
 <translation id="1110155001042129815">انتظار</translation>
 <translation id="1684861821302948641">إنهاء الصفحات</translation>
-<translation id="6134282421960734039">هل تريد أن يحفظ Chrome كلمة المرور؟</translation>
 <translation id="5271549068863921519">حفظ كلمة المرور</translation>
 <translation id="7484645889979462775">عدم حفظ كلمة المرور لهذا الموقع</translation>
 <translation id="4195643157523330669">فتح الإشارة في علامة تبويب جديدة</translation>
@@ -437,7 +430,6 @@
 <translation id="8609465669617005112">التحريك إلى أعلى</translation>
 <translation id="6746124502594467657">الانتقال إلى أسفل</translation>
 <translation id="8241707690549784388">استخدمت الصفحة التي تبحث عنها المعلومات التي أدخلتها وقد يؤدّي الرجوع إليها  إلى تكرار  جميع الإجراءات السابقة. هل تريد المتابعة؟</translation>
-<translation id="1964682833763362793">يُرجى إغلاق جميع نوافذ Chrome وتكرار المحاولة.</translation>
 <translation id="5333374927882515515">استيراد الإشارات وكلمات المرور وإعدادات أخرى من المتصفّح <ph name="DEF_BROWSER"/></translation>
 <translation id="8256087479641463867">تخصيص الإعدادات</translation>
 <translation id="7789175495288668515">تغيير خيارات التثبيت الافتراضية.</translation>
@@ -445,7 +437,6 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">شريط التشغيل السريع</translation>
-<translation id="1549918799472947005">يستخدم Google Chrome محرّك البحث الافتراضي، وهو حاليًا <ph name="PAGE_TITLE"/>. هل تريد إبقاء محرّك البحث الافتراضي الحاليّ؟</translation>
 <translation id="74568296546932365">إبقاء <ph name="PAGE_TITLE"/> كمحرّك البحث الافتراضي</translation>
 <translation id="8288345061925649502">تغيير محرّك البحث</translation>
 <translation id="3037605927509011580">عذرًا!</translation>
@@ -577,7 +568,6 @@
 <translation id="2441719842399509963">الإعادة إلى الإعدادات الافتراضية</translation>
 <translation id="1208126399996836490">إلغاء</translation>
 <translation id="3122496702278727796">إخفاق محاولة إنشاء دليل  البيانات</translation>
-<translation id="5046764976540625289">إنهاء Chrome</translation>
 <translation id="5034259512732355072">اختيار دليل آخر...</translation>
 <translation id="2160383474450212653">الخطوط واللغات</translation>
 <translation id="5042992464904238023">محتوى الويب</translation>
@@ -614,7 +604,6 @@
 <translation id="4307992518367153382">أساسيّات</translation>
 <translation id="1709220265083931213">الخيارات المتقدّمة</translation>
 <translation id="1674989413181946727">إعدادات SSL في الكمبيوتر:</translation>
-<translation id="582763753075639530">يجب إغلاق جميع نوافذ Chrome وإعادة تشغيله حتى يسري هذا التغيّر.</translation>
 <translation id="9015241028623917394">التحكّم في الصفحة الحالية</translation>
 <translation id="8502249598105294518">تخصيص <ph name="PRODUCT_NAME"/> والتحكّم به</translation>
 <translation id="4475552974751346499">البحث في الملفّات المحمّلة</translation>
@@ -624,7 +613,6 @@
 <translation id="8725178340343806893">المفضّلة/الإشارات</translation>
 <translation id="873849583815421063">توشك عملية الاستيرد على الانتهاء...</translation>
 <translation id="2960316970329790041">إلغاء الاستيراد</translation>
-<translation id="5016204670686360703">إذا ألغيت طلب الاستيراد  الآن، لن يتمّ استيراد العناصر  كلّها. يمكنك استيراد ما تبقّى منها في مرحلة لاحقة من قائمة Chrome.</translation>
 <translation id="7642109201157405070">متابعة الاستيراد</translation>
 <translation id="5508407262627860757">إلغاء الاستيراد</translation>
 <translation id="290414493736480793">كلمات شكر</translation>
@@ -661,52 +649,18 @@
 <translation id="7925285046818567682">في انتظار <ph name="HOST_NAME"/>‏ ...</translation>
 <translation id="2021921916539001817">يتمّ النقل من <ph name="HOST_NAME"/>‏ ...</translation>
 <translation id="6698381487523150993">تاريخ الإنشاء:</translation>
-<translation id="4127951844153999091">هذا يعني أنّ العنوان المذكور في الشهادة لا يتطابق  مع عنوان الموقع الذي يحاول المتصفّح دخوله. وقد يعزى ذلك إلى محاولة متسلّل ما اعتراض اتّصالاتك بإرسال شهادة تتعلّق بموقع آخر، ممّا يفسّر حالة عدم التطابق. أو إلى كون الخادم مبرمجاً بحيث يُرجع الشهادة نفسها لعدّة مواقع، من ضمنها الموقع المقصود، حتّى لو لم تكن صالحة للمواقع كلّها.  يؤكّد Google Chrome أنّك وصلت إلى الموقع &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;، ولكن لا يمكنه التحقّق من أنّه هو نفسه الموقع &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;  المقصود. إذا استأنفت البحث، لن يدقّق Google Chrome  في حالات عدم التطابق الأخرى. من المفضّل والحالة هذه التوقّف عند هذا الحدّ وعدم متابعة عملية البحث.</translation>
-<translation id="9189723490960700326">لقد حاولت الوصول إلى الموقع &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;، لكنّ الشهادة التي قدّمها الخادم منتهية الصلاحية. وبما أنّ لا معلومات أكيدة عمّا إذا كان قد تمّ سرقة الشهادة أو تعديلها منذ انقضاء مدّة صلاحيتها، لا يستطيع Google Chrome أن يضمن أنّ الاتصال يتمّ بالموقع &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; وليس بمتسلّل. يجب عدم المتابعة.</translation>
-<translation id="6481075104394517441">لقد حاولت الوصول إلى الموقع &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong، لكنّ الشهادة التي قدّمها الخادم لا تزال غير صالحة . وفي غياب أي معلومات عن موثوقية الشهادة، لا يستطيع  Google Chrome أن يضمن أنّك على اتّصال بالموقع  &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;  وليس بمتسلّل. تأكّد من  إعدادات الساعة والمنطقة الزمنية في الكمبيوتر، فإذا لم تكن صحيحة يجب إعادة ضبطها وتحديث الصفحة، وإذا كانت صحيحة، يجب التوقّف عند هذا الحدّ وعدم متابعة عملية البحث</translation>
-<translation id="1144950271450340860">لقد حاولت الوصول إلى الموقع &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;، لكنّ الشهادة التي قدّمها الخادم لم تصدر عن جهة معتمدة من الكمبيوتر.  وهذا يعني أنّ الخادم أنشأ بيانات اعتماد خاصة لا يستطيع Google Chrome الوثوق بها كمعلومات إثبات هوية، أو أنّ متسلّلاً ما يحاول اعتراض اتصالاتك. يجب عدم المتابعة &lt;strong&gt;بخاصة&lt;/strong&gt;  إن لم يسبق لك تلقّي إنذار كهذا في شأن هذا الموقع.</translation>
-<translation id="6009537148180854585">لقد حاولت الوصول إلى الموقع &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;، لكنّ الشهادة التي قدّمها الخادم تحتوي على أخطاء. لا يستطيع Google Chrome استخدام شهادة فيها أخطاء، والتحقّق من هوية الموقع المقصود. الاتصال غير آمن ويجب عدم المتابعة.</translation>
-<translation id="7106741999175697885">مدير المهام - Google Chrome</translation>
-<translation id="1195935957447623558">لم يتمّ إغلاق Google Chrome بطريقة صحيحة. لإعادة فتح الصفحات التي سبق فتحها، انقر على زرّ إعادة.</translation>
-<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
-<translation id="2044287590254833138">شريط أدوات Google Chrome</translation>
-<translation id="8449380764213232436">Google Chrome في صدد استيراد العناصر التالية من <ph name="BROWSER_COMPONENT"/>:</translation>
 <translation id="8562413501751825163">إغلاق متصفّح Firefox قبل بدء عملية الاستيراد</translation>
-<translation id="6626317981028933585">لا يمكن استيراد إعدادات Mozilla Firefox أثناء تشغيل المتصفّح. لاستيراد الإعدادات إلى متصفّح Google Chrome، احفظ عملك وأغلق جميع نوافذ  Firefox، ثمّ  انقر على زرّ المتابعة.</translation>
-<translation id="8446794773162156990">خلل في عمل Google Chrome</translation>
-<translation id="7400722733683201933">معلومات عن Google Chrome</translation>
-<translation id="3591558551793645824">لقد تمّت إزالة Google Chrome. إلى اللقاء!</translation>
-<translation id="8172671748763307156">هل تريد بالتأكيد إزالة Google Chrome? (هل بدر منّا ما أزعجك؟)</translation>
-<translation id="7161904924553537242">مرحبًا بك في Google Chrome</translation>
-<translation id="6921913858457830952">Google Chrome جاهز لإكمال عملية التثبيت.</translation>
-<translation id="7241541963706135274">سيؤدّي Google Chrome المهام التالية:</translation>
-<translation id="7101265395643981223">بدء تشغيل Google Chrome</translation>
-<translation id="2618799103663374905">إضافة اختصارات Google Chrome إلى سطح المكتب وشريط التشغيل السريع وقائمة بدء التشغيل</translation>
-<translation id="213581405366815208">هل  تريد بالتأكيد  إلغاء طلب تثبيت Google Chrome ؟ إذا أردت المتابعة لاحقًا، يمكنك فتح Chrome في مجلّد البرامج في قائمة بدء التشغيل</translation>
-<translation id="5941830788786076944">جعل Google Chrome المتصفّح الافتراضي</translation>
-<translation id="7001386529596391893">إنشاء اختصارات لـ Google Chrome في هذه الأماكن:</translation>
 <translation id="480990236307250886">فتح الصفحة الرئيسية</translation>
 <translation id="6514771739083339959">الصفحة الرئيسية:</translation>
 <translation id="1665770420914915777">استخدام صفحة &quot;علامة تبويب جديدة&quot;</translation>
 <translation id="4726901538158498735">محرّك البحث الافتراضي:</translation>
 <translation id="2231233239095101917">استنفد الاسكريبت المنفّذ في الصفحة معظم موارد الذاكرة. يجب إعادة التحميل لتمكين  السكريبت من جديد.</translation>
-<translation id="8227755444512189073">تقتضي معالجة روابط <ph name="SCHEME"/> تشغيل تطبيق خارجيّ. والرّابط المطلوب هو <ph name="PROTOLINK"/>.</translation>
-<translation id="8236873504073475138">لا يعمل Google Chrome بموجب نظام التشغيل Windows 2000. لهذا قد يتعذّر تشغيل بعض الميزات.</translation>
-<translation id="3335672657969596251">لا يعمل Google Chrome بموجب نظام التشغيل <ph name="OS_NAME"/>.</translation>
-<translation id="1446473746922165495">تغيّير اللغة المُستخدمة في القوائم ومربّعات الحوار والنوافذ التفسيرية (Tooltips) في Google Chrome.</translation>
-<translation id="8810218179782551669">لغة Google Chrome:</translation>
-<translation id="7958215378280655655">عند إعادة ضبط خيارات Google Chrome، تمّحى أي تعديلات سابقة وتحلّ محلّها الإعدادت الافتراضية. هل تريد إعادة ضبط الخيارات؟</translation>
-<translation id="7100330187273168372">يتعذّر على Google Chrome القراءة والكتابة إلى دليل البيانات:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
-<translation id="3324235665723428530">يتعذّر استخدام ملفّ تعريف الارتباط لأنهّ ينمتي إلى إصدار حديث من Google Chrome \n\ وقد ينقصه بعض الميزات المعيّنة. يرجى اختيار دليل آخر لتحديد ملّف التعريف أو استخدام إصدار أحدث من Chrome.</translation>
 <translation id="3319048459796106952">نافذة &amp; جديدة للتصفّح المتخفّي</translation>
 <translation id="1120026268649657149">يجب اختيار كلمة مفتاحية فريدة أو عدم الاختيار</translation>
 <translation id="7481475534986701730">المواقع التي تمّت زيارتها حديثُا</translation>
-<translation id="8815061062167142136">عذرًا! لقد طرأ عطل على Google Chrome. هل تريد إعادة تشغيله؟</translation>
-<translation id="3889417619312448367">إزالة Google Chrome</translation>
 <translation id="3169621169201401257">لمزيد من  التفاصيل عن مشاكل هذه العناصر، راجع صفحة <ph name="DIAGNOSTIC_PAGE"/> في Google، القسم الخاص بالموقع <ph name="DOMAIN"/></translation>
 <translation id="2356762928523809690">خادم التحديث غير متوفر (الخطأ: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">إ&amp;ضافة التعبير إلى القاموس</translation>
-<translation id="2499193704281978000">Google Chrome لا يستجيب. هل تريد إعادة تشغيله الآن؟</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">يونيكود</translation>
 <translation id="1702534956030472451">غربيّ</translation>
@@ -733,7 +687,6 @@
 <translation id="3761000923495507277">عرض زرّ الصفحة الرئيسية في شريط الأدوات</translation>
 <translation id="5291303148298143069">إبلاغي عند حجب نافذة تطفّلية</translation>
 <translation id="3383487468758466563">الخطوط واللغات:</translation>
-<translation id="1137776625614346046">تعرض منطقة &quot;المواقع الأكثر زيارةً&quot; المواقع التي تتردّد إليها. فبعد مرور مدّة قصيرة على استخدام Google Chrome يمكنك مشاهدة المواقع الأكثر زيارةً كلّما فتحت علامة تبويب جديدة. لمزيد من المعلومات عن هذه الميزة وعن سواها من الميزات، اذهب إلى الرّابط <ph name="BEGIN_LINK"/>صفحة بدء التشغيل<ph name="END_LINK"/>.</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>لقد انتقلتَ إلى وضع التصفّح المتخفّي<ph name="END_BOLD"/>. ممّا يعني أنّ الصفحات التي تشاهدها في هذه النافذة لن تظهر في سجلّ التصّفح أو في سجلّ البحث، ولن تخلّف أيّ أثر في الكمبيوتر ، على غرار ملفّات تعريف الارتباط، بعد إغلاق نافذة التصفّح المتخفّي. ولكن سيتمّ الاحتفاظ  بالملفّات المحمّلة والصفحات المعلّمة  بإشارة.
         <ph name="LINE_BREAK"/> 
         <ph name="BEGIN_BOLD"/>إنّّ التصفّح المتخفّي لا يؤثّر في سلوك الآخرين أو في طريقة عمل الخوادم والبرمجيات. لذا احذر:<ph name="END_BOLD"/>
@@ -747,5 +700,4 @@
         <ph name="BEGIN_LINK"/>مزيد من المعلومات<ph name="END_LINK"/> عن التصفّح المتخفّي.</translation>
 <translation id="1604816462140255479">ت&amp;كبير/تصغير النصّ</translation>
 <translation id="2089625293428655599">تم ترخيص أجزاء من هذا البرنامج من جهات الطرف الثالث كما هو مبين على: <ph name="URL"/></translation>
-<translation id="6817660909204164466">المساعدة في تحسين Google Chrome عن طريق إرسال إحصائيات الاستخدام وتقارير الأعطال تلقائيًا إلى Google</translation>
 </translationbundle>

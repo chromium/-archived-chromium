@@ -13,7 +13,6 @@
 <translation id="5329858601952122676">&amp;Видалити</translation>
 <translation id="3873963583678942942">(Без імені)</translation>
 <translation id="1232569758102978740">Без імені</translation>
-<translation id="1759842336958782510">Chrome</translation>
 <translation id="6965382102122355670">OK</translation>
 <translation id="7658239707568436148">Скасувати</translation>
 <translation id="6463795194797719782">&amp;Редагувати</translation>
@@ -105,7 +104,6 @@
 <translation id="772440777491435074">Інформація про сертифікат...</translation>
 <translation id="987264212798334818">Загальні</translation>
 <translation id="3435738964857648380">Безпека</translation>
-<translation id="7869935834862642047"><ph name="PAGE_TITLE"/> - <ph name="APP_NAME"/></translation>
 <translation id="406259880812417922">(Ключове слово: <ph name="KEYWORD"/>)</translation>
 <translation id="1559333154119355392"><ph name="DOWNLOAD_SIZE"/>, завершено</translation>
 <translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/>, скасовано</translation>
@@ -166,7 +164,6 @@
 <translation id="6426222199977479699">Помилка SSL</translation>
 <translation id="5645845270586517071">Збій безпеки</translation>
 <translation id="3183922693828471536">Прокрутка до цього місця</translation>
-<translation id="8439117394107194826">Після видалення перейти до веб-сторінки опитування.</translation>
 <translation id="4610637590575890427">Ви мали на увазі перейти до <ph name="SITE"/>?</translation>
 <translation id="8182985032676093812">Джерело <ph name="PAGE_URL"/></translation>
 <translation id="4880827082731008257">Пошук в історії</translation>
@@ -312,9 +309,6 @@
 <translation id="7629827748548208700">Вкладка: <ph name="TAB_NAME"/></translation>
 <translation id="6513615899227776181">Модуль: <ph name="PLUGIN_NAME"/></translation>
 <translation id="7071586181848220801">Невідомий модуль</translation>
-<translation id="8540666473246803645">Google Chrome</translation>
-<translation id="3870154837782082782">Google Inc.</translation>
-<translation id="6622748519798088408">Авторські права © 2006-2008 Google Inc. Усі права захищено.</translation>
 <translation id="6479177161510354016">Сповіщення <ph name="SITE"/></translation>
 <translation id="333371639341676808">Заборонити створення додаткових діалогових вікон цією сторінкою.</translation>
 <translation id="5295309862264981122">Підтвердити навігацію</translation>
@@ -337,7 +331,6 @@
 <translation id="2266011376676382776">Сторінки не відповідають</translation>
 <translation id="1110155001042129815">Зачекайте</translation>
 <translation id="1684861821302948641">Видалити сторінки</translation>
-<translation id="6134282421960734039">Бажаєте, щоб Chrome зберігав ваш пароль?</translation>
 <translation id="5271549068863921519">Зберегти пароль</translation>
 <translation id="7484645889979462775">Ніколи для цього сайта</translation>
 <translation id="4195643157523330669">Відкрити в новій вкладці</translation>
@@ -437,7 +430,6 @@
 <translation id="8609465669617005112">Угору</translation>
 <translation id="6746124502594467657">Вниз</translation>
 <translation id="8241707690549784388">Сторінка, яку ви шукаєте, використовувала інформацію, введену вами. Повернення до такої сторінки може призвести до повторення ваших попередніх дій. Ви дійсно бажаєте продовжити?</translation>
-<translation id="1964682833763362793">Закрийте всі вікна Chrome і спробуйте ще раз.</translation>
 <translation id="5333374927882515515">Імпорт закладок, паролів та інших налаштувань із <ph name="DEF_BROWSER"/></translation>
 <translation id="8256087479641463867">Налаштувати свої настройки</translation>
 <translation id="7789175495288668515">Змініть параметри інсталяції за замовчуванням.</translation>
@@ -445,7 +437,6 @@
 <translation id="8520668773617044689">Firefox</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">Панель швидкого запуску</translation>
-<translation id="1549918799472947005">Chrome використовує пошукову систему, встановлену за замовчуванням, якою наразі є <ph name="PAGE_TITLE"/>. Бажаєте зберегти пошукову систему за замовчуванням?</translation>
 <translation id="74568296546932365">Залишити <ph name="PAGE_TITLE"/> пошуковою системою за замовчуванням</translation>
 <translation id="8288345061925649502">Змінити пошукову систему</translation>
 <translation id="3037605927509011580">От чорт!</translation>
@@ -577,7 +568,6 @@
 <translation id="2441719842399509963">Відновити налаштування за замовчуванням</translation>
 <translation id="1208126399996836490">Не скидати</translation>
 <translation id="3122496702278727796">Не вдалося створити каталог даних</translation>
-<translation id="5046764976540625289">Вийти із Chrome</translation>
 <translation id="5034259512732355072">Вибрати інший каталог...</translation>
 <translation id="2160383474450212653">Шрифти та мови</translation>
 <translation id="5042992464904238023">Веб-контент</translation>
@@ -614,7 +604,6 @@
 <translation id="4307992518367153382">Основи</translation>
 <translation id="1709220265083931213">Двигунець</translation>
 <translation id="1674989413181946727">Налаштування SSL комп’ютера:</translation>
-<translation id="582763753075639530">Щоб ця зміна вступила в силу, закрийте всі вікна Chrome та перезапустіть Chrome.</translation>
 <translation id="9015241028623917394">Керування поточною сторінкою</translation>
 <translation id="8502249598105294518">Налаштування та керування <ph name="PRODUCT_NAME"/></translation>
 <translation id="4475552974751346499">Пошук завантажень</translation>
@@ -624,7 +613,6 @@
 <translation id="8725178340343806893">Улюблені/Закладки</translation>
 <translation id="873849583815421063">Завершення...</translation>
 <translation id="2960316970329790041">Припинити імпорт</translation>
-<translation id="5016204670686360703">Якщо скасувати зараз, буде виконано імпорт не всіх елементів. Можна знову виконати імпорт пізніше із меню Chrome.</translation>
 <translation id="7642109201157405070">Продовжити імпорт</translation>
 <translation id="5508407262627860757">Скасувати</translation>
 <translation id="290414493736480793">Подяки</translation>
@@ -661,53 +649,18 @@
 <translation id="7925285046818567682"><ph name="HOST_NAME"/>...</translation>
 <translation id="2021921916539001817"><ph name="HOST_NAME"/>...</translation>
 <translation id="6698381487523150993">:</translation>
-<translation id="4127951844153999091">У такому випадку адреса, вказана в сертифікаті, не відповідає адресі веб-сайта, на яку спробував перейти переглядач. Однією з можливих причин цього є те, що ваші спроби встановити з’єднання перехоплюються зловмисником, який надає сертифікат для іншого веб-сайта, що може спричиняти невідповідність. Іншою можливою причиною є налаштування сервера на повернення того ж сертифіката для кількох веб-сайтів, включно з тим, який ви намагаєтесь відвідати, попри те, що такий сертифікат не є чинним для всіх цих веб-сайтів. Chrome може напевно сказати, що встановлено з’єднання з &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, але не може перевірити, чи це той самий сайт &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, з яким ви мали намір встановити з’єднання. Якщо продовжити, Chrome не перевірятиме будь-які подальші невідповідності імен. Як правило, продовжувати далі не рекомендується.</translation>
-<translation id="9189723490960700326">Ви спробували отримати доступ до &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, але сервер надав сертифікат, який втратив чинність. Немає доступної інформації, яка б вказувала на те, що сертифікат було пошкоджено після втрати ним чинності. Це означає, що Google Chrome не може гарантувати вам той факт, що ви працюєте з &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, а не зі зловмисником. Рекомендуємо не продовжувати.</translation>
-<translation id="6481075104394517441">Ви спробували отримати доступ до &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, але сервер надав сертифікат, який ще не є дійсним. Немає доступної інформації, яка б вказувала на надійність сертифіката. Google Chrome не може гарантувати вам той факт, що ви працюєте з &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, а не зі зловмисником. Переконайтеся, що на комп’ютері правильно встановлено годинник і часовий пояс. Якщо ні, зробіть необхідні виправлення та поновіть цю сторінку. Якщо вони правильні, не слід продовжувати.</translation>
-<translation id="1144950271450340860">Ви спробували отримати доступ до &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, але сервер надав сертифікат, що виданий органом, який не вважається надійним оперативною системою вашого комп’ютера. Це може означати, що сервер створив власні облікові дані, на достовірність яких Google Chrome не може покластися, або зловмисник намагається перехопити вашу переписку. Рекомендуємо не продовжувати, &lt;strong&gt;особливо&lt;/strong&gt; якщо ви ніколи раніше не бачили такого попередження для цього сайту.</translation>
-<translation id="6009537148180854585">Ви спробували отримати доступ до &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, але сертифікат, наданий сервером, містить помилки. Google Chrome не може користуватися сертифікатом з помилками та не може перевірити ідентифікаційну інформацію сайту, з яким ви спробувати встановити з’єднання. Ваше з’єднання не є захищеним, рекомендуємо не продовжувати.</translation>
-<translation id="7106741999175697885">Диспетчер завдань - Google Chrome</translation>
-<translation id="1195935957447623558">Роботу Google Chrome було завершено не правильно. Щоб знову відкрити сторінки, які ви відкривали, натисніть &quot;Відновити&quot;.</translation>
-<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
-<translation id="2044287590254833138">Панель інструментів Google Chrome</translation>
-<translation id="8449380764213232436">Google Chrome не імпортує наступні компоненти з <ph name="BROWSER_COMPONENT"/>:</translation>
 <translation id="8562413501751825163">Закрити Firefox перед імпортуванням</translation>
-<translation id="6626317981028933585">Шкода, але ваші налаштування Mozilla Firefox не є доступні, коли переглядач запущено. Щоб імпортувати такі налаштування у Google Chrome, збережіть зроблені вами зміни та закрийте усі вікна Firefox. Потім натисніть &quot;Продовжити&quot;</translation>
-<translation id="8446794773162156990">Google Chrome працює неналежним чином</translation>
-<translation id="7400722733683201933">Про Google Chrome</translation>
-<translation id="3591558551793645824">Видалення Google Chrome завершено. 
-Усього найкращого!</translation>
-<translation id="8172671748763307156">Ви дійсно бажаєте скасувати інсталяцію Google Chrome? (Це через щось, сказане нами?)</translation>
-<translation id="7161904924553537242">Вітаємо у Google Chrome:</translation>
-<translation id="6921913858457830952">Google Chrome готовий виконати інсталяцію.</translation>
-<translation id="7241541963706135274">Google Chrome виконає наступні завдання:</translation>
-<translation id="7101265395643981223">Запустити Google Chrome</translation>
-<translation id="2618799103663374905">Додати ярлик Chrome на робочий стіл, у панель швидкого запуску та в меню &quot;Пуск&quot;.</translation>
-<translation id="213581405366815208">Ви дійсно бажаєте скасувати інсталяцію Google Chrome? Якщо бажаєте продовжити пізніше, відкрийте Chrome із папки &quot;Програми&quot; в меню &quot;Пуск&quot;.</translation>
-<translation id="5941830788786076944">Зробити Google Chrome переглядачем за промовчанням</translation>
-<translation id="7001386529596391893">Створити ярлики Google Chrome у таких розташуваннях:</translation>
 <translation id="480990236307250886">Відкрити домашню сторінку</translation>
 <translation id="6514771739083339959">Домашня сторінка</translation>
 <translation id="1665770420914915777">Скористатися сторінкою &quot;Нова вкладка&quot;</translation>
 <translation id="4726901538158498735">Стандартний пошук:</translation>
 <translation id="2231233239095101917">Сценарій цієї сторінки зайняв велику кількість пам'яті. Перезавантажте програму, щоб знову запустити сценарії.</translation>
-<translation id="8227755444512189073">Google Chrome потребує запуску зовнішньої прикладної програми для опрацювання посилань <ph name="SCHEME"/>. Посилання, на яке здійснено запит, - <ph name="PROTOLINK"/>.</translation>
-<translation id="8236873504073475138">Google Chrome не підтримує Windows 2000. Деякі функції можуть не працювати.</translation>
-<translation id="3335672657969596251">Google Chrome не підтримує <ph name="OS_NAME"/>.</translation>
-<translation id="1446473746922165495">Змініть мову, яка використовується в меню, діалогових вікнах і підказках Chrome.</translation>
-<translation id="8810218179782551669">Мова Google Chrome:</translation>
-<translation id="7958215378280655655">Якщо скинути параметри Google Chrome, будь-які внесені зміни буде повернуто до стандартних налаштувань. Бажаєте скинути параметри Chrome?</translation>
-<translation id="7100330187273168372">Google Chrome не може читати з та записувати у каталог:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
-<translation id="3324235665723428530">Ваш профіль не можна використати, тому що його створено у новішій версії Google Chrome.\n\nДеякі функції можуть не працювати. Вкажіть інший каталог профілю або скористайтеся новішою версією Chrome.</translation>
 <translation id="3319048459796106952">Нове &amp;анонімне вікно</translation>
 <translation id="1120026268649657149">Ключове слово повинно бути пусте або унікальне</translation>
 <translation id="7481475534986701730">Нещодавно відвідані сайти</translation>
-<translation id="8815061062167142136">Ааа! Google Chrome аварійно завершив роботу. Перезапустити?</translation>
-<translation id="3889417619312448367">Видалити Google Chrome</translation>
 <translation id="3169621169201401257">Для отримання докладнішої інформації про проблеми з цими елементами відвідайте <ph name="DIAGNOSTIC_PAGE"/> Google для <ph name="DOMAIN"/>.</translation>
 <translation id="2356762928523809690">Сервер оновлення недоступний (помилка: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">&amp;Додати до словника</translation>
-<translation id="2499193704281978000">Google Chrome не відповідає. Перезапустити?</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">Юнікод</translation>
 <translation id="1702534956030472451">Західна</translation>
@@ -734,9 +687,7 @@
 <translation id="3761000923495507277">Показати кнопку “Домашня сторінка” на панелі інструментів</translation>
 <translation id="5291303148298143069">Повідомляти, коли спливаючі вікна заблоковані</translation>
 <translation id="3383487468758466563">Шрифти та мови:</translation>
-<translation id="1137776625614346046">Область &quot;Часто відвідувані&quot; містить веб-сайти, які найчастіше використовуються. Після використання Google Chrome протягом певного часу часто відвідувані сайти відображатимуться щоразу, коли відкриватиметься нова вкладка. Докладніше про цю та інші функції можна дізнатися на сторінці <ph name="BEGIN_LINK"/>Початок роботи<ph name="END_LINK"/>.</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Ви перейшли до анонімного перегляду<ph name="END_BOLD"/>. Сторінки, відкриті в цьому вікні, не будуть записані до історії веб-переглядача або пошуку. Після закриття анонімного вікна на комп’ютері не залишиться жодних слідів відвідування цих сторінок, наприклад, cookie-файлів. Проте всі завантажені файли та створені закладки будуть збережені.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Анонімний перегляд не впливає на реакцію інших користувачів, серверів або програмного забезпечення. Обережно ставтеся до:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Веб-сайтів, які збирають або відкривають спільний доступ до Вашої особистої інформації<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Постачальників Інтернет-послуг, що відстежують сторінки, які Ви відвідуєте<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Зловмисного програмного забезпечення, яке пропонує Вам безкоштовні набори смайлів, а насправді відстежує натискання клавіш<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Нагляду з боку секретних служб<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Людей, що стоять позаду Вас<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Докладніше<ph name="END_LINK"/> про анонімний перегляд сторінок.</translation>
 <translation id="1604816462140255479">&amp;Масштабування тексту</translation>
 <translation id="2089625293428655599">Частини цього програмного забезпечення були ліцензовані сторонніми виробниками, як зазначено на: <ph name="URL"/></translation>
-<translation id="6817660909204164466">Допоможіть покращити Google Chrome, автоматично надсилаючи статистику використання та звіти про аварійне завершення роботи до Google</translation>
 </translationbundle>
