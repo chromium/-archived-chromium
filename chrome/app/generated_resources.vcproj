@@ -33,7 +33,19 @@
 	</Configurations>
 	<Files>
 		<File
+			RelativePath=".\distribution_resources.h"
+			>
+		</File>
+		<File
 			RelativePath=".\generated_resources.grd"
+			>
+		</File>
+		<File
+			RelativePath=".\google_chrome_strings.grd"
+			>
+		</File>
+		<File
+			RelativePath=".\chromium_strings.grd"
 			>
 		</File>
 		<File
