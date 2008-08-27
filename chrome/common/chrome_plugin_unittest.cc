@@ -61,6 +61,10 @@ class ChromePluginTest : public testing::Test, public URLRequest::Delegate {
 
     Profile::set_default_request_context(NULL);
 
+    // Clear the request before flushing the message loop since killing the
+    // request can result in the generation of more tasks.
+    request_.reset();
+
     // Flush the message loop to make Purify happy.
     message_loop_.RunAllPending();
   }
