@@ -6,11 +6,17 @@
 // that can be used by upper-level classes that just need to pass a reference
 // around.
 
+namespace gfx {
+
 #if defined(OS_WIN)
 class BitmapPlatformDeviceWin;
 typedef BitmapPlatformDeviceWin BitmapPlatformDevice;
 #elif defined(OS_MACOSX)
 class BitmapPlatformDeviceMac;
 typedef BitmapPlatformDeviceMac BitmapPlatformDevice;
+#elif defined(OS_LINUX)
+class BitmapPlatformDeviceLinux;
+typedef BitmapPlatformDeviceLinux BitmapPlatformDevice;
 #endif
 
+}  // namespace gfx

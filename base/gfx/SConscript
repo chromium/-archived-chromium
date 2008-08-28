@@ -87,10 +87,15 @@ if env['PLATFORM'] == 'win32':
 
 if env['PLATFORM'] == 'win32':
   input_files.extend([
-      'bitmap_platform_device_win.cc',
-      'platform_canvas_win.cc',
-      'platform_device_win.cc',
-
+    'bitmap_platform_device_win.cc',
+    'platform_canvas_win.cc',
+    'platform_device_win.cc',
+  ])
+elif env['PLATFORM'] == 'posix':
+  input_files.extend([
+    'bitmap_platform_device_linux.cc',
+    'platform_canvas_linux.cc',
+    'platform_device_linux.cc',
   ])
 
 env.ChromeStaticLibrary('base_gfx', input_files)

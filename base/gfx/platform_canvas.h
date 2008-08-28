@@ -16,6 +16,9 @@ typedef PlatformCanvasWin PlatformCanvas;
 #elif defined(OS_MACOSX)
 class PlatformCanvasMac;
 typedef PlatformCanvasMac PlatformCanvas;
+#elif defined(OS_LINUX)
+class PlatformCanvasLinux;
+typedef PlatformCanvasLinux PlatformCanvas;
 #endif
 
 }  // namespace gfx
