@@ -652,13 +652,20 @@ TEST_F(AutomationProxyTest, ConstrainedWindowTest) {
 
   std::wstring title;
   ASSERT_TRUE(cwindow->GetTitle(&title));
-  ASSERT_STREQ(L"Constrained Window 0 - Google Chrome", title.c_str());
+#if defined(GOOGLE_CHROME_BUILD)
+  std::wstring app_name = L"Google Chrome";
+#else
+  std::wstring app_name = L"Chromium";
+#endif
+  std::wstring window_title = L"Constrained Window 0 - " + app_name;
+  ASSERT_STREQ(window_title.c_str(), title.c_str());
   delete cwindow;
 
   cwindow = tab->GetConstrainedWindow(1);
   ASSERT_TRUE(cwindow);
   ASSERT_TRUE(cwindow->GetTitle(&title));
-  ASSERT_STREQ(L"Constrained Window 1 - Google Chrome", title.c_str());
+  window_title = L"Constrained Window 1 - " + app_name;
+  ASSERT_STREQ(window_title.c_str(), title.c_str());
   delete cwindow;
 }
 

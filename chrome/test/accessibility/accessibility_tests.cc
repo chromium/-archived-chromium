@@ -51,7 +51,11 @@ TEST_F(AccessibilityTest, TestChromeToolbarAccObject) {
   ASSERT_TRUE(NULL != p_accobj);
 
   // Check Name - "Google Chrome Toolbar".
+#if defined(GOOGLE_CHROME_BUILD)
   EXPECT_EQ(L"Google Chrome Toolbar", GetName(p_accobj));
+#else
+  EXPECT_EQ(L"Chromium Toolbar", GetName(p_accobj));
+#endif
   // Check Role - "tool bar".
   EXPECT_EQ(L"tool bar", GetRole(p_accobj));
   // Check State - "focusable"

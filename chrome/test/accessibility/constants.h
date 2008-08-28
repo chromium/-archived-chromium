@@ -37,11 +37,17 @@
 // Chrome Client chidren.
 #define BROWSER_VIEW_ACC_INDEX          (0)
 #define TABSTRIP_ACC_INDEX              (1)
+#if defined(GOOGLE_CHROME_BUILD)
 #define CHROME_MIN_ACC_INDEX            (4)
 #define CHROME_MAX_ACC_INDEX            (5)
 #define CHROME_RESTORE_ACC_INDEX        (6)
 #define CHROME_CLOSE_ACC_INDEX          (7)
-
+#else
+#define CHROME_MIN_ACC_INDEX            (3)
+#define CHROME_MAX_ACC_INDEX            (4)
+#define CHROME_RESTORE_ACC_INDEX        (5)
+#define CHROME_CLOSE_ACC_INDEX          (6)
+#endif
 // Browser View children.
 #define TOOLBAR_ACC_INDEX               (0)
 
