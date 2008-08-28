@@ -37,12 +37,19 @@ ClearBrowsingDataView::ClearBrowsingDataView(Profile* profile)
       time_period_label_(NULL),
       time_period_combobox_(NULL),
       delete_in_progress_(false),
-      profile_(profile) {
+      profile_(profile),
+      remover_(NULL) {
   DCHECK(profile);
   Init();
 }
 
 ClearBrowsingDataView::~ClearBrowsingDataView(void) {
+  if (remover_) {
+    // We were destroyed while clearing history was in progress. This can only
+    // occur during automated tests (normally the user can't close the dialog
+    // while clearing is in progress as the dialog is modal and not closeable).
+    remover_->RemoveObserver(this);
+  }
 }
 
 void ClearBrowsingDataView::Init() {
@@ -263,7 +270,7 @@ bool ClearBrowsingDataView::Accept() {
   }
 
   OnDelete();
-  return false;  // We close the dialog in OnDeletionDone().
+  return false;  // We close the dialog in OnBrowsingDataRemoverDone().
 }
 
 ChromeViews::View* ClearBrowsingDataView::GetContentsView() {
@@ -370,13 +377,16 @@ void ClearBrowsingDataView::OnDelete() {
   UpdateControlEnabledState();
 
   // BrowsingDataRemover deletes itself when done.
-  BrowsingDataRemover* remover =
+  remover_ =
       new BrowsingDataRemover(profile_, delete_begin, Time());
-  remover->AddObserver(this);
-  remover->Remove(remove_mask);
+  remover_->AddObserver(this);
+  remover_->Remove(remove_mask);
 }
 
 void ClearBrowsingDataView::OnBrowsingDataRemoverDone() {
+  // No need to remove ourselves as an observer as BrowsingDataRemover deletes
+  // itself after we return.
+  remover_ = NULL;
   window()->Close();
 }
 

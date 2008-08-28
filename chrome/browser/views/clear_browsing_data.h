@@ -101,8 +101,11 @@ class ClearBrowsingDataView : public ChromeViews::View,
 
   Profile* profile_;
 
+  // If non-null it means removal is in progress. BrowsingDataRemover takes care
+  // of deleting itself when done.
+  BrowsingDataRemover* remover_;
+
   DISALLOW_EVIL_CONSTRUCTORS(ClearBrowsingDataView);
 };
 
 #endif  // CHROME_BROWSER_VIEWS_CLEAR_BROWSING_DATA_H__
-
