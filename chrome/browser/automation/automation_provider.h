@@ -301,9 +301,9 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   void OnMessageFromExternalHost(int handle, const std::string& target,
                                  const std::string& message);
 
-  // Convert a tab handle into a WebContents. If |tab| is specified a pointer
-  // to the tab is returned. Returns NULL in case of failure or if the tab is
-  // not of the WebContents type.
+  // Convert a tab handle into a WebContents. If |tab| is non-NULL a pointer
+  // to the tab is also returned. Returns NULL in case of failure or if the tab
+  // is not of the WebContents type.
   WebContents* GetWebContentsForHandle(int handle, NavigationController** tab);
 
   // Callback for history redirect queries.
