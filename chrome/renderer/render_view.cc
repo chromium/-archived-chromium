@@ -1203,10 +1203,6 @@ void RenderView::DidFailProvisionalLoadWithError(WebView* webview,
       error.GetErrorCode(), error.GetFailedURL(),
       show_repost_interstitial));
 
-  // TODO(darin): This should not be necessary!
-  if (is_loading_)
-    DidStopLoading(webview);
-
   // Don't display an error page if this is simply a cancelled load.  Aside
   // from being dumb, WebCore doesn't expect it and it will cause a crash.
   if (error.GetErrorCode() == net::ERR_ABORTED)
