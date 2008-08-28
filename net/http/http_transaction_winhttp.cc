@@ -1522,13 +1522,13 @@ void HttpTransactionWinHttp::PopulateAuthChallenge() {
     return;
 
   // TODO(darin): Need to support RFC 2047 encoded realm strings.  For now, we
-  // just match Mozilla and limit our support to ASCII realm strings.
-  std::wstring auth_header = ASCIIToWide(header_value);
+  // limit our support to ASCII and "native code page" realm strings.
+  std::wstring auth_header = base::SysNativeMBToWide(header_value);
 
   // auth_header is a string which looks like:
   // Digest realm="The Awesome Site", domain="/page.html", ...
   std::wstring::const_iterator space = find(auth_header.begin(),
-                                            auth_header.end(), ' ');
+                                            auth_header.end(), L' ');
   auth_info->scheme.assign(auth_header.begin(), space);
   auth_info->realm = GetHeaderParamValue(auth_header, L"realm");
 
