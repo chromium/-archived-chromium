@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
 
     // Allocate a message loop for this thread.  Although it is not used
     // directly, its constructor sets up some necessary state.
-    MessageLoop main_message_loop;
+    MessageLoopForUI main_message_loop;
 
     bool suppress_error_dialogs = 
          (GetEnvironmentVariable(L"CHROME_HEADLESS", NULL, 0) ||
