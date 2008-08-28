@@ -64,10 +64,11 @@ TEST_F(BrowserFocusTest, BrowsersRememberFocus) {
 
   // The focus should be on the Tab contents.
   scoped_ptr<WindowProxy> window(automation()->GetActiveWindow());
-  EXPECT_TRUE(window.get() != NULL);
+  ASSERT_TRUE(window.get() != NULL);
 
   scoped_ptr<BrowserProxy> browser(automation()->
       GetBrowserForWindow(window.get()));
+  ASSERT_TRUE(browser.get() != NULL);
 
   int focused_view_id;
   EXPECT_TRUE(window->GetFocusedViewID(&focused_view_id));
@@ -99,10 +100,10 @@ TEST_F(BrowserFocusTest, BrowsersRememberFocus) {
   // Open a new browser window.
   EXPECT_TRUE(automation()->OpenNewBrowserWindow(SW_SHOWNORMAL));
   scoped_ptr<WindowProxy> new_window(automation()->GetActiveWindow());
-  EXPECT_TRUE(new_window.get() != NULL);
+  ASSERT_TRUE(new_window.get() != NULL);
   scoped_ptr<BrowserProxy> new_browser(automation()->
       GetBrowserForWindow(new_window.get()));
-  EXPECT_TRUE(new_browser.get() != NULL);
+  ASSERT_TRUE(new_browser.get() != NULL);
 
   // Let's make sure we have 2 different browser windows.
   EXPECT_TRUE(browser->handle() != new_browser->handle());
@@ -132,9 +133,10 @@ TEST_F(BrowserFocusTest, TabsRememberFocus) {
   TestServer server(kDocRoot);
 
   scoped_ptr<WindowProxy> window(automation()->GetActiveWindow());
-  EXPECT_TRUE(window.get() != NULL);
+  ASSERT_TRUE(window.get() != NULL);
   scoped_ptr<BrowserProxy> browser(
       automation()->GetBrowserForWindow(window.get()));
+  ASSERT_TRUE(browser.get() != NULL);
 
   // First we navigate to our test page.
   GURL url = server.TestServerPageW(kSimplePage);
@@ -200,16 +202,18 @@ TEST_F(BrowserFocusTest, BackgroundBrowserDontStealFocus) {
   tab->NavigateToURL(simple_page_url);
 
   scoped_ptr<WindowProxy> window(automation()->GetActiveWindow());
-  EXPECT_TRUE(window.get() != NULL);
+  ASSERT_TRUE(window.get() != NULL);
   scoped_ptr<BrowserProxy> browser(
       automation()->GetBrowserForWindow(window.get()));
+  ASSERT_TRUE(browser.get() != NULL);
 
   // Open a new browser window.
   EXPECT_TRUE(automation()->OpenNewBrowserWindow(SW_SHOWNORMAL));
   scoped_ptr<WindowProxy> new_window(automation()->GetActiveWindow());
-  EXPECT_TRUE(window.get() != NULL);
+  ASSERT_TRUE(window.get() != NULL);
   scoped_ptr<BrowserProxy> new_browser(
       automation()->GetBrowserForWindow(new_window.get()));
+  ASSERT_TRUE(new_browser.get() != NULL);
 
   GURL steal_focus_url = server.TestServerPageW(kStealFocusPage);
   new_browser->AppendTab(steal_focus_url);
@@ -236,9 +240,10 @@ TEST_F(BrowserFocusTest, LocationBarLockFocus) {
   tab->NavigateToURL(url);
 
   scoped_ptr<WindowProxy> window(automation()->GetActiveWindow());
-  EXPECT_TRUE(window.get() != NULL);
+  ASSERT_TRUE(window.get() != NULL);
   scoped_ptr<BrowserProxy> browser(
       automation()->GetBrowserForWindow(window.get()));
+  ASSERT_TRUE(browser.get() != NULL);
 
  // Click on the location bar.
   gfx::Rect bounds;
@@ -267,9 +272,10 @@ TEST_F(BrowserFocusTest, FocusTraversal) {
   tab->NavigateToURL(url);
 
   scoped_ptr<WindowProxy> window(automation()->GetActiveWindow());
-  EXPECT_TRUE(window.get() != NULL);
+  ASSERT_TRUE(window.get() != NULL);
   scoped_ptr<BrowserProxy> browser(
     automation()->GetBrowserForWindow(window.get()));
+  ASSERT_TRUE(browser.get() != NULL);
 
   // Click on the location bar.
   gfx::Rect bounds;

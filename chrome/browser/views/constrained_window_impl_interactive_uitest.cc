@@ -56,8 +56,10 @@ TEST_F(InteractiveConstrainedWindowTest, TestOpenAndResizeTo) {
   ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, 1000));
 
   scoped_ptr<BrowserProxy> popup_browser(automation()->GetBrowserWindow(1));
+  ASSERT_TRUE(popup_browser != NULL);
   scoped_ptr<WindowProxy> popup_window(
       automation()->GetWindowForBrowser(popup_browser.get()));
+  ASSERT_TRUE(popup_window != NULL);
 
   // Make sure we were created with the correct width and height.
   gfx::Rect rect;
