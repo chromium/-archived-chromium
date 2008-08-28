@@ -7,13 +7,12 @@
 #ifndef NET_DISK_CACHE_BACKEND_IMPL_H__
 #define NET_DISK_CACHE_BACKEND_IMPL_H__
 
+#include "base/timer.h"
 #include "net/disk_cache/block_files.h"
 #include "net/disk_cache/disk_cache.h"
 #include "net/disk_cache/rankings.h"
 #include "net/disk_cache/stats.h"
 #include "net/disk_cache/trace.h"
-
-class Timer;
 
 namespace disk_cache {
 
@@ -176,8 +175,7 @@ class BackendImpl : public Backend {
   bool disabled_;
 
   Stats stats_;  // Usage statistcs.
-  Task* timer_task_;
-  Timer* timer_;  // Usage timer.
+  base::RepeatingTimer<BackendImpl> timer_;  // Usage timer.
   TraceObject trace_object_;  // Inits and destroys internal tracing.
 
   DISALLOW_EVIL_CONSTRUCTORS(BackendImpl);

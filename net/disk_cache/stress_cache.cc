@@ -143,6 +143,9 @@ class CrashTask : public Task {
   ~CrashTask() {}
 
   virtual void Run() {
+    // Keep trying to run.
+    RunSoon(MessageLoop::current());
+
     if (g_crashing)
       return;
 
@@ -150,6 +153,12 @@ class CrashTask : public Task {
       printf("sweet death...\n");
       TerminateProcess(GetCurrentProcess(), kExpectedCrash);
     }
+  }
+
+  static void RunSoon(MessageLoop* target_loop) {
+    int task_delay = 10000;  // 10 seconds
+    CrashTask* task = new CrashTask();
+    target_loop->PostDelayedTask(FROM_HERE, task, task_delay);
   }
 };
 
@@ -159,11 +168,7 @@ bool StartCrashThread() {
   if (!thread->Start())
     return false;
 
-  // Create a recurrent timer of 10 secs.
-  int timer_delay = 10000;
-  CrashTask* task = new CrashTask();
-  thread->message_loop()->timer_manager()->StartTimer(timer_delay, task, true);
-
+  CrashTask::RunSoon(thread->message_loop());
   return true;
 }
 

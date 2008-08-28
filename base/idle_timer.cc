@@ -2,35 +2,34 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <windows.h>
-
 #include "base/idle_timer.h"
 
 #include "base/message_loop.h"
 #include "base/time.h"
 
-IdleTimerTask::IdleTimerTask(TimeDelta idle_time, bool repeat)
-  : idle_interval_(idle_time),
-    repeat_(repeat),
-    get_last_input_info_fn_(GetLastInputInfo) {
+namespace base {
+
+IdleTimer::IdleTimer(TimeDelta idle_time, bool repeat)
+    : idle_interval_(idle_time),
+      repeat_(repeat),
+      get_last_input_info_fn_(GetLastInputInfo) {
   DCHECK_EQ(MessageLoop::TYPE_UI, MessageLoop::current()->type()) <<
       "Requires a thread that processes Windows UI events";
 }
 
-IdleTimerTask::~IdleTimerTask() {
+IdleTimer::~IdleTimer() {
   Stop();
 }
 
-void IdleTimerTask::Start() {
-  DCHECK(!timer_.get());
+void IdleTimer::Start() {
   StartTimer();
 }
 
-void IdleTimerTask::Stop() {
-  timer_.reset();
+void IdleTimer::Stop() {
+  timer_.Stop();
 }
 
-void IdleTimerTask::Run() {
+void IdleTimer::Run() {
   // Verify we can fire the idle timer.
   if (TimeUntilIdle().InMilliseconds() <= 0) {
     OnIdle();
@@ -40,17 +39,15 @@ void IdleTimerTask::Run() {
   StartTimer();  // Restart the timer for next run.
 }
 
-void IdleTimerTask::StartTimer() {
-  DCHECK(timer_ == NULL);
+void IdleTimer::StartTimer() {
+  DCHECK(!timer_.IsRunning());
   TimeDelta delay = TimeUntilIdle();
   if (delay.InMilliseconds() < 0)
     delay = TimeDelta();
-  timer_.reset(new OneShotTimer(delay));
-  timer_->set_unowned_task(this);
-  timer_->Start();
+  timer_.Start(delay, this, &IdleTimer::Run);
 }
 
-TimeDelta IdleTimerTask::CurrentIdleTime() {
+TimeDelta IdleTimer::CurrentIdleTime() {
   // TODO(mbelshe): This is windows-specific code.
   LASTINPUTINFO info;
   info.cbSize = sizeof(info);
@@ -68,7 +65,7 @@ TimeDelta IdleTimerTask::CurrentIdleTime() {
   return TimeDelta::FromMilliseconds(0);
 }
 
-TimeDelta IdleTimerTask::TimeUntilIdle() {
+TimeDelta IdleTimer::TimeUntilIdle() {
   TimeDelta time_since_last_fire = Time::Now() - last_time_fired_;
   TimeDelta current_idle_time = CurrentIdleTime();
   if (current_idle_time > time_since_last_fire) {
@@ -79,3 +76,4 @@ TimeDelta IdleTimerTask::TimeUntilIdle() {
   return idle_interval_ - current_idle_time;
 }
 
+}  // namespace base

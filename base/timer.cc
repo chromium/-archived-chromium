@@ -14,9 +14,11 @@
 #include "base/message_loop.h"
 #include "base/task.h"
 
+namespace base {
+
 // A sequence number for all allocated times (used to break ties when
 // comparing times in the TimerManager, and assure FIFO execution sequence).
-static base::AtomicSequenceNumber timer_id_counter_;
+static AtomicSequenceNumber timer_id_counter_;
 
 //-----------------------------------------------------------------------------
 // Timer
@@ -199,36 +201,22 @@ void TimerManager::DidChangeNextTimer() {
 }
 
 //-----------------------------------------------------------------------------
-// SimpleTimer
+// BaseTimer_Helper 
 
-SimpleTimer::SimpleTimer(TimeDelta delay, Task* task, bool repeating)
-    : timer_(static_cast<int>(delay.InMilliseconds()), task, repeating),
-      owns_task_(true) {
+void BaseTimer_Helper::OrphanDelayedTask() {
+  if (delayed_task_) {
+    delayed_task_->timer_ = NULL;
+    delayed_task_ = NULL;
+  }
 }
 
-SimpleTimer::~SimpleTimer() {
-  Stop();
+void BaseTimer_Helper::InitiateDelayedTask(TimerTask* timer_task) {
+  OrphanDelayedTask();
 
-  if (owns_task_)
-    delete timer_.task();
+  delayed_task_ = timer_task;
+  delayed_task_->timer_ = this;
+  MessageLoop::current()->PostDelayedTask(
+      FROM_HERE, timer_task, static_cast<int>(delay_.InMilliseconds()));
 }
 
-void SimpleTimer::Start() {
-  DCHECK(timer_.task());
-  timer_.Reset();
-  MessageLoop::current()->timer_manager()->StartTimer(&timer_);
-}
-
-void SimpleTimer::Stop() {
-  MessageLoop::current()->timer_manager()->StopTimer(&timer_);
-}
-
-bool SimpleTimer::IsRunning() const {
-  return MessageLoop::current()->timer_manager()->IsTimerRunning(&timer_);
-}
-
-void SimpleTimer::Reset() {
-  DCHECK(timer_.task());
-  MessageLoop::current()->timer_manager()->ResetTimer(&timer_);
-}
-
+}  // namespace base

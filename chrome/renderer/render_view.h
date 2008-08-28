@@ -574,7 +574,7 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   ScopedRunnableMethodFactory<RenderView> method_factory_;
 
   // Timer used to delay the updating of nav state (see SyncNavigationState).
-  OneShotTimer nav_state_sync_timer_;
+  base::OneShotTimer<RenderView> nav_state_sync_timer_;
 
   typedef std::vector<WebPluginDelegateProxy*> PluginDelegateList;
   PluginDelegateList plugin_delegates_;

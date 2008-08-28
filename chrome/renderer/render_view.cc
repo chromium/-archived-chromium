@@ -140,7 +140,6 @@ RenderView::RenderView()
     last_page_id_sent_to_browser_(-1),
     last_indexed_page_id_(-1),
     method_factory_(this),
-    nav_state_sync_timer_(kDelayForNavigationSync),
     opened_by_user_gesture_(true),
     enable_dom_automation_(false),
     enable_dom_ui_bindings_(false),
@@ -153,8 +152,6 @@ RenderView::RenderView()
     disable_popup_blocking_(false),
     has_unload_listener_(false) {
   resource_dispatcher_ = new ResourceDispatcher(this);
-  nav_state_sync_timer_.set_task(
-      method_factory_.NewRunnableMethod(&RenderView::SyncNavigationState));
 #ifdef CHROME_PERSONALIZATION
   personalization_ = Personalization::CreateRendererPersonalization();
 #endif
@@ -2190,7 +2187,9 @@ int RenderView::GetHistoryForwardListCount() {
 }
 
 void RenderView::OnNavStateChanged(WebView* webview) {
-  nav_state_sync_timer_.Start();
+  if (!nav_state_sync_timer_.IsRunning())
+    nav_state_sync_timer_.Start(kDelayForNavigationSync, this,
+                                &RenderView::SyncNavigationState);
 }
 
 void RenderView::SetTooltipText(WebView* webview,

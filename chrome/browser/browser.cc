@@ -89,11 +89,11 @@ class ReducePluginsWorkingSetTask : public Task {
 // A browser task to run when the user is not using the browser.
 // In our case, we're trying to be nice to the operating system and release
 // memory not in use.
-class BrowserIdleTask : public IdleTimerTask {
+class BrowserIdleTimer : public base::IdleTimer {
  public:
-  BrowserIdleTask()
-    : IdleTimerTask(
-          TimeDelta::FromSeconds(kBrowserReleaseMemoryInterval), false) {
+  BrowserIdleTimer()
+      : base::IdleTimer(TimeDelta::FromSeconds(kBrowserReleaseMemoryInterval),
+                        false) {
   }
 
   virtual void OnIdle() {
@@ -197,7 +197,7 @@ Browser::Browser(const gfx::Rect& initial_bounds,
       toolbar_model_(this),
       type_(type),
       app_name_(app_name),
-      idle_task_(new BrowserIdleTask()) {
+      idle_task_(new BrowserIdleTimer()) {
   tabstrip_model_.AddObserver(this);
 
   CommandLine parsed_command_line;

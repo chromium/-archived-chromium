@@ -14,9 +14,7 @@ Animation::Animation(int frame_rate,
     iteration_count_(0),
     current_iteration_(0),
     state_(0.0),
-    delegate_(delegate),
-    timer_(TimeDelta::FromMilliseconds(timer_interval_)) {
-  timer_.set_unowned_task(this);
+    delegate_(delegate) {
 }
 
 Animation::Animation(int duration,
@@ -29,9 +27,7 @@ Animation::Animation(int duration,
     iteration_count_(0),
     current_iteration_(0),
     state_(0.0),
-    delegate_(delegate),
-    timer_(TimeDelta::FromMilliseconds(timer_interval_)) {
-  timer_.set_unowned_task(this);
+    delegate_(delegate) {
 
   SetDuration(duration);
 }
@@ -50,7 +46,8 @@ double Animation::GetCurrentValue() const {
 
 void Animation::Start() {
   if (!animating_) {
-    timer_.Start();
+    timer_.Start(TimeDelta::FromMilliseconds(timer_interval_), this,
+                 &Animation::Run);
 
     animating_ = true;
     if (delegate_)
@@ -87,6 +84,17 @@ bool Animation::IsAnimating() {
   return animating_;
 }
 
+void Animation::SetDuration(int duration) {
+  duration_ = duration;
+  if (duration_ < timer_interval_)
+    duration_ = timer_interval_;
+  iteration_count_ = duration_ / timer_interval_;
+
+  // Changing the number of iterations forces us to reset the
+  // animation to the first iteration.
+  current_iteration_ = 0;
+}
+
 void Animation::Run() {
   state_ = static_cast<double>(++current_iteration_) / iteration_count_;
 
@@ -99,17 +107,6 @@ void Animation::Run() {
 
   if (state_ == 1.0)
     Stop();
-}
-
-void Animation::SetDuration(int duration) {
-  duration_ = duration;
-  if (duration_ < timer_interval_)
-    duration_ = timer_interval_;
-  iteration_count_ = duration_ / timer_interval_;
-
-  // Changing the number of iterations forces us to reset the
-  // animation to the first iteration.
-  current_iteration_ = 0;
 }
 
 int Animation::CalculateInterval(int frame_rate) {

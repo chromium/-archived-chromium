@@ -444,7 +444,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
 
   // A timer that periodically calls UpdateLoadStates while pending_requests_
   // is not empty.
-  RepeatingTimer update_load_states_timer_;
+  base::RepeatingTimer<ResourceDispatcherHost> update_load_states_timer_;
 
   // We own the download file writing thread and manager
   scoped_refptr<DownloadFileManager> download_file_manager_;

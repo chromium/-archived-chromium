@@ -6,12 +6,14 @@
 #include "base/message_loop.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::IdleTimer;
+
 namespace {
-  class IdleTimerTest : public testing::Test {
-   private:
-    // IdleTimer requires a UI message loop on the current thread.
-    MessageLoopForUI message_loop_;
-  };
+
+class IdleTimerTest : public testing::Test {
+ private:
+  // IdleTimer requires a UI message loop on the current thread.
+  MessageLoopForUI message_loop_;
 };
 
 // We Mock the GetLastInputInfo function to return
@@ -25,12 +27,12 @@ BOOL __stdcall MockGetLastInputInfoFunction(PLASTINPUTINFO plii) {
 }
 
 // TestIdle task fires after 100ms of idle time.
-class TestIdleTask : public IdleTimerTask {
+class TestIdleTask : public IdleTimer {
  public:
   TestIdleTask(bool repeat)
-    : IdleTimerTask(TimeDelta::FromMilliseconds(100), repeat),
-     idle_counter_(0) {
-     set_last_input_info_fn(MockGetLastInputInfoFunction);
+      : IdleTimer(TimeDelta::FromMilliseconds(100), repeat),
+        idle_counter_(0) {
+        set_last_input_info_fn(MockGetLastInputInfoFunction);
   }
 
   int get_idle_counter() { return idle_counter_; }
@@ -60,6 +62,8 @@ class ResetIdleTask : public Task {
     mock_idle_time = GetTickCount();
   }
 };
+
+}  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 // NoRepeat tests:

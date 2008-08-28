@@ -24,7 +24,6 @@ class NavigationController;
 class NavigationEntry;
 class Profile;
 class TabContents;
-class Timer;
 class SessionBackend;
 class SessionCommand;
 

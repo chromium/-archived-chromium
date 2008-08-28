@@ -22,9 +22,12 @@ class TaskManager;
 class TaskManagerContents;
 class TaskManagerTableModel;
 class TaskManagerWindow;
-class Timer;
 
 struct BytesReadParam;
+
+namespace base {
+class Timer;
+}
 
 namespace ChromeViews {
 class View;
@@ -260,7 +263,7 @@ class TaskManagerTableModel : public ChromeViews::GroupTableModel,
   // The timer controlling the updates of the information. The timer is
   // allocated every time the task manager is shown and deleted when it is
   // hidden/closed.
-  Timer* timer_;
+  base::Timer* timer_;
 
   scoped_ptr<Task> update_task_;
   MessageLoop* ui_loop_;

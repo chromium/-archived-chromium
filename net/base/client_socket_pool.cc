@@ -19,19 +19,14 @@ const int kCleanupInterval = 5;
 namespace net {
 
 ClientSocketPool::ClientSocketPool(int max_sockets_per_group)
-    : timer_(TimeDelta::FromSeconds(kCleanupInterval)),
-      idle_socket_count_(0),
+    : idle_socket_count_(0),
       max_sockets_per_group_(max_sockets_per_group) {
-  timer_.set_task(this);
 }
 
 ClientSocketPool::~ClientSocketPool() {
-  timer_.set_task(NULL);
-
   // Clean up any idle sockets.  Assert that we have no remaining active sockets
   // or pending requests.  They should have all been cleaned up prior to the
   // manager being destroyed.
-
   CloseIdleSockets();
   DCHECK(group_map_.empty());
 }
@@ -134,7 +129,8 @@ void ClientSocketPool::MaybeCloseIdleSockets(
 
 void ClientSocketPool::IncrementIdleCount() {
   if (++idle_socket_count_ == 1)
-    timer_.Start();
+    timer_.Start(TimeDelta::FromSeconds(kCleanupInterval), this,
+                 &ClientSocketPool::DoTimeout);
 }
 
 void ClientSocketPool::DecrementIdleCount() {
@@ -177,7 +173,7 @@ void ClientSocketPool::DoReleaseSocket(const std::string& group_name,
   }
 }
 
-void ClientSocketPool::Run() {
+void ClientSocketPool::DoTimeout() {
   MaybeCloseIdleSockets(true);
 }
 

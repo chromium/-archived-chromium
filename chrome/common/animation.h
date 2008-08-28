@@ -6,7 +6,6 @@
 #ifndef CHROME_COMMON_ANIMATION_H__
 #define CHROME_COMMON_ANIMATION_H__
 
-#include "base/task.h"
 #include "base/timer.h"
 
 class Animation;
@@ -48,7 +47,7 @@ class AnimationDelegate {
 //  initialization specific to the subclass, and then call |Start|. The
 //  animation uses the current thread's message loop.
 //
-class Animation : public Task {
+class Animation {
  public:
   // Initializes everything except the duration.
   //
@@ -86,14 +85,14 @@ class Animation : public Task {
   // Return whether this animation is animating.
   bool IsAnimating();
 
-  // The animation's Task::Run implementation
-  virtual void Run();
-
   // Changes the length of the animation. This resets the current
   // state of the animation to the beginning.
   void SetDuration(int duration);
 
  protected:
+  // Called when the animation's timer expires.
+  void Run();
+
   // Calculates the timer interval from the constructor list.
   int CalculateInterval(int frame_rate);
 
@@ -111,7 +110,7 @@ class Animation : public Task {
 
   AnimationDelegate* delegate_;
 
-  RepeatingTimer timer_;
+  base::RepeatingTimer<Animation> timer_;
 
   DISALLOW_EVIL_CONSTRUCTORS(Animation);
 };

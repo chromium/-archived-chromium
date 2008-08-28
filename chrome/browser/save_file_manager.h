@@ -73,7 +73,6 @@ class SavePackage;
 class MessageLoop;
 class ResourceDispatcherHost;
 class Task;
-class Timer;
 class URLRequestContext;
 
 class SaveFileManager

@@ -270,10 +270,7 @@ class ResourceDispatcherHost::DownloadEventHandler
         save_as_(save_as),
         buffer_(new DownloadBuffer),
         rdh_(rdh),
-        is_paused_(false),
-        pause_timer_(TimeDelta::FromMilliseconds(kThrottleTimeMs)) {
-    pause_timer_.set_task(
-        NewRunnableMethod(this, &DownloadEventHandler::CheckWriteProgress));
+        is_paused_(false) {
   }
 
   // Not needed, as this event handler ought to be the final resource.
@@ -344,7 +341,7 @@ class ResourceDispatcherHost::DownloadEventHandler
     // We schedule a pause outside of the read loop if there is too much file
     // writing work to do.
     if (buffer_->contents.size() > kLoadsToWrite)
-      pause_timer_.Start();
+      StartPauseTimer();
 
     return true;
   }
@@ -389,7 +386,7 @@ class ResourceDispatcherHost::DownloadEventHandler
 
     // We'll come back later and see if it's okay to unpause the request.
     if (should_pause)
-      pause_timer_.Start();
+      StartPauseTimer();
 
     if (is_paused_ != should_pause) {
       rdh_->PauseRequest(global_id_.render_process_host_id,
@@ -400,6 +397,11 @@ class ResourceDispatcherHost::DownloadEventHandler
   }
 
  private:
+  void StartPauseTimer() {
+    pause_timer_.Start(TimeDelta::FromMilliseconds(kThrottleTimeMs), this,
+                       &DownloadEventHandler::CheckWriteProgress);
+  }
+
   int download_id_;
   ResourceDispatcherHost::GlobalRequestID global_id_;
   int render_view_id_;
@@ -413,7 +415,7 @@ class ResourceDispatcherHost::DownloadEventHandler
   DownloadBuffer* buffer_;
   ResourceDispatcherHost* rdh_;
   bool is_paused_;
-  OneShotTimer pause_timer_;
+  base::OneShotTimer<DownloadEventHandler> pause_timer_;
 
   static const int kReadBufSize = 32768;  // bytes
   static const int kLoadsToWrite = 100;  // number of data buffers queued
@@ -1231,8 +1233,6 @@ class ResourceDispatcherHost::SaveFileEventHandler
 ResourceDispatcherHost::ResourceDispatcherHost(MessageLoop* io_loop)
     : ui_loop_(MessageLoop::current()),
       io_loop_(io_loop),
-      update_load_states_timer_(
-          TimeDelta::FromMilliseconds(kUpdateLoadStatesIntervalMsec)),
       download_file_manager_(new DownloadFileManager(ui_loop_, this)),
       save_file_manager_(new SaveFileManager(ui_loop_, io_loop, this)),
       safe_browsing_(new SafeBrowsingService),
@@ -1240,8 +1240,6 @@ ResourceDispatcherHost::ResourceDispatcherHost(MessageLoop* io_loop)
       plugin_service_(PluginService::GetInstance()),
       method_runner_(this),
       is_shutdown_(false) {
-  update_load_states_timer_.set_task(method_runner_.NewRunnableMethod(
-      &ResourceDispatcherHost::UpdateLoadStates));
 }
 
 ResourceDispatcherHost::~ResourceDispatcherHost() {
@@ -1889,7 +1887,11 @@ void ResourceDispatcherHost::BeginRequestInternal(URLRequest* request,
   request->Start();
 
   // Make sure we have the load state monitor running
-  update_load_states_timer_.Start();
+  if (!update_load_states_timer_.IsRunning()) {
+    update_load_states_timer_.Start(
+        TimeDelta::FromMilliseconds(kUpdateLoadStatesIntervalMsec),
+        this, &ResourceDispatcherHost::UpdateLoadStates);
+  }
 }
 
 // This test mirrors the decision that WebKit makes in

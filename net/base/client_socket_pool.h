@@ -25,8 +25,7 @@ class ClientSocketHandle;
 // not responsible for allocating the associated ClientSocket objects.  The
 // consumer must do so if it gets a scoped_ptr<ClientSocket> with a null value.
 //
-class ClientSocketPool : public base::RefCounted<ClientSocketPool>,
-                         public Task {
+class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
  public:
   explicit ClientSocketPool(int max_sockets_per_group);
 
@@ -85,9 +84,9 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool>,
   // Called via PostTask by ReleaseSocket.
   void DoReleaseSocket(const std::string& group_name, ClientSocketPtr* ptr);
 
-  // Task implementation.  This method scans the idle sockets checking to see
-  // if any have been disconnected.
-  virtual void Run();
+  // Called when timer_ fires.  This method scans the idle sockets checking to
+  // see if any have been disconnected.
+  void DoTimeout();
 
   // A Request is allocated per call to RequestSocket that results in
   // ERR_IO_PENDING.
@@ -109,13 +108,15 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool>,
   GroupMap group_map_;
 
   // Timer used to periodically prune sockets that have been disconnected.
-  RepeatingTimer timer_;
+  base::RepeatingTimer<ClientSocketPool> timer_;
 
   // The total number of idle sockets in the system.
   int idle_socket_count_;
 
   // The maximum number of sockets kept per group.
   int max_sockets_per_group_;
+  
+  DISALLOW_COPY_AND_ASSIGN(ClientSocketPool);
 };
 
 }  // namespace net

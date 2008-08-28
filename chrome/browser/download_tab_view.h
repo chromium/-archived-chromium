@@ -21,7 +21,10 @@
 class DownloadTabView;
 class SkBitmap;
 class Task;
+
+namespace base {
 class Timer;
+}
 
 class DownloadItemTabView : public ChromeViews::View,
                             public ChromeViews::LinkController {
@@ -170,7 +173,7 @@ class DownloadTabView : public ChromeViews::View,
   OrderedDownloads downloads_;
 
   // Progress animations
-  Timer* progress_timer_;
+  base::Timer* progress_timer_;
   Task* progress_task_;
 
   // Since this view manages the progress animation timers for all the floating

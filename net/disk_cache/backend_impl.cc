@@ -132,22 +132,9 @@ bool DelayedCacheCleanup(const std::wstring& full_path) {
   return true;
 }
 
-// ------------------------------------------------------------------------
-
-class TimerTask : public Task {
- public:
-  explicit TimerTask(disk_cache::BackendImpl* backend) : backend_(backend) {}
-  ~TimerTask() {}
-
-  virtual void Run() {
-    backend_->OnStatsTimer();
-  }
-
- private:
-  disk_cache::BackendImpl* backend_;
-};
-
 }  // namespace
+
+// ------------------------------------------------------------------------
 
 namespace disk_cache {
 
@@ -201,10 +188,8 @@ bool BackendImpl::Init() {
   if (!restarted_) {
     // Create a recurrent timer of 30 secs.
     int timer_delay = unit_test_ ? 1000 : 30000;
-    TimerTask* task = new TimerTask(this);
-    timer_task_ = task;
-    timer_ = MessageLoop::current()->timer_manager()->StartTimer(timer_delay,
-                                                                 task, true);
+    timer_.Start(TimeDelta::FromMilliseconds(timer_delay), this,
+                 &BackendImpl::OnStatsTimer);
   }
 
   init_ = true;
@@ -238,9 +223,7 @@ BackendImpl::~BackendImpl() {
   if (!init_)
     return;
 
-  MessageLoop::current()->timer_manager()->StopTimer(timer_);
-  delete timer_;
-  delete timer_task_;
+  timer_.Stop();
 
   WaitForPendingIO(&num_pending_io_);
   DCHECK(!num_refs_);

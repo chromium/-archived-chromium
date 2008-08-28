@@ -14,6 +14,10 @@
 #include "base/tracked.h"
 #include "base/tuple.h"
 
+namespace base {
+class TimerManager;
+}
+
 //------------------------------------------------------------------------------
 // Base class of Task, where we store info to help MessageLoop handle PostTask()
 // elements of Task processing.
@@ -56,7 +60,7 @@ class TaskBase : public tracked_objects::Tracked {
   }
 
  private:
-  friend class TimerManager;  // To check is_owned_by_message_loop().
+  friend class base::TimerManager;  // To check is_owned_by_message_loop().
   friend class MessageLoop;   // To maintain posted_task_delay().
 
   // Access methods used ONLY by friends in MessageLoop and TimerManager

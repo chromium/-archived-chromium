@@ -17,7 +17,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_member.h"
 
-class BrowserIdleTask;
+class BrowserIdleTimer;
 class BrowserWindow;
 class DebuggerWindow;
 class GoButton;
@@ -617,7 +617,7 @@ class Browser : public TabStripModelDelegate,
   scoped_refptr<SelectFileDialog> select_file_dialog_;
 
   // The browser idle task helps cleanup unused memory resources when idle.
-  scoped_ptr<BrowserIdleTask> idle_task_;
+  scoped_ptr<BrowserIdleTimer> idle_task_;
 
   // Keep track of the encoding auto detect pref.
   BooleanPrefMember encoding_auto_detect_;

@@ -2,6 +2,45 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// OneShotTimer and RepeatingTimer provide a simple timer API.  As the names
+// suggest, OneShotTimer calls you back once after a time delay expires.
+// RepeatingTimer on the other hand calls you back periodically with the
+// prescribed time interval.
+//
+// OneShotTimer and RepeatingTimer both cancel the timer when they go out of
+// scope, which makes it easy to ensure that you do not get called when your
+// object has gone out of scope.  Just instantiate a OneShotTimer or
+// RepeatingTimer as a member variable of the class for which you wish to
+// receive timer events.
+//
+// Sample RepeatingTimer usage:
+//
+//   class MyClass {
+//    public:
+//     void StartDoingStuff() {
+//       timer_.Start(TimeDelta::FromSeconds(1), this, &MyClass::DoStuff);
+//     }
+//     void StopDoingStuff() {
+//       timer_.Stop();
+//     }
+//    private:
+//     void DoStuff() {
+//       // This method is called every second to do stuff.
+//       ...
+//     }
+//     base::RepeatingTimer<MyClass> timer_;
+//   };
+//
+// Both OneShotTimer and RepeatingTimer also support a Reset method, which
+// allows you to easily defer the timer event until the timer delay passes once
+// again.  So, in the above example, if 0.5 seconds have already passed,
+// calling Reset on timer_ would postpone DoStuff by another 1 second.  In
+// other words, Reset is shorthand for calling Stop and then Start again with
+// the same arguments.
+//
+// NOTE:  The older TimerManager / Timer API is deprecated.  New code should
+// use OneShotTimer or RepeatingTimer.
+
 #ifndef BASE_TIMER_H_
 #define BASE_TIMER_H_
 
@@ -9,6 +48,7 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/task.h"
 #include "base/time.h"
 
 //-----------------------------------------------------------------------------
@@ -21,11 +61,15 @@
 //-----------------------------------------------------------------------------
 
 class MessageLoop;
+
+namespace base {
+
 class TimerManager;
-class Task;
 
 //-----------------------------------------------------------------------------
 // The core timer object.  Use TimerManager to create and control timers.
+//
+// NOTE:  This class is DEPRECATED.  Do not use!
 class Timer {
  public:
   Timer(int delay, Task* task, bool repeating);
@@ -77,6 +121,8 @@ class Timer {
 
 //-----------------------------------------------------------------------------
 // Used to implement TimerPQueue
+//
+// NOTE:  This class is DEPRECATED.  Do not use!
 class TimerComparison {
  public:
   bool operator() (const Timer* t1, const Timer* t2) const {
@@ -101,6 +147,8 @@ class TimerComparison {
 //
 // Terminology: The "pending" timer is the timer at the top of the queue,
 //              i.e. the timer whose task needs to be Run next.
+//
+// NOTE:  This class is DEPRECATED.  Do not use!
 class TimerPQueue :
     public std::priority_queue<Timer*, std::vector<Timer*>, TimerComparison> {
  public:
@@ -122,6 +170,8 @@ class TimerPQueue :
 //
 // NOTE:  TimerManager is not thread safe.  You cannot set timers onto a thread
 //        other than your own.
+//
+// NOTE:  This class is DEPRECATED.  Do not use!
 class TimerManager {
  public:
   explicit TimerManager(MessageLoop* message_loop);
@@ -189,89 +239,123 @@ class TimerManager {
 };
 
 //-----------------------------------------------------------------------------
-// A simple wrapper for the Timer / TimerManager API.  This is a helper class.
-// Use OneShotTimer or RepeatingTimer instead.
-class SimpleTimer {
+// This class is an implementation detail of OneShotTimer and RepeatingTimer.
+// Please do not use this class directly.
+//
+// This class exists to share code between BaseTimer<T> template instantiations.
+//
+class BaseTimer_Helper {
  public:
   // Stops the timer.
-  ~SimpleTimer();
-
-  // Call this method to explicitly start the timer.  This is a no-op if the
-  // timer is already running.
-  void Start();
-
-  // Call this method to explicitly stop the timer.  This is a no-op if the
-  // timer is not running.
-  void Stop();
-
-  // Returns true if the timer is running (i.e., not stopped).
-  bool IsRunning() const;
-
-  // Short-hand for calling Stop and then Start.
-  void Reset();
-
-  // Get/Set the task to be run when this timer expires.  NOTE: The caller of
-  // set_task must be careful to ensure that the old task is properly deleted.
-  Task* task() const { return timer_.task(); }
-  void set_task(Task* task) {
-    timer_.set_task(task);
-    owns_task_ = true;
+  ~BaseTimer_Helper() {
+    OrphanDelayedTask();
   }
 
-  // Sets the task, but marks it so it shouldn't be deleted by the SimpleTimer.
-  void set_unowned_task(Task* task) {
-    timer_.set_task(task);
-    owns_task_ = false;
+  // Returns true if the timer is running (i.e., not stopped).
+  bool IsRunning() const {
+    return delayed_task_ != NULL;
   }
 
  protected:
-  SimpleTimer(TimeDelta delay, Task* task, bool repeating);
+  BaseTimer_Helper(bool repeating)
+      : delayed_task_(NULL), repeating_(repeating) {
+  }
 
- private:
-  Timer timer_;
+  // We have access to the timer_ member so we can orphan this task.
+  class TimerTask : public Task {
+   public:
+    BaseTimer_Helper* timer_;
+  };
 
-  // Whether we need to clean up the Task* object for this Timer when
-  // we are deallocated. Defaults to true.
-  bool owns_task_;
+  // Used to orphan delayed_task_ so that when it runs it does nothing.
+  void OrphanDelayedTask();
+  
+  // Used to initiated a new delayed task.  This has the side-effect of
+  // orphaning delayed_task_ if it is non-null.
+  void InitiateDelayedTask(TimerTask* timer_task);
 
-  DISALLOW_COPY_AND_ASSIGN(SimpleTimer);
+  TimerTask* delayed_task_;
+  TimeDelta delay_;
+  bool repeating_;
+
+  DISALLOW_COPY_AND_ASSIGN(BaseTimer_Helper);
 };
 
 //-----------------------------------------------------------------------------
-// A simple, one-shot timer.  The task is run after the specified delay once
-// the Start method is called.  The task is deleted when the timer object is
-// destroyed.
-class OneShotTimer : public SimpleTimer {
+// This class is an implementation detail of OneShotTimer and RepeatingTimer.
+// Please do not use this class directly.
+template <class Receiver>
+class BaseTimer : public BaseTimer_Helper {
  public:
+  typedef void (Receiver::*ReceiverMethod)();
+
   // The task must be set using set_task before calling Start.
-  explicit OneShotTimer(TimeDelta delay)
-      : SimpleTimer(delay, NULL, false) {
+  BaseTimer(bool repeating)
+      : BaseTimer_Helper(repeating), receiver_(NULL), receiver_method_(NULL) {
   }
-  // If task is null, then it must be set using set_task before calling Start.
-  OneShotTimer(TimeDelta delay, Task* task)
-      : SimpleTimer(delay, task, false) {
+
+  // Call this method to start the timer.  It is an error to call this method
+  // while the timer is already running.
+  void Start(TimeDelta delay, Receiver* receiver, ReceiverMethod method) {
+    DCHECK(!IsRunning());
+    delay_ = delay;
+    receiver_ = receiver;
+    receiver_method_ = method;
+    InitiateDelayedTask(new TimerTask());
   }
+
+  // Call this method to stop the timer.  It is a no-op if the timer is not
+  // running.
+  void Stop() {
+    receiver_ = NULL;
+    receiver_method_ = NULL;
+    OrphanDelayedTask();
+  }
+
+  // Call this method to reset the timer delay of an already running timer.
+  void Reset() {
+    DCHECK(IsRunning());
+    OrphanDelayedTask();
+    InitiateDelayedTask(new TimerTask());
+  }
+
  private:
-  DISALLOW_COPY_AND_ASSIGN(OneShotTimer);
+  class TimerTask : public BaseTimer_Helper::TimerTask {
+   public:
+    virtual void Run() {
+      if (!timer_)  // timer_ is null if we were orphaned.
+        return;
+      BaseTimer<Receiver>* self = static_cast<BaseTimer<Receiver>*>(timer_);
+      if (self->repeating_)
+        self->Reset();
+      DispatchToMethod(self->receiver_, self->receiver_method_, Tuple0());
+    }
+  };
+  
+  Receiver* receiver_;
+  ReceiverMethod receiver_method_;
 };
 
 //-----------------------------------------------------------------------------
-// A simple, repeating timer.  The task is run at the specified interval once
-// the Start method is called.  The task is deleted when the timer object is
-// destroyed.
-class RepeatingTimer : public SimpleTimer {
+// A simple, one-shot timer.  See usage notes at the top of the file.
+template <class Receiver>
+class OneShotTimer : public BaseTimer<Receiver> {
  public:
-  // The task must be set using set_task before calling Start.
-  explicit RepeatingTimer(TimeDelta interval)
-      : SimpleTimer(interval, NULL, true) {
-  }
-  // If task is null, then it must be set using set_task before calling Start.
-  RepeatingTimer(TimeDelta interval, Task* task)
-      : SimpleTimer(interval, task, true) {
-  }
- private:
-  DISALLOW_COPY_AND_ASSIGN(RepeatingTimer);
+  OneShotTimer() : BaseTimer<Receiver>(false) {}
 };
+
+//-----------------------------------------------------------------------------
+// A simple, repeating timer.  See usage notes at the top of the file.
+template <class Receiver>
+class RepeatingTimer : public BaseTimer<Receiver> {
+ public:
+  RepeatingTimer() : BaseTimer<Receiver>(true) {}
+};
+
+}  // namespace base
+
+// TODO(darin): b/1346553: Remove these once Timer and TimerManager are unused.
+using base::Timer;
+using base::TimerManager;
 
 #endif  // BASE_TIMER_H_
-

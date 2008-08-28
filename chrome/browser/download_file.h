@@ -57,8 +57,11 @@ class GURL;
 class MessageLoop;
 class ResourceDispatcherHost;
 class Task;
-class Timer;
 class URLRequestContext;
+
+namespace base {
+class Timer;
+}
 
 // DownloadBuffer --------------------------------------------------------------
 
@@ -240,7 +243,7 @@ class DownloadFileManager
 
   // Throttle updates to the UI thread.
   Task* update_task_;
-  Timer* update_timer_;
+  base::Timer* update_timer_;
 
   // The MessageLoop that the DownloadManagers live on.
   MessageLoop* ui_loop_;

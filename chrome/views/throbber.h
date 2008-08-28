@@ -12,7 +12,10 @@
 #include "chrome/views/view.h"
 
 class SkBitmap;
+
+namespace base {
 class Timer;
+}
 
 namespace ChromeViews {
 
@@ -49,7 +52,7 @@ class Throbber : public ChromeViews::View,
   DWORD last_time_recorded_;
   SkBitmap* frames_;
   int frame_time_ms_;
-  Timer* timer_;
+  base::Timer* timer_;
 
   DISALLOW_EVIL_CONSTRUCTORS(Throbber);
 };

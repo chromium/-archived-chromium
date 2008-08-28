@@ -200,7 +200,7 @@ class MessageLoop : public base::MessagePump::Delegate {
   }
 
   // Returns the TimerManager object for the current thread.
-  TimerManager* timer_manager() { return &timer_manager_; }
+  base::TimerManager* timer_manager() { return &timer_manager_; }
 
   // Enables or disables the recursive task processing. This happens in the case
   // of recursive message loops. Some unwanted message loop may occurs when
@@ -231,7 +231,7 @@ class MessageLoop : public base::MessagePump::Delegate {
 
   //----------------------------------------------------------------------------
  protected:
-  friend class TimerManager;  // So it can call DidChangeNextTimerExpiry
+  friend class base::TimerManager;  // So it can call DidChangeNextTimerExpiry
 
   struct RunState {
     // Used to count how many Run() invocations are on the stack.
@@ -405,7 +405,7 @@ class MessageLoop : public base::MessagePump::Delegate {
 
   Type type_;
 
-  TimerManager timer_manager_;
+  base::TimerManager timer_manager_;
 
   // A list of tasks that need to be processed by this instance.  Note that this
   // queue is only accessed (push/pop) by our current thread.

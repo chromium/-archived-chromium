@@ -29,10 +29,13 @@ class SpellChecker;
 class TabRestoreService;
 class TemplateURLFetcher;
 class TemplateURLModel;
-class Timer;
 class URLRequestContext;
 class VisitedLinkMaster;
 class WebDataService;
+
+namespace base {
+class Timer;
+}
 
 class Profile {
  public:
@@ -340,7 +343,7 @@ class ProfileImpl : public Profile {
 
   ProfileControllerSet controllers_;
 
-  Timer* create_session_service_timer_;
+  base::Timer* create_session_service_timer_;
   CreateSessionServiceTask create_session_service_task_;
 
   scoped_ptr<OffTheRecordProfileImpl> off_the_record_profile_;
