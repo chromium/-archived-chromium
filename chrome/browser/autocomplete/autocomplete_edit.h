@@ -20,7 +20,7 @@
 #include "chrome/views/menu.h"
 #include "webkit/glue/window_open_disposition.h"
 
-class AutocompletePopup;
+class AutocompletePopupModel;
 class CommandController;
 class Profile;
 class TabContents;
@@ -181,8 +181,7 @@ class AutocompleteEdit
   // |alternate_nav_url|, if non-empty, contains the alternate navigation URL
   // for |url|.  See comments on AutocompleteResult::GetAlternateNavURL().
   //
-  // |selected_line| is passed to AutocompletePopup::LogOpenedURL(); see
-  // comments there.
+  // |selected_line| is passed to SendOpenNotification(); see comments there.
   //
   // If the URL was expanded from a keyword, |keyword| is that keyword.
   //
@@ -251,8 +250,8 @@ class AutocompleteEdit
   // send us events that we should treat as if they were events on us.
   void HandleExternalMsg(UINT msg, UINT flags, const CPoint& screen_point);
 
-  // Called back by the AutocompletePopup when any relevant data changes.  This
-  // rolls together several separate pieces of data into one call so we can
+  // Called back by the AutocompletePopupModel when any relevant data changes.
+  // This rolls together several separate pieces of data into one call so we can
   // update all the UI efficiently:
   //   |text| is either the new temporary text (if |is_temporary_text| is true)
   //     from the user manually selecting a different match, or the inline
@@ -577,7 +576,7 @@ class AutocompleteEdit
   Controller* controller_;
 
   // The Popup itself.
-  scoped_ptr<AutocompletePopup> popup_;
+  scoped_ptr<AutocompletePopupModel> popup_;
 
   // When true, the location bar view is read only and also is has a slightly
   // different presentation (font size / color). This is used for popups.

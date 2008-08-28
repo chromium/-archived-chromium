@@ -125,7 +125,7 @@ AutocompleteEdit::AutocompleteEdit(const ChromeFont& font,
                                    bool popup_window_mode)
     : controller_(controller),
       model_(model),
-      popup_(new AutocompletePopup(font, this, profile)),
+      popup_(new AutocompletePopupModel(font, this, profile)),
       popup_window_mode_(popup_window_mode),
       has_focus_(false),
       user_input_in_progress_(false),
@@ -455,7 +455,7 @@ void AutocompleteEdit::AcceptInput(WindowOpenDisposition disposition,
   }
 
   OpenURL(url, disposition, transition, alternate_nav_url,
-          AutocompletePopup::kNoMatch,
+          AutocompletePopupModel::kNoMatch,
           is_keyword_hint_ ? std::wstring() : keyword_);
 }
 
@@ -2139,7 +2139,7 @@ void AutocompleteEdit::PasteAndGo() {
   // enough of an edge case that we ignore this possibility.
   RevertAll();
   OpenURL(paste_and_go_url_, CURRENT_TAB, paste_and_go_transition_,
-          paste_and_go_alternate_nav_url_, AutocompletePopup::kNoMatch,
+          paste_and_go_alternate_nav_url_, AutocompletePopupModel::kNoMatch,
           std::wstring());
 }
 
@@ -2157,7 +2157,7 @@ void AutocompleteEdit::SendOpenNotification(size_t selected_line,
   // open).
   if (popup_->is_open()) {
     scoped_ptr<AutocompleteLog> log(popup_->GetAutocompleteLog());
-    if (selected_line != AutocompletePopup::kNoMatch)
+    if (selected_line != AutocompletePopupModel::kNoMatch)
       log->selected_index = selected_line;
     else if (!has_temporary_text_)
       log->inline_autocompleted_length = inline_autocomplete_text_.length();

@@ -443,7 +443,7 @@ class AutocompleteProvider
   //
   // |minimal_changes| is an optimization that lets the provider do less work
   // when the |input|'s text hasn't changed.  See the body of
-  // AutocompletePopup::StartAutocomplete().
+  // AutocompletePopupModel::StartAutocomplete().
   //
   // If |synchronous_only| is true, no asynchronous work should be scheduled;
   // the provider should stop after it has returned all the
@@ -768,7 +768,7 @@ struct AutocompleteLog {
   }
   // The user's input text in the omnibox.
   std::wstring text;
-  // Selected index (if selected) or -1 (AutocompletePopup::kNoMatch).
+  // Selected index (if selected) or -1 (AutocompletePopupModel::kNoMatch).
   size_t selected_index;
   // Inline autocompleted length (if displayed).
   size_t inline_autocompleted_length;
