@@ -296,12 +296,25 @@ static bool fontContainsCharacter(const FontPlatformData* font_data,
     HFONT hfont = font_data->hfont(); 
     HDC hdc = GetDC(0);
     HGDIOBJ oldFont = static_cast<HFONT>(SelectObject(hdc, hfont));
+    int count = GetFontUnicodeRanges(hdc, 0);
+    if (count == 0) {
+        if (webkit_glue::EnsureFontLoaded(hfont)) 
+            count = GetFontUnicodeRanges(hdc, 0);
+    }
+    if (count == 0) {
+        ASSERT_NOT_REACHED();
+        SelectObject(hdc, oldFont);
+        ReleaseDC(0, hdc);
+        return true;
+    }
+
     static Vector<char, 512> glyphsetBuffer;
     glyphsetBuffer.resize(GetFontUnicodeRanges(hdc, 0));
     GLYPHSET* glyphset = reinterpret_cast<GLYPHSET*>(glyphsetBuffer.data());
     // In addition, refering to the OS/2 table and converting the codepage list
     // to the coverage map might be faster. 
-    GetFontUnicodeRanges(hdc, glyphset);
+    count = GetFontUnicodeRanges(hdc, glyphset);
+    ASSERT(count > 0);
     SelectObject(hdc, oldFont);
     ReleaseDC(0, hdc);
 
