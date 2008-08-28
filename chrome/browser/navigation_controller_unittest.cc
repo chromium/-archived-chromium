@@ -52,7 +52,8 @@ class TestContents : public TabContents {
   void CompleteNavigation(int page_id) {
     DCHECK(pending_entry_.get());
     pending_entry_->set_page_id(page_id);
-    DidNavigateToEntry(pending_entry_.get());
+    NavigationController::LoadCommittedDetails details;
+    DidNavigateToEntry(pending_entry_.get(), &details);
     controller()->NotifyEntryChangedByPageID(type(), NULL, page_id);
     pending_entry_.release();
   }
@@ -451,7 +452,8 @@ TEST_F(NavigationControllerTest, LoadURL_NoPending) {
   entry->set_page_id(2);
   entry->set_url(kNewURL);
   entry->set_title(L"Hello, world");
-  contents->controller()->DidNavigateToEntry(entry);
+  NavigationController::LoadCommittedDetails details;
+  contents->controller()->DidNavigateToEntry(entry, &details);
 
   // There should no longer be any pending entry, and the third navigation we
   // just made should be committed.
@@ -487,7 +489,8 @@ TEST_F(NavigationControllerTest, LoadURL_NewPending) {
   entry->set_page_id(3);
   entry->set_url(kNewURL);
   entry->set_title(L"Hello, world");
-  contents->controller()->DidNavigateToEntry(entry);
+  NavigationController::LoadCommittedDetails details;
+  contents->controller()->DidNavigateToEntry(entry, &details);
 
   // There should no longer be any pending entry, and the third navigation we
   // just made should be committed.
@@ -533,7 +536,8 @@ TEST_F(NavigationControllerTest, LoadURL_ExistingPending) {
   entry->set_page_id(3);
   entry->set_url(kNewURL);
   entry->set_title(L"Hello, world");
-  contents->controller()->DidNavigateToEntry(entry);
+  NavigationController::LoadCommittedDetails details;
+  contents->controller()->DidNavigateToEntry(entry, &details);
 
   // There should no longer be any pending entry, and the third navigation we
   // just made should be committed.
@@ -758,7 +762,8 @@ TEST_F(NavigationControllerTest, Back_OtherBackPending) {
   entry->set_page_id(1);
   entry->set_url(kUrl2);
   entry->set_title(kNewTitle1);
-  contents->controller()->DidNavigateToEntry(entry);
+  NavigationController::LoadCommittedDetails details;
+  contents->controller()->DidNavigateToEntry(entry, &details);
 
   // That second URL should be the last committed and it should have gotten the
   // new title.
@@ -783,7 +788,7 @@ TEST_F(NavigationControllerTest, Back_OtherBackPending) {
   entry->set_page_id(0);
   entry->set_url(kUrl1);
   entry->set_title(kNewTitle2);
-  contents->controller()->DidNavigateToEntry(entry);
+  contents->controller()->DidNavigateToEntry(entry, &details);
   
   // The navigation should not have affected the pending entry.
   EXPECT_EQ(1, contents->controller()->GetPendingEntryIndex());

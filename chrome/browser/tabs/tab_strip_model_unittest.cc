@@ -37,7 +37,8 @@ class TabStripModelTestTabContents : public TabContents {
     if (pending_entry->page_id() == -1) {
       pending_entry->set_page_id(g_page_id_++);
     }
-    DidNavigateToEntry(pending_entry);
+    NavigationController::LoadCommittedDetails details;
+    DidNavigateToEntry(pending_entry, &details);
 
     return true;
   }

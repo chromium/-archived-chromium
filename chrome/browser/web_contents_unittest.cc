@@ -303,9 +303,10 @@ class WebContentsTest : public testing::Test {
 
 // Test to make sure that title updates get stripped of whitespace
 TEST_F(WebContentsTest, OnMessageReceived) {
+  NavigationController::LoadCommittedDetails details;
   contents->controller()->DidNavigateToEntry(new NavigationEntry(
       contents->type(), contents->site_instance(), 0, GURL("about:blank"),
-      std::wstring(), PageTransition::TYPED));
+      std::wstring(), PageTransition::TYPED), &details);
 
   contents->UpdateTitle(NULL, 0, L"    Lots O' Whitespace\n");
   EXPECT_EQ(std::wstring(L"Lots O' Whitespace"), contents->GetTitle());
