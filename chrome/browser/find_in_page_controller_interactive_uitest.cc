@@ -54,11 +54,11 @@ bool ActivateTabByClick(AutomationProxy* automation,
 TEST_F(FindInPageTest, CrashEscHandlers) {
   TestServer server(kDocRoot);
 
-  scoped_ptr<WindowProxy> window(automation()->GetActiveWindow());
-  EXPECT_TRUE(window.get() != NULL);
-
-  scoped_ptr<BrowserProxy> browser(automation()->
-      GetBrowserForWindow(window.get()));
+  scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
+  ASSERT_TRUE(browser.get() != NULL);
+  scoped_ptr<WindowProxy> window(
+      automation()->GetWindowForBrowser(browser.get()));
+  ASSERT_TRUE(window.get() != NULL);
 
   // First we navigate to our test page (tab A).
   GURL url = server.TestServerPageW(kSimplePage);
@@ -94,4 +94,3 @@ TEST_F(FindInPageTest, CrashEscHandlers) {
   EXPECT_TRUE(window->SimulateOSKeyPress(VK_ESCAPE, 0));
   ::Sleep(kActionDelayMs);
 }
-
