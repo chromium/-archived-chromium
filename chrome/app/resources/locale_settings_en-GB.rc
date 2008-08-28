@@ -64,5 +64,5 @@ END
 #if defined(GOOGLE_CHROME_BUILD)
 #include "google_chrome_strings_en-GB.rc"
 #else
-#include "chromium_strings_eb-GB.rc"
+#include "chromium_strings_en-GB.rc"
 #endif
