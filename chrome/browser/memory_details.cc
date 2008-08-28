@@ -24,7 +24,7 @@ class RenderViewHostDelegate;
 // Template of static data we use for finding browser process information.
 // These entries must match the ordering for MemoryDetails::BrowserProcess.
 static ProcessData g_process_template[] = {
-    { L"Chrome", L"chrome.exe", },
+    { L"Chromium", L"chrome.exe", },
     { L"IE", L"iexplore.exe", },
     { L"Firefox", L"firefox.exe", },
     { L"Opera", L"opera.exe", },
