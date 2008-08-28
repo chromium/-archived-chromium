@@ -509,6 +509,9 @@ void NavigationController::DidNavigateToEntry(NavigationEntry* entry) {
   if (entry->page_id() > GetMaxPageID()) {
     InsertEntry(entry);
     NotifyNavigationEntryCommitted();
+    // It is now a safe time to schedule collection for any tab contents of a
+    // different type, because a navigation is necessary to get back to them.
+    ScheduleTabContentsCollectionForInactiveTabs();
     return;
   }
 
@@ -574,16 +577,7 @@ void NavigationController::DidNavigateToEntry(NavigationEntry* entry) {
 
   // It is now a safe time to schedule collection for any tab contents of a
   // different type, because a navigation is necessary to get back to them.
-  int index = GetCurrentEntryIndex();
-  if (index < 0 || GetPendingEntryIndex() != -1)
-    return;
-
-  TabContentsType active_type = GetEntryAtIndex(index)->tab_type();
-  for (TabContentsMap::iterator i = tab_contents_map_.begin();
-       i != tab_contents_map_.end(); ++i) {
-    if (i->first != active_type)
-      ScheduleTabContentsCollection(i->first);
-  }
+  ScheduleTabContentsCollectionForInactiveTabs();
 }
 
 
@@ -909,6 +903,19 @@ NavigationController* NavigationController::Clone(HWND parent_hwnd) {
   return nc;
 }
 
+void NavigationController::ScheduleTabContentsCollectionForInactiveTabs() {
+  int index = GetCurrentEntryIndex();
+  if (index < 0 || GetPendingEntryIndex() != -1)
+    return;
+
+  TabContentsType active_type = GetEntryAtIndex(index)->tab_type();
+  for (TabContentsMap::iterator i = tab_contents_map_.begin();
+       i != tab_contents_map_.end(); ++i) {
+    if (i->first != active_type)
+      ScheduleTabContentsCollection(i->first);
+  }
+}
+
 void NavigationController::ScheduleTabContentsCollection(TabContentsType t) {
   TabContentsCollectorMap::const_iterator i =
       tab_contents_collector_map_.find(t);
@@ -979,4 +986,3 @@ int NavigationController::GetEntryIndexWithPageID(
   }
   return -1;
 }
-

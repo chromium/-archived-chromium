@@ -324,6 +324,10 @@ class NavigationController {
   NavigationEntry* CreateNavigationEntry(const GURL& url,
                                          PageTransition::Type transition);
 
+  // Invokes ScheduleTabContentsCollection for all TabContents but the active
+  // one.
+  void ScheduleTabContentsCollectionForInactiveTabs();
+
   // Schedule the TabContents currently allocated for |tc| for collection.
   // The TabContents will be destroyed later from a different event.
   void ScheduleTabContentsCollection(TabContentsType t);
