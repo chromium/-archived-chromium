@@ -114,7 +114,9 @@ void UITest::TearDown() {
   std::wstring error_msg =
       L"Encountered an unexpected crash in the program during this test.";
   if (expected_crashes_ > 0 && actual_crashes == 0)
-    error_msg += L"  Have you started crash_service.exe?";
+    error_msg += L"  NOTE: This test is expected to fail if crash_service.exe "
+                 L"is not running. Start it manually before running this "
+                 L"test (see the build output directory).";
   EXPECT_EQ(expected_crashes_, actual_crashes) << error_msg;
 }
 
@@ -359,6 +361,21 @@ bool UITest::WaitForDownloadShelfVisible(TabProxy* tab) {
   return false;
 }
 
+bool UITest::WaitForFindWindowFullyVisible(TabProxy* tab) {
+  const int kCycles = 20;
+  for (int i = 0; i < kCycles; i++) {
+    bool visible = false;
+    if (!tab->IsFindWindowFullyVisible(&visible))
+      return false;  // Some error.
+    if (visible)
+      return true;  // Find window is visible.
+
+    // Give it a chance to catch up.
+    Sleep(kWaitForActionMaxMsec / kCycles);
+  }
+  return false;
+}
+
 GURL UITest::GetActiveTabURL() {
   scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
   if (!tab_proxy.get())
@@ -416,7 +433,7 @@ DictionaryValue* UITest::GetLocalState() {
 }
 
 DictionaryValue* UITest::GetDefaultProfilePreferences() {
-   std::wstring path;
+  std::wstring path;
   PathService::Get(chrome::DIR_USER_DATA, &path);
   file_util::AppendToPath(&path, chrome::kNotSignedInProfile);
   file_util::AppendToPath(&path, chrome::kPreferencesFilename);

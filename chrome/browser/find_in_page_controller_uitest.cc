@@ -2,8 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/find_in_page_controller.h"
+#include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
+#include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/ui/ui_test.h"
 #include "net/url_request/url_request_unittest.h"
 
@@ -115,4 +118,64 @@ TEST_F(FindInPageControllerTest, FindEnoughMatches_Issue1341577) {
   // This string appears 5 times at the bottom of a long page. If Find restarts
   // properly after a timeout, it will find 5 matches, not just 1.
   EXPECT_EQ(5, tab->FindInPage(L"008.xml", FWD, IGNORE_CASE, false));
+}
+
+// The find window should not change its location just because we open and close
+// a new tab.
+TEST_F(FindInPageControllerTest, DISABLED_FindMovesOnTabClose_Issue1343052) {
+  TestServer server(L"chrome/test/data");
+
+  GURL url = server.TestServerPageW(kFramePage);
+  scoped_ptr<TabProxy> tabA(GetActiveTab());
+  ASSERT_TRUE(tabA->NavigateToURL(url));
+
+  scoped_ptr<WindowProxy> window(automation()->GetActiveWindow());
+  EXPECT_TRUE(window.get() != NULL);
+
+  scoped_ptr<BrowserProxy> browser(
+    automation()->GetBrowserForWindow(window.get()));
+
+  // Toggle the bookmark bar state.
+  browser->ApplyAccelerator(IDC_SHOW_BOOKMARKS_BAR);
+
+  // Open the Find window and wait for it to animate.
+  EXPECT_TRUE(tabA->OpenFindInPage());
+  EXPECT_TRUE(WaitForFindWindowFullyVisible(tabA.get()));
+
+  // Find its location.
+  int x = -1, y = -1;
+  EXPECT_TRUE(tabA->GetFindWindowLocation(&x, &y));
+
+  // Open another tab (tab B).
+  EXPECT_TRUE(browser->AppendTab(url));
+  scoped_ptr<TabProxy> tabB(GetActiveTab());
+
+  // Close tab B.
+  EXPECT_TRUE(tabB->Close(true));
+
+  // See if the Find window has moved.
+  int new_x = -1, new_y = -1;
+  EXPECT_TRUE(tabA->GetFindWindowLocation(&new_x, &new_y));
+
+  EXPECT_EQ(x, new_x);
+  EXPECT_EQ(y, new_y);
+
+  // Now reset the bookmarks bar state and try the same again.
+  browser->ApplyAccelerator(IDC_SHOW_BOOKMARKS_BAR);
+
+  // Bookmark bar has moved, reset our coordinates.
+  EXPECT_TRUE(tabA->GetFindWindowLocation(&x, &y));
+
+  // Open another tab (tab C).
+  EXPECT_TRUE(browser->AppendTab(url));
+  scoped_ptr<TabProxy> tabC(GetActiveTab());
+
+  // Close it.
+  EXPECT_TRUE(tabC->Close(true));
+
+  // See if the Find window has moved.
+  EXPECT_TRUE(tabA->GetFindWindowLocation(&new_x, &new_y));
+
+  EXPECT_EQ(x, new_x);
+  EXPECT_EQ(y, new_y);
 }

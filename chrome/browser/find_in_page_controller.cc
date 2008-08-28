@@ -201,6 +201,10 @@ void FindInPageController::Show() {
   view_->OnShow();
 }
 
+bool FindInPageController::IsAnimating() {
+  return animation_->IsAnimating();
+}
+
 void FindInPageController::EndFindSession() {
   if (IsVisible()) {
     show_on_tab_selection_ = false;

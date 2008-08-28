@@ -202,6 +202,12 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   void HandleOpenFindInPageRequest(const IPC::Message& message,
                                    int handle);
 
+  // Get the visibility state of the Find window.
+  void GetFindWindowVisibility(const IPC::Message& message, int handle);
+
+  // Responds to requests to find the location of the Find window.
+  void HandleFindWindowLocationRequest(const IPC::Message& message, int handle);
+
   // Responds to InspectElement request
   void HandleInspectElementRequest(const IPC::Message& message,
                                    int handle,
@@ -294,6 +300,11 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   // Handler for a message sent by the automation client.
   void OnMessageFromExternalHost(int handle, const std::string& target,
                                  const std::string& message);
+
+  // Convert a tab handle into a WebContents. If |tab| is specified a pointer
+  // to the tab is returned. Returns NULL in case of failure or if the tab is
+  // not of the WebContents type.
+  WebContents* GetWebContentsForHandle(int handle, NavigationController** tab);
 
   // Callback for history redirect queries.
   virtual void OnRedirectQueryComplete(

@@ -739,5 +739,18 @@ IPC_BEGIN_MESSAGES(Automation, 0)
                       int, /* tab_handle */
                       FindInPageRequest /* request */)
 
+  // Is the Find window fully visible (and not animating) for the specified
+  // tab?
+  IPC_MESSAGE_ROUTED1(AutomationMsg_FindWindowVisibilityRequest,
+                      int /* tab_handle */)
+  IPC_MESSAGE_ROUTED1(AutomationMsg_FindWindowVisibilityResponse,
+                      bool /* is_visible */)
+
+  // Where is the Find window located. |x| and |y| will be -1, -1 on failure.
+  IPC_MESSAGE_ROUTED1(AutomationMsg_FindWindowLocationRequest,
+                      int /* tab_handle */)
+  IPC_MESSAGE_ROUTED2(AutomationMsg_FindWindowLocationResponse,
+                      int, /* x */
+                      int  /* y */)
 IPC_END_MESSAGES(Automation)
 

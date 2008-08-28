@@ -86,6 +86,9 @@ class FindInPageController : public RenderViewHostDelegate::FindInPage,
   // Moves the window according to the new window size.
   void RespondToResize(const gfx::Size& new_size);
 
+  // Whether we are animating the position of the Find window.
+  bool IsAnimating();
+
   // Changes the parent window for the FindInPage controller. If |new_parent| is
   // already the parent of this window then no action is taken. |new_parent| can
   // not be NULL.

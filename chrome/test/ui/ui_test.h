@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_TEST_UI_UI_TEST_H__
-#define CHROME_TEST_UI_UI_TEST_H__
+#ifndef CHROME_TEST_UI_UI_TEST_H_
+#define CHROME_TEST_UI_UI_TEST_H_
 
 // This file provides a common base for running UI unit tests, which operate
 // the entire browser application in a separate process for holistic
@@ -121,6 +121,11 @@ class UITest : public testing::Test {
   // a chance to appear (we don't know the exact timing) while finishing as soon
   // as possible.
   bool WaitForDownloadShelfVisible(TabProxy* tab);
+
+  // Waits until the Find window has become fully visible (and stopped
+  // animating) in the specified tab. This function can time out (return false)
+  // if the window doesn't appear within a specific time.
+  bool WaitForFindWindowFullyVisible(TabProxy* tab);
 
   // Closes the specified browser.  Returns true if the browser was closed.
   // This call is blocking.  |application_closed| is set to true if this was
@@ -345,5 +350,4 @@ std::ostream& operator<<(std::ostream& out, const ::scoped_ptr<T>& ptr) {
 }
 #endif  // UNIT_TEST
 
-#endif  // CHROME_TEST_UI_UI_TEST_H__
-
+#endif  // CHROME_TEST_UI_UI_TEST_H_

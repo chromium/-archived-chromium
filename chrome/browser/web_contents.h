@@ -87,6 +87,8 @@ class WebContents : public TabContents,
   virtual void OpenFindInPageWindow(const Browser& browser);
   virtual void ReparentFindWindow(HWND new_parent);
   virtual bool AdvanceFindSelection(bool forward_direction);
+  virtual bool IsFindWindowFullyVisible();
+  virtual bool GetFindInPageWindowLocation(int* x, int* y);
 
   // Text zoom
   virtual void AlterTextSize(text_zoom::TextSize size);
@@ -634,7 +636,7 @@ class WebContents : public TabContents,
   // RenderViewHostManager::Delegate pass-throughs -----------------------------
 
   virtual void BeforeUnloadFiredFromRenderManager(
-      bool proceed, 
+      bool proceed,
       bool* proceed_to_fire_unload);
   virtual void DidStartLoadingFromRenderManager(
       RenderViewHost* render_view_host, int32 page_id) {
@@ -654,7 +656,7 @@ class WebContents : public TabContents,
   }
 
   // ---------------------------------------------------------------------------
-  
+
   // Enumerate and 'un-parent' any plugin windows that are children
   // of this web contents.
   void DetachPluginWindows();

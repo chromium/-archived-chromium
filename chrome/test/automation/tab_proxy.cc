@@ -76,6 +76,48 @@ bool TabProxy::OpenFindInPage() {
   // This message expects no response.
 }
 
+bool TabProxy::IsFindWindowFullyVisible(bool* is_visible) {
+  if (!is_valid())
+    return false;
+
+  if (!is_visible) {
+    NOTREACHED();
+    return false;
+  }
+
+  IPC::Message* response = NULL;
+  bool succeeded = sender_->SendAndWaitForResponse(
+      new AutomationMsg_FindWindowVisibilityRequest(0, handle_),
+      &response,
+      AutomationMsg_FindWindowVisibilityResponse::ID);
+  if (!succeeded)
+    return false;
+
+  void* iter = NULL;
+  response->ReadBool(&iter, is_visible);
+  delete response;
+  return true;
+}
+
+bool TabProxy::GetFindWindowLocation(int* x, int* y) {
+  if (!is_valid() || !x || !y)
+    return false;
+
+  IPC::Message* response = NULL;
+  bool succeeded = sender_->SendAndWaitForResponse(
+      new AutomationMsg_FindWindowLocationRequest(0, handle_),
+      &response,
+      AutomationMsg_FindWindowLocationResponse::ID);
+  if (!succeeded)
+    return false;
+
+  void* iter = NULL;
+  response->ReadInt(&iter, x);
+  response->ReadInt(&iter, y);
+  delete response;
+  return true;
+}
+
 int TabProxy::FindInPage(const std::wstring& search_string,
                          FindInPageDirection forward,
                          FindInPageCase match_case,

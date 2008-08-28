@@ -686,6 +686,26 @@ bool WebContents::AdvanceFindSelection(bool forward_direction) {
   return true;
 }
 
+bool WebContents::IsFindWindowFullyVisible() {
+  return find_in_page_controller_->IsVisible() &&
+         !find_in_page_controller_->IsAnimating();
+}
+
+bool WebContents::GetFindInPageWindowLocation(int* x, int* y) {
+  DCHECK(x && y);
+  HWND find_wnd = find_in_page_controller_->GetHWND();
+  CRect window_rect;
+  if (IsFindWindowFullyVisible() &&
+      ::IsWindow(find_wnd) &&
+      ::GetWindowRect(find_wnd, &window_rect)) {
+    *x = window_rect.TopLeft().x;
+    *y = window_rect.TopLeft().y;
+    return true;     
+  }
+
+  return false;
+}
+
 void WebContents::AlterTextSize(text_zoom::TextSize size) {
   render_view_host()->AlterTextSize(size);
   // TODO(creis): should this be propagated to other and future RVHs?
@@ -2247,7 +2267,7 @@ void WebContents::UpdateMaxPageIDIfNecessary(SiteInstance* site_instance,
 }
 
 void WebContents::BeforeUnloadFiredFromRenderManager(
-    bool proceed, 
+    bool proceed,
     bool* proceed_to_fire_unload) {
   delegate()->BeforeUnloadFired(this, proceed, proceed_to_fire_unload);
 }
