@@ -9,7 +9,7 @@
 			DisplayName="Version"
 			CommandLine="$(SolutionDir)/tools/build/win/version.bat [inputs] &quot;$(SolutionDir)&quot; &quot;$(IntDir)&quot; &quot;$(IntDir)/$(InputName)&quot;"
 			Outputs="$(IntDir)/$(InputName)"
-			AdditionalDependencies="$(SolutionDir)/VERSION;$(SolutionDir)/BRANDING;$(SolutionDir)/tools/build/win/version.bat"
+			AdditionalDependencies="$(SolutionDir)/VERSION;$(SolutionDir)/tools/build/win/version.bat"
 			FileExtensions="*.version"
 			ExecutionDescription="Generating version template file"
 			>
