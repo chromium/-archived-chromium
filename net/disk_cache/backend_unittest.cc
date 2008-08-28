@@ -78,7 +78,7 @@ int TestTransaction(const std::wstring& name, int num_entries, bool load) {
 }  // namespace
 
 // Tests that can run with different types of caches.
-class DiskCacheBackendTest : public DiskCacheTestBase {
+class DiskCacheBackendTest : public DiskCacheTestWithCache {
  protected:
   void BackendBasics();
   void BackendSetSize();
@@ -719,7 +719,7 @@ TEST_F(DiskCacheBackendTest, MemoryOnlyDoomBetween) {
   BackendDoomBetween();
 }
 
-TEST(DiskCacheTest, Backend_RecoverInsert) {
+TEST_F(DiskCacheTest, Backend_RecoverInsert) {
   // Tests with an empty cache.
   EXPECT_EQ(0, TestTransaction(L"insert_empty1", 0, false));
   EXPECT_EQ(0, TestTransaction(L"insert_empty2", 0, false));
@@ -735,7 +735,7 @@ TEST(DiskCacheTest, Backend_RecoverInsert) {
   EXPECT_EQ(0, TestTransaction(L"insert_load2", 100, true));
 }
 
-TEST(DiskCacheTest, Backend_RecoverRemove) {
+TEST_F(DiskCacheTest, Backend_RecoverRemove) {
   // Removing the only element.
   EXPECT_EQ(0, TestTransaction(L"remove_one1", 0, false));
   EXPECT_EQ(0, TestTransaction(L"remove_one2", 0, false));
@@ -764,7 +764,7 @@ TEST(DiskCacheTest, Backend_RecoverRemove) {
 }
 
 // Tests dealing with cache files that cannot be recovered.
-TEST(DiskCacheTest, Backend_DeleteOld) {
+TEST_F(DiskCacheTest, Backend_DeleteOld) {
   ASSERT_TRUE(CopyTestCache(L"wrong_version"));
   std::wstring path = GetCachePath();
   scoped_ptr<disk_cache::Backend> cache;
@@ -781,7 +781,7 @@ TEST(DiskCacheTest, Backend_DeleteOld) {
 }
 
 // We want to be able to deal with messed up entries on disk.
-TEST(DiskCacheTest, Backend_InvalidEntry) {
+TEST_F(DiskCacheTest, Backend_InvalidEntry) {
   ASSERT_TRUE(CopyTestCache(L"bad_entry"));
   std::wstring path = GetCachePath();
   disk_cache::Backend* cache = disk_cache::CreateCacheBackend(path, false, 0);
@@ -797,7 +797,7 @@ TEST(DiskCacheTest, Backend_InvalidEntry) {
 }
 
 // We want to be able to deal with messed up entries on disk.
-TEST(DiskCacheTest, Backend_InvalidRankings) {
+TEST_F(DiskCacheTest, Backend_InvalidRankings) {
   ASSERT_TRUE(CopyTestCache(L"bad_rankings"));
   std::wstring path = GetCachePath();
   disk_cache::Backend* cache = disk_cache::CreateCacheBackend(path, false, 0);
@@ -907,7 +907,7 @@ TEST_F(DiskCacheBackendTest, DisableFailure2) {
   BackendDisable2();
 }
 
-TEST(DiskCacheTest, Backend_UsageStats) {
+TEST_F(DiskCacheTest, Backend_UsageStats) {
   MessageLoopHelper helper;
 
   std::wstring path = GetCachePath();

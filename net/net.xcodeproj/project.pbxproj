@@ -85,6 +85,12 @@
 		7BA0169E0E5A1EAE00044150 /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA016980E5A1E8700044150 /* libzlib.a */; };
 		7BA016A30E5A1EE900044150 /* gzip_header.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32B70E5A181C00A747DB /* gzip_header.cc */; };
 		7BA0172F0E5A244D00044150 /* bzip2_filter.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32750E5A181C00A747DB /* bzip2_filter.cc */; };
+		7BD8F70C0E65DCD800034DE9 /* block_files_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32F90E5A190600A747DB /* block_files_unittest.cc */; };
+		7BD8F70D0E65DCE000034DE9 /* disk_cache_test_base.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32D50E5A190600A747DB /* disk_cache_test_base.cc */; };
+		7BD8F70E0E65DCE500034DE9 /* disk_cache_test_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32FA0E5A190600A747DB /* disk_cache_test_util.cc */; };
+		7BD8F70F0E65DCEB00034DE9 /* entry_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32E40E5A190600A747DB /* entry_unittest.cc */; };
+		7BD8F7100E65DCF000034DE9 /* mapped_file_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32ED0E5A190600A747DB /* mapped_file_unittest.cc */; };
+		7BD8F7110E65DCF500034DE9 /* storage_block_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32D90E5A190600A747DB /* storage_block_unittest.cc */; };
 		7BED34190E5A1A8600A747DB /* libnet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BA04540E25613300BE02C6 /* libnet.a */; };
 		7BED34450E5A1A9600A747DB /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BED324A0E5A17C000A747DB /* libbase.a */; };
 		7BED34520E5A1ABC00A747DB /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BED32530E5A17C300A747DB /* libgtest.a */; };
@@ -1252,21 +1258,27 @@
 				7B4DF6BD0E5B98F7004D7619 /* addr_unittest.cc in Sources */,
 				7B8502050E5A377100730B43 /* auth_cache_unittest.cc in Sources */,
 				7B8502120E5A37A800730B43 /* base64_unittest.cc in Sources */,
+				7BD8F70C0E65DCD800034DE9 /* block_files_unittest.cc in Sources */,
 				7BA015210E5A1B9800044150 /* bzip2_filter_unittest.cc in Sources */,
 				7B4DF64A0E5B98DF004D7619 /* client_socket_pool_unittest.cc in Sources */,
 				7B8B5B530E5CEAC7002F9A97 /* cookie_monster_unittest.cc in Sources */,
 				7B4DF6A90E5B98E7004D7619 /* data_url_unittest.cc in Sources */,
+				7BD8F70D0E65DCE000034DE9 /* disk_cache_test_base.cc in Sources */,
+				7BD8F70E0E65DCE500034DE9 /* disk_cache_test_util.cc in Sources */,
+				7BD8F70F0E65DCEB00034DE9 /* entry_unittest.cc in Sources */,
 				7B4DF6B10E5B98ED004D7619 /* escape_unittest.cc in Sources */,
 				7BA0151F0E5A1B9200044150 /* gzip_filter_unittest.cc in Sources */,
 				048268080E5B3B3200A30786 /* http_chunked_decoder_unittest.cc in Sources */,
 				821F21320E5CD756003C7E38 /* http_response_headers_unittest.cc in Sources */,
 				821F21130E5CD662003C7E38 /* http_vary_data_unittest.cc in Sources */,
+				7BD8F7100E65DCF000034DE9 /* mapped_file_unittest.cc in Sources */,
 				7B4DF9AC0E5C906A004D7619 /* mime_sniffer_unittest.cc in Sources */,
 				048268090E5B3B4800A30786 /* mime_util_unittest.cc in Sources */,
 				BAA46E3B0E5CE99A00E77460 /* net_util_unittest.cc in Sources */,
 				7B466C470E5E732900C91F63 /* platform_test_mac.mm in Sources */,
 				7B8B5B9E0E5D188E002F9A97 /* registry_controlled_domain_unittest.cc in Sources */,
 				E4AFA6430E5241B400201347 /* run_all_unittests.cc in Sources */,
+				7BD8F7110E65DCF500034DE9 /* storage_block_unittest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

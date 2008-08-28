@@ -7,6 +7,7 @@
 #include "base/timer.h"
 #include "net/base/net_errors.h"
 #include "net/disk_cache/disk_cache.h"
+#include "net/disk_cache/disk_cache_test_base.h"
 #include "net/disk_cache/disk_cache_test_util.h"
 #include "net/disk_cache/hash.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -163,7 +164,7 @@ int TimeRead(int num_entries, disk_cache::Backend* cache,
 
 }  // namespace
 
-TEST(DiskCacheTest, Hash) {
+TEST_F(DiskCacheTest, Hash) {
   int seed = static_cast<int>(Time::Now().ToInternalValue());
   srand(seed);
 
@@ -175,7 +176,7 @@ TEST(DiskCacheTest, Hash) {
   timer.Done();
 }
 
-TEST(DiskCacheTest, CacheBackendPerformance) {
+TEST_F(DiskCacheTest, CacheBackendPerformance) {
   MessageLoopForIO message_loop;
 
   std::wstring path = GetCachePath();

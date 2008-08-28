@@ -5,10 +5,11 @@
 #include "base/file_util.h"
 #include "net/disk_cache/storage_block.h"
 #include "net/disk_cache/storage_block-inl.h"
+#include "net/disk_cache/disk_cache_test_base.h"
 #include "net/disk_cache/disk_cache_test_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-TEST(DiskCacheTest, StorageBlock_LoadStore) {
+TEST_F(DiskCacheTest, StorageBlock_LoadStore) {
   std::wstring filename = GetCachePath();
   file_util::AppendToPath(&filename, L"a_test");
   scoped_refptr<disk_cache::MappedFile> file(new disk_cache::MappedFile);
@@ -29,7 +30,7 @@ TEST(DiskCacheTest, StorageBlock_LoadStore) {
   EXPECT_EQ(0xa0010002, entry1.Data()->rankings_node);
 }
 
-TEST(DiskCacheTest, StorageBlock_SetData) {
+TEST_F(DiskCacheTest, StorageBlock_SetData) {
   std::wstring filename = GetCachePath();
   file_util::AppendToPath(&filename, L"a_test");
   scoped_refptr<disk_cache::MappedFile> file(new disk_cache::MappedFile);
@@ -50,7 +51,7 @@ TEST(DiskCacheTest, StorageBlock_SetData) {
   EXPECT_TRUE(entry2.Data() == entry1.Data());
 }
 
-TEST(DiskCacheTest, StorageBlock_SetModified) {
+TEST_F(DiskCacheTest, StorageBlock_SetModified) {
   std::wstring filename = GetCachePath();
   file_util::AppendToPath(&filename, L"a_test");
   scoped_refptr<disk_cache::MappedFile> file(new disk_cache::MappedFile);

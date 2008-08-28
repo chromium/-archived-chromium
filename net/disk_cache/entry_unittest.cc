@@ -16,7 +16,7 @@ extern volatile int g_cache_tests_received;
 extern volatile bool g_cache_tests_error;
 
 // Tests that can run with different types of caches.
-class DiskCacheEntryTest : public DiskCacheTestBase {
+class DiskCacheEntryTest : public DiskCacheTestWithCache {
  protected:
   void InternalSyncIO();
   void InternalAsyncIO();

@@ -4,10 +4,11 @@
 
 #include "net/disk_cache/block_files.h"
 #include "net/disk_cache/disk_cache.h"
+#include "net/disk_cache/disk_cache_test_base.h"
 #include "net/disk_cache/disk_cache_test_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-TEST(DiskCacheTest, BlockFiles_Grow) {
+TEST_F(DiskCacheTest, BlockFiles_Grow) {
   std::wstring path = GetCachePath();
   ASSERT_TRUE(DeleteCache(path.c_str()));
 
@@ -22,7 +23,7 @@ TEST(DiskCacheTest, BlockFiles_Grow) {
 }
 
 // Handling of block files not properly closed.
-TEST(DiskCacheTest, BlockFiles_Recover) {
+TEST_F(DiskCacheTest, BlockFiles_Recover) {
   std::wstring path = GetCachePath();
   ASSERT_TRUE(DeleteCache(path.c_str()));
 

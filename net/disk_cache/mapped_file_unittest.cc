@@ -4,6 +4,7 @@
 
 #include "base/file_util.h"
 #include "base/string_util.h"
+#include "net/disk_cache/disk_cache_test_base.h"
 #include "net/disk_cache/disk_cache_test_util.h"
 #include "net/disk_cache/mapped_file.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -66,7 +67,7 @@ void WaitForCallbacks(int expected) {
 
 }  // namespace
 
-TEST(DiskCacheTest, MappedFile_SyncIO) {
+TEST_F(DiskCacheTest, MappedFile_SyncIO) {
   std::wstring filename = GetCachePath();
   file_util::AppendToPath(&filename, L"a_test");
   scoped_refptr<disk_cache::MappedFile> file(new disk_cache::MappedFile);
@@ -82,7 +83,7 @@ TEST(DiskCacheTest, MappedFile_SyncIO) {
   EXPECT_STREQ(buffer1, buffer2);
 }
 
-TEST(DiskCacheTest, MappedFile_AsyncIO) {
+TEST_F(DiskCacheTest, MappedFile_AsyncIO) {
   std::wstring filename = GetCachePath();
   file_util::AppendToPath(&filename, L"a_test");
   scoped_refptr<disk_cache::MappedFile> file(new disk_cache::MappedFile);

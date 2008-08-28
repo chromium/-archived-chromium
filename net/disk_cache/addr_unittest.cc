@@ -3,11 +3,12 @@
 // found in the LICENSE file.
 
 #include "net/disk_cache/addr.h"
+#include "net/disk_cache/disk_cache_test_base.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace disk_cache {
 
-TEST(DiskCacheTest, CacheAddr_Size) {
+TEST_F(DiskCacheTest, CacheAddr_Size) {
   Addr addr1(0);
   EXPECT_FALSE(addr1.is_initialized());
 
@@ -15,7 +16,7 @@ TEST(DiskCacheTest, CacheAddr_Size) {
   EXPECT_EQ(sizeof(uint32), sizeof(addr1));
 }
 
-TEST(DiskCacheTest, CacheAddr_ValidValues) {
+TEST_F(DiskCacheTest, CacheAddr_ValidValues) {
   Addr addr2(BLOCK_1K, 3, 5, 25);
   EXPECT_EQ(BLOCK_1K, addr2.file_type());
   EXPECT_EQ(3, addr2.num_blocks());
@@ -24,7 +25,7 @@ TEST(DiskCacheTest, CacheAddr_ValidValues) {
   EXPECT_EQ(1024, addr2.BlockSize());
 }
 
-TEST(DiskCacheTest, CacheAddr_InvalidValues) {
+TEST_F(DiskCacheTest, CacheAddr_InvalidValues) {
   Addr addr3(BLOCK_4K, 0x44, 0x41508, 0x952536);
   EXPECT_EQ(BLOCK_4K, addr3.file_type());
   EXPECT_EQ(4, addr3.num_blocks());
