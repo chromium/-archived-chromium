@@ -871,6 +871,12 @@ bool TestShell::Navigate(const TestNavigationEntry& entry, bool reload) {
     // back/forward navigations maintain the target frame?
 
     frame->LoadRequest(request.get());
+    // Restore focus to the main frame prior to loading new request.
+    // This makes sure that we don't have a focused iframe. Otherwise, that
+    // iframe would keep focus when the SetFocus called immediately after
+    // LoadRequest, thus making some tests fail (see http://b/issue?id=845337
+    // for more details).
+    webView()->SetFocusedFrame(frame);
     SetFocus(webViewHost(), true);
 
     return true;

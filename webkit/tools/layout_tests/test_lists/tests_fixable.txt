@@ -516,12 +516,6 @@ V8 # LayoutTests/fast/dom/getter-on-window-object2.html = FAIL
 // We don't support WebKit-Editing-Delete-Button
 V8 | KJS # LayoutTests/editing/deleting/5408255.html = FAIL
 
-// Bug: 845337
-// Missing two callbacks:
-// -EDITING DELEGATE: shouldBeginEditingInDOMRange:range ...
-// -EDITING DELEGATE: webViewDidBeginEditing:WebViewDidBeginEditingNotification
-V8 | KJS # LayoutTests/editing/pasteboard/testcase-9507.html = FAIL
-
 // Bug: 1042838
 // User stylesheets not currently supported by chrome.
 // Webkit supports them by doing filesystem operations directly.
