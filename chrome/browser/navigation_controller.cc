@@ -493,13 +493,19 @@ void NavigationController::SetAlternateNavURLFetcher(
   alternate_nav_url_fetcher_entry_unique_id_ = pending_entry_->unique_id();
 }
 
-void NavigationController::DidNavigateToEntry(NavigationEntry* entry) {
+void NavigationController::DidNavigateToEntry(NavigationEntry* entry,
+                                              LoadCommittedDetails* details) {
   DCHECK(active_contents_);
   DCHECK(entry->tab_type() == active_contents_->type());
 
   SetContentStateIfEmpty(entry);
 
   entry->set_restored(false);
+
+  // Update the details to list the last URL. Later, we'll update the current
+  // entry (after it's committed) and the details will be complete.
+  if (GetLastCommittedEntry())
+    details->previous_url = GetLastCommittedEntry()->url();
 
   // If the entry is that of a page with PageID larger than any this Tab has
   // seen before, then consider it a new navigation.  Note that if the entry
@@ -508,7 +514,7 @@ void NavigationController::DidNavigateToEntry(NavigationEntry* entry) {
   DCHECK(entry->page_id() >= 0) << "Page ID must be set before calling us.";
   if (entry->page_id() > GetMaxPageID()) {
     InsertEntry(entry);
-    NotifyNavigationEntryCommitted();
+    NotifyNavigationEntryCommitted(details);
     // It is now a safe time to schedule collection for any tab contents of a
     // different type, because a navigation is necessary to get back to them.
     ScheduleTabContentsCollectionForInactiveTabs();
@@ -566,7 +572,7 @@ void NavigationController::DidNavigateToEntry(NavigationEntry* entry) {
   }
 
   delete entry;
-  NotifyNavigationEntryCommitted();
+  NotifyNavigationEntryCommitted(details);
 
   if (alternate_nav_url_fetcher_.get()) {
     // Because this call may synchronously show an infobar, we do it last, to
@@ -715,7 +721,8 @@ void NavigationController::NavigateToPendingEntry(bool reload) {
     DiscardPendingEntry();
 }
 
-void NavigationController::NotifyNavigationEntryCommitted() {
+void NavigationController::NotifyNavigationEntryCommitted(
+    LoadCommittedDetails* details) {
   // Reset the Alternate Nav URL Fetcher if we're loading some page it doesn't
   // care about.  We must do this before calling Notify() below as that may
   // result in the creation of a new fetcher.
@@ -735,9 +742,11 @@ void NavigationController::NotifyNavigationEntryCommitted() {
   active_contents_->NotifyNavigationStateChanged(
       TabContents::INVALIDATE_EVERYTHING);
 
-  NotificationService::current()->Notify(NOTIFY_NAV_ENTRY_COMMITTED,
-                                         Source<NavigationController>(this),
-                                         NotificationService::NoDetails());
+  details->entry = GetActiveEntry();
+  NotificationService::current()->Notify(
+      NOTIFY_NAV_ENTRY_COMMITTED,
+      Source<NavigationController>(this),
+      Details<LoadCommittedDetails>(details));
 }
 
 void NavigationController::NotifyPrunedEntries() {

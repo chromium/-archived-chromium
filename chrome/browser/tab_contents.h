@@ -489,8 +489,11 @@ class TabContents : public PageNavigator,
   void SetIsLoading(bool is_loading, LoadNotificationDetails* details);
 
   // Called by subclasses when a navigation occurs.  Ownership of the entry
-  // object is passed to this method.
-  void DidNavigateToEntry(NavigationEntry* entry);
+  // object is passed to this method. The details object should be filled in
+  // *except* for the entry (which the NavigationController will set). This
+  // behaves the same as NavigationController::DidNavigate, see that for more.
+  void DidNavigateToEntry(NavigationEntry* entry,
+                          NavigationController::LoadCommittedDetails* details);
 
   // Called by a derived class when the TabContents is resized, causing
   // suppressed constrained web popups to be repositioned to the new bounds

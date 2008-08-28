@@ -48,6 +48,46 @@ class NavigationController {
     int index;
   };
 
+  struct LoadCommittedDetails {
+    // By default, the entry will be filled according to a new main frame
+    // navigation.
+    LoadCommittedDetails()
+        : entry(NULL),
+          is_auto(false),
+          is_in_page(false),
+          is_main_frame(true) {
+    }
+
+    // The committed entry. This will be the active entry in the controller.
+    NavigationEntry* entry;
+
+    // The previous URL that the user was on. This may be empty if none.
+    GURL previous_url;
+
+    // True when this load was non-user initated. This corresponds to a
+    // a NavigationGestureAuto call from WebKit (see webview_delegate.h).
+    // We also count reloads and meta-refreshes as "auto" to account for the
+    // fact that WebKit doesn't always set the user gesture properly in these
+    // cases (see bug 1051891).
+    bool is_auto;
+
+    // True if the navigation was in-page. This means that the active entry's
+    // URL and the |previous_url| are the same except for reference fragments.
+    bool is_in_page;
+
+    // True when the main frame was navigated. False means the navigation was a
+    // sub-frame.
+    bool is_main_frame;
+
+    // Returns whether the user probably felt like they navigated somewhere new.
+    // We often need this logic for showing or hiding something, and this
+    // returns true only for main frame loads that the user initiated, that go
+    // to a new page.
+    bool is_user_initiated_main_frame_load() const {
+      return !is_auto && !is_in_page && is_main_frame;
+    }
+  };
+
   NavigationController(TabContents* initial_contents, Profile* profile);
   // Creates a NavigationController from the specified history. Processing
   // for this is asynchronous and handled via the RestoreHelper (in
@@ -208,7 +248,15 @@ class NavigationController {
   // for a tab.  The controller takes ownership of the entry.  Any entry located
   // forward to the current entry will be deleted.  The new entry becomes the
   // current entry.
-  void DidNavigateToEntry(NavigationEntry* entry);
+  //
+  // The details are populated by the caller except for the new NavigationEntry
+  // pointer and the previous URL. We will fill these in before using it to
+  // broadcast notifications, so it can also be used by the caller.
+  //
+  // TODO(brettw) bug 1343146: The NavigationController should internally make
+  // the entry and the notification details.
+  void DidNavigateToEntry(NavigationEntry* entry,
+                          LoadCommittedDetails* details);
 
   // Calling this may cause the active tab contents to switch if the current
   // entry corresponds to a different tab contents type.
@@ -284,8 +332,8 @@ class NavigationController {
   void NavigateToPendingEntry(bool reload);
 
   // Allows the derived class to issue notifications that a load has been
-  // committed.
-  void NotifyNavigationEntryCommitted();
+  // committed. This will fill in the active entry to the details structure.
+  void NotifyNavigationEntryCommitted(LoadCommittedDetails* details);
 
   // Invoked when entries have been pruned, or removed. For example, if the
   // current entries are [google, digg, yahoo], with the current entry google,

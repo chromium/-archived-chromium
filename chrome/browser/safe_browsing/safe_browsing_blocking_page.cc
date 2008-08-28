@@ -176,7 +176,10 @@ void SafeBrowsingBlockingPage::DisplayBlockingPage() {
     nav_entry->set_page_id(tab_->GetMaxPageID() + 1);
     nav_entry->set_page_type(NavigationEntry::INTERSTITIAL_PAGE);
     nav_entry->set_url(url_);
-    tab_->controller()->DidNavigateToEntry(nav_entry);
+
+    // The default details is "new navigation", and that's OK with us.
+    NavigationController::LoadCommittedDetails details;
+    tab_->controller()->DidNavigateToEntry(nav_entry, &details);
     created_temporary_entry_ = true;
   }
 

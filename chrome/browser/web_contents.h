@@ -555,34 +555,16 @@ class WebContents : public TabContents,
   NavigationEntry* CreateNavigationEntryForCommit(
       const ViewHostMsg_FrameNavigate_Params& params);
 
-  // Handles post-navigation tasks specific to some set of frames. DidNavigate()
-  // calls these with newly created navigation entry for this navigation BEFORE
-  // that entry has been committed to the navigation controller. The functions
-  // can update the entry as needed.
-  //
-  // First the frame-specific version (main or sub) will be called to update the
-  // entry as needed after it was created by CreateNavigationEntryForCommit.
-  //
-  // Then DidNavigateAnyFramePreCommit will be called with the now-complete
-  // entry for further processing that is not specific to the type of frame.
-  void DidNavigateMainFramePreCommit(
-      const ViewHostMsg_FrameNavigate_Params& params,
-      NavigationEntry* entry);
-  void DidNavigateSubFramePreCommit(
-      const ViewHostMsg_FrameNavigate_Params& params,
-      NavigationEntry* entry);
-  void DidNavigateAnyFramePreCommit(
-      const ViewHostMsg_FrameNavigate_Params& params,
-      NavigationEntry* entry);
-
   // Handles post-navigation tasks in DidNavigate AFTER the entry has been
-  // committed to the navigation controller. See WillNavigate* above. Note that
-  // the navigation entry is not provided since it may be invalid/changed after
-  // being committed.
+  // committed to the navigation controller. Note that the navigation entry is
+  // not provided since it may be invalid/changed after being committed. The
+  // current navigation entry is in the NavigationController at this point.
   void DidNavigateMainFramePostCommit(
+      const NavigationController::LoadCommittedDetails& details,
       const ViewHostMsg_FrameNavigate_Params& params);
   void DidNavigateAnyFramePostCommit(
       RenderViewHost* render_view_host,
+      const NavigationController::LoadCommittedDetails& details,
       const ViewHostMsg_FrameNavigate_Params& params);
 
   // Called when navigating the main frame to close all child windows if the

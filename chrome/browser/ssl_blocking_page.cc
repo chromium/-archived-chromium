@@ -153,7 +153,10 @@ void SSLBlockingPage::Show() {
   nav_entry->ssl().set_cert_status(ssl_info.cert_status);
   nav_entry->ssl().set_security_bits(ssl_info.security_bits);
   // The controller will own the entry.
-  tab_->controller()->DidNavigateToEntry(nav_entry);
+
+  // The default details is "new navigation", and that's OK with us.
+  NavigationController::LoadCommittedDetails details;
+  tab_->controller()->DidNavigateToEntry(nav_entry, &details);
   tab->ShowInterstitialPage(html_text, NULL);
 }
 

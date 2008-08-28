@@ -269,7 +269,10 @@ bool NativeUIContents::Navigate(const NavigationEntry& entry, bool reload) {
   state_->GetByteRepresentation(&content_state);
   new_entry->set_content_state(content_state);
   const int32 page_id = new_entry->page_id();
-  DidNavigateToEntry(new_entry);
+
+  // The default details is "new navigation", and that's OK with us.
+  NavigationController::LoadCommittedDetails details;
+  DidNavigateToEntry(new_entry, &details);
   // This is not a WebContents, so we use a NULL SiteInstance.
   controller()->NotifyEntryChangedByPageID(type(), NULL, page_id);
   return true;

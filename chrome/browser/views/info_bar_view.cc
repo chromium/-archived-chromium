@@ -5,6 +5,7 @@
 #include "chrome/browser/views/info_bar_view.h"
 
 #include "base/logging.h"
+#include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/browser/web_contents.h"
@@ -31,9 +32,16 @@ static const int kSeparatorHeight = 1;
 InfoBarView::InfoBarView(WebContents* web_contents)
     : web_contents_(web_contents) {
   Init();
+  NotificationService::current()->AddObserver(
+      this, NOTIFY_NAV_ENTRY_COMMITTED,
+      Source<NavigationController>(web_contents_->controller()));
 }
 
-InfoBarView::~InfoBarView() {}
+InfoBarView::~InfoBarView() {
+  NotificationService::current()->RemoveObserver(
+      this, NOTIFY_NAV_ENTRY_COMMITTED,
+      Source<NavigationController>(web_contents_->controller()));
+}
 
 void InfoBarView::AppendInfoBarItem(ChromeViews::View* view, bool auto_expire) {
   // AddChildView adds an entry to expire_map_ for view.
@@ -105,43 +113,6 @@ void InfoBarView::ChildAnimationProgressed() {
 void InfoBarView::ChildAnimationEnded() {
   if (web_contents_)
     web_contents_->ToolbarSizeChanged(false);
-}
-
-void InfoBarView::DidNavigate(NavigationEntry* entry) {
-  // Determine the views to remove first.
-  std::vector<ChromeViews::View*> to_remove;
-  NavigationEntry* pending_entry =
-      web_contents_->controller()->GetPendingEntry();
-  const int active_id = pending_entry ? pending_entry->unique_id() :
-                                        entry->unique_id();
-  for (std::map<View*,int>::iterator i = expire_map_.begin();
-       i != expire_map_.end(); ++i) {
-    if ((pending_entry && 
-        pending_entry->transition_type() == PageTransition::RELOAD) ||
-        i->second != active_id)
-      to_remove.push_back(i->first);
-  }
-
-  if (to_remove.empty())
-    return;
-
-  // Remove the views.
-  for (std::vector<ChromeViews::View*>::iterator i = to_remove.begin();
-       i != to_remove.end(); ++i) {
-    // RemoveChildView takes care of removing from expire_map for us.
-    RemoveChildView(*i);
-
-    // We own the child and we're removing it, need to delete it.
-    delete *i;
-  }
-
-  if (GetChildViewCount() == 0) {
-    // All our views have been removed, no need to stay visible.
-    web_contents_->SetInfoBarVisible(false);
-  } else if (web_contents_) {
-    // This triggers a layout.
-    web_contents_->ToolbarSizeChanged(false);
-  }
 }
 
 void InfoBarView::ViewHierarchyChanged(bool is_add, View *parent,
@@ -219,4 +190,53 @@ void InfoBarView::PaintSeparator(ChromeCanvas* canvas,
                       v2->GetY() - kSeparatorHeight,
                       GetWidth(),
                       kSeparatorHeight);
+}
+
+void InfoBarView::Observe(NotificationType type,
+                          const NotificationSource& source,
+                          const NotificationDetails& in_details) {
+  // We should get only commit notifications from our controller.
+  DCHECK(type == NOTIFY_NAV_ENTRY_COMMITTED);
+  DCHECK(web_contents_->controller() ==
+         Source<NavigationController>(source).ptr());
+
+  NavigationController::LoadCommittedDetails& details =
+      *(Details<NavigationController::LoadCommittedDetails>(in_details).ptr());
+
+  // Only hide infobars when the user has done something that makes the main
+  // frame load. We don't want various automatic or subframe navigations making
+  // it disappear.
+  if (!details.is_user_initiated_main_frame_load())
+    return;
+
+  // Determine the views to remove first.
+  std::vector<ChromeViews::View*> to_remove;
+  for (std::map<View*,int>::iterator i = expire_map_.begin();
+       i != expire_map_.end(); ++i) {
+    if (PageTransition::StripQualifier(details.entry->transition_type()) ==
+            PageTransition::RELOAD ||
+        i->second != details.entry->unique_id())
+      to_remove.push_back(i->first);
+  }
+
+  if (to_remove.empty())
+    return;
+
+  // Remove the views.
+  for (std::vector<ChromeViews::View*>::iterator i = to_remove.begin();
+       i != to_remove.end(); ++i) {
+    // RemoveChildView takes care of removing from expire_map for us.
+    RemoveChildView(*i);
+
+    // We own the child and we're removing it, need to delete it.
+    delete *i;
+  }
+
+  if (GetChildViewCount() == 0) {
+    // All our views have been removed, no need to stay visible.
+    web_contents_->SetInfoBarVisible(false);
+  } else if (web_contents_) {
+    // This triggers a layout.
+    web_contents_->ToolbarSizeChanged(false);
+  }
 }

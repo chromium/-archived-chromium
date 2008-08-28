@@ -256,11 +256,13 @@ void TabContents::SetIsLoading(bool is_loading,
                         NotificationService::NoDetails());
 }
 
-void TabContents::DidNavigateToEntry(NavigationEntry* entry) {
+void TabContents::DidNavigateToEntry(
+    NavigationEntry* entry,
+    NavigationController::LoadCommittedDetails* details) {
   // The entry may be deleted by DidNavigateToEntry...
   int new_page_id = entry->page_id();
 
-  controller_->DidNavigateToEntry(entry);
+  controller_->DidNavigateToEntry(entry, details);
 
   // update after informing the navigation controller so it can check the
   // previous value of the max page id.
@@ -275,7 +277,14 @@ bool TabContents::Navigate(const NavigationEntry& entry, bool reload) {
     new_entry->set_page_id(0);
     new_entry->set_title(GetDefaultTitle());
   }
-  DidNavigateToEntry(new_entry);
+
+  // When we're commanded to navigate like this, it's always a new main frame
+  // navigation (which is the default for the details).
+  NavigationController::LoadCommittedDetails details;
+  if (controller()->GetLastCommittedEntry())
+    details.previous_url = controller()->GetLastCommittedEntry()->url();
+
+  DidNavigateToEntry(new_entry, &details);
   return true;
 }
 

@@ -43,6 +43,9 @@ enum NotificationType {
   // A new non-pending navigation entry has been created. This will correspond
   // to one NavigationController entry being created (in the case of new
   // navigations) or renavigated to (for back/forward navigations).
+  //
+  // The source will be the navigation controller doing the commit. The details
+  // will be NavigationController::LoadCommittedDetails.
   NOTIFY_NAV_ENTRY_COMMITTED,
 
   // Indicates that the NavigationController given in the Source has decreased

@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_INFO_BAR_VIEW_H__
-#define CHROME_BROWSER_VIEWS_INFO_BAR_VIEW_H__
+#ifndef CHROME_BROWSER_VIEWS_INFO_BAR_VIEW_H_
+#define CHROME_BROWSER_VIEWS_INFO_BAR_VIEW_H_
 
 #include <map>
 
+#include "chrome/common/notification_service.h"
 #include "chrome/views/view.h"
 
 class NavigationEntry;
@@ -16,7 +17,8 @@ class WebContents;
 //
 // It will paint all of its children vertically, with the most recently
 // added child displayed at the top of the info bar.
-class InfoBarView : public ChromeViews::View {
+class InfoBarView : public ChromeViews::View,
+                    public NotificationObserver {
  public:
   explicit InfoBarView(WebContents* web_contents);
 
@@ -41,12 +43,6 @@ class InfoBarView : public ChromeViews::View {
   virtual void Paint(ChromeCanvas* canvas);
 
   virtual void DidChangeBounds(const CRect& previous, const CRect& current);
-
-  // Notification that the user has done a navigation. Removes child views that
-  // are set to be removed after a certain number of navigations and
-  // potentially hides the info bar.  |entry| is the new entry that we are
-  // navigating to.
-  void DidNavigate(NavigationEntry* entry);
 
   WebContents* web_contents() { return web_contents_; }
 
@@ -74,14 +70,19 @@ class InfoBarView : public ChromeViews::View {
                       ChromeViews::View* v1,
                       ChromeViews::View* v2);
 
+  // NotificationObserver implementation.
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
+
   WebContents* web_contents_;
 
   // Map from view to number of navigations before it is removed. If a child
   // doesn't have an entry in here, it is NOT removed on navigations.
   std::map<View*,int> expire_map_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(InfoBarView);
+  DISALLOW_COPY_AND_ASSIGN(InfoBarView);
 };
 
-#endif // CHROME_BROWSER_VIEWS_INFO_BAR_VIEW_H__
+#endif // CHROME_BROWSER_VIEWS_INFO_BAR_VIEW_H_
 

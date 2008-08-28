@@ -567,7 +567,7 @@ void WebContents::SavePage(const std::wstring& main_file,
 //   the ResourceDispatcherHost, who unpauses the response.  Data is then sent
 //   to the pending RVH.
 // - The pending renderer sends a FrameNavigate message that invokes the
-//   WebContents::DidNavigate method.  This replaces the current RVH with the
+//   DidNavigate method.  This replaces the current RVH with the
 //   pending RVH and goes back to the NORMAL RendererState.
 
 bool WebContents::Navigate(const NavigationEntry& entry, bool reload) {
@@ -1194,46 +1194,59 @@ void WebContents::DidNavigate(RenderViewHost* rvh,
     return;
   }
 
+  // Generate the details for the notification.
+  // TODO(brettw) bug 1343146: Move into the NavigationController.
+  NavigationController::LoadCommittedDetails details;
+  // WebKit doesn't set the "auto" transition on meta refreshes properly (bug
+  // 1051891) so we manually set it for redirects which we normally treat as
+  // "non-user-gestures" where we want to update stuff after navigations.
+  //
+  // Note that the redirect check also checks for a pending entry to
+  // differentiate real redirects from browser initiated navigations to a
+  // redirected entry. This happens when you hit back to go to a page that was
+  // the destination of a redirect, we don't want to treat it as a redirect
+  // even though that's what its transition will be. See bug  1117048.
+  //
+  // TODO(brettw) write a test for this complicated logic.
+  details.is_auto = (PageTransition::IsRedirect(params.transition) &&
+                     !controller()->GetPendingEntry()) ||
+      params.gesture == NavigationGestureAuto;
+  details.is_in_page = IsInPageNavigation(params.url);
+  details.is_main_frame = PageTransition::IsMainFrame(params.transition);
+
   // DO NOT ADD MORE STUFF TO THIS FUNCTION!  Don't make me come over there!
   // =======================================================================
-  // Add your code to DidNavigateAnyFramePreCommit if you have a helper object
+  // Add your code to DidNavigateAnyFramePostCommit if you have a helper object
   // that needs to know about all navigations. If it needs to do it only for
   // main frame or sub-frame navigations, add your code to
-  // DidNavigateMainFrame or DidNavigateSubFrame. If you need to run it after
-  // the navigation has been committed, put it in a *PostCommit version.
+  // DidNavigate*PostCommit.
 
   // Create the new navigation entry for this navigation and do work specific to
   // this frame type. The main frame / sub frame functions will do additional
   // updates to the NavigationEntry appropriate for the navigation type (in
   // addition to a lot of other stuff).
   scoped_ptr<NavigationEntry> entry(CreateNavigationEntryForCommit(params));
-  if (PageTransition::IsMainFrame(params.transition))
-    DidNavigateMainFramePreCommit(params, entry.get());
-  else
-    DidNavigateSubFramePreCommit(params, entry.get());
-
-  // Now we do non-frame-specific work in *AnyFramePreCommit (this depends on
-  // the entry being completed appropriately in the frame-specific versions
-  // above before the call).
-  DidNavigateAnyFramePreCommit(params, entry.get());
 
   // Commit the entry to the navigation controller.
-  DidNavigateToEntry(entry.release());
+  DidNavigateToEntry(entry.release(), &details);
   // WARNING: NavigationController will have taken ownership of entry at this
   // point, and may have deleted it. As such, do NOT use entry after this.
 
   // Run post-commit tasks.
-  if (PageTransition::IsMainFrame(params.transition))
-    DidNavigateMainFramePostCommit(params);
-  DidNavigateAnyFramePostCommit(rvh, params);
+  if (details.is_main_frame)
+    DidNavigateMainFramePostCommit(details, params);
+  DidNavigateAnyFramePostCommit(rvh, details, params);
 }
 
+// TODO(brettw) bug 1343146: This logic should be moved to NavigationController.
 NavigationEntry* WebContents::CreateNavigationEntryForCommit(
     const ViewHostMsg_FrameNavigate_Params& params) {
   // This new navigation entry will represent the navigation. Note that we
   // don't set the URL. This will happen in the DidNavigateMainFrame/SubFrame
   // because the entry's URL should represent the toplevel frame only.
   NavigationEntry* entry = new NavigationEntry(type());
+  if (PageTransition::IsMainFrame(params.transition))
+    entry->set_url(params.url);
   entry->set_page_id(params.page_id);
   entry->set_transition_type(params.transition);
   entry->set_site_instance(site_instance());
@@ -1273,139 +1286,50 @@ NavigationEntry* WebContents::CreateNavigationEntryForCommit(
     }
   }
 
+  if (PageTransition::IsMainFrame(params.transition)) {
+    NavigationEntry* pending = controller()->GetPendingEntry();
+    if (pending) {
+      // Copy fields from the pending NavigationEntry into the actual
+      // NavigationEntry that we're committing to.
+      entry->set_user_typed_url(pending->user_typed_url());
+      if (pending->has_display_url())
+        entry->set_display_url(pending->display_url());
+      if (pending->url().SchemeIsFile())
+        entry->set_title(pending->title());
+      entry->set_content_state(pending->content_state());
+    }
+    entry->set_has_post_data(params.is_post);
+  } else {
+    NavigationEntry* last_committed = controller()->GetLastCommittedEntry();
+    if (last_committed) {
+      // In the case of a sub-frame navigation within a window that was created
+      // without an URL (window.open), we may not have a committed entry yet!
+
+      // Reset entry state to match that of the pending entry.
+      entry->set_unique_id(last_committed->unique_id());
+      entry->set_url(last_committed->url());
+      entry->set_transition_type(last_committed->transition_type());
+      entry->set_user_typed_url(last_committed->user_typed_url());
+      entry->set_content_state(last_committed->content_state());
+
+      // TODO(jcampan): when navigating to an insecure/unsafe inner frame, the
+      // main entry is the one that gets notified of the mixed/unsafe contents
+      // (see SSLPolicy::OnRequestStarted()). Here we are just transferring
+      // that state. We should find a better way to do this. Note that it is OK
+      // that the mixed/unsafe contents is set on the wrong navigation entry, as
+      // that state is reset when navigating back to it.
+      DCHECK(last_committed->ssl().content_status() == 0) << "We should never "
+          "be setting the status bits from 1 to 0 on navigate.";
+      entry->ssl() = last_committed->ssl();
+    }
+  }
+
   return entry;
 }
 
-void WebContents::DidNavigateMainFramePreCommit(
-    const ViewHostMsg_FrameNavigate_Params& params,
-    NavigationEntry* entry) {
-  // Update contents MIME type of the main webframe.
-  contents_mime_type_ = params.contents_mime_type;
-
-  entry->set_url(params.url);
-
-  NavigationEntry* pending = controller()->GetPendingEntry();
-  if (pending) {
-    // Copy fields from the pending NavigationEntry into the actual
-    // NavigationEntry that we're committing to.
-    entry->set_user_typed_url(pending->user_typed_url());
-    if (pending->has_display_url())
-      entry->set_display_url(pending->display_url());
-    if (pending->url().SchemeIsFile())
-      entry->set_title(pending->title());
-    entry->set_content_state(pending->content_state());
-  }
-
-  // We no longer know the title after this navigation.
-  has_page_title_ = false;
-
-  // Reset the starred button to false by default, but also request from
-  // history whether it's actually starred.
-  //
-  // Only save the URL in the entry for top-level frames. This will appear in
-  // the UI for the page, so we always want to use the toplevel URL.
-  //
-  // The |user_initiated_big_change| flag indicates whether we can tell the
-  // infobar/password manager about this navigation.  True for non-redirect,
-  // non-in-page user initiated navigations; assume this is true and set false
-  // below if not.
-  //
-  // TODO(pkasting): http://b/1048012 We should notify based on whether the
-  // navigation was triggered by a user action rather than most of our current
-  // heuristics.  Be careful with SSL infobars, though.
-  //
-  // See bug 1051891 for reasons why we need both a redirect check and gesture
-  // check; basically gesture checking is not always accurate.
-  //
-  // Note that the redirect check also checks for a pending entry to
-  // differentiate real redirects from browser initiated navigations to a
-  // redirected entry (like when you hit back to go to a page that was the
-  // destination of a redirect, we don't want to treat it as a redirect
-  // even though that's what its transition will be) http://b/1117048.
-  bool user_initiated_big_change = true;
-  if ((PageTransition::IsRedirect(entry->transition_type()) &&
-       !controller()->GetPendingEntry()) ||
-       (params.gesture == NavigationGestureAuto) ||
-       IsInPageNavigation(params.url)) {
-    user_initiated_big_change = false;
-  } else {
-    // Clear the status bubble. This is a workaround for a bug where WebKit
-    // doesn't let us know that the cursor left an element during a
-    // transition (this is also why the mouse cursor remains as a hand after
-    // clicking on a link); see bugs 1184641 and 980803. We don't want to
-    // clear the bubble when a user navigates to a named anchor in the same
-    // page.
-    UpdateTargetURL(params.page_id, GURL());
-  }
-
-  // Let the infobar know about the navigation to give the infobar a chance
-  // to remove any views on navigating. Only do so if this navigation was
-  // initiated by the user, and we are not simply following a fragment to
-  // relocate within the current page.
-  //
-  // We must do this after calling DidNavigateToEntry(), since the info bar
-  // view checks the controller's active entry to determine whether to auto-
-  // expire any children.
-  if (user_initiated_big_change && IsInfoBarVisible()) {
-    InfoBarView* info_bar = GetInfoBarView();
-    DCHECK(info_bar);
-    info_bar->DidNavigate(entry);
-  }
-
-  // UpdateHelpersForDidNavigate will handle the case where the password_form
-  // origin is valid.
-  if (user_initiated_big_change && !params.password_form.origin.is_valid())
-    GetPasswordManager()->DidNavigate();
-
-  GenerateKeywordIfNecessary(params);
-
-  // Close constrained popups if necessary.
-  MaybeCloseChildWindows(params);
-
-  // Get the favicon, either from history or request it from the net.
-  fav_icon_helper_.FetchFavIcon(entry->url());
-
-  // We hide the FindInPage window when the user navigates away, except on
-  // reload.
-  if (PageTransition::StripQualifier(params.transition) !=
-      PageTransition::RELOAD)
-    SetFindInPageVisible(false);
-
-  entry->set_has_post_data(params.is_post);
-}
-
-void WebContents::DidNavigateSubFramePreCommit(
-    const ViewHostMsg_FrameNavigate_Params& params,
-    NavigationEntry* entry) {
-  NavigationEntry* last_committed = controller()->GetLastCommittedEntry();
-  if (!last_committed) {
-    // In the case of a sub-frame navigation within a window that was created
-    // without an URL (via window.open), we may not have a committed entry yet!
-    return;
-  }
-
-  // Reset entry state to match that of the pending entry.
-  entry->set_unique_id(last_committed->unique_id());
-  entry->set_url(last_committed->url());
-  entry->set_transition_type(last_committed->transition_type());
-  entry->set_user_typed_url(last_committed->user_typed_url());
-  entry->set_content_state(last_committed->content_state());
-
-  // TODO(jcampan): when navigating to an insecure/unsafe inner frame, the
-  // main entry is the one that gets notified of the mixed/unsafe contents
-  // (see SSLPolicy::OnRequestStarted()).  Here we are just transferring that
-  // state.  We should find a better way to do this.
-  // Note that it is OK that the mixed/unsafe contents is set on the wrong
-  // navigation entry, as that state is reset when navigating back to it.
-  DCHECK(last_committed->ssl().content_status() == 0) << "We should never be "
-      "setting the status bits from 1 to 0 on navigate.";
-  entry->ssl() = last_committed->ssl();
-}
-
-void WebContents::DidNavigateAnyFramePreCommit(
-    const ViewHostMsg_FrameNavigate_Params& params,
-    NavigationEntry* entry) {
-
+void WebContents::DidNavigateMainFramePostCommit(
+    const NavigationController::LoadCommittedDetails& details,
+    const ViewHostMsg_FrameNavigate_Params& params) {
   // Hide the download shelf if all the following conditions are true:
   // - there are no active downloads.
   // - this is a navigation to a different TLD.
@@ -1413,12 +1337,12 @@ void WebContents::DidNavigateAnyFramePreCommit(
   // TODO(jcampan): bug 1156075 when user gestures are reliable, they should
   //                 be used to ensure we are hiding only on user initiated
   //                 navigations.
-  NavigationEntry* current_entry = controller()->GetLastCommittedEntry();
   DownloadManager* download_manager = profile()->GetDownloadManager();
   // download_manager can be NULL in unit test context.
-  if (download_manager && download_manager ->in_progress_count() == 0 &&
-      current_entry && !net::RegistryControlledDomainService::SameDomainOrHost(
-          current_entry->url(), entry->url())) {
+  if (download_manager && download_manager->in_progress_count() == 0 &&
+      !details.previous_url.is_empty() &&
+      !net::RegistryControlledDomainService::SameDomainOrHost(
+          details.previous_url, details.entry->url())) {
     TimeDelta time_delta(
         TimeTicks::Now() - last_download_shelf_show_);
     if (time_delta >
@@ -1427,10 +1351,53 @@ void WebContents::DidNavigateAnyFramePreCommit(
     }
   }
 
-  // Notify the password manager of the navigation or form submit.
-  if (params.password_form.origin.is_valid())
-    GetPasswordManager()->ProvisionallySavePassword(params.password_form);
+  if (details.is_user_initiated_main_frame_load()) {
+    // Clear the status bubble. This is a workaround for a bug where WebKit
+    // doesn't let us know that the cursor left an element during a
+    // transition (this is also why the mouse cursor remains as a hand after
+    // clicking on a link); see bugs 1184641 and 980803. We don't want to
+    // clear the bubble when a user navigates to a named anchor in the same
+    // page.
+    UpdateTargetURL(details.entry->page_id(), GURL());
 
+    // UpdateHelpersForDidNavigate will handle the case where the password_form
+    // origin is valid.
+    // TODO(brettw) bug 1343111: Password manager stuff in here needs to be
+    // cleaned up and covered by tests.
+    if (!params.password_form.origin.is_valid())
+      GetPasswordManager()->DidNavigate();
+  }
+
+  // The keyword generator uses the navigation entries, so must be called after
+  // the commit.
+  GenerateKeywordIfNecessary(params);
+
+  // We no longer know the title after this navigation.
+  has_page_title_ = false;
+
+  // Update contents MIME type of the main webframe.
+  contents_mime_type_ = params.contents_mime_type;
+
+  // Get the favicon, either from history or request it from the net.
+  fav_icon_helper_.FetchFavIcon(details.entry->url());
+
+  // Close constrained popups if necessary.
+  MaybeCloseChildWindows(params);
+
+  // We hide the FindInPage window when the user navigates away, except on
+  // reload.
+  if (PageTransition::StripQualifier(params.transition) !=
+      PageTransition::RELOAD)
+    SetFindInPageVisible(false);
+
+  // Update the starred state.
+  UpdateStarredStateForCurrentURL();
+}
+
+void WebContents::DidNavigateAnyFramePostCommit(
+    RenderViewHost* render_view_host,
+    const NavigationController::LoadCommittedDetails& details,
+    const ViewHostMsg_FrameNavigate_Params& params) {
   // If we navigate, start showing messages again. This does nothing to prevent
   // a malicious script from spamming messages, since the script could just
   // reload the page to stop blocking.
@@ -1441,27 +1408,20 @@ void WebContents::DidNavigateAnyFramePreCommit(
   if (params.should_update_history) {
     // Most of the time, the displayURL matches the loaded URL, but for about:
     // URLs, we use a data: URL as the real value.  We actually want to save
-    // the about: URL to the history db and keep the data: URL hidden.
-    UpdateHistoryForNavigation(entry->display_url(), params);
+    // the about: URL to the history db and keep the data: URL hidden. This is
+    // what the TabContents' URL getter does.
+    UpdateHistoryForNavigation(GetURL(), params);
   }
-}
 
-void WebContents::DidNavigateMainFramePostCommit(
-    const ViewHostMsg_FrameNavigate_Params& params) {
-  // The keyword generator uses the navigation entries, so must be called after
-  // the commit.
-  GenerateKeywordIfNecessary(params);
-
-  // Update the starred state.
-  UpdateStarredStateForCurrentURL();
-}
-
-void WebContents::DidNavigateAnyFramePostCommit(
-    RenderViewHost* render_view_host,
-    const ViewHostMsg_FrameNavigate_Params& params) {
   // Have the controller save the current session.
   controller()->NotifyEntryChangedByPageID(type(), site_instance(),
-                                           params.page_id);
+                                           details.entry->page_id());
+
+  // Notify the password manager of the navigation or form submit.
+  // TODO(brettw) bug 1343111: Password manager stuff in here needs to be
+  // cleaned up and covered by tests.
+  if (params.password_form.origin.is_valid())
+    GetPasswordManager()->ProvisionallySavePassword(params.password_form);
 
   BroadcastProvisionalLoadCommit(render_view_host, params);
 }
