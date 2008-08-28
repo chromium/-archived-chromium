@@ -2,12 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/platform_test.h"
 #include "base/task.h"
 #include "base/waitable_event.h"
 #include "base/worker_pool.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using base::WaitableEvent;
+
+typedef PlatformTest WorkerPoolTest;
 
 namespace {
 
@@ -24,7 +27,7 @@ class PostTaskTestTask : public Task {
   WaitableEvent* event_;
 };
 
-TEST(WorkerPoolTest, PostTask) {
+TEST_F(WorkerPoolTest, PostTask) {
   WaitableEvent test_event(false, false);
   WaitableEvent long_test_event(false, false);
   bool signaled;

@@ -84,6 +84,8 @@
 		7BD8F6D30E65DB0200034DE9 /* bzip2_error_handler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BD8F6D20E65DB0200034DE9 /* bzip2_error_handler.cc */; };
 		7BD8F7740E65E89800034DE9 /* string16.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BD8F7730E65E89800034DE9 /* string16.cc */; };
 		7BF164F30E660CA500AA999E /* platform_thread_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7BF164F20E660CA500AA999E /* platform_thread_mac.mm */; };
+		7BF1658D0E663B4800AA999E /* worker_pool_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7BF1658B0E663B3500AA999E /* worker_pool_mac.mm */; };
+		7BF1658E0E663B4A00AA999E /* worker_pool_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BF1658C0E663B3500AA999E /* worker_pool_unittest.cc */; };
 		820EB4F70E3A613F009668FC /* string_piece.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4F50E3A613F009668FC /* string_piece.cc */; };
 		820EB4FA0E3A6178009668FC /* string_util_icu.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4F90E3A6178009668FC /* string_util_icu.cc */; };
 		820EB5020E3A618B009668FC /* tracked.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4FE0E3A618B009668FC /* tracked.cc */; };
@@ -362,6 +364,10 @@
 		7BEFC29C0D99832D000829AD /* lock_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lock_impl.h; sourceTree = "<group>"; };
 		7BEFC29D0D99832D000829AD /* lock_impl_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lock_impl_posix.cc; sourceTree = "<group>"; };
 		7BF164F20E660CA500AA999E /* platform_thread_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = platform_thread_mac.mm; sourceTree = "<group>"; };
+		7BF165810E663AA800AA999E /* singleton_objc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = singleton_objc.h; sourceTree = "<group>"; };
+		7BF1658A0E663B3500AA999E /* worker_pool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = worker_pool.h; sourceTree = "<group>"; };
+		7BF1658B0E663B3500AA999E /* worker_pool_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = worker_pool_mac.mm; sourceTree = "<group>"; };
+		7BF1658C0E663B3500AA999E /* worker_pool_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worker_pool_unittest.cc; sourceTree = "<group>"; };
 		820EB4EB0E3A60FE009668FC /* idle_timer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = idle_timer.cc; sourceTree = "<group>"; };
 		820EB4EC0E3A60FE009668FC /* idle_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = idle_timer.h; sourceTree = "<group>"; };
 		820EB4EF0E3A610A009668FC /* linked_ptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = linked_ptr.h; sourceTree = "<group>"; };
@@ -831,6 +837,7 @@
 				825403760D92D2CF0006B936 /* shared_memory.h */,
 				824653730DC12D0E007C2BAA /* shared_memory_posix.cc */,
 				7BD9E84E0DA447F800FC7A01 /* singleton.h */,
+				7BF165810E663AA800AA999E /* singleton_objc.h */,
 				E4AFA4BE0E50DE7400201347 /* singleton_unittest.cc */,
 				BA73AA420E5F62F400A20026 /* spin_wait.h */,
 				825403770D92D2CF0006B936 /* stack_container.h */,
@@ -888,6 +895,9 @@
 				8254038E0D92D2CF0006B936 /* word_iterator.cc */,
 				8254038F0D92D2CF0006B936 /* word_iterator.h */,
 				E4AFA4CE0E50E0C500201347 /* word_iterator_unittest.cc */,
+				7BF1658A0E663B3500AA999E /* worker_pool.h */,
+				7BF1658B0E663B3500AA999E /* worker_pool_mac.mm */,
+				7BF1658C0E663B3500AA999E /* worker_pool_unittest.cc */,
 			);
 			name = base;
 			sourceTree = "<group>";
@@ -1218,6 +1228,7 @@
 				ABF4B9C30DC2BD6C00A6E319 /* values.cc in Sources */,
 				9301C03B0E54C839001EF103 /* waitable_event_generic.cc in Sources */,
 				824655DD0DC659B8007C2BAA /* word_iterator.cc in Sources */,
+				7BF1658D0E663B4800AA999E /* worker_pool_mac.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1279,6 +1290,7 @@
 				7B78D3A30E54FE0100609465 /* values_unittest.cc in Sources */,
 				7B78D3A40E54FE0100609465 /* waitable_event_unittest.cc in Sources */,
 				7B78D3A50E54FE0100609465 /* word_iterator_unittest.cc in Sources */,
+				7BF1658E0E663B4A00AA999E /* worker_pool_unittest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
