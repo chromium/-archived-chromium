@@ -14,6 +14,12 @@
 #include <unistd.h>
 #endif
 
+#if defined(OS_MACOSX)
+namespace base {
+void InitThreading();
+}  // namespace
+#endif
+
 static void* ThreadFunc(void* closure) {
   PlatformThread::Delegate* delegate =
       static_cast<PlatformThread::Delegate*>(closure);
@@ -65,18 +71,22 @@ void PlatformThread::SetName(const char* name) {
 // static
 bool PlatformThread::Create(size_t stack_size, Delegate* delegate,
                             PlatformThreadHandle* thread_handle) {
+#if defined(OS_MACOSX)
+  base::InitThreading();
+#endif  // OS_MACOSX
+
   bool success = false;
   pthread_attr_t attributes;
   pthread_attr_init(&attributes);
 
   // Pthreads are joinable by default, so we don't need to specify any special
   // attributes to be able to call pthread_join later.
-  
+
   if (stack_size > 0)
     pthread_attr_setstacksize(&attributes, stack_size);
 
   success = !pthread_create(thread_handle, &attributes, ThreadFunc, delegate);
-  
+
   pthread_attr_destroy(&attributes);
   return success;
 }
@@ -85,4 +95,3 @@ bool PlatformThread::Create(size_t stack_size, Delegate* delegate,
 void PlatformThread::Join(PlatformThreadHandle thread_handle) {
   pthread_join(thread_handle, NULL);
 }
-

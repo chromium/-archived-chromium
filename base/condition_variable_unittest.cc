@@ -10,6 +10,7 @@
 
 #include "base/condition_variable.h"
 #include "base/logging.h"
+#include "base/platform_test.h"
 #include "base/platform_thread.h"
 #include "base/scoped_ptr.h"
 #include "base/spin_wait.h"
@@ -20,7 +21,7 @@ namespace {
 // Define our test class, with several common variables.
 //------------------------------------------------------------------------------
 
-class ConditionVariableTest : public testing::Test {
+class ConditionVariableTest : public PlatformTest {
  public:
   const TimeDelta kZeroMs;
   const TimeDelta kTenMs;

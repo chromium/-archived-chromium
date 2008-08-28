@@ -4,11 +4,14 @@
 
 #include "base/lock.h"
 #include "base/message_loop.h"
+#include "base/platform_test.h"
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using base::Thread;
+
+typedef PlatformTest ThreadTest;
 
 namespace {
 
@@ -36,7 +39,7 @@ class SleepSome : public Task {
 
 }  // namespace
 
-TEST(ThreadTest, Restart) {
+TEST_F(ThreadTest, Restart) {
   Thread a("Restart");
   a.Stop();
   EXPECT_FALSE(a.message_loop());
@@ -52,7 +55,7 @@ TEST(ThreadTest, Restart) {
   EXPECT_FALSE(a.message_loop());
 }
 
-TEST(ThreadTest, StartWithOptions_StackSize) {
+TEST_F(ThreadTest, StartWithOptions_StackSize) {
   Thread a("StartWithStackSize");
   // Ensure that the thread can work with only 12 kb and still process a
   // message.
@@ -73,7 +76,7 @@ TEST(ThreadTest, StartWithOptions_StackSize) {
   EXPECT_TRUE(was_invoked);
 }
 
-TEST(ThreadTest, TwoTasks) {
+TEST_F(ThreadTest, TwoTasks) {
   bool was_invoked = false;
   {
     Thread a("TwoTasks");
@@ -89,7 +92,7 @@ TEST(ThreadTest, TwoTasks) {
   EXPECT_TRUE(was_invoked);
 }
 
-TEST(ThreadTest, StopSoon) {
+TEST_F(ThreadTest, StopSoon) {
   Thread a("StopSoon");
   EXPECT_TRUE(a.Start());
   EXPECT_TRUE(a.message_loop());
@@ -99,9 +102,8 @@ TEST(ThreadTest, StopSoon) {
   EXPECT_FALSE(a.message_loop());
 }
 
-TEST(ThreadTest, ThreadName) {
+TEST_F(ThreadTest, ThreadName) {
   Thread a("ThreadName");
   EXPECT_TRUE(a.Start());
   EXPECT_EQ("ThreadName", a.thread_name());
 }
-
