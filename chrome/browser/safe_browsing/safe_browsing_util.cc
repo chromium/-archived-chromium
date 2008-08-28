@@ -505,8 +505,8 @@ void SBHostInfo::RemovePrefixes(SBEntry* sub_entry, bool persist) {
         // that host key completely.  No need to add this sub chunk to the db.
         persist = false;
         continue;
-      } else if (sub_entry->prefix_count()) {
-        // Create another entry that doesn't have these prefixes.
+      } else if (sub_entry->prefix_count() && add_entry->prefix_count()) {
+        // Remove any of the sub prefixes from these add prefixes.
         data.reset(new char[add_entry->Size()]);
         new_add_entry = reinterpret_cast<SBEntry*>(data.get());
         memcpy(new_add_entry, add_entry, add_entry->Size());

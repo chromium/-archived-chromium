@@ -235,3 +235,32 @@ TEST(SafeBrowsing, HostInfo) {
   EXPECT_FALSE(info.Contains(full_hashes, &list_id, &prefix_hits));
 }
 
+// Checks that if we have a hostname blacklisted and we get a sub prefix, the
+// hostname remains blacklisted.
+TEST(SafeBrowsing, HostInfo2) {
+  // Blacklist the entire hostname.
+  SBEntry* entry = SBEntry::Create(SBEntry::ADD_PREFIX, 0);
+  entry->set_list_id(1);
+  entry->set_chunk_id(1);
+
+  SBHostInfo info;
+  info.AddPrefixes(entry);
+  entry->Destroy();
+
+  int list_id;
+  std::vector<SBFullHash> full_hashes;
+  full_hashes.push_back(CreateFullHash(0x01000000));
+  std::vector<SBPrefix> prefix_hits;
+  EXPECT_TRUE(info.Contains(full_hashes, &list_id, &prefix_hits));
+
+  // Now add a sub prefix.
+  entry = SBEntry::Create(SBEntry::SUB_PREFIX, 1);
+  entry->SetPrefixAt(0, 0x02000000);
+  entry->SetChunkIdAtPrefix(0, 2);
+  entry->set_list_id(1);
+  info.RemovePrefixes(entry, true);
+  entry->Destroy();
+
+  // Any prefix except the one removed should still be blocked.
+  EXPECT_TRUE(info.Contains(full_hashes, &list_id, &prefix_hits));
+}
