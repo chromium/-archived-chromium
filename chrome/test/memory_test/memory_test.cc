@@ -32,6 +32,8 @@ class MemoryTest : public UITest {
     // TODO(mbelshe): Fix Chrome to not crash with plugins.
     CommandLine::AppendSwitch(&launch_arguments_, switches::kDisablePlugins);
 
+    CommandLine::AppendSwitch(&launch_arguments_, switches::kEnableLogging);
+
     // Use the playback cache, but don't use playback events.
     CommandLine::AppendSwitch(&launch_arguments_, switches::kPlaybackMode);
     CommandLine::AppendSwitch(&launch_arguments_, switches::kNoEvents);
