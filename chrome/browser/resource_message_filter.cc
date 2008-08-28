@@ -183,6 +183,7 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardReadHTML,
                         OnClipboardReadHTML)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetWindowRect, OnGetWindowRect)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_GetRootWindowRect, OnGetRootWindowRect)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetMimeTypeFromExtension,
                         OnGetMimeTypeFromExtension)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetMimeTypeFromFile,
@@ -433,11 +434,16 @@ void ResourceMessageFilter::OnClipboardReadHTML(std::wstring* markup,
   *src_url = GURL(src_url_str);
 }
 
-void ResourceMessageFilter::OnGetWindowRect(HWND hwnd_view_container,
-                                            gfx::Rect *rect) {
+void ResourceMessageFilter::OnGetWindowRect(HWND window, gfx::Rect *rect) {
   RECT window_rect = {0};
-  HWND window = ::GetAncestor(hwnd_view_container, GA_ROOT);
   GetWindowRect(window, &window_rect);
+  *rect = window_rect;
+}
+
+void ResourceMessageFilter::OnGetRootWindowRect(HWND window, gfx::Rect *rect) {
+  RECT window_rect = {0};
+  HWND root_window = ::GetAncestor(window, GA_ROOT);
+  GetWindowRect(root_window, &window_rect);
   *rect = window_rect;
 }
 
@@ -707,4 +713,3 @@ void ResourceMessageFilter::OnDnsPrefetch(
          const std::vector<std::string>& hostnames) {
   chrome_browser_net::DnsPrefetchList(hostnames);
 }
-

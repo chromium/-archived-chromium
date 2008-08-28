@@ -64,11 +64,14 @@ class WebWidgetDelegate {
   // synchronously?
   virtual void SetWindowRect(WebWidget* webwidget, const gfx::Rect& rect) = 0;
 
+  // Returns the rectangle of the window in which this WebWidget is embeded in.
+  virtual void GetRootWindowRect(WebWidget* webwidget, gfx::Rect* rect) = 0;
+
   // Keeps track of the necessary window move for a plugin window that resulted
   // from a scroll operation.  That way, all plugin windows can be moved at the
   // same time as each other and the page.
   virtual void DidMove(WebWidget* webwidget, const WebPluginGeometry& move) = 0;
-  
+
   // Suppress input events to other windows, and do not return until the widget
   // is closed.  This is used to support |window.showModalDialog|.
   virtual void RunModal(WebWidget* webwidget) = 0;
@@ -85,4 +88,3 @@ class WebWidgetDelegate {
 };
 
 #endif  // #ifndef WEBKIT_GLUE_WEBWIDGET_DELEGATE_H__
-

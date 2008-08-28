@@ -639,6 +639,10 @@ void RenderWidget::SetWindowRect(WebWidget* webwidget, const gfx::Rect& pos) {
   }
 }
 
+void RenderWidget::GetRootWindowRect(WebWidget* webwidget, gfx::Rect* rect) {
+  Send(new ViewHostMsg_GetRootWindowRect(routing_id_, host_window_, rect));
+}
+
 void RenderWidget::OnImeSetInputMode(bool is_active) {
   // A renderer process may move its input focus and the caret position
   // while a browser process stop receiving IPC messages.
@@ -749,4 +753,3 @@ void RenderWidget::DidMove(WebWidget* webwidget,
   if (i == plugin_window_moves_.size())
     plugin_window_moves_.push_back(move);
 }
-

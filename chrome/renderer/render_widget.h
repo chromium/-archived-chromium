@@ -67,6 +67,7 @@ class RenderWidget : public IPC::Channel::Listener,
   virtual void Blur(WebWidget* webwidget);
   virtual void GetWindowRect(WebWidget* webwidget, gfx::Rect* rect);
   virtual void SetWindowRect(WebWidget* webwidget, const gfx::Rect& rect);
+  virtual void GetRootWindowRect(WebWidget* webwidget, gfx::Rect* rect);
   virtual void DidMove(WebWidget* webwidget, const WebPluginGeometry& move);
   virtual void RunModal(WebWidget* webwidget) {}
 
@@ -255,4 +256,3 @@ class RenderWidget : public IPC::Channel::Listener,
 };
 
 #endif // CHROME_RENDERER_RENDER_WIDGET_H__
-

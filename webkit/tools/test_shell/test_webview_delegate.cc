@@ -741,6 +741,16 @@ void TestWebViewDelegate::SetWindowRect(WebWidget* webwidget,
   }
 }
 
+void TestWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
+                                            gfx::Rect* out_rect) {
+  if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
+    RECT rect;
+    HWND root_window = ::GetAncestor(host->window_handle(), GA_ROOT);
+    ::GetWindowRect(root_window, &rect);
+    *out_rect = gfx::Rect(rect);
+  }
+}
+
 void TestWebViewDelegate::DidMove(WebWidget* webwidget,
                                   const WebPluginGeometry& move) {
   WebPluginDelegateImpl::MoveWindow(

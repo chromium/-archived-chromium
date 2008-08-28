@@ -74,7 +74,7 @@ void ChromeClientImpl::setWindowRect(const WebCore::FloatRect& r) {
 WebCore::FloatRect ChromeClientImpl::windowRect() {
   if (webview_->delegate()) {
     gfx::Rect rect;
-    webview_->delegate()->GetWindowRect(webview_, &rect);
+    webview_->delegate()->GetRootWindowRect(webview_, &rect);
     return WebCore::FloatRect(
         static_cast<float>(rect.x()),
         static_cast<float>(rect.y()),

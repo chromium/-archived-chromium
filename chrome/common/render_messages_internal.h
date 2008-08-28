@@ -1014,5 +1014,9 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   IPC_MESSAGE_ROUTED1(ViewHostMsg_UnloadListenerChanged,
                       bool /* has_listener */)
 
-IPC_END_MESSAGES(ViewHost)
+  // Returns the window location of the window this widget is embeded in.
+  IPC_SYNC_MESSAGE_ROUTED1_1(ViewHostMsg_GetRootWindowRect,
+                             HWND /* window */,
+                             gfx::Rect /* Out: Window location */)
 
+IPC_END_MESSAGES(ViewHost)

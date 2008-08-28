@@ -113,6 +113,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnClipboardReadAsciiText(std::string* result);
   void OnClipboardReadHTML(std::wstring* markup, GURL* src_url);
   void OnGetWindowRect(HWND window, gfx::Rect *rect);
+  void OnGetRootWindowRect(HWND window, gfx::Rect *rect);
   void OnGetMimeTypeFromExtension(const std::wstring& ext,
                                   std::string* mime_type);
   void OnGetMimeTypeFromFile(const std::wstring& file_path,
@@ -176,5 +177,3 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
 };
 
 #endif // CHROME_BROWSER_RENDERER_RESOURCE_MSG_FILTER_H__
-
-
