@@ -451,9 +451,9 @@ void TaskManagerTableModel::BytesRead(BytesReadParam param) {
 
   // TODO(jcampan): this should be improved once we have a better way of
   // linking a network notification back to the object that initiated it.
-  TaskManager::Resource* resource;
+  TaskManager::Resource* resource = NULL;
   for (ResourceProviderList::iterator iter = providers_.begin();
-       iter != providers_.end(); iter++) {
+       iter != providers_.end(); ++iter) {
     resource = (*iter)->GetResource(param.origin_pid,
                                     param.render_process_host_id,
                                     param.routing_id);
