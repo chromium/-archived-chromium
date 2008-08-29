@@ -970,9 +970,11 @@ void BackendImpl::TrimCache(bool empty) {
       if (!empty)
         stats_.OnEvent(Stats::TRIM_ENTRY);
       if (++deleted == 4 && !empty) {
+#if defined(OS_WIN)
         MessageLoop::current()->PostTask(FROM_HERE,
             factory_.NewRunnableMethod(&BackendImpl::TrimCache, false));
         break;
+#endif
       }
     }
   }
