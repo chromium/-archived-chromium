@@ -243,7 +243,7 @@ bool SimpleFontData::isCJKCodePoint(UChar32 c)
         return true;
 
     // CJK ideographs
-    UErrorCode errorCode;
+    UErrorCode errorCode = U_ZERO_ERROR;  // has to be initialized.
     return uscript_getScript(c, &errorCode) == USCRIPT_HAN &&
         U_SUCCESS(errorCode);
 }
