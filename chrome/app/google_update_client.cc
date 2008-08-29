@@ -44,19 +44,7 @@ GoogleUpdateClient::~GoogleUpdateClient() {
 }
 
 std::wstring GoogleUpdateClient::GetDLLPath() {
-  if (client_util::FileExists(dll_path_))
-    return std::wstring(dll_path_) + L"\\" + dll_;
-
-  // This is not an official build. Find the dll using the default
-  // path order in LoadLibrary.
-  wchar_t path[MAX_PATH] = {0};
-  wchar_t* file_part = NULL;
-  DWORD result = ::SearchPath(NULL, dll_.c_str(), NULL, MAX_PATH,
-                              path, &file_part);
-  if (result == 0 || result > MAX_PATH)
-    return std::wstring();
-
-  return path;
+  return client_util::GetDLLPath(dll_, dll_path_);
 }
 
 const wchar_t* GoogleUpdateClient::GetVersion() const {

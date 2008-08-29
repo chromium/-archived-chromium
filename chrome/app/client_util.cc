@@ -41,6 +41,23 @@ bool GetChromiumVersion(const wchar_t* const exe_path,
   return ret;
 }
 
+std::wstring GetDLLPath(const std::wstring dll_name,
+                        const std::wstring dll_path) {
+  if (!dll_path.empty() && FileExists(dll_path.c_str()))
+    return dll_path + L"\\" + dll_name;
+
+  // This is not an official build. Find the dll using the default
+  // path order in LoadLibrary.
+  wchar_t path[MAX_PATH] = {0};
+  wchar_t* file_part = NULL;
+  DWORD result = ::SearchPath(NULL, dll_name.c_str(), NULL, MAX_PATH,
+                              path, &file_part);
+  if (result == 0 || result > MAX_PATH)
+    return std::wstring();
+
+  return path;
+}
+
 void GetExecutablePath(wchar_t* exe_path) {
   DWORD len = ::GetModuleFileName(NULL, exe_path, MAX_PATH);
   wchar_t* tmp = exe_path + len - 1;

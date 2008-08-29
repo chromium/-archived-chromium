@@ -78,14 +78,19 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   wchar_t exe_path[MAX_PATH] = {0};
   client_util::GetExecutablePath(exe_path);
   wchar_t *version;
+  std::wstring dll_path;
   if (client_util::GetChromiumVersion(exe_path, L"Software\\Chromium",
                                       &version)) {
-    std::wstring dll_path(exe_path);
+    dll_path = exe_path;
     dll_path.append(version);
     if (client_util::FileExists(dll_path.c_str()))
       ::SetCurrentDirectory(dll_path.c_str());
     delete[] version;
   }
+
+  // Initialize the crash reporter.
+  InitCrashReporter(client_util::GetDLLPath(dll_name, dll_path));
+
   HINSTANCE dll_handle = ::LoadLibraryEx(dll_name, NULL,
                                          LOAD_WITH_ALTERED_SEARCH_PATH);
   if (NULL != dll_handle) {

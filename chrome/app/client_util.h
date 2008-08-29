@@ -10,6 +10,8 @@
 
 #include <windows.h>
 
+#include <string>
+
 #include "sandbox/src/sandbox_factory.h"
 
 namespace client_util {
@@ -27,6 +29,12 @@ bool FileExists(const wchar_t* const file_path);
 bool GetChromiumVersion(const wchar_t* const exe_path,
                         const wchar_t* const reg_key_path,
                         wchar_t** version);
+
+// Get path to DLL specified by dll_name. If dll_path is specified and it
+// exists we assume DLL is in that directory and return that. Else we search
+// for that DLL by calling Windows API.
+std::wstring GetDLLPath(const std::wstring dll_name,
+                        const std::wstring dll_path);
 
 // Returns the path to the exe (without the file name) that called this
 // function. The buffer should already be allocated (ideally of MAX_PATH size).
