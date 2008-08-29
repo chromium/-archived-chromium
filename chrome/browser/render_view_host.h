@@ -236,7 +236,7 @@ class RenderViewHost : public RenderWidgetHost {
                            ConsoleMessageLevel level);
 
   // Send command to the debugger
-  void SendToDebugger(const std::wstring& cmd);
+  void DebugCommand(const std::wstring& cmd);
 
   // Attach to the V8 instance for debugging
   void DebugAttach();
@@ -244,9 +244,10 @@ class RenderViewHost : public RenderWidgetHost {
   // Detach from the V8 instance for debugging
   void DebugDetach();
 
-  // Cause the V8 debugger to trigger a breakpoint
-  // (even if no JS code is running)
-  void DebugBreak();
+  // Cause the V8 debugger to trigger a debug break. If the force flag is set
+  // force a debug break even if no JS code is running (this actually causes a
+  // simple JS script to be executed).
+  void DebugBreak(bool force);
 
   // Edit operations.
   void Undo();

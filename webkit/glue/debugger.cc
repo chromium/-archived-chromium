@@ -25,6 +25,13 @@ Debugger::~Debugger() {
   Detach();
 }
 
+void Debugger::Break(bool force) {
+#ifdef USING_V8
+  DCHECK(attached_);
+  v8::Debug::DebugBreak();
+#endif
+}
+
 void Debugger::Attach() {
 #ifdef USING_V8
   if (!attached_) {

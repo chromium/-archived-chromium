@@ -18,7 +18,6 @@
  */
 function shell(sh) {
   shell_ = sh;
-  shell_.response("{type: 'event', event: 'attach'}");
 };
 
 
@@ -202,9 +201,6 @@ DebuggerTest.commandList = [
 ];
 
 DebuggerTest.expectedOutput = [
-  "< event:attach",
-  "attached to testing",
-  "< response:scripts",
   "< event:break",
   "g(), foo.html",
   "60:   debugger;",

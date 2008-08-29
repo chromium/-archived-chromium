@@ -297,6 +297,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_ScriptEvalRequest, OnScriptEvalRequest)
     IPC_MESSAGE_HANDLER(ViewMsg_AddMessageToConsole, OnAddMessageToConsole)
     IPC_MESSAGE_HANDLER(ViewMsg_DebugAttach, OnDebugAttach)
+    IPC_MESSAGE_HANDLER(ViewMsg_DebugDetach, OnDebugDetach)
     IPC_MESSAGE_HANDLER(ViewMsg_ReservePageIDRange, OnReservePageIDRange)
     IPC_MESSAGE_HANDLER(ViewMsg_UploadFile, OnUploadFileRequest)
     IPC_MESSAGE_HANDLER(ViewMsg_FormFill, OnFormFill)
@@ -2238,7 +2239,6 @@ void RenderView::OnAddMessageToConsole(const std::wstring& frame_xpath,
 }
 
 void RenderView::OnDebugAttach() {
-  EvaluateScriptUrl(L"", L"javascript:void(0)");
   Send(new ViewHostMsg_DidDebugAttach(routing_id_));
   // Tell the plugin host to stop accepting messages in order to avoid
   // hangs while the renderer is paused.

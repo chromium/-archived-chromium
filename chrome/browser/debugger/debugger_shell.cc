@@ -238,6 +238,11 @@ void DebuggerShell::DebugMessage(const std::wstring& msg) {
   }
 }
 
+void DebuggerShell::OnDebugAttach() {
+  v8::HandleScope scope;
+  SubshellFunction("on_attach", 0, NULL);
+}
+
 void DebuggerShell::OnDebugDisconnect() {
   v8::HandleScope scope;
   SubshellFunction("on_disconnect", 0, NULL);

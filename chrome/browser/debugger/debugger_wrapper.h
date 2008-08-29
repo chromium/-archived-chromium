@@ -36,6 +36,7 @@ class DebuggerWrapper : public base::RefCountedThreadSafe<DebuggerWrapper> {
 
   void DebugMessage(const std::wstring& msg);
 
+  void OnDebugAttach();
   void OnDebugDisconnect();
 
  private:

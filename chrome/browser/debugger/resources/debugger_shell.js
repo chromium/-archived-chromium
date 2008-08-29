@@ -28,10 +28,10 @@ function DebugCommand(str) {
   str = argv.join(' ');
   if (DebugCommand.aliases[this.user_command])
     this.user_command = DebugCommand.aliases[this.user_command];
-  if (this.parseArgs_(str) == 1)
-    this.type = "request";
-  if (this.command == undefined)
-    this.command = this.user_command;
+ if (this.parseArgs_(str) == 1)
+   this.type = "request";	
+ if (this.command == undefined)	
+   this.command = this.user_command;
 };
 
 // Mapping of some control characters to avoid the \uXXXX syntax for most
@@ -211,16 +211,6 @@ DebugCommand.aliases = {
 };
 
 /**
- * Parses arguments to simple commands which have no arguments. 
- * @see DebugCommand.commands
- * @param {string} str The arguments to be parsed.
- * @return -1 for usage error, 1 for success
- */
-DebugCommand.parseSimpleCommand_ = function(str) {
-  return str.length ? -1 : 1;
-};
-
-/**
  * Parses arguments to "args" and "locals" command, and initializes
  * the underlying DebugCommand (which is a frame request).
  * @see DebugCommand.commands
@@ -361,8 +351,8 @@ DebugCommand.prototype.parseBreak_ = function(str) {
   }
   
   if (str.length == 0) {
-    this.type = "shell";
-    return 0;
+    this.command = "break";
+    return 1;
   } else {
     var parts = str.split(/\s+/);
     var condition = null;
@@ -498,6 +488,22 @@ DebugCommand.prototype.parseClearCommand_ = function(str) {
  */
 DebugCommand.responseClear_ = function(msg) {
   shell_.clearedBreakpoint(parseInt(msg.command.arguments.breakpoint));
+}
+
+
+/**
+ * Parses arguments to "continue" command.  See DebugCommand.commands below
+ * for syntax details.
+ * @see DebugCommand.commands
+ * @param {string} str The arguments to be parsed.
+ * @return -1 for usage error, 1 for success
+ */
+DebugCommand.prototype.parseContinueCommand_ = function(str) {
+  this.command = "continue";
+  if (str.length > 0) {
+    return -1;
+  }
+  return 1;
 }
 
 /**
@@ -742,8 +748,13 @@ DebugCommand.prototype.parseArgs_ = function(str) {
     } else {
       var ret = parse.call(this, str);
       if (ret > 0) {
+        // Command gererated a debugger request.
         this.type = "request";
+      } else if (ret == 0) {
+        // Command handeled internally.
+        this.type = "handled";
       } else if (ret < 0) {
+        // Command error.
         this.type = "handled";
         DebugCommand.help(this.user_command);
       }
@@ -809,7 +820,7 @@ DebugCommand.commands = {
              'response': DebugCommand.responseClear_,
              'usage': 'clear <breakpoint #>',
              'while_running': true },
-  'continue': { 'parse': DebugCommand.parseSimpleCommand_, 
+  'continue': { 'parse': DebugCommand.prototype.parseContinueCommand_, 
                 'usage': 'continue' },
   'frame': { 'parse': DebugCommand.prototype.parseFrame_, 
              'response': DebugCommand.responseFrame_,
@@ -863,9 +874,15 @@ function DebugShell(tab) {
   this.running = true;
   this.current_command = undefined;
   this.pending_commands = [];
+  // The auto continue flag is used to indicate whether the JavaScript execution
+  // should automatically continue after a break event and the processing of
+  // pending commands. This is used to make it possible for the user to issue
+  // commands, e.g. setting break points, without making an explicit break. In
+  // this case the debugger will silently issue a forced break issue the command
+  // and silently continue afterwards.
+  this.auto_continue = false;
   this.debug = false;
   this.last_msg = undefined;
-  this.last_command = undefined;
   this.current_line = -1;
   this.current_pos = -1;
   this.current_frame = 0;
@@ -896,32 +913,50 @@ DebugShell.prototype.set_running = function(running) {
  * @param cmd {DebugCommand} - command to execute
  */
 DebugShell.prototype.process_command = function(cmd) {
+  dprint("Running: " + (this.running ? "yes" : "no"));
+
+  // The "break" commands needs to be handled seperatly
+  if (cmd.command == "break") {
+    if (this.running) {
+      // Schedule a break.
+      print("Stopping JavaScript execution...");
+      this.tab.debugBreak(false);
+    } else {
+      print("JavaScript execution already stopped.");
+    }
+    return;
+  }
+  
+  // If page is running an break needs to be issued.
+  if (this.running) {
+    // Some requests are not valid when the page is running.
+    var cmd_info = DebugCommand.commands[cmd.user_command];
+    if (!cmd_info['while_running']) {
+      print(cmd.user_command + " can only be run while paused");
+      return;
+    }
+
+    // Add the command as pending before scheduling a break.    
+    this.pending_commands.push(cmd);
+    dprint("pending command: " + cmd.toJSONProtocol());
+
+    // Schedule a forced break and enable auto continue.
+    this.tab.debugBreak(true);
+    this.auto_continue = true;
+    this.set_ready(false);
+    return;
+  }
+  
+  // If waiting for a response add command as pending otherwise send the
+  // command.
   if (this.current_command) {
     this.pending_commands.push(cmd);
-    dprint("pending command: " + DebugCommand.toJSON(cmd));
-  } else if (cmd.type == "shell") {
-    if (cmd.user_command == "break") {
-      if (this.running) {
-        this.tab.debugBreak();
-        this.set_ready(false);
-      } else {
-        print(">>already paused");
-      }
-    }
-    this.last_command = cmd;
-  } else if (cmd.type == "request") {
-    // If the page is running, then the debugger isn't listening to certain
-    // requests.
-    var cmd_info = DebugCommand.commands[cmd.user_command];
-    if (this.running && !cmd_info['while_running']) {
-      print(cmd.user_command + " can only be run while paused");
-    } else {
-      this.current_command = cmd;
-      cmd.sendToDebugger(this.tab);
-      this.set_ready(false);
-    }
+    dprint("pending command: " + cmd.toJSONProtocol());
+  } else {
+    this.current_command = cmd;
+    cmd.sendToDebugger(this.tab);
+    this.set_ready(false);
   }
-  this.last_command = cmd;
 };
 
 /**
@@ -931,7 +966,6 @@ DebugShell.prototype.process_command = function(cmd) {
 DebugShell.prototype.event_break = function(msg) {
   this.current_frame = 0;
   this.set_running(false);
-  this.set_ready(true);
   if (msg.body) {
     var body = msg.body;
     this.current_script = body.script;
@@ -941,6 +975,8 @@ DebugShell.prototype.event_break = function(msg) {
     var source = loc[1];
     this.current_line = loc[2];
     if (msg.body.breakpoints) {
+      // Always disable auto continue if a real break point is hit.
+      this.auto_continue = false;
       var breakpoints = msg.body.breakpoints;
       print("paused at breakpoint " + breakpoints.join(",") + ": " + 
             location);
@@ -954,14 +990,19 @@ DebugShell.prototype.event_break = function(msg) {
       if (location != this.last_break_location) {
         // We only print the location (function + script) when it changes, 
         // so as we step, you only see the source line when you transition
-        // to a new script and/or function.
-        print(location);
+        // to a new script and/or function. Also if auto continue is enables
+        // don't print the break location.
+        if (!this.auto_continue)
+          print(location);
       }
     }
-    if (source)
+    // Print th current source line unless auto continue is enabled.
+    if (source && !this.auto_continue)
       print(source);
     this.last_break_location = location;
   }
+  if (!this.auto_continue)
+    this.set_ready(true);
 };
 
 /**
@@ -1037,7 +1078,8 @@ DebugShell.prototype.command = function(str) {
     if (str.length) {
       var cmd = new DebugCommand(str);
       cmd.from_user = true;
-      this.process_command(cmd);
+      if (cmd.type == "request")
+        this.process_command(cmd);
     }
   } else {
     print(">>not connected to a tab");
@@ -1064,15 +1106,6 @@ DebugShell.prototype.response = function(str) {
       this.event_break(msg);
     } else if (ev == "exception") {
       this.event_exception(msg);
-    } else if (ev == "attach") {
-      var title = this.tab.title;
-      if (!title)
-        title = "Untitled";
-      print('attached to ' + title);
-      // on attach, we update our current script list
-      var cmd = new DebugCommand("scripts");
-      cmd.from_user = false;
-      this.process_command(cmd);
     }
   } else if (msg.type == "response") {
     if (msg.request_seq != undefined) {
@@ -1098,9 +1131,15 @@ DebugShell.prototype.response = function(str) {
       }
     }
     this.set_ready(true);
-    if (this.pending_commands.length) {
-      this.process_command(this.pending_commands.shift());
-    }
+  }
+
+  // Process next pending command if any.
+  if (this.pending_commands.length) {
+    this.process_command(this.pending_commands.shift());
+  } else if (this.auto_continue) {
+    // If no more pending commands and auto continue is active issue a continue command.
+    this.auto_continue = false;
+    this.process_command(new DebugCommand("continue"));
   }
 };
 
@@ -1175,6 +1214,22 @@ DebugShell.prototype.exit = function() {
     this.tab = null;
   }
 };
+
+/**
+ * Called by the Chrome Shell when the tab that the shell is debugging
+ * have attached.
+ */
+DebugShell.prototype.on_attach = function() {
+  var title = this.tab.title;
+  if (!title)
+    title = "Untitled";
+  print('attached to ' + title);
+  // on attach, we update our current script list
+  var cmd = new DebugCommand("scripts");
+  cmd.from_user = false;
+  this.process_command(cmd);
+};
+
 
 /**
  * Called by the Chrome Shell when the tab that the shell is debugging

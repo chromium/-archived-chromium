@@ -32,6 +32,11 @@ void DebuggerWrapper::DebugMessage(const std::wstring& msg) {
     debugger_->DebugMessage(msg);
 }
 
+void DebuggerWrapper::OnDebugAttach() {
+  if (debugger_.get())
+    debugger_->OnDebugAttach();
+}
+
 void DebuggerWrapper::OnDebugDisconnect() {
   if (debugger_.get())
     debugger_->OnDebugDisconnect();

@@ -27,8 +27,11 @@ class DebugMessageHandler : public IPC::ChannelProxy::MessageFilter,
   // Debugger::Delegate callback method to handle debugger output.
   void DebuggerOutput(const std::wstring& out);
 
+  // Schedule a debugger break.
+  void OnBreak(bool force);
+
   // Sends a command to the debugger.
-  void OnSendToDebugger(const std::wstring& cmd);
+  void OnCommand(const std::wstring& cmd);
 
   // Sends an attach event to the debugger front-end.
   void OnAttach();

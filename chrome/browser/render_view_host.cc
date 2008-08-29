@@ -407,8 +407,8 @@ void RenderViewHost::AddMessageToConsole(
   Send(new ViewMsg_AddMessageToConsole(routing_id_, frame_xpath, msg, level));
 }
 
-void RenderViewHost::SendToDebugger(const std::wstring& cmd) {
-  Send(new ViewMsg_SendToDebugger(routing_id_, cmd));
+void RenderViewHost::DebugCommand(const std::wstring& cmd) {
+  Send(new ViewMsg_DebugCommand(routing_id_, cmd));
 }
 
 void RenderViewHost::DebugAttach() {
@@ -418,14 +418,14 @@ void RenderViewHost::DebugAttach() {
 
 void RenderViewHost::DebugDetach() {
   if (debugger_attached_) {
-    SendToDebugger(L"quit");
+    Send(new ViewMsg_DebugDetach(routing_id_));
     debugger_attached_ = false;
   }
 }
 
-void RenderViewHost::DebugBreak() {
+void RenderViewHost::DebugBreak(bool force) {
   if (debugger_attached_)
-    SendToDebugger(L"break");
+    Send(new ViewMsg_DebugBreak(routing_id_, force));
 }
 
 void RenderViewHost::Undo() {
@@ -1100,7 +1100,7 @@ void RenderViewHost::OnDebuggerOutput(const std::wstring& output) {
 void RenderViewHost::DidDebugAttach() {
   if (!debugger_attached_) {
     debugger_attached_ = true;
-    SendToDebugger(L"attach");
+    g_browser_process->debugger_wrapper()->OnDebugAttach();
   }
 }
 

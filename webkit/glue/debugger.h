@@ -31,6 +31,9 @@ public:
   Debugger(Debugger::Delegate* del);
   virtual ~Debugger();
 
+  // Break V8 execution.
+  void Break(bool force);
+
   // Sends a command to the debugger (same as v8 command-line debugger).
   // Results from the command come asynchronously.
   // TODO(erikkay): link command output to a particular command

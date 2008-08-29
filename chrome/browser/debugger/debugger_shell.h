@@ -59,6 +59,9 @@ class DebuggerShell : public base::RefCountedThreadSafe<DebuggerShell> {
   void DebugMessage(const std::wstring& msg);
 
   // The renderer we're attached to is gone.
+  void OnDebugAttach();
+
+  // The renderer we're attached to is gone.
   void OnDebugDisconnect();
 
   // SocketInputOutput callback methods

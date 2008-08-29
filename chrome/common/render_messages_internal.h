@@ -212,8 +212,15 @@ IPC_BEGIN_MESSAGES(View, 1)
   // Initialize the V8 debugger in the renderer.
   IPC_MESSAGE_ROUTED0(ViewMsg_DebugAttach)
 
+  // Shutdown the V8 debugger in the renderer.
+  IPC_MESSAGE_ROUTED0(ViewMsg_DebugDetach)
+
+  // Break V8 execution.
+  IPC_MESSAGE_ROUTED1(ViewMsg_DebugBreak,
+                      bool  /* force */)
+
   // Send a command to the V8 debugger.
-  IPC_MESSAGE_ROUTED1(ViewMsg_SendToDebugger,
+  IPC_MESSAGE_ROUTED1(ViewMsg_DebugCommand,
                       std::wstring  /* cmd */)
 
   // Change the text size in the renderer.

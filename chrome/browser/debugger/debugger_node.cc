@@ -316,7 +316,7 @@ v8::Handle<v8::Value> TabNode::SendToDebugger(const v8::Arguments& args,
     v8::Handle<v8::Value> obj;
     obj = args[0];
     DebuggerShell::ObjectToString(obj, &cmd);
-    host->SendToDebugger(cmd);
+    host->DebugCommand(cmd);
   }
   return v8::Undefined();
 }
@@ -340,7 +340,11 @@ v8::Handle<v8::Value> TabNode::Detach(const v8::Arguments& args,
 v8::Handle<v8::Value> TabNode::Break(const v8::Arguments& args,
                                      WebContents* web) {
   RenderViewHost* host = web->render_view_host();
-  host->DebugBreak();
+  bool force = false;
+  if (args.Length() >= 1) {
+    force = args[0]->BooleanValue();
+  }
+  host->DebugBreak(force);
   return v8::Undefined();
 }
 
