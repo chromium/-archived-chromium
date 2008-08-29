@@ -65,16 +65,27 @@ class TabStrip::TabAnimation : public AnimationDelegate {
  public:
   friend class TabStrip;
 
-  TabAnimation(TabStrip* tabstrip)
+  // Possible types of animation.
+  enum Type {
+    INSERT,
+    REMOVE,
+    MOVE,
+    RESIZE
+  };
+
+  TabAnimation(TabStrip* tabstrip, Type type)
       : tabstrip_(tabstrip),
         animation_(this),
         start_selected_width_(0),
         start_unselected_width_(0),
         end_selected_width_(0),
         end_unselected_width_(0),
-        layout_on_completion_(false) {
+        layout_on_completion_(false),
+        type_(type) {
   }
   virtual ~TabAnimation() {}
+
+  Type type() const { return type_; }
 
   void Start() {
     animation_.SetSlideDuration(GetDuration());
@@ -171,6 +182,8 @@ class TabStrip::TabAnimation : public AnimationDelegate {
   // inconsistent state.
   bool layout_on_completion_;
 
+  const Type type_;
+
   DISALLOW_EVIL_CONSTRUCTORS(TabAnimation);
 };
 
@@ -180,7 +193,7 @@ class TabStrip::TabAnimation : public AnimationDelegate {
 class InsertTabAnimation : public TabStrip::TabAnimation {
  public:
   explicit InsertTabAnimation(TabStrip* tabstrip, int index)
-      : TabAnimation(tabstrip),
+      : TabAnimation(tabstrip, INSERT),
         index_(index) {
     int tab_count = tabstrip->GetTabCount();
     GenerateStartAndEndWidths(tab_count - 1, tab_count);
@@ -221,11 +234,14 @@ class InsertTabAnimation : public TabStrip::TabAnimation {
 class RemoveTabAnimation : public TabStrip::TabAnimation {
  public:
   RemoveTabAnimation(TabStrip* tabstrip, int index, TabContents* contents)
-      : TabAnimation(tabstrip),
+      : TabAnimation(tabstrip, REMOVE),
         index_(index) {
     int tab_count = tabstrip->GetTabCount();
     GenerateStartAndEndWidths(tab_count, tab_count - 1);
   }
+
+  // Returns the index of the tab being removed.
+  int index() const { return index_; }
 
   virtual ~RemoveTabAnimation() {
   }
@@ -322,7 +338,7 @@ class RemoveTabAnimation : public TabStrip::TabAnimation {
 class MoveTabAnimation : public TabStrip::TabAnimation {
  public:
   MoveTabAnimation(TabStrip* tabstrip, int tab_a_index, int tab_b_index)
-      : TabAnimation(tabstrip),
+      : TabAnimation(tabstrip, MOVE),
         start_tab_a_bounds_(tabstrip_->GetIdealBounds(tab_b_index)),
         start_tab_b_bounds_(tabstrip_->GetIdealBounds(tab_a_index)) {
     tab_a_ = tabstrip_->GetTabAt(tab_a_index);
@@ -376,8 +392,8 @@ class MoveTabAnimation : public TabStrip::TabAnimation {
 // to another.
 class ResizeLayoutAnimation : public TabStrip::TabAnimation {
  public:
-  ResizeLayoutAnimation(TabStrip* tabstrip)
-      : TabAnimation(tabstrip) {
+  explicit ResizeLayoutAnimation(TabStrip* tabstrip)
+      : TabAnimation(tabstrip, RESIZE) {
     int tab_count = tabstrip->GetTabCount();
     GenerateStartAndEndWidths(tab_count, tab_count);
     InitStartState();
@@ -825,7 +841,9 @@ void TabStrip::TabMoved(TabContents* contents, int from_index, int to_index) {
 }
 
 void TabStrip::TabChangedAt(TabContents* contents, int index) {
-  Tab* tab = GetTabAt(index);
+  // Index is in terms of the model. Need to make sure we adjust that index in
+  // case we have an animation going.
+  Tab* tab = GetTabAtAdjustForAnimation(index);
   tab->UpdateData(contents);
   tab->UpdateFromModel();
 }
@@ -1083,6 +1101,16 @@ void TabStrip::Init() {
 Tab* TabStrip::GetTabAt(int index) const {
   DCHECK(index >= 0 && index < GetTabCount());
   return tab_data_.at(index).tab;
+}
+
+Tab* TabStrip::GetTabAtAdjustForAnimation(int index) const {
+  if (active_animation_.get() &&
+      active_animation_->type() == TabAnimation::REMOVE &&
+      index >=
+      static_cast<RemoveTabAnimation*>(active_animation_.get())->index()) {
+    index++;
+  }
+  return GetTabAt(index);
 }
 
 int TabStrip::GetTabCount() const {

@@ -172,8 +172,18 @@ class TabStrip : public ChromeViews::View,
   TabStrip();
   void Init();
 
-  // Retrieves the Tab at the specified index.
+  // Retrieves the Tab at the specified index. Take care in using this, you may
+  // need to use GetTabAtAdjustForAnimation.
   Tab* GetTabAt(int index) const;
+
+  // Returns the tab at the specified index. If a remove animation is on going
+  // and the index is >= the index of the tab being removed, the index is
+  // incremented. While a remove operation is on going the indices of the model
+  // do not line up with the indices of the view. This method adjusts the index
+  // accordingly.
+  //
+  // Use this instead of GetTabAt if the index comes from the model.
+  Tab* GetTabAtAdjustForAnimation(int index) const;
 
   // Gets the number of Tabs in the collection.
   int GetTabCount() const;
