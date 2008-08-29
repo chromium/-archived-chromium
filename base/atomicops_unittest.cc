@@ -148,11 +148,19 @@ static void TestAtomicIncrementBounds() {
   EXPECT_EQ(test_val - 1, value);
 }
 
+// Return an AtomicType with the value 0xa5a5a5..
+template <class AtomicType>
+static AtomicType TestFillValue() {
+  AtomicType val = 0;
+  memset(&val, 0xa5, sizeof(AtomicType));
+  return val;
+}
+
 // This is a simple sanity check that values are correct. Not testing
 // atomicity
 template <class AtomicType>
 static void TestStore() {
-  const AtomicType kVal1 = static_cast<AtomicType>(0xa5a5a5a5a5a5a5a5LL);
+  const AtomicType kVal1 = TestFillValue<AtomicType>();
   const AtomicType kVal2 = static_cast<AtomicType>(-1);
 
   AtomicType value;
@@ -177,7 +185,7 @@ static void TestStore() {
 // atomicity
 template <class AtomicType>
 static void TestLoad() {
-  const AtomicType kVal1 = static_cast<AtomicType>(0xa5a5a5a5a5a5a5a5LL);
+  const AtomicType kVal1 = TestFillValue<AtomicType>();
   const AtomicType kVal2 = static_cast<AtomicType>(-1);
 
   AtomicType value;
