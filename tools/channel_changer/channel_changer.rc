@@ -30,7 +30,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_BRANCH_SWITCHER     ICON                    "channel_changer.ico"
+IDI_BRANCH_SWITCHER     ICON                    "../../chrome/app/theme/google_chrome/chrome.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -106,7 +106,7 @@ END
 // Bitmap
 //
 
-IDB_PICTURE             BITMAP                  "glasses.bmp"
+IDB_PICTURE             BITMAP                  "chrome.bmp"
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
