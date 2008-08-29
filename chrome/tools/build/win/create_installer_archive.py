@@ -154,10 +154,7 @@ def CreateArchiveFile(output_dir, staging_dir, current_version,
                                    prev_archive_file, archive_file, patch_file)
     RunSystemCommand(cmd)
 
-    archive_file_name = PATCH_FILE_NAME + "-"
-    if prev_version:
-      archive_file_name += prev_version + "-"
-    archive_file_name += current_version + PATCH_FILE_EXT
+    archive_file_name = PATCH_FILE_NAME + PATCH_FILE_EXT
     orig_file = patch_file
   else:
     archive_file_name = C_FULL_ARCHIVE_FILE
