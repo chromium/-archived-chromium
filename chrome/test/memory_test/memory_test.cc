@@ -38,13 +38,18 @@ class MemoryTest : public UITest {
     CommandLine::AppendSwitch(&launch_arguments_, switches::kPlaybackMode);
     CommandLine::AppendSwitch(&launch_arguments_, switches::kNoEvents);
 
-    // Compute the user-data-dir which contains our test cache.
-    PathService::Get(base::DIR_EXE, &user_data_dir_);
-    file_util::UpOneDirectory(&user_data_dir_);
-    file_util::UpOneDirectory(&user_data_dir_);
-    file_util::AppendToPath(&user_data_dir_, L"data");
-    file_util::AppendToPath(&user_data_dir_, L"memory_test");
-    file_util::AppendToPath(&user_data_dir_, L"general_mix");
+    // Get the specified user data dir (optional)
+    user_data_dir_ = CommandLine().GetSwitchValue(switches::kUserDataDir);
+
+    if (user_data_dir_.length() == 0) {
+      // Compute the user-data-dir which contains our test cache.
+      PathService::Get(base::DIR_EXE, &user_data_dir_);
+      file_util::UpOneDirectory(&user_data_dir_);
+      file_util::UpOneDirectory(&user_data_dir_);
+      file_util::AppendToPath(&user_data_dir_, L"data");
+      file_util::AppendToPath(&user_data_dir_, L"memory_test");
+      file_util::AppendToPath(&user_data_dir_, L"general_mix");
+    }
     CommandLine::AppendSwitchWithValue(&launch_arguments_,
                                        switches::kUserDataDir,
                                        user_data_dir_);
