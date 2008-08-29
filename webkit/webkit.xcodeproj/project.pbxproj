@@ -5140,7 +5140,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		7B0091290DAFEF0E00F72082 /* JSBindings (V8) */ = {
+		7B0091290DAFEF0E00F72082 /* JSBindings */ = {
 			isa = PBXGroup;
 			children = (
 				7B14AAA40DE333B000F4E646 /* DerivedSources */,
@@ -5149,7 +5149,7 @@
 				7B00960E0DAFF19B00F72082 /* dom */,
 				7B0096290DAFF1D000F72082 /* InspectorController.cpp */,
 			);
-			name = "JSBindings (V8)";
+			name = JSBindings;
 			sourceTree = "<group>";
 		};
 		7B00912A0DAFEF2000F72082 /* bindings */ = {
@@ -5832,8 +5832,8 @@
 			isa = PBXGroup;
 			children = (
 				825404E50D92E3BB0006B936 /* glue */,
-				7B0091290DAFEF0E00F72082 /* JSBindings (V8) */,
-				7BBFD2120DB7D03700C447C7 /* JSConfig (V8) */,
+				7B0091290DAFEF0E00F72082 /* JSBindings */,
+				7BBFD2120DB7D03700C447C7 /* JSConfig */,
 				7B9375960D919010008B9587 /* port */,
 				7B5E87820D7F394A001ECF42 /* WebCore */,
 				7B5E85B30D7F28F5001ECF42 /* wtf */,
@@ -7853,12 +7853,12 @@
 			path = bridge;
 			sourceTree = "<group>";
 		};
-		7BBFD2120DB7D03700C447C7 /* JSConfig (V8) */ = {
+		7BBFD2120DB7D03700C447C7 /* JSConfig */ = {
 			isa = PBXGroup;
 			children = (
 				7BBFD2130DB7D09D00C447C7 /* config.h */,
 			);
-			name = "JSConfig (V8)";
+			name = JSConfig;
 			path = WebCore/v8;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -9449,9 +9449,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		7B0E5AEA0DB3DC51007D4907 /* webkit (V8) */ = {
+		7B0E5AEA0DB3DC51007D4907 /* webkit */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7B0E5B0B0DB3DC51007D4907 /* Build configuration list for PBXNativeTarget "webkit (V8)" */;
+			buildConfigurationList = 7B0E5B0B0DB3DC51007D4907 /* Build configuration list for PBXNativeTarget "webkit" */;
 			buildPhases = (
 				7B0E5AFB0DB3DC51007D4907 /* Headers */,
 				7B0E5AFC0DB3DC51007D4907 /* Sources */,
@@ -9467,7 +9467,7 @@
 				7B0E5AF30DB3DC51007D4907 /* PBXTargetDependency */,
 				7B0E5B120DB3DC71007D4907 /* PBXTargetDependency */,
 			);
-			name = "webkit (V8)";
+			name = webkit;
 			productName = webkit;
 			productReference = 7B0E5B0E0DB3DC51007D4907 /* libwebkit_v8.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
@@ -9628,7 +9628,7 @@
 				E45627CF0E2694B8005E4685 /* Port */,
 				E45620380E268E87005E4685 /* WebCore */,
 				7B5E85AD0D7F28CD001ECF42 /* WTF */,
-				7B0E5AEA0DB3DC51007D4907 /* webkit (V8) */,
+				7B0E5AEA0DB3DC51007D4907 /* webkit */,
 			);
 		};
 /* End PBXProject section */
@@ -11683,7 +11683,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		7B0E5B0B0DB3DC51007D4907 /* Build configuration list for PBXNativeTarget "webkit (V8)" */ = {
+		7B0E5B0B0DB3DC51007D4907 /* Build configuration list for PBXNativeTarget "webkit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7B0E5B0C0DB3DC51007D4907 /* Debug */,
