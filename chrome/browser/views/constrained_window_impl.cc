@@ -10,6 +10,7 @@
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/views/constrained_window_animation.h"
 #include "chrome/browser/views/location_bar_view.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/browser/web_app.h"
@@ -223,7 +224,6 @@ class ConstrainedWindowNonClientView
   gfx::Rect CalculateWindowBoundsForClientBounds(
       const gfx::Rect& client_bounds,
       bool with_url_field) const;
-  void UpdateWindowIcon();
   void UpdateWindowTitle();
 
   void set_window_delegate(ChromeViews::WindowDelegate* window_delegate) {
@@ -272,7 +272,6 @@ class ConstrainedWindowNonClientView
   void PaintFrameBorder(ChromeCanvas* canvas);
   void PaintTitleBar(ChromeCanvas* canvas);
   void PaintThrobber(ChromeCanvas* canvas);
-  void PaintFavicon(ChromeCanvas* canvas);
   void PaintWindowTitle(ChromeCanvas* canvas);
 
   void UpdateLocationBar();
@@ -327,9 +326,6 @@ class ConstrainedWindowNonClientView
 
   static void InitClass();
 
-  // The default favicon we render when the page has none.
-  static SkBitmap default_favicon_;
-
   // The throbber to display while a constrained window is loading.
   static SkBitmap throbber_frames_;
 
@@ -339,15 +335,12 @@ class ConstrainedWindowNonClientView
   DISALLOW_EVIL_CONSTRUCTORS(ConstrainedWindowNonClientView);
 };
 
-SkBitmap ConstrainedWindowNonClientView::default_favicon_;
 SkBitmap ConstrainedWindowNonClientView::throbber_frames_;
 int ConstrainedWindowNonClientView::throbber_frame_count_ = -1;
-static const int kWindowIconLeftOffset = 5;
-static const int kWindowIconTopOffset = 5;
+static const int kWindowLeftSpacing = 5;
 static const int kWindowControlsTopOffset = 1;
 static const int kWindowControlsRightOffset = 4;
 static const int kTitleTopOffset = 6;
-static const int kWindowIconTitleSpacing = 3;
 static const int kTitleBottomSpacing = 5;
 static const int kNoTitleTopSpacing = 8;
 static const int kResizeAreaSize = 5;
@@ -482,10 +475,6 @@ gfx::Rect ConstrainedWindowNonClientView::CalculateWindowBoundsForClientBounds(
   return window_bounds;
 }
 
-void ConstrainedWindowNonClientView::UpdateWindowIcon() {
-  SchedulePaint(icon_bounds_.ToRECT(), false);
-}
-
 void ConstrainedWindowNonClientView::UpdateWindowTitle() {
   SchedulePaint(title_bounds_.ToRECT(), false);
   UpdateLocationBar();
@@ -505,6 +494,8 @@ void ConstrainedWindowNonClientView::SetShowThrobber(bool show_throbber) {
       tm->StopTimer(timer);
     }
   }
+
+  Layout();
 }
 
 void ConstrainedWindowNonClientView::Run() {
@@ -627,16 +618,17 @@ void ConstrainedWindowNonClientView::Layout() {
 
   int titlebar_height = CalculateTitlebarHeight();
   if (window_delegate_) {
-    int icon_y = (titlebar_height - kWindowIconSize) / 2;
-    icon_bounds_.SetRect(kWindowIconLeftOffset, icon_y, 0, 0);
-    if (window_delegate_->ShouldShowWindowIcon()) {
+    if (show_throbber_) {
+      int icon_y = (titlebar_height - kWindowIconSize) / 2;
+      icon_bounds_.SetRect(kWindowLeftSpacing, icon_y, 0, 0);
       icon_bounds_.set_width(kWindowIconSize);
       icon_bounds_.set_height(kWindowIconSize);
+    } else {
+      icon_bounds_.SetRect(0, 0, 0, 0);
     }
 
     if (window_delegate_->ShouldShowWindowTitle()) {
-      int spacing = window_delegate_->ShouldShowWindowIcon() ?
-          kWindowIconTitleSpacing : 0;
+      int spacing = kWindowLeftSpacing;
       int title_right = close_button_->GetX() - spacing;
       int title_left = icon_bounds_.right() + spacing;
       title_bounds_.SetRect(title_left, kTitleTopOffset,
@@ -776,12 +768,9 @@ void ConstrainedWindowNonClientView::PaintTitleBar(ChromeCanvas* canvas) {
   if (!window_delegate_)
     return;
 
-  if (window_delegate_->ShouldShowWindowIcon()) {
-    if (should_show_throbber())
-      PaintThrobber(canvas);
-    else
-      PaintFavicon(canvas);
-  }
+  if (should_show_throbber())
+    PaintThrobber(canvas);
+
   if (window_delegate_->ShouldShowWindowTitle()) {
     PaintWindowTitle(canvas);
   }
@@ -797,16 +786,6 @@ void ConstrainedWindowNonClientView::PaintThrobber(ChromeCanvas* canvas) {
                         false);
 }
 
-void ConstrainedWindowNonClientView::PaintFavicon(ChromeCanvas* canvas) {
-  SkBitmap window_icon = window_delegate_->GetWindowIcon();
-  if (window_icon.isNull())
-    window_icon = default_favicon_;
-  canvas->DrawBitmapInt(window_icon, 0, 0, window_icon.width(),
-                        window_icon.height(), icon_bounds_.x(),
-                        icon_bounds_.y(), icon_bounds_.width(),
-                        icon_bounds_.height(), false);
-}
-
 void ConstrainedWindowNonClientView::PaintWindowTitle(ChromeCanvas* canvas) {
   canvas->DrawStringInt(container_->GetWindowTitle(),
                         resources_->GetTitleFont(),
@@ -820,7 +799,6 @@ void ConstrainedWindowNonClientView::InitClass() {
   static bool initialized = false;
   if (!initialized) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-    default_favicon_ = *rb.GetBitmapNamed(IDR_DEFAULT_FAVICON);
 
     throbber_frames_ = *rb.GetBitmapNamed(IDR_THROBBER);
     DCHECK(throbber_frames_.width() % throbber_frames_.height() == 0);
@@ -854,7 +832,7 @@ class ConstrainedTabContentsWindowDelegate
     return contents_->GetTitle();
   }
   virtual bool ShouldShowWindowIcon() const {
-    return true;
+    return false;
   }
   virtual SkBitmap GetWindowIcon() {
     return contents_->GetFavIcon();
@@ -956,19 +934,34 @@ void ConstrainedWindowImpl::DidBecomeSelected() {
 }
 
 std::wstring ConstrainedWindowImpl::GetWindowTitle() const {
-  // TODO(beng): (http://b/1085485) Need to decide if we want to append the app
-  //             name to all constrained windows or just web renderers.
+  // TODO(erg): (http://b/1085485) Need to decide if we what we want long term
+  // in our popup window titles.
   std::wstring page_title;
   if (window_delegate())
     page_title = window_delegate()->GetWindowTitle();
 
   std::wstring display_title;
-  if (page_title.empty()) {
-    display_title = l10n_util::GetString(IDS_PRODUCT_NAME);
-  } else {
-    display_title = l10n_util::GetStringF(IDS_BROWSER_WINDOW_TITLE_FORMAT,
-                                          page_title);
+  bool title_set = false;
+  if (constrained_contents_) {
+    // TODO(erg): This 11th hour hack is here because we decided we don't want
+    // to give ANY room to people trying to advertise on the window title line,
+    // but we don't have time to get a string translated into 40 languages at
+    // T-5 days so just do this in English. This needs (NEEDS!) to be fixed
+    // post beta.
+    std::wstring locale = g_browser_process->GetApplicationLocale();
+    if (locale == L"en-US" || locale == L"en-GB") {
+      display_title = L"Blocked Popup";
+      title_set = true;
+    }
   }
+
+  if (!title_set) {
+    if (page_title.empty())
+      display_title = L"Untitled";
+    else
+      display_title = page_title;
+  }
+
   return display_title;
 }
 
@@ -1263,8 +1256,6 @@ void ConstrainedWindowImpl::SetWindowBounds(const gfx::Rect& bounds) {
 }
 
 void ConstrainedWindowImpl::UpdateUI(unsigned int changed_flags) {
-  if (changed_flags & TabContents::INVALIDATE_FAVICON)
-    non_client_view()->UpdateWindowIcon();
   if (changed_flags & TabContents::INVALIDATE_TITLE)
     non_client_view()->UpdateWindowTitle();
 }
@@ -1407,4 +1398,3 @@ ConstrainedWindow* ConstrainedWindow::CreateConstrainedPopup(
 
   return window;
 }
-
