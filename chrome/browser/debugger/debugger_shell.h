@@ -31,6 +31,7 @@ class DebuggerShell : public base::RefCountedThreadSafe<DebuggerShell> {
   void Start() {}
   void DebugMessage(const std::wstring& msg) {}
   void OnDebugDisconnect() {}
+  void OnDebugAttach() {}
 };
 
 #else
