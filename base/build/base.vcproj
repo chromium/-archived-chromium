@@ -614,6 +614,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\simple_thread.h"
+			>
+		</File>
+		<File
+			RelativePath="..\simple_thread.cc"
+			>
+		</File>
+		<File
 			RelativePath="..\singleton.h"
 			>
 		</File>
