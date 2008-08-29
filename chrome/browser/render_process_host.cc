@@ -256,6 +256,7 @@ bool RenderProcessHost::Init() {
     switches::kEnableLogging,
     switches::kDumpHistogramsOnExit,
     switches::kDisableLogging,
+    switches::kLoggingLevel,
     switches::kDebugPrint,
     switches::kAllowAllActiveX,
     switches::kMemoryProfiling,

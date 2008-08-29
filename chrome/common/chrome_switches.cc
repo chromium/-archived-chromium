@@ -158,14 +158,18 @@ const wchar_t kLogFilterPrefix[]               = L"log-filter-prefix";
 // builds.
 const wchar_t kEnableLogging[]                 = L"enable-logging";
 
+// Force logging to be disabled.  Logging is enabled by default in debug
+// builds.
+const wchar_t kDisableLogging[]                = L"disable-logging";
+
+// Sets the minimum log level. Valid values are from 0 to 3:
+// INFO = 0, WARNING = 1, LOG_ERROR = 2, LOG_FATAL = 3.
+const wchar_t kLoggingLevel[]                  = L"log-level";
+
 // Dump any accumualted histograms to the log when browser terminates (requires
 // logging to be enabled to really do anything).  Used by developers and test
 // scripts.
 const wchar_t kDumpHistogramsOnExit[]          = L"dump-histograms-on-exit";
-
-// Force logging to be disabled.  Logging is enabled by default in debug
-// builds.
-const wchar_t kDisableLogging[]                = L"disable-logging";
 
 // enable remote debug / automation shell on the specified port
 const wchar_t kRemoteShellPort[]               = L"remote-shell-port";

@@ -104,6 +104,17 @@ void InitChromeLogging(const CommandLine& command_line,
       command_line.GetSwitchValue(switches::kLogFilterPrefix);
   logging::SetLogFilterPrefix(WideToUTF8(log_filter_prefix).c_str());
 
+  // Use a minimum log level if the command line has one, otherwise set the
+  // default to LOG_WARNING.
+  std::wstring log_level = command_line.GetSwitchValue(switches::kLoggingLevel);
+  int level = 0;
+  if (StringToInt(log_level, &level)) {
+    if ((level >= 0) && (level < LOG_NUM_SEVERITIES))
+      logging::SetMinLogLevel(level);
+  } else {
+    logging::SetMinLogLevel(LOG_WARNING);
+  }
+
   chrome_logging_initialized_ = true;
 }
 
