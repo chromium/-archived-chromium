@@ -29,6 +29,7 @@
 
 #include "base/message_loop.h"
 #include "base/test_suite.h"
+#include "base/timer.h"
 
 class NetTestSuite : public TestSuite {
  public:
@@ -39,6 +40,13 @@ class NetTestSuite : public TestSuite {
     TestSuite::Initialize();
 
     message_loop_.reset(new MessageLoopForIO());
+
+    // TODO(darin): Remove this god awful, son of a wart toad hack.  This timer
+    // keeps the MessageLoop pumping, which avoids a hang on Vista.  The real
+    // fix lies elsewhere, but this is a stop-gap to keep the tests running on
+    // Vista in the meantime.
+    keep_looping_.Start(
+        TimeDelta::FromMilliseconds(100), this, &NetTestSuite::DoNothing);
   }
 
   virtual void Shutdown() {
@@ -50,7 +58,10 @@ class NetTestSuite : public TestSuite {
   }
 
  private:
+  void DoNothing() {}
+
   scoped_ptr<MessageLoop> message_loop_;
+  base::RepeatingTimer<NetTestSuite> keep_looping_;
 };
 
 int main(int argc, char** argv) {
