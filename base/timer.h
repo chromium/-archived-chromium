@@ -326,9 +326,11 @@ class BaseTimer : public BaseTimer_Helper {
       if (!timer_)  // timer_ is null if we were orphaned.
         return;
       BaseTimer<Receiver>* self = static_cast<BaseTimer<Receiver>*>(timer_);
-      self->delayed_task_ = NULL;
-      if (self->repeating_)
+      if (self->repeating_) {
         self->Reset();
+      } else {
+        self->delayed_task_ = NULL;
+      }
       DispatchToMethod(self->receiver_, self->receiver_method_, Tuple0());
     }
   };
