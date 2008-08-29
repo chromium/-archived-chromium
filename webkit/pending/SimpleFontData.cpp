@@ -234,4 +234,19 @@ float CJKWidthFontData::widthForGlyph(Glyph glyph) const
     return width;
 }
 
+// static
+// TODO(dglazkov): Move to Font::isCJKCodePoint for consistency
+bool SimpleFontData::isCJKCodePoint(UChar32 c)
+{
+    // AC00..D7AF; Hangul Syllables
+    if ((0xAC00 <= c) && (c <= 0xD7AF))
+        return true;
+
+    // CJK ideographs
+    UErrorCode errorCode;
+    return uscript_getScript(c, &errorCode) == USCRIPT_HAN &&
+        U_SUCCESS(errorCode);
+}
+
+
 } // namespace WebCore

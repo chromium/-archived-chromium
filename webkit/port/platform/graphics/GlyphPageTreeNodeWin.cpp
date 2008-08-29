@@ -162,7 +162,7 @@ static bool FillBMPGlyphs(UChar* buffer,
             glyph = 0;
             glyphFontData = 0;
         } else {
-            if (Font::isCJKCodePoint(c))
+            if (SimpleFontData::isCJKCodePoint(c))
                 glyphFontData = fontData->cjkWidthFontData();
             have_glyphs = true;
         }

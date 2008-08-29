@@ -82,6 +82,8 @@ public:
     void determinePitch();
     Pitch pitch() const { return m_treatAsFixedPitch ? FixedPitch : VariablePitch; }
 
+    static bool isCJKCodePoint(UChar32 c);
+
 #if ENABLE(SVG_FONTS)
     SVGFontData* svgFontData() const { return m_svgFontData.get(); }
     bool isSVGFont() const { return m_svgFontData; }

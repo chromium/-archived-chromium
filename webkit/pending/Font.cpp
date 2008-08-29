@@ -809,17 +809,4 @@ FontSelector* Font::fontSelector() const
     return m_fontList ? m_fontList->fontSelector() : 0;
 }
 
-// static
-bool Font::isCJKCodePoint(UChar32 c)
-{
-    // AC00..D7AF; Hangul Syllables
-    if ((0xAC00 <= c) && (c <= 0xD7AF))
-        return true;
-
-    // CJK ideographs
-    UErrorCode errorCode;
-    return uscript_getScript(c, &errorCode) == USCRIPT_HAN &&
-        U_SUCCESS(errorCode);
-}
-
 }
