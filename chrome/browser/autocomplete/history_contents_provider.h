@@ -6,28 +6,23 @@
 #define CHROME_BROWSER_AUTOCOMPLETE_HISTORY_CONTENTS_PROVIDER_H__
 
 #include "chrome/browser/autocomplete/autocomplete.h"
+#include "chrome/browser/bookmark_bar_model.h"
 #include "chrome/browser/history/history.h"
 
 // HistoryContentsProvider is an AutocompleteProvider that provides results from
-// the contents (body and/or title) of previously visited pages.  Results are
-// obtained asynchronously from the history service.
+// the contents (body and/or title) of previously visited pages.
+// HistoryContentsProvider gets results from two sources:
+// . HistoryService: this provides results for matches in the body/title of
+//   previously viewed pages. This is asynchronous.
+// . BookmarkBarModel: provides results for matches in the titles of bookmarks.
+//   This is synchronous.
 class HistoryContentsProvider : public AutocompleteProvider {
  public:
   HistoryContentsProvider(ACProviderListener* listener, Profile* profile)
       : AutocompleteProvider(listener, profile, "HistoryContents"),
-        history_service_(NULL),
         have_results_(false) {
     DCHECK(profile);
   }
-
-#ifdef UNIT_TEST
-  HistoryContentsProvider(ACProviderListener* listener,
-                          HistoryService* history_service)
-      : AutocompleteProvider(listener, NULL, "HistoryContents"),
-        history_service_(history_service),
-        have_results_(false) {
-  }
-#endif
 
   // As necessary asks the history service for the relevant results. When
   // done SetResults is invoked.
@@ -39,8 +34,8 @@ class HistoryContentsProvider : public AutocompleteProvider {
 
   // Returns the total number of matches available in the database, up to
   // kMaxMatchCount, whichever is smaller.
-  // Return value is only valid if done() returns true.
-  size_t db_match_count() const { return db_match_count_; }
+  // Return value is incomplete if done() returns false.
+  size_t db_match_count() const { return results_.size(); }
 
   // The maximum match count we'll report. If the db_match_count is greater
   // than this, it will be clamped to this result.
@@ -67,11 +62,16 @@ class HistoryContentsProvider : public AutocompleteProvider {
   // chart in autocomplete.h for the list of values this returns.
   int CalculateRelevance(const history::URLResult& result);
 
-  CancelableRequestConsumerT<int, 0> request_consumer_;
+  // Queries the bookmarks for any bookmarks whose title matches input. All
+  // matches are added directly to results_.
+  void QueryBookmarks(const AutocompleteInput& input);
 
-  // This is only non-null for testing, otherwise the HistoryService from the
-  // Profile is used.
-  HistoryService* history_service_;
+  // Converts a BookmarkBarModel::TitleMatch to a QueryResult and adds it
+  // to results_.
+  void AddBookmarkTitleMatchToResults(
+      const BookmarkBarModel::TitleMatch& match);
+
+  CancelableRequestConsumerT<int, 0> request_consumer_;
 
   // The number of times we're returned each different type of result. These are
   // used by CalculateRelevance. Initialized in Start.
@@ -93,11 +93,7 @@ class HistoryContentsProvider : public AutocompleteProvider {
   // Current query string.
   std::wstring query_;
 
-  // Total number of matches available in the database.
-  int db_match_count_;
-
   DISALLOW_EVIL_CONSTRUCTORS(HistoryContentsProvider);
 };
 
 #endif  // CHROME_BROWSER_AUTOCOMPLETE_HISTORY_CONTENTS_PROVIDER_H__
-

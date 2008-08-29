@@ -31,7 +31,14 @@ class TestingProfile : public Profile {
   // the model is created. As TestingProfile deletes the directory containing
   // the files used by HistoryService, the boolean only matters if you're
   // recreating the BookmarkBarModel.
+  //
+  // NOTE: this does not block until the bookmarks are loaded. For that use
+  // BlockUntilBookmarkModelLoaded.
   void CreateBookmarkBarModel(bool delete_file);
+
+  // Blocks until the BookmarkBarModel finishes loaded. This is NOT invoked
+  // from CreateBookmarkBarModel.
+  void BlockUntilBookmarkModelLoaded();
 
   // Creates a TemplateURLModel. If not invoked the TemplateURLModel is NULL.
   void CreateTemplateURLModel();

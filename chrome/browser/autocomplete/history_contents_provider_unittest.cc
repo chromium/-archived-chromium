@@ -8,6 +8,7 @@
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/autocomplete/history_contents_provider.h"
 #include "chrome/browser/history/history.h"
+#include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -45,16 +46,18 @@ class HistoryContentsProviderTest : public testing::Test,
 
   const ACMatches& matches() const { return provider_->matches(); }
 
+  TestingProfile* profile() const { return profile_.get(); }
+
+  HistoryContentsProvider* provider() const { return provider_.get(); }
+
  private:
   // testing::Test
   virtual void SetUp() {
-    PathService::Get(base::DIR_TEMP, &history_dir_);
-    file_util::AppendToPath(&history_dir_, L"HistoryContentProviderTest");
-    file_util::Delete(history_dir_, true);  // Normally won't exist.
-    file_util::CreateDirectoryW(history_dir_);
+    profile_.reset(new TestingProfile());
+    profile_->CreateHistoryService(false);
 
-    history_service_ = new HistoryService;
-    history_service_->Init(history_dir_, NULL);
+    HistoryService* history_service =
+        profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
 
     // Populate history.
     for (int i = 0; i < arraysize(test_entries); i++) {
@@ -67,28 +70,18 @@ class HistoryContentsProviderTest : public testing::Test,
       // is "right now" or it will nondeterministically appear in the results.
       Time t = Time::Now() - TimeDelta::FromDays(arraysize(test_entries) + i);
 
-      history_service_->AddPage(url, t, id_scope, i, GURL(),
+      history_service->AddPage(url, t, id_scope, i, GURL(),
           PageTransition::LINK, HistoryService::RedirectList());
-      history_service_->SetPageTitle(url, test_entries[i].title);
-      history_service_->SetPageContents(url, test_entries[i].body);
+      history_service->SetPageTitle(url, test_entries[i].title);
+      history_service->SetPageContents(url, test_entries[i].body);
     }
 
-    provider_ = new HistoryContentsProvider(this, history_service_);
+    provider_ = new HistoryContentsProvider(this, profile_.get());
   }
 
   virtual void TearDown() {
-    history_service_->SetOnBackendDestroyTask(new MessageLoop::QuitTask);
-    history_service_->Cleanup();
     provider_ = NULL;
-    history_service_ = NULL;
-
-    // Wait for history thread to complete (the QuitTask will cause it to exit
-    // on destruction). Note: if this never terminates, somebody is probably
-    // leaking a reference to the history backend, so it never calls our
-    // destroy task.
-    MessageLoop::current()->Run();
-
-    file_util::Delete(history_dir_, true);
+    profile_.reset(NULL);
   }
 
   // ACProviderListener
@@ -98,11 +91,11 @@ class HistoryContentsProviderTest : public testing::Test,
   }
 
   MessageLoopForUI message_loop_;
-  
+
   std::wstring history_dir_;
 
+  scoped_ptr<TestingProfile> profile_;
   scoped_refptr<HistoryContentsProvider> provider_;
-  scoped_refptr<HistoryService> history_service_;
 };
 
 }  // namespace
@@ -153,4 +146,43 @@ TEST_F(HistoryContentsProviderTest, MinimalChanges) {
   RunQuery(input, true, true);
   const ACMatches& m3 = matches();
   EXPECT_EQ(2, m3.size());
+}
+
+// Tests that the BookmarkBarModel is queried correctly.
+TEST_F(HistoryContentsProviderTest, Bookmarks) {
+  profile()->CreateBookmarkBarModel(false);
+  profile()->BlockUntilBookmarkModelLoaded();
+
+  // Add a bookmark.
+  GURL bookmark_url("http://www.google.com/4");
+  profile()->GetBookmarkBarModel()->SetURLStarred(bookmark_url, L"bar", true);
+
+  AutocompleteInput input(L"bar", std::wstring(), true);
+
+  // Ask for synchronous. This should only get the bookmark.
+  RunQuery(input, false, true);
+  const ACMatches& m1 = matches();
+  ASSERT_EQ(1, m1.size());
+  EXPECT_EQ(bookmark_url.spec(), WideToUTF8(m1[0].destination_url));
+  EXPECT_EQ(L"bar", m1[0].description);
+  EXPECT_TRUE(m1[0].starred);
+
+  // Ask for async. We should get the bookmark immediately.
+  provider()->Start(input, false, false);
+  const ACMatches& m2 = matches();
+  ASSERT_EQ(1, m2.size());
+  EXPECT_EQ(bookmark_url.spec(), WideToUTF8(m2[0].destination_url));
+
+  // Run the message loop (needed for async history results).
+  MessageLoop::current()->Run();
+
+  // We should two urls now, bookmark_url and http://www.google.com/3.
+  const ACMatches& m3 = matches();
+  ASSERT_EQ(2, m3.size());
+  if (bookmark_url.spec() == WideToUTF8(m3[0].destination_url)) {
+    EXPECT_EQ(L"http://www.google.com/3", m3[1].destination_url);
+  } else {
+    EXPECT_EQ(bookmark_url.spec(), WideToUTF8(m3[1].destination_url));
+    EXPECT_EQ(L"http://www.google.com/3", m3[0].destination_url);
+  }
 }

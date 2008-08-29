@@ -7,6 +7,40 @@
 #include "chrome/browser/history/history_backend.h"
 #include "chrome/common/chrome_constants.h"
 
+namespace {
+
+// BookmarkLoadObserver is used when blocking until the BookmarkBarModel
+// finishes loading. As soon as the BookmarkBarModel finishes loading the
+// message loop is quit.
+class BookmarkLoadObserver : public BookmarkBarModelObserver {
+ public:
+  BookmarkLoadObserver() {}
+  virtual void Loaded(BookmarkBarModel* model) {
+    MessageLoop::current()->Quit();
+  }
+
+  virtual void BookmarkNodeMoved(BookmarkBarModel* model,
+                                 BookmarkBarNode* old_parent,
+                                 int old_index,
+                                 BookmarkBarNode* new_parent,
+                                 int new_index) {}
+  virtual void BookmarkNodeAdded(BookmarkBarModel* model,
+                                 BookmarkBarNode* parent,
+                                 int index) {}
+  virtual void BookmarkNodeRemoved(BookmarkBarModel* model,
+                                   BookmarkBarNode* parent,
+                                   int index) {}
+  virtual void BookmarkNodeChanged(BookmarkBarModel* model,
+                                   BookmarkBarNode* node) {}
+  virtual void BookmarkNodeFavIconLoaded(BookmarkBarModel* model,
+                                         BookmarkBarNode* node) {}
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(BookmarkLoadObserver);
+};
+
+}  // namespace
+
 TestingProfile::TestingProfile()
     : start_time_(Time::Now()), has_history_service_(false) {
   PathService::Get(base::DIR_TEMP, &path_);
@@ -75,7 +109,17 @@ void TestingProfile::CreateBookmarkBarModel(bool delete_file) {
   bookmark_bar_model_->Load();
 }
 
+void TestingProfile::BlockUntilBookmarkModelLoaded() {
+  DCHECK(bookmark_bar_model_.get());
+  if (bookmark_bar_model_->IsLoaded())
+    return;
+  BookmarkLoadObserver observer;
+  bookmark_bar_model_->AddObserver(&observer);
+  MessageLoop::current()->Run();
+  bookmark_bar_model_->RemoveObserver(&observer);
+  DCHECK(bookmark_bar_model_->IsLoaded());
+}
+
 void TestingProfile::CreateTemplateURLModel() {
   template_url_model_.reset(new TemplateURLModel(this));
 }
-
