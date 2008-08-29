@@ -16,7 +16,7 @@
 #pragma warning(pop)
 
 #undef LOG
-#include "base/gfx/platform_canvas_win.h"
+#include "base/gfx/platform_canvas.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "webkit/glue/event_conversion.h"
@@ -119,7 +119,7 @@ void WebWidgetImpl::Resize(const gfx::Size& new_size) {
 void WebWidgetImpl::Layout() {
 }
 
-void WebWidgetImpl::Paint(gfx::PlatformCanvasWin* canvas, const gfx::Rect& rect) {
+void WebWidgetImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
   if (!widget_)
     return;
 
@@ -206,7 +206,7 @@ void WebWidgetImpl::onScrollPositionChanged(Widget* widget) {
 //-----------------------------------------------------------------------------
 // WebCore::WidgetClientWin
 
-HWND WebWidgetImpl::containingWindow() {
+gfx::ViewHandle WebWidgetImpl::containingWindow() {
   return delegate_ ? delegate_->GetContainingWindow(this) : NULL;
 }
 
@@ -241,8 +241,11 @@ void WebWidgetImpl::popupClosed(WebCore::Widget* widget) {
 }
 
 void WebWidgetImpl::setCursor(const WebCore::Cursor& cursor) {
+#if defined(OS_WIN)
+  // TODO(pinkerton): re-enable when WebCursor is ported
   if (delegate_)
     delegate_->SetCursor(this, cursor.impl());
+#endif
 }
 
 void WebWidgetImpl::setFocus() {

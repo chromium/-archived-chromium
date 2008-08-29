@@ -5,9 +5,8 @@
 #ifndef WEBKIT_GLUE_WEBWIDGET_DELEGATE_H__
 #define WEBKIT_GLUE_WEBWIDGET_DELEGATE_H__
 
+#include "base/gfx/native_widget_types.h"
 #include "webkit/glue/window_open_disposition.h"
-
-typedef struct HWND__* HWND;
 
 namespace gfx {
   class Point;
@@ -20,8 +19,8 @@ struct WebPluginGeometry;
 
 class WebWidgetDelegate {
  public:
-  // Returns the HWND in which the WebWidget is embedded.
-  virtual HWND GetContainingWindow(WebWidget* webwidget) = 0;
+  // Returns the view in which the WebWidget is embedded.
+  virtual gfx::ViewHandle GetContainingWindow(WebWidget* webwidget) = 0;
 
   // Called when a region of the WebWidget needs to be re-painted.
   virtual void DidInvalidateRect(WebWidget* webwidget, const gfx::Rect& rect) = 0;

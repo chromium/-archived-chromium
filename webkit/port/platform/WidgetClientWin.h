@@ -5,6 +5,7 @@
 #ifndef WidgetClientWin_H__
 #define WidgetClientWin_H__
 
+#include "base/gfx/native_widget_types.h"
 #include "WidgetClient.h"
 
 class SkBitmap;
@@ -19,7 +20,9 @@ class Range;
 class WidgetClientWin : public WidgetClient {
 public:
     // Returns the containing window for the Widget.
-    virtual HWND containingWindow() = 0;
+    // TODO(pinkerton): this needs a better name, "window" is incorrect on other
+    // platforms.
+    virtual gfx::ViewHandle containingWindow() = 0;
 
     // Invalidate a region of the widget's containing window.
     virtual void invalidateRect(const IntRect& damagedRect) = 0;

@@ -29,6 +29,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/gfx/platform_canvas.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
 #include "webkit/glue/webdatasource_impl.h"
@@ -63,7 +64,6 @@ struct WindowFeatures;
 }
 
 namespace gfx {
-class PlatformCanvasWin;
 class BitmapPlatformDeviceWin;
 }
 
@@ -182,7 +182,7 @@ class WebFrameImpl : public WebFrame {
 
   // WebFrameImpl
   void Layout();
-  void Paint(gfx::PlatformCanvasWin* canvas, const gfx::Rect& rect);
+  void Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect);
 
   bool IsLoading();
 

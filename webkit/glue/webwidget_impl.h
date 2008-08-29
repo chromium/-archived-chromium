@@ -6,6 +6,7 @@
 #define WEBKIT_GLUE_WEBWIDGET_IMPL_H__
 
 #include "base/basictypes.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/gfx/point.h"
 #include "base/gfx/size.h"
 #include "webkit/glue/webwidget.h"
@@ -36,7 +37,7 @@ class WebWidgetImpl : public WebWidget, public WebCore::WidgetClientWin {
   virtual void Resize(const gfx::Size& new_size);
   virtual gfx::Size GetSize() { return size(); }
   virtual void Layout();
-  virtual void Paint(gfx::PlatformCanvasWin* canvas, const gfx::Rect& rect);
+  virtual void Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect);
   virtual bool HandleInputEvent(const WebInputEvent* input_event);
   virtual void MouseCaptureLost();
   virtual void SetFocus(bool enable);
@@ -71,7 +72,7 @@ class WebWidgetImpl : public WebWidget, public WebCore::WidgetClientWin {
   ~WebWidgetImpl();
 
   // WebCore::WidgetClientWin
-  virtual HWND containingWindow();
+  virtual gfx::ViewHandle containingWindow();
   virtual void invalidateRect(const WebCore::IntRect& damaged_rect);
   virtual void scrollRect(int dx, int dy, const WebCore::IntRect& clip_rect);
   virtual void popupOpened(WebCore::Widget* widget,

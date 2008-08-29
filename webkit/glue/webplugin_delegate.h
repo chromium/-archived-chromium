@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
 #include "third_party/npapi/bindings/npapi.h"
 
@@ -73,7 +74,7 @@ class WebPluginDelegate {
 
   // Returns the window handle for this plugin if it's a windowed plugin,
   // or NULL otherwise.
-  virtual HWND GetWindowHandle() = 0;
+  virtual gfx::ViewHandle GetWindowHandle() = 0;
 
   virtual void FlushGeometryUpdates() = 0;
 

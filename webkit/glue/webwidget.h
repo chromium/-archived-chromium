@@ -5,10 +5,10 @@
 #ifndef WEBKIT_GLUE_WEBWIDGET_H__
 #define WEBKIT_GLUE_WEBWIDGET_H__
 
+#include "base/gfx/platform_canvas.h"
 #include "base/ref_counted.h"
 
 namespace gfx {
-class PlatformCanvasWin;
 class Rect;
 class Size;
 }
@@ -45,7 +45,7 @@ class WebWidget : public base::RefCounted<WebWidget> {
   // multiple times once Layout has been called, assuming no other changes are
   // made to the WebWidget (e.g., once events are processed, it should be assumed
   // that another call to Layout is warranted before painting again).
-  virtual void Paint(gfx::PlatformCanvasWin* canvas, const gfx::Rect& rect) = 0;
+  virtual void Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) = 0;
 
   // Called to inform the WebWidget of an input event.
   // Returns true if the event has been processed, false otherwise.

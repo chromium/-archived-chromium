@@ -1362,7 +1362,7 @@ void WebFrameImpl::Layout() {
     FromFrame(child)->Layout();
 }
 
-void WebFrameImpl::Paint(gfx::PlatformCanvasWin* canvas, const gfx::Rect& rect) {
+void WebFrameImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
   static StatsRate rendering(L"WebFramePaintTime");
   StatsScope<StatsRate> rendering_scope(rendering);
 
