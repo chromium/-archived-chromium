@@ -8,18 +8,42 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 class WinUtilTest: public testing::Test {
+ protected:
+  // Retrieve the OS primary language
+  static unsigned GetSystemLanguage() {
+    std::wstring language;
+
+    typedef BOOL (WINAPI *fnGetThreadPreferredUILanguages)(
+        DWORD dwFlags,
+        PULONG pulNumLanguages,
+        PWSTR pwszLanguagesBuffer,
+        PULONG pcchLanguagesBuffer);
+    fnGetThreadPreferredUILanguages pGetThreadPreferredUILanguages = NULL;
+    pGetThreadPreferredUILanguages =
+        reinterpret_cast<fnGetThreadPreferredUILanguages>(
+            GetProcAddress(GetModuleHandle(L"kernel32.dll"),
+                           "GetThreadPreferredUILanguages"));
+    if (pGetThreadPreferredUILanguages) {
+      // Vista, MUI-aware.
+      ULONG number = 0;
+      wchar_t buffer[256] = {0};
+      ULONG buffer_size = sizeof(buffer);
+      EXPECT_TRUE(pGetThreadPreferredUILanguages(MUI_LANGUAGE_ID, &number,
+                                                 buffer, &buffer_size));
+      language = buffer;
+    } else {
+      // XP
+      RegKey language_key(HKEY_LOCAL_MACHINE,
+                          L"SYSTEM\\CurrentControlSet\\Control\\Nls\\Language");
+      language_key.ReadValue(L"InstallLanguage", &language);
+    }
+    wchar_t * unused_endptr;
+    return PRIMARYLANGID(wcstol(language.c_str(), &unused_endptr, 16));
+  }
 };
 
-// Retrieve the OS primary language
-unsigned GetSystemLanguage() {
-  RegKey language_key(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Control\\Nls\\Language");
-  std::wstring language;
-  language_key.ReadValue(L"InstallLanguage", &language);
-  wchar_t * unused_endptr;
-  return PRIMARYLANGID(wcstol(language.c_str(), &unused_endptr, 16));
-}
 
-TEST(WinUtilTest, FormatMessage) {
+TEST_F(WinUtilTest, FormatMessage) {
   const int kAccessDeniedErrorCode = 5;
   SetLastError(kAccessDeniedErrorCode);
   ASSERT_EQ(GetLastError(), kAccessDeniedErrorCode);
@@ -30,11 +54,11 @@ TEST(WinUtilTest, FormatMessage) {
   if (language == LANG_ENGLISH) {
     // This test would fail on non-English system.
     TrimWhitespace(win_util::FormatLastWin32Error(), TRIM_ALL, &value);
-    EXPECT_EQ(value, std::wstring(L"Access is denied."));
+    EXPECT_EQ(std::wstring(L"Access is denied."), value);
   } else if (language == LANG_FRENCH) {
     // This test would fail on non-French system.
     TrimWhitespace(win_util::FormatLastWin32Error(), TRIM_ALL, &value);
-    EXPECT_EQ(value, std::wstring(L"Acc\00e8s refus\00e9."));
+    EXPECT_EQ(std::wstring(L"Acc\u00e8s refus\u00e9."), value);
   } else {
     EXPECT_TRUE(0) << "Please implement the test for your OS language.";
   }
@@ -61,7 +85,7 @@ TEST(WinUtilTest, FormatMessage) {
   LocalFree(string_buffer);
 }
 
-TEST(WinUtilTest, EnsureRectIsVisibleInRect) {
+TEST_F(WinUtilTest, EnsureRectIsVisibleInRect) {
   gfx::Rect parent_rect(0, 0, 500, 400);
 
   {
