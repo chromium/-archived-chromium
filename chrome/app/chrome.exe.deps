@@ -5,6 +5,13 @@ dependents = [
   'USER32.dll',
   'ADVAPI32.dll',
   'SHELL32.dll',
+]
+
+dependents_google_chrome = [
+  'KERNEL32.dll',
+  'USER32.dll',
+  'ADVAPI32.dll',
+  'SHELL32.dll',
   'VERSION.dll',
 ]
 

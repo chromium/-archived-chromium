@@ -20,6 +20,9 @@ import os
 import subprocess
 import sys
 
+# TODO(rahulk): Default should change to chromium once env var is set properly
+DIST_DEFAULT = '_google_chrome'
+DIST_ENV_VAR = 'CHROMIUM_BUILD'
 DUMPBIN = "dumpbin.exe"
 
 
@@ -149,21 +152,41 @@ def VerifyDependents(pe_name, dependents, delay_loaded, list_file, verbose):
     execfile(list_file, scope)
   except:
     raise Error("Failed to load " + list_file)
+
+  # The dependency files have dependencies in two section - dependents and delay_loaded
+  # Also various distributions of Chromium can have different dependencies. So first
+  # we read generic dependencies ("dependents" and "delay_loaded"). If distribution
+  # specific dependencies exist (i.e. "dependents_google_chrome" and 
+  # "delay_loaded_google_chrome") we use those instead.
+  distribution = DIST_DEFAULT
+  if DIST_ENV_VAR in os.environ.keys():
+    distribution = os.environ[DIST_ENV_VAR].lower()
+
+  expected_dependents = scope["dependents"]
+  dist_dependents = "dependents" + distribution
+  if dist_dependents in scope.keys():
+    expected_dependents = scope[dist_dependents]
+    
+  expected_delay_loaded = scope["delay_loaded"]
+  dist_delay_loaded = "delay_loaded" + distribution
+  if dist_delay_loaded in scope.keys():
+    expected_delay_loaded = scope[dist_delay_loaded]
+
   if verbose:
     print "Expected dependents:"
-    print "\n".join(scope["dependents"])
+    print "\n".join(expected_dependents)
     print "Expected delayloaded:"
-    print "\n".join(scope["delay_loaded"])
+    print "\n".join(expected_delay_loaded)
     
   deps_result = Diff(pe_name,
                      "dll",
                      dependents,
-                     scope["dependents"],
+                     expected_dependents,
                      list_file)
   delayed_result = Diff(pe_name,
                         "delay loaded dll",
                         delay_loaded,
-                        scope["delay_loaded"],
+                        expected_delay_loaded,
                         list_file)
   return max(deps_result, delayed_result)
 
@@ -193,6 +216,6 @@ if '__main__' == __name__:
                            help="Display debugging information")
   options, args = option_parser.parse_args()
   if len(args) != 2:
-      parser.error("Incorrect number of arguments")
+    option_parser.error("Incorrect number of arguments")
   sys.exit(main(options, args))
 
