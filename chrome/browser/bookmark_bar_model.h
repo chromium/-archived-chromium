@@ -204,9 +204,20 @@ class BookmarkBarModel : public NotificationObserver, public BookmarkService {
   void GetMostRecentlyAddedEntries(size_t count,
                                    std::vector<BookmarkBarNode*>* nodes);
 
-  // Returns the bookmarks whose title contains text.
+  // Used by GetBookmarksMatchingText to return a matching node and the location
+  // of the match in the title.
+  struct TitleMatch {
+    BookmarkBarNode* node;
+
+    // Location of the matching words in the title of the node.
+    Snippet::MatchPositions match_positions;
+  };
+
+  // Returns the bookmarks whose title contains text. At most |max_count|
+  // matches are returned in |matches|.
   void GetBookmarksMatchingText(const std::wstring& text,
-                                std::vector<BookmarkBarNode*>* nodes);
+                                size_t max_count,
+                                std::vector<TitleMatch>* matches);
 
   void AddObserver(BookmarkBarModelObserver* observer) {
     observers_.AddObserver(observer);

@@ -317,6 +317,12 @@ class URLResult : public URLRow {
       : URLRow(url),
         visit_time_(visit_time) {
   }
+  // Constructor that create a URLResult from the specified URL and title match
+  // positions from title_matches.
+  URLResult(const GURL& url, const Snippet::MatchPositions& title_matches)
+      : URLRow(url) {
+    title_match_positions_ = title_matches;
+  }
 
   Time visit_time() const { return visit_time_; }
   void set_visit_time(Time visit_time) { visit_time_ = visit_time; }
@@ -338,7 +344,7 @@ class URLResult : public URLRow {
   // The time that this result corresponds to.
   Time visit_time_;
 
-  // When setting, these values are set directly by the HistoryBackend.
+  // These values are typically set by HistoryBackend.
   Snippet snippet_;
   Snippet::MatchPositions title_match_positions_;
 
@@ -492,4 +498,3 @@ struct KeywordSearchTermVisit {
 }  // history
 
 #endif  // CHROME_BROWSER_HISTORY_HISTORY_TYPES_H__
-

@@ -375,7 +375,7 @@ enum NotificationType {
   // Sent when the user visits a URL.
   //
   // The source is the profile owning the history service that changed, and
-  // the details is history::URLsMo.
+  // the details is history::URLVisitedDetails.
   NOTIFY_HISTORY_URL_VISITED,
 
   // Sent when one or more URLs are deleted.

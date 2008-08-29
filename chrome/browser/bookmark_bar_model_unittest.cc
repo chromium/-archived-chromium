@@ -349,6 +349,28 @@ TEST_F(BookmarkBarModelTest, MostRecentlyAddedEntries) {
   ASSERT_TRUE(n4 == recently_added[3]);
 }
 
+// Makes sure GetBookmarksMatchingText works.
+TEST_F(BookmarkBarModelTest, GetBookmarksMatchingText) {
+  // Add two urls with titles 'blah' and 'x' and one folder with the title
+  // 'blah'.
+  BookmarkBarNode* n1 = model.AddURL(
+      model.GetBookmarkBarNode(), 0, L"blah", GURL("http://foo.com/0"));
+  BookmarkBarNode* n2 = model.AddURL(
+      model.GetBookmarkBarNode(), 1, L"x", GURL("http://foo.com/1"));
+  model.AddGroup(model.GetBookmarkBarNode(), 2, L"blah");
+
+  // Make sure we don't get back the folder.
+  std::vector<BookmarkBarModel::TitleMatch> results;
+  model.GetBookmarksMatchingText(L"blah", 2, &results);
+  ASSERT_EQ(1U, results.size());
+  EXPECT_EQ(n1, results[0].node);
+  results.clear();
+
+  model.GetBookmarksMatchingText(L"x", 2, &results);
+  ASSERT_EQ(1U, results.size());
+  EXPECT_EQ(n2, results[0].node);
+}
+
 namespace {
 
 // See comment in PopulateNodeFromString.

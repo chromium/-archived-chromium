@@ -146,7 +146,7 @@ void QueryResults::AppendResultsBySwapping(QueryResults* other,
     AddURLUsageAtIndex(results_.back()->url(), results_.size() - 1);
   }
 
-  // We just took ownerwhip of all the results in the input vector.
+  // We just took ownership of all the results in the input vector.
   other->results_.clear();
   other->url_to_results_.clear();
 }

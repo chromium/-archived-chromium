@@ -11,7 +11,18 @@
 #include <set>
 #include <vector>
 
+#include "chrome/browser/history/snippet.h"
+
 class QueryNodeList;
+
+// Used by HasMatchIn.
+struct QueryWord {
+  // The work to match against.
+  std::wstring word;
+
+  // The starting position of the word in the original text.
+  int position;
+};
 
 // QueryNode is used by QueryNodeParser to represent the elements that
 // constitute a query. While QueryNode is exposed by way of ParseQuery, it
@@ -32,8 +43,11 @@ class QueryNode {
   // comparison.
   virtual bool Matches(const std::wstring& word, bool exact) const = 0;
 
-  // Returns true if this node matches at least one of the words in words.
-  virtual bool HasMatchIn(const std::vector<std::wstring>& words) const = 0;
+  // Returns true if this node matches at least one of the words in words. If
+  // the node matches at least one word, an entry is added to match_positions
+  // giving the matching region.
+  virtual bool HasMatchIn(const std::vector<QueryWord>& words,
+                          Snippet::MatchPositions* match_positions) const = 0;
 };
 
 
@@ -54,9 +68,11 @@ class QueryParser {
                   std::vector<QueryNode*>* nodes);
 
   // Returns true if the string text matches the query nodes created by a call
-  // to ParseQuery.
+  // to ParseQuery. If the query does match each of the matching positions in
+  // the text is added to |match_positions|.
   bool DoesQueryMatch(const std::wstring& text,
-                      const std::vector<QueryNode*>& nodes);
+                      const std::vector<QueryNode*>& nodes,
+                      Snippet::MatchPositions* match_positions);
 
  private:
   // Does the work of parsing a query; creates nodes in QueryNodeList as
@@ -65,8 +81,8 @@ class QueryParser {
                       QueryNodeList* root);
 
   // Extracts the words from text, placing each word into words.
-  void ExtractWords(const std::wstring& text,
-                    std::vector<std::wstring>* words);
+  void ExtractQueryWords(const std::wstring& text,
+                         std::vector<QueryWord>* words);
 };
 
 #endif  // CHROME_BROWSER_HISTORY_QUERY_PARSER_H__

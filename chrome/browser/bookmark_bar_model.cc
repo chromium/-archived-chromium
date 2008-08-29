@@ -172,7 +172,8 @@ void BookmarkBarModel::GetMostRecentlyAddedEntries(
 
 void BookmarkBarModel::GetBookmarksMatchingText(
     const std::wstring& text,
-    std::vector<BookmarkBarNode*>* nodes) {
+    size_t max_count,
+    std::vector<TitleMatch>* matches) {
   QueryParser parser;
   ScopedVector<QueryNode> query_nodes;
   parser.ParseQuery(text, &query_nodes.get());
@@ -180,10 +181,17 @@ void BookmarkBarModel::GetBookmarksMatchingText(
     return;
 
   AutoLock url_lock(url_lock_);
+  Snippet::MatchPositions match_position;
   for (NodesOrderedByURLSet::iterator i = nodes_ordered_by_url_set_.begin();
        i != nodes_ordered_by_url_set_.end(); ++i) {
-    if (parser.DoesQueryMatch((*i)->GetTitle(), query_nodes.get()))
-      nodes->push_back(*i);
+    if (parser.DoesQueryMatch((*i)->GetTitle(), query_nodes.get(),
+                              &match_position)) {
+      matches->push_back(TitleMatch());
+      matches->back().node = *i;
+      matches->back().match_positions.swap(match_position);
+      if (matches->size() == max_count)
+        break;
+    }
   }
 }
 
