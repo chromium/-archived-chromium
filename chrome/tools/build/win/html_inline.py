@@ -21,7 +21,7 @@ import mimetypes
 
 # TODO(rahulk) The default here will change to 'CHROMIUM' as soon as the buildbots
 # are ready with the correct environment variable
-DIST_DEFAULT = 'GOOGLE_CHROME'
+DIST_DEFAULT = 'CHROMIUM'
 DIST_ENV_VAR = 'CHROMIUM_BUILD'
 DIST_SUBSTR = '%DISTRIBUTION%'
 
