@@ -219,6 +219,11 @@ TEST_F(DiskCacheTest, CacheBackendPerformance) {
   delete cache;
 }
 
+// Creating and deleting "entries" on a block-file is something quite frequent
+// (after all, almost everything is stored on block files). The operation is
+// almost free when the file is empty, but can be expensive if the file gets
+// fragmented, or if we have multiple files. This test measures that scenario,
+// by using multiple, highly fragmented files.
 TEST_F(DiskCacheTest, BlockFilesPerformance) {
   std::wstring path = GetCachePath();
   ASSERT_TRUE(DeleteCache(path.c_str()));
