@@ -15,6 +15,9 @@ call %SolutionDir%\..\third_party\cygwin\setup_env.bat
 :: Load version digits as environment variables
 cat %SolutionDir%\VERSION | sed "s/\(.*\)/set \1/" > %VarsBat%
 
+REM TODO(rahulk) this line will be removed once google chrome buildbots are setup properly
+set CHROMIUM_BUILD="_google_chrome"
+
 :: Load branding strings as environment variables
 set Distribution="chromium"
 if "%CHROMIUM_BUILD%" == "_google_chrome" set Distribution="google_chrome"

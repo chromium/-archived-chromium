@@ -5,6 +5,7 @@ dependents = [
   'USER32.dll',
   'ADVAPI32.dll',
   'SHELL32.dll',
+  'VERSION.dll',
 ]
 
 delay_loaded = [

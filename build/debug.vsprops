@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="debug"
-	InheritedPropertySheets=".\internal\essential.vsprops;internal\chromium_build$(CHROMIUM_BUILD).vsprops"
+	InheritedPropertySheets=".\internal\essential.vsprops;internal\chromium_build_google_chrome.vsprops"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
