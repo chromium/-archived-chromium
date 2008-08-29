@@ -31,6 +31,12 @@ typedef HFONT FontHandle;
 #elif defined(OS_MACOSX)
 typedef CGImageRef IconHandle;
 typedef CTFontRef FontHandle;
+#elif defined(OS_LINUX)
+// TODO(erg): Type needs to be defined for half the rest of the stack to
+// compile. When the corresponding implementation to this file gets written,
+// these void pointers need to be replaced with whatever we end up using.
+typedef void* IconHandle;
+typedef void* IconHandle;
 #endif
 
 class SkGraphicsContext {
@@ -142,4 +148,3 @@ class SkGraphicsContext {
 };
 
 #endif  // SkGraphicsContext_h
-

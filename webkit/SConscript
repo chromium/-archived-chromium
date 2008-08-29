@@ -166,6 +166,7 @@ env.Append(
 
 # This list is the SConscripts that work on Windows and Linux.
 sconscript_dirs = [
+  'SConscript.port',
   'SConscript.javascriptcore_pcre',
   'build/JSConfig/SConscript',
   'build/JavaScriptCore/SConscript',
@@ -176,7 +177,6 @@ if env['PLATFORM'] == 'win32':
   # These extra dirs aren't win32-specific, they're just the dirs that
   # haven't yet been made portable.
   sconscript_dirs.extend([
-    'SConscript.port',
     'activex_shim/SConscript',
     'activex_shim_dll/SConscript',
     'build/localized_strings/SConscript',
