@@ -17,7 +17,7 @@
 <translation id="1144950271450340860">Megpróbálta elérni a(z) &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; címet, de a szerver olyan tanúsítványt mutatott fel, amelyet egy olyan kibocsátó állított ki, amelyben nem bízik meg számítógépének operációs rendszere. Ez azt jelentheti, hogy a szerver hozta létre a saját maga biztonsági tanúsítványát, amelyet a Googe Chrome nem tud elfogadni, vagy egy támadó próbálja meg nyomon követni a kommunikációját. Javasoljuk, hogy ne menjen tovább, &lt;strong&gt;különösen&lt;/strong&gt; akkor, ha ezt a figyelmeztetést még nem látta ezen a webhelyen.</translation>
 <translation id="6009537148180854585">Megpróbálta elérni a(z) &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; domaint, de a szerver tanúsítványa hibás. A Google Chrome nem tud hibás tanúsítványt feldolgozni; ennek következtében nem tudja igazolni azt a webhelyet, amelyet el akart érni. A kapcsolat nem biztonságos, ezért nem javasoljuk a továbblépést.</translation>
 <translation id="7106741999175697885">Feladatkezelő - Google Chrome</translation>
-<translation id="1195935957447623558">A Google Chrome nem záródott be megfelelően. Kattintson a &quot;Visszaállítás&quot; lehetőségre, ha újra meg szeretné nyitni az oldalakat.</translation>
+<translation id="1195935957447623558">A Google Chrome nem záródott be megfelelően. Kattintson a &quot;Visszaállítás&quot; gombra, ha újra meg szeretné nyitni az oldalakat.</translation>
 <translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
 <translation id="2044287590254833138">Google Chrome Eszköztár</translation>
 <translation id="8449380764213232436">A következő elemek importálása folyamatban van, innen <ph name="BROWSER_COMPONENT"/>:</translation>

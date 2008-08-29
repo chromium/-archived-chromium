@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <!DOCTYPE translationbundle>
 <translationbundle lang="hu">
-<translation id="362276910939193118">Teljes előzmények megjelenítése</translation>
+<translation id="362276910939193118">Minden előzmény megjelenítése</translation>
 <translation id="1586296736502814947">(Nincs elérhető művelet)</translation>
 <translation id="7977590112176369853">&lt;lekérdezés megadása&gt;</translation>
 <translation id="6503077044568424649">Leggyakrabban látogatott webhelyek</translation>
@@ -166,7 +166,7 @@
 <translation id="3183922693828471536">Görgessen ide</translation>
 <translation id="4610637590575890427">Valójában ide szeretett volna menni: <ph name="SITE"/>?</translation>
 <translation id="8182985032676093812"><ph name="PAGE_URL"/> forrása</translation>
-<translation id="4880827082731008257">Keresési előzmények</translation>
+<translation id="4880827082731008257">Keresés az előzmények között</translation>
 <translation id="5650551054760837876">Nincs keresési eredmény</translation>
 <translation id="7596288230018319236">Az összes meglátogatott oldal itt jelenik meg, kivéve azokat, amelyeket inkognitóablakban nyit meg. Az oldalon található Keresés gomb segítségével az előzmények bármely oldalán kereshet.</translation>
 <translation id="7377249249140280793"><ph name="RELATIVE_DATE"/> - <ph name="FULL_DATE"/></translation>
@@ -228,7 +228,7 @@
 <translation id="4874539263382920044">A címnek legalább egy karaktert kell tartalmaznia</translation>
 <translation id="2115926821277323019">Érvényes URL-nek kell lennie</translation>
 <translation id="2794293857160098038">Alapértelmezett keresési beállítások</translation>
-<translation id="5605623530403479164">Más keresők</translation>
+<translation id="5605623530403479164">További keresők</translation>
 <translation id="8421864404045570940"><ph name="NUMBER_DEFAULT"/> másodperc</translation>
 <translation id="2820806154655529776"><ph name="NUMBER_ONE"/> másodperc</translation>
 <translation id="4197700912384709145"><ph name="NUMBER_ZERO"/> másodperc</translation>
@@ -305,7 +305,7 @@
 <translation id="1829244130665387512">Keresés ezen az oldalon</translation>
 <translation id="2955913368246107853">Keresősáv bezárása</translation>
 <translation id="7564847347806291057">Folyamat befejezése</translation>
-<translation id="5981759340456370804">Statisztikák a számítógépeseknek</translation>
+<translation id="5981759340456370804">Statisztikák számítógépeseknek</translation>
 <translation id="5233231016133573565">Folyamat azonosítója</translation>
 <translation id="7629827748548208700">Lap: <ph name="TAB_NAME"/></translation>
 <translation id="6513615899227776181">Plugin: <ph name="PLUGIN_NAME"/></translation>
@@ -338,7 +338,7 @@
 <translation id="2435457462613246316">Jelszó megjelenítése</translation>
 <translation id="4565377596337484307">Jelszó elrejtése</translation>
 <translation id="4571852245489094179">Könyvjelzők és beállítások importálása</translation>
-<translation id="2192505247865591433">Feladó:</translation>
+<translation id="2192505247865591433">Innen:</translation>
 <translation id="1076818208934827215">Microsoft Internet Explorer</translation>
 <translation id="5119173345047096771">Mozilla Firefox</translation>
 <translation id="3031557471081358569">Válassza ki az importálandó elemeket:</translation>
@@ -507,7 +507,7 @@
 <translation id="5264618369089706215">Keresések</translation>
 <translation id="3810973564298564668">Szerkesztés</translation>
 <translation id="2559292239863842334">Az Ön által más webhelyeken használt keresőmezők itt is megjelennek.</translation>
-<translation id="8413126021676339697">Teljes előzmények megjelenítése</translation>
+<translation id="8413126021676339697">Minden előzmény megjelenítése</translation>
 <translation id="3549657413697417275">Keresés az előzményekben</translation>
 <translation id="495091556140548787">Nemrégiben bezárt lapok</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
@@ -605,8 +605,8 @@
 <translation id="4307992518367153382">Alapok</translation>
 <translation id="1709220265083931213">A motorháztető alatt</translation>
 <translation id="1674989413181946727">Számítógépre érvényes SSL-beállítások:</translation>
-<translation id="9015241028623917394">Az aktuális oldal ellenőrzése</translation>
-<translation id="8502249598105294518"><ph name="PRODUCT_NAME"/> személyre szabása és irányítása</translation>
+<translation id="9015241028623917394">Az aktuális oldal szerkesztése</translation>
+<translation id="8502249598105294518"><ph name="PRODUCT_NAME"/> személyre szabása és beállításai</translation>
 <translation id="4475552974751346499">Letöltések keresése</translation>
 <translation id="3473034187222004855">Fájl &amp;elérési útjának másolása</translation>
 <translation id="3577682619813191010">&amp;Fájl másolása</translation>
@@ -636,10 +636,10 @@
 <translation id="7451556917824271099">A(z) &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; webhely &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt; webhelyről is tartalmaz elemeket, amely ártalmas programokat is tárol – olyan szoftvert, amely árthat számítógépének, vagy engedélye nélkül műveleteket végezhet.  Ha csak meglátogatja a kártékony programot tartalmazó webhelyet, már az is megfertőzheti számítógépét.</translation>
 <translation id="5048040498971143039">Keresési találatok erre a kifejezésre: &quot;<ph name="SEARCH_STRING"/>&quot;</translation>
 <translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/>/<ph name="DOWNLOAD_TOTAL"/>, <ph name="TIME_LEFT"/></translation>
-<translation id="4692623383562244444">Keresőmotorok</translation>
+<translation id="4692623383562244444">Keresők</translation>
 <translation id="5584537427775243893">Importálás folyamatban...</translation>
 <translation id="6248988683584659830">Keresési beállítások</translation>
-<translation id="2354001756790975382">Más könyvjelzők</translation>
+<translation id="2354001756790975382">További könyvjelzők</translation>
 <translation id="5155632014218747366">A webhellyel kapcsolatosan részletes információt talál a következő oldalon: Google <ph name="DIAGNOSTIC_PAGE"/> - <ph name="DOMAIN"/>.</translation>
 <translation id="3605499851022050619">Diagnosztikai oldal - Biztonságos böngészés</translation>
 <translation id="3115147772012638511">Betöltés a gyorsítótárból folyamatban...</translation>

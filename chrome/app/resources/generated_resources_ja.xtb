@@ -452,7 +452,7 @@
 <translation id="7905536804357499080">現在のページを使用</translation>
 <translation id="9189691339671500905">マルチボックスで使用する検索エンジンを指定します。</translation>
 <translation id="7125953501962311360">既定のブラウザ:</translation>
-<translation id="762917759028004464">現在、<ph name="BROWSER_NAME"/> が既定のブラウザに設定されています。</translation>
+<translation id="762917759028004464">既定のブラウザは <ph name="BROWSER_NAME"/> に設定されています。</translation>
 <translation id="6144890426075165477">現在、<ph name="PRODUCT_NAME"/> は既定のブラウザに設定されていません。</translation>
 <translation id="6756161853376828318"><ph name="PRODUCT_NAME"/> を既定のブラウザにする</translation>
 <translation id="8986267729801483565">ダウンロード保存先:</translation>
@@ -460,8 +460,8 @@
 <translation id="7754704193130578113">ファイルごとに保存する場所を確認する</translation>
 <translation id="724208122063442954">いくつかのファイル形式はダウンロード後自動的に開くように設定されていますが、これをブロックして開かないようにします。</translation>
 <translation id="6451650035642342749">ファイルを自動的に開かないようにする</translation>
-<translation id="3702416240431471861">Google Gears:</translation>
-<translation id="5452592754878692665">Google Gears の設定変更</translation>
+<translation id="3702416240431471861">Gears:</translation>
+<translation id="5452592754878692665">Gears の設定変更</translation>
 <translation id="5384051050210890146">信頼できる SSL 証明書を選択してください。</translation>
 <translation id="1521442365706402292">証明書の管理</translation>
 <translation id="7767960058630128695">パスワード:</translation>
