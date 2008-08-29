@@ -4,11 +4,13 @@
 
 #include <string>
 
+#include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/chrome_constants.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/test/automation/constrained_window_proxy.h"
 #include "chrome/test/automation/browser_proxy.h"
@@ -18,7 +20,14 @@
 #include "chrome/views/event.h"
 #include "net/base/net_util.h"
 
-typedef UITest AutomationProxyTest;
+class AutomationProxyTest : public UITest {
+ protected:
+  AutomationProxyTest() {
+    CommandLine::AppendSwitchWithValue(&launch_arguments_,
+                                       switches::kLang,
+                                       L"en-us");
+  }
+};
 
 class AutomationProxyVisibleTest : public UITest {
  protected:

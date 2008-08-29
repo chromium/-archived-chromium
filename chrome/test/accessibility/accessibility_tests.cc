@@ -4,14 +4,17 @@
 
 #include <Objbase.h>
 #include <Oleacc.h>
+
+#include "base/command_line.h"
+#include "base/file_util.h"
+#include "base/win_util.h"
+#include "chrome/app/chrome_dll_resource.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/test/accessibility/accessibility_util.h"
 #include "chrome/test/ui/ui_test.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
-#include "chrome/app/chrome_dll_resource.h"
-#include "base/win_util.h"
-#include "base/file_util.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 
@@ -25,6 +28,9 @@ class AccessibilityTest : public UITest {
   AccessibilityTest() {
     show_window_ = true;
     CoInitialize(NULL);
+    CommandLine::AppendSwitchWithValue(&launch_arguments_,
+                                       switches::kLang,
+                                       L"en-us");
   }
   ~AccessibilityTest() {
     CoUninitialize();
