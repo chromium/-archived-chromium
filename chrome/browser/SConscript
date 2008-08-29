@@ -46,6 +46,7 @@ env.Prepend(
         'LIBXML_STATIC',
         'PNG_USER_CONFIG',
         'CHROME_PNG_WRITE_SUPPORT',
+        'GOOGLE_CHROME_BUILD',
     ],
     CCFLAGS = [
         '/TP',
@@ -200,7 +201,6 @@ input_files = [
     'native_ui_contents.cc',
     'navigation_controller.cc',
     'navigation_entry.cc',
-    'navigation_performance_viewer.cc',
     'net/dns_global.cc',
     'net/dns_host_info.cc',
     'net/dns_master.cc',
