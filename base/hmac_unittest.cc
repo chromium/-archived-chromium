@@ -1,14 +1,11 @@
 // Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-//
-// Program to generate an HMAC-SHA1 digest for a given string, for use in
-// calculating and verifying SafeBrowsing MACs.
 
 #include <string>
 
 #include "base/hmac.h"
-#include "base/no_windows2000_unittest.h"
+#include "testing/gtest/include/gtest/gtest.h"
 
 static const int kKeySize = 16;
 static const int kDigestSize = 20;
@@ -50,15 +47,7 @@ const char kMessage[] =
 "-phish-shavar_a_2629-2631\nu:s.ytimg.com/safebrowsing/rd/goog-phish-shavar_a_2"
 "626-2628\nu:s.ytimg.com/safebrowsing/rd/goog-phish-shavar_a_2625\n";
 
-// TODO(paulg): Bug: http://b/1084719, skip this test on Windows 2000 until
-//              this bug is fixed.
-class HMACTest : public NoWindows2000Test<testing::Test> {
-};
-
-TEST_F(HMACTest, HmacSafeBrowsingResponseTest) {
-  if (IsTestCaseDisabled())
-    return;
-
+TEST(HMACTest, HmacSafeBrowsingResponseTest) {
   std::string message_data(kMessage);
 
   HMAC hmac(HMAC::SHA1, kClientKey, kKeySize);
@@ -67,4 +56,3 @@ TEST_F(HMACTest, HmacSafeBrowsingResponseTest) {
   EXPECT_TRUE(hmac.Sign(message_data, calculated_hmac, kDigestSize));
   EXPECT_EQ(memcmp(kReceivedHmac, calculated_hmac, kDigestSize), 0);
 }
-
