@@ -135,7 +135,7 @@ void SafeBrowsingProtocolManager::GetFullHash(
 
   fetcher->set_load_flags(net::LOAD_DISABLE_CACHE);
   fetcher->set_request_context(Profile::GetDefaultRequestContext());
-  fetcher->set_upload_data("text/plain", get_hash.data());
+  fetcher->set_upload_data("text/plain", get_hash);
   fetcher->Start();
 }
 
