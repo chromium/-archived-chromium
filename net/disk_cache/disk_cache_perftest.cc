@@ -6,6 +6,7 @@
 #include "base/scoped_handle.h"
 #include "base/timer.h"
 #include "net/base/net_errors.h"
+#include "net/disk_cache/block_files.h"
 #include "net/disk_cache/disk_cache.h"
 #include "net/disk_cache/disk_cache_test_base.h"
 #include "net/disk_cache/disk_cache_test_util.h"
@@ -162,6 +163,11 @@ int TimeRead(int num_entries, disk_cache::Backend* cache,
   return expected;
 }
 
+int BlockSize() {
+  // We can use form 1 to 4 blocks.
+  return (rand() & 0x3) + 1;
+}
+
 }  // namespace
 
 TEST_F(DiskCacheTest, Hash) {
@@ -213,3 +219,42 @@ TEST_F(DiskCacheTest, CacheBackendPerformance) {
   delete cache;
 }
 
+TEST_F(DiskCacheTest, BlockFilesPerformance) {
+  std::wstring path = GetCachePath();
+  ASSERT_TRUE(DeleteCache(path.c_str()));
+
+  disk_cache::BlockFiles files(path);
+  ASSERT_TRUE(files.Init(true));
+
+  int seed = static_cast<int>(Time::Now().ToInternalValue());
+  srand(seed);
+
+  const int kNumEntries = 60000;
+  int32 buffer[kNumEntries];
+  memset(buffer, 0, sizeof(buffer));
+  disk_cache::Addr* address = reinterpret_cast<disk_cache::Addr*>(buffer);
+  ASSERT_EQ(sizeof(*address), sizeof(*buffer));
+  
+  PerfTimeLogger timer1("Fill three block-files");
+
+  // Fill up the 32-byte block file (use three files).
+  for (int i = 0; i < kNumEntries; i++) {
+    EXPECT_TRUE(files.CreateBlock(disk_cache::RANKINGS, BlockSize(),
+                                  &address[i]));
+  }
+
+  timer1.Done();
+  PerfTimeLogger timer2("Create and delete blocks");
+
+  for (int i = 0; i < 200000; i++) {
+    int entry = rand() * (kNumEntries / RAND_MAX + 1);
+    if (entry >= kNumEntries)
+      entry = 0;
+
+    files.DeleteBlock(address[entry], false);
+    EXPECT_TRUE(files.CreateBlock(disk_cache::RANKINGS, BlockSize(),
+                                  &address[entry]));
+  }
+
+  timer2.Done();
+}
