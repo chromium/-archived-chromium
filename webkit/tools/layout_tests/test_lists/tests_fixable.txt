@@ -120,10 +120,6 @@ V8 | KJS # LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL | PASS
 V8 | KJS # LayoutTests/css2.1/t1202-counter-04-b.html = FAIL
 V8 | KJS # LayoutTests/css2.1/t1202-counters-04-b.html = FAIL
 
-// Bug 1316382: fails now that we use the same font code path in test_shell
-// as in Chrome: some characters that should have zero width don't
-V8 | KJS # LayoutTests/fast/text/zero-width-characters.html = FAIL
-
 // Bug 1124513: the max length is being applied correctly, but the over- and
 // under-lines aren't placed properly over the "x".
 // The under-lines are a cosmetic error which is not necessary to fix for Beta. (eseidel)

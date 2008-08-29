@@ -50,7 +50,8 @@ SimpleFontData::SimpleFontData(const FontPlatformData& f, bool customFont, bool 
     , m_isCustomFont(customFont)
     , m_isLoading(loading)
     , m_smallCapsFontData(0)
-    , m_cjkGlyphWidth(cGlyphWidthUnknown)
+    , m_zeroWidthFontData(new ZeroWidthFontData())
+    , m_cjkWidthFontData(new CJKWidthFontData())
 {
 #if ENABLE(SVG_FONTS) && !PLATFORM(QT)
     if (SVGFontFaceElement* svgFontFaceElement = svgFontData ? svgFontData->svgFontFaceElement() : 0) {
@@ -77,6 +78,8 @@ SimpleFontData::SimpleFontData(const FontPlatformData& f, bool customFont, bool 
         determinePitch();
         m_missingGlyphData.fontData = this;
         m_missingGlyphData.glyph = 0;
+        m_zeroWidthFontData->init(this);
+        m_cjkWidthFontData->init(this);
         return;
     }
 #endif
@@ -92,6 +95,8 @@ SimpleFontData::SimpleFontData(const FontPlatformData& f, bool customFont, bool 
         determinePitch();
         m_missingGlyphData.fontData = this;
         m_missingGlyphData.glyph = 0;
+        m_zeroWidthFontData->init(this);
+        m_cjkWidthFontData->init(this);
         return;
     }
 
@@ -100,11 +105,18 @@ SimpleFontData::SimpleFontData(const FontPlatformData& f, bool customFont, bool 
     // every character and the space are the same width.  Otherwise we round.
     static const UChar32 space_char = ' ';
     m_spaceGlyph = glyphPageZero->glyphDataForCharacter(space_char).glyph;
-    float width = widthForGlyph(space_char, m_spaceGlyph);
+    float width = widthForGlyph(m_spaceGlyph);
     m_spaceWidth = width;
     determinePitch();
     m_adjustedSpaceWidth = m_treatAsFixedPitch ? ceilf(width) : roundf(width);
 
+    // TODO(dglazkov): Investigate and implement across platforms, if needed
+#if PLATFORM(WIN)
+    // ZERO WIDTH SPACES are explicitly mapped to share the glyph
+    // with SPACE (with width adjusted to 0) during GlyphPage::fill
+    // This is currently only implemented for Windows port. The FontData
+    // remapping may very well be needed for other platforms.
+#else
     // Force the glyph for ZERO WIDTH SPACE to have zero width, unless it is shared with SPACE.
     // Helvetica is an example of a non-zero width ZERO WIDTH SPACE glyph.
     // See <http://bugs.webkit.org/show_bug.cgi?id=13178>
@@ -117,9 +129,23 @@ SimpleFontData::SimpleFontData(const FontPlatformData& f, bool customFont, bool 
         else
             LOG_ERROR("Font maps SPACE and ZERO WIDTH SPACE to the same glyph. Glyph width not overridden.");
     }
+#endif
 
     m_missingGlyphData.fontData = this;
     m_missingGlyphData.glyph = 0;
+    m_zeroWidthFontData->init(this);
+    m_cjkWidthFontData->init(this);
+}
+
+SimpleFontData::SimpleFontData()
+    : m_treatAsFixedPitch(false)
+#if ENABLE(SVG_FONTS)
+    , m_svgFontData(0)
+#endif
+    , m_isCustomFont(0)
+    , m_isLoading(0)
+    , m_smallCapsFontData(0)
+{
 }
 
 SimpleFontData::~SimpleFontData()
@@ -133,48 +159,15 @@ SimpleFontData::~SimpleFontData()
     // it will be deleted then, so we don't need to do anything here.
 }
 
-// Use the character corresponding the glyph to determine if the glyph
-// is a fixed width CJK glyph. This will allow us to save on storage in
-// GlyphWidthMap for CJK glyph entries having the same width value.
-float SimpleFontData::widthForGlyph(UChar32 c, Glyph glyph) const
+float SimpleFontData::widthForGlyph(Glyph glyph) const
 {
-    bool is_CJK = IsCJKCodePoint(c);
-    float width = is_CJK ? m_cjkGlyphWidth : m_glyphToWidthMap.widthForGlyph(glyph);
-
-#ifndef NDEBUG
-    // Test our optimization that assuming all CGK glyphs have the same width
-    if (is_CJK) {
-        const float actual_width = platformWidthForGlyph(glyph);
-        ASSERT((cGlyphWidthUnknown == width) || (actual_width == width));
-    }
-#endif
-
-    // Some characters should be zero width and we want to ignore whatever
-    // crazy stuff the font may have (or not defined). If the font doesn't
-    // define it, we don't want to measure the width of the "invalid character"
-    // box, for example.
-    //
-    // Note that we have to exempt control characters, which
-    // treatAsZeroWidthSpace would normally return true for. This is primarily
-    // for \n since it will be rendered as a regular space in HTML.
-    //
-    // TODO(brettw): we should have Font::treatAsZeroWidthSpace return true for
-    // zero width spaces (U+200B) just like Font::treatAsSpace will return true
-    // for spaces. Then the additional OR is not necessary.
-    if (c > ' ' && (Font::treatAsZeroWidthSpace(c) || c == 0x200b))
-      return 0.0f;
-
+    float width = m_glyphToWidthMap.widthForGlyph(glyph);
     if (width != cGlyphWidthUnknown)
         return width;
 
     width = platformWidthForGlyph(glyph);
+    m_glyphToWidthMap.setWidthForGlyph(glyph, width);
 
-    if (is_CJK) {
-        m_cjkGlyphWidth = width;
-    } else {
-        m_glyphToWidthMap.setWidthForGlyph(glyph, width);
-    }
-    
     return width;
 }
 
@@ -188,21 +181,57 @@ bool SimpleFontData::isSegmented() const
     return false;
 }
 
-bool SimpleFontData::IsCJKCodePoint(UChar32 c) const
+const SimpleFontData* SimpleFontData::zeroWidthFontData() const
 {
-    // 3400..4DBF; CJK Unified Ideographs Extension A
-    // 4DC0..4DFF; Yijing Hexagram Symbols
-    // 4E00..9FFF; CJK Unified Ideographs
-    if ((0x3400 <= c) && (c <= 0x9FFF))
-        return true;
-    // AC00..D7AF; Hangul Syllables
-    if ((0xAC00 <= c) && (c <= 0xD7AF))
-        return true;
-    // F900..FAFF; CJK Compatibility Ideographs
-    if ((0xF900 <= c) && (c <= 0xFAFF))
-        return true;
+    return m_zeroWidthFontData.get();
+}
 
-    return false;
+const SimpleFontData* SimpleFontData::cjkWidthFontData() const
+{
+    return m_cjkWidthFontData.get();
+}
+
+void ZeroWidthFontData::init(SimpleFontData* fontData)
+{
+    m_font = fontData->m_font;
+    m_smallCapsFontData = fontData->m_smallCapsFontData;
+    m_ascent = fontData->m_ascent;
+    m_descent = fontData->m_descent;
+    m_lineSpacing = fontData->m_lineSpacing;
+    m_lineGap = fontData->m_lineGap;
+    m_maxCharWidth = 0;
+    m_avgCharWidth = 0;
+    m_xHeight = fontData->m_xHeight;
+    m_unitsPerEm = fontData->m_unitsPerEm;
+    m_spaceWidth = 0;
+    m_spaceGlyph = 0;
+    m_adjustedSpaceWidth = fontData->m_adjustedSpaceWidth;
+#if PLATFORM(WIN)
+    m_scriptCache = 0;
+    m_scriptFontProperties = 0;
+#endif
+}
+
+CJKWidthFontData::CJKWidthFontData()
+    : m_cjkGlyphWidth(cGlyphWidthUnknown)
+{
+}
+
+float CJKWidthFontData::widthForGlyph(Glyph glyph) const
+{
+    if (m_cjkGlyphWidth != cGlyphWidthUnknown)
+        return m_cjkGlyphWidth;
+
+    float width = platformWidthForGlyph(glyph);
+    m_cjkGlyphWidth = width;
+
+#ifndef NDEBUG
+    // Test our optimization that assuming all CGK glyphs have the same width
+    const float actual_width = platformWidthForGlyph(glyph);
+    ASSERT((cGlyphWidthUnknown == width) || (actual_width == width));
+#endif
+
+    return width;
 }
 
 } // namespace WebCore

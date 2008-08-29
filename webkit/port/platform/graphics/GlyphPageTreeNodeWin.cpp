@@ -49,6 +49,16 @@ static void FillEmptyGlyphs(GlyphPage* page) {
     page->setGlyphDataForIndex(i, NULL, NULL);
 }
 
+// Lazily initializes space glyph
+static Glyph InitSpaceGlyph(HDC dc, Glyph* space_glyph) {
+    if (*space_glyph)
+        return *space_glyph;
+    static wchar_t space = ' ';
+    GetGlyphIndices(dc, &space, 1, space_glyph, 0);
+    return *space_glyph;
+}
+
+
 // Fills a page of glyphs in the Basic Multilingual Plane (<= U+FFFF). We
 // can use the standard Windows GDI functions here. The input buffer size is
 // assumed to be GlyphPage::size. Returns true if any glyphs were found.
@@ -126,36 +136,37 @@ static bool FillBMPGlyphs(UChar* buffer,
         !(tm.tmPitchAndFamily & TMPF_TRUETYPE))
       invalid_glyph = 0x1F;
 
-    WORD space_glyph = 0;  // Glyph for a space. Lazily filled, see below.
+    Glyph space_glyph = 0;  // Glyph for a space. Lazily filled.
 
     for (unsigned i = 0; i < GlyphPage::size; i++) {
+        UChar c = buffer[i];
+        Glyph glyph = localGlyphBuffer[i];
+        const SimpleFontData* glyphFontData = fontData;
         // When this character should be a space, we ignore whatever the font
         // says and use a space. Otherwise, if fonts don't map one of these
         // space or zero width glyphs, we will get a box.
-        //
-        // TODO(brettw): we should have Font::treatAsZeroWidthSpace return true
-        // for zero width spaces (U+200B) just like Font::treatAsSpace will
-        // return true for spaces. Then the additional OR is not necessary.
-        if (buffer[i] > ' ' &&
-            (Font::treatAsSpace(buffer[i]) ||
-             Font::treatAsZeroWidthSpace(buffer[i]) ||
-             buffer[i] == 0x200B)) {
-            // Hard code the glyph indices for characters that should be treated
-            // like spaces.
-            if (!space_glyph) {
-                // Get the glyph index for space.
-                wchar_t space = ' ';
-                GetGlyphIndices(dc, &space, 1, &space_glyph, 0);
-            }
-            page->setGlyphDataForIndex(i, space_glyph, fontData);
-        } else if (localGlyphBuffer[i] == invalid_glyph) {
+        if (Font::treatAsSpace(c)) {
+            // Hard code the glyph indices for characters that should be
+            // treated like spaces.
+            glyph = InitSpaceGlyph(dc, &space_glyph);
+        // TODO(dglazkov): change Font::treatAsZeroWidthSpace to use
+        // u_hasBinaryProperty, per jungshik's comment here:
+        // https://bugs.webkit.org/show_bug.cgi?id=20237#c6.
+        // Then the additional OR won't be necessary.
+        } else if (Font::treatAsZeroWidthSpace(c) || c == 0x200B) {
+            glyph = InitSpaceGlyph(dc, &space_glyph);
+            glyphFontData = fontData->zeroWidthFontData();
+        } else if (glyph == invalid_glyph) {
             // WebKit expects both the glyph index and FontData
             // pointer to be NULL if the glyph is not present
-            page->setGlyphDataForIndex(i, 0, 0);
+            glyph = 0;
+            glyphFontData = 0;
         } else {
+            if (Font::isCJKCodePoint(c))
+                glyphFontData = fontData->cjkWidthFontData();
             have_glyphs = true;
-            page->setGlyphDataForIndex(i, localGlyphBuffer[i], fontData);
         }
+        page->setGlyphDataForCharacter(i, glyph, glyphFontData);
     }
 
     SelectObject(dc, old_font);

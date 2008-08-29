@@ -163,7 +163,7 @@ void WidthIterator::advance(int offset, GlyphBuffer* glyphBuffer)
             float tabWidth = m_font->tabWidth();
             width = tabWidth - fmodf(m_run.xPos() + runWidthSoFar, tabWidth);
         } else {
-            width = fontData->widthForGlyph(c, glyph);
+            width = fontData->widthForGlyph(glyph);
             // We special case spaces in two ways when applying word rounding.
             // First, we round spaces to an adjusted width in all fonts.
             // Second, in fixed-pitch fonts we ensure that all characters that
@@ -807,6 +807,19 @@ int Font::offsetForPositionForSimpleText(const TextRun& run, int x, bool include
 FontSelector* Font::fontSelector() const
 {
     return m_fontList ? m_fontList->fontSelector() : 0;
+}
+
+// static
+bool Font::isCJKCodePoint(UChar32 c)
+{
+    // AC00..D7AF; Hangul Syllables
+    if ((0xAC00 <= c) && (c <= 0xD7AF))
+        return true;
+
+    // CJK ideographs
+    UErrorCode errorCode;
+    return uscript_getScript(c, &errorCode) == USCRIPT_HAN &&
+        U_SUCCESS(errorCode);
 }
 
 }
