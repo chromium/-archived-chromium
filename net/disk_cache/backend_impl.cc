@@ -91,7 +91,7 @@ void CleanupTask::Run() {
   }
 }
 
-// Returns a full path to reneme the current cache, in order to delete it. path
+// Returns a full path to rename the current cache, in order to delete it. path
 // is the current folder location, and name is the current folder name.
 std::wstring GetTempCacheName(const std::wstring& path,
                               const std::wstring& name) {
@@ -946,6 +946,7 @@ void BackendImpl::TrimCache(bool empty) {
   Rankings::ScopedRankingsBlock next(&rankings_, rankings_.GetPrev(node.get()));
   DCHECK(next.get());
   int target_size = empty ? 0 : LowWaterAdjust(max_size_);
+  int deleted = 0;
   while (data_->header.num_bytes > target_size && next.get()) {
     node.reset(next.release());
     next.reset(rankings_.GetPrev(node.get()));
@@ -968,6 +969,11 @@ void BackendImpl::TrimCache(bool empty) {
       entry->Release();
       if (!empty)
         stats_.OnEvent(Stats::TRIM_ENTRY);
+      if (++deleted == 4 && !empty) {
+        MessageLoop::current()->PostTask(FROM_HERE,
+            factory_.NewRunnableMethod(&BackendImpl::TrimCache, false));
+        break;
+      }
     }
   }
 

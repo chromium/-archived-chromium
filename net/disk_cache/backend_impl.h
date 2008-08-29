@@ -7,6 +7,7 @@
 #ifndef NET_DISK_CACHE_BACKEND_IMPL_H__
 #define NET_DISK_CACHE_BACKEND_IMPL_H__
 
+#include "base/compiler_specific.h"
 #include "base/timer.h"
 #include "net/disk_cache/block_files.h"
 #include "net/disk_cache/disk_cache.h"
@@ -22,11 +23,13 @@ class BackendImpl : public Backend {
  public:
   explicit BackendImpl(const std::wstring& path)
       : path_(path), block_files_(path), mask_(0), max_size_(0),
-        init_(false), restarted_(false), unit_test_(false) {}
+        init_(false), restarted_(false), unit_test_(false),
+        ALLOW_THIS_IN_INITIALIZER_LIST(factory_(this)) {}
   // mask can be used to limit the usable size of the hash table, for testing.
   BackendImpl(const std::wstring& path, uint32 mask)
       : path_(path), block_files_(path), mask_(mask), max_size_(0),
-        init_(false), restarted_(false), unit_test_(false) {}
+        init_(false), restarted_(false), unit_test_(false),
+        ALLOW_THIS_IN_INITIALIZER_LIST(factory_(this)) {}
   ~BackendImpl();
 
   // Performs general initialization for this current instance of the cache.
@@ -177,6 +180,7 @@ class BackendImpl : public Backend {
   Stats stats_;  // Usage statistcs.
   base::RepeatingTimer<BackendImpl> timer_;  // Usage timer.
   TraceObject trace_object_;  // Inits and destroys internal tracing.
+  ScopedRunnableMethodFactory<BackendImpl> factory_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BackendImpl);
 };
