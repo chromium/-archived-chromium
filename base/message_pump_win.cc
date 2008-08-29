@@ -203,16 +203,17 @@ void MessagePumpWin::InitMessageWnd() {
 }
 
 void MessagePumpWin::HandleWorkMessage() {
+  // Let whatever would have run had we not been putting messages in the queue
+  // run now.  This is an attempt to make our dummy message not starve other
+  // messages that may be in the Windows message queue.  We also need to call
+  // this in order to ensure that have_work_ gets reset to 0.
+  ProcessPumpReplacementMessage();
+
   // If we are being called outside of the context of Run, then don't do
   // anything.  This could correspond to a MessageBox call or something of
   // that sort.
   if (!state_)
     return;
-
-  // Let whatever would have run had we not been putting messages in the queue
-  // run now.  This is an attempt to make our dummy message not starve other
-  // messages that may be in the Windows message queue.
-  ProcessPumpReplacementMessage();
 
   // Now give the delegate a chance to do some work.  He'll let us know if he
   // needs to do more work.
