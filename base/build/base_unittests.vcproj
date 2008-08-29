@@ -168,6 +168,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\atomicops_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\clipboard_unittest.cc"
 				>
 			</File>

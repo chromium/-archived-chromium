@@ -248,6 +248,7 @@ if env['PLATFORM'] == 'win32':
 # cross-platform live below.
 test_files = [
     'at_exit_unittest.cc',
+    'atomicops_unittest.cc',
     'command_line_unittest.cc',
     'condition_variable_unittest.cc',
     'histogram_unittest.cc',
