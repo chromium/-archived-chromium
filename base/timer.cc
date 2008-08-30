@@ -45,7 +45,6 @@ Timer::Timer(Time fire_time, Task* task)
   delay_ = static_cast<int>((fire_time_ - creation_time_).InMilliseconds());
   if (delay_ < 0)
     delay_ = 0;
-  DHISTOGRAM_COUNTS(L"Timer.Durations", delay_);
 }
 
 void Timer::Reset() {
