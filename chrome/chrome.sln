@@ -64,7 +64,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "views", "views\views.vcproj
 		{D9DDAF60-663F-49CC-90DC-3D08CC3D1B28} = {D9DDAF60-663F-49CC-90DC-3D08CC3D1B28}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sqlite", "third_party\sqlite\sqlite.vcproj", "{6EAD4A4B-2BBC-4974-8E45-BB5C16CC2AC9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sqlite", "..\third_party\sqlite\sqlite.vcproj", "{6EAD4A4B-2BBC-4974-8E45-BB5C16CC2AC9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{8C27D792-2648-4F5E-9ED0-374276327308} = {8C27D792-2648-4F5E-9ED0-374276327308}
 	EndProjectSection

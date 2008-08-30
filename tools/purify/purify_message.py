@@ -124,7 +124,7 @@ class Stack:
                     # When we leak sqlite stuff, we leak a lot, and the stacks
                     # are all over the place.  For now, let's assume that
                     # sqlite itself is leak free and focus on our calling code.
-                    re.compile('chrome/third_party/sqlite/.*'),
+                    re.compile('third_party/sqlite/.*'),
                     )
 
   pat_unit_test = re.compile('^([a-zA-Z0-9]+)_(\w+)_Test::.*')

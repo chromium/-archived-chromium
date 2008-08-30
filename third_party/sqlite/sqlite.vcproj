@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;.\sqlite.vsprops;$(SolutionDir)..\build\external_code.vsprops;..\..\..\third_party\icu38\build\using_icu.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;.\sqlite.vsprops;$(SolutionDir)..\build\external_code.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -69,7 +69,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;.\sqlite.vsprops;$(SolutionDir)..\build\external_code.vsprops;..\..\..\third_party\icu38\build\using_icu.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;.\sqlite.vsprops;$(SolutionDir)..\build\external_code.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"

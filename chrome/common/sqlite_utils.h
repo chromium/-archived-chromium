@@ -8,7 +8,8 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "chrome/third_party/sqlite/sqlite3.h"
+
+#include "third_party/sqlite/sqlite3.h"
 
 // forward declarations of classes defined here
 class SQLTransaction;
