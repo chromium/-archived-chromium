@@ -637,7 +637,7 @@ TEST_F(AutomationProxyTest3, FrameDocumentCanBeAccessed) {
 #endif
 }
 
-TEST_F(AutomationProxyTest, ConstrainedWindowTest) {
+TEST_F(AutomationProxyTest, DISABLED_ConstrainedWindowTest) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
 
@@ -821,4 +821,3 @@ TEST_F(AutomationProxyVisibleTest, AutocompleteMatchesTest) {
   EXPECT_TRUE(edit->GetAutocompleteMatches(&matches));
   EXPECT_FALSE(matches.empty());
 }
-
