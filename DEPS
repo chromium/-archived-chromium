@@ -15,7 +15,7 @@ deps = {
     "/trunk/deps/third_party/icu38@1227",
 
   "src/v8":
-    "https://svn/r/googleclient/v8/trunk@132113",
+    "http://v8.googlecode.com/svn/trunk@51",
 
   "src/webkit/data/layout_tests/LayoutTests":
     "http://svn.webkit.org/repository/webkit/branches/Safari-3-1-branch/LayoutTests@31256",
