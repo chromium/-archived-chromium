@@ -93,9 +93,6 @@ def CopyAllFilesToStagingDir(config, distribution, staging_dir, output_dir):
   Copies all common files required for various distributions of Chromium and
   also files for the specific Chromium build specified by distribution.
   """
-  # TODO(rahulk) remove the line below once we have setup environment variable
-  # CHROMIUM_BUILD on buildbots appropriately.
-  distribution = '_google_chrome'
   CopySectionFilesToStagingDir(config, 'GENERAL', staging_dir, output_dir)
   if distribution:
     if len(distribution) > 1 and distribution[0] == '_':
