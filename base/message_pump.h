@@ -54,21 +54,22 @@ class MessagePump : public RefCountedThreadSafe<MessagePump> {
   //     bool did_work = DoInternalWork();
   //     if (should_quit_)
   //       break;
+  //
   //     did_work |= delegate_->DoWork();
   //     if (should_quit_)
   //       break;
-  //     if (did_work)
-  //       continue;
   //
-  //     did_work = delegate_->DoDelayedWork();
+  //     did_work |= delegate_->DoDelayedWork();
   //     if (should_quit_)
   //       break;
+  //
   //     if (did_work)
   //       continue;
   //
   //     did_work = delegate_->DoIdleWork();
   //     if (should_quit_)
   //       break;
+  //
   //     if (did_work)
   //       continue;
   //
@@ -80,13 +81,10 @@ class MessagePump : public RefCountedThreadSafe<MessagePump> {
   // completion (for example).  WaitForWork is a private method that simply
   // blocks until there is more work of any type to do.
   //
-  // Notice that the run loop alternates between calling DoInternalWork and
-  // calling the delegate's DoWork method.  This helps ensure that neither work
-  // queue starves the other.  However, DoDelayedWork may be starved.  The
-  // implementation may decide to periodically let some DoDelayedWork calls go
-  // through if either DoInternalWork or DoWork is dominating the run loop.
-  // This can be important for message pumps that are used to drive animations,
-  // for example.
+  // Notice that the run loop cycles between calling DoInternalWork, DoWork,
+  // and DoDelayedWork methods.  This helps ensure that neither work queue
+  // starves the other.  This is important for message pumps that are used to
+  // drive animations, for example.
   //
   // Notice also that after each callout to foreign code, the run loop checks
   // to see if it should quit.  The Quit method is responsible for setting this

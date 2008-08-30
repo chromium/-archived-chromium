@@ -11,6 +11,7 @@
 #include "base/logging.h"
 #include "base/non_thread_safe.h"
 #include "base/revocable_store.h"
+#include "base/time.h"
 #include "base/tracked.h"
 #include "base/tuple.h"
 
@@ -24,6 +25,8 @@ class TimerManager;
 
 class Task;
 
+// TODO(darin): Eliminate TaskBase.  This data is ML specific and is not
+// applicable to other uses of Task.
 class TaskBase : public tracked_objects::Tracked {
  public:
   TaskBase() { Reset(); }
@@ -53,28 +56,23 @@ class TaskBase : public tracked_objects::Tracked {
   // derived classes should attempt this feat, as a replacement for creating a
   // new instance.
   void Reset() {
-    posted_task_delay_ = -1;
     priority_ = 0;
+    delayed_run_time_ = Time();
     next_task_ = NULL;
     nestable_ = true;
+    owned_by_message_loop_ = false;
   }
 
  private:
   friend class base::TimerManager;  // To check is_owned_by_message_loop().
-  friend class MessageLoop;   // To maintain posted_task_delay().
-
-  // Access methods used ONLY by friends in MessageLoop and TimerManager
-  int posted_task_delay() const { return posted_task_delay_; }
-  bool is_owned_by_message_loop() const { return 0 <= posted_task_delay_; }
-  void set_posted_task_delay(int delay) { posted_task_delay_ = delay; }
+  friend class MessageLoop;         // To maintain posted_task_delay().
 
   // Priority for execution by MessageLoop. 0 is default. Higher means run
   // sooner, and lower (including negative) means run less soon.
   int priority_;
 
-  // Slot to hold delay if the task was passed to PostTask().  If it was not
-  // passed to PostTask, then the delay is negative (the default).
-  int posted_task_delay_;
+  // The time when a delayed task should be run.
+  Time delayed_run_time_;
 
   // When tasks are collected into a queue by MessageLoop, this member is used
   // to form a null terminated list.
@@ -83,6 +81,9 @@ class TaskBase : public tracked_objects::Tracked {
   // A nestable task will run in nested message loops, otherwise it will run
   // only in the top level message loop.
   bool nestable_;
+
+  // True if this Task is owned by the message loop.
+  bool owned_by_message_loop_;
 
   DISALLOW_COPY_AND_ASSIGN(TaskBase);
 };

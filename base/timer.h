@@ -74,6 +74,9 @@ class Timer {
  public:
   Timer(int delay, Task* task, bool repeating);
 
+  // For one-shot timers, you can also specify the exact fire time.
+  Timer(Time fire_time, Task* task);
+
   // The task to be run when the timer fires.
   Task* task() const { return task_; }
   void set_task(Task* task) { task_ = task; }

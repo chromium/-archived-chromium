@@ -27,7 +27,6 @@
 #include "SystemTime.h"
 
 #include "NotImplemented.h"
-#include <windows.h>
 #include "base/time.h"
 
 namespace WebCore {
@@ -35,7 +34,7 @@ namespace WebCore {
 // Get the current time in seconds since epoch.
 double currentTime()
 {
-  return Time::Now().ToDoubleT();
+    return Time::Now().ToDoubleT();
 }
 
 float userIdleTime()

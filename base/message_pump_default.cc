@@ -20,26 +20,18 @@ void MessagePumpDefault::Run(Delegate* delegate) {
     bool did_work = delegate->DoWork();
     if (!keep_running_)
       break;
-    if (did_work)
-      continue;
 
-    // TODO(darin): Delayed work will be starved if DoWork continues to return
-    // true.  We should devise a better strategy.
-    //
-    // It is tempting to call DoWork followed by DoDelayedWork before checking
-    // did_work, but we need to make sure that any tasks that were dispatched
-    // prior to a timer actually run before the timer.  Getting that right may
-    // require some additional changes.
-
-    did_work = delegate->DoDelayedWork(&delayed_work_time_);
+    did_work |= delegate->DoDelayedWork(&delayed_work_time_);
     if (!keep_running_)
       break;
+
     if (did_work)
       continue;
 
     did_work = delegate->DoIdleWork();
     if (!keep_running_)
       break;
+
     if (did_work)
       continue;
 

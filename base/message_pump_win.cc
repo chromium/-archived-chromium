@@ -273,10 +273,7 @@ void MessagePumpWin::DoRunLoop() {
     if (state_->should_quit)
       break;
 
-    if (more_work_is_plausible)
-      continue;
-
-    more_work_is_plausible =
+    more_work_is_plausible |=
         state_->delegate->DoDelayedWork(&delayed_work_time_);
     // If we did not process any delayed work, then we can assume that our
     // existing WM_TIMER if any will fire when delayed work should run.  We

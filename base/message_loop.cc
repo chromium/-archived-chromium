@@ -66,7 +66,11 @@ MessageLoop::MessageLoop(Type type)
 
   // TODO(darin): Choose the pump based on the requested type.
 #if defined(OS_WIN)
-  pump_ = new base::MessagePumpWin();
+  if (type_ == TYPE_DEFAULT) {
+    pump_ = new base::MessagePumpDefault();
+  } else {
+    pump_ = new base::MessagePumpWin();
+  }
 #else
   pump_ = new base::MessagePumpDefault();
 #endif
@@ -180,10 +184,17 @@ void MessageLoop::Quit() {
 void MessageLoop::PostDelayedTask(const tracked_objects::Location& from_here,
                                   Task* task, int delay_ms) {
   task->SetBirthPlace(from_here);
-  DCHECK(delay_ms >= 0);
-  DCHECK(!task->is_owned_by_message_loop());
-  task->set_posted_task_delay(delay_ms);
-  DCHECK(task->is_owned_by_message_loop());
+
+  DCHECK(!task->owned_by_message_loop_);
+  task->owned_by_message_loop_ = true;
+
+  if (delay_ms > 0) {
+    task->delayed_run_time_ =
+        Time::Now() + TimeDelta::FromMilliseconds(delay_ms);
+  } else {
+    DCHECK(delay_ms == 0) << "delay should not be negative";
+  }
+
   PostTaskInternal(task);
 }
 
@@ -231,7 +242,7 @@ bool MessageLoop::RunTimerTask(Timer* timer) {
   HistogramEvent(kTimerEvent);
 
   Task* task = timer->task();
-  if (task->is_owned_by_message_loop()) {
+  if (task->owned_by_message_loop_) {
     // We constructed it through PostDelayedTask().
     DCHECK(!timer->repeating());
     timer->set_task(NULL);
@@ -249,7 +260,7 @@ bool MessageLoop::RunTimerTask(Timer* timer) {
 
 void MessageLoop::DiscardTimer(Timer* timer) {
   Task* task = timer->task();
-  if (task->is_owned_by_message_loop()) {
+  if (task->owned_by_message_loop_) {
     DCHECK(!timer->repeating());
     timer->set_task(NULL);
     delete timer;  // We constructed it through PostDelayedTask().
@@ -292,7 +303,7 @@ void MessageLoop::RunTask(Task* task) {
   HistogramEvent(kTaskRunEvent);
   // task may self-delete during Run() if we don't happen to own it.
   // ...so check *before* we Run, since we can't check after.
-  bool we_own_task = task->is_owned_by_message_loop();
+  bool we_own_task = task->owned_by_message_loop_;
   task->Run();
   if (we_own_task)
     task->RecycleOrDelete();  // Relinquish control, and probably delete.
@@ -331,12 +342,16 @@ void MessageLoop::ReloadWorkQueue() {
 
   while (!new_task_list.Empty()) {
     Task* task = new_task_list.Pop();
-    DCHECK(task->is_owned_by_message_loop());
+    DCHECK(task->owned_by_message_loop_);
 
-    if (task->posted_task_delay() > 0)
-      timer_manager_.StartTimer(task->posted_task_delay(), task, false);
-    else
+    // TODO(darin): We should probably postpone starting the timer until we
+    // process the work queue as starting the timer here breaks the FIFO
+    // ordering of tasks.
+    if (!task->delayed_run_time_.is_null()) {
+      timer_manager_.StartTimer(new Timer(task->delayed_run_time_, task));
+    } else {
       work_queue_.Push(task);
+    }
   }
 }
 

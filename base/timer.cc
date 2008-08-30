@@ -32,6 +32,19 @@ Timer::Timer(int delay, Task* task, bool repeating)
   Reset();
 }
 
+Timer::Timer(Time fire_time, Task* task)
+    : task_(task),
+      fire_time_(fire_time),
+      repeating_(false) {
+  timer_id_ = timer_id_counter_.GetNext();
+
+  // TODO(darin): kill off this stuff
+  creation_time_ = Time::Now();
+  delay_ = static_cast<int>((fire_time_ - creation_time_).InMilliseconds());
+  DCHECK(delay_ >= 0);
+  DHISTOGRAM_COUNTS(L"Timer.Durations", delay_);
+}
+
 void Timer::Reset() {
   creation_time_ = Time::Now();
   fire_time_ = creation_time_ + TimeDelta::FromMilliseconds(delay_);
@@ -144,7 +157,7 @@ bool TimerManager::RunSomePendingTimers() {
     // now (i.e., current task needs to be reentrant).
     // TODO(jar): We may block tasks that we can queue from being popped.
     if (!message_loop_->NestableTasksAllowed() &&
-        !pending->task()->is_owned_by_message_loop())
+        !pending->task()->owned_by_message_loop_)
       break;
 
     timers_.pop();
