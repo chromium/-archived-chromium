@@ -44,13 +44,14 @@ class WinUtilTest: public testing::Test {
 
 
 TEST_F(WinUtilTest, FormatMessage) {
+  unsigned language = GetSystemLanguage();
+  ASSERT_TRUE(language);
+
   const int kAccessDeniedErrorCode = 5;
   SetLastError(kAccessDeniedErrorCode);
   ASSERT_EQ(GetLastError(), kAccessDeniedErrorCode);
   std::wstring value;
 
-  unsigned language = GetSystemLanguage();
-  ASSERT_TRUE(language);
   if (language == LANG_ENGLISH) {
     // This test would fail on non-English system.
     TrimWhitespace(win_util::FormatLastWin32Error(), TRIM_ALL, &value);
