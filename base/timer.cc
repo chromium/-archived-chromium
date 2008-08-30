@@ -33,8 +33,8 @@ Timer::Timer(int delay, Task* task, bool repeating)
 }
 
 Timer::Timer(Time fire_time, Task* task)
-    : task_(task),
-      fire_time_(fire_time),
+    : fire_time_(fire_time),
+      task_(task),
       repeating_(false) {
   timer_id_ = timer_id_counter_.GetNext();
 
