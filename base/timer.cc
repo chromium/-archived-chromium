@@ -38,10 +38,13 @@ Timer::Timer(Time fire_time, Task* task)
       repeating_(false) {
   timer_id_ = timer_id_counter_.GetNext();
 
-  // TODO(darin): kill off this stuff
+  // TODO(darin): kill off this stuff.  because we are forced to compute 'now'
+  // in order to determine the delay, it is possible that our fire time could
+  // be in the past.  /sigh/
   creation_time_ = Time::Now();
   delay_ = static_cast<int>((fire_time_ - creation_time_).InMilliseconds());
-  DCHECK(delay_ >= 0);
+  if (delay_ < 0)
+    delay_ = 0;
   DHISTOGRAM_COUNTS(L"Timer.Durations", delay_);
 }
 
