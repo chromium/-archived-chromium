@@ -1,4 +1,4 @@
-#!/usr/bin/python 
+#!/usr/bin/python
 # Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -20,9 +20,10 @@ import os
 import subprocess
 import sys
 
-# TODO(rahulk): Default should change to chromium once env var is set properly
-DIST_DEFAULT = '_google_chrome'
+# The default distribution name and the environment variable that overrides it.
+DIST_DEFAULT = '_chromium'
 DIST_ENV_VAR = 'CHROMIUM_BUILD'
+
 DUMPBIN = "dumpbin.exe"
 
 
