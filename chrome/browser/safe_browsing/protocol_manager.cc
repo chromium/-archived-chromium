@@ -37,8 +37,11 @@ static const char* const kSbGetHashUrl =
 static const char* const kSbNewKeyUrl =
     "https://sb-ssl.google.com/safebrowsing/newkey?client=%s&appver=%d.%d&pver=2.1";
 
-// TODO(paulg): Change these values when we get close to launch.
-static const char* const kSbClientName = "googleclient";
+#if defined(GOOGLE_CHROME_BUILD)
+static const char* const kSbClientName = "googlechrome";
+#else
+static const char* const kSbClientName = "chromium";
+#endif
 static const int kSbClientMajorVersion = 1;
 static const int kSbClientMinorVersion = 0;
 

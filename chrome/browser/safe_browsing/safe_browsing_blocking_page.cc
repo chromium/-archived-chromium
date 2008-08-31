@@ -24,9 +24,13 @@
 
 // For malware interstitial pages, we link the problematic URL to Google's
 // diagnostic page.
-// TODO(paulg): Change 'googleclient' to a proper client name before launch.
+#if defined(GOOGLE_CHROME_BUILD)
 static const char* const kSbDiagnosticUrl =
-    "http://safebrowsing.clients.google.com/safebrowsing/diagnostic?site=%ls&client=googleclient";
+    "http://safebrowsing.clients.google.com/safebrowsing/diagnostic?site=%ls&client=googlechrome";
+#else
+static const char* const kSbDiagnosticUrl =
+    "http://safebrowsing.clients.google.com/safebrowsing/diagnostic?site=%ls&client=chromium";
+#endif
 
 static const char* const kSbReportPhishingUrl =
     "http://www.google.com/safebrowsing/report_error/";
