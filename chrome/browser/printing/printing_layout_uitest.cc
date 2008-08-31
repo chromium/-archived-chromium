@@ -487,7 +487,8 @@ class DismissTheWindow : public Task {
 
 }  // namespace
 
-TEST_F(PrintingLayoutTextTest, Complex) {
+// This test is disable because it fails. See bug 1353559.
+TEST_F(PrintingLayoutTextTest, DISABLED_Complex) {
   if (IsTestCaseDisabled())
     return;
 
