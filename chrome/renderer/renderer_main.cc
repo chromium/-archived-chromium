@@ -6,6 +6,7 @@
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/platform_thread.h"
+#include "base/string_util.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/chrome_switches.h"
@@ -50,7 +51,8 @@ int RendererMain(CommandLine &parsed_command_line, int show_command,
 
   // The main thread of the renderer services IO.
   MessageLoopForIO main_message_loop;
-  PlatformThread::SetName("Chrome_RendererMain");
+  std::wstring app_name = chrome::kBrowserAppName;
+  PlatformThread::SetName(WideToASCII(app_name + L"_RendererMain").c_str());
 
   CoInitialize(NULL);
 

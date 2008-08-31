@@ -30,7 +30,9 @@ bool GetUserDirectory(int directory_type, std::wstring* result) {
 bool GetDefaultUserDataDirectory(std::wstring* result) {
   if (!PathService::Get(base::DIR_LOCAL_APP_DATA, result))
     return false;
+#if defined(GOOGLE_CHROME_BUILD)
   file_util::AppendToPath(result, L"Google");
+#endif
   file_util::AppendToPath(result, chrome::kBrowserAppName);
   file_util::AppendToPath(result, chrome::kUserDataDirname);
   return true;

@@ -17,7 +17,8 @@ int PluginMain(CommandLine &parsed_command_line, int show_command,
                sandbox::TargetServices* target_services) {
   // The main thread of the plugin services IO.
   MessageLoopForIO main_message_loop;
-  PlatformThread::SetName("Chrome_PluginMain");
+  std::wstring app_name = chrome::kBrowserAppName;
+  PlatformThread::SetName(WideToASCII(app_name + L"_PluginMain").c_str());
 
   CoInitialize(NULL);
   DLOG(INFO) << "Started plugin with " <<

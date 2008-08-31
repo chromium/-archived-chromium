@@ -248,9 +248,10 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
 
   MessageLoop main_message_loop(MessageLoop::TYPE_UI);
 
-  const char* main_thread_name = "Chrome_BrowserMain";
-  PlatformThread::SetName(main_thread_name);
-  main_message_loop.set_thread_name(main_thread_name);
+  std::wstring app_name = chrome::kBrowserAppName;
+  const char* thread_name = WideToASCII(app_name + L"_BrowserMain").c_str();
+  PlatformThread::SetName(thread_name);
+  main_message_loop.set_thread_name(thread_name);
   bool already_running = CreateUniqueChromeEvent();
 
   // Make the selection of network stacks early on before any consumers try to

@@ -8,14 +8,19 @@ namespace chrome {
 // The following should not be used for UI strings; they are meant
 // for system strings only. UI changes should be made in the GRD.
 const wchar_t kBrowserProcessExecutableName[] = L"chrome.exe";
+#if defined(GOOGLE_CHROME_BUILD)
 const wchar_t kBrowserAppName[] = L"Chrome";
-const wchar_t kMessageWindowClass[] = L"Chrome_MessageWindow";
+const wchar_t kStatsFilename[] = L"ChromeStats";
+#else
+const wchar_t kBrowserAppName[] = L"Chromium";
+const wchar_t kStatsFilename[] = L"ChromiumStats";
+#endif
 const wchar_t kExternalTabWindowClass[] = L"Chrome_ExternalTabContainer";
+const wchar_t kMessageWindowClass[] = L"Chrome_MessageWindow";
 const wchar_t kCrashReportLog[] = L"Reported Crashes.txt";
 const wchar_t kTestingInterfaceDLL[] = L"testing_interface.dll";
 const wchar_t kNotSignedInProfile[] = L"Default";
 const wchar_t kNotSignedInID[] = L"not-signed-in";
-const wchar_t kStatsFilename[] = L"ChromeStats";
 const wchar_t kBrowserResourcesDll[] = L"chrome.dll";
 
 // filenames
