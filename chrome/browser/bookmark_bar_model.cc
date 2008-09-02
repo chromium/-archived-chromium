@@ -393,14 +393,14 @@ void BookmarkBarModel::OnBookmarkStorageLoadedBookmarks(
 
   if (file_exists || loaded_from_history || !profile_ ||
       !profile_->GetHistoryService(Profile::EXPLICIT_ACCESS)) {
+    // The file exists, we're loaded.
+    DoneLoading();
+
     if (loaded_from_history) {
       // We were just populated from the historical file. Schedule a save so
       // that the main file is up to date.
       store_->ScheduleSave();
     }
-
-    // The file exists, we're loaded.
-    DoneLoading();
     return;
   }
 

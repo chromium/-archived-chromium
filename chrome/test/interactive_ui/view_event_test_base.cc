@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/ui/view_event_test_base.h"
+#include "chrome/test/interactive_ui/view_event_test_base.h"
 
 #include "base/message_loop.h"
 #include "chrome/browser/automation/ui_controls.h"
@@ -38,7 +38,10 @@ const int kMouseMoveDelayMS = 200;
 // static
 void ViewEventTestBase::Done() {
   MessageLoop::current()->Quit();
-  MessageLoop::current()->Quit();
+  // If we're in a nested message loop, as is the case with menus, we need
+  // to quit twice. The second quit does that for us.
+  MessageLoop::current()->PostDelayedTask(
+      FROM_HERE, new MessageLoop::QuitTask(), 0);
 }
 
 ViewEventTestBase::ViewEventTestBase() : window_(NULL), content_view_(NULL) { }
@@ -113,4 +116,3 @@ void ViewEventTestBase::RunTestMethod(Task* task) {
   if (HasFatalFailure())
     Done();
 }
-

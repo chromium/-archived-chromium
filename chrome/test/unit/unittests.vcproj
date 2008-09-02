@@ -209,28 +209,12 @@
 				RelativePath="..\..\..\net\url_request\url_request_test_job.h"
 				>
 			</File>
-			<File
-				RelativePath="..\ui\view_event_test_base.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\ui\view_event_test_base.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="TestBookmarkBarContextMenuController"
 			>
 			<File
 				RelativePath="..\..\browser\bookmark_bar_context_menu_controller_test.cc"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="TestBookmarkBarView"
-			>
-			<File
-				RelativePath="..\..\browser\views\bookmark_bar_view_test.cc"
 				>
 			</File>
 		</Filter>

@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_TEST_UI_VIEW_EVENT_TEST_BASE_H_
-#define CHROME_TEST_UI_VIEW_EVENT_TEST_BASE_H_
+#ifndef CHROME_TEST_INTERACTIVE_UI_VIEW_EVENT_TEST_BASE_H_
+#define CHROME_TEST_INTERACTIVE_UI_VIEW_EVENT_TEST_BASE_H_
 
+#include "base/message_loop.h"
 #include "base/thread.h"
 #include "chrome/views/window_delegate.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -123,18 +124,16 @@ class ViewEventTestBase : public ChromeViews::WindowDelegate,
   // Thread for posting background MouseMoves.
   scoped_ptr<base::Thread> dnd_thread_;
 
+  MessageLoopForUI message_loop_;
+
   DISALLOW_COPY_AND_ASSIGN(ViewEventTestBase);
 };
 
 // Convenience macro for defining a ViewEventTestBase. See class description 
 // of ViewEventTestBase for details.
-//
-// NOTE: These tests are disabled until we get a buildbot that is always logged
-// in and can run them.
 #define VIEW_TEST(test_class, name) \
-  TEST_F(test_class, DISABLED_name) {\
+  TEST_F(test_class, name) {\
     StartMessageLoopAndRunTest();\
   }
 
-#endif  // CHROME_TEST_UI_VIEW_EVENT_TEST_BASE_H_
-
+#endif  // CHROME_TEST_INTERACTIVE_UI_VIEW_EVENT_TEST_BASE_H_

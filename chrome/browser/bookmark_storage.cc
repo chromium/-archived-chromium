@@ -55,7 +55,9 @@ void BookmarkStorage::LoadBookmarks(bool load_from_history) {
 }
 
 void BookmarkStorage::ScheduleSave() {
-  if (save_factory_.empty()) {
+  if (!backend_thread()) {
+    SaveNow();
+  } else if (save_factory_.empty()) {
     MessageLoop::current()->PostDelayedTask(
         FROM_HERE, save_factory_.NewRunnableMethod(&BookmarkStorage::SaveNow),
         kSaveDelayMS);

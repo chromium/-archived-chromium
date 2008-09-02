@@ -17,7 +17,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;..\..\tools\build\win\precompiled_wtl.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\libxslt\build\using_libxslt.vsprops;..\..\tools\build\win\unit_test.vsprops;..\..\tools\build\win\ui_test.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;..\..\tools\build\win\precompiled_wtl.vsprops;..\..\tools\build\win\unit_test.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;..\..\..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops;..\..\third_party\hunspell\using_hunspell.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -77,7 +77,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\libxslt\build\using_libxslt.vsprops;..\..\tools\build\win\unit_test.vsprops;..\..\tools\build\win\ui_test.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;..\..\tools\build\win\unit_test.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;..\..\..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops;..\..\third_party\hunspell\using_hunspell.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -167,6 +167,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\testing_profile.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\testing_profile.h"
+				>
+			</File>
+			<File
 				RelativePath="..\ui\ui_test.cc"
 				>
 			</File>
@@ -176,6 +184,22 @@
 			</File>
 			<File
 				RelativePath="..\ui\ui_test_suite.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\view_event_test_base.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\view_event_test_base.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="TestBookmarkBarView"
+			>
+			<File
+				RelativePath="..\..\browser\views\bookmark_bar_view_test.cc"
 				>
 			</File>
 		</Filter>
