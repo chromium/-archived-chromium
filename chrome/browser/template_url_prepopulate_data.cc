@@ -477,12 +477,9 @@ const PrepopulatedEngine google = {
   L"Google",
   NULL,
   L"http://www.google.com/favicon.ico",
-  // TODO(pkasting): http://b/1176073 We should change to this URL.
-//  L"{google:baseURL}search?{google:RLZ}{google:acceptedSuggestion}"
-//      L"{google:originalQueryForSuggestion}sourceid=chrome&ie={inputEncoding}&"
-//      L"q={searchTerms}",
   L"{google:baseURL}search?{google:RLZ}{google:acceptedSuggestion}"
-      L"{google:originalQueryForSuggestion}ie={inputEncoding}&q={searchTerms}",
+      L"{google:originalQueryForSuggestion}sourceid=chrome&ie={inputEncoding}&"
+      L"q={searchTerms}",
   "UTF-8",
   L"{google:baseSuggestURL}search?client=chrome&output=chrome&hl={language}&"
       L"q={searchTerms}",
@@ -3009,7 +3006,7 @@ void RegisterUserPrefs(PrefService* prefs) {
 }
 
 int GetDataVersion() {
-  return 12;  // Increment this if you change the above data in ways that mean
+  return 13;  // Increment this if you change the above data in ways that mean
              // users with existing data should get a new version.
 }
 
