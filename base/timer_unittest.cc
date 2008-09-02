@@ -440,39 +440,63 @@ void RunTest_RepeatingTimer_Cancel(MessageLoop::Type message_loop_type) {
 // that timers work properly in all configurations.
 
 TEST(TimerTest, TimerComparison) {
+  Time s = Time::Now();
   RunTest_TimerComparison(MessageLoop::TYPE_DEFAULT);
   RunTest_TimerComparison(MessageLoop::TYPE_UI);
   RunTest_TimerComparison(MessageLoop::TYPE_IO);
+  Time e = Time::Now();
+  TimeDelta el = e - s;
+  printf("comparison elapsed time %lld\n", el.ToInternalValue());
 }
 
 TEST(TimerTest, BasicTimer) {
+  Time s = Time::Now();
   RunTest_BasicTimer(MessageLoop::TYPE_DEFAULT);
   RunTest_BasicTimer(MessageLoop::TYPE_UI);
   RunTest_BasicTimer(MessageLoop::TYPE_IO);
+  Time e = Time::Now();
+  TimeDelta el = e - s;
+  printf("basic elapsed time %lld\n", el.ToInternalValue());
 }
 
 TEST(TimerTest, BrokenTimer) {
+  Time s = Time::Now();
   RunTest_BrokenTimer(MessageLoop::TYPE_DEFAULT);
   RunTest_BrokenTimer(MessageLoop::TYPE_UI);
   RunTest_BrokenTimer(MessageLoop::TYPE_IO);
+  Time e = Time::Now();
+  TimeDelta el = e - s;
+  printf("broken elapsed time %lld\n", el.ToInternalValue());
 }
 
 TEST(TimerTest, DeleteFromRun) {
+  Time s = Time::Now();
   RunTest_DeleteFromRun(MessageLoop::TYPE_DEFAULT);
   RunTest_DeleteFromRun(MessageLoop::TYPE_UI);
   RunTest_DeleteFromRun(MessageLoop::TYPE_IO);
+  Time e = Time::Now();
+  TimeDelta el = e - s;
+  printf("delete elapsed time %lld\n", el.ToInternalValue());
 }
 
 TEST(TimerTest, Reset) {
+  Time s = Time::Now();
   RunTest_Reset(MessageLoop::TYPE_DEFAULT);
   RunTest_Reset(MessageLoop::TYPE_UI);
   RunTest_Reset(MessageLoop::TYPE_IO);
+  Time e = Time::Now();
+  TimeDelta el = e - s;
+  printf("reset elapsed time %lld\n", el.ToInternalValue());
 }
 
 TEST(TimerTest, FifoOrder) {
+  Time s = Time::Now();
   RunTest_FifoOrder(MessageLoop::TYPE_DEFAULT);
   RunTest_FifoOrder(MessageLoop::TYPE_UI);
   RunTest_FifoOrder(MessageLoop::TYPE_IO);
+  Time e = Time::Now();
+  TimeDelta el = e - s;
+  printf("fifo elapsed time %lld\n", el.ToInternalValue());
 }
 
 TEST(TimerTest, OneShotTimer) {
