@@ -14,6 +14,7 @@
 #include "base/gfx/point.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
+#include "base/trace_event.h"
 #include "net/base/net_errors.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdropdata.h"
@@ -185,12 +186,14 @@ void TestWebViewDelegate::WillSendRequest(WebView* webview,
            request_url.c_str());
   }
 
+  TRACE_EVENT_BEGIN("url.load", identifier, request_url);
   // Set the new substituted URL.
   request->SetURL(GURL(TestShell::RewriteLocalUrl(request_url)));
 }
 
 void TestWebViewDelegate::DidFinishLoading(WebView* webview,
                                            uint32 identifier) {
+  TRACE_EVENT_END("url.load", identifier, "");
   if (shell_->ShouldDumpResourceLoadCallbacks()) {
     printf("%s - didFinishLoading\n",
            GetResourceDescription(identifier).c_str());
@@ -304,6 +307,7 @@ void TestWebViewDelegate::DidReceiveTitle(WebView* webview,
 
 void TestWebViewDelegate::DidFinishLoadForFrame(WebView* webview,
                                                 WebFrame* frame) {
+  TRACE_EVENT_END("frame.load", this, frame->GetURL().spec());
   if (shell_->ShouldDumpFrameLoadCallbacks()) {
     printf("%S - didFinishLoadForFrame\n",
            GetFrameDescription(frame).c_str());

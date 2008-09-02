@@ -514,11 +514,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\process_util_win.cc"
+			RelativePath="..\process_util.h"
 			>
 		</File>
 		<File
-			RelativePath="..\process_util.h"
+			RelativePath="..\process_util_win.cc"
 			>
 		</File>
 		<File
@@ -739,6 +739,14 @@
 		</File>
 		<File
 			RelativePath="..\timer.h"
+			>
+		</File>
+		<File
+			RelativePath="..\trace_event.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\trace_event.h"
 			>
 		</File>
 		<File

@@ -23,10 +23,12 @@
 #include "base/stack_container.h"
 #include "base/stats_table.h"
 #include "base/string_util.h"
+#include "base/trace_event.h"
 #include "breakpad/src/client/windows/handler/exception_handler.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/net_module.h"
 #include "net/http/http_cache.h"
+#include "net/http/http_network_layer.h"
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/window_open_disposition.h"
@@ -139,6 +141,14 @@ int main(int argc, char* argv[])
     if (suppress_error_dialogs) {
         _set_abort_behavior(0, _WRITE_ABORT_MSG);
     }
+
+    if (parsed_command_line.HasSwitch(test_shell::kEnableTracing))
+      base::TraceLog::StartTracing();
+
+    // Make the selection of network stacks early on before any consumers try to
+    // issue HTTP requests.
+    if (parsed_command_line.HasSwitch(test_shell::kUseNewHttp))
+      net::HttpNetworkLayer::UseWinHttp(false);
 
     bool layout_test_mode =
         parsed_command_line.HasSwitch(test_shell::kLayoutTests);

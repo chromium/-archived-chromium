@@ -4,6 +4,8 @@
 
 #include "net/base/tcp_client_socket.h"
 
+#include "base/string_util.h"
+#include "base/trace_event.h"
 #include "net/base/net_errors.h"
 #include "net/base/winsock_init.h"
 
@@ -67,6 +69,7 @@ int TCPClientSocket::Connect(CompletionCallback* callback) {
   if (socket_ != INVALID_SOCKET)
     return OK;
 
+  TRACE_EVENT_BEGIN("socket.connect", this, "");
   const struct addrinfo* ai = current_ai_;
   DCHECK(ai);
 
@@ -80,6 +83,7 @@ int TCPClientSocket::Connect(CompletionCallback* callback) {
   WSAEventSelect(socket_, overlapped_.hEvent, FD_CONNECT);
 
   if (!connect(socket_, ai->ai_addr, static_cast<int>(ai->ai_addrlen))) {
+    TRACE_EVENT_END("socket.connect", this, "");
     // Connected without waiting!
     return OK;
   }
@@ -104,6 +108,8 @@ int TCPClientSocket::ReconnectIgnoringLastError(CompletionCallback* callback) {
 void TCPClientSocket::Disconnect() {
   if (socket_ == INVALID_SOCKET)
     return;
+
+  TRACE_EVENT_INSTANT("socket.disconnect", this, "");
 
   // Make sure the message loop is not watching this object anymore.
   watcher_.StopWatching();
@@ -224,6 +230,7 @@ void TCPClientSocket::DoCallback(int rv) {
 void TCPClientSocket::DidCompleteConnect() {
   int result;
 
+  TRACE_EVENT_END("socket.connect", this, "");
   wait_state_ = NOT_WAITING;
 
   WSANETWORKEVENTS events;
@@ -263,6 +270,13 @@ void TCPClientSocket::DidCompleteIO() {
   BOOL ok = WSAGetOverlappedResult(
       socket_, &overlapped_, &num_bytes, FALSE, &flags);
   WSAResetEvent(overlapped_.hEvent);
+  if (wait_state_ == WAITING_READ) {
+    TRACE_EVENT_INSTANT("socket.read", this, 
+                        StringPrintf("%d bytes", num_bytes));
+  } else {
+    TRACE_EVENT_INSTANT("socket.write", this, 
+                        StringPrintf("%d bytes", num_bytes));
+  }
   wait_state_ = NOT_WAITING;
   DoCallback(ok ? num_bytes : MapWinsockError(WSAGetLastError()));
 }

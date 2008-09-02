@@ -24,6 +24,7 @@
 #include "base/path_service.h"
 #include "base/stats_table.h"
 #include "base/string_util.h"
+#include "base/trace_event.h"
 #include "base/win_util.h"
 #include "googleurl/src/url_util.h"
 #include "net/base/mime_util.h"
@@ -816,6 +817,7 @@ void TestShell::LoadURLForFrame(const wchar_t* url,
     if (!url)
         return;
 
+    TRACE_EVENT_BEGIN("url.load", this, WideToUTF8(url));
     bool bIsSVGTest = wcsstr(url, L"W3C-SVG-1.1") > 0;
 
     if (bIsSVGTest) {

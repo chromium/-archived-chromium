@@ -24,6 +24,8 @@ extern const wchar_t kDumpStatsTable[];
 extern const wchar_t kCacheDir[];
 extern const wchar_t kDebugMemoryInUse[];
 extern const wchar_t kEnableFileCookies[];
+extern const wchar_t kUseNewHttp[];
+extern const wchar_t kEnableTracing[];
 
 }  // namespace test_shell
 

@@ -97,6 +97,7 @@
 #endif
 
 #include "base/stats_table.h"
+#include "base/trace_event.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
 
@@ -960,12 +961,17 @@ v8::Local<v8::Value> V8Proxy::Evaluate(const String& fileName, int baseLine,
 
   // Compile the script.
   v8::Local<v8::String> code = v8ExternalString(str);
+  TRACE_EVENT_BEGIN("v8.compile", n, "");
   v8::Handle<v8::Script> script = CompileScript(code, fileName, baseLine);
+  TRACE_EVENT_END("v8.compile", n, "");
 
   // Set inlineCode to true for <a href="javascript:doSomething()">
   // and false for <script>doSomething</script>. For some reason, fileName
   // gives us this information.
-  return RunScript(script, fileName.isNull());
+  TRACE_EVENT_BEGIN("v8.run", n, "");
+  v8::Local<v8::Value> result = RunScript(script, fileName.isNull());
+  TRACE_EVENT_END("v8.run", n, "");
+  return result;
 }
 
 
