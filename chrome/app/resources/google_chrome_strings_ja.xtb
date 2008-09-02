@@ -9,7 +9,7 @@
 <translation id="1964682833763362793">すべての Chrome ウィンドウを終了してからやり直してください。</translation>
 <translation id="1549918799472947005">このパソコンの既定の検索エンジンは <ph name="PAGE_TITLE"/> になっています。現在の設定でよろしいですか？</translation>
 <translation id="5046764976540625289">Chrome を終了</translation>
-<translation id="582763753075639530">この変更を反映するには、Chrome のウィンドウをすべて閉じてから Chrome を再起動してください。</translation>
+<translation id="582763753075639530">この変更を反映するには、Google Chrome のウィンドウをすべて閉じてから再起動してください。</translation>
 <translation id="5016204670686360703">キャンセルすると、一部のアイテムはインポートされません。Chrome のメニューから後で再度インポートできます。</translation>
 <translation id="4127951844153999091">証明書のアドレスと、実際にアクセスしようとしているウェブサイトのアドレスが一致していません。これには、悪意のあるユーザーによって通信が傍受されているか、または複数のサイトで同じ証明書を返すようサーバーで設定しているにも関わらず、証明書が有効になっていないサイトが含まれている可能性があります。Google Chrome で検出されたアクセスは &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; で、それが &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; と同じサイトであるかどうかは確認できません。名前の不一致を無視してこのまま続行することもできますが、通常はここで操作を止めることをおすすめします。</translation>
 <translation id="9189723490960700326">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; にアクセスしようとしましたが、サーバーの証明書の有効期限が失効しています。証明書の失効後もセキュリティに問題がないことを確認する情報ありません。通信先が本当に <ph name="DOMAIN2"/> であるか Google Chrome で判断できないため、なりすましの可能性を完全には否定できません。ここで操作を止めてください。</translation>

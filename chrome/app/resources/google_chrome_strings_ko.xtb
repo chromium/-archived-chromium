@@ -17,7 +17,7 @@
 <translation id="1144950271450340860">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;에 접근하려 했지만 서버에서 컴퓨터 운영체제가 신뢰하지 않는 기관에서 발행한 인증서를 제출했습니다. 이는 서버에서 생성한 자체 보안 증명서를 Google 크롬이 ID 정보로 신뢰할 수 없거나, 해커가 귀하의 통신을 방해하고 있는 것이 원인일 수 있습니다. 따라서 더 이상 진행하지 않는 것이 좋으며, &lt;strong&gt;특히&lt;/strong&gt; 해당 사이트에서 이 경고를 처음 보는 것이라면 더욱 주의해야 합니다.</translation>
 <translation id="6009537148180854585">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;에 접근하려 했지만 서버에서 오류가 있는 인증서를 제출했습니다. Google 크롬은 오류가 있는 인증서를 사용할 수 없으며 연결하려고 했던 사이트의 주소를 확인할 수 없습니다. 연결이 안전하지 않아 더 이상 진행하지 않는 것이 좋습니다.</translation>
 <translation id="7106741999175697885">작업 관리자 - Google 크롬</translation>
-<translation id="1195935957447623558">Google 크롬이 제대로 종료되지 않았습니다. 사용 중이던 페이지를 다시 열려면 '복구'를 클릭합니다.</translation>
+<translation id="1195935957447623558">Google 크롬이 제대로 종료되지 않았습니다. 사용 중이던 페이지를 다시 열려면 '복구'를 클릭하세요.</translation>
 <translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google 크롬</translation>
 <translation id="2044287590254833138">Google 크롬 툴바</translation>
 <translation id="8449380764213232436">Google 크롬이 <ph name="BROWSER_COMPONENT"/>에서 다음 항목을 가져오는 중입니다.</translation>

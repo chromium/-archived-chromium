@@ -118,7 +118,7 @@
 <translation id="2214283295778284209"><ph name="SITE"/> nem érhető el</translation>
 <translation id="790025292736025802"><ph name="URL"/> nem található</translation>
 <translation id="2108475813351458355">Biztonságos kapcsolat: <ph name="DOMAIN"/></translation>
-<translation id="7208899522964477531">&amp;Keresés a(z) <ph name="SITE_NAME"/> keresővel a(z) &quot;<ph name="SEARCH_TERMS"/>&quot; kifejezésre</translation>
+<translation id="7208899522964477531">&amp;Keresés <ph name="SITE_NAME"/> keresővel a következő kifejezésre: &quot;<ph name="SEARCH_TERMS"/>&quot;</translation>
 <translation id="3967132639560659870">Számos SSL-hiba van az oldalon:</translation>
 <translation id="4666192354592784528">Ezt az oldalt nem sikerült teljes mértékben lekérni biztonságos kapcsolaton keresztül.  Néhány nem biztonságos kapcsolaton keresztül érkező elemet is tartalmaz.</translation>
 <translation id="385051799172605136">Vissza</translation>
@@ -140,7 +140,7 @@
 <translation id="4588090240171750605">Görgetés jobbra</translation>
 <translation id="8331626408530291785">Görgetés felfelé</translation>
 <translation id="815598010540052116">Görgetés lefelé</translation>
-<translation id="4021918302616263355">&amp;Keresés a(z) <ph name="ENGINE"/> keresővel a(z) &quot;<ph name="SEARCH_TERMS"/>&quot; kifejezésre</translation>
+<translation id="4021918302616263355">&amp;Keresés <ph name="ENGINE"/> keresővel a következő kifejezésre: &quot;<ph name="SEARCH_TERMS"/>&quot;</translation>
 <translation id="9002707937526687073">N&amp;yomtatás</translation>
 <translation id="1175364870820465910">&amp;Nyomtatás...</translation>
 <translation id="4756388243121344051">&amp;Előzmények</translation>
@@ -194,7 +194,7 @@
 <translation id="4065006016613364460">Kép URL-jének má&amp;solása</translation>
 <translation id="6518014396551869914">Ké&amp;p másolása</translation>
 <translation id="345693547134384690">Kép &amp;megnyitása új lapon</translation>
-<translation id="1425127764082410430">&amp;Keresés a(z) <ph name="SEARCH_ENGINE"/> keresővel a(z) &quot;<ph name="SEARCH_TERMS"/>&quot; kifejezésre</translation>
+<translation id="1425127764082410430">&amp;Keresés <ph name="SEARCH_ENGINE"/> keresővel a következő kifejezésre: &quot;<ph name="SEARCH_TERMS"/>&quot;</translation>
 <translation id="154603084978752493">Hozzáadás keresőmotorké&amp;nt...</translation>
 <translation id="4200983522494130825">Új &amp;lap</translation>
 <translation id="8418445294933751433">&amp;Megjelenítés lapként</translation>
@@ -311,7 +311,7 @@
 <translation id="6513615899227776181">Plugin: <ph name="PLUGIN_NAME"/></translation>
 <translation id="7071586181848220801">Ismeretlen plugin</translation>
 <translation id="6479177161510354016">Figyelmeztetés <ph name="SITE"/></translation>
-<translation id="333371639341676808">Annak megakadályozása, hogy ez az oldal további párbeszédablakokat hozzon létre.</translation>
+<translation id="333371639341676808">Ez az oldal ne nyisson meg további párbeszédablakokat.</translation>
 <translation id="5295309862264981122">Navigálás megerősítése</translation>
 <translation id="111844081046043029">Biztos, hogy el szeretné hagyni ezt az oldalt?</translation>
 <translation id="6512448926095770873">Az oldal elhagyása</translation>
@@ -560,7 +560,7 @@
 <translation id="1669397342410349095">Adathalászatot folytató webhely jelentése...</translation>
 <translation id="3512466011168167042">Javaslatok megjelenítése a navigálási hibákkal kapcsolatban</translation>
 <translation id="4890855023395992542">Szolgáltatás URL-je:</translation>
-<translation id="8186012393692847636">Használja a Javaslat szolgáltatást, ha szeretné, hogy kiegészítsük a kereséseket, és a címsorba beírt URL-eket</translation>
+<translation id="8186012393692847636">A keresések és a címsorba beírt webcímek automatikus kiegészítése</translation>
 <translation id="8041183585493091279">Javaslat szolgáltatás URL-je:</translation>
 <translation id="1676388805288306495">A weboldalak alapértelmezett betűtípusa és nyelve.</translation>
 <translation id="4244236525807044920">Betűtípus és nyelv beállításainak módosítása</translation>
@@ -628,7 +628,7 @@
 <translation id="8015746205953933323">Ez a weboldal nem érhető el.</translation>
 <translation id="3867260226944967367">Ez a weboldal nem található.</translation>
 <translation id="8598751847679122414">Ez a weboldal átirányítási körbe került.</translation>
-<translation id="877010697526426622">A(z) &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; weboldal lehet, hogy ideiglenesen nem érhető el, vagy véglegesen új címre költözött.</translation>
+<translation id="877010697526426622">A &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; weboldal lehet, hogy ideiglenesen nem érhető el, vagy véglegesen új címre költözött.</translation>
 <translation id="3819791248093819058">Nem található weboldal az internetcímen: &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
 <translation id="7070442422749762650">A &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; webhely túl sok átirányítást eredményezett.  A cookie-k törlése ennél a webhelynél segíthet a probléma megoldásában.  Ha nem, a probléma a szerver konfigurációjával, és nem az Ön számítógépével lehet.</translation>
 <translation id="1635247229519770914">Telepítés folytatása</translation>
@@ -650,7 +650,7 @@
 <translation id="7925285046818567682">Várakozás a szerverre: <ph name="HOST_NAME"/>...</translation>
 <translation id="2021921916539001817">Adatátvitel a szerverről: <ph name="HOST_NAME"/>...</translation>
 <translation id="6698381487523150993">Létrehozva:</translation>
-<translation id="8562413501751825163">Zárja be a Firefox bömgészőt, mielőtt impotálja</translation>
+<translation id="8562413501751825163">Importálás előtt zárja be a Firefox böngészőt</translation>
 <translation id="480990236307250886">A kezdőoldal megnyitása</translation>
 <translation id="6514771739083339959">Kezdőoldal:</translation>
 <translation id="1665770420914915777">Használja az &quot;Új lap&quot; oldalt</translation>

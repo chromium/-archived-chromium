@@ -170,7 +170,7 @@
 <translation id="5650551054760837876">一致する情報はありません。</translation>
 <translation id="7596288230018319236">アクセスしたページはすべてここに表示されます (シークレット ウィンドウで開いたページを除く)。履歴に保存されているページは検索することもできます。</translation>
 <translation id="7377249249140280793"><ph name="RELATIVE_DATE"/> - <ph name="FULL_DATE"/></translation>
-<translation id="8739589585766515812">この日の履歴を削除</translation>
+<translation id="8739589585766515812">この日の履歴を消去</translation>
 <translation id="2674170444375937751">履歴からこれらのページを削除してもよろしいですか？</translation>
 <translation id="6165508094623778733">詳細</translation>
 <translation id="3280237271814976245">名前を付けて保存(&amp;A)...</translation>
@@ -309,7 +309,7 @@
 <translation id="7629827748548208700">タブ:<ph name="TAB_NAME"/></translation>
 <translation id="6513615899227776181">プラグイン: <ph name="PLUGIN_NAME"/></translation>
 <translation id="7071586181848220801">不明なプラグイン</translation>
-<translation id="6479177161510354016"><ph name="SITE"/> のアラート</translation>
+<translation id="6479177161510354016"><ph name="SITE"/> アラート</translation>
 <translation id="333371639341676808">このページでこれ以上ダイアログボックスを生成しない</translation>
 <translation id="5295309862264981122">ナビゲーションの確認</translation>
 <translation id="111844081046043029">このページから移動してもよろしいですか？</translation>
@@ -427,7 +427,7 @@
 <translation id="4181841719683918333">言語</translation>
 <translation id="8929159553808058020">ウェブサイトの表示に使用する言語を追加し、優先度順に並べ替えてください。他言語によるサイトの偽装を避けるため、必要な言語だけ追加してください。</translation>
 <translation id="2303544859777878640">言語:</translation>
-<translation id="8609465669617005112">上へ</translation>
+<translation id="8609465669617005112">上に移動</translation>
 <translation id="6746124502594467657">下に移動</translation>
 <translation id="8241707690549784388">検索しているページは、入力した情報を使用しています。このページに戻った場合、操作のやり直しが発生する可能性があります。続行しますか？</translation>
 <translation id="5333374927882515515">ブックマークやパスワード、その他設定情報を <ph name="DEF_BROWSER"/> からインポート</translation>
@@ -652,7 +652,7 @@
 <translation id="8562413501751825163">インポートする前に Firefox を終了してください</translation>
 <translation id="480990236307250886">ホームページを開く</translation>
 <translation id="6514771739083339959">ホームページ:</translation>
-<translation id="1665770420914915777">新しいタブのページを表示する</translation>
+<translation id="1665770420914915777">新しいタブの画面を表示する</translation>
 <translation id="4726901538158498735">既定の検索エンジン:</translation>
 <translation id="2231233239095101917">このページのスクリプトは大量のメモリを使用しています。スクリプトを有効にするには、ページを読み込み直してください。</translation>
 <translation id="3319048459796106952">シークレット ウィンドウを開く(&amp;I)</translation>
