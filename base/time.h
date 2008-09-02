@@ -436,7 +436,6 @@ class TimeTicks {
   int64 ticks_;
 
 #if defined(OS_WIN)
- public:
   // The function to use for counting ticks.
   typedef int (__stdcall *TickFunction)(void);
   static TickFunction tick_function_;
