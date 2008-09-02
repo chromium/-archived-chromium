@@ -21,7 +21,8 @@ class SSLClientSocketTest : public testing::Test {
 
 //-----------------------------------------------------------------------------
 
-TEST_F(SSLClientSocketTest, Connect) {
+// bug 1354783
+TEST_F(SSLClientSocketTest, DISABLED_Connect) {
   net::AddressList addr;
   net::HostResolver resolver;
   TestCompletionCallback callback;
@@ -48,7 +49,8 @@ TEST_F(SSLClientSocketTest, Connect) {
   EXPECT_FALSE(sock.IsConnected());
 }
 
-TEST_F(SSLClientSocketTest, Read) {
+// bug 1354783
+TEST_F(SSLClientSocketTest, DISABLED_Read) {
   net::AddressList addr;
   net::HostResolver resolver;
   TestCompletionCallback callback;
@@ -93,7 +95,8 @@ TEST_F(SSLClientSocketTest, Read) {
   }
 }
 
-TEST_F(SSLClientSocketTest, Read_SmallChunks) {
+// bug 1354783
+TEST_F(SSLClientSocketTest, DISABLED_Read_SmallChunks) {
   net::AddressList addr;
   net::HostResolver resolver;
   TestCompletionCallback callback;
@@ -135,7 +138,8 @@ TEST_F(SSLClientSocketTest, Read_SmallChunks) {
   }
 }
 
-TEST_F(SSLClientSocketTest, Read_Interrupted) {
+// bug 1354783
+TEST_F(SSLClientSocketTest, DISABLED_Read_Interrupted) {
   net::AddressList addr;
   net::HostResolver resolver;
   TestCompletionCallback callback;
