@@ -320,6 +320,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\time_unittest_win.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\timer_unittest.cc"
 				>
 			</File>

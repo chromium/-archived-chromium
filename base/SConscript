@@ -290,6 +290,7 @@ if env['PLATFORM'] == 'win32':
     'object_watcher_unittest.cc',
     'pe_image_unittest.cc',
     'sys_string_conversions_win_unittest.cc',
+    'time_unittest_win.cc',
     'win_util_unittest.cc',
     'wmi_util_unittest.cc',
     'gfx/platform_canvas_unittest_win.cc',
