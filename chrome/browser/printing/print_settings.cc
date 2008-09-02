@@ -12,7 +12,7 @@
 namespace printing {
 
 // Global SequenceNumber used for generating unique cookie values.
-static base::AtomicSequenceNumber cookie_seq;
+static base::AtomicSequenceNumber cookie_seq(base::LINKER_INITIALIZED);
 
 PrintSettings::PrintSettings()
     : min_shrink(1.25),

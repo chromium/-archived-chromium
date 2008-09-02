@@ -18,7 +18,7 @@ namespace base {
 
 // A sequence number for all allocated times (used to break ties when
 // comparing times in the TimerManager, and assure FIFO execution sequence).
-static AtomicSequenceNumber timer_id_counter_;
+static AtomicSequenceNumber timer_id_counter_(base::LINKER_INITIALIZED);
 
 //-----------------------------------------------------------------------------
 // Timer

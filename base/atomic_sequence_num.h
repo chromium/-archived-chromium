@@ -13,6 +13,7 @@ namespace base {
 class AtomicSequenceNumber {
  public:
   AtomicSequenceNumber() : seq_(0) { }
+  explicit AtomicSequenceNumber(base::LinkerInitialized x) { /* seq_ is 0 */ }
 
   int GetNext() {
     return static_cast<int>(
