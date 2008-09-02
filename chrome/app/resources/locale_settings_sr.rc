@@ -52,7 +52,7 @@ BEGIN
   IDS_IMPORTPROGRESS_DIALOG_HEIGHT_LINES "16"
   IDS_FIRSTRUNBUBBLE_DIALOG_WIDTH_CHARS "110"
   IDS_FIRSTRUNBUBBLE_DIALOG_HEIGHT_LINES "12"
-  IDS_HELP_CONTENT_URL "http://go/chromehelpalpha"
+  IDS_HELP_CONTENT_URL "http://www.google.com/support/chrome/?hl=sr"
   IDS_BUGREPORT_POST_URL "http://web-bug.appspot.com/bugreport"
   IDS_STATIC_ENCODING_LIST "windows-1251,KOI8-R,ISO-8859-5"
   IDS_WELCOME_PAGE_URL "http://tools.google.com/chrome/intl/sr/welcome.html"
