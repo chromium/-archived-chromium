@@ -336,12 +336,12 @@ const std::string& GetDefaultUserAgent() {
     // with it.  This is done to expose our product name in a manner that is
     // maximally compatible with Safari, we hope!!
     std::string product;
-#ifdef CHROME_LAST_MINUTE
+
     FileVersionInfo* version_info =
         FileVersionInfo::CreateFileVersionInfoForCurrentModule();
     if (version_info)
       product = "Chrome/" + WideToASCII(version_info->product_version());
-#endif
+
     if (product.empty())
       product = "Version/3.1";
 
