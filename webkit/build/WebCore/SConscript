@@ -7,19 +7,31 @@ Import('env')
 env = env.Clone()
 
 if env['PLATFORM'] == 'win32':
-    env.Append(
-        CCFLAGS = [
-                '/TP',
-                
-                '/wd4138',
-                '/wd4244',
-                '/wd4291',
-                '/wd4305',
-                '/wd4521',
-                '/wd4099',
-                '/wd4800',
-                ],
-        )
+  env.Append(
+    CCFLAGS = [
+      '/TP',
+      
+      '/wd4138',
+      '/wd4244',
+      '/wd4291',
+      '/wd4305',
+      '/wd4521',
+      '/wd4099',
+      '/wd4800',
+    ],
+  )
+
+if env['PLATFORM'] in ('darwin', 'posix'):
+  env.Append(
+    # HTMLInputElement.cpp has a dependency on glue (see bug 1076026)
+    CPPDEFINES = [
+      'GOOGLE_WEBKIT_WITHOUT_GLUE_DEPENDENCY',
+    ]
+  )
+  if '-Wall' in env['CCFLAGS']:
+    # It'd be nice to fix these warnings upstream, but we're not going to
+    # block on it.
+    env['CCFLAGS'].remove('-Werror')
 
 input_files = [
     '$PENDING_DIR/JSSVGLazyEventListener.cpp',
@@ -30,7 +42,6 @@ input_files = [
     '$WEBCORE_DIR/css/CSSCursorImageValue.cpp',
     '$WEBCORE_DIR/css/CSSFontFace.cpp',
     '$WEBCORE_DIR/css/CSSFontFaceRule.cpp',
-    '$WEBCORE_DIR/css/CSSFontFaceSource.cpp',
     '$WEBCORE_DIR/css/CSSFontFaceSrcValue.cpp',
     '$PENDING_DIR/CSSFontSelector.cpp',
     '$WEBCORE_DIR/css/CSSHelper.cpp',
@@ -147,7 +158,6 @@ input_files = [
     '$WEBCORE_DIR/editing/DeleteFromTextNodeCommand.cpp',
     '$PENDING_DIR/DeleteSelectionCommand.cpp',
     '$WEBCORE_DIR/editing/EditCommand.cpp',
-    '$WEBCORE_DIR/editing/Editor.cpp',
     '$WEBCORE_DIR/editing/EditorCommand.cpp',
     '$WEBCORE_DIR/editing/FormatBlockCommand.cpp',
     '$WEBCORE_DIR/editing/htmlediting.cpp',
@@ -190,7 +200,6 @@ input_files = [
 
     '$PENDING_DIR/CanvasGradient.cpp',
     '$PENDING_DIR/CanvasPattern.cpp',
-    '$PENDING_DIR/CanvasRenderingContext2D.cpp',
     '$PENDING_DIR/CanvasStyle.cpp',
     '$WEBCORE_DIR/html/FormDataList.cpp',
     '$PENDING_DIR/HTMLAnchorElement.cpp',
@@ -275,7 +284,6 @@ input_files = [
 
     '$WEBCORE_DIR/loader/Cache.cpp',
     '$WEBCORE_DIR/loader/CachedCSSStyleSheet.cpp',
-    '$WEBCORE_DIR/loader/CachedFont.cpp',
     '$WEBCORE_DIR/loader/CachedImage.cpp',
     '$WEBCORE_DIR/loader/CachedResource.cpp',
     '$WEBCORE_DIR/loader/CachedResourceClientWalker.cpp',
@@ -312,7 +320,6 @@ input_files = [
     '$WEBCORE_DIR/page/DOMSelection.cpp',
     '$PENDING_DIR/DOMWindow.cpp',
     '$PENDING_DIR/DragController.cpp',
-    '$PENDING_DIR/EventHandler.cpp',
     '$WEBCORE_DIR/page/FocusController.cpp',
     '$PENDING_DIR/Frame.cpp',
     '$WEBCORE_DIR/page/FrameTree.cpp',
@@ -326,7 +333,6 @@ input_files = [
 
     '$WEBCORE_DIR/platform/Arena.cpp',
     '$WEBCORE_DIR/platform/ArrayImpl.cpp',
-    '$WEBCORE_DIR/platform/ContextMenu.cpp',
     '$WEBCORE_DIR/platform/DeprecatedCString.cpp',
     '$WEBCORE_DIR/platform/DeprecatedPtrListImpl.cpp',
     '$PENDING_DIR/DeprecatedString.cpp',
@@ -334,8 +340,6 @@ input_files = [
     '$WEBCORE_DIR/platform/DeprecatedValueListImpl.cpp',
     '$WEBCORE_DIR/platform/DragData.cpp',
     '$WEBCORE_DIR/platform/DragImage.cpp',
-    '$WEBCORE_DIR/platform/FileChooser.cpp',
-    '$PENDING_DIR/Font.cpp',
     '$PENDING_DIR/FontCache.cpp',
     '$WEBCORE_DIR/platform/graphics/FontFallbackList.cpp',
     '$WEBCORE_DIR/platform/graphics/FontFamily.cpp',
@@ -374,7 +378,6 @@ input_files = [
     '$WEBCORE_DIR/platform/network/ResourceError.cpp',
     '$WEBCORE_DIR/platform/network/ResourceRequestBase.cpp',
     '$WEBCORE_DIR/platform/network/ResourceResponseBase.cpp',
-    '$PENDING_DIR/FileSystemWin.cpp',
     '$PENDING_DIR/AtomicString.cpp',
     '$WEBCORE_DIR/platform/text/Base64.cpp',
     '$WEBCORE_DIR/platform/text/BidiContext.cpp',
@@ -403,7 +406,6 @@ input_files = [
     '$WEBCORE_DIR/rendering/CounterNode.cpp',
     '$WEBCORE_DIR/rendering/EllipsisBox.cpp',
     '$WEBCORE_DIR/rendering/FixedTableLayout.cpp',
-    '$WEBCORE_DIR/rendering/HitTestResult.cpp',
     '$WEBCORE_DIR/rendering/InlineBox.cpp',
     '$WEBCORE_DIR/rendering/InlineFlowBox.cpp',
     '$WEBCORE_DIR/rendering/InlineTextBox.cpp',
@@ -420,7 +422,6 @@ input_files = [
     '$WEBCORE_DIR/rendering/RenderContainer.cpp',
     '$WEBCORE_DIR/rendering/RenderCounter.cpp',
     '$WEBCORE_DIR/rendering/RenderFieldset.cpp',
-    '$WEBCORE_DIR/rendering/RenderFileUploadControl.cpp',
     '$WEBCORE_DIR/rendering/RenderFlexibleBox.cpp',
     '$WEBCORE_DIR/rendering/RenderFlow.cpp',
     '$WEBCORE_DIR/rendering/RenderForeignObject.cpp',
@@ -429,12 +430,9 @@ input_files = [
     '$WEBCORE_DIR/rendering/RenderHTMLCanvas.cpp',
     '$WEBCORE_DIR/rendering/RenderImage.cpp',
     '$WEBCORE_DIR/rendering/RenderInline.cpp',
-    '$WEBCORE_DIR/rendering/RenderLayer.cpp',
     '$WEBCORE_DIR/rendering/RenderLegend.cpp',
-    '$WEBCORE_DIR/rendering/RenderListBox.cpp',
     '$WEBCORE_DIR/rendering/RenderListItem.cpp',
     '$WEBCORE_DIR/rendering/RenderListMarker.cpp',
-    '$PENDING_DIR/RenderMenuList.cpp',
     '$PENDING_DIR/RenderObject.cpp',
     '$WEBCORE_DIR/rendering/RenderPart.cpp',
     '$PENDING_DIR/RenderPartObject.cpp',
@@ -461,9 +459,7 @@ input_files = [
     '$WEBCORE_DIR/rendering/RenderTableRow.cpp',
     '$WEBCORE_DIR/rendering/RenderTableSection.cpp',
     '$PENDING_DIR/RenderText.cpp',
-    '$PENDING_DIR/RenderTextControl.cpp',
     '$WEBCORE_DIR/rendering/RenderTextFragment.cpp',
-    '$WEBCORE_DIR/rendering/RenderTheme.cpp',
     '$WEBCORE_DIR/rendering/RenderTreeAsText.cpp',
     '$WEBCORE_DIR/rendering/RenderVideo.cpp',
     '$WEBCORE_DIR/rendering/RenderView.cpp',
@@ -666,15 +662,52 @@ input_files = [
     '$WEBCORE_DIR/xml/XSLTUnicodeSort.cpp',
 ]
 
+# These files don't compile yet on linux or mac.
+if env['PLATFORM'] == 'win32':
+  input_files.extend([
+    # includes platform specific FontCustomPlatformData.h
+    '$WEBCORE_DIR/css/CSSFontFaceSource.cpp',
+    '$WEBCORE_DIR/loader/CachedFont.cpp',
+    
+    # Need PasteboardHelper.h
+    '$WEBCORE_DIR/editing/Editor.cpp',
+
+    # Needs base/gfx/platform_device
+    '$PENDING_DIR/CanvasRenderingContext2D.cpp',
+
+    # Missing gtk bits.
+    '$PENDING_DIR/EventHandler.cpp',
+    '$WEBCORE_DIR/platform/ContextMenu.cpp',
+    '$WEBCORE_DIR/platform/FileChooser.cpp',
+    '$WEBCORE_DIR/rendering/RenderFileUploadControl.cpp',
+    '$PENDING_DIR/RenderMenuList.cpp',
+
+    # Need to remove cairo stub in port/platform/cairo.h.
+    '$PENDING_DIR/Font.cpp',
+
+    # PlatformScrollBar needs to be ported.
+    '$WEBCORE_DIR/rendering/HitTestResult.cpp',
+    '$WEBCORE_DIR/rendering/RenderListBox.cpp',
+    '$WEBCORE_DIR/rendering/RenderLayer.cpp',
+    '$WEBCORE_DIR/rendering/RenderTheme.cpp',
+    '$PENDING_DIR/RenderTextControl.cpp',
+  ])
+
+# Windows specific files.
+if env['PLATFORM'] == 'win32':
+  input_files.extend([
+    '$PENDING_DIR/FileSystemWin.cpp',
+  ])
+
 # Precompiled headers only work under MSVC in scons.
 if env['PLATFORM'] == 'win32':
-    env_p = env.Clone()
-    env_p.Append(CCFLAGS='/Ylwebcore')
-    pch, obj = env_p.PCH('../precompiled_webkit.cc')
-    env['PCH'] = pch
-    env['PCHSTOP'] = 'precompiled_webkit.h'
-    env.Append(CCPCHFLAGS = ['/FIprecompiled_webkit.h'])
-    input_files += [obj]
+  env_p = env.Clone()
+  env_p.Append(CCFLAGS='/Ylwebcore')
+  pch, obj = env_p.PCH('../precompiled_webkit.cc')
+  env['PCH'] = pch
+  env['PCHSTOP'] = 'precompiled_webkit.h'
+  env.Append(CCPCHFLAGS = ['/FIprecompiled_webkit.h'])
+  input_files += [obj]
 
 env.ChromeStaticLibrary('WebCore', input_files)
 
