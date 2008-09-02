@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/atomic_sequence_num.h"
+#include "base/lock.h"
 #include "base/simple_thread.h"
 #include "base/string_util.h"
 #include "base/waitable_event.h"
@@ -34,6 +36,40 @@ class WaitEventRunner : public base::DelegateSimpleThread::Delegate {
     EXPECT_TRUE(event_->IsSignaled());
   }
  private:
+  base::WaitableEvent* event_;
+};
+
+class SeqRunner : public base::DelegateSimpleThread::Delegate {
+ public:
+  SeqRunner(base::AtomicSequenceNumber* seq) : seq_(seq) { }
+  virtual void Run() {
+    seq_->GetNext();
+  }
+
+ private:
+  base::AtomicSequenceNumber* seq_;
+};
+
+// We count up on a sequence number, firing on the event when we've hit our
+// expected amount, otherwise we wait on the event.  This will ensure that we
+// have all threads outstanding until we hit our expected thread pool size.
+class VerifyPoolRunner : public base::DelegateSimpleThread::Delegate {
+ public:
+  VerifyPoolRunner(base::AtomicSequenceNumber* seq,
+                   int total, base::WaitableEvent* event)
+      : seq_(seq), total_(total), event_(event) { }
+
+  virtual void Run() {
+    if (seq_->GetNext() == total_) {
+      event_->Signal();
+    } else {
+      event_->Wait();
+    }
+  }
+
+ private:
+  base::AtomicSequenceNumber* seq_;
+  int total_;
   base::WaitableEvent* event_;
 };
 
@@ -96,4 +132,36 @@ TEST(SimpleThreadTest, NamedWithOptions) {
   EXPECT_EQ(thread.name_prefix(), "event_waiter");
   EXPECT_EQ(thread.name(), std::string("event_waiter/") +
                             IntToString(thread.tid()));
+}
+
+TEST(SimpleThreadTest, ThreadPool) {
+  base::AtomicSequenceNumber seq;
+  SeqRunner runner(&seq);
+  base::DelegateSimpleThreadPool pool("seq_runner", 10);
+
+  // Add work before we're running.
+  pool.AddWork(&runner, 300);
+
+  EXPECT_EQ(seq.GetNext(), 0);
+  pool.Start();
+
+  // Add work while we're running.
+  pool.AddWork(&runner, 300);
+
+  pool.JoinAll();
+
+  EXPECT_EQ(seq.GetNext(), 601);
+
+  // We can reuse our pool.  Verify that all 10 threads can actually run in
+  // parallel, so this test will only pass if there are actually 10 threads.
+  base::AtomicSequenceNumber seq2;
+  base::WaitableEvent event(true, false);
+  // Changing 9 to 10, for example, would cause us JoinAll() to never return.
+  VerifyPoolRunner verifier(&seq2, 9, &event);
+  pool.Start();
+
+  pool.AddWork(&verifier, 10);
+
+  pool.JoinAll();
+  EXPECT_EQ(seq2.GetNext(), 10);
 }

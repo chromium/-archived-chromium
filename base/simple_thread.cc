@@ -49,4 +49,70 @@ void DelegateSimpleThread::Run() {
   delegate_ = NULL;
 }
 
+DelegateSimpleThreadPool::~DelegateSimpleThreadPool() {
+  DCHECK(threads_.empty());
+  DCHECK(delegates_.empty());
+  DCHECK(!dry_.IsSignaled());
+}
+
+void DelegateSimpleThreadPool::Start() {
+  DCHECK(threads_.empty()) << "Start() called with outstanding threads.";
+  for (int i = 0; i < num_threads_; ++i) {
+    DelegateSimpleThread* thread = new DelegateSimpleThread(this, name_prefix_);
+    thread->Start();
+    threads_.push_back(thread);
+  }
+}
+
+void DelegateSimpleThreadPool::JoinAll() {
+  DCHECK(!threads_.empty()) << "JoinAll() called with no outstanding threads.";
+
+  // Tell all our threads to quit their worker loop.
+  AddWork(NULL, num_threads_);
+
+  // Join and destroy all the worker threads.
+  for (int i = 0; i < num_threads_; ++i) {
+    threads_[i]->Join();
+    delete threads_[i];
+  }
+  threads_.clear();
+  DCHECK(delegates_.empty());
+}
+
+void DelegateSimpleThreadPool::AddWork(Delegate* delegate, int repeat_count) {
+  AutoLock locked(lock_);
+  for (int i = 0; i < repeat_count; ++i)
+    delegates_.push(delegate);
+  // If we were empty, signal that we have work now.
+  if (!dry_.IsSignaled())
+    dry_.Signal();
+}
+
+void DelegateSimpleThreadPool::Run() {
+  Delegate* work;
+
+  while (true) {
+    dry_.Wait();
+    {
+      AutoLock locked(lock_);
+      if (!dry_.IsSignaled())
+        continue;
+
+      DCHECK(!delegates_.empty());
+      work = delegates_.front();
+      delegates_.pop();
+
+      // Signal to any other threads that we're currently out of work.
+      if (delegates_.empty())
+        dry_.Reset();
+    }
+
+    // A NULL delegate pointer signals us to quit.
+    if (!work)
+      break;
+
+    work->Run();
+  }
+}
+
 }  // namespace base

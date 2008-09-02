@@ -41,8 +41,11 @@
 #define BASE_SIMPLE_THREAD_H_
 
 #include <string>
+#include <queue>
+#include <vector>
 
 #include "base/basictypes.h"
+#include "base/lock.h"
 #include "base/waitable_event.h"
 #include "base/platform_thread.h"
 
@@ -70,7 +73,7 @@ class SimpleThread : public PlatformThread::Delegate {
   // configuration involving the thread creation and management.
   // Every thread has a name, in the form of |name_prefix|/TID, for example
   // "my_thread/321".  The thread will not be created until Start() is called.
-  SimpleThread(const std::string& name_prefix)
+  explicit SimpleThread(const std::string& name_prefix)
       : name_prefix_(name_prefix), name_(name_prefix),
         thread_(), event_(true, false), tid_(0), joined_(false) { }
   SimpleThread(const std::string& name_prefix, const Options& options)
@@ -134,6 +137,51 @@ class DelegateSimpleThread : public SimpleThread {
   virtual void Run();
  private:
   Delegate* delegate_;
+};
+
+// DelegateSimpleThreadPool allows you to start up a fixed number of threads,
+// and then add jobs which will be dispatched to the threads.  This is
+// convenient when you have a lot of small work that you want done
+// multi-threaded, but don't want to spawn a thread for each small bit of work.
+//
+// You just call AddWork() to add a delegate to the list of work to be done.
+// JoinAll() will make sure that all outstanding work is processed, and wait
+// for everything to finish.  You can reuse a pool, so you can call Start()
+// again after you've called JoinAll().
+class DelegateSimpleThreadPool : public DelegateSimpleThread::Delegate {
+ public:
+  typedef DelegateSimpleThread::Delegate Delegate;
+
+  DelegateSimpleThreadPool(const std::string name_prefix, int num_threads)
+      : name_prefix_(name_prefix), num_threads_(num_threads),
+        dry_(true, false) { }
+  ~DelegateSimpleThreadPool();
+
+  // Start up all of the underlying threads, and start processing work if we
+  // have any.
+  void Start();
+
+  // Make sure all outstanding work is finished, and wait for and destroy all
+  // of the underlying threads in the pool.
+  void JoinAll();
+
+  // It is safe to AddWork() any time, before or after Start().
+  // Delegate* should always be a valid pointer, NULL is reserved internally.
+  void AddWork(Delegate* work, int repeat_count);
+  void AddWork(Delegate* work) {
+    AddWork(work, 1);
+  }
+
+  // We implement the Delegate interface, for running our internal threads.
+  virtual void Run();
+
+ private:
+  const std::string name_prefix_;
+  int num_threads_;
+  std::vector<DelegateSimpleThread*> threads_;
+  std::queue<Delegate*> delegates_;
+  Lock lock_;            // Locks delegates_
+  WaitableEvent dry_;    // Not signaled when there is no work to do.
 };
 
 }  // namespace base
