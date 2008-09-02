@@ -1,39 +1,21 @@
-// Copyright 2008, Google Inc.
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//    * Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-//    * Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-//    * Neither the name of Google Inc. nor the names of its
-// contributors may be used to endorse or promote products derived from
-// this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// Copyright (c) 2008 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #include "common.xcconfig"
 
 COPY_PHASE_STRIP = NO
-GCC_GENERATE_TEST_COVERAGE_FILES = YES
-GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES
 GCC_OPTIMIZATION_LEVEL = 0
 GCC_PREPROCESSOR_DEFINITIONS = $(GCC_PREPROCESSOR_DEFINITIONS) DEBUG _GLIBCXX_CONCEPT_CHECKS _GLIBCXX_DEBUG _GLIBCXX_DEBUG_PEDANTIC
 OTHER_CFLAGS = $(OTHER_CFLAGS) -fstack-protector -fstack-protector-all
 
-CODECOVERAGE_OTHER_LDFLAGS = -lgcov
+// Code coverage support via gcov is disabled for normal debug builds because
+// our build structure results in many "merge mismatch for summaries" messages
+// being printed at the conclusion of many tests in many depend build cases, as
+// well as a long delay while summary data is written.  Since these are not
+// needed in the majority of debug builds, code coverage is left off, but it
+// can be easily enabled by uncommenting the next section.
+//
+//GCC_GENERATE_TEST_COVERAGE_FILES = YES
+//GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES
+//CODECOVERAGE_OTHER_LDFLAGS = -lgcov
