@@ -348,6 +348,8 @@ elif env['PLATFORM'] == 'posix':
   ]
   env.Replace(
       CCFLAGS = ['-m32', '-g', '-pthread', '-Wall', '-Werror'] + excluded_warnings,
+      # Needed for using ext/hash_map on GCC 4.3
+      CXXFLAGS = ['-Wno-deprecated'],
       LINKFLAGS = ['-m32', '-pthread'],
       # We need rt for clock_gettime.
       LIBS = ['rt'],

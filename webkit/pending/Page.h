@@ -33,12 +33,12 @@
 typedef struct HINSTANCE__* HINSTANCE;
 #endif
 
-typedef enum TextCaseSensitivity {
+enum TextCaseSensitivity {
     TextCaseSensitive,
     TextCaseInsensitive
 };
 
-typedef enum FindDirection {
+enum FindDirection {
     FindDirectionForward,
     FindDirectionBackward
 };
