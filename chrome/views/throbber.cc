@@ -4,8 +4,6 @@
 
 #include "chrome/views/throbber.h"
 
-#include "base/message_loop.h"
-#include "base/timer.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/logging_chrome.h"
@@ -40,8 +38,8 @@ void Throbber::Start() {
   start_time_ = GetTickCount();
   last_time_recorded_ = start_time_;
 
-  timer_ = MessageLoop::current()->timer_manager()->StartTimer(
-      frame_time_ms_ - 10, this, true);
+  timer_.Start(
+      TimeDelta::FromMilliseconds(frame_time_ms_ - 10), this, &Throbber::Run);
 
   running_ = true;
 
@@ -52,8 +50,7 @@ void Throbber::Stop() {
   if (!running_)
     return;
 
-  MessageLoop::current()->timer_manager()->StopTimer(timer_);
-  timer_ = NULL;
+  timer_.Stop();
 
   running_ = false;
   SchedulePaint();  // Important if we're not painting while stopped
@@ -111,19 +108,15 @@ static const int kStopDelay = 50;
 
 
 SmoothedThrobber::SmoothedThrobber(int frame_time_ms)
-    : Throbber(frame_time_ms, /* paint_while_stopped= */ false),
-      start_delay_factory_(this),
-      end_delay_factory_(this) {
+    : Throbber(frame_time_ms, /* paint_while_stopped= */ false) {
 }
 
 void SmoothedThrobber::Start() {
-  end_delay_factory_.RevokeAll();
+  stop_timer_.Stop();
 
-  if (!running_ && start_delay_factory_.empty()) {
-    MessageLoop::current()->PostDelayedTask(FROM_HERE,
-        start_delay_factory_.NewRunnableMethod(
-            &SmoothedThrobber::StartDelayOver),
-        kStartDelay);
+  if (!running_ && !start_timer_.IsRunning()) {
+    start_timer_.Start(TimeDelta::FromMilliseconds(kStartDelay), this,
+                       &SmoothedThrobber::StartDelayOver);
   }
 }
 
@@ -132,15 +125,12 @@ void SmoothedThrobber::StartDelayOver() {
 }
 
 void SmoothedThrobber::Stop() {
-  TimerManager* timer_manager = MessageLoop::current()->timer_manager();
-
   if (!running_)
-    start_delay_factory_.RevokeAll();
+    start_timer_.Stop();
 
-  end_delay_factory_.RevokeAll();
-  MessageLoop::current()->PostDelayedTask(FROM_HERE,
-      end_delay_factory_.NewRunnableMethod(&SmoothedThrobber::StopDelayOver),
-      kStopDelay);
+  stop_timer_.Stop();
+  stop_timer_.Start(TimeDelta::FromMilliseconds(kStopDelay), this,
+                    &SmoothedThrobber::StopDelayOver);
 }
 
 void SmoothedThrobber::StopDelayOver() {

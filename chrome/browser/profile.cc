@@ -551,9 +551,6 @@ ProfileImpl::ProfileImpl(const std::wstring& path)
       created_web_data_service_(false),
       created_download_manager_(false),
       request_context_(NULL),
-#pragma warning(suppress: 4355) // Okay to pass "this" here.
-      create_session_service_timer_(NULL),
-      create_session_service_task_(this),
       start_time_(Time::Now()),
       spellchecker_(NULL),
 #ifdef CHROME_PERSONALIZATION
@@ -562,9 +559,9 @@ ProfileImpl::ProfileImpl(const std::wstring& path)
       shutdown_session_service_(false) {
   DCHECK(!path.empty()) << "Using an empty path will attempt to write " <<
                             "profile files to the root directory!";
-  create_session_service_timer_ =
-        MessageLoop::current()->timer_manager()->StartTimer(
-            kCreateSessionServiceDelayMS, &create_session_service_task_, false);
+  create_session_service_timer_.Start(
+      TimeDelta::FromMilliseconds(kCreateSessionServiceDelayMS), this,
+      &ProfileImpl::EnsureSessionServiceCreated);
 }
 
 ProfileImpl::~ProfileImpl() {
@@ -913,12 +910,7 @@ void ProfileImpl::MarkAsCleanShutdown() {
 }
 
 void ProfileImpl::StopCreateSessionServiceTimer() {
-  if (create_session_service_timer_) {
-    MessageLoop::current()->timer_manager()->
-        StopTimer(create_session_service_timer_);
-    delete create_session_service_timer_;
-    create_session_service_timer_ = NULL;
-  }
+  create_session_service_timer_.Stop();
 }
 
 #ifdef CHROME_PERSONALIZATION

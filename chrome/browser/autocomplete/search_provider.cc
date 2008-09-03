@@ -180,7 +180,10 @@ void SearchProvider::StartOrStopSuggestQuery(bool minimal_changes,
   // Kick off a timer that will start the URL fetch if it completes before
   // the user types another character.
   suggest_results_pending_ = true;
-  MessageLoop::current()->timer_manager()->ResetTimer(timer_.get());
+
+  timer_.Stop();
+  timer_.Start(TimeDelta::FromMilliseconds(kQueryDelayMs), this,
+               &SearchProvider::Run);
 }
 
 void SearchProvider::StopHistory() {
@@ -192,7 +195,7 @@ void SearchProvider::StopHistory() {
 
 void SearchProvider::StopSuggest() {
   suggest_results_pending_ = false;
-  MessageLoop::current()->timer_manager()->StopTimer(timer_.get());
+  timer_.Stop();
   fetcher_.reset();  // Stop any in-progress URL fetch.
   suggest_results_.clear();
   have_suggest_results_ = false;

@@ -181,34 +181,14 @@ static void ScrollToVisible(View* view) {
 // MenuScrollTask --------------------------------------------------------------
 
 // MenuScrollTask is used when the SubmenuView does not all fit on screen and
-// the mouse is over the scroll up/down buttons. MenuScrollTask schedules itself
-// with the TimerManager. When Run is invoked MenuScrollTask scrolls
+// the mouse is over the scroll up/down buttons. MenuScrollTask schedules
+// itself with a RepeatingTimer. When Run is invoked MenuScrollTask scrolls
 // appropriately.
 
-class MenuScrollTask : public Task {
+class MenuScrollTask {
 public:
   MenuScrollTask() : submenu_(NULL) {
     pixels_per_second_ = pref_menu_height * 20;
-  }
-
-  virtual ~MenuScrollTask() {
-    StopScrolling();
-  }
-
-  virtual void Run() {
-    DCHECK(submenu_);
-    gfx::Rect vis_rect = submenu_->GetVisibleBounds();
-    const int delta_y = static_cast<int>(
-        (Time::Now() - start_scroll_time_).InMilliseconds() *
-        pixels_per_second_ / 1000);
-    int target_y = start_y_;
-    if (is_scrolling_up_)
-      target_y = std::max(0, target_y - delta_y);
-    else
-      target_y = std::min(submenu_->GetHeight() - vis_rect.height(),
-                          target_y + delta_y);
-    submenu_->ScrollRectToVisible(vis_rect.x(), target_y, vis_rect.width(),
-                                  vis_rect.height());
   }
 
   void Update(const MenuController::MenuPart& part) {
@@ -227,18 +207,15 @@ public:
     submenu_ = new_menu;
     is_scrolling_up_ = new_is_up;
 
-    if (!scrolling_timer_.get()) {
-      scrolling_timer_.reset(new Timer(kScrollTimerMS, this, true));
-      TimerManager* tm = MessageLoop::current()->timer_manager();
-      tm->StartTimer(scrolling_timer_.get());
+    if (!scrolling_timer_.IsRunning()) {
+      scrolling_timer_.Start(TimeDelta::FromMilliseconds(kScrollTimerMS), this,
+                             &MenuScrollTask::Run);
     }
   }
 
   void StopScrolling() {
-    if (scrolling_timer_.get()) {
-      TimerManager* tm = MessageLoop::current()->timer_manager();
-      tm->StopTimer(scrolling_timer_.get());
-      scrolling_timer_.reset(NULL);
+    if (scrolling_timer_.IsRunning()) {
+      scrolling_timer_.Stop();
       submenu_ = NULL;
     }
   }
@@ -247,6 +224,22 @@ public:
   SubmenuView* submenu() const { return submenu_; }
 
  private:
+  void Run() {
+    DCHECK(submenu_);
+    gfx::Rect vis_rect = submenu_->GetVisibleBounds();
+    const int delta_y = static_cast<int>(
+        (Time::Now() - start_scroll_time_).InMilliseconds() *
+        pixels_per_second_ / 1000);
+    int target_y = start_y_;
+    if (is_scrolling_up_)
+      target_y = std::max(0, target_y - delta_y);
+    else
+      target_y = std::min(submenu_->GetHeight() - vis_rect.height(),
+                          target_y + delta_y);
+    submenu_->ScrollRectToVisible(vis_rect.x(), target_y, vis_rect.width(),
+                                  vis_rect.height());
+  }
+
   // SubmenuView being scrolled.
   SubmenuView* submenu_;
 
@@ -254,7 +247,7 @@ public:
   bool is_scrolling_up_;
 
   // Timer to periodically scroll.
-  scoped_ptr<Timer> scrolling_timer_;
+  base::RepeatingTimer<MenuScrollTask> scrolling_timer_;
 
   // Time we started scrolling at.
   Time start_scroll_time_;
@@ -2088,13 +2081,7 @@ MenuController::MenuController(bool blocking)
       showing_(false),
       exit_all_(false),
       did_capture_(false),
-#pragma warning(suppress: 4355)  // Okay to pass "this" here.
-      show_task_(this),
       result_(NULL),
-      show_timer_(NULL),
-#pragma warning(suppress: 4355)  // Okay to pass "this" here.
-      cancel_all_task_(this),
-      cancel_all_timer_(NULL),
       drop_target_(NULL),
       owner_(NULL),
       possible_drag_(false),
@@ -2384,31 +2371,21 @@ void MenuController::BuildMenuItemPath(MenuItemView* item,
 }
 
 void MenuController::StartShowTimer() {
-  StopShowTimer();
-  show_timer_ = MessageLoop::current()->timer_manager()->
-      StartTimer(kShowDelay, &show_task_, false);
+  show_timer_.Start(TimeDelta::FromMilliseconds(kShowDelay), this,
+                    &MenuController::CommitPendingSelection);
 }
 
 void MenuController::StopShowTimer() {
-  if (show_timer_) {
-    MessageLoop::current()->timer_manager()->StopTimer(show_timer_);
-    delete show_timer_;
-    show_timer_ = NULL;
-  }
+  show_timer_.Stop();
 }
 
 void MenuController::StartCancelAllTimer() {
-  StopCancelAllTimer();
-  cancel_all_timer_ = MessageLoop::current()->timer_manager()->
-      StartTimer(kCloseOnExitTime, &cancel_all_task_, false);
+  cancel_all_timer_.Start(TimeDelta::FromMilliseconds(kCloseOnExitTime),
+                          this, &MenuController::CancelAll);
 }
 
 void MenuController::StopCancelAllTimer() {
-  if (cancel_all_timer_) {
-    MessageLoop::current()->timer_manager()->StopTimer(cancel_all_timer_);
-    delete cancel_all_timer_;
-    cancel_all_timer_ = NULL;
-  }
+  cancel_all_timer_.Stop();
 }
 
 gfx::Rect MenuController::CalculateMenuBounds(MenuItemView* item,

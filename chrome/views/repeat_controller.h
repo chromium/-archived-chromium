@@ -2,11 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_REPEAT_CONTROLLER_H__
-#define CHROME_VIEWS_REPEAT_CONTROLLER_H__
+#ifndef CHROME_VIEWS_REPEAT_CONTROLLER_H_
+#define CHROME_VIEWS_REPEAT_CONTROLLER_H_
 
-#include "base/message_loop.h"
-#include "base/task.h"
+#include "base/timer.h"
 
 namespace ChromeViews {
 
@@ -20,7 +19,7 @@ namespace ChromeViews {
 //  associated action.
 //
 ///////////////////////////////////////////////////////////////////////////////
-class RepeatController : public Task {
+class RepeatController {
  public:
   typedef Callback0::Type RepeatCallback;
 
@@ -34,24 +33,20 @@ class RepeatController : public Task {
   // Stop repeating.
   void Stop();
 
-  // Task implementation:
-  void Run();
-
  private:
   RepeatController();
 
-  // Stop and delete the timer.
-  void DestroyTimer();
+  // Called when the timer expires.
+  void Run();
 
   // The current timer.
-  Timer* timer_;
+  base::OneShotTimer<RepeatController> timer_;
 
   scoped_ptr<RepeatCallback> callback_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(RepeatController);
+  DISALLOW_COPY_AND_ASSIGN(RepeatController);
 };
 
-}
+}  // namespace ChromeViews
 
-#endif  // #ifndef CHROME_VIEWS_REPEAT_CONTROLLER_H__
-
+#endif  // #ifndef CHROME_VIEWS_REPEAT_CONTROLLER_H_

@@ -462,10 +462,6 @@ TabStrip::~TabStrip() {
   // TODO(beng): remove this if it doesn't work to fix the TabSelectedAt bug.
   drag_controller_.reset(NULL);
 
-  // Stop any existing Loading Animation timer.
-  MessageLoop::current()->timer_manager()->StopTimer(
-      loading_animation_timer_.get());
-
   // Make sure we unhook ourselves as a message loop observer so that we don't
   // crash in the case where the user closes the window after closing a tab
   // but before moving the mouse.
@@ -849,18 +845,18 @@ void TabStrip::TabChangedAt(TabContents* contents, int index) {
 }
 
 void TabStrip::TabValidateAnimations() {
-  TimerManager* tm = MessageLoop::current()->timer_manager();
-  Timer* timer = loading_animation_timer_.get();
   if (model_->TabsAreLoading()) {
-    if (!tm->IsTimerRunning(timer)) {
+    if (!loading_animation_timer_.IsRunning()) {
       // Loads are happening, and the timer isn't running, so start it.
-      tm->ResetTimer(timer);
+      loading_animation_timer_.Start(
+          TimeDelta::FromMilliseconds(kLoadingAnimationFrameTimeMs), this,
+          &TabStrip::LoadingAnimationCallback);
     }
   } else {
-    if (tm->IsTimerRunning(timer)) {
+    if (loading_animation_timer_.IsRunning()) {
+      loading_animation_timer_.Stop();
       // Loads are now complete, update the state if a task was scheduled.
       LoadingAnimationCallback();
-      tm->StopTimer(timer);
     }
   }
 }
@@ -1000,15 +996,6 @@ void TabStrip::ButtonPressed(ChromeViews::BaseButton* sender) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// TabStrip, Task implementation:
-
-void TabStrip::Run() {
-  // Loading Animation frame advancement timer has fired, update all of the
-  // loading animations as applicable...
-  LoadingAnimationCallback();
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // TabStrip, MessageLoop::Observer implementation:
 
 void TabStrip::WillProcessMessage(const MSG& msg) {
@@ -1084,11 +1071,6 @@ void TabStrip::Init() {
 
   newtab_button_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_NEWTAB));
   AddChildView(newtab_button_);
-
-  // Creating the Timer directly instead of using StartTimer() ensures it won't
-  // actually start running until we use ResetTimer();
-  loading_animation_timer_.reset(
-    new Timer(kLoadingAnimationFrameTimeMs, this, true));
 
   if (drop_indicator_width == 0) {
     // Direction doesn't matter, both images are the same size.

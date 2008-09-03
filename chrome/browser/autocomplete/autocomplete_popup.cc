@@ -721,10 +721,6 @@ AutocompletePopupModel::AutocompletePopupModel(const ChromeFont& font,
       profile_(profile),
       query_in_progress_(false),
       update_pending_(false),
-      // Creating the Timers directly instead of using StartTimer() ensures
-      // they won't actually start running until we use ResetTimer().
-      coalesce_timer_(new Timer(kPopupCoalesceMs, this, false)),
-      max_delay_timer_(new Timer(kPopupUpdateMaxDelayMs, this, true)),
       hovered_line_(kNoMatch),
       selected_line_(kNoMatch) {
 }
@@ -773,10 +769,9 @@ void AutocompletePopupModel::StartAutocomplete(
   input_ = input;
 
   // If we're starting a brand new query, stop caring about any old query.
-  TimerManager* const tm = MessageLoop::current()->timer_manager();
   if (!minimal_changes && query_in_progress_) {
     update_pending_ = false;
-    tm->StopTimer(coalesce_timer_.get());
+    coalesce_timer_.Stop();
   }
 
   // Start the new query.
@@ -785,8 +780,9 @@ void AutocompletePopupModel::StartAutocomplete(
 
   // If we're not ready to show results and the max update interval timer isn't
   // already running, start it now.
-  if (query_in_progress_ && !tm->IsTimerRunning(max_delay_timer_.get()))
-    tm->ResetTimer(max_delay_timer_.get());
+  if (query_in_progress_ && !max_delay_timer_.IsRunning())
+    max_delay_timer_.Start(TimeDelta::FromMilliseconds(kPopupUpdateMaxDelayMs),
+                           this, &AutocompletePopupModel::Run);
 
   SetDefaultMatchAndUpdate(!query_in_progress_);
 }
@@ -1030,7 +1026,9 @@ void AutocompletePopupModel::SetDefaultMatchAndUpdate(bool immediately) {
   } else if (!update_pending_) {
     // Coalesce the results for the next kPopupCoalesceMs milliseconds.
     update_pending_ = true;
-    MessageLoop::current()->timer_manager()->ResetTimer(coalesce_timer_.get());
+    coalesce_timer_.Stop();
+    coalesce_timer_.Start(TimeDelta::FromMilliseconds(kPopupCoalesceMs), this,
+                          &AutocompletePopupModel::Run);
   }
 
   // Update the edit with the possibly new data for this match.
@@ -1087,12 +1085,11 @@ void AutocompletePopupModel::CommitLatestResults(bool force) {
   // The max update interval timer either needs to be reset (if more updates
   // are to come) or stopped (when we're done with the query).  The coalesce
   // timer should always just be stopped.
-  TimerManager* const tm = MessageLoop::current()->timer_manager();
-  tm->StopTimer(coalesce_timer_.get());
+  coalesce_timer_.Stop();
   if (query_in_progress_)
-    tm->ResetTimer(max_delay_timer_.get());
+    max_delay_timer_.Reset();
   else
-    tm->StopTimer(max_delay_timer_.get());
+    max_delay_timer_.Stop();
 }
 
 bool AutocompletePopupModel::GetKeywordForMatch(const AutocompleteMatch& match,

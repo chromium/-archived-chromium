@@ -20,6 +20,7 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
+#include "base/timer.h"
 #include "chrome/common/slide_animation.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/download_manager.h"
@@ -30,8 +31,6 @@
 
 class DownloadShelfView;
 class SkBitmap;
-class Task;
-class Timer;
 
 class DownloadItemView : public ChromeViews::View,
                          public DownloadItem::Observer,
@@ -188,8 +187,7 @@ class DownloadItemView : public ChromeViews::View,
   scoped_ptr<SlideAnimation> complete_animation_;
 
   // Progress animation
-  Timer* progress_timer_;
-  Task* progress_task_;
+  base::RepeatingTimer<DownloadItemView> progress_timer_;
 
   DISALLOW_EVIL_CONSTRUCTORS(DownloadItemView);
 };

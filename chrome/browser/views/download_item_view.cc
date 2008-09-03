@@ -46,8 +46,6 @@ DownloadItemView::DownloadItemView(DownloadItem* download,
     parent_(parent),
     model_(model),
     progress_angle_(download_util::kStartAngleDegrees),
-    progress_timer_(NULL),
-    progress_task_(NULL),
     body_state_(NORMAL),
     drop_down_state_(NORMAL),
     drop_down_pressed_(false),
@@ -175,24 +173,15 @@ void DownloadItemView::UpdateDownloadProgress() {
 }
 
 void DownloadItemView::StartDownloadProgress() {
-  if (progress_task_ || progress_timer_)
+  if (progress_timer_.IsRunning())
     return;
-  progress_task_ =
-      new download_util::DownloadProgressTask<DownloadItemView>(this);
-  progress_timer_ =
-      MessageLoop::current()->timer_manager()->
-          StartTimer(download_util::kProgressRateMs, progress_task_, true);
+  progress_timer_.Start(
+      TimeDelta::FromMilliseconds(download_util::kProgressRateMs), this,
+      &DownloadItemView::UpdateDownloadProgress);
 }
 
 void DownloadItemView::StopDownloadProgress() {
-  if (progress_timer_) {
-    DCHECK(progress_task_);
-    MessageLoop::current()->timer_manager()->StopTimer(progress_timer_);
-    delete progress_timer_;
-    progress_timer_ = NULL;
-    delete progress_task_;
-    progress_task_ = NULL;
-  }
+  progress_timer_.Stop();
 }
 
 // DownloadObserver interface

@@ -260,14 +260,16 @@ class BaseTimer_Helper {
   }
 
  protected:
-  BaseTimer_Helper(bool repeating)
-      : delayed_task_(NULL), repeating_(repeating) {
-  }
+  BaseTimer_Helper() : delayed_task_(NULL) {}
 
   // We have access to the timer_ member so we can orphan this task.
   class TimerTask : public Task {
    public:
+    TimerTask(TimeDelta delay) : delay_(delay) {
+      // timer_ is set in InitiateDelayedTask.
+    }
     BaseTimer_Helper* timer_;
+    TimeDelta delay_;
   };
 
   // Used to orphan delayed_task_ so that when it runs it does nothing.
@@ -278,8 +280,6 @@ class BaseTimer_Helper {
   void InitiateDelayedTask(TimerTask* timer_task);
 
   TimerTask* delayed_task_;
-  TimeDelta delay_;
-  bool repeating_;
 
   DISALLOW_COPY_AND_ASSIGN(BaseTimer_Helper);
 };
@@ -287,76 +287,69 @@ class BaseTimer_Helper {
 //-----------------------------------------------------------------------------
 // This class is an implementation detail of OneShotTimer and RepeatingTimer.
 // Please do not use this class directly.
-template <class Receiver>
+template <class Receiver, bool kIsRepeating>
 class BaseTimer : public BaseTimer_Helper {
  public:
   typedef void (Receiver::*ReceiverMethod)();
-
-  // The task must be set using set_task before calling Start.
-  BaseTimer(bool repeating)
-      : BaseTimer_Helper(repeating), receiver_(NULL), receiver_method_(NULL) {
-  }
 
   // Call this method to start the timer.  It is an error to call this method
   // while the timer is already running.
   void Start(TimeDelta delay, Receiver* receiver, ReceiverMethod method) {
     DCHECK(!IsRunning());
-    delay_ = delay;
-    receiver_ = receiver;
-    receiver_method_ = method;
-    InitiateDelayedTask(new TimerTask());
+    InitiateDelayedTask(new TimerTask(delay, receiver, method));
   }
 
   // Call this method to stop the timer.  It is a no-op if the timer is not
   // running.
   void Stop() {
-    receiver_ = NULL;
-    receiver_method_ = NULL;
     OrphanDelayedTask();
   }
 
   // Call this method to reset the timer delay of an already running timer.
   void Reset() {
     DCHECK(IsRunning());
-    OrphanDelayedTask();
-    InitiateDelayedTask(new TimerTask());
+    InitiateDelayedTask(static_cast<TimerTask*>(delayed_task_)->Clone());
   }
 
  private:
+  typedef BaseTimer<Receiver, kIsRepeating> SelfType;
+  
   class TimerTask : public BaseTimer_Helper::TimerTask {
    public:
+    TimerTask(TimeDelta delay, Receiver* receiver, ReceiverMethod method)
+        : BaseTimer_Helper::TimerTask(delay),
+          receiver_(receiver),
+          method_(method) {
+    }
     virtual void Run() {
       if (!timer_)  // timer_ is null if we were orphaned.
         return;
-      BaseTimer<Receiver>* self = static_cast<BaseTimer<Receiver>*>(timer_);
-      if (self->repeating_) {
+      SelfType* self = static_cast<SelfType*>(timer_);
+      if (kIsRepeating) {
         self->Reset();
       } else {
         self->delayed_task_ = NULL;
       }
-      DispatchToMethod(self->receiver_, self->receiver_method_, Tuple0());
+      DispatchToMethod(receiver_, method_, Tuple0());
     }
+    TimerTask* Clone() const {
+      return new TimerTask(delay_, receiver_, method_);
+    }
+   private:
+    Receiver* receiver_;
+    ReceiverMethod method_;
   };
-  
-  Receiver* receiver_;
-  ReceiverMethod receiver_method_;
 };
 
 //-----------------------------------------------------------------------------
 // A simple, one-shot timer.  See usage notes at the top of the file.
 template <class Receiver>
-class OneShotTimer : public BaseTimer<Receiver> {
- public:
-  OneShotTimer() : BaseTimer<Receiver>(false) {}
-};
+class OneShotTimer : public BaseTimer<Receiver, false> {};
 
 //-----------------------------------------------------------------------------
 // A simple, repeating timer.  See usage notes at the top of the file.
 template <class Receiver>
-class RepeatingTimer : public BaseTimer<Receiver> {
- public:
-  RepeatingTimer() : BaseTimer<Receiver>(true) {}
-};
+class RepeatingTimer : public BaseTimer<Receiver, true> {};
 
 }  // namespace base
 

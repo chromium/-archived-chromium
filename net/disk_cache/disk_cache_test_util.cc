@@ -96,9 +96,28 @@ void CallbackTest::RunWithParams(const Tuple1<int>& params) {
 
 // -----------------------------------------------------------------------
 
+MessageLoopHelper::MessageLoopHelper()
+    : num_callbacks_(0),
+      num_iterations_(0),
+      last_(0),
+      completed_(false) {
+  // Create a recurrent timer of 50 mS.
+  timer_.Start(
+      TimeDelta::FromMilliseconds(50), this, &MessageLoopHelper::TimerExpired);
+}
+
+bool MessageLoopHelper::WaitUntilCacheIoFinished(int num_callbacks) {
+  if (num_callbacks == g_cache_tests_received)
+    return true;
+
+  ExpectCallbacks(num_callbacks);
+  MessageLoop::current()->Run();
+  return completed_;
+}
+
 // Quits the message loop when all callbacks are called or we've been waiting
 // too long for them (2 secs without a callback).
-void TimerTask::Run() {
+void MessageLoopHelper::TimerExpired() {
   if (g_cache_tests_received > num_callbacks_) {
     NOTREACHED();
   } else if (g_cache_tests_received == num_callbacks_) {
@@ -114,27 +133,3 @@ void TimerTask::Run() {
       MessageLoop::current()->Quit();
   }
 }
-
-// -----------------------------------------------------------------------
-
-MessageLoopHelper::MessageLoopHelper() {
-  message_loop_ = MessageLoop::current();
-  // Create a recurrent timer of 50 mS.
-  timer_ = message_loop_->timer_manager()->StartTimer(50, &timer_task_, true);
-}
-
-MessageLoopHelper::~MessageLoopHelper() {
-  message_loop_->timer_manager()->StopTimer(timer_);
-  delete timer_;
-}
-
-bool MessageLoopHelper::WaitUntilCacheIoFinished(int num_callbacks) {
-  if (num_callbacks == g_cache_tests_received)
-    return true;
-
-  timer_task_.ExpectCallbacks(num_callbacks);
-  message_loop_->Run();
-  return timer_task_.GetSate();
-}
-
-

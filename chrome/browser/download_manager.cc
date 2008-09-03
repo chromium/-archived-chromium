@@ -95,8 +95,6 @@ DownloadItem::DownloadItem(const DownloadCreateInfo& info)
       state_(static_cast<DownloadState>(info.state)),
       start_time_(info.start_time),
       db_handle_(info.db_handle),
-      update_task_(NULL),
-      timer_(NULL),
       manager_(NULL),
       is_paused_(false),
       open_when_complete_(false),
@@ -124,8 +122,6 @@ DownloadItem::DownloadItem(int32 download_id,
       state_(IN_PROGRESS),
       start_time_(start_time),
       db_handle_(kUninitializedHandle),
-      update_task_(NULL),
-      timer_(NULL),
       manager_(NULL),
       is_paused_(false),
       open_when_complete_(false),
@@ -141,7 +137,6 @@ void DownloadItem::Init(bool start_timer) {
 }
 
 DownloadItem::~DownloadItem() {
-  DCHECK(timer_ == NULL && update_task_ == NULL);
   state_ = REMOVING;
   UpdateObservers();
 }
@@ -205,20 +200,12 @@ void DownloadItem::Remove() {
 }
 
 void DownloadItem::StartProgressTimer() {
-  DCHECK(update_task_ == NULL && timer_ == NULL);
-  update_task_ = new DownloadItemUpdateTask(this);
-  TimerManager* tm = MessageLoop::current()->timer_manager();
-  timer_ = tm->StartTimer(kUpdateTimeMs, update_task_, true);
+  update_timer_.Start(TimeDelta::FromMilliseconds(kUpdateTimeMs), this,
+                      &DownloadItem::UpdateObservers);
 }
 
 void DownloadItem::StopProgressTimer() {
-  if (timer_) {
-    MessageLoop::current()->timer_manager()->StopTimer(timer_);
-    delete timer_;
-    timer_ = NULL;
-    delete update_task_;
-    update_task_ = NULL;
-  }
+  update_timer_.Stop();
 }
 
 bool DownloadItem::TimeRemaining(TimeDelta* remaining) const {

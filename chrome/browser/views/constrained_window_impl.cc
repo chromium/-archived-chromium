@@ -208,8 +208,7 @@ ChromeFont OTRWindowResources::title_font_;
 class ConstrainedWindowNonClientView
     : public ChromeViews::NonClientView,
       public ChromeViews::BaseButton::ButtonListener,
-      public LocationBarView::Delegate,
-      public Task {
+      public LocationBarView::Delegate {
  public:
   ConstrainedWindowNonClientView(ConstrainedWindowImpl* container,
                                  TabContents* owner);
@@ -255,9 +254,6 @@ class ConstrainedWindowNonClientView
   // Overridden from LocationBarView::Delegate:
   virtual TabContents* GetTabContents();
   virtual void OnInputInProgress(bool in_progress);
-
-  // Overridden from Task:
-  virtual void Run();
 
   // Updates the current throbber animation frame; called from the
   // overloaded Run() and from SetShowThrobber().
@@ -319,7 +315,7 @@ class ConstrainedWindowNonClientView
   bool show_throbber_;
 
   // The timer used to update frames for the throbber.
-  scoped_ptr<Timer> throbber_animation_timer_;
+  base::RepeatingTimer<ConstrainedWindowNonClientView> throbber_timer_;
 
   // The current index into the throbber image strip.
   int current_throbber_frame_;
@@ -395,9 +391,6 @@ ConstrainedWindowNonClientView::ConstrainedWindowNonClientView(
   close_button_->SetListener(this, 0);
   AddChildView(close_button_);
 
-  throbber_animation_timer_.reset(
-      new Timer(kThrobberFrameTimeMs, this, true));
-
   // Note: we don't need for a controller because no input event will be ever
   // processed from a constrained window.
   location_bar_ = new LocationBarView(owner->profile(),
@@ -409,8 +402,6 @@ ConstrainedWindowNonClientView::ConstrainedWindowNonClientView(
 }
 
 ConstrainedWindowNonClientView::~ConstrainedWindowNonClientView() {
-  MessageLoop::current()->timer_manager()->StopTimer(
-      throbber_animation_timer_.get());
 }
 
 void ConstrainedWindowNonClientView::UpdateLocationBar() {
@@ -483,23 +474,19 @@ void ConstrainedWindowNonClientView::UpdateWindowTitle() {
 void ConstrainedWindowNonClientView::SetShowThrobber(bool show_throbber) {
   show_throbber_ = show_throbber;
 
-  TimerManager* tm = MessageLoop::current()->timer_manager();
-  Timer* timer = throbber_animation_timer_.get();
   if (show_throbber) {
-    if (!tm->IsTimerRunning(timer))
-      tm->ResetTimer(timer);
+    if (!throbber_timer_.IsRunning())
+      throbber_timer_.Start(
+          TimeDelta::FromMilliseconds(kThrobberFrameTimeMs), this,
+          &ConstrainedWindowNonClientView::UpdateThrobber);
   } else {
-    if (tm->IsTimerRunning(timer)) {
+    if (throbber_timer_.IsRunning()) {
+      throbber_timer_.Stop();
       UpdateThrobber();
-      tm->StopTimer(timer);
     }
   }
 
   Layout();
-}
-
-void ConstrainedWindowNonClientView::Run() {
-  UpdateThrobber();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

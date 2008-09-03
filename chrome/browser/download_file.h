@@ -50,18 +50,14 @@
 #include "base/lock.h"
 #include "base/ref_counted.h"
 #include "base/thread.h"
+#include "base/timer.h"
 #include "chrome/browser/history/download_types.h"
 
 class DownloadManager;
 class GURL;
 class MessageLoop;
 class ResourceDispatcherHost;
-class Task;
 class URLRequestContext;
-
-namespace base {
-class Timer;
-}
 
 // DownloadBuffer --------------------------------------------------------------
 
@@ -242,8 +238,7 @@ class DownloadFileManager
   DownloadFileMap downloads_;
 
   // Throttle updates to the UI thread.
-  Task* update_task_;
-  base::Timer* update_timer_;
+  base::RepeatingTimer<DownloadFileManager> update_timer_;
 
   // The MessageLoop that the DownloadManagers live on.
   MessageLoop* ui_loop_;

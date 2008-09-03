@@ -173,8 +173,7 @@ class DownloadTabView : public ChromeViews::View,
   OrderedDownloads downloads_;
 
   // Progress animations
-  base::Timer* progress_timer_;
-  Task* progress_task_;
+  base::RepeatingTimer<DownloadTabView> progress_timer_;
 
   // Since this view manages the progress animation timers for all the floating
   // views, we need to track the current in progress downloads. This container

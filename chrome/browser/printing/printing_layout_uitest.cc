@@ -399,23 +399,29 @@ class PrintingLayoutTextTest : public PrintingLayoutTest {
 
 // Dismiss the first dialog box child of owner_window by "executing" the
 // default button.
-class DismissTheWindow : public Task {
+class DismissTheWindow : public base::RefCountedThreadSafe<DismissTheWindow> {
  public:
   DismissTheWindow(DWORD owner_process)
       : owner_process_(owner_process),
         dialog_was_found_(false),
         dialog_window_(NULL),
         other_thread_(MessageLoop::current()),
-        timer_(NULL),
         start_time_(Time::Now()) {
   }
-  virtual void Run() {
+
+  void Start() {
+    timer_.Start(TimeDelta::FromMilliseconds(250), this,
+                 &DismissTheWindow::DoTimeout);
+  }
+
+ private:
+  void DoTimeout() {
     // A bit twisted code that runs in 2 passes or more. First it tries to find
     // a dialog box, if it finds it, it will execute the default action. If it
     // still works, it will loop again but then it will try to *not* find the
     // window. Once this is right, it will stop the timer and unlock the
     // other_thread_ message loop.
-    if (!timer_)
+    if (!timer_.IsRunning())
       return;
 
     if (!dialog_window_) {
@@ -464,8 +470,7 @@ class DismissTheWindow : public Task {
 
     // Now verify that it indeed closed itself.
     if (!IsWindow(dialog_window_)) {
-      MessageLoop::current()->timer_manager()->StopTimer(timer_);
-      timer_ = NULL;
+      timer_.Stop();
       // Unlock the other thread.
       other_thread_->PostTask(FROM_HERE, new MessageLoop::QuitTask());
     } else {
@@ -473,15 +478,12 @@ class DismissTheWindow : public Task {
       dialog_window_ = NULL;
     }
   }
-  void SetTimer(Timer* timer) {
-    timer_ = timer;
-  }
- private:
+
   DWORD owner_process_;
   bool dialog_was_found_;
   HWND dialog_window_;
   MessageLoop* other_thread_;
-  Timer* timer_;
+  base::RepeatingTimer<DismissTheWindow> timer_;
   Time start_time_;
 };
 
@@ -562,14 +564,13 @@ TEST_F(PrintingLayoutTest, DISABLED_Delayed) {
 
     scoped_ptr<base::Thread> worker(
         new base::Thread("PrintingLayoutTest_worker"));
-    DismissTheWindow dismiss_task(process_util::GetProcId(process()));
+    scoped_refptr<DismissTheWindow> dismiss_task =
+        new DismissTheWindow(process_util::GetProcId(process()));
     // We need to start the thread to be able to set the timer.
     worker->Start();
-    scoped_ptr<Timer> timer(worker->message_loop()->timer_manager()->StartTimer(
-        250,
-        &dismiss_task,
-        true));
-    dismiss_task.SetTimer(timer.get());
+    worker->message_loop()->PostTask(FROM_HERE,
+        NewRunnableMethod(dismiss_task.get(), &DismissTheWindow::Start));
+
     MessageLoop::current()->Run();
 
     worker->Stop();
@@ -601,14 +602,13 @@ TEST_F(PrintingLayoutTest, DISABLED_IFrame) {
 
     scoped_ptr<base::Thread> worker(
         new base::Thread("PrintingLayoutTest_worker"));
-    DismissTheWindow dismiss_task(process_util::GetProcId(process()));
+    scoped_refptr<DismissTheWindow> dismiss_task =
+        new DismissTheWindow(process_util::GetProcId(process()));
     // We need to start the thread to be able to set the timer.
     worker->Start();
-    scoped_ptr<Timer> timer(worker->message_loop()->timer_manager()->StartTimer(
-        250,
-        &dismiss_task,
-        true));
-    dismiss_task.SetTimer(timer.get());
+    worker->message_loop()->PostTask(FROM_HERE,
+        NewRunnableMethod(dismiss_task.get(), &DismissTheWindow::Start));
+
     MessageLoop::current()->Run();
 
     worker->Stop();

@@ -8,6 +8,7 @@
 #include "base/lock.h"
 #include "base/singleton.h"
 #include "base/ref_counted.h"
+#include "base/timer.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/group_table_view.h"
 #include "chrome/browser/cache_manager_host.h"
@@ -24,10 +25,6 @@ class TaskManagerTableModel;
 class TaskManagerWindow;
 
 struct BytesReadParam;
-
-namespace base {
-class Timer;
-}
 
 namespace ChromeViews {
 class View;
@@ -263,9 +260,8 @@ class TaskManagerTableModel : public ChromeViews::GroupTableModel,
   // The timer controlling the updates of the information. The timer is
   // allocated every time the task manager is shown and deleted when it is
   // hidden/closed.
-  base::Timer* timer_;
+  base::RepeatingTimer<TaskManagerTableModel> update_timer_;
 
-  scoped_ptr<Task> update_task_;
   MessageLoop* ui_loop_;
 
   // See design doc at http://go/at-teleporter for more information.

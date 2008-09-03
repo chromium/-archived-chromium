@@ -492,12 +492,12 @@ bool PrintViewManager::RunInnerMessageLoop() {
   // be cpu bound, the page overly complex/large or the system just
   // memory-bound.
   static const int kPrinterSettingsTimeout = 60000;
-  MessageLoop::QuitTask timeout_task;
-  Timer* timeout = MessageLoop::current()->timer_manager()->StartTimer(
-      kPrinterSettingsTimeout,
-      &timeout_task,
-      false);
+  base::OneShotTimer<MessageLoop> quit_timer;
+  quit_timer.Start(TimeDelta::FromMilliseconds(kPrinterSettingsTimeout),
+                   MessageLoop::current(), &MessageLoop::Quit);
+
   inside_inner_message_loop_ = true;
+
   // Need to enable recursive task.
   bool old_state = MessageLoop::current()->NestableTasksAllowed();
   MessageLoop::current()->SetNestableTasksAllowed(true);
@@ -512,11 +512,6 @@ bool PrintViewManager::RunInnerMessageLoop() {
     success = false;
   }
 
-  if (timeout) {
-    MessageLoop::current()->timer_manager()->StopTimer(timeout);
-    delete timeout;
-    timeout = NULL;
-  }
   return success;
 }
 

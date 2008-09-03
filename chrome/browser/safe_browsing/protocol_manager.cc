@@ -49,22 +49,6 @@ static const int kSbClientMinorVersion = 0;
 static const int kSbMaxBackOff = 8;
 
 
-// Periodic update task --------------------------------------------------------
-class SafeBrowsingProtocolUpdateTask : public Task {
- public:
-  explicit SafeBrowsingProtocolUpdateTask(SafeBrowsingProtocolManager* manager)
-      : manager_(manager) {
-  }
-
-  void Run() {
-    manager_->GetNextUpdate();
-  }
-
- private:
-  SafeBrowsingProtocolManager* manager_;
-};
-
-
 // SafeBrowsingProtocolManager implementation ----------------------------------
 
 SafeBrowsingProtocolManager::SafeBrowsingProtocolManager(
@@ -93,9 +77,6 @@ SafeBrowsingProtocolManager::SafeBrowsingProtocolManager(
 }
 
 SafeBrowsingProtocolManager::~SafeBrowsingProtocolManager() {
-  if (update_timer_.get())
-    MessageLoop::current()->timer_manager()->StopTimer(update_timer_.get());
-
   // Delete in-progress SafeBrowsing requests.
   STLDeleteContainerPairFirstPointers(hash_requests_.begin(),
                                       hash_requests_.end());
@@ -399,17 +380,13 @@ void SafeBrowsingProtocolManager::Initialize() {
 void SafeBrowsingProtocolManager::ScheduleNextUpdate(bool back_off) {
   DCHECK(next_update_sec_ > 0);
 
-  if (!update_task_.get())
-    update_task_.reset(new SafeBrowsingProtocolUpdateTask(this));
-
-  // Unschedule any current timer & task.
-  TimerManager* tm = MessageLoop::current()->timer_manager();
-  if (update_timer_.get())
-    tm->StopTimer(update_timer_.get());
+  // Unschedule any current timer.
+  update_timer_.Stop();
 
   // Reschedule with the new update.
   const int next_update = GetNextUpdateTime(back_off);
-  update_timer_.reset(tm->StartTimer(next_update, update_task_.get(), false));
+  update_timer_.Start(TimeDelta::FromMilliseconds(next_update), this,
+                      &SafeBrowsingProtocolManager::GetNextUpdate);
 }
 
 // According to section 5 of the SafeBrowsing protocol specification, we must

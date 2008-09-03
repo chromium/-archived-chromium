@@ -385,15 +385,12 @@ class AutocompletePopupModel : public ACControllerListener, public Task {
   // Timer that tracks how long it's been since the last provider update we
   // received.  Instead of displaying each update immediately, we batch updates
   // into groups, which reduces flicker.
-  //
-  // NOTE: Both coalesce_timer_ and max_delay_timer_ (below) are set up during
-  // the constructor, and are guaranteed non-NULL for the life of the popup.
-  scoped_ptr<Timer> coalesce_timer_;
+  base::OneShotTimer<AutocompletePopupModel> coalesce_timer_;
 
   // Timer that tracks how long it's been since the last time we updated the
   // onscreen results.  This is used to ensure that the popup is somewhat
   // responsive even when the user types continuously.
-  scoped_ptr<Timer> max_delay_timer_;
+  base::RepeatingTimer<AutocompletePopupModel> max_delay_timer_;
 
   // The line that's currently hovered.  If we're not drawing a hover rect,
   // this will be kNoMatch, even if the cursor is over the popup contents.

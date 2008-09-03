@@ -12,7 +12,6 @@
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/task.h"
-#include "base/timer.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download_manager.h"
 #include "chrome/browser/profile.h"
@@ -137,8 +136,6 @@ bool DownloadFile::Open(const wchar_t* open_mode) {
 DownloadFileManager::DownloadFileManager(MessageLoop* ui_loop,
                                          ResourceDispatcherHost* rdh)
     : next_id_(0),
-      update_task_(NULL),
-      update_timer_(NULL),
       ui_loop_(ui_loop),
       resource_dispatcher_host_(rdh) {
 }
@@ -146,7 +143,6 @@ DownloadFileManager::DownloadFileManager(MessageLoop* ui_loop,
 DownloadFileManager::~DownloadFileManager() {
   // Check for clean shutdown.
   DCHECK(downloads_.empty());
-  DCHECK(!update_timer_ && !update_task_);
   ui_progress_.clear();
 }
 
@@ -197,22 +193,15 @@ void DownloadFileManager::RemoveDownloadFromUIProgress(int id) {
 // regularly controlled interval.
 void DownloadFileManager::StartUpdateTimer() {
   DCHECK(MessageLoop::current() == ui_loop_);
-  if (update_timer_ == NULL) {
-    update_task_ = new DownloadFileUpdateTask(this);
-    TimerManager* tm = ui_loop_->timer_manager();
-    update_timer_ = tm->StartTimer(kUpdatePeriodMs, update_task_, true);
+  if (!update_timer_.IsRunning()) {
+    update_timer_.Start(TimeDelta::FromMilliseconds(kUpdatePeriodMs), this,
+                        &DownloadFileManager::UpdateInProgressDownloads);
   }
 }
 
 void DownloadFileManager::StopUpdateTimer() {
   DCHECK(MessageLoop::current() == ui_loop_);
-  if (update_timer_ && update_task_) {
-    ui_loop_->timer_manager()->StopTimer(update_timer_);
-    delete update_timer_;
-    update_timer_ = NULL;
-    delete update_task_;
-    update_task_ = NULL;
-  }
+  update_timer_.Stop();
 }
 
 // Called on the IO thread once the ResourceDispatcherHost has decided that a

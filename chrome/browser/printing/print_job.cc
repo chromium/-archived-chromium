@@ -267,18 +267,14 @@ bool PrintJob::FlushJob(int timeout_ms) {
   // Make sure the object outlive this message loop.
   scoped_refptr<PrintJob> handle(this);
 
-  MessageLoop::QuitTask timeout_task;
-  scoped_ptr<Timer> timeout;
-  if (timeout_ms) {
-    timeout.reset(MessageLoop::current()->timer_manager()->StartTimer(
-        timeout_ms,
-        &timeout_task,
-        false));
-  }
-
   // Stop() will eventually be called, which will get out of the inner message
   // loop. But, don't take it for granted and set a timer in case something goes
   // wrong.
+  base::OneShotTimer<MessageLoop> quit_task;
+  if (timeout_ms) {
+    quit_task.Start(TimeDelta::FromMilliseconds(timeout_ms),
+                    MessageLoop::current(), &MessageLoop::Quit);
+  }
 
   bool old_state = MessageLoop::current()->NestableTasksAllowed();
   MessageLoop::current()->SetNestableTasksAllowed(true);
@@ -286,9 +282,6 @@ bool PrintJob::FlushJob(int timeout_ms) {
   // Restore task state.
   MessageLoop::current()->SetNestableTasksAllowed(old_state);
 
-  if (timeout.get()) {
-    MessageLoop::current()->timer_manager()->StopTimer(timeout.get());
-  }
   return true;
 }
 

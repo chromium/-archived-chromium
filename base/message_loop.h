@@ -199,8 +199,9 @@ class MessageLoop : public base::MessagePump::Delegate {
     return loop;
   }
 
-  // Returns the TimerManager object for the current thread.
-  base::TimerManager* timer_manager() { return &timer_manager_; }
+  // Returns the TimerManager object for the current thread.  This getter is
+  // deprecated.  Please use OneShotTimer or RepeatingTimer instead.
+  base::TimerManager* timer_manager_deprecated() { return &timer_manager_; }
 
   // Enables or disables the recursive task processing. This happens in the case
   // of recursive message loops. Some unwanted message loop may occurs when

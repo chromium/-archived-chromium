@@ -159,8 +159,7 @@ class SafeBrowsingProtocolManager : public URLFetcher::Delegate {
   // For managing the next earliest time to query the SafeBrowsing servers for
   // updates.
   int next_update_sec_;
-  scoped_ptr<Task> update_task_;
-  scoped_ptr<Timer> update_timer_;
+  base::OneShotTimer<SafeBrowsingProtocolManager> update_timer_;
 
   // All chunk requests that need to be made, along with their MAC.
   std::deque<ChunkUrl> chunk_request_urls_;

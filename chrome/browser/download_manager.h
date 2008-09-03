@@ -59,8 +59,6 @@ class MessageLoop;
 class PrefService;
 class Profile;
 class ResourceDispatcherHost;
-class Task;
-class Timer;
 class URLRequestContext;
 class WebContents;
 
@@ -216,9 +214,8 @@ class DownloadItem {
   // Our persistent store handle
   int64 db_handle_;
 
-  // Timer & task for regularly updating our observers
-  Task* update_task_;
-  Timer* timer_;
+  // Timer for regularly updating our observers
+  base::RepeatingTimer<DownloadItem> update_timer_;
 
   // Our owning object
   DownloadManager* manager_;

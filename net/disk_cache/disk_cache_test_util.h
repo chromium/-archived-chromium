@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_DISK_CACHE_DISK_CACHE_TEST_UTIL_H__
-#define NET_DISK_CACHE_DISK_CACHE_TEST_UTIL_H__
+#ifndef NET_DISK_CACHE_DISK_CACHE_TEST_UTIL_H_
+#define NET_DISK_CACHE_DISK_CACHE_TEST_UTIL_H_
 
 #include <string>
 
@@ -46,38 +46,7 @@ class CallbackTest : public CallbackRunner< Tuple1<int> >  {
  private:
   int id_;
   int reuse_;
-  DISALLOW_EVIL_CONSTRUCTORS(CallbackTest);
-};
-
-// -----------------------------------------------------------------------
-
-// We'll use a timer to fire from time to time to check the number of IO
-// operations finished so far.
-class TimerTask : public Task {
- public:
-  TimerTask() : num_callbacks_(0), num_iterations_(0) {}
-  ~TimerTask() {}
-
-  virtual void Run();
-
-  // Sets the number of callbacks that can be received so far.
-  void ExpectCallbacks(int num_callbacks) {
-    num_callbacks_ = num_callbacks;
-    num_iterations_ = last_ = 0;
-    completed_ = false;
-  }
-
-  // Returns true if all callbacks were invoked.
-  bool GetSate() {
-    return completed_;
-  }
-
- private:
-  int num_callbacks_;
-  int num_iterations_;
-  int last_;
-  bool completed_;
-  DISALLOW_EVIL_CONSTRUCTORS(TimerTask);
+  DISALLOW_COPY_AND_ASSIGN(CallbackTest);
 };
 
 // -----------------------------------------------------------------------
@@ -86,18 +55,29 @@ class TimerTask : public Task {
 class MessageLoopHelper {
  public:
   MessageLoopHelper();
-  ~MessageLoopHelper();
 
   // Run the message loop and wait for num_callbacks before returning. Returns
   // false if we are waiting to long.
   bool WaitUntilCacheIoFinished(int num_callbacks);
 
  private:
-  MessageLoop* message_loop_;
-  Timer* timer_;
-  TimerTask timer_task_;
-  DISALLOW_EVIL_CONSTRUCTORS(MessageLoopHelper);
+  // Sets the number of callbacks that can be received so far.
+  void ExpectCallbacks(int num_callbacks) {
+    num_callbacks_ = num_callbacks;
+    num_iterations_ = last_ = 0;
+    completed_ = false;
+  }
+
+  // Called periodically to test if WaitUntilCacheIoFinished should return.
+  void TimerExpired();
+
+  base::RepeatingTimer<MessageLoopHelper> timer_;
+  int num_callbacks_;
+  int num_iterations_;
+  int last_;
+  bool completed_;
+
+  DISALLOW_COPY_AND_ASSIGN(MessageLoopHelper);
 };
 
-#endif  // NET_DISK_CACHE_DISK_CACHE_TEST_UTIL_H__
-
+#endif  // NET_DISK_CACHE_DISK_CACHE_TEST_UTIL_H_

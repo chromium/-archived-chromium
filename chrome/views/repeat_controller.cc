@@ -15,45 +15,29 @@ static const int kRepeatDelay = 50;
 // RepeatController, public:
 
 RepeatController::RepeatController(RepeatCallback* callback)
-    : timer_(NULL),
-      callback_(callback) {
+    : callback_(callback) {
 }
 
 RepeatController::~RepeatController() {
-  DestroyTimer();
 }
 
 void RepeatController::Start() {
-  DCHECK(!timer_);
   // The first timer is slightly longer than subsequent repeats.
-  timer_ = MessageLoop::current()->timer_manager()->StartTimer(
-      kInitialRepeatDelay, this, false);
+  timer_.Start(TimeDelta::FromMilliseconds(kInitialRepeatDelay), this,
+               &RepeatController::Run);
 }
 
 void RepeatController::Stop() {
-  DestroyTimer();
-}
-
-void RepeatController::Run() {
-  DestroyTimer();
-
-  // TODO(beng): (Cleanup) change this to just Run() when base rolls forward.
-  callback_->RunWithParams(Tuple0());
-  timer_ = MessageLoop::current()->timer_manager()->StartTimer(
-      kRepeatDelay, this, true);
+  timer_.Stop();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // RepeatController, private:
 
-void RepeatController::DestroyTimer() {
-  if (!timer_)
-    return;
-
-  MessageLoop::current()->timer_manager()->StopTimer(timer_);
-  delete timer_;
-  timer_ = NULL;
+void RepeatController::Run() {
+  timer_.Start(TimeDelta::FromMilliseconds(kRepeatDelay), this,
+               &RepeatController::Run);
+  callback_->Run();
 }
 
-}
-
+}  // namespace ChromeViews

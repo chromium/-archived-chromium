@@ -14,7 +14,7 @@
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
-#include "base/time.h"
+#include "base/timer.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
@@ -32,10 +32,6 @@ class TemplateURLModel;
 class URLRequestContext;
 class VisitedLinkMaster;
 class WebDataService;
-
-namespace base {
-class Timer;
-}
 
 class Profile {
  public:
@@ -291,23 +287,6 @@ class ProfileImpl : public Profile {
  private:
   class RequestContext;
 
-  // TODO(sky): replace this with a generic invokeLater that doesn't require
-  // arg to be ref counted.
-  class CreateSessionServiceTask : public Task {
-   public:
-    explicit CreateSessionServiceTask(ProfileImpl* profile)
-        : profile_(profile) {
-    }
-    void Run() {
-      profile_->GetSessionService();
-    }
-
-   private:
-    ProfileImpl* profile_;
-
-    DISALLOW_EVIL_CONSTRUCTORS(CreateSessionServiceTask);
-  };
-
   friend class Profile;
 
   ProfileImpl(const std::wstring& path);
@@ -316,6 +295,10 @@ class ProfileImpl : public Profile {
   std::wstring GetPrefFilePath();
 
   void StopCreateSessionServiceTimer();
+  
+  void EnsureSessionServiceCreated() {
+    GetSessionService();
+  }
 
   std::wstring path_;
   bool off_the_record_;
@@ -343,8 +326,7 @@ class ProfileImpl : public Profile {
 
   ProfileControllerSet controllers_;
 
-  base::Timer* create_session_service_timer_;
-  CreateSessionServiceTask create_session_service_task_;
+  base::OneShotTimer<ProfileImpl> create_session_service_timer_;
 
   scoped_ptr<OffTheRecordProfileImpl> off_the_record_profile_;
 

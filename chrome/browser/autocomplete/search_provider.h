@@ -34,14 +34,11 @@ class Value;
 // comes back, the provider creates and returns matches for the best
 // suggestions.
 class SearchProvider : public AutocompleteProvider,
-                       public URLFetcher::Delegate,
-                       public Task {
+                       public URLFetcher::Delegate {
  public:
   SearchProvider(ACProviderListener* listener, Profile* profile)
       : AutocompleteProvider(listener, profile, "Search"),
         last_default_provider_(NULL),
-#pragma warning(suppress: 4355)  // Okay to pass "this" here.
-        timer_(new Timer(kQueryDelayMs, this, false)),
         fetcher_(NULL),
         history_request_pending_(false),
         have_history_results_(false),
@@ -63,9 +60,6 @@ class SearchProvider : public AutocompleteProvider,
                                   const ResponseCookies& cookies,
                                   const std::string& data);
 
-  // Task
-  void Run();
-
  private:
   struct NavigationResult {
     NavigationResult(const std::wstring& url, const std::wstring& site_name)
@@ -84,6 +78,9 @@ class SearchProvider : public AutocompleteProvider,
   typedef std::vector<NavigationResult> NavigationResults;
   typedef std::vector<history::KeywordSearchTermVisit> HistoryResults;
   typedef std::map<std::wstring, AutocompleteMatch> MatchMap;
+
+  // Called when timer_ expires.
+  void Run();
 
   // Determines whether an asynchronous subcomponent query should run for the
   // current input.  If so, starts it if necessary; otherwise stops it.
@@ -173,7 +170,7 @@ class SearchProvider : public AutocompleteProvider,
 
   // A timer to start a query to the suggest server after the user has stopped
   // typing for long enough.
-  scoped_ptr<Timer> timer_;
+  base::OneShotTimer<SearchProvider> timer_;
 
   // The fetcher that retrieves suggest results from the server.
   scoped_ptr<URLFetcher> fetcher_;

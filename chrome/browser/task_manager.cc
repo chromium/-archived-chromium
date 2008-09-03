@@ -7,7 +7,6 @@
 #include "base/process_util.h"
 #include "base/stats_table.h"
 #include "base/string_util.h"
-#include "base/timer.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/render_process_host.h"
@@ -44,26 +43,6 @@ static const int kGoatsTeleportedColumn =
     (94024 * kNuthMagicNumber) & kBitMask;
 
 ////////////////////////////////////////////////////////////////////////////////
-// TaskManagerUpdateTask class.
-//
-// Used to periodically updates the task manager contents.
-//
-////////////////////////////////////////////////////////////////////////////////
-
-class TaskManagerUpdateTask : public Task {
- public:
-  explicit TaskManagerUpdateTask(TaskManagerTableModel* model) : model_(model) {
-  }
-  void Run() {
-    if (model_) model_->Refresh();
-  }
-
- private:
-  TaskManagerTableModel* model_;
-  DISALLOW_EVIL_CONSTRUCTORS(TaskManagerUpdateTask);
-};
-
-////////////////////////////////////////////////////////////////////////////////
 // TaskManagerTableModel class
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -72,7 +51,6 @@ int TaskManagerTableModel::goats_teleported_ = 0;
 
 TaskManagerTableModel::TaskManagerTableModel(TaskManager* task_manager)
     : observer_(NULL),
-      timer_(NULL),
       ui_loop_(MessageLoop::current()),
       is_updating_(false) {
 
@@ -88,11 +66,9 @@ TaskManagerTableModel::TaskManagerTableModel(TaskManager* task_manager)
       new TaskManagerPluginProcessResourceProvider(task_manager);
   plugin_provider->AddRef();
   providers_.push_back(plugin_provider);
-  update_task_.reset(new TaskManagerUpdateTask(this));
 }
 
 TaskManagerTableModel::~TaskManagerTableModel() {
-  DCHECK(timer_ == NULL);
   for (ResourceProviderList::iterator iter = providers_.begin();
        iter != providers_.end(); ++iter) {
     (*iter)->Release();
@@ -229,9 +205,8 @@ HANDLE TaskManagerTableModel::GetProcessAt(int index) {
 void TaskManagerTableModel::StartUpdating() {
   DCHECK(!is_updating_);
   is_updating_ = true;
-  DCHECK(timer_ == NULL);
-  TimerManager* tm = MessageLoop::current()->timer_manager();
-  timer_ = tm->StartTimer(kUpdateTimeMs, update_task_.get(), true);
+  update_timer_.Start(TimeDelta::FromMilliseconds(kUpdateTimeMs), this,
+                      &TaskManagerTableModel::Refresh);
 
   // Register jobs notifications so we can compute network usage (it must be
   // done from the IO thread).
@@ -250,9 +225,7 @@ void TaskManagerTableModel::StartUpdating() {
 void TaskManagerTableModel::StopUpdating() {
   DCHECK(is_updating_);
   is_updating_ = false;
-  MessageLoop::current()->timer_manager()->StopTimer(timer_);
-  delete timer_;
-  timer_ = NULL;
+  update_timer_.Stop();
 
   // Notify resource providers that we are done updating.
   for (ResourceProviderList::const_iterator iter = providers_.begin();

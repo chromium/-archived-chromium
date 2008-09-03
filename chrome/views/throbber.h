@@ -8,19 +8,14 @@
 #define CHROME_VIEWS_THROBBER_H__
 
 #include "base/basictypes.h"
-#include "base/task.h"
+#include "base/timer.h"
 #include "chrome/views/view.h"
 
 class SkBitmap;
 
-namespace base {
-class Timer;
-}
-
 namespace ChromeViews {
 
-class Throbber : public ChromeViews::View,
-                 public Task {
+class Throbber : public ChromeViews::View {
  public:
   // |frame_time_ms| is the amount of time that should elapse between frames
   //                 (in milliseconds)
@@ -37,14 +32,13 @@ class Throbber : public ChromeViews::View,
   virtual void GetPreferredSize(CSize *out);
   virtual void Paint(ChromeCanvas* canvas);
 
-  // implemented from Task
-  virtual void Run();
-
  protected:
   // Specifies whether the throbber is currently animating or not
   bool running_;
 
  private:
+  void Run();
+
   bool paint_while_stopped_;
   int frame_count_;
   int last_frame_drawn_;
@@ -52,7 +46,7 @@ class Throbber : public ChromeViews::View,
   DWORD last_time_recorded_;
   SkBitmap* frames_;
   int frame_time_ms_;
-  base::Timer* timer_;
+  base::RepeatingTimer<Throbber> timer_;
 
   DISALLOW_EVIL_CONSTRUCTORS(Throbber);
 };
@@ -77,10 +71,8 @@ class SmoothedThrobber : public Throbber {
   // This function stops the actual throbbing.
   void StopDelayOver();
 
-  // Method factory for delaying throbber startup.
-  ScopedRunnableMethodFactory<SmoothedThrobber> start_delay_factory_;
-  // Method factory for delaying throbber shutdown.
-  ScopedRunnableMethodFactory<SmoothedThrobber> end_delay_factory_;
+  base::OneShotTimer<SmoothedThrobber> start_timer_;
+  base::OneShotTimer<SmoothedThrobber> stop_timer_;
 
   DISALLOW_EVIL_CONSTRUCTORS(SmoothedThrobber);
 };

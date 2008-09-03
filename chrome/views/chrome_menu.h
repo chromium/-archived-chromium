@@ -17,8 +17,6 @@
 #include "chrome/views/view.h"
 #include "skia/include/SkBitmap.h"
 
-class Timer;
-
 namespace ChromeViews {
 
 class HWNDViewContainer;
@@ -595,7 +593,6 @@ class MenuController : public MessageLoopForUI::Dispatcher {
  public:
   friend class MenuHostRootView;
   friend class MenuItemView;
-  friend class ShowSubmenusTask;
   friend class MenuScrollTask;
 
   // If a menu is currently active, this returns the controller for it.
@@ -629,6 +626,9 @@ class MenuController : public MessageLoopForUI::Dispatcher {
   // as well. This immediatley hides all menus.
   void Cancel(bool all);
 
+  // An alternative to Cancel(true) that can be used with a OneShotTimer.
+  void CancelAll() { return Cancel(true); }
+
   // Various events, forwarded from the submenu.
   //
   // NOTE: the coordinates of the events are in that of the
@@ -649,42 +649,6 @@ class MenuController : public MessageLoopForUI::Dispatcher {
   void OnDragExitedScrollButton(SubmenuView* source);
 
  private:
-  // As the mouse moves around submenus are not opened immediately. Instead
-  // they open after this timer fires.
-  class ShowSubmenusTask : public Task {
-   public:
-    explicit ShowSubmenusTask(MenuController* controller)
-        : controller_(controller) {}
-
-    virtual void Run() {
-      controller_->CommitPendingSelection();
-    }
-
-   private:
-    MenuController* controller_;
-
-    DISALLOW_EVIL_CONSTRUCTORS(ShowSubmenusTask);
-  };
-
-  // Task used to invoke Cancel(true). This is used during drag and drop
-  // to hide the menu after the mouse moves out of the of the menu. This is
-  // necessitated by the lack of an ability to detect when the drag has
-  // completed from the drop side.
-  class CancelAllTask : public Task {
-   public:
-    explicit CancelAllTask(MenuController* controller)
-        : controller_(controller) {}
-
-    virtual void Run() {
-      controller_->Cancel(true);
-    }
-
-   private:
-    MenuController* controller_;
-
-    DISALLOW_EVIL_CONSTRUCTORS(CancelAllTask);
-  };
-
   // Tracks selection information.
   struct State {
     State() : item(NULL), submenu_open(false) {}
@@ -914,13 +878,15 @@ class MenuController : public MessageLoopForUI::Dispatcher {
   // MenuController to restore the state when the nested run returns.
   std::list<State> menu_stack_;
 
-  // Used to comming pending to state.
-  ShowSubmenusTask show_task_;
-  Timer* show_timer_;
+  // As the mouse moves around submenus are not opened immediately. Instead
+  // they open after this timer fires.
+  base::OneShotTimer<MenuController> show_timer_;
 
-  // Used to cancel all menus.
-  CancelAllTask cancel_all_task_;
-  Timer* cancel_all_timer_;
+  // Used to invoke CancelAll(). This is used during drag and drop to hide the
+  // menu after the mouse moves out of the of the menu. This is necessitated by
+  // the lack of an ability to detect when the drag has completed from the drop
+  // side.
+  base::OneShotTimer<MenuController> cancel_all_timer_;
 
   // Drop target.
   MenuItemView* drop_target_;

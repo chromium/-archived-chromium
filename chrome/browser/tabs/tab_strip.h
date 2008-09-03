@@ -6,7 +6,6 @@
 #define CHROME_BROWSER_TABS_TAB_STRIP_H__
 
 #include "base/gfx/point.h"
-#include "base/task.h"
 #include "chrome/browser/tabs/tab.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/views/button.h"
@@ -17,7 +16,6 @@
 class DraggedTabController;
 class ScopedMouseCloseWidthCalculator;
 class TabStripModel;
-class Timer;
 
 namespace ChromeViews {
 class ImageView;
@@ -40,7 +38,6 @@ class TabStrip : public ChromeViews::View,
                  public TabStripModelObserver,
                  public Tab::TabDelegate,
                  public ChromeViews::Button::ButtonListener,
-                 public Task,
                  public MessageLoopForUI::Observer {
  public:
   TabStrip(TabStripModel* model);
@@ -152,9 +149,6 @@ class TabStrip : public ChromeViews::View,
 
   // ChromeViews::Button::ButtonListener implementation:
   virtual void ButtonPressed(ChromeViews::BaseButton* sender);
-
-  // Task implementation:
-  virtual void Run();
 
   // MessageLoop::Observer implementation:
   virtual void WillProcessMessage(const MSG& msg);
@@ -303,7 +297,7 @@ class TabStrip : public ChromeViews::View,
   bool resize_layout_scheduled_;
 
   // The timer used to update frames for the Loading Animation.
-  scoped_ptr<Timer> loading_animation_timer_;
+  base::RepeatingTimer<TabStrip> loading_animation_timer_;
 
   // The "New Tab" button.
   ChromeViews::Button* newtab_button_;

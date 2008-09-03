@@ -46,7 +46,7 @@ class TestIdleTask : public IdleTimer {
 };
 
 // A task to help us quit the test.
-class TestFinishedTask : public Task {
+class TestFinishedTask {
  public:
   TestFinishedTask() {}
   void Run() {
@@ -55,7 +55,7 @@ class TestFinishedTask : public Task {
 };
 
 // A timer which resets the idle clock.
-class ResetIdleTask : public Task {
+class ResetIdleTask {
  public:
   ResetIdleTask() {}
   void Run() {
@@ -77,14 +77,15 @@ TEST_F(IdleTimerTest, NoRepeatIdle) {
 
   mock_idle_time = GetTickCount();
   TestIdleTask test_task(false);
+
   TestFinishedTask finish_task;
-  MessageLoop* loop = MessageLoop::current();
-  Timer* t = loop->timer_manager()->StartTimer(1000, &finish_task, false);
+  base::OneShotTimer<TestFinishedTask> timer;
+  timer.Start(TimeDelta::FromSeconds(1), &finish_task, &TestFinishedTask::Run);
+
   test_task.Start();
-  loop->Run();
+  MessageLoop::current()->Run();
 
   EXPECT_EQ(test_task.get_idle_counter(), 1);
-  delete t;
 }
 
 TEST_F(IdleTimerTest, NoRepeatFlipIdleOnce) {
@@ -95,17 +96,22 @@ TEST_F(IdleTimerTest, NoRepeatFlipIdleOnce) {
 
   mock_idle_time = GetTickCount();
   TestIdleTask test_task(false);
+
   TestFinishedTask finish_task;
   ResetIdleTask reset_task;
-  MessageLoop* loop = MessageLoop::current();
-  Timer* t1 = loop->timer_manager()->StartTimer(1000, &finish_task, false);
-  Timer* t2 = loop->timer_manager()->StartTimer(500, &reset_task, false);
+
+  base::OneShotTimer<TestFinishedTask> t1;
+  t1.Start(TimeDelta::FromMilliseconds(1000), &finish_task,
+           &TestFinishedTask::Run);
+  
+  base::OneShotTimer<ResetIdleTask> t2;
+  t2.Start(TimeDelta::FromMilliseconds(500), &reset_task,
+           &ResetIdleTask::Run);
+
   test_task.Start();
-  loop->Run();
+  MessageLoop::current()->Run();
 
   EXPECT_EQ(test_task.get_idle_counter(), 2);
-  delete t1;
-  delete t2;
 }
 
 TEST_F(IdleTimerTest, NoRepeatNotIdle) {
@@ -116,18 +122,25 @@ TEST_F(IdleTimerTest, NoRepeatNotIdle) {
 
   mock_idle_time = GetTickCount();
   TestIdleTask test_task(false);
+
   TestFinishedTask finish_task;
   ResetIdleTask reset_task;
-  MessageLoop* loop = MessageLoop::current();
-  Timer* t = loop->timer_manager()->StartTimer(1000, &finish_task, false);
-  Timer* reset_timer = loop->timer_manager()->StartTimer(50, &reset_task, true);
+
+  base::OneShotTimer<TestFinishedTask> t;
+  t.Start(TimeDelta::FromMilliseconds(1000), &finish_task,
+          &TestFinishedTask::Run);
+  
+  base::RepeatingTimer<ResetIdleTask> reset_timer;
+  reset_timer.Start(TimeDelta::FromMilliseconds(50), &reset_task,
+                    &ResetIdleTask::Run);
+
   test_task.Start();
-  loop->Run();
-  loop->timer_manager()->StopTimer(reset_timer);
+
+  MessageLoop::current()->Run();
+
+  reset_timer.Stop();
 
   EXPECT_EQ(test_task.get_idle_counter(), 0);
-  delete t;
-  delete reset_timer;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -142,18 +155,21 @@ TEST_F(IdleTimerTest, Repeat) {
   // Verify that we fired 10 times.
   mock_idle_time = GetTickCount();
   TestIdleTask test_task(true);
+
   TestFinishedTask finish_task;
-  MessageLoop* loop = MessageLoop::current();
-  Timer* t = loop->timer_manager()->StartTimer(1050, &finish_task, false);
+
+  base::OneShotTimer<TestFinishedTask> t;
+  t.Start(TimeDelta::FromMilliseconds(1050), &finish_task,
+          &TestFinishedTask::Run);
+
   test_task.Start();
-  loop->Run();
+  MessageLoop::current()->Run();
 
   // In a perfect world, the idle_counter should be 10.  However,
   // since timers aren't guaranteed to fire perfectly, this can
   // be less.  Just expect more than 5 and no more than 10.
   EXPECT_GT(test_task.get_idle_counter(), 5);
   EXPECT_LE(test_task.get_idle_counter(), 10);
-  delete t;
 }
 
 TEST_F(IdleTimerTest, RepeatIdleReset) {
@@ -163,21 +179,26 @@ TEST_F(IdleTimerTest, RepeatIdleReset) {
   // Verify that we fired 9 times.
   mock_idle_time = GetTickCount();
   TestIdleTask test_task(true);
+
   ResetIdleTask reset_task;
   TestFinishedTask finish_task;
-  MessageLoop* loop = MessageLoop::current();
-  Timer* t1 = loop->timer_manager()->StartTimer(1000, &finish_task, false);
-  Timer* t2 = loop->timer_manager()->StartTimer(550, &reset_task, false);
+
+  base::OneShotTimer<TestFinishedTask> t1;
+  t1.Start(TimeDelta::FromMilliseconds(1000), &finish_task,
+           &TestFinishedTask::Run);
+  
+  base::OneShotTimer<ResetIdleTask> t2;
+  t2.Start(TimeDelta::FromMilliseconds(550), &reset_task,
+           &ResetIdleTask::Run);
+
   test_task.Start();
-  loop->Run();
+  MessageLoop::current()->Run();
 
   // In a perfect world, the idle_counter should be 9.  However,
   // since timers aren't guaranteed to fire perfectly, this can
   // be less.  Just expect more than 5 and no more than 9.
   EXPECT_GT(test_task.get_idle_counter(), 5);
   EXPECT_LE(test_task.get_idle_counter(), 9);
-  delete t1;
-  delete t2;
 }
 
 TEST_F(IdleTimerTest, RepeatNotIdle) {
@@ -188,17 +209,23 @@ TEST_F(IdleTimerTest, RepeatNotIdle) {
 
   mock_idle_time = GetTickCount();
   TestIdleTask test_task(true);
+
   TestFinishedTask finish_task;
   ResetIdleTask reset_task;
-  MessageLoop* loop = MessageLoop::current();
-  Timer* t1 = loop->timer_manager()->StartTimer(1000, &finish_task, false);
-  Timer* reset_timer = loop->timer_manager()->StartTimer(50, &reset_task, true);
+
+  base::OneShotTimer<TestFinishedTask> t;
+  t.Start(TimeDelta::FromMilliseconds(1000), &finish_task,
+          &TestFinishedTask::Run);
+  
+  base::RepeatingTimer<ResetIdleTask> reset_timer;
+  reset_timer.Start(TimeDelta::FromMilliseconds(50), &reset_task,
+                    &ResetIdleTask::Run);
+
   test_task.Start();
-  loop->Run();
-  loop->timer_manager()->StopTimer(reset_timer);
+  MessageLoop::current()->Run();
+
+  reset_timer.Stop();
 
   EXPECT_EQ(test_task.get_idle_counter(), 0);
-  delete t1;
-  delete reset_timer;
 }
 
