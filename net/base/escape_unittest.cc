@@ -159,6 +159,7 @@ TEST(Escape, UnescapeURLComponent) {
 
 TEST(Escape, UnescapeAndDecodeURLComponent) {
   const UnescapeAndDecodeURLCase unescape_cases[] = {
+    {"UTF8", "%", "%", "%", L"%"},
     {"UTF8", "+", "+", " ", L"+"},
     {"UTF8", "%2+", "%2+", "%2 ", L"%2+"},
     {"UTF8", "+%%%+%%%", "+%%%+%%%", " %%% %%%", L"+%%%+%%%"},

@@ -113,9 +113,8 @@ std::string UnescapeURLImpl(const std::string& escaped_text,
   std::string result;
   result.reserve(escaped_text.length());
 
-  for (size_t i = 0, max = escaped_text.size(), max_digit_index = max - 2;
-       i < max; ++i) {
-    if (escaped_text[i] == '%' && i < max_digit_index) {
+  for (size_t i = 0, max = escaped_text.size(); i < max; ++i) {
+    if (escaped_text[i] == '%' && i + 2 < max) {
       const std::string::value_type most_sig_digit(escaped_text[i + 1]);
       const std::string::value_type least_sig_digit(escaped_text[i + 2]);
       if (IsHex(most_sig_digit) && IsHex(least_sig_digit)) {
