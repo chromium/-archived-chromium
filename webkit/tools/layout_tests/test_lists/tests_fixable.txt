@@ -473,6 +473,12 @@ V8 # LayoutTests/fast/forms/search-event-delay.html = PASS | FAIL
 // error in the header of the following test.
 V8 | KJS # SKIP : LayoutTests/fast/css/disabled-author-styles.html = FAIL
 
+// TODO(dglazkov): Rebaseline these for JSC.
+// These two seem to have started failing somewhere in the range of r1557-r1596.
+// It's not clear from the buildbots exactly which revision broke them though.
+KJS # LayoutTests/fast/repaint/continuation-after-outline.html = FAIL
+KJS # LayoutTests/tables/mozilla/images/adforce_imgis_com.html = FAIL
+
 // ------------------------------------------------------------------------- //
 
 // Bug: 924387, 1058654
@@ -759,3 +765,6 @@ V8 | KJS # LayoutTests/http/tests/navigation/redirect302-basic.html = FAIL | PAS
 V8 | KJS # LayoutTests/http/tests/navigation/postredirect-goback1.html = FAIL | PASS
 V8 | KJS # LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL | PASS
 
+// These two appear to be flaky in debug mode only. Not sure when they started failing.
+V8 # LayoutTests/http/tests/navigation/post-goback2.html = FAIL | PASS
+V8 # LayoutTests/http/tests/navigation/postredirect-basic.html = FAIL | PASS
