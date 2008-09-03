@@ -95,6 +95,14 @@ TEST(TimeTicks, Deltas) {
   EXPECT_EQ(delta.InSeconds(), 0);
 }
 
+TEST(TimeTicks, UnreliableHighResNow) {
+  TimeTicks ticks_start = TimeTicks::UnreliableHighResNow();
+  PlatformThread::Sleep(10);
+  TimeTicks ticks_stop = TimeTicks::UnreliableHighResNow();
+  TimeDelta delta = ticks_stop - ticks_start;
+  EXPECT_GE(delta.InMilliseconds(), 10);
+}
+
 TEST(TimeDelta, FromAndIn) {
   EXPECT_TRUE(TimeDelta::FromDays(2) == TimeDelta::FromHours(48));
   EXPECT_TRUE(TimeDelta::FromHours(3) == TimeDelta::FromMinutes(180));
