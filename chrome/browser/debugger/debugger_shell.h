@@ -38,7 +38,7 @@ class DebuggerShell : public base::RefCountedThreadSafe<DebuggerShell> {
 
 #include "debugger_io.h"
 #include "debugger_node.h"
-#include "v8/public/v8.h"
+#include "v8/include/v8.h"
 
 class DebuggerInputOutput;
 class MessageLoop;

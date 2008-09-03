@@ -17,7 +17,7 @@
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
 #include "chrome/common/notification_service.h"
-#include "v8/public/v8.h"
+#include "v8/include/v8.h"
 
 class Browser;
 class TabContents;

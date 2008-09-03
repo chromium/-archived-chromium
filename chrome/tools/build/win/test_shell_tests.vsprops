@@ -6,7 +6,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="..\..\..\v8\public;"
+		AdditionalIncludeDirectories="..\..\..\v8\include;"
 		PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE"
 	/>
 	<Tool

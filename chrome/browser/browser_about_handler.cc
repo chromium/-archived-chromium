@@ -38,7 +38,7 @@
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/webkit_glue.h"
 #ifdef CHROME_V8
-#include "v8/public/v8.h"
+#include "v8/include/v8.h"
 #endif
 
 #include "chromium_strings.h"

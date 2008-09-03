@@ -13,7 +13,7 @@
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/debugger/debugger_shell.h"
 #include "chrome/common/resource_bundle.h"
-#include "v8/public/v8.h"
+#include "v8/include/v8.h"
 
 ////////////////////////////////////////////////
 
