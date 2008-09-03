@@ -3219,7 +3219,7 @@
 		7B0E59630DB3D195007D4907 /* PageURLRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PageURLRecord.h; sourceTree = "<group>"; };
 		7B0E5B0E0DB3DC51007D4907 /* libwebkit_v8.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebkit_v8.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B12F8C20D8F41F300CB6E8F /* devnull.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = devnull.cpp; path = /dev/null; sourceTree = "<absolute>"; };
-		7B12F9060D8F463700CB6E8F /* icu.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = icu.xcodeproj; path = ../third_party/icu38/build/icu.xcodeproj; sourceTree = SOURCE_ROOT; };
+		7B12F9060D8F463700CB6E8F /* icu.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = icu.xcodeproj; path = ../third_party/icu38/icu.xcodeproj; sourceTree = SOURCE_ROOT; };
 		7B12FA260D8F47C900CB6E8F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		7B12FA300D8F48F400CB6E8F /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
 		7B12FA3F0D8F4BE500CB6E8F /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };

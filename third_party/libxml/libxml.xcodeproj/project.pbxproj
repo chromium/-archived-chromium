@@ -330,7 +330,7 @@
 		7B12F40F0D8EE25A00CB6E8F /* xpointer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xpointer.c; sourceTree = "<group>"; };
 		7B12F54E0D8EE8E400CB6E8F /* xmlcatalog */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = xmlcatalog; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B12F5540D8EE91800CB6E8F /* xmlcatalog.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xmlcatalog.c; sourceTree = "<group>"; };
-		7B12F5680D8EEA7E00CB6E8F /* icu.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = icu.xcodeproj; path = third_party/icu38/build/icu.xcodeproj; sourceTree = "<group>"; };
+		7B12F5680D8EEA7E00CB6E8F /* icu.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = icu.xcodeproj; path = third_party/icu38/icu.xcodeproj; sourceTree = "<group>"; };
 		7B12F58F0D8EEB2F00CB6E8F /* xmllint */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = xmllint; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B12F5980D8EEB4A00CB6E8F /* xmllint.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xmllint.c; sourceTree = "<group>"; };
 		7B466A5C0E5E381700C91F63 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
