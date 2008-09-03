@@ -249,7 +249,9 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   MessageLoop main_message_loop(MessageLoop::TYPE_UI);
 
   std::wstring app_name = chrome::kBrowserAppName;
-  const char* thread_name = WideToASCII(app_name + L"_BrowserMain").c_str();
+  std::string thread_name_string = WideToASCII(app_name + L"_BrowserMain");
+
+  const char* thread_name = thread_name_string.c_str();
   PlatformThread::SetName(thread_name);
   main_message_loop.set_thread_name(thread_name);
   bool already_running = CreateUniqueChromeEvent();
