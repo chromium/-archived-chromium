@@ -148,8 +148,10 @@ void GeneralPageView::DefaultBrowserWorker::ExecuteSetAsDefaultBrowser() {
 
 void GeneralPageView::DefaultBrowserWorker::CompleteSetAsDefaultBrowser() {
   DCHECK(MessageLoop::current() == ui_loop_);
-  // Set as default completed, check again to make sure it stuck...
-  StartCheckDefaultBrowser();
+  if (general_page_view_) {
+    // Set as default completed, check again to make sure it stuck...
+    StartCheckDefaultBrowser();
+  }
 }
 
 void GeneralPageView::DefaultBrowserWorker::UpdateUI(bool is_default) {
