@@ -312,6 +312,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\thread_local_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\thread_unittest.cc"
 				>
 			</File>

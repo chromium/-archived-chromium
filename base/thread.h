@@ -9,7 +9,6 @@
 
 #include "base/message_loop.h"
 #include "base/platform_thread.h"
-#include "base/thread_local_storage.h"
 
 namespace base {
 

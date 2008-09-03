@@ -714,6 +714,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\thread_local.h"
+			>
+		</File>
+		<File
+			RelativePath="..\thread_local_win.cc"
+			>
+		</File>
+		<File
 			RelativePath="..\time.cc"
 			>
 		</File>

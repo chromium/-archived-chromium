@@ -4,7 +4,9 @@
 
 #include "base/thread.h"
 
+#include "base/singleton.h"
 #include "base/string_util.h"
+#include "base/thread_local.h"
 #include "base/waitable_event.h"
 
 namespace base {
@@ -46,21 +48,25 @@ Thread::~Thread() {
 // because its Stop method was called.  This allows us to catch cases where
 // MessageLoop::Quit() is called directly, which is unexpected when using a
 // Thread to setup and run a MessageLoop.
-// Note that if we start doing complex stuff in other static initializers
-// this could cause problems.
-// TODO(evanm): this shouldn't rely on static initialization.
-TLSSlot Thread::tls_index_;
+namespace {
+
+// Use a differentiating type to make sure we don't share our boolean we any
+// other Singleton<ThreadLocalBoolean>'s.
+struct ThreadExitedDummyDiffType { };
+typedef Singleton<ThreadLocalBoolean,
+                  DefaultSingletonTraits<ThreadLocalBoolean>,
+                  ThreadExitedDummyDiffType> ThreadExitedSingleton;
+
+}  // namespace
 
 void Thread::SetThreadWasQuitProperly(bool flag) {
-#ifndef NDEBUG
-  tls_index_.Set(reinterpret_cast<void*>(flag));
-#endif
+  ThreadExitedSingleton::get()->Set(flag);
 }
 
 bool Thread::GetThreadWasQuitProperly() {
   bool quit_properly = true;
 #ifndef NDEBUG
-  quit_properly = (tls_index_.Get() != 0);
+  quit_properly = ThreadExitedSingleton::get()->Get();
 #endif
   return quit_properly;
 }

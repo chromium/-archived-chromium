@@ -116,6 +116,7 @@ if env['PLATFORM'] == 'win32':
       'shared_memory_win.cc',
       'sys_string_conversions_win.cc',
       'thread_local_storage_win.cc',
+      'thread_local_win.cc',
       'time_win.cc',
       'waitable_event_win.cc',
       'win_util.cc',
@@ -133,6 +134,7 @@ if env['PLATFORM'] in ('darwin', 'posix'):
       'shared_memory_posix.cc',
       'string16.cc',
       'thread_local_storage_posix.cc',
+      'thread_local_posix.cc',
       'time_posix.cc',
       'waitable_event_generic.cc',
   ])
@@ -277,6 +279,7 @@ if env['PLATFORM'] == 'win32':
     'shared_memory_unittest.cc',
     'stats_table_unittest.cc',
     'thread_local_storage_unittest.cc',
+    'thread_local_unittest.cc',
     'watchdog_unittest.cc',
     'gfx/native_theme_unittest.cc',
     'gfx/uniscribe_unittest.cc',
