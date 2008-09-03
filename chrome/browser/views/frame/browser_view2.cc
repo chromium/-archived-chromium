@@ -478,7 +478,11 @@ void BrowserView2::TabSelectedAt(TabContents* old_contents,
 
   // Tell the frame what happened so that the TabContents gets resized, etc.
   contents_container_->SetTabContents(new_contents);
-
+  // TODO(beng): This should be called automatically by SetTabContents, but I
+  //             am striving for parity now rather than cleanliness. This is
+  //             required to make features like Duplicate Tab, Undo Close Tab,
+  //             etc not result in sad tab.
+  new_contents->DidBecomeSelected();
   if (BrowserList::GetLastActive() == browser_)
     new_contents->RestoreFocus();
 
