@@ -11,7 +11,7 @@ include_rules = [
   "+chrome/third_party/hunspell",
   "+libxml", # For search engine definition parsing.
   "+third_party/sqlite",
-  "+v8/public", # Browser uses V8 to get the version and run the debugger.
+  "+v8/include", # Browser uses V8 to get the version and run the debugger.
 
   # FIXME: this should probably not be here, we need to find a better
   # structure for these includes.
