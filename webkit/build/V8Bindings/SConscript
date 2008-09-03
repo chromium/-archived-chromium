@@ -31,7 +31,11 @@ else:
       ])
 
 if env['PLATFORM'] == 'posix':
-  env.Append(CCFLAGS = '-Wno-unused-variable');
+  # Don't flag warnings for third-party code.
+  if '-Wall' in env['CCFLAGS']:
+    env['CCFLAGS'].remove('-Wall')
+  if '-Werror' in env['CCFLAGS']:
+    env['CCFLAGS'].remove('-Werror')
 
 inputs = [
     '$SHARED_DIR/PausedTimeouts.cpp',
