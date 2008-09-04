@@ -17,7 +17,7 @@
 
 // Database version.  If this is different than what's stored on disk, the
 // database is reset.
-static const int kDatabaseVersion = 3;
+static const int kDatabaseVersion = 4;
 
 // Filename suffix for the bloom filter.
 static const wchar_t kBloomFilterFile[] = L" Filter";

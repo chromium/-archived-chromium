@@ -414,6 +414,7 @@ void SBHostInfo::Add(const SBEntry* entry) {
 
 void SBHostInfo::AddPrefixes(SBEntry* entry) {
   DCHECK(entry->IsAdd());
+  bool insert_entry = true;
   const SBEntry* sub_entry = NULL;
   // Remove any prefixes for which a sub already came.
   while (GetNextEntry(&sub_entry)) {
@@ -434,8 +435,15 @@ void SBHostInfo::AddPrefixes(SBEntry* entry) {
     // Remove any matching prefixes.
     for (int i = 0; i < sub_entry->prefix_count(); ++i) {
       for (int j = 0; j < entry->prefix_count(); ++j) {
-        if (entry->PrefixesMatch(j, sub_entry, i))
+        if (entry->PrefixesMatch(j, sub_entry, i)) {
           entry->RemovePrefix(j--);
+          if (!entry->prefix_count()) {
+            // The add entry used to have prefixes, but they were all removed
+            // because of matching sub entries.  We don't want to add this
+            // empty add entry, because it would block that entire host.
+            insert_entry = false;
+          }
+        }
       }
     }
 
@@ -443,7 +451,8 @@ void SBHostInfo::AddPrefixes(SBEntry* entry) {
     break;
   }
 
-  Add(entry);
+  if (insert_entry)
+    Add(entry);
   DCHECK(IsValid());
 }
 

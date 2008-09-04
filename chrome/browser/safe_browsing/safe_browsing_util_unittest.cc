@@ -263,3 +263,33 @@ TEST(SafeBrowsing, HostInfo2) {
   // Any prefix except the one removed should still be blocked.
   EXPECT_TRUE(info.Contains(full_hashes, &list_id, &prefix_hits));
 }
+
+// Checks that if we get a sub chunk with one prefix, then get the add chunk
+// for that same prefix afterwards, the entry becomes empty.
+TEST(SafeBrowsing, HostInfo3) { 
+  SBHostInfo info;
+
+  // Add a sub prefix.
+  SBEntry* entry = SBEntry::Create(SBEntry::SUB_PREFIX, 1);
+  entry->SetPrefixAt(0, 0x01000000);
+  entry->SetChunkIdAtPrefix(0, 1);
+  entry->set_list_id(1);
+  info.RemovePrefixes(entry, true);
+  entry->Destroy();
+
+  int list_id;
+  std::vector<SBFullHash> full_hashes;
+  full_hashes.push_back(CreateFullHash(0x01000000));
+  std::vector<SBPrefix> prefix_hits;
+  EXPECT_FALSE(info.Contains(full_hashes, &list_id, &prefix_hits));
+
+  // Now add the prefix.
+  entry = SBEntry::Create(SBEntry::ADD_PREFIX, 1);
+  entry->SetPrefixAt(0, 0x01000000);
+  entry->set_list_id(1);
+  entry->set_chunk_id(1);
+  info.AddPrefixes(entry);
+  entry->Destroy();
+
+  EXPECT_FALSE(info.Contains(full_hashes, &list_id, &prefix_hits));
+}
