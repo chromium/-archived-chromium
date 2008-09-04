@@ -1256,6 +1256,12 @@ void HistoryView::DeleteDayAtModelIndex(int index) {
     return;
   }
 
+  if (index < 0 || index >= model_->GetItemCount()) {
+    // Bogus index.
+    NOTREACHED();
+    return;
+  }
+
   UserMetrics::RecordAction(L"History_DeleteHistory", model_->profile());
 
   // BrowsingDataRemover deletes itself when done.

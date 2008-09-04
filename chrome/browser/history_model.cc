@@ -182,6 +182,20 @@ void HistoryModel::Refresh() {
     observer_->ModelEndWork();
   search_depth_ = 0;
   InitVisitRequest(search_depth_);
+
+  if (results_.size() > 0) {
+    // There are results and we've been asked to reload. If we don't swap out
+    // the results now, the view is left holding indices that are going to
+    // change as soon as the load completes, which poses problems for deletion.
+    // In particular, if the user deletes a range, then clicks on delete again
+    // a modal dialog is shown. If during the time the modal dialog is shown
+    // and the user clicks ok the load completes, the index passed to delete is
+    // no longer valid. To avoid this we empty out the results immediately.
+    history::QueryResults empty_results;
+    results_.Swap(&empty_results);
+    if (observer_)
+      observer_->ModelChanged(true);
+  }
 }
 
 void HistoryModel::Observe(NotificationType type,
