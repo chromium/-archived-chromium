@@ -1597,7 +1597,7 @@ void VistaFrame::ShelfVisibilityChangedImpl(TabContents* current_tab) {
   changed |= UpdateChildViewAndLayout(new_info_bar, &info_bar_view_);
 
   ChromeViews::View* new_bookmark_bar_view = NULL;
-  if (SupportsBookmarkBar() && current_tab)
+  if (SupportsBookmarkBar())
     new_bookmark_bar_view = GetBookmarkBarView();
   changed |= UpdateChildViewAndLayout(new_bookmark_bar_view,
                                       &active_bookmark_bar_);
