@@ -62,6 +62,7 @@ input_files = [
     'time.cc',
     'time_format.cc',
     'timer.cc',
+    'trace_event.cc',
     'tracked.cc',
     'tracked_objects.cc',
     'values.cc',
