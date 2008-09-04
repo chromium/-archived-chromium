@@ -147,9 +147,9 @@ bool VerifyMAC(const std::string& key, const std::string& mac,
   std::string decoded_mac;
   net::Base64Decode(mac_copy, &decoded_mac);
 
-  HMAC hmac(HMAC::SHA1,
-            reinterpret_cast<const unsigned char*>(decoded_key.data()),
-            static_cast<int>(decoded_key.length()));
+  base::HMAC hmac(base::HMAC::SHA1,
+                  reinterpret_cast<const unsigned char*>(decoded_key.data()),
+                  static_cast<int>(decoded_key.length()));
   const std::string data_str(data, data_length);
   unsigned char digest[kSafeBrowsingMacDigestSize];
   if (!hmac.Sign(data_str, digest, kSafeBrowsingMacDigestSize))

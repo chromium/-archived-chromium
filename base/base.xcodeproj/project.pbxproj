@@ -81,6 +81,8 @@
 		7BAE30E70E6D93A300C3F750 /* simple_thread.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BAE30E20E6D939800C3F750 /* simple_thread.cc */; };
 		7BAE38AC0E6EFDBA00C3F750 /* thread_local_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BAE38A90E6EFD9900C3F750 /* thread_local_posix.cc */; };
 		7BAE38AF0E6EFDC300C3F750 /* thread_local_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BAE38AB0E6EFD9900C3F750 /* thread_local_unittest.cc */; };
+		7BAE392A0E6F4EEF00C3F750 /* hmac_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BAE39220E6F4EEC00C3F750 /* hmac_mac.cc */; };
+		7BAE392B0E6F4EF200C3F750 /* hmac_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BAE39240E6F4EEC00C3F750 /* hmac_unittest.cc */; };
 		7BAF501C0E50B84200CA8A07 /* base_paths.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BAF501B0E50B84200CA8A07 /* base_paths.cc */; };
 		7BAF50760E50B8F100CA8A07 /* file_version_info_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7BAF50740E50B8F100CA8A07 /* file_version_info_mac.mm */; };
 		7BD8F4A10E65AA4600034DE9 /* process_util_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BD8F49F0E65AA2400034DE9 /* process_util_posix.cc */; };
@@ -351,6 +353,9 @@
 		7BAE38A90E6EFD9900C3F750 /* thread_local_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread_local_posix.cc; sourceTree = "<group>"; };
 		7BAE38AA0E6EFD9900C3F750 /* thread_local_storage_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread_local_storage_unittest.cc; sourceTree = "<group>"; };
 		7BAE38AB0E6EFD9900C3F750 /* thread_local_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread_local_unittest.cc; sourceTree = "<group>"; };
+		7BAE39220E6F4EEC00C3F750 /* hmac_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hmac_mac.cc; sourceTree = "<group>"; };
+		7BAE39240E6F4EEC00C3F750 /* hmac_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hmac_unittest.cc; sourceTree = "<group>"; };
+		7BAE39BA0E6F576200C3F750 /* hmac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hmac.h; sourceTree = "<group>"; };
 		7BAF4F7B0E50A3BD00CA8A07 /* logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logging.h; sourceTree = "<group>"; };
 		7BAF501B0E50B84200CA8A07 /* base_paths.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = base_paths.cc; sourceTree = "<group>"; };
 		7BAF50740E50B8F100CA8A07 /* file_version_info_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = file_version_info_mac.mm; sourceTree = "<group>"; };
@@ -768,6 +773,9 @@
 				93611B160E5A875D00F9405D /* histogram.cc */,
 				93611B170E5A875D00F9405D /* histogram.h */,
 				93611B190E5A878400F9405D /* histogram_unittest.cc */,
+				7BAE39BA0E6F576200C3F750 /* hmac.h */,
+				7BAE39220E6F4EEC00C3F750 /* hmac_mac.cc */,
+				7BAE39240E6F4EEC00C3F750 /* hmac_unittest.cc */,
 				8254030F0D92D1E80006B936 /* iat_patch.cc */,
 				825403100D92D1E80006B936 /* iat_patch.h */,
 				825403110D92D1E80006B936 /* icu_util.cc */,
@@ -1210,6 +1218,7 @@
 				A5A0268E0E4A2BDC00498DA9 /* file_util_posix.cc in Sources */,
 				7BAF50760E50B8F100CA8A07 /* file_version_info_mac.mm in Sources */,
 				93611B180E5A875D00F9405D /* histogram.cc in Sources */,
+				7BAE392A0E6F4EEF00C3F750 /* hmac_mac.cc in Sources */,
 				8216A5060E34DBDD00EE374C /* icu_util.cc in Sources */,
 				ABF4B9AF0DC2BC6200A6E319 /* json_reader.cc in Sources */,
 				ABF4B9B00DC2BC6500A6E319 /* json_writer.cc in Sources */,
@@ -1284,6 +1293,7 @@
 				A5CE1D2B0E55F4D800AD0606 /* file_util_unittest.cc in Sources */,
 				7B78D3910E54FE0100609465 /* file_version_info_unittest.cc in Sources */,
 				93611B1A0E5A878400F9405D /* histogram_unittest.cc in Sources */,
+				7BAE392B0E6F4EF200C3F750 /* hmac_unittest.cc in Sources */,
 				AB956E0A0E5DDC0900BBE9D8 /* image_operations_unittest.cc in Sources */,
 				7B78D3920E54FE0100609465 /* json_reader_unittest.cc in Sources */,
 				7B78D3930E54FE0100609465 /* json_writer_unittest.cc in Sources */,

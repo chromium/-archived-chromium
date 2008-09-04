@@ -310,11 +310,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\hmac.cc"
+			RelativePath="..\hmac.h"
 			>
 		</File>
 		<File
-			RelativePath="..\hmac.h"
+			RelativePath="..\hmac_win.cc"
 			>
 		</File>
 		<File

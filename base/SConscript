@@ -80,7 +80,7 @@ if env['PLATFORM'] == 'win32':
     'clipboard_util.cc',
     'event_recorder.cc',
     'file_version_info.cc',
-    'hmac.cc',   # Depends on OpenSSL; Mac team will investigate.
+    'hmac_win.cc',
 
     # This group all depends on MessageLoop.
     'idle_timer.cc',
