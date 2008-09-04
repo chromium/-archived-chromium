@@ -698,3 +698,38 @@ TEST(NetUtilTest, GetSuggestedFilename) {
   }
 }
 
+// This is currently a windows specific function.
+#if defined(OS_WIN)
+namespace {
+
+struct GetDirectoryListingEntryCase {
+  const char* name;
+  DWORD file_attrib;
+  int64 filesize;
+  FILETIME* modified;
+  const char* expected;
+};
+
+}  // namespace
+TEST(NetUtilTest, GetDirectoryListingEntry) {
+  const GetDirectoryListingEntryCase test_cases[] = {
+    {"Foo",
+     0,
+     10000,
+     NULL,
+     "<script>addRow(\"Foo\",\"Foo\",0,\"9.8 kB\",\"\");</script>\n"},
+    {"quo\"tes",
+     0,
+     10000,
+     NULL,
+     "<script>addRow(\"quo\\\"tes\",\"quo%22tes\",0,\"9.8 kB\",\"\");</script>\n"},
+  };
+
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(test_cases); ++i) {
+    const std::string results = net::GetDirectoryListingEntry(
+        test_cases[i].name, test_cases[i].file_attrib,
+        test_cases[i].filesize, test_cases[i].modified);
+    EXPECT_EQ(test_cases[i].expected, results);
+  }
+}
+#endif

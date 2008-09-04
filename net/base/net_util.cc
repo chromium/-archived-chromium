@@ -819,9 +819,13 @@ std::string GetDirectoryListingEntry(const std::string& name,
 
   result.append(",");
 
-  Time time(Time::FromFileTime(*modified));
-  string_escape::JavascriptDoubleQuote(base::TimeFormatShortDateAndTime(time),
-      true, &result);
+  std::wstring modified_str;
+  // |modified| can be NULL in FTP listings.
+  if (modified) {
+    Time time(Time::FromFileTime(*modified));
+    modified_str = base::TimeFormatShortDateAndTime(time);
+  }
+  string_escape::JavascriptDoubleQuote(modified_str, true, &result);
 
   result.append(");</script>\n");
 
