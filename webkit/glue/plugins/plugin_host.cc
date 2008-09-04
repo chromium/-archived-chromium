@@ -173,6 +173,16 @@ void PluginHost::InvalidateRect(NPP id, NPRect* invalidRect) {
   DCHECK(plugin.get() != NULL);
 
   if (plugin.get() && plugin->webplugin()) {
+    if (!plugin->windowless()) {
+      RECT rect = {0};
+      rect.left = invalidRect->left;
+      rect.right = invalidRect->right;
+      rect.top = invalidRect->top;
+      rect.bottom = invalidRect->bottom;
+      ::InvalidateRect(plugin->window_handle(), &rect, FALSE);
+      return;
+    }
+
     if (plugin->throttle_invalidate()) {
       // We need to track plugin invalidates on a per instance basis.
       ThrottledInvalidates plugin_instance_invalidates;
