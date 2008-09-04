@@ -116,7 +116,6 @@ inputs = [
     '$DERIVED_DIR/V8SVGNumber.cpp',
     '$DERIVED_DIR/V8SVGMetadataElement.cpp',
     '$DERIVED_DIR/V8SVGMatrix.cpp',
-    '$DERIVED_DIR/V8SVGMaskElement.cpp',
     '$DERIVED_DIR/V8SVGMarkerElement.cpp',
     '$DERIVED_DIR/V8SVGLineElement.cpp',
     '$DERIVED_DIR/V8SVGLinearGradientElement.cpp',
@@ -140,7 +139,6 @@ inputs = [
     '$DERIVED_DIR/V8SVGDescElement.cpp',
     '$DERIVED_DIR/V8SVGDefsElement.cpp',
     '$DERIVED_DIR/V8SVGDefinitionSrcElement.cpp',
-    '$DERIVED_DIR/V8SVGCursorElement.cpp',
     '$DERIVED_DIR/V8SVGColor.cpp',
     '$DERIVED_DIR/V8SVGClipPathElement.cpp',
     '$DERIVED_DIR/V8SVGCircleElement.cpp',
@@ -276,14 +274,23 @@ inputs = [
     '$DERIVED_DIR/V8Attr.cpp',
     '$DERIVED_DIR/UserAgentStyleSheetsData.cpp',
     '$DERIVED_DIR/SVGNames.cpp',
-    '$DERIVED_DIR/SVGElementFactory.cpp',
     '$DERIVED_DIR/HTMLNames.cpp',
     ]
+
+# TODO(erg): These are temporarily disabled during the merge of code back to
+# WebKit. As soon as we're back on TOT, these go back into the working files
+# section.
+if env['PLATFORM'] == 'win32':
+  inputs += [
+    '$DERIVED_DIR/SVGElementFactory.cpp',
+    '$DERIVED_DIR/V8SVGCursorElement.cpp',
+    '$DERIVED_DIR/V8SVGMaskElement.cpp',
+  ]
 
 # TODO(erg): Get Frame.h ported and half of this should compile. Get whatever
 #            String.h is referenced below and the other half should compile
 if env['PLATFORM'] == 'win32':
-  inputs = [
+  inputs += [
     '$DERIVED_DIR/V8Clipboard.cpp',
     '$DERIVED_DIR/V8DOMWindow.cpp',
     '$DERIVED_DIR/V8HTMLInputElement.cpp',
@@ -316,4 +323,3 @@ if env['PLATFORM'] == 'win32':
     ]
 
 env.ChromeStaticLibrary('V8Bindings', inputs)
-
