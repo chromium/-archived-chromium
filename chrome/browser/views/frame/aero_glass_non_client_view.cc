@@ -7,6 +7,7 @@
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/tabs/tab_strip.h"
 #include "chrome/browser/views/frame/browser_view2.h"
+#include "chrome/browser/views/window_resources.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/path.h"
@@ -14,12 +15,9 @@
 #include "chrome/views/client_view.h"
 #include "chrome/views/window_delegate.h"
 
-///////////////////////////////////////////////////////////////////////////////
-// WindowResources
-//
 // An enumeration of bitmap resources used by this window.
-enum FramePartBitmap {
-  FRAME_PART_BITMAP_FIRST = 0, // must be first.
+enum {
+  FRAME_PART_BITMAP_FIRST = 0,  // must be first.
 
   // Client Edge Border.
   FRAME_CLIENT_EDGE_TOP_LEFT,

@@ -7,6 +7,7 @@
 #include "base/gfx/point.h"
 #include "base/gfx/size.h"
 #include "chrome/app/theme/theme_resources.h"
+#include "chrome/browser/views/window_resources.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
@@ -25,12 +26,9 @@ namespace ChromeViews {
 
 HCURSOR CustomFrameWindow::resize_cursors_[6];
 
-///////////////////////////////////////////////////////////////////////////////
-// WindowResources
-//
 // An enumeration of bitmap resources used by this window.
-enum FramePartBitmap {
-  FRAME_PART_BITMAP_FIRST = 0,  // must be first.
+enum {
+  FRAME_PART_BITMAP_FIRST = 0,  // Must be first.
 
   // Window Controls.
   FRAME_CLOSE_BUTTON_ICON,
@@ -70,13 +68,6 @@ enum FramePartBitmap {
   FRAME_CLIENT_EDGE_LEFT,
 
   FRAME_PART_BITMAP_COUNT  // Must be last.
-};
-
-class WindowResources {
- public:
-  virtual SkBitmap* GetPartBitmap(FramePartBitmap part) const = 0;
-  virtual const ChromeFont& GetTitleFont() const = 0;
-  SkColor title_color() const { return SK_ColorWHITE; }
 };
 
 class ActiveWindowResources : public WindowResources {
@@ -484,7 +475,7 @@ void DefaultNonClientView::Paint(ChromeCanvas* canvas) {
   if (d->ShouldShowWindowTitle()) {
     canvas->DrawStringInt(d->GetWindowTitle(),
                           resources()->GetTitleFont(),
-                          resources()->title_color(), title_bounds_.x(),
+                          resources()->GetTitleColor(), title_bounds_.x(),
                           title_bounds_.y(), title_bounds_.width(),
                           title_bounds_.height());
   }

@@ -7,18 +7,15 @@
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/tabs/tab_strip.h"
 #include "chrome/browser/views/frame/browser_view2.h"
-#include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/browser/views/window_resources.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/views/client_view.h"
 
-///////////////////////////////////////////////////////////////////////////////
-// WindowResources
-//
+
 // An enumeration of bitmap resources used by this window.
-enum FramePartBitmap {
-  FRAME_PART_BITMAP_FIRST = 0, // must be first.
+enum {
+  FRAME_PART_BITMAP_FIRST = 0,  // Must be first.
 
   // Window Controls.
   FRAME_CLOSE_BUTTON_ICON,
@@ -63,40 +60,6 @@ enum FramePartBitmap {
 
   FRAME_PART_BITMAP_COUNT  // Must be last.
 };
-
-class WindowResources {
- public:
-  virtual SkBitmap* GetPartBitmap(FramePartBitmap part) const = 0;
-  virtual const ChromeFont& GetTitleFont() const = 0;
-  SkColor title_color() const { return SK_ColorWHITE; }
-
-  SkBitmap app_top_left() const { return app_top_left_; }
-  SkBitmap app_top_center() const { return app_top_center_; }
-  SkBitmap app_top_right() const { return app_top_right_; }
-
- protected:
-  static void InitClass() {
-    static bool initialized = false;
-    if (!initialized) {
-      ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-      app_top_left_ = *rb.GetBitmapNamed(IDR_APP_TOP_LEFT);
-      app_top_center_ = *rb.GetBitmapNamed(IDR_APP_TOP_CENTER);
-      app_top_right_ = *rb.GetBitmapNamed(IDR_APP_TOP_RIGHT);      
-      initialized = true;
-    }
-  }
-
- private:
-  // Bitmaps shared between all frame types.
-  static SkBitmap app_top_left_;
-  static SkBitmap app_top_center_;
-  static SkBitmap app_top_right_;
-};
-
-// static
-SkBitmap WindowResources::app_top_left_;
-SkBitmap WindowResources::app_top_center_;
-SkBitmap WindowResources::app_top_right_;
 
 class ActiveWindowResources : public WindowResources {
  public:
@@ -802,7 +765,7 @@ void OpaqueNonClientView::PaintTitleBar(ChromeCanvas* canvas) {
   if (d->ShouldShowWindowTitle()) {
     canvas->DrawStringInt(d->GetWindowTitle(),
                           resources()->GetTitleFont(),
-                          resources()->title_color(), title_bounds_.x(),
+                          resources()->GetTitleColor(), title_bounds_.x(),
                           title_bounds_.y(), title_bounds_.width(),
                           title_bounds_.height());
   }

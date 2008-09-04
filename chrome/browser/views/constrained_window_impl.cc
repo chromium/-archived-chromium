@@ -10,6 +10,7 @@
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/views/constrained_window_animation.h"
 #include "chrome/browser/views/location_bar_view.h"
+#include "chrome/browser/views/window_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/toolbar_model.h"
@@ -40,11 +41,8 @@ namespace ChromeViews {
 class ClientView;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// WindowResources
-
 // An enumeration of bitmap resources used by this window.
-enum FramePartBitmap {
+enum {
   FRAME_PART_BITMAP_FIRST = 0,  // Must be first.
 
   FRAME_BOTTOM_CENTER,
@@ -81,14 +79,6 @@ static const int kOTRFramePartIDs[] = {
     IDR_WINDOW_RIGHT_SIDE_OTR, IDR_WINDOW_TOP_CENTER_OTR,
     IDR_WINDOW_TOP_LEFT_CORNER_OTR, IDR_WINDOW_TOP_RIGHT_CORNER_OTR,
     IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P, 0 };
-
-class WindowResources {
- public:
-  virtual ~WindowResources() {}
-  virtual SkBitmap* GetPartBitmap(FramePartBitmap part_id) const = 0;
-  virtual const ChromeFont& GetTitleFont() const = 0;
-  virtual SkColor GetTitleColor() const = 0;
-};
 
 class XPWindowResources : public WindowResources {
  public:
