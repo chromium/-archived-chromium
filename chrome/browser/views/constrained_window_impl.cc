@@ -930,16 +930,11 @@ std::wstring ConstrainedWindowImpl::GetWindowTitle() const {
   std::wstring display_title;
   bool title_set = false;
   if (constrained_contents_) {
-    // TODO(erg): This 11th hour hack is here because we decided we don't want
-    // to give ANY room to people trying to advertise on the window title line,
-    // but we don't have time to get a string translated into 40 languages at
-    // T-5 days so just do this in English. This needs (NEEDS!) to be fixed
-    // post beta.
-    std::wstring locale = g_browser_process->GetApplicationLocale();
-    if (locale == L"en-US" || locale == L"en-GB") {
-      display_title = L"Blocked Popup";
-      title_set = true;
-    }
+    // TODO(erg): This is in the process of being translated now, but we need
+    // to do UI work so that display_title is "IDS_BLOCKED_POPUP - <page
+    // title>".
+    display_title = l10n_util::GetString(IDS_BLOCKED_POPUP);
+    title_set = true;
   }
 
   if (!title_set) {

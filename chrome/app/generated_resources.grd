@@ -3112,6 +3112,11 @@ each locale. -->
       <message name="IDS_SCRIPT_TIMEOUT_DIALOG_CONTINUE_SCRIPT_BUTTON" desc="Text for the button which continues to run the script and resets the timeout.">
         Continue
       </message>
+
+      <!-- Constrained Window -->
+      <message name="IDS_BLOCKED_POPUP" desc="Text on a blocked popup's window titlebar.">
+        Blocked Pop-up
+      </message>
     </messages>
   </release>
 </grit>
