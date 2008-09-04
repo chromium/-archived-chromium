@@ -6,7 +6,7 @@
 	<Rules>
 		<CustomBuildRule
 			Name="Output RLZ copy"
-			CommandLine="$(SolutionDir)..\rlz\copy_files.bat $(InputPath) $(OutDir)"
+			CommandLine="$(SolutionDir)..\rlz\copy_files.bat $(ProjectDir)Binaries\* $(OutDir)"
 			Outputs="$(OutDir)\$(InputFileName)"
 			FileExtensions="*.dll;*.pdb"
 			>
