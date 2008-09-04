@@ -1184,18 +1184,6 @@
 					RelativePath="..\..\pending\FileSystemWin.cpp"
 					>
 				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\win\MutexWin.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\win\ThreadConditionWin.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\win\ThreadingWin.cpp"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="text"
@@ -1390,50 +1378,6 @@
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\text\UnicodeRange.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="sql"
-				>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\sql\SQLiteAuthorizer.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\sql\SQLiteAuthorizer.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\sql\SQLiteDatabase.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\sql\SQLiteDatabase.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\sql\SQLiteStatement.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\sql\SQLiteStatement.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\sql\SQLiteTransaction.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\sql\SQLiteTransaction.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\sql\SQLValue.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\sql\SQLValue.h"
 					>
 				</File>
 			</Filter>
@@ -5757,118 +5701,6 @@
 		<Filter
 			Name="storage"
 			>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\ChangeVersionWrapper.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\ChangeVersionWrapper.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\Database.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\Database.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\DatabaseAuthorizer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\DatabaseAuthorizer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\DatabaseDetails.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\DatabaseTask.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\DatabaseTask.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\DatabaseThread.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\DatabaseThread.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\DatabaseTracker.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\DatabaseTrackerClient.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\OriginQuotaManager.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\OriginUsageRecord.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\SQLError.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\SQLResultSet.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\SQLResultSet.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\SQLResultSetRowList.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\SQLResultSetRowList.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\SQLStatement.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\SQLStatement.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\SQLStatementCallback.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\SQLStatementErrorCallback.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\SQLTransaction.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\SQLTransaction.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\SQLTransactionCallback.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\SQLTransactionErrorCallback.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="plugins"

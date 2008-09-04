@@ -1180,18 +1180,6 @@
 				>
 			</File>
 		</Filter>
-		<Filter
-			Name="storage"
-			>
-			<File
-				RelativePath="..\..\port\storage\DatabaseTracker.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\storage\OriginQuotaManager.cpp"
-				>
-			</File>
-		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
