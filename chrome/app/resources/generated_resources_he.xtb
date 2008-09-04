@@ -160,7 +160,7 @@ Del</translation>
 <translation id="3745810751851099214">שלח עבור:</translation>
 <translation id="8820817407110198400">סימניות</translation>
 <translation id="2648845569394238430">חיפוש:</translation>
-<translation id="942671148946453043">פתחת חלון אלמוני. דפים שאתה פותח בחלון זה לא יופיעו בהיסטוריה שלך.</translation>
+<translation id="942671148946453043">פתחת חלון גלישה בסתר. הדפים המוצגים בחלון זה לא יופיעו בהיסטוריה שלך.</translation>
 <translation id="5139955368427980650">&amp;פתח</translation>
 <translation id="1665770420914915777">השתמש בדף 'כרטיסיות חדשות'</translation>
 <translation id="6659594942844771486">Tab</translation>
@@ -267,7 +267,7 @@ Del</translation>
 <translation id="703748601351783580">פתח את כל הסימניות בחלון חדש</translation>
 <translation id="1521442365706402292">נהל אישורים</translation>
 <translation id="3702398161649563352"><ph name="PRODUCT_NAME"/> עודכן <ph name="VERSION"/></translation>
-<translation id="6264485186158353794">חזרה לבטיחות</translation>
+<translation id="6264485186158353794">חזרה לחוף מבטחים</translation>
 <translation id="4948468046837535074">פתח את הדפים הבאים:</translation>
 <translation id="2544782972264605588">נותרו <ph name="NUMBER_DEFAULT"/> שניות</translation>
 <translation id="8494979374722910010">ניסיון ההתחברות לשרת נכשל.</translation>
@@ -286,7 +286,7 @@ Del</translation>
 <translation id="1731911755844941020">שולח בקשה...</translation>
 <translation id="1669397342410349095">דווח על אתר התחזות...</translation>
 <translation id="5948410903763073882">Alt+<ph name="KEY_COMBO_NAME"/></translation>
-<translation id="4684748086689879921">דלג על ייבוא</translation>
+<translation id="4684748086689879921">בטל ייבוא</translation>
 <translation id="873849583815421063">מסיים...</translation>
 <translation id="8507996248087185956"><ph name="NUMBER_DEFAULT"/> דקות</translation>
 <translation id="5435666907653217300">בעיה אחרת</translation>
@@ -310,7 +310,7 @@ Del</translation>
 <translation id="1208126399996836490">אל תאפס</translation>
 <translation id="6227291405321948850">תמונת אינטרנט ללא שם</translation>
 <translation id="1851266746056575977">עדכן כעת</translation>
-<translation id="3319048459796106952">חלון חדש &amp;אלמוני</translation>
+<translation id="3319048459796106952">חלון גלישה בסתר חדש</translation>
 <translation id="6756161853376828318">הפוך את <ph name="PRODUCT_NAME"/> לדפדפן ברירת המחדל שלי</translation>
 <translation id="2303544859777878640">שפות:</translation>
 <translation id="908263542783690259">הסר היסטוריית גלישה</translation>
@@ -402,7 +402,7 @@ Del</translation>
 <translation id="1587275751631642843">קונסולת JavaScript&amp;</translation>
 <translation id="1398853756734560583">הגדל</translation>
 <translation id="5154917547274118687">זיכרון</translation>
-<translation id="3627588569887975815">פתח קישור אלמוני בחלון</translation>
+<translation id="3627588569887975815">פתח קישור בחלון גלישה בסתר</translation>
 <translation id="7564847347806291057">סיים תהליך</translation>
 <translation id="3819791248093819058">לא נמצא דף אינטרנט עבור כתובת האינטרנט: &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
 <translation id="7063412606254013905">למידע נוסף על מעשי התחזות במרמה.</translation>
@@ -683,7 +683,7 @@ Del</translation>
 
 
 ***// MESSAGE 3516378401348293790 -----------------------------------------------------------</translation>
-<translation id="7596288230018319236">כל הדפים שבהם ביקרת יופיעו כאן, אלא אם תפתח אותם בחלון אלמוני. אתה יכול להשתמש בלחצן 'חפש' שבדף זה, כדי לחפש בכל הדפים בהיסטורייה שלך.</translation>
+<translation id="7596288230018319236">כל הדפים שבהם ביקרת יופיעו כאן, אלא אם תפתח אותם בחלון גלישה בסתר. אתה יכול להשתמש בלחצן 'חפש' שבדף זה, כדי לחפש בכל הדפים בהיסטוריה שלך.</translation>
 <translation id="1570242578492689919">גופנים וקידוד</translation>
 <translation id="7481312909269577407">קדימה</translation>
 <translation id="7925285046818567682">ממתין ל- <ph name="HOST_NAME"/>...</translation>

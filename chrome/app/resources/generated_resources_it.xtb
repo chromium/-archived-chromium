@@ -221,7 +221,7 @@
 <translation id="4789872672210757069">Informazioni su &amp;<ph name="PRODUCT_NAME"/></translation>
 <translation id="6978121630131642226">Motori di ricerca</translation>
 <translation id="5327248766486351172">Nome</translation>
-<translation id="1485146213770915382">Inserisci <ph name="SEARCH_TERMS_LITERAL"/> nell'URL in cui dovrebbero comparire i termini di ricerca.</translation>
+<translation id="1485146213770915382">Nel campo URL, inserisci <ph name="SEARCH_TERMS_LITERAL"/> come segnaposto per i termini di ricerca.</translation>
 <translation id="6349678711452810642">Imposta come predefinito</translation>
 <translation id="872451400847464257">Modifica motore di ricerca</translation>
 <translation id="2179052183774520942">Aggiungi motore di ricerca</translation>
@@ -505,7 +505,7 @@
 <translation id="8940262601983387853">Nome cookie</translation>
 <translation id="5264618369089706215">Ricerche</translation>
 <translation id="3810973564298564668">Gestisci</translation>
-<translation id="2559292239863842334">Le caselle di ricerca utilizzate più spesso su altri siti verrano visualizzate qui.</translation>
+<translation id="2559292239863842334">Le caselle di ricerca utilizzate più spesso su altri siti verranno visualizzate qui.</translation>
 <translation id="8413126021676339697">Mostra cronologia completa</translation>
 <translation id="3549657413697417275">Cerca nella cronologia</translation>
 <translation id="495091556140548787">Schede chiuse di recente</translation>
@@ -529,7 +529,7 @@
 <translation id="3366404380928138336">Richiesta protocollo esterno</translation>
 <translation id="5822838715583768518">Avvia applicazione</translation>
 <translation id="1768211415369530011">Se accetti la richiesta, verrà avviata la seguente applicazione: \n\n <ph name="APPLICATION"/></translation>
-<translation id="4745142959976410383">Se la richiesta non è stata avviata da te, potrebbe trattarsi di un tentativo di attacco al tuo sistema. A meno che tu non abbia esplicitamente avviato questa richiesta, ti consigliamo di fare clic cu Annulla.</translation>
+<translation id="4745142959976410383">Se la richiesta non è stata avviata da te, potrebbe trattarsi di un tentativo di attacco al tuo sistema. A meno che tu non abbia esplicitamente avviato questa richiesta, ti consigliamo di fare clic su Annulla.</translation>
 <translation id="5055518462594137986">Ricorda la mia scelta per tutti i link di questo tipo.</translation>
 <translation id="7334704644505105275">Debugger JavaScript - Occupato</translation>
 <translation id="5303890401939113396">Debugger JavaScript - Interruzione</translation>
@@ -628,7 +628,7 @@
 <translation id="3867260226944967367">Pagina web non trovata.</translation>
 <translation id="8598751847679122414">La pagina web ha generato un loop di reindirizzamento.</translation>
 <translation id="877010697526426622">La pagina web all'indirizzo &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; potrebbe essere temporaneamente inaccessibile o potrebbe essere stata trasferita definitivamente a un nuovo indirizzo web.</translation>
-<translation id="3819791248093819058">Nessun pagina web trovata all'indirizzo: &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
+<translation id="3819791248093819058">Nessuna pagina web trovata all'indirizzo: &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
 <translation id="7070442422749762650">La pagina web &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; ha generato
     troppi reindirizzamenti. Il problema potrebbe essere risolto
     cancellando i cookie del sito. In caso contrario, potrebbe trattarsi
@@ -663,7 +663,7 @@
 <translation id="1120026268649657149">Specifica una parola chiave univoca o lascia il campo vuoto</translation>
 <translation id="7481475534986701730">Siti visitati di recente</translation>
 <translation id="3169621169201401257">Per maggiori informazioni sui problemi riscontrati per questi elementi, visita la pagina <ph name="DIAGNOSTIC_PAGE"/> di <ph name="DOMAIN"/>.</translation>
-<translation id="2356762928523809690">Aggiornamento server non disponibile (errore: <ph name="ERROR_NUMBER"/>)</translation>
+<translation id="2356762928523809690">Server di aggiornamento non disponibile (errore: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="1017280919048282932">&amp;Aggiungi al dizionario</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
 <translation id="9181716872983600413">Unicode</translation>
