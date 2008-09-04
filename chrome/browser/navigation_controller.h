@@ -358,9 +358,6 @@ class NavigationController {
   // Broadcasts a notification that the given entry changed.
   void NotifyEntryChanged(const NavigationEntry* entry, int index);
 
-  // Implementation of Reset and the destructor. Deletes entries
-  void ResetInternal();
-
   // Removes the entry at the specified index.  Note that you should not remove
   // the pending entry or the last committed entry.
   void RemoveEntryAtIndex(int index);

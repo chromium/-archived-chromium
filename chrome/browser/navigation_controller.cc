@@ -850,13 +850,6 @@ void NavigationController::LoadIfNecessary() {
   NavigateToPendingEntry(false);
 }
 
-void NavigationController::ResetInternal() {
-  // WARNING: this is invoked from the destructor, be sure not to invoke any
-  // virtual methods from this.
-  entries_.clear();
-  DiscardPendingEntryInternal();
-}
-
 void NavigationController::NotifyEntryChanged(const NavigationEntry* entry,
                                               int index) {
   EntryChangedDetails det;

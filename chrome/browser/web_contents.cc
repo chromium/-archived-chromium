@@ -1318,7 +1318,7 @@ NavigationEntry* WebContents::CreateNavigationEntryForCommit(
       // that state. We should find a better way to do this. Note that it is OK
       // that the mixed/unsafe contents is set on the wrong navigation entry, as
       // that state is reset when navigating back to it.
-      DCHECK(last_committed->ssl().content_status() == 0) << "We should never "
+      DCHECK(entry->ssl().content_status() == 0) << "We should never "
           "be setting the status bits from 1 to 0 on navigate.";
       entry->ssl() = last_committed->ssl();
     }
