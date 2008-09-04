@@ -521,16 +521,23 @@ env.Command(['$DERIVED_DIR/XLinkNames.cpp',
 #WebCore.exp : WebCore.base.exp WebCore.SVG.exp
 #	cat $^ > $@
 
+def cat_files(target, source, env):
+  fout = open(str(target[0]), "w")
+  for src in source:
+    fin = open(str(src))
+    fout.writelines(fin.readlines())
+    fin.close()
+  fout.close()
 
 env.Command('$DERIVED_DIR/html4.css',
             ['$WEBKIT_PORT_DIR/css/html4.css',
              '$PORTROOT/css/html4-overrides.css'],
-            'type $SOURCES > $TARGETS')
+            cat_files)
 
 env.Command('$DERIVED_DIR/quirks.css',
             ['$WEBKIT_PORT_DIR/css/quirks.css',
              '$PORTROOT/css/quirks-overrides.css'],
-            'type $SOURCES > $TARGETS')
+            cat_files)
 
 env.Command(['$DERIVED_DIR/UserAgentStyleSheets.h',
              '$DERIVED_DIR/UserAgentStyleSheetsData.cpp'],
