@@ -13,7 +13,7 @@ namespace WebCore {
 
 class Location : public RefCounted<Location> {
  public:
-  Location::Location(Frame* frame) : m_frame(frame) { }
+  Location(Frame* frame) : m_frame(frame) { }
 
   Frame* frame() { return m_frame; }
 
