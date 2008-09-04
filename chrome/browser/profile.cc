@@ -380,10 +380,6 @@ class OffTheRecordProfileImpl : public Profile,
     }
   }
 
-  virtual bool HasHistoryService() const {
-    return profile_->HasHistoryService();
-  }
-
   virtual WebDataService* GetWebDataService(ServiceAccessType sat) {
     if (sat == EXPLICIT_ACCESS) {
       return profile_->GetWebDataService(sat);
@@ -738,10 +734,6 @@ HistoryService* ProfileImpl::GetHistoryService(ServiceAccessType sat) {
                Details<HistoryService>(history_service_.get()));
   }
   return history_service_.get();
-}
-
-bool ProfileImpl::HasHistoryService() const {
-  return !!history_service_.get();
 }
 
 TemplateURLModel* ProfileImpl::GetTemplateURLModel() {

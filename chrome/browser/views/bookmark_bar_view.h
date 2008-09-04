@@ -309,15 +309,10 @@ class BookmarkBarView : public ChromeViews::View,
   // visible. Updates the preferences to match the users choice as appropriate.
   virtual void ExecuteCommand(int id);
 
-  // Notification that the HistoryService is up an running. Removes us as
-  // a listener on the notification service and invokes
-  // ProfileHasValidHistoryService.
+  // NotificationService method.
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details);
-
-  // Invoked when the profile has a history service. Recreates the models.
-  void ProfileHasValidHistoryService();
 
   // If we have registered an observer on the notification service, this
   // unregisters it. This does nothing if we have not installed ourself as an

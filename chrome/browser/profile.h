@@ -110,14 +110,6 @@ class Profile {
   // the ServiceAccessType definition above.
   virtual HistoryService* GetHistoryService(ServiceAccessType access) = 0;
 
-  // Returns true if the history service has been initialized. Some callers may
-  // want to use the history service for not very important things, and do not
-  // want to be the ones who cause lazy initialization of the service (can cause
-  // startup regressions).
-  //
-  // If this returns true, history_service() is guaranteed to return non-NULL.
-  virtual bool HasHistoryService() const = 0;
-
   // Returns the WebDataService for this profile. This is owned by
   // the Profile. Callers that outlive the life of this profile need to be
   // sure they refcount the returned value.
@@ -253,7 +245,6 @@ class ProfileImpl : public Profile {
   virtual Profile* GetOriginalProfile();
   virtual VisitedLinkMaster* GetVisitedLinkMaster();
   virtual HistoryService* GetHistoryService(ServiceAccessType sat);
-  virtual bool HasHistoryService() const;
   virtual WebDataService* GetWebDataService(ServiceAccessType sat);
   virtual PrefService* GetPrefs();
   virtual TemplateURLModel* GetTemplateURLModel();

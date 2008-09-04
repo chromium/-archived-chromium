@@ -672,20 +672,17 @@ void BookmarkBarView::SetProfile(Profile* profile) {
 
   NotificationService* ns = NotificationService::current();
   Source<Profile> ns_source(profile_->GetOriginalProfile());
-  ns->AddObserver(this, NOTIFY_HISTORY_CREATED, ns_source);
   ns->AddObserver(this, NOTIFY_BOOKMARK_BUBBLE_SHOWN, ns_source);
   ns->AddObserver(this, NOTIFY_BOOKMARK_BUBBLE_HIDDEN, ns_source);
   ns->AddObserver(this, NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
                   NotificationService::AllSources());
 
-  if (!profile->HasHistoryService()) {
-    // The history service hasn't been loaded yet. We don't want to trigger
-    // loading it. Instead we install an observer that is notified when the
-    // history service has loaded.
-    model_ = NULL;
-  } else {
-    ProfileHasValidHistoryService();
-  }
+  model_ = profile_->GetBookmarkBarModel();
+  model_->AddObserver(this);
+  if (model_->IsLoaded())
+    Loaded(model_);
+  // else case: we'll receive notification back from the BookmarkBarModel when
+  // done loading, then we'll populate the bar.
 }
 
 void BookmarkBarView::SetPageNavigator(PageNavigator* navigator) {
@@ -1121,6 +1118,7 @@ void BookmarkBarView::Init() {
   SetContextMenuController(this);
 
   size_animation_.reset(new SlideAnimation(this));
+  size_animation_->SetSlideDuration(4000);
 }
 
 MenuButton* BookmarkBarView::CreateOtherBookmarkedButton() {
@@ -1439,37 +1437,31 @@ void BookmarkBarView::Observe(NotificationType type,
                               const NotificationSource& source,
                               const NotificationDetails& details) {
   DCHECK(profile_);
-  if (type == NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED) {
-    if (IsAlwaysShown()) {
-      size_animation_->Show();
-    } else {
-      size_animation_->Hide();
-    }
-  } else if (type == NOTIFY_HISTORY_CREATED) {
-    ProfileHasValidHistoryService();
-  } else if (type == NOTIFY_BOOKMARK_BUBBLE_SHOWN) {
-    StopThrobbing(true);
-    bubble_url_ = *(Details<GURL>(details).ptr());
-    StartThrobbing();
-  } else if (type == NOTIFY_BOOKMARK_BUBBLE_HIDDEN) {
-    StopThrobbing(false);
-    bubble_url_ = GURL();
-  }
-}
+  switch (type) {
+    case NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED:
+      if (IsAlwaysShown()) {
+        size_animation_->Show();
+      } else {
+        size_animation_->Hide();
+      }
+      break;
 
-void BookmarkBarView::ProfileHasValidHistoryService() {
-  DCHECK(profile_);
-  model_ = profile_->GetBookmarkBarModel();
-  DCHECK(model_);
-  model_->AddObserver(this);
-  if (model_->IsLoaded())
-    Loaded(model_);
+    case NOTIFY_BOOKMARK_BUBBLE_SHOWN:
+      StopThrobbing(true);
+      bubble_url_ = *(Details<GURL>(details).ptr());
+      StartThrobbing();
+      break;
+
+    case NOTIFY_BOOKMARK_BUBBLE_HIDDEN:
+      StopThrobbing(false);
+      bubble_url_ = GURL();
+      break;
+  }
 }
 
 void BookmarkBarView::RemoveNotificationObservers() {
   NotificationService* ns = NotificationService::current();
   Source<Profile> ns_source(profile_->GetOriginalProfile());
-  ns->RemoveObserver(this, NOTIFY_HISTORY_CREATED, ns_source);
   ns->RemoveObserver(this, NOTIFY_BOOKMARK_BUBBLE_SHOWN, ns_source);
   ns->RemoveObserver(this, NOTIFY_BOOKMARK_BUBBLE_HIDDEN, ns_source);
   ns->RemoveObserver(this, NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,

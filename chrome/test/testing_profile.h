@@ -64,9 +64,6 @@ class TestingProfile : public Profile {
   void set_has_history_service(bool has_history_service) {
     has_history_service_ = has_history_service;
   }
-  virtual bool HasHistoryService() const {
-    return (history_service_.get() != NULL || has_history_service_);
-  }
   virtual WebDataService* GetWebDataService(ServiceAccessType access) {
     return NULL;
   }
