@@ -76,7 +76,7 @@ public:
             float offset = stops[i].first;
             Color color = stops[i].second;
 
-            colors_[cur]=SkColorSetARGB(opacity*color.alpha(),
+            colors_[cur]=SkColorSetARGB(static_cast<int>(opacity*color.alpha()),
               color.red(),
               color.green(),
               color.blue());
