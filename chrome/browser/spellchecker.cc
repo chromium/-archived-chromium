@@ -30,6 +30,36 @@
 
 static const int kMaxSuggestions = 5;  // Max number of dictionary suggestions.
 
+// This is a helper class which acts as a proxy for invoking a task from the
+// file loop back to the IO loop. Invoking a task from file loop to the IO
+// loop directly is not safe as during browser shutdown, the IO loop tears
+// down before the file loop. To avoid a crash, this object is invoked in the
+// UI loop from the file loop, from where it gets the IO thread directly from
+// g_browser_process and invokes the given task in the IO loop if it is not
+// NULL. This object also takes ownership of the given task.
+class UIProxyForIOTask : public Task {
+ public:
+  explicit UIProxyForIOTask(Task* spellchecker_flag_set_task)
+      : spellchecker_flag_set_task_(spellchecker_flag_set_task) {
+  }
+
+ private:
+  void Run() {
+    // This has been invoked in the UI thread.
+    base::Thread* io_thread = g_browser_process->io_thread();
+    if (io_thread) {  // io_thread has not been torn down yet.
+      MessageLoop* io_loop = io_thread->message_loop();
+      if (io_loop) {
+        io_loop->PostTask(FROM_HERE, spellchecker_flag_set_task_);
+        spellchecker_flag_set_task_ = NULL;
+      }
+    }
+  }
+
+  Task* spellchecker_flag_set_task_;
+  DISALLOW_COPY_AND_ASSIGN(UIProxyForIOTask);
+};
+
 // ############################################################################
 // This part of the spellchecker code is used for downloading spellchecking
 // dictionary if required. This code is included in this file since dictionary
@@ -116,7 +146,8 @@ class SpellChecker::DictionaryDownloadController
     }  // Unsuccessful save is taken care of spellchecker |Initialize|.
 
     // Set Flag that dictionary is not downloading anymore.
-    ui_loop_->PostTask(FROM_HERE, spellchecker_flag_set_task_);
+    ui_loop_->PostTask(FROM_HERE,
+                       new UIProxyForIOTask(spellchecker_flag_set_task_));
   }
 
   // factory object to invokelater back to spellchecker in io thread on
@@ -144,38 +175,7 @@ class SpellChecker::DictionaryDownloadController
 
   // this invokes back to io loop when downloading is over.
   MessageLoop* ui_loop_;
-  DISALLOW_EVIL_CONSTRUCTORS(DictionaryDownloadController);
-};
-
-
-// This is a helper class which acts as a proxy for invoking a task from the
-// file loop back to the IO loop. Invoking a task from file loop to the IO
-// loop directly is not safe as during browser shutdown, the IO loop tears
-// down before the file loop. To avoid a crash, this object is invoked in the
-// UI loop from the file loop, from where it gets the IO thread directly from
-// g_browser_process and invokes the given task in the IO loop if it is not
-// NULL. This object also takes ownership of the given task.
-class UIProxyForIOTask : public Task {
- public:
-  explicit UIProxyForIOTask(Task* spellchecker_flag_set_task)
-      : spellchecker_flag_set_task_(spellchecker_flag_set_task) {
-  }
-
- private:
-  void Run() {
-    // This has been invoked in the UI thread.
-    base::Thread* io_thread = g_browser_process->io_thread();
-    if (io_thread) {  // io_thread has not been torn down yet.
-      MessageLoop* io_loop = io_thread->message_loop();
-      if (io_loop) {
-        io_loop->PostTask(FROM_HERE, spellchecker_flag_set_task_);
-        spellchecker_flag_set_task_ = NULL;
-      }
-    }
-  }
-
-  Task* spellchecker_flag_set_task_;
-  DISALLOW_EVIL_CONSTRUCTORS(UIProxyForIOTask);
+  DISALLOW_COPY_AND_ASSIGN(DictionaryDownloadController);
 };
 
 void SpellChecker::set_file_is_downloading(bool value) {
