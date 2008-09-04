@@ -49,7 +49,7 @@
 // TODO(ojan): Comment in when we do the next full webkit merge.
 // Commented out from the head version of InspectorController.h
 // #include "Console.h"
-#include "DomWindow.h"
+#include "DOMWindow.h"
 #include <wtf/RefCounted.h>
 #if USE(JAVASCRIPTCORE_BINDINGS)
 #include <JavaScriptCore/JSContextRef.h>

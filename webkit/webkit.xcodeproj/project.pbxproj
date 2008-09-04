@@ -11392,7 +11392,7 @@
 				INSTALL_PATH = /usr/local/lib;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-DBUILDING_CHROME__",
+					"-DBUILDING_CHROMIUM__",
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = WebCore_v8_chrome;

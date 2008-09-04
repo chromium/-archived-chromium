@@ -199,7 +199,7 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
 
   virtual void unloadListenerChanged();
 
-#if defined(__APPLE__) && !defined(__BUILDING_CHROME)
+#if defined(__APPLE__) && !defined(__BUILDING_CHROMIUM)
   virtual NSCachedURLResponse* willCacheResponse(WebCore::DocumentLoader*,
                                                  unsigned long identifier,
                                                  NSCachedURLResponse*) const;

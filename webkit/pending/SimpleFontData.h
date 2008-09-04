@@ -117,7 +117,7 @@ public:
     static bool shouldApplyMacAscentHack();
 #endif
 
-#if PLATFORM(GTK)
+#if PLATFORM(GTK) && PLATFORM(CAIRO)
     void setFont(cairo_t*) const;
 #endif
 

@@ -40,7 +40,7 @@ typedef struct CGImage* CGImageRef;
 class QPainter;
 #endif
 
-#if PLATFORM(CAIRO)
+#if PLATFORM(CAIRO) || PLATFORM(SKIA)
 // TODO(jhaas): PLATFORM(SKIA)
 typedef struct _cairo_surface cairo_surface_t;
 class SkBitmap;
@@ -63,7 +63,7 @@ namespace WebCore {
         CGImageRef cgImage() const;
 #elif PLATFORM(QT)
         QPixmap* pixmap() const;
-#elif PLATFORM(CAIRO)
+#elif PLATFORM(CAIRO) || PLATFORM(SKIA)
         // TODO(jhaas): PLATFORM(SKIA)
         const SkBitmap* image() const;
         cairo_surface_t* surface() const;

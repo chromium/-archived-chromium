@@ -19,7 +19,10 @@ if env['PLATFORM'] == 'posix':
   env.Append(
       CCFLAGS = [
           '-Wno-parentheses',
-      ]
+      ],
+      CPPDEFINES = [
+        'BUILDING_GTK__',
+      ],
   )
 
 env.Prepend(
@@ -126,6 +129,7 @@ env.Append(
       ['ANDROID_CANVAS_IMPL', '1'],
       ['WEBCORE_NAVIGATOR_PLATFORM', '"\\"Win32\\""'],
       'USE_GOOGLE_URL_LIBRARY',
+      'BUILDING_CHROMIUM__',
 
       'LIBXSLT_STATIC',
       'LIBXML_STATIC',
@@ -155,7 +159,9 @@ if env['PLATFORM'] == 'win32':
     'activex_shim/SConscript',
     'activex_shim_dll/SConscript',
     'build/localized_strings/SConscript',
-    'build/WebCore/SConscript',
+    'build/WebCore/SConscript',  # This almost works on linux.  It requires
+                                 # some changes to WebKit that we'll get
+                                 # in the merge.
     'default_plugin/SConscript',
     'glue/SConscript',
     'glue/plugins/test/SConscript',

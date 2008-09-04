@@ -241,7 +241,7 @@ bool operator==(const ResourceResponse& a, const ResourceResponse& b)
         return false;
     if (a.expirationDate() != b.expirationDate())
         return false;
-#if PLATFORM(MAC) && !PLATFORM(CHROME)
+#if PLATFORM(MAC) && !PLATFORM(CHROMIUM)
     if (a.nsURLResponse() != b.nsURLResponse())
         return false;
 #endif

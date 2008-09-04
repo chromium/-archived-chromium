@@ -160,9 +160,9 @@ struct ScheduledRedirection {
     explicit ScheduledRedirection(HistoryItem* item)
         : type(historyNavigation)
         , delay(0)
-        , historyItem(item)
         , lockHistory(false)
         , wasUserGesture(false)
+        , historyItem(item)
     {
     }
 };
@@ -216,9 +216,9 @@ FrameLoader::FrameLoader(Frame* frame, FrameLoaderClient* client)
     , m_isRunningScript(false)
     , m_didCallImplicitClose(false)
     , m_wasUnloadEventEmitted(false)
-    , m_firingUnloadEvents(false)
     , m_isComplete(false)
     , m_isLoadingMainResource(false)
+    , m_firingUnloadEvents(false)
     , m_cancellingWithLoadInProgress(false)
     , m_needsClear(false)
     , m_receivedData(false)
