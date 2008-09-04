@@ -85,13 +85,13 @@ TEST(ThreadLocalTest, Pointer) {
   done.Reset();
   tp1.AddWork(&getter);
   done.Wait();
-  EXPECT_EQ(NULL, tls_val);
+  EXPECT_EQ(static_cast<ThreadLocalTesterBase*>(NULL), tls_val);
 
   tls_val = kBogusPointer;
   done.Reset();
   tp2.AddWork(&getter);
   done.Wait();
-  EXPECT_EQ(NULL, tls_val);
+  EXPECT_EQ(static_cast<ThreadLocalTesterBase*>(NULL), tls_val);
 
 
   SetThreadLocal setter(&tlp, &done);
@@ -113,7 +113,7 @@ TEST(ThreadLocalTest, Pointer) {
   done.Reset();
   tp2.AddWork(&getter);
   done.Wait();
-  EXPECT_EQ(NULL, tls_val);
+  EXPECT_EQ(static_cast<ThreadLocalTesterBase*>(NULL), tls_val);
 
   // Set thread 2 to kBogusPointer + 1.
   setter.set_value(kBogusPointer + 1);
