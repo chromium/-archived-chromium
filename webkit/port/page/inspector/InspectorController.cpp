@@ -89,9 +89,14 @@
 #endif
 #include <wtf/RefCounted.h>
 
+// TODO(aa): Implement database inspection and remove this macro.
+#define ENABLE_DATABASE_INSPECTION 0
+
 #if ENABLE(DATABASE)
 #include "Database.h"
+#if ENABLE_DATABASE_INSPECTION
 #include "JSDatabase.h"
+#endif
 #endif
 
 #if USE(JAVASCRIPTCORE_BINDINGS)
@@ -477,6 +482,7 @@ protected:
 
 #if ENABLE(DATABASE)
 struct InspectorDatabaseResource : public RefCounted<InspectorDatabaseResource> {
+#if ENABLE_DATABASE_INSPECTION
     static PassRefPtr<InspectorDatabaseResource> create(Database* database, const String& domain, const String& name, const String& version)
     {
         // Apple changed the default refcount to 1: http://trac.webkit.org/changeset/30406
@@ -518,6 +524,7 @@ private:
         , scriptObject(0)
     {
     }
+#endif
 };
 #endif
 
@@ -908,6 +915,7 @@ void InspectorController::search(Node* node, const String& target) {
 #endif
 
 #if ENABLE(DATABASE)
+#if ENABLE_DATABASE_INSPECTION
 static JSValueRef databaseTableNames(JSContextRef ctx, JSObjectRef /*function*/, JSObjectRef thisObject, size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception)
 {
     InspectorController* controller = reinterpret_cast<InspectorController*>(JSObjectGetPrivate(thisObject));
@@ -961,6 +969,7 @@ static JSValueRef databaseTableNames(JSContextRef ctx, JSObjectRef /*function*/,
 
     return result;
 }
+#endif
 #endif
 
 #if USE(JAVASCRIPTCORE_BINDINGS)
@@ -1447,7 +1456,9 @@ void InspectorController::windowScriptObjectAvailable()
         { "detach", detach, kJSPropertyAttributeNone },
         { "search", search, kJSPropertyAttributeNone },
 #if ENABLE(DATABASE)
+#if ENABLE_DATABASE_INSPECTION
         { "databaseTableNames", databaseTableNames, kJSPropertyAttributeNone },
+#endif
 #endif
         { "inspectedWindow", inspectedWindow, kJSPropertyAttributeNone },
         { "localizedStringsURL", localizedStrings, kJSPropertyAttributeNone },
@@ -2193,9 +2204,11 @@ void InspectorController::populateScriptObjects()
         addScriptConsoleMessage(m_consoleMessages[i]);
 
 #if ENABLE(DATABASE)
+#if ENABLE_DATABASE_INSPECTION
     DatabaseResourcesSet::iterator databasesEnd = m_databaseResources.end();
     for (DatabaseResourcesSet::iterator it = m_databaseResources.begin(); it != databasesEnd; ++it)
         addDatabaseScriptResource((*it).get());
+#endif
 #endif
 }
 #elif USE(V8_BINDING)
@@ -2212,6 +2225,7 @@ void InspectorController::populateScriptObjects()
 #endif
 
 #if ENABLE(DATABASE)
+#if ENABLE_DATABASE_INSPECTION
 JSObjectRef InspectorController::addDatabaseScriptResource(InspectorDatabaseResource* resource)
 {
     ASSERT_ARG(resource, resource);
@@ -2305,6 +2319,7 @@ void InspectorController::removeDatabaseScriptResource(InspectorDatabaseResource
     JSObjectCallAsFunction(m_scriptContext, removeDatabaseFunction, m_scriptObject, 1, arguments, &exception);
     HANDLE_EXCEPTION(exception);
 }
+#endif
 #endif
 
 #if USE(JAVASCRIPTCORE_BINDINGS)
@@ -2434,11 +2449,13 @@ void InspectorController::resetScriptObjects()
     }
 
 #if ENABLE(DATABASE)
+#if ENABLE_DATABASE_INSPECTION
     DatabaseResourcesSet::iterator databasesEnd = m_databaseResources.end();
     for (DatabaseResourcesSet::iterator it = m_databaseResources.begin(); it != databasesEnd; ++it) {
         InspectorDatabaseResource* resource = (*it).get();
         resource->setScriptObject(0, 0);
     }
+#endif
 #endif
 
 #if USE(JAVASCRIPTCORE_BINDINGS)
@@ -2486,7 +2503,9 @@ void InspectorController::didCommitLoad(DocumentLoader* loader)
         m_consoleMessages.clear();
 
 #if ENABLE(DATABASE)
+#if ENABLE_DATABASE_INSPECTION
         m_databaseResources.clear();
+#endif
 #endif
 
         if (windowVisible()) {
@@ -2729,6 +2748,7 @@ void InspectorController::resourceRetrievedByXMLHttpRequest(unsigned long identi
 #if ENABLE(DATABASE)
 void InspectorController::didOpenDatabase(Database* database, const String& domain, const String& name, const String& version)
 {
+#if ENABLE_DATABASE_INSPECTION
     if (!enabled())
         return;
 
@@ -2738,6 +2758,7 @@ void InspectorController::didOpenDatabase(Database* database, const String& doma
 
     if (windowVisible())
         addDatabaseScriptResource(resource.get());
+#endif
 }
 #endif
 
