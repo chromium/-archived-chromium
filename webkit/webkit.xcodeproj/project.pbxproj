@@ -2343,7 +2343,6 @@
 		E45627060E268F03005E4685 /* cpp_variant.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825404FD0D92E3DA0006B936 /* cpp_variant.cc */; };
 		E45627070E268F03005E4685 /* cpp_bound_class.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825404FA0D92E3DA0006B936 /* cpp_bound_class.cc */; };
 		E45627080E268F03005E4685 /* webframeloaderclient_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254053F0D92E3DA0006B936 /* webframeloaderclient_impl.cc */; };
-		E45627090E268F03005E4685 /* webkit_glue.mm in Sources */ = {isa = PBXBuildFile; fileRef = 825405460D92E3DA0006B936 /* webkit_glue.mm */; };
 		E456270A0E268F03005E4685 /* event_conversion.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254050B0D92E3DA0006B936 /* event_conversion.cc */; };
 		E456270B0E268F03005E4685 /* inspector_client_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405180D92E3DA0006B936 /* inspector_client_impl.cc */; };
 		E456270C0E268F03005E4685 /* searchable_form_data.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254052C0D92E3DA0006B936 /* searchable_form_data.cc */; };
@@ -2397,6 +2396,7 @@
 		E4A238C80E3FA19C002BDE14 /* image_decoder.h in Headers */ = {isa = PBXBuildFile; fileRef = E4A238C60E3FA19C002BDE14 /* image_decoder.h */; };
 		E4A9708C0E36150500E8EF3B /* ChromeClientWin.h in Headers */ = {isa = PBXBuildFile; fileRef = E4A9708A0E36150500E8EF3B /* ChromeClientWin.h */; };
 		E4CD5A720E3E44CC00A70177 /* HistoryWin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4CD5A710E3E44CC00A70177 /* HistoryWin.cpp */; };
+		E4E4C4ED0E71C386009A687C /* webkit_glue.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C4EC0E71C386009A687C /* webkit_glue.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -4991,7 +4991,6 @@
 		825405430D92E3DA0006B936 /* webhistoryitem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = webhistoryitem.h; path = glue/webhistoryitem.h; sourceTree = "<group>"; };
 		825405440D92E3DA0006B936 /* webinputevent_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = webinputevent_mac.mm; path = glue/webinputevent_mac.mm; sourceTree = "<group>"; };
 		825405450D92E3DA0006B936 /* webinputevent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = webinputevent.h; path = glue/webinputevent.h; sourceTree = "<group>"; };
-		825405460D92E3DA0006B936 /* webkit_glue.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = webkit_glue.mm; path = glue/webkit_glue.mm; sourceTree = "<group>"; };
 		825405470D92E3DB0006B936 /* webkit_glue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = webkit_glue.h; path = glue/webkit_glue.h; sourceTree = "<group>"; };
 		825405480D92E3DB0006B936 /* webkit_resources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = webkit_resources.h; path = glue/webkit_resources.h; sourceTree = "<group>"; };
 		825405490D92E3DB0006B936 /* webkit_resources.rc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = webkit_resources.rc; path = glue/webkit_resources.rc; sourceTree = "<group>"; };
@@ -5075,6 +5074,7 @@
 		E4A970730E36128B00E8EF3B /* FrameWin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FrameWin.cpp; path = port/bridge/FrameWin.cpp; sourceTree = SOURCE_ROOT; };
 		E4A9708A0E36150500E8EF3B /* ChromeClientWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ChromeClientWin.h; path = page/ChromeClientWin.h; sourceTree = "<group>"; };
 		E4CD5A710E3E44CC00A70177 /* HistoryWin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HistoryWin.cpp; sourceTree = "<group>"; };
+		E4E4C4EC0E71C386009A687C /* webkit_glue.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = webkit_glue.cc; path = glue/webkit_glue.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -8015,7 +8015,7 @@
 				825405430D92E3DA0006B936 /* webhistoryitem.h */,
 				825405440D92E3DA0006B936 /* webinputevent_mac.mm */,
 				825405450D92E3DA0006B936 /* webinputevent.h */,
-				825405460D92E3DA0006B936 /* webkit_glue.mm */,
+				E4E4C4EC0E71C386009A687C /* webkit_glue.cc */,
 				825405470D92E3DB0006B936 /* webkit_glue.h */,
 				825405480D92E3DB0006B936 /* webkit_resources.h */,
 				825405490D92E3DB0006B936 /* webkit_resources.rc */,
@@ -9809,7 +9809,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -ex\n\n# TODO(mmentovai): fix this to not be so hokey - the Apple build expects JavaScriptCore to be in a framework\n# This belongs in the JSConfig target, which already does something similar\nmkdir -p \"${BUILT_PRODUCTS_DIR}/include/v8/JavaScriptCore\"\ncp -p \"${SRCROOT}/../third_party/WebKit/JavaScriptCore/bindings/npruntime.h\" \\\n      \"${BUILT_PRODUCTS_DIR}/include/v8/JavaScriptCore\"\n\nmkdir -p \"${BUILT_PRODUCTS_DIR}/DerivedSources/v8/WebCore\"\ncd \"${BUILT_PRODUCTS_DIR}/DerivedSources/v8/WebCore\"\n\nexport CREATE_HASH_TABLE=\"${SRCROOT}/../third_party/WebKit/JavaScriptCore/kjs/create_hash_table\"\n\nln -sfh \"${SRCROOT}/../third_party/WebKit/WebCore\" WebCore\nexport WebCore=\"WebCore\"\nexport SOURCE_ROOT=\"${WebCore}\"\nexport PORTROOT=\"${SRCROOT}/port\"\n\nexport PUBLICDOMINTERFACES=\"${PORTROOT}/../pending/PublicDOMInterfaces.h\"\nmake -f \"${SRCROOT}/pending/DerivedSources.make\" -j `/usr/sbin/sysctl -n hw.ncpu`\n\n# Allow framework-style #imports of <WebCore/whatever.h> to find the right headers\ncd ..\nmkdir -p ForwardingHeaders/loader\nln -sfh \"${SRCROOT}/../third_party/WebKit/WebCore/loader\" ForwardingHeaders/loader/WebCore\n";
+			shellScript = "set -ex\n\n# TODO(mmentovai): fix this to not be so hokey - the Apple build expects JavaScriptCore to be in a framework\n# This belongs in the JSConfig target, which already does something similar\nmkdir -p \"${BUILT_PRODUCTS_DIR}/include/v8/JavaScriptCore\"\ncp -p \"${SRCROOT}/../third_party/WebKit/JavaScriptCore/bindings/npruntime.h\" \\\n      \"${BUILT_PRODUCTS_DIR}/include/v8/JavaScriptCore\"\n\nmkdir -p \"${BUILT_PRODUCTS_DIR}/DerivedSources/v8/WebCore\"\ncd \"${BUILT_PRODUCTS_DIR}/DerivedSources/v8/WebCore\"\n\nexport CREATE_HASH_TABLE=\"${SRCROOT}/../third_party/WebKit/JavaScriptCore/kjs/create_hash_table\"\n\nexport WEBCOREROOT=\"${SRCROOT}/../third_party/WebKit/WebCore\"\nln -sfh \"${WEBCOREROOT}\" WebCore\nexport WebCore=\"WebCore\"\nexport SOURCE_ROOT=\"${WebCore}\"\nexport PORTROOT=\"${SRCROOT}/port\"\n\nexport PUBLICDOMINTERFACES=\"${PORTROOT}/../pending/PublicDOMInterfaces.h\"\nmake -f \"${SRCROOT}/pending/DerivedSources.make\" -j `/usr/sbin/sysctl -n hw.ncpu`\n\n# Allow framework-style #imports of <WebCore/whatever.h> to find the right headers\ncd ..\nmkdir -p ForwardingHeaders/loader\nln -sfh \"${WEBCOREROOT}/loader\" ForwardingHeaders/loader/WebCore\n\n# Generate the webkit version header\nexport BUILDROOT=\"${SRCROOT}/build\"\nexport CONFIGROOT=\"${WEBCOREROOT}/Configurations\"\npython \"${BUILDROOT}/webkit_version.py\" \"${CONFIGROOT}/Version.xcconfig\" \"${BUILT_PRODUCTS_DIR}/include\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -10932,7 +10932,6 @@
 				E45627060E268F03005E4685 /* cpp_variant.cc in Sources */,
 				E45627070E268F03005E4685 /* cpp_bound_class.cc in Sources */,
 				E45627080E268F03005E4685 /* webframeloaderclient_impl.cc in Sources */,
-				E45627090E268F03005E4685 /* webkit_glue.mm in Sources */,
 				E456270A0E268F03005E4685 /* event_conversion.cc in Sources */,
 				E456270B0E268F03005E4685 /* inspector_client_impl.cc in Sources */,
 				E456270C0E268F03005E4685 /* searchable_form_data.cc in Sources */,
@@ -10946,6 +10945,7 @@
 				E48A06DE0E3F840F00172919 /* image_resource_fetcher.cc in Sources */,
 				E4A238C70E3FA19C002BDE14 /* image_decoder.cc in Sources */,
 				E45063BA0E4104700025A81A /* localized_strings.cc in Sources */,
+				E4E4C4ED0E71C386009A687C /* webkit_glue.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
