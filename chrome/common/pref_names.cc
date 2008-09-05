@@ -345,6 +345,10 @@ const wchar_t kMemoryCacheSize[] = L"renderer.memory_cache.size";
 // String which specifies where to download files to by default.
 const wchar_t kDownloadDefaultDirectory[] = L"download.default_directory";
 
+// Boolean that records if the download directory was changed by an
+// upgrade a unsafe location to a safe location.
+const wchar_t kDownloadDirUpgraded[] = L"download.directory_upgrade";
+
 // String which specifies where to save html files to by default.
 const wchar_t kSaveFileDefaultDirectory[] = L"savefile.default_directory";
 

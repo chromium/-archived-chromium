@@ -82,6 +82,15 @@ static bool UniquifyPath(std::wstring* path) {
   return false;
 }
 
+static bool DownloadPathIsDangerous(const std::wstring& download_path) {
+  std::wstring desktop_dir;
+  if (!PathService::Get(chrome::DIR_USER_DESKTOP, &desktop_dir)) {
+    NOTREACHED();
+    return false;
+  }
+  return (download_path == desktop_dir);
+}
+
 // DownloadItem implementation -------------------------------------------------
 
 // Constructor for reading from the history service.
@@ -252,6 +261,31 @@ void DownloadItem::TogglePause() {
 void DownloadManager::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterBooleanPref(prefs::kPromptForDownload, false);
   prefs->RegisterStringPref(prefs::kDownloadExtensionsToOpen, L"");
+  prefs->RegisterBooleanPref(prefs::kDownloadDirUpgraded, false);
+
+  // The default download path is userprofile\download.
+  std::wstring default_download_path;
+  if (!PathService::Get(chrome::DIR_USER_DOCUMENTS, &default_download_path)) {
+    NOTREACHED();
+  }
+  file_util::AppendToPath(&default_download_path,
+                          l10n_util::GetString(IDS_DOWNLOAD_DIRECTORY));
+  prefs->RegisterStringPref(prefs::kDownloadDefaultDirectory,
+                            default_download_path);
+
+  // If the download path is dangerous we forcefully reset it. But if we do
+  // so we set a flag to make sure we only do it once, to avoid fighting
+  // the user if he really wants it on an unsafe place such as the desktop.
+
+  if (!prefs->GetBoolean(prefs::kDownloadDirUpgraded)) {
+    std::wstring current_download_dir = 
+        prefs->GetString(prefs::kDownloadDefaultDirectory);
+    if (DownloadPathIsDangerous(current_download_dir)) {
+      prefs->SetString(prefs::kDownloadDefaultDirectory,
+                       default_download_path);
+    }
+    prefs->SetBoolean(prefs::kDownloadDirUpgraded, true);
+  }
 }
 
 DownloadManager::DownloadManager()
@@ -387,25 +421,6 @@ bool DownloadManager::Init(Profile* profile) {
   DCHECK(prefs);
   prompt_for_download_.Init(prefs::kPromptForDownload, prefs, NULL);
 
-  // Use the IE download directory on Vista, if available.
-  std::wstring default_download_path;
-  if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA) {
-    RegKey vista_reg(HKEY_CURRENT_USER,
-                     L"Software\\Microsoft\\Internet Explorer", KEY_READ);
-    const wchar_t* const vista_dir = L"Download Directory";
-    if (vista_reg.ValueExists(vista_dir))
-      vista_reg.ReadValue(vista_dir, &default_download_path);
-  }
-  if (default_download_path.empty()) {
-    PathService::Get(chrome::DIR_USER_DOCUMENTS, &default_download_path);
-    file_util::AppendToPath(&default_download_path,
-                            l10n_util::GetString(IDS_DOWNLOAD_DIRECTORY));
-  }
-  // Check if the pref has already been registered, as the user profile and the
-  // "off the record" profile might register it.
-  if (!prefs->IsPrefRegistered(prefs::kDownloadDefaultDirectory))
-    prefs->RegisterStringPref(prefs::kDownloadDefaultDirectory,
-                              default_download_path);
   download_path_.Init(prefs::kDownloadDefaultDirectory, prefs, NULL);
 
   // Ensure that the download directory specified in the preferences exists.

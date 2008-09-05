@@ -95,7 +95,7 @@ bool PathProvider(int key, std::wstring* result) {
         return false;
       file_util::AppendToPath(&cur, L"Crash Reports");
       break;
-    case chrome::DIR_DEFAULT_DOWNLOAD:
+    case chrome::DIR_USER_DESKTOP:
       if (FAILED(SHGetFolderPath(NULL, CSIDL_DESKTOPDIRECTORY, NULL,
                                  SHGFP_TYPE_CURRENT, system_buffer)))
         return false;

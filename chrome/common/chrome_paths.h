@@ -17,7 +17,7 @@ enum {
   DIR_LOGS,              // directory where logs should be written
   DIR_USER_DATA,         // directory where user data can be written
   DIR_CRASH_DUMPS,       // directory where crash dumps are written
-  DIR_DEFAULT_DOWNLOAD,  // directory where downloads go by default
+  DIR_USER_DESKTOP,      // directory that correspond to the desktop
   DIR_RESOURCES,         // directory where application resources are stored
   DIR_INSPECTOR,         // directory where web inspector is located
   DIR_THEMES,            // directory where theme dll files are stored

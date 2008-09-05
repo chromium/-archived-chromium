@@ -112,6 +112,7 @@ extern const wchar_t kMemoryCacheSize[];
 
 extern const wchar_t kDownloadDefaultDirectory[];
 extern const wchar_t kDownloadExtensionsToOpen[];
+extern const wchar_t kDownloadDirUpgraded[];
 
 extern const wchar_t kSaveFileDefaultDirectory[];
 
