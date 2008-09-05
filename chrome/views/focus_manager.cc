@@ -301,6 +301,16 @@ bool FocusManager::OnNCDestroy(HWND window) {
 bool FocusManager::OnKeyDown(HWND window, UINT message, WPARAM wparam,
                              LPARAM lparam) {
   DCHECK((message == WM_KEYDOWN) || (message == WM_SYSKEYDOWN));
+
+  if (!IsWindowVisible(root_)) {
+    // We got a message for a hidden window. Because HWNDViewContainer::Close
+    // hides the window, then destroys it, it it possible to get a message after
+    // we've hidden the window. If we allow the message to be dispatched
+    // chances are we'll crash in some weird place. By returning false we make
+    // sure the message isn't dispatched.
+    return false;
+  }
+
   // First give the registered keystoke handlers a chance a processing
   // the message
   // Do some basic checking to try to catch evil listeners that change the list

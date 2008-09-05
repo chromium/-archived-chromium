@@ -165,6 +165,11 @@ void DialogClientView::UpdateDialogButtons() {
 }
 
 void DialogClientView::AcceptWindow() {
+  if (accepted_) {
+    // We should only get into AcceptWindow once.
+    NOTREACHED();
+    return;
+  }
   accepted_ = true;
   if (GetDialogDelegate()->Accept(false))
     window()->Close();
