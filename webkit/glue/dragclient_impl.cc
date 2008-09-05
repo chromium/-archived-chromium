@@ -4,11 +4,17 @@
 
 #include "config.h"
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <objidl.h>
+#endif
 
 #pragma warning(push, 0)
+#if defined(OS_WIN)
 #include "ClipboardWin.h"
 #include "COMPtr.h"
+#endif
 #include "DragData.h"
 #include "Frame.h"
 #include "HitTestResult.h"
@@ -60,11 +66,14 @@ void DragClientImpl::startDrag(WebCore::DragImageRef drag_image,
   // Add a ref to the frame just in case a load occurs mid-drag.
   RefPtr<WebCore::Frame> frame_protector = frame;
 
+#if defined(OS_WIN)
   COMPtr<IDataObject> data_object(
       static_cast<WebCore::ClipboardWin*>(clipboard)->dataObject());
   DCHECK(data_object.get());
-  WebDropData drop_data;
   WebDropData::PopulateWebDropData(data_object.get(), &drop_data);
+#elif defined(OS_MACOSX) || defined(OS_LINUX)
+  WebDropData drop_data;
+#endif
 
   webview_->StartDragging(drop_data);
 }
