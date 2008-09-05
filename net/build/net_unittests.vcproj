@@ -315,6 +315,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\base\host_resolver_unittest.cc"
+					>
+				</File>
+				<File
 					RelativePath="..\base\listen_socket_unittest.cc"
 					>
 				</File>

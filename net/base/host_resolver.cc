@@ -4,15 +4,23 @@
 
 #include "net/base/host_resolver.h"
 
+#if defined(OS_WIN)
 #include <ws2tcpip.h>
 #include <wspiapi.h>  // Needed for Win2k compat.
+#elif defined(OS_POSIX)
+#include <netdb.h>
+#include <sys/socket.h>
+#endif
 
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/worker_pool.h"
 #include "net/base/address_list.h"
 #include "net/base/net_errors.h"
+
+#if defined(OS_WIN)
 #include "net/base/winsock_init.h"
+#endif
 
 namespace net {
 
@@ -126,7 +134,9 @@ class HostResolver::Request :
 //-----------------------------------------------------------------------------
 
 HostResolver::HostResolver() {
+#if defined(OS_WIN)
   EnsureWinsockInit();
+#endif
 }
 
 HostResolver::~HostResolver() {
