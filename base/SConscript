@@ -81,7 +81,6 @@ if env['PLATFORM'] == 'win32':
     'clipboard_util.cc',
     'event_recorder.cc',
     'file_version_info.cc',
-    'hmac_win.cc',
 
     # This group all depends on MessageLoop.
     'idle_timer.cc',
@@ -106,6 +105,7 @@ if env['PLATFORM'] == 'win32':
       'debug_on_start.cc',
       'debug_util_win.cc',
       'file_util_win.cc',
+      'hmac_win.cc',
       'iat_patch.cc',
       'image_util.cc',
       'lock_impl_win.cc',
@@ -146,6 +146,7 @@ if env['PLATFORM'] == 'darwin':
       'clipboard_mac.cc',
       'file_util_mac.mm',
       'file_version_info_mac.mm',
+      'hmac_mac.cc',
       'sys_string_conversions_mac.cc',
   ])
 
