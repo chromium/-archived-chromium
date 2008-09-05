@@ -77,6 +77,11 @@ TEST(L10nUtilTest, GetAppLocale) {
     L"fr.dll",
     L"es-419.dll",
     L"es.dll",
+    L"zh-TW.dll",
+    L"zh-CN.dll",
+    L"he.dll",
+    L"fil.dll",
+    L"nb.dll",
   };
   for (size_t i = 0; i < arraysize(filenames); ++i) {
     std::wstring filename = new_locale_dir;
@@ -102,6 +107,12 @@ TEST(L10nUtilTest, GetAppLocale) {
   SetICUDefaultLocale(L"en-US");
   EXPECT_EQ(L"fr", l10n_util::GetApplicationLocale(L"fr"));
   EXPECT_EQ(L"fr", l10n_util::GetApplicationLocale(L"fr-CA"));
+
+  SetICUDefaultLocale(L"en-US");
+  // Aliases iw, no, tl to he, nb, fil.
+  EXPECT_EQ(L"he", l10n_util::GetApplicationLocale(L"iw"));
+  EXPECT_EQ(L"nb", l10n_util::GetApplicationLocale(L"no"));
+  EXPECT_EQ(L"fil", l10n_util::GetApplicationLocale(L"tl"));
   // es-419 and es-XX (where XX is not Spain) should be
   // mapped to es-419 (Latin American Spanish).
   EXPECT_EQ(L"es-419", l10n_util::GetApplicationLocale(L"es-419"));
@@ -120,6 +131,19 @@ TEST(L10nUtilTest, GetAppLocale) {
 
   SetICUDefaultLocale(L"es");
   EXPECT_EQ(L"es", l10n_util::GetApplicationLocale(L""));
+
+  SetICUDefaultLocale(L"zh-HK");
+  EXPECT_EQ(L"zh-TW", l10n_util::GetApplicationLocale(L""));
+  EXPECT_EQ(L"zh-CN", l10n_util::GetApplicationLocale(L"zh-CN"));
+
+  SetICUDefaultLocale(L"zh-MK");
+  EXPECT_EQ(L"zh-TW", l10n_util::GetApplicationLocale(L""));
+
+  SetICUDefaultLocale(L"zh-SG");
+  EXPECT_EQ(L"zh-CN", l10n_util::GetApplicationLocale(L""));
+
+  SetICUDefaultLocale(L"he");
+  EXPECT_EQ(L"en-US", l10n_util::GetApplicationLocale(L"en"));
 
   // Clean up.
   PathService::Override(chrome::DIR_LOCALES, orig_locale_dir);

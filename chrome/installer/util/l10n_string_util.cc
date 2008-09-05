@@ -50,7 +50,7 @@ std::wstring GetSystemLanguage() {
         language.append(L"-pt");
       }
     } else if (L"zh" == language) {
-      if (L"tw" == country) {
+      if (L"tw" == country || L"mk" == country || L"hk" == country) {
         language.append(L"-tw");
       } else {
         language.append(L"-cn");
@@ -91,6 +91,8 @@ int GetLanguageOffset(const std::wstring& language) {
     offset_map[L"hu"] = IDS_L10N_OFFSET_HU;
     offset_map[L"id"] = IDS_L10N_OFFSET_ID;
     offset_map[L"it"] = IDS_L10N_OFFSET_IT;
+    // Google web properties use iw for he. Handle both just to be safe.
+    offset_map[L"iw"] = IDS_L10N_OFFSET_HE;
     offset_map[L"ja"] = IDS_L10N_OFFSET_JA;
     offset_map[L"ko"] = IDS_L10N_OFFSET_KO;
     offset_map[L"lt"] = IDS_L10N_OFFSET_LT;
@@ -109,6 +111,9 @@ int GetLanguageOffset(const std::wstring& language) {
     offset_map[L"sr"] = IDS_L10N_OFFSET_SR;
     offset_map[L"sv"] = IDS_L10N_OFFSET_SV;
     offset_map[L"th"] = IDS_L10N_OFFSET_TH;
+    // Some Google web properties use tl for fil. Handle both just to be safe.
+    // They're not completely identical, but alias it here.
+    offset_map[L"tl"] = IDS_L10N_OFFSET_FIL;
     offset_map[L"tr"] = IDS_L10N_OFFSET_TR;
     offset_map[L"uk"] = IDS_L10N_OFFSET_UK;
     offset_map[L"vi"] = IDS_L10N_OFFSET_VI;

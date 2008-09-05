@@ -134,7 +134,8 @@ bool IsDuplicateName(const std::string& locale_name) {
   return false;
 }
 
-bool IsLocaleAvailable(const std::wstring& locale, const std::wstring& locale_path) {
+bool IsLocaleAvailable(const std::wstring& locale,
+                       const std::wstring& locale_path) {
   std::wstring test_locale = locale;
   // If locale has any illegal characters in it, we don't want to try to
   // load it because it may be pointing outside the locale dll directory.
@@ -155,11 +156,8 @@ bool CheckAndResolveLocale(const std::wstring& locale,
     return true;
   }
   // If the locale matches language but not country, use that instead.
-  // TODO(jungshik) : we need a more extensive resolution (aliasing,
-  // contraction/expansion) to take care of various edge cases
-  // (zh-{HK,SG,MK}, en => en-US, es => es-{ES,419}).
-  // Also, this does not do anything about languages that Chrome
-  // currently does not support but available on Windows. We fall
+  // TODO(jungshik) : Nothing is done about languages that Chrome
+  // does not support but available on Windows. We fall
   // back to en-US in GetApplicationLocale so that it's a not critical,
   // but we can do better.
   std::wstring::size_type hyphen_pos = locale.find(L'-');
@@ -167,14 +165,46 @@ bool CheckAndResolveLocale(const std::wstring& locale,
     std::wstring lang(locale, 0, hyphen_pos);
     std::wstring region(locale, hyphen_pos + 1);
     std::wstring tmp_locale(lang);
-    // Map es-RR other than es-ES to es-419 (Chrome's Latin American Spanish locale).
+    // Map es-RR other than es-ES to es-419 (Chrome's Latin American
+    // Spanish locale).
     if (LowerCaseEqualsASCII(lang, "es") && !LowerCaseEqualsASCII(region, "es"))
       tmp_locale.append(L"-419");
+    else if (LowerCaseEqualsASCII(lang, "zh")) {
+      // Map zh-HK and zh-MK to zh-TW. Otherwise, zh-FOO is mapped to zh-CN.
+     if (LowerCaseEqualsASCII(region, "hk") ||
+         LowerCaseEqualsASCII(region, "mk")) {
+       tmp_locale.append(L"-TW");
+     } else {
+       tmp_locale.append(L"-CN");
+     }
+    }
     if (IsLocaleAvailable(tmp_locale, locale_path)) {
       resolved_locale->swap(tmp_locale);
       return true;
     }
   }
+
+  // Google updater uses no, iw and en for our nb, he, and en-US.
+  // We need to map them to our codes. 
+  struct {
+    const char* source;
+    const wchar_t* dest;} alias_map[] = {
+      {"no", L"nb"},
+      {"tl", L"fil"},
+      {"iw", L"he"},
+      {"en", L"en-US"},
+  };
+
+  for (int i = 0; i < arraysize(alias_map); ++i) {
+    if (LowerCaseEqualsASCII(locale, alias_map[i].source)) {
+      std::wstring tmp_locale(alias_map[i].dest);
+      if (IsLocaleAvailable(tmp_locale, locale_path)) {
+        resolved_locale->swap(tmp_locale);
+        return true;
+      }
+    }
+  }
+
   return false;
 }
 
