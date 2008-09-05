@@ -47,7 +47,7 @@ void PluginThread::OnChannelError() {
 }
 
 bool PluginThread::Send(IPC::Message* msg) {
-  return channel_->Send(msg);
+  return channel_.get() ? channel_->Send(msg) : false;
 }
 
 void PluginThread::OnMessageReceived(const IPC::Message& msg) {
