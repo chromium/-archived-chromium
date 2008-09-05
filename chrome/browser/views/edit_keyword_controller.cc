@@ -354,7 +354,7 @@ void EditKeywordController::UpdateImageView(ImageView* image_view,
     image_view->SetTooltipText(l10n_util::GetString(invalid_message_id));
     image_view->SetImage(
         ResourceBundle::GetSharedInstance().GetBitmapNamed(
-            IDR_INPUT_NONE));
+            IDR_INPUT_ALERT));
   }
 }
 

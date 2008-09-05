@@ -291,7 +291,7 @@
 #define IDR_HOME_P                                       9360
 #define IDR_FIND_BOX_BACKGROUND_LEFT_RTL                 9361
 #define IDR_INPUT_GOOD                                   9362
-#define IDR_INPUT_NONE                                   9363
+// 9363 is unused.
 #define IDR_INPUT_ALERT                                  9364
 #define IDR_HISTORY_FAVICON                              9365
 #define IDR_DOWNLOADS_FAVICON                            9366
