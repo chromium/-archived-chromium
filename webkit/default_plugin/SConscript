@@ -18,27 +18,37 @@ env.Prepend(
 )
 
 env.Append(
-    CPPDEFINES = [
-        'U_STATIC_IMPLEMENTATION',
-        'LIBXML_STATIC',
-    ],
-    CCFLAGS = [
-        '/TP',
-
-        '/WX',
-        '/Wp64',
-    ],
+  CPPDEFINES = [
+      'U_STATIC_IMPLEMENTATION',
+      'LIBXML_STATIC',
+  ],
 )
 
+if env['PLATFORM'] == 'win32':
+  env.Append(
+      CCFLAGS = [
+          '/TP',
+
+          '/WX',
+          '/Wp64',
+      ],
+  )
+
+# Platform-independent files.
 input_files = [
-    'activex_installer.cc',
-    'default_plugin.cc',
-    'plugin_main.cc',
-    'plugin_impl.cc',
-    'plugin_database_handler.cc',
-    'plugin_install_job_monitor.cc',
-    'install_dialog.cc',
 ]
+
+# TODO: Quarantine files -- need porting to platform-specific blocks above.
+if env['PLATFORM'] == 'win32':
+  input_files.extend([
+      'activex_installer.cc',
+      'default_plugin.cc',
+      'plugin_main.cc',
+      'plugin_impl.cc',
+      'plugin_database_handler.cc',
+      'plugin_install_job_monitor.cc',
+      'install_dialog.cc',
+  ])
 
 env.ChromeStaticLibrary('default_plugin', input_files)
 
