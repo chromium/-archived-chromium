@@ -70,6 +70,7 @@ void DragClientImpl::startDrag(WebCore::DragImageRef drag_image,
   COMPtr<IDataObject> data_object(
       static_cast<WebCore::ClipboardWin*>(clipboard)->dataObject());
   DCHECK(data_object.get());
+  WebDropData drop_data;
   WebDropData::PopulateWebDropData(data_object.get(), &drop_data);
 #elif defined(OS_MACOSX) || defined(OS_LINUX)
   WebDropData drop_data;
