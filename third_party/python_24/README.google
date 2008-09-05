@@ -1,0 +1,87 @@
+This directory includes a version of Python derived from  Python 2.4.1, which is
+Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006 Python Software Foundation; All
+Rights Reserved. 
+
+See http://www.python.org/download/releases/2.4.1/license/.
+--------------------------------------------------------------------------------  
+
+This is a slightly customized version of Python 2.4.1.
+
+This version was built from the 2.4.1 sources at python.org.
+
+It was compiled using Visual Studio 7.1, after changing the build files
+to statically link the CRT (since some machines don't have msvcrt71.dll).
+Several optimizations were also changed.  See below for full details.
+
+Chris Prince
+
+
+
+BUILD INSTRUCTIONS
+
+--- Setup ---
+* Unpack the Python source (from python.org) to ROOT\Python-2.4.1
+* Unpack the bzip2 source to ROOT\bzip2-1.0.3
+* Unpack the zlib source to ROOT\zlib-1.2.2
+* Unpack the BSDDB source to ROOT\db-4.3.28.NC
+* Unpack the OpenSSL source to ROOT\openssl-0.9.7g
+
+See the Python build docs for where to download the source packages.
+Note that we don't bother supporting Tcl/Tk on Windows.
+
+* Modify the Python projects to use the downloaded versions:
+  - In PCBuild\bz2.vcproj, change "1.0.2" to "1.0.3"
+  - In PCBuild\zlib.vcproj, change "1.2.1" to "1.2.2"
+  - In PCBuild\_bsddb.vcproj, change "4.2.52" to "4.3.28.NC"
+      AND change "libdb42" to "libdb43"
+  - In PCBuild\build_ssl.py, add the full path to your perl.exe
+      (in main)
+
+* Build BSDDB using the instructions included with Python and BSDDB
+  (see PCBuild\readme.txt).
+
+--- Enable CRT Static Linking, and Optimizations ---
+
+* Under bzip2: in makefile.msc, change "-MD" to "-MT"
+* Under OpenSSL: in util\pl\VC-32.pl, change "/MD" to "/MT"
+* Under Python: in PCBuild\_ssl.mak, change "/MD" to "/MT"
+* Under zlib: in win32\makefile.msc, change "-MD" to "-MT"
+
+* Open the Python solution in VC and choose the Release configuration.
+  Select all projects (except _ssl and Solution Items).  Right-click,
+  select Properties, and:
+  - Change C/C++ -> Code Generation -> Runtime Library from "/MD" to "/MT"
+  - Enable "/OPT:REF" and "/OPT:ICF" under Linker -> Optimization.
+
+Now build the solution normally (F7).  Note that one project will fail
+to build (_tkinter).
+
+--- Create the distribution ---
+
+* Create an output directory OUTDIR.  Then from the Python directory:
+  - Copy PCBuild\py*.exe and PCBuild\py*.dll to OUTDIR\
+  - Copy PCBuild\*.pyd to OUTDIR\DLLs\
+  - Copy Lib\... to OUTDIR\Lib\
+  - To save space, delete some unnecessary files from OUTDIR:
+    + Lib\plat-*\... (none are applicable to Windows)
+    + Lib\lib-tk\...
+    + Lib\test\...
+    + Lib\bsddb\test\...
+    + Lib\email\test\...
+    + Lib\distutils\tests\...
+
+* If you want the ability to build extension DLLs, then also:
+  - Copy Include\... to OUTDIR\include\
+  - Copy PC\pyconfig.h to OUTDIR\include\
+  - Copy PCBuild\*.lib to OUTDIR\libs\
+
+--- Check that this worked ---
+
+* Run dumpbin on OUTDIR\* and OUTDIR\DLLs\*, and grep the output to
+  make sure "msvcrt" is not present.
+
+--- Update the site-packages ---
+* pywin32 was added to the site-packages.
+  URL: http://sourceforge.net/projects/pywin32/
+  License File: Lib\site-packages\win32\license.txt
+                Lib\site-packages\pythonwin\license.txt

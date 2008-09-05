@@ -1,0 +1,10 @@
+This directory contains a copy of the Windows Subversion client, built with SSL.
+
+The source of this client is the "trunk" r27760 svn build 
+(http://svn.collab.net/viewvc/svn/trunk/?pathrev=27760) distributed by the
+gvn Google Code project:
+http://code.google.com/p/gvn/downloads/list
+
+See COPYING for the svn client license terms.
+
+

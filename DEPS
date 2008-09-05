@@ -11,17 +11,8 @@ deps = {
   "src/third_party/WebKit":
     "/trunk/third_party/WebKit@19",
 
-  "src/third_party/cygwin":
-    "/trunk/deps/third_party/cygwin@1788",
-
   "src/third_party/icu38":
     "/trunk/deps/third_party/icu38@1679",
-
-  "src/third_party/python_24":
-    "/trunk/deps/third_party/python_24@1790",
-
-  "src/third_party/svn":
-    "/trunk/deps/third_party/svn@1791",
 
   "src/v8":
     "http://v8.googlecode.com/svn/trunk@101",
