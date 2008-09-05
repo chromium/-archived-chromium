@@ -69,8 +69,11 @@ class SafeBrowsingDatabase {
   // to blocking user requests.
   void set_synchronous() { asynchronous_ = false; }
 
-  // Store the results of a GetHash response.
-  void CacheHashResults(const std::vector<SBFullHashResult>& full_hits);
+  // Store the results of a GetHash response. In the case of empty results, we
+  // cache the prefixes until the next update so that we don't have to issue
+  // further GetHash requests we know will be empty.
+  void CacheHashResults(const std::vector<SBPrefix>& prefixes,
+                        const std::vector<SBFullHashResult>& full_hits);
 
   // Called when the user's machine has resumed from a lower power state.
   void HandleResume();
@@ -287,6 +290,9 @@ class SafeBrowsingDatabase {
   typedef std::list<HashCacheEntry> HashList;
   typedef stdext::hash_map<SBPrefix, HashList> HashCache;
   HashCache hash_cache_;
+
+  // Cache of prefixes that returned empty results (no full hash match).
+  std::set<SBPrefix> prefix_miss_cache_;
 
   // The amount of time, in milliseconds, to wait before the next disk write.
   int disk_delay_;

@@ -313,17 +313,20 @@ SafeBrowsingDatabase* SafeBrowsingService::GetDatabase() {
 // prefix hits detected in the database.
 void SafeBrowsingService::HandleGetHashResults(
     SafeBrowsingCheck* check,
-    const std::vector<SBFullHashResult>& full_hashes) {
+    const std::vector<SBFullHashResult>& full_hashes,
+    bool can_cache) {
   if (checks_.find(check) == checks_.end())
     return;
 
   DCHECK(enabled_);
 
+  std::vector<SBPrefix> prefixes = check->prefix_hits;
   UMA_HISTOGRAM_LONG_TIMES(L"SB.Network", Time::Now() - check->start);
   OnHandleGetHashResults(check, full_hashes);  // 'check' is deleted here.
 
-  db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &SafeBrowsingService::CacheHashResults, full_hashes));
+  if (can_cache)
+    db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+        this, &SafeBrowsingService::CacheHashResults, prefixes, full_hashes));
 }
 
 void SafeBrowsingService::OnHandleGetHashResults(
@@ -516,9 +519,10 @@ void SafeBrowsingService::LogPauseDelay(TimeDelta time) {
 }
 
 void SafeBrowsingService::CacheHashResults(
+  const std::vector<SBPrefix>& prefixes,
   const std::vector<SBFullHashResult>& full_hashes) {
   DCHECK(MessageLoop::current() == db_thread_->message_loop());
-  GetDatabase()->CacheHashResults(full_hashes);
+  GetDatabase()->CacheHashResults(prefixes, full_hashes);
 }
 
 void SafeBrowsingService::OnSuspend() {

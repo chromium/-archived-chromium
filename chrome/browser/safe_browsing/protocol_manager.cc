@@ -96,7 +96,7 @@ void SafeBrowsingProtocolManager::GetFullHash(
   // required to return empty results (i.e. treat the page as safe).
   if (gethash_error_count_ && Time::Now() <= next_gethash_time_) {
     std::vector<SBFullHashResult> full_hashes;
-    sb_service_->HandleGetHashResults(check, full_hashes);
+    sb_service_->HandleGetHashResults(check, full_hashes, false);
     return;
   }
 
@@ -164,7 +164,9 @@ void SafeBrowsingProtocolManager::OnURLFetchComplete(
     fetcher.reset(it->first);
     SafeBrowsingService::SafeBrowsingCheck* check = it->second;
     std::vector<SBFullHashResult> full_hashes;
+    bool can_cache = false;
     if (response_code == 200 || response_code == 204) {
+      can_cache = true;
       gethash_error_count_ = 0;
       gethash_back_off_mult_ = 1;
       bool re_key = false;
@@ -192,7 +194,7 @@ void SafeBrowsingProtocolManager::OnURLFetchComplete(
     // Call back the SafeBrowsingService with full_hashes, even if there was a
     // parse error or an error response code (in which case full_hashes will be
     // empty). We can't block the user regardless of the error status.
-    sb_service_->HandleGetHashResults(check, full_hashes);
+    sb_service_->HandleGetHashResults(check, full_hashes, can_cache);
 
     hash_requests_.erase(it);
   } else {

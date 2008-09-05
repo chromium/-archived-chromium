@@ -327,7 +327,8 @@ void PopulateDatabaseForCacheTest(SafeBrowsingDatabase* database) {
                          &full_hash.hash, sizeof(SBFullHash));
   results.push_back(full_hash);
 
-  database->CacheHashResults(results);
+  std::vector<SBPrefix> prefixes;
+  database->CacheHashResults(prefixes, results);
 }
 
 TEST(SafeBrowsing, HashCaching) {
@@ -448,6 +449,23 @@ TEST(SafeBrowsing, HashCaching) {
   database.ContainsUrl(GURL("http://www.evil.com/phishing.html"),
                        &list, &prefixes, &full_hashes, expired);
   EXPECT_EQ(full_hashes.size(), 1);
+
+
+  // Testing prefix miss caching.
+  std::vector<SBPrefix> prefix_misses;
+  std::vector<SBFullHashResult> empty_full_hash;
+  prefix_misses.push_back(Sha256Prefix("http://www.bad.com/malware.html"));
+  prefix_misses.push_back(Sha256Prefix("http://www.bad.com/phishing.html"));
+  database.CacheHashResults(prefix_misses, empty_full_hash);
+
+  // Prefixes with no full results are misses.
+  EXPECT_EQ(database.prefix_miss_cache_.size(), 2);
+
+  // Update the database.
+  PopulateDatabaseForCacheTest(&database);
+
+  // Prefix miss cache should be cleared.
+  EXPECT_EQ(database.prefix_miss_cache_.size(), 0);
 }
 
 void PrintStat(const wchar_t* name) {

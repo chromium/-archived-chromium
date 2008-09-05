@@ -117,7 +117,8 @@ class SafeBrowsingService
   // SafeBrowsing storage system.
   void HandleGetHashResults(
       SafeBrowsingCheck* check,
-      const std::vector<SBFullHashResult>& full_hashes);
+      const std::vector<SBFullHashResult>& full_hashes,
+      bool can_cache);
   void HandleChunk(const std::string& list, std::deque<SBChunk>* chunks);
   void HandleChunkDelete(std::vector<SBChunkDelete>* chunk_deletes);
   void GetAllChunks();
@@ -198,7 +199,8 @@ class SafeBrowsingService
   void OnResetComplete();
 
   // Store the results of a GetHash request. Runs on the database thread.
-  void CacheHashResults(const std::vector<SBFullHashResult>& full_hashes);
+  void CacheHashResults(const std::vector<SBPrefix>& prefixes,
+                        const std::vector<SBFullHashResult>& full_hashes);
 
   // Internal worker function for processing full hashes.
   void OnHandleGetHashResults(SafeBrowsingCheck* check,
