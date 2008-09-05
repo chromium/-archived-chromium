@@ -340,8 +340,13 @@ bool SelectFileDialogImpl::RunOpenFileDialog(const std::wstring& title,
   ofn.lStructSize = sizeof(ofn);
   ofn.hwndOwner = owner;
 
+  // This will clamp the number of characters copied from the supplied path
+  // to the value of MAX_PATH.
+  size_t name_size = std::min(path->length() + 1,
+                              static_cast<size_t>(MAX_PATH));
   wchar_t filename[MAX_PATH];
-  memcpy(filename, path->c_str(), (path->length()+1) * sizeof(wchar_t));
+  memcpy(filename, path->c_str(), name_size * sizeof(wchar_t));
+  filename[MAX_PATH - 1] = '\0';
 
   ofn.lpstrFile = filename;
   ofn.nMaxFile = MAX_PATH;
