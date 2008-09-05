@@ -216,6 +216,9 @@ class BookmarkBarView : public ChromeViews::View,
   // for each of the children of the root node from the model.
   virtual void Loaded(BookmarkBarModel* model);
 
+  // Invoked when the model is being deleted.
+  virtual void BookmarkModelBeingDeleted(BookmarkBarModel* model);
+
   // Invokes added followed by removed.
   virtual void BookmarkNodeMoved(BookmarkBarModel* model,
                                  BookmarkBarNode* old_parent,

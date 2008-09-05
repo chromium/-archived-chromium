@@ -104,6 +104,9 @@ BookmarkBarModel::~BookmarkBarModel() {
         this, NOTIFY_HISTORY_LOADED, Source<Profile>(profile_));
   }
 
+  FOR_EACH_OBSERVER(BookmarkBarModelObserver, observers_,
+                    BookmarkModelBeingDeleted(this));
+
   if (store_) {
     // The store maintains a reference back to us. We need to tell it we're gone
     // so that it doesn't try and invoke a method back on us again.

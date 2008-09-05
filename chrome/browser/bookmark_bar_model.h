@@ -128,6 +128,9 @@ class BookmarkBarModelObserver {
   // Invoked when the model has finished loading.
   virtual void Loaded(BookmarkBarModel* model) = 0;
 
+  // Invoked from the destructor of the BookmarkBarModel.
+  virtual void BookmarkModelBeingDeleted(BookmarkBarModel* model) { }
+
   // Invoked when a node has moved.
   virtual void BookmarkNodeMoved(BookmarkBarModel* model,
                                  BookmarkBarNode* old_parent,

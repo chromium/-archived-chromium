@@ -1576,6 +1576,18 @@ void VistaFrame::DestroyBrowser() {
   // the tabstrip from the model's observer list because the model was
   // destroyed with browser_.
   if (browser_) {
+    if (bookmark_bar_view_.get() && bookmark_bar_view_->GetParent()) {
+      // The bookmark bar should not be parented by the time we get here.
+      // If you hit this NOTREACHED file a bug with the trace.
+      NOTREACHED();
+      bookmark_bar_view_->GetParent()->RemoveChildView(bookmark_bar_view_.get());
+    }
+
+    // Explicitly delete the BookmarkBarView now. That way we don't have to
+    // worry about the BookmarkBarView potentially outliving the Browser &
+    // Profile.
+    bookmark_bar_view_.reset(NULL);
+
     browser_->tabstrip_model()->RemoveObserver(tabstrip_);
     delete browser_;
     browser_ = NULL;
@@ -1610,4 +1622,3 @@ void VistaFrame::ShelfVisibilityChangedImpl(TabContents* current_tab) {
   if (changed && current_tab)
     Layout();
 }
-

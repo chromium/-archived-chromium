@@ -1118,7 +1118,6 @@ void BookmarkBarView::Init() {
   SetContextMenuController(this);
 
   size_animation_.reset(new SlideAnimation(this));
-  size_animation_->SetSlideDuration(4000);
 }
 
 MenuButton* BookmarkBarView::CreateOtherBookmarkedButton() {
@@ -1164,6 +1163,17 @@ void BookmarkBarView::Loaded(BookmarkBarModel* model) {
   other_bookmarked_button_->SetEnabled(true);
   Layout();
   SchedulePaint();
+}
+
+void BookmarkBarView::BookmarkModelBeingDeleted(BookmarkBarModel* model) {
+  // The bookmark model should never be deleted before us. This code exists
+  // to check for regressions in shutdown code and not crash.
+  NOTREACHED();
+
+  // Do minimal cleanup, presumably we'll be deleted shortly.
+  NotifyModelChanged();
+  model_->RemoveObserver(this);
+  model_ = NULL;
 }
 
 void BookmarkBarView::BookmarkNodeMoved(BookmarkBarModel* model,
