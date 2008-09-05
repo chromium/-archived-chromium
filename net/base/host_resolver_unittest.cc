@@ -29,7 +29,7 @@ TEST(HostResolverTest, NumericAddresses) {
   EXPECT_EQ(0, err);
 
   const struct addrinfo* ainfo = adrlist.head();
-  EXPECT_EQ(NULL, ainfo->ai_next);
+  EXPECT_EQ(static_cast<addrinfo*>(NULL), ainfo->ai_next);
   EXPECT_EQ(sizeof(struct sockaddr_in), ainfo->ai_addrlen);
 
   const struct sockaddr* sa = ainfo->ai_addr;
