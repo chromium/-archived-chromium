@@ -12,41 +12,6 @@
 // Also skipped by Apple on Windows (rdar://problem/5015941)
 V8 | KJS # LayoutTests/editing/execCommand/copy-without-selection.html = FAIL | CRASH
 
-// Bug 1317563: Debug-only test failures following removal of font-metrics
-// hacks.  Possibly due to different fonts installed on that builder?
-V8 # LayoutTests/css1/font_properties/font_size.html = PASS | FAIL
-V8 # LayoutTests/css2.1/t1202-counter-09-b.html = PASS | FAIL
-V8 # LayoutTests/fast/block/float/float-avoidance.html = PASS | FAIL
-V8 # LayoutTests/fast/forms/button-sizes.html = PASS | FAIL
-V8 # LayoutTests/fast/lists/w3-list-styles.html = PASS | FAIL
-V8 # LayoutTests/fast/parser/entities-in-html.html = PASS | FAIL
-V8 # LayoutTests/fast/text/line-breaks.html = PASS | FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/interact-cursor-01-f.svg = PASS | FAIL
-V8 # LayoutTests/tables/mozilla/bugs/bug27038-3.html = PASS | FAIL
-V8 # pending/svg/carto.net/window.svg = PASS | FAIL
-
-# Bug 1341452
-V8 # LayoutTests/fast/text/midword-break-hang.html = PASS | FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = PASS | FAIL
-
-// Bug: 1345328
-V8 # LayoutTests/fast/block/basic/minheight.html = PASS | FAIL
-V8 # LayoutTests/fast/dom/Window/new-window-opener.html = PASS | FAIL
-V8 # LayoutTests/fast/events/updateLayoutForHitTest.html = PASS | FAIL
-V8 # LayoutTests/fast/forms/textarea-setvalue-submit.html = PASS | FAIL
-V8 # LayoutTests/fast/loader/onunload-form-submit-crash.html = PASS | FAIL
-V8 # LayoutTests/fast/text/basic/generic-family-reset.html = PASS | FAIL
-V8 # LayoutTests/http/tests/navigation/lockedhistory-iframe.html = PASS | FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-20-t.svg = PASS | FAIL
-V8 # LayoutTests/svg/custom/frame-getSVGDocument.html = PASS | FAIL
-V8 # LayoutTests/tables/mozilla/marvin/backgr_index.html = PASS | FAIL
-V8 # LayoutTests/fast/overflow/003.xml = PASS | FAIL
-V8 # LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = PASS | FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-31-t.svg = PASS | FAIL
-V8 # LayoutTests/tables/mozilla/marvin/backgr_layers-opacity.html = PASS | FAIL
-V8 # LayoutTests/fast/forms/001.html = PASS | FAIL
-V8 # LayoutTests/fast/forms/visual-hebrew-text-field.html = PASS | FAIL
-
 // -----------------------------------------------------------------
 // HANGING TESTS
 // -----------------------------------------------------------------
@@ -472,12 +437,6 @@ V8 # LayoutTests/fast/forms/search-event-delay.html = PASS | FAIL
 // the message is dumped after the #EOF, which causes an additional
 // error in the header of the following test.
 V8 | KJS # SKIP : LayoutTests/fast/css/disabled-author-styles.html = FAIL
-
-// TODO(dglazkov): Rebaseline these for JSC.
-// These two seem to have started failing somewhere in the range of r1557-r1596.
-// It's not clear from the buildbots exactly which revision broke them though.
-KJS # LayoutTests/fast/repaint/continuation-after-outline.html = FAIL
-KJS # LayoutTests/tables/mozilla/images/adforce_imgis_com.html = FAIL
 
 // ------------------------------------------------------------------------- //
 
