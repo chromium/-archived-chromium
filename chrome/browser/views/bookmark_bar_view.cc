@@ -265,7 +265,7 @@ class BookmarkButton : public ChromeViews::TextButton {
   Profile* profile_;
   scoped_ptr<SlideAnimation> show_animation_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(BookmarkButton);
+  DISALLOW_COPY_AND_ASSIGN(BookmarkButton);
 };
 
 // DropInfo -------------------------------------------------------------------
@@ -545,7 +545,7 @@ class MenuRunner : public ChromeViews::MenuDelegate,
 
   scoped_ptr<BookmarkBarContextMenuController> context_menu_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(MenuRunner);
+  DISALLOW_COPY_AND_ASSIGN(MenuRunner);
 };
 
 // ButtonSeparatorView  --------------------------------------------------------
@@ -585,7 +585,7 @@ class ButtonSeparatorView : public ChromeViews::View {
   }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(ButtonSeparatorView);
+  DISALLOW_COPY_AND_ASSIGN(ButtonSeparatorView);
 };
 
 }  // namespace

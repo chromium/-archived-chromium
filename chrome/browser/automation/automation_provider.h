@@ -208,6 +208,9 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   // Responds to requests to find the location of the Find window.
   void HandleFindWindowLocationRequest(const IPC::Message& message, int handle);
 
+  // Get the visibility state of the Bookmark bar.
+  void GetBookmarkBarVisitility(const IPC::Message& message, int handle);
+
   // Responds to InspectElement request
   void HandleInspectElementRequest(const IPC::Message& message,
                                    int handle,

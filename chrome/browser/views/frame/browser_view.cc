@@ -188,6 +188,20 @@ void BrowserView::DestroyBrowser() {
   frame_->DestroyBrowser();
 }
 
+bool BrowserView::IsBookmarkBarVisible() const {
+  BookmarkBarView* bookmark_bar_view = frame_->GetBookmarkBarView();
+  if (!bookmark_bar_view)
+    return false;
+
+  if (bookmark_bar_view->IsNewTabPage() || bookmark_bar_view->IsAnimating())
+    return true;
+
+  CSize sz;
+  bookmark_bar_view->GetPreferredSize(&sz);
+  // 1 is the minimum in GetPreferredSize for the bookmark bar.
+  return sz.cy > 1;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, ChromeViews::ClientView overrides:
 

@@ -376,6 +376,23 @@ bool UITest::WaitForFindWindowFullyVisible(TabProxy* tab) {
   return false;
 }
 
+bool UITest::WaitForBookmarkBarVisibilityChange(BrowserProxy* browser,
+                                                bool wait_for_open) {
+  const int kCycles = 20;
+  for (int i = 0; i < kCycles; i++) {
+    bool visible = false;
+    bool animating = true;
+    if (!browser->GetBookmarkBarVisibility(&visible, &animating))
+      return false;  // Some error.
+    if (visible == wait_for_open && !animating)
+      return true;  // Bookmark bar visibility change complete.
+
+    // Give it a chance to catch up.
+    Sleep(kWaitForActionMaxMsec / kCycles);
+  }
+  return false;
+}
+
 GURL UITest::GetActiveTabURL() {
   scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
   if (!tab_proxy.get())

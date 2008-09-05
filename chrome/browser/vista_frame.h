@@ -184,6 +184,7 @@ class VistaFrame : public BrowserWindow,
   virtual void UpdateToolbar(TabContents* contents, bool should_restore_state);
   virtual void ProfileChanged(Profile* profile);
   virtual void FocusToolbar();
+  virtual bool IsBookmarkBarVisible() const;
 
   ////////////////////////////////////////////////////////////////////////////////
   // ChromeViews::ViewContainer

@@ -752,5 +752,13 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   IPC_MESSAGE_ROUTED2(AutomationMsg_FindWindowLocationResponse,
                       int, /* x */
                       int  /* y */)
+
+  // Is the Bookmark bar visible? The response will indicate whether it is
+  // visible or not and whether it is being animated into (or out of its place).
+  IPC_MESSAGE_ROUTED1(AutomationMsg_BookmarkBarVisibilityRequest,
+                      int /* browser_handle */)
+  IPC_MESSAGE_ROUTED2(AutomationMsg_BookmarkBarVisibilityResponse,
+                      bool, /* is_visible */
+                      bool  /* still_animating */)
 IPC_END_MESSAGES(Automation)
 

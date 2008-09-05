@@ -69,6 +69,7 @@ class BrowserView : public BrowserWindow,
   virtual void ProfileChanged(Profile* profile);
   virtual void FocusToolbar();
   virtual void DestroyBrowser();
+  virtual bool IsBookmarkBarVisible() const;
 
   /*
   // Overridden from ChromeViews::ClientView:

@@ -1890,6 +1890,19 @@ void XPFrame::FocusToolbar() {
   browser_view_->FocusToolbar();
 }
 
+bool XPFrame::IsBookmarkBarVisible() const {
+  if (!bookmark_bar_view_.get())
+    return false;
+
+  if (bookmark_bar_view_->IsNewTabPage() || bookmark_bar_view_->IsAnimating())
+    return true;
+
+  CSize sz;
+  bookmark_bar_view_->GetPreferredSize(&sz);
+  // 1 is the minimum in GetPreferredSize for the bookmark bar.
+  return sz.cy > 1;
+}
+
 void XPFrame::MoveToFront(bool should_activate) {
   int flags = SWP_NOMOVE | SWP_NOSIZE;
   if (!should_activate) {

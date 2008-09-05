@@ -347,3 +347,28 @@ bool BrowserProxy::RunCommand(int browser_command) const {
   return false;
 }
 
+bool BrowserProxy::GetBookmarkBarVisibility(bool* is_visible,
+                                            bool* is_animating) {
+  if (!is_valid())
+    return false;
+
+  if (!is_visible || !is_animating) {
+    NOTREACHED();
+    return false;
+  }
+
+  IPC::Message* response = NULL;
+  bool succeeded = sender_->SendAndWaitForResponse(
+      new AutomationMsg_BookmarkBarVisibilityRequest(0, handle_),
+      &response,
+      AutomationMsg_BookmarkBarVisibilityResponse::ID);
+
+  if (!succeeded)
+    return false;
+
+  void* iter = NULL;
+  response->ReadBool(&iter, is_visible);
+  response->ReadBool(&iter, is_animating);
+  delete response;
+  return true;
+}

@@ -5,8 +5,8 @@
 #ifndef CHROME_TEST_AUTOMATION_BROWSER_PROXY_H_
 #define CHROME_TEST_AUTOMATION_BROWSER_PROXY_H_
 
-#include <string>
 #include <windows.h>
+#include <string>
 #include "chrome/test/automation/automation_handle_tracker.h"
 
 class GURL;
@@ -139,8 +139,12 @@ class BrowserProxy : public AutomationResourceProxy {
   // executed, false otherwise.
   bool RunCommand(int browser_command) const;
 
+  // Returns whether the Bookmark bar is visible and whether we are animating
+  // it into position. Returns false on failure.
+  bool GetBookmarkBarVisibility(bool* is_visible, bool* is_animating);
+
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(BrowserProxy);
+  DISALLOW_COPY_AND_ASSIGN(BrowserProxy);
 };
 
 #endif  // CHROME_TEST_AUTOMATION_BROWSER_PROXY_H_

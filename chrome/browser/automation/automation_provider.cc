@@ -23,6 +23,7 @@
 #include "chrome/browser/save_package.h"
 #include "chrome/browser/ssl_blocking_page.h"
 #include "chrome/browser/web_contents.h"
+#include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/test/automation/automation_messages.h"
@@ -755,6 +756,8 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         GetFindWindowVisibility)
     IPC_MESSAGE_HANDLER(AutomationMsg_FindWindowLocationRequest,
                         HandleFindWindowLocationRequest)
+    IPC_MESSAGE_HANDLER(AutomationMsg_BookmarkBarVisibilityRequest,
+                        GetBookmarkBarVisitility)
   IPC_END_MESSAGE_MAP()
 }
 
@@ -1718,6 +1721,27 @@ void AutomationProvider::HandleFindWindowLocationRequest(
 
   Send(new AutomationMsg_FindWindowLocationResponse(message.routing_id(),
                                                     x, y));
+}
+
+void AutomationProvider::GetBookmarkBarVisitility(const IPC::Message& message,
+                                                  int handle) {
+  bool visible = false;
+  bool animating = false;
+
+  void* iter = NULL;
+  if (browser_tracker_->ContainsHandle(handle)) {
+    Browser* browser = browser_tracker_->GetResource(handle);
+    if (browser) {
+      BookmarkBarView* bookmark_bar = browser->window()->GetBookmarkBarView();
+      if (bookmark_bar) {
+        animating = bookmark_bar->IsAnimating();
+        visible = browser->window()->IsBookmarkBarVisible();
+      }
+    }
+  }
+
+  Send(new AutomationMsg_BookmarkBarVisibilityResponse(message.routing_id(),
+                                                       visible, animating));
 }
 
 void AutomationProvider::HandleInspectElementRequest(

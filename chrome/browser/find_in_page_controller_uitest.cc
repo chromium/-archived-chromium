@@ -122,7 +122,7 @@ TEST_F(FindInPageControllerTest, FindEnoughMatches_Issue1341577) {
 
 // The find window should not change its location just because we open and close
 // a new tab.
-TEST_F(FindInPageControllerTest, DISABLED_FindMovesOnTabClose_Issue1343052) {
+TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
   TestServer server(L"chrome/test/data");
 
   GURL url = server.TestServerPageW(kFramePage);
@@ -134,6 +134,7 @@ TEST_F(FindInPageControllerTest, DISABLED_FindMovesOnTabClose_Issue1343052) {
 
   // Toggle the bookmark bar state.
   browser->ApplyAccelerator(IDC_SHOW_BOOKMARKS_BAR);
+  EXPECT_TRUE(WaitForBookmarkBarVisibilityChange(browser.get(), true));
 
   // Open the Find window and wait for it to animate.
   EXPECT_TRUE(tabA->OpenFindInPage());
@@ -159,7 +160,7 @@ TEST_F(FindInPageControllerTest, DISABLED_FindMovesOnTabClose_Issue1343052) {
 
   // Now reset the bookmarks bar state and try the same again.
   browser->ApplyAccelerator(IDC_SHOW_BOOKMARKS_BAR);
-  Sleep(kWaitForActionMsec);
+  EXPECT_TRUE(WaitForBookmarkBarVisibilityChange(browser.get(), false));
 
   // Bookmark bar has moved, reset our coordinates.
   EXPECT_TRUE(tabA->GetFindWindowLocation(&x, &y));

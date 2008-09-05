@@ -93,6 +93,7 @@ class XPFrame : public BrowserWindow,
   virtual void UpdateToolbar(TabContents* contents, bool should_restore_state);
   virtual void ProfileChanged(Profile* profile);
   virtual void FocusToolbar();
+  virtual bool IsBookmarkBarVisible() const;
 
   //
   // CWindowImpl event management magic. See atlcrack.h

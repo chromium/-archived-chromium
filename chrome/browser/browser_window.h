@@ -179,11 +179,14 @@ class BrowserWindow {
                                             const gfx::Rect& bounds,
                                             int show_command);
 
+  // Returns whether the bookmark bar is visible or not.
+  virtual bool IsBookmarkBarVisible() const = 0;
+
  protected:
   friend class BrowserList;
   friend class BrowserView;
   virtual void DestroyBrowser() = 0;
 };
 
-#endif  // #ifndef CHROME_BROWSER_BROWSER_WINDOW_H__
+#endif  // CHROME_BROWSER_BROWSER_WINDOW_H__
 

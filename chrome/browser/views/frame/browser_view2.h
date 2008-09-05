@@ -162,6 +162,7 @@ class BrowserView2 : public BrowserWindow,
   virtual void UpdateToolbar(TabContents* contents, bool should_restore_state);
   virtual void FocusToolbar();
   virtual void DestroyBrowser();
+  virtual bool IsBookmarkBarVisible() const;
 
   // Overridden from NotificationObserver:
   virtual void Observe(NotificationType type,

@@ -649,6 +649,19 @@ void VistaFrame::ProfileChanged(Profile* profile) {
 void VistaFrame::FocusToolbar() {
 }
 
+bool VistaFrame::IsBookmarkBarVisible() const {
+  if (!bookmark_bar_view_.get())
+    return false;
+
+  if (bookmark_bar_view_->IsNewTabPage() || bookmark_bar_view_->IsAnimating())
+    return true;
+
+  CSize sz;
+  bookmark_bar_view_->GetPreferredSize(&sz);
+  // 1 is the minimum in GetPreferredSize for the bookmark bar.
+  return sz.cy > 1;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Events

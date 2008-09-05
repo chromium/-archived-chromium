@@ -440,6 +440,19 @@ void BrowserView2::FocusToolbar() {
 void BrowserView2::DestroyBrowser() {
 }
 
+bool BrowserView2::IsBookmarkBarVisible() const {
+  if (!bookmark_bar_view_.get())
+    return false;
+
+  if (bookmark_bar_view_->IsNewTabPage() || bookmark_bar_view_->IsAnimating())
+    return true;
+
+  CSize sz;
+  bookmark_bar_view_->GetPreferredSize(&sz);
+  // 1 is the minimum in GetPreferredSize for the bookmark bar.
+  return sz.cy > 1;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView2, NotificationObserver implementation:
 

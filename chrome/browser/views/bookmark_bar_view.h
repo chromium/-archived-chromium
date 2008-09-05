@@ -135,6 +135,9 @@ class BookmarkBarView : public ChromeViews::View,
   // True if we're supposed to draw the bookmarks bar in the new tab style.
   bool IsNewTabPage();
 
+  // Whether or not we are animating.
+  bool IsAnimating() { return size_animation_->IsAnimating(); }
+
   // SlideAnimationDelegate implementation.
   void AnimationProgressed(const Animation* animation);
   void AnimationEnded(const Animation* animation);
@@ -194,7 +197,7 @@ class BookmarkBarView : public ChromeViews::View,
     BookmarkBarView* view_;
     BookmarkBarNode* node_;
 
-    DISALLOW_EVIL_CONSTRUCTORS(ShowFolderDropMenuTask);
+    DISALLOW_COPY_AND_ASSIGN(ShowFolderDropMenuTask);
   };
 
   // Creates recent bookmark button and when visible button as well as
