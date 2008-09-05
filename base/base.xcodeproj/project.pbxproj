@@ -93,6 +93,8 @@
 		7BF164F30E660CA500AA999E /* platform_thread_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7BF164F20E660CA500AA999E /* platform_thread_mac.mm */; };
 		7BF1658D0E663B4800AA999E /* worker_pool_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7BF1658B0E663B3500AA999E /* worker_pool_mac.mm */; };
 		7BF1658E0E663B4A00AA999E /* worker_pool_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BF1658C0E663B3500AA999E /* worker_pool_unittest.cc */; };
+		7BF882800E71929B000BAF8A /* trace_event.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BF8827E0E71929B000BAF8A /* trace_event.cc */; };
+		7BF882910E719389000BAF8A /* non_thread_safe.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BF8828F0E719389000BAF8A /* non_thread_safe.cc */; };
 		820EB4F70E3A613F009668FC /* string_piece.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4F50E3A613F009668FC /* string_piece.cc */; };
 		820EB4FA0E3A6178009668FC /* string_util_icu.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4F90E3A6178009668FC /* string_util_icu.cc */; };
 		820EB5020E3A618B009668FC /* tracked.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4FE0E3A618B009668FC /* tracked.cc */; };
@@ -386,6 +388,10 @@
 		7BF1658A0E663B3500AA999E /* worker_pool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = worker_pool.h; sourceTree = "<group>"; };
 		7BF1658B0E663B3500AA999E /* worker_pool_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = worker_pool_mac.mm; sourceTree = "<group>"; };
 		7BF1658C0E663B3500AA999E /* worker_pool_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worker_pool_unittest.cc; sourceTree = "<group>"; };
+		7BF8827E0E71929B000BAF8A /* trace_event.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = trace_event.cc; sourceTree = "<group>"; };
+		7BF8827F0E71929B000BAF8A /* trace_event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = trace_event.h; sourceTree = "<group>"; };
+		7BF8828F0E719389000BAF8A /* non_thread_safe.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = non_thread_safe.cc; sourceTree = "<group>"; };
+		7BF882900E719389000BAF8A /* non_thread_safe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = non_thread_safe.h; sourceTree = "<group>"; };
 		820EB4EB0E3A60FE009668FC /* idle_timer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = idle_timer.cc; sourceTree = "<group>"; };
 		820EB4EC0E3A60FE009668FC /* idle_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = idle_timer.h; sourceTree = "<group>"; };
 		820EB4EF0E3A610A009668FC /* linked_ptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = linked_ptr.h; sourceTree = "<group>"; };
@@ -809,6 +815,8 @@
 				93611ADB0E5A7FC500F9405D /* message_pump.h */,
 				93611ADC0E5A7FC500F9405D /* message_pump_default.cc */,
 				93611ADD0E5A7FC500F9405D /* message_pump_default.h */,
+				7BF8828F0E719389000BAF8A /* non_thread_safe.cc */,
+				7BF882900E719389000BAF8A /* non_thread_safe.h */,
 				825403390D92D2210006B936 /* observer_list.h */,
 				E4562C580E2802AC005E4685 /* observer_list_unittest.cc */,
 				ABF4B9B40DC2BC9F00A6E319 /* path_service.cc */,
@@ -906,6 +914,8 @@
 				825403850D92D2CF0006B936 /* timer.cc */,
 				825403860D92D2CF0006B936 /* timer.h */,
 				BA739A010E5E3242009842A7 /* timer_unittest.cc */,
+				7BF8827E0E71929B000BAF8A /* trace_event.cc */,
+				7BF8827F0E71929B000BAF8A /* trace_event.h */,
 				820EB4FE0E3A618B009668FC /* tracked.cc */,
 				820EB4FD0E3A618B009668FC /* tracked.h */,
 				820EB4FB0E3A618B009668FC /* tracked_objects.cc */,
@@ -1229,6 +1239,7 @@
 				ABF4B9B20DC2BC8300A6E319 /* memory_debug.cc in Sources */,
 				93611AE10E5A7FE200F9405D /* message_loop.cc in Sources */,
 				93611ADF0E5A7FC500F9405D /* message_pump_default.cc in Sources */,
+				7BF882910E719389000BAF8A /* non_thread_safe.cc in Sources */,
 				ABF4B9B50DC2BC9F00A6E319 /* path_service.cc in Sources */,
 				824654A60DC25CD7007C2BAA /* pickle.cc in Sources */,
 				7BF164F30E660CA500AA999E /* platform_thread_mac.mm in Sources */,
@@ -1255,6 +1266,7 @@
 				82D094550E5B892600FEC05C /* time_format.cc in Sources */,
 				824654530DC25633007C2BAA /* time_posix.cc in Sources */,
 				E49357220E422A36008F8B09 /* timer.cc in Sources */,
+				7BF882800E71929B000BAF8A /* trace_event.cc in Sources */,
 				820EB5020E3A618B009668FC /* tracked.cc in Sources */,
 				820EB5480E3A64D2009668FC /* tracked_objects.cc in Sources */,
 				ABF4B9C30DC2BD6C00A6E319 /* values.cc in Sources */,
