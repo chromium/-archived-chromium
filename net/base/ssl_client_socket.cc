@@ -607,10 +607,16 @@ int SSLClientSocket::DoPayloadReadComplete(int result) {
   }
   // TODO(wtc): need to handle SEC_I_RENEGOTIATE.
   DCHECK(status == SEC_E_OK);
-  // If we didn't read enough to be able to decrypt anything, don't report 0
-  // bytes read, which would be interpreted as EOF.  Go back to read more.
-  if (len == 0)
-    next_state_ = STATE_PAYLOAD_READ;
+  // If we decrypted 0 bytes, don't report 0 bytes read, which would be
+  // mistaken for EOF.  Continue decrypting or read more.
+  if (len == 0) {
+    if (bytes_received_ == 0) {
+      next_state_ = STATE_PAYLOAD_READ;
+    } else {
+      next_state_ = STATE_PAYLOAD_READ_COMPLETE;
+      ignore_ok_result_ = true;  // OK doesn't mean EOF.
+    }
+  }
   return len;
 }
 
