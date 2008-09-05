@@ -170,22 +170,25 @@ std::wstring ElideUrl(const GURL& url,
     url_path_number_of_elements--;
   }
 
+  const int kMaxNumberOfUrlPathElementsAllowed = 1024;
+  if (url_path_number_of_elements <= 1 || 
+      url_path_number_of_elements > kMaxNumberOfUrlPathElementsAllowed) {
+    // No path to elide, or too long of a path (could overflow in loop below) 
+    // Just elide this as a text string.
+    return ElideText(url_subdomain + url_domain + url_path_query_etc, font,
+                     available_pixel_width);
+  }
+
   // Start eliding the path and replacing elements by "../".
   std::wstring an_ellipsis_and_a_slash(kEllipsis);
   an_ellipsis_and_a_slash += '/';
   int pixel_width_url_filename = font.GetStringWidth(url_filename);
   int pixel_width_dot_dot_slash = font.GetStringWidth(an_ellipsis_and_a_slash);
   int pixel_width_slash = font.GetStringWidth(L"/");
-  int pixel_width_url_path_elements[256]; // Declared static for speed.
+  int pixel_width_url_path_elements[kMaxNumberOfUrlPathElementsAllowed];
   for (int i = 0; i < url_path_number_of_elements; i++) {
     pixel_width_url_path_elements[i] =
        font.GetStringWidth(url_path_elements.at(i));
-  }
-
-  if (url_path_number_of_elements <= 1) {
-    // Nothing FITS - return domain and rest.
-    return ElideText(url_subdomain + url_domain + url_path_query_etc, font,
-                     available_pixel_width);
   }
 
   // Check with both subdomain and domain.
