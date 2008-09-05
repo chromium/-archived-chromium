@@ -1827,7 +1827,8 @@ std::wstring Browser::GetCurrentPageTitle() const {
   }
   if (title.empty())
     title = l10n_util::GetString(IDS_TAB_UNTITLED_TITLE);
-  return title;
+
+  return l10n_util::GetStringF(IDS_BROWSER_WINDOW_TITLE_FORMAT, title);
 }
 
 // static
