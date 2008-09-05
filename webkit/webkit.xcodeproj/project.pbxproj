@@ -2551,42 +2551,42 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B5E77560D7F22D8001ECF42 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B58F7A60DAFC59B006F0EB5 /* JSConfig */;
+			remoteGlobalIDString = 7B58F7A60DAFC59B006F0EB5;
 			remoteInfo = JSConfig;
 		};
 		E43CE1410E68686400D8C5B9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B5E77560D7F22D8001ECF42 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 7BFD8E650DAFE7630084BC4B /* JSBindings */;
+			remoteGlobalIDString = 7BFD8E650DAFE7630084BC4B;
 			remoteInfo = JSBindings;
 		};
 		E43CE1620E686A8300D8C5B9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7BE971E10D8736FA00F86D4B /* libxml.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 7B12F2AC0D8EE24200CB6E8F /* libxml.a */;
+			remoteGlobalIDString = 7B12F2AC0D8EE24200CB6E8F;
 			remoteInfo = xml;
 		};
 		E43CE1640E686A8300D8C5B9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7BE971E10D8736FA00F86D4B /* libxml.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 7B12F54E0D8EE8E400CB6E8F /* xmlcatalog */;
+			remoteGlobalIDString = 7B12F54E0D8EE8E400CB6E8F;
 			remoteInfo = xmlcatalog;
 		};
 		E43CE1660E686A8300D8C5B9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7BE971E10D8736FA00F86D4B /* libxml.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 7B12F58F0D8EEB2F00CB6E8F /* xmllint */;
+			remoteGlobalIDString = 7B12F58F0D8EEB2F00CB6E8F;
 			remoteInfo = xmllint;
 		};
 		E43CE1D50E686B3800D8C5B9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7BE971E10D8736FA00F86D4B /* libxml.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 7BE970530D872DC200F86D4B /* libxml_config */;
+			remoteGlobalIDString = 7BE970530D872DC200F86D4B;
 			remoteInfo = libxml_config;
 		};
 		E45627B40E26917C005E4685 /* PBXContainerItemProxy */ = {
@@ -11251,7 +11251,7 @@
 					../third_party/icu38/public/common,
 					../third_party/icu38/public/i18n,
 					../v8/src/api,
-					../v8/public,
+					../v8/include,
 					port/bindings/v8,
 					"$(CONFIGURATION_BUILD_DIR)/WebCore/v8",
 					"$(CONFIGURATION_BUILD_DIR)/WebCore/JavaScriptHeaders/v8",
@@ -11304,7 +11304,7 @@
 					../third_party/icu38/public/common,
 					../third_party/icu38/public/i18n,
 					../v8/src/api,
-					../v8/public,
+					../v8/include,
 					port/bindings/v8,
 					"$(CONFIGURATION_BUILD_DIR)/WebCore/v8",
 					"$(CONFIGURATION_BUILD_DIR)/WebCore/JavaScriptHeaders/v8",
@@ -11358,7 +11358,7 @@
 					../third_party/icu38/public/common,
 					../third_party/icu38/public/i18n,
 					../v8/src/api,
-					../v8/public,
+					../v8/include,
 					port/bindings/v8,
 					"$(CONFIGURATION_BUILD_DIR)/WebCore/v8",
 					"$(CONFIGURATION_BUILD_DIR)/WebCore/JavaScriptHeaders/v8",
@@ -11420,7 +11420,7 @@
 					../third_party/icu38/public/common,
 					../third_party/icu38/public/i18n,
 					../v8/src/api,
-					../v8/public,
+					../v8/include,
 					port/bindings/v8,
 					"$(CONFIGURATION_BUILD_DIR)/WebCore/v8",
 					"$(CONFIGURATION_BUILD_DIR)/WebCore/JavaScriptHeaders/v8",
@@ -11487,7 +11487,7 @@
 					"$(CONFIGURATION_BUILD_DIR)/WebCore/v8",
 					"$(CONFIGURATION_BUILD_DIR)/include/v8",
 					pending,
-					../v8/public,
+					../v8/include,
 					../third_party/WebKit/WebCore,
 					../third_party/WebKit/JavaScriptCore,
 					../skia/include,
@@ -11532,7 +11532,7 @@
 					"$(CONFIGURATION_BUILD_DIR)/WebCore/v8",
 					"$(CONFIGURATION_BUILD_DIR)/include/v8",
 					pending,
-					../v8/public,
+					../v8/include,
 					../third_party/WebKit/WebCore,
 					../third_party/WebKit/JavaScriptCore,
 					../skia/include,
@@ -11597,7 +11597,7 @@
 					"$(CONFIGURATION_BUILD_DIR)/WebCore/JavaScriptHeaders/v8",
 					"$(CONFIGURATION_BUILD_DIR)/include/v8",
 					"$(CONFIGURATION_BUILD_DIR)/DerivedSources/v8/WebCore",
-					../v8/public,
+					../v8/include,
 					../third_party/WebKit/JavaScriptCore,
 					pending,
 					pending/wtf,
@@ -11650,7 +11650,7 @@
 					"$(CONFIGURATION_BUILD_DIR)/WebCore/JavaScriptHeaders/v8",
 					"$(CONFIGURATION_BUILD_DIR)/include/v8",
 					"$(CONFIGURATION_BUILD_DIR)/DerivedSources/v8/WebCore",
-					../v8/public,
+					../v8/include,
 					../third_party/WebKit/JavaScriptCore,
 					pending,
 					pending/wtf,
