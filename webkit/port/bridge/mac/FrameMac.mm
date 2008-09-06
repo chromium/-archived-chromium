@@ -97,8 +97,8 @@
 #import <JavaScriptCore/NP_jsobject.h>
 #import <JavaScriptCore/npruntime_impl.h>
 #else
-#include <../../../../../webkit/glue/webplugin_impl.h>
-#include <../../../../../port/bindings/v8/v8_npobject.h>
+#include "webplugin_impl.h"
+#include "v8_npobject.h"
 #endif
 
 #undef _webcore_TIMING

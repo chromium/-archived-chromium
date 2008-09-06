@@ -6,7 +6,10 @@
 
 COPY_PHASE_STRIP = NO
 GCC_OPTIMIZATION_LEVEL = 0
-GCC_PREPROCESSOR_DEFINITIONS = $(GCC_PREPROCESSOR_DEFINITIONS) DEBUG _GLIBCXX_CONCEPT_CHECKS _GLIBCXX_DEBUG _GLIBCXX_DEBUG_PEDANTIC
+GCC_PREPROCESSOR_DEFINITIONS = $(GCC_PREPROCESSOR_DEFINITIONS) DEBUG
+// Additional libc++ strictness; disabled because they break some things in
+// WebKit and some additional things when building with gcc 4.2.
+// GCC_PREPROCESSOR_DEFINITIONS = $(GCC_PREPROCESSOR_DEFINITIONS) DEBUG _GLIBCXX_CONCEPT_CHECKS _GLIBCXX_DEBUG _GLIBCXX_DEBUG_PEDANTIC
 OTHER_CFLAGS = $(OTHER_CFLAGS) -fstack-protector -fstack-protector-all
 
 // Code coverage support via gcov is disabled for normal debug builds because

@@ -10,6 +10,7 @@
 
 #include "config.h"
 #pragma warning(push, 0)
+#include "ResourceHandle.h"
 #include "ResourceHandleClient.h"
 #include "ResourceRequest.h"
 #include "Widget.h"
