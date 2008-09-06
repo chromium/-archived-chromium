@@ -23,6 +23,8 @@ class Channel : public MessageLoopForIO::Watcher,
   // Implemented by consumers of a Channel to receive messages.
   class Listener {
    public:
+    virtual ~Listener() {}
+
     // Called when a message is received.
     virtual void OnMessageReceived(const Message& message) = 0;
 
