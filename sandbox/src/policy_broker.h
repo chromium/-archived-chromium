@@ -25,15 +25,15 @@ bool SetupNtdllImports(TargetProcess *child);
 // underscore and the number of bytes to pop out of the stack)
 #if SANDBOX_EXPORTS
 #define INTERCEPT_NT(manager, service, exported_target) \
-  (&Target##service) ? \
+  ((&Target##service) ? \
   manager->AddToPatchedFunctions(kNtdllName, #service, \
                                  sandbox::INTERCEPTION_SERVICE_CALL, \
-                                 exported_target) : false
+                                 exported_target) : false)
 
 #define INTERCEPT_EAT(manager, dll, function, exported_target) \
-  (&Target##function) ? \
+  ((&Target##function) ? \
   manager->AddToPatchedFunctions(dll, #function, sandbox::INTERCEPTION_EAT, \
-                                 exported_target) : false
+                                 exported_target) : false)
 #else
 #define INTERCEPT_NT(manager, service, exported_target) \
   manager->AddToPatchedFunctions(kNtdllName, #service, \
