@@ -68,12 +68,30 @@ void TestCommon(const TestData& test) {
 TEST(HttpResponseHeadersTest, NormalizeHeadersWhitespace) {
   TestData test = {
     "HTTP/1.1    202   Accepted  \n"
-    "  Content-TYPE  : text/html; charset=utf-8  \n"
+    "Content-TYPE  : text/html; charset=utf-8  \n"
     "Set-Cookie: a \n"
     "Set-Cookie:   b \n",
 
     "HTTP/1.1 202 Accepted\n"
     "Content-TYPE: text/html; charset=utf-8\n"
+    "Set-Cookie: a, b\n",
+
+    202
+  };
+  TestCommon(test);
+}
+
+// Check that we normalize headers properly (header name is invalid if starts
+// with LWS).
+TEST(HttpResponseHeadersTest, NormalizeHeadersLeadingWhitespace) {
+  TestData test = {
+    "HTTP/1.1    202   Accepted  \n"
+    // Starts with space -- will be skipped as invalid.
+    "  Content-TYPE  : text/html; charset=utf-8  \n"
+    "Set-Cookie: a \n"
+    "Set-Cookie:   b \n",
+
+    "HTTP/1.1 202 Accepted\n"
     "Set-Cookie: a, b\n",
 
     202

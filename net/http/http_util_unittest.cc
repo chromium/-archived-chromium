@@ -124,6 +124,241 @@ TEST(HttpUtilTest, AssembleRawHeaders) {
 
     { "HTTP/1.0 200 OK\nFoo: 1\nBar: 2\n\n",
       "HTTP/1.0 200 OK|Foo: 1|Bar: 2||" },
+
+    // Valid line continuation (single SP).
+    {
+      "HTTP/1.0 200 OK\n"
+      "Foo: 1\n"
+      " continuation\n"
+      "Bar: 2\n\n",
+
+      "HTTP/1.0 200 OK|"
+      "Foo: 1 continuation|"
+      "Bar: 2||"
+    },
+
+    // Valid line continuation (single HT).
+    {
+      "HTTP/1.0 200 OK\n"
+      "Foo: 1\n"
+      "\tcontinuation\n"
+      "Bar: 2\n\n",
+
+      "HTTP/1.0 200 OK|"
+      "Foo: 1\tcontinuation|"
+      "Bar: 2||"
+    },
+
+    // Valid line continuation (multiple SP).
+    {
+      "HTTP/1.0 200 OK\n"
+      "Foo: 1\n"
+      "   continuation\n"
+      "Bar: 2\n\n",
+
+      "HTTP/1.0 200 OK|"
+      "Foo: 1   continuation|"
+      "Bar: 2||"
+    },
+
+    // Valid line continuation (multiple HT).
+    {
+      "HTTP/1.0 200 OK\n"
+      "Foo: 1\n"
+      "\t\t\tcontinuation\n"
+      "Bar: 2\n\n",
+
+      "HTTP/1.0 200 OK|"
+      "Foo: 1\t\t\tcontinuation|"
+      "Bar: 2||"
+    },
+
+    // Valid line continuation (mixed HT, SP).
+    {
+      "HTTP/1.0 200 OK\n"
+      "Foo: 1\n"
+      " \t \t continuation\n"
+      "Bar: 2\n\n",
+
+      "HTTP/1.0 200 OK|"
+      "Foo: 1 \t \t continuation|"
+      "Bar: 2||"
+    },
+
+    // Valid multi-line continuation
+    {
+      "HTTP/1.0 200 OK\n"
+      "Foo: 1\n"
+      " continuation1\n"
+      "\tcontinuation2\n"
+      "  continuation3\n"
+      "Bar: 2\n\n",
+
+      "HTTP/1.0 200 OK|"
+      "Foo: 1 continuation1\tcontinuation2  continuation3|"
+      "Bar: 2||"
+    },
+
+    // Valid line continuation (No value bytes in first line).
+    {
+      "HTTP/1.0 200 OK\n"
+      "Foo:\n"
+      " value\n"
+      "Bar: 2\n\n",
+
+      "HTTP/1.0 200 OK|"
+      "Foo: value|"
+      "Bar: 2||"
+    },
+
+    // Not a line continuation (can't continue status line).
+    {
+      "HTTP/1.0 200 OK\n"
+      " Foo: 1\n"
+      "Bar: 2\n\n",
+
+      "HTTP/1.0 200 OK|"
+      " Foo: 1|"
+      "Bar: 2||"
+    },
+
+    // Not a line continuation (can't continue status line).
+    {
+      "HTTP/1.0\n"
+      " 200 OK\n"
+      "Foo: 1\n"
+      "Bar: 2\n\n",
+
+      "HTTP/1.0|"
+      " 200 OK|"
+      "Foo: 1|"
+      "Bar: 2||"
+    },
+
+    // Not a line continuation (can't continue status line).
+    {
+      "HTTP/1.0 404\n"
+      " Not Found\n"
+      "Foo: 1\n"
+      "Bar: 2\n\n",
+
+      "HTTP/1.0 404|"
+      " Not Found|"
+      "Foo: 1|"
+      "Bar: 2||"
+    },
+
+    // Unterminated status line.
+    {
+      "HTTP/1.0 200 OK",
+      
+      "HTTP/1.0 200 OK||"
+    },
+
+    // Single terminated, with headers
+    {
+      "HTTP/1.0 200 OK\n"
+      "Foo: 1\n"
+      "Bar: 2\n",
+
+      "HTTP/1.0 200 OK|"
+      "Foo: 1|"
+      "Bar: 2||"
+    },
+
+    // Not terminated, with headers
+    {
+      "HTTP/1.0 200 OK\n"
+      "Foo: 1\n"
+      "Bar: 2",
+
+      "HTTP/1.0 200 OK|"
+      "Foo: 1|"
+      "Bar: 2||"
+    },
+
+    // Not a line continuation (VT)
+    {
+      "HTTP/1.0 200 OK\n"
+      "Foo: 1\n"
+      "\vInvalidContinuation\n"
+      "Bar: 2\n\n",
+
+      "HTTP/1.0 200 OK|"
+      "Foo: 1|"
+      "\vInvalidContinuation|"
+      "Bar: 2||"
+    },
+
+    // Not a line continuation (formfeed)
+    {
+      "HTTP/1.0 200 OK\n"
+      "Foo: 1\n"
+      "\fInvalidContinuation\n"
+      "Bar: 2\n\n",
+
+      "HTTP/1.0 200 OK|"
+      "Foo: 1|"
+      "\fInvalidContinuation|"
+      "Bar: 2||"
+    },
+
+    // Not a line continuation -- can't continue header names.
+    {
+      "HTTP/1.0 200 OK\n"
+      "Serv\n"
+      " er: Apache\n"
+      "\tInvalidContinuation\n"
+      "Bar: 2\n\n",
+
+      "HTTP/1.0 200 OK|"
+      "Serv|"
+      " er: Apache|"
+      "\tInvalidContinuation|"
+      "Bar: 2||"
+    },
+
+    // Not a line continuation -- no value to continue.
+    {
+      "HTTP/1.0 200 OK\n"
+      "Foo: 1\n"
+      "garbage\n"
+      "  not-a-continuation\n"
+      "Bar: 2\n\n",
+
+      "HTTP/1.0 200 OK|"
+      "Foo: 1|"
+      "garbage|"
+      "  not-a-continuation|"
+      "Bar: 2||",
+    },
+
+    // Not a line continuation -- no valid name.
+    {
+      "HTTP/1.0 200 OK\n"
+      ": 1\n"
+      "  garbage\n"
+      "Bar: 2\n\n",
+
+      "HTTP/1.0 200 OK|"
+      ": 1|"
+      "  garbage|"
+      "Bar: 2||",
+    },
+
+    // Not a line continuation -- no valid name (whitespace)
+    {
+      "HTTP/1.0 200 OK\n"
+      "   : 1\n"
+      "  garbage\n"
+      "Bar: 2\n\n",
+
+      "HTTP/1.0 200 OK|"
+      "   : 1|"
+      "  garbage|"
+      "Bar: 2||",
+    },
+
   };
   for (size_t i = 0; i < arraysize(tests); ++i) {
     int input_len = static_cast<int>(strlen(tests[i].input));

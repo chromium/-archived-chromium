@@ -25,6 +25,8 @@ class HttpResponseHeaders :
   // Parses the given raw_headers.  raw_headers should be formatted thus:
   // includes the http status response line, each line is \0-terminated, and
   // it's terminated by an empty line (ie, 2 \0s in a row).
+  // (Note that line continuations should have already been joined;
+  // see HttpUtil::AssembleRawHeaders)
   //
   // NOTE: For now, raw_headers is not really 'raw' in that this constructor is
   // called with a 'NativeMB' string on Windows because WinHTTP does not allow
@@ -204,13 +206,6 @@ class HttpResponseHeaders :
   void ParseStatusLine(std::string::const_iterator line_begin,
                        std::string::const_iterator line_end);
 
-  // Tries to extract the header line from a header block, given a single
-  // line of said header block.  If the header is malformed, we skip it.
-  // Example input:
-  //    Content-Length : text/html; charset=utf-8
-  void ParseHeaderLine(std::string::const_iterator line_begin,
-                       std::string::const_iterator line_end);
-
   // Find the header in our list (case-insensitive) starting with parsed_ at
   // index |from|.  Returns string::npos if not found.
   size_t FindHeader(size_t from, const std::string& name) const;
@@ -254,9 +249,10 @@ class HttpResponseHeaders :
 
   // The raw_headers_ consists of the normalized status line (terminated with a
   // null byte) and then followed by the raw null-terminated headers from the
-  // input that was passed to our constructor.  We preserve the input to
+  // input that was passed to our constructor.  We preserve the input [*] to
   // maintain as much ancillary fidelity as possible (since it is sometimes
   // hard to tell what may matter down-stream to a consumer of XMLHttpRequest).
+  // [*] The status line may be modified.
   std::string raw_headers_;
 
   // This is the parsed HTTP response code.

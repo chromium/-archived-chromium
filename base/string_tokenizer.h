@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_STRING_TOKENIZER_H__
-#define BASE_STRING_TOKENIZER_H__
+#ifndef BASE_STRING_TOKENIZER_H_
+#define BASE_STRING_TOKENIZER_H_
 
 #include <string>
 
@@ -74,10 +74,9 @@
 //   }
 //
 //
-template <class str>
+template <class str, class const_iterator>
 class StringTokenizerT {
  public:
-  typedef typename str::const_iterator const_iterator;
   typedef typename str::value_type char_type;
 
   // Options that may be pass to set_options()
@@ -194,8 +193,11 @@ class StringTokenizerT {
   bool token_is_delim_;
 };
 
-typedef StringTokenizerT<std::string> StringTokenizer;
-typedef StringTokenizerT<std::wstring> WStringTokenizer;
+typedef StringTokenizerT<std::string, std::string::const_iterator>
+    StringTokenizer;
+typedef StringTokenizerT<std::wstring, std::wstring::const_iterator>
+    WStringTokenizer;
+typedef StringTokenizerT<std::string, const char*> CStringTokenizer;
 
-#endif  // BASE_STRING_TOKENIZER_H__
+#endif  // BASE_STRING_TOKENIZER_H_
 

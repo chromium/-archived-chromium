@@ -46,6 +46,11 @@ class HttpUtil {
     return IsNonCoalescingHeader(name.begin(), name.end());
   }
 
+  // Return true if the character is HTTP "linear white space" (SP | HT).
+  // This definition corresponds with the HTTP_LWS macro, and does not match
+  // newlines.
+  static bool IsLWS(char c);
+
   // Trim HTTP_LWS chars from the beginning and end of the string.
   static void TrimLWS(std::string::const_iterator* begin,
                       std::string::const_iterator* end);
@@ -66,6 +71,8 @@ class HttpUtil {
 
   // Used to iterate over the name/value pairs of HTTP headers.  To iterate
   // over the values in a multi-value header, use ValuesIterator.
+  // See AssembleRawHeaders for joining line continuations (this iterator
+  // does not expect any).
   class HeadersIterator {
    public:
     HeadersIterator(std::string::const_iterator headers_begin,
