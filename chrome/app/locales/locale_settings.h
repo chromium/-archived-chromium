@@ -136,25 +136,30 @@
 #define IDS_IMPORTPROGRESS_DIALOG_WIDTH_CHARS 1050
 #define IDS_IMPORTPROGRESS_DIALOG_HEIGHT_LINES 1051
 
+// The width and height of the "Mozilla Firefox is locked" dialog box in
+// characters and lines (See above).
+#define IDS_IMPORTLOCK_DIALOG_WIDTH_CHARS 1052
+#define IDS_IMPORTLOCK_DIALOG_HEIGHT_LINES 1053
+
 // The width and height of the First Run Search Information bubble in
 // characters and lines (See above).
-#define IDS_FIRSTRUNBUBBLE_DIALOG_WIDTH_CHARS 1052
-#define IDS_FIRSTRUNBUBBLE_DIALOG_HEIGHT_LINES 1053
+#define IDS_FIRSTRUNBUBBLE_DIALOG_WIDTH_CHARS 1054
+#define IDS_FIRSTRUNBUBBLE_DIALOG_HEIGHT_LINES 1055
 
 // The width of the font style column in the Fonts and Languages dialog box,
 // in character widths.
-#define IDS_FONTSLANG_LABEL_WIDTH 1054
+#define IDS_FONTSLANG_LABEL_WIDTH 1056
 
 // The URL for the the Welcome to Chrome page shown on first run.
-#define IDS_WELCOME_PAGE_URL 1055
+#define IDS_WELCOME_PAGE_URL 1057
 
 // The URL for the the Learn More page shown on incognito new tab.
-#define IDS_LEARN_MORE_INCOGNITO_URL 1056
+#define IDS_LEARN_MORE_INCOGNITO_URL 1058
 
 // The URL for the "Learn more" page for the Report user metrics and crash data
 // checkbox in Options.
-#define IDS_LEARN_MORE_HELPMAKECHROMEBETTER_URL 1057
+#define IDS_LEARN_MORE_HELPMAKECHROMEBETTER_URL 1059
 
 // The URL for more info on how we are affected by 3rd party licenses.
-#define IDS_ABOUT_VERSION_LICENSE_URL 1058
+#define IDS_ABOUT_VERSION_LICENSE_URL 1060
 

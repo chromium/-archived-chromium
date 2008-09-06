@@ -4,10 +4,12 @@
 
 #include "chrome/browser/views/importer_lock_view.h"
 
+#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/importer.h"
 #include "chrome/browser/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/label.h"
+#include "chrome/views/window.h"
 
 #include "chromium_strings.h"
 #include "generated_resources.h"
@@ -33,14 +35,16 @@ ImporterLockView::~ImporterLockView() {
 }
 
 void ImporterLockView::GetPreferredSize(CSize *out) {
-  out->cx = kDefaultWindowWidth;
-  out->cy = kDefaultWindowHeight;
+  DCHECK(out);
+  *out = ChromeViews::Window::GetLocalizedContentsSize(
+      IDS_IMPORTLOCK_DIALOG_WIDTH_CHARS,
+      IDS_IMPORTLOCK_DIALOG_HEIGHT_LINES).ToSIZE();
 }
 
 void ImporterLockView::Layout() {
   description_label_->SetBounds(kPanelHorizMargin, kPanelVertMargin,
-      kDefaultWindowWidth - 2 * kPanelHorizMargin,
-      kDefaultWindowHeight - 2 * kPanelVertMargin);
+      GetWidth() - 2 * kPanelHorizMargin,
+      GetHeight() - 2 * kPanelVertMargin);
 }
 
 std::wstring ImporterLockView::GetDialogButtonLabel(
