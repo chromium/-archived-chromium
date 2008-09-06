@@ -123,7 +123,7 @@ def RunSystemCommand(cmd):
 
 
 def CreateArchiveFile(output_dir, staging_dir, current_version,
-                        prev_version_dir, prev_version, rebuild_archive):
+                        prev_version_dir, prev_version, skip_rebuild_archive):
   """Creates a new installer archive file after deleting any existing old file.
   """
   # First create an uncompressed archive file for the current build
@@ -137,7 +137,7 @@ def CreateArchiveFile(output_dir, staging_dir, current_version,
   # we always delete before creating a new one.
   if not os.path.exists(archive_file):
     RunSystemCommand(cmd)
-  elif rebuild_archive:
+  elif not skip_rebuild_archive:
     os.remove(archive_file)
     RunSystemCommand(cmd)
 
@@ -236,7 +236,7 @@ def main(options):
   # patch-<old_version>-<new_version>.7z or patch-<new_version>.7z
   archive_file_name = CreateArchiveFile(options.output_dir, staging_dir,
       current_version, options.last_chrome_installer,
-      options.last_chrome_version, options.rebuild_archive)
+      options.last_chrome_version, options.skip_rebuild_archive)
 
   CreateResourceInputFile(options.output_dir, options.last_chrome_installer,
                           archive_file_name)
@@ -248,8 +248,8 @@ if '__main__' == __name__:
   option_parser.add_option('-i', '--input_file', help='Input file')
   option_parser.add_option('-d', '--distribution',
       help='Name of Chromium Distribution. Optional.')
-  option_parser.add_option('-r', '--rebuild_archive', action='store_true',
-      default=False, help='Rebuild Chrome.7z archive, even if it exists.')
+  option_parser.add_option('-s', '--skip_rebuild_archive', action='store_true',
+      default=False, help='Skip re-building Chrome.7z archive if it exists.')
   option_parser.add_option('-l', '--last_chrome_installer', 
       help='Generate differential installer. The value of this parameter ' +
            'specifies the directory that contains base versions of ' +

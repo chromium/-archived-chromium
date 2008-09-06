@@ -30,7 +30,7 @@
 				Name="create installer archive"
 				LastChromeInstaller="$(LAST_CHROME_INSTALLER)"
 				LastChromeVersion="$(LAST_CHROME_VERSION)"
-				RebuildArchive="$(REBUILD_CHROME_ARCHIVE)"
+				SkipRebuildArchive="$(SKIP_REBUILD_CHROME_ARCHIVE)"
 			/>
 			<Tool
 				Name="Version"
@@ -57,7 +57,7 @@
 				Name="create installer archive"
 				LastChromeInstaller="$(LAST_CHROME_INSTALLER)"
 				LastChromeVersion="$(LAST_CHROME_VERSION)"
-				RebuildArchive="$(REBUILD_CHROME_ARCHIVE)"
+				SkipRebuildArchive="$(SKIP_REBUILD_CHROME_ARCHIVE)"
 			/>
 			<Tool
 				Name="Version"
