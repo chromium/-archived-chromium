@@ -151,11 +151,9 @@ class PluginList : public base::RefCounted<PluginList> {
   // Hardcoded logic to detect and load Java plugins
   void LoadJavaPlugin();
 
-#if defined(OS_WIN)
   // Search the registry at the given path and load plugins listed there.
   void LoadPluginsInRegistryFolder(HKEY root_key,
                                    const std::wstring& registry_folder);
-#endif
 
   // true if we shouldn't load the new WMP plugin.
   bool dont_load_new_wmp_;

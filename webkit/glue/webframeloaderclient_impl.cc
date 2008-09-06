@@ -1014,7 +1014,7 @@ void WebFrameLoaderClient::startDownload(const ResourceRequest& request) {
   WebViewDelegate* d = webframe_->webview_impl()->delegate();
   if (d) {
     const GURL url(webkit_glue::KURLToGURL(request.url()));
-    const GURL referrer(webkit_glue::StringToStdString(request.httpReferrer()));
+    const GURL referrer(webkit_glue::StringToStdWString(request.httpReferrer()));
     d->DownloadUrl(url, referrer);
   }
 }
@@ -1173,7 +1173,7 @@ String WebFrameLoaderClient::generatedMIMETypeForURLScheme(const String& URLSche
   // function is WebView::registerViewClass, where it is used as part of the
   // process by which custom view classes for certain document representations
   // are registered.
-  String mimetype("x-apple-web-kit/");
+  String mimetype(L"x-apple-web-kit/");
   mimetype.append(URLScheme.lower());
   return mimetype;
 }
@@ -1304,7 +1304,7 @@ static char** ToArray(const Vector<WebCore::String> &vector) {
   for (index = 0; index < vector.size(); ++index) {
     WebCore::CString src = vector[index].utf8();
     rv[index] = new char[src.length() + 1];
-    base::strlcpy(rv[index], src.data(), src.length() + 1);
+    strncpy_s(rv[index], src.length() + 1, src.data(), _TRUNCATE);
     rv[index][src.length()] = '\0';
   }
   rv[index] = 0;
