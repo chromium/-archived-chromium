@@ -451,7 +451,11 @@ TEST(SafeBrowsing, HashCaching) {
   EXPECT_EQ(full_hashes.size(), 1);
 
 
-  // Testing prefix miss caching.
+  // Testing prefix miss caching. First, we clear out the existing database,
+  // Since PopulateDatabaseForCacheTest() doesn't handle adding duplicate
+  // chunks.
+  AddDelChunk(&database, "goog-malware-shavar", 1);
+
   std::vector<SBPrefix> prefix_misses;
   std::vector<SBFullHashResult> empty_full_hash;
   prefix_misses.push_back(Sha256Prefix("http://www.bad.com/malware.html"));
