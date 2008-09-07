@@ -113,6 +113,13 @@ MessageLoop::~MessageLoop() {
   ReloadWorkQueue();
   DeletePendingTasks();
 
+  // Delete tasks in the delayed work queue.
+  while (!delayed_work_queue_.empty()) {
+    Task* task = delayed_work_queue_.top().task;
+    delayed_work_queue_.pop();
+    delete task;
+  }
+
 #if defined(OS_WIN)
   // Match timeBeginPeriod() from construction.
   timeEndPeriod(1);
