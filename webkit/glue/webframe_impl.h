@@ -236,7 +236,7 @@ class WebFrameImpl : public WebFrame {
     return inspected_node_;
   }
 
-  void WebFrameImpl::selectNodeFromInspector(WebCore::Node* node);
+  void selectNodeFromInspector(WebCore::Node* node);
 
   // Returns which frame has an active tickmark. This function should only be
   // called on the main frame, as it is the only frame keeping track. Returned

@@ -31,6 +31,10 @@ typedef HWND EditViewHandle;
 typedef NSView *ViewHandle;
 typedef NSWindow *WindowHandle;
 typedef NSTextField *EditViewHandle;
+#else  // null port.
+typedef void* ViewHandle;
+typedef void* WindowHandle;
+typedef void* EditViewHandle;
 #endif
 
 }  // namespace gfx

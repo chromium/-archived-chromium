@@ -152,6 +152,7 @@ sconscript_dirs = [
   'build/port/SConscript',
   'build/V8Bindings/SConscript',
   'default_plugin/SConscript',
+  'glue/SConscript',
 ]
 if env['PLATFORM'] == 'win32':
   # These extra dirs aren't win32-specific, they're just the dirs that
@@ -163,7 +164,6 @@ if env['PLATFORM'] == 'win32':
     'build/WebCore/SConscript',  # This almost works on linux.  It requires
                                  # some changes to WebKit that we'll get
                                  # in the merge.
-    'glue/SConscript',
     'glue/plugins/test/SConscript',
     'tools/npapi_layout_test_plugin/SConscript',
     'tools/test_shell/SConscript',

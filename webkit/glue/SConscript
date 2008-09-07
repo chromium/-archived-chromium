@@ -6,17 +6,26 @@ Import('env')
 
 env = env.Clone()
 
-env.Append(
-  CCFLAGS = [
-    '/TP',
+if env['PLATFORM'] == 'win32':
+  env.Append(
+    CCFLAGS = [
+      '/TP',
 
-    '/WX',
+      '/WX',
 
-    '/wd4800',
-  ],
-)
+      '/wd4800',
+    ],
+  )
 
 input_files = [
+  'webkit_glue.cc',
+  'weburlrequest_impl.cc',
+]
+
+if env['PLATFORM'] == 'win32':
+  # TODO(port): These extra files aren't win32-specific, they've just not been
+  # tested on other platforms yet.
+  input_files.append([
     '$PENDING_DIR/AccessibleBase.cpp',
     '$PENDING_DIR/AccessibleDocument.cpp',
     'alt_404_page_resource_fetcher.cc',
@@ -69,15 +78,10 @@ input_files = [
     'webframeloaderclient_impl.cc',
     'webhistoryitem_impl.cc',
     'webinputevent_win.cc',
-    'webkit_glue.cc',
     'webplugin_impl.cc',
     'webtextinput_impl.cc',
-    'weburlrequest_impl.cc',
     'webview_impl.cc',
     'webwidget_impl.cc',
-]
+  ])
 
 env.ChromeStaticLibrary('Glue', input_files)
-
-
-

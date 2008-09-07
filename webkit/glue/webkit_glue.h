@@ -53,7 +53,7 @@ void SetRecordPlaybackMode(bool value);
 void SetLayoutTestMode(bool enable);
 bool IsLayoutTestMode();
 
-#ifdef _WIN32
+#if defined(OS_WIN)
 // Returns the com object pointer for the FontLink interface. This is the
 // default way to do this operation. It can be called directly from
 // GetLangFontLink.
@@ -279,4 +279,3 @@ void NotifyJSOutOfMemory(WebCore::Frame* frame);
 } // namespace webkit_glue
 
 #endif  // WEBKIT_GLUE_H__
-

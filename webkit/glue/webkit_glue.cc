@@ -2,8 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <objidl.h>
 #include <mlang.h>
+#endif
 
 #include "config.h"
 #include "webkit_version.h"
@@ -14,7 +18,9 @@
 #include "FrameView.h"
 #include "Frame.h"
 #include "HistoryItem.h"
+#if defined(OS_WIN)  // TODO(port): unnecessary after the webkit merge lands.
 #include "ImageSource.h"
+#endif
 #include "KURL.h"
 #include "LogWin.h"
 #include "Page.h"
@@ -68,6 +74,7 @@ bool IsLayoutTestMode() {
   return layout_test_mode_;
 }
 
+#if defined(OS_WIN)
 MONITORINFOEX GetMonitorInfoForWindowHelper(HWND window) {
   HMONITOR monitor = MonitorFromWindow(window, MONITOR_DEFAULTTOPRIMARY);
   MONITORINFOEX monitorInfo;
@@ -111,6 +118,7 @@ IMLangFontLink2* GetLangFontLinkHelper() {
 
   return lang_font_link;
 }
+#endif  // defined(OS_WIN)
 
 std::wstring DumpDocumentText(WebFrame* web_frame) {
   WebFrameImpl* webFrameImpl = static_cast<WebFrameImpl*>(web_frame);
@@ -285,6 +293,7 @@ void CheckForLeaks() {
 }
 
 bool DecodeImage(const std::string& image_data, SkBitmap* image) {
+#if defined(OS_WIN)  // TODO(port): unnecessary after the webkit merge lands.
    RefPtr<WebCore::SharedBuffer> buffer(
        new WebCore::SharedBuffer(image_data.data(),
                                  static_cast<int>(image_data.length())));
@@ -297,6 +306,11 @@ bool DecodeImage(const std::string& image_data, SkBitmap* image) {
   }
   // We failed to decode the image.
   return false;
+#else
+  // This ought to work; we just need the webkit merge.
+  NOTIMPLEMENTED();
+  return false;
+#endif
 }
 
 // Convert from WebKit types to Glue types and notify the embedder. This should
@@ -325,6 +339,7 @@ std::string GetWebKitVersion() {
 }
 
 const std::string& GetDefaultUserAgent() {
+#if defined(OS_WIN)
   static std::string user_agent;
   static bool generated_user_agent;
   if (!generated_user_agent) {
@@ -363,6 +378,11 @@ const std::string& GetDefaultUserAgent() {
   }
 
   return user_agent;
+#else
+  // TODO(port): we need something like FileVersionInfo for our UA string.
+  NOTIMPLEMENTED();
+  return EmptyString();
+#endif
 }
 
 
@@ -382,4 +402,3 @@ void NotifyJSOutOfMemory(WebCore::Frame* frame) {
 }
 
 } // namespace webkit_glue
-
