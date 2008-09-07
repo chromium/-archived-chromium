@@ -124,6 +124,16 @@ enum NotificationType {
   // was issued.  Details in the form of a ResourceRedirectDetails are provided.
   NOTIFY_RESOURCE_RECEIVED_REDIRECT,
 
+  // The SSL state of a page has changed somehow. For example, if an insecure
+  // resource is loaded on a secure page. Note that a toplevel load commit
+  // will also update the SSL state (since the NavigationEntry is new) and this
+  // message won't always be sent in that case.
+  //
+  // The source will be the navigation controller associated with the load.
+  // There are no details. The entry changed will be the active entry of the
+  // controller.
+  NOTIFY_SSL_STATE_CHANGED,
+
   // Download start and stop notifications. Stop notifications can occur on both
   // normal completion or via a cancel operation.
   NOTIFY_DOWNLOAD_START,

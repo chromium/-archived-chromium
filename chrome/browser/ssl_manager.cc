@@ -215,15 +215,18 @@ void SSLManager::ShowMessageWithLink(const std::wstring& msg,
 }
 
 // Delegate API method.
-void SSLManager::SetMaxSecurityStyle(SecurityStyle style) {
+bool SSLManager::SetMaxSecurityStyle(SecurityStyle style) {
   NavigationEntry* entry = controller_->GetActiveEntry();
   if (!entry) {
     NOTREACHED();
-    return;
+    return false;
   }
 
-  if (entry->ssl().security_style() > style)
+  if (entry->ssl().security_style() > style) {
     entry->ssl().set_security_style(style);
+    return true;
+  }
+  return false;
 }
 
 // Delegate API method.
@@ -609,6 +612,7 @@ void SSLManager::DidCommitProvisionalLoad(ProvisionalLoadDetails* details) {
   if (details->in_page_navigation())
     return;
 
+  bool changed = false;
   if (details->main_frame()) {
     // We are navigating to a new page, it's time to close the info bars.  They
     // will automagically disappear from the visible_info_bars_ list (when
@@ -629,6 +633,7 @@ void SSLManager::DidCommitProvisionalLoad(ProvisionalLoadDetails* details) {
       entry->ssl().set_cert_id(details->ssl_cert_id());
       entry->ssl().set_cert_status(details->ssl_cert_status());
       entry->ssl().set_security_bits(details->ssl_security_bits());
+      changed = true;
     }
 
     if (details->interstitial_page()) {
@@ -643,9 +648,17 @@ void SSLManager::DidCommitProvisionalLoad(ProvisionalLoadDetails* details) {
   // happens, use the unauthenticated (HTTP) rather than the authentication
   // broken security style so that we can detect this error condition.
   if (net::IsCertStatusError(details->ssl_cert_status()))
-    SetMaxSecurityStyle(SECURITY_STYLE_AUTHENTICATION_BROKEN);
+    changed |= SetMaxSecurityStyle(SECURITY_STYLE_AUTHENTICATION_BROKEN);
   else if (details->url().SchemeIsSecure() && !details->ssl_cert_id())
-    SetMaxSecurityStyle(SECURITY_STYLE_UNAUTHENTICATED);
+    changed |= SetMaxSecurityStyle(SECURITY_STYLE_UNAUTHENTICATED);
+
+  if (changed) {
+    // Only send the notification when something actually changed.
+    NotificationService::current()->Notify(
+        NOTIFY_SSL_STATE_CHANGED,
+        Source<NavigationController>(controller_),
+        Details<NavigationEntry>(controller_->GetActiveEntry()));
+  }
 }
 
 void SSLManager::DidFailProvisionalLoadWithError(

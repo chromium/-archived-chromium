@@ -287,7 +287,11 @@ class SSLManager : public NotificationObserver {
   // Sets the maximum security style for the page.  If the current security
   // style is lower than |style|, this will not have an effect on the security
   // indicators.
-  void SetMaxSecurityStyle(SecurityStyle style);
+  //
+  // It will return true if the navigation entry was updated or false if
+  // nothing changed. The caller is responsible for broadcasting
+  // NOTIFY_SSY_STATE_CHANGED if it returns true.
+  bool SetMaxSecurityStyle(SecurityStyle style);
 
   // Logs a message to the console of the page.
   void AddMessageToConsole(const std::wstring& msg,

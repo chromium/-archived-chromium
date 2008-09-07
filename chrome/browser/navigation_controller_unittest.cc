@@ -375,7 +375,9 @@ TEST_F(NavigationControllerTest, LoadURL) {
 }
 
 // Tests what happens when the same page is loaded again.  Should not create a
-// new session history entry.
+// new session history entry. This is what happens when you press enter in the
+// URL bar to reload: a pending entry is created and then it is discarded when
+// the load commits (because WebCore didn't actually make a new entry).
 TEST_F(NavigationControllerTest, LoadURL_SamePage) {
   TestNotificationTracker notifications;
   RegisterForAllNavNotifications(&notifications, contents->controller());

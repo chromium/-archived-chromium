@@ -65,8 +65,7 @@ class TabContents : public PageNavigator,
     INVALIDATE_URL = 1,      // The URL has changed.
     INVALIDATE_TITLE = 2,    // The title has changed.
     INVALIDATE_FAVICON = 4,  // The favicon has changed.
-    INVALIDATE_STATE = 8,    // Forms, scroll position, etc.) have changed.
-    INVALIDATE_LOAD = 16,    // The loading state has changed
+    INVALIDATE_LOAD = 8,     // The loading state has changed
 
     // Helper for forcing a refresh.
     INVALIDATE_EVERYTHING = 0xFFFFFFFF

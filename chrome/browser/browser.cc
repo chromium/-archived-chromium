@@ -234,6 +234,8 @@ Browser::Browser(const gfx::Rect& initial_bounds,
         AddObserver(this, NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
                     NotificationService::AllSources());
   }
+  NotificationService::current()->AddObserver(
+      this, NOTIFY_SSL_STATE_CHANGED, NotificationService::AllSources());
 
   if (profile->HasSessionService()) {
     SessionService* session_service = profile->GetSessionService();
@@ -287,6 +289,8 @@ Browser::~Browser() {
         RemoveObserver(this, NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
                        NotificationService::AllSources());
   }
+  NotificationService::current()->RemoveObserver(
+      this, NOTIFY_SSL_STATE_CHANGED, NotificationService::AllSources());
 
   // Stop hung plugin monitoring.
   ticker_.Stop();
@@ -646,14 +650,13 @@ void Browser::NavigationStateChanged(const TabContents* source,
   }
 
   // Only update the UI when something visible has changed.
-  if (changed_flags && changed_flags != TabContents::INVALIDATE_STATE)
+  if (changed_flags)
     ScheduleUIUpdate(source, changed_flags);
 
   // We don't schedule updates to the navigation commands since they will only
   // change once per navigation, so we don't have to worry about flickering.
-  if (changed_flags & TabContents::INVALIDATE_URL) {
+  if (changed_flags & TabContents::INVALIDATE_URL)
     UpdateNavigationCommands();
-  }
 }
 
 void Browser::ReplaceContents(TabContents* source, TabContents* new_contents) {
@@ -835,26 +838,40 @@ void Browser::ShowHtmlDialog(HtmlDialogContentsDelegate* delegate,
 void Browser::Observe(NotificationType type,
                       const NotificationSource& source,
                       const NotificationDetails& details) {
-  if (type == NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED) {
-    DCHECK(!g_browser_process->IsUsingNewFrames());
-    TabContents* current_tab = GetSelectedTabContents();
-    if (current_tab) {
-      Profile* event_profile = Source<Profile>(source).ptr();
-      if (event_profile->IsSameProfile(current_tab->profile())) {
-        // This forces the browser to query for the BookmarkBar again.
-        window_->ShelfVisibilityChanged();
+  switch (type) {
+    case NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED: {
+      DCHECK(!g_browser_process->IsUsingNewFrames());
+      TabContents* current_tab = GetSelectedTabContents();
+      if (current_tab) {
+        Profile* event_profile = Source<Profile>(source).ptr();
+        if (event_profile->IsSameProfile(current_tab->profile())) {
+          // This forces the browser to query for the BookmarkBar again.
+          window_->ShelfVisibilityChanged();
+        }
       }
+      break;
     }
-  } else if (type == NOTIFY_WEB_CONTENTS_DISCONNECTED) {
-    if (is_attempting_to_close_browser_) {
-      // Need to do this asynchronously as it will close the tab, which is
-      // currently on the call stack above us.
-      MessageLoop::current()->PostTask(FROM_HERE,
-          method_factory_.NewRunnableMethod(&Browser::ClearUnloadState,
-              Source<TabContents>(source).ptr()));
-    }
-  } else {
-    NOTREACHED() << "Got a notification we didn't register for.";
+
+    case NOTIFY_WEB_CONTENTS_DISCONNECTED:
+      if (is_attempting_to_close_browser_) {
+        // Need to do this asynchronously as it will close the tab, which is
+        // currently on the call stack above us.
+        MessageLoop::current()->PostTask(FROM_HERE,
+            method_factory_.NewRunnableMethod(&Browser::ClearUnloadState,
+                Source<TabContents>(source).ptr()));
+      }
+      break;
+
+    case NOTIFY_SSL_STATE_CHANGED:
+      // When the current tab's SSL state changes, we need to update the URL
+      // bar to reflect the new state.
+      if (GetSelectedTabContents()->controller() ==
+          Source<NavigationController>(source).ptr())
+        UpdateToolBar(false);
+      break;
+
+    default:
+      NOTREACHED() << "Got a notification we didn't register for.";
   }
 }
 

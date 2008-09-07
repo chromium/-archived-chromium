@@ -16,6 +16,7 @@
 #include "chrome/browser/web_contents.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
@@ -284,21 +285,27 @@ class DefaultPolicy : public SSLPolicy {
                                       error->request_url().host());
 
     switch (judgment) {
-    case net::X509Certificate::Policy::ALLOWED:
-      // We've been told to allow this certificate.
-      error->manager()->SetMaxSecurityStyle(
-          SECURITY_STYLE_AUTHENTICATION_BROKEN);
-      error->ContinueRequest();
-      break;
-    case net::X509Certificate::Policy::DENIED:
-      // For now we handle the DENIED as the UNKNOWN, which means a blocking
-      // page is shown to the user every time he comes back to the page.
-    case net::X509Certificate::Policy::UNKNOWN:
-      // We don't know how to handle this error.  Ask our sub-policies.
-      sub_policies_[index]->OnCertError(main_frame_url, error);
-      break;
-    default:
-      NOTREACHED();
+      case net::X509Certificate::Policy::ALLOWED:
+        // We've been told to allow this certificate.
+        if (error->manager()->SetMaxSecurityStyle(
+                SECURITY_STYLE_AUTHENTICATION_BROKEN)) {
+          NotificationService::current()->Notify(
+              NOTIFY_SSL_STATE_CHANGED,
+              Source<NavigationController>(error->manager()->controller()),
+              Details<NavigationEntry>(
+                  error->manager()->controller()->GetActiveEntry()));
+        }
+        error->ContinueRequest();
+        break;
+      case net::X509Certificate::Policy::DENIED:
+        // For now we handle the DENIED as the UNKNOWN, which means a blocking
+        // page is shown to the user every time he comes back to the page.
+      case net::X509Certificate::Policy::UNKNOWN:
+        // We don't know how to handle this error.  Ask our sub-policies.
+        sub_policies_[index]->OnCertError(main_frame_url, error);
+        break;
+      default:
+        NOTREACHED();
     }
   }
 
@@ -385,6 +392,7 @@ void SSLPolicy::OnRequestStarted(SSLManager* manager, const GURL& url,
   }
 
   NavigationEntry::SSLStatus& ssl = entry->ssl();
+  bool changed = false;
   if (!entry->url().SchemeIsSecure() ||  // Current page is not secure.
       resource_type == ResourceType::MAIN_FRAME ||  // Main frame load.
       net::IsCertStatusError(ssl.cert_status())) {  // There is already
@@ -405,6 +413,7 @@ void SSLPolicy::OnRequestStarted(SSLManager* manager, const GURL& url,
     if (net::IsCertStatusError(ssl_cert_status)) {
       // The resource is unsafe.
       if (!ssl.has_unsafe_content()) {
+        changed = true;
         ssl.set_has_unsafe_content();
         manager->SetMaxSecurityStyle(SECURITY_STYLE_AUTHENTICATION_BROKEN);
       }
@@ -419,12 +428,23 @@ void SSLPolicy::OnRequestStarted(SSLManager* manager, const GURL& url,
 
   // Now check for mixed content.
   if (entry->url().SchemeIsSecure() && !url.SchemeIsSecure()) {
-    ssl.set_has_mixed_content();
+    if (!ssl.has_mixed_content()) {
+      changed = true;
+      ssl.set_has_mixed_content();
+    }
     const std::wstring& msg = l10n_util::GetStringF(
         IDS_MIXED_CONTENT_LOG_MESSAGE,
         UTF8ToWide(entry->url().spec()),
         UTF8ToWide(url.spec()));
     manager->AddMessageToConsole(msg, MESSAGE_LEVEL_WARNING);
+  }
+
+  if (changed) {
+    // Only send the notification when something actually changed.
+    NotificationService::current()->Notify(
+        NOTIFY_SSL_STATE_CHANGED,
+        Source<NavigationController>(manager->controller()),
+        Details<NavigationEntry>(entry));
   }
 }
 

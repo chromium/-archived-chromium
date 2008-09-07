@@ -1552,10 +1552,8 @@ void WebContents::UpdateState(RenderViewHost* rvh,
   }
 
   // Update the state (forms, etc.).
-  if (state != entry->content_state()) {
-    changed_flags |= INVALIDATE_STATE;
+  if (state != entry->content_state())
     entry->set_content_state(state);
-  }
 
   // Notify everybody of the changes (only when the current page changed).
   if (changed_flags && entry == controller()->GetActiveEntry())

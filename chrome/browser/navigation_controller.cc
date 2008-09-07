@@ -537,7 +537,13 @@ void NavigationController::DidNavigateToEntry(NavigationEntry* entry,
   } else if ((existing_entry != pending_entry_) && pending_entry_ &&
              (pending_entry_->page_id() == -1) &&
              (pending_entry_->url() == existing_entry->url())) {
-    // Not a new navigation.
+    // In this case, we have a pending entry for a URL but WebCore didn't do a
+    // new navigation. This happens when you press enter in the URL bar to
+    // reload. We will create a pending entry, but WebCore will convert it to
+    // a reload since it's the same page and not create a new entry for it
+    // (the user doesn't want to have a new back/forward entry when they do
+    // this). In this case, we want to just ignore the pending entry and go back
+    // to where we were.
     existing_entry->set_unique_id(pending_entry_->unique_id());
     DiscardPendingEntry();
   } else {

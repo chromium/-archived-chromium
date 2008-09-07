@@ -15,7 +15,6 @@
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/page_info_window.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/ssl_error_info.h"
 #include "chrome/browser/template_url.h"
 #include "chrome/browser/template_url_model.h"
 #include "chrome/browser/view_ids.h"
@@ -29,8 +28,6 @@
 #include "chrome/views/border.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/view_container.h"
-#include "googleurl/src/gurl.h"
-#include "googleurl/src/url_canon.h"
 #include "generated_resources.h"
 
 using ChromeViews::View;
