@@ -338,6 +338,7 @@ elif env['PLATFORM'] == 'posix':
   excluded_warnings = [
     '-Wno-unknown-pragmas',  # TODO: remove all the Windows-specific #pragmas.
     '-Wno-unused-function',  # TODO: there's just one Skia function.
+    '-Wno-unused-variable',  # TODO: there's just one v8 function.
     '-Wno-switch',           # TODO: this is likely masking real bugs.
     '-Wno-sign-compare',     # TODO: this is likely masking real bugs.
     '-Wno-missing-braces',   # TODO: just a file in net.
@@ -345,11 +346,13 @@ elif env['PLATFORM'] == 'posix':
     # Not TODO: This is technically nonstandard, but a lot of the image
     # decoding code depends on it and osx wants this.
     '-Wno-multichar',
+
+    '-Wno-deprecated',  # Needed for using ext/hash_map on GCC 4.3
+    '-Wno-reorder',     # TODO: many tedious small fixes.
   ]
   env.Replace(
-      CCFLAGS = ['-m32', '-g', '-pthread', '-Wall', '-Werror'] + excluded_warnings,
-      # Needed for using ext/hash_map on GCC 4.3
-      CXXFLAGS = ['-Wno-deprecated'],
+      CCFLAGS = ['-m32', '-g', '-pthread'],
+      CXXFLAGS = ['-Wall', '-Werror'] + excluded_warnings,
       LINKFLAGS = ['-m32', '-pthread'],
       # We need rt for clock_gettime.
       LIBS = ['rt'],
