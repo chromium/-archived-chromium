@@ -108,6 +108,8 @@ class Tracked {
   bool MissingBirthplace() const;
 
  private:
+#ifdef TRACK_ALL_TASK_OBJECTS
+
   // Pointer to instance were counts of objects with the same birth location
   // (on the same thread) are stored.
   Births* tracked_births_;
@@ -115,6 +117,8 @@ class Tracked {
   // waiting period, and then it became active, then this value is generally
   // reset before the object begins it active life.
   Time tracked_birth_time_;
+
+#endif  // TRACK_ALL_TASK_OBJECTS
 
   DISALLOW_COPY_AND_ASSIGN(Tracked);
 };

@@ -80,24 +80,34 @@ class MessageLoop : public base::MessagePump::Delegate {
   // DestructionObserver is receiving a notification callback.
   void RemoveDestructionObserver(DestructionObserver* destruction_observer);
 
-  // Call the task's Run method asynchronously from within a message loop at
-  // some point in the future.  With the PostTask variant, tasks are invoked in
-  // FIFO order, inter-mixed with normal UI event processing.  With the
-  // PostDelayedTask variant, tasks are called after at least approximately
-  // 'delay_ms' have elapsed.
+  // The "PostTask" family of methods call the task's Run method asynchronously
+  // from within a message loop at some point in the future.
   //
-  // The MessageLoop takes ownership of the Task, and deletes it after it
-  // has been Run().
+  // With the PostTask variant, tasks are invoked in FIFO order, inter-mixed
+  // with normal UI or IO event processing.  With the PostDelayedTask variant,
+  // tasks are called after at least approximately 'delay_ms' have elapsed.
   //
-  // NOTE: This method may be called on any thread.  The Task will be invoked
+  // The NonNestable variants work similarly except that they promise never to
+  // dispatch the task from a nested invocation of MessageLoop::Run.  Instead,
+  // such tasks get deferred until the top-most MessageLoop::Run is executing.
+  //
+  // The MessageLoop takes ownership of the Task, and deletes it after it has
+  // been Run().
+  //
+  // NOTE: These methods may be called on any thread.  The Task will be invoked
   // on the thread that executes MessageLoop::Run().
+  
+  void PostTask(
+      const tracked_objects::Location& from_here, Task* task);
+  
+  void PostDelayedTask(
+      const tracked_objects::Location& from_here, Task* task, int delay_ms);
 
-  void PostTask(const tracked_objects::Location& from_here, Task* task) {
-    PostDelayedTask(from_here, task, 0);
-  }
+  void PostNonNestableTask(
+      const tracked_objects::Location& from_here, Task* task);
 
-  void PostDelayedTask(const tracked_objects::Location& from_here, Task* task,
-                       int delay_ms);
+  void PostNonNestableDelayedTask(
+      const tracked_objects::Location& from_here, Task* task, int delay_ms);
 
   // A variant on PostTask that deletes the given object.  This is useful
   // if the object needs to live until the next run of the MessageLoop (for
@@ -110,7 +120,7 @@ class MessageLoop : public base::MessagePump::Delegate {
   // from RefCountedThreadSafe<T>!
   template <class T>
   void DeleteSoon(const tracked_objects::Location& from_here, T* object) {
-    PostTask(from_here, new DeleteTask<T>(object));
+    PostNonNestableTask(from_here, new DeleteTask<T>(object));
   }
 
   // A variant on PostTask that releases the given reference counted object
@@ -125,7 +135,7 @@ class MessageLoop : public base::MessagePump::Delegate {
   // RefCountedThreadSafe<T>!
   template <class T>
   void ReleaseSoon(const tracked_objects::Location& from_here, T* object) {
-    PostTask(from_here, new ReleaseTask<T>(object));
+    PostNonNestableTask(from_here, new ReleaseTask<T>(object));
   }
 
   // Run the message loop.
@@ -199,10 +209,6 @@ class MessageLoop : public base::MessagePump::Delegate {
     return loop;
   }
 
-  // Returns the TimerManager object for the current thread.  This getter is
-  // deprecated.  Please use OneShotTimer or RepeatingTimer instead.
-  base::TimerManager* timer_manager_deprecated() { return &timer_manager_; }
-
   // Enables or disables the recursive task processing. This happens in the case
   // of recursive message loops. Some unwanted message loop may occurs when
   // using common controls or printer functions. By default, recursive task
@@ -229,11 +235,8 @@ class MessageLoop : public base::MessagePump::Delegate {
     exception_restoration_ = restore;
   }
 
-
   //----------------------------------------------------------------------------
  protected:
-  friend class base::TimerManager;  // So it can call DidChangeNextTimerExpiry
-
   struct RunState {
     // Used to count how many Run() invocations are on the stack.
     int run_depth;
@@ -256,70 +259,23 @@ class MessageLoop : public base::MessagePump::Delegate {
     RunState* previous_state_;
   };
 
-  // A prioritized queue with interface that mostly matches std::queue<>.
-  // For debugging/performance testing, you can swap in std::queue<Task*>.
-  class PrioritizedTaskQueue {
-   public:
-    PrioritizedTaskQueue() : next_sequence_number_(0) {}
-    ~PrioritizedTaskQueue() {}
-    void pop()    { queue_.pop(); }
-    bool empty()  { return queue_.empty(); }
-    size_t size() { return queue_.size(); }
-    Task* front() { return queue_.top().task(); }
-    void push(Task * task);
+  // This structure is copied around by value.
+  struct PendingTask {
+    Task* task;              // The task to run.
+    Time  delayed_run_time;  // The time when the task should be run.
+    int   sequence_num;      // Used to facilitate sorting by run time.
+    bool  nestable;          // True if OK to dispatch from a nested loop.
 
-   private:
-    class PrioritizedTask {
-     public:
-      PrioritizedTask(Task* task, int sequence_number)
-        : task_(task),
-          sequence_number_(sequence_number),
-          priority_(task->priority()) {}
-      Task* task() const { return task_; }
-      bool operator < (PrioritizedTask const & right) const ;
-
-     private:
-      Task* task_;
-      // Number to ensure (default) FIFO ordering in a PriorityQueue.
-      int sequence_number_;
-      // Priority of task when pushed.
-      int priority_;
-    };  // class PrioritizedTask
-
-    std::priority_queue<PrioritizedTask> queue_;
-    // Default sequence number used when push'ing (monotonically decreasing).
-    int next_sequence_number_;
-    DISALLOW_EVIL_CONSTRUCTORS(PrioritizedTaskQueue);
+    PendingTask(Task* task, bool nestable)
+        : task(task), sequence_num(0), nestable(nestable) {
+    }
+    
+    // Used to support sorting.
+    bool operator<(const PendingTask& other) const;
   };
 
-  // Implementation of a TaskQueue as a null terminated list, with end pointers.
-  class TaskQueue {
-   public:
-    TaskQueue() : first_(NULL), last_(NULL) {}
-    void Push(Task* task);
-    Task* Pop();  // Extract the next Task from the queue, and return it.
-    bool Empty() const { return !first_; }
-   private:
-    Task* first_;
-    Task* last_;
-  };
-
-  // Implementation of a Task queue that automatically switches into a priority
-  // queue if it observes any non-zero priorities in tasks.
-  class OptionallyPrioritizedTaskQueue {
-   public:
-    OptionallyPrioritizedTaskQueue() : use_priority_queue_(false) {}
-    void Push(Task* task);
-    Task* Pop();  // Extract next Task from queue, and return it.
-    bool Empty();
-    bool use_priority_queue() const { return use_priority_queue_; }
-
-   private:
-    bool use_priority_queue_;
-    PrioritizedTaskQueue prioritized_queue_;
-    TaskQueue queue_;
-    DISALLOW_EVIL_CONSTRUCTORS(OptionallyPrioritizedTaskQueue);
-  };
+  typedef std::queue<PendingTask> TaskQueue;
+  typedef std::priority_queue<PendingTask> DelayedTaskQueue;
 
 #if defined(OS_WIN)
   base::MessagePumpWin* pump_win() {
@@ -356,10 +312,9 @@ class MessageLoop : public base::MessagePump::Delegate {
   // Runs the specified task and deletes it.
   void RunTask(Task* task);
 
-  // Make state adjustments just before and after running tasks so that we can
-  // continue to work if a native message loop is employed during a task.
-  void BeforeTaskRunSetup();
-  void AfterTaskRunRestore();
+  // Calls RunTask or queues the pending_task on the deferred task list if it
+  // cannot be run right now.  Returns true if the task was run.
+  bool DeferOrRunPendingTask(const PendingTask& pending_task);
 
   // Load tasks from the incoming_queue_ into work_queue_ if the latter is
   // empty.  The former requires a lock to access, while the latter is directly
@@ -371,20 +326,8 @@ class MessageLoop : public base::MessagePump::Delegate {
   void DeletePendingTasks();
 
   // Post a task to our incomming queue.
-  void PostTaskInternal(Task* task);
-
-  // Called by the TimerManager when its next timer changes.
-  void DidChangeNextTimerExpiry();
-
-  // Entry point for TimerManager to request the Run() of a task.  If we
-  // created the task during an PostTask(FROM_HERE, ), then we will also
-  // perform destructions, and we'll have the option of queueing the task.  If
-  // we didn't create the timer, then we will Run it immediately.
-  bool RunTimerTask(Timer* timer);
-
-  // Since some Timer's are owned by MessageLoop, the TimerManager (when it is
-  // being destructed) passses us the timers to discard (without doing a Run()).
-  void DiscardTimer(Timer* timer);
+  void PostTask_Helper(const tracked_objects::Location& from_here, Task* task,
+                       int delay_ms, bool nestable);
 
   // base::MessagePump::Delegate methods:
   virtual bool DoWork();
@@ -406,16 +349,17 @@ class MessageLoop : public base::MessagePump::Delegate {
 
   Type type_;
 
-  base::TimerManager timer_manager_;
+  // A list of tasks that need to be processed by this instance.  Note that
+  // this queue is only accessed (push/pop) by our current thread.
+  TaskQueue work_queue_;
+  
+  // Contains delayed tasks, sorted by their 'delayed_run_time' property.
+  DelayedTaskQueue delayed_work_queue_;
 
-  // A list of tasks that need to be processed by this instance.  Note that this
-  // queue is only accessed (push/pop) by our current thread.
-  // As an optimization, when we don't need to use the prioritization of
-  // work_queue_, we use a null terminated list (TaskQueue) as our
-  // implementation of the queue. This saves on memory (list uses pointers
-  // internal to Task) and probably runs faster than the priority queue when
-  // there was no real prioritization.
-  OptionallyPrioritizedTaskQueue work_queue_;
+  // A queue of non-nestable tasks that we had to defer because when it came
+  // time to execute them we were in a nested message loop.  They will execute
+  // once we're out of nested message loops.
+  TaskQueue deferred_non_nestable_work_queue_;
 
   scoped_refptr<base::MessagePump> pump_;
 
@@ -438,12 +382,10 @@ class MessageLoop : public base::MessagePump::Delegate {
   // Protect access to incoming_queue_.
   Lock incoming_queue_lock_;
 
-  // A null terminated list of non-nestable tasks that we had to delay because
-  // when it came time to execute them we were in a nested message loop.  They
-  // will execute once we're out of nested message loops.
-  TaskQueue delayed_non_nestable_queue_;
-
   RunState* state_;
+
+  // The next sequence number to use for delayed tasks.
+  int next_sequence_num_;
 
   DISALLOW_COPY_AND_ASSIGN(MessageLoop);
 };

@@ -51,17 +51,15 @@ TEST_F(TrackedObjectsTest, MinimalStartupShutdown) {
   ThreadData::ShutdownSingleThreadedCleanup();
 }
 
-class NoopTask : public Task {
- public:
-  void Run() {}
+class NoopTracked : public tracked_objects::Tracked {
 };
 
 TEST_F(TrackedObjectsTest, TinyStartupShutdown) {
   if (!ThreadData::StartTracking(true))
     return;
 
-  // Instigate tracking on a single task, or our thread.
-  NoopTask task;
+  // Instigate tracking on a single tracked object, or our thread.
+  NoopTracked tracked;
 
   const ThreadData* data = ThreadData::first();
   EXPECT_TRUE(data);
@@ -77,7 +75,7 @@ TEST_F(TrackedObjectsTest, TinyStartupShutdown) {
 
 
   // Now instigate a birth, and a death.
-  delete new NoopTask;
+  delete new NoopTracked;
 
   birth_map.clear();
   data->SnapshotBirthMap(&birth_map);

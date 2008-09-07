@@ -15,86 +15,12 @@
 #include "base/tracked.h"
 #include "base/tuple.h"
 
-namespace base {
-class TimerManager;
-}
-
-//------------------------------------------------------------------------------
-// Base class of Task, where we store info to help MessageLoop handle PostTask()
-// elements of Task processing.
-
-class Task;
-
-// TODO(darin): Eliminate TaskBase.  This data is ML specific and is not
-// applicable to other uses of Task.
-class TaskBase : public tracked_objects::Tracked {
- public:
-  TaskBase() { Reset(); }
-  virtual ~TaskBase() {}
-
-  // Use this method to adjust the priority given to a task by MessageLoop.
-  void set_priority(int priority) { priority_ = priority; }
-  int priority() const { return priority_; }
-
-  // Change whether this task will run in nested message loops.
-  void set_nestable(bool nestable) { nestable_ = nestable; }
-  bool nestable() { return nestable_; }
-
-  // Used to manage a linked-list of tasks.
-  Task* next_task() const { return next_task_; }
-  void set_next_task(Task* next) { next_task_ = next; }
-
- protected:
-  // If a derived class wishes to re-use this instance, then it should override
-  // this method.  This method is called by MessageLoop after processing a task
-  // that was submitted to PostTask() or PostDelayedTask().  As seen, by default
-  // it deletes the task, but the derived class can change this behaviour and
-  // recycle (re-use) it.  Be sure to call Reset() if you recycle it!
-  virtual void RecycleOrDelete() { delete this; }
-
-  // Call this method if you are trying to recycle a Task.  Note that only
-  // derived classes should attempt this feat, as a replacement for creating a
-  // new instance.
-  void Reset() {
-    priority_ = 0;
-    delayed_run_time_ = Time();
-    next_task_ = NULL;
-    nestable_ = true;
-    owned_by_message_loop_ = false;
-  }
-
- private:
-  friend class base::TimerManager;  // To check is_owned_by_message_loop().
-  friend class MessageLoop;         // To maintain posted_task_delay().
-
-  // Priority for execution by MessageLoop. 0 is default. Higher means run
-  // sooner, and lower (including negative) means run less soon.
-  int priority_;
-
-  // The time when a delayed task should be run.
-  Time delayed_run_time_;
-
-  // When tasks are collected into a queue by MessageLoop, this member is used
-  // to form a null terminated list.
-  Task* next_task_;
-
-  // A nestable task will run in nested message loops, otherwise it will run
-  // only in the top level message loop.
-  bool nestable_;
-
-  // True if this Task is owned by the message loop.
-  bool owned_by_message_loop_;
-
-  DISALLOW_COPY_AND_ASSIGN(TaskBase);
-};
-
-
 // Task ------------------------------------------------------------------------
 //
 // A task is a generic runnable thingy, usually used for running code on a
 // different thread or for scheduling future tasks off of the message loop.
 
-class Task : public TaskBase {
+class Task : public tracked_objects::Tracked {
  public:
   Task() {}
   virtual ~Task() {}
@@ -296,7 +222,6 @@ template<class T>
 class DeleteTask : public CancelableTask {
  public:
   explicit DeleteTask(T* obj) : obj_(obj) {
-    set_nestable(false);
   }
   virtual void Run() {
     delete obj_;
@@ -313,7 +238,6 @@ template<class T>
 class ReleaseTask : public CancelableTask {
  public:
   explicit ReleaseTask(T* obj) : obj_(obj) {
-    set_nestable(false);
   }
   virtual void Run() {
     if (obj_)

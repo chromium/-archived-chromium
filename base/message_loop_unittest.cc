@@ -137,6 +137,159 @@ void RunTest_PostTask_SEH(MessageLoop::Type message_loop_type) {
   EXPECT_EQ(foo->result(), "abacad");
 }
 
+// This class runs slowly to simulate a large amount of work being done.
+class SlowTask : public Task {
+ public:
+  SlowTask(int pause_ms, int* quit_counter)
+      : pause_ms_(pause_ms), quit_counter_(quit_counter) {
+  }
+  virtual void Run() {
+    PlatformThread::Sleep(pause_ms_);
+    if (--(*quit_counter_) == 0)
+      MessageLoop::current()->Quit();
+  }
+ private:
+  int pause_ms_;
+  int* quit_counter_;
+};
+
+// This class records the time when Run was called in a Time object, which is
+// useful for building a variety of MessageLoop tests.
+class RecordRunTimeTask : public SlowTask {
+ public:
+  RecordRunTimeTask(Time* run_time, int* quit_counter)
+      : SlowTask(10, quit_counter), run_time_(run_time) {
+  }
+  virtual void Run() {
+    *run_time_ = Time::Now();
+    // Cause our Run function to take some time to execute.  As a result we can
+    // count on subsequent RecordRunTimeTask objects running at a future time,
+    // without worry about the resolution of our system clock being an issue.
+    SlowTask::Run();
+  }
+ private:
+  Time* run_time_;
+};
+
+void RunTest_PostDelayedTask_Basic(MessageLoop::Type message_loop_type) {
+  MessageLoop loop(message_loop_type);
+
+  // Test that PostDelayedTask results in a delayed task.
+
+  const int kDelayMS = 100;
+
+  int num_tasks = 1;
+  Time run_time;
+
+  loop.PostDelayedTask(
+      FROM_HERE, new RecordRunTimeTask(&run_time, &num_tasks), kDelayMS);
+
+  Time time_before_run = Time::Now();
+  loop.Run();
+  Time time_after_run = Time::Now();
+
+  EXPECT_EQ(0, num_tasks);
+  EXPECT_LT(kDelayMS, (time_after_run - time_before_run).InMilliseconds());
+}
+
+void RunTest_PostDelayedTask_InDelayOrder(MessageLoop::Type message_loop_type) {
+  MessageLoop loop(message_loop_type);
+
+  // Test that two tasks with different delays run in the right order.
+
+  int num_tasks = 2;
+  Time run_time1, run_time2;
+
+  loop.PostDelayedTask(
+      FROM_HERE, new RecordRunTimeTask(&run_time1, &num_tasks), 200);
+  // If we get a large pause in execution (due to a context switch) here, this
+  // test could fail.
+  loop.PostDelayedTask(
+      FROM_HERE, new RecordRunTimeTask(&run_time2, &num_tasks), 10);
+
+  loop.Run();
+  EXPECT_EQ(0, num_tasks);
+
+  EXPECT_TRUE(run_time2 < run_time1);
+}
+
+void RunTest_PostDelayedTask_InPostOrder(MessageLoop::Type message_loop_type) {
+  MessageLoop loop(message_loop_type);
+
+  // Test that two tasks with the same delay run in the order in which they
+  // were posted.
+  //
+  // NOTE: This is actually an approximate test since the API only takes a
+  // "delay" parameter, so we are not exactly simulating two tasks that get
+  // posted at the exact same time.  It would be nice if the API allowed us to
+  // specify the desired run time.
+
+  const int kDelayMS = 100;
+
+  int num_tasks = 2;
+  Time run_time1, run_time2;
+
+  loop.PostDelayedTask(
+      FROM_HERE, new RecordRunTimeTask(&run_time1, &num_tasks), kDelayMS);
+  loop.PostDelayedTask(
+      FROM_HERE, new RecordRunTimeTask(&run_time2, &num_tasks), kDelayMS);
+
+  loop.Run();
+  EXPECT_EQ(0, num_tasks);
+
+  EXPECT_TRUE(run_time1 < run_time2);
+}
+
+void RunTest_PostDelayedTask_InPostOrder_2(MessageLoop::Type message_loop_type) {
+  MessageLoop loop(message_loop_type);
+
+  // Test that a delayed task still runs after a normal tasks even if the
+  // normal tasks take a long time to run.
+
+  const int kPauseMS = 50;
+
+  int num_tasks = 2;
+  Time run_time;
+
+  loop.PostTask(
+      FROM_HERE, new SlowTask(kPauseMS, &num_tasks));
+  loop.PostDelayedTask(
+      FROM_HERE, new RecordRunTimeTask(&run_time, &num_tasks), 10);
+
+  Time time_before_run = Time::Now();
+  loop.Run();
+  Time time_after_run = Time::Now();
+
+  EXPECT_EQ(0, num_tasks);
+
+  EXPECT_LT(kPauseMS, (time_after_run - time_before_run).InMilliseconds());
+}
+
+void RunTest_PostDelayedTask_InPostOrder_3(MessageLoop::Type message_loop_type) {
+  MessageLoop loop(message_loop_type);
+
+  // Test that a delayed task still runs after a pile of normal tasks.  The key
+  // difference between this test and the previous one is that here we return
+  // the MessageLoop a lot so we give the MessageLoop plenty of opportunities
+  // to maybe run the delayed task.  It should know not to do so until the
+  // delayed task's delay has passed.
+
+  int num_tasks = 11;
+  Time run_time1, run_time2;
+
+  // Clutter the ML with tasks.
+  for (int i = 1; i < num_tasks; ++i)
+    loop.PostTask(FROM_HERE, new RecordRunTimeTask(&run_time1, &num_tasks));
+
+  loop.PostDelayedTask(
+      FROM_HERE, new RecordRunTimeTask(&run_time2, &num_tasks), 1);
+
+  loop.Run();
+  EXPECT_EQ(0, num_tasks);
+
+  EXPECT_TRUE(run_time2 > run_time1);
+}
+
 class NestingTest : public Task {
  public:
   explicit NestingTest(int* depth) : depth_(depth) {
@@ -705,8 +858,7 @@ void RunTest_NonNestableWithNoNesting(MessageLoop::Type message_loop_type) {
   TaskList order;
 
   Task* task = new OrderedTasks(&order, 1);
-  task->set_nestable(false);
-  MessageLoop::current()->PostTask(FROM_HERE, task);
+  MessageLoop::current()->PostNonNestableTask(FROM_HERE, task);
   MessageLoop::current()->PostTask(FROM_HERE, new OrderedTasks(&order, 2));
   MessageLoop::current()->PostTask(FROM_HERE, new QuitTask(&order, 3));
   MessageLoop::current()->Run();
@@ -730,13 +882,11 @@ void RunTest_NonNestableInNestedLoop(MessageLoop::Type message_loop_type) {
   MessageLoop::current()->PostTask(FROM_HERE,
                                    new TaskThatPumps(&order, 1));
   Task* task = new OrderedTasks(&order, 2);
-  task->set_nestable(false);
-  MessageLoop::current()->PostTask(FROM_HERE, task);
+  MessageLoop::current()->PostNonNestableTask(FROM_HERE, task);
   MessageLoop::current()->PostTask(FROM_HERE, new OrderedTasks(&order, 3));
   MessageLoop::current()->PostTask(FROM_HERE, new OrderedTasks(&order, 4));
   Task* non_nestable_quit = new QuitTask(&order, 5);
-  non_nestable_quit->set_nestable(false);
-  MessageLoop::current()->PostTask(FROM_HERE, non_nestable_quit);
+  MessageLoop::current()->PostNonNestableTask(FROM_HERE, non_nestable_quit);
 
   MessageLoop::current()->Run();
 
@@ -867,6 +1017,36 @@ TEST(MessageLoopTest, PostTask_SEH) {
   RunTest_PostTask_SEH(MessageLoop::TYPE_DEFAULT);
   RunTest_PostTask_SEH(MessageLoop::TYPE_UI);
   RunTest_PostTask_SEH(MessageLoop::TYPE_IO);
+}
+
+TEST(MessageLoopTest, PostDelayedTask_Basic) {
+  RunTest_PostDelayedTask_Basic(MessageLoop::TYPE_DEFAULT);
+  RunTest_PostDelayedTask_Basic(MessageLoop::TYPE_UI);
+  RunTest_PostDelayedTask_Basic(MessageLoop::TYPE_IO);
+}
+
+TEST(MessageLoopTest, PostDelayedTask_InDelayOrder) {
+  RunTest_PostDelayedTask_InDelayOrder(MessageLoop::TYPE_DEFAULT);
+  RunTest_PostDelayedTask_InDelayOrder(MessageLoop::TYPE_UI);
+  RunTest_PostDelayedTask_InDelayOrder(MessageLoop::TYPE_IO);
+}
+
+TEST(MessageLoopTest, PostDelayedTask_InPostOrder) {
+  RunTest_PostDelayedTask_InPostOrder(MessageLoop::TYPE_DEFAULT);
+  RunTest_PostDelayedTask_InPostOrder(MessageLoop::TYPE_UI);
+  RunTest_PostDelayedTask_InPostOrder(MessageLoop::TYPE_IO);
+}
+
+TEST(MessageLoopTest, PostDelayedTask_InPostOrder_2) {
+  RunTest_PostDelayedTask_InPostOrder_2(MessageLoop::TYPE_DEFAULT);
+  RunTest_PostDelayedTask_InPostOrder_2(MessageLoop::TYPE_UI);
+  RunTest_PostDelayedTask_InPostOrder_2(MessageLoop::TYPE_IO);
+}
+
+TEST(MessageLoopTest, PostDelayedTask_InPostOrder_3) {
+  RunTest_PostDelayedTask_InPostOrder_3(MessageLoop::TYPE_DEFAULT);
+  RunTest_PostDelayedTask_InPostOrder_3(MessageLoop::TYPE_UI);
+  RunTest_PostDelayedTask_InPostOrder_3(MessageLoop::TYPE_IO);
 }
 
 #if defined(OS_WIN)

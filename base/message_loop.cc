@@ -6,6 +6,10 @@
 
 #include <algorithm>
 
+#if defined(OS_WIN)
+#include <mmsystem.h>
+#endif
+
 #include "base/compiler_specific.h"
 #include "base/logging.h"
 #include "base/message_pump_default.h"
@@ -57,12 +61,25 @@ static LPTOP_LEVEL_EXCEPTION_FILTER GetTopSEHFilter() {
 
 MessageLoop::MessageLoop(Type type)
     : type_(type),
-      ALLOW_THIS_IN_INITIALIZER_LIST(timer_manager_(this)),
       nestable_tasks_allowed_(true),
       exception_restoration_(false),
-      state_(NULL) {
+      state_(NULL),
+      next_sequence_num_(0) {
   DCHECK(!tls_index_.Get()) << "should only have one message loop per thread";
   tls_index_.Set(this);
+
+  // TODO(darin): This does not seem like the best place for this code to live!
+#if defined(OS_WIN)
+  // We've experimented with all sorts of timers, and initially tried
+  // to avoid using timeBeginPeriod because it does affect the system
+  // globally.  However, after much investigation, it turns out that all
+  // of the major plugins (flash, windows media 9-11, and quicktime)
+  // already use timeBeginPeriod to increase the speed of the clock.
+  // Since the browser must work with these plugins, the browser already
+  // needs to support a fast clock.  We may as well use this ourselves,
+  // as it really is the best timer mechanism for our needs.
+  timeBeginPeriod(1);
+#endif
 
   // TODO(darin): Choose the pump based on the requested type.
 #if defined(OS_WIN)
@@ -95,6 +112,11 @@ MessageLoop::~MessageLoop() {
   DeletePendingTasks();
   ReloadWorkQueue();
   DeletePendingTasks();
+
+#if defined(OS_WIN)
+  // Match timeBeginPeriod() from construction.
+  timeEndPeriod(1);
+#endif
 }
 
 void MessageLoop::AddDestructionObserver(DestructionObserver *obs) {
@@ -162,10 +184,13 @@ bool MessageLoop::ProcessNextDelayedNonNestableTask() {
   if (state_->run_depth != 1)
     return false;
 
-  if (delayed_non_nestable_queue_.Empty())
+  if (deferred_non_nestable_work_queue_.empty())
     return false;
-
-  RunTask(delayed_non_nestable_queue_.Pop());
+  
+  Task* task = deferred_non_nestable_work_queue_.front().task;
+  deferred_non_nestable_work_queue_.pop();
+  
+  RunTask(task);
   return true;
 }
 
@@ -180,25 +205,41 @@ void MessageLoop::Quit() {
   }
 }
 
+void MessageLoop::PostTask(
+    const tracked_objects::Location& from_here, Task* task) {
+  PostTask_Helper(from_here, task, 0, true);
+}
+
+void MessageLoop::PostDelayedTask(
+    const tracked_objects::Location& from_here, Task* task, int delay_ms) {
+  PostTask_Helper(from_here, task, delay_ms, true);
+}
+
+void MessageLoop::PostNonNestableTask(
+    const tracked_objects::Location& from_here, Task* task) {
+  PostTask_Helper(from_here, task, 0, false);
+}
+
+void MessageLoop::PostNonNestableDelayedTask(
+    const tracked_objects::Location& from_here, Task* task, int delay_ms) {
+  PostTask_Helper(from_here, task, delay_ms, false);
+}
+
 // Possibly called on a background thread!
-void MessageLoop::PostDelayedTask(const tracked_objects::Location& from_here,
-                                  Task* task, int delay_ms) {
+void MessageLoop::PostTask_Helper(
+    const tracked_objects::Location& from_here, Task* task, int delay_ms,
+    bool nestable) {
   task->SetBirthPlace(from_here);
 
-  DCHECK(!task->owned_by_message_loop_);
-  task->owned_by_message_loop_ = true;
+  PendingTask pending_task(task, nestable);
 
   if (delay_ms > 0) {
-    task->delayed_run_time_ =
+    pending_task.delayed_run_time =
         Time::Now() + TimeDelta::FromMilliseconds(delay_ms);
   } else {
     DCHECK(delay_ms == 0) << "delay should not be negative";
   }
 
-  PostTaskInternal(task);
-}
-
-void MessageLoop::PostTaskInternal(Task* task) {
   // Warning: Don't try to short-circuit, and handle this thread's tasks more
   // directly, as it could starve handling of foreign threads.  Put every task
   // into this queue.
@@ -207,8 +248,8 @@ void MessageLoop::PostTaskInternal(Task* task) {
   {
     AutoLock locked(incoming_queue_lock_);
 
-    bool was_empty = incoming_queue_.Empty();
-    incoming_queue_.Push(task);
+    bool was_empty = incoming_queue_.empty();
+    incoming_queue_.push(pending_task);
     if (!was_empty)
       return;  // Someone else should have started the sub-pump.
 
@@ -238,120 +279,47 @@ bool MessageLoop::NestableTasksAllowed() const {
 
 //------------------------------------------------------------------------------
 
-bool MessageLoop::RunTimerTask(Timer* timer) {
-  HistogramEvent(kTimerEvent);
-
-  Task* task = timer->task();
-  if (task->owned_by_message_loop_) {
-    // We constructed it through PostDelayedTask().
-    DCHECK(!timer->repeating());
-    timer->set_task(NULL);
-    delete timer;
-    task->ResetBirthTime();
-    return QueueOrRunTask(task);
-  }
-
-  // This is an unknown timer task, and we *can't* delay running it, as a user
-  // might try to cancel it with TimerManager at any moment.
-  DCHECK(nestable_tasks_allowed_);
-  RunTask(task);
-  return true;
-}
-
-void MessageLoop::DiscardTimer(Timer* timer) {
-  Task* task = timer->task();
-  if (task->owned_by_message_loop_) {
-    DCHECK(!timer->repeating());
-    timer->set_task(NULL);
-    delete timer;  // We constructed it through PostDelayedTask().
-    delete task;  // We were given ouwnership in PostTask().
-  }
-}
-
-bool MessageLoop::QueueOrRunTask(Task* new_task) {
-  if (!nestable_tasks_allowed_) {
-    // Task can't be executed right now. Add it to the queue.
-    if (new_task)
-      work_queue_.Push(new_task);
-    return false;
-  }
-
-  // Queue new_task first so we execute the task in FIFO order.
-  if (new_task)
-    work_queue_.Push(new_task);
-
-  // Execute oldest task.
-  while (!work_queue_.Empty()) {
-    Task* task = work_queue_.Pop();
-    if (task->nestable() || state_->run_depth == 1) {
-      RunTask(task);
-      // Show that we ran a task (Note: a new one might arrive as a
-      // consequence!).
-      return true;
-    }
-    // We couldn't run the task now because we're in a nested message loop
-    // and the task isn't nestable.
-    delayed_non_nestable_queue_.Push(task);
-  }
-
-  // Nothing happened.
-  return false;
-}
-
 void MessageLoop::RunTask(Task* task) {
-  BeforeTaskRunSetup();
-  HistogramEvent(kTaskRunEvent);
-  // task may self-delete during Run() if we don't happen to own it.
-  // ...so check *before* we Run, since we can't check after.
-  bool we_own_task = task->owned_by_message_loop_;
-  task->Run();
-  if (we_own_task)
-    task->RecycleOrDelete();  // Relinquish control, and probably delete.
-  AfterTaskRunRestore();
-}
-
-void MessageLoop::BeforeTaskRunSetup() {
   DCHECK(nestable_tasks_allowed_);
   // Execute the task and assume the worst: It is probably not reentrant.
   nestable_tasks_allowed_ = false;
+
+  HistogramEvent(kTaskRunEvent);
+  task->Run();
+  delete task;
+
+  nestable_tasks_allowed_ = true;
 }
 
-void MessageLoop::AfterTaskRunRestore() {
-  nestable_tasks_allowed_ = true;
+bool MessageLoop::DeferOrRunPendingTask(const PendingTask& pending_task) {
+  if (pending_task.nestable || state_->run_depth == 1) {
+    RunTask(pending_task.task);
+    // Show that we ran a task (Note: a new one might arrive as a
+    // consequence!).
+    return true;
+  }
+
+  // We couldn't run the task now because we're in a nested message loop
+  // and the task isn't nestable.
+  deferred_non_nestable_work_queue_.push(pending_task);
+  return false;
 }
 
 void MessageLoop::ReloadWorkQueue() {
   // We can improve performance of our loading tasks from incoming_queue_ to
   // work_queue_ by waiting until the last minute (work_queue_ is empty) to
   // load.  That reduces the number of locks-per-task significantly when our
-  // queues get large.  The optimization is disabled on threads that make use
-  // of the priority queue (prioritization requires all our tasks to be in the
-  // work_queue_ ASAP).
-  if (!work_queue_.Empty() && !work_queue_.use_priority_queue())
+  // queues get large.
+  if (!work_queue_.empty())
     return;  // Wait till we *really* need to lock and load.
 
   // Acquire all we can from the inter-thread queue with one lock acquisition.
-  TaskQueue new_task_list;  // Null terminated list.
   {
     AutoLock lock(incoming_queue_lock_);
-    if (incoming_queue_.Empty())
+    if (incoming_queue_.empty())
       return;
-    std::swap(incoming_queue_, new_task_list);
-    DCHECK(incoming_queue_.Empty());
-  }  // Release lock.
-
-  while (!new_task_list.Empty()) {
-    Task* task = new_task_list.Pop();
-    DCHECK(task->owned_by_message_loop_);
-
-    // TODO(darin): We should probably postpone starting the timer until we
-    // process the work queue as starting the timer here breaks the FIFO
-    // ordering of tasks.
-    if (!task->delayed_run_time_.is_null()) {
-      timer_manager_.StartTimer(new Timer(task->delayed_run_time_, task));
-    } else {
-      work_queue_.Push(task);
-    }
+    std::swap(incoming_queue_, work_queue_);
+    DCHECK(incoming_queue_.empty());
   }
 }
 
@@ -371,32 +339,62 @@ void MessageLoop::DeletePendingTasks() {
   */
 }
 
-void MessageLoop::DidChangeNextTimerExpiry() {
-  Time next_delayed_work_time = timer_manager_.GetNextFireTime(); 
-  if (next_delayed_work_time.is_null())
-    return;
-
-  // Simulates malfunctioning, early firing timers. Pending tasks should only
-  // be invoked when the delay they specify has elapsed.
-  if (timer_manager_.use_broken_delay())
-    next_delayed_work_time = Time::Now() + TimeDelta::FromMilliseconds(10);
-
-  pump_->ScheduleDelayedWork(next_delayed_work_time);
-}
-
 bool MessageLoop::DoWork() {
-  ReloadWorkQueue();
-  return QueueOrRunTask(NULL);
+  if (!nestable_tasks_allowed_) {
+    // Task can't be executed right now.
+    return false;
+  }
+
+  for (;;) {
+    ReloadWorkQueue();
+    if (work_queue_.empty())
+      break;
+
+    // Execute oldest task.
+    do {
+      PendingTask pending_task = work_queue_.front();
+      work_queue_.pop();
+      if (!pending_task.delayed_run_time.is_null()) {
+        bool was_empty = delayed_work_queue_.empty();
+
+        // Move to the delayed work queue.  Initialize the sequence number
+        // before inserting into the delayed_work_queue_.  The sequence number
+        // is used to faciliate FIFO sorting when two tasks have the same
+        // delayed_run_time value.
+        pending_task.sequence_num = next_sequence_num_++;
+        delayed_work_queue_.push(pending_task);
+
+        if (was_empty)  // We only schedule the next delayed work item.
+          pump_->ScheduleDelayedWork(pending_task.delayed_run_time);
+      } else {
+        if (DeferOrRunPendingTask(pending_task))
+          return true;
+      }
+    } while (!work_queue_.empty());
+  }
+
+  // Nothing happened.
+  return false;
 }
 
 bool MessageLoop::DoDelayedWork(Time* next_delayed_work_time) {
-  bool did_work = timer_manager_.RunSomePendingTimers();
+  if (!nestable_tasks_allowed_ || delayed_work_queue_.empty()) {
+    *next_delayed_work_time = Time();
+    return false;
+  }
+  
+  if (delayed_work_queue_.top().delayed_run_time > Time::Now()) {
+    *next_delayed_work_time = delayed_work_queue_.top().delayed_run_time;
+    return false;
+  }
 
-  // We may not have run any timers, but we may still have future timers to
-  // run, so we need to inform the pump again of pending timers.
-  *next_delayed_work_time = timer_manager_.GetNextFireTime();
+  PendingTask pending_task = delayed_work_queue_.top();
+  delayed_work_queue_.pop();
+  
+  if (!delayed_work_queue_.empty())
+    *next_delayed_work_time = delayed_work_queue_.top().delayed_run_time;
 
-  return did_work;
+  return DeferOrRunPendingTask(pending_task);
 }
 
 bool MessageLoop::DoIdleWork() {
@@ -434,80 +432,22 @@ MessageLoop::AutoRunState::~AutoRunState() {
 }
 
 //------------------------------------------------------------------------------
-// Implementation of the work_queue_ as a ProiritizedTaskQueue
+// MessageLoop::PendingTask
 
-void MessageLoop::PrioritizedTaskQueue::push(Task * task) {
-  queue_.push(PrioritizedTask(task, --next_sequence_number_));
-}
+bool MessageLoop::PendingTask::operator<(const PendingTask& other) const {
+  // Since the top of a priority queue is defined as the "greatest" element, we
+  // need to invert the comparison here.  We want the smaller time to be at the
+  // top of the heap.
 
-bool MessageLoop::PrioritizedTaskQueue::PrioritizedTask::operator < (
-    PrioritizedTask const & right) const {
-  int compare = task_->priority() - right.task_->priority();
-  if (compare)
-    return compare < 0;
-  // Don't compare directly, but rather subtract.  This handles overflow
-  // as sequence numbers wrap around.
-  compare = sequence_number_ - right.sequence_number_;
-  DCHECK(compare);  // Sequence number are unique for a "long time."
-  // Make sure we don't starve anything with a low priority.
-  CHECK(INT_MAX/8 > compare);  // We don't get close to wrapping.
-  CHECK(INT_MIN/8 < compare);  // We don't get close to wrapping.
-  return compare < 0;
-}
+  if (delayed_run_time < other.delayed_run_time)
+    return false;
 
-//------------------------------------------------------------------------------
-// Implementation of a TaskQueue as a null terminated list, with end pointers.
+  if (delayed_run_time > other.delayed_run_time)
+    return true;
 
-void MessageLoop::TaskQueue::Push(Task* task) {
-  if (!first_)
-    first_ = task;
-  else
-    last_->set_next_task(task);
-  last_ = task;
-}
-
-Task* MessageLoop::TaskQueue::Pop() {
-  DCHECK((!first_) == !last_);
-  Task* task = first_;
-  if (first_) {
-    first_ = task->next_task();
-    if (!first_)
-      last_ = NULL;
-    else
-      task->set_next_task(NULL);
-  }
-  return task;
-}
-
-//------------------------------------------------------------------------------
-// Implementation of a Task queue that automatically switches into a priority
-// queue if it observes any non-zero priorities on tasks.
-
-void MessageLoop::OptionallyPrioritizedTaskQueue::Push(Task* task) {
-  if (use_priority_queue_) {
-    prioritized_queue_.push(task);
-  } else {
-    queue_.Push(task);
-    if (task->priority()) {
-      use_priority_queue_ = true;  // From now on.
-      while (!queue_.Empty())
-        prioritized_queue_.push(queue_.Pop());
-    }
-  }
-}
-
-Task* MessageLoop::OptionallyPrioritizedTaskQueue::Pop() {
-  if (!use_priority_queue_)
-    return queue_.Pop();
-  Task* task = prioritized_queue_.front();
-  prioritized_queue_.pop();
-  return task;
-}
-
-bool MessageLoop::OptionallyPrioritizedTaskQueue::Empty() {
-  if (use_priority_queue_)
-    return prioritized_queue_.empty();
-  return queue_.Empty();
+  // If the times happen to match, then we use the sequence number to decide.
+  // Compare the difference to support integer roll-over.
+  return (sequence_num - other.sequence_num) > 0;
 }
 
 //------------------------------------------------------------------------------

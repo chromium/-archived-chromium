@@ -53,6 +53,7 @@ void* PThreadCallback(void* param) {
 bool WorkerPool::PostTask(const tracked_objects::Location& from_here,
                           Task* task, bool task_is_slow) {
   task->SetBirthPlace(from_here);
+
   pthread_t thread;
   pthread_attr_t attr;
 
