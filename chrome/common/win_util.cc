@@ -397,13 +397,8 @@ bool SaveFileAsWithFilter(HWND owner,
   // will be written into by Windows when the user is done with the dialog box.
   std::wstring file_part = file_util::GetFilenameFromPath(suggested_name);
 
-  // This will clamp the number of characters copied from the supplied path
-  // to the value of MAX_PATH.
-  size_t name_size = std::min(file_part.length() + 1,
-                              static_cast<size_t>(MAX_PATH));
   wchar_t file_name[MAX_PATH];
-  memcpy(file_name, file_part.c_str(), name_size * sizeof(wchar_t));
-  file_name[MAX_PATH - 1] = '\0';
+  base::wcslcpy(file_name, file_part.c_str(), arraysize(file_name));
 
   OPENFILENAME save_as;
   // We must do this otherwise the ofn's FlagsEx may be initialized to random
