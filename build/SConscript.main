@@ -460,7 +460,6 @@ if LoadComponent('testing'):
 if LoadComponent('third_party'):
   sconscripts.extend([
       '$BSDIFF_DIR/SConscript',
-      '$BSPATCH_DIR/SConscript',
       '$BZIP2_DIR/SConscript',
       '$ICU38_DIR/SConscript',
       '$LIBJPEG_DIR/SConscript',
