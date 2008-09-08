@@ -438,6 +438,11 @@ void BrowserView2::FocusToolbar() {
 }
 
 void BrowserView2::DestroyBrowser() {
+  // Explicitly delete the BookmarkBarView now. That way we don't have to
+  // worry about the BookmarkBarView potentially outliving the Browser &
+  // Profile.
+  bookmark_bar_view_.reset();
+  browser_.reset();
 }
 
 bool BrowserView2::IsBookmarkBarVisible() const {
@@ -472,7 +477,10 @@ void BrowserView2::Observe(NotificationType type,
 // BrowserView2, TabStripModelObserver implementation:
 
 void BrowserView2::TabDetachedAt(TabContents* contents, int index) {
-  if (contents == browser_->GetSelectedTabContents()) {
+  // We use index here rather than comparing |contents| because by this time
+  // the model has already removed |contents| from its list, so
+  // browser_->GetSelectedTabContents() will return NULL or something else.
+  if (index == browser_->tabstrip_model()->selected_index()) {
     // We need to reset the current tab contents to NULL before it gets
     // freed. This is because the focus manager performs some operations
     // on the selected TabContents when it is removed.
