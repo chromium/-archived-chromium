@@ -19,10 +19,23 @@
 			name = run_googleurl_unittests;
 			productName = run_googleurl_unittests;
 		};
+		7BF8947E0E75D4CB000BAF8A /* All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 7BF895300E75D4EC000BAF8A /* Build configuration list for PBXAggregateTarget "All" */;
+			buildPhases = (
+			);
+			dependencies = (
+				7BF894820E75D4DD000BAF8A /* PBXTargetDependency */,
+				7BF894840E75D4DD000BAF8A /* PBXTargetDependency */,
+			);
+			name = All;
+			productName = All;
+		};
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
 		7B85FFB10E5A2ED200730B43 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B85FF770E5A2EA800730B43 /* CoreFoundation.framework */; };
+		7B97C2430E75DC9D005923B3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B97C2420E75DC9D005923B3 /* Foundation.framework */; };
 		7BA0186D0E5A294400044150 /* gurl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BA0184D0E5A293900044150 /* gurl.cc */; };
 		7BA018710E5A294400044150 /* url_canon_etc.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BA018510E5A293900044150 /* url_canon_etc.cc */; };
 		7BA018720E5A294400044150 /* url_canon_fileurl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BA018520E5A293900044150 /* url_canon_fileurl.cc */; };
@@ -170,10 +183,25 @@
 			remoteGlobalIDString = 82C262C30DCF9411005CFE91;
 			remoteInfo = icudata;
 		};
+		7BF894810E75D4DD000BAF8A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7BA0181B0E5A27A600044150 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7BA018350E5A28DB00044150;
+			remoteInfo = googleurl;
+		};
+		7BF894830E75D4DD000BAF8A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7BA0181B0E5A27A600044150 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7BA018E10E5A2AFF00044150;
+			remoteInfo = googleurl_unittests;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		7B85FF770E5A2EA800730B43 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<group>"; };
+		7B97C2420E75DC9D005923B3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
 		7BA0182D0E5A28B300044150 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
 		7BA0182E0E5A28B300044150 /* debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = debug.xcconfig; sourceTree = "<group>"; };
 		7BA0182F0E5A28B300044150 /* executable.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = executable.xcconfig; sourceTree = "<group>"; };
@@ -231,6 +259,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7B85FFB10E5A2ED200730B43 /* CoreFoundation.framework in Frameworks */,
+				7B97C2430E75DC9D005923B3 /* Foundation.framework in Frameworks */,
 				7BA019640E5A2C2B00044150 /* libbase.a in Frameworks */,
 				7BA018EF0E5A2B3300044150 /* libgoogleurl.a in Frameworks */,
 				7BA019240E5A2BD700044150 /* libgtest.a in Frameworks */,
@@ -361,6 +390,7 @@
 			isa = PBXGroup;
 			children = (
 				7B85FF770E5A2EA800730B43 /* CoreFoundation.framework */,
+				7B97C2420E75DC9D005923B3 /* Foundation.framework */,
 			);
 			name = Frameworks;
 			sourceTree = SDKROOT;
@@ -432,6 +462,7 @@
 			);
 			projectRoot = "";
 			targets = (
+				7BF8947E0E75D4CB000BAF8A /* All */,
 				7BA018350E5A28DB00044150 /* googleurl */,
 				7BA018E10E5A2AFF00044150 /* googleurl_unittests */,
 				7B8500190E5A2F6400730B43 /* run_googleurl_unittests */,
@@ -531,7 +562,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -ex\nexec ${BUILT_PRODUCTS_DIR}/googleurl_unittests\n";
+			shellScript = "set -ex\nRUNNABLE_PRODUCT=$(echo \"${PRODUCT_NAME}\" | sed -e s/^run_//)\nexec \"${BUILT_PRODUCTS_DIR}/${RUNNABLE_PRODUCT}\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -603,15 +634,22 @@
 			name = icudata;
 			targetProxy = 7BA019750E5A2C6400044150 /* PBXContainerItemProxy */;
 		};
+		7BF894820E75D4DD000BAF8A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7BA018350E5A28DB00044150 /* googleurl */;
+			targetProxy = 7BF894810E75D4DD000BAF8A /* PBXContainerItemProxy */;
+		};
+		7BF894840E75D4DD000BAF8A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7BA018E10E5A2AFF00044150 /* googleurl_unittests */;
+			targetProxy = 7BF894830E75D4DD000BAF8A /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		7B85001A0E5A2F6400730B43 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
 				PRODUCT_NAME = run_googleurl_unittests;
 			};
 			name = Debug;
@@ -619,11 +657,7 @@
 		7B85001B0E5A2F6400730B43 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				PRODUCT_NAME = run_googleurl_unittests;
-				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
@@ -693,6 +727,20 @@
 			};
 			name = Release;
 		};
+		7BF8947F0E75D4CB000BAF8A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Debug;
+		};
+		7BF894800E75D4CB000BAF8A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -728,6 +776,15 @@
 			buildConfigurations = (
 				7BA018E40E5A2AFF00044150 /* Debug */,
 				7BA018E50E5A2AFF00044150 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7BF895300E75D4EC000BAF8A /* Build configuration list for PBXAggregateTarget "All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7BF8947F0E75D4CB000BAF8A /* Debug */,
+				7BF894800E75D4CB000BAF8A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
