@@ -370,6 +370,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\lazy_instance.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\lazy_instance.h"
+			>
+		</File>
+		<File
 			RelativePath="..\linked_ptr.h"
 			>
 		</File>

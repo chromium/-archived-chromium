@@ -212,6 +212,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\lazy_instance_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\linked_ptr_unittest.cc"
 				>
 			</File>
