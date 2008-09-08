@@ -132,3 +132,11 @@ typedef float CGFloat;
 #undef ENABLE_FTPDIR
 #define ENABLE_FTPDIR 0
 //#endif
+
+#ifndef WEBCORE_NAVIGATOR_VENDOR
+#ifdef GOOGLE_CHROME_BUILD
+#define WEBCORE_NAVIGATOR_VENDOR "Google Inc."
+#else
+#define WEBCORE_NAVIGATOR_VENDOR ""
+#endif // ifdef GOOGLE_CHROME_BUILD
+#endif // ifndef WEBCORE_NAVIGATOR_VENDOR
