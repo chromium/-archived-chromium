@@ -35,14 +35,16 @@ AtExitManager::~AtExitManager() {
 }
 
 // static
-void AtExitManager::RegisterCallback(AtExitCallbackType func) {
+void AtExitManager::RegisterCallback(AtExitCallbackType func, void* param) {
   if (!g_top_manager) {
     NOTREACHED() << "Tried to RegisterCallback without an AtExitManager";
     return;
   }
 
+  DCHECK(func);
+
   AutoLock lock(g_top_manager->lock_);
-  g_top_manager->stack_.push(func);
+  g_top_manager->stack_.push(CallbackAndParam(func, param));
 }
 
 // static
@@ -55,12 +57,11 @@ void AtExitManager::ProcessCallbacksNow() {
   AutoLock lock(g_top_manager->lock_);
 
   while (!g_top_manager->stack_.empty()) {
-    AtExitCallbackType func = g_top_manager->stack_.top();
+    CallbackAndParam callback_and_param = g_top_manager->stack_.top();
     g_top_manager->stack_.pop();
-    if (func)
-      func();
+
+    callback_and_param.func_(callback_and_param.param_);
   }
 }
 
 }  // namespace base
-

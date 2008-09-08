@@ -2,12 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_SINGLETON_H__
-#define BASE_SINGLETON_H__
-
-#include <stdlib.h>
-
-#include <utility>
+#ifndef BASE_SINGLETON_H_
+#define BASE_SINGLETON_H_
 
 #include "base/at_exit.h"
 #include "base/atomicops.h"
@@ -125,7 +121,7 @@ class Singleton {
           &instance_, reinterpret_cast<base::subtle::AtomicWord>(newval));
 
       if (Traits::kRegisterAtExit)
-        base::AtExitManager::RegisterCallback(OnExit);
+        base::AtExitManager::RegisterCallback(OnExit, NULL);
 
       return newval;
     }
@@ -159,7 +155,7 @@ class Singleton {
  private:
   // Adapter function for use with AtExit().  This should be called single
   // threaded, but we might as well take the precautions anyway.
-  static void OnExit() {
+  static void OnExit(void* unused) {
     // AtExit should only ever be register after the singleton instance was
     // created.  We should only ever get here with a valid instance_ pointer.
     Traits::Delete(reinterpret_cast<Type*>(
@@ -172,6 +168,4 @@ template <typename Type, typename Traits, typename DifferentiatingType>
 base::subtle::AtomicWord Singleton<Type, Traits, DifferentiatingType>::
     instance_ = 0;
 
-
-#endif  // BASE_SINGLETON_H__
-
+#endif  // BASE_SINGLETON_H_

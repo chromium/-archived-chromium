@@ -35,7 +35,7 @@ class AtExitManager {
   AtExitManager(bool shadow);
 
  public:
-  typedef void (*AtExitCallbackType)();
+  typedef void (*AtExitCallbackType)(void*);
 
   AtExitManager();
 
@@ -45,15 +45,22 @@ class AtExitManager {
 
   // Registers the specified function to be called at exit. The prototype of
   // the callback function is void func().
-  static void RegisterCallback(AtExitCallbackType func);
+  static void RegisterCallback(AtExitCallbackType func, void* param);
 
   // Calls the functions registered with RegisterCallback in LIFO order. It
   // is possible to register new callbacks after calling this function.
   static void ProcessCallbacksNow();
 
  private:
+  struct CallbackAndParam {
+    CallbackAndParam(AtExitCallbackType func, void* param)
+        : func_(func), param_(param) { }
+    AtExitCallbackType func_;
+    void* param_;
+  };
+
   Lock lock_;
-  std::stack<AtExitCallbackType> stack_;
+  std::stack<CallbackAndParam> stack_;
   AtExitManager* next_manager_;  // Stack of managers to allow shadowing.
 
   DISALLOW_COPY_AND_ASSIGN(AtExitManager);
@@ -62,4 +69,3 @@ class AtExitManager {
 }  // namespace base
 
 #endif  // BASE_AT_EXIT_H_
-

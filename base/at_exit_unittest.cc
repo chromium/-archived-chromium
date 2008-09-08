@@ -18,11 +18,11 @@ class ShadowingAtExitManager : public base::AtExitManager {
 int g_test_counter_1 = 0;
 int g_test_counter_2 = 0;
 
-void IncrementTestCounter1() {
+void IncrementTestCounter1(void* unused) {
   ++g_test_counter_1;
 }
 
-void IncrementTestCounter2() {
+void IncrementTestCounter2(void* unused) {
   ++g_test_counter_2;
 }
 
@@ -31,8 +31,16 @@ void ZeroTestCounters() {
   g_test_counter_2 = 0;
 }
 
-void ExpectCounter1IsZero() {
+void ExpectCounter1IsZero(void* unused) {
   EXPECT_EQ(0, g_test_counter_1);
+}
+
+void ExpectParamIsNull(void* param) {
+  EXPECT_EQ(static_cast<void*>(NULL), param);
+}
+
+void ExpectParamIsCounter(void* param) {
+  EXPECT_EQ(&g_test_counter_1, param);
 }
 
 }  // namespace
@@ -41,9 +49,9 @@ TEST(AtExitTest, Basic) {
   ShadowingAtExitManager shadowing_at_exit_manager;
 
   ZeroTestCounters();
-  base::AtExitManager::RegisterCallback(&IncrementTestCounter1);
-  base::AtExitManager::RegisterCallback(&IncrementTestCounter2);
-  base::AtExitManager::RegisterCallback(&IncrementTestCounter1);
+  base::AtExitManager::RegisterCallback(&IncrementTestCounter1, NULL);
+  base::AtExitManager::RegisterCallback(&IncrementTestCounter2, NULL);
+  base::AtExitManager::RegisterCallback(&IncrementTestCounter1, NULL);
   
   EXPECT_EQ(0, g_test_counter_1);
   EXPECT_EQ(0, g_test_counter_2);
@@ -56,9 +64,9 @@ TEST(AtExitTest, LIFOOrder) {
   ShadowingAtExitManager shadowing_at_exit_manager;
 
   ZeroTestCounters();
-  base::AtExitManager::RegisterCallback(&IncrementTestCounter1);
-  base::AtExitManager::RegisterCallback(&ExpectCounter1IsZero);
-  base::AtExitManager::RegisterCallback(&IncrementTestCounter2);
+  base::AtExitManager::RegisterCallback(&IncrementTestCounter1, NULL);
+  base::AtExitManager::RegisterCallback(&ExpectCounter1IsZero, NULL);
+  base::AtExitManager::RegisterCallback(&IncrementTestCounter2, NULL);
   
   EXPECT_EQ(0, g_test_counter_1);
   EXPECT_EQ(0, g_test_counter_2);
@@ -67,3 +75,11 @@ TEST(AtExitTest, LIFOOrder) {
   EXPECT_EQ(1, g_test_counter_2);
 }
 
+TEST(AtExitTest, Param) {
+  ShadowingAtExitManager shadowing_at_exit_manager;
+
+  base::AtExitManager::RegisterCallback(&ExpectParamIsNull, NULL);
+  base::AtExitManager::RegisterCallback(&ExpectParamIsCounter,
+                                        &g_test_counter_1);
+  base::AtExitManager::ProcessCallbacksNow();
+}
