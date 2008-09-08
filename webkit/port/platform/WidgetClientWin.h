@@ -19,6 +19,8 @@ class Range;
 // Generic interface for features needed by the Widget.
 class WidgetClientWin : public WidgetClient {
 public:
+    virtual ~WidgetClientWin() {}
+
     // Returns the containing window for the Widget.
     // TODO(pinkerton): this needs a better name, "window" is incorrect on other
     // platforms.
@@ -68,4 +70,3 @@ public:
 } // namespace WebCore
 
 #endif  // WidgetClientWin_H__
-

@@ -133,6 +133,7 @@ class WebPlugin {
 // Simpler version of ResourceHandleClient that lends itself to proxying.
 class WebPluginResourceClient {
  public:
+  virtual ~WebPluginResourceClient() {}
   virtual void WillSendRequest(const GURL& url) = 0;
   virtual void DidReceiveResponse(const std::string& mime_type,
                                   const std::string& headers,

@@ -57,6 +57,7 @@ typedef HashSet<RefPtr<HistoryItem> > HistoryItemHashSet;
 // back-forward list.
 class BackForwardListClient {
 public:
+    virtual ~BackForwardListClient() {}
     virtual void didAddHistoryItem(HistoryItem* item) = 0;
     virtual void willGoToHistoryItem(HistoryItem* item) = 0;
     virtual HistoryItem* itemAtIndex(int index) = 0;

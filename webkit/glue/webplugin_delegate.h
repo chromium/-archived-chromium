@@ -23,6 +23,7 @@ class WebPluginResourceClient;
 class WebPluginDelegate {
  public:
   WebPluginDelegate() {}
+  virtual ~WebPluginDelegate() {}
 
   // Initializes the plugin implementation with the given (UTF8) arguments.
   // Note that the lifetime of WebPlugin must be longer than this delegate.
