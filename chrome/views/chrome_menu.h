@@ -72,11 +72,13 @@ class MenuDelegate : Controller {
   // If this is not the result of a mouse gesture x/y is the recommended
   // location to display the content menu at. In either case, x/y is in
   // screen coordinates.
-  virtual void ShowContextMenu(MenuItemView* source,
+  // Returns true if a context menu was displayed, otherwise false
+  virtual bool ShowContextMenu(MenuItemView* source,
                                int id,
                                int x,
                                int y,
                                bool is_mouse_gesture) {
+    return false;
   }
 
   // Controller
@@ -101,9 +103,9 @@ class MenuDelegate : Controller {
   }
 
   // Returns true if the specified mouse event is one the user can use
-  // to trigger, or accept, the mouse. Defaults to only left mouse buttons.
+  // to trigger, or accept, the mouse. Defaults to left or right mouse buttons.
   virtual bool IsTriggerableEvent(const MouseEvent& e) {
-    return e.IsLeftMouseButton();
+    return e.IsLeftMouseButton() || e.IsRightMouseButton();
   }
 
   // Invoked to determine if drops can be accepted for a submenu. This is

@@ -488,7 +488,7 @@ class MenuRunner : public ChromeViews::MenuDelegate,
     return result;
   }
 
-  virtual void ShowContextMenu(MenuItemView* source,
+  virtual bool ShowContextMenu(MenuItemView* source,
                                int id,
                                int x,
                                int y,
@@ -498,6 +498,7 @@ class MenuRunner : public ChromeViews::MenuDelegate,
         new BookmarkBarContextMenuController(view_, menu_id_to_node_map_[id]));
     context_menu_->RunMenuAt(x, y);
     context_menu_.reset(NULL);
+    return true;
   }
 
   virtual void DropMenuClosed(MenuItemView* menu) {

@@ -546,7 +546,7 @@ void Menu::RunMenuAt(int x, int y) {
 
   // Show the menu.  Blocks until the menu is dismissed or an item is chosen.
   UINT flags =
-      GetTPMAlignFlags() | TPM_LEFTBUTTON | TPM_RETURNCMD | TPM_RECURSE;
+      GetTPMAlignFlags() | TPM_RIGHTBUTTON | TPM_RETURNCMD | TPM_RECURSE;
   is_menu_visible_ = true;
   DCHECK(owner_);
   // In order for context menus on menus to work, the context menu needs to

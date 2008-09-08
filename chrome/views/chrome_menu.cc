@@ -1785,9 +1785,14 @@ void MenuController::OnMouseReleased(SubmenuView* source,
     SetSelection(pending_state_.item, open_submenu, true);
     CPoint loc(event.GetX(), event.GetY());
     View::ConvertPointToScreen(source->GetScrollViewContainer(), &loc);
-    part.menu->GetDelegate()->ShowContextMenu(
-        part.menu, part.menu->GetCommand(), loc.x, loc.y, true);
-  } else if (!part.is_scroll() && part.menu && !part.menu->HasSubmenu()) {
+
+    // If we open a context menu just return now
+    if (part.menu->GetDelegate()->ShowContextMenu(
+        part.menu, part.menu->GetCommand(), loc.x, loc.y, true))
+      return;
+  }
+
+  if (!part.is_scroll() && part.menu && !part.menu->HasSubmenu()) {
     if (part.menu->GetDelegate()->IsTriggerableEvent(event)) {
       Accept(part.menu, event.GetFlags());
       return;
