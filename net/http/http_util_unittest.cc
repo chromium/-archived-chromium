@@ -145,7 +145,7 @@ TEST(HttpUtilTest, AssembleRawHeaders) {
       "Bar: 2\n\n",
 
       "HTTP/1.0 200 OK|"
-      "Foo: 1\tcontinuation|"
+      "Foo: 1 continuation|"
       "Bar: 2||"
     },
 
@@ -157,7 +157,7 @@ TEST(HttpUtilTest, AssembleRawHeaders) {
       "Bar: 2\n\n",
 
       "HTTP/1.0 200 OK|"
-      "Foo: 1   continuation|"
+      "Foo: 1 continuation|"
       "Bar: 2||"
     },
 
@@ -169,7 +169,7 @@ TEST(HttpUtilTest, AssembleRawHeaders) {
       "Bar: 2\n\n",
 
       "HTTP/1.0 200 OK|"
-      "Foo: 1\t\t\tcontinuation|"
+      "Foo: 1 continuation|"
       "Bar: 2||"
     },
 
@@ -181,7 +181,7 @@ TEST(HttpUtilTest, AssembleRawHeaders) {
       "Bar: 2\n\n",
 
       "HTTP/1.0 200 OK|"
-      "Foo: 1 \t \t continuation|"
+      "Foo: 1 continuation|"
       "Bar: 2||"
     },
 
@@ -195,7 +195,51 @@ TEST(HttpUtilTest, AssembleRawHeaders) {
       "Bar: 2\n\n",
 
       "HTTP/1.0 200 OK|"
-      "Foo: 1 continuation1\tcontinuation2  continuation3|"
+      "Foo: 1 continuation1 continuation2 continuation3|"
+      "Bar: 2||"
+    },
+
+    // Continuation of quoted value.
+    // This is different from what Firefox does, since it
+    // will preserve the LWS.
+    {
+      "HTTP/1.0 200 OK\n"
+      "Etag: \"34534-d3\n"
+      "    134q\"\n"
+      "Bar: 2\n\n",
+
+      "HTTP/1.0 200 OK|"
+      "Etag: \"34534-d3 134q\"|"
+      "Bar: 2||"
+    },
+
+    // Valid multi-line continuation, full LWS lines
+    {
+      "HTTP/1.0 200 OK\n"
+      "Foo: 1\n"
+      "         \n"
+      "\t\t\t\t\n"
+      "\t  continuation\n"
+      "Bar: 2\n\n",
+
+      // One SP per continued line = 3.
+      "HTTP/1.0 200 OK|"
+      "Foo: 1   continuation|"
+      "Bar: 2||"
+    },
+
+    // Valid multi-line continuation, all LWS
+    {
+      "HTTP/1.0 200 OK\n"
+      "Foo: 1\n"
+      "         \n"
+      "\t\t\t\t\n"
+      "\t  \n"
+      "Bar: 2\n\n",
+
+      // One SP per continued line = 3.
+      "HTTP/1.0 200 OK|"
+      "Foo: 1   |"
       "Bar: 2||"
     },
 

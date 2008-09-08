@@ -284,6 +284,15 @@ static const char* FindStatusLineEnd(const char* begin, const char* end) {
   return begin + i;
 }
 
+// Helper used by AssembleRawHeaders, to skip past leading LWS.
+static const char* FindFirstNonLWS(const char* begin, const char* end) {
+  for (const char* cur = begin; cur != end; ++cur) {
+    if (!HttpUtil::IsLWS(*cur))
+      return cur;
+  }
+  return end; // Not found.
+}
+
 std::string HttpUtil::AssembleRawHeaders(const char* input_begin,
                                          int input_len) {
   std::string raw_headers;
@@ -303,24 +312,26 @@ std::string HttpUtil::AssembleRawHeaders(const char* input_begin,
   CStringTokenizer lines(status_line_end, input_end, "\r\n");
 
   // This variable is true when the previous line was continuable.
-  bool can_append_continuation = false;
+  bool prev_line_continuable = false;
 
   while (lines.GetNext()) {
     const char* line_begin = lines.token_begin();
     const char* line_end = lines.token_end();
      
-    bool is_continuation = can_append_continuation && IsLWS(*line_begin);
-
-    // Terminate the previous line.
-    if (!is_continuation)
+    if (prev_line_continuable && IsLWS(*line_begin)) {
+      // Join continuation; reduce the leading LWS to a single SP.
+      raw_headers.push_back(' ');
+      raw_headers.append(FindFirstNonLWS(line_begin, line_end), line_end);
+    } else {
+      // Terminate the previous line.
       raw_headers.push_back('\0');
 
-    // Copy the raw data to output.
-    raw_headers.append(line_begin, line_end);
+      // Copy the raw data to output.
+      raw_headers.append(line_begin, line_end);
 
-    // Check if the current line can be continued.
-    if (!is_continuation)
-      can_append_continuation = IsLineSegmentContinuable(line_begin, line_end);
+      // Check if the current line can be continued.
+      prev_line_continuable = IsLineSegmentContinuable(line_begin, line_end);
+    }
   }
 
   raw_headers.append("\0\0", 2);
