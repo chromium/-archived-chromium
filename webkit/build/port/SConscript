@@ -559,7 +559,7 @@ def create_h_wrapper(target, source, env):
   fp.write('#ifndef %s_h\n' % define)
   fp.write('#define %s_h\n' % define)
   fp.write(open(t + 'pp', 'r').read())
-  fp.write('#endif %s_h\n' % define)
+  fp.write('#endif // %s_h\n' % define)
 
 # TODO(sgk):  make this a real pseudo-Builder
 def BuildYacc(env, dir, name, file):
@@ -638,5 +638,3 @@ env.Command('$DERIVED_DIR/tokenizer.cpp',
             ['$WEBKIT_PORT_DIR/css/tokenizer.flex',
              '$WEBKIT_PORT_DIR/css/maketokenizer'],
             'flex -t $SOURCE | perl ${SOURCES[1]} > $TARGET')
-
-
