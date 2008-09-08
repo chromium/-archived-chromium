@@ -5,10 +5,10 @@
 #ifndef CHROME_BROWSER_CONTROLLER_H__
 #define CHROME_BROWSER_CONTROLLER_H__
 
-#include <hash_map>
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/hash_tables.h"
 #include "chrome/views/button.h"
 #include "chrome/views/controller.h"
 
@@ -65,7 +65,7 @@ struct Command {
   bool enabled;
   CommandObserverList* observers;
 };
-typedef stdext::hash_map<int, Command*> CommandMap;
+typedef base::hash_map<int, Command*> CommandMap;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -171,4 +171,3 @@ class CommandController : public Controller {
 };
 
 #endif // CHROME_BROWSER_CONTROLLER_H__
-

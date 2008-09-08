@@ -5,6 +5,7 @@
 #include "chrome/common/chrome_plugin_lib.h"
 
 #include "base/command_line.h"
+#include "base/hash_tables.h"
 #include "base/histogram.h"
 #include "base/path_service.h"
 #include "base/perftimer.h"
@@ -21,7 +22,7 @@ const TCHAR ChromePluginLib::kRegistryChromePlugins[] =
 static const TCHAR kRegistryLoadOnStartup[] = _T("LoadOnStartup");
 static const TCHAR kRegistryPath[] = _T("Path");
 
-typedef stdext::hash_map<std::wstring, scoped_refptr<ChromePluginLib> >
+typedef base::hash_map<std::wstring, scoped_refptr<ChromePluginLib> >
     PluginMap;
 
 // A map of all the instantiated plugins.
@@ -257,4 +258,3 @@ void ChromePluginLib::Unload() {
     module_ = 0;
   }
 }
-

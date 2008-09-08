@@ -8,8 +8,8 @@
 #define CHROME_COMMON_RESOURCE_DISPATCHER_H__
 
 #include <windows.h>
-#include <hash_map>
 
+#include "base/hash_tables.h"
 #include "base/task.h"
 #include "chrome/common/ipc_channel.h"
 #include "chrome/common/render_messages.h"
@@ -91,7 +91,7 @@ class ResourceDispatcher : public base::RefCounted<ResourceDispatcher> {
     bool mixed_content;
     bool is_deferred;
   };
-  typedef stdext::hash_map<int,PendingRequestInfo> PendingRequestList;
+  typedef base::hash_map<int,PendingRequestInfo> PendingRequestList;
 
   // Message response handlers, called by the message handler for this process.
   void OnUploadProgress(int request_id, int64 position, int64 size);
@@ -118,4 +118,3 @@ class ResourceDispatcher : public base::RefCounted<ResourceDispatcher> {
 };
 
 #endif  // CHROME_COMMON_RESOURCE_DISPATCHER_H__
-

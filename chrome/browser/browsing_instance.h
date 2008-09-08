@@ -5,8 +5,7 @@
 #ifndef CHROME_BROWSER_BROWSING_INSTANCE_H__
 #define CHROME_BROWSER_BROWSING_INSTANCE_H__
 
-#include <hash_map>
-
+#include "base/hash_tables.h"
 #include "chrome/browser/profile.h"
 #include "googleurl/src/gurl.h"
 
@@ -95,10 +94,10 @@ class BrowsingInstance : public base::RefCounted<BrowsingInstance> {
   // Map of site to SiteInstance, to ensure we only have one SiteInstance per
   // site.  The site string should be the possibly_invalid_spec() of a GURL
   // obtained with SiteInstance::GetSiteForURL.
-  typedef stdext::hash_map<std::string, SiteInstance*> SiteInstanceMap;
+  typedef base::hash_map<std::string, SiteInstance*> SiteInstanceMap;
 
   // Map of Profile to SiteInstanceMap, for use in the process-per-site model.
-  typedef stdext::hash_map<Profile*, SiteInstanceMap> ProfileSiteInstanceMap;
+  typedef base::hash_map<Profile*, SiteInstanceMap> ProfileSiteInstanceMap;
 
   // Returns a pointer to the relevant SiteInstanceMap for this object.  If the
   // process-per-site model is in use, or if process-per-site-instance is in
@@ -127,4 +126,3 @@ class BrowsingInstance : public base::RefCounted<BrowsingInstance> {
 };
 
 #endif  //  CHROME_BROWSER_BROWSING_INSTANCE_H__
-

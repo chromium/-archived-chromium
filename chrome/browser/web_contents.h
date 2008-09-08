@@ -5,8 +5,7 @@
 #ifndef CHROME_BROWSER_WEB_CONTENTS_H_
 #define CHROME_BROWSER_WEB_CONTENTS_H_
 
-#include <hash_map>
-
+#include "base/hash_tables.h"
 #include "chrome/browser/fav_icon_helper.h"
 #include "chrome/browser/printing/print_view_manager.h"
 #include "chrome/browser/render_view_host_delegate.h"
@@ -749,10 +748,10 @@ class WebContents : public TabContents,
 
   // These maps hold on to the pages/widgets that we created on behalf of the
   // renderer that haven't shown yet.
-  typedef stdext::hash_map<int, WebContents*> PendingViews;
+  typedef base::hash_map<int, WebContents*> PendingViews;
   PendingViews pending_views_;
 
-  typedef stdext::hash_map<int, RenderWidgetHost*> PendingWidgets;
+  typedef base::hash_map<int, RenderWidgetHost*> PendingWidgets;
   PendingWidgets pending_widgets_;
 
   // Non-null if we're displaying content for a web app.
@@ -765,4 +764,3 @@ class WebContents : public TabContents,
 };
 
 #endif  // CHROME_BROWSER_WEB_CONTENTS_H_
-

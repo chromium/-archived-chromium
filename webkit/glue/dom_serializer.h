@@ -6,8 +6,8 @@
 #define WEBKIT_GLUE_DOM_SERIALIZER_H__
 
 #include <string>
-#include <hash_map>
 
+#include "base/hash_tables.h"
 #include "googleurl/src/gurl.h"
 
 class WebFrame;
@@ -67,7 +67,7 @@ class DomSerializer {
   WebFrameImpl* specified_webframeimpl_;
   // This hash_map is used to map resource URL of original link to its local
   // file path.
-  typedef stdext::hash_map<std::wstring, std::wstring> LinkLocalPathMap;
+  typedef base::hash_map<std::wstring, std::wstring> LinkLocalPathMap;
   // local_links_ include all pair of local resource path and corresponding
   // original link.
   LinkLocalPathMap local_links_;
@@ -169,4 +169,3 @@ class DomSerializer {
 }  // namespace webkit_glue
 
 #endif  // WEBKIT_GLUE_DOM_SERIALIZER_H__
-

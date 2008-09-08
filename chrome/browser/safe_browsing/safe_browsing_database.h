@@ -5,11 +5,11 @@
 #ifndef CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_DATABASE_H__
 #define CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_DATABASE_H__
 
-#include <hash_map>
 #include <list>
 #include <queue>
 #include <vector>
 
+#include "base/hash_tables.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
 #include "base/time.h"
@@ -288,7 +288,7 @@ class SafeBrowsingDatabase {
   } HashCacheEntry;
 
   typedef std::list<HashCacheEntry> HashList;
-  typedef stdext::hash_map<SBPrefix, HashList> HashCache;
+  typedef base::hash_map<SBPrefix, HashList> HashCache;
   HashCache hash_cache_;
 
   // Cache of prefixes that returned empty results (no full hash match).
@@ -301,4 +301,3 @@ class SafeBrowsingDatabase {
 };
 
 #endif  // CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_DATABASE_H__
-

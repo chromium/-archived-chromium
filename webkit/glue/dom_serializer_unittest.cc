@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <hash_map>
-
 #include "config.h"
 
 #pragma warning(push, 0)
@@ -21,6 +19,7 @@
 #pragma warning(pop)
 #undef LOG
 
+#include "base/hash_tables.h"
 #include "base/file_util.h"
 #include "base/string_util.h"
 #include "net/base/net_util.h"
@@ -148,10 +147,10 @@ class DomSerializerTests : public TestShellTest,
 
  private:
   // Map frame_url to corresponding serialized_content.
-  typedef stdext::hash_map<std::wstring, std::string> SerializedFrameContentMap;
+  typedef base::hash_map<std::wstring, std::string> SerializedFrameContentMap;
   SerializedFrameContentMap serialized_frame_map_;
   // Map frame_url to corresponding status of serialization finish.
-  typedef stdext::hash_map<std::wstring, bool> SerializationFinishStatusMap;
+  typedef base::hash_map<std::wstring, bool> SerializationFinishStatusMap;
   SerializationFinishStatusMap serialization_finish_status_;
   // Flag indicates whether the process of serializing DOM is finished or not.
   bool serialized_;
@@ -675,4 +674,3 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithBaseTag) {
     webkit_glue::DeprecatedStringToStdWString(doc->baseURL()).c_str());
   ASSERT_TRUE(new_base_url == path_dir_url);
 }
-

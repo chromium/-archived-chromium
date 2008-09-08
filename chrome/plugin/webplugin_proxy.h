@@ -5,8 +5,7 @@
 #ifndef CHROME_PLUGIN_PLUGIN_WEBPLUGIN_PROXY_H__
 #define CHROME_PLUGIN_PLUGIN_WEBPLUGIN_PROXY_H__
 
-#include <hash_map>
-
+#include "base/hash_tables.h"
 #include "base/ref_counted.h"
 #include "base/scoped_handle.h"
 #include "chrome/common/ipc_message.h"
@@ -77,7 +76,7 @@ class WebPluginProxy : public WebPlugin {
  private:
   bool Send(IPC::Message* msg);
 
-  typedef stdext::hash_map<int, WebPluginResourceClient*> ResourceClientMap;
+  typedef base::hash_map<int, WebPluginResourceClient*> ResourceClientMap;
   ResourceClientMap resource_clients_;
 
   scoped_refptr<PluginChannel> channel_;
@@ -92,4 +91,3 @@ class WebPluginProxy : public WebPlugin {
 };
 
 #endif  // CHROME_PLUGIN_PLUGIN_WEBPLUGIN_PROXY_H__
-

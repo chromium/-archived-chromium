@@ -809,7 +809,7 @@ void DownloadTabView::OnDownloadUpdated(DownloadItem* download) {
   switch (download->state()) {
     case DownloadItem::COMPLETE:
     case DownloadItem::CANCELLED: {
-      stdext::hash_set<DownloadItem*>::iterator d = in_progress_.find(download);
+      base::hash_set<DownloadItem*>::iterator d = in_progress_.find(download);
       if (d != in_progress_.end()) {
         (*d)->RemoveObserver(this);
         in_progress_.erase(d);
@@ -824,7 +824,7 @@ void DownloadTabView::OnDownloadUpdated(DownloadItem* download) {
       // further progress updates until at least one download is active again.
       if (download->is_paused()) {
         bool continue_update = false;
-        stdext::hash_set<DownloadItem*>::iterator it = in_progress_.begin();
+        base::hash_set<DownloadItem*>::iterator it = in_progress_.begin();
         for (; it != in_progress_.end(); ++it) {
           if (!(*it)->is_paused()) {
             continue_update = true;
@@ -937,7 +937,7 @@ void DownloadTabView::LoadIcon(DownloadItem* download) {
 }
 
 void DownloadTabView::ClearDownloadInProgress() {
-  for (stdext::hash_set<DownloadItem*>::iterator it = in_progress_.begin();
+  for (base::hash_set<DownloadItem*>::iterator it = in_progress_.begin();
        it != in_progress_.end(); ++it)
     (*it)->RemoveObserver(this);
   in_progress_.clear();

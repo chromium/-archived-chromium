@@ -5,7 +5,6 @@
 #ifndef CHROME_RENDERER_RENDER_VIEW_H__
 #define CHROME_RENDERER_RENDER_VIEW_H__
 
-#include <hash_map>
 #include <string>
 #include <vector>
 
@@ -617,4 +616,3 @@ class RenderView : public RenderWidget, public WebViewDelegate,
 };
 
 #endif  // CHROME_RENDERER_RENDER_VIEW_H__
-

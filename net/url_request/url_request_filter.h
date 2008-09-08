@@ -19,10 +19,10 @@
 #ifndef NET_URL_REQUEST_URL_REQUEST_FILTER_H_
 #define NET_URL_REQUEST_URL_REQUEST_FILTER_H_
 
-#include <hash_map>
 #include <map>
 #include <string>
 
+#include "base/hash_tables.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
 
@@ -33,7 +33,7 @@ class URLRequestFilter {
   // scheme,hostname -> ProtocolFactory
   typedef std::map<std::pair<std::string, std::string>,
       URLRequest::ProtocolFactory*> HostnameHandlerMap;
-  typedef stdext::hash_map<std::string, URLRequest::ProtocolFactory*>
+  typedef base::hash_map<std::string, URLRequest::ProtocolFactory*>
       UrlHandlerMap;
 
   // Singleton instance for use.
@@ -78,4 +78,3 @@ class URLRequestFilter {
 };
 
 #endif  // NET_URL_REQUEST_URL_REQUEST_FILTER_H_
-

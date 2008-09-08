@@ -4,8 +4,7 @@
 //
 // Program to test the SafeBrowsing protocol parsing v2.1.
 
-#include <hash_map>
-
+#include "base/hash_tables.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "base/win_util.h"

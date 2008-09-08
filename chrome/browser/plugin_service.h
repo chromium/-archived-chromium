@@ -9,9 +9,9 @@
 #define CHROME_BROWSER_PLUGIN_SERVICE_H__
 
 #include <vector>
-#include <hash_map>
 
 #include "base/basictypes.h"
+#include "base/hash_tables.h"
 #include "base/lock.h"
 #include "chrome/browser/browser_process.h"
 #include "webkit/glue/webplugin.h"
@@ -121,7 +121,7 @@ class PluginService {
   void OnShutdown();
 
   // mapping between plugin dll path and PluginProcessHost
-  typedef stdext::hash_map<std::wstring, PluginProcessHost*> PluginMap;
+  typedef base::hash_map<std::wstring, PluginProcessHost*> PluginMap;
   PluginMap plugin_hosts_;
 
   // The main thread's message loop.
@@ -214,4 +214,3 @@ class PluginProcessHostIterator {
 };
 
 #endif  // CHROME_BROWSER_PLUGIN_SERVICE_H__
-

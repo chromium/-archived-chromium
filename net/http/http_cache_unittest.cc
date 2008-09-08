@@ -6,6 +6,7 @@
 
 #include <windows.h>
 
+#include "base/hash_tables.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "net/base/net_errors.h"
@@ -216,7 +217,7 @@ class MockDiskCache : public disk_cache::Backend {
   void set_fail_requests() { fail_requests_ = true; }
 
  private:
-  typedef stdext::hash_map<std::string, MockDiskEntry*> EntryMap;
+  typedef base::hash_map<std::string, MockDiskEntry*> EntryMap;
   EntryMap entries_;
   int open_count_;
   int create_count_;
@@ -984,4 +985,3 @@ TEST(HttpCache, SimpleGET_SSLError) {
 
   trans->Destroy();
 }
-

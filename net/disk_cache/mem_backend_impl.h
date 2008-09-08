@@ -77,4 +77,3 @@ class MemBackendImpl : public Backend {
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_MEM_BACKEND_IMPL_H__
-

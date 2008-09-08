@@ -319,4 +319,3 @@ class MockNetworkLayer : public net::HttpTransactionFactory {
 int ReadTransaction(net::HttpTransaction* trans, std::string* result);
 
 #endif  // NET_HTTP_HTTP_TRANSACTION_UNITTEST_H_
-

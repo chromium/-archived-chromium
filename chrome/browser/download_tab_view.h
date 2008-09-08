@@ -5,9 +5,7 @@
 #ifndef CHROME_BROWSER_DONWLOAD_TAB_VIEW_H__
 #define CHROME_BROWSER_DONWLOAD_TAB_VIEW_H__
 
-#include <hash_map>
-#include <hash_set>
-
+#include "base/hash_tables.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/download_manager.h"
 #include "chrome/browser/download_util.h"
@@ -178,7 +176,7 @@ class DownloadTabView : public ChromeViews::View,
   // Since this view manages the progress animation timers for all the floating
   // views, we need to track the current in progress downloads. This container
   // does not own the DownloadItems.
-  stdext::hash_set<DownloadItem*> in_progress_;
+  base::hash_set<DownloadItem*> in_progress_;
 
   // Provide a start position for downloads with no known size.
   int start_angle_;
@@ -252,4 +250,3 @@ class DownloadTabUI : public NativeUI,
 };
 
 #endif  // CHROME_BROWSER_DONWLOAD_TAB_VIEW_H__
-

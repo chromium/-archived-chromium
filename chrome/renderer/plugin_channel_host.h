@@ -5,6 +5,7 @@
 #ifndef CHROME_PLUGIN_PLUGIN_CHANNEL_HOST_H__
 #define CHROME_PLUGIN_PLUGIN_CHANNEL_HOST_H__
 
+#include "base/hash_tables.h"
 #include "chrome/plugin/plugin_channel_base.h"
 
 class IsListeningFilter;
@@ -38,7 +39,7 @@ class PluginChannelHost : public PluginChannelBase {
 
   // Keep track of all the registered WebPluginDelegeProxies to
   // inform about OnChannelError
-  typedef stdext::hash_map<int, IPC::Channel::Listener*> ProxyMap;
+  typedef base::hash_map<int, IPC::Channel::Listener*> ProxyMap;
   ProxyMap proxies_;
 
   // An IPC MessageFilter that can be told to filter out all messages. This is
@@ -49,4 +50,3 @@ class PluginChannelHost : public PluginChannelBase {
 };
 
 #endif  // CHROME_PLUGIN_PLUGIN_CHANNEL_HOST_H__
-

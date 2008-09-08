@@ -19,13 +19,12 @@
 #define CHROME_BROWSER_SAVE_PACKAGE_H__
 
 #include <string>
-#include <hash_map>
-#include <hash_set>
 #include <vector>
 #include <queue>
 #include <utility>
 
 #include "base/basictypes.h"
+#include "base/hash_tables.h"
 #include "base/ref_counted.h"
 #include "base/time.h"
 #include "chrome/common/pref_member.h"
@@ -233,7 +232,7 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage> {
   SaveItem* LookupItemInProcessBySaveId(int32 save_id);
   void PutInProgressItemToSavedMap(SaveItem* save_item);
 
-  typedef stdext::hash_map<std::wstring, SaveItem*> SaveUrlItemMap;
+  typedef base::hash_map<std::wstring, SaveItem*> SaveUrlItemMap;
   // in_progress_items_ is map of all saving job in in-progress state.
   SaveUrlItemMap in_progress_items_;
   // saved_failed_items_ is map of all saving job which are failed.
@@ -255,7 +254,7 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage> {
   // A queue for items we are about to start saving.
   SaveItemQueue waiting_item_queue_;
 
-  typedef stdext::hash_map<int32, SaveItem*> SavedItemMap;
+  typedef base::hash_map<int32, SaveItem*> SavedItemMap;
   // saved_success_items_ is map of all saving job which are successfully saved.
   SavedItemMap saved_success_items_;
 
@@ -292,11 +291,11 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage> {
   // Number of all need to be saved resources.
   int all_save_items_count_;
 
-  typedef stdext::hash_set<std::wstring> FileNameSet;
+  typedef base::hash_set<std::wstring> FileNameSet;
   // This set is used to eliminate duplicated file names in saving directory.
   FileNameSet file_name_set_;
 
-  typedef stdext::hash_map<std::wstring, uint32> FileNameCountMap;
+  typedef base::hash_map<std::wstring, uint32> FileNameCountMap;
   // This map is used to track serial number for specified filename.
   FileNameCountMap file_name_count_map_;
 
@@ -308,4 +307,3 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage> {
 };
 
 #endif  // CHROME_BROWSER_SAVE_PACKAGE_H__
-

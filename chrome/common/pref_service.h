@@ -15,10 +15,10 @@
 #ifndef CHROME_COMMON_PREF_SERVICE_H_
 #define CHROME_COMMON_PREF_SERVICE_H_
 
-#include <hash_map>
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/hash_tables.h"
 #include "base/non_thread_safe.h"
 #include "base/observer_list.h"
 #include "base/scoped_ptr.h"
@@ -230,7 +230,7 @@ class PrefService : public NonThreadSafe {
   // A map from pref names to a list of observers.  Observers get fired in the
   // order they are added.
   typedef ObserverList<NotificationObserver> NotificationObserverList;
-  typedef stdext::hash_map<std::wstring, NotificationObserverList*>
+  typedef base::hash_map<std::wstring, NotificationObserverList*>
       PrefObserverMap;
   PrefObserverMap pref_observers_;
 
@@ -238,4 +238,3 @@ class PrefService : public NonThreadSafe {
 };
 
 #endif  // CHROME_COMMON_PREF_SERVICE_H_
-

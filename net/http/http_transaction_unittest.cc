@@ -6,8 +6,7 @@
 
 #include <windows.h>
 
-#include <hash_map>
-
+#include "base/hash_tables.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "net/base/net_errors.h"
@@ -99,7 +98,7 @@ static const MockTransaction* const kBuiltinMockTransactions[] = {
   &kRangeGET_Transaction
 };
 
-typedef stdext::hash_map<std::string, const MockTransaction*>
+typedef base::hash_map<std::string, const MockTransaction*>
     MockTransactionMap;
 static MockTransactionMap mock_transactions;
 
@@ -156,4 +155,3 @@ int ReadTransaction(net::HttpTransaction* trans, std::string* result) {
   result->swap(content);
   return net::OK;
 }
-

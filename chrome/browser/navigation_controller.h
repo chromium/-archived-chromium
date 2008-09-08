@@ -5,8 +5,7 @@
 #ifndef CHROME_BROWSER_NAVIGATION_CONTROLLER_H_
 #define CHROME_BROWSER_NAVIGATION_CONTROLLER_H_
 
-#include <hash_map>
-
+#include "base/hash_tables.h"
 #include "base/linked_ptr.h"
 #include "base/ref_counted.h"
 #include "chrome/browser/alternate_nav_url_fetcher.h"
@@ -421,12 +420,12 @@ class NavigationController {
 
   // Tab contents. One entry per type used. The tab controller owns
   // every tab contents used.
-  typedef stdext::hash_map<TabContentsType, TabContents*> TabContentsMap;
+  typedef base::hash_map<TabContentsType, TabContents*> TabContentsMap;
   TabContentsMap tab_contents_map_;
 
   // A map of TabContentsType -> TabContentsCollector containing all the
   // pending collectors.
-  typedef stdext::hash_map<TabContentsType, TabContentsCollector*>
+  typedef base::hash_map<TabContentsType, TabContentsCollector*>
   TabContentsCollectorMap;
   TabContentsCollectorMap tab_contents_collector_map_;
 
@@ -471,4 +470,3 @@ class NavigationController {
 };
 
 #endif  // CHROME_BROWSER_NAVIGATION_CONTROLLER_H_
-

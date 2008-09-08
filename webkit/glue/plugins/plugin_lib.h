@@ -5,10 +5,10 @@
 #ifndef WEBKIT_GLUE_PLUGIN_PLUGIN_LIB_H__
 #define WEBKIT_GLUE_PLUGIN_PLUGIN_LIB_H__
 
-#include <hash_map>
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/hash_tables.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "webkit/glue/plugins/nphostapi.h"
@@ -122,7 +122,7 @@ class PluginLib : public base::RefCounted<PluginLib> {
   int              instance_count_;   // count of plugins in use
 
   // A map of all the insantiated plugins.
-  typedef stdext::hash_map<std::wstring, scoped_refptr<PluginLib> > PluginMap;
+  typedef base::hash_map<std::wstring, scoped_refptr<PluginLib> > PluginMap;
   static PluginMap* loaded_libs_;
 
   // C-style function pointers
@@ -136,4 +136,3 @@ class PluginLib : public base::RefCounted<PluginLib> {
 } // namespace NPAPI
 
 #endif  // WEBKIT_GLUE_PLUGIN_PLUGIN_LIB_H__
-

@@ -41,12 +41,11 @@
 #ifndef CHROME_BROWSER_DOWNLOAD_FILE_H__
 #define CHROME_BROWSER_DOWNLOAD_FILE_H__
 
-#include <hash_map>
-#include <hash_set>
 #include <string>
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/hash_tables.h"
 #include "base/lock.h"
 #include "base/ref_counted.h"
 #include "base/thread.h"
@@ -234,7 +233,7 @@ class DownloadFileManager
   int next_id_;
 
   // A map of all in progress downloads.
-  typedef stdext::hash_map<int, DownloadFile*> DownloadFileMap;
+  typedef base::hash_map<int, DownloadFile*> DownloadFileMap;
   DownloadFileMap downloads_;
 
   // Throttle updates to the UI thread.
@@ -253,18 +252,18 @@ class DownloadFileManager
 
   // Tracking which DownloadManager to send data to, called only on UI thread.
   // DownloadManagerMap maps download IDs to their DownloadManager.
-  typedef stdext::hash_map<int, DownloadManager*> DownloadManagerMap;
+  typedef base::hash_map<int, DownloadManager*> DownloadManagerMap;
   DownloadManagerMap managers_;
 
   // RequestMap maps a DownloadManager to all in-progress download IDs.
   // Called only on the UI thread.
-  typedef stdext::hash_set<int> DownloadRequests;
-  typedef stdext::hash_map<DownloadManager*, DownloadRequests> RequestMap;
+  typedef base::hash_set<int> DownloadRequests;
+  typedef base::hash_map<DownloadManager*, DownloadRequests> RequestMap;
   RequestMap requests_;
 
   // Used for progress updates on the UI thread, mapping download->id() to bytes
   // received so far. Written to by the file thread and read by the UI thread.
-  typedef stdext::hash_map<int, int64> ProgressMap;
+  typedef base::hash_map<int, int64> ProgressMap;
   ProgressMap ui_progress_;
   Lock progress_lock_;
 
@@ -272,4 +271,3 @@ class DownloadFileManager
 };
 
 #endif  // CHROME_BROWSER_DOWNLOAD_FILE_H__
-

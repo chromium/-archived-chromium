@@ -5,10 +5,10 @@
 #ifndef CHROME_WEBKIT_GLUE_PLUGIN_CHANNEL_BASE_H__
 #define CHROME_WEBKIT_GLUE_PLUGIN_CHANNEL_BASE_H__
 
-#include <hash_map>
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/hash_tables.h"
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
@@ -97,7 +97,7 @@ class PluginChannelBase : public IPC::Channel::Listener,
 
   // Keep track of all the registered NPObjects proxies/stubs so that when the
   // channel is closed we can inform them.
-  typedef stdext::hash_map<int, IPC::Channel::Listener*> ListenerMap;
+  typedef base::hash_map<int, IPC::Channel::Listener*> ListenerMap;
   ListenerMap npobject_listeners_;
 
   // Used to implement message routing functionality to WebPlugin[Delegate]
@@ -117,4 +117,3 @@ class PluginChannelBase : public IPC::Channel::Listener,
 };
 
 #endif  // CHROME_WEBKIT_GLUE_PLUGIN_CHANNEL_BASE_H__
-

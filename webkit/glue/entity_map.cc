@@ -4,15 +4,14 @@
 
 #include "webkit/glue/entity_map.h"
 
-#include <hash_map>
-
 #include "HTMLEntityCodes.c"
 
+#include "base/hash_tables.h"
 #include "base/string_util.h"
 
 namespace webkit_glue {
 
-typedef stdext::hash_map<wchar_t, const char*> EntityMapType;
+typedef base::hash_map<wchar_t, const char*> EntityMapType;
 
 class EntityMapData {
  public:
@@ -91,4 +90,3 @@ const char* EntityMap::GetEntityNameByCode(wchar_t code, bool is_html) {
 }
 
 }  // namespace webkit_glue
-

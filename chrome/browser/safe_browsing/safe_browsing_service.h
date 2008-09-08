@@ -9,11 +9,11 @@
 #define CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_SERVICE_H__
 
 #include <deque>
-#include <hash_map>
 #include <set>
 #include <string>
 #include <vector>
 
+#include "base/hash_tables.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "base/thread.h"
@@ -220,7 +220,7 @@ class SafeBrowsingService
 
   // Used for issuing only one GetHash request for a given prefix.
   typedef std::vector<SafeBrowsingCheck*> GetHashRequestors;
-  typedef stdext::hash_map<SBPrefix, GetHashRequestors> GetHashRequests;
+  typedef base::hash_map<SBPrefix, GetHashRequestors> GetHashRequests;
   GetHashRequests gethash_requests_;
 
   // The sqlite database.  We don't use a scoped_ptr because it needs to be
@@ -254,4 +254,3 @@ class SafeBrowsingService
 };
 
 #endif  // CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_SERVICE_H__
-

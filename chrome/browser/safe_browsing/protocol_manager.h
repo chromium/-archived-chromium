@@ -11,10 +11,10 @@
 // The SafeBrowsingProtocolParser class to do the actual parsing.
 
 #include <deque>
-#include <hash_map>
 #include <string>
 #include <vector>
 
+#include "base/hash_tables.h"
 #include "base/scoped_ptr.h"
 #include "base/time.h"
 #include "chrome/browser/url_fetcher.h"
@@ -166,8 +166,8 @@ class SafeBrowsingProtocolManager : public URLFetcher::Delegate {
   std::deque<ChunkUrl> chunk_request_urls_;
 
   // Map of GetHash requests.
-  typedef stdext::hash_map<const URLFetcher*,
-                           SafeBrowsingService::SafeBrowsingCheck*> HashRequests;
+  typedef base::hash_map<const URLFetcher*,
+                         SafeBrowsingService::SafeBrowsingCheck*> HashRequests;
   HashRequests hash_requests_;
 
   // The next scheduled update has special behavior for the first 2 requests.
@@ -205,4 +205,3 @@ class SafeBrowsingProtocolManager : public URLFetcher::Delegate {
 };
 
 #endif  // CHROME_BROWSER_SAFE_BROWSING_PROTOCOL_MANAGER_H__
-

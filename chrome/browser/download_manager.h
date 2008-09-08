@@ -36,12 +36,12 @@
 #define CHROME_BROWSER_DOWNLOAD_MANAGER_H__
 
 #include <string>
-#include <hash_map>
 #include <map>
 #include <set>
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/hash_tables.h"
 #include "base/observer_list.h"
 #include "base/ref_counted.h"
 #include "chrome/browser/cancelable_request.h"
@@ -423,7 +423,7 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   // past sessions read from a persisted state from the history system are
   // placed directly into 'downloads_' since they have valid handles in the
   // history system.
-  typedef stdext::hash_map<int64, DownloadItem*> DownloadMap;
+  typedef base::hash_map<int64, DownloadItem*> DownloadMap;
   DownloadMap downloads_;
   DownloadMap in_progress_;
 
@@ -481,4 +481,3 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
 
 
 #endif  // CHROME_BROWSER_DOWNLOAD_MANAGER_H__
-

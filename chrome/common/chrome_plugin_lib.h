@@ -5,7 +5,6 @@
 #ifndef CHROME_COMMON_CHROME_PLUGIN_LIB_H_
 #define CHROME_COMMON_CHROME_PLUGIN_LIB_H_
 
-#include <hash_map>
 #include <string>
 
 #include "base/basictypes.h"
@@ -96,4 +95,3 @@ class ChromePluginLib : public base::RefCounted<ChromePluginLib>  {
 };
 
 #endif  // CHROME_COMMON_CHROME_PLUGIN_LIB_H_
-

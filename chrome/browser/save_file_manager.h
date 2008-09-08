@@ -58,11 +58,10 @@
 #ifndef CHROME_BROWSER_SAVE_FILE_MANAGER_H__
 #define CHROME_BROWSER_SAVE_FILE_MANAGER_H__
 
-#include <hash_map>
-#include <hash_set>
 #include <utility>
 
 #include "base/basictypes.h"
+#include "base/hash_tables.h"
 #include "base/ref_counted.h"
 #include "base/thread.h"
 #include "chrome/browser/save_types.h"
@@ -222,7 +221,7 @@ class SaveFileManager
   int next_id_;
 
   // A map of all saving jobs by using save id.
-  typedef stdext::hash_map<int, SaveFile*> SaveFileMap;
+  typedef base::hash_map<int, SaveFile*> SaveFileMap;
   SaveFileMap save_file_map_;
 
   // Message loop that the SavePackages live on.
@@ -240,7 +239,7 @@ class SaveFileManager
 
   // Tracks which SavePackage to send data to, called only on UI thread.
   // SavePackageMap maps save IDs to their SavePackage.
-  typedef stdext::hash_map<int, SavePackage*> SavePackageMap;
+  typedef base::hash_map<int, SavePackage*> SavePackageMap;
   SavePackageMap packages_;
 
   // There is a gap between after calling SaveURL() and before calling
@@ -253,12 +252,11 @@ class SaveFileManager
   // use a hashmap to map the tab id (we actually use render_process_id) to the
   // hashmap since it is possible to save same URL in different tab at
   // same time.
-  typedef stdext::hash_map<std::wstring, SavePackage*> StartingRequestsMap;
-  typedef stdext::hash_map<int, StartingRequestsMap> TabToStartingRequestsMap;
+  typedef base::hash_map<std::wstring, SavePackage*> StartingRequestsMap;
+  typedef base::hash_map<int, StartingRequestsMap> TabToStartingRequestsMap;
   TabToStartingRequestsMap tab_starting_requests_;
 
   DISALLOW_EVIL_CONSTRUCTORS(SaveFileManager);
 };
 
 #endif  // CHROME_BROWSER_SAVE_FILE_MANAGER_H__
-

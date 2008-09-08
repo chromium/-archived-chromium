@@ -42,13 +42,12 @@
 #ifndef CHROME_BROWSER_ICON_MANAGER_H__
 #define CHROME_BROWSER_ICON_MANAGER_H__
 
-#include <hash_map>
 #include <map>
 #include <set>
 #include <string>
 
+#include "base/hash_tables.h"
 #include "chrome/browser/icon_loader.h"
-
 #include "chrome/browser/cancelable_request.h"
 
 class SkBitmap;
@@ -107,7 +106,7 @@ private:
   } ClientRequest;
 
   // Asynchronous requests that have not yet been completed.
-  typedef stdext::hash_map<IconLoader*, ClientRequest> ClientRequests;
+  typedef base::hash_map<IconLoader*, ClientRequest> ClientRequests;
   ClientRequests requests_;
 
   DISALLOW_EVIL_CONSTRUCTORS(IconManager);

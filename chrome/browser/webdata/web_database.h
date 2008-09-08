@@ -7,7 +7,6 @@
 
 #include <string>
 #include <vector>
-#include <hash_map>
 
 #include "base/basictypes.h"
 #include "chrome/browser/meta_table_helper.h"
@@ -142,4 +141,3 @@ class WebDatabase {
 };
 
 #endif  // CHROME_BROWSER_WEBDATA_WEB_DATABASE_H__
-

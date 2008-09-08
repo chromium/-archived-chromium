@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <hash_map>
 #include <windows.h>
 
 #include "chrome/plugin/plugin_channel_base.h"
 
+#include "base/hash_tables.h"
 #include "chrome/common/ipc_sync_message.h"
 #include "chrome/plugin/plugin_process.h"
 
-typedef stdext::hash_map<std::wstring, scoped_refptr<PluginChannelBase> >
+typedef base::hash_map<std::wstring, scoped_refptr<PluginChannelBase> >
     PluginChannelMap;
 
 static PluginChannelMap g_plugin_channels_;
@@ -191,4 +191,3 @@ void PluginChannelBase::OnChannelError() {
 void PluginChannelBase::SendUnblockingOnlyDuringDispatch() {
   send_unblocking_only_during_dispatch_ = true;
 }
-

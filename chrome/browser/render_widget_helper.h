@@ -1,3 +1,4 @@
+
 // Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -5,9 +6,8 @@
 #ifndef CHROME_BROWSER_RENDER_WIDGET_HELPER_H__
 #define CHROME_BROWSER_RENDER_WIDGET_HELPER_H__
 
-#include <hash_map>
-
 #include "base/atomic_sequence_num.h"
+#include "base/hash_tables.h"
 #include "base/ref_counted.h"
 #include "base/lock.h"
 
@@ -119,7 +119,7 @@ class RenderWidgetHelper :
   friend PaintMsgProxy;
 
   // Map from render_widget_id to live PaintMsgProxy instance.
-  typedef stdext::hash_map<int, PaintMsgProxy*> PaintMsgProxyMap;
+  typedef base::hash_map<int, PaintMsgProxy*> PaintMsgProxyMap;
 
   // Called on the UI thread to dispatch a paint message if necessary.
   void OnDispatchPaintMsg(PaintMsgProxy* proxy);
@@ -158,4 +158,3 @@ class RenderWidgetHelper :
 };
 
 #endif  // CHROME_BROWSER_RENDER_WIDGET_HELPER_H__
-
