@@ -392,11 +392,15 @@ bool SaveFileAsWithFilter(HWND owner,
                           unsigned* index,
                           std::wstring* final_name) {
   DCHECK(final_name);
-
-  // Initially populated by the file component of 'suggested_name', this buffer
-  // will be written into by Windows when the user is done with the dialog box.
   std::wstring file_part = file_util::GetFilenameFromPath(suggested_name);
 
+  // The size of the in/out buffer in number of characters we pass to win32
+  // GetSaveFileName.  From MSDN "The buffer must be large enough to store the
+  // path and file name string or strings, including the terminating NULL
+  // character.  ... The buffer should be at least 256 characters long.".
+  // _IsValidPathComDlg does a copy expecting at most MAX_PATH, otherwise will
+  // result in an error of FNERR_INVALIDFILENAME.  So we should only pass the
+  // API a buffer of at most MAX_PATH.
   wchar_t file_name[MAX_PATH];
   base::wcslcpy(file_name, file_part.c_str(), arraysize(file_name));
 
@@ -432,8 +436,14 @@ bool SaveFileAsWithFilter(HWND owner,
   save_as.pvReserved = NULL;
   save_as.dwReserved = 0;
 
-  if (!GetSaveFileName(&save_as))
+  if (!GetSaveFileName(&save_as)) {
+    // Zero means the dialog was closed, otherwise we had an error.
+    DWORD error_code = CommDlgExtendedError();
+    if (error_code != 0) {
+      NOTREACHED() << "GetSaveFileName failed with code: " << error_code;
+    }
     return false;
+  }
 
   // Return the user's choice.
   final_name->assign(save_as.lpstrFile);
