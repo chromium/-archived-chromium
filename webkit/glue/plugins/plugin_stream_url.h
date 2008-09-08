@@ -32,7 +32,7 @@ class PluginStreamUrl : public PluginStream,
   // Stop sending the stream to the client.
   // Overrides the base Close so we can cancel our fetching the URL if
   // it is still loading.
-  bool Close(NPReason reason);
+  virtual bool Close(NPReason reason);
 
   //
   // WebPluginResourceClient methods

@@ -183,16 +183,24 @@ int PluginStream::TryWriteToPlugin(const char *buf, const int length) {
     if (bytes_to_write == 0)
       return byte_offset;
 
-    int bytesSent = instance_->NPP_Write(&stream_,
-                                         bytes_sent_,
-                                         bytes_to_write,
-                                         const_cast<char*>(buf + byte_offset));
-    if (bytesSent < bytes_to_write) {
-      // We couldn't write all the bytes. This is an error.
+    int bytes_consumed = instance_->NPP_Write(
+        &stream_, bytes_sent_, bytes_to_write,
+        const_cast<char*>(buf + byte_offset));
+    if (bytes_consumed < 0) {
+      // The plugin failed, which means that we need to close the stream.
+      Close(NPRES_NETWORK_ERR);
       return -1;
     }
-    bytes_sent_ += bytesSent;
-    byte_offset += bytesSent;
+    if (bytes_consumed == 0) {
+      // The plugin couldn't take all of the data now.
+      return byte_offset;
+    }
+
+    // The plugin might report more that we gave it.
+    bytes_consumed = std::min(bytes_consumed, bytes_to_write);
+
+    bytes_sent_ += bytes_consumed;
+    byte_offset += bytes_consumed;
   }
 
   if (close_on_write_data_)
