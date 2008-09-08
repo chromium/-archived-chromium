@@ -15,12 +15,23 @@ class ExternalProtocolDialog : public ChromeViews::DialogDelegate {
  public:
   // Creates and runs a External Protocol dialog box.
   // |url| - The url of the request.
+  // |command| - the command that ShellExecute will run.
   // |render_process_host_id| and |routing_id| are used by
   // tab_util::GetTabContentsByID to aquire the tab contents associated with
   // this dialog.
+  // NOTE: There is a race between the Time of Check and the Time Of Use for
+  //       the command line. Since the caller (web page) does not have access
+  //       to change the command line by itself, we do not do anything special
+  //       to protect against this scenario.
   static void RunExternalProtocolDialog(const GURL& url,
+                                        const std::wstring& command,
                                         int render_process_host_id,
                                         int routing_id);
+
+  // Returns the path of the application to be launched given the protocol
+  // of the requested url. Returns an empty string on failure.
+  static std::wstring GetApplicationForProtocol(const GURL& url);
+
   virtual ~ExternalProtocolDialog();
 
   // ChromeViews::DialogDelegate Methods:
@@ -39,11 +50,8 @@ class ExternalProtocolDialog : public ChromeViews::DialogDelegate {
  private:
   // RunExternalProtocolDialog calls this private constructor.
   ExternalProtocolDialog(TabContents* tab_contents,
-                         const GURL& url);
-
-  // Returns the path of the application to be launched given the protocol
-  // of the requested url. Returns an empty string on failure.
-  std::wstring GetApplicationForProtocol();
+                         const GURL& url,
+                         const std::wstring& command);
 
   // The message box view whose commands we handle.
   MessageBoxView* message_box_view_;

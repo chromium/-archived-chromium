@@ -29,11 +29,12 @@ const int kMessageWidth = 400;
 
 // static
 void ExternalProtocolDialog::RunExternalProtocolDialog(
-    const GURL& url, int render_process_host_id, int routing_id) {
+    const GURL& url, const std::wstring& command, int render_process_host_id,
+    int routing_id) {
   TabContents* tab_contents = tab_util::GetTabContentsByID(
       render_process_host_id, routing_id);
   ExternalProtocolDialog* handler =
-      new ExternalProtocolDialog(tab_contents, url);
+      new ExternalProtocolDialog(tab_contents, url, command);
 }
 
 ExternalProtocolDialog::~ExternalProtocolDialog() {
@@ -89,7 +90,8 @@ ChromeViews::View* ExternalProtocolDialog::GetContentsView() {
 // ExternalProtocolDialog, private:
 
 ExternalProtocolDialog::ExternalProtocolDialog(TabContents* tab_contents,
-                                               const GURL& url)
+                                               const GURL& url,
+                                               const std::wstring& command)
     : tab_contents_(tab_contents),
       url_(url) {
   std::wstring message_text = l10n_util::GetStringF(
@@ -98,8 +100,7 @@ ExternalProtocolDialog::ExternalProtocolDialog(TabContents* tab_contents,
       ASCIIToWide(url.possibly_invalid_spec())) + L"\n\n";
 
   message_text += l10n_util::GetStringF(
-      IDS_EXTERNAL_PROTOCOL_APPLICATION_TO_LAUNCH,
-      GetApplicationForProtocol()) + L"\n\n";
+      IDS_EXTERNAL_PROTOCOL_APPLICATION_TO_LAUNCH, command) + L"\n\n";
 
   message_text += l10n_util::GetString(IDS_EXTERNAL_PROTOCOL_WARNING);
 
@@ -118,10 +119,12 @@ ExternalProtocolDialog::ExternalProtocolDialog(TabContents* tab_contents,
   ChromeViews::Window::CreateChromeWindow(root_hwnd, gfx::Rect(), this)->Show();
 }
 
-std::wstring ExternalProtocolDialog::GetApplicationForProtocol() {
-  std::wstring url_spec = ASCIIToWide(url_.possibly_invalid_spec());
+/* static */
+std::wstring ExternalProtocolDialog::GetApplicationForProtocol(
+    const GURL& url) {
+  std::wstring url_spec = ASCIIToWide(url.possibly_invalid_spec());
   std::wstring cmd_key_path =
-      ASCIIToWide(url_.scheme() + "\\shell\\open\\command");
+      ASCIIToWide(url.scheme() + "\\shell\\open\\command");
   RegKey cmd_key(HKEY_CLASSES_ROOT, cmd_key_path.c_str(), KEY_READ);
   size_t split_offset = url_spec.find(L':');
   if (split_offset == std::wstring::npos)

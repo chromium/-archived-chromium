@@ -113,9 +113,17 @@ void ExternalProtocolHandler::LaunchUrl(const GURL& url,
     return;
 
   if (block_state == UNKNOWN) {
+    std::wstring command = ExternalProtocolDialog::GetApplicationForProtocol(
+                               escaped_url);
+    if (command.empty()) {
+      // ShellExecute won't do anything. Don't bother warning the user.
+      return;
+    }
+
     // Ask the user if they want to allow the protocol. This will call
     // LaunchUrlWithoutSecurityCheck if the user decides to accept the protocol.
     ExternalProtocolDialog::RunExternalProtocolDialog(escaped_url,
+                                                      command,
                                                       render_process_host_id,
                                                       tab_contents_id);
     return;
@@ -135,8 +143,6 @@ void ExternalProtocolHandler::LaunchUrl(const GURL& url,
 
 // static
 void ExternalProtocolHandler::LaunchUrlWithoutSecurityCheck(const GURL& url) {
-  DCHECK(g_browser_process->io_thread()->message_loop() ==
-         MessageLoop::current());
   // Quote the input scheme to be sure that the command does not have
   // parameters unexpected by the external program. This url should already
   // have been escaped.
