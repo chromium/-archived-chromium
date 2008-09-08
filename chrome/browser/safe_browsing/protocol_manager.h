@@ -23,6 +23,7 @@
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/safe_browsing/safe_browsing_util.h"
 #include "net/url_request/url_request.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 
 class MessageLoop;
 class Task;
@@ -31,9 +32,9 @@ class Timer;
 
 class SafeBrowsingProtocolManager : public URLFetcher::Delegate {
   // Testing friends:
-  friend class SafeBrowsingProtocolManagerTest_TestBackOffTimes_Test;
-  friend class SafeBrowsingProtocolManagerTest_TestChunkStrings_Test;
-  friend class SafeBrowsingProtocolManagerTest_TestGetHashBackOffTimes_Test;
+  FRIEND_TEST(SafeBrowsingProtocolManagerTest, TestBackOffTimes);
+  FRIEND_TEST(SafeBrowsingProtocolManagerTest, TestChunkStrings);
+  FRIEND_TEST(SafeBrowsingProtocolManagerTest, DISABLED_TestGetHashBackOffTimes);
 
  public:
   SafeBrowsingProtocolManager(SafeBrowsingService* sb_service,

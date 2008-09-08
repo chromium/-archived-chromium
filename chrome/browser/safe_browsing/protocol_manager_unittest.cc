@@ -8,9 +8,11 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "chrome/browser/safe_browsing/protocol_manager.h"
 
+class SafeBrowsingProtocolManagerTest : public testing::Test {
+};
 
 // Ensure that we respect section 5 of the SafeBrowsing protocol specification.
-TEST(SafeBrowsingProtocolManagerTest, TestBackOffTimes) {
+TEST_F(SafeBrowsingProtocolManagerTest, TestBackOffTimes) {
   SafeBrowsingProtocolManager pm(NULL, NULL, "", "");
   pm.next_update_sec_ = 1800;
   DCHECK(pm.back_off_fuzz_ >= 0.0 && pm.back_off_fuzz_ <= 1.0);
@@ -48,7 +50,7 @@ TEST(SafeBrowsingProtocolManagerTest, TestBackOffTimes) {
 }
 
 // Test string combinations with and without MAC.
-TEST(SafeBrowsingProtocolManagerTest, TestChunkStrings) {
+TEST_F(SafeBrowsingProtocolManagerTest, TestChunkStrings) {
   SafeBrowsingProtocolManager pm(NULL, NULL, "", "");
 
   // Add and Sub chunks.
@@ -81,7 +83,7 @@ TEST(SafeBrowsingProtocolManagerTest, TestChunkStrings) {
 }
 
 // Flakey, see http://code.google.com/p/chromium/issues/detail?id=1880
-TEST(SafeBrowsingProtocolManagerTest, DISABLED_TestGetHashBackOffTimes) {
+TEST_F(SafeBrowsingProtocolManagerTest, DISABLED_TestGetHashBackOffTimes) {
   SafeBrowsingProtocolManager pm(NULL, NULL, "", "");
 
   // No errors or back off time yet.
