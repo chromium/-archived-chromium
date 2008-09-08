@@ -30,7 +30,7 @@
 					Name="SkipRebuildArchive"
 					DisplayName="Skip Rebuilding Archive"
 					Description="Skips rebuilding chrome.7z archive if it already exists"
-					Switch="--skip_rebuild_archive"
+					Switch="--skip_rebuild_archive=&quot;[value]&quot;"
 				/>
 			</Properties>
 		</CustomBuildRule>

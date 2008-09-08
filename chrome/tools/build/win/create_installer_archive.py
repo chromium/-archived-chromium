@@ -135,11 +135,9 @@ def CreateArchiveFile(output_dir, staging_dir, current_version,
                                       os.path.join(staging_dir, CHROME_DIR))
   # There doesnt seem to be any way in 7za.exe to override existing file so
   # we always delete before creating a new one.
-  print 'archive file %s ' % archive_file
-  print 'skip_rebuild_archive %s ' % skip_rebuild_archive
   if not os.path.exists(archive_file):
     RunSystemCommand(cmd)
-  elif not skip_rebuild_archive:
+  elif skip_rebuild_archive != "true":
     os.remove(archive_file)
     RunSystemCommand(cmd)
 
@@ -225,8 +223,6 @@ def main(options):
   """Main method that reads input file, creates archive file and write
   resource input file.
   """
-  print options
-  print os.environ
   current_version = BuildVersion(options.output_dir)
 
   config = Readconfig(options.output_dir, options.input_file, current_version)
@@ -252,8 +248,8 @@ if '__main__' == __name__:
   option_parser.add_option('-i', '--input_file', help='Input file')
   option_parser.add_option('-d', '--distribution',
       help='Name of Chromium Distribution. Optional.')
-  option_parser.add_option('-s', '--skip_rebuild_archive', action='store_true',
-      default=False, help='Skip re-building Chrome.7z archive if it exists.')
+  option_parser.add_option('-s', '--skip_rebuild_archive',
+      default="False", help='Skip re-building Chrome.7z archive if it exists.')
   option_parser.add_option('-l', '--last_chrome_installer', 
       help='Generate differential installer. The value of this parameter ' +
            'specifies the directory that contains base versions of ' +
