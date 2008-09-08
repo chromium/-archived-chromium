@@ -13,7 +13,7 @@
 #include "base/basictypes.h"
 #include "base/message_loop.h"
 
-#include "v8/include/debug.h"
+#include "v8/include/v8-debug.h"
 
 void V8DebugMessageHandler(const uint16_t* message, int length, void* data);
 

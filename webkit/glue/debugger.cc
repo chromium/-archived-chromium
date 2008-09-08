@@ -8,7 +8,7 @@
 
 #if USE(V8_BINDING)
 #define USING_V8
-#include "v8/include/debug.h"
+#include "v8/include/v8-debug.h"
 #endif
 
 void V8DebugMessageHandler(const uint16_t* message, int length, void* data) {

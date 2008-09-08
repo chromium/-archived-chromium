@@ -24,7 +24,7 @@ deps = {
     "/trunk/deps/third_party/svn@1791",
 
   "src/v8":
-    "http://v8.googlecode.com/svn/trunk@101",
+    "http://v8.googlecode.com/svn/trunk@138",
 
   "src/webkit/data/layout_tests/LayoutTests":
     "http://svn.webkit.org/repository/webkit/branches/Safari-3-1-branch/LayoutTests@31256",
