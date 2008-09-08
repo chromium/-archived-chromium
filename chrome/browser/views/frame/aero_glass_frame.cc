@@ -63,10 +63,6 @@ gfx::Rect AeroGlassFrame::GetWindowBoundsForClientBounds(
   return gfx::Rect(rect);
 }
 
-void AeroGlassFrame::SizeToContents(const gfx::Rect& contents_bounds) {
-  // TODO(beng): implement me.
-}
-
 gfx::Rect AeroGlassFrame::GetBoundsForTabStrip(TabStrip* tabstrip) const {
   return GetAeroGlassNonClientView()->GetBoundsForTabStrip(tabstrip);
 }
@@ -80,7 +76,6 @@ ChromeViews::Window* AeroGlassFrame::GetWindow() {
 
 void AeroGlassFrame::UpdateWindowIcon() {
   Window::UpdateWindowIcon();
-  // TODO(beng): do something in the non-client view when this builds on Vista.
 }
 
 ///////////////////////////////////////////////////////////////////////////////

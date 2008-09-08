@@ -226,11 +226,6 @@ void AeroGlassNonClientView::Paint(ChromeCanvas* canvas) {
     PaintToolbarBackground(canvas);
     PaintClientEdge(canvas);
   }
-
-  // TODO(beng): remove this
-  gfx::Rect contents_bounds = browser_view_->GetClientAreaBounds();
-  canvas->FillRectInt(SK_ColorGRAY, contents_bounds.x(), contents_bounds.y(),
-                      contents_bounds.width(), contents_bounds.height());
 }
 
 void AeroGlassNonClientView::Layout() {
