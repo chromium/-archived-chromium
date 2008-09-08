@@ -95,6 +95,8 @@
 		7BF1658E0E663B4A00AA999E /* worker_pool_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BF1658C0E663B3500AA999E /* worker_pool_unittest.cc */; };
 		7BF882800E71929B000BAF8A /* trace_event.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BF8827E0E71929B000BAF8A /* trace_event.cc */; };
 		7BF882910E719389000BAF8A /* non_thread_safe.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BF8828F0E719389000BAF8A /* non_thread_safe.cc */; };
+		7BF892DF0E75887C000BAF8A /* lazy_instance.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BF892DC0E758841000BAF8A /* lazy_instance.cc */; };
+		7BF892E00E758883000BAF8A /* lazy_instance_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BF892DE0E758841000BAF8A /* lazy_instance_unittest.cc */; };
 		820EB4F70E3A613F009668FC /* string_piece.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4F50E3A613F009668FC /* string_piece.cc */; };
 		820EB4FA0E3A6178009668FC /* string_util_icu.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4F90E3A6178009668FC /* string_util_icu.cc */; };
 		820EB5020E3A618B009668FC /* tracked.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4FE0E3A618B009668FC /* tracked.cc */; };
@@ -392,6 +394,9 @@
 		7BF8827F0E71929B000BAF8A /* trace_event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = trace_event.h; sourceTree = "<group>"; };
 		7BF8828F0E719389000BAF8A /* non_thread_safe.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = non_thread_safe.cc; sourceTree = "<group>"; };
 		7BF882900E719389000BAF8A /* non_thread_safe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = non_thread_safe.h; sourceTree = "<group>"; };
+		7BF892DC0E758841000BAF8A /* lazy_instance.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lazy_instance.cc; sourceTree = "<group>"; };
+		7BF892DD0E758841000BAF8A /* lazy_instance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lazy_instance.h; sourceTree = "<group>"; };
+		7BF892DE0E758841000BAF8A /* lazy_instance_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lazy_instance_unittest.cc; sourceTree = "<group>"; };
 		820EB4EB0E3A60FE009668FC /* idle_timer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = idle_timer.cc; sourceTree = "<group>"; };
 		820EB4EC0E3A60FE009668FC /* idle_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = idle_timer.h; sourceTree = "<group>"; };
 		820EB4EF0E3A610A009668FC /* linked_ptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = linked_ptr.h; sourceTree = "<group>"; };
@@ -797,6 +802,9 @@
 				8254031D0D92D1F40006B936 /* json_writer.cc */,
 				8254031E0D92D1F40006B936 /* json_writer.h */,
 				E4562C4E0E28022A005E4685 /* json_writer_unittest.cc */,
+				7BF892DC0E758841000BAF8A /* lazy_instance.cc */,
+				7BF892DD0E758841000BAF8A /* lazy_instance.h */,
+				7BF892DE0E758841000BAF8A /* lazy_instance_unittest.cc */,
 				820EB4EF0E3A610A009668FC /* linked_ptr.h */,
 				E49E4CA80E4CF6AD00AD47F7 /* linked_ptr_unittest.cc */,
 				825403250D92D2090006B936 /* lock.cc */,
@@ -1232,6 +1240,7 @@
 				8216A5060E34DBDD00EE374C /* icu_util.cc in Sources */,
 				ABF4B9AF0DC2BC6200A6E319 /* json_reader.cc in Sources */,
 				ABF4B9B00DC2BC6500A6E319 /* json_writer.cc in Sources */,
+				7BF892DF0E75887C000BAF8A /* lazy_instance.cc in Sources */,
 				824653450DC1230B007C2BAA /* lock.cc in Sources */,
 				829E35DA0DC0DD0400819EBF /* lock_impl_posix.cc in Sources */,
 				829E35D50DC0DC9400819EBF /* logging.cc in Sources */,
@@ -1309,6 +1318,7 @@
 				AB956E0A0E5DDC0900BBE9D8 /* image_operations_unittest.cc in Sources */,
 				7B78D3920E54FE0100609465 /* json_reader_unittest.cc in Sources */,
 				7B78D3930E54FE0100609465 /* json_writer_unittest.cc in Sources */,
+				7BF892E00E758883000BAF8A /* lazy_instance_unittest.cc in Sources */,
 				7B78D3940E54FE0100609465 /* linked_ptr_unittest.cc in Sources */,
 				93611AE80E5A803700F9405D /* message_loop_unittest.cc in Sources */,
 				7B78D3950E54FE0100609465 /* observer_list_unittest.cc in Sources */,
