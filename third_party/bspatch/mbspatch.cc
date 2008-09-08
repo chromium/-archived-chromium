@@ -209,16 +209,16 @@ int CalculateCrc(const unsigned char *buf, int size) {
 # define _O_BINARY 0
 #endif
 
-int ApplyBinaryPatch(const char *old_file, const char *patch_file,
-                     const char *new_file) {
+int ApplyBinaryPatch(const wchar_t *old_file, const wchar_t *patch_file,
+                     const wchar_t *new_file) {
   int ret = 0;
-  int pfd = open(patch_file, O_RDONLY | _O_BINARY);
+  int pfd = _wopen(patch_file, O_RDONLY | _O_BINARY);
   if (pfd < 0) return READ_ERROR;
 
   MBSPatchHeader header;
   if (ret = MBS_ReadHeader(pfd, &header)) return ret;
 
-  int ofd = open(old_file, O_RDONLY | _O_BINARY);
+  int ofd = _wopen(old_file, O_RDONLY | _O_BINARY);
   if (ofd < 0) return READ_ERROR;
 
   struct stat os;
@@ -232,7 +232,7 @@ int ApplyBinaryPatch(const char *old_file, const char *patch_file,
   if (CalculateCrc(buf, header.slen) != header.scrc32) 
     return CRC_ERROR;
 
-  int nfd = open(new_file, O_WRONLY | O_TRUNC | O_CREAT | _O_BINARY);
+  int nfd = _wopen(new_file, O_WRONLY | O_TRUNC | O_CREAT | _O_BINARY);
   if (nfd < 0) return READ_ERROR;
 
   MBS_ApplyPatch(&header, pfd, buf, nfd);

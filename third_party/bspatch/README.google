@@ -8,3 +8,6 @@ http://lxr.mozilla.org/mozilla/source/toolkit/mozapps/update/src/updater/
 The license is shared in common with bsdiff.
 
 Local changes include CRC32 verification.
+
+Update(08 Sep 08): Changed ApplyBinaryPatch to accept wchar_t paths
+instead of char paths.

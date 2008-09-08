@@ -102,8 +102,8 @@ typedef struct MBSPatchTriple_ {
  * the CRC of the original file stored in the patch file, before applying the 
  * patch to it.
  */
-int ApplyBinaryPatch(const char *old_file, const char *patch_file,
-                     const char *new_file);
+int ApplyBinaryPatch(const wchar_t *old_file, const wchar_t *patch_file,
+                     const wchar_t *new_file);
 
 /**
   * Calculates Crc of the given buffer by calling CRC method in LZMA SDK

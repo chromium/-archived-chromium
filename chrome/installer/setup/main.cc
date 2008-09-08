@@ -72,9 +72,9 @@ int PatchArchiveFile(bool system_install, const std::wstring& archive_path,
   LOG(INFO) << "Applying patch " << patch_archive
             << " to file " << existing_archive
             << " and generating file " << uncompressed_archive;
-  return ApplyBinaryPatch(WideToUTF8(existing_archive).c_str(),
-                          WideToUTF8(patch_archive).c_str(),
-                          WideToUTF8(uncompressed_archive).c_str());
+  return ApplyBinaryPatch(existing_archive.c_str(),
+                          patch_archive.c_str(),
+                          uncompressed_archive.c_str());
 }
 
 
@@ -126,9 +126,9 @@ DWORD UnPackArchive(const std::wstring& archive, bool system_install,
                    << "installed on the system.";
         return 1;
       }
-      if (PatchArchiveFile(system_install, temp_path, uncompressed_archive,
-                           installed_version)) {
-        LOG(ERROR) << "Binary patching failed.";
+      if (int i = PatchArchiveFile(system_install, temp_path, 
+                                   uncompressed_archive, installed_version)) {
+        LOG(ERROR) << "Binary patching failed with error " << i;
         return 1;
       }
     }
