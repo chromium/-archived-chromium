@@ -1212,7 +1212,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -ex\nexec ${BUILT_PRODUCTS_DIR}/base_unittests\n";
+			shellScript = "set -ex\nRUNNABLE_PRODUCT=$(echo \"${PRODUCT_NAME}\" | sed -e s/^run_//)\nexec \"${BUILT_PRODUCTS_DIR}/${RUNNABLE_PRODUCT}\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

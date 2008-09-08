@@ -19,16 +19,16 @@
 			name = All;
 			productName = All;
 		};
-		E4AFA6580E52423900201347 /* run net_unittests */ = {
+		E4AFA6580E52423900201347 /* run_net_unittests */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = E4AFA65D0E52429E00201347 /* Build configuration list for PBXAggregateTarget "run net_unittests" */;
+			buildConfigurationList = E4AFA65D0E52429E00201347 /* Build configuration list for PBXAggregateTarget "run_net_unittests" */;
 			buildPhases = (
 				E4AFA6570E52423900201347 /* ShellScript */,
 			);
 			dependencies = (
 				E4AFA65C0E52424400201347 /* PBXTargetDependency */,
 			);
-			name = "run net_unittests";
+			name = run_net_unittests;
 			productName = run_net_unittests;
 		};
 /* End PBXAggregateTarget section */
@@ -1080,7 +1080,7 @@
 				CA70C1C70E6C78D300FBEF81 /* All */,
 				D2AAC045055464E500DB518D /* net */,
 				E4AFA6220E523E2900201347 /* net_unittests */,
-				E4AFA6580E52423900201347 /* run net_unittests */,
+				E4AFA6580E52423900201347 /* run_net_unittests */,
 			);
 		};
 /* End PBXProject section */
@@ -1212,7 +1212,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -ex\nexec ${BUILT_PRODUCTS_DIR}/net_unittests\n";
+			shellScript = "set -ex\nRUNNABLE_PRODUCT=$(echo \"${PRODUCT_NAME}\" | sed -e s/^run_//)\nexec \"${BUILT_PRODUCTS_DIR}/${RUNNABLE_PRODUCT}\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1530,7 +1530,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E4AFA65D0E52429E00201347 /* Build configuration list for PBXAggregateTarget "run net_unittests" */ = {
+		E4AFA65D0E52429E00201347 /* Build configuration list for PBXAggregateTarget "run_net_unittests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E4AFA6590E52423A00201347 /* Debug */,
