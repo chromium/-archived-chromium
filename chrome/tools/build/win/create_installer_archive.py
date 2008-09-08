@@ -135,6 +135,8 @@ def CreateArchiveFile(output_dir, staging_dir, current_version,
                                       os.path.join(staging_dir, CHROME_DIR))
   # There doesnt seem to be any way in 7za.exe to override existing file so
   # we always delete before creating a new one.
+  print 'archive file %s ' % archive_file
+  print 'skip_rebuild_archive %s ' % skip_rebuild_archive
   if not os.path.exists(archive_file):
     RunSystemCommand(cmd)
   elif not skip_rebuild_archive:
@@ -223,6 +225,7 @@ def main(options):
   """Main method that reads input file, creates archive file and write
   resource input file.
   """
+  print options
   current_version = BuildVersion(options.output_dir)
 
   config = Readconfig(options.output_dir, options.input_file, current_version)
