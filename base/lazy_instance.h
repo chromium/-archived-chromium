@@ -72,6 +72,9 @@ class LazyInstanceHelper {
   void EnsureInstance(void* instance, void (*ctor)(void*), void (*dtor)(void*));
 
   base::subtle::Atomic32 state_;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(LazyInstanceHelper);
 };
 
 template <typename Type, typename Traits = DefaultLazyInstanceTraits<Type> >
