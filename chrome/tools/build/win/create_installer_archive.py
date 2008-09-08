@@ -226,6 +226,7 @@ def main(options):
   resource input file.
   """
   print options
+  print os.environ
   current_version = BuildVersion(options.output_dir)
 
   config = Readconfig(options.output_dir, options.input_file, current_version)
