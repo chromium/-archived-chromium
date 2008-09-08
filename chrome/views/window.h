@@ -158,6 +158,8 @@ class Window : public HWNDViewContainer {
 
   // Overridden from HWNDViewContainer:
   virtual void OnActivate(UINT action, BOOL minimized, HWND window);
+  virtual LRESULT OnAppCommand(HWND window, short app_command, WORD device,
+                               int keystate);
   virtual void OnCommand(UINT notification_code, int command_id, HWND window);
   virtual void OnDestroy();
   virtual LRESULT OnEraseBkgnd(HDC dc);

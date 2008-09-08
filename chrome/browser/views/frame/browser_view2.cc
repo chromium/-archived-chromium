@@ -559,6 +559,12 @@ bool BrowserView2::ShouldShowWindowIcon() const {
 }
 
 bool BrowserView2::ExecuteWindowsCommand(int command_id) {
+  // Translate WM_APPCOMMAND command ids into a command id that the browser
+  // knows how to handle.
+  int command_id_from_app_command = GetCommandIDForAppCommandID(command_id);
+  if (command_id_from_app_command != -1)
+    command_id = command_id_from_app_command;
+
   if (browser_->SupportsCommand(command_id)) {
     if (browser_->IsCommandEnabled(command_id))
       browser_->ExecuteCommand(command_id);
@@ -1090,6 +1096,44 @@ void BrowserView2::BuildMenuForTabStriplessWindow(Menu* menu,
       }
     }
   }
+}
+
+int BrowserView2::GetCommandIDForAppCommandID(int app_command_id) const {
+  switch (app_command_id) {
+    case APPCOMMAND_BROWSER_BACKWARD:
+      return IDC_BACK;
+    case APPCOMMAND_BROWSER_FORWARD:
+      return IDC_FORWARD;
+    case APPCOMMAND_BROWSER_REFRESH:
+      return IDC_RELOAD;
+    case APPCOMMAND_BROWSER_HOME:
+      return IDC_HOME;
+    case APPCOMMAND_BROWSER_STOP:
+      return IDC_STOP;
+    case APPCOMMAND_BROWSER_SEARCH:
+      return IDC_FOCUS_SEARCH;
+    case APPCOMMAND_CLOSE:
+      return IDC_CLOSETAB;
+    case APPCOMMAND_NEW:
+      return IDC_NEWTAB;
+    case APPCOMMAND_OPEN:
+      return IDC_OPENFILE;
+    case APPCOMMAND_PRINT:
+      return IDC_PRINT;
+
+      // TODO(pkasting): http://b/1113069 Handle all these.
+    case APPCOMMAND_HELP:
+    case APPCOMMAND_SAVE:
+    case APPCOMMAND_UNDO:
+    case APPCOMMAND_REDO:
+    case APPCOMMAND_COPY:
+    case APPCOMMAND_CUT:
+    case APPCOMMAND_PASTE:
+    case APPCOMMAND_SPELL_CHECK:
+    default:
+      break;
+  }
+  return -1;
 }
 
 // static

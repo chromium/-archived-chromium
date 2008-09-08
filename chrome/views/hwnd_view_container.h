@@ -165,6 +165,7 @@ class HWNDViewContainer : public ViewContainer,
 
     // This list is in _ALPHABETICAL_ order! OR I WILL HURT YOU.
     MSG_WM_ACTIVATE(OnActivate)
+    MSG_WM_APPCOMMAND(OnAppCommand)
     MSG_WM_CANCELMODE(OnCancelMode)
     MSG_WM_CAPTURECHANGED(OnCaptureChanged)
     MSG_WM_CLOSE(OnClose)
@@ -324,6 +325,11 @@ class HWNDViewContainer : public ViewContainer,
   //       subclasses can easily override these methods to do different things
   //       and have a convenient function to call to get the default behavior.
   virtual void OnActivate(UINT action, BOOL minimized, HWND window) { }
+  virtual LRESULT OnAppCommand(HWND window, short app_command, WORD device,
+                               int keystate) {
+    SetMsgHandled(FALSE);
+    return 0;
+  }
   virtual void OnCancelMode() {}
   virtual void OnCaptureChanged(HWND hwnd);
   virtual void OnClose();

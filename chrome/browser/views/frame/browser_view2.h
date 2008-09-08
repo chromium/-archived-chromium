@@ -286,6 +286,9 @@ class BrowserView2 : public BrowserWindow,
   // Builds the correct menu for when we have minimal chrome.
   void BuildMenuForTabStriplessWindow(Menu* menu, int insertion_index);
 
+  // Retrieves the command id for the specified Windows app command.
+  int GetCommandIDForAppCommandID(int app_command_id) const;
+
   // Initialize class statics.
   static void InitClass();
 

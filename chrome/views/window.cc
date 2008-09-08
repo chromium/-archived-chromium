@@ -347,6 +347,18 @@ void Window::OnActivate(UINT action, BOOL minimized, HWND window) {
     SaveWindowPosition();
 }
 
+LRESULT Window::OnAppCommand(HWND window, short app_command, WORD device,
+                             int keystate) {
+  // We treat APPCOMMAND ids as an extension of our command namespace, and just
+  // let the delegate figure out what to do...
+  if (!window_delegate_->ExecuteWindowsCommand(app_command)) {
+    return HWNDViewContainer::OnAppCommand(window, app_command, device,
+                                           keystate);
+  }
+  return 0;
+}
+
+
 void Window::OnCommand(UINT notification_code, int command_id, HWND window) {
   if (!window_delegate_->ExecuteWindowsCommand(command_id))
     HWNDViewContainer::OnCommand(notification_code, command_id, window);
