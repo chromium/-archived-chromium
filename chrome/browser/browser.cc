@@ -864,8 +864,13 @@ void Browser::Observe(NotificationType type,
 
     case NOTIFY_SSL_STATE_CHANGED:
       // When the current tab's SSL state changes, we need to update the URL
-      // bar to reflect the new state.
-      if (GetSelectedTabContents()->controller() ==
+      // bar to reflect the new state. Note that it's possible for the selected
+      // tab contents to be NULL. This is because we listen for all sources
+      // (NavigationControllers) for convenience, so the notification could
+      // actually be for a different window while we're doing asynchronous
+      // closing of this one.
+      if (GetSelectedTabContents() &&
+          GetSelectedTabContents()->controller() ==
           Source<NavigationController>(source).ptr())
         UpdateToolBar(false);
       break;
