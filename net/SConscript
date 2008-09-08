@@ -43,6 +43,7 @@ input_files = [
     'base/gzip_header.cc',
     'base/host_resolver.cc',
     'base/mime_sniffer.cc',
+    'base/mime_util.cc',
     'base/net_errors.cc',
     'base/net_module.cc',
     'base/net_util.cc',
@@ -84,7 +85,6 @@ if env['PLATFORM'] == 'win32':
       'base/directory_lister.cc',
       'base/dns_resolution_observer.cc',
       'base/listen_socket.cc',
-      'base/mime_util.cc',
       'base/ssl_client_socket.cc',
       'base/ssl_config_service.cc',
       'base/tcp_client_socket.cc',
@@ -128,11 +128,15 @@ if env['PLATFORM'] == 'darwin':
       'base/platform_mime_util_mac.cc',
   ])
 
+if env['PLATFORM'] == 'posix':
+  input_files.extend([
+      # TODO(tc): gnome-vfs? xdgmime? /etc/mime.types?
+      'base/platform_mime_util_linux.cc',
+  ])
+
 if env['PLATFORM'] in ('darwin', 'posix'):
   input_files.extend([
       'base/net_util_posix.cc',
-      # TODO(tc): gnome-vfs? xdgmime? /etc/mime.types?
-      #'base/platform_mime_util_linux.cc,
       'disk_cache/cache_util_posix.cc',
       'disk_cache/file_posix.cc',
       'disk_cache/mapped_file_posix.cc',
@@ -214,6 +218,7 @@ unittest_files = [
     'base/gzip_filter_unittest.cc',
     'base/host_resolver_unittest.cc',
     'base/mime_sniffer_unittest.cc',
+    'base/mime_util_unittest.cc',
     'base/net_util_unittest.cc',
     'base/registry_controlled_domain_unittest.cc',
     'base/run_all_unittests.cc',
@@ -233,7 +238,6 @@ if env['PLATFORM'] == 'win32':
   unittest_files.extend([
       'base/cookie_policy_unittest.cc',
       'base/directory_lister_unittest.cc',
-      'base/mime_util_unittest.cc',
       'base/ssl_config_service_unittest.cc',
       'base/ssl_client_socket_unittest.cc',
       'base/tcp_client_socket_unittest.cc',
@@ -325,4 +329,3 @@ if env['PLATFORM'] == 'win32':
 else:
   icudata = '../icudt38l.dat'
 env.Alias('net', ['.', installed_tests, icudata])
-
