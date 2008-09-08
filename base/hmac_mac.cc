@@ -10,16 +10,22 @@
 
 namespace base {
 
+struct HMACPlatformData {
+  std::string key_;
+};
+
 HMAC::HMAC(HashAlgorithm hash_alg, const unsigned char* key, int key_length)
-    : hash_alg_(hash_alg),
-      key_(reinterpret_cast<const char*>(key), key_length) {
+    : hash_alg_(hash_alg), plat_(new HMACPlatformData()) {
+  plat_->key_.assign(reinterpret_cast<const char*>(key), key_length);
 }
 
 HMAC::~HMAC() {
   // Zero out key copy.
-  key_.assign(key_.length(), std::string::value_type());
-  key_.clear();
-  key_.reserve(0);
+  plat_->key_.assign(plat_->key_.length(), std::string::value_type());
+  plat_->key_.clear();
+  plat_->key_.reserve(0);
+
+  delete plat_;
 }
 
 bool HMAC::Sign(const std::string& data,
@@ -43,7 +49,7 @@ bool HMAC::Sign(const std::string& data,
   }
 
   CCHmac(algorithm,
-         key_.data(), key_.length(), data.data(), data.length(),
+         plat_->key_.data(), plat_->key_.length(), data.data(), data.length(),
          digest);
 
   return true;

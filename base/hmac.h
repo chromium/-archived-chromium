@@ -8,18 +8,14 @@
 #ifndef BASE_HMAC_H_
 #define BASE_HMAC_H_
 
-#include "build/build_config.h"
-
-#if defined(OS_WIN)
-#include <windows.h>
-#include <wincrypt.h>
-#endif
-
 #include <string>
 
 #include "base/basictypes.h"
 
 namespace base {
+
+// Simplify the interface and reduce includes by abstracting out the internals.
+struct HMACPlatformData;
 
 class HMAC {
  public:
@@ -37,27 +33,8 @@ class HMAC {
   bool Sign(const std::string& data, unsigned char* digest, int digest_length);
 
  private:
-#if defined(OS_POSIX)
   HashAlgorithm hash_alg_;
-  std::string key_;
-#elif defined(OS_WIN)
-  // Import the key so that we don't have to store it ourself.
-  void ImportKey(const unsigned char* key, int key_length);
-
-  // Returns the SHA1 hash of 'data' and 'key' in 'digest'. If there was any
-  // error in the calculation, this method returns false, otherwise true.
-  bool SignWithSHA1(const std::string& data,
-                    unsigned char* digest,
-                    int digest_length);
-
-  // The hash algorithm to use.
-  HashAlgorithm hash_alg_;
-
-  // Windows Crypt API resources.
-  HCRYPTPROV provider_;
-  HCRYPTHASH hash_;
-  HCRYPTKEY hkey_;
-#endif  // OS_WIN
+  HMACPlatformData* plat_;
 
   DISALLOW_COPY_AND_ASSIGN(HMAC);
 };
