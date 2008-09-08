@@ -460,7 +460,6 @@ if LoadComponent('testing'):
 if LoadComponent('third_party'):
   sconscripts.extend([
       '$BSDIFF_DIR/SConscript',
-      '$BSPATCH_DIR/SConscript',
       '$BZIP2_DIR/SConscript',
       '$ICU38_DIR/SConscript',
       '$LIBJPEG_DIR/SConscript',
@@ -471,6 +470,11 @@ if LoadComponent('third_party'):
       '$MODP_B64_DIR/SConscript',
       '$ZLIB_DIR/SConscript',
   ])
+# This is temoporary until we get this lib to build on other platforms.
+  if env['PLATFORM'] == 'win32':
+    sconscripts.extend([
+        '$BSPATCH_DIR/SConscript',
+    ])
 
 if LoadComponent('v8') and env.Dir('#/../v8').exists():
   env.SConscript('SConscript.v8',
