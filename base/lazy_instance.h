@@ -64,7 +64,8 @@ class LazyInstanceHelper {
   };
 
   explicit LazyInstanceHelper(LinkerInitialized x) { /* state_ is 0 */ }
-  ~LazyInstanceHelper() { }
+  // Declaring a destructor (even if it's empty) will cause MSVC to register a
+  // static initializer to register the empty destructor with atexit().
 
   // Make sure that instance is created, creating or waiting for it to be
   // created if neccessary.  Constructs with |ctor| in the space provided by
@@ -81,7 +82,8 @@ template <typename Type, typename Traits = DefaultLazyInstanceTraits<Type> >
 class LazyInstance : public LazyInstanceHelper {
  public:
   explicit LazyInstance(LinkerInitialized x) : LazyInstanceHelper(x) { }
-  ~LazyInstance() { }
+  // Declaring a destructor (even if it's empty) will cause MSVC to register a
+  // static initializer to register the empty destructor with atexit().
 
   Type& Get() {
     return *Pointer();
