@@ -80,7 +80,8 @@ TEST(SafeBrowsingProtocolManagerTest, TestChunkStrings) {
   EXPECT_EQ(pm.FormatList(phish, true), "goog-phish-shavar;mac\n");
 }
 
-TEST(SafeBrowsingProtocolManagerTest, TestGetHashBackOffTimes) {
+// Flakey, see http://code.google.com/p/chromium/issues/detail?id=1880
+TEST(SafeBrowsingProtocolManagerTest, DISABLED_TestGetHashBackOffTimes) {
   SafeBrowsingProtocolManager pm(NULL, NULL, "", "");
 
   // No errors or back off time yet.
@@ -131,4 +132,3 @@ TEST(SafeBrowsingProtocolManagerTest, TestGetHashBackOffTimes) {
   EXPECT_EQ(pm.gethash_error_count_, 7);
   EXPECT_TRUE(pm.next_gethash_time_== now + TimeDelta::FromMinutes(480));
 }
-
