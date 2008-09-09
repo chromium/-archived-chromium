@@ -1062,10 +1062,10 @@ bool ResourceDispatcherHost::BufferedEventHandler::CompleteResponseStarted(
     if (bytes_read_) {
       // a Read has already occurred and we need to copy the data into the
       // DownloadEventHandler.
-      char *buf;
-      int buf_len;
+      char *buf = NULL;
+      int buf_len = 0;
       download_handler->OnWillRead(request_id, &buf, &buf_len, bytes_read_);
-      DCHECK(buf_len >= bytes_read_);
+      CHECK((buf_len >= bytes_read_) && (bytes_read_ >= 0));
       memcpy(buf, read_buffer_, bytes_read_);
     }
     // Update the renderer with the response headers which will cause it to
