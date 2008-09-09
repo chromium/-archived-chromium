@@ -487,12 +487,6 @@ void BrowserToolbarView::RunPageMenu(const CPoint& pt, HWND hwnd) {
     anchor = Menu::TOPLEFT;
 
   Menu menu(this, anchor, hwnd);
-  menu.AppendMenuItemWithLabel(IDC_NEWTAB, l10n_util::GetString(IDS_NEWTAB));
-  menu.AppendMenuItemWithLabel(IDC_NEWWINDOW,
-                               l10n_util::GetString(IDS_NEWWINDOW));
-  menu.AppendMenuItemWithLabel(IDC_GOOFFTHERECORD,
-                               l10n_util::GetString(IDS_GOOFFTHERECORD));
-  menu.AppendSeparator();
   // The install menu may be dynamically generated with a contextual label.
   // See browser_commands.cc.
   menu.AppendMenuItemWithLabel(IDC_CREATE_SHORTCUT,
@@ -562,6 +556,12 @@ void BrowserToolbarView::RunAppMenu(const CPoint& pt, HWND hwnd) {
     anchor = Menu::TOPLEFT;
 
   Menu menu(this, anchor, hwnd);
+  menu.AppendMenuItemWithLabel(IDC_NEWTAB, l10n_util::GetString(IDS_NEWTAB));
+  menu.AppendMenuItemWithLabel(IDC_NEWWINDOW,
+                               l10n_util::GetString(IDS_NEWWINDOW));
+  menu.AppendMenuItemWithLabel(IDC_GOOFFTHERECORD,
+                               l10n_util::GetString(IDS_GOOFFTHERECORD));
+  menu.AppendSeparator();
   menu.AppendMenuItemWithLabel(IDC_SHOW_BOOKMARKS_BAR,
                                l10n_util::GetString(IDS_SHOW_BOOKMARK_BAR));
   menu.AppendSeparator();
