@@ -322,9 +322,8 @@ class MessageLoop : public base::MessagePump::Delegate {
   void ReloadWorkQueue();
 
   // Delete tasks that haven't run yet without running them.  Used in the
-  // destructor to make sure all the task's destructors get called.  Returns
-  // true if some work was done.
-  bool DeletePendingTasks();
+  // destructor to make sure all the task's destructors get called.
+  void DeletePendingTasks();
 
   // Post a task to our incomming queue.
   void PostTask_Helper(const tracked_objects::Location& from_here, Task* task,
@@ -365,7 +364,6 @@ class MessageLoop : public base::MessagePump::Delegate {
   scoped_refptr<base::MessagePump> pump_;
 
   ObserverList<DestructionObserver> destruction_observers_;
-
   // A recursion block that prevents accidentally running additonal tasks when
   // insider a (accidentally induced?) nested message pump.
   bool nestable_tasks_allowed_;
