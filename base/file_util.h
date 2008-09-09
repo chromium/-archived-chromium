@@ -222,7 +222,8 @@ bool CreateNewTempDirectory(const std::wstring& prefix,
                             std::wstring* new_temp_path);
 
 // Creates a directory, as well as creating any parent directories, if they
-// don't exist. Returns 'true' on successful creation.
+// don't exist. Returns 'true' on successful creation, or if the directory
+// already exists.
 bool CreateDirectory(const std::wstring& full_path);
 
 // Returns the file size. Returns true on success.
@@ -320,4 +321,3 @@ bool RenameFileAndResetSecurityDescriptor(
 }  // namespace file_util
 
 #endif  // BASE_FILE_UTIL_H_
-

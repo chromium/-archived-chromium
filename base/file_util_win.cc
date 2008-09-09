@@ -419,6 +419,8 @@ bool CreateNewTempDirectory(const std::wstring& prefix,
 }
 
 bool CreateDirectory(const std::wstring& full_path) {
+  if (PathExists(full_path))
+    return true;
   int err = SHCreateDirectoryEx(NULL, full_path.c_str(), NULL);
   return err == ERROR_SUCCESS;
 }
@@ -643,4 +645,3 @@ std::wstring FileEnumerator::Next() {
 }
 
 }  // namespace file_util
-
