@@ -645,6 +645,15 @@ void RenderView::CaptureText(WebFrame* frame, std::wstring* contents) {
   if (!frame)
     return;
 
+  // Don't index any https pages. People generally don't want their bank
+  // accounts, etc. indexed on their computer, especially since some of these
+  // things are not marked cachable.
+  // TODO(brettw) we may want to consider more elaborate heuristics such as
+  // the cachability of the page. We may also want to consider subframes (this
+  // test will still index subframes if the subframe is SSL).
+  if (frame->GetURL().SchemeIsSecure())
+    return;
+
 #ifdef TIME_TEXT_RETRIEVAL
   double begin = time_util::GetHighResolutionTimeNow();
 #endif
