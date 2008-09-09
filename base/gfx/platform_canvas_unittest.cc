@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// TODO(awalker): clean up the const/non-const reference handling in this test
+
 #include "build/build_config.h"
 
 #if defined(OS_WIN)
@@ -59,7 +61,7 @@ bool VerifyCanvasColor(const PlatformCanvas& canvas, uint32_t canvas_color) {
 }
 
 #if defined(OS_WIN)
-void DrawNativeRect(const PlatformCanvas& canvas, int x, int y, int w, int h) {
+void DrawNativeRect(PlatformCanvas& canvas, int x, int y, int w, int h) {
   HDC dc = canvas.beginPlatformPaint();
 
   RECT inner_rc;
@@ -72,7 +74,7 @@ void DrawNativeRect(const PlatformCanvas& canvas, int x, int y, int w, int h) {
   canvas.endPlatformPaint();
 }
 #elif defined(OS_MACOSX)
-void DrawNativeRect(const PlatformCanvas& canvas, int x, int y, int w, int h) {
+void DrawNativeRect(PlatformCanvas& canvas, int x, int y, int w, int h) {
   CGContextRef context = canvas.beginPlatformPaint();
   
   CGRect inner_rc = CGRectMake(x, y, w, h);
@@ -83,14 +85,14 @@ void DrawNativeRect(const PlatformCanvas& canvas, int x, int y, int w, int h) {
   canvas.endPlatformPaint();
 }
 #else
-void DrawNativeRect(const PlatformCanvas& canvas, int x, int y, int w, int h) {
+void DrawNativeRect(PlatformCanvas& canvas, int x, int y, int w, int h) {
   NOTIMPLEMENTED();
 }
 #endif
 
 // Clips the contents of the canvas to the given rectangle. This will be
 // intersected with any existing clip.
-void AddClip(const PlatformCanvas& canvas, int x, int y, int w, int h) {
+void AddClip(PlatformCanvas& canvas, int x, int y, int w, int h) {
   SkRect rect;
   rect.set(SkIntToScalar(x), SkIntToScalar(y),
            SkIntToScalar(x + w), SkIntToScalar(y + h));
@@ -99,7 +101,7 @@ void AddClip(const PlatformCanvas& canvas, int x, int y, int w, int h) {
 
 class LayerSaver {
  public:
-  LayerSaver(const PlatformCanvas& canvas, int x, int y, int w, int h)
+  LayerSaver(PlatformCanvas& canvas, int x, int y, int w, int h)
       : canvas_(canvas),
         x_(x),
         y_(y),
@@ -126,7 +128,7 @@ class LayerSaver {
   int bottom() const { return y_ + h_; }
 
  private:
-  const PlatformCanvas& canvas_;
+  PlatformCanvas& canvas_;
   int x_, y_, w_, h_;
 };
 
