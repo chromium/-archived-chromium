@@ -4,6 +4,7 @@
 
 #include "webkit/tools/test_shell/webwidget_host.h"
 
+#include "base/gfx/platform_canvas.h"
 #include "base/gfx/platform_canvas_win.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
@@ -14,7 +15,8 @@
 static const wchar_t kWindowClassName[] = L"WebWidgetHost";
 
 /*static*/
-WebWidgetHost* WebWidgetHost::Create(HWND parent_window, WebWidgetDelegate* delegate) {
+WebWidgetHost* WebWidgetHost::Create(gfx::WindowHandle parent_window,
+                                     WebWidgetDelegate* delegate) {
   WebWidgetHost* host = new WebWidgetHost();
 
   static bool registered_class = false;
@@ -30,12 +32,12 @@ WebWidgetHost* WebWidgetHost::Create(HWND parent_window, WebWidgetDelegate* dele
     registered_class = true;
   }
 
-  host->hwnd_ = CreateWindowEx(WS_EX_TOOLWINDOW,
+  host->view_ = CreateWindowEx(WS_EX_TOOLWINDOW,
                                kWindowClassName, kWindowClassName, WS_POPUP,
                                0, 0, 0, 0,
                                parent_window, NULL, GetModuleHandle(NULL), NULL);
 
-  win_util::SetWindowUserData(host->hwnd_, host);
+  win_util::SetWindowUserData(host->view_, host);
 
   host->webwidget_ = WebWidget::Create(delegate);
 
@@ -43,7 +45,7 @@ WebWidgetHost* WebWidgetHost::Create(HWND parent_window, WebWidgetDelegate* dele
 }
 
 /*static*/
-WebWidgetHost* WebWidgetHost::FromWindow(HWND hwnd) {
+WebWidgetHost* WebWidgetHost::FromWindow(gfx::WindowHandle hwnd) {
   return reinterpret_cast<WebWidgetHost*>(win_util::GetWindowUserData(hwnd));
 }
 
@@ -129,7 +131,7 @@ void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
   paint_rect_ = paint_rect_.Union(damaged_rect);
 
   RECT r = damaged_rect.ToRECT();
-  InvalidateRect(hwnd_, &r, FALSE);
+  InvalidateRect(view_, &r, FALSE);
 }
 
 void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
@@ -149,11 +151,11 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   scroll_dy_ = dy;
 
   RECT r = clip_rect.ToRECT();
-  InvalidateRect(hwnd_, &r, FALSE);
+  InvalidateRect(view_, &r, FALSE);
 }
 
 void WebWidgetHost::SetCursor(HCURSOR cursor) {
-  SetClassLong(hwnd_, GCL_HCURSOR,
+  SetClassLong(view_, GCL_HCURSOR,
       static_cast<LONG>(reinterpret_cast<LONG_PTR>(cursor)));
   ::SetCursor(cursor);
 }
@@ -163,7 +165,7 @@ void WebWidgetHost::DiscardBackingStore() {
 }
 
 WebWidgetHost::WebWidgetHost()
-    : hwnd_(NULL),
+    : view_(NULL),
       webwidget_(NULL),
       track_mouse_leave_(false),
       scroll_dx_(0),
@@ -172,7 +174,7 @@ WebWidgetHost::WebWidgetHost()
 }
 
 WebWidgetHost::~WebWidgetHost() {
-  win_util::SetWindowUserData(hwnd_, 0);
+  win_util::SetWindowUserData(view_, 0);
 
   TrackMouseLeave(false);
 
@@ -184,7 +186,7 @@ bool WebWidgetHost::WndProc(UINT message, WPARAM wparam, LPARAM lparam) {
   switch (message) {
   case WM_ACTIVATE:
     if (wparam == WA_INACTIVE) {
-      PostMessage(hwnd_, WM_CLOSE, 0, 0);
+      PostMessage(view_, WM_CLOSE, 0, 0);
       return true;
     }
     break;
@@ -195,14 +197,14 @@ bool WebWidgetHost::WndProc(UINT message, WPARAM wparam, LPARAM lparam) {
 
 void WebWidgetHost::Paint() {
   RECT r;
-  GetClientRect(hwnd_, &r);
+  GetClientRect(view_, &r);
   gfx::Rect client_rect(r);
   
   // Allocate a canvas if necessary
   if (!canvas_.get()) {
     ResetScrollRect();
     paint_rect_ = client_rect;
-    canvas_.reset(new gfx::PlatformCanvasWin(
+    canvas_.reset(new gfx::PlatformCanvas(
         paint_rect_.width(), paint_rect_.height(), true));
   }
 
@@ -238,15 +240,15 @@ void WebWidgetHost::Paint() {
 
   // Paint to the screen
   PAINTSTRUCT ps;
-  BeginPaint(hwnd_, &ps);
+  BeginPaint(view_, &ps);
   canvas_->getTopPlatformDevice().drawToHDC(ps.hdc,
                                             ps.rcPaint.left,
                                             ps.rcPaint.top,
                                             &ps.rcPaint);
-  EndPaint(hwnd_, &ps);
+  EndPaint(view_, &ps);
 
   // Draw children
-  UpdateWindow(hwnd_);
+  UpdateWindow(view_);
 }
 
 void WebWidgetHost::Resize(LPARAM lparam) {
@@ -257,7 +259,7 @@ void WebWidgetHost::Resize(LPARAM lparam) {
 }
 
 void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
-  WebMouseEvent event(hwnd_, message, wparam, lparam);
+  WebMouseEvent event(view_, message, wparam, lparam);
   switch (event.type) {
     case WebInputEvent::MOUSE_MOVE:
       TrackMouseLeave(true);
@@ -266,10 +268,10 @@ void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
       TrackMouseLeave(false);
       break;
     case WebInputEvent::MOUSE_DOWN:
-      SetCapture(hwnd_);
+      SetCapture(view_);
       break;
     case WebInputEvent::MOUSE_UP:
-      if (GetCapture() == hwnd_)
+      if (GetCapture() == view_)
         ReleaseCapture();
       break;
   }
@@ -277,12 +279,12 @@ void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
 }
 
 void WebWidgetHost::WheelEvent(WPARAM wparam, LPARAM lparam) {
-  WebMouseWheelEvent event(hwnd_, WM_MOUSEWHEEL, wparam, lparam);
+  WebMouseWheelEvent event(view_, WM_MOUSEWHEEL, wparam, lparam);
   webwidget_->HandleInputEvent(&event);
 }
 
 void WebWidgetHost::KeyEvent(UINT message, WPARAM wparam, LPARAM lparam) {
-  WebKeyboardEvent event(hwnd_, message, wparam, lparam);
+  WebKeyboardEvent event(view_, message, wparam, lparam);
   webwidget_->HandleInputEvent(&event);
 }
 
@@ -299,14 +301,14 @@ void WebWidgetHost::TrackMouseLeave(bool track) {
     return;
   track_mouse_leave_ = track;
 
-  DCHECK(hwnd_);
+  DCHECK(view_);
 
   TRACKMOUSEEVENT tme;
   tme.cbSize = sizeof(TRACKMOUSEEVENT);
   tme.dwFlags = TME_LEAVE;
   if (!track_mouse_leave_)
     tme.dwFlags |= TME_CANCEL;
-  tme.hwndTrack = hwnd_;
+  tme.hwndTrack = view_;
 
   TrackMouseEvent(&tme);
 }
@@ -327,4 +329,3 @@ void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
   webwidget_->Paint(canvas_.get(), rect);
   set_painting(false);
 }
-

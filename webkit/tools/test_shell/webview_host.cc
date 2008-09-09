@@ -4,7 +4,7 @@
 
 #include "webkit/tools/test_shell/webview_host.h"
 
-#include "base/gfx/platform_canvas_win.h"
+#include "base/gfx/platform_canvas.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
 #include "base/win_util.h"
@@ -14,7 +14,8 @@
 static const wchar_t kWindowClassName[] = L"WebViewHost";
 
 /*static*/
-WebViewHost* WebViewHost::Create(HWND parent_window, WebViewDelegate* delegate,
+WebViewHost* WebViewHost::Create(gfx::WindowHandle parent_window,
+                                 WebViewDelegate* delegate,
                                  const WebPreferences& prefs) {
   WebViewHost* host = new WebViewHost();
 
@@ -31,11 +32,11 @@ WebViewHost* WebViewHost::Create(HWND parent_window, WebViewDelegate* delegate,
     registered_class = true;
   }
 
-  host->hwnd_ = CreateWindow(kWindowClassName, NULL,
+  host->view_ = CreateWindow(kWindowClassName, NULL,
                              WS_CHILD|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, 0, 0,
                              0, 0, parent_window, NULL,
                              GetModuleHandle(NULL), NULL);
-  win_util::SetWindowUserData(host->hwnd_, host);
+  win_util::SetWindowUserData(host->view_, host);
 
   host->webwidget_ = WebView::Create(delegate, prefs);
 

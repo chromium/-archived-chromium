@@ -23,14 +23,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#ifndef WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_H__
-#define WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_H__
+#ifndef WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_H_
+#define WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_H_
 
 #pragma once
 
 #include <string>
 #include <list>
 
+#include "base/basictypes.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/ref_counted.h"
 #include "webkit/tools/test_shell/event_sending_controller.h"
 #include "webkit/tools/test_shell/layout_test_controller.h"
@@ -40,7 +42,7 @@
 #include "webkit/tools/test_shell/webview_host.h"
 #include "webkit/tools/test_shell/webwidget_host.h"
 
-typedef std::list<HWND> WindowList;
+typedef std::list<gfx::WindowHandle> WindowList;
 
 struct WebPreferences;
 class TestNavigationEntry;
@@ -144,10 +146,10 @@ public:
     void DumpDocumentText();
     void DumpRenderTree();
 
-    HWND mainWnd() const { return m_mainWnd; }
-    HWND webViewWnd() const { return m_webViewHost->window_handle(); }
-    HWND editWnd() const { return m_editWnd; }
-    HWND popupWnd() const { return m_popupHost->window_handle(); }
+    gfx::WindowHandle mainWnd() const { return m_mainWnd; }
+    gfx::ViewHandle webViewWnd() const { return m_webViewHost->window_handle(); }
+    gfx::EditViewHandle editWnd() const { return m_editWnd; }
+    gfx::ViewHandle popupWnd() const { return m_popupHost->window_handle(); }
 
     static WindowList* windowList() { return window_list_; }
 
@@ -161,7 +163,9 @@ public:
     WebWidget* CreatePopupWidget(WebView* webview);
     void ClosePopup();
 
+#if defined(OS_WIN)
     static ATOM RegisterWindowClass();
+#endif
 
     // Called by the WebView delegate WindowObjectCleared() method, this 
     // binds the layout_test_controller_ and other C++ controller classes to
@@ -197,9 +201,11 @@ public:
     // Get the timeout for running a test.
     static int GetFileTestTimeout() { return file_test_timeout_ms_; }
 
+#if defined(OS_WIN)
     // Access to the finished event.  Used by the static WatchDog
     // thread.
     HANDLE finished_event() { return finished_event_; }
+#endif
 
     // Have the shell print the StatsTable to stdout on teardown.
     void DumpStatsTableOnExit() { dump_stats_table_on_exit_ = true; }
@@ -215,15 +221,19 @@ protected:
     void SizeTo(int width, int height);
     void ResizeSubViews();
 
+#if defined(OS_WIN)
     static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
     static LRESULT CALLBACK EditWndProc(HWND, UINT, WPARAM, LPARAM);
+#endif
 
 protected:
-    HWND                    m_mainWnd;
-    HWND                    m_editWnd;
+    gfx::WindowHandle       m_mainWnd;
+    gfx::EditViewHandle     m_editWnd;
     scoped_ptr<WebViewHost> m_webViewHost;
     WebWidgetHost*          m_popupHost;
+#if defined(OS_WIN)
     WNDPROC                 default_edit_wnd_proc_;
+#endif
 
     // Primitive focus controller for layout test mode.
     WebWidgetHost*          m_focusedWidgetHost;
@@ -231,8 +241,13 @@ protected:
 private:
     // A set of all our windows.
     static WindowList* window_list_;
+#if defined(OS_MACOSX)
+    static std::map<gfx::WindowHandle, TestShell *> window_map_;
+#endif
 
+#if defined(OS_WIN)
     static HINSTANCE instance_handle_;
+#endif
 
     // False when the app is being run using the --layout-tests switch.
     static bool interactive_;
@@ -262,11 +277,13 @@ private:
     // The preferences for the test shell.
     static WebPreferences* web_prefs_;
 
+#if defined(OS_WIN)
     // Used by the watchdog to know when it's finished.
     HANDLE finished_event_;
+#endif
 
     // Dump the stats table counters on exit.
     bool dump_stats_table_on_exit_;
 };
 
-#endif // WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_H__
+#endif // WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_H_

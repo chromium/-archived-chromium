@@ -375,6 +375,11 @@ class TimeTicks {
     return ticks_ == 0;
   }
 
+  // Returns the internal numeric value of the TimeTicks object.
+  int64 ToInternalValue() const {
+    return ticks_;
+  }
+
   TimeTicks& operator=(TimeTicks other) {
     ticks_ = other.ticks_;
     return *this;

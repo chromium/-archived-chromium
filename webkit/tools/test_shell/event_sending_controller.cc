@@ -16,11 +16,14 @@
 
 #include "webkit/tools/test_shell/event_sending_controller.h"
 
+#if defined(OS_WIN)
 #include <objidl.h>
+#endif
 #include <queue>
 
 #include "base/ref_counted.h"
 #include "base/string_util.h"
+#include "base/time.h"
 #include "webkit/glue/webview.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
@@ -34,7 +37,12 @@ WebMouseEvent::Button EventSendingController::pressed_button_ =
 
 namespace {
 
+#if defined(OS_WIN)
 static scoped_refptr<IDataObject> drag_data_object;
+#elif defined(OS_MACOSX)
+// Throughout this file, drag support is #ifdef-ed out. TODO(port): Add it in
+// for the Mac.
+#endif
 static bool replaying_saved_events = false;
 static std::queue<WebMouseEvent> mouse_event_queue;
 
@@ -59,7 +67,9 @@ inline bool outside_multiclick_radius(const gfx::Point &a, const gfx::Point &b) 
 static uint32 time_offset_ms = 0;
 
 double GetCurrentEventTimeSec() {
-  return (GetTickCount() + time_offset_ms) / 1000.0;
+  return (TimeTicks::Now().ToInternalValue()
+            / Time::kMicrosecondsPerMillisecond +
+          time_offset_ms) / 1000.0;
 }
 
 void AdvanceEventTime(int32 delta_ms) {
@@ -90,7 +100,9 @@ void ApplyKeyModifiers(const CppVariant* arg, WebKeyboardEvent* event) {
       event->modifiers |= WebInputEvent::SHIFT_KEY;
     } else if (!wcscmp(arg_string, L"altKey")) {
       event->modifiers |= WebInputEvent::ALT_KEY;
+#if defined(OS_WIN)
       event->system_key = true;
+#endif
     } else if (!wcscmp(arg_string, L"metaKey")) {
       event->modifiers |= WebInputEvent::META_KEY;
     }
@@ -129,8 +141,10 @@ EventSendingController::EventSendingController(TestShell* shell) {
 
 void EventSendingController::Reset() {
   // The test should have finished a drag and the mouse button state.
+#if defined(OS_WIN)
   DCHECK(!drag_data_object);
   drag_data_object = NULL;
+#endif
   pressed_button_ = WebMouseEvent::BUTTON_NONE;
   dragMode.Set(true);
   last_click_time_sec = 0;
@@ -141,6 +155,7 @@ void EventSendingController::Reset() {
   return shell_->webView();
 }
 
+#if defined(OS_WIN)
 /* static */ void EventSendingController::DoDragDrop(IDataObject* data_obj) {
   drag_data_object = data_obj;
 
@@ -153,6 +168,7 @@ void EventSendingController::Reset() {
   // Finish processing events.
   ReplaySavedEvents();
 }
+#endif
 
 // static
 WebMouseEvent::Button EventSendingController::GetButtonTypeFromSingleArg(
@@ -219,6 +235,7 @@ WebMouseEvent::Button EventSendingController::GetButtonTypeFromSingleArg(
   webview()->HandleInputEvent(&e);
   pressed_button_ = WebMouseEvent::BUTTON_NONE;
 
+#if defined(OS_WIN)
   // If we're in a drag operation, complete it.
   if (drag_data_object) {
     TestWebViewDelegate* delegate = shell_->delegate();
@@ -240,6 +257,7 @@ WebMouseEvent::Button EventSendingController::GetButtonTypeFromSingleArg(
     }
     drag_data_object = NULL;
   }
+#endif
 }
 
  void EventSendingController::mouseMoveTo(
@@ -266,6 +284,7 @@ WebMouseEvent::Button EventSendingController::GetButtonTypeFromSingleArg(
 /* static */ void EventSendingController::DoMouseMove(const WebMouseEvent& e) {
   webview()->HandleInputEvent(&e);
 
+#if defined(OS_WIN)
   if (pressed_button_ != WebMouseEvent::BUTTON_NONE && drag_data_object) {
     TestWebViewDelegate* delegate = shell_->delegate();
     // Get screen mouse position.
@@ -280,6 +299,7 @@ WebMouseEvent::Button EventSendingController::GetButtonTypeFromSingleArg(
 
     delegate->drag_delegate()->GiveFeedback(effect);
   }
+#endif
 }
 
  void EventSendingController::keyDown(
@@ -292,8 +312,10 @@ WebMouseEvent::Button EventSendingController::GetButtonTypeFromSingleArg(
   static const int kLeftParenthesesVirtualKeyCode = 0x28;
   static const int kRightParenthesesVirtualKeyCode = 0x29;
 
+#if defined(OS_WIN)
   static const int kLeftCurlyBracketVirtualKeyCode = 0x7B;
   static const int kRightCurlyBracketVirtualKeyCode = 0x7D;
+#endif
 
   bool generate_char = false;
 
@@ -307,6 +329,7 @@ WebMouseEvent::Button EventSendingController::GetButtonTypeFromSingleArg(
     // Windows uses \r for "Enter".
     wchar_t code;
     bool needs_shift_key_modifier = false;
+#if defined(OS_WIN)
     if (L"\n" == code_str) {
       generate_char = true;
       code = VK_RETURN;
@@ -320,7 +343,30 @@ WebMouseEvent::Button EventSendingController::GetButtonTypeFromSingleArg(
       code = VK_UP;
     } else if (L"delete" == code_str) {
       code = VK_BACK;
-    } else {
+    }
+#elif defined(OS_MACOSX)
+    // I don't quite understand this code enough to change the way it works. As
+    // for the keycodes, they were documented once in Inside Macintosh and
+    // haven't been documented since, either on paper or in a header. The
+    // reference I'm going by is http://www.meandmark.com/keycodes.html .
+    // TODO(avi): Find someone who knows keyboard handling in WebCore and have
+    // them take a look at this.
+    if (L"\n" == code_str) {
+      generate_char = true;
+      code = 0x24;
+    } else if (L"rightArrow" == code_str) {
+      code = 0x7C;
+    } else if (L"downArrow" == code_str) {
+      code = 0x7D;
+    } else if (L"leftArrow" == code_str) {
+      code = 0x7B;
+    } else if (L"upArrow" == code_str) {
+      code = 0x7E;
+    } else if (L"delete" == code_str) {
+      code = 0x33;
+    }
+#endif
+    else {
       DCHECK(code_str.length() == 1);
       code = code_str[0];
       needs_shift_key_modifier = NeedsShiftModifer(code);
@@ -378,6 +424,7 @@ WebMouseEvent::Button EventSendingController::GetButtonTypeFromSingleArg(
             event_char.key_code = kRightParenthesesVirtualKeyCode;
             event_char.key_data = kRightParenthesesVirtualKeyCode;
             break;
+#if defined(OS_WIN)
           //  '[{' for US
           case VK_OEM_4:
             event_char.key_code = kLeftCurlyBracketVirtualKeyCode;
@@ -388,6 +435,7 @@ WebMouseEvent::Button EventSendingController::GetButtonTypeFromSingleArg(
             event_char.key_code = kRightCurlyBracketVirtualKeyCode;
             event_char.key_data = kRightCurlyBracketVirtualKeyCode;
             break;
+#endif
           default:
             break;
         }
@@ -404,7 +452,7 @@ WebMouseEvent::Button EventSendingController::GetButtonTypeFromSingleArg(
   // If code is an uppercase letter, assign a SHIFT key to
   // event_down.modifier, this logic comes from
   // WebKit/WebKitTools/DumpRenderTree/Win/EventSender.cpp
-  if ((LOBYTE(key_code)) >= 'A' && (LOBYTE(key_code)) <= 'Z')
+  if ((key_code & 0xFF) >= 'A' && (key_code & 0xFF) <= 'Z')
     return true;
   return false;
  }

@@ -20,7 +20,6 @@
 		7BFDF89E0E37B26400F1D7D8 /* libicutu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BFDF5F60E37ADE100F1D7D8 /* libicutu.a */; };
 		7BFDF8A00E37B26400F1D7D8 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BFDF6130E37ADE800F1D7D8 /* libbase.a */; };
 		7BFDF8A10E37B26400F1D7D8 /* libbase_gfx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BFDF6150E37ADE800F1D7D8 /* libbase_gfx.a */; };
-		7BFDF8A20E37B26400F1D7D8 /* libgoogleurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BFDF61F0E37ADF400F1D7D8 /* libgoogleurl.a */; };
 		7BFDF8A30E37B26400F1D7D8 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BFDF6240E37ADFC00F1D7D8 /* libpng.a */; };
 		7BFDF8A40E37B26400F1D7D8 /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BFDF66A0E37AE2100F1D7D8 /* libjpeg.a */; };
 		7BFDF8A50E37B26400F1D7D8 /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BFDF6720E37AE2F00F1D7D8 /* libzlib.a */; };
@@ -66,7 +65,7 @@
 		E456290F0E26B4FE005E4685 /* webview_host.mm in Sources */ = {isa = PBXBuildFile; fileRef = AB8A785E0DC553EE005C27B8 /* webview_host.mm */; };
 		E45629100E26B4FE005E4685 /* webwidget_host.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABD16F380DC6A73B0013D3AA /* webwidget_host.mm */; };
 		E45629150E26B4FE005E4685 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.mm */; };
-		E45629160E26B4FE005E4685 /* event_sending_controller.mm in Sources */ = {isa = PBXBuildFile; fileRef = AB8A78520DC553A8005C27B8 /* event_sending_controller.mm */; };
+		E45629160E26B4FE005E4685 /* event_sending_controller.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB8A78520DC553A8005C27B8 /* event_sending_controller.cc */; };
 		E45629170E26B4FE005E4685 /* layout_test_controller.mm in Sources */ = {isa = PBXBuildFile; fileRef = AB8A77FD0DC54DD6005C27B8 /* layout_test_controller.mm */; };
 		E45629180E26B4FE005E4685 /* navigation_controller_base.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB351E5B0DC7B3A5002F427A /* navigation_controller_base.cc */; };
 		E45629190E26B4FE005E4685 /* test_navigation_controller.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB351E2E0DC7B290002F427A /* test_navigation_controller.cc */; };
@@ -233,13 +232,6 @@
 			remoteGlobalIDString = 825403B10D92D2E50006B936;
 			remoteInfo = base_gfx;
 		};
-		7BFDF61E0E37ADF400F1D7D8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AB8665450DC78A5A002CE06A /* googleurl.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D;
-			remoteInfo = googleurl;
-		};
 		7BFDF6230E37ADFC00F1D7D8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = ABC8C3EE0DC7F72600B59C21 /* libpng.xcodeproj */;
@@ -345,13 +337,6 @@
 			remoteGlobalIDString = 825404020D92D3340006B936;
 			remoteInfo = All;
 		};
-		7BFDF8590E37B00600F1D7D8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AB8665450DC78A5A002CE06A /* googleurl.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D;
-			remoteInfo = googleurl;
-		};
 		7BFDF85B0E37B00800F1D7D8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = ABC8C3EE0DC7F72600B59C21 /* libpng.xcodeproj */;
@@ -422,6 +407,20 @@
 			remoteGlobalIDString = E4BA04540E25613300BE02C6;
 			remoteInfo = bzip2;
 		};
+		82DB3BB30E71881D007B146B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AB8665450DC78A5A002CE06A /* googleurl.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 7BA018360E5A28DB00044150;
+			remoteInfo = googleurl;
+		};
+		82DB3BB50E71881D007B146B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AB8665450DC78A5A002CE06A /* googleurl.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 7BA018E20E5A2AFF00044150;
+			remoteInfo = googleurl_unittests;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -481,11 +480,11 @@
 		AB351E2F0DC7B290002F427A /* test_navigation_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_navigation_controller.h; sourceTree = "<group>"; };
 		AB351E5B0DC7B3A5002F427A /* navigation_controller_base.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = navigation_controller_base.cc; sourceTree = "<group>"; };
 		AB351E5C0DC7B3A5002F427A /* navigation_controller_base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = navigation_controller_base.h; sourceTree = "<group>"; };
-		AB8665450DC78A5A002CE06A /* googleurl.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = googleurl.xcodeproj; path = ../../../../googleurl/build/googleurl.xcodeproj; sourceTree = SOURCE_ROOT; };
+		AB8665450DC78A5A002CE06A /* googleurl.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = googleurl.xcodeproj; path = ../../../../build/googleurl.xcodeproj; sourceTree = SOURCE_ROOT; };
 		AB8A77FD0DC54DD6005C27B8 /* layout_test_controller.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = layout_test_controller.mm; sourceTree = "<group>"; };
 		AB8A77FE0DC54DD6005C27B8 /* layout_test_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = layout_test_controller.h; sourceTree = "<group>"; };
 		AB8A78510DC553A8005C27B8 /* event_sending_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = event_sending_controller.h; sourceTree = "<group>"; };
-		AB8A78520DC553A8005C27B8 /* event_sending_controller.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = event_sending_controller.mm; sourceTree = "<group>"; };
+		AB8A78520DC553A8005C27B8 /* event_sending_controller.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = event_sending_controller.cc; sourceTree = "<group>"; };
 		AB8A78540DC553BC005C27B8 /* node_leak_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = node_leak_test.cc; sourceTree = "<group>"; };
 		AB8A78560DC553C7005C27B8 /* test_shell_test.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = test_shell_test.mm; sourceTree = "<group>"; };
 		AB8A78580DC553D7005C27B8 /* test_webview_delegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = test_webview_delegate.mm; sourceTree = "<group>"; };
@@ -534,7 +533,6 @@
 				7BFDF8A00E37B26400F1D7D8 /* libbase.a in Frameworks */,
 				7BFDF8A10E37B26400F1D7D8 /* libbase_gfx.a in Frameworks */,
 				7BFDF8950E37B26400F1D7D8 /* libGlue_v8_chrome.a in Frameworks */,
-				7BFDF8A20E37B26400F1D7D8 /* libgoogleurl.a in Frameworks */,
 				7BFDF89D0E37B26400F1D7D8 /* libicui18n.a in Frameworks */,
 				7BFDF89E0E37B26400F1D7D8 /* libicutu.a in Frameworks */,
 				7BFDF89C0E37B26400F1D7D8 /* libicuuc.a in Frameworks */,
@@ -748,14 +746,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		7BFDF61B0E37ADF400F1D7D8 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				7BFDF61F0E37ADF400F1D7D8 /* libgoogleurl.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		7BFDF6200E37ADFC00F1D7D8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -805,13 +795,22 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		82DB3BAE0E71881D007B146B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				82DB3BB40E71881D007B146B /* libgoogleurl.a */,
+				82DB3BB60E71881D007B146B /* googleurl_unittests */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		AB1E8EFA0DB7B95C00742926 /* test_shell */ = {
 			isa = PBXGroup;
 			children = (
 				7BFDF4FD0E37AB4200F1D7D8 /* mac */,
 				AB351E580DC7B399002F427A /* temp */,
 				AB8A78510DC553A8005C27B8 /* event_sending_controller.h */,
-				AB8A78520DC553A8005C27B8 /* event_sending_controller.mm */,
+				AB8A78520DC553A8005C27B8 /* event_sending_controller.cc */,
 				AB8A77FD0DC54DD6005C27B8 /* layout_test_controller.mm */,
 				AB8A77FE0DC54DD6005C27B8 /* layout_test_controller.h */,
 				AB8A78540DC553BC005C27B8 /* node_leak_test.cc */,
@@ -888,7 +887,6 @@
 				7BFDF8540E37AFFF00F1D7D8 /* PBXTargetDependency */,
 				7BFDF8560E37B00200F1D7D8 /* PBXTargetDependency */,
 				7BFDF8580E37B00300F1D7D8 /* PBXTargetDependency */,
-				7BFDF85A0E37B00600F1D7D8 /* PBXTargetDependency */,
 				7BFDF85C0E37B00800F1D7D8 /* PBXTargetDependency */,
 				7BFDF85E0E37B00B00F1D7D8 /* PBXTargetDependency */,
 				7BFDF8600E37B00D00F1D7D8 /* PBXTargetDependency */,
@@ -921,7 +919,7 @@
 					ProjectRef = E456295B0E26B5F8005E4685 /* bzip2.xcodeproj */;
 				},
 				{
-					ProductGroup = 7BFDF61B0E37ADF400F1D7D8 /* Products */;
+					ProductGroup = 82DB3BAE0E71881D007B146B /* Products */;
 					ProjectRef = AB8665450DC78A5A002CE06A /* googleurl.xcodeproj */;
 				},
 				{
@@ -1112,13 +1110,6 @@
 			remoteRef = 7BFDF6140E37ADE800F1D7D8 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		7BFDF61F0E37ADF400F1D7D8 /* libgoogleurl.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libgoogleurl.a;
-			remoteRef = 7BFDF61E0E37ADF400F1D7D8 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		7BFDF6240E37ADFC00F1D7D8 /* libpng.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1173,6 +1164,20 @@
 			fileType = archive.ar;
 			path = libbzip2.a;
 			remoteRef = 82DB396C0E6F17B0007B146B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		82DB3BB40E71881D007B146B /* libgoogleurl.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libgoogleurl.a;
+			remoteRef = 82DB3BB30E71881D007B146B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		82DB3BB60E71881D007B146B /* googleurl_unittests */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = googleurl_unittests;
+			remoteRef = 82DB3BB50E71881D007B146B /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -1231,7 +1236,7 @@
 				E456290F0E26B4FE005E4685 /* webview_host.mm in Sources */,
 				E45629100E26B4FE005E4685 /* webwidget_host.mm in Sources */,
 				E45629150E26B4FE005E4685 /* main.mm in Sources */,
-				E45629160E26B4FE005E4685 /* event_sending_controller.mm in Sources */,
+				E45629160E26B4FE005E4685 /* event_sending_controller.cc in Sources */,
 				E45629170E26B4FE005E4685 /* layout_test_controller.mm in Sources */,
 				E45629180E26B4FE005E4685 /* navigation_controller_base.cc in Sources */,
 				E45629190E26B4FE005E4685 /* test_navigation_controller.cc in Sources */,
@@ -1308,11 +1313,6 @@
 			isa = PBXTargetDependency;
 			name = All;
 			targetProxy = 7BFDF8570E37B00300F1D7D8 /* PBXContainerItemProxy */;
-		};
-		7BFDF85A0E37B00600F1D7D8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = googleurl;
-			targetProxy = 7BFDF8590E37B00600F1D7D8 /* PBXContainerItemProxy */;
 		};
 		7BFDF85C0E37B00800F1D7D8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

@@ -6,18 +6,24 @@
 // This class implements the WebViewDelegate methods for the test shell.  One
 // instance is owned by each TestShell.
 
-#ifndef WEBKIT_TOOLS_TEST_SHELL_TEST_WEBVIEW_DELEGATE_H__
-#define WEBKIT_TOOLS_TEST_SHELL_TEST_WEBVIEW_DELEGATE_H__
+#ifndef WEBKIT_TOOLS_TEST_SHELL_TEST_WEBVIEW_DELEGATE_H_
+#define WEBKIT_TOOLS_TEST_SHELL_TEST_WEBVIEW_DELEGATE_H_
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
+#endif
 #include <map>
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/webwidget_delegate.h"
+#if defined(OS_WIN)
 #include "webkit/tools/test_shell/drag_delegate.h"
 #include "webkit/tools/test_shell/drop_delegate.h"
+#endif
 
 struct WebPreferences;
 class GURL;
@@ -25,7 +31,8 @@ class TestShell;
 class WebDataSource;
 class WebWidgetHost;
 
-class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>, public WebViewDelegate {
+class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
+                            public WebViewDelegate {
  public:
   struct CapturedContextMenuEvent {
     CapturedContextMenuEvent(ContextNode::Type in_type,
@@ -49,8 +56,11 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>, public
       page_id_(-1),
       last_page_id_updated_(-1),
       page_is_loading_(false),
-      is_custom_policy_delegate_(false),
-      custom_cursor_(NULL) { 
+      is_custom_policy_delegate_(false)
+#if defined(OS_WIN)
+      , custom_cursor_(NULL)
+#endif
+      { 
   }
   virtual ~TestWebViewDelegate();
 
@@ -182,7 +192,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>, public
   virtual int GetHistoryForwardListCount();
 
   // WebWidgetDelegate
-  virtual HWND GetContainingWindow(WebWidget* webwidget);
+  virtual gfx::ViewHandle GetContainingWindow(WebWidget* webwidget);
   virtual void DidInvalidateRect(WebWidget* webwidget, const gfx::Rect& rect);
   virtual void DidScrollRect(WebWidget* webwidget, int dx, int dy,
                              const gfx::Rect& clip_rect);
@@ -198,16 +208,18 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>, public
   virtual void DidMove(WebWidget* webwidget, const WebPluginGeometry& move);
   virtual void RunModal(WebWidget* webwidget);
   virtual void AddRef() {
-    RefCounted<TestWebViewDelegate>::AddRef();
+    base::RefCounted<TestWebViewDelegate>::AddRef();
   }
   virtual void Release() {
-    RefCounted<TestWebViewDelegate>::Release();
+    base::RefCounted<TestWebViewDelegate>::Release();
   }
 
   // Additional accessors
   WebFrame* top_loading_frame() { return top_loading_frame_; }
+#if defined(OS_WIN)
   IDropTarget* drop_delegate() { return drop_delegate_.get(); }
   IDropSource* drag_delegate() { return drag_delegate_.get(); }
+#endif
   const CapturedContextMenuEvents& captured_context_menu_events() const { 
     return captured_context_menu_events_; 
   }
@@ -266,16 +278,17 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>, public
   ResourceMap resource_identifier_map_;
   std::string GetResourceDescription(uint32 identifier);
 
+#if defined(OS_WIN)
   HCURSOR custom_cursor_;
 
   // Classes needed by drag and drop.
   scoped_refptr<TestDragDelegate> drag_delegate_;
   scoped_refptr<TestDropDelegate> drop_delegate_;
+#endif
   
   CapturedContextMenuEvents captured_context_menu_events_;
 
   DISALLOW_EVIL_CONSTRUCTORS(TestWebViewDelegate);
 };
 
-#endif // WEBKIT_TOOLS_TEST_SHELL_TEST_WEBVIEW_DELEGATE_H__
-
+#endif // WEBKIT_TOOLS_TEST_SHELL_TEST_WEBVIEW_DELEGATE_H_
