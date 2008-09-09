@@ -92,12 +92,16 @@ TimeTicks TimeTicks::Now() {
 
 #if defined(OS_MACOSX)
 
-  static bool has_timebase_info = false;
-  static mach_timebase_info_data_t timebase_info = {1, 1};
-  if (!has_timebase_info) {
-    has_timebase_info = mach_timebase_info(&timebase_info) == KERN_SUCCESS;
+  static mach_timebase_info_data_t timebase_info;
+  if (timebase_info.denom == 0) {
+    // Zero-initialization of statics guarantees that denom will be 0 before
+    // calling mach_timebase_info.  mach_timebase_info will never set denom to
+    // 0 as that would be invalid, so the zero-check can be used to determine
+    // whether mach_timebase_info has already been called.  This is
+    // recommended by Apple's QA1398.
+    kern_return_t kr = mach_timebase_info(&timebase_info);
+    DCHECK(kr == KERN_SUCCESS);
   }
-  DCHECK(has_timebase_info) << "Could not determine system tick rate";
 
   // mach_absolute_time is it when it comes to ticks on the Mac.  Other calls
   // with less precision (such as TickCount) just call through to
@@ -114,6 +118,7 @@ TimeTicks TimeTicks::Now() {
 
 #elif defined(OS_POSIX) && \
       defined(_POSIX_MONOTONIC_CLOCK) && _POSIX_MONOTONIC_CLOCK >= 0
+
   struct timespec ts;
   if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) {
     NOTREACHED() << "clock_gettime(CLOCK_MONOTONIC) failed.";
@@ -135,4 +140,3 @@ TimeTicks TimeTicks::Now() {
 TimeTicks TimeTicks::UnreliableHighResNow() {
   return Now();
 }
-
