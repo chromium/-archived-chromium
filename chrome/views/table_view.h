@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_TABLE_VIEW_H__
-#define CHROME_VIEWS_TABLE_VIEW_H__
+#ifndef CHROME_VIEWS_TABLE_VIEW_H_
+#define CHROME_VIEWS_TABLE_VIEW_H_
 
 #include <windows.h>
 
@@ -405,9 +405,9 @@ class TableView : public NativeControl,
   // changed.
   void OnCheckedStateChanged(int item, bool is_checked);
 
-  // Returns the index of the selected item after |item|, or -1 if |item| is
-  // the last selected item.
-  int NextSelectedIndex(int item);
+  // Returns the index of the selected item before |item|, or -1 if |item| is
+  // the first selected item.
+  int PreviousSelectedIndex(int item);
 
   // Returns the last selected index in the table view, or -1 if the table
   // is empty, or nothing is selected.
@@ -494,10 +494,9 @@ class TableView : public NativeControl,
   // The offset from the top of the client area to the start of the content.
   int content_offset_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TableView);
+  DISALLOW_COPY_AND_ASSIGN(TableView);
 };
 
 }
 
-#endif  // CHROME_VIEWS_TABLE_VIEW_H__
-
+#endif  // CHROME_VIEWS_TABLE_VIEW_H_

@@ -941,37 +941,25 @@ void TableView::OnCheckedStateChanged(int item, bool is_checked) {
   }
 }
 
-int TableView::NextSelectedIndex(int item) {
-  if (!list_view_)
-    return -1;
+int TableView::PreviousSelectedIndex(int item) {
   DCHECK(item >= 0);
-  if (item >= RowCount()) {
-    return LastSelectedIndex();
-  }
-  // It seems if the list has only 1 element and it is selected that
-  // ListView_GetNextItem always returns 0.
-  if (RowCount() == 1) {
+  if (!list_view_ || item <= 0)
     return -1;
-  }
-  return ListView_GetNextItem(list_view_,
-                              item, LVNI_ALL | LVNI_SELECTED | LVNI_ABOVE);
+
+  int row_count = RowCount();
+  if (row_count == 0)
+    return -1;  // Empty table, nothing can be selected.
+
+  // For some reason
+  // ListView_GetNextItem(list_view_,item, LVNI_SELECTED | LVNI_ABOVE)
+  // fails on Vista (always returns -1), so we iterate through the indices.
+  item = std::min(item, row_count);
+  while (--item >= 0 && !IsItemSelected(item));
+  return item;
 }
 
 int TableView::LastSelectedIndex() {
-  if (!list_view_)
-    return -1;
-  int row_count = RowCount();
-  int last_selected_row = -1;
-  if (row_count > 0) {
-    if (ListView_GetItemState(list_view_, row_count - 1,
-                              LVIS_SELECTED) == LVIS_SELECTED) {
-        last_selected_row = row_count - 1;
-    } else {
-      last_selected_row = ListView_GetNextItem(list_view_,
-          row_count - 1, LVNI_ALL | LVNI_SELECTED | LVNI_ABOVE);
-    }
-  }
-  return last_selected_row;
+  return PreviousSelectedIndex(RowCount());
 }
 
 void TableView::UpdateContentOffset() {
@@ -1016,7 +1004,7 @@ bool TableSelectionIterator::operator!=(const TableSelectionIterator& other) {
 }
 
 TableSelectionIterator& TableSelectionIterator::operator++() {
-  index_ = table_view_->NextSelectedIndex(index_);
+  index_ = table_view_->PreviousSelectedIndex(index_);
   return *this;
 }
 
@@ -1025,4 +1013,3 @@ int TableSelectionIterator::operator*() {
 }
 
 }  // namespace
-
