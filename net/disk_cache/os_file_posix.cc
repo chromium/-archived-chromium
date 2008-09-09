@@ -5,6 +5,7 @@
 #include "net/disk_cache/os_file.h"
 
 #include <fcntl.h>
+#include <errno.h>
 
 #include "base/logging.h"
 #include "base/string_util.h"
@@ -24,7 +25,8 @@ OSFile CreateOSFile(const std::wstring& name, int flags, bool* created) {
   if (!open_flags && !(flags & OS_FILE_OPEN) &&
       !(flags & OS_FILE_OPEN_ALWAYS)) {
     NOTREACHED();
-    return -1;
+    errno = ENOTSUP;
+    return INVALID_HANDLE_VALUE;
   }
 
   if (flags & OS_FILE_WRITE && flags & OS_FILE_READ) {
@@ -57,4 +59,3 @@ OSFile CreateOSFile(const std::wstring& name, int flags, bool* created) {
 }
 
 }  // namespace disk_cache
-

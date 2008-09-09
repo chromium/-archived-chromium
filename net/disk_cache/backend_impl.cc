@@ -524,8 +524,9 @@ std::wstring BackendImpl::GetFileName(Addr address) const {
     return std::wstring();
   }
 
-  std::wstring name = StringPrintf(L"%ls\\f_%06x", path_.c_str(),
-                                   address.FileNumber());
+  std::wstring name(path_);
+  std::wstring tmp = StringPrintf(L"f_%06x", address.FileNumber());
+  file_util::AppendToPath(&name, tmp);
   return name;
 }
 
@@ -1111,4 +1112,3 @@ bool BackendImpl::CheckEntry(EntryImpl* cache_entry) {
 }
 
 }  // namespace disk_cache
-

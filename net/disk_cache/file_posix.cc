@@ -42,7 +42,7 @@ OSFile File::os_file() const {
 bool File::IsValid() const {
   if (!init_)
     return false;
-  return (0 != os_file_);
+  return (INVALID_HANDLE_VALUE != os_file_);
 }
 
 bool File::Read(void* buffer, size_t buffer_len, size_t offset) {
@@ -118,4 +118,3 @@ size_t File::GetLength() {
 }
 
 }  // namespace disk_cache
-

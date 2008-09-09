@@ -4,6 +4,7 @@
 
 #include "net/disk_cache/block_files.h"
 
+#include "base/file_util.h"
 #include "base/histogram.h"
 #include "base/string_util.h"
 #include "base/time.h"
@@ -11,7 +12,7 @@
 
 namespace {
 
-const wchar_t* kBlockName = L"\\data_";
+const wchar_t* kBlockName = L"data_";
 
 // This array is used to perform a fast lookup of the nibble bit pattern to the
 // type of entry that can be stored there (number of consecutive blocks).
@@ -184,8 +185,9 @@ void BlockFiles::CloseFiles() {
 std::wstring BlockFiles::Name(int index) {
   // The file format allows for 256 files.
   DCHECK(index < 256 || index >= 0);
-  std::wstring name = StringPrintf(L"%ls%ls%d",
-                                   path_.c_str(), kBlockName, index);
+  std::wstring name(path_);
+  std::wstring tmp = StringPrintf(L"%ls%d", kBlockName, index);
+  file_util::AppendToPath(&name, tmp);
 
   return name;
 }
@@ -417,4 +419,3 @@ bool BlockFiles::FixBlockFileHeader(MappedFile* file) {
 }
 
 }  // namespace disk_cache
-

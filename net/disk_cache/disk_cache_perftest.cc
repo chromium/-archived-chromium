@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/file_util.h"
 #include "base/perftimer.h"
 #include "base/scoped_handle.h"
 #include "base/timer.h"
@@ -201,11 +202,25 @@ TEST_F(DiskCacheTest, CacheBackendPerformance) {
 
   delete cache;
 
-  ASSERT_TRUE(EvictFileFromSystemCache((path + L"\\index").c_str()));
-  ASSERT_TRUE(EvictFileFromSystemCache((path + L"\\data_0").c_str()));
-  ASSERT_TRUE(EvictFileFromSystemCache((path + L"\\data_1").c_str()));
-  ASSERT_TRUE(EvictFileFromSystemCache((path + L"\\data_2").c_str()));
-  ASSERT_TRUE(EvictFileFromSystemCache((path + L"\\data_3").c_str()));
+  std::wstring filename(path);
+  file_util::AppendToPath(&filename, L"index");
+  ASSERT_TRUE(EvictFileFromSystemCache(filename.c_str()));
+
+  filename = path;
+  file_util::AppendToPath(&filename, L"data_0");
+  ASSERT_TRUE(EvictFileFromSystemCache(filename.c_str()));
+
+  filename = path;
+  file_util::AppendToPath(&filename, L"data_1");
+  ASSERT_TRUE(EvictFileFromSystemCache(filename.c_str()));
+
+  filename = path;
+  file_util::AppendToPath(&filename, L"data_2");
+  ASSERT_TRUE(EvictFileFromSystemCache(filename.c_str()));
+
+  filename = path;
+  file_util::AppendToPath(&filename, L"data_3");
+  ASSERT_TRUE(EvictFileFromSystemCache(filename.c_str()));
 
   cache = disk_cache::CreateCacheBackend(path, false, 0);
   ASSERT_TRUE(NULL != cache);

@@ -16,6 +16,7 @@ namespace disk_cache {
 typedef HANDLE OSFile;
 #elif defined(OS_POSIX)
 typedef int OSFile;
+const OSFile INVALID_HANDLE_VALUE = -1;
 #endif
 
 enum OSFileFlags {
@@ -37,4 +38,3 @@ OSFile CreateOSFile(const std::wstring& name, int flags, bool* created);
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_OS_FILE_H_
-

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/file_util.h"
 #include "net/disk_cache/block_files.h"
 #include "net/disk_cache/disk_cache.h"
 #include "net/disk_cache/disk_cache_test_base.h"
@@ -11,6 +12,7 @@
 TEST_F(DiskCacheTest, BlockFiles_Grow) {
   std::wstring path = GetCachePath();
   ASSERT_TRUE(DeleteCache(path.c_str()));
+  ASSERT_TRUE(file_util::CreateDirectory(path));
 
   disk_cache::BlockFiles files(path);
   ASSERT_TRUE(files.Init(true));
@@ -26,6 +28,7 @@ TEST_F(DiskCacheTest, BlockFiles_Grow) {
 TEST_F(DiskCacheTest, BlockFiles_Recover) {
   std::wstring path = GetCachePath();
   ASSERT_TRUE(DeleteCache(path.c_str()));
+  ASSERT_TRUE(file_util::CreateDirectory(path));
 
   disk_cache::BlockFiles files(path);
   ASSERT_TRUE(files.Init(true));
@@ -98,5 +101,3 @@ TEST_F(DiskCacheTest, BlockFiles_Recover) {
   EXPECT_EQ(empty_3, header->empty[2]);
   EXPECT_EQ(empty_4, header->empty[3]);
 }
-
-
