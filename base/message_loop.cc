@@ -6,10 +6,6 @@
 
 #include <algorithm>
 
-#if defined(OS_WIN)
-#include <mmsystem.h>
-#endif
-
 #include "base/compiler_specific.h"
 #include "base/logging.h"
 #include "base/message_pump_default.h"
