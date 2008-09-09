@@ -7,9 +7,11 @@
 #pragma comment(lib, "winmm.lib")
 #include <windows.h>
 #include <mmsystem.h>
+
 #include "base/basictypes.h"
 #include "base/lock.h"
 #include "base/logging.h"
+#include "base/singleton.h"
 
 namespace {
 
@@ -122,53 +124,56 @@ void Time::Explode(bool is_local, Exploded* exploded) const {
 }
 
 // TimeTicks ------------------------------------------------------------------
+namespace {
 
-TimeTicks::TickFunction TimeTicks::tick_function_=
-    reinterpret_cast<TickFunction>(&timeGetTime);
-
-// static
-TimeTicks TimeTicks::Now() {
-  // Uses the multimedia timers on Windows to get a higher resolution clock.
-  // timeGetTime() provides a resolution which is variable depending on
-  // hardware and system configuration.  It can also be changed by other
-  // apps.  This class does not attempt to change the resolution of the
-  // timer, because we don't want to affect other applications.
-
-  // timeGetTime() should at least be accurate to ~5ms on all systems.
-  // timeGetTime() returns a 32-bit millisecond counter which has rollovers
-  // every ~49 days.
-  static DWORD last_tick_count = 0;
-  static int64 tick_rollover_accum = 0;
-  static Lock* tick_lock = NULL;  // To protect during rollover periods.
-
-  // Lazily create the lock we use.
-  if (!tick_lock) {
-    Lock* new_lock = new Lock;
-    if (InterlockedCompareExchangePointer(
-        reinterpret_cast<PVOID*>(&tick_lock), new_lock, NULL)) {
-      delete new_lock;
-    }
-  }
-
-  // Atomically protect the low and high 32bit values for time.
-  // In the future we may be able to optimize with
-  // InterlockedCompareExchange64, but that doesn't work on XP.
-  DWORD tick_count;
-  int64 rollover_count;
-  {
-    AutoLock lock(*tick_lock);
-    tick_count = tick_function_();
-    if (tick_count < last_tick_count)
-      tick_rollover_accum += GG_INT64_C(0x100000000);
-
-    last_tick_count = tick_count;
-    rollover_count = tick_rollover_accum;
-  }
-
-  // GetTickCount returns milliseconds, we want microseconds.
-  return TimeTicks((tick_count + rollover_count) *
-                   Time::kMicrosecondsPerMillisecond);
+// We define a wrapper to adapt between the __stdcall and __cdecl call of the
+// mock function, and to avoid a static constructor.  Assigning an import to a
+// function pointer directly would require setup code to fetch from the IAT.
+DWORD timeGetTimeWrapper() {
+  return timeGetTime();
 }
+
+DWORD (*tick_function)(void) = &timeGetTimeWrapper;
+
+// We use timeGetTime() to implement TimeTicks::Now().  This can be problematic
+// because it returns the number of milliseconds since Windows has started,
+// which will roll over the 32-bit value every ~49 days.  We try to track
+// rollover ourselves, which works if TimeTicks::Now() is called at least every
+// 49 days.
+class NowSingleton {
+ public:
+  NowSingleton()
+      : rollover_(TimeDelta::FromMilliseconds(0)), last_seen_(0) {
+    // Request a resolution of 1ms from timeGetTime().  This can have some
+    // consequences on other applications (see MSDN), but we've found that it
+    // is very common in other applications (Flash, Media Player, etc), so it
+    // is not really a dangerous thing to do.  We need this because the default
+    // resolution of ~15ms is much too low for accurate timing and timers.
+    ::timeBeginPeriod(1);
+  }
+
+  ~NowSingleton() {
+    ::timeEndPeriod(1);
+  }
+
+  TimeDelta Now() {
+    AutoLock locked(lock_);
+    // We should hold the lock while calling tick_function to make sure that
+    // we keep our last_seen_ stay correctly in sync.
+    DWORD now = tick_function();
+    if (now < last_seen_)
+      rollover_ += TimeDelta::FromMilliseconds(0x100000000I64);  // ~49.7 days.
+    last_seen_ = now;
+    return TimeDelta::FromMilliseconds(now) + rollover_;
+  }
+
+ private:
+  Lock lock_;  // To protected last_seen_ and rollover_.
+  TimeDelta rollover_;  // Accumulation of time lost due to rollover.
+  DWORD last_seen_;  // The last timeGetTime value we saw, to detect rollover.
+
+  DISALLOW_COPY_AND_ASSIGN(NowSingleton);
+};
 
 // Overview of time counters:
 // (1) CPU cycle counter. (Retrieved via RDTSC)
@@ -198,23 +203,58 @@ TimeTicks TimeTicks::Now() {
 // (3) System time. The system time provides a low-resolution (typically 10ms
 // to 55 milliseconds) time stamp but is comparatively less expensive to
 // retrieve and more reliable.
-
-// static
-TimeTicks TimeTicks::UnreliableHighResNow() {
-  // Cached clock frequency -> microseconds. This assumes that the clock
-  // frequency is faster than one microsecond (which is 1MHz, should be OK).
-  static int64 ticks_per_microsecond = 0;
-
-  if (ticks_per_microsecond == 0) {
-    LARGE_INTEGER ticks_per_sec = { 0, 0 };
+class UnreliableHighResNowSingleton {
+ public:
+  UnreliableHighResNowSingleton() : ticks_per_microsecond_(0) {
+    LARGE_INTEGER ticks_per_sec = {0};
     if (!QueryPerformanceFrequency(&ticks_per_sec))
-      return TimeTicks(0);  // Broken, we don't guarantee this function works.
-    ticks_per_microsecond =
+      return;  // Broken, we don't guarantee this function works.
+    ticks_per_microsecond_ =
         ticks_per_sec.QuadPart / Time::kMicrosecondsPerSecond;
   }
 
-  LARGE_INTEGER now;
-  QueryPerformanceCounter(&now);
-  return TimeTicks(now.QuadPart / ticks_per_microsecond);
+  bool IsBroken() {
+    return ticks_per_microsecond_ == 0;
+  }
+
+  TimeDelta Now() {
+    LARGE_INTEGER now;
+    QueryPerformanceCounter(&now);
+    return TimeDelta::FromMicroseconds(now.QuadPart / ticks_per_microsecond_);
+  }
+
+ private:
+  // Cached clock frequency -> microseconds. This assumes that the clock
+  // frequency is faster than one microsecond (which is 1MHz, should be OK).
+  int64 ticks_per_microsecond_;  // 0 indicates QPF failed and we're broken.
+
+  DISALLOW_COPY_AND_ASSIGN(UnreliableHighResNowSingleton);
+};
+
+}  // namespace
+
+// static
+TimeTicks::TickFunctionType TimeTicks::SetMockTickFunction(
+    TickFunctionType ticker) {
+  TickFunctionType old = tick_function;
+  tick_function = ticker;
+  return old;
 }
 
+// static
+TimeTicks TimeTicks::Now() {
+  return TimeTicks() + Singleton<NowSingleton>::get()->Now();
+}
+
+// static
+TimeTicks TimeTicks::UnreliableHighResNow() {
+  UnreliableHighResNowSingleton* now =
+      Singleton<UnreliableHighResNowSingleton>::get();
+
+  if (now->IsBroken()) {
+    NOTREACHED() << "QueryPerformanceCounter is broken.";
+    return TimeTicks(0);
+  }
+
+  return TimeTicks() + now->Now();
+}

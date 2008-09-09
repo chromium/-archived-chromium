@@ -12,27 +12,26 @@ namespace {
 
 class MockTimeTicks : public TimeTicks {
  public:
-  static int Ticker() {
+  static DWORD Ticker() {
     return static_cast<int>(InterlockedIncrement(&ticker_));
   }
 
   static void InstallTicker() {
-    old_tick_function_ = tick_function_;
-    tick_function_ = reinterpret_cast<TickFunction>(&Ticker);
+    old_tick_function_ = SetMockTickFunction(&Ticker);
     ticker_ = -5;
   }
 
   static void UninstallTicker() {
-    tick_function_ = old_tick_function_;
+    SetMockTickFunction(old_tick_function_);
   }
 
  private:
   static volatile LONG ticker_;
-  static TickFunction old_tick_function_;
+  static TickFunctionType old_tick_function_;
 };
 
 volatile LONG MockTimeTicks::ticker_;
-MockTimeTicks::TickFunction MockTimeTicks::old_tick_function_;
+MockTimeTicks::TickFunctionType MockTimeTicks::old_tick_function_;
 
 HANDLE g_rollover_test_start;
 

@@ -68,19 +68,6 @@ MessageLoop::MessageLoop(Type type)
   DCHECK(!tls_index_.Get()) << "should only have one message loop per thread";
   tls_index_.Set(this);
 
-  // TODO(darin): This does not seem like the best place for this code to live!
-#if defined(OS_WIN)
-  // We've experimented with all sorts of timers, and initially tried
-  // to avoid using timeBeginPeriod because it does affect the system
-  // globally.  However, after much investigation, it turns out that all
-  // of the major plugins (flash, windows media 9-11, and quicktime)
-  // already use timeBeginPeriod to increase the speed of the clock.
-  // Since the browser must work with these plugins, the browser already
-  // needs to support a fast clock.  We may as well use this ourselves,
-  // as it really is the best timer mechanism for our needs.
-  timeBeginPeriod(1);
-#endif
-
   // TODO(darin): Choose the pump based on the requested type.
 #if defined(OS_WIN)
   if (type_ == TYPE_DEFAULT) {
@@ -119,11 +106,6 @@ MessageLoop::~MessageLoop() {
     delayed_work_queue_.pop();
     delete task;
   }
-
-#if defined(OS_WIN)
-  // Match timeBeginPeriod() from construction.
-  timeEndPeriod(1);
-#endif
 }
 
 void MessageLoop::AddDestructionObserver(DestructionObserver *obs) {

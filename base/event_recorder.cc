@@ -53,9 +53,6 @@ bool EventRecorder::StartRecording(std::wstring& filename) {
     return false;
   }
 
-  // Set the faster clock, if possible.
-  ::timeBeginPeriod(1);
-
   // Set the recording hook.  JOURNALRECORD can only be used as a global hook.
   journal_hook_ = ::SetWindowsHookEx(WH_JOURNALRECORD, StaticRecordWndProc,
                                      GetModuleHandle(NULL), 0);
@@ -78,8 +75,6 @@ void EventRecorder::StopRecording() {
       // Nothing else we can really do here.
       return;
     }
-
-    ::timeEndPeriod(1);
 
     DCHECK(file_ != NULL);
     fclose(file_);
@@ -108,9 +103,6 @@ bool EventRecorder::StartPlayback(std::wstring& filename) {
     fclose(file_);
     return false;
   }
-
-  // Set the faster clock, if possible.
-  ::timeBeginPeriod(1);
 
   // Playback time is tricky.  When playing back, we read a series of events,
   // each with timeouts.  Simply subtracting the delta between two timers will
@@ -149,8 +141,6 @@ void EventRecorder::StopPlayback() {
     DCHECK(file_ != NULL);
     fclose(file_);
     file_ = NULL;
-
-    ::timeEndPeriod(1);
 
     journal_hook_ = NULL;
     is_playing_ = false;
