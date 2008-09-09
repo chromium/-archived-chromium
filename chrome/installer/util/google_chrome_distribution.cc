@@ -177,16 +177,25 @@ void GoogleChromeDistribution::UpdateDiffInstallStatus(bool system_install,
 
   RegKey key;
   std::wstring ap_key_value;
-  std::wstring chrome_google_update_state_key(
-      google_update::kRegPathClientState);
-  chrome_google_update_state_key.append(L"\\");
-  chrome_google_update_state_key.append(google_update::kChromeGuid);
-  if (!key.Open(reg_root, chrome_google_update_state_key.c_str(),
-      KEY_ALL_ACCESS) || !key.ReadValue(google_update::kRegApFieldName,
-      &ap_key_value)) {
-    LOG(INFO) << "Application key not found. Returning without changing it.";
-    key.Close();
-    return;
+  std::wstring reg_key(google_update::kRegPathClientState);
+  reg_key.append(L"\\");
+  reg_key.append(google_update::kChromeGuid);
+  if (!key.Open(reg_root, reg_key.c_str(), KEY_ALL_ACCESS) || 
+      !key.ReadValue(google_update::kRegApFieldName, &ap_key_value)) {
+    LOG(INFO) << "Application key not found.";
+    if (!incremental_install || !GetInstallReturnCode(install_status)) {
+      LOG(INFO) << "Returning without changing application key.";
+      key.Close();
+      return;
+    } else if (!key.Valid()) {
+      reg_key.assign(google_update::kRegPathClientState);
+      if (!key.Open(reg_root, reg_key.c_str(), KEY_ALL_ACCESS) ||
+          !key.CreateKey(google_update::kChromeGuid, KEY_ALL_ACCESS)) {
+        LOG(ERROR) << "Failed to create application key.";
+        key.Close();
+        return;
+      }
+    }
   }
 
   std::wstring new_value = GoogleChromeDistribution::GetNewGoogleUpdateApKey(
