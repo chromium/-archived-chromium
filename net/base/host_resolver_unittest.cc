@@ -3,21 +3,18 @@
 // found in the LICENSE file.
 
 #include "net/base/host_resolver.h"
-#include "net/base/address_list.h"
-#include "testing/gtest/include/gtest/gtest.h"
 
-#ifdef OS_WIN
+#if defined(OS_WIN)
 #include <ws2tcpip.h>
 #include <wspiapi.h>
-#endif
-#ifdef OS_POSIX
+#elif defined(OS_POSIX)
 #include <netdb.h>
 #endif
 
-namespace {
+#include "net/base/address_list.h"
+#include "testing/gtest/include/gtest/gtest.h"
 
-class HostResolverTest : public testing::Test {
-};
+namespace {
 
 TEST(HostResolverTest, NumericAddresses) {
   // Stevens says dotted quads with AI_UNSPEC resolve to a single sockaddr_in.

@@ -52,10 +52,9 @@ class HostResolver {
   class Request;
   friend class Request;
   scoped_refptr<Request> request_;
-  DISALLOW_EVIL_CONSTRUCTORS(HostResolver);
+  DISALLOW_COPY_AND_ASSIGN(HostResolver);
 };
 
 }  // namespace net
 
 #endif  // NET_BASE_HOST_RESOLVER_H_
-

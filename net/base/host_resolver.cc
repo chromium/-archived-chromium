@@ -174,4 +174,3 @@ int HostResolver::Resolve(const std::string& hostname, int port,
 }
 
 }  // namespace net
-
