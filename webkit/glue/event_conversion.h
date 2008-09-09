@@ -32,7 +32,7 @@ class MakePlatformMouseEvent : public WebCore::PlatformMouseEvent {
 
  private:
   static int last_click_count_;
-  static long last_click_time_;
+  static uint32 last_click_time_;
 };
 
 class MakePlatformWheelEvent : public WebCore::PlatformWheelEvent {
