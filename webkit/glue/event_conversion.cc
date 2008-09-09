@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include "config.h"
-#include "build/build_config.h"
 
 #if defined(OS_WIN)
 #include <windows.h>

@@ -5,6 +5,8 @@
 #ifndef WEBKIT_GLUE_EVENT_CONVERSION_H__
 #define WEBKIT_GLUE_EVENT_CONVERSION_H__
 
+#include "base/basictypes.h"
+
 #pragma warning(push, 0)
 #include "PlatformKeyboardEvent.h"
 #include "PlatformMouseEvent.h"
