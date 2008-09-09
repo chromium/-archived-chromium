@@ -90,7 +90,7 @@ int ProxyResolverWinHttp::GetProxyForURL(const std::string& query_url,
   // supports DHCP based auto-detection) also appears to have issues.
   //
   WINHTTP_AUTOPROXY_OPTIONS options = {0};
-  options.fAutoLogonIfChallenged = TRUE;
+  options.fAutoLogonIfChallenged = FALSE;
   options.dwFlags = WINHTTP_AUTOPROXY_CONFIG_URL;
   std::wstring pac_url_wide = ASCIIToWide(pac_url);
   options.lpszAutoConfigUrl =
@@ -98,19 +98,31 @@ int ProxyResolverWinHttp::GetProxyForURL(const std::string& query_url,
 
   WINHTTP_PROXY_INFO info = {0};
   DCHECK(session_handle_);
-  if (!CallWinHttpGetProxyForUrl(
-          session_handle_, ASCIIToWide(query_url).c_str(), &options, &info)) {
-    DWORD error = GetLastError();
-    LOG(ERROR) << "WinHttpGetProxyForUrl failed: " << error;
 
-    // If we got here because of RPC timeout during out of process PAC
-    // resolution, no further requests on this session are going to work.
-    if ((ERROR_WINHTTP_TIMEOUT == error) ||
-        (ERROR_WINHTTP_AUTO_PROXY_SERVICE_ERROR == error)) {
-      CloseWinHttpSession();
+  // Per http://msdn.microsoft.com/en-us/library/aa383153(VS.85).aspx, it is
+  // necessary to first try resolving with fAutoLogonIfChallenged set to false.
+  // Otherwise, we fail over to trying it with a value of true.  This way we
+  // get good performance in the case where WinHTTP uses an out-of-process
+  // resolver.  This is important for Vista and Win2k3.
+  BOOL ok = CallWinHttpGetProxyForUrl(
+      session_handle_, ASCIIToWide(query_url).c_str(), &options, &info);
+  if (!ok) {
+    if (ERROR_WINHTTP_LOGIN_FAILURE == GetLastError()) {
+      options.fAutoLogonIfChallenged = TRUE;
+      ok = CallWinHttpGetProxyForUrl(
+          session_handle_, ASCIIToWide(query_url).c_str(), &options, &info);
     }
-
-    return ERR_FAILED;  // TODO(darin): Bug 1189288: translate error code.
+    if (!ok) {
+      DWORD error = GetLastError();
+      LOG(ERROR) << "WinHttpGetProxyForUrl failed: " << error;
+      // If we got here because of RPC timeout during out of process PAC
+      // resolution, no further requests on this session are going to work.
+      if (ERROR_WINHTTP_TIMEOUT == error ||
+          ERROR_WINHTTP_AUTO_PROXY_SERVICE_ERROR == error) {
+        CloseWinHttpSession();
+      }
+      return ERR_FAILED;  // TODO(darin): Bug 1189288: translate error code.
+    }
   }
 
   int rv = OK;
