@@ -48,24 +48,34 @@ input_files = [
 
 env.ChromeStaticLibrary('googleurl', input_files)
 
+env_tests = env.Clone()
 
-# Commented out for now because we can't build googleurl unit tests
-# with gtest.  This will apparently be fixed some day...
-#
-#env_tests = env.Clone()
-#
-#env_tests.Append(
-#    CPPPATH = [
-#        '$GTEST_DIR/include',
-#    ],
-#)
-#
-#test_files = [
-#    'src/gurl_unittest.cc',
-#    'src/url_canon_unittest.cc',
-#    'src/url_parse_unittest.cc',
-#    'src/url_util_unittest.cc',
-#]
-#
-#env_tests.ChromeStaticLibrary('googleurl_tests', test_files)
+env_tests.Append(
+    CPPPATH = [
+        '$GTEST_DIR/include',
+    ],
+    CPPDEFINES = [
+        'UNIT_TEST',
+    ],
+    LIBS = [
+        'googleurl',
+        'base',
+        'icuuc',
+        'gtest',
+    ]
+)
 
+test_files = [
+   'src/gurl_unittest.cc',
+   'src/url_canon_unittest.cc',
+   'src/url_parse_unittest.cc',
+   'src/url_util_unittest.cc',
+
+   # The version of gtest that googleurl uses provides a main() function; ours
+   # doesn't so include our own main function.
+   '#/../base/run_all_unittests.cc'
+]
+
+gurl_unittests = env_tests.ChromeTestProgram('googleurl_tests', test_files)
+
+installed_gurl_unittests = env.Install('$TARGET_ROOT', gurl_unittests)
