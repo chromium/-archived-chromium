@@ -8,17 +8,25 @@
 
 #include "build/build_config.h"
 
+#if defined(OS_WIN)
+#include "base/gfx/platform_canvas_win.h"
 namespace gfx {
 
-#if defined(OS_WIN)
-class PlatformCanvasWin;
 typedef PlatformCanvasWin PlatformCanvas;
-#elif defined(OS_MACOSX)
-class PlatformCanvasMac;
-typedef PlatformCanvasMac PlatformCanvas;
-#elif defined(OS_LINUX)
-class PlatformCanvasLinux;
-typedef PlatformCanvasLinux PlatformCanvas;
-#endif
 
 }  // namespace gfx
+#elif defined(OS_MACOSX)
+#include "base/gfx/platform_canvas_mac.h"
+namespace gfx {
+
+typedef PlatformCanvasMac PlatformCanvas;
+
+}  // namespace gfx
+#elif defined(OS_LINUX)
+#include "base/gfx/platform_canvas_linux.h"
+namespace gfx {
+
+typedef PlatformCanvasLinux PlatformCanvas;
+
+}  // namespace gfx
+#endif

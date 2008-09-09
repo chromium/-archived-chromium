@@ -141,5 +141,10 @@ SkDevice* PlatformCanvasMac::createPlatformDevice(int width,
   return device;
 }
 
+SkDevice* PlatformCanvasMac::setBitmapDevice(const SkBitmap&) {
+  NOTREACHED();
+  return NULL;
+}
+
 }  // namespace gfx
 

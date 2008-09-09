@@ -380,7 +380,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\gfx\platform_canvas_unittest_win.cc"
+				RelativePath="..\gfx\platform_canvas_unittest.cc"
 				>
 			</File>
 			<File

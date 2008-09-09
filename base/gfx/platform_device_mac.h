@@ -59,6 +59,12 @@ class PlatformDeviceMac : public SkDevice {
   // Returns if the preferred rendering engine is vectorial or bitmap based.
   virtual bool IsVectorial() = 0;
 
+  // On platforms where the native rendering API does not support rendering
+  // into bitmaps with a premultiplied alpha channel, this call is responsible
+  // for doing any fixup necessary.  It is not used on the Mac, since
+  // CoreGraphics can handle premultiplied alpha just fine.
+  virtual void fixupAlphaBeforeCompositing() = 0;
+
   // Initializes the default settings and colors in a device context.
   static void InitializeCGContext(CGContextRef context);
 

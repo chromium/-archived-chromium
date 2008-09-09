@@ -6,17 +6,22 @@
 // that can be used by upper-level classes that just need to pass a reference
 // around.
 
+#if defined(OS_WIN)
+#include "base/gfx/bitmap_platform_device_win.h"
+#elif defined(OS_MACOSX)
+#include "base/gfx/bitmap_platform_device_mac.h"
+#elif defined(OS_LINUX)
+#include "base/gfx/bitmap_platform_device_linux.h"
+#endif
+
 namespace gfx {
 
 #if defined(OS_WIN)
-class BitmapPlatformDeviceWin;
 typedef BitmapPlatformDeviceWin BitmapPlatformDevice;
 #elif defined(OS_MACOSX)
-class BitmapPlatformDeviceMac;
 typedef BitmapPlatformDeviceMac BitmapPlatformDevice;
 #elif defined(OS_LINUX)
-class BitmapPlatformDeviceLinux;
 typedef BitmapPlatformDeviceLinux BitmapPlatformDevice;
 #endif
 
-}  // namespace gfx
+}
