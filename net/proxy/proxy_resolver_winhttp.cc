@@ -92,8 +92,9 @@ int ProxyResolverWinHttp::GetProxyForURL(const std::string& query_url,
   WINHTTP_AUTOPROXY_OPTIONS options = {0};
   options.fAutoLogonIfChallenged = TRUE;
   options.dwFlags = WINHTTP_AUTOPROXY_CONFIG_URL;
+  std::wstring pac_url_wide = ASCIIToWide(pac_url);
   options.lpszAutoConfigUrl =
-      pac_url.empty() ? L"http://wpad/wpad.dat" : ASCIIToWide(pac_url).c_str();
+      pac_url_wide.empty() ? L"http://wpad/wpad.dat" : pac_url_wide.c_str();
 
   WINHTTP_PROXY_INFO info = {0};
   DCHECK(session_handle_);
