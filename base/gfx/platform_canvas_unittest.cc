@@ -2,10 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <windows.h>
+#include "build/build_config.h"
 
-#include "base/gfx/platform_canvas_win.h"
-#include "base/gfx/platform_device_win.h"
+#if defined(OS_WIN)
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+
+#include "base/gfx/platform_canvas.h"
+#include "base/gfx/platform_device.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 #include "SkColor.h"
@@ -16,10 +22,10 @@ namespace {
 
 // Return true if the canvas is filled to canvas_color,
 // and contains a single rectangle filled to rect_color.
-bool VerifyRect(const PlatformCanvasWin& canvas,
+bool VerifyRect(const PlatformCanvas& canvas,
                 uint32_t canvas_color, uint32_t rect_color,
                 int x, int y, int w, int h) {
-  PlatformDeviceWin& device = canvas.getTopPlatformDevice();
+  PlatformDevice& device = canvas.getTopPlatformDevice();
   const SkBitmap& bitmap = device.accessBitmap(false);
   SkAutoLockPixels lock(bitmap);
 
@@ -43,16 +49,17 @@ bool VerifyRect(const PlatformCanvasWin& canvas,
 // Checks whether there is a white canvas with a black square at the given
 // location in pixels (not in the canvas coordinate system).
 // TODO(ericroman): rename Square to Rect
-bool VerifyBlackSquare(const PlatformCanvasWin& canvas, int x, int y, int w, int h) {
+bool VerifyBlackSquare(const PlatformCanvas& canvas, int x, int y, int w, int h) {
   return VerifyRect(canvas, SK_ColorWHITE, SK_ColorBLACK, x, y, w, h);
 }
 
 // Check that every pixel in the canvas is a single color.
-bool VerifyCanvasColor(const PlatformCanvasWin& canvas, uint32_t canvas_color) {
+bool VerifyCanvasColor(const PlatformCanvas& canvas, uint32_t canvas_color) {
   return VerifyRect(canvas, canvas_color, 0, 0, 0, 0, 0);
 }
 
-void DrawGDIRect(PlatformCanvasWin& canvas, int x, int y, int w, int h) {
+#if defined(OS_WIN)
+void DrawNativeRect(const PlatformCanvas& canvas, int x, int y, int w, int h) {
   HDC dc = canvas.beginPlatformPaint();
 
   RECT inner_rc;
@@ -64,10 +71,26 @@ void DrawGDIRect(PlatformCanvasWin& canvas, int x, int y, int w, int h) {
 
   canvas.endPlatformPaint();
 }
+#elif defined(OS_MACOSX)
+void DrawNativeRect(const PlatformCanvas& canvas, int x, int y, int w, int h) {
+  CGContextRef context = canvas.beginPlatformPaint();
+  
+  CGRect inner_rc = CGRectMake(x, y, w, h);
+  CGFloat black[] = { 0.0, 0.0, 0.0, 1.0 };  // RGBA opaque black
+  CGContextSetFillColor(context, black);
+  CGContextFillRect(context, inner_rc);
+  
+  canvas.endPlatformPaint();
+}
+#else
+void DrawNativeRect(const PlatformCanvas& canvas, int x, int y, int w, int h) {
+  NOTIMPLEMENTED();
+}
+#endif
 
 // Clips the contents of the canvas to the given rectangle. This will be
 // intersected with any existing clip.
-void AddClip(PlatformCanvasWin& canvas, int x, int y, int w, int h) {
+void AddClip(const PlatformCanvas& canvas, int x, int y, int w, int h) {
   SkRect rect;
   rect.set(SkIntToScalar(x), SkIntToScalar(y),
            SkIntToScalar(x + w), SkIntToScalar(y + h));
@@ -76,7 +99,7 @@ void AddClip(PlatformCanvasWin& canvas, int x, int y, int w, int h) {
 
 class LayerSaver {
  public:
-  LayerSaver(PlatformCanvasWin& canvas, int x, int y, int w, int h)
+  LayerSaver(const PlatformCanvas& canvas, int x, int y, int w, int h)
       : canvas_(canvas),
         x_(x),
         y_(y),
@@ -103,7 +126,7 @@ class LayerSaver {
   int bottom() const { return y_ + h_; }
 
  private:
-  PlatformCanvasWin& canvas_;
+  const PlatformCanvas& canvas_;
   int x_, y_, w_, h_;
 };
 
@@ -123,9 +146,9 @@ const int kInnerH = 3;
 
 // This just checks that our checking code is working properly, it just uses
 // regular skia primitives.
-TEST(PlatformCanvasWin, SkLayer) {
+TEST(PlatformCanvas, SkLayer) {
   // Create the canvas initialized to opaque white.
-  PlatformCanvasWin canvas(16, 16, true);
+  PlatformCanvas canvas(16, 16, true);
   canvas.drawColor(SK_ColorWHITE);
 
   // Make a layer and fill it completely to make sure that the bounds are
@@ -137,17 +160,17 @@ TEST(PlatformCanvasWin, SkLayer) {
   EXPECT_TRUE(VerifyBlackSquare(canvas, kLayerX, kLayerY, kLayerW, kLayerH));
 }
 
-// Test the GDI clipping.
-TEST(PlatformCanvasWin, GDIClipRegion) {
+// Test native clipping.
+TEST(PlatformCanvas, ClipRegion) {
   // Initialize a white canvas
-  PlatformCanvasWin canvas(16, 16, true);
+  PlatformCanvas canvas(16, 16, true);
   canvas.drawColor(SK_ColorWHITE);
   EXPECT_TRUE(VerifyCanvasColor(canvas, SK_ColorWHITE));
 
   // Test that initially the canvas has no clip region, by filling it
   // with a black rectangle.
   // Note: Don't use LayerSaver, since internally it sets a clip region.
-  DrawGDIRect(canvas, 0, 0, 16, 16);
+  DrawNativeRect(canvas, 0, 0, 16, 16);
   canvas.getTopPlatformDevice().fixupAlphaBeforeCompositing();
   EXPECT_TRUE(VerifyCanvasColor(canvas, SK_ColorBLACK));
 
@@ -158,22 +181,22 @@ TEST(PlatformCanvasWin, GDIClipRegion) {
     LayerSaver layer(canvas, 0, 0, 16, 16);
     AddClip(canvas, 2, 3, 4, 5);
     AddClip(canvas, 4, 9, 10, 10);
-    DrawGDIRect(canvas, 0, 0, 16, 16);
+    DrawNativeRect(canvas, 0, 0, 16, 16);
   }
   EXPECT_TRUE(VerifyCanvasColor(canvas, SK_ColorWHITE));
 }
 
-// Test the layers get filled properly by GDI.
-TEST(PlatformCanvasWin, GDILayer) {
+// Test the layers get filled properly by native rendering.
+TEST(PlatformCanvas, FillLayer) {
   // Create the canvas initialized to opaque white.
-  PlatformCanvasWin canvas(16, 16, true);
+  PlatformCanvas canvas(16, 16, true);
 
   // Make a layer and fill it completely to make sure that the bounds are
   // correct.
   canvas.drawColor(SK_ColorWHITE);
   {
     LayerSaver layer(canvas, kLayerX, kLayerY, kLayerW, kLayerH);
-    DrawGDIRect(canvas, 0, 0, 100, 100);
+    DrawNativeRect(canvas, 0, 0, 100, 100);
   }
   EXPECT_TRUE(VerifyBlackSquare(canvas, kLayerX, kLayerY, kLayerW, kLayerH));
 
@@ -181,7 +204,7 @@ TEST(PlatformCanvasWin, GDILayer) {
   canvas.drawColor(SK_ColorWHITE);
   {
     LayerSaver layer(canvas, kLayerX, kLayerY, kLayerW, kLayerH);
-    DrawGDIRect(canvas, kInnerX, kInnerY, kInnerW, kInnerH);
+    DrawNativeRect(canvas, kInnerX, kInnerY, kInnerW, kInnerH);
   }
   EXPECT_TRUE(VerifyBlackSquare(canvas, kInnerX, kInnerY, kInnerW, kInnerH));
 
@@ -191,7 +214,7 @@ TEST(PlatformCanvasWin, GDILayer) {
     LayerSaver layer(canvas, kLayerX, kLayerY, kLayerW, kLayerH);
     canvas.save();
     AddClip(canvas, kInnerX, kInnerY, kInnerW, kInnerH);
-    DrawGDIRect(canvas, 0, 0, 100, 100);
+    DrawNativeRect(canvas, 0, 0, 100, 100);
     canvas.restore();
   }
   EXPECT_TRUE(VerifyBlackSquare(canvas, kInnerX, kInnerY, kInnerW, kInnerH));
@@ -202,16 +225,16 @@ TEST(PlatformCanvasWin, GDILayer) {
   AddClip(canvas, kInnerX, kInnerY, kInnerW, kInnerH);
   {
     LayerSaver layer(canvas, kLayerX, kLayerY, kLayerW, kLayerH);
-    DrawGDIRect(canvas, 0, 0, 100, 100);
+    DrawNativeRect(canvas, 0, 0, 100, 100);
   }
   canvas.restore();
   EXPECT_TRUE(VerifyBlackSquare(canvas, kInnerX, kInnerY, kInnerW, kInnerH));
 }
 
 // Test that translation + make layer works properly.
-TEST(PlatformCanvasWin, GDITranslateLayer) {
+TEST(PlatformCanvas, TranslateLayer) {
   // Create the canvas initialized to opaque white.
-  PlatformCanvasWin canvas(16, 16, true);
+  PlatformCanvas canvas(16, 16, true);
 
   // Make a layer and fill it completely to make sure that the bounds are
   // correct.
@@ -220,7 +243,7 @@ TEST(PlatformCanvasWin, GDITranslateLayer) {
   canvas.translate(1, 1);
   {
     LayerSaver layer(canvas, kLayerX, kLayerY, kLayerW, kLayerH);
-    DrawGDIRect(canvas, 0, 0, 100, 100);
+    DrawNativeRect(canvas, 0, 0, 100, 100);
   }
   canvas.restore();
   EXPECT_TRUE(VerifyBlackSquare(canvas, kLayerX + 1, kLayerY + 1,
@@ -232,7 +255,7 @@ TEST(PlatformCanvasWin, GDITranslateLayer) {
   canvas.translate(1, 1);
   {
     LayerSaver layer(canvas, kLayerX, kLayerY, kLayerW, kLayerH);
-    DrawGDIRect(canvas, kInnerX, kInnerY, kInnerW, kInnerH);
+    DrawNativeRect(canvas, kInnerX, kInnerY, kInnerW, kInnerH);
   }
   canvas.restore();
   EXPECT_TRUE(VerifyBlackSquare(canvas, kInnerX + 1, kInnerY + 1,
@@ -244,7 +267,7 @@ TEST(PlatformCanvasWin, GDITranslateLayer) {
   {
     LayerSaver layer(canvas, kLayerX, kLayerY, kLayerW, kLayerH);
     canvas.translate(1, 1);
-    DrawGDIRect(canvas, kInnerX, kInnerY, kInnerW, kInnerH);
+    DrawNativeRect(canvas, kInnerX, kInnerY, kInnerW, kInnerH);
   }
   canvas.restore();
   EXPECT_TRUE(VerifyBlackSquare(canvas, kInnerX + 1, kInnerY + 1,
@@ -258,7 +281,7 @@ TEST(PlatformCanvasWin, GDITranslateLayer) {
     LayerSaver layer(canvas, kLayerX, kLayerY, kLayerW, kLayerH);
     canvas.translate(1, 1);
     AddClip(canvas, kInnerX, kInnerY, kInnerW, kInnerH);
-    DrawGDIRect(canvas, 0, 0, 100, 100);
+    DrawNativeRect(canvas, 0, 0, 100, 100);
   }
   canvas.restore();
   EXPECT_TRUE(VerifyBlackSquare(canvas, kInnerX + 2, kInnerY + 2,
