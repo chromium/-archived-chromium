@@ -133,17 +133,7 @@ void HtmlDialogView::CloseContents(TabContents* source) {
 void HtmlDialogView::MoveContents(TabContents* source, const gfx::Rect& pos) {
   // The contained web page wishes to resize itself. We let it do this because
   // if it's a dialog we know about, we trust it not to be mean to the user.
-
-  // Determine the size the window containing the dialog at its requested size.
-  gfx::Size window_size =
-      window()->CalculateWindowSizeForClientSize(pos.size());
-
-  // Actually size the window.
-  CRect vc_bounds;
-  GetViewContainer()->GetBounds(&vc_bounds, true);
-  gfx::Rect bounds(vc_bounds.left, vc_bounds.top, window_size.width(),
-                   window_size.height());
-  window()->SetBounds(bounds);
+  window()->SetBounds(pos);
 }
 
 bool HtmlDialogView::IsPopup(TabContents* source) {
