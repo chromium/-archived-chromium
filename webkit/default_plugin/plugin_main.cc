@@ -24,7 +24,7 @@ inline HMODULE GetCurrentModuleHandle() {
 // Initialized in NP_Initialize.
 NPNetscapeFuncs* g_browser = NULL;
 
-NPError WINAPI NP_GetEntryPoints(NPPluginFuncs* funcs) {
+NPError API_CALL NP_GetEntryPoints(NPPluginFuncs* funcs) {
   funcs->version = 11;
   funcs->size = sizeof(*funcs);
   funcs->newp = NPP_New;
@@ -43,13 +43,13 @@ NPError WINAPI NP_GetEntryPoints(NPPluginFuncs* funcs) {
   return NPERR_NO_ERROR;
 }
 
-NPError WINAPI NP_Initialize(NPNetscapeFuncs* funcs) {
+NPError API_CALL NP_Initialize(NPNetscapeFuncs* funcs) {
   g_browser = funcs;
   activex_shim::g_browser = funcs;
   return 0;
 }
 
-NPError WINAPI NP_Shutdown(void) {
+NPError API_CALL NP_Shutdown(void) {
   g_browser = NULL;
   return 0;
 }
@@ -210,4 +210,3 @@ int16 NPP_HandleEvent(NPP instance, void* event) {
 }
 
 }   // default_plugin
-

@@ -27,9 +27,8 @@ void NPP_URLNotify(NPP instance, const char* url, NPReason reason,
                    void* notifyData);
 int16 NPP_HandleEvent(NPP instance, void* event);
 
-NPError WINAPI NP_GetEntryPoints(NPPluginFuncs* funcs);
-NPError WINAPI NP_Initialize(NPNetscapeFuncs* funcs);
-NPError WINAPI NP_Shutdown(void);
+NPError API_CALL NP_GetEntryPoints(NPPluginFuncs* funcs);
+NPError API_CALL NP_Initialize(NPNetscapeFuncs* funcs);
+NPError API_CALL NP_Shutdown(void);
 
 }  // default_plugin
-

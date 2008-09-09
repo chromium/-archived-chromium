@@ -6,16 +6,15 @@
 #include "webkit/default_plugin/plugin_main.h"
 
 extern "C" {
-NPError WINAPI NP_GetEntryPoints(NPPluginFuncs* funcs) {
+NPError API_CALL NP_GetEntryPoints(NPPluginFuncs* funcs) {
   return default_plugin::NP_GetEntryPoints(funcs);
 }
 
-NPError WINAPI NP_Initialize(NPNetscapeFuncs* funcs) {
+NPError API_CALL NP_Initialize(NPNetscapeFuncs* funcs) {
   return default_plugin::NP_Initialize(funcs);
 }
 
-NPError WINAPI NP_Shutdown() {
+NPError API_CALL NP_Shutdown() {
   return default_plugin::NP_Shutdown();
 }
 } // extern "C"
-
