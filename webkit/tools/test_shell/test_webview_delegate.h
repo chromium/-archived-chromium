@@ -51,12 +51,12 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   typedef std::vector<CapturedContextMenuEvent> CapturedContextMenuEvents;
 
   TestWebViewDelegate(TestShell* shell) 
-    : shell_(shell),
+    : page_is_loading_(false),
+      is_custom_policy_delegate_(false),
+      shell_(shell),
       top_loading_frame_(NULL),
       page_id_(-1),
-      last_page_id_updated_(-1),
-      page_is_loading_(false),
-      is_custom_policy_delegate_(false)
+      last_page_id_updated_(-1)
 #if defined(OS_WIN)
       , custom_cursor_(NULL)
 #endif

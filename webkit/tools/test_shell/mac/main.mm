@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <string>
+#import <Cocoa/Cocoa.h>
 #include <sys/syslimits.h>
 #include <unistd.h>
 
-#include "config.h"
+#include <string>
 
-#import <Cocoa/Cocoa.h>
+#include "config.h"
 
 // #include "base/event_recorder.h"
 #include "base/basictypes.h"

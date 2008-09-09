@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <Cocoa/Cocoa.h>
+#import "test_shell_webview.h"
 
-#include "test_shell_webview.h"
+#import <Cocoa/Cocoa.h>
 
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"

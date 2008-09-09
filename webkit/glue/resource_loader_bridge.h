@@ -69,6 +69,8 @@ class ResourceLoaderBridge {
   // information.
   class Peer {
    public:
+    virtual ~Peer() {}
+
     // Called as upload progress is made.
     // note: only for requests with LOAD_ENABLE_UPLOAD_PROGRESS set
     virtual void OnUploadProgress(uint64 position, uint64 size) {};

@@ -308,7 +308,7 @@ class RequestProxy : public URLRequest::Delegate,
 class SyncRequestProxy : public RequestProxy {
  public:
   explicit SyncRequestProxy(ResourceLoaderBridge::SyncLoadResponse* result)
-      : event_(true, false), result_(result) {
+      : result_(result), event_(true, false) {
   }
 
   void WaitForCompletion() {
