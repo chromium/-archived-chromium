@@ -29,17 +29,25 @@
 #include "IntSize.h"
 
 #undef LOG
+#include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "build/build_config.h"
 
+#if defined(OS_WIN)
 #include "webkit_strings.h"
+#else
+// TODO:(pinkerton): only windows has the GRIT machinery, so we've created a
+// temporary generated header until we can figure out the l10n strategy.
+#include "bogus_webkit_strings.h"
+#endif
 
 using namespace WebCore;
 
 inline String GetLocalizedString(int message_id) {
   const std::wstring& str(webkit_glue::GetLocalizedString(message_id));
-  return String(str.c_str());
+  return webkit_glue::StdWStringToString(str);
 }
 
 String WebCore::searchableIndexIntroduction() {
