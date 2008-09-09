@@ -343,9 +343,23 @@ const std::string& GetDefaultUserAgent() {
   static std::string user_agent;
   static bool generated_user_agent;
   if (!generated_user_agent) {
+    int32 os_major_version = 0;
+    int32 os_minor_version = 0;
+    int32 os_bugfix_version = 0;
+#if defined(OS_WIN)
     OSVERSIONINFO info = {0};
     info.dwOSVersionInfoSize = sizeof(info);
     GetVersionEx(&info);
+    os_major_version = info.dwMajorVersion;
+    os_minor_version = info.dwMinorVersion;
+#elif defined(OS_MACOSX)
+    Gestalt(gestaltSystemVersionMajor, 
+        reinterpret_cast<SInt32*>(&os_major_version));
+    Gestalt(gestaltSystemVersionMinor, 
+        reinterpret_cast<SInt32*>(&os_minor_version));
+    Gestalt(gestaltSystemVersionBugFix, 
+        reinterpret_cast<SInt32*>(&os_bugfix_version));
+#endif
 
     // Get the product name and version, and replace Safari's Version/X string
     // with it.  This is done to expose our product name in a manner that is
@@ -363,10 +377,17 @@ const std::string& GetDefaultUserAgent() {
     // Derived from Safari's UA string.
     StringAppendF(
         &user_agent,
+#if defined(OS_WIN)
         "Mozilla/5.0 (Windows; U; Windows NT %d.%d; en-US) AppleWebKit/%d.%d"
+#elif defined(OS_MACOSX)
+        "Mozilla/5.0 (Macintosh; U; Intel Mac OS X %d_%d_%d; en-US) AppleWebKit/%d.%d"
+#endif
         " (KHTML, like Gecko) %s Safari/%d.%d",
-        info.dwMajorVersion,
-        info.dwMinorVersion,
+        os_major_version,
+        os_minor_version,
+#if defined(OS_MACOSX)
+        os_bugfix_version,
+#endif
         WEBKIT_VERSION_MAJOR,
         WEBKIT_VERSION_MINOR,
         product.c_str(),
