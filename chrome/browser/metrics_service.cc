@@ -162,7 +162,7 @@
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "base/task.h"
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"

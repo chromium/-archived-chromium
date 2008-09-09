@@ -8,7 +8,7 @@
 #include "base/base_paths.h"
 #include "base/path_service.h"
 #include "base/file_util.h"
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/browser_prefs.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"

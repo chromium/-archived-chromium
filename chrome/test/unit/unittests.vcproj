@@ -558,7 +558,7 @@
 			Name="TestBookmarkDragData"
 			>
 			<File
-				RelativePath="..\..\browser\bookmark_drag_data_unittest.cc"
+				RelativePath="..\..\browser\bookmarks\bookmark_drag_data_unittest.cc"
 				>
 			</File>
 		</Filter>
@@ -614,7 +614,7 @@
 			Name="TestBookmarkBarModel"
 			>
 			<File
-				RelativePath="..\..\browser\bookmark_bar_model_unittest.cc"
+				RelativePath="..\..\browser\bookmarks\bookmark_bar_model_unittest.cc"
 				>
 			</File>
 		</Filter>

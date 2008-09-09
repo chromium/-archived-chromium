@@ -4,7 +4,7 @@
 
 #include "chrome/browser/history_model.h"
 
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/profile.h"
 
 // The max number of results to retrieve when browsing user's history.

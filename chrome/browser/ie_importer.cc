@@ -15,7 +15,7 @@
 #include "base/string_util.h"
 #include "base/time.h"
 #include "base/win_util.h"
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/ie7_password.h"
 #include "chrome/browser/template_url_model.h"
 #include "chrome/common/l10n_util.h"

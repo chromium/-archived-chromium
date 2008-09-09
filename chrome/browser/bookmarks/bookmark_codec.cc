@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/bookmark_codec.h"
+#include "chrome/browser/bookmarks/bookmark_codec.h"
 
 #include "base/string_util.h"
 #include "base/values.h"
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "googleurl/src/gurl.h"
 
 #include "generated_resources.h"

@@ -10,7 +10,7 @@
 #include "base/gfx/image_operations.h"
 #include "base/gfx/png_encoder.h"
 #include "base/string_util.h"
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/firefox2_importer.h"
 #include "chrome/browser/firefox3_importer.h"

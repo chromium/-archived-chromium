@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 #include "base/string_util.h"
-#include "chrome/browser/bookmark_codec.h"
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_codec.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/test/testing_profile.h"

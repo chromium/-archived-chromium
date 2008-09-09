@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_DOM_UI_NEW_TAB_UI_H__
 #define CHROME_BROWSER_DOM_UI_NEW_TAB_UI_H__
 
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/dom_ui/dom_ui_host.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/history/history.h"

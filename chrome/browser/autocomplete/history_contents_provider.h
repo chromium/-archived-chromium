@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_AUTOCOMPLETE_HISTORY_CONTENTS_PROVIDER_H__
 
 #include "chrome/browser/autocomplete/autocomplete.h"
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/history/history.h"
 
 // HistoryContentsProvider is an AutocompleteProvider that provides results from

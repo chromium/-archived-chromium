@@ -11,7 +11,7 @@
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/values.h"
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download_manager.h"

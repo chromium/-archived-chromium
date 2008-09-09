@@ -8,7 +8,7 @@
 #include <set>
 
 #include "chrome/views/tree_node_model.h"
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/views/checkbox.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/menu.h"

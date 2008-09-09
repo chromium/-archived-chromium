@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_BOOKMARK_DRAG_DATA_
-#define CHROME_BROWSER_BOOKMARK_DRAG_DATA_
+#ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_DRAG_DATA_
+#define CHROME_BROWSER_BOOKMARKS_BOOKMARK_DRAG_DATA_
 
 #include <vector>
 
@@ -78,5 +78,4 @@ struct BookmarkDragData {
   int id_;
 };
 
-#endif  // CHROME_BROWSER_BOOKMARK_DRAG_DATA_
-
+#endif  // CHROME_BROWSER_BOOKMARKS_BOOKMARK_DRAG_DATA_

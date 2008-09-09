@@ -4,7 +4,7 @@
 
 #include "base/string_util.h"
 #include "chrome/browser/automation/ui_controls.h"
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/page_navigator.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/views/bookmark_bar_view.h"

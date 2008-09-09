@@ -11,7 +11,7 @@
 #include "base/basictypes.h"
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/history/history_types.h"
 #include "chrome/browser/ie7_password.h"
 #include "chrome/browser/profile.h"

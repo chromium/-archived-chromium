@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 
 #include "base/gfx/png_decoder.h"
+#include "chrome/browser/bookmarks/bookmark_storage.h"
 #include "chrome/browser/history/query_parser.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/bookmark_storage.h"
 #include "chrome/common/scoped_vector.h"
 
 #include "generated_resources.h"

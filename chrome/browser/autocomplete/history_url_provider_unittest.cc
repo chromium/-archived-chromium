@@ -6,7 +6,7 @@
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "chrome/browser/autocomplete/history_url_provider.h"
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"

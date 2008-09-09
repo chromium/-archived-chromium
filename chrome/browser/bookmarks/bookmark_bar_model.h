@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_BOOKMARK_BAR_MODEL_H_
-#define CHROME_BROWSER_BOOKMARK_BAR_MODEL_H_
+#ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_BAR_MODEL_H_
+#define CHROME_BROWSER_BOOKMARKS_BOOKMARK_BAR_MODEL_H_
 
 #include "base/lock.h"
 #include "base/observer_list.h"
 #include "base/scoped_handle.h"
 #include "chrome/browser/bookmarks/bookmark_service.h"
-#include "chrome/browser/bookmark_storage.h"
+#include "chrome/browser/bookmarks/bookmark_storage.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/history/history_types.h"
@@ -429,8 +429,7 @@ class BookmarkBarModel : public NotificationObserver, public BookmarkService {
   // Handle to event signaled when loading is done.
   ScopedHandle loaded_signal_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(BookmarkBarModel);
+  DISALLOW_COPY_AND_ASSIGN(BookmarkBarModel);
 };
 
-#endif  // CHROME_BROWSER_BOOKMARK_BAR_MODEL_H_
-
+#endif  // CHROME_BROWSER_BOOKMARKS_BOOKMARK_BAR_MODEL_H_

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_BOOKMARK_STORAGE_H_
-#define CHROME_BROWSER_BOOKMARK_STORAGE_H_
+#ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_STORAGE_H_
+#define CHROME_BROWSER_BOOKMARKS_BOOKMARK_STORAGE_H_
 
 #include "base/ref_counted.h"
 #include "base/task.h"
@@ -91,8 +91,7 @@ class BookmarkStorageBackend :
   // Path bookmarks are read from if asked to load from history file.
   const std::wstring tmp_history_path_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(BookmarkStorageBackend);
+  DISALLOW_COPY_AND_ASSIGN(BookmarkStorageBackend);
 };
 
-#endif  // CHROME_BROWSER_BOOKMARK_STORAGE_H_
-
+#endif  // CHROME_BROWSER_BOOKMARKS_BOOKMARK_STORAGE_H_

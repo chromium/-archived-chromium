@@ -6,7 +6,7 @@
 
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/app/theme/theme_resources.h"
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/standard_layout.h"
 #include "chrome/browser/user_metrics.h"

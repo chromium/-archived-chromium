@@ -6,7 +6,8 @@
 // into JSON values. The encoded values are written to disk via the
 // BookmarkService.
 
-#ifndef CHROME_BROWSER_BOOKMARK_CODEC_H_
+#ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_CODEC_H_
+#define CHROME_BROWSER_BOOKMARKS_BOOKMARK_CODEC_H_
 
 #include "base/basictypes.h"
 
@@ -63,5 +64,4 @@ class BookmarkCodec {
   DISALLOW_COPY_AND_ASSIGN(BookmarkCodec);
 };
 
-#endif  // CHROME_BROWSER_BOOKMARK_CODEC_H_
-
+#endif  // CHROME_BROWSER_BOOKMARKS_BOOKMARK_CODEC_H_

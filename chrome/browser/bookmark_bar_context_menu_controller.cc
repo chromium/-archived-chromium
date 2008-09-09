@@ -4,7 +4,7 @@
 
 #include "chrome/browser/bookmark_bar_context_menu_controller.h"
 
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/page_navigator.h"

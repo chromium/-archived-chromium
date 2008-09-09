@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "chrome/browser/bookmark_bar_context_menu_controller.h"
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/common/pref_names.h"

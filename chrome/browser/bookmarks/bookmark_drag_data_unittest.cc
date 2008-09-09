@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 #include "base/scoped_ptr.h"
-#include "chrome/browser/bookmark_drag_data.h"
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/common/os_exchange_data.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -118,4 +118,3 @@ TEST_F(BookmarkDragDataTest, GroupWithChild) {
   BookmarkBarNode* r_group = read_data.GetNode(&model);
   EXPECT_TRUE(group == r_group);
 }
-

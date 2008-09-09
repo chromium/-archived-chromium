@@ -5,7 +5,7 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/scoped_ptr.h"
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/history/history_backend.h"
 #include "chrome/browser/history/in_memory_history_backend.h"
 #include "chrome/browser/history/in_memory_database.h"

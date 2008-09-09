@@ -7,7 +7,7 @@
 #include "base/command_line.h"
 #include "base/file_version_info.h"
 #include "chrome/app/locales/locale_settings.h"
-#include "chrome/browser/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/character_encoding.h"

@@ -5,8 +5,8 @@
 #ifndef CHROME_BROWSER_VIEWS_BOOKMARK_BAR_VIEW_H_
 #define CHROME_BROWSER_VIEWS_BOOKMARK_BAR_VIEW_H_
 
-#include "chrome/browser/bookmark_bar_model.h"
-#include "chrome/browser/bookmark_drag_data.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/common/slide_animation.h"
 #include "chrome/views/label.h"
 #include "chrome/views/menu.h"

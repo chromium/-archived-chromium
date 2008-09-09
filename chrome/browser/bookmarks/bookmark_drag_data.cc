@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/browser/bookmarks/bookmark_drag_data.h"
+
 #include "base/pickle.h"
-#include "chrome/browser/bookmark_bar_model.h"
-#include "chrome/browser/bookmark_drag_data.h"
+#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/common/os_exchange_data.h"
 
 static CLIPFORMAT clipboard_format = 0;

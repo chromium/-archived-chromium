@@ -799,7 +799,7 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Bookmark Bar"
+			Name="Bookmarks"
 			>
 			<File
 				RelativePath=".\bookmark_bar_context_menu_controller.cc"
@@ -810,27 +810,27 @@
 				>
 			</File>
 			<File
-				RelativePath=".\bookmark_bar_model.cc"
+				RelativePath=".\bookmarks\bookmark_bar_model.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\bookmark_bar_model.h"
+				RelativePath=".\bookmarks\bookmark_bar_model.h"
 				>
 			</File>
 			<File
-				RelativePath=".\bookmark_codec.cc"
+				RelativePath=".\bookmarks\bookmark_codec.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\bookmark_codec.h"
+				RelativePath=".\bookmarks\bookmark_codec.h"
 				>
 			</File>
 			<File
-				RelativePath=".\bookmark_drag_data.cc"
+				RelativePath=".\bookmarks\bookmark_drag_data.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\bookmark_drag_data.h"
+				RelativePath=".\bookmarks\bookmark_drag_data.h"
 				>
 			</File>
 			<File
@@ -838,11 +838,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\bookmark_storage.cc"
+				RelativePath=".\bookmarks\bookmark_storage.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\bookmark_storage.h"
+				RelativePath=".\bookmarks\bookmark_storage.h"
 				>
 			</File>
 		</Filter>
