@@ -290,6 +290,52 @@ void RunTest_PostDelayedTask_InPostOrder_3(MessageLoop::Type message_loop_type) 
   EXPECT_TRUE(run_time2 > run_time1);
 }
 
+class RecordDeletionTask : public Task {
+ public:
+  RecordDeletionTask(Task* post_on_delete, bool* was_deleted)
+      : post_on_delete_(post_on_delete), was_deleted_(was_deleted) {
+  }
+  ~RecordDeletionTask() {
+    *was_deleted_ = true;
+    if (post_on_delete_)
+      MessageLoop::current()->PostTask(FROM_HERE, post_on_delete_);
+  }
+  virtual void Run() {}
+ private:
+  Task* post_on_delete_;
+  bool* was_deleted_;
+};
+
+void RunTest_EnsureTaskDeletion(MessageLoop::Type message_loop_type) {
+  bool a_was_deleted = false;
+  bool b_was_deleted = false;
+  {
+    MessageLoop loop(message_loop_type);
+    loop.PostTask(
+        FROM_HERE, new RecordDeletionTask(NULL, &a_was_deleted));
+    loop.PostDelayedTask(
+        FROM_HERE, new RecordDeletionTask(NULL, &b_was_deleted), 1000);
+  }
+  EXPECT_TRUE(a_was_deleted);
+  EXPECT_TRUE(b_was_deleted);
+}
+
+void RunTest_EnsureTaskDeletion_Chain(MessageLoop::Type message_loop_type) {
+  bool a_was_deleted = false;
+  bool b_was_deleted = false;
+  bool c_was_deleted = false;
+  {
+    MessageLoop loop(message_loop_type);
+    RecordDeletionTask* a = new RecordDeletionTask(NULL, &a_was_deleted);
+    RecordDeletionTask* b = new RecordDeletionTask(a, &b_was_deleted);
+    RecordDeletionTask* c = new RecordDeletionTask(b, &c_was_deleted);
+    loop.PostTask(FROM_HERE, c);
+  }
+  EXPECT_TRUE(a_was_deleted);
+  EXPECT_TRUE(b_was_deleted);
+  EXPECT_TRUE(c_was_deleted);
+}
+
 class NestingTest : public Task {
  public:
   explicit NestingTest(int* depth) : depth_(depth) {
@@ -1047,6 +1093,18 @@ TEST(MessageLoopTest, PostDelayedTask_InPostOrder_3) {
   RunTest_PostDelayedTask_InPostOrder_3(MessageLoop::TYPE_DEFAULT);
   RunTest_PostDelayedTask_InPostOrder_3(MessageLoop::TYPE_UI);
   RunTest_PostDelayedTask_InPostOrder_3(MessageLoop::TYPE_IO);
+}
+
+TEST(MessageLoopTest, EnsureTaskDeletion) {
+  RunTest_EnsureTaskDeletion(MessageLoop::TYPE_DEFAULT);
+  RunTest_EnsureTaskDeletion(MessageLoop::TYPE_UI);
+  RunTest_EnsureTaskDeletion(MessageLoop::TYPE_IO);
+}
+
+TEST(MessageLoopTest, EnsureTaskDeletion_Chain) {
+  RunTest_EnsureTaskDeletion_Chain(MessageLoop::TYPE_DEFAULT);
+  RunTest_EnsureTaskDeletion_Chain(MessageLoop::TYPE_UI);
+  RunTest_EnsureTaskDeletion_Chain(MessageLoop::TYPE_IO);
 }
 
 #if defined(OS_WIN)

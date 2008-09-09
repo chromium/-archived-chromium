@@ -100,25 +100,27 @@ MessageLoop::~MessageLoop() {
   FOR_EACH_OBSERVER(DestructionObserver, destruction_observers_,
                     WillDestroyCurrentMessageLoop());
 
-  // OK, now make it so that no one can find us.
-  tls_index_.Set(NULL);
-
   DCHECK(!state_);
 
-  // Most tasks that have not been Run() are deleted in the |timer_manager_|
-  // destructor after we remove our tls index.  We delete the tasks in our
-  // queues here so their destuction is similar to the tasks in the
-  // |timer_manager_|.
-  DeletePendingTasks();
-  ReloadWorkQueue();
-  DeletePendingTasks();
-
-  // Delete tasks in the delayed work queue.
-  while (!delayed_work_queue_.empty()) {
-    Task* task = delayed_work_queue_.top().task;
-    delayed_work_queue_.pop();
-    delete task;
+  // Clean up any unprocessed tasks, but take care: deleting a task could
+  // result in the addition of more tasks (e.g., via DeleteSoon).  We set a
+  // limit on the number of times we will allow a deleted task to generate more
+  // tasks.  Normally, we should only pass through this loop once or twice.  If
+  // we end up hitting the loop limit, then it is probably due to one task that
+  // is being stubborn.  Inspect the queues to see who is left.
+  bool did_work;
+  for (int i = 0; i < 100; ++i) {
+    DeletePendingTasks();
+    ReloadWorkQueue();
+    // If we end up with empty queues, then break out of the loop.
+    did_work = DeletePendingTasks();
+    if (!did_work)
+      break;
   }
+  DCHECK(!did_work);
+
+  // OK, now make it so that no one can find us.
+  tls_index_.Set(NULL);
 
 #if defined(OS_WIN)
   // Match timeBeginPeriod() from construction.
@@ -330,20 +332,26 @@ void MessageLoop::ReloadWorkQueue() {
   }
 }
 
-void MessageLoop::DeletePendingTasks() {
-  /* Comment this out as it's causing crashes.
-  while (!work_queue_.Empty()) {
-    Task* task = work_queue_.Pop();
-    if (task->is_owned_by_message_loop())
-      delete task;
+bool MessageLoop::DeletePendingTasks() {
+  bool did_work = !work_queue_.empty();
+  while (!work_queue_.empty()) {
+    Task* task = work_queue_.front().task;
+    work_queue_.pop();
+    delete task;
   }
-
-  while (!delayed_non_nestable_queue_.Empty()) {
-    Task* task = delayed_non_nestable_queue_.Pop();
-    if (task->is_owned_by_message_loop())
-      delete task;
+  did_work |= !deferred_non_nestable_work_queue_.empty();
+  while (!deferred_non_nestable_work_queue_.empty()) {
+    Task* task = deferred_non_nestable_work_queue_.front().task;
+    deferred_non_nestable_work_queue_.pop();
+    delete task;
   }
-  */
+  did_work |= !delayed_work_queue_.empty();
+  while (!delayed_work_queue_.empty()) {
+    Task* task = delayed_work_queue_.top().task;
+    delayed_work_queue_.pop();
+    delete task;
+  }
+  return did_work;
 }
 
 bool MessageLoop::DoWork() {
