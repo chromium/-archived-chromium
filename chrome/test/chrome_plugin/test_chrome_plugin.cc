@@ -4,6 +4,7 @@
 
 #include "chrome/test/chrome_plugin/test_chrome_plugin.h"
 
+#include "base/at_exit.h"
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -16,6 +17,10 @@ static CPBrowserFuncs g_cpbrowser_funcs;
 static CPRequestFuncs g_cprequest_funcs;
 static CPResponseFuncs g_cpresponse_funcs;
 static TestFuncParams::BrowserFuncs g_cptest_funcs;
+
+// Create a global AtExitManager so that our code can use code from base that
+// uses Singletons, for example.  We don't care about static constructors here.
+static base::AtExitManager global_at_exit_manager;
 
 const TestResponsePayload* FindPayload(const char* url) {
   for (int i = 0; i < arraysize(kChromeTestPluginPayloads); ++i) {
