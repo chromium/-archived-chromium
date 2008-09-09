@@ -5,6 +5,8 @@
 #ifndef WEBKIT_GLUE_EDITOR_CLIENT_IMPL_H__
 #define WEBKIT_GLUE_EDITOR_CLIENT_IMPL_H__
 
+#include "build/build_config.h"
+
 #include <deque>
 
 #pragma warning(push, 0)
@@ -79,6 +81,14 @@ class EditorClientImpl : public WebCore::EditorClient {
   virtual bool doTextFieldCommandFromEvent(WebCore::Element*,WebCore::KeyboardEvent*);
   virtual void textWillBeDeletedInTextField(WebCore::Element*);
   virtual void textDidChangeInTextArea(WebCore::Element*);
+
+#if defined(OS_MACOSX)
+  virtual NSData* dataForArchivedSelection(WebCore::Frame*); 
+  virtual NSString* userVisibleString(NSURL*);
+#ifdef BUILDING_ON_TIGER
+  virtual NSArray* pasteboardTypesForSelection(WebCore::Frame*);
+#endif
+#endif
 
   virtual void ignoreWordInSpellDocument(const WebCore::String&);
   virtual void learnWord(const WebCore::String&);
