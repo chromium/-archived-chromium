@@ -122,11 +122,9 @@
 #pragma warning(pop)
 
 #undef LOG
-#if defined(OS_WIN)
-#include "base/gfx/bitmap_platform_device_win.h"
-#endif
+#include "base/gfx/bitmap_platform_device.h"
+#include "base/gfx/platform_canvas.h"
 #include "base/gfx/rect.h"
-#include "base/gfx/platform_canvas_win.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/stats_counters.h"
