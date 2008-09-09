@@ -881,13 +881,13 @@ bool TabStrip::IsTabSelected(const Tab* tab) const {
 
 void TabStrip::SelectTab(Tab* tab) {
   int index = GetIndexOfTab(tab);
-  if (model_->ContainsIndex(index))
+  if (index != -1)
     model_->SelectTabContentsAt(index, true);
 }
 
 void TabStrip::CloseTab(Tab* tab) {
   int tab_index = GetIndexOfTab(tab);
-  if (model_->ContainsIndex(tab_index)) {
+  if (tab_index != -1) {
     TabContents* contents = model_->GetTabContentsAt(tab_index);
     if (contents)
       UserMetrics::RecordAction(L"CloseTab_Mouse", contents->profile());
@@ -905,7 +905,7 @@ void TabStrip::CloseTab(Tab* tab) {
 bool TabStrip::IsCommandEnabledForTab(
     TabStripModel::ContextMenuCommand command_id, const Tab* tab) const {
   int index = GetIndexOfTab(tab);
-  if (model_->ContainsIndex(index))
+  if (index != -1)
     return model_->IsContextMenuCommandEnabled(index, command_id);
   return false;
 }
@@ -913,7 +913,7 @@ bool TabStrip::IsCommandEnabledForTab(
 void TabStrip::ExecuteCommandForTab(
     TabStripModel::ContextMenuCommand command_id, Tab* tab) {
   int index = GetIndexOfTab(tab);
-  if (model_->ContainsIndex(index))
+  if (index != -1)
     model_->ExecuteContextMenuCommand(index, command_id);
 }
 
@@ -921,7 +921,7 @@ void TabStrip::StartHighlightTabsForCommand(
     TabStripModel::ContextMenuCommand command_id, Tab* tab) {
   if (command_id == TabStripModel::CommandCloseTabsOpenedBy) {
     int index = GetIndexOfTab(tab);
-    if (model_->ContainsIndex(index)) {
+    if (index != -1) {
       std::vector<int> indices = model_->GetIndexesOpenedBy(index);
       std::vector<int>::const_iterator iter = indices.begin();
       for (; iter != indices.end(); ++iter) {
@@ -933,7 +933,7 @@ void TabStrip::StartHighlightTabsForCommand(
     }
   } else if (command_id == TabStripModel::CommandCloseTabsToRight) {
     int index = GetIndexOfTab(tab);
-    if (model_->ContainsIndex(index)) {
+    if (index != -1) {
       for (int i = index + 1; i < GetTabCount(); ++i) {
         Tab* current_tab = GetTabAt(i);
         current_tab->StartPulse();
