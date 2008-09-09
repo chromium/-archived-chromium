@@ -5,6 +5,8 @@
 #ifndef WEBKIT_GLUE_CONTEXT_MENU_CLIENT_IMPL_H__
 #define WEBKIT_GLUE_CONTEXT_MENU_CLIENT_IMPL_H__
 
+#include "build/build_config.h"
+
 #pragma warning(push, 0)
 #include "ContextMenuClient.h"
 #pragma warning(pop)
@@ -33,6 +35,9 @@ public:
   virtual void stopSpeaking();
   virtual bool shouldIncludeInspectElementItem();
 
+#if defined(OS_MACOSX)
+  virtual void searchWithSpotlight();
+#endif
 private:
   WebViewImpl* webview_;  // weak pointer
 };

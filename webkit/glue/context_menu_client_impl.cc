@@ -254,3 +254,8 @@ bool ContextMenuClientImpl::shouldIncludeInspectElementItem() {
     return false;  // TODO(jackson): Eventually include the inspector context menu item
 }
 
+#if defined(OS_MACOSX)
+void ContextMenuClientImpl::searchWithSpotlight() {
+  // TODO(pinkerton): write this
+}
+#endif
