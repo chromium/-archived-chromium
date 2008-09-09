@@ -43,7 +43,7 @@ class SearchableFormData {
   const std::string& encoding() const { return encoding_; }
 
  private:
-  SearchableFormData(const std::wstring& url,
+  SearchableFormData(const GURL& url,
                      const std::wstring& element_name,
                      const std::wstring& element_value,
                      const std::string& encoding);

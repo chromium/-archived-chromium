@@ -365,13 +365,12 @@ SearchableFormData* SearchableFormData::Create(WebCore::HTMLFormElement* form) {
   WebCore::FrameLoader* loader = frame->loader();
   WebCore::KURL url = loader->completeURL(action.isNull() ? "" : action);
   url.setQuery(form_data->flattenToString().deprecatedString());
-  std::wstring url_wstring = webkit_glue::StringToStdWString(url.string());
   std::wstring current_value = webkit_glue::StringToStdWString(
     static_cast<WebCore::HTMLInputElement*>(text_element)->value());
   std::wstring text_name = 
     webkit_glue::StringToStdWString(text_element->name());
-  return
-      new SearchableFormData(url_wstring, text_name, current_value, encoding);
+  GURL gurl(webkit_glue::KURLToGURL(url));
+  return new SearchableFormData(gurl, text_name, current_value, encoding);
 }
 
 // static 
@@ -385,11 +384,11 @@ bool SearchableFormData::Equals(const SearchableFormData* a,
            a->encoding() == b->encoding()));
 }
 
-SearchableFormData::SearchableFormData(const std::wstring& url, 
+SearchableFormData::SearchableFormData(const GURL& url, 
                                        const std::wstring& element_name,
                                        const std::wstring& element_value,
                                        const std::string& encoding)
-    : url_(WideToUTF16(url)),
+    : url_(url),
       element_name_(element_name),
       element_value_(element_value),
       encoding_(encoding) {
