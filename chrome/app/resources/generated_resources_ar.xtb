@@ -339,7 +339,7 @@
 <translation id="4571852245489094179">استيراد الإشارات والإعدادات</translation>
 <translation id="2192505247865591433">من:</translation>
 <translation id="1076818208934827215">Microsoft Internet Explorer</translation>
-<translation id="5119173345047096771">Mozilla Firefox</translation>
+<translation id="5119173345047096771">موزيلا فايرفوكس</translation>
 <translation id="3031557471081358569">اختيار العناصر المراد استيرادها:</translation>
 <translation id="2496180316473517155">سجلّ التصفح</translation>
 <translation id="6447842834002726250">ملفّات تعريف الارتباط</translation>
@@ -374,7 +374,7 @@
 <translation id="5844183150118566785">هذا أحدث إصدار من <ph name="PRODUCT_NAME"/>  (<ph name="VERSION"/>)</translation>
 <translation id="4477534650265381513">ضع الإشارات هنا في شريط الإشارات لسرعة الوصول إليها.</translation>
 <translation id="394984172568887996">تمّ الاستيراد من IE</translation>
-<translation id="5502500733115278303">تمّ الاستيراد من متصفّح Firefox</translation>
+<translation id="5502500733115278303">تمّ الاستيراد من متصفّح فايرفوكس</translation>
 <translation id="939736085109172342">مجلّد جديد</translation>
 <translation id="7910768399700579500">م&amp;جلّد جديد</translation>
 <translation id="2149973817440762519">تعديل الإشارة</translation>
@@ -434,7 +434,7 @@
 <translation id="8256087479641463867">تخصيص الإعدادات</translation>
 <translation id="7789175495288668515">تغيير خيارات التثبيت الافتراضية.</translation>
 <translation id="2869459179306435079">استيراد الإعدادات من:</translation>
-<translation id="8520668773617044689">Firefox</translation>
+<translation id="8520668773617044689">فايرفوكس</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="2175607476662778685">شريط التشغيل السريع</translation>
 <translation id="74568296546932365">إبقاء <ph name="PAGE_TITLE"/> كمحرّك البحث الافتراضي</translation>
@@ -649,7 +649,7 @@
 <translation id="7925285046818567682">في انتظار <ph name="HOST_NAME"/>‏ ...</translation>
 <translation id="2021921916539001817">يتمّ النقل من <ph name="HOST_NAME"/>‏ ...</translation>
 <translation id="6698381487523150993">تاريخ الإنشاء:</translation>
-<translation id="8562413501751825163">إغلاق متصفّح Firefox قبل بدء عملية الاستيراد</translation>
+<translation id="8562413501751825163">إغلاق متصفّح فايرفوكس قبل بدء عملية الاستيراد</translation>
 <translation id="480990236307250886">فتح الصفحة الرئيسية</translation>
 <translation id="6514771739083339959">الصفحة الرئيسية:</translation>
 <translation id="1665770420914915777">استخدام صفحة &quot;علامة تبويب جديدة&quot;</translation>
