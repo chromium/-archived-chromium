@@ -59,8 +59,6 @@
 #include "PluginInfoStore.h"
 #if defined(OS_WIN)
 #include "RenderThemeWin.h"
-#elif defined(OS_MACOSX)
-#include "RenderThemeMac.h"
 #endif
 #include "ResourceHandle.h"
 #include "SelectionController.h"
@@ -1129,8 +1127,6 @@ void WebViewImpl::SetPreferences(const WebPreferences& preferences) {
   // RenderTheme is a singleton that needs to know the default font size to
   // draw some form controls.  We let it know each time the size changes.
   WebCore::RenderThemeWin::setDefaultFontSize(preferences.default_font_size);
-#elif defined(OS_MACOSX)
-  WebCore::RenderThemeMac::setDefaultFontSize(preferences.default_font_size);
 #endif
 
   // Used to make sure if the frameview needs layout, layout is triggered
