@@ -63,10 +63,6 @@ class HttpNetworkTransaction : public HttpTransaction {
   int DoResolveHostComplete(int result);
   int DoConnect();
   int DoConnectComplete(int result);
-  int DoWriteTunnelRequest();
-  int DoWriteTunnelRequestComplete(int result);
-  int DoReadTunnelResponse();
-  int DoReadTunnelResponseComplete(int result);
   int DoSSLConnectOverTunnel();
   int DoSSLConnectOverTunnelComplete(int result);
   int DoWriteHeaders();
@@ -77,15 +73,6 @@ class HttpNetworkTransaction : public HttpTransaction {
   int DoReadHeadersComplete(int result);
   int DoReadBody();
   int DoReadBodyComplete(int result);
-
-  // Called to write the request headers in request_headers_.
-  int WriteRequestHeaders();
-
-  // Called to read the response headers into header_buf_.
-  int ReadResponseHeaders();
-
-  // Called when header_buf_ contains the complete CONNECT response.
-  int DidReadTunnelResponse();
 
   // Called when header_buf_ contains the complete response headers.
   int DidReadResponseHeaders();
@@ -116,6 +103,13 @@ class HttpNetworkTransaction : public HttpTransaction {
   bool using_ssl_;     // True if handling a HTTPS request
   bool using_proxy_;   // True if using a proxy for HTTP (not HTTPS)
   bool using_tunnel_;  // True if using a tunnel for HTTPS
+
+  // True while establishing a tunnel.  This allows the HTTP CONNECT
+  // request/response to reuse the STATE_WRITE_HEADERS,
+  // STATE_WRITE_HEADERS_COMPLETE, STATE_READ_HEADERS, and
+  // STATE_READ_HEADERS_COMPLETE states and allows us to tell them apart from
+  // the real request/response of the transaction.
+  bool establishing_tunnel_;
 
   std::string request_headers_;
   size_t request_headers_bytes_sent_;
@@ -154,10 +148,6 @@ class HttpNetworkTransaction : public HttpTransaction {
     STATE_RESOLVE_HOST_COMPLETE,
     STATE_CONNECT,
     STATE_CONNECT_COMPLETE,
-    STATE_WRITE_TUNNEL_REQUEST,
-    STATE_WRITE_TUNNEL_REQUEST_COMPLETE,
-    STATE_READ_TUNNEL_RESPONSE,
-    STATE_READ_TUNNEL_RESPONSE_COMPLETE,
     STATE_SSL_CONNECT_OVER_TUNNEL,
     STATE_SSL_CONNECT_OVER_TUNNEL_COMPLETE,
     STATE_WRITE_HEADERS,

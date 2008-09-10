@@ -41,6 +41,7 @@ HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
       using_ssl_(false),
       using_proxy_(false),
       using_tunnel_(false),
+      establishing_tunnel_(false),
       request_headers_bytes_sent_(0),
       header_buf_capacity_(0),
       header_buf_len_(0),
@@ -201,7 +202,7 @@ void HttpNetworkTransaction::BuildRequestHeaders() {
 }
 
 // The HTTP CONNECT method for establishing a tunnel connection is documented
-// in draft-luotonen-web-proxy-tunneling-01.txt and RFC 2717, Sections 5.2 and
+// in draft-luotonen-web-proxy-tunneling-01.txt and RFC 2817, Sections 5.2 and
 // 5.3.
 void HttpNetworkTransaction::BuildTunnelRequest() {
   std::string port;
@@ -279,20 +280,6 @@ int HttpNetworkTransaction::DoLoop(int result) {
         break;
       case STATE_CONNECT_COMPLETE:
         rv = DoConnectComplete(rv);
-        break;
-      case STATE_WRITE_TUNNEL_REQUEST:
-        DCHECK(rv == OK);
-        rv = DoWriteTunnelRequest();
-        break;
-      case STATE_WRITE_TUNNEL_REQUEST_COMPLETE:
-        rv = DoWriteTunnelRequestComplete(rv);
-        break;
-      case STATE_READ_TUNNEL_RESPONSE:
-        DCHECK(rv == OK);
-        rv = DoReadTunnelResponse();
-        break;
-      case STATE_READ_TUNNEL_RESPONSE_COMPLETE:
-        rv = DoReadTunnelResponseComplete(rv);
         break;
       case STATE_SSL_CONNECT_OVER_TUNNEL:
         DCHECK(rv == OK);
@@ -453,67 +440,11 @@ int HttpNetworkTransaction::DoConnect() {
 
 int HttpNetworkTransaction::DoConnectComplete(int result) {
   if (result == OK) {
-    if (using_tunnel_) {
-      next_state_ = STATE_WRITE_TUNNEL_REQUEST;
-    } else {
-      next_state_ = STATE_WRITE_HEADERS;
-    }
+    next_state_ = STATE_WRITE_HEADERS;
+    if (using_tunnel_)
+      establishing_tunnel_ = true;
   }
   return result;
-}
-
-int HttpNetworkTransaction::DoWriteTunnelRequest() {
-  next_state_ = STATE_WRITE_TUNNEL_REQUEST_COMPLETE;
-
-  if (request_headers_.empty())
-    BuildTunnelRequest();
-
-  return WriteRequestHeaders();
-}
-
-int HttpNetworkTransaction::DoWriteTunnelRequestComplete(int result) {
-  if (result < 0)
-    return result;
-
-  request_headers_bytes_sent_ += result;
-  if (request_headers_bytes_sent_ < request_headers_.size()) {
-    next_state_ = STATE_WRITE_TUNNEL_REQUEST;
-  } else {
-    next_state_ = STATE_READ_TUNNEL_RESPONSE;
-    // Reset for writing the real request headers later.
-    request_headers_.clear();
-    request_headers_bytes_sent_ = 0;
-  }
-  return OK;
-}
-
-int HttpNetworkTransaction::DoReadTunnelResponse() {
-  next_state_ = STATE_READ_TUNNEL_RESPONSE_COMPLETE;
-
-  return ReadResponseHeaders();
-}
-
-int HttpNetworkTransaction::DoReadTunnelResponseComplete(int result) {
-  if (result < 0)
-    return result;
-  if (result == 0)  // The socket was closed before the tunnel is established.
-    return ERR_TUNNEL_CONNECTION_FAILED;
-
-  header_buf_len_ += result;
-  DCHECK(header_buf_len_ <= header_buf_capacity_);
-
-  int eoh = HttpUtil::LocateEndOfHeaders(header_buf_.get(), header_buf_len_);
-  if (eoh == -1) {
-    next_state_ = STATE_READ_TUNNEL_RESPONSE;  // Read more.
-    return OK;
-  }
-  if (eoh != header_buf_len_) {
-    // The proxy sent extraneous data after the headers.
-    return ERR_TUNNEL_CONNECTION_FAILED;
-  }
-
-  // And, we are done with the SSL tunnel CONNECT sequence.
-  return DidReadTunnelResponse();
 }
 
 int HttpNetworkTransaction::DoSSLConnectOverTunnel() {
@@ -536,15 +467,25 @@ int HttpNetworkTransaction::DoWriteHeaders() {
 
   // This is constructed lazily (instead of within our Start method), so that
   // we have proxy info available.
-  if (request_headers_.empty())
-    BuildRequestHeaders();
+  if (request_headers_.empty()) {
+    if (establishing_tunnel_) {
+      BuildTunnelRequest();
+    } else {
+      BuildRequestHeaders();
+    }
+  }
 
   // Record our best estimate of the 'request time' as the time when we send
   // out the first bytes of the request headers.
   if (request_headers_bytes_sent_ == 0)
     response_.request_time = Time::Now();
 
-  return WriteRequestHeaders();
+  const char* buf = request_headers_.data() + request_headers_bytes_sent_;
+  int buf_len = static_cast<int>(request_headers_.size() -
+                                 request_headers_bytes_sent_);
+  DCHECK(buf_len > 0);
+
+  return connection_.socket()->Write(buf, buf_len, &io_callback_);
 }
 
 int HttpNetworkTransaction::DoWriteHeadersComplete(int result) {
@@ -554,7 +495,7 @@ int HttpNetworkTransaction::DoWriteHeadersComplete(int result) {
   request_headers_bytes_sent_ += result;
   if (request_headers_bytes_sent_ < request_headers_.size()) {
     next_state_ = STATE_WRITE_HEADERS;
-  } else if (request_->upload_data) {
+  } else if (!establishing_tunnel_ && request_->upload_data) {
     next_state_ = STATE_WRITE_BODY;
   } else {
     next_state_ = STATE_READ_HEADERS;
@@ -591,7 +532,17 @@ int HttpNetworkTransaction::DoWriteBodyComplete(int result) {
 int HttpNetworkTransaction::DoReadHeaders() {
   next_state_ = STATE_READ_HEADERS_COMPLETE;
 
-  return ReadResponseHeaders();
+  // Grow the read buffer if necessary.
+  if (header_buf_len_ == header_buf_capacity_) {
+    header_buf_capacity_ += kHeaderBufInitialSize;
+    header_buf_.reset(static_cast<char*>(
+        realloc(header_buf_.release(), header_buf_capacity_)));
+  }
+
+  char* buf = header_buf_.get() + header_buf_len_;
+  int buf_len = header_buf_capacity_ - header_buf_len_;
+
+  return connection_.socket()->Read(buf, buf_len, &io_callback_);
 }
 
 int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
@@ -604,6 +555,10 @@ int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
     response_.response_time = Time::Now();
 
   if (result == 0) {
+    if (establishing_tunnel_) {
+      // The socket was closed before the tunnel could be established.
+      return ERR_TUNNEL_CONNECTION_FAILED;
+    }
     // The socket was closed before we found end-of-headers.  Assume that EOF
     // is end-of-headers.
     header_buf_body_offset_ = header_buf_len_;
@@ -621,7 +576,7 @@ int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
     header_buf_body_offset_ = eoh;
   }
 
-  // And, we are done with the Start sequence.
+  // And, we are done with the Start or the SSL tunnel CONNECT sequence.
   return DidReadResponseHeaders();
 }
 
@@ -699,44 +654,9 @@ int HttpNetworkTransaction::DoReadBodyComplete(int result) {
   return result;
 }
 
-int HttpNetworkTransaction::WriteRequestHeaders() {
-  const char* buf = request_headers_.data() + request_headers_bytes_sent_;
-  int buf_len = static_cast<int>(request_headers_.size() -
-                                 request_headers_bytes_sent_);
-  DCHECK(buf_len > 0);
-
-  return connection_.socket()->Write(buf, buf_len, &io_callback_);
-}
-
-int HttpNetworkTransaction::ReadResponseHeaders() {
-  // Grow the read buffer if necessary.
-  if (header_buf_len_ == header_buf_capacity_) {
-    header_buf_capacity_ += kHeaderBufInitialSize;
-    header_buf_.reset(static_cast<char*>(
-        realloc(header_buf_.release(), header_buf_capacity_)));
-  }
-
-  char* buf = header_buf_.get() + header_buf_len_;
-  int buf_len = header_buf_capacity_ - header_buf_len_;
-
-  return connection_.socket()->Read(buf, buf_len, &io_callback_);
-}
-
-int HttpNetworkTransaction::DidReadTunnelResponse() {
+int HttpNetworkTransaction::DidReadResponseHeaders() {
   // TODO(wtc): Require the "HTTP/1.x" status line.  The HttpResponseHeaders
   // constructor makes up an "HTTP/1.0 200 OK" status line if it is missing.
-  scoped_refptr<HttpResponseHeaders> headers = new HttpResponseHeaders(
-      HttpUtil::AssembleRawHeaders(header_buf_.get(), header_buf_len_));
-  // TODO(wtc): Handle 407 proxy authentication challenge.
-  if (headers->response_code() != 200)
-    return ERR_TUNNEL_CONNECTION_FAILED;
-
-  next_state_ = STATE_SSL_CONNECT_OVER_TUNNEL;
-  header_buf_len_ = 0;  // Reset for reading the real response headers later.
-  return OK;
-}
-
-int HttpNetworkTransaction::DidReadResponseHeaders() {
   scoped_refptr<HttpResponseHeaders> headers = new HttpResponseHeaders(
       HttpUtil::AssembleRawHeaders(header_buf_.get(), header_buf_body_offset_));
 
@@ -756,6 +676,22 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
     return OK;
   }
 
+  if (establishing_tunnel_ && headers->response_code() == 200) {
+    if (header_buf_body_offset_ != header_buf_len_) {
+      // The proxy sent extraneous data after the headers.
+      return ERR_TUNNEL_CONNECTION_FAILED;
+    }
+    next_state_ = STATE_SSL_CONNECT_OVER_TUNNEL;
+    // Reset for the real request and response headers.
+    request_headers_.clear();
+    request_headers_bytes_sent_ = 0;
+    header_buf_len_ = 0;
+    header_buf_body_offset_ = 0;
+    establishing_tunnel_ = false;
+    return OK;
+  }
+
+  // TODO(wtc): Handle 401 server or 407 proxy authentication challenge.
   response_.headers = headers;
   response_.vary_data.Init(*request_, *response_.headers);
 
@@ -784,7 +720,7 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
     }
   }
 
-  if (using_ssl_) {
+  if (using_ssl_ && !establishing_tunnel_) {
     SSLClientSocket* ssl_socket =
         reinterpret_cast<SSLClientSocket*>(connection_.socket());
     ssl_socket->GetSSLInfo(&response_.ssl_info);
@@ -806,7 +742,8 @@ int HttpNetworkTransaction::HandleIOError(int error) {
     case ERR_CONNECTION_RESET:
     case ERR_CONNECTION_CLOSED:
     case ERR_CONNECTION_ABORTED:
-      if (reused_socket_ &&    // We reused a keep-alive connection.
+      if (!establishing_tunnel_ &&
+          reused_socket_ &&    // We reused a keep-alive connection.
           !header_buf_len_) {  // We haven't received any response header yet.
         connection_.set_socket(NULL);
         connection_.Reset();
