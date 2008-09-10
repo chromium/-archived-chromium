@@ -23,7 +23,7 @@
 #include "SkRefCnt.h"
 
 #if defined(SK_BUILD_FOR_MAC)
-#include <carbon/carbon.h>
+#include <Carbon/Carbon.h>
 #endif
 
 struct SkIRect;
