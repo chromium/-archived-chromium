@@ -243,6 +243,8 @@ class Navigator : public RefCounted<Navigator> {
     return m_frame->settings()->isJavaEnabled();
   }
 
+  Frame* frame() { return m_frame; }
+
   void disconnectFrame() { m_frame = NULL; }
 
  private:

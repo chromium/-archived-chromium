@@ -55,6 +55,7 @@
 #include "HTMLOptionsCollection.h"
 #include "Page.h"
 #include "DOMWindow.h"
+#include "Location.h"
 #include "Navigator.h"  // for MimeTypeArray
 #include "V8DOMWindow.h"
 #include "V8HTMLElement.h"
@@ -1245,7 +1246,12 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
                                     default_signature),
           v8::None);
       desc->SetHiddenPrototype(true);
-      
+
+      // Reserve spaces for references to location and navigator objects.
+      v8::Local<v8::ObjectTemplate> instance_template =
+          desc->InstanceTemplate();
+      instance_template->SetInternalFieldCount(
+          V8Custom::kDOMWindowInternalFieldCount);      
       break;
     }
     case V8ClassIndex::LOCATION: {
@@ -1834,9 +1840,41 @@ v8::Handle<v8::Value> V8Proxy::ToV8Object(V8ClassIndex::V8WrapperType type,
     if (!v8obj.IsEmpty()) {
       result = v8::Persistent<v8::Object>::New(v8obj);
       dom_object_map().set(obj, result);
+
+      // Special case for Location and Navigator. Both Safari and FF let
+      // Location and Navigator JS wrappers survive GC. To mimic their
+      // behaviors, V8 creates hidden references from the DOMWindow to
+      // location and navigator objects. These references get cleared
+      // when the DOMWindow is reused by a new page.
+      if (type == V8ClassIndex::LOCATION) {
+        SetHiddenWindowReference(static_cast<Location*>(imp)->frame(),
+          V8Custom::kDOMWindowLocationIndex, result);
+      } else if (type == V8ClassIndex::NAVIGATOR) {
+        SetHiddenWindowReference(static_cast<Navigator*>(imp)->frame(),
+          V8Custom::kDOMWindowNavigatorIndex, result);
+      }
     }
   }
   return result;
+}
+
+
+void V8Proxy::SetHiddenWindowReference(Frame* frame,
+                                       const int internal_index,
+                                       v8::Handle<v8::Object> jsobj) {
+  // Get DOMWindow
+  if (!frame) return;  // Object might be detached from window
+  v8::Handle<v8::Context> context = GetContext(frame);
+  if (context.IsEmpty()) return;
+
+  ASSERT(internal_index < V8Custom::kDOMWindowInternalFieldCount);
+
+  v8::Handle<v8::Object> global = context->Global();
+  ASSERT(!global.IsEmpty());
+  // Look for real DOM wrapper.
+  global = LookupDOMWrapper(V8ClassIndex::DOMWINDOW, global);
+  ASSERT(global->GetInternalField(internal_index)->IsUndefined());
+  global->SetInternalField(internal_index, jsobj);
 }
 
 

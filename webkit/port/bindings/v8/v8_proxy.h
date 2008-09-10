@@ -437,6 +437,11 @@ class V8Proxy {
     Peerable* object, V8ClassIndex::V8WrapperType type);
 #endif
 
+  // Set hidden references in a DOMWindow object of a frame.
+  static void SetHiddenWindowReference(Frame* frame,
+                                       const int internal_index,
+                                       v8::Handle<v8::Object> jsobj);
+
   static V8ClassIndex::V8WrapperType GetHTMLElementType(HTMLElement* elm);
 
   static v8::Local<v8::Object> InstantiateV8Object(
