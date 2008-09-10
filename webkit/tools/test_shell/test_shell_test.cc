@@ -4,6 +4,7 @@
 
 #include "webkit/tools/test_shell/test_shell_test.h"
 
+#include "base/basictypes.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
@@ -17,7 +18,9 @@ std::wstring TestShellTest::GetTestURL(std::wstring test_case_path,
 
 void TestShellTest::SetUp() {
   // Make a test shell for use by the test.
+#if defined(OS_WIN)
   TestShell::RegisterWindowClass();
+#endif
   CreateEmptyWindow();
   test_shell_->Show(test_shell_->webView(), NEW_WINDOW);
 
@@ -31,7 +34,7 @@ void TestShellTest::SetUp() {
 void TestShellTest::TearDown() {
   // Loading a blank url clears the memory in the current page.
   test_shell_->LoadURL(L"about:blank");
-  DestroyWindow(test_shell_->mainWnd());
+  test_shell_->DestroyWindow(test_shell_->mainWnd());
   LayoutTestController::ClearShell();
   
   // Flush the MessageLoop of any residual tasks.

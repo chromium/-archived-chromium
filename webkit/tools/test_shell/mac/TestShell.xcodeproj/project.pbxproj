@@ -50,7 +50,7 @@
 		E45629180E26B4FE005E4685 /* navigation_controller_base.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB351E5B0DC7B3A5002F427A /* navigation_controller_base.cc */; };
 		E45629190E26B4FE005E4685 /* test_navigation_controller.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB351E2E0DC7B290002F427A /* test_navigation_controller.cc */; };
 		E456291A0E26B4FE005E4685 /* test_shell_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABA9CAE90DBC521D00CB1EFB /* test_shell_mac.mm */; };
-		E456291B0E26B4FE005E4685 /* test_shell_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = AB8A78560DC553C7005C27B8 /* test_shell_test.mm */; };
+		E456291B0E26B4FE005E4685 /* test_shell_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB8A78560DC553C7005C27B8 /* test_shell_test.cc */; };
 		E456291C0E26B4FE005E4685 /* test_webview_delegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = AB8A78580DC553D7005C27B8 /* test_webview_delegate.mm */; };
 		E456291D0E26B4FE005E4685 /* text_input_controller.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB8A785B0DC553E4005C27B8 /* text_input_controller.cc */; };
 		E456291E0E26B4FE005E4685 /* test_shell_webview.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABA65EFE0DD50BFF003A4FC8 /* test_shell_webview.mm */; };
@@ -350,7 +350,7 @@
 		AB8A78510DC553A8005C27B8 /* event_sending_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = event_sending_controller.h; sourceTree = "<group>"; };
 		AB8A78520DC553A8005C27B8 /* event_sending_controller.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = event_sending_controller.cc; sourceTree = "<group>"; };
 		AB8A78540DC553BC005C27B8 /* node_leak_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = node_leak_test.cc; sourceTree = "<group>"; };
-		AB8A78560DC553C7005C27B8 /* test_shell_test.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = test_shell_test.mm; sourceTree = "<group>"; };
+		AB8A78560DC553C7005C27B8 /* test_shell_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_shell_test.cc; sourceTree = "<group>"; };
 		AB8A78580DC553D7005C27B8 /* test_webview_delegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = test_webview_delegate.mm; sourceTree = "<group>"; };
 		AB8A78590DC553D7005C27B8 /* test_webview_delegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_webview_delegate.h; sourceTree = "<group>"; };
 		AB8A785B0DC553E4005C27B8 /* text_input_controller.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = text_input_controller.cc; sourceTree = "<group>"; };
@@ -662,7 +662,7 @@
 				ABCF253C0DB8436B00099567 /* test_shell_switches.cc */,
 				ABCF253B0DB8436B00099567 /* test_shell_switches.h */,
 				AB8A786E0DC5544D005C27B8 /* test_shell_test.h */,
-				AB8A78560DC553C7005C27B8 /* test_shell_test.mm */,
+				AB8A78560DC553C7005C27B8 /* test_shell_test.cc */,
 				AB8A78590DC553D7005C27B8 /* test_webview_delegate.h */,
 				AB8A78580DC553D7005C27B8 /* test_webview_delegate.mm */,
 				AB8A785B0DC553E4005C27B8 /* text_input_controller.cc */,
@@ -1049,7 +1049,7 @@
 				E456291A0E26B4FE005E4685 /* test_shell_mac.mm in Sources */,
 				E450637E0E4100740025A81A /* test_shell_request_context.cc in Sources */,
 				E456290C0E26B4FE005E4685 /* test_shell_switches.cc in Sources */,
-				E456291B0E26B4FE005E4685 /* test_shell_test.mm in Sources */,
+				E456291B0E26B4FE005E4685 /* test_shell_test.cc in Sources */,
 				E456291E0E26B4FE005E4685 /* test_shell_webview.mm in Sources */,
 				E456291C0E26B4FE005E4685 /* test_webview_delegate.mm in Sources */,
 				E456291D0E26B4FE005E4685 /* text_input_controller.cc in Sources */,
@@ -1095,6 +1095,7 @@
 					../../../..,
 					../../../../skia/include,
 					../../../../skia/include/corecg,
+					../../../../testing/gtest/include,
 					../../../../third_party/icu38/public/common,
 					../../../../third_party/icu38/public/i18n,
 					../../../pending,
@@ -1120,6 +1121,7 @@
 					../../../..,
 					../../../../skia/include,
 					../../../../skia/include/corecg,
+					../../../../testing/gtest/include,
 					../../../../third_party/icu38/public/common,
 					../../../../third_party/icu38/public/i18n,
 					../../../pending,
