@@ -1094,6 +1094,7 @@
 				HEADER_SEARCH_PATHS = (
 					../../../..,
 					../../../../skia/include,
+					../../../../skia/include/corecg,
 					../../../../third_party/icu38/public/common,
 					../../../../third_party/icu38/public/i18n,
 					../../../pending,
@@ -1118,6 +1119,7 @@
 				HEADER_SEARCH_PATHS = (
 					../../../..,
 					../../../../skia/include,
+					../../../../skia/include/corecg,
 					../../../../third_party/icu38/public/common,
 					../../../../third_party/icu38/public/i18n,
 					../../../pending,
