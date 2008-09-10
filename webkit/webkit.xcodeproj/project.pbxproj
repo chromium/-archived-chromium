@@ -1126,7 +1126,6 @@
 		E456270C0E268F03005E4685 /* searchable_form_data.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254052C0D92E3DA0006B936 /* searchable_form_data.cc */; };
 		E456270D0E268F03005E4685 /* chrome_client_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825404F10D92E3DA0006B936 /* chrome_client_impl.cc */; };
 		E456270E0E268F03005E4685 /* webhistoryitem_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405410D92E3DA0006B936 /* webhistoryitem_impl.cc */; };
-		E456270F0E268F03005E4685 /* webplugin_impl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8293F76E0DC8E77B007B3754 /* webplugin_impl.mm */; };
 		E45627100E268F03005E4685 /* password_form_dom_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254051F0D92E3DA0006B936 /* password_form_dom_manager.cc */; };
 		E45627160E268F26005E4685 /* resource_handle_win.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405290D92E3DA0006B936 /* resource_handle_win.cc */; };
 		E45627E40E2694B8005E4685 /* V8Bridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B42A3660DE209B700659DE0 /* V8Bridge.cpp */; };
@@ -1149,6 +1148,7 @@
 		E4A134090E37C47E00110AA2 /* v8_proxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095EA0DAFF0DD00F72082 /* v8_proxy.cpp */; };
 		E4A238C70E3FA19C002BDE14 /* image_decoder.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A238C50E3FA19C002BDE14 /* image_decoder.cc */; };
 		E4CD5A720E3E44CC00A70177 /* HistoryWin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4CD5A710E3E44CC00A70177 /* HistoryWin.cpp */; };
+		E4E4C7F90E781B5B009A687C /* webplugin_impl_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -3615,7 +3615,6 @@
 		825405EE0D92E3FF0006B936 /* webplugin_delegate_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = webplugin_delegate_impl.h; sourceTree = "<group>"; };
 		82761F810E3FAC700030D324 /* AccessibilityObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AccessibilityObject.cpp; path = pending/AccessibilityObject.cpp; sourceTree = SOURCE_ROOT; };
 		82761F820E3FAC700030D324 /* AccessibilityObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AccessibilityObject.h; path = pending/AccessibilityObject.h; sourceTree = SOURCE_ROOT; };
-		8293F76E0DC8E77B007B3754 /* webplugin_impl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webplugin_impl.mm; sourceTree = "<group>"; };
 		82C260440DCB9A66005CFE91 /* SkPaintContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkPaintContext.h; sourceTree = "<group>"; };
 		82C260450DCB9A66005CFE91 /* SkPaintContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkPaintContext.cpp; sourceTree = "<group>"; };
 		82C2604A0DCB9AC1005CFE91 /* ImageSourceSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImageSourceSkia.cpp; sourceTree = "<group>"; };
@@ -3649,6 +3648,7 @@
 		E4A970730E36128B00E8EF3B /* FrameWin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FrameWin.cpp; path = port/bridge/FrameWin.cpp; sourceTree = SOURCE_ROOT; };
 		E4A9708A0E36150500E8EF3B /* ChromeClientWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChromeClientWin.h; sourceTree = "<group>"; };
 		E4CD5A710E3E44CC00A70177 /* HistoryWin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HistoryWin.cpp; sourceTree = "<group>"; };
+		E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webplugin_impl_mac.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -6569,7 +6569,7 @@
 				8254054F0D92E3DB0006B936 /* webplugin.h */,
 				8254054B0D92E3DB0006B936 /* webplugin_delegate.h */,
 				8254054E0D92E3DB0006B936 /* webplugin_impl.h */,
-				8293F76E0DC8E77B007B3754 /* webplugin_impl.mm */,
+				E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */,
 				8254054C0D92E3DB0006B936 /* webplugin_impl_unittest.cc */,
 				825405500D92E3DB0006B936 /* webpreferences.h */,
 				825405520D92E3DB0006B936 /* webresponse.h */,
@@ -8007,12 +8007,12 @@
 				E456270E0E268F03005E4685 /* webhistoryitem_impl.cc in Sources */,
 				E45627050E268F03005E4685 /* webinputevent_mac.mm in Sources */,
 				E45627090E268F03005E4685 /* webkit_glue.cc in Sources */,
-				E456270F0E268F03005E4685 /* webplugin_impl.mm in Sources */,
 				E45627040E268F03005E4685 /* webtextinput_impl.cc in Sources */,
 				E45627020E268F03005E4685 /* weburlrequest_impl.cc in Sources */,
 				E45626F40E268F03005E4685 /* webview_impl.cc in Sources */,
 				E45626F30E268F03005E4685 /* webwidget_impl.cc in Sources */,
 				E45627080E268F03005E4685 /* webframeloaderclient_impl.cc in Sources */,
+				E4E4C7F90E781B5B009A687C /* webplugin_impl_mac.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
