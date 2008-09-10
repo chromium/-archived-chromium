@@ -696,7 +696,7 @@ int BrowserView2::NonClientHitTest(const gfx::Point& point) {
     CPoint point_in_tabstrip_coords(point.ToPOINT());
     View::ConvertPointToView(GetParent(), tabstrip_, &point_in_tabstrip_coords);
     if (tabstrip_->HitTest(point_in_tabstrip_coords)) {
-      if (tabstrip_->PointIsWithinWindowCaption(point_in_view_coords))
+      if (tabstrip_->PointIsWithinWindowCaption(point_in_tabstrip_coords))
         return HTCAPTION;
       return HTCLIENT;
     }

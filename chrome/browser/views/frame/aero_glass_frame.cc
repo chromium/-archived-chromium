@@ -191,10 +191,6 @@ void AeroGlassFrame::UpdateDWMFrame() {
   if (!client_view())
     return;
 
-  // TODO(beng): when TabStrip is hooked up, obtain this offset from its
-  //             bounds.
-  int toolbar_y = 36;
-
   // We only adjust the DWM's glass rendering when we're a browser window or a
   // detached popup. App windows get the standard client edge.
   if (browser_view_->IsTabStripVisible() ||
@@ -208,8 +204,10 @@ void AeroGlassFrame::UpdateDWMFrame() {
     int client_edge_bottom_height = kWindowsDWMBevelSize;
     int client_edge_top_height = kWindowsDWMBevelSize;
     if (browser_view_->IsTabStripVisible()) {
+      gfx::Rect tabstrip_bounds =
+          GetBoundsForTabStrip(browser_view_->tabstrip());
       client_edge_top_height =
-          client_view()->GetY() + kToolbarOverlapVertOffset + toolbar_y;
+          client_view()->GetY() + tabstrip_bounds.bottom();
     }
 
     // Now poke the DWM.

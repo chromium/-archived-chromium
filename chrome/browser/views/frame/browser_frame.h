@@ -34,7 +34,7 @@ class BrowserFrame {
   virtual void SizeToContents(const gfx::Rect& contents_bounds) = 0;
 
   // Returns the bounds that should be used to size and position the specified
-  // TabStrip.
+  // TabStrip. The coordinate system is that of the window's client area.
   virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const = 0;
 
   // Returns the ChromeViews::Window associated with this frame.

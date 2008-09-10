@@ -100,18 +100,18 @@ SkBitmap AeroGlassNonClientView::distributor_logo_;
 // The distance between the top of the TabStrip and the top of the non-client
 // area of the window.
 static const int kNoTitleTopSpacing = 8;
-// TODO(beng): figure out what this is for.
-static const int kWindowHorizontalBorderSize = 2;
-// TODO(beng): figure out what this is for.
-static const int kWindowVerticalBorderSize = 2;
+// The width of the client edge to the left and right of the window.
+static const int kWindowHorizontalClientEdgeWidth = 2;
+// The height of the client edge to the bottom of the window.
+static const int kWindowBottomClientEdgeHeight = 2;
 // The horizontal distance between the left of the minimize button and the
 // right edge of the distributor logo.
 static const int kDistributorLogoHorizontalOffset = 7;
 // The distance from the top of the non-client view and the top edge of the
 // distributor logo.
 static const int kDistributorLogoVerticalOffset = 3;
-// TODO(beng): figure out what this is for.
-static const int kTitlebarHeight = 14;
+// The distance of the TabStrip from the top of the window's client area.
+static const int kTabStripY = 14;
 // A single pixel.
 static const int kPixel = 1;
 // The height of the sizing border.
@@ -146,7 +146,7 @@ gfx::Rect AeroGlassNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
     tabstrip_width -= (tabstrip_width - titlebar_info.rgrect[2].left);
   }
   int tabstrip_height = tabstrip->GetPreferredHeight();
-  return gfx::Rect(0, kTitlebarHeight, tabstrip_width, tabstrip_height);
+  return gfx::Rect(0, kTabStripY, tabstrip_width, tabstrip_height);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -160,17 +160,17 @@ gfx::Rect AeroGlassNonClientView::CalculateClientAreaBounds(int width,
   }
 
   int top_margin = CalculateNonClientTopHeight();
-  return gfx::Rect(kWindowHorizontalBorderSize, top_margin,
-      std::max(0, width - (2 * kWindowHorizontalBorderSize)),
-      std::max(0, height - top_margin - kWindowVerticalBorderSize));
+  return gfx::Rect(kWindowHorizontalClientEdgeWidth, top_margin,
+      std::max(0, width - (2 * kWindowHorizontalClientEdgeWidth)),
+      std::max(0, height - top_margin - kWindowBottomClientEdgeHeight));
 }
 
 gfx::Size AeroGlassNonClientView::CalculateWindowSizeForClientSize(
     int width,
     int height) const {
   int top_margin = CalculateNonClientTopHeight();
-  return gfx::Size(width + (2 * kWindowHorizontalBorderSize),
-                   height + top_margin + kWindowVerticalBorderSize);
+  return gfx::Size(width + (2 * kWindowHorizontalClientEdgeWidth),
+                   height + top_margin + kWindowBottomClientEdgeHeight);
 }
 
 CPoint AeroGlassNonClientView::GetSystemMenuPoint() const {
@@ -236,8 +236,8 @@ void AeroGlassNonClientView::Layout() {
 void AeroGlassNonClientView::GetPreferredSize(CSize* out) {
   DCHECK(out);
   frame_->client_view()->GetPreferredSize(out);
-  out->cx += 2 * kWindowHorizontalBorderSize;
-  out->cy += CalculateNonClientTopHeight() + kWindowVerticalBorderSize;
+  out->cx += 2 * kWindowHorizontalClientEdgeWidth;
+  out->cy += CalculateNonClientTopHeight() + kWindowBottomClientEdgeHeight;
 }
 
 void AeroGlassNonClientView::DidChangeBounds(const CRect& previous,

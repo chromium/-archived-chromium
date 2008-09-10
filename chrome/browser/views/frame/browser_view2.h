@@ -56,6 +56,9 @@ class BrowserView2 : public BrowserWindow,
   // avatar icon.
   int GetTabStripHeight() const;
 
+  // Accessor for the TabStrip.
+  TabStrip* tabstrip() const { return tabstrip_; }
+
   // Returns true if various window components are visible.
   bool IsToolbarVisible() const;
   bool IsTabStripVisible() const;
