@@ -278,6 +278,7 @@ WebFrameImpl::WebFrameImpl()
     inspected_node_(NULL),
     active_tickmark_frame_(NULL),
     active_tickmark_(WidgetClientWin::kNoTickmark),
+    locating_active_rect_(false),
     last_active_range_(NULL),
     frames_scoping_count_(-1),
     scoping_complete_(false),
@@ -811,18 +812,34 @@ bool WebFrameImpl::Find(const FindInPageRequest& request,
   bool found = frame()->findString(webcore_string, request.forward,
                                    request.match_case, wrap_within_frame,
                                    start_in_selection);
+  // If we find something on the page, we'll need to have the scoping effort
+  // locate it so that we can highlight it as active.
+  locating_active_rect_ = found;
+
   if (found) {
+    // Set this frame as the active frame (the one with the active tick-mark).
+    WebFrameImpl* const main_frame_impl =
+        static_cast<WebFrameImpl*>(GetView()->GetMainFrame());
+    main_frame_impl->active_tickmark_frame_ = this;
+
     // We found something, so we can now query the selection for its position.
     Selection new_selection(frame()->selectionController()->selection());
 
     // If we thought we found something, but it couldn't be selected (perhaps
-    // because it was marked -webkit-user-select: none), call it not-found so
-    // we don't crash. See http://b/1169294.  This matches Safari's behavior,
-    // including some oddities when selectable and un-selectable text are mixed
-    // on a page: see http://b/1180007.
-    if (new_selection.isNone()) {
-      // Fall through to clean up selection and tickmarks.
-      found = false;
+    // because it was marked -webkit-user-select: none), we can't set it to
+    // be active but we still continue searching. This matches Safari's
+    // behavior, including some oddities when selectable and un-selectable text
+    // are mixed on a page: see https://bugs.webkit.org/show_bug.cgi?id=19127.
+    if (new_selection.isNone() ||
+        (new_selection.start() == new_selection.end())) {
+      // The selection controller is not giving us a valid selection so we don't
+      // know what the active rect is. The scoping effort should still continue,
+      // in case there are other selectable matches on the page. Setting the
+      // active_selection_rect to a default rect causes the scoping effort to
+      // mark the first match it finds as active and continue scoping.
+      active_selection_rect_ = IntRect();
+      last_active_range_ = new_selection.toRange();
+      *selection_rect = gfx::Rect();
     } else {
       last_active_range_ = new_selection.toRange();
       active_selection_rect_ = new_selection.toRange()->boundingBox();
@@ -864,7 +881,7 @@ bool WebFrameImpl::FindNext(const FindInPageRequest& request,
   // Save the old tickmark (if any). We will use this to invalidate the area
   // of the tickmark that becomes unselected.
   WebFrameImpl* const main_frame_impl =
-    static_cast<WebFrameImpl*>(GetView()->GetMainFrame());
+      static_cast<WebFrameImpl*>(GetView()->GetMainFrame());
   WebFrameImpl* const active_frame = main_frame_impl->active_tickmark_frame_;
   RefPtr<WebCore::Range> old_tickmark = NULL;
   if (active_frame &&
@@ -1117,18 +1134,31 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
 
     setStart(searchRange.get(), newStart);
 
+    // Catch a special case where Find found something but doesn't know
+    // what the bounding box for it is. In this case we set the first match
+    // we find as the active rect. Note: This does not affect FindNext, it will
+    // still do the right thing. This is only affecting the initial Find, so if
+    // you start searching from the middle of the page AND there is a match
+    // below AND we don't have a bounding box for that match, then we will mark
+    // the first match as active. We probably should look into converting Find
+    // to use the same function as the scoping effort (findPlainText), since it
+    // seems to always get the right bounding box.
+    IntRect result_bounds = resultRange->boundingBox();
+    if (locating_active_rect_ && active_selection_rect_.isEmpty()) {
+      active_selection_rect_ = result_bounds;
+    }
+
     // If the Find function found a match it will have stored where the
     // match was found in active_selection_rect_ on the current frame. If we
     // find this rect during scoping it means we have found the active
     // tickmark.
-    if (!active_selection_rect_.isEmpty() &&
-        active_selection_rect_ == resultRange->boundingBox()) {
+    if (locating_active_rect_ && (active_selection_rect_ == result_bounds)) {
       // We have found the active tickmark frame.
       main_frame_impl->active_tickmark_frame_ = this;
       // We also know which tickmark is active now.
       active_tickmark_ = tickmarks_.size() - 1;
-      // To stop looking for the active tickmark, we clear this rectangle.
-      active_selection_rect_ = IntRect();
+      // To stop looking for the active tickmark, we set this flag.
+      locating_active_rect_ = false;
 
 #if defined(OS_WIN)
       // TODO(pinkerton): Fix Mac invalidation to be more like Win ScrollView

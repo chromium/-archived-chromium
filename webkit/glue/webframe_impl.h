@@ -23,8 +23,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef WEBKIT_GLUE_WEBFRAME_IMPL_H__
-#define WEBKIT_GLUE_WEBFRAME_IMPL_H__
+#ifndef WEBKIT_GLUE_WEBFRAME_IMPL_H_
+#define WEBKIT_GLUE_WEBFRAME_IMPL_H_
 
 #include <string>
 
@@ -138,7 +138,7 @@ class WebFrameImpl : public WebFrame {
   virtual void Redo();
   virtual void ClearSelection();
 
-  virtual void SetInViewSourceMode(bool);
+  virtual void SetInViewSourceMode(bool enable);
 
   virtual bool GetInViewSourceMode() const;
 
@@ -153,7 +153,7 @@ class WebFrameImpl : public WebFrame {
 
   virtual bool ExecuteCoreCommandByName(const std::string& name, const std::string& value);
 
-  virtual void AddMessageToConsole(const std::wstring& msg, 
+  virtual void AddMessageToConsole(const std::wstring& msg,
                                    ConsoleMessageLevel level);
 
   virtual void ClosePage();
@@ -332,14 +332,21 @@ class WebFrameImpl : public WebFrame {
   // The index of the active tickmark for the current frame.
   size_t active_tickmark_;
 
+  // This flag is used by the scoping effort to determine if we need to figure
+  // out which rectangle is the active tickmark. Once we find the active
+  // rectangle we clear this flag.
+  bool locating_active_rect_;
+
   // This rectangle is used during the scoping effort to figure out what rect
   // got selected during the Find operation. In other words, first the Find
   // operation iterates to the next match and then scoping will happen for all
   // matches. When we encounter this rectangle during scoping we mark that
   // tickmark as active (see active_tickmark_). This avoids having to iterate
   // through a potentially very large tickmark vector to see which hit is
-  // active. Once we find the active rectangle we clear this rectangle to
-  // indicate that we are done determining what the active match is.
+  // active. An empty rect means that we don't know the rectangle for the
+  // selection (ie. because the selection controller couldn't tell us what the
+  // bounding box for it is) and the scoping effort should mark the first
+  // match it finds as the active rectangle.
   WebCore::IntRect active_selection_rect_;
 
   // This range represents the range that got selected during the Find or
@@ -426,7 +433,7 @@ class WebFrameImpl : public WebFrame {
   // For each printed page, the view of the document in pixels.
   Vector<WebCore::IntRect> pages_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(WebFrameImpl);
+  DISALLOW_COPY_AND_ASSIGN(WebFrameImpl);
 };
 
-#endif  // WEBKIT_GLUE_WEBFRAME_IMPL_H__
+#endif  // WEBKIT_GLUE_WEBFRAME_IMPL_H_
