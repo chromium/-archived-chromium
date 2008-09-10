@@ -12,7 +12,6 @@
 #include <map>
 
 #include "base/observer_list.h"
-#include "base/thread_local_storage.h"
 #include "base/values.h"
 #include "chrome/common/notification_details.h"
 #include "chrome/common/notification_source.h"
@@ -24,9 +23,7 @@ class NotificationService {
  public:
   // Returns the NotificationService object for the current thread, or NULL if
   // none.
-  static NotificationService* current() {
-    return static_cast<NotificationService *>(tls_index_.Get());
-  }
+  static NotificationService* current();
 
   // Normally instantiated when the thread is created.  Not all threads have
   // a NotificationService.  Only one instance should be created per thread.
@@ -90,10 +87,6 @@ class NotificationService {
   // Until we get a prohibitively large number of notification types,
   // a simple array is probably the fastest way to dispatch.
   NotificationSourceMap observers_[NOTIFICATION_TYPE_COUNT];
-
-  // The thread local storage index, used for getting the current thread's
-  // instance.
-  static TLSSlot tls_index_;
 
 #ifndef NDEBUG
   // Used to check to see that AddObserver and RemoveObserver calls are

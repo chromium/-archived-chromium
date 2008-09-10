@@ -9,7 +9,6 @@
 #include "base/shared_memory.h"
 #include "base/task.h"
 #include "base/thread.h"
-#include "base/thread_local_storage.h"
 #include "chrome/common/ipc_sync_channel.h"
 #include "chrome/common/message_router.h"
 
@@ -48,9 +47,7 @@ class RenderThread : public IPC::Channel::Listener,
   void RemoveFilter(IPC::ChannelProxy::MessageFilter* filter);
 
   // The RenderThread instance for the current thread.
-  static RenderThread* current() {
-    return static_cast<RenderThread*>(tls_index_.Get());
-  }
+  static RenderThread* current();
 
   VisitedLinkSlave* visited_link_slave() const { return visited_link_slave_; }
 
@@ -93,8 +90,6 @@ class RenderThread : public IPC::Channel::Listener,
   // These functions should be call periodically so that the host can make
   // decisions about how to allocation resources using current information.
   void InformHostOfCacheStats();
-
-  static TLSSlot tls_index_;
 
   // The message loop used to run tasks on the thread that started this thread.
   MessageLoop* owner_loop_;

@@ -6,8 +6,9 @@
 
 #include "chrome/common/ipc_sync_channel.h"
 
+#include "base/lazy_instance.h"
 #include "base/logging.h"
-#include "base/thread_local_storage.h"
+#include "base/thread_local.h"
 #include "chrome/common/child_process.h"
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/ipc_sync_message.h"
@@ -31,9 +32,7 @@ namespace IPC {
 // SyncChannel objects on the same thread (since one object can receive a
 // sync message while another one is blocked).
 
-// Holds a pointer to the per-thread ReceivedSyncMsgQueue object.
-// TODO(evanm): this shouldn't rely on static initialization.
-static TLSSlot g_tls_index;
+class SyncChannel::ReceivedSyncMsgQueue;
 
 class SyncChannel::ReceivedSyncMsgQueue :
     public base::RefCountedThreadSafe<ReceivedSyncMsgQueue> {
@@ -45,10 +44,10 @@ class SyncChannel::ReceivedSyncMsgQueue :
   }
 
   ~ReceivedSyncMsgQueue() {
-    DCHECK(g_tls_index.Get());
+    DCHECK(lazy_tls_ptr_.Pointer()->Get());
     DCHECK(MessageLoop::current() == listener_message_loop_);
     CloseHandle(blocking_event_);
-    g_tls_index.Set(NULL);
+    lazy_tls_ptr_.Pointer()->Set(NULL);
   }
 
   // Called on IPC thread when a synchronous message or reply arrives.
@@ -155,6 +154,10 @@ class SyncChannel::ReceivedSyncMsgQueue :
   HANDLE blocking_event() { return blocking_event_; }
   MessageLoop* listener_message_loop() { return listener_message_loop_; }
 
+  // Holds a pointer to the per-thread ReceivedSyncMsgQueue object.
+  static base::LazyInstance<base::ThreadLocalPointer<ReceivedSyncMsgQueue> >
+      lazy_tls_ptr_;
+
  private:
   // Called on the ipc thread to check if we can unblock any current Send()
   // calls based on a queued reply.
@@ -203,6 +206,8 @@ class SyncChannel::ReceivedSyncMsgQueue :
   std::vector<Reply> received_replies_;
 };
 
+base::LazyInstance<base::ThreadLocalPointer<SyncChannel::ReceivedSyncMsgQueue> >
+    SyncChannel::ReceivedSyncMsgQueue::lazy_tls_ptr_(base::LINKER_INITIALIZED);
 
 SyncChannel::SyncContext::SyncContext(
     Channel::Listener* listener,
@@ -213,13 +218,13 @@ SyncChannel::SyncContext::SyncContext(
       reply_deserialize_result_(false) {
   // We want one ReceivedSyncMsgQueue per listener thread (i.e. since multiple
   // SyncChannel objects that can block the same thread).
-  received_sync_msgs_ = static_cast<ReceivedSyncMsgQueue*>(g_tls_index.Get());
+  received_sync_msgs_ = ReceivedSyncMsgQueue::lazy_tls_ptr_.Pointer()->Get();
 
   if (!received_sync_msgs_) {
     // Stash a pointer to the listener thread's ReceivedSyncMsgQueue, as we
     // need to be able to access it in the IPC thread.
     received_sync_msgs_ = new ReceivedSyncMsgQueue();
-    g_tls_index.Set(received_sync_msgs_);
+    ReceivedSyncMsgQueue::lazy_tls_ptr_.Pointer()->Set(received_sync_msgs_);
   }
 
   // Addref manually so that we can ensure destruction on the listener thread

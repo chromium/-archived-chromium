@@ -136,8 +136,6 @@ class Thread : PlatformThread::Delegate {
   // The name of the thread.  Used for debugging purposes.
   std::string name_;
 
-  static TLSSlot tls_index_;
-
   friend class ThreadQuitTask;
 
   DISALLOW_COPY_AND_ASSIGN(Thread);

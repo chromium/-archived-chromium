@@ -7,17 +7,16 @@
 #include <algorithm>
 
 #include "base/compiler_specific.h"
+#include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/message_pump_default.h"
 #include "base/string_util.h"
-#include "base/thread_local_storage.h"
+#include "base/thread_local.h"
 
-// a TLS index to the message loop for the current thread
-// Note that if we start doing complex stuff in other static initializers
-// this could cause problems.
-// TODO(evanm): this shouldn't rely on static initialization.
-// static
-TLSSlot MessageLoop::tls_index_;
+// A lazily created thread local storage for quick access to a thread's message
+// loop, if one exists.  This should be safe and free of static constructors.
+static base::LazyInstance<base::ThreadLocalPointer<MessageLoop> > lazy_tls_ptr(
+    base::LINKER_INITIALIZED);
 
 //------------------------------------------------------------------------------
 
@@ -55,14 +54,22 @@ static LPTOP_LEVEL_EXCEPTION_FILTER GetTopSEHFilter() {
 
 //------------------------------------------------------------------------------
 
+// static
+MessageLoop* MessageLoop::current() {
+  // TODO(darin): sadly, we cannot enable this yet since people call us even
+  // when they have no intention of using us.
+  //DCHECK(loop) << "Ouch, did you forget to initialize me?";
+  return lazy_tls_ptr.Pointer()->Get();
+}
+
 MessageLoop::MessageLoop(Type type)
     : type_(type),
       nestable_tasks_allowed_(true),
       exception_restoration_(false),
       state_(NULL),
       next_sequence_num_(0) {
-  DCHECK(!tls_index_.Get()) << "should only have one message loop per thread";
-  tls_index_.Set(this);
+  DCHECK(!current()) << "should only have one message loop per thread";
+  lazy_tls_ptr.Pointer()->Set(this);
 
   // TODO(darin): Choose the pump based on the requested type.
 #if defined(OS_WIN)
@@ -82,6 +89,9 @@ MessageLoop::~MessageLoop() {
   // Let interested parties have one last shot at accessing this.
   FOR_EACH_OBSERVER(DestructionObserver, destruction_observers_,
                     WillDestroyCurrentMessageLoop());
+
+  // OK, now make it so that no one can find us.
+  lazy_tls_ptr.Pointer()->Set(NULL);
 
   DCHECK(!state_);
 

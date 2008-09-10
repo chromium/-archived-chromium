@@ -7,7 +7,9 @@
 
 #include "chrome/renderer/render_thread.h"
 
+#include "base/lazy_instance.h"
 #include "base/shared_memory.h"
+#include "base/thread_local.h"
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/plugin/plugin_channel.h"
@@ -22,12 +24,16 @@ static const unsigned int kCacheStatsDelayMS = 2000 /* milliseconds */;
 // V8 needs a 1MB stack size.
 static const size_t kStackSize = 1024 * 1024;
 
-// TODO(evanm): don't rely on static initialization.
-// static
-TLSSlot RenderThread::tls_index_;
+static base::LazyInstance<base::ThreadLocalPointer<RenderThread> >
+    lazy_tls_ptr(base::LINKER_INITIALIZED);
 
 //-----------------------------------------------------------------------------
 // Methods below are only called on the owner's thread:
+
+// static
+RenderThread* RenderThread::current() {
+  return lazy_tls_ptr.Pointer()->Get();
+}
 
 RenderThread::RenderThread(const std::wstring& channel_name)
     : Thread("Chrome_RenderThread"),
@@ -99,7 +105,7 @@ void RenderThread::Init() {
       IPC::Channel::MODE_CLIENT, this, NULL, owner_loop_, true,
       RenderProcess::GetShutDownEvent()));
 
-  tls_index_.Set(this);
+  lazy_tls_ptr.Pointer()->Set(this);
 
   // The renderer thread should wind-up COM.
   CoInitialize(0);

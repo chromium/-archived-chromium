@@ -4,7 +4,7 @@
 
 #include "base/thread.h"
 
-#include "base/singleton.h"
+#include "base/lazy_instance.h"
 #include "base/string_util.h"
 #include "base/thread_local.h"
 #include "base/waitable_event.h"
@@ -44,29 +44,25 @@ Thread::~Thread() {
   Stop();
 }
 
+namespace {
+
 // We use this thread-local variable to record whether or not a thread exited
 // because its Stop method was called.  This allows us to catch cases where
 // MessageLoop::Quit() is called directly, which is unexpected when using a
 // Thread to setup and run a MessageLoop.
-namespace {
-
-// Use a differentiating type to make sure we don't share our boolean we any
-// other Singleton<ThreadLocalBoolean>'s.
-struct ThreadExitedDummyDiffType { };
-typedef Singleton<ThreadLocalBoolean,
-                  DefaultSingletonTraits<ThreadLocalBoolean>,
-                  ThreadExitedDummyDiffType> ThreadExitedSingleton;
+base::LazyInstance<base::ThreadLocalBoolean> lazy_tls_bool(
+    base::LINKER_INITIALIZED);
 
 }  // namespace
 
 void Thread::SetThreadWasQuitProperly(bool flag) {
-  ThreadExitedSingleton::get()->Set(flag);
+  lazy_tls_bool.Pointer()->Set(flag);
 }
 
 bool Thread::GetThreadWasQuitProperly() {
   bool quit_properly = true;
 #ifndef NDEBUG
-  quit_properly = ThreadExitedSingleton::get()->Get();
+  quit_properly = lazy_tls_bool.Pointer()->Get();
 #endif
   return quit_properly;
 }

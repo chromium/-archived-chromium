@@ -16,7 +16,6 @@
 #include "base/ref_counted.h"
 #include "base/task.h"
 #include "base/timer.h"
-#include "base/thread_local_storage.h"
 
 #if defined(OS_WIN)
 // We need this to declare base::MessagePumpWin::Dispatcher, which we should
@@ -201,13 +200,7 @@ class MessageLoop : public base::MessagePump::Delegate {
   const std::string& thread_name() const { return thread_name_; }
 
   // Returns the MessageLoop object for the current thread, or null if none.
-  static MessageLoop* current() {
-    MessageLoop* loop = static_cast<MessageLoop*>(tls_index_.Get());
-    // TODO(darin): sadly, we cannot enable this yet since people call us even
-    // when they have no intention of using us.
-    //DCHECK(loop) << "Ouch, did you forget to initialize me?";
-    return loop;
-  }
+  static MessageLoop* current();
 
   // Enables or disables the recursive task processing. This happens in the case
   // of recursive message loops. Some unwanted message loop may occurs when
@@ -347,7 +340,6 @@ class MessageLoop : public base::MessagePump::Delegate {
   // If message_histogram_ is NULL, this is a no-op.
   void HistogramEvent(int event);
 
-  static TLSSlot tls_index_;
   static const LinearHistogram::DescriptionPair event_descriptions_[];
   static bool enable_histogrammer_;
 

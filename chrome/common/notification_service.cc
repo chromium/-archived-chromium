@@ -4,9 +4,16 @@
 
 #include "chrome/common/notification_service.h"
 
-// TODO(evanm): This shouldn't depend on static initialization.
+#include "base/lazy_instance.h"
+#include "base/thread_local.h"
+
+static base::LazyInstance<base::ThreadLocalPointer<NotificationService> >
+    lazy_tls_ptr(base::LINKER_INITIALIZED);
+
 // static
-TLSSlot NotificationService::tls_index_;
+NotificationService* NotificationService::current() {
+  return lazy_tls_ptr.Pointer()->Get();
+}
 
 // static
 bool NotificationService::HasKey(const NotificationSourceMap& map,
@@ -20,7 +27,7 @@ NotificationService::NotificationService() {
   memset(observer_counts_, 0, sizeof(observer_counts_));
 #endif
 
-  tls_index_.Set(this);
+  lazy_tls_ptr.Pointer()->Set(this);
 }
 
 void NotificationService::AddObserver(NotificationObserver* observer,
@@ -94,7 +101,7 @@ void NotificationService::Notify(NotificationType type,
 
 
 NotificationService::~NotificationService() {
-  tls_index_.Set(NULL);
+  lazy_tls_ptr.Pointer()->Set(NULL);
 
 #ifndef NDEBUG
   for (int i = 0; i < NOTIFICATION_TYPE_COUNT; i++) {
