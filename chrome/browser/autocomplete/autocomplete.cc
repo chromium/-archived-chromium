@@ -39,8 +39,7 @@ AutocompleteInput::AutocompleteInput(const std::wstring& text,
   if (TrimWhitespace(text, TRIM_ALL, &text_) & TRIM_TRAILING)
     prevent_inline_autocomplete_ = true;
 
-  url_parse::Parsed parts;
-  type_ = Parse(text_, desired_tld, &parts, &scheme_);
+  type_ = Parse(text_, desired_tld, &parts_, &scheme_);
 
   if (type_ == INVALID)
     return;
@@ -220,6 +219,7 @@ bool AutocompleteInput::Equals(const AutocompleteInput& other) const {
 void AutocompleteInput::Clear() {
   text_.clear();
   type_ = INVALID;
+  parts_ = url_parse::Parsed();
   scheme_.clear();
   desired_tld_.clear();
   prevent_inline_autocomplete_ = false;
@@ -743,4 +743,3 @@ void AutocompleteController::AddHistoryContentsShortcut(
   match.provider = history_contents_provider_;
   result->AddMatch(match);
 }
-
