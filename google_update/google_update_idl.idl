@@ -7,12 +7,12 @@ import "ocidl.idl";
 
 [
   object,
-  uuid(8905383F-CD19-4160-8DA0-55FDCFE34F4A),
+  uuid(5B25A8DC-1780-4178-A629-6BE8B8DEFAA2),
   oleautomation,
   nonextensible,
   pointer_default(unique)
 ]
-interface IBrowserHttpRequest : IUnknown {
+interface IBrowserHttpRequest2 : IUnknown {
   // This method will send request/data from the browser process.
   // @param url                     URL where request will be send.
   // @param post_data               POST data, if any. Can be NULL.
@@ -55,8 +55,13 @@ typedef enum {
   COMPLETION_CODE_SUCCESS = 1,
   COMPLETION_CODE_SUCCESS_CLOSE_UI,
   COMPLETION_CODE_ERROR,
-  COMPLETION_CODE_RESTART_BROWSERS,
+  COMPLETION_CODE_RESTART_ALL_BROWSERS,
   COMPLETION_CODE_REBOOT,
+  COMPLETION_CODE_RESTART_BROWSER,
+  COMPLETION_CODE_RESTART_ALL_BROWSERS_NOTICE_ONLY,
+  COMPLETION_CODE_REBOOT_NOTICE_ONLY,
+  COMPLETION_CODE_RESTART_BROWSER_NOTICE_ONLY,
+  COMPLETION_CODE_RUN_COMMAND,
 } CompletionCodes;
 
 [
@@ -104,7 +109,8 @@ interface IJobObserver : IUnknown {
   HRESULT OnWaitingToInstall();
   HRESULT OnInstalling();
   HRESULT OnPause();
-  HRESULT OnComplete([in] CompletionCodes code, [in, string] const WCHAR* text);
+  HRESULT OnComplete([in] CompletionCodes code,
+                     [in, string] const WCHAR* reserved);
   HRESULT SetEventSink([in] IProgressWndEvents* ui_sink);
 };
 
@@ -155,17 +161,24 @@ library GoogleUpdateLib {
     helpstring("InterfaceRegistrar Class")
   ]
   coclass InterfaceRegistrar {
-    [default] interface IBrowserHttpRequest;
+    [default] interface IBrowserHttpRequest2;
     interface IJobObserver;
     interface IProgressWndEvents;
   }
 
   [
     uuid(2F0E2680-9FF5-43c0-B76E-114A56E93598),
-    helpstring("OnDemand Class")
+    helpstring("OnDemand updates for per-user applications.")
   ]
-  coclass OnDemandClass {
+  coclass OnDemandUserAppsClass {
+    [default] interface IGoogleUpdate;
+  }
+
+  [
+    uuid(6F8BD55B-E83D-4a47-85BE-81FFA8057A69),
+    helpstring("OnDemand updates for per-machine applications.")
+  ]
+  coclass OnDemandMachineAppsClass {
     [default] interface IGoogleUpdate;
   }
 };
-

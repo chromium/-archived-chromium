@@ -209,7 +209,7 @@ bool GoogleUpdate::InitiateGoogleUpdateCheck(bool install_if_newer,
   CComPtr<IJobObserver> job_holder(job_observer);
 
   CComPtr<IGoogleUpdate> on_demand;
-  hr = on_demand.CoCreateInstance(CLSID_OnDemandClass);
+  hr = on_demand.CoCreateInstance(CLSID_OnDemandUserAppsClass);
   if (hr != S_OK)
     return ReportFailure(hr, GOOGLE_UPDATE_ONDEMAND_CLASS_NOT_FOUND, main_loop);
 

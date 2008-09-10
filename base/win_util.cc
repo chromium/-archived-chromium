@@ -68,7 +68,7 @@ void GetServicePackLevel(int* major, int* minor) {
   if (!checked_version) {
     OSVERSIONINFOEX version_info = {0};
     version_info.dwOSVersionInfoSize = sizeof(version_info);
-    GetVersionEx(reinterpret_cast<LPOSVERSIONINFOW>(&version_info));
+    GetVersionEx(reinterpret_cast<OSVERSIONINFOW*>(&version_info));
     service_pack_major = version_info.wServicePackMajor;
     service_pack_minor = version_info.wServicePackMinor;
     checked_version = true;
