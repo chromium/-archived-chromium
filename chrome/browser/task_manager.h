@@ -5,6 +5,9 @@
 #ifndef CHROME_BROWSER_TASK_MANAGER_H__
 #define CHROME_BROWSER_TASK_MANAGER_H__
 
+#include <map>
+#include <vector>
+
 #include "base/lock.h"
 #include "base/singleton.h"
 #include "base/ref_counted.h"
@@ -12,6 +15,7 @@
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/group_table_view.h"
 #include "chrome/browser/cache_manager_host.h"
+#include "chrome/browser/tab_contents.h"
 #include "net/url_request/url_request_job_tracker.h"
 
 class MessageLoop;
@@ -42,9 +46,15 @@ class TaskManager : public ChromeViews::DialogDelegate {
   // Resources from similar processes are grouped together by the task manager.
   class Resource {
    public:
+    virtual ~Resource() {}
+
     virtual std::wstring GetTitle() const = 0;
     virtual SkBitmap GetIcon() const = 0;
     virtual HANDLE GetProcess() const = 0;
+
+    // A helper function for ActivateFocusedTab.  Returns NULL by default
+    // because not all resources have an assoiciated tab.
+    virtual TabContents* GetTabContents() const {return NULL;}
 
     // Whether this resource does report the network usage accurately.
     // This controls whether 0 or N/A is displayed when no bytes have been
@@ -98,6 +108,10 @@ class TaskManager : public ChromeViews::DialogDelegate {
 
   // Terminates the selected tab(s) in the list.
   void KillSelectedProcesses();
+
+  // Activates the browser tab associated with the focused row in the task
+  // manager table.  This happens when the user double clicks or hits return.
+  void ActivateFocusedTab();
 
   void AddResourceProvider(ResourceProvider* provider);
   void RemoveResourceProvider(ResourceProvider* provider);

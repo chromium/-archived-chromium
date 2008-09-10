@@ -87,6 +87,7 @@ void GroupTableView::OnKeyDown(unsigned short virtual_keycode) {
   // for the list view control to actually switch the focus, the right item
   // will be selected.
   if ((virtual_keycode != VK_UP) && (virtual_keycode != VK_DOWN)) {
+    TableView::OnKeyDown(virtual_keycode);
     return;
   }
 

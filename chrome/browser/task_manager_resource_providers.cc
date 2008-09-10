@@ -62,6 +62,10 @@ HANDLE TaskManagerWebContentsResource::GetProcess() const {
   return process_;
 }
 
+TabContents* TaskManagerWebContentsResource::GetTabContents() const {
+  return dynamic_cast<TabContents*>(web_contents_);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // TaskManagerWebContentsResourceProvider class
 ////////////////////////////////////////////////////////////////////////////////

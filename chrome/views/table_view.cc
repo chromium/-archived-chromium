@@ -880,7 +880,7 @@ void TableView::UpdateListViewCache0(int start, int length, bool add) {
       std::wstring text = model_->GetText(i, visible_columns_[0]);
       item.iItem = i;
       item.pszText = const_cast<LPWSTR>(text.c_str());
-      item.state = INDEXTOSTATEIMAGEMASK(model_->IsChecked(i) ? 2 : 1) ;
+      item.state = INDEXTOSTATEIMAGEMASK(model_->IsChecked(i) ? 2 : 1);
       ListView_SetItem(list_view_, &item);
     }
   }
@@ -932,6 +932,12 @@ void TableView::OnDoubleClick() {
 void TableView::OnSelectedStateChanged(int item, bool is_selected) {
   if (!ignore_listview_change_ && table_view_observer_) {
     table_view_observer_->OnSelectionChanged();
+  }
+}
+
+void TableView::OnKeyDown(unsigned short virtual_keycode) {
+  if (!ignore_listview_change_ && table_view_observer_) {
+    table_view_observer_->OnKeyDown(virtual_keycode);
   }
 }
 

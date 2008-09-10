@@ -511,12 +511,15 @@ class TaskManagerContents : public ChromeViews::View,
   virtual void ViewHierarchyChanged(bool is_add, ChromeViews::View* parent,
                                     ChromeViews::View* child);
   void GetSelection(std::vector<int>* selection);
+  void GetFocused(std::vector<int>* focused);
 
   // NativeButton::Listener implementation.
   virtual void ButtonPressed(ChromeViews::NativeButton* sender);
 
   // ChromeViews::TableViewObserver implementation.
   virtual void OnSelectionChanged();
+  virtual void OnDoubleClick();
+  virtual void OnKeyDown(unsigned short virtual_keycode);
 
   // ChromeViews::LinkController implementation.
   virtual void LinkActivated(ChromeViews::Link* source, int event_flags);
@@ -721,6 +724,16 @@ void TaskManagerContents::GetSelection(std::vector<int>* selection) {
   }
 }
 
+void TaskManagerContents::GetFocused(std::vector<int>* focused) {
+  DCHECK(focused);
+  int row_count = tab_table_->RowCount();
+  for (int i = 0; i < row_count; ++i) {
+    // The TableView returns the selection starting from the end.
+    if (tab_table_->ItemHasTheFocus(i))
+      focused->insert(focused->begin(), i);
+  }
+}
+
 // NativeButton::Listener implementation.
 void TaskManagerContents::ButtonPressed(ChromeViews::NativeButton* sender) {
   if (sender == kill_button_)
@@ -731,6 +744,15 @@ void TaskManagerContents::ButtonPressed(ChromeViews::NativeButton* sender) {
 void TaskManagerContents::OnSelectionChanged() {
   kill_button_->SetEnabled(!task_manager_->BrowserProcessIsSelected() &&
                            tab_table_->SelectedRowCount() > 0);
+}
+
+void TaskManagerContents::OnDoubleClick() {
+  task_manager_->ActivateFocusedTab();
+}
+
+void TaskManagerContents::OnKeyDown(unsigned short virtual_keycode) {
+  if (virtual_keycode == VK_RETURN)
+    task_manager_->ActivateFocusedTab();
 }
 
 // ChromeViews::LinkController implementation
@@ -824,6 +846,34 @@ void TaskManager::KillSelectedProcesses() {
     DCHECK(process);
     TerminateProcess(process, 0);
   }
+}
+
+void TaskManager::ActivateFocusedTab() {
+  std::vector<int> focused;
+  contents_->GetFocused(&focused);
+  int focused_size = static_cast<int>(focused.size());
+
+  DCHECK(focused_size == 1);
+
+  // Gracefully return if there is not exactly one item in focus.
+  if (focused_size != 1)
+    return;
+
+  // Otherwise, the one focused thing should be one the user intends to bring
+  // forth, so get see if GetTabContents returns non-null.  If it does, activate
+  // those contents.
+  int index = focused[0];
+
+  // GetTabContents returns a pointer to the relevant tab contents for the
+  // resource.  If the index doesn't correspond to a Tab (i.e. refers to the
+  // Browser process or a plugin), GetTabContents will return NULL.
+  TabContents* chosen_tab_contents =
+      table_model_->resources_[index]->GetTabContents();
+
+  if (!chosen_tab_contents)
+    return;
+
+  chosen_tab_contents->Activate();
 }
 
 void TaskManager::AddResourceProvider(ResourceProvider* provider) {

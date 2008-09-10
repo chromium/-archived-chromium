@@ -24,6 +24,8 @@ class TaskManagerWebContentsResource : public TaskManager::Resource {
   std::wstring GetTitle() const;
   SkBitmap GetIcon() const;
   HANDLE GetProcess() const;
+  TabContents* GetTabContents() const;
+
   // WebContents always provide the network usage.
   bool SupportNetworkUsage() const { return true; }
   void SetSupportNetworkUsage() { };

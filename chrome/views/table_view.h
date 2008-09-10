@@ -7,6 +7,9 @@
 
 #include <windows.h>
 
+#include <map>
+#include <vector>
+
 #include "base/logging.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/native_control.h"
@@ -130,8 +133,14 @@ struct TableColumn {
     LEFT, RIGHT, CENTER
   };
 
-  TableColumn() : id(0), title(), alignment(LEFT), width(-1), percent(), min_visible_width(0) {}
-
+  TableColumn()
+      : id(0),
+        title(),
+        alignment(LEFT),
+        width(-1),
+        percent(),
+        min_visible_width(0) {
+  }
   TableColumn(int id, const std::wstring title, Alignment alignment, int width)
       : id(id),
         title(title),
@@ -194,7 +203,8 @@ struct TableColumn {
   int width;
   float percent;
 
-  // The minimum width required for all items in this column (including the header)
+  // The minimum width required for all items in this column
+  // (including the header)
   // to be visible.
   int min_visible_width;
 };
@@ -217,11 +227,16 @@ class TableSelectionIterator {
 // TableViewObserver is notified about the TableView selection.
 class TableViewObserver {
  public:
+  virtual ~TableViewObserver() {}
+
   // Invoked when the selection changes.
   virtual void OnSelectionChanged() = 0;
 
   // Optional method invoked when the user double clicks on the table.
   virtual void OnDoubleClick() {}
+
+  // Optional method invoked when the user hits a key with the table in focus.
+  virtual void OnKeyDown(unsigned short virtual_keycode) {}
 };
 
 class TableView : public NativeControl,
@@ -340,6 +355,10 @@ class TableView : public NativeControl,
   // Notification from the ListView that the used double clicked the table.
   virtual void OnDoubleClick();
 
+  // Subclasses can implement this method if they need to be notified of a key
+  // press event.  Other wise, it appeals to table_view_observer_
+  virtual void OnKeyDown(unsigned short virtual_keycode);
+
   // Invoked to customize the colors or font at a particular cell. If you
   // change the colors or font, return true. This is only invoked if
   // SetCustomColorsEnabled(true) has been invoked.
@@ -357,10 +376,6 @@ class TableView : public NativeControl,
   virtual void PostPaint(int row, int column, bool selected,
                          const CRect& bounds, HDC device_context) { }
 
-  // Subclasses can implement this method if they need to be notified of a key
-  // press event.
-  virtual void OnKeyDown(unsigned short virtual_keycode) {}
-
   virtual HWND CreateNativeControl(HWND parent_container);
 
   virtual LRESULT OnNotify(int w_param, LPNMHDR l_param);
@@ -374,7 +389,7 @@ class TableView : public NativeControl,
   // cast from GetWindowLongPtr would break the pointer if it is pointing to a
   // subclass (in the OO sense of TableView).
   struct TableViewWrapper {
-    TableViewWrapper(TableView* view) : table_view(view) { }
+    explicit TableViewWrapper(TableView* view) : table_view(view) { }
     TableView* table_view;
   };
 
@@ -496,7 +511,6 @@ class TableView : public NativeControl,
 
   DISALLOW_COPY_AND_ASSIGN(TableView);
 };
-
 }
 
 #endif  // CHROME_VIEWS_TABLE_VIEW_H_
