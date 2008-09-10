@@ -28,6 +28,9 @@ void GetNonClientMetrics(NONCLIENTMETRICS* metrics);
 // Returns the running version of Windows.
 WinVersion GetWinVersion();
 
+// Returns the major and minor version of the service pack installed.
+void GetServicePackLevel(int* major, int* minor);
+
 // Adds an ACE in the DACL of the object referenced by handle. The ACE is
 // granting |access| to the user |known_sid|.
 // If |known_sid| is WinSelfSid, the sid of the current user will be added to

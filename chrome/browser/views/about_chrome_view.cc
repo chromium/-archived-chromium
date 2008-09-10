@@ -251,11 +251,16 @@ void AboutChromeView::ViewHierarchyChanged(bool is_add,
       parent->AddChildView(&timeout_indicator_);
       timeout_indicator_.SetVisible(false);
 
-      // On-demand updates for Chrome don't work in Vista when UAC is turned
+      // On-demand updates for Chrome don't work in Vista RTM when UAC is turned
       // off. So, in this case we just want the About box to not mention
       // on-demand updates. Silent updates (in the background) should still
-      // work as before.
-      if (win_util::UserAccountControlIsEnabled()) {
+      // work as before - enabling UAC or installing the latest service pack
+      // for Vista is another option.
+      int service_pack_major = 0, service_pack_minor = 0;
+      win_util::GetServicePackLevel(&service_pack_major, &service_pack_minor);
+      if (win_util::UserAccountControlIsEnabled() ||
+          (win_util::GetWinVersion() == win_util::WINVERSION_VISTA &&
+           service_pack_major >= 1)) {
         UpdateStatus(UPGRADE_CHECK_STARTED, GOOGLE_UPDATE_NO_ERROR);
         google_updater_->CheckForUpdate(false);  // false=don't upgrade yet.
       }
