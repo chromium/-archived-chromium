@@ -300,7 +300,6 @@ if env['PLATFORM'] == 'win32':
     'time_unittest_win.cc',
     'win_util_unittest.cc',
     'wmi_util_unittest.cc',
-    'gfx/platform_canvas_unittest_win.cc',
     ])
 
 base_unittests = env_tests.ChromeTestProgram('base_unittests', test_files)
