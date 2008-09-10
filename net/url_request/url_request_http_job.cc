@@ -474,31 +474,8 @@ void URLRequestHttpJob::AddExtraHeaders() {
           context->accept_charset() + "\r\n";
   }
 
-#ifdef CHROME_LAST_MINUTE
   // Tell the server what compression formats we support.
   request_info_.extra_headers += "Accept-Encoding: gzip,deflate,bzip2\r\n";
-#else
-  // Tell the server that we support gzip/deflate encoding.
-  request_info_.extra_headers += "Accept-Encoding: gzip,deflate";
-
-  // const string point to google domain
-  static const char kGoogleDomain[] = "google.com";
-  static const unsigned int kGoogleDomainLen = arraysize(kGoogleDomain) - 1;
-  static const char kLocalHostName[] = "localhost";
-
-  // At now, only support bzip2 feature for those requests which are
-  // sent to google domain or localhost.
-  // TODO(jnd) : we will remove the "google.com" domain check before launch.
-  // See bug : 861940
-  const std::string &host = request_->url().host();
-
-  if (host == kLocalHostName ||
-      request_->url().DomainIs(kGoogleDomain, kGoogleDomainLen)) {
-    request_info_.extra_headers += ",bzip2\r\n";
-  } else {
-    request_info_.extra_headers += "\r\n";
-  }
-#endif
 }
 
 void URLRequestHttpJob::FetchResponseCookies() {
