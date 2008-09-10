@@ -34,7 +34,6 @@
 #include "ResourceError.h"
 #include "ResourceHandle.h"
 #include "ResourceHandleClient.h"
-#include "ResourceHandleWin.h"  // for Platform{Response,Data}Struct
 #include "ResourceRequest.h"
 #include "ResourceResponse.h"
 #pragma warning(pop)
@@ -42,6 +41,7 @@
 #undef LOG
 #include "base/logging.h"
 #include "base/message_loop.h"
+#include "base/process_util.h"
 #include "base/time.h"
 #include "base/string_util.h"
 #include "base/string_tokenizer.h"
@@ -296,7 +296,7 @@ bool ResourceHandleInternal::Start(
       request_.frame() ? WebFrameImpl::FromFrame(request_.frame()) : NULL;
 
   CString method = request_.httpMethod().latin1();
-  GURL referrer(webkit_glue::StringToStdWString(request_.httpReferrer()));
+  GURL referrer(webkit_glue::StringToStdString(request_.httpReferrer()));
 
   // Compute the URL of the load.
   GURL url = webkit_glue::KURLToGURL(request_.url());
@@ -319,7 +319,7 @@ bool ResourceHandleInternal::Start(
   GURL policy_url;
   if (request_.resourceType() != ResourceType::MAIN_FRAME &&
       request_.frame() && request_.frame()->document()) {
-    policy_url = GURL(webkit_glue::StringToStdWString(
+    policy_url = GURL(webkit_glue::StringToStdString(
         request_.frame()->document()->policyBaseURL()));
   }
 
@@ -334,8 +334,8 @@ bool ResourceHandleInternal::Start(
   if (!headerMap.contains("accept"))
     request_.addHTTPHeaderField("Accept", "*/*");
 
-  const String crlf(L"\r\n");
-  const String sep(L": ");
+  const String crlf("\r\n");
+  const String sep(": ");
   for (HTTPHeaderMap::const_iterator it = headerMap.begin();
        it != headerMap.end(); ++it) {
     // Skip over referrer headers found in the header map because we already
@@ -377,7 +377,7 @@ bool ResourceHandleInternal::Start(
   // have a origin_pid. Find a better place to set this.
   int origin_pid = request_.originPid();
   if (origin_pid == 0)
-    origin_pid = ::GetCurrentProcessId();
+    origin_pid = process_util::GetCurrentProcId();
 
   bool mixed_content =
       webkit_glue::KURLToGURL(request_.mainDocumentURL()).SchemeIsSecure() &&
