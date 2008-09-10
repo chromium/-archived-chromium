@@ -48,6 +48,11 @@ class V8Custom {
   static const int kDOMWindowInternalFieldCount =
                       kDefaultWrapperInternalFieldCount + 2;
 
+  static const int kStyleSheetOwnerNodeIndex =
+                      kDefaultWrapperInternalFieldCount + 0;
+  static const int kStyleSheetInternalFieldCount =
+                      kDefaultWrapperInternalFieldCount + 1;
+
 #define DECLARE_PROPERTY_ACCESSOR_GETTER(NAME) \
 static v8::Handle<v8::Value> v8##NAME##AccessorGetter(\
     v8::Local<v8::String> name, const v8::AccessorInfo& info);

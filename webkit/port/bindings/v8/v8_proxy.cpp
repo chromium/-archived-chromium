@@ -1188,6 +1188,18 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
           CollectionIndexedPropertyEnumerator<HTMLFormElement>,
           v8::External::New(reinterpret_cast<void*>(V8ClassIndex::NODE)));
       break;
+    case V8ClassIndex::STYLESHEET:  // fall through
+    case V8ClassIndex::CSSSTYLESHEET: {
+      // We add an extra internal field to hold a reference to
+      // the owner node. 
+      v8::Local<v8::ObjectTemplate> instance_template =
+        desc->InstanceTemplate();
+      ASSERT(instance_template->InternalFieldCount() ==
+             V8Custom::kDefaultWrapperInternalFieldCount);
+      instance_template->SetInternalFieldCount(
+          V8Custom::kStyleSheetInternalFieldCount);
+      break;
+    }
     case V8ClassIndex::MEDIALIST:
       SetCollectionStringOrNullIndexedGetter<MediaList>(desc);
       break;
@@ -2521,6 +2533,14 @@ v8::Handle<v8::Object> V8Proxy::StyleSheetToV8Object(StyleSheet* sheet) {
     // Only update the DOM object map if the result is non-empty.
     dom_object_map().set(sheet, v8::Persistent<v8::Object>::New(result));
   }
+
+  // Add a hidden reference from stylesheet object to its owner node.
+  Node* owner_node = sheet->ownerNode();
+  if (owner_node) {
+    v8::Handle<v8::Object> owner = NodeToV8Object(owner_node);
+    result->SetInternalField(V8Custom::kStyleSheetOwnerNodeIndex, owner);
+  }
+
   return result;
 }
 
