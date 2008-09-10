@@ -83,25 +83,27 @@ MessageLoop::~MessageLoop() {
   FOR_EACH_OBSERVER(DestructionObserver, destruction_observers_,
                     WillDestroyCurrentMessageLoop());
 
-  // OK, now make it so that no one can find us.
-  tls_index_.Set(NULL);
-
   DCHECK(!state_);
 
-  // Most tasks that have not been Run() are deleted in the |timer_manager_|
-  // destructor after we remove our tls index.  We delete the tasks in our
-  // queues here so their destuction is similar to the tasks in the
-  // |timer_manager_|.
-  DeletePendingTasks();
-  ReloadWorkQueue();
-  DeletePendingTasks();
-
-  // Delete tasks in the delayed work queue.
-  while (!delayed_work_queue_.empty()) {
-    Task* task = delayed_work_queue_.top().task;
-    delayed_work_queue_.pop();
-    delete task;
+  // Clean up any unprocessed tasks, but take care: deleting a task could
+  // result in the addition of more tasks (e.g., via DeleteSoon).  We set a
+  // limit on the number of times we will allow a deleted task to generate more
+  // tasks.  Normally, we should only pass through this loop once or twice.  If
+  // we end up hitting the loop limit, then it is probably due to one task that
+  // is being stubborn.  Inspect the queues to see who is left.
+  bool did_work;
+  for (int i = 0; i < 100; ++i) {
+    DeletePendingTasks();
+    ReloadWorkQueue();
+    // If we end up with empty queues, then break out of the loop.
+    did_work = DeletePendingTasks();
+    if (!did_work)
+      break;
   }
+  DCHECK(!did_work);
+
+  // OK, now make it so that no one can find us.
+  tls_index_.Set(NULL);
 }
 
 void MessageLoop::AddDestructionObserver(DestructionObserver *obs) {
@@ -290,6 +292,16 @@ bool MessageLoop::DeferOrRunPendingTask(const PendingTask& pending_task) {
   return false;
 }
 
+void MessageLoop::AddToDelayedWorkQueue(const PendingTask& pending_task) {
+  // Move to the delayed work queue.  Initialize the sequence number
+  // before inserting into the delayed_work_queue_.  The sequence number
+  // is used to faciliate FIFO sorting when two tasks have the same
+  // delayed_run_time value.
+  PendingTask new_pending_task(pending_task);
+  new_pending_task.sequence_num = next_sequence_num_++;
+  delayed_work_queue_.push(new_pending_task);
+}
+
 void MessageLoop::ReloadWorkQueue() {
   // We can improve performance of our loading tasks from incoming_queue_ to
   // work_queue_ by waiting until the last minute (work_queue_ is empty) to
@@ -308,20 +320,35 @@ void MessageLoop::ReloadWorkQueue() {
   }
 }
 
-void MessageLoop::DeletePendingTasks() {
-  /* Comment this out as it's causing crashes.
-  while (!work_queue_.Empty()) {
-    Task* task = work_queue_.Pop();
-    if (task->is_owned_by_message_loop())
-      delete task;
+bool MessageLoop::DeletePendingTasks() {
+  bool did_work = !work_queue_.empty();
+  while (!work_queue_.empty()) {
+    PendingTask pending_task = work_queue_.front();
+    work_queue_.pop();
+    if (!pending_task.delayed_run_time.is_null()) {
+      // We want to delete delayed tasks in the same order in which they would
+      // normally be deleted in case of any funny dependencies between delayed
+      // tasks.
+      AddToDelayedWorkQueue(pending_task);
+    } else {
+      // TODO(darin): Delete all tasks once it is safe to do so.
+      //delete task;
+    }
   }
-
-  while (!delayed_non_nestable_queue_.Empty()) {
-    Task* task = delayed_non_nestable_queue_.Pop();
-    if (task->is_owned_by_message_loop())
-      delete task;
+  did_work |= !deferred_non_nestable_work_queue_.empty();
+  while (!deferred_non_nestable_work_queue_.empty()) {
+    Task* task = deferred_non_nestable_work_queue_.front().task;
+    deferred_non_nestable_work_queue_.pop();
+    // TODO(darin): Delete all tasks once it is safe to do so.
+    //delete task;
   }
-  */
+  did_work |= !delayed_work_queue_.empty();
+  while (!delayed_work_queue_.empty()) {
+    Task* task = delayed_work_queue_.top().task;
+    delayed_work_queue_.pop();
+    delete task;
+  }
+  return did_work;
 }
 
 bool MessageLoop::DoWork() {
@@ -341,14 +368,7 @@ bool MessageLoop::DoWork() {
       work_queue_.pop();
       if (!pending_task.delayed_run_time.is_null()) {
         bool was_empty = delayed_work_queue_.empty();
-
-        // Move to the delayed work queue.  Initialize the sequence number
-        // before inserting into the delayed_work_queue_.  The sequence number
-        // is used to faciliate FIFO sorting when two tasks have the same
-        // delayed_run_time value.
-        pending_task.sequence_num = next_sequence_num_++;
-        delayed_work_queue_.push(pending_task);
-
+        AddToDelayedWorkQueue(pending_task);
         if (was_empty)  // We only schedule the next delayed work item.
           pump_->ScheduleDelayedWork(pending_task.delayed_run_time);
       } else {

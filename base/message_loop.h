@@ -316,14 +316,18 @@ class MessageLoop : public base::MessagePump::Delegate {
   // cannot be run right now.  Returns true if the task was run.
   bool DeferOrRunPendingTask(const PendingTask& pending_task);
 
+  // Adds the pending task to delayed_work_queue_.
+  void AddToDelayedWorkQueue(const PendingTask& pending_task);
+
   // Load tasks from the incoming_queue_ into work_queue_ if the latter is
   // empty.  The former requires a lock to access, while the latter is directly
   // accessible on this thread.
   void ReloadWorkQueue();
 
   // Delete tasks that haven't run yet without running them.  Used in the
-  // destructor to make sure all the task's destructors get called.
-  void DeletePendingTasks();
+  // destructor to make sure all the task's destructors get called.  Returns
+  // true if some work was done.
+  bool DeletePendingTasks();
 
   // Post a task to our incomming queue.
   void PostTask_Helper(const tracked_objects::Location& from_here, Task* task,
@@ -364,6 +368,7 @@ class MessageLoop : public base::MessagePump::Delegate {
   scoped_refptr<base::MessagePump> pump_;
 
   ObserverList<DestructionObserver> destruction_observers_;
+
   // A recursion block that prevents accidentally running additonal tasks when
   // insider a (accidentally induced?) nested message pump.
   bool nestable_tasks_allowed_;
