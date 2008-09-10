@@ -305,6 +305,7 @@
 		7B0096220DAFF19C00F72082 /* Location.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0096150DAFF19C00F72082 /* Location.cpp */; };
 		7B0096240DAFF19C00F72082 /* Navigator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0096180DAFF19C00F72082 /* Navigator.cpp */; };
 		7B00962A0DAFF1D000F72082 /* InspectorController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0096290DAFF1D000F72082 /* InspectorController.cpp */; };
+		7B1438070E7874FC00901940 /* webframeloaderclient_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254053F0D92E3DA0006B936 /* webframeloaderclient_impl.cc */; };
 		7B14AAA90DE3340400F4E646 /* CharsetData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B14AAA80DE3340400F4E646 /* CharsetData.cpp */; };
 		7B2B0A5F0E3143EC00D4C6B7 /* GIFImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B2B0A450E3143EC00D4C6B7 /* GIFImageDecoder.cpp */; };
 		7B2B0A610E3143EC00D4C6B7 /* GIFImageReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B2B0A470E3143EC00D4C6B7 /* GIFImageReader.cpp */; };
@@ -1120,7 +1121,6 @@
 		E45627050E268F03005E4685 /* webinputevent_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 825405440D92E3DA0006B936 /* webinputevent_mac.mm */; };
 		E45627060E268F03005E4685 /* cpp_variant.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825404FD0D92E3DA0006B936 /* cpp_variant.cc */; };
 		E45627070E268F03005E4685 /* cpp_bound_class.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825404FA0D92E3DA0006B936 /* cpp_bound_class.cc */; };
-		E45627080E268F03005E4685 /* webframeloaderclient_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254053F0D92E3DA0006B936 /* webframeloaderclient_impl.cc */; };
 		E45627090E268F03005E4685 /* webkit_glue.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405460D92E3DA0006B936 /* webkit_glue.cc */; };
 		E456270A0E268F03005E4685 /* event_conversion.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254050B0D92E3DA0006B936 /* event_conversion.cc */; };
 		E456270B0E268F03005E4685 /* inspector_client_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405180D92E3DA0006B936 /* inspector_client_impl.cc */; };
@@ -6888,7 +6888,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -ex\nGENERATED_DIR=\"${CONFIGURATION_TEMP_DIR}/generated\"\nmkdir -p \"${GENERATED_DIR}\"\n\n# TODO(mmentovai): fix this to not be so hokey - the Apple build expects JavaScriptCore to be in a framework\n# This belongs in the JSConfig target, which already does something similar\nmkdir -p \"${GENERATED_DIR}/include/v8/JavaScriptCore\"\ncp -p \"${SRCROOT}/../third_party/WebKit/JavaScriptCore/bindings/npruntime.h\" \\\n      \"${GENERATED_DIR}/include/v8/JavaScriptCore\"\n\nexport DerivedSourcesDir=\"${GENERATED_DIR}/DerivedSources/v8/WebCore\"\nmkdir -p \"${GENERATED_DIR}/DerivedSources/v8/WebCore\"\ncd \"${GENERATED_DIR}/DerivedSources/v8/WebCore\"\n\n# export CREATE_HASH_TABLE=\"${SRCROOT}/../third_party/WebKit/JavaScriptCore/kjs/create_hash_table\"\n# TODO(mmentovai): The above is normally correct, but create_hash_table wound\n# up without the svn:executable property set in our repository.  See the TODO\n# in the jsbindings target.\nexport CREATE_HASH_TABLE=\"${GENERATED_DIR}/create_hash_table\"\n\nln -sfh \"${SRCROOT}/../third_party/WebKit/WebCore\" WebCore\nexport WebCore=\"WebCore\"\nexport SOURCE_ROOT=\"${WebCore}\"\nexport PORTROOT=\"${SRCROOT}/port\"\n\nexport PUBLICDOMINTERFACES=\"${PORTROOT}/../pending/PublicDOMInterfaces.h\"\nmake -f \"${SRCROOT}/pending/DerivedSources.make\" -j $(/usr/sbin/sysctl -n hw.ncpu)\n\n# Allow framework-style #imports of <WebCore/whatever.h> to find the right headers\ncd ..\nmkdir -p ForwardingHeaders/loader\nln -sfh \"${SRCROOT}/../third_party/WebKit/WebCore/loader\" ForwardingHeaders/loader/WebCore\n\n# Generate the webkit version header\npython \"${SRCROOT}/build/webkit_version.py\" \\\n       \"${SRCROOT}/../third_party/WebKit/WebCore/Configurations/Version.xcconfig\" \\\n       \"${GENERATED_DIR}/include/v8\"\n";
+			shellScript = "set -ex\nGENERATED_DIR=\"${CONFIGURATION_TEMP_DIR}/generated\"\nmkdir -p \"${GENERATED_DIR}\"\n\n# TODO(mmentovai): fix this to not be so hokey - the Apple build expects JavaScriptCore to be in a framework\n# This belongs in the JSConfig target, which already does something similar\nmkdir -p \"${GENERATED_DIR}/include/v8/JavaScriptCore\"\ncp -p \"${SRCROOT}/../third_party/WebKit/JavaScriptCore/bindings/npruntime.h\" \\\n      \"${GENERATED_DIR}/include/v8/JavaScriptCore\"\n\nexport DerivedSourcesDir=\"${GENERATED_DIR}/DerivedSources/v8/WebCore\"\nmkdir -p \"${GENERATED_DIR}/DerivedSources/v8/WebCore\"\ncd \"${GENERATED_DIR}/DerivedSources/v8/WebCore\"\n\n# export CREATE_HASH_TABLE=\"${SRCROOT}/../third_party/WebKit/JavaScriptCore/kjs/create_hash_table\"\n# TODO(mmentovai): The above is normally correct, but create_hash_table wound\n# up without the svn:executable property set in our repository.  See the TODO\n# in the jsbindings target.\nexport CREATE_HASH_TABLE=\"${GENERATED_DIR}/create_hash_table\"\n\nln -sfh \"${SRCROOT}/../third_party/WebKit/WebCore\" WebCore\nexport WebCore=\"WebCore\"\nexport SOURCE_ROOT=\"${WebCore}\"\nexport PORTROOT=\"${SRCROOT}/port\"\n\nexport PUBLICDOMINTERFACES=\"${PORTROOT}/../pending/PublicDOMInterfaces.h\"\nmake -f \"${SRCROOT}/pending/DerivedSources.make\" -j $(/usr/sbin/sysctl -n hw.ncpu)\n\n# Allow framework-style #imports of <WebCore/whatever.h> to find the right headers\ncd ..\nmkdir -p ForwardingHeaders/loader\nln -sfh \"${SRCROOT}/../third_party/WebKit/WebCore/loader\" ForwardingHeaders/loader/WebCore\n\n# Generate the webkit version header\nmkdir -p \"${GENERATED_DIR}/include/v8/new\"\npython \"${SRCROOT}/build/webkit_version.py\" \\\n       \"${SRCROOT}/../third_party/WebKit/WebCore/Configurations/Version.xcconfig\" \\\n       \"${GENERATED_DIR}/include/v8/new\"\n\n# Only use new the file if it's different from the existing file (if any),\n# preserving the existing file's timestamp when there are no changes.  This\n# minimizes unnecessary build activity for a no-change build.\nif ! diff -q \"${GENERATED_DIR}/include/v8/new/webkit_version.h\" \\\n             \"${GENERATED_DIR}/include/v8/webkit_version.h\" >& /dev/null ; then\n  mv \"${GENERATED_DIR}/include/v8/new/webkit_version.h\" \\\n     \"${GENERATED_DIR}/include/v8/webkit_version.h\"\nelse\n  rm \"${GENERATED_DIR}/include/v8/new/webkit_version.h\"\nfi\n\nrmdir \"${GENERATED_DIR}/include/v8/new\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -8012,16 +8012,15 @@
 				E45627010E268F03005E4685 /* webdocumentloader_impl.cc in Sources */,
 				E45626FB0E268F03005E4685 /* weberror_impl.cc in Sources */,
 				E45626F60E268F03005E4685 /* webframe_impl.cc in Sources */,
-				E45627080E268F03005E4685 /* webframeloaderclient_impl.cc in Sources */,
+				7B1438070E7874FC00901940 /* webframeloaderclient_impl.cc in Sources */,
 				E456270E0E268F03005E4685 /* webhistoryitem_impl.cc in Sources */,
 				E45627050E268F03005E4685 /* webinputevent_mac.mm in Sources */,
 				E45627090E268F03005E4685 /* webkit_glue.cc in Sources */,
+				E4E4C7F90E781B5B009A687C /* webplugin_impl_mac.mm in Sources */,
 				E45627040E268F03005E4685 /* webtextinput_impl.cc in Sources */,
 				E45627020E268F03005E4685 /* weburlrequest_impl.cc in Sources */,
 				E45626F40E268F03005E4685 /* webview_impl.cc in Sources */,
 				E45626F30E268F03005E4685 /* webwidget_impl.cc in Sources */,
-				E45627080E268F03005E4685 /* webframeloaderclient_impl.cc in Sources */,
-				E4E4C7F90E781B5B009A687C /* webplugin_impl_mac.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
