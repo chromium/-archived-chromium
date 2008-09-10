@@ -156,6 +156,8 @@ public:
     // If shell is non-null, then *shell is assigned upon successful return
     static bool CreateNewWindow(const std::wstring& startingURL,
                                 TestShell** shell = NULL);
+    
+    static void DestroyWindow(gfx::WindowHandle windowHandle);
 
     // Implements CreateWebView for TestWebViewDelegate, which in turn
     // is called as a WebViewDelegate.

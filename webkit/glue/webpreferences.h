@@ -68,10 +68,10 @@ struct WebPreferences {
         developer_extras_enabled(false),  // Requires extra work by embedder
         shrinks_standalone_images_to_fit(true),
         uses_universal_detector(false),  // Disabled: page cycler regression
-        user_style_sheet_enabled(false),
         text_areas_are_resizable(true),
         dashboard_compatibility_mode(false),
-        java_enabled(true) {
+        java_enabled(true),
+        user_style_sheet_enabled(false) {
   }
 };
 

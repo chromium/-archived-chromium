@@ -442,8 +442,7 @@ void TestShell::CallJSGC() {
 
 /*static*/
 bool TestShell::CreateNewWindow(const std::wstring& startingURL,
-                                TestShell** result)
-{
+                                TestShell** result) {
     TestShell* shell = new TestShell();
     bool rv = shell->Initialize(startingURL);
     if (rv) {
@@ -452,6 +451,12 @@ bool TestShell::CreateNewWindow(const std::wstring& startingURL,
         TestShell::windowList()->push_back(shell->m_mainWnd);
     }
     return rv;
+}
+
+/*static*/
+void TestShell::DestroyWindow(gfx::WindowHandle windowHandle) {
+  // Do we want to tear down some of the machinery behind the scenes too?
+  ::DestroyWindow(windowHandle);
 }
 
 WebView* TestShell::CreateWebView(WebView* webview) {

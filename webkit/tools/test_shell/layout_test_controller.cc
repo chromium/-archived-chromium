@@ -8,6 +8,7 @@
 
 #include "webkit/tools/test_shell/layout_test_controller.h"
 
+#include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -20,6 +21,7 @@
 using std::string;
 using std::wstring;
 
+#if defined(OS_WIN)
 namespace {
 
 // Stops the test from running and prints a brief warning to stdout.  Called
@@ -31,7 +33,7 @@ VOID CALLBACK TestTimeout(HWND hwnd, UINT msg, UINT_PTR timer_id, DWORD ms) {
 }
 
 }
-
+#endif
 
 TestShell* LayoutTestController::shell_ = NULL;
 bool LayoutTestController::dump_as_text_ = false;
@@ -210,6 +212,7 @@ void LayoutTestController::setAcceptsEditing(
 
 void LayoutTestController::waitUntilDone(
     const CppArgumentList& args, CppVariant* result) {
+#if defined(OS_WIN)
   // Set a timer in case something hangs.  We use a custom timer rather than
   // the one managed by the message loop so we can kill it when the load
   // finishes successfully.
@@ -218,6 +221,9 @@ void LayoutTestController::waitUntilDone(
     SetTimer(shell_->mainWnd(), timer_id, shell_->GetFileTestTimeout(),
              &TestTimeout);
   }
+#else
+  // TODO(port): implement timer here
+#endif
   wait_until_done_ = true;
   result->SetNull();
 }
@@ -349,14 +355,14 @@ void LayoutTestController::Reset() {
     // shell.  We don't want to delete elements as we're iterating, so we copy
     // to a temp vector first.
     WindowList* windows = TestShell::windowList();
-    std::vector<HWND> windows_to_delete;
+    std::vector<gfx::WindowHandle> windows_to_delete;
     for (WindowList::iterator i = windows->begin(); i != windows->end(); ++i) {
       if (*i != shell_->mainWnd())
         windows_to_delete.push_back(*i);
     }
     DCHECK(windows_to_delete.size() + 1 == windows->size());
     for (size_t i = 0; i < windows_to_delete.size(); ++i) {
-      DestroyWindow(windows_to_delete[i]);
+      TestShell::DestroyWindow(windows_to_delete[i]);
     }
     DCHECK(windows->size() == 1);
   } else {
