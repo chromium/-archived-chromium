@@ -531,28 +531,6 @@ ACCESSOR_SETTER(DocumentLocation) {
 }
 
 
-ACCESSOR_GETTER(DOMWindowLocation) {
-  v8::Handle<v8::Object> holder = V8Proxy::LookupDOMWrapper(
-      V8ClassIndex::DOMWINDOW, info.This());
-  if (holder.IsEmpty())
-    return v8::Undefined();
-
-  DOMWindow* imp = V8Proxy::FastToNativeObject<DOMWindow>(
-      V8ClassIndex::DOMWINDOW, holder);
-
-  // Give subframes precedence.
-  if (imp->frame()) {
-    Frame* child = imp->frame()->tree()->child("location");
-    if (child)
-      return V8Proxy::ToV8Object(V8ClassIndex::DOMWINDOW, child->domWindow());
-  }
-
-  // Normal getter or real 'location' property.
-  Location* v = imp->location();
-  return V8Proxy::ToV8Object(V8ClassIndex::LOCATION, static_cast<Peerable*>(v));
-}
-
-
 ACCESSOR_SETTER(DOMWindowLocation) {
   v8::Handle<v8::Object> holder = V8Proxy::LookupDOMWrapper(
       V8ClassIndex::DOMWINDOW, info.This());
@@ -2734,11 +2712,11 @@ CALLBACK_FUNC_DECL(EventTargetNodeRemoveEventListener) {
 static void CreateHiddenXHRDependency(v8::Local<v8::Object> xhr,
                                       v8::Local<v8::Value> value) {
   ASSERT(V8Proxy::GetDOMWrapperType(xhr) == V8ClassIndex::XMLHTTPREQUEST);
-  int last_internal_field_index = xhr->InternalFieldCount() - 1;
-  v8::Local<v8::Value> cache = xhr->GetInternalField(last_internal_field_index);
+  v8::Local<v8::Value> cache =
+      xhr->GetInternalField(V8Custom::kXMLHttpRequestCacheIndex);
   if (cache->IsNull() || cache->IsUndefined()) {
     cache = v8::Array::New();
-    xhr->SetInternalField(last_internal_field_index, cache);
+    xhr->SetInternalField(V8Custom::kXMLHttpRequestCacheIndex, cache);
   }
 
   v8::Local<v8::Array> cache_array = v8::Local<v8::Array>::Cast(cache);
@@ -2749,8 +2727,8 @@ static void CreateHiddenXHRDependency(v8::Local<v8::Object> xhr,
 static void RemoveHiddenXHRDependency(v8::Local<v8::Object> xhr,
                                       v8::Local<v8::Value> value) {
   ASSERT(V8Proxy::GetDOMWrapperType(xhr) == V8ClassIndex::XMLHTTPREQUEST);
-  int last_internal_field_index = xhr->InternalFieldCount() - 1;
-  v8::Local<v8::Value> cache = xhr->GetInternalField(last_internal_field_index);
+  v8::Local<v8::Value> cache =
+      xhr->GetInternalField(V8Custom::kXMLHttpRequestCacheIndex);
   ASSERT(cache->IsArray());
   v8::Local<v8::Array> cache_array = v8::Local<v8::Array>::Cast(cache);
   for (int i = cache_array->Length() - 1; i >= 0; i--) {

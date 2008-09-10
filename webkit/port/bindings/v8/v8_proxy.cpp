@@ -1245,6 +1245,7 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
                                     default_signature),
           v8::None);
       desc->SetHiddenPrototype(true);
+      
       break;
     }
     case V8ClassIndex::LOCATION: {
@@ -1266,9 +1267,9 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
     case V8ClassIndex::XMLHTTPREQUEST: {
       // Reserve one more internal field for keeping event listeners.
       v8::Local<v8::ObjectTemplate> instance_template =
-        desc->InstanceTemplate();
-      int internal_field_count = instance_template->InternalFieldCount() + 1;
-      instance_template->SetInternalFieldCount(internal_field_count);
+          desc->InstanceTemplate();
+      instance_template->SetInternalFieldCount(
+          V8Custom::kXMLHttpRequestInternalFieldCount);
       desc->SetCallHandler(USE_CALLBACK(XMLHttpRequestConstructor));
       break;
     }
@@ -2011,8 +2012,8 @@ void* V8Proxy::ExtractCPointerImpl(v8::Handle<v8::Value> obj) {
 
 bool V8Proxy::SetDOMWrapper(v8::Handle<v8::Object> obj, int type, void* cptr) {
   ASSERT(obj->InternalFieldCount() >= 2);
-  obj->SetInternalField(0, WrapCPointer(cptr));
-  obj->SetInternalField(1, v8::Integer::New(type));
+  obj->SetInternalField(V8Custom::kDOMWrapperObjectIndex, WrapCPointer(cptr));
+  obj->SetInternalField(V8Custom::kDOMWrapperTypeIndex, v8::Integer::New(type));
   return true;
 }
 
@@ -2021,12 +2022,15 @@ bool V8Proxy::MaybeDOMWrapper(v8::Handle<v8::Value> value) {
   if (value.IsEmpty() || !value->IsObject()) return false;
 
   v8::Handle<v8::Object> obj = v8::Handle<v8::Object>::Cast(value);
-  if (obj->InternalFieldCount() < 2) return false;
+  if (obj->InternalFieldCount() < V8Custom::kDefaultWrapperInternalFieldCount)
+    return false;
 
-  v8::Handle<v8::Value> wrapper = obj->GetInternalField(0);
+  v8::Handle<v8::Value> wrapper =
+      obj->GetInternalField(V8Custom::kDOMWrapperObjectIndex);
   if (!wrapper->IsNumber() && !wrapper->IsExternal()) return false;
 
-  v8::Handle<v8::Value> type = obj->GetInternalField(1);
+  v8::Handle<v8::Value> type =
+      obj->GetInternalField(V8Custom::kDOMWrapperTypeIndex);
   if (!type->IsNumber()) return false;
 
   return true;

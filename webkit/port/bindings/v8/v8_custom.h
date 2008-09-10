@@ -20,12 +20,28 @@ class V8Custom {
  public:
 
   // Constants.
-  static const int kDefaultWrapperInternalFieldCount = 2;
-  static const int kDocumentMinimumInternalFieldCount = 3;
-  static const int kDocumentImplementationIndex = 2;
-  static const int kHTMLDocumentInternalFieldCount = 5;
-  static const int kHTMLDocumentMarkerIndex = 3;
-  static const int kHTMLDocumentShadowIndex = 4;
+  static const int kDOMWrapperObjectIndex = 0;
+  static const int kDOMWrapperTypeIndex = 1;
+  static const int kDefaultWrapperInternalFieldCount =
+                      kDOMWrapperTypeIndex + 1;
+
+  static const int kDocumentMinimumInternalFieldCount =
+                      kDefaultWrapperInternalFieldCount + 1;
+  static const int kDocumentImplementationIndex =
+                      kDefaultWrapperInternalFieldCount + 0;
+
+  static const int kHTMLDocumentInternalFieldCount =
+                      kDocumentMinimumInternalFieldCount + 2;
+  static const int kHTMLDocumentMarkerIndex =
+                      kDocumentMinimumInternalFieldCount + 0;
+  static const int kHTMLDocumentShadowIndex =
+                      kDocumentMinimumInternalFieldCount + 1;
+
+  static const int kXMLHttpRequestInternalFieldCount =
+                      kDefaultWrapperInternalFieldCount + 1;
+  static const int kXMLHttpRequestCacheIndex =
+                      kDefaultWrapperInternalFieldCount + 0;
+
 
 #define DECLARE_PROPERTY_ACCESSOR_GETTER(NAME) \
 static v8::Handle<v8::Value> v8##NAME##AccessorGetter(\
@@ -106,7 +122,7 @@ static bool v8##NAME##IndexedSecurityCheck(v8::Local<v8::Object> host, \
 DECLARE_PROPERTY_ACCESSOR(CanvasRenderingContext2DStrokeStyle)
 DECLARE_PROPERTY_ACCESSOR(CanvasRenderingContext2DFillStyle)
 // Customized getter&setter of DOMWindow.location
-DECLARE_PROPERTY_ACCESSOR(DOMWindowLocation)
+DECLARE_PROPERTY_ACCESSOR_SETTER(DOMWindowLocation)
 // Customized setter of DOMWindow.opener
 DECLARE_PROPERTY_ACCESSOR_SETTER(DOMWindowOpener)
 
