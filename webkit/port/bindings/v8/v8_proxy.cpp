@@ -1158,10 +1158,10 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
           V8Custom::kDocumentMinimumInternalFieldCount);
       break;
     }
-    case V8ClassIndex::HTMLEMBEDELEMENT:
-      // fall through
+    case V8ClassIndex::HTMLAPPLETELEMENT:  // fall through
+    case V8ClassIndex::HTMLEMBEDELEMENT:  // fall through
     case V8ClassIndex::HTMLOBJECTELEMENT:
-      // Follow through. Both HTMLEmbedElement and HTMLObjectElement are
+      // HTMLAppletElement, HTMLEmbedElement and HTMLObjectElement are
       // inherited from HTMLPlugInElement, and they share the same property
       // handling code.
       desc->InstanceTemplate()->SetNamedPropertyHandler(
