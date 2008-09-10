@@ -134,8 +134,10 @@ int MirroringContext::GetLeft(int x1, int x2) const {
 const wchar_t AutocompletePopupView::DrawLineInfo::ellipsis_str[] = L"\x2026";
 
 AutocompletePopupView::AutocompletePopupView(AutocompletePopupModel* model,
-                                             const ChromeFont& font)
+                                             const ChromeFont& font,
+                                             AutocompleteEditView* edit_view)
     : model_(model),
+      edit_view_(edit_view),
       line_info_(font),
       mirroring_context_(new MirroringContext()),
       star_(ResourceBundle::GetSharedInstance().GetBitmapNamed(
@@ -168,12 +170,11 @@ void AutocompletePopupView::UpdatePopupAppearance() {
   // TODO(pkasting): http://b/1345937  All this use of editor accessors should
   // die once this class is a true ChromeView.
   CRect rc;
-  model_->editor()->parent_view()->GetBounds(&rc);
+  edit_view_->parent_view()->GetBounds(&rc);
   // Subtract the top left corner to make the coordinates relative to the
   // location bar view itself, and convert to screen coordinates.
   CPoint top_left(-rc.TopLeft());
-  ChromeViews::View::ConvertPointToScreen(model_->editor()->parent_view(),
-                                          &top_left);
+  ChromeViews::View::ConvertPointToScreen(edit_view_->parent_view(), &top_left);
   rc.OffsetRect(top_left);
   // Expand by one pixel on each side since that's the amount the location bar
   // view is inset from the divider line that edges the adjacent buttons.
@@ -194,14 +195,14 @@ void AutocompletePopupView::UpdatePopupAppearance() {
   if (!m_hWnd) {
     // To prevent this window from being activated, we create an invisible
     // window and manually show it without activating it.
-    Create(model_->editor()->m_hWnd, rc, AUTOCOMPLETEPOPUPVIEW_CLASSNAME,
-           WS_POPUP, WS_EX_TOOLWINDOW);
+    Create(edit_view_->m_hWnd, rc, AUTOCOMPLETEPOPUPVIEW_CLASSNAME, WS_POPUP,
+           WS_EX_TOOLWINDOW);
     // When an IME is attached to the rich-edit control, retrieve its window
     // handle and show this popup window under the IME windows.
     // Otherwise, show this popup window under top-most windows.
     // TODO(hbono): http://b/1111369 if we exclude this popup window from the
     // display area of IME windows, this workaround becomes unnecessary.
-    HWND ime_window = ImmGetDefaultIMEWnd(model_->editor()->m_hWnd);
+    HWND ime_window = ImmGetDefaultIMEWnd(edit_view_->m_hWnd);
     SetWindowPos(ime_window ? ime_window : HWND_NOTOPMOST, 0, 0, 0, 0,
                  SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
   } else {
@@ -217,9 +218,9 @@ void AutocompletePopupView::UpdatePopupAppearance() {
   }
 
   // TODO(pkasting): http://b/1111369 We should call ImmSetCandidateWindow() on
-  // the model_->editor()'s IME context here, and exclude ourselves from its
-  // display area.  Not clear what to pass for the lpCandidate->ptCurrentPos
-  // member, though...
+  // the edit_view_'s IME context here, and exclude ourselves from its display
+  // area.  Not clear what to pass for the lpCandidate->ptCurrentPos member,
+  // though...
 }
 
 void AutocompletePopupView::OnHoverEnabledOrDisabled(bool disabled) {
@@ -333,7 +334,16 @@ void AutocompletePopupView::OnPaint(HDC other_dc) {
 
 void AutocompletePopupView::OnButtonUp(const CPoint& point,
                                        WindowOpenDisposition disposition) {
-  model_->OpenLine(PixelToLine(point.y), disposition);
+  const size_t line = PixelToLine(point.y);
+  const AutocompleteMatch& match = model_->result()->match_at(line);
+  // OpenURL() may close the popup, which will clear the result set and, by
+  // extension, |match| and its contents.  So copy the relevant strings out to
+  // make sure they stay alive until the call completes.
+  const std::wstring url(match.destination_url);
+  std::wstring keyword;
+  const bool is_keyword_hint = model_->GetKeywordForMatch(match, &keyword);
+  edit_view_->OpenURL(url, disposition, match.transition, std::wstring(), line,
+                      is_keyword_hint ? std::wstring() : keyword);
 }
 
 int AutocompletePopupView::LineTopPixel(size_t line) const {
@@ -712,11 +722,13 @@ const int kPopupCoalesceMs = 100;
 const int kPopupUpdateMaxDelayMs = 300;
 };
 
-AutocompletePopupModel::AutocompletePopupModel(const ChromeFont& font,
-                                               AutocompleteEdit* editor,
-                                               Profile* profile)
-    : view_(new AutocompletePopupView(this, font)),
-      editor_(editor),
+AutocompletePopupModel::AutocompletePopupModel(
+    const ChromeFont& font,
+    AutocompleteEditView* edit_view,
+    AutocompleteEditModel* edit_model,
+    Profile* profile)
+    : view_(new AutocompletePopupView(this, font, edit_view)),
+      edit_model_(edit_model),
       controller_(new AutocompleteController(this, profile)),
       profile_(profile),
       query_in_progress_(false),
@@ -799,11 +811,13 @@ void AutocompletePopupModel::StopAutocomplete() {
   latest_result_.Reset();
   CommitLatestResults(true);
 
-  // Clear input_ to make sure we don't try and use any of these results for
-  // the next query we receive.  Strictly speaking this isn't necessary, since
-  // the popup isn't open, but it keeps our internal state consistent and
-  // serves as future-proofing in case the code in StartAutocomplete() changes.
+  // Clear input_ and manually_selected_match_ to make sure we don't try and use
+  // any of these results for the next query we receive.  Strictly speaking this
+  // isn't necessary, since the popup isn't open, but it keeps our internal
+  // state consistent and serves as future-proofing in case the code in
+  // StartAutocomplete() changes.
   input_.Clear();
+  manually_selected_match_.Clear();
 }
 
 void AutocompletePopupModel::SetHoveredLine(size_t line) {
@@ -840,10 +854,10 @@ void AutocompletePopupModel::SetSelectedLine(size_t line) {
   const AutocompleteMatch& match = result_.match_at(line);
   std::wstring keyword;
   const bool is_keyword_hint = GetKeywordForMatch(match, &keyword);
-  editor_->OnPopupDataChanged(match.fill_into_edit, true,
-                              manually_selected_match_, keyword,
-                              is_keyword_hint,
-                              (match.type == AutocompleteMatch::SEARCH));
+  edit_model_->OnPopupDataChanged(match.fill_into_edit, true,
+                                  manually_selected_match_, keyword,
+                                  is_keyword_hint,
+                                  (match.type == AutocompleteMatch::SEARCH));
 
   // Track the user's selection until they cancel it.
   manually_selected_match_.destination_url = match.destination_url;
@@ -933,6 +947,38 @@ std::wstring AutocompletePopupModel::URLsForDefaultMatch(
   return url;
 }
 
+bool AutocompletePopupModel::GetKeywordForMatch(const AutocompleteMatch& match,
+                                                std::wstring* keyword) {
+  // Assume we have no keyword until we find otherwise.
+  keyword->clear();
+
+  // If the current match is a keyword, return that as the selected keyword.
+  if (match.template_url && match.template_url->url() &&
+      match.template_url->url()->SupportsReplacement()) {
+    keyword->assign(match.template_url->keyword());
+    return false;
+  }
+
+  // See if the current match's fill_into_edit corresponds to a keyword.
+  if (!profile_->GetTemplateURLModel())
+    return false;
+  profile_->GetTemplateURLModel()->Load();
+  const std::wstring keyword_hint(
+      TemplateURLModel::CleanUserInputKeyword(match.fill_into_edit));
+  if (keyword_hint.empty())
+    return false;
+
+  // Don't provide a hint if this keyword doesn't support replacement.
+  const TemplateURL* const template_url =
+      profile_->GetTemplateURLModel()->GetTemplateURLForKeyword(keyword_hint);
+  if (!template_url || !template_url->url() ||
+      !template_url->url()->SupportsReplacement())
+    return false;
+
+  keyword->assign(keyword_hint);
+  return true;
+}
+
 AutocompleteLog* AutocompletePopupModel::GetAutocompleteLog() {
   return new AutocompleteLog(input_.text(), selected_line_, 0, result_);
 }
@@ -982,19 +1028,6 @@ void AutocompletePopupModel::TryDeletingCurrentItem() {
       manually_selected_match_.Clear();
     }
   }
-}
-
-void AutocompletePopupModel::OpenLine(size_t line,
-                                      WindowOpenDisposition disposition) {
-  const AutocompleteMatch& match = result_.match_at(line);
-  // OpenURL() may close the popup, which will clear the result set and, by
-  // extension, |match| and its contents.  So copy the relevant strings out to
-  // make sure they stay alive until the call completes.
-  const std::wstring url(match.destination_url);
-  std::wstring keyword;
-  const bool is_keyword_hint = GetKeywordForMatch(match, &keyword);
-  editor_->OpenURL(url, disposition, match.transition, std::wstring(), line,
-                   is_keyword_hint ? std::wstring() : keyword);
 }
 
 void AutocompletePopupModel::OnAutocompleteUpdate(bool updated_result,
@@ -1055,7 +1088,7 @@ void AutocompletePopupModel::SetDefaultMatchAndUpdate(bool immediately) {
     is_keyword_hint = GetKeywordForMatch(*match, &keyword);
     can_show_search_hint = (match->type == AutocompleteMatch::SEARCH);
   }
-  editor_->OnPopupDataChanged(inline_autocomplete_text, false,
+  edit_model_->OnPopupDataChanged(inline_autocomplete_text, false,
       manually_selected_match_ /* ignored */, keyword, is_keyword_hint,
       can_show_search_hint);
 }
@@ -1090,36 +1123,4 @@ void AutocompletePopupModel::CommitLatestResults(bool force) {
     max_delay_timer_.Reset();
   else
     max_delay_timer_.Stop();
-}
-
-bool AutocompletePopupModel::GetKeywordForMatch(const AutocompleteMatch& match,
-                                                std::wstring* keyword) {
-  // Assume we have no keyword until we find otherwise.
-  keyword->clear();
-
-  // If the current match is a keyword, return that as the selected keyword.
-  if (match.template_url && match.template_url->url() &&
-      match.template_url->url()->SupportsReplacement()) {
-    keyword->assign(match.template_url->keyword());
-    return false;
-  }
-
-  // See if the current match's fill_into_edit corresponds to a keyword.
-  if (!profile_->GetTemplateURLModel())
-    return false;
-  profile_->GetTemplateURLModel()->Load();
-  const std::wstring keyword_hint(
-      TemplateURLModel::CleanUserInputKeyword(match.fill_into_edit));
-  if (keyword_hint.empty())
-    return false;
-
-  // Don't provide a hint if this keyword doesn't support replacement.
-  const TemplateURL* const template_url =
-      profile_->GetTemplateURLModel()->GetTemplateURLForKeyword(keyword_hint);
-  if (!template_url || !template_url->url() ||
-      !template_url->url()->SupportsReplacement())
-    return false;
-
-  keyword->assign(keyword_hint);
-  return true;
 }

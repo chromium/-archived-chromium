@@ -1838,10 +1838,9 @@ void AutomationProvider::GetAutocompleteEditForBrowser(
   if (browser_tracker_->ContainsHandle(browser_handle)) {
     Browser* browser = browser_tracker_->GetResource(browser_handle);
     LocationBarView* loc_bar_view = browser->GetLocationBarView();
-    AutocompleteEdit* autocomplete_edit = loc_bar_view->location_entry();
+    AutocompleteEditView* edit_view = loc_bar_view->location_entry();
     // Add() returns the existing handle for the resource if any.
-    autocomplete_edit_handle =
-        autocomplete_edit_tracker_->Add(autocomplete_edit);
+    autocomplete_edit_handle = autocomplete_edit_tracker_->Add(edit_view);
     success = true;
   }
   Send(new AutomationMsg_AutocompleteEditForBrowserResponse(
@@ -2159,9 +2158,8 @@ void AutomationProvider::GetAutocompleteEditText(const IPC::Message& message,
   bool success = false;
   std::wstring text;
   if (autocomplete_edit_tracker_->ContainsHandle(autocomplete_edit_handle)) {
-    AutocompleteEdit* edit = autocomplete_edit_tracker_->GetResource(
-        autocomplete_edit_handle);
-    text = edit->GetText();
+    text = autocomplete_edit_tracker_->GetResource(autocomplete_edit_handle)->
+        GetText();
     success = true;
   }
   Send(new AutomationMsg_AutocompleteEditGetTextResponse(message.routing_id(),
@@ -2173,9 +2171,8 @@ void AutomationProvider::SetAutocompleteEditText(const IPC::Message& message,
                                                  const std::wstring& text) {
   bool success = false;
   if (autocomplete_edit_tracker_->ContainsHandle(autocomplete_edit_handle)) {
-    AutocompleteEdit* edit = autocomplete_edit_tracker_->GetResource(
-        autocomplete_edit_handle);
-    edit->SetUserText(text);
+    autocomplete_edit_tracker_->GetResource(autocomplete_edit_handle)->
+        SetUserText(text);
     success = true;
   }
   Send(new AutomationMsg_AutocompleteEditSetTextResponse(
@@ -2188,9 +2185,8 @@ void AutomationProvider::AutocompleteEditGetMatches(
   bool success = false;
   std::vector<AutocompleteMatchData> matches;
   if (autocomplete_edit_tracker_->ContainsHandle(autocomplete_edit_handle)) {
-    AutocompleteEdit* edit =
-        autocomplete_edit_tracker_->GetResource(autocomplete_edit_handle);
-    const AutocompleteResult* result = edit->latest_result();
+    const AutocompleteResult* result = autocomplete_edit_tracker_->
+        GetResource(autocomplete_edit_handle)->model()->latest_result();
     for (AutocompleteResult::const_iterator i = result->begin();
         i != result->end(); ++i)
       matches.push_back(AutocompleteMatchData(*i));
@@ -2206,9 +2202,8 @@ void AutomationProvider::AutocompleteEditIsQueryInProgress(
   bool success = false;
   bool query_in_progress = false;
   if (autocomplete_edit_tracker_->ContainsHandle(autocomplete_edit_handle)) {
-    AutocompleteEdit* edit =
-        autocomplete_edit_tracker_->GetResource(autocomplete_edit_handle);
-    query_in_progress = edit->query_in_progress();
+    query_in_progress = autocomplete_edit_tracker_->
+        GetResource(autocomplete_edit_handle)->model()->query_in_progress();
     success = true;
   }
   Send(new AutomationMsg_AutocompleteEditIsQueryInProgressResponse(

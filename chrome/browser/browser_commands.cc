@@ -280,7 +280,7 @@ void Browser::ExecuteCommand(int id) {
       {
         LocationBarView* lbv = GetLocationBarView();
         if (lbv)
-          lbv->location_entry()->AcceptInput(CURRENT_TAB, false);
+          lbv->location_entry()->model()->AcceptInput(CURRENT_TAB, false);
       }
       break;
 
@@ -323,9 +323,9 @@ void Browser::ExecuteCommand(int id) {
       {
         LocationBarView* lbv = GetLocationBarView();
         if (lbv) {
-          AutocompleteEdit* ae = lbv->location_entry();
-          ae->SetFocus();
-          ae->SelectAll(true);
+          AutocompleteEditView* aev = lbv->location_entry();
+          aev->SetFocus();
+          aev->SelectAll(true);
         }
       }
       break;
@@ -335,9 +335,9 @@ void Browser::ExecuteCommand(int id) {
       {
         LocationBarView* lbv = GetLocationBarView();
         if (lbv) {
-          AutocompleteEdit* ae = lbv->location_entry();
-          ae->SetUserText(L"?");
-          ae->SetFocus();
+          AutocompleteEditView* aev = lbv->location_entry();
+          aev->model()->SetUserText(L"?");
+          aev->SetFocus();
         }
       }
       break;

@@ -7,17 +7,17 @@
 
 #include "base/base_drop_target.h"
 
-class AutocompleteEdit;
+class AutocompleteEditView;
 
 // EditDropTarget is the IDropTarget implementation installed on
-// AutocompleteEdit. EditDropTarget prefers URL over plain text. A drop of a URL
-// replaces all the text of the edit and navigates immediately to the URL. A
+// AutocompleteEditView. EditDropTarget prefers URL over plain text. A drop of a
+// URL replaces all the text of the edit and navigates immediately to the URL. A
 // drop of plain text from the same edit either copies or moves the selected
 // text, and a drop of plain text from a source other than the edit does a paste
 // and go.
 class EditDropTarget : public BaseDropTarget {
  public:
-  explicit EditDropTarget(AutocompleteEdit* edit);
+  explicit EditDropTarget(AutocompleteEditView* edit);
 
  protected:
   virtual DWORD OnDragEnter(IDataObject* data_object,
@@ -43,7 +43,7 @@ class EditDropTarget : public BaseDropTarget {
   void ResetDropHighlights();
 
   // The edit we're the drop target for.
-  AutocompleteEdit* edit_;
+  AutocompleteEditView* edit_;
 
   // If true, the drag session contains a URL.
   bool drag_has_url_;

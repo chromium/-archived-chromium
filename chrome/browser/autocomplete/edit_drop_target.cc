@@ -23,7 +23,7 @@ DWORD CopyOrLinkDropEffect(DWORD effect) {
 
 }
 
-EditDropTarget::EditDropTarget(AutocompleteEdit* edit)
+EditDropTarget::EditDropTarget(AutocompleteEditView* edit)
     : BaseDropTarget(edit->m_hWnd),
       edit_(edit),
       drag_has_url_(false),
@@ -91,7 +91,7 @@ DWORD EditDropTarget::OnDrop(IDataObject* data_object,
     std::wstring title;
     if (os_data.GetURLAndTitle(&url, &title)) {
       edit_->SetUserText(UTF8ToWide(url.spec()));
-      edit_->AcceptInput(CURRENT_TAB, true);
+      edit_->model()->AcceptInput(CURRENT_TAB, true);
       return CopyOrLinkDropEffect(effect);
     }
   } else if (drag_has_string_) {

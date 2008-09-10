@@ -125,10 +125,10 @@ void LocationBarView::Init() {
   // URL edit field.
   ChromeViews::ViewContainer* vc = GetViewContainer();
   DCHECK(vc) << "LocationBarView::Init - vc is NULL!";
-  location_entry_.reset(new AutocompleteEdit(font_, this, model_, this,
-                                             vc->GetHWND(),
-                                             profile_, controller_,
-                                             popup_window_mode_));
+  location_entry_.reset(new AutocompleteEditView(font_, this, model_, this,
+                                                 vc->GetHWND(),
+                                                 profile_, controller_,
+                                                 popup_window_mode_));
 
   // View container for URL edit field.
   location_entry_view_ = new ChromeViews::HWNDView;
@@ -168,7 +168,7 @@ void LocationBarView::Init() {
   info_label_.SetParentOwned(false);
 
   // Notify us when any ancestor is resized.  In this case we want to tell the
-  // AutocompleteEdit to close its popup.
+  // AutocompleteEditView to close its popup.
   SetNotifyWhenVisibleBoundsInRootChanges(true);
 
   // Initialize the location entry. We do this to avoid a black flash which is
@@ -197,7 +197,7 @@ void LocationBarView::SetProfile(Profile* profile) {
   DCHECK(profile);
   if (profile_ != profile) {
     profile_ = profile;
-    location_entry_->SetProfile(profile);
+    location_entry_->model()->SetProfile(profile);
     selected_keyword_view_.set_profile(profile);
     keyword_hint_view_.set_profile(profile);
     security_image_view_.set_profile(profile);
@@ -463,11 +463,11 @@ bool LocationBarView::NeedsResize(View* view, int text_width, int max_width) {
 }
 
 bool LocationBarView::AdjustHints(int text_width, int max_width) {
-  const std::wstring keyword(location_entry_->keyword());
-  const bool is_keyword_hint(location_entry_->is_keyword_hint());
+  const std::wstring keyword(location_entry_->model()->keyword());
+  const bool is_keyword_hint(location_entry_->model()->is_keyword_hint());
   const bool show_selected_keyword = !keyword.empty() && !is_keyword_hint;
   const bool show_keyword_hint = !keyword.empty() && is_keyword_hint;
-  bool show_search_hint(location_entry_->show_search_hint());
+  bool show_search_hint(location_entry_->model()->show_search_hint());
   DCHECK(keyword.empty() || !show_search_hint);
 
   if (show_search_hint) {

@@ -11,7 +11,7 @@
 #include "generated_resources.h"
 
 HRESULT AutocompleteAccessibility::Initialize(
-    const AutocompleteEdit* edit_box) {
+    const AutocompleteEditView* edit_box) {
   if (edit_box == NULL) {
     return E_INVALIDARG;
   }

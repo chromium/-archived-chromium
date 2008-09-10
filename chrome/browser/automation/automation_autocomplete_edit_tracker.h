@@ -9,7 +9,7 @@
 #include "chrome/browser/automation/automation_resource_tracker.h"
 
 class AutomationAutocompleteEditTracker:
-    public AutomationResourceTracker<AutocompleteEdit*> {
+    public AutomationResourceTracker<AutocompleteEditView*> {
  public:
   explicit AutomationAutocompleteEditTracker(IPC::Message::Sender* automation)
     : AutomationResourceTracker(automation) { }
@@ -18,16 +18,16 @@ class AutomationAutocompleteEditTracker:
     ClearAllMappings();
   }
 
-  virtual void AddObserver(AutocompleteEdit* resource) {
+  virtual void AddObserver(AutocompleteEditView* resource) {
     NotificationService::current()->AddObserver(
         this, NOTIFY_AUTOCOMPLETE_EDIT_DESTROYED,
-        Source<AutocompleteEdit>(resource));
+        Source<AutocompleteEditView>(resource));
   }
 
-  virtual void RemoveObserver(AutocompleteEdit* resource) {
+  virtual void RemoveObserver(AutocompleteEditView* resource) {
     NotificationService::current()->RemoveObserver(
         this, NOTIFY_AUTOCOMPLETE_EDIT_DESTROYED,
-        Source<AutocompleteEdit>(resource));
+        Source<AutocompleteEditView>(resource));
   }
 };
 

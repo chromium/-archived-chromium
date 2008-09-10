@@ -17,9 +17,9 @@
 //
 // AutocompleteAccessibility
 //
-// Class implementing the MSAA IAccessible COM interface for AutocompleteEdit,
-// providing accessibility to be used by screen readers and other assistive
-// technology (AT).
+// Class implementing the MSAA IAccessible COM interface for
+// AutocompleteEditView, providing accessibility to be used by screen readers
+// and other assistive technology (AT).
 //
 ////////////////////////////////////////////////////////////////////////////////
 class ATL_NO_VTABLE AutocompleteAccessibility
@@ -34,7 +34,7 @@ class ATL_NO_VTABLE AutocompleteAccessibility
   AutocompleteAccessibility() {}
   ~AutocompleteAccessibility() {}
 
-  HRESULT Initialize(const AutocompleteEdit* edit_box);
+  HRESULT Initialize(const AutocompleteEditView* edit_box);
 
   // Supported IAccessible methods.
 
@@ -106,7 +106,7 @@ class ATL_NO_VTABLE AutocompleteAccessibility
   CComPtr<IAccessible> default_accessibility_server_;
 
  private:
-  const AutocompleteEdit* edit_box_;
+  const AutocompleteEditView* edit_box_;
 
   DISALLOW_EVIL_CONSTRUCTORS(AutocompleteAccessibility);
 };

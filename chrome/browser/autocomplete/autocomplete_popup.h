@@ -17,20 +17,21 @@
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/views/view.h"
 
-class AutocompleteEdit;
-class AutocompletePopupModel;
-class AutocompletePopupView;
+class AutocompleteEditModel;
+class AutocompleteEditView;
 class Profile;
 class MirroringContext;
 class SkBitmap;
+
+class AutocompletePopupModel;
+class AutocompletePopupView;
 
 // TODO(pkasting): http://b/1343512  The names and contents of the classes in
 // this file are temporary.  I am in hack-and-slash mode right now.
 
 #define AUTOCOMPLETEPOPUPVIEW_CLASSNAME L"Chrome_AutocompletePopupView"
 
-// This class implements a popup window used by AutocompleteEdit to display
-// autocomplete results.
+// This class implements a popup window used to display autocomplete results.
 class AutocompletePopupView
     : public CWindowImpl<AutocompletePopupView, CWindow, CControlWinTraits> {
  public:
@@ -50,7 +51,9 @@ class AutocompletePopupView
     MSG_WM_PAINT(OnPaint)
   END_MSG_MAP()
 
-  AutocompletePopupView(AutocompletePopupModel* model, const ChromeFont& font);
+  AutocompletePopupView(AutocompletePopupModel* model,
+                        const ChromeFont& font,
+                        AutocompleteEditView* edit_view);
 
   // Returns true if the popup is currently open.
   bool is_open() const { return m_hWnd != NULL; }
@@ -179,6 +182,8 @@ class AutocompletePopupView
 
   AutocompletePopupModel* model_;
 
+  AutocompleteEditView* edit_view_;
+
   // Cached GDI information for drawing.
   DrawLineInfo line_info_;
 
@@ -194,12 +199,15 @@ class AutocompletePopupView
   // re-enabled.  When hovered_line_ is a valid line, the value here is
   // out-of-date and should be ignored.
   CPoint last_hover_coordinates_;
+
+  DISALLOW_COPY_AND_ASSIGN(AutocompletePopupView);
 };
 
 class AutocompletePopupModel : public ACControllerListener, public Task {
  public:
   AutocompletePopupModel(const ChromeFont& font,
-                         AutocompleteEdit* editor,
+                         AutocompleteEditView* edit_view,
+                         AutocompleteEditModel* edit_model,
                          Profile* profile);
   ~AutocompletePopupModel();
 
@@ -224,9 +232,6 @@ class AutocompletePopupModel : public ACControllerListener, public Task {
 
   // Returns true if the popup is currently open.
   bool is_open() const { return view_->is_open(); }
-
-  // TODO(pkasting): http://b/134593  This is temporary and should die.
-  const AutocompleteEdit* editor() const { return editor_; }
 
   // Returns the AutocompleteController used by this popup.
   AutocompleteController* autocomplete_controller() const {
@@ -300,6 +305,14 @@ class AutocompletePopupModel : public ACControllerListener, public Task {
                                    bool* is_history_what_you_typed_match,
                                    std::wstring* alternate_nav_url);
 
+  // Gets the selected keyword or keyword hint for the given match.  Returns
+  // true if |keyword| represents a keyword hint, or false if |keyword|
+  // represents a selected keyword.  (|keyword| will always be set [though
+  // possibly to the empty string], and you cannot have both a selected keyword
+  // and a keyword hint simultaneously.)
+  bool GetKeywordForMatch(const AutocompleteMatch& match,
+                          std::wstring* keyword);
+
   // Returns a pointer to a heap-allocated AutocompleteLog containing the
   // current input text, selected match, and result set.  The caller is
   // responsible for deleting the object.
@@ -309,15 +322,12 @@ class AutocompletePopupModel : public ACControllerListener, public Task {
   // current selection down (|count| > 0) or up (|count| < 0), clamping to the
   // first or last result if necessary.  If |count| == 0, the selection will be
   // unchanged, but the popup will still redraw and modify the text in the
-  // AutocompleteEdit.
+  // AutocompleteEditModel.
   void Move(int count);
 
   // Called when the user hits shift-delete.  This should determine if the item
   // can be removed from history, and if so, remove it and update the popup.
   void TryDeletingCurrentItem();
-
-  // Called by the view to open the URL corresponding to a particular line.
-  void OpenLine(size_t line, WindowOpenDisposition disposition);
 
   // ACControllerListener - called when more autocomplete data is available or
   // when the query is complete.
@@ -347,17 +357,9 @@ class AutocompletePopupModel : public ACControllerListener, public Task {
   // changes back to the user.
   void CommitLatestResults(bool force);
 
-  // Gets the selected keyword or keyword hint for the given match.  Returns
-  // true if |keyword| represents a keyword hint, or false if |keyword|
-  // represents a selected keyword.  (|keyword| will always be set [though
-  // possibly to the empty string], and you cannot have both a selected keyword
-  // and a keyword hint simultaneously.)
-  bool GetKeywordForMatch(const AutocompleteMatch& match,
-                          std::wstring* keyword);
-
   scoped_ptr<AutocompletePopupView> view_;
 
-  AutocompleteEdit* editor_;
+  AutocompleteEditModel* edit_model_;
   scoped_ptr<AutocompleteController> controller_;
 
   // Profile for current tab.
@@ -399,6 +401,8 @@ class AutocompletePopupModel : public ACControllerListener, public Task {
   // The currently selected line.  This is kNoMatch when nothing is selected,
   // which should only be true when the popup is closed.
   size_t selected_line_;
+
+  DISALLOW_COPY_AND_ASSIGN(AutocompletePopupModel);
 };
 
 #endif  // CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_POPUP_H_

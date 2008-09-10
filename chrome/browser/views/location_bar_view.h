@@ -31,7 +31,7 @@ class Profile;
 //
 /////////////////////////////////////////////////////////////////////////////
 class LocationBarView : public ChromeViews::View,
-                        public AutocompleteEdit::Controller {
+                        public AutocompleteEditController {
  public:
 
   class Delegate {
@@ -80,8 +80,8 @@ class LocationBarView : public ChromeViews::View,
   // Overridden from View so we can use <tab> to go into keyword search mode.
   virtual bool CanProcessTabKeyEvents();
 
-  // Called when any ancestor changes its size, asks the AutocompleteEdit to
-  // close its popup.
+  // Called when any ancestor changes its size, asks the AutocompleteEditModel
+  // to close its popup.
   virtual void VisibleBoundsInRootChanged();
 
   // Event Handlers
@@ -90,7 +90,7 @@ class LocationBarView : public ChromeViews::View,
   virtual void OnMouseReleased(const ChromeViews::MouseEvent& event,
                                bool canceled);
 
-  // AutocompleteEdit::Controller
+  // AutocompleteEditController
   virtual void OnAutocompleteAccept(const std::wstring& url,
                                     WindowOpenDisposition disposition,
                                     PageTransition::Type transition,
@@ -105,7 +105,7 @@ class LocationBarView : public ChromeViews::View,
   // Returns the MSAA role
   bool GetAccessibleRole(VARIANT* role);
 
-  AutocompleteEdit* location_entry() {
+  AutocompleteEditView* location_entry() {
     return location_entry_.get();
   }
 
@@ -126,7 +126,7 @@ class LocationBarView : public ChromeViews::View,
   void ShowFirstRunBubble();
 
   // Overridden from View.
-  virtual bool OverrideAccelerator(const ChromeViews::Accelerator& accelerator) ;
+  virtual bool OverrideAccelerator(const ChromeViews::Accelerator& accelerator);
 
   static const int kTextVertMargin;
   static const COLORREF kBackgroundColorByLevel[];
@@ -341,7 +341,7 @@ class LocationBarView : public ChromeViews::View,
   Profile* profile_;
 
   // The Autocomplete Edit field.
-  scoped_ptr<AutocompleteEdit> location_entry_;
+  scoped_ptr<AutocompleteEditView> location_entry_;
 
   // The command controller for this View.
   CommandController* controller_;

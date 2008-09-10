@@ -181,10 +181,10 @@ class TabContents : public PageNavigator,
   // For use when switching tabs, these functions allow the tab contents to
   // hold the per-tab state of the location bar.  The tab contents takes
   // ownership of the pointer.
-  void set_saved_location_bar_state(const AutocompleteEdit::State* state) {
+  void set_saved_location_bar_state(const AutocompleteEditState* state) {
     saved_location_bar_state_.reset(state);
   }
-  const AutocompleteEdit::State* saved_location_bar_state() const {
+  const AutocompleteEditState* saved_location_bar_state() const {
     return saved_location_bar_state_.get();
   }
 
@@ -524,7 +524,7 @@ class TabContents : public PageNavigator,
   TabContentsDelegate* delegate_;
   NavigationController* controller_;
 
-  scoped_ptr<const AutocompleteEdit::State> saved_location_bar_state_;
+  scoped_ptr<const AutocompleteEditState> saved_location_bar_state_;
 
   // The download shelf view (view at the bottom of the page).
   scoped_ptr<DownloadShelfView> download_shelf_view_;
