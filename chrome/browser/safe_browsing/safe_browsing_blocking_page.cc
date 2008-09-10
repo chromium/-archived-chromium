@@ -106,8 +106,7 @@ void SafeBrowsingBlockingPage::DisplayBlockingPage() {
 
     // Check to see if we're blocking the main page, or a sub-resource on the
     // main page.
-    GURL top_url = tab_->GetURL();
-    if (top_url == url_) {
+    if (is_main_frame_) {
       strings.SetString(L"description1",
           l10n_util::GetStringF(IDS_SAFE_BROWSING_MALWARE_DESCRIPTION1,
                                 UTF8ToWide(url_.host())));
@@ -118,7 +117,7 @@ void SafeBrowsingBlockingPage::DisplayBlockingPage() {
     } else {
       strings.SetString(L"description1",
           l10n_util::GetStringF(IDS_SAFE_BROWSING_MALWARE_DESCRIPTION4,
-                                UTF8ToWide(top_url.host()),
+                                UTF8ToWide(tab_->GetURL().host()),
                                 UTF8ToWide(url_.host())));
       strings.SetString(L"description2",
           l10n_util::GetStringF(IDS_SAFE_BROWSING_MALWARE_DESCRIPTION5,
