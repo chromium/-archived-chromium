@@ -27,13 +27,13 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <new>
+
 #include "SkPaintContext.h"
 
 #include "SkColorPriv.h"
 #include "SkShader.h"
 #include "SkDashPathEffect.h"
-
-#include "base/gfx/platform_canvas_win.h"
 
 namespace {
 
@@ -127,7 +127,7 @@ struct SkPaintContext::State {
 };
 
 // Context will be NULL if painting should be disabled.
-SkPaintContext::SkPaintContext(gfx::PlatformCanvasWin* context)
+SkPaintContext::SkPaintContext(gfx::PlatformCanvas* context)
       : canvas_(context),
         state_stack_(sizeof(State)) {
   State* state = reinterpret_cast<State*>(state_stack_.push_back());

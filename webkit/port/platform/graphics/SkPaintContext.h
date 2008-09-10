@@ -5,15 +5,14 @@
 #ifndef SkPaintContext_h
 #define SkPaintContext_h
 
+#include "base/gfx/platform_canvas.h"
+
 #include "SkDashPathEffect.h"
 #include "SkDrawLooper.h"
 #include "SkDeque.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 
-namespace gfx {
-class PlatformCanvasWin;
-}
 
 // This class is the interface to communicate to Skia. It is meant to be as
 // opaque as possible. This class accept Skia native data format and not WebKit
@@ -35,7 +34,7 @@ class SkPaintContext {
   };
 
   // Context will be NULL if painting should be disabled.
-  SkPaintContext(gfx::PlatformCanvasWin* context);
+  SkPaintContext(gfx::PlatformCanvas* context);
   ~SkPaintContext();
 
   void save();
@@ -78,7 +77,7 @@ class SkPaintContext {
   SkColor fillColor() const;
 
  protected:
-  gfx::PlatformCanvasWin* canvas() {
+  gfx::PlatformCanvas* canvas() {
     return canvas_;
   }
 
@@ -87,7 +86,7 @@ class SkPaintContext {
   struct State;
 
   // NULL indicates painting is disabled. Never delete this object.
-  gfx::PlatformCanvasWin* canvas_;
+  gfx::PlatformCanvas* canvas_;
 
   // States stack. Enables local drawing state change with save()/restore()
   // calls.
