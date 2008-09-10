@@ -130,27 +130,16 @@ void WebPluginContainer::detachFromWindow() {
 
 void WebPluginContainer::didReceiveResponse(
     const WebCore::ResourceResponse& response) {
-
-  std::wstring url = webkit_glue::StringToStdWString(response.url().string());
-  std::string ascii_url = WideToASCII(url);
-
-  std::wstring mime_type(webkit_glue::StringToStdWString(response.mimeType()));
-
-  uint32 last_modified = static_cast<uint32>(response.lastModifiedDate());
-  uint32 expected_length =
-      static_cast<uint32>(response.expectedContentLength());
-  WebCore::String content_encoding =
-      response.httpHeaderField("Content-Encoding");
-  if (!content_encoding.isNull() && content_encoding != "identity") {
-    // Don't send the compressed content length to the plugin, which only
-    // cares about the decoded length.
-    expected_length = 0;
-  }
+  
+  HttpResponseInfo http_response_info;
+  ReadHttpResponseInfo(response, &http_response_info);
 
   impl_->delegate_->DidReceiveManualResponse(
-      ascii_url, base::SysWideToNativeMB(mime_type),
+      http_response_info.url, 
+      base::SysWideToNativeMB(http_response_info.mime_type),
       base::SysWideToNativeMB(impl_->GetAllHeaders(response)),
-      expected_length, last_modified);
+      http_response_info.expected_length,
+      http_response_info.last_modified);
 }
 
 void WebPluginContainer::didReceiveData(const char *buffer, int length) {
@@ -163,6 +152,31 @@ void WebPluginContainer::didFinishLoading() {
 
 void WebPluginContainer::didFail(const WebCore::ResourceError&) {
   impl_->delegate_->DidManualLoadFail();
+}
+
+void WebPluginContainer::ReadHttpResponseInfo(
+    const WebCore::ResourceResponse& response,
+    HttpResponseInfo* http_response) {
+  std::wstring url = webkit_glue::StringToStdWString(response.url().string());
+  http_response->url = WideToASCII(url);
+
+  http_response->mime_type =
+      webkit_glue::StringToStdWString(response.mimeType());
+
+  http_response->last_modified =
+      static_cast<uint32>(response.lastModifiedDate());
+  // If the length comes in as -1, then it indicates that it was not
+  // read off the HTTP headers. We replicate Safari webkit behavior here,
+  // which is to set it to 0.
+  http_response->expected_length = 
+      static_cast<uint32>(std::max(response.expectedContentLength(), 0LL));
+  WebCore::String content_encoding =
+      response.httpHeaderField("Content-Encoding");
+  if (!content_encoding.isNull() && content_encoding != "identity") {
+    // Don't send the compressed content length to the plugin, which only
+    // cares about the decoded length.
+    http_response->expected_length = 0;
+  }
 }
 
 WebCore::Widget* WebPluginImpl::Create(const GURL& url,
@@ -789,25 +803,17 @@ void WebPluginImpl::didReceiveResponse(WebCore::ResourceHandle* handle,
   if (!client)
     return;
 
+  WebPluginContainer::HttpResponseInfo http_response_info;
+  WebPluginContainer::ReadHttpResponseInfo(response, &http_response_info);
+
   bool cancel = false;
-  std::wstring mime_type(webkit_glue::StringToStdWString(response.mimeType()));
 
-  uint32 last_modified = static_cast<uint32>(response.lastModifiedDate());
-  uint32 expected_length =
-      static_cast<uint32>(response.expectedContentLength());
-  WebCore::String content_encoding =
-      response.httpHeaderField("Content-Encoding");
-  if (!content_encoding.isNull() && content_encoding != "identity") {
-    // Don't send the compressed content length to the plugin, which only
-    // cares about the decoded length.
-    expected_length = 0;
-  }
+  client->DidReceiveResponse(
+      base::SysWideToNativeMB(http_response_info.mime_type),
+      base::SysWideToNativeMB(GetAllHeaders(response)),
+      http_response_info.expected_length,
+      http_response_info.last_modified, &cancel);
 
-  client->DidReceiveResponse(base::SysWideToNativeMB(mime_type),
-                             base::SysWideToNativeMB(GetAllHeaders(response)),
-                             expected_length,
-                             last_modified,
-                             &cancel);
   if (cancel) {
     handle->cancel();
     RemoveClient(handle);
@@ -1013,7 +1019,7 @@ bool WebPluginImpl::InitiateHTTPRequest(int resource_id,
   info.request.setResourceType(ResourceType::OBJECT);
   info.request.setHTTPMethod(method);
 
-  const WebCore::String& referrer =  frame()->loader()->outgoingReferrer();
+  const WebCore::String& referrer = frame()->loader()->outgoingReferrer();
   if (!WebCore::FrameLoader::shouldHideReferrer(
           complete_url_string.spec().c_str(), referrer)) {
     info.request.setHTTPReferrer(referrer);

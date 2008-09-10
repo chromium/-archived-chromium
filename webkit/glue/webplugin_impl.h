@@ -70,6 +70,17 @@ class WebPluginContainer : public WebCore::Widget {
   void didFinishLoading();
   void didFail(const WebCore::ResourceError&);
 
+  struct HttpResponseInfo {
+    std::string url;
+    std::wstring mime_type;
+    uint32 last_modified;
+    uint32 expected_length;
+  };
+  // Helper function to read fields in a HTTP response structure. 
+  // These fields are written to the HttpResponseInfo structure passed in.
+  static void ReadHttpResponseInfo(const WebCore::ResourceResponse& response,
+                                   HttpResponseInfo* http_response);
+
  private:
   WebPluginImpl* impl_;
 };
