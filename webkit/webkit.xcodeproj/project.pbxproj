@@ -1130,7 +1130,6 @@
 		E45627100E268F03005E4685 /* password_form_dom_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254051F0D92E3DA0006B936 /* password_form_dom_manager.cc */; };
 		E45627160E268F26005E4685 /* resource_handle_win.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405290D92E3DA0006B936 /* resource_handle_win.cc */; };
 		E45627E40E2694B8005E4685 /* V8Bridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B42A3660DE209B700659DE0 /* V8Bridge.cpp */; };
-		E45627E50E2694B8005E4685 /* PlatformContextSkia.mm in Sources */ = {isa = PBXBuildFile; fileRef = 822B1BED0DC7793F005C9A96 /* PlatformContextSkia.mm */; };
 		E45627E70E2694B8005E4685 /* SkPaintContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82C260450DCB9A66005CFE91 /* SkPaintContext.cpp */; };
 		E45627E80E2694B8005E4685 /* ImageSourceSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82C2604A0DCB9AC1005CFE91 /* ImageSourceSkia.cpp */; };
 		E45627E90E2694B8005E4685 /* BMPImageReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82C260670DCBA013005CFE91 /* BMPImageReader.cpp */; };
@@ -1150,6 +1149,8 @@
 		E4A238C70E3FA19C002BDE14 /* image_decoder.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A238C50E3FA19C002BDE14 /* image_decoder.cc */; };
 		E4CD5A720E3E44CC00A70177 /* HistoryWin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4CD5A710E3E44CC00A70177 /* HistoryWin.cpp */; };
 		E4E4C7F90E781B5B009A687C /* webplugin_impl_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */; };
+		E4E4C8560E7832E2009A687C /* PlatformContextSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */; };
+		E4E4C88F0E783E49009A687C /* SkGraphicsContextMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C88E0E783E49009A687C /* SkGraphicsContextMac.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1234,7 +1235,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B5E77560D7F22D8001ECF42 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = E45626A20E268F03005E4685 /* glue */;
+			remoteGlobalIDString = E45626A20E268F03005E4685;
 			remoteInfo = glue;
 		};
 /* End PBXContainerItemProxy section */
@@ -3480,8 +3481,6 @@
 		820A61930DE7592C00871E2D /* WebCoreURLResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebCoreURLResponse.h; sourceTree = "<group>"; };
 		820A61940DE7592C00871E2D /* WebCoreURLResponse.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebCoreURLResponse.mm; sourceTree = "<group>"; };
 		822B1BEC0DC7793F005C9A96 /* PlatformContextSkia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformContextSkia.h; sourceTree = "<group>"; };
-		822B1BED0DC7793F005C9A96 /* PlatformContextSkia.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PlatformContextSkia.mm; sourceTree = "<group>"; };
-		822B1BFC0DC77A08005C9A96 /* SkGraphicsContext.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SkGraphicsContext.mm; sourceTree = "<group>"; };
 		822B1BFD0DC77A08005C9A96 /* SkGraphicsContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkGraphicsContext.h; sourceTree = "<group>"; };
 		8254013E0D8B05B00006B936 /* WebCoreFrameBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WebCoreFrameBridge.mm; path = pending/WebCoreFrameBridge.mm; sourceTree = SOURCE_ROOT; };
 		825404EB0D92E3DA0006B936 /* alt_404_page_resource_fetcher.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = alt_404_page_resource_fetcher.cc; sourceTree = "<group>"; };
@@ -3657,6 +3656,8 @@
 		E4A9708A0E36150500E8EF3B /* ChromeClientWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChromeClientWin.h; sourceTree = "<group>"; };
 		E4CD5A710E3E44CC00A70177 /* HistoryWin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HistoryWin.cpp; sourceTree = "<group>"; };
 		E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webplugin_impl_mac.mm; sourceTree = "<group>"; };
+		E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlatformContextSkia.cpp; path = ../../../july/mac_july_2008/webkit/port/platform/graphics/PlatformContextSkia.cpp; sourceTree = SOURCE_ROOT; };
+		E4E4C88E0E783E49009A687C /* SkGraphicsContextMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkGraphicsContextMac.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -6460,9 +6461,9 @@
 				82C2604B0DCB9AC1005CFE91 /* ImageSourceSkia.h */,
 				E48A07220E3F95A000172919 /* NativeImageSkia.cpp */,
 				E48A07230E3F95A000172919 /* NativeImageSkia.h */,
+				E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */,
 				822B1BEC0DC7793F005C9A96 /* PlatformContextSkia.h */,
-				822B1BED0DC7793F005C9A96 /* PlatformContextSkia.mm */,
-				822B1BFC0DC77A08005C9A96 /* SkGraphicsContext.mm */,
+				E4E4C88E0E783E49009A687C /* SkGraphicsContextMac.cpp */,
 				822B1BFD0DC77A08005C9A96 /* SkGraphicsContext.h */,
 				82C260440DCB9A66005CFE91 /* SkPaintContext.h */,
 				82C260450DCB9A66005CFE91 /* SkPaintContext.cpp */,
@@ -8039,13 +8040,14 @@
 				E45627E80E2694B8005E4685 /* ImageSourceSkia.cpp in Sources */,
 				7B2B0A630E3143EC00D4C6B7 /* JPEGImageDecoder.cpp in Sources */,
 				E48A07280E3F95A000172919 /* NativeImageSkia.cpp in Sources */,
-				E45627E50E2694B8005E4685 /* PlatformContextSkia.mm in Sources */,
 				7B2B0A650E3143EC00D4C6B7 /* PNGImageDecoder.cpp in Sources */,
 				E45627ED0E2694B8005E4685 /* RGBColor.cpp in Sources */,
 				E45062E10E40B5420025A81A /* SkiaUtils.cpp in Sources */,
 				E45627E70E2694B8005E4685 /* SkPaintContext.cpp in Sources */,
 				E45627E40E2694B8005E4685 /* V8Bridge.cpp in Sources */,
 				E45627EC0E2694B8005E4685 /* XBMImageDecoder.cpp in Sources */,
+				E4E4C8560E7832E2009A687C /* PlatformContextSkia.cpp in Sources */,
+				E4E4C88F0E783E49009A687C /* SkGraphicsContextMac.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
