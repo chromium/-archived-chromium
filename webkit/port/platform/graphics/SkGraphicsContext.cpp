@@ -243,9 +243,9 @@ void SkGraphicsContext::paintComplexText(UniscribeStateTextRun& state,
   canvas_->endPlatformPaint();
 }
 
-bool SkGraphicsContext::paintText(HFONT hfont,
+bool SkGraphicsContext::paintText(FontHandle hfont,
                                   int number_glyph,
-                                  const WORD* glyphs,
+                                  const uint16* glyphs,
                                   const int* advances,
                                   const SkPoint& origin) {
   SkColor color(paint_context_->fillColor());

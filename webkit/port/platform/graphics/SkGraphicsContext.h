@@ -5,6 +5,7 @@
 #ifndef SkGraphicsContext_h
 #define SkGraphicsContext_h
 
+#include "base/basictypes.h"
 #include "base/gfx/platform_canvas.h"
 #include "SkPorterDuff.h"
 
@@ -76,13 +77,11 @@ class SkGraphicsContext {
                         int from,
                         int to,
                         int ascent);
-#if defined(OS_WIN)
   bool paintText(FontHandle hfont,
                  int number_glyph,
-                 const WORD* glyphs,
+                 const uint16* glyphs,
                  const int* advances,
                  const SkPoint& origin);
-#endif
 
   // TODO(maruel): I'm still unsure how I will serialize this call.
   void paintSkPaint(const SkRect& rect, const SkPaint& paint);
