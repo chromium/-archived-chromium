@@ -246,7 +246,7 @@ String.prototype.escapeForRegExp = function()
 
 String.prototype.escapeHTML = function()
 {
-    return this.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return this.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/\'/g, "&#039;");
 }
 
 String.prototype.collapseWhitespace = function()
@@ -674,15 +674,15 @@ function nodeTitleInfo(hasChildren, linkify)
             break;
 
         case Node.DOCUMENT_TYPE_NODE:
-            info.title = "<span class=\"webkit-html-doctype\">&lt;!DOCTYPE " + this.nodeName;
+            info.title = "<span class=\"webkit-html-doctype\">&lt;!DOCTYPE " + this.nodeName.escapeHTML();
             if (this.publicId) {
-                info.title += " PUBLIC \"" + this.publicId + "\"";
+                info.title += " PUBLIC \"" + this.publicId.escapeHTML() + "\"";
                 if (this.systemId)
-                    info.title += " \"" + this.systemId + "\"";
+                    info.title += " \"" + this.systemId.escapeHTML() + "\"";
             } else if (this.systemId)
-                info.title += " SYSTEM \"" + this.systemId + "\"";
+                info.title += " SYSTEM \"" + this.systemId.escapeHTML() + "\"";
             if (this.internalSubset)
-                info.title += " [" + this.internalSubset + "]";
+                info.title += " [" + this.internalSubset.escapeHTML() + "]";
             info.title += "&gt;</span>";
             break;
         default:

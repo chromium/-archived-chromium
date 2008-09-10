@@ -809,11 +809,12 @@ WebInspector.showResourceForURL = function(url, line)
 
 WebInspector.linkifyURL = function(url, linkText, classes, isExternal)
 {
+    url = url.escapeHTML();
     if (linkText === undefined)
-        linkText = url.escapeHTML();
+        linkText = url;
     classes = (classes === undefined) ? "" : classes + " ";
     classes += isExternal ? "webkit-html-external-link" : "webkit-html-resource-link";
-    var link = "<a href=\"" + url + "\" class=\"" + classes + "\" title=\"" + url + "\" target=\"_blank\">" + linkText + "</a>";
+    var link = "<a href=\"" + url + "\" class=\"" + classes.escapeHTML() + "\" title=\"" + url + "\" target=\"_blank\">" + linkText + "</a>";
     return link;
 }
 
