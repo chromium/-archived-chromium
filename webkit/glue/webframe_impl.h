@@ -388,7 +388,7 @@ class WebFrameImpl : public WebFrame {
 
  private:
   // A bit mask specifying area of the frame to invalidate.
-  typedef enum AreaToInvalidate {
+  enum AreaToInvalidate {
     INVALIDATE_NOTHING      = 0,
     INVALIDATE_CONTENT_AREA = 1,
     INVALIDATE_SCROLLBAR    = 2,  // vertical scrollbar only.
