@@ -25,6 +25,7 @@
 			);
 			dependencies = (
 				E45627B80E2691D0005E4685 /* PBXTargetDependency */,
+				E4E4C80A0E78209B009A687C /* PBXTargetDependency */,
 				7BF892040E73143E000BAF8A /* PBXTargetDependency */,
 				E45627C50E26921D005E4685 /* PBXTargetDependency */,
 				E45627BC0E2691D0005E4685 /* PBXTargetDependency */,
@@ -1228,6 +1229,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = E45620380E268E87005E4685;
 			remoteInfo = webcore;
+		};
+		E4E4C8090E78209B009A687C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7B5E77560D7F22D8001ECF42 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E45626A20E268F03005E4685 /* glue */;
+			remoteInfo = glue;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -8098,6 +8106,11 @@
 			isa = PBXTargetDependency;
 			target = E45620380E268E87005E4685 /* webcore */;
 			targetProxy = E45627FA0E2694E0005E4685 /* PBXContainerItemProxy */;
+		};
+		E4E4C80A0E78209B009A687C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E45626A20E268F03005E4685 /* glue */;
+			targetProxy = E4E4C8090E78209B009A687C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
