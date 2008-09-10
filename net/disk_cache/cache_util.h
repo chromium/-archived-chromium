@@ -11,11 +11,12 @@
 
 namespace disk_cache {
 
-// Returns the available disk space on the volume that contains |path|, or -1
-// on failure.
+// Returns the available disk space on the volume that contains |path|
+// (in bytes), or -1 on failure.
 int64 GetFreeDiskSpace(const std::wstring& path);
 
-// Returns the total physical memory on the system, or -1 on failure.
+// Returns the total physical memory on the system (in bytes),
+// or -1 on failure.
 int64 GetSystemMemory();
 
 // Moves the cache files from the given path to another location.
