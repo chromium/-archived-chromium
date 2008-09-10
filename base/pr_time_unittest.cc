@@ -42,8 +42,6 @@ class PRTimeTest : public testing::Test {
   PRTime comparison_time_local_;
 };
 
-}  // namespace
-
 // Tests the PR_ParseTimeString nspr helper function for
 // a variety of time strings.
 TEST_F(PRTimeTest, ParseTimeTest1) {
@@ -238,3 +236,4 @@ TEST_F(PRTimeTest, ParseTimeTestEmpty) {
   EXPECT_FALSE(Time::FromString(L"", &parsed_time));
 }
 
+}  // namespace

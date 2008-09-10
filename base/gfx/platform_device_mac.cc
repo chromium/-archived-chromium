@@ -57,7 +57,7 @@ void PlatformDeviceMac::LoadPathToCGContext(CGContextRef context,
   // type per call, so we just have to load up the geometry.
   CGContextBeginPath(context);
 
-  SkPoint points[4] = {0};
+  SkPoint points[4] = { {0, 0}, {0, 0}, {0, 0}, {0, 0} };
   SkPath::Iter iter(path, false);
   for (SkPath::Verb verb = iter.next(points); verb != SkPath::kDone_Verb;
        verb = iter.next(points)) {

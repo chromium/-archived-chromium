@@ -70,14 +70,6 @@ const int kTableVersion = 0x13131313;
 // The name for un-named counters and threads in the table.
 const wchar_t kUnknownName[] = L"<unknown>";
 
-// Various header information contained in the memory mapped segment.
-struct TableHeader {
-  int version;
-  int size;
-  int max_counters;
-  int max_threads;
-};
-
 // Calculates delta to align an offset to the size of an int
 inline int AlignOffset(int offset) {
   return (sizeof(int) - (offset % sizeof(int))) % sizeof(int);
@@ -115,6 +107,14 @@ static void SlotReturnFunction(void* data) {
 // clean and accessible.
 class StatsTablePrivate {
  public:
+  // Various header information contained in the memory mapped segment.
+  struct TableHeader {
+    int version;
+    int size;
+    int max_counters;
+    int max_threads;
+  };
+
   // Create the StatsTablePrivate based on expected size parameters.
   StatsTablePrivate(void* memory, int size, int max_threads, int max_counters);
 
@@ -231,7 +231,7 @@ StatsTable::StatsTable(const std::wstring& name, int max_threads,
                        int max_counters)
     : tls_index_(SlotReturnFunction) {
   int table_size =
-    AlignedSize(sizeof(TableHeader)) +
+    AlignedSize(sizeof(StatsTablePrivate::TableHeader)) +
     AlignedSize((max_counters * sizeof(wchar_t) * kMaxCounterNameLength)) +
     AlignedSize((max_threads * sizeof(wchar_t) * kMaxThreadNameLength)) +
     AlignedSize(max_threads * sizeof(int)) +

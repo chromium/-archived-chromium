@@ -177,8 +177,6 @@ class BZip2FilterUnitTest : public PlatformTest {
   int bzip2_encode_len_;
 };
 
-}  // namespace
-
 // Basic scenario: decoding bzip2 data with big enough buffer.
 TEST_F(BZip2FilterUnitTest, DecodeBZip2) {
   // Decode the compressed data with filter
@@ -374,3 +372,4 @@ TEST_F(BZip2FilterUnitTest, DecodeWithExtraDataAndSmallInputBuffer) {
                              true);
 }
 
+}  // namespace

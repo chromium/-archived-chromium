@@ -30,8 +30,6 @@ struct TraceBuffer {
   char buffer[kNumberOfEntries][kEntrySize];
 };
 
-TraceBuffer* s_trace_buffer = NULL;
-
 void DebugOutput(const char* msg) {
 #if defined(OS_WIN)
   OutputDebugStringA(msg);
@@ -45,6 +43,8 @@ void DebugOutput(const char* msg) {
 namespace disk_cache {
 
 #if ENABLE_TRACING
+
+static TraceBuffer* s_trace_buffer = NULL;
 
 bool InitTrace(void) {
   DCHECK(!s_trace_buffer);

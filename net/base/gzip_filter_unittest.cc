@@ -225,8 +225,6 @@ class GZipUnitTest : public PlatformTest {
   int gzip_encode_len_;
 };
 
-}  // namespace
-
 // Basic scenario: decoding deflate data with big enough buffer.
 TEST_F(GZipUnitTest, DecodeDeflate) {
   // Decode the compressed data with filter
@@ -397,3 +395,4 @@ TEST_F(GZipUnitTest, ApacheWorkaround) {
   EXPECT_FALSE(filter.get());
 }
 
+}  // namespace

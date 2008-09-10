@@ -132,8 +132,6 @@ const struct append_case {
 #endif
 };
 
-}  // namespace
-
 TEST_F(FileUtilTest, AppendToPath) {
   for (unsigned int i = 0; i < arraysize(append_cases); ++i) {
     const append_case& value = append_cases[i];
@@ -889,3 +887,4 @@ TEST_F(FileUtilTest, FileEnumeratorTest) {
                                     // (we don't care what).
 }
 
+}  // namespace

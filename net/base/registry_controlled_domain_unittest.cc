@@ -72,8 +72,6 @@ bool CompareDomains(const std::string& url1, const std::string& url2) {
   return TestRegistryControlledDomainService::SameDomainOrHost(g1, g2);
 }
 
-} // namespace
-
 TEST_F(RegistryControlledDomainTest, TestParsing) {
   // Ensure that various simple and pathological cases parse without hanging or
   // crashing.  Testing the correctness of the parsing directly would require
@@ -276,3 +274,4 @@ TEST_F(RegistryControlledDomainTest, TestDefaultData) {
   EXPECT_EQ(3U, GetRegistryLengthFromURL("http://nowhere.foo", true));
 }
 
+} // namespace

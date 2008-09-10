@@ -185,7 +185,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
     WebNavigationType type,
     WindowOpenDisposition disposition,
     bool is_redirect);
-  void TestWebViewDelegate::SetCustomPolicyDelegate(bool isCustom);
+  void SetCustomPolicyDelegate(bool isCustom);
   virtual WebHistoryItem* GetHistoryEntryAtOffset(int offset);
   virtual void GoToEntryAtOffsetAsync(int offset);
   virtual int GetHistoryBackListCount();
