@@ -90,9 +90,6 @@ MessageLoop::~MessageLoop() {
   FOR_EACH_OBSERVER(DestructionObserver, destruction_observers_,
                     WillDestroyCurrentMessageLoop());
 
-  // OK, now make it so that no one can find us.
-  lazy_tls_ptr.Pointer()->Set(NULL);
-
   DCHECK(!state_);
 
   // Clean up any unprocessed tasks, but take care: deleting a task could
@@ -113,7 +110,7 @@ MessageLoop::~MessageLoop() {
   DCHECK(!did_work);
 
   // OK, now make it so that no one can find us.
-  tls_index_.Set(NULL);
+  lazy_tls_ptr.Pointer()->Set(NULL);
 }
 
 void MessageLoop::AddDestructionObserver(DestructionObserver *obs) {
