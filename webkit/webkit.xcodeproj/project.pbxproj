@@ -8553,6 +8553,7 @@
 					"$(CONFIGURATION_TEMP_DIR)/generated/include/v8",
 					"$(CONFIGURATION_TEMP_DIR)/generated/WebCore/v8",
 					"$(CONFIGURATION_TEMP_DIR)/generated/WebCore/JavaScriptHeaders/v8",
+					"$(DIR_THIRD_PARTY)/libjpeg",
 					"$(DIR_THIRD_PARTY)/libpng",
 				);
 				PRODUCT_NAME = port;
@@ -8571,6 +8572,7 @@
 					"$(CONFIGURATION_TEMP_DIR)/generated/include/v8",
 					"$(CONFIGURATION_TEMP_DIR)/generated/WebCore/v8",
 					"$(CONFIGURATION_TEMP_DIR)/generated/WebCore/JavaScriptHeaders/v8",
+					"$(DIR_THIRD_PARTY)/libjpeg",
 					"$(DIR_THIRD_PARTY)/libpng",
 				);
 				PRODUCT_NAME = port;

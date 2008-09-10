@@ -27,8 +27,6 @@
 #include "GIFImageDecoder.h"
 #include "GIFImageReader.h"
 
-#if PLATFORM(CAIRO) || PLATFORM(QT) || PLATFORM(WX)
-
 namespace WebCore {
 
 class GIFImageDecoderPrivate
@@ -424,4 +422,3 @@ void GIFImageDecoder::gifComplete()
 
 }
 
-#endif // PLATFORM(CAIRO)

@@ -40,8 +40,6 @@
 #include "png.h"
 #include "assert.h"
 
-#if PLATFORM(CAIRO) || PLATFORM(QT) || PLATFORM(WX)
-
 namespace WebCore {
 
 // Gamma constants.
@@ -412,4 +410,3 @@ void PNGImageDecoder::pngComplete()
 
 }
 
-#endif // PLATFORM(CAIRO)
