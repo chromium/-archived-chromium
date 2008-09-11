@@ -38,7 +38,7 @@ struct FileNameCDCase {
 const wchar_t* kLanguages[] = {
   L"",      L"en",    L"zh-CN",       L"ja",    L"ko",
   L"he",    L"ar",    L"ru",          L"el",    L"fr",
-  L"de",    L"pt",    L"se",          L"th",    L"hi",
+  L"de",    L"pt",    L"sv",          L"th",    L"hi",
   L"de,en", L"el,en", L"zh,zh-TW,en", L"ko,ja", L"he,ru,en",
   L"zh,ru,en"
 };
@@ -395,7 +395,7 @@ TEST(NetUtilTest, IDNToUnicode) {
     {"www.xn--frgbolaget-q5a.se", L"www.f\x00e4rgbolaget.se",
      {true,  false, false, false, false,
       false, false, false, false, false,
-      true,  false, false, false, false,
+      true,  false, true, false, false,
       true,  false, false, false, false,
       false}},
     // c-cedilla (French)

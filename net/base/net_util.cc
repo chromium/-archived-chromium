@@ -541,7 +541,13 @@ bool IsIDNComponentSafe(const char16* str,
     status = U_ZERO_ERROR;
     // TODO(jungshik) Cache exemplar sets for locales.
     ULocaleData* uld = ulocdata_open(lang.c_str(), &status);
-    if (U_SUCCESS(status)) {
+    // TODO(jungshik) Turn this check on when the ICU data file is
+    // rebuilt with the minimal subset of locale data for languages
+    // to which Chrome is not localized but which we offer in the list
+    // of languages selectable for Accept-Languages. With the rebuilt ICU
+    // data, ulocdata_open never should fall back to the default locale. (issue 2078)
+    // DCHECK(U_SUCCESS(status) && status != U_USING_DEFAULT_WARNING);
+    if (U_SUCCESS(status) && status != U_USING_DEFAULT_WARNING) {
       // Should we use auxiliary set, instead?
       ulocdata_getExemplarSet(uld, lang_set, 0, ULOCDATA_ES_STANDARD, &status);
       ulocdata_close(uld);
@@ -908,4 +914,3 @@ bool IsPortAllowedByFtp(int port) {
 }
 
 }  // namespace net
-
