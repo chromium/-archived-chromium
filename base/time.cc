@@ -8,13 +8,6 @@
 
 #include "base/logging.h"
 
-namespace {
-
-// Time between resampling the un-granular clock for this API.  60 seconds.
-const int kMaxMillisecondsToAvoidDrift = 60 * Time::kMillisecondsPerSecond;
-
-}  // namespace
-
 // TimeDelta ------------------------------------------------------------------
 
 // static
@@ -80,47 +73,6 @@ int64 TimeDelta::InMicroseconds() const {
 }
 
 // Time -----------------------------------------------------------------------
-
-int64 Time::initial_time_ = 0;
-TimeTicks Time::initial_ticks_;
-
-// static
-void Time::InitializeClock()
-{
-    initial_ticks_ = TimeTicks::Now();
-    initial_time_ = CurrentWallclockMicroseconds();
-}
-
-// static
-Time Time::Now() {
-  if (initial_time_ == 0)
-    InitializeClock();
-
-  // We implement time using the high-resolution timers so that we can get
-  // timeouts which are smaller than 10-15ms.  If we just used
-  // CurrentWallclockMicroseconds(), we'd have the less-granular timer.
-  //
-  // To make this work, we initialize the clock (initial_time) and the
-  // counter (initial_ctr).  To compute the initial time, we can check
-  // the number of ticks that have elapsed, and compute the delta.
-  //
-  // To avoid any drift, we periodically resync the counters to the system
-  // clock.
-  while(true) {
-    TimeTicks ticks = TimeTicks::Now();
-
-    // Calculate the time elapsed since we started our timer
-    TimeDelta elapsed = ticks - initial_ticks_;
-
-    // Check if enough time has elapsed that we need to resync the clock.
-    if (elapsed.InMilliseconds() > kMaxMillisecondsToAvoidDrift) {
-      InitializeClock();
-      continue;
-    }
-
-    return elapsed + initial_time_;
-  }
-}
 
 // static
 Time Time::FromTimeT(time_t tt) {

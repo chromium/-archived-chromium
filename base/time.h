@@ -317,12 +317,6 @@ class Time {
  private:
   friend class TimeDelta;
 
-  // Platform-dependent wall clock interface
-  static int64 CurrentWallclockMicroseconds();
-
-  // Initialize or resynchronize the clock.
-  static void InitializeClock();
-
   // Explodes the given time to either local time |is_local = true| or UTC
   // |is_local = false|.
   void Explode(bool is_local, Exploded* exploded) const;
@@ -340,12 +334,6 @@ class Time {
 
   // Time in microseconds in UTC.
   int64 us_;
-
-  // The initial time sampled via this API.
-  static int64 initial_time_;
-
-  // The initial clock counter sampled via this API.
-  static TimeTicks initial_ticks_;
 };
 
 inline Time TimeDelta::operator+(Time t) const {
@@ -451,4 +439,3 @@ inline TimeTicks TimeDelta::operator+(TimeTicks t) const {
 }
 
 #endif  // BASE_TIME_H_
-

@@ -33,6 +33,23 @@ void MicrosecondsToFileTime(int64 us, FILETIME* ft) {
   *ft = bit_cast<FILETIME, int64>(us * 10);
 }
 
+int64 CurrentWallclockMicroseconds() {
+  FILETIME ft;
+  ::GetSystemTimeAsFileTime(&ft);
+  return FileTimeToMicroseconds(ft);
+}
+
+// Time between resampling the un-granular clock for this API.  60 seconds.
+const int kMaxMillisecondsToAvoidDrift = 60 * Time::kMillisecondsPerSecond;
+
+int64 initial_time = 0;
+TimeTicks initial_ticks;
+
+void InitializeClock() {
+  initial_ticks = TimeTicks::Now();
+  initial_time = CurrentWallclockMicroseconds();
+}
+
 }  // namespace
 
 // Time -----------------------------------------------------------------------
@@ -45,10 +62,34 @@ void MicrosecondsToFileTime(int64 us, FILETIME* ft) {
 const int64 Time::kTimeTToMicrosecondsOffset = GG_INT64_C(11644473600000000);
 
 // static
-int64 Time::CurrentWallclockMicroseconds() {
-  FILETIME ft;
-  ::GetSystemTimeAsFileTime(&ft);
-  return FileTimeToMicroseconds(ft);
+Time Time::Now() {
+  if (initial_time == 0)
+    InitializeClock();
+
+  // We implement time using the high-resolution timers so that we can get
+  // timeouts which are smaller than 10-15ms.  If we just used
+  // CurrentWallclockMicroseconds(), we'd have the less-granular timer.
+  //
+  // To make this work, we initialize the clock (initial_time) and the
+  // counter (initial_ctr).  To compute the initial time, we can check
+  // the number of ticks that have elapsed, and compute the delta.
+  //
+  // To avoid any drift, we periodically resync the counters to the system
+  // clock.
+  while(true) {
+    TimeTicks ticks = TimeTicks::Now();
+
+    // Calculate the time elapsed since we started our timer
+    TimeDelta elapsed = ticks - initial_ticks;
+
+    // Check if enough time has elapsed that we need to resync the clock.
+    if (elapsed.InMilliseconds() > kMaxMillisecondsToAvoidDrift) {
+      InitializeClock();
+      continue;
+    }
+
+    return elapsed + initial_time;
+  }
 }
 
 // static

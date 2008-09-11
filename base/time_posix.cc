@@ -25,7 +25,7 @@
 const int64 Time::kTimeTToMicrosecondsOffset = GG_INT64_C(0);
 
 // static
-int64 Time::CurrentWallclockMicroseconds() {
+Time Time::Now() {
   struct timeval tv;
   struct timezone tz = { 0, 0 };  // UTC
   if (gettimeofday(&tv, &tz) != 0) {
