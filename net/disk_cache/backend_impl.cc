@@ -730,7 +730,6 @@ bool BackendImpl::CreateBackingStore(disk_cache::File* file) {
 }
 
 bool BackendImpl::InitBackingStore(bool* file_created) {
-  // This call fails if the folder exists.
   file_util::CreateDirectory(path_);
 
   std::wstring index_name(path_);

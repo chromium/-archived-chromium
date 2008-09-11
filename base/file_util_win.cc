@@ -176,6 +176,13 @@ bool PathIsWritable(const std::wstring& path) {
   return true;
 }
 
+bool DirectoryExists(const std::wstring& path) {
+  DWORD fileattr = GetFileAttributes(path.c_str());
+  if (fileattr != INVALID_FILE_ATTRIBUTES)
+    return (fileattr & FILE_ATTRIBUTE_DIRECTORY) != 0;
+  return false;
+}
+
 bool GetFileCreationLocalTimeFromHandle(HANDLE file_handle,
                                         LPSYSTEMTIME creation_time) {
   if (!file_handle)
@@ -419,7 +426,7 @@ bool CreateNewTempDirectory(const std::wstring& prefix,
 }
 
 bool CreateDirectory(const std::wstring& full_path) {
-  if (PathExists(full_path))
+  if (DirectoryExists(full_path))
     return true;
   int err = SHCreateDirectoryEx(NULL, full_path.c_str(), NULL);
   return err == ERROR_SUCCESS;

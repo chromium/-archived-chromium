@@ -205,9 +205,7 @@ bool PathService::Override(int key, const std::wstring& path) {
     return false;
 
   // make sure the directory exists:
-  if (!file_util::PathExists(file_path) &&
-      // TODO(darin): what if this path is not that of a directory?
-      !file_util::CreateDirectory(file_path))
+  if (!file_util::CreateDirectory(file_path))
     return false;
 
   file_util::TrimTrailingSeparator(&file_path);
@@ -251,4 +249,3 @@ void PathService::RegisterProvider(ProviderFunc func, int key_start,
 #endif
   path_data->providers = p;
 }
-

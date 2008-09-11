@@ -111,6 +111,13 @@ bool PathExists(const std::wstring& path) {
   return (stat64(WideToUTF8(path).c_str(), &file_info) == 0);
 }
 
+bool DirectoryExists(const std::wstring& path) {
+  struct stat64 file_info;
+  if (stat64(WideToUTF8(path).c_str(), &file_info) == 0)
+    return S_ISDIR(file_info.st_mode);
+  return false;
+}
+
 // TODO(erikkay): implement
 #if 0
 bool GetFileCreationLocalTimeFromHandle(int fd,
@@ -179,7 +186,7 @@ bool CreateDirectory(const std::wstring& full_path) {
       path = *i;
     else
       AppendToPath(&path, *i);
-    if (!PathExists(path)) {
+    if (!DirectoryExists(path)) {
       if (mkdir(WideToUTF8(path).c_str(), 0777) != 0)
         return false;
     }
@@ -324,5 +331,3 @@ std::wstring FileEnumerator::Next() {
   
   
 } // namespace file_util
-
-

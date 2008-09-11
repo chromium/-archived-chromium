@@ -517,7 +517,7 @@ TEST_F(FileUtilTest, CopyFile) {
   std::wstring dest_file(dir_name_from);
   file_util::AppendToPath(&dest_file, L"DestFile.txt");
   ASSERT_TRUE(file_util::CopyFile(file_name_from, dest_file));
-  
+
   // Copy the file to another location using '..' in the path.
   std::wstring dest_file2(dir_name_from);
   file_util::AppendToPath(&dest_file2, L"..");
@@ -697,15 +697,15 @@ TEST_F(FileUtilTest, CreateShortcutTest) {
 TEST_F(FileUtilTest, CreateTemporaryFileNameTest) {
   std::wstring temp_file;
   file_util::CreateTemporaryFileName(&temp_file);
-  EXPECT_EQ(file_util::PathExists(temp_file), true);
-  EXPECT_EQ(file_util::Delete(temp_file, false), true);
+  EXPECT_TRUE(file_util::PathExists(temp_file));
+  EXPECT_TRUE(file_util::Delete(temp_file, false));
 }
 
 TEST_F(FileUtilTest, CreateNewTempDirectoryTest) {
   std::wstring temp_dir;
   file_util::CreateNewTempDirectory(std::wstring(), &temp_dir);
-  EXPECT_EQ(file_util::PathExists(temp_dir), true);
-  EXPECT_EQ(file_util::Delete(temp_dir, false), true);
+  EXPECT_TRUE(file_util::PathExists(temp_dir));
+  EXPECT_TRUE(file_util::Delete(temp_dir, false));
 }
 
 TEST_F(FileUtilTest, CreateDirectoryTest) {
@@ -717,13 +717,44 @@ TEST_F(FileUtilTest, CreateDirectoryTest) {
 #elif defined(OS_POSIX)
   file_util::AppendToPath(&test_path, L"dir/tree/likely/doesnt/exist/");
 #endif
-  
-  EXPECT_EQ(file_util::PathExists(test_path), false);
-  EXPECT_EQ(file_util::CreateDirectory(test_path), true);
-  EXPECT_EQ(file_util::PathExists(test_path), true);
-  EXPECT_EQ(file_util::Delete(test_root, true), true);
-  EXPECT_EQ(file_util::PathExists(test_root), false);
-  EXPECT_EQ(file_util::PathExists(test_path), false);
+
+  EXPECT_FALSE(file_util::PathExists(test_path));
+  EXPECT_TRUE(file_util::CreateDirectory(test_path));
+  EXPECT_TRUE(file_util::PathExists(test_path));
+  // CreateDirectory returns true if the DirectoryExists returns true.
+  EXPECT_TRUE(file_util::CreateDirectory(test_path));
+
+  // Doesn't work to create it on top of a non-dir
+  file_util::AppendToPath(&test_path, L"foobar.txt");
+  EXPECT_FALSE(file_util::PathExists(test_path));
+  CreateTextFile(test_path, L"test file");
+  EXPECT_TRUE(file_util::PathExists(test_path));
+  EXPECT_FALSE(file_util::CreateDirectory(test_path));
+
+  EXPECT_TRUE(file_util::Delete(test_root, true));
+  EXPECT_FALSE(file_util::PathExists(test_root));
+  EXPECT_FALSE(file_util::PathExists(test_path));
+}
+
+TEST_F(FileUtilTest, DetectDirectoryTest) {
+  // Check a directory
+  std::wstring test_root = test_dir_;
+  file_util::AppendToPath(&test_root, L"detect_directory_test");
+  EXPECT_FALSE(file_util::PathExists(test_root));
+  EXPECT_TRUE(file_util::CreateDirectory(test_root));
+  EXPECT_TRUE(file_util::PathExists(test_root));
+  EXPECT_TRUE(file_util::DirectoryExists(test_root));
+
+  // Check a file
+  std::wstring test_path(test_root);
+  file_util::AppendToPath(&test_path, L"foobar.txt");
+  EXPECT_FALSE(file_util::PathExists(test_path));
+  CreateTextFile(test_path, L"test file");
+  EXPECT_TRUE(file_util::PathExists(test_path));
+  EXPECT_FALSE(file_util::DirectoryExists(test_path));
+  EXPECT_TRUE(file_util::Delete(test_path, false));
+
+  EXPECT_TRUE(file_util::Delete(test_root, true));
 }
 
 static const struct goodbad_pair {

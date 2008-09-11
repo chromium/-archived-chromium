@@ -151,6 +151,9 @@ bool PathExists(const std::wstring& path);
 // Returns true if the given path is writable by the user, false otherwise.
 bool PathIsWritable(const std::wstring& path);
 
+// Returns true if the given path exists and is a directory, false otherwise.
+bool DirectoryExists(const std::wstring& path);
+
 #if defined(OS_WIN)
 // Gets the creation time of the given file (expressed in the local timezone),
 // and returns it via the creation_time parameter.  Returns true if successful,
