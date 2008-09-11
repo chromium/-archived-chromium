@@ -45,6 +45,7 @@ static int MapWinsockError(DWORD err) {
     case ERROR_SUCCESS:
       return OK;
     default:
+      LOG(WARNING) << "Unknown error " << err << " mapped to net::ERR_FAILED";
       return ERR_FAILED;
   }
 }
@@ -102,7 +103,7 @@ int TCPClientSocket::Connect(CompletionCallback* callback) {
 
 int TCPClientSocket::ReconnectIgnoringLastError(CompletionCallback* callback) {
   // No ignorable errors!
-  return ERR_FAILED;
+  return ERR_UNEXPECTED;
 }
 
 void TCPClientSocket::Disconnect() {
@@ -258,7 +259,7 @@ void TCPClientSocket::DidCompleteConnect() {
     }
   } else {
     NOTREACHED();
-    result = ERR_FAILED;
+    result = ERR_UNEXPECTED;
   }
 
   if (result != ERR_IO_PENDING)
