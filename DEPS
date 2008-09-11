@@ -15,7 +15,7 @@ deps = {
     "/trunk/deps/third_party/cygwin@1788",
 
   "src/third_party/icu38":
-    "/trunk/deps/third_party/icu38@2075",
+    "/trunk/deps/third_party/icu38@2100",
 
   "src/third_party/python_24":
     "/trunk/deps/third_party/python_24@1790",
