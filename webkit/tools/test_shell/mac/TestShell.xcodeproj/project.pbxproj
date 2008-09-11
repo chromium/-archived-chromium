@@ -47,7 +47,6 @@
 		E45629150E26B4FE005E4685 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.mm */; };
 		E45629160E26B4FE005E4685 /* event_sending_controller.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB8A78520DC553A8005C27B8 /* event_sending_controller.cc */; };
 		E45629170E26B4FE005E4685 /* layout_test_controller.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB8A77FD0DC54DD6005C27B8 /* layout_test_controller.cc */; };
-		E45629180E26B4FE005E4685 /* navigation_controller_base.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB351E5B0DC7B3A5002F427A /* navigation_controller_base.cc */; };
 		E45629190E26B4FE005E4685 /* test_navigation_controller.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB351E2E0DC7B290002F427A /* test_navigation_controller.cc */; };
 		E456291A0E26B4FE005E4685 /* test_shell_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABA9CAE90DBC521D00CB1EFB /* test_shell_mac.mm */; };
 		E456291B0E26B4FE005E4685 /* test_shell_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB8A78560DC553C7005C27B8 /* test_shell_test.cc */; };
@@ -342,8 +341,6 @@
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AB351E2E0DC7B290002F427A /* test_navigation_controller.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_navigation_controller.cc; sourceTree = "<group>"; };
 		AB351E2F0DC7B290002F427A /* test_navigation_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_navigation_controller.h; sourceTree = "<group>"; };
-		AB351E5B0DC7B3A5002F427A /* navigation_controller_base.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = navigation_controller_base.cc; sourceTree = "<group>"; };
-		AB351E5C0DC7B3A5002F427A /* navigation_controller_base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = navigation_controller_base.h; sourceTree = "<group>"; };
 		AB8665450DC78A5A002CE06A /* googleurl.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = googleurl.xcodeproj; path = build/googleurl.xcodeproj; sourceTree = "<group>"; };
 		AB8A77FD0DC54DD6005C27B8 /* layout_test_controller.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = layout_test_controller.cc; sourceTree = "<group>"; };
 		AB8A77FE0DC54DD6005C27B8 /* layout_test_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = layout_test_controller.h; sourceTree = "<group>"; };
@@ -645,7 +642,6 @@
 			isa = PBXGroup;
 			children = (
 				7BFDF4FD0E37AB4200F1D7D8 /* mac */,
-				AB351E580DC7B399002F427A /* temp */,
 				AB8A78520DC553A8005C27B8 /* event_sending_controller.cc */,
 				AB8A78510DC553A8005C27B8 /* event_sending_controller.h */,
 				AB8A77FE0DC54DD6005C27B8 /* layout_test_controller.h */,
@@ -674,15 +670,6 @@
 			);
 			name = test_shell;
 			path = ..;
-			sourceTree = "<group>";
-		};
-		AB351E580DC7B399002F427A /* temp */ = {
-			isa = PBXGroup;
-			children = (
-				AB351E5B0DC7B3A5002F427A /* navigation_controller_base.cc */,
-				AB351E5C0DC7B3A5002F427A /* navigation_controller_base.h */,
-			);
-			path = temp;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1043,7 +1030,6 @@
 				E45629160E26B4FE005E4685 /* event_sending_controller.cc in Sources */,
 				E45629170E26B4FE005E4685 /* layout_test_controller.cc in Sources */,
 				E45629150E26B4FE005E4685 /* main.mm in Sources */,
-				E45629180E26B4FE005E4685 /* navigation_controller_base.cc in Sources */,
 				E456296A0E26B64D005E4685 /* simple_resource_loader_bridge.cc in Sources */,
 				E45629190E26B4FE005E4685 /* test_navigation_controller.cc in Sources */,
 				E456291A0E26B4FE005E4685 /* test_shell_mac.mm in Sources */,
