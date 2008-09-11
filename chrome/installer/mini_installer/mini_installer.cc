@@ -343,10 +343,10 @@ int WMain(HMODULE module) {
     return 1;
   }
 
-  int setup_exit_code = 0;
+  int setup_exit_code = 2;
   if (!RunSetup(have_upacked_setup, base_path,
                 archive_name, &setup_exit_code)) {
-    return 2;
+    return setup_exit_code;
   }
 
   wchar_t value[4];
