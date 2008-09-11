@@ -123,13 +123,13 @@ TEST_F(SSLUITest, TestHTTP) {
 // Visits a page over http which includes broken https resources (status should
 // be OK).
 TEST_F(SSLUITest, TestHTTPWithBrokenHTTPSResource) {
-  TestServer httpServer(kDocRoot);
+  TestServer http_server(kDocRoot);
   HTTPSTestServer httpsServer(kHostName, kBadHTTPSPort,
                               kDocRoot, GetExpiredCertPath());
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
 
   NavigateTab(tab.get(),
-      httpServer.TestServerPageW(L"files/ssl/page_with_unsafe_contents.html"));
+      http_server.TestServerPageW(L"files/ssl/page_with_unsafe_contents.html"));
 
   SecurityStyle security_style;
   int cert_status;
@@ -468,6 +468,33 @@ TEST_F(SSLUITest, TestRefNavigation) {
   EXPECT_EQ(net::CERT_STATUS_DATE_INVALID,
             cert_status & net::CERT_STATUS_ALL_ERRORS);
   EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+}
+
+// Tests that closing a page that has a unsafe pop-up does not crash the browser
+// (bug #1966).
+TEST_F(SSLUITest, TestCloseTabWithUnsafePopup) {
+  TestServer http_server(kDocRoot);
+  HTTPSTestServer bad_https_server(kHostName, kBadHTTPSPort,
+                                   kDocRoot, GetExpiredCertPath());
+
+  scoped_ptr<TabProxy> tab(GetActiveTabProxy());
+  NavigateTab(tab.get(),
+              http_server.TestServerPageW(
+                  L"files/ssl/page_with_unsafe_popup.html"));
+
+  int popup_count = 0;
+  EXPECT_TRUE(tab->GetConstrainedWindowCount(&popup_count));
+  EXPECT_EQ(1, popup_count);
+
+  // Let's add another tab to make sure the browser does not exit when we close
+  // the first tab.
+  scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
+  EXPECT_TRUE(browser_proxy.get());
+  browser_proxy->AppendTab(
+      http_server.TestServerPageW(L"files/ssl/google.html"));
+
+  // Close the first tab.
+  tab->Close();
 }
 
 // TODO (jcampan): more tests to do below.

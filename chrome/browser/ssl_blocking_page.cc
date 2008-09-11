@@ -171,7 +171,10 @@ void SSLBlockingPage::Observe(NotificationType type,
       // the last entry is kept for the restoring on next start-up.
       Browser* browser = Browser::GetBrowserForController(tab_->controller(),
                                                           NULL);
-      if (remove_last_entry_ &&
+      // We may not have a browser (this is the case for constrained popups), in
+      // which case it does not matter if we do not remove the temporary entry
+      // as their navigation history is not saved.
+      if (remove_last_entry_ && browser &&
           !browser->tabstrip_model()->closing_all()) {
         tab_->controller()->RemoveLastEntry();
       }
