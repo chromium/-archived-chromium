@@ -1,31 +1,6 @@
-# Copyright 2008, Google Inc.
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are
-# met:
-#
-#    * Redistributions of source code must retain the above copyright
-# notice, this list of conditions and the following disclaimer.
-#    * Redistributions in binary form must reproduce the above
-# copyright notice, this list of conditions and the following disclaimer
-# in the documentation and/or other materials provided with the
-# distribution.
-#    * Neither the name of Google Inc. nor the names of its
-# contributors may be used to endorse or promote products derived from
-# this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
 
 import os
 import shutil
@@ -373,6 +348,62 @@ elif env['PLATFORM'] == 'posix':
 
   # Build with system-provided NSS
   env.ParseConfig('pkg-config --cflags --libs nss')
+
+elif env['PLATFORM'] == 'darwin':
+
+  # For now, mac only loads the components we know work on Mac, by default.
+  load = [
+      'base',
+      #'breakpad',
+      'googleurl',
+      'net',
+      'skia',
+      'testing',
+      'third_party',
+      #'webkit',
+  ]
+
+  env.Replace(
+      # Reproduce XCode's behavior of using gcc even to link C++,
+      # and distinguishing it the -x c++ option.
+      CC = 'gcc-4.2',
+      CXX = 'g++-4.2',
+      LINK = '$CXX',
+
+      CFLAGS = [
+          '-std=c99',
+      ],
+      CXXFLAGS = [
+          '-fvisibility-inlines-hidden',
+      ],
+      CCFLAGS = [
+          '-fmessage-length=0',
+          '-pipe',
+          '-O0',
+          '-mdynamic-no-pic',
+          '-Werror',
+          '-Wnewline-eof',
+          '-fvisibility=hidden',
+          '-gdwarf-2',
+          '-Wall',
+          '-Wendif-labels',
+          '-fstack-protector',
+          '-fstack-protector-all',
+      ],
+      CPPDEFINES = [
+          'DEBUG',
+      ],
+
+      FRAMEWORKPATH = [
+          env.Dir('${TARGET_ROOT}'),
+          '/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks',
+      ],
+      FRAMEWORKS = [
+          'ApplicationServices',
+          'Foundation',
+      ],
+  )
+
 else:
 
   print "Unsupported SCons $PLATFORM value %s" % repr(env['PLATFORM'])
@@ -463,15 +494,19 @@ if LoadComponent('third_party'):
       '$BSDIFF_DIR/SConscript',
       '$BZIP2_DIR/SConscript',
       '$ICU38_DIR/SConscript',
-      '$LIBJPEG_DIR/SConscript',
       '$LIBPNG_DIR/SConscript',
-      '$LIBXML_DIR/SConscript',
-      '$LIBXSLT_DIR/SConscript',
       '$LZMA_SDK_DIR/SConscript',
       '$MODP_B64_DIR/SConscript',
       '$ZLIB_DIR/SConscript',
   ])
-# This is temoporary until we get this lib to build on other platforms.
+  # Temporary until we get these building on Mac.
+  if env['PLATFORM'] != 'darwin':
+    sconscripts.extend([
+      '$LIBJPEG_DIR/SConscript',
+      '$LIBXML_DIR/SConscript',
+      '$LIBXSLT_DIR/SConscript',
+    ])
+  # This is temporary until we get this lib to build on other platforms.
   if env['PLATFORM'] == 'win32':
     sconscripts.extend([
         '$BSPATCH_DIR/SConscript',

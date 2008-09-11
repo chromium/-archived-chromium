@@ -68,7 +68,6 @@ input_files = [
     'tracked_objects.cc',
     'values.cc',
     'word_iterator.cc',
-    'worker_pool.cc',
     'third_party/nspr/prtime.cc',
     'third_party/nss/sha512.cc',
 ]
@@ -123,6 +122,7 @@ if env['PLATFORM'] == 'win32':
       'waitable_event_win.cc',
       'win_util.cc',
       'wmi_util.cc',
+      'worker_pool.cc',
   ])
 
 if env['PLATFORM'] in ('darwin', 'posix'):
@@ -144,11 +144,13 @@ if env['PLATFORM'] in ('darwin', 'posix'):
 if env['PLATFORM'] == 'darwin':
   input_files.extend([
       'base_paths_mac.mm',
-      'clipboard_mac.cc',
+      'clipboard_mac.mm',
       'file_util_mac.mm',
       'file_version_info_mac.mm',
       'hmac_mac.cc',
+      'platform_thread_mac.mm',
       'sys_string_conversions_mac.cc',
+      'worker_pool_mac.mm',
   ])
 
 if env['PLATFORM'] == 'posix':
@@ -157,6 +159,7 @@ if env['PLATFORM'] == 'posix':
       'base_paths_linux.cc',
       'file_util_linux.cc',
       'sys_string_conversions_linux.cc',
+      'worker_pool.cc',
   ])
 
 env.ChromeStaticLibrary('base', input_files)
@@ -301,6 +304,11 @@ if env['PLATFORM'] == 'win32':
     'win_util_unittest.cc',
     'wmi_util_unittest.cc',
     ])
+
+if env['PLATFORM'] == 'darwin':
+  test_files.extend([
+      'platform_test_mac.mm',
+  ])
 
 base_unittests = env_tests.ChromeTestProgram('base_unittests', test_files)
 

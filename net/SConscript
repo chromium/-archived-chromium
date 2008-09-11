@@ -125,7 +125,7 @@ if env['PLATFORM'] == 'win32':
 
 if env['PLATFORM'] == 'darwin':
   input_files.extend([
-      'base/platform_mime_util_mac.cc',
+      'base/platform_mime_util_mac.mm',
   ])
 
 if env['PLATFORM'] == 'posix':
@@ -251,6 +251,11 @@ if env['PLATFORM'] == 'win32':
       'http/http_util_unittest.cc',
       'http/winhttp_request_throttle_unittest.cc',
       'url_request/url_request_unittest.cc',
+  ])
+
+if env['PLATFORM'] == 'darwin':
+  unittest_files.extend([
+      '../base/platform_test_mac.o',
   ])
 
 net_unittests = env_tests.ChromeTestProgram('net_unittests', unittest_files)
