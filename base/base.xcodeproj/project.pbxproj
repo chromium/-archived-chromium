@@ -336,6 +336,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7B1435DE0E78416400901940 /* skia_utils_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = skia_utils_mac.h; sourceTree = "<group>"; };
+		7B1435DF0E78419700901940 /* native_widget_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = native_widget_types.h; sourceTree = "<group>"; };
 		7B4C5D880E4915D800679E8F /* float_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = float_util.h; sourceTree = "<group>"; };
 		7B4C5F470E4B6BF900679E8F /* sys_string_conversions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sys_string_conversions.h; sourceTree = "<group>"; };
 		7B4C5F480E4B6BF900679E8F /* sys_string_conversions_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sys_string_conversions_mac.cc; sourceTree = "<group>"; };
@@ -563,7 +565,7 @@
 		AB6BC1F10E54E900006436D5 /* platform_canvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_canvas.h; sourceTree = "<group>"; };
 		AB6BC1F50E54E97B006436D5 /* platform_device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_device.h; sourceTree = "<group>"; };
 		ABE1BA0C0E756EC4009041DA /* platform_canvas_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = platform_canvas_unittest.cc; sourceTree = "<group>"; };
-		ABE1BA290E7574D1009041DA /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
+		ABE1BA290E7574D1009041DA /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<group>"; };
 		ABE1BA600E75757C009041DA /* skia_utils_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = skia_utils_mac.cc; sourceTree = "<group>"; };
 		ABF4B98E0DC2BA6900A6E319 /* base_paths_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = base_paths_mac.mm; sourceTree = "<group>"; };
 		ABF4B99D0DC2BB6000A6E319 /* clipboard_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = clipboard_mac.mm; sourceTree = "<group>"; };
@@ -633,6 +635,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ABE1BA2A0E7574D1009041DA /* ApplicationServices.framework in Frameworks */,
 				7B78D40E0E54FE8000609465 /* Foundation.framework in Frameworks */,
 				7B78D38C0E54FDEC00609465 /* libbase.a in Frameworks */,
 				7B8505D90E5B445100730B43 /* libbase_gfx.a in Frameworks */,
@@ -643,7 +646,6 @@
 				7B85062A0E5B556900730B43 /* libpng.a in Frameworks */,
 				7B4DF5350E5B6A66004D7619 /* libskia.a in Frameworks */,
 				7B85062F0E5B559A00730B43 /* libzlib.a in Frameworks */,
-				ABE1BA2A0E7574D1009041DA /* ApplicationServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -988,6 +990,7 @@
 				825403C80D92D31D0006B936 /* native_theme.cc */,
 				825403C90D92D31D0006B936 /* native_theme.h */,
 				7B8505A20E5B3FBE00730B43 /* native_theme_unittest.cc */,
+				7B1435DF0E78419700901940 /* native_widget_types.h */,
 				AB6BC1F10E54E900006436D5 /* platform_canvas.h */,
 				829E2F990DBFD76300819EBF /* platform_canvas_mac.cc */,
 				829E2F980DBFD76300819EBF /* platform_canvas_mac.h */,
@@ -1010,6 +1013,7 @@
 				7B8505A50E5B3FBE00730B43 /* skia_utils.cc */,
 				7B8505A60E5B3FBE00730B43 /* skia_utils.h */,
 				ABE1BA600E75757C009041DA /* skia_utils_mac.cc */,
+				7B1435DE0E78416400901940 /* skia_utils_mac.h */,
 				825403DC0D92D31D0006B936 /* vector_canvas.cc */,
 				825403DD0D92D31D0006B936 /* vector_canvas.h */,
 				7B8505A80E5B3FBE00730B43 /* vector_canvas_unittest.cc */,
