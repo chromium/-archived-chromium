@@ -129,7 +129,9 @@ void PrintedDocument::RenderPrintedPage(const PrintedPage& page,
 
   // Print the header and footer.
   int base_font_size = ChromeFont().height();
-  int new_font_size = ConvertUnit(10, 72, immutable_.settings_.dpi());
+  int new_font_size = ConvertUnit(10,
+                                  immutable_.settings_.desired_dpi,
+                                  immutable_.settings_.dpi());
   DCHECK_GT(new_font_size, base_font_size);
   ChromeFont font(ChromeFont().DeriveFont(new_font_size - base_font_size));
   HGDIOBJ old_font = SelectObject(context, font.hfont());

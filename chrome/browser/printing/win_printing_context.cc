@@ -11,7 +11,6 @@
 #include "base/time_format.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_job_manager.h"
-#include "chrome/common/gfx/emf.h"
 
 namespace {
 
