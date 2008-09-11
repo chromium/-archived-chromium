@@ -11,7 +11,7 @@
 			isa = PBXAggregateTarget;
 			buildConfigurationList = 7B58F7A80DAFC59B006F0EB5 /* Build configuration list for PBXAggregateTarget "jsconfig" */;
 			buildPhases = (
-				7B58F7A70DAFC59B006F0EB5 /* ShellScript */,
+				7B58F7A70DAFC59B006F0EB5 /* Pre-Build */,
 			);
 			dependencies = (
 			);
@@ -1154,6 +1154,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		7B25FF880E78A766007855DA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7B5E77560D7F22D8001ECF42 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7B58F7A60DAFC59B006F0EB5 /* jsconfig */;
+			remoteInfo = jsconfig;
+		};
 		7BF88B770E71F3FA000BAF8A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B5E77560D7F22D8001ECF42 /* Project object */;
@@ -3855,11 +3862,11 @@
 				7B9375960D919010008B9587 /* port */,
 				7B5E87820D7F394A001ECF42 /* webcore */,
 				7B5E85B30D7F28F5001ECF42 /* wtf */,
-				7B5E776F0D7F2350001ECF42 /* Products */,
+				7B5E776F0D7F2350001ECF42 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		7B5E776F0D7F2350001ECF42 /* Products */ = {
+		7B5E776F0D7F2350001ECF42 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				E45627150E268F03005E4685 /* libglue.a */,
@@ -3869,7 +3876,7 @@
 				E45626950E268E87005E4685 /* libwebcore.a */,
 				7B5E85AE0D7F28CD001ECF42 /* libwtf.a */,
 			);
-			name = "\U001bProducts";
+			name = Products;
 			sourceTree = "<group>";
 		};
 		7B5E85B30D7F28F5001ECF42 /* wtf */ = {
@@ -6705,7 +6712,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7B2748AF0E438199009BCE03 /* Build configuration list for PBXNativeTarget "pcre" */;
 			buildPhases = (
-				7B2748D60E43834E009BCE03 /* Generate Derived Sources */,
+				7B2748D60E43834E009BCE03 /* Pre-Build */,
 				7B27489A0E43815F009BCE03 /* Sources */,
 				7B27489B0E43815F009BCE03 /* Frameworks */,
 			);
@@ -6740,7 +6747,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7BFD8E690DAFE7810084BC4B /* Build configuration list for PBXNativeTarget "jsbindings" */;
 			buildPhases = (
-				7BFD8ED90DAFE8C10084BC4B /* Generate Derived Sources */,
+				7BFD8ED90DAFE8C10084BC4B /* Pre-Build */,
 				7BFD8E630DAFE7630084BC4B /* Sources */,
 				7BFD8E640DAFE7630084BC4B /* Frameworks */,
 			);
@@ -6758,7 +6765,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E45626920E268E87005E4685 /* Build configuration list for PBXNativeTarget "webcore" */;
 			buildPhases = (
-				E456203F0E268E87005E4685 /* Generate Derived Sources */,
+				E456203F0E268E87005E4685 /* Pre-Build */,
 				E45623780E268E87005E4685 /* Sources */,
 				E45626910E268E87005E4685 /* Frameworks */,
 			);
@@ -6783,6 +6790,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				7B25FF890E78A766007855DA /* PBXTargetDependency */,
 				E45627B50E26917C005E4685 /* PBXTargetDependency */,
 			);
 			name = glue;
@@ -6816,7 +6824,7 @@
 			compatibilityVersion = "Xcode 3.1";
 			hasScannedForEncodings = 0;
 			mainGroup = 7B5E77540D7F22D8001ECF42;
-			productRefGroup = 7B5E776F0D7F2350001ECF42 /* Products */;
+			productRefGroup = 7B5E776F0D7F2350001ECF42 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -6833,7 +6841,7 @@
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		7B2748D60E43834E009BCE03 /* Generate Derived Sources */ = {
+		7B2748D60E43834E009BCE03 /* Pre-Build */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -6841,54 +6849,59 @@
 			inputPaths = (
 				"$(SRCROOT)/../third_party/WebKit/JavaScriptCore/pcre/dftables",
 			);
-			name = "Generate Derived Sources";
+			name = "Pre-Build";
 			outputPaths = (
 				"$(CONFIGURATION_TEMP_DIR)/generated/pcre/chartables.c",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -ex\nGENERATED_DIR=\"${CONFIGURATION_TEMP_DIR}/generated\"\nOUTDIR=\"${GENERATED_DIR}/pcre\"\nCHARTABLES=\"${OUTDIR}/chartables.c\"\nDFTABLES=\"${SOURCE_ROOT}/../third_party/WebKit/JavaScriptCore/pcre/dftables\"\n\nmkdir -p \"${OUTDIR}\"\nperl -w \"${DFTABLES}\" \"${CHARTABLES}\"\n";
+			shellScript = "set -ex\nexec \"${PROJECT_FILE_PATH}/${PRODUCT_NAME}_prebuild.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
-		7B58F7A70DAFC59B006F0EB5 /* ShellScript */ = {
+		7B58F7A70DAFC59B006F0EB5 /* Pre-Build */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Pre-Build";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -ex\nGENERATED_DIR=\"${CONFIGURATION_TEMP_DIR}/generated\"\nmkdir -p \"${GENERATED_DIR}\"\ncd build/JSConfig\nexec bash create-config.sh \"${GENERATED_DIR}\" v8\n";
+			shellScript = "set -ex\nexec \"${PROJECT_FILE_PATH}/${PRODUCT_NAME}_prebuild.sh\" \"${@}\"\n";
+			showEnvVarsInLog = 0;
 		};
-		7BFD8ED90DAFE8C10084BC4B /* Generate Derived Sources */ = {
+		7BFD8ED90DAFE8C10084BC4B /* Pre-Build */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Generate Derived Sources";
+			name = "Pre-Build";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -ex\nGENERATED_DIR=\"${CONFIGURATION_TEMP_DIR}/generated\"\nmkdir -p \"${GENERATED_DIR}\"\n\nexport PORTROOT=\"${SRCROOT}/port\"\n\n# export CREATE_HASH_TABLE=\"${SRCROOT}/../third_party/WebKit/JavaScriptCore/kjs/create_hash_table\"\n# TODO(mmentovai): The above is normally correct, but create_hash_table wound\n# up without the svn:executable property set in our repository.  Until that's\n# fixed - it should be fixed at the next WebKit merge following 2008-09-08 -\n# make a copy of create_hash_table, set the executable bit on it, and use that.\n# See also the TODO in the webcore target.\nexport CREATE_HASH_TABLE=\"${GENERATED_DIR}/create_hash_table\"\ncp -p \"${SRCROOT}/../third_party/WebKit/JavaScriptCore/kjs/create_hash_table\" \\\n      \"${CREATE_HASH_TABLE}\"\nchmod a+x \"${CREATE_HASH_TABLE}\"\n\nexport DerivedSourcesDir=\"${GENERATED_DIR}/DerivedSources/v8/bindings\"\nmkdir -p \"${DerivedSourcesDir}\"\ncd \"${DerivedSourcesDir}\"\n\nln -sfh \"${SRCROOT}/../third_party/WebKit/WebCore\" WebCore\nexport WebCore=\"${DerivedSourcesDir}/WebCore\"\nexport SOURCE_ROOT=\"${WebCore}\"\nexport ENCODINGS_FILE=\"${WebCore}/platform/text/mac/mac-encodings.txt\";\nexport ENCODINGS_PREFIX=\"kTextEncoding\"\n\nexport PUBLICDOMINTERFACES=\"${PORTROOT}/PublicDOMInterfaces.h\"\nmake -f \"${PORTROOT}/DerivedSources.make\" -j $(/usr/sbin/sysctl -n hw.ncpu)\n\n# Allow framework-style #imports of <WebCore/whatever.h> to find the right headers\ncd ..\nmkdir -p ForwardingHeaders/Derived \\\n         ForwardingHeaders/dom \\\n         ForwardingHeaders/editing \\\n         ForwardingHeaders/ObjC \\\n         ForwardingHeaders/page_mac \\\n         ForwardingHeaders/svg\nln -sfh \"${DerivedSourcesDir}\" ForwardingHeaders/Derived/WebCore\nln -sfh \"${SRCROOT}/../third_party/WebKit/WebCore/dom\" ForwardingHeaders/dom/WebCore\nln -sfh \"${SRCROOT}/../third_party/WebKit/WebCore/editing\" ForwardingHeaders/editing/WebCore\nln -sfh \"${SRCROOT}/../third_party/WebKit/WebCore/bindings/objc\" ForwardingHeaders/ObjC/WebCore\nln -sfh \"${SRCROOT}/../third_party/WebKit/WebCore/page/mac\" ForwardingHeaders/page_mac/WebCore\nln -sfh \"${SRCROOT}/../third_party/WebKit/WebCore/svg\" ForwardingHeaders/svg/WebCore\n";
+			shellScript = "set -ex\nexec \"${PROJECT_FILE_PATH}/${PRODUCT_NAME}_prebuild.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
-		E456203F0E268E87005E4685 /* Generate Derived Sources */ = {
+		E456203F0E268E87005E4685 /* Pre-Build */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Generate Derived Sources";
+			name = "Pre-Build";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -ex\nGENERATED_DIR=\"${CONFIGURATION_TEMP_DIR}/generated\"\nmkdir -p \"${GENERATED_DIR}\"\n\n# TODO(mmentovai): fix this to not be so hokey - the Apple build expects JavaScriptCore to be in a framework\n# This belongs in the JSConfig target, which already does something similar\nmkdir -p \"${GENERATED_DIR}/include/v8/JavaScriptCore\"\ncp -p \"${SRCROOT}/../third_party/WebKit/JavaScriptCore/bindings/npruntime.h\" \\\n      \"${GENERATED_DIR}/include/v8/JavaScriptCore\"\n\nexport DerivedSourcesDir=\"${GENERATED_DIR}/DerivedSources/v8/WebCore\"\nmkdir -p \"${GENERATED_DIR}/DerivedSources/v8/WebCore\"\ncd \"${GENERATED_DIR}/DerivedSources/v8/WebCore\"\n\n# export CREATE_HASH_TABLE=\"${SRCROOT}/../third_party/WebKit/JavaScriptCore/kjs/create_hash_table\"\n# TODO(mmentovai): The above is normally correct, but create_hash_table wound\n# up without the svn:executable property set in our repository.  See the TODO\n# in the jsbindings target.\nexport CREATE_HASH_TABLE=\"${GENERATED_DIR}/create_hash_table\"\n\nln -sfh \"${SRCROOT}/../third_party/WebKit/WebCore\" WebCore\nexport WebCore=\"WebCore\"\nexport SOURCE_ROOT=\"${WebCore}\"\nexport PORTROOT=\"${SRCROOT}/port\"\n\nexport PUBLICDOMINTERFACES=\"${PORTROOT}/../pending/PublicDOMInterfaces.h\"\nmake -f \"${SRCROOT}/pending/DerivedSources.make\" -j $(/usr/sbin/sysctl -n hw.ncpu)\n\n# Allow framework-style #imports of <WebCore/whatever.h> to find the right headers\ncd ..\nmkdir -p ForwardingHeaders/loader\nln -sfh \"${SRCROOT}/../third_party/WebKit/WebCore/loader\" ForwardingHeaders/loader/WebCore\n\n# Generate the webkit version header\nmkdir -p \"${GENERATED_DIR}/include/v8/new\"\npython \"${SRCROOT}/build/webkit_version.py\" \\\n       \"${SRCROOT}/../third_party/WebKit/WebCore/Configurations/Version.xcconfig\" \\\n       \"${GENERATED_DIR}/include/v8/new\"\n\n# Only use new the file if it's different from the existing file (if any),\n# preserving the existing file's timestamp when there are no changes.  This\n# minimizes unnecessary build activity for a no-change build.\nif ! diff -q \"${GENERATED_DIR}/include/v8/new/webkit_version.h\" \\\n             \"${GENERATED_DIR}/include/v8/webkit_version.h\" >& /dev/null ; then\n  mv \"${GENERATED_DIR}/include/v8/new/webkit_version.h\" \\\n     \"${GENERATED_DIR}/include/v8/webkit_version.h\"\nelse\n  rm \"${GENERATED_DIR}/include/v8/new/webkit_version.h\"\nfi\n\nrmdir \"${GENERATED_DIR}/include/v8/new\"\n";
+			shellScript = "set -ex\nexec \"${PROJECT_FILE_PATH}/${PRODUCT_NAME}_prebuild.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -8053,6 +8066,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		7B25FF890E78A766007855DA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7B58F7A60DAFC59B006F0EB5 /* jsconfig */;
+			targetProxy = 7B25FF880E78A766007855DA /* PBXContainerItemProxy */;
+		};
 		7BF88B780E71F3FA000BAF8A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 7B58F7A60DAFC59B006F0EB5 /* jsconfig */;
