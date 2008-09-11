@@ -24,7 +24,6 @@
 #include "Assertions.h"
 #include "AffineTransform.h"
 #include "NativeImageSkia.h"
-#include "NotImplemented.h"
 #include "SkBlurDrawLooper.h"
 #include "SkCornerPathEffect.h"
 #include "SkiaUtils.h"
@@ -1297,7 +1296,7 @@ void GraphicsContext::setUseAntialiasing(bool enable)
 {
     if (paintingDisabled())
         return;
-    notImplemented();
+    m_data->setUseAntialiasing(enable);
 }
 
 void GraphicsContext::setShouldDelete(bool should_delete)

@@ -66,6 +66,7 @@ struct SkPaintContext::State {
   StrokeStyle         mStrokeStyle;
   SkColor             mStrokeColor;
   float               mStrokeThickness;
+  bool                mUseAntialiasing;
 
   SkDashPathEffect*   mDash;
   SkShader*           mGradient;
@@ -84,6 +85,7 @@ struct SkPaintContext::State {
         mStrokeStyle(SolidStroke),
         mStrokeColor(0x0FF000000),
         mStrokeThickness(0),
+        mUseAntialiasing(true),
         mDash(NULL),
         mGradient(NULL),
         mPattern(NULL) {
@@ -189,7 +191,7 @@ void SkPaintContext::setup_paint_common(SkPaint* paint) const {
   }
 #endif
 
-  paint->setAntiAlias(true);
+  paint->setAntiAlias(state_->mUseAntialiasing);
   paint->setPorterDuffXfermode(state_->mPorterDuffMode);
   paint->setLooper(state_->mLooper);
 
@@ -293,6 +295,10 @@ void SkPaintContext::setStrokeColor(SkColor strokecolor) {
 
 void SkPaintContext::setStrokeThickness(float thickness) {
   state_->mStrokeThickness = thickness;
+}
+
+void SkPaintContext::setUseAntialiasing(bool enable) {
+  state_->mUseAntialiasing = enable;
 }
 
 SkColor SkPaintContext::fillColor() const {

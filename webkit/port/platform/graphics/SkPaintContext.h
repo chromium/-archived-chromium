@@ -65,6 +65,7 @@ class SkPaintContext {
   void setStrokeStyle(StrokeStyle strokestyle);
   void setStrokeColor(SkColor strokecolor);
   void setStrokeThickness(float thickness);
+  void setUseAntialiasing(bool enable);
 
   void beginPath();
   void addPath(const SkPath& path);
