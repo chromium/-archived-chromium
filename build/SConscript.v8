@@ -6,38 +6,56 @@ Import('env')
 
 env = env.Clone()
 
-mksnapshot_exe = File('#/../v8/bin/debug/mksnapshot.exe')
-v8_exe = File('#/../v8/bin/release/v8.exe')
-v8_lib = File('#/../v8/bin/debug/v8.lib'),
+# Rather than build v8 here, we just shell out to v8's own SCons-based
+# build, since their build system is complicated.
+# This SConscript just declares dependencies on the outputs of that build.
+
+mksnapshot_bin = env.File('#/../v8/obj/release/mksnapshot${PROGSUFFIX}')
+v8_bin = env.File('#/../v8/shell${PROGSUFFIX}')
+v8_lib = env.File('#/../v8/${LIBPREFIX}v8${LIBSUFFIX}'),
 
 v8_scons_targets = [
-    mksnapshot_exe,
-    v8_exe,
-    v8_lib,
-    File('#/../v8/bin/debug/snapshot-empty.obj'),
-    File('#/../v8/vc80.pdb')
+  mksnapshot_bin,
+  v8_bin,
+  v8_lib,
 ]
+
+if env['PLATFORM'] == 'win32':
+  v8_scons_targets.append([
+    env.File('#/../v8/bin/release/snapshot-empty.obj'),
+    env.File('#/../v8/vc80.pdb')
+  ])
+
+# Grab the -j flag from the outer environment, if available.
+try:
+  cpus = env.GetOption('num_jobs')
+  cpu_flag = ' -j%d' % cpus
+except AttributeError:
+  cpu_flag = ''
 
 v8 = env.Command(v8_scons_targets,
                  [],
-                 'cd ..\\v8 && $PYTHON $SCONS $SCONSFLAGS ${TARGETS[:-1]}',
-                 SCONS='..\\third_party\\scons\\scons.py',
-                 SCONSFLAGS='-Q --warn=no-deprecated')
+                 'cd ../v8 && $PYTHON $SCONS $SCONSFLAGS snapshot=on ' +
+                 'sample=shell',
+                 SCONS='../third_party/scons/scons.py',
+                 SCONSFLAGS='-Q --warn=no-deprecated' + cpu_flag)
 env.AlwaysBuild(v8)
 env.Install('$V8_DIR', v8)
 
-i = env.Install('$TARGET_ROOT', mksnapshot_exe)
+i = env.Install('$TARGET_ROOT', mksnapshot_bin)
 env.Alias('webkit', i)
 
 i = env.Install('$LIBS_DIR', v8_lib)
 env.Alias('webkit', i)
 
-i = env.Install('$TARGET_ROOT', v8_exe)
+i = env.Install('$TARGET_ROOT', v8_bin)
 env.Alias('chrome', i)
 
 # To satisfy tests expecting the following .exe name.
-i = env.InstallAs('$TARGET_ROOT/v8_shell_sample.exe', v8_exe)
-env.Alias('chrome', i)
+if env['PLATFORM'] == 'win32':
+  # TODO(evanm): this may be necessary on other platforms(?)
+  i = env.InstallAs('$TARGET_ROOT/v8_shell_sample${PROGSUFFIX}', v8_bin)
+  env.Alias('chrome', i)
 
 # Tell our SCons invocation to *not* delete v8.lib and the other targets
 # before building them, so the subsidiary v8 SCons call doesn't always
