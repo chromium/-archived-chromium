@@ -8,8 +8,6 @@
 
 #include <string>
 
-#include "config.h"
-
 // #include "base/event_recorder.h"
 #include "base/basictypes.h"
 #include "base/command_line.h"
@@ -29,7 +27,7 @@ static char g_currentTestName[PATH_MAX];
 
 // Extracts the name of the test from the given path and sets the test name
 // global.
-void SetCurrentTestName(const char* path) {
+void SetCurrentTestName(char* path) {
   char* lastSlash = strrchr(path, '/');
   if (lastSlash) {
     ++lastSlash;
