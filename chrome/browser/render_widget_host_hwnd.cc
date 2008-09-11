@@ -25,6 +25,9 @@
 // Tooltips will wrap after this width. Yes, wrap. Imagine that!
 static const int kTooltipMaxWidthPixels = 300;
 
+// Maximum number of characters we allow in a tooltip.
+static const int kMaxTooltipLength = 1024;
+
 ///////////////////////////////////////////////////////////////////////////////
 // RenderWidgetHostHWND, public:
 
@@ -297,6 +300,13 @@ void RenderWidgetHostHWND::Destroy() {
 void RenderWidgetHostHWND::SetTooltipText(const std::wstring& tooltip_text) {
   if (tooltip_text != tooltip_text_) {
     tooltip_text_ = tooltip_text;
+
+    // Clamp the tooltip length to kMaxTooltipLength so that we don't
+    // accidentally DOS the user with a mega tooltip (since Windows doesn't seem
+    // to do this itself).
+    if (tooltip_text_.length() > kMaxTooltipLength)
+      tooltip_text_ = tooltip_text_.substr(0, kMaxTooltipLength);
+
     // Need to check if the tooltip is already showing so that we don't
     // immediately show the tooltip with no delay when we move the mouse from
     // a region with no tooltip to a region with a tooltip.
