@@ -20,6 +20,8 @@
 
 namespace file_util {
 
+static const wchar_t* kTempFileName = L"com.google.chrome.XXXXXX";
+
 std::wstring GetDirectoryFromPath(const std::wstring& path) {
   if (EndsWithSeparator(path)) {
     std::wstring dir = path;
@@ -45,7 +47,8 @@ bool AbsolutePath(std::wstring* path) {
 // that functionality. If not, remove from file_util_win.cc, otherwise add it
 // here.
 bool Delete(const std::wstring& path, bool recursive) {
-  const char* utf8_path = WideToUTF8(path).c_str();
+  std::string utf8_path_string = WideToUTF8(path);
+  const char* utf8_path = utf8_path_string.c_str();
   struct stat64 file_info;
   int test = stat64(utf8_path, &file_info);
   if (test != 0) {
@@ -150,14 +153,15 @@ bool CreateTemporaryFileName(std::wstring* temp_file) {
   std::wstring tmpdir;
   if (!GetTempDir(&tmpdir))
     return false;
-  tmpdir.append(L"com.google.chrome.XXXXXX");
-  // this should be OK since mktemp just replaces characters in place
-  char* buffer = const_cast<char*>(WideToUTF8(tmpdir).c_str());
-  *temp_file = UTF8ToWide(mktemp(buffer));
-  int fd = open(buffer, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+  AppendToPath(&tmpdir, kTempFileName);
+  std::string tmpdir_string = WideToUTF8(tmpdir);
+  // this should be OK since mkstemp just replaces characters in place
+  char* buffer = const_cast<char*>(tmpdir_string.c_str());
+  int fd = mkstemp(buffer);
   if (fd < 0)
     return false;
-  close(fd);  
+  *temp_file = UTF8ToWide(buffer);
+  close(fd); 
   return true;
 }
 
@@ -166,9 +170,10 @@ bool CreateNewTempDirectory(const std::wstring& prefix,
   std::wstring tmpdir;
   if (!GetTempDir(&tmpdir))
     return false;
-  tmpdir.append(L"/com.google.chrome.XXXXXX");
+  AppendToPath(&tmpdir, kTempFileName);
+  std::string tmpdir_string = WideToUTF8(tmpdir);
   // this should be OK since mkdtemp just replaces characters in place
-  char* buffer = const_cast<char*>(WideToUTF8(tmpdir).c_str());
+  char* buffer = const_cast<char*>(tmpdir_string.c_str());
   char* dtemp = mkdtemp(buffer);
   if (!dtemp)
     return false;
@@ -213,14 +218,25 @@ int ReadFile(const std::wstring& filename, char* data, int size) {
 }
 
 int WriteFile(const std::wstring& filename, const char* data, int size) {
-  int fd = open(WideToUTF8(filename).c_str(), O_WRONLY | O_CREAT | O_TRUNC, 
-                0666);
+  int fd = creat(WideToUTF8(filename).c_str(), 0666);
   if (fd < 0)
     return -1;
-  
-  int ret_value = write(fd, data, size);
+
+  // Allow for partial writes
+  ssize_t bytes_written_total = 0;
+  do {
+    ssize_t bytes_written_partial = write(fd,
+                                          data + bytes_written_total,
+                                          size - bytes_written_total);
+    if (bytes_written_partial < 0) {
+      close(fd);
+      return -1;      
+    }
+    bytes_written_total += bytes_written_partial;
+  } while (bytes_written_total < size);
+
   close(fd);
-  return ret_value;
+  return bytes_written_total;
 }
 
 // Gets the current working directory for the process.
@@ -308,8 +324,7 @@ std::wstring FileEnumerator::Next() {
   // Patterns are only matched on the items in the top-most directory.
   // (see Windows implementation)
   if (fts_ent->fts_level == 1 && pattern_.length() > 0) {
-    const char* utf8_pattern = WideToUTF8(pattern_).c_str();
-    if (fnmatch(utf8_pattern, fts_ent->fts_path, 0) != 0) {
+    if (fnmatch(WideToUTF8(pattern_).c_str(), fts_ent->fts_path, 0) != 0) {
       if (fts_ent->fts_info == FTS_D)
         fts_set(fts_, fts_ent, FTS_SKIP);
       return Next();

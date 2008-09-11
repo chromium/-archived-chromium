@@ -231,6 +231,7 @@ test_files = [
     'atomicops_unittest.cc',
     'command_line_unittest.cc',
     'condition_variable_unittest.cc',
+    'file_util_unittest.cc',
     'histogram_unittest.cc',
     'json_reader_unittest.cc',
     'json_writer_unittest.cc',
@@ -276,7 +277,6 @@ if env['PLATFORM'] == 'win32':
 
   test_files.extend([
     'clipboard_unittest.cc',
-    'file_util_unittest.cc',
     'hmac_unittest.cc',
     'idletimer_unittest.cc',
     'process_util_unittest.cc',
