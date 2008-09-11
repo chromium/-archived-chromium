@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_AUTOCOMPLETE_HISTORY_CONTENTS_PROVIDER_H__
 
 #include "chrome/browser/autocomplete/autocomplete.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/history/history.h"
 
 // HistoryContentsProvider is an AutocompleteProvider that provides results from
@@ -14,7 +14,7 @@
 // HistoryContentsProvider gets results from two sources:
 // . HistoryService: this provides results for matches in the body/title of
 //   previously viewed pages. This is asynchronous.
-// . BookmarkBarModel: provides results for matches in the titles of bookmarks.
+// . BookmarkModel: provides results for matches in the titles of bookmarks.
 //   This is synchronous.
 class HistoryContentsProvider : public AutocompleteProvider {
  public:
@@ -66,10 +66,9 @@ class HistoryContentsProvider : public AutocompleteProvider {
   // matches are added directly to results_.
   void QueryBookmarks(const AutocompleteInput& input);
 
-  // Converts a BookmarkBarModel::TitleMatch to a QueryResult and adds it
-  // to results_.
-  void AddBookmarkTitleMatchToResults(
-      const BookmarkBarModel::TitleMatch& match);
+  // Converts a BookmarkModel::TitleMatch to a QueryResult and adds it to
+  // results_.
+  void AddBookmarkTitleMatchToResults(const BookmarkModel::TitleMatch& match);
 
   CancelableRequestConsumerT<int, 0> request_consumer_;
 

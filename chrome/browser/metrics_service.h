@@ -23,8 +23,8 @@
 #include "chrome/common/notification_service.h"
 #include "webkit/glue/webplugin.h"
 
-class BookmarkBarModel;
-class BookmarkBarNode;
+class BookmarkModel;
+class BookmarkNode;
 class PrefService;
 class Profile;
 class TemplateURLModel;
@@ -229,12 +229,12 @@ class MetricsService : public NotificationObserver,
   // Set the value in preferences for for the number of bookmarks and folders
   // in node. The pref key for the number of bookmarks in num_bookmarks_key and
   // the pref key for number of folders in num_folders_key.
-  void LogBookmarks(BookmarkBarNode* node,
+  void LogBookmarks(BookmarkNode* node,
                     const wchar_t* num_bookmarks_key,
                     const wchar_t* num_folders_key);
 
   // Sets preferences for the for the number of bookmarks in model.
-  void LogBookmarks(BookmarkBarModel* model);
+  void LogBookmarks(BookmarkModel* model);
 
   // Records a plugin-related notification.  These are recorded to an in-object
   // buffer because these notifications are sent on page load, and we don't

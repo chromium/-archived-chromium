@@ -4,7 +4,7 @@
 
 #include "base/string_util.h"
 #include "chrome/browser/automation/ui_controls.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/page_navigator.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
@@ -73,10 +73,10 @@ class BookmarkBarViewEventTestBase : public ViewEventTestBase {
 
     profile_.reset(new TestingProfile());
     profile_->set_has_history_service(true);
-    profile_->CreateBookmarkBarModel(true);
+    profile_->CreateBookmarkModel(true);
     profile_->GetPrefs()->SetBoolean(prefs::kShowBookmarkBar, true);
 
-    model_ = profile_->GetBookmarkBarModel();
+    model_ = profile_->GetBookmarkModel();
 
     bb_view_ = new BookmarkBarView(profile_.get(), NULL);
     bb_view_->SetPageNavigator(&navigator_);
@@ -129,7 +129,7 @@ class BookmarkBarViewEventTestBase : public ViewEventTestBase {
   // See comment above class description for what this does.
   virtual bool CreateBigMenu() { return false; }
 
-  BookmarkBarModel* model_;
+  BookmarkModel* model_;
   BookmarkBarView* bb_view_;
   TestingPageNavigator navigator_;
 
@@ -137,10 +137,9 @@ class BookmarkBarViewEventTestBase : public ViewEventTestBase {
   void AddTestData(bool big_menu) {
     std::string test_base = "file:///c:/tmp/";
 
-    BookmarkBarNode* f1 =
-        model_->AddGroup(model_->GetBookmarkBarNode(), 0, L"F1");
+    BookmarkNode* f1 = model_->AddGroup(model_->GetBookmarkBarNode(), 0, L"F1");
     model_->AddURL(f1, 0, L"f1a", GURL(test_base + "f1a"));
-    BookmarkBarNode* f11 = model_->AddGroup(f1, 1, L"F11");
+    BookmarkNode* f11 = model_->AddGroup(f1, 1, L"F11");
     model_->AddURL(f11, 0, L"f11a", GURL(test_base + "f11a"));
     if (big_menu) {
       for (int i = 1; i <= 100; ++i) {
@@ -157,10 +156,10 @@ class BookmarkBarViewEventTestBase : public ViewEventTestBase {
     model_->AddURL(model_->GetBookmarkBarNode(), 4, L"d",
                    GURL(test_base + "d"));
     model_->AddURL(model_->other_node(), 0, L"oa", GURL(test_base + "oa"));
-    BookmarkBarNode* of = model_->AddGroup(model_->other_node(), 1, L"OF");
+    BookmarkNode* of = model_->AddGroup(model_->other_node(), 1, L"OF");
     model_->AddURL(of, 0, L"ofa", GURL(test_base + "ofa"));
     model_->AddURL(of, 1, L"ofb", GURL(test_base + "ofb"));
-    BookmarkBarNode* of2 = model_->AddGroup(model_->other_node(), 2, L"OF2");
+    BookmarkNode* of2 = model_->AddGroup(model_->other_node(), 2, L"OF2");
     model_->AddURL(of2, 0, L"of2a", GURL(test_base + "of2a"));
     model_->AddURL(of2, 1, L"of2b", GURL(test_base + "of2b"));
   }

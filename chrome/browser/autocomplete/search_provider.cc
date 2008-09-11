@@ -6,7 +6,6 @@
 
 #include "base/message_loop.h"
 #include "base/string_util.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/google_util.h"
 #include "chrome/browser/profile.h"

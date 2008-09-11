@@ -9,31 +9,31 @@
 
 namespace {
 
-// BookmarkLoadObserver is used when blocking until the BookmarkBarModel
-// finishes loading. As soon as the BookmarkBarModel finishes loading the
-// message loop is quit.
-class BookmarkLoadObserver : public BookmarkBarModelObserver {
+// BookmarkLoadObserver is used when blocking until the BookmarkModel
+// finishes loading. As soon as the BookmarkModel finishes loading the message
+// loop is quit.
+class BookmarkLoadObserver : public BookmarkModelObserver {
  public:
   BookmarkLoadObserver() {}
-  virtual void Loaded(BookmarkBarModel* model) {
+  virtual void Loaded(BookmarkModel* model) {
     MessageLoop::current()->Quit();
   }
 
-  virtual void BookmarkNodeMoved(BookmarkBarModel* model,
-                                 BookmarkBarNode* old_parent,
+  virtual void BookmarkNodeMoved(BookmarkModel* model,
+                                 BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkBarNode* new_parent,
+                                 BookmarkNode* new_parent,
                                  int new_index) {}
-  virtual void BookmarkNodeAdded(BookmarkBarModel* model,
-                                 BookmarkBarNode* parent,
+  virtual void BookmarkNodeAdded(BookmarkModel* model,
+                                 BookmarkNode* parent,
                                  int index) {}
-  virtual void BookmarkNodeRemoved(BookmarkBarModel* model,
-                                   BookmarkBarNode* parent,
+  virtual void BookmarkNodeRemoved(BookmarkModel* model,
+                                   BookmarkNode* parent,
                                    int index) {}
-  virtual void BookmarkNodeChanged(BookmarkBarModel* model,
-                                   BookmarkBarNode* node) {}
-  virtual void BookmarkNodeFavIconLoaded(BookmarkBarModel* model,
-                                         BookmarkBarNode* node) {}
+  virtual void BookmarkNodeChanged(BookmarkModel* model,
+                                   BookmarkNode* node) {}
+  virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
+                                         BookmarkNode* node) {}
 
  private:
   DISALLOW_COPY_AND_ASSIGN(BookmarkLoadObserver);
@@ -90,7 +90,7 @@ void TestingProfile::DestroyHistoryService() {
   MessageLoop::current()->Run();
 }
 
-void TestingProfile::CreateBookmarkBarModel(bool delete_file) {
+void TestingProfile::CreateBookmarkModel(bool delete_file) {
   // Nuke the model first, that way we're sure it's done writing to disk.
   bookmark_bar_model_.reset(NULL);
 
@@ -99,7 +99,7 @@ void TestingProfile::CreateBookmarkBarModel(bool delete_file) {
     file_util::AppendToPath(&path, chrome::kBookmarksFileName);
     file_util::Delete(path, false);
   }
-  bookmark_bar_model_.reset(new BookmarkBarModel(this));
+  bookmark_bar_model_.reset(new BookmarkModel(this));
   if (history_service_.get()) {
     history_service_->history_backend_->bookmark_service_ =
         bookmark_bar_model_.get();

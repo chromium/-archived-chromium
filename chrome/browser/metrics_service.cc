@@ -162,7 +162,7 @@
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "base/task.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
@@ -452,7 +452,7 @@ void MetricsService::Observe(NotificationType type,
       break;
 
     case NOTIFY_BOOKMARK_MODEL_LOADED:
-      LogBookmarks(Source<Profile>(source)->GetBookmarkBarModel());
+      LogBookmarks(Source<Profile>(source)->GetBookmarkModel());
       break;
 
     default:
@@ -1301,9 +1301,7 @@ void MetricsService::LogPluginChange(NotificationType type,
 }
 
 // Recursively counts the number of bookmarks and folders in node.
-static void CountBookmarks(BookmarkBarNode* node,
-                           int* bookmarks,
-                           int* folders) {
+static void CountBookmarks(BookmarkNode* node, int* bookmarks, int* folders) {
   if (node->GetType() == history::StarredEntry::URL)
     (*bookmarks)++;
   else
@@ -1312,7 +1310,7 @@ static void CountBookmarks(BookmarkBarNode* node,
     CountBookmarks(node->GetChild(i), bookmarks, folders);
 }
 
-void MetricsService::LogBookmarks(BookmarkBarNode* node,
+void MetricsService::LogBookmarks(BookmarkNode* node,
                                   const wchar_t* num_bookmarks_key,
                                   const wchar_t* num_folders_key) {
   DCHECK(node);
@@ -1327,7 +1325,7 @@ void MetricsService::LogBookmarks(BookmarkBarNode* node,
   pref->SetInteger(num_folders_key, num_folders);
 }
 
-void MetricsService::LogBookmarks(BookmarkBarModel* model) {
+void MetricsService::LogBookmarks(BookmarkModel* model) {
   DCHECK(model);
   LogBookmarks(model->GetBookmarkBarNode(),
                prefs::kNumBookmarksOnBookmarkBar,

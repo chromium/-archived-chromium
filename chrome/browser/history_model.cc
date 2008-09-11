@@ -4,7 +4,7 @@
 
 #include "chrome/browser/history_model.h"
 
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/profile.h"
 
 // The max number of results to retrieve when browsing user's history.
@@ -61,8 +61,7 @@ history::URLID HistoryModel::GetURLID(int index) {
 
 bool HistoryModel::IsStarred(int index) {
   if (star_state_[index] == UNKNOWN) {
-    bool is_starred =
-        profile_->GetBookmarkBarModel()->IsBookmarked(GetURL(index));
+    bool is_starred = profile_->GetBookmarkModel()->IsBookmarked(GetURL(index));
     star_state_[index] = is_starred ? STARRED : NOT_STARRED;
   }
   return (star_state_[index] == STARRED);
@@ -171,7 +170,7 @@ void HistoryModel::SetPageStarred(int index, bool state) {
   if (observer_)
     observer_->ModelChanged(false);
 
-  BookmarkBarModel* bb_model = profile_->GetBookmarkBarModel();
+  BookmarkModel* bb_model = profile_->GetBookmarkModel();
   if (bb_model)
     bb_model->SetURLStarred(result.url(), result.title(), state);
 }

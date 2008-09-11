@@ -193,7 +193,7 @@ static std::wstring CreateToolTipForURLAndTitle(const gfx::Point& screen_loc,
 }
 
 // Returns the drag operations for the specified node.
-static int GetDragOperationsForNode(BookmarkBarNode* node) {
+static int GetDragOperationsForNode(BookmarkNode* node) {
   if (node->GetType() == history::StarredEntry::URL) {
     return DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_MOVE |
            DragDropTypes::DRAG_LINK;
@@ -316,9 +316,7 @@ class MenuRunner : public ChromeViews::MenuDelegate,
  public:
   // start_child_index is the index of the first child in node to add to the
   // menu.
-  MenuRunner(BookmarkBarView* view,
-             BookmarkBarNode* node,
-             int start_child_index)
+  MenuRunner(BookmarkBarView* view, BookmarkNode* node, int start_child_index)
       : view_(view),
         node_(node),
         menu_(this) {
@@ -328,7 +326,7 @@ class MenuRunner : public ChromeViews::MenuDelegate,
   }
 
   // Returns the node the menu is being run for.
-  BookmarkBarNode* GetNode() {
+  BookmarkNode* GetNode() {
     return node_;
   }
 
@@ -346,7 +344,7 @@ class MenuRunner : public ChromeViews::MenuDelegate,
 
   // Notification that the favicon has finished loading. Reset the icon
   // of the menu item.
-  void FavIconLoaded(BookmarkBarNode* node) {
+  void FavIconLoaded(BookmarkNode* node) {
     if (node_to_menu_id_map_.find(node) !=
         node_to_menu_id_map_.end()) {
       menu_.SetIcon(node->GetFavIcon(), node_to_menu_id_map_[node]);
@@ -368,14 +366,14 @@ class MenuRunner : public ChromeViews::MenuDelegate,
  private:
   // Creates an entry in menu for each child node of parent starting at
   // start_child_index, recursively invoking this for any star groups.
-  void BuildMenu(BookmarkBarNode* parent,
+  void BuildMenu(BookmarkNode* parent,
                  int start_child_index,
                  MenuItemView* menu,
                  int* next_menu_id) {
     DCHECK(!parent->GetChildCount() ||
            start_child_index < parent->GetChildCount());
     for (int i = start_child_index; i < parent->GetChildCount(); ++i) {
-      BookmarkBarNode* node = parent->GetChild(i);
+      BookmarkNode* node = parent->GetChild(i);
       int id = *next_menu_id;
 
       (*next_menu_id)++;
@@ -428,17 +426,17 @@ class MenuRunner : public ChromeViews::MenuDelegate,
     }
     // Drag originated from same profile and is not a URL. Only accept it if
     // the dragged node is not a parent of the node menu represents.
-    BookmarkBarNode* drop_node = menu_id_to_node_map_[menu->GetCommand()];
+    BookmarkNode* drop_node = menu_id_to_node_map_[menu->GetCommand()];
     DCHECK(drop_node);
-    BookmarkBarNode* drag_node = drop_data_.GetNode(view_->GetProfile()->
-        GetBookmarkBarModel());
+    BookmarkNode* drag_node =
+        drop_data_.GetNode(view_->GetProfile()->GetBookmarkModel());
     if (!drag_node) {
       // Hmmm, can't find the dragged node. This is generally an error
       // condition and we won't try and do anything fancy.
       NOTREACHED();
       return false;
     }
-    BookmarkBarNode* node = drop_node;
+    BookmarkNode* node = drop_node;
     while (drop_node && drop_node != drag_node)
       drop_node = drop_node->GetParent();
     return (drop_node == NULL);
@@ -448,8 +446,8 @@ class MenuRunner : public ChromeViews::MenuDelegate,
                                const ChromeViews::DropTargetEvent& event,
                                DropPosition* position) {
     DCHECK(drop_data_.is_valid);
-    BookmarkBarNode* node = menu_id_to_node_map_[item->GetCommand()];
-    BookmarkBarNode* drop_parent = node->GetParent();
+    BookmarkNode* node = menu_id_to_node_map_[item->GetCommand()];
+    BookmarkNode* drop_parent = node->GetParent();
     int index_to_drop_at = drop_parent->IndexOfChild(node);
     if (*position == DROP_AFTER) {
       index_to_drop_at++;
@@ -465,11 +463,11 @@ class MenuRunner : public ChromeViews::MenuDelegate,
   virtual int OnPerformDrop(MenuItemView* menu,
                             DropPosition position,
                             const DropTargetEvent& event) {
-    BookmarkBarNode* drop_node = menu_id_to_node_map_[menu->GetCommand()];
+    BookmarkNode* drop_node = menu_id_to_node_map_[menu->GetCommand()];
     DCHECK(drop_node);
-    BookmarkBarModel* model = view_->GetModel();
+    BookmarkModel* model = view_->GetModel();
     DCHECK(model);
-    BookmarkBarNode* drop_parent = drop_node->GetParent();
+    BookmarkNode* drop_parent = drop_node->GetParent();
     DCHECK(drop_parent);
     int index_to_drop_at = drop_parent->IndexOfChild(drop_node);
     if (position == DROP_AFTER) {
@@ -526,7 +524,7 @@ class MenuRunner : public ChromeViews::MenuDelegate,
   }
 
   // The node we're showing the contents of.
-  BookmarkBarNode* node_;
+  BookmarkNode* node_;
 
   // The view that created us.
   BookmarkBarView* view_;
@@ -534,12 +532,12 @@ class MenuRunner : public ChromeViews::MenuDelegate,
   // The menu.
   MenuItemView menu_;
 
-  // Mapping from menu id to the BookmarkBarNode.
-  std::map<int, BookmarkBarNode*> menu_id_to_node_map_;
+  // Mapping from menu id to the BookmarkNode.
+  std::map<int, BookmarkNode*> menu_id_to_node_map_;
 
   // Mapping from node to menu id. This only contains entries for nodes of type
   // URL.
-  std::map<BookmarkBarNode*, int> node_to_menu_id_map_;
+  std::map<BookmarkNode*, int> node_to_menu_id_map_;
 
   // Data for the drop.
   BookmarkDragData drop_data_;
@@ -678,12 +676,12 @@ void BookmarkBarView::SetProfile(Profile* profile) {
   ns->AddObserver(this, NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
                   NotificationService::AllSources());
 
-  model_ = profile_->GetBookmarkBarModel();
+  model_ = profile_->GetBookmarkModel();
   model_->AddObserver(this);
   if (model_->IsLoaded())
     Loaded(model_);
-  // else case: we'll receive notification back from the BookmarkBarModel when
-  // done loading, then we'll populate the bar.
+  // else case: we'll receive notification back from the BookmarkModel when done
+  // loading, then we'll populate the bar.
 }
 
 void BookmarkBarView::SetPageNavigator(PageNavigator* navigator) {
@@ -973,7 +971,7 @@ int BookmarkBarView::OnDragUpdated(const DropTargetEvent& event) {
   }
 
   if (drop_on || is_over_overflow || is_over_other) {
-    BookmarkBarNode* node;
+    BookmarkNode* node;
     if (is_over_other)
       node = model_->other_node();
     else if (is_over_overflow)
@@ -1009,9 +1007,8 @@ int BookmarkBarView::OnPerformDrop(const DropTargetEvent& event) {
   if (!drop_info_.get() || !drop_info_->drag_operation)
     return DragDropTypes::DRAG_NONE;
 
-  BookmarkBarNode* root =
-      drop_info_->is_over_other ? model_->other_node() :
-                                  model_->GetBookmarkBarNode();
+  BookmarkNode* root = drop_info_->is_over_other ? model_->other_node() :
+                                                   model_->GetBookmarkBarNode();
   int index = drop_info_->drop_index;
   const bool drop_on = drop_info_->drop_on;
   const BookmarkDragData data = drop_info_->data;
@@ -1024,7 +1021,7 @@ int BookmarkBarView::OnPerformDrop(const DropTargetEvent& event) {
   }
   drop_info_.reset();
 
-  BookmarkBarNode* parent_node;
+  BookmarkNode* parent_node;
   if (is_over_other) {
     parent_node = root;
     index = parent_node->GetChildCount();
@@ -1155,8 +1152,8 @@ int BookmarkBarView::GetBookmarkButtonCount() {
   return GetChildViewCount() - 4;
 }
 
-void BookmarkBarView::Loaded(BookmarkBarModel* model) {
-  BookmarkBarNode* node = model_->GetBookmarkBarNode();
+void BookmarkBarView::Loaded(BookmarkModel* model) {
+  BookmarkNode* node = model_->GetBookmarkBarNode();
   DCHECK(node && model_->other_node());
   // Create a button for each of the children on the bookmark bar.
   for (int i = 0; i < node->GetChildCount(); ++i)
@@ -1166,7 +1163,7 @@ void BookmarkBarView::Loaded(BookmarkBarModel* model) {
   SchedulePaint();
 }
 
-void BookmarkBarView::BookmarkModelBeingDeleted(BookmarkBarModel* model) {
+void BookmarkBarView::BookmarkModelBeingDeleted(BookmarkModel* model) {
   // The bookmark model should never be deleted before us. This code exists
   // to check for regressions in shutdown code and not crash.
   NOTREACHED();
@@ -1177,10 +1174,10 @@ void BookmarkBarView::BookmarkModelBeingDeleted(BookmarkBarModel* model) {
   model_ = NULL;
 }
 
-void BookmarkBarView::BookmarkNodeMoved(BookmarkBarModel* model,
-                                        BookmarkBarNode* old_parent,
+void BookmarkBarView::BookmarkNodeMoved(BookmarkModel* model,
+                                        BookmarkNode* old_parent,
                                         int old_index,
-                                        BookmarkBarNode* new_parent,
+                                        BookmarkNode* new_parent,
                                         int new_index) {
   StopThrobbing(true);
   BookmarkNodeRemovedImpl(model, old_parent, old_index);
@@ -1188,16 +1185,16 @@ void BookmarkBarView::BookmarkNodeMoved(BookmarkBarModel* model,
   StartThrobbing();
 }
 
-void BookmarkBarView::BookmarkNodeAdded(BookmarkBarModel* model,
-                                        BookmarkBarNode* parent,
+void BookmarkBarView::BookmarkNodeAdded(BookmarkModel* model,
+                                        BookmarkNode* parent,
                                         int index) {
   StopThrobbing(true);
   BookmarkNodeAddedImpl(model, parent, index);
   StartThrobbing();
 }
 
-void BookmarkBarView::BookmarkNodeAddedImpl(BookmarkBarModel* model,
-                                            BookmarkBarNode* parent,
+void BookmarkBarView::BookmarkNodeAddedImpl(BookmarkModel* model,
+                                            BookmarkNode* parent,
                                             int index) {
   NotifyModelChanged();
   if (parent != model_->GetBookmarkBarNode()) {
@@ -1210,16 +1207,16 @@ void BookmarkBarView::BookmarkNodeAddedImpl(BookmarkBarModel* model,
   SchedulePaint();
 }
 
-void BookmarkBarView::BookmarkNodeRemoved(BookmarkBarModel* model,
-                                          BookmarkBarNode* parent,
+void BookmarkBarView::BookmarkNodeRemoved(BookmarkModel* model,
+                                          BookmarkNode* parent,
                                           int index) {
   StopThrobbing(true);
   BookmarkNodeRemovedImpl(model, parent, index);
   StartThrobbing();
 }
 
-void BookmarkBarView::BookmarkNodeRemovedImpl(BookmarkBarModel* model,
-                                              BookmarkBarNode* parent,
+void BookmarkBarView::BookmarkNodeRemovedImpl(BookmarkModel* model,
+                                              BookmarkNode* parent,
                                               int index) {
   NotifyModelChanged();
   if (parent != model_->GetBookmarkBarNode()) {
@@ -1234,14 +1231,14 @@ void BookmarkBarView::BookmarkNodeRemovedImpl(BookmarkBarModel* model,
   SchedulePaint();
 }
 
-void BookmarkBarView::BookmarkNodeChanged(BookmarkBarModel* model,
-                                          BookmarkBarNode* node) {
+void BookmarkBarView::BookmarkNodeChanged(BookmarkModel* model,
+                                          BookmarkNode* node) {
   NotifyModelChanged();
   BookmarkNodeChangedImpl(model, node);
 }
 
-void BookmarkBarView::BookmarkNodeChangedImpl(BookmarkBarModel* model,
-                                              BookmarkBarNode* node) {
+void BookmarkBarView::BookmarkNodeChangedImpl(BookmarkModel* model,
+                                              BookmarkNode* node) {
   if (node->GetParent() != model_->GetBookmarkBarNode()) {
     // We only care about nodes on the bookmark bar.
     return;
@@ -1262,8 +1259,8 @@ void BookmarkBarView::BookmarkNodeChangedImpl(BookmarkBarModel* model,
   }
 }
 
-void BookmarkBarView::BookmarkNodeFavIconLoaded(BookmarkBarModel* model,
-                                                BookmarkBarNode* node) {
+void BookmarkBarView::BookmarkNodeFavIconLoaded(BookmarkModel* model,
+                                                BookmarkNode* node) {
   if (menu_runner_.get())
     menu_runner_->FavIconLoaded(node);
   if (drop_menu_runner_.get())
@@ -1292,7 +1289,7 @@ void BookmarkBarView::WriteDragData(View* sender,
   NOTREACHED();
 }
 
-void BookmarkBarView::WriteDragData(BookmarkBarNode* node,
+void BookmarkBarView::WriteDragData(BookmarkNode* node,
                                     OSExchangeData* data) {
   DCHECK(node && data);
   BookmarkDragData drag_data(node);
@@ -1314,7 +1311,7 @@ int BookmarkBarView::GetDragOperations(View* sender, int x, int y) {
 void BookmarkBarView::RunMenu(ChromeViews::View* view,
                               const CPoint& pt,
                               HWND hwnd) {
-  BookmarkBarNode* node;
+  BookmarkNode* node;
   MenuItemView::AnchorPosition anchor_point = MenuItemView::TOPLEFT;
 
   // When we set the menu's position, we must take into account the mirrored
@@ -1369,7 +1366,7 @@ void BookmarkBarView::RunMenu(ChromeViews::View* view,
 void BookmarkBarView::ButtonPressed(ChromeViews::BaseButton* sender) {
   int index = GetChildIndex(sender);
   DCHECK(index != -1);
-  BookmarkBarNode* node = model_->GetBookmarkBarNode()->GetChild(index);
+  BookmarkNode* node = model_->GetBookmarkBarNode()->GetChild(index);
   DCHECK(page_navigator_);
   page_navigator_->OpenURL(
       node->GetURL(),
@@ -1387,7 +1384,7 @@ void BookmarkBarView::ShowContextMenu(View* source,
     return;
   }
 
-  BookmarkBarNode* node = model_->GetBookmarkBarNode();
+  BookmarkNode* node = model_->GetBookmarkBarNode();
   if (source == other_bookmarked_button_) {
     node = model_->other_node();
   } else if (source != this) {
@@ -1402,8 +1399,7 @@ void BookmarkBarView::ShowContextMenu(View* source,
   controller.RunMenuAt(x, y);
 }
 
-ChromeViews::View* BookmarkBarView::CreateBookmarkButton(
-    BookmarkBarNode* node) {
+ChromeViews::View* BookmarkBarView::CreateBookmarkButton(BookmarkNode* node) {
   if (node->GetType() == history::StarredEntry::URL) {
     BookmarkButton* button = new BookmarkButton(node->GetURL(),
                                                 node->GetTitle(),
@@ -1420,7 +1416,7 @@ ChromeViews::View* BookmarkBarView::CreateBookmarkButton(
   }
 }
 
-void BookmarkBarView::ConfigureButton(BookmarkBarNode* node,
+void BookmarkBarView::ConfigureButton(BookmarkNode* node,
                                       ChromeViews::TextButton* button) {
   button->SetText(node->GetTitle());
   button->ClearMaxTextSize();
@@ -1484,7 +1480,7 @@ void BookmarkBarView::NotifyModelChanged() {
     model_changed_listener_->ModelChanged();
 }
 
-void BookmarkBarView::ShowDropFolderForNode(BookmarkBarNode* node) {
+void BookmarkBarView::ShowDropFolderForNode(BookmarkNode* node) {
   if (drop_menu_runner_.get() && drop_menu_runner_->GetNode() == node) {
     // Already showing for the specified node.
     return;
@@ -1542,7 +1538,7 @@ void BookmarkBarView::StopShowFolderDropMenuTimer() {
     show_folder_drop_menu_task_->Cancel();
 }
 
-void BookmarkBarView::StartShowFolderDropMenuTimer(BookmarkBarNode* node) {
+void BookmarkBarView::StartShowFolderDropMenuTimer(BookmarkNode* node) {
   if (testing_) {
     // So that tests can run as fast as possible disable the delay during
     // testing.
@@ -1608,7 +1604,7 @@ int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
     int button_w = button->GetWidth();
     if (button_x < button_w) {
       found = true;
-      BookmarkBarNode* node = model_->GetBookmarkBarNode()->GetChild(i);
+      BookmarkNode* node = model_->GetBookmarkBarNode()->GetChild(i);
       if (node->GetType() != history::StarredEntry::URL) {
         if (button_x <= MenuItemView::kDropBetweenPixels) {
           *index = i;
@@ -1653,7 +1649,7 @@ int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
   }
 
   if (*drop_on) {
-    BookmarkBarNode* parent =
+    BookmarkNode* parent =
         *is_over_other ? model_->other_node() :
                          model_->GetBookmarkBarNode()->GetChild(*index);
     int operation =
@@ -1673,14 +1669,14 @@ int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
 }
 
 int BookmarkBarView::CalculateDropOperation(const BookmarkDragData& data,
-                                            BookmarkBarNode* parent,
+                                            BookmarkNode* parent,
                                             int index) {
   if (!CanDropAt(data, parent, index))
     return DragDropTypes::DRAG_NONE;
 
   if (data.is_url) {
     // User is dragging a URL.
-    BookmarkBarNode* node = model_->GetNodeByURL(data.url);
+    BookmarkNode* node = model_->GetNodeByURL(data.url);
     if (!node) {
       // We don't have a node with this url.
       return DragDropTypes::DRAG_COPY;
@@ -1690,7 +1686,7 @@ int BookmarkBarView::CalculateDropOperation(const BookmarkDragData& data,
     return DragDropTypes::DRAG_MOVE | DragDropTypes::DRAG_COPY;
   } else if (data.profile_id == GetProfile()->GetID()) {
     // Dropping a group from the same profile results in a move.
-    BookmarkBarNode* node = data.GetNode(model_);
+    BookmarkNode* node = data.GetNode(model_);
     if (!node) {
       // Generally shouldn't get here, we originated the drag but couldn't
       // find the node.
@@ -1704,11 +1700,11 @@ int BookmarkBarView::CalculateDropOperation(const BookmarkDragData& data,
 }
 
 bool BookmarkBarView::CanDropAt(const BookmarkDragData& data,
-                                BookmarkBarNode* parent,
+                                BookmarkNode* parent,
                                 int index) {
   DCHECK(data.is_valid);
   if (data.is_url) {
-    BookmarkBarNode* existing_node = model_->GetNodeByURL(data.url);
+    BookmarkNode* existing_node = model_->GetNodeByURL(data.url);
     if (existing_node && existing_node->GetParent() == parent) {
       const int existing_index = parent->IndexOfChild(existing_node);
       if (index == existing_index || existing_index + 1 == index)
@@ -1716,7 +1712,7 @@ bool BookmarkBarView::CanDropAt(const BookmarkDragData& data,
     }
     return true;
   } else if (data.profile_id == profile_->GetID()) {
-    BookmarkBarNode* existing_node = data.GetNode(model_);
+    BookmarkNode* existing_node = data.GetNode(model_);
     if (existing_node) {
       if (existing_node->GetParent() == parent) {
         const int existing_index = parent->IndexOfChild(existing_node);
@@ -1725,7 +1721,7 @@ bool BookmarkBarView::CanDropAt(const BookmarkDragData& data,
       }
       // Allow the drop only if the node we're going to drop on isn't a
       // descendant of the dragged node.
-      BookmarkBarNode* test_node = parent;
+      BookmarkNode* test_node = parent;
       while (test_node && test_node != existing_node)
         test_node = test_node->GetParent();
       return (test_node == NULL);
@@ -1736,11 +1732,11 @@ bool BookmarkBarView::CanDropAt(const BookmarkDragData& data,
 
 
 int BookmarkBarView::PerformDropImpl(const BookmarkDragData& data,
-                                     BookmarkBarNode* parent_node,
+                                     BookmarkNode* parent_node,
                                      int index) {
   if (data.is_url) {
     // User is dragging a URL.
-    BookmarkBarNode* node = model_->GetNodeByURL(data.url);
+    BookmarkNode* node = model_->GetNodeByURL(data.url);
     if (!node) {
       std::wstring title = data.title;
       if (title.empty()) {
@@ -1755,7 +1751,7 @@ int BookmarkBarView::PerformDropImpl(const BookmarkDragData& data,
     model_->Move(node, parent_node, index);
     return DragDropTypes::DRAG_MOVE;
   } else if (data.profile_id == GetProfile()->GetID()) {
-    BookmarkBarNode* node = data.GetNode(model_);
+    BookmarkNode* node = data.GetNode(model_);
     if (!node) {
       // Generally shouldn't get here, we originated the drag but couldn't
       // find the node. Do nothing.
@@ -1771,19 +1767,19 @@ int BookmarkBarView::PerformDropImpl(const BookmarkDragData& data,
 }
 
 void BookmarkBarView::CloneDragData(const BookmarkDragData& data,
-                                    BookmarkBarNode* parent,
+                                    BookmarkNode* parent,
                                     int index_to_add_at) {
   DCHECK(data.is_valid && model_);
   if (data.is_url) {
-    BookmarkBarNode* node = model_->GetNodeByURL(data.url);
+    BookmarkNode* node = model_->GetNodeByURL(data.url);
     if (node) {
       model_->Move(node, parent, index_to_add_at);
     } else {
       model_->AddURL(parent, index_to_add_at, data.title, data.url);
     }
   } else {
-    BookmarkBarNode* new_folder = model_->AddGroup(parent, index_to_add_at,
-                                                   data.title);
+    BookmarkNode* new_folder = model_->AddGroup(parent, index_to_add_at,
+                                                data.title);
     for (int i = 0; i < static_cast<int>(data.children.size()); ++i)
       CloneDragData(data.children[i], new_folder, i);
   }
@@ -1807,15 +1803,15 @@ void BookmarkBarView::StartThrobbing() {
   if (!GetViewContainer())
     return;  // We're not showing, don't do anything.
 
-  BookmarkBarNode* node = model_->GetNodeByURL(bubble_url_);
+  BookmarkNode* node = model_->GetNodeByURL(bubble_url_);
   if (!node)
     return;  // Generally shouldn't happen.
 
   // Determine which visible button is showing the url (or is an ancestor of
   // the url).
   if (node->HasAncestor(model_->GetBookmarkBarNode())) {
-    BookmarkBarNode* bbn = model_->GetBookmarkBarNode();
-    BookmarkBarNode* parent_on_bb = node;
+    BookmarkNode* bbn = model_->GetBookmarkBarNode();
+    BookmarkNode* parent_on_bb = node;
     while (parent_on_bb->GetParent() != bbn)
       parent_on_bb = parent_on_bb->GetParent();
     int index = bbn->IndexOfChild(parent_on_bb);

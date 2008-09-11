@@ -149,7 +149,7 @@ void BookmarkEditorView::OnTreeViewSelectionChanged(
 bool BookmarkEditorView::CanEdit(ChromeViews::TreeView* tree_view,
                                  ChromeViews::TreeModelNode* node) {
   // Only allow editting of children of the bookmark bar node and other node.
-  BookmarkNode* bb_node = tree_model_->AsNode(node);
+  EditorNode* bb_node = tree_model_->AsNode(node);
   return (bb_node->GetParent() && bb_node->GetParent()->GetParent());
 }
 
@@ -223,7 +223,7 @@ void BookmarkEditorView::ShowContextMenu(View* source,
 
 void BookmarkEditorView::Init() {
   tree_view_.SetContextMenuController(this);
-  bb_model_ = profile_->GetBookmarkBarModel();
+  bb_model_ = profile_->GetBookmarkModel();
   DCHECK(bb_model_);
   bb_model_->AddObserver(this);
 
@@ -295,32 +295,32 @@ void BookmarkEditorView::Init() {
     Loaded(bb_model_);
 }
 
-void BookmarkEditorView::Loaded(BookmarkBarModel* model) {
+void BookmarkEditorView::Loaded(BookmarkModel* model) {
   Reset(true);
 }
 
-void BookmarkEditorView::BookmarkNodeMoved(BookmarkBarModel* model,
-                                 BookmarkBarNode* old_parent,
-                                 int old_index,
-                                 BookmarkBarNode* new_parent,
-                                 int new_index) {
+void BookmarkEditorView::BookmarkNodeMoved(BookmarkModel* model,
+                                           BookmarkNode* old_parent,
+                                           int old_index,
+                                           BookmarkNode* new_parent,
+                                           int new_index) {
   Reset(false);
 }
 
-void BookmarkEditorView::BookmarkNodeAdded(BookmarkBarModel* model,
-                                           BookmarkBarNode* parent,
+void BookmarkEditorView::BookmarkNodeAdded(BookmarkModel* model,
+                                           BookmarkNode* parent,
                                            int index) {
   Reset(false);
 }
 
-void BookmarkEditorView::BookmarkNodeRemoved(BookmarkBarModel* model,
-                                             BookmarkBarNode* parent,
+void BookmarkEditorView::BookmarkNodeRemoved(BookmarkModel* model,
+                                             BookmarkNode* parent,
                                              int index) {
   Reset(false);
 }
 
 void BookmarkEditorView::Reset(bool first_time) {
-  BookmarkBarNode* node_editing = bb_model_->GetNodeByURL(url_);
+  BookmarkNode* node_editing = bb_model_->GetNodeByURL(url_);
 
   // If the title is empty we need to fetch it from the node.
   if (first_time && title_.empty()) {
@@ -334,8 +334,8 @@ void BookmarkEditorView::Reset(bool first_time) {
   // tree_view will try to invoke something on the model we just deleted.
   tree_view_.SetModel(NULL);
 
-  BookmarkNode* root_node = CreateRootNode();
-  tree_model_.reset(new BookmarkTreeModel(root_node));
+  EditorNode* root_node = CreateRootNode();
+  tree_model_.reset(new EditorTreeModel(root_node));
 
   tree_view_.SetModel(tree_model_.get());
   tree_view_.SetController(this);
@@ -374,7 +374,7 @@ void BookmarkEditorView::UserInputChanged() {
 void BookmarkEditorView::NewGroup() {
   // Create a new entry parented to the selected item, or the bookmark
   // bar if nothing is selected.
-  BookmarkNode* parent = tree_model_->AsNode(tree_view_.GetSelectedNode());
+  EditorNode* parent = tree_model_->AsNode(tree_view_.GetSelectedNode());
   if (!parent) {
     NOTREACHED();
     return;
@@ -383,9 +383,9 @@ void BookmarkEditorView::NewGroup() {
   tree_view_.StartEditing(AddNewGroup(parent));
 }
 
-BookmarkEditorView::BookmarkNode* BookmarkEditorView::AddNewGroup(
-    BookmarkNode* parent) {
-  BookmarkNode* new_node = new BookmarkNode();
+BookmarkEditorView::EditorNode* BookmarkEditorView::AddNewGroup(
+    EditorNode* parent) {
+  EditorNode* new_node = new EditorNode();
   new_node->SetTitle(l10n_util::GetString(IDS_BOOMARK_EDITOR_NEW_FOLDER_NAME));
   new_node->value = 0;
   // new_node is now owned by parent.
@@ -396,13 +396,13 @@ BookmarkEditorView::BookmarkNode* BookmarkEditorView::AddNewGroup(
 void BookmarkEditorView::ExpandAndSelect() {
   tree_view_.ExpandAll();
 
-  BookmarkBarNode* to_select = bb_model_->GetNodeByURL(url_);
+  BookmarkNode* to_select = bb_model_->GetNodeByURL(url_);
   int group_id_to_select =
       to_select ? to_select->GetParent()->id() :
                   bb_model_->GetParentForNewNodes()->id();
 
   DCHECK(group_id_to_select);  // GetMostRecentParent should never return NULL.
-  BookmarkNode* b_node =
+  EditorNode* b_node =
       FindNodeWithID(tree_model_->GetRoot(), group_id_to_select);
   if (!b_node)
     b_node = tree_model_->GetRoot()->GetChild(0);  // Bookmark bar node.
@@ -410,9 +410,9 @@ void BookmarkEditorView::ExpandAndSelect() {
   tree_view_.SetSelectedNode(b_node);
 }
 
-BookmarkEditorView::BookmarkNode* BookmarkEditorView::CreateRootNode() {
-  BookmarkNode* root_node = new BookmarkNode(std::wstring(), 0);
-  BookmarkBarNode* bb_root_node = bb_model_->root_node();
+BookmarkEditorView::EditorNode* BookmarkEditorView::CreateRootNode() {
+  EditorNode* root_node = new EditorNode(std::wstring(), 0);
+  BookmarkNode* bb_root_node = bb_model_->root_node();
   CreateNodes(bb_root_node, root_node);
   DCHECK(root_node->GetChildCount() == 2);
   DCHECK(bb_root_node->GetChild(0)->GetType() ==
@@ -421,12 +421,12 @@ BookmarkEditorView::BookmarkNode* BookmarkEditorView::CreateRootNode() {
   return root_node;
 }
 
-void BookmarkEditorView::CreateNodes(BookmarkBarNode* bb_node,
-                                     BookmarkEditorView::BookmarkNode* b_node) {
+void BookmarkEditorView::CreateNodes(BookmarkNode* bb_node,
+                                     BookmarkEditorView::EditorNode* b_node) {
   for (int i = 0; i < bb_node->GetChildCount(); ++i) {
-    BookmarkBarNode* child_bb_node = bb_node->GetChild(i);
+    BookmarkNode* child_bb_node = bb_node->GetChild(i);
     if (child_bb_node->is_folder()) {
-      BookmarkNode* new_b_node = new BookmarkNode(child_bb_node->GetTitle(),
+      EditorNode* new_b_node = new EditorNode(child_bb_node->GetTitle(),
                                                   child_bb_node->id());
       b_node->Add(b_node->GetChildCount(), new_b_node);
       CreateNodes(child_bb_node, new_b_node);
@@ -434,13 +434,13 @@ void BookmarkEditorView::CreateNodes(BookmarkBarNode* bb_node,
   }
 }
 
-BookmarkEditorView::BookmarkNode* BookmarkEditorView::FindNodeWithID(
-    BookmarkEditorView::BookmarkNode* node,
+BookmarkEditorView::EditorNode* BookmarkEditorView::FindNodeWithID(
+    BookmarkEditorView::EditorNode* node,
     int id) {
   if (node->value == id)
     return node;
   for (int i = 0; i < node->GetChildCount(); ++i) {
-    BookmarkNode* result = FindNodeWithID(node->GetChild(i), id);
+    EditorNode* result = FindNodeWithID(node->GetChild(i), id);
     if (result)
       return result;
   }
@@ -457,7 +457,7 @@ void BookmarkEditorView::ApplyEdits() {
   ApplyEdits(tree_model_->AsNode(tree_view_.GetSelectedNode()));
 }
 
-void BookmarkEditorView::ApplyEdits(BookmarkNode* parent) {
+void BookmarkEditorView::ApplyEdits(EditorNode* parent) {
   DCHECK(parent);
 
   // We're going to apply edits to the bookmark bar model, which will call us
@@ -468,8 +468,8 @@ void BookmarkEditorView::ApplyEdits(BookmarkNode* parent) {
   GURL new_url(GetInputURL());
   std::wstring new_title(GetInputTitle());
 
-  BookmarkBarNode* old_node = bb_model_->GetNodeByURL(url_);
-  BookmarkBarNode* old_parent = old_node ? old_node->GetParent() : NULL;
+  BookmarkNode* old_node = bb_model_->GetNodeByURL(url_);
+  BookmarkNode* old_parent = old_node ? old_node->GetParent() : NULL;
   const int old_index = old_parent ? old_parent->IndexOfChild(old_node) : -1;
 
   if (url_ != new_url) {
@@ -478,7 +478,7 @@ void BookmarkEditorView::ApplyEdits(BookmarkNode* parent) {
   }
 
   // Create the new groups and update the titles.
-  BookmarkBarNode* new_parent = NULL;
+  BookmarkNode* new_parent = NULL;
   ApplyNameChangesAndCreateNewGroups(
       bb_model_->root_node(), tree_model_->GetRoot(), parent, &new_parent);
 
@@ -488,7 +488,7 @@ void BookmarkEditorView::ApplyEdits(BookmarkNode* parent) {
     return;
   }
 
-  BookmarkBarNode* current_node = bb_model_->GetNodeByURL(new_url);
+  BookmarkNode* current_node = bb_model_->GetNodeByURL(new_url);
 
   if (current_node) {
     // There's already a node with the URL.
@@ -515,15 +515,15 @@ void BookmarkEditorView::ApplyEdits(BookmarkNode* parent) {
 }
 
 void BookmarkEditorView::ApplyNameChangesAndCreateNewGroups(
-    BookmarkBarNode* bb_node,
-    BookmarkEditorView::BookmarkNode* b_node,
-    BookmarkEditorView::BookmarkNode* parent_b_node,
-    BookmarkBarNode** parent_bb_node) {
+    BookmarkNode* bb_node,
+    BookmarkEditorView::EditorNode* b_node,
+    BookmarkEditorView::EditorNode* parent_b_node,
+    BookmarkNode** parent_bb_node) {
   if (parent_b_node == b_node)
     *parent_bb_node = bb_node;
   for (int i = 0; i < b_node->GetChildCount(); ++i) {
-    BookmarkNode* child_b_node = b_node->GetChild(i);
-    BookmarkBarNode* child_bb_node = NULL;
+    EditorNode* child_b_node = b_node->GetChild(i);
+    BookmarkNode* child_bb_node = NULL;
     if (child_b_node->value == 0) {
       // New group.
       child_bb_node = bb_model_->AddGroup(bb_node,
@@ -532,7 +532,7 @@ void BookmarkEditorView::ApplyNameChangesAndCreateNewGroups(
       // Existing node, reset the title (BBModel ignores changes if the title
       // is the same).
       for (int j = 0; j < bb_node->GetChildCount(); ++j) {
-        BookmarkBarNode* node = bb_node->GetChild(j);
+        BookmarkNode* node = bb_node->GetChild(j);
         if (node->is_folder() && node->id() == child_b_node->value) {
           child_bb_node = node;
           break;

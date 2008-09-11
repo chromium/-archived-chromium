@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 #include "base/scoped_ptr.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/common/os_exchange_data.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -25,12 +25,12 @@ TEST_F(BookmarkDragDataTest, BogusRead) {
 }
 
 TEST_F(BookmarkDragDataTest, URL) {
-  BookmarkBarModel model(NULL);
-  BookmarkBarNode* root = model.GetBookmarkBarNode();
+  BookmarkModel model(NULL);
+  BookmarkNode* root = model.GetBookmarkBarNode();
   GURL url(GURL("http://foo.com"));
   const std::wstring profile_id(L"blah");
   const std::wstring title(L"blah");
-  BookmarkBarNode* node = model.AddURL(root, 0, title, url);
+  BookmarkNode* node = model.AddURL(root, 0, title, url);
   BookmarkDragData drag_data(node);
   drag_data.profile_id = profile_id;
   EXPECT_TRUE(drag_data.url == url);
@@ -58,11 +58,11 @@ TEST_F(BookmarkDragDataTest, URL) {
 }
 
 TEST_F(BookmarkDragDataTest, Group) {
-  BookmarkBarModel model(NULL);
-  BookmarkBarNode* root = model.GetBookmarkBarNode();
-  BookmarkBarNode* g1 = model.AddGroup(root, 0, L"g1");
-  BookmarkBarNode* g11 = model.AddGroup(g1, 0, L"g11");
-  BookmarkBarNode* g12 = model.AddGroup(g1, 0, L"g12");
+  BookmarkModel model(NULL);
+  BookmarkNode* root = model.GetBookmarkBarNode();
+  BookmarkNode* g1 = model.AddGroup(root, 0, L"g1");
+  BookmarkNode* g11 = model.AddGroup(g1, 0, L"g11");
+  BookmarkNode* g12 = model.AddGroup(g1, 0, L"g12");
 
   BookmarkDragData drag_data(g12);
   const std::wstring profile_id(L"blah");
@@ -82,14 +82,14 @@ TEST_F(BookmarkDragDataTest, Group) {
   EXPECT_TRUE(read_data.is_valid);
   EXPECT_FALSE(read_data.is_url);
 
-  BookmarkBarNode* r_g12 = read_data.GetNode(&model);
+  BookmarkNode* r_g12 = read_data.GetNode(&model);
   EXPECT_TRUE(g12 == r_g12);
 }
 
 TEST_F(BookmarkDragDataTest, GroupWithChild) {
-  BookmarkBarModel model(NULL);
-  BookmarkBarNode* root = model.GetBookmarkBarNode();
-  BookmarkBarNode* group = model.AddGroup(root, 0, L"g1");
+  BookmarkModel model(NULL);
+  BookmarkNode* root = model.GetBookmarkBarNode();
+  BookmarkNode* group = model.AddGroup(root, 0, L"g1");
 
   GURL url(GURL("http://foo.com"));
   const std::wstring profile_id(L"blah");
@@ -115,6 +115,6 @@ TEST_F(BookmarkDragDataTest, GroupWithChild) {
   EXPECT_TRUE(url == read_data.children[0].url);
   EXPECT_TRUE(read_data.children[0].is_url);
 
-  BookmarkBarNode* r_group = read_data.GetNode(&model);
+  BookmarkNode* r_group = read_data.GetNode(&model);
   EXPECT_TRUE(group == r_group);
 }

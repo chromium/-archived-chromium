@@ -11,7 +11,7 @@
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/values.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download_manager.h"
@@ -465,12 +465,8 @@ class OffTheRecordProfileImpl : public Profile,
     return profile_->DidLastSessionExitCleanly();
   }
 
-  virtual bool HasBookmarkBarModel() {
-    return profile_->HasBookmarkBarModel();
-  }
-
-  virtual BookmarkBarModel* GetBookmarkBarModel() {
-    return profile_->GetBookmarkBarModel();
+  virtual BookmarkModel* GetBookmarkModel() {
+    return profile_->GetBookmarkModel();
   }
 
 #ifdef CHROME_PERSONALIZATION
@@ -610,11 +606,11 @@ ProfileImpl::~ProfileImpl() {
     request_context_ = NULL;
   }
 
-  // HistoryService may call into the BookmarkBarModel, as such we need to
-  // delete HistoryService before the BookmarkBarModel. The destructor for
+  // HistoryService may call into the BookmarkModel, as such we need to
+  // delete HistoryService before the BookmarkModel. The destructor for
   // HistoryService will join with HistoryService's backend thread so that
   // by the time the destructor has finished we're sure it will no longer call
-  // into the BookmarkBarModel.
+  // into the BookmarkModel.
   history_service_ = NULL;
   bookmark_bar_model_.reset();
 
@@ -724,7 +720,7 @@ HistoryService* ProfileImpl::GetHistoryService(ServiceAccessType sat) {
   if (!history_service_created_) {
     history_service_created_ = true;
     scoped_refptr<HistoryService> history(new HistoryService(this));
-    if (!history->Init(GetPath(), GetBookmarkBarModel()))
+    if (!history->Init(GetPath(), GetBookmarkModel()))
       return NULL;
     history_service_.swap(history);
 
@@ -836,13 +832,9 @@ bool ProfileImpl::DidLastSessionExitCleanly() {
   return last_session_exited_cleanly_;
 }
 
-bool ProfileImpl::HasBookmarkBarModel() {
-  return bookmark_bar_model_.get() != NULL;
-}
-
-BookmarkBarModel* ProfileImpl::GetBookmarkBarModel() {
+BookmarkModel* ProfileImpl::GetBookmarkModel() {
   if (!bookmark_bar_model_.get()) {
-    bookmark_bar_model_.reset(new BookmarkBarModel(this));
+    bookmark_bar_model_.reset(new BookmarkModel(this));
     bookmark_bar_model_->Load();
   }
   return bookmark_bar_model_.get();

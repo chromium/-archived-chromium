@@ -19,7 +19,7 @@
 #include "chrome/personalization/personalization.h"
 #endif
 
-class BookmarkBarModel;
+class BookmarkModel;
 class DownloadManager;
 class HistoryService;
 class NavigationController;
@@ -182,11 +182,8 @@ class Profile {
   // Returns true if the last time this profile was open it was exited cleanly.
   virtual bool DidLastSessionExitCleanly() = 0;
 
-  // Returns true if the BookmarkBarMOdel has been created.
-  virtual bool HasBookmarkBarModel() = 0;
-
-  // Returns the BookmarkBarModel, creating if not yet created.
-  virtual BookmarkBarModel* GetBookmarkBarModel() = 0;
+  // Returns the BookmarkModel, creating if not yet created.
+  virtual BookmarkModel* GetBookmarkModel() = 0;
 
 #ifdef CHROME_PERSONALIZATION
   virtual ProfilePersonalization GetProfilePersonalization() = 0;
@@ -263,8 +260,7 @@ class ProfileImpl : public Profile {
   virtual void UnregisterNavigationController(NavigationController* controller);
   virtual const Profile::ProfileControllerSet& GetNavigationControllers();
   virtual bool DidLastSessionExitCleanly();
-  virtual bool HasBookmarkBarModel();
-  virtual BookmarkBarModel* GetBookmarkBarModel();
+  virtual BookmarkModel* GetBookmarkModel();
   virtual bool IsSameProfile(Profile* profile);
   virtual Time GetStartTime() const;
   virtual TabRestoreService* GetTabRestoreService();
@@ -297,7 +293,7 @@ class ProfileImpl : public Profile {
   scoped_ptr<PrefService> prefs_;
   scoped_ptr<TemplateURLFetcher> template_url_fetcher_;
   scoped_ptr<TemplateURLModel> template_url_model_;
-  scoped_ptr<BookmarkBarModel> bookmark_bar_model_;
+  scoped_ptr<BookmarkModel> bookmark_bar_model_;
 
 #ifdef CHROME_PERSONALIZATION
   ProfilePersonalization personalization_;

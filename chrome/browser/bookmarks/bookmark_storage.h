@@ -9,14 +9,13 @@
 #include "base/task.h"
 #include "chrome/browser/browser_process.h"
 
-class BookmarkBarModel;
+class BookmarkModel;
 class Profile;
 class Value;
 
 // BookmarkStorage handles reading/write the bookmark bar model. The
-// BookmarkBarModel uses the BookmarkStorage to load bookmarks from
-// disk, as well as notifying the BookmarkStorage every time the model
-// changes.
+// BookmarkModel uses the BookmarkStorage to load bookmarks from disk, as well
+// as notifying the BookmarkStorage every time the model changes.
 //
 // Internally BookmarkStorage uses BookmarkCodec to do the actual read/write.
 
@@ -25,7 +24,7 @@ class BookmarkStorage : public base::RefCountedThreadSafe<BookmarkStorage> {
 
  public:
   // Creates a BookmarkStorage for the specified model
-  BookmarkStorage(Profile* profile, BookmarkBarModel* model);
+  BookmarkStorage(Profile* profile, BookmarkModel* model);
 
   // Loads the bookmarks into the model, notifying the model when done. If
   // load_from_history is true, the bookmarks are loaded from the file written
@@ -52,7 +51,7 @@ class BookmarkStorage : public base::RefCountedThreadSafe<BookmarkStorage> {
   base::Thread* backend_thread() const { return backend_thread_; }
 
   // The model. The model is NULL once BookmarkModelDeleted has been invoked.
-  BookmarkBarModel* model_;
+  BookmarkModel* model_;
 
   // Used to delay saves.
   ScopedRunnableMethodFactory<BookmarkStorage> save_factory_;

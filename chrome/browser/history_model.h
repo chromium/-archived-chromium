@@ -67,8 +67,8 @@ class HistoryModel : public BaseHistoryModel,
   // Contents of the current query.
   history::QueryResults results_;
 
-  // We lazily ask the BookmarkBarModel for whether a URL is starred. This
-  // enum gives the state of a particular entry.
+  // We lazily ask the BookmarkModel for whether a URL is starred. This enum
+  // gives the state of a particular entry.
   enum StarState {
     UNKNOWN = 0,  // Indicates we haven't determined the state yet.
     STARRED,

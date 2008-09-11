@@ -5,8 +5,8 @@
 #ifndef CHROME_BROWSER_VIEWS_BOOKMARK_BAR_VIEW_H_
 #define CHROME_BROWSER_VIEWS_BOOKMARK_BAR_VIEW_H_
 
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/common/slide_animation.h"
 #include "chrome/views/label.h"
 #include "chrome/views/menu.h"
@@ -28,16 +28,15 @@ namespace ChromeViews {
 class MenuItemView;
 }
 
-// BookmarkBarView renders the BookmarkBarModel.  Each starred entry
-// on the BookmarkBar is rendered as a MenuButton. An additional
-// MenuButton aligned to the right allows the user to quickly see
-// recently starred entries.
+// BookmarkBarView renders the BookmarkModel.  Each starred entry on the
+// BookmarkBar is rendered as a MenuButton. An additional MenuButton aligned to
+// the right allows the user to quickly see recently starred entries.
 //
 // BookmarkBarView shows the bookmarks from a specific Profile. BookmarkBarView
 // waits until the HistoryService for the profile has been loaded before
-// creating the BookmarkBarModel.
+// creating the BookmarkModel.
 class BookmarkBarView : public ChromeViews::View,
-                        public BookmarkBarModelObserver,
+                        public BookmarkModelObserver,
                         public ChromeViews::ViewMenuDelegate,
                         public ChromeViews::BaseButton::ButtonListener,
                         public Menu::Delegate,
@@ -120,7 +119,7 @@ class BookmarkBarView : public ChromeViews::View,
   PageNavigator* GetPageNavigator() { return page_navigator_; }
 
   // Returns the model.
-  BookmarkBarModel* GetModel() { return model_; }
+  BookmarkModel* GetModel() { return model_; }
 
   // Toggles whether the bookmark bar is shown only on the new tab page or on
   // all tabs.
@@ -174,8 +173,7 @@ class BookmarkBarView : public ChromeViews::View,
   // deletes itself once run.
   class ShowFolderDropMenuTask : public Task {
    public:
-    ShowFolderDropMenuTask(BookmarkBarView* view,
-                           BookmarkBarNode* node)
+    ShowFolderDropMenuTask(BookmarkBarView* view, BookmarkNode* node)
       : view_(view),
         node_(node) {
     }
@@ -195,7 +193,7 @@ class BookmarkBarView : public ChromeViews::View,
 
    private:
     BookmarkBarView* view_;
-    BookmarkBarNode* node_;
+    BookmarkNode* node_;
 
     DISALLOW_COPY_AND_ASSIGN(ShowFolderDropMenuTask);
   };
@@ -217,55 +215,55 @@ class BookmarkBarView : public ChromeViews::View,
 
   // Invoked when the bookmark bar model has finished loading. Creates a button
   // for each of the children of the root node from the model.
-  virtual void Loaded(BookmarkBarModel* model);
+  virtual void Loaded(BookmarkModel* model);
 
   // Invoked when the model is being deleted.
-  virtual void BookmarkModelBeingDeleted(BookmarkBarModel* model);
+  virtual void BookmarkModelBeingDeleted(BookmarkModel* model);
 
   // Invokes added followed by removed.
-  virtual void BookmarkNodeMoved(BookmarkBarModel* model,
-                                 BookmarkBarNode* old_parent,
+  virtual void BookmarkNodeMoved(BookmarkModel* model,
+                                 BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkBarNode* new_parent,
+                                 BookmarkNode* new_parent,
                                  int new_index);
 
   // Notifies ModelChangeListener of change.
   // If the node was added to the root node, a button is created and added to
   // this bookmark bar view.
-  virtual void BookmarkNodeAdded(BookmarkBarModel* model,
-                                 BookmarkBarNode* parent,
+  virtual void BookmarkNodeAdded(BookmarkModel* model,
+                                 BookmarkNode* parent,
                                  int index);
 
   // Implementation for BookmarkNodeAddedImpl.
-  void BookmarkNodeAddedImpl(BookmarkBarModel* model,
-                             BookmarkBarNode* parent,
+  void BookmarkNodeAddedImpl(BookmarkModel* model,
+                             BookmarkNode* parent,
                              int index);
 
   // Notifies ModelChangeListener of change.
   // If the node was a child of the root node, the button corresponding to it
   // is removed.
-  virtual void BookmarkNodeRemoved(BookmarkBarModel* model,
-                                   BookmarkBarNode* parent,
+  virtual void BookmarkNodeRemoved(BookmarkModel* model,
+                                   BookmarkNode* parent,
                                    int index);
 
   // Implementation for BookmarkNodeRemoved.
-  void BookmarkNodeRemovedImpl(BookmarkBarModel* model,
-                               BookmarkBarNode* parent,
+  void BookmarkNodeRemovedImpl(BookmarkModel* model,
+                               BookmarkNode* parent,
                                int index);
 
   // Notifies ModelChangedListener and invokes BookmarkNodeChangedImpl.
-  virtual void BookmarkNodeChanged(BookmarkBarModel* model,
-                                   BookmarkBarNode* node);
+  virtual void BookmarkNodeChanged(BookmarkModel* model,
+                                   BookmarkNode* node);
 
   // If the node is a child of the root node, the button is updated
   // appropriately.
-  void BookmarkNodeChangedImpl(BookmarkBarModel* model, BookmarkBarNode* node);
+  void BookmarkNodeChangedImpl(BookmarkModel* model, BookmarkNode* node);
 
   // Invoked when the favicon is available. If the node is a child of the
   // root node, the appropriate button is updated. If a menu is showing, the
   // call is forwarded to the menu to allow for it to update the icon.
-  virtual void BookmarkNodeFavIconLoaded(BookmarkBarModel* model,
-                                         BookmarkBarNode* node);
+  virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
+                                         BookmarkNode* node);
 
   // DragController method. Determines the node representing sender and invokes
   // WriteDragData to write the actual data.
@@ -275,7 +273,7 @@ class BookmarkBarView : public ChromeViews::View,
                              OSExchangeData* data);
 
   // Writes a BookmarkDragData for node to data.
-  void WriteDragData(BookmarkBarNode* node, OSExchangeData* data);
+  void WriteDragData(BookmarkNode* node, OSExchangeData* data);
 
   // Returns the drag operations for the specified button.
   virtual int GetDragOperations(ChromeViews::View* sender, int x, int y);
@@ -300,11 +298,11 @@ class BookmarkBarView : public ChromeViews::View,
                                bool is_mouse_gesture);
 
   // Creates the button for rendering the specified bookmark node.
-  ChromeViews::View* CreateBookmarkButton(BookmarkBarNode* node);
+  ChromeViews::View* CreateBookmarkButton(BookmarkNode* node);
 
   // COnfigures the button from the specified node. This sets the text,
   // and icon.
-  void ConfigureButton(BookmarkBarNode* node, ChromeViews::TextButton* button);
+  void ConfigureButton(BookmarkNode* node, ChromeViews::TextButton* button);
 
   // Used when showing the menu allowing the user to choose when the bar is
   // visible. Return value corresponds to the users preference for when the
@@ -329,13 +327,13 @@ class BookmarkBarView : public ChromeViews::View,
   void NotifyModelChanged();
 
   // Shows the menu used during drag and drop for the specified node.
-  void ShowDropFolderForNode(BookmarkBarNode* node);
+  void ShowDropFolderForNode(BookmarkNode* node);
 
   // Cancels the timer used to show a drop menu.
   void StopShowFolderDropMenuTimer();
 
   // Stars the timer used to show a drop menu for node.
-  void StartShowFolderDropMenuTimer(BookmarkBarNode* node);
+  void StartShowFolderDropMenuTimer(BookmarkNode* node);
 
   // Returns the drop operation and index for the drop based on the event
   // and data. Returns DragDropTypes::DRAG_NONE if not a valid location.
@@ -349,26 +347,26 @@ class BookmarkBarView : public ChromeViews::View,
   // Invokes CanDropAt to determine if this is a valid location for the data,
   // then returns the appropriate drag operation based on the data.
   int CalculateDropOperation(const BookmarkDragData& data,
-                             BookmarkBarNode* parent,
+                             BookmarkNode* parent,
                              int index);
 
   // Returns true if the specified location is a valid drop location for
   // the supplied drag data.
   bool CanDropAt(const BookmarkDragData& data,
-                 BookmarkBarNode* parent,
+                 BookmarkNode* parent,
                  int index);
 
   // Performs a drop of the specified data at the specified location. Returns
   // the result.
   int PerformDropImpl(const BookmarkDragData& data,
-                      BookmarkBarNode* parent_node,
+                      BookmarkNode* parent_node,
                       int index);
 
   // Creates a new group/entry for data, and recursively invokes itself for
   // all children of data. This is used during drag and drop to clone a
   // group from another profile.
   void CloneDragData(const BookmarkDragData& data,
-                     BookmarkBarNode* parent,
+                     BookmarkNode* parent,
                      int index_to_add_at);
 
   // Returns the index of the first hidden bookmark button. If all buttons are
@@ -391,7 +389,7 @@ class BookmarkBarView : public ChromeViews::View,
 
   // Model providing details as to the starred entries/groups that should be
   // shown. This is owned by the Profile.
-  BookmarkBarModel* model_;
+  BookmarkModel* model_;
 
   // Used to manage showing a Menu: either for the most recently bookmarked
   // entries, or for the a starred group.

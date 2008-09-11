@@ -15,8 +15,8 @@
 
 class Profile;
 
-class BookmarkBarModel;
-class BookmarkBarNode;
+class BookmarkModel;
+class BookmarkNode;
 
 namespace ChromeViews {
 class CheckBox;
@@ -57,23 +57,23 @@ class BookmarkBubbleView : public ChromeViews::View,
   // also contains an extra item that shows the text 'Choose another folder...'.
   class RecentlyUsedFoldersModel : public ChromeViews::ComboBox::Model {
    public:
-    RecentlyUsedFoldersModel(BookmarkBarModel* bb_model, BookmarkBarNode* node);
+    RecentlyUsedFoldersModel(BookmarkModel* bb_model, BookmarkNode* node);
 
     // ComboBox::Model methods. Call through to nodes_.
     virtual int GetItemCount(ChromeViews::ComboBox* source);
     virtual std::wstring GetItemAt(ChromeViews::ComboBox* source, int index);
 
     // Returns the node at the specified index.
-    BookmarkBarNode* GetNodeAt(int index);
+    BookmarkNode* GetNodeAt(int index);
 
     // Returns the index of the original parent folder.
     int node_parent_index() const { return node_parent_index_; }
 
    private:
     // Removes node from nodes_. Does nothing if node is not in nodes_.
-    void RemoveNode(BookmarkBarNode* node);
+    void RemoveNode(BookmarkNode* node);
 
-    std::vector<BookmarkBarNode*> nodes_;
+    std::vector<BookmarkNode*> nodes_;
     int node_parent_index_;
 
     DISALLOW_EVIL_CONSTRUCTORS(RecentlyUsedFoldersModel);

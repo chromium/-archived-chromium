@@ -11,7 +11,7 @@
 #include "chrome/browser/autocomplete/history_contents_provider.h"
 #include "chrome/browser/autocomplete/keyword_provider.h"
 #include "chrome/browser/autocomplete/search_provider.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/history_tab_ui.h"
 #include "chrome/browser/profile.h"
@@ -394,12 +394,12 @@ void AutocompleteProvider::UpdateStarredStateOfMatches() {
 
   if (!profile_)
     return;
-  BookmarkBarModel* bookmark_bar_model = profile_->GetBookmarkBarModel();
-  if (!bookmark_bar_model || !bookmark_bar_model->IsLoaded())
+  BookmarkModel* bookmark_model = profile_->GetBookmarkModel();
+  if (!bookmark_model || !bookmark_model->IsLoaded())
     return;
 
   for (ACMatches::iterator i = matches_.begin(); i != matches_.end(); ++i)
-    i->starred = bookmark_bar_model->IsBookmarked(GURL(i->destination_url));
+    i->starred = bookmark_model->IsBookmarked(GURL(i->destination_url));
 }
 
 // AutocompleteResult ---------------------------------------------------------

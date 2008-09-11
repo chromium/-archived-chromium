@@ -148,14 +148,14 @@ TEST_F(HistoryContentsProviderTest, MinimalChanges) {
   EXPECT_EQ(2, m3.size());
 }
 
-// Tests that the BookmarkBarModel is queried correctly.
+// Tests that the BookmarkModel is queried correctly.
 TEST_F(HistoryContentsProviderTest, Bookmarks) {
-  profile()->CreateBookmarkBarModel(false);
+  profile()->CreateBookmarkModel(false);
   profile()->BlockUntilBookmarkModelLoaded();
 
   // Add a bookmark.
   GURL bookmark_url("http://www.google.com/4");
-  profile()->GetBookmarkBarModel()->SetURLStarred(bookmark_url, L"bar", true);
+  profile()->GetBookmarkModel()->SetURLStarred(bookmark_url, L"bar", true);
 
   AutocompleteInput input(L"bar", std::wstring(), true);
 

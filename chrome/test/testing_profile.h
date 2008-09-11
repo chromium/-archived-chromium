@@ -8,7 +8,7 @@
 #include "base/base_paths.h"
 #include "base/path_service.h"
 #include "base/file_util.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_prefs.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
@@ -30,14 +30,14 @@ class TestingProfile : public Profile {
   // NULL. If |delete_file| is true, the bookmarks file is deleted first, then
   // the model is created. As TestingProfile deletes the directory containing
   // the files used by HistoryService, the boolean only matters if you're
-  // recreating the BookmarkBarModel.
+  // recreating the BookmarkModel.
   //
   // NOTE: this does not block until the bookmarks are loaded. For that use
   // BlockUntilBookmarkModelLoaded.
-  void CreateBookmarkBarModel(bool delete_file);
+  void CreateBookmarkModel(bool delete_file);
 
-  // Blocks until the BookmarkBarModel finishes loaded. This is NOT invoked
-  // from CreateBookmarkBarModel.
+  // Blocks until the BookmarkModel finishes loaded. This is NOT invoked from
+  // CreateBookmarkModel.
   void BlockUntilBookmarkModelLoaded();
 
   // Creates a TemplateURLModel. If not invoked the TemplateURLModel is NULL.
@@ -130,10 +130,7 @@ class TestingProfile : public Profile {
   }
   virtual void MergeResourceBoolean(int message_id, bool* output_value) {
   }
-  virtual bool HasBookmarkBarModel() {
-    return (bookmark_bar_model_.get() != NULL);
-  }
-  virtual BookmarkBarModel* GetBookmarkBarModel() {
+  virtual BookmarkModel* GetBookmarkModel() {
     return bookmark_bar_model_.get();
   }
   virtual bool Profile::IsSameProfile(Profile *p) {
@@ -174,8 +171,8 @@ class TestingProfile : public Profile {
   // The history service. Only created if CreateHistoryService is invoked.
   scoped_refptr<HistoryService> history_service_;
 
-  // The BookmarkBarModel. Only created if CreateBookmarkBarModel is invoked.
-  scoped_ptr<BookmarkBarModel> bookmark_bar_model_;
+  // The BookmarkModel. Only created if CreateBookmarkModel is invoked.
+  scoped_ptr<BookmarkModel> bookmark_bar_model_;
 
   // The TemplateURLFetcher. Only created if CreateTemplateURLModel is invoked.
   scoped_ptr<TemplateURLModel> template_url_model_;

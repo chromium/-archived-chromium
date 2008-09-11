@@ -810,7 +810,7 @@ void Browser::StarCurrentTabContents() {
     return;
 
   WebContents* rvh = tab->AsWebContents();
-  BookmarkBarModel* model = tab->profile()->GetBookmarkBarModel();
+  BookmarkModel* model = tab->profile()->GetBookmarkModel();
   if (!model || !model->IsLoaded())
     return;  // Ignore requests until bookmarks are loaded.
 

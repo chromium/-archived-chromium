@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_DOM_UI_NEW_TAB_UI_H__
 #define CHROME_BROWSER_DOM_UI_NEW_TAB_UI_H__
 
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/dom_ui/dom_ui_host.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/history/history.h"
@@ -179,7 +179,7 @@ class TemplateURLHandler : public DOMMessageHandler,
 };
 
 class RecentlyBookmarkedHandler : public DOMMessageHandler,
-                                  public BookmarkBarModelObserver {
+                                  public BookmarkModelObserver {
  public:
   explicit RecentlyBookmarkedHandler(DOMUIHost* dom_ui_host);
   ~RecentlyBookmarkedHandler();
@@ -194,29 +194,29 @@ class RecentlyBookmarkedHandler : public DOMMessageHandler,
  private:
   void SendBookmarksToPage();
 
-  // BookmarkBarModelObserver methods. These invoke SendBookmarksToPage.
-  virtual void Loaded(BookmarkBarModel* model);
-  virtual void BookmarkNodeAdded(BookmarkBarModel* model,
-                                 BookmarkBarNode* parent,
+  // BookmarkModelObserver methods. These invoke SendBookmarksToPage.
+  virtual void Loaded(BookmarkModel* model);
+  virtual void BookmarkNodeAdded(BookmarkModel* model,
+                                 BookmarkNode* parent,
                                  int index);
-  virtual void BookmarkNodeRemoved(BookmarkBarModel* model,
-                                   BookmarkBarNode* parent,
+  virtual void BookmarkNodeRemoved(BookmarkModel* model,
+                                   BookmarkNode* parent,
                                    int index);
-  virtual void BookmarkNodeChanged(BookmarkBarModel* model,
-                                   BookmarkBarNode* node);
+  virtual void BookmarkNodeChanged(BookmarkModel* model,
+                                   BookmarkNode* node);
 
   // These two won't effect what is shown, so they do nothing.
-  virtual void BookmarkNodeMoved(BookmarkBarModel* model,
-                                 BookmarkBarNode* old_parent,
+  virtual void BookmarkNodeMoved(BookmarkModel* model,
+                                 BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkBarNode* new_parent,
+                                 BookmarkNode* new_parent,
                                  int new_index) {}
-  virtual void BookmarkNodeFavIconLoaded(BookmarkBarModel* model,
-                                         BookmarkBarNode* node) {}
+  virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
+                                         BookmarkNode* node) {}
 
   DOMUIHost* dom_ui_host_;
   // The model we're getting bookmarks from. The model is owned by the Profile.
-  BookmarkBarModel* model_;
+  BookmarkModel* model_;
 
   DISALLOW_EVIL_CONSTRUCTORS(RecentlyBookmarkedHandler);
 };

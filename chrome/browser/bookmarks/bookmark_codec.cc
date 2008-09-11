@@ -6,7 +6,7 @@
 
 #include "base/string_util.h"
 #include "base/values.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "googleurl/src/gurl.h"
 
 #include "generated_resources.h"
@@ -30,12 +30,12 @@ static const wchar_t* kTypeFolder = L"folder";
 // Current version of the file.
 static const int kCurrentVersion = 1;
 
-Value* BookmarkCodec::Encode(BookmarkBarModel* model) {
+Value* BookmarkCodec::Encode(BookmarkModel* model) {
   return Encode(model->GetBookmarkBarNode(), model->other_node());
 }
 
-Value* BookmarkCodec::Encode(BookmarkBarNode* bookmark_bar_node,
-                             BookmarkBarNode* other_folder_node) {
+Value* BookmarkCodec::Encode(BookmarkNode* bookmark_bar_node,
+                             BookmarkNode* other_folder_node) {
   DictionaryValue* roots = new DictionaryValue();
   roots->Set(kRootFolderNameKey, EncodeNode(bookmark_bar_node));
   roots->Set(kOtherBookmarFolderNameKey, EncodeNode(other_folder_node));
@@ -46,7 +46,7 @@ Value* BookmarkCodec::Encode(BookmarkBarNode* bookmark_bar_node,
   return main;
 }
 
-bool BookmarkCodec::Decode(BookmarkBarModel* model, const Value& value) {
+bool BookmarkCodec::Decode(BookmarkModel* model, const Value& value) {
   if (value.GetType() != Value::TYPE_DICTIONARY)
     return false;  // Unexpected type.
 
@@ -88,7 +88,7 @@ bool BookmarkCodec::Decode(BookmarkBarModel* model, const Value& value) {
   return true;
 }
 
-Value* BookmarkCodec::EncodeNode(BookmarkBarNode* node) {
+Value* BookmarkCodec::EncodeNode(BookmarkNode* node) {
   DictionaryValue* value = new DictionaryValue();
   value->SetString(kNameKey, node->GetTitle());
   value->SetString(kDateAddedKey,
@@ -111,9 +111,9 @@ Value* BookmarkCodec::EncodeNode(BookmarkBarNode* node) {
   return value;
 }
 
-bool BookmarkCodec::DecodeChildren(BookmarkBarModel* model,
+bool BookmarkCodec::DecodeChildren(BookmarkModel* model,
                                    const ListValue& child_value_list,
-                                   BookmarkBarNode* parent) {
+                                   BookmarkNode* parent) {
   for (size_t i = 0; i < child_value_list.GetSize(); ++i) {
     Value* child_value;
     if (!child_value_list.Get(i, &child_value))
@@ -130,10 +130,10 @@ bool BookmarkCodec::DecodeChildren(BookmarkBarModel* model,
   return true;
 }
 
-bool BookmarkCodec::DecodeNode(BookmarkBarModel* model,
+bool BookmarkCodec::DecodeNode(BookmarkModel* model,
                                const DictionaryValue& value,
-                               BookmarkBarNode* parent,
-                               BookmarkBarNode* node) {
+                               BookmarkNode* parent,
+                               BookmarkNode* node) {
   bool created_node = (node == NULL);
   std::wstring title;
   if (!value.GetString(kNameKey, &title))
@@ -158,7 +158,7 @@ bool BookmarkCodec::DecodeNode(BookmarkBarModel* model,
       return false;
     // TODO(sky): this should ignore the node if not a valid URL.
     if (!node)
-      node = new BookmarkBarNode(model, GURL(url_string));
+      node = new BookmarkNode(model, GURL(url_string));
     if (parent)
       parent->Add(parent->GetChildCount(), node);
     node->type_ = history::StarredEntry::URL;
@@ -175,7 +175,7 @@ bool BookmarkCodec::DecodeNode(BookmarkBarModel* model,
       return false;
 
     if (!node)
-      node = new BookmarkBarNode(model, GURL());
+      node = new BookmarkNode(model, GURL());
     node->type_ = history::StarredEntry::USER_GROUP;
     node->date_group_modified_ =
         Time::FromInternalValue(StringToInt64(last_modified_date));

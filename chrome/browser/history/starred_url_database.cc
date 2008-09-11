@@ -7,8 +7,8 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/json_writer.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/bookmarks/bookmark_codec.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/history/query_parser.h"
 #include "chrome/browser/meta_table_helper.h"
@@ -541,14 +541,14 @@ bool StarredURLDatabase::MigrateBookmarksToFileImpl(const std::wstring& path) {
   // Create the bookmark bar and other folder nodes.
   history::StarredEntry entry;
   entry.type = history::StarredEntry::BOOKMARK_BAR;
-  BookmarkBarNode bookmark_bar_node(NULL, GURL());
+  BookmarkNode bookmark_bar_node(NULL, GURL());
   bookmark_bar_node.Reset(entry);
   entry.type = history::StarredEntry::OTHER;
-  BookmarkBarNode other_node(NULL, GURL());
+  BookmarkNode other_node(NULL, GURL());
   other_node.Reset(entry);
 
   std::map<history::UIStarID, history::StarID> group_id_to_id_map;
-  typedef std::map<history::StarID, BookmarkBarNode*> IDToNodeMap;
+  typedef std::map<history::StarID, BookmarkNode*> IDToNodeMap;
   IDToNodeMap id_to_node_map;
 
   history::UIStarID other_folder_group_id = 0;
@@ -586,14 +586,14 @@ bool StarredURLDatabase::MigrateBookmarksToFileImpl(const std::wstring& path) {
       continue;
     }
 
-    BookmarkBarNode* node = id_to_node_map[i->id];
+    BookmarkNode* node = id_to_node_map[i->id];
     if (!node) {
       // Creating a node results in creating the parent. As such, it is
       // possible for the node representing a group to have been created before
       // encountering the details.
 
       // The created nodes are owned by the root node.
-      node = new BookmarkBarNode(NULL, i->url);
+      node = new BookmarkNode(NULL, i->url);
       id_to_node_map[i->id] = node;
     }
     node->Reset(*i);
@@ -601,10 +601,10 @@ bool StarredURLDatabase::MigrateBookmarksToFileImpl(const std::wstring& path) {
     DCHECK(group_id_to_id_map.find(i->parent_group_id) !=
            group_id_to_id_map.end());
     history::StarID parent_id = group_id_to_id_map[i->parent_group_id];
-    BookmarkBarNode* parent = id_to_node_map[parent_id];
+    BookmarkNode* parent = id_to_node_map[parent_id];
     if (!parent) {
       // Haven't encountered the parent yet, create it now.
-      parent = new BookmarkBarNode(NULL, GURL());
+      parent = new BookmarkNode(NULL, GURL());
       id_to_node_map[parent_id] = parent;
     }
 

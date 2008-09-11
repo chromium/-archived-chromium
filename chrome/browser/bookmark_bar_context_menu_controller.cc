@@ -4,7 +4,7 @@
 
 #include "chrome/browser/bookmark_bar_context_menu_controller.h"
 
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/page_navigator.h"
@@ -24,7 +24,7 @@ namespace {
 
 // Returns true if the specified node is of type URL, or has a descendant
 // of type URL.
-bool NodeHasURLs(BookmarkBarNode* node) {
+bool NodeHasURLs(BookmarkNode* node) {
   if (node->GetType() == history::StarredEntry::URL)
     return true;
 
@@ -40,7 +40,7 @@ bool NodeHasURLs(BookmarkBarNode* node) {
 // in a new window. navigator indicates the PageNavigator to use for
 // new tabs. It is reset if open_first_in_new_window is true.
 // opened_url is set to true the first time a new tab is opened.
-void OpenAll(BookmarkBarNode* node,
+void OpenAll(BookmarkNode* node,
              bool open_first_in_new_window,
              PageNavigator** navigator,
              bool* opened_url) {
@@ -89,7 +89,7 @@ class EditFolderController : public InputWindowDelegate,
                              public BookmarkBarView::ModelChangedListener {
  public:
   EditFolderController(BookmarkBarView* view,
-                       BookmarkBarNode* node,
+                       BookmarkNode* node,
                        int visual_order,
                        bool is_new)
       : view_(view),
@@ -126,7 +126,7 @@ class EditFolderController : public InputWindowDelegate,
 
   virtual void InputAccepted(const std::wstring& text) {
     view_->ClearModelChangedListenerIfEquals(this);
-    BookmarkBarModel* model = view_->GetProfile()->GetBookmarkBarModel();
+    BookmarkModel* model = view_->GetProfile()->GetBookmarkModel();
     if (is_new_)
       model->AddGroup(node_, visual_order_, text);
     else
@@ -156,7 +156,7 @@ class EditFolderController : public InputWindowDelegate,
 
   // If is_new is true, this is the parent to create the new node under.
   // Otherwise this is the node to change the title of.
-  BookmarkBarNode* node_;
+  BookmarkNode* node_;
 
   int visual_order_;
   bool is_new_;
@@ -183,7 +183,7 @@ const int BookmarkBarContextMenuController::new_folder_id = 10;
 
 BookmarkBarContextMenuController::BookmarkBarContextMenuController(
     BookmarkBarView* view,
-    BookmarkBarNode* node)
+    BookmarkNode* node)
     : view_(view),
       node_(node),
       menu_(this) {
@@ -208,7 +208,7 @@ BookmarkBarContextMenuController::BookmarkBarContextMenuController(
   menu_.AppendSeparator();
 
   if (node->GetParent() !=
-      view->GetProfile()->GetBookmarkBarModel()->root_node()) {
+      view->GetProfile()->GetBookmarkModel()->root_node()) {
     menu_.AppendMenuItemWithLabel(edit_bookmark_id,
                                   l10n_util::GetString(IDS_BOOKMARK_BAR_EDIT));
     menu_.AppendMenuItemWithLabel(
@@ -284,7 +284,7 @@ void BookmarkBarContextMenuController::ExecuteCommand(int id) {
             L"BookmarkBar_ContextMenu_OpenAllInNewWindow", profile);
       }
 
-      BookmarkBarNode* node = node_;
+      BookmarkNode* node = node_;
       PageNavigator* navigator = view_->GetPageNavigator();
       bool opened_url = false;
       OpenAll(node, (id == open_all_bookmarks_in_new_window_id), &navigator,
@@ -328,7 +328,7 @@ void BookmarkBarContextMenuController::ExecuteCommand(int id) {
                                 profile);
 
       int visual_order;
-      BookmarkBarNode* parent =
+      BookmarkNode* parent =
           GetParentAndVisualOrderForNewNode(&visual_order);
       GetParentAndVisualOrderForNewNode(&visual_order);
       // Controller deletes itself when done.
@@ -361,7 +361,7 @@ bool BookmarkBarContextMenuController::IsCommandEnabled(int id) const {
 
 // Returns the parent node and visual_order to use when adding new
 // bookmarks/folders.
-BookmarkBarNode* BookmarkBarContextMenuController::
+BookmarkNode* BookmarkBarContextMenuController::
     GetParentAndVisualOrderForNewNode(int* visual_order) {
   if (node_->GetType() != history::StarredEntry::URL) {
     // Adding to a group always adds to the end.

@@ -7,8 +7,8 @@
 #include "base/file_util.h"
 #include "base/json_writer.h"
 #include "base/message_loop.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
 #include "chrome/browser/bookmarks/bookmark_codec.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/json_value_serializer.h"
@@ -29,7 +29,7 @@ const int kSaveDelayMS = 2500;
 
 // BookmarkStorage -------------------------------------------------------------
 
-BookmarkStorage::BookmarkStorage(Profile* profile, BookmarkBarModel* model)
+BookmarkStorage::BookmarkStorage(Profile* profile, BookmarkModel* model)
     : model_(model),
 #pragma warning(suppress: 4355)  // Okay to pass "this" here.
       save_factory_(this),

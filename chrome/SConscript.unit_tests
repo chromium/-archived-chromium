@@ -108,7 +108,7 @@ unit_test_files = [
     'browser/autocomplete/keyword_provider_unittest.cc',
     'browser/back_forward_menu_model_unittest.cc',
     'browser/bookmark_bar_context_menu_controller_test.cc',
-    'browser/bookmarks/bookmark_bar_model_unittest.cc',
+    'browser/bookmarks/bookmark_bar_unittest.cc',
     'browser/bookmarks/bookmark_drag_data_unittest.cc',
     'browser/cache_manager_host_unittest.cc',
     'browser/chrome_thread_unittest.cc',

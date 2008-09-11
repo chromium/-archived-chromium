@@ -11,7 +11,7 @@
 #include "base/basictypes.h"
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/history/history_types.h"
 #include "chrome/browser/ie7_password.h"
 #include "chrome/browser/profile.h"
@@ -57,10 +57,10 @@ class ProfileWriter : public base::RefCounted<ProfileWriter> {
   explicit ProfileWriter(Profile* profile) : profile_(profile) { }
   virtual ~ProfileWriter() { }
 
-  // Methods for monitoring BookmarkBarModel status.
-  virtual bool BookmarkBarModelIsLoaded() const;
-  virtual void AddBookmarkBarModelObserver(
-      BookmarkBarModelObserver* observer);
+  // Methods for monitoring BookmarkModel status.
+  virtual bool BookmarkModelIsLoaded() const;
+  virtual void AddBookmarkModelObserver(
+      BookmarkModelObserver* observer);
 
   // Methods for monitoring TemplateURLModel status.
   virtual bool TemplateURLModelIsLoaded() const;
@@ -113,7 +113,7 @@ class ProfileWriter : public base::RefCounted<ProfileWriter> {
 // browsers dynamically, and controls the process of importing. When
 // the import process is done, ImporterHost deletes itself.
 class ImporterHost : public base::RefCounted<ImporterHost>,
-                     public BookmarkBarModelObserver,
+                     public BookmarkModelObserver,
                      public NotificationObserver {
  public:
   ImporterHost();
@@ -123,23 +123,23 @@ class ImporterHost : public base::RefCounted<ImporterHost>,
   // exist.
   explicit ImporterHost(MessageLoop* file_loop);
 
-  // BookmarkBarModelObserver methods.
-  virtual void Loaded(BookmarkBarModel* model);
-  virtual void BookmarkNodeMoved(BookmarkBarModel* model,
-                                 BookmarkBarNode* old_parent,
+  // BookmarkModelObserver methods.
+  virtual void Loaded(BookmarkModel* model);
+  virtual void BookmarkNodeMoved(BookmarkModel* model,
+                                 BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkBarNode* new_parent,
+                                 BookmarkNode* new_parent,
                                  int new_index) {}
-  virtual void BookmarkNodeAdded(BookmarkBarModel* model,
-                                 BookmarkBarNode* parent,
+  virtual void BookmarkNodeAdded(BookmarkModel* model,
+                                 BookmarkNode* parent,
                                  int index) {}
-  virtual void BookmarkNodeRemoved(BookmarkBarModel* model,
-                                   BookmarkBarNode* parent,
+  virtual void BookmarkNodeRemoved(BookmarkModel* model,
+                                   BookmarkNode* parent,
                                    int index) {}
-  virtual void BookmarkNodeChanged(BookmarkBarModel* model,
-                                   BookmarkBarNode* node) {}
-  virtual void BookmarkNodeFavIconLoaded(BookmarkBarModel* model,
-                                         BookmarkBarNode* node) {}
+  virtual void BookmarkNodeChanged(BookmarkModel* model,
+                                   BookmarkNode* node) {}
+  virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
+                                         BookmarkNode* node) {}
 
   // NotificationObserver method. Called when TemplateURLModel has been loaded.
   void Observe(NotificationType type,

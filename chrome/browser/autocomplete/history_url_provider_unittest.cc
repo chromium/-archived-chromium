@@ -6,7 +6,7 @@
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "chrome/browser/autocomplete/history_url_provider.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -114,7 +114,7 @@ void HistoryURLProviderTest::OnProviderUpdate(bool updated_matches) {
 
 void HistoryURLProviderTest::SetUp() {
   profile_.reset(new TestingProfile());
-  profile_->CreateBookmarkBarModel(true);
+  profile_->CreateBookmarkModel(true);
   profile_->CreateHistoryService(true);
   history_service_ = profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
 
@@ -144,7 +144,7 @@ void HistoryURLProviderTest::FillData() {
                                          cur.visit_count, cur.typed_count,
                                          visit_time, false);
     if (cur.starred) {
-      profile_->GetBookmarkBarModel()->SetURLStarred(
+      profile_->GetBookmarkModel()->SetURLStarred(
           current_url, std::wstring(), true);
     }
   }

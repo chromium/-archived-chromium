@@ -45,7 +45,7 @@ void HistoryContentsProvider::Start(const AutocompleteInput& input,
   if (input.text().empty() || (input.type() == AutocompleteInput::INVALID) ||
       // The history service or bookmark bar model must exist.
       !(profile_->GetHistoryService(Profile::EXPLICIT_ACCESS) ||
-        profile_->GetBookmarkBarModel())) {
+        profile_->GetBookmarkModel())) {
     Stop();
     return;
   }
@@ -191,8 +191,8 @@ AutocompleteMatch HistoryContentsProvider::ResultToMatch(
       ACMatchClassification(0, ACMatchClassification::URL));
   match.description = result.title();
   match.starred =
-      (profile_->GetBookmarkBarModel() &&
-       profile_->GetBookmarkBarModel()->IsBookmarked(result.url()));
+      (profile_->GetBookmarkModel() &&
+       profile_->GetBookmarkModel()->IsBookmarked(result.url()));
 
   ClassifyDescription(result, &match);
   return match;
@@ -227,8 +227,8 @@ int HistoryContentsProvider::CalculateRelevance(
     const history::URLResult& result) {
   bool in_title = !!result.title_match_positions().size();
   bool is_starred =
-      (profile_->GetBookmarkBarModel() &&
-       profile_->GetBookmarkBarModel()->IsBookmarked(result.url()));
+      (profile_->GetBookmarkModel() &&
+       profile_->GetBookmarkModel()->IsBookmarked(result.url()));
 
   switch (input_type_) {
     case AutocompleteInput::UNKNOWN:
@@ -258,7 +258,7 @@ int HistoryContentsProvider::CalculateRelevance(
 }
 
 void HistoryContentsProvider::QueryBookmarks(const AutocompleteInput& input) {
-  BookmarkBarModel* bookmark_model = profile_->GetBookmarkBarModel();
+  BookmarkModel* bookmark_model = profile_->GetBookmarkModel();
   if (!bookmark_model)
     return;
 
@@ -266,7 +266,7 @@ void HistoryContentsProvider::QueryBookmarks(const AutocompleteInput& input) {
                                  // empty.
 
   TimeTicks start_time = TimeTicks::Now();
-  std::vector<BookmarkBarModel::TitleMatch> matches;
+  std::vector<BookmarkModel::TitleMatch> matches;
   bookmark_model->GetBookmarksMatchingText(input.text(), kMaxMatchCount,
                                            &matches);
   for (size_t i = 0; i < matches.size(); ++i)
@@ -276,7 +276,7 @@ void HistoryContentsProvider::QueryBookmarks(const AutocompleteInput& input) {
 }
 
 void HistoryContentsProvider::AddBookmarkTitleMatchToResults(
-    const BookmarkBarModel::TitleMatch& match) {
+    const BookmarkModel::TitleMatch& match) {
   history::URLResult url_result(match.node->GetURL(), match.match_positions);
   url_result.set_title(match.node->GetTitle());
   results_.AppendURLBySwapping(&url_result);

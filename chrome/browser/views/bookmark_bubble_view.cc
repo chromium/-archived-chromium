@@ -6,7 +6,7 @@
 
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/app/theme/theme_resources.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/standard_layout.h"
 #include "chrome/browser/user_metrics.h"
@@ -51,7 +51,7 @@ static SkBitmap* kCloseImage = NULL;
 // RecentlyUsedFoldersModel ---------------------------------------------------
 
 BookmarkBubbleView::RecentlyUsedFoldersModel::RecentlyUsedFoldersModel(
-    BookmarkBarModel* bb_model, BookmarkBarNode* node)
+    BookmarkModel* bb_model, BookmarkNode* node)
       // Use + 2 to account for bookmark bar and other node.
     : nodes_(bb_model->GetMostRecentlyModifiedGroups(kMaxMRUFolders + 2)),
       node_parent_index_(0) {
@@ -93,14 +93,14 @@ std::wstring BookmarkBubbleView::RecentlyUsedFoldersModel::GetItemAt(
   return nodes_[index]->GetTitle();
 }
 
-BookmarkBarNode* BookmarkBubbleView::RecentlyUsedFoldersModel::GetNodeAt(
+BookmarkNode* BookmarkBubbleView::RecentlyUsedFoldersModel::GetNodeAt(
     int index) {
   return nodes_[index];
 }
 
 void BookmarkBubbleView::RecentlyUsedFoldersModel::RemoveNode(
-    BookmarkBarNode* node) {
-  std::vector<BookmarkBarNode*>::iterator i =
+    BookmarkNode* node) {
+  std::vector<BookmarkNode*>::iterator i =
       find(nodes_.begin(), nodes_.end(), node);
   if (i != nodes_.end())
     nodes_.erase(i);
@@ -163,8 +163,8 @@ BookmarkBubbleView::BookmarkBubbleView(InfoBubbleDelegate* delegate,
       profile_(profile),
       url_(url),
       newly_bookmarked_(newly_bookmarked),
-      parent_model_(profile_->GetBookmarkBarModel(),
-                    profile_->GetBookmarkBarModel()->GetNodeByURL(url)) {
+      parent_model_(profile_->GetBookmarkModel(),
+                    profile_->GetBookmarkModel()->GetNodeByURL(url)) {
   Init();
 }
 
@@ -254,8 +254,8 @@ void BookmarkBubbleView::Init() {
 }
 
 std::wstring BookmarkBubbleView::GetTitle() {
-  BookmarkBarModel* bookmark_model= profile_->GetBookmarkBarModel();
-  BookmarkBarNode* node = bookmark_model->GetNodeByURL(url_);
+  BookmarkModel* bookmark_model= profile_->GetBookmarkModel();
+  BookmarkNode* node = bookmark_model->GetNodeByURL(url_);
   if (node)
     return node->GetTitle();
   else
@@ -288,10 +288,10 @@ void BookmarkBubbleView::ItemChanged(ComboBox* combo_box,
     ShowEditor();
     return;
   }
-  BookmarkBarModel* model = profile_->GetBookmarkBarModel();
-  BookmarkBarNode* node = model->GetNodeByURL(url_);
+  BookmarkModel* model = profile_->GetBookmarkModel();
+  BookmarkNode* node = model->GetNodeByURL(url_);
   if (node) {
-    BookmarkBarNode* new_parent = parent_model_.GetNodeAt(new_index);
+    BookmarkNode* new_parent = parent_model_.GetNodeAt(new_index);
     if (new_parent != node->GetParent()) {
       UserMetrics::RecordAction(L"BookmarkBubble_ChangeParent", profile_);
       model->Move(node, new_parent, new_parent->GetChildCount());
@@ -320,7 +320,7 @@ void BookmarkBubbleView::RemoveBookmark() {
   UserMetrics::RecordAction(L"BookmarkBubble_Unstar", profile_);
 
   GURL url = url_;
-  BookmarkBarModel* model = profile_->GetBookmarkBarModel();
+  BookmarkModel* model = profile_->GetBookmarkModel();
   // Close first, then notify the service. That way we know we won't be
   // visible and don't have to worry about some other window becoming
   // activated and deleting us before we invoke Close.
@@ -352,8 +352,8 @@ void BookmarkBubbleView::ShowEditor() {
 }
 
 void BookmarkBubbleView::SetNodeTitleFromTextField() {
-  BookmarkBarModel* model = profile_->GetBookmarkBarModel();
-  BookmarkBarNode* node = model->GetNodeByURL(url_);
+  BookmarkModel* model = profile_->GetBookmarkModel();
+  BookmarkNode* node = model->GetNodeByURL(url_);
   if (node) {
     const std::wstring new_title = title_tf_->GetText();
     if (new_title != node->GetTitle()) {

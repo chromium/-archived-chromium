@@ -810,11 +810,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\bookmarks\bookmark_bar_model.cc"
+				RelativePath=".\bookmarks\bookmark_model.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\bookmarks\bookmark_bar_model.h"
+				RelativePath=".\bookmarks\bookmark_model.h"
 				>
 			</File>
 			<File

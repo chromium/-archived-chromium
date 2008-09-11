@@ -5,7 +5,7 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/scoped_ptr.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/history/history_backend.h"
 #include "chrome/browser/history/in_memory_history_backend.h"
 #include "chrome/browser/history/in_memory_database.h"
@@ -69,7 +69,7 @@ class HistoryBackendTest : public testing::Test {
     backend_->AddPage(request);
   }
 
-  BookmarkBarModel bookmark_model_;
+  BookmarkModel bookmark_model_;
 
  protected:
   bool loaded_;
@@ -315,7 +315,7 @@ TEST_F(HistoryBackendTest, URLsNoLongerBookmarked) {
   // Unstar row2.
   bookmark_model_.SetURLStarred(row2.url(), std::wstring(), false);
   // Tell the backend it was unstarred. We have to explicitly do this as
-  // BookmarkBarModel isn't wired up to the backend during testing.
+  // BookmarkModel isn't wired up to the backend during testing.
   std::set<GURL> unstarred_urls;
   unstarred_urls.insert(row2.url());
   backend_->URLsNoLongerBookmarked(unstarred_urls);
@@ -329,7 +329,7 @@ TEST_F(HistoryBackendTest, URLsNoLongerBookmarked) {
   // Unstar row 1.
   bookmark_model_.SetURLStarred(row1.url(), std::wstring(), false);
   // Tell the backend it was unstarred. We have to explicitly do this as
-  // BookmarkBarModel isn't wired up to the backend during testing.
+  // BookmarkModel isn't wired up to the backend during testing.
   unstarred_urls.clear();
   unstarred_urls.insert(row1.url());
   backend_->URLsNoLongerBookmarked(unstarred_urls);

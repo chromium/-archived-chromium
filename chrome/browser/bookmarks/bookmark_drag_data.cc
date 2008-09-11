@@ -5,7 +5,7 @@
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 
 #include "base/pickle.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/common/os_exchange_data.h"
 
 static CLIPFORMAT clipboard_format = 0;
@@ -20,7 +20,7 @@ static void RegisterFormat() {
 BookmarkDragData::BookmarkDragData() : is_url(false), is_valid(false) {
 }
 
-BookmarkDragData::BookmarkDragData(BookmarkBarNode* node)
+BookmarkDragData::BookmarkDragData(BookmarkNode* node)
     : is_url(node->GetType() == history::StarredEntry::URL),
       url(node->GetURL()),
       title(node->GetTitle()),
@@ -62,7 +62,7 @@ bool BookmarkDragData::Read(const OSExchangeData& data) {
   return is_valid;
 }
 
-BookmarkBarNode* BookmarkDragData::GetNode(BookmarkBarModel* model) const {
+BookmarkNode* BookmarkDragData::GetNode(BookmarkModel* model) const {
   DCHECK(!is_url && id_ && is_valid);
   return model->GetNodeByID(id_);
 }
@@ -111,7 +111,7 @@ bool BookmarkDragData::ReadFromPickle(Pickle* pickle, void** iterator) {
   return true;
 }
 
-void BookmarkDragData::AddChildren(BookmarkBarNode* node) {
+void BookmarkDragData::AddChildren(BookmarkNode* node) {
   for (int i = 0, max = node->GetChildCount(); i < max; ++i)
     children.push_back(BookmarkDragData(node->GetChild(i)));
 }

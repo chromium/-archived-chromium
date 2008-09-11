@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// BookmarkCodec is responsible for encoding and decoding the BookmarkBarModel
+// BookmarkCodec is responsible for encoding and decoding the BookmarkModel
 // into JSON values. The encoded values are written to disk via the
 // BookmarkService.
 
@@ -11,8 +11,8 @@
 
 #include "base/basictypes.h"
 
-class BookmarkBarModel;
-class BookmarkBarNode;
+class BookmarkModel;
+class BookmarkNode;
 class DictionaryValue;
 class ListValue;
 class Value;
@@ -28,38 +28,38 @@ class BookmarkCodec {
   // returned object. This is invoked to encode the contents of the bookmark bar
   // model and is currently a convenience to invoking Encode that takes the
   // bookmark bar node and other folder node.
-  Value* Encode(BookmarkBarModel* model);
+  Value* Encode(BookmarkModel* model);
 
   // Encodes the bookmark bar and other folders returning the JSON value. It's
   // up to the caller to delete the returned object.
   // This method is public for use by StarredURLDatabase in migrating the
   // bookmarks out of the database.
-  Value* Encode(BookmarkBarNode* bookmark_bar_node,
-                BookmarkBarNode* other_folder_node);
+  Value* Encode(BookmarkNode* bookmark_bar_node,
+                BookmarkNode* other_folder_node);
 
   // Decodes the previously encoded value to the specified model. Returns true
   // on success, false otherwise. If there is an error (such as unexpected
   // version) all children are removed from the bookmark bar and other folder
   // nodes.
-  bool Decode(BookmarkBarModel* model, const Value& value);
+  bool Decode(BookmarkModel* model, const Value& value);
 
  private:
   // Encodes node and all its children into a Value object and returns it.
   // The caller takes ownership of the returned object.
-  Value* EncodeNode(BookmarkBarNode* node);
+  Value* EncodeNode(BookmarkNode* node);
 
   // Decodes the children of the specified node. Returns true on success.
-  bool DecodeChildren(BookmarkBarModel* model,
+  bool DecodeChildren(BookmarkModel* model,
                       const ListValue& child_value_list,
-                      BookmarkBarNode* parent);
+                      BookmarkNode* parent);
 
   // Decodes the supplied node from the supplied value. Child nodes are
   // created appropriately by way of DecodeChildren. If node is NULL a new
   // node is created and added to parent, otherwise node is used.
-  bool DecodeNode(BookmarkBarModel* model,
+  bool DecodeNode(BookmarkModel* model,
                   const DictionaryValue& value,
-                  BookmarkBarNode* parent,
-                  BookmarkBarNode* node);
+                  BookmarkNode* parent,
+                  BookmarkNode* node);
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkCodec);
 };

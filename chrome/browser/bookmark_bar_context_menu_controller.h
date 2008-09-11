@@ -8,7 +8,7 @@
 #include "chrome/views/chrome_menu.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 
-class BookmarkBarNode;
+class BookmarkNode;
 class PageNavigator;
 
 // BookmarkBarContextMenuController manages the context menus shown for the
@@ -18,7 +18,7 @@ class BookmarkBarContextMenuController : public ChromeViews::MenuDelegate,
     public BookmarkBarView::ModelChangedListener {
  public:
   BookmarkBarContextMenuController(BookmarkBarView* view,
-                                   BookmarkBarNode* node);
+                                   BookmarkNode* node);
 
   // Shows the menu at the specified place.
   void RunMenuAt(int x, int y);
@@ -49,11 +49,11 @@ class BookmarkBarContextMenuController : public ChromeViews::MenuDelegate,
  private:
   // Returns the parent node and visual_order to use when adding new
   // bookmarks/folders.
-  BookmarkBarNode* GetParentAndVisualOrderForNewNode(int* visual_order);
+  BookmarkNode* GetParentAndVisualOrderForNewNode(int* visual_order);
 
   ChromeViews::MenuItemView menu_;
   BookmarkBarView* view_;
-  BookmarkBarNode* node_;
+  BookmarkNode* node_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BookmarkBarContextMenuController);
 };

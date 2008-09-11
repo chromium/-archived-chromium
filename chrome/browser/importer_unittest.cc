@@ -151,13 +151,12 @@ class TestObserver : public ProfileWriter,
       EXPECT_EQ(1, password_count_);
   }
 
-  virtual bool BookmarkBarModelIsLoaded() const {
+  virtual bool BookmarkModelIsLoaded() const {
     // Profile is ready for writing.
     return true;
   }
 
-  virtual void AddBookmarkBarModelObserver(
-      BookmarkBarModelObserver* observer) {
+  virtual void AddBookmarkModelObserver(BookmarkModelObserver* observer) {
     NOTREACHED();
   }
 
@@ -505,13 +504,12 @@ class FirefoxObserver : public ProfileWriter,
               default_keyword_url_);
   }
 
-  virtual bool BookmarkBarModelIsLoaded() const {
+  virtual bool BookmarkModelIsLoaded() const {
     // Profile is ready for writing.
     return true;
   }
 
-  virtual void AddBookmarkBarModelObserver(
-      BookmarkBarModelObserver* observer) {
+  virtual void AddBookmarkModelObserver(BookmarkModelObserver* observer) {
     NOTREACHED();
   }
 
@@ -696,13 +694,12 @@ class Firefox3Observer : public ProfileWriter,
               default_keyword_url_);
   }
 
-  virtual bool BookmarkBarModelIsLoaded() const {
+  virtual bool BookmarkModelIsLoaded() const {
     // Profile is ready for writing.
     return true;
   }
 
-  virtual void AddBookmarkBarModelObserver(
-      BookmarkBarModelObserver* observer) {
+  virtual void AddBookmarkModelObserver(BookmarkModelObserver* observer) {
     NOTREACHED();
   }
 

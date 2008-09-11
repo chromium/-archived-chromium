@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_BOOKMARK_EDITOR_VIEW_H__
-#define CHROME_BROWSER_VIEWS_BOOKMARK_EDITOR_VIEW_H__
+#ifndef CHROME_BROWSER_VIEWS_BOOKMARK_EDITOR_VIEW_H_
+#define CHROME_BROWSER_VIEWS_BOOKMARK_EDITOR_VIEW_H_
 
 #include <set>
 
 #include "chrome/views/tree_node_model.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/views/checkbox.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/menu.h"
@@ -27,7 +27,7 @@ class Profile;
 // change the URL, title and where the bookmark appears as well as adding
 // new groups and changing the name of other groups.
 //
-// Edits are applied to the BookmarkBarModel when the user presses 'OK'.
+// Edits are applied to the BookmarkModel when the user presses 'OK'.
 //
 // To use BookmarkEditorView invoke the static show method.
 
@@ -38,7 +38,7 @@ class BookmarkEditorView : public ChromeViews::View,
                            public ChromeViews::TextField::Controller,
                            public ChromeViews::ContextMenuController,
                            public Menu::Delegate,
-                           public BookmarkBarModelObserver {
+                           public BookmarkModelObserver {
   FRIEND_TEST(BookmarkEditorViewTest, ChangeParent);
   FRIEND_TEST(BookmarkEditorViewTest, ChangeURLToExistingURL);
   FRIEND_TEST(BookmarkEditorViewTest, EditTitleKeepsPosition);
@@ -110,14 +110,14 @@ class BookmarkEditorView : public ChromeViews::View,
 
  private:
   // Type of node in the tree.
-  typedef ChromeViews::TreeNodeWithValue<int> BookmarkNode;
+  typedef ChromeViews::TreeNodeWithValue<int> EditorNode;
 
   // Model for the TreeView. Trivial subclass that doesn't allow titles with
   // empty strings.
-  class BookmarkTreeModel : public ChromeViews::TreeNodeModel<BookmarkNode> {
+  class EditorTreeModel : public ChromeViews::TreeNodeModel<EditorNode> {
    public:
-    explicit BookmarkTreeModel(BookmarkNode* root)
-        : TreeNodeModel<BookmarkNode>(root) {}
+    explicit EditorTreeModel(EditorNode* root)
+        : TreeNodeModel<EditorNode>(root) {}
 
     virtual void SetTitle(ChromeViews::TreeModelNode* node,
                           const std::wstring& title) {
@@ -126,31 +126,31 @@ class BookmarkEditorView : public ChromeViews::View,
     }
 
    private:
-    DISALLOW_EVIL_CONSTRUCTORS(BookmarkTreeModel);
+    DISALLOW_COPY_AND_ASSIGN(EditorTreeModel);
   };
 
   // Creates the necessary sub-views, configures them, adds them to the layout,
   // and requests the entries to display from the database.
   void Init();
 
-  // BookmarkBarModel observer methods. Any structural change results in
+  // BookmarkModel observer methods. Any structural change results in
   // resetting the tree model.
-  virtual void Loaded(BookmarkBarModel* model);
-  virtual void BookmarkNodeMoved(BookmarkBarModel* model,
-                                 BookmarkBarNode* old_parent,
+  virtual void Loaded(BookmarkModel* model);
+  virtual void BookmarkNodeMoved(BookmarkModel* model,
+                                 BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkBarNode* new_parent,
+                                 BookmarkNode* new_parent,
                                  int new_index);
-  virtual void BookmarkNodeAdded(BookmarkBarModel* model,
-                                 BookmarkBarNode* parent,
+  virtual void BookmarkNodeAdded(BookmarkModel* model,
+                                 BookmarkNode* parent,
                                  int index);
-  virtual void BookmarkNodeRemoved(BookmarkBarModel* model,
-                                   BookmarkBarNode* parent,
+  virtual void BookmarkNodeRemoved(BookmarkModel* model,
+                                   BookmarkNode* parent,
                                    int index);
-  virtual void BookmarkNodeChanged(BookmarkBarModel* model,
-                                   BookmarkBarNode* node) {}
-  virtual void BookmarkNodeFavIconLoaded(BookmarkBarModel* model,
-                                         BookmarkBarNode* node) {}
+  virtual void BookmarkNodeChanged(BookmarkModel* model,
+                                   BookmarkNode* node) {}
+  virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
+                                         BookmarkNode* node) {}
 
   // Resets the model of the tree and updates the various buttons appropriately.
   // If first_time is true, Reset is being invoked from the constructor or
@@ -164,37 +164,36 @@ class BookmarkEditorView : public ChromeViews::View,
 
   // Creates a returns the new root node. This invokes CreateNodes to do
   // the real work.
-  BookmarkNode* CreateRootNode();
+  EditorNode* CreateRootNode();
 
   // Adds and creates a child node in b_node for all children of bb_node that
   // are groups.
-  void CreateNodes(BookmarkBarNode* bb_node,
-                   BookmarkNode* b_node);
+  void CreateNodes(BookmarkNode* bb_node, EditorNode* b_node);
 
   // Returns the node with the specified id, or NULL if one can't be found.
-  BookmarkNode* FindNodeWithID(BookmarkEditorView::BookmarkNode* node, int id);
+  EditorNode* FindNodeWithID(BookmarkEditorView::EditorNode* node, int id);
 
   // Invokes ApplyEdits with the selected node.
   void ApplyEdits();
 
   // Applies the edits done by the user. |parent| gives the parent of the URL
   // being edited.
-  void ApplyEdits(BookmarkNode* parent);
+  void ApplyEdits(EditorNode* parent);
 
   // Recursively adds newly created groups and sets the title of nodes to
   // match the user edited title.
   //
-  // bb_node gives the BookmarkBarNode the edits are to be applied to,
-  // with b_node the source of the edits.
+  // bb_node gives the BookmarkNode the edits are to be applied to, with b_node
+  // the source of the edits.
   //
   // If b_node == parent_b_node, parent_bb_node is set to bb_node. This is
-  // used to determine the new BookmarkBarNode parent based on the BookmarkNode
+  // used to determine the new BookmarkNode parent based on the EditorNode
   // parent.
   void ApplyNameChangesAndCreateNewGroups(
-      BookmarkBarNode* bb_node,
-      BookmarkEditorView::BookmarkNode* b_node,
-      BookmarkEditorView::BookmarkNode* parent_b_node,
-      BookmarkBarNode** parent_bb_node);
+      BookmarkNode* bb_node,
+      BookmarkEditorView::EditorNode* b_node,
+      BookmarkEditorView::EditorNode* parent_b_node,
+      BookmarkNode** parent_bb_node);
 
   // Returns the current url the user has input.
   GURL GetInputURL() const;
@@ -211,16 +210,16 @@ class BookmarkEditorView : public ChromeViews::View,
   // editing on the new gorup as well.
   void NewGroup();
 
-  // Creates a new BookmarkNode as the last child of parent. The new node is
+  // Creates a new EditorNode as the last child of parent. The new node is
   // added to the model and returned. This does NOT start editing. This is used
   // internally by NewGroup and broken into a separate method for testing.
-  BookmarkNode* AddNewGroup(BookmarkNode* parent);
+  EditorNode* AddNewGroup(EditorNode* parent);
 
   // Profile the entry is from.
   Profile* profile_;
 
   // Model driving the TreeView.
-  scoped_ptr<BookmarkTreeModel> tree_model_;
+  scoped_ptr<EditorTreeModel> tree_model_;
 
   // Displays star groups.
   ChromeViews::TreeView tree_view_;
@@ -244,14 +243,13 @@ class BookmarkEditorView : public ChromeViews::View,
   std::wstring title_;
 
   // Mode used to create nodes from.
-  BookmarkBarModel* bb_model_;
+  BookmarkModel* bb_model_;
 
   // If true, we're running the menu for the bookmark bar or other bookmarks
   // nodes.
   bool running_menu_for_root_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(BookmarkEditorView);
+  DISALLOW_COPY_AND_ASSIGN(BookmarkEditorView);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_BOOKMARK_EDITOR_VIEW_H__
-
+#endif  // CHROME_BROWSER_VIEWS_BOOKMARK_EDITOR_VIEW_H_

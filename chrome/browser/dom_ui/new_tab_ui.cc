@@ -508,7 +508,7 @@ RecentlyBookmarkedHandler::~RecentlyBookmarkedHandler() {
 
 void RecentlyBookmarkedHandler::HandleGetRecentlyBookmarked(const Value*) {
   if (!model_) {
-    model_ = dom_ui_host_->profile()->GetBookmarkBarModel();
+    model_ = dom_ui_host_->profile()->GetBookmarkModel();
     model_->AddObserver(this);
   }
   // If the model is loaded, synchronously send the bookmarks down. Otherwise
@@ -518,11 +518,11 @@ void RecentlyBookmarkedHandler::HandleGetRecentlyBookmarked(const Value*) {
 }
 
 void RecentlyBookmarkedHandler::SendBookmarksToPage() {
-  std::vector<BookmarkBarNode*> recently_bookmarked;
+  std::vector<BookmarkNode*> recently_bookmarked;
   model_->GetMostRecentlyAddedEntries(kRecentBookmarks, &recently_bookmarked);
   ListValue list_value;
   for (size_t i = 0; i < recently_bookmarked.size(); ++i) {
-    BookmarkBarNode* node = recently_bookmarked[i];
+    BookmarkNode* node = recently_bookmarked[i];
     DictionaryValue* entry_value = new DictionaryValue;
     SetURLAndTitle(entry_value, node->GetTitle(), node->GetURL());
     list_value.Append(entry_value);
@@ -530,24 +530,24 @@ void RecentlyBookmarkedHandler::SendBookmarksToPage() {
   dom_ui_host_->CallJavascriptFunction(L"recentlyBookmarked", list_value);
 }
 
-void RecentlyBookmarkedHandler::Loaded(BookmarkBarModel* model) {
+void RecentlyBookmarkedHandler::Loaded(BookmarkModel* model) {
   SendBookmarksToPage();
 }
 
-void RecentlyBookmarkedHandler::BookmarkNodeAdded(BookmarkBarModel* model,
-                                                  BookmarkBarNode* parent,
+void RecentlyBookmarkedHandler::BookmarkNodeAdded(BookmarkModel* model,
+                                                  BookmarkNode* parent,
                                                   int index) {
   SendBookmarksToPage();
 }
 
-void RecentlyBookmarkedHandler::BookmarkNodeRemoved(BookmarkBarModel* model,
-                                                    BookmarkBarNode* parent,
+void RecentlyBookmarkedHandler::BookmarkNodeRemoved(BookmarkModel* model,
+                                                    BookmarkNode* parent,
                                                     int index) {
   SendBookmarksToPage();
 }
 
-void RecentlyBookmarkedHandler::BookmarkNodeChanged(BookmarkBarModel* model,
-                                                    BookmarkBarNode* node) {
+void RecentlyBookmarkedHandler::BookmarkNodeChanged(BookmarkModel* model,
+                                                    BookmarkNode* node) {
   SendBookmarksToPage();
 }
 

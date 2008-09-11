@@ -10,8 +10,8 @@
 #include "chrome/browser/history/history.h"
 #include "googleurl/src/gurl.h"
 
-class BookmarkBarModel;
-class BookmarkBarNode;
+class BookmarkModel;
+class BookmarkNode;
 class OSExchangeData;
 class Pickle;
 
@@ -32,7 +32,7 @@ struct BookmarkDragData {
   BookmarkDragData();
 
   // Created a BookmarkDragData populated from node.
-  explicit BookmarkDragData(BookmarkBarNode* node);
+  explicit BookmarkDragData(BookmarkNode* node);
 
   // Writes this BookmarkDragData to data. If BookmarkDragData is a URL,
   // this writes out the URL and URL title clipboard data as well.
@@ -45,7 +45,7 @@ struct BookmarkDragData {
   // path can not be found, NULL is returned.
   //
   // This is only valid for groups.
-  BookmarkBarNode* BookmarkDragData::GetNode(BookmarkBarModel* model) const;
+  BookmarkNode* BookmarkDragData::GetNode(BookmarkModel* model) const;
 
   // If true, this entry represents a StarredEntry of type URL.
   bool is_url;
@@ -72,7 +72,7 @@ struct BookmarkDragData {
   bool ReadFromPickle(Pickle* pickle, void** iterator);
 
   // Adds to children an entry for each child of node.
-  void AddChildren(BookmarkBarNode* node);
+  void AddChildren(BookmarkNode* node);
 
   // ID (node->id()) of the node this BookmarkDragData was created from.
   int id_;

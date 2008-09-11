@@ -10,7 +10,7 @@
 #include "base/gfx/image_operations.h"
 #include "base/gfx/png_encoder.h"
 #include "base/string_util.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/firefox2_importer.h"
 #include "chrome/browser/firefox3_importer.h"
@@ -31,13 +31,12 @@
 
 // ProfileWriter.
 
-bool ProfileWriter::BookmarkBarModelIsLoaded() const {
-  return profile_->GetBookmarkBarModel()->IsLoaded();
+bool ProfileWriter::BookmarkModelIsLoaded() const {
+  return profile_->GetBookmarkModel()->IsLoaded();
 }
 
-void ProfileWriter::AddBookmarkBarModelObserver(
-    BookmarkBarModelObserver* observer) {
-  profile_->GetBookmarkBarModel()->AddObserver(observer);
+void ProfileWriter::AddBookmarkModelObserver(BookmarkModelObserver* observer) {
+  profile_->GetBookmarkModel()->AddObserver(observer);
 }
 
 bool ProfileWriter::TemplateURLModelIsLoaded() const {
@@ -77,28 +76,28 @@ void ProfileWriter::AddHomepage(const GURL& home_page) {
 
 void ProfileWriter::AddBookmarkEntry(
     const std::vector<BookmarkEntry>& bookmark) {
-  BookmarkBarModel* model = profile_->GetBookmarkBarModel();
+  BookmarkModel* model = profile_->GetBookmarkModel();
   DCHECK(model->IsLoaded());
 
   bool show_bookmark_toolbar = false;
-  std::set<BookmarkBarNode*> groups_added_to;
+  std::set<BookmarkNode*> groups_added_to;
   for (std::vector<BookmarkEntry>::const_iterator it = bookmark.begin();
        it != bookmark.end(); ++it) {
     // Don't insert this url if it exists in model or url is not valid.
     if (model->GetNodeByURL(it->url) != NULL || !it->url.is_valid())
       continue;
 
-    // Set up groups in BookmarkBarModel in such a way that path[i] is
+    // Set up groups in BookmarkModel in such a way that path[i] is
     // the subgroup of path[i-1]. Finally they construct a path in the
     // model:
     //   path[0] \ path[1] \ ... \ path[size() - 1]
-    BookmarkBarNode* parent =
+    BookmarkNode* parent =
         (it->in_toolbar ? model->GetBookmarkBarNode() : model->other_node());
     for (std::vector<std::wstring>::const_iterator i = it->path.begin();
          i != it->path.end(); ++i) {
-      BookmarkBarNode* child = NULL;
+      BookmarkNode* child = NULL;
       for (int index = 0; index < parent->GetChildCount(); ++index) {
-        BookmarkBarNode* node = parent->GetChild(index);
+        BookmarkNode* node = parent->GetChild(index);
         if ((node->GetType() == history::StarredEntry::BOOKMARK_BAR ||
              node->GetType() == history::StarredEntry::USER_GROUP) &&
             node->GetTitle() == *i) {
@@ -123,7 +122,7 @@ void ProfileWriter::AddBookmarkEntry(
   // Reset the date modified time of the groups we added to. We do this to
   // make sure the 'recently added to' combobox in the bubble doesn't get random
   // groups.
-  for (std::set<BookmarkBarNode*>::const_iterator i = groups_added_to.begin();
+  for (std::set<BookmarkNode*>::const_iterator i = groups_added_to.begin();
        i != groups_added_to.end(); ++i) {
     model->ResetDateGroupModified(*i);
   }
@@ -300,7 +299,7 @@ ImporterHost::~ImporterHost() {
   STLDeleteContainerPointers(source_profiles_.begin(), source_profiles_.end());
 }
 
-void ImporterHost::Loaded(BookmarkBarModel* model) {
+void ImporterHost::Loaded(BookmarkModel* model) {
   model->RemoveObserver(this);
   waiting_for_bookmarkbar_model_ = false;
   InvokeTaskIfDone();
@@ -370,11 +369,10 @@ void ImporterHost::StartImportSettings(const ProfileInfo& profile_info,
     }
   }
 
-  // BookmarkBarModel should be loaded before adding IE favorites. So we
-  // observe the BookmarkBarModel if needed, and start the task after
-  // it has been loaded.
-  if ((items & FAVORITES) && !writer_->BookmarkBarModelIsLoaded()) {
-    writer_->AddBookmarkBarModelObserver(this);
+  // BookmarkModel should be loaded before adding IE favorites. So we observe
+  // the BookmarkModel if needed, and start the task after it has been loaded.
+  if ((items & FAVORITES) && !writer_->BookmarkModelIsLoaded()) {
+    writer_->AddBookmarkModelObserver(this);
     waiting_for_bookmarkbar_model_ = true;
   }
 

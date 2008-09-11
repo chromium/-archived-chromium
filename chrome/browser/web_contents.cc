@@ -7,7 +7,7 @@
 #include "base/command_line.h"
 #include "base/file_version_info.h"
 #include "chrome/app/locales/locale_settings.h"
-#include "chrome/browser/bookmarks/bookmark_bar_model.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/character_encoding.h"
@@ -746,8 +746,8 @@ void WebContents::Observe(NotificationType type,
                           const NotificationDetails& details) {
   TabContents::Observe(type, source, details);
   switch (type) {
-    case NOTIFY_BOOKMARK_MODEL_LOADED:  // BookmarkBarModel finished loading,
-                                        // fall through to update starred state.
+    case NOTIFY_BOOKMARK_MODEL_LOADED:  // BookmarkModel finished loading, fall
+                                        // through to update starred state.
     case NOTIFY_URLS_STARRED: {  // Somewhere, a URL has been starred.
       // Ignore notifications for profiles other than our current one.
       Profile* source_profile = Source<Profile>(source).ptr();
@@ -1460,7 +1460,7 @@ void WebContents::BroadcastProvisionalLoadCommit(
 }
 
 void WebContents::UpdateStarredStateForCurrentURL() {
-  BookmarkBarModel* model = profile()->GetBookmarkBarModel();
+  BookmarkModel* model = profile()->GetBookmarkModel();
   const bool old_state = is_starred_;
   is_starred_ = (model && model->GetNodeByURL(GetURL()));
 
