@@ -59,19 +59,18 @@
 
 namespace {
 
-// Defines the maximum number of renderer processes according to the amount
-// of installed memory as reported by the OS. The table values are calculated
-// by assuming that you want the renderers to use half of the installed ram
-// and assuming that each tab uses ~25MB.
-const int kMaxRenderersByRamTier[] = {
-  4,                                  // less than 256MB
-  8,                                  // 256MB
-  12,                                 // 512MB
-  16,                                 // 768MB
-  chrome::kMaxRendererProcessCount,   // 1GB or more.
-};
-
 unsigned int GetMaxRendererProcessCount() {
+  // Defines the maximum number of renderer processes according to the amount
+  // of installed memory as reported by the OS. The table values are calculated
+  // by assuming that you want the renderers to use half of the installed ram
+  // and assuming that each tab uses ~25MB.
+  static const int kMaxRenderersByRamTier[] = {
+    4,                                  // less than 256MB
+    8,                                  // 256MB
+    12,                                 // 512MB
+    16,                                 // 768MB
+  };
+
   static unsigned int max_count = 0;
   if (!max_count) {
     int memory_tier = env_util::GetPhysicalMemoryMB() / 256;
