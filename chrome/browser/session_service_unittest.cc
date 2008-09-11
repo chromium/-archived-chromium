@@ -43,6 +43,7 @@ class SessionServiceTest : public testing::Test {
   void UpdateNavigation(const SessionID& window_id,
                         const SessionID& tab_id,
                         const TabNavigation& navigation,
+                        int index,
                         bool select) {
     NavigationEntry entry(TAB_CONTENTS_UNKNOWN_TYPE);
     entry.set_url(navigation.url);
@@ -51,10 +52,9 @@ class SessionServiceTest : public testing::Test {
     entry.set_transition_type(navigation.transition);
     entry.set_has_post_data(
         navigation.type_mask & TabNavigation::HAS_POST_DATA);
-    service()->UpdateTabNavigation(window_id, tab_id, navigation.index, entry);
+    service()->UpdateTabNavigation(window_id, tab_id, index, entry);
     if (select)
-      service()->SetSelectedNavigationIndex(window_id, tab_id,
-                                            navigation.index);
+      service()->SetSelectedNavigationIndex(window_id, tab_id, index);
   }
 
   void ReadWindows(std::vector<SessionWindow*>* windows) {
@@ -85,10 +85,9 @@ TEST_F(SessionServiceTest, Basic) {
 
   TabNavigation nav1(0, GURL("http://google.com"), L"abc", "def",
                      PageTransition::QUALIFIER_MASK);
-  nav1.type_mask = TabNavigation::HAS_POST_DATA;
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
-  UpdateNavigation(window_id, tab_id, nav1, true);
+  UpdateNavigation(window_id, tab_id, nav1, 0, true);
 
   ScopedVector<SessionWindow> windows;
   ReadWindows(&(windows.get()));
@@ -106,6 +105,53 @@ TEST_F(SessionServiceTest, Basic) {
   helper_.AssertNavigationEquals(nav1, tab->navigations[0]);
 }
 
+// Creates a navigation entry with post data, saves it, and makes sure it does
+// not get restored.
+TEST_F(SessionServiceTest, PrunePostData1) {
+  SessionID tab_id;
+  ASSERT_NE(window_id.id(), tab_id.id());
+
+  TabNavigation nav1(0, GURL("http://google.com"), L"abc", "def",
+                     PageTransition::QUALIFIER_MASK);
+  nav1.type_mask = TabNavigation::HAS_POST_DATA;
+
+  helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
+  UpdateNavigation(window_id, tab_id, nav1, 0, true);
+
+  ScopedVector<SessionWindow> windows;
+  ReadWindows(&(windows.get()));
+
+  ASSERT_EQ(0, windows->size());
+}
+
+// Creates two navigation entries, one with post data one without. Restores
+// and verifies we get back only the entry with no post data.
+TEST_F(SessionServiceTest, PrunePostData2) {
+  SessionID tab_id;
+  ASSERT_NE(window_id.id(), tab_id.id());
+
+  TabNavigation nav1(0, GURL("http://google.com"), L"abc", "def",
+                     PageTransition::QUALIFIER_MASK);
+  nav1.type_mask = TabNavigation::HAS_POST_DATA;
+  TabNavigation nav2(0, GURL("http://google2.com"), L"abc", "def",
+                     PageTransition::QUALIFIER_MASK);
+
+  helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
+  UpdateNavigation(window_id, tab_id, nav1, 0, true);
+  UpdateNavigation(window_id, tab_id, nav2, 1, false);
+
+  ScopedVector<SessionWindow> windows;
+  ReadWindows(&(windows.get()));
+
+  ASSERT_EQ(1, windows->size());
+  ASSERT_EQ(0, windows[0]->selected_tab_index);
+
+  SessionTab* tab = windows[0]->tabs[0];
+  helper_.AssertTabEquals(window_id, tab_id, 0, 0, 1, *tab);
+
+  helper_.AssertNavigationEquals(nav2, tab->navigations[0]);
+}
+
 TEST_F(SessionServiceTest, ClosingTabStaysClosed) {
   SessionID tab_id;
   SessionID tab2_id;
@@ -117,10 +163,10 @@ TEST_F(SessionServiceTest, ClosingTabStaysClosed) {
                      PageTransition::AUTO_BOOKMARK);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
-  UpdateNavigation(window_id, tab_id, nav1, true);
+  UpdateNavigation(window_id, tab_id, nav1, 0, true);
 
   helper_.PrepareTabInWindow(window_id, tab2_id, 1, false);
-  UpdateNavigation(window_id, tab2_id, nav2, true);
+  UpdateNavigation(window_id, tab2_id, nav2, 0, true);
   service()->TabClosed(window_id, tab2_id);
 
   ScopedVector<SessionWindow> windows;
@@ -148,8 +194,7 @@ TEST_F(SessionServiceTest, Pruning) {
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
   for (int i = 0; i < 6; ++i) {
     TabNavigation& nav = (i % 2) == 0 ? nav1 : nav2;
-    nav.index = i;
-    UpdateNavigation(window_id, tab_id, nav, true);
+    UpdateNavigation(window_id, tab_id, nav, i, true);
   }
   service()->TabNavigationPathPruned(window_id, tab_id, 3);
 
@@ -165,11 +210,8 @@ TEST_F(SessionServiceTest, Pruning) {
   // index should get reset to last valid navigation, which is 2.
   helper_.AssertTabEquals(window_id, tab_id, 0, 2, 3, *tab);
 
-  nav1.index = 0;
   helper_.AssertNavigationEquals(nav1, tab->navigations[0]);
-  nav2.index = 1;
   helper_.AssertNavigationEquals(nav2, tab->navigations[1]);
-  nav1.index = 2;
   helper_.AssertNavigationEquals(nav1, tab->navigations[2]);
 }
 
@@ -184,13 +226,13 @@ TEST_F(SessionServiceTest, TwoWindows) {
                      PageTransition::AUTO_BOOKMARK);
 
   helper_.PrepareTabInWindow(window_id, tab1_id, 0, true);
-  UpdateNavigation(window_id, tab1_id, nav1, true);
+  UpdateNavigation(window_id, tab1_id, nav1, 0, true);
 
   const gfx::Rect window2_bounds(3, 4, 5, 6);
   service()->SetWindowType(window2_id, BrowserType::TABBED_BROWSER);
   service()->SetWindowBounds(window2_id, window2_bounds, true);
   helper_.PrepareTabInWindow(window2_id, tab2_id, 0, true);
-  UpdateNavigation(window2_id, tab2_id, nav2, true);
+  UpdateNavigation(window2_id, tab2_id, nav2, 0, true);
 
   ScopedVector<SessionWindow> windows;
   ReadWindows(&(windows.get()));
@@ -235,7 +277,7 @@ TEST_F(SessionServiceTest, WindowWithNoTabsGetsPruned) {
                      PageTransition::QUALIFIER_MASK);
 
   helper_.PrepareTabInWindow(window_id, tab1_id, 0, true);
-  UpdateNavigation(window_id, tab1_id, nav1, true);
+  UpdateNavigation(window_id, tab1_id, nav1, 0, true);
 
   const gfx::Rect window2_bounds(3, 4, 5, 6);
   service()->SetWindowType(window2_id, BrowserType::TABBED_BROWSER);
@@ -266,10 +308,10 @@ TEST_F(SessionServiceTest, ClosingWindowDoesntCloseTabs) {
                      PageTransition::AUTO_BOOKMARK);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
-  UpdateNavigation(window_id, tab_id, nav1, true);
+  UpdateNavigation(window_id, tab_id, nav1, 0, true);
 
   helper_.PrepareTabInWindow(window_id, tab2_id, 1, false);
-  UpdateNavigation(window_id, tab2_id, nav2, true);
+  UpdateNavigation(window_id, tab2_id, nav2, 0, true);
 
   service()->WindowClosing(window_id);
 
@@ -305,10 +347,10 @@ TEST_F(SessionServiceTest, WindowCloseCommittedAfterNavigate) {
                      PageTransition::AUTO_BOOKMARK);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
-  UpdateNavigation(window_id, tab_id, nav1, true);
+  UpdateNavigation(window_id, tab_id, nav1, 0, true);
 
   helper_.PrepareTabInWindow(window2_id, tab2_id, 0, false);
-  UpdateNavigation(window2_id, tab2_id, nav2, true);
+  UpdateNavigation(window2_id, tab2_id, nav2, 0, true);
 
   service()->WindowClosing(window2_id);
   service()->TabClosed(window2_id, tab2_id);
@@ -343,10 +385,10 @@ TEST_F(SessionServiceTest, IgnorePopups) {
                      PageTransition::AUTO_BOOKMARK);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
-  UpdateNavigation(window_id, tab_id, nav1, true);
+  UpdateNavigation(window_id, tab_id, nav1, 0, true);
 
   helper_.PrepareTabInWindow(window2_id, tab2_id, 0, false);
-  UpdateNavigation(window2_id, tab2_id, nav2, true);
+  UpdateNavigation(window2_id, tab2_id, nav2, 0, true);
 
   ScopedVector<SessionWindow> windows;
   ReadWindows(&(windows.get()));

@@ -36,28 +36,27 @@ class Thread;
 // TabNavigation corresponds to a NavigationEntry.
 
 struct TabNavigation {
+  friend class SessionService;
+
   enum TypeMask {
     HAS_POST_DATA = 1
   };
 
-  TabNavigation() : index(-1), transition(PageTransition::TYPED), type_mask(0) {
+  TabNavigation() : transition(PageTransition::TYPED), type_mask(0), index(-1) {
   }
   TabNavigation(int index,
                 const GURL& url,
                 const std::wstring& title,
                 const std::string& state,
                 PageTransition::Type transition)
-      : index(index),
-        url(url),
+      : url(url),
         title(title),
         state(state),
         transition(transition),
-        type_mask(0) {}
+        type_mask(0),
+        index(index) {}
 
 
-  // The index in the NavigationController. If this is -1, it means this
-  // TabNavigation is bogus.
-  int index;
   GURL url;
   // The title of the page.
   std::wstring title;
@@ -67,6 +66,14 @@ struct TabNavigation {
   // A mask used for arbitrary boolean values needed to represent a
   // NavigationEntry. Currently only contains HAS_POST_DATA or 0.
   int type_mask;
+
+ private:
+  // The index in the NavigationController. If this is -1, it means this
+  // TabNavigation is bogus.
+  //
+  // This is used when determining the selected TabNavigation and only useful
+  // by SessionService.
+  int index;
 };
 
 // SessionTab ----------------------------------------------------------------
@@ -496,6 +503,9 @@ class SessionService : public CancelableRequestProvider,
 
   // Returns true if changes to tabs in the specified window should be tracked.
   bool ShouldTrackChangesToWindow(const SessionID& window_id);
+
+  // Should we track the specified entry?
+  bool SessionService::ShouldTrackEntry(const NavigationEntry& entry);
 
   // Returns true if we track changes to the specified browser type.
   static bool should_track_changes_for_browser_type(BrowserType::Type type) {

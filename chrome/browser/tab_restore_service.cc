@@ -156,7 +156,6 @@ void TabRestoreService::PopulateTabFromController(
     NavigationEntry* entry = (i == pending_index) ?
         controller->GetPendingEntry() : controller->GetEntryAtIndex(i);
     TabNavigation& tab_nav = tab->navigations[i];
-    tab_nav.index = i;
     tab_nav.url = entry->display_url();
     tab_nav.title = entry->title();
     tab_nav.state = entry->content_state();

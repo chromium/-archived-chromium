@@ -1136,10 +1136,8 @@ TEST_F(NavigationControllerHistoryTest, NavigationThenBack) {
   TabNavigation nav(0, url0, std::wstring(), std::string(),
                     PageTransition::TYPED);
   helper_.AssertNavigationEquals(nav, windows_[0]->tabs[0]->navigations[0]);
-  nav.index = 1;
   nav.url = url1;
   helper_.AssertNavigationEquals(nav, windows_[0]->tabs[0]->navigations[1]);
-  nav.index = 2;
   nav.url = url2;
   helper_.AssertNavigationEquals(nav, windows_[0]->tabs[0]->navigations[2]);
 }
@@ -1174,7 +1172,6 @@ TEST_F(NavigationControllerHistoryTest, NavigationPruning) {
   TabNavigation nav(0, url0, std::wstring(), std::string(),
                     PageTransition::TYPED);
   helper_.AssertNavigationEquals(nav, windows_[0]->tabs[0]->navigations[0]);
-  nav.index = 1;
   nav.url = url2;
   helper_.AssertNavigationEquals(nav, windows_[0]->tabs[0]->navigations[1]);
 }

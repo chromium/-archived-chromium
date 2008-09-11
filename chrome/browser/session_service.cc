@@ -290,8 +290,7 @@ void SessionService::UpdateTabNavigation(const SessionID& window_id,
                                          const SessionID& tab_id,
                                          int index,
                                          const NavigationEntry& entry) {
-  if (!entry.display_url().is_valid() ||
-      !ShouldTrackChangesToWindow(window_id))
+  if (!ShouldTrackEntry(entry) || !ShouldTrackChangesToWindow(window_id))
     return;
 
   if (tab_to_available_range_.find(tab_id.id()) !=
@@ -901,10 +900,12 @@ void SessionService::BuildCommandsForTab(
     const NavigationEntry* entry = (i == pending_index) ?
         controller->GetPendingEntry() : controller->GetEntryAtIndex(i);
     DCHECK(entry);
-    commands->push_back(
-        CreateUpdateTabNavigationCommand(controller->session_id(),
-                                         i,
-                                         *entry));
+    if (ShouldTrackEntry(*entry)) {
+      commands->push_back(
+          CreateUpdateTabNavigationCommand(controller->session_id(),
+                                           i,
+                                           *entry));
+    }
   }
   commands->push_back(
       CreateSetSelectedNavigationIndexCommand(controller->session_id(),
@@ -1137,9 +1138,14 @@ bool SessionService::ShouldTrackChangesToWindow(const SessionID& window_id) {
   return windows_tracking_.find(window_id.id()) != windows_tracking_.end();
 }
 
+bool SessionService::ShouldTrackEntry(const NavigationEntry& entry) {
+  // Don't track entries that have post data. Post data may contain passwords
+  // and other sensitive data users don't want stored to disk.
+  return entry.display_url().is_valid() && !entry.has_post_data();
+}
+
 // InternalSavedSessionRequest ------------------------------------------------
 
 SessionService::InternalSavedSessionRequest::~InternalSavedSessionRequest() {
   STLDeleteElements(&commands);
 }
-
