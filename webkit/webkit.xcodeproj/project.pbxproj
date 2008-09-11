@@ -3671,7 +3671,7 @@
 		E4A9708A0E36150500E8EF3B /* ChromeClientWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChromeClientWin.h; sourceTree = "<group>"; };
 		E4CD5A710E3E44CC00A70177 /* HistoryWin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HistoryWin.cpp; sourceTree = "<group>"; };
 		E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webplugin_impl_mac.mm; sourceTree = "<group>"; };
-		E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlatformContextSkia.cpp; path = ../../../july/mac_july_2008/webkit/port/platform/graphics/PlatformContextSkia.cpp; sourceTree = SOURCE_ROOT; };
+		E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlatformContextSkia.cpp; sourceTree = "<group>"; };
 		E4E4C88E0E783E49009A687C /* SkGraphicsContextMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkGraphicsContextMac.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
