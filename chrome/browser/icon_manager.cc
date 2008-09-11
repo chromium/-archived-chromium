@@ -61,13 +61,13 @@ bool IconManager::OnSkBitmapLoaded(IconLoader* source, SkBitmap* result) {
   ClientRequests::iterator rit = requests_.find(source);
   if (rit == requests_.end()) {
     NOTREACHED();
-    return false;
+    return false;  // Return false to indicate result should be deleted.
   }
 
   ClientRequest client_request = rit->second;
   if (client_request.request->canceled()) {
     requests_.erase(rit);
-    return true;
+    return false;  // Return false to indicate result should be deleted.
   }
 
   CacheKey key(client_request.file_name, client_request.size);
@@ -75,6 +75,7 @@ bool IconManager::OnSkBitmapLoaded(IconLoader* source, SkBitmap* result) {
   if (it != icon_cache_.end()) {
     it->second->swap(*result);
     delete result;
+    result = it->second;
   } else {
     icon_cache_[key] = result;
   }
@@ -85,7 +86,7 @@ bool IconManager::OnSkBitmapLoaded(IconLoader* source, SkBitmap* result) {
                                                      result));
   requests_.erase(rit);
 
-  return true;
+  return true;  // Indicates we took ownership of result.
 }
 
 bool IconManager::OnHICONLoaded(IconLoader* source,
