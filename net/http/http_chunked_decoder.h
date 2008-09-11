@@ -97,11 +97,11 @@ class HttpChunkedDecoder {
   // Indicates the number of bytes remaining for the current chunk.
   int chunk_remaining_;
 
-  // True if waiting for the terminal CRLF of a chunk's data.
-  bool chunk_terminator_remaining_;
-
   // A small buffer used to store a partial chunk marker.
   std::string line_buf_;
+
+  // True if waiting for the terminal CRLF of a chunk's data.
+  bool chunk_terminator_remaining_;
 
   // Set to true when FilterBuf encounters the last-chunk.
   bool reached_last_chunk_;
