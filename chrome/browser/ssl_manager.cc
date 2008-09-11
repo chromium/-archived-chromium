@@ -62,7 +62,7 @@ class SSLInfoBar : public InfoBarItemView,
   SSLManager* manager_;
   scoped_ptr<Task> task_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(SSLInfoBar);
+  DISALLOW_COPY_AND_ASSIGN(SSLInfoBar);
 };
 
 SSLInfoBar::SSLInfoBar(SSLManager* manager,
@@ -232,14 +232,15 @@ bool SSLManager::SetMaxSecurityStyle(SecurityStyle style) {
 // Delegate API method.
 void SSLManager::AddMessageToConsole(const std::wstring& msg,
                                      ConsoleMessageLevel level) {
-  WebContents* web_contents =
-      controller_->GetTabContents(TAB_CONTENTS_WEB)->AsWebContents();
+  TabContents* tab_contents = controller_->GetTabContents(TAB_CONTENTS_WEB);
+  if (!tab_contents)
+    return;
+  WebContents* web_contents = tab_contents->AsWebContents();
   if (!web_contents)
     return;
 
   web_contents->AddMessageToConsole(std::wstring(), msg, level);
 }
-
 
 // Delegate API method.
 void SSLManager::DenyCertForHost(net::X509Certificate* cert,
