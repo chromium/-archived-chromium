@@ -398,8 +398,9 @@ class ResourceDispatcherHost::DownloadEventHandler
 
  private:
   void StartPauseTimer() {
-    pause_timer_.Start(TimeDelta::FromMilliseconds(kThrottleTimeMs), this,
-                       &DownloadEventHandler::CheckWriteProgress);
+    if (!pause_timer_.IsRunning())
+      pause_timer_.Start(TimeDelta::FromMilliseconds(kThrottleTimeMs), this,
+                         &DownloadEventHandler::CheckWriteProgress);
   }
 
   int download_id_;
