@@ -472,7 +472,8 @@ TEST_F(SSLUITest, TestRefNavigation) {
 
 // Tests that closing a page that has a unsafe pop-up does not crash the browser
 // (bug #1966).
-TEST_F(SSLUITest, TestCloseTabWithUnsafePopup) {
+// Disabled because flaky (bug #2136).
+TEST_F(SSLUITest, DISABLED_TestCloseTabWithUnsafePopup) {
   TestServer http_server(kDocRoot);
   HTTPSTestServer bad_https_server(kHostName, kBadHTTPSPort,
                                    kDocRoot, GetExpiredCertPath());
