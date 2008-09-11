@@ -81,6 +81,8 @@ static int TranslateOSError(DWORD error) {
 
     default:
       DCHECK(error != ERROR_IO_PENDING);  // WinHTTP doesn't use this error.
+      LOG(WARNING) << "Unknown error " << error
+                   << " mapped to net::ERR_FAILED";
       return ERR_FAILED;
   }
 }
@@ -1240,7 +1242,7 @@ int HttpTransactionWinHttp::SendRequest() {
       // TODO(darin): no way to support >4GB uploads w/ WinHttp?
       if (upload_len > static_cast<uint64>(DWORD(-1))) {
         NOTREACHED() << "upload length is too large";
-        return ERR_FAILED;
+        return ERR_FILE_TOO_BIG;
       }
 
       total_size = static_cast<DWORD>(upload_len);
@@ -1756,7 +1758,7 @@ void HttpTransactionWinHttp::HandleStatusCallback(DWORD status,
                                                   DWORD_PTR result,
                                                   DWORD error,
                                                   DWORD secure_failure) {
-  int rv = ERR_FAILED;
+  int rv;
 
   switch (status) {
     case WINHTTP_CALLBACK_STATUS_REQUEST_ERROR:
@@ -1777,6 +1779,8 @@ void HttpTransactionWinHttp::HandleStatusCallback(DWORD status,
       break;
     default:
       NOTREACHED() << "unexpected status code";
+      rv = ERR_UNEXPECTED;
+      break;
   }
 
   if (rv == ERR_IO_PENDING) {
