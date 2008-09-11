@@ -146,7 +146,8 @@ gfx::Rect AeroGlassNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
     tabstrip_width -= (tabstrip_width - titlebar_info.rgrect[2].left);
   }
   int tabstrip_height = tabstrip->GetPreferredHeight();
-  return gfx::Rect(0, kTabStripY, tabstrip_width, tabstrip_height);
+  int tabstrip_y = frame_->IsMaximized() ? 0 : kTabStripY;
+  return gfx::Rect(0, tabstrip_y, tabstrip_width, tabstrip_height);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
