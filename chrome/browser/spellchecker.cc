@@ -97,7 +97,7 @@ class SpellChecker::DictionaryDownloadController
       MessageLoop* ui_loop)
       : url_request_context_(url_request_context),
         download_server_url_(
-            L"http://dl.google.com/chrome/dict/"),
+            L"http://cache.pack.google.com/chrome/dict/"),
         ui_loop_(ui_loop),
         spellchecker_flag_set_task_(spellchecker_flag_set_task) {
     // Determine dictionary file path and name.
