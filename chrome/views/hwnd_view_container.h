@@ -35,6 +35,17 @@ RootView* GetRootViewForHWND(HWND hwnd);
 // lParam - Pointer to MSG struct containing the original message.
 static const int kReflectedMessage = WM_APP + 3;
 
+// These two messages aren't defined in winuser.h, but they are sent to windows
+// with captions. They appear to paint the window caption and frame.
+// Unfortunately if you override the standard non-client rendering as we do
+// with CustomFrameWindow, sometimes Windows (not deterministically
+// reproducibly but definitely frequently) will send these messages to the
+// window and paint the standard caption/title over the top of the custom one.
+// So we need to handle these messages in CustomFrameWindow to prevent this
+// from happening.
+static const int WM_NCUAHDRAWCAPTION = 0xAE;
+static const int WM_NCUAHDRAWFRAME = 0xAF;
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // FillLayout
@@ -159,6 +170,10 @@ class HWNDViewContainer : public ViewContainer,
 
     // Reflected message handler
     MESSAGE_HANDLER_EX(kReflectedMessage, OnReflectedMessage)
+
+    // CustomFrameWindow hacks
+    MESSAGE_HANDLER_EX(WM_NCUAHDRAWCAPTION, OnNCUAHDrawCaption)
+    MESSAGE_HANDLER_EX(WM_NCUAHDRAWFRAME, OnNCUAHDrawFrame)
     
     // Non-atlcrack.h handlers
     MESSAGE_HANDLER_EX(WM_GETOBJECT, OnGetObject)
@@ -377,6 +392,16 @@ class HWNDViewContainer : public ViewContainer,
   virtual void OnNCRButtonDblClk(UINT flags, const CPoint& point);
   virtual void OnNCRButtonDown(UINT flags, const CPoint& point);
   virtual void OnNCRButtonUp(UINT flags, const CPoint& point);
+  virtual LRESULT OnNCUAHDrawCaption(UINT msg,
+                                     WPARAM w_param,
+                                     LPARAM l_param) {
+    SetMsgHandled(FALSE);
+    return 0;
+  }
+  virtual LRESULT OnNCUAHDrawFrame(UINT msg, WPARAM w_param, LPARAM l_param) {
+    SetMsgHandled(FALSE);
+    return 0;
+  }
   virtual LRESULT OnNotify(int w_param, NMHDR* l_param);
   virtual void OnPaint(HDC dc);
   virtual LRESULT OnPowerBroadcast(DWORD power_event, DWORD data) {

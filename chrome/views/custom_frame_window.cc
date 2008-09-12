@@ -1105,6 +1105,24 @@ void CustomFrameWindow::OnNCLButtonDown(UINT ht_component,
   }
 }
 
+LRESULT CustomFrameWindow::OnNCUAHDrawCaption(UINT msg, WPARAM w_param,
+                                              LPARAM l_param) {
+  // See comment in hwnd_view_container.h at the definition of
+  // WM_NCUAHDRAWCAPTION for an explanation about why we need to handle this
+  // message.
+  SetMsgHandled(TRUE);
+  return 0;
+}
+
+LRESULT CustomFrameWindow::OnNCUAHDrawFrame(UINT msg, WPARAM w_param,
+                                            LPARAM l_param) {
+  // See comment in hwnd_view_container.h at the definition of
+  // WM_NCUAHDRAWCAPTION for an explanation about why we need to handle this
+  // message.
+  SetMsgHandled(TRUE);
+  return 0;
+}
+
 LRESULT CustomFrameWindow::OnSetCursor(HWND window, UINT hittest_code,
                                        UINT message) {
   int index = RC_NORMAL;
