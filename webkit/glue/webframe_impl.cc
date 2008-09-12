@@ -1439,7 +1439,7 @@ void WebFrameImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
 
 #if defined(OS_WIN)
 // TODO(pinkerton): waiting on bitmap re-factor from awalker
-gfx::BitmapPlatformDeviceWin WebFrameImpl::CaptureImage(bool scroll_to_zero) {
+gfx::BitmapPlatformDevice WebFrameImpl::CaptureImage(bool scroll_to_zero) {
   // Must layout before painting.
   Layout();
 
