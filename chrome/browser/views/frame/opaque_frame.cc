@@ -5,9 +5,9 @@
 #include "chrome/browser/views/frame/opaque_frame.h"
 
 #include "chrome/browser/frame_util.h"
-#include "chrome/browser/tabs/tab_strip.h"
 #include "chrome/browser/views/frame/browser_view2.h"
 #include "chrome/browser/views/frame/opaque_non_client_view.h"
+#include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/views/window_delegate.h"
 
 ///////////////////////////////////////////////////////////////////////////////
