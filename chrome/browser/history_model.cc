@@ -251,10 +251,12 @@ void HistoryModel::VisitedPagesQueryComplete(
 
   is_search_results_ = !search_text_.empty();
 
-  if (changed)
+  if (changed) {
     star_state_.reset(new StarState[results_.size()]);
-  if (changed && observer_)
-    observer_->ModelChanged(true);
+    memset(star_state_.get(), 0, sizeof(StarState) * results_.size());
+    if (observer_)
+      observer_->ModelChanged(true);
+  }
 
   search_depth_++;
 
