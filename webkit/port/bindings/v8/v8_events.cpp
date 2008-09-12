@@ -437,9 +437,9 @@ v8::Local<v8::Function> V8LazyEventListener::GetWrappedListenerFunction() {
     code.append("  with (this.ownerDocument ? this.ownerDocument : {}) {\n");
     code.append("    with (this.form ? this.form : {}) {\n");
     code.append("      with (this) {\n");
-    code.append("        ");
+    code.append("        return (function(evt){");
     code.append(m_code);
-    code.append("\n");
+    code.append("}).call(this, evt);\n");
     code.append("      }\n");
     code.append("    }\n");
     code.append("  }\n");
