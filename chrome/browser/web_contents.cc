@@ -1902,7 +1902,14 @@ void WebContents::RunJavaScriptMessage(
     const std::wstring& default_prompt,
     const int flags,
     IPC::Message* reply_msg) {
-  if (!suppress_javascript_messages_) {
+  // Suppress javascript messages when requested and when inside a constrained
+  // popup window (because that activates them and breaks them out of the
+  // constrained window jail).
+  bool suppress_this_message = suppress_javascript_messages_;
+  if (delegate())
+    suppress_this_message |= delegate()->IsPopup(this);
+
+  if (!suppress_this_message) {
     TimeDelta time_since_last_message(
         TimeTicks::Now() - last_javascript_message_dismissal_);
     bool show_suppress_checkbox = false;
@@ -2589,4 +2596,3 @@ BOOL WebContents::EnumPluginWindowsCallback(HWND window, LPARAM) {
 
   return TRUE;
 }
-
