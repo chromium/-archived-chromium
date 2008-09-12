@@ -1041,10 +1041,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7B4DF44D0E5B5E5C004D7619 /* staticlib.xcconfig */;
 			buildSettings = {
+				GCC_PREFIX_HEADER = skia_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 					SK_BUILD_FOR_MAC,
-					SK_DEBUG,
 				);
 				HEADER_SEARCH_PATHS = (
 					corecg,
@@ -1061,6 +1061,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7B4DF44D0E5B5E5C004D7619 /* staticlib.xcconfig */;
 			buildSettings = {
+				GCC_PREFIX_HEADER = skia_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 					SK_BUILD_FOR_MAC,
