@@ -552,7 +552,7 @@
 <translation id="5463275305984126951"><ph name="LOCATION"/> のインデックス</translation>
 <translation id="8877448029301136595">[親ディレクトリ]</translation>
 <translation id="57646104491463491">更新日</translation>
-<translation id="5501358408399407103">ウェブページ、HTML、\0*.htm\0ウェブページのみ、\0*.htm すべて</translation>
+<translation id="5501358408399407103">ウェブページ、HTML のみ\0*.htm\0ウェブページ、完全\0*.htm</translation>
 <translation id="561349411957324076">完了</translation>
 <translation id="6325525973963619867">失敗しました</translation>
 <translation id="5958418293370246440"><ph name="TOTAL_FILES"/> 個中 <ph name="SAVED_FILES"/> 個のファイル</translation>
