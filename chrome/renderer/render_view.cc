@@ -1060,15 +1060,14 @@ void RenderView::UpdateTitle(WebFrame* frame, const std::wstring& title) {
 }
 
 void RenderView::UpdateEncoding(WebFrame* frame,
-                                const std::string& encoding_name) {
+                                const std::wstring& encoding_name) {
   // Only update main frame's encoding_name.
   if (webview()->GetMainFrame() == frame &&
       last_encoding_name_ != encoding_name) {
-    // save the encoding name for later comparing.
+    // Save the encoding name for later comparing.
     last_encoding_name_ = encoding_name;
 
-    Send(new ViewHostMsg_UpdateEncoding(routing_id_,
-                                        last_encoding_name_));
+    Send(new ViewHostMsg_UpdateEncoding(routing_id_, last_encoding_name_));
   }
 }
 
@@ -1422,13 +1421,6 @@ WindowOpenDisposition RenderView::DispositionForNavigationAction(
   // Webkit is asking whether to navigate to a new URL.
   // This is fine normally, except if we're showing UI from one security
   // context and they're trying to navigate to a different context.
-  //
-  // Reload allowing stale data is used for encoding changes which will never
-  // appear in a new tab. So we should return disposition as CURRENT_TAB when
-  // encountering this situation.
-  if (frame->IsReloadAllowingStaleData())
-    return CURRENT_TAB;
-
   const GURL& url = request->GetURL();
   // We only care about navigations that are within the current tab (as opposed
   // to, for example, opening a new window).
@@ -1798,8 +1790,7 @@ void RenderView::ShowContextMenu(WebView* webview,
                                  const GURL& frame_url,
                                  const std::wstring& selection_text,
                                  const std::wstring& misspelled_word,
-                                 int edit_flags,
-                                 const std::string& frame_encoding) {
+                                 int edit_flags) {
   ViewHostMsg_ContextMenu_Params params;
   params.type = type;
   params.x = x;
@@ -1811,7 +1802,6 @@ void RenderView::ShowContextMenu(WebView* webview,
   params.selection_text = selection_text;
   params.misspelled_word = misspelled_word;
   params.edit_flags = edit_flags;
-  params.frame_encoding = frame_encoding;
   Send(new ViewHostMsg_ContextMenu(routing_id_, params));
 }
 
@@ -2169,7 +2159,7 @@ void RenderView::OnAlterTextSize(int size) {
   }
 }
 
-void RenderView::OnSetPageEncoding(const std::string& encoding_name) {
+void RenderView::OnSetPageEncoding(const std::wstring& encoding_name) {
   webview()->SetPageEncoding(encoding_name);
 }
 

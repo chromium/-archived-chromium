@@ -78,8 +78,8 @@ class WebViewImpl : public WebView,
   virtual bool DownloadImage(int id, const GURL& image_url, int image_size);
   virtual void SetPreferences(const WebPreferences& preferences);
   virtual const WebPreferences& GetPreferences();
-  virtual void SetPageEncoding(const std::string& encoding_name);
-  virtual std::string GetMainFrameEncodingName();
+  virtual void SetPageEncoding(const std::wstring& encoding_name);
+  virtual std::wstring GetMainFrameEncodingName();
   virtual void MakeTextLarger();
   virtual void MakeTextSmaller();
   virtual void MakeTextStandardSize();

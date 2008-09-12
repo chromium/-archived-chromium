@@ -711,7 +711,7 @@ void WebContents::AlterTextSize(text_zoom::TextSize size) {
   // TODO(creis): should this be propagated to other and future RVHs?
 }
 
-void WebContents::SetPageEncoding(const std::string& encoding_name) {
+void WebContents::SetPageEncoding(const std::wstring& encoding_name) {
   render_view_host()->SetPageEncoding(encoding_name);
   // TODO(creis): should this be propagated to other and future RVHs?
 }
@@ -1609,7 +1609,7 @@ void WebContents::UpdateTitle(RenderViewHost* rvh,
 
 
 void WebContents::UpdateEncoding(RenderViewHost* render_view_host,
-                                 const std::string& encoding_name) {
+                                 const std::wstring& encoding_name) {
   SetEncoding(encoding_name);
 }
 
@@ -1644,15 +1644,6 @@ void WebContents::DidStartLoading(RenderViewHost* rvh, int32 page_id) {
   if (plugin_installer_ != NULL)
     plugin_installer_->OnStartLoading();
   SetIsLoading(true, NULL);
-
-  // Overrides the page's encoding if we need to open this page with specified
-  // encoding.
-  if (!override_encoding_.empty()) {
-    SetPageEncoding(override_encoding_);
-    // Once we override the new encoding, we need to clear the encoding value
-    // for avoiding overriding it again.
-    override_encoding_.clear();
-  }
 }
 
 void WebContents::DidStopLoading(RenderViewHost* rvh, int32 page_id) {
@@ -2046,9 +2037,9 @@ WebPreferences WebContents::GetWebkitPrefs() {
   // webkit/glue/webpreferences.h for more details.
 
   // Make sure we will set the default_encoding with canonical encoding name.
-  web_prefs.default_encoding = UTF8ToWide(
+  web_prefs.default_encoding =
       CharacterEncoding::GetCanonicalEncodingNameByAliasName(
-          WideToUTF8(web_prefs.default_encoding)));
+          web_prefs.default_encoding);
   if (web_prefs.default_encoding.empty()) {
     prefs->ClearPref(prefs::kDefaultCharset);
     web_prefs.default_encoding = prefs->GetString(

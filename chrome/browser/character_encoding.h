@@ -20,7 +20,7 @@ class CharacterEncoding {
   // Return canonical encoding name according to the command ID.
   // THIS FUNCTION IS NOT THREADSAFE. You must run this function
   // only in UI thread.
-  static std::string GetCanonicalEncodingNameByCommandId(int id);
+  static std::wstring GetCanonicalEncodingNameByCommandId(int id);
 
   // Return display name of canonical encoding according to the command
   // ID. THIS FUNCTION IS NOT THREADSAFE. You must run this function
@@ -33,7 +33,7 @@ class CharacterEncoding {
   // Return canonical encoding name according to the index, which starts
   // from zero to GetSupportCanonicalEncodingCount() - 1. THIS FUNCTION
   // IS NOT THREADSAFE. You must run this function only in UI thread.
-  static std::string GetCanonicalEncodingNameByIndex(int index);
+  static std::wstring GetCanonicalEncodingNameByIndex(int index);
 
   // Return display name of canonical encoding according to the index,
   // which starts from zero to GetSupportCanonicalEncodingCount() - 1.
@@ -43,8 +43,8 @@ class CharacterEncoding {
 
   // Return canonical encoding name according to the encoding alias name. THIS
   // FUNCTION IS NOT THREADSAFE. You must run this function only in UI thread.
-  static std::string GetCanonicalEncodingNameByAliasName(
-      const std::string& alias_name);
+  static std::wstring GetCanonicalEncodingNameByAliasName(
+      const std::wstring& alias_name);
 
   // Returns the pointer of a vector of command ids corresponding to
   // encodings to display in the encoding menu. The list begins with

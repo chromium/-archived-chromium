@@ -55,8 +55,7 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   virtual void OpenURLFromTab(TabContents* source,
                               const GURL& url,
                               WindowOpenDisposition disposition,
-                              PageTransition::Type transition,
-                              const std::string& override_encoding);
+                              PageTransition::Type transition);
 
   // Overridden from TabContentsDelegate:
   virtual void NavigationStateChanged(const TabContents* source,

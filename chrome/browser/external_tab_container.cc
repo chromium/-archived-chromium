@@ -130,12 +130,10 @@ LRESULT ExternalTabContainer::OnSize(UINT, WPARAM, LPARAM, BOOL& handled) {
 // needs to be fully fleshed out based on the requirements of the
 // "Chrome tab in external browser" feature.
 
-void ExternalTabContainer::OpenURLFromTab(
-    TabContents* source,
-    const GURL& url,
-    WindowOpenDisposition disposition,
-    PageTransition::Type transition,
-    const std::string& override_encoding) {
+void ExternalTabContainer::OpenURLFromTab(TabContents* source,
+                           const GURL& url,
+                           WindowOpenDisposition disposition,
+                           PageTransition::Type transition) {
   switch (disposition) {
     case CURRENT_TAB:
     case NEW_FOREGROUND_TAB:

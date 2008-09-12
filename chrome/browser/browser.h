@@ -267,10 +267,9 @@ class Browser : public TabStripModelDelegate,
 
   // Overridden from TabContentsDelegate:
   virtual void OpenURLFromTab(TabContents* source,
-                              const GURL& url,
-                              WindowOpenDisposition disposition,
-                              PageTransition::Type transition,
-                              const std::string& override_encoding);
+                             const GURL& url,
+                             WindowOpenDisposition disposition,
+                             PageTransition::Type transition);
   virtual void NavigationStateChanged(const TabContents* source,
                                       unsigned changed_flags);
   virtual void ReplaceContents(TabContents* source, TabContents* new_contents);

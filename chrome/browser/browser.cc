@@ -515,8 +515,7 @@ void Browser::ProcessPendingUIUpdates() {
 void Browser::OpenURLFromTab(TabContents* source,
                              const GURL& url,
                              WindowOpenDisposition disposition,
-                             PageTransition::Type transition,
-                             const std::string& override_encoding) {
+                             PageTransition::Type transition) {
   // No code for these yet
   DCHECK((disposition != NEW_POPUP) && (disposition != SAVE_TO_DISK));
 
@@ -630,14 +629,6 @@ void Browser::OpenURLFromTab(TabContents* source,
     // Give the focus to the newly navigated tab, if the source tab was
     // front-most.
     new_contents->Focus();
-  }
-
-  if (!override_encoding.empty()) {
-    // The new tab needs a special encoding, such as a view source page
-    // which should use the same encoding as the original page.
-    WebContents* web_contents = new_contents->AsWebContents();
-    if (web_contents)
-      web_contents->set_override_encoding(override_encoding);
   }
 }
 

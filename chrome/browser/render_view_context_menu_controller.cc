@@ -42,15 +42,6 @@ RenderViewContextMenuController::~RenderViewContextMenuController() {
 ///////////////////////////////////////////////////////////////////////////////
 // Controller methods
 
-void RenderViewContextMenuController::OpenURLWithOverrideEncoding(
-    const GURL& url,
-    WindowOpenDisposition disposition,
-    PageTransition::Type transition,
-    const std::string& override_encoding) {
-  source_web_contents_->OpenURLWithOverrideEncoding(url, disposition,
-      transition, override_encoding);
-}
-
 void RenderViewContextMenuController::OpenURL(
     const GURL& url,
     WindowOpenDisposition disposition,
@@ -282,10 +273,8 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
       break;
 
     case IDS_CONTENT_CONTEXT_VIEWPAGESOURCE:
-      OpenURLWithOverrideEncoding(
-          GURL("view-source:" + params_.page_url.spec()),
-          NEW_FOREGROUND_TAB, PageTransition::GENERATED,
-          source_web_contents_->GetEncoding());
+      OpenURL(GURL("view-source:" + params_.page_url.spec()),
+              NEW_FOREGROUND_TAB, PageTransition::GENERATED);
       break;
 
     case IDS_CONTENT_CONTEXT_INSPECTELEMENT:
@@ -320,10 +309,8 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
       break;
 
     case IDS_CONTENT_CONTEXT_VIEWFRAMESOURCE:
-      OpenURLWithOverrideEncoding(
-          GURL("view-source:" + params_.frame_url.spec()),
-          NEW_FOREGROUND_TAB, PageTransition::GENERATED,
-          params_.frame_encoding);
+      OpenURL(GURL("view-source:" + params_.frame_url.spec()),
+              NEW_FOREGROUND_TAB, PageTransition::GENERATED);
       break;
 
     case IDS_CONTENT_CONTEXT_VIEWFRAMEINFO:

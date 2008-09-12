@@ -408,24 +408,11 @@ void TabContents::DidMoveOrResize(ConstrainedWindow* window) {
 ///////////////////////////////////////////////////////////////////////////////
 // PageNavigator methods
 
-void TabContents::OpenURLWithOverrideEncoding(
-    const GURL& url,
-    WindowOpenDisposition disposition,
-    PageTransition::Type transition,
-    const std::string& override_encoding) {
-  if (delegate_) {
-    delegate_->OpenURLFromTab(this, url, disposition, transition,
-                              override_encoding);
-  }
-}
-
 void TabContents::OpenURL(const GURL& url,
                           WindowOpenDisposition disposition,
                           PageTransition::Type transition) {
-  if (delegate_) {
-    delegate_->OpenURLFromTab(this, url, disposition, transition,
-                              std::string());
-  }
+  if (delegate_)
+    delegate_->OpenURLFromTab(this, url, disposition, transition);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

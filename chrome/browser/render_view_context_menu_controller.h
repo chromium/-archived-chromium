@@ -23,18 +23,11 @@ class RenderViewContextMenuController : public Menu::Delegate {
   virtual bool GetAcceleratorInfo(int id, ChromeViews::Accelerator* accel);
 
  private:
-  // Opens the specified URL string with a disposition specified by parameter
-  // |disposition|.
+  // Opens the specified URL string in a new tab.  If |in_current_window| is
+  // false, a new window is created to hold the new tab.
   void OpenURL(const GURL& url,
                WindowOpenDisposition disposition,
                PageTransition::Type transition);
-
-  // Opens the specified URL string with a disposition specified by parameter
-  // |disposition| and forces the new page on using |override_encoding|.
-  void OpenURLWithOverrideEncoding(const GURL& url,
-                                   WindowOpenDisposition disposition,
-                                   PageTransition::Type transition,
-                                   const std::string& override_encoding);
 
   // Copy to the clipboard an image located at a point in the RenderView
   void CopyImageAt(int x, int y);

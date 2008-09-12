@@ -205,8 +205,7 @@ class RenderView : public RenderWidget, public WebViewDelegate,
                                const GURL& frame_url,
                                const std::wstring& selection_text,
                                const std::wstring& misspelled_word,
-                               int edit_flags,
-                               const std::string& frame_encoding);
+                               int edit_flags);
   virtual void StartDragging(WebView* webview,
                              const WebDropData& drag_data);
 
@@ -310,7 +309,7 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // c) function:DidFinishDocumentLoadForFrame. When this function is
   // called, that means we have got whole html page. In here we should
   // finally get right encoding of page.
-  void UpdateEncoding(WebFrame* frame, const std::string& encoding_name);
+  void UpdateEncoding(WebFrame* frame, const std::wstring& encoding_name);
 
   // Captures the thumbnail and text contents for indexing for the given load
   // ID. If the view's load ID is different than the parameter, this call is
@@ -372,7 +371,7 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   void OnCancelDownload(int32 download_id);
   void OnFind(const FindInPageRequest& request);
   void OnAlterTextSize(int size);
-  void OnSetPageEncoding(const std::string& encoding_name);
+  void OnSetPageEncoding(const std::wstring& encoding_name);
   void OnGetAllSavableResourceLinksForCurrentPage(const GURL& page_url);
   void OnGetSerializedHtmlDataForCurrentPageWithLocalLinks(
       const std::vector<std::wstring>& links,
@@ -506,7 +505,7 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   ExternalHostBindings external_host_bindings_;
 
   // The last gotten main frame's encoding.
-  std::string last_encoding_name_;
+  std::wstring last_encoding_name_;
 
   // The URL we think the user's mouse is hovering over. We use this to
   // determine if we want to send a new one (we do not need to send

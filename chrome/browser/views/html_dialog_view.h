@@ -57,8 +57,7 @@ class HtmlDialogView
   virtual void OpenURLFromTab(TabContents* source,
                               const GURL& url,
                               WindowOpenDisposition disposition,
-                              PageTransition::Type transition,
-                              const std::string& override_encoding);
+                              PageTransition::Type transition);
   virtual void NavigationStateChanged(const TabContents* source,
                                       unsigned changed_flags);
   virtual void ReplaceContents(TabContents* source,

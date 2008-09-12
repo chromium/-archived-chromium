@@ -55,8 +55,7 @@ class DefaultEncodingComboboxModel : public ChromeViews::ComboBox::Model {
 
   std::wstring GetEncodingCharsetByIndex(int index) {
     DCHECK(index >= 0 && canonical_encoding_names_length_ > index);
-    return UTF8ToWide(
-        CharacterEncoding::GetCanonicalEncodingNameByIndex(index));
+    return CharacterEncoding::GetCanonicalEncodingNameByIndex(index);
   }
 
   int GetSelectedEncodingIndex(Profile* profile) {
@@ -64,8 +63,7 @@ class DefaultEncodingComboboxModel : public ChromeViews::ComboBox::Model {
     current_encoding_string.Init(prefs::kDefaultCharset,
                                  profile->GetPrefs(),
                                  NULL);
-    const std::string current_encoding =
-        WideToUTF8(current_encoding_string.GetValue());
+    const std::wstring current_encoding = current_encoding_string.GetValue();
     for (int i = 0; i < canonical_encoding_names_length_; i++) {
       if (CharacterEncoding::GetCanonicalEncodingNameByIndex(i) ==
           current_encoding)
