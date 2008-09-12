@@ -727,3 +727,8 @@ V8 | KJS # LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL | 
 // These two appear to be flaky in debug mode only. Not sure when they started failing.
 V8 # LayoutTests/http/tests/navigation/post-goback2.html = FAIL | PASS
 V8 # LayoutTests/http/tests/navigation/postredirect-basic.html = FAIL | PASS
+
+// The test may require a proper version of Java 6 RC 10 plugin
+// installed to run.
+V8 | KJS # chrome/fast/dom/java-applet-calls.html = FAIL
+
