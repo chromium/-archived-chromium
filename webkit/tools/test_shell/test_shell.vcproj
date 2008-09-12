@@ -12,6 +12,8 @@
 			Name="Win32"
 		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
@@ -23,9 +25,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="Font file copy"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -87,9 +86,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="Font file copy"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -215,10 +211,6 @@
 		</File>
 		<File
 			RelativePath=".\test_navigation_controller.h"
-			>
-		</File>
-		<File
-			RelativePath=".\test_navigation_entry.h"
 			>
 		</File>
 		<File
