@@ -810,14 +810,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\bookmarks\bookmark_model.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\bookmarks\bookmark_model.h"
-				>
-			</File>
-			<File
 				RelativePath=".\bookmarks\bookmark_codec.cc"
 				>
 			</File>
@@ -831,6 +823,14 @@
 			</File>
 			<File
 				RelativePath=".\bookmarks\bookmark_drag_data.h"
+				>
+			</File>
+			<File
+				RelativePath=".\bookmarks\bookmark_model.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\bookmarks\bookmark_model.h"
 				>
 			</File>
 			<File
@@ -1635,22 +1635,6 @@
 			</File>
 			<File
 				RelativePath=".\webdata\web_database.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Wizard"
-			>
-			<File
-				RelativePath=".\wizard\wizard.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\wizard\wizard.h"
-				>
-			</File>
-			<File
-				RelativePath=".\wizard\wizard_step.h"
 				>
 			</File>
 		</Filter>
