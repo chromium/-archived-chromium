@@ -68,9 +68,9 @@ struct ScriptToFontMapSingletonTraits
       {USCRIPT_KHMER, L"daunpenh"},
       {USCRIPT_THAANA, L"mv boli"},
       {USCRIPT_MONGOLIAN, L"mongolian balti"},
-      // For common, perhaps we should return a font
-      // for the current application/system locale.
-      //{USCRIPT_COMMON, L"times new roman"}
+      {USCRIPT_MYANMAR, L"padauk"},
+      // For USCRIPT_COMMON, we map blocks to scripts when
+      // that makes sense.
     };
 
     ScriptToFontMap* new_instance = new ScriptToFontMap;
@@ -210,7 +210,6 @@ const wchar_t* GetFallbackFamily(const wchar_t *characters,
   // by fonts for scripts closely related to them.
   // See http://unicode.org/cldr/utility/list-unicodeset.jsp?a=[:Script=Common:]
   // TODO(jungshik): make this more efficient with a wider coverage
-  // (Armenian, Georgian, Devanagari, etc)
   if (script == USCRIPT_COMMON || script == USCRIPT_INHERITED) { 
     UBlockCode block = ublock_getCode(ucs4);
     switch (block) {
@@ -223,8 +222,28 @@ const wchar_t* GetFallbackFamily(const wchar_t *characters,
       case UBLOCK_HIRAGANA:
       case UBLOCK_KATAKANA:
         script = USCRIPT_HIRAGANA;
+        break;
       case UBLOCK_ARABIC:
         script = USCRIPT_ARABIC;
+        break;
+      case UBLOCK_GREEK:
+        script = USCRIPT_GREEK;
+        break;
+      case UBLOCK_DEVANAGARI:
+        // For Danda and Double Danda (U+0964, U+0965), use a Devanagari
+        // font for now although they're used by other scripts as well.
+        // Without a context, we can't do any better. 
+        script = USCRIPT_DEVANAGARI;
+        break;
+      case UBLOCK_ARMENIAN:
+        script = USCRIPT_ARMENIAN;
+        break;
+      case UBLOCK_GEORGIAN:
+        script = USCRIPT_GEORGIAN;
+        break;
+      case UBLOCK_KANNADA:
+        script = USCRIPT_KANNADA;
+        break;
     }
   }
 
