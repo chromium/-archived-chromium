@@ -49,9 +49,9 @@ TEST_F(TemplateURLParserTest, FailOnBogusURL) {
   EXPECT_FALSE(parse_result_);
 }
 
-TEST_F(TemplateURLParserTest, FailOnHTTPS) {
+TEST_F(TemplateURLParserTest, PassOnHTTPS) {
   ParseFile(L"https.xml", NULL);
-  EXPECT_FALSE(parse_result_);
+  EXPECT_TRUE(parse_result_);
 }
 
 TEST_F(TemplateURLParserTest, FailOnPost) {

@@ -19,16 +19,16 @@ class TemplateURLParser {
    public:
     // Invoked for each parameter of the template URL while parsing.  If this
     // methods returns false, the parameter is not included.
-     virtual bool KeepParameter(const std::string& key,
-                                const std::string& value) = 0;
+    virtual bool KeepParameter(const std::string& key,
+                               const std::string& value) = 0;
   };
   // Decodes the chunk of data representing a TemplateURL. If data does
   // not describe a valid TemplateURL false is returned. Additionally, if the
-  // URLs referenced do not point to valid http resources, false is returned.
-  // |parameter_filter| can be used if you want to filter out some parameters
-  // out of the URL. For example when importing from another browser we remove
-  // any parameter identifying that browser.  If set to NULL, the URL is not
-  // modified.
+  // URLs referenced do not point to valid http/https resources, false is
+  // returned. |parameter_filter| can be used if you want to filter out some
+  // parameters out of the URL. For example when importing from another browser
+  // we remove any parameter identifying that browser.  If set to NULL, the URL
+  // is not modified.
   //
   // NOTE: This does not clear all values of the supplied TemplateURL; it's
   // expected callers will supply a new TemplateURL to this method.

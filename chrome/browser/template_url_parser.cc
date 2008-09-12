@@ -518,16 +518,16 @@ void CharactersImpl(void *ctx, const xmlChar *ch, int len) {
 }
 
 // Returns true if the ref is null, or the url wrapped by ref is
-// valid with a spec of http.
+// valid with a spec of http/https.
 bool IsHTTPRef(const TemplateURLRef* ref) {
   if (ref == NULL)
     return true;
   GURL url(ref->url());
-  return (url.is_valid() && url.SchemeIs("http"));
+  return (url.is_valid() && (url.SchemeIs("http") || url.SchemeIs("https")));
 }
 
 // Returns true if the TemplateURL is legal. A legal TemplateURL is one
-// where all URLs have a spec of http.
+// where all URLs have a spec of http/https.
 bool IsLegal(TemplateURL* url) {
   if (!IsHTTPRef(url->url()) || !IsHTTPRef(url->suggestions_url()))
     return false;
@@ -535,8 +535,10 @@ bool IsLegal(TemplateURL* url) {
   const std::vector<TemplateURL::ImageRef>& image_refs = url->image_refs();
   for (size_t i = 0; i < image_refs.size(); i++) {
     GURL image_url(image_refs[i].url);
-    if (!image_url.is_valid() || !image_url.SchemeIs("http"))
+    if (!image_url.is_valid() ||
+        !(image_url.SchemeIs("http") || image_url.SchemeIs("https"))) {
       return false;
+    }
   }
   return true;
 }
