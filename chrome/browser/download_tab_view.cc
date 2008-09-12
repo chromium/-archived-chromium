@@ -73,18 +73,6 @@ static const SkColor kSelectedItemColor = SkColorSetRGB(215, 232, 255);
 // State key used to identify search text.
 static const wchar_t kSearchTextKey[] = L"st";
 
-// The size of the icon displayed.
-static const int kIconSize =
-    download_util::GetProgressIconSize(download_util::BIG);
-
-// Size of the progress halo icon.
-static const int kProgressIconSize =
-    download_util::GetProgressIconSize(download_util::BIG);
-
-// Centering the icon in the progress bitmaps
-static const int kIconOffset =
-    download_util::GetProgressIconOffset(download_util::BIG);
-
 // Sorting functor for DownloadItem --------------------------------------------
 
 // Sort DownloadItems into ascending order by their start time.
@@ -184,14 +172,14 @@ void DownloadItemTabView::GetPreferredSize(CSize* out) {
   CSize show_size;
   show_->GetPreferredSize(&show_size);
 
-  out->cx = kProgressIconSize +
+  out->cx = download_util::kBigProgressIconSize +
             2 * kSpacer +
             kHorizontalButtonPadding +
             kFilenameSize +
             std::max(pause_size.cx + cancel_size.cx + kHorizontalButtonPadding,
                      show_size.cx);
 
-  out->cy = kProgressIconSize;
+  out->cy = download_util::kBigProgressIconSize;
 }
 
 // Each DownloadItemTabView has reasonably complex layout requirements
@@ -230,13 +218,15 @@ void DownloadItemTabView::LayoutDate() {
 
   since_->SetText(TimeFormat::RelativeDate(model_->start_time(), NULL));
   since_->GetPreferredSize(&since_size);
-  since_->SetBounds(kLeftMargin, kIconOffset, kDateSize, since_size.cy);
+  since_->SetBounds(kLeftMargin, download_util::kBigProgressIconOffset,
+                    kDateSize, since_size.cy);
   since_->SetVisible(true);
 
   CSize date_size;
   date_->SetText(base::TimeFormatShortDate(model_->start_time()));
   date_->GetPreferredSize(&date_size);
-  date_->SetBounds(kLeftMargin, since_size.cy + kVerticalPadding + kIconOffset,
+  date_->SetBounds(kLeftMargin, since_size.cy + kVerticalPadding +
+                      download_util::kBigProgressIconOffset,
                    kDateSize, date_size.cy);
   date_->SetVisible(true);
 }
@@ -252,14 +242,14 @@ void DownloadItemTabView::LayoutComplete() {
   download_progress_->SetVisible(false);
 
   LayoutDate();
-  int dx = kDownloadIconOffset - kIconOffset + kProgressIconSize +
-           kInfoPadding;
+  int dx = kDownloadIconOffset - download_util::kBigProgressIconOffset +
+           download_util::kBigProgressIconSize + kInfoPadding;
 
   // File name and URL
   CSize file_name_size;
   file_name_->SetText(model_->file_name());
   file_name_->GetPreferredSize(&file_name_size);
-  file_name_->SetBounds(dx, kIconOffset,
+  file_name_->SetBounds(dx, download_util::kBigProgressIconOffset,
                         std::min(kFilenameSize,
                                  static_cast<int>(file_name_size.cx)),
                         file_name_size.cy);
@@ -271,7 +261,8 @@ void DownloadItemTabView::LayoutComplete() {
   CSize url_size;
   download_url_->GetPreferredSize(&url_size);
   download_url_->SetBounds(dx,
-                           file_name_size.cy + kVerticalPadding + kIconOffset,
+                           file_name_size.cy + kVerticalPadding +
+                              download_util::kBigProgressIconOffset,
                            std::min(kFilenameSize,
                                     static_cast<int>(GetWidth() - dx)),
                            url_size.cy);
@@ -281,7 +272,8 @@ void DownloadItemTabView::LayoutComplete() {
   // Action button (text is constant and set in constructor)
   CSize show_size;
   show_->GetPreferredSize(&show_size);
-  show_->SetBounds(dx, ((file_name_size.cy + url_size.cy) / 2) + kIconOffset,
+  show_->SetBounds(dx, ((file_name_size.cy + url_size.cy) / 2) +
+                      download_util::kBigProgressIconOffset,
                    show_size.cx, show_size.cy);
   show_->SetVisible(true);
   show_->SetEnabled(true);
@@ -298,14 +290,14 @@ void DownloadItemTabView::LayoutCancelled() {
   cancel_->SetEnabled(false);
 
   LayoutDate();
-  int dx = kDownloadIconOffset - kIconOffset + kProgressIconSize +
-      kInfoPadding;
+  int dx = kDownloadIconOffset - download_util::kBigProgressIconOffset +
+      download_util::kBigProgressIconSize + kInfoPadding;
 
   // File name and URL, truncated to show cancelled status
   CSize file_name_size;
   file_name_->SetText(model_->file_name());
   file_name_->GetPreferredSize(&file_name_size);
-  file_name_->SetBounds(dx, kIconOffset,
+  file_name_->SetBounds(dx, download_util::kBigProgressIconOffset,
                         kFilenameSize - kProgressSize - kSpacer,
                         file_name_size.cy);
   file_name_->SetVisible(true);
@@ -316,7 +308,8 @@ void DownloadItemTabView::LayoutCancelled() {
   CSize url_size;
   download_url_->GetPreferredSize(&url_size);
   download_url_->SetBounds(dx,
-                           file_name_size.cy + kVerticalPadding + kIconOffset,
+                           file_name_size.cy + kVerticalPadding +
+                              download_util::kBigProgressIconOffset,
                            std::min(kFilenameSize - kProgressSize - kSpacer,
                                     static_cast<int>(GetWidth() - dx)),
                            url_size.cy);
@@ -329,7 +322,8 @@ void DownloadItemTabView::LayoutCancelled() {
   time_remaining_->SetColor(kStatusColor);
   time_remaining_->SetText(l10n_util::GetString(IDS_DOWNLOAD_TAB_CANCELLED));
   time_remaining_->GetPreferredSize(&cancel_size);
-  time_remaining_->SetBounds(dx, kIconOffset, kProgressSize, cancel_size.cy);
+  time_remaining_->SetBounds(dx, download_util::kBigProgressIconOffset,
+                             kProgressSize, cancel_size.cy);
   time_remaining_->SetVisible(true);
 
   // Display received size, we may not know the total size if the server didn't
@@ -369,7 +363,7 @@ void DownloadItemTabView::LayoutCancelled() {
   download_progress_->GetPreferredSize(&byte_size);
   download_progress_->SetBounds(dx,
                                 file_name_size.cy + kVerticalPadding +
-                                kIconOffset,
+                                download_util::kBigProgressIconOffset,
                                 kProgressSize,
                                 byte_size.cy);
   download_progress_->SetVisible(true);
@@ -382,14 +376,15 @@ void DownloadItemTabView::LayoutInProgress() {
   show_->SetEnabled(false);
 
   LayoutDate();
-  int dx = kDownloadIconOffset - kIconOffset + kProgressIconSize +
+  int dx = kDownloadIconOffset - download_util::kBigProgressIconOffset +
+            download_util::kBigProgressIconSize +
            kInfoPadding;
 
   // File name and URL, truncated to show progress status
   CSize file_name_size;
   file_name_->SetText(model_->file_name());
   file_name_->GetPreferredSize(&file_name_size);
-  file_name_->SetBounds(dx, kIconOffset,
+  file_name_->SetBounds(dx, download_util::kBigProgressIconOffset,
                         kFilenameSize - kProgressSize - kSpacer,
                         file_name_size.cy);
   file_name_->SetVisible(true);
@@ -400,7 +395,7 @@ void DownloadItemTabView::LayoutInProgress() {
   CSize url_size;
   download_url_->GetPreferredSize(&url_size);
   download_url_->SetBounds(dx, file_name_size.cy + kVerticalPadding +
-                           kIconOffset,
+                           download_util::kBigProgressIconOffset,
                            std::min(kFilenameSize - kProgressSize - kSpacer,
                                     static_cast<int>(GetWidth() - dx)),
                            url_size.cy);
@@ -472,7 +467,8 @@ void DownloadItemTabView::LayoutInProgress() {
   }
 
   // Time remaining
-  int y_pos = file_name_size.cy + kVerticalPadding + kIconOffset;
+  int y_pos = file_name_size.cy + kVerticalPadding +
+              download_util::kBigProgressIconOffset;
   CSize time_size;
   time_remaining_->SetColor(kStatusColor);
   if (model_->is_paused()) {
@@ -480,18 +476,21 @@ void DownloadItemTabView::LayoutInProgress() {
     time_remaining_->SetText(
         l10n_util::GetString(IDS_DOWNLOAD_PROGRESS_PAUSED));
     time_remaining_->GetPreferredSize(&time_size);
-    time_remaining_->SetBounds(dx, kIconOffset, kProgressSize, time_size.cy);
+    time_remaining_->SetBounds(dx, download_util::kBigProgressIconOffset,
+                               kProgressSize, time_size.cy);
     time_remaining_->SetVisible(true);
   } else if (total > 0)  {
     TimeDelta remaining;
     if (model_->TimeRemaining(&remaining))
       time_remaining_->SetText(TimeFormat::TimeRemaining(remaining));
     time_remaining_->GetPreferredSize(&time_size);
-    time_remaining_->SetBounds(dx, kIconOffset, kProgressSize, time_size.cy);
+    time_remaining_->SetBounds(dx, download_util::kBigProgressIconOffset,
+                               kProgressSize, time_size.cy);
     time_remaining_->SetVisible(true);
   } else {
     time_remaining_->SetText(L"");
-    y_pos = ((file_name_size.cy + url_size.cy) / 2) + kIconOffset;
+    y_pos = ((file_name_size.cy + url_size.cy) / 2) +
+            download_util::kBigProgressIconOffset;
   }
 
   CSize byte_size;
@@ -502,7 +501,8 @@ void DownloadItemTabView::LayoutInProgress() {
   download_progress_->SetVisible(true);
 
   dx += kProgressSize + kSpacer;
-  y_pos = ((file_name_size.cy + url_size.cy) / 2) + kIconOffset;
+  y_pos = ((file_name_size.cy + url_size.cy) / 2) +
+          download_util::kBigProgressIconOffset;
 
   // Pause (or Resume) / Cancel buttons.
   if (model_->is_paused())
@@ -531,7 +531,8 @@ void DownloadItemTabView::Paint(ChromeCanvas* canvas) {
   if (model_->state() == DownloadItem::IN_PROGRESS) {
     download_util::PaintDownloadProgress(canvas,
                                          this,
-                                         kDownloadIconOffset - kIconOffset,
+                                         kDownloadIconOffset -
+                                         download_util::kBigProgressIconOffset,
                                          0,
                                          parent_->start_angle(),
                                          model_->PercentComplete(),
@@ -544,7 +545,8 @@ void DownloadItemTabView::Paint(ChromeCanvas* canvas) {
   // View so we need to mirror it manually if the locale is RTL.
   SkBitmap* icon = parent_->LookupIcon(model_);
   if (icon) {
-    gfx::Rect icon_bounds(kDownloadIconOffset, kIconOffset,
+    gfx::Rect icon_bounds(kDownloadIconOffset,
+                          download_util::kBigProgressIconOffset,
                           icon->width(), icon->height());
     icon_bounds.set_x(MirroredLeftPointForRect(icon_bounds));
     canvas->DrawBitmapInt(*icon, icon_bounds.x(), icon_bounds.y());
@@ -558,10 +560,12 @@ void DownloadItemTabView::PaintBackground(ChromeCanvas* canvas) {
     // to explicitly mirror the position because the highlighted area is
     // directly painted on the canvas (as opposed to being represented as a
     // child View like the rest of the UI elements in DownloadItemTabView).
-    gfx::Rect highlighted_bounds(kDownloadIconOffset - kIconOffset, 0,
-                                 kProgressIconSize + kInfoPadding +
-                                 kFilenameSize,
-                                 kProgressIconSize);
+    gfx::Rect highlighted_bounds(kDownloadIconOffset -
+                                    download_util::kBigProgressIconOffset,
+                                 0,
+                                 download_util::kBigProgressIconSize +
+                                    kInfoPadding + kFilenameSize,
+                                 download_util::kBigProgressIconSize);
     highlighted_bounds.set_x(MirroredLeftPointForRect(highlighted_bounds));
 
     canvas->FillRectInt(kSelectedItemColor,
@@ -587,10 +591,13 @@ bool DownloadItemTabView::OnMousePressed(const ChromeViews::MouseEvent& event) {
 
   // If the click is in the highlight region, then highlight this download.
   // Otherwise, remove the highlighting from any download.
-  CRect select_rect(kDownloadIconOffset - kIconOffset, 0,
-                    kDownloadIconOffset - kIconOffset +
-                    kProgressIconSize + kInfoPadding + kFilenameSize,
-                    kProgressIconSize);
+  CRect select_rect(kDownloadIconOffset - download_util::kBigProgressIconOffset,
+                    0,
+                    kDownloadIconOffset -
+                        download_util::kBigProgressIconOffset +
+                        download_util::kBigProgressIconSize + kInfoPadding +
+                        kFilenameSize,
+                    download_util::kBigProgressIconSize);
 
   // The position of the highlighted region does not take into account the
   // View's UI layout so we have to manually mirror the position if the View is
@@ -624,10 +631,12 @@ bool DownloadItemTabView::OnMouseDragged(const ChromeViews::MouseEvent& event) {
   // mirrored, we can either flip the mouse X coordinate or flip the X position
   // of the drag rectangle. Flipping the mouse X coordinate is easier.
   point.x = MirroredXCoordinateInsideView(point.x);
-  CRect drag_rect(kDownloadIconOffset - kIconOffset, 0,
-                  kDownloadIconOffset - kIconOffset +
-                  kProgressIconSize + kInfoPadding + kFilenameSize,
-                  kProgressIconSize);
+  CRect drag_rect(kDownloadIconOffset - download_util::kBigProgressIconOffset,
+                  0,
+                  kDownloadIconOffset - download_util::kBigProgressIconOffset +
+                      download_util::kBigProgressIconSize + kInfoPadding +
+                      kFilenameSize,
+                  download_util::kBigProgressIconSize);
 
   if (drag_rect.PtInRect(point)) {
     SkBitmap* icon = parent_->LookupIcon(model_);
@@ -664,7 +673,7 @@ void DownloadItemTabView::LinkActivated(ChromeViews::Link* source,
 DownloadTabView::DownloadTabView(DownloadManager* model)
     : model_(model),
       start_angle_(download_util::kStartAngleDegrees),
-      scroll_helper_(kSpacer, kProgressIconSize + kSpacer),
+      scroll_helper_(kSpacer, download_util::kBigProgressIconSize + kSpacer),
       selected_index_(-1) {
   DCHECK(model_);
 }
@@ -720,7 +729,7 @@ void DownloadTabView::Layout() {
     int y = GetY();
     int w = v->GetWidth();
     int h = static_cast<int>(downloads_.size()) *
-            (kProgressIconSize + kSpacer) + kSpacer;
+            (download_util::kBigProgressIconSize + kSpacer) + kSpacer;
     SetBounds(x, y, w, h);
   }
 }
@@ -729,24 +738,24 @@ void DownloadTabView::Layout() {
 void DownloadTabView::Paint(ChromeCanvas* canvas) {
   ChromeViews::View::Paint(canvas);
 
-  if (kIconSize == 0 || downloads_.size() == 0)
+  if (download_util::kBigIconSize == 0 || downloads_.size() == 0)
     return;
 
   SkRect clip;
   if (canvas->getClipBounds(&clip)) {
     int row_start = (SkScalarRound(clip.fTop) - kSpacer) /
-                    (kProgressIconSize + kSpacer);
+                    (download_util::kBigProgressIconSize + kSpacer);
     int row_stop = SkScalarRound(clip.fBottom) /
-                   (kProgressIconSize + kSpacer);
+                   (download_util::kBigProgressIconSize + kSpacer);
     SkRect download_rect;
     for (int i = row_start; i <= row_stop; ++i) {
-      int y = i * (kProgressIconSize + kSpacer) + kSpacer;
+      int y = i * (download_util::kBigProgressIconSize + kSpacer) + kSpacer;
       if (HasFloatingViewForPoint(0, y))
         continue;
       download_rect.set(SkIntToScalar(0),
                         SkIntToScalar(y),
                         SkIntToScalar(GetWidth()),
-                        SkIntToScalar(y + kProgressIconSize));
+                        SkIntToScalar(y + download_util::kBigProgressIconSize));
       if (SkRect::Intersects(clip, download_rect)) {
         // The DownloadManager stores downloads earliest first, but this
         // view displays latest first, so adjust the index:
@@ -754,7 +763,7 @@ void DownloadTabView::Paint(ChromeCanvas* canvas) {
         download_renderer_.SetModel(downloads_[index], this);
         PaintFloatingView(canvas, &download_renderer_,
                           0, y,
-                          GetWidth(), kProgressIconSize);
+                          GetWidth(), download_util::kBigProgressIconSize);
       }
     }
   }
@@ -763,13 +772,15 @@ void DownloadTabView::Paint(ChromeCanvas* canvas) {
 // Draw the DownloadItemTabView for the current position.
 bool DownloadTabView::GetFloatingViewIDForPoint(int x, int y, int* id) {
   if (y < kSpacer ||
-      y > (kSpacer + kProgressIconSize) *  static_cast<int>(downloads_.size()))
+      y > (kSpacer + download_util::kBigProgressIconSize) *
+          static_cast<int>(downloads_.size()))
     return false;
 
   // Are we hovering over a download or the spacer? If we're over the
   // download, create a floating view for it.
-  if ((y - kSpacer) % (kProgressIconSize + kSpacer) <  kProgressIconSize) {
-    int row = y / (kProgressIconSize + kSpacer);
+  if ((y - kSpacer) % (download_util::kBigProgressIconSize + kSpacer) <
+      download_util::kBigProgressIconSize) {
+    int row = y / (download_util::kBigProgressIconSize + kSpacer);
     *id = static_cast<int>(downloads_.size()) - 1 - row;
     return true;
   }
@@ -786,8 +797,8 @@ ChromeViews::View* DownloadTabView::CreateFloatingViewForIndex(int index) {
   DownloadItemTabView* dl = new DownloadItemTabView();
   dl->SetModel(downloads_[index], this);
   int row = static_cast<int>(downloads_.size()) - 1 - index;
-  int y_pos = row * (kProgressIconSize + kSpacer) + kSpacer;
-  dl->SetBounds(0, y_pos, GetWidth(), kProgressIconSize);
+  int y_pos = row * (download_util::kBigProgressIconSize + kSpacer) + kSpacer;
+  dl->SetBounds(0, y_pos, GetWidth(), download_util::kBigProgressIconSize);
   dl->Layout();
   AttachFloatingView(dl, index);
   return dl;
@@ -1014,12 +1025,12 @@ bool DownloadTabView::ItemIsSelected(DownloadItem* download) {
 
 void DownloadTabView::SchedulePaintForViewAtIndex(int index) {
   int y = GetYPositionForIndex(index);
-  SchedulePaint(0, y, GetWidth(), kProgressIconSize);
+  SchedulePaint(0, y, GetWidth(), download_util::kBigProgressIconSize);
 }
 
 int DownloadTabView::GetYPositionForIndex(int index) {
   int row = static_cast<int>(downloads_.size()) - 1 - index;
-  return row * (kProgressIconSize + kSpacer) + kSpacer;
+  return row * (download_util::kBigProgressIconSize + kSpacer) + kSpacer;
 }
 
 void DownloadTabView::SetSearchText(const std::wstring& search_text) {

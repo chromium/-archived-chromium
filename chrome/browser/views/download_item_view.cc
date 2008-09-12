@@ -139,10 +139,8 @@ DownloadItemView::DownloadItemView(DownloadItem* download,
                                   normal_body_image_set_.top_left->height() +
                                   normal_body_image_set_.bottom_left->height());
 
-  int progress_icon_size =
-      download_util::GetProgressIconSize(download_util::SMALL);
-  if (progress_icon_size > box_height_)
-    box_y_ = (progress_icon_size - box_height_) / 2;
+  if (download_util::kSmallProgressIconSize > box_height_)
+    box_y_ = (download_util::kSmallProgressIconSize - box_height_) / 2;
   else
     box_y_ = kVerticalPadding;
 
@@ -330,21 +328,22 @@ void DownloadItemView::Paint(ChromeCanvas* canvas) {
   }
 
   // Print the text, left aligned.
-  int progress_icon_size =
-      download_util::GetProgressIconSize(download_util::SMALL);
   // Last value of x was the end of the right image, just before the button.
   if (show_status_text_) {
     int y = box_y_ + kVerticalPadding;
     canvas->DrawStringInt(file_name_, font_, kFileNameColor,
-                          progress_icon_size, y, kTextWidth, font_.height());
+                          download_util::kSmallProgressIconSize, y,
+                          kTextWidth, font_.height());
     y += font_.height() + kVerticalTextPadding;
 
     canvas->DrawStringInt(status_text_, font_, kStatusColor,
-                          progress_icon_size, y, kTextWidth, font_.height());
+                          download_util::kSmallProgressIconSize, y,
+                          kTextWidth, font_.height());
   } else {
     int y = box_y_ + (box_height_ - font_.height()) / 2;
     canvas->DrawStringInt(file_name_, font_, kFileNameColor,
-                          progress_icon_size, y, kTextWidth, font_.height());
+                          download_util::kSmallProgressIconSize, y,
+                          kTextWidth, font_.height());
   }
 
   // Paint the icon.
@@ -365,8 +364,9 @@ void DownloadItemView::Paint(ChromeCanvas* canvas) {
     }
 
     // Draw the icon image
-    int offset = download_util::GetProgressIconOffset(download_util::SMALL);
-    canvas->DrawBitmapInt(*icon, offset, offset);
+    canvas->DrawBitmapInt(*icon,
+                          download_util::kSmallProgressIconOffset,
+                          download_util::kSmallProgressIconOffset);
   }
 }
 
@@ -403,7 +403,7 @@ void DownloadItemView::SetState(State body_state, State drop_down_state) {
 
 void DownloadItemView::GetPreferredSize(CSize* out) {
   int width = kLeftPadding + normal_body_image_set_.top_left->width();
-  width += download_util::GetProgressIconSize(download_util::SMALL);
+  width += download_util::kSmallProgressIconSize;
   width += kTextWidth;
   width += normal_body_image_set_.top_right->width();
   width += normal_drop_down_image_set_.top->width();
@@ -411,7 +411,7 @@ void DownloadItemView::GetPreferredSize(CSize* out) {
   out->cx = width;
   out->cy = std::max<int>(
       2 * kVerticalPadding +  2 * font_.height() + kVerticalTextPadding,
-      download_util::GetProgressIconSize(download_util::SMALL));
+      download_util::kSmallProgressIconSize);
 }
 
 void DownloadItemView::OnMouseExited(const ChromeViews::MouseEvent& event) {

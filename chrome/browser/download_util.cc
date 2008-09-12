@@ -265,7 +265,8 @@ void PaintDownloadProgress(ChromeCanvas* canvas,
   SkBitmap* background = (size == BIG) ? g_background_32 : g_background_16;
   SkBitmap* foreground = (size == BIG) ? g_foreground_32 : g_foreground_16;
 
-  const int kProgressIconSize = GetProgressIconSize(size);
+  const int kProgressIconSize = (size == BIG) ? kBigProgressIconSize :
+                                                kSmallProgressIconSize;
 
   int height = background->height();
 
@@ -382,32 +383,6 @@ void PaintDownloadComplete(ChromeCanvas* canvas,
   canvas->drawARGB(0, 255, 255, 255, SkPorterDuff::kClear_Mode);
   canvas->DrawBitmapInt(*complete, complete_bounds.x(), complete_bounds.y());
   canvas->restore();
-}
-
-// XP and Vista must support icons of this size.
-const int kBigIconSize = 32;
-const int kSmallIconSize = 16;
-
-// Our progress halo around the icon
-const int kBigProgressIconSize = 52;
-const int kSmallProgressIconSize = 39;
-
-int GetIconSize(PaintDownloadProgressSize size) {
-  if (size == SMALL)
-    return kSmallIconSize;
-  return kBigIconSize;
-}
-
-int GetProgressIconSize(PaintDownloadProgressSize size) {
-  if (size == SMALL)
-    return kSmallProgressIconSize;
-  return kBigProgressIconSize ;
-}
-
-int GetProgressIconOffset(PaintDownloadProgressSize size) {
-  if (size == SMALL)
-    return (kSmallProgressIconSize - kSmallIconSize) / 2;
-  return (kBigProgressIconSize - kBigIconSize) / 2;
 }
 
 // Download dragging

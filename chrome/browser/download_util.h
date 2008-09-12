@@ -132,19 +132,23 @@ const int kMaxDegrees = 360;
 // Progress animation timer period, in milliseconds.
 const int kProgressRateMs = 150;
 
+// XP and Vista must support icons of this size.
+const int kSmallIconSize = 16;
+const int kBigIconSize = 32;
+
+// Our progress halo around the icon
+const int kSmallProgressIconSize = 39;
+const int kBigProgressIconSize = 52;
+
+// The offset required to center the icon in the progress bitmaps.
+const int kSmallProgressIconOffset =
+    (kSmallProgressIconSize - kSmallIconSize) / 2;
+const int kBigProgressIconOffset = (kBigProgressIconSize - kBigIconSize) / 2;
+
 enum PaintDownloadProgressSize {
   SMALL = 0,
   BIG
 };
-
-// Returns the expected size of the icon displayed in the progress halo.
-int GetIconSize(PaintDownloadProgressSize size);
-
-// Returns the size of our progress halo around the icon.
-int GetProgressIconSize(PaintDownloadProgressSize size);
-
-// Returns the offset required to center the icon in the progress bitmaps.
-int GetProgressIconOffset(PaintDownloadProgressSize size);
 
 // Paint the common download animation progress foreground and background,
 // clipping the foreground to 'percent' full. If percent is -1, then we don't
