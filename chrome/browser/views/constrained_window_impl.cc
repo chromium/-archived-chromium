@@ -850,6 +850,8 @@ void ConstrainedWindowImpl::ActivateConstrainedWindow() {
     return;
   }
 
+  StopSuppressedAnimationIfRunning();
+
   // Other pop-ups are simply moved to the front of the z-order.
   SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
 
@@ -1016,6 +1018,14 @@ void ConstrainedWindowImpl::StartSuppressedAnimation() {
   animation_->Start();
 }
 
+void ConstrainedWindowImpl::StopSuppressedAnimationIfRunning() {
+  if(animation_.get()) {
+    animation_->Stop();
+    SetTitlebarVisibilityPercentage(1.0);
+    animation_.reset();
+  }
+}
+
 void ConstrainedWindowImpl::CloseContents(TabContents* source) {
   Close();
 }
@@ -1158,6 +1168,9 @@ bool ConstrainedWindowImpl::CanDetach() const {
 
 void ConstrainedWindowImpl::Detach() {
   DCHECK(CanDetach());
+
+  StopSuppressedAnimationIfRunning();
+
   // Tell the container not to restore focus to whatever view was focused last,
   // since this will interfere with the new window activation in the case where
   // a constrained window is destroyed by being detached.
