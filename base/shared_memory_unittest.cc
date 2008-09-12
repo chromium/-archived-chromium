@@ -118,6 +118,9 @@ TEST(SharedMemoryTest, OpenClose) {
   EXPECT_TRUE(rv);
   EXPECT_NE(memory1.memory(), memory2.memory());  // Compare the pointers.
 
+  // Make sure we don't segfault. (it actually happened!)
+  ASSERT_NE(memory1.memory(), static_cast<void*>(NULL));
+  ASSERT_NE(memory2.memory(), static_cast<void*>(NULL));
 
   // Write data to the first memory segment, verify contents of second.
   memset(memory1.memory(), '1', kDataSize);
