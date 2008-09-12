@@ -1297,10 +1297,10 @@ void Browser::CreateNewStripWithContents(TabContents* detached_contents,
   Browser* new_window =
       new Browser(rect, SW_SHOWNORMAL, profile_, BrowserType::TABBED_BROWSER,
                   std::wstring());
-  // Need to do this _before_ appending the TabContents so that the window is
-  // appropriately sized.
-  new_window->Show();
+  // Append the TabContents before showing it so the window doesn't flash
+  // black.
   new_window->tabstrip_model()->AppendTabContents(detached_contents, true);
+  new_window->Show();
 
   // When we detach a tab we need to make sure any associated Find window moves
   // along with it to its new home (basically we just make new_window the parent
