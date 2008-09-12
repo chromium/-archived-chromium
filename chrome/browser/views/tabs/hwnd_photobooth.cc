@@ -4,7 +4,7 @@
 
 #include "base/gfx/point.h"
 #include "chrome/browser/tab_contents.h"
-#include "chrome/browser/tabs/hwnd_photobooth.h"
+#include "chrome/browser/views/tabs/hwnd_photobooth.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/views/hwnd_view_container.h"
 #include "skia/include/SkBitmap.h"

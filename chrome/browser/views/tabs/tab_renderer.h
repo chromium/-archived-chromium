@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TABS_TAB_RENDERER_H__
-#define CHROME_BROWSER_TABS_TAB_RENDERER_H__
+#ifndef CHROME_BROWSER_VIEWS_TABS_TAB_RENDERER_H__
+#define CHROME_BROWSER_VIEWS_TABS_TAB_RENDERER_H__
 
 #include "base/gfx/point.h"
 #include "chrome/common/animation.h"
@@ -170,5 +170,5 @@ class TabRenderer : public ChromeViews::View,
   DISALLOW_EVIL_CONSTRUCTORS(TabRenderer);
 };
 
-#endif  // CHROME_BROWSER_TABS_TAB_RENDERER_H__
+#endif  // CHROME_BROWSER_VIEWS_TABS_TAB_RENDERER_H__
 

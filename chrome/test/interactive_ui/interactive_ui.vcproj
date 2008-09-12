@@ -227,7 +227,7 @@
 			Name="TestTabDragging"
 			>
 			<File
-				RelativePath="..\..\browser\tabs\tab_dragging_test.cc"
+				RelativePath="..\..\browser\views\tabs\tab_dragging_test.cc"
 				>
 			</File>
 		</Filter>

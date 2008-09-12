@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_HWND_PHOTOBOOTH_H__
-#define CHROME_BROWSER_HWND_PHOTOBOOTH_H__
+#ifndef CHROME_BROWSER_VIEWS_TABS_HWND_PHOTOBOOTH_H__
+#define CHROME_BROWSER_VIEWS_TABS_HWND_PHOTOBOOTH_H__
 
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
@@ -58,5 +58,5 @@ class HWNDPhotobooth {
   DISALLOW_EVIL_CONSTRUCTORS(HWNDPhotobooth);
 };
 
-#endif  // #ifndef CHROME_BROWSER_HWND_PHOTOBOOTH_H__
+#endif  // #ifndef CHROME_BROWSER_VIEWS_TABS_HWND_PHOTOBOOTH_H__
 

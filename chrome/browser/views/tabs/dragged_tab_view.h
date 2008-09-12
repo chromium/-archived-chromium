@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TABS_DRAGGED_TAB_VIEW_H_
-#define CHROME_BROWSER_TABS_DRAGGED_TAB_VIEW_H_
+#ifndef CHROME_BROWSER_VIEWS_TABS_DRAGGED_TAB_VIEW_H_
+#define CHROME_BROWSER_VIEWS_TABS_DRAGGED_TAB_VIEW_H_
 
 #include "base/gfx/point.h"
 #include "base/gfx/size.h"
@@ -115,5 +115,5 @@ class DraggedTabView : public ChromeViews::View,
   DISALLOW_EVIL_CONSTRUCTORS(DraggedTabView);
 };
 
-#endif  // CHROME_BROWSER_TABS_DRAGGED_TAB_VIEW_H_
+#endif  // CHROME_BROWSER_VIEWS_TABS_DRAGGED_TAB_VIEW_H_
 

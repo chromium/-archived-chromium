@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/tabs/tab.h"
+#include "chrome/browser/views/tabs/tab.h"
 
 #include "base/gfx/size.h"
 #include "chrome/views/view_container.h"

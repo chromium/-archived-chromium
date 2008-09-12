@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/tabs/tab_strip.h"
+#include "chrome/browser/views/tabs/tab_strip.h"
 
 #include "base/gfx/size.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents.h"
-#include "chrome/browser/tabs/dragged_tab_controller.h"
-#include "chrome/browser/tabs/tab.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/browser/view_ids.h"
+#include "chrome/browser/views/tabs/dragged_tab_controller.h"
+#include "chrome/browser/views/tabs/tab.h"
 #include "chrome/browser/vista_frame.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/common/drag_drop_types.h"

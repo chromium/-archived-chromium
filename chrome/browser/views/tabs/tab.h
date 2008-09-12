@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TABS_TAB_H_
-#define CHROME_BROWSER_TABS_TAB_H_
+#ifndef CHROME_BROWSER_VIEWS_TABS_TAB_H_
+#define CHROME_BROWSER_VIEWS_TABS_TAB_H_
 
-#include "chrome/browser/tabs/tab_renderer.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
+#include "chrome/browser/views/tabs/tab_renderer.h"
 #include "chrome/views/base_button.h"
 
 namespace gfx {
@@ -121,5 +121,5 @@ class Tab : public TabRenderer,
   DISALLOW_COPY_AND_ASSIGN(Tab);
 };
 
-#endif  // CHROME_BROWSER_TABS_TAB_H_
+#endif  // CHROME_BROWSER_VIEWS_TABS_TAB_H_
 

@@ -4,7 +4,7 @@
 
 #include <limits>
 
-#include "chrome/browser/tabs/tab_renderer.h"
+#include "chrome/browser/views/tabs/tab_renderer.h"
 
 #include "base/gfx/image_operations.h"
 #include "chrome/app/theme/theme_resources.h"

@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/tabs/dragged_tab_view.h"
+#include "chrome/browser/views/tabs/dragged_tab_view.h"
 
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/browser/tab_contents.h"
-#include "chrome/browser/tabs/hwnd_photobooth.h"
-#include "chrome/browser/tabs/tab_renderer.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
+#include "chrome/browser/views/tabs/hwnd_photobooth.h"
+#include "chrome/browser/views/tabs/tab_renderer.h"
 #include "chrome/views/hwnd_view_container.h"
 #include "skia/include/SkShader.h"
 

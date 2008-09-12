@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TABS_TAB_STRIP_H__
-#define CHROME_BROWSER_TABS_TAB_STRIP_H__
+#ifndef CHROME_BROWSER_VIEWS_TABS_TAB_STRIP_H__
+#define CHROME_BROWSER_VIEWS_TABS_TAB_STRIP_H__
 
 #include "base/gfx/point.h"
-#include "chrome/browser/tabs/tab.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
+#include "chrome/browser/views/tabs/tab.h"
 #include "chrome/views/button.h"
 #include "chrome/views/hwnd_view_container.h"
 #include "chrome/views/menu.h"
@@ -369,5 +369,5 @@ class TabStrip : public ChromeViews::View,
   DISALLOW_EVIL_CONSTRUCTORS(TabStrip);
 };
 
-#endif  // CHROME_BROWSER_TABS_TAB_STRIP_H__
+#endif  // CHROME_BROWSER_VIEWS_TABS_TAB_STRIP_H__
 

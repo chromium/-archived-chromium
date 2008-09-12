@@ -329,6 +329,58 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Tabs"
+			>
+			<File
+				RelativePath=".\tabs\dragged_tab_controller.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tabs\dragged_tab_controller.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tabs\dragged_tab_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tabs\dragged_tab_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tabs\hwnd_photobooth.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tabs\hwnd_photobooth.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tabs\tab.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tabs\tab.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tabs\tab_renderer.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tabs\tab_renderer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tabs\tab_strip.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tabs\tab_strip.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\about_chrome_view.cc"
 			>

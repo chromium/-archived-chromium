@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TABS_DRAGGED_TAB_CONTROLLER_H_
-#define CHROME_BROWSER_TABS_DRAGGED_TAB_CONTROLLER_H_
+#ifndef CHROME_BROWSER_VIEWS_TABS_DRAGGED_TAB_CONTROLLER_H_
+#define CHROME_BROWSER_VIEWS_TABS_DRAGGED_TAB_CONTROLLER_H_
 
 #include "base/gfx/rect.h"
 #include "base/message_loop.h"
 #include "chrome/browser/tab_contents_delegate.h"
-#include "chrome/browser/tabs/tab_renderer.h"
+#include "chrome/browser/views/tabs/tab_renderer.h"
 #include "chrome/common/notification_service.h"
 
 namespace ChromeViews {
@@ -282,5 +282,5 @@ class DraggedTabController : public TabContentsDelegate,
   DISALLOW_COPY_AND_ASSIGN(DraggedTabController);
 };
 
-#endif  // CHROME_BROWSER_TABS_DRAGGED_TAB_CONTROLLER_H_
+#endif  // CHROME_BROWSER_VIEWS_TABS_DRAGGED_TAB_CONTROLLER_H_
 
