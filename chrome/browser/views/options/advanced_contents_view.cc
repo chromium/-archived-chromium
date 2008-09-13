@@ -34,6 +34,7 @@
 #include "chrome/common/pref_member.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/installer/util/google_update_settings.h"
 #include "chrome/views/background.h"
 #include "chrome/views/checkbox.h"
 #include "chrome/views/combo_box.h"
@@ -323,6 +324,8 @@ class GeneralSection : public AdvancedSection,
   StringPrefMember auto_open_files_;
   BooleanPrefMember enable_metrics_recording_;
 
+  void ResolveMetricsReportingEnabled();
+
   DISALLOW_EVIL_CONSTRUCTORS(GeneralSection);
 };
 
@@ -342,24 +345,15 @@ void GeneralSection::ButtonPressed(ChromeViews::NativeButton* sender) {
                             profile()->GetPrefs());
   } else if (sender == reporting_enabled_checkbox_) {
     bool enabled = reporting_enabled_checkbox_->IsSelected();
-    // Do what we can, but we might not be able to get what was asked for.
-    bool done = g_browser_process->metrics_service()->EnableReporting(enabled);
-    if (!done) {
-      enabled = !enabled;
-      done = g_browser_process->metrics_service()->EnableReporting(enabled);
-      DCHECK(done);
-      reporting_enabled_checkbox_->SetIsSelected(enabled);
-    } else {
-      if (enabled) {
-        UserMetricsRecordAction(L"Options_MetricsReportingCheckbox_Enable",
+    if (enabled)
+      UserMetricsRecordAction(L"Options_MetricsReportingCheckbox_Enable",
                                 profile()->GetPrefs());
-      } else {
-        UserMetricsRecordAction(L"Options_MetricsReportingCheckbox_Disable",
+    else
+      UserMetricsRecordAction(L"Options_MetricsReportingCheckbox_Disable",
                                 profile()->GetPrefs());
-      }
+    ResolveMetricsReportingEnabled();
+    if (enabled == reporting_enabled_checkbox_->IsSelected())
       RestartMessageBox::ShowMessageBox(GetRootWindow());
-    }
-    enable_metrics_recording_.SetValue(enabled);
   }
 }
 
@@ -444,15 +438,37 @@ void GeneralSection::NotifyPrefChanged(const std::wstring* pref_name) {
     reset_file_handlers_button_->SetEnabled(enabled);
   }
   if (!pref_name || *pref_name == prefs::kMetricsReportingEnabled) {
-    bool enabled = enable_metrics_recording_.GetValue();
-    bool done = g_browser_process->metrics_service()->EnableReporting(enabled);
-    if (!done) {
-      enabled = !enabled;
-      done = g_browser_process->metrics_service()->EnableReporting(enabled);
-      DCHECK(done);
-    }
-    reporting_enabled_checkbox_->SetIsSelected(enabled);
+    ResolveMetricsReportingEnabled();
   }
+}
+
+void GeneralSection::ResolveMetricsReportingEnabled() {
+  bool enabled = reporting_enabled_checkbox_->IsSelected();
+
+  GoogleUpdateSettings::SetCollectStatsConsent(enabled);
+  bool update_pref = GoogleUpdateSettings::GetCollectStatsConsent();
+
+  if (enabled != update_pref) {
+    DLOG(INFO) <<
+        "GENERAL SECTION: Unable to set crash report status to " <<
+        enabled;
+  }
+
+  // Only change the pref if GoogleUpdateSettings::GetCollectStatsConsent
+  // succeeds.
+  enabled = update_pref;
+
+  MetricsService* metrics = g_browser_process->metrics_service();
+  DCHECK(metrics);
+  if (metrics) {
+    metrics->SetUserPermitsUpload(enabled);
+    if (enabled)
+      metrics->Start();
+    else
+      metrics->Stop();
+  }
+
+  reporting_enabled_checkbox_->SetIsSelected(enabled);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

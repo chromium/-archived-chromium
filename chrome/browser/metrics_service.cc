@@ -327,19 +327,23 @@ void MetricsService::RegisterPrefs(PrefService* local_state) {
 }
 
 MetricsService::MetricsService()
-    : recording_(false),
-      reporting_(true),
+    : recording_active_(false),
+      reporting_active_(false),
+      user_permits_upload_(false),
+      server_permits_upload_(true),
       pending_log_(NULL),
       pending_log_text_(""),
       current_fetch_(NULL),
       current_log_(NULL),
+      idle_since_last_transmission_(false),
       state_(INITIALIZED),
       next_window_id_(0),
       log_sender_factory_(this),
       state_saver_factory_(this),
       logged_samples_(),
       interlog_duration_(TimeDelta::FromSeconds(kInitialInterlogDuration)),
-      event_limit_(kInitialEventLimit),
+      log_event_limit_(kInitialEventLimit),
+      upload_on_(true),
       timer_pending_(false) {
   DCHECK(IsSingleThreaded());
   InitializeMetricsState();
@@ -349,10 +353,25 @@ MetricsService::~MetricsService() {
   SetRecording(false);
 }
 
+void MetricsService::SetUserPermitsUpload(bool enabled) {
+  HandleIdleSinceLastTransmission(false);
+  user_permits_upload_ = enabled;
+}
+
+void MetricsService::Start() {
+  SetRecording(true);
+  SetReporting(true);
+}
+
+void MetricsService::Stop() {
+  SetReporting(false);
+  SetRecording(false);
+}
+
 void MetricsService::SetRecording(bool enabled) {
   DCHECK(IsSingleThreaded());
 
-  if (enabled == recording_)
+  if (enabled == recording_active_)
     return;
 
   if (enabled) {
@@ -366,29 +385,25 @@ void MetricsService::SetRecording(bool enabled) {
     if (state_ > INITIAL_LOG_READY && unsent_logs())
       state_ = SEND_OLD_INITIAL_LOGS;
   }
-  recording_ = enabled;
+  recording_active_ = enabled;
 }
 
-bool MetricsService::IsRecording() const {
+bool MetricsService::recording_active() const {
   DCHECK(IsSingleThreaded());
-  return recording_;
+  return recording_active_;
 }
 
-bool MetricsService::EnableReporting(bool enable) {
-  bool done = GoogleUpdateSettings::SetCollectStatsConsent(enable);
-  if (!done) {
-    bool update_pref = GoogleUpdateSettings::GetCollectStatsConsent();
-    if (enable != update_pref) {
-      DLOG(INFO) << "METRICS: Unable to set crash report status to " << enable;
-      return false;
-    }
-  }
-  if (reporting_ != enable) {
-    reporting_ = enable;
-    if (reporting_)
+void MetricsService::SetReporting(bool enable) {
+  if (reporting_active_ != enable) {
+    reporting_active_ = enable;
+    if (reporting_active_)
       StartLogTransmissionTimer();
   }
-  return true;
+}
+
+bool MetricsService::reporting_active() const {
+  DCHECK(IsSingleThreaded());
+  return reporting_active_;
 }
 
 void MetricsService::Observe(NotificationType type,
@@ -459,7 +474,25 @@ void MetricsService::Observe(NotificationType type,
       NOTREACHED();
       break;
   }
-  StartLogTransmissionTimer();
+
+  HandleIdleSinceLastTransmission(false);
+
+  if (current_log_)
+    DLOG(INFO) << "METRICS: NUMBER OF LOGS = " << current_log_->num_events();
+}
+
+void MetricsService::HandleIdleSinceLastTransmission(bool in_idle) {
+  // If there wasn't a lot of action, maybe the computer was asleep, in which
+  // case, the log transmissions should have stopped.  Here we start them up
+  // again.
+  if (in_idle) {
+    idle_since_last_transmission_ = true;
+  } else {
+    if (idle_since_last_transmission_) {
+      idle_since_last_transmission_ = false;
+      StartLogTransmissionTimer();
+    }
+  }
 }
 
 void MetricsService::RecordCleanShutdown() {
@@ -514,9 +547,6 @@ void MetricsService::InitializeMetricsState() {
   session_id_ = pref->GetInteger(prefs::kMetricsSessionID);
   ++session_id_;
   pref->SetInteger(prefs::kMetricsSessionID, session_id_);
-
-  bool done = EnableReporting(GoogleUpdateSettings::GetCollectStatsConsent());
-  DCHECK(done);
 
   // Stability bookkeeping
   IncrementPrefValue(prefs::kStabilityLaunchCount);
@@ -708,7 +738,7 @@ void MetricsService::PushPendingLogsToUnsentLists() {
     if (state_ == INITIAL_LOG_READY) {
       // We may race here, and send second copy of initial log later.
       unsent_initial_logs_.push_back(pending_log_text_);
-      state_ = SENDING_CURRENT_LOGS;
+      state_ = SEND_OLD_INITIAL_LOGS;
     } else {
       PushPendingLogTextToUnsentOngoingLogs();
     }
@@ -723,6 +753,11 @@ void MetricsService::PushPendingLogsToUnsentLists() {
 }
 
 void MetricsService::PushPendingLogTextToUnsentOngoingLogs() {
+  // If UMA response told us not to upload, there's no need to save the pending
+  // log.  It wasn't supposed to be uploaded anyway.
+  if (!upload_on_)
+    return;
+
   if (pending_log_text_.length() > kUploadLogAvoidRetransmitSize) {
     UMA_HISTOGRAM_COUNTS(L"UMA.Large Accumulated Log Not Persisted",
                          static_cast<int>(pending_log_text_.length()));
@@ -735,14 +770,32 @@ void MetricsService::PushPendingLogTextToUnsentOngoingLogs() {
 // Transmission of logs methods
 
 void MetricsService::StartLogTransmissionTimer() {
+  // If we're not reporting, there's no point in starting a log transmission
+  // timer.
+  if (!reporting_active())
+    return;
+
   if (!current_log_)
     return;  // Recorder is shutdown.
-  if (timer_pending_ || !reporting_)
+
+  // If there is already a timer running, we leave it running.
+  // If timer_pending is true because the fetch is waiting for a response,
+  // we return for now and let the response handler start the timer.
+  if (timer_pending_)
     return;
-  // If there is no work to do, don't set a timer yet.
-  if (!current_log_->num_events() && !pending_log() && !unsent_logs())
+
+  // Finally, if somehow we got here and the program is still idle since the
+  // last transmission, we shouldn't wake everybody up by starting a timer.
+  if (idle_since_last_transmission_)
     return;
+
+  // Before starting the timer, set timer_pending_ to true.
   timer_pending_ = true;
+
+  // Right before the UMA transmission gets started, there's one more thing we'd
+  // like to record: the histogram of memory usage, so we spawn a task to
+  // collect the memory details and when that task is finished, we arrange for
+  // TryToStartTransmission to take over.
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
       log_sender_factory_.
           NewRunnableMethod(&MetricsService::CollectMemoryDetails),
@@ -752,75 +805,152 @@ void MetricsService::StartLogTransmissionTimer() {
 void MetricsService::TryToStartTransmission() {
   DCHECK(IsSingleThreaded());
 
-  DCHECK(timer_pending_);  // ONLY call via timer.
+  // This function should only be called via timer, so timer_pending_
+  // should be true.
+  DCHECK(timer_pending_);
+  timer_pending_ = false;
 
   DCHECK(!current_fetch_.get());
-  if (current_fetch_.get())
-    return;  // Redundant defensive coding.
 
-  timer_pending_ = false;
+  // If we're getting no notifications, then the log won't have much in it, and
+  // it's possible the computer is about to go to sleep, so don't upload and
+  // don't restart the transmission timer.
+  if (idle_since_last_transmission_)
+    return;
+
+  // If somehow there is a fetch in progress, we return setting timer_pending_
+  // to true and hope things work out.
+  if (current_fetch_.get()) {
+    timer_pending_ = true;
+    return;
+  }
+
+  // If uploads are forbidden by UMA response, there's no point in keeping
+  // the current_log_, and the more often we delete it, the less likely it is
+  // to expand forever.
+  if (!upload_on_ && current_log_) {
+    StopRecording(NULL);
+    StartRecording();
+  }
 
   if (!current_log_)
     return;  // Logging was disabled.
-  if (!reporting_ )
+  if (!reporting_active())
     return;  // Don't do work if we're not going to send anything now.
 
-  if (!pending_log())
-    switch (state_) {
-      case INITIALIZED:  // We must be further along by now.
-        DCHECK(false);
-        return;
+  MakePendingLog();
 
-      case PLUGIN_LIST_REQUESTED:
-        StartLogTransmissionTimer();
-        return;
+  // MakePendingLog should have put something in the pending log, if it didn't,
+  // we start the timer again, return and hope things work out.
+  if (!pending_log()) {
+    StartLogTransmissionTimer();
+    return;
+  }
 
-      case PLUGIN_LIST_ARRIVED:
-        // We need to wait for the initial log to be ready before sending
-        // anything, because the server will tell us whether it wants to hear
-        // from us.
-        PrepareInitialLog();
-        DCHECK(state_ == PLUGIN_LIST_ARRIVED);
-        RecallUnsentLogs();
-        state_ = INITIAL_LOG_READY;
-        break;
+  // If we're not supposed to upload any UMA data because the response or the
+  // user said so, cancel the upload at this point, but start the timer.
+  if (!TransmissionPermitted()) {
+    DiscardPendingLog();
+    StartLogTransmissionTimer();
+    return;
+  }
 
-      case SEND_OLD_INITIAL_LOGS:
+  PrepareFetchWithPendingLog();
+
+  if (!current_fetch_.get()) {
+    // Compression failed, and log discarded :-/.
+    DiscardPendingLog();
+    StartLogTransmissionTimer();  // Maybe we'll do better next time
+    // TODO(jar): If compression failed, we should have created a tiny log and
+    // compressed that, so that we can signal that we're losing logs.
+    return;
+  }
+
+  DCHECK(!timer_pending_);
+
+  // The URL fetch is a like timer in that after a while we get called back
+  // so we set timer_pending_ true just as we start the url fetch.
+  timer_pending_ = true;
+  current_fetch_->Start();
+
+  HandleIdleSinceLastTransmission(true);
+}
+
+
+void MetricsService::MakePendingLog() {
+  if (pending_log())
+    return;
+
+  switch (state_) {
+    case INITIALIZED:
+    case PLUGIN_LIST_REQUESTED:  // We should be further along by now.
+      DCHECK(false);
+      return;
+
+    case PLUGIN_LIST_ARRIVED:
+      // We need to wait for the initial log to be ready before sending
+      // anything, because the server will tell us whether it wants to hear
+      // from us.
+      PrepareInitialLog();
+      DCHECK(state_ == PLUGIN_LIST_ARRIVED);
+      RecallUnsentLogs();
+      state_ = INITIAL_LOG_READY;
+      break;
+
+    case SEND_OLD_INITIAL_LOGS:
         if (!unsent_initial_logs_.empty()) {
           pending_log_text_ = unsent_initial_logs_.back();
           break;
         }
-        state_ = SENDING_OLD_LOGS;
-        // Fall through.
+      state_ = SENDING_OLD_LOGS;
+      // Fall through.
 
+    case SENDING_OLD_LOGS:
+      if (!unsent_ongoing_logs_.empty()) {
+        pending_log_text_ = unsent_ongoing_logs_.back();
+        break;
+      }
+      state_ = SENDING_CURRENT_LOGS;
+      // Fall through.
+
+    case SENDING_CURRENT_LOGS:
+      StopRecording(&pending_log_);
+      StartRecording();
+      break;
+
+    default:
+      DCHECK(false);
+      return;
+  }
+
+  DCHECK(pending_log());
+}
+
+bool MetricsService::TransmissionPermitted() const {
+  // If the user forbids uploading that's they're business, and we don't upload
+  // anything.  If the server forbids uploading, that's our business, so we take
+  // that to mean it forbids current logs, but we still send up the inital logs
+  // and any old logs.
+
+  if (!user_permits_upload_)
+    return false;
+
+  if (server_permits_upload_) {
+    return true;
+  } else {
+    switch (state_) {
+      case INITIAL_LOG_READY:
+      case SEND_OLD_INITIAL_LOGS:
       case SENDING_OLD_LOGS:
-        if (!unsent_ongoing_logs_.empty()) {
-          pending_log_text_ = unsent_ongoing_logs_.back();
-          break;
-        }
-        state_ = SENDING_CURRENT_LOGS;
-        // Fall through.
+        return true;
 
       case SENDING_CURRENT_LOGS:
-        if (!current_log_->num_events())
-          return;  // Nothing to send.
-        StopRecording(&pending_log_);
-        StartRecording();
-        break;
-
       default:
-        DCHECK(false);
-        return;
+        return false;
+    }
   }
-  DCHECK(pending_log());
 
-  PreparePendingLogForTransmission();
-  if (!current_fetch_.get())
-    return;  // Compression failed, and log discarded :-/.
-
-  DCHECK(!timer_pending_);
-  timer_pending_ = true;  // The URL fetch is a pseudo timer.
-  current_fetch_->Start();
+  return false;
 }
 
 void MetricsService::CollectMemoryDetails() {
@@ -918,7 +1048,7 @@ void MetricsService::PreparePendingLogText() {
                               original_size);
 }
 
-void MetricsService::PreparePendingLogForTransmission() {
+void MetricsService::PrepareFetchWithPendingLog() {
   DCHECK(pending_log());
   DCHECK(!current_fetch_.get());
   PreparePendingLogText();
@@ -1041,6 +1171,7 @@ void MetricsService::OnURLFetchComplete(const URLFetcher* source,
   if (response_code != 200) {
     HandleBadResponseCode();
   } else {  // Success.
+    DLOG(INFO) << "METRICS RESPONSE DATA: " << data;
     switch (state_) {
       case INITIAL_LOG_READY:
         state_ = SEND_OLD_INITIAL_LOGS;
@@ -1065,7 +1196,7 @@ void MetricsService::OnURLFetchComplete(const URLFetcher* source,
         DCHECK(false);
         break;
     }
-    DLOG(INFO) << "METRICS RESPONSE DATA: " << data;
+
     DiscardPendingLog();
     // Since we sent a log, make sure our in-memory state is recorded to disk.
     PrefService* local_state = g_browser_process->local_state();
@@ -1114,9 +1245,10 @@ void MetricsService::HandleBadResponseCode() {
 
 void MetricsService::GetSettingsFromResponseData(const std::string& data) {
   // We assume that the file is structured as a block opened by <response>
-  // and that inside response, there is a block opened by tag <config>
-  // other tags are ignored for now except the content of <config>.
-  DLOG(INFO) << data;
+  // and that inside response, there is a block opened by tag <chrome_config>
+  // other tags are ignored for now except the content of <chrome_config>.
+  DLOG(INFO) << "METRICS: getting settings from response data: " << data;
+
   int data_size = static_cast<int>(data.size());
   if (data_size < 0) {
     DLOG(INFO) << "METRICS: server response data bad size " <<
@@ -1126,60 +1258,173 @@ void MetricsService::GetSettingsFromResponseData(const std::string& data) {
   xmlDocPtr doc = xmlReadMemory(data.c_str(), data_size,
                                 "", NULL, 0);
   DCHECK(doc);
-  // if the document is malformed, we just use the settings that were there
-  if (!doc)
+  // If the document is malformed, we just use the settings that were there.
+  if (!doc) {
+    DLOG(INFO) << "METRICS: reading xml from server response data failed";
     return;
+  }
 
-  xmlNodePtr top_node = xmlDocGetRootElement(doc), config_node = NULL;
-  // Here, we find the config node by name.
+  xmlNodePtr top_node = xmlDocGetRootElement(doc), chrome_config_node = NULL;
+  // Here, we find the chrome_config node by name.
   for (xmlNodePtr p = top_node->children; p; p = p->next) {
-    if (xmlStrEqual(p->name, BAD_CAST "config")) {
-      config_node = p;
+    if (xmlStrEqual(p->name, BAD_CAST "chrome_config")) {
+      chrome_config_node = p;
       break;
     }
   }
   // If the server data is formatted wrong and there is no
   // config node where we expect, we just drop out.
-  if (config_node != NULL)
-    GetSettingsFromConfigNode(config_node);
+  if (chrome_config_node != NULL)
+    GetSettingsFromChromeConfigNode(chrome_config_node);
   xmlFreeDoc(doc);
 }
 
-void MetricsService::GetSettingsFromConfigNode(xmlNodePtr config_node) {
-  for (xmlNodePtr current_node = config_node->children;
-      current_node;
-      current_node = current_node->next) {
-    // If the node is collectors list, we iterate through the children
-    // to get the types of collectors.
-    if (xmlStrEqual(current_node->name, BAD_CAST "collectors")) {
-      collectors_.clear();
-      // Iterate through children and get the property "type".
-      for (xmlNodePtr sub_node = current_node->children;
-          sub_node;
-          sub_node = sub_node->next) {
-        if (xmlStrEqual(sub_node->name, BAD_CAST "collector")) {
-          xmlChar* type_value = xmlGetProp(sub_node, BAD_CAST "type");
-          collectors_.insert(reinterpret_cast<char*>(type_value));
-        }
-      }
-      continue;
-    }
-    // Search for other tags, limit and upload.  Again if the server data
-    // does not contain those tags, the settings remain unchanged.
-    if (xmlStrEqual(current_node->name, BAD_CAST "limit")) {
-      xmlChar* event_limit_value = xmlGetProp(current_node, BAD_CAST "events");
-      event_limit_ = atoi(reinterpret_cast<char*>(event_limit_value));
-      continue;
-    }
+void MetricsService::GetSettingsFromChromeConfigNode(
+    xmlNodePtr chrome_config_node) {
+  // Iterate through all children of the config node.
+  for (xmlNodePtr current_node = chrome_config_node->children;
+       current_node;
+       current_node = current_node->next) {
+    // If we find the upload tag, we appeal to another function
+    // GetSettingsFromUploadNode to read all the data in it.
     if (xmlStrEqual(current_node->name, BAD_CAST "upload")) {
-      xmlChar* upload_interval_val = xmlGetProp(current_node,
-          BAD_CAST "interval");
-      int upload_interval_sec =
-        atoi(reinterpret_cast<char*>(upload_interval_val));
-      interlog_duration_ = TimeDelta::FromSeconds(upload_interval_sec);
+      GetSettingsFromUploadNode(current_node);
       continue;
     }
   }
+}
+
+void MetricsService::InheretedProperties::OverwriteWhereNeeded(
+    xmlNodePtr node) {
+  xmlChar* salt_value = xmlGetProp(node, BAD_CAST "salt");
+  if (salt_value)  // If the property isn't there, xmlGetProp returns NULL.
+      salt = atoi(reinterpret_cast<char*>(salt_value));
+  // If the property isn't there, we keep the value the property had before
+
+  xmlChar* denominator_value = xmlGetProp(node, BAD_CAST "denominator");
+  if (denominator_value)
+     denominator = atoi(reinterpret_cast<char*>(denominator_value));
+}
+
+void MetricsService::GetSettingsFromUploadNode(xmlNodePtr upload_node) {
+  InheretedProperties props;
+  GetSettingsFromUploadNodeRecursive(upload_node, props, "", true);
+}
+
+void MetricsService::GetSettingsFromUploadNodeRecursive(xmlNodePtr node,
+    InheretedProperties props, std::string path_prefix, bool uploadOn) {
+  props.OverwriteWhereNeeded(node);
+
+  // The bool uploadOn is set to true if the data represented by current
+  // node should be uploaded. This gets inhereted in the tree; the children
+  // of a node that has already been rejected for upload get rejected for
+  // upload.
+  uploadOn = uploadOn && NodeProbabilityTest(node, props);
+
+  // The path is a / separated list of the node names ancestral to the current
+  // one. So, if you want to check if the current node has a certain name,
+  // compare to name.  If you want to check if it is a certan tag at a certain
+  // place in the tree, compare to the whole path.
+  std::string name = std::string(reinterpret_cast<const char*>(node->name));
+  std::string path = path_prefix + "/" + name;
+
+  if (path == "/upload") {
+    xmlChar* upload_interval_val = xmlGetProp(node, BAD_CAST "interval");
+    if (upload_interval_val) {
+      interlog_duration_ = TimeDelta::FromSeconds(
+          atoi(reinterpret_cast<char*>(upload_interval_val)));
+    }
+    // The member variable upload_on_ refers to whether anything gets uploaded
+    // the argument uploadOn refers to whether this particular node is uploaded.
+    // If the top level node <upload> is not uploaded, then nothing is.
+    upload_on_ = uploadOn;
+  }
+  if (path == "/upload/logs") {
+    xmlChar* log_event_limit_val = xmlGetProp(node, BAD_CAST "event_limit");
+    if (log_event_limit_val)
+      log_event_limit_ = atoi(reinterpret_cast<char*>(log_event_limit_val));
+  }
+  if (name == "histogram") {
+    xmlChar* type_value = xmlGetProp(node, BAD_CAST "type");
+    if (type_value) {
+      std::string type = (reinterpret_cast<char*>(type_value));
+      if (uploadOn)
+        histograms_to_upload_.insert(type);
+      else
+        histograms_to_omit_.insert(type);
+    }
+  }
+  if (name == "log") {
+    xmlChar* type_value = xmlGetProp(node, BAD_CAST "type");
+    if (type_value) {
+      std::string type = (reinterpret_cast<char*>(type_value));
+      if (uploadOn)
+        logs_to_upload_.insert(type);
+      else
+        logs_to_omit_.insert(type);
+    }
+  }
+
+  // Recursive call.  If the node is a leaf i.e. if it ends in a "/>", then it
+  // doesn't have children, so node->children is NULL, and this loop doesn't
+  // call (that's how the recursion ends).
+  for (xmlNodePtr child_node = node->children;
+      child_node;
+      child_node = child_node->next) {
+    GetSettingsFromUploadNodeRecursive(child_node, props, path, uploadOn);
+  }
+}
+
+bool MetricsService::NodeProbabilityTest(xmlNodePtr node,
+    InheretedProperties props) const {
+  // Default value of probability on any node is 1, but recall that
+  // its parents can already have been rejected for upload.
+  double probability = 1;
+
+  // If a probability is specified in the node, we use it instead.
+  xmlChar* probability_value = xmlGetProp(node, BAD_CAST "probability");
+  if (probability_value)
+      probability = atoi(reinterpret_cast<char*>(probability_value));
+
+  return ProbabilityTest(probability, props.salt, props.denominator);
+}
+
+bool MetricsService::ProbabilityTest(double probability,
+                                     int salt,
+                                     int denominator) const {
+  // Okay, first we figure out how many of the digits of the
+  // client_id_ we need in order to make a nice pseudorandomish
+  // number in the range [0,denominator).  Too many digits is
+  // fine.
+  int relevant_digits = static_cast<int>(
+    ::log10(static_cast<double>(denominator))+1.0);
+
+  // n is the length of the client_id_ string
+  size_t n = client_id_.size();
+
+  // idnumber is a positive integer generated from the client_id_.
+  // It plus salt is going to give us our pseudorandom number.
+  int idnumber = 0;
+  const char* client_id_c_str = client_id_.c_str();
+
+  // Here we hash the relevant digits of the client_id_
+  // string somehow to get a big integer idnumber (could be negative
+  // from wraparound)
+  int big = 1;
+  for (size_t j = n-1; j >= 0; --j) {
+    idnumber += static_cast<int>(client_id_c_str[j])*big;
+    big *= 10;
+  }
+
+  // Mod id number by denominator making sure to get a non-negative
+  // answer.
+  idnumber = ((idnumber%denominator)+denominator)%denominator;
+
+  // ((idnumber+salt)%denominator)/denominator is in the range [0,1]
+  // if it's less than probability we call that an affirmative coin
+  // toss.
+  return static_cast<double>((idnumber+salt)%denominator) <
+      probability*denominator;
 }
 
 void MetricsService::LogWindowChange(NotificationType type,
@@ -1447,6 +1692,8 @@ void MetricsService::RecordCurrentHistograms() {
        histograms.end() != it;
        it++) {
     if ((*it)->flags() & kUmaTargetedHistogramFlag)
+      // TODO(petersont): only record historgrams if they are not precluded
+      // by the UMA response data.
       RecordHistogram(**it);
   }
 }
@@ -1511,4 +1758,3 @@ static bool IsSingleThreaded() {
     thread_id = GetCurrentThreadId();
   return GetCurrentThreadId() == thread_id;
 }
-
