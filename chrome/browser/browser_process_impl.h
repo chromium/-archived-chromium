@@ -176,6 +176,7 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
   // TODO(beng): remove once XPFrame/VistaFrame are gone.
   virtual bool IsUsingNewFrames() {
     DCHECK(CalledOnValidThread());
+    return true;
     if (!checked_for_new_frames_) {
       using_new_frames_ = CommandLine().HasSwitch(L"magic_browzR");
       checked_for_new_frames_ = true;
