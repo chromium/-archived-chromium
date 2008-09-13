@@ -9,7 +9,7 @@
 #include "chrome/views/dialog_client_view.h"
 
 #include "base/gfx/native_theme.h"
-#include "chrome/browser/standard_layout.h"
+#include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/l10n_util.h"
