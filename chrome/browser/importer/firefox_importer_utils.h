@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_FIREFOX_IMPORTER_UTILS_H_
-#define CHROME_BROWSER_FIREFOX_IMPORTER_UTILS_H_
+#ifndef CHROME_BROWSER_IMPORTER_FIREFOX_IMPORTER_UTILS_H_
+#define CHROME_BROWSER_IMPORTER_FIREFOX_IMPORTER_UTILS_H_
 
 #include "base/values.h"
 #include "webkit/glue/password_form.h"
@@ -207,5 +207,5 @@ class NSSDecryptor {
   DISALLOW_EVIL_CONSTRUCTORS(NSSDecryptor);
 };
 
-#endif  // CHROME_BROWSER_FIREFOX_IMPORTER_UTILS_H__
+#endif  // CHROME_BROWSER_IMPORTER_FIREFOX_IMPORTER_UTILS_H_
 

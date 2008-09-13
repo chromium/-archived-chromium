@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_IE_IMPORTER_H_
-#define CHROME_BROWSER_IE_IMPORTER_H_
+#ifndef CHROME_BROWSER_IMPORTER_IE_IMPORTER_H_
+#define CHROME_BROWSER_IMPORTER_IE_IMPORTER_H_
 
-#include "chrome/browser/importer.h"
+#include "chrome/browser/importer/importer.h"
 
 class IEImporter : public Importer {
  public:
@@ -85,5 +85,5 @@ class IEImporter : public Importer {
   DISALLOW_EVIL_CONSTRUCTORS(IEImporter);
 };
 
-#endif  // CHROME_BROWSER_IE_IMPORTER_H_
+#endif  // CHROME_BROWSER_IMPORTER_IE_IMPORTER_H_
 

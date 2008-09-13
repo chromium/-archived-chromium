@@ -40,14 +40,14 @@
 // http://mxr.mozilla.org/firefox/source/db/morkreader/nsMorkReader.cpp
 // This file has been converted to google style.
 
-#include "chrome/browser/mork_reader.h"
+#include "chrome/browser/importer/mork_reader.h"
 
 #include <algorithm>
 
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "chrome/browser/firefox_importer_utils.h"
 #include "chrome/browser/history/history_types.h"
+#include "chrome/browser/importer/firefox_importer_utils.h"
 
 namespace {
 

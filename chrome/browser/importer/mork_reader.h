@@ -39,8 +39,8 @@
 // Source:
 // http://mxr.mozilla.org/firefox/source/db/morkreader/nsMorkReader.h
 
-#ifndef MORK_READER_H__
-#define MORK_READER_H__
+#ifndef CHROME_BROWSER_IMPORTER_MORK_READER_H__
+#define CHROME_BROWSER_IMPORTER_MORK_READER_H__
 
 #include <map>
 #include <iostream>
@@ -50,7 +50,7 @@
 
 #include "base/basictypes.h"
 #include "base/stack_container.h"
-#include "chrome/browser/importer.h"
+#include "chrome/browser/importer/importer.h"
 
 // The nsMorkReader object allows a consumer to read in a mork-format
 // file and enumerate the rows that it contains.  It does not provide
@@ -162,4 +162,4 @@ class MorkReader {
 void ImportHistoryFromFirefox2(std::wstring file, MessageLoop* loop,
                                ProfileWriter* writer);
 
-#endif  // MORK_READER_H__
+#endif  // CHROME_BROWSER_IMPORTER_MORK_READER_H__

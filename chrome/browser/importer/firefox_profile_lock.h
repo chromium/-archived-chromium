@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_FIREFOX_PROFILE_LOCK_H__
-#define CHROME_BROWSER_FIREFOX_PROFILE_LOCK_H__
+#ifndef CHROME_BROWSER_IMPORTER_FIREFOX_PROFILE_LOCK_H__
+#define CHROME_BROWSER_IMPORTER_FIREFOX_PROFILE_LOCK_H__
 
 #include <windows.h>
 
@@ -90,5 +90,5 @@ class FirefoxProfileLock {
   DISALLOW_EVIL_CONSTRUCTORS(FirefoxProfileLock);
 };
 
-#endif  // CHROME_BROWSER_FIREFOX_PROFILE_LOCK_H__
+#endif  // CHROME_BROWSER_IMPORTER_FIREFOX_PROFILE_LOCK_H__
 

@@ -523,14 +523,6 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="TestTitleChomper"
-			>
-			<File
-				RelativePath="..\..\browser\title_chomper_unittest.cc"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="TestTemplateURLParser"
 			>
 			<File
@@ -850,11 +842,11 @@
 			Name="TestImporter"
 			>
 			<File
-				RelativePath="..\..\browser\firefox_importer_unittest.cc"
+				RelativePath="..\..\browser\importer\firefox_importer_unittest.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\importer_unittest.cc"
+				RelativePath="..\..\browser\importer\importer_unittest.cc"
 				>
 			</File>
 		</Filter>

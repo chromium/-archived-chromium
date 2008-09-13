@@ -4,7 +4,8 @@
 
 #ifndef CHROME_BROWSER_VIEWS_FIRST_RUN_VIEW_BASE_H__
 #define CHROME_BROWSER_VIEWS_FIRST_RUN_VIEW_BASE_H__
-#include "chrome/browser/importer.h"
+
+#include "chrome/browser/importer/importer.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/view.h"
 

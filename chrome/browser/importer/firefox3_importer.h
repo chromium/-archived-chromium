@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_FIREFOX3_IMPORTER_H_
-#define CHROME_BROWSER_FIREFOX3_IMPORTER_H_
+#ifndef CHROME_BROWSER_IMPORTER_FIREFOX3_IMPORTER_H_
+#define CHROME_BROWSER_IMPORTER_FIREFOX3_IMPORTER_H_
 
 #include <map>
 #include <string>
 #include <vector>
 
 #include "base/basictypes.h"
-#include "chrome/browser/importer.h"
+#include "chrome/browser/importer/importer.h"
 #include "chrome/common/sqlite_utils.h"
 #include "googleurl/src/gurl.h"
 
@@ -81,5 +81,5 @@ class Firefox3Importer : public Importer {
   DISALLOW_EVIL_CONSTRUCTORS(Firefox3Importer);
 };
 
-#endif  // CHROME_BROWSER_FIREFOX3_IMPORTER_H_
+#endif  // CHROME_BROWSER_IMPORTER_FIREFOX3_IMPORTER_H_
 

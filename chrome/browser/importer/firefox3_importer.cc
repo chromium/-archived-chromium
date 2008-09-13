@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/firefox3_importer.h"
+#include "chrome/browser/importer/firefox3_importer.h"
 
 #include <set>
 
 #include "base/file_util.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
-#include "chrome/browser/firefox2_importer.h"
-#include "chrome/browser/firefox_importer_utils.h"
+#include "chrome/browser/importer/firefox2_importer.h"
+#include "chrome/browser/importer/firefox_importer_utils.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/time_format.h"
 #include "generated_resources.h"

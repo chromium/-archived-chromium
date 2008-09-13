@@ -6,7 +6,7 @@
 
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/app/theme/theme_resources.h"
-#include "chrome/browser/importer.h"
+#include "chrome/browser/importer/importer.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/standard_layout.h"

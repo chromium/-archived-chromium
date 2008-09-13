@@ -1154,14 +1154,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\title_chomper.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\title_chomper.h"
-				>
-			</File>
-			<File
 				RelativePath=".\web_app_icon_manager.cc"
 				>
 			</File>
@@ -1639,6 +1631,66 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="Importer"
+			>
+			<File
+				RelativePath=".\importer\firefox2_importer.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\importer\firefox2_importer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\importer\firefox3_importer.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\importer\firefox3_importer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\importer\firefox_importer_utils.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\importer\firefox_importer_utils.h"
+				>
+			</File>
+			<File
+				RelativePath=".\importer\firefox_profile_lock.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\importer\firefox_profile_lock.h"
+				>
+			</File>
+			<File
+				RelativePath=".\importer\ie_importer.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\importer\ie_importer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\importer\importer.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\importer\importer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\importer\mork_reader.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\importer\mork_reader.h"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="Drag &amp; Drop"
 			>
 			<File
@@ -2079,38 +2131,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\firefox2_importer.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\firefox2_importer.h"
-			>
-		</File>
-		<File
-			RelativePath=".\firefox3_importer.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\firefox3_importer.h"
-			>
-		</File>
-		<File
-			RelativePath=".\firefox_importer_utils.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\firefox_importer_utils.h"
-			>
-		</File>
-		<File
-			RelativePath=".\firefox_profile_lock.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\firefox_profile_lock.h"
-			>
-		</File>
-		<File
 			RelativePath=".\gears_integration.cc"
 			>
 		</File>
@@ -2135,22 +2155,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\ie_importer.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\ie_importer.h"
-			>
-		</File>
-		<File
-			RelativePath=".\importer.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\importer.h"
-			>
-		</File>
-		<File
 			RelativePath=".\interstitial_page_delegate.h"
 			>
 		</File>
@@ -2160,14 +2164,6 @@
 		</File>
 		<File
 			RelativePath=".\modal_html_dialog_delegate.h"
-			>
-		</File>
-		<File
-			RelativePath=".\mork_reader.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\mork_reader.h"
 			>
 		</File>
 		<File

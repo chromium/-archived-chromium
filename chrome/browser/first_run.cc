@@ -19,7 +19,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/hang_monitor/hung_window_detector.h"
-#include "chrome/browser/importer.h"
+#include "chrome/browser/importer/importer.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/views/first_run_view.h"
 #include "chrome/common/chrome_constants.h"

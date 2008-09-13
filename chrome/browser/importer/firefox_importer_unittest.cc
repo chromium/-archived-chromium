@@ -6,9 +6,9 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
-#include "chrome/browser/firefox2_importer.h"
-#include "chrome/browser/firefox_importer_utils.h"
-#include "chrome/browser/firefox_profile_lock.h"
+#include "chrome/browser/importer/firefox2_importer.h"
+#include "chrome/browser/importer/firefox_importer_utils.h"
+#include "chrome/browser/importer/firefox_profile_lock.h"
 #include "chrome/common/chrome_paths.h"
 
 TEST(FirefoxImporterTest, Firefox2NSS3Decryptor) {

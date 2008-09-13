@@ -14,9 +14,9 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
-#include "chrome/browser/ie_importer.h"
 #include "chrome/browser/ie7_password.h"
-#include "chrome/browser/importer.h"
+#include "chrome/browser/importer/ie_importer.h"
+#include "chrome/browser/importer/importer.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/env_util.h"

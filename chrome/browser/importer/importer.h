@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_IMPORTER_H_
-#define CHROME_BROWSER_IMPORTER_H_
+#ifndef CHROME_BROWSER_IMPORTER_IMPORTER_H_
+#define CHROME_BROWSER_IMPORTER_IMPORTER_H_
 
 #include <set>
 #include <vector>
@@ -353,5 +353,5 @@ void StartImportingWithUI(HWND parent_window,
                           ImportObserver* observer,
                           bool first_run);
 
-#endif  // CHROME_BROWSER_IMPORTER_H__
+#endif  // CHROME_BROWSER_IMPORTER_IMPORTER_H_
 

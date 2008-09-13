@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/importer.h"
+#include "chrome/browser/importer/importer.h"
 
 #include <map>
 
@@ -12,11 +12,11 @@
 #include "base/string_util.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/firefox2_importer.h"
-#include "chrome/browser/firefox3_importer.h"
-#include "chrome/browser/firefox_importer_utils.h"
-#include "chrome/browser/firefox_profile_lock.h"
-#include "chrome/browser/ie_importer.h"
+#include "chrome/browser/importer/firefox2_importer.h"
+#include "chrome/browser/importer/firefox3_importer.h"
+#include "chrome/browser/importer/firefox_importer_utils.h"
+#include "chrome/browser/importer/firefox_profile_lock.h"
+#include "chrome/browser/importer/ie_importer.h"
 #include "chrome/browser/template_url_model.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/webdata/web_data_service.h"
