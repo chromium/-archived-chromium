@@ -11,6 +11,9 @@ set PATH=%CYGWIN_ROOT%bin;%GNU_ROOT%;%SystemRoot%;%SystemRoot%\system32
 :: Ensure that the cygwin mount points are defined
 CALL %CYGWIN_ROOT%setup_mount.bat > NUL
 
+:: Fix file access on vista: without this flag, the files may not be accessible.
+set CYGWIN=nontsec
+
 :: Copy files that the V8 bindings share with the KJS bindings.
 call copy_files.bat %IntDir%\SharedSources
 
