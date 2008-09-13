@@ -58,7 +58,7 @@ class HttpUtil {
   // Returns the start of the status line, or -1 if no status line was found.
   // This allows for 4 bytes of junk to precede the status line (which is what
   // mozilla does too).
-  static int HttpUtil::LocateStartOfStatusLine(const char* buf, int buf_len);
+  static int LocateStartOfStatusLine(const char* buf, int buf_len);
 
   // Returns index beyond the end-of-headers marker or -1 if not found.  RFC
   // 2616 defines the end-of-headers marker as a double CRLF; however, some
