@@ -2055,14 +2055,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\external_protocol_dialog.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\external_protocol_dialog.h"
-			>
-		</File>
-		<File
 			RelativePath=".\external_protocol_handler.cc"
 			>
 		</File>
@@ -2087,14 +2079,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\views\html_dialog_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\views\html_dialog_view.h"
-			>
-		</File>
-		<File
 			RelativePath=".\interstitial_page_delegate.h"
 			>
 		</File>
@@ -2104,14 +2088,6 @@
 		</File>
 		<File
 			RelativePath=".\modal_html_dialog_delegate.h"
-			>
-		</File>
-		<File
-			RelativePath=".\page_info_window.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\page_info_window.h"
 			>
 		</File>
 		<File
@@ -2131,23 +2107,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\views\restart_message_box.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\views\restart_message_box.h"
-			>
-		</File>
-		<File
 			RelativePath=".\ssl_blocking_page.cc"
 			>
 		</File>
 		<File
 			RelativePath=".\ssl_blocking_page.h"
-			>
-		</File>
-		<File
-			RelativePath=".\standard_layout.h"
 			>
 		</File>
 		<File
@@ -2159,27 +2123,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\tab_contents_container_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\tab_contents_container_view.h"
-			>
-		</File>
-		<File
 			RelativePath=".\toolbar_model.cc"
 			>
 		</File>
 		<File
 			RelativePath=".\toolbar_model.h"
-			>
-		</File>
-		<File
-			RelativePath=".\user_data_dir_dialog.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\user_data_dir_dialog.h"
 			>
 		</File>
 	</Files>

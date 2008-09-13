@@ -562,6 +562,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\external_protocol_dialog.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\external_protocol_dialog.h"
+			>
+		</File>
+		<File
 			RelativePath=".\first_run_bubble.cc"
 			>
 		</File>
@@ -599,6 +607,14 @@
 		</File>
 		<File
 			RelativePath=".\go_button.h"
+			>
+		</File>
+		<File
+			RelativePath=".\html_dialog_view.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\html_dialog_view.h"
 			>
 		</File>
 		<File
@@ -682,6 +698,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\page_info_window.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\page_info_window.h"
+			>
+		</File>
+		<File
 			RelativePath=".\password_manager_view.cc"
 			>
 		</File>
@@ -714,6 +738,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\restart_message_box.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\restart_message_box.h"
+			>
+		</File>
+		<File
 			RelativePath=".\sad_tab_view.cc"
 			>
 		</File>
@@ -734,6 +766,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\standard_layout.h"
+			>
+		</File>
+		<File
 			RelativePath=".\star_toggle.cc"
 			>
 		</File>
@@ -747,6 +783,14 @@
 		</File>
 		<File
 			RelativePath=".\status_bubble.h"
+			>
+		</File>
+		<File
+			RelativePath=".\tab_contents_container_view.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\tab_contents_container_view.h"
 			>
 		</File>
 		<File
@@ -771,6 +815,14 @@
 		</File>
 		<File
 			RelativePath=".\toolbar_view.h"
+			>
+		</File>
+		<File
+			RelativePath=".\user_data_dir_dialog.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\user_data_dir_dialog.h"
 			>
 		</File>
 		<File

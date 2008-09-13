@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 #include "chrome/app/theme/theme_resources.h"
-#include "chrome/browser/standard_layout.h"
 #include "chrome/browser/views/info_bar_item_view.h"
+#include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/external_focus_tracker.h"

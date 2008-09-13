@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/external_protocol_dialog.h"
+#include "chrome/browser/views/external_protocol_dialog.h"
 
 #include "base/registry.h"
 #include "base/string_util.h"

@@ -12,7 +12,6 @@
 #include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/google_url_tracker.h"
 #include "chrome/browser/metrics_service.h"
-#include "chrome/browser/page_info_window.h"
 #include "chrome/browser/password_manager.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/session_startup_pref.h"
@@ -23,6 +22,7 @@
 #include "chrome/browser/template_url_prepopulate_data.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/keyword_editor_view.h"
+#include "chrome/browser/views/page_info_window.h"
 #include "chrome/browser/web_contents.h"
 
 namespace browser {

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/standard_layout.h"
 #include "chrome/browser/views/info_bar_confirm_view.h"
+#include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 
 #include "generated_resources.h"

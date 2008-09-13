@@ -15,7 +15,7 @@
 #include "chrome/browser/safe_browsing/safe_browsing_util.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/url_fetcher.h"
-#include "chrome/browser/standard_layout.h"
+#include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"

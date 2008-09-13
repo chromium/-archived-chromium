@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_TAB_CONTENTS_CONTAINER_VIEW_H__
-#define CHROME_VIEWS_TAB_CONTENTS_CONTAINER_VIEW_H__
+#ifndef CHROME_BROWSER_VIEWS_TAB_CONTENTS_CONTAINER_VIEW_H__
+#define CHROME_BROWSER_VIEWS_TAB_CONTENTS_CONTAINER_VIEW_H__
 
 namespace ChromeView {
 class KeyEvent;
@@ -77,4 +77,4 @@ class TabContentsContainerView : public ChromeViews::HWNDView,
   DISALLOW_EVIL_CONSTRUCTORS(TabContentsContainerView);
 };
 
-#endif  // #ifndef CHROME_VIEWS_TAB_CONTENTS_CONTAINER_VIEW_H__
+#endif  // #ifndef CHROME_BROWSER_VIEWS_TAB_CONTENTS_CONTAINER_VIEW_H__

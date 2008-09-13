@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/logging.h"
-#include "chrome/browser/user_data_dir_dialog.h"
+#include "chrome/browser/views/user_data_dir_dialog.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/message_box_view.h"
 #include "chrome/views/window.h"

@@ -4,7 +4,7 @@
 
 #include <algorithm>
 
-#include "chrome/browser/tab_contents_container_view.h"
+#include "chrome/browser/views/tab_contents_container_view.h"
 
 #include "base/logging.h"
 #include "chrome/browser/render_view_host.h"

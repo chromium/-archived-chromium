@@ -5,10 +5,10 @@
 #include "chrome/browser/views/info_bar_alternate_nav_url_view.h"
 
 #include "chrome/app/theme/theme_resources.h"
-#include "chrome/browser/standard_layout.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/browser/views/event_utils.h"
 #include "chrome/browser/views/info_bar_view.h"
+#include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/resource_bundle.h"

@@ -6,7 +6,7 @@
 
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/browser_list.h"
-#include "chrome/browser/standard_layout.h"
+#include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/checkbox.h"
 #include "chrome/views/grid_layout.h"

@@ -14,7 +14,7 @@
 #include "base/scoped_ptr.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process_impl.h"
-#include "chrome/browser/external_protocol_dialog.h"
+#include "chrome/browser/views/external_protocol_dialog.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/pref_names.h"
 #include "googleurl/src/gurl.h"

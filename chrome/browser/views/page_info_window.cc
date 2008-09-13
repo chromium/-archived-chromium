@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/page_info_window.h"
+#include "chrome/browser/views/page_info_window.h"
 
 #include <cryptuiapi.h>
 #pragma comment(lib, "cryptui.lib")
@@ -16,8 +16,8 @@
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/standard_layout.h"
 #include "chrome/browser/ssl_manager.h"
+#include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"

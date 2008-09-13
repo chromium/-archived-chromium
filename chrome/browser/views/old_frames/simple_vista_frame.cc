@@ -8,7 +8,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents.h"
-#include "chrome/browser/tab_contents_container_view.h"
+#include "chrome/browser/views/tab_contents_container_view.h"
 #include "chrome/browser/web_app.h"
 #include "chrome/browser/web_app_icon_manager.h"
 #include "chrome/browser/web_contents.h"

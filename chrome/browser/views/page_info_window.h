@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_PAGE_INFO_WINDOW_H__
-#define CHROME_BROWSER_PAGE_INFO_WINDOW_H__
+#ifndef CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_H__
+#define CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_H__
 
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/native_button.h"
@@ -89,4 +89,4 @@ class PageInfoWindow : public ChromeViews::DialogDelegate,
   DISALLOW_EVIL_CONSTRUCTORS(PageInfoWindow);
 };
 
-#endif  // #define CHROME_BROWSER_PAGE_INFO_WINDOW_H__
+#endif  // #define CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_H__

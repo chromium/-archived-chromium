@@ -5,7 +5,7 @@
 #include "chrome/browser/views/importing_progress_view.h"
 
 #include "chrome/app/locales/locale_settings.h"
-#include "chrome/browser/standard_layout.h"
+#include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/label.h"
