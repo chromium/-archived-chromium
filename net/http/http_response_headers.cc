@@ -199,7 +199,7 @@ void HttpResponseHeaders::Parse(const string& raw_input) {
   // has_headers = true, if there is any data following the status line.
   // Used by ParseStatusLine() to decide if a HTTP/0.9 is really a HTTP/1.0.
   bool has_headers = line_end != raw_input.end() &&
-    (line_end + 1) != raw_input.end() && *(line_end + 1) != '\0';
+      (line_end + 1) != raw_input.end() && *(line_end + 1) != '\0';
   ParseStatusLine(line_begin, line_end, has_headers);
 
   if (line_end == raw_input.end()) {
@@ -316,8 +316,6 @@ string HttpResponseHeaders::GetStatusLine() const {
 }
 
 std::string HttpResponseHeaders::GetStatusText() const {
-  // TODO(eroman): this needs a unit test.
-
   // GetStatusLine() is already normalized, so it has the format:
   // <http_version> SP <response_code> SP <status_text>
   std::string status_text = GetStatusLine();
@@ -480,14 +478,14 @@ void HttpResponseHeaders::ParseStatusLine(string::const_iterator line_begin,
 
   if (p == code) {
     DLOG(INFO) << "missing response status number; assuming 200";
-    raw_headers_.append(" 200 ");
+    raw_headers_.append(" 200 OK");
     response_code_ = 200;
-  } else {
-    raw_headers_.push_back(' ');
-    raw_headers_.append(code, p);
-    raw_headers_.push_back(' ');
-    response_code_ = static_cast<int>(StringToInt64(string(code, p)));
-  }
+    return;
+  } 
+  raw_headers_.push_back(' ');
+  raw_headers_.append(code, p);
+  raw_headers_.push_back(' ');
+  response_code_ = static_cast<int>(StringToInt64(string(code, p)));
 
   // Skip whitespace.
   while (*p == ' ')

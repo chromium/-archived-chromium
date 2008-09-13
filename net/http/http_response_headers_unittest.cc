@@ -1041,3 +1041,33 @@ TEST(HttpResponseHeadersTest, IsKeepAlive) {
   }
 }
 
+TEST(HttpResponseHeadersTest, GetStatusText) {
+  std::string headers("HTTP/1.1 404 Not Found");
+  HeadersToRaw(&headers);
+  scoped_refptr<HttpResponseHeaders> parsed = new HttpResponseHeaders(headers);
+  EXPECT_EQ(std::string("Not Found"), parsed->GetStatusText());
+}
+
+TEST(HttpResponseHeadersTest, GetStatusTextMissing) {
+  std::string headers("HTTP/1.1 404");
+  HeadersToRaw(&headers);
+  scoped_refptr<HttpResponseHeaders> parsed = new HttpResponseHeaders(headers);
+  // Since the status line gets normalized, we have OK
+  EXPECT_EQ(std::string("OK"), parsed->GetStatusText());
+}
+
+TEST(HttpResponseHeadersTest, GetStatusTextMultiSpace) {
+  std::string headers("HTTP/1.0     404     Not   Found");
+  HeadersToRaw(&headers);
+  scoped_refptr<HttpResponseHeaders> parsed = new HttpResponseHeaders(headers);
+  EXPECT_EQ(std::string("Not   Found"), parsed->GetStatusText());
+}
+
+TEST(HttpResponseHeadersTest, GetStatusBadStatusLine) {
+  std::string headers("Foo bar.");
+  HeadersToRaw(&headers);
+  scoped_refptr<HttpResponseHeaders> parsed = new HttpResponseHeaders(headers);
+  // The bad status line would have gotten rewritten as
+  // HTTP/1.0 200 OK.
+  EXPECT_EQ(std::string("OK"), parsed->GetStatusText());
+}
