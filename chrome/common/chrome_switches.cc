@@ -253,9 +253,6 @@ const wchar_t kMemoryModel[] = L"memory-model";
 const wchar_t kEnableFileCookies[] = L"enable-file-cookies";
 
 // Start the browser maximized, regardless of any previous settings.
-// TODO(pjohnson): Remove this once bug 1137420 is fixed.  We are using this
-// as a workaround for not being able to use moveTo and resizeTo on a
-// top-level window.
 const wchar_t kStartMaximized[] = L"start-maximized";
 
 // Spawn threads to watch for excessive delays in specified message loops.
