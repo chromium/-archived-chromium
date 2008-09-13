@@ -1162,7 +1162,7 @@ std::wstring WebViewImpl::GetMainFrameEncodingName() {
     return std::wstring(L"");
 
   String encoding_name = main_frame_->frame()->loader()->encoding();
-  return std::wstring(encoding_name.charactersWithNullTermination());
+  return webkit_glue::StringToStdWString(encoding_name);
 }
 
 void WebViewImpl::MakeTextLarger() {
