@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_DOWNLOAD_ITEM_MODEL_H__
-#define CHROME_BROWSER_DOWNLOAD_ITEM_MODEL_H__
+#ifndef CHROME_BROWSER_DOWNLOAD_DOWNLOAD_ITEM_MODEL_H__
+#define CHROME_BROWSER_DOWNLOAD_DOWNLOAD_ITEM_MODEL_H__
 
 #include "chrome/browser/views/download_item_view.h"
 
@@ -30,5 +30,5 @@ class DownloadItemModel : public DownloadItemView::BaseDownloadItemModel {
   DISALLOW_EVIL_CONSTRUCTORS(DownloadItemModel);
 };
 
-#endif  // CHROME_BROWSER_DOWNLOAD_ITEM_MODEL_H__
+#endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_ITEM_MODEL_H__
 

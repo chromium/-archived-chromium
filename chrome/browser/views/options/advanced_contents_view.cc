@@ -19,7 +19,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/download_manager.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/gears_integration.h"
 #include "chrome/browser/metrics_service.h"
 #include "chrome/browser/net/dns_global.h"

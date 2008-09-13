@@ -38,8 +38,8 @@
 // appropriate DownloadManager. In progress downloads are cancelled for a
 // DownloadManager that exits (such as when closing a profile).
 
-#ifndef CHROME_BROWSER_DOWNLOAD_FILE_H__
-#define CHROME_BROWSER_DOWNLOAD_FILE_H__
+#ifndef CHROME_BROWSER_DOWNLOAD_DOWNLOAD_FILE_H__
+#define CHROME_BROWSER_DOWNLOAD_DOWNLOAD_FILE_H__
 
 #include <string>
 #include <vector>
@@ -270,4 +270,4 @@ class DownloadFileManager
   DISALLOW_EVIL_CONSTRUCTORS(DownloadFileManager);
 };
 
-#endif  // CHROME_BROWSER_DOWNLOAD_FILE_H__
+#endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_FILE_H__

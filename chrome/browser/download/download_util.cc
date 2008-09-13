@@ -6,14 +6,14 @@
 
 #include <string>
 
-#include "chrome/browser/download_util.h"
+#include "chrome/browser/download/download_util.h"
 
 #include "base/base_drag_source.h"
 #include "base/file_util.h"
 #include "base/gfx/image_operations.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/download_manager.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/common/clipboard_service.h"
 #include "chrome/browser/drag_utils.h"
 #include "chrome/common/gfx/chrome_canvas.h"

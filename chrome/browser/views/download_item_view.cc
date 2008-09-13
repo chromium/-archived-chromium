@@ -8,7 +8,7 @@
 
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/download_util.h"
+#include "chrome/browser/download/download_util.h"
 #include "chrome/browser/views/download_shelf_view.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/resource_bundle.h"

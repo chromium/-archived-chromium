@@ -4,8 +4,8 @@
 //
 // Download utilities.
 
-#ifndef CHROME_BROWSER_DOWNLOAD_UTIL_H__
-#define CHROME_BROWSER_DOWNLOAD_UTIL_H__
+#ifndef CHROME_BROWSER_DOWNLOAD_DOWNLOAD_UTIL_H__
+#define CHROME_BROWSER_DOWNLOAD_DOWNLOAD_UTIL_H__
 
 #include <objidl.h>
 
@@ -188,5 +188,5 @@ void InitializeExeTypes(std::set<std::wstring>* exe_extensions);
 }  // namespace download_util
 
 
-#endif  // CHROME_BROWSER_DOWNLOAD_UTIL_H__
+#endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_UTIL_H__
 

@@ -7,7 +7,7 @@
 
 #include "chrome/browser/history/download_database.h"
 
-#include "chrome/browser/download_manager.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/history/download_types.h"
 #include "chrome/common/sqlite_utils.h"
 #include "chrome/common/sqlite_compiled_statement.h"

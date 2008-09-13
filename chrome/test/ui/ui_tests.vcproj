@@ -234,7 +234,7 @@
 			Name="TestDownload"
 			>
 			<File
-				RelativePath="..\..\browser\download_uitest.cc"
+				RelativePath="..\..\browser\download\download_uitest.cc"
 				>
 			</File>
 		</Filter>

@@ -27,7 +27,7 @@
 #include "base/string_util.h"
 #include "base/task.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/download_manager.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/history/history_backend.h"
 #include "chrome/browser/history/history_database.h"

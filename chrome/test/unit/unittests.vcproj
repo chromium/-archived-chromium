@@ -670,7 +670,7 @@
 			Name="TestDownload"
 			>
 			<File
-				RelativePath="..\..\browser\download_manager_unittest.cc"
+				RelativePath="..\..\browser\download\download_manager_unittest.cc"
 				>
 			</File>
 		</Filter>

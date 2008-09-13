@@ -23,7 +23,7 @@
 #include "base/timer.h"
 #include "chrome/common/slide_animation.h"
 #include "chrome/browser/cancelable_request.h"
-#include "chrome/browser/download_manager.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/icon_manager.h"
 #include "chrome/views/event.h"
 #include "chrome/views/view.h"

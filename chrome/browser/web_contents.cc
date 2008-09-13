@@ -12,7 +12,7 @@
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/dom_operation_notification_details.h"
-#include "chrome/browser/download_manager.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/find_in_page_controller.h"
 #include "chrome/browser/find_notification_details.h"
 #include "chrome/browser/google_util.h"

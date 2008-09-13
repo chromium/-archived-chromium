@@ -14,7 +14,7 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/download_manager.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/profile_manager.h"

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/download_tab_view.h"
+#include "chrome/browser/views/download_tab_view.h"
 
 #include <time.h>
 
@@ -16,8 +16,6 @@
 #include "base/timer.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/download_manager.h"
-#include "chrome/browser/download_util.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/common/gfx/chrome_canvas.h"

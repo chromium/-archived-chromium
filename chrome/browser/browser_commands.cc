@@ -16,7 +16,7 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/debugger/debugger_window.h"
-#include "chrome/browser/download_tab_view.h"
+#include "chrome/browser/views/download_tab_view.h"
 #include "chrome/browser/history_tab_ui.h"
 #include "chrome/browser/interstitial_page_delegate.h"
 #include "chrome/browser/navigation_entry.h"

@@ -9,7 +9,7 @@
 #include "base/path_service.h"
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/chrome_thread.h"
-#include "chrome/browser/download_file.h"
+#include "chrome/browser/download/download_file.h"
 #include "chrome/browser/google_url_tracker.h"
 #include "chrome/browser/icon_manager.h"
 #include "chrome/browser/metrics_service.h"

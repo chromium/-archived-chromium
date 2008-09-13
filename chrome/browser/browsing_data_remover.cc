@@ -6,7 +6,7 @@
 
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/download_manager.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/session_service.h"
 #include "chrome/browser/tab_restore_service.h"

@@ -5,7 +5,7 @@
 #include <Windows.h>
 #include <objbase.h>
 
-#include "chrome/browser/download_file.h"
+#include "chrome/browser/download/download_file.h"
 
 #include "base/file_util.h"
 #include "base/path_service.h"
@@ -13,7 +13,7 @@
 #include "base/string_util.h"
 #include "base/task.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/download_manager.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/resource_dispatcher_host.h"
 #include "chrome/browser/tab_contents.h"

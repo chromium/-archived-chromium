@@ -15,7 +15,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/drag_utils.h"
-#include "chrome/browser/download_util.h"
+#include "chrome/browser/download/download_util.h"
 #include "chrome/browser/history/history_backend.h"
 #include "chrome/browser/history/history_database.h"
 #include "chrome/browser/history/history.h"

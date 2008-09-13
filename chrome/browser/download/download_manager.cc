@@ -4,7 +4,7 @@
 
 #include <time.h>
 
-#include "chrome/browser/download_manager.h"
+#include "chrome/browser/download/download_manager.h"
 
 #include "base/file_util.h"
 #include "base/logging.h"
@@ -18,8 +18,8 @@
 #include "base/win_util.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/download_file.h"
-#include "chrome/browser/download_util.h"
+#include "chrome/browser/download/download_file.h"
+#include "chrome/browser/download/download_util.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/render_process_host.h"
 #include "chrome/browser/render_view_host.h"

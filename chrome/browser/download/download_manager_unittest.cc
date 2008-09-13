@@ -5,8 +5,8 @@
 #include <string>
 
 #include "base/logging.h"
-#include "chrome/browser/download_manager.h"
-#include "chrome/browser/download_util.h"
+#include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/download/download_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 class DownloadManagerTest : public testing::Test {

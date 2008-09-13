@@ -13,7 +13,7 @@
 #include "chrome/browser/automation/url_request_slow_download_job.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/dom_operation_notification_details.h"
-#include "chrome/browser/download_manager.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/external_tab_container.h"
 #include "chrome/browser/find_notification_details.h"
 #include "chrome/browser/login_prompt.h"

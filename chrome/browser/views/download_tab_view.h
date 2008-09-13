@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_DONWLOAD_TAB_VIEW_H__
-#define CHROME_BROWSER_DONWLOAD_TAB_VIEW_H__
+#ifndef CHROME_BROWSER_VIEWS_DONWLOAD_TAB_VIEW_H__
+#define CHROME_BROWSER_VIEWS_DONWLOAD_TAB_VIEW_H__
 
 #include "base/hash_tables.h"
 #include "chrome/browser/cancelable_request.h"
-#include "chrome/browser/download_manager.h"
-#include "chrome/browser/download_util.h"
+#include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/download/download_util.h"
 #include "chrome/browser/icon_manager.h"
 #include "chrome/browser/native_ui_contents.h"
 #include "chrome/views/event.h"
@@ -249,4 +249,4 @@ class DownloadTabUI : public NativeUI,
   DISALLOW_EVIL_CONSTRUCTORS(DownloadTabUI);
 };
 
-#endif  // CHROME_BROWSER_DONWLOAD_TAB_VIEW_H__
+#endif  // CHROME_BROWSER_VIEWS_DONWLOAD_TAB_VIEW_H__

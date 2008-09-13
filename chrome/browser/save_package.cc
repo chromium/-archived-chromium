@@ -13,7 +13,7 @@
 #include "base/thread.h"
 #include "base/win_util.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/download_manager.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/render_process_host.h"
 #include "chrome/browser/render_view_host.h"

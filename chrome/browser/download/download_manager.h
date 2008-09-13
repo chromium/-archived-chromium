@@ -32,8 +32,8 @@
 // DownloadManager is constructed, we query the history service for the state of
 // all persisted downloads.
 
-#ifndef CHROME_BROWSER_DOWNLOAD_MANAGER_H__
-#define CHROME_BROWSER_DOWNLOAD_MANAGER_H__
+#ifndef CHROME_BROWSER_DOWNLOAD_DOWNLOAD_MANAGER_H__
+#define CHROME_BROWSER_DOWNLOAD_DOWNLOAD_MANAGER_H__
 
 #include <string>
 #include <map>
@@ -480,4 +480,4 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
 };
 
 
-#endif  // CHROME_BROWSER_DOWNLOAD_MANAGER_H__
+#endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_MANAGER_H__

@@ -8,7 +8,7 @@
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/net/dns_global.h"
-#include "chrome/browser/download_manager.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/google_url_tracker.h"
 #include "chrome/browser/metrics_service.h"

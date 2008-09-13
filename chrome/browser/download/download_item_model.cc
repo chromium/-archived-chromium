@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/download_item_model.h"
+#include "chrome/browser/download/download_item_model.h"
 
 #include "base/string_util.h"
-#include "chrome/browser/download_manager.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/time_format.h"
 

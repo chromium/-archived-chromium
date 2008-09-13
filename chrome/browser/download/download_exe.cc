@@ -5,7 +5,7 @@
 #include <set>
 #include <string>
 
-#include "chrome/browser/download_util.h"
+#include "chrome/browser/download/download_util.h"
 
 namespace download_util {
 
