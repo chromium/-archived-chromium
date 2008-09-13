@@ -6,8 +6,8 @@
 #include "constants.h"
 #include "chrome/common/win_util.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/browser/xp_frame.h"
-#include "chrome/browser/vista_frame.h"
+#include "chrome/browser/views/old_frames/xp_frame.h"
+#include "chrome/browser/views/old_frames/vista_frame.h"
 
 #include "chromium_strings.h"
 #include "generated_resources.h"
