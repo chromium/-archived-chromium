@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/simple_xp_frame.h"
+#include "chrome/browser/views/old_frames/simple_xp_frame.h"
 
 #include "chrome/app/theme/theme_resources.h"
 #include "base/string_util.h"

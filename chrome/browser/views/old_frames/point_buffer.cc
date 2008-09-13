@@ -2,7 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/point_buffer.h"
+#include "chrome/browser/views/old_frames/point_buffer.h"
+
 #include "base/logging.h"
 
 PointBuffer::PointBuffer() : points_(NULL),

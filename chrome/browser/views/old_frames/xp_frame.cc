@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/xp_frame.h"
+#include "chrome/browser/views/old_frames/xp_frame.h"
 
 #include <windows.h>
 
@@ -13,7 +13,6 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/frame_util.h"
-#include "chrome/browser/point_buffer.h"
 #include "chrome/browser/suspend_controller.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/tab_contents_container_view.h"
@@ -22,8 +21,8 @@
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/download_shelf_view.h"
 #include "chrome/browser/views/frame/browser_view.h"
+#include "chrome/browser/views/old_frames/point_buffer.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
-#include "chrome/browser/window_clipping_info.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/gfx/chrome_canvas.h"

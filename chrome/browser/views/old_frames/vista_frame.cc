@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/vista_frame.h"
+#include "chrome/browser/views/old_frames/vista_frame.h"
 
 #include <windows.h>
 #include <atlbase.h>
@@ -21,7 +21,6 @@
 #include "chrome/browser/suspend_controller.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/tab_contents_container_view.h"
-#include "chrome/browser/window_clipping_info.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/download_shelf_view.h"

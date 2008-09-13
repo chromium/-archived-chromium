@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VISTA_FRAME_H__
-#define CHROME_BROWSER_VISTA_FRAME_H__
+#ifndef CHROME_BROWSER_VIEWS_OLD_FRAMES_VISTA_FRAME_H__
+#define CHROME_BROWSER_VIEWS_OLD_FRAMES_VISTA_FRAME_H__
 
 #include <windows.h>
 #include <atlbase.h>
@@ -14,7 +14,7 @@
 #include "base/message_loop.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_window.h"
-#include "chrome/browser/frame_view.h"
+#include "chrome/browser/views/old_frames/frame_view.h"
 #include "chrome/browser/views/status_bubble.h"
 #include "chrome/views/view_container.h"
 #include "chrome/views/root_view.h"
@@ -410,5 +410,5 @@ class VistaFrame : public BrowserWindow,
 
   DISALLOW_EVIL_CONSTRUCTORS(VistaFrame);
 };
-#endif  // CHROME_BROWSER_VISTA_FRAME_H__
+#endif  // CHROME_BROWSER_VIEWS_OLD_FRAMES_VISTA_FRAME_H__
 

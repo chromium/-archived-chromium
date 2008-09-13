@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_SIMPLE_XP_FRAME_H__
-#define CHROME_BROWSER_SIMPLE_XP_FRAME_H__
+#ifndef CHROME_BROWSER_VIEWS_OLD_FRAMES_SIMPLE_XP_FRAME_H__
+#define CHROME_BROWSER_VIEWS_OLD_FRAMES_SIMPLE_XP_FRAME_H__
 
 #include "chrome/browser/views/location_bar_view.h"
+#include "chrome/browser/views/old_frames/xp_frame.h"
 #include "chrome/browser/views/tab_icon_view.h"
-#include "chrome/browser/xp_frame.h"
 #include "chrome/views/menu_button.h"
 #include "chrome/views/view_menu_delegate.h"
 
@@ -173,5 +173,5 @@ class SimpleXPFrameTitleBar : public ChromeViews::View,
   DISALLOW_EVIL_CONSTRUCTORS(SimpleXPFrameTitleBar);
 };
 
-#endif  // CHROME_BROWSER_SIMPLE_XP_FRAME_H__
+#endif  // CHROME_BROWSER_VIEWS_OLD_FRAMES_SIMPLE_XP_FRAME_H__
 

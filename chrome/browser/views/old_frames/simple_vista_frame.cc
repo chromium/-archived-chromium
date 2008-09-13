@@ -2,8 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/browser/views/old_frames/simple_vista_frame.h"
+
 #include "chrome/app/theme/theme_resources.h"
-#include "chrome/browser/simple_vista_frame.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents.h"

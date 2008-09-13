@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_SIMPLE_VISTA_FRAME_H__
-#define CHROME_BROWSER_SIMPLE_VISTA_FRAME_H__
+#ifndef CHROME_BROWSER_VIEWS_OLD_FRAMES_SIMPLE_VISTA_FRAME_H__
+#define CHROME_BROWSER_VIEWS_OLD_FRAMES_SIMPLE_VISTA_FRAME_H__
 
 #include "chrome/browser/views/location_bar_view.h"
-#include "chrome/browser/vista_frame.h"
+#include "chrome/browser/views/old_frames/vista_frame.h"
 
 class WebAppIconManager;
 
@@ -81,5 +81,5 @@ class SimpleVistaFrame : public VistaFrame,
 
   DISALLOW_EVIL_CONSTRUCTORS(SimpleVistaFrame);
 };
-#endif  // CHROME_BROWSER_SIMPLE_VISTA_FRAME_H__
+#endif  // CHROME_BROWSER_VIEWS_OLD_FRAMES_SIMPLE_VISTA_FRAME_H__
 

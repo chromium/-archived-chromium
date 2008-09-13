@@ -1062,14 +1062,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\frame_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\frame_view.h"
-				>
-			</File>
-			<File
 				RelativePath=".\js_before_unload_handler.cc"
 				>
 			</File>
@@ -1162,14 +1154,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\window_clipping_info.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\window_clipping_info.h"
-				>
-			</File>
-			<File
 				RelativePath=".\window_sizer.cc"
 				>
 			</File>
@@ -1195,34 +1179,6 @@
 			</File>
 			<File
 				RelativePath=".\ssl_policy.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="XPFrame"
-			>
-			<File
-				RelativePath=".\point_buffer.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\point_buffer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\simple_xp_frame.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\simple_xp_frame.h"
-				>
-			</File>
-			<File
-				RelativePath=".\xp_frame.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\xp_frame.h"
 				>
 			</File>
 		</Filter>
@@ -1579,26 +1535,6 @@
 			</File>
 			<File
 				RelativePath=".\tab_restore_service.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="VistaFrame"
-			>
-			<File
-				RelativePath=".\simple_vista_frame.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\simple_vista_frame.h"
-				>
-			</File>
-			<File
-				RelativePath=".\vista_frame.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\vista_frame.h"
 				>
 			</File>
 		</Filter>

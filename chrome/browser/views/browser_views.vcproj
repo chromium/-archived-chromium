@@ -381,6 +381,58 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Frame (Old)"
+			>
+			<File
+				RelativePath=".\old_frames\frame_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\old_frames\frame_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\old_frames\point_buffer.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\old_frames\point_buffer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\old_frames\simple_vista_frame.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\old_frames\simple_vista_frame.h"
+				>
+			</File>
+			<File
+				RelativePath=".\old_frames\simple_xp_frame.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\old_frames\simple_xp_frame.h"
+				>
+			</File>
+			<File
+				RelativePath=".\old_frames\vista_frame.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\old_frames\vista_frame.h"
+				>
+			</File>
+			<File
+				RelativePath=".\old_frames\xp_frame.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\old_frames\xp_frame.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\about_chrome_view.cc"
 			>

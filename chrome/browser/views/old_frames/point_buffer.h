@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_POINT_BUFFER_H__
-#define CHROME_BROWSER_POINT_BUFFER_H__
+#ifndef CHROME_BROWSER_VIEWS_OLD_FRAMES_POINT_BUFFER_H__
+#define CHROME_BROWSER_VIEWS_OLD_FRAMES_POINT_BUFFER_H__
 
 #include <windows.h>
 
@@ -57,5 +57,5 @@ class PointBuffer {
   DISALLOW_EVIL_CONSTRUCTORS(PointBuffer);
 };
 
-#endif  // CHROME_BROWSER_PATH_BUFFER_H__
+#endif  // CHROME_BROWSER_VIEWS_OLD_FRAMES_POINT_BUFFER_H__
 

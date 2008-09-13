@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/frame_view.h"
+#include "chrome/browser/views/old_frames/frame_view.h"
 
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
