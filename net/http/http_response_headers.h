@@ -11,6 +11,7 @@
 #include "base/basictypes.h"
 #include "base/hash_tables.h"
 #include "base/ref_counted.h"
+#include "net/http/http_version.h"
 
 class Pickle;
 class Time;
@@ -88,6 +89,19 @@ class HttpResponseHeaders :
   // responses that lack a status line), this is the manufactured string
   // "HTTP/0.9 200 OK".
   std::string GetStatusLine() const;
+
+  // Get the HTTP version of the normalized status line.
+  HttpVersion GetHttpVersion() const {
+    return http_version_;
+  }
+
+  // Get the HTTP version determined while parsing; or (0,0) if parsing failed
+  HttpVersion GetParsedHttpVersion() const {
+    return parsed_http_version_;
+  }
+
+  // Get the HTTP status text of the normalized status line.
+  std::string GetStatusText() const;
 
   // Enumerate the "lines" of the response headers.  This skips over the status
   // line.  Use GetStatusLine if you are interested in that.  Note that this
@@ -192,10 +206,9 @@ class HttpResponseHeaders :
   // Tries to extract the "HTTP/X.Y" from a status line formatted like:
   //    HTTP/1.1 200 OK
   // with line_begin and end pointing at the begin and end of this line.  If the
-  // status line is malformed, we'll guess a version number.
-  // Output will be a normalized version of this, with a trailing \n.
-  void ParseVersion(std::string::const_iterator line_begin,
-                    std::string::const_iterator line_end);
+  // status line is malformed, returns HttpVersion(0,0).
+  static HttpVersion ParseVersion(std::string::const_iterator line_begin,
+                                  std::string::const_iterator line_end);
 
   // Tries to extract the status line from a header block, given the first
   // line of said header block.  If the status line is malformed, we'll construct
@@ -204,7 +217,8 @@ class HttpResponseHeaders :
   // with line_begin and end pointing at the begin and end of this line.
   // Output will be a normalized version of this, with a trailing \n.
   void ParseStatusLine(std::string::const_iterator line_begin,
-                       std::string::const_iterator line_end);
+                       std::string::const_iterator line_end,
+                       bool has_headers);
 
   // Find the header in our list (case-insensitive) starting with parsed_ at
   // index |from|.  Returns string::npos if not found.
@@ -257,6 +271,12 @@ class HttpResponseHeaders :
 
   // This is the parsed HTTP response code.
   int response_code_;
+
+  // The normalized http version (consistent with what GetStatusLine() returns).
+  HttpVersion http_version_;
+
+  // The parsed http version number (not normalized).
+  HttpVersion parsed_http_version_;
 
   DISALLOW_COPY_AND_ASSIGN(HttpResponseHeaders);
 };

@@ -55,12 +55,18 @@ class HttpUtil {
   static void TrimLWS(std::string::const_iterator* begin,
                       std::string::const_iterator* end);
 
+  // Returns the start of the status line, or -1 if no status line was found.
+  // This allows for 4 bytes of junk to precede the status line (which is what
+  // mozilla does too).
+  static int HttpUtil::LocateStartOfStatusLine(const char* buf, int buf_len);
+
   // Returns index beyond the end-of-headers marker or -1 if not found.  RFC
   // 2616 defines the end-of-headers marker as a double CRLF; however, some
   // servers only send back LFs (e.g., Unix-based CGI scripts written using the
   // ASIS Apache module).  This function therefore accepts the pattern LF[CR]LF
   // as end-of-headers (just like Mozilla).
-  static int LocateEndOfHeaders(const char* buf, int buf_len);
+  // The parameter |i| is the offset within |buf| to begin searching from.
+  static int LocateEndOfHeaders(const char* buf, int buf_len, int i = 0);
 
   // Assemble "raw headers" in the format required by HttpResponseHeaders.
   // This involves normalizing line terminators, converting [CR]LF to \0 and

@@ -82,6 +82,13 @@ class HttpNetworkTransaction : public HttpTransaction {
   // is returned.
   int HandleIOError(int error);
 
+  // Return true if based on the bytes read so far, the start of the
+  // status line is known. This is used to distingish between HTTP/0.9
+  // responses (which have no status line).
+  bool has_found_status_line_start() const {
+    return header_buf_http_offset_ != -1;
+  }
+
   CompletionCallbackImpl<HttpNetworkTransaction> io_callback_;
   CompletionCallback* user_callback_;
 
@@ -124,6 +131,8 @@ class HttpNetworkTransaction : public HttpTransaction {
   int header_buf_len_;
   int header_buf_body_offset_;
   enum { kHeaderBufInitialSize = 4096 };
+  // The position where status line starts; -1 if not found yet.
+  int header_buf_http_offset_;
 
   // Indicates the content length remaining to read.  If this value is less
   // than zero (and chunked_decoder_ is null), then we read until the server

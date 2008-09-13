@@ -19,9 +19,6 @@
 //  - authentication
 //  - proxies (need to call ReconsiderProxyAfterError and handle SSL tunnel)
 //  - ssl
-//  - http/0.9
-//  - header line continuations (i.e., lines that start with LWS)
-//  - tolerate some junk (up to 4 bytes) in front of the HTTP/1.x status line
 
 namespace net {
 
@@ -46,6 +43,7 @@ HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
       header_buf_capacity_(0),
       header_buf_len_(0),
       header_buf_body_offset_(-1),
+      header_buf_http_offset_(-1),
       content_length_(-1),  // -1 means unspecified.
       content_read_(0),
       read_buf_(NULL),
@@ -554,26 +552,48 @@ int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
   if (header_buf_len_ == 0)
     response_.response_time = Time::Now();
 
+  // The socket was closed before we found end-of-headers.
   if (result == 0) {
     if (establishing_tunnel_) {
       // The socket was closed before the tunnel could be established.
       return ERR_TUNNEL_CONNECTION_FAILED;
     }
-    // The socket was closed before we found end-of-headers.  Assume that EOF
-    // is end-of-headers.
-    header_buf_body_offset_ = header_buf_len_;
+    if (has_found_status_line_start()) {
+      // Assume EOF is end-of-headers.
+      header_buf_body_offset_ = header_buf_len_;
+    } else {
+      // No status line was matched yet, assume HTTP/0.9
+      // (this will also match a HTTP/1.x that got closed early).
+      header_buf_body_offset_ = 0;
+    }
   } else {
     header_buf_len_ += result;
     DCHECK(header_buf_len_ <= header_buf_capacity_);
 
-    // TODO(darin): Check for a HTTP/0.9 response.
-
-    int eoh = HttpUtil::LocateEndOfHeaders(header_buf_.get(), header_buf_len_);
-    if (eoh == -1) {
-      next_state_ = STATE_READ_HEADERS;  // Read more.
-      return OK;
+    // Look for the start of the status line, if it hasn't been found yet.
+    if (!has_found_status_line_start()) {
+      header_buf_http_offset_ = HttpUtil::LocateStartOfStatusLine(
+          header_buf_.get(), header_buf_len_);
     }
-    header_buf_body_offset_ = eoh;
+
+    if (has_found_status_line_start()) {
+      int eoh = HttpUtil::LocateEndOfHeaders(
+          header_buf_.get(), header_buf_len_, header_buf_http_offset_);
+      if (eoh == -1) {
+        // Haven't found the end of headers yet, keep reading.
+        next_state_ = STATE_READ_HEADERS;
+        return OK;
+      }
+      header_buf_body_offset_ = eoh;
+    } else if (header_buf_len_ < 8) {
+      // Not enough data to decide whether this is HTTP/0.9 yet.
+      // 8 bytes = (4 bytes of junk) + "http".length()
+      next_state_ = STATE_READ_HEADERS;
+      return OK;
+    } else {
+      // Enough data was read -- there is no status line.
+      header_buf_body_offset_ = 0;
+    }
   }
 
   // And, we are done with the Start or the SSL tunnel CONNECT sequence.
@@ -655,10 +675,29 @@ int HttpNetworkTransaction::DoReadBodyComplete(int result) {
 }
 
 int HttpNetworkTransaction::DidReadResponseHeaders() {
-  // TODO(wtc): Require the "HTTP/1.x" status line.  The HttpResponseHeaders
-  // constructor makes up an "HTTP/1.0 200 OK" status line if it is missing.
-  scoped_refptr<HttpResponseHeaders> headers = new HttpResponseHeaders(
-      HttpUtil::AssembleRawHeaders(header_buf_.get(), header_buf_body_offset_));
+  scoped_refptr<HttpResponseHeaders> headers;
+  if (has_found_status_line_start()) {
+    headers = new HttpResponseHeaders(
+        HttpUtil::AssembleRawHeaders(
+            header_buf_.get(), header_buf_body_offset_));
+  } else {
+    // Fabricate a status line to to preserve the HTTP/0.9 version.
+    // (otherwise HttpResponseHeaders will default it to HTTP/1.0).
+    headers = new HttpResponseHeaders(std::string("HTTP/0.9 200 OK"));
+  }
+
+  if (establishing_tunnel_ &&
+      headers->GetParsedHttpVersion() < HttpVersion(1, 0)) {
+    // Require the "HTTP/1.x" status line.
+    return ERR_TUNNEL_CONNECTION_FAILED;
+  }
+
+  // HTTP/0.9 doesn't support the PUT method, so lack of response headers
+  // indicates a buggy server.
+  // See: https://bugzilla.mozilla.org/show_bug.cgi?id=193921
+  if (headers->GetHttpVersion() == HttpVersion(0, 9) &&
+      request_->method == "PUT")
+    return ERR_ABORTED;
 
   // Check for an intermediate 100 Continue response.  An origin server is
   // allowed to send this response even if we didn't ask for it, so we just
@@ -709,8 +748,7 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
   if (content_length_ == -1) {
     // Ignore spurious chunked responses from HTTP/1.0 servers and proxies.
     // Otherwise "Transfer-Encoding: chunked" trumps "Content-Length: N"
-    const std::string& status_line = response_.headers->GetStatusLine();
-    if (!StartsWithASCII(status_line, "HTTP/1.0 ", true) &&
+    if (response_.headers->GetHttpVersion() != HttpVersion(1, 0) &&
         response_.headers->HasHeaderValue("Transfer-Encoding", "chunked")) {
       chunked_decoder_.reset(new HttpChunkedDecoder());
     } else {

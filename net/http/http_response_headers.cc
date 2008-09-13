@@ -196,7 +196,11 @@ void HttpResponseHeaders::Parse(const string& raw_input) {
   // ParseStatusLine adds a normalized status line to raw_headers_
   string::const_iterator line_begin = raw_input.begin();
   string::const_iterator line_end = find(line_begin, raw_input.end(), '\0');
-  ParseStatusLine(line_begin, line_end);
+  // has_headers = true, if there is any data following the status line.
+  // Used by ParseStatusLine() to decide if a HTTP/0.9 is really a HTTP/1.0.
+  bool has_headers = line_end != raw_input.end() &&
+    (line_end + 1) != raw_input.end() && *(line_end + 1) != '\0';
+  ParseStatusLine(line_begin, line_end, has_headers);
 
   if (line_end == raw_input.end()) {
     raw_headers_.push_back('\0');
@@ -311,6 +315,19 @@ string HttpResponseHeaders::GetStatusLine() const {
   return string(raw_headers_.c_str());
 }
 
+std::string HttpResponseHeaders::GetStatusText() const {
+  // TODO(eroman): this needs a unit test.
+
+  // GetStatusLine() is already normalized, so it has the format:
+  // <http_version> SP <response_code> SP <status_text>
+  std::string status_text = GetStatusLine();
+  std::string::const_iterator begin = status_text.begin();
+  std::string::const_iterator end = status_text.end();
+  for (int i = 0; i < 2; ++i)
+    begin = find(begin, end, ' ') + 1;
+  return std::string(begin, end);
+}
+
 bool HttpResponseHeaders::EnumerateHeaderLines(void** iter,
                                                string* name,
                                                string* value) const {
@@ -375,62 +392,74 @@ bool HttpResponseHeaders::HasHeaderValue(const std::string& name,
 
 // Note: this implementation implicitly assumes that line_end points at a valid
 // sentinel character (such as '\0').
-void HttpResponseHeaders::ParseVersion(string::const_iterator line_begin,
-                                       string::const_iterator line_end) {
+// static
+HttpVersion HttpResponseHeaders::ParseVersion(
+    string::const_iterator line_begin,
+    string::const_iterator line_end) {
   string::const_iterator p = line_begin;
 
   // RFC2616 sec 3.1: HTTP-Version   = "HTTP" "/" 1*DIGIT "." 1*DIGIT
-  // (1*DIGIT apparently means one or more digits, but we only handle 1).
+  // TODO: (1*DIGIT apparently means one or more digits, but we only handle 1).
+  // TODO: handle leading zeros, which is allowed by the rfc1616 sec 3.1.
 
   if ((line_end - p < 4) || !LowerCaseEqualsASCII(p, p + 4, "http")) {
-    DLOG(INFO) << "missing status line; assuming HTTP/0.9";
-    // Morph this into HTTP/1.0 since HTTP/0.9 has no status line.
-    raw_headers_ = "HTTP/1.0";
-    return;
+    DLOG(INFO) << "missing status line";
+    return HttpVersion();
   }
 
   p += 4;
 
   if (p >= line_end || *p != '/') {
-    DLOG(INFO) << "missing version; assuming HTTP/1.0";
-    raw_headers_ = "HTTP/1.0";
-    return;
+    DLOG(INFO) << "missing version";
+    return HttpVersion();
   }
 
   string::const_iterator dot = find(p, line_end, '.');
   if (dot == line_end) {
-    DLOG(INFO) << "malformed version; assuming HTTP/1.0";
-    raw_headers_ = "HTTP/1.0";
-    return;
+    DLOG(INFO) << "malformed version";
+    return HttpVersion();
   }
 
   ++p;  // from / to first digit.
   ++dot;  // from . to second digit.
 
   if (!(*p >= '0' && *p <= '9' && *dot >= '0' && *dot <= '9')) {
-    DLOG(INFO) << "malformed version number; assuming HTTP/1.0";
-    raw_headers_ = "HTTP/1.0";
-    return;
+    DLOG(INFO) << "malformed version number";
+    return HttpVersion();
   }
 
-  int major = *p - '0';
-  int minor = *dot - '0';
+  uint16 major = *p - '0';
+  uint16 minor = *dot - '0';
 
-  if ((major > 1) || ((major == 1) && (minor >= 1))) {
-    // at least HTTP/1.1
-    raw_headers_ = "HTTP/1.1";
-  } else {
-    // treat anything else as version 1.0
-    raw_headers_ = "HTTP/1.0";
-  }
+  return HttpVersion(major, minor);
 }
 
 // Note: this implementation implicitly assumes that line_end points at a valid
 // sentinel character (such as '\0').
 void HttpResponseHeaders::ParseStatusLine(string::const_iterator line_begin,
-                                          string::const_iterator line_end) {
-  ParseVersion(line_begin, line_end);
+                                          string::const_iterator line_end,
+                                          bool has_headers) {
+  // Extract the version number
+  parsed_http_version_ = ParseVersion(line_begin, line_end);
 
+  // Clamp the version number to one of: {0.9, 1.0, 1.1}
+  if (parsed_http_version_ == HttpVersion(0, 9) && !has_headers) {
+    http_version_ = HttpVersion(0, 9);
+    raw_headers_ = "HTTP/0.9";
+  } else if (parsed_http_version_ >= HttpVersion(1, 1)) {
+    http_version_ = HttpVersion(1, 1);
+    raw_headers_ = "HTTP/1.1";
+  } else {
+    // Treat everything else like HTTP 1.0
+    http_version_ = HttpVersion(1, 0);
+    raw_headers_ = "HTTP/1.0";
+  }
+  if (parsed_http_version_ != http_version_) {
+    DLOG(INFO) << "assuming HTTP/" << http_version_.major() << "."
+               << http_version_.minor();
+  }
+
+  // TODO(eroman): this doesn't make sense if ParseVersion failed.
   string::const_iterator p = find(line_begin, line_end, ' ');
 
   if (p == line_end) {
@@ -470,6 +499,8 @@ void HttpResponseHeaders::ParseStatusLine(string::const_iterator line_begin,
 
   if (p == line_end) {
     DLOG(INFO) << "missing response status text; assuming OK";
+    // Not super critical what we put here. Just use "OK"
+    // even if it isn't descriptive of response_code_.
     raw_headers_.append("OK");
   } else {
     raw_headers_.append(p, line_end);

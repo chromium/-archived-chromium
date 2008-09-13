@@ -12,6 +12,7 @@
 
 using namespace std;
 using net::HttpResponseHeaders;
+using net::HttpVersion;
 
 namespace {
 
@@ -19,6 +20,8 @@ struct TestData {
   const char* raw_headers;
   const char* expected_headers;
   int expected_response_code;
+  HttpVersion expected_parsed_version;
+  HttpVersion expected_version;
 };
 
 struct ContentTypeTestData {
@@ -60,6 +63,9 @@ void TestCommon(const TestData& test) {
   EXPECT_EQ(expected_headers, headers);
 
   EXPECT_EQ(test.expected_response_code, parsed->response_code());
+
+  EXPECT_TRUE(test.expected_parsed_version == parsed->GetParsedHttpVersion());
+  EXPECT_TRUE(test.expected_version == parsed->GetHttpVersion());
 }
 
 } // end namespace
@@ -76,7 +82,9 @@ TEST(HttpResponseHeadersTest, NormalizeHeadersWhitespace) {
     "Content-TYPE: text/html; charset=utf-8\n"
     "Set-Cookie: a, b\n",
 
-    202
+    202,
+    HttpVersion(1,1),
+    HttpVersion(1,1)
   };
   TestCommon(test);
 }
@@ -94,7 +102,9 @@ TEST(HttpResponseHeadersTest, NormalizeHeadersLeadingWhitespace) {
     "HTTP/1.1 202 Accepted\n"
     "Set-Cookie: a, b\n",
 
-    202
+    202, 
+    HttpVersion(1,1),
+    HttpVersion(1,1)
   };
   TestCommon(test);
 }
@@ -114,12 +124,15 @@ TEST(HttpResponseHeadersTest, BlankHeaders) {
     "Header3: \n"
     "Header5: \n",
 
-    200
+    200,
+    HttpVersion(1,1),
+    HttpVersion(1,1)
   };
   TestCommon(test);
 }
 
 TEST(HttpResponseHeadersTest, NormalizeHeadersVersion) {
+  // Don't believe the http/0.9 version if there are headers!
   TestData test = {
     "hTtP/0.9 201\n"
     "Content-TYPE: text/html; charset=utf-8\n",
@@ -127,7 +140,24 @@ TEST(HttpResponseHeadersTest, NormalizeHeadersVersion) {
     "HTTP/1.0 201 OK\n"
     "Content-TYPE: text/html; charset=utf-8\n",
 
-    201
+    201,
+    HttpVersion(0,9),
+    HttpVersion(1,0)
+  };
+  TestCommon(test);
+}
+
+TEST(HttpResponseHeadersTest, PreserveHttp09) {
+  // Accept the HTTP/0.9 version number if there are no headers.
+  // This is how HTTP/0.9 responses get constructed from HttpNetworkTransaction.
+  TestData test = {
+    "hTtP/0.9 200 OK\n",
+
+    "HTTP/0.9 200 OK\n",
+
+    200,
+    HttpVersion(0,9),
+    HttpVersion(0,9)
   };
   TestCommon(test);
 }
@@ -140,7 +170,9 @@ TEST(HttpResponseHeadersTest, NormalizeHeadersMissingOK) {
     "HTTP/1.1 201 OK\n"
     "Content-TYPE: text/html; charset=utf-8\n",
 
-    201
+    201,
+    HttpVersion(1,1),
+    HttpVersion(1,1)
   };
   TestCommon(test);
 }
@@ -153,7 +185,9 @@ TEST(HttpResponseHeadersTest, NormalizeHeadersBadStatus) {
     "HTTP/1.0 200 OK\n"
     "Content-TYPE: text/html; charset=utf-8\n",
 
-    200
+    200,
+    HttpVersion(0,0), // Parse error
+    HttpVersion(1,0)
   };
   TestCommon(test);
 }
@@ -164,7 +198,9 @@ TEST(HttpResponseHeadersTest, NormalizeHeadersEmpty) {
 
     "HTTP/1.0 200 OK\n",
 
-    200
+    200,
+    HttpVersion(0,0), // Parse Error
+    HttpVersion(1,0)
   };
   TestCommon(test);
 }
@@ -181,7 +217,9 @@ TEST(HttpResponseHeadersTest, NormalizeHeadersStartWithColon) {
     "foo: bar\n"
     "baz: blat\n",
 
-    202
+    202,
+    HttpVersion(1,1),
+    HttpVersion(1,1)
   };
   TestCommon(test);
 }
@@ -200,7 +238,9 @@ TEST(HttpResponseHeadersTest, NormalizeHeadersStartWithColonAtEOL) {
     "baz: blat\n"
     "zip: \n",
 
-    202
+    202,
+    HttpVersion(1,1),
+    HttpVersion(1,1)
   };
   TestCommon(test);
 }
@@ -211,7 +251,9 @@ TEST(HttpResponseHeadersTest, NormalizeHeadersOfWhitepace) {
 
     "HTTP/1.0 200 OK\n",
 
-    200
+    200,
+    HttpVersion(0,0), // Parse error
+    HttpVersion(1,0)
   };
   TestCommon(test);
 }
@@ -225,7 +267,9 @@ TEST(HttpResponseHeadersTest, RepeatedSetCookie) {
     "HTTP/1.1 200 OK\n"
     "Set-Cookie: x=1, y=2\n",
 
-    200
+    200,
+    HttpVersion(1,1),
+    HttpVersion(1,1)
   };
   TestCommon(test);
 }

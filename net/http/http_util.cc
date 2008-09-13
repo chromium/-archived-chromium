@@ -234,10 +234,28 @@ void HttpUtil::TrimLWS(string::const_iterator* begin,
     --(*end);
 }
 
-int HttpUtil::LocateEndOfHeaders(const char* buf, int buf_len) {
+// Find the "http" substring in a status line. This allows for
+// some slop at the start. If the "http" string could not be found
+// then returns -1.
+// static
+int HttpUtil::LocateStartOfStatusLine(const char* buf, int buf_len) {
+  const int slop = 4;
+  const int http_len = 4;
+
+  if (buf_len >= http_len) {
+    int i_max = std::min(buf_len - http_len, slop);
+    for (int i = 0; i <= i_max; ++i) {
+      if (LowerCaseEqualsASCII(buf + i, buf + i + http_len, "http"))
+        return i;
+    }
+  }
+  return -1; // Not found
+}
+
+int HttpUtil::LocateEndOfHeaders(const char* buf, int buf_len, int i) {
   bool was_lf = false;
   char last_c = '\0';
-  for (int i = 0; i < buf_len; ++i) {
+  for (; i < buf_len; ++i) {
     char c = buf[i];
     if (c == '\n') {
       if (was_lf)
@@ -299,6 +317,12 @@ std::string HttpUtil::AssembleRawHeaders(const char* input_begin,
   raw_headers.reserve(input_len);
 
   const char* input_end = input_begin + input_len;
+
+  // Skip any leading slop, since the consumers of this output
+  // (HttpResponseHeaders) don't deal with it.
+  int status_begin_offset = LocateStartOfStatusLine(input_begin, input_len);
+  if (status_begin_offset != -1)
+    input_begin += status_begin_offset;
 
   // Copy the status line.
   const char* status_line_end = FindStatusLineEnd(input_begin, input_end);

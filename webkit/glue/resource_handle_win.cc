@@ -90,14 +90,8 @@ static void ExtractInfoFromHeaders(const HttpResponseHeaders* headers,
                                    long long* expected_content_length) {
   *status_code = headers->response_code();
 
-  // Set the status text (the returned status line is normalized).
-  const std::string& status = headers->GetStatusLine();
-  StringTokenizer status_tokenizer(status, " ");
-  if (status_tokenizer.GetNext() &&  // identifies "HTTP/1.1"
-      status_tokenizer.GetNext() &&  // identifies "200"
-      status_tokenizer.GetNext())    // identifies first word of status text
-    *status_text = webkit_glue::StdStringToString(
-        std::string(status_tokenizer.token_begin(), status.end()));
+  // Set the status text
+  *status_text = webkit_glue::StdStringToString(headers->GetStatusText());
 
   // Set the content length.
   std::string length_val;
