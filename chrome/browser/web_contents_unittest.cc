@@ -994,6 +994,9 @@ TEST_F(WebContentsTest, NavigateTwoTabsCrossSite) {
 
   // Open a new tab with the same SiteInstance, navigated to the same site.
   TestWebContents* contents2 = new TestWebContents(profile.get(), instance1);
+  params1.page_id = 2;  // Need this since the site instance is the same (which
+                        // is the scope of page IDs) and we want to consider
+                        // this a new page.
   contents2->transition_cross_site = true;
   contents2->SetupController(profile.get());
   contents2->controller()->LoadURL(url, PageTransition::TYPED);
