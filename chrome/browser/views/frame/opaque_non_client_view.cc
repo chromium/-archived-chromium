@@ -10,8 +10,11 @@
 #include "chrome/browser/views/window_resources.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/path.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
-
+#include "chrome/views/root_view.h"
+#include "chromium_strings.h"
+#include "generated_resources.h"
 
 // An enumeration of bitmap resources used by this window.
 enum {
@@ -404,6 +407,8 @@ OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame,
       ChromeViews::Button::BS_PUSHED,
       resources->GetPartBitmap(FRAME_MINIMIZE_BUTTON_ICON_P));
   minimize_button_->SetListener(this, -1);
+  minimize_button_->SetAccessibleName(
+      l10n_util::GetString(IDS_ACCNAME_MINIMIZE));
   AddChildView(minimize_button_);
 
   maximize_button_->SetImage(
@@ -416,6 +421,8 @@ OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame,
       ChromeViews::Button::BS_PUSHED,
       resources->GetPartBitmap(FRAME_MAXIMIZE_BUTTON_ICON_P));
   maximize_button_->SetListener(this, -1);
+  maximize_button_->SetAccessibleName(
+      l10n_util::GetString(IDS_ACCNAME_MAXIMIZE));
   AddChildView(maximize_button_);
 
   restore_button_->SetImage(
@@ -428,6 +435,8 @@ OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame,
       ChromeViews::Button::BS_PUSHED,
       resources->GetPartBitmap(FRAME_RESTORE_BUTTON_ICON_P));
   restore_button_->SetListener(this, -1);
+  restore_button_->SetAccessibleName(
+      l10n_util::GetString(IDS_ACCNAME_RESTORE));
   AddChildView(restore_button_);
 
   close_button_->SetImage(
@@ -440,6 +449,7 @@ OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame,
       ChromeViews::Button::BS_PUSHED,
       resources->GetPartBitmap(FRAME_CLOSE_BUTTON_ICON_P));
   close_button_->SetListener(this, -1);
+  close_button_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_CLOSE));
   AddChildView(close_button_);
 
   window_icon_->set_is_light(true);
@@ -663,7 +673,33 @@ void OpaqueNonClientView::ViewHierarchyChanged(bool is_add,
     DCHECK(GetViewContainer());
     DCHECK(frame_->client_view()->GetParent() != this);
     AddChildView(frame_->client_view());
+
+    // The Accessibility glue looks for the product name on these two views to
+    // determine if this is in fact a Chrome window.
+    GetRootView()->SetAccessibleName(l10n_util::GetString(IDS_PRODUCT_NAME));
+    SetAccessibleName(l10n_util::GetString(IDS_PRODUCT_NAME));
   }
+}
+
+bool OpaqueNonClientView::GetAccessibleRole(VARIANT* role) {
+  DCHECK(role);
+  // We aren't actually the client area of the window, but we act like it as
+  // far as MSAA and the UI tests are concerned.
+  role->vt = VT_I4;
+  role->lVal = ROLE_SYSTEM_CLIENT;
+  return true;
+}
+
+bool OpaqueNonClientView::GetAccessibleName(std::wstring* name) {
+  if (!accessible_name_.empty()) {
+    *name = accessible_name_;
+    return true;
+  }
+  return false;
+}
+
+void OpaqueNonClientView::SetAccessibleName(const std::wstring& name) {
+  accessible_name_ = name;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -35,6 +35,14 @@
 #define CHROME_CLIENT_ACC_INDEX         (0)
 
 // Chrome Client chidren.
+#ifdef NEW_FRAMES
+#define BROWSER_VIEW_ACC_INDEX          (5)
+#define TABSTRIP_ACC_INDEX              (0)
+#define CHROME_MIN_ACC_INDEX            (0)
+#define CHROME_MAX_ACC_INDEX            (1)
+#define CHROME_RESTORE_ACC_INDEX        (2)
+#define CHROME_CLOSE_ACC_INDEX          (3)
+#else
 #define BROWSER_VIEW_ACC_INDEX          (0)
 #define TABSTRIP_ACC_INDEX              (1)
 #if defined(GOOGLE_CHROME_BUILD)
@@ -48,8 +56,14 @@
 #define CHROME_RESTORE_ACC_INDEX        (5)
 #define CHROME_CLOSE_ACC_INDEX          (6)
 #endif
+#endif
+
 // Browser View children.
+#ifdef NEW_FRAMES
+#define TOOLBAR_ACC_INDEX               (1)
+#else
 #define TOOLBAR_ACC_INDEX               (0)
+#endif
 
 // Toolbar children.
 #define BACK_BTN_INDEX                  (0)

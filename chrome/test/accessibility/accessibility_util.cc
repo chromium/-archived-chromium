@@ -2,17 +2,35 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "accessibility_util.h"
-#include "constants.h"
+#include "chrome/test/accessibility/accessibility_util.h"
+
+#include "base/win_util.h"
 #include "chrome/common/win_util.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/browser/views/old_frames/xp_frame.h"
 #include "chrome/browser/views/old_frames/vista_frame.h"
+#include "chrome/test/accessibility/constants.h"
 
 #include "chromium_strings.h"
 #include "generated_resources.h"
 
 VARIANT g_var_self = {VT_I4, CHILDID_SELF};
+
+// TODO(beng): clean this up
+static const wchar_t* kBrowserWindowKey = L"__BROWSER_WINDOW__";
+
+static BOOL CALLBACK WindowEnumProc(HWND hwnd, LPARAM data) {
+  std::wstring class_name = win_util::GetClassName(hwnd);
+  if (class_name == L"Chrome_HWNDViewContainer_0") {
+    HANDLE window_interface = GetProp(hwnd, kBrowserWindowKey);
+    if (window_interface) {
+      HWND* out = reinterpret_cast<HWND*>(data);
+      *out = hwnd;
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
 
 HWND GetChromeBrowserWnd(IAccessible** ppi_access) {
   HRESULT      hr   = S_OK;
@@ -22,11 +40,15 @@ HWND GetChromeBrowserWnd(IAccessible** ppi_access) {
 
   const std::wstring product_name = l10n_util::GetString(IDS_PRODUCT_NAME);
 
-  // Get Chrome window handle.
-  if (win_util::ShouldUseVistaFrame()) {
-    hwnd = FindWindow(VISTA_FRAME_CLASSNAME, NULL);
-  } else {
-    hwnd = FindWindow(XP_FRAME_CLASSNAME, NULL);
+  EnumWindows(WindowEnumProc, reinterpret_cast<LPARAM>(&hwnd));
+  if (!IsWindow(hwnd)) {
+    // Didn't find the window handle by looking for the new frames, assume the
+    // old frames are being used instead...
+    if (win_util::ShouldUseVistaFrame()) {
+      hwnd = FindWindow(VISTA_FRAME_CLASSNAME, NULL);
+    } else {
+      hwnd = FindWindow(XP_FRAME_CLASSNAME, NULL);
+    }
   }
 
   if (NULL == hwnd) {
@@ -199,7 +221,11 @@ HRESULT GetChildWndOf(std::wstring parent_name, unsigned int child_index,
 }
 
 HRESULT GetTabStripWnd(IAccessible** ppi_access) {
+#ifdef NEW_FRAMES
+  return GetChildWndOf(BROWSER_VIEW_STR, TABSTRIP_ACC_INDEX, ppi_access, NULL);
+#else
   return GetChildWndOf(BROWSER_STR, TABSTRIP_ACC_INDEX, ppi_access, NULL);
+#endif
 }
 
 HRESULT GetBrowserViewWnd(IAccessible** ppi_access) {

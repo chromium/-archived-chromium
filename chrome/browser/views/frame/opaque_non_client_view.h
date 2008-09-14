@@ -63,6 +63,9 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   virtual void ViewHierarchyChanged(bool is_add,
                                     ChromeViews::View* parent,
                                     ChromeViews::View* child);
+  virtual bool GetAccessibleRole(VARIANT* role);
+  virtual bool GetAccessibleName(std::wstring* name);
+  virtual void SetAccessibleName(const std::wstring& name);
 
  private:
   // Updates the system menu icon button.
@@ -121,6 +124,9 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   // The resources currently used to paint this view.
   WindowResources* current_active_resources_;
   WindowResources* current_inactive_resources_;
+
+  // The accessible name of this view.
+  std::wstring accessible_name_;
 
   static void InitClass();
   static SkBitmap distributor_logo_;
