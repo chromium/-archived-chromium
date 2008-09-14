@@ -1229,8 +1229,6 @@ void AutomationProvider::WindowSimulateClick(const IPC::Message& message,
   if (window_tracker_->ContainsHandle(handle)) {
     hwnd = window_tracker_->GetResource(handle);
 
-    BOOL r = ::ClientToScreen(hwnd, &click);
-    DCHECK(r);
     ui_controls::SendMouseMove(click.x, click.y);
 
     ui_controls::MouseButton button = ui_controls::LEFT;

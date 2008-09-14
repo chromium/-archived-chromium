@@ -33,15 +33,23 @@
 // static
 SkBitmap BrowserView2::default_favicon_;
 SkBitmap BrowserView2::otr_avatar_;
+// The vertical overlap between the TabStrip and the Toolbar.
 static const int kToolbarTabStripVerticalOverlap = 3;
+// The visible height of the shadow above the tabs. Clicks in this area are
+// treated as clicks to the frame, rather than clicks to the tab.
 static const int kTabShadowSize = 2;
+// The height of the status bubble.
 static const int kStatusBubbleHeight = 20;
+// The distance of the status bubble from the left edge of the window.
 static const int kStatusBubbleOffset = 2;
+// An offset distance between certain toolbars and the toolbar that preceded
+// them in layout.
 static const int kSeparationLineHeight = 1;
-static const SkColor kSeparationLineColor = SkColorSetRGB(178, 178, 178);
+// The name of a key to store on the window handle so that other code can
+// locate this object using just the handle.
 static const wchar_t* kBrowserWindowKey = L"__BROWSER_WINDOW__";
+// The distance between tiled windows.
 static const int kWindowTilePixels = 10;
-
 
 static const struct { bool separator; int command; int label; } kMenuLayout[] = {
   { true, 0, 0 },
@@ -854,7 +862,8 @@ int BrowserView2::LayoutToolbar(int top) {
   if (IsToolbarVisible()) {
     CSize ps;
     toolbar_->GetPreferredSize(&ps);
-    int toolbar_y = top - kToolbarTabStripVerticalOverlap;
+    int toolbar_y =
+        top - (IsTabStripVisible() ? kToolbarTabStripVerticalOverlap : 0);
     // With detached popup windows with the aero glass frame, we need to offset
     // by a pixel to make things look good.
     if (!IsTabStripVisible() && win_util::ShouldUseVistaFrame())

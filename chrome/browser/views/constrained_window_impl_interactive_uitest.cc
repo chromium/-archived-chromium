@@ -16,7 +16,7 @@
 #include "net/base/net_util.h"
 
 const int kRightCloseButtonOffset = 55;
-const int kBottomCloseButtonOffset = 25;
+const int kBottomCloseButtonOffset = 20;
 
 class InteractiveConstrainedWindowTest : public UITest {
  protected:
@@ -67,8 +67,8 @@ TEST_F(InteractiveConstrainedWindowTest, TestOpenAndResizeTo) {
   ASSERT_TRUE(popup_window->GetViewBoundsWithTimeout(
                   VIEW_ID_TAB_CONTAINER, &rect, false, 1000, &is_timeout));
   ASSERT_FALSE(is_timeout);
-  ASSERT_EQ(rect.width(), 300);
-  ASSERT_EQ(rect.height(), 320);
+  ASSERT_EQ(300, rect.width());
+  ASSERT_EQ(320, rect.height());
 
   // Send a click to the popup window to test resizeTo.
   ASSERT_TRUE(popup_window->GetViewBounds(VIEW_ID_TAB_CONTAINER,
