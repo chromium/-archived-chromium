@@ -129,7 +129,8 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
   scoped_ptr<TabProxy> tabA(GetActiveTab());
   ASSERT_TRUE(tabA->NavigateToURL(url));
 
-  scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
+  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  //scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
   ASSERT_TRUE(browser.get() != NULL);
 
   // Toggle the bookmark bar state.
