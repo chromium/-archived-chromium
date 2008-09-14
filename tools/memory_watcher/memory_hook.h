@@ -58,7 +58,7 @@ class PrivateHookAllocator {
   struct rebind { typedef PrivateHookAllocator<U> other; };
 
   template <class U>
-  explicit PrivateHookAllocator(const PrivateHookAllocator<U>&) {}
+  PrivateHookAllocator(const PrivateHookAllocator<U>&) {}
 };
 
 // Classes which monitor memory from these hooks implement

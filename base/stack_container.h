@@ -70,16 +70,34 @@ class StackAllocator : public std::allocator<T> {
     typedef StackAllocator<U, stack_capacity> other;
   };
 
-  StackAllocator(Source* source) : source_(source) {
+  // For the straight up copy c-tor, we can share storage.
+  StackAllocator(const StackAllocator<T, stack_capacity>& rhs) 
+      : source_(rhs.source_) {
   }
-  StackAllocator(const StackAllocator& other) : source_(other.source_) {
+
+  // ISO C++ requires the following constructor to be defined,
+  // and std::vector in VC++2008SP1 Release fails with an error
+  // in the class _Container_base_aux_alloc_real (from <xutility>)
+  // if the constructor does not exist.
+  // For this constructor, we cannot share storage; there's
+  // no guarantee that the Source buffer of Ts is large enough 
+  // for Us.
+  // TODO: If we were fancy pants, perhaps we could share storage 
+  // iff sizeof(T) == sizeof(U).
+  template<typename U, size_t other_capacity>
+  StackAllocator(const StackAllocator<U, other_capacity>& other)
+      : source_(NULL) {
+  }
+
+  explicit StackAllocator(Source* source) : source_(source) {
   }
 
   // Actually do the allocation. Use the stack buffer if nobody has used it yet
   // and the size requested fits. Otherwise, fall through to the standard
   // allocator.
   pointer allocate(size_type n, void* hint = 0) {
-    if (!source_->used_stack_buffer_ && n <= stack_capacity) {
+    if (source_ != NULL && !source_->used_stack_buffer_
+        && n <= stack_capacity) {
       source_->used_stack_buffer_ = true;
       return source_->stack_buffer();
     } else {
@@ -90,7 +108,7 @@ class StackAllocator : public std::allocator<T> {
   // Free: when trying to free the stack buffer, just mark it as free. For
   // non-stack-buffer pointers, just fall though to the standard allocator.
   void deallocate(pointer p, size_type n) {
-    if (p == source_->stack_buffer())
+    if (source_ != NULL && p == source_->stack_buffer())
       source_->used_stack_buffer_ = false;
     else
       std::allocator<T>::deallocate(p, n);
