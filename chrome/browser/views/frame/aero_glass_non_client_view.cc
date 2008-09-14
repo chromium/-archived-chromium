@@ -135,7 +135,7 @@ AeroGlassNonClientView::~AeroGlassNonClientView() {
 gfx::Rect AeroGlassNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
   // If we are maximized, the tab strip will be in line with the window
   // controls, so we need to make sure they don't overlap.
-  int tabstrip_width = GetWidth();
+  int tabstrip_width = browser_view_->GetWidth();
   if(frame_->IsMaximized()) {
     TITLEBARINFOEX titlebar_info;
     titlebar_info.cbSize = sizeof(TITLEBARINFOEX);
@@ -199,7 +199,7 @@ int AeroGlassNonClientView::NonClientHitTest(const gfx::Point& point) {
     // caption area above the tabs and the top sizing border.
     int client_view_right =
         frame_->client_view()->GetX() + frame_->client_view()->GetWidth();
-    if (point.x() >= frame_->client_view()->GetX() ||
+    if (point.x() >= frame_->client_view()->GetX() &&
         point.x() < client_view_right) {
       if (point.y() < kWindowSizingBorderSize)
         return HTTOP;
