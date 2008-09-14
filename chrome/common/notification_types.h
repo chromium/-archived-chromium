@@ -67,6 +67,10 @@ enum NotificationType {
   // Indicates that a NavigationEntry has changed. The source will be the
   // NavigationController that owns the NavigationEntry. The details will be
   // a NavigationController::EntryChangedDetails struct.
+  //
+  // This will NOT be sent on navigation, interested parties should also listen
+  // for NOTIFY_NAV_ENTRY_COMMITTED to handle that case. This will be sent when
+  // the entry is updated outside of navigation (like when a new title comes).
   NOTIFY_NAV_ENTRY_CHANGED,
 
   // Other load-related (not from NavigationController) ------------------------

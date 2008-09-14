@@ -60,21 +60,23 @@ void TabContents::HideContents() {
 }
 
 int32 TabContents::GetMaxPageID() {
-  if (AsWebContents())
-    return AsWebContents()->site_instance()->max_page_id();
+  if (GetSiteInstance())
+    return GetSiteInstance()->max_page_id();
   else
     return max_page_id_;
 }
 
 void TabContents::UpdateMaxPageID(int32 page_id) {
-  if (AsWebContents()) {
-    // Ensure both the SiteInstance and RenderProcessHost update their max page
-    // IDs in sync.
-    AsWebContents()->site_instance()->UpdateMaxPageID(page_id);
+  // Ensure both the SiteInstance and RenderProcessHost update their max page
+  // IDs in sync. Only WebContents will also have site instances, except during
+  // testing.
+  if (GetSiteInstance())
+    GetSiteInstance()->UpdateMaxPageID(page_id);
+
+  if (AsWebContents())
     AsWebContents()->process()->UpdateMaxPageID(page_id);
-  } else {
+  else
     max_page_id_ = std::max(max_page_id_, page_id);
-  }
 }
 
 const std::wstring TabContents::GetDefaultTitle() const {
@@ -256,35 +258,10 @@ void TabContents::SetIsLoading(bool is_loading,
                         NotificationService::NoDetails());
 }
 
-void TabContents::DidNavigateToEntry(
-    NavigationEntry* entry,
-    NavigationController::LoadCommittedDetails* details) {
-  // The entry may be deleted by DidNavigateToEntry...
-  int new_page_id = entry->page_id();
-
-  controller_->DidNavigateToEntry(entry, details);
-
-  // update after informing the navigation controller so it can check the
-  // previous value of the max page id.
-  UpdateMaxPageID(new_page_id);
-}
-
-bool TabContents::Navigate(const NavigationEntry& entry, bool reload) {
-  NavigationEntry* new_entry = new NavigationEntry(entry);
-  if (new_entry->page_id() == -1) {
-    // This is a new navigation.  Our behavior is to always navigate to the
-    // same page (page 0) in response to a navigation.
-    new_entry->set_page_id(0);
-    new_entry->set_title(GetDefaultTitle());
-  }
-
-  // When we're commanded to navigate like this, it's always a new main frame
-  // navigation (which is the default for the details).
-  NavigationController::LoadCommittedDetails details;
-  if (controller()->GetLastCommittedEntry())
-    details.previous_url = controller()->GetLastCommittedEntry()->url();
-
-  DidNavigateToEntry(new_entry, &details);
+bool TabContents::NavigateToPendingEntry(bool reload) {
+  // Our benavior is just to report that the entry was committed.
+  controller()->GetPendingEntry()->set_title(GetDefaultTitle());
+  controller()->CommitPendingEntry();
   return true;
 }
 

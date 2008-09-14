@@ -290,7 +290,7 @@ class NewTabUIContents : public DOMUIHost {
 
   // WebContents overrides.
   // Overriden to force the title of the page to forced_title_.
-  virtual bool Navigate(const NavigationEntry& entry, bool reload);
+  virtual bool NavigateToPendingEntry(bool reload);
   // We don't want a favicon on the new tab page.
   virtual bool ShouldDisplayFavIcon() { return false; }
   // The bookmark bar is always visible on the new tab.

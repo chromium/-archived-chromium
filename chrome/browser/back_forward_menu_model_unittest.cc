@@ -29,29 +29,19 @@ class BackFwdMenuModelTestTabContents : public TabContents {
   BackFwdMenuModelTestTabContents() : TabContents(kHTTPTabContentsType) {
   }
 
-  bool Navigate(const NavigationEntry& entry, bool reload) {
-    NavigationEntry* pending_entry = new NavigationEntry(entry);
-    if (pending_entry->page_id() == -1) {
-      pending_entry->set_page_id(g_page_id_++);
-    }
-    NavigationController::LoadCommittedDetails details;
-    DidNavigateToEntry(pending_entry, &details);
+  // We do the same thing as the TabContents one (just commit the navigation)
+  // but we *don't* want to reset the title since the test looks for this.
+  virtual bool NavigateToPendingEntry(bool reload) {
+    controller()->CommitPendingEntry();
     return true;
   }
 
   void UpdateState(const std::wstring& title) {
     NavigationEntry* entry =
-      controller()->GetEntryWithPageID(type(), NULL, g_page_id_ - 1);
+      controller()->GetEntryWithPageID(type(), NULL, GetMaxPageID());
     entry->set_title(title);
   }
-
- private:
-  // We need to use valid, incrementing page ids otherwise the TabContents
-  // and NavController will not play nice when we try to go back and forward.
-  static int g_page_id_;
 };
-
-int BackFwdMenuModelTestTabContents::g_page_id_ = 0;
 
 // This constructs our fake TabContents.
 class BackFwdMenuModelTestTabContentsFactory : public TabContentsFactory {

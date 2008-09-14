@@ -23,6 +23,63 @@
 #include "net/base/net_util.h"
 #include "webkit/glue/webkit_glue.h"
 
+namespace {
+
+// Invoked when entries have been pruned, or removed. For example, if the
+// current entries are [google, digg, yahoo], with the current entry google,
+// and the user types in cnet, then digg and yahoo are pruned.
+void NotifyPrunedEntries(NavigationController* nav_controller) {
+  NotificationService::current()->Notify(
+      NOTIFY_NAV_LIST_PRUNED,
+      Source<NavigationController>(nav_controller),
+      NotificationService::NoDetails());
+}
+
+// Ensure the given NavigationEntry has a valid state, so that WebKit does not
+// get confused if we navigate back to it.
+// 
+// An empty state is treated as a new navigation by WebKit, which would mean
+// losing the navigation entries and generating a new navigation entry after
+// this one. We don't want that. To avoid this we create a valid state which
+// WebKit will not treat as a new navigation.
+void SetContentStateIfEmpty(NavigationEntry* entry) {
+  if (entry->content_state().empty() &&
+      (entry->tab_type() == TAB_CONTENTS_WEB ||
+       entry->tab_type() == TAB_CONTENTS_NEW_TAB_UI ||
+       entry->tab_type() == TAB_CONTENTS_ABOUT_UI ||
+       entry->tab_type() == TAB_CONTENTS_HTML_DIALOG)) {
+    entry->set_content_state(
+        webkit_glue::CreateHistoryStateForURL(entry->url()));
+  }
+}
+
+// Configure all the NavigationEntries in entries for restore. This resets
+// the transition type to reload and makes sure the content state isn't empty.
+void ConfigureEntriesForRestore(
+    std::vector<linked_ptr<NavigationEntry> >* entries) {
+  for (size_t i = 0; i < entries->size(); ++i) {
+    // Use a transition type of reload so that we don't incorrectly increase
+    // the typed count.
+    (*entries)[i]->set_transition_type(PageTransition::RELOAD);
+    (*entries)[i]->set_restored(true);
+    // NOTE(darin): This code is only needed for backwards compat.
+    SetContentStateIfEmpty((*entries)[i].get());
+  }
+}
+
+// See NavigationController::IsURLInPageNavigation for how this works and why.
+bool AreURLsInPageNavigation(const GURL& existing_url, const GURL& new_url) {
+  if (existing_url == new_url || !new_url.has_ref())
+    return false;
+
+  url_canon::Replacements<char> replacements;
+  replacements.ClearRef();
+  return existing_url.ReplaceComponents(replacements) ==
+      new_url.ReplaceComponents(replacements);
+}
+
+}  // namespace
+
 // TabContentsCollector ---------------------------------------------------
 
 // We never destroy a TabContents synchronously because there are some
@@ -101,20 +158,6 @@ static void CreateNavigationEntriesFromTabNavigations(
   }
 }
 
-// Configure all the NavigationEntries in entries for restore. This resets
-// the transition type to reload and makes sure the content state isn't empty.
-static void ConfigureEntriesForRestore(
-    std::vector<linked_ptr<NavigationEntry> >* entries) {
-  for (size_t i = 0, count = entries->size(); i < count; ++i) {
-    // Use a transition type of reload so that we don't incorrectly increase
-    // the typed count.
-    (*entries)[i]->set_transition_type(PageTransition::RELOAD);
-    (*entries)[i]->set_restored(true);
-    // NOTE(darin): This code is only needed for backwards compat.
-    NavigationController::SetContentStateIfEmpty((*entries)[i].get());
-  }
-}
-
 NavigationController::NavigationController(TabContents* contents,
                                            Profile* profile)
     : profile_(profile),
@@ -182,7 +225,6 @@ TabContents* NavigationController::GetTabContents(TabContentsType t) {
 }
 
 void NavigationController::Reload() {
-  // TODO(pkasting): http://b/1113085 Should this use DiscardPendingEntry()?
   DiscardPendingEntryInternal();
   int current_index = GetCurrentEntryIndex();
   if (check_for_repost_ && current_index != -1 &&
@@ -204,7 +246,6 @@ void NavigationController::Reload() {
     if (current_index == -1)
       return;
 
-    // TODO(pkasting): http://b/1113085 Should this use DiscardPendingEntry()?
     DiscardPendingEntryInternal();
 
     pending_entry_index_ = current_index;
@@ -223,8 +264,6 @@ void NavigationController::LoadEntry(NavigationEntry* entry) {
   // When navigating to a new page, we don't know for sure if we will actually
   // end up leaving the current page.  The new page load could for example
   // result in a download or a 'no content' response (e.g., a mailto: URL).
-
-  // TODO(pkasting): http://b/1113085 Should this use DiscardPendingEntry()?
   DiscardPendingEntryInternal();
   pending_entry_ = entry;
   NotificationService::current()->Notify(
@@ -232,24 +271,6 @@ void NavigationController::LoadEntry(NavigationEntry* entry) {
       Source<NavigationController>(this),
       NotificationService::NoDetails());
   NavigateToPendingEntry(false);
-}
-
-/* static */
-void NavigationController::SetContentStateIfEmpty(
-    NavigationEntry* entry) {
-  if (entry->content_state().empty() &&
-      (entry->tab_type() == TAB_CONTENTS_WEB ||
-       entry->tab_type() == TAB_CONTENTS_NEW_TAB_UI ||
-       entry->tab_type() == TAB_CONTENTS_ABOUT_UI ||
-       entry->tab_type() == TAB_CONTENTS_HTML_DIALOG)) {
-    // The state is empty and the url will be rendered by WebKit. An empty
-    // state is treated as a new navigation by WebKit, which would mean
-    // losing the navigation entries and generating a new navigation
-    // entry after this one. We don't want that. To avoid this we create
-    // a valid state which WebKit will not treat as a new navigation.
-    entry->set_content_state(
-        webkit_glue::CreateHistoryStateForURL(entry->url()));
-  }
 }
 
 NavigationEntry* NavigationController::GetActiveEntry() const {
@@ -277,11 +298,6 @@ NavigationEntry* NavigationController::GetEntryAtOffset(int offset) const {
     return NULL;
 
   return entries_[index].get();
-}
-
-bool NavigationController::CanStop() const {
-  // TODO(darin): do we have something pending that we can stop?
-  return false;
 }
 
 bool NavigationController::CanGoBack() const {
@@ -341,14 +357,6 @@ void NavigationController::GoToOffset(int offset) {
     return;
 
   GoToIndex(index);
-}
-
-void NavigationController::Stop() {
-  DCHECK(CanStop());
-
-  // TODO(darin): we probably want to just call Stop on the active tab
-  // contents, but should we also call DiscardPendingEntry?
-  NOTREACHED() << "implement me";
 }
 
 void NavigationController::ReloadDontCheckForRepost() {
@@ -459,7 +467,6 @@ void NavigationController::LoadURLLazily(const GURL& url,
   if (icon)
     entry->favicon().set_bitmap(*icon);
 
-  // TODO(pkasting): http://b/1113085 Should this use DiscardPendingEntry()?
   DiscardPendingEntryInternal();
   pending_entry_ = entry;
   load_pending_entry_when_active_ = true;
@@ -493,105 +500,351 @@ void NavigationController::SetAlternateNavURLFetcher(
   alternate_nav_url_fetcher_entry_unique_id_ = pending_entry_->unique_id();
 }
 
-void NavigationController::DidNavigateToEntry(NavigationEntry* entry,
-                                              LoadCommittedDetails* details) {
-  DCHECK(active_contents_);
-  DCHECK(entry->tab_type() == active_contents_->type());
-
-  SetContentStateIfEmpty(entry);
-
-  entry->set_restored(false);
-
-  // Update the details to list the last URL. Later, we'll update the current
-  // entry (after it's committed) and the details will be complete.
+bool NavigationController::RendererDidNavigate(
+    const ViewHostMsg_FrameNavigate_Params& params,
+    bool is_interstitial,
+    LoadCommittedDetails* details) {
+  // Save the previous URL before we clobber it.
   if (GetLastCommittedEntry())
     details->previous_url = GetLastCommittedEntry()->url();
 
-  // If the entry is that of a page with PageID larger than any this Tab has
-  // seen before, then consider it a new navigation.  Note that if the entry
-  // has a SiteInstance, it should be the same as the SiteInstance of the
-  // active WebContents, because we have just navigated to it.
-  DCHECK(entry->page_id() >= 0) << "Page ID must be set before calling us.";
-  if (entry->page_id() > GetMaxPageID()) {
-    InsertEntry(entry);
-    NotifyNavigationEntryCommitted(details);
-    // It is now a safe time to schedule collection for any tab contents of a
-    // different type, because a navigation is necessary to get back to them.
-    ScheduleTabContentsCollectionForInactiveTabs();
-    return;
+  // Assign the current site instance to any pending entry, so we can find it
+  // later by calling GetEntryIndexWithPageID. We only care about this if the
+  // pending entry is an existing navigation and not a new one (or else we
+  // wouldn't care about finding it with GetEntryIndexWithPageID).
+  //
+  // TODO(brettw) this seems slightly bogus as we don't really know if the
+  // pending entry is what this navigation is for. There is a similar TODO
+  // w.r.t. the pending entry in RendererDidNavigateToNewPage.
+  if (pending_entry_index_ >= 0)
+    pending_entry_->set_site_instance(active_contents_->GetSiteInstance());
+
+  // Do navigation-type specific actions. These will make and commit an entry.
+  switch (ClassifyNavigation(params)) {
+    case NAV_NEW_PAGE:
+      RendererDidNavigateToNewPage(params);
+      break;
+    case NAV_EXISTING_PAGE:
+      RendererDidNavigateToExistingPage(params);
+      break;
+    case NAV_SAME_PAGE:
+      RendererDidNavigateToSamePage(params);
+      break;
+    case NAV_IN_PAGE:
+      RendererDidNavigateInPage(params);
+      break;
+    case NAV_NEW_SUBFRAME:
+      RendererDidNavigateNewSubframe(params);
+      break;
+    case NAV_AUTO_SUBFRAME:
+      if (!RendererDidNavigateAutoSubframe(params))
+        return false;
+      break;
+    case NAV_IGNORE:
+      // There is nothing we can do with this navigation, so we just return to
+      // the caller that nothing has happened.
+      return false;
+    default:
+      NOTREACHED();
   }
 
-  // Otherwise, we just need to update an existing entry with matching PageID.
-  // If the existing entry corresponds to the entry which is pending, then we
-  // must update the current entry index accordingly.  When navigating to the
-  // same URL, a new PageID is not created.
+  // All committed entries should have nonempty content state so WebKit doesn't
+  // get confused when we go back to them (see the function for details).
+  SetContentStateIfEmpty(GetActiveEntry());
 
-  int existing_entry_index = GetEntryIndexWithPageID(entry->tab_type(),
-                                                     entry->site_instance(),
-                                                     entry->page_id());
-  NavigationEntry* existing_entry = (existing_entry_index != -1) ?
-      entries_[existing_entry_index].get() : NULL;
-  if (!existing_entry) {
-    // No existing entry, then simply ignore this navigation!
-    DLOG(WARNING) << "ignoring navigation for page: " << entry->page_id();
-  } else if ((existing_entry != pending_entry_) && pending_entry_ &&
-             (pending_entry_->page_id() == -1) &&
-             (pending_entry_->url() == existing_entry->url())) {
-    // In this case, we have a pending entry for a URL but WebCore didn't do a
-    // new navigation. This happens when you press enter in the URL bar to
-    // reload. We will create a pending entry, but WebCore will convert it to
-    // a reload since it's the same page and not create a new entry for it
-    // (the user doesn't want to have a new back/forward entry when they do
-    // this). In this case, we want to just ignore the pending entry and go back
-    // to where we were.
-    existing_entry->set_unique_id(pending_entry_->unique_id());
-    DiscardPendingEntry();
-  } else {
-    DCHECK(existing_entry != entry);
-    // The given entry might provide a new URL... e.g., navigating back to a
-    // page in session history could have resulted in a new client redirect.
-    // The given entry might also provide a new title (typically an empty title
-    // to overwrite the existing title).
-    existing_entry->set_url(entry->url());
-    existing_entry->set_title(entry->title());
-    existing_entry->favicon() = entry->favicon();
-    existing_entry->set_content_state(entry->content_state());
+  // WebKit doesn't set the "auto" transition on meta refreshes properly (bug
+  // 1051891) so we manually set it for redirects which we normally treat as
+  // "non-user-gestures" where we want to update stuff after navigations.
+  //
+  // Note that the redirect check also checks for a pending entry to
+  // differentiate real redirects from browser initiated navigations to a
+  // redirected entry. This happens when you hit back to go to a page that was
+  // the destination of a redirect, we don't want to treat it as a redirect
+  // even though that's what its transition will be. See bug 1117048.
+  //
+  // TODO(brettw) write a test for this complicated logic.
+  details->is_auto = (PageTransition::IsRedirect(params.transition) &&
+                      !GetPendingEntry()) ||
+      params.gesture == NavigationGestureAuto;
 
-    // TODO(brettw) why only copy the security style and no other SSL stuff?
-    existing_entry->ssl().set_security_style(entry->ssl().security_style());
-
-    const int prev_entry_index = last_committed_entry_index_;
-    if (existing_entry == pending_entry_) {
-      DCHECK(pending_entry_index_ != -1);
-      last_committed_entry_index_ = pending_entry_index_;
-      // TODO(pkasting): http://b/1113085 Should this use DiscardPendingEntry()?
-      DiscardPendingEntryInternal();
-    } else {
-      // NOTE: Do not update the unique ID here, as we don't want infobars etc.
-      // to dismiss.
-
-      // The navigation could have been issued by the renderer, so be sure that
-      // we update our current index.
-      last_committed_entry_index_ = existing_entry_index;
-    }
-    IndexOfActiveEntryChanged(prev_entry_index);
-  }
-
-  delete entry;
+  // Now prep the rest of the details for the notification and broadcast.
+  details->entry = GetActiveEntry();
+  details->is_in_page = IsURLInPageNavigation(params.url);
+  details->is_main_frame = PageTransition::IsMainFrame(params.transition);
   NotifyNavigationEntryCommitted(details);
 
-  if (alternate_nav_url_fetcher_.get()) {
-    // Because this call may synchronously show an infobar, we do it last, to
-    // make sure all other state is stable and the infobar won't get blown away
-    // by some transition.
+  // Because this call may synchronously show an infobar, we do it last, to
+  // make sure all other state is stable and the infobar won't get blown away
+  // by some transition.
+  //
+  // TODO(brettw) bug 1324500: This logic should be moved out of here, it should
+  // listen for the notification instead.
+  if (alternate_nav_url_fetcher_.get())
     alternate_nav_url_fetcher_->OnNavigatedToEntry();
-  }
+
+  // Broadcast the NOTIFY_FRAME_PROVISIONAL_LOAD_COMMITTED notification for use
+  // by the SSL manager.
+  //
+  // TODO(brettw) bug 1352803: this information should be combined with
+  // NOTIFY_NAV_ENTRY_COMMITTED so this one can be deleted.
+  ProvisionalLoadDetails provisional_details(details->is_main_frame,
+                                             is_interstitial,
+                                             details->is_in_page,
+                                             params.url,
+                                             params.security_info);
+  NotificationService::current()->
+      Notify(NOTIFY_FRAME_PROVISIONAL_LOAD_COMMITTED,
+             Source<NavigationController>(this),
+             Details<ProvisionalLoadDetails>(&provisional_details));
 
   // It is now a safe time to schedule collection for any tab contents of a
   // different type, because a navigation is necessary to get back to them.
   ScheduleTabContentsCollectionForInactiveTabs();
+  return true;
 }
 
+NavigationController::NavClass NavigationController::ClassifyNavigation(
+    const ViewHostMsg_FrameNavigate_Params& params) const {
+  // If a page makes a popup navigated to about blank, and then writes stuff
+  // like a subframe navigated to a real site, we'll get a notification with an
+  // invalid page ID. There's nothing we can do with these, so just ignore them.
+  if (params.page_id == -1) {
+    DCHECK(!GetActiveEntry()) << "Got an invalid page ID but we seem to be "
+      " navigated to a valid page. This should be impossible.";
+    return NAV_IGNORE;
+  }
+
+  if (params.page_id > active_contents_->GetMaxPageID()) {
+    // Greater page IDs than we've ever seen before are new pages. We may or may
+    // not have a pending entry for the page, and this may or may not be the
+    // main frame.
+    if (PageTransition::IsMainFrame(params.transition))
+      return NAV_NEW_PAGE;
+    return NAV_NEW_SUBFRAME;
+  }
+
+  // Now we know that the notification is for an existing page. Find that entry.
+  int existing_entry_index = GetEntryIndexWithPageID(
+      active_contents_->type(),
+      active_contents_->GetSiteInstance(),
+      params.page_id);
+  if (existing_entry_index == -1) {
+    // The page was not found. It could have been pruned because of the limit on
+    // back/forward entries (not likely since we'll usually tell it to navigate
+    // to such entries). It could also mean that the renderer is smoking crack.
+    NOTREACHED();
+    return NAV_IGNORE;
+  }
+  NavigationEntry* existing_entry = entries_[existing_entry_index].get();
+
+  if (pending_entry_ &&
+      pending_entry_->url() == params.url &&
+      existing_entry != pending_entry_ &&
+      pending_entry_->page_id() == -1 &&
+      pending_entry_->url() == existing_entry->url()) {
+    // In this case, we have a pending entry for a URL but WebCore didn't do a
+    // new navigation. This happens when you press enter in the URL bar to
+    // reload. We will create a pending entry, but WebKit will convert it to
+    // a reload since it's the same page and not create a new entry for it
+    // (the user doesn't want to have a new back/forward entry when they do
+    // this). In this case, we want to just ignore the pending entry and go
+    // back to where we were (the "existing entry").
+    return NAV_SAME_PAGE;
+  }
+
+  if (AreURLsInPageNavigation(existing_entry->url(), params.url))
+    return NAV_IN_PAGE;
+
+  if (!PageTransition::IsMainFrame(params.transition))
+    return NAV_AUTO_SUBFRAME;  // All manual subframes would get new IDs and
+                               // were handled above.
+  // Since we weeded out "new" navigations above, we know this is an existing
+  // navigation.
+  return NAV_EXISTING_PAGE;
+}
+
+void NavigationController::RendererDidNavigateToNewPage(
+    const ViewHostMsg_FrameNavigate_Params& params) {
+  NavigationEntry* new_entry;
+  if (pending_entry_) {
+    // TODO(brettw) this assumes that the pending entry is appropriate for the
+    // new page that was just loaded. I don't think this is necessarily the
+    // case! We should have some more tracking to know for sure. This goes along
+    // with a similar TODO at the top of RendererDidNavigate where we blindly
+    // set the site instance on the pending entry.
+    new_entry = new NavigationEntry(*pending_entry_);
+
+    // Don't use the page type from the pending entry. Some interstitial page
+    // may have set the type to interstitial. Once we commit, however, the page
+    // type must always be normal.
+    new_entry->set_page_type(NavigationEntry::NORMAL_PAGE);
+  } else {
+    new_entry = new NavigationEntry(active_contents_->type());
+  }
+
+  new_entry->set_url(params.url);
+  new_entry->set_page_id(params.page_id);
+  new_entry->set_transition_type(params.transition);
+  new_entry->set_site_instance(active_contents_->GetSiteInstance());
+  new_entry->set_has_post_data(params.is_post);
+
+  InsertEntry(new_entry);
+}
+
+void NavigationController::RendererDidNavigateToExistingPage(
+    const ViewHostMsg_FrameNavigate_Params& params) {
+  // We should only get here for main frame navigations.
+  DCHECK(PageTransition::IsMainFrame(params.transition));
+
+  // This is a back/forward navigation. The existing page for the ID is
+  // guaranteed to exist, and we just need to update it with new information
+  // from the renderer.
+  int entry_index = GetEntryIndexWithPageID(
+      active_contents_->type(),
+      active_contents_->GetSiteInstance(),
+      params.page_id);
+  DCHECK(entry_index >= 0 &&
+         entry_index < static_cast<int>(entries_.size()));
+  NavigationEntry* entry = entries_[entry_index].get();
+
+  // The URL may have changed due to redirects. The site instance will normally
+  // be the same except during session restore, when no site instance will be
+  // assigned.
+  entry->set_url(params.url);
+  DCHECK(entry->site_instance() == NULL ||
+         entry->site_instance() == active_contents_->GetSiteInstance());
+  entry->set_site_instance(active_contents_->GetSiteInstance());
+
+  // The entry we found in the list might be pending if the user hit
+  // back/forward/reload. This load should commit it (since it's already in the
+  // list, we can just discard the pending pointer).
+  //
+  // Note that we need to use the "internal" version since we don't want to
+  // actually change any other state, just kill the pointer.
+  if (entry == pending_entry_)
+    DiscardPendingEntryInternal();
+  
+  int old_committed_entry_index = last_committed_entry_index_;
+  last_committed_entry_index_ = entry_index;
+  IndexOfActiveEntryChanged(old_committed_entry_index);
+}
+
+void NavigationController::RendererDidNavigateToSamePage(
+    const ViewHostMsg_FrameNavigate_Params& params) {
+  // This mode implies we have a pending entry that's the same as an existing
+  // entry for this page ID. All we need to do is update the existing entry.
+  NavigationEntry* existing_entry = GetEntryWithPageID(
+      active_contents_->type(),
+      active_contents_->GetSiteInstance(),
+      params.page_id);
+
+  // We assign the entry's unique ID to be that of the new one. Since this is
+  // always the result of a user action, we want to dismiss infobars, etc. like
+  // a regular user-initiated navigation.
+  existing_entry->set_unique_id(pending_entry_->unique_id());
+
+  DiscardPendingEntry();
+}
+
+void NavigationController::RendererDidNavigateInPage(
+    const ViewHostMsg_FrameNavigate_Params& params) {
+  DCHECK(PageTransition::IsMainFrame(params.transition)) <<
+      "WebKit should only tell us about in-page navs for the main frame.";
+  // We're guaranteed to have an entry for this one.
+  NavigationEntry* existing_entry = GetEntryWithPageID(
+      active_contents_->type(),
+      active_contents_->GetSiteInstance(),
+      params.page_id);
+
+  // Reference fragment navigation. We're guaranteed to have the last_committed
+  // entry and it will be the same page as the new navigation (minus the
+  // reference fragments, of course).
+  NavigationEntry* new_entry = new NavigationEntry(*existing_entry);
+  new_entry->set_page_id(params.page_id);
+  new_entry->set_url(params.url);
+  InsertEntry(new_entry);
+}
+
+void NavigationController::RendererDidNavigateNewSubframe(
+    const ViewHostMsg_FrameNavigate_Params& params) {
+  // Manual subframe navigations just get the current entry cloned so the user
+  // can go back or forward to it. The actual subframe information will be
+  // stored in the page state for each of those entries. This happens out of
+  // band with the actual navigations.
+  DCHECK(GetLastCommittedEntry());
+  NavigationEntry* new_entry = new NavigationEntry(*GetLastCommittedEntry());
+  new_entry->set_page_id(params.page_id);
+  InsertEntry(new_entry);
+}
+
+bool NavigationController::RendererDidNavigateAutoSubframe(
+    const ViewHostMsg_FrameNavigate_Params& params) {
+  // We're guaranteed to have a previously committed entry, and we now need to
+  // handle navigation inside of a subframe in it without creating a new entry.
+  DCHECK(GetLastCommittedEntry());
+
+  // Handle the case where we're navigating back/forward to a previous subframe
+  // navigation entry. This is case "2." in NAV_AUTO_SUBFRAME comment in the
+  // header file. In case "1." this will be a NOP.
+  int entry_index = GetEntryIndexWithPageID(
+      active_contents_->type(),
+      active_contents_->GetSiteInstance(),
+      params.page_id);
+  if (entry_index < 0 ||
+      entry_index >= static_cast<int>(entries_.size())) {
+    NOTREACHED();
+    return false;
+  }
+
+  // Update the current navigation entry in case we're going back/forward.
+  if (entry_index != last_committed_entry_index_) {
+    int old_committed_entry_index = last_committed_entry_index_;
+    last_committed_entry_index_ = entry_index;
+    IndexOfActiveEntryChanged(old_committed_entry_index);
+    return true;
+  }
+  return false;
+}
+
+void NavigationController::CommitPendingEntry() {
+  if (!GetPendingEntry())
+    return;  // Nothing to do.
+
+  // Need to save the previous URL for the notification.
+  LoadCommittedDetails details;
+  if (GetLastCommittedEntry())
+    details.previous_url = GetLastCommittedEntry()->url();
+
+  if (pending_entry_index_ >= 0) {
+    // This is a previous navigation (back/forward) that we're just now
+    // committing. Just mark it as committed.
+    int new_entry_index = pending_entry_index_;
+    DiscardPendingEntryInternal();
+
+    // Mark that entry as committed.
+    int old_committed_entry_index = last_committed_entry_index_;
+    last_committed_entry_index_ = new_entry_index;
+    IndexOfActiveEntryChanged(old_committed_entry_index);
+  } else {
+    // This is a new navigation. It's easiest to just copy the entry and insert
+    // it new again, since InsertEntry expects to take ownership and also
+    // discard the pending entry. We also need to synthesize a page ID. We can
+    // only do this because this function will only be called by our custom
+    // TabContents types. For WebContents, the IDs are generated by the
+    // renderer, so we can't do this.
+    pending_entry_->set_page_id(active_contents_->GetMaxPageID() + 1);
+    active_contents_->UpdateMaxPageID(pending_entry_->page_id());
+    InsertEntry(new NavigationEntry(*pending_entry_));
+  }
+
+  // Broadcast the notification of the navigation.
+  details.entry = GetActiveEntry();
+  details.is_auto = false;
+  details.is_in_page = AreURLsInPageNavigation(details.previous_url,
+                                               details.entry->url());
+  details.is_main_frame = true;
+  NotifyNavigationEntryCommitted(&details);
+}
 
 int NavigationController::GetIndexOfEntry(
     const NavigationEntry* entry) const {
@@ -602,7 +855,7 @@ int NavigationController::GetIndexOfEntry(
   return (i == entries_.end()) ? -1 : static_cast<int>(i - entries_.begin());
 }
 
-void NavigationController::RemoveLastEntry() {
+void NavigationController::RemoveLastEntryForInterstitial() {
   int current_size = static_cast<int>(entries_.size());
 
   if (current_size > 0) {
@@ -612,11 +865,49 @@ void NavigationController::RemoveLastEntry() {
 
     entries_.pop_back();
 
-    if (last_committed_entry_index_ >= current_size - 1)
+    if (last_committed_entry_index_ >= current_size - 1) {
       last_committed_entry_index_ = current_size - 2;
 
-    NotifyPrunedEntries();
+      // Broadcast the notification of the navigation. This is kind of a hack,
+      // since the navigation wasn't actually committed. But this function is
+      // used for interstital pages, and the UI needs to get updated when the
+      // interstitial page
+      LoadCommittedDetails details;
+      details.entry = GetActiveEntry();
+      details.is_auto = false;
+      details.is_in_page = false;
+      details.is_main_frame = true;
+      NotifyNavigationEntryCommitted(&details);
+    }
+
+    NotifyPrunedEntries(this);
   }
+}
+
+void NavigationController::AddDummyEntryForInterstitial(
+    const NavigationEntry& clone_me) {
+  // We need to send a commit notification for this transition.
+  LoadCommittedDetails details;
+  if (GetLastCommittedEntry())
+    details.previous_url = GetLastCommittedEntry()->url();  
+
+  NavigationEntry* new_entry = new NavigationEntry(clone_me);
+  InsertEntry(new_entry);
+  // Watch out, don't use clone_me after this. The caller may have passed in a
+  // reference to our pending entry, which means it would have been destroyed.
+
+  details.is_auto = false;
+  details.entry = GetActiveEntry();
+  details.is_in_page = false;
+  details.is_main_frame = true;
+  NotifyNavigationEntryCommitted(&details);
+}
+
+bool NavigationController::IsURLInPageNavigation(const GURL& url) const {
+  NavigationEntry* last_committed = GetLastCommittedEntry();
+  if (!last_committed)
+    return false;
+  return AreURLsInPageNavigation(last_committed->url(), url);
 }
 
 void NavigationController::DiscardPendingEntry() {
@@ -675,7 +966,7 @@ void NavigationController::InsertEntry(NavigationEntry* entry) {
       current_size--;
     }
     if (pruned)  // Only notify if we did prune something.
-      NotifyPrunedEntries();
+      NotifyPrunedEntries(this);
   }
 
   if (entries_.size() >= max_entry_count_)
@@ -683,7 +974,12 @@ void NavigationController::InsertEntry(NavigationEntry* entry) {
 
   entries_.push_back(linked_ptr<NavigationEntry>(entry));
   last_committed_entry_index_ = static_cast<int>(entries_.size()) - 1;
+
+  // This is a new page ID, so we need everybody to know about it.
+  active_contents_->UpdateMaxPageID(entry->page_id());
   
+  // TODO(brettw) this seems bogus. The tab contents can listen for the
+  // notification or use the details that we pass back to it.
   active_contents_->NotifyDidNavigate(NAVIGATION_NEW, 0);
 }
 
@@ -723,7 +1019,8 @@ void NavigationController::NavigateToPendingEntry(bool reload) {
       from_contents->delegate()->ReplaceContents(from_contents, contents);
   }
 
-  if (!contents->Navigate(*pending_entry_, reload))
+  NavigationEntry temp_entry(*pending_entry_);
+  if (!contents->NavigateToPendingEntry(reload))
     DiscardPendingEntry();
 }
 
@@ -755,20 +1052,16 @@ void NavigationController::NotifyNavigationEntryCommitted(
       Details<LoadCommittedDetails>(details));
 }
 
-void NavigationController::NotifyPrunedEntries() {
-  NotificationService::current()->Notify(NOTIFY_NAV_LIST_PRUNED,
-                                         Source<NavigationController>(this),
-                                         NotificationService::NoDetails());
-}
-
-void NavigationController::IndexOfActiveEntryChanged(
-    int prev_committed_index) {
+void NavigationController::IndexOfActiveEntryChanged(int prev_committed_index) {
   NavigationType nav_type = NAVIGATION_BACK_FORWARD;
   int relative_navigation_offset =
       GetLastCommittedEntryIndex() - prev_committed_index;
-  if (relative_navigation_offset == 0) {
+  if (relative_navigation_offset == 0)
     nav_type = NAVIGATION_REPLACE;
-  }
+
+  // TODO(brettw) I don't think this call should be necessary. There is already
+  // a notification of this event that could be used, or maybe all the tab
+  // contents' know when we navigate (WebContents does).
   active_contents_->NotifyDidNavigate(nav_type, relative_navigation_offset);
 }
 
@@ -817,15 +1110,6 @@ void NavigationController::RegisterTabContents(TabContents* some_contents) {
   }
   if (some_contents->AsDOMUIHost())
     some_contents->AsDOMUIHost()->AttachMessageHandlers();
-}
-
-void NavigationController::NotifyEntryChangedByPageID(
-    TabContentsType type,
-    SiteInstance *instance,
-    int32 page_id) {
-  int index = GetEntryIndexWithPageID(type, instance, page_id);
-  if (index != -1)
-    NotifyEntryChanged(entries_[index].get(), index);
 }
 
 // static
@@ -886,10 +1170,6 @@ void NavigationController::RemoveEntryAtIndex(int index) {
 
   // TODO(brettw) bug 1324021: we probably need some notification here so the
   // session service can stay in sync.
-}
-
-int NavigationController::GetMaxPageID() const {
-  return active_contents_->GetMaxPageID();
 }
 
 NavigationController* NavigationController::Clone(HWND parent_hwnd) {
@@ -974,18 +1254,6 @@ void NavigationController::DiscardPendingEntryInternal() {
 
 int NavigationController::GetEntryIndexWithPageID(
     TabContentsType type, SiteInstance* instance, int32 page_id) const {
-  // The instance should only be specified for contents displaying web pages.
-  // TODO(evanm): checking against NEW_TAB_UI and HTML_DLG here is lame.
-  // It'd be nice for DomUIHost to just use SiteInstances for keeping content
-  // separated properly.
-  if (type != TAB_CONTENTS_WEB &&
-      type != TAB_CONTENTS_NEW_TAB_UI &&
-      type != TAB_CONTENTS_ABOUT_UI &&
-      type != TAB_CONTENTS_HTML_DIALOG &&
-      type != TAB_CONTENTS_VIEW_SOURCE &&
-      type != TAB_CONTENTS_DEBUGGER)
-    DCHECK(instance == NULL);
-
   for (int i = static_cast<int>(entries_.size()) - 1; i >= 0; --i) {
     if ((entries_[i]->tab_type() == type) &&
         (entries_[i]->site_instance() == instance) &&

@@ -229,11 +229,6 @@ class TestWebContents : public WebContents {
     render_view_host->is_loading = false;
   }
 
-  // Promote IsInPageNavigation to public.
-  bool TestIsInPageNavigation(const GURL& url) {
-    return IsInPageNavigation(url);
-  }
-
   // Promote GetWebkitPrefs to public.
   WebPreferences TestGetWebkitPrefs() {
     return GetWebkitPrefs();
@@ -301,12 +296,13 @@ class WebContentsTest : public testing::Test {
   MessageLoopForUI message_loop_;
 };
 
-// Test to make sure that title updates get stripped of whitespace
-TEST_F(WebContentsTest, OnMessageReceived) {
+// Test to make sure that title updates get stripped of whitespace.
+TEST_F(WebContentsTest, UpdateTitle) {
+  ViewHostMsg_FrameNavigate_Params params;
+  InitNavigateParams(&params, 0, GURL("about:blank"));
+
   NavigationController::LoadCommittedDetails details;
-  contents->controller()->DidNavigateToEntry(new NavigationEntry(
-      contents->type(), contents->site_instance(), 0, GURL("about:blank"),
-      std::wstring(), PageTransition::TYPED), &details);
+  contents->controller()->RendererDidNavigate(params, false, &details);
 
   contents->UpdateTitle(NULL, 0, L"    Lots O' Whitespace\n");
   EXPECT_EQ(std::wstring(L"Lots O' Whitespace"), contents->GetTitle());
@@ -315,7 +311,7 @@ TEST_F(WebContentsTest, OnMessageReceived) {
 // Test simple same-SiteInstance navigation.
 TEST_F(WebContentsTest, SimpleNavigation) {
   TestRenderViewHost* orig_rvh = contents->rvh();
-  SiteInstance* instance1 = contents->site_instance();
+  SiteInstance* instance1 = contents->GetSiteInstance();
   EXPECT_TRUE(contents->pending_rvh() == NULL);
   EXPECT_TRUE(contents->original_rvh() == NULL);
   EXPECT_TRUE(contents->interstitial_rvh() == NULL);
@@ -585,7 +581,7 @@ TEST_F(WebContentsTest, CrossSiteBoundaries) {
   TestRenderViewHost* orig_rvh = contents->rvh();
   int orig_rvh_delete_count = 0;
   orig_rvh->set_delete_counter(&orig_rvh_delete_count);
-  SiteInstance* instance1 = contents->site_instance();
+  SiteInstance* instance1 = contents->GetSiteInstance();
 
   // Navigate to URL.  First URL should use first RenderViewHost.
   const GURL url("http://www.google.com");
@@ -611,7 +607,7 @@ TEST_F(WebContentsTest, CrossSiteBoundaries) {
   ViewHostMsg_FrameNavigate_Params params2;
   InitNavigateParams(&params2, 1, url2);
   contents->TestDidNavigate(pending_rvh, params2);
-  SiteInstance* instance2 = contents->site_instance();
+  SiteInstance* instance2 = contents->GetSiteInstance();
 
   EXPECT_TRUE(contents->state_is_normal());
   EXPECT_EQ(pending_rvh, contents->render_view_host());
@@ -632,7 +628,7 @@ TEST_F(WebContentsTest, CrossSiteBoundaries) {
   EXPECT_TRUE(contents->state_is_normal());
   EXPECT_EQ(goback_rvh, contents->render_view_host());
   EXPECT_EQ(pending_rvh_delete_count, 1);
-  EXPECT_EQ(instance1, contents->site_instance());
+  EXPECT_EQ(instance1, contents->GetSiteInstance());
 }
 
 // Test that navigating across a site boundary after a crash creates a new
@@ -642,7 +638,7 @@ TEST_F(WebContentsTest, CrossSiteBoundariesAfterCrash) {
   TestRenderViewHost* orig_rvh = contents->rvh();
   int orig_rvh_delete_count = 0;
   orig_rvh->set_delete_counter(&orig_rvh_delete_count);
-  SiteInstance* instance1 = contents->site_instance();
+  SiteInstance* instance1 = contents->GetSiteInstance();
 
   // Navigate to URL.  First URL should use first RenderViewHost.
   const GURL url("http://www.google.com");
@@ -674,7 +670,7 @@ TEST_F(WebContentsTest, CrossSiteBoundariesAfterCrash) {
   ViewHostMsg_FrameNavigate_Params params2;
   InitNavigateParams(&params2, 1, url2);
   contents->TestDidNavigate(new_rvh, params2);
-  SiteInstance* instance2 = contents->site_instance();
+  SiteInstance* instance2 = contents->GetSiteInstance();
 
   EXPECT_TRUE(contents->state_is_normal());
   EXPECT_EQ(new_rvh, contents->render_view_host());
@@ -689,7 +685,7 @@ TEST_F(WebContentsTest, CrossSiteBoundariesAfterCrash) {
 TEST_F(WebContentsTest, CrossSiteInterstitialDontProceed) {
   contents->transition_cross_site = true;
   TestRenderViewHost* orig_rvh = contents->rvh();
-  SiteInstance* instance1 = contents->site_instance();
+  SiteInstance* instance1 = contents->GetSiteInstance();
 
   // Navigate to URL.  First URL should use first RenderViewHost.
   const GURL url("http://www.google.com");
@@ -740,7 +736,7 @@ TEST_F(WebContentsTest, CrossSiteInterstitialProceed) {
   int orig_rvh_delete_count = 0;
   TestRenderViewHost* orig_rvh = contents->rvh();
   orig_rvh->set_delete_counter(&orig_rvh_delete_count);
-  SiteInstance* instance1 = contents->site_instance();
+  SiteInstance* instance1 = contents->GetSiteInstance();
 
   // Navigate to URL.  First URL should use first RenderViewHost.
   const GURL url("http://www.google.com");
@@ -782,7 +778,7 @@ TEST_F(WebContentsTest, CrossSiteInterstitialProceed) {
   ViewHostMsg_FrameNavigate_Params params3;
   InitNavigateParams(&params3, 2, url2);
   contents->TestDidNavigate(pending_rvh, params3);
-  SiteInstance* instance2 = contents->site_instance();
+  SiteInstance* instance2 = contents->GetSiteInstance();
   EXPECT_TRUE(contents->state_is_normal());
   EXPECT_EQ(pending_rvh, contents->render_view_host());
   EXPECT_TRUE(contents->original_rvh() == NULL);
@@ -804,7 +800,7 @@ TEST_F(WebContentsTest, CrossSiteInterstitialProceed) {
   contents->TestDidNavigate(goback_rvh, params1);
   EXPECT_TRUE(contents->state_is_normal());
   EXPECT_EQ(goback_rvh, contents->render_view_host());
-  EXPECT_EQ(instance1, contents->site_instance());
+  EXPECT_EQ(instance1, contents->GetSiteInstance());
   EXPECT_EQ(pending_rvh_delete_count, 1);  // The second page's rvh should die.
 }
 
@@ -987,7 +983,7 @@ TEST_F(WebContentsTest, CrossSiteInterstitialCrashesThenNavigate) {
 TEST_F(WebContentsTest, NavigateTwoTabsCrossSite) {
   contents->transition_cross_site = true;
   TestRenderViewHost* orig_rvh = contents->rvh();
-  SiteInstance* instance1 = contents->site_instance();
+  SiteInstance* instance1 = contents->GetSiteInstance();
 
   // Navigate to URL.  First URL should use first RenderViewHost.
   const GURL url("http://www.google.com");
@@ -1010,7 +1006,7 @@ TEST_F(WebContentsTest, NavigateTwoTabsCrossSite) {
   ViewHostMsg_FrameNavigate_Params params2a;
   InitNavigateParams(&params2a, 1, url2a);
   contents->TestDidNavigate(pending_rvh_a, params2a);
-  SiteInstance* instance2a = contents->site_instance();
+  SiteInstance* instance2a = contents->GetSiteInstance();
   EXPECT_NE(instance1, instance2a);
 
   // Navigate second tab to the same site as the first tab
@@ -1027,7 +1023,7 @@ TEST_F(WebContentsTest, NavigateTwoTabsCrossSite) {
   ViewHostMsg_FrameNavigate_Params params2b;
   InitNavigateParams(&params2b, 2, url2b);
   contents2->TestDidNavigate(pending_rvh_b, params2b);
-  SiteInstance* instance2b = contents2->site_instance();
+  SiteInstance* instance2b = contents2->GetSiteInstance();
   EXPECT_NE(instance1, instance2b);
 
   // Both tabs should now be in the same SiteInstance.
@@ -1041,7 +1037,7 @@ TEST_F(WebContentsTest, NavigateTwoTabsCrossSite) {
 TEST_F(WebContentsTest, CrossSiteComparesAgainstCurrentPage) {
   contents->transition_cross_site = true;
   TestRenderViewHost* orig_rvh = contents->rvh();
-  SiteInstance* instance1 = contents->site_instance();
+  SiteInstance* instance1 = contents->GetSiteInstance();
 
   // Navigate to URL.
   const GURL url("http://www.google.com");
@@ -1063,7 +1059,7 @@ TEST_F(WebContentsTest, CrossSiteComparesAgainstCurrentPage) {
   ViewHostMsg_FrameNavigate_Params params2;
   InitNavigateParams(&params2, 2, url2);
   contents2->TestDidNavigate(rvh2, params2);
-  SiteInstance* instance2 = contents2->site_instance();
+  SiteInstance* instance2 = contents2->GetSiteInstance();
   EXPECT_NE(instance1, instance2);
   EXPECT_TRUE(contents2->state_is_normal());
 
@@ -1072,7 +1068,7 @@ TEST_F(WebContentsTest, CrossSiteComparesAgainstCurrentPage) {
   ViewHostMsg_FrameNavigate_Params params3;
   InitNavigateParams(&params3, 2, url2);
   contents->TestDidNavigate(orig_rvh, params3);
-  SiteInstance* instance3 = contents->site_instance();
+  SiteInstance* instance3 = contents->GetSiteInstance();
   EXPECT_EQ(instance1, instance3);
   EXPECT_TRUE(contents->state_is_normal());
 
@@ -1084,7 +1080,7 @@ TEST_F(WebContentsTest, CrossSiteComparesAgainstCurrentPage) {
   ViewHostMsg_FrameNavigate_Params params4;
   InitNavigateParams(&params4, 3, url3);
   contents->TestDidNavigate(orig_rvh, params4);
-  SiteInstance* instance4 = contents->site_instance();
+  SiteInstance* instance4 = contents->GetSiteInstance();
   EXPECT_EQ(instance1, instance4);
 
   contents2->CloseContents();
@@ -1095,7 +1091,7 @@ TEST_F(WebContentsTest, CrossSiteComparesAgainstCurrentPage) {
 TEST_F(WebContentsTest, CrossSiteUnloadHandlers) {
   contents->transition_cross_site = true;
   TestRenderViewHost* orig_rvh = contents->rvh();
-  SiteInstance* instance1 = contents->site_instance();
+  SiteInstance* instance1 = contents->GetSiteInstance();
 
   // Navigate to URL.  First URL should use first RenderViewHost.
   const GURL url("http://www.google.com");
@@ -1128,7 +1124,7 @@ TEST_F(WebContentsTest, CrossSiteUnloadHandlers) {
   ViewHostMsg_FrameNavigate_Params params2;
   InitNavigateParams(&params2, 1, url2);
   contents->TestDidNavigate(pending_rvh, params2);
-  SiteInstance* instance2 = contents->site_instance();
+  SiteInstance* instance2 = contents->GetSiteInstance();
   EXPECT_TRUE(contents->state_is_normal());
   EXPECT_EQ(pending_rvh, contents->render_view_host());
   EXPECT_NE(instance1, instance2);
@@ -1191,38 +1187,6 @@ TEST_F(WebContentsTest, NavigationEntryContentStateNewWindow) {
   // Should have a content state here.
   NavigationEntry* entry = contents->controller()->GetLastCommittedEntry();
   EXPECT_FALSE(entry->content_state().empty());
-}
-
-// Tests that IsInPageNavigation returns appropriate results.  Prevents
-// regression for bug 1126349.
-TEST_F(WebContentsTest, IsInPageNavigation) {
-  TestRenderViewHost* rvh = contents->rvh();
-
-  // Navigate to URL with no refs.
-  const GURL url("http://www.google.com/home.html");
-  contents->controller()->LoadURL(url, PageTransition::TYPED);
-  ViewHostMsg_FrameNavigate_Params params;
-  InitNavigateParams(&params, 1, url);
-  contents->TestDidNavigate(rvh, params);
-
-  // Reloading the page is not an in-page navigation.
-  EXPECT_FALSE(contents->TestIsInPageNavigation(url));
-  const GURL other_url("http://www.google.com/add.html");
-  EXPECT_FALSE(contents->TestIsInPageNavigation(other_url));
-  const GURL url_with_ref("http://www.google.com/home.html#my_ref");
-  EXPECT_TRUE(contents->TestIsInPageNavigation(url_with_ref));
-
-  // Navigate to URL with refs.
-  contents->controller()->LoadURL(url_with_ref, PageTransition::TYPED);
-  InitNavigateParams(&params, 2, url_with_ref);
-  contents->TestDidNavigate(rvh, params);
-
-  // Reloading the page is not an in-page navigation.
-  EXPECT_FALSE(contents->TestIsInPageNavigation(url_with_ref));
-  EXPECT_FALSE(contents->TestIsInPageNavigation(url));
-  EXPECT_FALSE(contents->TestIsInPageNavigation(other_url));
-  const GURL other_url_with_ref("http://www.google.com/home.html#my_other_ref");
-  EXPECT_TRUE(contents->TestIsInPageNavigation(other_url_with_ref));
 }
 
 // Tests to see that webkit preferences are properly loaded and copied over

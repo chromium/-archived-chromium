@@ -68,7 +68,7 @@ void SessionServiceTestHelper::AssertNavigationEquals(
 void SessionServiceTestHelper::AssertSingleWindowWithSingleTab(
     const std::vector<SessionWindow*>& windows,
     int nav_count) {
-  EXPECT_EQ(1, windows.size());
+  ASSERT_EQ(1, windows.size());
   EXPECT_EQ(1, windows[0]->tabs.size());
   EXPECT_EQ(nav_count, windows[0]->tabs[0]->navigations.size());
 }

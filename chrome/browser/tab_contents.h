@@ -134,6 +134,11 @@ class TabContents : public PageNavigator,
   // Updates the max PageID to be at least the given PageID.
   void UpdateMaxPageID(int32 page_id);
 
+  // Returns the site instance associated with the current page. By default,
+  // there is no site instance. WebContents overrides this to provide proper
+  // access to its site instance.
+  virtual SiteInstance* GetSiteInstance() const { return NULL; }
+
   // Initial title assigned to NavigationEntries from Navigate.
   virtual const std::wstring GetDefaultTitle() const;
 
@@ -274,17 +279,17 @@ class TabContents : public PageNavigator,
   bool is_active() const { return is_active_; }
 
   // Called by the NavigationController to cause the TabContents to navigate to
-  // the specified entry.  Either TabContents::DidNavigateToEntry or the
-  // navigation controller's DiscardPendingEntry method should be called in
-  // response (possibly sometime later).
+  // the current pending entry. The NavigationController should be called back
+  // with CommitPendingEntry/RendererDidNavigate on success or
+  // DiscardPendingEntry. The callbacks can be inside of this function, or at
+  // some future time.
   //
   // The entry has a PageID of -1 if newly created (corresponding to navigation
   // to a new URL).
   //
   // If this method returns false, then the navigation is discarded (equivalent
   // to calling DiscardPendingEntry on the NavigationController).
-  //
-  virtual bool Navigate(const NavigationEntry& entry, bool reload);
+  virtual bool NavigateToPendingEntry(bool reload);
 
   // Stop any pending navigation.
   virtual void Stop() {}
@@ -480,13 +485,6 @@ class TabContents : public PageNavigator,
   // |details| is used to provide details on the load that just finished
   // (but can be null if not applicable)
   void SetIsLoading(bool is_loading, LoadNotificationDetails* details);
-
-  // Called by subclasses when a navigation occurs.  Ownership of the entry
-  // object is passed to this method. The details object should be filled in
-  // *except* for the entry (which the NavigationController will set). This
-  // behaves the same as NavigationController::DidNavigate, see that for more.
-  void DidNavigateToEntry(NavigationEntry* entry,
-                          NavigationController::LoadCommittedDetails* details);
 
   // Called by a derived class when the TabContents is resized, causing
   // suppressed constrained web popups to be repositioned to the new bounds

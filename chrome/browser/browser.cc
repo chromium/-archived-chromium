@@ -540,7 +540,7 @@ void Browser::OpenURLFromTab(TabContents* source,
       if (web_contents) {
         const GURL& current_url = web_contents->GetURL();
         if (SiteInstance::IsSameWebSite(current_url, url))
-          instance = web_contents->site_instance();
+          instance = web_contents->GetSiteInstance();
       }
     }
   }

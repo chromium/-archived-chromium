@@ -210,20 +210,20 @@ void NativeUIContents::SetPageState(PageState* page_state) {
   state_.reset(page_state);
   NavigationController* ctrl = controller();
   if (ctrl) {
-    NavigationEntry* ne = ctrl->GetLastCommittedEntry();
+    int ne_index = ctrl->GetLastCommittedEntryIndex();
+    NavigationEntry* ne = ctrl->GetEntryAtIndex(ne_index);
     if (ne) {
       // NavigationEntry is null if we're being restored.
       DCHECK(ne);
       std::string rep;
       state_->GetByteRepresentation(&rep);
       ne->set_content_state(rep);
-      // This is not a WebContents, so we use a NULL SiteInstance.
-      ctrl->NotifyEntryChangedByPageID(type(), NULL, ne->page_id());
+      ctrl->NotifyEntryChanged(ne, ne_index);
     }
   }
 }
 
-bool NativeUIContents::Navigate(const NavigationEntry& entry, bool reload) {
+bool NativeUIContents::NavigateToPendingEntry(bool reload) {
   ChromeViews::RootView* root_view = GetRootView();
   DCHECK(root_view);
 
@@ -234,7 +234,8 @@ bool NativeUIContents::Navigate(const NavigationEntry& entry, bool reload) {
     current_view_ = NULL;
   }
 
-  NativeUI* new_ui = GetNativeUIForURL(entry.url());
+  NavigationEntry* pending_entry = controller()->GetPendingEntry();
+  NativeUI* new_ui = GetNativeUIForURL(pending_entry->url());
   if (new_ui) {
     current_ui_ = new_ui;
     is_visible_ = true;
@@ -242,9 +243,9 @@ bool NativeUIContents::Navigate(const NavigationEntry& entry, bool reload) {
     current_view_ = new_ui->GetView();
     root_view->AddChildView(current_view_);
 
-    std::string s = entry.content_state();
+    std::string s = pending_entry->content_state();
     if (s.empty())
-      state_->InitWithURL(entry.url());
+      state_->InitWithURL(pending_entry->url());
     else
       state_->InitWithBytes(s);
 
@@ -252,29 +253,32 @@ bool NativeUIContents::Navigate(const NavigationEntry& entry, bool reload) {
     Layout();
   }
 
-  NavigationEntry* new_entry = new NavigationEntry(entry);
-  if (new_entry->page_id() == -1)
-    new_entry->set_page_id(++g_next_page_id);
-  new_entry->set_title(GetDefaultTitle());
-  new_entry->favicon().set_bitmap(GetFavIcon());
-  new_entry->favicon().set_is_valid(true);
+  // Commit the new load in the navigation controller. If the ID of the
+  // NavigationEntry we were given was -1, that means this is a new load, so
+  // we have to generate a new ID.
+  controller()->CommitPendingEntry();
+
+  // Populate the committed entry.
+  NavigationEntry* committed_entry = controller()->GetLastCommittedEntry();
+  committed_entry->set_title(GetDefaultTitle());
+  committed_entry->favicon().set_bitmap(GetFavIcon());
+  committed_entry->favicon().set_is_valid(true);
   if (new_ui) {
     // Strip out the query params, they should have moved to state.
     // TODO(sky): use GURL methods for replacements once bug is fixed.
     size_t scheme_end, host_end;
-    GetSchemeAndHostEnd(entry.url(), &scheme_end, &host_end);
-    new_entry->set_url(GURL(entry.url().spec().substr(0, host_end)));
+    GetSchemeAndHostEnd(committed_entry->url(), &scheme_end, &host_end);
+    committed_entry->set_url(
+        GURL(committed_entry->url().spec().substr(0, host_end)));
   }
   std::string content_state;
   state_->GetByteRepresentation(&content_state);
-  new_entry->set_content_state(content_state);
-  const int32 page_id = new_entry->page_id();
+  committed_entry->set_content_state(content_state);
 
-  // The default details is "new navigation", and that's OK with us.
-  NavigationController::LoadCommittedDetails details;
-  DidNavigateToEntry(new_entry, &details);
-  // This is not a WebContents, so we use a NULL SiteInstance.
-  controller()->NotifyEntryChangedByPageID(type(), NULL, page_id);
+  // Broadcast the fact that we just updated all that crap.
+  controller()->NotifyEntryChanged(
+      committed_entry,
+      controller()->GetIndexOfEntry(committed_entry));
   return true;
 }
 

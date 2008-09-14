@@ -31,25 +31,8 @@ class TabStripModelTestTabContents : public TabContents {
   TabStripModelTestTabContents(const TabContentsType type)
       : TabContents(type) {
   }
-
-  bool Navigate(const NavigationEntry& entry, bool reload) {
-    NavigationEntry* pending_entry = new NavigationEntry(entry);
-    if (pending_entry->page_id() == -1) {
-      pending_entry->set_page_id(g_page_id_++);
-    }
-    NavigationController::LoadCommittedDetails details;
-    DidNavigateToEntry(pending_entry, &details);
-
-    return true;
-  }
-
- private:
-  // We need to use valid, incrementing page ids otherwise the TabContents
-  // and NavController will not play nice when we try to go back and forward.
-  static int g_page_id_;
 };
 
-int TabStripModelTestTabContents::g_page_id_ = 0;
 
 // This constructs our fake TabContents.
 class TabStripModelTestTabContentsFactory : public TabContentsFactory {

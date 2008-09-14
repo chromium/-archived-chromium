@@ -51,7 +51,7 @@ SSLBlockingPage::SSLBlockingPage(SSLManager::CertError* error,
 
     // Since WebContents::InterstitialPageGone won't be called, we need
     // to clear the last NavigationEntry manually.
-    tab_->controller()->RemoveLastEntry();
+    tab_->controller()->RemoveLastEntryForInterstitial();
   }
   (*tab_to_blocking_page_)[tab_] = this;
 
@@ -132,31 +132,31 @@ void SSLBlockingPage::Show() {
   int cert_id = CertStore::GetSharedInstance()->StoreCert(
       ssl_info.cert, tab->render_view_host()->process()->host_id());
 
-  NavigationEntry* nav_entry = new NavigationEntry(TAB_CONTENTS_WEB);
   if (tab_->controller()->GetPendingEntryIndex() == -1) {
-    // New navigation.
-    // We set the page ID to max page id so to ensure the controller considers
-    // this dummy entry a new one.  Because we'll remove the entry when the
-    // interstitial is going away, it will not conflict with any future
-    // navigations.
+    // For new navigations, we just create a new navigation entry.
+    NavigationEntry new_entry(TAB_CONTENTS_WEB);
+    new_entry.set_url(error_->request_url());
+    tab_->controller()->AddDummyEntryForInterstitial(new_entry);
     created_nav_entry_ = true;
-    nav_entry->set_page_id(tab_->GetMaxPageID() + 1);
-    nav_entry->set_url(error_->request_url());
   } else {
-    // Make sure to update the current entry ssl state to reflect the error.
-    *nav_entry = *(tab_->controller()->GetPendingEntry());
+    // When there is a pending entry index, that means we're doing a
+    // back/forward navigation. Clone that entry instead.
+    tab_->controller()->AddDummyEntryForInterstitial(
+        *tab_->controller()->GetPendingEntry());
   }
-  nav_entry->set_page_type(NavigationEntry::INTERSTITIAL_PAGE);
 
-  nav_entry->ssl().set_security_style(SECURITY_STYLE_AUTHENTICATION_BROKEN);
-  nav_entry->ssl().set_cert_id(cert_id);
-  nav_entry->ssl().set_cert_status(ssl_info.cert_status);
-  nav_entry->ssl().set_security_bits(ssl_info.security_bits);
-  // The controller will own the entry.
+  NavigationEntry* entry = tab_->controller()->GetActiveEntry();
+  entry->set_page_type(NavigationEntry::INTERSTITIAL_PAGE);
 
-  // The default details is "new navigation", and that's OK with us.
-  NavigationController::LoadCommittedDetails details;
-  tab_->controller()->DidNavigateToEntry(nav_entry, &details);
+  entry->ssl().set_security_style(SECURITY_STYLE_AUTHENTICATION_BROKEN);
+  entry->ssl().set_cert_id(cert_id);
+  entry->ssl().set_cert_status(ssl_info.cert_status);
+  entry->ssl().set_security_bits(ssl_info.security_bits);
+  NotificationService::current()->Notify(
+      NOTIFY_SSL_STATE_CHANGED,
+      Source<NavigationController>(tab_->controller()),
+      NotificationService::NoDetails());
+ 
   tab->ShowInterstitialPage(html_text, NULL);
 }
 
@@ -176,7 +176,7 @@ void SSLBlockingPage::Observe(NotificationType type,
       // as their navigation history is not saved.
       if (remove_last_entry_ && browser &&
           !browser->tabstrip_model()->closing_all()) {
-        tab_->controller()->RemoveLastEntry();
+        tab_->controller()->RemoveLastEntryForInterstitial();
       }
       delete this;
       break;
@@ -220,7 +220,7 @@ void SSLBlockingPage::DontProceed() {
 
   // We are navigating, remove the current entry before we mess with it.
   remove_last_entry_ = false;
-  tab_->controller()->RemoveLastEntry();
+  tab_->controller()->RemoveLastEntryForInterstitial();
 
   NavigationEntry* entry = tab_->controller()->GetActiveEntry();
   if (!entry) {

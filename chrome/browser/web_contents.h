@@ -65,10 +65,12 @@ class WebContents : public TabContents,
   // cancel the close of the page.
   virtual void FirePageUnload();
 
-
   // TabContents
   virtual WebContents* AsWebContents() { return this; }
-  virtual bool Navigate(const NavigationEntry& entry, bool reload);
+  virtual SiteInstance* GetSiteInstance() const {
+    return render_manager_.current_host()->site_instance();
+  }
+  virtual bool NavigateToPendingEntry(bool reload);
   virtual void Stop();
   virtual void DidBecomeSelected();
   virtual void WasHidden();
@@ -242,9 +244,6 @@ class WebContents : public TabContents,
   RenderViewHost* render_view_host() const {
     return render_manager_.current_host();
   }
-  SiteInstance* site_instance() const {
-    return render_manager_.current_host()->site_instance();
-  }
   RenderWidgetHostView* view() const {
     return render_manager_.current_view();
   }
@@ -324,7 +323,7 @@ class WebContents : public TabContents,
   bool notify_disconnection() const { return notify_disconnection_; }
 
  protected:
-  FRIEND_TEST(WebContentsTest, OnMessageReceived);
+  FRIEND_TEST(WebContentsTest, UpdateTitle);
 
   // Should be deleted via CloseContents.
   virtual ~WebContents();
@@ -545,11 +544,6 @@ class WebContents : public TabContents,
   //
   // These functions are helpers for Navigate() and DidNavigate().
 
-  // Creates a new navigation entry (malloced, the caller will have to free)
-  // for the given committed load. Used by DidNavigate. Will not return NULL.
-  NavigationEntry* CreateNavigationEntryForCommit(
-      const ViewHostMsg_FrameNavigate_Params& params);
-
   // Handles post-navigation tasks in DidNavigate AFTER the entry has been
   // committed to the navigation controller. Note that the navigation entry is
   // not provided since it may be invalid/changed after being committed. The
@@ -565,17 +559,6 @@ class WebContents : public TabContents,
   // Called when navigating the main frame to close all child windows if the
   // domain is changing.
   void MaybeCloseChildWindows(const ViewHostMsg_FrameNavigate_Params& params);
-
-  // Broadcasts a notification for the provisional load committing, used by
-  // DidNavigate.
-  void BroadcastProvisionalLoadCommit(
-      RenderViewHost* render_view_host,
-      const ViewHostMsg_FrameNavigate_Params& params);
-
-  // Convenience method that returns true if navigating to the specified URL
-  // from the current one is an in-page navigation (jumping to a ref in the
-  // page).
-  bool IsInPageNavigation(const GURL& url) const;
 
   // Updates the starred state from the bookmark bar model. If the state has
   // changed, the delegate is notified.

@@ -797,15 +797,9 @@ void NewTabUIContents::AttachMessageHandlers() {
   }
 }
 
-bool NewTabUIContents::Navigate(const NavigationEntry& entry, bool reload) {
-  const bool result = WebContents::Navigate(entry, reload);
-
-  // Force the title to say 'New tab', even when loading. The supplied entry is
-  // also the pending entry.
-  NavigationEntry* pending_entry = controller()->GetPendingEntry();
-  DCHECK(pending_entry && pending_entry == &entry);
-  pending_entry->set_title(forced_title_);
-
+bool NewTabUIContents::NavigateToPendingEntry(bool reload) {
+  const bool result = WebContents::NavigateToPendingEntry(reload);
+  controller()->GetPendingEntry()->set_title(forced_title_);
   return result;
 }
 

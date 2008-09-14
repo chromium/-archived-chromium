@@ -104,12 +104,6 @@ void InitWebContentsClass() {
   }
 }
 
-GURL GURLWithoutRef(const GURL& url) {
-  url_canon::Replacements<char> replacements;
-  replacements.ClearRef();
-  return url.ReplaceComponents(replacements);
-}
-
 }  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -570,22 +564,23 @@ void WebContents::SavePage(const std::wstring& main_file,
 //   DidNavigate method.  This replaces the current RVH with the
 //   pending RVH and goes back to the NORMAL RendererState.
 
-bool WebContents::Navigate(const NavigationEntry& entry, bool reload) {
-  RenderViewHost* dest_render_view_host = render_manager_.Navigate(entry);
+bool WebContents::NavigateToPendingEntry(bool reload) {
+  NavigationEntry* entry = controller()->GetPendingEntry();
+  RenderViewHost* dest_render_view_host = render_manager_.Navigate(*entry);
 
   // Used for page load time metrics.
   current_load_start_ = TimeTicks::Now();
 
-  // Navigate in the desired RenderViewHost
-  dest_render_view_host->NavigateToEntry(entry, reload);
+  // Navigate in the desired RenderViewHost.
+  dest_render_view_host->NavigateToEntry(*entry, reload);
 
-  if (entry.page_id() == -1) {
+  if (entry->page_id() == -1) {
     // HACK!!  This code suppresses javascript: URLs from being added to
     // session history, which is what we want to do for javascript: URLs that
     // do not generate content.  What we really need is a message from the
     // renderer telling us that a new page was not created.  The same message
     // could be used for mailto: URLs and the like.
-    if (entry.url().SchemeIs("javascript"))
+    if (entry->url().SchemeIs("javascript"))
       return false;
   }
 
@@ -593,7 +588,7 @@ bool WebContents::Navigate(const NavigationEntry& entry, bool reload) {
     HistoryService* history =
         profile()->GetHistoryService(Profile::IMPLICIT_ACCESS);
     if (history)
-      history->SetFavIconOutOfDateForPage(entry.url());
+      history->SetFavIconOutOfDateForPage(entry->url());
   }
 
   return true;
@@ -1020,7 +1015,7 @@ PluginInstaller* WebContents::GetPluginInstaller() {
 bool WebContents::IsActiveEntry(int32 page_id) {
   NavigationEntry* active_entry = controller()->GetActiveEntry();
   return (active_entry != NULL &&
-          active_entry->site_instance() == site_instance() &&
+          active_entry->site_instance() == GetSiteInstance() &&
           active_entry->page_id() == page_id);
 }
 
@@ -1039,7 +1034,7 @@ Profile* WebContents::GetProfile() const {
 
 void WebContents::CreateView(int route_id, HANDLE modal_dialog_event) {
   WebContents* new_view = new WebContents(profile(),
-                                          site_instance(),
+                                          GetSiteInstance(),
                                           render_view_factory_,
                                           route_id,
                                           modal_dialog_event);
@@ -1179,83 +1174,16 @@ void WebContents::DidNavigate(RenderViewHost* rvh,
     render_manager_.DidNavigateMainFrame(rvh);
 
   // In the case of interstitial, we don't mess with the navigation entries.
+  // TODO(brettw) this seems like a bug. What happens if the page goes and
+  // does something on its own (or something that just got delayed), then
+  // we won't have a navigation entry for that stuff when the interstitial
+  // is hidden.
   if (render_manager_.showing_interstitial_page())
     return;
 
-  // Check for navigations we don't expect.
-  if (!controller() || !is_active_ || params.page_id == -1) {
-    if (params.page_id == -1) {
-      DCHECK(controller()->GetActiveEntry() == NULL)
-          << "The renderer is permitted to send a FrameNavigate event for an "
-             "invalid |page_id| if, and only if, this is the initial blank "
-             "page for a main frame.";
-    }
-    BroadcastProvisionalLoadCommit(rvh, params);
-    return;
-  }
-
-  // Generate the details for the notification.
-  // TODO(brettw) bug 1343146: Move into the NavigationController.
-  NavigationController::LoadCommittedDetails details;
-  // WebKit doesn't set the "auto" transition on meta refreshes properly (bug
-  // 1051891) so we manually set it for redirects which we normally treat as
-  // "non-user-gestures" where we want to update stuff after navigations.
-  //
-  // Note that the redirect check also checks for a pending entry to
-  // differentiate real redirects from browser initiated navigations to a
-  // redirected entry. This happens when you hit back to go to a page that was
-  // the destination of a redirect, we don't want to treat it as a redirect
-  // even though that's what its transition will be. See bug  1117048.
-  //
-  // TODO(brettw) write a test for this complicated logic.
-  details.is_auto = (PageTransition::IsRedirect(params.transition) &&
-                     !controller()->GetPendingEntry()) ||
-      params.gesture == NavigationGestureAuto;
-  details.is_in_page = IsInPageNavigation(params.url);
-  details.is_main_frame = PageTransition::IsMainFrame(params.transition);
-
-  // DO NOT ADD MORE STUFF TO THIS FUNCTION!  Don't make me come over there!
-  // =======================================================================
-  // Add your code to DidNavigateAnyFramePostCommit if you have a helper object
-  // that needs to know about all navigations. If it needs to do it only for
-  // main frame or sub-frame navigations, add your code to
-  // DidNavigate*PostCommit.
-
-  // Create the new navigation entry for this navigation and do work specific to
-  // this frame type. The main frame / sub frame functions will do additional
-  // updates to the NavigationEntry appropriate for the navigation type (in
-  // addition to a lot of other stuff).
-  scoped_ptr<NavigationEntry> entry(CreateNavigationEntryForCommit(params));
-
-  // Commit the entry to the navigation controller.
-  DidNavigateToEntry(entry.release(), &details);
-  // WARNING: NavigationController will have taken ownership of entry at this
-  // point, and may have deleted it. As such, do NOT use entry after this.
-
-  // Run post-commit tasks.
-  if (details.is_main_frame)
-    DidNavigateMainFramePostCommit(details, params);
-  DidNavigateAnyFramePostCommit(rvh, details, params);
-}
-
-// TODO(brettw) bug 1343146: This logic should be moved to NavigationController.
-NavigationEntry* WebContents::CreateNavigationEntryForCommit(
-    const ViewHostMsg_FrameNavigate_Params& params) {
-  // This new navigation entry will represent the navigation. Note that we
-  // don't set the URL. This will happen in the DidNavigateMainFrame/SubFrame
-  // because the entry's URL should represent the toplevel frame only.
-  NavigationEntry* entry = new NavigationEntry(type());
-  if (PageTransition::IsMainFrame(params.transition))
-    entry->set_url(params.url);
-  entry->set_page_id(params.page_id);
-  entry->set_transition_type(params.transition);
-  entry->set_site_instance(site_instance());
-
-  // Now that we've assigned a SiteInstance to this entry, we need to
-  // assign it to the NavigationController's pending entry as well.  This
-  // allows us to find it via GetEntryWithPageID, etc.
-  if (controller()->GetPendingEntry())
-    controller()->GetPendingEntry()->set_site_instance(entry->site_instance());
+  // We can't do anything about navigations when we're inactive.
+  if (!controller() || !is_active_)
+    return;  
 
   // Update the site of the SiteInstance if it doesn't have one yet, unless we
   // are showing an interstitial page.  If we are, we should wait until the
@@ -1264,67 +1192,26 @@ NavigationEntry* WebContents::CreateNavigationEntryForCommit(
   // TODO(brettw) the old code only checked for INTERSTIAL, this new code also
   // checks for LEAVING_INTERSTITIAL mode in the manager. Is this difference
   // important?
-  if (!site_instance()->has_site() &&
+  if (!GetSiteInstance()->has_site() &&
       !render_manager_.showing_interstitial_page())
-    site_instance()->SetSite(params.url);
+    GetSiteInstance()->SetSite(params.url);
 
-  // When the navigation is just a change in ref or a sub-frame navigation, the
-  // new page should inherit the existing entry's title and favicon, since it
-  // will be the same.  A change in ref also inherits the security style and SSL
-  // associated info.
-  bool in_page_nav;
-  if ((in_page_nav = IsInPageNavigation(params.url)) ||
-      !PageTransition::IsMainFrame(params.transition)) {
-    // In the case of a sub-frame navigation within a window that was created
-    // without an URL (via window.open), we may not have a committed entry yet!
-    NavigationEntry* old_entry = controller()->GetLastCommittedEntry();
-    if (old_entry) {
-      entry->set_title(old_entry->title());
-      entry->favicon() = old_entry->favicon();
-      if (in_page_nav)
-        entry->ssl() = old_entry->ssl();
-    }
-  }
+  NavigationController::LoadCommittedDetails details;
+  if (!controller()->RendererDidNavigate(
+      params,
+      render_manager_.IsRenderViewInterstitial(rvh),
+      &details))
+    return;  // No navigation happened.
 
-  if (PageTransition::IsMainFrame(params.transition)) {
-    NavigationEntry* pending = controller()->GetPendingEntry();
-    if (pending) {
-      // Copy fields from the pending NavigationEntry into the actual
-      // NavigationEntry that we're committing to.
-      entry->set_user_typed_url(pending->user_typed_url());
-      if (pending->has_display_url())
-        entry->set_display_url(pending->display_url());
-      if (pending->url().SchemeIsFile())
-        entry->set_title(pending->title());
-      entry->set_content_state(pending->content_state());
-    }
-    entry->set_has_post_data(params.is_post);
-  } else {
-    NavigationEntry* last_committed = controller()->GetLastCommittedEntry();
-    if (last_committed) {
-      // In the case of a sub-frame navigation within a window that was created
-      // without an URL (window.open), we may not have a committed entry yet!
+  // DO NOT ADD MORE STUFF TO THIS FUNCTION! Your component should either listen
+  // for the appropriate notification (best) or you can add it to
+  // DidNavigateMainFramePostCommit / DidNavigateAnyFramePostCommit (only if
+  // necessary, please).
 
-      // Reset entry state to match that of the pending entry.
-      entry->set_unique_id(last_committed->unique_id());
-      entry->set_url(last_committed->url());
-      entry->set_transition_type(last_committed->transition_type());
-      entry->set_user_typed_url(last_committed->user_typed_url());
-      entry->set_content_state(last_committed->content_state());
-
-      // TODO(jcampan): when navigating to an insecure/unsafe inner frame, the
-      // main entry is the one that gets notified of the mixed/unsafe contents
-      // (see SSLPolicy::OnRequestStarted()). Here we are just transferring
-      // that state. We should find a better way to do this. Note that it is OK
-      // that the mixed/unsafe contents is set on the wrong navigation entry, as
-      // that state is reset when navigating back to it.
-      DCHECK(entry->ssl().content_status() == 0) << "We should never "
-          "be setting the status bits from 1 to 0 on navigate.";
-      entry->ssl() = last_committed->ssl();
-    }
-  }
-
-  return entry;
+  // Run post-commit tasks.
+  if (details.is_main_frame)
+    DidNavigateMainFramePostCommit(details, params);
+  DidNavigateAnyFramePostCommit(rvh, details, params);
 }
 
 void WebContents::DidNavigateMainFramePostCommit(
@@ -1413,17 +1300,11 @@ void WebContents::DidNavigateAnyFramePostCommit(
     UpdateHistoryForNavigation(GetURL(), params);
   }
 
-  // Have the controller save the current session.
-  controller()->NotifyEntryChangedByPageID(type(), site_instance(),
-                                           details.entry->page_id());
-
   // Notify the password manager of the navigation or form submit.
   // TODO(brettw) bug 1343111: Password manager stuff in here needs to be
   // cleaned up and covered by tests.
   if (params.password_form.origin.is_valid())
     GetPasswordManager()->ProvisionallySavePassword(params.password_form);
-
-  BroadcastProvisionalLoadCommit(render_view_host, params);
 }
 
 bool WebContents::IsWebApplicationActive() const {
@@ -1443,20 +1324,6 @@ void WebContents::WebAppImagesChanged(WebApp* web_app) {
   DCHECK(web_app == web_app_.get());
   if (delegate() && IsWebApplicationActive())
     delegate()->NavigationStateChanged(this, TabContents::INVALIDATE_FAVICON);
-}
-
-void WebContents::BroadcastProvisionalLoadCommit(
-    RenderViewHost* render_view_host,
-    const ViewHostMsg_FrameNavigate_Params& params) {
-  ProvisionalLoadDetails details(
-      PageTransition::IsMainFrame(params.transition),
-      render_manager_.IsRenderViewInterstitial(render_view_host),
-      IsInPageNavigation(params.url),
-      params.url, params.security_info);
-  NotificationService::current()->
-      Notify(NOTIFY_FRAME_PROVISIONAL_LOAD_COMMITTED,
-             Source<NavigationController>(controller()),
-             Details<ProvisionalLoadDetails>(&details));
 }
 
 void WebContents::UpdateStarredStateForCurrentURL() {
@@ -1511,11 +1378,11 @@ void WebContents::UpdateState(RenderViewHost* rvh,
   // the next page. The navigation controller will look up the appropriate
   // NavigationEntry and update it when it is notified via the delegate.
 
-  NavigationEntry* entry = controller()->GetEntryWithPageID(
-      type(), site_instance(), page_id);
-  if (!entry)
+  int entry_index = controller()->GetEntryIndexWithPageID(
+      type(), GetSiteInstance(), page_id);
+  if (entry_index < 0)
     return;
-
+  NavigationEntry* entry = controller()->GetEntryAtIndex(entry_index);
   unsigned changed_flags = 0;
 
   // Update the URL.
@@ -1558,7 +1425,7 @@ void WebContents::UpdateState(RenderViewHost* rvh,
   // Notify everybody of the changes (only when the current page changed).
   if (changed_flags && entry == controller()->GetActiveEntry())
     NotifyNavigationStateChanged(changed_flags);
-  controller()->NotifyEntryChangedByPageID(type(), site_instance(), page_id);
+  controller()->NotifyEntryChanged(entry, entry_index);
 }
 
 void WebContents::UpdateTitle(RenderViewHost* rvh,
@@ -1579,7 +1446,8 @@ void WebContents::UpdateTitle(RenderViewHost* rvh,
     // so just use that.
     entry = controller()->GetLastCommittedEntry();
   } else {
-    entry = controller()->GetEntryWithPageID(type(), site_instance(), page_id);
+    entry = controller()->GetEntryWithPageID(type(), GetSiteInstance(),
+                                             page_id);
   }
 
   if (!entry)
@@ -1685,7 +1553,7 @@ void WebContents::DidStartProvisionalLoadForFrame(
   ProvisionalLoadDetails details(
       is_main_frame,
       render_manager_.IsRenderViewInterstitial(render_view_host),
-      IsInPageNavigation(url),
+      controller()->IsURLInPageNavigation(url),
       url, std::string());
   NotificationService::current()->
       Notify(NOTIFY_FRAME_PROVISIONAL_LOAD_START,
@@ -1697,12 +1565,14 @@ void WebContents::DidRedirectProvisionalLoad(int32 page_id,
                                              const GURL& source_url,
                                              const GURL& target_url) {
   NavigationEntry* entry;
-  if (page_id == -1)
+  if (page_id == -1) {
     entry = controller()->GetPendingEntry();
-  else
-    entry = controller()->GetEntryWithPageID(type(), site_instance(), page_id);
+  } else {
+    entry = controller()->GetEntryWithPageID(type(), GetSiteInstance(),
+                                             page_id);
+  }
   if (!entry || entry->tab_type() != type() || entry->url() != source_url)
-      return;
+    return;
   entry->set_url(target_url);
 }
 
@@ -1750,7 +1620,7 @@ void WebContents::DidFailProvisionalLoadWithError(
   ProvisionalLoadDetails details(
       is_main_frame,
       render_manager_.IsRenderViewInterstitial(render_view_host),
-      IsInPageNavigation(url),
+      controller()->IsURLInPageNavigation(url),
       url, std::string());
   details.set_error_code(error_code);
 
@@ -2464,18 +2334,6 @@ void WebContents::FileSelectionCanceled(void* params) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-bool WebContents::IsInPageNavigation(const GURL& url) const {
-  // We compare to the last committed entry and not the active entry as the
-  // active entry is the current pending entry (if any).
-  // When this method is called when a navigation initiated from the browser
-  // (ex: when typing the URL in the location bar) is committed, the pending
-  // entry URL is the same as |url|.
-  NavigationEntry* entry = controller()->GetLastCommittedEntry();
-  return (entry && url.has_ref() &&
-         (url != entry->url()) &&  // Test for reload of a URL with a ref.
-          GURLWithoutRef(entry->url()) == GURLWithoutRef(url));
-}
 
 SkBitmap WebContents::GetFavIcon() {
   if (web_app_.get() && IsWebApplicationActive()) {

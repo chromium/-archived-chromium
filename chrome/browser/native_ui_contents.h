@@ -52,7 +52,7 @@ class NativeUIContents : public TabContents,
   //
   // TabContents implementation
   //
-  virtual bool Navigate(const NavigationEntry& entry, bool reload);
+  virtual bool NavigateToPendingEntry(bool reload);
   virtual const std::wstring GetDefaultTitle() const;
   virtual SkBitmap GetFavIcon() const;
   virtual bool ShouldDisplayURL() { return false; }

@@ -658,7 +658,7 @@ void SSLManager::DidCommitProvisionalLoad(ProvisionalLoadDetails* details) {
     NotificationService::current()->Notify(
         NOTIFY_SSL_STATE_CHANGED,
         Source<NavigationController>(controller_),
-        Details<NavigationEntry>(controller_->GetActiveEntry()));
+        NotificationService::NoDetails());
   }
 }
 

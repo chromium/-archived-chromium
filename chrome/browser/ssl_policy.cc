@@ -448,7 +448,7 @@ void SSLPolicy::OnRequestStarted(SSLManager* manager, const GURL& url,
     NotificationService::current()->Notify(
         NOTIFY_SSL_STATE_CHANGED,
         Source<NavigationController>(manager->controller()),
-        Details<NavigationEntry>(entry));
+        NotificationService::NoDetails());
   }
 }
 

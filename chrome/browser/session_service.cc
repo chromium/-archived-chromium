@@ -424,11 +424,16 @@ void SessionService::Observe(NotificationType type,
                           changed->index, *changed->changed_entry);
       break;
     }
-    case NOTIFY_NAV_ENTRY_COMMITTED:
+    case NOTIFY_NAV_ENTRY_COMMITTED: {
+      int current_entry_index = controller->GetCurrentEntryIndex();
       SetSelectedNavigationIndex(controller->window_id(),
                                  controller->session_id(),
-                                 controller->GetCurrentEntryIndex());
+                                 current_entry_index);
+      UpdateTabNavigation(controller->window_id(), controller->session_id(),
+                          current_entry_index,
+                          *controller->GetEntryAtIndex(current_entry_index));
       break;
+    }
     default:
       NOTREACHED();
   }

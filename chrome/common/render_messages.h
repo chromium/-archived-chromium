@@ -61,11 +61,11 @@ struct ViewHostMsg_FrameNavigate_Params {
   // iframes are loaded automatically.
   int32 page_id;
 
-  // URL of the page being loaded. NON-CANONICAL.
+  // URL of the page being loaded.
   GURL url;
 
   // URL of the referrer of this load. WebKit generates this based on the
-  // source of the event that caused the load. NON-CANONICAL.
+  // source of the event that caused the load.
   GURL referrer;
 
   // The type of transition.

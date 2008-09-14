@@ -169,20 +169,10 @@ void SafeBrowsingBlockingPage::DisplayBlockingPage() {
   // (typically the navigation was initiated by the page), we create a fake
   // navigation entry (so the location bar shows the page's URL).
   if (is_main_frame_ && tab_->controller()->GetPendingEntryIndex() == -1) {
-    // New navigation.
-    NavigationEntry* nav_entry = new NavigationEntry(TAB_CONTENTS_WEB);
-
-    // We set the page ID to max page id so to ensure the controller considers
-    // this dummy entry a new one.  Because we'll remove the entry when the
-    // interstitial is going away, it will not conflict with any future
-    // navigations.
-    nav_entry->set_page_id(tab_->GetMaxPageID() + 1);
-    nav_entry->set_page_type(NavigationEntry::INTERSTITIAL_PAGE);
-    nav_entry->set_url(url_);
-
-    // The default details is "new navigation", and that's OK with us.
-    NavigationController::LoadCommittedDetails details;
-    tab_->controller()->DidNavigateToEntry(nav_entry, &details);
+    NavigationEntry new_entry(TAB_CONTENTS_WEB);
+    new_entry.set_url(url_);
+    new_entry.set_page_type(NavigationEntry::INTERSTITIAL_PAGE);
+    tab_->controller()->AddDummyEntryForInterstitial(new_entry);
     created_temporary_entry_ = true;
   }
 
@@ -244,7 +234,7 @@ bool SafeBrowsingBlockingPage::GoBack() {
   // Remove the navigation entry for the malware page.  Note that we always
   // remove the entry even if we did not create it as it has been flagged as
   // malware and we don't want the user navigating back to it.
-  web_contents->controller()->RemoveLastEntry();
+  web_contents->controller()->RemoveLastEntryForInterstitial();
 
   return true;
 }
@@ -296,7 +286,7 @@ void SafeBrowsingBlockingPage::Continue(const std::string& user_action) {
     // We are continuing, if we have created a temporary navigation entry,
     // delete it as a new will be created on navigation.
     if (created_temporary_entry_)
-      web->controller()->RemoveLastEntry();
+      web->controller()->RemoveLastEntryForInterstitial();
     if (is_main_frame_)
       web->HideInterstitialPage(true, true);
     else
