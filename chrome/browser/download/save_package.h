@@ -15,8 +15,8 @@
 // by the SavePackage. SaveItems are created when a user initiates a page
 // saving job, and exist for the duration of one tab's life time.
 
-#ifndef CHROME_BROWSER_SAVE_PACKAGE_H__
-#define CHROME_BROWSER_SAVE_PACKAGE_H__
+#ifndef CHROME_BROWSER_DOWNLOAD_SAVE_PACKAGE_H__
+#define CHROME_BROWSER_DOWNLOAD_SAVE_PACKAGE_H__
 
 #include <string>
 #include <vector>
@@ -28,8 +28,8 @@
 #include "base/ref_counted.h"
 #include "base/time.h"
 #include "chrome/common/pref_member.h"
-#include "chrome/browser/save_item.h"
-#include "chrome/browser/save_types.h"
+#include "chrome/browser/download/save_item.h"
+#include "chrome/browser/download/save_types.h"
 
 class SaveFileManager;
 class SavePackage;
@@ -306,4 +306,4 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage> {
   DISALLOW_EVIL_CONSTRUCTORS(SavePackage);
 };
 
-#endif  // CHROME_BROWSER_SAVE_PACKAGE_H__
+#endif  // CHROME_BROWSER_DOWNLOAD_SAVE_PACKAGE_H__

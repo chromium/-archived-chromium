@@ -562,50 +562,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\save_file.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\save_file.h"
-				>
-			</File>
-			<File
-				RelativePath=".\save_file_manager.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\save_file_manager.h"
-				>
-			</File>
-			<File
-				RelativePath=".\save_item.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\save_item.h"
-				>
-			</File>
-			<File
-				RelativePath=".\save_package.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\save_package.h"
-				>
-			</File>
-			<File
-				RelativePath=".\save_page_model.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\save_page_model.h"
-				>
-			</File>
-			<File
-				RelativePath=".\save_types.h"
-				>
-			</File>
-			<File
 				RelativePath=".\session_crashed_view.cc"
 				>
 			</File>
@@ -2023,6 +1979,54 @@
 			</File>
 			<File
 				RelativePath=".\download\download_util.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Save Page"
+			>
+			<File
+				RelativePath=".\download\save_file.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\download\save_file.h"
+				>
+			</File>
+			<File
+				RelativePath=".\download\save_file_manager.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\download\save_file_manager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\download\save_item.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\download\save_item.h"
+				>
+			</File>
+			<File
+				RelativePath=".\download\save_package.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\download\save_package.h"
+				>
+			</File>
+			<File
+				RelativePath=".\download\save_page_model.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\download\save_page_model.h"
+				>
+			</File>
+			<File
+				RelativePath=".\download\save_types.h"
 				>
 			</File>
 		</Filter>

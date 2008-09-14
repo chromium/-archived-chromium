@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_SAVE_TYPES_H__
-#define CHROME_BROWSER_SAVE_TYPES_H__
+#ifndef CHROME_BROWSER_DOWNLOAD_SAVE_TYPES_H__
+#define CHROME_BROWSER_DOWNLOAD_SAVE_TYPES_H__
 
 #include <vector>
 #include <utility>
@@ -67,5 +67,5 @@ struct SaveFileCreateInfo {
   SaveFileSource save_source;
 };
 
-#endif  // CHROME_BROWSER_SAVE_TYPES_H__
+#endif  // CHROME_BROWSER_DOWNLOAD_SAVE_TYPES_H__
 

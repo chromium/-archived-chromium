@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/logging.h"
-#include "chrome/browser/save_package.h"
+#include "chrome/browser/download/save_package.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 //    0         1         2         3         4         5         6

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/save_package.h"
+#include "chrome/browser/download/save_package.h"
 
 #include "base/file_util.h"
 #include "base/logging.h"
@@ -14,14 +14,14 @@
 #include "base/win_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/download/save_file.h"
+#include "chrome/browser/download/save_file_manager.h"
+#include "chrome/browser/download/save_page_model.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/render_process_host.h"
 #include "chrome/browser/render_view_host.h"
 #include "chrome/browser/render_view_host_delegate.h"
 #include "chrome/browser/resource_dispatcher_host.h"
-#include "chrome/browser/save_file.h"
-#include "chrome/browser/save_file_manager.h"
-#include "chrome/browser/save_page_model.h"
 #include "chrome/browser/tab_util.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/browser/views/download_shelf_view.h"

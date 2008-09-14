@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/save_file.h"
+#include "chrome/browser/download/save_file.h"
 
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
-#include "chrome/browser/save_types.h"
+#include "chrome/browser/download/save_types.h"
 #include "chrome/common/win_util.h"
 #include "chrome/common/win_safe_util.h"
 

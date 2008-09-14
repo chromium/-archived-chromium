@@ -786,7 +786,7 @@
 			Name="TestSavePage"
 			>
 			<File
-				RelativePath="..\..\browser\save_package_unittest.cc"
+				RelativePath="..\..\browser\download\save_package_unittest.cc"
 				>
 			</File>
 		</Filter>

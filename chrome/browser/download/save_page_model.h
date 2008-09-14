@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_SAVE_PAGE_MODEL_H__
-#define CHROME_BROWSER_SAVE_PAGE_MODEL_H__
+#ifndef CHROME_BROWSER_DOWNLOAD_SAVE_PAGE_MODEL_H__
+#define CHROME_BROWSER_DOWNLOAD_SAVE_PAGE_MODEL_H__
 
 #include "chrome/browser/views/download_item_view.h"
 
@@ -34,5 +34,5 @@ class SavePageModel : public DownloadItemView::BaseDownloadItemModel {
   DISALLOW_EVIL_CONSTRUCTORS(SavePageModel);
 };
 
-#endif  // CHROME_BROWSER_SAVE_PAGE_MODEL_H__
+#endif  // CHROME_BROWSER_DOWNLOAD_SAVE_PAGE_MODEL_H__
 

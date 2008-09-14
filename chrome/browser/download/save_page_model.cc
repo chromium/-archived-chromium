@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/save_page_model.h"
+#include "chrome/browser/download/save_page_model.h"
 
 #include "base/string_util.h"
 #include "chrome/browser/download/download_manager.h"
-#include "chrome/browser/save_package.h"
+#include "chrome/browser/download/save_package.h"
 #include "chrome/common/l10n_util.h"
 
 #include "generated_resources.h"

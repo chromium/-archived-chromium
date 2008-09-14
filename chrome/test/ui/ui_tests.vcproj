@@ -510,7 +510,7 @@
 			Name="TestSavePage"
 			>
 			<File
-				RelativePath="..\..\browser\save_page_uitest.cc"
+				RelativePath="..\..\browser\download\save_page_uitest.cc"
 				>
 			</File>
 		</Filter>

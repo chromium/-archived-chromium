@@ -5,7 +5,7 @@
 #include <Windows.h>
 #include <objbase.h>
 
-#include "chrome/browser/save_file_manager.h"
+#include "chrome/browser/download/save_file_manager.h"
 
 #include "base/file_util.h"
 #include "base/logging.h"
@@ -13,9 +13,9 @@
 #include "base/string_util.h"
 #include "base/task.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/download/save_file.h"
+#include "chrome/browser/download/save_package.h"
 #include "chrome/browser/resource_dispatcher_host.h"
-#include "chrome/browser/save_file.h"
-#include "chrome/browser/save_package.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/tab_util.h"
 #include "chrome/browser/web_contents.h"

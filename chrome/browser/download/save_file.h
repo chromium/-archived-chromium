@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_SAVE_FILE_H__
-#define CHROME_BROWSER_SAVE_FILE_H__
+#ifndef CHROME_BROWSER_DOWNLOAD_SAVE_FILE_H__
+#define CHROME_BROWSER_DOWNLOAD_SAVE_FILE_H__
 
 #include <string>
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
-#include "chrome/browser/save_types.h"
+#include "chrome/browser/download/save_types.h"
 
 // SaveFile ----------------------------------------------------------------
 
@@ -76,5 +76,5 @@ class SaveFile {
   DISALLOW_EVIL_CONSTRUCTORS(SaveFile);
 };
 
-#endif  // CHROME_BROWSER_SAVE_FILE_H__
+#endif  // CHROME_BROWSER_DOWNLOAD_SAVE_FILE_H__
 

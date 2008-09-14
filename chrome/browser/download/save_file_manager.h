@@ -55,8 +55,8 @@
 // during saving, the SavePackage will notice the SaveFileManage to
 // cancel all SaveFile job.
 
-#ifndef CHROME_BROWSER_SAVE_FILE_MANAGER_H__
-#define CHROME_BROWSER_SAVE_FILE_MANAGER_H__
+#ifndef CHROME_BROWSER_DOWNLOAD_SAVE_FILE_MANAGER_H__
+#define CHROME_BROWSER_DOWNLOAD_SAVE_FILE_MANAGER_H__
 
 #include <utility>
 
@@ -64,7 +64,7 @@
 #include "base/hash_tables.h"
 #include "base/ref_counted.h"
 #include "base/thread.h"
-#include "chrome/browser/save_types.h"
+#include "chrome/browser/download/save_types.h"
 
 class GURL;
 class SaveFile;
@@ -259,4 +259,4 @@ class SaveFileManager
   DISALLOW_EVIL_CONSTRUCTORS(SaveFileManager);
 };
 
-#endif  // CHROME_BROWSER_SAVE_FILE_MANAGER_H__
+#endif  // CHROME_BROWSER_DOWNLOAD_SAVE_FILE_MANAGER_H__

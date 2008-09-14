@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
-#ifndef CHROME_BROWSER_SAVE_ITEM_H__
-#define CHROME_BROWSER_SAVE_ITEM_H__
+#ifndef CHROME_BROWSER_DOWNLOAD_SAVE_ITEM_H__
+#define CHROME_BROWSER_DOWNLOAD_SAVE_ITEM_H__
 
 #include <string>
 
 #include "base/basictypes.h"
-#include "chrome/browser/save_types.h"
+#include "chrome/browser/download/save_types.h"
 
 class SavePackage;
 
@@ -108,5 +108,5 @@ class SaveItem {
   DISALLOW_EVIL_CONSTRUCTORS(SaveItem);
 };
 
-#endif  // CHROME_BROWSER_SAVE_ITEM_H__
+#endif  // CHROME_BROWSER_DOWNLOAD_SAVE_ITEM_H__
 

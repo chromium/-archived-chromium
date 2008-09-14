@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/save_item.h"
+#include "chrome/browser/download/save_item.h"
 
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
-#include "chrome/browser/save_file.h"
-#include "chrome/browser/save_file_manager.h"
-#include "chrome/browser/save_package.h"
+#include "chrome/browser/download/save_file.h"
+#include "chrome/browser/download/save_file_manager.h"
+#include "chrome/browser/download/save_package.h"
 
 // Constructor for SaveItem when creating each saving job.
 SaveItem::SaveItem(const std::wstring& url,
