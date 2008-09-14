@@ -16,6 +16,7 @@
 #include "chrome/browser/web_contents.h"
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/common/gfx/path.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/pref_names.h"
@@ -53,6 +54,49 @@ static inline int Round(double x) {
   // Why oh why is this not in a standard header?
   return static_cast<int>(floor(x + 0.5));
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// NewTabButton
+//
+//  A subclass of button that hit-tests to the shape of the new tab button.
+
+class NewTabButton : public ChromeViews::Button {
+ public:
+  NewTabButton() {}
+  virtual ~NewTabButton() {}
+
+ protected:
+  // Overridden from ChromeViews::View:
+  virtual bool HitTest(const CPoint &l) const {
+    gfx::Path path;
+    MakePathForButton(&path);
+    ScopedHRGN rgn(path.CreateHRGN());
+    return !!PtInRegion(rgn, l.x, l.y);
+  }
+
+ private:
+  void MakePathForButton(gfx::Path* path) const {
+    DCHECK(path);
+
+    SkScalar h = SkIntToScalar(GetHeight());
+    SkScalar w = SkIntToScalar(GetWidth());
+
+    // These values are defined by the shape of the new tab bitmap. Should that
+    // bitmap ever change, these values will need to be updated. They're so
+    // custom it's not really worth defining constants for.
+    path->moveTo(0, 1);
+    path->lineTo(w - 7, 1);
+    path->lineTo(w - 4, 4);
+    path->lineTo(w, 16);
+    path->lineTo(w - 1, 17);
+    path->lineTo(7, 17);
+    path->lineTo(4, 13);
+    path->lineTo(0, 1);
+    path->close();
+  }
+
+  DISALLOW_COPY_AND_ASSIGN(NewTabButton);
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -499,6 +543,18 @@ bool TabStrip::PointIsWithinWindowCaption(const CPoint& point) {
   // part of the caption if there are no available drag operations for the Tab.
   if (v->GetClassName() == Tab::kTabClassName && !HasAvailableDragActions())
     return true;
+
+  // Check to see if the point is within the non-button parts of the new tab
+  // button. The button has a non-rectangular shape, so if it's not in the
+  // visual portions of the button we treat it as a click to the caption.
+  CRect bounds;
+  newtab_button_->GetBounds(&bounds);
+  CPoint point_in_newtab_coords(point);
+  View::ConvertPointToView(this, newtab_button_, &point_in_newtab_coords);
+  if (bounds.PtInRect(point) &&
+      !newtab_button_->HitTest(point_in_newtab_coords)) {
+    return true;
+  }
 
   // All other regions, including the new Tab button, should be considered part
   // of the containing Window's client area so that regular events can be
@@ -1053,7 +1109,7 @@ void TabStrip::DidProcessMessage(const MSG& msg) {
 
 void TabStrip::Init() {
   model_->AddObserver(this);
-  newtab_button_ = new ChromeViews::Button;
+  newtab_button_ = new NewTabButton;
   newtab_button_->SetListener(this, TabStripModel::kNoTab);
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   SkBitmap* bitmap;
