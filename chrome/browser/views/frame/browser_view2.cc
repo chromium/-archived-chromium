@@ -20,10 +20,12 @@
 #include "chrome/browser/views/toolbar_view.h"
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
+#include "chrome/views/hwnd_notification_source.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window.h"
 
@@ -677,12 +679,9 @@ bool BrowserView2::CanClose() const {
   }
 
   // Empty TabStripModel, it's now safe to allow the Window to be closed.
-  /*
-  // TODO(beng): for some reason, this won't compile. Figure it out.
   NotificationService::current()->Notify(
       NOTIFY_WINDOW_CLOSED, Source<HWND>(frame_->GetWindow()->GetHWND()),
       NotificationService::NoDetails());
-      */
   return true;
 }
 
@@ -729,6 +728,15 @@ int BrowserView2::NonClientHitTest(const gfx::Point& point) {
   bounds.top += toolbar_->GetY();
   if (gfx::Rect(bounds).Contains(point.x(), point.y()))
     return HTCLIENT;
+
+  // If the point's y coordinate is above the top of the toolbar, but not in
+  // the tabstrip (per previous checking in this function), then we consider it
+  // in the window caption (e.g. the area to the right of the tabstrip
+  // underneath the window controls).
+  GetBounds(&bounds);
+  bounds.bottom = GetY() + toolbar_->GetY();
+  if (gfx::Rect(bounds).Contains(point.x(), point.y()))
+    return HTCAPTION;
 
   // If the point is somewhere else, delegate to the default implementation.
   return ClientView::NonClientHitTest(point);
