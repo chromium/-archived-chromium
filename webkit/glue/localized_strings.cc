@@ -50,6 +50,7 @@ inline String GetLocalizedString(int message_id) {
   return webkit_glue::StdWStringToString(str);
 }
 
+#if defined(OS_WIN)
 String WebCore::searchableIndexIntroduction() {
   return GetLocalizedString(IDS_SEARCHABLE_INDEX_INTRO);
 }
@@ -96,6 +97,7 @@ String WebCore::AXImageMapText() {
 String WebCore::AXHeadingText() {
   return GetLocalizedString(IDS_AX_ROLE_HEADING);
 }
+#endif  // OS_WIN
 String WebCore::AXButtonActionVerb() {
   return GetLocalizedString(IDS_AX_BUTTON_ACTION_VERB);
 }
@@ -126,6 +128,7 @@ String keygenMenuMediumGradeKeySize() {
 }
 } //namespace WebCore
 
+#if defined(OS_WIN)
 // We don't use these strings, so they return an empty String. We can't just
 // make them asserts because webcore still calls them.
 String WebCore::contextMenuItemTagOpenLinkInNewWindow() { return String(); }
@@ -164,3 +167,4 @@ String WebCore::contextMenuItemTagLeftToRight() { return String(); }
 String WebCore::contextMenuItemTagRightToLeft() { return String(); }
 String WebCore::contextMenuItemTagInspectElement() { return String(); }
 String WebCore::contextMenuItemTagShowSpellingPanel(bool show) { return String(); }
+#endif  // OS_WIN
