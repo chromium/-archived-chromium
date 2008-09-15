@@ -156,6 +156,8 @@ class TemplateURLModel : public WebDataServiceConsumer,
 
   // Returns the default search provider. If the TemplateURLModel hasn't been
   // loaded, the default search provider is pulled from preferences.
+  //
+  // NOTE: At least in unittest mode, this may return NULL.
   const TemplateURL* GetDefaultSearchProvider();
 
   // Observers used to listen for changes to the model.

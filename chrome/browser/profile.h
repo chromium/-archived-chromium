@@ -69,13 +69,13 @@ class Profile {
   // Create a new profile given a path.
   static Profile* CreateProfile(const std::wstring& path);
 
-  // Returns the request context for the "default" profile.  This is a temporary
-  // measure while we still only support 1 profile.  Consumers of this will need
-  // to figure out what to do when we start having multiple profiles.  This may
-  // be called from any thread.
+  // Returns the request context for the "default" profile.  This may be called
+  // from any thread.  This CAN return NULL if a first request context has not
+  // yet been created.  If necessary, listen on the UI thread for
+  // NOTIFY_DEFAULT_REQUEST_CONTEXT_AVAILABLE.
   //
-  // This object is NOT THREADSAFE and must be used and destroyed only on the
-  // I/O thread.
+  // The returned object is ref'd by the profile.  Callers who AddRef() it (to
+  // keep it alive longer than the profile) must Release() it on the I/O thread.
   static URLRequestContext* GetDefaultRequestContext();
 
   // Returns the path of the directory where this profile's data is stored.
@@ -135,10 +135,12 @@ class Profile {
   virtual DownloadManager* GetDownloadManager() = 0;
   virtual bool HasCreatedDownloadManager() const = 0;
 
-  // Returns the request context information associated with this profile.
+  // Returns the request context information associated with this profile.  Call
+  // this only on the UI thread, since it can send notifications that should
+  // happen on the UI thread.
   //
-  // This object is NOT THREADSAFE and must be used and destroyed only on the
-  // I/O thread.
+  // The returned object is ref'd by the profile.  Callers who AddRef() it (to
+  // keep it alive longer than the profile) must Release() it on the I/O thread.
   virtual URLRequestContext* GetRequestContext() = 0;
 
   // Returns the session service for this profile. This may return NULL. If

@@ -135,9 +135,11 @@ void TemplateURLModel::Init(const Initializer* initializers,
   // Request a server check for the correct Google URL if Google is the default
   // search engine.
   const TemplateURL* default_provider = GetDefaultSearchProvider();
-  const TemplateURLRef* default_provider_ref = default_provider->url();
-  if (default_provider_ref && default_provider_ref->HasGoogleBaseURLs())
-    GoogleURLTracker::RequestServerCheck();
+  if (default_provider) {
+    const TemplateURLRef* default_provider_ref = default_provider->url();
+    if (default_provider_ref && default_provider_ref->HasGoogleBaseURLs())
+      GoogleURLTracker::RequestServerCheck();
+  }
 }
 
 // static
