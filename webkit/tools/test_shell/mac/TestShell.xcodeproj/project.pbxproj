@@ -53,7 +53,6 @@
 		E456291C0E26B4FE005E4685 /* test_webview_delegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = AB8A78580DC553D7005C27B8 /* test_webview_delegate.mm */; };
 		E456291D0E26B4FE005E4685 /* text_input_controller.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB8A785B0DC553E4005C27B8 /* text_input_controller.cc */; };
 		E456291E0E26B4FE005E4685 /* test_shell_webview.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABA65EFE0DD50BFF003A4FC8 /* test_shell_webview.mm */; };
-		E456291F0E26B4FE005E4685 /* WebSystemInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 820A5E760DE35E2E00871E2D /* WebSystemInterface.m */; };
 		E45629270E26B4FE005E4685 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 829E33F40DBFECE200819EBF /* ApplicationServices.framework */; };
 		E456292C0E26B4FE005E4685 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 829E35590DC0D37B00819EBF /* Carbon.framework */; };
 		E456292D0E26B4FE005E4685 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 829E355C0DC0D47400819EBF /* QuartzCore.framework */; };
@@ -298,11 +297,11 @@
 		7B8200990E76FDA1008F45CF /* staticlib.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = staticlib.xcconfig; sourceTree = "<group>"; };
 		7B8203F10E76FED8008F45CF /* libxml.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxml.xcodeproj; path = third_party/libxml/libxml.xcodeproj; sourceTree = "<group>"; };
 		7BFDF6620E37AE2100F1D7D8 /* libjpeg.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libjpeg.xcodeproj; path = third_party/libjpeg/libjpeg.xcodeproj; sourceTree = "<group>"; };
-		820A5E750DE35E2E00871E2D /* WebSystemInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebSystemInterface.h; sourceTree = "<group>"; };
-		820A5E760DE35E2E00871E2D /* WebSystemInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebSystemInterface.m; sourceTree = "<group>"; };
-		820A5E850DE35FC600871E2D /* WebKitSystemInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebKitSystemInterface.h; sourceTree = "<group>"; };
+		820A5E750DE35E2E00871E2D /* WebSystemInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebSystemInterface.h; path = temp/WebSystemInterface.h; sourceTree = "<group>"; };
+		820A5E760DE35E2E00871E2D /* WebSystemInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WebSystemInterface.m; path = temp/WebSystemInterface.m; sourceTree = "<group>"; };
+		820A5E850DE35FC600871E2D /* WebKitSystemInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebKitSystemInterface.h; path = temp/WebKitSystemInterface.h; sourceTree = "<group>"; };
 		820A61B80DE7623F00871E2D /* missingImage.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = missingImage.tiff; sourceTree = "<group>"; };
-		820EB4050E3A548E009668FC /* libWebKitSystemInterfaceLeopard.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libWebKitSystemInterfaceLeopard.a; sourceTree = "<group>"; };
+		820EB4050E3A548E009668FC /* libWebKitSystemInterfaceLeopard.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWebKitSystemInterfaceLeopard.a; path = temp/libWebKitSystemInterfaceLeopard.a; sourceTree = "<group>"; };
 		824CB6100DAFEF14000C5DDE /* test_shell */ = {isa = PBXFileReference; lastKnownFileType = folder; name = test_shell; path = ../../../data/test_shell; sourceTree = SOURCE_ROOT; };
 		8287BDFA0E0AA28000CC8F2F /* aliasCursor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = aliasCursor.png; sourceTree = "<group>"; };
 		8287BDFB0E0AA28000CC8F2F /* cellCursor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cellCursor.png; sourceTree = "<group>"; };
@@ -1039,7 +1038,6 @@
 				E456291E0E26B4FE005E4685 /* test_shell_webview.mm in Sources */,
 				E456291C0E26B4FE005E4685 /* test_webview_delegate.mm in Sources */,
 				E456291D0E26B4FE005E4685 /* text_input_controller.cc in Sources */,
-				E456291F0E26B4FE005E4685 /* WebSystemInterface.m in Sources */,
 				E456290F0E26B4FE005E4685 /* webview_host.mm in Sources */,
 				E45629100E26B4FE005E4685 /* webwidget_host.mm in Sources */,
 			);
