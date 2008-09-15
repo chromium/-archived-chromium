@@ -74,8 +74,6 @@ input_files = [
     'printf.c',
     'random.c',
     'select.c',
-    'shell.c',
-    'shell_icu.c',
     'table.c',
     'tokenize.c',
     'trigger.c',
@@ -93,3 +91,5 @@ input_files = [
 ]
 
 env.ChromeStaticLibrary('sqlite', input_files)
+
+# TODO(tc): There should be a target to build the stand alone sqlite shell.

@@ -21,43 +21,45 @@ env.Prepend(
 )
 
 
-env_res.Append(
-    CPPDEFINES = [
-        'GOOGLE_CHROME_BUILD',
-    ],
-    CPPPATH = [
-        '.',
-        '#/..',
-        # For app/chrome_dll.res to #include installer_util_strings.rc.
-        '$CHROME_DIR/installer/util',
-    ],
-    RCFLAGS = [
-        ['/l', '0x409'],
-    ],
-)
+# TODO(port)
+if env_res['PLATFORM'] == 'win32':
+  env_res.Append(
+      CPPDEFINES = [
+          'GOOGLE_CHROME_BUILD',
+      ],
+      CPPPATH = [
+          '.',
+          '#/..',
+          # For app/chrome_dll.res to #include installer_util_strings.rc.
+          '$CHROME_DIR/installer/util',
+      ],
+      RCFLAGS = [
+          ['/l', '0x409'],
+      ],
+  )
 
-browser_res = env_res.RES('browser/browser_resources.rc')
-chrome_dll_res = env_res.RES('app/chrome_dll.rc')
-common_res = env_res.RES('common/common_resources.rc')
-debugger_res = env_res.RES('browser/debugger/resources/debugger_resources.rc')
-renderer_res = env_res.RES('renderer/renderer_resources.rc')
-test_data_res = env_res.RES('test/data/resource.rc')
-webkit_res = env_res.RES('$WEBKIT_DIR/glue/webkit_resources.rc')
+  browser_res = env_res.RES('browser/browser_resources.rc')
+  chrome_dll_res = env_res.RES('app/chrome_dll.rc')
+  common_res = env_res.RES('common/common_resources.rc')
+  debugger_res = env_res.RES('browser/debugger/resources/debugger_resources.rc')
+  renderer_res = env_res.RES('renderer/renderer_resources.rc')
+  test_data_res = env_res.RES('test/data/resource.rc')
+  webkit_res = env_res.RES('$WEBKIT_DIR/glue/webkit_resources.rc')
 
-net_res = '$NET_DIR/net_resources.res'
+  net_res = '$NET_DIR/net_resources.res'
 
-dll_resources = [
-    browser_res,
-    chrome_dll_res,
-    common_res,
-    debugger_res,
-    net_res,
-    renderer_res,
-    webkit_res,
-]
+  dll_resources = [
+      browser_res,
+      chrome_dll_res,
+      common_res,
+      debugger_res,
+      net_res,
+      renderer_res,
+      webkit_res,
+  ]
 
-env_test['BROWSER_RES'] = browser_res[0]
-env_test['TEST_DATA_RES'] = test_data_res[0]
+  env_test['BROWSER_RES'] = browser_res[0]
+  env_test['TEST_DATA_RES'] = test_data_res[0]
 
 env_dll = env.Clone()
 
@@ -121,54 +123,58 @@ env_dll.Append(
     ],
 )
 
-env_dll.Append(
-    LIBS = [
-        'comctl32.lib',
-        'dwmapi.lib',
-        'rpcrt4.lib',
-        'shlwapi.lib',
-        'winmm.lib',
-        'wsock32.lib',
-    ],
-    LINKFLAGS = [
-        '/INCREMENTAL',
-        '/DEBUG',
+if env_dll['PLATFORM'] == 'win32':
+  env_dll.Append(
+      LIBS = [
+          'comctl32.lib',
+          'dwmapi.lib',
+          'rpcrt4.lib',
+          'shlwapi.lib',
+          'winmm.lib',
+          'wsock32.lib',
+      ],
+      LINKFLAGS = [
+          '/INCREMENTAL',
+          '/DEBUG',
 
-        '/DELAYLOAD:"comdlg32.dll"',
-        '/DELAYLOAD:"crypt32.dll"',
-        '/DELAYLOAD:"cryptui.dll"',
-        '/DELAYLOAD:"dwmapi.dll"',
-        '/DELAYLOAD:"imagehlp.dll"',
-        '/DELAYLOAD:"imm32.dll"',
-        '/DELAYLOAD:"oleacc.dll"',
-        '/DELAYLOAD:"oleaut32.dll"',
-        '/DELAYLOAD:"psapi.dll"',
-        '/DELAYLOAD:"urlmon.dll"',
-        '/DELAYLOAD:"uxtheme.dll"',
-        '/DELAYLOAD:"winhttp.dll"',
-        '/DELAYLOAD:"wininet.dll"',
-        '/DELAYLOAD:"winspool.drv"',
-        '/DELAYLOAD:"ws2_32.dll"',
-        '/DELAYLOAD:"wsock32.dll"',
+          '/DELAYLOAD:"comdlg32.dll"',
+          '/DELAYLOAD:"crypt32.dll"',
+          '/DELAYLOAD:"cryptui.dll"',
+          '/DELAYLOAD:"dwmapi.dll"',
+          '/DELAYLOAD:"imagehlp.dll"',
+          '/DELAYLOAD:"imm32.dll"',
+          '/DELAYLOAD:"oleacc.dll"',
+          '/DELAYLOAD:"oleaut32.dll"',
+          '/DELAYLOAD:"psapi.dll"',
+          '/DELAYLOAD:"urlmon.dll"',
+          '/DELAYLOAD:"uxtheme.dll"',
+          '/DELAYLOAD:"winhttp.dll"',
+          '/DELAYLOAD:"wininet.dll"',
+          '/DELAYLOAD:"winspool.drv"',
+          '/DELAYLOAD:"ws2_32.dll"',
+          '/DELAYLOAD:"wsock32.dll"',
 
-        '/SUBSYSTEM:WINDOWS',
-        '/BASE:"0x01000000"',
-        '/MACHINE:X86',
-        '/FIXED:No',
+          '/SUBSYSTEM:WINDOWS',
+          '/BASE:"0x01000000"',
+          '/MACHINE:X86',
+          '/FIXED:No',
 
-        '/safeseh',
-        '/dynamicbase',
-        '/ignore:4199',
-        '/nxcompat',
+          '/safeseh',
+          '/dynamicbase',
+          '/ignore:4199',
+          '/nxcompat',
 
-        '/PDB:${TARGETS[1]}',
-        '/IMPLIB:${TARGETS[2]}',
-    ],
-)
+          '/PDB:${TARGETS[1]}',
+          '/IMPLIB:${TARGETS[2]}',
+      ],
+  )
 
-input_files = [
-    'app/chrome_dll_main.cc',
-]
+input_files = []
+
+if env_dll['PLATFORM'] == 'win32':
+  input_files.extend([
+      'app/chrome_dll_main.cc',
+  ])
 
 libs = [
     'browser/browser.lib',
@@ -183,10 +189,11 @@ libs = [
     'third_party/sqlite/sqlite.lib',
     'views/views.lib',
     '$V8_DIR/v8.lib',
-    '$V8_DIR/snapshot-empty.obj',
+    '$V8_DIR/snapshot-empty$OBJSUFFIX',
 ]
 
-if env['PLATFORM'] == 'win32':
+
+if env_dll['PLATFORM'] == 'win32':
   targets = [
       'chrome.dll',
       'chrome_dll.pdb',
@@ -195,78 +202,78 @@ if env['PLATFORM'] == 'win32':
 else:
   targets = ['chrome']
 
-dll_targets = env_dll.ChromeSharedLibrary(targets,
-                                          dll_resources + input_files + libs)
+# TODO(port)
+if env_dll['PLATFORM'] == 'win32':
+  dll_targets = env_dll.ChromeSharedLibrary(targets,
+                                            dll_resources + input_files + libs)
+  install_targets.extend(dll_targets)
 
-install_targets.extend(dll_targets)
+  # TODO(sgk): make a pseudo-Builder for these
+  import os
+  import sys
+  sys.path.append(Dir('#/../tools/grit').abspath)
 
+  env_grd = env.Clone()
+  env_grd.Tool('scons', toolpath=['#/../tools/grit/grit'])
 
+  # NOTE: fake target gets replaced with real targets from reading .grd
+  generated = env_grd.GRIT('app/resources/fake_generated_target',
+                           '#/../chrome/app/generated_resources.grd')
+  for g in [ g for g in generated if str(g).endswith('.rc') ]:
+      env_res.RES(g)
 
-# TODO(sgk): make a pseudo-Builder for these
-import os
-import sys
-sys.path.append(Dir('#/../tools/grit').abspath)
+  # NOTE: fake target gets replaced with real targets from reading .grd
+  chromium = env_grd.GRIT('app/resources/fake_chromium_target',
+                           '#/../chrome/app/chromium_strings.grd')
+  for g in [ g for g in chromium if str(g).endswith('.rc') ]:
+      env_res.RES(g)
 
-env_grd = env.Clone()
-env_grd.Tool('scons', toolpath=['#/../tools/grit/grit'])
-
-# NOTE: fake target gets replaced with real targets from reading .grd
-generated = env_grd.GRIT('app/resources/fake_generated_target',
-                         '#/../chrome/app/generated_resources.grd')
-for g in [ g for g in generated if str(g).endswith('.rc') ]:
-    env_res.RES(g)
-
-# NOTE: fake target gets replaced with real targets from reading .grd
-chromium = env_grd.GRIT('app/resources/fake_chromium_target',
-                         '#/../chrome/app/chromium_strings.grd')
-for g in [ g for g in chromium if str(g).endswith('.rc') ]:
-    env_res.RES(g)
-
-# NOTE: fake target gets replaced with real targets from reading .grd
-google_chrome = env_grd.GRIT('app/resources/fake_google_chrome_target',
-                         '#/../chrome/app/google_chrome_strings.grd')
-for g in [ g for g in google_chrome if str(g).endswith('.rc') ]:
-    env_res.RES(g)
-
+  # NOTE: fake target gets replaced with real targets from reading .grd
+  google_chrome = env_grd.GRIT('app/resources/fake_google_chrome_target',
+                           '#/../chrome/app/google_chrome_strings.grd')
+  for g in [ g for g in google_chrome if str(g).endswith('.rc') ]:
+      env_res.RES(g)
 
 
-def chrome_version_emitter(target, source, env):
-    source.append('$CHROME_SRC_DIR/VERSION')
-    source.append('$CHROME_SRC_DIR/BRANDING')
-    return target, source
 
-b = Builder(action = '$CHROME_VERSION_RC_COM',
-            emitter = chrome_version_emitter)
+  def chrome_version_emitter(target, source, env):
+      source.append('$CHROME_SRC_DIR/VERSION')
+      source.append('$CHROME_SRC_DIR/BRANDING')
+      return target, source
 
-env['BUILDERS']['ChromeVersionRC'] = b
+  b = Builder(action = '$CHROME_VERSION_RC_COM',
+              emitter = chrome_version_emitter)
 
-env.Replace(
-    CHROME_VERSION_RC_COM = '$VERSION_BAT $SOURCE $CHROME_SRC_DIR $PWD $TARGET',
-    VERSION_BAT = File('#/../chrome/tools/build/win/version.bat'),
-    CHROME_SRC_DIR = Dir('#/../chrome'),
-    PWD = Dir('.'),
-)
+  env['BUILDERS']['ChromeVersionRC'] = b
 
-chrome_exe_version_rc = env.ChromeVersionRC(
-    'chrome_exe_version.rc',
-    'app/chrome_exe_version.rc.version'
-)
+  env.Replace(
+      CHROME_VERSION_RC_COM =
+          '$VERSION_BAT $SOURCE $CHROME_SRC_DIR $PWD $TARGET',
+      VERSION_BAT = File('#/../chrome/tools/build/win/version.bat'),
+      CHROME_SRC_DIR = Dir('#/../chrome'),
+      PWD = Dir('.'),
+  )
 
-chrome_dll_version_rc = env.ChromeVersionRC(
-    'chrome_dll_version.rc',
-    'app/chrome_dll_version.rc.version',
-)
+  chrome_exe_version_rc = env.ChromeVersionRC(
+      'chrome_exe_version.rc',
+      'app/chrome_exe_version.rc.version'
+  )
 
-Depends(chrome_dll_res, chrome_dll_version_rc)
+  chrome_dll_version_rc = env.ChromeVersionRC(
+      'chrome_dll_version.rc',
+      'app/chrome_dll_version.rc.version',
+  )
 
-chrome_exe_version_res = env_res.RES(chrome_exe_version_rc)
-chrome_dll_version_res = env_res.RES(chrome_dll_version_rc)
+  Depends(chrome_dll_res, chrome_dll_version_rc)
 
-install_targets.extend(chrome_exe_version_rc)
-install_targets.extend(chrome_exe_version_res)
+  chrome_exe_version_res = env_res.RES(chrome_exe_version_rc)
+  chrome_dll_version_res = env_res.RES(chrome_dll_version_rc)
 
-install_targets.extend(chrome_dll_version_rc)
-install_targets.extend(chrome_dll_version_res)
+  install_targets.extend(chrome_exe_version_rc)
+  install_targets.extend(chrome_exe_version_res)
+
+  install_targets.extend(chrome_dll_version_rc)
+  install_targets.extend(chrome_dll_version_res)
 
 
 
@@ -316,56 +323,58 @@ if env['PLATFORM'] == 'win32':
 else:
   targets = ['chrome']
 
-chrome_exe = env_exe.ChromeProgram(
-    targets,
-    [
-        env_res.RES('app/chrome_exe.rc'),
-        'app/breakpad.cc',
-        'app/chrome_exe_main.cc',
-        'app/client_util.cc',
-        'app/google_update_client.cc',
+# TODO(port)
+if env['PLATFORM'] == 'win32':
+  chrome_exe = env_exe.ChromeProgram(
+      targets,
+      [
+          env_res.RES('app/chrome_exe.rc'),
+          'app/breakpad.cc',
+          'app/chrome_exe_main.cc',
+          'app/client_util.cc',
+          'app/google_update_client.cc',
 
-        'common/common.lib',
-        '$CHROME_DIR/chrome_dll.lib',
-    ]
-)
+          'common/common.lib',
+          '$CHROME_DIR/chrome_dll.lib',
+      ]
+  )
 
-install_targets.extend(chrome_exe)
-env.Requires(chrome_exe[0], ['$TARGET_ROOT/chrome.dll',
-                             '$TARGET_ROOT/icudt38.dll',
-                             '$TARGET_ROOT/rlz.dll',
-                             '$TARGET_ROOT/First Run'])
+  install_targets.extend(chrome_exe)
+  env.Requires(chrome_exe[0], ['$TARGET_ROOT/chrome.dll',
+                               '$TARGET_ROOT/icudt38.dll',
+                               '$TARGET_ROOT/rlz.dll',
+                               '$TARGET_ROOT/First Run'])
 
-env.Command('$TARGET_ROOT/First Run', '$CHROME_DIR/app/FirstRun',
-            Copy('$TARGET', '$SOURCE'))
+  env.Command('$TARGET_ROOT/First Run', '$CHROME_DIR/app/FirstRun',
+              Copy('$TARGET', '$SOURCE'))
 
-# For release we want to run dependencies.py, may look something like:
-#env.AddPostAction('$TARGET_ROOT/chrome.exe',
-#                  '$PYTHON tools/build/win/dependencies.py $(TargetPath) chrome.exe.deps')
+  # For release we want to run dependencies.py, may look something like:
+  #env.AddPostAction('$TARGET_ROOT/chrome.exe',
+  #                  '$PYTHON tools/build/win/dependencies.py $(TargetPath) chrome.exe.deps')
 
 
-env_snapshot = env.Clone()
+  env_snapshot = env.Clone()
 
-env_snapshot.Prepend(
-    CPPPATH = [
-        '$V8_DIR/src',
-        '$V8_DIR/src/pcre/jscre',
-        '..',
-    ],
-    CPPDEFINES = [
-        'ENABLE_DISASSEMBLER',
-    ],
-    CCFLAGS = [
-        '/wd4099',
-        '/wd4355',
-        '/wd4800',
-    ],
-)
+  env_snapshot.Prepend(
+      CPPPATH = [
+          '$V8_DIR/src',
+          '$V8_DIR/src/pcre/jscre',
+          '..',
+      ],
+      CPPDEFINES = [
+          'ENABLE_DISASSEMBLER',
+      ],
+      CCFLAGS = [
+          '/wd4099',
+          '/wd4355',
+          '/wd4800',
+      ],
+  )
 
-env_snapshot.ChromeStaticLibrary('snapshotv8', 'snapshot.cc')
+  env_snapshot.ChromeStaticLibrary('snapshotv8', 'snapshot.cc')
 
-env_snapshot.Command('snapshot.cc', '#/../v8/bin/debug/mksnapshot.exe',
-                     '$SOURCE $TARGET')
+  env_snapshot.Command('snapshot.cc', '#/../v8/bin/debug/mksnapshot.exe',
+                       '$SOURCE $TARGET')
 
 
 
@@ -385,22 +394,24 @@ flats = [
     'ssl_error',
 ]
 
-flats_out = []
-for i in flats:
+# TODO(port)
+if env_flat['PLATFORM'] == 'win32':
+  flats_out = []
+  for i in flats:
+    flats_out += env_flat.Command(
+        '$BROWSER_RESOURCES/' + i + '_flat.html',
+        'browser/resources/' + i + '.html', '$FLATTEN_HTML_COM')
+
   flats_out += env_flat.Command(
-      '$BROWSER_RESOURCES/' + i + '_flat.html',
-      'browser/resources/' + i + '.html', '$FLATTEN_HTML_COM')
+      '$BROWSER_RESOURCES/ssl_roadblock_flat.html',
+      'browser/security/resources/ssl_roadblock.html', '$FLATTEN_HTML_COM')
 
-flats_out += env_flat.Command(
-    '$BROWSER_RESOURCES/ssl_roadblock_flat.html',
-    'browser/security/resources/ssl_roadblock.html', '$FLATTEN_HTML_COM')
-
-env_flat.Depends(browser_res, flats_out)
+  env_flat.Depends(browser_res, flats_out)
 
 
-
-env_test.Object('test/test_file_util.cc',
-                CPPPATH=['..'] + env['CPPPATH'])
+# TODO(port)
+  env_test.Object('test/test_file_util.cc',
+                  CPPPATH=['..'] + env['CPPPATH'])
 
 test_sconscript_files = [
     'SConscript.automated_ui_tests',
@@ -408,45 +419,53 @@ test_sconscript_files = [
     'SConscript.ui_tests',
 ]
 
-env.SConscript(test_sconscript_files, exports=['env_test'])
+# TODO(port)
+if env['PLATFORM'] == 'win32':
+  env.SConscript(test_sconscript_files, exports=['env_test'])
 
 
 sconscript_files = [
-    'app/resources/SConscript',
-    'app/theme/SConscript',
-    'browser/SConscript',
-    'browser/views/SConscript',
-    'common/SConscript',
-    'installer/mini_installer/SConscript',
-    'installer/setup/SConscript',
-    'installer/util/SConscript',
-    'plugin/SConscript',
-    'renderer/SConscript',
-    'test/activex_test_control/SConscript',
-    'test/automation/SConscript',
-    'test/chrome_plugin/SConscript',
-    'test/interactive_ui/SConscript',
-    'test/memory_test/SConscript',
-    'test/mini_installer_test/SConscript',
-    'test/page_cycler/SConscript',
-    'test/plugin/SConscript',
-    'test/reliability/SConscript',
-    'test/security_tests/SConscript',
-    'test/selenium/SConscript',
-    'test/startup/SConscript',
-    'test/tab_switching/SConscript',
-    'tools/crash_service/SConscript',
-    'tools/perf/flush_cache/SConscript',
-    'tools/test/image_diff/SConscript',
-    'third_party/hunspell/SConscript',
-    'third_party/sqlite/SConscript',
-    'views/SConscript',
+    '$THIRD_PARTY_DIR/sqlite/SConscript',
 ]
+
+# TODO(port)
+if env['PLATFORM'] == 'win32':
+  sconscript_files.extend([
+      'app/resources/SConscript',
+      'app/theme/SConscript',
+      'browser/SConscript',
+      'browser/views/SConscript',
+      'common/SConscript',
+      'installer/mini_installer/SConscript',
+      'installer/setup/SConscript',
+      'installer/util/SConscript',
+      'plugin/SConscript',
+      'renderer/SConscript',
+      'test/activex_test_control/SConscript',
+      'test/automation/SConscript',
+      'test/chrome_plugin/SConscript',
+      'test/interactive_ui/SConscript',
+      'test/memory_test/SConscript',
+      'test/mini_installer_test/SConscript',
+      'test/page_cycler/SConscript',
+      'test/plugin/SConscript',
+      'test/reliability/SConscript',
+      'test/security_tests/SConscript',
+      'test/selenium/SConscript',
+      'test/startup/SConscript',
+      'test/tab_switching/SConscript',
+      'tools/crash_service/SConscript',
+      'tools/perf/flush_cache/SConscript',
+      'tools/test/image_diff/SConscript',
+      'third_party/hunspell/SConscript',
+      'views/SConscript',
+  ])
 
 env.SConscript(sconscript_files, exports=['env', 'env_res', 'env_test'])
 
-
-env.InstallAs('libjscre.lib', '$WEBKIT_DIR/JavaScriptCore_pcre.lib')
+# TODO(port)
+if env['PLATFORM'] == 'win32':
+  env.InstallAs('libjscre.lib', '$WEBKIT_DIR/JavaScriptCore_pcre.lib')
 
 
 i = env.Install('$TARGET_ROOT', install_targets)
@@ -458,8 +477,10 @@ gears_plugins = [
     '$GEARS_DIR/binaries/gears.pdb',
 ]
 
-i = env.Install('$TARGET_ROOT/plugins/gears', gears_plugins)
-env.Alias('chrome', i)
+# TODO(port)
+if env['PLATFORM'] == 'win32':
+  i = env.Install('$TARGET_ROOT/plugins/gears', gears_plugins)
+  env.Alias('chrome', i)
 
 
 i = env.Command('$TARGET_ROOT/resources/inspector',
@@ -469,4 +490,3 @@ i = env.Command('$TARGET_ROOT/resources/inspector',
 env.Alias('chrome', i)
 
 env.Alias('chrome', env.Alias('webkit'))
-

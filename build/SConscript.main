@@ -301,6 +301,7 @@ elif env['PLATFORM'] == 'posix':
   load = [
       'base',
       'breakpad',
+      'chrome',
       'googleurl',
       'net',
       'skia',
