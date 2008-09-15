@@ -1225,8 +1225,8 @@ TEST_F(NavigationControllerTest, RestoreNavigate) {
   std::vector<TabNavigation> navigations;
   navigations.push_back(TabNavigation(0, url, L"Title", "state",
                                       PageTransition::LINK));
-  NavigationController* controller =
-      new NavigationController(profile, navigations, 0, NULL);
+  scoped_ptr<NavigationController> controller(
+      new NavigationController(profile, navigations, 0, NULL));
   controller->GoToIndex(0);
 
   // We should now have one entry, and it should be "pending".
