@@ -75,6 +75,8 @@ class RenderThread : public IPC::Channel::Listener,
  private:
   void OnUpdateVisitedLinks(SharedMemoryHandle table);
 
+  void OnPluginMessage(const std::wstring& dll_path,
+                       const std::vector<uint8>& data);
   void OnSetNextPageID(int32 next_page_id);
   void OnCreateNewView(HWND parent_hwnd,
                        HANDLE modal_dialog_event,

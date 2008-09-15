@@ -495,6 +495,32 @@ CPError STDCALL CPB_SendMessage(CPID id, const void *data, uint32 data_len) {
   return CPERR_SUCCESS;
 }
 
+CPError STDCALL CPB_SendSyncMessage(CPID id, const void *data, uint32 data_len,
+                                    void **retval, uint32 *retval_len) {
+  CHECK(ChromePluginLib::IsPluginThread());
+  ChromePluginLib* plugin = ChromePluginLib::FromCPID(id);
+  CHECK(plugin);
+
+  const uint8* data_ptr = static_cast<const uint8*>(data);
+  std::vector<uint8> v(data_ptr, data_ptr + data_len);
+  std::vector<uint8> r;
+  if (!RenderThread::current()->Send(new ViewHostMsg_PluginSyncMessage(
+        plugin->filename(), v, &r))) {
+    return CPERR_FAILURE;
+  }
+
+  if (r.size()) {
+    *retval_len = static_cast<uint32>(r.size());
+    *retval = CPB_Alloc(*retval_len);
+    memcpy(*retval, &(r.at(0)), r.size());
+  } else {
+    *retval = NULL;
+    *retval_len = 0;
+  }
+
+  return CPERR_SUCCESS;
+}
+
 }  // namespace
 
 CPBrowserFuncs* GetCPBrowserFuncsForRenderer() {
@@ -523,6 +549,7 @@ CPBrowserFuncs* GetCPBrowserFuncsForRenderer() {
     browser_funcs.get_command_line_arguments = CPB_GetCommandLineArguments;
     browser_funcs.add_ui_command = CPB_AddUICommand;
     browser_funcs.handle_command = CPB_HandleCommand;
+    browser_funcs.send_sync_message = CPB_SendSyncMessage;
 
     browser_funcs.request_funcs = &request_funcs;
     browser_funcs.response_funcs = &response_funcs;
@@ -546,4 +573,3 @@ CPBrowserFuncs* GetCPBrowserFuncsForRenderer() {
 
   return &browser_funcs;
 }
-

@@ -10,6 +10,7 @@
 #include "base/lazy_instance.h"
 #include "base/shared_memory.h"
 #include "base/thread_local.h"
+#include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/plugin/plugin_channel.h"
@@ -161,11 +162,23 @@ void RenderThread::OnMessageReceived(const IPC::Message& msg) {
       IPC_MESSAGE_HANDLER(ViewMsg_SetCacheCapacities, OnSetCacheCapacities)
       IPC_MESSAGE_HANDLER(ViewMsg_GetCacheResourceStats,
                           OnGetCacheResourceStats)
+      IPC_MESSAGE_HANDLER(ViewMsg_PluginMessage, OnPluginMessage)
       // send the rest to the router
       IPC_MESSAGE_UNHANDLED(router_.OnMessageReceived(msg))
     IPC_END_MESSAGE_MAP()
   } else {
     router_.OnMessageReceived(msg);
+  }
+}
+
+void RenderThread::OnPluginMessage(const std::wstring& dll_path,
+                                   const std::vector<uint8>& data) {
+  CHECK(ChromePluginLib::IsPluginThread());
+  ChromePluginLib *chrome_plugin = ChromePluginLib::Find(dll_path);
+  if (chrome_plugin) {
+    void *data_ptr = const_cast<void*>(reinterpret_cast<const void*>(&data[0]));
+    uint32 data_len = static_cast<uint32>(data.size());
+    chrome_plugin->functions().on_message(data_ptr, data_len);
   }
 }
 

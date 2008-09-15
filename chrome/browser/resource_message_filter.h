@@ -81,6 +81,9 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnGetDataDir(std::wstring* data_dir);
   void OnPluginMessage(const std::wstring& dll_path,
                        const std::vector<uint8>& message);
+  void OnPluginSyncMessage(const std::wstring& dll_path,
+                           const std::vector<uint8>& message,
+                           std::vector<uint8> *retval);
 
   // Cache fonts for the renderer. See ResourceMessageFilter::OnLoadFont
   // implementation for more details

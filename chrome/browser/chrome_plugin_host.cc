@@ -639,28 +639,44 @@ CPProcessType STDCALL CPB_GetProcessType(CPID id) {
 CPError STDCALL CPB_SendMessage(CPID id, const void *data, uint32 data_len) {
   CommandLine cmd;
   if (cmd.HasSwitch(switches::kGearsInRenderer)) {
-    // TODO(mpcomplete): figure out what to do here.
+    ChromePluginLib* plugin = ChromePluginLib::FromCPID(id);
+    CHECK(plugin);
+
+    const unsigned char* data_ptr = static_cast<const unsigned char*>(data);
+    std::vector<uint8> v(data_ptr, data_ptr + data_len);
+    for (RenderProcessHost::iterator it = RenderProcessHost::begin();
+      it != RenderProcessHost::end(); ++it) {
+        it->second->Send(new ViewMsg_PluginMessage(plugin->filename(), v));
+    }
+
+    return CPERR_SUCCESS;
+  } else {
+    CHECK(ChromePluginLib::IsPluginThread());
+    ChromePluginLib* plugin = ChromePluginLib::FromCPID(id);
+    CHECK(plugin);
+
+    PluginService* service = PluginService::GetInstance();
+    if (!service)
     return CPERR_FAILURE;
+    PluginProcessHost *host =
+    service->FindOrStartPluginProcess(plugin->filename(), std::string());
+    if (!host)
+    return CPERR_FAILURE;
+
+    const unsigned char* data_ptr = static_cast<const unsigned char*>(data);
+    std::vector<uint8> v(data_ptr, data_ptr + data_len);
+    if (!host->Send(new PluginProcessMsg_PluginMessage(v)))
+      return CPERR_FAILURE;
+
+    return CPERR_SUCCESS;
   }
+}
 
-  CHECK(ChromePluginLib::IsPluginThread());
-  ChromePluginLib* plugin = ChromePluginLib::FromCPID(id);
-  CHECK(plugin);
+CPError STDCALL CPB_SendSyncMessage(CPID id, const void *data, uint32 data_len,
+                                    void **retval, uint32 *retval_len) {
+  NOTREACHED() << "Sync messages should not be sent from the browser process.";
 
-  PluginService* service = PluginService::GetInstance();
-  if (!service)
-    return CPERR_FAILURE;
-  PluginProcessHost *host =
-      service->FindOrStartPluginProcess(plugin->filename(), std::string());
-  if (!host)
-    return CPERR_FAILURE;
-
-  const unsigned char* data_ptr = static_cast<const unsigned char*>(data);
-  std::vector<uint8> v(data_ptr, data_ptr + data_len);
-  if (!host->Send(new PluginProcessMsg_PluginMessage(v)))
-    return CPERR_FAILURE;
-
-  return CPERR_SUCCESS;
+  return CPERR_FAILURE;
 }
 
 }
@@ -694,6 +710,7 @@ CPBrowserFuncs* GetCPBrowserFuncsForBrowser() {
 
     browser_funcs.request_funcs = &request_funcs;
     browser_funcs.response_funcs = &response_funcs;
+    browser_funcs.send_sync_message = CPB_SendSyncMessage;
 
     request_funcs.size = sizeof(request_funcs);
     request_funcs.start_request = CPR_StartRequest;

@@ -45,6 +45,12 @@ IPC_BEGIN_MESSAGES(View, 1)
                        size_t /* max_dead_capacity */,
                        size_t /* capacity */)
 
+  // Allows a chrome plugin loaded in the browser process to send arbitrary
+  // data to an instance of the same plugin loaded in a renderer process.
+  IPC_MESSAGE_CONTROL2(ViewMsg_PluginMessage,
+                       std::wstring /* dll_path of plugin */,
+                       std::vector<uint8> /* opaque data */)
+
   // Reply in response to ViewHostMsg_ShowView or ViewHostMsg_ShowWidget.
   // similar to the new command, but used when the renderer created a view
   // first, and we need to update it
@@ -652,6 +658,13 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   IPC_MESSAGE_CONTROL2(ViewHostMsg_PluginMessage,
                        std::wstring /* dll_path of plugin */,
                        std::vector<uint8> /* opaque data */)
+
+  // Allows a chrome plugin loaded in a renderer process to send arbitrary
+  // data to an instance of the same plugin loaded in the browser process.
+  IPC_SYNC_MESSAGE_CONTROL2_1(ViewHostMsg_PluginSyncMessage,
+                              std::wstring /* dll_path of plugin */,
+                              std::vector<uint8> /* opaque data */,
+                              std::vector<uint8> /* opaque data */)
 
   // Requests spellcheck for a word.
   IPC_SYNC_MESSAGE_ROUTED1_2(ViewHostMsg_SpellCheck,

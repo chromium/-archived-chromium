@@ -30,7 +30,7 @@ extern "C" {
 // The current version of the API, used by the 'version' field of CPPluginFuncs
 // and CPBrowserFuncs.
 #define CP_MAJOR_VERSION 0
-#define CP_MINOR_VERSION 6
+#define CP_MINOR_VERSION 7
 #define CP_VERSION       ((CP_MAJOR_VERSION << 8) | (CP_MINOR_VERSION))
 
 #define CP_GET_MAJOR_VERSION(version) ((version & 0xff00) >> 8)
@@ -374,8 +374,22 @@ typedef CPError (STDCALL *CPB_SendMessageFunc)(CPID id,
                                                const void *data,
                                                uint32 data_len);
 
+// Asks the browser to send raw data to the other process hosting an instance of
+// this plugin. This function only works from the plugin or renderer process.
+// This function blocks until the message is processed.  The memory should be
+// freed using CPB_Free when done.
+typedef CPError (STDCALL *CPB_SendSyncMessageFunc)(CPID id,
+                                                   const void *data,
+                                                   uint32 data_len,
+                                                   void **retval,
+                                                   uint32 *retval_len);
+
 // Informs the plugin of raw data having been sent from another process.
 typedef void (STDCALL *CPP_OnMessageFunc)(void *data, uint32 data_len);
+
+// Informs the plugin of raw data having been sent from another process.
+typedef void (STDCALL *CPP_OnSyncMessageFunc)(void *data, uint32 data_len,
+                                              void **retval, uint32 *retval_len);
 
 // Function table for issuing requests using via the other side's network stack.
 // For the plugin, this functions deal with issuing requests through the
@@ -419,6 +433,7 @@ typedef struct _CPPluginFuncs {
   CPP_OnMessageFunc on_message;
   CPP_HtmlDialogClosedFunc html_dialog_closed;
   CPP_HandleCommandFunc handle_command;
+  CPP_OnSyncMessageFunc on_sync_message;
 } CPPluginFuncs;
 
 // Function table CPB functions (functions provided by host to plugin).
@@ -446,6 +461,7 @@ typedef struct _CPBrowserFuncs {
   CPB_GetCommandLineArgumentsFunc get_command_line_arguments;
   CPB_AddUICommandFunc add_ui_command;
   CPB_HandleCommandFunc handle_command;
+  CPB_SendSyncMessageFunc send_sync_message;
 } CPBrowserFuncs;
 
 

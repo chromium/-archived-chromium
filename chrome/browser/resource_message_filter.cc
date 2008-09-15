@@ -17,6 +17,7 @@
 #include "chrome/browser/render_widget_helper.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/common/chrome_plugin_lib.h"
+#include "chrome/common/chrome_plugin_util.h"
 #include "chrome/common/clipboard_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -145,6 +146,7 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetCookies, OnGetCookies)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetDataDir, OnGetDataDir)
     IPC_MESSAGE_HANDLER(ViewHostMsg_PluginMessage, OnPluginMessage)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_PluginSyncMessage, OnPluginSyncMessage)
     IPC_MESSAGE_HANDLER(ViewHostMsg_LoadFont, OnLoadFont)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetMonitorInfoForWindow,
                         OnGetMonitorInfoForWindow)
@@ -355,6 +357,28 @@ void ResourceMessageFilter::OnPluginMessage(const std::wstring& dll_path,
     void *data_ptr = const_cast<void*>(reinterpret_cast<const void*>(&data[0]));
     uint32 data_len = static_cast<uint32>(data.size());
     chrome_plugin->functions().on_message(data_ptr, data_len);
+  }
+}
+
+void ResourceMessageFilter::OnPluginSyncMessage(const std::wstring& dll_path,
+                                                const std::vector<uint8>& data,
+                                                std::vector<uint8> *retval) {
+  DCHECK(MessageLoop::current() ==
+         ChromeThread::GetMessageLoop(ChromeThread::IO));
+
+  ChromePluginLib *chrome_plugin = ChromePluginLib::Find(dll_path);
+  if (chrome_plugin) {
+    void *data_ptr = const_cast<void*>(reinterpret_cast<const void*>(&data[0]));
+    uint32 data_len = static_cast<uint32>(data.size());
+    void *retval_buffer = 0;
+    uint32 retval_size = 0;
+    chrome_plugin->functions().on_sync_message(data_ptr, data_len,
+                                               &retval_buffer, &retval_size);
+    if (retval_buffer) {
+      retval->resize(retval_size);
+      memcpy(&(retval->at(0)), retval_buffer, retval_size);
+      CPB_Free(retval_buffer);
+    }
   }
 }
 

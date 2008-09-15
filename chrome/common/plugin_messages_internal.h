@@ -56,6 +56,12 @@ IPC_BEGIN_MESSAGES(PluginProcessHost, 4)
   IPC_MESSAGE_CONTROL1(PluginProcessHostMsg_PluginMessage,
                        std::vector<uint8> /* opaque data */)
 
+  // Allows a chrome plugin loaded in a plugin process to send arbitrary
+  // data to an instance of the same plugin loaded in the browser process.
+  IPC_SYNC_MESSAGE_CONTROL1_1(PluginProcessHostMsg_PluginSyncMessage,
+                              std::vector<uint8> /* opaque data */,
+                              std::vector<uint8> /* opaque data response */)
+
   // Retrieve the given type of info that is associated with the given
   // CPBrowsingContext.  Returns the result in a string.
   IPC_SYNC_MESSAGE_CONTROL0_1(PluginProcessHostMsg_GetPluginDataDir,
@@ -237,6 +243,7 @@ IPC_BEGIN_MESSAGES(PluginHost, 6)
 
   IPC_SYNC_MESSAGE_ROUTED0_1(PluginHostMsg_GetCPBrowsingContext,
                              uint32 /* context */)
+
 
 IPC_END_MESSAGES(PluginHost)
 
