@@ -314,6 +314,10 @@ bool InterceptionManager::PatchNtdll(bool hot_patch_needed) {
 
   if (hot_patch_needed) {
 #if SANDBOX_EXPORTS
+    // Make sure the functions are not excluded by the linker.
+    #pragma comment(linker, "/include:_TargetNtMapViewOfSection@44")
+    #pragma comment(linker, "/include:_TargetNtUnmapViewOfSection@12")
+
     AddToPatchedFunctions(kNtdllName, kMapViewOfSectionName,
                           INTERCEPTION_SERVICE_CALL,
                           "_TargetNtMapViewOfSection@44");
