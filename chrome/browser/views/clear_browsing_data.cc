@@ -15,6 +15,8 @@
 #include "chrome/views/native_button.h"
 #include "chrome/views/throbber.h"
 #include "chrome/views/window.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 #include "net/url_request/url_request_context.h"
 
 #include "generated_resources.h"
@@ -70,19 +72,24 @@ void ClearBrowsingDataView::Init() {
 
   // Add all the check-boxes.
   del_history_checkbox_ =
-      AddCheckbox(l10n_util::GetString(IDS_DEL_BROWSING_HISTORY_CHKBOX), true);
+      AddCheckbox(l10n_util::GetString(IDS_DEL_BROWSING_HISTORY_CHKBOX),
+      profile_->GetPrefs()->GetBoolean(prefs::kDeleteBrowsingHistory));
 
   del_downloads_checkbox_ =
-      AddCheckbox(l10n_util::GetString(IDS_DEL_DOWNLOAD_HISTORY_CHKBOX), true);
+      AddCheckbox(l10n_util::GetString(IDS_DEL_DOWNLOAD_HISTORY_CHKBOX),
+      profile_->GetPrefs()->GetBoolean(prefs::kDeleteDownloadHistory));
 
   del_cache_checkbox_ =
-      AddCheckbox(l10n_util::GetString(IDS_DEL_CACHE_CHKBOX), true);
+      AddCheckbox(l10n_util::GetString(IDS_DEL_CACHE_CHKBOX),
+      profile_->GetPrefs()->GetBoolean(prefs::kDeleteCache));
 
   del_cookies_checkbox_ =
-      AddCheckbox(l10n_util::GetString(IDS_DEL_COOKIES_CHKBOX), true);
+      AddCheckbox(l10n_util::GetString(IDS_DEL_COOKIES_CHKBOX),
+      profile_->GetPrefs()->GetBoolean(prefs::kDeleteCookies));
 
   del_passwords_checkbox_ =
-      AddCheckbox(l10n_util::GetString(IDS_DEL_PASSWORDS_CHKBOX), false);
+      AddCheckbox(l10n_util::GetString(IDS_DEL_PASSWORDS_CHKBOX),
+      profile_->GetPrefs()->GetBoolean(prefs::kDeletePasswords));
 
   // Add a label which appears before the combo box for the time period.
   time_period_label_ = new ChromeViews::Label(
@@ -302,6 +309,22 @@ std::wstring ClearBrowsingDataView::GetItemAt(ChromeViews::ComboBox* source,
 // ClearBrowsingDataView, ChromeViews::ButtonListener implementation:
 
 void ClearBrowsingDataView::ButtonPressed(ChromeViews::NativeButton* sender) {
+  if (sender == del_history_checkbox_)
+    profile_->GetPrefs()->SetBoolean(prefs::kDeleteBrowsingHistory,
+        del_history_checkbox_->IsSelected() ? true : false);
+  else if (sender == del_downloads_checkbox_)
+    profile_->GetPrefs()->SetBoolean(prefs::kDeleteDownloadHistory,
+        del_downloads_checkbox_->IsSelected() ? true : false);
+  else if (sender == del_cache_checkbox_)
+    profile_->GetPrefs()->SetBoolean(prefs::kDeleteCache,
+        del_cache_checkbox_->IsSelected() ? true : false);
+  else if (sender == del_cookies_checkbox_)
+    profile_->GetPrefs()->SetBoolean(prefs::kDeleteCookies,
+        del_cookies_checkbox_->IsSelected() ? true : false);
+  else if (sender == del_passwords_checkbox_)
+    profile_->GetPrefs()->SetBoolean(prefs::kDeletePasswords,
+        del_passwords_checkbox_->IsSelected() ? true : false);
+
   // When no checkbox is checked we should not have the action button enabled.
   // This forces the button to evaluate what state they should be in.
   GetDialogClientView()->UpdateDialogButtons();

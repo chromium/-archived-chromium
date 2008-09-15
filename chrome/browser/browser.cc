@@ -179,6 +179,11 @@ void Browser::RegisterUserPrefs(PrefService* prefs) {
       net::CookiePolicy::ALLOW_ALL_COOKIES);
   prefs->RegisterBooleanPref(prefs::kShowHomeButton, false);
   prefs->RegisterStringPref(prefs::kRecentlySelectedEncoding, L"");
+  prefs->RegisterBooleanPref(prefs::kDeleteBrowsingHistory, true);
+  prefs->RegisterBooleanPref(prefs::kDeleteDownloadHistory, true);
+  prefs->RegisterBooleanPref(prefs::kDeleteCache, true);
+  prefs->RegisterBooleanPref(prefs::kDeleteCookies, true);
+  prefs->RegisterBooleanPref(prefs::kDeletePasswords, false);
 }
 
 Browser::Browser(const gfx::Rect& initial_bounds,

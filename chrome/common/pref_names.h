@@ -63,6 +63,11 @@ extern const wchar_t kDnsStartupPrefetchList[];
 extern const wchar_t kIpcDisabledMessages[];
 extern const wchar_t kShowHomeButton[];
 extern const wchar_t kRecentlySelectedEncoding[];
+extern const wchar_t kDeleteBrowsingHistory[];
+extern const wchar_t kDeleteDownloadHistory[];
+extern const wchar_t kDeleteCache[];
+extern const wchar_t kDeleteCookies[];
+extern const wchar_t kDeletePasswords[];
 
 // Local state
 extern const wchar_t kAvailableProfiles[];
