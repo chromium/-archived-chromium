@@ -732,3 +732,60 @@ V8 # LayoutTests/http/tests/navigation/postredirect-basic.html = FAIL | PASS
 // installed to run.
 V8 | KJS # chrome/fast/dom/java-applet-calls.html = FAIL
 
+// These tests don't work if office is not installed. See bug # 2303
+V8 # LayoutTests/css1/font_properties/font_family.html = FAIL | PASS
+V8 # chrome/fonts/papyrus.html = FAIL | PASS
+
+// These tests don't work on the open source buildbot because the font for
+// the "->" char is different. See Bug # 2304
+V8 # LayoutTests/css2.1/t0805-c5518-brdr-t-01-e.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0805-c5519-brdr-r-00-a.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0805-c5519-brdr-r-01-e.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0805-c5520-brdr-b-01-e.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0805-c5521-brdr-l-00-a.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0805-c5521-brdr-l-01-e.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0805-c5521-ibrdr-l-00-a.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0905-c414-flt-02-c.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0905-c414-flt-03-c.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0905-c414-flt-04-c.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0905-c414-flt-fit-01-d-g.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0905-c5525-fltblck-00-d-ag.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0905-c5525-fltblck-01-d.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0905-c5525-fltcont-00-d-g.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0905-c5525-fltwidth-00-c-g.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0905-c5525-fltwidth-02-c-g.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0905-c5525-fltwidth-03-c-g.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0905-c5525-fltwrap-00-b.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t090501-c414-flt-01-b.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t090501-c414-flt-03-b-g.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t090501-c414-flt-ln-01-d-g.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t090501-c5525-flt-l-00-b-g.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t090501-c5525-flt-r-00-b-g.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t100304-c43-rpl-bbx-01-d-g.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t1205-c566-list-stl-01-c-g.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t1503-c522-font-family-00-b.html = FAIL | PASS
+V8 # LayoutTests/editing/deleting/5144139-2.html = FAIL | PASS
+V8 # LayoutTests/editing/execCommand/5119244.html = FAIL | PASS
+V8 # LayoutTests/fast/block/positioning/047.html = FAIL | PASS
+V8 # LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL | PASS
+
+// These tests don't work on the open source buildbot because some fonts are
+// missing. See bug # 2304
+// Yin yang sign look bad
+V8 # LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL | PASS
+// No black diamond with question marks in them
+V8 # LayoutTests/fast/encoding/invalid-UTF-8.html = FAIL | PASS
+// Zero width chars
+V8 # LayoutTests/fast/text/zero-width-characters.html = FAIL | PASS
+
+// HTTPS tests fail on the open source buildbot with error "cross-site not access allowed".
+// See bug # 2306
+V8 # LayoutTests/http/tests/ssl/verify-ssl-enabled.php = PASS | FAIL
+V8 # pending/http/tests/security/cross-frame-access-protocol-explicit-domain.html = PASS | TIMEOUT
+V8 # pending/http/tests/security/cross-frame-access-protocol.html = PASS | TIMEOUT
+
+// Some tests playing with dates don't work on the open source buildbot.
+// See bug # 2307
+V8 # LayoutTests/fast/js/date-DST-time-cusps.html = FAIL | PASS
+V8 # LayoutTests/fast/js/date-big-setdate.html = FAIL | PASS
