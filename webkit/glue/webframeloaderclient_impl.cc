@@ -28,12 +28,15 @@
 #pragma warning(pop)
 
 #undef LOG
+#include "base/basictypes.h"
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "net/base/mime_util.h"
 #include "net/base/net_errors.h"
+#if defined(OS_WIN)
 #include "webkit/activex_shim/activex_shared.h"
+#endif
 #include "webkit/glue/webframeloaderclient_impl.h"
 #include "webkit/glue/alt_404_page_resource_fetcher.h"
 #include "webkit/glue/glue_util.h"
@@ -1337,7 +1340,9 @@ Widget* WebFrameLoaderClient::createPlugin(const IntSize& size, // TODO(erikkay)
   StringToLowerASCII(&my_mime_type);
 
   // Get the classid and version from attributes of the object.
-  std::string clsid, version, combined_clsid;
+  std::string combined_clsid;
+#if defined(OS_WIN)
+  std::string clsid, version;
   if (activex_shim::IsMimeTypeActiveX(my_mime_type)) {
     GURL url = webframe_->GetURL();
     for (unsigned int i = 0; i < param_names.size(); i++) {
@@ -1361,6 +1366,7 @@ Widget* WebFrameLoaderClient::createPlugin(const IntSize& size, // TODO(erikkay)
     else
       combined_clsid = clsid;
   }
+#endif
 
   std::string actual_mime_type;
   WebPluginDelegate* plugin_delegate =
