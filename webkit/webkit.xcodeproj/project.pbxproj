@@ -1162,6 +1162,34 @@
 			remoteGlobalIDString = 7B58F7A60DAFC59B006F0EB5;
 			remoteInfo = jsconfig;
 		};
+		7B964ABF0E7EE4F5006D1A11 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7B964AAC0E7EE4F5006D1A11 /* libxml.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 7B12F2AC0D8EE24200CB6E8F;
+			remoteInfo = xml;
+		};
+		7B964AC10E7EE4F5006D1A11 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7B964AAC0E7EE4F5006D1A11 /* libxml.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 7B12F54E0D8EE8E400CB6E8F;
+			remoteInfo = xmlcatalog;
+		};
+		7B964AC30E7EE4F5006D1A11 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7B964AAC0E7EE4F5006D1A11 /* libxml.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 7B12F58F0D8EEB2F00CB6E8F;
+			remoteInfo = xmllint;
+		};
+		7B964AC50E7EE50F006D1A11 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7B964AAC0E7EE4F5006D1A11 /* libxml.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 7BE970530D872DC200F86D4B;
+			remoteInfo = libxml_config;
+		};
 		7BF88B770E71F3FA000BAF8A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B5E77560D7F22D8001ECF42 /* Project object */;
@@ -3475,6 +3503,7 @@
 		7B93759B0D91902E008B9587 /* JSBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSBridge.h; sourceTree = "<group>"; };
 		7B93759C0D91902F008B9587 /* KJSBridge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KJSBridge.cpp; sourceTree = "<group>"; };
 		7B93759D0D91902F008B9587 /* KJSBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KJSBridge.h; sourceTree = "<group>"; };
+		7B964AAC0E7EE4F5006D1A11 /* libxml.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxml.xcodeproj; path = third_party/libxml/libxml.xcodeproj; sourceTree = "<group>"; };
 		7BBFD2130DB7D09D00C447C7 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		7BC951D40D89D36E005C2F36 /* CSSFontSelector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSFontSelector.h; sourceTree = "<group>"; };
 		7BF8842C0E71C120000BAF8A /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
@@ -3870,6 +3899,7 @@
 				7B9375960D919010008B9587 /* port */,
 				7B5E87820D7F394A001ECF42 /* webcore */,
 				7B5E85B30D7F28F5001ECF42 /* wtf */,
+				7B964AAB0E7EE4A0006D1A11 /* Projects */,
 				7B5E776F0D7F2350001ECF42 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -5883,6 +5913,25 @@
 			path = bridge;
 			sourceTree = "<group>";
 		};
+		7B964AAB0E7EE4A0006D1A11 /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				7B964AAC0E7EE4F5006D1A11 /* libxml.xcodeproj */,
+			);
+			name = Projects;
+			path = ..;
+			sourceTree = "<group>";
+		};
+		7B964AAD0E7EE4F5006D1A11 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7B964AC00E7EE4F5006D1A11 /* libxml.a */,
+				7B964AC20E7EE4F5006D1A11 /* xmlcatalog */,
+				7B964AC40E7EE4F5006D1A11 /* xmllint */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		7BF8842B0E71C100000BAF8A /* Configuration */ = {
 			isa = PBXGroup;
 			children = (
@@ -6762,6 +6811,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				7B964AC60E7EE50F006D1A11 /* PBXTargetDependency */,
 				7BFD8E6D0DAFE79A0084BC4B /* PBXTargetDependency */,
 			);
 			name = jsbindings;
@@ -6834,6 +6884,12 @@
 			mainGroup = 7B5E77540D7F22D8001ECF42;
 			productRefGroup = 7B5E776F0D7F2350001ECF42 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 7B964AAD0E7EE4F5006D1A11 /* Products */;
+					ProjectRef = 7B964AAC0E7EE4F5006D1A11 /* libxml.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				E45627B70E2691D0005E4685 /* All */,
@@ -6847,6 +6903,30 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		7B964AC00E7EE4F5006D1A11 /* libxml.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libxml.a;
+			remoteRef = 7B964ABF0E7EE4F5006D1A11 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		7B964AC20E7EE4F5006D1A11 /* xmlcatalog */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = xmlcatalog;
+			remoteRef = 7B964AC10E7EE4F5006D1A11 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		7B964AC40E7EE4F5006D1A11 /* xmllint */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = xmllint;
+			remoteRef = 7B964AC30E7EE4F5006D1A11 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		7B2748D60E43834E009BCE03 /* Pre-Build */ = {
@@ -8078,6 +8158,11 @@
 			isa = PBXTargetDependency;
 			target = 7B58F7A60DAFC59B006F0EB5 /* jsconfig */;
 			targetProxy = 7B25FF880E78A766007855DA /* PBXContainerItemProxy */;
+		};
+		7B964AC60E7EE50F006D1A11 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = libxml_config;
+			targetProxy = 7B964AC50E7EE50F006D1A11 /* PBXContainerItemProxy */;
 		};
 		7BF88B780E71F3FA000BAF8A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
