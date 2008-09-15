@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		820EB4080E3A548E009668FC /* libWebKitSystemInterfaceLeopard.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 820EB4050E3A548E009668FC /* libWebKitSystemInterfaceLeopard.a */; };
+		82F399480E7EE4D500785E15 /* libWebKitSystemInterfaceLeopard.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 82F399470E7EE4D500785E15 /* libWebKitSystemInterfaceLeopard.a */; };
 		E450637E0E4100740025A81A /* test_shell_request_context.cc in Sources */ = {isa = PBXBuildFile; fileRef = E450637D0E4100740025A81A /* test_shell_request_context.cc */; };
 		E45628E70E26B4FE005E4685 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		E45628E80E26B4FE005E4685 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
@@ -301,7 +301,6 @@
 		820A5E760DE35E2E00871E2D /* WebSystemInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WebSystemInterface.m; path = temp/WebSystemInterface.m; sourceTree = "<group>"; };
 		820A5E850DE35FC600871E2D /* WebKitSystemInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebKitSystemInterface.h; path = temp/WebKitSystemInterface.h; sourceTree = "<group>"; };
 		820A61B80DE7623F00871E2D /* missingImage.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = missingImage.tiff; sourceTree = "<group>"; };
-		820EB4050E3A548E009668FC /* libWebKitSystemInterfaceLeopard.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWebKitSystemInterfaceLeopard.a; path = temp/libWebKitSystemInterfaceLeopard.a; sourceTree = "<group>"; };
 		824CB6100DAFEF14000C5DDE /* test_shell */ = {isa = PBXFileReference; lastKnownFileType = folder; name = test_shell; path = ../../../data/test_shell; sourceTree = SOURCE_ROOT; };
 		8287BDFA0E0AA28000CC8F2F /* aliasCursor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = aliasCursor.png; sourceTree = "<group>"; };
 		8287BDFB0E0AA28000CC8F2F /* cellCursor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cellCursor.png; sourceTree = "<group>"; };
@@ -337,6 +336,7 @@
 		829E35270DC0C95300819EBF /* icu.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = icu.xcodeproj; path = third_party/icu38/icu.xcodeproj; sourceTree = "<group>"; };
 		829E35590DC0D37B00819EBF /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = "<group>"; };
 		829E355C0DC0D47400819EBF /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = "<group>"; };
+		82F399470E7EE4D500785E15 /* libWebKitSystemInterfaceLeopard.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWebKitSystemInterfaceLeopard.a; path = temp/libWebKitSystemInterfaceLeopard.a; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AB351E2E0DC7B290002F427A /* test_navigation_controller.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_navigation_controller.cc; sourceTree = "<group>"; };
 		AB351E2F0DC7B290002F427A /* test_navigation_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_navigation_controller.h; sourceTree = "<group>"; };
@@ -383,8 +383,8 @@
 				E45629270E26B4FE005E4685 /* ApplicationServices.framework in Frameworks */,
 				E456292C0E26B4FE005E4685 /* Carbon.framework in Frameworks */,
 				E456292F0E26B4FE005E4685 /* Foundation.framework in Frameworks */,
-				820EB4080E3A548E009668FC /* libWebKitSystemInterfaceLeopard.a in Frameworks */,
 				E456292D0E26B4FE005E4685 /* QuartzCore.framework in Frameworks */,
+				82F399480E7EE4D500785E15 /* libWebKitSystemInterfaceLeopard.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -588,7 +588,7 @@
 		7BFDF4FD0E37AB4200F1D7D8 /* mac */ = {
 			isa = PBXGroup;
 			children = (
-				820EB4050E3A548E009668FC /* libWebKitSystemInterfaceLeopard.a */,
+				82F399470E7EE4D500785E15 /* libWebKitSystemInterfaceLeopard.a */,
 				29B97316FDCFA39411CA2CEA /* main.mm */,
 				ABA65EFD0DD50BFF003A4FC8 /* test_shell_webview.h */,
 				ABA65EFE0DD50BFF003A4FC8 /* test_shell_webview.mm */,
@@ -1123,6 +1123,10 @@
 			buildSettings = {
 				GCC_PREFIX_HEADER = TestShell_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/temp\"",
+				);
 				PRODUCT_NAME = TestShell;
 				WRAPPER_EXTENSION = app;
 			};
@@ -1134,6 +1138,10 @@
 			buildSettings = {
 				GCC_PREFIX_HEADER = TestShell_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/temp\"",
+				);
 				PRODUCT_NAME = TestShell;
 				WRAPPER_EXTENSION = app;
 			};
