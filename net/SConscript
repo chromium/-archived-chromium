@@ -222,6 +222,7 @@ unittest_files = [
     'base/net_util_unittest.cc',
     'base/registry_controlled_domain_unittest.cc',
     'base/run_all_unittests.cc',
+    'base/test_completion_callback_unittest.cc',
     'disk_cache/addr_unittest.cc',
     'disk_cache/block_files_unittest.cc',
     'disk_cache/disk_cache_test_base.cc',

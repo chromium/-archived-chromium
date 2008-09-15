@@ -359,6 +359,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\base\test_completion_callback_unittest.cc"
+					>
+				</File>
+				<File
 					RelativePath="..\base\wininet_util_unittest.cc"
 					>
 				</File>
