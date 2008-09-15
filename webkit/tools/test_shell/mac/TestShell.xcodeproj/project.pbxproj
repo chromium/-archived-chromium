@@ -347,11 +347,11 @@
 		AB8A78520DC553A8005C27B8 /* event_sending_controller.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = event_sending_controller.cc; sourceTree = "<group>"; };
 		AB8A78540DC553BC005C27B8 /* node_leak_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = node_leak_test.cc; sourceTree = "<group>"; };
 		AB8A78560DC553C7005C27B8 /* test_shell_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_shell_test.cc; sourceTree = "<group>"; };
-		AB8A78580DC553D7005C27B8 /* test_webview_delegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = test_webview_delegate.mm; sourceTree = "<group>"; };
+		AB8A78580DC553D7005C27B8 /* test_webview_delegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = test_webview_delegate.mm; path = mac/test_webview_delegate.mm; sourceTree = "<group>"; };
 		AB8A78590DC553D7005C27B8 /* test_webview_delegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_webview_delegate.h; sourceTree = "<group>"; };
 		AB8A785B0DC553E4005C27B8 /* text_input_controller.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = text_input_controller.cc; sourceTree = "<group>"; };
 		AB8A785C0DC553E4005C27B8 /* text_input_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = text_input_controller.h; sourceTree = "<group>"; };
-		AB8A785E0DC553EE005C27B8 /* webview_host.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webview_host.mm; sourceTree = "<group>"; };
+		AB8A785E0DC553EE005C27B8 /* webview_host.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = webview_host.mm; path = mac/webview_host.mm; sourceTree = "<group>"; };
 		AB8A78600DC553EE005C27B8 /* webview_host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = webview_host.h; sourceTree = "<group>"; };
 		AB8A786E0DC5544D005C27B8 /* test_shell_test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_shell_test.h; sourceTree = "<group>"; };
 		ABA65EFD0DD50BFF003A4FC8 /* test_shell_webview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_shell_webview.h; sourceTree = "<group>"; };
@@ -362,7 +362,7 @@
 		ABC8C4180DC7F7D000B59C21 /* zlib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = zlib.xcodeproj; path = third_party/zlib/zlib.xcodeproj; sourceTree = "<group>"; };
 		ABCF253B0DB8436B00099567 /* test_shell_switches.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_shell_switches.h; sourceTree = "<group>"; };
 		ABCF253C0DB8436B00099567 /* test_shell_switches.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_shell_switches.cc; sourceTree = "<group>"; };
-		ABD16F380DC6A73B0013D3AA /* webwidget_host.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webwidget_host.mm; sourceTree = "<group>"; };
+		ABD16F380DC6A73B0013D3AA /* webwidget_host.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = webwidget_host.mm; path = mac/webwidget_host.mm; sourceTree = "<group>"; };
 		ABD16F390DC6A73B0013D3AA /* webwidget_host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = webwidget_host.h; sourceTree = "<group>"; };
 		ABD16F700DC6CBDF0013D3AA /* base.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = base.xcodeproj; path = base/base.xcodeproj; sourceTree = "<group>"; };
 		E450637C0E4100740025A81A /* test_shell_request_context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_shell_request_context.h; sourceTree = "<group>"; };

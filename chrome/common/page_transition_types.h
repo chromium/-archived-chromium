@@ -22,6 +22,9 @@ class PageTransition {
   // A type is made of a core value and a set of qualifiers. A type has one
   // core value and 0 or or more qualifiers.
   enum {
+    // force this enum to be signed for gcc's benefit
+    UNUSED = -1,
+    
     // User got to this page by clicking a link on another page.
     LINK = 0,
 
