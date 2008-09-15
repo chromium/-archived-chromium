@@ -1,9 +1,9 @@
-// Copyright 2006 Google Inc. All Rights Reserved.
+// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
-#include <Cocoa/Cocoa.h>
+#import <Cocoa/Cocoa.h>
 #include <sys/stat.h>
-
-//#include "config.h"
 
 #include "webkit/tools/test_shell/test_shell.h"
 
@@ -35,12 +35,7 @@
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 
-// #include "webkit_strings.h"
-
 #import "skia/include/SkBitmap.h"
-
-using std::min;
-using std::max;
 
 #define MAX_LOADSTRING 100
 
@@ -70,12 +65,13 @@ static const wchar_t* kStatsFile = L"testshell";
 static int kStatsFileThreads = 20;
 static int kStatsFileCounters = 100;
 
-// Initialize static member variables
+// Define static member variables
 WindowList* TestShell::window_list_;
-WebPreferences* TestShell::web_prefs_ = NULL;
+WebPreferences* TestShell::web_prefs_;
 bool TestShell::interactive_ = true;
 int TestShell::file_test_timeout_ms_ = kDefaultFileTestTimeoutMillisecs;
-std::map<gfx::WindowHandle, TestShell *> TestShell::window_map_;
+base::LazyInstance <std::map<gfx::WindowHandle, TestShell *> >
+    TestShell::window_map_(base::LINKER_INITIALIZED);
 
 
 TestShell::TestShell() 
@@ -84,34 +80,34 @@ TestShell::TestShell()
       m_webViewHost(NULL),
       m_popupHost(NULL),
       m_focusedWidgetHost(NULL),
+      layout_test_controller_(new LayoutTestController(this)),
+      event_sending_controller_(new EventSendingController(this)),
+      text_input_controller_(new TextInputController(this)),
+      navigation_controller_(new TestNavigationController(this)),
       delegate_(new TestWebViewDelegate(this)),
       test_is_preparing_(false),
       test_is_pending_(false),
       dump_stats_table_on_exit_(false) {
-  layout_test_controller_.reset(new LayoutTestController(this));
-  event_sending_controller_.reset(new EventSendingController(this));
-  text_input_controller_.reset(new TextInputController(this));
-  navigation_controller_.reset(new TestNavigationController(this));
-  
   // load and initialize the stats table (one per process, so that multiple
   // instances don't interfere with each other)
   wchar_t statsfile[64];
   swprintf(statsfile, 64, L"%ls-%d", kStatsFile, getpid());
   
-  StatsTable *table = new StatsTable(statsfile, kStatsFileThreads, kStatsFileCounters);
+  StatsTable* table = new StatsTable(statsfile, kStatsFileThreads,
+                                     kStatsFileCounters);
   StatsTable::set_current(table);
 }
 
 TestShell::~TestShell() {
-  window_map_.erase(m_mainWnd);
+  window_map_.Get().erase(m_mainWnd);
 
   if (dump_stats_table_on_exit_) {
     // Dump the stats table.
     printf("<stats>\n");
-    StatsTable *table = StatsTable::current();
+    StatsTable* table = StatsTable::current();
     if (table != NULL) {
       int counter_max = table->GetMaxCounters();
-      for (int index=0; index < counter_max; index++) {
+      for (int index = 0; index < counter_max; index++) {
         std::string name(WideToUTF8(table->GetRowName(index)));
         if (name.length() > 0) {
           int value = table->GetRowValue(index);
@@ -196,8 +192,8 @@ void TestShell::ShutdownTestShell() {
   delete TestShell::web_prefs_;
 }
 
-NSButton *MakeTestButton(NSRect *rect, NSString *title, NSView *parent) {
-  NSButton *button = [[NSButton alloc] initWithFrame:*rect];
+NSButton* MakeTestButton(NSRect* rect, NSString* title, NSView* parent) {
+  NSButton* button = [[NSButton alloc] initWithFrame:*rect];
   [button setTitle:title];
   [button setBezelStyle:NSSmallSquareBezelStyle];
   [button setAutoresizingMask:(NSViewMaxXMargin | NSViewMinYMargin)];
@@ -210,7 +206,7 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
   // Perform application initialization:
   // send message to app controller?  need to work this out
   
-  //TODO(awalker): this is a straight recreation of windows test_shell.cc's
+  // TODO(awalker): this is a straight recreation of windows test_shell.cc's
   // window creation code--we should really pull this from the nib and grab
   // references to the already-created subviews that way.
   NSRect screen_rect = [[NSScreen mainScreen] visibleFrame];
@@ -232,7 +228,7 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
       WebViewHost::Create(m_mainWnd, delegate_.get(), *TestShell::web_prefs_));
   webView()->SetUseEditorDelegate(true);
   delegate_->RegisterDragDrop();
-  TestShellWebView *web_view = 
+  TestShellWebView* web_view = 
       static_cast<TestShellWebView*>(m_webViewHost->window_handle());
   [web_view setShell:this];
   
@@ -243,9 +239,9 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
   button_rect.origin.x += 16;
   button_rect.size.width = BUTTON_WIDTH;
   
-  NSView *content = [m_mainWnd contentView];
+  NSView* content = [m_mainWnd contentView];
   
-  NSButton *button = MakeTestButton(&button_rect, @"Back", content);
+  NSButton* button = MakeTestButton(&button_rect, @"Back", content);
   [button setTarget:web_view];
   [button setAction:@selector(goBack:)];
   
@@ -360,7 +356,7 @@ void TestShell::BindJSObjectsToWindow(WebFrame* frame) {
   }
 }
 
-/*static*/
+// static*
 bool TestShell::CreateNewWindow(const std::wstring& startingURL,
                                 TestShell** result) {
   TestShell* shell = new TestShell();
@@ -369,12 +365,12 @@ bool TestShell::CreateNewWindow(const std::wstring& startingURL,
     if (result)
       *result = shell;
     TestShell::windowList()->push_back(shell->m_mainWnd);
-    window_map_[shell->m_mainWnd] = shell;
+    window_map_.Get()[shell->m_mainWnd] = shell;
   }
   return rv;
 }
 
-/*static*/
+// static
 void TestShell::DestroyWindow(gfx::WindowHandle windowHandle) {
   // Do we want to tear down some of the machinery behind the scenes too?
   [windowHandle performClose:nil];
@@ -431,15 +427,17 @@ void TestShell::ResizeSubViews() {
   std::vector<unsigned char> png;
   SkAutoLockPixels src_bmp_lock(src_bmp); 
   PNGEncoder::Encode(
-                     reinterpret_cast<const unsigned char*>(src_bmp.getPixels()),
-                     PNGEncoder::FORMAT_BGRA, src_bmp.width(), src_bmp.height(),
-                     static_cast<int>(src_bmp.rowBytes()), true, &png);
+      reinterpret_cast<const unsigned char*>(src_bmp.getPixels()),
+      PNGEncoder::FORMAT_BGRA, src_bmp.width(), src_bmp.height(),
+      static_cast<int>(src_bmp.rowBytes()), true, &png);
   
   // Write to disk.
-  FILE* file = fopen(WideToUTF8(file_name).c_str(), "w");
-  if (file) {
-    fwrite(&png[0], 1, png.size(), file);
-    fclose(file);
+  if (png.size() > 0) {
+    FILE* file = fopen(WideToUTF8(file_name).c_str(), "w");
+    if (file) {
+      fwrite(&png[0], sizeof(unsigned char), png.size(), file);
+      fclose(file);
+    }
   }
   
   // Compute MD5 sum.
@@ -465,22 +463,22 @@ void TestShell::ResizeSubViews() {
   }
 }
 
-/* static */ bool TestShell::RunFileTest(const char *filename,
+/* static */ bool TestShell::RunFileTest(const char* filename,
                                          const TestParams& params) {
   // Load the test file into the first available window.
   if (TestShell::windowList()->empty()) {
-      LOG(ERROR) << "No windows open.";
-      return false;
+    LOG(ERROR) << "No windows open.";
+    return false;
   }
 
-  NSWindow *window = *(TestShell::windowList()->begin());
-  TestShell* shell = window_map_[window];
+  NSWindow* window = *(TestShell::windowList()->begin());
+  TestShell* shell = window_map_.Get()[window];
   shell->ResetTestController();
 
   // ResetTestController may have closed the window we were holding on to. 
   // Grab the first window again.
   window = *(TestShell::windowList()->begin());
-  shell = window_map_[window];
+  shell = window_map_.Get()[window];
   DCHECK(shell);
 
   // Clear focus between tests.
@@ -499,7 +497,7 @@ void TestShell::ResizeSubViews() {
                                                      kTestWindowYLocation)];
   shell->ResizeSubViews();
 
-  if (strstr(filename, "loading/") || strstr(filename, "loading\\"))
+  if (strstr(filename, "loading/"))
     shell->layout_test_controller()->SetShouldDumpFrameLoadCallbacks(true);
 
   shell->test_is_preparing_ = true;
@@ -568,8 +566,6 @@ void TestShell::ResizeSubViews() {
   return true;
 }
 
-#define MAX_URL_LENGTH  1024
-
 void TestShell::LoadURL(const wchar_t* url)
 {
   LoadURLForFrame(url, NULL);
@@ -596,12 +592,12 @@ void TestShell::LoadURLForFrame(const wchar_t* url,
     urlString.insert(0, "file://");
   }
 
-    std::wstring frame_string;
-    if (frame_name)
-        frame_string = frame_name;
+  std::wstring frame_string;
+  if (frame_name)
+    frame_string = frame_name;
 
-    navigation_controller_->LoadEntry(new TestNavigationEntry(
-        -1, GURL(urlString), std::wstring(), frame_string));
+  navigation_controller_->LoadEntry(new TestNavigationEntry(
+      -1, GURL(urlString), std::wstring(), frame_string));
 }
 
 bool TestShell::Navigate(const TestNavigationEntry& entry, bool reload) {
@@ -652,14 +648,16 @@ void TestShell::GoBackOrForward(int offset) {
 bool TestShell::PromptForSaveFile(const wchar_t* prompt_title,
                                   std::wstring* result)
 {
-  NSSavePanel *save_panel = [NSSavePanel savePanel];
+  NSSavePanel* save_panel = [NSSavePanel savePanel];
   
   /* set up new attributes */
   [save_panel setRequiredFileType:@"txt"];
-  [save_panel setMessage:[[NSString alloc] initWithUTF8String:WideToUTF8(prompt_title).c_str()]];
+  [save_panel setMessage:
+      [NSString stringWithUTF8String:WideToUTF8(prompt_title).c_str()]];
   
   /* display the NSSavePanel */
-  if ([save_panel runModalForDirectory:NSHomeDirectory() file:@""] == NSOKButton) {
+  if ([save_panel runModalForDirectory:NSHomeDirectory() file:@""] ==
+      NSOKButton) {
     result->assign(UTF8ToWide([[save_panel filename] UTF8String]));
     return true;
   }
@@ -672,7 +670,7 @@ static void WriteTextToFile(const std::string& data,
   FILE* fp = fopen(file_path.c_str(), "w");
   if (!fp)
     return;
-  fwrite(data.c_str(), 1, data.size(), fp);
+  fwrite(data.c_str(), sizeof(std::string::value_type), data.size(), fp);
   fclose(fp);
 }
 
@@ -687,8 +685,9 @@ void TestShell::DumpDocumentText()
   if (!PromptForSaveFile(L"Dump document text", &file_path))
     return;
   
-  WriteTextToFile(WideToUTF8(webkit_glue::DumpDocumentText(webView()->GetMainFrame())),
-                  WideToUTF8(file_path));
+  WriteTextToFile(
+      WideToUTF8(webkit_glue::DumpDocumentText(webView()->GetMainFrame())),
+      WideToUTF8(file_path));
 }
 
 void TestShell::DumpRenderTree()
@@ -697,8 +696,9 @@ void TestShell::DumpRenderTree()
   if (!PromptForSaveFile(L"Dump render tree", &file_path))
     return;
   
-  WriteTextToFile(WideToUTF8(webkit_glue::DumpRenderer(webView()->GetMainFrame())),
-                  WideToUTF8(file_path));
+  WriteTextToFile(
+      WideToUTF8(webkit_glue::DumpRenderer(webView()->GetMainFrame())),
+      WideToUTF8(file_path));
 }
 
 void TestShell::Reload() {
@@ -723,7 +723,8 @@ std::string TestShell::RewriteLocalUrl(const std::string& url) {
     file_util::AppendToPath(&replace_url, L"LayoutTests");
     replace_url.push_back(file_util::kPathSeparator);
     std::string replace_url8 = WideToUTF8(replace_url);
-    new_url = std::string("file:///") + replace_url8.append(url.substr(kPrefixLen));
+    new_url = std::string("file:///") +
+        replace_url8.append(url.substr(kPrefixLen));
   }
   return new_url;
 }
@@ -746,12 +747,12 @@ void AppendToLog(const char* file, int line, const char* msg) {
   logging::LogMessage(file, line).stream() << msg;
 }
 
-bool GetMimeTypeFromExtension(std::string &ext, std::string *mime_type) {
+bool GetMimeTypeFromExtension(std::string &ext, std::string* mime_type) {
   return net::GetMimeTypeFromExtension(UTF8ToWide(ext), mime_type);
 }
 
 bool GetMimeTypeFromFile(const std::string &file_path,
-                         std::string *mime_type) {
+                         std::string* mime_type) {
   return net::GetMimeTypeFromFile(UTF8ToWide(file_path), mime_type);
 }
 
@@ -764,13 +765,9 @@ bool GetPreferredExtensionForMimeType(const std::string& mime_type,
   return result;
 }
 
-// IMLangFontLink2* GetLangFontLink() {
-//  return webkit_glue::GetLangFontLinkHelper();
-//}
-
 std::wstring GetLocalizedString(int message_id) {
-  NSString *idString = [NSString stringWithFormat:@"%d", message_id];
-  NSString *localString = NSLocalizedString(idString, @"");
+  NSString* idString = [NSString stringWithFormat:@"%d", message_id];
+  NSString* localString = NSLocalizedString(idString, @"");
   
   return UTF8ToWide([localString UTF8String]);
 }
@@ -804,33 +801,32 @@ std::string GetDataResource(int resource_id) {
   }
 }
 
-NSCursor *LoadCursor(int cursor_id) {
-  switch (cursor_id) {
-    default:
-      return [NSCursor arrowCursor];
-  }
-  return NULL;
+NSCursor* LoadCursor(int cursor_id) {
+  // TODO(port): add some more options here
+  return [NSCursor arrowCursor];
 }
 
-bool GetApplicationDirectory(std::string *path) {
-  NSString *bundle_path = [[NSBundle mainBundle] bundlePath];
+bool GetApplicationDirectory(std::string* path) {
+  NSString* bundle_path = [[NSBundle mainBundle] bundlePath];
   if (!bundle_path)
     return false;
+  bundle_path = [bundle_path stringByDeletingLastPathComponent];
   *path = [bundle_path UTF8String];
   return true;
 }
 
 GURL GetInspectorURL() {
+  // TODO(port): is this right?
   NSLog(@"GetInspectorURL");
-  return GURL("test-shell-resource://inspector/inspector.html");  // is this right?
+  return GURL("test-shell-resource://inspector/inspector.html");
 }
 
 std::string GetUIResourceProtocol() {
   return "test-shell-resource";
 }
 
-bool GetInspectorHTMLPath(std::string *path) {
-  NSString *resource_path = [[NSBundle mainBundle] resourcePath];
+bool GetInspectorHTMLPath(std::string* path) {
+  NSString* resource_path = [[NSBundle mainBundle] resourcePath];
   if (!resource_path)
     return false;
   *path = [resource_path UTF8String];
@@ -838,8 +834,8 @@ bool GetInspectorHTMLPath(std::string *path) {
   return true;
 }
 
-bool GetExeDirectory(std::string *path) {
-  NSString *executable_path = [[NSBundle mainBundle] executablePath];
+bool GetExeDirectory(std::string* path) {
+  NSString* executable_path = [[NSBundle mainBundle] executablePath];
   if (!executable_path)
     return false;
   *path = [executable_path UTF8String];
@@ -862,7 +858,7 @@ bool IsPluginRunningInRendererProcess() {
   return true;
 }
 
-bool DownloadUrl(const std::string& url, NSWindow *caller_window) {
+bool DownloadUrl(const std::string& url, NSWindow* caller_window) {
   return false;
 }
 
@@ -886,62 +882,30 @@ void DidUnloadPlugin(const std::string& filename) {
 
 }  // namespace webkit_glue
 
-
-namespace activex_shim {
-
-bool IsActiveXAllowed(const std::string& clsid, const GURL& url) {
-  return false;  // Um, no...On second thought, no.
-}
-
-bool IsMimeTypeActiveX(const std::string& mimetype) {
-  return false;
-}
-
-bool IsActiveXInstalled(const std::string& combined_clsid) {
-  return false;
-}
-
-
-bool GetClsidFromClassidAttribute(const std::string& classid,
-                                  std::string* clsid) {
-  return false;
-}
-
-std::string GetVersionFromCodebaseAttribute(const std::string& codebase) {
-  return "";
-}
-
-}
-
-// These are here ONLY to satisfy link errors until we reinstate the objC
+// These are here ONLY to satisfy link errors until we reinstate the ObjC
 // bindings into WebCore.
 
-@interface DOMRange : NSObject {
-};
+@interface DOMRange : NSObject
 @end
 @implementation DOMRange
 @end
 
-@interface DOMDocumentFragment : NSObject {
-};
+@interface DOMDocumentFragment : NSObject
 @end
 @implementation DOMDocumentFragment
 @end
 
-@interface DOMNode : NSObject {
-};
+@interface DOMNode : NSObject
 @end
 @implementation DOMNode
 @end
 
-@interface DOMElement : NSObject {
-};
+@interface DOMElement : NSObject
 @end
 @implementation DOMElement
 @end
 
-@interface DOMCSSStyleDeclaration : NSObject {
-};
+@interface DOMCSSStyleDeclaration : NSObject
 @end
 @implementation DOMCSSStyleDeclaration
 @end

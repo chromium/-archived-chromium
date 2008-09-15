@@ -33,6 +33,9 @@
 
 #include "base/basictypes.h"
 #include "base/gfx/native_widget_types.h"
+#if defined(OS_MACOSX)
+#include "base/lazy_instance.h"
+#endif
 #include "base/ref_counted.h"
 #include "webkit/tools/test_shell/event_sending_controller.h"
 #include "webkit/tools/test_shell/layout_test_controller.h"
@@ -244,7 +247,8 @@ private:
     // A set of all our windows.
     static WindowList* window_list_;
 #if defined(OS_MACOSX)
-    static std::map<gfx::WindowHandle, TestShell *> window_map_;
+    static base::LazyInstance<std::map<gfx::WindowHandle, TestShell *> >
+        window_map_;
 #endif
 
 #if defined(OS_WIN)

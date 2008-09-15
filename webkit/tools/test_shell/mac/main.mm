@@ -8,7 +8,7 @@
 
 #include <string>
 
-// #include "base/event_recorder.h"
+#include "base/at_exit.h"
 #include "base/basictypes.h"
 #include "base/command_line.h"
 #include "base/file_util.h"
@@ -21,7 +21,7 @@
 #include "webkit/tools/test_shell/test_shell.h"
 #include "webkit/tools/test_shell/test_shell_switches.h"
 
-#include "WebSystemInterface.h"
+#include "webkit/tools/test_shell/mac/temp/WebSystemInterface.h"
 
 static char g_currentTestName[PATH_MAX];
 
@@ -44,6 +44,10 @@ void SetCurrentTestName(char* path) {
 int main(const int argc, const char *argv[]) {
   InitWebCoreSystemInterface();
   
+  // Some tests may use base::Singleton<>, thus we need to instantiate
+  // the AtExitManager or else we will leak objects.
+  base::AtExitManager at_exit_manager;  
+
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
   // Force AppKit to init itself, but don't start the runloop yet
