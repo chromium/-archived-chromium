@@ -59,7 +59,6 @@ class TestContents : public TabContents {
   // want the normal behavior of TabContents just saying it committed since we
   // want to behave more like the renderer and call RendererDidNavigate.
   virtual bool NavigateToPendingEntry(bool reload) {
-    pending_entry_.reset(new NavigationEntry(*controller()->GetPendingEntry()));
     return true;
   }
 
@@ -77,14 +76,6 @@ class TestContents : public TabContents {
     NavigationController::LoadCommittedDetails details;
     controller()->RendererDidNavigate(params, false, &details);
   }
-
-  NavigationEntry* pending_entry() const { return pending_entry_.get(); }
-  void set_pending_entry(NavigationEntry* e) { pending_entry_.reset(e); }
-
- protected:
-
- private:
-  scoped_ptr<NavigationEntry> pending_entry_;
 };
 
 class TestContentsFactory : public TabContentsFactory {
@@ -342,7 +333,6 @@ TEST_F(NavigationControllerTest, LoadURL) {
   EXPECT_EQ(0, notifications.size());
 
   // The load should now be pending.
-  EXPECT_TRUE(contents->pending_entry());
   EXPECT_EQ(contents->controller()->GetEntryCount(), 0);
   EXPECT_EQ(contents->controller()->GetLastCommittedEntryIndex(), -1);
   EXPECT_EQ(contents->controller()->GetPendingEntryIndex(), -1);
@@ -372,7 +362,6 @@ TEST_F(NavigationControllerTest, LoadURL) {
   contents->controller()->LoadURL(url2, PageTransition::TYPED);
 
   // The load should now be pending.
-  EXPECT_TRUE(contents->pending_entry());
   EXPECT_EQ(contents->controller()->GetEntryCount(), 1);
   EXPECT_EQ(contents->controller()->GetLastCommittedEntryIndex(), 0);
   EXPECT_EQ(contents->controller()->GetPendingEntryIndex(), -1);
@@ -598,8 +587,6 @@ TEST_F(NavigationControllerTest, Reload_GeneratesNewPage) {
   contents->controller()->Reload();
   EXPECT_EQ(0, notifications.size());
 
-  contents->pending_entry()->set_url(url2);
-  contents->pending_entry()->set_transition_type(PageTransition::LINK);
   contents->CompleteNavigationAsRenderer(1, url2);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
 
@@ -985,10 +972,6 @@ TEST_F(NavigationControllerTest, LinkClick) {
   contents->CompleteNavigationAsRenderer(0, url1);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
 
-  contents->set_pending_entry(new NavigationEntry(kTestContentsType1, NULL, 0,
-                                                  url2,
-                                                  std::wstring(),
-                                                  PageTransition::LINK));
   contents->CompleteNavigationAsRenderer(1, url2);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
 
