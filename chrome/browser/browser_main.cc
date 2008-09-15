@@ -453,6 +453,21 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   ShellIntegration::VerifyInstallation();
 
   browser_process->InitBrokerServices(broker_services);
+  
+  // In unittest mode, this will do nothing.  In normal mode, this will create
+  // the global GoogleURLTracker instance, which will promptly go to sleep for
+  // five seconds (to avoid slowing startup), and wake up afterwards to see if
+  // it should do anything else.  If we don't cause this creation now, it won't
+  // happen until someone else asks for the tracker, at which point we may no
+  // longer want to sleep for five seconds.
+  //
+  // A simpler way of doing all this would be to have some function which could
+  // give the time elapsed since startup, and simply have the tracker check that
+  // when asked to initialize itself, but this doesn't seem to exist.
+  //
+  // This can't be created in the BrowserProcessImpl constructor because it
+  // needs to read prefs that get set after that runs.
+  browser_process->google_url_tracker();
 
   // Have Chrome plugins write their data to the profile directory.
   PluginService::GetInstance()->SetChromePluginDataDir(profile->GetPath());

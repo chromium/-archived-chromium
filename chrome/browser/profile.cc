@@ -142,6 +142,9 @@ class ProfileImpl::RequestContext : public URLRequestContext,
     // profile - at least until we support multiple profiles.
     if (!default_request_context_)
       default_request_context_ = this;
+    NotificationService::current()->Notify(
+        NOTIFY_DEFAULT_REQUEST_CONTEXT_AVAILABLE,
+        NotificationService::AllSources(), NotificationService::NoDetails());
 
     // Register for notifications about prefs.
     prefs_->AddPrefObserver(prefs::kAcceptLanguages, this);
@@ -707,7 +710,8 @@ URLRequestContext* ProfileImpl::GetRequestContext() {
     file_util::AppendToPath(&cookie_path, chrome::kCookieFilename);
     std::wstring cache_path = GetPath();
     file_util::AppendToPath(&cache_path, chrome::kCacheDirname);
-    request_context_ = new ProfileImpl::RequestContext(cookie_path, cache_path, GetPrefs());
+    request_context_ =
+        new ProfileImpl::RequestContext(cookie_path, cache_path, GetPrefs());
     request_context_->AddRef();
 
     DCHECK(request_context_->cookie_store());

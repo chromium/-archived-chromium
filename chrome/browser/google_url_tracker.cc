@@ -7,7 +7,6 @@
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
-#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "net/base/load_flags.h"
@@ -19,7 +18,15 @@ GoogleURLTracker::GoogleURLTracker()
     : google_url_(g_browser_process->local_state()->GetString(
           prefs::kLastKnownGoogleURL)),
 #pragma warning(suppress: 4355)  // Okay to pass "this" here.
-      fetcher_factory_(this) {
+      fetcher_factory_(this),
+      in_startup_sleep_(true),
+      already_fetched_(false),
+      need_to_fetch_(false),
+      request_context_available_(!!Profile::GetDefaultRequestContext()) {
+  NotificationService::current()->AddObserver(this,
+      NOTIFY_DEFAULT_REQUEST_CONTEXT_AVAILABLE,
+      NotificationService::AllSources());
+
   // Because this function can be called during startup, when kicking off a URL
   // fetch can eat up 20 ms of time, we delay five seconds, which is hopefully
   // long enough to be after startup, but still get results back quickly.
@@ -28,16 +35,31 @@ GoogleURLTracker::GoogleURLTracker()
   // no function to do this.
   static const int kStartFetchDelayMS = 5000;
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
-      fetcher_factory_.NewRunnableMethod(&GoogleURLTracker::StartFetch),
+      fetcher_factory_.NewRunnableMethod(&GoogleURLTracker::FinishSleep),
       kStartFetchDelayMS);
 }
 
+GoogleURLTracker::~GoogleURLTracker() {
+  NotificationService::current()->RemoveObserver(this,
+      NOTIFY_DEFAULT_REQUEST_CONTEXT_AVAILABLE,
+      NotificationService::AllSources());
+}
+
+// static
 GURL GoogleURLTracker::GoogleURL() {
   const GoogleURLTracker* const tracker =
       g_browser_process->google_url_tracker();
   return tracker ? tracker->google_url_ : GURL(kDefaultGoogleHomepage);
 }
 
+// static
+void GoogleURLTracker::RequestServerCheck() {
+  GoogleURLTracker* const tracker = g_browser_process->google_url_tracker();
+  if (tracker)
+    tracker->SetNeedToFetch();
+}
+
+// static
 void GoogleURLTracker::RegisterPrefs(PrefService* prefs) {
   prefs->RegisterStringPref(prefs::kLastKnownGoogleURL,
                             ASCIIToWide(kDefaultGoogleHomepage));
@@ -71,7 +93,31 @@ bool GoogleURLTracker::CheckAndConvertToGoogleBaseURL(const GURL& url,
   return true;
 }
 
-void GoogleURLTracker::StartFetch() {
+void GoogleURLTracker::SetNeedToFetch() {
+  need_to_fetch_ = true;
+  StartFetchIfDesirable();
+}
+
+void GoogleURLTracker::FinishSleep() {
+  in_startup_sleep_ = false;
+  StartFetchIfDesirable();
+}
+
+void GoogleURLTracker::StartFetchIfDesirable() {
+  // Bail if a fetch isn't appropriate right now.  This function will be called
+  // again each time one of the preconditions changes, so we'll fetch
+  // immediately once all of them are met.
+  //
+  // See comments in header on the class, on RequestServerCheck(), and on the
+  // various members here for more detail on exactly what the conditions are.
+  if (in_startup_sleep_ || already_fetched_ || !need_to_fetch_ ||
+      !request_context_available_)
+    return;
+
+  need_to_fetch_ = false;
+  already_fetched_ = true;  // If fetching fails, we don't bother to reset this
+                            // flag; we just live with an outdated URL for this
+                            // run of the browser.
   fetcher_.reset(new URLFetcher(GURL(kDefaultGoogleHomepage), URLFetcher::HEAD,
                                 this));
   fetcher_->set_load_flags(net::LOAD_DISABLE_CACHE);
@@ -111,3 +157,10 @@ void GoogleURLTracker::OnURLFetchComplete(const URLFetcher* source,
   }
 }
 
+void GoogleURLTracker::Observe(NotificationType type,
+                               const NotificationSource& source,
+                               const NotificationDetails& details) {
+  DCHECK_EQ(NOTIFY_DEFAULT_REQUEST_CONTEXT_AVAILABLE, type);
+  request_context_available_ = true;
+  StartFetchIfDesirable();
+}

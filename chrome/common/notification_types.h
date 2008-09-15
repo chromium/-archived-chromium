@@ -432,6 +432,12 @@ enum NotificationType {
   // This is sent to a pref observer when a pref is changed.
   NOTIFY_PREF_CHANGED,
 
+  // Sent when a default request context has been created, so calling
+  // Profile::GetDefaultRequestContext() will not return NULL.  This is sent on
+  // the thread where Profile::GetRequestContext() is first called, which should
+  // be the UI thread.
+  NOTIFY_DEFAULT_REQUEST_CONTEXT_AVAILABLE,
+
   // Autocomplete --------------------------------------------------------------
 
   // This is sent when an item of the Omnibox popup is selected. The source is
