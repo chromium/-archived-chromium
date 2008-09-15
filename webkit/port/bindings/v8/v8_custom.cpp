@@ -1282,20 +1282,6 @@ NAMED_PROPERTY_GETTER(DOMWindow) {
   if (!result.IsEmpty())
     return result;
 
-  // Search named items in the document.
-  Document* doc = frame->document();
-  if (doc) {
-    RefPtr<HTMLCollection> items = doc->windowNamedItems(prop_name);
-    if (items->length() >= 1) {
-      if (items->length() == 1) {
-        return V8Proxy::ToV8Object(V8ClassIndex::NODE, items->firstItem());
-      } else {
-        return V8Proxy::ToV8Object(V8ClassIndex::HTMLCOLLECTION,
-                                   static_cast<Peerable*>(items.get()));
-      }
-    }
-  }
-
   // Lazy initialization map keeps global properties that can be lazily
   // initialized. The value is the code to instantiate the property.
   // It must return the value of property after initialization.
@@ -1349,9 +1335,21 @@ NAMED_PROPERTY_GETTER(DOMWindow) {
     ASSERT(proxy);
 
     v8::Local<v8::Value> result = proxy->Evaluate(prop_name, 0, code, 0);
-    if (result.IsEmpty()) return result;
-
     return result;
+  }
+
+  // Search named items in the document.
+  Document* doc = frame->document();
+  if (doc) {
+    RefPtr<HTMLCollection> items = doc->windowNamedItems(prop_name);
+    if (items->length() >= 1) {
+      if (items->length() == 1) {
+        return V8Proxy::ToV8Object(V8ClassIndex::NODE, items->firstItem());
+      } else {
+        return V8Proxy::ToV8Object(V8ClassIndex::HTMLCOLLECTION,
+                                   static_cast<Peerable*>(items.get()));
+      }
+    }
   }
 
   return v8::Handle<v8::Value>();
@@ -1415,6 +1413,8 @@ NAMED_PROPERTY_GETTER(HTMLDocument) {
   if (!imp->hasNamedItem(key) && !imp->hasDocExtraNamedItem(key)) {
     return v8::Handle<v8::Value>();
   }
+
+
   RefPtr<HTMLCollection> items = imp->documentNamedItems(key);
   if (items->length() == 0) return v8::Handle<v8::Value>();
   if (items->length() == 1) {
