@@ -141,16 +141,11 @@ HttpNetworkTransaction::~HttpNetworkTransaction() {
 }
 
 void HttpNetworkTransaction::BuildRequestHeaders() {
-  std::string path;
-  if (using_proxy_) {
-    // TODO(darin): GURL should have a method for this.
-    path = request_->url.spec();
-    size_t ref_pos = path.rfind('#');
-    if (ref_pos != std::string::npos)
-      path.erase(ref_pos);
-  } else {
-    path = request_->url.PathForRequest();
-  }
+  // For proxy use the full url. Otherwise just the absolute path.
+  // This strips out any reference/username/password.
+  std::string path = using_proxy_ ?
+      HttpUtil::SpecForRequest(request_->url) :
+      HttpUtil::PathForRequest(request_->url);
 
   request_headers_ = request_->method + " " + path +
       " HTTP/1.1\r\nHost: " + request_->url.host();

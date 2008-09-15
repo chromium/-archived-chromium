@@ -53,6 +53,24 @@ static size_t FindStringEnd(const string& line, size_t start, char delim) {
 //-----------------------------------------------------------------------------
 
 // static
+std::string HttpUtil::PathForRequest(const GURL& url) {
+  DCHECK(url.is_valid() && (url.SchemeIs("http") || url.SchemeIs("https")));
+  if (url.has_query())
+    return url.path() + "?" + url.query();
+  return url.path(); 
+}
+
+// static
+std::string HttpUtil::SpecForRequest(const GURL& url) {
+  DCHECK(url.is_valid() && (url.SchemeIs("http") || url.SchemeIs("https")));
+  GURL::Replacements replacements;
+  replacements.ClearUsername();
+  replacements.ClearPassword();
+  replacements.ClearRef();
+  return url.ReplaceComponents(replacements).spec();
+}
+
+// static
 size_t HttpUtil::FindDelimiter(const string& line, size_t search_start,
                                char delimiter) {
   do {

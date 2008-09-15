@@ -6,6 +6,7 @@
 #define NET_HTTP_HTTP_UTIL_H_
 
 #include "base/string_tokenizer.h"
+#include "googleurl/src/gurl.h"
 
 // This is a macro to support extending this string literal at compile time.
 // Please excuse me polluting your global namespace!
@@ -15,6 +16,15 @@ namespace net {
 
 class HttpUtil {
  public:
+   // Returns the absolute path of the URL, to be used for the http request.
+   // The absolute path starts with a '/' and may contain a query.
+   static std::string PathForRequest(const GURL& url);
+
+   // Returns the absolute URL, to be used for the http request. This url is
+   // made up of the protocol, host, [port], path, [query]. Everything else
+   // is stripped (username, password, reference).
+   static std::string SpecForRequest(const GURL& url);
+
   // Locates the next occurance of delimiter in line, skipping over quoted
   // strings (e.g., commas will not be treated as delimiters if they appear
   // within a quoted string).  Returns the offset of the found delimiter or
