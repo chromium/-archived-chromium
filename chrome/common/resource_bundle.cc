@@ -31,7 +31,7 @@ DWORD GetDataDllLoadFlags() {
   if (win_util::GetWinVersion() >= win_util::WINVERSION_VISTA)
     return LOAD_LIBRARY_AS_DATAFILE_EXCLUSIVE | LOAD_LIBRARY_AS_IMAGE_RESOURCE;
 
-  return 0;
+  return LOAD_LIBRARY_AS_DATAFILE;
 }
 
 /* static */
