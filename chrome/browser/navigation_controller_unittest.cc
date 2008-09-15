@@ -35,7 +35,8 @@ const TabContentsType kTestContentsType2 =
     static_cast<TabContentsType>(TAB_CONTENTS_NUM_TYPES + 2);
 
 // Tests can set this to set the site instance for all the test contents. This
-// refcounted pointer will be automatically derefed on cleanup.
+// refcounted pointer will NOT be derefed on cleanup (the tests do this
+// themselves).
 static SiteInstance* site_instance;
 
 // TestContents ----------------------------------------------------------------
@@ -129,10 +130,7 @@ class NavigationControllerTest : public testing::Test,
   }
 
   virtual void TearDown() {
-    if (site_instance) {
-      site_instance->Release();
-      site_instance = NULL;
-    }
+    site_instance = NULL;
 
     // Make sure contents is valid. NavigationControllerHistoryTest ends up
     // resetting this before TearDown is invoked.
@@ -1219,6 +1217,7 @@ TEST_F(NavigationControllerTest, EnforceMaxNavigationCount) {
 // SiteInstance for the entries created initially.
 TEST_F(NavigationControllerTest, RestoreNavigate) {
   site_instance = SiteInstance::CreateSiteInstance(profile);
+  site_instance->AddRef();
 
   // Create a NavigationController with a restored set of tabs.
   GURL url("test1:foo");
@@ -1253,6 +1252,11 @@ TEST_F(NavigationControllerTest, RestoreNavigate) {
   EXPECT_FALSE(controller->GetPendingEntry());
   EXPECT_EQ(site_instance,
             controller->GetLastCommittedEntry()->site_instance());
+
+  // Clean up the navigation controller.
+  ClearContents();
+  controller->Destroy();
+  site_instance->Release();
 }
 
 // Make sure that the page type and stuff is correct after an interstitial.
