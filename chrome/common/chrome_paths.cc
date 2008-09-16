@@ -143,11 +143,20 @@ bool PathProvider(int key, std::wstring* result) {
       break;
     case chrome::FILE_GEARS_PLUGIN:
       if (!GetGearsPluginPathFromCommandLine(&cur)) {
-        if (!PathService::Get(base::DIR_EXE, &cur))
+        // Search for gears.dll alongside chrome.dll first.  This new model
+        // allows us to package gears.dll with the Chrome installer and update
+        // it while Chrome is running.
+        if (!PathService::Get(base::DIR_MODULE, &cur))
           return false;
-        file_util::AppendToPath(&cur, L"plugins");
-        file_util::AppendToPath(&cur, L"gears");
         file_util::AppendToPath(&cur, L"gears.dll");
+
+        if (!file_util::PathExists(cur)) {
+          if (!PathService::Get(base::DIR_EXE, &cur))
+            return false;
+          file_util::AppendToPath(&cur, L"plugins");
+          file_util::AppendToPath(&cur, L"gears");
+          file_util::AppendToPath(&cur, L"gears.dll");
+        }
       }
       exists = true;
       break;
