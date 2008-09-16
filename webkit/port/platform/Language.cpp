@@ -29,26 +29,11 @@
 
 #include "CString.h"
 #include "PlatformString.h"
+#include "webkit/glue/glue_util.h"
+#include "webkit/glue/webkit_glue.h"
 
 
 namespace WebCore {
-
-static String localeInfo(LCTYPE localeType, const String& fallback)
-{
-    LANGID langID = GetUserDefaultUILanguage();
-    int localeChars = GetLocaleInfo(langID, localeType, 0, 0);
-    if (!localeChars)
-        return fallback;
-    Vector<WCHAR> localeNameBuf(localeChars);
-    localeChars = GetLocaleInfo(langID, localeType, localeNameBuf.data(), localeChars);
-    if (!localeChars)
-        return fallback;
-    String localeName = String::adopt(localeNameBuf);
-    if (localeName.isEmpty())
-        return fallback;
-
-    return localeName;
-}
 
 String defaultLanguage()
 {
@@ -56,14 +41,8 @@ String defaultLanguage()
     if (!computedDefaultLanguage.isEmpty())
         return computedDefaultLanguage;
 
-    String languageName = localeInfo(LOCALE_SISO639LANGNAME, "en");
-    String countryName = localeInfo(LOCALE_SISO3166CTRYNAME, String());
-
-    if (countryName.isEmpty())
-        computedDefaultLanguage = languageName;
-    else
-        computedDefaultLanguage = String::format("%s-%s", languageName.latin1().data(), countryName.latin1().data());
-
+    computedDefaultLanguage =
+        webkit_glue::StdWStringToString(webkit_glue::GetWebKitLocale());
     return computedDefaultLanguage;
 }
 
