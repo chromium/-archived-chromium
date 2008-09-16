@@ -158,6 +158,8 @@ if env['PLATFORM'] == 'posix':
       'atomicops_internals_x86_gcc.cc',
       'base_paths_linux.cc',
       'file_util_linux.cc',
+      'hmac_nss.cc',
+      'nss_init.cc',
       'sys_string_conversions_linux.cc',
       'worker_pool.cc',
   ])
@@ -235,6 +237,7 @@ test_files = [
     'command_line_unittest.cc',
     'condition_variable_unittest.cc',
     'file_util_unittest.cc',
+    'hmac_unittest.cc',
     'histogram_unittest.cc',
     'json_reader_unittest.cc',
     'json_writer_unittest.cc',
@@ -281,7 +284,6 @@ if env['PLATFORM'] == 'win32':
 
   test_files.extend([
     'clipboard_unittest.cc',
-    'hmac_unittest.cc',
     'idletimer_unittest.cc',
     'process_util_unittest.cc',
     'run_all_unittests.cc',
