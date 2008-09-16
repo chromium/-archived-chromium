@@ -703,7 +703,6 @@
 		E45624F20E268E87005E4685 /* CursorMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90DD0D7F3CC2001ECF42 /* CursorMac.mm */; };
 		E45624F30E268E87005E4685 /* DeprecatedStringListMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90DE0D7F3CC2001ECF42 /* DeprecatedStringListMac.mm */; };
 		E45624F40E268E87005E4685 /* DeprecatedStringMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90DF0D7F3CC2001ECF42 /* DeprecatedStringMac.mm */; };
-		E45624F50E268E87005E4685 /* DragDataMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90E00D7F3CC2001ECF42 /* DragDataMac.mm */; };
 		E45624F60E268E87005E4685 /* DragImageMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90E10D7F3CC2001ECF42 /* DragImageMac.mm */; };
 		E45624F70E268E87005E4685 /* FileChooserMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90E20D7F3CC2001ECF42 /* FileChooserMac.mm */; };
 		E45624F80E268E87005E4685 /* FileSystemMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90E30D7F3CC2001ECF42 /* FileSystemMac.mm */; };
@@ -1152,6 +1151,8 @@
 		E4E4C88F0E783E49009A687C /* SkGraphicsContextMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C88E0E783E49009A687C /* SkGraphicsContextMac.cpp */; };
 		E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FBD0D7F3CC1001ECF42 /* ImageSourceCG.cpp */; };
 		E4E4CA470E8027ED009A687C /* FontCacheMacPending.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */; };
+		E4E4CA710E803415009A687C /* DragDataMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90E00D7F3CC2001ECF42 /* DragDataMac.mm */; };
+		E4E4CA910E803BB9009A687C /* AXObjectCacheMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4CA900E803BB9009A687C /* AXObjectCacheMac.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -3703,6 +3704,7 @@
 		E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlatformContextSkia.cpp; sourceTree = "<group>"; };
 		E4E4C88E0E783E49009A687C /* SkGraphicsContextMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkGraphicsContextMac.cpp; sourceTree = "<group>"; };
 		E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FontCacheMacPending.cpp; path = mac/FontCacheMacPending.cpp; sourceTree = "<group>"; };
+		E4E4CA900E803BB9009A687C /* AXObjectCacheMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AXObjectCacheMac.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -6759,6 +6761,7 @@
 		E4A970880E3614F200E8EF3B /* page */ = {
 			isa = PBXGroup;
 			children = (
+				E4E4CA900E803BB9009A687C /* AXObjectCacheMac.cpp */,
 				E4A9708A0E36150500E8EF3B /* ChromeClientWin.h */,
 			);
 			path = page;
@@ -7425,7 +7428,7 @@
 				E45624A10E268E87005E4685 /* DragController.cpp in Sources */,
 				E45624A90E268E87005E4685 /* DragControllerMac.mm in Sources */,
 				E45624BD0E268E87005E4685 /* DragData.cpp in Sources */,
-				E45624F50E268E87005E4685 /* DragDataMac.mm in Sources */,
+				E4E4CA710E803415009A687C /* DragDataMac.mm in Sources */,
 				E45624BE0E268E87005E4685 /* DragImage.cpp in Sources */,
 				E45624F60E268E87005E4685 /* DragImageMac.mm in Sources */,
 				E45623BE0E268E87005E4685 /* DynamicNodeList.cpp in Sources */,
@@ -8131,6 +8134,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4E4CA910E803BB9009A687C /* AXObjectCacheMac.cpp in Sources */,
 				E45627EF0E2694B8005E4685 /* BackForwardList.cpp in Sources */,
 				E45627EA0E2694B8005E4685 /* BMPImageDecoder.cpp in Sources */,
 				E45627E90E2694B8005E4685 /* BMPImageReader.cpp in Sources */,
