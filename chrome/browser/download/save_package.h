@@ -127,7 +127,7 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage> {
 
   // Since for one tab, it can only have one SavePackage in same time.
   // Now we actually use render_process_id as tab's unique id.
-  int GetTabId();
+  int tab_id() const { return tab_id_; }
 
   // Helper function for preparing suggested name for the SaveAs Dialog. The
   // suggested name is composed of the default save path and the web document's
@@ -302,6 +302,9 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage> {
   // Indicates current waiting state when SavePackage try to get something
   // from outside.
   WaitState wait_state_;
+
+  // Unique id for this SavePackage.
+  const int tab_id_;
 
   DISALLOW_EVIL_CONSTRUCTORS(SavePackage);
 };

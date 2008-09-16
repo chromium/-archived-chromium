@@ -90,7 +90,7 @@ void SaveFileManager::RegisterStartingRequest(const std::wstring& save_url,
                                               SavePackage* save_package) {
   // Make sure it runs in the UI thread.
   DCHECK(MessageLoop::current() == ui_loop_);
-  int tab_id = save_package->GetTabId();
+  int tab_id = save_package->tab_id();
 
   // Register this starting request.
   StartingRequestsMap& starting_requests = tab_starting_requests_[tab_id];
@@ -201,7 +201,7 @@ void SaveFileManager::RemoveSaveFile(int save_id, const std::wstring& save_url,
   // so remove it if it exists.
   if (save_id == -1) {
     SavePackage* old_package = UnregisterStartingRequest(save_url,
-                                                         package->GetTabId());
+                                                         package->tab_id());
     DCHECK(old_package == package);
   } else {
     SavePackageMap::iterator it = packages_.find(save_id);
@@ -560,7 +560,10 @@ void SaveFileManager::OnFinishSavePageJob(int render_process_id,
   SavePackage* save_package =
       GetSavePackageFromRenderIds(render_process_id, render_view_id);
 
-  save_package->Finish();
+  if (save_package) {
+    // save_package is null if save was canceled.
+    save_package->Finish();
+  }
 }
 
 void SaveFileManager::RemoveSavedFileFromFileMap(

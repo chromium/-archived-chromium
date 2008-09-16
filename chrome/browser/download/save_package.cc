@@ -68,7 +68,8 @@ SavePackage::SavePackage(WebContents* web_content,
       user_canceled_(false),
       download_(NULL),
       finished_(false),
-      wait_state_(INITIALIZE) {
+      wait_state_(INITIALIZE),
+      tab_id_(web_content->process()->host_id()) {
   DCHECK(web_content);
   const GURL& current_page_url = web_contents_->GetURL();
   DCHECK(current_page_url.is_valid());
@@ -91,7 +92,8 @@ SavePackage::SavePackage(const wchar_t* file_full_path,
       finished_(true),
       download_(NULL),
       user_canceled_(false),
-      disk_error_occurred_(false) {
+      disk_error_occurred_(false),
+      tab_id_(0) {
   DCHECK(!saved_main_file_path_.empty() &&
          saved_main_file_path_.length() <= kMaxFilePathLength);
   DCHECK(!saved_main_directory_path_.empty() &&
@@ -366,7 +368,7 @@ void SavePackage::StartSave(const SaveFileCreateInfo* info) {
                           &SaveFileManager::SaveLocalFile,
                           save_item->url(),
                           save_item->save_id(),
-                          GetTabId()));
+                          tab_id()));
     return;
   }
 
@@ -709,11 +711,6 @@ void SavePackage::DoSavingProcess() {
   }
 }
 
-int SavePackage::GetTabId() {
-  DCHECK(web_contents_);
-  return web_contents_->process()->host_id();
-}
-
 // After finishing all SaveItems which need to get data from net.
 // We collect all URLs which have local storage and send the
 // map:(originalURL:currentLocalPath) to render process (backend).
@@ -776,7 +773,7 @@ void SavePackage::ProcessSerializedHtmlData(const GURL& frame_url,
   if (wait_state_ != HTML_DATA)
     return;
 
-  int tab_id = GetTabId();
+  int id = tab_id();
   // If the all frames are finished saving, we need to close the
   // remaining SaveItems.
   if (flag == webkit_glue::DomSerializerDelegate::ALL_FRAMES_ARE_FINISHED) {
@@ -787,7 +784,7 @@ void SavePackage::ProcessSerializedHtmlData(const GURL& frame_url,
                             &SaveFileManager::SaveFinished,
                             it->second->save_id(),
                             it->second->url(),
-                            tab_id,
+                            id,
                             true));
     }
     return;
@@ -821,7 +818,7 @@ void SavePackage::ProcessSerializedHtmlData(const GURL& frame_url,
                           &SaveFileManager::SaveFinished,
                           save_item->save_id(),
                           save_item->url(),
-                          tab_id,
+                          id,
                           true));
   }
 }
