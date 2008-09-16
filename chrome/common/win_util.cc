@@ -242,8 +242,10 @@ void ShowItemInFolder(const std::wstring& full_path) {
 // Open an item via a shell execute command. Error code checking and casting
 // explanation: http://msdn2.microsoft.com/en-us/library/ms647732.aspx
 bool OpenItemViaShell(const std::wstring& full_path, bool ask_for_app) {
-  HINSTANCE h = ::ShellExecuteW(NULL, NULL, full_path.c_str(), NULL,
-                                NULL, SW_SHOWNORMAL);
+  HINSTANCE h = ::ShellExecuteW(
+      NULL, NULL, full_path.c_str(), NULL,
+      file_util::GetDirectoryFromPath(full_path).c_str(), SW_SHOWNORMAL);
+
   LONG_PTR error = reinterpret_cast<LONG_PTR>(h);
   if (error > 32)
     return true;
