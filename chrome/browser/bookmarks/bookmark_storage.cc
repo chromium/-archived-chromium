@@ -147,9 +147,18 @@ void BookmarkStorageBackend::Write(Value* value) {
           MoveFileEx(tmp_file.c_str(), path_.c_str(),
                      MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING);
       DCHECK(move_result);
+      if (!move_result)
+        LOG(WARNING) << " writing bookmarks failed, result=" << move_result;
+      else
+        LOG(INFO) << "wrote bookmarks, file=" << path_;
+    } else {
+      LOG(INFO) << "wrote bookmarks, file=" << path_;
     }
     // Nuke the history file so that we don't attempt to load from it again.
     file_util::Delete(tmp_history_path_, false);
+  } else {
+    LOG(WARNING) << " writing bookmarks failed, bytes written=" <<
+        bytes_written;
   }
 }
 

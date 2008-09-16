@@ -122,6 +122,8 @@ void BookmarkModel::Load() {
     return;
   }
 
+  LOG(INFO) << "Loading bookmarks";
+
   // Listen for changes to favicons so that we can update the favicon of the
   // node appropriately.
   NotificationService::current()->AddObserver(
@@ -394,6 +396,9 @@ void BookmarkModel::OnBookmarkStorageLoadedBookmarks(
     return;
   }
 
+  LOG(INFO) << "Loaded bookmarks, file_exists=" << file_exists <<
+      " from_history=" << loaded_from_history;
+
   if (file_exists || loaded_from_history || !profile_ ||
       !profile_->GetHistoryService(Profile::EXPLICIT_ACCESS)) {
     // The file exists, we're loaded.
@@ -418,6 +423,8 @@ void BookmarkModel::OnBookmarkStorageLoadedBookmarks(
       profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
   if (!history->backend_loaded()) {
     // The backend isn't finished loading. Wait for it.
+    LOG(INFO) << " waiting for history to finish";
+
     waiting_for_history_load_ = true;
     NotificationService::current()->AddObserver(
         this, NOTIFY_HISTORY_LOADED, Source<Profile>(profile_));
@@ -431,6 +438,8 @@ void BookmarkModel::OnHistoryDone() {
     NOTREACHED();
     return;
   }
+
+  LOG(INFO) << " history done, reloading";
 
   // If the bookmarks were stored in the db the db will have migrated them to
   // a file now. Try loading from the file.

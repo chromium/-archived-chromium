@@ -639,6 +639,7 @@ void HistoryService::BroadcastNotifications(
 }
 
 void HistoryService::OnDBLoaded() {
+  LOG(INFO) << "History backend finished loading";
   backend_loaded_ = true;
   NotificationService::current()->Notify(NOTIFY_HISTORY_LOADED,
                                          Source<Profile>(profile_),
