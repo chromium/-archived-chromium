@@ -12,6 +12,11 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 
+#if defined(OS_MACOSX)
+#include <mach/mach_host.h>
+#include <mach/mach_init.h>
+#endif
+
 namespace disk_cache {
 
 int64 GetFreeDiskSpace(const std::wstring& path) {
@@ -36,8 +41,16 @@ int64 GetSystemMemory() {
   int64 result = static_cast<int64>(pages) * page_size;
   DCHECK(result > 0);
   return result;
+#elif defined(OS_MACOSX)
+  struct host_basic_info hostinfo;
+  mach_msg_type_number_t count = HOST_BASIC_INFO_COUNT;
+  int result = host_info(mach_host_self(),
+                         HOST_BASIC_INFO,
+                         reinterpret_cast<host_info_t>(&hostinfo),
+                         &count);
+  DCHECK_EQ(HOST_BASIC_INFO_COUNT, count);
+  return (result == KERN_SUCCESS) ? hostinfo.max_mem : -1;
 #else
-  // TODO(pinkerton): figure this out for mac
   NOTIMPLEMENTED();
   return -1;
 #endif
