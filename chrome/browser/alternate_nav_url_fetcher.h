@@ -2,12 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_ALTERNATE_NAV_URL_FETCHER_H__
-#define CHROME_BROWSER_ALTERNATE_NAV_URL_FETCHER_H__
+#ifndef CHROME_BROWSER_ALTERNATE_NAV_URL_FETCHER_H_
+#define CHROME_BROWSER_ALTERNATE_NAV_URL_FETCHER_H_
 
 #include <string>
 
 #include "chrome/browser/url_fetcher.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 
 class NavigationController;
@@ -32,12 +33,6 @@ class AlternateNavURLFetcher : public NotificationObserver,
 
   State state() const { return state_; }
 
-  // Called by the NavigationController when it successfully navigates to the
-  // entry for which the fetcher is looking up an alternative.
-  // NOTE: This can be theoretically called multiple times, if multiple
-  // navigations with the same unique ID succeed.
-  void OnNavigatedToEntry();
-
   // NotificationObserver
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
@@ -52,7 +47,9 @@ class AlternateNavURLFetcher : public NotificationObserver,
                                   const std::string& data);
 
  private:
-  void ShowInfobar();
+  // Displays the infobar if all conditions are met (the page has loaded and
+  // the fetch of the alternate URL succeeded).
+  void ShowInfobarIfPossible();
 
   std::wstring alternate_nav_url_;
   scoped_ptr<URLFetcher> fetcher_;
@@ -60,8 +57,10 @@ class AlternateNavURLFetcher : public NotificationObserver,
   State state_;
   bool navigated_to_entry_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(AlternateNavURLFetcher);
+  NotificationRegistrar registrar_;
+
+  DISALLOW_COPY_AND_ASSIGN(AlternateNavURLFetcher);
 };
 
-#endif  // CHROME_BROWSER_ALTERNATE_NAV_URL_FETCHER_H__
+#endif  // CHROME_BROWSER_ALTERNATE_NAV_URL_FETCHER_H_
 

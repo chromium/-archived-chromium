@@ -510,6 +510,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\notification_registrar.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\notification_registrar.h"
+			>
+		</File>
+		<File
 			RelativePath=".\notification_service.cc"
 			>
 		</File>

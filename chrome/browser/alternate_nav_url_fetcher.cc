@@ -11,47 +11,53 @@
 
 AlternateNavURLFetcher::AlternateNavURLFetcher(
     const std::wstring& alternate_nav_url)
-  : alternate_nav_url_(alternate_nav_url),
-    controller_(NULL),
-    state_(NOT_STARTED),
-    navigated_to_entry_(false) {
-  NotificationService::current()->AddObserver(this,
-      NOTIFY_NAV_ENTRY_PENDING, NotificationService::AllSources());
+    : alternate_nav_url_(alternate_nav_url),
+      controller_(NULL), 
+      state_(NOT_STARTED),
+      navigated_to_entry_(false) {
+  registrar_.Add(this, NOTIFY_NAV_ENTRY_PENDING,
+                 NotificationService::AllSources());
 }
 
 AlternateNavURLFetcher::~AlternateNavURLFetcher() {
-  if (state_ == NOT_STARTED) {
-    // Never caught the NavigationController notification.
-    NotificationService::current()->RemoveObserver(this,
-        NOTIFY_NAV_ENTRY_PENDING, NotificationService::AllSources());
-  }  // Otherwise, Observe() removed the observer already.
-}
-
-void AlternateNavURLFetcher::OnNavigatedToEntry() {
-  if (navigated_to_entry_)
-    return;
-  navigated_to_entry_ = true;
-  if (state_ == SUCCEEDED)
-    ShowInfobar();
 }
 
 void AlternateNavURLFetcher::Observe(NotificationType type,
                                      const NotificationSource& source,
                                      const NotificationDetails& details) {
-  controller_ = Source<NavigationController>(source).ptr();
-  if (!controller_->GetPendingEntry())
-    return;  // No entry to attach ourselves to.
-  controller_->SetAlternateNavURLFetcher(this);
+  switch (type) {
+    case NOTIFY_NAV_ENTRY_PENDING:
+      controller_ = Source<NavigationController>(source).ptr();
+      if (!controller_->GetPendingEntry())
+        return;  // No entry to attach ourselves to.
+      controller_->SetAlternateNavURLFetcher(this);
 
-  NotificationService::current()->RemoveObserver(this,
-      NOTIFY_NAV_ENTRY_PENDING, NotificationService::AllSources());
+      // Unregister for this notification now that we're pending, and start
+      // listening for the corresponding commit.
+      registrar_.Remove(this, NOTIFY_NAV_ENTRY_PENDING,
+                        NotificationService::AllSources());
+      registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
+                     Source<NavigationController>(controller_));
 
-  DCHECK_EQ(NOT_STARTED, state_);
-  state_ = IN_PROGRESS;
-  fetcher_.reset(new URLFetcher(GURL(alternate_nav_url_), URLFetcher::HEAD,
-                                this));
-  fetcher_->set_request_context(controller_->profile()->GetRequestContext());
-  fetcher_->Start();
+      DCHECK_EQ(NOT_STARTED, state_);
+      state_ = IN_PROGRESS;
+      fetcher_.reset(new URLFetcher(GURL(alternate_nav_url_), URLFetcher::HEAD,
+                                    this));
+      fetcher_->set_request_context(controller_->profile()->GetRequestContext());
+      fetcher_->Start();
+      break;
+
+    case NOTIFY_NAV_ENTRY_COMMITTED:
+      // The page was navigated, we can show the infobar now if necessary.
+      registrar_.Remove(this, NOTIFY_NAV_ENTRY_COMMITTED,
+                        Source<NavigationController>(controller_));
+      navigated_to_entry_ = true;
+      ShowInfobarIfPossible();
+      break;
+
+    default:
+      NOTREACHED();
+  }
 }
 
 void AlternateNavURLFetcher::OnURLFetchComplete(const URLFetcher* source,
@@ -66,14 +72,16 @@ void AlternateNavURLFetcher::OnURLFetchComplete(const URLFetcher* source,
       (((response_code / 100) == 2) ||
        (response_code == 401) || (response_code == 407))) {
     state_ = SUCCEEDED;
-    if (navigated_to_entry_)
-      ShowInfobar();
+    ShowInfobarIfPossible();
   } else {
     state_ = FAILED;
   }
 }
 
-void AlternateNavURLFetcher::ShowInfobar() {
+void AlternateNavURLFetcher::ShowInfobarIfPossible() {
+  if (!navigated_to_entry_ || state_ != SUCCEEDED)
+    return;
+
   const NavigationEntry* const entry = controller_->GetActiveEntry();
   DCHECK(entry);
   if (entry->tab_type() != TAB_CONTENTS_WEB)

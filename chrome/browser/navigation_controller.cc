@@ -569,15 +569,6 @@ bool NavigationController::RendererDidNavigate(
   details->is_main_frame = PageTransition::IsMainFrame(params.transition);
   NotifyNavigationEntryCommitted(details);
 
-  // Because this call may synchronously show an infobar, we do it last, to
-  // make sure all other state is stable and the infobar won't get blown away
-  // by some transition.
-  //
-  // TODO(brettw) bug 1324500: This logic should be moved out of here, it should
-  // listen for the notification instead.
-  if (alternate_nav_url_fetcher_.get())
-    alternate_nav_url_fetcher_->OnNavigatedToEntry();
-
   // Broadcast the NOTIFY_FRAME_PROVISIONAL_LOAD_COMMITTED notification for use
   // by the SSL manager.
   //
