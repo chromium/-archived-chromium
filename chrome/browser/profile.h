@@ -167,20 +167,6 @@ class Profile {
   virtual std::wstring GetID() = 0;
   virtual void SetID(const std::wstring& id) = 0;
 
-  // Allows open tabs using this profile to be registered, so that they
-  // can be closed.  When the last tab is unregistered, the profile removes
-  // itself from the profile manager and deletes itself.
-  // NOTE: NavigationController is the most stable object associated with
-  //       a notional tab, so we're using that to track tabs.
-  virtual void RegisterNavigationController(
-      NavigationController* controller) = 0;
-  virtual void UnregisterNavigationController(
-      NavigationController* controller) = 0;
-
-  // Return the registered navigation controllers.
-  typedef std::set<NavigationController*> ProfileControllerSet;
-  virtual const ProfileControllerSet& GetNavigationControllers() = 0;
-
   // Returns true if the last time this profile was open it was exited cleanly.
   virtual bool DidLastSessionExitCleanly() = 0;
 
@@ -258,9 +244,6 @@ class ProfileImpl : public Profile {
   virtual void SetName(const std::wstring& name);
   virtual std::wstring GetID();
   virtual void SetID(const std::wstring& id);
-  virtual void RegisterNavigationController(NavigationController* controller);
-  virtual void UnregisterNavigationController(NavigationController* controller);
-  virtual const Profile::ProfileControllerSet& GetNavigationControllers();
   virtual bool DidLastSessionExitCleanly();
   virtual BookmarkModel* GetBookmarkModel();
   virtual bool IsSameProfile(Profile* profile);
@@ -312,8 +295,6 @@ class ProfileImpl : public Profile {
   bool created_download_manager_;
   // Whether or not the last session exited cleanly. This is set only once.
   bool last_session_exited_cleanly_;
-
-  ProfileControllerSet controllers_;
 
   base::OneShotTimer<ProfileImpl> create_session_service_timer_;
 

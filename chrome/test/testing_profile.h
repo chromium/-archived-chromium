@@ -111,15 +111,6 @@ class TestingProfile : public Profile {
   }
   virtual void SetID(const std::wstring& id) {
   }
-  virtual void RegisterNavigationController(
-      NavigationController* controller) {
-  }
-  virtual void UnregisterNavigationController(
-      NavigationController* controller) {
-  }
-  virtual const ProfileControllerSet& GetNavigationControllers() {
-    return controllers_;
-  }
   virtual bool DidLastSessionExitCleanly() {
     return true;
   }
@@ -160,7 +151,6 @@ class TestingProfile : public Profile {
   // to this.
   std::wstring path_;
   Time start_time_;
-  ProfileControllerSet controllers_;
   scoped_ptr<PrefService> prefs_;
 
  private:

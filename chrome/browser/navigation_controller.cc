@@ -174,7 +174,6 @@ NavigationController::NavigationController(TabContents* contents,
   if (contents)
     RegisterTabContents(contents);
   DCHECK(profile_);
-  profile_->RegisterNavigationController(this);
 }
 
 NavigationController::NavigationController(
@@ -197,8 +196,6 @@ NavigationController::NavigationController(
   DCHECK(selected_navigation >= 0 &&
          selected_navigation < static_cast<int>(navigations.size()));
 
-  profile_->RegisterNavigationController(this);
-
   // Populate entries_ from the supplied TabNavigations.
   CreateNavigationEntriesFromTabNavigations(navigations, &entries_);
 
@@ -212,7 +209,6 @@ NavigationController::~NavigationController() {
 
   DiscardPendingEntryInternal();
 
-  profile_->UnregisterNavigationController(this);
   NotificationService::current()->Notify(NOTIFY_TAB_CLOSED,
                                          Source<NavigationController>(this),
                                          NotificationService::NoDetails());

@@ -451,19 +451,6 @@ class OffTheRecordProfileImpl : public Profile,
     profile_->SetID(id);
   }
 
-  virtual void RegisterNavigationController(NavigationController* controller) {
-    profile_->RegisterNavigationController(controller);
-  }
-
-  virtual void UnregisterNavigationController(NavigationController*
-                                              controller) {
-    profile_->UnregisterNavigationController(controller);
-  }
-
-  virtual const Profile::ProfileControllerSet& GetNavigationControllers() {
-    return profile_->GetNavigationControllers();
-  }
-
   virtual bool DidLastSessionExitCleanly() {
     return profile_->DidLastSessionExitCleanly();
   }
@@ -813,20 +800,6 @@ std::wstring ProfileImpl::GetID() {
 }
 void ProfileImpl::SetID(const std::wstring& id) {
   GetPrefs()->SetString(prefs::kProfileID, id);
-}
-
-void ProfileImpl::RegisterNavigationController(
-    NavigationController* controller) {
-  controllers_.insert(controller);
-}
-
-void ProfileImpl::UnregisterNavigationController(
-    NavigationController* controller) {
-  controllers_.erase(controller);
-}
-
-const Profile::ProfileControllerSet& ProfileImpl::GetNavigationControllers() {
-  return controllers_;
 }
 
 bool ProfileImpl::DidLastSessionExitCleanly() {
