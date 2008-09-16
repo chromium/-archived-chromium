@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/command_line.h"
+
 #include "chrome/browser/views/frame/browser_view2.h"
 
 #include "chrome/app/chrome_dll_resource.h"
@@ -18,6 +20,7 @@
 #include "chrome/browser/views/tab_contents_container_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/browser/views/toolbar_view.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
@@ -91,6 +94,10 @@ BrowserView2::BrowserView2(Browser* browser)
       contents_container_(NULL),
       initialized_(false),
       can_drop_(false),
+#ifdef CHROME_PERSONALIZATION
+      personalization_enabled_(false),
+      personalization_(NULL),
+#endif
       forwarding_to_tab_strip_(false) {
   InitClass();
   show_bookmark_bar_pref_.Init(prefs::kShowBookmarkBar,
@@ -285,6 +292,14 @@ void BrowserView2::Init() {
   AddChildView(contents_container_);
 
   status_bubble_.reset(new StatusBubble(GetViewContainer()));
+
+#ifdef CHROME_PERSONALIZATION    
+  EnablePersonalization(CommandLine().HasSwitch(switches::kEnableP13n));
+  if (IsPersonalizationEnabled()) {
+    personalization_ = Personalization::CreateFramePersonalization(
+        browser_->profile(), this);
+  }
+#endif
 }
 
 void BrowserView2::Show(int command, bool adjust_to_fit) {
@@ -752,6 +767,14 @@ void BrowserView2::Layout() {
   int bottom = LayoutDownloadShelf();
   LayoutTabContents(top, bottom);
   LayoutStatusBubble(bottom);
+#ifdef CHROME_PERSONALIZATION
+  if (IsPersonalizationEnabled()) {
+    Personalization::ConfigureFramePersonalization(personalization_,
+                                                   toolbar_, 0);
+  }
+#endif
+
+
   SchedulePaint();
 }
 
@@ -876,7 +899,12 @@ int BrowserView2::LayoutToolbar(int top) {
     // by a pixel to make things look good.
     if (!IsTabStripVisible() && win_util::ShouldUseVistaFrame())
       ps.cy -= 1;
-    toolbar_->SetBounds(0, toolbar_y, GetWidth(), ps.cy);
+    int browser_view_width = GetWidth();
+#ifdef CHROME_PERSONALIZATION
+    if (IsPersonalizationEnabled())
+      Personalization::AdjustBrowserView(personalization_, &browser_view_width);
+#endif
+    toolbar_->SetBounds(0, toolbar_y, browser_view_width, ps.cy);
     return toolbar_y + ps.cy;
   }
   toolbar_->SetVisible(false);

@@ -205,6 +205,19 @@ class BrowserView2 : public BrowserWindow,
   virtual bool CanClose() const;
   virtual int NonClientHitTest(const gfx::Point& point);
 
+  // Is P13N enabled for this browser window?
+#ifdef CHROME_PERSONALIZATION
+  virtual bool IsPersonalizationEnabled() const {
+    return personalization_enabled_;
+  }
+
+  void EnablePersonalization(bool enable_personalization) {
+    personalization_enabled_ = enable_personalization;
+  }
+#endif
+
+
+
  protected:
   // Overridden from ChromeViews::View:
   virtual void Layout();
@@ -352,6 +365,12 @@ class BrowserView2 : public BrowserWindow,
 
   // The delegate for the encoding menu.
   scoped_ptr<EncodingMenuControllerDelegate> encoding_menu_delegate_;
+
+  // P13N stuff
+#ifdef CHROME_PERSONALIZATION
+  FramePersonalization personalization_;
+  bool personalization_enabled_;
+#endif
 
   DISALLOW_EVIL_CONSTRUCTORS(BrowserView2);
 };
