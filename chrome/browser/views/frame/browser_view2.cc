@@ -950,10 +950,12 @@ void BrowserView2::LayoutStatusBubble(int top) {
 
 bool BrowserView2::MaybeShowBookmarkBar(TabContents* contents) {
   ChromeViews::View* new_bookmark_bar_view = NULL;
-  if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && contents &&
-      (contents->IsBookmarkBarAlwaysVisible() ||
-       show_bookmark_bar_pref_.GetValue())) {
+  if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && contents) {
     new_bookmark_bar_view = GetBookmarkBarView();
+    CSize ps;
+    new_bookmark_bar_view->GetPreferredSize(&ps);
+    if (!show_bookmark_bar_pref_.GetValue() && ps.cy == 0)
+      new_bookmark_bar_view = NULL;
   }
   return UpdateChildViewAndLayout(new_bookmark_bar_view,
                                   &active_bookmark_bar_);
