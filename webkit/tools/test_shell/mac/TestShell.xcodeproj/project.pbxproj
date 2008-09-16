@@ -306,168 +306,168 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = ABD16F700DC6CBDF0013D3AA /* base.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 825402BA0D92D0FA0006B936 /* base */;
+			remoteGlobalIDString = 825402BA0D92D0FA0006B936;
 			remoteInfo = base;
 		};
 		82F399C30E7EF76900785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = ABD16F700DC6CBDF0013D3AA /* base.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 825403B00D92D2E50006B936 /* base_gfx */;
+			remoteGlobalIDString = 825403B00D92D2E50006B936;
 			remoteInfo = base_gfx;
 		};
 		82F399FA0E7EF7C900785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AB8665450DC78A5A002CE06A /* googleurl.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 7BA018350E5A28DB00044150 /* googleurl */;
+			remoteGlobalIDString = 7BA018350E5A28DB00044150;
 			remoteInfo = googleurl;
 		};
 		82F39A110E7EF81000785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 829E35270DC0C95300819EBF /* icu.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 82C262C30DCF9411005CFE91 /* icudata */;
+			remoteGlobalIDString = 82C262C30DCF9411005CFE91;
 			remoteInfo = icudata;
 		};
 		82F39A130E7EF81000785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 829E35270DC0C95300819EBF /* icu.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 7BD53EA50D6F6FC7003CD41E /* icui18n */;
+			remoteGlobalIDString = 7BD53EA50D6F6FC7003CD41E;
 			remoteInfo = icui18n;
 		};
 		82F39A150E7EF81000785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 829E35270DC0C95300819EBF /* icu.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 7BD53AAA0D6F6671003CD41E /* icuuc */;
+			remoteGlobalIDString = 7BD53AAA0D6F6671003CD41E;
 			remoteInfo = icuuc;
 		};
 		82F39A190E7EF82B00785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E45629460E26B5A7005E4685 /* net.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* net */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = net;
 		};
 		82F39A200E7EF85C00785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 82F39A1C0E7EF85C00785E15 /* gtest.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D /* libgtest.a */;
+			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = gtest;
 		};
 		82F39A240E7EF86800785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 82F39A1C0E7EF85C00785E15 /* gtest.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* gtest */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = gtest;
 		};
 		82F39CF60E7EF91900785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = ABC8C4180DC7F7D000B59C21 /* zlib.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* zlib */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = zlib;
 		};
 		82F39CFA0E7EF92C00785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E456295B0E26B5F8005E4685 /* bzip2.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* bzip2 */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = bzip2;
 		};
 		82F39D030E7EF95A00785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 82F39CFF0E7EF95A00785E15 /* modp_b64.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 7B8502390E5A384100730B43 /* libmodp_b64.a */;
+			remoteGlobalIDString = 7B8502390E5A384100730B43;
 			remoteInfo = modp_b64;
 		};
 		82F39D060E7EF96400785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 82F39CFF0E7EF95A00785E15 /* modp_b64.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B8502380E5A384100730B43 /* modp_b64 */;
+			remoteGlobalIDString = 7B8502380E5A384100730B43;
 			remoteInfo = modp_b64;
 		};
 		82F39D090E7EF97500785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = ABC8C3EE0DC7F72600B59C21 /* libpng.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* libpng */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = libpng;
 		};
 		82F39D140E7EFA6800785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 829E2E250DBE7DE200819EBF /* webkit.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = E45626A20E268F03005E4685 /* glue */;
+			remoteGlobalIDString = E45626A20E268F03005E4685;
 			remoteInfo = glue;
 		};
 		82F39D160E7EFA6800785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 829E2E250DBE7DE200819EBF /* webkit.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 7BFD8E650DAFE7630084BC4B /* jsbindings */;
+			remoteGlobalIDString = 7BFD8E650DAFE7630084BC4B;
 			remoteInfo = jsbindings;
 		};
 		82F39D180E7EFA6800785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 829E2E250DBE7DE200819EBF /* webkit.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B27489C0E43815F009BCE03 /* pcre */;
+			remoteGlobalIDString = 7B27489C0E43815F009BCE03;
 			remoteInfo = pcre;
 		};
 		82F39D1A0E7EFA6800785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 829E2E250DBE7DE200819EBF /* webkit.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = E45627CF0E2694B8005E4685 /* port */;
+			remoteGlobalIDString = E45627CF0E2694B8005E4685;
 			remoteInfo = port;
 		};
 		82F39D1C0E7EFA6800785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 829E2E250DBE7DE200819EBF /* webkit.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = E45620380E268E87005E4685 /* webcore */;
+			remoteGlobalIDString = E45620380E268E87005E4685;
 			remoteInfo = webcore;
 		};
 		82F39D1E0E7EFA6800785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 829E2E250DBE7DE200819EBF /* webkit.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B5E85AD0D7F28CD001ECF42 /* wtf */;
+			remoteGlobalIDString = 7B5E85AD0D7F28CD001ECF42;
 			remoteInfo = wtf;
 		};
 		82F39D2C0E7EFC2D00785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 828CFDC30DD1073D0069AC37 /* skia.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = E48EE4CE0E34E855009DE966 /* skia */;
+			remoteGlobalIDString = E48EE4CE0E34E855009DE966;
 			remoteInfo = skia;
 		};
 		82F39D410E7EFD9C00785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B8203F10E76FED8008F45CF /* libxml.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B12F2AB0D8EE24200CB6E8F /* xml */;
+			remoteGlobalIDString = 7B12F2AB0D8EE24200CB6E8F;
 			remoteInfo = xml;
 		};
 		82F39D4B0E7EFDB500785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B42A4C40DE20F1700659DE0 /* v8.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 897FF1BE0E719CB600D62E90 /* jscre */;
+			remoteGlobalIDString = 897FF1BE0E719CB600D62E90;
 			remoteInfo = jscre;
 		};
 		82F39D4D0E7EFDB500785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B42A4C40DE20F1700659DE0 /* v8.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 8970F2EF0E719FB2006AE7B5 /* v8 */;
+			remoteGlobalIDString = 8970F2EF0E719FB2006AE7B5;
 			remoteInfo = v8;
 		};
 /* End PBXContainerItemProxy section */
@@ -1315,9 +1315,9 @@
 				E456291E0E26B4FE005E4685 /* test_shell_webview.mm in Sources */,
 				E456291C0E26B4FE005E4685 /* test_webview_delegate.mm in Sources */,
 				E456291D0E26B4FE005E4685 /* text_input_controller.cc in Sources */,
+				82F39CFD0E7EF93600785E15 /* WebSystemInterface.m in Sources */,
 				E456290F0E26B4FE005E4685 /* webview_host.mm in Sources */,
 				E45629100E26B4FE005E4685 /* webwidget_host.mm in Sources */,
-				82F39CFD0E7EF93600785E15 /* WebSystemInterface.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

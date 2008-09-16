@@ -9,6 +9,7 @@
 #include "FrameLoaderClient.h"
 #pragma warning(pop)
 
+#include "build/build_config.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/window_open_disposition.h"
@@ -199,7 +200,7 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
 
   virtual void unloadListenerChanged();
 
-#if defined(__APPLE__)
+#if defined(OS_MACOSX)
 // The above should have && !defined(BUILDING_CHROMIUM__) at the end but can't
 // for now, since we need to add that extra define all the way down to the
 // WebCore core. TODO(avi): Get that define into WebCore.
