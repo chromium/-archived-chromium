@@ -23,6 +23,8 @@
 
 namespace {
 
+static const wchar_t kTempDirName[] = L"memory_test_profile";
+
 class MemoryTest : public UITest {
  public:
   MemoryTest() {
@@ -39,20 +41,37 @@ class MemoryTest : public UITest {
     CommandLine::AppendSwitch(&launch_arguments_, switches::kNoEvents);
 
     // Get the specified user data dir (optional)
-    user_data_dir_ = CommandLine().GetSwitchValue(switches::kUserDataDir);
+    std::wstring profile_dir =
+      CommandLine().GetSwitchValue(switches::kUserDataDir);
 
-    if (user_data_dir_.length() == 0) {
+    if (profile_dir.length() == 0) {
       // Compute the user-data-dir which contains our test cache.
-      PathService::Get(base::DIR_EXE, &user_data_dir_);
-      file_util::UpOneDirectory(&user_data_dir_);
-      file_util::UpOneDirectory(&user_data_dir_);
-      file_util::AppendToPath(&user_data_dir_, L"data");
-      file_util::AppendToPath(&user_data_dir_, L"memory_test");
-      file_util::AppendToPath(&user_data_dir_, L"general_mix");
+      PathService::Get(base::DIR_EXE, &profile_dir);
+      file_util::UpOneDirectory(&profile_dir);
+      file_util::UpOneDirectory(&profile_dir);
+      file_util::AppendToPath(&profile_dir, L"data");
+      file_util::AppendToPath(&profile_dir, L"memory_test");
+      file_util::AppendToPath(&profile_dir, L"general_mix");
     }
+
+    if (!SetupTempDirectory(profile_dir)) {
+      // There isn't really a way to fail gracefully here.
+      // Neither this constuctor nor the SetUp() method return
+      // status to the caller.  So, just fall through using the
+      // default profile and log this.  The failure will be
+      // obvious.
+      LOG(ERROR) << "Error preparing temp directory for test";
+    }
+
     CommandLine::AppendSwitchWithValue(&launch_arguments_,
                                        switches::kUserDataDir,
                                        user_data_dir_);
+  }
+
+  ~MemoryTest() {
+    // Cleanup our temporary directory.
+    if (user_data_dir_.length() > 0)
+      file_util::Delete(user_data_dir_, true);
   }
 
   // TODO(mbelshe): Separate this data to an external file.
@@ -225,7 +244,7 @@ class MemoryTest : public UITest {
 
       const int kMaxWaitTime = 5000;
       bool timed_out = false;
-      tab->NavigateToURLWithTimeout(GURL(urls[counter]), kMaxWaitTime, 
+      tab->NavigateToURLWithTimeout(GURL(urls[counter]), kMaxWaitTime,
                                     &timed_out);
       if (timed_out)
         printf("warning: %s timed out!\n", urls[counter].c_str());
@@ -269,7 +288,7 @@ class MemoryTest : public UITest {
       ZeroMemory(&io_counters, sizeof(io_counters));
 
       if (process_metrics.get()->GetIOCounters(&io_counters)) {
-        std::wstring chrome_name = 
+        std::wstring chrome_name =
             (pid == chrome_filter.browser_process_id()) ? L"_b" : L"_r";
 
         // Print out IO performance.  We assume that the values can be
@@ -346,6 +365,29 @@ class MemoryTest : public UITest {
   }
 
  private:
+  // Setup a temporary directory to store the profile to use
+  // with these tests.
+  // Input:
+  //   src_dir is set to the source directory
+  // Output:
+  //   On success, modifies user_data_dir_ to be a new profile directory
+  bool SetupTempDirectory(std::wstring src_dir) {
+    // We create a copy of the test dir and use it so that each
+    // run of this test starts with the same data.  Running this
+    // test has the side effect that it will change the profile.
+    std::wstring temp_dir;
+    if (!file_util::CreateNewTempDirectory(kTempDirName, &temp_dir))
+      return false;
+
+    src_dir.append(L"\\*");
+
+    if (!file_util::CopyDirectory(src_dir, temp_dir, true))
+      return false;
+
+    user_data_dir_ = temp_dir;
+    return true;
+  }
+
   std::wstring user_data_dir_;
 };
 
