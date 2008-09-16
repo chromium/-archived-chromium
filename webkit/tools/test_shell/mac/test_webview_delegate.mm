@@ -679,7 +679,7 @@ void TestWebViewDelegate::GetWindowRect(WebWidget* webwidget,
   DCHECK(out_rect);
   if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
     NSView *view = host->window_handle();
-    NSRect rect = [[[view window] contentView] frame];
+    NSRect rect = [view frame];
     *out_rect = gfx::Rect(NSRectToCGRect(rect));
   }
 }
@@ -692,6 +692,15 @@ void TestWebViewDelegate::SetWindowRect(WebWidget* webwidget,
   } else if (webwidget == shell_->popup()) {
     // MoveWindow(shell_->popupWnd(),
     //            rect.x(), rect.y(), rect.width(), rect.height(), FALSE);
+  }
+}
+
+void TestWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
+                                            gfx::Rect* out_rect) {
+  if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
+    NSView *view = host->window_handle();
+    NSRect rect = [[[view window] contentView] frame];
+    *out_rect = gfx::Rect(NSRectToCGRect(rect));
   }
 }
 
