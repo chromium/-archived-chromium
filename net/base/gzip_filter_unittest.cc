@@ -337,7 +337,7 @@ TEST_F(GZipUnitTest, DecodeMissingData) {
 
   int pos = corrupt_data_len / 2;
   int len = corrupt_data_len - pos - 1;
-  memcpy(&corrupt_data[pos], &corrupt_data[pos+1], len);
+  memmove(&corrupt_data[pos], &corrupt_data[pos+1], len);
   --corrupt_data_len;
 
   // Decode the corrupted data with filter
