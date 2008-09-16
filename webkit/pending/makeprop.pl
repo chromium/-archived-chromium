@@ -89,7 +89,7 @@ EOF
 
 close HEADER;
 
-system("gperf -a -L ANSI-C -E -C -c -o -t --key-positions=\"*\" -NfindProp -Hhash_prop -Wwordlist_prop -D -s 2 CSSPropertyNames.gperf > CSSPropertyNames.c");
+system("gperf -a -L ANSI-C -E -C -c -o -t --key-positions=\"*\" -NfindProp -Hhash_prop -Wwordlist_prop -D -s 2 CSSPropertyNames.gperf > CSSPropertyNames.c") == 0 || die "calling gperf failed: $?";
 
 open C, ">>CSSPropertyNames.c" || die "Could not open CSSPropertyNames.c for writing";
 print C  "static const char * const propertyList[] = {\n";
