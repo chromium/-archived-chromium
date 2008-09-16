@@ -602,7 +602,6 @@
 		E456248B0E268E87005E4685 /* loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8DC30D7F3C01001ECF42 /* loader.cpp */; };
 		E456248C0E268E87005E4685 /* ImageDocumentMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B12FBDC0D8F54D900CB6E8F /* ImageDocumentMac.mm */; };
 		E456248D0E268E87005E4685 /* LoaderNSURLExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8DC70D7F3C01001ECF42 /* LoaderNSURLExtras.m */; };
-		E456248E0E268E87005E4685 /* ResourceLoaderMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8DC80D7F3C01001ECF42 /* ResourceLoaderMac.mm */; };
 		E456248F0E268E87005E4685 /* UserStyleSheetLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8DC90D7F3C01001ECF42 /* UserStyleSheetLoader.cpp */; };
 		E45624900E268E87005E4685 /* MainResourceLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8DCB0D7F3C01001ECF42 /* MainResourceLoader.cpp */; };
 		E45624910E268E87005E4685 /* NavigationAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8DCD0D7F3C01001ECF42 /* NavigationAction.cpp */; };
@@ -1152,6 +1151,7 @@
 		E4E4C8560E7832E2009A687C /* PlatformContextSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */; };
 		E4E4C88F0E783E49009A687C /* SkGraphicsContextMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C88E0E783E49009A687C /* SkGraphicsContextMac.cpp */; };
 		E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FBD0D7F3CC1001ECF42 /* ImageSourceCG.cpp */; };
+		E4E4CA470E8027ED009A687C /* FontCacheMacPending.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -3702,6 +3702,7 @@
 		E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webplugin_impl_mac.mm; sourceTree = "<group>"; };
 		E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlatformContextSkia.cpp; sourceTree = "<group>"; };
 		E4E4C88E0E783E49009A687C /* SkGraphicsContextMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkGraphicsContextMac.cpp; sourceTree = "<group>"; };
+		E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FontCacheMacPending.cpp; path = mac/FontCacheMacPending.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -6521,6 +6522,7 @@
 		822B1BE70DC77910005C9A96 /* graphics */ = {
 			isa = PBXGroup;
 			children = (
+				E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */,
 				82C2604A0DCB9AC1005CFE91 /* ImageSourceSkia.cpp */,
 				82C2604B0DCB9AC1005CFE91 /* ImageSourceSkia.h */,
 				E48A07220E3F95A000172919 /* NativeImageSkia.cpp */,
@@ -7464,6 +7466,7 @@
 				E45624C70E268E87005E4685 /* Font.cpp in Sources */,
 				E45624C80E268E87005E4685 /* FontCache.cpp in Sources */,
 				E45624D60E268E87005E4685 /* FontCacheMac.mm in Sources */,
+				E4E4CA470E8027ED009A687C /* FontCacheMacPending.cpp in Sources */,
 				E45624D70E268E87005E4685 /* FontCustomPlatformData.cpp in Sources */,
 				E45624C90E268E87005E4685 /* FontData.cpp in Sources */,
 				E45624CA0E268E87005E4685 /* FontFallbackList.cpp in Sources */,
@@ -7752,7 +7755,6 @@
 				E456251F0E268E87005E4685 /* ResourceErrorMac.mm in Sources */,
 				E45625250E268E87005E4685 /* ResourceHandle.cpp in Sources */,
 				E45624960E268E87005E4685 /* ResourceLoader.cpp in Sources */,
-				E456248E0E268E87005E4685 /* ResourceLoaderMac.mm in Sources */,
 				E45625260E268E87005E4685 /* ResourceRequestBase.cpp in Sources */,
 				E45625270E268E87005E4685 /* ResourceResponseBase.cpp in Sources */,
 				E45625930E268E87005E4685 /* RootInlineBox.cpp in Sources */,
