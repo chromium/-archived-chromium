@@ -77,7 +77,9 @@ void WebWidgetHost::HandleEvent(NSWindow *window, NSEvent *event) {
 }
 
 void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
+#ifndef NDEBUG
   DLOG_IF(WARNING, painting_) << "unexpected invalidation while painting";
+#endif
 
   // If this invalidate overlaps with a pending scroll, then we have to
   // downgrade to invalidating the scroll rect.
