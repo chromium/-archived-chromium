@@ -24,16 +24,17 @@
  */
 
 #include "config.h"
+#include "base/compiler_specific.h"
 
 #define WIN32_COMPILE_HACK
 
-#pragma warning(push, 0)
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "Color.h"
 #include "SSLKeyGenerator.h"
 #include "KURL.h"
 #include "NotImplemented.h"
 #include "SharedBuffer.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 using namespace WebCore;
 

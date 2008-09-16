@@ -5,6 +5,7 @@
 #ifndef V8_BINDING_H__
 #define V8_BINDING_H__
 
+#include "base/compiler_specific.h"
 #include "build/build_config.h"
 
 #include <v8.h>
@@ -14,9 +15,9 @@
 
 // Suppress warnings in CString of converting size_t to unsigned int.
 // TODO(fqian): fix CString.h.
-#pragma warning(push, 0)
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "CString.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #if defined(OS_LINUX)
 // Use the platform.h for linux.
@@ -133,7 +134,7 @@ inline int ToInt32(v8::Handle<v8::Value> value) {
 // If a WebCore string length is greater than the threshold,
 // v8String creates an external string to avoid allocating
 // the string in the large object space (which has a high memory overhead).
-static const int kV8ExternalStringThreshold = 2048;
+static const unsigned int kV8ExternalStringThreshold = 2048;
 
 // Convert a string to a V8 string.
 inline v8::Handle<v8::String> v8String(const String& str) {

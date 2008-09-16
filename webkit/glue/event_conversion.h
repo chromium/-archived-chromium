@@ -6,12 +6,13 @@
 #define WEBKIT_GLUE_EVENT_CONVERSION_H__
 
 #include "base/basictypes.h"
+#include "base/compiler_specific.h"
 
-#pragma warning(push, 0)
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "PlatformKeyboardEvent.h"
 #include "PlatformMouseEvent.h"
 #include "PlatformWheelEvent.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 namespace WebCore {
   class Widget;

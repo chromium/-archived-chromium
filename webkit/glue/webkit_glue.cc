@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/compiler_specific.h"
 #include "build/build_config.h"
 
 #if defined(OS_WIN)
@@ -11,7 +12,7 @@
 
 #include "config.h"
 #include "webkit_version.h"
-#pragma warning(push, 0)
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "BackForwardList.h"
 #include "Document.h"
 #include "FrameTree.h"
@@ -27,7 +28,7 @@
 #include "PlatformString.h"
 #include "RenderTreeAsText.h"
 #include "SharedBuffer.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #if USE(V8_BINDING) || USE(JAVASCRIPTCORE_BINDINGS)
 #include "JSBridge.h"  // for set flags

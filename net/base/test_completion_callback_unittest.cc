@@ -38,9 +38,8 @@ class ExampleEmployer::ExampleWorker
     : public base::RefCountedThreadSafe<ExampleWorker> {
  public:
   ExampleWorker(ExampleEmployer* employer, CompletionCallback* callback)
-      : callback_(callback),
-	employer_(employer),
-	origin_loop_(MessageLoop::current()) {
+      : employer_(employer), callback_(callback),
+        origin_loop_(MessageLoop::current()) {
   }
   void DoWork();
   void DoCallback();

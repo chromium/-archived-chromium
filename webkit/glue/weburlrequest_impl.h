@@ -5,13 +5,14 @@
 #ifndef WEBKIT_GLUE_WEBURLREQUEST_IMPL_H__
 #define WEBKIT_GLUE_WEBURLREQUEST_IMPL_H__
 
-#include "webkit/glue/weburlrequest.h"
 #include "base/basictypes.h"
+#include "base/compiler_specific.h"
+#include "webkit/glue/weburlrequest.h"
 
-#pragma warning(push, 0)
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "FrameLoadRequest.h"
 #include "HistoryItem.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 class WebRequestImpl : public WebRequest {
  public:

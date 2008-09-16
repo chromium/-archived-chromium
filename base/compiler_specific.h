@@ -28,6 +28,13 @@
 // The warning remains disabled until popped by MSVC_POP_WARNING.
 #define MSVC_PUSH_DISABLE_WARNING(n) __pragma(warning(push)) \
                                      __pragma(warning(disable:n))
+
+// MSVC_PUSH_WARNING_LEVEL pushes |n| as the global warning level.  The level
+// remains in effect until popped by MSVC_POP_WARNING().  Use 0 to disable all
+// warnings.
+#define MSVC_PUSH_WARNING_LEVEL(n) __pragma(warning(push, n))
+
+// Pop effects of innermost MSVC_PUSH_* macro.
 #define MSVC_POP_WARNING() __pragma(warning(pop))
 
 // Allows |this| to be passed as an argument in constructor initializer lists.
@@ -47,6 +54,7 @@
 
 #define MSVC_SUPPRESS_WARNING(n)
 #define MSVC_PUSH_DISABLE_WARNING(n)
+#define MSVC_PUSH_WARNING_LEVEL(n)
 #define MSVC_POP_WARNING()
 #define ALLOW_THIS_IN_INITIALIZER_LIST(code) code
 

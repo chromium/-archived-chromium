@@ -425,6 +425,8 @@ sub GenerateNormalAttrGetter
     }
   }
 
+  my $getterStringUsesImp = $implClassName ne "double";
+
   # Getter
   push(@implContentDecls, <<END);
   static v8::Handle<v8::Value> ${attrName}AttrGetter(v8::Local<v8::String> name, const v8::AccessorInfo& info) {
@@ -435,8 +437,12 @@ END
     push(@implContentDecls, <<END);
     V8SVGPODTypeWrapper<$implClassName>* imp_wrapper = V8Proxy::FastToNativeObject<V8SVGPODTypeWrapper<$implClassName> >(V8ClassIndex::$classIndex, info.Holder());
     $implClassName imp_instance = *imp_wrapper;
+END
+    if ($getterStringUsesImp) {
+      push(@implContentDecls, <<END);
     $implClassName* imp = &imp_instance;
 END
+    }
 
   } elsif ($attrExt->{"v8OnProto"}) {
     # perform lookup first
@@ -473,17 +479,20 @@ END
 
   my $returnType = $codeGenerator->StripModule($attribute->signature->type);
 
-  my $getterString = "imp->$getterFunc(";
-  $getterString .= "ec" if $useExceptions;
-  $getterString .= ")";
-  if (IsRefPtrType($returnType)) {
-    $implIncludes{"wtf/GetPtr.h"} = 1;
-    $getterString = "WTF::getPtr(" . $getterString . ")";
-  }
-  if ($nativeType eq "int" and $attribute->signature->extendedAttributes->{"ConvertFromString"}) {
-    $getterString .= ".toInt()";
-  }
-  if ($implClassName eq "double") {
+  my $getterString;
+  if ($getterStringUsesImp) {
+    $getterString = "imp->$getterFunc(";
+    $getterString .= "ec" if $useExceptions;
+    $getterString .= ")";
+    if (IsRefPtrType($returnType)) {
+      $implIncludes{"wtf/GetPtr.h"} = 1;
+      $getterString = "WTF::getPtr(" . $getterString . ")";
+    }
+    if ($nativeType eq "int" and
+        $attribute->signature->extendedAttributes->{"ConvertFromString"}) {
+      $getterString .= ".toInt()";
+    }
+  } else {
     $getterString = "imp_instance";
   }
   

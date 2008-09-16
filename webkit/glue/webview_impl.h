@@ -8,6 +8,7 @@
 #include <set>
 
 #include "base/basictypes.h"
+#include "base/compiler_specific.h"
 #include "base/gfx/platform_canvas.h"
 #include "base/gfx/point.h"
 #include "base/gfx/size.h"
@@ -16,10 +17,10 @@
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webview.h"
 
-#pragma warning(push, 0)
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "webkit/port/history/BackForwardList.h"
 #include "webkit/port/platform/WidgetClientWin.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 namespace WebCore {
   class Frame;

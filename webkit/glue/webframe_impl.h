@@ -29,6 +29,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/compiler_specific.h"
 #include "base/gfx/platform_canvas.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
@@ -38,11 +39,11 @@
 #include "webkit/glue/webplugin_delegate.h"
 #include "webkit/glue/webview_delegate.h"
 
-#pragma warning(push, 0)
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "ResourceHandleClient.h"
 #include "Frame.h"
 #include "PlatformString.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 class AltErrorPageResourceFetcher;
 class WebErrorImpl;

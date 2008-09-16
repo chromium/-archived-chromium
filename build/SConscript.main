@@ -311,21 +311,10 @@ elif env['PLATFORM'] == 'posix':
       'webkit',
   ]
 
-  # TODO: fix code that triggers these warnings.
   excluded_warnings = [
-    '-Wno-unknown-pragmas',  # TODO: remove all the Windows-specific #pragmas.
-    '-Wno-unused-function',  # TODO: there's just one Skia function.
-    '-Wno-unused-variable',  # TODO: there's just one v8 function.
-    '-Wno-switch',           # TODO: this is likely masking real bugs.
-    '-Wno-sign-compare',     # TODO: this is likely masking real bugs.
-    '-Wno-missing-braces',   # TODO: just a file in net.
-
-    # Not TODO: This is technically nonstandard, but a lot of the image
-    # decoding code depends on it and osx wants this.
-    '-Wno-multichar',
-
-    '-Wno-deprecated',  # Needed for using ext/hash_map on GCC 4.3
-    '-Wno-reorder',     # TODO: many tedious small fixes.
+    # TODO: Clean up uses of ext/hash_map and remove this.
+    # (see unordered_map and base/hash_tables.h)
+    '-Wno-deprecated'  # Needed for using ext/hash_map on GCC 4.3
   ]
   env.Replace(
       CCFLAGS = ['-m32', '-g', '-pthread'],

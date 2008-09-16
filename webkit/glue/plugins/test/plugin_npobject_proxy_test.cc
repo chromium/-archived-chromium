@@ -2,8 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/basictypes.h"
+#include "base/compiler_specific.h"
+
+#if defined(OS_WIN)
 #define STRSAFE_NO_DEPRECATE
 #include <strsafe.h>
+#endif
 #include "webkit/glue/plugins/test/plugin_npobject_proxy_test.h"
 
 namespace NPAPIClient {
@@ -25,7 +30,7 @@ NPError NPObjectProxyTest::SetWindow(NPWindow* pNPWindow) {
   NPObject *doc = NPVARIANT_TO_OBJECT(docv);
 
   NPVariant strv;
-#pragma warning(suppress: 4267)
+  MSVC_SUPPRESS_WARNING(4267);
   STRINGZ_TO_NPVARIANT("div", strv);
 
   NPVariant textv;
