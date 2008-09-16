@@ -331,6 +331,9 @@ void BookmarkBubbleView::RemoveBookmark() {
 }
 
 void BookmarkBubbleView::ShowEditor() {
+  // The user may have edited the title, commit it now.
+  SetNodeTitleFromTextField();
+
   // Parent the editor to our root ancestor (not the root we're in, as that
   // is the info bubble and will close shortly).
   HWND parent = GetAncestor(GetViewContainer()->GetHWND(), GA_ROOTOWNER);
