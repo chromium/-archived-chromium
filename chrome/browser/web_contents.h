@@ -493,6 +493,8 @@ class WebContents : public TabContents,
     GearsCreateShortcutCallbackFunctor* callback_functor;
   };
 
+  void ScrollCommon(UINT message, int scroll_type, short position,
+                    HWND scrollbar);
   bool ScrollZoom(int scroll_type);
   void WheelZoom(int distance);
 
@@ -511,6 +513,8 @@ class WebContents : public TabContents,
   virtual void OnSetFocus(HWND window);
   virtual void OnVScroll(int scroll_type, short position, HWND scrollbar);
   virtual void OnWindowPosChanged(WINDOWPOS* window_pos);
+  virtual void OnSize(UINT param, const CSize& size);
+  virtual LRESULT OnNCCalcSize(BOOL w_param, LPARAM l_param);
 
   // Callback from HistoryService for our request for a favicon.
   void OnFavIconData(HistoryService::Handle handle,

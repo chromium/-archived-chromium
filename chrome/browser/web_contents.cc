@@ -376,13 +376,6 @@ void WebContents::OnPaint(HDC junk_dc) {
   SetMsgHandled(FALSE);
 }
 
-void WebContents::OnHScroll(int scroll_type, short position, HWND scrollbar) {
-  // This window can receive scroll events as a result of the ThinkPad's
-  // trackpad scroll wheel emulation.
-  if (!ScrollZoom(scroll_type))
-    SetMsgHandled(FALSE);
-}
-
 LRESULT WebContents::OnMouseRange(UINT msg, WPARAM w_param, LPARAM l_param) {
   switch (msg) {
     case WM_LBUTTONDOWN:
@@ -398,12 +391,7 @@ LRESULT WebContents::OnMouseRange(UINT msg, WPARAM w_param, LPARAM l_param) {
       if (delegate())
         delegate()->ContentsMouseEvent(this, WM_MOUSEMOVE);
       break;
-    case WM_MOUSEWHEEL:
-      // This message is reflected from the view() to this window.
-      if (GET_KEYSTATE_WPARAM(w_param) & MK_CONTROL) {
-        WheelZoom(GET_WHEEL_DELTA_WPARAM(w_param));
-        return 1;
-      }
+    default:
       break;
   }
 
@@ -418,23 +406,74 @@ void WebContents::OnMouseLeave() {
   SetMsgHandled(FALSE);
 }
 
+// A message is reflected here from view().
+// Return non-zero to indicate that it is handled here.
+// Return 0 to allow view() to further process it.
 LRESULT WebContents::OnReflectedMessage(UINT msg, WPARAM w_param,
                                         LPARAM l_param) {
   MSG* message = reinterpret_cast<MSG*>(l_param);
-  LRESULT ret = 0;
-  if (message) {
-    ProcessWindowMessage(message->hwnd, message->message, message->wParam,
-                         message->lParam, ret);
+  switch (message->message) {
+    case WM_MOUSEWHEEL:
+      // This message is reflected from the view() to this window.
+      if (GET_KEYSTATE_WPARAM(message->wParam) & MK_CONTROL) {
+        WheelZoom(GET_WHEEL_DELTA_WPARAM(message->wParam));
+        return 1;
+      }
+      break;
+    case WM_HSCROLL:
+    case WM_VSCROLL:
+      if (ScrollZoom(LOWORD(message->wParam)))
+        return 1;
+    default:
+      break;
   }
 
-  return ret;
+  return 0;
+}
+
+void WebContents::OnSize(UINT param, const CSize& size) {
+  HWNDViewContainer::OnSize(param, size);
+
+  // Hack for thinkpad touchpad driver.
+  // Set fake scrollbars so that we can get scroll messages,
+  SCROLLINFO si = {0};
+  si.cbSize = sizeof(si);
+  si.fMask = SIF_ALL;
+
+  si.nMin = 1;
+  si.nMax = 100;
+  si.nPage = 10;
+  si.nTrackPos = 50;
+
+  ::SetScrollInfo(GetHWND(), SB_HORZ, &si, FALSE);
+  ::SetScrollInfo(GetHWND(), SB_VERT, &si, FALSE);
+}
+
+LRESULT WebContents::OnNCCalcSize(BOOL w_param, LPARAM l_param) {
+  // Hack for thinkpad mouse wheel driver. We have set the fake scroll bars
+  // to receive scroll messages from thinkpad touchpad driver. Suppress
+  // painting of scrollbars by returning 0 size for them.
+  return 0;
+}
+
+void WebContents::OnHScroll(int scroll_type, short position, HWND scrollbar) {
+  ScrollCommon(WM_HSCROLL, scroll_type, position, scrollbar);
 }
 
 void WebContents::OnVScroll(int scroll_type, short position, HWND scrollbar) {
+  ScrollCommon(WM_VSCROLL, scroll_type, position, scrollbar);
+}
+
+void WebContents::ScrollCommon(UINT message, int scroll_type, short position,
+                               HWND scrollbar) {
   // This window can receive scroll events as a result of the ThinkPad's
-  // TrackPad scroll wheel emulation.
-  if (!ScrollZoom(scroll_type))
-    SetMsgHandled(FALSE);
+  // Trackpad scroll wheel emulation.
+  if (!ScrollZoom(scroll_type)) {
+    // Reflect scroll message to the view() to give it a chance
+    // to process scrolling.
+    SendMessage(GetContentHWND(), message, MAKELONG(scroll_type, position),
+                (LPARAM) scrollbar);
+  }
 }
 
 bool WebContents::ScrollZoom(int scroll_type) {

@@ -724,39 +724,6 @@ LRESULT RenderWidgetHostHWND::OnWheelEvent(UINT message, WPARAM wparam,
   return 0;
 }
 
-LRESULT RenderWidgetHostHWND::OnNcCalcSize(UINT message, WPARAM w_param,
-                                           LPARAM l_param, BOOL& handled) {
-  // Handle WM_NCCALCSIZE and make scrollbar size to 0.
-  // Here we indicate that the entire window area is our
-  // client area. The assumption is that we won't have a border
-  // or any other non-client widget.
-  return 0;
-}
-
-LRESULT RenderWidgetHostHWND::OnSize(UINT message, WPARAM w_param,
-                                     LPARAM l_param, BOOL& handled) {
-  // Set arbitrary but valid scroll information so that
-  // our window will get WS_VSCROLL and WS_HSCROLL style.
-
-  // TODO(joshia): The correct thing to do here is to get
-  // the correct scroll information from the renderer and
-  // set it here.
-  SCROLLINFO si = {0};
-  si.cbSize = sizeof(si);
-  si.fMask = SIF_ALL;
-
-  si.nMin = 1;
-  si.nMax = 100;
-  si.nPage = 10;
-  si.nTrackPos = 50;
-
-  SetScrollInfo(SB_HORZ, &si, FALSE);
-  SetScrollInfo(SB_VERT, &si, FALSE);
-
-  handled = FALSE;
-  return 0;
-}
-
 LRESULT RenderWidgetHostHWND::OnMouseActivate(UINT, WPARAM, LPARAM,
                                               BOOL& handled) {
   // We handle WM_MOUSEACTIVATE to set focus to the underlying plugin

@@ -106,8 +106,6 @@ class RenderWidgetHostHWND :
     MESSAGE_HANDLER(WM_CHAR, OnKeyEvent)
     MESSAGE_HANDLER(WM_SYSCHAR, OnKeyEvent)
     MESSAGE_HANDLER(WM_IME_CHAR, OnKeyEvent)
-    MESSAGE_HANDLER(WM_NCCALCSIZE, OnNcCalcSize)
-    MESSAGE_HANDLER(WM_SIZE, OnSize)
     MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
   END_MSG_MAP()
 
@@ -165,11 +163,6 @@ class RenderWidgetHostHWND :
       UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled);
   LRESULT OnWheelEvent(
       UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled);
-  // Handle WM_NCCALCSIZE and supress scrollbars
-  LRESULT OnNcCalcSize(UINT, WPARAM, LPARAM, BOOL& handled);
-  // Handle WM_SIZE and indicate that we have a valid scroll info
-  // so that windows will give us the WS_HSCROLL and WS_VSCROLL style.
-  LRESULT OnSize(UINT, WPARAM, LPARAM, BOOL& handled);
   LRESULT OnMouseActivate(UINT, WPARAM, LPARAM, BOOL& handled);
   // Handle vertical scrolling
   LRESULT OnVScroll(int code, short position, HWND scrollbar_control);

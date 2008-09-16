@@ -47,7 +47,8 @@ static bool CanRedirectMouseWheelFrom(HWND window) {
   // pointer. Detect if we are dealing with this window. In this case we
   // don't need to do anything as the Thinkpad mouse driver will send
   // mouse wheel messages to the right window.
-  if (class_name == L"Syn Visual Class")
+  if ((class_name == L"Syn Visual Class") ||
+     (class_name == L"SynTrackCursorWindowClass"))
     return false;
 
   return true;
