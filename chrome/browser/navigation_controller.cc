@@ -166,7 +166,6 @@ NavigationController::NavigationController(TabContents* contents,
       pending_entry_index_(-1),
       max_entry_count_(kMaxEntryCount),
       active_contents_(contents),
-      alternate_nav_url_fetcher_entry_unique_id_(0),
       max_restored_page_id_(-1),
       ssl_manager_(this, NULL),
       needs_reload_(false),
@@ -187,7 +186,6 @@ NavigationController::NavigationController(
       pending_entry_index_(-1),
       max_entry_count_(kMaxEntryCount),
       active_contents_(NULL),
-      alternate_nav_url_fetcher_entry_unique_id_(0),
       max_restored_page_id_(-1),
       ssl_manager_(this, NULL),
       needs_reload_(true),
@@ -486,14 +484,6 @@ const SkBitmap& NavigationController::GetLazyFavIcon() const {
     ResourceBundle &rb = ResourceBundle::GetSharedInstance();
     return *rb.GetBitmapNamed(IDR_DEFAULT_FAVICON);
   }
-}
-
-void NavigationController::SetAlternateNavURLFetcher(
-    AlternateNavURLFetcher* alternate_nav_url_fetcher) {
-  DCHECK(!alternate_nav_url_fetcher_.get());
-  DCHECK(pending_entry_);
-  alternate_nav_url_fetcher_.reset(alternate_nav_url_fetcher);
-  alternate_nav_url_fetcher_entry_unique_id_ = pending_entry_->unique_id();
 }
 
 bool NavigationController::RendererDidNavigate(
@@ -1013,18 +1003,6 @@ void NavigationController::NavigateToPendingEntry(bool reload) {
 
 void NavigationController::NotifyNavigationEntryCommitted(
     LoadCommittedDetails* details) {
-  // Reset the Alternate Nav URL Fetcher if we're loading some page it doesn't
-  // care about.  We must do this before calling Notify() below as that may
-  // result in the creation of a new fetcher.
-  //
-  // TODO(brettw) bug 1324500: this logic should be moved out of the controller!
-  const NavigationEntry* const entry = GetActiveEntry();
-  if (!entry ||
-      (entry->unique_id() != alternate_nav_url_fetcher_entry_unique_id_)) {
-    alternate_nav_url_fetcher_.reset();
-    alternate_nav_url_fetcher_entry_unique_id_ = 0;
-  }
-
   // TODO(pkasting): http://b/1113079 Probably these explicit notification paths
   // should be removed, and interested parties should just listen for the
   // notification below instead.

@@ -19,24 +19,22 @@ AlternateNavURLFetcher::AlternateNavURLFetcher(
                  NotificationService::AllSources());
 }
 
-AlternateNavURLFetcher::~AlternateNavURLFetcher() {
-}
-
 void AlternateNavURLFetcher::Observe(NotificationType type,
                                      const NotificationSource& source,
                                      const NotificationDetails& details) {
   switch (type) {
     case NOTIFY_NAV_ENTRY_PENDING:
       controller_ = Source<NavigationController>(source).ptr();
-      if (!controller_->GetPendingEntry())
-        return;  // No entry to attach ourselves to.
-      controller_->SetAlternateNavURLFetcher(this);
+      DCHECK(controller_->GetPendingEntry());
 
       // Unregister for this notification now that we're pending, and start
-      // listening for the corresponding commit.
+      // listening for the corresponding commit. We also need to listen for the
+      // tab close command since that means the load will never commit!
       registrar_.Remove(this, NOTIFY_NAV_ENTRY_PENDING,
                         NotificationService::AllSources());
       registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
+                     Source<NavigationController>(controller_));
+      registrar_.Add(this, NOTIFY_TAB_CLOSED,
                      Source<NavigationController>(controller_));
 
       DCHECK_EQ(NOT_STARTED, state_);
@@ -53,6 +51,14 @@ void AlternateNavURLFetcher::Observe(NotificationType type,
                         Source<NavigationController>(controller_));
       navigated_to_entry_ = true;
       ShowInfobarIfPossible();
+      // DON'T DO ANYTHING AFTER HERE SINCE |this| MAY BE DELETED!
+      break;
+
+    case NOTIFY_TAB_CLOSED:
+      // We listen either for tab closed or navigation committed to know when to
+      // delete ourselves. Here, the tab closed, so we can just give up with
+      // all our waiting for notifications and delete ourselves.
+      delete this;
       break;
 
     default:
@@ -73,6 +79,7 @@ void AlternateNavURLFetcher::OnURLFetchComplete(const URLFetcher* source,
        (response_code == 401) || (response_code == 407))) {
     state_ = SUCCEEDED;
     ShowInfobarIfPossible();
+    // DON'T DO ANYTHING AFTER HERE SINCE |this| MAY BE DELETED!
   } else {
     state_ = FAILED;
   }
@@ -94,5 +101,9 @@ void AlternateNavURLFetcher::ShowInfobarIfPossible() {
   // navigation, so we don't need to keep track of it.
   web_contents->GetInfoBarView()->AddChildView(new InfoBarAlternateNavURLView(
       alternate_nav_url_));
+
+  // Now we're no longer referencing the navigation controller or the url fetch,
+  // so our job is done.
+  delete this;
 }
 

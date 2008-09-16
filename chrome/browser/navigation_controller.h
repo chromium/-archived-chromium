@@ -9,7 +9,6 @@
 
 #include "base/linked_ptr.h"
 #include "base/ref_counted.h"
-#include "chrome/browser/alternate_nav_url_fetcher.h"
 #include "chrome/browser/session_service.h"
 #include "chrome/browser/site_instance.h"
 #include "chrome/browser/ssl_manager.h"
@@ -311,10 +310,6 @@ class NavigationController {
   const std::wstring& GetLazyTitle() const;
   const SkBitmap& GetLazyFavIcon() const;
 
-  // TODO(brettw) bug 1324500: move this out of here.
-  void SetAlternateNavURLFetcher(
-      AlternateNavURLFetcher* alternate_nav_url_fetcher);
-
   // Returns the identifier used by session restore.
   const SessionID& session_id() const { return session_id_; }
 
@@ -511,10 +506,6 @@ class NavigationController {
 
   // The tab contents that is currently active.
   TabContents* active_contents_;
-
-  // The AlternateNavURLFetcher and its associated active entry, if any.
-  scoped_ptr<AlternateNavURLFetcher> alternate_nav_url_fetcher_;
-  int alternate_nav_url_fetcher_entry_unique_id_;
 
   // The max restored page ID in this controller, if it was restored.  We must
   // store this so that WebContents can tell any renderer in charge of one of
