@@ -465,6 +465,9 @@ if LoadComponent('breakpad'):
 if LoadComponent('chrome'):
   sconscripts.append('$CHROME_DIR/SConscript')
 
+if LoadComponent('gears'):
+  sconscripts.append('$GEARS_DIR/SConscript')
+
 if LoadComponent('google_update'):
   sconscripts.append('$GOOGLE_UPDATE_DIR/SConscript')
 

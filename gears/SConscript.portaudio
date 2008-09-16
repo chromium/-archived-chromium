@@ -1,0 +1,51 @@
+# Copyright (c) 2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone(
+)
+
+env.Replace(
+    PA_DIR = '$THIRD_PARTY_DIR/portaudio',
+    CPPPATH = [
+        '$PA_DIR/include',
+        '$PA_DIR/src/common',
+	'$PA_DIR/src/os/win',
+    ],
+)
+
+env.Append(
+    CPPDEFINES = [
+        'PA_NO_DS',
+        'PA_NO_ASIO',
+    ],
+)
+
+if env['PLATFORM'] == 'win32':
+  env.Append(
+      CPPFLAGS = [
+          '/wd4133',
+          '/wd4101',
+      ],
+  )
+ 
+input_files = [
+    '$PA_DIR/src/common/pa_allocation.c',
+    '$PA_DIR/src/common/pa_converters.c',
+    '$PA_DIR/src/common/pa_cpuload.c',
+    '$PA_DIR/src/common/pa_debugprint.c',
+    '$PA_DIR/src/common/pa_dither.c',
+    '$PA_DIR/src/common/pa_front.c',
+    '$PA_DIR/src/common/pa_process.c',
+    '$PA_DIR/src/common/pa_skeleton.c',
+    '$PA_DIR/src/common/pa_stream.c',
+    '$PA_DIR/src/common/pa_trace.c',
+    '$PA_DIR/src/hostapi/wmme/pa_win_wmme.c',
+    '$PA_DIR/src/os/win/pa_win_hostapis.c',
+    '$PA_DIR/src/os/win/pa_win_util.c',
+    '$PA_DIR/src/os/win/pa_win_waveformat.c',
+]
+
+env.ChromeStaticLibrary('portaudio', input_files)
