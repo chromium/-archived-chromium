@@ -19,6 +19,7 @@
 
 namespace gfx {
 class Insets;
+class Path;
 }
 
 class AccessibleWrapper;
@@ -973,6 +974,7 @@ class View : public AcceleratorTarget {
                                      bool is_horizontal, bool is_positive);
 
  protected:
+  // TODO(beng): these members should NOT be protected per style guide.
   // This View's bounds in the parent coordinate system.
   CRect bounds_;
 
@@ -988,6 +990,16 @@ class View : public AcceleratorTarget {
   // Returns true if the View is currently processing a paint.
   virtual bool IsProcessingPaint() const;
 #endif
+
+  // Called by HitTest to see if this View has a custom hit test mask. If the
+  // return value is true, GetHitTestMask will be called to obtain the mask.
+  // Default value is false, in which case the View will hit-test against its
+  // bounds.
+  virtual bool HasHitTestMask() const;
+
+  // Called by HitTest to retrieve a mask for hit-testing against. Subclasses
+  // override to provide custom shaped hit test regions.
+  virtual void GetHitTestMask(gfx::Path* mask) const;
 
   // This method is invoked when the tree changes.
   //

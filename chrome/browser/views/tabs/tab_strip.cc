@@ -67,15 +67,10 @@ class NewTabButton : public ChromeViews::Button {
 
  protected:
   // Overridden from ChromeViews::View:
-  virtual bool HitTest(const CPoint &l) const {
-    gfx::Path path;
-    MakePathForButton(&path);
-    ScopedHRGN rgn(path.CreateHRGN());
-    return !!PtInRegion(rgn, l.x, l.y);
+  virtual bool HasHitTestMask() const {
+    return true;
   }
-
- private:
-  void MakePathForButton(gfx::Path* path) const {
+  virtual void GetHitTestMask(gfx::Path* path) const {
     DCHECK(path);
 
     SkScalar h = SkIntToScalar(GetHeight());
@@ -95,6 +90,7 @@ class NewTabButton : public ChromeViews::Button {
     path->close();
   }
 
+ private:
   DISALLOW_COPY_AND_ASSIGN(NewTabButton);
 };
 

@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/common/gfx/path.h"
 #include "chrome/views/background.h"
 #include "chrome/views/event.h"
 #include "chrome/views/root_view.h"
@@ -506,3 +507,76 @@ TEST_F(ViewTest, RemoveNotification) {
       NOTIFY_VIEW_REMOVED, NotificationService::AllSources());
 }
 
+namespace {
+class HitTestView : public ChromeViews::View {
+ public:
+  explicit HitTestView(bool has_hittest_mask)
+      : has_hittest_mask_(has_hittest_mask) {
+  }
+  virtual ~HitTestView() {}
+
+ protected:
+  // Overridden from ChromeViews::View:
+  virtual bool HasHitTestMask() const {
+    return has_hittest_mask_;
+  }
+  virtual void GetHitTestMask(gfx::Path* mask) const {
+    DCHECK(has_hittest_mask_);
+    DCHECK(mask);
+
+    SkScalar w = SkIntToScalar(GetWidth());
+    SkScalar h = SkIntToScalar(GetHeight());
+
+    // Create a triangular mask within the bounds of this View.
+    mask->moveTo(w / 2, 0);
+    mask->lineTo(w, h);
+    mask->lineTo(0, h);
+    mask->close();
+  }
+
+ private:
+  bool has_hittest_mask_;
+
+  DISALLOW_COPY_AND_ASSIGN(HitTestView);
+};
+
+POINT ConvertPointToView(ChromeViews::View* view, const POINT& p) {
+  CPoint tmp = p;
+  ChromeViews::View::ConvertPointToView(view->GetRootView(), view, &tmp);
+  return tmp;
+}
+}
+
+TEST_F(ViewTest, HitTestMasks) {
+  ChromeViews::HWNDViewContainer* window = new ChromeViews::HWNDViewContainer;
+  ChromeViews::RootView* root_view = window->GetRootView();
+  root_view->SetBounds(0, 0, 500, 500);
+
+  gfx::Rect v1_bounds = gfx::Rect(0, 0, 100, 100);
+  HitTestView* v1 = new HitTestView(false);
+  v1->SetBounds(v1_bounds.ToRECT());
+  root_view->AddChildView(v1);
+
+  gfx::Rect v2_bounds = gfx::Rect(105, 0, 100, 100);
+  HitTestView* v2 = new HitTestView(true);
+  v2->SetBounds(v2_bounds.ToRECT());
+  root_view->AddChildView(v2);
+
+  POINT v1_centerpoint = v1_bounds.CenterPoint().ToPOINT();
+  POINT v2_centerpoint = v2_bounds.CenterPoint().ToPOINT();
+  POINT v1_origin = v1_bounds.origin().ToPOINT();
+  POINT v2_origin = v2_bounds.origin().ToPOINT();
+
+  // Test HitTest
+  EXPECT_EQ(true, v1->HitTest(ConvertPointToView(v1, v1_centerpoint)));
+  EXPECT_EQ(true, v2->HitTest(ConvertPointToView(v2, v2_centerpoint)));
+
+  EXPECT_EQ(true, v1->HitTest(ConvertPointToView(v1, v1_origin)));
+  EXPECT_EQ(false, v2->HitTest(ConvertPointToView(v2, v2_origin)));
+
+  // Test GetViewForPoint
+  EXPECT_EQ(v1, root_view->GetViewForPoint(v1_centerpoint));
+  EXPECT_EQ(v2, root_view->GetViewForPoint(v2_centerpoint));
+  EXPECT_EQ(v1, root_view->GetViewForPoint(v1_origin));
+  EXPECT_EQ(root_view, root_view->GetViewForPoint(v2_origin));
+}

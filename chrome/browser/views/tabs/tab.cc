@@ -126,11 +126,12 @@ bool Tab::IsSelected() const {
 ///////////////////////////////////////////////////////////////////////////////
 // Tab, ChromeViews::View overrides:
 
-bool Tab::HitTest(const CPoint &l) const {
-  gfx::Path path;
-  MakePathForTab(&path);
-  ScopedHRGN rgn(path.CreateHRGN());
-  return !!PtInRegion(rgn, l.x, l.y);
+bool Tab::HasHitTestMask() const {
+  return true;
+}
+
+void Tab::GetHitTestMask(gfx::Path* mask) const {
+  MakePathForTab(mask);
 }
 
 bool Tab::OnMousePressed(const ChromeViews::MouseEvent& event) {

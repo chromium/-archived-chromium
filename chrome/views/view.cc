@@ -12,9 +12,11 @@
 
 #include "base/logging.h"
 #include "base/message_loop.h"
+#include "base/scoped_handle.h"
 #include "base/string_util.h"
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/common/gfx/path.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/views/accessibility/accessible_wrapper.h"
@@ -712,6 +714,14 @@ bool View::IsProcessingPaint() const {
 }
 #endif
 
+bool View::HasHitTestMask() const {
+  return false;
+}
+
+void View::GetHitTestMask(gfx::Path* mask) const {
+  DCHECK(mask);
+}
+
 void View::ViewHierarchyChanged(bool is_add, View *parent, View *child) {
 }
 
@@ -768,16 +778,13 @@ View* View::GetViewForPoint(const CPoint& point, bool can_create_floating) {
   // tightly encloses the specified point.
   for (int i = GetChildViewCount() - 1 ; i >= 0 ; --i) {
     View* child = GetChildViewAt(i);
-    if (!child->IsVisible()) {
+    if (!child->IsVisible())
       continue;
-    }
-    CRect bounds;
-    child->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
-    if (bounds.PtInRect(point)) {
-      CPoint cl(point);
-      cl.Offset(-bounds.left, -bounds.top);
-      return child->GetViewForPoint(cl, true);
-    }
+
+    CPoint point_in_child_coords(point);
+    View::ConvertPointToView(this, child, &point_in_child_coords);
+    if (child->HitTest(point_in_child_coords))
+      return child->GetViewForPoint(point_in_child_coords, true);
   }
 
   // We haven't found a view for the point. Try to create floating views
@@ -1437,13 +1444,19 @@ bool View::IsVisibleInRootView() const {
     return false;
 }
 
-bool View::HitTest(const CPoint &l) const {
-  if (l.x >= 0 && l.x < static_cast<int>(GetWidth()) &&
-      l.y >= 0 && l.y < static_cast<int>(GetHeight())) {
+bool View::HitTest(const CPoint& l) const {
+  if (l.x >= 0 && l.x < GetWidth() && l.y >= 0 && l.y < GetHeight()) {
+    if (HasHitTestMask()) {
+      gfx::Path mask;
+      GetHitTestMask(&mask);
+      ScopedHRGN rgn(mask.CreateHRGN());
+      return !!PtInRegion(rgn, l.x, l.y);
+    }
+    // No mask, but inside our bounds.
     return true;
-  } else {
-    return false;
   }
+  // Outside our bounds.
+  return false;
 }
 
 HCURSOR View::GetCursorForPoint(Event::EventType event_type, int x, int y) {

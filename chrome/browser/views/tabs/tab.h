@@ -84,10 +84,10 @@ class Tab : public TabRenderer,
   // TabRenderer overrides:
   virtual bool IsSelected() const;
 
-  // ChromeViews::View overrides:
-  virtual bool HitTest(const CPoint &l) const;
  private:
   // ChromeViews::View overrides:
+  virtual bool HasHitTestMask() const;
+  virtual void GetHitTestMask(gfx::Path* mask) const;
   virtual bool OnMousePressed(const ChromeViews::MouseEvent& event);
   virtual bool OnMouseDragged(const ChromeViews::MouseEvent& event);
   virtual void OnMouseReleased(const ChromeViews::MouseEvent& event,
