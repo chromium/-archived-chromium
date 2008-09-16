@@ -160,7 +160,7 @@ class AuthorityInvalidPolicy : public SSLPolicy {
 class ContainsErrorsPolicy : public SSLPolicy {
  public:
   static SSLPolicy* GetInstance() {
-    return Singleton<ContainsErrorsPolicy>::get();;
+    return Singleton<ContainsErrorsPolicy>::get();
   }
 
   void OnCertError(const GURL& main_frame_url,
@@ -217,7 +217,7 @@ class RevokedPolicy : public SSLPolicy {
 class InvalidPolicy : public SSLPolicy {
  public:
   static SSLPolicy* GetInstance() {
-    return Singleton<InvalidPolicy>::get();;
+    return Singleton<InvalidPolicy>::get();
   }
 
   void OnCertError(const GURL& main_frame_url,
@@ -261,24 +261,6 @@ class DefaultPolicy : public SSLPolicy {
       return;
     }
 
-    if (error->resource_type() != ResourceType::MAIN_FRAME) {
-      if (main_frame_url.SchemeIsSecure() &&
-          !error->manager()->CanShowInsecureContent(main_frame_url)) {
-        error->manager()->ShowMessageWithLink(
-            l10n_util::GetString(IDS_SSL_INFO_BAR_FILTERED_CONTENT),
-            l10n_util::GetString(IDS_SSL_INFO_BAR_SHOW_CONTENT),
-            new ShowUnsafeContentTask(main_frame_url, error));
-        error->DenyRequest();
-      } else {
-        // TODO (jcampan): if we get a bad HTTPS resource from a secure frame in
-        // an insecure page, it might compromise any other page from the secure
-        // frame domain, we should change their style to insecure, or just
-        // filter the resource and show an info-bar.
-        error->ContinueRequest();
-      }
-      return;
-    }
-
     // First we check if we know the policy for this error.
     net::X509Certificate::Policy::Judgment judgment =
         error->manager()->QueryPolicy(error->ssl_info().cert,
@@ -301,6 +283,23 @@ class DefaultPolicy : public SSLPolicy {
         // For now we handle the DENIED as the UNKNOWN, which means a blocking
         // page is shown to the user every time he comes back to the page.
       case net::X509Certificate::Policy::UNKNOWN:
+        if (error->resource_type() != ResourceType::MAIN_FRAME) {
+          if (main_frame_url.SchemeIsSecure() &&
+              !error->manager()->CanShowInsecureContent(main_frame_url)) {
+            error->manager()->ShowMessageWithLink(
+                l10n_util::GetString(IDS_SSL_INFO_BAR_FILTERED_CONTENT),
+                l10n_util::GetString(IDS_SSL_INFO_BAR_SHOW_CONTENT),
+                new ShowUnsafeContentTask(main_frame_url, error));
+            error->DenyRequest();
+          } else {
+            // TODO(jcampan): if we get a bad HTTPS resource from a secure
+            // frame in an insecure page, it might compromise any other page
+            // from the secure frame domain, we should change their style to
+            // insecure, or just filter the resource and show an info-bar.
+            error->ContinueRequest();
+          }
+          break;
+        }
         // We don't know how to handle this error.  Ask our sub-policies.
         sub_policies_[index]->OnCertError(main_frame_url, error);
         break;
@@ -364,7 +363,7 @@ class DefaultPolicy : public SSLPolicy {
   SSLPolicy* sub_policies_[net::ERR_CERT_BEGIN - net::ERR_CERT_END];
 };
 
-} // namespace
+}  // namespace
 
 SSLPolicy* SSLPolicy::GetDefaultPolicy() {
   // Lazily initialize our default policy instance.
