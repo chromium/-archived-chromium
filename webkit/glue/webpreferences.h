@@ -72,10 +72,9 @@ struct WebPreferences {
         text_areas_are_resizable(true),
         dashboard_compatibility_mode(false),
         java_enabled(true),
-        user_style_sheet_enabled(false),
-        allow_scripts_to_close_windows(false) {
+        allow_scripts_to_close_windows(false),
+        user_style_sheet_enabled(false) {
   }
 };
 
 #endif  // WEBKIT_GLUE_WEBPREFERENCES_H__
-
