@@ -14,6 +14,9 @@
 // and NOTIFY_FAIL_PROVISIONAL_LOAD_WITH_ERROR notifications
 // (see notification_types.h).
 
+// TODO(brettw) this mostly duplicates
+// NavigationController::LoadCommittedDetails, it would be nice to unify these
+// somehow.
 class ProvisionalLoadDetails {
  public:
   ProvisionalLoadDetails(bool main_frame,

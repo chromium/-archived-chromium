@@ -133,35 +133,21 @@ SSLManager::SSLManager(NavigationController* controller, Delegate* delegate)
     delegate_ = SSLPolicy::GetDefaultPolicy();
 
   // Subscribe to various notifications.
-  NotificationService* service = NotificationService::current();
-  service->AddObserver(this, NOTIFY_FRAME_PROVISIONAL_LOAD_COMMITTED,
-                       Source<NavigationController>(controller_));
-  service->AddObserver(this, NOTIFY_FAIL_PROVISIONAL_LOAD_WITH_ERROR,
-                       Source<NavigationController>(controller_));
-  service->AddObserver(this, NOTIFY_RESOURCE_RESPONSE_STARTED,
-                       Source<NavigationController>(controller_));
-  service->AddObserver(this, NOTIFY_RESOURCE_RECEIVED_REDIRECT,
-                       Source<NavigationController>(controller_));
-  service->AddObserver(this, NOTIFY_LOAD_FROM_MEMORY_CACHE,
-                       Source<NavigationController>(controller_));
+  registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
+                 Source<NavigationController>(controller_));
+  registrar_.Add(this, NOTIFY_FAIL_PROVISIONAL_LOAD_WITH_ERROR,
+                 Source<NavigationController>(controller_));
+  registrar_.Add(this, NOTIFY_RESOURCE_RESPONSE_STARTED,
+                 Source<NavigationController>(controller_));
+  registrar_.Add(this, NOTIFY_RESOURCE_RECEIVED_REDIRECT,
+                 Source<NavigationController>(controller_));
+  registrar_.Add(this, NOTIFY_LOAD_FROM_MEMORY_CACHE,
+                 Source<NavigationController>(controller_));
 }
 
 SSLManager::~SSLManager() {
   // Close any of our info bars that are still left.
   FOR_EACH_OBSERVER(SSLInfoBar, visible_info_bars_, Close());
-
-  // Unsubscribe from various notifications.
-  NotificationService* service = NotificationService::current();
-  service->RemoveObserver(this, NOTIFY_FRAME_PROVISIONAL_LOAD_COMMITTED,
-                          Source<NavigationController>(controller_));
-  service->RemoveObserver(this, NOTIFY_FAIL_PROVISIONAL_LOAD_WITH_ERROR,
-                          Source<NavigationController>(controller_));
-  service->RemoveObserver(this, NOTIFY_RESOURCE_RESPONSE_STARTED,
-                          Source<NavigationController>(controller_));
-  service->RemoveObserver(this, NOTIFY_RESOURCE_RECEIVED_REDIRECT,
-                          Source<NavigationController>(controller_));
-  service->RemoveObserver(this, NOTIFY_LOAD_FROM_MEMORY_CACHE,
-                          Source<NavigationController>(controller_));
 }
 
 // Delegate API method.
@@ -552,8 +538,8 @@ void SSLManager::Observe(NotificationType type,
 
   // Dispatch by type.
   switch (type) {
-    case NOTIFY_FRAME_PROVISIONAL_LOAD_COMMITTED:
-      DidCommitProvisionalLoad(Details<ProvisionalLoadDetails>(details).ptr());
+    case NOTIFY_NAV_ENTRY_COMMITTED:
+      DidCommitProvisionalLoad(details);
       break;
     case NOTIFY_FAIL_PROVISIONAL_LOAD_WITH_ERROR:
       DidFailProvisionalLoadWithError(
@@ -607,14 +593,23 @@ void SSLManager::DidLoadFromMemoryCache(LoadFromMemoryCacheDetails* details) {
                                details->ssl_cert_status());
 }
 
-void SSLManager::DidCommitProvisionalLoad(ProvisionalLoadDetails* details) {
+void SSLManager::DidCommitProvisionalLoad(
+    const NotificationDetails& in_details) {
+  NavigationController::LoadCommittedDetails* details =
+      Details<NavigationController::LoadCommittedDetails>(in_details).ptr();
+
   // Ignore in-page navigations, they should not change the security style or
   // the info-bars.
-  if (details->in_page_navigation())
+  if (details->is_in_page)
     return;
 
+  // Decode the security details.
+  int ssl_cert_id, ssl_cert_status, ssl_security_bits;
+  DeserializeSecurityInfo(details->serialized_security_info,
+                          &ssl_cert_id, &ssl_cert_status, &ssl_security_bits);
+
   bool changed = false;
-  if (details->main_frame()) {
+  if (details->is_main_frame) {
     // We are navigating to a new page, it's time to close the info bars.  They
     // will automagically disappear from the visible_info_bars_ list (when
     // OnInfoBarClose is invoked).
@@ -631,13 +626,13 @@ void SSLManager::DidCommitProvisionalLoad(ProvisionalLoadDetails* details) {
       // page. Reset the SSL information and add the new data we have.
       entry->ssl() = NavigationEntry::SSLStatus();
       InitializeEntryIfNeeded(entry);  // For security_style.
-      entry->ssl().set_cert_id(details->ssl_cert_id());
-      entry->ssl().set_cert_status(details->ssl_cert_status());
-      entry->ssl().set_security_bits(details->ssl_security_bits());
+      entry->ssl().set_cert_id(ssl_cert_id);
+      entry->ssl().set_cert_status(ssl_cert_status);
+      entry->ssl().set_security_bits(ssl_security_bits);
       changed = true;
     }
 
-    if (details->interstitial_page()) {
+    if (details->is_interstitial) {
       // We should not have any errors when loading an interstitial page, and as
       // a consequence no messages.
       DCHECK(pending_messages_.empty());
@@ -648,9 +643,9 @@ void SSLManager::DidCommitProvisionalLoad(ProvisionalLoadDetails* details) {
   // An HTTPS response may not have a certificate for some reason.  When that
   // happens, use the unauthenticated (HTTP) rather than the authentication
   // broken security style so that we can detect this error condition.
-  if (net::IsCertStatusError(details->ssl_cert_status()))
+  if (net::IsCertStatusError(ssl_cert_status))
     changed |= SetMaxSecurityStyle(SECURITY_STYLE_AUTHENTICATION_BROKEN);
-  else if (details->url().SchemeIsSecure() && !details->ssl_cert_id())
+  else if (details->entry->url().SchemeIsSecure() && !ssl_cert_id)
     changed |= SetMaxSecurityStyle(SECURITY_STYLE_UNAUTHENTICATED);
 
   if (changed) {

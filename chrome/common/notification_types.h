@@ -96,12 +96,6 @@ enum NotificationType {
   // LoadFromMemoryCacheDetails object are provided.
   NOTIFY_LOAD_FROM_MEMORY_CACHE,
 
-  // A provisional content load has committed.  The source will be a
-  // Source<NavigationController> corresponding to the tab in which the load
-  // occurred.  Details in the form of a ProvisionalLoadDetails object are
-  // provided.
-  NOTIFY_FRAME_PROVISIONAL_LOAD_COMMITTED,
-
   // A provisional content load has failed with an error.  The source will be a
   // Source<NavigationController> corresponding to the tab
   // in which the load occurred.  Details in the form of a

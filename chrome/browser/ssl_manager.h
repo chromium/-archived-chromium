@@ -11,10 +11,11 @@
 #include "base/basictypes.h"
 #include "base/observer_list.h"
 #include "base/ref_counted.h"
-#include "chrome/browser/views/info_bar_message_view.h"
 #include "chrome/browser/provisional_load_details.h"
 #include "chrome/browser/resource_dispatcher_host.h"
 #include "chrome/browser/security_style.h"
+#include "chrome/browser/views/info_bar_message_view.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
 #include "googleurl/src/gurl.h"
@@ -25,10 +26,10 @@
 #include "webkit/glue/resource_type.h"
 
 class InfoBarItemView;
-class NavigationController;
 class NavigationEntry;
 class LoadFromMemoryCacheDetails;
 class LoadNotificationDetails;
+class NavigationController;
 class PrefService;
 class ResourceRedirectDetails;
 class ResourceRequestDetails;
@@ -422,9 +423,12 @@ class SSLManager : public NotificationObserver {
      Task* action;
    };
 
-  // Entry points for notifications to which we subscribe.
+  // Entry points for notifications to which we subscribe. Note that
+  // DidCommitProvisionalLoad uses the abstract NotificationDetails type since
+  // the type we need is in NavigationController which would create a circular
+  // header file dependency.
   void DidLoadFromMemoryCache(LoadFromMemoryCacheDetails* details);
-  void DidCommitProvisionalLoad(ProvisionalLoadDetails* details);
+  void DidCommitProvisionalLoad(const NotificationDetails& details);
   void DidFailProvisionalLoadWithError(ProvisionalLoadDetails* details);
   void DidStartResourceResponse(ResourceRequestDetails* details);
   void DidReceiveResourceRedirect(ResourceRedirectDetails* details);
@@ -448,6 +452,9 @@ class SSLManager : public NotificationObserver {
 
   // The list of currently visible SSL InfoBars.
   ObserverList<SSLInfoBar> visible_info_bars_;
+
+  // Handles registering notifications with the NotificationService.
+  NotificationRegistrar registrar_;
 
   // Certificate policies for each host.
   std::map<std::string, net::X509Certificate::Policy> cert_policy_for_host_;

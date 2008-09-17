@@ -559,22 +559,9 @@ bool NavigationController::RendererDidNavigate(
   details->entry = GetActiveEntry();
   details->is_in_page = IsURLInPageNavigation(params.url);
   details->is_main_frame = PageTransition::IsMainFrame(params.transition);
+  details->is_interstitial = is_interstitial;
+  details->serialized_security_info = params.security_info;
   NotifyNavigationEntryCommitted(details);
-
-  // Broadcast the NOTIFY_FRAME_PROVISIONAL_LOAD_COMMITTED notification for use
-  // by the SSL manager.
-  //
-  // TODO(brettw) bug 1352803: this information should be combined with
-  // NOTIFY_NAV_ENTRY_COMMITTED so this one can be deleted.
-  ProvisionalLoadDetails provisional_details(details->is_main_frame,
-                                             is_interstitial,
-                                             details->is_in_page,
-                                             params.url,
-                                             params.security_info);
-  NotificationService::current()->
-      Notify(NOTIFY_FRAME_PROVISIONAL_LOAD_COMMITTED,
-             Source<NavigationController>(this),
-             Details<ProvisionalLoadDetails>(&provisional_details));
 
   // It is now a safe time to schedule collection for any tab contents of a
   // different type, because a navigation is necessary to get back to them.

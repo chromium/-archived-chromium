@@ -41,6 +41,8 @@ class NavigationController {
   };
 
   // Provides the details for a NOTIFY_NAV_ENTRY_COMMITTED notification.
+  // TODO(brettw) this mostly duplicates ProvisionalLoadDetails, it would be
+  // nice to unify these somehow.
   struct LoadCommittedDetails {
     // By default, the entry will be filled according to a new main frame
     // navigation.
@@ -48,7 +50,8 @@ class NavigationController {
         : entry(NULL),
           is_auto(false),
           is_in_page(false),
-          is_main_frame(true) {
+          is_main_frame(true),
+          is_interstitial(false) {
     }
 
     // The committed entry. This will be the active entry in the controller.
@@ -71,6 +74,16 @@ class NavigationController {
     // True when the main frame was navigated. False means the navigation was a
     // sub-frame.
     bool is_main_frame;
+
+    // True when this navigation is for an interstitial page. Many consumers
+    // won't care about interstitial loads.
+    bool is_interstitial;
+
+    // When the committed load is a web page from the renderer, this string
+    // specifies the security state if the page is secure.
+    // See ViewHostMsg_FrameNavigate_Params.security_info, where it comes from.
+    // Use SSLManager::DeserializeSecurityInfo to decode it.
+    std::string serialized_security_info;
 
     // Returns whether the user probably felt like they navigated somewhere new.
     // We often need this logic for showing or hiding something, and this
