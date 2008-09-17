@@ -100,9 +100,6 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   // The layout rect of the title, if visible.
   gfx::Rect title_bounds_;
 
-  // The layout rect of the window icon.
-  gfx::Rect icon_bounds_;
-
   // The layout rect of the distributor logo, if visible.
   gfx::Rect logo_bounds_;
 

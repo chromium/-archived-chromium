@@ -379,7 +379,7 @@ OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame,
       maximize_button_(new ChromeViews::Button),
       restore_button_(new ChromeViews::Button),
       close_button_(new ChromeViews::Button),
-      window_icon_(NULL),
+      window_icon_(new TabIconView(this)),
       frame_(frame),
       browser_view_(browser_view) {
   InitClass();
@@ -452,13 +452,9 @@ OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame,
   close_button_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_CLOSE));
   AddChildView(close_button_);
 
-  // Initializing the TabIconView is expensive, so only do it if we need to.
-  if (browser_view_->ShouldShowWindowIcon()) {
-    window_icon_ = new TabIconView(this);
-    window_icon_->set_is_light(true);
-    AddChildView(window_icon_);
-    window_icon_->Update();
-  }
+  window_icon_->set_is_light(true);
+  AddChildView(window_icon_);
+  window_icon_->Update();
 }
 
 OpaqueNonClientView::~OpaqueNonClientView() {
@@ -483,8 +479,7 @@ gfx::Rect OpaqueNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
 }
 
 void OpaqueNonClientView::UpdateWindowIcon() {
-  if (window_icon_)
-    window_icon_->Update();
+  window_icon_->Update();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -533,7 +528,8 @@ gfx::Size OpaqueNonClientView::CalculateWindowSizeForClientSize(
 }
 
 CPoint OpaqueNonClientView::GetSystemMenuPoint() const {
-  CPoint system_menu_point(icon_bounds_.x(), icon_bounds_.bottom());
+  CPoint system_menu_point(window_icon_->GetX(),
+                           window_icon_->GetY() + window_icon_->GetHeight());
   MapWindowPoints(frame_->GetHWND(), HWND_DESKTOP, &system_menu_point, 1);
   return system_menu_point;
 }
@@ -561,11 +557,9 @@ int OpaqueNonClientView::NonClientHitTest(const gfx::Point& point) {
   minimize_button_->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
   if (bounds.PtInRect(test_point))
     return HTMINBUTTON;
-  if (window_icon_) {
-    window_icon_->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
-    if (bounds.PtInRect(test_point))
-      return HTSYSMENU;
-  }
+  window_icon_->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
+  if (bounds.PtInRect(test_point))
+    return HTSYSMENU;
 
   component = GetHTComponentForFrame(
       point,
@@ -1011,20 +1005,21 @@ void OpaqueNonClientView::LayoutTitleBar() {
   int top_offset = frame_->IsMaximized() ? kWindowTopMarginZoomed : 0;
   ChromeViews::WindowDelegate* d = frame_->window_delegate();
 
-  // Size the window icon, even if it is hidden so we can size the title based
-  // on its position.
-  bool show_icon = d->ShouldShowWindowIcon();
-  icon_bounds_.SetRect(kWindowIconLeftOffset, kWindowIconLeftOffset,
-                       show_icon ? kWindowIconSize : 0,
-                       show_icon ? kWindowIconSize : 0);
-  if (window_icon_)
-    window_icon_->SetBounds(icon_bounds_.ToRECT());
+  // Size the window icon, if visible.
+  if (d->ShouldShowWindowIcon()) {
+    window_icon_->SetBounds(kWindowIconLeftOffset, kWindowIconLeftOffset,
+                            kWindowIconSize, kWindowIconSize);
+  } else {
+    // Put the menu in the right place at least even if it is hidden so we
+    // can size the title based on its position.
+    window_icon_->SetBounds(kWindowIconLeftOffset, kWindowIconTopOffset, 0, 0);
+  }
 
   // Size the title, if visible.
   if (d->ShouldShowWindowTitle()) {
     int spacing = d->ShouldShowWindowIcon() ? kWindowIconTitleSpacing : 0;
     int title_right = minimize_button_->GetX();
-    int icon_right = icon_bounds_.right();
+    int icon_right = window_icon_->GetX() + window_icon_->GetWidth();
     int title_left = icon_right + spacing;
     title_bounds_.SetRect(title_left, kTitleTopOffset + top_offset,
         std::max(0, static_cast<int>(title_right - icon_right)),
