@@ -284,7 +284,9 @@ void BrowserProcessImpl::CreateFileThread() {
 
   scoped_ptr<base::Thread> thread(
       new BrowserProcessSubThread(ChromeThread::FILE));
-  if (!thread->Start())
+  base::Thread::Options options;
+  options.message_loop_type = MessageLoop::TYPE_UI;
+  if (!thread->StartWithOptions(options))
     return;
   file_thread_.swap(thread);
 }
