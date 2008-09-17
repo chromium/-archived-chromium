@@ -1165,10 +1165,11 @@ srcs['all'] += installed_bins
 
 #  genfiles/%.h: %.idl
 # Note: the emitter fixes the targets to be put in genfiles.
-idls = [env_browser.TypeLibrary(src)
+if idlsrcs['all']:
+  idls = [env_browser.TypeLibrary(src)
         for src in idlsrcs['all']]
-installed_idls = idls
-srcs['all'] += [x for x in installed_idls[0] if str(x).endswith('_i.c')]
+  installed_idls = idls
+  srcs['all'] += [x for x in installed_idls[0] if str(x).endswith('_i.c')]
 
 # TODO: figure out why the .rc scanner doesn't notice these dependencies.
 env_browser.Depends(dll_resources[0], installed_html_m4s)
