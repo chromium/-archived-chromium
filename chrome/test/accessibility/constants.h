@@ -42,7 +42,7 @@
 
 // Chrome Client chidren.
 #ifdef NEW_FRAMES
-#define BROWSER_VIEW_ACC_INDEX          (5)
+#define BROWSER_VIEW_ACC_INDEX          (4)
 #define TABSTRIP_ACC_INDEX              (0)
 #define CHROME_MIN_ACC_INDEX            (0)
 #define CHROME_MAX_ACC_INDEX            (1)
