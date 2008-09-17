@@ -1106,6 +1106,8 @@ void WebViewImpl::SetPreferences(const WebPreferences& preferences) {
     preferences.shrinks_standalone_images_to_fit);
   settings->setUsesUniversalDetector(preferences.uses_universal_detector);
   settings->setTextAreasAreResizable(preferences.text_areas_are_resizable);
+  settings->setAllowScriptsToCloseWindows(
+    preferences.allow_scripts_to_close_windows);
   if (preferences.user_style_sheet_enabled) {
     settings->setUserStyleSheetLocation(webkit_glue::GURLToKURL(
       preferences.user_style_sheet_location));

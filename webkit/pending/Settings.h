@@ -153,6 +153,9 @@ namespace WebCore {
         void setNeedsSiteSpecificQuirks(bool);
         bool needsSiteSpecificQuirks() const { return m_needsSiteSpecificQuirks; }
 
+        void setAllowScriptsToCloseWindows(bool);
+        bool allowScriptsToCloseWindows() const { return m_allow_scripts_to_close_windows; }
+
     private:
         Page* m_page;
         
@@ -191,6 +194,7 @@ namespace WebCore {
         bool m_needsSiteSpecificQuirks : 1;
         unsigned m_fontRenderingMode : 1;
         bool m_usesEncodingDetector : 1;
+        bool m_allow_scripts_to_close_windows : 1;
     };
 
 } // namespace WebCore

@@ -192,6 +192,8 @@ public:
 
     static void ResetWebPreferences();
 
+    static void SetAllowScriptsToCloseWindows();
+
     WebPreferences* GetWebPreferences() { return web_prefs_; }
 
     // Some layout tests hardcode a file:///tmp/LayoutTests URL.  We get around

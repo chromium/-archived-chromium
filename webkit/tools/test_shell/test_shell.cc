@@ -203,6 +203,12 @@ void TestShell::CleanupLogging() {
 }
 
 // static
+void TestShell::SetAllowScriptsToCloseWindows() {
+  if (web_prefs_)
+    web_prefs_->allow_scripts_to_close_windows = true;
+}
+
+// static
 void TestShell::InitializeTestShell(bool interactive) {
     // Start COM stuff.
     HRESULT res = OleInitialize(NULL);
@@ -244,6 +250,7 @@ void TestShell::ResetWebPreferences() {
         web_prefs_->user_agent = webkit_glue::GetDefaultUserAgent();
         web_prefs_->dashboard_compatibility_mode = false;
         web_prefs_->java_enabled = true;
+        web_prefs_->allow_scripts_to_close_windows = false;
     }
 }
 	

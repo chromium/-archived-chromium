@@ -54,5 +54,8 @@ const wchar_t kUseNewHttp[] = L"new-http";
 // Enable tracing events (see base/trace_event.h)
 const wchar_t kEnableTracing[] = L"enable-tracing";
 
+// Allow scripts to close windows in all cases.
+const wchar_t kAllowScriptsToCloseWindows[] = L"allow-scripts-to-close-windows";
+
 }  // namespace test_shell
 

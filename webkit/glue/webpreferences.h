@@ -37,6 +37,7 @@ struct WebPreferences {
   bool text_areas_are_resizable;
   bool dashboard_compatibility_mode;
   bool java_enabled;
+  bool allow_scripts_to_close_windows;
 
   // TODO(tc): User style sheets will not work in chrome because it tries to
   // load the style sheet using a request without a frame.
@@ -71,7 +72,8 @@ struct WebPreferences {
         text_areas_are_resizable(true),
         dashboard_compatibility_mode(false),
         java_enabled(true),
-        user_style_sheet_enabled(false) {
+        user_style_sheet_enabled(false),
+        allow_scripts_to_close_windows(false) {
   }
 };
 
