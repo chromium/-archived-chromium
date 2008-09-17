@@ -259,6 +259,7 @@ void AboutChromeView::ViewHierarchyChanged(bool is_add,
       int service_pack_major = 0, service_pack_minor = 0;
       win_util::GetServicePackLevel(&service_pack_major, &service_pack_minor);
       if (win_util::UserAccountControlIsEnabled() ||
+          win_util::GetWinVersion() == win_util::WINVERSION_XP ||
           (win_util::GetWinVersion() == win_util::WINVERSION_VISTA &&
            service_pack_major >= 1)) {
         UpdateStatus(UPGRADE_CHECK_STARTED, GOOGLE_UPDATE_NO_ERROR);

@@ -84,9 +84,12 @@ bool IsAltPressed();
 // std::wstring.  An empty result indicates a failure to get the class name.
 std::wstring GetClassName(HWND window);
 
-// Returns false if the computer is running Vista and the user account control
-// is disabled. Returns true if user account control is enabled or the machine
-// is not running vista.
+// Returns false if user account control (UAC) has been disabled with the
+// EnableLUA registry flag. Returns true if user account control is enabled.
+// NOTE: The EnableLUA registry flag, which is ignored on Windows XP
+// machines, might still exist and be set to 0 (UAC disabled), in which case
+// this function will return false. You should therefore check this flag only
+// if the OS is Vista.
 bool UserAccountControlIsEnabled();
 
 }  // namespace win_util
