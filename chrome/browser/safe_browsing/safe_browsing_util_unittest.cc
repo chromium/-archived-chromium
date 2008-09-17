@@ -37,8 +37,8 @@ TEST(SafeBrowsingUtilTest, UrlParsing) {
   GURL url("http://a.b.c/1/2.html?param=1");
   safe_browsing_util::GenerateHostsToCheck(url, &hosts);
   safe_browsing_util::GeneratePathsToCheck(url, &paths);
-  EXPECT_EQ(hosts.size(), 2);
-  EXPECT_EQ(paths.size(), 4);
+  EXPECT_EQ(hosts.size(), static_cast<size_t>(2));
+  EXPECT_EQ(paths.size(), static_cast<size_t>(4));
   EXPECT_EQ(hosts[0], "b.c");
   EXPECT_EQ(hosts[1], "a.b.c");
 
@@ -50,8 +50,8 @@ TEST(SafeBrowsingUtilTest, UrlParsing) {
   url = GURL("http://a.b.c.d.e.f.g/1.html");
   safe_browsing_util::GenerateHostsToCheck(url, &hosts);
   safe_browsing_util::GeneratePathsToCheck(url, &paths);
-  EXPECT_EQ(hosts.size(), 5);
-  EXPECT_EQ(paths.size(), 2);
+  EXPECT_EQ(hosts.size(), static_cast<size_t>(5));
+  EXPECT_EQ(paths.size(), static_cast<size_t>(2));
   EXPECT_EQ(hosts[0], "f.g");
   EXPECT_EQ(hosts[1], "e.f.g");
   EXPECT_EQ(hosts[2], "d.e.f.g");
@@ -62,7 +62,7 @@ TEST(SafeBrowsingUtilTest, UrlParsing) {
 
   url = GURL("http://a.b/saw-cgi/eBayISAPI.dll/");
   safe_browsing_util::GeneratePathsToCheck(url, &paths);
-  EXPECT_EQ(paths.size(), 3);
+  EXPECT_EQ(paths.size(), static_cast<size_t>(3));
   EXPECT_TRUE(VectorContains(paths, "/saw-cgi/eBayISAPI.dll/"));
   EXPECT_TRUE(VectorContains(paths, "/saw-cgi/"));
   EXPECT_TRUE(VectorContains(paths, "/"));

@@ -414,15 +414,17 @@ if env_flat['PLATFORM'] == 'win32':
                   CPPPATH=['..'] + env['CPPPATH'])
 
 test_sconscript_files = [
-    'SConscript.automated_ui_tests',
     'SConscript.unit_tests',
-    'SConscript.ui_tests',
 ]
 
 # TODO(port)
 if env['PLATFORM'] == 'win32':
-  env.SConscript(test_sconscript_files, exports=['env_test'])
+  test_sconscript_files.extend([
+      'SConscript.automated_ui_tests',
+      'SConscript.ui_tests',
+  ])
 
+env.SConscript(test_sconscript_files, exports=['env_test'])
 
 sconscript_files = [
     'browser/SConscript',

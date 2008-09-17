@@ -7,7 +7,6 @@
 #include "base/hash_tables.h"
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "base/win_util.h"
 #include "chrome/browser/safe_browsing/protocol_parser.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -26,9 +25,9 @@ TEST(SafeBrowsingProtocolParsingTest, TestAddChunk) {
                                   "", "",  &re_key, &chunks);
   EXPECT_TRUE(result);
   EXPECT_FALSE(re_key);
-  EXPECT_EQ(chunks.size(), 1);
+  EXPECT_EQ(chunks.size(), static_cast<size_t>(1));
   EXPECT_EQ(chunks[0].chunk_number, 1);
-  EXPECT_EQ(chunks[0].hosts.size(), 3);
+  EXPECT_EQ(chunks[0].hosts.size(), static_cast<size_t>(3));
 
   EXPECT_EQ(chunks[0].hosts[0].host, 0x61616161);
   SBEntry* entry = chunks[0].hosts[0].entry;
@@ -76,9 +75,9 @@ TEST(SafeBrowsingProtocolParsingTest, TestAddFullChunk) {
                                   "", "", &re_key, &chunks);
   EXPECT_TRUE(result);
   EXPECT_FALSE(re_key);
-  EXPECT_EQ(chunks.size(), 1);
+  EXPECT_EQ(chunks.size(), static_cast<size_t>(1));
   EXPECT_EQ(chunks[0].chunk_number, 1);
-  EXPECT_EQ(chunks[0].hosts.size(), 1);
+  EXPECT_EQ(chunks[0].hosts.size(), static_cast<size_t>(1));
 
   EXPECT_EQ(chunks[0].hosts[0].host, 0x61616161);
   SBEntry* entry = chunks[0].hosts[0].entry;
@@ -106,9 +105,9 @@ TEST(SafeBrowsingProtocolParsingTest, TestAddChunks) {
                                   "", "", &re_key, &chunks);
   EXPECT_TRUE(result);
   EXPECT_FALSE(re_key);
-  EXPECT_EQ(chunks.size(), 2);
+  EXPECT_EQ(chunks.size(), static_cast<size_t>(2));
   EXPECT_EQ(chunks[0].chunk_number, 1);
-  EXPECT_EQ(chunks[0].hosts.size(), 3);
+  EXPECT_EQ(chunks[0].hosts.size(), static_cast<size_t>(3));
 
   EXPECT_EQ(chunks[0].hosts[0].host, 0x61616161);
   SBEntry* entry = chunks[0].hosts[0].entry;
@@ -132,7 +131,7 @@ TEST(SafeBrowsingProtocolParsingTest, TestAddChunks) {
 
 
   EXPECT_EQ(chunks[1].chunk_number, 2);
-  EXPECT_EQ(chunks[1].hosts.size(), 1);
+  EXPECT_EQ(chunks[1].hosts.size(), static_cast<size_t>(1));
 
   EXPECT_EQ(chunks[1].hosts[0].host, 0x35353535);
   entry = chunks[1].hosts[0].entry;
@@ -164,10 +163,10 @@ TEST(SafeBrowsingProtocolParsingTest, TestAddBigChunk) {
                                   "", "", &re_key, &chunks);
   EXPECT_TRUE(result);
   EXPECT_FALSE(re_key);
-  EXPECT_EQ(chunks.size(), 1);
+  EXPECT_EQ(chunks.size(), static_cast<size_t>(1));
   EXPECT_EQ(chunks[0].chunk_number, 1);
 
-  EXPECT_EQ(chunks[0].hosts.size(), 1);
+  EXPECT_EQ(chunks[0].hosts.size(), static_cast<size_t>(1));
 
   const SBChunkHost& host = chunks[0].hosts[0];
   EXPECT_EQ(host.host, 0x61616161);
@@ -192,9 +191,9 @@ TEST(SafeBrowsingProtocolParsingTest, TestSubChunk) {
                                   "", "", &re_key, &chunks);
   EXPECT_TRUE(result);
   EXPECT_FALSE(re_key);
-  EXPECT_EQ(chunks.size(), 1);
+  EXPECT_EQ(chunks.size(), static_cast<size_t>(1));
   EXPECT_EQ(chunks[0].chunk_number, 9);
-  EXPECT_EQ(chunks[0].hosts.size(), 3);
+  EXPECT_EQ(chunks[0].hosts.size(), static_cast<size_t>(3));
 
   EXPECT_EQ(chunks[0].hosts[0].host, 0x61616161);
   SBEntry* entry = chunks[0].hosts[0].entry;
@@ -250,9 +249,9 @@ TEST(SafeBrowsingProtocolParsingTest, TestSubFullChunk) {
                                   "", "", &re_key, &chunks);
   EXPECT_TRUE(result);
   EXPECT_FALSE(re_key);
-  EXPECT_EQ(chunks.size(), 1);
+  EXPECT_EQ(chunks.size(), static_cast<size_t>(1));
   EXPECT_EQ(chunks[0].chunk_number, 1);
-  EXPECT_EQ(chunks[0].hosts.size(), 1);
+  EXPECT_EQ(chunks[0].hosts.size(), static_cast<size_t>(1));
 
   EXPECT_EQ(chunks[0].hosts[0].host, 0x61616161);
   SBEntry* entry = chunks[0].hosts[0].entry;
@@ -286,15 +285,15 @@ TEST(SafeBrowsingProtocolParsingTest, TestChunkDelete) {
   EXPECT_FALSE(re_key);
   EXPECT_FALSE(reset);
   EXPECT_EQ(next_query_sec, 1700);
-  EXPECT_EQ(deletes.size(), 2);
+  EXPECT_EQ(deletes.size(), static_cast<size_t>(2));
 
-  EXPECT_EQ(deletes[0].chunk_del.size(), 4);
+  EXPECT_EQ(deletes[0].chunk_del.size(), static_cast<size_t>(4));
   EXPECT_TRUE(deletes[0].chunk_del[0] == ChunkRange(1, 7));
   EXPECT_TRUE(deletes[0].chunk_del[1] == ChunkRange(43, 597));
   EXPECT_TRUE(deletes[0].chunk_del[2] == ChunkRange(44444));
   EXPECT_TRUE(deletes[0].chunk_del[3] == ChunkRange(99999));
 
-  EXPECT_EQ(deletes[1].chunk_del.size(), 3);
+  EXPECT_EQ(deletes[1].chunk_del.size(), static_cast<size_t>(3));
   EXPECT_TRUE(deletes[1].chunk_del[0] == ChunkRange(21, 27));
   EXPECT_TRUE(deletes[1].chunk_del[1] == ChunkRange(42));
   EXPECT_TRUE(deletes[1].chunk_del[2] == ChunkRange(171717));
@@ -333,7 +332,7 @@ TEST(SafeBrowsingProtocolParsingTest, TestRedirects) {
 
   EXPECT_FALSE(re_key);
   EXPECT_FALSE(reset);
-  EXPECT_EQ(urls.size(), 4);
+  EXPECT_EQ(urls.size(), static_cast<size_t>(4));
   EXPECT_EQ(urls[0].url,
       "cache.googlevideo.com/safebrowsing/rd/goog-malware-shavar_s_1");
   EXPECT_EQ(urls[1].url,
@@ -369,7 +368,7 @@ TEST(SafeBrowsingProtocolParsingTest, TestRedirectsWithMac) {
 
   EXPECT_FALSE(re_key);
   EXPECT_FALSE(reset);
-  EXPECT_EQ(urls.size(), 2);
+  EXPECT_EQ(urls.size(), static_cast<size_t>(2));
   EXPECT_EQ(urls[0].url,
       "s.ytimg.com/safebrowsing/rd/goog-phish-shavar_s_6501-6505:6501-6505");
   EXPECT_EQ(urls[0].mac, "pcY6iVeT9-CBQ3fdAF0rpnKjR1Y=");
@@ -415,7 +414,7 @@ TEST(SafeBrowsingProtocolParsingTest, TestGetHash) {
                       &full_hashes);
 
   EXPECT_FALSE(re_key);
-  EXPECT_EQ(full_hashes.size(), 3);
+  EXPECT_EQ(full_hashes.size(), static_cast<size_t>(3));
   EXPECT_EQ(memcmp(&full_hashes[0].hash,
                    "00112233445566778899aabbccddeeff",
                    sizeof(SBFullHash)), 0);
@@ -441,7 +440,7 @@ TEST(SafeBrowsingProtocolParsingTest, TestGetHash) {
                       &full_hashes);
 
   EXPECT_FALSE(re_key);
-  EXPECT_EQ(full_hashes.size(), 3);
+  EXPECT_EQ(full_hashes.size(), static_cast<size_t>(3));
   EXPECT_EQ(memcmp(&full_hashes[0].hash,
                    "00112233445566778899aabbccddeeff",
                    sizeof(SBFullHash)), 0);
@@ -456,12 +455,9 @@ TEST(SafeBrowsingProtocolParsingTest, TestGetHash) {
   EXPECT_EQ(full_hashes[2].list_name, "goog-malware-shavar");
 }
 
+// TODO(port): Enable when we have ported VerifyMAC in safe_browsing_util.cc.
+#if defined(OS_WIN)
 TEST(SafeBrowsingProtocolParsingTest, TestGetHashWithMac) {
-  // TODO(paulg): Bug: http://b/1084719, skip this test on Windows 2000 until
-  //              this bug is fixed.
-  if (win_util::GetWinVersion() <= win_util::WINVERSION_2000)
-    return;
-
   const unsigned char get_hash[] = {
     0x32, 0x56, 0x74, 0x6f, 0x6b, 0x36, 0x64, 0x41,
     0x51, 0x72, 0x65, 0x51, 0x62, 0x38, 0x51, 0x68,
@@ -493,9 +489,10 @@ TEST(SafeBrowsingProtocolParsingTest, TestGetHashWithMac) {
                                   &re_key,
                                   &full_hashes));
   EXPECT_FALSE(re_key);
-  EXPECT_EQ(full_hashes.size(), 1);
+  EXPECT_EQ(full_hashes.size(), static_cast<size_t>(1));
   EXPECT_EQ(memcmp(hash_result, &full_hashes[0].hash, sizeof(SBFullHash)), 0);
 }
+#endif  // defined(OS_WIN)
 
 
 TEST(SafeBrowsingProtocolParsingTest, TestFormatHash) {
@@ -558,12 +555,9 @@ TEST(SafeBrowsingProtocolParsingTest, TestReset) {
   EXPECT_TRUE(reset);
 }
 
+// TODO(port): Enable when we have ported VerifyMAC in safe_browsing_util.cc.
+#if defined(OS_WIN)
 TEST(SafeBrowsingProtocolParsingTest, TestVerifyUpdateMac) {
-  // TODO(paulg): Bug: http://b/1084719, skip this test on Windows 2000 until
-  //              this bug is fixed.
-  if (win_util::GetWinVersion() <= win_util::WINVERSION_2000)
-    return;
-
   SafeBrowsingProtocolParser parser;
 
   const std::string update =
@@ -599,11 +593,6 @@ TEST(SafeBrowsingProtocolParsingTest, TestVerifyUpdateMac) {
 }
 
 TEST(SafeBrowsingProtocolParsingTest, TestVerifyChunkMac) {
-  // TODO(paulg): Bug: http://b/1084719, skip this test on Windows 2000 until
-  //              this bug is fixed.
-  if (win_util::GetWinVersion() <= win_util::WINVERSION_2000)
-    return;
-
   SafeBrowsingProtocolParser parser;
 
   const unsigned char chunk[] = {
@@ -626,3 +615,4 @@ TEST(SafeBrowsingProtocolParsingTest, TestVerifyChunkMac) {
 
   safe_browsing_util::FreeChunks(&chunks);
 }
+#endif  // defined(OS_WIN)

@@ -7,6 +7,7 @@
 #include <time.h>
 #include <string>
 
+#include "base/platform_thread.h"
 #include "chrome/browser/net/dns_host_info.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -28,7 +29,7 @@ TEST(DnsHostInfoTest, StateChangeTest) {
   info_practice.SetQueuedState();
   info_practice.SetAssignedState();
   info_practice.SetFoundState();
-  Sleep(500);  // Allow time for DLLs to fully load.
+  PlatformThread::Sleep(500);  // Allow time for DLLs to fully load.
 
   // Complete the construction of real test object.
   info.SetHostname(hostname1);
@@ -56,9 +57,10 @@ TEST(DnsHostInfoTest, StateChangeTest) {
   EXPECT_FALSE(info.NeedsDnsUpdate(hostname1)) << "expiration time not honored";
   // Note that we'll actually get an expiration (effectively) of
   // 150ms, since there was no detected network activity time during lookup.
-  Sleep(80);  // Not enough time to pass our 150ms mark.
+  PlatformThread::Sleep(80);  // Not enough time to pass our 150ms mark.
   EXPECT_FALSE(info.NeedsDnsUpdate(hostname1)) << "expiration time not honored";
-  Sleep(100);  // Be sure we sleep (80+100) enough to pass that 150ms mark.
+  // Be sure we sleep (80+100) enough to pass that 150ms mark.
+  PlatformThread::Sleep(100);
   EXPECT_TRUE(info.NeedsDnsUpdate(hostname1)) << "expiration time not honored";
 
   // That was a nice life when the object was found.... but next time it won't
@@ -67,7 +69,8 @@ TEST(DnsHostInfoTest, StateChangeTest) {
   info.SetAssignedState();
   EXPECT_FALSE(info.NeedsDnsUpdate(hostname1))
     << "update needed while assigned to slave";
-  Sleep(25);  // Greater than minimal expected network latency on DNS lookup.
+  // Greater than minimal expected network latency on DNS lookup.
+  PlatformThread::Sleep(25);
   info.SetNoSuchNameState();
   EXPECT_FALSE(info.NeedsDnsUpdate(hostname1))
     << "default expiration time is TOOOOO short";
@@ -75,16 +78,17 @@ TEST(DnsHostInfoTest, StateChangeTest) {
   // Note that now we'll actually utilize an expiration of 300ms,
   // since there was detected network activity time during lookup.
   // We're assuming the caching just started with our lookup.
-  Sleep(80);  // Not enough time to pass our 300ms mark.
+  PlatformThread::Sleep(80);  // Not enough time to pass our 300ms mark.
   EXPECT_FALSE(info.NeedsDnsUpdate(hostname1)) << "expiration time not honored";
-  Sleep(80);  // Still not past our 300ms mark (only about 4+2ms)
+  // Still not past our 300ms mark (only about 4+2ms)
+  PlatformThread::Sleep(80);
   EXPECT_FALSE(info.NeedsDnsUpdate(hostname1)) << "expiration time not honored";
-  Sleep(150);
+  PlatformThread::Sleep(150);
   EXPECT_TRUE(info.NeedsDnsUpdate(hostname1)) << "expiration time not honored";
 }
 
 // TODO(jar): Add death test for illegal state changes, and also for setting
 // hostname when already set.
 
-}  // namespace anonymous
+}  // namespace
 
