@@ -165,10 +165,18 @@ void Window::UpdateWindowIcon() {
   SkBitmap icon = window_delegate_->GetWindowIcon();
   if (!icon.isNull()) {
     HICON windows_icon = IconUtil::CreateHICONFromSkBitmap(icon);
-    SendMessage(GetHWND(), WM_SETICON, ICON_SMALL,
-                reinterpret_cast<LPARAM>(windows_icon));
-    SendMessage(GetHWND(), WM_SETICON, ICON_BIG,
-                reinterpret_cast<LPARAM>(windows_icon));
+    // We need to make sure to destroy the previous icon, otherwise we'll leak
+    // these GDI objects until we crash!
+    HICON old_icon = reinterpret_cast<HICON>(
+        SendMessage(GetHWND(), WM_SETICON, ICON_SMALL,
+                    reinterpret_cast<LPARAM>(windows_icon)));
+    if (old_icon)
+      DestroyIcon(old_icon);
+    old_icon = reinterpret_cast<HICON>(
+        SendMessage(GetHWND(), WM_SETICON, ICON_BIG,
+                    reinterpret_cast<LPARAM>(windows_icon)));
+    if (old_icon)
+      DestroyIcon(old_icon);
   }
 }
 
