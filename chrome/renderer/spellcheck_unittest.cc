@@ -341,7 +341,7 @@ TEST_F(SpellCheckTest, SpellCheckSuggestions_EN_US) {
 }
 
 // This test Adds words to the SpellChecker and veifies that it remembers them.
-TEST_F(SpellCheckTest, SpellCheckAddToDictionary_EN_US) {
+TEST_F(SpellCheckTest, DISABLED_SpellCheckAddToDictionary_EN_US) {
   static const struct {
     // A string to be added to SpellChecker.
     const wchar_t* word_to_add;
@@ -409,7 +409,7 @@ TEST_F(SpellCheckTest, SpellCheckAddToDictionary_EN_US) {
 }
 
 // SpellChecker should suggest custome words for misspelled words.
-TEST_F(SpellCheckTest, SpellCheckSuggestionsAddToDictionary_EN_US) {
+TEST_F(SpellCheckTest, DISABLED_SpellCheckSuggestionsAddToDictionary_EN_US) {
   static const struct {
     // A string to be added to SpellChecker.
     const wchar_t* word_to_add;
