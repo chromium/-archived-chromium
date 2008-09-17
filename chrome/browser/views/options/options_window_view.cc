@@ -159,8 +159,8 @@ void OptionsWindowView::TabSelectedAt(int index) {
 
 void OptionsWindowView::Layout() {
   tabs_->SetBounds(kDialogPadding, kDialogPadding,
-                   GetWidth() - (2 * kDialogPadding),
-                   GetHeight() - (2 * kDialogPadding));
+                   width() - (2 * kDialogPadding),
+                   height() - (2 * kDialogPadding));
 }
 
 void OptionsWindowView::GetPreferredSize(CSize* out) {

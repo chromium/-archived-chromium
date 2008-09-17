@@ -44,7 +44,7 @@ void DebuggerView::GetPreferredSize(CSize* out) {
 }
 
 void DebuggerView::Layout() {
-  web_container_->SetBounds(0, 0, GetWidth(), GetHeight());
+  web_container_->SetBounds(0, 0, width(), height());
 }
 
 void DebuggerView::DidChangeBounds(const CRect& previous,

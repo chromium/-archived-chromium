@@ -99,7 +99,7 @@ void FileDisplayArea::SetFile(const std::wstring& file_path) {
 
 void FileDisplayArea::Paint(ChromeCanvas* canvas) {
   HDC dc = canvas->beginPlatformPaint();
-  RECT rect = { 0, 0, GetWidth(), GetHeight() };
+  RECT rect = { 0, 0, width(), height() };
   gfx::NativeTheme::instance()->PaintTextField(
       dc, EP_EDITTEXT, ETS_READONLY, 0, &rect,
       gfx::SkColorToCOLORREF(text_field_background_color_), true, true);
@@ -114,8 +114,8 @@ void FileDisplayArea::Layout() {
   CSize ps;
   text_field_->GetPreferredSize(&ps);
   text_field_->SetBounds(icon_bounds_.right() + kFileIconTextFieldSpacing,
-                         (GetHeight() - ps.cy) / 2,
-                         GetWidth() - icon_bounds_.right() -
+                         (height() - ps.cy) / 2,
+                         width() - icon_bounds_.right() -
                              kFileIconHorizontalSpacing -
                              kFileIconTextFieldSpacing, ps.cy);
 }

@@ -258,22 +258,22 @@ TEST_F(ViewTest, AddRemoveNotifications) {
 
 bool TestView::OnMousePressed(const MouseEvent& event) {
   last_mouse_event_type_ = event.GetType();
-  location_.x = event.GetX();
-  location_.y = event.GetY();
+  location_.x = event.x();
+  location_.y = event.y();
   return true;
 }
 
 bool TestView::OnMouseDragged(const MouseEvent& event) {
   last_mouse_event_type_ = event.GetType();
-  location_.x = event.GetX();
-  location_.y = event.GetY();
+  location_.x = event.x();
+  location_.y = event.y();
   return true;
 }
 
 void TestView::OnMouseReleased(const MouseEvent& event, bool canceled) {
   last_mouse_event_type_ = event.GetType();
-  location_.x = event.GetX();
-  location_.y = event.GetY();
+  location_.x = event.x();
+  location_.y = event.y();
 }
 
 TEST_F(ViewTest, MouseEvent) {
@@ -524,8 +524,8 @@ class HitTestView : public ChromeViews::View {
     DCHECK(has_hittest_mask_);
     DCHECK(mask);
 
-    SkScalar w = SkIntToScalar(GetWidth());
-    SkScalar h = SkIntToScalar(GetHeight());
+    SkScalar w = SkIntToScalar(width());
+    SkScalar h = SkIntToScalar(height());
 
     // Create a triangular mask within the bounds of this View.
     mask->moveTo(w / 2, 0);

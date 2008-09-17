@@ -262,7 +262,7 @@ void DownloadItemTabView::LayoutComplete() {
                            file_name_size.cy + kVerticalPadding +
                               download_util::kBigProgressIconOffset,
                            std::min(kFilenameSize,
-                                    static_cast<int>(GetWidth() - dx)),
+                                    static_cast<int>(width() - dx)),
                            url_size.cy);
   download_url_->SetVisible(true);
   dx += kFilenameSize + kSpacer;
@@ -309,7 +309,7 @@ void DownloadItemTabView::LayoutCancelled() {
                            file_name_size.cy + kVerticalPadding +
                               download_util::kBigProgressIconOffset,
                            std::min(kFilenameSize - kProgressSize - kSpacer,
-                                    static_cast<int>(GetWidth() - dx)),
+                                    static_cast<int>(width() - dx)),
                            url_size.cy);
   download_url_->SetVisible(true);
 
@@ -395,7 +395,7 @@ void DownloadItemTabView::LayoutInProgress() {
   download_url_->SetBounds(dx, file_name_size.cy + kVerticalPadding +
                            download_util::kBigProgressIconOffset,
                            std::min(kFilenameSize - kProgressSize - kSpacer,
-                                    static_cast<int>(GetWidth() - dx)),
+                                    static_cast<int>(width() - dx)),
                            url_size.cy);
   download_url_->SetVisible(true);
 
@@ -585,7 +585,7 @@ void DownloadItemTabView::DidChangeBounds(const CRect& previous,
 }
 
 bool DownloadItemTabView::OnMousePressed(const ChromeViews::MouseEvent& event) {
-  CPoint point(event.GetX(), event.GetY());
+  CPoint point(event.x(), event.y());
 
   // If the click is in the highlight region, then highlight this download.
   // Otherwise, remove the highlighting from any download.
@@ -623,7 +623,7 @@ bool DownloadItemTabView::OnMouseDragged(const ChromeViews::MouseEvent& event) {
   if (model_->state() != DownloadItem::COMPLETE)
     return false;
 
-  CPoint point(event.GetX(), event.GetY());
+  CPoint point(event.x(), event.y());
 
   // In order to make sure drag and drop works as expected when the UI is
   // mirrored, we can either flip the mouse X coordinate or flip the X position
@@ -723,12 +723,9 @@ void DownloadTabView::Layout() {
   View* v = GetParent();
   if (v) {
     v->GetLocalBounds(&r, true);
-    int x = GetX();
-    int y = GetY();
-    int w = v->GetWidth();
     int h = static_cast<int>(downloads_.size()) *
             (download_util::kBigProgressIconSize + kSpacer) + kSpacer;
-    SetBounds(x, y, w, h);
+    SetBounds(x(), y(), v->width(), h);
   }
 }
 
@@ -752,7 +749,7 @@ void DownloadTabView::Paint(ChromeCanvas* canvas) {
         continue;
       download_rect.set(SkIntToScalar(0),
                         SkIntToScalar(y),
-                        SkIntToScalar(GetWidth()),
+                        SkIntToScalar(width()),
                         SkIntToScalar(y + download_util::kBigProgressIconSize));
       if (SkRect::Intersects(clip, download_rect)) {
         // The DownloadManager stores downloads earliest first, but this
@@ -761,7 +758,7 @@ void DownloadTabView::Paint(ChromeCanvas* canvas) {
         download_renderer_.SetModel(downloads_[index], this);
         PaintFloatingView(canvas, &download_renderer_,
                           0, y,
-                          GetWidth(), download_util::kBigProgressIconSize);
+                          width(), download_util::kBigProgressIconSize);
       }
     }
   }
@@ -796,7 +793,7 @@ ChromeViews::View* DownloadTabView::CreateFloatingViewForIndex(int index) {
   dl->SetModel(downloads_[index], this);
   int row = static_cast<int>(downloads_.size()) - 1 - index;
   int y_pos = row * (download_util::kBigProgressIconSize + kSpacer) + kSpacer;
-  dl->SetBounds(0, y_pos, GetWidth(), download_util::kBigProgressIconSize);
+  dl->SetBounds(0, y_pos, width(), download_util::kBigProgressIconSize);
   dl->Layout();
   AttachFloatingView(dl, index);
   return dl;
@@ -1023,7 +1020,7 @@ bool DownloadTabView::ItemIsSelected(DownloadItem* download) {
 
 void DownloadTabView::SchedulePaintForViewAtIndex(int index) {
   int y = GetYPositionForIndex(index);
-  SchedulePaint(0, y, GetWidth(), download_util::kBigProgressIconSize);
+  SchedulePaint(0, y, width(), download_util::kBigProgressIconSize);
 }
 
 int DownloadTabView::GetYPositionForIndex(int index) {

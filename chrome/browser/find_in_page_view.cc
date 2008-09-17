@@ -342,26 +342,26 @@ void FindInPageView::Layout() {
   // First we draw the close button on the far right.
   close_button_->GetPreferredSize(&sz);
   close_button_->SetBounds(panel_size.cx - sz.cx - kMarginRightOfCloseButton,
-                           (GetHeight() - sz.cy) / 2,
+                           (height() - sz.cy) / 2,
                            sz.cx,
                            sz.cy);
   close_button_->SetListener(this, CLOSE_TAG);
 
   // Next, the FindNext button to the left the close button.
   find_next_button_->GetPreferredSize(&sz);
-  find_next_button_->SetBounds(close_button_->GetX() -
-                                   find_next_button_->GetWidth() -
+  find_next_button_->SetBounds(close_button_->x() -
+                                   find_next_button_->width() -
                                    kMarginLeftOfCloseButton,
-                               (GetHeight() - sz.cy) / 2,
+                               (height() - sz.cy) / 2,
                                 sz.cx,
                                 sz.cy);
   find_next_button_->SetListener(this, FIND_NEXT_TAG);
 
   // Then, the FindPrevious button to the left the FindNext button.
   find_previous_button_->GetPreferredSize(&sz);
-  find_previous_button_->SetBounds(find_next_button_->GetX() -
-                                       find_previous_button_->GetWidth(),
-                                   (GetHeight() - sz.cy) / 2,
+  find_previous_button_->SetBounds(find_next_button_->x() -
+                                       find_previous_button_->width(),
+                                   (height() - sz.cy) / 2,
                                    sz.cx,
                                    sz.cy);
   find_previous_button_->SetListener(this, FIND_PREVIOUS_TAG);
@@ -372,18 +372,18 @@ void FindInPageView::Layout() {
   // of breathing room (margins around the text).
   sz.cx += kMatchCountExtraWidth;
   sz.cx = std::max(kMatchCountMinWidth, static_cast<int>(sz.cx));
-  match_count_text_->SetBounds(find_previous_button_->GetX() -
+  match_count_text_->SetBounds(find_previous_button_->x() -
                                    kWhiteSpaceAfterMatchCountLabel -
                                    sz.cx,
-                               (GetHeight() - sz.cy) / 2 + 1,
+                               (height() - sz.cy) / 2 + 1,
                                sz.cx,
                                sz.cy);
 
   // And whatever space is left in between, gets filled up by the find edit box.
   find_text_->GetPreferredSize(&sz);
-  sz.cx = match_count_text_->GetX() - kMarginLeftOfFindTextField;
-  find_text_->SetBounds(match_count_text_->GetX() - sz.cx,
-                        (GetHeight() - sz.cy) / 2 + 1,
+  sz.cx = match_count_text_->x() - kMarginLeftOfFindTextField;
+  find_text_->SetBounds(match_count_text_->x() - sz.cx,
+                        (height() - sz.cy) / 2 + 1,
                         sz.cx,
                         sz.cy);
   find_text_->SetController(this);
@@ -392,12 +392,12 @@ void FindInPageView::Layout() {
   // The focus forwarder view is a hidden view that should cover the area
   // between the find text box and the find button so that when the user clicks
   // in that area we focus on the find text box.
-  int find_text_edge = find_text_->GetX() + find_text_->GetWidth();
+  int find_text_edge = find_text_->x() + find_text_->width();
   focus_forwarder_view_->SetBounds(find_text_edge,
-                                   find_previous_button_->GetY(),
-                                   find_previous_button_->GetX() -
+                                   find_previous_button_->y(),
+                                   find_previous_button_->x() -
                                        find_text_edge,
-                                   find_previous_button_->GetHeight());
+                                   find_previous_button_->height());
 }
 
 void FindInPageView::DidChangeBounds(const CRect& old_bounds,

@@ -387,7 +387,7 @@ void FindInPageController::AnimationProgressed(
   // First, we calculate how many pixels to slide the window.
   find_dialog_animation_offset_ =
       static_cast<int>((1.0 - animation_->GetCurrentValue()) *
-      view_->GetHeight());
+      view_->height());
 
   // This call makes sure it appears in the right location, the size and shape
   // is correct and that it slides in the right direction.

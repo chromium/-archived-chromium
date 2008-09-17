@@ -125,8 +125,8 @@ void View::GetBounds(CRect* out, PositionMirroringSettings settings) const {
   }
 }
 
-// GetY(), GetWidth() and GetHeight() are agnostic to the RTL UI layout of the
-// parent view. GetX(), on the other hand, is not.
+// y(), width() and height() are agnostic to the RTL UI layout of the
+// parent view. x(), on the other hand, is not.
 int View::GetX(PositionMirroringSettings settings) const {
   if (settings == IGNORE_MIRRORING_TRANSFORMATION) {
     return bounds_.left;
@@ -172,26 +172,26 @@ void View::GetLocalBounds(CRect* out, bool include_border) const {
   if (include_border || border_ == NULL) {
     out->left = 0;
     out->top = 0;
-    out->right = GetWidth();
-    out->bottom = GetHeight();
+    out->right = width();
+    out->bottom = height();
   } else {
     gfx::Insets insets;
     border_->GetInsets(&insets);
     out->left = insets.left();
     out->top = insets.top();
-    out->right = GetWidth() - insets.left();
-    out->bottom = GetHeight() - insets.top();
+    out->right = width() - insets.left();
+    out->bottom = height() - insets.top();
   }
 }
 
 void View::GetSize(CSize* sz) const {
-  sz->cx = GetWidth();
-  sz->cy = GetHeight();
+  sz->cx = width();
+  sz->cy = height();
 }
 
 void View::GetPosition(CPoint* p) const {
   p->x = GetX(APPLY_MIRRORING_TRANSFORMATION);
-  p->y = GetY();
+  p->y = y();
 }
 
 void View::GetPreferredSize(CSize* out) {
@@ -205,8 +205,8 @@ void View::GetPreferredSize(CSize* out) {
 void View::SizeToPreferredSize() {
   CSize size;
   GetPreferredSize(&size);
-  if ((size.cx != GetWidth()) || (size.cy != GetHeight()))
-    SetBounds(GetX(), GetY(), size.cx, size.cy);
+  if ((size.cx != width()) || (size.cy != height()))
+    SetBounds(x(), y(), size.cx, size.cy);
 }
 
 void View::GetMinimumSize(CSize* out) {
@@ -232,7 +232,7 @@ void View::ScrollRectToVisible(int x, int y, int width, int height) {
   // the region.
   if (parent)
     parent->ScrollRectToVisible(
-        GetX(APPLY_MIRRORING_TRANSFORMATION) + x, GetY() + y, width, height);
+        GetX(APPLY_MIRRORING_TRANSFORMATION) + x, View::y() + y, width, height);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -284,7 +284,7 @@ bool View::UILayoutIsRightToLeft() const {
 inline int View::MirroredX() const {
   View* parent = GetParent();
   if (parent && parent->UILayoutIsRightToLeft()) {
-    return parent->GetWidth() - bounds_.left - GetWidth();
+    return parent->width() - bounds_.left - width();
   }
   return bounds_.left;
 }
@@ -293,7 +293,7 @@ int View::MirroredLeftPointForRect(const gfx::Rect& bounds) const {
   if (!UILayoutIsRightToLeft()) {
     return bounds.x();
   }
-  return GetWidth() - bounds.x() - bounds.width();
+  return width() - bounds.x() - bounds.width();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -395,7 +395,7 @@ void View::PaintBorder(ChromeCanvas* canvas) {
 
 void View::PaintFocusBorder(ChromeCanvas* canvas) {
   if (HasFocus() && IsFocusable())
-    canvas->DrawFocusRect(0, 0, GetWidth(), GetHeight());
+    canvas->DrawFocusRect(0, 0, width(), height());
 }
 
 void View::PaintChildren(ChromeCanvas* canvas) {
@@ -438,7 +438,7 @@ void View::ProcessPaint(ChromeCanvas* canvas) {
     // should change the transform appropriately.
     bool flip_canvas = FlipCanvasOnPaintForRTLUI();
     if (flip_canvas) {
-      canvas->TranslateInt(GetWidth(), 0);
+      canvas->TranslateInt(width(), 0);
       canvas->ScaleInt(-1, 1);
       canvas->save();
     }
@@ -527,8 +527,8 @@ void View::SetContextMenuController(ContextMenuController* menu_controller) {
 bool View::ProcessMousePressed(const MouseEvent& e, DragInfo* drag_info) {
   const bool enabled = enabled_;
   int drag_operations;
-  if (enabled && e.IsOnlyLeftMouseButton() && HitTest(WTL::CPoint(e.GetX(), e.GetY())))
-    drag_operations = GetDragOperations(e.GetX(), e.GetY());
+  if (enabled && e.IsOnlyLeftMouseButton() && HitTest(WTL::CPoint(e.x(), e.y())))
+    drag_operations = GetDragOperations(e.x(), e.y());
   else
     drag_operations = 0;
   ContextMenuController* context_menu_controller = context_menu_controller_;
@@ -540,7 +540,7 @@ bool View::ProcessMousePressed(const MouseEvent& e, DragInfo* drag_info) {
     return result;
 
   if (drag_operations != DragDropTypes::DRAG_NONE) {
-    drag_info->PossibleDrag(e.GetX(), e.GetY());
+    drag_info->PossibleDrag(e.x(), e.y());
     return true;
   }
   return !!context_menu_controller || result;
@@ -551,8 +551,8 @@ bool View::ProcessMouseDragged(const MouseEvent& e, DragInfo* drag_info) {
   // done.
   ContextMenuController* context_menu_controller = context_menu_controller_;
   const bool possible_drag = drag_info->possible_drag;
-  if (possible_drag && ExceededDragThreshold(drag_info->start_x - e.GetX(),
-                                             drag_info->start_y - e.GetY())) {
+  if (possible_drag && ExceededDragThreshold(drag_info->start_x - e.x(),
+                                             drag_info->start_y - e.y())) {
     DoDrag(e, drag_info->start_x, drag_info->start_y);
   } else {
     if (OnMouseDragged(e))
@@ -567,7 +567,7 @@ void View::ProcessMouseReleased(const MouseEvent& e, bool canceled) {
   if (!canceled && context_menu_controller_ && e.IsOnlyRightMouseButton()) {
     // Assume that if there is a context menu controller we won't be deleted
     // from mouse released.
-    CPoint location(e.GetX(), e.GetY());
+    CPoint location(e.x(), e.y());
     ConvertPointToScreen(this, &location);
     ContextMenuController* context_menu_controller = context_menu_controller_;
     OnMouseReleased(e, canceled);
@@ -1159,8 +1159,8 @@ bool View::HasFloatingViewForPoint(int x, int y) {
 
   for (i = 0, c = static_cast<int>(floating_views_.size()); i < c; ++i) {
     v = floating_views_[i];
-    r.SetRect(v->GetX(APPLY_MIRRORING_TRANSFORMATION), v->GetY(),
-              v->GetWidth(), v->GetHeight());
+    r.SetRect(v->GetX(APPLY_MIRRORING_TRANSFORMATION), v->y(),
+              v->width(), v->height());
     if (r.Contains(x, y))
       return true;
   }
@@ -1312,7 +1312,7 @@ void View::ConvertPointToView(View* src,
 
   for (v = dst; v && v != src; v = v->GetParent()) {
     offset.SetPoint(offset.x() + v->GetX(APPLY_MIRRORING_TRANSFORMATION),
-                    offset.y() + v->GetY());
+                    offset.y() + v->y());
   }
 
   // The source was not found. The caller wants a conversion
@@ -1349,7 +1349,7 @@ void View::ConvertPointToViewContainer(View* src, CPoint* p) {
 
   for (v = src; v; v = v->GetParent()) {
     offset.x += v->GetX(APPLY_MIRRORING_TRANSFORMATION);
-    offset.y += v->GetY();
+    offset.y += v->y();
   }
   p->x += offset.x;
   p->y += offset.y;
@@ -1445,7 +1445,7 @@ bool View::IsVisibleInRootView() const {
 }
 
 bool View::HitTest(const CPoint& l) const {
-  if (l.x >= 0 && l.x < GetWidth() && l.y >= 0 && l.y < GetHeight()) {
+  if (l.x >= 0 && l.x < width() && l.y >= 0 && l.y < height()) {
     if (HasHitTestMask()) {
       gfx::Path mask;
       GetHitTestMask(&mask);
@@ -1589,7 +1589,7 @@ std::string View::GetClassName() const {
 }
 
 gfx::Rect View::GetVisibleBounds() {
-  gfx::Rect vis_bounds(0, 0, GetWidth(), GetHeight());
+  gfx::Rect vis_bounds(0, 0, width(), height());
   gfx::Rect ancestor_bounds;
   View* view = this;
   int root_x = 0;
@@ -1597,12 +1597,12 @@ gfx::Rect View::GetVisibleBounds() {
   bool has_view_container = false;
   while (view != NULL && !vis_bounds.IsEmpty()) {
     root_x += view->GetX(APPLY_MIRRORING_TRANSFORMATION);
-    root_y += view->GetY();
-    vis_bounds.Offset(view->GetX(APPLY_MIRRORING_TRANSFORMATION), view->GetY());
+    root_y += view->y();
+    vis_bounds.Offset(view->GetX(APPLY_MIRRORING_TRANSFORMATION), view->y());
     View* ancestor = view->GetParent();
     if (ancestor != NULL) {
-      ancestor_bounds.SetRect(0, 0, ancestor->GetWidth(),
-                              ancestor->GetHeight());
+      ancestor_bounds.SetRect(0, 0, ancestor->width(),
+                              ancestor->height());
       vis_bounds = vis_bounds.Intersect(ancestor_bounds);
     } else if (!view->GetViewContainer()) {
       // If the view has no ViewContainer, we're not visible. Return an empty

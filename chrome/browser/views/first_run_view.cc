@@ -107,30 +107,30 @@ void FirstRunView::Layout() {
   CSize pref_size;
   welcome_label_->GetPreferredSize(&pref_size);
   // Wrap the label text before we overlap the product icon.
-  int label_width = background_image()->GetWidth() -
+  int label_width = background_image()->width() -
       rb.GetBitmapNamed(IDR_WIZARD_ICON)->width() - kPanelHorizMargin;
   welcome_label_->SetBounds(kPanelHorizMargin, kPanelVertMargin,
                             label_width, pref_size.cy);
   AdjustDialogWidth(welcome_label_);
 
-  int next_v_space = background_image()->GetY() +
-                     background_image()->GetHeight() + kPanelVertMargin;
+  int next_v_space = background_image()->y() +
+                     background_image()->height() + kPanelVertMargin;
 
   actions_label_->GetPreferredSize(&pref_size);
   actions_label_->SetBounds(kPanelHorizMargin, next_v_space,
                             pref_size.cx, pref_size.cy);
   AdjustDialogWidth(actions_label_);
 
-  next_v_space = actions_label_->GetY() +
-                 actions_label_->GetHeight() + kVertSpacing;
+  next_v_space = actions_label_->y() +
+                 actions_label_->height() + kVertSpacing;
 
-  label_width = GetWidth() - (2 * kPanelHorizMargin);
+  label_width = width() - (2 * kPanelHorizMargin);
   int label_height = actions_import_->GetHeightForWidth(label_width);
   actions_import_->SetBounds(kPanelHorizMargin, next_v_space, label_width,
                              label_height);
 
-  next_v_space = actions_import_->GetY() +
-                 actions_import_->GetHeight() + kVertSpacing;
+  next_v_space = actions_import_->y() +
+                 actions_import_->height() + kVertSpacing;
   AdjustDialogWidth(actions_import_);
 
   label_height = actions_shorcuts_->GetHeightForWidth(label_width);
@@ -138,8 +138,8 @@ void FirstRunView::Layout() {
                                label_height);
   AdjustDialogWidth(actions_shorcuts_);
 
-  next_v_space = actions_shorcuts_->GetY() +
-                 actions_shorcuts_->GetHeight() +
+  next_v_space = actions_shorcuts_->y() +
+                 actions_shorcuts_->height() +
                  kUnrelatedControlVerticalSpacing;
 
   customize_link_->GetPreferredSize(&pref_size);

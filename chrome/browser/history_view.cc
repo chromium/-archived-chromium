@@ -162,10 +162,10 @@ void SnippetRenderer::Paint(ChromeCanvas* canvas) {
     const int width = ProcessRun(NULL, 0, 0,
                                  match_iter, iter.prev(), iter.pos());
     // Advance to the next line if necessary.
-    if (x + width > GetWidth()) {
+    if (x + width > View::width()) {
       x = 0;
       y += line_height;
-      if (y >= GetHeight())
+      if (y >= height())
         return;  // Out of vertical space.
     }
     ProcessRun(canvas, x, y, match_iter, iter.prev(), iter.pos());
@@ -209,7 +209,7 @@ int SnippetRenderer::ProcessRun(
     if (canvas) {
       canvas->DrawStringInt(run, *font, SkColorSetRGB(0, 0, 0),
                             x + total_width, y,
-                            width, GetHeight(),
+                            width, height(),
                             ChromeCanvas::TEXT_VALIGN_BOTTOM);
     }
 
@@ -338,7 +338,7 @@ HistoryItemRenderer::~HistoryItemRenderer() {
 
 void HistoryItemRenderer::GetThumbnailBounds(CRect* rect) {
   DCHECK(rect);
-  rect->right = GetWidth() - kEntryPadding;
+  rect->right = width() - kEntryPadding;
   rect->left = rect->right - kThumbnailWidth;
   rect->top = kEntryPadding;
   rect->bottom = rect->top + kThumbnailHeight;
@@ -421,7 +421,7 @@ void HistoryItemRenderer::Layout() {
     GetThumbnailBounds(&thumbnail_rect);
     max_x = thumbnail_rect.left - kEntryPadding;
   } else {
-    max_x = GetWidth() - kEntryPadding;
+    max_x = width() - kEntryPadding;
   }
 
   // Calculate the ideal positions of some items. If possible, we
@@ -564,8 +564,8 @@ void HistoryItemRenderer::StarStateChanged(bool state) {
   // Shift the location to make the bubble appear at a visually pleasing
   // location.
   gfx::Rect star_bounds(star_location.x, star_location.y + 4,
-                        star_toggle_->GetWidth(),
-                        star_toggle_->GetHeight());
+                        star_toggle_->width(),
+                        star_toggle_->height());
   HWND parent = GetViewContainer()->GetHWND();
   Profile* profile = model_->profile();
   GURL url = model_->GetURL(model_index_);
@@ -869,9 +869,7 @@ void HistoryView::Layout() {
                       kEntryPadding + kNoResultTextHeight);
   }
 
-  int x = GetX();
-  int y = GetY();
-  SetBounds(x, y, width, height);
+  SetBounds(x(), y(), width, height);
 }
 
 HistoryView::BreakOffsets::iterator HistoryView::GetBreakOffsetIteratorForY(
@@ -904,7 +902,7 @@ void HistoryView::Paint(ChromeCanvas* canvas) {
   if (!canvas->getClipBounds(&clip))
     return;
 
-  const int content_width = GetWidth() - kLeftMargin - kRightMargin;
+  const int content_width = width() - kLeftMargin - kRightMargin;
 
   const int x1 = kLeftMargin;
   int clip_y = SkScalarRound(clip.fTop);
@@ -1114,7 +1112,7 @@ bool HistoryView::GetFloatingViewIDForPoint(int x, int y, int* id) {
   //  +--------------
 
   // First, verify the x coordinate is within the correct region.
-  if (x < kLeftMargin || x > GetWidth() - kRightMargin ||
+  if (x < kLeftMargin || x > width() - kRightMargin ||
       y >= GetLastEntryMaxY()) {
     return false;
   }
@@ -1207,7 +1205,7 @@ ChromeViews::View* HistoryView::ValidateFloatingViewForID(int id) {
                                 show_results_);
     renderer->SetModel(model_.get(), model_index);
     renderer->SetBounds(kLeftMargin, y,
-                        GetWidth() - kLeftMargin - kRightMargin,
+                        width() - kLeftMargin - kRightMargin,
                         GetEntryHeight());
     floating_view = renderer;
   }
@@ -1312,7 +1310,7 @@ gfx::Rect HistoryView::CalculateDeleteControlBounds(int base_y) {
   // the link. Additionally this should be baseline aligned with the date. I'm
   // not doing that now as a redesign of HistoryView is in the works.
   const int delete_width = GetDeleteControlWidth();
-  const int delete_x = GetWidth() - kRightMargin - delete_width;
+  const int delete_x = width() - kRightMargin - delete_width;
   return gfx::Rect(delete_x,
                    base_y + kDeleteControlOffset,
                    delete_width,

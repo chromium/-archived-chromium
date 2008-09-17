@@ -229,8 +229,7 @@ void DownloadItemView::OnDownloadUpdated(DownloadItem* download) {
 // Load an icon for the file type we're downloading, and animate any in progress
 // download state.
 void DownloadItemView::Paint(ChromeCanvas* canvas) {
-  int height = GetHeight();
-  int center_width = GetWidth() - kLeftPadding -
+  int center_width = width() - kLeftPadding -
                      normal_body_image_set_.left->width() -
                      normal_body_image_set_.right->width() -
                      normal_drop_down_image_set_.center->width();
@@ -427,8 +426,8 @@ bool DownloadItemView::OnMousePressed(const ChromeViews::MouseEvent& event) {
     complete_animation_->End();
 
   if (event.IsOnlyLeftMouseButton()) {
-    WTL::CPoint point(event.GetX(), event.GetY());
-    if (event.GetX() < drop_down_x_) {
+    WTL::CPoint point(event.x(), event.y());
+    if (event.x() < drop_down_x_) {
       SetState(PUSHED, NORMAL);
       return true;
     }
@@ -452,9 +451,9 @@ bool DownloadItemView::OnMousePressed(const ChromeViews::MouseEvent& event) {
     //
     // TODO(idana): when bug# 1163334 is fixed the following check should be
     // replaced with UILayoutIsRightToLeft().
-    point.y = GetHeight();
+    point.y = height();
     if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
-      point.x = GetWidth();
+      point.x = width();
     } else {
       point.x = drop_down_x_;
     }
@@ -472,7 +471,7 @@ bool DownloadItemView::OnMousePressed(const ChromeViews::MouseEvent& event) {
 }
 
 void DownloadItemView::OnMouseMoved(const ChromeViews::MouseEvent& event) {
-  bool on_body = event.GetX() < drop_down_x_;
+  bool on_body = event.x() < drop_down_x_;
   SetState(on_body ? HOT : NORMAL, on_body ? NORMAL : HOT);
   if (on_body) {
     body_hover_animation_->Show();
@@ -491,7 +490,7 @@ void DownloadItemView::OnMouseReleased(const ChromeViews::MouseEvent& event,
     starting_drag_ = false;
     return;
   }
-  if (event.IsOnlyLeftMouseButton() && event.GetX() < drop_down_x_)
+  if (event.IsOnlyLeftMouseButton() && event.x() < drop_down_x_)
     OpenDownload();
 
   SetState(NORMAL, NORMAL);

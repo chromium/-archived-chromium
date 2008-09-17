@@ -198,15 +198,15 @@ void SecurityTabView::Section::Layout() {
   title_label_->SetBounds(x, y, size.cx, size.cy);
   x += size.cx + kHGapTitleToSeparator;
   separator_->SetBounds(x + kHExtraSeparatorPadding, y,
-                        GetWidth() - x - 2 * kHExtraSeparatorPadding, size.cy);
+                        width() - x - 2 * kHExtraSeparatorPadding, size.cy);
 
   // Then the image, head-line and description.
   x = kHGapToBorder;
-  y += title_label_->GetHeight() + kVGapTitleToImage;
+  y += title_label_->height() + kVGapTitleToImage;
   status_image_->GetPreferredSize(&size);
   status_image_->SetBounds(x, y, size.cx, size.cy);
   x += size.cx + kHGapImageToDescription;
-  int w = GetWidth() - x;
+  int w = width() - x;
   if (!head_line_label_->GetText().empty()) {
     head_line_label_->GetPreferredSize(&size);
     head_line_label_->SetBounds(x, y, w > 0 ? w : 0, size.cy);
@@ -368,14 +368,14 @@ void SecurityTabView::AddSection(const std::wstring& title,
 }
 
 void SecurityTabView::Layout() {
-  int width = GetWidth() - 2 * kHGapToBorder;
+  int tab_width = width() - 2 * kHGapToBorder;
   int x = kHGapToBorder;
   int y = kVGapToBorder;
   for (std::vector<Section*>::const_iterator iter = sections_.begin();
        iter != sections_.end(); ++iter) {
     Section* section = *iter;
-    int h = section->GetHeightForWidth(width);
-    section->SetBounds(x, y, width, h);
+    int h = section->GetHeightForWidth(tab_width);
+    section->SetBounds(x, y, tab_width, h);
     section->Layout();
     y += h + kVGapBetweenSections;
   }

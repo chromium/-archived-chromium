@@ -158,7 +158,7 @@ void FontDisplayView::SetFontType(const std::wstring& font_name,
 
 void FontDisplayView::Paint(ChromeCanvas* canvas) {
   HDC dc = canvas->beginPlatformPaint();
-  RECT rect = { 0, 0, GetWidth(), GetHeight() };
+  RECT rect = { 0, 0, width(), height() };
   gfx::NativeTheme::instance()->PaintTextField(
       dc, EP_BACKGROUND, EBS_NORMAL, 0, &rect, ::GetSysColor(COLOR_3DFACE),
       true, true);
@@ -166,7 +166,7 @@ void FontDisplayView::Paint(ChromeCanvas* canvas) {
 }
 
 void FontDisplayView::Layout() {
-  font_text_label_->SetBounds(0, 0, GetWidth(), GetHeight());
+  font_text_label_->SetBounds(0, 0, width(), height());
 }
 
 void FontDisplayView::GetPreferredSize(CSize* out) {

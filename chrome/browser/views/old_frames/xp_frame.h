@@ -224,7 +224,7 @@ class XPFrame : public BrowserWindow,
 
   // Return the X origin of the the first frame control button.
   int GetButtonXOrigin() {
-    return min_button_->GetX();
+    return min_button_->x();
   }
 
   // Return the Y location of the contents or infobar.

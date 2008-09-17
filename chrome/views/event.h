@@ -128,12 +128,12 @@ class LocatedEvent : public Event {
   LocatedEvent(const LocatedEvent& model, View* from, View* to);
 
   // Returns the X location.
-  int GetX() const {
+  int x() const {
     return location_.x();
   }
 
   // Returns the Y location.
-  int GetY() const {
+  int y() const {
     return location_.y();
   }
 

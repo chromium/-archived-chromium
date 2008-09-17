@@ -385,8 +385,8 @@ void GeneralSection::Layout() {
   // do this then it will return 0 as a preferred width when GridLayout (called
   // from View::Layout) tries to access it.
   ChromeViews::View* parent = GetParent();
-  if (parent && parent->GetWidth()) {
-    const int parent_width = parent->GetWidth();
+  if (parent && parent->width()) {
+    const int parent_width = parent->width();
     reporting_enabled_checkbox_->SetBounds(0, 0, parent_width - 20, 0);
   }
   View::Layout();
@@ -1101,8 +1101,8 @@ int AdvancedContentsView::GetLineScrollIncrement(
 
 void AdvancedContentsView::Layout() {
   ChromeViews::View* parent = GetParent();
-  if (parent && parent->GetWidth()) {
-    const int width = parent->GetWidth();
+  if (parent && parent->width()) {
+    const int width = parent->width();
     const int height = GetHeightForWidth(width);
     SetBounds(0, 0, width, height);
   } else {

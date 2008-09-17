@@ -435,8 +435,8 @@ LRESULT Window::OnSetCursor(HWND window, UINT hittest_code, UINT message) {
 }
 
 void Window::OnSize(UINT size_param, const CSize& new_size) {
-  if (root_view_->GetWidth() == new_size.cx &&
-      root_view_->GetHeight() == new_size.cy)
+  if (root_view_->width() == new_size.cx &&
+      root_view_->height() == new_size.cy)
     return;
 
   SaveWindowPosition();

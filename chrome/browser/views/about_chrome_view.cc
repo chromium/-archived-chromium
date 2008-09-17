@@ -176,8 +176,8 @@ void AboutChromeView::Layout() {
   // Then we have the version number right below it.
   version_label_->GetPreferredSize(&sz);
   version_label_->SetBounds(kPanelHorizMargin,
-                            about_title_label_->GetY() +
-                                about_title_label_->GetHeight() +
+                            about_title_label_->y() +
+                                about_title_label_->height() +
                                 kRelatedControlVerticalSpacing,
                             kVersionFieldWidth,
                             sz.cy);
@@ -223,7 +223,7 @@ void AboutChromeView::Layout() {
   // the throbber. We specify width to the end of the dialog because it contains
   // variable length messages.
   update_label_.GetPreferredSize(&sz);
-  int update_label_x = throbber_->GetX() + throbber_->GetWidth() +
+  int update_label_x = throbber_->x() + throbber_->width() +
                        kRelatedControlHorizontalSpacing;
   update_label_.SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
   update_label_.SetBounds(update_label_x,

@@ -645,7 +645,7 @@ void CookiesView::Layout() {
   remove_button_->SetBounds(kPanelHorizMargin, y_buttons, ps.cx, ps.cy);
 
   remove_all_button_->GetPreferredSize(&ps);
-  int remove_all_x = remove_button_->GetX() + remove_button_->GetWidth() +
+  int remove_all_x = remove_button_->x() + remove_button_->width() +
       kRelatedControlHorizontalSpacing;
   remove_all_button_->SetBounds(remove_all_x, y_buttons, ps.cx, ps.cy);
 

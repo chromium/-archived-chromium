@@ -234,11 +234,11 @@ void LocationBarView::Paint(ChromeCanvas* canvas) {
   if (popup_window_mode_ == false) {
     int bh = kBackground->height();
 
-    canvas->TileImageInt(*kBackground, 0, (GetHeight() - bh) / 2, GetWidth(),
+    canvas->TileImageInt(*kBackground, 0, (height() - bh) / 2, width(),
                          bh);
 
     canvas->FillRectInt(bg, kBackgroundHoriMargin, kBackgroundVertMargin,
-                        GetWidth() - 2 * kBackgroundHoriMargin,
+                        width() - 2 * kBackgroundHoriMargin,
                         bh - kBackgroundVertMargin * 2);
   } else {
     canvas->TileImageInt(*kPopupBackgroundLeft, 0, 0,
@@ -246,18 +246,18 @@ void LocationBarView::Paint(ChromeCanvas* canvas) {
                          kPopupBackgroundLeft->height());
     canvas->TileImageInt(*kPopupBackgroundCenter,
                          kPopupBackgroundLeft->width(), 0,
-                         GetWidth() -
+                         width() -
                             kPopupBackgroundLeft->width() -
                             kPopupBackgroundRight->width(),
                          kPopupBackgroundCenter->height());
     canvas->TileImageInt(*kPopupBackgroundRight,
-                         GetWidth() - kPopupBackgroundRight->width(),
+                         width() - kPopupBackgroundRight->width(),
                          0, kPopupBackgroundRight->width(),
                          kPopupBackgroundRight->height());
 
     canvas->FillRectInt(bg, kPopupBackgroundHorzMargin,
                         kPopupBackgroundVertMargin,
-                        GetWidth() - kPopupBackgroundHorzMargin * 2,
+                        width() - kPopupBackgroundHorzMargin * 2,
                         kPopupBackgroundCenter->height() -
                         kPopupBackgroundVertMargin * 2);
   }
@@ -374,7 +374,7 @@ void LocationBarView::DoLayout(const bool force_layout) {
   RECT edit_bounds;
   location_entry_->GetClientRect(&edit_bounds);
 
-  int entry_width = GetWidth() - kEntryPadding - kEntryPadding;
+  int entry_width = width() - kEntryPadding - kEntryPadding;
   CSize security_image_size;
   if (security_image_view_.IsVisible()) {
     security_image_view_.GetPreferredSize(&security_image_size);
@@ -401,17 +401,17 @@ void LocationBarView::DoLayout(const bool force_layout) {
   const SkBitmap* background = popup_window_mode_ ? kPopupBackgroundCenter
                                                   : kBackground;
   int bh = background->height();
-  int location_y = ((GetHeight() - bh) / 2) + kTextVertMargin;
+  int location_y = ((height() - bh) / 2) + kTextVertMargin;
   int location_height = bh - (2 * kTextVertMargin);
   if (info_label_.IsVisible()) {
-    info_label_.SetBounds(GetWidth() - kEntryPadding - info_label_size.cx,
+    info_label_.SetBounds(width() - kEntryPadding - info_label_size.cx,
                           location_y,
                           info_label_size.cx, location_height);
   }
   if (security_image_view_.IsVisible()) {
     const int info_label_width = info_label_size.cx ?
         info_label_size.cx + kInnerPadding : 0;
-    security_image_view_.SetBounds(GetWidth() - kEntryPadding -
+    security_image_view_.SetBounds(width() - kEntryPadding -
                                       info_label_width  -
                                       security_image_size.cx,
                                    location_y,
@@ -447,7 +447,7 @@ int LocationBarView::TextDisplayWidth() {
   POINT scroll_position;
   location_entry_->GetScrollPos(&scroll_position);
   const int position_x = last_char_position.x + scroll_position.x;
-  return UILayoutIsRightToLeft() ? GetWidth() - position_x : position_x;
+  return UILayoutIsRightToLeft() ? width() - position_x : position_x;
 }
 
 bool LocationBarView::UsePref(int pref_width, int text_width, int max_width) {
@@ -459,7 +459,7 @@ bool LocationBarView::NeedsResize(View* view, int text_width, int max_width) {
   view->GetPreferredSize(&size);
   if (!UsePref(size.cx, text_width, max_width))
     view->GetMinimumSize(&size);
-  return (view->GetWidth() != size.cx);
+  return (view->width() != size.cx);
 }
 
 bool LocationBarView::AdjustHints(int text_width, int max_width) {
@@ -576,7 +576,7 @@ void LocationBarView::OnMouseEvent(const ChromeViews::MouseEvent& event,
   if (event.IsRightMouseButton())
     flags |= MK_RBUTTON;
 
-  CPoint screen_point(event.GetX(), event.GetY());
+  CPoint screen_point(event.x(), event.y());
   ConvertPointToScreen(this, &screen_point);
 
   location_entry_->HandleExternalMsg(msg, flags, screen_point);
@@ -637,7 +637,7 @@ void LocationBarView::SelectedKeywordView::SetFont(const ChromeFont& font) {
 
 void LocationBarView::SelectedKeywordView::Paint(ChromeCanvas* canvas) {
   canvas->TranslateInt(0, kBackgroundYOffset);
-  background_painter_.Paint(GetWidth(), GetHeight() - kTopInset, canvas);
+  background_painter_.Paint(width(), height() - kTopInset, canvas);
   canvas->TranslateInt(0, -kBackgroundYOffset);
 }
 
@@ -658,11 +658,11 @@ void LocationBarView::SelectedKeywordView::DidChangeBounds(
 void LocationBarView::SelectedKeywordView::Layout() {
   CSize pref;
   GetPreferredSize(&pref);
-  bool at_pref = (GetWidth() == pref.cx);
+  bool at_pref = (width() == pref.cx);
   if (at_pref)
-    full_label_.SetBounds(0, 0, GetWidth(), GetHeight());
+    full_label_.SetBounds(0, 0, width(), height());
   else
-    partial_label_.SetBounds(0, 0, GetWidth(), GetHeight());
+    partial_label_.SetBounds(0, 0, width(), height());
   full_label_.SetVisible(at_pref);
   partial_label_.SetVisible(!at_pref);
 }
@@ -757,7 +757,7 @@ void LocationBarView::KeywordHintView::SetKeyword(const std::wstring& keyword) {
 }
 
 void LocationBarView::KeywordHintView::Paint(ChromeCanvas* canvas) {
-  int image_x = leading_label_.IsVisible() ? leading_label_.GetWidth() : 0;
+  int image_x = leading_label_.IsVisible() ? leading_label_.width() : 0;
 
   // Since we paint the button image directly on the canvas (instead of using a
   // child view), we must mirror the button's position manually if the locale
@@ -791,21 +791,20 @@ void LocationBarView::KeywordHintView::GetMinimumSize(CSize* out) {
 
 void LocationBarView::KeywordHintView::Layout() {
   // TODO(sky): baseline layout.
-  bool show_labels = (GetWidth() != kTabButtonBitmap->width());
+  bool show_labels = (width() != kTabButtonBitmap->width());
 
   leading_label_.SetVisible(show_labels);
   trailing_label_.SetVisible(show_labels);
-  int height = GetHeight();
   int x = 0;
   CSize pref;
 
   if (show_labels) {
     leading_label_.GetPreferredSize(&pref);
-    leading_label_.SetBounds(x, 0, pref.cx, height);
+    leading_label_.SetBounds(x, 0, pref.cx, height());
 
     x += pref.cx + kTabButtonBitmap->width();
     trailing_label_.GetPreferredSize(&pref);
-    trailing_label_.SetBounds(x, 0, pref.cx, height);
+    trailing_label_.SetBounds(x, 0, pref.cx, height());
   }
 }
 
@@ -881,12 +880,12 @@ void LocationBarView::ShowFirstRunBubbleInternal() {
   // therefore we need to adjust the X coordinate so that bubble appears on the
   // right hand side of the location bar.
   if (UILayoutIsRightToLeft())
-    location.x += GetWidth();
+    location.x += width();
   ChromeViews::View::ConvertPointToScreen(this, &location);
 
   // We try to guess that 20 pixels offset is a good place for the first
   // letter in the OmniBox.
-  gfx::Rect bounds(location.x, location.y, 20, GetHeight());
+  gfx::Rect bounds(location.x, location.y, 20, height());
 
   // Moving the bounds "backwards" so that it appears within the location bar
   // if the UI layout is RTL.
@@ -957,7 +956,7 @@ void LocationBarView::SecurityImageView::ShowInfoBubble() {
 
   CPoint location(0, 0);
   ChromeViews::View::ConvertPointToScreen(this, &location);
-  gfx::Rect bounds(location.x, location.y, GetWidth(), GetHeight());
+  gfx::Rect bounds(location.x, location.y, width(), height());
 
   ChromeViews::Label* label = new ChromeViews::Label(text);
   label->SetMultiLine(true);

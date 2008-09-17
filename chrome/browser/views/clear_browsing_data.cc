@@ -125,44 +125,44 @@ void ClearBrowsingDataView::Layout() {
   // Check-boxes go beneath it (with a little indentation).
   del_history_checkbox_->GetPreferredSize(&sz);
   del_history_checkbox_->SetBounds(2 * kPanelHorizMargin,
-                                   delete_all_label_->GetY() +
-                                       delete_all_label_->GetHeight() +
+                                   delete_all_label_->y() +
+                                       delete_all_label_->height() +
                                        kRelatedControlVerticalSpacing,
                                    sz.cx, sz.cy);
 
   del_downloads_checkbox_->GetPreferredSize(&sz);
   del_downloads_checkbox_->SetBounds(2 * kPanelHorizMargin,
-                                     del_history_checkbox_->GetY() +
-                                         del_history_checkbox_->GetHeight() +
+                                     del_history_checkbox_->y() +
+                                         del_history_checkbox_->height() +
                                          kRelatedControlVerticalSpacing,
                                      sz.cx, sz.cy);
 
   del_cache_checkbox_->GetPreferredSize(&sz);
   del_cache_checkbox_->SetBounds(2 * kPanelHorizMargin,
-                                 del_downloads_checkbox_->GetY() +
-                                     del_downloads_checkbox_->GetHeight() +
+                                 del_downloads_checkbox_->y() +
+                                     del_downloads_checkbox_->height() +
                                      kRelatedControlVerticalSpacing,
                                  sz.cx, sz.cy);
 
   del_cookies_checkbox_->GetPreferredSize(&sz);
   del_cookies_checkbox_->SetBounds(2 * kPanelHorizMargin,
-                                   del_cache_checkbox_->GetY() +
-                                       del_cache_checkbox_->GetHeight() +
+                                   del_cache_checkbox_->y() +
+                                       del_cache_checkbox_->height() +
                                        kRelatedControlVerticalSpacing,
                                    sz.cx, sz.cy);
 
   del_passwords_checkbox_->GetPreferredSize(&sz);
   del_passwords_checkbox_->SetBounds(2 * kPanelHorizMargin,
-                                     del_cookies_checkbox_->GetY() +
-                                         del_cookies_checkbox_->GetHeight() +
+                                     del_cookies_checkbox_->y() +
+                                         del_cookies_checkbox_->height() +
                                          kRelatedControlVerticalSpacing,
                                      sz.cx, sz.cy);
 
   // Time period label is next below the combo boxes.
   time_period_label_->GetPreferredSize(&sz);
   time_period_label_->SetBounds(kPanelHorizMargin,
-                                del_passwords_checkbox_->GetY() +
-                                    del_passwords_checkbox_->GetHeight() +
+                                del_passwords_checkbox_->y() +
+                                    del_passwords_checkbox_->height() +
                                     kRelatedControlVerticalSpacing +
                                     kExtraMarginForTimePeriodLabel,
                                 sz.cx, sz.cy);
@@ -171,10 +171,10 @@ void ClearBrowsingDataView::Layout() {
   // vertically to the label as well.
   int label_y_size = sz.cy;
   time_period_combobox_->GetPreferredSize(&sz);
-  time_period_combobox_->SetBounds(time_period_label_->GetX() +
-                                       time_period_label_->GetWidth() +
+  time_period_combobox_->SetBounds(time_period_label_->x() +
+                                       time_period_label_->width() +
                                        kRelatedControlVerticalSpacing,
-                                   time_period_label_->GetY() -
+                                   time_period_label_->y() -
                                        ((sz.cy - label_y_size) / 2),
                                    sz.cx, sz.cy);
 
@@ -192,7 +192,7 @@ void ClearBrowsingDataView::Layout() {
   // The status label should be at the bottom of the screen, to the right of
   // the throbber.
   status_label_.GetPreferredSize(&sz);
-  int status_label_x = throbber_->GetX() + throbber_->GetWidth() +
+  int status_label_x = throbber_->x() + throbber_->width() +
                        kRelatedControlHorizontalSpacing;
   status_label_.SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
   status_label_.SetBounds(status_label_x,

@@ -290,7 +290,7 @@ HWND TreeView::CreateNativeControl(HWND parent_container) {
                                 WC_TREEVIEW,
                                 L"",
                                 style,
-                                0, 0, GetWidth(), GetHeight(),
+                                0, 0, width(), height(),
                                 parent_container, NULL, NULL, NULL);
   SetWindowLongPtr(tree_view_, GWLP_USERDATA,
                    reinterpret_cast<LONG_PTR>(&wrapper_));
@@ -444,8 +444,8 @@ void TreeView::OnContextMenu(const CPoint& location) {
         return;
       }
       if (!valid_loc) {
-        x = GetWidth() / 2;
-        y = GetHeight() / 2;
+        x = width() / 2;
+        y = height() / 2;
       }
       CPoint screen_loc(x, y);
       ConvertPointToScreen(this, &screen_loc);

@@ -63,8 +63,8 @@ ChromeViews::View* FontsLanguagesWindowView::GetContentsView() {
 
 void FontsLanguagesWindowView::Layout() {
   tabs_->SetBounds(kDialogPadding, kDialogPadding,
-                   GetWidth() - (2 * kDialogPadding),
-                   GetHeight() - (2 * kDialogPadding));
+                   width() - (2 * kDialogPadding),
+                   height() - (2 * kDialogPadding));
 }
 
 void FontsLanguagesWindowView::GetPreferredSize(CSize* out) {

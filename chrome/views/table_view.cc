@@ -83,7 +83,7 @@ void TableView::DidChangeBounds(const CRect& previous,
     return;
   SendMessage(list_view_, WM_SETREDRAW, static_cast<WPARAM>(FALSE), 0);
   Layout();
-  if ((!sized_columns_ || autosize_columns_) && GetWidth() > 0) {
+  if ((!sized_columns_ || autosize_columns_) && width() > 0) {
     sized_columns_ = true;
     ResetColumnSizes();
   }
@@ -458,7 +458,7 @@ HWND TableView::CreateNativeControl(HWND parent_container) {
                                 WC_LISTVIEW,
                                 L"",
                                 style,
-                                0, 0, GetWidth(), GetHeight(),
+                                0, 0, width(), height(),
                                 parent_container, NULL, NULL, NULL);
   model_->SetObserver(this);
 

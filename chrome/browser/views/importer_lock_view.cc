@@ -43,8 +43,8 @@ void ImporterLockView::GetPreferredSize(CSize *out) {
 
 void ImporterLockView::Layout() {
   description_label_->SetBounds(kPanelHorizMargin, kPanelVertMargin,
-      GetWidth() - 2 * kPanelHorizMargin,
-      GetHeight() - 2 * kPanelVertMargin);
+      width() - 2 * kPanelHorizMargin,
+      height() - 2 * kPanelVertMargin);
 }
 
 std::wstring ImporterLockView::GetDialogButtonLabel(

@@ -285,8 +285,8 @@ bool NativeUIContents::NavigateToPendingEntry(bool reload) {
 void NativeUIContents::Layout() {
   if (current_view_) {
     ChromeViews::RootView* root_view = GetRootView();
-    current_view_->SetBounds(0, 0, root_view->GetWidth(),
-                             root_view->GetHeight());
+    current_view_->SetBounds(0, 0, root_view->width(),
+                             root_view->height());
     current_view_->Layout();
   }
 }
@@ -430,7 +430,7 @@ NativeUIBackground::~NativeUIBackground() {
 void NativeUIBackground::Paint(ChromeCanvas* canvas,
                                ChromeViews::View* view) const {
   static const SkColor kBackground = SkColorSetRGB(255, 255, 255);
-  canvas->FillRectInt(kBackground, 0, 0, view->GetWidth(), view->GetHeight());
+  canvas->FillRectInt(kBackground, 0, 0, view->width(), view->height());
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -605,7 +605,7 @@ void SearchableUIContainer::Layout() {
     static_cast<int>(search_button_size.cx) +
     kDestinationSmallerMargin;
 
-  product_logo_->SetBounds(std::max(GetWidth() - kProductLogo->width() - 
+  product_logo_->SetBounds(std::max(width() - kProductLogo->width() - 
                                kProductLogoPadding,
                                field_width), 
                            kProductLogoPadding, 
@@ -615,13 +615,13 @@ void SearchableUIContainer::Layout() {
 void SearchableUIContainer::Paint(ChromeCanvas* canvas) {
   SkColor top_color(kBackground);
   canvas->FillRectInt(top_color, 0, 0,
-                      GetWidth(), scroll_view_->GetY());
+                      width(), scroll_view_->y());
 
-  canvas->FillRectInt(kBottomMarginColor, 0, scroll_view_->GetY() -
-                      kBottomMargin, GetWidth(), kBottomMargin);
+  canvas->FillRectInt(kBottomMarginColor, 0, scroll_view_->y() -
+                      kBottomMargin, width(), kBottomMargin);
 
   canvas->FillRectInt(SkColorSetRGB(196, 196, 196),
-                      0, scroll_view_->GetY() - 1, GetWidth(), 1);
+                      0, scroll_view_->y() - 1, width(), 1);
 }
 
 ChromeViews::TextField* SearchableUIContainer::GetSearchField() const {

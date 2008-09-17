@@ -207,7 +207,7 @@ void AeroGlassFrame::UpdateDWMFrame() {
       gfx::Rect tabstrip_bounds =
           GetBoundsForTabStrip(browser_view_->tabstrip());
       client_edge_top_height =
-          client_view()->GetY() + tabstrip_bounds.bottom();
+          client_view()->y() + tabstrip_bounds.bottom();
     }
 
     // Now poke the DWM.

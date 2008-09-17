@@ -75,19 +75,19 @@ bool FrameView::ShouldForwardToTabStrip(
   if (!window_->GetTabStrip()->IsVisible())
     return false;
 
-  const int tab_y = window_->GetTabStrip()->GetY();
-  const int tab_height = window_->GetTabStrip()->GetHeight();
-  if (event.GetY() >= tab_y + tab_height)
+  const int tab_y = window_->GetTabStrip()->y();
+  const int tab_height = window_->GetTabStrip()->height();
+  if (event.y() >= tab_y + tab_height)
     return false;
 
-  if (event.GetY() >= tab_y)
+  if (event.y() >= tab_y)
     return true;
 
   // Mouse isn't over the tab strip. Only forward if the mouse isn't over
   // another view on the tab strip or is over a view we were told the user can
   // drop on.
   ChromeViews::View* view_over_mouse =
-      GetViewForPoint(CPoint(event.GetX(), event.GetY()));
+      GetViewForPoint(CPoint(event.x(), event.y()));
   return (view_over_mouse == this ||
           view_over_mouse == window_->GetTabStrip() ||
           dropable_views_.find(view_over_mouse) != dropable_views_.end());

@@ -73,8 +73,8 @@ class NewTabButton : public ChromeViews::Button {
   virtual void GetHitTestMask(gfx::Path* path) const {
     DCHECK(path);
 
-    SkScalar h = SkIntToScalar(GetHeight());
-    SkScalar w = SkIntToScalar(GetWidth());
+    SkScalar h = SkIntToScalar(height());
+    SkScalar w = SkIntToScalar(width());
 
     // These values are defined by the shape of the new tab bitmap. Should that
     // bitmap ever change, these values will need to be updated. They're so
@@ -396,15 +396,15 @@ class MoveTabAnimation : public TabStrip::TabAnimation {
     double distance = start_tab_b_bounds_.x() - start_tab_a_bounds_.x();
     double delta = distance * animation_.GetCurrentValue();
     double new_x = start_tab_a_bounds_.x() + delta;
-    tab_a_->SetBounds(Round(new_x), tab_a_->GetY(), tab_a_->GetWidth(),
-                      tab_a_->GetHeight());
+    tab_a_->SetBounds(Round(new_x), tab_a_->y(), tab_a_->width(),
+                      tab_a_->height());
 
     // Position Tab B
     distance = start_tab_a_bounds_.x() - start_tab_b_bounds_.x();
     delta = distance * animation_.GetCurrentValue();
     new_x = start_tab_b_bounds_.x() + delta;
-    tab_b_->SetBounds(Round(new_x), tab_b_->GetY(), tab_b_->GetWidth(),
-                      tab_b_->GetHeight());
+    tab_b_->SetBounds(Round(new_x), tab_b_->y(), tab_b_->width(),
+                      tab_b_->height());
 
     tabstrip_->SchedulePaint();
   }
@@ -470,9 +470,9 @@ class ResizeLayoutAnimation : public TabStrip::TabAnimation {
     for (int i = 0; i < tabstrip_->GetTabCount(); ++i) {
       Tab* current_tab = tabstrip_->GetTabAt(i);
       if (current_tab->IsSelected()) {
-        start_selected_width_ = current_tab->GetWidth();
+        start_selected_width_ = current_tab->width();
       } else {
-        start_unselected_width_ = current_tab->GetWidth();
+        start_unselected_width_ = current_tab->width();
       }
     }
   }
@@ -624,8 +624,8 @@ void TabStrip::PaintChildren(ChromeCanvas* canvas) {
     paint.setPorterDuffXfermode(SkPorterDuff::kDstIn_Mode);
     paint.setStyle(SkPaint::kFill_Style);
     canvas->FillRectInt(
-        0, 0, GetWidth(),
-        GetHeight() - 2,  // Visible region that overlaps the toolbar.
+        0, 0, width(),
+        height() - 2,  // Visible region that overlaps the toolbar.
         paint);
   }
 
@@ -1022,7 +1022,7 @@ void TabStrip::MaybeStartDrag(Tab* tab, const ChromeViews::MouseEvent& event) {
   if (IsAnimating() || tab->closing())
     return;
   drag_controller_.reset(new DraggedTabController(tab, this));
-  drag_controller_->CaptureDragInfo(gfx::Point(event.GetX(), event.GetY()));
+  drag_controller_->CaptureDragInfo(gfx::Point(event.x(), event.y()));
 }
 
 void TabStrip::ContinueDrag(const ChromeViews::MouseEvent& event) {
@@ -1171,7 +1171,7 @@ void TabStrip::GetDesiredTabWidths(int tab_count,
   // Determine how much space we can actually allocate to tabs.
   int available_width;
   if (available_width_for_tabs_ < 0) {
-    available_width = GetWidth();
+    available_width = width();
     available_width -= (kNewTabButtonHOffset + newtab_button_size_.width());
   } else {
     // Interesting corner case: if |available_width_for_tabs_| > the result
@@ -1236,7 +1236,7 @@ void TabStrip::ResizeLayoutTabs() {
 
   // We only want to run the animation if we're not already at the desired
   // size.
-  if (abs(first_tab->GetWidth() - w) > 1)
+  if (abs(first_tab->width() - w) > 1)
     StartResizeLayoutAnimation();
 }
 
@@ -1299,12 +1299,12 @@ gfx::Rect TabStrip::GetDropBounds(int drop_index,
   if (drop_index < GetTabCount()) {
     Tab* tab = GetTabAt(drop_index);
     if (drop_before)
-      center_x = tab->GetX() - (kTabHOffset / 2);
+      center_x = tab->x() - (kTabHOffset / 2);
     else
-      center_x = tab->GetX() + (tab->GetWidth() / 2);
+      center_x = tab->x() + (tab->width() / 2);
   } else {
     Tab* last_tab = GetTabAt(drop_index - 1);
-    center_x = last_tab->GetX() + last_tab->GetWidth() + (kTabHOffset / 2);
+    center_x = last_tab->x() + last_tab->width() + (kTabHOffset / 2);
   }
 
   // Mirror the center point if necessary.
@@ -1321,7 +1321,7 @@ gfx::Rect TabStrip::GetDropBounds(int drop_index,
   *is_beneath = (monitor_bounds.IsEmpty() ||
                  !monitor_bounds.Contains(drop_bounds));
   if (*is_beneath)
-    drop_bounds.Offset(0, drop_bounds.height() + GetHeight());
+    drop_bounds.Offset(0, drop_bounds.height() + height());
 
   return drop_bounds;
 }
@@ -1330,13 +1330,13 @@ void TabStrip::UpdateDropIndex(const DropTargetEvent& event) {
   // If the UI layout is right-to-left, we need to mirror the mouse
   // coordinates since we calculate the drop index based on the
   // original (and therefore non-mirrored) positions of the tabs.
-  const int x = MirroredXCoordinateInsideView(event.GetX());
+  const int x = MirroredXCoordinateInsideView(event.x());
   for (int i = 0; i < GetTabCount(); ++i) {
     Tab* tab = GetTabAt(i);
-    const int tab_max_x = tab->GetX() + tab->GetWidth();
-    const int hot_width = tab->GetWidth() / 3;
+    const int tab_max_x = tab->x() + tab->width();
+    const int hot_width = tab->width() / 3;
     if (x < tab_max_x) {
-      if (x < tab->GetX() + hot_width)
+      if (x < tab->x() + hot_width)
         SetDropIndex(i, true);
       else if (x >= tab_max_x - hot_width)
         SetDropIndex(i + 1, true);
@@ -1465,7 +1465,7 @@ void TabStrip::LayoutNewTabButton(double last_tab_right,
     // We're shrinking tabs, so we need to anchor the New Tab button to the
     // right edge of the TabStrip's bounds, rather than the right edge of the
     // right-most Tab, otherwise it'll bounce when animating.
-    newtab_button_->SetBounds(GetWidth() - newtab_button_size_.width(),
+    newtab_button_->SetBounds(width() - newtab_button_size_.width(),
                               kNewTabButtonVOffset,
                               newtab_button_size_.width(),
                               newtab_button_size_.height());
@@ -1564,7 +1564,7 @@ int TabStrip::GetIndexOfTab(const Tab* tab) const {
 }
 
 int TabStrip::GetAvailableWidthForTabs(Tab* last_tab) const {
-  return last_tab->GetX() + last_tab->GetWidth();
+  return last_tab->x() + last_tab->width();
 }
 
 bool TabStrip::IsPointInTab(Tab* tab, const CPoint& point_in_tabstrip_coords) {

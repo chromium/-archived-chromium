@@ -11,13 +11,11 @@ int NonClientView::GetHTComponentForFrame(const gfx::Point& point,
                                           int resize_area_corner_size,
                                           int top_resize_area_size,
                                           bool can_resize) {
-  int width = GetWidth();
-  int height = GetHeight();
   int component = HTNOWHERE;
   if (point.x() < resize_area_size) {
     if (point.y() < resize_area_corner_size) {
       component = HTTOPLEFT;
-    } else if (point.y() >= (height - resize_area_corner_size)) {
+    } else if (point.y() >= (height() - resize_area_corner_size)) {
       component = HTBOTTOMLEFT;
     } else {
       component = HTLEFT;
@@ -25,26 +23,26 @@ int NonClientView::GetHTComponentForFrame(const gfx::Point& point,
   } else if (point.x() < resize_area_corner_size) {
     if (point.y() < top_resize_area_size) {
       component = HTTOPLEFT;
-    } else if (point.y() >= (height - resize_area_size)) {
+    } else if (point.y() >= (height() - resize_area_size)) {
       component = HTBOTTOMLEFT;
     }
-  } else if (point.x() >= (width - resize_area_size)) {
+  } else if (point.x() >= (width() - resize_area_size)) {
     if (point.y() < resize_area_corner_size) {
       component = HTTOPRIGHT;
-    } else if (point.y() >= (height - resize_area_corner_size)) {
+    } else if (point.y() >= (height() - resize_area_corner_size)) {
       component = HTBOTTOMRIGHT;
-    } else if (point.x() >= (width - resize_area_size)) {
+    } else if (point.x() >= (width() - resize_area_size)) {
       component = HTRIGHT;
     }
-  } else if (point.x() >= (width - resize_area_corner_size)) {
+  } else if (point.x() >= (width() - resize_area_corner_size)) {
     if (point.y() < top_resize_area_size) {
       component = HTTOPRIGHT;
-    } else if (point.y() >= (height - resize_area_size)) {
+    } else if (point.y() >= (height() - resize_area_size)) {
       component = HTBOTTOMRIGHT;
     }
   } else if (point.y() < top_resize_area_size) {
     component = HTTOP;
-  } else if (point.y() >= (height - resize_area_size)) {
+  } else if (point.y() >= (height() - resize_area_size)) {
     component = HTBOTTOM;
   }
 

@@ -37,7 +37,7 @@ void UpdateButtonHelper(ChromeViews::NativeButton* button_view,
 void FillViewWithSysColor(ChromeCanvas* canvas, View* view, COLORREF color) {
   SkColor sk_color =
       SkColorSetRGB(GetRValue(color), GetGValue(color), GetBValue(color));
-  canvas->FillRectInt(sk_color, 0, 0, view->GetWidth(), view->GetHeight());
+  canvas->FillRectInt(sk_color, 0, 0, view->width(), view->height());
 }
 
 // DialogButton ----------------------------------------------------------------
@@ -198,7 +198,7 @@ bool DialogClientView::CanClose() const {
 }
 
 int DialogClientView::NonClientHitTest(const gfx::Point& point) {
-  if (size_box_bounds_.Contains(point.x() - GetX(), point.y() - GetY()))
+  if (size_box_bounds_.Contains(point.x() - x(), point.y() - y()))
     return HTBOTTOMRIGHT;
   return ClientView::NonClientHitTest(point);
 }
@@ -244,9 +244,9 @@ void DialogClientView::GetPreferredSize(CSize* out) {
   int button_height = 0;
   if (has_dialog_buttons()) {
     if (cancel_button_)
-      button_height = cancel_button_->GetHeight();
+      button_height = cancel_button_->height();
     else
-      button_height = ok_button_->GetHeight();
+      button_height = ok_button_->height();
     // Account for padding above and below the button.
     button_height += kDialogButtonContentSpacing + kButtonVEdgeMargin;
   }
@@ -311,8 +311,8 @@ int DialogClientView::GetButtonWidth(int button) const {
 int DialogClientView::GetButtonsHeight() const {
   if (has_dialog_buttons()) {
     if (cancel_button_)
-      return cancel_button_->GetHeight() + kDialogButtonContentSpacing;
-    return ok_button_->GetHeight() + kDialogButtonContentSpacing;
+      return cancel_button_->height() + kDialogButtonContentSpacing;
+    return ok_button_->height() + kDialogButtonContentSpacing;
   }
   return 0;
 }
@@ -343,7 +343,7 @@ void DialogClientView::LayoutDialogButtons() {
     int button_width = GetButtonWidth(DialogDelegate::DIALOGBUTTON_OK);
     int ok_button_right = lb.right - kButtonHEdgeMargin;
     if (cancel_button_)
-      ok_button_right = cancel_button_->GetX() - kRelatedButtonHSpacing;
+      ok_button_right = cancel_button_->x() - kRelatedButtonHSpacing;
     CRect bounds;
     bounds.left = ok_button_right - button_width;
     bounds.top = lb.bottom - ps.cy - kButtonVEdgeMargin;

@@ -13,10 +13,10 @@ using ChromeViews::View;
 
 static void ExpectViewBoundsEquals(int x, int y, int w, int h,
                                    const View* view) {
-  EXPECT_EQ(x, view->GetX());
-  EXPECT_EQ(y, view->GetY());
-  EXPECT_EQ(w, view->GetWidth());
-  EXPECT_EQ(h, view->GetHeight());
+  EXPECT_EQ(x, view->x());
+  EXPECT_EQ(y, view->y());
+  EXPECT_EQ(w, view->width());
+  EXPECT_EQ(h, view->height());
 }
 
 class SettableSizeView : public View {

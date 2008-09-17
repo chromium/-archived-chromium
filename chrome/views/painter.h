@@ -97,7 +97,7 @@ class HorizontalPainter : public Painter {
   virtual void Paint(int w, int h, ChromeCanvas* canvas);
 
   // Height of the images.
-  int GetHeight() const { return height_; }
+  int height() const { return height_; }
 
  private:
   // The image chunks.

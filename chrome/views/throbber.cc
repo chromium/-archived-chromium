@@ -161,8 +161,8 @@ void CheckmarkThrobber::Paint(ChromeCanvas* canvas) {
   }
   // Otherwise we paint our tick mark or nothing depending on our state.
   if (checked_) {
-    int checkmark_x = (GetWidth() - checkmark_->width()) / 2;
-    int checkmark_y = (GetHeight() - checkmark_->height()) / 2;
+    int checkmark_x = (width() - checkmark_->width()) / 2;
+    int checkmark_y = (height() - checkmark_->height()) / 2;
     canvas->DrawBitmapInt(*checkmark_, checkmark_x, checkmark_y);
   }
 }

@@ -80,10 +80,10 @@ void ImageView::ComputeImageOrigin(int image_width, int image_height,
       *x = 0;
       break;
     case TRAILING:
-      *x = GetWidth() - image_width;
+      *x = width() - image_width;
       break;
     case CENTER:
-      *x = (GetWidth() - image_width) / 2;
+      *x = (width() - image_width) / 2;
       break;
     default:
       NOTREACHED();
@@ -94,10 +94,10 @@ void ImageView::ComputeImageOrigin(int image_width, int image_height,
       *y = 0;
       break;
     case TRAILING:
-      *y = GetHeight() - image_height;
+      *y = height() - image_height;
       break;
     case CENTER:
-      *y = (GetHeight() - image_height) / 2;
+      *y = (height() - image_height) / 2;
       break;
     default:
       NOTREACHED();

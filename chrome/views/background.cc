@@ -48,7 +48,7 @@ class BackgroundPainter : public ChromeViews::Background {
 
 
   void Paint(ChromeCanvas* canvas, View* view) const {
-    Painter::PaintPainterAt(0, 0, view->GetWidth(), view->GetHeight(), canvas,
+    Painter::PaintPainterAt(0, 0, view->width(), view->height(), canvas,
                             painter_);
   }
 

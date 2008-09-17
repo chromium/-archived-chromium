@@ -265,8 +265,8 @@ void VistaFrame::Layout() {
                          tabstrip_bounds.width(),
                          tabstrip_bounds.height());
 
-    frame_view_->SetContentsOffset(tabstrip_->GetY() +
-                                   tabstrip_->GetHeight() -
+    frame_view_->SetContentsOffset(tabstrip_->y() +
+                                   tabstrip_->height() -
                                    kToolbarOverlapVertOffset);
   } else {
     tabstrip_->SetBounds(0, 0, 0, 0);
@@ -279,17 +279,17 @@ void VistaFrame::Layout() {
   if (IsToolBarVisible()) {
     browser_view_->SetVisible(true);
     browser_view_->SetBounds(g_bitmaps[CT_LEFT_SIDE]->width(),
-                             tabstrip_->GetY() + tabstrip_->GetHeight() -
+                             tabstrip_->y() + tabstrip_->height() -
                              kToolbarOverlapVertOffset,
                              width - g_bitmaps[CT_LEFT_SIDE]->width() -
                              g_bitmaps[CT_RIGHT_SIDE]->width(),
                              g_bitmaps[CT_TOP_CENTER]->height());
     browser_view_->Layout();
-    toolbar_bottom = browser_view_->GetY() + browser_view_->GetHeight();
+    toolbar_bottom = browser_view_->y() + browser_view_->height();
   } else {
     browser_view_->SetBounds(0, 0, 0, 0);
     browser_view_->SetVisible(false);
-    toolbar_bottom = tabstrip_->GetY() + tabstrip_->GetHeight();
+    toolbar_bottom = tabstrip_->y() + tabstrip_->height();
   }
   int browser_x, browser_y;
   int browser_w, browser_h;
@@ -581,8 +581,8 @@ bool VistaFrame::IsMaximized() {
 }
 
 gfx::Rect VistaFrame::GetBoundsForContentBounds(const gfx::Rect content_rect) {
-  if (tab_contents_container_->GetX() == 0 &&
-      tab_contents_container_->GetWidth() == 0) {
+  if (tab_contents_container_->x() == 0 &&
+      tab_contents_container_->width() == 0) {
     Layout();
   }
 
@@ -595,10 +595,10 @@ gfx::Rect VistaFrame::GetBoundsForContentBounds(const gfx::Rect content_rect) {
   r.set_x(content_rect.x() - p.x);
   r.set_y(content_rect.y() - p.y);
   r.set_width(p.x + content_rect.width() +
-              (bounds.Width() - (p.x + tab_contents_container_->GetWidth())));
+              (bounds.Width() - (p.x + tab_contents_container_->width())));
   r.set_height(p.y + content_rect.height() +
                (bounds.Height() - (p.y +
-                                   tab_contents_container_->GetHeight())));
+                                   tab_contents_container_->height())));
   return r;
 }
 
@@ -975,8 +975,8 @@ LRESULT VistaFrame::OnNCHitTest(const CPoint& pt) {
 
   // If we are over the tabstrip
   if (tab_pt.x > 0 && tab_pt.y >= kTabShadowSize &&
-      tab_pt.x < tabstrip_->GetWidth() &&
-      tab_pt.y < tabstrip_->GetHeight()) {
+      tab_pt.x < tabstrip_->width() &&
+      tab_pt.y < tabstrip_->height()) {
     ChromeViews::View* v = tabstrip_->GetViewForPoint(tab_pt);
     if (v == tabstrip_)
       return HTCAPTION;
@@ -1039,7 +1039,7 @@ LRESULT VistaFrame::OnNCHitTest(const CPoint& pt) {
     return HTBOTTOM;
   }
 
-  if (p.y <= tabstrip_->GetY() + tabstrip_->GetHeight()) {
+  if (p.y <= tabstrip_->y() + tabstrip_->height()) {
     return HTCAPTION;
   }
 
@@ -1281,19 +1281,19 @@ void VistaFrame::VistaFrameView::Paint(ChromeCanvas* canvas) {
   // When painting the border, exclude the contents area. This will prevent the
   // border bitmaps (which might be larger than the visible area) from coming
   // into the content area when there is no tab painted yet.
-  int x = parent_->tab_contents_container_->GetX();
-  int y = parent_->tab_contents_container_->GetY();
+  int x = parent_->tab_contents_container_->x();
+  int y = parent_->tab_contents_container_->y();
   SkRect clip;
   clip.set(SkIntToScalar(x), SkIntToScalar(y),
-           SkIntToScalar(x + parent_->tab_contents_container_->GetWidth()),
-           SkIntToScalar(y + parent_->tab_contents_container_->GetHeight()));
+           SkIntToScalar(x + parent_->tab_contents_container_->width()),
+           SkIntToScalar(y + parent_->tab_contents_container_->height()));
   canvas->clipRect(clip, SkRegion::kDifference_Op);
 
   PaintContentsBorder(canvas,
                       0,
                       contents_offset_,
-                      GetWidth(),
-                      GetHeight() - contents_offset_);
+                      width(),
+                      height() - contents_offset_);
 
   canvas->restore();
 }
@@ -1361,7 +1361,7 @@ bool VistaFrame::VistaFrameView::ShouldForwardToTabStrip(
   if (min_x != std::numeric_limits<int>::max() &&
       max_x != std::numeric_limits<int>::min() &&
       max_y != std::numeric_limits<int>::min()) {
-    CPoint screen_drag_point(event.GetX(), event.GetY());
+    CPoint screen_drag_point(event.x(), event.y());
     ConvertPointToScreen(this, &screen_drag_point);
     if (screen_drag_point.x >= min_x && screen_drag_point.x <= max_x &&
         screen_drag_point.y <= max_y) {
@@ -1414,8 +1414,8 @@ void VistaFrame::ResetDWMFrame() {
                        g_bitmaps[CT_TOP_RIGHT_CORNER]->width(),
                        kDwmBorderSize +
                        IsToolBarVisible() ?
-                         browser_view_->GetY() + kToolbarOverlapVertOffset :
-                         tabstrip_->GetHeight(),
+                         browser_view_->y() + kToolbarOverlapVertOffset :
+                         tabstrip_->height(),
                        kDwmBorderSize +
                        g_bitmaps[CT_BOTTOM_CENTER]->height()};
 
@@ -1446,7 +1446,7 @@ bool VistaFrame::UpdateChildViewAndLayout(ChromeViews::View* new_view,
     if (new_view) {
       CSize pref_size;
       new_view->GetPreferredSize(&pref_size);
-      if (pref_size.cy != new_view->GetHeight())
+      if (pref_size.cy != new_view->height())
         return true;
     }
     return false;
@@ -1459,7 +1459,7 @@ bool VistaFrame::UpdateChildViewAndLayout(ChromeViews::View* new_view,
 
   int current_height = 0;
   if (*view) {
-    current_height = (*view)->GetHeight();
+    current_height = (*view)->height();
     root_view_.RemoveChildView(*view);
   }
 

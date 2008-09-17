@@ -104,8 +104,8 @@ void FirstRunCustomizeView::Layout() {
                          canvas.cx - pref_size.cx, pref_size.cy);
   AdjustDialogWidth(main_label_);
 
-  int next_v_space = background_image()->GetY() +
-                     background_image()->GetHeight() + kPanelVertMargin;
+  int next_v_space = background_image()->y() +
+                     background_image()->height() + kPanelVertMargin;
 
   import_cbox_->GetPreferredSize(&pref_size);
   import_cbox_->SetBounds(kPanelHorizMargin, next_v_space,
@@ -113,8 +113,8 @@ void FirstRunCustomizeView::Layout() {
 
   import_cbox_->SetIsSelected(true);
 
-  int x_offset = import_cbox_->GetX() +
-                 import_cbox_->GetWidth();
+  int x_offset = import_cbox_->x() +
+                 import_cbox_->width();
 
   import_from_combo_->GetPreferredSize(&pref_size);
   import_from_combo_->SetBounds(x_offset, next_v_space,
@@ -122,7 +122,7 @@ void FirstRunCustomizeView::Layout() {
 
   AdjustDialogWidth(import_from_combo_);
 
-  next_v_space = import_cbox_->GetY() + import_cbox_->GetHeight() +
+  next_v_space = import_cbox_->y() + import_cbox_->height() +
                  kUnrelatedControlVerticalSpacing;
 
   default_browser_cbox_->GetPreferredSize(&pref_size);
@@ -131,7 +131,7 @@ void FirstRunCustomizeView::Layout() {
 
   AdjustDialogWidth(default_browser_cbox_);
 
-  next_v_space += default_browser_cbox_->GetHeight() +
+  next_v_space += default_browser_cbox_->height() +
                   kUnrelatedControlVerticalSpacing;
 
   shortcuts_label_->GetPreferredSize(&pref_size);
@@ -140,7 +140,7 @@ void FirstRunCustomizeView::Layout() {
 
   AdjustDialogWidth(shortcuts_label_);
 
-  next_v_space += shortcuts_label_->GetHeight() +
+  next_v_space += shortcuts_label_->height() +
                   kRelatedControlVerticalSpacing;
 
   desktop_shortcut_cbox_->GetPreferredSize(&pref_size);
@@ -149,7 +149,7 @@ void FirstRunCustomizeView::Layout() {
 
   AdjustDialogWidth(desktop_shortcut_cbox_);
 
-  next_v_space += desktop_shortcut_cbox_->GetHeight() +
+  next_v_space += desktop_shortcut_cbox_->height() +
                   kRelatedControlVerticalSpacing;
 
   quick_shortcut_cbox_->GetPreferredSize(&pref_size);

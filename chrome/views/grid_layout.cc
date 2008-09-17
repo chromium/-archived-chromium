@@ -765,7 +765,7 @@ void GridLayout::Layout(View* host) {
   // SizeRowsAndColumns sets the size and location of each row/column, but
   // not of the views.
   CSize pref;
-  SizeRowsAndColumns(true, host_->GetWidth(), host_->GetHeight(), &pref);
+  SizeRowsAndColumns(true, host_->width(), host_->height(), &pref);
 
   // Size each view.
   for (std::vector<ViewState*>::iterator i = view_states_.begin();

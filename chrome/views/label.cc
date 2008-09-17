@@ -54,7 +54,7 @@ void Label::GetPreferredSize(CSize* out) {
   DCHECK(out);
   if (is_multi_line_) {
     ChromeCanvas cc(0, 0, true);
-    int w = GetWidth(), h = 0;
+    int w = width(), h = 0;
     cc.SizeStringInt(text_, font_, &w, &h, ComputeMultiLineFlags());
     out->cx = w;
     out->cy = h;
@@ -110,8 +110,8 @@ void Label::Paint(ChromeCanvas* canvas) {
   }
 
   if (is_multi_line_) {
-    canvas->DrawStringInt(paint_text, font_, color_, 0, 0, GetWidth(),
-                          GetHeight(), ComputeMultiLineFlags());
+    canvas->DrawStringInt(paint_text, font_, color_, 0, 0, width(),
+                          height(), ComputeMultiLineFlags());
     PaintFocusBorder(canvas);
   } else {
     gfx::Rect text_bounds = GetTextBounds();
@@ -262,7 +262,7 @@ bool Label::GetTooltipText(int x, int y, std::wstring* tooltip) {
   }
 
   // Show the full text if the text does not fit.
-  if (!is_multi_line_ && font_.GetStringWidth(text_) > GetWidth()) {
+  if (!is_multi_line_ && font_.GetStringWidth(text_) > width()) {
     *tooltip = text_;
     return true;
   }
@@ -302,7 +302,7 @@ ChromeFont Label::GetDefaultFont() {
 }
 
 void Label::UpdateContainsMouse(const MouseEvent& event) {
-  SetContainsMouse(GetTextBounds().Contains(event.GetX(), event.GetY()));
+  SetContainsMouse(GetTextBounds().Contains(event.x(), event.y()));
 }
 
 void Label::SetContainsMouse(bool contains_mouse) {
@@ -317,12 +317,12 @@ gfx::Rect Label::GetTextBounds() {
   CSize text_size;
   GetTextSize(&text_size);
   gfx::Insets insets = GetInsets();
-  int avail_width = GetWidth() - insets.left() - insets.right();
+  int avail_width = width() - insets.left() - insets.right();
   // Respect the size set by the owner view
   text_size.cx = std::min(avail_width, static_cast<int>(text_size.cx));
 
   int text_y = insets.top() +
-      (GetHeight() - text_size.cy - insets.top() - insets.bottom()) / 2;
+      (height() - text_size.cy - insets.top() - insets.bottom()) / 2;
   int text_x;
   switch (horiz_alignment_) {
     case ALIGN_LEFT:
@@ -334,7 +334,7 @@ gfx::Rect Label::GetTextBounds() {
       text_x = insets.left() + (avail_width + 1 - text_size.cx) / 2;
       break;
     case ALIGN_RIGHT:
-      text_x = GetWidth() - insets.right() - text_size.cx;
+      text_x = width() - insets.right() - text_size.cx;
       break;
   }
   return gfx::Rect(text_x, text_y, text_size.cx, text_size.cy);

@@ -83,9 +83,9 @@ void MenuButton::Paint(ChromeCanvas* canvas, bool for_drag) {
     // a MenuButton control (see TextButton::Paint() for a detailed
     // explanation regarding why we can not flip the canvas). Therefore, we
     // need to manually mirror the position of the down arrow.
-    gfx::Rect arrow_bounds(GetWidth() - insets.right() -
+    gfx::Rect arrow_bounds(width() - insets.right() -
                            kMenuMarker->width() - kMenuMarkerPaddingRight,
-                           GetHeight() / 2,
+                           height() / 2,
                            kMenuMarker->width(),
                            kMenuMarker->height());
     arrow_bounds.set_x(MirroredLeftPointForRect(arrow_bounds));
@@ -182,8 +182,8 @@ bool MenuButton::OnMousePressed(const ChromeViews::MouseEvent& e) {
   if (GetState() != BS_DISABLED) {
     // If we're draggable (GetDragOperations returns a non-zero value), then
     // don't pop on press, instead wait for release.
-    if (e.IsOnlyLeftMouseButton() && HitTest(WTL::CPoint(e.GetX(), e.GetY())) &&
-        GetDragOperations(e.GetX(), e.GetY()) == DragDropTypes::DRAG_NONE) {
+    if (e.IsOnlyLeftMouseButton() && HitTest(WTL::CPoint(e.x(), e.y())) &&
+        GetDragOperations(e.x(), e.y()) == DragDropTypes::DRAG_NONE) {
       TimeDelta delta = Time::Now() - menu_closed_time_;
       int64 delta_in_milliseconds = delta.InMilliseconds();
       if (delta_in_milliseconds > kMinimumTimeBetweenButtonClicks) {
@@ -196,9 +196,9 @@ bool MenuButton::OnMousePressed(const ChromeViews::MouseEvent& e) {
 
 void MenuButton::OnMouseReleased(const ChromeViews::MouseEvent& e,
                                  bool canceled) {
-  if (GetDragOperations(e.GetX(), e.GetY()) != DragDropTypes::DRAG_NONE &&
+  if (GetDragOperations(e.x(), e.y()) != DragDropTypes::DRAG_NONE &&
       GetState() != BS_DISABLED && !canceled && !InDrag() &&
-      e.IsOnlyLeftMouseButton() && HitTest(WTL::CPoint(e.GetX(), e.GetY()))) {
+      e.IsOnlyLeftMouseButton() && HitTest(WTL::CPoint(e.x(), e.y()))) {
     Activate();
   } else {
     TextButton::OnMouseReleased(e, canceled);

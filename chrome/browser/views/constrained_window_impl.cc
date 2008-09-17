@@ -583,7 +583,7 @@ void ConstrainedWindowNonClientView::Layout() {
   }
 
   close_button_->GetPreferredSize(&ps);
-  close_button_->SetBounds(GetWidth() - ps.cx - kWindowControlsRightOffset,
+  close_button_->SetBounds(width() - ps.cx - kWindowControlsRightOffset,
                            kWindowControlsTopOffset, ps.cx, ps.cy);
 
   int titlebar_height = CalculateTitlebarHeight();
@@ -599,14 +599,14 @@ void ConstrainedWindowNonClientView::Layout() {
 
     if (window_delegate_->ShouldShowWindowTitle()) {
       int spacing = kWindowLeftSpacing;
-      int title_right = close_button_->GetX() - spacing;
+      int title_right = close_button_->x() - spacing;
       int title_left = icon_bounds_.right() + spacing;
       title_bounds_.SetRect(title_left, kTitleTopOffset,
                             title_right - title_left, title_font_.height());
     }
   }
 
-  client_bounds_ = CalculateClientAreaBounds(GetWidth(), GetHeight());
+  client_bounds_ = CalculateClientAreaBounds(width(), height());
   if (should_display_url_field) {
     location_bar_->SetBounds(client_bounds_.x() - kLocationBarOffset,
                              client_bounds_.y() - location_bar_height - 
@@ -673,9 +673,6 @@ void ConstrainedWindowNonClientView::UpdateThrobber() {
 }
 
 void ConstrainedWindowNonClientView::PaintFrameBorder(ChromeCanvas* canvas) {
-  int width = GetWidth();
-  int height = GetHeight();
-
   SkBitmap* top_left_corner = resources_->GetPartBitmap(FRAME_TOP_LEFT_CORNER);
   SkBitmap* top_right_corner =
       resources_->GetPartBitmap(FRAME_TOP_RIGHT_CORNER);
@@ -691,33 +688,33 @@ void ConstrainedWindowNonClientView::PaintFrameBorder(ChromeCanvas* canvas) {
   // Top.
   canvas->DrawBitmapInt(*top_left_corner, 0, 0);
   canvas->TileImageInt(*top_edge, top_left_corner->width(), 0,
-                       width - top_right_corner->width(), top_edge->height());
+                       width() - top_right_corner->width(), top_edge->height());
   canvas->DrawBitmapInt(
-      *top_right_corner, width - top_right_corner->width(), 0);
+      *top_right_corner, width() - top_right_corner->width(), 0);
 
   // Right.
   int top_stack_height = top_right_corner->height();
-  canvas->TileImageInt(*right_edge, width - right_edge->width(),
+  canvas->TileImageInt(*right_edge, width() - right_edge->width(),
                        top_stack_height, right_edge->width(),
-                       height - top_stack_height -
+                       height() - top_stack_height -
                            bottom_right_corner->height());
 
   // Bottom.
   canvas->DrawBitmapInt(*bottom_right_corner,
-                        width - bottom_right_corner->width(),
-                        height - bottom_right_corner->height());
+                        width() - bottom_right_corner->width(),
+                        height() - bottom_right_corner->height());
   canvas->TileImageInt(*bottom_edge, bottom_left_corner->width(),
-                       height - bottom_edge->height(),
-                       width - bottom_left_corner->width() -
+                       height() - bottom_edge->height(),
+                       width() - bottom_left_corner->width() -
                            bottom_right_corner->width(),
                        bottom_edge->height());
   canvas->DrawBitmapInt(*bottom_left_corner, 0,
-                        height - bottom_left_corner->height());
+                        height() - bottom_left_corner->height());
 
   // Left.
   top_stack_height = top_left_corner->height();
   canvas->TileImageInt(*left_edge, 0, top_stack_height, left_edge->width(),
-                       height - top_stack_height -
+                       height() - top_stack_height -
                            bottom_left_corner->height());
 
   // Contents Border.
@@ -1139,8 +1136,8 @@ void ConstrainedWindowImpl::InitSizeForContents(
   contents_container_->Attach(constrained_contents_->GetContainerHWND());
 
   constrained_contents_->SizeContents(
-      gfx::Size(contents_container_->GetWidth(),
-                contents_container_->GetHeight()));
+      gfx::Size(contents_container_->width(),
+                contents_container_->height()));
   current_bounds_ = initial_bounds;
 
   // Note that this is HWND_TOP, not HWND_TOPMOST... this is important

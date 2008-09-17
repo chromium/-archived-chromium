@@ -118,7 +118,7 @@ class View : public AcceleratorTarget {
     CURRENT
   };
 
-  // Used in the versions of GetBounds() and GetX() that take a transformation
+  // Used in the versions of GetBounds() and x() that take a transformation
   // parameter in order to determine whether or not to take into account the
   // mirroring setting of the View when returning bounds positions.
   enum PositionMirroringSettings {
@@ -160,17 +160,19 @@ class View : public AcceleratorTarget {
   // Set the bounds in the parent's coordinate system.
   void SetBounds(const CRect& bounds);
   void SetBounds(int x, int y, int width, int height);
-  void SetX(int x) { SetBounds(x, GetY(), GetWidth(), GetHeight()); }
-  void SetY(int y) { SetBounds(GetX(), y, GetWidth(), GetHeight()); }
+  void SetX(int x) { SetBounds(x, y(), width(), height()); }
+  void SetY(int y) { SetBounds(x(), y, width(), height()); }
 
   // Returns the left coordinate of the View, relative to the parent View,
-  // which is essentially the value of bounds_.left.
+  // which is the value of bounds_.left.
   //
   // This is the function subclasses should use whenever they need to obtain
   // the left position of one of their child views (for example, when
   // implementing View::Layout()).
-  int GetX() const {
-    return GetX(IGNORE_MIRRORING_TRANSFORMATION);
+  int x() const {
+    // This is equivalent to GetX(IGNORE_MIRRORING_TRANSFORMATION), but
+    // inlinable.
+    return bounds_.left;
   };
 
   // Return the left coordinate of the View, relative to the parent. If
@@ -181,22 +183,22 @@ class View : public AcceleratorTarget {
   //
   // NOTE: in the vast majority of the cases, the mirroring implementation is
   //       transparent to the View subclasses and therefore you should use the
-  //       paremeterless version of GetX() when you need to get the X
+  //       paremeterless version of x() when you need to get the X
   //       coordinate of a child View.
   int GetX(PositionMirroringSettings settings) const;
 
-  int GetY() const {
+  int y() const {
     return bounds_.top;
   };
-  int GetWidth() const {
+  int width() const {
     return bounds_.Width();
   };
-  int GetHeight() const {
+  int height() const {
     return bounds_.Height();
   };
 
   // Return this control local bounds. If include_border is true, local bounds
-  // is the rectangle {0, 0, GetWidth(), GetHeight()}, otherwise, it does not
+  // is the rectangle {0, 0, width(), height()}, otherwise, it does not
   // include the area where the border (if any) is painted.
   void GetLocalBounds(CRect* out, bool include_border) const;
 
@@ -206,7 +208,7 @@ class View : public AcceleratorTarget {
   // Get the position of the View, relative to the parent.
   //
   // Note that if the parent uses right-to-left UI layout, then the mirrored
-  // position of this View is returned. Use GetX()/GetY() if you want to ignore
+  // position of this View is returned. Use x()/y() if you want to ignore
   // mirroring.
   void GetPosition(CPoint* out) const;
 
@@ -352,7 +354,7 @@ class View : public AcceleratorTarget {
   // MirroredXCoordinateInsideView(20) -> 80
   // MirroredXCoordinateInsideView(99) -> 1
   int MirroredXCoordinateInsideView(int x) const {
-    return UILayoutIsRightToLeft() ? GetWidth() - x : x;
+    return UILayoutIsRightToLeft() ? width() - x : x;
   }
 
   // Painting functions

@@ -144,7 +144,7 @@ void BaseButton::SetTooltipText(const std::wstring& tooltip) {
 
 bool BaseButton::OnMousePressed(const ChromeViews::MouseEvent& e) {
   if (state_ != BS_DISABLED) {
-    if (IsTriggerableEvent(e) && HitTest(WTL::CPoint(e.GetX(), e.GetY()))) {
+    if (IsTriggerableEvent(e) && HitTest(WTL::CPoint(e.x(), e.y()))) {
       SetState(BS_PUSHED);
     }
     if (IsFocusable())
@@ -155,7 +155,7 @@ bool BaseButton::OnMousePressed(const ChromeViews::MouseEvent& e) {
 
 bool BaseButton::OnMouseDragged(const ChromeViews::MouseEvent& e) {
   if (state_ != BS_DISABLED) {
-    if (!HitTest(WTL::CPoint(e.GetX(), e.GetY())))
+    if (!HitTest(WTL::CPoint(e.x(), e.y())))
       SetState(BS_NORMAL);
     else if (IsTriggerableEvent(e))
       SetState(BS_PUSHED);
@@ -173,7 +173,7 @@ void BaseButton::OnMouseReleased(const ChromeViews::MouseEvent& e,
   }
 
   if (state_ != BS_DISABLED) {
-    if (canceled || !HitTest(WTL::CPoint(e.GetX(), e.GetY()))) {
+    if (canceled || !HitTest(WTL::CPoint(e.x(), e.y()))) {
       SetState(BS_NORMAL);
     } else {
       SetState(BS_HOT);
@@ -198,7 +198,7 @@ void BaseButton::OnMouseMoved(const ChromeViews::MouseEvent& e) {
   using namespace ChromeViews;
 
   if (state_ != BS_DISABLED) {
-    if (HitTest(WTL::CPoint(e.GetX(), e.GetY()))) {
+    if (HitTest(WTL::CPoint(e.x(), e.y()))) {
       SetState(BS_HOT);
     } else {
       SetState(BS_NORMAL);

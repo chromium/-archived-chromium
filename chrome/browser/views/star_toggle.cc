@@ -36,8 +36,8 @@ bool StarToggle::GetState() const {
 void StarToggle::Paint(ChromeCanvas* canvas) {
   PaintFocusBorder(canvas);
   canvas->DrawBitmapInt(state_ ? *state_on_ : *state_off_,
-                        (GetWidth() - state_off_->width()) / 2,
-                        (GetHeight() - state_off_->height()) / 2);
+                        (width() - state_off_->width()) / 2,
+                        (height() - state_off_->height()) / 2);
 }
 
 void StarToggle::GetPreferredSize(CSize* out) {
@@ -50,7 +50,7 @@ bool StarToggle::OnMouseDragged(const ChromeViews::MouseEvent& e) {
 }
 
 bool StarToggle::OnMousePressed(const ChromeViews::MouseEvent& e) {
-  if (e.IsLeftMouseButton() && HitTest(WTL::CPoint(e.GetX(), e.GetY()))) {
+  if (e.IsLeftMouseButton() && HitTest(WTL::CPoint(e.x(), e.y()))) {
     RequestFocus();
     return true;
   }
@@ -59,7 +59,7 @@ bool StarToggle::OnMousePressed(const ChromeViews::MouseEvent& e) {
 
 void StarToggle::OnMouseReleased(const ChromeViews::MouseEvent& e,
                                  bool canceled) {
-  if (e.IsLeftMouseButton() && HitTest(WTL::CPoint(e.GetX(), e.GetY())))
+  if (e.IsLeftMouseButton() && HitTest(WTL::CPoint(e.x(), e.y())))
     SwitchState();
 }
 

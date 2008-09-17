@@ -64,18 +64,15 @@ void InfoBarView::GetPreferredSize(CSize *out) {
     if (v->IsVisible()) {
       CSize view_size;
       v->GetPreferredSize(&view_size);
-      out->cx = std::max(static_cast<int>(out->cx), v->GetWidth());
+      out->cx = std::max(static_cast<int>(out->cx), v->width());
       out->cy += static_cast<int>(view_size.cy) + kSeparatorHeight;
     }
   }
 }
 
 void InfoBarView::Layout() {
-  int width = GetWidth();
-  int height = GetHeight();
-
   int x = 0;
-  int y = height;
+  int y = height();
 
   // We lay the bars out from bottom to top.
   for (int i = 0; i < GetChildViewCount(); ++i) {
@@ -85,7 +82,7 @@ void InfoBarView::Layout() {
 
     CSize view_size;
     v->GetPreferredSize(&view_size);
-    int view_width = std::max(static_cast<int>(view_size.cx), width);
+    int view_width = std::max(static_cast<int>(view_size.cx), width());
     y = y - view_size.cy - kSeparatorHeight;
     v->SetBounds(x,
                  y,
@@ -156,14 +153,14 @@ int InfoBarView::GetActiveID() const {
 }
 
 void InfoBarView::PaintBorder(ChromeCanvas* canvas) {
-  canvas->FillRectInt(kBorderColorTop, 0, 0, GetWidth(), 1);
+  canvas->FillRectInt(kBorderColorTop, 0, 0, width(), 1);
   canvas->FillRectInt(kBorderColorBottom,
-                      0, GetHeight() - kSeparatorHeight - 1,
-                      GetWidth(), kSeparatorHeight);
+                      0, height() - kSeparatorHeight - 1,
+                      width(), kSeparatorHeight);
 
   if (GetChildViewCount() > 0)
-    canvas->FillRectInt(kSeparatorColor, 0, GetHeight() - kSeparatorHeight,
-                        GetWidth(), kSeparatorHeight);
+    canvas->FillRectInt(kSeparatorColor, 0, height() - kSeparatorHeight,
+                        width(), kSeparatorHeight);
 }
 
 void InfoBarView::PaintSeparators(ChromeCanvas* canvas) {
@@ -187,8 +184,8 @@ void InfoBarView::PaintSeparator(ChromeCanvas* canvas,
                                  ChromeViews::View* v2) {
   canvas->FillRectInt(kSeparatorColor,
                       0,
-                      v2->GetY() - kSeparatorHeight,
-                      GetWidth(),
+                      v2->y() - kSeparatorHeight,
+                      width(),
                       kSeparatorHeight);
 }
 

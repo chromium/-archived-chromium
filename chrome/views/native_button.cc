@@ -82,7 +82,7 @@ HWND NativeButton::CreateNativeControl(HWND parent_container) {
   if (is_default_)
     flags |= BS_DEFPUSHBUTTON;
   HWND r = ::CreateWindowEx(GetAdditionalExStyle(), L"BUTTON", L"", flags, 0, 0,
-                            GetWidth(), GetHeight(), parent_container, NULL,
+                            width(), height(), parent_container, NULL,
                             NULL, NULL);
   SendMessage(r, WM_SETFONT, reinterpret_cast<WPARAM>(font_.hfont()), FALSE);
   ConfigureNativeButton(r);

@@ -559,12 +559,12 @@ void* XPFrame::GetPlatformID() {
 }
 
 int XPFrame::GetContentsYOrigin() {
-  int min_y = tab_contents_container_->GetY();
+  int min_y = tab_contents_container_->y();
   if (info_bar_view_)
-    min_y = std::min(min_y, info_bar_view_->GetY());
+    min_y = std::min(min_y, info_bar_view_->y());
 
   if (bookmark_bar_view_.get())
-    min_y = std::min(min_y, bookmark_bar_view_->GetY());
+    min_y = std::min(min_y, bookmark_bar_view_->y());
 
   return min_y;
 }
@@ -605,7 +605,7 @@ void XPFrame::Layout() {
     restore_button_->GetPreferredSize(&preferred_size);
     restore_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                        ChromeViews::Button::ALIGN_BOTTOM);
-    restore_button_->SetBounds(close_button_->GetX() - preferred_size.cx,
+    restore_button_->SetBounds(close_button_->x() - preferred_size.cx,
                                0,
                                preferred_size.cx,
                                preferred_size.cy +
@@ -614,7 +614,7 @@ void XPFrame::Layout() {
     min_button_->GetPreferredSize(&preferred_size);
     min_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                    ChromeViews::Button::ALIGN_BOTTOM);
-    min_button_->SetBounds(restore_button_->GetX() - preferred_size.cx,
+    min_button_->SetBounds(restore_button_->x() - preferred_size.cx,
                            0,
                            preferred_size.cx,
                            preferred_size.cy +
@@ -636,7 +636,7 @@ void XPFrame::Layout() {
     max_button_->GetPreferredSize(&preferred_size);
     max_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                    ChromeViews::Button::ALIGN_TOP);
-    max_button_->SetBounds(close_button_->GetX() - preferred_size.cx,
+    max_button_->SetBounds(close_button_->x() - preferred_size.cx,
                            kWindowControlsTopOffset,
                            preferred_size.cx,
                            preferred_size.cy);
@@ -644,13 +644,13 @@ void XPFrame::Layout() {
     min_button_->GetPreferredSize(&preferred_size);
     min_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                    ChromeViews::Button::ALIGN_TOP);
-    min_button_->SetBounds(max_button_->GetX() - preferred_size.cx,
+    min_button_->SetBounds(max_button_->x() - preferred_size.cx,
                            kWindowControlsTopOffset,
                            preferred_size.cx,
                            preferred_size.cy);
   }
 
-  int right_limit = min_button_->GetX();
+  int right_limit = min_button_->x();
   int left_margin;
   int right_margin;
   int bottom_margin;
@@ -702,7 +702,7 @@ void XPFrame::Layout() {
         CSize distributor_logo_size;
         distributor_logo_->GetPreferredSize(&distributor_logo_size);
         distributor_logo_->SetVisible(true);
-        distributor_logo_->SetBounds(min_button_->GetX() - 
+        distributor_logo_->SetBounds(min_button_->x() - 
                                          distributor_logo_size.cx -
                                          kDistributorLogoHorizontalOffset,
                                      kDistributorLogoVerticalOffset,
@@ -715,7 +715,7 @@ void XPFrame::Layout() {
                          right_limit - tab_strip_x - right_margin,
                          tabstrip_->GetPreferredHeight());
 
-    last_y = tabstrip_->GetY() + tabstrip_->GetHeight();
+    last_y = tabstrip_->y() + tabstrip_->height();
   } else {
     tabstrip_->SetBounds(0, 0, 0, 0);
     tabstrip_->SetVisible(false);
@@ -736,8 +736,8 @@ void XPFrame::Layout() {
                              browser_view_width,
                              bitmaps[CT_TOP_CENTER]->height());
     browser_view_->Layout();
-    title_bar_height_ = browser_view_->GetY();
-    last_y = browser_view_->GetY() + browser_view_->GetHeight();
+    title_bar_height_ = browser_view_->y();
+    last_y = browser_view_->y() + browser_view_->height();
   } else {
     // If the tab strip is visible, we need to expose the toolbar for a small
     // offset. (kCollapsedToolbarHeight).
@@ -746,7 +746,7 @@ void XPFrame::Layout() {
       last_y += kCollapsedToolbarHeight;
     } else {
       last_y = std::max(kMinTitleBarHeight,
-                        close_button_->GetY() + close_button_->GetHeight());
+                        close_button_->y() + close_button_->height());
       title_bar_height_ = last_y;
     }
     browser_view_->SetVisible(false);
@@ -1724,10 +1724,10 @@ XPFrame::ResizeMode XPFrame::ComputeResizeMode(int x,
                                                int width,
                                                int height) {
   // Make sure we're not over a window control (they overlap our resize area).
-  if (x >= min_button_->GetX() &&
-      x < close_button_->GetX() + close_button_->GetWidth() &&
-      y >= min_button_->GetY() &&
-      y < min_button_->GetY() + min_button_->GetHeight()) {
+  if (x >= min_button_->x() &&
+      x < close_button_->x() + close_button_->width() &&
+      y >= min_button_->y() &&
+      y < min_button_->y() + min_button_->height()) {
     return RM_UNDEFINED;
   }
 
@@ -1811,8 +1811,8 @@ bool XPFrame::IsMaximized() {
 }
 
 gfx::Rect XPFrame::GetBoundsForContentBounds(const gfx::Rect content_rect) {
-  if (tab_contents_container_->GetX() == 0 &&
-      tab_contents_container_->GetWidth() == 0) {
+  if (tab_contents_container_->x() == 0 &&
+      tab_contents_container_->width() == 0) {
     Layout();
   }
 
@@ -1825,10 +1825,10 @@ gfx::Rect XPFrame::GetBoundsForContentBounds(const gfx::Rect content_rect) {
   r.set_x(content_rect.x() - p.x);
   r.set_y(content_rect.y() - p.y);
   r.set_width(p.x + content_rect.width() +
-              (bounds.Width() - (p.x + tab_contents_container_->GetWidth())));
+              (bounds.Width() - (p.x + tab_contents_container_->width())));
   r.set_height(p.y + content_rect.height() +
                (bounds.Height() - (p.y +
-                                   tab_contents_container_->GetHeight())));
+                                   tab_contents_container_->height())));
   return r;
 }
 
@@ -2000,8 +2000,6 @@ void XPFrame::ProcessMouseExited() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void XPFrame::XPFrameView::PaintFrameBorder(ChromeCanvas* canvas) {
-  int width = GetWidth();
-  int height = GetHeight();
   int x, y;
   x = 0;
   y = 0;
@@ -2037,9 +2035,9 @@ void XPFrame::XPFrameView::PaintFrameBorder(ChromeCanvas* canvas) {
     bottom_right_corner = bitmaps[DE_BOTTOM_RIGHT_CORNER];
   }
 
-  int variable_width = width - top_left_corner->width() -
+  int variable_width = width() - top_left_corner->width() -
       top_right_corner->width();
-  int variable_height = height - top_right_corner->height() -
+  int variable_height = height() - top_right_corner->height() -
       bottom_right_corner->height();
 
   // Top
@@ -2049,7 +2047,7 @@ void XPFrame::XPFrameView::PaintFrameBorder(ChromeCanvas* canvas) {
                        y,
                        variable_width,
                        top_center->height());
-  x = width - top_right_corner->width();
+  x = width() - top_right_corner->width();
   canvas->DrawBitmapInt(*top_right_corner, x, y);
 
   // Right side
@@ -2061,16 +2059,16 @@ void XPFrame::XPFrameView::PaintFrameBorder(ChromeCanvas* canvas) {
 
   // Bottom
   canvas->DrawBitmapInt(*bottom_right_corner,
-                        width - bottom_right_corner->width(),
-                        height - bottom_right_corner->height());
+                        width() - bottom_right_corner->width(),
+                        height() - bottom_right_corner->height());
   canvas->TileImageInt(*bottom_center,
                        bottom_left_corner->width(),
-                       height - bottom_center->height(),
+                       height() - bottom_center->height(),
                        variable_width,
                        bottom_center->height());
   canvas->DrawBitmapInt(*bottom_left_corner,
                         0,
-                        height - bottom_left_corner->height());
+                        height() - bottom_left_corner->height());
 
   // Left
   canvas->TileImageInt(*left_side,
@@ -2081,9 +2079,6 @@ void XPFrame::XPFrameView::PaintFrameBorder(ChromeCanvas* canvas) {
 }
 
 void XPFrame::XPFrameView::PaintFrameBorderZoomed(ChromeCanvas* canvas) {
-  int width = GetWidth();
-  int height = GetHeight();
-
   static const SkBitmap * maximized_top;
   static const SkBitmap * maximized_bottom;
 
@@ -2099,12 +2094,12 @@ void XPFrame::XPFrameView::PaintFrameBorderZoomed(ChromeCanvas* canvas) {
   canvas->TileImageInt(*maximized_top,
                        0,
                        0,
-                       width,
+                       width(),
                        maximized_top->height());
   canvas->TileImageInt(*maximized_bottom,
                        0,
-                       height - maximized_bottom->height(),
-                       width,
+                       height() - maximized_bottom->height(),
+                       width(),
                        maximized_bottom->height());
 }
 
@@ -2211,12 +2206,12 @@ void XPFrame::XPFrameView::Paint(ChromeCanvas* canvas) {
   // When painting the border, exclude the contents area. This will prevent the
   // border bitmaps (which might be larger than the visible area) from coming
   // into the content area when there is no tab painted yet.
-  int x = parent_->tab_contents_container_->GetX();
-  int y = parent_->tab_contents_container_->GetY();
+  int x = parent_->tab_contents_container_->x();
+  int y = parent_->tab_contents_container_->y();
   SkRect clip;
   clip.set(SkIntToScalar(x), SkIntToScalar(y),
-           SkIntToScalar(x + parent_->tab_contents_container_->GetWidth()),
-           SkIntToScalar(y + parent_->tab_contents_container_->GetHeight()));
+           SkIntToScalar(x + parent_->tab_contents_container_->width()),
+           SkIntToScalar(y + parent_->tab_contents_container_->height()));
   canvas->clipRect(clip, SkRegion::kDifference_Op);
 
   if (parent_->IsZoomed()) {
@@ -2224,7 +2219,7 @@ void XPFrame::XPFrameView::Paint(ChromeCanvas* canvas) {
     int y;
     bool should_draw_separator = false;
     if (parent_->IsToolBarVisible()) {
-      y = parent_->browser_view_->GetY();
+      y = parent_->browser_view_->y();
     } else if (parent_->IsTabStripVisible()) {
       y = parent_->GetContentsYOrigin() - kCollapsedToolbarHeight -
           kToolbarOverlapVertOffset;
@@ -2232,13 +2227,13 @@ void XPFrame::XPFrameView::Paint(ChromeCanvas* canvas) {
       y = parent_->GetContentsYOrigin();
     }
 
-    PaintContentsBorderZoomed(canvas, 0, y, GetWidth());
+    PaintContentsBorderZoomed(canvas, 0, y, width());
   } else {
     PaintFrameBorder(canvas);
-    int y, height;
+    int y, frame_height;
     if (parent_->IsToolBarVisible()) {
-      y = parent_->browser_view_->GetY();
-      height = GetHeight() - (parent_->browser_view_->GetY() +
+      y = parent_->browser_view_->y();
+      frame_height = height() - (parent_->browser_view_->y() +
                               kContentBorderVertBottomOffset);
     } else {
       if (parent_->IsTabStripVisible()) {
@@ -2247,12 +2242,12 @@ void XPFrame::XPFrameView::Paint(ChromeCanvas* canvas) {
       } else {
         y = parent_->GetContentsYOrigin();
       }
-      height = GetHeight() - y - kContentBorderVertBottomOffset;
+      frame_height = height() - y - kContentBorderVertBottomOffset;
     }
 
     PaintContentsBorder(canvas, kContentBorderHorizOffset, y,
-                        GetWidth() - (2 * kContentBorderHorizOffset),
-                        height);
+                        width() - (2 * kContentBorderHorizOffset),
+                        frame_height);
   }
 
   canvas->restore();
@@ -2282,9 +2277,9 @@ bool XPFrame::XPFrameView::ShouldForwardToTabStrip(
     const ChromeViews::DropTargetEvent& event) {
   if (!FrameView::ShouldForwardToTabStrip(event))
     return false;
-  if (parent_->IsZoomed() && event.GetX() >= parent_->min_button_->GetX() &&
-      event.GetY() < (parent_->min_button_->GetY() +
-                      parent_->min_button_->GetHeight())) {
+  if (parent_->IsZoomed() && event.x() >= parent_->min_button_->x() &&
+      event.y() < (parent_->min_button_->y() +
+                      parent_->min_button_->height())) {
     return false;
   }
   return true;
@@ -2313,7 +2308,7 @@ bool XPFrame::UpdateChildViewAndLayout(ChromeViews::View* new_view,
     if (new_view) {
       CSize pref_size;
       new_view->GetPreferredSize(&pref_size);
-      if (pref_size.cy != new_view->GetHeight())
+      if (pref_size.cy != new_view->height())
         return true;
     }
     return false;
@@ -2326,7 +2321,7 @@ bool XPFrame::UpdateChildViewAndLayout(ChromeViews::View* new_view,
 
   int current_height = 0;
   if (*view) {
-    current_height = (*view)->GetHeight();
+    current_height = (*view)->height();
     root_view_.RemoveChildView(*view);
   }
 

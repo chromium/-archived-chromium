@@ -19,7 +19,7 @@ ResizeCorner::~ResizeCorner() {
 
 void ResizeCorner::Paint(ChromeCanvas* canvas) {
   // Paint the little handle.
-  RECT widgetRect = { 0, 0, GetWidth(), GetHeight() };
+  RECT widgetRect = { 0, 0, width(), height() };
   HDC hdc = canvas->beginPlatformPaint();
   gfx::NativeTheme::instance()->PaintStatusGripper(hdc,
                                                    SP_GRIPPER,

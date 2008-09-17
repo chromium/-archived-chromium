@@ -457,7 +457,7 @@ gfx::Rect OpaqueNonClientView::GetWindowBoundsForClientBounds(
 gfx::Rect OpaqueNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
   int tabstrip_height = tabstrip->GetPreferredHeight();
   int tabstrip_x = otr_avatar_bounds_.right();
-  return gfx::Rect(tabstrip_x, 0, minimize_button_->GetX() - tabstrip_x,
+  return gfx::Rect(tabstrip_x, 0, minimize_button_->x() - tabstrip_x,
                    tabstrip_height);
 }
 
@@ -701,9 +701,6 @@ int OpaqueNonClientView::CalculateNonClientTopHeight() const {
 }
 
 void OpaqueNonClientView::PaintFrameBorder(ChromeCanvas* canvas) {
-  int width = GetWidth();
-  int height = GetHeight();
-
   SkBitmap* top_left_corner =
       resources()->GetPartBitmap(FRAME_TOP_LEFT_CORNER);
   SkBitmap* top_right_corner =
@@ -720,33 +717,33 @@ void OpaqueNonClientView::PaintFrameBorder(ChromeCanvas* canvas) {
   // Top.
   canvas->DrawBitmapInt(*top_left_corner, 0, 0);
   canvas->TileImageInt(*top_edge, top_left_corner->width(), 0,
-                       width - top_right_corner->width(), top_edge->height());
+                       width() - top_right_corner->width(), top_edge->height());
   canvas->DrawBitmapInt(*top_right_corner,
-                        width - top_right_corner->width(), 0);
+                        width() - top_right_corner->width(), 0);
 
   // Right.
   int top_stack_height = top_right_corner->height();
-  canvas->TileImageInt(*right_edge, width - right_edge->width(),
+  canvas->TileImageInt(*right_edge, width() - right_edge->width(),
                        top_stack_height, right_edge->width(),
-                       height - top_stack_height -
+                       height() - top_stack_height -
                            bottom_right_corner->height());
 
   // Bottom.
   canvas->DrawBitmapInt(*bottom_right_corner,
-                        width - bottom_right_corner->width(),
-                        height - bottom_right_corner->height());
+                        width() - bottom_right_corner->width(),
+                        height() - bottom_right_corner->height());
   canvas->TileImageInt(*bottom_edge, bottom_left_corner->width(),
-                       height - bottom_edge->height(),
-                       width - bottom_left_corner->width() -
+                       height() - bottom_edge->height(),
+                       width() - bottom_left_corner->width() -
                            bottom_right_corner->width(),
                        bottom_edge->height());
   canvas->DrawBitmapInt(*bottom_left_corner, 0,
-                        height - bottom_left_corner->height());
+                        height() - bottom_left_corner->height());
 
   // Left.
   top_stack_height = top_left_corner->height();
   canvas->TileImageInt(*left_edge, 0, top_stack_height, left_edge->width(),
-                       height - top_stack_height -
+                       height() - top_stack_height -
                            bottom_left_corner->height());
 }
 
@@ -754,9 +751,9 @@ void OpaqueNonClientView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
   SkBitmap* top_edge = resources()->GetPartBitmap(FRAME_MAXIMIZED_TOP_EDGE);
   SkBitmap* bottom_edge =
       resources()->GetPartBitmap(FRAME_MAXIMIZED_BOTTOM_EDGE);
-  canvas->TileImageInt(*top_edge, 0, 0, GetWidth(), top_edge->height());
-  canvas->TileImageInt(*bottom_edge, 0, GetHeight() - bottom_edge->height(),
-                       GetWidth(), bottom_edge->height());
+  canvas->TileImageInt(*top_edge, 0, 0, width(), top_edge->height());
+  canvas->TileImageInt(*bottom_edge, 0, height() - bottom_edge->height(),
+                       width(), bottom_edge->height());
 }
 
 void OpaqueNonClientView::PaintOTRAvatar(ChromeCanvas* canvas) {
@@ -835,9 +832,9 @@ void OpaqueNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
   int fudge = frame_->window_delegate()->ShouldShowWindowTitle() ? 0 : 1;
   client_area_bounds.SetRect(
       client_area_bounds.x(),
-      frame_->client_view()->GetY() + toolbar_bounds.bottom() - fudge,
+      frame_->client_view()->y() + toolbar_bounds.bottom() - fudge,
       client_area_bounds.width(),
-      std::max(0, GetHeight() - frame_->client_view()->GetY() -
+      std::max(0, height() - frame_->client_view()->y() -
           toolbar_bounds.bottom() + fudge - kWindowVerticalBorderBottomSize));
 
   // Now the fudge inverts for app vs browser windows.
@@ -883,46 +880,46 @@ void OpaqueNonClientView::LayoutWindowControls() {
     close_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                      ChromeViews::Button::ALIGN_BOTTOM);
     close_button_->SetBounds(
-        GetWidth() - ps.cx - kWindowControlsRightZoomedOffset,
+        width() - ps.cx - kWindowControlsRightZoomedOffset,
         0, ps.cx + kWindowControlsRightZoomedOffset,
         ps.cy + kWindowControlsTopZoomedOffset);
 
     restore_button_->GetPreferredSize(&ps);
     restore_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                        ChromeViews::Button::ALIGN_BOTTOM);
-    restore_button_->SetBounds(close_button_->GetX() - ps.cx, 0, ps.cx,
+    restore_button_->SetBounds(close_button_->x() - ps.cx, 0, ps.cx,
                                ps.cy + kWindowControlsTopZoomedOffset);
 
     minimize_button_->GetPreferredSize(&ps);
     minimize_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                         ChromeViews::Button::ALIGN_BOTTOM);
-    minimize_button_->SetBounds(restore_button_->GetX() - ps.cx, 0, ps.cx,
+    minimize_button_->SetBounds(restore_button_->x() - ps.cx, 0, ps.cx,
                                 ps.cy + kWindowControlsTopZoomedOffset);
   } else if (frame_->IsMinimized()) {
     close_button_->GetPreferredSize(&ps);
     close_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                      ChromeViews::Button::ALIGN_BOTTOM);
     close_button_->SetBounds(
-        GetWidth() - ps.cx - kWindowControlsRightZoomedOffset,
+        width() - ps.cx - kWindowControlsRightZoomedOffset,
         0, ps.cx + kWindowControlsRightZoomedOffset,
         ps.cy + kWindowControlsTopZoomedOffset);
 
     restore_button_->GetPreferredSize(&ps);
     restore_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                        ChromeViews::Button::ALIGN_BOTTOM);
-    restore_button_->SetBounds(close_button_->GetX() - ps.cx, 0, ps.cx,
+    restore_button_->SetBounds(close_button_->x() - ps.cx, 0, ps.cx,
                                ps.cy + kWindowControlsTopZoomedOffset);
 
     minimize_button_->GetPreferredSize(&ps);
     minimize_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                         ChromeViews::Button::ALIGN_BOTTOM);
-    minimize_button_->SetBounds(restore_button_->GetX() - ps.cx, 0, ps.cx,
+    minimize_button_->SetBounds(restore_button_->x() - ps.cx, 0, ps.cx,
                                 ps.cy + kWindowControlsTopZoomedOffset);
   } else {
     close_button_->GetPreferredSize(&ps);
     close_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                      ChromeViews::Button::ALIGN_TOP);
-    close_button_->SetBounds(GetWidth() - kWindowControlsRightOffset - ps.cx,
+    close_button_->SetBounds(width() - kWindowControlsRightOffset - ps.cx,
                              kWindowControlsTopOffset, ps.cx, ps.cy);
 
     restore_button_->SetVisible(false);
@@ -931,13 +928,13 @@ void OpaqueNonClientView::LayoutWindowControls() {
     maximize_button_->GetPreferredSize(&ps);
     maximize_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                         ChromeViews::Button::ALIGN_TOP);
-    maximize_button_->SetBounds(close_button_->GetX() - ps.cx,
+    maximize_button_->SetBounds(close_button_->x() - ps.cx,
                                 kWindowControlsTopOffset, ps.cx, ps.cy);
 
     minimize_button_->GetPreferredSize(&ps);
     minimize_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                         ChromeViews::Button::ALIGN_TOP);
-    minimize_button_->SetBounds(maximize_button_->GetX() - ps.cx,
+    minimize_button_->SetBounds(maximize_button_->x() - ps.cx,
                                 kWindowControlsTopOffset, ps.cx, ps.cy);
   }
 }
@@ -973,7 +970,7 @@ void OpaqueNonClientView::LayoutDistributorLogo() {
                                 APPLY_MIRRORING_TRANSFORMATION);
     logo_x = minimize_bounds.right + kDistributorLogoHorizontalOffset;
   } else {
-    logo_x = minimize_button_->GetX() - logo_w -
+    logo_x = minimize_button_->x() - logo_w -
         kDistributorLogoHorizontalOffset;
   }
   logo_bounds_.SetRect(logo_x, kDistributorLogoVerticalOffset, logo_w, logo_h);
@@ -995,7 +992,7 @@ void OpaqueNonClientView::LayoutTitleBar() {
   // Size the title, if visible.
   if (d->ShouldShowWindowTitle()) {
     int spacing = d->ShouldShowWindowIcon() ? kWindowIconTitleSpacing : 0;
-    int title_right = minimize_button_->GetX();
+    int title_right = minimize_button_->x();
     int icon_right = icon_bounds_.right();
     int title_left = icon_right + spacing;
     title_bounds_.SetRect(title_left, kTitleTopOffset + top_offset,
@@ -1006,7 +1003,7 @@ void OpaqueNonClientView::LayoutTitleBar() {
 
 void OpaqueNonClientView::LayoutClientView() {
   gfx::Rect client_bounds(
-      CalculateClientAreaBounds(GetWidth(), GetHeight()));
+      CalculateClientAreaBounds(width(), height()));
   frame_->client_view()->SetBounds(client_bounds.ToRECT());
 }
 

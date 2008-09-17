@@ -61,7 +61,7 @@ std::string CheckBox::GetClassName() const {
 
 void CheckBox::Layout() {
   int label_x = GetTextIndent();
-  label_->SetBounds(label_x, 0, GetWidth() - label_x, GetHeight());
+  label_->SetBounds(label_x, 0, width() - label_x, height());
   if (hwnd_view_) {
     int first_line_height = label_->GetFont().height();
     hwnd_view_->SetBounds(0, ((first_line_height - kCheckBoxHeight) / 2) + 1,
@@ -75,7 +75,7 @@ void CheckBox::ComputeTextRect(gfx::Rect* out) {
   label_->GetPreferredSize(&s);
   out->set_x(GetTextIndent());
   out->set_y(kFocusPaddingVertical);
-  int new_width = std::min(GetWidth() - (kCheckBoxWidth + kCheckBoxToLabel),
+  int new_width = std::min(width() - (kCheckBoxWidth + kCheckBoxToLabel),
                            static_cast<int>(s.cx));
   out->set_width(std::max(0, new_width));
   out->set_height(s.cy);
@@ -105,7 +105,7 @@ HWND CheckBox::CreateNativeControl(HWND parent_container) {
                             L"BUTTON",
                             L"",
                             WS_CHILD | BS_CHECKBOX | WS_VISIBLE,
-                            0, 0, GetWidth(), GetHeight(),
+                            0, 0, width(), height(),
                             parent_container, NULL, NULL, NULL);
   ConfigureNativeButton(r);
   return r;
@@ -141,10 +141,10 @@ void CheckBox::HighlightButton(bool f) {
 }
 
 bool CheckBox::LabelHitTest(const MouseEvent& event) {
-  CPoint p(event.GetX(), event.GetY());
+  CPoint p(event.x(), event.y());
   gfx::Rect r;
   ComputeTextRect(&r);
-  return r.Contains(event.GetX(), event.GetY());
+  return r.Contains(event.x(), event.y());
 }
 
 void CheckBox::OnMouseEntered(const MouseEvent& event) {

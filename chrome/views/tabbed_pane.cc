@@ -39,7 +39,7 @@ class TabBackground : public Background {
 
   virtual void Paint(ChromeCanvas* canvas, View* view) const {
     HDC dc = canvas->beginPlatformPaint();
-    RECT r = {0, 0, view->GetWidth(), view->GetHeight()};
+    RECT r = {0, 0, view->width(), view->height()};
     gfx::NativeTheme::instance()->PaintTabPanelBackground(dc, &r);
     canvas->endPlatformPaint();
   }
@@ -158,7 +158,7 @@ HWND TabbedPane::CreateNativeControl(HWND parent_container) {
                                   WC_TABCONTROL,
                                   L"",
                                   WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
-                                  0, 0, GetWidth(), GetHeight(),
+                                  0, 0, width(), height(),
                                   parent_container, NULL, NULL, NULL);
 
   HFONT font = ResourceBundle::GetSharedInstance().

@@ -251,15 +251,15 @@ void InfoBubble::ContentView::Layout() {
   View* content = GetChildViewAt(0);
   int x = kBorderSize;
   int y = kBorderSize;
-  int width = GetWidth() - kBorderSize - kBorderSize -
+  int content_width = width() - kBorderSize - kBorderSize -
               kInfoBubbleViewLeftMargin - kInfoBubbleViewRightMargin;
-  int height = GetHeight() - kBorderSize - kBorderSize - kArrowSize -
+  int content_height = height() - kBorderSize - kBorderSize - kArrowSize -
                kInfoBubbleViewTopMargin - kInfoBubbleViewBottomMargin;
   if (IsTop())
     y += kArrowSize;
   x += kInfoBubbleViewLeftMargin;
   y += kInfoBubbleViewTopMargin;
-  content->SetBounds(x, y, width, height);
+  content->SetBounds(x, y, content_width, content_height);
 }
 
 HRGN InfoBubble::ContentView::GetMask(const CSize &size) {
@@ -327,8 +327,8 @@ HRGN InfoBubble::ContentView::GetMask(const CSize &size) {
 void InfoBubble::ContentView::Paint(ChromeCanvas* canvas) {
   int bubble_x = 0;
   int bubble_y = 0;
-  int bubble_w = GetWidth();
-  int bubble_h = GetHeight() - kArrowSize;
+  int bubble_w = width();
+  int bubble_h = height() - kArrowSize;
 
   int border_w = bubble_w - 2 * kInfoBubbleCornerWidth;
   int border_h = bubble_h - 2 * kInfoBubbleCornerHeight;
@@ -368,7 +368,7 @@ void InfoBubble::ContentView::Paint(ChromeCanvas* canvas) {
 
   // Right border.
   canvas->DrawRectInt(kBorderColor1,
-                      GetWidth() - 1, bubble_y + kInfoBubbleCornerHeight,
+                      width() - 1, bubble_y + kInfoBubbleCornerHeight,
                       0, border_h);
 
   // Draw the corners.
@@ -382,7 +382,7 @@ void InfoBubble::ContentView::Paint(ChromeCanvas* canvas) {
                         bubble_y + bubble_h - kInfoBubbleCornerHeight);
 
   // Draw the arrow and the notch of the arrow.
-  int arrow_x = IsLeft() ? kArrowXOffset : GetWidth() - kArrowXOffset;
+  int arrow_x = IsLeft() ? kArrowXOffset : width() - kArrowXOffset;
   int arrow_y = IsTop() ? bubble_y : bubble_y + bubble_h - 1;
   const int arrow_delta = IsTop() ? -1 : 1;
   for (int i = 0, y = arrow_y; i <= kArrowSize; ++i, y += arrow_delta) {

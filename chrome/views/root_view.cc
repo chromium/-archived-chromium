@@ -158,9 +158,9 @@ void RootView::ProcessPaint(ChromeCanvas* canvas) {
   canvas->save();
 
   // Set the clip rect according to the invalid rect.
-  int x = invalid_rect_.left + GetX();
-  int y = invalid_rect_.top + GetY();
-  canvas->ClipRectInt(x, y, invalid_rect_.Width(), invalid_rect_.Height());
+  int clip_x = invalid_rect_.left + x();
+  int clip_y = invalid_rect_.top + y();
+  canvas->ClipRectInt(clip_x, clip_y, invalid_rect_.Width(), invalid_rect_.Height());
 
   // Paint the tree
   View::ProcessPaint(canvas);
@@ -278,7 +278,7 @@ bool RootView::OnMousePressed(const MouseEvent& e) {
 
   bool hit_disabled_view = false;
   // Walk up the tree until we find a view that wants the mouse event.
-  for (mouse_pressed_handler_ = GetViewForPoint(WTL::CPoint(e.GetX(), e.GetY()));
+  for (mouse_pressed_handler_ = GetViewForPoint(WTL::CPoint(e.x(), e.y()));
        mouse_pressed_handler_ && (mouse_pressed_handler_ != this);
        mouse_pressed_handler_ = mouse_pressed_handler_->GetParent()) {
     if (!mouse_pressed_handler_->IsEnabled()) {
@@ -355,7 +355,7 @@ bool RootView::OnMouseDragged(const MouseEvent& e) {
     SetMouseLocationAndFlags(e);
 
     CPoint p;
-    ConvertPointToMouseHandler(WTL::CPoint(e.GetX(), e.GetY()), &p);
+    ConvertPointToMouseHandler(WTL::CPoint(e.x(), e.y()), &p);
     MouseEvent mouse_event(e.GetType(), p.x, p.y, e.GetFlags());
     if (!mouse_pressed_handler_->ProcessMouseDragged(mouse_event,
                                                      &drag_info)) {
@@ -373,7 +373,7 @@ void RootView::OnMouseReleased(const MouseEvent& e, bool canceled) {
 
   if (mouse_pressed_handler_) {
     CPoint p;
-    ConvertPointToMouseHandler(WTL::CPoint(e.GetX(), e.GetY()), &p);
+    ConvertPointToMouseHandler(WTL::CPoint(e.x(), e.y()), &p);
     MouseEvent mouse_released(e.GetType(), p.x, p.y, e.GetFlags());
     // We allow the view to delete us from ProcessMouseReleased. As such,
     // configure state such that we're done first, then call View.
@@ -386,10 +386,10 @@ void RootView::OnMouseReleased(const MouseEvent& e, bool canceled) {
 }
 
 void RootView::UpdateCursor(const MouseEvent& e) {
-  View *v = GetViewForPoint(WTL::CPoint(e.GetX(), e.GetY()));
+  View *v = GetViewForPoint(WTL::CPoint(e.x(), e.y()));
 
   if (v && v != this) {
-    CPoint l(e.GetX(), e.GetY());
+    CPoint l(e.x(), e.y());
     View::ConvertPointToView(this, v, &l);
     HCURSOR cursor = v->GetCursorForPoint(e.GetType(), l.x, l.y);
     if (cursor) {
@@ -403,7 +403,7 @@ void RootView::UpdateCursor(const MouseEvent& e) {
 }
 
 void RootView::OnMouseMoved(const MouseEvent& e) {
-  View *v = GetViewForPoint(WTL::CPoint(e.GetX(), e.GetY()));
+  View *v = GetViewForPoint(WTL::CPoint(e.x(), e.y()));
   // Find the first enabled view.
   while (v && !v->IsEnabled())
     v = v->GetParent();
@@ -431,7 +431,7 @@ void RootView::OnMouseMoved(const MouseEvent& e) {
     mouse_move_handler_->OnMouseMoved(moved_event);
 
     HCURSOR cursor = mouse_move_handler_->GetCursorForPoint(
-        moved_event.GetType(), moved_event.GetX(), moved_event.GetY());
+        moved_event.GetType(), moved_event.x(), moved_event.y());
     if (cursor) {
       previous_cursor_ = ::SetCursor(cursor);
     } else if (previous_cursor_) {
@@ -880,8 +880,8 @@ void RootView::UnregisterViewForVisibleBoundsNotification(View* view) {
 
 void RootView::SetMouseLocationAndFlags(const MouseEvent& e) {
   last_mouse_event_flags_ = e.GetFlags();
-  last_mouse_event_x_ = e.GetX();
-  last_mouse_event_y_ = e.GetY();
+  last_mouse_event_x_ = e.x();
+  last_mouse_event_y_ = e.y();
 }
 
 std::string RootView::GetClassName() const {

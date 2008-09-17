@@ -293,7 +293,7 @@ void AddLanguageWindowView::Layout() {
   CSize sz;
   accept_language_combobox_->GetPreferredSize(&sz);
   accept_language_combobox_->SetBounds(kDialogPadding, kDialogPadding,
-                                       GetWidth() - 2*kDialogPadding, sz.cy);
+                                       width() - 2*kDialogPadding, sz.cy);
 }
 
 void AddLanguageWindowView::GetPreferredSize(CSize* out) {

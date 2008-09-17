@@ -368,7 +368,7 @@ std::wstring TabRenderer::GetTitle() const {
 void TabRenderer::Paint(ChromeCanvas* canvas) {
   // Don't paint if we're narrower than we can render correctly. (This should
   // only happen during animations).
-  if (GetWidth() < GetMinimumSize().width())
+  if (width() < GetMinimumSize().width())
     return;
 
   // See if the model changes whether the icons should be painted.
@@ -389,7 +389,7 @@ void TabRenderer::Paint(ChromeCanvas* canvas) {
       PaintLoadingAnimation(canvas);
     } else {
       canvas->save();
-      canvas->ClipRectInt(0, 0, GetWidth(), GetHeight() - 4);
+      canvas->ClipRectInt(0, 0, width(), height() - 4);
       if (should_display_crashed_favicon_) {
         canvas->DrawBitmapInt(*crashed_fav_icon, 0, 0,
                               crashed_fav_icon->width(),
@@ -498,7 +498,7 @@ void TabRenderer::Layout() {
 
   int title_width;
   if (close_button_->IsVisible()) {
-    title_width = std::max(close_button_->GetX() -
+    title_width = std::max(close_button_->x() -
                            kTitleCloseButtonSpacing - title_left, 0);
   } else {
     title_width = std::max(lb.Width() - title_left, 0);
@@ -580,17 +580,17 @@ void TabRenderer::PaintInactiveTabBackground(ChromeCanvas* canvas) {
   canvas->DrawBitmapInt(is_otr ? *tab_inactive_otr_l : *tab_inactive_l, 0, 0);
   canvas->TileImageInt(is_otr ? *tab_inactive_otr_c : *tab_inactive_c,
                        tab_inactive_l_width, 0,
-                       GetWidth() - tab_inactive_l_width - tab_inactive_r_width,
-                       GetHeight());
+                       width() - tab_inactive_l_width - tab_inactive_r_width,
+                       height());
   canvas->DrawBitmapInt(is_otr ? *tab_inactive_otr_r : *tab_inactive_r,
-                        GetWidth() - tab_inactive_r_width, 0);
+                        width() - tab_inactive_r_width, 0);
 }
 
 void TabRenderer::PaintActiveTabBackground(ChromeCanvas* canvas) {
   canvas->DrawBitmapInt(*tab_active_l, 0, 0);
   canvas->TileImageInt(*tab_active_c, tab_active_l_width, 0,
-    GetWidth() - tab_active_l_width - tab_active_r_width, GetHeight());
-  canvas->DrawBitmapInt(*tab_active_r, GetWidth() - tab_active_r_width, 0);
+    width() - tab_active_l_width - tab_active_r_width, height());
+  canvas->DrawBitmapInt(*tab_active_r, width() - tab_active_r_width, 0);
 }
 
 void TabRenderer::PaintHoverTabBackground(ChromeCanvas* canvas,
@@ -608,8 +608,8 @@ void TabRenderer::PaintHoverTabBackground(ChromeCanvas* canvas,
 
   canvas->DrawBitmapInt(left, 0, 0);
   canvas->TileImageInt(center, tab_active_l_width, 0,
-      GetWidth() - tab_active_l_width - tab_active_r_width, GetHeight());
-  canvas->DrawBitmapInt(right, GetWidth() - tab_active_r_width, 0);
+      width() - tab_active_l_width - tab_active_r_width, height());
+  canvas->DrawBitmapInt(right, width() - tab_active_r_width, 0);
 }
 
 void TabRenderer::PaintLoadingAnimation(ChromeCanvas* canvas) {
@@ -617,14 +617,14 @@ void TabRenderer::PaintLoadingAnimation(ChromeCanvas* canvas) {
                       waiting_animation_frames : loading_animation_frames;
   int image_size = frames->height();
   int image_offset = animation_frame_ * image_size;
-  int dst_y = (GetHeight() - image_size) / 2;
+  int dst_y = (height() - image_size) / 2;
 
   // Just like with the Tab's title and favicon, the position for the page
   // loading animation also needs to be mirrored if the View's UI layout is
   // right-to-left.
   int dst_x;
   if (UILayoutIsRightToLeft()) {
-    dst_x = GetWidth() - kLeftPadding - image_size;
+    dst_x = width() - kLeftPadding - image_size;
   } else {
     dst_x = kLeftPadding;
   }
@@ -634,10 +634,10 @@ void TabRenderer::PaintLoadingAnimation(ChromeCanvas* canvas) {
 }
 
 int TabRenderer::IconCapacity() const {
-  if (GetHeight() < GetMinimumSize().height()) {
+  if (height() < GetMinimumSize().height()) {
     return 0;
   }
-  return (GetWidth() - kLeftPadding - kRightPadding) / kFaviconSize;
+  return (width() - kLeftPadding - kRightPadding) / kFaviconSize;
 }
 
 bool TabRenderer::ShouldShowIcon() const {

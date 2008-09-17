@@ -218,8 +218,8 @@ void Tab::ButtonPressed(ChromeViews::BaseButton* sender) {
 void Tab::MakePathForTab(gfx::Path* path) const {
   DCHECK(path);
 
-  SkScalar h = SkIntToScalar(GetHeight());
-  SkScalar w = SkIntToScalar(GetWidth());
+  SkScalar h = SkIntToScalar(height());
+  SkScalar w = SkIntToScalar(width());
 
   path->moveTo(0, h);
 

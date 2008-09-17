@@ -23,7 +23,7 @@ HWND Separator::CreateNativeControl(HWND parent_container) {
 
   return ::CreateWindowEx(GetAdditionalExStyle(), L"STATIC", L"",
                           WS_CHILD | SS_ETCHEDHORZ | SS_SUNKEN,
-                          0, 0, GetWidth(), GetHeight(),
+                          0, 0, width(), height(),
                           parent_container, NULL, NULL, NULL);
 }
 
@@ -33,7 +33,7 @@ LRESULT Separator::OnNotify(int w_param, LPNMHDR l_param) {
 
 void Separator::GetPreferredSize(CSize* out) {
   DCHECK(out);
-  out->cx = GetWidth();
+  out->cx = width();
   out->cy = fixed_height_;
 }
 

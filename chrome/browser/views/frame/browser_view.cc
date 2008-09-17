@@ -45,7 +45,7 @@ void BrowserView::LayoutStatusBubble(int status_bubble_y) {
   status_bubble_->SetBounds(kStatusBubbleOffset,
                             status_bubble_y - kStatusBubbleHeight +
                             kStatusBubbleOffset,
-                            GetWidth() / 3,
+                            width() / 3,
                             kStatusBubbleHeight);
 }
 
@@ -219,7 +219,7 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
 // BrowserView, ChromeViews::View overrides:
 
 void BrowserView::Layout() {
-  toolbar_->SetBounds(0, 0, GetWidth(), GetHeight());
+  toolbar_->SetBounds(0, 0, width(), height());
 }
 
 void BrowserView::DidChangeBounds(const CRect& previous,

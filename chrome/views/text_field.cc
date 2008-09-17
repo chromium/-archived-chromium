@@ -247,7 +247,7 @@ TextField::Edit::Edit(TextField* parent, bool draw_border)
   // Make sure we apply RTL related extended window styles if necessary.
   DWORD ex_style = l10n_util::GetExtendedStyles();
 
-  RECT r = {0, 0, parent_->GetWidth(), parent_->GetHeight()};
+  RECT r = {0, 0, parent_->width(), parent_->height()};
   Create(parent_->GetViewContainer()->GetHWND(), r, NULL, style, ex_style);
 
   // Set up the text_object_model_.

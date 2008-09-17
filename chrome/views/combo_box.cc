@@ -65,7 +65,7 @@ void ComboBox::GetPreferredSize(CSize* out) {
 HWND ComboBox::CreateNativeControl(HWND parent_container) {
   HWND r = ::CreateWindowEx(GetAdditionalExStyle(), L"COMBOBOX", L"",
                             WS_CHILD | WS_VSCROLL | CBS_DROPDOWNLIST,
-                            0, 0, GetWidth(), GetHeight(),
+                            0, 0, width(), height(),
                             parent_container, NULL, NULL, NULL);
   HFONT font = ResourceBundle::GetSharedInstance().
       GetFont(ResourceBundle::BaseFont).hfont();

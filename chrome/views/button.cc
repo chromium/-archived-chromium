@@ -92,14 +92,14 @@ void Button::Paint(ChromeCanvas* canvas) {
     int x = 0, y = 0;
 
     if (h_alignment_ == ALIGN_CENTER)
-      x = (GetWidth() - img.width()) / 2;
+      x = (width() - img.width()) / 2;
     else if (h_alignment_ == ALIGN_RIGHT)
-      x = GetWidth() - img.width();
+      x = width() - img.width();
 
     if (v_alignment_ == ALIGN_MIDDLE)
-      y = (GetHeight() - img.height()) / 2;
+      y = (height() - img.height()) / 2;
     else if (v_alignment_ == ALIGN_BOTTOM)
-      y = GetHeight() - img.height();
+      y = height() - img.height();
 
     canvas->DrawBitmapInt(img, x, y);
   }

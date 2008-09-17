@@ -42,8 +42,8 @@ void ToolbarStarToggle::ShowStarBubble(const GURL& url, bool newly_bookmarked) {
   // Shift the x location by 1 as visually the center of the star appears 1
   // pixel to the right. By doing this bubble arrow points to the center
   // of the star.
-  gfx::Rect star_bounds(star_location.x + 1, star_location.y, GetWidth(),
-                        GetHeight());
+  gfx::Rect star_bounds(star_location.x + 1, star_location.y, width(),
+                        height());
   BookmarkBubbleView::Show(host_->browser()->GetTopLevelHWND(), star_bounds,
                            this, host_->profile(), url, newly_bookmarked);
   is_bubble_showing_ = true;

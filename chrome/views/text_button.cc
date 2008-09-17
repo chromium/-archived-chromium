@@ -225,8 +225,8 @@ void TextButton::Paint(ChromeCanvas* canvas, bool for_drag) {
   }
 
   gfx::Insets insets = GetInsets();
-  int available_width = GetWidth() - insets.width();
-  int available_height = GetHeight() - insets.height();
+  int available_width = width() - insets.width();
+  int available_height = height() - insets.height();
   // Use the actual text (not max) size to properly center the text.
   int content_width = text_size_.cx;
   if (icon_.width() > 0) {
@@ -248,7 +248,7 @@ void TextButton::Paint(ChromeCanvas* canvas, bool for_drag) {
   if (icon_.width() > 0)
     text_x += icon_.width() + kIconTextPadding;
   const int text_width = std::min(static_cast<int>(text_size_.cx),
-                                  GetWidth() - insets.right() - text_x);
+                                  width() - insets.right() - text_x);
   int text_y = (available_height - text_size_.cy) / 2 + insets.top();
 
   if (text_width > 0) {

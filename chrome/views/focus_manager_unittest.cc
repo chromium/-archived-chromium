@@ -111,7 +111,7 @@ class BorderView : public ChromeViews::NativeControl {
                                         WC_TABCONTROL,
                                         L"",
                                         WS_CHILD,
-                                        0, 0, GetWidth(), GetHeight(),
+                                        0, 0, width(), height(),
                                         parent_container, NULL, NULL, NULL);
     // Create the view container which is a child of the TabControl.
     view_container_ = new ChromeViews::HWNDViewContainer();

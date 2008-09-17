@@ -428,7 +428,7 @@ class BookmarkBarViewTest5 : public BookmarkBarViewEventTestBase {
   void Step3() {
     ChromeViews::MenuItemView* target_menu =
         bb_view_->GetMenu()->GetSubmenu()->GetMenuItemAt(1);
-    CPoint loc(1, target_menu->GetHeight() - 1);
+    CPoint loc(1, target_menu->height() - 1);
     ChromeViews::View::ConvertPointToScreen(target_menu, &loc);
 
     // Start a drag.
@@ -443,7 +443,7 @@ class BookmarkBarViewTest5 : public BookmarkBarViewEventTestBase {
     // Drop the item so that it's now the second item.
    ChromeViews::MenuItemView* target_menu =
         bb_view_->GetMenu()->GetSubmenu()->GetMenuItemAt(1);
-    CPoint loc(1, target_menu->GetHeight() - 1);
+    CPoint loc(1, target_menu->height() - 1);
     ChromeViews::View::ConvertPointToScreen(target_menu, &loc);
     ui_controls::SendMouseMove(loc.x, loc.y);
 
@@ -537,7 +537,7 @@ class BookmarkBarViewTest7 : public BookmarkBarViewEventTestBase {
     // Drag over other button.
     ChromeViews::TextButton* other_button =
         bb_view_->other_bookmarked_button();
-    CPoint loc(other_button->GetWidth() / 2, other_button->GetHeight() / 2);
+    CPoint loc(other_button->width() / 2, other_button->height() / 2);
     ChromeViews::View::ConvertPointToScreen(other_button, &loc);
 
     // Start a drag.
@@ -610,7 +610,7 @@ class BookmarkBarViewTest8 : public BookmarkBarViewEventTestBase {
     // Drag over other button.
     ChromeViews::TextButton* other_button =
         bb_view_->other_bookmarked_button();
-    CPoint loc(other_button->GetWidth() / 2, other_button->GetHeight() / 2);
+    CPoint loc(other_button->width() / 2, other_button->height() / 2);
     ChromeViews::View::ConvertPointToScreen(other_button, &loc);
 
     // Start a drag.
@@ -628,7 +628,7 @@ class BookmarkBarViewTest8 : public BookmarkBarViewEventTestBase {
 
     // Now drag back over first menu.
     ChromeViews::TextButton* button = bb_view_->GetBookmarkButton(0);
-    CPoint loc(button->GetWidth() / 2, button->GetHeight() / 2);
+    CPoint loc(button->width() / 2, button->height() / 2);
     ChromeViews::View::ConvertPointToScreen(button, &loc);
     ui_controls::SendMouseMoveNotifyWhenDone(loc.x, loc.y,
         NewRunnableMethod(this, &BookmarkBarViewTest8::Step5));
@@ -693,8 +693,8 @@ class BookmarkBarViewTest9 : public BookmarkBarViewEventTestBase {
     ASSERT_TRUE(scroll_container != NULL);
     ChromeViews::View* scroll_down_button = scroll_container->GetChildViewAt(1);
     ASSERT_TRUE(scroll_down_button);
-    CPoint loc(scroll_down_button->GetWidth() / 2,
-               scroll_down_button->GetHeight() / 2);
+    CPoint loc(scroll_down_button->width() / 2,
+               scroll_down_button->height() / 2);
     ChromeViews::View::ConvertPointToScreen(scroll_down_button, &loc);
     ui_controls::SendMouseMoveNotifyWhenDone(
         loc.x, loc.y, CreateEventTask(this, &BookmarkBarViewTest9::Step3));

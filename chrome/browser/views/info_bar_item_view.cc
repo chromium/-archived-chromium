@@ -51,7 +51,7 @@ int InfoBarItemView::CenterPosition(int size, int target_size) {
 }
 
 void InfoBarItemView::GetPreferredSize(CSize* out) {
-  out->cx = GetParent()->GetWidth();
+  out->cx = GetParent()->width();
   out->cy = static_cast<int>(kInfoBarHeight * animation_->GetCurrentValue());
 }
 
@@ -90,11 +90,8 @@ void InfoBarItemView::GetPreferredSize(CSize* out) {
 // left views. Note in this case, the padding appears to the right of the view
 // left aligned view. Removing works the same, but in reverse.
 void InfoBarItemView::Layout() {
-  const int width = GetWidth();
-  const int height = GetHeight();
-
-  int next_x = width - kButtonHEdgeMargin;
-  int height_diff = static_cast<int>(kInfoBarHeight) - height;
+  int next_x = width() - kButtonHEdgeMargin;
+  int height_diff = static_cast<int>(kInfoBarHeight) - height();
   const int child_count = GetChildViewCount();
   // Anything greater than or equal to insert_index_ is laid out on the right,
   // with the greatest index (the first one added to the right) being laid out

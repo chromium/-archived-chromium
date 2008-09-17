@@ -97,10 +97,10 @@ void TabIconView::PaintFavIcon(ChromeCanvas* canvas, const SkBitmap& bitmap) {
   int bw = bitmap.width();
   int bh = bitmap.height();
   if (bw <= kFavIconSize && bh <= kFavIconSize) {
-    canvas->DrawBitmapInt(bitmap, (GetWidth() - kFavIconSize) / 2,
-                          (GetHeight() - kFavIconSize) / 2);
+    canvas->DrawBitmapInt(bitmap, (width() - kFavIconSize) / 2,
+                          (height() - kFavIconSize) / 2);
   } else {
-    canvas->DrawBitmapInt(bitmap, 0, 0, bw, bh, 0, 0, GetWidth(), GetHeight(),
+    canvas->DrawBitmapInt(bitmap, 0, 0, bw, bh, 0, 0, width(), height(),
                           true);
   }
 }

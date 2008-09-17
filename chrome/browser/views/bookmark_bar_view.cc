@@ -248,11 +248,11 @@ class BookmarkButton : public ChromeViews::TextButton {
     paint.setAlpha(static_cast<int>(
         (1.0 - show_animation_->GetCurrentValue()) * 255));
     paint.setShader(gfx::CreateGradientShader(0,
-        GetHeight() + kTopMargin + kBottomMargin,
+        height() + kTopMargin + kBottomMargin,
         kTopBorderColor,
         kBackgroundColor))->safeUnref();
-    canvas->FillRectInt(0, -kTopMargin, GetWidth(),
-                        GetHeight() + kTopMargin + kBottomMargin, paint);
+    canvas->FillRectInt(0, -kTopMargin, width(),
+                        height() + kTopMargin + kBottomMargin, paint);
   }
 
   virtual void AnimationProgressed(const Animation* animation) {
@@ -559,21 +559,21 @@ class ButtonSeparatorView : public ChromeViews::View {
   virtual void Paint(ChromeCanvas* canvas) {
     SkPaint paint;
     paint.setShader(gfx::CreateGradientShader(0,
-                                              GetHeight() / 2,
+                                              height() / 2,
                                               kTopBorderColor,
                                               kSeparatorColor))->safeUnref();
     SkRect rc = {SkIntToScalar(kSeparatorStartX),  SkIntToScalar(0),
-                 SkIntToScalar(1), SkIntToScalar(GetHeight() / 2) };
+                 SkIntToScalar(1), SkIntToScalar(height() / 2) };
     canvas->drawRect(rc, paint);
 
     SkPaint paint_down;
-    paint_down.setShader(gfx::CreateGradientShader(GetHeight() / 2,
-        GetHeight(),
+    paint_down.setShader(gfx::CreateGradientShader(height() / 2,
+        height(),
         kSeparatorColor,
         kBackgroundColor))->safeUnref();
     SkRect rc_down = {
-        SkIntToScalar(kSeparatorStartX),  SkIntToScalar(GetHeight() / 2),
-        SkIntToScalar(1), SkIntToScalar(GetHeight() - 1) };
+        SkIntToScalar(kSeparatorStartX),  SkIntToScalar(height() / 2),
+        SkIntToScalar(1), SkIntToScalar(height() - 1) };
     canvas->drawRect(rc_down, paint_down);
   }
 
@@ -717,8 +717,8 @@ void BookmarkBarView::Layout() {
   // visible region and made invisible.
   int x = kLeftMargin;
   int y = kTopMargin;
-  int width = GetWidth() - kRightMargin - kLeftMargin;
-  int height = GetHeight() - kTopMargin - kBottomMargin;
+  int width = View::width() - kRightMargin - kLeftMargin;
+  int height = View::height() - kTopMargin - kBottomMargin;
   int separator_margin = kSeparatorMargin;
 
   if (IsNewTabPage()) {
@@ -799,7 +799,7 @@ void BookmarkBarView::DidChangeBounds(const CRect& previous,
 
 void BookmarkBarView::ViewHierarchyChanged(bool is_add,
                                            View* parent, View* child) {
-  if (is_add && child == this && GetHeight() > 0) {
+  if (is_add && child == this && height() > 0) {
     // We only layout while parented. When we become parented, if our bounds
     // haven't changed, DidChangeBounds won't get invoked and we won't layout.
     // Therefore we always force a layout when added.
@@ -808,15 +808,12 @@ void BookmarkBarView::ViewHierarchyChanged(bool is_add,
 }
 
 void BookmarkBarView::Paint(ChromeCanvas* canvas) {
-  int width = GetWidth();
-  int height = GetHeight();
-
   if (IsNewTabPage() && (!IsAlwaysShown() || size_animation_->IsAnimating())) {
     // Draw the background to match the new tab page.
-    canvas->FillRectInt(kNewtabBackgroundColor, 0, 0, width, height);
+    canvas->FillRectInt(kNewtabBackgroundColor, 0, 0, width(), height());
 
     // Draw the 'bottom' of the toolbar above our bubble.
-    canvas->FillRectInt(kBottomBorderColor, 0, 0, width, 1);
+    canvas->FillRectInt(kBottomBorderColor, 0, 0, width(), 1);
 
     SkRect rect;
 
@@ -832,8 +829,8 @@ void BookmarkBarView::Paint(ChromeCanvas* canvas) {
         (kNewtabVerticalPadding) * current_state;
     rect.set(SkDoubleToScalar(h_padding - 0.5),
              SkDoubleToScalar(v_padding - 0.5),
-             SkDoubleToScalar(width - h_padding - 0.5),
-             SkDoubleToScalar(height - v_padding - 0.5));
+             SkDoubleToScalar(width() - h_padding - 0.5),
+             SkDoubleToScalar(height() - v_padding - 0.5));
 
     double roundness = static_cast<double>
         (kNewtabBarRoundness) * current_state;
@@ -842,7 +839,7 @@ void BookmarkBarView::Paint(ChromeCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setShader(gfx::CreateGradientShader(0,
-                                              height,
+                                              height(),
                                               kTopBorderColor,
                                               kBackgroundColor))->safeUnref();
 
@@ -862,13 +859,13 @@ void BookmarkBarView::Paint(ChromeCanvas* canvas) {
   } else {
     SkPaint paint;
     paint.setShader(gfx::CreateGradientShader(0,
-                                              height,
+                                              height(),
                                               kTopBorderColor,
                                               kBackgroundColor))->safeUnref();
-    canvas->FillRectInt(0, 0, width, height, paint);
+    canvas->FillRectInt(0, 0, width(), height(), paint);
 
-    canvas->FillRectInt(kTopBorderColor, 0, 0, width, 1);
-    canvas->FillRectInt(kBottomBorderColor, 0, height - 1, width, 1);
+    canvas->FillRectInt(kTopBorderColor, 0, 0, width(), 1);
+    canvas->FillRectInt(kBottomBorderColor, 0, height() - 1, width(), 1);
   }
 }
 
@@ -882,20 +879,20 @@ void BookmarkBarView::PaintChildren(ChromeCanvas* canvas) {
     DCHECK(index <= GetBookmarkButtonCount());
     int x = 0;
     int y = 0;
-    int h = GetHeight();
+    int h = height();
     if (index == GetBookmarkButtonCount()) {
       if (index == 0) {
         x = kLeftMargin;
       } else {
-        x = GetBookmarkButton(index - 1)->GetX() +
-            GetBookmarkButton(index - 1)->GetWidth();
+        x = GetBookmarkButton(index - 1)->x() +
+            GetBookmarkButton(index - 1)->width();
       }
     } else {
-      x = GetBookmarkButton(index)->GetX();
+      x = GetBookmarkButton(index)->x();
     }
     if (GetBookmarkButtonCount() > 0 && GetBookmarkButton(0)->IsVisible()) {
-      y = GetBookmarkButton(0)->GetY();
-      h = GetBookmarkButton(0)->GetHeight();
+      y = GetBookmarkButton(0)->y();
+      h = GetBookmarkButton(0)->height();
     }
 
     // Since the drop indicator is painted directly onto the canvas, we must
@@ -931,12 +928,12 @@ int BookmarkBarView::OnDragUpdated(const DropTargetEvent& event) {
     return 0;
 
   if (drop_info_->valid &&
-      (drop_info_->x == event.GetX() && drop_info_->y == event.GetY())) {
+      (drop_info_->x == event.x() && drop_info_->y == event.y())) {
     return drop_info_->drag_operation;
   }
 
-  drop_info_->x = event.GetX();
-  drop_info_->y = event.GetY();
+  drop_info_->x = event.x();
+  drop_info_->y = event.y();
 
   int drop_index;
   bool drop_on;
@@ -1277,10 +1274,10 @@ void BookmarkBarView::WriteDragData(View* sender,
   for (int i = 0; i < GetBookmarkButtonCount(); ++i) {
     if (sender == GetBookmarkButton(i)) {
       ChromeViews::TextButton* button = GetBookmarkButton(i);
-      ChromeCanvas canvas(button->GetWidth(), button->GetHeight(), false);
+      ChromeCanvas canvas(button->width(), button->height(), false);
       button->Paint(&canvas, true);
-      drag_utils::SetDragImageOnDataObject(canvas, button->GetWidth(),
-                                           button->GetHeight(), press_x,
+      drag_utils::SetDragImageOnDataObject(canvas, button->width(),
+                                           button->height(), press_x,
                                            press_y, data);
       WriteDragData(model_->GetBookmarkBarNode()->GetChild(i), data);
       return;
@@ -1316,12 +1313,12 @@ void BookmarkBarView::RunMenu(ChromeViews::View* view,
 
   // When we set the menu's position, we must take into account the mirrored
   // position of the View relative to its parent. This can be easily done by
-  // passing the right flag to View::GetX().
+  // passing the right flag to View::x().
   int x = view->GetX(APPLY_MIRRORING_TRANSFORMATION);
-  int height = GetHeight() - kMenuOffset;
+  int bar_height = height() - kMenuOffset;
 
   if (IsNewTabPage() && !IsAlwaysShown())
-    height -= kNewtabVerticalPadding;
+    bar_height -= kNewtabVerticalPadding;
 
   int start_index = 0;
   if (view == other_bookmarked_button_) {
@@ -1358,7 +1355,7 @@ void BookmarkBarView::RunMenu(ChromeViews::View* view,
   HWND parent_hwnd = GetViewContainer()->GetHWND();
   menu_runner_->RunMenuAt(parent_hwnd,
                           gfx::Rect(screen_loc.x, screen_loc.y,
-                                    view->GetWidth(), height),
+                                    view->width(), bar_height),
                           anchor_point,
                           false);
 }
@@ -1492,7 +1489,7 @@ void BookmarkBarView::ShowDropFolderForNode(BookmarkNode* node) {
   // Note that both the anchor position and the position of the menu itself
   // change depending on the locale. Also note that we must apply the
   // mirroring transformation when querying for the child View bounds
-  // (View::GetX(), specifically) so that we end up with the correct screen
+  // (View::x(), specifically) so that we end up with the correct screen
   // coordinates if the View in question is mirrored.
   MenuItemView::AnchorPosition anchor = MenuItemView::TOPLEFT;
   if (node == model_->other_node()) {
@@ -1528,8 +1525,8 @@ void BookmarkBarView::ShowDropFolderForNode(BookmarkNode* node) {
   drop_menu_runner_->RunMenuAt(
       GetViewContainer()->GetHWND(),
       gfx::Rect(screen_loc.x, screen_loc.y,
-                view_to_position_menu_from->GetWidth(),
-                view_to_position_menu_from->GetHeight()),
+                view_to_position_menu_from->width(),
+                view_to_position_menu_from->height()),
       anchor, true);
 }
 
@@ -1570,23 +1567,23 @@ int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
   // right-to-left on RTL locales). Thus, in order to make sure the drop
   // coordinates calculation works, we mirror the event's X coordinate if the
   // locale is RTL.
-  int mirrored_x = MirroredXCoordinateInsideView(event.GetX());
+  int mirrored_x = MirroredXCoordinateInsideView(event.x());
 
   *index = -1;
   *drop_on = false;
   *is_over_other = *is_over_overflow = false;
 
-  if (event.GetY() < other_bookmarked_button_->GetY() ||
-      event.GetY() >= other_bookmarked_button_->GetY() +
-                      other_bookmarked_button_->GetHeight()) {
+  if (event.y() < other_bookmarked_button_->y() ||
+      event.y() >= other_bookmarked_button_->y() +
+                      other_bookmarked_button_->height()) {
     // Mouse isn't over a button.
     return DragDropTypes::DRAG_NONE;
   }
 
   bool found = false;
-  const int other_delta_x = mirrored_x - other_bookmarked_button_->GetX();
+  const int other_delta_x = mirrored_x - other_bookmarked_button_->x();
   if (other_delta_x >= 0 &&
-      other_delta_x < other_bookmarked_button_->GetWidth()) {
+      other_delta_x < other_bookmarked_button_->width()) {
     // Mouse is over 'other' folder.
     *is_over_other = true;
     *drop_on = true;
@@ -1600,8 +1597,8 @@ int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
   for (int i = 0; i < GetBookmarkButtonCount() &&
        GetBookmarkButton(i)->IsVisible() && !found; i++) {
     ChromeViews::TextButton* button = GetBookmarkButton(i);
-    int button_x = mirrored_x - button->GetX();
-    int button_w = button->GetWidth();
+    int button_x = mirrored_x - button->x();
+    int button_w = button->width();
     if (button_x < button_w) {
       found = true;
       BookmarkNode* node = model_->GetBookmarkBarNode()->GetChild(i);
@@ -1626,9 +1623,9 @@ int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
   if (!found) {
     if (overflow_button_->IsVisible()) {
       // Are we over the overflow button?
-      int overflow_delta_x = mirrored_x - overflow_button_->GetX();
+      int overflow_delta_x = mirrored_x - overflow_button_->x();
       if (overflow_delta_x >= 0 &&
-          overflow_delta_x < overflow_button_->GetWidth()) {
+          overflow_delta_x < overflow_button_->width()) {
         // Mouse is over overflow button.
         *index = GetFirstHiddenNodeIndex();
         *is_over_overflow = true;
@@ -1639,7 +1636,7 @@ int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
       } else {
         return DragDropTypes::DRAG_NONE;
       }
-    } else if (mirrored_x < other_bookmarked_button_->GetX()) {
+    } else if (mirrored_x < other_bookmarked_button_->x()) {
       // Mouse is after the last visible button but before more recently
       // bookmarked; use the last visible index.
       *index = GetFirstHiddenNodeIndex();
@@ -1837,4 +1834,3 @@ void BookmarkBarView::StopThrobbing(bool immediate) {
   throbbing_view_->StartThrobbing(immediate ? 0 : 4);
   throbbing_view_ = NULL;
 }
-

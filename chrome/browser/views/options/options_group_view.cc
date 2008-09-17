@@ -56,7 +56,7 @@ void OptionsGroupView::SetHighlighted(bool highlighted) {
 }
 
 int OptionsGroupView::GetContentsWidth() const {
-  return contents_->GetWidth();
+  return contents_->width();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -69,8 +69,8 @@ void OptionsGroupView::Paint(ChromeCanvas* canvas) {
                                              GetGValue(infocolor),
                                              GetBValue(infocolor));
     int y_offset = kUnrelatedControlVerticalSpacing / 2;
-    canvas->FillRectInt(background_color, 0, 0, GetWidth(),
-                        GetHeight() - y_offset);
+    canvas->FillRectInt(background_color, 0, 0, width(),
+                        height() - y_offset);
   }
 }
 

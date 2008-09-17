@@ -364,8 +364,8 @@ gfx::Size DefaultNonClientView::CalculateWindowSizeForClientSize(
 
 CPoint DefaultNonClientView::GetSystemMenuPoint() const {
   CPoint system_menu_point(
-      system_menu_button_->GetX(),
-      system_menu_button_->GetY() + system_menu_button_->GetHeight());
+      system_menu_button_->x(),
+      system_menu_button_->y() + system_menu_button_->height());
   MapWindowPoints(container_->GetHWND(), HWND_DESKTOP, &system_menu_point, 1);
   return system_menu_point;
 }
@@ -523,9 +523,6 @@ int DefaultNonClientView::CalculateContentsTop() const {
 }
 
 void DefaultNonClientView::PaintFrameBorder(ChromeCanvas* canvas) {
-  int width = GetWidth();
-  int height = GetHeight();
-
   SkBitmap* top_left_corner =
       resources()->GetPartBitmap(FRAME_TOP_LEFT_CORNER);
   SkBitmap* top_right_corner =
@@ -542,33 +539,33 @@ void DefaultNonClientView::PaintFrameBorder(ChromeCanvas* canvas) {
   // Top.
   canvas->DrawBitmapInt(*top_left_corner, 0, 0);
   canvas->TileImageInt(*top_edge, top_left_corner->width(), 0,
-                       width - top_right_corner->width(), top_edge->height());
+                       width() - top_right_corner->width(), top_edge->height());
   canvas->DrawBitmapInt(*top_right_corner,
-                        width - top_right_corner->width(), 0);
+                        width() - top_right_corner->width(), 0);
 
   // Right.
   int top_stack_height = top_right_corner->height();
-  canvas->TileImageInt(*right_edge, width - right_edge->width(),
+  canvas->TileImageInt(*right_edge, width() - right_edge->width(),
                        top_stack_height, right_edge->width(),
-                       height - top_stack_height -
+                       height() - top_stack_height -
                            bottom_right_corner->height());
 
   // Bottom.
   canvas->DrawBitmapInt(*bottom_right_corner,
-                        width - bottom_right_corner->width(),
-                        height - bottom_right_corner->height());
+                        width() - bottom_right_corner->width(),
+                        height() - bottom_right_corner->height());
   canvas->TileImageInt(*bottom_edge, bottom_left_corner->width(),
-                       height - bottom_edge->height(),
-                       width - bottom_left_corner->width() -
+                       height() - bottom_edge->height(),
+                       width() - bottom_left_corner->width() -
                            bottom_right_corner->width(),
                        bottom_edge->height());
   canvas->DrawBitmapInt(*bottom_left_corner, 0,
-                        height - bottom_left_corner->height());
+                        height() - bottom_left_corner->height());
 
   // Left.
   top_stack_height = top_left_corner->height();
   canvas->TileImageInt(*left_edge, 0, top_stack_height, left_edge->width(),
-                       height - top_stack_height -
+                       height() - top_stack_height -
                            bottom_left_corner->height());
 }
 
@@ -577,9 +574,9 @@ void DefaultNonClientView::PaintMaximizedFrameBorder(
   SkBitmap* top_edge = resources()->GetPartBitmap(FRAME_TOP_EDGE);
   SkBitmap* bottom_edge =
       resources()->GetPartBitmap(FRAME_BOTTOM_EDGE);
-  canvas->TileImageInt(*top_edge, 0, 0, GetWidth(), top_edge->height());
-  canvas->TileImageInt(*bottom_edge, 0, GetHeight() - bottom_edge->height(),
-                       GetWidth(), bottom_edge->height());
+  canvas->TileImageInt(*top_edge, 0, 0, width(), top_edge->height());
+  canvas->TileImageInt(*bottom_edge, 0, height() - bottom_edge->height(),
+                       width(), bottom_edge->height());
 }
 
 void DefaultNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
@@ -633,7 +630,7 @@ void DefaultNonClientView::LayoutWindowControls() {
     close_button_->GetPreferredSize(&ps);
     close_button_->SetImageAlignment(Button::ALIGN_LEFT, Button::ALIGN_BOTTOM);
     close_button_->SetBounds(
-        GetWidth() - ps.cx - kWindowControlsRightZoomedOffset,
+        width() - ps.cx - kWindowControlsRightZoomedOffset,
         0, ps.cx + kWindowControlsRightZoomedOffset,
         ps.cy + kWindowControlsTopZoomedOffset);
 
@@ -641,20 +638,20 @@ void DefaultNonClientView::LayoutWindowControls() {
       restore_button_->GetPreferredSize(&ps);
       restore_button_->SetImageAlignment(Button::ALIGN_LEFT,
                                          Button::ALIGN_BOTTOM);
-      restore_button_->SetBounds(close_button_->GetX() - ps.cx, 0, ps.cx,
+      restore_button_->SetBounds(close_button_->x() - ps.cx, 0, ps.cx,
                                  ps.cy + kWindowControlsTopZoomedOffset);
 
       minimize_button_->GetPreferredSize(&ps);
       minimize_button_->SetImageAlignment(Button::ALIGN_LEFT,
                                           Button::ALIGN_BOTTOM);
-      minimize_button_->SetBounds(restore_button_->GetX() - ps.cx, 0, ps.cx,
+      minimize_button_->SetBounds(restore_button_->x() - ps.cx, 0, ps.cx,
                                   ps.cy + kWindowControlsTopZoomedOffset);
     }
   } else if (container_->IsMinimized()) {
     close_button_->GetPreferredSize(&ps);
     close_button_->SetImageAlignment(Button::ALIGN_LEFT, Button::ALIGN_BOTTOM);
     close_button_->SetBounds(
-        GetWidth() - ps.cx - kWindowControlsRightZoomedOffset,
+        width() - ps.cx - kWindowControlsRightZoomedOffset,
         0, ps.cx + kWindowControlsRightZoomedOffset,
         ps.cy + kWindowControlsTopZoomedOffset);
 
@@ -662,19 +659,19 @@ void DefaultNonClientView::LayoutWindowControls() {
       restore_button_->GetPreferredSize(&ps);
       restore_button_->SetImageAlignment(Button::ALIGN_LEFT,
                                          Button::ALIGN_BOTTOM);
-      restore_button_->SetBounds(close_button_->GetX() - ps.cx, 0, ps.cx,
+      restore_button_->SetBounds(close_button_->x() - ps.cx, 0, ps.cx,
                                  ps.cy + kWindowControlsTopZoomedOffset);
 
       minimize_button_->GetPreferredSize(&ps);
       minimize_button_->SetImageAlignment(Button::ALIGN_LEFT,
                                           Button::ALIGN_BOTTOM);
-      minimize_button_->SetBounds(restore_button_->GetX() - ps.cx, 0, ps.cx,
+      minimize_button_->SetBounds(restore_button_->x() - ps.cx, 0, ps.cx,
                                   ps.cy + kWindowControlsTopZoomedOffset);
     }
   } else {
     close_button_->GetPreferredSize(&ps);
     close_button_->SetImageAlignment(Button::ALIGN_LEFT, Button::ALIGN_TOP);
-    close_button_->SetBounds(GetWidth() - kWindowControlsRightOffset - ps.cx,
+    close_button_->SetBounds(width() - kWindowControlsRightOffset - ps.cx,
                              kWindowControlsTopOffset, ps.cx, ps.cy);
 
     if (should_show_minmax_buttons_) {
@@ -694,13 +691,13 @@ void DefaultNonClientView::LayoutWindowControls() {
       maximize_button_->GetPreferredSize(&ps);
       maximize_button_->SetImageAlignment(Button::ALIGN_LEFT,
                                           Button::ALIGN_TOP);
-      maximize_button_->SetBounds(close_button_->GetX() - ps.cx,
+      maximize_button_->SetBounds(close_button_->x() - ps.cx,
                                   kWindowControlsTopOffset, ps.cx, ps.cy);
 
       minimize_button_->GetPreferredSize(&ps);
       minimize_button_->SetImageAlignment(Button::ALIGN_LEFT,
                                           Button::ALIGN_TOP);
-      minimize_button_->SetBounds(maximize_button_->GetX() - ps.cx,
+      minimize_button_->SetBounds(maximize_button_->x() - ps.cx,
                                   kWindowControlsTopOffset, ps.cx, ps.cy);
     }
   }
@@ -745,7 +742,7 @@ void DefaultNonClientView::LayoutTitleBar() {
     system_menu_button_->GetBounds(&system_menu_bounds);
     int spacing = d->ShouldShowWindowIcon() ? kWindowIconTitleSpacing : 0;
     int title_right = should_show_minmax_buttons_ ?
-        minimize_button_->GetX() : close_button_->GetX();
+        minimize_button_->x() : close_button_->x();
     int title_left = system_menu_bounds.right + spacing;
     title_bounds_.SetRect(title_left, kTitleTopOffset + top_offset,
         std::max(0, static_cast<int>(title_right - system_menu_bounds.right)),
@@ -768,7 +765,7 @@ void DefaultNonClientView::LayoutTitleBar() {
 
 void DefaultNonClientView::LayoutClientView() {
   gfx::Rect client_bounds(
-      CalculateClientAreaBounds(GetWidth(), GetHeight()));
+      CalculateClientAreaBounds(width(), height()));
   container_->client_view()->SetBounds(client_bounds.ToRECT());
 }
 
@@ -993,8 +990,8 @@ void CustomFrameWindow::OnNCPaint(HRGN rgn) {
   CRect window_rect;
   GetWindowRect(&window_rect);
 
-  if (window_rect.Width() != root_view_->GetWidth() ||
-      window_rect.Height() != root_view_->GetHeight()) {
+  if (window_rect.Width() != root_view_->width() ||
+      window_rect.Height() != root_view_->height()) {
     // If the size of the window differs from the size of the root view it
     // means we're being asked to paint before we've gotten a WM_SIZE. This can
     // happen when the user is interactively resizing the window. To avoid

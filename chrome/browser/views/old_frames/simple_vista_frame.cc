@@ -118,7 +118,7 @@ void SimpleVistaFrame::SizeToContents(const gfx::Rect& contents_bounds) {
   GetBounds(&client_bounds, false);
   int left_edge_width = client_bounds.left - window_bounds.left;
   int top_edge_height = client_bounds.top - window_bounds.top +
-      location_bar_->GetHeight();
+      location_bar_->height();
   int right_edge_width = window_bounds.right - client_bounds.right;
   int bottom_edge_height = window_bounds.bottom - client_bounds.bottom;
 
@@ -205,14 +205,14 @@ void SimpleVistaFrame::Layout() {
     TabContentsContainerView* container = GetTabContentsContainer();
     CSize s;
     location_bar_->GetPreferredSize(&s);
-    location_bar_->SetBounds(container->GetX() - kLocationBarOutdent,
-                             container->GetY() - kLocationBarOutdent,
-                             container->GetWidth() + kLocationBarOutdent * 2,
+    location_bar_->SetBounds(container->x() - kLocationBarOutdent,
+                             container->y() - kLocationBarOutdent,
+                             container->width() + kLocationBarOutdent * 2,
                              s.cy);
-    container->SetBounds(container->GetX(),
-                         location_bar_->GetY() + location_bar_->GetHeight() -
-                         kLocationBarSpacing, container->GetWidth(),
-                         container->GetHeight() - location_bar_->GetHeight() +
+    container->SetBounds(container->x(),
+                         location_bar_->y() + location_bar_->height() -
+                         kLocationBarSpacing, container->width(),
+                         container->height() - location_bar_->height() +
                          3);
     location_bar_->SetVisible(true);
     location_bar_->Layout();

@@ -126,7 +126,7 @@ class FirstRunBubbleView : public ChromeViews::View,
                        canvas.cx - kBubblePadding * 2,
                        pref_size.cy);
 
-    int next_v_space = label1_->GetY() + pref_size.cy +
+    int next_v_space = label1_->y() + pref_size.cy +
                        kRelatedControlSmallVerticalSpacing;
 
     label2_->GetPreferredSize(&pref_size);
@@ -134,7 +134,7 @@ class FirstRunBubbleView : public ChromeViews::View,
                        canvas.cx - kBubblePadding * 2,
                        pref_size.cy);
 
-    next_v_space = label2_->GetY() + label2_->GetHeight() +
+    next_v_space = label2_->y() + label2_->height() +
                    kPanelSubVerticalSpacing;
 
     label3_->GetPreferredSize(&pref_size);
@@ -148,8 +148,8 @@ class FirstRunBubbleView : public ChromeViews::View,
                               pref_size.cx, pref_size.cy);
 
     keep_button_->GetPreferredSize(&pref_size);
-    keep_button_->SetBounds(change_button_->GetX() - pref_size.cx -
-                            kRelatedButtonHSpacing, change_button_->GetY(),
+    keep_button_->SetBounds(change_button_->x() - pref_size.cx -
+                            kRelatedButtonHSpacing, change_button_->y(),
                             pref_size.cx, pref_size.cy);
   }
 

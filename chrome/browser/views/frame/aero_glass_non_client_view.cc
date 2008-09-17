@@ -127,7 +127,7 @@ AeroGlassNonClientView::~AeroGlassNonClientView() {
 gfx::Rect AeroGlassNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
   // If we are maximized, the tab strip will be in line with the window
   // controls, so we need to make sure they don't overlap.
-  int tabstrip_width = browser_view_->GetWidth();
+  int tabstrip_width = browser_view_->width();
   if(frame_->IsMaximized()) {
     TITLEBARINFOEX titlebar_info;
     titlebar_info.cbSize = sizeof(TITLEBARINFOEX);
@@ -145,17 +145,17 @@ gfx::Rect AeroGlassNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
 ///////////////////////////////////////////////////////////////////////////////
 // AeroGlassNonClientView, ChromeViews::NonClientView implementation:
 
-gfx::Rect AeroGlassNonClientView::CalculateClientAreaBounds(int width,
-                                                            int height) const {
+gfx::Rect AeroGlassNonClientView::CalculateClientAreaBounds(int win_width,
+                                                            int win_height) const {
   if (!browser_view_->IsToolbarVisible()) {
     // App windows don't have a toolbar.
-    return gfx::Rect(0, 0, GetWidth(), GetHeight());
+    return gfx::Rect(0, 0, width(), height());
   }
 
   int top_margin = CalculateNonClientTopHeight();
   return gfx::Rect(kWindowHorizontalClientEdgeWidth, top_margin,
-      std::max(0, width - (2 * kWindowHorizontalClientEdgeWidth)),
-      std::max(0, height - top_margin - kWindowBottomClientEdgeHeight));
+      std::max(0, win_width - (2 * kWindowHorizontalClientEdgeWidth)),
+      std::max(0, win_height - top_margin - kWindowBottomClientEdgeHeight));
 }
 
 gfx::Size AeroGlassNonClientView::CalculateWindowSizeForClientSize(
@@ -190,8 +190,8 @@ int AeroGlassNonClientView::NonClientHitTest(const gfx::Point& point) {
     // high, we need to make sure the right hit-test codes are returned for the
     // caption area above the tabs and the top sizing border.
     int client_view_right =
-        frame_->client_view()->GetX() + frame_->client_view()->GetWidth();
-    if (point.x() >= frame_->client_view()->GetX() &&
+        frame_->client_view()->x() + frame_->client_view()->width();
+    if (point.x() >= frame_->client_view()->x() &&
         point.x() < client_view_right) {
       if (point.y() < kWindowSizingBorderSize)
         return HTTOP;
@@ -328,9 +328,9 @@ void AeroGlassNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
   // the left and right sides of the toolbar background.
   client_area_bounds.SetRect(
       client_area_bounds.x(),
-      frame_->client_view()->GetY() + toolbar_bounds.bottom() - kPixel,
+      frame_->client_view()->y() + toolbar_bounds.bottom() - kPixel,
       client_area_bounds.width(),
-      std::max(0, GetHeight() - frame_->client_view()->GetY() -
+      std::max(0, height() - frame_->client_view()->y() -
           toolbar_bounds.bottom() + kPixel));
 
   int fudge = frame_->window_delegate()->ShouldShowWindowTitle() ? kPixel : 0;
@@ -362,17 +362,17 @@ void AeroGlassNonClientView::LayoutDistributorLogo() {
   int logo_w = distributor_logo_.width();
   int logo_h = distributor_logo_.height();
   
-  int w = GetWidth();
+  int w = width();
   int mbx = frame_->GetMinimizeButtonOffset();
 
   logo_bounds_.SetRect(
-      GetWidth() - frame_->GetMinimizeButtonOffset() - logo_w,
+      width() - frame_->GetMinimizeButtonOffset() - logo_w,
       kDistributorLogoVerticalOffset, logo_w, logo_h);
 }
 
 void AeroGlassNonClientView::LayoutClientView() {
   gfx::Rect client_bounds(
-      CalculateClientAreaBounds(GetWidth(), GetHeight()));
+      CalculateClientAreaBounds(width(), height()));
   frame_->client_view()->SetBounds(client_bounds.ToRECT());
 }
 

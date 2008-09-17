@@ -156,7 +156,7 @@ void DownloadShelfView::Paint(ChromeCanvas* canvas) {
 }
 
 void DownloadShelfView::PaintBorder(ChromeCanvas* canvas) {
-  canvas->FillRectInt(kBorderColor, 0, 0, GetWidth(), 1);
+  canvas->FillRectInt(kBorderColor, 0, 0, width(), 1);
 }
 
 void DownloadShelfView::GetPreferredSize(CSize *out) {
@@ -203,8 +203,6 @@ void DownloadShelfView::AnimationEnded(const Animation *animation) {
 }
 
 void DownloadShelfView::Layout() {
-  int width = GetWidth();
-  int height = GetHeight();
   CSize image_size;
   arrow_image_->GetPreferredSize(&image_size);
   CSize close_button_size;
@@ -212,21 +210,21 @@ void DownloadShelfView::Layout() {
   CSize show_all_size;
   show_all_view_->GetPreferredSize(&show_all_size);
   int max_download_x =
-      std::max<int>(0, width - kRightPadding - close_button_size.cx -
+      std::max<int>(0, width() - kRightPadding - close_button_size.cx -
                        kCloseAndLinkPadding - show_all_size.cx -
                        image_size.cx - kDownloadPadding);
   int next_x = max_download_x + kDownloadPadding;
   // Align vertically with show_all_view_.
-  arrow_image_->SetBounds(next_x, CenterPosition(show_all_size.cy, height),
+  arrow_image_->SetBounds(next_x, CenterPosition(show_all_size.cy, height()),
                           image_size.cx, image_size.cy);
   next_x += image_size.cx + kDownloadsTitlePadding;
   show_all_view_->SetBounds(next_x,
-                            CenterPosition(show_all_size.cy, height),
+                            CenterPosition(show_all_size.cy, height()),
                             show_all_size.cx,
                             show_all_size.cy);
   next_x += show_all_size.cx + kCloseAndLinkPadding;
   close_button_->SetBounds(next_x,
-                           CenterPosition(close_button_size.cy, height),
+                           CenterPosition(close_button_size.cy, height()),
                            close_button_size.cx,
                            close_button_size.cy);
 
@@ -239,18 +237,18 @@ void DownloadShelfView::Layout() {
     int x = next_x;
 
     // Figure out width of item.
-    int width = view_size.cx;
+    int item_width = view_size.cx;
     if (new_item_animation_->IsAnimating() && ri == download_views_.rbegin()) {
-       width = static_cast<int>(static_cast<double>(view_size.cx) *
+       item_width = static_cast<int>(static_cast<double>(view_size.cx) *
                      new_item_animation_->GetCurrentValue());
     }
 
-    next_x += (width + kDownloadPadding);
+    next_x += (item_width + kDownloadPadding);
 
     // Make sure our item can be contained within the shelf.
     if (next_x < max_download_x) {
       (*ri)->SetVisible(true);
-      (*ri)->SetBounds(x, CenterPosition(view_size.cy, height), width,
+      (*ri)->SetBounds(x, CenterPosition(view_size.cy, height()), item_width,
                        view_size.cy);
     } else {
       (*ri)->SetVisible(false);

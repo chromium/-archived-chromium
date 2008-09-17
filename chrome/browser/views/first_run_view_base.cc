@@ -118,8 +118,8 @@ void FirstRunViewBase::Layout() {
   background_image_->GetPreferredSize(&pref_size);
   background_image_->SetBounds(0, 0, canvas.cx, pref_size.cy);
 
-  int next_v_space = background_image_->GetY() +
-                     background_image_->GetHeight() - 2;
+  int next_v_space = background_image_->y() +
+                     background_image_->height() - 2;
 
   separator_1_->GetPreferredSize(&pref_size);
   separator_1_->SetBounds(0 , next_v_space, canvas.cx + 1, pref_size.cy);
