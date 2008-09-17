@@ -120,7 +120,11 @@ void GoogleURLTracker::StartFetchIfDesirable() {
                             // run of the browser.
   fetcher_.reset(new URLFetcher(GURL(kDefaultGoogleHomepage), URLFetcher::HEAD,
                                 this));
-  fetcher_->set_load_flags(net::LOAD_DISABLE_CACHE);
+  // We don't want this fetch to affect existing state in the profile.  For
+  // example, if a user has no Google cookies, this automatic check should not
+  // cause one to be set, lest we alarm the user.
+  fetcher_->set_load_flags(net::LOAD_DISABLE_CACHE |
+                           net::LOAD_DO_NOT_SAVE_COOKIES);
   fetcher_->set_request_context(Profile::GetDefaultRequestContext());
   fetcher_->Start();
 }

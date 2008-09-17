@@ -8,6 +8,7 @@
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "net/base/cookie_monster.h"
+#include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
 #include "net/http/http_response_info.h"
@@ -402,14 +403,15 @@ void URLRequestHttpJob::NotifyHeadersComplete() {
   response_info_ = transaction_->GetResponseInfo();
 
   // Get the Set-Cookie values, and send them to our cookie database.
-
-  FetchResponseCookies();
-
-  URLRequestContext* ctx = request_->context();
-  if (ctx && ctx->cookie_store() &&
-      ctx->cookie_policy()->CanSetCookie(request_->url(),
-                                        request_->policy_url()))
-    ctx->cookie_store()->SetCookies(request_->url(), response_cookies_);
+  if (!(request_info_.load_flags & net::LOAD_DO_NOT_SAVE_COOKIES)) {
+    URLRequestContext* ctx = request_->context();
+    if (ctx && ctx->cookie_store() &&
+        ctx->cookie_policy()->CanSetCookie(request_->url(),
+                                           request_->policy_url())) {
+      FetchResponseCookies();
+      ctx->cookie_store()->SetCookies(request_->url(), response_cookies_);
+    }
+  }
 
   URLRequestJob::NotifyHeadersComplete();
 }

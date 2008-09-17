@@ -56,6 +56,10 @@ enum {
   // If present, ignores wrong key usage of the certificate
   // (The default behavior is to trigger an OnSSLCertificateError callback).
   LOAD_IGNORE_CERT_WRONG_USAGE = 1 << 12,
+
+  // This load will not make any changes to cookies, including storing new
+  // cookies or updating existing ones.
+  LOAD_DO_NOT_SAVE_COOKIES = 1 << 13,
 };
 
 }  // namespace net
