@@ -14,7 +14,8 @@ elif p == 'name':
   Progress('$TARGET\r', overwrite=True, file=open('con', 'w'))
 
 
-SetOption('warn', ['no-missing-sconscript'] + GetOption('warn'))
+default_warnings = ['no-missing-sconscript', 'no-no-parallel-support']
+SetOption('warn', default_warnings + GetOption('warn'))
 
 
 load = ARGUMENTS.get('LOAD')
