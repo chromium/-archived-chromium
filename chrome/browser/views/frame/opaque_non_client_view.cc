@@ -302,6 +302,10 @@ ChromeFont OTRActiveWindowResources::title_font_;
 SkBitmap* OTRInactiveWindowResources::standard_frame_bitmaps_[];
 ChromeFont OTRInactiveWindowResources::title_font_;
 
+WindowResources* OpaqueNonClientView::active_resources_ = NULL;
+WindowResources* OpaqueNonClientView::inactive_resources_ = NULL;
+WindowResources* OpaqueNonClientView::active_otr_resources_ = NULL;
+WindowResources* OpaqueNonClientView::inactive_otr_resources_ = NULL;
 SkBitmap OpaqueNonClientView::distributor_logo_;
 
 // The distance between the top of the window and the top of the window
@@ -377,12 +381,22 @@ OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame,
       close_button_(new ChromeViews::Button),
       window_icon_(new TabIconView(this)),
       frame_(frame),
-      browser_view_(browser_view),
-      current_active_resources_(NULL),
-      current_inactive_resources_(NULL) {
+      browser_view_(browser_view) {
   InitClass();
+  if (browser_view->IsOffTheRecord()) {
+    if (!active_otr_resources_) {
+      // Lazy load OTR resources only when we first show an OTR frame.
+      active_otr_resources_ = new OTRActiveWindowResources;
+      inactive_otr_resources_ = new OTRInactiveWindowResources;
+    }
+    current_active_resources_ = active_otr_resources_;
+    current_inactive_resources_= inactive_otr_resources_;
+  } else {
+    current_active_resources_ = active_resources_;
+    current_inactive_resources_ = inactive_resources_;
+  }
 
-  WindowResources* resources = GetActiveResources();
+  WindowResources* resources = current_active_resources_;
   minimize_button_->SetImage(
       ChromeViews::Button::BS_NORMAL,
       resources->GetPartBitmap(FRAME_MINIMIZE_BUTTON_ICON));
@@ -1019,32 +1033,13 @@ void OpaqueNonClientView::LayoutClientView() {
   frame_->client_view()->SetBounds(client_bounds.ToRECT());
 }
 
-WindowResources* OpaqueNonClientView::GetActiveResources() const {
-  if (!current_active_resources_) {
-    if (browser_view_->IsOffTheRecord()) {
-      current_active_resources_ = new OTRActiveWindowResources;
-    } else {
-      current_active_resources_ = new ActiveWindowResources;
-    }
-  }
-  return current_active_resources_;
-}
-
-WindowResources* OpaqueNonClientView::GetInactiveResources() const {
-  if (!current_inactive_resources_) {
-    if (browser_view_->IsOffTheRecord()) {
-      current_inactive_resources_ = new OTRInactiveWindowResources;
-    } else {
-      current_inactive_resources_ = new InactiveWindowResources;
-    }
-  }
-  return current_inactive_resources_;
-}
-
 // static
 void OpaqueNonClientView::InitClass() {
   static bool initialized = false;
   if (!initialized) {
+    active_resources_ = new ActiveWindowResources;
+    inactive_resources_ = new InactiveWindowResources;
+
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
     SkBitmap* image = rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO_LIGHT);
     if (!image->isNull())

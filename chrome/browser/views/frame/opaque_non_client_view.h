@@ -92,14 +92,10 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   void LayoutClientView();
 
   // Returns the set of resources to use to paint this view.
-  // TODO(beng): Make this conform to Google-style if this trick works.
   WindowResources* resources() const {
     return frame_->is_active() || paint_as_active() ?
-        GetActiveResources() : GetInactiveResources();
+        current_active_resources_ : current_inactive_resources_;
   }
-
-  inline WindowResources* GetActiveResources() const;
-  inline WindowResources* GetInactiveResources() const;
   
   // The layout rect of the title, if visible.
   gfx::Rect title_bounds_;
@@ -126,14 +122,18 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   BrowserView2* browser_view_;
 
   // The resources currently used to paint this view.
-  mutable WindowResources* current_active_resources_;
-  mutable WindowResources* current_inactive_resources_;
+  WindowResources* current_active_resources_;
+  WindowResources* current_inactive_resources_;
 
   // The accessible name of this view.
   std::wstring accessible_name_;
 
   static void InitClass();
   static SkBitmap distributor_logo_;
+  static WindowResources* active_resources_;
+  static WindowResources* inactive_resources_;
+  static WindowResources* active_otr_resources_;
+  static WindowResources* inactive_otr_resources_;
 
   DISALLOW_EVIL_CONSTRUCTORS(OpaqueNonClientView);
 };
