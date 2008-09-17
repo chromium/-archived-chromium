@@ -548,8 +548,8 @@ POINT ConvertPointToView(ChromeViews::View* view, const POINT& p) {
 }
 
 TEST_F(ViewTest, HitTestMasks) {
-  ChromeViews::HWNDViewContainer* window = new ChromeViews::HWNDViewContainer;
-  ChromeViews::RootView* root_view = window->GetRootView();
+  ChromeViews::HWNDViewContainer window;
+  ChromeViews::RootView* root_view = window.GetRootView();
   root_view->SetBounds(0, 0, 500, 500);
 
   gfx::Rect v1_bounds = gfx::Rect(0, 0, 100, 100);
