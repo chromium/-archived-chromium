@@ -11,8 +11,6 @@
 #include "base/nss_init.h"
 #include "base/scoped_ptr.h"
 
-namespace base {
-
 namespace {
 
 template <typename Type, void (*Destroyer)(Type*)>
@@ -36,6 +34,8 @@ typedef scoped_ptr_malloc<
     PK11Context, NSSDestroyer<PK11Context, DestroyContext> > ScopedNSSContext;
 
 }  // namespace
+
+namespace base {
 
 struct HMACPlatformData {
   ScopedNSSSlot slot_;

@@ -4,14 +4,10 @@
 
 #include "base/nss_init.h"
 
-#include "base/logging.h"
-#include "base/singleton.h"
-
-// Include this header last, since NSS will define "Lock" in an enum.
-//   https://bugzilla.mozilla.org/show_bug.cgi?id=455424
 #include <nss.h>
 
-namespace base {
+#include "base/logging.h"
+#include "base/singleton.h"
 
 namespace {
 
@@ -22,11 +18,14 @@ class NSSInitSingleton {
   }
 
   ~NSSInitSingleton() {
-    NSS_Shutdown();
+    SECStatus status = NSS_Shutdown();
+    DCHECK(status == SECSuccess);
   }
 };
 
 }  // namespace
+
+namespace base {
 
 void EnsureNSSInit() {
   Singleton<NSSInitSingleton>::get();
