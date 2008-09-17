@@ -308,6 +308,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\sys_info_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\sys_string_conversions_win_unittest.cc"
 				>
 			</File>

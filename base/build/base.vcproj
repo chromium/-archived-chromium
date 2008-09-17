@@ -694,6 +694,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\sys_info.h"
+			>
+		</File>
+		<File
+			RelativePath="..\sys_info_win.cc"
+			>
+		</File>
+		<File
 			RelativePath="..\sys_string_conversions.h"
 			>
 		</File>
