@@ -328,7 +328,9 @@ bool UserAccountControlIsEnabled() {
   DWORD uac_enabled;
   if (!key.ReadValueDW(L"EnableLUA", &uac_enabled))
     return true;
-  return (uac_enabled == 1);
+  // Users can set the EnableLUA value to something arbitrary, like 2, which
+  // Vista will treat as UAC enabled, so we make sure it is not set to 0.
+  return (uac_enabled != 0);
 }
 
 std::wstring FormatMessage(unsigned messageid) {
