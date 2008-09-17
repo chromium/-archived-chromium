@@ -289,7 +289,6 @@ if env['PLATFORM'] == 'win32':
     'clipboard_unittest.cc',
     'idletimer_unittest.cc',
     'process_util_unittest.cc',
-    'run_all_unittests.cc',
     'shared_event_unittest.cc',
     'stats_table_unittest.cc',
     'watchdog_unittest.cc',
