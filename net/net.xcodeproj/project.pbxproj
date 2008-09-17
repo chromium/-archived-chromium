@@ -124,6 +124,7 @@
 		821F23CC0E5E106D003C7E38 /* url_request_simple_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED339C0E5A198600A747DB /* url_request_simple_job.cc */; };
 		825C2FCC0E5C968B00FDEAB7 /* ev_root_ca_metadata.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32BE0E5A181C00A747DB /* ev_root_ca_metadata.cc */; };
 		82ECB3090E5B651D00A913E3 /* mime_sniffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32AD0E5A181C00A747DB /* mime_sniffer.cc */; };
+		B5F622260E805FC40076681A /* url_request_job_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33A30E5A198600A747DB /* url_request_job_manager.cc */; };
 		BAA46E3B0E5CE99A00E77460 /* net_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED329F0E5A181C00A747DB /* net_util_unittest.cc */; };
 		E4AFA6430E5241B400201347 /* run_all_unittests.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4AFA6420E5241B400201347 /* run_all_unittests.cc */; };
 /* End PBXBuildFile section */
@@ -1276,6 +1277,7 @@
 				7B85044A0E5B2E9600730B43 /* url_request_error_job.cc in Sources */,
 				821F236C0E5E0EF8003C7E38 /* url_request_http_job.cc in Sources */,
 				821F23CA0E5E106B003C7E38 /* url_request_job.cc in Sources */,
+				B5F622260E805FC40076681A /* url_request_job_manager.cc in Sources */,
 				7B8504530E5B2E9600730B43 /* url_request_job_metrics.cc in Sources */,
 				7B8504540E5B2E9600730B43 /* url_request_job_tracker.cc in Sources */,
 				821F23CC0E5E106D003C7E38 /* url_request_simple_job.cc in Sources */,
