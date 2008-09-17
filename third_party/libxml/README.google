@@ -15,6 +15,7 @@ includes the following modifications :
   added a check to nsParent in xmlGetNamespace() in parser.c. 
   This allows parsed entities to inherit namespaces.
   (http://bugzilla.gnome.org/show_bug.cgi?id=502960 )
+* Applied security patch located at https://bugzilla.redhat.com/show_bug.cgi?id=461015
 
 Current version: 2.6.32
 
