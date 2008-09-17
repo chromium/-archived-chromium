@@ -6,6 +6,8 @@
 
 #include <windows.h>
 
+#include "base/logging.h"
+
 namespace base {
 
 // static
@@ -13,6 +15,18 @@ int SysInfo::NumberOfProcessors() {
   SYSTEM_INFO info;
   GetSystemInfo(&info);
   return static_cast<int>(info.dwNumberOfProcessors);
+}
+
+// static
+int64 SysInfo::AmountOfPhysicalMemory() {
+  MEMORYSTATUSEX memory_info;
+  memory_info.dwLength = sizeof(memory_info);
+  if (!GlobalMemoryStatusEx(&memory_info)) {
+    NOTREACHED();
+    return 0;
+  }
+
+  return static_cast<int64>(memory_info.ullTotalPhys);
 }
 
 }  // namespace base

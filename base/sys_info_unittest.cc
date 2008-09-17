@@ -9,3 +9,8 @@ TEST(SysInfoTest, NumProcs) {
   // We aren't actually testing that it's correct, just that it's sane.
   EXPECT_GE(base::SysInfo::NumberOfProcessors(), 1);
 }
+
+TEST(SysInfoTest, AmountOfMem) {
+  // We aren't actually testing that it's correct, just that it's sane.
+  EXPECT_GT(base::SysInfo::AmountOfPhysicalMemory(), 0);
+}

@@ -3,12 +3,17 @@
 // found in the LICENSE file.
 
 #include "base/sys_info.h"
+#include "base/basictypes.h"
 
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
 
-#include "base/basictypes.h"
+#if defined(OS_MACOSX)
+#include <mach/mach_host.h>
+#include <mach/mach_init.h>
+#endif
+
 #include "base/logging.h"
 
 namespace base {
@@ -23,6 +28,35 @@ int SysInfo::NumberOfProcessors() {
   }
 
   return static_cast<int>(res);
+}
+
+// static
+int64 SysInfo::AmountOfPhysicalMemory() {
+  // _SC_PHYS_PAGES is not part of POSIX and not available on OS X
+#if defined(OS_MACOSX)
+  struct host_basic_info hostinfo;
+  mach_msg_type_number_t count = HOST_BASIC_INFO_COUNT;
+  int result = host_info(mach_host_self(),
+                         HOST_BASIC_INFO,
+                         reinterpret_cast<host_info_t>(&hostinfo),
+                         &count);
+  DCHECK_EQ(HOST_BASIC_INFO_COUNT, count);
+  if (result != KERN_SUCCESS) {
+    NOTREACHED();
+    return 0;
+  }
+  
+  return static_cast<int64>(hostinfo.max_mem);
+#else
+  long pages = sysconf(_SC_PHYS_PAGES);
+  long page_size = sysconf(_SC_PAGE_SIZE);
+  if (pages == -1 || page_size == -1) {
+    NOTREACHED();
+    return 0;
+  }
+
+  return static_cast<int64>(pages) * page_size;
+#endif
 }
 
 }  // namespace base

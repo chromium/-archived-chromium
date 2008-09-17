@@ -5,12 +5,17 @@
 #ifndef BASE_SYS_INFO_H_
 #define BASE_SYS_INFO_H_
 
+#include "base/basictypes.h"
+
 namespace base {
 
 class SysInfo {
  public:
   // Return the number of logical processors/cores on the current machine.
   static int NumberOfProcessors();
+  
+  // Return the number of bytes of physical memory on the current machine.
+  static int64 AmountOfPhysicalMemory();
 };
 
 }  // namespace base
