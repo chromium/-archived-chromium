@@ -33,6 +33,7 @@ wow_helper.exe: %(ChromeDir)s\
 Dictionaries\en-US.bdic: %(ChromeDir)s\Dictionaries
 chrome.dll: %(VersionDir)s\
 icudt38.dll: %(VersionDir)s\
+plugins\gears\gears.dll: %(VersionDir)s\
 Themes\default.dll: %(VersionDir)s\Themes
 locales\*.dll: %(VersionDir)s\Locales
 Resources\Inspector\*.*: %(VersionDir)s\Resources\Inspector

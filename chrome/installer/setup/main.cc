@@ -3,6 +3,8 @@
 // found in the LICENSE file.
 
 #include <string>
+#include <windows.h>
+#include <msi.h>
 
 #include "base/at_exit.h"
 #include "base/basictypes.h"
@@ -240,6 +242,23 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
         if (install_status == installer_util::FIRST_INSTALL_SUCCESS) {
           LOG(INFO) << "First install successful. Launching Chrome.";
           installer::LaunchChrome(system_install);
+        } else if (install_status == installer_util::NEW_VERSION_UPDATED) {
+#if defined(GOOGLE_CHROME_BUILD)
+          // TODO(kuchhal): This is just temporary until all users move to the
+          // new Chromium version which ships with gears.dll.
+          LOG(INFO) << "Google Chrome updated. Uninstalling gears msi.";
+          wchar_t product[39];  // GUID + '\0'
+          MsiSetInternalUI(INSTALLUILEVEL_NONE, NULL);  // Don't show any UI
+          for (int i = 0;
+               MsiEnumRelatedProducts(google_update::kGearsUpgradeCode, 0,
+                                      i, product) != ERROR_NO_MORE_ITEMS; ++i) {
+            LOG(INFO) << "Uninstalling Gears - " << product;
+            unsigned int ret = MsiConfigureProduct(product,
+                INSTALLLEVEL_MAXIMUM, INSTALLSTATE_ABSENT);
+            if (ret != ERROR_SUCCESS)
+              LOG(ERROR) << "Failed to uninstall Gears " << product;
+          }
+#endif
         }
       }
     }
