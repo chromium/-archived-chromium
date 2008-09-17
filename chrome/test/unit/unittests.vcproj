@@ -158,10 +158,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\multiprocess_test.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\tools\build\win\precompiled_wtl.cc"
 				>
 				<FileConfiguration
