@@ -68,7 +68,13 @@ int HttpNetworkTransaction::Start(const HttpRequestInfo* request_info,
 
 int HttpNetworkTransaction::RestartIgnoringLastError(
     CompletionCallback* callback) {
-  return ERR_FAILED;  // TODO(darin): implement me!
+  // TODO(wtc): If the connection is no longer alive, call
+  // connection_.socket()->ReconnectIgnoringLastError().
+  next_state_ = STATE_WRITE_HEADERS;
+  int rv = DoLoop(OK);
+  if (rv == ERR_IO_PENDING)
+    user_callback_ = callback;
+  return rv; 
 }
 
 int HttpNetworkTransaction::RestartWithAuth(
@@ -436,6 +442,8 @@ int HttpNetworkTransaction::DoConnectComplete(int result) {
     next_state_ = STATE_WRITE_HEADERS;
     if (using_tunnel_)
       establishing_tunnel_ = true;
+  } else if (IsCertificateError(result)) {
+    result = HandleCertificateError(result);
   }
   return result;
 }
@@ -450,8 +458,11 @@ int HttpNetworkTransaction::DoSSLConnectOverTunnel() {
 }
 
 int HttpNetworkTransaction::DoSSLConnectOverTunnelComplete(int result) {
-  if (result == OK)
+  if (result == OK) {
     next_state_ = STATE_WRITE_HEADERS;
+  } else if (IsCertificateError(result)) {
+    result = HandleCertificateError(result);
+  }
   return result;
 }
 
@@ -760,6 +771,38 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
   }
 
   return OK;
+}
+
+int HttpNetworkTransaction::HandleCertificateError(int error) {
+  DCHECK(using_ssl_);
+
+  const int kCertFlags = LOAD_IGNORE_CERT_COMMON_NAME_INVALID |
+                         LOAD_IGNORE_CERT_DATE_INVALID |
+                         LOAD_IGNORE_CERT_AUTHORITY_INVALID |
+                         LOAD_IGNORE_CERT_WRONG_USAGE;
+  if (request_->load_flags & kCertFlags) {
+    switch (error) {
+      case ERR_CERT_COMMON_NAME_INVALID:
+        if (request_->load_flags & LOAD_IGNORE_CERT_COMMON_NAME_INVALID)
+          error = OK;
+        break;
+      case ERR_CERT_DATE_INVALID:
+        if (request_->load_flags & LOAD_IGNORE_CERT_DATE_INVALID)
+          error = OK;
+        break;
+      case ERR_CERT_AUTHORITY_INVALID:
+        if (request_->load_flags & LOAD_IGNORE_CERT_AUTHORITY_INVALID)
+          error = OK;
+        break;
+    }
+  }
+
+  if (error != OK) {
+    SSLClientSocket* ssl_socket =
+        reinterpret_cast<SSLClientSocket*>(connection_.socket());
+    ssl_socket->GetSSLInfo(&response_.ssl_info);
+  }
+  return error;
 }
 
 // This method determines whether it is safe to resend the request after an

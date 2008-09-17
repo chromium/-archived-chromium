@@ -77,6 +77,11 @@ class HttpNetworkTransaction : public HttpTransaction {
   // Called when header_buf_ contains the complete response headers.
   int DidReadResponseHeaders();
 
+  // Called to handle a certificate error.  Returns OK if the error should be
+  // ignored.  Otherwise, stores the certificate in response_.ssl_info and
+  // returns the same error code.
+  int HandleCertificateError(int error);
+
   // Called to possibly recover from the given error.  Sets next_state_ and
   // returns OK if recovering from the error.  Otherwise, the same error code
   // is returned.

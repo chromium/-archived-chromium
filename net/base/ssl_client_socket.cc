@@ -17,6 +17,65 @@ namespace net {
 
 //-----------------------------------------------------------------------------
 
+// TODO(wtc): See http://msdn.microsoft.com/en-us/library/aa377188(VS.85).aspx
+// for the other error codes we may need to map.
+static int MapSecurityError(SECURITY_STATUS err) {
+  // There are numerous security error codes, but these are the ones we thus
+  // far find interesting.
+  switch (err) {
+    case SEC_E_WRONG_PRINCIPAL:  // Schannel
+    case CERT_E_CN_NO_MATCH:  // CryptoAPI
+      return ERR_CERT_COMMON_NAME_INVALID;
+    case SEC_E_UNTRUSTED_ROOT:  // Schannel
+    case CERT_E_UNTRUSTEDROOT:  // CryptoAPI
+      return ERR_CERT_AUTHORITY_INVALID;
+    case SEC_E_CERT_EXPIRED:  // Schannel
+    case CERT_E_EXPIRED:  // CryptoAPI
+      return ERR_CERT_DATE_INVALID;
+    case CRYPT_E_REVOKED:  // Schannel and CryptoAPI
+      return ERR_CERT_REVOKED;
+    case SEC_E_CERT_UNKNOWN:
+      return ERR_CERT_INVALID;
+    // We received an unexpected_message or illegal_parameter alert message
+    // from the server.
+    case SEC_E_ILLEGAL_MESSAGE:
+      return ERR_SSL_PROTOCOL_ERROR;
+    case SEC_E_OK:
+      return OK;
+    default:
+      LOG(WARNING) << "Unknown error " << err << " mapped to net::ERR_FAILED";
+      return ERR_FAILED;
+  }
+}
+
+// Map a network error code to the equivalent certificate status flag.  If
+// the error code is not a certificate error, it is mapped to 0.
+static int MapNetErrorToCertStatus(int error) {
+  switch (error) {
+    case ERR_CERT_COMMON_NAME_INVALID:
+      return CERT_STATUS_COMMON_NAME_INVALID;
+    case ERR_CERT_DATE_INVALID:
+      return CERT_STATUS_DATE_INVALID;
+    case ERR_CERT_AUTHORITY_INVALID:
+      return CERT_STATUS_AUTHORITY_INVALID;
+    case ERR_CERT_NO_REVOCATION_MECHANISM:
+      return CERT_STATUS_NO_REVOCATION_MECHANISM;
+    case ERR_CERT_UNABLE_TO_CHECK_REVOCATION:
+      return CERT_STATUS_UNABLE_TO_CHECK_REVOCATION;
+    case ERR_CERT_REVOKED:
+      return CERT_STATUS_REVOKED;
+    case ERR_CERT_CONTAINS_ERRORS:
+      NOTREACHED();
+      // Falls through.
+    case ERR_CERT_INVALID:
+      return CERT_STATUS_INVALID;
+    default:
+      return 0;
+  }
+}
+
+//-----------------------------------------------------------------------------
+
 // Size of recv_buffer_
 //
 // Ciphertext is decrypted one SSL record at a time, so recv_buffer_ needs to
@@ -37,6 +96,8 @@ SSLClientSocket::SSLClientSocket(ClientSocket* transport_socket,
       user_buf_(NULL),
       user_buf_len_(0),
       next_state_(STATE_NONE),
+      server_cert_(NULL),
+      server_cert_status_(0),
       payload_send_buffer_len_(0),
       bytes_sent_(0),
       decrypted_ptr_(NULL),
@@ -89,6 +150,9 @@ void SSLClientSocket::Disconnect() {
     DeleteSecurityContext(&ctxt_);
     memset(&ctxt_, 0, sizeof(ctxt_));
   }
+  if (server_cert_)
+    CertFreeCertificateContext(server_cert_);
+
   // TODO(wtc): reset more members?
   bytes_decrypted_ = 0;
   bytes_received_ = 0;
@@ -153,14 +217,16 @@ int SSLClientSocket::Write(const char* buf, int buf_len,
 }
 
 void SSLClientSocket::GetSSLInfo(SSLInfo* ssl_info) {
-  SECURITY_STATUS status;
-  PCCERT_CONTEXT server_cert = NULL;
-  status = QueryContextAttributes(&ctxt_,
-                                  SECPKG_ATTR_REMOTE_CERT_CONTEXT,
-                                  &server_cert);
+  SECURITY_STATUS status = SEC_E_OK;
+  if (server_cert_ == NULL) {
+    status = QueryContextAttributes(&ctxt_,
+                                    SECPKG_ATTR_REMOTE_CERT_CONTEXT,
+                                    &server_cert_);
+  }
   if (status == SEC_E_OK) {
-    DCHECK(server_cert);
-    ssl_info->cert = X509Certificate::CreateFromHandle(server_cert);
+    DCHECK(server_cert_);
+    PCCERT_CONTEXT dup_cert = CertDuplicateCertificateContext(server_cert_);
+    ssl_info->cert = X509Certificate::CreateFromHandle(dup_cert);
   }
   SecPkgContext_ConnectionInfo connection_info;
   status = QueryContextAttributes(&ctxt_,
@@ -172,7 +238,7 @@ void SSLClientSocket::GetSSLInfo(SSLInfo* ssl_info) {
     // normalized.
     ssl_info->security_bits = connection_info.dwCipherStrength;
   }
-  ssl_info->cert_status = 0;
+  ssl_info->cert_status = server_cert_status_;
 }
 
 void SSLClientSocket::DoCallback(int rv) {
@@ -232,8 +298,9 @@ int SSLClientSocket::DoLoop(int last_io_result) {
         rv = DoPayloadWriteComplete(rv);
         break;
       default:
-        rv = ERR_FAILED;
+        rv = ERR_UNEXPECTED;
         NOTREACHED() << "unexpected state";
+        break;
     }
   } while (rv != ERR_IO_PENDING && next_state_ != STATE_NONE);
   return rv;
@@ -266,22 +333,23 @@ int SSLClientSocket::DoConnectComplete(int result) {
   // We can set the key exchange algorithms (RSA or DH) in
   // schannel_cred.{cSupportedAlgs,palgSupportedAlgs}.
 
-  // TODO(wtc): We may need to use SCH_CRED_IGNORE_NO_REVOCATION_CHECK and
-  // SCH_CRED_IGNORE_REVOCATION_OFFLINE, but only after getting the
-  // CRYPT_E_NO_REVOCATION_CHECK and CRYPT_E_REVOCATION_OFFLINE errors.
+  // Although SCH_CRED_AUTO_CRED_VALIDATION is convenient, we have to use
+  // SCH_CRED_MANUAL_CRED_VALIDATION for three reasons.
+  // 1. SCH_CRED_AUTO_CRED_VALIDATION doesn't allow us to get the certificate
+  //    context if the certificate validation fails.
+  // 2. SCH_CRED_AUTO_CRED_VALIDATION returns only one error even if the
+  //    certificate has multiple errors.
+  // 3. SCH_CRED_AUTO_CRED_VALIDATION doesn't allow us to ignore untrusted CA
+  //    and expired certificate errors.  There are only flags to ignore the
+  //    name mismatch and unable-to-check-revocation errors.
   //
-  // Look into undocumented or poorly documented flags:
+  // TODO(wtc): Look into undocumented or poorly documented flags:
   //   SCH_CRED_RESTRICTED_ROOTS
   //   SCH_CRED_REVOCATION_CHECK_CACHE_ONLY
   //   SCH_CRED_CACHE_ONLY_URL_RETRIEVAL
   //   SCH_CRED_MEMORY_STORE_CERT
-  //   SCH_CRED_CACHE_ONLY_URL_RETRIEVAL_ON_CREATE
-  //
-  // SCH_CRED_NO_SERVERNAME_CHECK can be useful during testing.
   schannel_cred.dwFlags |= SCH_CRED_NO_DEFAULT_CREDS |
-                           SCH_CRED_NO_SERVERNAME_CHECK |  // Remove me!
-                           SCH_CRED_AUTO_CRED_VALIDATION |
-                           SCH_CRED_REVOCATION_CHECK_CHAIN_EXCLUDE_ROOT;
+                           SCH_CRED_MANUAL_CRED_VALIDATION;
   TimeStamp expiry;
   SECURITY_STATUS status;
 
@@ -297,7 +365,7 @@ int SSLClientSocket::DoConnectComplete(int result) {
       &expiry);  // Optional
   if (status != SEC_E_OK) {
     DLOG(ERROR) << "AcquireCredentialsHandle failed: " << status;
-    return ERR_FAILED;  // TODO(wtc): map SEC_E_xxx error codes.
+    return MapSecurityError(status);
   }
 
   SecBufferDesc buffer_desc;
@@ -332,7 +400,7 @@ int SSLClientSocket::DoConnectComplete(int result) {
       &expiry);
   if (status != SEC_I_CONTINUE_NEEDED) {
     DLOG(ERROR) << "InitializeSecurityContext failed: " << status;
-    return ERR_FAILED;  // TODO(wtc): map SEC_E_xxx error codes.
+    return MapSecurityError(status);
   }
 
   next_state_ = STATE_HANDSHAKE_WRITE;
@@ -350,7 +418,7 @@ int SSLClientSocket::DoHandshakeRead() {
 
   if (buf_len <= 0) {
     NOTREACHED() << "Receive buffer is too small!";
-    return ERR_FAILED;
+    return ERR_UNEXPECTED;
   }
 
   return transport_->Read(buf, buf_len, &io_callback_);
@@ -449,8 +517,7 @@ int SSLClientSocket::DoHandshakeReadComplete(int result) {
   }
 
   if (FAILED(status))
-    return ERR_FAILED;  // TODO(wtc): map error codes, in particular cert
-                        // errors such as SEC_E_UNTRUSTED_ROOT.
+    return MapSecurityError(status);
 
   DCHECK(status == SEC_I_CONTINUE_NEEDED);
   if (in_buffers[1].BufferType == SECBUFFER_EXTRA) {
@@ -570,7 +637,7 @@ int SSLClientSocket::DoPayloadReadComplete(int result) {
 
   if (status != SEC_E_OK && status != SEC_I_RENEGOTIATE) {
     DCHECK(status != SEC_E_MESSAGE_ALTERED);
-    return ERR_FAILED;  // TODO(wtc): map error code
+    return MapSecurityError(status);
   }
 
   // The received ciphertext was decrypted in place in recv_buffer_.  Remember
@@ -658,7 +725,7 @@ int SSLClientSocket::DoPayloadEncrypt() {
   SECURITY_STATUS status = EncryptMessage(&ctxt_, 0, &buffer_desc, 0);
 
   if (FAILED(status))
-    return ERR_FAILED;
+    return MapSecurityError(status);
 
   payload_send_buffer_len_ = buffers[0].cbBuffer +
                              buffers[1].cbBuffer +
@@ -712,10 +779,94 @@ int SSLClientSocket::DidCompleteHandshake() {
       &ctxt_, SECPKG_ATTR_STREAM_SIZES, &stream_sizes_);
   if (status != SEC_E_OK) {
     DLOG(ERROR) << "QueryContextAttributes failed: " << status;
-    return ERR_FAILED;
+    return MapSecurityError(status);
+  }
+  DCHECK(!server_cert_);
+  status = QueryContextAttributes(
+      &ctxt_, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &server_cert_);
+  if (status != SEC_E_OK) {
+    DLOG(ERROR) << "QueryContextAttributes failed: " << status;
+    return MapSecurityError(status);
   }
 
   completed_handshake_ = true;
+  int rv = VerifyServerCert();
+  // TODO(wtc): for now, always check revocation.
+  server_cert_status_ = CERT_STATUS_REV_CHECKING_ENABLED;
+  if (rv)
+    server_cert_status_ |= MapNetErrorToCertStatus(rv);
+  return rv;
+}
+
+int SSLClientSocket::VerifyServerCert() {
+  DCHECK(server_cert_);
+
+  // Build and validate certificate chain.
+
+  CERT_CHAIN_PARA chain_para;
+  memset(&chain_para, 0, sizeof(chain_para));
+  chain_para.cbSize = sizeof(chain_para);
+  // TODO(wtc): consider requesting the usage szOID_PKIX_KP_SERVER_AUTH
+  // or szOID_SERVER_GATED_CRYPTO or szOID_SGC_NETSCAPE
+  chain_para.RequestedUsage.dwType = USAGE_MATCH_TYPE_AND;
+  chain_para.RequestedUsage.Usage.cUsageIdentifier = 0;
+  chain_para.RequestedUsage.Usage.rgpszUsageIdentifier = NULL;  // LPSTR*
+  PCCERT_CHAIN_CONTEXT chain_context;
+  // TODO(wtc): for now, always check revocation.
+  if (!CertGetCertificateChain(
+           NULL,  // default chain engine, HCCE_CURRENT_USER
+           server_cert_,
+           NULL,  // current system time
+           server_cert_->hCertStore,  // search this store
+           &chain_para,
+           CERT_CHAIN_REVOCATION_CHECK_CHAIN_EXCLUDE_ROOT |
+           CERT_CHAIN_CACHE_END_CERT,
+           NULL,  // reserved
+           &chain_context)) {
+    return MapSecurityError(GetLastError());
+  }
+
+  std::wstring wstr_hostname = ASCIIToWide(hostname_);
+
+  SSL_EXTRA_CERT_CHAIN_POLICY_PARA extra_policy_para;
+  memset(&extra_policy_para, 0, sizeof(extra_policy_para));
+  extra_policy_para.cbSize = sizeof(extra_policy_para);
+  extra_policy_para.dwAuthType = AUTHTYPE_SERVER;
+  // TODO(wtc): Set these flags in fdwChecks to ignore cert errors.
+  //   SECURITY_FLAG_IGNORE_REVOCATION
+  //   SECURITY_FLAG_IGNORE_UNKNOWN_CA
+  //   SECURITY_FLAG_IGNORE_WRONG_USAGE
+  //   SECURITY_FLAG_IGNORE_CERT_CN_INVALID
+  //   SECURITY_FLAG_IGNORE_CERT_DATE_INVALID
+  extra_policy_para.fdwChecks = 0;
+  extra_policy_para.pwszServerName =
+      const_cast<wchar_t*>(wstr_hostname.c_str());
+
+  CERT_CHAIN_POLICY_PARA policy_para;
+  memset(&policy_para, 0, sizeof(policy_para));
+  policy_para.cbSize = sizeof(policy_para);
+  // TODO(wtc): It seems that we can also ignore cert errors by setting
+  // dwFlags.
+  policy_para.dwFlags = 0;
+  policy_para.pvExtraPolicyPara = &extra_policy_para;
+
+  CERT_CHAIN_POLICY_STATUS policy_status;
+  memset(&policy_status, 0, sizeof(policy_status));
+  policy_status.cbSize = sizeof(policy_status);
+
+  if (!CertVerifyCertificateChainPolicy(
+           CERT_CHAIN_POLICY_SSL,
+           chain_context,
+           &policy_para,
+           &policy_status)) {
+    return MapSecurityError(GetLastError());
+  }
+
+  if (policy_status.dwError)
+    return MapSecurityError(policy_status.dwError);
+
+  CertFreeCertificateChain(chain_context);
+
   return OK;
 }
 
