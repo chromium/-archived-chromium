@@ -324,6 +324,7 @@
 		7BF892080E7314E9000BAF8A /* pcre_exec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BF891E10E7311B1000BAF8A /* pcre_exec.cpp */; };
 		82761E970E3FA26F0030D324 /* TextCodecMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91C50D7F3CC2001ECF42 /* TextCodecMac.cpp */; };
 		82761F850E3FAC700030D324 /* AccessibilityObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82761F810E3FAC700030D324 /* AccessibilityObject.cpp */; };
+		827E13880E815A0500183614 /* ResourceLoaderMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8DC80D7F3C01001ECF42 /* ResourceLoaderMac.mm */; };
 		82A9A8CF0E3E4EE80038C474 /* FrameMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F000D7F3C48001ECF42 /* FrameMac.mm */; };
 		E43CE13C0E68621500D8C5B9 /* PausedTimeouts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43CE13A0E68621500D8C5B9 /* PausedTimeouts.cpp */; };
 		E45062E10E40B5420025A81A /* SkiaUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45062DF0E40B5420025A81A /* SkiaUtils.cpp */; };
@@ -7760,6 +7761,7 @@
 				E456251F0E268E87005E4685 /* ResourceErrorMac.mm in Sources */,
 				E45625250E268E87005E4685 /* ResourceHandle.cpp in Sources */,
 				E45624960E268E87005E4685 /* ResourceLoader.cpp in Sources */,
+				827E13880E815A0500183614 /* ResourceLoaderMac.mm in Sources */,
 				E45625260E268E87005E4685 /* ResourceRequestBase.cpp in Sources */,
 				E45625270E268E87005E4685 /* ResourceResponseBase.cpp in Sources */,
 				E45625930E268E87005E4685 /* RootInlineBox.cpp in Sources */,
