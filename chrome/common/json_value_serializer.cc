@@ -4,6 +4,7 @@
 
 #include "chrome/common/json_value_serializer.h"
 
+#include "base/file_util.h"
 #include "base/json_reader.h"
 #include "base/json_writer.h"
 #include "base/string_util.h"
@@ -37,41 +38,21 @@ bool JSONFileValueSerializer::Serialize(const Value& root) {
   if (!result)
     return false;
 
-  FILE* file = NULL;
-  _wfopen_s(&file, json_file_path_.c_str(), L"wb");
-  if (!file)
+  int data_size = static_cast<int>(json_string.size());
+  if (file_util::WriteFile(json_file_path_,
+                           json_string.data(),
+                           data_size) != data_size)
     return false;
 
-  size_t amount_written =
-    fwrite(json_string.data(), 1, json_string.size(), file);
-  fclose(file);
-
-  return amount_written == json_string.size();
+  return true;
 }
 
 bool JSONFileValueSerializer::Deserialize(Value** root) {
-  FILE* file = NULL;
-  _wfopen_s(&file, json_file_path_.c_str(), L"rb");
-  if (!file)
-    return false;
-
-  fseek(file, 0, SEEK_END);
-  size_t file_size = ftell(file);
-  rewind(file);
-
-  bool result = false;
   std::string json_string;
-  size_t chars_read = fread(
-    // WriteInto assumes the last character is a null, and it's not in this
-    // case, so we need to add 1 to our size to ensure the last character
-    // doesn't get cut off.
-    WriteInto(&json_string, file_size + 1), 1, file_size, file);
-  if (chars_read == file_size) {
-    JSONStringValueSerializer serializer(json_string);
-    result = serializer.Deserialize(root);
+  if (!file_util::ReadFileToString(json_file_path_, &json_string)) {
+    return false;
   }
-
-  fclose(file);
-  return result;
+  JSONStringValueSerializer serializer(json_string);
+  return serializer.Deserialize(root);
 }
 

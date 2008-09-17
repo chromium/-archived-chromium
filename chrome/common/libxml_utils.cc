@@ -3,7 +3,10 @@
 // found in the LICENSE file.
 
 #include "chrome/common/libxml_utils.h"
+
+#include "base/compiler_specific.h"
 #include "base/logging.h"
+#include "base/string_util.h"
 
 #include "libxml/xmlreader.h"
 
@@ -17,8 +20,8 @@ std::string XmlStringToStdString(const xmlChar* xmlstring) {
 
 XmlReader::XmlReader()
     : reader_(NULL),
-#pragma warning(suppress: 4355)  // Okay to pass "this" here.
-      error_func_(this, &XmlReader::GenericErrorCallback) {
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          error_func_(this, &XmlReader::GenericErrorCallback)) {
 }
 
 XmlReader::~XmlReader() {
@@ -30,11 +33,9 @@ XmlReader::~XmlReader() {
                                                   const char* msg, ...) {
   va_list args;
   va_start(args, msg);
-  char buffer[1 << 9];
-  vsnprintf_s(buffer, arraysize(buffer), _TRUNCATE, msg, args);
 
   XmlReader* reader = static_cast<XmlReader*>(context);
-  reader->errors_.append(buffer);
+  reader->errors_.append(StringPrintf(msg, args));
 }
 
 bool XmlReader::Load(const std::string& input) {

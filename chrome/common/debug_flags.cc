@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <windows.h>
-
 #include "chrome/common/debug_flags.h"
 
 #include "base/base_switches.h"

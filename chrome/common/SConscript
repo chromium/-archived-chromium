@@ -15,10 +15,14 @@ env.Prepend(
     CPPDEFINES = [
         'U_STATIC_IMPLEMENTATION',
     ],
-    CCFLAGS = [
-        '/TP',
-    ],
 )
+
+if env['PLATFORM'] == 'win32':
+  env.Prepend(
+      CCFLAGS = [
+          '/TP',
+      ],
+  )
 
 env.Append(
     CPPPATH = [
@@ -42,72 +46,83 @@ env.Append(
     ],
 )
 
-input_files = [
-    'animation.cc',
-    'child_process.cc',
-    'chrome_constants.cc',
-    'chrome_counters.cc',
-    'chrome_paths.cc',
-    'chrome_plugin_lib.cc',
-    'chrome_plugin_util.cc',
-    'chrome_process_filter.cc',
-    'chrome_switches.cc',
-    'classfactory.cc',
-    'clipboard_service.cc',
-    'common_glue.cc',
-    'debug_flags.cc',
-    'drag_drop_types.cc',
-    'env_util.cc',
-    'env_vars.cc',
-    'gfx/chrome_canvas.cc',
-    'gfx/chrome_font.cc',
-    'gfx/color_utils.cc',
-    'gfx/emf.cc',
-    'gfx/icon_util.cc',
-    'gfx/path.cc',
-    'gfx/url_elider.cc',
-    'ipc_channel.cc',
-    'ipc_channel_proxy.cc',
-    'ipc_logging.cc',
-    'ipc_message.cc',
-    'ipc_message_utils.cc',
-    'ipc_sync_channel.cc',
-    'ipc_sync_message.cc',
-    'jpeg_codec.cc',
-    'json_value_serializer.cc',
-    'jstemplate_builder.cc',
-    'l10n_util.cc',
-    'libxml_utils.cc',
-    'logging_chrome.cc',
-    'message_router.cc',
-    'net/cookie_monster_sqlite.cc',
-    'net/url_request_intercept_job.cc',
-    'notification_service.cc',
-    'os_exchange_data.cc',
-    'plugin_messages.cc',
-    'pref_member.cc',
-    'pref_names.cc',
-    'pref_service.cc',
-    'process_watcher.cc',
-    'rand_util.cc',
-    'render_messages.cc',
-    'resource_bundle.cc',
-    'resource_dispatcher.cc',
-    'security_filter_peer.cc',
-    'slide_animation.cc',
-    'sqlite_compiled_statement.cc',
-    'sqlite_utils.cc',
-    'task_queue.cc',
-    'throb_animation.cc',
-    'thumbnail_score.cc',
-    'time_format.cc',
-    'visitedlink_common.cc',
-    'win_safe_util.cc',
-    'win_util.cc',
-    'worker_thread_ticker.cc',
-]
+input_files = []
 
-env.ChromeStaticLibrary('common', input_files)
+if env['PLATFORM'] in ('posix', 'win32'):
+  # TODO(port): Port to Mac.
+  input_files.extend([
+      'chrome_constants.cc',
+      'chrome_counters.cc',
+      'chrome_switches.cc',
+      'debug_flags.cc',
+      'env_vars.cc',
+      'gfx/color_utils.cc',
+      'jpeg_codec.cc',
+      'json_value_serializer.cc',
+      'libxml_utils.cc',
+      'net/cookie_monster_sqlite.cc',
+      'notification_service.cc',
+      'pref_member.cc',
+      'pref_names.cc',
+      'slide_animation.cc',
+      'sqlite_compiled_statement.cc',
+      'task_queue.cc',
+      'throb_animation.cc',
+      'thumbnail_score.cc',
+      'visitedlink_common.cc',
+  ])
+
+if env['PLATFORM'] == 'win32':
+  # TODO(port): Port these.
+  input_files.extend([
+      'animation.cc',
+      'child_process.cc',
+      'chrome_paths.cc',
+      'chrome_plugin_lib.cc',
+      'chrome_plugin_util.cc',
+      'chrome_process_filter.cc',
+      'classfactory.cc',
+      'clipboard_service.cc',
+      'common_glue.cc',
+      'drag_drop_types.cc',
+      'env_util.cc',
+      'gfx/chrome_canvas.cc',
+      'gfx/chrome_font.cc',
+      'gfx/emf.cc',
+      'gfx/icon_util.cc',
+      'gfx/path.cc',
+      'gfx/url_elider.cc',
+      'ipc_channel.cc',
+      'ipc_channel_proxy.cc',
+      'ipc_logging.cc',
+      'ipc_message.cc',
+      'ipc_message_utils.cc',
+      'ipc_sync_channel.cc',
+      'ipc_sync_message.cc',
+      'jstemplate_builder.cc',
+      'l10n_util.cc',
+      'logging_chrome.cc',
+      'message_router.cc',
+      'net/url_request_intercept_job.cc',
+      'os_exchange_data.cc',
+      'plugin_messages.cc',
+      'pref_service.cc',
+      'process_watcher.cc',
+      'rand_util.cc',
+      'render_messages.cc',
+      'resource_bundle.cc',
+      'resource_dispatcher.cc',
+      'security_filter_peer.cc',
+      'sqlite_utils.cc',
+      'time_format.cc',
+      'win_safe_util.cc',
+      'win_util.cc',
+      'worker_thread_ticker.cc',
+  ])
+
+if env['PLATFORM'] in ('posix', 'win32'):
+  # TODO(port): This should be enabled for all platforms.
+  env.ChromeStaticLibrary('common', input_files)
 
 
 env_test = env_test.Clone()
@@ -127,41 +142,44 @@ env_test.Append(
     ],
 )
 
-env_test.Append(
-    LINKFLAGS = [
-        '/INCREMENTAL',
+if env_test['PLATFORM'] == 'win32':
+  env_test.Append(
+      LINKFLAGS = [
+          '/INCREMENTAL',
 
-        '/safeseh',
-        '/dynamicbase',
-        '/ignore:4199',
-        '/nxcompat',
+          '/safeseh',
+          '/dynamicbase',
+          '/ignore:4199',
+          '/nxcompat',
 
-        '/DELAYLOAD:"dwmapi.dll"',
-        '/DELAYLOAD:"uxtheme.dll"',
+          '/DELAYLOAD:"dwmapi.dll"',
+          '/DELAYLOAD:"uxtheme.dll"',
 
-        '/DEBUG',
-        '/MACHINE:X86',
-        '/FIXED:No',
-    ],
-    LIBS = [
-        'rpcrt4.lib',
-        'shlwapi.lib',
-        'winmm.lib',
-    ],
-)
+          '/DEBUG',
+          '/MACHINE:X86',
+          '/FIXED:No',
+      ],
+      LIBS = [
+          'rpcrt4.lib',
+          'shlwapi.lib',
+          'winmm.lib',
+      ],
+  )
 
-ipc_tests_files = [
-    '$BASE_DIR/perftimer$OBJSUFFIX',
-    'ipc_fuzzing_tests.cc',
-    'ipc_tests.cc',
-]
+if env_test['PLATFORM'] == 'win32':
+  # TODO(port): Port this.
+  ipc_tests_files = [
+      '$BASE_DIR/perftimer$OBJSUFFIX',
+      'ipc_fuzzing_tests.cc',
+      'ipc_tests.cc',
+  ]
 
-libs = [
-    'common.lib',
-]
+  libs = [
+      'common.lib',
+  ]
 
-ipc_tests = env_test.ChromeTestProgram('ipc_tests', ipc_tests_files + libs)
+  ipc_tests = env_test.ChromeTestProgram('ipc_tests', ipc_tests_files + libs)
 
-i = env_test.Install('$TARGET_ROOT', ipc_tests)
-Alias('chrome', i)
+  i = env_test.Install('$TARGET_ROOT', ipc_tests)
+  Alias('chrome', i)
 

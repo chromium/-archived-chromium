@@ -441,12 +441,8 @@ template<typename T>
 std::vector<T> SetToVector(const std::set<T>& values) {
   std::vector<T> result;
   result.reserve(values.size());
-  std::set<T>::const_iterator end = values.end();
-  for (std::set<T>::const_iterator itr = values.begin(); itr != end; ++itr) {
-    result.push_back(*itr);
-  }
+  result.insert(result.begin(), values.begin(), values.end());
   return result;
 }
 
 #endif  // CHROME_COMMON_STL_UTIL_INL_H__
-

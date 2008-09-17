@@ -2,9 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "build/build_config.h"
 
 #include <math.h>
+#if defined(OS_WIN)
 #include <windows.h>
+#endif
 
 #include "chrome/common/gfx/color_utils.h"
 
@@ -248,7 +251,12 @@ SkColor SetColorAlpha(SkColor c, SkAlpha alpha) {
 }
 
 SkColor GetSysSkColor(int which) {
+#if defined(OS_WIN)
   return gfx::COLORREFToSkColor(::GetSysColor(which));
+#else
+  NOTIMPLEMENTED();
+  return SK_ColorLTGRAY;
+#endif
 }
 
 } // namespace color_utils

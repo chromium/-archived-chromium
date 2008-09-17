@@ -15,11 +15,11 @@ static const int kDefaultDurationMs = 120;
 SlideAnimation::SlideAnimation(AnimationDelegate* target)
     : Animation(kDefaultFramerateHz, target),
       target_(target),
+      tween_type_(EASE_OUT),
       showing_(false),
       value_start_(0),
       value_end_(0),
       value_current_(0),
-      tween_type_(EASE_OUT),
       slide_duration_(kDefaultDurationMs) {
 }
 

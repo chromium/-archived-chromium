@@ -53,14 +53,15 @@ class PrefMemberBase : public NotificationObserver {
   const std::wstring& pref_name() const { return pref_name_; }
   PrefService* prefs() { return prefs_; }
 
+ // Ordered the members to compact the class instance.
+ private:
+  std::wstring pref_name_;
+  NotificationObserver* observer_;
+  PrefService* prefs_;
+
  protected:
   bool is_synced_;
   bool setting_value_;
-
- private:
-  std::wstring pref_name_;
-  PrefService* prefs_;
-  NotificationObserver* observer_;
 };
 
 }  // namespace subtle
@@ -120,7 +121,7 @@ class PrefMember : public subtle::PrefMemberBase {
 
 class BooleanPrefMember : public PrefMember<bool> {
  public:
-  BooleanPrefMember() : PrefMember() { }
+  BooleanPrefMember() : PrefMember<bool>() { }
   virtual ~BooleanPrefMember() { }
 
  protected:
@@ -133,7 +134,7 @@ class BooleanPrefMember : public PrefMember<bool> {
 
 class IntegerPrefMember : public PrefMember<int> {
  public:
-  IntegerPrefMember() : PrefMember() { }
+  IntegerPrefMember() : PrefMember<int>() { }
   virtual ~IntegerPrefMember() { }
 
  protected:
@@ -146,7 +147,7 @@ class IntegerPrefMember : public PrefMember<int> {
 
 class RealPrefMember : public PrefMember<double> {
  public:
-  RealPrefMember() : PrefMember() { }
+  RealPrefMember() : PrefMember<double>() { }
   virtual ~RealPrefMember() { }
 
  protected:
@@ -159,7 +160,7 @@ class RealPrefMember : public PrefMember<double> {
 
 class StringPrefMember : public PrefMember<std::wstring> {
  public:
-  StringPrefMember() : PrefMember() { }
+  StringPrefMember() : PrefMember<std::wstring>() { }
   virtual ~StringPrefMember() { }
 
  protected:
