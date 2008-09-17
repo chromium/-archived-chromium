@@ -91,8 +91,6 @@ if env['PLATFORM'] == 'win32':
     'process.cc',
 
     'resource_util.cc',  # Uses HMODULE, but may be abstractable.
-
-    'stats_table.cc',  # Amanda is working on this(?).
   ])
 
 if env['PLATFORM'] == 'win32':
