@@ -4,6 +4,9 @@
 
 #include "chrome/common/net/cookie_monster_sqlite.h"
 
+#include <list>
+
+#include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/ref_counted.h"
 #include "base/string_util.h"
@@ -104,7 +107,7 @@ void SQLitePersistentCookieStore::Backend::BatchOperation(
   // Commit every 30 seconds.
   static const int kCommitIntervalMs = 30 * 1000;
   // Commit right away if we have more than 512 outstanding operations.
-  static const int kCommitAfterBatchSize = 512;
+  static const size_t kCommitAfterBatchSize = 512;
   DCHECK(MessageLoop::current() != background_loop_);
 
   // We do a full copy of the cookie here, and hopefully just here.
