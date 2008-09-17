@@ -4,14 +4,13 @@
 
 #include "chrome/browser/safe_browsing/bloom_filter.h"
 
-#include <windows.h>
-
+#include <string.h>
 
 BloomFilter::BloomFilter(int bit_size) {
   byte_size_ = bit_size / 8 + 1;
   bit_size_ = byte_size_ * 8;
   data_.reset(new char[byte_size_]);
-  ZeroMemory(data_.get(), byte_size_);
+  memset(data_.get(), 0, byte_size_);
 }
 
 BloomFilter::BloomFilter(char* data, int size) {

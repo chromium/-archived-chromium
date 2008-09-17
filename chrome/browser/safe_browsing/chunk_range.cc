@@ -61,8 +61,7 @@ void RangesToString(const std::vector<ChunkRange>& ranges,
     if (!result->empty())
       result->append(",");
     if (it->start() == it->stop()) {
-      char num_buf[11];  // One 32 bit positive integer + NULL.
-      _itoa_s(it->start(), num_buf, sizeof(num_buf), 10);
+      std::string num_buf = IntToString(it->start());
       result->append(num_buf);
     } else {
       result->append(StringPrintf("%d-%d", it->start(), it->stop()));

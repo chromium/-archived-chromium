@@ -25,8 +25,8 @@ class PageMargins {
   int footer;
   // Margin on each side of the sheet.
   int left;
-  int top;
   int right;
+  int top;
   int bottom;
 };
 

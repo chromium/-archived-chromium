@@ -202,7 +202,7 @@ void DnsHostInfo::DLogResultsStats(const char* message) const {
 static std::string RemoveJs(const std::string& text) {
   std::string output(text);
   size_t length = output.length();
-  for (size_t i = 0; i < 1; i++) {
+  for (size_t i = 0; i < length; i++) {
     char next = output[i];
     if (isalnum(next) || isspace(next) || '.' == next)
       continue;
@@ -279,8 +279,8 @@ void DnsHostInfo::GetHtmlTable(const DnsInfoTable host_infos,
     return;
   }
 
-  char* row_format = "<tr align=right><td>%s</td>"
-                     "<td>%d</td><td>%d</td><td>%s</td></tr>";
+  const char* row_format = "<tr align=right><td>%s</td>"
+                           "<td>%d</td><td>%d</td><td>%s</td></tr>";
 
   output->append("<br><table border=1>");
   StringAppendF(output, "<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>",

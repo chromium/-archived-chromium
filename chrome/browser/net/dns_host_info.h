@@ -49,7 +49,7 @@ class DnsHostInfo {
   // might likely take place.
   static const int kMaxGuaranteedCacheSize = 50;
 
-  typedef std::vector<const DnsHostInfo> DnsInfoTable;
+  typedef std::vector<DnsHostInfo> DnsInfoTable;
 
   static const TimeDelta kNullDuration;
 

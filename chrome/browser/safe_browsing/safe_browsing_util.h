@@ -7,6 +7,8 @@
 #ifndef CHROME_BROWSER_SAFE_BROWSING_UTIL_H__
 #define CHROME_BROWSER_SAFE_BROWSING_UTIL_H__
 
+#include <string.h>
+
 #include <deque>
 #include <string>
 #include <vector>

@@ -4,6 +4,8 @@
 
 #include "chrome/browser/printing/page_number.h"
 
+#include <limits>
+
 #include "base/logging.h"
 #include "chrome/browser/printing/print_settings.h"
 
@@ -56,7 +58,9 @@ int PageNumber::operator++() {
     ++page_number_;
     // Page ranges are inclusive.
     if (page_number_ > (*ranges_)[page_range_index_].to) {
-      if (++page_range_index_ == ranges_->size()) {
+      DCHECK(ranges_->size() <= static_cast<size_t>(
+          std::numeric_limits<int>::max()));
+      if (++page_range_index_ == static_cast<int>(ranges_->size())) {
         // Finished.
         *this = npos();
       } else {

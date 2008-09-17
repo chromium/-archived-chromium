@@ -4,7 +4,13 @@
 //
 // Parse the data returned from the SafeBrowsing v2.1 protocol response.
 
-#include <Winsock2.h>  // for htonl
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
+#include <Winsock2.h>
+#elif defined(OS_POSIX)
+#include <arpa/inet.h>
+#endif
 
 #include "chrome/browser/safe_browsing/protocol_parser.h"
 
@@ -85,7 +91,7 @@ bool SafeBrowsingProtocolParser::ParseGetHash(
     int full_hash_len = atoi(cmd_parts[2].c_str());
 
     while (full_hash_len > 0) {
-      DCHECK(full_hash_len >= sizeof(SBFullHash));
+      DCHECK(static_cast<size_t>(full_hash_len) >= sizeof(SBFullHash));
       memcpy(&full_hash.hash, data, sizeof(SBFullHash));
       full_hashes->push_back(full_hash);
       data += sizeof(SBFullHash);
@@ -449,7 +455,7 @@ bool SafeBrowsingProtocolParser::ParseNewKey(const char* chunk_data,
     if (cmd_parts.size() != 3)
       return false;
 
-    if (cmd_parts[2].size() != atoi(cmd_parts[1].c_str()))
+    if (static_cast<int>(cmd_parts[2].size()) != atoi(cmd_parts[1].c_str()))
       return false;
 
     if (cmd_parts[0] == "clientkey") {

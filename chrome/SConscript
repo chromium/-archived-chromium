@@ -425,6 +425,7 @@ if env['PLATFORM'] == 'win32':
 
 
 sconscript_files = [
+    'browser/SConscript',
     'common/SConscript',
     '$THIRD_PARTY_DIR/sqlite/SConscript',
 ]
@@ -434,7 +435,6 @@ if env['PLATFORM'] == 'win32':
   sconscript_files.extend([
       'app/resources/SConscript',
       'app/theme/SConscript',
-      'browser/SConscript',
       'browser/views/SConscript',
       'installer/mini_installer/SConscript',
       'installer/setup/SConscript',
