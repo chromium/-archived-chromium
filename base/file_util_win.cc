@@ -477,18 +477,29 @@ int WriteFile(const std::wstring& filename, const char* data, int size) {
                                CREATE_ALWAYS,
                                0,
                                NULL));
-  if (file == INVALID_HANDLE_VALUE)
+  if (file == INVALID_HANDLE_VALUE) {
+    LOG(WARNING) << "CreateFile failed for path " << filename <<
+        " error code=" << GetLastError() <<
+        " error text=" << win_util::FormatLastWin32Error();
     return -1;
-
-  int ret_value;
-  DWORD written;
-  if (::WriteFile(file, data, size, &written, NULL)  && written == size) {
-    ret_value = static_cast<int>(written);
-  } else {
-    ret_value = -1;
   }
 
-  return ret_value;
+  DWORD written;
+  BOOL result = ::WriteFile(file, data, size, &written, NULL);
+  if (result && written == size)
+    return static_cast<int>(written);
+
+  if (!result) {
+    // WriteFile failed.
+    LOG(WARNING) << "writing file " << filename <<
+        " failed, error code=" << GetLastError() <<
+        " description=" << win_util::FormatLastWin32Error();
+  } else {
+    // Didn't write all the bytes.
+    LOG(WARNING) << "wrote" << written << " bytes to " << filename <<
+        " expected " << size;
+  }
+  return -1;
 }
 
 bool RenameFileAndResetSecurityDescriptor(

@@ -103,13 +103,6 @@ bool IsDrag(const POINT& origin, const POINT& current);
 // Returns true if we are on Windows Vista and composition is enabled
 bool ShouldUseVistaFrame();
 
-// Use the Win32 API FormatMessage() function to generate a string, using
-// Windows's default Message Compiled resources; ignoring the inserts.
-std::wstring FormatMessage(unsigned messageid);
-
-// Uses the last Win32 error to generate a human readable message string.
-std::wstring FormatLastWin32Error();
-
 // Open a Windows explorer window with the specified file highlighted.
 void ShowItemInFolder(const std::wstring& full_path);
 

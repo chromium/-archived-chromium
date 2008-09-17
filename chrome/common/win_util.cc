@@ -155,30 +155,6 @@ bool ShouldUseVistaFrame() {
   return !!f;
 }
 
-std::wstring FormatMessage(unsigned messageid) {
-  wchar_t * string_buffer = NULL;
-  unsigned string_length = ::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                                      FORMAT_MESSAGE_FROM_SYSTEM |
-                                      FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
-                                      messageid, 0,
-                                      reinterpret_cast<wchar_t *>(&string_buffer),
-                                      0, NULL);
-
-  std::wstring formatted_string;
-  if (string_buffer) {
-    formatted_string = string_buffer;
-    LocalFree(reinterpret_cast<HLOCAL>(string_buffer));
-  } else {
-    // The formating failed. simply convert the message value into a string.
-    SStringPrintf(&formatted_string, L"message number %d", messageid);
-  }
-  return formatted_string;
-}
-
-std::wstring FormatLastWin32Error() {
-  return FormatMessage(GetLastError());
-}
-
 void ShowItemInFolder(const std::wstring& full_path) {
   std::wstring dir = file_util::GetDirectoryFromPath(full_path);
   if (dir == L"" || !file_util::PathExists(full_path))

@@ -92,6 +92,13 @@ std::wstring GetClassName(HWND window);
 // if the OS is Vista.
 bool UserAccountControlIsEnabled();
 
+// Use the Win32 API FormatMessage() function to generate a string, using
+// Windows's default Message Compiled resources; ignoring the inserts.
+std::wstring FormatMessage(unsigned messageid);
+
+// Uses the last Win32 error to generate a human readable message string.
+std::wstring FormatLastWin32Error();
+
 }  // namespace win_util
 
 #endif  // BASE_WIN_UTIL_H__
