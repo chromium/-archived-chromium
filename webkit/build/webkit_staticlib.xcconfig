@@ -1,0 +1,12 @@
+// Copyright (c) 2008 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#include "../build/staticlib.xcconfig"
+
+// We need to compile everything in this target as objective-C++ in order to
+// avoid linker issues with parameters declared sometimes as |void*| (from C++)
+// and other times as |id| (from Objective-C). However, we can't set this
+// globally because some things (such as icu or other 3rd-party libraries) can't
+// build this way.
+GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp

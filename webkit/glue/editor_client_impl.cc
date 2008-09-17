@@ -552,7 +552,7 @@ bool EditorClientImpl::handleEditingKeyboardEvent(
   }
 
   if (evt->keyEvent()->text().length() == 1) {
-    UChar ch = evt->keyEvent()->text()[0];
+    UChar ch = evt->keyEvent()->text()[0U];
 
     // Don't insert null or control characters as they can result in
     // unexpected behaviour
