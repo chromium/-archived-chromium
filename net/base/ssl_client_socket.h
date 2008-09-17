@@ -8,6 +8,7 @@
 #define SECURITY_WIN32  // Needs to be defined before including security.h
 
 #include <windows.h>
+#include <wincrypt.h>
 #include <security.h>
 
 #include <string>
