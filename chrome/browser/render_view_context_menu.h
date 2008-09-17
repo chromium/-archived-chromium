@@ -16,6 +16,7 @@ class RenderViewContextMenu : public Menu {
       Menu::Delegate* delegate,
       HWND owner,
       ContextNode::Type type,
+      const std::wstring& misspelled_word,
       const std::vector<std::wstring>& misspelled_word_suggestions,
       Profile* profile);
 
@@ -31,6 +32,7 @@ class RenderViewContextMenu : public Menu {
   void AppendSelectionItems();
   void AppendEditableItems();
 
+  std::wstring misspelled_word_;
   std::vector<std::wstring> misspelled_word_suggestions_;
   Profile* profile_;
 

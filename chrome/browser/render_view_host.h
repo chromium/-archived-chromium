@@ -256,6 +256,7 @@ class RenderViewHost : public RenderWidgetHost {
   void Copy();
   void Paste();
   void Replace(const std::wstring& text);
+  void AddToDictionary(const std::wstring& word);
   void Delete();
   void SelectAll();
 

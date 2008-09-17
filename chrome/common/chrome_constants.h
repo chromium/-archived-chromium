@@ -34,6 +34,7 @@ extern const wchar_t kUserDataDirname[];
 extern const wchar_t kWebDataFilename[];
 extern const wchar_t kBookmarksFileName[];
 extern const wchar_t kHistoryBookmarksFileName[];
+extern const wchar_t kCustomDictionaryFileName[];
 
 extern const unsigned int kMaxRendererProcessCount;
 extern const int kStatsMaxThreads;

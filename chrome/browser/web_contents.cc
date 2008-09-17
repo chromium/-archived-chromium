@@ -954,6 +954,10 @@ void WebContents::Replace(const std::wstring& text) {
    render_view_host()->Replace(text);
 }
 
+void WebContents::AddToDictionary(const std::wstring& word) {
+  render_view_host()->AddToDictionary(word);
+}
+
 void WebContents::Delete() {
    render_view_host()->Delete();
 }
@@ -1698,8 +1702,12 @@ void WebContents::DidDownloadImage(
 void WebContents::ShowContextMenu(
     const ViewHostMsg_ContextMenu_Params& params) {
   RenderViewContextMenuController menu_controller(this, params);
-  RenderViewContextMenu menu(&menu_controller, GetHWND(), params.type,
-                             params.dictionary_suggestions, profile());
+  RenderViewContextMenu menu(&menu_controller,
+                             GetHWND(),
+                             params.type,
+                             params.misspelled_word,
+                             params.dictionary_suggestions,
+                             profile());
 
   POINT screen_pt = { params.x, params.y };
   MapWindowPoints(GetHWND(), HWND_DESKTOP, &screen_pt, 1);

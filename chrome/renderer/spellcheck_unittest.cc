@@ -16,6 +16,9 @@ class SpellCheckTest : public testing::Test {
  private:
   MessageLoop message_loop_;
 };
+
+const std::wstring kTempCustomDictionaryFile(L"temp_custom_dictionary.txt");
+
 }  // namespace
 
 // Represents a special initialization function used only for the unit tests
@@ -251,7 +254,7 @@ TEST_F(SpellCheckTest, SpellCheckStrings_EN_US) {
                                &hunspell_directory));
 
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
-      hunspell_directory, L"en-US", NULL));
+      hunspell_directory, L"en-US", NULL, L""));
 
   for (int i = 0; i < arraysize(kTestCases); i++) {
     size_t input_length = 0;
@@ -305,7 +308,7 @@ TEST_F(SpellCheckTest, SpellCheckSuggestions_EN_US) {
                                &hunspell_directory));
 
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
-      hunspell_directory, L"en-US", NULL));
+      hunspell_directory, L"en-US", NULL, L""));
 
   for (int i = 0; i < arraysize(kTestCases); i++) {
     std::vector<std::wstring> suggestions;
@@ -337,3 +340,148 @@ TEST_F(SpellCheckTest, SpellCheckSuggestions_EN_US) {
   }
 }
 
+// This test Adds words to the SpellChecker and veifies that it remembers them.
+TEST_F(SpellCheckTest, SpellCheckAddToDictionary_EN_US) {
+  static const struct {
+    // A string to be added to SpellChecker.
+    const wchar_t* word_to_add;
+  } kTestCases[] = {  // word to be added to SpellChecker
+    {L"Googley"},
+    {L"Googleplex"},
+    {L"Googler"},
+  };
+
+  std::wstring hunspell_directory;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_APP_DICTIONARIES,
+                               &hunspell_directory));
+
+  scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
+      hunspell_directory, L"en-US", NULL, kTempCustomDictionaryFile));
+
+  for (int i = 0; i < arraysize(kTestCases); i++) {
+    // Add the word to spellchecker.
+    spell_checker->AddWord(std::wstring(kTestCases[i].word_to_add));
+
+    // Now check whether it is added to Spellchecker.
+    std::vector<std::wstring> suggestions;
+    size_t input_length = 0;
+    if (kTestCases[i].word_to_add != NULL) {
+      input_length = wcslen(kTestCases[i].word_to_add);
+    }
+    int misspelling_start;
+    int misspelling_length;
+    bool result = spell_checker->SpellCheckWord(kTestCases[i].word_to_add,
+                                                static_cast<int>(input_length),
+                                                &misspelling_start,
+                                                &misspelling_length,
+                                                &suggestions);
+
+    // Check for spelling.
+    EXPECT_TRUE(result);
+  }
+
+  // Now initialize another spellchecker to see that AddToWord is permanent.
+  scoped_refptr<SpellChecker> spell_checker_new(new SpellChecker(
+      hunspell_directory, L"en-US", NULL, kTempCustomDictionaryFile));
+
+  for (int i = 0; i < arraysize(kTestCases); i++) {
+    // Now check whether it is added to Spellchecker.
+    std::vector<std::wstring> suggestions;
+    size_t input_length = 0;
+    if (kTestCases[i].word_to_add != NULL) {
+      input_length = wcslen(kTestCases[i].word_to_add);
+    }
+    int misspelling_start;
+    int misspelling_length;
+    bool result = spell_checker_new->SpellCheckWord(
+        kTestCases[i].word_to_add,
+        static_cast<int>(input_length),
+        &misspelling_start,
+        &misspelling_length,
+        &suggestions);
+
+    // Check for spelling.
+    EXPECT_TRUE(result);
+  }
+
+  // Remove the temp custom dictionary file.
+  file_util::Delete(kTempCustomDictionaryFile, false);
+}
+
+// SpellChecker should suggest custome words for misspelled words.
+TEST_F(SpellCheckTest, SpellCheckSuggestionsAddToDictionary_EN_US) {
+  static const struct {
+    // A string to be added to SpellChecker.
+    const wchar_t* word_to_add;
+  } kTestCases[] = {  // word to be added to SpellChecker
+    {L"Googley"},
+    {L"Googleplex"},
+    {L"Googler"},
+  };
+
+  std::wstring hunspell_directory;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_APP_DICTIONARIES,
+                               &hunspell_directory));
+
+  scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
+      hunspell_directory, L"en-US", NULL, kTempCustomDictionaryFile));
+
+  for (int i = 0; i < arraysize(kTestCases); i++) {
+    // Add the word to spellchecker.
+    spell_checker->AddWord(std::wstring(kTestCases[i].word_to_add));
+  }
+
+  // Now check to see whether the custom words are suggested for 
+  // misspelled but similar words.
+  static const struct {
+    // A string to be tested.
+    const wchar_t* input;
+    // An expected result for this test case.
+    //   * true: the input string does not have any invalid words.
+    //   * false: the input string has one or more invalid words.
+    bool expected_result;
+    // The position and the length of the first invalid word.
+    int misspelling_start;
+    int misspelling_length;
+
+    // A suggested word that should occur.
+    const wchar_t* suggested_word;
+  } kTestCasesToBeTested[] = {
+    {L"oogley", false, 0, 0, L"Googley"},
+    {L"oogler", false, 0, 0, L"Googler"},
+    {L"oogleplex", false, 0, 0, L"Googleplex"},
+  };
+
+  for (int i = 0; i < arraysize(kTestCasesToBeTested); i++) {
+    std::vector<std::wstring> suggestions;
+    size_t input_length = 0;
+    if (kTestCasesToBeTested[i].input != NULL) {
+      input_length = wcslen(kTestCasesToBeTested[i].input);
+    }
+    int misspelling_start;
+    int misspelling_length;
+    bool result = spell_checker->SpellCheckWord(kTestCasesToBeTested[i].input,
+                                                static_cast<int>(input_length),
+                                                &misspelling_start,
+                                                &misspelling_length,
+                                                &suggestions);
+
+    // Check for spelling.
+    EXPECT_EQ(result, kTestCasesToBeTested[i].expected_result);
+
+    // Check if the suggested words occur.
+    bool suggested_word_is_present = false;
+    for (int j=0; j < static_cast<int>(suggestions.size()); j++) {
+      if (suggestions.at(j).compare(kTestCasesToBeTested[i].suggested_word) ==
+                                    0) {
+        suggested_word_is_present = true;
+        break;
+      }
+    }
+
+    EXPECT_TRUE(suggested_word_is_present);
+  }
+
+  // Remove the temp custom dictionary file.
+  file_util::Delete(kTempCustomDictionaryFile, false);
+}

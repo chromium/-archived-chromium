@@ -35,6 +35,7 @@
 #include "chrome/browser/renderer_security_policy.h"
 #include "chrome/browser/resource_message_filter.h"
 #include "chrome/browser/sandbox_policy.h"
+#include "chrome/browser/spellchecker.h"
 #include "chrome/browser/visitedlink_master.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/common/chrome_constants.h"
@@ -720,6 +721,12 @@ void RenderProcessHost::WidgetHidden() {
     DCHECK(!backgrounded_);
     SetBackgrounded(true);
   }
+}
+
+void RenderProcessHost::AddWord(const std::wstring& word) {
+  base::Thread* io_thread = g_browser_process->io_thread();
+  io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+      profile_->GetSpellChecker(), &SpellChecker::AddWord, word));
 }
 
 // NotificationObserver implementation.

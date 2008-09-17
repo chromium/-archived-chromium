@@ -16,9 +16,11 @@ RenderViewContextMenu::RenderViewContextMenu(
     Menu::Delegate* delegate,
     HWND owner,
     ContextNode::Type type,
+    const std::wstring& misspelled_word,
     const std::vector<std::wstring>& misspelled_word_suggestions,
     Profile* profile)
     : Menu(delegate, Menu::TOPLEFT, owner),
+      misspelled_word_(misspelled_word),
       misspelled_word_suggestions_(misspelled_word_suggestions),
       profile_(profile) {
   InitMenu(type);
@@ -120,6 +122,12 @@ void RenderViewContextMenu::AppendEditableItems() {
   }
   if (misspelled_word_suggestions_.size() > 0)
     AppendSeparator();
+  
+  // If word is misspelled, give option for "Add to dictionary"
+  if (!misspelled_word_.empty()) {
+    AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY);
+    AppendSeparator();
+  }
 
   AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_UNDO);
   AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_REDO);

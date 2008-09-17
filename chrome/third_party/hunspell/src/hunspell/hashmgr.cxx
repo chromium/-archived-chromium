@@ -148,8 +148,14 @@ struct hentry * HashMgr::lookup(const char *word) const
 #ifdef HUNSPELL_CHROME_CLIENT
   int affix_ids[hunspell::BDict::MAX_AFFIXES_PER_WORD];
   int affix_count = bdict_reader->FindWord(word, affix_ids);
-  if (affix_count == 0)
-    return NULL;
+  if (affix_count == 0) { // look for custom added word
+    std::map<StringPiece, struct hentry *>::const_iterator iter = 
+      custom_word_to_hentry_map_.find(word);
+    if (iter != custom_word_to_hentry_map_.end())
+      return iter->second;
+    else
+      return NULL;
+  }
 
   static const int kMaxWordLen = 128;
   static char word_buf[kMaxWordLen];
@@ -173,7 +179,7 @@ struct hentry * HashMgr::lookup(const char *word) const
 
 int HashMgr::add_word(const char * word, int wl, unsigned short * aff, int al, const char * desc)
 {
-#ifndef HUNSPELL_CHROME_CLIENT  // Don't support adding words yet.
+#ifndef HUNSPELL_CHROME_CLIENT
     char * st = mystrdup(word);
     if (wl && !st) return 1;
     if (ignorechars != NULL) {
@@ -234,6 +240,23 @@ int HashMgr::add_word(const char * word, int wl, unsigned short * aff, int al, c
        dp->next = hp;
     }
 #endif  // HUNSPELL_CHROME_CLIENT
+    std::map<StringPiece, struct hentry *>::iterator iter = 
+        custom_word_to_hentry_map_.find(word);
+    if(iter == custom_word_to_hentry_map_.end()) {  // word needs to be added
+      // Make a custom hentry.
+      struct hentry* he = new hentry;
+      he->word = (char *)word;
+      he->wlen = wl;
+      he->next = NULL;
+      he->next_homonym = NULL;
+
+      std::string* new_string_word = new std::string(word);
+      pointer_to_strings_.push_back(new_string_word);
+      StringPiece sp(*(new_string_word));
+      custom_word_to_hentry_map_[sp] = he;
+      return 1;
+    }
+
     return 0;
 }     
 

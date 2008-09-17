@@ -169,7 +169,8 @@ bool RenderViewContextMenuController::IsCommandEnabled(int id) const {
     case IDC_USESPELLCHECKSUGGESTION_3:
     case IDC_USESPELLCHECKSUGGESTION_4:
       return true;
-
+    case IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY:
+      return !params_.misspelled_word.empty();
     case IDS_CONTENT_CONTEXT_VIEWPAGEINFO:
     case IDS_CONTENT_CONTEXT_VIEWFRAMEINFO:
     case IDS_CONTENT_CONTEXT_SAVEFRAMEAS:
@@ -366,6 +367,10 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
     case IDC_USESPELLCHECKSUGGESTION_4:
       source_web_contents_->Replace(params_.dictionary_suggestions[
           id - IDC_USESPELLCHECKSUGGESTION_0]);
+      break;
+
+    case IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY:
+      source_web_contents_->AddToDictionary(params_.misspelled_word);
       break;
 
     case IDS_CONTENT_CONTEXT_ADDSEARCHENGINE:  // Not implemented.

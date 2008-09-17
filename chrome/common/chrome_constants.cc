@@ -37,6 +37,7 @@ const wchar_t kUserDataDirname[] = L"User Data";
 const wchar_t kWebDataFilename[] = L"Web Data";
 const wchar_t kBookmarksFileName[] = L"Bookmarks";
 const wchar_t kHistoryBookmarksFileName[] = L"Bookmarks From History";
+const wchar_t kCustomDictionaryFileName[] = L"Custom Dictionary.txt";
 
 // Note, this shouldn't go above 64.  See bug 535234.
 const unsigned int kMaxRendererProcessCount = 20;

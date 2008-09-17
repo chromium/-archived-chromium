@@ -35,9 +35,13 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
   //
   // The request context is used to download dictionaries if they do not exist.
   // This can be NULL if you don't want this (like in tests).
+  // The |custom_dictionary_file_name| should be left blank so that Spellchecker
+  // can figure out the custom dictionary file. It is non empty only for unit
+  // testing.
   SpellChecker(const std::wstring& dict_dir,
                const std::wstring& language,
-               URLRequestContext* request_context);
+               URLRequestContext* request_context,
+               const std::wstring& custom_dictionary_file_name);
 
   static void RegisterUserPrefs(PrefService* prefs);
 
@@ -58,6 +62,11 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
                       int* misspelling_len,
                       std::vector<std::wstring>* optional_suggestions);
 
+  // Add custom word to the dictionary, which means:
+  //    a) Add it to the current hunspell object for immediate use,
+  //    b) Add the word to a file in disk for custom dictionary.
+  void AddWord(const std::wstring& word);
+
  private:
   // Download dictionary files when required.
   class DictionaryDownloadController;
@@ -66,6 +75,10 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
 
   // Initializes the Hunspell Dictionary.
   bool Initialize();
+
+  // After |hunspell_| is initialized, this function is called to add custom
+  // words from the custom dictionary to the |hunspell_|
+  void AddCustomWordsToHunspell();
 
   void set_file_is_downloading(bool value);
 
@@ -79,6 +92,9 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
 
   // Path to the spellchecker file.
   std::wstring bdict_file_name_;
+
+  // Path to the custom dictionary file.
+  std::wstring custom_dictionary_file_name_;
 
   // We memory-map the BDict file for spellchecking. These are the handles
   // necessary for that.

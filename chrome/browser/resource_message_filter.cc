@@ -245,10 +245,15 @@ void ResourceMessageFilter::OnReceiveContextMenuMsg(const IPC::Message& msg) {
   if (!params.misspelled_word.empty() &&
       spellchecker_ != NULL) {
     int misspell_location, misspell_length;
-    spellchecker_->SpellCheckWord(params.misspelled_word.c_str(),
-       static_cast<int>(params.misspelled_word.length()),
-       &misspell_location, &misspell_length,
-       &params.dictionary_suggestions);
+    bool is_misspelled = !spellchecker_->SpellCheckWord(
+        params.misspelled_word.c_str(),
+        static_cast<int>(params.misspelled_word.length()),
+        &misspell_location, &misspell_length,
+        &params.dictionary_suggestions);
+
+    // If not misspelled, make the misspelled_word param empty.
+    if (!is_misspelled)
+      params.misspelled_word.clear();
   }
 
   // Create a new ViewHostMsg_ContextMenu message.

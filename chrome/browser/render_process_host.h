@@ -181,6 +181,9 @@ class RenderProcessHost : public IPC::Channel::Listener,
   // to register/unregister visibility.
   void WidgetRestored();
   void WidgetHidden();
+  
+  // Add a word in the spellchecker.
+  void AddWord(const std::wstring& word);
 
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,

@@ -853,7 +853,7 @@ SpellChecker* ProfileImpl::GetSpellChecker() {
         prefs::kSpellCheckDictionary);
 
     spellchecker_ = new SpellChecker(dict_dir, dictionary_name,
-                                     GetRequestContext());
+                                     GetRequestContext(), L"");
     spellchecker_->AddRef();  // Manual refcounting.
   }
   return spellchecker_;

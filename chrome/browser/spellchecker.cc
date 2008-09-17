@@ -5,11 +5,11 @@
 #include <io.h>
 
 #include "chrome/browser/spellchecker.h"
-
 #include "base/basictypes.h"
 #include "base/file_util.h"
 #include "base/histogram.h"
 #include "base/logging.h"
+#include "base/path_service.h"
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "base/win_util.h"
@@ -17,7 +17,9 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/url_fetcher.h"
+#include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_counters.h"
+#include "chrome/common/chrome_paths.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -194,8 +196,10 @@ void SpellChecker::RegisterUserPrefs(PrefService* prefs) {
 
 SpellChecker::SpellChecker(const std::wstring& dict_dir,
                            const std::wstring& language,
-                           URLRequestContext* request_context)
+                           URLRequestContext* request_context,
+                           const std::wstring& custom_dictionary_file_name)
     : bdict_file_name_(dict_dir),
+      custom_dictionary_file_name_(custom_dictionary_file_name),
       bdict_file_(NULL),
       bdict_mapping_(NULL),
       bdict_mapped_data_(NULL),
@@ -220,6 +224,15 @@ SpellChecker::SpellChecker(const std::wstring& dict_dir,
 
   // Get the path to the spellcheck file.
   file_util::AppendToPath(&bdict_file_name_, language + L".bdic");
+
+  // Get the path to the custom dictionary file.
+  if (custom_dictionary_file_name_.empty()) {
+    std::wstring personal_file_directory;
+    PathService::Get(chrome::DIR_USER_DATA, &personal_file_directory);
+    custom_dictionary_file_name_ = personal_file_directory;
+    file_util::AppendToPath(&custom_dictionary_file_name_,
+                            chrome::kCustomDictionaryFileName);
+  }
 
   // Use this dictionary language as the default one of the
   // SpecllcheckCharAttribute object.
@@ -288,14 +301,33 @@ bool SpellChecker::Initialize() {
 
   const unsigned char* bdict_data;
   size_t bdict_length;
-  if (MapBdictFile(&bdict_data, &bdict_length))
+  if (MapBdictFile(&bdict_data, &bdict_length)) {
     hunspell_ = new Hunspell(bdict_data, bdict_length);
+    AddCustomWordsToHunspell();
+  }
 
   TimeTicks end_time = TimeTicks::Now();
   DHISTOGRAM_TIMES(L"Spellcheck.InitTime", end_time - begin_time);
 
   tried_to_init_ = true;
   return false;
+}
+
+void SpellChecker::AddCustomWordsToHunspell() {
+  // Add custom words to Hunspell.
+  // This should be done in File Loop, but since Hunspell is in this IO Loop,
+  // this too has to be initialized here.
+  // TODO (sidchat): Work out a way to initialize Hunspell in the File Loop.
+  std::string contents;
+  file_util::ReadFileToString(custom_dictionary_file_name_, &contents);
+  std::vector<std::string> list_of_words;
+  SplitString(contents, '\n', &list_of_words);
+  if (hunspell_) {
+    for (std::vector<std::string>::iterator it = list_of_words.begin();
+         it < list_of_words.end(); ++it) {
+      hunspell_->put_word((*it).c_str());
+    }
+  }
 }
 
 bool SpellChecker::MapBdictFile(const unsigned char** data, size_t* length) {
@@ -422,3 +454,49 @@ bool SpellChecker::SpellCheckWord(
   return true;
 }
 
+// This task is called in the file loop to write the new word to the custom
+// dictionary in disc.
+class AddWordToCustomDictionaryTask : public Task {
+ public:
+  AddWordToCustomDictionaryTask(const std::wstring& file_name,
+                                const std::wstring& word)
+      : file_name_(WideToUTF8(file_name)),
+        word_(WideToUTF8(word)) {
+  }
+
+ private:
+  void Run() {
+    // Add the word with a new line. Note that, although this would mean an
+    // extra line after the list of words, this is potentially harmless and
+    // faster, compared to verifying everytime whether to append a new line
+    // or not.
+    word_ += "\n";
+    const char* file_name_char = file_name_.c_str();
+    FILE* f = fopen(file_name_char, "a+");
+    fputs(word_.c_str(), f);
+    fclose(f);
+  }
+
+  std::string file_name_;
+  std::string word_;
+};
+
+void SpellChecker::AddWord(const std::wstring& word) {
+  // Check if the |hunspell_| has been initialized at all.
+  Initialize();
+
+  // Add the word to hunspell.
+  std::string word_to_add = WideToUTF8(word);
+  if (!word_to_add.empty())
+    hunspell_->put_word(word_to_add.c_str());
+
+  // Now add the word to the custom dictionary file in the file loop.
+  if (file_loop_) {
+    file_loop_->PostTask(FROM_HERE, new AddWordToCustomDictionaryTask(
+        custom_dictionary_file_name_, word));
+  } else {  // just run it in this thread.
+    Task* write_word_task = new AddWordToCustomDictionaryTask(
+        custom_dictionary_file_name_, word);
+    write_word_task->Run();
+  }
+}

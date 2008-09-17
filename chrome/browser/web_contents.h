@@ -169,6 +169,7 @@ class WebContents : public TabContents,
   void Undo();
   void Redo();
   void Replace(const std::wstring& text);
+  void AddToDictionary(const std::wstring& word);
   void Delete();
   void SelectAll();
 
