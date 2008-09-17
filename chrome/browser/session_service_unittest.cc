@@ -196,7 +196,7 @@ TEST_F(SessionServiceTest, Pruning) {
     TabNavigation& nav = (i % 2) == 0 ? nav1 : nav2;
     UpdateNavigation(window_id, tab_id, nav, i, true);
   }
-  service()->TabNavigationPathPruned(window_id, tab_id, 3);
+  service()->TabNavigationPathPrunedFromBack(window_id, tab_id, 3);
 
   ScopedVector<SessionWindow> windows;
   ReadWindows(&(windows.get()));
@@ -403,3 +403,61 @@ TEST_F(SessionServiceTest, IgnorePopups) {
   helper_.AssertNavigationEquals(nav1, tab->navigations[0]);
 }
 
+// Tests pruning from the front.
+TEST_F(SessionServiceTest, PruneFromFront) {
+  const std::string base_url("http://google.com/");
+  SessionID tab_id;
+
+  helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
+
+  // Add 5 navigations, with the 4th selected.
+  for (int i = 0; i < 5; ++i) {
+    TabNavigation nav(0, GURL(base_url + IntToString(i)),
+                      L"a", "b", PageTransition::QUALIFIER_MASK);
+    UpdateNavigation(window_id, tab_id, nav, i, (i == 3));
+  }
+
+  // Prune the first two navigations from the front.
+  helper_.service()->TabNavigationPathPrunedFromFront(window_id, tab_id, 2);
+
+  // Read back in.
+  ScopedVector<SessionWindow> windows;
+  ReadWindows(&(windows.get()));
+
+  ASSERT_EQ(1, windows->size());
+  ASSERT_EQ(0, windows[0]->selected_tab_index);
+  ASSERT_EQ(window_id.id(), windows[0]->window_id.id());
+  ASSERT_EQ(1, windows[0]->tabs.size());
+
+  // We should be left with three navigations, the 2nd selected.
+  SessionTab* tab = windows[0]->tabs[0];
+  ASSERT_EQ(1, tab->current_navigation_index);
+  EXPECT_EQ(3U, tab->navigations.size());
+  EXPECT_TRUE(GURL(base_url + IntToString(2)) == tab->navigations[0].url);
+  EXPECT_TRUE(GURL(base_url + IntToString(3)) == tab->navigations[1].url);
+  EXPECT_TRUE(GURL(base_url + IntToString(4)) == tab->navigations[2].url);
+}
+
+// Prunes from front so that we have no entries.
+TEST_F(SessionServiceTest, PruneToEmpty) {
+  const std::string base_url("http://google.com/");
+  SessionID tab_id;
+
+  helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
+
+  // Add 5 navigations, with the 4th selected.
+  for (int i = 0; i < 5; ++i) {
+    TabNavigation nav(0, GURL(base_url + IntToString(i)),
+                      L"a", "b", PageTransition::QUALIFIER_MASK);
+    UpdateNavigation(window_id, tab_id, nav, i, (i == 3));
+  }
+
+  // Prune the first two navigations from the front.
+  helper_.service()->TabNavigationPathPrunedFromFront(window_id, tab_id, 5);
+
+  // Read back in.
+  ScopedVector<SessionWindow> windows;
+  ReadWindows(&(windows.get()));
+
+  ASSERT_EQ(0, windows->size());
+}

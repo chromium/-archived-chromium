@@ -81,6 +81,16 @@ class NavigationController {
     }
   };
 
+  // Details sent for NOTIFY_NAV_LIST_PRUNED.
+  struct PrunedDetails {
+    // If true, count items were removed from the front of the list, otherwise
+    // count items were removed from the back of the list.
+    bool from_front;
+
+    // Number of items removed.
+    int count;
+  };
+
   // ---------------------------------------------------------------------------
 
   NavigationController(TabContents* initial_contents, Profile* profile);
@@ -331,8 +341,13 @@ class NavigationController {
   // testing.
   static void DisablePromptOnRepost();
 
+  // Maximum number of entries before we start removing entries from the front.
+  static void set_max_entry_count(size_t max_entry_count) {
+    max_entry_count_ = max_entry_count;
+  }
+  static size_t max_entry_count() { return max_entry_count_; }
+
  private:
-  FRIEND_TEST(NavigationControllerTest, EnforceMaxNavigationCount);
   class RestoreHelper;
   friend class RestoreHelper;
   friend class TabContents;  // For invoking OnReservedPageIDRange.
@@ -535,7 +550,7 @@ class NavigationController {
   static bool check_for_repost_;
 
   // The maximum number of entries that a navigation controller can store.
-  size_t max_entry_count_;
+  static size_t max_entry_count_;
 
   DISALLOW_COPY_AND_ASSIGN(NavigationController);
 };

@@ -49,19 +49,16 @@ enum NotificationType {
   NOTIFY_NAV_ENTRY_COMMITTED,
 
   // Indicates that the NavigationController given in the Source has decreased
-  // its back/forward list count. This is usually the result of going back and
-  // then doing a new navigation, meaning all the "forward" items are deleted.
+  // its back/forward list count by removing entries from either the front or
+  // back of its list. This is usually the result of going back and then doing a
+  // new navigation, meaning all the "forward" items are deleted.
   //
   // This normally happens as a result of a new navigation. It will be followed
   // by a NOTIFY_NAV_ENTRY_COMMITTED message for the new page that caused the
   // pruning. It could also be a result of removing an item from the list to fix
   // up after interstitials.
   //
-  // The details are an integer indicating the number of items pruned.
-  // Watch out: the NavigationController may start throwing entries away once
-  // the list is a certain size, so you can't use the current size of the
-  // navigation list to tell how many items were pruned, you have to use the
-  // details provided here.
+  // The details are NavigationController::PrunedDetails.
   NOTIFY_NAV_LIST_PRUNED,
 
   // Indicates that a NavigationEntry has changed. The source will be the

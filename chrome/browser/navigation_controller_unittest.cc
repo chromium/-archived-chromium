@@ -15,6 +15,7 @@
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents_factory.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_types.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/test/test_notification_tracker.h"
@@ -1169,11 +1170,47 @@ TEST_F(NavigationControllerTest, SwitchTypesCleanup) {
       contents->controller()->GetTabContents(kTestContentsType2));
 }
 
+namespace {
+
+// NotificationObserver implementation used in verifying we've received the
+// NOTIFY_NAV_LIST_PRUNED method.
+class PrunedListener : public NotificationObserver {
+ public:
+  explicit PrunedListener(NavigationController* controller)
+      : notification_count_(0) {
+    registrar_.Add(this, NOTIFY_NAV_LIST_PRUNED,
+                   Source<NavigationController>(controller));
+  }
+
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details) {
+    if (type == NOTIFY_NAV_LIST_PRUNED) {
+      notification_count_++;
+      details_ = *(Details<NavigationController::PrunedDetails>(details).ptr());
+    }
+  }
+
+  // Number of times NOTIFY_NAV_LIST_PRUNED has been observed.
+  int notification_count_;
+
+  // Details from the last NOTIFY_NAV_LIST_PRUNED.
+  NavigationController::PrunedDetails details_;
+
+ private:
+  NotificationRegistrar registrar_;
+
+  DISALLOW_COPY_AND_ASSIGN(PrunedListener);
+};
+
+}
+
 // Tests that we limit the number of navigation entries created correctly.
 TEST_F(NavigationControllerTest, EnforceMaxNavigationCount) {
+  size_t original_count = NavigationController::max_entry_count();
   const size_t kMaxEntryCount = 5;
 
-  contents->controller()->max_entry_count_ = kMaxEntryCount;
+  NavigationController::set_max_entry_count(kMaxEntryCount);
 
   int url_index;
   char buffer[128];
@@ -1187,12 +1224,20 @@ TEST_F(NavigationControllerTest, EnforceMaxNavigationCount) {
 
   EXPECT_EQ(contents->controller()->GetEntryCount(), kMaxEntryCount);
 
+  // Created a PrunedListener to observe prune notifications.
+  PrunedListener listener(contents->controller());
+
   // Navigate some more.
   SNPrintF(buffer, 128, "test1://www.a.com/%d", url_index);
   GURL url(buffer);
   contents->controller()->LoadURL(url, PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(url_index, url);
   url_index++;
+
+  // We should have got a pruned navigation.
+  EXPECT_EQ(1, listener.notification_count_);
+  EXPECT_TRUE(listener.details_.from_front);
+  EXPECT_EQ(1, listener.details_.count);
 
   // We expect http://www.a.com/0 to be gone.
   EXPECT_EQ(contents->controller()->GetEntryCount(), kMaxEntryCount);
@@ -1210,6 +1255,8 @@ TEST_F(NavigationControllerTest, EnforceMaxNavigationCount) {
   EXPECT_EQ(contents->controller()->GetEntryCount(), kMaxEntryCount);
   EXPECT_EQ(contents->controller()->GetEntryAtIndex(0)->url(),
             GURL("test1://www.a.com/4"));
+
+  NavigationController::set_max_entry_count(original_count);
 }
 
 // Tests that we can do a restore and navigate to the restored entries and

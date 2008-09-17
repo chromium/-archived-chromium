@@ -28,11 +28,16 @@ namespace {
 // Invoked when entries have been pruned, or removed. For example, if the
 // current entries are [google, digg, yahoo], with the current entry google,
 // and the user types in cnet, then digg and yahoo are pruned.
-void NotifyPrunedEntries(NavigationController* nav_controller) {
+void NotifyPrunedEntries(NavigationController* nav_controller,
+                         bool from_front,
+                         int count) {
+  NavigationController::PrunedDetails details;
+  details.from_front = from_front;
+  details.count = count;
   NotificationService::current()->Notify(
       NOTIFY_NAV_LIST_PRUNED,
       Source<NavigationController>(nav_controller),
-      NotificationService::NoDetails());
+      Details<NavigationController::PrunedDetails>(&details));
 }
 
 // Ensure the given NavigationEntry has a valid state, so that WebKit does not
@@ -119,9 +124,8 @@ class TabContentsCollector : public Task {
 
 // NavigationController ---------------------------------------------------
 
-// The maximum number of entries that a navigation controller can store.
 // static
-const static size_t kMaxEntryCount = 50;
+size_t NavigationController::max_entry_count_ = 50;
 
 // static
 bool NavigationController::check_for_repost_ = true;
@@ -164,7 +168,6 @@ NavigationController::NavigationController(TabContents* contents,
       pending_entry_(NULL),
       last_committed_entry_index_(-1),
       pending_entry_index_(-1),
-      max_entry_count_(kMaxEntryCount),
       active_contents_(contents),
       max_restored_page_id_(-1),
       ssl_manager_(this, NULL),
@@ -184,7 +187,6 @@ NavigationController::NavigationController(
       pending_entry_(NULL),
       last_committed_entry_index_(-1),
       pending_entry_index_(-1),
-      max_entry_count_(kMaxEntryCount),
       active_contents_(NULL),
       max_restored_page_id_(-1),
       ssl_manager_(this, NULL),
@@ -857,7 +859,7 @@ void NavigationController::RemoveLastEntryForInterstitial() {
       NotifyNavigationEntryCommitted(&details);
     }
 
-    NotifyPrunedEntries(this);
+    NotifyPrunedEntries(this, false, 1);
   }
 }
 
@@ -936,18 +938,20 @@ void NavigationController::InsertEntry(NavigationEntry* entry) {
 
   // Prune any entries which are in front of the current entry.
   if (current_size > 0) {
-    bool pruned = false;
+    int num_pruned = 0;
     while (last_committed_entry_index_ < (current_size - 1)) {
-      pruned = true;
+      num_pruned++;
       entries_.pop_back();
       current_size--;
     }
-    if (pruned)  // Only notify if we did prune something.
-      NotifyPrunedEntries(this);
+    if (num_pruned > 0)  // Only notify if we did prune something.
+      NotifyPrunedEntries(this, false, num_pruned);
   }
 
-  if (entries_.size() >= max_entry_count_)
+  if (entries_.size() >= max_entry_count_) {
     RemoveEntryAtIndex(0);
+    NotifyPrunedEntries(this, true, 1);
+  }
 
   entries_.push_back(linked_ptr<NavigationEntry>(entry));
   last_committed_entry_index_ = static_cast<int>(entries_.size()) - 1;

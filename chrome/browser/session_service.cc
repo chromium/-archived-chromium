@@ -32,12 +32,15 @@ static const SessionCommand::id_type kCommandSetTabWindow = 0;
 static const SessionCommand::id_type kCommandSetTabIndexInWindow = 2;
 static const SessionCommand::id_type kCommandTabClosed = 3;
 static const SessionCommand::id_type kCommandWindowClosed = 4;
-static const SessionCommand::id_type kCommandTabNavigationPathPruned = 5;
+static const SessionCommand::id_type
+    kCommandTabNavigationPathPrunedFromBack = 5;
 static const SessionCommand::id_type kCommandUpdateTabNavigation = 6;
 static const SessionCommand::id_type kCommandSetSelectedNavigationIndex = 7;
 static const SessionCommand::id_type kCommandSetSelectedTabInIndex = 8;
 static const SessionCommand::id_type kCommandSetWindowType = 9;
 static const SessionCommand::id_type kCommandSetWindowBounds2 = 10;
+static const SessionCommand::id_type
+    kCommandTabNavigationPathPrunedFromFront = 11;
 
 // Max number of navigation entries in each direction we'll persist.
 static const int kMaxNavigationCountToPersist = 6;
@@ -73,13 +76,15 @@ struct IDAndIndexPayload {
 
 typedef IDAndIndexPayload TabIndexInWindowPayload;
 
-typedef IDAndIndexPayload TabNavigationPathPrunedPayload;
+typedef IDAndIndexPayload TabNavigationPathPrunedFromBackPayload;
 
 typedef IDAndIndexPayload SelectedNavigationIndexPayload;
 
 typedef IDAndIndexPayload SelectedTabInIndexPayload;
 
 typedef IDAndIndexPayload WindowTypePayload;
+
+typedef IDAndIndexPayload TabNavigationPathPrunedFromFrontPayload;
 
 }  // namespace
 
@@ -271,17 +276,43 @@ void SessionService::SetWindowType(const SessionID& window_id,
   ScheduleCommand(CreateSetWindowTypeCommand(window_id, type));
 }
 
-void SessionService::TabNavigationPathPruned(const SessionID& window_id,
-                                             const SessionID& tab_id,
-                                             int index) {
+void SessionService::TabNavigationPathPrunedFromBack(const SessionID& window_id,
+                                                     const SessionID& tab_id,
+                                                     int count) {
   if (!ShouldTrackChangesToWindow(window_id))
     return;
 
-  TabNavigationPathPrunedPayload payload = { 0 };
+  TabNavigationPathPrunedFromBackPayload payload = { 0 };
   payload.id = tab_id.id();
-  payload.index = index;
+  payload.index = count;
   SessionCommand* command =
-      new SessionCommand(kCommandTabNavigationPathPruned, sizeof(payload));
+      new SessionCommand(kCommandTabNavigationPathPrunedFromBack,
+                         sizeof(payload));
+  memcpy(command->contents(), &payload, sizeof(payload));
+  ScheduleCommand(command);
+}
+
+void SessionService::TabNavigationPathPrunedFromFront(
+    const SessionID& window_id,
+    const SessionID& tab_id,
+    int count) {
+  if (!ShouldTrackChangesToWindow(window_id))
+    return;
+
+  // Update the range of indices.
+  if (tab_to_available_range_.find(tab_id.id()) !=
+      tab_to_available_range_.end()) {
+    std::pair<int, int>& range = tab_to_available_range_[tab_id.id()];
+    range.first = std::max(0, range.first - count);
+    range.second = std::max(0, range.second - count);
+  }
+
+  TabNavigationPathPrunedFromFrontPayload payload = { 0 };
+  payload.id = tab_id.id();
+  payload.index = count;
+  SessionCommand* command =
+      new SessionCommand(kCommandTabNavigationPathPrunedFromFront,
+                         sizeof(payload));
   memcpy(command->contents(), &payload, sizeof(payload));
   ScheduleCommand(command);
 }
@@ -414,10 +445,19 @@ void SessionService::Observe(NotificationType type,
     case NOTIFY_TAB_CLOSED:
       TabClosed(controller->window_id(), controller->session_id());
       break;
-    case NOTIFY_NAV_LIST_PRUNED:
-      TabNavigationPathPruned(controller->window_id(), controller->session_id(),
-                              controller->GetEntryCount());
+    case NOTIFY_NAV_LIST_PRUNED: {
+      Details<NavigationController::PrunedDetails> pruned_details(details);
+      if (pruned_details->from_front) {
+        TabNavigationPathPrunedFromFront(controller->window_id(),
+                                         controller->session_id(),
+                                         pruned_details->count);
+      } else {
+        TabNavigationPathPrunedFromBack(controller->window_id(),
+                                        controller->session_id(),
+                                        controller->GetEntryCount());
+      }
       break;
+    }
     case NOTIFY_NAV_ENTRY_CHANGED: {
       Details<NavigationController::EntryChangedDetails> changed(details);
       UpdateTabNavigation(controller->window_id(), controller->session_id(),
@@ -807,14 +847,38 @@ bool SessionService::CreateTabsAndWindows(
         break;
       }
 
-      case kCommandTabNavigationPathPruned: {
-        TabNavigationPathPrunedPayload payload;
+      case kCommandTabNavigationPathPrunedFromBack: {
+        TabNavigationPathPrunedFromBackPayload payload;
         if (!command->GetPayload(&payload, sizeof(payload)))
           return true;
         SessionTab* tab = GetTab(payload.id, tabs);
         tab->navigations.erase(
             FindClosestNavigationWithIndex(&(tab->navigations), payload.index),
             tab->navigations.end());
+        break;
+      }
+
+      case kCommandTabNavigationPathPrunedFromFront: {
+        TabNavigationPathPrunedFromFrontPayload payload;
+        if (!command->GetPayload(&payload, sizeof(payload)) ||
+            payload.index <= 0) {
+          return true;
+        }
+        SessionTab* tab = GetTab(payload.id, tabs);
+
+        // Update the selected navigation index.
+        tab->current_navigation_index =
+            std::max(-1, tab->current_navigation_index - payload.index);
+        
+        // And update the index of existing navigations.
+        for (std::vector<TabNavigation>::iterator i = tab->navigations.begin();
+             i != tab->navigations.end();) {
+          i->index -= payload.index;
+          if (i->index < 0)
+            i = tab->navigations.erase(i);
+          else
+            ++i;
+        }
         break;
       }
 

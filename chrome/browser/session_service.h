@@ -236,10 +236,17 @@ class SessionService : public CancelableRequestProvider,
   // (should_track_changes_for_browser_type returns true).
   void SetWindowType(const SessionID& window_id, BrowserType::Type type);
 
-  // Removes the navigation entries for tab_id whose indices are >= index.
-  void TabNavigationPathPruned(const SessionID& window_id,
-                               const SessionID& tab_id,
-                               int index);
+  // Invoked when the NavigationController has removed entries from the back of
+  // the list. |count| gives the number of entries in the navigation controller.
+  void TabNavigationPathPrunedFromBack(const SessionID& window_id,
+                                       const SessionID& tab_id,
+                                       int count);
+
+  // Invoked when the NavigationController has removed entries from the front of
+  // the list. |count| gives the number of entries that were removed.
+  void TabNavigationPathPrunedFromFront(const SessionID& window_id,
+                                        const SessionID& tab_id,
+                                        int count);
 
   // Updates the navigation entry for the specified tab.
   void UpdateTabNavigation(const SessionID& window_id,
