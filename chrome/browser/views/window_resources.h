@@ -7,29 +7,22 @@
 
 #include "SkBitmap.h"
 
-class ChromeFont;
+// TODO(beng): (http://crbug.com/2395) Move this file to chrome/views.
 
 typedef int FramePartBitmap;
 
+///////////////////////////////////////////////////////////////////////////////
+// WindowResources
+//
+//  An interface implemented by an object providing bitmaps to render the
+//  contents of a window frame. The Window may swap in different
+//  implementations of this interface to render different modes. The definition
+//  of FramePartBitmap depends on the implementation.
+//
 class WindowResources {
  public:
   virtual ~WindowResources() { }
   virtual SkBitmap* GetPartBitmap(FramePartBitmap part) const = 0;
-  virtual const ChromeFont& GetTitleFont() const = 0;
-  virtual SkColor GetTitleColor() const { return SK_ColorWHITE; }
-
-  SkBitmap app_top_left() const { return app_top_left_; }
-  SkBitmap app_top_center() const { return app_top_center_; }
-  SkBitmap app_top_right() const { return app_top_right_; }
-
- protected:
-  static void InitClass();
-
- private:
-  // Bitmaps shared between all frame types.
-  static SkBitmap app_top_left_;
-  static SkBitmap app_top_center_;
-  static SkBitmap app_top_right_;
 };
 
 #endif  // CHROME_BROWSER_VIEWS_WINDOW_RESOURCES_H_

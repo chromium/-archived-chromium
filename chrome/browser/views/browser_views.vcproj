@@ -826,10 +826,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\window_resources.cc"
-			>
-		</File>
-		<File
 			RelativePath=".\window_resources.h"
 			>
 		</File>

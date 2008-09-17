@@ -82,9 +82,6 @@ class ActiveWindowResources : public WindowResources {
   virtual SkBitmap* GetPartBitmap(FramePartBitmap part) const {
     return standard_frame_bitmaps_[part];
   }
-  virtual const ChromeFont& GetTitleFont() const {
-    return title_font_;
-  }
 
  private:
   static void InitClass() {
@@ -114,8 +111,6 @@ class ActiveWindowResources : public WindowResources {
         if (id != 0)
           standard_frame_bitmaps_[i] = rb.GetBitmapNamed(id);
       }
-      title_font_ =
-          rb.GetFont(ResourceBundle::BaseFont).DeriveFont(1, ChromeFont::BOLD);
       initialized = true;
     }
   }
@@ -137,9 +132,6 @@ class InactiveWindowResources : public WindowResources {
   // WindowResources implementation:
   virtual SkBitmap* GetPartBitmap(FramePartBitmap part) const {
     return standard_frame_bitmaps_[part];
-  }
-  virtual const ChromeFont& GetTitleFont() const {
-    return title_font_;
   }
 
  private:
@@ -170,23 +162,18 @@ class InactiveWindowResources : public WindowResources {
         if (id != 0)
           standard_frame_bitmaps_[i] = rb.GetBitmapNamed(id);
       }
-      title_font_ =
-          rb.GetFont(ResourceBundle::BaseFont).DeriveFont(1, ChromeFont::BOLD);
       initialized = true;
     }
   }
 
   static SkBitmap* standard_frame_bitmaps_[FRAME_PART_BITMAP_COUNT];
-  static ChromeFont title_font_;
 
   DISALLOW_EVIL_CONSTRUCTORS(InactiveWindowResources);
 };
 
 // static
 SkBitmap* ActiveWindowResources::standard_frame_bitmaps_[];
-ChromeFont ActiveWindowResources::title_font_;
 SkBitmap* InactiveWindowResources::standard_frame_bitmaps_[];
-ChromeFont InactiveWindowResources::title_font_;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -271,6 +258,7 @@ class DefaultNonClientView : public NonClientView,
   static void InitClass();
   static WindowResources* active_resources_;
   static WindowResources* inactive_resources_;
+  static ChromeFont title_font_;
 
   DISALLOW_EVIL_CONSTRUCTORS(DefaultNonClientView);
 };
@@ -278,6 +266,7 @@ class DefaultNonClientView : public NonClientView,
 // static
 WindowResources* DefaultNonClientView::active_resources_ = NULL;
 WindowResources* DefaultNonClientView::inactive_resources_ = NULL;
+ChromeFont DefaultNonClientView::title_font_;
 static const int kWindowControlsTopOffset = 1;
 static const int kWindowControlsRightOffset = 5;
 static const int kWindowControlsTopZoomedOffset = 1;
@@ -473,11 +462,9 @@ void DefaultNonClientView::Paint(ChromeCanvas* canvas) {
 
   WindowDelegate* d = container_->window_delegate();
   if (d->ShouldShowWindowTitle()) {
-    canvas->DrawStringInt(d->GetWindowTitle(),
-                          resources()->GetTitleFont(),
-                          resources()->GetTitleColor(), title_bounds_.x(),
-                          title_bounds_.y(), title_bounds_.width(),
-                          title_bounds_.height());
+    canvas->DrawStringInt(d->GetWindowTitle(), title_font_, SK_ColorWHITE,
+                          title_bounds_.x(), title_bounds_.y(),
+                          title_bounds_.width(), title_bounds_.height());
   }
 }
 
@@ -530,10 +517,8 @@ void DefaultNonClientView::SetWindowIcon(SkBitmap window_icon) {
 }
 
 int DefaultNonClientView::CalculateContentsTop() const {
-  if (container_->window_delegate()->ShouldShowWindowTitle()) {
-    return kTitleTopOffset + resources()->GetTitleFont().height() +
-        kTitleBottomSpacing;
-  }
+  if (container_->window_delegate()->ShouldShowWindowTitle())
+    return kTitleTopOffset + title_font_.height() + kTitleBottomSpacing;
   return kNoTitleTopSpacing;
 }
 
@@ -764,7 +749,7 @@ void DefaultNonClientView::LayoutTitleBar() {
     int title_left = system_menu_bounds.right + spacing;
     title_bounds_.SetRect(title_left, kTitleTopOffset + top_offset,
         std::max(0, static_cast<int>(title_right - system_menu_bounds.right)),
-        resources()->GetTitleFont().height());
+        title_font_.height());
 
     // We draw the custom frame window's title directly rather than using a
     // ChromeViews::Label child view. Therefore, we have to mirror the title
@@ -793,6 +778,8 @@ void DefaultNonClientView::InitClass() {
   if (!initialized) {
     active_resources_ = new ActiveWindowResources;
     inactive_resources_ = new InactiveWindowResources;
+    title_font_ = ResourceBundle::GetSharedInstance().GetFont(
+        ResourceBundle::BaseFont).DeriveFont(1, ChromeFont::BOLD);
     initialized = true;
   }
 }

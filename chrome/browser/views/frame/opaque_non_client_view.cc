@@ -68,16 +68,12 @@ class ActiveWindowResources : public WindowResources {
  public:
   ActiveWindowResources() {
     InitClass();
-    WindowResources::InitClass();
   }
   virtual ~ActiveWindowResources() { }
 
   // WindowResources implementation:
   virtual SkBitmap* GetPartBitmap(FramePartBitmap part) const {
     return standard_frame_bitmaps_[part];
-  }
-  virtual const ChromeFont& GetTitleFont() const {
-    return title_font_;
   }
 
  private:
@@ -109,8 +105,6 @@ class ActiveWindowResources : public WindowResources {
         if (id != 0)
           standard_frame_bitmaps_[i] = rb.GetBitmapNamed(id);
       }
-      title_font_ =
-          rb.GetFont(ResourceBundle::BaseFont).DeriveFont(1, ChromeFont::BOLD);
       initialized = true;
     }
   }
@@ -125,16 +119,12 @@ class InactiveWindowResources : public WindowResources {
  public:
   InactiveWindowResources() {
     InitClass();
-    WindowResources::InitClass();
   }
   virtual ~InactiveWindowResources() { }
 
   // WindowResources implementation:
   virtual SkBitmap* GetPartBitmap(FramePartBitmap part) const {
     return standard_frame_bitmaps_[part];
-  }
-  virtual const ChromeFont& GetTitleFont() const {
-    return title_font_;
   }
 
  private:
@@ -166,8 +156,6 @@ class InactiveWindowResources : public WindowResources {
         if (id != 0)
           standard_frame_bitmaps_[i] = rb.GetBitmapNamed(id);
       }
-      title_font_ =
-          rb.GetFont(ResourceBundle::BaseFont).DeriveFont(1, ChromeFont::BOLD);
       initialized = true;
     }
   }
@@ -182,7 +170,6 @@ class OTRActiveWindowResources : public WindowResources {
  public:
   OTRActiveWindowResources() {
     InitClass();
-    WindowResources::InitClass();
   }
   virtual ~OTRActiveWindowResources() { }
 
@@ -190,10 +177,7 @@ class OTRActiveWindowResources : public WindowResources {
   virtual SkBitmap* GetPartBitmap(FramePartBitmap part) const {
     return standard_frame_bitmaps_[part];
   }
-  virtual const ChromeFont& GetTitleFont() const {
-    return title_font_;
-  }
-
+  
  private:
   static void InitClass() {
     static bool initialized = false;
@@ -223,14 +207,11 @@ class OTRActiveWindowResources : public WindowResources {
         if (id != 0)
           standard_frame_bitmaps_[i] = rb.GetBitmapNamed(id);
       }
-      title_font_ =
-          rb.GetFont(ResourceBundle::BaseFont).DeriveFont(1, ChromeFont::BOLD);
       initialized = true;
     }
   }
 
   static SkBitmap* standard_frame_bitmaps_[FRAME_PART_BITMAP_COUNT];
-  static ChromeFont title_font_;
 
   DISALLOW_EVIL_CONSTRUCTORS(OTRActiveWindowResources);
 };
@@ -239,16 +220,12 @@ class OTRInactiveWindowResources : public WindowResources {
  public:
   OTRInactiveWindowResources() {
     InitClass();
-    WindowResources::InitClass();
   }
   virtual ~OTRInactiveWindowResources() { }
 
   // WindowResources implementation:
   virtual SkBitmap* GetPartBitmap(FramePartBitmap part) const {
     return standard_frame_bitmaps_[part];
-  }
-  virtual const ChromeFont& GetTitleFont() const {
-    return title_font_;
   }
 
  private:
@@ -281,8 +258,6 @@ class OTRInactiveWindowResources : public WindowResources {
         if (id != 0)
           standard_frame_bitmaps_[i] = rb.GetBitmapNamed(id);
       }
-      title_font_ =
-          rb.GetFont(ResourceBundle::BaseFont).DeriveFont(1, ChromeFont::BOLD);
       initialized = true;
     }
   }
@@ -294,19 +269,19 @@ class OTRInactiveWindowResources : public WindowResources {
 };
 // static
 SkBitmap* ActiveWindowResources::standard_frame_bitmaps_[];
-ChromeFont ActiveWindowResources::title_font_;
 SkBitmap* InactiveWindowResources::standard_frame_bitmaps_[];
-ChromeFont InactiveWindowResources::title_font_;
 SkBitmap* OTRActiveWindowResources::standard_frame_bitmaps_[];
-ChromeFont OTRActiveWindowResources::title_font_;
 SkBitmap* OTRInactiveWindowResources::standard_frame_bitmaps_[];
-ChromeFont OTRInactiveWindowResources::title_font_;
 
 WindowResources* OpaqueNonClientView::active_resources_ = NULL;
 WindowResources* OpaqueNonClientView::inactive_resources_ = NULL;
 WindowResources* OpaqueNonClientView::active_otr_resources_ = NULL;
 WindowResources* OpaqueNonClientView::inactive_otr_resources_ = NULL;
 SkBitmap OpaqueNonClientView::distributor_logo_;
+SkBitmap OpaqueNonClientView::app_top_left_;
+SkBitmap OpaqueNonClientView::app_top_center_;
+SkBitmap OpaqueNonClientView::app_top_right_;
+ChromeFont OpaqueNonClientView::title_font_;
 
 // The distance between the top of the window and the top of the window
 // controls when the window is restored.
@@ -459,6 +434,10 @@ OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame,
     AddChildView(window_icon_);
     window_icon_->Update();
   }
+  // Only load the title font if we're going to need to use it to paint.
+  // Loading fonts is expensive.
+  if (browser_view_->ShouldShowWindowTitle())
+    InitAppWindowResources();
 }
 
 OpaqueNonClientView::~OpaqueNonClientView() {
@@ -716,10 +695,8 @@ void OpaqueNonClientView::SetWindowIcon(SkBitmap window_icon) {
 }
 
 int OpaqueNonClientView::CalculateNonClientTopHeight() const {
-  if (frame_->window_delegate()->ShouldShowWindowTitle()) {
-    return kTitleTopOffset + resources()->GetTitleFont().height() +
-        kTitleBottomSpacing;
-  }
+  if (frame_->window_delegate()->ShouldShowWindowTitle())
+    return kTitleTopOffset + title_font_.height() + kTitleBottomSpacing;
   return frame_->IsMaximized() ? kNoTitleZoomedTopSpacing : kNoTitleTopSpacing;
 }
 
@@ -803,11 +780,9 @@ void OpaqueNonClientView::PaintTitleBar(ChromeCanvas* canvas) {
   // The window icon is painted by the TabIconView.
   ChromeViews::WindowDelegate* d = frame_->window_delegate();
   if (d->ShouldShowWindowTitle()) {
-    canvas->DrawStringInt(d->GetWindowTitle(),
-                          resources()->GetTitleFont(),
-                          resources()->GetTitleColor(), title_bounds_.x(),
-                          title_bounds_.y(), title_bounds_.width(),
-                          title_bounds_.height());
+    canvas->DrawStringInt(d->GetWindowTitle(), title_font_, SK_ColorWHITE,
+                          title_bounds_.x(), title_bounds_.y(),
+                          title_bounds_.width(), title_bounds_.height());
   }
 }
 
@@ -883,18 +858,15 @@ void OpaqueNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
                        left->width(), client_area_bounds.height() - fudge);
 
   if (frame_->window_delegate()->ShouldShowWindowTitle()) {
-    SkBitmap app_top_left = resources()->app_top_left();
-    SkBitmap app_top_center = resources()->app_top_center();
-    SkBitmap app_top_right = resources()->app_top_right();
-    canvas->DrawBitmapInt(app_top_left,
-                          client_area_bounds.x() - app_top_left.width(),
-                          client_area_bounds.y() - app_top_left.height() +
+    canvas->DrawBitmapInt(app_top_left_,
+                          client_area_bounds.x() - app_top_left_.width(),
+                          client_area_bounds.y() - app_top_left_.height() +
                               fudge);
-    canvas->TileImageInt(app_top_center, client_area_bounds.x(),
-                         client_area_bounds.y() - app_top_center.height(),
-                         client_area_bounds.width(), app_top_center.height());
-    canvas->DrawBitmapInt(app_top_right, client_area_bounds.right(),
-                          client_area_bounds.y() - app_top_right.height() +
+    canvas->TileImageInt(app_top_center_, client_area_bounds.x(),
+                         client_area_bounds.y() - app_top_center_.height(),
+                         client_area_bounds.width(), app_top_center_.height());
+    canvas->DrawBitmapInt(app_top_right_, client_area_bounds.right(),
+                          client_area_bounds.y() - app_top_right_.height() +
                               fudge);
   }
 }
@@ -1028,7 +1000,7 @@ void OpaqueNonClientView::LayoutTitleBar() {
     int title_left = icon_right + spacing;
     title_bounds_.SetRect(title_left, kTitleTopOffset + top_offset,
         std::max(0, static_cast<int>(title_right - icon_right)),
-        resources()->GetTitleFont().height());
+        title_font_.height());
   }
 }
 
@@ -1050,7 +1022,20 @@ void OpaqueNonClientView::InitClass() {
     if (!image->isNull())
       distributor_logo_ = *image;
 
+    app_top_left_ = *rb.GetBitmapNamed(IDR_APP_TOP_LEFT);
+    app_top_center_ = *rb.GetBitmapNamed(IDR_APP_TOP_CENTER);
+    app_top_right_ = *rb.GetBitmapNamed(IDR_APP_TOP_RIGHT);      
+
     initialized = true;
   }
 }
 
+// static
+void OpaqueNonClientView::InitAppWindowResources() {
+  static bool initialized = false;
+  if (!initialized) {
+    title_font_ = ResourceBundle::GetSharedInstance().GetFont(
+        ResourceBundle::BaseFont).DeriveFont(1, ChromeFont::BOLD);
+    initialized = true;
+  }
+}

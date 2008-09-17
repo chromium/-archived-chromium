@@ -40,9 +40,6 @@ class AeroGlassWindowResources {
   virtual SkBitmap* GetPartBitmap(FramePartBitmap part) const {
     return standard_frame_bitmaps_[part];
   }
-  virtual const ChromeFont& GetTitleFont() const {
-    return title_font_;
-  }
 
   SkBitmap app_top_left() const { return app_top_left_; }
   SkBitmap app_top_center() const { return app_top_center_; }
@@ -67,9 +64,6 @@ class AeroGlassWindowResources {
         if (id != 0)
           standard_frame_bitmaps_[i] = rb.GetBitmapNamed(id);
       }
-      title_font_ =
-          rb.GetFont(ResourceBundle::BaseFont).DeriveFont(1, ChromeFont::BOLD);
-
       app_top_left_ = *rb.GetBitmapNamed(IDR_APP_TOP_LEFT);
       app_top_center_ = *rb.GetBitmapNamed(IDR_APP_TOP_CENTER);
       app_top_right_ = *rb.GetBitmapNamed(IDR_APP_TOP_RIGHT);      
@@ -79,7 +73,6 @@ class AeroGlassWindowResources {
   }
 
   static SkBitmap* standard_frame_bitmaps_[FRAME_PART_BITMAP_COUNT];
-  static ChromeFont title_font_;
   static SkBitmap app_top_left_;
   static SkBitmap app_top_center_;
   static SkBitmap app_top_right_;
@@ -89,7 +82,6 @@ class AeroGlassWindowResources {
 
 // static
 SkBitmap* AeroGlassWindowResources::standard_frame_bitmaps_[];
-ChromeFont AeroGlassWindowResources::title_font_;
 SkBitmap AeroGlassWindowResources::app_top_left_;
 SkBitmap AeroGlassWindowResources::app_top_center_;
 SkBitmap AeroGlassWindowResources::app_top_right_;
