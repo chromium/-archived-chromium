@@ -27,35 +27,6 @@ int64 GetFreeDiskSpace(const std::wstring& path) {
   return static_cast<int64>(stats.f_bavail) * stats.f_frsize;
 }
 
-int64 GetSystemMemory() {
-#if defined(OS_LINUX)
-  // _SC_PHYS_PAGES is not part of POSIX and not available on OS X
-  long pages = sysconf(_SC_PHYS_PAGES);
-  if (pages == -1) {
-    return -1;
-  }
-  long page_size = sysconf(_SC_PAGE_SIZE);
-  if (page_size == -1) {
-    return -1;
-  }
-  int64 result = static_cast<int64>(pages) * page_size;
-  DCHECK(result > 0);
-  return result;
-#elif defined(OS_MACOSX)
-  struct host_basic_info hostinfo;
-  mach_msg_type_number_t count = HOST_BASIC_INFO_COUNT;
-  int result = host_info(mach_host_self(),
-                         HOST_BASIC_INFO,
-                         reinterpret_cast<host_info_t>(&hostinfo),
-                         &count);
-  DCHECK_EQ(HOST_BASIC_INFO_COUNT, count);
-  return (result == KERN_SUCCESS) ? hostinfo.max_mem : -1;
-#else
-  NOTIMPLEMENTED();
-  return -1;
-#endif
-}
-
 bool MoveCache(const std::wstring& from_path, const std::wstring& to_path) {
   // Just use the version from base.
   return file_util::Move(from_path.c_str(), to_path.c_str());

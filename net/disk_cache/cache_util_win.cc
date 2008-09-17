@@ -49,19 +49,6 @@ int64 GetFreeDiskSpace(const std::wstring& path) {
   return rv;
 }
 
-int64 GetSystemMemory() {
-  MEMORYSTATUSEX memory_info;
-  memory_info.dwLength = sizeof(memory_info);
-  if (!GlobalMemoryStatusEx(&memory_info)) {
-    return -1;
-  }
-
-  int64 rv = static_cast<int64>(memory_info.ullTotalPhys);
-  if (rv < 0)
-    rv = kint64max;
-  return rv;
-}
-
 bool MoveCache(const std::wstring& from_path, const std::wstring& to_path) {
   // I don't want to use the shell version of move because if something goes
   // wrong, that version will attempt to move file by file and fail at the end.

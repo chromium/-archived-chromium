@@ -15,10 +15,6 @@ namespace disk_cache {
 // (in bytes), or -1 on failure.
 int64 GetFreeDiskSpace(const std::wstring& path);
 
-// Returns the total physical memory on the system (in bytes),
-// or -1 on failure.
-int64 GetSystemMemory();
-
 // Moves the cache files from the given path to another location.
 // Returns true if successful, false otherwise.
 bool MoveCache(const std::wstring& from_path, const std::wstring& to_path);
