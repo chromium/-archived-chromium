@@ -31,6 +31,7 @@
 				7BF895DC0E75D5FB000BAF8A /* PBXTargetDependency */,
 				7BF896580E75D75F000BAF8A /* PBXTargetDependency */,
 				7BF896460E75D705000BAF8A /* PBXTargetDependency */,
+				7B2630020E82F19B001CE27F /* PBXTargetDependency */,
 				7BF8964A0E75D705000BAF8A /* PBXTargetDependency */,
 				7BF896420E75D705000BAF8A /* PBXTargetDependency */,
 				7BF896400E75D705000BAF8A /* PBXTargetDependency */,
@@ -48,6 +49,34 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXContainerItemProxy section */
+		7B262E390E82E508001CE27F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7BF895A30E75D5DA000BAF8A /* v8.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 89F23C870E78D5B2006B2466;
+			remoteInfo = "v8-arm";
+		};
+		7B262E3B0E82E508001CE27F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7BF895A30E75D5DA000BAF8A /* v8.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 89F23C950E78D5B6006B2466;
+			remoteInfo = "v8_shell-arm";
+		};
+		7B262FEC0E82F18D001CE27F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7B262FE50E82F18D001CE27F /* libevent.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 7B262E840E82E5D7001CE27F;
+			remoteInfo = libevent;
+		};
+		7B2630010E82F19B001CE27F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7B262FE50E82F18D001CE27F /* libevent.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 7B262E830E82E5D7001CE27F;
+			remoteInfo = libevent;
+		};
 		7B82FA6D0E75DD23008F45CF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7BF8955A0E75D5BB000BAF8A /* base.xcodeproj */;
@@ -415,6 +444,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7B262FE50E82F18D001CE27F /* libevent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libevent.xcodeproj; path = libevent/libevent.xcodeproj; sourceTree = "<group>"; };
 		7BF895500E75D568000BAF8A /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
 		7BF895510E75D568000BAF8A /* debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = debug.xcconfig; sourceTree = "<group>"; };
 		7BF895520E75D568000BAF8A /* executable.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = executable.xcconfig; sourceTree = "<group>"; };
@@ -438,6 +468,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		7B262FE60E82F18D001CE27F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7B262FED0E82F18D001CE27F /* libevent.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		7BE0EE060E75DAEC002F5776 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -516,6 +554,8 @@
 				7BF895B60E75D5DA000BAF8A /* libjscre.a */,
 				7BF895B80E75D5DA000BAF8A /* libv8.a */,
 				7BF895BA0E75D5DA000BAF8A /* v8_shell */,
+				7B262E3A0E82E508001CE27F /* libv8-arm.a */,
+				7B262E3C0E82E508001CE27F /* v8_shell-arm */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -546,6 +586,7 @@
 			children = (
 				7BF895E90E75D666000BAF8A /* bzip2.xcodeproj */,
 				7BF895EF0E75D673000BAF8A /* icu.xcodeproj */,
+				7B262FE50E82F18D001CE27F /* libevent.xcodeproj */,
 				7BF896080E75D68B000BAF8A /* libjpeg.xcodeproj */,
 				7BF896110E75D694000BAF8A /* libpng.xcodeproj */,
 				7BF896170E75D6A0000BAF8A /* libxml.xcodeproj */,
@@ -660,6 +701,10 @@
 					ProjectRef = 7BF895EF0E75D673000BAF8A /* icu.xcodeproj */;
 				},
 				{
+					ProductGroup = 7B262FE60E82F18D001CE27F /* Products */;
+					ProjectRef = 7B262FE50E82F18D001CE27F /* libevent.xcodeproj */;
+				},
+				{
 					ProductGroup = 7BF896090E75D68B000BAF8A /* Products */;
 					ProjectRef = 7BF896080E75D68B000BAF8A /* libjpeg.xcodeproj */;
 				},
@@ -709,6 +754,27 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		7B262E3A0E82E508001CE27F /* libv8-arm.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libv8-arm.a";
+			remoteRef = 7B262E390E82E508001CE27F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		7B262E3C0E82E508001CE27F /* v8_shell-arm */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = "v8_shell-arm";
+			remoteRef = 7B262E3B0E82E508001CE27F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		7B262FED0E82F18D001CE27F /* libevent.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libevent.a;
+			remoteRef = 7B262FEC0E82F18D001CE27F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		7BE0EE0A0E75DAEC002F5776 /* liblzma_sdk.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -950,6 +1016,11 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXTargetDependency section */
+		7B2630020E82F19B001CE27F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = libevent;
+			targetProxy = 7B2630010E82F19B001CE27F /* PBXContainerItemProxy */;
+		};
 		7B82FA6E0E75DD23008F45CF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = run_base_unittests;

@@ -2,6 +2,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+# This SConscript is currently only suitable for Linux.
+
 Import('env')
 
 env = env.Clone(
@@ -16,7 +18,8 @@ env.Append(
 env.Prepend(
     CPPPATH = [
         '$LIBEVENT_DIR',
-        '$LIBEVENT_DIR/compat/'
+        '$LIBEVENT_DIR/compat/',
+        '$LIBEVENT_DIR/linux/',
     ],
 )
 
