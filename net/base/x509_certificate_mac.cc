@@ -40,11 +40,6 @@ bool IsNullFingerprint(const X509Certificate::Fingerprint& fingerprint) {
 // (all zero) fingerprint on failure.
 X509Certificate::Fingerprint CalculateFingerprint(
     X509Certificate::OSCertHandle cert) {
-  // The Windows code uses CryptHashCertificate, a function specially designed
-  // to hash certificates. I'm not sure what the difference between using it and
-  // just hashing the data is. WINE's implementation just hashes the data, and
-  // so we'll do that.
-  
   X509Certificate::Fingerprint sha1;
   memset(sha1.data, 0, sizeof(sha1.data));
   
@@ -132,26 +127,25 @@ void GetCertFieldsForOID(X509Certificate::OSCertHandle cert_handle,
   if (status)
     return;
   
-  CSSM_CL_HANDLE clHandle;
-  status = SecCertificateGetCLHandle(cert_handle, &clHandle);
+  CSSM_CL_HANDLE cl_handle;
+  status = SecCertificateGetCLHandle(cert_handle, &cl_handle);
   if (status)
     return;
   
-  uint32 numOfFields;
+  uint32 num_of_fields;
   CSSM_FIELD_PTR fields;
-  status = CSSM_CL_CertGetAllFields(clHandle, &cert_data, &numOfFields,
+  status = CSSM_CL_CertGetAllFields(cl_handle, &cert_data, &num_of_fields,
                                     &fields);
   if (status)
     return;
   
-  for (size_t field = 0; field < numOfFields; ++field) {
+  for (size_t field = 0; field < num_of_fields; ++field) {
     if (CSSMOIDEqual(&fields[field].FieldOid, &oid)) {
       std::string value =
           std::string(reinterpret_cast<std::string::value_type*>
                       (fields[field].FieldValue.Data),
                       fields[field].FieldValue.Length);
       result->push_back(value);
-      break;
     }
   }
 }
@@ -334,6 +328,9 @@ void X509Certificate::GetDNSNames(std::vector<std::string>* dns_names) const {
   dns_names->clear();
   
   GetCertFieldsForOID(cert_handle_, CSSMOID_SubjectAltName, dns_names);
+  
+  // TODO(avi): wtc says we need more parsing here. Return and fix when the
+  // unit tests are complete and we can verify we're doing this right.
   
   if (dns_names->empty())
     dns_names->push_back(subject_.common_name);
