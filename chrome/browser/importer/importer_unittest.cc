@@ -145,10 +145,12 @@ class TestObserver : public ProfileWriter,
     MessageLoop::current()->Quit();
     EXPECT_EQ(arraysize(kIEBookmarks), bookmark_count_);
     EXPECT_EQ(1, history_count_);
+#if 0  // This part of the test is disabled. See bug #2466
     if (IsWindowsVista())
       EXPECT_EQ(0, password_count_);
     else
       EXPECT_EQ(1, password_count_);
+#endif
   }
 
   virtual bool BookmarkModelIsLoaded() const {
@@ -304,6 +306,7 @@ TEST_F(ImporterTest, IEImporter) {
 
   // Sets up dummy password data.
   HRESULT res;
+  #if 0  // This part of the test is disabled. See bug #2466
   CComPtr<IPStore> pstore;
   HMODULE pstorec_dll;
   GUID type = IEImporter::kUnittestGUID;
@@ -324,6 +327,7 @@ TEST_F(ImporterTest, IEImporter) {
     pstore->CreateSubtype(0, &type, &subtype, &type_info, NULL, 0);
     WritePStore(pstore, &type, &subtype);
   }
+#endif
 
   // Sets up a special history link.
   CComPtr<IUrlHistoryStg2> url_history_stg2;
@@ -351,12 +355,14 @@ TEST_F(ImporterTest, IEImporter) {
   // Cleans up.
   url_history_stg2->DeleteUrl(kIEIdentifyUrl, 0);
   url_history_stg2.Release();
+#if 0  // This part of the test is disabled. See bug #2466
   if (!IsWindowsVista()) {
     ClearPStoreType(pstore, &type, &subtype);
     // Releases it befor unload the dll.
     pstore.Release();
     FreeLibrary(pstorec_dll);
   }
+#endif
 }
 
 TEST_F(ImporterTest, IE7Importer) {
