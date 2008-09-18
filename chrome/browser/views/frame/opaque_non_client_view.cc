@@ -343,6 +343,9 @@ static const int kOTRAvatarIconMargin = 9;
 // The distance from the top of the window of the OTR avatar icon when the
 // window is maximized.
 static const int kNoTitleOTRZoomedTopSpacing = 3;
+// Horizontal distance between the right edge of the new tab icon and the left
+// edge of the window minimize icon when the window is maximized.
+static const int kNewTabIconWindowControlsSpacing = 10;
 
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueNonClientView, public:
@@ -457,8 +460,10 @@ gfx::Rect OpaqueNonClientView::GetWindowBoundsForClientBounds(
 gfx::Rect OpaqueNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
   int tabstrip_height = tabstrip->GetPreferredHeight();
   int tabstrip_x = otr_avatar_bounds_.right();
-  return gfx::Rect(tabstrip_x, 0, minimize_button_->x() - tabstrip_x,
-                   tabstrip_height);
+  int tabstrip_width = minimize_button_->x() - tabstrip_x;
+  if (frame_->IsMaximized())
+    tabstrip_width -= kNewTabIconWindowControlsSpacing;
+  return gfx::Rect(tabstrip_x, 0, tabstrip_width, tabstrip_height);
 }
 
 void OpaqueNonClientView::UpdateWindowIcon() {
