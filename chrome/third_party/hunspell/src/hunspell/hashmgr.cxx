@@ -121,6 +121,11 @@ HashMgr::~HashMgr()
 
 #ifdef HUNSPELL_CHROME_CLIENT
   EmptyHentryCache();
+  STLDeleteValues(&custom_word_to_hentry_map_);
+  for (std::vector<std::string*>::iterator it = pointer_to_strings_.begin(); 
+       it != pointer_to_strings_.end(); ++it) {
+    delete *it;
+  }
 #endif
 }
 

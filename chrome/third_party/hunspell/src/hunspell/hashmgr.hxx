@@ -5,6 +5,7 @@
 #include "htypes.hxx"
 
 #ifdef HUNSPELL_CHROME_CLIENT
+#include "chrome/common/stl_util-inl.h"
 #include "chrome/third_party/hunspell/google/bdict_reader.h"
 #include "base/string_piece.h"
 #include <string>
