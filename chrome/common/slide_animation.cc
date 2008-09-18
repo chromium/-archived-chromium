@@ -113,7 +113,7 @@ void SlideAnimation::AnimateToState(double state) {
   value_current_ = value_start_ + (value_end_ - value_start_) * state;
 
   // Implement snapping.
-  if (tween_type_ == EASE_OUT_SNAP && abs(value_current_ - value_end_) <= 0.06)
+  if (tween_type_ == EASE_OUT_SNAP && fabs(value_current_ - value_end_) <= 0.06)
     value_current_ = value_end_;
 
   // Correct for any overshoot (while state may be capped at 1.0, let's not
@@ -123,4 +123,3 @@ void SlideAnimation::AnimateToState(double state) {
     value_current_ = value_end_;
   }
 }
-
