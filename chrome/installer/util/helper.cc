@@ -44,9 +44,7 @@ bool installer::LaunchChrome(bool system_install) {
 
 bool installer::LaunchChromeAndWaitForResult(bool system_install,
                                              const std::wstring& options,
-                                             int32 timeout_ms,
-                                             int32* exit_code,
-                                             bool* is_timeout) {
+                                             int32* exit_code) {
   std::wstring chrome_exe(installer::GetChromeInstallPath(system_install));
   if (chrome_exe.empty())
     return false;
@@ -63,16 +61,9 @@ bool installer::LaunchChromeAndWaitForResult(bool system_install,
     return false;
   }
 
-  DWORD wr = ::WaitForSingleObject(pi.hProcess, timeout_ms);
-  if (WAIT_TIMEOUT == wr) {
-    if (is_timeout)
-      *is_timeout = true;
-  } else {  // WAIT_OBJECT_0
-    if (is_timeout)
-      *is_timeout = false;
-    if (exit_code) {
-      ::GetExitCodeProcess(pi.hProcess, reinterpret_cast<DWORD*>(exit_code));
-    }
+  DWORD wr = ::WaitForSingleObject(pi.hProcess, INFINITE);
+  if (exit_code) {
+    ::GetExitCodeProcess(pi.hProcess, reinterpret_cast<DWORD*>(exit_code));
   }
 
   ::CloseHandle(pi.hProcess);

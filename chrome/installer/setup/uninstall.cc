@@ -89,38 +89,31 @@ bool DeleteRegistryValue(HKEY reg_root, const std::wstring& key_path,
 installer_util::InstallStatus IsChromeActiveOrUserCancelled(
     bool system_uninstall) {
   static const std::wstring kCmdLineOptions(L" --uninstall");
-  static const int32 kTimeOutMs = 30000;
   int32 exit_code = ResultCodes::NORMAL_EXIT;
-  bool is_timeout = false;
 
-  // We want to continue with the uninstallation only when chrome.exe either
-  // returns NORMAL_EXIT (means Chrome is not running, user has confirmed
-  // uninstallation and sentinel file/desktop/ql shortcuts have been
-  // cleaned up) or UNINSTALL_DELETE_FILE_ERROR (means Chrome is not running,
-  // user has confirmed uninstallation but there was a problem with deleting
-  // sentinel file, desktop or ql shortcuts).
+  // Here we want to save user from frustration (in case of Chrome crashes)
+  // and continue with the uninstallation as long as chrome.exe process exit
+  // code is NOT one of the following:
+  // - UNINSTALL_CHROME_ALIVE - chrome.exe is currently running
+  // - UNINSTALL_USER_CANCEL - User cancelled uninstallation
+  // - HUNG - chrome.exe was killed by HuntForZombieProcesses() (until we can
+  //          give this method some brains and not kill chrome.exe launched
+  //          by us, we will not uninstall if we get this return code).
   LOG(INFO) << "Launching Chrome to do uninstall tasks.";
   if (installer::LaunchChromeAndWaitForResult(system_uninstall,
                                               kCmdLineOptions,
-                                              kTimeOutMs,
-                                              &exit_code,
-                                              &is_timeout)) {
-    if (is_timeout || exit_code == ResultCodes::UNINSTALL_CHROME_ALIVE) {
-      LOG(INFO) << "Can't uninstall when chrome is still running";
-      return installer_util::CHROME_RUNNING;
-    } else if (exit_code == ResultCodes::UNINSTALL_USER_CANCEL) {
-      LOG(INFO) << "User cancelled uninstall operation";
+                                              &exit_code)) {
+    LOG(INFO) << "chrome.exe launched for uninstall confirmation returned: "
+              << exit_code;
+    if ((exit_code == ResultCodes::UNINSTALL_CHROME_ALIVE) ||
+        (exit_code == ResultCodes::UNINSTALL_USER_CANCEL) ||
+        (exit_code == ResultCodes::HUNG))
       return installer_util::UNINSTALL_CANCELLED;
-    } else if (exit_code == ResultCodes::NORMAL_EXIT) {
-      LOG(INFO) << "chrome.exe confirmed uninstallation from user.";
-      return installer_util::UNINSTALL_CONFIRMED;
-    } else if (exit_code == ResultCodes::UNINSTALL_DELETE_FILE_ERROR) {
-      LOG(ERROR) << "chrome.exe returned delete file error.";
-      return installer_util::UNINSTALL_CONFIRMED;
-    }
+  } else {
+    LOG(ERROR) << "Failed to launch chrome.exe for uninstall confirmation.";
   }
 
-  return installer_util::UNINSTALL_FAILED;
+  return installer_util::UNINSTALL_CONFIRMED;
 }
 }  // namespace
 

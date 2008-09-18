@@ -21,16 +21,13 @@ std::wstring GetChromeInstallPath(bool system_install);
 // Launches Chrome without waiting for its exit.
 bool LaunchChrome(bool system_install);
 
-// Launches Chrome with given command line, waits for Chrome to terminate
-// within timeout_ms, and gets the process exit code if available.
+// Launches Chrome with given command line, waits for Chrome indefinitely
+// (until it terminates), and gets the process exit code if available.
 // The function returns true as long as Chrome is successfully launched.
-// The status of Chrome at the return of the function is given by exit_code
-// and is_timeout.
+// The status of Chrome at the return of the function is given by exit_code.
 bool LaunchChromeAndWaitForResult(bool system_install,
                                   const std::wstring& options,
-                                  int32 timeout_ms,
-                                  int32* exit_code,
-                                  bool* is_timeout);
+                                  int32* exit_code);
 
 // This function tries to remove all previous version directories after a new
 // Chrome update. If an instance of Chrome with older version is still running
