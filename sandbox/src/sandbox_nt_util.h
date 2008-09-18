@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef SANDBOX_SRC_SANDBOX_NT_UTIL_H_
-#define SANDBOX_SRC_SANDBOX_NT_UTIL_H_
+#ifndef SANDBOX_SRC_SANDBOX_NT_UTIL_H__
+#define SANDBOX_SRC_SANDBOX_NT_UTIL_H__
 
 #include "base/basictypes.h"
 #include "sandbox/src/nt_internals.h"
@@ -89,39 +89,23 @@ bool InitHeap();
 // Returns true if the provided handle refers to the current process.
 bool IsSameProcess(HANDLE process);
 
-enum MappedModuleFlags {
-  MODULE_IS_PE_IMAGE     = 1,   // Module is an executable.
-  MODULE_HAS_ENTRY_POINT = 2,   // Execution entry point found.
-  MODULE_HAS_CODE =        4    // Non zero size of executable sections.
-};
-
-// Returns the name and characteristics for a given PE module. The return
-// value is the name as defined by the export table and the flags is any
-// combination of the MappedModuleFlags enumeration.
+// Returns the name for a given module. The returned buffer must be freed with
+// a placement delete from our ntdll level allocator:
 //
-// The returned buffer must be freed with a placement delete from the ntdll
-// level allocator:
-//
-// UNICODE_STRING* name = GetPEImageInfoFromModule(HMODULE module, &flags);
+// UNICODE_STRING* name = GetImageNameFromModule(HMODULE module);
 // if (!name) {
 //   // probably not a valid dll
 //   return;
 // }
 // InsertYourLogicHere(name);
 // operator delete(name, NT_ALLOC);
-UNICODE_STRING* GetImageInfoFromModule(HMODULE module, uint32* flags);
+UNICODE_STRING* GetImageNameFromModule(HMODULE module);
 
 // Returns the full path and filename for a given dll.
 // May return NULL if the provided address is not backed by a named section, or
 // if the current OS version doesn't support the call. The returned buffer must
 // be freed with a placement delete (see GetImageNameFromModule example).
 UNICODE_STRING* GetBackingFilePath(PVOID address);
-
-// Returns the last component of a path that contains the module name.
-// It will return NULL if the path is not a full path or if the path ends
-// with the path separator. The returned buffer must be freed with a placement
-// delete (see GetImageNameFromModule example).
-UNICODE_STRING* ExtractModuleName(const UNICODE_STRING* module_path);
 
 // Returns true if the parameters correspond to a dll mapped as code.
 bool IsValidImageSection(HANDLE section, PVOID *base, PLARGE_INTEGER offset,
@@ -163,5 +147,5 @@ bool IsSupportedRenameCall(FILE_RENAME_INFORMATION* file_info, DWORD length,
 }  // namespace sandbox
 
 
-#endif  // SANDBOX_SRC_SANDBOX_NT_UTIL_H_
+#endif  // SANDBOX_SRC_SANDBOX_NT_UTIL_H__
 

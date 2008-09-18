@@ -6,8 +6,8 @@
 // for the sandboxed process. For more datails see
 // http://wiki/Main/ChromeSandboxInterceptionDesign
 
-#ifndef SANDBOX_SRC_INTERCEPTION_H_
-#define SANDBOX_SRC_INTERCEPTION_H_
+#ifndef SANDBOX_SRC_INTERCEPTION_H__
+#define SANDBOX_SRC_INTERCEPTION_H__
 
 #include <list>
 #include <string>
@@ -59,8 +59,7 @@ struct DllInterceptionData;
 //
 class InterceptionManager {
   // The unit test will access private members.
-  FRIEND_TEST(InterceptionManagerTest, BufferLayout1);
-  FRIEND_TEST(InterceptionManagerTest, BufferLayout2);
+  FRIEND_TEST(InterceptionManagerTest, BufferLayout);
 
  public:
   // An interception manager performs interceptions on a given child process.
@@ -100,14 +99,11 @@ class InterceptionManager {
                              InterceptionType interception_type,
                              const char* replacement_function_name);
 
-  // The interception agent will unload the dll with dll_name.
-  bool AddToUnloadModules(const wchar_t* dll_name);
-
   // Initializes all interceptions on the client.
   // Returns true on success.
   //
   // The child process must be created suspended, and cannot be resumed until
-  // after this method returns. In addition, no action should be performed on
+  // after this method returns. In addition, no action should be perfomed on
   // the child that may cause it to resume momentarily, such as injecting
   // threads or APCs.
   //
@@ -118,11 +114,11 @@ class InterceptionManager {
  private:
   // Used to store the interception information until the actual set-up.
   struct InterceptionData {
-    InterceptionType type;            // Interception type.
-    std::wstring dll;                 // Name of dll to intercept.
-    std::string function;             // Name of function to intercept.
-    std::string interceptor;          // Name of interceptor function.
-    const void* interceptor_address;  // Interceptor's entry point.
+    InterceptionType type;            // Interception type
+    std::wstring dll;                 // Name of dll to intercept
+    std::string function;             // Name of function to intercept
+    std::string interceptor;          // Name of interceptor function
+    const void* interceptor_address;  // Interceptor's entry point
   };
 
   // Calculates the size of the required configuration buffer.
@@ -173,10 +169,10 @@ class InterceptionManager {
   bool CopyDataToChild(const void* local_buffer, size_t buffer_bytes,
                        void** remote_buffer) const;
 
-  // Performs the cold patch (from the parent) of ntdll.
+  // Performs the cold patch (from the parent) of ntdll.dll.
   // Returns true on success.
   //
-  // This method will insert additional interceptions to launch the interceptor
+  // This method will inser aditional interceptions to launch the interceptor
   // agent on the child process, if there are additional interceptions to do.
   bool PatchNtdll(bool hot_patch_needed);
 
@@ -200,10 +196,10 @@ class InterceptionManager {
   // true if we are allowed to patch already-patched functions.
   bool relaxed_;
 
-  DISALLOW_COPY_AND_ASSIGN(InterceptionManager);
+  DISALLOW_EVIL_CONSTRUCTORS(InterceptionManager);
 };
 
 }  // namespace sandbox
 
-#endif  // SANDBOX_SRC_INTERCEPTION_H_
+#endif  // SANDBOX_SRC_INTERCEPTION_H__
 

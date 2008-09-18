@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef SANDBOX_SRC_SANDBOX_POLICY_H_
-#define SANDBOX_SRC_SANDBOX_POLICY_H_
+#ifndef SANDBOX_SRC_SANDBOX_POLICY_H__
+#define SANDBOX_SRC_SANDBOX_POLICY_H__
 
 #include "base/basictypes.h"
 #include "sandbox/src/sandbox_types.h"
@@ -13,16 +13,6 @@ namespace sandbox {
 
 class TargetPolicy {
  public:
-  // Increments the reference count of this object. The reference count must
-  // be incremented if this interface is given to another component.
-  virtual void AddRef() = 0;
-
-  // Decrements the reference count of this object. When the reference count
-  // is zero the object is automatically destroyed.
-  // Indicates that the caller is done with this interface. After calling
-  // release no other method should be called.
-  virtual void Release() = 0;
-
   // Sets the security level for the target process' two tokens.
   // This setting is permanent and cannot be changed once the target process is
   // spawned.
@@ -154,14 +144,19 @@ class TargetPolicy {
   virtual ResultCode AddRule(SubSystem subsystem, Semantics semantics,
                              const wchar_t* pattern) = 0;
 
-  // Adds a dll that will be unloaded in the target process before it gets
-  // a chance to initialize itself. Typically, dlls that cause the target
-  // to crash go here.
-  virtual ResultCode AddDllToUnload(const wchar_t* dll_name) = 0;
+  // Increments the reference count of this object. The reference count must
+  // be incremented if this interface is given to another component.
+  virtual void AddRef() = 0;
+
+  // Decrements the reference count of this object. When the reference count
+  // is zero the object is automatically destroyed.
+  // Indicates that the caller is done with this interface. After calling
+  // release no other method should be called.
+  virtual void Release() = 0;
 };
 
 }  // namespace sandbox
 
 
-#endif  // SANDBOX_SRC_SANDBOX_POLICY_H_
+#endif  // SANDBOX_SRC_SANDBOX_POLICY_H__
 

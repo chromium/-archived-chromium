@@ -76,11 +76,9 @@ bool InterceptionAgent::DllMatch(const UNICODE_STRING* full_path,
   return false;
 }
 
-bool InterceptionAgent::OnDllLoad(const UNICODE_STRING* full_path,
+void InterceptionAgent::OnDllLoad(const UNICODE_STRING* full_path,
                                   const UNICODE_STRING* name,
-                                  uint32 image_flags,
                                   void* base_address) {
-  // It is a regular dll, it can be in our table to be patched or unloaded.
   DllPatchInfo* dll_info = interceptions_->dll_list;
   int i = 0;
   for (; i < interceptions_->num_intercepted_dlls; i++) {
@@ -90,18 +88,12 @@ bool InterceptionAgent::OnDllLoad(const UNICODE_STRING* full_path,
     dll_info = reinterpret_cast<DllPatchInfo*>(
                    reinterpret_cast<char*>(dll_info) + dll_info->record_bytes);
   }
-
-  // The dll is not in our list of interest.
   if (i == interceptions_->num_intercepted_dlls)
-    return true;
-
-  // The dll must be unloaded.
-  if (dll_info->unload_module)
-    return false;
+    return;
 
   // Purify causes this condition to trigger.
   if (dlls_[i])
-    return true;
+    return;
 
   size_t buffer_bytes = offsetof(DllInterceptionData, thunks) +
                         dll_info->num_functions * sizeof(ThunkData);
@@ -110,9 +102,7 @@ bool InterceptionAgent::OnDllLoad(const UNICODE_STRING* full_path,
 
   DCHECK_NT(dlls_[i]);
   if (!dlls_[i])
-    return true;
-
-  // The dll must be patched.
+    return;
 
   dlls_[i]->data_bytes = buffer_bytes;
   dlls_[i]->num_thunks = 0;
@@ -127,7 +117,6 @@ bool InterceptionAgent::OnDllLoad(const UNICODE_STRING* full_path,
   VERIFY_SUCCESS(g_nt.ProtectVirtualMemory(NtCurrentProcess, &to_protect,
                                            &real_size, PAGE_EXECUTE_READ,
                                            &old_protect));
-  return true;
 }
 
 void InterceptionAgent::OnDllUnload(void* base_address) {
@@ -148,8 +137,7 @@ bool InterceptionAgent::PatchDll(const DllPatchInfo* dll_info,
                                  DllInterceptionData* thunks) {
   DCHECK_NT(NULL != thunks);
   DCHECK_NT(NULL != dll_info);
-  DCHECK_NT(!dll_info->unload_module);
- 
+
   const FunctionInfo* function = reinterpret_cast<const FunctionInfo*>(
       reinterpret_cast<const char*>(dll_info) + dll_info->offset_to_functions);
 

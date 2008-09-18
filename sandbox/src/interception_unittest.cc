@@ -70,7 +70,7 @@ void WalkBuffer(void* buffer, size_t size, int* num_dlls, int* num_functions,
   }
 }
 
-TEST(InterceptionManagerTest, BufferLayout1) {
+TEST(InterceptionManagerTest, BufferLayout) {
   wchar_t exe_name[MAX_PATH];
   ASSERT_NE(0, GetModuleFileName(NULL, exe_name, MAX_PATH - 1));
 
@@ -148,52 +148,6 @@ TEST(InterceptionManagerTest, BufferLayout1) {
   EXPECT_EQ(6, num_dlls);
   EXPECT_EQ(15, num_functions);
   EXPECT_EQ(4, num_names);
-}
-
-TEST(InterceptionManagerTest, BufferLayout2) {
-  wchar_t exe_name[MAX_PATH];
-  ASSERT_NE(0, GetModuleFileName(NULL, exe_name, MAX_PATH - 1));
-
-  TargetProcess *target = MakeTestTargetProcess(::GetCurrentProcess(),
-                                                ::GetModuleHandle(exe_name));
-
-  InterceptionManager interceptions(target, true);
-
-  // Any pointer will do for a function pointer.
-  void* function = &interceptions;
-
-  interceptions.AddToUnloadModules(L"some01.dll");
-  interceptions.AddToPatchedFunctions(L"ntdll.dll", "NtCreateFile",
-    INTERCEPTION_SERVICE_CALL, function);
-  interceptions.AddToPatchedFunctions(L"kernel32.dll", "CreateFileEx",
-    INTERCEPTION_EAT, function);
-  interceptions.AddToUnloadModules(L"some02.dll");
-  interceptions.AddToPatchedFunctions(L"kernel32.dll", "SomeFileEx",
-    INTERCEPTION_SMART_SIDESTEP, function);
-
-  // Verify that all interceptions were added
-  ASSERT_EQ(5, interceptions.interceptions_.size());
-
-  size_t buffer_size = interceptions.GetBufferSize();
-  scoped_ptr<BYTE> local_buffer(new BYTE[buffer_size]);
-
-  ASSERT_TRUE(interceptions.SetupConfigBuffer(local_buffer.get(),
-                                              buffer_size));
-
-  // At this point, the interceptions should have been separated into two
-  // groups: one group with the local ("cold") interceptions, and another
-  // group with the interceptions belonging to dlls that will be "hot"
-  // patched on the client. The second group lives on local_buffer, and the
-  // first group remains on the list of interceptions, in this case just one. 
-  EXPECT_EQ(1, interceptions.interceptions_.size());
-
-  int num_dlls, num_functions, num_names;
-  WalkBuffer(local_buffer.get(), buffer_size, &num_dlls, &num_functions,
-             &num_names);
-
-  EXPECT_EQ(3, num_dlls);
-  EXPECT_EQ(4, num_functions);
-  EXPECT_EQ(0, num_names);
 }
 
 }  // namespace sandbox

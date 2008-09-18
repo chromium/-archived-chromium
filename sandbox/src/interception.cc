@@ -30,9 +30,6 @@ namespace sandbox {
 
 SANDBOX_INTERCEPT SharedMemory* g_interceptions;
 
-// Magic constant that identifies that this function is not to be patched.
-const char kUnloadDLLDummyFunction[] = "@";
-
 InterceptionManager::InterceptionManager(TargetProcess* child_process,
                                          bool relaxed)
     : child_(child_process), names_used_(false), relaxed_(relaxed) {
@@ -52,6 +49,7 @@ bool InterceptionManager::AddToPatchedFunctions(
   function.interceptor_address = replacement_code_address;
 
   interceptions_.push_back(function);
+
   return true;
 }
 
@@ -67,19 +65,7 @@ bool InterceptionManager::AddToPatchedFunctions(
 
   interceptions_.push_back(function);
   names_used_ = true;
-  return true;
-}
 
-bool InterceptionManager::AddToUnloadModules(const wchar_t* dll_name) {
-  InterceptionData module_to_unload;
-  module_to_unload.type = INTERCEPTION_UNLOAD_MODULE;
-  module_to_unload.dll = dll_name;
-  // The next two are dummy values that make the structures regular, instead
-  // of having special cases. They should not be used.
-  module_to_unload.function = kUnloadDLLDummyFunction;
-  module_to_unload.interceptor_address = reinterpret_cast<void*>(1);
-
-  interceptions_.push_back(module_to_unload);
   return true;
 }
 
@@ -218,7 +204,6 @@ bool InterceptionManager::SetupDllInfo(const InterceptionData& data,
   *buffer = reinterpret_cast<char*>(*buffer) + required;
 
   // set up the dll info to be what we know about it at this time
-  dll_info->unload_module = (data.type == INTERCEPTION_UNLOAD_MODULE);
   dll_info->record_bytes = required;
   dll_info->offset_to_functions = required;
   dll_info->num_functions = 0;
@@ -235,12 +220,6 @@ bool InterceptionManager::SetupInterceptionInfo(const InterceptionData& data,
   DCHECK(buffer_bytes);
   DCHECK(buffer);
   DCHECK(*buffer);
-
-  if ((dll_info->unload_module) && 
-      (data.function != kUnloadDLLDummyFunction)) {
-    // Can't specify a dll for both patch and unload.
-    NOTREACHED();
-  }
 
   FunctionInfo* function = reinterpret_cast<FunctionInfo*>(*buffer);
 
