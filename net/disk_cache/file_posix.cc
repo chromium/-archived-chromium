@@ -100,6 +100,12 @@ bool File::AsyncWrite(const void* buffer, size_t buffer_len, size_t offset,
   bool ret = Write(buffer, buffer_len, offset);
   if (ret && completed)
     *completed = true;
+
+  // If we supply our own async callback, and the caller is not asking to be
+  // notified when completed, we are supposed to delete the buffer.
+  if (ret && !callback && !notify)
+    delete[] reinterpret_cast<const char*>(buffer);
+
   return ret;
 }
 
