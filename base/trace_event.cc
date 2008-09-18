@@ -24,6 +24,8 @@ static const char* kEventTypeNames[] = {
 static const wchar_t* kLogFileName = L"trace_%d.log";
 
 TraceLog::TraceLog() : enabled_(false), log_file_(NULL) {
+  ProcessHandle proc = process_util::GetCurrentProcessHandle();
+  process_metrics_.reset(process_util::ProcessMetrics::CreateProcessMetrics(proc));
 }
 
 TraceLog::~TraceLog() {
@@ -46,8 +48,11 @@ bool TraceLog::Start() {
   if (enabled_)
     return true;
   enabled_ = OpenLogFile();
-  if (enabled_)
+  if (enabled_) {
+    Log("var raw_trace_events = [\r\n");
     trace_start_time_ = TimeTicks::Now();
+    timer_.Start(TimeDelta::FromMilliseconds(250), this, &TraceLog::Heartbeat);
+  }
   return enabled_;
 }
 
@@ -60,8 +65,15 @@ void TraceLog::StopTracing() {
 void TraceLog::Stop() {
   if (enabled_) {
     enabled_ = false;
+    Log("];\r\n");
     CloseLogFile();
+    timer_.Stop();
   }
+}
+
+void TraceLog::Heartbeat() {
+  std::string cpu = StringPrintf("%d", process_metrics_->GetCPUUsage());
+  TRACE_EVENT_INSTANT("heartbeat.cpu", 0, cpu);
 }
 
 void TraceLog::CloseLogFile() {
@@ -105,7 +117,7 @@ bool TraceLog::OpenLogFile() {
 
 void TraceLog::Trace(const std::string& name, 
                      EventType type,
-                     void* id,
+                     const void* id,
                      const std::wstring& extra,
                      const char* file, 
                      int line) {
@@ -116,7 +128,7 @@ void TraceLog::Trace(const std::string& name,
 
 void TraceLog::Trace(const std::string& name, 
                      EventType type,
-                     void* id,
+                     const void* id,
                      const std::string& extra,
                      const char* file, 
                      int line) {
@@ -131,8 +143,9 @@ void TraceLog::Trace(const std::string& name,
   TimeDelta delta = tick - trace_start_time_;
   int64 usec = delta.InMicroseconds();
   std::string msg = 
-    StringPrintf("%I64d 0x%lx:0x%lx %s %s [0x%lx %s] <%s:%d>\r\n",
-                 usec,
+    StringPrintf("{'pid':'0x%lx', 'tid':'0x%lx', 'type':'%s', "
+                 "'name':'%s', 'id':'0x%lx', 'extra':'%s', 'file':'%s', "
+                 "'line_number':'%d', 'usec_begin': %I64d},\r\n", 
                  process_util::GetCurrentProcId(),
                  PlatformThread::CurrentId(),
                  kEventTypeNames[type],
@@ -140,7 +153,8 @@ void TraceLog::Trace(const std::string& name,
                  id,
                  extra.c_str(),
                  file, 
-                 line);
+                 line,
+                 usec);
 
   Log(msg);
 }

@@ -28,6 +28,10 @@ int GetCurrentProcId() {
   return ::GetCurrentProcessId();
 }
 
+ProcessHandle GetCurrentProcessHandle() {
+  return ::GetCurrentProcess();
+}
+
 // Helper for GetProcId()
 bool GetProcIdViaGetProcessId(ProcessHandle process, DWORD* id) {
   // Dynamically get a pointer to GetProcessId().

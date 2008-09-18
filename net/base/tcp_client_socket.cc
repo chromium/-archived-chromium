@@ -157,6 +157,7 @@ int TCPClientSocket::Read(char* buf,
   buffer_.len = buf_len;
   buffer_.buf = buf;
 
+  TRACE_EVENT_BEGIN("socket.read", this, "");
   // TODO(wtc): Remove the CHECKs after enough testing.
   CHECK(WaitForSingleObject(overlapped_.hEvent, 0) == WAIT_TIMEOUT);
   DWORD num, flags = 0;
@@ -165,6 +166,7 @@ int TCPClientSocket::Read(char* buf,
     CHECK(WaitForSingleObject(overlapped_.hEvent, 0) == WAIT_OBJECT_0);
     BOOL ok = WSAResetEvent(overlapped_.hEvent);
     CHECK(ok);
+    TRACE_EVENT_END("socket.read", this, StringPrintf("%d bytes", num));
     return static_cast<int>(num);
   }
   int err = WSAGetLastError();
@@ -187,6 +189,7 @@ int TCPClientSocket::Write(const char* buf,
   buffer_.len = buf_len;
   buffer_.buf = const_cast<char*>(buf);
 
+  TRACE_EVENT_BEGIN("socket.write", this, "");
   // TODO(wtc): Remove the CHECKs after enough testing.
   CHECK(WaitForSingleObject(overlapped_.hEvent, 0) == WAIT_TIMEOUT);
   DWORD num;
@@ -195,6 +198,7 @@ int TCPClientSocket::Write(const char* buf,
     CHECK(WaitForSingleObject(overlapped_.hEvent, 0) == WAIT_OBJECT_0);
     BOOL ok = WSAResetEvent(overlapped_.hEvent);
     CHECK(ok);
+    TRACE_EVENT_END("socket.write", this, StringPrintf("%d bytes", num));
     return static_cast<int>(num);
   }
   int err = WSAGetLastError();
@@ -272,11 +276,9 @@ void TCPClientSocket::DidCompleteIO() {
       socket_, &overlapped_, &num_bytes, FALSE, &flags);
   WSAResetEvent(overlapped_.hEvent);
   if (wait_state_ == WAITING_READ) {
-    TRACE_EVENT_INSTANT("socket.read", this, 
-                        StringPrintf("%d bytes", num_bytes));
+    TRACE_EVENT_END("socket.read", this, StringPrintf("%d bytes", num_bytes));
   } else {
-    TRACE_EVENT_INSTANT("socket.write", this, 
-                        StringPrintf("%d bytes", num_bytes));
+    TRACE_EVENT_END("socket.write", this, StringPrintf("%d bytes", num_bytes));
   }
   wait_state_ = NOT_WAITING;
   DoCallback(ok ? num_bytes : MapWinsockError(WSAGetLastError()));

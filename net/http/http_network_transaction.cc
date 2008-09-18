@@ -5,6 +5,7 @@
 #include "net/http/http_network_transaction.h"
 
 #include "base/string_util.h"
+#include "base/trace_event.h"
 #include "net/base/client_socket_factory.h"
 #include "net/base/host_resolver.h"
 #include "net/base/load_flags.h"
@@ -254,66 +255,84 @@ int HttpNetworkTransaction::DoLoop(int result) {
     switch (state) {
       case STATE_RESOLVE_PROXY:
         DCHECK(rv == OK);
+        TRACE_EVENT_BEGIN("http.resolve_proxy", request_, request_->url.spec());
         rv = DoResolveProxy();
         break;
       case STATE_RESOLVE_PROXY_COMPLETE:
         rv = DoResolveProxyComplete(rv);
+        TRACE_EVENT_END("http.resolve_proxy", request_, request_->url.spec());
         break;
       case STATE_INIT_CONNECTION:
         DCHECK(rv == OK);
+        TRACE_EVENT_BEGIN("http.init_conn", request_, request_->url.spec());
         rv = DoInitConnection();
         break;
       case STATE_INIT_CONNECTION_COMPLETE:
         rv = DoInitConnectionComplete(rv);
+        TRACE_EVENT_END("http.init_conn", request_, request_->url.spec());
         break;
       case STATE_RESOLVE_HOST:
         DCHECK(rv == OK);
+        TRACE_EVENT_BEGIN("http.resolve_host", request_, request_->url.spec());
         rv = DoResolveHost();
         break;
       case STATE_RESOLVE_HOST_COMPLETE:
         rv = DoResolveHostComplete(rv);
+        TRACE_EVENT_END("http.resolve_host", request_, request_->url.spec());
         break;
       case STATE_CONNECT:
         DCHECK(rv == OK);
+        TRACE_EVENT_BEGIN("http.connect", request_, request_->url.spec());
         rv = DoConnect();
         break;
       case STATE_CONNECT_COMPLETE:
         rv = DoConnectComplete(rv);
+        TRACE_EVENT_END("http.connect", request_, request_->url.spec());
         break;
       case STATE_SSL_CONNECT_OVER_TUNNEL:
         DCHECK(rv == OK);
+        TRACE_EVENT_BEGIN("http.ssl_tunnel", request_, request_->url.spec());
         rv = DoSSLConnectOverTunnel();
         break;
       case STATE_SSL_CONNECT_OVER_TUNNEL_COMPLETE:
         rv = DoSSLConnectOverTunnelComplete(rv);
+        TRACE_EVENT_END("http.ssl_tunnel", request_, request_->url.spec());
         break;
       case STATE_WRITE_HEADERS:
         DCHECK(rv == OK);
+        TRACE_EVENT_BEGIN("http.write_headers", request_, request_->url.spec());
         rv = DoWriteHeaders();
         break;
       case STATE_WRITE_HEADERS_COMPLETE:
         rv = DoWriteHeadersComplete(rv);
+        TRACE_EVENT_END("http.write_headers", request_, request_->url.spec());
         break;
       case STATE_WRITE_BODY:
         DCHECK(rv == OK);
+        TRACE_EVENT_BEGIN("http.write_body", request_, request_->url.spec());
         rv = DoWriteBody();
         break;
       case STATE_WRITE_BODY_COMPLETE:
         rv = DoWriteBodyComplete(rv);
+        TRACE_EVENT_END("http.write_body", request_, request_->url.spec());
         break;
       case STATE_READ_HEADERS:
         DCHECK(rv == OK);
+        TRACE_EVENT_BEGIN("http.read_headers", request_, request_->url.spec());
         rv = DoReadHeaders();
         break;
       case STATE_READ_HEADERS_COMPLETE:
         rv = DoReadHeadersComplete(rv);
+        TRACE_EVENT_END("http.read_headers", request_, request_->url.spec());
         break;
       case STATE_READ_BODY:
         DCHECK(rv == OK);
+        TRACE_EVENT_BEGIN("http.read_body", request_, request_->url.spec());
         rv = DoReadBody();
         break;
       case STATE_READ_BODY_COMPLETE:
         rv = DoReadBodyComplete(rv);
+        TRACE_EVENT_END("http.read_body", request_, request_->url.spec());
         break;
       default:
         NOTREACHED() << "bad state";

@@ -32,6 +32,9 @@ namespace process_util {
 // Returns the id of the current process.
 int GetCurrentProcId();
 
+// Returns the ProcessHandle of the current process.
+ProcessHandle GetCurrentProcessHandle();
+
 // Returns the unique ID for the specified process.  This is functionally the
 // same as Windows' GetProcessId(), but works on versions of Windows before
 // Win XP SP1 as well.

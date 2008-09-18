@@ -24,8 +24,10 @@
 #include <string>
 
 #include "base/lock.h"
+#include "base/scoped_ptr.h"
 #include "base/singleton.h"
 #include "base/time.h"
+#include "base/timer.h"
 
 // Use the following macros rather than using the TraceLog class directly as the
 // underlying implementation may change in the future.  Here's a sample usage:
@@ -40,7 +42,7 @@
 #define TRACE_EVENT_BEGIN(name, id, extra) \
   Singleton<base::TraceLog>::get()->Trace(name, \
                                           base::TraceLog::EVENT_BEGIN, \
-                                          reinterpret_cast<void*>(id), \
+                                          reinterpret_cast<const void*>(id), \
                                           extra, \
                                           __FILE__, \
                                           __LINE__)
@@ -50,7 +52,7 @@
 #define TRACE_EVENT_END(name, id, extra) \
   Singleton<base::TraceLog>::get()->Trace(name, \
                                           base::TraceLog::EVENT_END, \
-                                          reinterpret_cast<void*>(id), \
+                                          reinterpret_cast<const void*>(id), \
                                           extra, \
                                           __FILE__, \
                                           __LINE__)
@@ -59,7 +61,7 @@
 #define TRACE_EVENT_INSTANT(name, id, extra) \
   Singleton<base::TraceLog>::get()->Trace(name, \
                                           base::TraceLog::EVENT_INSTANT, \
-                                          reinterpret_cast<void*>(id), \
+                                          reinterpret_cast<const void*>(id), \
                                           extra, \
                                           __FILE__, \
                                           __LINE__)
@@ -76,6 +78,10 @@ typedef HANDLE FileHandle;
 #else
 typedef FILE* FileHandle;
 #endif
+
+namespace process_util {
+class ProcessMetrics;
+}
 
 namespace base {
 
@@ -97,13 +103,13 @@ class TraceLog {
   // Log a trace event of (name, type, id) with the optional extra string.
   void Trace(const std::string& name, 
              EventType type,
-             void* id,
+             const void* id,
              const std::wstring& extra,
              const char* file, 
              int line);
   void Trace(const std::string& name, 
              EventType type,
-             void* id,
+             const void* id,
              const std::string& extra,
              const char* file, 
              int line);
@@ -119,12 +125,15 @@ class TraceLog {
   void CloseLogFile();
   bool Start();
   void Stop();
+  void Heartbeat();
   void Log(const std::string& msg);
 
   bool enabled_;
   FileHandle log_file_;
   Lock file_lock_;
   TimeTicks trace_start_time_;
+  scoped_ptr<process_util::ProcessMetrics> process_metrics_;
+  RepeatingTimer<TraceLog> timer_;
 };
 
 } // namespace base

@@ -15,6 +15,10 @@ int GetCurrentProcId() {
   return getpid();
 }
 
+ProcessHandle GetCurrentProcessHandle() {
+  return GetCurrentProcId();
+}
+
 int GetProcId(ProcessHandle process) {
   return process;
 }
