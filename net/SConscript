@@ -329,9 +329,4 @@ if env['PLATFORM'] == 'win32':
   SConscript(sconscript_files, exports=['env'])
 
 
-# Setup alias for building all parts of net.
-if env['PLATFORM'] == 'win32':
-  icudata = '../icudt38.dll'
-else:
-  icudata = '../icudt38l.dat'
-env.Alias('net', ['.', installed_tests, icudata])
+env.Alias('net', ['.', installed_tests])

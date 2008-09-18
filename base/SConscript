@@ -325,12 +325,7 @@ sconscript_dirs = [
 SConscript(sconscript_dirs, exports=['env'])
 
 
-# Setup alias for all base related targets.
-if env['PLATFORM'] == 'win32':
-  icudata = '../icudt38.dll'
-else:
-  icudata = '../icudt38l.dat'
-env.Alias('base', ['.', installed_base_unittests, icudata])
+env.Alias('base', ['.', installed_base_unittests])
 
 # TODO(sgk) should this be moved into base.lib like everything else?  This will
 # require updating a bunch of other SConscripts which link directly against
