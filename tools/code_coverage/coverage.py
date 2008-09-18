@@ -5,8 +5,17 @@
 
 
 """Module to setup and generate code coverage data
-"""
 
+This module first sets up the environment for code coverage, instruments the 
+binaries, runs the tests and collects the code coverage data.
+
+
+Usage:
+  coverage.py --upload=<upload_location> 
+              --revision=<revision_number>
+              --src_root=<root_of_source_tree>
+              [--tools_path=<tools_path>]
+"""
 
 import logging
 import optparse
@@ -18,6 +27,23 @@ import tempfile
 
 import google.logging_utils
 import google.process_utils as proc
+
+
+# The list of binaries that will be instrumented for code coverage
+# TODO(niranjan): Add a complete list of binaries
+windows_binaries = ['unit_tests.exe',
+                    'ui_tests.exe']
+                  
+# The list of tests that will be run
+#TODO(niranjan): Add more tests
+windows_tests = ['unit_tests.exe',
+                 'ui_tests.exe']
+
+
+def IsWindows():
+  """Checks if the current platform is Windows.
+  """
+  return sys.platform[:3] == 'win'
 
 
 class Coverage(object):
@@ -43,12 +69,6 @@ class Coverage(object):
     self._dir = None
   
   
-  def _IsWindows(self):
-    """Checks if the current platform is Windows.
-    """
-    return sys.platform[:3] == 'win'
-  
-  
   def SetUp(self, binaries):
     """Set up the platform specific environment and instrument the binaries for
     coverage.
@@ -68,7 +88,7 @@ class Coverage(object):
       logging.error('Binaries already instrumented')
       return None
     coverage_file = None
-    if self._IsWindows():
+    if IsWindows():
       # Stop all previous instance of VSPerfMon counters
       counters_command = ('%s -shutdown' % 
                           (os.path.join(self.vsts_path, 'vsperfcmd.exe')))
@@ -126,7 +146,7 @@ class Coverage(object):
     if self.instrumented == False:
       return
     
-    if self._IsWindows():
+    if IsWindows():
       # Stop counters
       counters_command = ('%s -shutdown' % 
                          (os.path.join(self.vsts_path, 'vsperfcmd.exe')))
@@ -162,7 +182,7 @@ class Coverage(object):
       True on success.
       False on failure.
     """
-    if self._IsWindows():
+    if self.IsWindows():
       # Stop counters
       counters_command = ('%s -shutdown' % 
                          (os.path.join(self.vsts_path, 'vsperfcmd.exe')))
@@ -185,3 +205,65 @@ class Coverage(object):
       shutil.copy(coverage_file, coverage_file.replace('.coverage', ''))
     # TODO(niranjan): Upload this somewhere!
 
+
+def main():
+  # Command line parsing
+  parser = optparse.OptionParser()
+  # Path where the .coverage to .lcov converter tools are stored.
+  parser.add_option('-t',
+                    '--tools_path',
+                    dest='tools_path',
+                    default=None,
+                    help='Location of the coverage tools (windows only)')
+  parser.add_option('-u',
+                    '--upload',
+                    dest='upload_path'
+                    default=None,
+                    help='Location where the results should be uploaded')
+  # We need the revision number so that we can generate the output file of the
+  # format chrome_<platform>_<revision>.lcov
+  parser.add_option('-r',
+                    '--revision',
+                    dest='revision',
+                    default=None,
+                    help='Revision number of the Chromium source repo')
+  # Root of the source tree. Needed for converting the generated .coverage file
+  # on Windows to the open source lcov format.
+  parser.add_option('-s',
+                    '--src_root',
+                    dest='src_root',
+                    default=None,
+                    help='Root of the source repository')
+  
+  if revision == None or src_root == None or upload_path == None:
+    logging.error('Invalid command line arguments')
+    sys.exit(1)
+   
+  if IsWindows():
+    # Initialize coverage
+    cov = coverage.Coverage(revision,
+                            tools_path,
+                            tools_path)
+    # Instrument the binaries
+    coverage_file = cov.SetUp(windows_binaries)
+    if coverage_file != None:
+      # Run all the tests
+      for test in windows_tests:
+        logging.info('Executing test %s: ' % binary)
+        (retcode, output) = proc.RunCommandFull(binary, collect_output=True)
+        if retcode != 0:
+          sys.exit(retcode)
+    else: 
+      logging.error('Error during instrumentation.')
+      sys.exit(1)
+
+    cov.Upload(coverage_file,
+               upload_path,
+               os.path.join(src_root, 'chrome', 'Release'),
+               src_root)
+    cov.TearDown()
+
+
+if __name__ == '__main__':
+  sys.exit(main())
+  
