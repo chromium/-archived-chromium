@@ -4,10 +4,12 @@
 
 #include "base/file_util.h"
 
+#include <errno.h>
 #include <fcntl.h>
 #include <fnmatch.h>
 #include <fts.h>
 #include <libgen.h>
+#include <string.h>
 #include <sys/errno.h>
 #include <sys/stat.h>
 #include <time.h>
@@ -64,7 +66,10 @@ bool Delete(const std::wstring& path, bool recursive) {
   bool success = true;
   int ftsflags = FTS_PHYSICAL | FTS_NOSTAT;
   char top_dir[PATH_MAX];
-  base::strlcpy(top_dir, utf8_path, sizeof(top_dir));
+  if (base::strlcpy(top_dir, utf8_path,
+                    arraysize(top_dir)) >= arraysize(top_dir)) {
+    return false;
+  }
   char* dir_list[2] = { top_dir, NULL };
   FTS* fts = fts_open(dir_list, ftsflags, NULL);
   if (fts) {
@@ -104,9 +109,105 @@ bool Move(const std::wstring& from_path, const std::wstring& to_path) {
                  WideToUTF8(to_path).c_str()) == 0);
 }
 
-bool CopyTree(const std::wstring& from_path, const std::wstring& to_path) {
-  // TODO(erikkay): implement
-  return false;
+bool CopyDirectory(const std::wstring& from_path_wide,
+                   const std::wstring& to_path_wide,
+                   bool recursive) {
+  const std::string to_path = WideToUTF8(to_path_wide);
+  const std::string from_path = WideToUTF8(from_path_wide);
+
+  // Some old callers of CopyDirectory want it to support wildcards.
+  // After some discussion, we decided to fix those callers.
+  // Break loudly here if anyone tries to do this.
+  // TODO(evanm): remove this once we're sure it's ok.
+  DCHECK(to_path.find('*') == std::string::npos);
+  DCHECK(from_path.find('*') == std::string::npos);
+
+  char top_dir[PATH_MAX];
+  if (base::strlcpy(top_dir, from_path.c_str(),
+                    arraysize(top_dir)) >= arraysize(top_dir)) {
+    return false;
+  }
+
+  char* dir_list[] = { top_dir, NULL };
+  FTS* fts = fts_open(dir_list, FTS_PHYSICAL | FTS_NOSTAT, NULL);
+  if (!fts) {
+    LOG(ERROR) << "fts_open failed: " << strerror(errno);
+    return false;
+  }
+
+  int error = 0;
+  FTSENT* ent;
+  while (!error && (ent = fts_read(fts)) != NULL) {
+    // ent->fts_path is the source path, including from_path, so paste
+    // the suffix after from_path onto to_path to create the target_path.
+    const std::string target_path = to_path + &ent->fts_path[from_path.size()];
+    switch (ent->fts_info) {
+      case FTS_D:  // Preorder directory.
+        // If we encounter a subdirectory in a non-recursive copy, prune it
+        // from the traversal.
+        if (!recursive && ent->fts_level > 0) {
+          if (fts_set(fts, ent, FTS_SKIP) != 0)
+            error = errno;
+          continue;
+        }
+
+        // Try creating the target dir, continuing on it if it exists already.
+        if (mkdir(target_path.c_str(), 0777) != 0) {
+          if (errno != EEXIST)
+            error = errno;
+        }
+        break;
+      case FTS_F:     // Regular file.
+      case FTS_NSOK:  // File, no stat info requested.
+        // TODO(port): use a native file path rather than all these
+        // conversions.
+        errno = 0;
+        if (!CopyFile(UTF8ToWide(ent->fts_path), UTF8ToWide(target_path)))
+          error = errno ? errno : EINVAL;
+        break;
+      case FTS_DP:   // Postorder directory.
+      case FTS_DOT:  // "." or ".."
+        // Skip it.
+        continue;
+      case FTS_DC:   // Directory causing a cycle.
+        // Skip this branch.
+        if (fts_set(fts, ent, FTS_SKIP) != 0)
+          error = errno;
+        break;
+      case FTS_DNR:  // Directory cannot be read.
+      case FTS_ERR:  // Error.
+      case FTS_NS:   // Stat failed.
+        // Abort with the error.
+        error = ent->fts_errno;
+        break;
+      case FTS_SL:      // Symlink.
+      case FTS_SLNONE:  // Symlink with broken target.
+        LOG(WARNING) << "CopyDirectory() skipping symbolic link.";
+        continue;
+      case FTS_DEFAULT:  // Some other sort of file.
+        LOG(WARNING) << "CopyDirectory() skipping weird file.";
+        continue;
+      default:
+        NOTREACHED();
+        continue;  // Hope for the best!
+    }
+  }
+  // fts_read may have returned NULL and set errno to indicate an error.
+  if (!error && errno != 0)
+    error = errno;
+
+  if (!fts_close(fts)) {
+    // If we already have an error, let's use that error instead of the error
+    // fts_close set.
+    if (!error)
+      error = errno;
+  }
+
+  if (error) {
+    LOG(ERROR) << "CopyDirectory(): " << strerror(error);
+    return false;
+  }
+  return true;
 }
 
 bool PathExists(const std::wstring& path) {

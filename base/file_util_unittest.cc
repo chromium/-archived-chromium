@@ -399,8 +399,6 @@ TEST_F(FileUtilTest, Move) {
   EXPECT_TRUE(file_util::PathExists(file_name_to));
 }
 
-// TODO(erikkay): implement
-#if defined(OS_WIN)
 TEST_F(FileUtilTest, CopyDirectoryRecursively) {
   // Create a directory.
   std::wstring dir_name_from(test_dir_);
@@ -497,7 +495,6 @@ TEST_F(FileUtilTest, CopyDirectory) {
   EXPECT_TRUE(file_util::PathExists(file_name_to));
   EXPECT_FALSE(file_util::PathExists(subdir_name_to));
 }
-#endif
 
 TEST_F(FileUtilTest, CopyFile) {
   // Create a directory
