@@ -7,6 +7,7 @@
 
 #include <errno.h>
 #include <string.h>
+#include <sys/statvfs.h>
 #include <unistd.h>
 
 #if defined(OS_MACOSX)
@@ -15,6 +16,7 @@
 #endif
 
 #include "base/logging.h"
+#include "base/string_util.h"
 
 namespace base {
 
@@ -57,6 +59,15 @@ int64 SysInfo::AmountOfPhysicalMemory() {
 
   return static_cast<int64>(pages) * page_size;
 #endif
+}
+
+// static
+int64 SysInfo::AmountOfFreeDiskSpace(const std::wstring& path) {
+  struct statvfs stats;
+  if (statvfs(WideToUTF8(path).c_str(), &stats) != 0) {
+    return 0;
+  }
+  return static_cast<int64>(stats.f_bavail) * stats.f_frsize;
 }
 
 }  // namespace base

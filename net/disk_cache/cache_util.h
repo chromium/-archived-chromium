@@ -11,10 +11,6 @@
 
 namespace disk_cache {
 
-// Returns the available disk space on the volume that contains |path|
-// (in bytes), or -1 on failure.
-int64 GetFreeDiskSpace(const std::wstring& path);
-
 // Moves the cache files from the given path to another location.
 // Returns true if successful, false otherwise.
 bool MoveCache(const std::wstring& from_path, const std::wstring& to_path);

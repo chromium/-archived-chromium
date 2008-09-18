@@ -7,6 +7,8 @@
 
 #include "base/basictypes.h"
 
+#include <string>
+
 namespace base {
 
 class SysInfo {
@@ -21,6 +23,10 @@ class SysInfo {
   static int AmountOfPhysicalMemoryMB() {
     return static_cast<int>(AmountOfPhysicalMemory() / 1024 / 1024);
   }
+
+  // Return the available disk space in bytes on the volume containing |path|.
+  static int64 AmountOfFreeDiskSpace(const std::wstring& path);
+
 };
 
 }  // namespace base

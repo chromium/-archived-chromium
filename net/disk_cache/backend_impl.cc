@@ -8,6 +8,7 @@
 #include "base/histogram.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
+#include "base/sys_info.h"
 #include "base/timer.h"
 #include "base/worker_pool.h"
 #include "net/disk_cache/cache_util.h"
@@ -760,7 +761,7 @@ void BackendImpl::AdjustMaxCacheSize(int table_len) {
     return;
 
   // The user is not setting the size, let's figure it out.
-  int64 available = GetFreeDiskSpace(path_);
+  int64 available = base::SysInfo::AmountOfFreeDiskSpace(path_);
   if (available < 0) {
     max_size_ = kDefaultCacheSize;
     return;

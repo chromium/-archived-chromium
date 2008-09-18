@@ -29,4 +29,13 @@ int64 SysInfo::AmountOfPhysicalMemory() {
   return static_cast<int64>(memory_info.ullTotalPhys);
 }
 
+// static
+int64 SysInfo::AmountOfFreeDiskSpace(const std::wstring& path) {
+  ULARGE_INTEGER available, total, free;
+  if (!GetDiskFreeSpaceExW(path.c_str(), &available, &total, &free)) {
+    return 0;
+  }
+  return static_cast<int64>(available.QuadPart);
+}
+
 }  // namespace base
