@@ -21,8 +21,6 @@
 // We need this to declare base::MessagePumpWin::Dispatcher, which we should
 // really just eliminate.
 #include "base/message_pump_win.h"
-#elif defined(OS_POSIX)
-#include "base/message_pump_libevent.h"
 #endif
 
 // A MessageLoop is used to process events for a particular thread.  There is
@@ -276,11 +274,6 @@ class MessageLoop : public base::MessagePump::Delegate {
   base::MessagePumpWin* pump_win() {
     return static_cast<base::MessagePumpWin*>(pump_.get());
   }
-#elif defined(OS_POSIX)
-  base::MessagePumpLibevent* pump_libevent() {
-    return static_cast<base::MessagePumpLibevent*>(pump_.get());
-  }
- protected:
 #endif
 
   // A function to encapsulate all the exception handling capability in the
@@ -457,14 +450,6 @@ class MessageLoopForIO : public MessageLoop {
 
   // Please see MessagePumpWin for definitions of these methods.
   void WatchObject(HANDLE object, Watcher* watcher);
-
-#elif defined(OS_POSIX)
-  typedef base::MessagePumpLibevent::Watcher Watcher;
-
-  // Please see MessagePumpLibevent for definitions of these methods.
-  void WatchSocket(int socket, short interest_mask, 
-                   struct event* e, Watcher* watcher);
-  void UnwatchSocket(struct event* e);
 #endif  // defined(OS_WIN)
 };
 
