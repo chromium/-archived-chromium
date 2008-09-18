@@ -606,6 +606,8 @@ void WebContents::SavePage(const std::wstring& main_file,
 bool WebContents::NavigateToPendingEntry(bool reload) {
   NavigationEntry* entry = controller()->GetPendingEntry();
   RenderViewHost* dest_render_view_host = render_manager_.Navigate(*entry);
+  if (!dest_render_view_host)
+    return false;  // Unable to create the desired render view host.
 
   // Used for page load time metrics.
   current_load_start_ = TimeTicks::Now();
