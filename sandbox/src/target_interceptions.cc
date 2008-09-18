@@ -11,6 +11,8 @@
 
 namespace sandbox {
 
+SANDBOX_INTERCEPT NtExports g_nt;
+
 // Hooks NtMapViewOfSection to detect the load of DLLs. If hot patching is
 // required for this dll, this functions patches it.
 NTSTATUS WINAPI TargetNtMapViewOfSection(
@@ -41,18 +43,26 @@ NTSTATUS WINAPI TargetNtMapViewOfSection(
     if (!IsValidImageSection(section, base, offset, view_size))
       break;
 
-    UNICODE_STRING* module_name = GetImageNameFromModule(
-                                      reinterpret_cast<HMODULE>(*base));
-
-    if (!module_name)
-      break;
-
+    UINT image_flags;
+    UNICODE_STRING* module_name =
+        GetImageInfoFromModule(reinterpret_cast<HMODULE>(*base), &image_flags);
     UNICODE_STRING* file_name = GetBackingFilePath(*base);
+
+    if ((!module_name) && (image_flags & MODULE_HAS_CODE)) {
+      // If the module has no exports we retrieve the module name from the
+      // full path of the mapped section.
+      module_name = ExtractModuleName(file_name);
+    }
 
     InterceptionAgent* agent = InterceptionAgent::GetInterceptionAgent();
 
-    if (agent)
-      agent->OnDllLoad(file_name, module_name, *base);
+    if (agent) {
+      if (!agent->OnDllLoad(file_name, module_name, image_flags, *base)) {
+        // Interception agent is demanding to un-map the module.
+        g_nt.UnmapViewOfSection(process, *base);
+        ret = STATUS_UNSUCCESSFUL;
+      }
+    }
 
     if (module_name)
       operator delete(module_name, NT_ALLOC);
