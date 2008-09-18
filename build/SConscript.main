@@ -63,6 +63,7 @@ env = Environment(
     BSPATCH_DIR           = '$THIRD_PARTY_DIR/bspatch',
     BZIP2_DIR             = '$THIRD_PARTY_DIR/bzip2',
     ICU38_DIR             = '$THIRD_PARTY_DIR/icu38',
+    LIBEVENT_DIR          = '$THIRD_PARTY_DIR/libevent',
     LIBJPEG_DIR           = '$THIRD_PARTY_DIR/libjpeg',
     LIBPNG_DIR            = '$THIRD_PARTY_DIR/libpng',
     LIBXML_DIR            = '$THIRD_PARTY_DIR/libxml',
@@ -499,6 +500,10 @@ if LoadComponent('third_party'):
       '$LIBJPEG_DIR/SConscript',
       '$LIBXML_DIR/SConscript',
       '$LIBXSLT_DIR/SConscript',
+    ])
+  if env['PLATFORM'] == 'posix':
+    sconscripts.extend([
+      '$LIBEVENT_DIR/SConscript',
     ])
   # This is temporary until we get this lib to build on other platforms.
   if env['PLATFORM'] == 'win32':

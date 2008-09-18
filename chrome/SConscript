@@ -186,6 +186,7 @@ libs = [
     'plugin/plugin.lib',
     'renderer/renderer.lib',
     'third_party/hunspell/hunspell.lib',
+    'third_party/libevent/libevent.lib',
     'third_party/sqlite/sqlite.lib',
     'views/views.lib',
     '$V8_DIR/v8.lib',

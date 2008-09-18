@@ -132,6 +132,7 @@ if env['PLATFORM'] == 'posix':
   input_files.extend([
       # TODO(tc): gnome-vfs? xdgmime? /etc/mime.types?
       'base/platform_mime_util_linux.cc',
+      'base/tcp_client_socket_libevent.cc',
   ])
 
 if env['PLATFORM'] in ('darwin', 'posix'):
@@ -168,6 +169,7 @@ env_tests.Prepend(
         'net',        # net must come before base and modp_b64
         'bzip2',      # bzip2 must come before base
         'base',
+        'event',
         'googleurl',
         'gtest',
         'icuuc',
@@ -223,6 +225,7 @@ unittest_files = [
     'base/net_util_unittest.cc',
     'base/registry_controlled_domain_unittest.cc',
     'base/run_all_unittests.cc',
+    'base/tcp_client_socket_unittest.cc',
     'base/test_completion_callback_unittest.cc',
     'disk_cache/addr_unittest.cc',
     'disk_cache/block_files_unittest.cc',
@@ -241,7 +244,6 @@ if env['PLATFORM'] == 'win32':
       'base/directory_lister_unittest.cc',
       'base/ssl_config_service_unittest.cc',
       'base/ssl_client_socket_unittest.cc',
-      'base/tcp_client_socket_unittest.cc',
       'base/wininet_util_unittest.cc',
       'disk_cache/backend_unittest.cc',
       'http/http_cache_unittest.cc',

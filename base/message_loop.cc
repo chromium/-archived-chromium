@@ -13,6 +13,10 @@
 #include "base/string_util.h"
 #include "base/thread_local.h"
 
+#if defined(OS_POSIX)
+#include "base/message_pump_libevent.h"
+#endif
+
 // A lazily created thread local storage for quick access to a thread's message
 // loop, if one exists.  This should be safe and free of static constructors.
 static base::LazyInstance<base::ThreadLocalPointer<MessageLoop> > lazy_tls_ptr(
@@ -77,6 +81,12 @@ MessageLoop::MessageLoop(Type type)
     pump_ = new base::MessagePumpDefault();
   } else {
     pump_ = new base::MessagePumpWin();
+  }
+#elif defined(OS_POSIX)
+  if (type_ == TYPE_IO) {
+    pump_ = new base::MessagePumpLibevent();
+  } else {
+    pump_ = new base::MessagePumpDefault();
   }
 #else
   pump_ = new base::MessagePumpDefault();
@@ -561,4 +571,14 @@ void MessageLoopForIO::WatchObject(HANDLE object, Watcher* watcher) {
   pump_win()->WatchObject(object, watcher);
 }
 
-#endif  // defined(OS_WIN)
+#elif defined(OS_POSIX)
+
+void MessageLoopForIO::WatchSocket(int socket, short interest_mask, 
+                                   struct event* e, Watcher* watcher) {
+  pump_libevent()->WatchSocket(socket, interest_mask, e, watcher);
+}
+
+void MessageLoopForIO::UnwatchSocket(struct event* e) {
+  pump_libevent()->UnwatchSocket(e);
+}
+#endif
