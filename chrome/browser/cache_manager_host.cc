@@ -6,6 +6,7 @@
 
 #include "chrome/browser/cache_manager_host.h"
 
+#include "base/sys_info.h"
 #include "base/time.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/render_process_host.h"
@@ -31,7 +32,7 @@ int GetDefaultCacheSize() {
   int default_cache_size = kDefaultMemoryCacheSize;
 
   // Check how much physical memory the OS has
-  int mem_size_mb = env_util::GetPhysicalMemoryMB();
+  int mem_size_mb = base::SysInfo::AmountOfPhysicalMemoryMB();
   if (mem_size_mb >= 1000)  // If we have a GB of memory, set a larger default.
     default_cache_size *= 4;
   else if (mem_size_mb >= 512)  // With 512 MB, set a slightly larger default.

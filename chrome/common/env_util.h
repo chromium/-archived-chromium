@@ -24,9 +24,6 @@ std::string GetOperatingSystemName();
 // Returns the version of the host operating system.
 std::string GetOperatingSystemVersion();
 
-// Returns the total amount of physical memory present.
-int GetPhysicalMemoryMB();
-
 // Returns the CPU architecture of the system.
 std::string GetCPUArchitecture();
 

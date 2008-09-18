@@ -9,6 +9,7 @@
 #include "base/md5.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
+#include "base/sys_info.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/env_util.h"
@@ -462,7 +463,7 @@ void MetricsLog::RecordEnvironment(
 
   {
     OPEN_ELEMENT_FOR_SCOPE("memory");
-    WriteIntAttribute("mb", env_util::GetPhysicalMemoryMB());
+    WriteIntAttribute("mb", base::SysInfo:AmountOfPhysicalMemoryMB());
   }
 
   {

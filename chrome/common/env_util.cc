@@ -7,8 +7,6 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 
-static const DWORDLONG kBytesPerMegabyte = 1048576;
-
 namespace env_util {
 
 std::string GetOperatingSystemName() {
@@ -25,16 +23,6 @@ std::string GetOperatingSystemVersion() {
   _snprintf_s(result, arraysize(result),
                "%lu.%lu", info.dwMajorVersion, info.dwMinorVersion);
   return std::string(result);
-}
-
-int GetPhysicalMemoryMB() {
-  MEMORYSTATUSEX status;
-  status.dwLength = sizeof(status);
-  if (::GlobalMemoryStatusEx(&status))
-    return static_cast<int>(status.ullTotalPhys / kBytesPerMegabyte);
-
-  NOTREACHED() << "GlobalMemoryStatusEx failed.";
-  return 0;
 }
 
 std::string GetCPUArchitecture() {

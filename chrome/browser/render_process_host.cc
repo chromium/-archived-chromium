@@ -22,6 +22,7 @@
 #include "base/shared_event.h"
 #include "base/shared_memory.h"
 #include "base/string_util.h"
+#include "base/sys_info.h"
 #include "base/thread.h"
 #include "base/win_util.h"
 #include "chrome/app/result_codes.h"
@@ -74,7 +75,7 @@ unsigned int GetMaxRendererProcessCount() {
 
   static unsigned int max_count = 0;
   if (!max_count) {
-    int memory_tier = env_util::GetPhysicalMemoryMB() / 256;
+    int memory_tier = base::SysInfo::AmountOfPhysicalMemoryMB() / 256;
     if (memory_tier >= arraysize(kMaxRenderersByRamTier))
       max_count = chrome::kMaxRendererProcessCount;
     else

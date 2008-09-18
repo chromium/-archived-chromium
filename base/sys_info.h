@@ -16,6 +16,11 @@ class SysInfo {
   
   // Return the number of bytes of physical memory on the current machine.
   static int64 AmountOfPhysicalMemory();
+
+  // Return the number of megabytes of physical memory on the current machine.
+  static int AmountOfPhysicalMemoryMB() {
+    return static_cast<int>(AmountOfPhysicalMemory() / 1024 / 1024);
+  }
 };
 
 }  // namespace base
