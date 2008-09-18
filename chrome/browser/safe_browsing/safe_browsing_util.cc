@@ -137,11 +137,6 @@ static void DecodeWebSafe(std::string* decoded) {
 
 bool VerifyMAC(const std::string& key, const std::string& mac,
                const char* data, int data_length) {
-#if !defined(OS_WIN)
-  // TODO(port): Remove #defines when linking issue with modp_b64 is resolved.
-  NOTIMPLEMENTED();
-  return false;
-#endif
   std::string key_copy = key;
   DecodeWebSafe(&key_copy);
   std::string decoded_key;

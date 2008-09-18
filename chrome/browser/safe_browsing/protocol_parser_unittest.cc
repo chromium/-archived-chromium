@@ -455,8 +455,6 @@ TEST(SafeBrowsingProtocolParsingTest, TestGetHash) {
   EXPECT_EQ(full_hashes[2].list_name, "goog-malware-shavar");
 }
 
-// TODO(port): Enable when we have ported VerifyMAC in safe_browsing_util.cc.
-#if defined(OS_WIN)
 TEST(SafeBrowsingProtocolParsingTest, TestGetHashWithMac) {
   const unsigned char get_hash[] = {
     0x32, 0x56, 0x74, 0x6f, 0x6b, 0x36, 0x64, 0x41,
@@ -492,8 +490,6 @@ TEST(SafeBrowsingProtocolParsingTest, TestGetHashWithMac) {
   EXPECT_EQ(full_hashes.size(), static_cast<size_t>(1));
   EXPECT_EQ(memcmp(hash_result, &full_hashes[0].hash, sizeof(SBFullHash)), 0);
 }
-#endif  // defined(OS_WIN)
-
 
 TEST(SafeBrowsingProtocolParsingTest, TestFormatHash) {
   SafeBrowsingProtocolParser parser;
@@ -555,8 +551,6 @@ TEST(SafeBrowsingProtocolParsingTest, TestReset) {
   EXPECT_TRUE(reset);
 }
 
-// TODO(port): Enable when we have ported VerifyMAC in safe_browsing_util.cc.
-#if defined(OS_WIN)
 TEST(SafeBrowsingProtocolParsingTest, TestVerifyUpdateMac) {
   SafeBrowsingProtocolParser parser;
 
@@ -615,4 +609,3 @@ TEST(SafeBrowsingProtocolParsingTest, TestVerifyChunkMac) {
 
   safe_browsing_util::FreeChunks(&chunks);
 }
-#endif  // defined(OS_WIN)

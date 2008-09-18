@@ -30,10 +30,14 @@ env_test.Prepend(
         'CHROME_PNG_WRITE_SUPPORT',
         'UNIT_TEST',
     ],
+
+    # On Linux, dependencies must come after the libraries that depend on it.
+    # base must come after net, bzip2 must come before base, etc.
     LIBS = [
+        'net',
+        'bzip2',
         'base',
         'base_gfx',
-        'bzip2',
         'googleurl',
         'gtest',
         'icuuc',
@@ -42,7 +46,6 @@ env_test.Prepend(
         'libxml',
         'libxslt',
         'modp_b64',
-        'net',
         'skia',
         'v8',
         'zlib',
