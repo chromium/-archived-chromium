@@ -463,7 +463,7 @@ void MetricsLog::RecordEnvironment(
 
   {
     OPEN_ELEMENT_FOR_SCOPE("memory");
-    WriteIntAttribute("mb", base::SysInfo:AmountOfPhysicalMemoryMB());
+    WriteIntAttribute("mb", base::SysInfo::AmountOfPhysicalMemoryMB());
   }
 
   {
