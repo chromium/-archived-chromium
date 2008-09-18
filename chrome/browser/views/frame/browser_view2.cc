@@ -747,11 +747,17 @@ int BrowserView2::NonClientHitTest(const gfx::Point& point) {
   // If the point's y coordinate is above the top of the toolbar, but not in
   // the tabstrip (per previous checking in this function), then we consider it
   // in the window caption (e.g. the area to the right of the tabstrip
-  // underneath the window controls).
+  // underneath the window controls). However, note that we DO NOT return
+  // HTCAPTION here, because when the window is maximized the window controls
+  // will fall into this space (since the BrowserView2 is sized to entire size
+  // of the window at that point), and the HTCAPTION value will cause the
+  // window controls not to work. So we return HTNOWHERE so that the caller
+  // will hit-test the window controls before finally falling back to
+  // HTCAPTION.
   GetBounds(&bounds);
   bounds.bottom = y() + toolbar_->y();
   if (gfx::Rect(bounds).Contains(point.x(), point.y()))
-    return HTCAPTION;
+    return HTNOWHERE;
 
   // If the point is somewhere else, delegate to the default implementation.
   return ClientView::NonClientHitTest(point);
