@@ -73,7 +73,7 @@ TEST_F(TCPClientSocketTest, Read) {
 
   if (rv == net::ERR_IO_PENDING) {
     rv = callback.WaitForResult();
-    EXPECT_EQ(rv, arraysize(request_text) - 1);
+    EXPECT_EQ(rv, static_cast<int>(arraysize(request_text) - 1));
   }
 
   char buf[4096];
@@ -114,7 +114,7 @@ TEST_F(TCPClientSocketTest, Read_SmallChunks) {
 
   if (rv == net::ERR_IO_PENDING) {
     rv = callback.WaitForResult();
-    EXPECT_EQ(rv, arraysize(request_text) - 1);
+    EXPECT_EQ(rv, static_cast<int>(arraysize(request_text) - 1));
   }
 
   char buf[1];
@@ -155,7 +155,7 @@ TEST_F(TCPClientSocketTest, Read_Interrupted) {
 
   if (rv == net::ERR_IO_PENDING) {
     rv = callback.WaitForResult();
-    EXPECT_EQ(rv, arraysize(request_text) - 1);
+    EXPECT_EQ(rv, static_cast<int>(arraysize(request_text) - 1));
   }
 
   // Do a partial read and then exit.  This test should not crash!
