@@ -916,7 +916,7 @@ LRESULT CustomFrameWindow::OnNCActivate(BOOL active) {
 
   // We can get WM_NCACTIVATE before we're actually visible. If we're not
   // visible, no need to paint.
-  if (!IsMaximized() && IsWindowVisible(GetHWND())) {
+  if (IsWindowVisible(GetHWND())) {
     non_client_view_->SchedulePaint();
     // We need to force a paint now, as a user dragging a window will block
     // painting operations while the move is in progress.
