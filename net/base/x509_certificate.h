@@ -15,6 +15,8 @@
 #if defined(OS_WIN)
 #include <windows.h>
 #include <wincrypt.h>
+#elif defined(OS_MACOSX)
+#include <Security/Security.h>
 #endif
 
 class Pickle;
@@ -44,6 +46,8 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
 
 #if defined(OS_WIN)
   typedef PCCERT_CONTEXT OSCertHandle;
+#elif defined(OS_MACOSX)
+  typedef SecCertificateRef OSCertHandle;
 #else
   // TODO(ericroman): not implemented
   typedef void* OSCertHandle;
@@ -102,12 +106,14 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
   };
 
   // Create an X509Certificate from a handle to the certificate object
-  // in the underlying crypto library.
+  // in the underlying crypto library. This is a transfer of ownership;
+  // X509Certificate will properly dispose of |cert_handle| for you.
   static X509Certificate* CreateFromHandle(OSCertHandle cert_handle);
 
   // Create an X509Certificate from the representation stored in the given
   // pickle.  The data for this object is found relative to the given
   // pickle_iter, which should be passed to the pickle's various Read* methods.
+  // Returns NULL on failure.
   static X509Certificate* CreateFromPickle(const Pickle& pickle,
                                            void** pickle_iter);
 
@@ -127,6 +133,7 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
   // The issuer of the certificate.
   const Principal& issuer() const { return issuer_; }
 
+#if defined(OS_WIN)
   // Time period during which the certificate is valid.  More precisely, this
   // certificate is invalid before the |valid_start| date and invalid after
   // the |valid_expiry| date.
@@ -134,6 +141,12 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
   // lacks either date), the date will be null (i.e., is_null() will be true).
   const Time& valid_start() const { return valid_start_; }
   const Time& valid_expiry() const { return valid_expiry_; }
+#elif defined(OS_MACOSX)
+  // These are used only for some UI, where HasExpired is used to disambiguate a
+  // time error on the certificate as a "too old" or "too young" error. On the
+  // Mac you get different codes for those. There's no easy way of pulling dates
+  // out of the cert short of CSSM, so these remain unimplemented for now.
+#endif
 
   // The fingerprint of this certificate.
   const Fingerprint& fingerprint() const { return fingerprint_; }
@@ -144,9 +157,11 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
   // Otherwise, it gets the common name in the subject field.
   void GetDNSNames(std::vector<std::string>* dns_names) const;
 
+#if defined(OS_WIN)
   // Convenience method that returns whether this certificate has expired as of
   // now.
   bool HasExpired() const;
+#endif
 
   // Returns true if the certificate is an extended-validation (EV)
   // certificate.
@@ -168,10 +183,12 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
   // Common object initialization code.  Called by the constructors only.
   void Initialize();
 
+#if defined(OS_WIN)
   // Helper function to parse a principal from a WinInet description of that
   // principal.
   static void ParsePrincipal(const std::string& description,
                              Principal* principal);
+#endif
 
   // The subject of the certificate.
   Principal subject_;
@@ -179,11 +196,13 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
   // The issuer of the certificate.
   Principal issuer_;
 
+#if defined(OS_WIN)
   // This certificate is not valid before |valid_start_|
   Time valid_start_;
 
   // This certificate is not valid after |valid_expiry_|
   Time valid_expiry_;
+#endif
 
   // The fingerprint of this certificate.
   Fingerprint fingerprint_;
@@ -191,7 +210,7 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
   // A handle to the certificate object in the underlying crypto library.
   OSCertHandle cert_handle_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(X509Certificate);
+  DISALLOW_COPY_AND_ASSIGN(X509Certificate);
 };
 
 }  // namespace net

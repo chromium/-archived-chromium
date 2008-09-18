@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		82F372150E82AE0500DF5AFE /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82F372140E82AE0500DF5AFE /* Security.framework */; };
 		82F399480E7EE4D500785E15 /* libWebKitSystemInterfaceLeopard.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 82F399470E7EE4D500785E15 /* libWebKitSystemInterfaceLeopard.a */; };
 		82F399B70E7EF75800785E15 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B8205260E770291008F45CF /* libbase.a */; };
 		82F399B80E7EF75A00785E15 /* libbase_gfx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B8205280E770291008F45CF /* libbase_gfx.a */; };
@@ -527,6 +528,7 @@
 		829E35270DC0C95300819EBF /* icu.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = icu.xcodeproj; path = third_party/icu38/icu.xcodeproj; sourceTree = "<group>"; };
 		829E35590DC0D37B00819EBF /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = "<group>"; };
 		829E355C0DC0D47400819EBF /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = "<group>"; };
+		82F372140E82AE0500DF5AFE /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
 		82F399470E7EE4D500785E15 /* libWebKitSystemInterfaceLeopard.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWebKitSystemInterfaceLeopard.a; path = temp/libWebKitSystemInterfaceLeopard.a; sourceTree = "<group>"; };
 		82F39A1C0E7EF85C00785E15 /* gtest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gtest.xcodeproj; path = testing/gtest.xcodeproj; sourceTree = "<group>"; };
 		82F39CFF0E7EF95A00785E15 /* modp_b64.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = modp_b64.xcodeproj; path = third_party/modp_b64/modp_b64.xcodeproj; sourceTree = "<group>"; };
@@ -600,6 +602,7 @@
 				82F39D400E7EFD9300785E15 /* libxml.a in Frameworks */,
 				82F39CF40E7EF90F00785E15 /* libzlib.a in Frameworks */,
 				E456292D0E26B4FE005E4685 /* QuartzCore.framework in Frameworks */,
+				82F372150E82AE0500DF5AFE /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -648,6 +651,7 @@
 				13E42FB307B3F0F600E4EEF1 /* CoreData.framework */,
 				29B97325FDCFA39411CA2CEA /* Foundation.framework */,
 				829E355C0DC0D47400819EBF /* QuartzCore.framework */,
+				82F372140E82AE0500DF5AFE /* Security.framework */,
 			);
 			name = Frameworks;
 			sourceTree = SDKROOT;

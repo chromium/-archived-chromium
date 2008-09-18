@@ -92,7 +92,7 @@ if env['PLATFORM'] == 'win32':
       'base/upload_data_stream.cc',
       'base/wininet_util.cc',
       'base/winsock_init.cc',
-      'base/x509_certificate.cc',
+      'base/x509_certificate_win.cc',
       'http/http_network_layer.cc',
       'http/http_network_transaction.cc',
       'http/http_transaction_winhttp.cc',
@@ -126,6 +126,7 @@ if env['PLATFORM'] == 'win32':
 if env['PLATFORM'] == 'darwin':
   input_files.extend([
       'base/platform_mime_util_mac.mm',
+      'base/x509_certificate_mac.cc',
   ])
 
 if env['PLATFORM'] == 'posix':
