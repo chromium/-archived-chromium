@@ -1,0 +1,19 @@
+This contains a copy of libevent-1.4.7-stable, initially 
+for use on Linux, but also perhaps on BSD / Solaris / Mac.
+
+Rather than use libevent's own build system, we just build a Chrome 
+static library using SConstruct.
+
+Changes from upstream:
+1) add config.h from a run of configure on a Linux development box.
+2) add SConstruct
+3) quotes.patch is applied to allow libevent to be used without
+being installed (alternative is adding crazy -I arguments to the commandline)
+4) The directories WIN32-Code and WIN32-Prj are not included
+
+SConstruct does not include a few files that don't build on Linux:
+    devpoll.c, evport.c, kqueue.c
+
+TODO: currently we -I the source directory, which exposes config.h, which
+is dangerous.  We should probably add an include directory of symlinks
+back to the real .h files, or something.
