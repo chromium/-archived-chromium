@@ -325,6 +325,10 @@ TEST_F(TabStripModelTest, TestBasicAPI) {
   TabContents* replacement_contents3 = CreateReplacementContents();
   {
     tabstrip.ReplaceTabContentsAt(2, replacement_contents3);
+    // ReplaceTabContentsAt doesn't delete the source.  It depends on
+    // NavigationCollector, which is not part of this test.
+    contents3->Destroy();
+
     EXPECT_EQ(2, observer.GetStateCount());
     State s1(replacement_contents3, 2, MockTabStripModelObserver::CHANGE);
     EXPECT_TRUE(observer.StateEquals(0, s1));
@@ -339,6 +343,9 @@ TEST_F(TabStripModelTest, TestBasicAPI) {
   TabContents* replacement_contents2 = CreateReplacementContents();
   {
     tabstrip.ReplaceTabContentsAt(1, replacement_contents2);
+    // ReplaceTabContentsAt doesn't delete the source.  It depends on
+    // NavigationCollector, which is not part of this test.
+    contents2->Destroy();
 
     EXPECT_EQ(1, observer.GetStateCount());
     State s1(replacement_contents2, 1, MockTabStripModelObserver::CHANGE);
