@@ -1,2 +1,7 @@
-# bug 1178136
+# buganizer 1178136
 ImporterTest.Firefox3Importer
+
+
+# issue 2468
+URLFetcherBadHTTPSTest.BadHTTPSTest
+SafeBrowsingProtocolParsingTest.TestSubChunk
