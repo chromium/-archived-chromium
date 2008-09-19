@@ -31,9 +31,11 @@
 
 AutocompleteInput::AutocompleteInput(const std::wstring& text,
                                      const std::wstring& desired_tld,
-                                     bool prevent_inline_autocomplete)
+                                     bool prevent_inline_autocomplete,
+                                     bool prefer_keyword)
     : desired_tld_(desired_tld),
-      prevent_inline_autocomplete_(prevent_inline_autocomplete) {
+      prevent_inline_autocomplete_(prevent_inline_autocomplete),
+      prefer_keyword_(prefer_keyword) {
   // Trim whitespace from edges of input; don't inline autocomplete if there
   // was trailing whitespace.
   if (TrimWhitespace(text, TRIM_ALL, &text_) & TRIM_TRAILING)
@@ -213,7 +215,8 @@ bool AutocompleteInput::Equals(const AutocompleteInput& other) const {
          (type_ == other.type_) &&
          (desired_tld_ == other.desired_tld_) &&
          (scheme_ == other.scheme_) &&
-         (prevent_inline_autocomplete_ == other.prevent_inline_autocomplete_);
+         (prevent_inline_autocomplete_ == other.prevent_inline_autocomplete_) &&
+         (prefer_keyword_ == other.prefer_keyword_);
 }
 
 void AutocompleteInput::Clear() {
@@ -223,6 +226,7 @@ void AutocompleteInput::Clear() {
   scheme_.clear();
   desired_tld_.clear();
   prevent_inline_autocomplete_ = false;
+  prefer_keyword_ = false;
 }
 
 // AutocompleteMatch ----------------------------------------------------------
@@ -436,19 +440,23 @@ void AutocompleteResult::CopyFrom(const AutocompleteResult& rhs) {
 }
 
 void AutocompleteResult::AppendMatches(const ACMatches& matches) {
-  default_match_ = end();
   std::copy(matches.begin(), matches.end(), std::back_inserter(matches_));
+  default_match_ = end();
 }
 
 void AutocompleteResult::AddMatch(const AutocompleteMatch& match) {
-  default_match_ = end();
-  matches_.insert(std::upper_bound(matches_.begin(), matches_.end(), match,
-                                   &AutocompleteMatch::MoreRelevant), match);
+  DCHECK(default_match_ != end());
+  ACMatches::iterator insertion_point =
+      std::upper_bound(begin(), end(), match, &AutocompleteMatch::MoreRelevant);
+  ACMatches::iterator::difference_type default_offset =
+      default_match_ - begin();
+  if ((insertion_point - begin()) <= default_offset)
+    ++default_offset;
+  matches_.insert(insertion_point, match);
+  default_match_ = begin() + default_offset;
 }
 
 void AutocompleteResult::SortAndCull() {
-  default_match_ = end();
-
   // Remove duplicates.
   std::sort(matches_.begin(), matches_.end(),
             &AutocompleteMatch::DestinationSortFunc);
@@ -475,45 +483,7 @@ void AutocompleteResult::SortAndCull() {
 
   // Now put the final result set in order.
   std::sort(matches_.begin(), matches_.end(), &AutocompleteMatch::MoreRelevant);
-}
-
-bool AutocompleteResult::SetDefaultMatch(const Selection& selection) {
-  default_match_ = end();
-
-  // Look for the best match.
-  for (const_iterator i(begin()); i != end(); ++i) {
-    // If we have an exact match, return immediately.
-    if (selection.is_history_what_you_typed_match ?
-        i->is_history_what_you_typed_match :
-        (!selection.destination_url.empty() &&
-         (i->destination_url == selection.destination_url))) {
-      default_match_ = i;
-      return true;
-    }
-
-    // Otherwise, see if this match is closer to the desired selection than the
-    // existing one.
-    if (default_match_ == end()) {
-      // No match at all yet, pick the first one we see.
-      default_match_ = i;
-    } else if (selection.provider_affinity == NULL) {
-      // No provider desired, choose solely based on relevance.
-      if (AutocompleteMatch::MoreRelevant(*i, *default_match_))
-        default_match_ = i;
-    } else {
-      // Desired provider trumps any undesired provider; otherwise choose based
-      // on relevance.
-      const bool providers_match =
-          (i->provider == selection.provider_affinity);
-      const bool default_provider_doesnt_match =
-          (default_match_->provider != selection.provider_affinity);
-      if ((providers_match && default_provider_doesnt_match) ||
-          ((providers_match || default_provider_doesnt_match) &&
-           AutocompleteMatch::MoreRelevant(*i, *default_match_)))
-        default_match_ = i;
-    }
-  }
-  return false;
+  default_match_ = begin();
 }
 
 std::wstring AutocompleteResult::GetAlternateNavURL(
@@ -548,8 +518,7 @@ AutocompleteController::AutocompleteController(ACControllerListener* listener,
     : listener_(listener) {
   providers_.push_back(new SearchProvider(this, profile));
   providers_.push_back(new HistoryURLProvider(this, profile));
-  keyword_provider_ = new KeywordProvider(this, profile);
-  providers_.push_back(keyword_provider_);
+  providers_.push_back(new KeywordProvider(this, profile));
   if (listener) {
     // These providers are async-only, so there's no need to create them when
     // we'll only be doing synchronous queries.

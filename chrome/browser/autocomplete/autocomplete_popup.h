@@ -222,12 +222,17 @@ class AutocompletePopupModel : public ACControllerListener, public Task {
   // not require inline autocomplete for the default match.  This is difficult
   // to explain in the abstract; the practical use case is that after the user
   // deletes text in the edit, the HistoryURLProvider should make sure not to
-  //promote a match requiring inline autocomplete too highly.
+  // promote a match requiring inline autocomplete too highly.
+  //
+  // |prefer_keyword| should be true when the keyword UI is onscreen; this will
+  // bias the autocomplete results toward the keyword provider when the input
+  // string is a bare keyword.
   void StartAutocomplete(const std::wstring& text,
                          const std::wstring& desired_tld,
-                         bool prevent_inline_autocomplete);
+                         bool prevent_inline_autocomplete,
+                         bool prefer_keyword);
 
-  // Closes the window and cancels any pending asynchronous queries
+  // Closes the window and cancels any pending asynchronous queries.
   void StopAutocomplete();
 
   // Returns true if the popup is currently open.
@@ -264,9 +269,18 @@ class AutocompletePopupModel : public ACControllerListener, public Task {
   // Call to change the selected line.  This will update all state and repaint
   // the necessary parts of the window, as well as updating the edit with the
   // new temporary text.  |line| should be within the range of valid lines.
+  // |reset_to_default| is true when the selection is being reset back to the
+  // default match, and thus there is no temporary text (and no
+  // |manually_selected_match_|).
   // NOTE: This assumes the popup is open, and thus both old and new values for
   // the selected line should not be kNoMatch.
-  void SetSelectedLine(size_t line);
+  void SetSelectedLine(size_t line, bool reset_to_default);
+
+  // Called when the user hits escape after arrowing around the popup.  This
+  // will change the selected line back to the default match and redraw.
+  void ResetToDefaultMatch() {
+    SetSelectedLine(result_.default_match() - result_.begin(), true);
+  }
 
   // Returns the URL for the selected match.  If an update is in progress,
   // "selected" means "default in the latest results".  If there are no
@@ -339,14 +353,14 @@ class AutocompletePopupModel : public ACControllerListener, public Task {
   // Task - called when either timer fires.  Calls CommitLatestResults().
   virtual void Run();
 
-  // The match the user has manually chosen, if any.
-  AutocompleteResult::Selection manually_selected_match_;
-
   // The token value for selected_line_, hover_line_ and functions dealing with
   // a "line number" that indicates "no line".
   static const size_t kNoMatch = -1;
 
  private:
+   // Stops an existing query but doesn't close the popup.
+   void StopQuery();
+
   // Sets the correct default match in latest_result_, then updates the popup
   // appearance to match.  If |immediately| is true this update happens
   // synchronously; otherwise, it's deferred until the next scheduled update.
@@ -401,6 +415,9 @@ class AutocompletePopupModel : public ACControllerListener, public Task {
   // The currently selected line.  This is kNoMatch when nothing is selected,
   // which should only be true when the popup is closed.
   size_t selected_line_;
+
+  // The match the user has manually chosen, if any.
+  AutocompleteResult::Selection manually_selected_match_;
 
   DISALLOW_COPY_AND_ASSIGN(AutocompletePopupModel);
 };

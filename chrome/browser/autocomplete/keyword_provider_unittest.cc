@@ -58,7 +58,8 @@ void KeywordProviderTest::RunTest(
     std::wstring AutocompleteMatch::* member) {
   ACMatches matches;
   for (int i = 0; i < num_cases; ++i) {
-    AutocompleteInput input(keyword_cases[i].input, std::wstring(), true);
+    AutocompleteInput input(keyword_cases[i].input, std::wstring(), true,
+                            false);
     kw_provider_->Start(input, false, false);
     EXPECT_TRUE(kw_provider_->done());
     matches = kw_provider_->matches();

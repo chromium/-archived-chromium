@@ -244,7 +244,7 @@ void AutocompletePopupView::OnHoverEnabledOrDisabled(bool disabled) {
 void AutocompletePopupView::OnLButtonDown(UINT keys, const CPoint& point) {
   const size_t new_hovered_line = PixelToLine(point.y);
   model_->SetHoveredLine(new_hovered_line);
-  model_->SetSelectedLine(new_hovered_line);
+  model_->SetSelectedLine(new_hovered_line, false);
 }
 
 void AutocompletePopupView::OnMButtonDown(UINT keys, const CPoint& point) {
@@ -291,7 +291,7 @@ void AutocompletePopupView::OnMouseMove(UINT keys, const CPoint& point) {
     // When the user has the left button down, update their selection
     // immediately (don't wait for mouseup).
     if (keys & MK_LBUTTON)
-      model_->SetSelectedLine(new_hovered_line);
+      model_->SetSelectedLine(new_hovered_line, false);
   }
 }
 
@@ -750,35 +750,22 @@ void AutocompletePopupModel::SetProfile(Profile* profile) {
 void AutocompletePopupModel::StartAutocomplete(
     const std::wstring& text,
     const std::wstring& desired_tld,
-    bool prevent_inline_autocomplete) {
+    bool prevent_inline_autocomplete,
+    bool prefer_keyword) {
   // The user is interacting with the edit, so stop tracking hover.
   SetHoveredLine(kNoMatch);
 
   // See if we can avoid rerunning autocomplete when the query hasn't changed
-  // much.  If the popup isn't open, we threw the past results away, so no
-  // shortcuts are possible.
-  const AutocompleteInput input(text, desired_tld, prevent_inline_autocomplete);
-  bool minimal_changes = false;
-  if (is_open()) {
-    // When the user hits escape with a temporary selection, the edit asks us
-    // to update, but the text it supplies hasn't changed since the last query.
-    // Instead of stopping or rerunning the last query, just do an immediate
-    // repaint with the new (probably NULL) provider affinity.
-    if (input_.Equals(input)) {
-      SetDefaultMatchAndUpdate(true);
-      return;
-    }
-
-    // When the user presses or releases the ctrl key, the desired_tld changes,
-    // and when the user finishes an IME composition, inline autocomplete may
-    // no longer be prevented.  In both these cases the text itself hasn't
-    // changed since the last query, and some providers can do much less work
-    // (and get results back more quickly).  Taking advantage of this reduces
-    // flicker.
-    if (input_.text() == text)
-      minimal_changes = true;
-  }
-  input_ = input;
+  // much.  When the user presses or releases the ctrl key, the desired_tld
+  // changes, and when the user finishes an IME composition, inline autocomplete
+  // may no longer be prevented.  In both these cases the text itself hasn't
+  // changed since the last query, and some providers can do much less work (and
+  // get results back more quickly).  Taking advantage of this reduces flicker.
+  // If the popup isn't open, on the other hand, we threw the past results away,
+  // so no shortcuts are possible.
+  const bool minimal_changes = is_open() && (input_.text() == text);
+  input_ = AutocompleteInput(text, desired_tld, prevent_inline_autocomplete,
+                             prefer_keyword);
 
   // If we're starting a brand new query, stop caring about any old query.
   if (!minimal_changes && query_in_progress_) {
@@ -787,6 +774,7 @@ void AutocompletePopupModel::StartAutocomplete(
   }
 
   // Start the new query.
+  manually_selected_match_.Clear();
   query_in_progress_ = !controller_->Start(input_, minimal_changes, false);
   controller_->GetResult(&latest_result_);
 
@@ -801,23 +789,17 @@ void AutocompletePopupModel::StartAutocomplete(
 
 void AutocompletePopupModel::StopAutocomplete() {
   // Close any old query.
-  if (query_in_progress_) {
-    controller_->Stop();
-    query_in_progress_ = false;
-    update_pending_ = false;
-  }
+  StopQuery();
 
   // Reset results.  This will force the popup to close.
   latest_result_.Reset();
   CommitLatestResults(true);
 
-  // Clear input_ and manually_selected_match_ to make sure we don't try and use
-  // any of these results for the next query we receive.  Strictly speaking this
-  // isn't necessary, since the popup isn't open, but it keeps our internal
-  // state consistent and serves as future-proofing in case the code in
-  // StartAutocomplete() changes.
+  // Clear input_ to make sure we don't try and use any of these results for the
+  // next query we receive.  Strictly speaking this isn't necessary, since the
+  // popup isn't open, but it keeps our internal state consistent and serves as
+  // future-proofing in case the code in StartAutocomplete() changes.
   input_.Clear();
-  manually_selected_match_.Clear();
 }
 
 void AutocompletePopupModel::SetHoveredLine(size_t line) {
@@ -842,28 +824,36 @@ void AutocompletePopupModel::SetHoveredLine(size_t line) {
     view_->OnHoverEnabledOrDisabled(is_disabling);
 }
 
-void AutocompletePopupModel::SetSelectedLine(size_t line) {
+void AutocompletePopupModel::SetSelectedLine(size_t line,
+                                             bool reset_to_default) {
   DCHECK(line < result_.size());
   if (result_.empty())
     return;
 
+  // Cancel the query so the results don't change on the user.
+  StopQuery();
+
+  const AutocompleteMatch& match = result_.match_at(line);
+  if (reset_to_default) {
+    manually_selected_match_.Clear();
+  } else {
+    // Track the user's selection until they cancel it.
+    manually_selected_match_.destination_url = match.destination_url;
+    manually_selected_match_.provider_affinity = match.provider;
+    manually_selected_match_.is_history_what_you_typed_match =
+        match.is_history_what_you_typed_match;
+  }
+
   if (line == selected_line_)
-    return;  // Nothing to do
+    return;  // Nothing else to do.
 
   // Update the edit with the new data for this match.
-  const AutocompleteMatch& match = result_.match_at(line);
   std::wstring keyword;
   const bool is_keyword_hint = GetKeywordForMatch(match, &keyword);
-  edit_model_->OnPopupDataChanged(match.fill_into_edit, true,
-                                  manually_selected_match_, keyword,
-                                  is_keyword_hint,
-                                  (match.type == AutocompleteMatch::SEARCH));
-
-  // Track the user's selection until they cancel it.
-  manually_selected_match_.destination_url = match.destination_url;
-  manually_selected_match_.provider_affinity = match.provider;
-  manually_selected_match_.is_history_what_you_typed_match =
-      match.is_history_what_you_typed_match;
+  edit_model_->OnPopupDataChanged(
+      reset_to_default ? std::wstring() : match.fill_into_edit,
+      !reset_to_default, keyword, is_keyword_hint,
+      (match.type == AutocompleteMatch::SEARCH));
 
   // Repaint old and new selected lines immediately, so that the edit doesn't
   // appear to update [much] faster than the popup.  We must not update
@@ -897,7 +887,7 @@ std::wstring AutocompletePopupModel::URLsForCurrentSelection(
   if (update_pending_) {
     // The default match on the latest result should be up-to-date. If the user
     // changed the selection since that result was generated using the arrow
-    // keys, Move() will have force updated the popup.
+    // keys, SetSelectedLine() will have force updated the popup.
     result = &latest_result_;
     match = result->default_match();
   } else {
@@ -920,11 +910,13 @@ std::wstring AutocompletePopupModel::URLsForDefaultMatch(
     PageTransition::Type* transition,
     bool* is_history_what_you_typed_match,
     std::wstring* alternate_nav_url) {
-  // Cancel any existing query.
-  StopAutocomplete();
+  // We had better not already be doing anything, or this call will blow it
+  // away.
+  DCHECK(!is_open());
+  DCHECK(!query_in_progress_);
 
   // Run the new query and get only the synchronously available results.
-  const AutocompleteInput input(text, desired_tld, true);
+  const AutocompleteInput input(text, desired_tld, true, false);
   const bool done = controller_->Start(input, false, true);
   DCHECK(done);
   controller_->GetResult(&result_);
@@ -932,7 +924,6 @@ std::wstring AutocompletePopupModel::URLsForDefaultMatch(
     return std::wstring();
 
   // Get the URLs for the default match.
-  result_.SetDefaultMatch(manually_selected_match_);
   const AutocompleteResult::const_iterator match = result_.default_match();
   const std::wstring url(match->destination_url);  // Need to copy since we
                                                      // reset result_ below.
@@ -940,7 +931,7 @@ std::wstring AutocompletePopupModel::URLsForDefaultMatch(
     *transition = match->transition;
   if (is_history_what_you_typed_match)
     *is_history_what_you_typed_match = match->is_history_what_you_typed_match;
-  if (alternate_nav_url && manually_selected_match_.empty())
+  if (alternate_nav_url)
     *alternate_nav_url = result_.GetAlternateNavURL(input, match);
   result_.Reset();
 
@@ -984,20 +975,17 @@ AutocompleteLog* AutocompletePopupModel::GetAutocompleteLog() {
 }
 
 void AutocompletePopupModel::Move(int count) {
+  if (result_.empty())
+    return;
+
   // The user is using the keyboard to change the selection, so stop tracking
   // hover.
   SetHoveredLine(kNoMatch);
 
-  // Force the popup to open/update, so the user is interacting with the
-  // latest results.
-  CommitLatestResults(false);
-  if (result_.empty())
-    return;
-
   // Clamp the new line to [0, result_.count() - 1].
   const size_t new_line = selected_line_ + count;
-  SetSelectedLine(((count < 0) && (new_line >= selected_line_)) ?
-      0 : std::min(new_line, result_.size() - 1));
+  SetSelectedLine((((count < 0) && (new_line >= selected_line_)) ?
+      0 : std::min(new_line, result_.size() - 1)), false);
 }
 
 void AutocompletePopupModel::TryDeletingCurrentItem() {
@@ -1014,18 +1002,8 @@ void AutocompletePopupModel::TryDeletingCurrentItem() {
                                          // to OnAutocompleteUpdate()
     CommitLatestResults(false);
     if (!result_.empty()) {
-      // Move the selection to the next choice after the deleted one, but clear
-      // the manual selection so this choice doesn't act "sticky".
-      //
-      // It might also be correct to only call Clear() here when
-      // manually_selected_match_ didn't already have a provider() (i.e. when
-      // there was no existing manual selection).  It's not clear what the user
-      // wants when they shift-delete something they've arrowed to.  If they
-      // arrowed down just to shift-delete it, we should probably Clear(); if
-      // they arrowed to do something else, then got a bad match while typing,
-      // we probably shouldn't.
-      SetSelectedLine(std::min(result_.size() - 1, selected_line));
-      manually_selected_match_.Clear();
+      // Move the selection to the next choice after the deleted one.
+      SetSelectedLine(std::min(result_.size() - 1, selected_line), false);
     }
   }
 }
@@ -1044,16 +1022,17 @@ void AutocompletePopupModel::Run() {
   CommitLatestResults(false);
 }
 
-void AutocompletePopupModel::SetDefaultMatchAndUpdate(bool immediately) {
-  if (!latest_result_.SetDefaultMatch(manually_selected_match_) &&
-      !query_in_progress_) {
-    // We don't clear the provider affinity because the user didn't do
-    // something to indicate that they want a different provider, we just
-    // couldn't find the specific match they wanted.
-    manually_selected_match_.destination_url.clear();
-    manually_selected_match_.is_history_what_you_typed_match = false;
+void AutocompletePopupModel::StopQuery() {
+  if (query_in_progress_) {
+    controller_->Stop();
+    query_in_progress_ = false;
+    update_pending_ = false;
+    latest_result_.CopyFrom(result_);  // Not strictly necessary, but keeps
+                                       // internal state consistent.
   }
+}
 
+void AutocompletePopupModel::SetDefaultMatchAndUpdate(bool immediately) {
   if (immediately) {
     CommitLatestResults(true);
   } else if (!update_pending_) {
@@ -1088,9 +1067,8 @@ void AutocompletePopupModel::SetDefaultMatchAndUpdate(bool immediately) {
     is_keyword_hint = GetKeywordForMatch(*match, &keyword);
     can_show_search_hint = (match->type == AutocompleteMatch::SEARCH);
   }
-  edit_model_->OnPopupDataChanged(inline_autocomplete_text, false,
-      manually_selected_match_ /* ignored */, keyword, is_keyword_hint,
-      can_show_search_hint);
+  edit_model_->OnPopupDataChanged(inline_autocomplete_text, false, keyword,
+      is_keyword_hint, can_show_search_hint);
 }
 
 void AutocompletePopupModel::CommitLatestResults(bool force) {

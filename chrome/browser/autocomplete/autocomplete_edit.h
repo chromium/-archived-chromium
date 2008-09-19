@@ -70,29 +70,37 @@ class AutocompleteEditController {
 
 class AutocompleteEditModel {
  public:
+  enum KeywordUIState {
+    NORMAL,      // The user is typing normally.
+    NO_KEYWORD,  // The user is editing in the middle of the input string.  Even
+                 // if the input looks like a keyword, don't display the keyword
+                 // UI, so as not to interfere with the user's editing.
+    KEYWORD,     // The user has triggered the keyword UI.  Until it disappears,
+                 // bias autocomplete results so that input strings of the
+                 // keyword alone default to the keyword provider, not a normal
+                 // navigation or search.
+  };
+
   struct State {
     State(bool user_input_in_progress,
           const std::wstring& user_text,
-          const AutocompleteResult::Selection& manually_selected_match,
           const std::wstring& keyword,
           bool is_keyword_hint,
-          bool disable_keyword_ui,
+          KeywordUIState keyword_ui_state,
           bool show_search_hint)
         : user_input_in_progress(user_input_in_progress),
           user_text(user_text),
-          manually_selected_match(manually_selected_match),
           keyword(keyword),
           is_keyword_hint(is_keyword_hint),
-          disable_keyword_ui(disable_keyword_ui),
+          keyword_ui_state(keyword_ui_state),
           show_search_hint(show_search_hint) {
     }
 
     bool user_input_in_progress;
     const std::wstring user_text;
-    AutocompleteResult::Selection manually_selected_match;
     const std::wstring keyword;
     const bool is_keyword_hint;
-    const bool disable_keyword_ui;
+    const KeywordUIState keyword_ui_state;
     const bool show_search_hint;
   };
 
@@ -197,8 +205,7 @@ class AutocompleteEditModel {
   // Accessors for keyword-related state (see comments on keyword_ and
   // is_keyword_hint_).
   std::wstring keyword() const {
-    return ((is_keyword_hint_ && has_focus_) ||
-            (!is_keyword_hint_ && !disable_keyword_ui_)) ?
+    return (is_keyword_hint_ ? has_focus_ : (keyword_ui_state_ != NO_KEYWORD)) ?
         keyword_ : std::wstring();
   }
   bool is_keyword_hint() const { return is_keyword_hint_; }
@@ -266,7 +273,6 @@ class AutocompleteEditModel {
   void OnPopupDataChanged(
       const std::wstring& text,
       bool is_temporary_text,
-      const AutocompleteResult::Selection& previous_selected_match,
       const std::wstring& keyword,
       bool is_keyword_hint,
       bool can_show_search_hint);
@@ -276,12 +282,23 @@ class AutocompleteEditModel {
   // popup if necessary, and returns true if any significant changes occurred.
   bool OnAfterPossibleChange(const std::wstring& new_text,
                              bool selection_differs,
-                             bool select_all_before_change,
                              bool text_differs,
                              bool just_deleted_text,
                              bool at_end_of_edit);
 
  private:
+  enum PasteState {
+    NONE,           // Most recent edit was not a paste that replaced all text.
+    REPLACED_ALL,   // Most recent edit was a paste that replaced all text.
+    REPLACING_ALL,  // In the middle of doing a paste that replaces all
+                    // text.  We need this intermediate state because OnPaste()
+                    // does the actual detection of such pastes, but
+                    // OnAfterPossibleChange() has to update the paste state
+                    // for every edit.  If OnPaste() set the state directly to
+                    // REPLACED_ALL, OnAfterPossibleChange() wouldn't know
+                    // whether that represented the current edit or a past one.
+  };
+
   enum ControlKeyState {
     UP,                   // The control key is not depressed.
     DOWN_WITHOUT_CHANGE,  // The control key is depressed, and the edit's
@@ -294,18 +311,6 @@ class AutocompleteEditModel {
                           // depressed.  If the user now hits enter, we assume
                           // he simply hasn't released the key, rather than that
                           // he intended to hit "ctrl-enter".
-  };
-
-  enum PasteState {
-    NONE,           // Most recent edit was not a paste that replaced all text.
-    REPLACED_ALL,   // Most recent edit was a paste that replaced all text.
-    REPLACING_ALL,  // In the middle of doing a paste that replaces all
-                    // text.  We need this intermediate state because OnPaste()
-                    // does the actual detection of such pastes, but
-                    // OnAfterPossibleChange() has to update the paste state
-                    // for every edit.  If OnPaste() set the state directly to
-                    // REPLACED_ALL, OnAfterPossibleChange() wouldn't know
-                    // whether that represented the current edit or a past one.
   };
 
   // Called whenever user_text_ should change.
@@ -392,14 +397,9 @@ class AutocompleteEditModel {
   // the unique identifier of the originally selected item.  Thus, if the user
   // arrows to a different item with the same text, we can still distinguish
   // them and not revert all the way to the permanent_text_.
-  //
-  // original_selected_match_, which is valid in the same cases, is the manually
-  // selected match to revert the popup to, if any.  This can be non-empty when
-  // the user has selected a keyword (by hitting <tab> when applicable), or when
-  // the user has manually selected a match and then continued to edit it.
   bool has_temporary_text_;
   std::wstring original_url_;
-  AutocompleteResult::Selection original_selected_match_;
+  KeywordUIState original_keyword_ui_state_;
 
   // When the user's last action was to paste and replace all the text, we
   // disallow inline autocomplete (on the theory that the user is trying to
@@ -423,10 +423,8 @@ class AutocompleteEditModel {
   // keyword_ to show a "Press <tab> to search" sort of hint.
   bool is_keyword_hint_;
 
-  // In some cases, such as when the user is editing in the middle of the input
-  // string, the input might look like a keyword, but we don't want to display
-  // the keyword UI, so as not to interfere with the user's editing.
-  bool disable_keyword_ui_;
+  // See KeywordUIState enum.
+  KeywordUIState keyword_ui_state_;
 
   // True when it's safe to show a "Type to search" hint to the user (when the
   // edit is empty, or the user is in the process of searching).
@@ -567,9 +565,9 @@ class AutocompleteEditView
   bool OnInlineAutocompleteTextMaybeChanged(const std::wstring& display_text,
                                             size_t user_text_length);
 
-  // Called when the temporary text has been reverted by the user.  |text| is
-  // the text that should now be displayed.
-  void OnRevertTemporaryText(const std::wstring& text);
+  // Called when the temporary text has been reverted by the user.  This will
+  // reset the user's original selection.
+  void OnRevertTemporaryText();
 
   // Every piece of code that can change the edit should call these functions
   // before and after the change.  These functions determine if anything
@@ -851,7 +849,6 @@ class AutocompleteEditView
   // Variables for tracking state before and after a possible change.
   std::wstring text_before_change_;
   CHARRANGE sel_before_change_;
-  bool select_all_before_change_;
 
   // Set at the same time the model's original_* members are set, and valid in
   // the same cases.

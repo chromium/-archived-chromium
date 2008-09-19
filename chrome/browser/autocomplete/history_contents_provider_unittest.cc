@@ -101,7 +101,7 @@ class HistoryContentsProviderTest : public testing::Test,
 }  // namespace
 
 TEST_F(HistoryContentsProviderTest, Body) {
-  AutocompleteInput input(L"FOO", std::wstring(), true);
+  AutocompleteInput input(L"FOO", std::wstring(), true, false);
   RunQuery(input, false, false);
 
   // The results should be the first two pages, in decreasing order.
@@ -114,7 +114,7 @@ TEST_F(HistoryContentsProviderTest, Body) {
 }
 
 TEST_F(HistoryContentsProviderTest, Title) {
-  AutocompleteInput input(L"PAGEONE", std::wstring(), true);
+  AutocompleteInput input(L"PAGEONE", std::wstring(), true, false);
   RunQuery(input, false, false);
 
   // The results should be the first two pages.
@@ -128,7 +128,7 @@ TEST_F(HistoryContentsProviderTest, Title) {
 
 // The "minimal changes" flag should mean that we don't re-query the DB.
 TEST_F(HistoryContentsProviderTest, MinimalChanges) {
-  AutocompleteInput input(L"PAGEONE", std::wstring(), true);
+  AutocompleteInput input(L"PAGEONE", std::wstring(), true, false);
 
   // A minimal changes request when there have been no real queries should
   // give us no results.
@@ -157,7 +157,7 @@ TEST_F(HistoryContentsProviderTest, Bookmarks) {
   GURL bookmark_url("http://www.google.com/4");
   profile()->GetBookmarkModel()->SetURLStarred(bookmark_url, L"bar", true);
 
-  AutocompleteInput input(L"bar", std::wstring(), true);
+  AutocompleteInput input(L"bar", std::wstring(), true, false);
 
   // Ask for synchronous. This should only get the bookmark.
   RunQuery(input, false, true);

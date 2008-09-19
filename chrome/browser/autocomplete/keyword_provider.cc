@@ -206,8 +206,8 @@ void KeywordProvider::FillInURLAndContents(
 // static
 int KeywordProvider::CalculateRelevance(AutocompleteInput::Type type,
                                         bool complete,
-                                        bool is_bookmark_keyword) {
-  if (complete && is_bookmark_keyword)
+                                        bool no_query_text_needed) {
+  if (complete && no_query_text_needed)
     return 1500;
 
   switch (type) {
@@ -244,7 +244,11 @@ AutocompleteMatch KeywordProvider::CreateAutocompleteMatch(
   // choice and immediately begin typing in query input.
   const bool keyword_complete = (prefix_length == keyword.length());
   AutocompleteMatch result(this,
-      CalculateRelevance(input.type(), keyword_complete, !supports_replacement),
+      CalculateRelevance(input.type(), keyword_complete,
+                         // When the user wants keyword matches to take
+                         // preference, score them highly regardless of whether
+                         // the input provides query text.
+                         input.prefer_keyword() || !supports_replacement),
       false);
   result.type = AutocompleteMatch::KEYWORD;
   result.fill_into_edit.assign(keyword);

@@ -42,7 +42,7 @@
 //
 // UNKNOWN input type:
 // --------------------------------------------------------------------|-----
-// Keyword (non-substituting, exact match)                             | 1500
+// Keyword (non-substituting or in keyword UI mode, exact match)       | 1500
 // HistoryURL (exact or inline autocomplete match)                     | 1400
 // Search (what you typed)                                             | 1300
 // HistoryURL (what you typed)                                         | 1200
@@ -59,7 +59,7 @@
 //
 // REQUESTED_URL input type:
 // --------------------------------------------------------------------|-----
-// Keyword (non-substituting, exact match)                             | 1500
+// Keyword (non-substituting or in keyword UI mode, exact match)       | 1500
 // HistoryURL (exact or inline autocomplete match)                     | 1400
 // HistoryURL (what you typed)                                         | 1300
 // Search (what you typed)                                             | 1200
@@ -76,7 +76,7 @@
 //
 // URL input type:
 // --------------------------------------------------------------------|-----
-// Keyword (non-substituting, exact match)                             | 1500
+// Keyword (non-substituting or in keyword UI mode, exact match)       | 1500
 // HistoryURL (exact or inline autocomplete match)                     | 1400
 // HistoryURL (what you typed)                                         | 1200
 // Keyword (substituting, exact match)                                 | 1100
@@ -89,7 +89,7 @@
 //
 // QUERY input type:
 // --------------------------------------------------------------------|-----
-// Keyword (non-substituting, exact match)                             | 1500
+// Keyword (non-substituting or in keyword UI mode, exact match)       | 1500
 // Keyword (substituting, exact match)                                 | 1400
 // Search (what you typed)                                             | 1300
 // Search (past query in history)                                      | 1250--
@@ -149,10 +149,16 @@ class AutocompleteInput {
     FORCED_QUERY,  // Input forced to be a query by an initial '?'
   };
 
-  AutocompleteInput() : type_(INVALID), prevent_inline_autocomplete_(false) {}
+  AutocompleteInput()
+      : type_(INVALID),
+        prevent_inline_autocomplete_(false),
+        prefer_keyword_(false) {
+  }
+  
   AutocompleteInput(const std::wstring& text,
                     const std::wstring& desired_tld,
-                    bool prevent_inline_autocomplete);
+                    bool prevent_inline_autocomplete,
+                    bool prefer_keyword);
 
   // Parses |text| and returns the type of input this will be interpreted as.
   // The components of the input are stored in the output parameter |parts|.
@@ -187,6 +193,10 @@ class AutocompleteInput {
     return prevent_inline_autocomplete_;
   }
 
+  // Returns whether, given an input string consisting solely of a substituting
+  // keyword, we should score it like a non-substituting keyword.
+  const bool prefer_keyword() const { return prefer_keyword_; }
+
   // operator==() by another name.
   bool Equals(const AutocompleteInput& other) const;
 
@@ -203,6 +213,7 @@ class AutocompleteInput {
   std::wstring scheme_;
   std::wstring desired_tld_;
   bool prevent_inline_autocomplete_;
+  bool prefer_keyword_;
 };
 
 // AutocompleteMatch ----------------------------------------------------------
@@ -571,14 +582,14 @@ class AutocompleteResult {
 
   // Adds a single match. The match is inserted at the appropriate position
   // based on relevancy and display order. This is ONLY for use after
-  // SortAndCull has been invoked.
+  // SortAndCull() has been invoked, and preserves default_match_.
   void AddMatch(const AutocompleteMatch& match);
 
-  // Adds a new set of matches to the set of results.
+  // Adds a new set of matches to the set of results.  Does not re-sort.
   void AppendMatches(const ACMatches& matches);
 
   // Removes duplicates, puts the list in sorted order and culls to leave only
-  // the best kMaxMatches results.
+  // the best kMaxMatches results.  Sets the default match to the best match.
   void SortAndCull();
 
   // Vector-style accessors/operators.
@@ -598,14 +609,6 @@ class AutocompleteResult {
   // Get the default match for the query (not necessarily the first).  Returns
   // end() if there is no default match.
   const_iterator default_match() const { return default_match_; }
-
-  // Sets the default match to the best result.  When a particular URL is
-  // desired, we return that if available; otherwise, if a provider affinity is
-  // specified, we pick the most relevant match from that provider; otherwise,
-  // we return the best match overall.
-  // Returns true if the selection specified an exact match and we were able to
-  // find and use it.
-  bool SetDefaultMatch(const Selection& selection);
 
   // Given some input and a particular match in this result set, returns the
   // "alternate navigation URL", if any, for that match.  This is a URL to try
@@ -679,7 +682,6 @@ class AutocompleteController : public ACProviderListener {
                          const ACProviders& providers)
       : listener_(listener),
         providers_(providers),
-        keyword_provider_(NULL),
         history_contents_provider_(NULL) {
   }
 #endif
@@ -721,8 +723,6 @@ class AutocompleteController : public ACProviderListener {
   // From AutocompleteProvider::Listener
   virtual void OnProviderUpdate(bool updated_matches);
 
-  KeywordProvider* keyword_provider() const { return keyword_provider_; }
-
  private:
   // Returns true if all providers have finished processing the query.
   bool QueryComplete() const;
@@ -743,8 +743,6 @@ class AutocompleteController : public ACProviderListener {
 
   // A list of all providers.
   ACProviders providers_;
-
-  KeywordProvider* keyword_provider_;
 
   HistoryContentsProvider* history_contents_provider_;
 
