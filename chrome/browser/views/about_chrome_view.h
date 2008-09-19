@@ -93,7 +93,7 @@ class AboutChromeView : public ChromeViews::View,
 
   // The class that communicates with Google Update to find out if an update is
   // available and asks it to start an upgrade.
-  GoogleUpdate* google_updater_;
+  scoped_refptr<GoogleUpdate> google_updater_;
 
   // Our current version.
   std::wstring current_version_;

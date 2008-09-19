@@ -42,12 +42,11 @@ AboutChromeView::AboutChromeView(Profile* profile)
       about_title_label_(NULL),
       version_label_(NULL),
       main_text_label_(NULL),
-      check_button_status_(CHECKBUTTON_HIDDEN),
-      google_updater_(NULL) {
+      check_button_status_(CHECKBUTTON_HIDDEN) {
   DCHECK(profile);
   Init();
 
-  google_updater_ = new GoogleUpdate();  // This object deletes itself.
+  google_updater_ = new GoogleUpdate();
   google_updater_->AddStatusChangeListener(this);
 }
 
@@ -342,7 +341,7 @@ bool AboutChromeView::Accept() {
   // that an update is available, at which point this pointer should have been
   // null-ed out.
   DCHECK(!google_updater_);
-  google_updater_ = new GoogleUpdate();  // This object deletes itself.
+  google_updater_ = new GoogleUpdate();
   google_updater_->AddStatusChangeListener(this);
   google_updater_->CheckForUpdate(true);  // true=upgrade if new version found.
 
@@ -359,8 +358,7 @@ ChromeViews::View* AboutChromeView::GetContentsView() {
 void AboutChromeView::OnReportResults(GoogleUpdateUpgradeResult result,
                                       GoogleUpdateErrorCode error_code,
                                       const std::wstring& version) {
-  // The object will free itself after reporting its status, so we should
-  // no longer refer to it.
+  // Drop the last reference to the object so that it gets cleaned up here.
   google_updater_ = NULL;
 
   // Make a note of which version Google Update is reporting is the latest

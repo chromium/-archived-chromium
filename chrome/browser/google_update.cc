@@ -146,14 +146,6 @@ class GoogleUpdateJobObserver
   CComPtr<IProgressWndEvents> event_sink_;
 };
 
-// TODO(finnur): (http://b/1292883) The object is currently managing its own
-// lifetime, but should be converted to use RefCountedThreadSafe instead.
-template <>
-struct RunnableMethodTraits<GoogleUpdate> {
-  static void RetainCallee(GoogleUpdate* obj) { }
-  static void ReleaseCallee(GoogleUpdate* obj) { }
-};
-
 ////////////////////////////////////////////////////////////////////////////////
 // GoogleUpdate, public:
 
@@ -254,8 +246,6 @@ void GoogleUpdate::ReportResults(GoogleUpdateUpgradeResult results,
                                     error_code == GOOGLE_UPDATE_NO_ERROR);
   if (listener_)
     listener_->OnReportResults(results, error_code, version_available_);
-
-  delete this;
 }
 
 bool GoogleUpdate::ReportFailure(HRESULT hr, GoogleUpdateErrorCode error_code,

@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/ref_counted.h"
 #include "google_update_idl.h"
 
 class MessageLoop;
@@ -75,7 +76,7 @@ class GoogleUpdateStatusListener {
 // interface and will delete itself after reporting back.
 //
 ////////////////////////////////////////////////////////////////////////////////
-class GoogleUpdate {
+class GoogleUpdate : public base::RefCountedThreadSafe<GoogleUpdate> {
  public:
   GoogleUpdate();
   virtual ~GoogleUpdate();
