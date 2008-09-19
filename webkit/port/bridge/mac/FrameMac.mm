@@ -723,4 +723,56 @@ void Frame::setUserStyleSheet(const String& styleSheet)
         d->m_doc->setUserStyleSheet(styleSheet);
 }
 
+void computePageRectsForFrame(WebCore::Frame* frame, const WebCore::IntRect& printRect, float headerHeight, float footerHeight, float userScaleFactor, Vector<IntRect>& pages, int& outPageHeight)
+{
+    ASSERT(frame);
+
+    pages.clear();
+    outPageHeight = 0;
+
+    if (!frame->document() || !frame->view() || !frame->document()->renderer())
+        return;
+ 
+    RenderView* root = static_cast<RenderView *>(frame->document()->renderer());
+
+    if (!root) {
+        LOG_ERROR("document to be printed has no renderer");
+        return;
+    }
+
+    if (userScaleFactor <= 0) {
+        LOG_ERROR("userScaleFactor has bad value %.2f", userScaleFactor);
+        return;
+    }
+    
+    float ratio = static_cast<float>(printRect.height()) / static_cast<float>(printRect.width());
+ 
+    float pageWidth  = (float) root->docWidth();
+    float pageHeight = pageWidth * ratio;
+    outPageHeight = (int) pageHeight;   // this is the height of the page adjusted by margins
+    pageHeight -= (headerHeight + footerHeight);
+
+    if (pageHeight <= 0) {
+        LOG_ERROR("pageHeight has bad value %.2f", pageHeight);
+        return;
+    }
+
+    float currPageHeight = pageHeight / userScaleFactor;
+    float docHeight      = root->layer()->height();
+    float docWidth       = root->layer()->width();
+    float currPageWidth  = pageWidth / userScaleFactor;
+
+    
+    // always return at least one page, since empty files should print a blank page
+    float printedPagesHeight = 0.0;
+    do {
+        float proposedBottom = std::min(docHeight, printedPagesHeight + pageHeight);
+        frame->adjustPageHeight(&proposedBottom, printedPagesHeight, proposedBottom, printedPagesHeight);
+        currPageHeight = max(1.0f, proposedBottom - printedPagesHeight);
+       
+        pages.append(IntRect(0,printedPagesHeight,currPageWidth,currPageHeight));
+        printedPagesHeight += currPageHeight;
+    } while (printedPagesHeight < docHeight);
+}
+
 } // namespace WebCore
