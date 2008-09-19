@@ -31,22 +31,22 @@ SANDBOX_INTERCEPT NtExports g_nt;
 SANDBOX_INTERCEPT SharedMemory* g_interceptions = NULL;
 
 InterceptionAgent* InterceptionAgent::GetInterceptionAgent() {
-  static InterceptionAgent* s_singleton_pointer = NULL;
-  if (!s_singleton_pointer) {
+  static InterceptionAgent* s_singleton = NULL;
+  if (!s_singleton) {
     if (!g_interceptions)
       return NULL;
 
-    size_t object_bytes = g_interceptions->num_intercepted_dlls * sizeof(void*);
-    s_singleton_pointer = reinterpret_cast<InterceptionAgent*>(
-                              new(NT_ALLOC) char[object_bytes]);
+    size_t array_bytes = g_interceptions->num_intercepted_dlls * sizeof(void*);
+    s_singleton = reinterpret_cast<InterceptionAgent*>(
+        new(NT_ALLOC) char[array_bytes + sizeof(InterceptionAgent)]);
 
-    bool success = s_singleton_pointer->Init(g_interceptions);
+    bool success = s_singleton->Init(g_interceptions);
     if (!success) {
-      operator delete(s_singleton_pointer, NT_ALLOC);
-      s_singleton_pointer = NULL;
+      operator delete(s_singleton, NT_ALLOC);
+      s_singleton = NULL;
     }
   }
-  return s_singleton_pointer;
+  return s_singleton;
 }
 
 bool InterceptionAgent::Init(SharedMemory* shared_memory) {
