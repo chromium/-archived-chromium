@@ -224,7 +224,7 @@ class X509Certificate::Cache {
 
   // Obtain an instance of X509Certificate::Cache via GetInstance().
   Cache() { }
-  friend class DefaultSingletonTraits<X509Certificate::Cache>;
+  friend struct DefaultSingletonTraits<X509Certificate::Cache>;
 
   // You must acquire this lock before using any private data of this object.
   // You must not block while holding this lock.
@@ -272,12 +272,8 @@ X509Certificate* X509Certificate::CreateFromHandle(OSCertHandle cert_handle) {
 }
 
 // static
-X509Certificate* X509Certificate::CreateFromPickle(const Pickle& pickle,
-                                                   void** pickle_iter) {
-  const char* data;
-  int length;
-  if (!pickle.ReadData(pickle_iter, &data, &length))
-    return NULL;
+X509Certificate* X509Certificate::CreateFromBytes(const char* data,
+                                                  int length) {
   CSSM_DATA cert_data;
   cert_data.Data = const_cast<uint8*>(reinterpret_cast<const uint8*>(data));
   cert_data.Length = length;
@@ -291,6 +287,17 @@ X509Certificate* X509Certificate::CreateFromPickle(const Pickle& pickle,
     return NULL;
 
   return CreateFromHandle(cert_handle);
+}
+
+// static
+X509Certificate* X509Certificate::CreateFromPickle(const Pickle& pickle,
+                                                   void** pickle_iter) {
+  const char* data;
+  int length;
+  if (!pickle.ReadData(pickle_iter, &data, &length))
+    return NULL;
+  
+  return CreateFromBytes(data, length);
 }
 
 X509Certificate::X509Certificate(OSCertHandle cert_handle)

@@ -110,6 +110,10 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
   // X509Certificate will properly dispose of |cert_handle| for you.
   static X509Certificate* CreateFromHandle(OSCertHandle cert_handle);
 
+  // Create an X509Certificate from the BER-encoded representation.
+  // Returns NULL on failure.
+  static X509Certificate* CreateFromBytes(const char* data, int length);
+
   // Create an X509Certificate from the representation stored in the given
   // pickle.  The data for this object is found relative to the given
   // pickle_iter, which should be passed to the pickle's various Read* methods.

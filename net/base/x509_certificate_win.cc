@@ -24,7 +24,7 @@ namespace {
 // Returns true if this cert fingerprint is the null (all zero) fingerprint.
 // We use this as a bogus fingerprint value.
 bool IsNullFingerprint(const X509Certificate::Fingerprint& fingerprint) {
-  for (int i = 0; i < arraysize(fingerprint.data); ++i) {
+  for (size_t i = 0; i < arraysize(fingerprint.data); ++i) {
     if (fingerprint.data[i] != 0)
       return false;
   }
@@ -187,7 +187,7 @@ typedef scoped_ptr_malloc<const CERT_CHAIN_CONTEXT,
 bool X509Certificate::FingerprintLessThan::operator()(
     const Fingerprint& lhs,
     const Fingerprint& rhs) const {
-  for (int i = 0; i < sizeof(lhs.data); ++i) {
+  for (size_t i = 0; i < sizeof(lhs.data); ++i) {
     if (lhs.data[i] < rhs.data[i])
       return true;
     if (lhs.data[i] > rhs.data[i])
@@ -256,7 +256,7 @@ class X509Certificate::Cache {
 
   // Obtain an instance of X509Certificate::Cache via GetInstance().
   Cache() { }
-  friend DefaultSingletonTraits<X509Certificate::Cache>;
+  friend struct DefaultSingletonTraits<X509Certificate::Cache>;
 
   // You must acquire this lock before using any private data of this object.
   // You must not block while holding this lock.
@@ -265,7 +265,7 @@ class X509Certificate::Cache {
   // The certificate cache.  You must acquire |lock_| before using |cache_|.
   CertMap cache_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(X509Certificate::Cache);
+  DISALLOW_COPY_AND_ASSIGN(X509Certificate::Cache);
 };
 
 void X509Certificate::Initialize() {
@@ -319,13 +319,8 @@ X509Certificate* X509Certificate::CreateFromHandle(OSCertHandle cert_handle) {
 }
 
 // static
-X509Certificate* X509Certificate::CreateFromPickle(const Pickle& pickle,
-                                                   void** pickle_iter) {
-  const char* data;
-  int length;
-  if (!pickle.ReadData(pickle_iter, &data, &length))
-    return NULL;
-
+X509Certificate* X509Certificate::CreateFromBytes(const char* data,
+                                                  int length) {
   OSCertHandle cert_handle = NULL;
   if (!CertAddSerializedElementToStore(
       NULL,  // the cert won't be persisted in any cert store
@@ -335,6 +330,17 @@ X509Certificate* X509Certificate::CreateFromPickle(const Pickle& pickle,
     return NULL;
 
   return CreateFromHandle(cert_handle);
+}
+
+// static
+X509Certificate* X509Certificate::CreateFromPickle(const Pickle& pickle,
+                                                   void** pickle_iter) {
+  const char* data;
+  int length;
+  if (!pickle.ReadData(pickle_iter, &data, &length))
+    return NULL;
+
+  return CreateFromBytes(data, length);
 }
 
 X509Certificate::X509Certificate(OSCertHandle cert_handle)
@@ -461,19 +467,19 @@ void X509Certificate::ParsePrincipal(const std::string& description,
   const std::string kDelimiters("\r\n");
 
   std::vector<std::string> common_names, locality_names, state_names,
-      country_names, street_addresses;
+      country_names;
 
   // TODO(jcampan): add business_category and serial_number.
-  const std::string kPrefixes[8] = { std::string("CN="),
-                                     std::string("L="),
-                                     std::string("S="),
-                                     std::string("C="),
-                                     std::string("STREET="),
-                                     std::string("O="),
-                                     std::string("OU="),
-                                     std::string("DC=") };
+  const std::string kPrefixes[] = { std::string("CN="),
+                                    std::string("L="),
+                                    std::string("S="),
+                                    std::string("C="),
+                                    std::string("STREET="),
+                                    std::string("O="),
+                                    std::string("OU="),
+                                    std::string("DC=") };
 
-  std::vector<std::string>* values[8] = {
+  std::vector<std::string>* values[] = {
       &common_names, &locality_names,
       &state_names, &country_names,
       &(principal->street_addresses),
