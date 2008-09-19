@@ -72,7 +72,7 @@ class RendererSecurityPolicy::SecurityState {
 
   bool has_dom_ui_bindings_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(RendererSecurityPolicy::SecurityState);
+  DISALLOW_COPY_AND_ASSIGN(SecurityState);
 };
 
 RendererSecurityPolicy::RendererSecurityPolicy() {

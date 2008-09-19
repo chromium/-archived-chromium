@@ -237,7 +237,7 @@ class CancelableRequestConsumerT : public CancelableRequestConsumerBase {
   // Cancels all requests outstanding.
   void CancelAllRequests() {
     PendingRequestList copied_requests(pending_requests_);
-    for (PendingRequestList::iterator i = copied_requests.begin();
+    for (typename PendingRequestList::iterator i = copied_requests.begin();
          i != copied_requests.end(); ++i)
       i->first.provider->CancelRequest(i->first.handle);
     copied_requests.clear();
@@ -249,7 +249,7 @@ class CancelableRequestConsumerT : public CancelableRequestConsumerBase {
   // Gets the client data for all pending requests.
   void GetAllClientData(std::vector<T>* data) {
     DCHECK(data);
-    for (PendingRequestList::iterator i = pending_requests_.begin();
+    for (typename PendingRequestList::iterator i = pending_requests_.begin();
          i != pending_requests_.end(); ++i)
       data->push_back(i->second);
   }
@@ -282,7 +282,7 @@ class CancelableRequestConsumerT : public CancelableRequestConsumerBase {
 
   virtual void OnRequestRemoved(CancelableRequestProvider* provider,
                                 CancelableRequestProvider::Handle handle) {
-    PendingRequestList::iterator i =
+    typename PendingRequestList::iterator i =
         pending_requests_.find(PendingRequest(provider, handle));
     if (i == pending_requests_.end()) {
       NOTREACHED() << "Got a complete notification for a nonexistant request";
@@ -517,8 +517,9 @@ class CancelableRequest : public CancelableRequestBase {
 template<typename CB, typename Type>
 class CancelableRequest1 : public CancelableRequest<CB> {
  public:
-  explicit CancelableRequest1(CallbackType* callback)
-      : CancelableRequest(callback) {
+  explicit CancelableRequest1(
+      typename CancelableRequest<CB>::CallbackType* callback)
+      : CancelableRequest<CB>(callback) {
   }
 
   virtual ~CancelableRequest1() {

@@ -5,9 +5,7 @@
 #ifndef CHROME_BROWSER_PRINTING_PAGE_NUMBER_H__
 #define CHROME_BROWSER_PRINTING_PAGE_NUMBER_H__
 
-#ifdef _DEBUG
 #include <ostream>
-#endif
 
 #include "chrome/browser/printing/page_range.h"
 
@@ -65,8 +63,8 @@ class PageNumber {
 
 // Debug output support.
 template<class E, class T>
-inline std::basic_ostream<E,T>& operator<<(std::basic_ostream<E,T>& ss,
-                                           const PageNumber& page) {
+inline typename std::basic_ostream<E,T>& operator<<(
+    typename std::basic_ostream<E,T>& ss, const PageNumber& page) {
   return ss << page.ToInt();
 }
 

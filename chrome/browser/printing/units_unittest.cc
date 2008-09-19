@@ -33,7 +33,8 @@ TEST(UnitsTest, Convertions) {
 
   EXPECT_EQ(0, ConvertUnit(2, 1000000000, 1));
   EXPECT_EQ(2000000000, ConvertUnit(2, 1, 1000000000));
-  EXPECT_EQ(4000000000, ConvertUnit(2, 1, 2000000000));
+  EXPECT_EQ(4000000000U,
+            static_cast<unsigned int>(ConvertUnit(2, 1, 2000000000)));
 
   EXPECT_EQ(100, ConvertUnitDouble(100, 100, 100));
   EXPECT_EQ(-100, ConvertUnitDouble(-100, 100, 100));

@@ -34,7 +34,7 @@ class CrossSiteRequestManager {
                                      bool has_pending);
 
  private:
-  friend DefaultSingletonTraits<CrossSiteRequestManager>;
+  friend struct DefaultSingletonTraits<CrossSiteRequestManager>;
   typedef std::set<std::pair<int, int> > RenderViewSet;
 
   // Obtain an instance of CrossSiteRequestManager via

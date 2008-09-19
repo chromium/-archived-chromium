@@ -124,8 +124,10 @@ class BrowserProcess {
   // TODO(beng): remove once XPFrame/VistaFrame are gone.
   virtual bool IsUsingNewFrames() = 0;
 
+#if defined(OS_WIN)
   // Returns an event that is signaled when the browser shutdown.
   virtual HANDLE shutdown_event() = 0;
+#endif
 
  private:
   DISALLOW_EVIL_CONSTRUCTORS(BrowserProcess);

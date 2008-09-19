@@ -77,31 +77,25 @@ bool PageState::GetProperty(const std::wstring& key, std::wstring* value) const 
 }
 
 void PageState::SetInt64Property(const std::wstring& key, int64 value) {
-  wchar_t buff[64];
-  _i64tow_s(value, buff, arraysize(buff), 10);
-  SetProperty(key, buff);
+  SetProperty(key, Int64ToWString(value));
 }
 
 bool PageState::GetInt64Property(const std::wstring& key, int64* value) const {
   std::wstring v;
   if (GetProperty(key, &v)) {
-    *value = _wtoi64(v.c_str());
-    return true;
+    return StringToInt64(v, value);
   }
   return false;
 }
 
 void PageState::SetIntProperty(const std::wstring& key, int value) {
-  wchar_t buff[64];
-  _itow_s(value, buff, arraysize(buff), 10);
-  SetProperty(key, buff);
+  SetProperty(key, IntToWString(value));
 }
 
 bool PageState::GetIntProperty(const std::wstring& key, int* value) const {
   std::wstring v;
   if (GetProperty(key, &v)) {
-    *value = _wtoi(v.c_str());
-    return true;
+    return StringToInt(v, value);
   }
   return false;
 }

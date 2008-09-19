@@ -94,7 +94,7 @@ class RendererSecurityPolicy {
 
   // Obtain an instance of RendererSecurityPolicy via GetInstance().
   RendererSecurityPolicy();
-  friend DefaultSingletonTraits<RendererSecurityPolicy>;
+  friend struct DefaultSingletonTraits<RendererSecurityPolicy>;
 
   // You must acquire this lock before reading or writing any members of this
   // class.  You must not block while holding this lock.

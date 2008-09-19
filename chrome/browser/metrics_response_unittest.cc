@@ -76,7 +76,7 @@ static const struct ResponseCase {
 };
 
 TEST(MetricsResponseTest, ParseResponse) {
-  for (int i = 0; i < arraysize(response_cases); ++i) {
+  for (size_t i = 0; i < arraysize(response_cases); ++i) {
     ResponseCase rcase = response_cases[i];
     MetricsResponse response(rcase.response_xml);
     EXPECT_TRUE(response.valid());
@@ -101,7 +101,7 @@ TEST(MetricsResponseTest, ParseResponse) {
 
 static const char* bogus_responses[] = {"", "<respo"};
 TEST(MetricsResponseTest, ParseBogusResponse) {
-  for (int i = 0; i < arraysize(bogus_responses); ++i) {
+  for (size_t i = 0; i < arraysize(bogus_responses); ++i) {
     MetricsResponse response(bogus_responses[i]);
     EXPECT_FALSE(response.valid());
   }

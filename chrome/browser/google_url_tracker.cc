@@ -4,6 +4,7 @@
 
 #include "chrome/browser/google_url_tracker.h"
 
+#include "base/compiler_specific.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
@@ -15,10 +16,9 @@ const char GoogleURLTracker::kDefaultGoogleHomepage[] =
     "http://www.google.com/";
 
 GoogleURLTracker::GoogleURLTracker()
-    : google_url_(g_browser_process->local_state()->GetString(
-          prefs::kLastKnownGoogleURL)),
-#pragma warning(suppress: 4355)  // Okay to pass "this" here.
-      fetcher_factory_(this),
+    : google_url_(WideToUTF8(g_browser_process->local_state()->GetString(
+          prefs::kLastKnownGoogleURL))),
+      ALLOW_THIS_IN_INITIALIZER_LIST(fetcher_factory_(this)),
       in_startup_sleep_(true),
       already_fetched_(false),
       need_to_fetch_(false),

@@ -51,12 +51,14 @@ input_files = []
 if env['PLATFORM'] in ('posix', 'win32'):
   # TODO(port): Port to Mac.
   input_files.extend([
+      'animation.cc',
       'chrome_constants.cc',
       'chrome_counters.cc',
       'chrome_switches.cc',
       'debug_flags.cc',
       'env_vars.cc',
       'gfx/color_utils.cc',
+      'ipc_message.cc',
       'jpeg_codec.cc',
       'json_value_serializer.cc',
       'libxml_utils.cc',
@@ -66,6 +68,7 @@ if env['PLATFORM'] in ('posix', 'win32'):
       'pref_names.cc',
       'slide_animation.cc',
       'sqlite_compiled_statement.cc',
+      'sqlite_utils.cc',
       'task_queue.cc',
       'throb_animation.cc',
       'thumbnail_score.cc',
@@ -75,7 +78,6 @@ if env['PLATFORM'] in ('posix', 'win32'):
 if env['PLATFORM'] == 'win32':
   # TODO(port): Port these.
   input_files.extend([
-      'animation.cc',
       'child_process.cc',
       'chrome_paths.cc',
       'chrome_plugin_lib.cc',
@@ -95,7 +97,6 @@ if env['PLATFORM'] == 'win32':
       'ipc_channel.cc',
       'ipc_channel_proxy.cc',
       'ipc_logging.cc',
-      'ipc_message.cc',
       'ipc_message_utils.cc',
       'ipc_sync_channel.cc',
       'ipc_sync_message.cc',
@@ -113,7 +114,6 @@ if env['PLATFORM'] == 'win32':
       'resource_bundle.cc',
       'resource_dispatcher.cc',
       'security_filter_peer.cc',
-      'sqlite_utils.cc',
       'time_format.cc',
       'win_safe_util.cc',
       'win_util.cc',

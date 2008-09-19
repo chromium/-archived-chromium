@@ -5,6 +5,7 @@
 #ifndef CHROME_COMMON_SQLITEUTILS_H_
 #define CHROME_COMMON_SQLITEUTILS_H_
 
+#include <string>
 #include <vector>
 
 #include "base/basictypes.h"
@@ -64,8 +65,8 @@ class SQLTransaction {
   virtual int BeginCommand(const char* command);
   virtual int EndCommand(const char* command);
 
-  bool began_;
   sqlite3* db_;
+  bool began_;
   DISALLOW_COPY_AND_ASSIGN(SQLTransaction);
 };
 

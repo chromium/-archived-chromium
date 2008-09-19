@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/basictypes.h"
 #include "base/file_util.h"
 #include "base/json_reader.h"
 #include "base/json_writer.h"
@@ -186,7 +187,7 @@ void ValidateJsonList(const std::string& json) {
   ASSERT_TRUE(JSONReader::Read(json, &root, false));
   ASSERT_TRUE(root && root->IsType(Value::TYPE_LIST));
   ListValue* list = static_cast<ListValue*>(root);
-  ASSERT_EQ(1, list->GetSize());
+  ASSERT_EQ(1U, list->GetSize());
   Value* elt = NULL;
   ASSERT_TRUE(list->Get(0, &elt));
   int value = 0;
@@ -210,7 +211,7 @@ TEST(JSONValueSerializerTest, JSONReaderComments) {
   ASSERT_TRUE(JSONReader::Read("[\"// ok\\n /* foo */ \"]", &root, false));
   ASSERT_TRUE(root && root->IsType(Value::TYPE_LIST));
   ListValue* list = static_cast<ListValue*>(root);
-  ASSERT_EQ(1, list->GetSize());
+  ASSERT_EQ(1U, list->GetSize());
   Value* elt = NULL;
   ASSERT_TRUE(list->Get(0, &elt));
   std::wstring value;
@@ -236,7 +237,7 @@ namespace {
 
       // Create a fresh, empty copy of this directory.
       file_util::Delete(test_dir_, true);
-      CreateDirectory(test_dir_.c_str(), NULL);
+      file_util::CreateDirectory(test_dir_);
     }
     virtual void TearDown() {
       // Clean up test directory
@@ -249,6 +250,8 @@ namespace {
   };
 }  // anonymous namespace
 
+// TODO(port): Enable these when PathService::Get with DIR_TEST_DATA is ported.
+#if defined(OS_WIN)
 TEST_F(JSONFileValueSerializerTest, Roundtrip) {
   std::wstring original_file_path;
   ASSERT_TRUE(
@@ -339,4 +342,4 @@ TEST_F(JSONFileValueSerializerTest, NoWhitespace) {
   ASSERT_TRUE(root);
   delete root;
 }
-
+#endif  // defined(OS_WIN)

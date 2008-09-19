@@ -79,8 +79,8 @@ class TestAnimationDelegate : public AnimationDelegate {
   }
 
  private:
-  bool finished_;
   bool canceled_;
+  bool finished_;
 };
 
 TEST_F(AnimationTest, RunCase) {

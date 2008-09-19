@@ -53,11 +53,11 @@ class MetricsLog {
   // url - which URL was loaded
   // origin - what kind of action initiated the load
   // load_time - how long it took to load the page
-  void MetricsLog::RecordLoadEvent(int window_id,
-                                   const GURL& url,
-                                   PageTransition::Type origin,
-                                   int session_index,
-                                   TimeDelta load_time);
+  void RecordLoadEvent(int window_id,
+                       const GURL& url,
+                       PageTransition::Type origin,
+                       int session_index,
+                       TimeDelta load_time);
 
   // Records the current operating environment.  Takes the list of installed
   // plugins as a parameter because that can't be obtained synchronously

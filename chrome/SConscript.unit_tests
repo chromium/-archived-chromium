@@ -6,6 +6,13 @@ Import('env_test')
 
 env_test = env_test.Clone()
 
+if env_test['PLATFORM'] == 'posix':
+  env_test.Prepend(
+      LIBS = [
+          'event',
+      ]
+  )
+
 env_test.Prepend(
     CPPPATH = [
         '$ICU38_DIR/public/common',
@@ -118,16 +125,26 @@ unit_test_files = []
 if env_test['PLATFORM'] in ('posix', 'win32'):
   # TODO(port): Port to Mac.
   unit_test_files.extend([
+      'browser/chrome_thread_unittest.cc',
+      'browser/metrics_response_unittest.cc',
       'browser/net/dns_host_info_unittest.cc',
+      'browser/printing/page_range_unittest.cc',
+      'browser/printing/page_setup_unittest.cc',
+      'browser/printing/units_unittest.cc',
       'browser/safe_browsing/chunk_range_unittest.cc',
       'browser/safe_browsing/protocol_parser_unittest.cc',
       'browser/safe_browsing/safe_browsing_util_unittest.cc',
+      'common/animation_unittest.cc',
+      'common/bzip2_unittest.cc',
+      'common/jpeg_codec_unittest.cc',
+      'common/json_value_serializer_unittest.cc',
       'test/unit/run_all_unittests.cc',
   ])
 
   env_test.Prepend(
       LIBS = [
           'browser',
+          'common',
       ],
   )
 
@@ -143,7 +160,6 @@ if env_test['PLATFORM'] == 'win32':
       'browser/bookmarks/bookmark_bar_unittest.cc',
       'browser/bookmarks/bookmark_drag_data_unittest.cc',
       'browser/cache_manager_host_unittest.cc',
-      'browser/chrome_thread_unittest.cc',
       'browser/controller_unittest.cc',
       'browser/download_manager_unittest.cc',
       'browser/encryptor_unittest.cc',
@@ -165,15 +181,11 @@ if env_test['PLATFORM'] == 'win32':
       'browser/history/visit_tracker_unittest.cc',
       'browser/importer_unittest.cc',
       'browser/metrics_log_unittest.cc',
-      'browser/metrics_response_unittest.cc',
       'browser/navigation_controller_unittest.cc',
       'browser/net/dns_master_unittest.cc',
       'browser/password_form_manager_unittest.cc',
       'browser/printing/page_number_unittest.cc',
       'browser/printing/page_overlays_unittest.cc',
-      'browser/printing/page_range_unittest.cc',
-      'browser/printing/page_setup_unittest.cc',
-      'browser/printing/units_unittest.cc',
       'browser/printing/win_printing_context_unittest.cc',
       'browser/profile_manager_unittest.cc',
       'browser/renderer_security_policy_unittest.cc',
@@ -201,8 +213,6 @@ if env_test['PLATFORM'] == 'win32':
       'browser/web_contents_unittest.cc',
       'browser/webdata/web_database_unittest.cc',
       'browser/window_sizer_unittest.cc',
-      'common/animation_unittest.cc',
-      'common/bzip2_unittest.cc',
       'common/chrome_plugin_unittest.cc',
       'common/gfx/emf_unittest.cc',
       'common/gfx/icon_util_unittest.cc',
@@ -210,8 +220,6 @@ if env_test['PLATFORM'] == 'win32':
       'common/ipc_message_unittest.cc',
       'common/ipc_sync_channel_unittest.cc',
       'common/ipc_sync_message_unittest.cc',
-      'common/jpeg_codec_unittest.cc',
-      'common/json_value_serializer_unittest.cc',
       'common/l10n_util_unittest.cc',
       'common/mru_cache_unittest.cc',
       'common/notification_service_unittest.cc',

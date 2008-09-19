@@ -18,7 +18,7 @@ TEST(PageRangeTest, RangeMerge) {
   range.to = 5;
   ranges.push_back(range);
   std::vector<int> pages(printing::PageRange::GetPages(ranges));
-  ASSERT_EQ(8, pages.size());
+  ASSERT_EQ(8U, pages.size());
   EXPECT_EQ(1, pages[0]);
   EXPECT_EQ(2, pages[1]);
   EXPECT_EQ(3, pages[2]);
@@ -32,6 +32,6 @@ TEST(PageRangeTest, RangeMerge) {
 TEST(PageRangeTest, Empty) {
   printing::PageRanges ranges;
   std::vector<int> pages(printing::PageRange::GetPages(ranges));
-  EXPECT_EQ(0, pages.size());
+  EXPECT_EQ(0U, pages.size());
 }
 

@@ -156,7 +156,7 @@ class MetricsService : public NotificationObserver,
 
   // Save the pending_log_text_ persistently in a pref for transmission when we
   // next run.  Note that IF this text is "too large," we just dicard it.
-  void MetricsService::PushPendingLogTextToUnsentOngoingLogs();
+  void PushPendingLogTextToUnsentOngoingLogs();
 
   // Start timer for next log transmission.
   void StartLogTransmissionTimer();

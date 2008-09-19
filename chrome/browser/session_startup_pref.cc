@@ -37,6 +37,9 @@ void SessionStartupPref::SetStartupPref(PrefService* prefs,
     case URLS:
       type = 4;
       break;
+
+    default:
+      break;
   }
   prefs->SetInteger(prefs::kRestoreOnStartup, type);
 
@@ -86,7 +89,7 @@ SessionStartupPref SessionStartupPref::GetStartupPref(PrefService* prefs) {
     if (url_pref_list->Get(i, &value)) {
       std::wstring url_text;
       if (value->GetAsString(&url_text))
-        pref.urls.push_back(GURL(url_text));
+        pref.urls.push_back(GURL(WideToUTF8(url_text)));
     }
   }
 
