@@ -191,7 +191,6 @@ env_tests.Prepend(
     LIBS = [
         'base',
         'base_gfx',
-        'event',
         'gtest',
         'icuuc',
         'libpng',
@@ -228,6 +227,13 @@ if env['PLATFORM'] == 'win32':
           '/dynamicbase',
           '/ignore:4199',
           '/nxcompat',
+      ],
+  )
+
+if env['PLATFORM'] == 'posix':
+  env_tests.Append(
+      LIBS = [
+          'event',
       ],
   )
 

@@ -170,7 +170,6 @@ env_tests.Prepend(
         'net',        # net must come before base and modp_b64
         'bzip2',      # bzip2 must come before base
         'base',
-        'event',
         'googleurl',
         'gtest',
         'icuuc',
@@ -206,6 +205,13 @@ if env['PLATFORM'] == 'win32':
           '/dynamicbase',
           '/ignore:4199',
           '/nxcompat',
+      ],
+  )
+
+if env['PLATFORM'] == 'posix':
+  env_tests.Append(
+      LIBS = [
+          'event',
       ],
   )
 
