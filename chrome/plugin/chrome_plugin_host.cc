@@ -515,6 +515,18 @@ CPError STDCALL CPB_SendSyncMessage(CPID id, const void *data, uint32 data_len,
   return CPERR_SUCCESS;
 }
 
+CPError STDCALL CPB_PluginThreadAsyncCall(CPID id,
+                                          void (*func)(void *),
+                                          void *user_data) {
+  MessageLoop *message_loop = PluginThread::GetPluginThread()->message_loop();
+  if (!message_loop) {
+    return CPERR_FAILURE;
+  }
+  message_loop->PostTask(FROM_HERE, NewRunnableFunction(func, user_data));
+
+  return CPERR_SUCCESS;
+}
+
 }  // namespace
 
 CPBrowserFuncs* GetCPBrowserFuncsForPlugin() {
@@ -544,6 +556,7 @@ CPBrowserFuncs* GetCPBrowserFuncsForPlugin() {
     browser_funcs.add_ui_command = CPB_AddUICommand;
     browser_funcs.handle_command = CPB_HandleCommand;
     browser_funcs.send_sync_message = CPB_SendSyncMessage;
+    browser_funcs.plugin_thread_async_call = CPB_PluginThreadAsyncCall;
 
     browser_funcs.request_funcs = &request_funcs;
     browser_funcs.response_funcs = &response_funcs;

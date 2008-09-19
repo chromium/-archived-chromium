@@ -679,6 +679,18 @@ CPError STDCALL CPB_SendSyncMessage(CPID id, const void *data, uint32 data_len,
   return CPERR_FAILURE;
 }
 
+CPError STDCALL CPB_PluginThreadAsyncCall(CPID id,
+                                          void (*func)(void *),
+                                          void *user_data) {
+  MessageLoop *message_loop = ChromeThread::GetMessageLoop(ChromeThread::IO);
+  if (!message_loop) {
+    return CPERR_FAILURE;
+  }
+  message_loop->PostTask(FROM_HERE, NewRunnableFunction(func, user_data));
+
+  return CPERR_SUCCESS;
+}
+
 }
 
 CPBrowserFuncs* GetCPBrowserFuncsForBrowser() {
@@ -711,6 +723,7 @@ CPBrowserFuncs* GetCPBrowserFuncsForBrowser() {
     browser_funcs.request_funcs = &request_funcs;
     browser_funcs.response_funcs = &response_funcs;
     browser_funcs.send_sync_message = CPB_SendSyncMessage;
+    browser_funcs.plugin_thread_async_call = CPB_PluginThreadAsyncCall;
 
     request_funcs.size = sizeof(request_funcs);
     request_funcs.start_request = CPR_StartRequest;
