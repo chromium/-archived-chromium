@@ -228,7 +228,7 @@ TEST_F(NPAPITester, SelfDeletePluginInvoke) {
 // Tests if a plugin executing a self deleting script in the context of 
 // a synchronous paint event works correctly
 TEST_F(NPAPIVisiblePluginTester, SelfDeletePluginInvokeInSynchronousPaint) {
- if (!UITest::in_process_plugins() && !UITest::in_process_renderer()) {
+  if (!UITest::in_process_plugins() && !UITest::in_process_renderer()) {
     show_window_ = true;
     std::wstring test_case = L"execute_script_delete_in_paint.html";
     GURL url = GetTestUrl(test_case);
@@ -238,11 +238,13 @@ TEST_F(NPAPIVisiblePluginTester, SelfDeletePluginInvokeInSynchronousPaint) {
 }
 
 TEST_F(NPAPIVisiblePluginTester, SelfDeletePluginInNewStream) {
-  show_window_ = true;
-  std::wstring test_case = L"self_delete_plugin_stream.html";
-  GURL url = GetTestUrl(test_case);
-  NavigateToURL(url);
-  WaitForFinish("self_delete_plugin_stream", "1", url, kShortWaitTimeout);
+  if (!UITest::in_process_plugins() && !UITest::in_process_renderer()) {
+    show_window_ = true;
+    std::wstring test_case = L"self_delete_plugin_stream.html";
+    GURL url = GetTestUrl(test_case);
+    NavigateToURL(url);
+    WaitForFinish("self_delete_plugin_stream", "1", url, kShortWaitTimeout);
+  }
 }
 
 // Tests if a plugin has a non zero window rect.

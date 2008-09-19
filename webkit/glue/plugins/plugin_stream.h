@@ -120,12 +120,6 @@ class PluginStream : public base::RefCounted<PluginStream> {
   bool                          seekable_stream_;
   std::string                   mime_type_;
   DISALLOW_EVIL_CONSTRUCTORS(PluginStream);
-  // This pointer can be used to track if the stream object
-  // got deleted while we call out to the plugin. To use
-  // this set this pointer to point to a variable for the duration
-  // of the call. If this pointer is valid we set the underlying
-  // variable to true in the destructor of the stream object.
-  bool*                         object_deleted_;
 };
 
 } // namespace NPAPI
