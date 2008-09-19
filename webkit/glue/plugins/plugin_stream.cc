@@ -29,13 +29,17 @@ PluginStream::PluginStream(
       requested_plugin_mode_(NP_NORMAL),
       temp_file_handle_(INVALID_HANDLE_VALUE),
       seekable_stream_(false),
-      data_offset_(0) {
+      data_offset_(0),
+      object_deleted_(NULL) {
   memset(&stream_, 0, sizeof(stream_));
   stream_.url = _strdup(url);
   temp_file_name_[0] = '\0';
 }
 
 PluginStream::~PluginStream() {
+  if (object_deleted_) {
+    *object_deleted_ = true;
+  }
   // always cleanup our temporary files.
   CleanupTempFile();
   free(const_cast<char*>(stream_.url));
@@ -78,6 +82,9 @@ bool PluginStream::Open(const std::string &mime_type,
       char_mime_type = temp_mime_type.c_str();
   }
 
+  bool object_deleted = false;
+  object_deleted_ = &object_deleted;
+
   // Silverlight expects a valid mime type
   DCHECK(strlen(char_mime_type) != 0);
   NPError err = instance_->NPP_NewStream((NPMIMEType)char_mime_type,
@@ -86,12 +93,16 @@ bool PluginStream::Open(const std::string &mime_type,
   if (err != NPERR_NO_ERROR)
     return false;
 
+  if (object_deleted) {
+    return true;
+  }
+
+  object_deleted_ = NULL;
   opened_ = true;
 
   if (requested_plugin_mode_ == NP_SEEK) {
     seekable_stream_ = true;
   }
-
   // If the plugin has requested certain modes, then we need a copy
   // of this file on disk.  Open it and save it as we go.
   if (requested_plugin_mode_ == NP_ASFILEONLY ||
