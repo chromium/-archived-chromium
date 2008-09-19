@@ -12,9 +12,6 @@
 
 namespace {
 
-// Set this value to 1 to avoid timeouts while debugging the tests.
-#define RUN_WITHOUT_TIMEOUTS 0
-
 static const int kDefaultTimeout = 3000;
 
 }  // namespace
@@ -144,11 +141,11 @@ int TestRunner::InternalRunTest(const wchar_t* command) {
   if (!is_init_)
     return SBOX_TEST_FAILED_TO_RUN_TEST;
 
-  // Get the path to the sandboxed app.
+  // Get the path to the sandboxed process.
   wchar_t prog_name[MAX_PATH];
   GetModuleFileNameW(NULL, prog_name, MAX_PATH);
 
-  // Launch the app.
+  // Launch the sandboxed process.
   ResultCode result = SBOX_ALL_OK;
   PROCESS_INFORMATION target = {0};
 
@@ -165,9 +162,10 @@ int TestRunner::InternalRunTest(const wchar_t* command) {
 
   ::ResumeThread(target.hThread);
 
-#if RUN_WITHOUT_TIMEOUTS
-  timeout_ = INFINITE;
-#endif
+  if (::IsDebuggerPresent()) {
+    // Don't kill the target process on a time-out while we are debugging.
+    timeout_ = INFINITE;
+  }
 
   if (WAIT_TIMEOUT == ::WaitForSingleObject(target.hProcess, timeout_)) {
     ::TerminateProcess(target.hProcess, SBOX_TEST_TIMED_OUT);
@@ -203,7 +201,7 @@ void TestRunner::SetTestState(SboxTestsState desired_state) {
 //  argv[1] = "-child"
 //  argv[2] = SboxTestsState when to run the command
 //  argv[3] = command to run
-//  argv[4...] = command arguments
+//  argv[4...] = command arguments.
 int DispatchCall(int argc, wchar_t **argv) {
   if (argc < 4)
     return SBOX_TEST_INVALID_PARAMETER;
@@ -231,7 +229,6 @@ int DispatchCall(int argc, wchar_t **argv) {
   std::string command_name = base::SysWideToUTF8(argv[3]);
   CommandFunction command = reinterpret_cast<CommandFunction>(
                                 ::GetProcAddress(module, command_name.c_str()));
-
   if (!command)
     return SBOX_TEST_FAILED_TO_EXECUTE_COMMAND;
 
@@ -253,7 +250,6 @@ int DispatchCall(int argc, wchar_t **argv) {
     command(argc - 4, argv + 4);
 
   target->LowerToken();
-
   return command(argc - 4, argv + 4);
 }
 
