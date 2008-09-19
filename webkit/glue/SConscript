@@ -56,7 +56,6 @@ if env['PLATFORM'] == 'win32':
     'password_autocomplete_listener.cc',
     'password_form_dom_manager.cc',
     'plugins/mozilla_extensions.cc',
-    'plugins/plugin_data_stream.cc',
     'plugins/plugin_host.cc',
     'plugins/plugin_instance.cc',
     'plugins/plugin_lib.cc',

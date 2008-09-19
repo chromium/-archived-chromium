@@ -55,6 +55,7 @@ struct PluginMsg_URLRequestReply_Params {
   std::string url;
   bool notify_needed;
   HANDLE notify_data;
+  HANDLE stream;
 };
 
 struct PluginMsg_Paint_Params {
@@ -227,13 +228,15 @@ struct ParamTraits<PluginMsg_URLRequestReply_Params> {
     WriteParam(m, p.url);
     WriteParam(m, p.notify_needed);
     WriteParam(m, p.notify_data);
+    WriteParam(m, p.stream);
   }
   static bool Read(const Message* m, void** iter, param_type* p) {
     return
       ReadParam(m, iter, &p->resource_id) &&
       ReadParam(m, iter, &p->url) &&
       ReadParam(m, iter, &p->notify_needed) &&
-      ReadParam(m, iter, &p->notify_data);
+      ReadParam(m, iter, &p->notify_data) && 
+      ReadParam(m, iter, &p->stream);
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"(");
@@ -244,6 +247,8 @@ struct ParamTraits<PluginMsg_URLRequestReply_Params> {
     LogParam(p.notify_needed, l);
     l->append(L", ");
     LogParam(p.notify_data, l);
+    l->append(L", ");
+    LogParam(p.stream, l);
     l->append(L")");
   }
 };

@@ -609,14 +609,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\glue\plugins\plugin_data_stream.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\glue\plugins\plugin_data_stream.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\glue\plugins\plugin_host.cc"
 				>
 			</File>

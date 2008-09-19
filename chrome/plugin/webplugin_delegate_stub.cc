@@ -163,12 +163,14 @@ void WebPluginDelegateStub::OnDidReceiveResponse(
 }
 
 void WebPluginDelegateStub::OnDidReceiveData(int id,
-                                             const std::vector<char>& buffer) {
+                                             const std::vector<char>& buffer,
+                                             int data_offset) {
   WebPluginResourceClient* client = webplugin_->GetResourceClient(id);
   if (!client)
     return;
 
-  client->DidReceiveData(&buffer.front(), static_cast<int>(buffer.size()));
+  client->DidReceiveData(&buffer.front(), static_cast<int>(buffer.size()),
+                         data_offset);
 }
 
 void WebPluginDelegateStub::OnDidFinishLoading(int id) {
@@ -426,7 +428,8 @@ void WebPluginDelegateStub::OnHandleURLRequestReply(
   WebPluginResourceClient* resource_client =
       delegate_->CreateResourceClient(params.resource_id, params.url,
                                       params.notify_needed,
-                                      params.notify_data);
+                                      params.notify_data,
+                                      params.stream);
   webplugin_->OnResourceCreated(params.resource_id, resource_client);
 }
 

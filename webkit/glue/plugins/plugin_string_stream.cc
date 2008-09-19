@@ -22,7 +22,7 @@ void PluginStringStream::SendToPlugin(const std::string &data,
   int length = static_cast<int>(data.length());
   if (Open(mime_type, std::string(), length, 0)) {
     // TODO - check if it was not fully sent, and figure out a backup plan.
-    int written = Write(data.c_str(), length);
+    int written = Write(data.c_str(), length, 0);
     NPReason reason = written == length ? NPRES_DONE : NPRES_NETWORK_ERR;
     Close(reason);
   }

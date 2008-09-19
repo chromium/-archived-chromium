@@ -72,6 +72,11 @@ void MultipartResponseDelegate::OnReceivedData(const char* data, int data_len) {
 
   // Headers
   if (processing_headers_) {
+    // Eat leading \r\n
+    int pos = PushOverLine(data_, 0);
+    if (pos)
+      data_ = data_.substr(pos);
+
     if (ParseHeaders()) {
       // Successfully parsed headers.
       processing_headers_ = false;
@@ -227,3 +232,78 @@ size_t MultipartResponseDelegate::FindBoundary() {
   return boundary_pos;
 }
 
+bool MultipartResponseDelegate::ReadMultipartBoundary(
+    const WebCore::ResourceResponse& response,
+    std::string* multipart_boundary) {
+
+  WebCore::String content_type = response.httpHeaderField("Content-Type");
+  std::string content_type_as_string =
+      webkit_glue::StringToStdString(content_type);
+
+  size_t boundary_start_offset = content_type_as_string.find("boundary=");
+  if (boundary_start_offset == std::wstring::npos) {
+    return false;
+  }
+
+  boundary_start_offset += strlen("boundary=");
+  size_t boundary_end_offset = content_type.length();
+
+  size_t boundary_length = boundary_end_offset - boundary_start_offset;
+
+  *multipart_boundary = 
+      content_type_as_string.substr(boundary_start_offset, boundary_length);
+  return true;
+}
+
+bool MultipartResponseDelegate::ReadContentRanges(
+    const WebCore::ResourceResponse& response,
+    int* content_range_lower_bound,
+    int* content_range_upper_bound) {
+
+  std::string content_range = 
+      webkit_glue::StringToStdString(
+          response.httpHeaderField("Content-Range"));
+
+  size_t byte_range_lower_bound_start_offset =
+      content_range.find(" ");
+  if (byte_range_lower_bound_start_offset == std::string::npos) {
+    return false;
+  }
+
+  // Skip over the initial space.
+  byte_range_lower_bound_start_offset++;
+
+  size_t byte_range_lower_bound_end_offset =
+      content_range.find("-", byte_range_lower_bound_start_offset);
+  if (byte_range_lower_bound_end_offset == std::string::npos) {
+    return false;
+  }
+
+  size_t byte_range_lower_bound_characters = 
+      byte_range_lower_bound_end_offset - byte_range_lower_bound_start_offset;
+  std::string byte_range_lower_bound =
+      content_range.substr(byte_range_lower_bound_start_offset,
+                           byte_range_lower_bound_characters);
+
+  size_t byte_range_upper_bound_start_offset =
+      byte_range_lower_bound_end_offset + 1;
+
+  size_t byte_range_upper_bound_end_offset =
+      content_range.find("/", byte_range_upper_bound_start_offset);
+  if (byte_range_upper_bound_end_offset == std::string::npos) {
+    return false;
+  }
+
+  size_t byte_range_upper_bound_characters =
+      byte_range_upper_bound_end_offset - byte_range_upper_bound_start_offset;
+
+  std::string byte_range_upper_bound =
+      content_range.substr(byte_range_upper_bound_start_offset,
+                           byte_range_upper_bound_characters);
+
+  if (!StringToInt(byte_range_lower_bound, content_range_lower_bound))
+    return false;
+  if (!StringToInt(byte_range_upper_bound, content_range_upper_bound))
+    return false;
+  return true;
+}

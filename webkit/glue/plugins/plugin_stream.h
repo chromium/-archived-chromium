@@ -12,6 +12,8 @@
 #include "third_party/npapi/bindings/npapi.h"
 
 
+class WebPluginResourceClient;
+
 namespace NPAPI {
 
 class PluginInstance;
@@ -43,7 +45,7 @@ class PluginStream : public base::RefCounted<PluginStream> {
             uint32 last_modified);
 
   // Writes to the stream.
-  int Write(const char *buf, const int len);
+  int Write(const char *buf, const int len, int data_offset);
 
   // Write the result as a file.
   void WriteAsFile();
@@ -54,9 +56,22 @@ class PluginStream : public base::RefCounted<PluginStream> {
   // Close the stream.
   virtual bool Close(NPReason reason);
 
-  const NPStream* stream() const {
-    return &stream_;
-  }
+  virtual WebPluginResourceClient* AsResourceClient() { return NULL; }
+
+  // Cancels any HTTP requests initiated by the stream.
+  virtual void CancelRequest() {}
+
+  const NPStream* stream() const { return &stream_; }
+
+  // setter/getter for the seekable attribute on the stream.
+  bool seekable() const { return seekable_stream_; }
+
+  void set_seekable(bool seekable) { seekable_stream_ = seekable; }
+
+  // getters for reading the notification related attributes on the stream.
+  bool notify_needed() const { return notify_needed_; }
+
+  void* notify_data() const { return notify_data_; }
 
  protected:
   PluginInstance* instance() { return instance_.get(); }
@@ -80,11 +95,11 @@ class PluginStream : public base::RefCounted<PluginStream> {
 
   // Sends the data to the plugin.  If it's not ready, handles buffering it
   // and retrying later.
-  bool WriteToPlugin(const char *buf, const int length);
+  bool WriteToPlugin(const char *buf, const int length, const int data_offset);
 
   // Send the data to the plugin, returning how many bytes it accepted, or -1
   // if an error occurred.
-  int TryWriteToPlugin(const char *buf, const int length);
+  int TryWriteToPlugin(const char *buf, const int length, const int data_offset);
 
   // The callback which calls TryWriteToPlugin.
   void OnDelayDelivery();
@@ -93,7 +108,6 @@ class PluginStream : public base::RefCounted<PluginStream> {
   NPStream                      stream_;
   std::string                   headers_;
   scoped_refptr<PluginInstance> instance_;
-  int                           bytes_sent_;
   bool                          notify_needed_;
   void *                        notify_data_;
   bool                          close_on_write_data_;
@@ -102,7 +116,9 @@ class PluginStream : public base::RefCounted<PluginStream> {
   char                          temp_file_name_[MAX_PATH];
   HANDLE                        temp_file_handle_;
   std::vector<char>             delivery_data_;
-
+  int                           data_offset_;
+  bool                          seekable_stream_;
+  std::string                   mime_type_;
   DISALLOW_EVIL_CONSTRUCTORS(PluginStream);
 };
 

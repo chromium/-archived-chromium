@@ -6,6 +6,7 @@
 #define WEBKIT_GLUE_WEBPLUGIN_IMPL_H__
 
 #include <string>
+#include <map>
 #include <vector>
 
 #include "config.h"
@@ -25,6 +26,7 @@
 class WebFrameImpl;
 class WebPluginDelegate;
 class WebPluginImpl;
+class MultipartResponseDelegate;
 
 namespace WebCore {
   class DeprecatedString;
@@ -149,7 +151,8 @@ class WebPluginImpl : public WebPlugin,
   // Returns true on success.
   bool InitiateHTTPRequest(int resource_id, WebPluginResourceClient* client,
                            const char* method, const char* buf, int buf_len,
-                           const GURL& complete_url_string);
+                           const GURL& complete_url_string,
+                           const char* range_info);
 
   gfx::Rect GetWindowClipRect(const gfx::Rect& rect);
 
@@ -242,6 +245,17 @@ class WebPluginImpl : public WebPlugin,
                         bool notify, const char* url,
                         void* notify_data, bool popups_allowed);
 
+  void CancelDocumentLoad();
+
+  void InitiateHTTPRangeRequest(const char* url, const char* range_info,
+                                HANDLE existing_stream, bool notify_needed, 
+                                HANDLE notify_data);
+
+  // Handles HTTP multipart responses, i.e. responses received with a HTTP
+  // status code of 206.
+  void HandleHttpMultipartResponse(const WebCore::ResourceResponse& response,
+                                   WebPluginResourceClient* client);
+
   struct ClientInfo {
     int id;
     WebPluginResourceClient* client;
@@ -263,6 +277,12 @@ class WebPluginImpl : public WebPlugin,
   bool received_first_paint_notification_;
 
   WebPluginContainer* widget_;
+
+  typedef std::map<WebPluginResourceClient*, MultipartResponseDelegate*>
+      MultiPartResponseHandlerMap;
+  // Tracks HTTP multipart response handlers instantiated for
+  // a WebPluginResourceClient instance.
+  MultiPartResponseHandlerMap multi_part_response_map_;
 
   DISALLOW_EVIL_CONSTRUCTORS(WebPluginImpl);
 };

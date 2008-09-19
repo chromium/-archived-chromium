@@ -40,6 +40,7 @@
 #include "base/sys_string_conversions.h"
 #include "net/base/escape.h"
 #include "webkit/glue/glue_util.h"
+#include "webkit/glue/multipart_response_delegate.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin_impl.h"
 #include "webkit/glue/plugins/plugin_host.h"
@@ -47,6 +48,55 @@
 #include "webkit/glue/webview_impl.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/port/platform/cursor.h"
+
+// This class handles invididual multipart responses. It is instantiated when
+// we receive HTTP status code 206 in the HTTP response. This indicates
+// that the response could have multiple parts each separated by a boundary
+// specified in the response header.
+class MultiPartResponseClient : public WebCore::ResourceHandleClient {
+ public:
+  MultiPartResponseClient(WebPluginResourceClient* resource_client)
+      : resource_client_(resource_client) {
+    Clear(); 
+  }
+
+  // Called when the multipart parser encounters an embedded multipart
+  // response.
+  virtual void didReceiveResponse(WebCore::ResourceHandle* handle,
+                                  const WebCore::ResourceResponse& response) {
+    if (!MultipartResponseDelegate::ReadContentRanges(
+            response, &byte_range_lower_bound_, &byte_range_upper_bound_)) {
+      NOTREACHED();
+      return;
+    }
+
+    resource_response_ = response;
+  }
+
+  // Receives individual part data from a multipart response.
+  virtual void didReceiveData(WebCore::ResourceHandle* handle,
+                              const char* data, int boundary_pos,
+                              int length_received) {
+    int data_length = byte_range_upper_bound_ - byte_range_lower_bound_ + 1;
+    resource_client_->DidReceiveData(
+        data, data_length, byte_range_lower_bound_);
+  }
+  
+  void Clear() {
+    resource_response_ = WebCore::ResourceResponse();
+    byte_range_lower_bound_ = 0;
+    byte_range_upper_bound_ = 0;
+  }
+
+ private:
+  WebCore::ResourceResponse resource_response_;
+  // The lower bound of the byte range.
+  int byte_range_lower_bound_;
+  // The upper bound of the byte range.
+  int byte_range_upper_bound_;
+  // The handler for the data.
+  WebPluginResourceClient* resource_client_;
+};
 
 WebPluginContainer::WebPluginContainer(WebPluginImpl* impl) : impl_(impl) { }
 
@@ -799,6 +849,8 @@ std::wstring WebPluginImpl::GetAllHeaders(
 
 void WebPluginImpl::didReceiveResponse(WebCore::ResourceHandle* handle,
     const WebCore::ResourceResponse& response) {
+  static const int kHttpPartialResponseStatusCode = 206;
+
   WebPluginResourceClient* client = GetClientFromHandle(handle);
   if (!client)
     return;
@@ -807,6 +859,11 @@ void WebPluginImpl::didReceiveResponse(WebCore::ResourceHandle* handle,
   WebPluginContainer::ReadHttpResponseInfo(response, &http_response_info);
 
   bool cancel = false;
+  
+  if (response.httpStatusCode() == kHttpPartialResponseStatusCode) {
+    HandleHttpMultipartResponse(response, client);
+    return;
+  }
 
   client->DidReceiveResponse(
       base::SysWideToNativeMB(http_response_info.mime_type),
@@ -846,14 +903,28 @@ void WebPluginImpl::didReceiveData(WebCore::ResourceHandle* handle,
                                    const char *buffer,
                                    int length, int) {
   WebPluginResourceClient* client = GetClientFromHandle(handle);
-  if (client)
-    client->DidReceiveData(buffer, length);
+  if (client) {
+    MultipartResponseDelegate* multi_part_handler =
+      multi_part_response_map_[client];
+    if (multi_part_handler) {
+      multi_part_handler->OnReceivedData(buffer, length);
+    } else {
+      client->DidReceiveData(buffer, length, 0);
+    }
+  }
 }
 
 void WebPluginImpl::didFinishLoading(WebCore::ResourceHandle* handle) {
   WebPluginResourceClient* client = GetClientFromHandle(handle);
-  if (client)
+  if (client) {
+    MultiPartResponseHandlerMap::iterator index = 
+        multi_part_response_map_.find(client);
+    if (index != multi_part_response_map_.end()) {
+      delete (*index).second;
+      multi_part_response_map_.erase(index);
+    }
     client->DidFinishLoading();
+  }
 
   RemoveClient(handle);
 }
@@ -980,7 +1051,7 @@ void WebPluginImpl::HandleURLRequest(const char *method,
     int resource_id = GetNextResourceId();
     WebPluginResourceClient* resource_client =
         delegate_->CreateResourceClient(resource_id, complete_url_string,
-                                        notify, notify_data);
+                                        notify, notify_data, NULL);
 
     // If the RouteToFrame call returned a failure then inform the result
     // back to the plugin asynchronously.
@@ -991,7 +1062,7 @@ void WebPluginImpl::HandleURLRequest(const char *method,
     }
 
     InitiateHTTPRequest(resource_id, resource_client, method, buf, len,
-                        GURL(complete_url_string));
+                        GURL(complete_url_string), NULL);
   }
 }
 
@@ -1004,7 +1075,8 @@ bool WebPluginImpl::InitiateHTTPRequest(int resource_id,
                                         WebPluginResourceClient* client,
                                         const char* method, const char* buf,
                                         int buf_len,
-                                        const GURL& complete_url_string) {
+                                        const GURL& complete_url_string,
+                                        const char* range_info) {
   if (!client) {
     NOTREACHED();
     return false;
@@ -1018,6 +1090,9 @@ bool WebPluginImpl::InitiateHTTPRequest(int resource_id,
   info.request.setOriginPid(delegate_->GetProcessId());
   info.request.setResourceType(ResourceType::OBJECT);
   info.request.setHTTPMethod(method);
+
+  if (range_info)
+    info.request.addHTTPHeaderField("Range", range_info);
 
   const WebCore::String& referrer = frame()->loader()->outgoingReferrer();
   if (!WebCore::FrameLoader::shouldHideReferrer(
@@ -1041,3 +1116,43 @@ bool WebPluginImpl::InitiateHTTPRequest(int resource_id,
   return true;
 }
 
+void WebPluginImpl::CancelDocumentLoad() {
+  frame()->loader()->stopLoading(false);
+}
+
+void WebPluginImpl::InitiateHTTPRangeRequest(const char* url,
+                                             const char* range_info,
+                                             HANDLE existing_stream,
+                                             bool notify_needed,
+                                             HANDLE notify_data) {
+  int resource_id = GetNextResourceId();
+  std::string complete_url_string;
+  CompleteURL(url, &complete_url_string);
+
+  WebPluginResourceClient* resource_client =
+      delegate_->CreateResourceClient(resource_id, complete_url_string,
+                                      notify_needed, notify_data,
+                                      existing_stream);
+  InitiateHTTPRequest(resource_id, resource_client, "GET", NULL, 0,
+                      GURL(complete_url_string), range_info);
+}
+
+void WebPluginImpl::HandleHttpMultipartResponse(
+    const WebCore::ResourceResponse& response,
+    WebPluginResourceClient* client) {
+  std::string multipart_boundary;
+  if (!MultipartResponseDelegate::ReadMultipartBoundary(
+          response, &multipart_boundary)) {
+    NOTREACHED();
+    return;
+  }
+
+  MultiPartResponseClient* multi_part_response_client =
+      new MultiPartResponseClient(client);
+
+  MultipartResponseDelegate* multi_part_response_handler = 
+      new MultipartResponseDelegate(multi_part_response_client, NULL, 
+                                    response, 
+                                    multipart_boundary);
+  multi_part_response_map_[client] = multi_part_response_handler;
+}

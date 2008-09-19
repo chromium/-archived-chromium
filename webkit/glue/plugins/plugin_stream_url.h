@@ -34,6 +34,12 @@ class PluginStreamUrl : public PluginStream,
   // it is still loading.
   virtual bool Close(NPReason reason);
 
+  virtual WebPluginResourceClient* AsResourceClient() { 
+    return static_cast<WebPluginResourceClient*>(this); 
+  }
+
+  virtual void CancelRequest();
+
   //
   // WebPluginResourceClient methods
   //
@@ -43,9 +49,10 @@ class PluginStreamUrl : public PluginStream,
                           uint32 expected_length,
                           uint32 last_modified,
                           bool* cancel);
-  void DidReceiveData(const char* buffer, int length);
+  void DidReceiveData(const char* buffer, int length, int data_offset);
   void DidFinishLoading();
   void DidFail();
+
 
  private:
   GURL url_;

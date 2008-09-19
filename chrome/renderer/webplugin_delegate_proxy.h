@@ -82,7 +82,8 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   virtual WebPluginResourceClient* CreateResourceClient(int resource_id,
                                                         const std::string &url,
                                                         bool notify_needed,
-                                                        void *notify_data);
+                                                        void* notify_data,
+                                                        void* existing_stream);
 
   // Notifies the delegate about a Get/Post URL request getting routed
   virtual void URLRequestRouted(const std::string&url, bool notify_needed,
@@ -118,6 +119,11 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
                              std::string* json_retval);
   void OnMissingPluginStatus(int status);
   void OnGetCPBrowsingContext(uint32* context);
+  void OnCancelDocumentLoad();
+  void OnInitiateHTTPRangeRequest(const std::string& url,
+                                  const std::string& range_info,
+                                  HANDLE existing_stream, bool notify_needed,
+                                  HANDLE notify_data);
 
   // Draw a graphic indicating a crashed plugin.
   void PaintSadPlugin(HDC hdc, const gfx::Rect& rect);

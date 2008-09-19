@@ -72,6 +72,19 @@ class MultipartResponseDelegate {
   void OnReceivedData(const char* data, int data_len);
   void OnCompletedRequest();
 
+  // Returns the multi part boundary string from the Content-type header
+  // in the response.
+  // Returns true on success.
+  static bool ReadMultipartBoundary(const WebCore::ResourceResponse& response,
+                                    std::string* multipart_boundary);
+
+  // Returns the lower and higher content ranges from an individual multipart
+  // in a multipart response.
+  // Returns true on success.
+  static bool ReadContentRanges(const WebCore::ResourceResponse& response,
+                                int* content_range_lower_bound,
+                                int* content_range_upper_bound);
+
  private:
   // Pointers back to our owning object so we can make callbacks as we parse
   // pieces of data.

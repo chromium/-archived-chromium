@@ -10,7 +10,6 @@
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/plugins/plugin_data_stream.h"
 #include "webkit/glue/plugins/plugin_host.h"
 #include "webkit/glue/plugins/plugin_lib.h"
 #include "webkit/glue/plugins/plugin_stream_url.h"
@@ -93,7 +92,7 @@ void PluginInstance::RemoveStream(PluginStream* stream) {
 
   std::vector<scoped_refptr<PluginStream> >::iterator stream_index;
   for (stream_index = open_streams_.begin();
-          stream_index != open_streams_.end(); ++stream_index) {
+       stream_index != open_streams_.end(); ++stream_index) {
     if (*stream_index == stream) {
       open_streams_.erase(stream_index);
       break;
@@ -356,32 +355,37 @@ void PluginInstance::DidReceiveManualResponse(const std::string& url,
     response_url = instance_url_.spec();
   }
 
-  plugin_data_stream_ = new PluginDataStream(this, response_url, mime_type,
-                                             headers, expected_length,
-                                             last_modified);
+  bool cancel = false;
+
+  plugin_data_stream_ = CreateStream(-1, url, mime_type, false, NULL);
+
+  plugin_data_stream_->DidReceiveResponse(mime_type, headers, expected_length,
+                                          last_modified, &cancel);
   AddStream(plugin_data_stream_.get());
 }
 
 void PluginInstance::DidReceiveManualData(const char* buffer, int length) {
   DCHECK(load_manually_);
-  DCHECK(plugin_data_stream_.get() != NULL);
-  plugin_data_stream_->SendToPlugin(buffer, length);
+  if (plugin_data_stream_.get() != NULL) {
+    plugin_data_stream_->DidReceiveData(buffer, length, 0);
+  }
 }
 
 void PluginInstance::DidFinishManualLoading() {
   DCHECK(load_manually_);
-  DCHECK(plugin_data_stream_);
-  plugin_data_stream_->Close(NPRES_DONE);
-  RemoveStream(plugin_data_stream_.get());
-  plugin_data_stream_ = NULL;
+  if (plugin_data_stream_.get() != NULL) {
+    plugin_data_stream_->DidFinishLoading();
+    plugin_data_stream_->Close(NPRES_DONE);
+    plugin_data_stream_ = NULL;
+  }
 }
 
 void PluginInstance::DidManualLoadFail() {
   DCHECK(load_manually_);
-  DCHECK(plugin_data_stream_);
-  plugin_data_stream_->Close(NPRES_NETWORK_ERR);
-  RemoveStream(plugin_data_stream_.get());
-  plugin_data_stream_ = NULL;
+  if (plugin_data_stream_.get() != NULL) {
+    plugin_data_stream_->DidFail();
+    plugin_data_stream_ = NULL;
+  }
 }
 
 void PluginInstance::PluginThreadAsyncCall(void (*func)(void *),
@@ -434,6 +438,51 @@ void PluginInstance::PushPopupsEnabledState(bool enabled) {
 
 void PluginInstance::PopPopupsEnabledState() {
   popups_enabled_stack_.pop();
+}
+
+void PluginInstance::RequestRead(NPStream* stream, NPByteRange* range_list) {
+  std::string range_info = "bytes=";
+
+  while (range_list) {
+    range_info += IntToString(range_list->offset);
+    range_info += "-";
+    range_info += IntToString(range_list->offset + range_list->length - 1);
+    range_list = range_list->next;
+    if (range_list) {
+      range_info += ",";
+    }
+  }
+
+  if (plugin_data_stream_) {
+    if (plugin_data_stream_->stream() == stream) {
+      webplugin_->CancelDocumentLoad();
+      plugin_data_stream_ = NULL;
+    }
+  }
+
+  // The lifetime of a NPStream instance depends on the PluginStream instance
+  // which owns it. When a plugin invokes NPN_RequestRead on a seekable stream,
+  // we don't want to create a new stream when the corresponding response is
+  // received. We send over a cookie which represents the PluginStream
+  // instance which is sent back from the renderer when the response is
+  // received.
+  std::vector<scoped_refptr<PluginStream> >::iterator stream_index;
+  for (stream_index = open_streams_.begin();
+          stream_index != open_streams_.end(); ++stream_index) {
+    PluginStream* plugin_stream = *stream_index;
+    if (plugin_stream->stream() == stream) {
+      // A stream becomes seekable the first time NPN_RequestRead
+      // is called on it.
+      plugin_stream->set_seekable(true);
+
+      webplugin_->InitiateHTTPRangeRequest(
+          stream->url, range_info.c_str(),
+          plugin_stream,
+          plugin_stream->notify_needed(), 
+          plugin_stream->notify_data());
+      break;
+    }
+  }
 }
 
 }  // namespace NPAPI

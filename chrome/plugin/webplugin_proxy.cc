@@ -243,3 +243,17 @@ void WebPluginProxy::HandleURLRequest(const char *method,
   Send(new PluginHostMsg_URLRequest(route_id_, params));
 }
 
+void WebPluginProxy::CancelDocumentLoad() {
+  Send(new PluginHostMsg_CancelDocumentLoad(route_id_));
+}
+
+void WebPluginProxy::InitiateHTTPRangeRequest(const char* url,
+                                              const char* range_info,
+                                              void* existing_stream,
+                                              bool notify_needed,
+                                              HANDLE notify_data) {
+
+  Send(new PluginHostMsg_InitiateHTTPRangeRequest(route_id_, url,
+                                                  range_info, existing_stream,
+                                                  notify_needed, notify_data));
+}

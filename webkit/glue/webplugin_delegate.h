@@ -111,7 +111,8 @@ class WebPluginDelegate {
   virtual WebPluginResourceClient* CreateResourceClient(int resource_id,
                                                         const std::string &url,
                                                         bool notify_needed,
-                                                        void *notify_data) = 0;
+                                                        void *notify_data,
+                                                        void* stream) = 0;
   // Notifies the delegate about a Get/Post URL request getting routed
   virtual void URLRequestRouted(const std::string&url, bool notify_needed, 
                                 void* notify_data) = 0;

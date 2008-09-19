@@ -373,5 +373,94 @@ TEST(MultipartResponseTest, MultipleBoundaries) {
             client.data_);
 }
 
+TEST(MultipartResponseTest, MultipartByteRangeParsingTest) {
+  // Test multipart/byteranges based boundary parsing.
+  ResourceResponse response1(KURL(), "multipart/byteranges", 0, "en-US",
+                            String());
+  response1.setHTTPHeaderField(String("Content-Length"), String("200"));
+  response1.setHTTPHeaderField(
+      String("Content-type"),
+      String("multipart/byteranges; boundary=--bound--"));
+
+  std::string multipart_boundary;
+  bool result = MultipartResponseDelegate::ReadMultipartBoundary(
+      response1, &multipart_boundary);
+  EXPECT_EQ(result, true);
+  EXPECT_EQ(string("--bound--"),
+            multipart_boundary);
+
+  ResourceResponse response2(KURL(), "image/png", 0, "en-US",
+                            String());
+
+  response2.setHTTPHeaderField(String("Content-Length"), String("300"));
+  response2.setHTTPHeaderField(
+      String("Last-Modified"),
+      String("Mon, 04 Apr 2005 20:36:01 GMT"));
+  response2.setHTTPHeaderField(
+      String("Date"),
+      String("Thu, 11 Sep 2008 18:21:42 GMT"));
+
+  multipart_boundary.clear();
+  result = MultipartResponseDelegate::ReadMultipartBoundary(
+      response2, &multipart_boundary);
+  EXPECT_EQ(result, false);
+
+  ResourceResponse response3(KURL(), "multipart/byteranges", 0, "en-US",
+                            String());
+
+  response3.setHTTPHeaderField(String("Content-Length"), String("300"));
+  response3.setHTTPHeaderField(
+      String("Last-Modified"),
+      String("Mon, 04 Apr 2005 20:36:01 GMT"));
+  response3.setHTTPHeaderField(
+      String("Date"),
+      String("Thu, 11 Sep 2008 18:21:42 GMT"));
+  response3.setHTTPHeaderField(
+      String("Content-type"),
+      String("multipart/byteranges"));
+
+  multipart_boundary.clear();
+  result = MultipartResponseDelegate::ReadMultipartBoundary(
+      response3, &multipart_boundary);
+  EXPECT_EQ(result, false);
+  EXPECT_EQ(multipart_boundary.length(), 0);
+}
+
+TEST(MultipartResponseTest, MultipartContentRangesTest) {
+  ResourceResponse response1(KURL(), "application/pdf", 0, "en-US",
+                            String());
+  response1.setHTTPHeaderField(String("Content-Length"), String("200"));
+  response1.setHTTPHeaderField(
+      String("Content-Range"),
+      String("bytes 1000-1050/5000"));
+  
+  int content_range_lower_bound = 0;
+  int content_range_upper_bound = 0;
+
+  bool result = MultipartResponseDelegate::ReadContentRanges(
+      response1, &content_range_lower_bound,
+      &content_range_upper_bound);
+
+  EXPECT_EQ(result, true);
+  EXPECT_EQ(content_range_lower_bound, 1000);
+  EXPECT_EQ(content_range_upper_bound, 1050);
+
+  ResourceResponse response2(KURL(), "application/pdf", 0, "en-US",
+                            String());
+  response2.setHTTPHeaderField(String("Content-Length"), String("200"));
+  response2.setHTTPHeaderField(
+      String("Content-Range"),
+      String("bytes 1000/1050"));
+  
+  content_range_lower_bound = 0;
+  content_range_upper_bound = 0;
+
+  result = MultipartResponseDelegate::ReadContentRanges(
+      response2, &content_range_lower_bound,
+      &content_range_upper_bound);
+
+  EXPECT_EQ(result, false);
+}
+
 }  // namespace
 

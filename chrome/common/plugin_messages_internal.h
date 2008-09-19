@@ -141,9 +141,10 @@ IPC_BEGIN_MESSAGES(Plugin, 5)
                              PluginMsg_DidReceiveResponseParams,
                              bool /* cancel */)
 
-  IPC_SYNC_MESSAGE_ROUTED2_0(PluginMsg_DidReceiveData,
+  IPC_SYNC_MESSAGE_ROUTED3_0(PluginMsg_DidReceiveData,
                              int /* id */,
-                             std::vector<char> /* buffer */)
+                             std::vector<char> /* buffer */,
+                             int /* data_offset */)
 
   IPC_SYNC_MESSAGE_ROUTED1_0(PluginMsg_DidFinishLoading,
                              int /* id */)
@@ -244,6 +245,14 @@ IPC_BEGIN_MESSAGES(PluginHost, 6)
   IPC_SYNC_MESSAGE_ROUTED0_1(PluginHostMsg_GetCPBrowsingContext,
                              uint32 /* context */)
 
+  IPC_MESSAGE_ROUTED0(PluginHostMsg_CancelDocumentLoad)
+
+  IPC_MESSAGE_ROUTED5(PluginHostMsg_InitiateHTTPRangeRequest,
+                      std::string /* url */,
+                      std::string /* range_info */,
+                      HANDLE      /* existing_stream */,
+                      bool        /* notify_needed */,
+                      HANDLE      /* notify_data */)
 
 IPC_END_MESSAGES(PluginHost)
 

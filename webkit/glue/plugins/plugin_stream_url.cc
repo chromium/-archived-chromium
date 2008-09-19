@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+
 #include "webkit/glue/plugins/plugin_stream_url.h"
 
 #include "webkit/glue/glue_util.h"
@@ -26,14 +27,7 @@ PluginStreamUrl::~PluginStreamUrl() {
 }
 
 bool PluginStreamUrl::Close(NPReason reason) {
-  if (id_ != 0) {
-    if (instance()->webplugin()) {
-      instance()->webplugin()->CancelResource(id_);
-    }
-
-    id_ = 0;
-  }
-
+  CancelRequest();
   bool result = PluginStream::Close(reason);
   instance()->RemoveStream(this);
   return result;
@@ -49,7 +43,6 @@ void PluginStreamUrl::DidReceiveResponse(const std::string& mime_type,
                                          uint32 expected_length,
                                          uint32 last_modified,
                                          bool* cancel) {
-
   bool opened = Open(mime_type,
                      headers,
                      expected_length,
@@ -60,20 +53,32 @@ void PluginStreamUrl::DidReceiveResponse(const std::string& mime_type,
   }
 }
 
-void PluginStreamUrl::DidReceiveData(const char* buffer, int length) {
+void PluginStreamUrl::DidReceiveData(const char* buffer, int length,
+                                     int data_offset) {
   if (!open())
     return;
 
   if (length > 0)
-    Write(const_cast<char*>(buffer), length);
+    Write(const_cast<char*>(buffer), length, data_offset);
 }
 
 void PluginStreamUrl::DidFinishLoading() {
-  Close(NPRES_DONE);
+  if (!seekable()) {
+    Close(NPRES_DONE);
+  }
 }
 
 void PluginStreamUrl::DidFail() {
   Close(NPRES_NETWORK_ERR);
+}
+
+void PluginStreamUrl::CancelRequest() {
+  if (id_ > 0) {
+    if (instance()->webplugin()) {
+      instance()->webplugin()->CancelResource(id_);
+    }
+    id_ = 0;
+  }
 }
 
 } // namespace NPAPI

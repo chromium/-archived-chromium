@@ -44,7 +44,7 @@ class ResourceClientProxy : public WebPluginResourceClient {
   }
 
   void Initialize(int resource_id, const std::string &url, bool notify_needed,
-                  void *notify_data) {
+                  void *notify_data, void* existing_stream) {
     resource_id_ = resource_id;
     url_ = url;
     notify_needed_ = notify_needed;
@@ -55,6 +55,7 @@ class ResourceClientProxy : public WebPluginResourceClient {
     params.url = url_;
     params.notify_needed = notify_needed_;
     params.notify_data = notify_data_;
+    params.stream = existing_stream;
 
     channel_->Send(new PluginMsg_HandleURLRequestReply(instance_id_, params));
   }
@@ -85,7 +86,7 @@ class ResourceClientProxy : public WebPluginResourceClient {
                                                     cancel));
   }
 
-  void DidReceiveData(const char* buffer, int length) {
+  void DidReceiveData(const char* buffer, int length, int data_offset) {
     DCHECK(channel_ != NULL);
     DCHECK(length > 0);
     std::vector<char> data;
@@ -95,7 +96,7 @@ class ResourceClientProxy : public WebPluginResourceClient {
     // deleted from under us.
     scoped_refptr<PluginChannelHost> channel_ref(channel_);
     channel_->Send(new PluginMsg_DidReceiveData(instance_id_, resource_id_,
-                                                data));
+                                                data, data_offset));
   }
 
   void DidFinishLoading() {
@@ -112,7 +113,7 @@ class ResourceClientProxy : public WebPluginResourceClient {
     MessageLoop::current()->DeleteSoon(FROM_HERE, this);
   }
 
- private:
+private:
   int resource_id_;
   int instance_id_;
   scoped_refptr<PluginChannelHost> channel_;
@@ -316,6 +317,9 @@ void WebPluginDelegateProxy::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(PluginHostMsg_URLRequest, OnHandleURLRequest)
     IPC_MESSAGE_HANDLER(PluginHostMsg_GetCPBrowsingContext,
                         OnGetCPBrowsingContext)
+    IPC_MESSAGE_HANDLER(PluginHostMsg_CancelDocumentLoad, OnCancelDocumentLoad)
+    IPC_MESSAGE_HANDLER(PluginHostMsg_InitiateHTTPRangeRequest,
+                        OnInitiateHTTPRangeRequest)
     IPC_MESSAGE_UNHANDLED_ERROR()
   IPC_END_MESSAGE_MAP()
 }
@@ -655,10 +659,10 @@ void WebPluginDelegateProxy::OnHandleURLRequest(
 
 WebPluginResourceClient* WebPluginDelegateProxy::CreateResourceClient(
     int resource_id, const std::string &url, bool notify_needed,
-    void *notify_data) {
+    void* notify_data, void* npstream) {
   ResourceClientProxy* proxy = new ResourceClientProxy(channel_host_,
                                                        instance_id_);
-  proxy->Initialize(resource_id, url, notify_needed, notify_data);
+  proxy->Initialize(resource_id, url, notify_needed, notify_data, npstream);
   return proxy;
 }
 
@@ -669,3 +673,14 @@ void WebPluginDelegateProxy::URLRequestRouted(const std::string& url,
                                       notify_data));
 }
 
+void WebPluginDelegateProxy::OnCancelDocumentLoad() {
+  plugin_->CancelDocumentLoad();
+}
+
+void WebPluginDelegateProxy::OnInitiateHTTPRangeRequest(
+   const std::string& url, const std::string& range_info,
+   HANDLE existing_stream, bool notify_needed, HANDLE notify_data) {
+  plugin_->InitiateHTTPRangeRequest(url.c_str(), range_info.c_str(),
+                                    existing_stream, notify_needed,
+                                    notify_data);
+}

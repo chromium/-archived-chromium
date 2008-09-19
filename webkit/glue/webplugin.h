@@ -126,6 +126,16 @@ class WebPlugin {
                                 bool notify, const char* url,
                                 void* notify_data, bool popups_allowed) = 0;
 
+  // Cancels document load.
+  virtual void CancelDocumentLoad() = 0;
+
+  // Initiates a HTTP range request.
+  virtual void InitiateHTTPRangeRequest(const char* url,
+                                        const char* range_info,
+                                        void* existing_stream,
+                                        bool notify_needed,
+                                        HANDLE notify_data) = 0;
+
  private:
   DISALLOW_EVIL_CONSTRUCTORS(WebPlugin);
 };
@@ -140,7 +150,8 @@ class WebPluginResourceClient {
                                   uint32 expected_length,
                                   uint32 last_modified,
                                   bool* cancel) = 0;
-  virtual void DidReceiveData(const char* buffer, int length) = 0;
+  virtual void DidReceiveData(const char* buffer, int length, 
+                              int data_offset) = 0;
   virtual void DidFinishLoading() = 0;
   virtual void DidFail() = 0;
 };

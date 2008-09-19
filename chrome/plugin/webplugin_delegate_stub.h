@@ -49,7 +49,8 @@ class WebPluginDelegateStub : public IPC::Channel::Listener,
   void OnWillSendRequest(int id, const GURL& url);
   void OnDidReceiveResponse(const PluginMsg_DidReceiveResponseParams& params,
                             bool* cancel);
-  void OnDidReceiveData(int id, const std::vector<char>& buffer);
+  void OnDidReceiveData(int id, const std::vector<char>& buffer,
+                        int data_offset);
   void OnDidFinishLoading(int id);
   void OnDidFail(int id);
 

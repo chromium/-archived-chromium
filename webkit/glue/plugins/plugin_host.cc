@@ -395,10 +395,19 @@ void  NPN_ReloadPlugins(NPBool reloadPages) {
 }
 
 // Requests a range of bytes for a seekable stream.
-NPError  NPN_RequestRead(NPStream* stream, NPByteRange* rangeList) {
-  // TODO: implement me
-  DLOG(INFO) << "NPN_RequestedRead is not implemented yet.";
-  return NPERR_GENERIC_ERROR;
+NPError  NPN_RequestRead(NPStream* stream, NPByteRange* range_list) {
+  if (!stream || !range_list) {
+    return NPERR_GENERIC_ERROR;
+  }
+
+  scoped_refptr<NPAPI::PluginInstance> plugin = 
+      reinterpret_cast<NPAPI::PluginInstance*>(stream->ndata);
+  if (!plugin.get()) {
+    return NPERR_GENERIC_ERROR;
+  }
+
+  plugin->RequestRead(stream, range_list);
+  return NPERR_NO_ERROR;
 }
 
 static bool IsJavaScriptUrl(const std::string& url) {

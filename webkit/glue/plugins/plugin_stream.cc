@@ -22,13 +22,14 @@ PluginStream::PluginStream(
     bool need_notify,
     void *notify_data)
     : instance_(instance),
-      bytes_sent_(0),
       notify_needed_(need_notify),
       notify_data_(notify_data),
       close_on_write_data_(false),
       opened_(false),
       requested_plugin_mode_(NP_NORMAL),
-      temp_file_handle_(INVALID_HANDLE_VALUE) {
+      temp_file_handle_(INVALID_HANDLE_VALUE),
+      seekable_stream_(false),
+      data_offset_(0) {
   memset(&stream_, 0, sizeof(stream_));
   stream_.url = _strdup(url);
   temp_file_name_[0] = '\0';
@@ -37,7 +38,6 @@ PluginStream::PluginStream(
 PluginStream::~PluginStream() {
   // always cleanup our temporary files.
   CleanupTempFile();
-
   free(const_cast<char*>(stream_.url));
 }
 
@@ -58,8 +58,14 @@ bool PluginStream::Open(const std::string &mime_type,
   stream_.pdata = 0;
   stream_.ndata = id->ndata;
   stream_.notifyData = notify_data_;
-  if (!headers_.empty())
+
+  bool seekable_stream = false;
+  if (!headers_.empty()) {
     stream_.headers = headers_.c_str();
+    if (headers_.find("Accept-Ranges: bytes") != std::string::npos) {
+      seekable_stream = true;
+    }
+  }
 
   const char *char_mime_type = "application/x-unknown-content-type";
   std::string temp_mime_type;
@@ -75,26 +81,31 @@ bool PluginStream::Open(const std::string &mime_type,
   // Silverlight expects a valid mime type
   DCHECK(strlen(char_mime_type) != 0);
   NPError err = instance_->NPP_NewStream((NPMIMEType)char_mime_type,
-                                         &stream_, false,
+                                         &stream_, seekable_stream,
                                          &requested_plugin_mode_);
   if (err != NPERR_NO_ERROR)
     return false;
 
   opened_ = true;
 
+  if (requested_plugin_mode_ == NP_SEEK) {
+    seekable_stream_ = true;
+  }
+
   // If the plugin has requested certain modes, then we need a copy
   // of this file on disk.  Open it and save it as we go.
   if (requested_plugin_mode_ == NP_ASFILEONLY ||
-    requested_plugin_mode_ == NP_ASFILE ||
-    requested_plugin_mode_ == NP_SEEK) {
+    requested_plugin_mode_ == NP_ASFILE) {
     if (OpenTempFile() == false)
       return false;
   }
 
+  mime_type_ = char_mime_type;
   return true;
 }
 
-int PluginStream::Write(const char *buffer, const int length) {
+int PluginStream::Write(const char *buffer, const int length,
+                        int data_offset) {
   // There may be two streams to write to - the plugin and the file.
   // It is unclear what to do if we cannot write to both.  The rules of
   // this function are that the plugin must consume at least as many
@@ -103,7 +114,8 @@ int PluginStream::Write(const char *buffer, const int length) {
   // to each stream, we'll return failure.
 
   DCHECK(opened_);
-  if (WriteToFile(buffer, length) && WriteToPlugin(buffer, length))
+  if (WriteToFile(buffer, length) && 
+      WriteToPlugin(buffer, length, data_offset))
     return length;
 
   return -1;
@@ -113,8 +125,7 @@ bool PluginStream::WriteToFile(const char *buf, const int length) {
   // For ASFILEONLY, ASFILE, and SEEK modes, we need to write
   // to the disk
   if (temp_file_handle_ != INVALID_HANDLE_VALUE &&
-      (requested_plugin_mode_ == NP_SEEK ||
-       requested_plugin_mode_ == NP_ASFILE ||
+      (requested_plugin_mode_ == NP_ASFILE ||
        requested_plugin_mode_ == NP_ASFILEONLY) ) {
     int totalBytesWritten = 0;
     DWORD bytes;
@@ -131,13 +142,15 @@ bool PluginStream::WriteToFile(const char *buf, const int length) {
   return true;
 }
 
-bool PluginStream::WriteToPlugin(const char *buf, const int length) {
+bool PluginStream::WriteToPlugin(const char *buf, const int length,
+                                 const int data_offset) {
   // For NORMAL and ASFILE modes, we send the data to the plugin now
   if (requested_plugin_mode_ != NP_NORMAL &&
-      requested_plugin_mode_ != NP_ASFILE)
+      requested_plugin_mode_ != NP_ASFILE &&
+      requested_plugin_mode_ != NP_SEEK)
     return true;
 
-  int written = TryWriteToPlugin(buf, length);
+  int written = TryWriteToPlugin(buf, length, data_offset);
   if (written == -1)
       return false;
 
@@ -146,6 +159,7 @@ bool PluginStream::WriteToPlugin(const char *buf, const int length) {
     size_t remaining = length - written;
     size_t previous_size = delivery_data_.size();
     delivery_data_.resize(previous_size + remaining);
+    data_offset_ = data_offset;
     memcpy(&delivery_data_[previous_size], buf + written, remaining);
     MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
         this, &PluginStream::OnDelayDelivery));
@@ -162,7 +176,8 @@ void PluginStream::OnDelayDelivery() {
   }
 
   int size = static_cast<int>(delivery_data_.size());
-  int written = TryWriteToPlugin(&delivery_data_.front(), size);
+  int written = TryWriteToPlugin(&delivery_data_.front(), size,
+                                 data_offset_);
   if (written > 0) {
     // Remove the data that we already wrote.
     delivery_data_.erase(delivery_data_.begin(),
@@ -170,9 +185,13 @@ void PluginStream::OnDelayDelivery() {
   }
 }
 
-int PluginStream::TryWriteToPlugin(const char *buf, const int length) {
+int PluginStream::TryWriteToPlugin(const char *buf, const int length,
+                                   const int data_offset) {
   bool result = true;
   int byte_offset = 0;
+
+  if (data_offset > 0)
+    data_offset_ = data_offset;
 
   while (byte_offset < length) {
     int bytes_remaining = length - byte_offset;
@@ -184,7 +203,7 @@ int PluginStream::TryWriteToPlugin(const char *buf, const int length) {
       return byte_offset;
 
     int bytes_consumed = instance_->NPP_Write(
-        &stream_, bytes_sent_, bytes_to_write,
+        &stream_, data_offset_, bytes_to_write,
         const_cast<char*>(buf + byte_offset));
     if (bytes_consumed < 0) {
       // The plugin failed, which means that we need to close the stream.
@@ -199,7 +218,7 @@ int PluginStream::TryWriteToPlugin(const char *buf, const int length) {
     // The plugin might report more that we gave it.
     bytes_consumed = std::min(bytes_consumed, bytes_to_write);
 
-    bytes_sent_ += bytes_consumed;
+    data_offset_ += bytes_consumed;
     byte_offset += bytes_consumed;
   }
 

@@ -192,6 +192,9 @@ class PluginInstance : public base::RefCounted<PluginInstance> {
     return popups_enabled_stack_.empty() ? false : popups_enabled_stack_.top();
   }
 
+  // Initiates byte range reads for plugins.
+  void RequestRead(NPStream* stream, NPByteRange* range_list);
+
  private:
   void OnPluginThreadAsyncCall(void (*func)(void *),
                                void *userData);
@@ -238,7 +241,7 @@ class PluginInstance : public base::RefCounted<PluginInstance> {
   // (MozillaExtensionApi) created as a result of NPN_GetValue
   // in the context of NP_Initialize. 
   static ThreadLocalStorage::Slot          plugin_instance_tls_index_;
-  scoped_refptr<PluginDataStream>          plugin_data_stream_;
+  scoped_refptr<PluginStreamUrl>           plugin_data_stream_;
   GURL                                     instance_url_;
 
   // This flag if true indicates that the plugin data would be passed from
