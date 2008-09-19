@@ -30,6 +30,7 @@ TEST_F(FindInPageControllerTest, FindInPageFrames) {
   GURL url = server.TestServerPageW(kFramePage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
+  WaitUntilTabCount(1);
 
   // Try incremental search (mimicking user typing in).
   EXPECT_EQ(18, tab->FindInPage(L"g",       FWD, IGNORE_CASE, false));
@@ -75,6 +76,7 @@ TEST_F(FindInPageControllerTest, FindUnSelectableText) {
   GURL url = server.TestServerPageW(kUserSelectPage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
+  WaitUntilTabCount(1);
 
   EXPECT_EQ(0, tab->FindInPage(L"text", FWD, IGNORE_CASE, false));
   EXPECT_EQ(0, tab->FindInPage(L"Non-existing string", FWD, IGNORE_CASE,
@@ -88,6 +90,7 @@ TEST_F(FindInPageControllerTest, DISABLED_FindCrash_Issue1341577) {
   GURL url = server.TestServerPageW(kCrashPage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
+  WaitUntilTabCount(1);
 
   // This would crash the tab. These must be the first two find requests issued
   // against the frame, otherwise an active frame pointer is set and it wont
@@ -108,12 +111,13 @@ TEST_F(FindInPageControllerTest, DISABLED_FindCrash_Issue1341577) {
 // 3) It takes longer than the time-slice given to each Find operation (100
 //    ms) to find one or more of those matches (so Find times out and has to try
 //    again from where it left off).
-TEST_F(FindInPageControllerTest, FindEnoughMatches_Issue1341577) {
+TEST_F(FindInPageControllerTest, FindEnoughMatches_Issue1155639) {
   TestServer server(L"chrome/test/data");
 
   GURL url = server.TestServerPageW(kTooFewMatchesPage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
+  WaitUntilTabCount(1);
 
   // This string appears 5 times at the bottom of a long page. If Find restarts
   // properly after a timeout, it will find 5 matches, not just 1.
@@ -128,6 +132,7 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
   GURL url = server.TestServerPageW(kFramePage);
   scoped_ptr<TabProxy> tabA(GetActiveTab());
   ASSERT_TRUE(tabA->NavigateToURL(url));
+  WaitUntilTabCount(1);
 
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get() != NULL);
