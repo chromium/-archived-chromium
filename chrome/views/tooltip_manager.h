@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_TOOLTIP_MANAGER_H__
-#define CHROME_VIEWS_TOOLTIP_MANAGER_H__
+#ifndef CHROME_VIEWS_TOOLTIP_MANAGER_H_
+#define CHROME_VIEWS_TOOLTIP_MANAGER_H_
 
 #include <windows.h>
 #include <string>
@@ -160,5 +160,4 @@ class TooltipManager {
 
 } // namespace ChromeViews
 
-#endif // CHROME_VIEWS_TOOLTIP_MANAGER_H__
-
+#endif // CHROME_VIEWS_TOOLTIP_MANAGER_H_

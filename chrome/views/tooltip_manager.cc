@@ -347,6 +347,15 @@ void TooltipManager::UpdateTooltip(int x, int y) {
 void TooltipManager::OnMouse(UINT u_msg, WPARAM w_param, LPARAM l_param) {
   int x = GET_X_LPARAM(l_param);
   int y = GET_Y_LPARAM(l_param);
+
+  if (u_msg >= WM_NCMOUSEMOVE && u_msg <= WM_NCXBUTTONDBLCLK) {
+    // NC message coordinates are in screen coordinates.
+    CRect frame_bounds;
+    view_container_->GetBounds(&frame_bounds, true);
+    x -= frame_bounds.left;
+    y -= frame_bounds.top;
+  }
+
   if (u_msg != WM_MOUSEMOVE || last_mouse_x_ != x || last_mouse_y_ != y) {
     last_mouse_x_ = x;
     last_mouse_y_ = y;
