@@ -24,7 +24,6 @@
  */
 
 #include "config.h"
-#include <windows.h>
 
 #pragma warning(push, 0)
 #include "Document.h"
