@@ -483,8 +483,14 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
     }
     metrics = browser_process->metrics_service();
     DCHECK(metrics);
-    // Start user experience metrics recording, if enabled.
-    metrics->SetRecording(local_state->GetBoolean(prefs::kMetricsIsRecording));
+    // If the user permits metrics reporting with the checkbox in the
+    // prefs, we turn on recording.
+    bool enabled = local_state->GetBoolean(prefs::kMetricsReportingEnabled);
+    enabled = true;
+
+    metrics->SetUserPermitsUpload(enabled);
+    if (enabled)
+      metrics->Start();
   }
   InstallJankometer(parsed_command_line);
 
@@ -505,7 +511,7 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   }
 
   if (metrics)
-    metrics->SetRecording(false);  // Force persistent save.
+    metrics->Stop();
 
   // browser_shutdown takes care of deleting browser_process, so we need to
   // release it.

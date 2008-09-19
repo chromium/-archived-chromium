@@ -29,7 +29,6 @@ inline const unsigned char* UnsignedChar(const char* input) {
 // static
 void MetricsLog::RegisterPrefs(PrefService* local_state) {
   local_state->RegisterListPref(prefs::kStabilityPluginStats);
-  local_state->RegisterBooleanPref(prefs::kMetricsIsRecording, true);
 }
 
 MetricsLog::MetricsLog(const std::string& client_id, int session_id)
