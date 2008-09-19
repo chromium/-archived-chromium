@@ -83,4 +83,4 @@ if env['PLATFORM'] == 'win32':
     'webwidget_impl.cc',
   ])
 
-env.ChromeStaticLibrary('Glue', input_files)
+env.ChromeStaticLibrary('glue', input_files)

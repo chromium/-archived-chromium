@@ -41,7 +41,7 @@ env_test.Prepend(
     # On Linux, dependencies must come after the libraries that depend on it.
     # base must come after net, bzip2 must come before base, etc.
     LIBS = [
-        'net',
+        'net',        # On Linux, dependencies must follow dependents.
         'bzip2',
         'base',
         'base_gfx',
@@ -60,8 +60,9 @@ env_test.Prepend(
         'WTF',
         'V8Bindings',
         'default_plugin',
-        'Glue',
+        'glue',
         'JavaScriptCore_pcre',
+        'port',
     ],
 )
 
@@ -70,7 +71,6 @@ if env_test['PLATFORM'] == 'win32':
   env_test.Prepend(
       LIBS = [
           'WebCore',
-          'Port',
       ],
   )
 
@@ -109,7 +109,6 @@ if env_test['PLATFORM'] == 'win32':
       'browser/browser.lib',
       'browser/views/browser_views.lib',
       'browser/debugger/debugger.lib',
-      'common/common.lib',
       'installer/util/util.lib',
       'libjscre.lib',
       'plugin/plugin.lib',
@@ -258,4 +257,3 @@ if env_test['PLATFORM'] in ('posix', 'win32'):
 
   i = env_test.Install('$TARGET_ROOT', unit_tests)
   Alias('chrome', i)
-
