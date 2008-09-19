@@ -819,6 +819,18 @@ TEST_F(FileUtilTest, ReplaceExtensionTest) {
   }
 }
 
+// Make sure ReplaceExtension doesn't replace an extension that occurs as one of
+// the directory names of the path.
+TEST_F(FileUtilTest, ReplaceExtensionTestWithPathSeparators) {
+  std::wstring path;
+  file_util::AppendToPath(&path, L"foo.bar");
+  file_util::AppendToPath(&path, L"foo");
+  // '/foo.bar/foo' with extension '.baz'
+  std::wstring result_path = path;
+  file_util::ReplaceExtension(&result_path, L".baz");
+  EXPECT_EQ(path + L".baz", result_path);
+}
+
 TEST_F(FileUtilTest, FileEnumeratorTest) {
   // Test an empty directory.
   file_util::FileEnumerator f0(test_dir_, true,

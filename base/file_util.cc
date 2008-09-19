@@ -194,14 +194,36 @@ void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char) {
 #endif
 }
 
+// Appends the extension to file adding a '.' if extension doesn't contain one.
+// This does nothing if extension is empty or '.'. This is used internally by
+// ReplaceExtension.
+static void AppendExtension(const std::wstring& extension,
+                            std::wstring* file) {
+  if (!extension.empty() && extension != L".") {
+    if (extension[0] != L'.')
+      file->append(L".");
+    file->append(extension);
+  }
+}
+
 void ReplaceExtension(std::wstring* file_name, const std::wstring& extension) {
   const std::wstring::size_type last_dot = file_name->rfind(L'.');
-  std::wstring result = file_name->substr(0, last_dot);
-  if (!extension.empty() && extension != L".") {
-    if (extension.at(0) != L'.')
-      result.append(L".");
-    result.append(extension);
+  if (last_dot == std::wstring::npos) {
+    // No extension, just append the supplied extension.
+    AppendExtension(extension, file_name);
+    return;
   }
+  const std::wstring::size_type last_separator =
+      file_name->rfind(kPathSeparator);
+  if (last_separator != std::wstring::npos && last_dot < last_separator) {
+    // File name doesn't have extension, but one of the directories does; don't
+    // replace it, just append the supplied extension. For example
+    // 'c:\tmp.bar\foo'.
+    AppendExtension(extension, file_name);
+    return;
+  }
+  std::wstring result = file_name->substr(0, last_dot);
+  AppendExtension(extension, &result);
   file_name->swap(result);
 }
 
