@@ -101,44 +101,44 @@ TEST(X509CertificateTest, BasicParsing) {
   X509Certificate *google_cert = X509Certificate::CreateFromBytes(
       reinterpret_cast<const char*>(google_der), sizeof(google_der));
   
-  ASSERT_NE(google_cert, static_cast<X509Certificate *>(NULL));
+  ASSERT_NE(static_cast<X509Certificate *>(NULL), google_cert);
 
   const X509Certificate::Principal& subject = google_cert->subject();
-  EXPECT_EQ(subject.common_name, "www.google.com");
-  EXPECT_EQ(subject.locality_name, "Mountain View");
-  EXPECT_EQ(subject.state_or_province_name, "California");
-  EXPECT_EQ(subject.country_name, "US");
-  EXPECT_EQ(subject.street_addresses.size(), 0U);
-  EXPECT_EQ(subject.organization_names.size(), 1U);
-  EXPECT_EQ(subject.organization_names[0], "Google Inc");
-  EXPECT_EQ(subject.organization_unit_names.size(), 0U);
-  EXPECT_EQ(subject.domain_components.size(), 0U);
+  EXPECT_EQ("www.google.com", subject.common_name);
+  EXPECT_EQ("Mountain View", subject.locality_name);
+  EXPECT_EQ("California", subject.state_or_province_name);
+  EXPECT_EQ("US", subject.country_name);
+  EXPECT_EQ(0U, subject.street_addresses.size());
+  EXPECT_EQ(1U, subject.organization_names.size());
+  EXPECT_EQ("Google Inc", subject.organization_names[0]);
+  EXPECT_EQ(0U, subject.organization_unit_names.size());
+  EXPECT_EQ(0U, subject.domain_components.size());
   
   const X509Certificate::Principal& issuer = google_cert->issuer();
-  EXPECT_EQ(issuer.common_name, "Thawte SGC CA");
-  EXPECT_EQ(issuer.locality_name, "");
-  EXPECT_EQ(issuer.state_or_province_name, "");
-  EXPECT_EQ(issuer.country_name, "ZA");
-  EXPECT_EQ(issuer.street_addresses.size(), 0U);
-  EXPECT_EQ(issuer.organization_names.size(), 1U);
-  EXPECT_EQ(issuer.organization_names[0], "Thawte Consulting (Pty) Ltd.");
-  EXPECT_EQ(issuer.organization_unit_names.size(), 0U);
-  EXPECT_EQ(issuer.domain_components.size(), 0U);
+  EXPECT_EQ("Thawte SGC CA", issuer.common_name);
+  EXPECT_EQ("", issuer.locality_name);
+  EXPECT_EQ("", issuer.state_or_province_name);
+  EXPECT_EQ("ZA", issuer.country_name);
+  EXPECT_EQ(0U, issuer.street_addresses.size());
+  EXPECT_EQ(1U, issuer.organization_names.size());
+  EXPECT_EQ("Thawte Consulting (Pty) Ltd.", issuer.organization_names[0]);
+  EXPECT_EQ(0U, issuer.organization_unit_names.size());
+  EXPECT_EQ(0U, issuer.domain_components.size());
   
   const Time& valid_start = google_cert->valid_start();
-  EXPECT_EQ(valid_start.ToInternalValue(), GG_LONGLONG(12854221375000000));
+  EXPECT_EQ(GG_LONGLONG(12854221375000000), valid_start.ToInternalValue());
   
   const Time& valid_expiry = google_cert->valid_expiry();
-  EXPECT_EQ(valid_expiry.ToInternalValue(), GG_LONGLONG(12885757375000000));
+  EXPECT_EQ(GG_LONGLONG(12885757375000000), valid_expiry.ToInternalValue());
   
   const X509Certificate::Fingerprint& fingerprint = google_cert->fingerprint();
   for (size_t i = 0; i < 20; ++i)
-    EXPECT_EQ(fingerprint.data[i], google_fingerprint[i]);
+    EXPECT_EQ(google_fingerprint[i], fingerprint.data[i]);
 
   std::vector<std::string> dns_names;
   google_cert->GetDNSNames(&dns_names);
-  EXPECT_EQ(dns_names.size(), 1U);
-  EXPECT_EQ(dns_names[0], "www.google.com");
+  EXPECT_EQ(1U, dns_names.size());
+  EXPECT_EQ("www.google.com", dns_names[0]);
 }
 
 // TODO(avi): Tests needed
