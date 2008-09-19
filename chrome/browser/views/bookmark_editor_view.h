@@ -7,13 +7,13 @@
 
 #include <set>
 
-#include "chrome/views/tree_node_model.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/views/checkbox.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/text_field.h"
+#include "chrome/views/tree_node_model.h"
 
 namespace ChromeViews {
 class Window;
@@ -40,21 +40,24 @@ class BookmarkEditorView : public ChromeViews::View,
                            public Menu::Delegate,
                            public BookmarkModelObserver {
   FRIEND_TEST(BookmarkEditorViewTest, ChangeParent);
+  FRIEND_TEST(BookmarkEditorViewTest, ChangeParentAndURL);
   FRIEND_TEST(BookmarkEditorViewTest, ChangeURLToExistingURL);
   FRIEND_TEST(BookmarkEditorViewTest, EditTitleKeepsPosition);
   FRIEND_TEST(BookmarkEditorViewTest, EditURLKeepsPosition);
   FRIEND_TEST(BookmarkEditorViewTest, ModelsMatch);
   FRIEND_TEST(BookmarkEditorViewTest, MoveToNewParent);
+  FRIEND_TEST(BookmarkEditorViewTest, NewURL);
  public:
-  // Shows the BookmarkEditorView editing the specified entry.
+  // Shows the BookmarkEditorView editing |node|. If |node| is NULL a new entry
+  // is created initially parented to |parent|.
   static void Show(HWND parent_window,
                    Profile* profile,
-                   const GURL& url,
-                   const std::wstring& title);
+                   BookmarkNode* parent,
+                   BookmarkNode* node);
 
   BookmarkEditorView(Profile* profile,
-                     const GURL& url,
-                     const std::wstring& title);
+                     BookmarkNode* parent,
+                     BookmarkNode* node);
 
   virtual ~BookmarkEditorView();
 
@@ -135,7 +138,7 @@ class BookmarkEditorView : public ChromeViews::View,
 
   // BookmarkModel observer methods. Any structural change results in
   // resetting the tree model.
-  virtual void Loaded(BookmarkModel* model);
+  virtual void Loaded(BookmarkModel* model) { }
   virtual void BookmarkNodeMoved(BookmarkModel* model,
                                  BookmarkNode* old_parent,
                                  int old_index,
@@ -153,9 +156,7 @@ class BookmarkEditorView : public ChromeViews::View,
                                          BookmarkNode* node) {}
 
   // Resets the model of the tree and updates the various buttons appropriately.
-  // If first_time is true, Reset is being invoked from the constructor or
-  // once the bookmark bar has finished loading.
-  void Reset(bool first_time);
+  void Reset();
 
   // Expands all the nodes in the tree and selects the parent node of the
   // url we're editing or the most recent parent if the url being editted isn't
@@ -233,14 +234,14 @@ class BookmarkEditorView : public ChromeViews::View,
   // Used for editing the title.
   ChromeViews::TextField title_tf_;
 
-  // URL we were created with.
-  const GURL url_;
+  // Initial parent to select. Is only used if node_ is NULL.
+  BookmarkNode* parent_;
+
+  // Node being edited. Is NULL if creating a new node.
+  BookmarkNode* node_;
 
   // The context menu.
   scoped_ptr<Menu> context_menu_;
-
-  // Title of the url to display.
-  std::wstring title_;
 
   // Mode used to create nodes from.
   BookmarkModel* bb_model_;

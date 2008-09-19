@@ -1374,7 +1374,7 @@ void WebContents::WebAppImagesChanged(WebApp* web_app) {
 void WebContents::UpdateStarredStateForCurrentURL() {
   BookmarkModel* model = profile()->GetBookmarkModel();
   const bool old_state = is_starred_;
-  is_starred_ = (model && model->GetNodeByURL(GetURL()));
+  is_starred_ = (model && model->IsBookmarked(GetURL()));
 
   if (is_starred_ != old_state && delegate())
     delegate()->URLStarredChanged(this, is_starred_);

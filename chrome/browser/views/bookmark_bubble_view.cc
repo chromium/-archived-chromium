@@ -163,8 +163,9 @@ BookmarkBubbleView::BookmarkBubbleView(InfoBubbleDelegate* delegate,
       profile_(profile),
       url_(url),
       newly_bookmarked_(newly_bookmarked),
-      parent_model_(profile_->GetBookmarkModel(),
-                    profile_->GetBookmarkModel()->GetNodeByURL(url)) {
+      parent_model_(
+          profile_->GetBookmarkModel(),
+          profile_->GetBookmarkModel()->GetMostRecentlyAddedNodeForURL(url)) {
   Init();
 }
 
@@ -255,7 +256,7 @@ void BookmarkBubbleView::Init() {
 
 std::wstring BookmarkBubbleView::GetTitle() {
   BookmarkModel* bookmark_model= profile_->GetBookmarkModel();
-  BookmarkNode* node = bookmark_model->GetNodeByURL(url_);
+  BookmarkNode* node = bookmark_model->GetMostRecentlyAddedNodeForURL(url_);
   if (node)
     return node->GetTitle();
   else
@@ -289,7 +290,7 @@ void BookmarkBubbleView::ItemChanged(ComboBox* combo_box,
     return;
   }
   BookmarkModel* model = profile_->GetBookmarkModel();
-  BookmarkNode* node = model->GetNodeByURL(url_);
+  BookmarkNode* node = model->GetMostRecentlyAddedNodeForURL(url_);
   if (node) {
     BookmarkNode* new_parent = parent_model_.GetNodeAt(new_index);
     if (new_parent != node->GetParent()) {
@@ -331,6 +332,9 @@ void BookmarkBubbleView::RemoveBookmark() {
 }
 
 void BookmarkBubbleView::ShowEditor() {
+  BookmarkNode* node =
+      profile_->GetBookmarkModel()->GetMostRecentlyAddedNodeForURL(url_);
+
   // The user may have edited the title, commit it now.
   SetNodeTitleFromTextField();
 
@@ -351,12 +355,13 @@ void BookmarkBubbleView::ShowEditor() {
   // the delete and all that.
   Close();
 
-  BookmarkEditorView::Show(parent, profile_, url_, title_);
+  if (node)
+    BookmarkEditorView::Show(parent, profile_, NULL, node);
 }
 
 void BookmarkBubbleView::SetNodeTitleFromTextField() {
   BookmarkModel* model = profile_->GetBookmarkModel();
-  BookmarkNode* node = model->GetNodeByURL(url_);
+  BookmarkNode* node = model->GetMostRecentlyAddedNodeForURL(url_);
   if (node) {
     const std::wstring new_title = title_tf_->GetText();
     if (new_title != node->GetTitle()) {

@@ -265,19 +265,45 @@ void BookmarkModel::SetTitle(BookmarkNode* node,
                     BookmarkNodeChanged(this, node));
 }
 
-BookmarkNode* BookmarkModel::GetNodeByURL(const GURL& url) {
+void BookmarkModel::GetNodesByURL(const GURL& url,
+                                  std::vector<BookmarkNode*>* nodes) {
   AutoLock url_lock(url_lock_);
   BookmarkNode tmp_node(this, url);
   NodesOrderedByURLSet::iterator i = nodes_ordered_by_url_set_.find(&tmp_node);
-  return (i != nodes_ordered_by_url_set_.end()) ? *i : NULL;
+  while (i != nodes_ordered_by_url_set_.end() && (*i)->GetURL() == url) {
+    nodes->push_back(*i);
+    ++i;
+  }
+}
+
+BookmarkNode* BookmarkModel::GetMostRecentlyAddedNodeForURL(const GURL& url) {
+  std::vector<BookmarkNode*> nodes;
+  GetNodesByURL(url, &nodes);
+  if (nodes.empty())
+    return NULL;
+
+  std::sort(nodes.begin(), nodes.end(), &MoreRecentlyAdded);
+  return nodes.front();
 }
 
 void BookmarkModel::GetBookmarks(std::vector<GURL>* urls) {
   AutoLock url_lock(url_lock_);
+  const GURL* last_url = NULL;
   for (NodesOrderedByURLSet::iterator i = nodes_ordered_by_url_set_.begin();
        i != nodes_ordered_by_url_set_.end(); ++i) {
-    urls->push_back((*i)->GetURL());
+    const GURL* url = &((*i)->url_);
+    // Only add unique URLs.
+    if (!last_url || *url != *last_url)
+      urls->push_back(*url);
+    last_url = url;
   }
+}
+
+bool BookmarkModel::IsBookmarked(const GURL& url) {
+  AutoLock url_lock(url_lock_);
+  BookmarkNode tmp_node(this, url);
+  return (nodes_ordered_by_url_set_.find(&tmp_node) !=
+          nodes_ordered_by_url_set_.end());
 }
 
 BookmarkNode* BookmarkModel::GetNodeByID(int id) {
@@ -299,7 +325,7 @@ BookmarkNode* BookmarkModel::AddGroup(
   new_node->SetTitle(title);
   new_node->type_ = history::StarredEntry::USER_GROUP;
 
-  return AddNode(parent, index, new_node);
+  return AddNode(parent, index, new_node, false);
 }
 
 BookmarkNode* BookmarkModel::AddURL(BookmarkNode* parent,
@@ -321,12 +347,7 @@ BookmarkNode* BookmarkModel::AddURLWithCreationTime(
     return NULL;
   }
 
-  BookmarkNode* existing_node = GetNodeByURL(url);
-  if (existing_node) {
-    Move(existing_node, parent, index);
-    SetTitle(existing_node, title);
-    return existing_node;
-  }
+  bool was_bookmarked = IsBookmarked(url);
 
   SetDateGroupModified(parent, creation_time);
 
@@ -338,19 +359,28 @@ BookmarkNode* BookmarkModel::AddURLWithCreationTime(
   AutoLock url_lock(url_lock_);
   nodes_ordered_by_url_set_.insert(new_node);
 
-  return AddNode(parent, index, new_node);
+  return AddNode(parent, index, new_node, was_bookmarked);
 }
 
 void BookmarkModel::SetURLStarred(const GURL& url,
                                   const std::wstring& title,
                                   bool is_starred) {
-  BookmarkNode* node = GetNodeByURL(url);
-  if (is_starred && !node) {
-    // Add the url.
+  std::vector<BookmarkNode*> bookmarks;
+  GetNodesByURL(url, &bookmarks);
+  bool bookmarks_exist = !bookmarks.empty();
+  if (is_starred == bookmarks_exist)
+    return;  // Nothing to do, state already matches.
+
+  if (is_starred) {
+    // Create a bookmark.
     BookmarkNode* parent = GetParentForNewNodes();
     AddURL(parent, parent->GetChildCount(), title, url);
-  } else if (!is_starred && node) {
-    Remove(node->GetParent(), node->GetParent()->IndexOfChild(node));
+  } else {
+    // Remove all the bookmarks.
+    for (size_t i = 0; i < bookmarks.size(); ++i) {
+      BookmarkNode* node = bookmarks[i];
+      Remove(node->GetParent(), node->GetParent()->IndexOfChild(node));
+    }
   }
 }
 
@@ -377,6 +407,10 @@ void BookmarkModel::RemoveNode(BookmarkNode* node,
     // such, this doesn't explicitly grab the lock.
     NodesOrderedByURLSet::iterator i = nodes_ordered_by_url_set_.find(node);
     DCHECK(i != nodes_ordered_by_url_set_.end());
+    // i points to the first node with the URL, advance until we find the
+    // node we're removing.
+    while (*i != node)
+      ++i;
     nodes_ordered_by_url_set_.erase(i);
     removed_urls->insert(node->GetURL());
   }
@@ -480,6 +514,16 @@ void BookmarkModel::RemoveAndDeleteNode(BookmarkNode* delete_me) {
   {
     AutoLock url_lock(url_lock_);
     RemoveNode(node.get(), &details.changed_urls);
+
+    // RemoveNode adds an entry to changed_urls for each node of type URL. As we
+    // allow duplicates we need to remove any entries that are still bookmarked.
+    for (std::set<GURL>::iterator i = details.changed_urls.begin();
+         i != details.changed_urls.end(); ){
+      if (IsBookmarked(*i))
+        i = details.changed_urls.erase(i);
+      else
+        ++i;
+    }
   }
 
   if (store_.get())
@@ -487,6 +531,11 @@ void BookmarkModel::RemoveAndDeleteNode(BookmarkNode* delete_me) {
 
   FOR_EACH_OBSERVER(BookmarkModelObserver, observers_,
                     BookmarkNodeRemoved(this, parent, index));
+
+  if (details.changed_urls.empty()) {
+    // No point in sending out notification if the starred state didn't change.
+    return;
+  }
 
   if (profile_) {
     HistoryService* history =
@@ -502,7 +551,8 @@ void BookmarkModel::RemoveAndDeleteNode(BookmarkNode* delete_me) {
 
 BookmarkNode* BookmarkModel::AddNode(BookmarkNode* parent,
                                      int index,
-                                     BookmarkNode* node) {
+                                     BookmarkNode* node,
+                                     bool was_bookmarked) {
   parent->Add(index, node);
 
   if (store_.get())
@@ -511,7 +561,7 @@ BookmarkNode* BookmarkModel::AddNode(BookmarkNode* parent,
   FOR_EACH_OBSERVER(BookmarkModelObserver, observers_,
                     BookmarkNodeAdded(this, parent, index));
 
-  if (node->GetType() == history::StarredEntry::URL) {
+  if (node->GetType() == history::StarredEntry::URL && !was_bookmarked) {
     history::URLsStarredDetails details(true);
     details.changed_urls.insert(node->GetURL());
     NotificationService::current()->Notify(NOTIFY_URLS_STARRED,
@@ -662,9 +712,11 @@ void BookmarkModel::Observe(NotificationType type,
       Details<history::FavIconChangeDetails> favicon_details(details);
       for (std::set<GURL>::const_iterator i = favicon_details->urls.begin();
            i != favicon_details->urls.end(); ++i) {
-        BookmarkNode* node = GetNodeByURL(*i);
-        if (node) {
+        std::vector<BookmarkNode*> nodes;
+        GetNodesByURL(*i, &nodes);
+        for (size_t i = 0; i < nodes.size(); ++i) {
           // Got an updated favicon, for a URL, do a new request.
+          BookmarkNode* node = nodes[i];
           node->InvalidateFavicon();
           CancelPendingFavIconLoadRequests(node);
           FOR_EACH_OBSERVER(BookmarkModelObserver, observers_,

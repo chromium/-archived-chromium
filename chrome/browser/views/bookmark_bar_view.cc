@@ -145,6 +145,21 @@ static const SkColor kInstructionsColor = SkColorSetRGB(128, 128, 142);
 
 namespace {
 
+// Calculates the drop operation given the event and supported set of
+// operations.
+int PreferredDropOperation(const DropTargetEvent& event, int operation) {
+  int common_ops = (event.GetSourceOperations() & operation);
+  if (!common_ops)
+    return 0;
+  if (DragDropTypes::DRAG_COPY & common_ops)
+    return DragDropTypes::DRAG_COPY;
+  if (DragDropTypes::DRAG_LINK & common_ops)
+    return DragDropTypes::DRAG_LINK;
+  if (DragDropTypes::DRAG_MOVE & common_ops)
+    return DragDropTypes::DRAG_MOVE;
+  return DragDropTypes::DRAG_NONE;
+}
+
 // Returns the tooltip text for the specified url and title. The returned
 // text is clipped to fit within the bounds of the monitor.
 //
@@ -420,22 +435,15 @@ class MenuRunner : public ChromeViews::MenuDelegate,
     if (drop_data_.is_url)
       return true;
 
-    if (drop_data_.profile_id != view_->GetProfile()->GetID()) {
-      // Always accept drags of bookmark groups from other profiles.
+    BookmarkNode* drag_node = drop_data_.GetNode(view_->GetProfile());
+    if (!drag_node) {
+      // Dragging a group from another profile, always accept.
       return true;
     }
     // Drag originated from same profile and is not a URL. Only accept it if
     // the dragged node is not a parent of the node menu represents.
     BookmarkNode* drop_node = menu_id_to_node_map_[menu->GetCommand()];
     DCHECK(drop_node);
-    BookmarkNode* drag_node =
-        drop_data_.GetNode(view_->GetProfile()->GetBookmarkModel());
-    if (!drag_node) {
-      // Hmmm, can't find the dragged node. This is generally an error
-      // condition and we won't try and do anything fancy.
-      NOTREACHED();
-      return false;
-    }
     BookmarkNode* node = drop_node;
     while (drop_node && drop_node != drag_node)
       drop_node = drop_node->GetParent();
@@ -456,7 +464,7 @@ class MenuRunner : public ChromeViews::MenuDelegate,
       index_to_drop_at = node->GetChildCount();
     }
     DCHECK(drop_parent);
-    return view_->CalculateDropOperation(drop_data_, drop_parent,
+    return view_->CalculateDropOperation(event, drop_data_, drop_parent,
                                          index_to_drop_at);
   }
 
@@ -929,6 +937,7 @@ int BookmarkBarView::OnDragUpdated(const DropTargetEvent& event) {
 
   if (drop_info_->valid &&
       (drop_info_->x == event.x() && drop_info_->y == event.y())) {
+    // The location of the mouse didn't change, return the last operation.
     return drop_info_->drag_operation;
   }
 
@@ -948,6 +957,8 @@ int BookmarkBarView::OnDragUpdated(const DropTargetEvent& event) {
       drop_info_->drop_on == drop_on &&
       drop_info_->is_over_overflow == is_over_overflow &&
       drop_info_->is_over_other == is_over_other) {
+    // The position we're going to drop didn't change, return the last drag
+    // operation we calculated.
     return drop_info_->drag_operation;
   }
 
@@ -1290,8 +1301,7 @@ void BookmarkBarView::WriteDragData(BookmarkNode* node,
                                     OSExchangeData* data) {
   DCHECK(node && data);
   BookmarkDragData drag_data(node);
-  drag_data.profile_id = GetProfile()->GetID();
-  drag_data.Write(data);
+  drag_data.Write(profile_, data);
 }
 
 int BookmarkBarView::GetDragOperations(View* sender, int x, int y) {
@@ -1591,7 +1601,10 @@ int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
   } else if (!GetBookmarkButtonCount()) {
     // No bookmarks, accept the drop.
     *index = 0;
-    return DragDropTypes::DRAG_COPY;
+    int ops = data.GetNode(profile_)
+        ? DragDropTypes::DRAG_MOVE
+        : DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_LINK;
+    return PreferredDropOperation(event, ops);
   }
 
   for (int i = 0; i < GetBookmarkButtonCount() &&
@@ -1650,49 +1663,33 @@ int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
         *is_over_other ? model_->other_node() :
                          model_->GetBookmarkBarNode()->GetChild(*index);
     int operation =
-        CalculateDropOperation(data, parent, parent->GetChildCount());
-    if (!operation && !data.is_url &&
-        data.profile_id == GetProfile()->GetID()) {
-      if (data.GetNode(model_) == parent) {
-        // Don't open a menu if the node being dragged is the the menu to
-        // open.
-        *drop_on = false;
-      }
+        CalculateDropOperation(event, data, parent, parent->GetChildCount());
+    if (!operation && !data.is_url && data.GetNode(profile_) == parent) {
+      // Don't open a menu if the node being dragged is the the menu to
+      // open.
+      *drop_on = false;
     }
     return operation;
   } else {
-    return CalculateDropOperation(data, model_->GetBookmarkBarNode(), *index);
+    return CalculateDropOperation(event, data, model_->GetBookmarkBarNode(),
+                                  *index);
   }
 }
 
-int BookmarkBarView::CalculateDropOperation(const BookmarkDragData& data,
+int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
+                                            const BookmarkDragData& data,
                                             BookmarkNode* parent,
                                             int index) {
   if (!CanDropAt(data, parent, index))
     return DragDropTypes::DRAG_NONE;
 
-  if (data.is_url) {
-    // User is dragging a URL.
-    BookmarkNode* node = model_->GetNodeByURL(data.url);
-    if (!node) {
-      // We don't have a node with this url.
-      return DragDropTypes::DRAG_COPY;
-    }
-    // Technically we're going to move, but most sources export as copy so that
-    // if we don't accept copy we won't accept the drop.
-    return DragDropTypes::DRAG_MOVE | DragDropTypes::DRAG_COPY;
-  } else if (data.profile_id == GetProfile()->GetID()) {
-    // Dropping a group from the same profile results in a move.
-    BookmarkNode* node = data.GetNode(model_);
-    if (!node) {
-      // Generally shouldn't get here, we originated the drag but couldn't
-      // find the node.
-      return DragDropTypes::DRAG_NONE;
-    }
+  if (data.GetNode(profile_)) {
+    // User is dragging from this profile: move.
     return DragDropTypes::DRAG_MOVE;
   } else {
-    // Dropping a group from different profile. Always accept.
-    return DragDropTypes::DRAG_COPY;
+    // User is dragging from another app, copy.
+    return PreferredDropOperation(
+        event, DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_LINK);
   }
 }
 
@@ -1700,29 +1697,19 @@ bool BookmarkBarView::CanDropAt(const BookmarkDragData& data,
                                 BookmarkNode* parent,
                                 int index) {
   DCHECK(data.is_valid);
-  if (data.is_url) {
-    BookmarkNode* existing_node = model_->GetNodeByURL(data.url);
-    if (existing_node && existing_node->GetParent() == parent) {
-      const int existing_index = parent->IndexOfChild(existing_node);
+  BookmarkNode* dragged_node = data.GetNode(profile_);
+  if (dragged_node) {
+    if (dragged_node->GetParent() == parent) {
+      const int existing_index = parent->IndexOfChild(dragged_node);
       if (index == existing_index || existing_index + 1 == index)
         return false;
     }
-    return true;
-  } else if (data.profile_id == profile_->GetID()) {
-    BookmarkNode* existing_node = data.GetNode(model_);
-    if (existing_node) {
-      if (existing_node->GetParent() == parent) {
-        const int existing_index = parent->IndexOfChild(existing_node);
-        if (index == existing_index || existing_index + 1 == index)
-          return false;
-      }
-      // Allow the drop only if the node we're going to drop on isn't a
-      // descendant of the dragged node.
-      BookmarkNode* test_node = parent;
-      while (test_node && test_node != existing_node)
-        test_node = test_node->GetParent();
-      return (test_node == NULL);
-    }
+    // Allow the drop only if the node we're going to drop on isn't a
+    // descendant of the dragged node.
+    BookmarkNode* test_node = parent;
+    while (test_node && test_node != dragged_node)
+      test_node = test_node->GetParent();
+    return (test_node == NULL);
   }  // else case clones, always allow.
   return true;
 }
@@ -1731,31 +1718,22 @@ bool BookmarkBarView::CanDropAt(const BookmarkDragData& data,
 int BookmarkBarView::PerformDropImpl(const BookmarkDragData& data,
                                      BookmarkNode* parent_node,
                                      int index) {
-  if (data.is_url) {
-    // User is dragging a URL.
-    BookmarkNode* node = model_->GetNodeByURL(data.url);
-    if (!node) {
-      std::wstring title = data.title;
-      if (title.empty()) {
-        // No title, use the host.
-        title = UTF8ToWide(data.url.host());
-        if (title.empty())
-          title = l10n_util::GetString(IDS_BOOMARK_BAR_UNKNOWN_DRAG_TITLE);
-      }
-      model_->AddURL(parent_node, index, title, data.url);
-      return DragDropTypes::DRAG_COPY;
-    }
-    model_->Move(node, parent_node, index);
+  BookmarkNode* dragged_node = data.GetNode(profile_);
+  if (dragged_node) {
+    // Drag from same profile, do a move.
+    model_->Move(dragged_node, parent_node, index);
     return DragDropTypes::DRAG_MOVE;
-  } else if (data.profile_id == GetProfile()->GetID()) {
-    BookmarkNode* node = data.GetNode(model_);
-    if (!node) {
-      // Generally shouldn't get here, we originated the drag but couldn't
-      // find the node. Do nothing.
-      return DragDropTypes::DRAG_COPY;
+  } else if (data.is_url) {
+    // New URL, add it at the specified location.
+    std::wstring title = data.title;
+    if (title.empty()) {
+      // No title, use the host.
+      title = UTF8ToWide(data.url.host());
+      if (title.empty())
+        title = l10n_util::GetString(IDS_BOOMARK_BAR_UNKNOWN_DRAG_TITLE);
     }
-    model_->Move(node, parent_node, index);
-    return DragDropTypes::DRAG_MOVE;
+    model_->AddURL(parent_node, index, title, data.url);
+    return DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_LINK;
   } else {
     // Dropping a group from different profile. Always accept.
     CloneDragData(data, parent_node, index);
@@ -1768,12 +1746,7 @@ void BookmarkBarView::CloneDragData(const BookmarkDragData& data,
                                     int index_to_add_at) {
   DCHECK(data.is_valid && model_);
   if (data.is_url) {
-    BookmarkNode* node = model_->GetNodeByURL(data.url);
-    if (node) {
-      model_->Move(node, parent, index_to_add_at);
-    } else {
-      model_->AddURL(parent, index_to_add_at, data.title, data.url);
-    }
+    model_->AddURL(parent, index_to_add_at, data.title, data.url);
   } else {
     BookmarkNode* new_folder = model_->AddGroup(parent, index_to_add_at,
                                                 data.title);
@@ -1800,7 +1773,7 @@ void BookmarkBarView::StartThrobbing() {
   if (!GetViewContainer())
     return;  // We're not showing, don't do anything.
 
-  BookmarkNode* node = model_->GetNodeByURL(bubble_url_);
+  BookmarkNode* node = model_->GetMostRecentlyAddedNodeForURL(bubble_url_);
   if (!node)
     return;  // Generally shouldn't happen.
 

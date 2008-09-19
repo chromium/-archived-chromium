@@ -823,10 +823,10 @@ void Browser::StarCurrentTabContents() {
 
   if (window_->GetStarButton()) {
     if (!window_->GetStarButton()->is_bubble_showing()) {
-      const bool newly_bookmarked = (model->GetNodeByURL(url) == NULL);
+      const bool newly_bookmarked = !model->IsBookmarked(url);
       if (newly_bookmarked) {
         model->SetURLStarred(url, entry->title(), true);
-        if (!model->GetNodeByURL(url)) {
+        if (!model->IsBookmarked(url)) {
           // Starring failed. This shouldn't happen.
           NOTREACHED();
           return;
@@ -834,7 +834,7 @@ void Browser::StarCurrentTabContents() {
       }
       window_->GetStarButton()->ShowStarBubble(url, newly_bookmarked);
     }
-  } else if (model->GetNodeByURL(url)) {
+  } else if (model->IsBookmarked(url)) {
     // If we can't find the star button and the user wanted to unstar it,
     // go ahead and unstar it without showing the bubble.
     model->SetURLStarred(url, std::wstring(), false);

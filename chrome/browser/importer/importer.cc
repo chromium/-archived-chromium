@@ -83,8 +83,8 @@ void ProfileWriter::AddBookmarkEntry(
   std::set<BookmarkNode*> groups_added_to;
   for (std::vector<BookmarkEntry>::const_iterator it = bookmark.begin();
        it != bookmark.end(); ++it) {
-    // Don't insert this url if it exists in model or url is not valid.
-    if (model->GetNodeByURL(it->url) != NULL || !it->url.is_valid())
+    // Don't insert this url if it isn't valid.
+    if (!it->url.is_valid())
       continue;
 
     // Set up groups in BookmarkModel in such a way that path[i] is

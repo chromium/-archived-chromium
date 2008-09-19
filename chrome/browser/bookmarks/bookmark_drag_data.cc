@@ -6,6 +6,7 @@
 
 #include "base/pickle.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
+#include "chrome/browser/profile.h"
 #include "chrome/common/os_exchange_data.h"
 
 static CLIPFORMAT clipboard_format = 0;
@@ -30,15 +31,16 @@ BookmarkDragData::BookmarkDragData(BookmarkNode* node)
     AddChildren(node);
 }
 
-void BookmarkDragData::Write(OSExchangeData* data) const {
+void BookmarkDragData::Write(Profile* profile, OSExchangeData* data) const {
   RegisterFormat();
 
   DCHECK(data);
 
-  if (is_url) {
+  if (is_url)
     data->SetURL(url, title);
-  }
   Pickle data_pickle;
+  data_pickle.WriteWString(profile->GetPath());
+  data_pickle.WriteInt(id_);
   WriteToPickle(&data_pickle);
   data->SetPickledData(clipboard_format, data_pickle);
 }
@@ -48,13 +50,15 @@ bool BookmarkDragData::Read(const OSExchangeData& data) {
 
   is_valid = data.GetURLAndTitle(&url, &title) && url.is_valid();
   is_url = is_valid;
-  profile_id.clear();
+  profile_path_.clear();
 
   if (data.HasFormat(clipboard_format)) {
     Pickle drag_data_pickle;
     if (data.GetPickledData(clipboard_format, &drag_data_pickle)) {
       void* data_iterator = NULL;
-      if (ReadFromPickle(&drag_data_pickle, &data_iterator)) {
+      if (drag_data_pickle.ReadWString(&data_iterator, &profile_path_) &&
+          drag_data_pickle.ReadInt(&data_iterator, &id_) &&
+          ReadFromPickle(&drag_data_pickle, &data_iterator)) {
         is_valid = true;
       }
     }
@@ -62,18 +66,17 @@ bool BookmarkDragData::Read(const OSExchangeData& data) {
   return is_valid;
 }
 
-BookmarkNode* BookmarkDragData::GetNode(BookmarkModel* model) const {
-  DCHECK(!is_url && id_ && is_valid);
-  return model->GetNodeByID(id_);
+BookmarkNode* BookmarkDragData::GetNode(Profile* profile) const {
+  DCHECK(is_valid);
+  return (profile->GetPath() == profile_path_) ?
+      profile->GetBookmarkModel()->GetNodeByID(id_) : NULL;
 }
 
 void BookmarkDragData::WriteToPickle(Pickle* pickle) const {
   pickle->WriteBool(is_url);
-  pickle->WriteWString(profile_id);
   pickle->WriteString(url.spec());
   pickle->WriteWString(title);
   if (!is_url) {
-    pickle->WriteInt(id_);
     pickle->WriteInt(static_cast<int>(children.size()));
     for (std::vector<BookmarkDragData>::const_iterator i = children.begin();
          i != children.end(); ++i) {
@@ -86,17 +89,13 @@ bool BookmarkDragData::ReadFromPickle(Pickle* pickle, void** iterator) {
   std::string url_spec;
   is_valid = false;
   if (!pickle->ReadBool(iterator, &is_url) ||
-      !pickle->ReadWString(iterator, &profile_id) ||
       !pickle->ReadString(iterator, &url_spec) ||
       !pickle->ReadWString(iterator, &title)) {
     return false;
   }
   url = GURL(url_spec);
   if (!is_url) {
-    id_ = 0;
     children.clear();
-    if (!pickle->ReadInt(iterator, &id_))
-      return false;
     int children_count;
     if (!pickle->ReadInt(iterator, &children_count))
       return false;
@@ -115,4 +114,3 @@ void BookmarkDragData::AddChildren(BookmarkNode* node) {
   for (int i = 0, max = node->GetChildCount(); i < max; ++i)
     children.push_back(BookmarkDragData(node->GetChild(i)));
 }
-

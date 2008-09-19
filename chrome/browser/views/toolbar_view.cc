@@ -10,6 +10,8 @@
 #include "base/path_service.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/app/theme/theme_resources.h"
+#include "chrome/browser/bookmarks/bookmark_drag_data.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/character_encoding.h"
@@ -668,6 +670,11 @@ int BrowserToolbarView::GetDragOperations(ChromeViews::View* sender,
       !tab_->GetURL().is_valid()) {
     return DragDropTypes::DRAG_NONE;
   }
+  if (profile_ && profile_->GetBookmarkModel() &&
+      profile_->GetBookmarkModel()->IsBookmarked(tab_->GetURL())) {
+    return DragDropTypes::DRAG_MOVE | DragDropTypes::DRAG_COPY |
+           DragDropTypes::DRAG_LINK;
+  }
   return DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_LINK;
 }
 
@@ -679,6 +686,18 @@ void BrowserToolbarView::WriteDragData(ChromeViews::View* sender,
       GetDragOperations(sender, press_x, press_y) != DragDropTypes::DRAG_NONE);
 
   UserMetrics::RecordAction(L"Toolbar_DragStar", profile_);
+
+  // If there is a bookmark for the URL, add the bookmark drag data for it. We
+  // do this to ensure the bookmark is moved, rather than creating an new
+  // bookmark.
+  if (profile_ && profile_->GetBookmarkModel()) {
+    BookmarkNode* node = profile_->GetBookmarkModel()->
+        GetMostRecentlyAddedNodeForURL(tab_->GetURL());
+    if (node) {
+      BookmarkDragData bookmark_data(node);
+      bookmark_data.Write(profile_, data);
+    }
+  }
 
   drag_utils::SetURLAndDragImage(tab_->GetURL(), tab_->GetTitle(),
                                  tab_->GetFavIcon(), data);

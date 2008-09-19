@@ -297,8 +297,7 @@ void BookmarkBarContextMenuController::ExecuteCommand(int id) {
 
       if (node_->GetType() == history::StarredEntry::URL) {
         BookmarkEditorView::Show(view_->GetViewContainer()->GetHWND(),
-                                 view_->GetProfile(), node_->GetURL(),
-                                 node_->GetTitle());
+                                 view_->GetProfile(), NULL, node_);
       } else {
         // Controller deletes itself when done.
         EditFolderController* controller = new EditFolderController(
@@ -319,7 +318,7 @@ void BookmarkBarContextMenuController::ExecuteCommand(int id) {
       UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_Add", profile);
 
       BookmarkEditorView::Show(view_->GetViewContainer()->GetHWND(),
-                               view_->GetProfile(), GURL(), std::wstring());
+                               view_->GetProfile(), node_, NULL);
       break;
     }
 
@@ -373,4 +372,3 @@ BookmarkNode* BookmarkBarContextMenuController::
     return node_->GetParent();
   }
 }
-

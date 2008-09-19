@@ -18,6 +18,10 @@
 class TestingProfile : public Profile {
  public:
   TestingProfile();
+  // Creates a new profile by adding |count| to the end of the path. Use this
+  // when you need to have more than one TestingProfile running at the same
+  // time.
+  explicit TestingProfile(int count);
   virtual ~TestingProfile();
 
   // Creates the history service. If |delete_file| is true, the history file is
@@ -107,9 +111,10 @@ class TestingProfile : public Profile {
   virtual void SetName(const std::wstring& name) {
   }
   virtual std::wstring GetID() {
-    return std::wstring();
+    return id_;
   }
   virtual void SetID(const std::wstring& id) {
+    id_ = id;
   }
   virtual bool DidLastSessionExitCleanly() {
     return true;
@@ -170,6 +175,8 @@ class TestingProfile : public Profile {
   // Do we have a history service? This defaults to the value of
   // history_service, but can be explicitly set.
   bool has_history_service_;
+
+  std::wstring id_;
 };
 
 #endif  // CHROME_TEST_TESTING_PROFILE_H__

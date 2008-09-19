@@ -7,6 +7,7 @@
 #include "chrome/browser/bookmarks/bookmark_codec.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/test/testing_profile.h"
 #include "chrome/views/tree_node_model.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -169,7 +170,7 @@ TEST_F(BookmarkModelTest, AddURL) {
   ASSERT_EQ(title, new_node->GetTitle());
   ASSERT_TRUE(url == new_node->GetURL());
   ASSERT_EQ(history::StarredEntry::URL, new_node->GetType());
-  ASSERT_TRUE(new_node == model.GetNodeByURL(url));
+  ASSERT_TRUE(new_node == model.GetMostRecentlyAddedNodeForURL(url));
 
   EXPECT_TRUE(new_node->id() != root->id() &&
               new_node->id() != model.other_node()->id());
@@ -210,7 +211,7 @@ TEST_F(BookmarkModelTest, RemoveURL) {
   observer_details.AssertEquals(root, NULL, 0, -1);
 
   // Make sure there is no mapping for the URL.
-  ASSERT_TRUE(model.GetNodeByURL(url) == NULL);
+  ASSERT_TRUE(model.GetMostRecentlyAddedNodeForURL(url) == NULL);
 }
 
 TEST_F(BookmarkModelTest, RemoveGroup) {
@@ -233,7 +234,7 @@ TEST_F(BookmarkModelTest, RemoveGroup) {
   observer_details.AssertEquals(root, NULL, 0, -1);
 
   // Make sure there is no mapping for the URL.
-  ASSERT_TRUE(model.GetNodeByURL(url) == NULL);
+  ASSERT_TRUE(model.GetMostRecentlyAddedNodeForURL(url) == NULL);
 }
 
 TEST_F(BookmarkModelTest, SetTitle) {
@@ -274,7 +275,7 @@ TEST_F(BookmarkModelTest, Move) {
   model.Remove(root, 0);
   AssertObserverCount(0, 0, 1, 0);
   observer_details.AssertEquals(root, NULL, 0, -1);
-  EXPECT_TRUE(model.GetNodeByURL(url) == NULL);
+  EXPECT_TRUE(model.GetMostRecentlyAddedNodeForURL(url) == NULL);
   EXPECT_EQ(0, root->GetChildCount());
 }
 
@@ -367,6 +368,110 @@ TEST_F(BookmarkModelTest, GetBookmarksMatchingText) {
   model.GetBookmarksMatchingText(L"x", 2, &results);
   ASSERT_EQ(1U, results.size());
   EXPECT_EQ(n2, results[0].node);
+}
+
+// Makes sure GetMostRecentlyAddedNodeForURL stays in sync.
+TEST_F(BookmarkModelTest, GetMostRecentlyAddedNodeForURL) {
+  // Add a couple of nodes such that the following holds for the time of the
+  // nodes: n1 > n2
+  Time base_time = Time::Now();
+  const GURL url("http://foo.com/0");
+  BookmarkNode* n1 = model.AddURL(model.GetBookmarkBarNode(), 0, L"blah", url);
+  BookmarkNode* n2 = model.AddURL(model.GetBookmarkBarNode(), 1, L"blah", url);
+  n1->date_added_ = base_time + TimeDelta::FromDays(4);
+  n2->date_added_ = base_time + TimeDelta::FromDays(3);
+
+  // Make sure order is honored.
+  ASSERT_EQ(n1, model.GetMostRecentlyAddedNodeForURL(url));
+
+  // swap 1 and 2, then check again.
+  std::swap(n1->date_added_, n2->date_added_);
+  ASSERT_EQ(n2, model.GetMostRecentlyAddedNodeForURL(url));
+}
+
+// Makes sure GetBookmarks removes duplicates.
+TEST_F(BookmarkModelTest, GetBookmarksWithDups) {
+  const GURL url("http://foo.com/0");
+  model.AddURL(model.GetBookmarkBarNode(), 0, L"blah", url);
+  model.AddURL(model.GetBookmarkBarNode(), 1, L"blah", url);
+
+  std::vector<GURL> urls;
+  model.GetBookmarks(&urls);
+  EXPECT_EQ(1, urls.size());
+  ASSERT_TRUE(urls[0] == url);
+}
+
+namespace {
+
+// NotificationObserver implementation used in verifying we've received the
+// NOTIFY_URLS_STARRED method correctly.
+class StarredListener : public NotificationObserver {
+ public:
+  StarredListener() : notification_count_(0), details_(false) {
+    registrar_.Add(this, NOTIFY_URLS_STARRED, Source<Profile>(NULL));
+  }
+
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details) {
+    if (type == NOTIFY_URLS_STARRED) {
+      notification_count_++;
+      details_ = *(Details<history::URLsStarredDetails>(details).ptr());
+    }
+  }
+
+  // Number of times NOTIFY_URLS_STARRED has been observed.
+  int notification_count_;
+
+  // Details from the last NOTIFY_URLS_STARRED.
+  history::URLsStarredDetails details_;
+
+ private:
+  NotificationRegistrar registrar_;
+
+  DISALLOW_COPY_AND_ASSIGN(StarredListener);
+};
+
+}  // namespace
+
+// Makes sure NOTIFY_URLS_STARRED is sent correctly.
+TEST_F(BookmarkModelTest, NotifyURLsStarred) {
+  StarredListener listener;
+  const GURL url("http://foo.com/0");
+  BookmarkNode* n1 = model.AddURL(model.GetBookmarkBarNode(), 0, L"blah", url);
+
+  // Starred notification should be sent.
+  EXPECT_EQ(1, listener.notification_count_);
+  ASSERT_TRUE(listener.details_.starred);
+  ASSERT_EQ(1, listener.details_.changed_urls.size());
+  EXPECT_TRUE(url == *(listener.details_.changed_urls.begin()));
+  listener.notification_count_ = 0;
+  listener.details_.changed_urls.clear();
+
+  // Add another bookmark for the same URL. This should not send any
+  // notification.
+  BookmarkNode* n2 = model.AddURL(model.GetBookmarkBarNode(), 1, L"blah", url);
+
+  EXPECT_EQ(0, listener.notification_count_);
+
+  // Remove n2.
+  model.Remove(n2->GetParent(), 1);
+  n2 = NULL;
+
+  // Shouldn't have received any notification as n1 still exists with the same
+  // URL.
+  EXPECT_EQ(0, listener.notification_count_);
+
+  EXPECT_TRUE(model.GetMostRecentlyAddedNodeForURL(url) == n1);
+
+  // Remove n1.
+  model.Remove(n1->GetParent(), 0);
+
+  // Now we should get the notification.
+  EXPECT_EQ(1, listener.notification_count_);
+  ASSERT_FALSE(listener.details_.starred);
+  ASSERT_EQ(1, listener.details_.changed_urls.size());
+  EXPECT_TRUE(url == *(listener.details_.changed_urls.begin()));
 }
 
 namespace {
@@ -650,7 +755,7 @@ class BookmarkModelTestWithProfile2 : public BookmarkModelTestWithProfile {
     ASSERT_TRUE(child->GetURL() ==
                 GURL("http://www.google.com/intl/en/about.html"));
 
-    ASSERT_TRUE(bb_model_->GetNodeByURL(GURL("http://www.google.com")) != NULL);
+    ASSERT_TRUE(bb_model_->IsBookmarked(GURL("http://www.google.com")));
   }
 };
 

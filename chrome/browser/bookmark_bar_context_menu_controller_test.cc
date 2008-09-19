@@ -96,7 +96,7 @@ TEST_F(BookmarkBarContextMenuControllerTest, DeleteURL) {
   controller.ExecuteCommand(
       BookmarkBarContextMenuController::delete_bookmark_id);
   // Model shouldn't have URL anymore.
-  ASSERT_TRUE(model_->GetNodeByURL(url) == NULL);
+  ASSERT_FALSE(model_->IsBookmarked(url));
 }
 
 // Tests openning from the menu.

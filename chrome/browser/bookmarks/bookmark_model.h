@@ -18,6 +18,7 @@
 #include "googleurl/src/gurl.h"
 #include "skia/include/SkBitmap.h"
 
+class BookmarkEditorView;
 class BookmarkModel;
 class BookmarkCodec;
 class Profile;
@@ -32,10 +33,14 @@ class StarredURLDatabase;
 // star id and type. BookmarkNodes are returned from a BookmarkModel.
 //
 class BookmarkNode : public ChromeViews::TreeNode<BookmarkNode> {
+  friend class BookmarkEditorView;
   friend class BookmarkModel;
   friend class BookmarkCodec;
   friend class history::StarredURLDatabase;
+  FRIEND_TEST(BookmarkEditorViewTest, ChangeParentAndURL);
+  FRIEND_TEST(BookmarkEditorViewTest, EditURLKeepsPosition);
   FRIEND_TEST(BookmarkModelTest, MostRecentlyAddedEntries);
+  FRIEND_TEST(BookmarkModelTest, GetMostRecentlyAddedNodeForURL);
 
  public:
   BookmarkNode(BookmarkModel* model, const GURL& url);
@@ -114,7 +119,7 @@ class BookmarkNode : public ChromeViews::TreeNode<BookmarkNode> {
   // Time last modified. Only used for groups.
   Time date_group_modified_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(BookmarkNode);
+  DISALLOW_COPY_AND_ASSIGN(BookmarkNode);
 };
 
 // BookmarkModelObserver ------------------------------------------------------
@@ -161,15 +166,11 @@ class BookmarkModelObserver {
 // and groups. Two graphs are provided for the two entry points: those on
 // the bookmark bar, and those in the other folder.
 //
-// The methods of BookmarkModel update the internal structure immediately
-// and update the backend in the background.
-//
 // An observer may be attached to observer relevant events.
 //
 // You should NOT directly create a BookmarkModel, instead go through the
 // Profile.
 
-// TODO(sky): rename to BookmarkModel.
 class BookmarkModel : public NotificationObserver, public BookmarkService {
   friend class BookmarkNode;
   friend class BookmarkModelTest;
@@ -241,18 +242,19 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // Returns true if the model finished loading.
   bool IsLoaded() { return loaded_; }
 
-  // Returns the node with the specified URL, or NULL if there is no node with
-  // the specified URL. This method is thread safe.
-  BookmarkNode* GetNodeByURL(const GURL& url);
+  // Returns the set of nodes with the specified URL.
+  void GetNodesByURL(const GURL& url, std::vector<BookmarkNode*>* nodes);
+
+  // Returns the most recently added node for the url. Returns NULL if url is
+  // not bookmarked.
+  BookmarkNode* GetMostRecentlyAddedNodeForURL(const GURL& url);
 
   // Returns all the bookmarked urls. This method is thread safe.
   virtual void GetBookmarks(std::vector<GURL>* urls);
 
   // Returns true if there is a bookmark for the specified URL. This method is
   // thread safe. See BookmarkService for more details on this.
-  virtual bool IsBookmarked(const GURL& url) {
-    return GetNodeByURL(url) != NULL;
-  }
+  virtual bool IsBookmarked(const GURL& url);
 
   // Blocks until loaded; this is NOT invoked on the main thread. See
   // BookmarkService for more details on this.
@@ -267,8 +269,7 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
                          int index,
                          const std::wstring& title);
 
-  // Adds a url at the specified position. If there is already a node with the
-  // specified URL, it is moved to the new position.
+  // Adds a url at the specified position.
   BookmarkNode* AddURL(BookmarkNode* parent,
                        int index,
                        const std::wstring& title,
@@ -281,9 +282,9 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
                                        const GURL& url,
                                        const Time& creation_time);
 
-  // This is the convenience that makes sure the url is starred or not
-  // starred. If the URL is not currently starred, it is added to the
-  // most recent parent.
+  // This is the convenience that makes sure the url is starred or not starred.
+  // If is_starred is false, all bookmarks for URL are removed. If is_starred is
+  // true and there are no bookmarks for url, a bookmark is created.
   void SetURLStarred(const GURL& url,
                      const std::wstring& title,
                      bool is_starred);
@@ -305,7 +306,7 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // Overriden to notify the observer the favicon has been loaded.
   void FavIconLoaded(BookmarkNode* node);
 
-  // Removes the node from internal maps and recurces through all children. If
+  // Removes the node from internal maps and recurses through all children. If
   // the node is a url, its url is added to removed_urls.
   //
   // This does NOT delete the node.
@@ -339,10 +340,13 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // type specifies how the node should be removed.
   void RemoveAndDeleteNode(BookmarkNode* delete_me);
 
-  // Adds the node at the specified position, and sends notification.
+  // Adds the node at the specified position and sends notification. If
+  // was_bookmarked is true, it indicates a bookmark already existed for the
+  // URL.
   BookmarkNode* AddNode(BookmarkNode* parent,
                         int index,
-                        BookmarkNode* node);
+                        BookmarkNode* node,
+                        bool was_bookmarked);
 
   // Implementation of GetNodeByID.
   BookmarkNode* GetNodeByID(BookmarkNode* node, int id);
@@ -409,7 +413,7 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // urls.
   // WARNING: nodes_ordered_by_url_set_ is accessed on multiple threads. As
   // such, be sure and wrap all usage of it around url_lock_.
-  typedef std::set<BookmarkNode*,NodeURLComparator> NodesOrderedByURLSet;
+  typedef std::multiset<BookmarkNode*,NodeURLComparator> NodesOrderedByURLSet;
   NodesOrderedByURLSet nodes_ordered_by_url_set_;
   Lock url_lock_;
 

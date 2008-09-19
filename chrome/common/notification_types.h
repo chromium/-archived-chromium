@@ -355,7 +355,7 @@ enum NotificationType {
   // No details are expected.
   NOTIFY_AUTH_SUPPLIED,
 
-  // History, bookmarks --------------------------------------------------------
+  // History -------------------------------------------------------------------
 
   // Sent when a history service is created on the main thread. This is sent
   // after history is created, but before it has finished loading. Use
@@ -389,20 +389,22 @@ enum NotificationType {
   // the details is history::URLsDeletedDetails that lists the deleted URLs.
   NOTIFY_HISTORY_URLS_DELETED,
 
-  // This is sent when the "starred" button is clicked, toggling the
-  // starredness of a tab's current URL. The source is a Profile and the
-  // details is history::URLsStarredDetails that contains the list of URLs and
-  // whether they were starred or unstarred.
+  // Sent by history when the favicon of a URL changes.
+  // The source is the profile, and the details is
+  // history::FavIconChangeDetails (see history_notifications.h).
+  NOTIFY_FAVICON_CHANGED,
+
+  // Bookmarks -----------------------------------------------------------------
+
+  // Sent when the starred state of a URL changes. A URL is starred if there is
+  // at least one bookmark for it. The source is a Profile and the details is
+  // history::URLsStarredDetails that contains the list of URLs and whether
+  // they were starred or unstarred.
   NOTIFY_URLS_STARRED,
 
   // Sent when the bookmark bar model finishes loading. This source is the
   // Profile, and the details aren't used.
   NOTIFY_BOOKMARK_MODEL_LOADED,
-
-  // Sent by history when the favicon of a URL changes.
-  // The source is the profile, and the details is
-  // history::FavIconChangeDetails (see history_notifications.h).
-  NOTIFY_FAVICON_CHANGED,
 
   // Sent when the bookmark bubble is shown for a particular URL. The source
   // is the profile, the details the URL.

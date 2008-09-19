@@ -346,7 +346,8 @@ class BookmarkBarView : public ChromeViews::View,
 
   // Invokes CanDropAt to determine if this is a valid location for the data,
   // then returns the appropriate drag operation based on the data.
-  int CalculateDropOperation(const BookmarkDragData& data,
+  int CalculateDropOperation(const ChromeViews::DropTargetEvent& event,
+                             const BookmarkDragData& data,
                              BookmarkNode* parent,
                              int index);
 

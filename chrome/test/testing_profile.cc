@@ -4,6 +4,7 @@
 
 #include "chrome/test/testing_profile.h"
 
+#include "base/string_util.h"
 #include "chrome/browser/history/history_backend.h"
 #include "chrome/common/chrome_constants.h"
 
@@ -45,6 +46,14 @@ TestingProfile::TestingProfile()
     : start_time_(Time::Now()), has_history_service_(false) {
   PathService::Get(base::DIR_TEMP, &path_);
   file_util::AppendToPath(&path_, L"TestingProfilePath");
+  file_util::Delete(path_, true);
+  file_util::CreateDirectory(path_);
+}
+
+TestingProfile::TestingProfile(int count)
+    : start_time_(Time::Now()), has_history_service_(false) {
+  PathService::Get(base::DIR_TEMP, &path_);
+  file_util::AppendToPath(&path_, L"TestingProfilePath" + IntToWString(count));
   file_util::Delete(path_, true);
   file_util::CreateDirectory(path_);
 }

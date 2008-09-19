@@ -42,22 +42,22 @@ static const int kNewGroupButtonID             = 1002;
 // static
 void BookmarkEditorView::Show(HWND parent_hwnd,
                               Profile* profile,
-                              const GURL& url,
-                              const std::wstring& title) {
+                              BookmarkNode* parent,
+                              BookmarkNode* node) {
   DCHECK(profile);
-  BookmarkEditorView* editor = new BookmarkEditorView(profile, url, title);
+  BookmarkEditorView* editor = new BookmarkEditorView(profile, parent, node);
   editor->Show(parent_hwnd);
 }
 
 BookmarkEditorView::BookmarkEditorView(Profile* profile,
-                                       const GURL& url,
-                                       const std::wstring& title)
+                                       BookmarkNode* parent,
+                                       BookmarkNode* node)
     : profile_(profile),
 #pragma warning(suppress: 4355)  // Okay to pass "this" here.
       new_group_button_(
           l10n_util::GetString(IDS_BOOMARK_EDITOR_NEW_FOLDER_BUTTON)),
-      url_(url),
-      title_(title),
+      parent_(parent),
+      node_(node),
       running_menu_for_root_(false) {
   DCHECK(profile);
   Init();
@@ -238,10 +238,10 @@ void BookmarkEditorView::Init() {
   new_group_button_.SetListener(this);
   new_group_button_.SetID(kNewGroupButtonID);
 
-  title_tf_.SetText(title_);
+  title_tf_.SetText(node_ ? node_->GetTitle() : std::wstring());
   title_tf_.SetController(this);
 
-  url_tf_.SetText(UTF8ToWide(url_.spec()));
+  url_tf_.SetText(node_ ? UTF8ToWide(node_->GetURL().spec()) : std::wstring());
   url_tf_.SetController(this);
 
   // Yummy layout code.
@@ -292,11 +292,7 @@ void BookmarkEditorView::Init() {
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
 
   if (bb_model_->IsLoaded())
-    Loaded(bb_model_);
-}
-
-void BookmarkEditorView::Loaded(BookmarkModel* model) {
-  Reset(true);
+    Reset();
 }
 
 void BookmarkEditorView::BookmarkNodeMoved(BookmarkModel* model,
@@ -304,32 +300,27 @@ void BookmarkEditorView::BookmarkNodeMoved(BookmarkModel* model,
                                            int old_index,
                                            BookmarkNode* new_parent,
                                            int new_index) {
-  Reset(false);
+  Reset();
 }
 
 void BookmarkEditorView::BookmarkNodeAdded(BookmarkModel* model,
                                            BookmarkNode* parent,
                                            int index) {
-  Reset(false);
+  Reset();
 }
 
 void BookmarkEditorView::BookmarkNodeRemoved(BookmarkModel* model,
                                              BookmarkNode* parent,
                                              int index) {
-  Reset(false);
+  if ((node_ && !node_->GetParent()) || (parent_ && !parent_->GetParent())) {
+    // The node, or its parent was removed. Close the dialog.
+    window()->Close();
+  } else {
+    Reset();
+  }
 }
 
-void BookmarkEditorView::Reset(bool first_time) {
-  BookmarkNode* node_editing = bb_model_->GetNodeByURL(url_);
-
-  // If the title is empty we need to fetch it from the node.
-  if (first_time && title_.empty()) {
-    if (node_editing) {
-      title_ = node_editing->GetTitle();
-      title_tf_.SetText(title_);
-    }
-  }
-
+void BookmarkEditorView::Reset() {
   // Do this first, otherwise when we invoke SetModel with the real one
   // tree_view will try to invoke something on the model we just deleted.
   tree_view_.SetModel(NULL);
@@ -346,9 +337,7 @@ void BookmarkEditorView::Reset(bool first_time) {
 
   if (GetParent()) {
     ExpandAndSelect();
-
-    if(!first_time)
-      UserInputChanged();
+    UserInputChanged();
   } else if (GetParent()) {
     tree_view_.ExpandAll();
   }
@@ -396,11 +385,8 @@ BookmarkEditorView::EditorNode* BookmarkEditorView::AddNewGroup(
 void BookmarkEditorView::ExpandAndSelect() {
   tree_view_.ExpandAll();
 
-  BookmarkNode* to_select = bb_model_->GetNodeByURL(url_);
-  int group_id_to_select =
-      to_select ? to_select->GetParent()->id() :
-                  bb_model_->GetParentForNewNodes()->id();
-
+  BookmarkNode* to_select = node_ ? node_->GetParent() : parent_;
+  int group_id_to_select = to_select->id();
   DCHECK(group_id_to_select);  // GetMostRecentParent should never return NULL.
   EditorNode* b_node =
       FindNodeWithID(tree_model_->GetRoot(), group_id_to_select);
@@ -468,14 +454,8 @@ void BookmarkEditorView::ApplyEdits(EditorNode* parent) {
   GURL new_url(GetInputURL());
   std::wstring new_title(GetInputTitle());
 
-  BookmarkNode* old_node = bb_model_->GetNodeByURL(url_);
-  BookmarkNode* old_parent = old_node ? old_node->GetParent() : NULL;
-  const int old_index = old_parent ? old_parent->IndexOfChild(old_node) : -1;
-
-  if (url_ != new_url) {
-    // The URL has changed, unstar the old url.
-    bb_model_->SetURLStarred(url_, std::wstring(), false);
-  }
+  BookmarkNode* old_parent = node_ ? node_->GetParent() : NULL;
+  const int old_index = old_parent ? old_parent->IndexOfChild(node_) : -1;
 
   // Create the new groups and update the titles.
   BookmarkNode* new_parent = NULL;
@@ -488,29 +468,34 @@ void BookmarkEditorView::ApplyEdits(EditorNode* parent) {
     return;
   }
 
-  BookmarkNode* current_node = bb_model_->GetNodeByURL(new_url);
-
-  if (current_node) {
-    // There's already a node with the URL.
-    bb_model_->SetTitle(current_node, new_title);
-    if (new_parent == old_parent) {
-      // Parent hasn't changed.
-      bb_model_->Move(current_node, new_parent, old_index);
+  if (node_) {
+    Time date_added = node_->date_added();
+    if (new_parent == node_->GetParent()) {
+      // The parent is the same.
+      if (new_url != node_->GetURL()) {
+        bb_model_->Remove(old_parent, old_index);
+        BookmarkNode* new_node =
+            bb_model_->AddURL(old_parent, old_index, new_title, new_url);
+        new_node->date_added_ = date_added;
+      } else {
+        bb_model_->SetTitle(node_, new_title);
+      }
+    } else if (new_url != node_->GetURL()) {
+      // The parent and URL changed.
+      bb_model_->Remove(old_parent, old_index);
+      BookmarkNode* new_node =
+          bb_model_->AddURL(new_parent, new_parent->GetChildCount(), new_title,
+                            new_url);
+      new_node->date_added_ = date_added;
     } else {
-      // Parent changed, move to end of new parent.
-      bb_model_->Move(current_node, new_parent, new_parent->GetChildCount());
+      // The parent and title changed. Move the node and change the title.
+      bb_model_->Move(node_, new_parent, new_parent->GetChildCount());
+      bb_model_->SetTitle(node_, new_title);
     }
   } else {
-    // Adding a new URL.
-    if (new_parent == old_parent) {
-      // Parent hasn't changed. Place newly created bookmark at the same
-      // location as last bookmark.
-      bb_model_->AddURL(new_parent, old_index, new_title, new_url);
-    } else {
-      // Parent changed, put bookmark at end of new parent.
-      bb_model_->AddURL(new_parent, new_parent->GetChildCount(), new_title,
-                        new_url);
-    }
+    // We're adding a new URL.
+    bb_model_->AddURL(new_parent, new_parent->GetChildCount(), new_title,
+                      new_url);
   }
 }
 

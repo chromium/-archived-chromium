@@ -48,7 +48,9 @@ class BookmarkService {
   // If not on the main thread you *must* invoke BlockTillLoaded first.
   virtual bool IsBookmarked(const GURL& url) = 0;
 
-  // Returns, by reference in urls, the set of bookmarked urls.
+  // Returns, by reference in urls, the set of bookmarked urls. This returns
+  // the unique set of URLs. For example, if two bookmarks reference the same
+  // URL only one entry is added.
   //
   // If not on the main thread you *must* invoke BlockTillLoaded first.
   virtual void GetBookmarks(std::vector<GURL>* urls) = 0;

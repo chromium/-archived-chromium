@@ -14,6 +14,7 @@ class BookmarkModel;
 class BookmarkNode;
 class OSExchangeData;
 class Pickle;
+class Profile;
 
 // BookmarkDragData is used by the bookmark bar to represent a dragged
 // URL or starred group on the clipboard during drag and drop.
@@ -36,22 +37,18 @@ struct BookmarkDragData {
 
   // Writes this BookmarkDragData to data. If BookmarkDragData is a URL,
   // this writes out the URL and URL title clipboard data as well.
-  void Write(OSExchangeData* data) const;
+  void Write(Profile* profile, OSExchangeData* data) const;
 
   // Restores this data from the clipboard, returning true on success.
   bool Read(const OSExchangeData& data);
 
-  // Returns the node represented by this drag data from root. If the
-  // path can not be found, NULL is returned.
-  //
-  // This is only valid for groups.
-  BookmarkNode* BookmarkDragData::GetNode(BookmarkModel* model) const;
+  // Returns the node represented by this DragData. If this DragData was created
+  // from the same profile then the node from the model is returned. If the
+  // node can't be found (may have been deleted), NULL is returned.
+  BookmarkNode* BookmarkDragData::GetNode(Profile* profile) const;
 
   // If true, this entry represents a StarredEntry of type URL.
   bool is_url;
-
-  // ID of the profile we originated from.
-  std::wstring profile_id;
 
   // The URL, only valid if is_url is true.
   GURL url;
@@ -74,7 +71,12 @@ struct BookmarkDragData {
   // Adds to children an entry for each child of node.
   void AddChildren(BookmarkNode* node);
 
+  // Path of the profile we originated from.
+  // This is only saved for the root node.
+  std::wstring profile_path_;
+
   // ID (node->id()) of the node this BookmarkDragData was created from.
+  // This is only saved for the root node.
   int id_;
 };
 
