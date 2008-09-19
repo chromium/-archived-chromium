@@ -84,6 +84,11 @@ void MessagePumpWin::DidProcessMessage(const MSG& msg) {
 }
 
 void MessagePumpWin::PumpOutPendingPaintMessages() {
+  // If we are being called outside of the context of Run, then don't try to do
+  // any work.
+  if (!state_)
+    return;
+
   // Create a mini-message-pump to force immediate processing of only Windows
   // WM_PAINT messages.  Don't provide an infinite loop, but do enough peeking
   // to get the job done.  Actual common max is 4 peeks, but we'll be a little
