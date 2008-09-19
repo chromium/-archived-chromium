@@ -22,6 +22,7 @@
 //   Ruben Arakelyan <ruben@wackomenace.co.uk>
 //   Gervase Markham <gerv@gerv.net>
 //   Pamela Greene <pamg.bugs@gmail.com>
+//   David Triendl <david@triendl.name>
 //   The kind representatives of many TLD registries
 // 
 // Alternatively, the contents of this file may be used under the terms of
@@ -38,11 +39,7 @@
 // 
 // ***** END LICENSE BLOCK *****
 
-// Google note: this is derived from Mozilla's revision 15880:c5a99dd3ae51
-// of this file, retrieved from
-// http://hg.mozilla.org/mozilla-central/index.cgi/raw-annotate/c5a99dd3ae51/netwerk/dns/src/effective_tld_names.dat.
-// It includes additional changes proposed to Mozilla in attachment 331017 of
-// issue https://bugzilla.mozilla.org/show_bug.cgi?id=403655.
+// Chromium note: this is Mozilla's revision 18744:a1d3449a2cba of this file.
 
 // ac : http://en.wikipedia.org/wiki/.ac
 ac
@@ -58,15 +55,15 @@ ad
 nom.ad
 
 // ae : http://en.wikipedia.org/wiki/.ae
+// see also: "Domain Name Eligibility Policy" at http://www.aeda.ae/eng/aepolicy.php
 ae
+co.ae
 net.ae
-gov.ae
-ac.ae
-sch.ae
 org.ae
+sch.ae
+ac.ae
+gov.ae
 mil.ae
-pro.ae
-name.ae
 
 // aero : see http://www.information.aero/index.php?id=66
 aero
@@ -184,6 +181,7 @@ net.ai
 org.ai
 
 // al : http://www.inima.al/Domains.html
+al
 gov.al
 edu.al
 org.al
@@ -226,6 +224,7 @@ aq
 !uba.ar
 
 // arpa : http://en.wikipedia.org/wiki/.arpa
+// Confirmed by registry <iana-questions@icann.org> 2008-06-18
 e164.arpa
 in-addr.arpa
 ip6.arpa
@@ -234,6 +233,10 @@ urn.arpa
 
 // as : http://en.wikipedia.org/wiki/.as
 as
+gov.as
+
+// asia: http://en.wikipedia.org/wiki/.asia
+asia
 
 // at : http://en.wikipedia.org/wiki/.at
 // Confirmed by registry <it@nic.at> 2008-06-17
@@ -408,6 +411,7 @@ tv.bo
 
 // br : http://en.wikipedia.org/wiki/.br
 // http://registro.br/info/dpn.html
+// Confirmed by registry <fneves@registro.br> 2008-06-24
 br
 adm.br
 adv.br
@@ -419,6 +423,7 @@ ato.br
 bio.br
 blog.br
 bmd.br
+can.br
 cim.br
 cng.br
 cnt.br
@@ -491,6 +496,7 @@ gov.bs
 // list of other 2nd level tlds ?
 bw
 co.bw
+org.bw
 
 // by : http://en.wikipedia.org/wiki/.by
 // http://tld.by/rules_2006_en.html
@@ -509,6 +515,8 @@ bz
 com.bz
 net.bz
 org.bz
+edu.bz
+gov.bz
 
 // ca : http://en.wikipedia.org/wiki/.ca
 ca
@@ -527,6 +535,9 @@ pe.ca
 qc.ca
 sk.ca
 yk.ca
+// gc.ca: http://en.wikipedia.org/wiki/.gc.ca
+// see also: http://registry.gc.ca/en/SubdomainFAQ
+gc.ca
 
 // cat : http://en.wikipedia.org/wiki/.cat
 cat
@@ -535,7 +546,9 @@ cat
 cc
 
 // cd : http://en.wikipedia.org/wiki/.cd
+// see also: https://www.nic.cd/domain/insertDomain_2.jsp?act=1
 cd
+gov.cd
 
 // cf : http://en.wikipedia.org/wiki/.cf
 cf
@@ -697,6 +710,8 @@ gov.cx
 cz
 
 // de : http://en.wikipedia.org/wiki/.de
+// Confirmed by registry <ops@denic.de> (with technical
+// reservations) 2008-07-01
 de
 
 // dj : http://en.wikipedia.org/wiki/.dj
@@ -711,6 +726,8 @@ dm
 com.dm
 net.dm
 org.dm
+edu.dm
+gov.dm
 
 // do : http://en.wikipedia.org/wiki/.do
 *.do
@@ -727,11 +744,13 @@ pol.dz
 art.dz
 
 // ec : http://www.nic.ec/reg/paso1.asp
+// Submitted by registry <vabboud@nic.ec> 2008-07-04
 ec
 com.ec
 info.ec
 net.ec
 fin.ec
+k12.ec
 med.ec
 pro.ec
 org.ec
@@ -742,12 +761,18 @@ mil.ec
 // edu : http://en.wikipedia.org/wiki/.edu
 edu
 
-// ee : http://www3.eenet.ee/ee/application.html
+// ee : http://www.eenet.ee/EENet/dom_reeglid.html#lisa_B
 ee
+edu.ee
+gov.ee
+riik.ee
+lib.ee
+med.ee
 com.ee
+pri.ee
+aip.ee
 org.ee
 fie.ee
-pri.ee
 
 // eg : http://en.wikipedia.org/wiki/.eg
 *.eg
@@ -771,6 +796,12 @@ eu
 
 // fi : http://en.wikipedia.org/wiki/.fi
 fi
+// aland.fi : http://en.wikipedia.org/wiki/.ax
+// This domain is being phased out in favor of .ax. As there are still many
+// domains under aland.fi, we still keep it on the list until aland.fi is
+// completely removed.
+// TODO: Check for updates (expected to be phased out around Q1/2009)
+aland.fi
 
 // fj : http://en.wikipedia.org/wiki/.fj
 *.fj
@@ -785,7 +816,6 @@ fm
 fo
 
 // fr : http://www.afnic.fr/
-fr
 // domaines descriptifs : http://www.afnic.fr/obtenir/chartes/nommage-fr/annexe-descriptifs
 fr
 com.fr
@@ -835,7 +865,7 @@ pvt.ge
 // gf : http://en.wikipedia.org/wiki/.gf
 gf
 
-// gg : http://www.channelisles.net/tandc.shtml
+// gg : http://www.channelisles.net/applic/avextn.shtml
 gg
 co.gg
 org.gg
@@ -873,12 +903,14 @@ net.gn
 // gov : http://en.wikipedia.org/wiki/.gov
 gov
 
-// gp : http://www.nic.gp/index_en.php?url=charte_en.php
+// gp : http://www.nic.gp/index.php?lang=en
 gp
 com.gp
 net.gp
+mobi.gp
 edu.gp
 org.gp
+asso.gp
 
 // gq : http://en.wikipedia.org/wiki/.gq
 gq
@@ -1015,6 +1047,7 @@ video.hu
 
 // ie : http://en.wikipedia.org/wiki/.ie
 ie
+gov.ie
 
 // il : http://en.wikipedia.org/wiki/.il
 *.il
@@ -1031,6 +1064,9 @@ nic.im
 ac.im
 
 // in : http://en.wikipedia.org/wiki/.in
+// see also: http://www.inregistry.in/policies/
+// Please note, that nic.in is not an offical eTLD, but used by most
+// government institutions.
 in
 co.in
 firm.in
@@ -1049,6 +1085,7 @@ mil.in
 info
 
 // int : http://en.wikipedia.org/wiki/.int
+// Confirmed by registry <iana-questions@icann.org> 2008-06-18
 int
 eu.int
 
@@ -1323,7 +1360,7 @@ vi.it
 viterbo.it
 vt.it
 
-// je : http://www.channelisles.net/tandc.shtml
+// je : http://www.channelisles.net/applic/avextn.shtml
 je
 co.je
 org.je
@@ -1538,7 +1575,8 @@ org.kn
 edu.kn
 gov.kn
 
-// kr : http://domain.nida.or.kr/eng/structure.jsp
+// kr : http://en.wikipedia.org/wiki/.kr
+// see also: http://domain.nida.or.kr/eng/registration.jsp
 kr
 ac.kr
 co.kr
@@ -1554,7 +1592,6 @@ pe.kr
 re.kr
 sc.kr
 // kr geographical names
-// http://en.wikipedia.org/wiki/.kr
 busan.kr
 chungbuk.kr
 chungnam.kr
@@ -1616,8 +1653,11 @@ net.lb
 org.lb
 
 // lc : http://en.wikipedia.org/wiki/.lc
+// see also: http://www.nic.lc/rules.htm
 lc
 com.lc
+net.lc
+co.lc
 org.lc
 edu.lc
 gov.lc
@@ -1657,6 +1697,8 @@ org.ls
 
 // lt : http://en.wikipedia.org/wiki/.lt
 lt
+// gov.lt : http://www.gov.lt/index_en.php
+gov.lt
 
 // lu : http://www.dns.lu/en/
 lu
@@ -1732,13 +1774,15 @@ mh
 mil
 
 // mk : http://en.wikipedia.org/wiki/.mk
-// list of 2nd level tlds ?
+// see also: http://dns.marnet.net.mk/postapka.php
 mk
 com.mk
-gov.mk
 org.mk
 net.mk
 edu.mk
+gov.mk
+inf.mk
+name.mk
 
 // ml : http://www.gobin.info/domainname/ml-template.doc
 *.ml
@@ -2359,9 +2403,7 @@ net.mw
 org.mw
 
 // mx : http://www.nic.mx/
-// 2008-06-23 - Wikipedia says second level registrations are prohibited,
-// but several exist. So, for safety, switched from "*.mx" to the below
-// ruleset until the situation is more clear.
+// Submitted by registry <farias@nic.mx> 2008-06-19
 mx
 com.mx
 org.mx
@@ -2457,13 +2499,13 @@ fylkesbibl.no
 folkebibl.no
 museum.no
 idrett.no
+priv.no
 // Non-Norid generic domains : http://www.norid.no/regelverk/vedlegg-d.en.html
 mil.no
 stat.no
 dep.no
 kommune.no
 herad.no
-priv.no
 // no geographical names : http://www.norid.no/regelverk/vedlegg-b.en.html
 // counties
 aa.no
@@ -3242,10 +3284,43 @@ org
 ae.org
 
 // pa : http://www.nic.pa/
+// List with redundant entries as submitted by registry <edna.samudio@utp.ac.pa> 2008-06-18
+//*.pa
+//!nic.pa
+//!pannet.pa
+//!presidencia.pa
+//!milpolleras.pa
+//!sume911.pa
+//!root-ca.pa
+//ac.pa
+//gob.pa
+//com.pa
+//org.pa
+//sld.pa
+//edu.pa
+//net.pa
+//ing.pa
+//abo.pa
+//med.pa
+//nom.pa
+// As discussed in bug #447815 on bugzilla.mozilla.org, the list has been truncated.
 *.pa
+!nic.pa
+!pannet.pa
+!presidencia.pa
+!milpolleras.pa
+!sume911.pa
+!root-ca.pa
 
-// pe : http://www.nic.pe/normas-proced-i.htm
-*.pe
+// pe : https://www.nic.pe/InformeFinalComision.pdf
+pe
+edu.pe
+gob.pe
+nom.pe
+mil.pe
+org.pe
+com.pe
+net.pe
 
 // pf : http://www.gobin.info/domainname/formulaire-pf.pdf
 pf
@@ -3718,6 +3793,17 @@ mil.rw
 gouv.rw
 
 // sa : http://www.saudinic.net.sa/page.php?page=1&lang=1
+// List with redundant entries as submitted by registry <sa-tld-tech-contact@nic.net.sa> 2008-06-23
+//*.sa
+//com.sa
+//net.sa
+//org.sa
+//gov.sa
+//med.sa
+//pub.sa
+//edu.sa
+//sch.sa
+// As discussed in bug #447815 on bugzilla.mozilla.org, the list has been truncated.
 *.sa
 
 // sb : http://www.sbnic.net.sb/
@@ -3749,35 +3835,47 @@ gov.sd
 info.sd
 
 // se : http://en.wikipedia.org/wiki/.se
-se
-org.se
-pp.se
-tm.se
-parti.se
-press.se
-mil.se
-// se geographical names
-ab.se
+// Submitted by registry <Patrik.Wallstrom@iis.se> 2008-06-24
+a.se
+ac.se
+b.se
+bd.se
+brand.se
 c.se
 d.se
 e.se
 f.se
+fh.se
+fhsk.se
+fhv.se
 g.se
 h.se
 i.se
 k.se
+komforb.se
+kommunalforbund.se
+komvux.se
+l.se
+lanbib.se
 m.se
 n.se
+naturbruksgymn.se
 o.se
+org.se
+p.se
+parti.se
+pp.se
+press.se
+r.se
 s.se
+sshn.se
 t.se
+tm.se
 u.se
 w.se
 x.se
 y.se
 z.se
-ac.se
-bd.se
 
 // sg : http://www.nic.net.sg/sub_policies_agreement/2ld.html
 sg
@@ -3822,6 +3920,17 @@ sr
 
 // st : http://www.nic.st/html/policyrules/
 st
+gov.st
+saotome.st
+principe.st
+consulado.st
+org.st
+edu.st
+net.st
+com.st
+store.st
+mil.st
+co.st
 
 // su : http://en.wikipedia.org/wiki/.su
 su
@@ -3884,8 +3993,8 @@ mil.tj
 tk
 
 // tl : http://en.wikipedia.org/wiki/.tl
-// list of 2nd level tlds ?
 tl
+gov.tl
 
 // tm : http://www.nic.tm/rules.html
 // list of 2nd level tlds ?
@@ -4007,11 +4116,13 @@ ivano-frankivsk.ua
 kh.ua
 kharkov.ua
 kherson.ua
+khmelnitskiy.ua
 kiev.ua
 kirovograd.ua
 km.ua
 kr.ua
 ks.ua
+kv.ua
 lg.ua
 lugansk.ua
 lutsk.ua
@@ -4032,7 +4143,6 @@ vinnica.ua
 vn.ua
 zaporizhzhe.ua
 zp.ua
-uz.ua
 uzhgorod.ua
 zhitomir.ua
 zt.ua
