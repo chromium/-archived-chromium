@@ -110,8 +110,6 @@
 		7BED34450E5A1A9600A747DB /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BED324A0E5A17C000A747DB /* libbase.a */; };
 		7BED34520E5A1ABC00A747DB /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BED32530E5A17C300A747DB /* libgtest.a */; };
 		8200F2030E5F741E005A3C44 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8200F2020E5F741E005A3C44 /* CoreServices.framework */; };
-		82113A1D0E8434EE00E3848F /* x509_certificate_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 82113A1C0E8434EE00E3848F /* x509_certificate_unittest.cc */; };
-		82113A280E84360200E3848F /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82113A270E84360200E3848F /* Security.framework */; };
 		821F207B0E5CD342003C7E38 /* cert_status_cache.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33610E5A194700A747DB /* cert_status_cache.cc */; };
 		821F207F0E5CD3C6003C7E38 /* http_vary_data.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33520E5A194700A747DB /* http_vary_data.cc */; };
 		821F20A30E5CD407003C7E38 /* mime_sniffer_proxy.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33A60E5A198600A747DB /* mime_sniffer_proxy.cc */; };
@@ -138,14 +136,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B2630600E82F282001CE27F /* libevent.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 7B262E840E82E5D7001CE27F;
+			remoteGlobalIDString = 7B262E840E82E5D7001CE27F /* libevent.a */;
 			remoteInfo = libevent;
 		};
 		7B2630660E82F291001CE27F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B2630600E82F282001CE27F /* libevent.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B262E830E82E5D7001CE27F;
+			remoteGlobalIDString = 7B262E830E82E5D7001CE27F /* libevent */;
 			remoteInfo = libevent;
 		};
 		7B8501FD0E5A372500730B43 /* PBXContainerItemProxy */ = {
@@ -586,8 +584,6 @@
 		7BED33BB0E5A198600A747DB /* url_request_inet_job.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = url_request_inet_job.cc; sourceTree = "<group>"; };
 		7BED33BC0E5A198600A747DB /* url_request_http_job.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = url_request_http_job.h; sourceTree = "<group>"; };
 		8200F2020E5F741E005A3C44 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
-		82113A1C0E8434EE00E3848F /* x509_certificate_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = x509_certificate_unittest.cc; sourceTree = "<group>"; };
-		82113A270E84360200E3848F /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
 		E4AFA6230E523E2900201347 /* net_unittests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = net_unittests; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4AFA62E0E5240A300201347 /* gtest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gtest.xcodeproj; path = testing/gtest.xcodeproj; sourceTree = "<group>"; };
 		E4AFA6420E5241B400201347 /* run_all_unittests.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = run_all_unittests.cc; sourceTree = "<group>"; };
@@ -620,7 +616,6 @@
 				7B85026D0E5A38D400730B43 /* libmodp_b64.a in Frameworks */,
 				7BED34190E5A1A8600A747DB /* libnet.a in Frameworks */,
 				7BA0169E0E5A1EAE00044150 /* libzlib.a in Frameworks */,
-				82113A280E84360200E3848F /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -720,7 +715,6 @@
 		7BED31A20E5A15DD00A747DB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				82113A270E84360200E3848F /* Security.framework */,
 				8200F2020E5F741E005A3C44 /* CoreServices.framework */,
 				7BA0157A0E5A1C9100044150 /* Foundation.framework */,
 			);
@@ -869,7 +863,6 @@
 				7BED32860E5A181C00A747DB /* upload_data_stream.h */,
 				7BED32800E5A181C00A747DB /* x509_certificate_mac.cc */,
 				7BED327F0E5A181C00A747DB /* x509_certificate.h */,
-				82113A1C0E8434EE00E3848F /* x509_certificate_unittest.cc */,
 			);
 			path = base;
 			sourceTree = "<group>";
@@ -1361,7 +1354,6 @@
 				7B8B5B9E0E5D188E002F9A97 /* registry_controlled_domain_unittest.cc in Sources */,
 				E4AFA6430E5241B400201347 /* run_all_unittests.cc in Sources */,
 				7BD8F7110E65DCF500034DE9 /* storage_block_unittest.cc in Sources */,
-				82113A1D0E8434EE00E3848F /* x509_certificate_unittest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
