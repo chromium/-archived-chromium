@@ -319,14 +319,14 @@ X509Certificate* X509Certificate::CreateFromHandle(OSCertHandle cert_handle) {
 }
 
 // static
-X509Certificate* X509Certificate::CreateFromBytes(const char* data,
-                                                  int length) {
+X509Certificate* X509Certificate::CreateFromBytes(const char* data, int length) {
   OSCertHandle cert_handle = NULL;
-  if (!CertAddSerializedElementToStore(
+  if (!CertAddEncodedCertificateToStore(
       NULL,  // the cert won't be persisted in any cert store
+      X509_ASN_ENCODING,
       reinterpret_cast<const BYTE*>(data), length,
-      CERT_STORE_ADD_USE_EXISTING, 0, CERT_STORE_CERTIFICATE_CONTEXT_FLAG,
-      NULL, reinterpret_cast<const void **>(&cert_handle)))
+      CERT_STORE_ADD_USE_EXISTING,
+      &cert_handle))
     return NULL;
 
   return CreateFromHandle(cert_handle);
@@ -340,7 +340,15 @@ X509Certificate* X509Certificate::CreateFromPickle(const Pickle& pickle,
   if (!pickle.ReadData(pickle_iter, &data, &length))
     return NULL;
 
-  return CreateFromBytes(data, length);
+  OSCertHandle cert_handle = NULL;
+  if (!CertAddSerializedElementToStore(
+      NULL,  // the cert won't be persisted in any cert store
+      reinterpret_cast<const BYTE*>(data), length,
+      CERT_STORE_ADD_USE_EXISTING, 0, CERT_STORE_CERTIFICATE_CONTEXT_FLAG,
+      NULL, reinterpret_cast<const void **>(&cert_handle)))
+    return NULL;
+
+  return CreateFromHandle(cert_handle);
 }
 
 X509Certificate::X509Certificate(OSCertHandle cert_handle)

@@ -366,6 +366,10 @@
 					RelativePath="..\base\wininet_util_unittest.cc"
 					>
 				</File>
+				<File
+					RelativePath="..\base\x509_certificate_unittest.cc"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="url_request"
