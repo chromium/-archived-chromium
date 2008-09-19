@@ -1,6 +1,6 @@
 deps = {
   "src/breakpad/src":
-    "http://google-breakpad.googlecode.com/svn/trunk/src@281",
+    "http://google-breakpad.googlecode.com/svn/trunk/src@285",
 
   "src/googleurl":
     "http://google-url.googlecode.com/svn/trunk@93",
