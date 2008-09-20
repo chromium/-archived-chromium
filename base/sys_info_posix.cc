@@ -65,7 +65,7 @@ int64 SysInfo::AmountOfPhysicalMemory() {
 int64 SysInfo::AmountOfFreeDiskSpace(const std::wstring& path) {
   struct statvfs stats;
   if (statvfs(WideToUTF8(path).c_str(), &stats) != 0) {
-    return 0;
+    return -1;
   }
   return static_cast<int64>(stats.f_bavail) * stats.f_frsize;
 }

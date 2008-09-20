@@ -26,16 +26,22 @@ int64 SysInfo::AmountOfPhysicalMemory() {
     return 0;
   }
 
-  return static_cast<int64>(memory_info.ullTotalPhys);
+  int64 rv = static_cast<int64>(memory_info.ullTotalPhys);
+  if (rv < 0)
+    rv = kint64max;
+  return rv;
 }
 
 // static
 int64 SysInfo::AmountOfFreeDiskSpace(const std::wstring& path) {
   ULARGE_INTEGER available, total, free;
   if (!GetDiskFreeSpaceExW(path.c_str(), &available, &total, &free)) {
-    return 0;
+    return -1;
   }
-  return static_cast<int64>(available.QuadPart);
+  int64 rv = static_cast<int64>(available.QuadPart);
+  if (rv < 0)
+    rv = kint64max;
+  return rv;
 }
 
 }  // namespace base

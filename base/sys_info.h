@@ -24,7 +24,8 @@ class SysInfo {
     return static_cast<int>(AmountOfPhysicalMemory() / 1024 / 1024);
   }
 
-  // Return the available disk space in bytes on the volume containing |path|.
+  // Return the available disk space in bytes on the volume containing |path|,
+  // or -1 on failure.
   static int64 AmountOfFreeDiskSpace(const std::wstring& path);
 
 };
