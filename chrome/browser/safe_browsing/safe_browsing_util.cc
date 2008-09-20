@@ -615,4 +615,3 @@ bool SBHostInfo::GetNextEntry(const SBEntry** entry) {
 
   return false;
 }
-

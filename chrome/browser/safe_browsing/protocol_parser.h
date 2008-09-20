@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_SAFE_BROWSING_PROTOCOL_PARSER_H__
-#define CHROME_BROWSER_SAFE_BROWSING_PROTOCOL_PARSER_H__
+#ifndef CHROME_BROWSER_SAFE_BROWSING_PROTOCOL_PARSER_H_
+#define CHROME_BROWSER_SAFE_BROWSING_PROTOCOL_PARSER_H_
 
 // Parse the data returned from the chunk response.
 //
@@ -125,4 +125,4 @@ class SafeBrowsingProtocolParser {
 };
 
 
-#endif  // CHROME_BROWSER_SAFE_BROWSING_PROTOCOL_PARSER_H__
+#endif  // CHROME_BROWSER_SAFE_BROWSING_PROTOCOL_PARSER_H_

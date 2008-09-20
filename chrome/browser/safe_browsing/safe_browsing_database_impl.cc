@@ -1213,4 +1213,3 @@ void SafeBrowsingDatabaseImpl::OnResumeDone() {
 void SafeBrowsingDatabaseImpl::SetSynchronous() {
   asynchronous_ = false;
 }
-

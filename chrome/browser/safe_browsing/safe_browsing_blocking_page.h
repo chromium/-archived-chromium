@@ -18,8 +18,8 @@
 // SafeBrowsingService so that we can cancel the request for the new page, or
 // or allow it to continue.
 
-#ifndef CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_BLOCKING_PAGE_H__
-#define CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_BLOCKING_PAGE_H__
+#ifndef CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_BLOCKING_PAGE_H_
+#define CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_BLOCKING_PAGE_H_
 
 #include "base/logging.h"
 #include "chrome/browser/interstitial_page_delegate.h"
@@ -107,4 +107,4 @@ class SafeBrowsingBlockingPage
   DISALLOW_EVIL_CONSTRUCTORS(SafeBrowsingBlockingPage);
 };
 
-#endif  // CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_BLOCKING_PAGE_H__
+#endif  // CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_BLOCKING_PAGE_H_

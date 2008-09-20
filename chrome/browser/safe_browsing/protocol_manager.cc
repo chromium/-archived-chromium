@@ -561,4 +561,3 @@ void SafeBrowsingProtocolManager::HandleGetHashError() {
   int next = GetNextBackOffTime(&gethash_error_count_, &gethash_back_off_mult_);
   next_gethash_time_ = Time::Now() + TimeDelta::FromSeconds(next);
 }
-

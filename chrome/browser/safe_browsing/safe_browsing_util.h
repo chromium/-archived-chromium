@@ -4,8 +4,8 @@
 //
 // Utilities for the SafeBrowsing code.
 
-#ifndef CHROME_BROWSER_SAFE_BROWSING_UTIL_H__
-#define CHROME_BROWSER_SAFE_BROWSING_UTIL_H__
+#ifndef CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_UTIL_H_
+#define CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_UTIL_H_
 
 #include <string.h>
 
@@ -299,5 +299,4 @@ GURL GeneratePhishingReportUrl(const std::string& report_page,
 
 }  // namespace safe_browsing_util
 
-#endif  // CHROME_BROWSER_SAFE_BROWSING_UTIL_H__
-
+#endif  // CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_UTIL_H_

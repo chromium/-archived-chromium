@@ -330,4 +330,3 @@ void SafeBrowsingBlockingPage::NotifyDone() {
       &SafeBrowsingService::OnBlockingPageDone,
       this, client_, proceed_));
 }
-

@@ -58,4 +58,3 @@ uint32 BloomFilter::RotateLeft(uint32 hash) {
   hash |= left_byte;
   return hash;
 }
-

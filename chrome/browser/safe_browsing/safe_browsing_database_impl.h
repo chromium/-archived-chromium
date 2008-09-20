@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_DATABASE_IMPL_H__
-#define CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_DATABASE_IMPL_H__
+#ifndef CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_DATABASE_IMPL_H_
+#define CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_DATABASE_IMPL_H_
 
 #include <deque>
 #include <list>
@@ -280,4 +280,4 @@ class SafeBrowsingDatabaseImpl : public SafeBrowsingDatabase {
   DISALLOW_COPY_AND_ASSIGN(SafeBrowsingDatabaseImpl);
 };
 
-#endif  // CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_DATABASE_IMPL_H__
+#endif  // CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_DATABASE_IMPL_H_

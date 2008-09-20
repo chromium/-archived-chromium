@@ -11,8 +11,8 @@
 // class is a simple and compact mechanism for storing a continuous list of
 // chunk numbers.
 
-#ifndef CHROME_BROWSER_SAFE_BROWSING_CHUNK_RANGE_H__
-#define CHROME_BROWSER_SAFE_BROWSING_CHUNK_RANGE_H__
+#ifndef CHROME_BROWSER_SAFE_BROWSING_CHUNK_RANGE_H_
+#define CHROME_BROWSER_SAFE_BROWSING_CHUNK_RANGE_H_
 
 #include <string>
 #include <vector>
@@ -61,4 +61,4 @@ bool StringToRanges(const std::string& input,
                     std::vector<ChunkRange>* ranges);
 
 
-#endif  // CHROME_BROWSER_SAFE_BROWSING_CHUNK_RANGE_H__
+#endif  // CHROME_BROWSER_SAFE_BROWSING_CHUNK_RANGE_H_

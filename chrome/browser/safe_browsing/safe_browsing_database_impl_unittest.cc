@@ -223,6 +223,3 @@ TEST(SafeBrowsingDatabaseImpl, HashCaching) {
   // Prefix miss cache should be cleared.
   EXPECT_EQ(database.prefix_miss_cache_.size(), 0);
 }
-
-
-

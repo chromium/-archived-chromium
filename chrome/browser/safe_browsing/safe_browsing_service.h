@@ -5,8 +5,8 @@
 // The Safe Browsing service is responsible for downloading anti-phishing and
 // anti-malware tables and checking urls against them.
 
-#ifndef CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_SERVICE_H__
-#define CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_SERVICE_H__
+#ifndef CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_SERVICE_H_
+#define CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_SERVICE_H_
 
 #include <deque>
 #include <set>
@@ -253,4 +253,4 @@ class SafeBrowsingService
   DISALLOW_EVIL_CONSTRUCTORS(SafeBrowsingService);
 };
 
-#endif  // CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_SERVICE_H__
+#endif  // CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_SERVICE_H_

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_SAFE_BROWSING_PROTOCOL_MANAGER_H__
-#define CHROME_BROWSER_SAFE_BROWSING_PROTOCOL_MANAGER_H__
+#ifndef CHROME_BROWSER_SAFE_BROWSING_PROTOCOL_MANAGER_H_
+#define CHROME_BROWSER_SAFE_BROWSING_PROTOCOL_MANAGER_H_
 
 // A class that implements Chrome's interface with the SafeBrowsing protocol.
 // The SafeBrowsingProtocolManager handles formatting and making requests of,
@@ -204,4 +204,4 @@ class SafeBrowsingProtocolManager : public URLFetcher::Delegate {
   DISALLOW_EVIL_CONSTRUCTORS(SafeBrowsingProtocolManager);
 };
 
-#endif  // CHROME_BROWSER_SAFE_BROWSING_PROTOCOL_MANAGER_H__
+#endif  // CHROME_BROWSER_SAFE_BROWSING_PROTOCOL_MANAGER_H_

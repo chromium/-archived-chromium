@@ -479,4 +479,3 @@ TEST(SafeBrowsingDatabase, DISABLED_DatabaseOldLotsofDeletesIO) {
   deletes->push_back(del);
   PeformUpdate(L"old\\SafeBrowsing", chunks, deletes);
 }
-

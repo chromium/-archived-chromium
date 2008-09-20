@@ -76,4 +76,3 @@ TEST(SafeBrowsing, BloomFilter) {
   LOG(INFO) << "For safe browsing bloom filter of size " << count <<
       ", the FP rate was " << fp_rate << " %";
 }
-
