@@ -23,10 +23,12 @@ struct DllPatchInfo;
 class ResolverThunk;
 
 // The InterceptionAgent executes on the target application, and it is in charge
-// of setting up the desired interceptions.
+// of setting up the desired interceptions or indicating what module needs to
+// be unloaded.
 //
-// The exposed API consists of two methods: GetInterceptionAgent to retrieve the
-// single class instance, and OnDllLoad to process a dll being loaded.
+// The exposed API consists of three methods: GetInterceptionAgent to retrieve
+// the single class instance, OnDllLoad and OnDllUnload to process a dll being
+// loaded and unloaded respectively.
 //
 // This class assumes that it will get called for every dll being loaded,
 // starting with kernel32, so the singleton will be instantiated from within the
@@ -37,11 +39,13 @@ class InterceptionAgent {
   static InterceptionAgent* GetInterceptionAgent();
 
   // This method should be invoked whenever a new dll is loaded to perform the
-  // required patches.
+  // required patches. If the return value is false, this dll should not be
+  // allowed to load.
+  //
   // full_path is the (optional) full name of the module being loaded and name
   // is the internal module name. If full_path is provided, it will be used
   // before the internal name to determine if we care about this dll.
-  void OnDllLoad(const UNICODE_STRING* full_path, const UNICODE_STRING* name,
+  bool OnDllLoad(const UNICODE_STRING* full_path, const UNICODE_STRING* name,
                  void* base_address);
 
   // Performs cleanup when a dll is unloaded.

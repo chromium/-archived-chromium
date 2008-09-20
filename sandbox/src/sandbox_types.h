@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef SANDBOX_SRC_SANDBOX_TYPES_H__
-#define SANDBOX_SRC_SANDBOX_TYPES_H__
+#ifndef SANDBOX_SRC_SANDBOX_TYPES_H_
+#define SANDBOX_SRC_SANDBOX_TYPES_H_
 
 namespace sandbox {
 
@@ -65,10 +65,11 @@ enum InterceptionType {
   INTERCEPTION_EAT,
   INTERCEPTION_SIDESTEP,        // Preamble patch
   INTERCEPTION_SMART_SIDESTEP,  // Preamble patch but bypass internal calls
+  INTERCEPTION_UNLOAD_MODULE,   // Unload the module (don't patch)
   INTERCEPTION_LAST             // Placeholder for last item in the enumeration
 };
 
 }  // namespace sandbox
 
-#endif  // SANDBOX_SRC_SANDBOX_TYPES_H__
+#endif  // SANDBOX_SRC_SANDBOX_TYPES_H_
 

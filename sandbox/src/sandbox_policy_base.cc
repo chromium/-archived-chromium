@@ -345,6 +345,13 @@ bool PolicyBase::SetupAllInterceptions(TargetProcess* target) {
     }
   }
 
+  if (!blacklisted_dlls_.empty()) {
+    std::vector<std::wstring>::iterator it = blacklisted_dlls_.begin();
+    for (; it != blacklisted_dlls_.end(); ++it) {
+      manager.AddToUnloadModules(it->c_str());
+    }
+  }
+
   if (!SetupBasicInterceptions(&manager))
     return false;
 

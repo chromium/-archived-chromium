@@ -3,11 +3,11 @@
 // found in the LICENSE file.
 
 // Defines InterceptionManager, the class in charge of setting up interceptions
-// for the sandboxed process. For more datails see
+// for the sandboxed process. For more details see:
 // http://wiki/Main/ChromeSandboxInterceptionDesign
 
-#ifndef SANDBOX_SRC_INTERCEPTION_INTERNAL_H__
-#define SANDBOX_SRC_INTERCEPTION_INTERNAL_H__
+#ifndef SANDBOX_SRC_INTERCEPTION_INTERNAL_H_
+#define SANDBOX_SRC_INTERCEPTION_INTERNAL_H_
 
 #include "sandbox/src/sandbox_types.h"
 
@@ -37,6 +37,7 @@ struct DllPatchInfo {
   size_t record_bytes;            // rounded to sizeof(size_t) bytes
   size_t offset_to_functions;
   int num_functions;
+  bool unload_module;
   wchar_t dll_name[1];            // placeholder for null terminated name
   // FunctionInfo function_info[] // followed by the functions to intercept
 };
@@ -66,5 +67,5 @@ struct DllInterceptionData {
 
 }  // namespace sandbox
 
-#endif  // SANDBOX_SRC_INTERCEPTION_INTERNAL_H__
+#endif  // SANDBOX_SRC_INTERCEPTION_INTERNAL_H_
 

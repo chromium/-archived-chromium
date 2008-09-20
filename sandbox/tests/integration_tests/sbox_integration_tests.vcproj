@@ -232,6 +232,10 @@
 			RelativePath="..\..\src\sync_policy_test.cc"
 			>
 		</File>
+		<File
+			RelativePath="..\..\src\unload_dll_test.cc"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

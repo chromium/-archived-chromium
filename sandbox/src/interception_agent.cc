@@ -76,7 +76,7 @@ bool InterceptionAgent::DllMatch(const UNICODE_STRING* full_path,
   return false;
 }
 
-void InterceptionAgent::OnDllLoad(const UNICODE_STRING* full_path,
+bool InterceptionAgent::OnDllLoad(const UNICODE_STRING* full_path,
                                   const UNICODE_STRING* name,
                                   void* base_address) {
   DllPatchInfo* dll_info = interceptions_->dll_list;
@@ -88,12 +88,18 @@ void InterceptionAgent::OnDllLoad(const UNICODE_STRING* full_path,
     dll_info = reinterpret_cast<DllPatchInfo*>(
                    reinterpret_cast<char*>(dll_info) + dll_info->record_bytes);
   }
+
+  // Return now if the dll is not in our list of interest.
   if (i == interceptions_->num_intercepted_dlls)
-    return;
+    return true;
+
+  // The dll must be unloaded.
+  if (dll_info->unload_module)
+    return false;
 
   // Purify causes this condition to trigger.
   if (dlls_[i])
-    return;
+    return true;
 
   size_t buffer_bytes = offsetof(DllInterceptionData, thunks) +
                         dll_info->num_functions * sizeof(ThunkData);
@@ -102,7 +108,7 @@ void InterceptionAgent::OnDllLoad(const UNICODE_STRING* full_path,
 
   DCHECK_NT(dlls_[i]);
   if (!dlls_[i])
-    return;
+    return true;
 
   dlls_[i]->data_bytes = buffer_bytes;
   dlls_[i]->num_thunks = 0;
@@ -117,6 +123,7 @@ void InterceptionAgent::OnDllLoad(const UNICODE_STRING* full_path,
   VERIFY_SUCCESS(g_nt.ProtectVirtualMemory(NtCurrentProcess, &to_protect,
                                            &real_size, PAGE_EXECUTE_READ,
                                            &old_protect));
+  return true;
 }
 
 void InterceptionAgent::OnDllUnload(void* base_address) {
