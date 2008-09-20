@@ -209,6 +209,16 @@ bool NPObjectProxy::NPHasProperty(NPObject *obj,
 bool NPObjectProxy::NPGetProperty(NPObject *obj,
                                   NPIdentifier name,
                                   NPVariant *np_result) {
+  // Please refer to http://code.google.com/p/chromium/issues/detail?id=2556,
+  // which was a crash in the XStandard plugin during plugin shutdown. The
+  // crash occured because the plugin requests the plugin script object,
+  // which fails. The plugin does not check the result of the operation and
+  // invokes NPN_GetProperty on a NULL object which lead to the crash. If
+  // we observe similar crashes in other methods in the future, these null
+  // checks may have to be replicated in the other methods in this class.
+  if (obj == NULL)
+    return false;
+
   bool result = false;
   NPObjectProxy* proxy = GetProxy(obj);
   if (!proxy) {

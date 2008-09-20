@@ -606,9 +606,7 @@ void WebPluginDelegateImpl::MoveWindow(HWND window,
   // so we don't need to call DeleteObject(hrgn)
   ::SetWindowRgn(window, hrgn, FALSE);
 
-  // Move the window now, but do not paint it.  We expect to be painted later,
-  // when our parent window paints.
-  unsigned long flags = SWP_NOREDRAW;
+  unsigned long flags = 0;
   if (visible)
     flags |= SWP_SHOWWINDOW;
   else
