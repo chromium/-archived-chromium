@@ -54,18 +54,25 @@ class MetricsService : public NotificationObserver,
   MetricsService();
   virtual ~MetricsService();
 
-  // Sets whether the user permits uploading.  This is meant to match what the
-  // the checkbox in the wrench menu.
-  void SetUserPermitsUpload(bool enabled);
-
-  // Start/stop the metrics recording and uploading machine.  These should be
-  // used on startup and when the user clicks the checkbox in the prefs.
-  void Start();
-  void Stop();
-
   // At startup, prefs needs to be called with a list of all the pref names and
   // types we'll be using.
   static void RegisterPrefs(PrefService* local_state);
+
+  // Sets and gets whether metrics recording is active.
+  // SetRecording(false) also forces a persistent save of logging state (if
+  // anything has been recorded, or transmitted).
+  void SetRecording(bool enabled);
+  bool IsRecording() const;
+
+  // Enable/disable transmission of accumulated logs and crash reports (dumps).
+  // Return value "true" indicates setting was definitively set as requested).
+  // Return value of "false" indicates that the enable state is effectively
+  // stuck in the other logical setting.
+  // Google Update maintains the authoritative preference in the registry, so
+  // the caller *might* not be able to actually change the setting.
+  // It is always possible to set this to at least one value, which matches the
+  // current value reported by querying Google Update.
+  bool EnableReporting(bool enable);
 
   // Implementation of NotificationObserver
   virtual void Observe(NotificationType type,
@@ -118,57 +125,25 @@ class MetricsService : public NotificationObserver,
   class GetPluginListTask;
   class GetPluginListTaskComplete;
 
-  // Sets whether the UMA server response data permits uploading.
-
-  // Sets and gets whether metrics recording is active.
-  // SetRecording(false) also forces a persistent save of logging state (if
-  // anything has been recorded, or transmitted).
-  void SetRecording(bool enabled);
-  bool recording_active() const;
-
-  // Enable/disable transmission of accumulated logs and crash reports (dumps).
-  // Return value "true" indicates setting was definitively set as requested).
-  // Return value of "false" indicates that the enable state is effectively
-  // stuck in the other logical setting.
-  // Google Update maintains the authoritative preference in the registry, so
-  // the caller *might* not be able to actually change the setting.
-  // It is always possible to set this to at least one value, which matches the
-  // current value reported by querying Google Update.
-  void SetReporting(bool enabled);
-  bool reporting_active() const;
-
-  // If in_idle is true, sets idle_since_last_transmission to true.
-  // If in_idle is false and idle_since_last_transmission_ is true, sets
-  // idle_since_last_transmission to false and starts the timer (provided
-  // starting the timer is permitted).
-  void HandleIdleSinceLastTransmission(bool in_idle);
-
   // Set up client ID, session ID, etc.
   void InitializeMetricsState();
-
   // Generates a new client ID to use to identify self to metrics server.
   static std::string GenerateClientID();
-
   // Schedule the next save of LocalState information.  This is called
   // automatically by the task that performs each save to schedule the next one.
   void ScheduleNextStateSave();
-
   // Save the LocalState information immediately. This should not be called by
   // anybody other than the scheduler to avoid doing too many writes. When you
   // make a change, call ScheduleNextStateSave() instead.
   void SaveLocalState();
 
   // Called to start recording user experience metrics.
-  // Constructs a new, empty current_log_.
   void StartRecording();
-
   // Called to stop recording user experience metrics.  The caller takes
   // ownership of the resulting MetricsLog object via the log parameter,
   // or passes in NULL to indicate that the log should simply be deleted.
   void StopRecording(MetricsLog** log);
-
   void ListenerRegistration(bool start_listening);
-
   // Adds or Removes (depending on the value of is_add) the given observer
   // to the given notification type for all sources.
   static void AddOrRemoveObserver(NotificationObserver* observer,
@@ -176,7 +151,7 @@ class MetricsService : public NotificationObserver,
                                   bool is_add);
 
   // Deletes pending_log_ and current_log_, and pushes their text into the
-  // appropriate unsent_log vectors.  Called when Chrome shuts down.
+  // appropriate unsent_log vectors.
   void PushPendingLogsToUnsentLists();
 
   // Save the pending_log_text_ persistently in a pref for transmission when we
@@ -188,20 +163,8 @@ class MetricsService : public NotificationObserver,
   // Do not call TryToStartTransmission() directly.
   // Use StartLogTransmissionTimer() to schedule a call.
   void TryToStartTransmission();
-
-  // Takes whatever log should be uploaded next (according to the state_)
-  // and makes it the pending log.  If pending_log_ is not NULL,
-  // MakePendingLog does nothing and returns.
-  void MakePendingLog();
-
-  // Determines from state_ and permissions set out by the server and by
-  // the user whether the pending_log_ should be sent or discarded.  Called by
-  // TryToStartTransmission.
-  bool TransmissionPermitted() const;
-
   // Internal function to collect process memory information.
   void CollectMemoryDetails();
-
   // Check to see if there is a log that needs to be, or is being, transmitted.
   bool pending_log() const {
     return pending_log_ || !pending_log_text_.empty();
@@ -216,12 +179,8 @@ class MetricsService : public NotificationObserver,
   void RecallUnsentLogs();
   // Convert pending_log_ to XML in pending_log_text_ for transmission.
   void PreparePendingLogText();
-
   // Convert pending_log_ to XML, compress it, and prepare to pass to server.
-  // Upon return, current_fetch_ should be reset with its upload data set to
-  // a compressed copy of the pending log.
-  void PrepareFetchWithPendingLog();
-
+  void PreparePendingLogForTransmission();
   // Discard pending_log_, and clear pending_log_text_. Called after processing
   // of this log is complete.
   void DiscardPendingLog();
@@ -240,50 +199,14 @@ class MetricsService : public NotificationObserver,
   // a response code not equal to 200.
   void HandleBadResponseCode();
 
-  // Class to hold all attributes that gets inhereted by children in the UMA
-  // response data xml tree.  This is to make it convenient in the
-  // recursive function that does the tree traversal to pass all such
-  // data in the recursive call.  If you want to add more such attributes,
-  // add them to this class.
-  class InheretedProperties {
-    public:
-    InheretedProperties() : salt(123123), denominator(1000000) {}
-    int salt, denominator;
-    // salt and denominator are inhereted from parent nodes, but not
-    // probability the default value of probability is 1.
-
-    // When a new node is reached it might have fields set to set
-    // the inhereted properties to something else for that node
-    // (and it's children).  Call this method to overwrite those settings.
-    void OverwriteWhereNeeded(xmlNodePtr node);
-  };
-
   // Called by OnURLFetchComplete with data as the argument
   // parses the xml returned by the server in the call to OnURLFetchComplete
   // and extracts settings for subsequent frequency and content of log posts.
   void GetSettingsFromResponseData(const std::string& data);
 
   // This is a helper function for GetSettingsFromResponseData which iterates
-  // through the xml tree at the level of the <chrome_config> node.
-  void GetSettingsFromChromeConfigNode(xmlNodePtr chrome_config_node);
-
-  // GetSettingsFromUploadNode handles iteration over the children of the
-  // <upload> child of the <chrome_config> node.  It calls the recursive
-  // function GetSettingsFromUploadNodeRecursive which does the actual
-  // tree traversal.
-  void GetSettingsFromUploadNode(xmlNodePtr upload_node);
-  void GetSettingsFromUploadNodeRecursive(xmlNodePtr node,
-      InheretedProperties props,
-      std::string path_prefix,
-      bool uploadOn);
-
-  // NodeProbabilityTest gets called at every node in the tree traversal
-  // performed by GetSettingsFromUploadNodeRecursive.  It determines from
-  // the inhereted attributes (salt, denominator) and the probability
-  // assiciated with the node whether that node and its contents should
-  // contribute to the upload.
-  bool NodeProbabilityTest(xmlNodePtr node, InheretedProperties props) const;
-  bool ProbabilityTest(double probability, int salt, int denominator) const;
+  // through the xml tree at the level of the <config> node.
+  void GetSettingsFromConfigNode(xmlNodePtr config_node);
 
   // Records a window-related notification.
   void LogWindowChange(NotificationType type,
@@ -332,10 +255,9 @@ class MetricsService : public NotificationObserver,
   // buffered plugin stability statistics.
   void RecordCurrentState(PrefService* pref);
 
-  // Record complete list of histograms into the current log.
-  // Called when we close a log.
+  // Record complete list of histograms.  Called when we close a log.
   void RecordCurrentHistograms();
-  // Record a specific histogram .
+  // Record a specific histogram.
   void RecordHistogram(const Histogram& histogram);
 
   // Logs the initiation of a page load
@@ -358,21 +280,8 @@ class MetricsService : public NotificationObserver,
   // Sets the value of the specified path in prefs and schedules a save.
   void RecordBooleanPrefValue(const wchar_t* path, bool value);
 
-  // The variables recording_active_ and reporting_active_ say whether
-  // recording and reporting are currently happening.  These should not
-  // be set directly, but by calling SetRecording and SetReporting.
-  bool recording_active_;
-  bool reporting_active_;
-
-  // The variable user_permits_upload_ is meant to coinside with the check
-  // box in options window that lets the user control whether to upload.
-  bool user_permits_upload_;
-
-  // The variable server_permits_upload_ is set true when the response
-  // data forbids uploading.  This should coinside with the "die roll"
-  // with probability in the upload tag of the response data came out
-  // affirmative.
-  bool server_permits_upload_;
+  bool recording_;
+  bool reporting_;  // if false, metrics logs are discarded rather than sent
 
   // The progession of states made by the browser are recorded in the following
   // state.
@@ -380,25 +289,16 @@ class MetricsService : public NotificationObserver,
 
   // A log that we are currently transmiting, or about to try to transmit.
   MetricsLog* pending_log_;
-
   // An alternate form of pending_log_.  We persistently save this text version
   // into prefs if we can't transmit it.  As a result, sometimes all we have is
   // the text version (recalled from a previous session).
   std::string pending_log_text_;
-
   // The outstanding transmission appears as a URL Fetch operation.
   scoped_ptr<URLFetcher> current_fetch_;
-
   // The log that we are still appending to.
   MetricsLog* current_log_;
-
   // The identifier that's sent to the server with the log reports.
   std::string client_id_;
-
-  // Whether the MetricsService object has received any notifications since
-  // the last time a transmission was sent.
-  bool idle_since_last_transmission_;
-
   // A number that identifies the how many times the app has been launched.
   int session_id_;
 
@@ -440,20 +340,16 @@ class MetricsService : public NotificationObserver,
   // quickly transmit those unsent logs while we continue to build a log.
   TimeDelta interlog_duration_;
 
-  // The maximum number of events which get transmitted in a log.  This defaults
-  // to a constant and otherwise is provided by the UMA server in the server
-  // response data.
-  int log_event_limit_;
+  // The maximum number of events which get transmitted in the log.  This is
+  // provided by the UMA server in the server response data.
+  int event_limit_;
 
-  // Whether or not any uma data gets uploaded.
-  bool upload_on_;
+  // The types of data that are to be included in the log.  These are called
+  // "collectors" in the server response data.
+  std::set<std::string> collectors_;
 
-  // The types of data that are to be included in the logs and histograms
-  // according to the UMA response data.
-  std::set<std::string> logs_to_upload_, logs_to_omit_;
-  std::set<std::string> histograms_to_upload_, histograms_to_omit_;
-
-  // Indicate that a timer for sending the next log has already been queued.
+  // Indicate that a timer for sending the next log has already been queued,
+  // or that a URLFetch (i.e., log transmission) is in progress.
   bool timer_pending_;
 
   DISALLOW_EVIL_CONSTRUCTORS(MetricsService);

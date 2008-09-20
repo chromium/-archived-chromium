@@ -63,9 +63,7 @@ class MetricsServiceTest : public UITest {
   BrowserProxy* window_;
 };
 
-// This test expects the metrics recording to turn on regardless of whether
-// the user permits it.  Disabled for now, see bug 2522.
-TEST_F(MetricsServiceTest, DISABLED_CloseRenderersNormally) {
+TEST_F(MetricsServiceTest, CloseRenderersNormally) {
   OpenTabs();
   QuitBrowser();
 
