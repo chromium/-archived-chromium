@@ -5,6 +5,9 @@
 // A simple bloom filter.  It's currently limited to four hashing functions,
 // which are calculated from the item's hash.
 
+#ifndef CHROME_BROWSER_SAFE_BROWSING_BLOOM_FILTER_H__
+#define CHROME_BROWSER_SAFE_BROWSING_BLOOM_FILTER_H__
+
 #include "base/scoped_ptr.h"
 #include "base/basictypes.h"
 
@@ -32,3 +35,4 @@ class BloomFilter {
   scoped_array<char> data_;
 };
 
+#endif  // CHROME_BROWSER_SAFE_BROWSING_BLOOM_FILTER_H__

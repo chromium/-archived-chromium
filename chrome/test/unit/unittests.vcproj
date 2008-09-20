@@ -758,6 +758,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\safe_browsing\safe_browsing_database_impl_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\safe_browsing\safe_browsing_util_unittest.cc"
 				>
 			</File>

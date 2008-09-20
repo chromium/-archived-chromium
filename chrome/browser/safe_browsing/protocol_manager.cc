@@ -12,7 +12,6 @@
 #include "base/timer.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/safe_browsing/protocol_parser.h"
-#include "chrome/browser/safe_browsing/safe_browsing_database.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/common/env_util.h"
 #include "chrome/common/env_vars.h"

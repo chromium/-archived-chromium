@@ -290,7 +290,7 @@ SafeBrowsingDatabase* SafeBrowsingService::GetDatabase() {
   path.append(chrome::kSafeBrowsingFilename);
 
   Time before = Time::Now();
-  SafeBrowsingDatabase* database = new SafeBrowsingDatabase();
+  SafeBrowsingDatabase* database = SafeBrowsingDatabase::Create();
   Callback0::Type* callback =
       NewCallback(this, &SafeBrowsingService::ChunkInserted);
   result = database->Init(path, callback);
