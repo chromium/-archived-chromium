@@ -70,7 +70,8 @@ bool InterceptionAgent::DllMatch(const UNICODE_STRING* full_path,
       !g_nt.RtlCompareUnicodeString(&current_name, full_path, case_insensitive))
     return true;
 
-  if (!g_nt.RtlCompareUnicodeString(&current_name, name, case_insensitive))
+  if (name &&
+      !g_nt.RtlCompareUnicodeString(&current_name, name, case_insensitive))
     return true;
 
   return false;
