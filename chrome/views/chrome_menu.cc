@@ -103,6 +103,9 @@ static const int kScrollTimerMS = 30;
 // Preferred height of menu items. Reset every time a menu is run.
 static int pref_menu_height;
 
+// Are mnemonics shown? This is updated before the menus are shown.
+static bool show_mnemonics;
+
 using gfx::NativeTheme;
 
 namespace ChromeViews {
@@ -1069,8 +1072,8 @@ MenuItemView::~MenuItemView() {
 void MenuItemView::RunMenuAt(HWND parent,
                              const gfx::Rect& bounds,
                              AnchorPosition anchor,
-                             bool show_mnemonics) {
-  PrepareForRun(show_mnemonics);
+                             bool has_mnemonics) {
+  PrepareForRun(has_mnemonics);
 
   int mouse_event_flags;
 
@@ -1190,6 +1193,9 @@ MenuItemView* MenuItemView::GetRootMenuItem() {
 }
 
 wchar_t MenuItemView::GetMnemonic() {
+  if (!has_mnemonics_)
+    return 0;
+
   const std::wstring& title = GetTitle();
   size_t index = 0;
   do {
@@ -1285,7 +1291,7 @@ void MenuItemView::DropMenuClosed(bool notify_delegate) {
   // WARNING: its possible the delegate deleted us at this point.
 }
 
-void MenuItemView::PrepareForRun(bool show_mnemonics) {
+void MenuItemView::PrepareForRun(bool has_mnemonics) {
   // Currently we only support showing the root.
   DCHECK(!parent_menu_item_);
 
@@ -1297,11 +1303,16 @@ void MenuItemView::PrepareForRun(bool show_mnemonics) {
 
   canceled_ = false;
 
-  show_mnemonics_ = show_mnemonics;
+  has_mnemonics_ = has_mnemonics;
 
   AddEmptyMenus();
 
   UpdateMenuPartSizes();
+
+  BOOL show_cues;
+  show_mnemonics =
+      (SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, &show_cues, 0) &&
+       show_cues == TRUE);
 }
 
 int MenuItemView::GetDrawStringFlags() {
@@ -1311,8 +1322,13 @@ int MenuItemView::GetDrawStringFlags() {
   else
     flags |= ChromeCanvas::TEXT_ALIGN_LEFT;
 
-  return flags |
-      (show_mnemonics_ ? ChromeCanvas::SHOW_PREFIX : ChromeCanvas::HIDE_PREFIX);
+  if (has_mnemonics_) {
+    if (show_mnemonics)
+      flags |= ChromeCanvas::SHOW_PREFIX;
+    else
+      flags |= ChromeCanvas::HIDE_PREFIX;
+  }
+  return flags;
 }
 
 void MenuItemView::AddEmptyMenus() {

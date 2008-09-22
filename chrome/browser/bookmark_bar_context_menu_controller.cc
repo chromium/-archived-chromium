@@ -237,7 +237,7 @@ void BookmarkBarContextMenuController::RunMenuAt(int x, int y) {
 
   // width/height don't matter here.
   menu_.RunMenuAt(view_->GetViewContainer()->GetHWND(), gfx::Rect(x, y, 0, 0),
-                  ChromeViews::MenuItemView::TOPLEFT, false);
+                  ChromeViews::MenuItemView::TOPLEFT, true);
 
   if (view_->GetModelChangedListener() == this)
     view_->SetModelChangedListener(last_listener);
