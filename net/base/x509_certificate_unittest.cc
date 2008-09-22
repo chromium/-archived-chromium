@@ -97,7 +97,7 @@ unsigned char google_fingerprint[] = {
 
 using net::X509Certificate;
 
-TEST(X509CertificateTest, BasicParsing) {
+TEST(X509CertificateTest, GoogleCertParsing) {
   X509Certificate *google_cert = X509Certificate::CreateFromBytes(
       reinterpret_cast<const char*>(google_der), sizeof(google_der));
   
@@ -125,11 +125,12 @@ TEST(X509CertificateTest, BasicParsing) {
   EXPECT_EQ(0U, issuer.organization_unit_names.size());
   EXPECT_EQ(0U, issuer.domain_components.size());
   
+  // Use DoubleT because its epoch is the same on all platforms
   const Time& valid_start = google_cert->valid_start();
-  EXPECT_EQ(GG_LONGLONG(12854221375000000), valid_start.ToInternalValue());
+  EXPECT_EQ(1209747775, valid_start.ToDoubleT());
   
   const Time& valid_expiry = google_cert->valid_expiry();
-  EXPECT_EQ(GG_LONGLONG(12885757375000000), valid_expiry.ToInternalValue());
+  EXPECT_EQ(1241283775, valid_expiry.ToDoubleT());
   
   const X509Certificate::Fingerprint& fingerprint = google_cert->fingerprint();
   for (size_t i = 0; i < 20; ++i)

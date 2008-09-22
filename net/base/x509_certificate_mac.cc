@@ -6,6 +6,7 @@
 
 #include <CommonCrypto/CommonDigest.h>
 #include <map>
+#include <time.h>
 
 #include "base/histogram.h"
 #include "base/lock.h"
@@ -119,23 +120,33 @@ void ParsePrincipal(const CSSM_X509_NAME* name,
   }
 }
 
-void GetCertFieldsForOID(X509Certificate::OSCertHandle cert_handle,
-                         CSSM_OID oid,
-                         std::vector<std::string>* result) {
+OSStatus GetCertFieldsForOID(X509Certificate::OSCertHandle cert_handle,
+                             CSSM_OID oid, uint32* num_of_fields,
+                             CSSM_FIELD_PTR* fields) {
+  *num_of_fields = 0;
+  *fields = NULL;
+  
   CSSM_DATA cert_data;
   OSStatus status = SecCertificateGetData(cert_handle, &cert_data);
   if (status)
-    return;
+    return status;
   
   CSSM_CL_HANDLE cl_handle;
   status = SecCertificateGetCLHandle(cert_handle, &cl_handle);
   if (status)
-    return;
+    return status;
   
+  status = CSSM_CL_CertGetAllFields(cl_handle, &cert_data, num_of_fields,
+                                    fields);
+  return status;
+}    
+
+void GetCertStringsForOID(X509Certificate::OSCertHandle cert_handle,
+                          CSSM_OID oid, std::vector<std::string>* result) {
   uint32 num_of_fields;
   CSSM_FIELD_PTR fields;
-  status = CSSM_CL_CertGetAllFields(cl_handle, &cert_data, &num_of_fields,
-                                    &fields);
+  OSStatus status = GetCertFieldsForOID(cert_handle, oid, &num_of_fields,
+                                        &fields);
   if (status)
     return;
   
@@ -146,6 +157,49 @@ void GetCertFieldsForOID(X509Certificate::OSCertHandle cert_handle,
                       (fields[field].FieldValue.Data),
                       fields[field].FieldValue.Length);
       result->push_back(value);
+    }
+  }
+}
+
+void GetCertDateForOID(X509Certificate::OSCertHandle cert_handle,
+                       CSSM_OID oid, Time* result) {
+  uint32 num_of_fields;
+  CSSM_FIELD_PTR fields;
+  OSStatus status = GetCertFieldsForOID(cert_handle, oid, &num_of_fields,
+                                        &fields);
+  if (status)
+    return;
+  
+  for (size_t field = 0; field < num_of_fields; ++field) {
+    if (CSSMOIDEqual(&fields[field].FieldOid, &oid)) {
+      CSSM_X509_TIME *x509_time =
+          reinterpret_cast<CSSM_X509_TIME *>(fields[field].FieldValue.Data);
+      std::string time_string =
+          std::string(reinterpret_cast<std::string::value_type*>
+                      (x509_time->time.Data),
+                      x509_time->time.Length);
+      
+      struct tm time;
+      const char *parse_string;
+      if (x509_time->timeType == BER_TAG_UTC_TIME)
+        parse_string = "%y%m%d%H%M%SZ";
+      else if (x509_time->timeType == BER_TAG_GENERALIZED_TIME)
+        parse_string = "%y%m%d%H%M%SZ";
+      // else log?
+      
+      strptime(time_string.c_str(), parse_string, &time);
+      
+      Time::Exploded exploded;
+      exploded.year         = time.tm_year + 1900;
+      exploded.month        = time.tm_mon + 1;
+      exploded.day_of_week  = time.tm_wday;
+      exploded.day_of_month = time.tm_mday;
+      exploded.hour         = time.tm_hour;
+      exploded.minute       = time.tm_min;
+      exploded.second       = time.tm_sec;
+      exploded.millisecond  = 0;
+      
+      *result = Time::FromUTCExploded(exploded);
     }
   }
 }
@@ -247,6 +301,11 @@ void X509Certificate::Initialize() {
     ParsePrincipal(name, &issuer_);
   }
   
+  GetCertDateForOID(cert_handle_, CSSMOID_X509V1ValidityNotBefore,
+                    &valid_start_);
+  GetCertDateForOID(cert_handle_, CSSMOID_X509V1ValidityNotAfter,
+                    &valid_expiry_);
+  
   fingerprint_ = CalculateFingerprint(cert_handle_);
 
   // Store the certificate in the cache in case we need it later.
@@ -306,9 +365,11 @@ X509Certificate::X509Certificate(OSCertHandle cert_handle)
 }
 
 X509Certificate::X509Certificate(std::string subject, std::string issuer,
-                                 Time, Time)
+                                 Time start_date, Time expiration_date)
     : subject_(subject),
       issuer_(issuer),
+      valid_start_(start_date),
+      valid_expiry_(expiration_date),
       cert_handle_(NULL) {
   memset(fingerprint_.data, 0, sizeof(fingerprint_.data));
 }
@@ -334,7 +395,7 @@ X509Certificate::~X509Certificate() {
 void X509Certificate::GetDNSNames(std::vector<std::string>* dns_names) const {
   dns_names->clear();
   
-  GetCertFieldsForOID(cert_handle_, CSSMOID_SubjectAltName, dns_names);
+  GetCertStringsForOID(cert_handle_, CSSMOID_SubjectAltName, dns_names);
   
   // TODO(avi): wtc says we need more parsing here. Return and fix when the
   // unit tests are complete and we can verify we're doing this right.
