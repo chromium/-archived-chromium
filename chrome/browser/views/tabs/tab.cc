@@ -54,7 +54,7 @@ class TabContextMenuController : public ChromeViews::MenuDelegate {
   void RunMenuAt(int x, int y) {
     menu_->RunMenuAt(tab_->GetViewContainer()->GetHWND(),
                      gfx::Rect(x, y, 0, 0), ChromeViews::MenuItemView::TOPLEFT,
-                     true);
+                     false);
   }
 
  private:
