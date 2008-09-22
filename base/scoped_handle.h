@@ -105,16 +105,26 @@ class ScopedFindFileHandle {
 // CreateCompatibleDC.  For an HDC returned by GetDC, use ReleaseDC instead.
 class ScopedHDC {
  public:
+  ScopedHDC() : hdc_(NULL) { }
   explicit ScopedHDC(HDC h) : hdc_(h) { }
 
   ~ScopedHDC() {
-    if (hdc_)
-      DeleteDC(hdc_);
+    Close();
+  }
+
+  void Set(HDC h) {
+    Close();
+    hdc_ = h;
   }
 
   operator HDC() { return hdc_; }
 
  private:
+  void Close() {
+    if (hdc_)
+      DeleteDC(hdc_);
+  }
+
   HDC hdc_;
   DISALLOW_EVIL_CONSTRUCTORS(ScopedHDC);
 };
@@ -122,16 +132,26 @@ class ScopedHDC {
 // Like ScopedHandle but for HBITMAP.
 class ScopedBitmap {
  public:
+  ScopedBitmap() : hbitmap_(NULL) { }
   explicit ScopedBitmap(HBITMAP h) : hbitmap_(h) { }
 
   ~ScopedBitmap() {
-    if (hbitmap_)
-      DeleteObject(hbitmap_);
+    Close();
+  }
+
+  void Set(HBITMAP h) {
+    Close();
+    hbitmap_ = h;
   }
 
   operator HBITMAP() { return hbitmap_; }
 
  private:
+  void Close() {
+    if (hbitmap_)
+      DeleteObject(hbitmap_);
+  }
+
   HBITMAP hbitmap_;
   DISALLOW_EVIL_CONSTRUCTORS(ScopedBitmap);
 };
