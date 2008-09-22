@@ -5,12 +5,15 @@
 #include "net/url_request/url_request_http_job.h"
 
 #include "base/compiler_specific.h"
+#include "base/file_util.h"
+#include "base/file_version_info.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
+#include "net/base/sdch_manager.h"
 #include "net/http/http_response_info.h"
 #include "net/http/http_transaction.h"
 #include "net/http/http_transaction_factory.h"
@@ -159,15 +162,20 @@ int URLRequestHttpJob::GetResponseCode() {
   return response_info_->headers->response_code();
 }
 
-bool URLRequestHttpJob::GetContentEncoding(std::string* encoding_type) {
+bool URLRequestHttpJob::GetContentEncodings(
+    std::vector<std::string>* encoding_types) {
   DCHECK(transaction_);
 
   if (!response_info_)
     return false;
 
-  // TODO(darin): what if there are multiple content encodings?
-  return response_info_->headers->EnumerateHeader(NULL, "Content-Encoding",
-                                                  encoding_type);
+  std::string encoding_type;
+  void* iter = NULL;
+  while (response_info_->headers->EnumerateHeader(&iter, "Content-Encoding",
+                                                  &encoding_type)) {
+    encoding_types->push_back(encoding_type);
+  }
+  return !encoding_types->empty();
 }
 
 bool URLRequestHttpJob::IsRedirectResponse(GURL* location,
@@ -413,6 +421,23 @@ void URLRequestHttpJob::NotifyHeadersComplete() {
     }
   }
 
+  // Get list of SDCH dictionary requests, and schedule them to be loaded.
+  if (SdchManager::Global()->IsInSupportedDomain(request_->url())) {
+    static const std::string name = "Get-Dictionary";
+    std::string url_text;
+    void* iter = NULL;
+    // TODO(jar): We need to not fetch dictionaries the first time they are
+    // seen, but rather wait until we can justify their usefulness.
+    // For now, we will only fetch the first dictionary, which will at least
+    // require multiple suggestions before we get additional ones for this site.
+    // Eventually we should wait until a dictionary is requested several times
+    // before we even download it (so that we don't waste memory or bandwidth).
+    if (response_info_->headers->EnumerateHeader(&iter, name, &url_text)) {
+      GURL dictionary_url = request_->url().Resolve(url_text);
+      SdchManager::Global()->FetchDictionary(request_->url(), dictionary_url);
+    }
+  }
+
   URLRequestJob::NotifyHeadersComplete();
 }
 
@@ -476,8 +501,32 @@ void URLRequestHttpJob::AddExtraHeaders() {
           context->accept_charset() + "\r\n";
   }
 
+  if (!SdchManager::Global()->IsInSupportedDomain(request_->url())) {
+    // Tell the server what compression formats we support (other than SDCH).
+    request_info_.extra_headers += "Accept-Encoding: gzip,deflate,bzip2\r\n";
+    return;
+  }
+
+  // Supply SDCH related headers, as well as accepting that encoding.
+
+  // TODO(jar): See if it is worth optimizing away these bytes when the URL is
+  // probably an img or such. (and SDCH encoding is not likely).
+  std::string avail_dictionaries;
+  SdchManager::Global()->GetAvailDictionaryList(request_->url(),
+                                                &avail_dictionaries);
+  if (!avail_dictionaries.empty())
+    request_info_.extra_headers += "Avail-Dictionary: "
+        + avail_dictionaries + "\r\n";
+
+  scoped_ptr<FileVersionInfo> file_version_info(
+    FileVersionInfo::CreateFileVersionInfoForCurrentModule());
+  request_info_.extra_headers += "X-SDCH: Chrome ";
+  request_info_.extra_headers +=
+      WideToASCII(file_version_info->product_version());
+  request_info_.extra_headers += "\r\n";
+
   // Tell the server what compression formats we support.
-  request_info_.extra_headers += "Accept-Encoding: gzip,deflate,bzip2\r\n";
+  request_info_.extra_headers += "Accept-Encoding: gzip,deflate,bzip2,sdch\r\n";
 }
 
 void URLRequestHttpJob::FetchResponseCookies() {

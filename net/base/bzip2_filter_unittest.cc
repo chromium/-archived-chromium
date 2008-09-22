@@ -92,8 +92,8 @@ class BZip2FilterUnitTest : public PlatformTest {
   // Encoded_source and encoded_source_len are compressed data and its size.
   // Output_buffer_size specifies the size of buffer to read out data from
   // filter.
-  // get_extra_data specifies whether get the extra data because maybe some server
-  // might send extra data after finish sending compress data
+  // get_extra_data specifies whether get the extra data because maybe some
+  // server might send extra data after finish sending compress data.
   void DecodeAndCompareWithFilter(Filter* filter,
                                   const char* source,
                                   int source_len,
@@ -130,7 +130,7 @@ class BZip2FilterUnitTest : public PlatformTest {
       while (1) {
         int decode_data_len = std::min(decode_avail_size, output_buffer_size);
 
-        code = filter->ReadFilteredData(decode_next, &decode_data_len);
+        code = filter->ReadData(decode_next, &decode_data_len);
         decode_next += decode_data_len;
         decode_avail_size -= decode_data_len;
 
@@ -164,11 +164,13 @@ class BZip2FilterUnitTest : public PlatformTest {
                                            int* dest_len) {
     memcpy(filter->stream_buffer(), source, source_len);
     filter->FlushStreamBuffer(source_len);
-    return filter->ReadFilteredData(dest, dest_len);
+    return filter->ReadData(dest, dest_len);
   }
 
   const char* source_buffer() const { return source_buffer_.data(); }
-  int source_len() const { return static_cast<int>(source_buffer_.size()) - kExtraDataBufferSize; }
+  int source_len() const {
+    return static_cast<int>(source_buffer_.size()) - kExtraDataBufferSize;
+  }
 
   std::string source_buffer_;
 
@@ -180,8 +182,10 @@ class BZip2FilterUnitTest : public PlatformTest {
 // Basic scenario: decoding bzip2 data with big enough buffer.
 TEST_F(BZip2FilterUnitTest, DecodeBZip2) {
   // Decode the compressed data with filter
+  std::vector<std::string> filters;
+  filters.push_back("bzip2");
   scoped_ptr<Filter> filter(
-      Filter::Factory("bzip2", kApplicationOctetStream, kDefaultBufferSize));
+      Filter::Factory(filters, kApplicationOctetStream, kDefaultBufferSize));
   ASSERT_TRUE(filter.get());
   memcpy(filter->stream_buffer(), bzip2_encode_buffer_, bzip2_encode_len_);
   filter->FlushStreamBuffer(bzip2_encode_len_);
@@ -189,7 +193,7 @@ TEST_F(BZip2FilterUnitTest, DecodeBZip2) {
   char bzip2_decode_buffer[kDefaultBufferSize];
   int bzip2_decode_size = kDefaultBufferSize;
   Filter::FilterStatus result =
-    filter->ReadFilteredData(bzip2_decode_buffer, &bzip2_decode_size);
+      filter->ReadData(bzip2_decode_buffer, &bzip2_decode_size);
   ASSERT_EQ(Filter::FILTER_DONE, result);
 
   // Compare the decoding result with source data
@@ -201,8 +205,10 @@ TEST_F(BZip2FilterUnitTest, DecodeBZip2) {
 // To do that, we create a filter with a small buffer that can not hold all
 // the input data.
 TEST_F(BZip2FilterUnitTest, DecodeWithSmallInputBuffer) {
+  std::vector<std::string> filters;
+  filters.push_back("bzip2");
   scoped_ptr<Filter> filter(
-      Filter::Factory("bzip2", kApplicationOctetStream, kSmallBufferSize));
+      Filter::Factory(filters, kApplicationOctetStream, kSmallBufferSize));
   ASSERT_TRUE(filter.get());
   DecodeAndCompareWithFilter(filter.get(), source_buffer(), source_len(),
                              bzip2_encode_buffer_, bzip2_encode_len_,
@@ -211,8 +217,10 @@ TEST_F(BZip2FilterUnitTest, DecodeWithSmallInputBuffer) {
 
 // Tests we can decode when caller has small buffer to read out from filter.
 TEST_F(BZip2FilterUnitTest, DecodeWithSmallOutputBuffer) {
+  std::vector<std::string> filters;
+  filters.push_back("bzip2");
   scoped_ptr<Filter> filter(
-        Filter::Factory("bzip2", kApplicationOctetStream, kDefaultBufferSize));
+        Filter::Factory(filters, kApplicationOctetStream, kDefaultBufferSize));
   ASSERT_TRUE(filter.get());
   DecodeAndCompareWithFilter(filter.get(), source_buffer(), source_len(),
                              bzip2_encode_buffer_, bzip2_encode_len_,
@@ -224,8 +232,10 @@ TEST_F(BZip2FilterUnitTest, DecodeWithSmallOutputBuffer) {
 // header correctly. (2) Sometimes the filter will consume input without
 // generating output. Verify filter can handle it correctly.
 TEST_F(BZip2FilterUnitTest, DecodeWithOneByteInputBuffer) {
+  std::vector<std::string> filters;
+  filters.push_back("bzip2");
   scoped_ptr<Filter> filter(
-        Filter::Factory("bzip2", kApplicationOctetStream, 1));
+        Filter::Factory(filters, kApplicationOctetStream, 1));
   ASSERT_TRUE(filter.get());
   DecodeAndCompareWithFilter(filter.get(), source_buffer(), source_len(),
                              bzip2_encode_buffer_, bzip2_encode_len_,
@@ -235,8 +245,10 @@ TEST_F(BZip2FilterUnitTest, DecodeWithOneByteInputBuffer) {
 // Tests we can still decode with just 1 byte buffer in the filter and just 1
 // byte buffer in the caller.
 TEST_F(BZip2FilterUnitTest, DecodeWithOneByteInputAndOutputBuffer) {
+  std::vector<std::string> filters;
+  filters.push_back("bzip2");
   scoped_ptr<Filter> filter(
-      Filter::Factory("bzip2", kApplicationOctetStream, 1));
+      Filter::Factory(filters, kApplicationOctetStream, 1));
   ASSERT_TRUE(filter.get());
   DecodeAndCompareWithFilter(filter.get(), source_buffer(), source_len(),
                              bzip2_encode_buffer_, bzip2_encode_len_, 1, false);
@@ -252,8 +264,10 @@ TEST_F(BZip2FilterUnitTest, DecodeCorruptedData) {
   int corrupt_decode_size = kDefaultBufferSize;
 
   // Decode the correct data with filter
+  std::vector<std::string> filters;
+  filters.push_back("bzip2");
   scoped_ptr<Filter> filter1(
-      Filter::Factory("bzip2", kApplicationOctetStream, kDefaultBufferSize));
+      Filter::Factory(filters, kApplicationOctetStream, kDefaultBufferSize));
   ASSERT_TRUE(filter1.get());
 
   Filter::FilterStatus code = DecodeAllWithFilter(filter1.get(),
@@ -267,7 +281,7 @@ TEST_F(BZip2FilterUnitTest, DecodeCorruptedData) {
 
   // Decode the corrupted data with filter
   scoped_ptr<Filter> filter2(
-      Filter::Factory("bzip2", kApplicationOctetStream, kDefaultBufferSize));
+      Filter::Factory(filters, kApplicationOctetStream, kDefaultBufferSize));
   ASSERT_TRUE(filter2.get());
 
   int pos = corrupt_data_len / 2;
@@ -295,8 +309,10 @@ TEST_F(BZip2FilterUnitTest, DecodeMissingData) {
   --corrupt_data_len;
 
   // Decode the corrupted data with filter
+  std::vector<std::string> filters;
+  filters.push_back("bzip2");
   scoped_ptr<Filter> filter(
-      Filter::Factory("bzip2", kApplicationOctetStream, kDefaultBufferSize));
+      Filter::Factory(filters, kApplicationOctetStream, kDefaultBufferSize));
   ASSERT_TRUE(filter.get());
   char corrupt_decode_buffer[kDefaultBufferSize];
   int corrupt_decode_size = kDefaultBufferSize;
@@ -319,8 +335,10 @@ TEST_F(BZip2FilterUnitTest, DecodeCorruptedHeader) {
   corrupt_data[2] = !corrupt_data[2];
 
   // Decode the corrupted data with filter
+  std::vector<std::string> filters;
+  filters.push_back("bzip2");
   scoped_ptr<Filter> filter(
-      Filter::Factory("bzip2", kApplicationOctetStream, kDefaultBufferSize));
+      Filter::Factory(filters, kApplicationOctetStream, kDefaultBufferSize));
   ASSERT_TRUE(filter.get());
   char corrupt_decode_buffer[kDefaultBufferSize];
   int corrupt_decode_size = kDefaultBufferSize;
@@ -344,11 +362,14 @@ TEST_F(BZip2FilterUnitTest, DecodeWithExtraDataAndSmallOutputBuffer) {
   memcpy(more_data, bzip2_encode_buffer_, bzip2_encode_len_);
   memcpy(more_data + bzip2_encode_len_, kExtraData, kExtraDataBufferSize);
 
+  std::vector<std::string> filters;
+  filters.push_back("bzip2");
   scoped_ptr<Filter> filter(
-      Filter::Factory("bzip2", kApplicationOctetStream, kDefaultBufferSize));
+      Filter::Factory(filters, kApplicationOctetStream, kDefaultBufferSize));
   ASSERT_TRUE(filter.get());
   DecodeAndCompareWithFilter(filter.get(),
-                             source_buffer(), source_len() + kExtraDataBufferSize,
+                             source_buffer(),
+                             source_len() + kExtraDataBufferSize,
                              more_data,
                              more_data_len,
                              kSmallBufferSize,
@@ -361,11 +382,14 @@ TEST_F(BZip2FilterUnitTest, DecodeWithExtraDataAndSmallInputBuffer) {
   memcpy(more_data, bzip2_encode_buffer_, bzip2_encode_len_);
   memcpy(more_data + bzip2_encode_len_, kExtraData, kExtraDataBufferSize);
 
+  std::vector<std::string> filters;
+  filters.push_back("bzip2");
   scoped_ptr<Filter> filter(
-      Filter::Factory("bzip2", kApplicationOctetStream, kSmallBufferSize));
+      Filter::Factory(filters, kApplicationOctetStream, kSmallBufferSize));
   ASSERT_TRUE(filter.get());
   DecodeAndCompareWithFilter(filter.get(),
-                             source_buffer(), source_len() + kExtraDataBufferSize,
+                             source_buffer(),
+                             source_len() + kExtraDataBufferSize,
                              more_data,
                              more_data_len,
                              kDefaultBufferSize,

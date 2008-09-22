@@ -21,7 +21,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops;$(SolutionDir)..\sdch\using_sdch.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -78,7 +78,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops;$(SolutionDir)..\sdch\using_sdch.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -167,6 +167,14 @@
 			<File
 				RelativePath="..\base\bzip2_filter.cc"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\base\bzip2_filter.h"
@@ -357,11 +365,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\base\net_util_win.cc"
+				RelativePath="..\base\net_util.h"
 				>
 			</File>
 			<File
-				RelativePath="..\base\net_util.h"
+				RelativePath="..\base\net_util_win.cc"
 				>
 			</File>
 			<File
@@ -402,6 +410,22 @@
 			</File>
 			<File
 				RelativePath="..\base\registry_controlled_domain.h"
+				>
+			</File>
+			<File
+				RelativePath="..\base\sdch_filter.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\base\sdch_filter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\base\sdch_manager.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\base\sdch_manager.h"
 				>
 			</File>
 			<File

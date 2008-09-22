@@ -47,11 +47,13 @@ void URLRequestJob::DetachRequest() {
 }
 
 void URLRequestJob::SetupFilter() {
-  std::string encoding_type;
-  if (GetContentEncoding(&encoding_type)) {
+  std::vector<std::string> encoding_types;
+  if (GetContentEncodings(&encoding_types)) {
     std::string mime_type;
     GetMimeType(&mime_type);
-    filter_.reset(Filter::Factory(encoding_type, mime_type, kFilterBufSize));
+    filter_.reset(Filter::Factory(encoding_types, mime_type, kFilterBufSize));
+    if (filter_.get())
+      filter_->SetURL(request_->url());
   }
 }
 
@@ -174,7 +176,7 @@ bool URLRequestJob::ReadFilteredData(int *bytes_read) {
     // Get filtered data
     int filtered_data_len = read_buffer_len_;
     Filter::FilterStatus status;
-    status = filter_->ReadFilteredData(read_buffer_, &filtered_data_len);
+    status = filter_->ReadData(read_buffer_, &filtered_data_len);
     switch (status) {
       case Filter::FILTER_DONE: {
         *bytes_read = filtered_data_len;
