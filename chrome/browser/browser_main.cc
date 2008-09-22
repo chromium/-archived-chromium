@@ -30,7 +30,6 @@
 #include "chrome/browser/jankometer.h"
 #include "chrome/browser/metrics_service.h"
 #include "chrome/browser/net/dns_global.h"
-#include "chrome/browser/net/sdch_dictionary_fetcher.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/rlz/rlz.h"
@@ -54,7 +53,6 @@
 #include "net/base/net_module.h"
 #include "net/base/net_resources.h"
 #include "net/base/net_util.h"
-#include "net/base/sdch_manager.h"
 #include "net/base/winsock_init.h"
 #include "net/http/http_network_layer.h"
 
@@ -476,15 +474,6 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
 
   // Initialize the CertStore.
   CertStore::Initialize();
-
-  // Prepare for memory caching of SDCH dictionaries.
-  SdchManager sdch_manager;  // Construct singleton database.
-  if (parsed_command_line.HasSwitch(switches::kSdchFilter)) {
-    sdch_manager.set_sdch_fetcher(new SdchDictionaryFetcher);
-    std::wstring switch_domain =
-        parsed_command_line.GetSwitchValue(switches::kSdchFilter);
-    sdch_manager.enable_sdch_support(WideToASCII(switch_domain));
-  }
 
   MetricsService* metrics = NULL;
   if (!parsed_command_line.HasSwitch(switches::kDisableMetrics)) {

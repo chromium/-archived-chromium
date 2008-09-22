@@ -2,11 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_URL_REQUEST_URL_REQUEST_HTTP_JOB_H_
-#define NET_URL_REQUEST_URL_REQUEST_HTTP_JOB_H_
-
-#include <string>
-#include <vector>
+#ifndef NET_URL_REQUEST_URL_REQUEST_HTTP_JOB_H__
+#define NET_URL_REQUEST_URL_REQUEST_HTTP_JOB_H__
 
 #include "net/base/completion_callback.h"
 #include "net/http/http_request_info.h"
@@ -27,7 +24,7 @@ class URLRequestHttpJob : public URLRequestJob {
   virtual ~URLRequestHttpJob();
 
  protected:
-  explicit URLRequestHttpJob(URLRequest* request);
+  URLRequestHttpJob(URLRequest* request);
 
   // URLRequestJob methods:
   virtual void SetUpload(net::UploadData* upload);
@@ -41,7 +38,7 @@ class URLRequestHttpJob : public URLRequestJob {
   virtual void GetResponseInfo(net::HttpResponseInfo* info);
   virtual bool GetResponseCookies(std::vector<std::string>* cookies);
   virtual int GetResponseCode();
-  virtual bool GetContentEncodings(std::vector<std::string>* encoding_type);
+  virtual bool GetContentEncoding(std::string* encoding_type);
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code);
   virtual bool IsSafeRedirect(const GURL& location);
   virtual bool NeedsAuth();
@@ -80,11 +77,12 @@ class URLRequestHttpJob : public URLRequestJob {
 
   bool read_in_progress_;
 
-  // Keep a reference to the url request context to be sure it's not deleted
-  // before us.
+  // Keep a reference to the url request context to be sure it's not
+  // deleted before us.
   scoped_refptr<URLRequestContext> context_;
 
-  DISALLOW_COPY_AND_ASSIGN(URLRequestHttpJob);
+  DISALLOW_EVIL_CONSTRUCTORS(URLRequestHttpJob);
 };
 
-#endif  // NET_URL_REQUEST_URL_REQUEST_HTTP_JOB_H_
+#endif  // NET_URL_REQUEST_URL_REQUEST_HTTP_JOB_H__
+

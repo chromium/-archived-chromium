@@ -5,7 +5,6 @@
 #ifndef NET_URL_REQUEST_URL_REQUEST_JOB_H_
 #define NET_URL_REQUEST_URL_REQUEST_JOB_H_
 
-#include <string>
 #include <vector>
 
 #include "base/basictypes.h"
@@ -29,7 +28,7 @@ class URLRequestJobMetrics;
 // UrlRequestFileJob.
 class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
  public:
-  explicit URLRequestJob(URLRequest* request);
+  URLRequestJob(URLRequest* request);
   virtual ~URLRequestJob();
 
   // Returns the request that owns this job. THIS POINTER MAY BE NULL if the
@@ -45,8 +44,7 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
   // Sets extra request headers for Job types that support request headers.
   virtual void SetExtraRequestHeaders(const std::string& headers) { }
 
-  // If any error occurs while starting the Job, NotifyStartError should be
-  // called.
+  // If any error occurs while starting the Job, NotifyStartError should be called.
   // This helps ensure that all errors follow more similar notification code
   // paths, which should simplify testing.
   virtual void Start() = 0;
@@ -110,18 +108,10 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
   // Returns the HTTP response code for the request.
   virtual int GetResponseCode() { return -1; }
 
-  // Called to fetch the encoding types for this request. Only makes sense for
+  // Called to fetch the encoding type for this request. Only makes sense for
   // some types of requests. Returns true on success. Calling this on a request
   // that doesn't have or specify an encoding type will return false.
-  // Returns a array of strings showing the sequential encodings used on the
-  // content.  For example, types[0] = "sdch" and types[1] = gzip, means the
-  // content was first encoded by sdch, and then encoded by gzip.  To decode,
-  // a series of filters must be applied in the reverse order (in the above
-  // example, ungzip first, and then sdch expand).
-  // TODO(jar): Cleaner API would return an array of enums.
-  virtual bool GetContentEncodings(std::vector<std::string>* encoding_types) {
-    return false;
-  }
+  virtual bool GetContentEncoding(std::string* encoding_type) { return false; }
 
   // Called to setup stream filter for this request. An example of filter is
   // content encoding/decoding.
