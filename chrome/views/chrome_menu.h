@@ -238,11 +238,13 @@ class MenuItemView : public View {
   virtual ~MenuItemView();
 
   // Run methods. See description above class for details. Both Run methods take
-  // a rectangle, which is used to position the menu.
+  // a rectangle, which is used to position the menu. |has_mnemonics| indicates
+  // whether the items have mnemonics. Mnemonics are identified by way of the
+  // character following the '&'.
   void RunMenuAt(HWND parent,
                  const gfx::Rect& bounds,
                  AnchorPosition anchor,
-                 bool show_mnemonics);
+                 bool has_mnemonics);
   void RunMenuForDropAt(HWND parent,
                         const gfx::Rect& bounds,
                         AnchorPosition anchor);
@@ -397,7 +399,7 @@ class MenuItemView : public View {
 
   // The RunXXX methods call into this to set up the necessary state before
   // running.
-  void PrepareForRun(bool show_mnemonics);
+  void PrepareForRun(bool has_mnemonics);
 
   // Returns the flags passed to DrawStringInt.
   int GetDrawStringFlags();
@@ -459,8 +461,8 @@ class MenuItemView : public View {
   // Icon.
   SkBitmap icon_;
 
-  // Whether mnemonics should be shown.
-  bool show_mnemonics_;
+  // Does the title have a mnemonic?
+  bool has_mnemonics_;
 
   DISALLOW_EVIL_CONSTRUCTORS(MenuItemView);
 };
