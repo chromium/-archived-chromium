@@ -38,7 +38,7 @@ class ShellDialogThread : public base::Thread {
   }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(ShellDialogThread);
+  DISALLOW_COPY_AND_ASSIGN(ShellDialogThread);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@ class BaseShellDialogImpl {
   static Owners owners_;
   static int instance_count_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(BaseShellDialogImpl);
+  DISALLOW_COPY_AND_ASSIGN(BaseShellDialogImpl);
 };
 
 // static
@@ -231,7 +231,7 @@ class SelectFileDialogImpl : public SelectFileDialog,
   // The listener to be notified of selection completion.
   Listener* listener_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(SelectFileDialogImpl);
+  DISALLOW_COPY_AND_ASSIGN(SelectFileDialogImpl);
 };
 
 SelectFileDialogImpl::SelectFileDialogImpl(Listener* listener)
@@ -346,7 +346,9 @@ bool SelectFileDialogImpl::RunOpenFileDialog(const std::wstring& title,
 
   ofn.lpstrFile = filename;
   ofn.nMaxFile = MAX_PATH;
-  ofn.Flags = OFN_FILEMUSTEXIST;
+  // We use OFN_NOCHANGEDIR so that the user can rename or delete the directory
+  // without having to close Chrome first.
+  ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
   // TODO(beng): (http://b/issue?id=1126563) edit the filter options in the
   //             dropdown list.
@@ -403,7 +405,7 @@ class SelectFontDialogImpl : public SelectFontDialog,
   // The listener to be notified of selection completion.
   Listener* listener_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(SelectFontDialogImpl);
+  DISALLOW_COPY_AND_ASSIGN(SelectFontDialogImpl);
 };
 
 SelectFontDialogImpl::SelectFontDialogImpl(Listener* listener)
