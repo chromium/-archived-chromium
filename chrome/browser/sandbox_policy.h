@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_SANDBOX_POLICY_H__
-#define CHROME_BROWSER_SANDBOX_POLICY_H__
+#ifndef CHROME_BROWSER_SANDBOX_POLICY_H_
+#define CHROME_BROWSER_SANDBOX_POLICY_H_
 
 #include <string>
 #include "sandbox/src/sandbox.h"
@@ -11,6 +11,9 @@
 
 // Adds the generic policy rules to a sandbox TargetPolicy.
 bool AddGenericPolicy(sandbox::TargetPolicy* policy);
+
+// Adds policy rules for unloaded the known dlls that cause chrome to crash.
+bool AddDllEvictionPolicy(sandbox::TargetPolicy* policy);
 
 // Adds the custom policy rules for a given plugin. If dll is activex-shim,
 // then clsid is the clsid of ActiveX control. Otherwise clsid is ignored.
@@ -41,5 +44,5 @@ bool ApplyPolicyForTrustedPlugin(sandbox::TargetPolicy* policy);
 // is disabled.
 bool ApplyPolicyForUntrustedPlugin(sandbox::TargetPolicy* policy);
 
-#endif  // CHROME_BROWSER_SANDBOX_POLICY_H__
+#endif  // CHROME_BROWSER_SANDBOX_POLICY_H_
 

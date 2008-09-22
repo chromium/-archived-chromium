@@ -92,6 +92,30 @@ bool AddKeyAndSubkeys(std::wstring key,
   return true;
 }
 
+// Eviction of injected DLLs is done by the sandbox. An interception on a
+// system call is added such that the blacklisted dll, don't fully load so
+// the injected module does not get a chance to execute any code.
+bool AddDllEvictionPolicy(sandbox::TargetPolicy* policy) {
+  // List of dlls to unmap.
+  const wchar_t* troublesome_dlls[] = {
+      L"smumhook.dll",  // Spyware Doctor version 5 and above.
+      L"GoogleDesktopNetwork3.DLL",  // Google Desktop Search v5.
+      L"npggNT.des",   // GameGuard version 2008. It is a packed dll.
+  };
+
+  for(int ix = 0; ix != arraysize(troublesome_dlls); ++ix) {
+    // To minimize the list we only add an unload policy if the dll is also
+    // loaded in this process. All the injected dlls of interest do this.
+    if (::GetModuleHandleW(troublesome_dlls[ix])) {
+      LOG(WARNING) << "dll to unload found: " << troublesome_dlls[ix];
+      if (sandbox::SBOX_ALL_OK != policy->AddDllToUnload(troublesome_dlls[ix]))
+        return false;
+    }
+  }
+
+  return true;
+}
+
 bool AddGenericPolicy(sandbox::TargetPolicy* policy) {
   sandbox::ResultCode result;
 

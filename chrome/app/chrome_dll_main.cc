@@ -86,27 +86,6 @@ void ChromeAssert(const std::string& str) {
 
 #pragma optimize("", on)
 
-
-// Try to unload DLLs that malfunction with the sandboxed processes.
-static void EvictTroublesomeDlls() {
-  const wchar_t* troublesome_dlls[] = {
-      L"smumhook.dll",  // spyware doctor version 5 and above.
-      NULL              // Must be null. Here you can add with the debugger.
-  };
-
-  for(int ix = 0; ix != arraysize(troublesome_dlls); ++ix) {
-    if (!troublesome_dlls[ix])
-      break;
-    HMODULE module = ::GetModuleHandleW(troublesome_dlls[ix]);
-    if (module) {
-      LOG(WARNING) << "dll to evict found: " << ix;
-      if (::FreeLibrary(module)) {
-        DCHECK(NULL == ::GetModuleHandleW(troublesome_dlls[ix]));
-      }
-    }
-  }
-}
-
 }  // namespace
 
 DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
@@ -184,8 +163,6 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
   std::wstring process_type =
     parsed_command_line.GetSwitchValue(switches::kProcessType);
 
-  bool do_dll_eviction = false;
-
   // Checks if the sandbox is enabled in this process and initializes it if this
   // is the case. The crash handler depends on this so it has to be done before
   // its initialization.
@@ -194,7 +171,6 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
         (process_type == switches::kPluginProcess &&
          parsed_command_line.HasSwitch(switches::kSafePlugins))) {
       target_services->Init();
-      do_dll_eviction = true;
     }
   }
 
@@ -234,11 +210,6 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
     // browser process as a command line flag.
     ResourceBundle::InitSharedInstance(std::wstring());
   }
-
-  // Eviction of injected DLLs is done early enough that it is likely
-  // to only cover DLLs injected by means of appInit_dlls registry key.
-  if (do_dll_eviction)
-      EvictTroublesomeDlls();
 
   startup_timer.Stop();  // End of Startup Time Measurement.
 

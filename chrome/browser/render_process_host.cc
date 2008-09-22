@@ -371,6 +371,11 @@ bool RenderProcessHost::Init() {
           return false;
         }
 
+        if (!AddDllEvictionPolicy(policy)) {
+          NOTREACHED();
+          return false;          
+        }
+
         result = broker_service->SpawnTarget(renderer_path.c_str(),
                                              cmd_line.c_str(),
                                              policy, &target);
