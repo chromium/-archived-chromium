@@ -1,0 +1,1218 @@
+# Copyright (c) 2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import os
+import re
+
+Import('env')
+
+env = env.Clone()
+
+# Notes:
+# This assumes you have a working gears checkout from p4 in the current dir.
+# Steps for this:
+# > echo %USER%-chromegears > p4config
+# > g4 client -p //depot/googleclient/gears/p4_depot_paths
+# > g4 sync
+#
+# This is a work-in-progress conversion of the current Gears set of Makefiles.
+# A lot of the stuff doesn't translate to SCons-land well, and I'm not sure
+# how faithful we want to be to the original.
+#
+# Questions:
+# Should we flatten the output directory into
+# Hammer/gears/platform/browser/*.obj like Gears does now?  If so, how?
+
+# TODO: move all these builders out to site_scons or somesuch.
+# Building M4 files
+
+env.Tool('m4')
+
+# Add GNU tools to the PATH.
+# TODO: Figure out the right way to do this.  On first invocation, PATH
+# is relative to '.'.  On repeated invocations (when Hammer/gears exists),
+# PATH is relative to './Hammer/gears'.
+# TODO: Also it would be nice to use $THIRD_PARTY_DIR instead of hardcoding
+# it here.
+env.PrependENVPath('PATH', os.path.abspath(
+    'googleclient/third_party/gnu/files'))
+env.PrependENVPath('PATH', os.path.abspath(
+    '../../../../googleclient/third_party/gnu/files'))
+env.PrependENVPath('PATH', os.path.abspath(
+    'googleclient/third_party/python_24'))
+env.PrependENVPath('PATH', os.path.abspath(
+    '../../../../googleclient/third_party/python_24'))
+
+i18n_langs = [
+    'en-US',
+    'ar',
+    'bg',
+    'ca',
+    'cs',
+    'da',
+    'de',
+    'el',
+    'en-GB',
+    'es',
+    'et',
+    'fa',
+    'fi',
+    'fil',
+    'fr',
+    'he',
+    'hi',
+    'hr',
+    'hu',
+    'id',
+    'is',
+    'it',
+    'ja',
+    'ko',
+    'lt',
+    'lv',
+    'ms',
+    'nl',
+    'no',
+    'pl',
+    'pt-BR',
+    'pt-PT',
+    'ro',
+    'ru',
+    'sk',
+    'sl',
+    'sr',
+    'sv',
+    'th',
+    'tr',
+    'uk',
+    'ur',
+    'vi',
+    'zh-CN',
+    'zh-TW',
+    'ml',
+    'te',
+    'gu',
+    'kn',
+    'or',
+    'bn',
+    'ta',
+    'mr',
+]
+
+# TODO: DEBUG, OFFICIAL_BUILD, CCTESTS, I18N_LANGUAGES
+env.Prepend(
+    M4FLAGS = [
+        '--prefix-builtins',
+        '-DDEBUG=1',
+        '-DPRODUCT_VERSION=$VERSION',
+        '-DPRODUCT_VERSION_MAJOR=$MAJOR',
+        '-DPRODUCT_VERSION_MINOR=$MINOR',
+        '-DPRODUCT_VERSION_BUILD=$BUILD',
+        '-DPRODUCT_VERSION_PATCH=$PATCH',
+        '-DPRODUCT_OS=$OS',
+        '-DPRODUCT_ARCH=$ARCH',
+        '-DPRODUCT_GCC_VERSION="gcc3"',
+        '-DPRODUCT_MAINTAINER="google"',
+        '-DPRODUCT_FRIENDLY_NAME_UQ="$FRIENDLY_NAME"',
+        '-DPRODUCT_SHORT_NAME_UQ="$SHORT_NAME"',
+        '-DI18N_LANGUAGES=' + ','.join(i18n_langs),
+    ],
+    M4PATH = [
+        '$OPEN_DIR',
+        '$GEARS_DIR',
+    ],
+)
+
+# SCons magic to make M4PATH work.
+env['M4INCPREFIX'] = '-I'
+env['M4INCSUFFIX'] = ''
+env['_M4INCFLAGS'] = ('${_concat(M4INCPREFIX, M4PATH, M4INCSUFFIX, ' +
+                      '__env__, RDirs, TARGET, SOURCE)}')
+env['M4COM'] = '$M4 $M4FLAGS ${_M4INCFLAGS} $SOURCE > $TARGET'
+
+# TODO: Dependency scanner for m4 files - doesn't work.
+#m4_include_re = re.compile(r'm4_include\((.*)\)', re.M)
+#def m4_scan(node, env, path):
+#  contents = node.get_contents()
+#  includes = m4_include_re.findall(contents)
+#  ret_includes = []
+#  for include in includes:
+#    for dir in path:
+#      file = os.path.join(dir, include)
+#      if os.path.exists(file):
+#        ret_includes.append(file)
+#        break
+#  return ret_includes
+#
+#m4_scanner = Scanner(function = m4_scan, skeys = ['.m4', '.html_m4'])
+#env.Append(SCANNERS = m4_scanner)
+
+
+# Building .stab files, using M4FLAGS.
+
+# TODO: I want to just use $OPEN_DIR/tools/parse_stab.py.  I need a way to
+# convert from build dir to src dir.  ${OPEN_DIR.srcdir} doesn't work.
+env['STAB'] = 'python googleclient/gears/opensource/gears/tools/parse_stab.py'
+env['STRIPPED_GEARS_DIR'] = env.Dir('$GEARS_DIR')
+env['I18N_INPUTS_BASEDIR'] = '$STRIPPED_GEARS_DIR/ui/generated'
+env['STABCOM'] = \
+    '$STAB $M4FLAGS ${_M4INCFLAGS} $TARGET $SOURCE $I18N_INPUTS_BASEDIR'
+stab_builder = Builder(action = '$STABCOM', src_suffix = '.stab')
+env.Append(BUILDERS = {'Stab': stab_builder})
+
+# Building .from_bin.cc files.
+
+# Must be run from within the gears dir.
+# TODO: ${SOURCE[36:]} - is this the best way to strip off the dir I cd'ed to?
+env['BIN2CPP'] = \
+    'cd googleclient/gears/opensource/gears && python tools/bin2cpp.py'
+env['BIN2CPPCOM'] = '$BIN2CPP ${str(SOURCE)[36:]} > ${TARGET.abspath}'
+bin2cpp_builder = Builder(action = '$BIN2CPPCOM')
+env.Append(BUILDERS = {'Bin2cpp': bin2cpp_builder})
+
+
+# Building .idl files.
+# This is a total mess.  MIDL needs to be run from $OPEN_DIR because it's too
+# stupid to apply its include paths to a relative path like "ui/ie/bla.idl"
+# (it only looks in the current dir).  So we have to jump through hoops to fix
+# up our relative include paths and output files.
+
+if env['BROWSER'] == 'IE':
+  env['IDLOUTPUTDIR'] = env.Dir('$GENFILES_DIR')
+  env['IDLINCPREFIX'] = '/I../../../../'
+  env['IDLINCSUFFIX'] = ''
+  env['_IDLINCFLAGS'] = ('${_concat(IDLINCPREFIX, CPPPATH, IDLINCSUFFIX, ' +
+                        '__env__, RDirs, TARGET, SOURCE)}')
+  env['IDLDEFPREFIX'] = '/D'
+  env['IDLDEFSUFFIX'] = ''
+  env['_IDLDEFFLAGS'] = ('${_defines(IDLDEFPREFIX, CPPDEFINES, ' +
+                        'IDLDEFSUFFIX, __env__)}')
+  env['MIDLCOM'] = (
+      'cd googleclient/gears/opensource/gears && $MIDL ' +
+      '${_IDLDEFFLAGS} ${_IDLINCFLAGS} -env win32 -Oicf ' +
+      '/tlb ../../../../$IDLOUTPUTDIR/${TARGET.filebase}.tlb ' +
+      '/h ../../../../$IDLOUTPUTDIR/${TARGET.filebase}.h ' +
+      '/iid ../../../../$IDLOUTPUTDIR/${TARGET.filebase}_i.c ' +
+      '/proxy ../../../../$IDLOUTPUTDIR/${TARGET.filebase}_p.c ' +
+      '/dlldata ../../../../$IDLOUTPUTDIR/${TARGET.filebase}_data.c ' +
+      '../../../../$SOURCE'
+  )
+elif env['BROWSER'] in ['FF2', 'FF3']:
+  env['IDLOUTPUTDIR'] = env.Dir('$GENFILES_DIR')
+  if env['BROWSER'] == 'FF2':
+    env['GECKO_BASE'] = '$THIRD_PARTY_DIR/gecko_1.8'
+  else:
+    env['GECKO_BASE'] = '$THIRD_PARTY_DIR/gecko_1.9'
+  env['GECKO_SDK'] = '$GECKO_BASE/$OS'
+  env['GECKO_BIN'] = '$GECKO_SDK/gecko_sdk/bin'
+  env['GECKO_LIB'] = '$GECKO_SDK/gecko_sdk/lib'
+
+  env.PrependENVPath('PATH', os.path.abspath(
+      env.subst('../../../../$GECKO_BIN')))
+  env['MIDLCOM'] = (
+      'xpidl -I $GECKO_SDK/gecko_sdk/idl -I $GECKO_BASE ' +
+      '-m header -o $IDLOUTPUTDIR/${TARGET.filebase} $SOURCE && '
+      'xpidl -I $GECKO_SDK/gecko_sdk/idl -I $GECKO_BASE ' +
+      '-m typelib -o $IDLOUTPUTDIR/${TARGET.filebase} $SOURCE'
+  )
+
+# Here's a quick hack to remove the .tlb file from the list of targets.  Some
+# of our IDL compiles don't generate one, so we don't a false dependency.
+# TODO(sgk):  clean up this mess!
+import SCons.Builder
+def MyIdlEmitter(target, source, env):
+  if 'xpidl' in env['MIDLCOM']:
+    # Firefox's IDL compiler only generates .h and .xpt files. 
+    t = [target[1], os.path.splitext(str(target[1]))[0] + '.xpt']
+  else:
+    # HACK to remove .tlb file unilaterally - note that some IDLs generate a
+    # .tlb file, but not all.
+    t = target[1:]
+  # Write the output to the right directory.  This is mostly because
+  # the generated html_dialog_host.h conflicts with the real
+  # html_dialog_host.h in the same directory (otherwise we could just use
+  # Install()).
+  t = [os.path.join(str(env.Dir('$IDLOUTPUTDIR')), os.path.basename(x))
+       for x in t]
+  return (t, source)
+b = env['BUILDERS']['TypeLibrary']
+emitter_list = [b.emitter, MyIdlEmitter]
+b.emitter = SCons.Builder.ListEmitter(emitter_list)
+
+# C++ defines
+
+env_common = env.Clone()
+env_common.Prepend(
+)
+
+env_browser = env.Clone()
+env_browser.Prepend(
+    CPPDEFINES = [
+        'BROWSER_${BROWSER}=1',
+    ],
+)
+
+if env['BROWSER'] in ['FF2', 'FF3']:
+  env_browser['CPPDEFINES'] += ['BROWSER_FF=1']
+  env_browser.Prepend(
+      CPPDEFINES = [
+# TODO(cprince): Update source files so we don't need this compatibility define?
+        'BROWSER_FF=1',
+        'MOZILLA_STRICT_API',
+# SpiderMonkey (the Firefox JS engine)'s JS_GET_CLASS macro in jsapi.h needs
+# this defined to work with the gecko SDK that we've built.
+# The definition of JS_THREADSAFE must be kept in sync with MOZJS_CPPFLAGS.
+        'JS_THREADSAFE',
+      ],
+      CPPPATH = [
+        '$GECKO_BASE',
+        '$GECKO_SDK',
+        '$GECKO_SDK/gecko_sdk/include',
+      ],
+  )
+
+env_browser.Append(
+    CPPPATH = [
+#        '$LIBPNG_DIR',
+#        '$SKIA_DIR/include',
+#        '$SKIA_DIR/include/corecg',
+#        '$SKIA_DIR/platform',
+    ],
+    LIBS = [
+        'base',
+        'gd',
+        'googleurl-gears',
+        'icuuc',
+        'jpeg',
+        'modp_b64',
+        'png',
+        'portaudio',
+        'sqlite-gears',
+#        'skia',
+        'zlib-gears',
+    ],
+)
+
+if env['BROWSER'] == 'IE':
+  env_browser.Append(
+      LIBS = [
+          'kernel32.lib',
+          'user32.lib',
+          'gdi32.lib',
+          'uuid.lib',
+          'sensapi.lib',
+          'shlwapi.lib',
+          'shell32.lib',
+          'advapi32.lib',
+          'wininet.lib',
+          'comdlg32.lib',
+          'user32.lib',
+      ],
+  )
+elif env['BROWSER'] in ['FF2', 'FF3']:
+  env_browser.Append(
+      LIBS = [
+          '$GECKO_LIB/xpcom.lib',
+          '$GECKO_LIB/xpcomglue_s.lib',
+          '$GECKO_LIB/nspr4.lib',
+          '$GECKO_LIB/js3250.lib',
+          'ole32.lib',
+          'shell32.lib',
+          'shlwapi.lib',
+          'advapi32.lib',
+          'wininet.lib',
+          'comdlg32.lib',
+          'user32.lib',
+      ],
+  )
+
+env_browser.Append(
+)
+
+# Building resources.
+env_res = env_browser.Clone()
+env_res.Append(
+    CPPDEFINES = [
+        'DEBUG=1',
+        '_UNICODE',
+        'UNICODE',
+    ],
+    CPPPATH = [
+        '$GENFILES_DIR',
+    ],
+)
+
+if env['PLATFORM'] == 'win32':
+  env.Append(
+      RCFLAGS = [
+          ['/l', '0x409'],
+      ],
+  )
+
+if env['PLATFORM'] == 'win32':
+  env_browser.Append(
+      CPPFLAGS = [
+        '/wd4018'  # TODO: move to breakpad
+      ],
+  )
+
+# Input file lists
+
+def NewInputs():
+  """Returns a new dictionary of input file lists.
+
+  Browser-specific inputs are referenced by the browser name.  All browsers
+  include inputs from the 'all' list.  'common' inputs are built using
+  env_common."""
+
+  return {
+      'all': [],
+      'common': [],
+      'IE': [],
+      'FF2': [],
+      'FF3': [],
+      'NPAPI': [],
+      'SF': [],
+  }
+
+srcs = NewInputs()
+m4srcs = NewInputs()
+html_m4srcs = NewInputs()
+stabsrcs = NewInputs()
+idlsrcs = NewInputs()
+binsrcs = NewInputs()
+
+#-----------------------------------------------------------------------------
+# third_party/breakpad
+
+srcs['NPAPI'] += [
+    '$THIRD_PARTY_DIR/breakpad/src/client/exception_handler_stub.cc',
+]
+
+srcs['IE'] += [
+    '$THIRD_PARTY_DIR/breakpad/src/client/windows/handler/exception_handler.cc',
+    '$THIRD_PARTY_DIR/breakpad/src/common/windows/guid_string.cc',
+    '$OPEN_DIR/base/common/exception_handler_win32.cc',
+]
+
+srcs['FF3'] += [
+    '$THIRD_PARTY_DIR/breakpad/src/client/windows/handler/exception_handler.cc',
+    '$THIRD_PARTY_DIR/breakpad/src/common/windows/guid_string.cc',
+    '$OPEN_DIR/base/common/exception_handler_win32.cc',
+]
+
+#-----------------------------------------------------------------------------
+# third_party/v8/bindings
+
+srcs['NPAPI'] += [
+    '$THIRD_PARTY_DIR/v8/bindings_local/npruntime.cc',
+    '$THIRD_PARTY_DIR/v8/bindings_local/np_v8object.cc',
+    '$THIRD_PARTY_DIR/v8/bindings_local/v8_helpers.cc',
+    '$THIRD_PARTY_DIR/v8/bindings_local/v8_np_utils.cc',
+    '$THIRD_PARTY_DIR/v8/bindings_local/v8_npobject.cc',
+]
+
+#-----------------------------------------------------------------------------
+# third_party/convert_utf
+
+srcs['all'] += [
+    '$THIRD_PARTY_DIR/convert_utf/ConvertUTF.c'
+]
+
+#-----------------------------------------------------------------------------
+# third_party/jsoncpp
+
+srcs['all'] += [
+    '$THIRD_PARTY_DIR/jsoncpp/json_reader.cc',
+    '$THIRD_PARTY_DIR/jsoncpp/json_value.cc',
+    '$THIRD_PARTY_DIR/jsoncpp/json_writer.cc',
+]
+
+#-----------------------------------------------------------------------------
+# third_party/modp_b64
+
+# We're using Chrome's version.  Uncomment if that doesn't work.
+srcs['all'] += [
+#    '$THIRD_PARTY_DIR/modp_b64/modp_b64.cc',
+]
+
+#-----------------------------------------------------------------------------
+# base/common
+
+m4srcs['common'] = [
+    '$OPEN_DIR/base/common/product_constants.h.m4',
+]
+
+m4srcs['all'] = [
+    '$OPEN_DIR/base/common/product_version.rc.m4'
+]
+
+srcs['all'] += [
+    '$OPEN_DIR/base/common/async_router.cc',
+    '$OPEN_DIR/base/common/base_class.cc',
+    '$OPEN_DIR/base/common/base64.cc',
+    '$OPEN_DIR/base/common/byte_store.cc',
+    '$OPEN_DIR/base/common/byte_store_test.cc',
+    '$OPEN_DIR/base/common/circular_buffer_test.cc',
+    '$OPEN_DIR/base/common/database_name_table.cc',
+    '$OPEN_DIR/base/common/event.cc',
+    '$OPEN_DIR/base/common/event_test.cc',
+    '$OPEN_DIR/base/common/file.cc',
+    '$OPEN_DIR/base/common/file_test.cc',
+    '$OPEN_DIR/base/common/html_event_monitor.cc',
+    '$OPEN_DIR/base/common/http_utils.cc',
+    '$OPEN_DIR/base/common/js_dom_element.cc',
+    '$OPEN_DIR/base/common/js_marshal.cc',
+    '$OPEN_DIR/base/common/js_runner_utils.cc',
+    '$OPEN_DIR/base/common/js_types.cc',
+    '$OPEN_DIR/base/common/leak_counter.cc',
+    '$OPEN_DIR/base/common/memory_buffer.cc',
+    '$OPEN_DIR/base/common/memory_buffer_test.cc',
+    '$OPEN_DIR/base/common/message_queue.cc',
+    '$OPEN_DIR/base/common/message_service.cc',
+    '$OPEN_DIR/base/common/message_service_test.cc',
+    '$OPEN_DIR/base/common/mime_detect.cc',
+    '$OPEN_DIR/base/common/mutex.cc',
+    '$OPEN_DIR/base/common/mutex_posix.cc',
+    '$OPEN_DIR/base/common/mutex_test.cc',
+    '$OPEN_DIR/base/common/mutex_win32.cc',
+    '$OPEN_DIR/base/common/name_value_table.cc',
+    '$OPEN_DIR/base/common/name_value_table_test.cc',
+    '$OPEN_DIR/base/common/paths.cc',
+    '$OPEN_DIR/base/common/permissions_db.cc',
+    '$OPEN_DIR/base/common/permissions_db_test.cc',
+    '$OPEN_DIR/base/common/permissions_manager.cc',
+    '$OPEN_DIR/base/common/position_table.cc',
+    '$OPEN_DIR/base/common/process_utils_win32.cc',
+    '$OPEN_DIR/base/common/png_utils.cc',
+    '$OPEN_DIR/base/common/scoped_refptr_test.cc',
+    '$OPEN_DIR/base/common/security_model.cc',
+    '$OPEN_DIR/base/common/security_model_test.cc',
+    '$OPEN_DIR/base/common/serialization.cc',
+    '$OPEN_DIR/base/common/serialization_test.cc',
+    '$OPEN_DIR/base/common/shortcut_table.cc',
+    '$OPEN_DIR/base/common/sqlite_wrapper.cc',
+    '$OPEN_DIR/base/common/sqlite_wrapper_test.cc',
+    '$OPEN_DIR/base/common/stopwatch.cc',
+    '$OPEN_DIR/base/common/stopwatch_posix.cc',
+    '$OPEN_DIR/base/common/stopwatch_win32.cc',
+    '$OPEN_DIR/base/common/string16.cc',
+    '$OPEN_DIR/base/common/string_utils.cc',
+    '$OPEN_DIR/base/common/string_utils_osx.cc',
+    '$OPEN_DIR/base/common/string_utils_test.cc',
+    '$OPEN_DIR/base/common/thread.cc',
+    '$OPEN_DIR/base/common/thread_locals.cc',
+    '$OPEN_DIR/base/common/thread_posix.cc',
+    '$OPEN_DIR/base/common/thread_win32.cc',
+    '$OPEN_DIR/base/common/timed_call.cc',
+    '$OPEN_DIR/base/common/timed_call_test.cc',
+    '$OPEN_DIR/base/common/url_utils.cc',
+    '$OPEN_DIR/base/common/url_utils_test.cc',
+]
+
+#-----------------------------------------------------------------------------
+# base/firefox
+
+m4srcs['FF3'] += [
+    '$OPEN_DIR/base/firefox/install.rdf.m4',
+]
+
+idlsrcs['FF3'] += [
+    '$OPEN_DIR/base/firefox/interfaces.idl',
+]
+
+srcs['FF3'] += [
+    '$OPEN_DIR/base/common/file_posix.cc',
+    '$OPEN_DIR/base/common/file_win32.cc',
+    '$OPEN_DIR/base/common/html_event_monitor_ff.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_linux.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_null.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test_linux.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test_win32.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_win32.cc',
+    '$OPEN_DIR/base/common/js_runner_ff.cc',
+    '$OPEN_DIR/base/common/js_runner_ff_marshaling.cc',
+    '$OPEN_DIR/base/common/message_queue_ff.cc',
+    '$OPEN_DIR/base/common/paths_ff.cc',
+    '$OPEN_DIR/base/common/time_utils_win32.cc',
+    '$OPEN_DIR/base/firefox/dom_utils.cc',
+    '$OPEN_DIR/base/firefox/module.cc',
+    '$OPEN_DIR/base/firefox/ns_file_utils.cc',
+    '$OPEN_DIR/base/firefox/xpcom_dynamic_load.cc',
+]
+
+#-----------------------------------------------------------------------------
+# base/ie
+
+m4srcs['IE'] += [
+    '$OPEN_DIR/base/ie/bho.rgs.m4',
+    '$OPEN_DIR/base/ie/interfaces.idl.m4',
+    '$OPEN_DIR/base/ie/module.rgs.m4',
+]
+
+idlsrcs['IE'] += [
+    '$OPEN_DIR/base/ie/interfaces.idl',
+]
+
+srcs['IE'] += [
+    '$OPEN_DIR/base/ie/activex_utils.cc',
+    '$OPEN_DIR/base/ie/bho.cc',
+    '$OPEN_DIR/base/common/detect_version_collision_win32.cc',
+    '$OPEN_DIR/base/ie/dispatcher_to_idispatch.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_null.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test_win32.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_win32.cc',
+    '$OPEN_DIR/base/common/js_runner_ie.cc',
+    '$OPEN_DIR/base/common/message_queue_ie.cc',
+    '$OPEN_DIR/base/ie/module.cc',
+    '$OPEN_DIR/base/ie/module_wrapper.cc',
+    '$OPEN_DIR/base/common/paths_ie.cc',
+    '$OPEN_DIR/base/common/time_utils_win32.cc',
+    '$OPEN_DIR/base/common/vista_utils.cc',
+]
+
+if env['PLATFORM'] == 'win32':
+  srcs['IE'] += [
+      '$OPEN_DIR/base/common/file_win32.cc',
+      '$OPEN_DIR/base/common/html_event_monitor_ie.cc',
+      '$OPEN_DIR/base/ie/ie_version.cc',
+  ]
+elif env['PLATFORM'] == 'wince':
+  srcs['IE'] += [
+      '$OPEN_DIR/base/common/common_ie.cc',
+      '$OPEN_DIR/base/common/file_wince.cc',
+      '$OPEN_DIR/base/common/wince_compatibility.cc',
+  ]
+
+#-----------------------------------------------------------------------------
+# base/chrome + npapi
+
+srcs['NPAPI'] += [
+    '$OPEN_DIR/base/chrome/module_cr.cc',
+    '$OPEN_DIR/base/common/js_runner_cr.cc',
+    '$OPEN_DIR/base/common/html_event_monitor_np.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_linux.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_null.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test_linux.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test_win32.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_win32.cc',
+    '$OPEN_DIR/base/common/paths_cr.cc',
+    '$OPEN_DIR/base/npapi/browser_utils.cc',
+    '$OPEN_DIR/base/npapi/module.cc',
+    '$OPEN_DIR/base/npapi/np_utils.cc',
+    '$OPEN_DIR/base/npapi/npn_bindings.cc',
+    '$OPEN_DIR/base/npapi/npp_bindings.cc',
+    '$OPEN_DIR/base/npapi/plugin.cc',
+]
+
+if env['PLATFORM'] == 'win32':
+  srcs['NPAPI'] += [
+      '$OPEN_DIR/base/common/detect_version_collision_win32.cc',
+      '$OPEN_DIR/base/common/file_win32.cc',
+      '$OPEN_DIR/base/common/message_queue_ie.cc',
+      '$OPEN_DIR/base/common/time_utils_win32.cc',
+      '$OPEN_DIR/base/common/vista_utils.cc',
+      '$OPEN_DIR/base/ie/ie_version.cc',
+  ]
+
+#-----------------------------------------------------------------------------
+# console
+
+srcs['all'] += [
+    '$OPEN_DIR/console/console.cc',
+    '$OPEN_DIR/console/js_callback_logging_backend.cc',
+]
+
+#-----------------------------------------------------------------------------
+# canvas
+
+# The Canvas API is not yet enabled in official builds.
+if not env['OFFICIAL_BUILD']  and env['PLATFORM'] in ['win32', 'osx']:
+  srcs['all'] += [
+      '$OPEN_DIR/canvas/blob_backed_skia_input_stream.cc',
+      '$OPEN_DIR/canvas/blob_backed_skia_output_stream.cc',
+      '$OPEN_DIR/canvas/canvas.cc',
+      '$OPEN_DIR/canvas/canvas_rendering_context_2d.cc',
+  ]
+
+#-----------------------------------------------------------------------------
+# database
+
+srcs['all'] += [
+    '$OPEN_DIR/database/database.cc',
+    '$OPEN_DIR/database/database_utils.cc',
+    '$OPEN_DIR/database/database_utils_test.cc',
+    '$OPEN_DIR/database/result_set.cc',
+]
+
+#-----------------------------------------------------------------------------
+# database2
+
+srcs['all'] += [
+    '$OPEN_DIR/database2/connection.cc',
+    '$OPEN_DIR/database2/commands.cc',
+    '$OPEN_DIR/database2/database2.cc',
+    '$OPEN_DIR/database2/database2_common.cc',
+    '$OPEN_DIR/database2/database2_metadata.cc',
+    '$OPEN_DIR/database2/interpreter.cc',
+    '$OPEN_DIR/database2/manager.cc',
+    '$OPEN_DIR/database2/result_set2.cc',
+    '$OPEN_DIR/database2/statement.cc',
+    '$OPEN_DIR/database2/transaction.cc',
+]
+
+#-----------------------------------------------------------------------------
+# desktop
+
+srcs['all'] += [
+    '$OPEN_DIR/desktop/desktop.cc',
+    '$OPEN_DIR/desktop/desktop_linux.cc',
+    '$OPEN_DIR/desktop/desktop_osx.cc',
+    '$OPEN_DIR/desktop/desktop_test.cc',
+    '$OPEN_DIR/desktop/desktop_win32.cc',
+    '$OPEN_DIR/desktop/dll_data_wince.cc',
+    '$OPEN_DIR/desktop/drag_and_drop_registry.cc',
+    '$OPEN_DIR/desktop/notification_message_orderer.cc',
+    '$OPEN_DIR/desktop/shortcut_utils_win32.cc',
+]
+
+srcs['NPAPI'] += [
+    '$OPEN_DIR/desktop/desktop_cr.cc',
+]
+
+srcs['all'] += [
+    '$OPEN_DIR/desktop/file_dialog.cc',
+    '$OPEN_DIR/desktop/file_dialog_gtk.cc',
+    '$OPEN_DIR/desktop/file_dialog_osx.cc',
+    '$OPEN_DIR/desktop/file_dialog_win32.cc',
+]
+
+# The browser module also needs these files, to communicate with the notifier.
+srcs['all'] += [
+    '$OPEN_DIR/notifier/const_notifier.cc',
+    '$OPEN_DIR/notifier/notifier_process_linux.cc',
+    '$OPEN_DIR/notifier/notifier_process_posix.cc',
+    '$OPEN_DIR/notifier/notifier_process_win32.cc',
+    '$OPEN_DIR/notifier/notifier_proxy.cc',
+    '$OPEN_DIR/notifier/notifier_utils_win32.cc',
+    '$OPEN_DIR/notifier/notification.cc',
+]
+
+srcs['FF3'] += [
+    '$OPEN_DIR/desktop/drop_target_ff.cc',
+]
+
+srcs['IE'] += [
+    '$OPEN_DIR/desktop/drop_target_ie.cc',
+]
+
+#-----------------------------------------------------------------------------
+# localserver/common
+
+srcs['all'] += [
+    '$OPEN_DIR/localserver/common/blob_store.cc',
+    '$OPEN_DIR/localserver/common/capture_task.cc',
+    '$OPEN_DIR/localserver/common/file_store.cc',
+    '$OPEN_DIR/localserver/common/http_constants.cc',
+    '$OPEN_DIR/localserver/common/localserver.cc',
+    '$OPEN_DIR/localserver/common/localserver_db.cc',
+    '$OPEN_DIR/localserver/common/localserver_perf_test.cc',
+    '$OPEN_DIR/localserver/common/managed_resource_store.cc',
+    '$OPEN_DIR/localserver/common/manifest.cc',
+    '$OPEN_DIR/localserver/common/resource_store.cc',
+    '$OPEN_DIR/localserver/common/update_task.cc',
+    '$OPEN_DIR/localserver/common/update_task_single_process.cc',
+    '$OPEN_DIR/localserver/file_submitter.cc',
+    '$OPEN_DIR/localserver/localserver_module.cc',
+    '$OPEN_DIR/localserver/managed_resource_store_module.cc',
+    '$OPEN_DIR/localserver/resource_store_module.cc',
+]
+
+srcs['IE'] += [
+    '$OPEN_DIR/localserver/common/http_cookies.cc',
+]
+
+srcs['FF3'] += [
+    '$OPEN_DIR/localserver/common/http_cookies.cc',
+]
+
+#-----------------------------------------------------------------------------
+# localserver/chrome + npapi
+# TODO: ie/ff/safari
+
+srcs['NPAPI'] += [
+    '$OPEN_DIR/localserver/chrome/gears_protocol_handler.cc',
+    '$OPEN_DIR/localserver/chrome/network_intercept_cr.cc',
+    '$OPEN_DIR/localserver/chrome/http_cookies_cr.cc',
+    '$OPEN_DIR/localserver/chrome/http_request_cr.cc',
+    '$OPEN_DIR/localserver/chrome/update_task_cr.cc',
+    '$OPEN_DIR/localserver/common/safe_http_request.cc',
+    '$OPEN_DIR/localserver/npapi/async_task_np.cc',
+]
+
+#-----------------------------------------------------------------------------
+# localserver/firefox
+
+srcs['FF3'] += [
+    '$OPEN_DIR/localserver/common/progress_event.cc',
+    '$OPEN_DIR/localserver/common/safe_http_request.cc',
+    '$OPEN_DIR/localserver/firefox/async_task_ff.cc',
+    '$OPEN_DIR/localserver/firefox/cache_intercept.cc',
+    '$OPEN_DIR/localserver/firefox/http_request_ff.cc',
+    '$OPEN_DIR/localserver/firefox/progress_input_stream.cc',
+]
+
+#-----------------------------------------------------------------------------
+# localserver/ie
+
+srcs['IE'] += [
+    '$OPEN_DIR/localserver/ie/async_task_ie.cc',
+    '$OPEN_DIR/localserver/ie/file_submit_behavior.cc',
+    '$OPEN_DIR/localserver/ie/http_handler_ie.cc',
+    '$OPEN_DIR/localserver/ie/http_request_ie.cc',
+    '$OPEN_DIR/localserver/common/progress_event.cc',
+    '$OPEN_DIR/localserver/ie/progress_input_stream.cc',
+    '$OPEN_DIR/localserver/ie/update_task_ie.cc',
+    '$OPEN_DIR/localserver/ie/urlmon_utils.cc',
+]
+
+#-----------------------------------------------------------------------------
+# installer
+
+m4srcs['common'] += [
+    '$OPEN_DIR/installer/npapi_msi.wxs.m4',
+]
+
+#-----------------------------------------------------------------------------
+# dummy_module
+
+srcs['all'] += [
+    '$OPEN_DIR/dummy/dummy_module.cc',
+]
+
+
+#-----------------------------------------------------------------------------
+# test
+
+srcs['all'] += [
+    '$OPEN_DIR/cctests/test.cc',
+]
+
+#-----------------------------------------------------------------------------
+# ui/generated
+#
+# Anything with the _I18N suffix will be expanded for each language in
+# I18N_LANGS
+
+html_m4srcs['all'] += [
+    '$OPEN_DIR/ui/common/permissions_dialog.html_m4',
+    '$OPEN_DIR/ui/common/settings_dialog.html_m4',
+    '$OPEN_DIR/ui/common/shortcuts_dialog.html_m4',
+]
+
+#TODO: $(IE_OUTDIR)/string_table.res
+
+#-----------------------------------------------------------------------------
+# ui/common (built for all browsers)
+
+srcs['all'] += [
+    '$OPEN_DIR/ui/common/html_dialog.cc',
+    '$OPEN_DIR/ui/common/i18n_strings.cc',
+    '$OPEN_DIR/ui/common/permissions_dialog.cc',
+    '$OPEN_DIR/ui/common/window_utils.cc',
+]
+
+srcs['IE'] += [
+    '$OPEN_DIR/ui/common/settings_dialog.cc',
+]
+
+srcs['FF3'] += [
+    '$OPEN_DIR/ui/common/settings_dialog.cc',
+]
+
+stabsrcs['all'] = [
+    '$OPEN_DIR/ui/common/permissions_dialog.js.stab',
+    '$OPEN_DIR/ui/common/settings_dialog.js.stab',
+    '$OPEN_DIR/ui/common/shortcuts_dialog.js.stab',
+]
+
+#-----------------------------------------------------------------------------
+# ui/npapi
+# TODO: ie/ff/safari
+
+m4srcs['all'] += [
+    '$OPEN_DIR/ui/ie/ui_resources.rc.m4',
+]
+
+#-----------------------------------------------------------------------------
+# ui/chrome
+
+srcs['NPAPI'] += [
+    '$OPEN_DIR/ui/chrome/settings_dialog_cr.cc',
+    '$OPEN_DIR/ui/chrome/html_dialog_cr.cc',
+]
+
+#-----------------------------------------------------------------------------
+# ui/factory
+
+m4srcs['FF3'] += [
+    '$OPEN_DIR/ui/firefox/browser-overlay.js.m4',
+    '$OPEN_DIR/ui/firefox/browser-overlay.xul.m4',
+    '$OPEN_DIR/ui/firefox/chrome.manifest.m4',
+]
+
+idlsrcs['FF3'] += [
+    '$OPEN_DIR/ui/firefox/ui_utils.idl',
+]
+
+srcs['FF3'] += [
+    '$OPEN_DIR/ui/firefox/html_dialog_ff.cc',
+    '$OPEN_DIR/ui/firefox/ui_utils.cc',
+]
+
+#-----------------------------------------------------------------------------
+# ui/ie
+
+m4srcs['IE'] += [
+    '$OPEN_DIR/ui/ie/tools_menu_item.rgs.m4',
+    '$OPEN_DIR/ui/ie/ui_resources.rc.m4',
+]
+
+idlsrcs['IE'] += [
+    '$OPEN_DIR/ui/ie/html_dialog_host.idl',
+]
+
+srcs['IE'] += [
+    '$OPEN_DIR/ui/ie/html_dialog_ie.cc',
+    '$OPEN_DIR/ui/ie/tools_menu_item.cc',
+]
+
+stabsrcs['IE'] += [
+    '$OPEN_DIR/ui/ie/string_table.rc.stab',
+]
+
+# Additional files specific to Win32 or WinCE.
+if env['PLATFORM'] == 'win32':
+  srcs['IE'] += [
+      '$OPEN_DIR/ui/ie/html_dialog_host.cc',
+  ]
+elif env['PLATFORM'] == 'wince':
+  m4srcs['IE'] += [
+      '$OPEN_DIR/ui/ie/html_dialog_bridge_iemobile.rgs.m4',
+  ]
+
+  idlsrcs['IE'] += [
+      '$OPEN_DIR/ui/ie/html_dialog_host_iemobile.idl',
+      '$OPEN_DIR/ui/ie/html_dialog_bridge_iemobile.idl',
+  ]
+
+  srcs['IE'] += [
+      '$OPEN_DIR/ui/ie/html_dialog_host_iemobile.cc',
+      '$OPEN_DIR/ui/ie/html_dialog_bridge_iemobile.cc',
+  ]
+
+#-----------------------------------------------------------------------------
+# workerpool/npapi
+# TODO: safari
+
+srcs['NPAPI'] += [
+    '$OPEN_DIR/workerpool/common/workerpool_utils.cc',
+    '$OPEN_DIR/workerpool/npapi/pool_threads_manager.cc',
+    '$OPEN_DIR/workerpool/workerpool.cc',
+]
+
+#-----------------------------------------------------------------------------
+# workerpool/firefox
+
+srcs['FF3'] += [
+    '$OPEN_DIR/workerpool/common/workerpool_utils.cc',
+    '$OPEN_DIR/workerpool/firefox/pool_threads_manager.cc',
+    '$OPEN_DIR/workerpool/workerpool.cc',
+]
+
+#-----------------------------------------------------------------------------
+# workerpool/ie
+
+srcs['IE'] += [
+    '$OPEN_DIR/workerpool/common/workerpool_utils.cc',
+    '$OPEN_DIR/workerpool/ie/pool_threads_manager.cc',
+    '$OPEN_DIR/workerpool/workerpool.cc',
+]
+
+#-----------------------------------------------------------------------------
+# timer
+
+srcs['all'] += [
+    '$OPEN_DIR/timer/timer.cc',
+]
+
+#-----------------------------------------------------------------------------
+# httprequest
+
+srcs['all'] += [
+    '$OPEN_DIR/httprequest/httprequest.cc',
+    '$OPEN_DIR/httprequest/httprequest_upload.cc',
+]
+
+#-----------------------------------------------------------------------------
+# blob
+
+srcs['all'] += [
+    '$OPEN_DIR/blob/blob.cc',
+    '$OPEN_DIR/blob/blob_builder.cc',
+    '$OPEN_DIR/blob/blob_builder_module.cc',
+    '$OPEN_DIR/blob/blob_interface.cc',
+    '$OPEN_DIR/blob/blob_test.cc',
+    '$OPEN_DIR/blob/blob_utils.cc',
+    '$OPEN_DIR/blob/buffer_blob.cc',
+    '$OPEN_DIR/blob/fail_blob.cc',
+    '$OPEN_DIR/blob/file_blob.cc',
+    '$OPEN_DIR/blob/join_blob.cc',
+    '$OPEN_DIR/blob/slice_blob.cc',
+]
+
+# TODO(bpm): Make this cross-browser, not Firefox- or Safari-specific.
+srcs['FF3'] += [
+    '$OPEN_DIR/blob/blob_input_stream_ff.cc',
+    '$OPEN_DIR/blob/blob_input_stream_ff_test.cc',
+]
+
+srcs['SF'] += [
+    '$OPEN_DIR/blob/blob_input_stream_sf.mm',
+    '$OPEN_DIR/blob/blob_input_stream_sf_test.mm',
+]
+
+#-----------------------------------------------------------------------------
+# TODO: inspector
+
+if not env['OFFICIAL_BUILD']:
+  srcs['all'] += [
+      '$OPEN_DIR/inspector/inspector_resources.cc',
+  ]
+
+  binsrcs['common'] += [
+    '$OPEN_DIR/inspector/console.html',
+    '$OPEN_DIR/inspector/database.html',
+    '$OPEN_DIR/inspector/index.html',
+    '$OPEN_DIR/inspector/localserver.html',
+    '$OPEN_DIR/inspector/common/alert-35.png',
+    '$OPEN_DIR/inspector/common/database.gif',
+    '$OPEN_DIR/inspector/common/error-35.png',
+    '$OPEN_DIR/inspector/common/ie6hacks.css',
+    '$OPEN_DIR/inspector/common/inspector_links.js',
+    '$OPEN_DIR/inspector/common/lightbulb-35.png',
+    '$OPEN_DIR/inspector/common/localserver.gif',
+    '$OPEN_DIR/inspector/common/question-35.png',
+    '$OPEN_DIR/inspector/common/styles.css',
+    '$OPEN_DIR/inspector/common/workerpool.gif',
+    '$OPEN_DIR/sdk/gears_init.js',
+    '$OPEN_DIR/ui/common/base.js',
+    '$OPEN_DIR/ui/common/dom.js',
+    '$OPEN_DIR/ui/common/icon_32x32.png',
+  ]
+
+#-----------------------------------------------------------------------------
+# image
+
+# The Image API is not yet enabled in official builds.
+if not env['OFFICIAL_BUILD'] and env['PLATFORM'] != 'wince':
+  srcs['all'] += [
+      '$OPEN_DIR/image/backing_image.cc',
+      '$OPEN_DIR/image/image.cc',
+      '$OPEN_DIR/image/image_loader.cc',
+  ]
+
+#-----------------------------------------------------------------------------
+# factory/npapi
+
+srcs['NPAPI'] += [
+    '$OPEN_DIR/factory/factory_impl.cc',
+    '$OPEN_DIR/factory/factory_np.cc',
+    '$OPEN_DIR/factory/factory_utils.cc',
+]
+
+#-----------------------------------------------------------------------------
+# factory/firefox
+
+srcs['FF3'] += [
+    '$OPEN_DIR/factory/factory_impl.cc',
+    '$OPEN_DIR/factory/factory_ff.cc',
+    '$OPEN_DIR/factory/factory_utils.cc',
+]
+
+#-----------------------------------------------------------------------------
+# factory/ie
+
+m4srcs['IE'] += [
+    '$OPEN_DIR/factory/factory_ie.rgs.m4',
+]
+
+srcs['IE'] += [
+    '$OPEN_DIR/factory/factory_impl.cc',
+    '$OPEN_DIR/factory/factory_ie.cc',
+    '$OPEN_DIR/factory/factory_utils.cc',
+]
+
+#-----------------------------------------------------------------------------
+# geolocation
+
+srcs['all'] += [
+    '$OPEN_DIR/geolocation/empty_device_data_provider.cc',
+    '$OPEN_DIR/geolocation/geolocation.cc',
+    '$OPEN_DIR/geolocation/geolocation_db.cc',
+    '$OPEN_DIR/geolocation/geolocation_db_test.cc',
+    '$OPEN_DIR/geolocation/geolocation_test.cc',
+    '$OPEN_DIR/geolocation/gps_location_provider_wince.cc',
+    '$OPEN_DIR/geolocation/location_provider.cc',
+    '$OPEN_DIR/geolocation/location_provider_pool.cc',
+    '$OPEN_DIR/geolocation/network_location_provider.cc',
+    '$OPEN_DIR/geolocation/network_location_request.cc',
+    '$OPEN_DIR/geolocation/radio_data_provider_wince.cc',
+    '$OPEN_DIR/geolocation/timed_callback.cc',
+    '$OPEN_DIR/geolocation/wifi_data_provider_android.cc',
+    '$OPEN_DIR/geolocation/wifi_data_provider_common.cc',
+    '$OPEN_DIR/geolocation/wifi_data_provider_linux.cc',
+    '$OPEN_DIR/geolocation/wifi_data_provider_osx.cc',
+    '$OPEN_DIR/geolocation/wifi_data_provider_win32.cc',
+    '$OPEN_DIR/geolocation/wifi_data_provider_wince.cc',
+    '$OPEN_DIR/geolocation/wifi_data_provider_windows_common.cc',
+]
+
+#-----------------------------------------------------------------------------
+# media
+
+# The Audio API has not been finalized for official builds.
+if not env['OFFICIAL_BUILD']:
+  srcs['all'] += [
+      '$OPEN_DIR/media/audio.cc',
+      '$OPEN_DIR/media/audio_recorder.cc',
+      '$OPEN_DIR/media/audio_recorder_test.cc',
+      '$OPEN_DIR/media/base_audio_recorder.cc',
+      '$OPEN_DIR/media/media.cc',
+      '$OPEN_DIR/media/media_data.cc',
+      '$OPEN_DIR/media/mock_audio_recorder.cc',
+      '$OPEN_DIR/media/pa_audio_recorder.cc',
+      '$OPEN_DIR/media/time_ranges.cc',
+  ]
+
+#-----------------------------------------------------------------------------
+# resources
+
+ui_res =  env_res.RES('$GENFILES_DIR/ui_resources.rc'),
+
+module_res = None
+if env['BROWSER'] == 'NPAPI':
+  module_res = env_res.RES('$OPEN_DIR/base/npapi/module.rc')
+elif env['BROWSER'] == 'IE':
+  module_res = env_res.RES('$OPEN_DIR/base/ie/module.rc')
+
+dll_resources = [
+    ui_res,
+]
+if module_res:
+  dll_resources += [module_res]
+
+stabsrcs['all'] += [
+    '$OPEN_DIR/ui/common/permissions_dialog.js.stab',
+    '$OPEN_DIR/ui/common/settings_dialog.js.stab',
+    '$OPEN_DIR/ui/common/shortcuts_dialog.js.stab',
+]
+
+#-----------------------------------------------------------------------------
+# libs
+
+libs = [
+    '$THIRD_PARTY_DIR/v8/bin-dbg/libv8core.lib',
+    '$THIRD_PARTY_DIR/v8/bin-dbg/no_snapshotv8.lib',
+    '$THIRD_PARTY_DIR/v8/bin-dbg/libjscre.lib',
+    '$THIRD_PARTY_DIR/skia/skia-dbg-win32-i386.lib',
+]
+
+if env['BROWSER'] == 'NPAPI':
+  libs += ['$OPEN_DIR/base/chrome/module.def',]
+elif env['BROWSER'] == 'IE':
+  libs += ['$OPEN_DIR/tools/mscom.def',]
+
+# TODO: all the other ports, including third-party libs
+# - IE, FF[23], SAFARI, android, symbian
+# - breakpad[_osx]
+# - glint
+# - growl
+# - spidermonkey
+# - libspeex
+# - libtremor
+# - vista broker  
+# TODO: other targets
+# - installer
+# - notifier
+# - ipc_tests
+
+
+# Now build the dependency tree.
+
+# Add any hard-coded "FF3_" sources to the FF2_ sources.
+srcs['FF2'] += srcs['FF3']
+m4srcs['FF2'] += m4srcs['FF3']
+html_m4srcs['FF2'] += html_m4srcs['FF3']
+stabsrcs['FF2'] += stabsrcs['FF3']
+idlsrcs['FF2'] += idlsrcs['FF3']
+binsrcs['FF2'] += binsrcs['FF3']
+
+# Add the target browser's inputs to the list files to build.
+srcs['all'] += srcs[env['BROWSER']]
+m4srcs['all'] += m4srcs[env['BROWSER']]
+html_m4srcs['all'] += html_m4srcs[env['BROWSER']]
+stabsrcs['all'] += stabsrcs[env['BROWSER']]
+idlsrcs['all'] += idlsrcs[env['BROWSER']]
+binsrcs['all'] += binsrcs[env['BROWSER']]
+
+# TODO: Is there a better way than this to do a make-style rule like
+#   genfiles/%.html: %.html_m4
+m4s = []
+m4s += [env_common.M4(src) for src in m4srcs['common']]
+m4s += [env_browser.M4(src) for src in m4srcs['all']]
+installed_m4s = env_browser.Install('$GENFILES_DIR', m4s)
+
+html_m4s = [env_browser.M4(os.path.splitext(src)[0] + '.html', src)
+            for src in html_m4srcs['all']]
+installed_html_m4s = env_browser.Install('$GENFILES_DIR', html_m4s)
+
+#  genfiles/%.js: %.js.stab
+stabs = [env_browser.Stab(src) for src in stabsrcs['all']]
+installed_stabs = env_browser.Install('$GENFILES_DIR', stabs)
+
+# TODO: What's an elegant way to say "FOO.html_m4 depends on FOO.js" ?
+def IsSameBasename(a, b):
+  return (os.path.basename(os.path.splitext(a)[0]) ==
+       os.path.basename(os.path.splitext(b)[0]))
+
+for html_m4 in html_m4s:
+  for stab in installed_stabs:
+    if IsSameBasename(str(stab), str(html_m4[0])):
+      env_browser.Depends(html_m4, stab)
+
+#  genfiles/%.from_bin.cc: %
+bins = [env_common.Bin2cpp(src + '.from_bin.cc', src)
+        for src in binsrcs['common']]
+installed_bins = env_common.Install('$GENFILES_DIR', bins)
+srcs['all'] += installed_bins
+
+#  genfiles/%.h: %.idl
+# Note: the emitter fixes the targets to be put in genfiles.
+if idlsrcs['all']:
+  idls = [env_browser.TypeLibrary(src)
+          for src in idlsrcs['all']]
+  installed_idls = idls
+  srcs['all'] += [x for x in installed_idls[0] if str(x).endswith('_i.c')]
+
+# TODO: figure out why the .rc scanner doesn't notice these dependencies.
+env_browser.Depends(ui_res, installed_html_m4s)
+env_browser.Depends(module_res, installed_m4s)
+
+lib = env_browser.ChromeSharedLibrary('gears',
+    srcs['all'] + libs + dll_resources)
+env_browser.Alias('gears', lib)
