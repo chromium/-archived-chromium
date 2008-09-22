@@ -102,17 +102,8 @@ IPC_BEGIN_MESSAGES(Plugin, 5)
                              PluginMsg_Init_Params,
                              bool /* result */)
 
-  IPC_SYNC_MESSAGE_ROUTED1_0(PluginMsg_Paint,
-                             PluginMsg_Paint_Params /* params */)
-
   IPC_SYNC_MESSAGE_ROUTED0_1(PluginMsg_Print,
                              PluginMsg_PrintResponse_Params /* params */)
-
-  // Returns a shared memory handle to a EMF buffer.
-  IPC_SYNC_MESSAGE_ROUTED1_2(PluginMsg_PaintIntoSharedMemory,
-                             PluginMsg_Paint_Params /* params */,
-                             SharedMemoryHandle /* emf_buffer */,
-                             size_t /* bytes */)
 
   IPC_SYNC_MESSAGE_ROUTED0_2(PluginMsg_GetPluginScriptableObject,
                              int /* route_id */,
@@ -121,10 +112,12 @@ IPC_BEGIN_MESSAGES(Plugin, 5)
   IPC_SYNC_MESSAGE_ROUTED1_0(PluginMsg_DidFinishLoadWithReason,
                              int /* reason */)
 
-  IPC_MESSAGE_ROUTED3(PluginMsg_UpdateGeometry,
+  IPC_MESSAGE_ROUTED5(PluginMsg_UpdateGeometry,
                       gfx::Rect /* window_rect */,
                       gfx::Rect /* clip_rect */,
-                      bool /* visible */)
+                      bool /* visible */,
+                      SharedMemoryHandle /* windowless_buffer */,
+                      SharedMemoryLock /* windowless_buffer_lock */)
 
   IPC_SYNC_MESSAGE_ROUTED0_0(PluginMsg_SetFocus)
 

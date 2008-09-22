@@ -58,18 +58,6 @@ struct PluginMsg_URLRequestReply_Params {
   HANDLE stream;
 };
 
-struct PluginMsg_Paint_Params {
-  gfx::Size size;
-  gfx::Rect clip_rect;
-  gfx::Rect damaged_rect;
-
-  // Bitmap's bits.
-  HANDLE shared_memory;
-
-  // Information about the world transform (see GetWorldTransform).
-  XFORM xf;
-};
-
 struct PluginMsg_PrintResponse_Params {
   HANDLE shared_memory;
   size_t size;
@@ -249,39 +237,6 @@ struct ParamTraits<PluginMsg_URLRequestReply_Params> {
     LogParam(p.notify_data, l);
     l->append(L", ");
     LogParam(p.stream, l);
-    l->append(L")");
-  }
-};
-
-template <>
-struct ParamTraits<PluginMsg_Paint_Params> {
-  typedef PluginMsg_Paint_Params param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.size);
-    WriteParam(m, p.clip_rect);
-    WriteParam(m, p.damaged_rect);
-    WriteParam(m, p.shared_memory);
-    WriteParam(m, p.xf);
-  }
-  static bool Read(const Message* m, void** iter, param_type* r) {
-    return
-      ReadParam(m, iter, &r->size) &&
-      ReadParam(m, iter, &r->clip_rect) &&
-      ReadParam(m, iter, &r->damaged_rect) &&
-      ReadParam(m, iter, &r->shared_memory) &&
-      ReadParam(m, iter, &r->xf);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"(");
-    LogParam(p.size, l);
-    l->append(L", ");
-    LogParam(p.clip_rect, l);
-    l->append(L", ");
-    LogParam(p.damaged_rect, l);
-    l->append(L", ");
-    LogParam(p.shared_memory, l);
-    l->append(L", ");
-    LogParam(p.xf, l);
     l->append(L")");
   }
 };

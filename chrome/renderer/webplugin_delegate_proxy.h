@@ -10,6 +10,7 @@
 
 #include "base/gfx/rect.h"
 #include "base/ref_counted.h"
+#include "base/scoped_handle.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/plugin/npobject_stub.h"
@@ -21,6 +22,10 @@ class GURL;
 struct PluginHostMsg_RouteToFrame_Params;
 class RenderView;
 class SkBitmap;
+namespace gfx {
+class PlatformCanvasWin;
+}
+
 
 // An implementation of WebPluginDelegate that proxies all calls to
 // the plugin process.
@@ -148,10 +153,16 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
 
   // Event passed in by the plugin process and is used to decide if
   // messages need to be pumped in the NPP_HandleEvent sync call.
-  HANDLE modal_loop_pump_messages_event_;
+  ScopedHandle modal_loop_pump_messages_event_;
 
   // Bitmap for crashed plugin
   SkBitmap* sad_plugin_;
+
+  // Used for desynchronized windowless painting.  See the comment in
+  // webplugin_proxy.h for information about how this works.
+  scoped_ptr<SharedMemory> windowless_buffer_;
+  scoped_ptr<gfx::PlatformCanvasWin> windowless_canvas_;
+  ScopedHandle windowless_buffer_lock_;
 
   DISALLOW_EVIL_CONSTRUCTORS(WebPluginDelegateProxy);
 };

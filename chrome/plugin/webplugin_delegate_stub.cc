@@ -6,7 +6,6 @@
 
 #include "base/command_line.h"
 #include "base/time.h"
-#include "base/gfx/bitmap_header.h"
 #include "base/gfx/platform_device_win.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/gfx/emf.h"
@@ -81,10 +80,7 @@ void WebPluginDelegateStub::OnMessageReceived(const IPC::Message& msg) {
                         OnDidFinishLoadWithReason)
     IPC_MESSAGE_HANDLER(PluginMsg_SetFocus, OnSetFocus)
     IPC_MESSAGE_HANDLER(PluginMsg_HandleEvent, OnHandleEvent)
-    IPC_MESSAGE_HANDLER(PluginMsg_Paint, OnPaint)
     IPC_MESSAGE_HANDLER(PluginMsg_Print, OnPrint)
-    IPC_MESSAGE_HANDLER(PluginMsg_PaintIntoSharedMemory,
-                        OnPaintIntoSharedMemory)
     IPC_MESSAGE_HANDLER(PluginMsg_GetPluginScriptableObject,
                         OnGetPluginScriptableObject)
     IPC_MESSAGE_HANDLER(PluginMsg_UpdateGeometry, OnUpdateGeometry)
@@ -203,47 +199,6 @@ void WebPluginDelegateStub::OnHandleEvent(const NPEvent& event,
   *handled = delegate_->HandleEvent(const_cast<NPEvent*>(&event), cursor);
 }
 
-void WebPluginDelegateStub::OnPaint(const PluginMsg_Paint_Params& params) {
-  // Convert the shared memory handle to a handle that works in our process,
-  // and then use that to create an HDC.
-  win_util::ScopedHandle shared_section(win_util::GetSectionFromProcess(
-      params.shared_memory, channel_->renderer_handle(), false));
-
-  if (shared_section == NULL) {
-    NOTREACHED();
-    return;
-  }
-
-  void* data = NULL;
-  HDC screen_dc = GetDC(NULL);
-  BITMAPINFOHEADER bitmap_header;
-  gfx::CreateBitmapHeader(params.size.width(), params.size.height(),
-                          &bitmap_header);
-  win_util::ScopedBitmap hbitmap(CreateDIBSection(
-      screen_dc, reinterpret_cast<const BITMAPINFO*>(&bitmap_header),
-      DIB_RGB_COLORS, &data,
-      shared_section, 0));
-  ReleaseDC(NULL, screen_dc);
-  if (hbitmap == NULL) {
-    NOTREACHED();
-    return;
-  }
-
-  win_util::ScopedHDC hdc(CreateCompatibleDC(NULL));
-  if (hdc == NULL) {
-    NOTREACHED();
-    return;
-  }
-  gfx::PlatformDeviceWin::InitializeDC(hdc);
-  SelectObject(hdc, hbitmap);
-  SetWorldTransform(hdc, &params.xf);
-
-  win_util::ScopedHRGN hrgn(CreateRectRgnIndirect(&params.clip_rect.ToRECT()));
-  SelectClipRgn(hdc, hrgn);
-  webplugin_->WillPaint();
-  delegate_->Paint(hdc, params.damaged_rect);
-}
-
 void WebPluginDelegateStub::OnPrint(PluginMsg_PrintResponse_Params* params) {
   gfx::Emf emf;
   if (!emf.CreateDc(NULL, NULL)) {
@@ -269,80 +224,14 @@ void WebPluginDelegateStub::OnPrint(PluginMsg_PrintResponse_Params* params) {
   DCHECK(success);
 }
 
-void WebPluginDelegateStub::OnPaintIntoSharedMemory(
-    const PluginMsg_Paint_Params& params,
-    SharedMemoryHandle* emf_buffer,
-    size_t* bytes) {
-  *emf_buffer = NULL;
-  *bytes = 0;
-
-  gfx::Emf emf;
-  if (!emf.CreateDc(NULL, NULL)) {
-    NOTREACHED();
-    return;
-  }
-  HDC hdc = emf.hdc();
-  gfx::PlatformDeviceWin::InitializeDC(hdc);
-
-  if (delegate_->windowless()) {
-    WindowlessPaint(hdc, params);
-  } else {
-    WindowedPaint(hdc, params.damaged_rect);
-  }
-
-  // Need to send back the data as shared memory.
-  if (!emf.CloseDc()) {
-    NOTREACHED();
-    return;
-  }
-
-  size_t size = emf.GetDataSize();
-  DCHECK(size);
-  *bytes = size;
-  SharedMemory shared_buf;
-  CreateSharedBuffer(size, &shared_buf, emf_buffer);
-
-  // Retrieve a copy of the data.
-  bool success = emf.GetData(shared_buf.memory(), size);
-  DCHECK(success);
-}
-
-void WebPluginDelegateStub::WindowedPaint(HDC hdc,
-                                          const gfx::Rect& window_rect) {
-  // Use the NPAPI print() function to render the plugin.
-  delegate_->Print(hdc);
-}
-
-void WebPluginDelegateStub::WindowlessPaint(
-    HDC hdc,
-    const PluginMsg_Paint_Params& params) {
-  void* data = NULL;
-  HDC screen_dc = GetDC(NULL);
-  BITMAPINFOHEADER bitmap_header;
-  gfx::CreateBitmapHeader(params.size.width(), params.size.height(),
-                          &bitmap_header);
-  win_util::ScopedBitmap hbitmap(CreateDIBSection(
-      screen_dc, reinterpret_cast<const BITMAPINFO*>(&bitmap_header),
-      DIB_RGB_COLORS, &data, NULL, 0));
-  ReleaseDC(NULL, screen_dc);
-  if (hbitmap == NULL) {
-    NOTREACHED();
-    return;
-  }
-  SelectObject(hdc, hbitmap);
-
-  // Apply transform and clipping.
-  SetWorldTransform(hdc, &params.xf);
-  win_util::ScopedHRGN hrgn(CreateRectRgnIndirect(&params.clip_rect.ToRECT()));
-  SelectClipRgn(hdc, hrgn);
-  webplugin_->WillPaint();
-  delegate_->Paint(hdc, params.damaged_rect);
-}
-
-void WebPluginDelegateStub::OnUpdateGeometry(const gfx::Rect& window_rect,
-                                             const gfx::Rect& clip_rect,
-                                             bool visible) {
-  delegate_->UpdateGeometry(window_rect, clip_rect, visible);
+void WebPluginDelegateStub::OnUpdateGeometry(
+    const gfx::Rect& window_rect,
+    const gfx::Rect& clip_rect,
+    bool visible,
+    const SharedMemoryHandle& windowless_buffer,
+    const SharedMemoryLock& lock) {
+  webplugin_->UpdateGeometry(
+      window_rect, clip_rect, visible, windowless_buffer, lock);
 }
 
 void WebPluginDelegateStub::OnGetPluginScriptableObject(int* route_id,

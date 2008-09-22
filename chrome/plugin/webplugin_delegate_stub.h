@@ -19,7 +19,6 @@ class PluginChannel;
 class WebPluginProxy;
 class WebPluginDelegateImpl;
 struct PluginMsg_Init_Params;
-struct PluginMsg_Paint_Params;
 struct PluginMsg_DidReceiveResponseParams;
 class WebCursor;
 
@@ -58,23 +57,11 @@ class WebPluginDelegateStub : public IPC::Channel::Listener,
   void OnSetFocus();
   void OnHandleEvent(const NPEvent& event, bool* handled,
                      WebCursor* cursor);
-
-  void OnPaint(const PluginMsg_Paint_Params& params);
-
   void OnPrint(PluginMsg_PrintResponse_Params* params);
-
-  // Paints the plugin into a buffer. It roughly does the same as OnPaint (i.e.
-  // painting a plugin) except that the plugin window is always renderered into
-  // an EMF buffer and that it is effective for windowed plugins too.
-  void OnPaintIntoSharedMemory(const PluginMsg_Paint_Params& params,
-                               SharedMemoryHandle* emf_buffer, size_t* bytes);
-  // Paints a windowed plugin into a device context.
-  void WindowedPaint(HDC hdc, const gfx::Rect& window_rect);
-  // Paints a windowless plugin into a device context.
-  void WindowlessPaint(HDC hdc,
-                       const PluginMsg_Paint_Params& params);
   void OnUpdateGeometry(const gfx::Rect& window_rect,
-                        const gfx::Rect& clip_rect, bool visible);
+                        const gfx::Rect& clip_rect, bool visible,
+                        const SharedMemoryHandle& windowless_buffer,
+                        const SharedMemoryLock& lock);
   void OnGetPluginScriptableObject(int* route_id, void** npobject_ptr);
   void OnSendJavaScriptStream(const std::string& url,
                               const std::wstring& result,
