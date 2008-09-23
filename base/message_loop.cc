@@ -13,6 +13,9 @@
 #include "base/string_util.h"
 #include "base/thread_local.h"
 
+#if defined(OS_MACOSX)
+#include "base/message_pump_mac.h"
+#endif
 #if defined(OS_POSIX)
 #include "base/message_pump_libevent.h"
 #endif
@@ -83,14 +86,19 @@ MessageLoop::MessageLoop(Type type)
     pump_ = new base::MessagePumpWin();
   }
 #elif defined(OS_POSIX)
+#if defined(OS_MACOSX)
+  if (type_ == TYPE_UI) {
+    pump_ = base::MessagePumpMac::Create();
+  } else
+#endif  // OS_MACOSX
   if (type_ == TYPE_IO) {
     pump_ = new base::MessagePumpLibevent();
   } else {
     pump_ = new base::MessagePumpDefault();
   }
-#else
+#else  // OS_POSIX
   pump_ = new base::MessagePumpDefault();
-#endif
+#endif  // OS_POSIX
 }
 
 MessageLoop::~MessageLoop() {
