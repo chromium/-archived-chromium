@@ -422,7 +422,8 @@ void URLRequestHttpJob::NotifyHeadersComplete() {
   }
 
   // Get list of SDCH dictionary requests, and schedule them to be loaded.
-  if (SdchManager::Global()->IsInSupportedDomain(request_->url())) {
+  if (SdchManager::Global() &&
+      SdchManager::Global()->IsInSupportedDomain(request_->url())) {
     static const std::string name = "Get-Dictionary";
     std::string url_text;
     void* iter = NULL;
@@ -501,7 +502,8 @@ void URLRequestHttpJob::AddExtraHeaders() {
           context->accept_charset() + "\r\n";
   }
 
-  if (!SdchManager::Global()->IsInSupportedDomain(request_->url())) {
+  if (!SdchManager::Global() ||
+      !SdchManager::Global()->IsInSupportedDomain(request_->url())) {
     // Tell the server what compression formats we support (other than SDCH).
     request_info_.extra_headers += "Accept-Encoding: gzip,deflate,bzip2\r\n";
     return;
