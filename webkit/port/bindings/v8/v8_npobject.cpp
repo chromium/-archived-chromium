@@ -59,8 +59,8 @@ static v8::Handle<v8::Value> NPObjectInvokeImpl(
     V8HTMLEmbedElement::HasInstance(args.Holder()) ||
     V8HTMLObjectElement::HasInstance(args.Holder())) {
     // The holder object is a subtype of HTMLPlugInElement.
-    HTMLPlugInElement* imp = V8Proxy::FastToNativeObject<HTMLPlugInElement>(
-        V8ClassIndex::NODE, args.Holder());
+    HTMLPlugInElement* imp =
+        V8Proxy::DOMWrapperToNode<HTMLPlugInElement>(args.Holder());
     v8::Handle<v8::Object> instance = imp->getInstance();
     npobject = V8Proxy::ToNativeObject<NPObject>(
         V8ClassIndex::NPOBJECT, instance);
@@ -223,8 +223,8 @@ v8::Handle<v8::Value> NPObjectGetIndexedProperty(v8::Local<v8::Object> self,
 static v8::Handle<v8::Value> NPObjectSetProperty(v8::Local<v8::Object> self,
                                                  NPIdentifier ident,
                                                  v8::Local<v8::Value> value) {
-  NPObject* npobject = V8Proxy::ToNativeObject<NPObject>(V8ClassIndex::NPOBJECT,
-                                                         self);
+  NPObject* npobject =
+    V8Proxy::ToNativeObject<NPObject>(V8ClassIndex::NPOBJECT, self);
 
   // Verify that our wrapper wasn't using a NPObject which
   // has already been deleted.

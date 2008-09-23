@@ -319,10 +319,10 @@ CALLBACK_FUNC_DECL(XSLTProcessorImportStylesheet) {
   if (!V8Node::HasInstance(args[0]))
     return v8::Undefined();
 
-  XSLTProcessor* imp = V8Proxy::FastToNativeObject<XSLTProcessor>(
+  XSLTProcessor* imp = V8Proxy::ToNativeObject<XSLTProcessor>(
       V8ClassIndex::XSLTPROCESSOR, args.Holder());
 
-  Node* node = V8Proxy::FastToNativeObject<Node>(V8ClassIndex::NODE, args[0]);
+  Node* node = V8Proxy::DOMWrapperToNode<Node>(args[0]);
   imp->importStylesheet(node);
   return v8::Undefined();
 }
@@ -334,14 +334,14 @@ CALLBACK_FUNC_DECL(XSLTProcessorTransformToFragment) {
   if (!V8Node::HasInstance(args[0]) || !V8Document::HasInstance(args[1]))
     return v8::Undefined();
 
-  XSLTProcessor* imp = V8Proxy::FastToNativeObject<XSLTProcessor>(
+  XSLTProcessor* imp = V8Proxy::ToNativeObject<XSLTProcessor>(
       V8ClassIndex::XSLTPROCESSOR, args.Holder());
 
-  Node* source = V8Proxy::FastToNativeObject<Node>(V8ClassIndex::NODE, args[0]);
+  Node* source = V8Proxy::DOMWrapperToNode<Node>(args[0]);
   Document* owner =
-      V8Proxy::FastToNativeObject<Document>(V8ClassIndex::NODE, args[1]);
+      V8Proxy::DOMWrapperToNode<Document>(args[1]);
   RefPtr<DocumentFragment> result = imp->transformToFragment(source, owner);
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, result.get());
+  return V8Proxy::NodeToV8Object(result.get());
 }
 
 
@@ -351,15 +351,15 @@ CALLBACK_FUNC_DECL(XSLTProcessorTransformToDocument) {
   if (!V8Node::HasInstance(args[0]))
     return v8::Undefined();
 
-  XSLTProcessor* imp = V8Proxy::FastToNativeObject<XSLTProcessor>(
+  XSLTProcessor* imp = V8Proxy::ToNativeObject<XSLTProcessor>(
       V8ClassIndex::XSLTPROCESSOR, args.Holder());
 
-  Node* source = V8Proxy::FastToNativeObject<Node>(V8ClassIndex::NODE, args[0]);
+  Node* source = V8Proxy::DOMWrapperToNode<Node>(args[0]);
   if (!source) return v8::Undefined();
   RefPtr<Document> result = imp->transformToDocument(source);
   // Return undefined if no result was found.
   if (!result) return v8::Undefined();
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, result.get());
+  return V8Proxy::NodeToV8Object(result.get());
 }
 
 
@@ -371,7 +371,7 @@ CALLBACK_FUNC_DECL(XSLTProcessorSetParameter) {
     return v8::Undefined();
   }
 
-  XSLTProcessor* imp = V8Proxy::FastToNativeObject<XSLTProcessor>(
+  XSLTProcessor* imp = V8Proxy::ToNativeObject<XSLTProcessor>(
       V8ClassIndex::XSLTPROCESSOR, args.Holder());
 
   String namespaceURI = ToWebCoreString(args[0]);
@@ -389,7 +389,7 @@ CALLBACK_FUNC_DECL(XSLTProcessorGetParameter) {
     return v8::Undefined();
   }
 
-  XSLTProcessor* imp = V8Proxy::FastToNativeObject<XSLTProcessor>(
+  XSLTProcessor* imp = V8Proxy::ToNativeObject<XSLTProcessor>(
       V8ClassIndex::XSLTPROCESSOR, args.Holder());
 
   String namespaceURI = ToWebCoreString(args[0]);
@@ -408,7 +408,7 @@ CALLBACK_FUNC_DECL(XSLTProcessorRemoveParameter) {
     return v8::Undefined();
   }
 
-  XSLTProcessor* imp = V8Proxy::FastToNativeObject<XSLTProcessor>(
+  XSLTProcessor* imp = V8Proxy::ToNativeObject<XSLTProcessor>(
       V8ClassIndex::XSLTPROCESSOR, args.Holder());
 
   String namespaceURI = ToWebCoreString(args[0]);
@@ -438,13 +438,13 @@ static PassRefPtr<CanvasStyle> V8ObjectToCanvasStyle(
 
   if (V8CanvasGradient::HasInstance(value)) {
     CanvasGradient* gradient =
-        V8Proxy::FastDOMWrapperToNative<CanvasGradient>(value);
+        V8Proxy::DOMWrapperToNative<CanvasGradient>(value);
     return new CanvasStyle(gradient);
   }
 
   if (V8CanvasPattern::HasInstance(value)) {
     CanvasPattern* pattern =
-        V8Proxy::FastDOMWrapperToNative<CanvasPattern>(value);
+        V8Proxy::DOMWrapperToNative<CanvasPattern>(value);
     return new CanvasStyle(pattern);
   }
 
@@ -454,7 +454,7 @@ static PassRefPtr<CanvasStyle> V8ObjectToCanvasStyle(
 
 ACCESSOR_GETTER(CanvasRenderingContext2DStrokeStyle) {
   CanvasRenderingContext2D* impl =
-    V8Proxy::FastDOMWrapperToNative<CanvasRenderingContext2D>(info.Holder());
+    V8Proxy::DOMWrapperToNative<CanvasRenderingContext2D>(info.Holder());
   CanvasStyle* strokeStyle = impl->strokeStyle();
   return CanvasStyleToV8Object(strokeStyle);
 }
@@ -462,13 +462,13 @@ ACCESSOR_GETTER(CanvasRenderingContext2DStrokeStyle) {
 
 ACCESSOR_SETTER(CanvasRenderingContext2DStrokeStyle) {
   CanvasRenderingContext2D* impl =
-    V8Proxy::FastDOMWrapperToNative<CanvasRenderingContext2D>(info.Holder());
+    V8Proxy::DOMWrapperToNative<CanvasRenderingContext2D>(info.Holder());
   impl->setStrokeStyle(V8ObjectToCanvasStyle(value));
 }
 
 ACCESSOR_GETTER(CanvasRenderingContext2DFillStyle) {
   CanvasRenderingContext2D* impl =
-    V8Proxy::FastDOMWrapperToNative<CanvasRenderingContext2D>(info.Holder());
+    V8Proxy::DOMWrapperToNative<CanvasRenderingContext2D>(info.Holder());
   CanvasStyle* fillStyle = impl->fillStyle();
   return CanvasStyleToV8Object(fillStyle);
 }
@@ -476,7 +476,7 @@ ACCESSOR_GETTER(CanvasRenderingContext2DFillStyle) {
 
 ACCESSOR_SETTER(CanvasRenderingContext2DFillStyle) {
   CanvasRenderingContext2D* impl =
-    V8Proxy::FastDOMWrapperToNative<CanvasRenderingContext2D>(info.Holder());
+    V8Proxy::DOMWrapperToNative<CanvasRenderingContext2D>(info.Holder());
   impl->setFillStyle(V8ObjectToCanvasStyle(value));
 }
 
@@ -499,7 +499,7 @@ ACCESSOR_GETTER(DocumentImplementation) {
     return implementation;
   }
   // Generate a wrapper.
-  Document* doc = V8Proxy::FastDOMWrapperToNative<Document>(info.Holder());
+  Document* doc = V8Proxy::DOMWrapperToNative<Document>(info.Holder());
   v8::Handle<v8::Value> wrapper =
       V8Proxy::DOMImplementationToV8Object(doc->implementation());
   // Store the wrapper in the internal field.
@@ -510,7 +510,7 @@ ACCESSOR_GETTER(DocumentImplementation) {
 
 
 ACCESSOR_GETTER(DocumentLocation) {
-  Document* imp = V8Proxy::FastDOMWrapperToNative<Document>(info.Holder());
+  Document* imp = V8Proxy::DOMWrapperToNative<Document>(info.Holder());
   if (!imp->frame())
     return v8::Null();
 
@@ -521,7 +521,7 @@ ACCESSOR_GETTER(DocumentLocation) {
 
 
 ACCESSOR_SETTER(DocumentLocation) {
-  Document* imp = V8Proxy::FastDOMWrapperToNative<Document>(info.Holder());
+  Document* imp = V8Proxy::DOMWrapperToNative<Document>(info.Holder());
   if (!imp->frame())
     return;
 
@@ -537,14 +537,14 @@ ACCESSOR_SETTER(DOMWindowLocation) {
   if (holder.IsEmpty())
     return;
 
-  DOMWindow* imp = V8Proxy::FastToNativeObject<DOMWindow>(
+  DOMWindow* imp = V8Proxy::ToNativeObject<DOMWindow>(
       V8ClassIndex::DOMWINDOW, holder);
   imp->setLocation(ToWebCoreString(value));
 }
 
 
 ACCESSOR_SETTER(DOMWindowOpener) {
-  DOMWindow* imp = V8Proxy::FastToNativeObject<DOMWindow>(
+  DOMWindow* imp = V8Proxy::ToNativeObject<DOMWindow>(
       V8ClassIndex::DOMWINDOW, info.Holder());
 
   if (!V8Proxy::IsFromSameOrigin(imp->frame(), true))
@@ -569,27 +569,27 @@ ACCESSOR_SETTER(DOMWindowOpener) {
 
 
 ACCESSOR_GETTER(EventSrcElement) {
-  Event* event = V8Proxy::FastDOMWrapperToNative<Event>(info.Holder());
+  Event* event = V8Proxy::DOMWrapperToNative<Event>(info.Holder());
   EventTarget* target = event->target();
   return V8Proxy::EventTargetToV8Object(target);
 }
 
 
 ACCESSOR_GETTER(EventReturnValue) {
-  Event* event = V8Proxy::FastDOMWrapperToNative<Event>(info.Holder());
+  Event* event = V8Proxy::DOMWrapperToNative<Event>(info.Holder());
   return event->defaultPrevented() ? v8::False() : v8::True();
 }
 
 
 ACCESSOR_SETTER(EventReturnValue) {
-  Event* event = V8Proxy::FastDOMWrapperToNative<Event>(info.Holder());
+  Event* event = V8Proxy::DOMWrapperToNative<Event>(info.Holder());
   bool v = value->BooleanValue();
   event->setDefaultPrevented(!v);
 }
 
 
 ACCESSOR_GETTER(EventDataTransfer) {
-  Event* event = V8Proxy::FastDOMWrapperToNative<Event>(info.Holder());
+  Event* event = V8Proxy::DOMWrapperToNative<Event>(info.Holder());
 
   if (event->isDragEvent()) {
     MouseEvent* impl = static_cast<MouseEvent*>(event);
@@ -602,7 +602,7 @@ ACCESSOR_GETTER(EventDataTransfer) {
 
 
 ACCESSOR_GETTER(EventClipboardData) {
-  Event* event = V8Proxy::FastDOMWrapperToNative<Event>(info.Holder());
+  Event* event = V8Proxy::DOMWrapperToNative<Event>(info.Holder());
 
   if (event->isClipboardEvent()) {
     ClipboardEvent* impl = static_cast<ClipboardEvent*>(event);
@@ -622,7 +622,7 @@ static v8::Handle<v8::Value> HTMLCollectionGetNamedItems(
     case 0:
       return v8::Handle<v8::Value>();
     case 1:
-      return V8Proxy::ToV8Object(V8ClassIndex::NODE, namedItems.at(0).get());
+      return V8Proxy::NodeToV8Object(namedItems.at(0).get());
     default:
       NodeList* list = new V8VectorNodeList(namedItems);
       return V8Proxy::ToV8Object(V8ClassIndex::NODELIST,
@@ -645,7 +645,7 @@ static v8::Handle<v8::Value> HTMLCollectionGetItem(
   }
   unsigned i = index->Uint32Value();
   RefPtr<Node> result = collection->item(i);
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, result.get());
+  return V8Proxy::NodeToV8Object(result.get());
 }
 
 
@@ -666,7 +666,7 @@ NAMED_PROPERTY_GETTER(HTMLCollection) {
   }
 
   // Finally, search the DOM structure.
-  HTMLCollection* imp = V8Proxy::FastToNativeObject<HTMLCollection>(
+  HTMLCollection* imp = V8Proxy::ToNativeObject<HTMLCollection>(
       V8ClassIndex::HTMLCOLLECTION, info.Holder());
   String key = ToWebCoreString(name);
   return HTMLCollectionGetNamedItems(imp, key);
@@ -675,7 +675,7 @@ NAMED_PROPERTY_GETTER(HTMLCollection) {
 
 CALLBACK_FUNC_DECL(HTMLCollectionItem) {
   INC_STATS(L"DOM.HTMLCollection.item()");
-  HTMLCollection* imp = V8Proxy::FastToNativeObject<HTMLCollection>(
+  HTMLCollection* imp = V8Proxy::ToNativeObject<HTMLCollection>(
       V8ClassIndex::HTMLCOLLECTION, args.Holder());
   return HTMLCollectionGetItem(imp, args[0]);
 }
@@ -683,7 +683,7 @@ CALLBACK_FUNC_DECL(HTMLCollectionItem) {
 
 CALLBACK_FUNC_DECL(HTMLCollectionNamedItem) {
   INC_STATS(L"DOM.HTMLCollection.namedItem()");
-  HTMLCollection* imp = V8Proxy::FastToNativeObject<HTMLCollection>(
+  HTMLCollection* imp = V8Proxy::ToNativeObject<HTMLCollection>(
       V8ClassIndex::HTMLCOLLECTION, args.Holder());
   String name = ToWebCoreString(args[0]);
   v8::Handle<v8::Value> result =
@@ -699,7 +699,7 @@ CALLBACK_FUNC_DECL(HTMLCollectionCallAsFunction) {
   INC_STATS(L"DOM.HTMLCollection.callAsFunction()");
   if (args.Length() < 1) return v8::Undefined();
 
-  HTMLCollection* imp = V8Proxy::FastToNativeObject<HTMLCollection>(
+  HTMLCollection* imp = V8Proxy::ToNativeObject<HTMLCollection>(
       V8ClassIndex::HTMLCOLLECTION, args.Holder());
 
   if (args.Length() == 1) {
@@ -714,7 +714,7 @@ CALLBACK_FUNC_DECL(HTMLCollectionCallAsFunction) {
   unsigned i = index->Uint32Value();
   Node* node = imp->namedItem(name);
   while (node) {
-    if (i == 0) return V8Proxy::ToV8Object(V8ClassIndex::NODE, node);
+    if (i == 0) return V8Proxy::NodeToV8Object(node);
     node = imp->nextNamedItem(name);
     i--;
   }
@@ -726,8 +726,8 @@ CALLBACK_FUNC_DECL(HTMLCollectionCallAsFunction) {
 static v8::Handle<v8::Value> V8HTMLSelectElementRemoveHelper(
     HTMLSelectElement* imp, const v8::Arguments& args) {
   if (V8HTMLOptionElement::HasInstance(args[0])) {
-    HTMLOptionElement* element = V8Proxy::ToNativeObject<HTMLOptionElement>(
-        V8ClassIndex::HTMLOPTIONELEMENT, args[0]);
+    HTMLOptionElement* element =
+        V8Proxy::DOMWrapperToNode<HTMLOptionElement>(args[0]);
     imp->remove(element->index());
     return v8::Undefined();
   }
@@ -738,15 +738,15 @@ static v8::Handle<v8::Value> V8HTMLSelectElementRemoveHelper(
 
 CALLBACK_FUNC_DECL(HTMLSelectElementRemove) {
   INC_STATS(L"DOM.HTMLSelectElement.remove");
-  HTMLSelectElement* imp = V8Proxy::FastToNativeObject<HTMLSelectElement>(
-      V8ClassIndex::HTMLSELECTELEMENT, args.Holder());
+  HTMLSelectElement* imp =
+      V8Proxy::DOMWrapperToNode<HTMLSelectElement>(args.Holder());
   return V8HTMLSelectElementRemoveHelper(imp, args);
 }
 
 CALLBACK_FUNC_DECL(HTMLOptionsCollectionRemove) {
   INC_STATS(L"DOM.HTMLOptionsCollection.remove()");
   HTMLOptionsCollection* imp =
-      V8Proxy::FastToNativeObject<HTMLOptionsCollection>(
+      V8Proxy::ToNativeObject<HTMLOptionsCollection>(
           V8ClassIndex::HTMLOPTIONSCOLLECTION, args.Holder());
   HTMLSelectElement* base = static_cast<HTMLSelectElement*>(imp->base());
   return V8HTMLSelectElementRemoveHelper(base, args);
@@ -760,10 +760,10 @@ CALLBACK_FUNC_DECL(HTMLOptionsCollectionAdd) {
     return v8::Undefined();
   }
   HTMLOptionsCollection* imp =
-      V8Proxy::FastToNativeObject<HTMLOptionsCollection>(
+      V8Proxy::ToNativeObject<HTMLOptionsCollection>(
           V8ClassIndex::HTMLOPTIONSCOLLECTION, args.Holder());
-  HTMLOptionElement* option = V8Proxy::ToNativeObject<HTMLOptionElement>(
-      V8ClassIndex::NODE, args[0]);
+  HTMLOptionElement* option =
+      V8Proxy::DOMWrapperToNode<HTMLOptionElement>(args[0]);
 
   ExceptionCode ec = 0;
   if (args.Length() < 2) {
@@ -790,7 +790,7 @@ CALLBACK_FUNC_DECL(HTMLOptionsCollectionAdd) {
 
 CALLBACK_FUNC_DECL(DOMWindowAddEventListener) {
   INC_STATS(L"DOM.DOMWindow.addEventListener()");
-  DOMWindow* imp = V8Proxy::FastToNativeObject<DOMWindow>(
+  DOMWindow* imp = V8Proxy::ToNativeObject<DOMWindow>(
       V8ClassIndex::DOMWINDOW, args.Holder());
 
   // Fast check This argument with the global object of security context.
@@ -826,7 +826,7 @@ CALLBACK_FUNC_DECL(DOMWindowAddEventListener) {
 
 CALLBACK_FUNC_DECL(DOMWindowRemoveEventListener) {
   INC_STATS(L"DOM.DOMWindow.removeEventListener()");
-  DOMWindow* imp = V8Proxy::FastToNativeObject<DOMWindow>(
+  DOMWindow* imp = V8Proxy::ToNativeObject<DOMWindow>(
       V8ClassIndex::DOMWINDOW, args.Holder());
 
   // Fast check This argument with the global object of security context.
@@ -860,7 +860,7 @@ CALLBACK_FUNC_DECL(DOMWindowRemoveEventListener) {
 
 CALLBACK_FUNC_DECL(DOMWindowPostMessage) {
   INC_STATS(L"DOM.DOMWindow.postMessage()");
-  DOMWindow* window = V8Proxy::FastToNativeObject<DOMWindow>(
+  DOMWindow* window = V8Proxy::ToNativeObject<DOMWindow>(
       V8ClassIndex::DOMWINDOW, args.Holder());
 
   DOMWindow* source = V8Proxy::retrieveActiveFrame()->domWindow();
@@ -1002,7 +1002,7 @@ static Frame* createWindow(Frame* opener_frame,
 
 CALLBACK_FUNC_DECL(DOMWindowShowModalDialog) {
   INC_STATS(L"DOM.DOMWindow.showModalDialog()");
-  DOMWindow* window = V8Proxy::FastToNativeObject<DOMWindow>(
+  DOMWindow* window = V8Proxy::ToNativeObject<DOMWindow>(
       V8ClassIndex::DOMWINDOW, args.Holder());
   Frame* frame = window->frame();
 
@@ -1092,7 +1092,7 @@ CALLBACK_FUNC_DECL(DOMWindowShowModalDialog) {
 
 CALLBACK_FUNC_DECL(DOMWindowOpen) {
   INC_STATS(L"DOM.DOMWindow.open()");
-  DOMWindow* parent = V8Proxy::FastToNativeObject<DOMWindow>(
+  DOMWindow* parent = V8Proxy::ToNativeObject<DOMWindow>(
       V8ClassIndex::DOMWINDOW, args.Holder());
   Frame* frame = parent->frame();
   if (!frame)
@@ -1344,7 +1344,7 @@ NAMED_PROPERTY_GETTER(DOMWindow) {
     RefPtr<HTMLCollection> items = doc->windowNamedItems(prop_name);
     if (items->length() >= 1) {
       if (items->length() == 1) {
-        return V8Proxy::ToV8Object(V8ClassIndex::NODE, items->firstItem());
+        return V8Proxy::NodeToV8Object(items->firstItem());
       } else {
         return V8Proxy::ToV8Object(V8ClassIndex::HTMLCOLLECTION,
                                    static_cast<Peerable*>(items.get()));
@@ -1406,8 +1406,7 @@ NAMED_PROPERTY_GETTER(HTMLDocument) {
     }
   }
 
-  HTMLDocument* imp = V8Proxy::FastToNativeObject<HTMLDocument>(
-      V8ClassIndex::HTMLDOCUMENT, info.Holder());
+  HTMLDocument* imp = V8Proxy::DOMWrapperToNode<HTMLDocument>(info.Holder());
 
   // Fast case for named elements that are not there.
   if (!imp->hasNamedItem(key) && !imp->hasDocExtraNamedItem(key)) {
@@ -1424,7 +1423,7 @@ NAMED_PROPERTY_GETTER(HTMLDocument) {
         (frame = static_cast<HTMLIFrameElement*>(node)->contentFrame())) {
       return V8Proxy::ToV8Object(V8ClassIndex::DOMWINDOW, frame->domWindow());
     }
-    return V8Proxy::ToV8Object(V8ClassIndex::NODE, node);
+    return V8Proxy::NodeToV8Object(node);
   }
   return V8Proxy::ToV8Object(V8ClassIndex::HTMLCOLLECTION,
                              static_cast<Peerable*>(items.get()));
@@ -1433,8 +1432,8 @@ NAMED_PROPERTY_GETTER(HTMLDocument) {
 
 NAMED_PROPERTY_GETTER(HTMLFrameSetElement) {
   INC_STATS(L"DOM.HTMLFrameSetElement.NamedPropertyGetter");
-  HTMLFrameSetElement* imp = V8Proxy::FastToNativeObject<HTMLFrameSetElement>(
-      V8ClassIndex::HTMLFRAMESETELEMENT, info.Holder());
+  HTMLFrameSetElement* imp =
+      V8Proxy::DOMWrapperToNode<HTMLFrameSetElement>(info.Holder());
   String key = ToWebCoreString(name);
   Node* frame = imp->children()->namedItem(key);
   if (frame && frame->hasTagName(HTMLNames::frameTag)) {
@@ -1454,8 +1453,8 @@ NAMED_PROPERTY_GETTER(HTMLFrameSetElement) {
 
 NAMED_PROPERTY_GETTER(HTMLFormElement) {
   INC_STATS(L"DOM.HTMLFormElement.NamedPropertyGetter");
-  HTMLFormElement* imp = V8Proxy::FastToNativeObject<HTMLFormElement>(
-      V8ClassIndex::HTMLFORMELEMENT, info.Holder());
+  HTMLFormElement* imp =
+      V8Proxy::DOMWrapperToNode<HTMLFormElement>(info.Holder());
   String v = ToWebCoreString(name);
 
   // Call getNamedElements twice, first time check if it has a value
@@ -1473,7 +1472,7 @@ NAMED_PROPERTY_GETTER(HTMLFormElement) {
   imp->getNamedElements(v, elements);
   ASSERT(elements.size() != 0);
   if (elements.size() == 1) {
-    return V8Proxy::ToV8Object(V8ClassIndex::NODE, elements.at(0).get());
+    return V8Proxy::NodeToV8Object(elements.at(0).get());
   } else {
     NodeList* collection = new V8VectorNodeList(elements);
     return V8Proxy::ToV8Object(V8ClassIndex::NODELIST,
@@ -1484,12 +1483,12 @@ NAMED_PROPERTY_GETTER(HTMLFormElement) {
 
 INDEXED_PROPERTY_GETTER(NamedNodeMap) {
   INC_STATS(L"DOM.NamedNodeMap.IndexedPropertyGetter");
-  NamedNodeMap* imp = V8Proxy::FastToNativeObject<NamedNodeMap>(
+  NamedNodeMap* imp = V8Proxy::ToNativeObject<NamedNodeMap>(
       V8ClassIndex::NAMEDNODEMAP, info.Holder());
   RefPtr<Node> result = imp->item(index);
   if (!result) return v8::Handle<v8::Value>();
 
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, result.get());
+  return V8Proxy::NodeToV8Object(result.get());
 }
 
 NAMED_PROPERTY_GETTER(NamedNodeMap) {
@@ -1505,19 +1504,19 @@ NAMED_PROPERTY_GETTER(NamedNodeMap) {
     return v8::Handle<v8::Value>();
 
   // Finally, search the DOM.
-  NamedNodeMap* imp = V8Proxy::FastToNativeObject<NamedNodeMap>(
+  NamedNodeMap* imp = V8Proxy::ToNativeObject<NamedNodeMap>(
       V8ClassIndex::NAMEDNODEMAP, info.Holder());
   String prop_name = ToWebCoreString(name);
   RefPtr<Node> result = imp->getNamedItem(prop_name);
   if (!result) return v8::Handle<v8::Value>();
 
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, result.get());
+  return V8Proxy::NodeToV8Object(result.get());
 }
 
 
 NAMED_PROPERTY_GETTER(NodeList) {
   INC_STATS(L"DOM.NodeList.NamedPropertyGetter");
-  NodeList* list = V8Proxy::FastToNativeObject<NodeList>(
+  NodeList* list = V8Proxy::ToNativeObject<NodeList>(
       V8ClassIndex::NODELIST, info.Holder());
   String prop_name = ToWebCoreString(name);
 
@@ -1527,7 +1526,7 @@ NAMED_PROPERTY_GETTER(NodeList) {
 
   RefPtr<Node> result = list->itemWithName(prop_name);
   if (result)
-    return V8Proxy::ToV8Object(V8ClassIndex::NODE, result.get());
+    return V8Proxy::NodeToV8Object(result.get());
 
   return v8::Handle<v8::Value>();
 }
@@ -1535,25 +1534,25 @@ NAMED_PROPERTY_GETTER(NodeList) {
 
 INDEXED_PROPERTY_GETTER(HTMLFormElement) {
   INC_STATS(L"DOM.HTMLFormElement.IndexedPropertyGetter");
-  HTMLFormElement* form = V8Proxy::FastToNativeObject<HTMLFormElement>(
-      V8ClassIndex::HTMLFORMELEMENT, info.Holder());
+  HTMLFormElement* form =
+      V8Proxy::DOMWrapperToNode<HTMLFormElement>(info.Holder());
 
   RefPtr<Node> result = form->elements()->item(index);
   if (!result) return v8::Handle<v8::Value>();
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, result.get());
+  return V8Proxy::NodeToV8Object(result.get());
 }
 
 
 INDEXED_PROPERTY_GETTER(HTMLOptionsCollection) {
   INC_STATS(L"DOM.HTMLOptionsCollection.IndexedPropertyGetter");
   HTMLOptionsCollection* collection =
-      V8Proxy::FastToNativeObject<HTMLOptionsCollection>(
+      V8Proxy::ToNativeObject<HTMLOptionsCollection>(
           V8ClassIndex::HTMLOPTIONSCOLLECTION, info.Holder());
 
   RefPtr<Node> result = collection->item(index);
   if (!result) return v8::Handle<v8::Value>();
 
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, result.get());
+  return V8Proxy::NodeToV8Object(result.get());
 }
 
 static v8::Handle<v8::Value> OptionsCollectionSetter(uint32_t index,
@@ -1572,8 +1571,9 @@ static v8::Handle<v8::Value> OptionsCollectionSetter(uint32_t index,
     return value;
   }
 
-  HTMLOptionElement* element = V8Proxy::FastToNativeObject<HTMLOptionElement>(
-      V8ClassIndex::HTMLOPTIONELEMENT, v8::Handle<v8::Object>::Cast(value));
+  HTMLOptionElement* element =
+      V8Proxy::DOMWrapperToNode<HTMLOptionElement>(
+          v8::Handle<v8::Object>::Cast(value));
   base->setOption(index, element, ec);
 
   V8Proxy::SetDOMException(ec);
@@ -1584,7 +1584,7 @@ static v8::Handle<v8::Value> OptionsCollectionSetter(uint32_t index,
 INDEXED_PROPERTY_SETTER(HTMLOptionsCollection) {
   INC_STATS(L"DOM.HTMLOptionsCollection.IndexedPropertySetter");
   HTMLOptionsCollection* collection =
-      V8Proxy::FastToNativeObject<HTMLOptionsCollection>(
+      V8Proxy::ToNativeObject<HTMLOptionsCollection>(
           V8ClassIndex::HTMLOPTIONSCOLLECTION, info.Holder());
   HTMLSelectElement* base = static_cast<HTMLSelectElement*>(collection->base());
   return OptionsCollectionSetter(index, value, base);
@@ -1594,8 +1594,7 @@ INDEXED_PROPERTY_SETTER(HTMLOptionsCollection) {
 INDEXED_PROPERTY_SETTER(HTMLSelectElementCollection) {
   INC_STATS(L"DOM.HTMLSelectElementCollection.IndexedPropertySetter");
   HTMLSelectElement* select =
-      V8Proxy::FastToNativeObject<HTMLSelectElement>(
-          V8ClassIndex::HTMLSELECTELEMENT, info.Holder());
+      V8Proxy::DOMWrapperToNode<HTMLSelectElement>(info.Holder());
   return OptionsCollectionSetter(index, value, select);
 }
 
@@ -1655,7 +1654,7 @@ NAMED_PROPERTY_GETTER(CSSStyleDeclaration) {
   }
 
   // Search the style declaration.
-  CSSStyleDeclaration* imp = V8Proxy::FastToNativeObject<CSSStyleDeclaration>(
+  CSSStyleDeclaration* imp = V8Proxy::ToNativeObject<CSSStyleDeclaration>(
       V8ClassIndex::CSSSTYLEDECLARATION, info.Holder());
 
   bool pixel_or_pos;
@@ -1693,7 +1692,7 @@ NAMED_PROPERTY_GETTER(CSSStyleDeclaration) {
 
 NAMED_PROPERTY_SETTER(CSSStyleDeclaration) {
   INC_STATS(L"DOM.CSSStyleDeclaration.NamedPropertySetter");
-  CSSStyleDeclaration* imp = V8Proxy::FastToNativeObject<CSSStyleDeclaration>(
+  CSSStyleDeclaration* imp = V8Proxy::ToNativeObject<CSSStyleDeclaration>(
       V8ClassIndex::CSSSTYLEDECLARATION, info.Holder());
   String property_name = ToWebCoreString(name);
   int ec = 0;
@@ -1715,8 +1714,8 @@ NAMED_PROPERTY_SETTER(CSSStyleDeclaration) {
 
 NAMED_PROPERTY_GETTER(HTMLPlugInElement) {
   INC_STATS(L"DOM.HTMLPlugInElement.NamedPropertyGetter");
-  HTMLPlugInElement* imp = V8Proxy::FastToNativeObject<HTMLPlugInElement>(
-      V8ClassIndex::NODE, info.Holder());
+  HTMLPlugInElement* imp =
+      V8Proxy::DOMWrapperToNode<HTMLPlugInElement>(info.Holder());
   v8::Local<v8::Object> instance =
       v8::Local<v8::Object>::New(imp->getInstance());
   if (instance.IsEmpty()) return v8::Handle<v8::Object>();
@@ -1726,8 +1725,8 @@ NAMED_PROPERTY_GETTER(HTMLPlugInElement) {
 
 NAMED_PROPERTY_SETTER(HTMLPlugInElement) {
   INC_STATS(L"DOM.HTMLPlugInElement.NamedPropertySetter");
-  HTMLPlugInElement* imp = V8Proxy::FastToNativeObject<HTMLPlugInElement>(
-      V8ClassIndex::NODE, info.Holder());
+  HTMLPlugInElement* imp =
+      V8Proxy::DOMWrapperToNode<HTMLPlugInElement>(info.Holder());
   v8::Local<v8::Object> instance =
       v8::Local<v8::Object>::New(imp->getInstance());
   if (instance.IsEmpty()) {
@@ -1746,8 +1745,8 @@ CALLBACK_FUNC_DECL(HTMLPlugInElement) {
 
 INDEXED_PROPERTY_GETTER(HTMLPlugInElement) {
   INC_STATS(L"DOM.HTMLPlugInElement.IndexedPropertyGetter");
-  HTMLPlugInElement* imp = V8Proxy::FastToNativeObject<HTMLPlugInElement>(
-      V8ClassIndex::NODE, info.Holder());
+  HTMLPlugInElement* imp =
+      V8Proxy::DOMWrapperToNode<HTMLPlugInElement>(info.Holder());
   v8::Local<v8::Object> instance =
       v8::Local<v8::Object>::New(imp->getInstance());
   if (instance.IsEmpty()) return v8::Handle<v8::Object>();
@@ -1757,8 +1756,8 @@ INDEXED_PROPERTY_GETTER(HTMLPlugInElement) {
 
 INDEXED_PROPERTY_SETTER(HTMLPlugInElement) {
   INC_STATS(L"DOM.HTMLPlugInElement.IndexedPropertySetter");
-  HTMLPlugInElement* imp = V8Proxy::FastToNativeObject<HTMLPlugInElement>(
-      V8ClassIndex::NODE, info.Holder());
+  HTMLPlugInElement* imp =
+      V8Proxy::DOMWrapperToNode<HTMLPlugInElement>(info.Holder());
   v8::Local<v8::Object> instance =
       v8::Local<v8::Object>::New(imp->getInstance());
   if (instance.IsEmpty()) {
@@ -1776,7 +1775,7 @@ NAMED_PROPERTY_GETTER(StyleSheetList) {
   }
 
   // Search style sheet.
-  StyleSheetList* imp = V8Proxy::FastToNativeObject<StyleSheetList>(
+  StyleSheetList* imp = V8Proxy::ToNativeObject<StyleSheetList>(
       V8ClassIndex::STYLESHEETLIST, info.Holder());
   String key = ToWebCoreString(name);
   HTMLStyleElement* item = imp->getNamedItem(key);
@@ -1789,7 +1788,7 @@ NAMED_PROPERTY_GETTER(StyleSheetList) {
 
 CALLBACK_FUNC_DECL(CSSPrimitiveValueGetRGBColorValue) {
   INC_STATS(L"DOM.CSSPrimitiveValue.getRGBColorValue()");
-  CSSPrimitiveValue* value = V8Proxy::FastToNativeObject<CSSPrimitiveValue>(
+  CSSPrimitiveValue* value = V8Proxy::ToNativeObject<CSSPrimitiveValue>(
       V8ClassIndex::CSSPRIMITIVEVALUE, args.Holder());
   ExceptionCode ec = 0;
   unsigned int rgbcolor = value->getRGBColorValue(ec);
@@ -1810,7 +1809,7 @@ CALLBACK_FUNC_DECL(CSSPrimitiveValueGetRGBColorValue) {
 CALLBACK_FUNC_DECL(CanvasRenderingContext2DSetStrokeColor) {
   INC_STATS(L"DOM.CanvasRenderingContext2D.setStrokeColor()");
   CanvasRenderingContext2D* context =
-      V8Proxy::FastToNativeObject<CanvasRenderingContext2D>(
+      V8Proxy::ToNativeObject<CanvasRenderingContext2D>(
           V8ClassIndex::CANVASRENDERINGCONTEXT2D, args.Holder());
   switch (args.Length()) {
     case 1:
@@ -1854,7 +1853,7 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DSetStrokeColor) {
 CALLBACK_FUNC_DECL(CanvasRenderingContext2DSetFillColor) {
   INC_STATS(L"DOM.CanvasRenderingContext2D.steFillColor()");
   CanvasRenderingContext2D* context =
-      V8Proxy::FastToNativeObject<CanvasRenderingContext2D>(
+      V8Proxy::ToNativeObject<CanvasRenderingContext2D>(
           V8ClassIndex::CANVASRENDERINGCONTEXT2D, args.Holder());
   switch (args.Length()) {
     case 1:
@@ -1896,7 +1895,7 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DSetFillColor) {
 CALLBACK_FUNC_DECL(CanvasRenderingContext2DStrokeRect) {
   INC_STATS(L"DOM.CanvasRenderingContext2D.strokeRect()");
   CanvasRenderingContext2D* context =
-      V8Proxy::FastToNativeObject<CanvasRenderingContext2D>(
+      V8Proxy::ToNativeObject<CanvasRenderingContext2D>(
           V8ClassIndex::CANVASRENDERINGCONTEXT2D, args.Holder());
   ExceptionCode ec = 0;
   double x = 0, y = 0, width = 0, height = 0, line_width = 0;
@@ -1928,7 +1927,7 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DStrokeRect) {
 CALLBACK_FUNC_DECL(CanvasRenderingContext2DSetShadow) {
   INC_STATS(L"DOM.CanvasRenderingContext2D.setShadow()");
   CanvasRenderingContext2D* context =
-      V8Proxy::FastToNativeObject<CanvasRenderingContext2D>(
+      V8Proxy::ToNativeObject<CanvasRenderingContext2D>(
           V8ClassIndex::CANVASRENDERINGCONTEXT2D, args.Holder());
 
   switch (args.Length()) {
@@ -1979,7 +1978,7 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DSetShadow) {
 CALLBACK_FUNC_DECL(CanvasRenderingContext2DDrawImage) {
   INC_STATS(L"DOM.CanvasRenderingContext2D.drawImage()");
   CanvasRenderingContext2D* context =
-      V8Proxy::FastToNativeObject<CanvasRenderingContext2D>(
+      V8Proxy::ToNativeObject<CanvasRenderingContext2D>(
           V8ClassIndex::CANVASRENDERINGCONTEXT2D, args.Holder());
 
   v8::Handle<v8::Value> arg = args[0];
@@ -1987,8 +1986,7 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DDrawImage) {
   if (V8HTMLImageElement::HasInstance(arg)) {
     ExceptionCode ec = 0;
     HTMLImageElement* image_element =
-        V8Proxy::FastToNativeObject<HTMLImageElement>(
-            V8ClassIndex::HTMLIMAGEELEMENT, arg);
+        V8Proxy::DOMWrapperToNode<HTMLImageElement>(arg);
     switch (args.Length()) {
     case 3:
       context->drawImage(image_element, TO_FLOAT(args[1]), TO_FLOAT(args[2]));
@@ -2025,8 +2023,7 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DDrawImage) {
   if (V8HTMLCanvasElement::HasInstance(arg)) {
     ExceptionCode ec = 0;
     HTMLCanvasElement* canvas_element =
-        V8Proxy::FastToNativeObject<HTMLCanvasElement>(
-            V8ClassIndex::HTMLCANVASELEMENT, arg);
+        V8Proxy::DOMWrapperToNode<HTMLCanvasElement>(arg);
     switch (args.Length()) {
     case 3:
       context->drawImage(canvas_element, TO_FLOAT(args[1]), TO_FLOAT(args[2]));
@@ -2067,21 +2064,14 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DDrawImage) {
 CALLBACK_FUNC_DECL(CanvasRenderingContext2DDrawImageFromRect) {
   INC_STATS(L"DOM.CanvasRenderingContext2D.drawImageFromRect()");
   CanvasRenderingContext2D* context =
-      V8Proxy::FastToNativeObject<CanvasRenderingContext2D>(
+      V8Proxy::ToNativeObject<CanvasRenderingContext2D>(
           V8ClassIndex::CANVASRENDERINGCONTEXT2D, args.Holder());
 
   v8::Handle<v8::Value> arg = args[0];
 
-  if (!V8Proxy::MaybeDOMWrapper(arg)) {
-    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR,
-                        "drawImageFromRect: Invalid type of arguments");
-    return v8::Undefined();
-  }
-
   if (V8HTMLImageElement::HasInstance(arg)) {
     HTMLImageElement* image_element =
-        V8Proxy::FastToNativeObject<HTMLImageElement>(
-            V8ClassIndex::HTMLIMAGEELEMENT, arg);
+        V8Proxy::DOMWrapperToNode<HTMLImageElement>(arg);
     context->drawImageFromRect(image_element,
                                TO_FLOAT(args[1]), TO_FLOAT(args[2]),
                                TO_FLOAT(args[3]), TO_FLOAT(args[4]),
@@ -2102,15 +2092,14 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DDrawImageFromRect) {
 CALLBACK_FUNC_DECL(CanvasRenderingContext2DCreatePattern) {
   INC_STATS(L"DOM.CanvasRenderingContext2D.createPattern()");
   CanvasRenderingContext2D* context =
-      V8Proxy::FastToNativeObject<CanvasRenderingContext2D>(
+      V8Proxy::ToNativeObject<CanvasRenderingContext2D>(
           V8ClassIndex::CANVASRENDERINGCONTEXT2D, args.Holder());
 
   v8::Handle<v8::Value> arg = args[0];
 
   if (V8HTMLImageElement::HasInstance(arg)) {
     HTMLImageElement* image_element =
-        V8Proxy::FastToNativeObject<HTMLImageElement>(
-            V8ClassIndex::HTMLIMAGEELEMENT, arg);
+        V8Proxy::DOMWrapperToNode<HTMLImageElement>(arg);
     ExceptionCode ec = 0;
     RefPtr<CanvasPattern> pattern =
         context->createPattern(image_element, ToWebCoreString(args[1]), ec);
@@ -2124,8 +2113,7 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DCreatePattern) {
 
   if (V8HTMLCanvasElement::HasInstance(arg)) {
     HTMLCanvasElement* canvas_element =
-        V8Proxy::FastToNativeObject<HTMLCanvasElement>(
-            V8ClassIndex::HTMLCANVASELEMENT, arg);
+        V8Proxy::DOMWrapperToNode<HTMLCanvasElement>(arg);
     ExceptionCode ec = 0;
     RefPtr<CanvasPattern> pattern =
         context->createPattern(canvas_element, ToWebCoreString(args[1]), ec);
@@ -2144,7 +2132,7 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DCreatePattern) {
 
 CALLBACK_FUNC_DECL(ClipboardClearData) {
   INC_STATS(L"DOM.Clipboard.clearData()");
-  Clipboard* imp = V8Proxy::FastToNativeObject<Clipboard>(
+  Clipboard* imp = V8Proxy::ToNativeObject<Clipboard>(
       V8ClassIndex::CLIPBOARD, args.Holder());
   if (args.Length() == 0) {
     imp->clearAllData();
@@ -2158,7 +2146,7 @@ CALLBACK_FUNC_DECL(ClipboardClearData) {
 
 CALLBACK_FUNC_DECL(ClipboardGetData) {
   INC_STATS(L"DOM.Clipboard.getData()");
-  Clipboard* imp = V8Proxy::FastToNativeObject<Clipboard>(
+  Clipboard* imp = V8Proxy::ToNativeObject<Clipboard>(
       V8ClassIndex::CLIPBOARD, args.Holder());
   if (args.Length() == 1) {
     bool success;
@@ -2176,7 +2164,7 @@ CALLBACK_FUNC_DECL(ClipboardGetData) {
 
 CALLBACK_FUNC_DECL(ClipboardSetData) {
   INC_STATS(L"DOM.Clipboard.setData()");
-  Clipboard* imp = V8Proxy::FastToNativeObject<Clipboard>(
+  Clipboard* imp = V8Proxy::ToNativeObject<Clipboard>(
       V8ClassIndex::CLIPBOARD, args.Holder());
   if (args.Length() == 2) {
     String type = ToWebCoreString(args[0]);
@@ -2229,8 +2217,7 @@ static bool AllowSettingFrameSrcToJavascriptUrl(HTMLFrameElementBase* frame,
 
 CALLBACK_FUNC_DECL(ElementSetAttribute) {
   INC_STATS(L"DOM.Element.setAttribute()");
-  Element* imp = V8Proxy::FastToNativeObject<Element>(
-      V8ClassIndex::ELEMENT, args.Holder());
+  Element* imp = V8Proxy::DOMWrapperToNode<Element>(args.Holder());
   ExceptionCode ec = 0;
   String name = ToWebCoreString(args[0]);
   String value = ToWebCoreString(args[1]);
@@ -2255,12 +2242,9 @@ CALLBACK_FUNC_DECL(ElementSetAttributeNode) {
     return v8::Handle<v8::Value>();
   }
 
-  Attr* newAttr =
-      V8Proxy::FastToNativeObject<Attr>(V8ClassIndex::ATTR, args[0]);
-
+  Attr* newAttr = V8Proxy::DOMWrapperToNode<Attr>(args[0]);
+  Element* imp = V8Proxy::DOMWrapperToNode<Element>(args.Holder());
   ExceptionCode ec = 0;
-  Element* imp = V8Proxy::FastToNativeObject<Element>(
-      V8ClassIndex::ELEMENT, args.Holder());
 
   if (!AllowSettingSrcToJavascriptURL(imp, newAttr->name(), newAttr->value())) {
     return v8::Undefined();
@@ -2271,14 +2255,13 @@ CALLBACK_FUNC_DECL(ElementSetAttributeNode) {
     V8Proxy::SetDOMException(ec);
     return v8::Handle<v8::Value>();
   }
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, result.get());
+  return V8Proxy::NodeToV8Object(result.get());
 }
 
 
 CALLBACK_FUNC_DECL(ElementSetAttributeNS) {
   INC_STATS(L"DOM.Element.setAttributeNS()");
-  Element* imp = V8Proxy::FastToNativeObject<Element>(
-      V8ClassIndex::ELEMENT, args.Holder());
+  Element* imp = V8Proxy::DOMWrapperToNode<Element>(args.Holder());
   ExceptionCode ec = 0;
   String namespaceURI = valueToStringWithNullCheck(args[0]);
   String qualifiedName = ToWebCoreString(args[1]);
@@ -2304,11 +2287,8 @@ CALLBACK_FUNC_DECL(ElementSetAttributeNodeNS) {
     return v8::Handle<v8::Value>();
   }
 
-  Attr* newAttr =
-      V8Proxy::FastToNativeObject<Attr>(V8ClassIndex::ATTR, args[0]);
-
-  Element* imp = V8Proxy::FastToNativeObject<Element>(
-      V8ClassIndex::ELEMENT, args.Holder());
+  Attr* newAttr = V8Proxy::DOMWrapperToNode<Attr>(args[0]);
+  Element* imp = V8Proxy::DOMWrapperToNode<Element>(args.Holder());
   ExceptionCode ec = 0;
 
   if (!AllowSettingSrcToJavascriptURL(imp, newAttr->name(), newAttr->value())) {
@@ -2320,13 +2300,13 @@ CALLBACK_FUNC_DECL(ElementSetAttributeNodeNS) {
     V8Proxy::SetDOMException(ec);
     return v8::Handle<v8::Value>();
   }
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, result.get());
+  return V8Proxy::NodeToV8Object(result.get());
 }
 
 
 ACCESSOR_SETTER(AttrValue) {
   Attr* imp =
-      V8Proxy::FastToNativeObject<Attr>(V8ClassIndex::ATTR, info.Holder());
+      V8Proxy::DOMWrapperToNode<Attr>(info.Holder());
   String v = valueToStringWithNullCheck(value);
   Element* ownerElement = imp->ownerElement();
 
@@ -2341,8 +2321,8 @@ ACCESSOR_SETTER(AttrValue) {
 
 
 ACCESSOR_SETTER(HTMLFrameElementSrc) {
-  HTMLFrameElement* imp = V8Proxy::FastToNativeObject<HTMLFrameElement>(
-      V8ClassIndex::HTMLFRAMEELEMENT, info.Holder());
+  HTMLFrameElement* imp =
+      V8Proxy::DOMWrapperToNode<HTMLFrameElement>(info.Holder());
   String v = valueToStringWithNullCheck(value);
 
   if (!AllowSettingFrameSrcToJavascriptUrl(imp, v)) return;
@@ -2352,8 +2332,8 @@ ACCESSOR_SETTER(HTMLFrameElementSrc) {
 
 
 ACCESSOR_SETTER(HTMLFrameElementLocation) {
-  HTMLFrameElement* imp = V8Proxy::FastToNativeObject<HTMLFrameElement>(
-      V8ClassIndex::HTMLFRAMEELEMENT, info.Holder());
+  HTMLFrameElement* imp =
+      V8Proxy::DOMWrapperToNode<HTMLFrameElement>(info.Holder());
   String v = valueToStringWithNullCheck(value);
 
   if (!AllowSettingFrameSrcToJavascriptUrl(imp, v)) return;
@@ -2363,8 +2343,8 @@ ACCESSOR_SETTER(HTMLFrameElementLocation) {
 
 
 ACCESSOR_SETTER(HTMLIFrameElementSrc) {
-  HTMLIFrameElement* imp = V8Proxy::FastToNativeObject<HTMLIFrameElement>(
-      V8ClassIndex::HTMLIFRAMEELEMENT, info.Holder());
+  HTMLIFrameElement* imp =
+      V8Proxy::DOMWrapperToNode<HTMLIFrameElement>(info.Holder());
   String v = valueToStringWithNullCheck(value);
 
   if (!AllowSettingFrameSrcToJavascriptUrl(imp, v)) return;
@@ -2379,7 +2359,7 @@ v8::Handle<v8::Value> V8Custom::WindowSetTimeoutImpl(const v8::Arguments& args,
 
   if (num_arguments < 1) return v8::Undefined();
 
-  DOMWindow* imp = V8Proxy::FastToNativeObject<DOMWindow>(
+  DOMWindow* imp = V8Proxy::ToNativeObject<DOMWindow>(
       V8ClassIndex::DOMWINDOW, args.Holder());
 
   // Fast check This argument with the global object of security context.
@@ -2454,8 +2434,7 @@ static String WriteHelper_GetString(const v8::Arguments& args) {
 
 CALLBACK_FUNC_DECL(HTMLDocumentWrite) {
   INC_STATS(L"DOM.HTMLDocument.write()");
-  HTMLDocument* imp = V8Proxy::FastToNativeObject<HTMLDocument>(
-      V8ClassIndex::HTMLDOCUMENT, args.Holder());
+  HTMLDocument* imp = V8Proxy::DOMWrapperToNode<HTMLDocument>(args.Holder());
   imp->write(WriteHelper_GetString(args));
   return v8::Undefined();
 }
@@ -2463,8 +2442,7 @@ CALLBACK_FUNC_DECL(HTMLDocumentWrite) {
 
 CALLBACK_FUNC_DECL(HTMLDocumentWriteln) {
   INC_STATS(L"DOM.HTMLDocument.writeln()");
-  HTMLDocument* imp = V8Proxy::FastToNativeObject<HTMLDocument>(
-      V8ClassIndex::HTMLDOCUMENT, args.Holder());
+  HTMLDocument* imp = V8Proxy::DOMWrapperToNode<HTMLDocument>(args.Holder());
   imp->writeln(WriteHelper_GetString(args));
   return v8::Undefined();
 }
@@ -2472,8 +2450,7 @@ CALLBACK_FUNC_DECL(HTMLDocumentWriteln) {
 
 CALLBACK_FUNC_DECL(HTMLDocumentOpen) {
   INC_STATS(L"DOM.HTMLDocument.open()");
-  HTMLDocument* imp = V8Proxy::FastToNativeObject<HTMLDocument>(
-      V8ClassIndex::HTMLDOCUMENT, args.Holder());
+  HTMLDocument* imp = V8Proxy::DOMWrapperToNode<HTMLDocument>(args.Holder());
 
   if (args.Length() > 2) {
     if (Frame* frame = imp->frame()) {
@@ -2526,19 +2503,17 @@ CALLBACK_FUNC_DECL(HTMLDocumentClear) {
 CALLBACK_FUNC_DECL(DocumentEvaluate) {
   INC_STATS(L"DOM.Document.evaluate()");
 
-  Document* imp = V8Proxy::FastToNativeObject<Document>(
-      V8ClassIndex::DOCUMENT, args.Holder());
+  Document* imp = V8Proxy::DOMWrapperToNode<Document>(args.Holder());
   ExceptionCode ec = 0;
   String expression = ToWebCoreString(args[0]);
   Node* contextNode = NULL;
   if (V8Node::HasInstance(args[1])) {
-    contextNode =
-        V8Proxy::FastToNativeObject<Node>(V8ClassIndex::NODE, args[1]);
+    contextNode = V8Proxy::DOMWrapperToNode<Node>(args[1]);
   }
   // Find the XPath
   XPathNSResolver* resolver = NULL;
   if (V8XPathNSResolver::HasInstance(args[2])) {
-    resolver = V8Proxy::FastToNativeObject<XPathNSResolver>(
+    resolver = V8Proxy::ToNativeObject<XPathNSResolver>(
         V8ClassIndex::XPATHNSRESOLVER, args[2]);
   } else if (args[2]->IsObject()) {
     v8::Handle<v8::Object> obj = args[2]->ToObject();
@@ -2550,7 +2525,7 @@ CALLBACK_FUNC_DECL(DocumentEvaluate) {
   int type = ToInt32(args[3]);
   XPathResult* inResult = NULL;
   if (V8XPathResult::HasInstance(args[4])) {
-    inResult = V8Proxy::FastToNativeObject<XPathResult>(
+    inResult = V8Proxy::ToNativeObject<XPathResult>(
         V8ClassIndex::XPATHRESULT, args[4]);
   }
   RefPtr<XPathResult> result =
@@ -2600,7 +2575,7 @@ static v8::Handle<v8::Value> Base64Convert(const String& str, bool encode) {
 
 CALLBACK_FUNC_DECL(DOMWindowAtob) {
   INC_STATS(L"DOM.DOMWindow.atob()");
-  DOMWindow* imp = V8Proxy::FastToNativeObject<DOMWindow>(
+  DOMWindow* imp = V8Proxy::ToNativeObject<DOMWindow>(
       V8ClassIndex::DOMWINDOW, args.Holder());
 
   // Fast check This argument with the global object of security context.
@@ -2623,7 +2598,7 @@ CALLBACK_FUNC_DECL(DOMWindowAtob) {
 
 CALLBACK_FUNC_DECL(DOMWindowBtoa) {
   INC_STATS(L"DOM.DOMWindow.btoa()");
-  DOMWindow* imp = V8Proxy::FastToNativeObject<DOMWindow>(
+  DOMWindow* imp = V8Proxy::ToNativeObject<DOMWindow>(
       V8ClassIndex::DOMWINDOW, args.Holder());
 
   // Fast check This argument with the global object of security context.
@@ -2662,8 +2637,8 @@ CALLBACK_FUNC_DECL(DOMWindowNOP) {
 
 CALLBACK_FUNC_DECL(EventTargetNodeAddEventListener) {
   INC_STATS(L"DOM.EventTargetNode.addEventListener()");
-  EventTargetNode* node = V8Proxy::FastToNativeObject<EventTargetNode>(
-      V8ClassIndex::EVENTTARGETNODE, args.Holder());
+  EventTargetNode* node =
+      V8Proxy::DOMWrapperToNode<EventTargetNode>(args.Holder());
 
   V8Proxy* proxy = V8Proxy::retrieve(node->document()->frame());
   if (!proxy)
@@ -2682,8 +2657,8 @@ CALLBACK_FUNC_DECL(EventTargetNodeAddEventListener) {
 
 CALLBACK_FUNC_DECL(EventTargetNodeRemoveEventListener) {
   INC_STATS(L"DOM.EventTargetNode.removeEventListener()");
-  EventTargetNode* node = V8Proxy::FastToNativeObject<EventTargetNode>(
-      V8ClassIndex::EVENTTARGETNODE, args.Holder());
+  EventTargetNode* node =
+      V8Proxy::DOMWrapperToNode<EventTargetNode>(args.Holder());
 
   V8Proxy* proxy = V8Proxy::retrieve(node->document()->frame());
   // It is possbile that the owner document of the node is detached
@@ -2745,7 +2720,7 @@ static void RemoveHiddenXHRDependency(v8::Local<v8::Object> xhr,
 
 
 ACCESSOR_SETTER(XMLHttpRequestOnreadystatechange) {
-  XMLHttpRequest* imp = V8Proxy::FastToNativeObject<XMLHttpRequest>(
+  XMLHttpRequest* imp = V8Proxy::ToNativeObject<XMLHttpRequest>(
       V8ClassIndex::XMLHTTPREQUEST, info.Holder());
   if (value->IsNull()) {
     if (imp->onreadystatechange()) {
@@ -2774,7 +2749,7 @@ ACCESSOR_SETTER(XMLHttpRequestOnreadystatechange) {
 
 
 ACCESSOR_SETTER(XMLHttpRequestOnload) {
-  XMLHttpRequest* imp = V8Proxy::FastToNativeObject<XMLHttpRequest>(
+  XMLHttpRequest* imp = V8Proxy::ToNativeObject<XMLHttpRequest>(
       V8ClassIndex::XMLHTTPREQUEST, info.Holder());
   if (value->IsNull()) {
     if (imp->onload()) {
@@ -2803,7 +2778,7 @@ ACCESSOR_SETTER(XMLHttpRequestOnload) {
 
 CALLBACK_FUNC_DECL(XMLHttpRequestAddEventListener) {
   INC_STATS(L"DOM.XMLHttpRequest.addEventListener()");
-  XMLHttpRequest* imp = V8Proxy::FastToNativeObject<XMLHttpRequest>(
+  XMLHttpRequest* imp = V8Proxy::ToNativeObject<XMLHttpRequest>(
       V8ClassIndex::XMLHTTPREQUEST, args.Holder());
 
   V8Proxy* proxy = V8Proxy::retrieve(imp->document()->frame());
@@ -2825,7 +2800,7 @@ CALLBACK_FUNC_DECL(XMLHttpRequestAddEventListener) {
 
 CALLBACK_FUNC_DECL(XMLHttpRequestRemoveEventListener) {
   INC_STATS(L"DOM.XMLHttpRequest.removeEventListener()");
-  XMLHttpRequest* imp = V8Proxy::FastToNativeObject<XMLHttpRequest>(
+  XMLHttpRequest* imp = V8Proxy::ToNativeObject<XMLHttpRequest>(
       V8ClassIndex::XMLHTTPREQUEST, args.Holder());
 
   V8Proxy* proxy = V8Proxy::retrieve(imp->document()->frame());
@@ -2861,7 +2836,7 @@ CALLBACK_FUNC_DECL(XMLHttpRequestOpen) {
   }
 
   // get the implementation
-  XMLHttpRequest* xhr = V8Proxy::FastToNativeObject<XMLHttpRequest>(
+  XMLHttpRequest* xhr = V8Proxy::ToNativeObject<XMLHttpRequest>(
       V8ClassIndex::XMLHTTPREQUEST, args.Holder());
 
   // retrieve parameters
@@ -2910,7 +2885,7 @@ CALLBACK_FUNC_DECL(XMLHttpRequestSend) {
   // send(string)
 
   // get implementation
-  XMLHttpRequest* xhr = V8Proxy::FastToNativeObject<XMLHttpRequest>(
+  XMLHttpRequest* xhr = V8Proxy::ToNativeObject<XMLHttpRequest>(
       V8ClassIndex::XMLHTTPREQUEST, args.Holder());
 
   String body;
@@ -2918,8 +2893,7 @@ CALLBACK_FUNC_DECL(XMLHttpRequestSend) {
     v8::Handle<v8::Value> arg = args[0];
     if (IsDocumentType(arg)) {
       v8::Handle<v8::Object> obj = v8::Handle<v8::Object>::Cast(arg);
-      Document* doc =
-          V8Proxy::ToNativeObject<Document>(V8ClassIndex::DOCUMENT, obj);
+      Document* doc = V8Proxy::DOMWrapperToNode<Document>(obj);
       ASSERT(doc);
       body = doc->toString();
     } else {
@@ -2945,7 +2919,7 @@ CALLBACK_FUNC_DECL(XMLHttpRequestSetRequestHeader) {
     return v8::Undefined();
   }
 
-  XMLHttpRequest* imp = V8Proxy::FastToNativeObject<XMLHttpRequest>(
+  XMLHttpRequest* imp = V8Proxy::ToNativeObject<XMLHttpRequest>(
       V8ClassIndex::XMLHTTPREQUEST, args.Holder());
   ExceptionCode ec = 0;
   String header = ToWebCoreString(args[0]);
@@ -2966,7 +2940,7 @@ CALLBACK_FUNC_DECL(XMLHttpRequestGetResponseHeader) {
     return v8::Undefined();
   }
 
-  XMLHttpRequest* imp = V8Proxy::FastToNativeObject<XMLHttpRequest>(
+  XMLHttpRequest* imp = V8Proxy::ToNativeObject<XMLHttpRequest>(
       V8ClassIndex::XMLHTTPREQUEST, args.Holder());
   ExceptionCode ec = 0;
   String header = ToWebCoreString(args[0]);
@@ -2986,7 +2960,7 @@ CALLBACK_FUNC_DECL(XMLHttpRequestOverrideMimeType) {
     return v8::Undefined();
   }
 
-  XMLHttpRequest* imp = V8Proxy::FastToNativeObject<XMLHttpRequest>(
+  XMLHttpRequest* imp = V8Proxy::ToNativeObject<XMLHttpRequest>(
       V8ClassIndex::XMLHTTPREQUEST, args.Holder());
   String value = ToWebCoreString(args[0]);
   imp->overrideMIMEType(value);
@@ -2995,74 +2969,74 @@ CALLBACK_FUNC_DECL(XMLHttpRequestOverrideMimeType) {
 
 CALLBACK_FUNC_DECL(TreeWalkerParentNode) {
   INC_STATS(L"DOM.TreeWalker.parentNode()");
-  TreeWalker* imp = V8Proxy::FastToNativeObject<TreeWalker>(
+  TreeWalker* imp = V8Proxy::ToNativeObject<TreeWalker>(
       V8ClassIndex::TREEWALKER, args.Holder());
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, imp->parentNode());
+  return V8Proxy::NodeToV8Object(imp->parentNode());
 }
 
 CALLBACK_FUNC_DECL(TreeWalkerFirstChild) {
   INC_STATS(L"DOM.TreeWalker.firstChild()");
-  TreeWalker* imp = V8Proxy::FastToNativeObject<TreeWalker>(
+  TreeWalker* imp = V8Proxy::ToNativeObject<TreeWalker>(
       V8ClassIndex::TREEWALKER, args.Holder());
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, imp->firstChild());
+  return V8Proxy::NodeToV8Object(imp->firstChild());
 }
 
 CALLBACK_FUNC_DECL(TreeWalkerLastChild) {
   INC_STATS(L"DOM.TreeWalker.lastChild()");
-  TreeWalker* imp = V8Proxy::FastToNativeObject<TreeWalker>(
+  TreeWalker* imp = V8Proxy::ToNativeObject<TreeWalker>(
       V8ClassIndex::TREEWALKER, args.Holder());
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, imp->lastChild());
+  return V8Proxy::NodeToV8Object(imp->lastChild());
 }
 
 CALLBACK_FUNC_DECL(TreeWalkerNextNode) {
   INC_STATS(L"DOM.TreeWalker.nextNode()");
-  TreeWalker* imp = V8Proxy::FastToNativeObject<TreeWalker>(
+  TreeWalker* imp = V8Proxy::ToNativeObject<TreeWalker>(
       V8ClassIndex::TREEWALKER, args.Holder());
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, imp->nextNode());
+  return V8Proxy::NodeToV8Object(imp->nextNode());
 }
 
 CALLBACK_FUNC_DECL(TreeWalkerPreviousNode) {
   INC_STATS(L"DOM.TreeWalker.previousNode()");
-  TreeWalker* imp = V8Proxy::FastToNativeObject<TreeWalker>(
+  TreeWalker* imp = V8Proxy::ToNativeObject<TreeWalker>(
       V8ClassIndex::TREEWALKER, args.Holder());
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, imp->previousNode());
+  return V8Proxy::NodeToV8Object(imp->previousNode());
 }
 
 CALLBACK_FUNC_DECL(TreeWalkerNextSibling) {
   INC_STATS(L"DOM.TreeWalker.nextSibling()");
-  TreeWalker* imp = V8Proxy::FastToNativeObject<TreeWalker>(
+  TreeWalker* imp = V8Proxy::ToNativeObject<TreeWalker>(
       V8ClassIndex::TREEWALKER, args.Holder());
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, imp->nextSibling());
+  return V8Proxy::NodeToV8Object(imp->nextSibling());
 }
 
 CALLBACK_FUNC_DECL(TreeWalkerPreviousSibling) {
   INC_STATS(L"DOM.TreeWalker.previousSibling()");
-  TreeWalker* imp = V8Proxy::FastToNativeObject<TreeWalker>(
+  TreeWalker* imp = V8Proxy::ToNativeObject<TreeWalker>(
       V8ClassIndex::TREEWALKER, args.Holder());
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, imp->previousSibling());
+  return V8Proxy::NodeToV8Object(imp->previousSibling());
 }
 
 CALLBACK_FUNC_DECL(NodeIteratorNextNode) {
   INC_STATS(L"DOM.NodeIterator.nextNode()");
-  NodeIterator* imp = V8Proxy::FastToNativeObject<NodeIterator>(
+  NodeIterator* imp = V8Proxy::ToNativeObject<NodeIterator>(
       V8ClassIndex::NODEITERATOR, args.Holder());
   ExceptionCode ec = 0;
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, imp->nextNode(ec));
+  return V8Proxy::NodeToV8Object(imp->nextNode(ec));
 }
 
 CALLBACK_FUNC_DECL(NodeIteratorPreviousNode) {
   INC_STATS(L"DOM.NodeIterator.previousNode()");
-  NodeIterator* imp = V8Proxy::FastToNativeObject<NodeIterator>(
+  NodeIterator* imp = V8Proxy::ToNativeObject<NodeIterator>(
       V8ClassIndex::NODEITERATOR, args.Holder());
   ExceptionCode ec = 0;
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, imp->previousNode(ec));
+  return V8Proxy::NodeToV8Object(imp->previousNode(ec));
 }
 
 CALLBACK_FUNC_DECL(NodeFilterAcceptNode) {
   INC_STATS(L"DOM.NodeFilter.acceptNode()");
-  NodeFilter* imp = V8Proxy::FastToNativeObject<NodeFilter>(
+  NodeFilter* imp = V8Proxy::ToNativeObject<NodeFilter>(
       V8ClassIndex::NODEFILTER, args.Holder());
-  Node* node = V8Proxy::FastToNativeObject<Node>(V8ClassIndex::NODE, args[0]);
+  Node* node = V8Proxy::DOMWrapperToNode<Node>(args[0]);
   return v8::Local<v8::Integer>(v8::Integer::New(imp->acceptNode(node)));
 }
 
@@ -3072,7 +3046,7 @@ ACCESSOR_SETTER(DOMWindowEventHandler) {
   if (holder.IsEmpty())
     return;
 
-  DOMWindow* imp = V8Proxy::FastToNativeObject<DOMWindow>(
+  DOMWindow* imp = V8Proxy::ToNativeObject<DOMWindow>(
       V8ClassIndex::DOMWINDOW, holder);
   if (!imp->frame())
     return;
@@ -3109,7 +3083,7 @@ ACCESSOR_GETTER(DOMWindowEventHandler) {
   if (holder.IsEmpty())
     return v8::Undefined();
 
-  DOMWindow* imp = V8Proxy::FastToNativeObject<DOMWindow>(
+  DOMWindow* imp = V8Proxy::ToNativeObject<DOMWindow>(
       V8ClassIndex::DOMWINDOW, holder);
   if (!imp->frame())
     return v8::Undefined();
@@ -3129,8 +3103,8 @@ ACCESSOR_GETTER(DOMWindowEventHandler) {
 
 
 ACCESSOR_SETTER(ElementEventHandler) {
-  EventTargetNode* node = V8Proxy::FastToNativeObject<EventTargetNode>(
-    V8ClassIndex::EVENTTARGETNODE, info.Holder());
+  EventTargetNode* node =
+      V8Proxy::DOMWrapperToNode<EventTargetNode>(info.Holder());
 
   // Name starts with 'on', remove them.
   String key = ToWebCoreString(name);
@@ -3160,8 +3134,8 @@ ACCESSOR_SETTER(ElementEventHandler) {
 
 
 ACCESSOR_GETTER(ElementEventHandler) {
-  EventTargetNode* node = V8Proxy::FastToNativeObject<EventTargetNode>(
-      V8ClassIndex::EVENTTARGETNODE, info.Holder());
+  EventTargetNode* node =
+      V8Proxy::DOMWrapperToNode<EventTargetNode>(info.Holder());
 
   // Name starts with 'on', remove them.
   String key = ToWebCoreString(name);
@@ -3175,7 +3149,7 @@ ACCESSOR_GETTER(ElementEventHandler) {
 
 ACCESSOR_SETTER(HTMLOptionsCollectionLength) {
   HTMLOptionsCollection* imp =
-      V8Proxy::FastToNativeObject<HTMLOptionsCollection>(
+      V8Proxy::ToNativeObject<HTMLOptionsCollection>(
           V8ClassIndex::HTMLOPTIONSCOLLECTION, info.Holder());
   double v = value->NumberValue();
   unsigned newLength = 0;
@@ -3197,7 +3171,7 @@ ACCESSOR_SETTER(HTMLOptionsCollectionLength) {
 CALLBACK_FUNC_DECL(SVGMatrixInverse) {
   INC_STATS(L"DOM.SVGMatrix.inverse()");
   AffineTransform imp =
-      *V8Proxy::FastToNativeObject<V8SVGPODTypeWrapper<AffineTransform> >(
+      *V8Proxy::ToNativeObject<V8SVGPODTypeWrapper<AffineTransform> >(
           V8ClassIndex::SVGMATRIX, args.Holder());
   ExceptionCode ec = 0;
   AffineTransform result = imp.inverse();
@@ -3217,7 +3191,7 @@ CALLBACK_FUNC_DECL(SVGMatrixInverse) {
 CALLBACK_FUNC_DECL(SVGMatrixRotateFromVector) {
   INC_STATS(L"DOM.SVGMatrix.rotateFromVector()");
   AffineTransform imp =
-      *V8Proxy::FastToNativeObject<V8SVGPODTypeWrapper<AffineTransform> >(
+      *V8Proxy::ToNativeObject<V8SVGPODTypeWrapper<AffineTransform> >(
           V8ClassIndex::SVGMATRIX, args.Holder());
   ExceptionCode ec = 0;
   float x = static_cast<float>(args[0]->NumberValue());
@@ -3292,7 +3266,7 @@ INDEXED_ACCESS_CHECK(History) {
   ASSERT(V8ClassIndex::ToWrapperType(data) == V8ClassIndex::HISTORY);
   // Only allow same origin access
   History* imp =
-      V8Proxy::FastToNativeObject<History>(V8ClassIndex::HISTORY, host);
+      V8Proxy::ToNativeObject<History>(V8ClassIndex::HISTORY, host);
   return V8Proxy::IsFromSameOrigin(imp->frame(), false);
 }
 
@@ -3301,7 +3275,7 @@ NAMED_ACCESS_CHECK(History) {
   ASSERT(V8ClassIndex::ToWrapperType(data) == V8ClassIndex::HISTORY);
   // Only allow same origin access
   History* imp =
-      V8Proxy::FastToNativeObject<History>(V8ClassIndex::HISTORY, host);
+      V8Proxy::ToNativeObject<History>(V8ClassIndex::HISTORY, host);
   return V8Proxy::IsFromSameOrigin(imp->frame(), false);
 }
 
@@ -3310,7 +3284,7 @@ INDEXED_ACCESS_CHECK(Location) {
   ASSERT(V8ClassIndex::ToWrapperType(data) == V8ClassIndex::LOCATION);
   // Only allow same origin access
   Location* imp =
-      V8Proxy::FastToNativeObject<Location>(V8ClassIndex::LOCATION, host);
+      V8Proxy::ToNativeObject<Location>(V8ClassIndex::LOCATION, host);
   return V8Proxy::IsFromSameOrigin(imp->frame(), false);
 }
 
@@ -3319,7 +3293,7 @@ NAMED_ACCESS_CHECK(Location) {
   ASSERT(V8ClassIndex::ToWrapperType(data) == V8ClassIndex::LOCATION);
   // Only allow same origin access
   Location* imp =
-      V8Proxy::FastToNativeObject<Location>(V8ClassIndex::LOCATION, host);
+      V8Proxy::ToNativeObject<Location>(V8ClassIndex::LOCATION, host);
   return V8Proxy::IsFromSameOrigin(imp->frame(), false);
 }
 
@@ -3349,13 +3323,13 @@ Frame* V8Custom::GetTargetFrame(v8::Local<v8::Object> host,
     }
     case V8ClassIndex::LOCATION: {
       History* imp =
-          V8Proxy::FastToNativeObject<History>(V8ClassIndex::HISTORY, host);
+          V8Proxy::ToNativeObject<History>(V8ClassIndex::HISTORY, host);
       target = imp->frame();
       break;
     }
     case V8ClassIndex::HISTORY: {
       Location* imp =
-          V8Proxy::FastToNativeObject<Location>(V8ClassIndex::LOCATION, host);
+          V8Proxy::ToNativeObject<Location>(V8ClassIndex::LOCATION, host);
       target = imp->frame();
       break;
     }

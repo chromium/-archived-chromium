@@ -276,7 +276,7 @@ class V8Proxy {
   static bool CanAccess(Frame* target);
 
   // Create a V8 wrapper for a C pointer
-  static v8::Handle<v8::Value> WrapCPointer(void* cptr);
+  static inline v8::Handle<v8::Value> WrapCPointer(void* cptr);
 
   static v8::Handle<v8::Value> CheckNewLegal(const v8::Arguments& args);
 
@@ -291,12 +291,14 @@ class V8Proxy {
                                               const String& fileName,
                                               int baseLine);
 
-  // Checks if a v8 value can be a DOM wrapper
-  static bool MaybeDOMWrapper(v8::Handle<v8::Value> obj);
 
-  // Sets contents of a DOM wrapper, returns false if
-  // obj is not a DOM wrapper type
-  static bool SetDOMWrapper(v8::Handle<v8::Object> obj, int type, void* ptr);
+#ifndef NDEBUG
+  // Checks if a v8 value can be a DOM wrapper
+  static bool MaybeDOMWrapper(v8::Handle<v8::Value> value);
+#endif
+
+  // Sets contents of a DOM wrapper.
+  static void SetDOMWrapper(v8::Handle<v8::Object> obj, int type, void* ptr);
 
   static v8::Handle<v8::Object> LookupDOMWrapper(
     V8ClassIndex::V8WrapperType type, v8::Handle<v8::Value> value);
@@ -305,16 +307,6 @@ class V8Proxy {
   // and cast to the specified type.
   template <class C>
   static C* DOMWrapperToNative(v8::Handle<v8::Value> object) {
-    if (!MaybeDOMWrapper(object))
-      return 0;
-    return ExtractCPointer<C>(
-        v8::Handle<v8::Object>::Cast(object)->GetInternalField(0));
-  }
-
-  // A helper function extract native object pointer from a DOM wrapper
-  // and cast to the specified type.
-  template <class C>
-  static C* FastDOMWrapperToNative(v8::Handle<v8::Value> object) {
     ASSERT(MaybeDOMWrapper(object));
     return ExtractCPointer<C>(
         v8::Handle<v8::Object>::Cast(object)->GetInternalField(0));
@@ -323,22 +315,22 @@ class V8Proxy {
   // A help function extract a node type pointer from a DOM wrapper.
   // Wrapped pointer must be cast to Node* first.
   template <class C>
-  static C* DOMWrapperToNode(v8::Handle<v8::Value> object) {
-    if (!MaybeDOMWrapper(object))
-      return 0;
+  static C* DOMWrapperToNode(v8::Handle<v8::Value> value) {
+    ASSERT(MaybeDOMWrapper(value));
+
+    v8::Handle<v8::Object> object = v8::Handle<v8::Object>::Cast(value);
+
+    ASSERT(GetDOMWrapperType(object) == V8ClassIndex::NODE);
+
     v8::Handle<v8::Value> wrapper =
-      v8::Handle<v8::Object>::Cast(object)->GetInternalField(0);
+       object->GetInternalField(V8Custom::kDOMWrapperObjectIndex);
     return static_cast<C*>(ExtractCPointer<Node>(wrapper));
   }
 
   static v8::Handle<v8::Value> ToV8Object(V8ClassIndex::V8WrapperType type,
                                           void* imp);
-
-  template <class C>
-  static C* FastToNativeObject(V8ClassIndex::V8WrapperType type,
-                               v8::Handle<v8::Value> object) {
-    return static_cast<C*>(FastToNativeObjectImpl(type, object));
-  }
+  // Fast-path for Node objects.
+  static v8::Handle<v8::Value> NodeToV8Object(Node* node);
 
   template <class C>
   static C* ToNativeObject(V8ClassIndex::V8WrapperType type,
@@ -366,6 +358,7 @@ class V8Proxy {
 
   static v8::Handle<v8::Value> EventToV8Object(Event* event);
   static Event* ToNativeEvent(v8::Handle<v8::Value> jsevent) {
+    if (!IsDOMEventWrapper(jsevent)) return 0;
     return DOMWrapperToNative<Event>(jsevent);
   }
 
@@ -414,26 +407,26 @@ class V8Proxy {
   void initContextIfNeeded();
   void DisconnectEventListeners();
 
+  // Check whether a V8 value is a DOM Event wrapper
+  static bool IsDOMEventWrapper(v8::Handle<v8::Value> obj);
+
   static void* ToNativeObjectImpl(V8ClassIndex::V8WrapperType type,
                                   v8::Handle<v8::Value> object);
-  static void* FastToNativeObjectImpl(V8ClassIndex::V8WrapperType type,
-                                      v8::Handle<v8::Value> object);
 
   // Take C pointer out of a v8 wrapper
-  static void* ExtractCPointerImpl(v8::Handle<v8::Value> obj);
+  static inline void* ExtractCPointerImpl(v8::Handle<v8::Value> obj);
 
-  static v8::Handle<v8::Object> NodeToV8Object(Node* node);
-  static v8::Handle<v8::Object> StyleSheetToV8Object(StyleSheet* sheet);
-  static v8::Handle<v8::Object> CSSValueToV8Object(CSSValue* value);
-  static v8::Handle<v8::Object> CSSRuleToV8Object(CSSRule* rule);
+  static v8::Handle<v8::Value> StyleSheetToV8Object(StyleSheet* sheet);
+  static v8::Handle<v8::Value> CSSValueToV8Object(CSSValue* value);
+  static v8::Handle<v8::Value> CSSRuleToV8Object(CSSRule* rule);
   // Returns the JS wrapper of a window object, initializes the environment
   // of the window frame if needed.
-  static v8::Handle<v8::Object> WindowToV8Object(DOMWindow* window);
+  static v8::Handle<v8::Value> WindowToV8Object(DOMWindow* window);
 
 #if ENABLE(SVG)
-  static v8::Handle<v8::Object> SVGElementInstanceToV8Object(
+  static v8::Handle<v8::Value> SVGElementInstanceToV8Object(
       SVGElementInstance* instance);
-  static v8::Handle<v8::Object> SVGObjectWithContextToV8Object(
+  static v8::Handle<v8::Value> SVGObjectWithContextToV8Object(
     Peerable* object, V8ClassIndex::V8WrapperType type);
 #endif
 
@@ -444,8 +437,16 @@ class V8Proxy {
 
   static V8ClassIndex::V8WrapperType GetHTMLElementType(HTMLElement* elm);
 
+  // The first parameter, desc_type, specifies the function descriptor
+  // used to create JS object. The second parameter, cptr_type, specifies
+  // the type of third parameter, impl, for type casting.
+  // For example, a HTML element has HTMLELEMENT desc_type, but always
+  // use NODE as cptr_type. JS wrapper stores cptr_type and impl as
+  // internal fields.
   static v8::Local<v8::Object> InstantiateV8Object(
-      V8ClassIndex::V8WrapperType type, void* impl);
+      V8ClassIndex::V8WrapperType desc_type,
+      V8ClassIndex::V8WrapperType cptr_type,
+      void* impl);
 
   static const char* GetRangeExceptionName(int exception_code);
   static const char* GetEventExceptionName(int exception_code);

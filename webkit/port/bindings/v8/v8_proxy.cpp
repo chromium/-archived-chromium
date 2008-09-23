@@ -291,9 +291,9 @@ static void WeakSVGElementInstanceCallback(v8::Persistent<v8::Object> obj,
   dom_svg_element_instance_map().forget(instance);
 }
 
-v8::Handle<v8::Object> V8Proxy::SVGElementInstanceToV8Object(
+v8::Handle<v8::Value> V8Proxy::SVGElementInstanceToV8Object(
     SVGElementInstance* instance) {
-  if (!instance) return v8::Handle<v8::Object>();
+  if (!instance) return v8::Null();
 
   v8::Handle<v8::Object> existing_instance =
       dom_svg_element_instance_map().get(instance);
@@ -305,7 +305,9 @@ v8::Handle<v8::Object> V8Proxy::SVGElementInstanceToV8Object(
 
   // Instantiate the V8 object and remember it
   v8::Handle<v8::Object> result =
-      InstantiateV8Object(V8ClassIndex::SVGELEMENTINSTANCE, instance);
+      InstantiateV8Object(V8ClassIndex::SVGELEMENTINSTANCE,
+                          V8ClassIndex::SVGELEMENTINSTANCE,
+                          instance);
   if (!result.IsEmpty()) {
     // Only update the DOM SVG element map if the result is non-empty.
     dom_svg_element_instance_map().set(instance,
@@ -332,9 +334,9 @@ static HashMap<void*, SVGElement*>& svg_object_to_context_map() {
   return static_svg_object_to_context_map;
 }
 
-v8::Handle<v8::Object> V8Proxy::SVGObjectWithContextToV8Object(
+v8::Handle<v8::Value> V8Proxy::SVGObjectWithContextToV8Object(
   Peerable* object, V8ClassIndex::V8WrapperType type) {
-  if (!object) return v8::Handle<v8::Object>();
+  if (!object) return v8::Null();
 
   // Special case: SVGPathSegs need to be downcast to their real type
   if (type == V8ClassIndex::SVGPATHSEG) {
@@ -344,7 +346,7 @@ v8::Handle<v8::Object> V8Proxy::SVGObjectWithContextToV8Object(
   v8::Persistent<v8::Object> result =
     dom_svg_object_with_context_map().get(object);
   if (result.IsEmpty()) {
-    v8::Local<v8::Object> v8obj = InstantiateV8Object(type, object);
+    v8::Local<v8::Object> v8obj = InstantiateV8Object(type, type, object);
     if (!v8obj.IsEmpty()) {
       result = v8::Persistent<v8::Object>::New(v8obj);
       dom_svg_object_with_context_map().set(object, result);
@@ -1108,18 +1110,18 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
       break;
     case V8ClassIndex::HTMLSELECTELEMENT:
       desc->InstanceTemplate()->SetNamedPropertyHandler(
-          CollectionNamedPropertyGetter<HTMLSelectElement>,
+          NodeCollectionNamedPropertyGetter<HTMLSelectElement>,
           0,
           0,
           0,
           0,
           v8::External::New(reinterpret_cast<void*>(V8ClassIndex::NODE)));
       desc->InstanceTemplate()->SetIndexedPropertyHandler(
-          CollectionIndexedPropertyGetter<HTMLSelectElement>,
+          NodeCollectionIndexedPropertyGetter<HTMLSelectElement>,
           USE_INDEXED_PROPERTY_SETTER(HTMLSelectElementCollection),
           0,
           0,
-          CollectionIndexedPropertyEnumerator<HTMLSelectElement>,
+          NodeCollectionIndexedPropertyEnumerator<HTMLSelectElement>,
           v8::External::New(reinterpret_cast<void*>(V8ClassIndex::NODE)));
       break;
     case V8ClassIndex::HTMLDOCUMENT: {
@@ -1185,7 +1187,7 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
           0,
           0,
           0,
-          CollectionIndexedPropertyEnumerator<HTMLFormElement>,
+          NodeCollectionIndexedPropertyEnumerator<HTMLFormElement>,
           v8::External::New(reinterpret_cast<void*>(V8ClassIndex::NODE)));
       break;
     case V8ClassIndex::STYLESHEET:  // fall through
@@ -1808,8 +1810,6 @@ v8::Handle<v8::Value> V8Proxy::ToV8Object(V8ClassIndex::V8WrapperType type,
   ASSERT(type != V8ClassIndex::EVENTTARGET);
   ASSERT(type != V8ClassIndex::EVENT);
 
-  if (!imp) return v8::Null();
-
 #define MAKE_CASE(TYPE, NAME) case V8ClassIndex::TYPE:
 
   switch (type) {
@@ -1844,11 +1844,13 @@ v8::Handle<v8::Value> V8Proxy::ToV8Object(V8ClassIndex::V8WrapperType type,
 
 #undef MAKE_CASE
 
+  if (!imp) return v8::Null();
+
   // Non DOM node
   Peerable* obj = static_cast<Peerable*>(imp);
   v8::Persistent<v8::Object> result = dom_object_map().get(obj);
   if (result.IsEmpty()) {
-    v8::Local<v8::Object> v8obj = InstantiateV8Object(type, imp);
+    v8::Local<v8::Object> v8obj = InstantiateV8Object(type, type, imp);
     if (!v8obj.IsEmpty()) {
       result = v8::Persistent<v8::Object>::New(v8obj);
       dom_object_map().set(obj, result);
@@ -1892,17 +1894,16 @@ void V8Proxy::SetHiddenWindowReference(Frame* frame,
 
 V8ClassIndex::V8WrapperType V8Proxy::GetDOMWrapperType(
     v8::Handle<v8::Object> object) {
-  if (!MaybeDOMWrapper(object)) {
-    return V8ClassIndex::INVALID_CLASS_INDEX;
-  }
+  ASSERT(MaybeDOMWrapper(object));
 
-  v8::Handle<v8::Value> type = object->GetInternalField(1);
+  v8::Handle<v8::Value> type =
+      object->GetInternalField(V8Custom::kDOMWrapperTypeIndex);
   return V8ClassIndex::FromInt(type->Int32Value());
 }
 
 
-void* V8Proxy::FastToNativeObjectImpl(V8ClassIndex::V8WrapperType type,
-                                      v8::Handle<v8::Value> object) {
+void* V8Proxy::ToNativeObjectImpl(V8ClassIndex::V8WrapperType type,
+                                  v8::Handle<v8::Value> object) {
   // Native event listener is per frame, it cannot be handled
   // by this generic function.
   ASSERT(type != V8ClassIndex::EVENTLISTENER);
@@ -1910,27 +1911,28 @@ void* V8Proxy::FastToNativeObjectImpl(V8ClassIndex::V8WrapperType type,
 
   ASSERT(MaybeDOMWrapper(object));
 
-#define MAKE_CASE(TYPE, NAME) case V8ClassIndex::TYPE:
   switch (type) {
+#define MAKE_CASE(TYPE, NAME) case V8ClassIndex::TYPE:
     NODE_WRAPPER_TYPES(MAKE_CASE)
     HTMLELEMENT_TYPES(MAKE_CASE)
 #if ENABLE(SVG)
     SVGNODE_WRAPPER_TYPES(MAKE_CASE)
     SVGELEMENT_TYPES(MAKE_CASE)
 #endif
-      return FastDOMWrapperToNative<Node>(object);
+      ASSERT(false);
+      return NULL;
     case V8ClassIndex::XMLHTTPREQUEST:
-      return FastDOMWrapperToNative<XMLHttpRequest>(object);
+      return DOMWrapperToNative<XMLHttpRequest>(object);
     case V8ClassIndex::EVENT:
-      return FastDOMWrapperToNative<Event>(object);
+      return DOMWrapperToNative<Event>(object);
     case V8ClassIndex::CSSRULE:
-      return FastDOMWrapperToNative<CSSRule>(object);
+      return DOMWrapperToNative<CSSRule>(object);
     default:
       break;
   }
 #undef MAKE_CASE
 
-  return FastDOMWrapperToNative<Peerable>(object);
+  return DOMWrapperToNative<Peerable>(object);
 }
 
 
@@ -1947,41 +1949,6 @@ v8::Handle<v8::Object> V8Proxy::LookupDOMWrapper(
     value = object->GetPrototype();
   }
   return v8::Handle<v8::Object>();
-}
-
-
-void* V8Proxy::ToNativeObjectImpl(V8ClassIndex::V8WrapperType type,
-                                  v8::Handle<v8::Value> object) {
-  // Native event listener is per frame, it cannot be handled
-  // by this generic function.
-  ASSERT(type != V8ClassIndex::EVENTLISTENER);
-  ASSERT(type != V8ClassIndex::EVENTTARGET);
-
-  // It could be null, undefined, etc.
-  if (!MaybeDOMWrapper(object))
-    return 0;
-
-#define MAKE_CASE(TYPE, NAME) case V8ClassIndex::TYPE:
-  switch (type) {
-    NODE_WRAPPER_TYPES(MAKE_CASE)
-    HTMLELEMENT_TYPES(MAKE_CASE)
-#if ENABLE(SVG)
-    SVGNODE_WRAPPER_TYPES(MAKE_CASE)
-    SVGELEMENT_TYPES(MAKE_CASE)
-#endif
-      return DOMWrapperToNative<Node>(object);
-    case V8ClassIndex::XMLHTTPREQUEST:
-      return DOMWrapperToNative<XMLHttpRequest>(object);
-    case V8ClassIndex::EVENT:
-      return DOMWrapperToNative<Event>(object);
-    case V8ClassIndex::CSSRULE:
-      return DOMWrapperToNative<CSSRule>(object);
-    default:
-      break;
-  }
-#undef MAKE_CASE
-
-  return DOMWrapperToNative<Peerable>(object);
 }
 
 
@@ -2002,28 +1969,29 @@ NodeFilter* V8Proxy::ToNativeNodeFilter(v8::Handle<v8::Value> filter) {
 
 
 v8::Local<v8::Object> V8Proxy::InstantiateV8Object(
-    V8ClassIndex::V8WrapperType type, void* imp) {
-  V8ClassIndex::V8WrapperType wrapper_type = type;
+    V8ClassIndex::V8WrapperType desc_type,
+    V8ClassIndex::V8WrapperType cptr_type,
+    void* imp) {
   // Make a special case for document.all
-  if (type == V8ClassIndex::HTMLCOLLECTION &&
+  if (desc_type == V8ClassIndex::HTMLCOLLECTION &&
       static_cast<HTMLCollection*>(imp)->type() == HTMLCollection::DocAll) {
-    wrapper_type = V8ClassIndex::UNDETECTABLEHTMLCOLLECTION;
+    desc_type = V8ClassIndex::UNDETECTABLEHTMLCOLLECTION;
   }
 
   // Special case for HTMLInputElements that support selection.
-  if (type == V8ClassIndex::HTMLINPUTELEMENT) {
+  if (desc_type == V8ClassIndex::HTMLINPUTELEMENT) {
     HTMLInputElement* element = static_cast<HTMLInputElement*>(imp);
     if (element->canHaveSelection()) {
-      wrapper_type = V8ClassIndex::HTMLSELECTIONINPUTELEMENT;
+      desc_type = V8ClassIndex::HTMLSELECTIONINPUTELEMENT;
     }
   }
 
-  v8::Persistent<v8::FunctionTemplate> desc = GetTemplate(wrapper_type);
+  v8::Persistent<v8::FunctionTemplate> desc = GetTemplate(desc_type);
   v8::Local<v8::Function> function = desc->GetFunction();
   v8::Local<v8::Object> instance = SafeAllocation::NewInstance(function);
   if (!instance.IsEmpty()) {
     // Avoid setting the DOM wrapper for failed allocations.
-    SetDOMWrapper(instance, V8ClassIndex::ToInt(type), imp);
+    SetDOMWrapper(instance, V8ClassIndex::ToInt(cptr_type), imp);
   }
   return instance;
 }
@@ -2040,50 +2008,72 @@ v8::Handle<v8::Value> V8Proxy::CheckNewLegal(const v8::Arguments& args) {
 v8::Handle<v8::Value> V8Proxy::WrapCPointer(void* cptr) {
   // Represent void* as int
   int addr = reinterpret_cast<int>(cptr);
-  if ((addr & 0x01) == 0) {
-    return v8::Number::New(addr >> 1);
-  } else {
-    return v8::External::New(cptr);
-  }
+  ASSERT((addr & 0x01) == 0);  // the address must be aligned.
+  return v8::Integer::New(addr >> 1);
 }
 
 
 void* V8Proxy::ExtractCPointerImpl(v8::Handle<v8::Value> obj) {
-  if (obj->IsNumber()) {
-    int addr = obj->Int32Value();
-    return reinterpret_cast<void*>(addr << 1);
-  } else if (obj->IsExternal()) {
-    return v8::Handle<v8::External>::Cast(obj)->Value();
-  }
-  ASSERT(false);
-  return 0;
+  ASSERT(obj->IsNumber());
+  int addr = obj->Int32Value();
+  return reinterpret_cast<void*>(addr << 1);
 }
 
 
-bool V8Proxy::SetDOMWrapper(v8::Handle<v8::Object> obj, int type, void* cptr) {
+void V8Proxy::SetDOMWrapper(v8::Handle<v8::Object> obj, int type, void* cptr) {
   ASSERT(obj->InternalFieldCount() >= 2);
   obj->SetInternalField(V8Custom::kDOMWrapperObjectIndex, WrapCPointer(cptr));
   obj->SetInternalField(V8Custom::kDOMWrapperTypeIndex, v8::Integer::New(type));
-  return true;
 }
 
 
+#ifndef NDEBUG
 bool V8Proxy::MaybeDOMWrapper(v8::Handle<v8::Value> value) {
   if (value.IsEmpty() || !value->IsObject()) return false;
 
   v8::Handle<v8::Object> obj = v8::Handle<v8::Object>::Cast(value);
-  if (obj->InternalFieldCount() < V8Custom::kDefaultWrapperInternalFieldCount)
-    return false;
+  if (obj->InternalFieldCount() == 0) return false;
 
-  v8::Handle<v8::Value> wrapper =
-      obj->GetInternalField(V8Custom::kDOMWrapperObjectIndex);
-  if (!wrapper->IsNumber() && !wrapper->IsExternal()) return false;
+  ASSERT(obj->InternalFieldCount() >=
+         V8Custom::kDefaultWrapperInternalFieldCount);
 
   v8::Handle<v8::Value> type =
       obj->GetInternalField(V8Custom::kDOMWrapperTypeIndex);
-  if (!type->IsNumber()) return false;
+  ASSERT(type->IsInt32());
+  ASSERT(V8ClassIndex::INVALID_CLASS_INDEX < type->Int32Value() &&
+    type->Int32Value() < V8ClassIndex::CLASSINDEX_END);
+
+  v8::Handle<v8::Value> wrapper =
+      obj->GetInternalField(V8Custom::kDOMWrapperObjectIndex);
+  ASSERT(wrapper->IsNumber() || wrapper->IsExternal());
 
   return true;
+}
+#endif
+
+
+bool V8Proxy::IsDOMEventWrapper(v8::Handle<v8::Value> value) {
+  if (value.IsEmpty() || !value->IsObject()) return false;
+
+  v8::Handle<v8::Object> obj = v8::Handle<v8::Object>::Cast(value);
+  if (obj->InternalFieldCount() == 0) return false;
+
+  ASSERT(obj->InternalFieldCount() >=
+         V8Custom::kDefaultWrapperInternalFieldCount);
+
+  v8::Handle<v8::Value> wrapper =
+      obj->GetInternalField(V8Custom::kDOMWrapperObjectIndex);
+  ASSERT(wrapper->IsNumber() || wrapper->IsExternal());
+
+  v8::Handle<v8::Value> type =
+      obj->GetInternalField(V8Custom::kDOMWrapperTypeIndex);
+  ASSERT(type->IsInt32());
+  ASSERT(V8ClassIndex::INVALID_CLASS_INDEX < type->Int32Value() &&
+    type->Int32Value() < V8ClassIndex::CLASSINDEX_END);
+
+  // All kinds of events use EVENT as dom type in JS wrappers.
+  // See EventToV8Object
+  return V8ClassIndex::FromInt(type->Int32Value()) == V8ClassIndex::EVENT;
 }
 
 
@@ -2329,7 +2319,8 @@ v8::Handle<v8::Value> V8Proxy::EventToV8Object(Event* event) {
     type = V8ClassIndex::PROGRESSEVENT;
 
   // Set the peer object for future access.
-  v8::Handle<v8::Object> result = InstantiateV8Object(type, event);
+  v8::Handle<v8::Object> result =
+      InstantiateV8Object(type, V8ClassIndex::EVENT, event);
   if (result.IsEmpty()) {
     // Instantiation failed. Avoid updating the DOM object map and
     // return null which is already handled by callers of this function
@@ -2343,8 +2334,9 @@ v8::Handle<v8::Value> V8Proxy::EventToV8Object(Event* event) {
 }
 
 
-v8::Handle<v8::Object> V8Proxy::NodeToV8Object(Node* node) {
-  if (!node) return v8::Handle<v8::Object>();
+// Caller checks node is not null.
+v8::Handle<v8::Value> V8Proxy::NodeToV8Object(Node* node) {
+  if (!node) return v8::Null();
 
   v8::Handle<v8::Object> peer = dom_node_map().get(node);
   if (!peer.IsEmpty()) {
@@ -2416,7 +2408,8 @@ v8::Handle<v8::Object> V8Proxy::NodeToV8Object(Node* node) {
 
   // Set the peer object for future access.
   // InstantiateV8Object automatically casts node to Peerable*.
-  v8::Local<v8::Object> result = InstantiateV8Object(type, node);
+  v8::Local<v8::Object> result =
+      InstantiateV8Object(type, V8ClassIndex::NODE, node);
   if (result.IsEmpty()) {
     // If instantiation failed it's important not to add the result
     // to the DOM node map. Instead we return an empty handle, which
@@ -2507,7 +2500,9 @@ v8::Handle<v8::Value> V8Proxy::EventListenerToV8Object(
 v8::Handle<v8::Value> V8Proxy::DOMImplementationToV8Object(
     DOMImplementation* impl) {
   v8::Handle<v8::Object> result =
-    InstantiateV8Object(V8ClassIndex::DOMIMPLEMENTATION, impl);
+    InstantiateV8Object(V8ClassIndex::DOMIMPLEMENTATION,
+                        V8ClassIndex::DOMIMPLEMENTATION,
+                        impl);
   if (result.IsEmpty()) {
     // If the instantiation failed, we ignore it and return null instead
     // of returning an empty handle.
@@ -2517,8 +2512,8 @@ v8::Handle<v8::Value> V8Proxy::DOMImplementationToV8Object(
 }
 
 
-v8::Handle<v8::Object> V8Proxy::StyleSheetToV8Object(StyleSheet* sheet) {
-  if (!sheet) return v8::Handle<v8::Object>();
+v8::Handle<v8::Value> V8Proxy::StyleSheetToV8Object(StyleSheet* sheet) {
+  if (!sheet) return v8::Null();
 
   v8::Handle<v8::Object> peer = dom_object_map().get(sheet);
   if (!peer.IsEmpty()) {
@@ -2528,7 +2523,8 @@ v8::Handle<v8::Object> V8Proxy::StyleSheetToV8Object(StyleSheet* sheet) {
   V8ClassIndex::V8WrapperType type = V8ClassIndex::STYLESHEET;
   if (sheet->isCSSStyleSheet()) type = V8ClassIndex::CSSSTYLESHEET;
 
-  v8::Handle<v8::Object> result = InstantiateV8Object(type, sheet);
+  v8::Handle<v8::Object> result =
+      InstantiateV8Object(type, V8ClassIndex::STYLESHEET, sheet);
   if (!result.IsEmpty()) {
     // Only update the DOM object map if the result is non-empty.
     dom_object_map().set(sheet, v8::Persistent<v8::Object>::New(result));
@@ -2537,7 +2533,8 @@ v8::Handle<v8::Object> V8Proxy::StyleSheetToV8Object(StyleSheet* sheet) {
   // Add a hidden reference from stylesheet object to its owner node.
   Node* owner_node = sheet->ownerNode();
   if (owner_node) {
-    v8::Handle<v8::Object> owner = NodeToV8Object(owner_node);
+    v8::Handle<v8::Object> owner =
+      v8::Handle<v8::Object>::Cast(NodeToV8Object(owner_node));
     result->SetInternalField(V8Custom::kStyleSheetOwnerNodeIndex, owner);
   }
 
@@ -2545,8 +2542,8 @@ v8::Handle<v8::Object> V8Proxy::StyleSheetToV8Object(StyleSheet* sheet) {
 }
 
 
-v8::Handle<v8::Object> V8Proxy::CSSValueToV8Object(CSSValue* value) {
-  if (!value) return v8::Handle<v8::Object>();
+v8::Handle<v8::Value> V8Proxy::CSSValueToV8Object(CSSValue* value) {
+  if (!value) return v8::Null();
 
   v8::Handle<v8::Object> peer = dom_object_map().get(value);
   if (!peer.IsEmpty()) {
@@ -2568,7 +2565,8 @@ v8::Handle<v8::Object> V8Proxy::CSSValueToV8Object(CSSValue* value) {
   else
     type = V8ClassIndex::CSSVALUE;
 
-  v8::Handle<v8::Object> result = InstantiateV8Object(type, value);
+  v8::Handle<v8::Object> result =
+      InstantiateV8Object(type, V8ClassIndex::CSSVALUE, value);
   if (!result.IsEmpty()) {
     // Only update the DOM object map if the result is non-empty.
     dom_object_map().set(value, v8::Persistent<v8::Object>::New(result));
@@ -2577,8 +2575,8 @@ v8::Handle<v8::Object> V8Proxy::CSSValueToV8Object(CSSValue* value) {
 }
 
 
-v8::Handle<v8::Object> V8Proxy::CSSRuleToV8Object(CSSRule* rule) {
-  if (!rule) return v8::Handle<v8::Object>();
+v8::Handle<v8::Value> V8Proxy::CSSRuleToV8Object(CSSRule* rule) {
+  if (!rule) return v8::Null();
 
   v8::Handle<v8::Object> peer = dom_object_map().get(rule);
   if (!peer.IsEmpty()) {
@@ -2611,7 +2609,8 @@ v8::Handle<v8::Object> V8Proxy::CSSRuleToV8Object(CSSRule* rule) {
   }
 
   // Set the peer object for future access.
-  v8::Handle<v8::Object> result = InstantiateV8Object(type, rule);
+  v8::Handle<v8::Object> result =
+      InstantiateV8Object(type, V8ClassIndex::CSSRULE, rule);
   if (!result.IsEmpty()) {
     // Only update the DOM object map if the result is non-empty.
     dom_object_map().set(rule, v8::Persistent<v8::Object>::New(result));
@@ -2619,7 +2618,9 @@ v8::Handle<v8::Object> V8Proxy::CSSRuleToV8Object(CSSRule* rule) {
   return result;
 }
 
-v8::Handle<v8::Object> V8Proxy::WindowToV8Object(DOMWindow* window) {
+v8::Handle<v8::Value> V8Proxy::WindowToV8Object(DOMWindow* window) {
+  if (!window) return v8::Null();
+
   // Initializes environment of a frame, and return the global object
   // of the frame.
   Frame* frame = window->frame();

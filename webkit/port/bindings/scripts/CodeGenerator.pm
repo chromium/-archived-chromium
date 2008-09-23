@@ -115,6 +115,39 @@ sub ProcessDocument
     }
 }
 
+
+sub FindParentsRecursively
+{
+  my $object = shift;
+  my $dataNode = shift;
+  my @parents = ($dataNode->name);
+  foreach (@{$dataNode->parents}) {
+    my $interface = $object->StripModule($_);
+
+    $endCondition = 0;
+    $foundFilename = "";
+    foreach (@{$useDirectories}) {
+      $object->ScanDirectory("$interface.idl", $_, $_, 0) if ($foundFilename eq "");
+    }
+
+    if ($foundFilename ne "") {
+      print "  |  |>  Parsing parent IDL \"$foundFilename\" for interface \"$interface\"\n" if $verbose;
+
+      # Step #2: Parse the found IDL file (in quiet mode).
+      my $parser = IDLParser->new(1);
+      my $document = $parser->ParseInheritance($foundFilename, $defines, $preprocessor);
+
+      foreach my $class (@{$document->classes}) {
+        @parents = (@parents, FindParentsRecursively($object, $class));
+      } 
+    } else {
+      die("Could NOT find specified parent interface \"$interface\"!\n")
+    }
+  }
+  return @parents; 
+}
+
+
 sub AddMethodsConstantsAndAttributesFromParentClasses
 {
     # For the passed interface, recursively parse all parent
@@ -247,6 +280,8 @@ sub ScanDirectory
     my $directory = shift;
     my $useDirectory = shift;
     my $reportAllFiles = shift;
+
+    print "Scanning interface " . $interface . " in " . $directory . "\n" if $verbose;
 
     return if ($endCondition eq 1) and ($reportAllFiles eq 0);
 

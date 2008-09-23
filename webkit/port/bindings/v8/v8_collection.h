@@ -11,7 +11,6 @@
 
 namespace WebCore {
 
-
 // Returns named property of a collection.
 template <class C>
 static v8::Handle<v8::Value> GetNamedPropertyOfCollection(
@@ -20,14 +19,17 @@ static v8::Handle<v8::Value> GetNamedPropertyOfCollection(
     v8::Local<v8::Value> data) {
   // TODO: assert object is a collection type
   ASSERT(V8Proxy::MaybeDOMWrapper(object));
-
   V8ClassIndex::V8WrapperType t = V8Proxy::GetDOMWrapperType(object);
-  C* collection = V8Proxy::FastToNativeObject<C>(t, object);
+  ASSERT(t != V8ClassIndex::NODE);
+  C* collection = V8Proxy::ToNativeObject<C>(t, object);
   String prop_name = ToWebCoreString(name);
   void* result = collection->namedItem(prop_name);
   if (!result) return v8::Handle<v8::Value>();
   V8ClassIndex::V8WrapperType type = V8ClassIndex::ToWrapperType(data);
-  return V8Proxy::ToV8Object(type, result);
+  if (type == V8ClassIndex::NODE)
+    return V8Proxy::NodeToV8Object(static_cast<Node*>(result));
+  else
+    return V8Proxy::ToV8Object(type, result);
 }
 
 // A template of named property accessor of collections.
@@ -36,6 +38,26 @@ static v8::Handle<v8::Value> CollectionNamedPropertyGetter(
     v8::Local<v8::String> name, const v8::AccessorInfo& info) {
   return GetNamedPropertyOfCollection<C>(name, info.Holder(), info.Data());
 }
+
+
+// A template of named property accessor of HTMLSelectElement and
+// HTMLFormElement.
+template <class C>
+static v8::Handle<v8::Value> NodeCollectionNamedPropertyGetter(
+    v8::Local<v8::String> name, const v8::AccessorInfo& info) {
+  ASSERT(V8Proxy::MaybeDOMWrapper(info.Holder()));
+  ASSERT(V8Proxy::GetDOMWrapperType(info.Holder()) == V8ClassIndex::NODE);
+  C* collection = V8Proxy::DOMWrapperToNode<C>(info.Holder());
+  String prop_name = ToWebCoreString(name);
+  void* result = collection->namedItem(prop_name);
+  if (!result) return v8::Handle<v8::Value>();
+  V8ClassIndex::V8WrapperType type = V8ClassIndex::ToWrapperType(info.Data());
+  if (type == V8ClassIndex::NODE)
+    return V8Proxy::NodeToV8Object(static_cast<Node*>(result));
+  else
+    return V8Proxy::ToV8Object(type, result);
+}
+
 
 // A template returns whether a collection has a named property.
 // This function does not cause JS heap allocation.
@@ -47,7 +69,7 @@ static bool HasNamedPropertyOfCollection(v8::Local<v8::String> name,
   ASSERT(V8Proxy::MaybeDOMWrapper(object));
 
   V8ClassIndex::V8WrapperType t = V8Proxy::GetDOMWrapperType(object);
-  C* collection = V8Proxy::FastToNativeObject<C>(t, object);
+  C* collection = V8Proxy::ToNativeObject<C>(t, object);
   String prop_name = ToWebCoreString(name);
   void* result = collection->namedItem(prop_name);
   return result != NULL;
@@ -61,11 +83,15 @@ static v8::Handle<v8::Value> GetIndexedPropertyOfCollection(
   // TODO, assert that object must be a collection type
   ASSERT(V8Proxy::MaybeDOMWrapper(object));
   V8ClassIndex::V8WrapperType t = V8Proxy::GetDOMWrapperType(object);
-  C* collection = V8Proxy::FastToNativeObject<C>(t, object);
+  ASSERT(t != V8ClassIndex::NODE);
+  C* collection = V8Proxy::ToNativeObject<C>(t, object);
   void* result = collection->item(index);
   if (!result) return v8::Handle<v8::Value>();
   V8ClassIndex::V8WrapperType type = V8ClassIndex::ToWrapperType(data);
-  return V8Proxy::ToV8Object(type, result);
+  if (type == V8ClassIndex::NODE)
+    return V8Proxy::NodeToV8Object(static_cast<Node*>(result));
+  else
+    return V8Proxy::ToV8Object(type, result);
 }
 
 
@@ -77,13 +103,49 @@ static v8::Handle<v8::Value> CollectionIndexedPropertyGetter(
 }
 
 
+// A template of index interceptor of HTMLSelectElement and HTMLFormElement.
+template <class C>
+static v8::Handle<v8::Value> NodeCollectionIndexedPropertyGetter(
+    uint32_t index, const v8::AccessorInfo& info) {
+  ASSERT(V8Proxy::MaybeDOMWrapper(info.Holder()));
+  ASSERT(V8Proxy::GetDOMWrapperType(info.Holder()) == V8ClassIndex::NODE);
+  C* collection = V8Proxy::DOMWrapperToNode<C>(info.Holder());
+  void* result = collection->item(index);
+  if (!result) return v8::Handle<v8::Value>();
+  V8ClassIndex::V8WrapperType type = V8ClassIndex::ToWrapperType(info.Data());
+  if (type == V8ClassIndex::NODE)
+    return V8Proxy::NodeToV8Object(static_cast<Node*>(result));
+  else
+    return V8Proxy::ToV8Object(type, result);
+}
+
+
+// Get an array containing the names of indexed properties of
+// HTMLSelectElement and HTMLFormElement.
+template <class C>
+static v8::Handle<v8::Array> NodeCollectionIndexedPropertyEnumerator(
+    const v8::AccessorInfo& info) {
+  ASSERT(V8Proxy::MaybeDOMWrapper(info.Holder()));
+  ASSERT(V8Proxy::GetDOMWrapperType(info.Holder()) == V8ClassIndex::NODE);
+  C* collection = V8Proxy::DOMWrapperToNode<C>(info.Holder());
+  int length = collection->length();
+  v8::Handle<v8::Array> properties = v8::Array::New(length);
+  for (int i = 0; i < length; i++) {
+    // TODO(ager): Do we need to check that the item function returns
+    // a non-null value for this index?
+    v8::Handle<v8::Integer> integer = v8::Integer::New(i);
+    properties->Set(integer, integer);
+  }
+  return properties;
+}
+
 // Get an array containing the names of indexed properties in a collection.
 template <class C>
 static v8::Handle<v8::Array> CollectionIndexedPropertyEnumerator(
     const v8::AccessorInfo& info) {
   ASSERT(V8Proxy::MaybeDOMWrapper(info.Holder()));
   V8ClassIndex::V8WrapperType t = V8Proxy::GetDOMWrapperType(info.Holder());
-  C* collection = V8Proxy::FastToNativeObject<C>(t, info.Holder());
+  C* collection = V8Proxy::ToNativeObject<C>(t, info.Holder());
   int length = collection->length();
   v8::Handle<v8::Array> properties = v8::Array::New(length);
   for (int i = 0; i < length; i++) {
@@ -105,7 +167,7 @@ static bool HasIndexedPropertyOfCollection(uint32_t index,
   // TODO, assert that object must be a collection type
   ASSERT(V8Proxy::MaybeDOMWrapper(object));
   V8ClassIndex::V8WrapperType t = V8Proxy::GetDOMWrapperType(object);
-  C* collection = V8Proxy::FastToNativeObject<C>(t, object);
+  C* collection = V8Proxy::ToNativeObject<C>(t, object);
   void* result = collection->item(index);
   return result != NULL;
 }
@@ -119,7 +181,7 @@ static v8::Handle<v8::Value> CollectionStringOrNullIndexedPropertyGetter(
   // TODO, assert that object must be a collection type
   ASSERT(V8Proxy::MaybeDOMWrapper(info.Holder()));
   V8ClassIndex::V8WrapperType t = V8Proxy::GetDOMWrapperType(info.Holder());
-  C* collection = V8Proxy::FastToNativeObject<C>(t, info.Holder());
+  C* collection = V8Proxy::ToNativeObject<C>(t, info.Holder());
   String result = collection->item(index);
   return v8StringOrNull(result);
 }

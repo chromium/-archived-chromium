@@ -41,6 +41,8 @@ my $preservedParseMode = MODE_UNDEF;
 my $beQuiet; # Should not display anything on STDOUT?
 my $document = 0; # Will hold the resulting 'idlDocument'
 
+my $directive = "";
+
 # Default Constructor
 sub new
 {
@@ -54,8 +56,31 @@ sub new
     return $reference;
 }
 
+
+sub ParseInheritance
+{
+    my $object = shift;
+    my $fileName = shift;
+    my $defines = shift;
+    my $preprocessor = shift;
+
+    $directive = "inheritance";
+    return $object->ParseImpl($fileName, $defines, $preprocessor);
+}
+
 # Returns the parsed 'idlDocument'
 sub Parse
+{
+    my $object = shift;
+    my $fileName = shift;
+    my $defines = shift;
+    my $preprocessor = shift;
+
+    $directive = "";
+    return $object->ParseImpl($fileName, $defines, $preprocessor);
+}
+
+sub ParseImpl
 {
     my $object = shift;
     my $fileName = shift;
@@ -237,6 +262,8 @@ sub ParseInterface
             my $arrayRef = $dataNode->parents;
             push(@$arrayRef, $line);
         }
+
+        return if ($directive eq "inheritance");
 
         $interfaceData =~ s/[\n\r]/ /g;
         my @interfaceMethods = split(/;/, $interfaceData);

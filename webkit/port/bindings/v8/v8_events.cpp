@@ -215,7 +215,7 @@ v8::Local<v8::Object> V8EventListener::GetThisObject(Event* event,
   EventTarget* target = event->currentTarget();
   if (target->toNode()) {
     v8::Handle<v8::Value> value =
-        V8Proxy::ToV8Object(V8ClassIndex::NODE, target->toNode());
+        V8Proxy::NodeToV8Object(target->toNode());
     return v8::Local<v8::Object>::New(v8::Handle<v8::Object>::Cast(value));
 
   } else if (target->toXMLHttpRequest()) {
@@ -306,7 +306,7 @@ v8::Local<v8::Object> V8LazyEventListener::GetThisObject(Event* event,
   }
 
   v8::Handle<v8::Value> value =
-    V8Proxy::ToV8Object(V8ClassIndex::NODE, event->currentTarget()->toNode());
+    V8Proxy::NodeToV8Object(event->currentTarget()->toNode());
   ASSERT(!value.IsEmpty());
 
   return v8::Local<v8::Object>::New(v8::Handle<v8::Object>::Cast(value));
