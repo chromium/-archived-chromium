@@ -415,6 +415,10 @@ bool BrowserToolbarView::OnKeyPressed(const ChromeViews::KeyEvent& e) {
           GetViewContainer()->GetTooltipManager()->HideKeyboardTooltip();
         // Safe to cast, given to above view id check.
         static_cast<ChromeViews::MenuButton*>(acc_focused_view_)->Activate();
+        if (!acc_focused_view_) {
+          // Activate triggered a focus change, don't try to change focus.
+          return true;
+        }
         // Re-enable hot-tracking, as Activate() will disable it.
         acc_focused_view_->SetHotTracked(true);
         break;
