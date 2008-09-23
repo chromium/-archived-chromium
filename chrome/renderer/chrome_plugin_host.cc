@@ -524,7 +524,7 @@ CPError STDCALL CPB_SendSyncMessage(CPID id, const void *data, uint32 data_len,
 CPError STDCALL CPB_PluginThreadAsyncCall(CPID id,
                                           void (*func)(void *),
                                           void *user_data) {
-  MessageLoop *message_loop = RenderThread::current()->message_loop();
+  MessageLoop *message_loop = ChromePluginLib::GetPluginThreadLoop();
   if (!message_loop) {
     return CPERR_FAILURE;
   }

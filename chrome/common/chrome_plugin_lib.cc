@@ -7,6 +7,7 @@
 #include "base/command_line.h"
 #include "base/hash_tables.h"
 #include "base/histogram.h"
+#include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/perftimer.h"
 #include "base/registry.h"
@@ -31,6 +32,7 @@ static PluginMap* g_loaded_libs;
 // The thread plugins are loaded and used in, lazily initialized upon
 // the first creation call.
 static DWORD g_plugin_thread_id = 0;
+static MessageLoop* g_plugin_thread_loop = NULL;
 
 static bool IsSingleProcessMode() {
   // We don't support ChromePlugins in single-process mode.
@@ -45,6 +47,7 @@ ChromePluginLib* ChromePluginLib::Create(const std::wstring& filename,
   if (!g_loaded_libs) {
     g_loaded_libs = new PluginMap();
     g_plugin_thread_id = ::GetCurrentThreadId();
+    g_plugin_thread_loop = MessageLoop::current();
   }
   DCHECK(IsPluginThread());
 
@@ -86,6 +89,11 @@ void ChromePluginLib::Destroy(const std::wstring& filename) {
 // static
 bool ChromePluginLib::IsPluginThread() {
   return ::GetCurrentThreadId() == g_plugin_thread_id;
+}
+
+// static
+MessageLoop* ChromePluginLib::GetPluginThreadLoop() {
+  return g_plugin_thread_loop;
 }
 
 // static

@@ -12,6 +12,8 @@
 #include "base/scoped_ptr.h"
 #include "chrome/common/chrome_plugin_api.h"
 
+class MessageLoop;
+
 // A ChromePluginLib is a single Chrome Plugin Library.
 // This class is used in the browser process (IO thread), and the plugin process
 // (plugin thread).  It should not be accessed on other threads, because it
@@ -23,6 +25,7 @@ class ChromePluginLib : public base::RefCounted<ChromePluginLib>  {
   static ChromePluginLib* Find(const std::wstring& filename);
   static void Destroy(const std::wstring& filename);
   static bool IsPluginThread();
+  static MessageLoop* GetPluginThreadLoop();
 
   static ChromePluginLib* FromCPID(CPID id) {
     return reinterpret_cast<ChromePluginLib*>(id);
