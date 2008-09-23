@@ -150,6 +150,9 @@ struct ViewHostMsg_ContextMenu_Params {
   // These flags indicate to the browser whether the renderer believes it is
   // able to perform the corresponding action.
   int edit_flags;
+
+  // The security info for the resource we are showing the menu on.
+  std::string security_info;
 };
 
 // Values that may be OR'd together to form the 'flags' parameter of a
@@ -766,6 +769,7 @@ struct ParamTraits<ViewHostMsg_ContextMenu_Params> {
     WriteParam(m, p.misspelled_word);
     WriteParam(m, p.dictionary_suggestions);
     WriteParam(m, p.edit_flags);
+    WriteParam(m, p.security_info);
   }
   static bool Read(const Message* m, void** iter, param_type* p) {
     return
@@ -779,7 +783,8 @@ struct ParamTraits<ViewHostMsg_ContextMenu_Params> {
       ReadParam(m, iter, &p->selection_text) &&
       ReadParam(m, iter, &p->misspelled_word) &&
       ReadParam(m, iter, &p->dictionary_suggestions) &&
-      ReadParam(m, iter, &p->edit_flags);
+      ReadParam(m, iter, &p->edit_flags) &&
+      ReadParam(m, iter, &p->security_info);
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"<ViewHostMsg_ContextMenu_Params>");

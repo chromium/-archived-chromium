@@ -5,9 +5,11 @@
 #ifndef CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_H__
 #define CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_H__
 
+#include "chrome/browser/navigation_entry.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/window.h"
+#include "googleurl/src/gurl.h"
 
 // The page info window displays information regarding the current page,
 // including security information.
@@ -31,11 +33,19 @@ class PageInfoWindow : public ChromeViews::DialogDelegate,
 
   };
 
-  // Creates and shows a new PageInfoWindow.
-  static void Create(Profile* profile,
-                     NavigationEntry* nav_entry,
-                     HWND parent_hwnd,
-                     TabID tab);
+  // Creates and shows a new page info window for the main page.
+  static void CreatePageInfo(Profile* profile,
+                             NavigationEntry* nav_entry,
+                             HWND parent_hwnd,
+                             TabID tab);
+
+  // Creates and shows a new page info window for the frame at |url| with the
+  // specified SSL information.
+  static void CreateFrameInfo(Profile* profile,
+                              const GURL& url,
+                              const NavigationEntry::SSLStatus& ssl,
+                              HWND parent_hwnd,
+                              TabID tab);
 
   static void RegisterPrefs(PrefService* prefs);
 
@@ -43,7 +53,10 @@ class PageInfoWindow : public ChromeViews::DialogDelegate,
   virtual ~PageInfoWindow();
 
   virtual void Init(Profile* profile,
-                    NavigationEntry* navigation_entry,
+                    const GURL& url,
+                    const NavigationEntry::SSLStatus& ssl,
+                    NavigationEntry::PageType page_type,
+                    bool show_history,
                     HWND parent);
 
   // ChromeViews::Window overridden method.
@@ -65,8 +78,12 @@ class PageInfoWindow : public ChromeViews::DialogDelegate,
 
  private:
   ChromeViews::View* CreateGeneralTabView();
-  ChromeViews::View* CreateSecurityTabView(Profile* profile,
-                                           NavigationEntry* navigation_entry);
+  ChromeViews::View* CreateSecurityTabView(
+      Profile* profile,
+      const GURL& url,
+      const NavigationEntry::SSLStatus& ssl,
+      NavigationEntry::PageType page_type,
+      bool show_history);
 
   // Offsets the specified rectangle so it is showing on the screen and shifted
   // from its original location.

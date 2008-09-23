@@ -1790,7 +1790,8 @@ void RenderView::ShowContextMenu(WebView* webview,
                                  const GURL& frame_url,
                                  const std::wstring& selection_text,
                                  const std::wstring& misspelled_word,
-                                 int edit_flags) {
+                                 int edit_flags,
+                                 const std::string& security_info) {
   ViewHostMsg_ContextMenu_Params params;
   params.type = type;
   params.x = x;
@@ -1802,6 +1803,7 @@ void RenderView::ShowContextMenu(WebView* webview,
   params.selection_text = selection_text;
   params.misspelled_word = misspelled_word;
   params.edit_flags = edit_flags;
+  params.security_info = security_info;
   Send(new ViewHostMsg_ContextMenu(routing_id_, params));
 }
 

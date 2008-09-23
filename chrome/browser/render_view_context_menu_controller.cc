@@ -18,6 +18,7 @@
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/template_url_model.h"
+#include "chrome/browser/views/page_info_window.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/clipboard_service.h"
@@ -172,7 +173,9 @@ bool RenderViewContextMenuController::IsCommandEnabled(int id) const {
     case IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY:
       return !params_.misspelled_word.empty();
     case IDS_CONTENT_CONTEXT_VIEWPAGEINFO:
+      return (source_web_contents_->controller()->GetActiveEntry() != NULL);
     case IDS_CONTENT_CONTEXT_VIEWFRAMEINFO:
+      return true;
     case IDS_CONTENT_CONTEXT_SAVEFRAMEAS:
     case IDS_CONTENT_CONTEXT_PRINTFRAME:
     case IDS_CONTENT_CONTEXT_ADDSEARCHENGINE:  // Not implemented.
@@ -282,10 +285,15 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
       Inspect(params_.x, params_.y);
       break;
 
-    case IDS_CONTENT_CONTEXT_VIEWPAGEINFO:
-      win_util::MessageBox(NULL, L"Context Menu Action", L"View Page Info",
-                           MB_OK);
+    case IDS_CONTENT_CONTEXT_VIEWPAGEINFO: {
+      NavigationEntry* nav_entry =
+          source_web_contents_->controller()->GetActiveEntry();
+      PageInfoWindow::CreatePageInfo(source_web_contents_->profile(),
+                                     nav_entry,
+                                     source_web_contents_->GetContentHWND(),
+                                     PageInfoWindow::SECURITY);      
       break;
+    }
 
     case IDS_CONTENT_CONTEXT_OPENFRAMENEWTAB:
       OpenURL(params_.frame_url, NEW_BACKGROUND_TAB, PageTransition::LINK);
@@ -314,10 +322,26 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
               NEW_FOREGROUND_TAB, PageTransition::GENERATED);
       break;
 
-    case IDS_CONTENT_CONTEXT_VIEWFRAMEINFO:
-      win_util::MessageBox(NULL, L"Context Menu Action", L"View Frame Info",
-                           MB_OK);
+    case IDS_CONTENT_CONTEXT_VIEWFRAMEINFO: {
+      // Deserialize the SSL info.
+      NavigationEntry::SSLStatus ssl;
+      if (!params_.security_info.empty()) {
+        int cert_id, cert_status, security_bits;
+        SSLManager::DeserializeSecurityInfo(params_.security_info,
+                                            &cert_id,
+                                            &cert_status,
+                                            &security_bits);
+        ssl.set_cert_id(cert_id);
+        ssl.set_cert_status(cert_status);
+        ssl.set_security_bits(security_bits);
+      }
+      PageInfoWindow::CreateFrameInfo(source_web_contents_->profile(),
+                                      params_.frame_url,
+                                      ssl,
+                                      source_web_contents_->GetContentHWND(),
+                                      PageInfoWindow::SECURITY);
       break;
+    }
 
     case IDS_CONTENT_CONTEXT_UNDO:
       source_web_contents_->Undo();

@@ -140,12 +140,10 @@ WebCore::PlatformMenuDescription
 
   // Links, Images and Image-Links take preference over all else.
   WebCore::KURL link_url = r.absoluteLinkURL();
-  std::wstring link_url_string;
   if (!link_url.isEmpty()) {
     type = ContextNode::LINK;
   }
   WebCore::KURL image_url = r.absoluteImageURL();
-  std::wstring image_url_string;
   if (!image_url.isEmpty()) {
     type = ContextNode::IMAGE;
   }
@@ -158,6 +156,7 @@ WebCore::PlatformMenuDescription
   std::wstring misspelled_word_string;
   GURL frame_url;
   GURL page_url;
+  std::string security_info;
   
   std::wstring frame_encoding;
   // Send the frame and page URLs in any case.
@@ -194,6 +193,17 @@ WebCore::PlatformMenuDescription
     }
   }
 
+  // Now retrieve the security info.
+  WebCore::DocumentLoader* dl = selected_frame->loader()->documentLoader();
+  if (dl) {
+    WebDataSource* ds = static_cast<WebDocumentLoaderImpl*>(dl)->
+        GetDataSource();
+    if (ds) {
+      const WebResponse& response = ds->GetResponse();
+      security_info = response.GetSecurityInfo();
+    }
+  }
+
   int edit_flags = ContextNode::CAN_DO_NONE;
   if (webview_->GetFocusedWebCoreFrame()->editor()->canUndo())
     edit_flags |= ContextNode::CAN_UNDO;
@@ -222,7 +232,8 @@ WebCore::PlatformMenuDescription
                        frame_url,
                        selection_text_string,
                        misspelled_word_string,
-                       edit_flags);
+                       edit_flags,
+                       security_info);
   }
   return NULL;
 }

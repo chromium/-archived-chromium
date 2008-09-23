@@ -1004,10 +1004,14 @@ bool LocationBarView::SecurityImageView::OnMousePressed(
   NavigationEntry* nav_entry =
       BrowserList::GetLastActive()->GetSelectedTabContents()->
           controller()->GetActiveEntry();
-  PageInfoWindow::Create(profile_,
-                         nav_entry,
-                         GetRootView()->GetViewContainer()->GetHWND(),
-                         PageInfoWindow::SECURITY);
+  if (!nav_entry) {
+    NOTREACHED();
+    return true;
+  }
+  PageInfoWindow::CreatePageInfo(profile_,
+                                 nav_entry,
+                                 GetRootView()->GetViewContainer()->GetHWND(),
+                                 PageInfoWindow::SECURITY);
   return true;
 }
 

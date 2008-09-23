@@ -301,7 +301,8 @@ class WebFrame : public base::RefCounted<WebFrame> {
   // superset of those accepted by javascript:document.execCommand().
   // This method is exposed in order to implement
   // javascript:layoutTestController.execCommand()
-  virtual bool ExecuteCoreCommandByName(const std::string& name, const std::string& value) = 0;
+  virtual bool ExecuteCoreCommandByName(const std::string& name,
+                                        const std::string& value) = 0;
 
   // Adds a message to the frame's console.
   virtual void AddMessageToConsole(const std::wstring& msg,

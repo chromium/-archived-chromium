@@ -14,7 +14,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/history/history.h"
-#include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/ssl_manager.h"
 #include "chrome/browser/views/standard_layout.h"
@@ -41,7 +40,11 @@ const int kHorizontalPadding = 10;
 // SecurityTabView
 class SecurityTabView : public ChromeViews::View {
  public:
-  SecurityTabView(Profile* profile, NavigationEntry* navigation_entry);
+  SecurityTabView(Profile* profile,
+                  const GURL& url,
+                  const NavigationEntry::SSLStatus& ssl,
+                  NavigationEntry::PageType page_type,
+                  bool show_history);
   virtual ~SecurityTabView();
 
   virtual void Layout();
@@ -223,25 +226,26 @@ void SecurityTabView::Section::Layout() {
 }
 
 SecurityTabView::SecurityTabView(Profile* profile,
-                                 NavigationEntry* navigation_entry) {
+                                 const GURL& url,
+                                 const NavigationEntry::SSLStatus& ssl,
+                                 NavigationEntry::PageType page_type,
+                                 bool show_history) {
   bool identity_ok = true;
   bool connection_ok = true;
   std::wstring identity_title;
   std::wstring identity_msg;
   std::wstring connection_msg;
   scoped_refptr<net::X509Certificate> cert;
-  const NavigationEntry::SSLStatus& ssl = navigation_entry->ssl();
 
   // Identity section.
-  std::wstring subject_name(UTF8ToWide(navigation_entry->url().host()));
+  std::wstring subject_name(UTF8ToWide(url.host()));
   bool empty_subject_name = false;
   if (subject_name.empty()) {
     subject_name.assign(
         l10n_util::GetString(IDS_PAGE_INFO_SECURITY_TAB_UNKNOWN_PARTY));
     empty_subject_name = true;
   }
-  if (navigation_entry->page_type() == NavigationEntry::NORMAL_PAGE &&
-      ssl.cert_id() &&
+  if (page_type == NavigationEntry::NORMAL_PAGE && ssl.cert_id() &&
       CertStore::GetSharedInstance()->RetrieveCert(ssl.cert_id(), &cert) &&
       !net::IsCertStatusError(ssl.cert_status())) {
     // OK HTTPS page.
@@ -250,7 +254,7 @@ SecurityTabView::SecurityTabView(Profile* profile,
       identity_title =
           l10n_util::GetStringF(IDS_PAGE_INFO_EV_IDENTITY_TITLE,
               UTF8ToWide(cert->subject().organization_names[0]),
-              UTF8ToWide(navigation_entry->url().host()));
+              UTF8ToWide(url.host()));
       // An EV Cert is required to have a city (localityName) and country but
       // state is "if any".
       DCHECK(!cert->subject().locality_name.empty());
@@ -347,9 +351,9 @@ SecurityTabView::SecurityTabView(Profile* profile,
   // Request the number of visits.
   HistoryService* history = profile->GetHistoryService(
       Profile::EXPLICIT_ACCESS);
-  if (history) {
+  if (show_history && history) {
     history->GetVisitCountToHost(
-        navigation_entry->url(),
+        url,
         &request_consumer_,
         NewCallback(this, &SecurityTabView::OnGotVisitCountToHost));
   }
@@ -470,12 +474,25 @@ class PageInfoContentView : public ChromeViews::View {
 int PageInfoWindow::opened_window_count_ = 0;
 
 // static
-void PageInfoWindow::Create(Profile* profile,
-                            NavigationEntry* nav_entry,
-                            HWND parent_hwnd,
-                            PageInfoWindow::TabID tab) {
+void PageInfoWindow::CreatePageInfo(Profile* profile,
+                                    NavigationEntry* nav_entry,
+                                    HWND parent_hwnd,
+                                    PageInfoWindow::TabID tab) {
   PageInfoWindow* window = new PageInfoWindow();
-  window->Init(profile, nav_entry, parent_hwnd);
+  window->Init(profile, nav_entry->url(), nav_entry->ssl(),
+               nav_entry->page_type(), true, parent_hwnd);
+  window->Show();
+}
+
+// static
+void PageInfoWindow::CreateFrameInfo(Profile* profile,
+                                     const GURL& url,
+                                     const NavigationEntry::SSLStatus& ssl,
+                                     HWND parent_hwnd,
+                                     TabID tab) {
+  PageInfoWindow* window = new PageInfoWindow();
+  window->Init(profile, url, ssl, NavigationEntry::NORMAL_PAGE,
+               false, parent_hwnd);
   window->Show();
 }
 
@@ -493,9 +510,12 @@ PageInfoWindow::~PageInfoWindow() {
 }
 
 void PageInfoWindow::Init(Profile* profile,
-                          NavigationEntry* navigation_entry,
+                          const GURL& url,
+                          const NavigationEntry::SSLStatus& ssl,
+                          NavigationEntry::PageType page_type,
+                          bool show_history,
                           HWND parent) {
-  cert_id_ = navigation_entry->ssl().cert_id();
+  cert_id_ = ssl.cert_id();
 
   cert_info_button_ = new ChromeViews::NativeButton(
       l10n_util::GetString(IDS_PAGEINFO_CERT_INFO_BUTTON));
@@ -528,7 +548,8 @@ void PageInfoWindow::Init(Profile* profile,
 
   layout->AddPaddingRow(0, kHorizontalPadding);
   layout->StartRow(1, 0);
-  layout->AddView(CreateSecurityTabView(profile, navigation_entry), 2, 1);
+  layout->AddView(CreateSecurityTabView(profile, url, ssl, page_type,
+                                        show_history), 2, 1);
 
   layout->AddPaddingRow(0, kHorizontalPadding);
 
@@ -566,8 +587,11 @@ ChromeViews::View* PageInfoWindow::CreateGeneralTabView() {
 
 ChromeViews::View* PageInfoWindow::CreateSecurityTabView(
     Profile* profile,
-    NavigationEntry* navigation_entry) {
-  return new SecurityTabView(profile, navigation_entry);
+    const GURL& url,
+    const NavigationEntry::SSLStatus& ssl,
+    NavigationEntry::PageType page_type,
+    bool show_history) {
+  return new SecurityTabView(profile, url, ssl, page_type, show_history);
 }
 
 void PageInfoWindow::Show() {
