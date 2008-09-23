@@ -79,3 +79,5 @@ test_files = [
 gurl_unittests = env_tests.ChromeTestProgram('googleurl_unittests', test_files)
 
 installed_gurl_unittests = env.Install('$TARGET_ROOT', gurl_unittests)
+
+env.Alias('googleurl', installed_gurl_unittests)
