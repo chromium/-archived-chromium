@@ -6,17 +6,17 @@ Import('env')
 
 env = env.Clone()
 
-env.Prepend(
-    CPPPATH = [
-        '../..',
-    ],
-)
-
 # Some of the sandbox sources include "gtest.h", so we need it
 # in the base env here, not just in env_tests.
-env.Append(
+env.Prepend(
     CPPPATH = [
         '$GTEST_DIR/include',
+        '$GTEST_DIR',
+        '../..',
+    ],
+    CPPDEFINES = [
+        'CHROMIUM_BUILD',
+        '_SECURE_ATL',
     ],
 )
 
@@ -24,7 +24,6 @@ env.Append(
     CCFLAGS = [
         '/TP',
         '/WX',          # treat warnings as errors
-        '/Wp64',        # warn about potential 64-bit problems
     ],
 )
 
@@ -90,7 +89,6 @@ input_files = [
     'win2k_threadpool.cc',
     'win_utils.cc',
 ]
-
 
 # TODO(bradnelson): This step generates sandbox.pch.ib_tag
 #                   SCons doesn't know.
@@ -188,6 +186,7 @@ integration_test_files = [
     'process_policy_test.cc',
     'registry_policy_test.cc',
     'sync_policy_test.cc',
+    'unload_dll_test.cc',
 
     '$INTEGRATION_TESTS_DIR/integration_tests$OBJSUFFIX',
     # The VisualStudio build link with the old gtest.obj file directly,
