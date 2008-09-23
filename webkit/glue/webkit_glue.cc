@@ -340,7 +340,7 @@ std::string GetWebKitVersion() {
 }
 
 const std::string& GetDefaultUserAgent() {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_MACOSX)
   static std::string user_agent;
   static bool generated_user_agent;
   if (!generated_user_agent) {
