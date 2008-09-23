@@ -17,12 +17,6 @@
 #include "net/base/cert_status_flags.h"
 #include "net/base/ev_root_ca_metadata.h"
 
-// NOTE: This Mac implementation is almost entirely untested. TODO(avi): test
-// it to make sure it does what the docs imply it does.
-// NOTE: This implementation doesn't keep track of dates. Calling code is
-// expected to use SecTrustEvaluate(x509cert.os_cert_handle()) and look at the
-// result there.
-
 namespace net {
 
 namespace {
@@ -141,8 +135,9 @@ OSStatus GetCertFieldsForOID(X509Certificate::OSCertHandle cert_handle,
   return status;
 }    
 
-void GetCertStringsForOID(X509Certificate::OSCertHandle cert_handle,
-                          CSSM_OID oid, std::vector<std::string>* result) {
+void GetCertGeneralNamesForOID(X509Certificate::OSCertHandle cert_handle,
+                               CSSM_OID oid, CE_GeneralNameType name_type,
+                               std::vector<std::string>* result) {
   uint32 num_of_fields;
   CSSM_FIELD_PTR fields;
   OSStatus status = GetCertFieldsForOID(cert_handle, oid, &num_of_fields,
@@ -152,11 +147,28 @@ void GetCertStringsForOID(X509Certificate::OSCertHandle cert_handle,
   
   for (size_t field = 0; field < num_of_fields; ++field) {
     if (CSSMOIDEqual(&fields[field].FieldOid, &oid)) {
-      std::string value =
+      CSSM_X509_EXTENSION_PTR cssm_ext =
+          (CSSM_X509_EXTENSION_PTR)fields[field].FieldValue.Data;
+      CE_GeneralNames* alt_name =
+          (CE_GeneralNames*) cssm_ext->value.parsedValue;
+      
+      for (size_t name = 0; name < alt_name->numNames; ++name) {
+        const CE_GeneralName& name_struct = alt_name->generalName[name];
+        // For future extension: We're assuming that these values are of types
+        // GNT_RFC822Name, GNT_DNSName or GNT_URI, all of which are encoded as
+        // IA5String. In general, we should be switching off
+        // |name_struct.nameType| and doing type-appropriate conversions. See
+        // certextensions.h and the comment immediately preceding
+        // CE_GeneralNameType for more information.
+        if (name_struct.nameType == name_type) {
+          const CSSM_DATA& name_data = name_struct.name;
+          std::string value =
           std::string(reinterpret_cast<std::string::value_type*>
-                      (fields[field].FieldValue.Data),
-                      fields[field].FieldValue.Length);
-      result->push_back(value);
+                      (name_data.Data),
+                      name_data.Length);
+          result->push_back(value);
+        }
+      }
     }
   }
 }
@@ -172,7 +184,7 @@ void GetCertDateForOID(X509Certificate::OSCertHandle cert_handle,
   
   for (size_t field = 0; field < num_of_fields; ++field) {
     if (CSSMOIDEqual(&fields[field].FieldOid, &oid)) {
-      CSSM_X509_TIME *x509_time =
+      CSSM_X509_TIME* x509_time =
           reinterpret_cast<CSSM_X509_TIME *>(fields[field].FieldValue.Data);
       std::string time_string =
           std::string(reinterpret_cast<std::string::value_type*>
@@ -180,7 +192,7 @@ void GetCertDateForOID(X509Certificate::OSCertHandle cert_handle,
                       x509_time->time.Length);
       
       struct tm time;
-      const char *parse_string;
+      const char* parse_string;
       if (x509_time->timeType == BER_TAG_UTC_TIME)
         parse_string = "%y%m%d%H%M%SZ";
       else if (x509_time->timeType == BER_TAG_GENERALIZED_TIME)
@@ -395,10 +407,8 @@ X509Certificate::~X509Certificate() {
 void X509Certificate::GetDNSNames(std::vector<std::string>* dns_names) const {
   dns_names->clear();
   
-  GetCertStringsForOID(cert_handle_, CSSMOID_SubjectAltName, dns_names);
-  
-  // TODO(avi): wtc says we need more parsing here. Return and fix when the
-  // unit tests are complete and we can verify we're doing this right.
+  GetCertGeneralNamesForOID(cert_handle_, CSSMOID_SubjectAltName, GNT_DNSName,
+                            dns_names);
   
   if (dns_names->empty())
     dns_names->push_back(subject_.common_name);
@@ -452,4 +462,3 @@ void X509Certificate::Policy::Deny(X509Certificate* cert) {
 }
 
 }  // namespace net
-
