@@ -56,7 +56,7 @@ bool SharedMemory::Create(const std::wstring &name, bool read_only,
 
   int posix_flags = 0;
   posix_flags |= read_only ? O_RDONLY : O_RDWR;
-  if (!open_existing)
+  if (!open_existing || mapped_file_ <= 0)
     posix_flags |= O_CREAT;
   
   if (CreateOrOpen(name, posix_flags)) {
