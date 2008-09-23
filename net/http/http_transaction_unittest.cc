@@ -4,8 +4,6 @@
 
 #include "net/http/http_transaction_unittest.h"
 
-#include <windows.h>
-
 #include "base/hash_tables.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -17,8 +15,6 @@
 #include "net/http/http_response_info.h"
 #include "net/http/http_transaction.h"
 #include "testing/gtest/include/gtest/gtest.h"
-
-#pragma warning(disable: 4355)
 
 //-----------------------------------------------------------------------------
 // mock transaction data
@@ -117,7 +113,7 @@ const MockTransaction* FindMockTransaction(const GURL& url) {
     return it->second;
 
   // look for builtins:
-  for (int i = 0; i < arraysize(kBuiltinMockTransactions); ++i) {
+  for (size_t i = 0; i < arraysize(kBuiltinMockTransactions); ++i) {
     if (url == GURL(kBuiltinMockTransactions[i]->url))
       return kBuiltinMockTransactions[i];
   }

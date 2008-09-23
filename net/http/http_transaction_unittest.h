@@ -7,10 +7,9 @@
 
 #include "net/http/http_transaction.h"
 
-#include <windows.h>
-
 #include <string>
 
+#include "base/compiler_specific.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "net/base/net_errors.h"
@@ -20,8 +19,6 @@
 #include "net/http/http_cache.h"
 #include "net/http/http_request_info.h"
 #include "net/http/http_response_info.h"
-
-#pragma warning(disable: 4355)
 
 //-----------------------------------------------------------------------------
 // mock transaction data
@@ -99,8 +96,8 @@ class MockHttpRequest : public net::HttpRequestInfo {
 class TestTransactionConsumer : public CallbackRunner< Tuple1<int> > {
  public:
   explicit TestTransactionConsumer(net::HttpTransactionFactory* factory)
-      : trans_(factory->CreateTransaction()),
-        state_(IDLE),
+      : state_(IDLE),
+        trans_(factory->CreateTransaction()),
         error_(net::OK) {
     ++quit_counter_;
   }
@@ -195,7 +192,8 @@ class TestTransactionConsumer : public CallbackRunner< Tuple1<int> > {
 // HttpCache implementation.
 class MockNetworkTransaction : public net::HttpTransaction {
  public:
-  MockNetworkTransaction() : task_factory_(this), data_cursor_(0) {
+  MockNetworkTransaction() :
+      ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)), data_cursor_(0) {
   }
 
   virtual void Destroy() {

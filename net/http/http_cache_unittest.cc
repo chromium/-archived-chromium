@@ -4,8 +4,6 @@
 
 #include "net/http/http_cache.h"
 
-#include <windows.h>
-
 #include "base/hash_tables.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -17,8 +15,6 @@
 #include "net/http/http_transaction.h"
 #include "net/http/http_transaction_unittest.h"
 #include "testing/gtest/include/gtest/gtest.h"
-
-#pragma warning(disable: 4355)
 
 namespace {
 
@@ -73,7 +69,7 @@ class MockDiskEntry : public disk_cache::Entry,
 
     if (offset < 0 || offset > static_cast<int>(data_[index].size()))
       return net::ERR_FAILED;
-    if (offset == data_[index].size())
+    if (static_cast<size_t>(offset) == data_[index].size())
       return 0;
 
     int num = std::min(buf_len, static_cast<int>(data_[index].size()) - offset);
@@ -483,19 +479,19 @@ TEST(HttpCache, SimpleGET_LoadValidateCache_Implicit) {
   EXPECT_EQ(1, cache.disk_cache()->create_count());
 }
 
+struct Context {
+  int result;
+  TestCompletionCallback callback;
+  net::HttpTransaction* trans;
+
+  Context(net::HttpTransaction* t) : result(net::ERR_IO_PENDING), trans(t) {
+  }
+};
+
 TEST(HttpCache, SimpleGET_ManyReaders) {
   MockHttpCache cache;
 
   MockHttpRequest request(kSimpleGET_Transaction);
-
-  struct Context {
-    int result;
-    TestCompletionCallback callback;
-    net::HttpTransaction* trans;
-
-    Context(net::HttpTransaction* t) : result(net::ERR_IO_PENDING), trans(t) {
-    }
-  };
 
   std::vector<Context*> context_list;
   const int kNumTransactions = 5;
@@ -541,15 +537,6 @@ TEST(HttpCache, SimpleGET_ManyWriters_CancelFirst) {
   MockHttpCache cache;
 
   MockHttpRequest request(kSimpleGET_Transaction);
-
-  struct Context {
-    int result;
-    TestCompletionCallback callback;
-    net::HttpTransaction* trans;
-
-    Context(net::HttpTransaction* t) : result(net::ERR_IO_PENDING), trans(t) {
-    }
-  };
 
   std::vector<Context*> context_list;
   const int kNumTransactions = 2;
