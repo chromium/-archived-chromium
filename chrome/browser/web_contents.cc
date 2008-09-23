@@ -456,6 +456,11 @@ LRESULT WebContents::OnNCCalcSize(BOOL w_param, LPARAM l_param) {
   return 0;
 }
 
+void WebContents::OnNCPaint(HRGN rgn) {
+  // Suppress default WM_NCPAINT handling. We don't need to do anything
+  // here since the view will draw everything correctly.
+}
+
 void WebContents::OnHScroll(int scroll_type, short position, HWND scrollbar) {
   ScrollCommon(WM_HSCROLL, scroll_type, position, scrollbar);
 }

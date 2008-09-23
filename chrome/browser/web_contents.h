@@ -516,6 +516,7 @@ class WebContents : public TabContents,
   virtual void OnWindowPosChanged(WINDOWPOS* window_pos);
   virtual void OnSize(UINT param, const CSize& size);
   virtual LRESULT OnNCCalcSize(BOOL w_param, LPARAM l_param);
+  virtual void OnNCPaint(HRGN rgn);
 
   // Callback from HistoryService for our request for a favicon.
   void OnFavIconData(HistoryService::Handle handle,
