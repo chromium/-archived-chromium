@@ -2,15 +2,6 @@ Index: src/hunspell/affixmgr.cxx
 ===================================================================
 --- src/hunspell/affixmgr.cxx	(revision 3811)
 +++ src/hunspell/affixmgr.cxx	(working copy)
-@@ -13,6 +13,8 @@
- #include <ctype.h>
- #endif
- 
-+#include <io.h>
-+
- #include "affixmgr.hxx"
- #include "affentry.hxx"
- #include "langnum.hxx"
 @@ -25,7 +27,7 @@
  #endif
  #endif
@@ -81,15 +72,6 @@ Index: src/hunspell/hashmgr.cxx
 ===================================================================
 --- src/hunspell/hashmgr.cxx	(revision 3811)
 +++ src/hunspell/hashmgr.cxx	(working copy)
-@@ -13,6 +13,8 @@
- #include <ctype.h>
- #endif
- 
-+#include <io.h>
-+
- #include "hashmgr.hxx"
- #include "csutil.hxx"
- #include "atypes.hxx"
 @@ -29,7 +31,7 @@
  
  // build a hash table from a munched word list
