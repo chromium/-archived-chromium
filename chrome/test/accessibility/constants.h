@@ -8,12 +8,6 @@
 #include <windows.h>
 #include <tchar.h>
 
-// Use the view indices for the new frames, rather than the old ones. With this
-// defined the accessibility ui tests will fail when the old frames are used.
-// TODO(beng): (1031854) remove when the old frames are completely removed from
-//             the codebase.
-#define NEW_FRAMES
-
 ///////////////////////////////////////////////////////////////////
 // Constant Definitations specific to Chrome Accessibility Tests.
 ///////////////////////////////////////////////////////////////////

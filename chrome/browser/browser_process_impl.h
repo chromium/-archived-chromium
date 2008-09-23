@@ -177,7 +177,7 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
   virtual bool IsUsingNewFrames() {
     DCHECK(CalledOnValidThread());
     if (!checked_for_new_frames_) {
-      using_new_frames_ = !CommandLine().HasSwitch(L"use-old-frames");
+      using_new_frames_ = CommandLine().HasSwitch(L"magic_browzR");
       checked_for_new_frames_ = true;
     }
     return using_new_frames_;
