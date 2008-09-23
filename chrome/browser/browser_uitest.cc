@@ -251,13 +251,12 @@ TEST_F(BrowserTest, DuplicateTab) {
   // Duplicate the tab.
   ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_DUPLICATE));
 
-  // The duplicated tab ends up in a new window.
+  // The duplicated tab should not end up in a new window.
   int window_count;
   ASSERT_TRUE(automation()->GetBrowserWindowCount(&window_count));
-  ASSERT_TRUE(window_count > initial_window_count);
+  ASSERT_TRUE(window_count == initial_window_count);
 
-  browser_proxy.reset(automation()->GetBrowserWindow(1));
-  tab_proxy.reset(browser_proxy->GetTab(0));
+  tab_proxy.reset(browser_proxy->GetTab(1));
 
   ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(kWaitForActionMsec));
 

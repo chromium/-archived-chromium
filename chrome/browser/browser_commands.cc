@@ -1029,36 +1029,43 @@ bool Browser::CanDuplicateContentsAt(int index) {
 
 void Browser::DuplicateContentsAt(int index) {
   TabContents* contents = GetTabContentsAt(index);
+  TabContents* new_contents = NULL;
   DCHECK(contents);
 
-  Browser* new_browser = NULL;
+  if (type_ == BrowserType::TABBED_BROWSER) {
+    // If this is a tabbed browser, just create a duplicate tab inside the same
+    // window next to the tab being duplicated.
+    new_contents = contents->controller()->Clone(
+        GetTopLevelHWND())->active_contents();
+    // If you duplicate a tab that is not selected, we need to make sure to
+    // select the tab being duplicated so that DetermineInsertionIndex returns
+    // the right index (if tab 5 is selected and we right-click tab 1 we want
+    // the new tab to appear in index position 2, not 6).
+    if (tabstrip_model_.selected_index() != index)
+      tabstrip_model_.SelectTabContentsAt(index, true);
+    tabstrip_model_.AddTabContents(new_contents, index + 1,
+                                   PageTransition::LINK, true);
+  } else {
+    Browser* new_browser = new Browser(gfx::Rect(), SW_SHOWNORMAL, profile(),
+                                       BrowserType::APPLICATION, app_name_);
 
-  BrowserType::Type t;
+    // We need to show the browser now. Otherwise HWNDViewContainer assumes
+    // the tab contents is invisible and won't size it.
+    new_browser->Show();
 
-  // Is this an application?
-  if (type_ == BrowserType::TABBED_BROWSER)
-    t = BrowserType::TABBED_BROWSER;
-  else
-    t = BrowserType::APPLICATION;
+    // The page transition below is only for the purpose of inserting the tab.
+    new_contents = new_browser->AddTabWithNavigationController(
+        contents->controller()->Clone(new_browser->GetTopLevelHWND()),
+        PageTransition::LINK);
 
-  new_browser = new Browser(gfx::Rect(), SW_SHOWNORMAL, profile(), t,
-                            app_name_);
+    new_browser->MoveToFront(true);
+  }
 
-  // We need to show the browser now. Otherwise HWNDViewContainer assumes
-  // the tab contents is invisible and won't size it.
-  new_browser->Show();
-
-  // The page transition below is only for the purpose of inserting the tab.
-  TabContents* new_contents = new_browser->AddTabWithNavigationController(
-      contents->controller()->Clone(new_browser->GetTopLevelHWND()),
-      PageTransition::LINK);
   if (profile_->HasSessionService()) {
     SessionService* session_service = profile_->GetSessionService();
     if (session_service)
       session_service->TabRestored(new_contents->controller());
   }
-
-  new_browser->MoveToFront(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

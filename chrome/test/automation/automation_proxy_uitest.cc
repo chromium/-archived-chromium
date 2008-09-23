@@ -779,14 +779,13 @@ TEST_F(AutomationProxyTest, AutocompleteGetSetText) {
   EXPECT_EQ(text_to_set, actual_text);
 }
 
-TEST_F(AutomationProxyTest, AutocompleteParallelProxy)
-{
+TEST_F(AutomationProxyTest, AutocompleteParallelProxy) {
   scoped_ptr<BrowserProxy> browser1(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser1.get());
   scoped_ptr<AutocompleteEditProxy> edit1(
       automation()->GetAutocompleteEditForBrowser(browser1.get()));
   ASSERT_TRUE(edit1.get());
-  EXPECT_TRUE(browser1->ApplyAccelerator(IDC_DUPLICATE));
+  EXPECT_TRUE(browser1->ApplyAccelerator(IDC_NEWWINDOW));
   scoped_ptr<BrowserProxy> browser2(automation()->GetBrowserWindow(1));
   ASSERT_TRUE(browser2.get());
   scoped_ptr<AutocompleteEditProxy> edit2(
