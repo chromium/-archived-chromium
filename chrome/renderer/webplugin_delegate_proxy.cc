@@ -335,6 +335,9 @@ static size_t GetPaintBufSize(const gfx::Rect& rect) {
 void WebPluginDelegateProxy::UpdateGeometry(const gfx::Rect& window_rect,
                                             const gfx::Rect& clip_rect,
                                             bool visible) {
+  bool moved = plugin_rect_.x() != window_rect.x() ||
+               plugin_rect_.y() != window_rect.y();
+  plugin_rect_ = window_rect;
   if (!windowless_) {
     deferred_clip_rect_ = clip_rect;
     visible_ = visible;
@@ -343,9 +346,6 @@ void WebPluginDelegateProxy::UpdateGeometry(const gfx::Rect& window_rect,
   }
 
   HANDLE windowless_buffer_handle = NULL;
-  bool moved = plugin_rect_.x() != window_rect.x() ||
-               plugin_rect_.y() != window_rect.y();
-  plugin_rect_ = window_rect;
   if (!windowless_canvas_.get() ||
       (window_rect.width() != windowless_canvas_->getDevice()->width() ||
        window_rect.height() != windowless_canvas_->getDevice()->height())) {
