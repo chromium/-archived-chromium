@@ -192,6 +192,9 @@ NET_ERROR(INVALID_RESPONSE, -320)
 // Error in chunked transfer encoding.
 NET_ERROR(INVALID_CHUNKED_ENCODING, -321)
 
+// The server did not support the request method.
+NET_ERROR(METHOD_NOT_SUPPORTED, -322)
+
 // The cache does not have the requested entry.
 NET_ERROR(CACHE_MISS, -400)
 

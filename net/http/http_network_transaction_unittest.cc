@@ -234,7 +234,6 @@ TEST_F(HttpNetworkTransactionTest, SimpleGET) {
     { true, 0, "hello world", -1 },
     { false, net::OK, NULL, 0 },
   };
-
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
   EXPECT_EQ("HTTP/1.0 200 OK", out.status_line);
   EXPECT_EQ("hello world", out.response_data);
@@ -246,7 +245,6 @@ TEST_F(HttpNetworkTransactionTest, SimpleGETNoHeaders) {
     { true, 0, "hello world", -1 },
     { false, net::OK, NULL, 0 },
   };
-
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
   EXPECT_EQ("HTTP/0.9 200 OK", out.status_line);
   EXPECT_EQ("hello world", out.response_data);
@@ -309,6 +307,20 @@ TEST_F(HttpNetworkTransactionTest, StatusLinePartial) {
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
   EXPECT_EQ("HTTP/0.9 200 OK", out.status_line);
   EXPECT_EQ("HTT", out.response_data);
+}
+
+// Simulate a 204 response, lacking a Content-Length header, sent over a
+// persistent connection.  The response should still terminate since a 204
+// cannot have a response body.
+TEST_F(HttpNetworkTransactionTest, StopsReading204) {
+  MockRead data_reads[] = {
+    { true, 0, "HTTP/1.1 204 No Content\r\n\r\n", -1 },
+    { true, 0, "junk", -1 },  // Should not be read!!
+    { false, net::OK, NULL, 0 },
+  };
+  SimpleGetHelperResult out = SimpleGetHelper(data_reads);
+  EXPECT_EQ("HTTP/1.1 204 No Content", out.status_line);
+  EXPECT_EQ("", out.response_data);
 }
 
 TEST_F(HttpNetworkTransactionTest, ReuseConnection) {

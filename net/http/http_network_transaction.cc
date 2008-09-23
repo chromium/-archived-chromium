@@ -632,6 +632,10 @@ int HttpNetworkTransaction::DoReadBody() {
 
   next_state_ = STATE_READ_BODY_COMPLETE;
 
+  // We may have already consumed the indicated content length.
+  if (content_length_ != -1 && content_read_ >= content_length_)
+    return 0;
+
   // We may have some data remaining in the header buffer.
   if (header_buf_.get() && header_buf_body_offset_ < header_buf_len_) {
     int n = std::min(read_buf_len_, header_buf_len_ - header_buf_body_offset_);
@@ -711,18 +715,17 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
     headers = new HttpResponseHeaders(std::string("HTTP/0.9 200 OK"));
   }
 
-  if (establishing_tunnel_ &&
-      headers->GetParsedHttpVersion() < HttpVersion(1, 0)) {
-    // Require the "HTTP/1.x" status line.
-    return ERR_TUNNEL_CONNECTION_FAILED;
-  }
+  if (headers->GetParsedHttpVersion() < HttpVersion(1, 0)) {
+    // Require the "HTTP/1.x" status line for SSL CONNECT.
+    if (establishing_tunnel_)
+      return ERR_TUNNEL_CONNECTION_FAILED;
 
-  // HTTP/0.9 doesn't support the PUT method, so lack of response headers
-  // indicates a buggy server.
-  // See: https://bugzilla.mozilla.org/show_bug.cgi?id=193921
-  if (headers->GetHttpVersion() == HttpVersion(0, 9) &&
-      request_->method == "PUT")
-    return ERR_ABORTED;
+    // HTTP/0.9 doesn't support the PUT method, so lack of response headers
+    // indicates a buggy server.  See:
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=193921
+    if (request_->method == "PUT")
+      return ERR_METHOD_NOT_SUPPORTED;
+  }
 
   // Check for an intermediate 100 Continue response.  An origin server is
   // allowed to send this response even if we didn't ask for it, so we just
@@ -773,7 +776,7 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
   if (content_length_ == -1) {
     // Ignore spurious chunked responses from HTTP/1.0 servers and proxies.
     // Otherwise "Transfer-Encoding: chunked" trumps "Content-Length: N"
-    if (response_.headers->GetHttpVersion() != HttpVersion(1, 0) &&
+    if (response_.headers->GetHttpVersion() >= HttpVersion(1, 1) &&
         response_.headers->HasHeaderValue("Transfer-Encoding", "chunked")) {
       chunked_decoder_.reset(new HttpChunkedDecoder());
     } else {
