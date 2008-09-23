@@ -132,6 +132,10 @@
 		BAA46E3B0E5CE99A00E77460 /* net_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED329F0E5A181C00A747DB /* net_util_unittest.cc */; };
 		E47E933F0E8924DC00CA613E /* tcp_client_socket_libevent.cc in Sources */ = {isa = PBXBuildFile; fileRef = E47E933E0E8924DC00CA613E /* tcp_client_socket_libevent.cc */; };
 		E47E93430E8924EE00CA613E /* tcp_client_socket_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED328E0E5A181C00A747DB /* tcp_client_socket_unittest.cc */; };
+		E49DD2EA0E892F8C003C7A87 /* sdch_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49DD2E80E892F8C003C7A87 /* sdch_manager.cc */; };
+		E49DD3290E893336003C7A87 /* http_network_layer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33620E5A194700A747DB /* http_network_layer.cc */; };
+		E49DD3370E8933A2003C7A87 /* proxy_service.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49DD3360E8933A2003C7A87 /* proxy_service.cc */; };
+		E49DD33C0E8933C0003C7A87 /* proxy_resolver_fixed.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49DD33B0E8933C0003C7A87 /* proxy_resolver_fixed.cc */; };
 		E4AFA6430E5241B400201347 /* run_all_unittests.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4AFA6420E5241B400201347 /* run_all_unittests.cc */; };
 /* End PBXBuildFile section */
 
@@ -590,6 +594,12 @@
 		82113A1C0E8434EE00E3848F /* x509_certificate_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = x509_certificate_unittest.cc; sourceTree = "<group>"; };
 		82113A270E84360200E3848F /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
 		E47E933E0E8924DC00CA613E /* tcp_client_socket_libevent.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tcp_client_socket_libevent.cc; sourceTree = "<group>"; };
+		E49DD2E80E892F8C003C7A87 /* sdch_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sdch_manager.cc; sourceTree = "<group>"; };
+		E49DD2E90E892F8C003C7A87 /* sdch_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sdch_manager.h; sourceTree = "<group>"; };
+		E49DD3350E8933A2003C7A87 /* proxy_service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proxy_service.h; path = proxy/proxy_service.h; sourceTree = "<group>"; };
+		E49DD3360E8933A2003C7A87 /* proxy_service.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proxy_service.cc; path = proxy/proxy_service.cc; sourceTree = "<group>"; };
+		E49DD33A0E8933C0003C7A87 /* proxy_resolver_fixed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proxy_resolver_fixed.h; path = proxy/proxy_resolver_fixed.h; sourceTree = "<group>"; };
+		E49DD33B0E8933C0003C7A87 /* proxy_resolver_fixed.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proxy_resolver_fixed.cc; path = proxy/proxy_resolver_fixed.cc; sourceTree = "<group>"; };
 		E4AFA6230E523E2900201347 /* net_unittests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = net_unittests; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4AFA62E0E5240A300201347 /* gtest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gtest.xcodeproj; path = testing/gtest.xcodeproj; sourceTree = "<group>"; };
 		E4AFA6420E5241B400201347 /* run_all_unittests.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = run_all_unittests.cc; sourceTree = "<group>"; };
@@ -735,6 +745,7 @@
 				7BED32550E5A180F00A747DB /* base */,
 				7BED32D30E5A18E800A747DB /* disk_cache */,
 				7BED33390E5A193400A747DB /* http */,
+				E49DD3330E893388003C7A87 /* proxy */,
 				7BED338A0E5A196C00A747DB /* url_request */,
 			);
 			name = net;
@@ -850,6 +861,8 @@
 				7BED329A0E5A181C00A747DB /* registry_controlled_domain.h */,
 				7BED32990E5A181C00A747DB /* registry_controlled_domain_unittest.cc */,
 				E4AFA6420E5241B400201347 /* run_all_unittests.cc */,
+				E49DD2E80E892F8C003C7A87 /* sdch_manager.cc */,
+				E49DD2E90E892F8C003C7A87 /* sdch_manager.h */,
 				7BED32980E5A181C00A747DB /* socket.h */,
 				7BED32970E5A181C00A747DB /* ssl_client_socket.cc */,
 				7BED32960E5A181C00A747DB /* ssl_client_socket.h */,
@@ -1013,6 +1026,17 @@
 				7BED33A80E5A198600A747DB /* url_request_view_cache_job.h */,
 			);
 			path = url_request;
+			sourceTree = "<group>";
+		};
+		E49DD3330E893388003C7A87 /* proxy */ = {
+			isa = PBXGroup;
+			children = (
+				E49DD33A0E8933C0003C7A87 /* proxy_resolver_fixed.h */,
+				E49DD33B0E8933C0003C7A87 /* proxy_resolver_fixed.cc */,
+				E49DD3350E8933A2003C7A87 /* proxy_service.h */,
+				E49DD3360E8933A2003C7A87 /* proxy_service.cc */,
+			);
+			name = proxy;
 			sourceTree = "<group>";
 		};
 		E4AFA62D0E52409300201347 /* Projects */ = {
@@ -1299,6 +1323,7 @@
 				7B82FF430E763602008F45CF /* host_resolver.cc in Sources */,
 				0482692A0E5B624D00A30786 /* http_cache.cc in Sources */,
 				7B85042B0E5B2E2A00730B43 /* http_chunked_decoder.cc in Sources */,
+				E49DD3290E893336003C7A87 /* http_network_layer.cc in Sources */,
 				821F21300E5CD746003C7E38 /* http_response_headers.cc in Sources */,
 				7B85042F0E5B2E4900730B43 /* http_util.cc in Sources */,
 				821F207F0E5CD3C6003C7E38 /* http_vary_data.cc in Sources */,
@@ -1315,8 +1340,11 @@
 				533102E70E5E3EBF00FF8E32 /* net_util_posix.cc in Sources */,
 				7B85043B0E5B2E6400730B43 /* os_file_posix.cc in Sources */,
 				7B85043C0E5B2E6400730B43 /* platform_mime_util_mac.mm in Sources */,
+				E49DD3370E8933A2003C7A87 /* proxy_service.cc in Sources */,
+				E49DD33C0E8933C0003C7A87 /* proxy_resolver_fixed.cc in Sources */,
 				7B85043D0E5B2E6400730B43 /* rankings.cc in Sources */,
 				7B8B5B560E5CEADE002F9A97 /* registry_controlled_domain.cc in Sources */,
+				E49DD2EA0E892F8C003C7A87 /* sdch_manager.cc in Sources */,
 				7B8504410E5B2E9600730B43 /* stats.cc in Sources */,
 				E47E933F0E8924DC00CA613E /* tcp_client_socket_libevent.cc in Sources */,
 				7B8504450E5B2E9600730B43 /* trace.cc in Sources */,
