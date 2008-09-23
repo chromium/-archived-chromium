@@ -901,6 +901,10 @@
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\Timer.h"
 				>
 			</File>
+                        <File
+                                RelativePath="..\..\pending\Peerable.h"
+                                >
+                        </File>
 			<File
 				RelativePath="..\..\pending\TreeShared.h"
 				>

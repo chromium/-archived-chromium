@@ -21,13 +21,14 @@
 #ifndef TreeShared_h
 #define TreeShared_h
 
+#include "Peerable.h"
 #include "RefCounted.h"
 
 namespace WebCore {
 
 #if USE(V8_BINDING)
 
-template<class T> class TreeShared : public Peerable, Noncopyable {
+template<class T> class TreeShared : public Peerable {
 public:
     TreeShared() : m_refCount(0), m_parent(0), m_peer(0)
     {

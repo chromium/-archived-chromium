@@ -21,28 +21,15 @@
 #ifndef RefCounted_h
 #define RefCounted_h
 
+#include "Peerable.h"
 #include <wtf/Assertions.h>
 #include <wtf/Noncopyable.h>
-
-#if USE(V8_BINDING)
-
-namespace WebCore {
-
-class Peerable {
- public:
-  virtual ~Peerable() { }
-  virtual void setPeer(void* peer) = 0;
-  virtual void* peer() const = 0;
-};
-
-};
-#endif
 
 namespace WTF {
 
 #if USE(V8_BINDING)
 
-template<class T> class RefCounted : public WebCore::Peerable, Noncopyable {
+template<class T> class RefCounted : public WebCore::Peerable {
 public:
     RefCounted(int initialRefCount = 0)
         : m_refCount(initialRefCount)
