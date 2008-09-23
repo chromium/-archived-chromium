@@ -2005,21 +2005,6 @@ v8::Handle<v8::Value> V8Proxy::CheckNewLegal(const v8::Arguments& args) {
 }
 
 
-v8::Handle<v8::Value> V8Proxy::WrapCPointer(void* cptr) {
-  // Represent void* as int
-  int addr = reinterpret_cast<int>(cptr);
-  ASSERT((addr & 0x01) == 0);  // the address must be aligned.
-  return v8::Integer::New(addr >> 1);
-}
-
-
-void* V8Proxy::ExtractCPointerImpl(v8::Handle<v8::Value> obj) {
-  ASSERT(obj->IsNumber());
-  int addr = obj->Int32Value();
-  return reinterpret_cast<void*>(addr << 1);
-}
-
-
 void V8Proxy::SetDOMWrapper(v8::Handle<v8::Object> obj, int type, void* cptr) {
   ASSERT(obj->InternalFieldCount() >= 2);
   obj->SetInternalField(V8Custom::kDOMWrapperObjectIndex, WrapCPointer(cptr));

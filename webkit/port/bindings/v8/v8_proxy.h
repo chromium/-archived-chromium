@@ -13,6 +13,7 @@
 #include "NodeFilter.h"
 #include "PlatformString.h"  // for WebCore::String
 #include <wtf/HashMap.h>   // for HashMap
+#include <wtf/Assertions.h>
 
 #include <iterator>
 #include <list>
@@ -275,10 +276,15 @@ class V8Proxy {
   // Return true if the current security context can access the target frame.
   static bool CanAccess(Frame* target);
 
-  // Create a V8 wrapper for a C pointer
-  static inline v8::Handle<v8::Value> WrapCPointer(void* cptr);
-
   static v8::Handle<v8::Value> CheckNewLegal(const v8::Arguments& args);
+
+  // Create a V8 wrapper for a C pointer
+  static v8::Handle<v8::Value> WrapCPointer(void* cptr) {
+    // Represent void* as int
+    int addr = reinterpret_cast<int>(cptr);
+    ASSERT((addr & 0x01) == 0);  // the address must be aligned.
+    return v8::Integer::New(addr >> 1);
+  }
 
   // Take C pointer out of a v8 wrapper
   template <class C>
@@ -286,11 +292,9 @@ class V8Proxy {
     return static_cast<C*>(ExtractCPointerImpl(obj));
   }
 
-
   static v8::Handle<v8::Script> CompileScript(v8::Handle<v8::String> code,
                                               const String& fileName,
                                               int baseLine);
-
 
 #ifndef NDEBUG
   // Checks if a v8 value can be a DOM wrapper
@@ -414,7 +418,12 @@ class V8Proxy {
                                   v8::Handle<v8::Value> object);
 
   // Take C pointer out of a v8 wrapper
-  static inline void* ExtractCPointerImpl(v8::Handle<v8::Value> obj);
+  static void* ExtractCPointerImpl(v8::Handle<v8::Value> obj) {
+    ASSERT(obj->IsNumber());
+    int addr = obj->Int32Value();
+    return reinterpret_cast<void*>(addr << 1);
+  }
+
 
   static v8::Handle<v8::Value> StyleSheetToV8Object(StyleSheet* sheet);
   static v8::Handle<v8::Value> CSSValueToV8Object(CSSValue* value);
