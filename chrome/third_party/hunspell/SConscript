@@ -42,18 +42,33 @@ env.Prepend(
 
 env.Append(
     CPPDEFINES = [
-        'W32',
         'OPENOFFICEORG',
         'CHROME_SPELL',
         'HUNSPELL_CHROME_CLIENT',
     ],
-
-    CCFLAGS = [
-        '/TP',
-
-        '/wd4800',
-    ],
 )
+
+if env['PLATFORM'] == 'win32':
+  env.Append(
+      CPPDEFINES = [
+          'W32',
+      ], 
+      CCFLAGS = [
+          '/TP',
+
+          '/wd4800',
+      ],
+  )
+
+if env['PLATFORM'] == 'posix':
+  env.Append(
+      CCFLAGS = [
+          '-Wno-parentheses',
+          '-Wno-unused-value',
+          '-Wno-unused-variable',
+          '-Wno-write-strings',
+      ],
+  )
 
 input_files = [
     'google/bdict_reader.cc',

@@ -13,8 +13,6 @@
 #include <ctype.h>
 #endif
 
-#include <io.h>
-
 #include "affixmgr.hxx"
 #include "affentry.hxx"
 #include "langnum.hxx"

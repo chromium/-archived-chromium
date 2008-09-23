@@ -13,8 +13,6 @@
 #include <ctype.h>
 #endif
 
-#include <io.h>
-
 #include "hashmgr.hxx"
 #include "csutil.hxx"
 #include "atypes.hxx"

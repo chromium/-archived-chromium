@@ -430,6 +430,7 @@ env.SConscript(test_sconscript_files, exports=['env_test'])
 sconscript_files = [
     'browser/SConscript',
     'common/SConscript',
+    'third_party/hunspell/SConscript',
     '$THIRD_PARTY_DIR/sqlite/SConscript',
 ]
 
@@ -460,7 +461,6 @@ if env['PLATFORM'] == 'win32':
       'tools/crash_service/SConscript',
       'tools/perf/flush_cache/SConscript',
       'tools/test/image_diff/SConscript',
-      'third_party/hunspell/SConscript',
       'views/SConscript',
   ])
 
