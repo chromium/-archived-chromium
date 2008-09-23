@@ -152,7 +152,11 @@ class DelayedInitTask : public Task {
     // For non-interactive tests we don't do the rest of the initialization.
     if (::GetEnvironmentVariableW(env_vars::kHeadless, NULL, 0))
       return;
-    if (first_run_) {
+
+    std::wstring omnibox_rlz;
+    RLZTracker::GetAccessPointRlz(RLZTracker::CHROME_OMNIBOX, &omnibox_rlz);
+
+    if (first_run_ || omnibox_rlz.empty()) {
       // Record the installation of chrome.
       RLZTracker::RecordProductEvent(RLZTracker::CHROME,
                                      RLZTracker::CHROME_OMNIBOX,
@@ -204,9 +208,9 @@ bool RLZTracker::InitRlz(int directory_key) {
 
 bool RLZTracker::InitRlzDelayed(int directory_key, bool first_run) {
   // Schedule the delayed init items.
-  const int kOneHundredSeconds = 100000;
+  const int kTwentySeconds = 20 * 1000;
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
-      new DelayedInitTask(directory_key, first_run), kOneHundredSeconds);
+      new DelayedInitTask(directory_key, first_run), kTwentySeconds);
   return true;
 }
 
