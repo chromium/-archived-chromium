@@ -64,9 +64,9 @@ bool HTMLInputDelegate::IsCaretAtEndOfText(size_t input_length,
   // friendliest behavior we can offer. Once the bug is fixed this method
   // should no longer need the previous_length parameter.
   if (((element_->selectionEnd() != element_->selectionStart() + 1) ||
-       (element_->selectionEnd() != input_length)) &&
+       (element_->selectionEnd() != static_cast<int>(input_length))) &&
       ((element_->selectionEnd() != element_->selectionStart()) ||
-       (element_->selectionEnd() != previous_length))) {
+       (element_->selectionEnd() != static_cast<int>(previous_length)))) {
     return false;
   }
   return true;
