@@ -16,13 +16,16 @@ bool MoveCache(const std::wstring& from_path, const std::wstring& to_path) {
 }
 
 void DeleteCache(const std::wstring& path, bool remove_folder) {
+  file_util::FileEnumerator iter(path, /* recursive */ false,
+                                 file_util::FileEnumerator::FILES);
+  for (std::wstring file = iter.Next(); !file.empty(); file = iter.Next()) {
+    if (!file_util::Delete(file, /* recursive */ false))
+      NOTREACHED();
+  }
+
   if (remove_folder) {
-    file_util::Delete(path, false);
-  } else {
-    std::wstring name(path);
-    // TODO(rvargas): Fix this after file_util::delete is fixed.
-    // file_util::AppendToPath(&name, L"*");
-    file_util::Delete(name, true);
+    if (!file_util::Delete(path, /* recursive */ false))
+      NOTREACHED();
   }
 }
 
@@ -37,4 +40,3 @@ void WaitForPendingIO(int* num_pending_io) {
 }
 
 }  // namespace disk_cache
-
