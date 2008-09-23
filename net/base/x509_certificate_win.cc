@@ -4,12 +4,9 @@
 
 #include "net/base/x509_certificate.h"
 
-#include <map>
-
 #include "base/histogram.h"
-#include "base/lock.h"
+#include "base/logging.h"
 #include "base/pickle.h"
-#include "base/singleton.h"
 #include "base/string_tokenizer.h"
 #include "base/string_util.h"
 #include "net/base/cert_status_flags.h"
@@ -20,16 +17,6 @@
 namespace net {
 
 namespace {
-
-// Returns true if this cert fingerprint is the null (all zero) fingerprint.
-// We use this as a bogus fingerprint value.
-bool IsNullFingerprint(const X509Certificate::Fingerprint& fingerprint) {
-  for (size_t i = 0; i < arraysize(fingerprint.data); ++i) {
-    if (fingerprint.data[i] != 0)
-      return false;
-  }
-  return true;
-}
 
 // Calculates the SHA-1 fingerprint of the certificate.  Returns an empty
 // (all zero) fingerprint on failure.
@@ -182,91 +169,67 @@ class ScopedPtrMallocFreeCertChain {
 typedef scoped_ptr_malloc<const CERT_CHAIN_CONTEXT,
                           ScopedPtrMallocFreeCertChain> ScopedCertChainContext;
 
+// Helper function to parse a principal from a WinInet description of that
+// principal.
+void ParsePrincipal(const std::string& description,
+                    X509Certificate::Principal* principal) {
+  // The description of the principal is a string with each LDAP value on
+  // a separate line.
+  const std::string kDelimiters("\r\n");
+
+  std::vector<std::string> common_names, locality_names, state_names,
+      country_names;
+
+  // TODO(jcampan): add business_category and serial_number.
+  const std::string kPrefixes[] = { std::string("CN="),
+                                    std::string("L="),
+                                    std::string("S="),
+                                    std::string("C="),
+                                    std::string("STREET="),
+                                    std::string("O="),
+                                    std::string("OU="),
+                                    std::string("DC=") };
+
+  std::vector<std::string>* values[] = {
+      &common_names, &locality_names,
+      &state_names, &country_names,
+      &(principal->street_addresses),
+      &(principal->organization_names),
+      &(principal->organization_unit_names),
+      &(principal->domain_components) };
+  DCHECK(arraysize(kPrefixes) == arraysize(values));
+
+  StringTokenizer str_tok(description, kDelimiters);
+  while (str_tok.GetNext()) {
+    std::string entry = str_tok.token();
+    for (int i = 0; i < arraysize(kPrefixes); i++) {
+      if (!entry.compare(0, kPrefixes[i].length(), kPrefixes[i])) {
+        std::string value = entry.substr(kPrefixes[i].length());
+        // Remove enclosing double-quotes if any.
+        if (value.size() >= 2 &&
+            value[0] == '"' && value[value.size() - 1] == '"')
+          value = value.substr(1, value.size() - 2);
+        values[i]->push_back(value);
+        break;
+      }
+    }
+  }
+
+  // We don't expect to have more than one CN, L, S, and C.
+  std::vector<std::string>* single_value_lists[4] = {
+      &common_names, &locality_names, &state_names, &country_names };
+  std::string* single_values[4] = {
+      &principal->common_name, &principal->locality_name,
+      &principal->state_or_province_name, &principal->country_name };
+  for (int i = 0; i < arraysize(single_value_lists); ++i) {
+    int length = static_cast<int>(single_value_lists[i]->size());
+    DCHECK(single_value_lists[i]->size() <= 1);
+    if (single_value_lists[i]->size() > 0)
+      *(single_values[i]) = (*(single_value_lists[i]))[0];
+  }
+}
+
 }  // namespace
-
-bool X509Certificate::FingerprintLessThan::operator()(
-    const Fingerprint& lhs,
-    const Fingerprint& rhs) const {
-  for (size_t i = 0; i < sizeof(lhs.data); ++i) {
-    if (lhs.data[i] < rhs.data[i])
-      return true;
-    if (lhs.data[i] > rhs.data[i])
-      return false;
-  }
-  return false;
-}
-
-bool X509Certificate::LessThan::operator()(X509Certificate* lhs,
-                                           X509Certificate* rhs) const {
-  if (lhs == rhs)
-    return false;
-
-  X509Certificate::FingerprintLessThan fingerprint_functor;
-  return fingerprint_functor(lhs->fingerprint_, rhs->fingerprint_);
-}
-
-// A thread-safe cache for X509Certificate objects.
-//
-// The cache does not hold a reference to the certificate objects.  The objects
-// must |Remove| themselves from the cache upon destruction (or else the cache
-// will be holding dead pointers to the objects).
-class X509Certificate::Cache {
- public:
-  // Get the singleton object for the cache.
-  static X509Certificate::Cache* GetInstance() {
-    return Singleton<X509Certificate::Cache>::get();
-  }
-
-  // Insert |cert| into the cache.  The cache does NOT AddRef |cert|.  The cache
-  // must not already contain a certificate with the same fingerprint.
-  void Insert(X509Certificate* cert) {
-    AutoLock lock(lock_);
-
-    DCHECK(!IsNullFingerprint(cert->fingerprint())) <<
-        "Only insert certs with real fingerprints.";
-    DCHECK(cache_.find(cert->fingerprint()) == cache_.end());
-    cache_[cert->fingerprint()] = cert;
-  };
-
-  // Remove |cert| from the cache.  The cache does not assume that |cert| is
-  // already in the cache.
-  void Remove(X509Certificate* cert) {
-    AutoLock lock(lock_);
-
-    CertMap::iterator pos(cache_.find(cert->fingerprint()));
-    if (pos == cache_.end())
-      return;  // It is not an error to remove a cert that is not in the cache.
-    cache_.erase(pos);
-  };
-
-  // Find a certificate in the cache with the given fingerprint.  If one does
-  // not exist, this method returns NULL.
-  X509Certificate* Find(const Fingerprint& fingerprint) {
-    AutoLock lock(lock_);
-
-    CertMap::iterator pos(cache_.find(fingerprint));
-    if (pos == cache_.end())
-      return NULL;
-
-    return pos->second;
-  };
-
- private:
-  typedef std::map<Fingerprint, X509Certificate*, FingerprintLessThan> CertMap;
-
-  // Obtain an instance of X509Certificate::Cache via GetInstance().
-  Cache() { }
-  friend struct DefaultSingletonTraits<X509Certificate::Cache>;
-
-  // You must acquire this lock before using any private data of this object.
-  // You must not block while holding this lock.
-  Lock lock_;
-
-  // The certificate cache.  You must acquire |lock_| before using |cache_|.
-  CertMap cache_;
-
-  DISALLOW_COPY_AND_ASSIGN(X509Certificate::Cache);
-};
 
 void X509Certificate::Initialize() {
   std::wstring subject_info;
@@ -319,7 +282,8 @@ X509Certificate* X509Certificate::CreateFromHandle(OSCertHandle cert_handle) {
 }
 
 // static
-X509Certificate* X509Certificate::CreateFromBytes(const char* data, int length) {
+X509Certificate* X509Certificate::CreateFromBytes(const char* data,
+                                                  int length) {
   OSCertHandle cert_handle = NULL;
   if (!CertAddEncodedCertificateToStore(
       NULL,  // the cert won't be persisted in any cert store
@@ -465,98 +429,6 @@ bool X509Certificate::IsEV(int cert_status) const {
     return false;
 
   return ContainsPolicy(policies_info.get(), ev_policy_oid.c_str());
-}
-
-// static
-void X509Certificate::ParsePrincipal(const std::string& description,
-                                     Principal* principal) {
-  // The description of the principal is a string with each LDAP value on
-  // a separate line.
-  const std::string kDelimiters("\r\n");
-
-  std::vector<std::string> common_names, locality_names, state_names,
-      country_names;
-
-  // TODO(jcampan): add business_category and serial_number.
-  const std::string kPrefixes[] = { std::string("CN="),
-                                    std::string("L="),
-                                    std::string("S="),
-                                    std::string("C="),
-                                    std::string("STREET="),
-                                    std::string("O="),
-                                    std::string("OU="),
-                                    std::string("DC=") };
-
-  std::vector<std::string>* values[] = {
-      &common_names, &locality_names,
-      &state_names, &country_names,
-      &(principal->street_addresses),
-      &(principal->organization_names),
-      &(principal->organization_unit_names),
-      &(principal->domain_components) };
-  DCHECK(arraysize(kPrefixes) == arraysize(values));
-
-  StringTokenizer str_tok(description, kDelimiters);
-  while (str_tok.GetNext()) {
-    std::string entry = str_tok.token();
-    for (int i = 0; i < arraysize(kPrefixes); i++) {
-      if (!entry.compare(0, kPrefixes[i].length(), kPrefixes[i])) {
-        std::string value = entry.substr(kPrefixes[i].length());
-        // Remove enclosing double-quotes if any.
-        if (value.size() >= 2 &&
-            value[0] == '"' && value[value.size() - 1] == '"')
-          value = value.substr(1, value.size() - 2);
-        values[i]->push_back(value);
-        break;
-      }
-    }
-  }
-
-  // We don't expect to have more than one CN, L, S, and C.
-  std::vector<std::string>* single_value_lists[4] = {
-      &common_names, &locality_names, &state_names, &country_names };
-  std::string* single_values[4] = {
-      &principal->common_name, &principal->locality_name,
-      &principal->state_or_province_name, &principal->country_name };
-  for (int i = 0; i < arraysize(single_value_lists); ++i) {
-    int length = static_cast<int>(single_value_lists[i]->size());
-    DCHECK(single_value_lists[i]->size() <= 1);
-    if (single_value_lists[i]->size() > 0)
-      *(single_values[i]) = (*(single_value_lists[i]))[0];
-  }
-}
-
-X509Certificate::Policy::Judgment X509Certificate::Policy::Check(
-    X509Certificate* cert) const {
-  // It shouldn't matter which set we check first, but we check denied first
-  // in case something strange has happened.
-
-  if (denied_.find(cert->fingerprint()) != denied_.end()) {
-    // DCHECK that the order didn't matter.
-    DCHECK(allowed_.find(cert->fingerprint()) == allowed_.end());
-    return DENIED;
-  }
-
-  if (allowed_.find(cert->fingerprint()) != allowed_.end()) {
-    // DCHECK that the order didn't matter.
-    DCHECK(denied_.find(cert->fingerprint()) == denied_.end());
-    return ALLOWED;
-  }
-
-  // We don't have a policy for this cert.
-  return UNKNOWN;
-}
-
-void X509Certificate::Policy::Allow(X509Certificate* cert) {
-  // Put the cert in the allowed set and (maybe) remove it from the denied set.
-  denied_.erase(cert->fingerprint());
-  allowed_.insert(cert->fingerprint());
-}
-
-void X509Certificate::Policy::Deny(X509Certificate* cert) {
-  // Put the cert in the denied set and (maybe) remove it from the allowed set.
-  allowed_.erase(cert->fingerprint());
-  denied_.insert(cert->fingerprint());
 }
 
 }  // namespace net

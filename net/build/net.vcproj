@@ -493,6 +493,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\x509_certificate.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\base\x509_certificate_win.cc"
 				>
 			</File>

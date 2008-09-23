@@ -5,11 +5,13 @@
 #ifndef NET_BASE_X509_CERTIFICATE_H_
 #define NET_BASE_X509_CERTIFICATE_H_
 
+#include <map>
 #include <set>
 #include <string>
 #include <vector>
 
 #include "base/ref_counted.h"
+#include "base/singleton.h"
 #include "base/time.h"
 
 #if defined(OS_WIN)
@@ -166,7 +168,30 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
 
  private:
   // A cache of X509Certificate objects.
-  class Cache;
+  class Cache {
+   public:
+    static Cache* GetInstance();
+    void Insert(X509Certificate* cert);
+    void Remove(X509Certificate* cert);
+    X509Certificate* Find(const Fingerprint& fingerprint);
+    
+   private:
+    typedef std::map<Fingerprint, X509Certificate*, FingerprintLessThan>
+        CertMap;
+    
+    // Obtain an instance of X509Certificate::Cache via GetInstance().
+    Cache() { }
+    friend struct DefaultSingletonTraits<Cache>;
+    
+    // You must acquire this lock before using any private data of this object.
+    // You must not block while holding this lock.
+    Lock lock_;
+    
+    // The certificate cache.  You must acquire |lock_| before using |cache_|.
+    CertMap cache_;
+    
+    DISALLOW_COPY_AND_ASSIGN(Cache);
+  };
 
   // Construct an X509Certificate from a handle to the certificate object
   // in the underlying crypto library.
@@ -177,13 +202,6 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
 
   // Common object initialization code.  Called by the constructors only.
   void Initialize();
-
-#if defined(OS_WIN)
-  // Helper function to parse a principal from a WinInet description of that
-  // principal.
-  static void ParsePrincipal(const std::string& description,
-                             Principal* principal);
-#endif
 
   // The subject of the certificate.
   Principal subject_;
