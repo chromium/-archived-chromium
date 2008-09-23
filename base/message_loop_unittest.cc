@@ -312,8 +312,8 @@ void RunTest_PostDelayedTask_SharedTimer(MessageLoop::Type message_loop_type) {
   EXPECT_EQ(0, num_tasks);
 
   // Ensure that we ran in far less time than the slower timer.
-  TimeDelta run_time = Time::Now() - start_time;
-  EXPECT_GT(5000, run_time.InMilliseconds());
+  TimeDelta total_time = Time::Now() - start_time;
+  EXPECT_GT(5000, total_time.InMilliseconds());
   
   // In case both timers somehow run at nearly the same time, sleep a little
   // and then run all pending to force them both to have run.  This is just
@@ -376,8 +376,8 @@ void RunTest_PostDelayedTask_SharedTimer_SubPump() {
   EXPECT_EQ(1, num_tasks);
 
   // Ensure that we ran in far less time than the slower timer.
-  TimeDelta run_time = Time::Now() - start_time;
-  EXPECT_GT(5000, run_time.InMilliseconds());
+  TimeDelta total_time = Time::Now() - start_time;
+  EXPECT_GT(5000, total_time.InMilliseconds());
 
   // In case both timers somehow run at nearly the same time, sleep a little
   // and then run all pending to force them both to have run.  This is just
