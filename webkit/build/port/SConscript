@@ -7,7 +7,7 @@ import re
 
 Import('env')
 
-webcore = env.Dir('$WEBKIT_DIR/WebCore')
+webcore = env.Dir('#../third_party/WebKit/WebCore')
 webcore_posix = webcore.abspath.replace('\\', '/')
 
 cygwin = env.Dir('$CYGWIN_DIR/bin')
@@ -21,6 +21,7 @@ bindings_output_dir = env.Dir('#/../webkit/$BUILD_TYPE/scons/V8Bindings')
 
 env = env.Clone(
     WEBCORE = webcore,
+    PENDING = pending,
     PORTROOT = portroot,
     WEBKIT_BUILD = webkit_build,
 
@@ -51,12 +52,17 @@ env = env.Clone(
     ],
 
     BINDINGS_INCLUDE_PATH = [
+        '$PENDING',
+        '$PORTROOT/dom',
+        '$PORTROOT/html',
+        '$PORTROOT/page',
+        '$PORTROOT/xml',
+        '$WEBCORE/svg',
         '$WEBCORE/dom',
         '$WEBCORE/html',
         '$WEBCORE/css',
         '$WEBCORE/page',
         '$WEBCORE/xml',
-        '$WEBCORE/svg',
     ],
     BINDINGS_INCLUDE_FLAG = '--include ',
     BINDINGS_INCLUDE_SUFFIX = '',
@@ -98,12 +104,9 @@ env.Append(
 )
 
 env.Replace(
-    # TODO(bradnelson): don't have the path change here!!!
     # TODO(bradnelson): fix ugly hack with one include!
     BINDINGSCOM = '$PERL $_PERL_INCLUDE_FLAGS ' + \
                   '${SOURCES[1]} ' + \
-                  '--include ../webkit/port/dom ' + \
-                  '--include ../third_party/WebKit/WebCore/svg ' + \
                   '--defines "$FEATURE_DEFINES $BINDINGS_LANGUAGE" ' + \
                   '--generator $BINDINGS_GENERATOR_ARG ' + \
                   '$_BINDINGS_INCLUDE_FLAGS ' + \
@@ -126,12 +129,6 @@ elif True:
   env['BINDINGS_GENERATOR_ARG'] = 'V8'
   env['BINDINGS_LANGUAGE'] = 'LANGUAGE_JAVASCRIPT V8_BINDING'
   env.Prepend(PERL_INCLUDE_PATH = [ '$PORTROOT/bindings/scripts' ])
-  env.Prepend(BINDINGS_INCLUDE_PATH = [
-                '$PORTROOT/dom',
-                '$PORTROOT/html',
-                '$PORTROOT/page',
-                '$PORTROOT/xml',
-              ])
 else:
   print 'I am not going to generate bindings for you!'
 
