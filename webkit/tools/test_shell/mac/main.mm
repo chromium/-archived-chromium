@@ -14,6 +14,7 @@
 #include "base/file_util.h"
 #include "base/icu_util.h"
 #include "base/memory_debug.h"
+#include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "webkit/glue/webkit_glue.h"
@@ -49,6 +50,10 @@ int main(const int argc, const char *argv[]) {
   base::AtExitManager at_exit_manager;  
 
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
+  // Allocate a message loop for this thread.  Although it is not used
+  // directly, its constructor sets up some necessary state.
+  MessageLoop main_message_loop(MessageLoop::TYPE_UI);
 
   // Force AppKit to init itself, but don't start the runloop yet
   [NSApplication sharedApplication];
@@ -236,9 +241,7 @@ int main(const int argc, const char *argv[]) {
         TestShell::RunFileTest(WideToUTF8(uri).c_str(), params);
       }
     } else {
-      // we've done our own command line parsing, so tell AppKit that we just
-      // have the program name.
-      [NSApp run];
+      main_message_loop.Run();
     }
 
 #ifdef NOTYET
