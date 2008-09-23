@@ -39,6 +39,7 @@
 				7BF8964C0E75D705000BAF8A /* PBXTargetDependency */,
 				7BF895DA0E75D5FB000BAF8A /* PBXTargetDependency */,
 				7BF8964E0E75D705000BAF8A /* PBXTargetDependency */,
+				7BA354A70E8978650023C8B9 /* PBXTargetDependency */,
 				7BF895DE0E75D5FB000BAF8A /* PBXTargetDependency */,
 				7BF895D60E75D5FB000BAF8A /* PBXTargetDependency */,
 				7BF896440E75D705000BAF8A /* PBXTargetDependency */,
@@ -97,6 +98,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 7B8500190E5A2F6400730B43;
 			remoteInfo = run_googleurl_unittests;
+		};
+		7BA354A40E89784F0023C8B9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7BA3548E0E89784F0023C8B9 /* TestShell.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E456293E0E26B4FE005E4685 /* TestShell.app */;
+			remoteInfo = TestShell;
+		};
+		7BA354A60E8978650023C8B9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7BA3548E0E89784F0023C8B9 /* TestShell.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = E45628C30E26B4FE005E4685 /* TestShell */;
+			remoteInfo = TestShell;
 		};
 		7BE0EE090E75DAEC002F5776 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -445,6 +460,7 @@
 
 /* Begin PBXFileReference section */
 		7B262FE50E82F18D001CE27F /* libevent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libevent.xcodeproj; path = libevent/libevent.xcodeproj; sourceTree = "<group>"; };
+		7BA3548E0E89784F0023C8B9 /* TestShell.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TestShell.xcodeproj; path = webkit/tools/test_shell/mac/TestShell.xcodeproj; sourceTree = "<group>"; };
 		7BF895500E75D568000BAF8A /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
 		7BF895510E75D568000BAF8A /* debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = debug.xcconfig; sourceTree = "<group>"; };
 		7BF895520E75D568000BAF8A /* executable.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = executable.xcconfig; sourceTree = "<group>"; };
@@ -472,6 +488,14 @@
 			isa = PBXGroup;
 			children = (
 				7B262FED0E82F18D001CE27F /* libevent.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7BA3548F0E89784F0023C8B9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7BA354A50E89784F0023C8B9 /* TestShell.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -513,6 +537,7 @@
 				7BF896510E75D753000BAF8A /* gtest.xcodeproj */,
 				7BF8957F0E75D5C6000BAF8A /* net.xcodeproj */,
 				7BF895E20E75D628000BAF8A /* skia.xcodeproj */,
+				7BA3548E0E89784F0023C8B9 /* TestShell.xcodeproj */,
 				7BF895A30E75D5DA000BAF8A /* v8.xcodeproj */,
 				7BF895BB0E75D5E5000BAF8A /* webkit.xcodeproj */,
 			);
@@ -733,6 +758,10 @@
 					ProjectRef = 7BF895E20E75D628000BAF8A /* skia.xcodeproj */;
 				},
 				{
+					ProductGroup = 7BA3548F0E89784F0023C8B9 /* Products */;
+					ProjectRef = 7BA3548E0E89784F0023C8B9 /* TestShell.xcodeproj */;
+				},
+				{
 					ProductGroup = 7BF895A40E75D5DA000BAF8A /* Products */;
 					ProjectRef = 7BF895A30E75D5DA000BAF8A /* v8.xcodeproj */;
 				},
@@ -773,6 +802,13 @@
 			fileType = archive.ar;
 			path = libevent.a;
 			remoteRef = 7B262FEC0E82F18D001CE27F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		7BA354A50E89784F0023C8B9 /* TestShell.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = TestShell.app;
+			remoteRef = 7BA354A40E89784F0023C8B9 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		7BE0EE0A0E75DAEC002F5776 /* liblzma_sdk.a */ = {
@@ -1035,6 +1071,11 @@
 			isa = PBXTargetDependency;
 			name = run_googleurl_unittests;
 			targetProxy = 7B82FA710E75DD23008F45CF /* PBXContainerItemProxy */;
+		};
+		7BA354A70E8978650023C8B9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = TestShell;
+			targetProxy = 7BA354A60E8978650023C8B9 /* PBXContainerItemProxy */;
 		};
 		7BE0EE280E75DAFC002F5776 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
