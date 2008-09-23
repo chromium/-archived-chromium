@@ -7,7 +7,9 @@
 #include "base/logging.h"
 #include "net/base/client_socket_factory.h"
 #include "net/http/http_network_session.h"
+#if !defined(OS_MACOSX)
 #include "net/http/http_network_transaction.h"
+#endif
 #include "net/proxy/proxy_resolver_fixed.h"
 #if defined(OS_WIN)
 #include "net/http/http_transaction_winhttp.h"
@@ -66,8 +68,15 @@ HttpTransaction* HttpNetworkLayer::CreateTransaction() {
   if (suspended_)
     return NULL;
 
+#if !defined(OS_MACOSX)
   return new HttpNetworkTransaction(
       session_, ClientSocketFactory::GetDefaultFactory());
+#else
+// TODO(pinkerton): Stubbing out to get TestShell to link. We'll bring this
+// back in once we get more of the net pipeline worked out.
+  NOTIMPLEMENTED();
+  return NULL;
+#endif
 }
 
 HttpCache* HttpNetworkLayer::GetCache() {
