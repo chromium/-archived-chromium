@@ -29,7 +29,7 @@ namespace net {
 // must not be in progress at the same time.
 class TCPClientSocket : public ClientSocket,
 #if defined(OS_WIN)
-                        public base::ObjectWatcher::Delegate 
+                        public base::ObjectWatcher::Delegate
 #elif defined(OS_POSIX)
                         public base::MessagePumpLibevent::Watcher
 #endif
@@ -49,13 +49,8 @@ class TCPClientSocket : public ClientSocket,
   virtual bool IsConnected() const;
 
   // Socket methods:
-  // Try to transfer buf_len bytes to/from socket.
-  // If a result is available now, return it; else call back later with one.
-  // Do not call again until a result is returned!
-  // If any bytes were transferred, the result is the byte count.
-  // On error, result is a negative error code; see net/base/net_error_list.h 
-  // TODO: what would a zero return value indicate?
-  // TODO: support multiple outstanding requests?
+  // Multiple outstanding requests are not supported.  In particular, full
+  // duplex mode (reading and writing at the same time) is not supported.
   virtual int Read(char* buf, int buf_len, CompletionCallback* callback);
   virtual int Write(const char* buf, int buf_len, CompletionCallback* callback);
 

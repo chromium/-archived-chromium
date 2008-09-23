@@ -280,7 +280,6 @@ class MessageLoop : public base::MessagePump::Delegate {
   base::MessagePumpLibevent* pump_libevent() {
     return static_cast<base::MessagePumpLibevent*>(pump_.get());
   }
- protected:
 #endif
 
   // A function to encapsulate all the exception handling capability in the

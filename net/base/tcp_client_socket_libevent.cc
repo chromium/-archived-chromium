@@ -18,13 +18,12 @@ namespace net {
 
 const int kInvalidSocket = -1;
 
-// Return 0 on success
+// Return 0 on success, -1 on failure.
 // Too small a function to bother putting in a library?
-static int SetNonBlocking(int fd)
-{
+static int SetNonBlocking(int fd) {
     int flags = fcntl(fd, F_GETFL, 0);
     if (-1 == flags)
-      flags = 0;
+      return flags;
     return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
 
@@ -32,10 +31,32 @@ static int SetNonBlocking(int fd)
 static int MapPosixError(int err) {
   // There are numerous posix error codes, but these are the ones we thus far
   // find interesting.
-  // TODO(port): fill this with a real conversion table
   switch (err) {
-    case EWOULDBLOCK: return ERR_IO_PENDING;
+    case EAGAIN:
+#if EWOULDBLOCK != EAGAIN
+    case EWOULDBLOCK:
+#endif
+      return ERR_IO_PENDING;
+    case ENETDOWN:
+      return ERR_INTERNET_DISCONNECTED;
+    case ETIMEDOUT:
+      return ERR_TIMED_OUT;
+    case ECONNRESET:
+    case ENETRESET:  // Related to keep-alive
+      return ERR_CONNECTION_RESET;
+    case ECONNABORTED:
+      return ERR_CONNECTION_ABORTED;
+    case ECONNREFUSED:
+      return ERR_CONNECTION_REFUSED;
+    case EHOSTUNREACH:
+    case ENETUNREACH:
+      return ERR_ADDRESS_UNREACHABLE;
+    case EADDRNOTAVAIL:
+      return ERR_ADDRESS_INVALID;
+    case 0:
+      return OK;
     default:
+      LOG(WARNING) << "Unknown error " << err << " mapped to net::ERR_FAILED";
       return ERR_FAILED;
   }
 }
@@ -55,7 +76,6 @@ TCPClientSocket::~TCPClientSocket() {
 }
 
 int TCPClientSocket::Connect(CompletionCallback* callback) {
-
   // If already connected, then just return OK.
   if (socket_ != kInvalidSocket)
     return OK;
@@ -77,7 +97,7 @@ int TCPClientSocket::Connect(CompletionCallback* callback) {
   // Synchronous operation not supported
   DCHECK(callback);
 
-  if (errno != EINPROGRESS && errno != EWOULDBLOCK) {
+  if (errno != EINPROGRESS) {
     LOG(ERROR) << "connect failed: " << errno;
     return MapPosixError(errno);
   }
@@ -96,7 +116,7 @@ int TCPClientSocket::Connect(CompletionCallback* callback) {
 
 int TCPClientSocket::ReconnectIgnoringLastError(CompletionCallback* callback) {
   // No ignorable errors!
-  return ERR_FAILED;
+  return ERR_UNEXPECTED;
 }
 
 void TCPClientSocket::Disconnect() {
@@ -120,6 +140,8 @@ bool TCPClientSocket::IsConnected() const {
   int rv = recv(socket_, &c, 1, MSG_PEEK);
   if (rv == 0)
     return false;
+  if (rv == -1 && errno != EAGAIN && errno != EWOULDBLOCK)
+    return false;
 
   return true;
 }
@@ -135,10 +157,10 @@ int TCPClientSocket::Read(char* buf,
   DCHECK(buf_len > 0);
 
   int nread = read(socket_, buf, buf_len);
-  if (nread > 0) {
+  if (nread >= 0) {
     return nread;
   }
-  if (nread == -1 && errno != EWOULDBLOCK)
+  if (errno != EAGAIN && errno != EWOULDBLOCK)
     return MapPosixError(errno);
 
   MessageLoopForIO::current()->WatchSocket(
@@ -162,10 +184,10 @@ int TCPClientSocket::Write(const char* buf,
   DCHECK(buf_len > 0);
 
   int nwrite = write(socket_, buf, buf_len);
-  if (nwrite > 0) {
+  if (nwrite >= 0) {
     return nwrite;
   }
-  if (nwrite == -1 && errno != EWOULDBLOCK)
+  if (errno != EAGAIN && errno != EWOULDBLOCK)
     return MapPosixError(errno);
 
   MessageLoopForIO::current()->WatchSocket(
@@ -186,7 +208,7 @@ int TCPClientSocket::CreateSocket(const addrinfo* ai) {
   // All our socket I/O is nonblocking
   if (SetNonBlocking(socket_))
     return MapPosixError(errno);
-  
+
   return OK;
 }
 
@@ -206,14 +228,15 @@ void TCPClientSocket::DidCompleteConnect() {
   wait_state_ = NOT_WAITING;
 
   // Check to see if connect succeeded
-  int error_code = -1;
+  int error_code = 0;
   socklen_t len = sizeof(error_code);
-  if (getsockopt(socket_, SOL_SOCKET, SO_ERROR, 
-                 reinterpret_cast<char*>(&error_code), &len) < 0) {
-    result = MapPosixError(errno);
-  } else if (error_code == EINPROGRESS) {
+  if (getsockopt(socket_, SOL_SOCKET, SO_ERROR, &error_code, &len) < 0)
+    error_code = errno;
+
+  if (error_code == EINPROGRESS || error_code == EALREADY) {
+    NOTREACHED();  // This indicates a bug in libevent or our code.
     result = ERR_IO_PENDING;
-    // And await next callback.  Haven't seen this case yet myself.
+    wait_state_ = WAITING_CONNECT;  // And await next callback.
   } else if (current_ai_->ai_next && (
              error_code == EADDRNOTAVAIL ||
              error_code == EAFNOSUPPORT ||
@@ -221,15 +244,13 @@ void TCPClientSocket::DidCompleteConnect() {
              error_code == ENETUNREACH ||
              error_code == EHOSTUNREACH ||
              error_code == ETIMEDOUT)) {
-    // This address failed, try next one in list.  
+    // This address failed, try next one in list.
     const addrinfo* next = current_ai_->ai_next;
     Disconnect();
     current_ai_ = next;
     result = Connect(callback_);
-  } else if (error_code) {
-    result = MapPosixError(error_code);
   } else {
-    result = 0;
+    result = MapPosixError(error_code);
     MessageLoopForIO::current()->UnwatchSocket(event_.get());
   }
 
@@ -251,13 +272,8 @@ void TCPClientSocket::DidCompleteIO() {
   }
 
   int result;
-  if (bytes_transferred > 0) {
+  if (bytes_transferred >= 0) {
     result = bytes_transferred;
-  } else if (bytes_transferred == 0) {
-    // TODO(port): can we tell why it closed, and return a more informative 
-    // message?  And why does the unit test want to see zero?
-    //result = ERR_CONNECTION_CLOSED;
-    result = 0;
   } else {
     result = MapPosixError(errno);
   }
