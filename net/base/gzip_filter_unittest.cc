@@ -182,7 +182,7 @@ class GZipUnitTest : public PlatformTest {
       while (1) {
         int decode_data_len = std::min(decode_avail_size, output_buffer_size);
 
-        code = filter->ReadFilteredData(decode_next, &decode_data_len);
+        code = filter->ReadData(decode_next, &decode_data_len);
         decode_next += decode_data_len;
         decode_avail_size -= decode_data_len;
 
@@ -210,7 +210,7 @@ class GZipUnitTest : public PlatformTest {
                           char* dest, int* dest_len) {
     memcpy(filter->stream_buffer(), source, source_len);
     filter->FlushStreamBuffer(source_len);
-    return filter->ReadFilteredData(dest, dest_len);
+    return filter->ReadData(dest, dest_len);
   }
 
   const char* source_buffer() const { return source_buffer_.data(); }
@@ -228,15 +228,17 @@ class GZipUnitTest : public PlatformTest {
 // Basic scenario: decoding deflate data with big enough buffer.
 TEST_F(GZipUnitTest, DecodeDeflate) {
   // Decode the compressed data with filter
+  std::vector<std::string> filters;
+  filters.push_back("deflate");
   scoped_ptr<Filter> filter(
-      Filter::Factory("deflate", kApplicationOctetStream, kDefaultBufferSize));
+    Filter::Factory(filters, kApplicationOctetStream, kDefaultBufferSize));
   ASSERT_TRUE(filter.get());
   memcpy(filter->stream_buffer(), deflate_encode_buffer_, deflate_encode_len_);
   filter->FlushStreamBuffer(deflate_encode_len_);
 
   char deflate_decode_buffer[kDefaultBufferSize];
   int deflate_decode_size = kDefaultBufferSize;
-  filter->ReadFilteredData(deflate_decode_buffer, &deflate_decode_size);
+  filter->ReadData(deflate_decode_buffer, &deflate_decode_size);
 
   // Compare the decoding result with source data
   EXPECT_TRUE(deflate_decode_size == source_len());
@@ -246,15 +248,17 @@ TEST_F(GZipUnitTest, DecodeDeflate) {
 // Basic scenario: decoding gzip data with big enough buffer.
 TEST_F(GZipUnitTest, DecodeGZip) {
   // Decode the compressed data with filter
+  std::vector<std::string> filters;
+  filters.push_back("gzip");
   scoped_ptr<Filter> filter(
-      Filter::Factory("gzip", kApplicationOctetStream, kDefaultBufferSize));
+      Filter::Factory(filters, kApplicationOctetStream, kDefaultBufferSize));
   ASSERT_TRUE(filter.get());
   memcpy(filter->stream_buffer(), gzip_encode_buffer_, gzip_encode_len_);
   filter->FlushStreamBuffer(gzip_encode_len_);
 
   char gzip_decode_buffer[kDefaultBufferSize];
   int gzip_decode_size = kDefaultBufferSize;
-  filter->ReadFilteredData(gzip_decode_buffer, &gzip_decode_size);
+  filter->ReadData(gzip_decode_buffer, &gzip_decode_size);
 
   // Compare the decoding result with source data
   EXPECT_TRUE(gzip_decode_size == source_len());
@@ -265,8 +269,10 @@ TEST_F(GZipUnitTest, DecodeGZip) {
 // To do that, we create a filter with a small buffer that can not hold all
 // the input data.
 TEST_F(GZipUnitTest, DecodeWithSmallBuffer) {
+  std::vector<std::string> filters;
+  filters.push_back("deflate");
   scoped_ptr<Filter> filter(
-      Filter::Factory("deflate", kApplicationOctetStream, kSmallBufferSize));
+      Filter::Factory(filters, kApplicationOctetStream, kSmallBufferSize));
   ASSERT_TRUE(filter.get());
   DecodeAndCompareWithFilter(filter.get(), source_buffer(), source_len(),
                              deflate_encode_buffer_, deflate_encode_len_,
@@ -278,8 +284,10 @@ TEST_F(GZipUnitTest, DecodeWithSmallBuffer) {
 // header correctly. (2) Sometimes the filter will consume input without
 // generating output. Verify filter can handle it correctly.
 TEST_F(GZipUnitTest, DecodeWithOneByteBuffer) {
+  std::vector<std::string> filters;
+  filters.push_back("gzip");
   scoped_ptr<Filter> filter(
-      Filter::Factory("gzip", kApplicationOctetStream, 1));
+      Filter::Factory(filters, kApplicationOctetStream, 1));
   ASSERT_TRUE(filter.get());
   DecodeAndCompareWithFilter(filter.get(), source_buffer(), source_len(),
                              gzip_encode_buffer_, gzip_encode_len_,
@@ -288,8 +296,10 @@ TEST_F(GZipUnitTest, DecodeWithOneByteBuffer) {
 
 // Tests we can decode when caller has small buffer to read out from filter.
 TEST_F(GZipUnitTest, DecodeWithSmallOutputBuffer) {
+  std::vector<std::string> filters;
+  filters.push_back("deflate");
   scoped_ptr<Filter> filter(
-      Filter::Factory("deflate", kApplicationOctetStream, kDefaultBufferSize));
+      Filter::Factory(filters, kApplicationOctetStream, kDefaultBufferSize));
   ASSERT_TRUE(filter.get());
   DecodeAndCompareWithFilter(filter.get(), source_buffer(), source_len(),
                              deflate_encode_buffer_, deflate_encode_len_,
@@ -299,8 +309,10 @@ TEST_F(GZipUnitTest, DecodeWithSmallOutputBuffer) {
 // Tests we can still decode with just 1 byte buffer in the filter and just 1
 // byte buffer in the caller.
 TEST_F(GZipUnitTest, DecodeWithOneByteInputAndOutputBuffer) {
+  std::vector<std::string> filters;
+  filters.push_back("gzip");
   scoped_ptr<Filter> filter(
-      Filter::Factory("gzip", kApplicationOctetStream, 1));
+      Filter::Factory(filters, kApplicationOctetStream, 1));
   ASSERT_TRUE(filter.get());
   DecodeAndCompareWithFilter(filter.get(), source_buffer(), source_len(),
                              gzip_encode_buffer_, gzip_encode_len_, 1);
@@ -316,8 +328,10 @@ TEST_F(GZipUnitTest, DecodeCorruptedData) {
   corrupt_data[pos] = !corrupt_data[pos];
 
   // Decode the corrupted data with filter
+  std::vector<std::string> filters;
+  filters.push_back("deflate");
   scoped_ptr<Filter> filter(
-      Filter::Factory("deflate", kApplicationOctetStream, kDefaultBufferSize));
+      Filter::Factory(filters, kApplicationOctetStream, kDefaultBufferSize));
   ASSERT_TRUE(filter.get());
   char corrupt_decode_buffer[kDefaultBufferSize];
   int corrupt_decode_size = kDefaultBufferSize;
@@ -341,8 +355,10 @@ TEST_F(GZipUnitTest, DecodeMissingData) {
   --corrupt_data_len;
 
   // Decode the corrupted data with filter
+  std::vector<std::string> filters;
+  filters.push_back("deflate");
   scoped_ptr<Filter> filter(
-      Filter::Factory("deflate", kApplicationOctetStream, kDefaultBufferSize));
+      Filter::Factory(filters, kApplicationOctetStream, kDefaultBufferSize));
   ASSERT_TRUE(filter.get());
   char corrupt_decode_buffer[kDefaultBufferSize];
   int corrupt_decode_size = kDefaultBufferSize;
@@ -363,8 +379,10 @@ TEST_F(GZipUnitTest, DecodeCorruptedHeader) {
   corrupt_data[2] = !corrupt_data[2];
 
   // Decode the corrupted data with filter
+  std::vector<std::string> filters;
+  filters.push_back("gzip");
   scoped_ptr<Filter> filter(
-      Filter::Factory("gzip", kApplicationOctetStream, kDefaultBufferSize));
+      Filter::Factory(filters, kApplicationOctetStream, kDefaultBufferSize));
   ASSERT_TRUE(filter.get());
   char corrupt_decode_buffer[kDefaultBufferSize];
   int corrupt_decode_size = kDefaultBufferSize;
@@ -380,18 +398,23 @@ TEST_F(GZipUnitTest, ApacheWorkaround) {
   const int kBufferSize = kDefaultBufferSize;  // To fit in 80 cols.
   scoped_ptr<Filter> filter;
 
-  filter.reset(Filter::Factory("gzip", kApplicationXGzip, kBufferSize));
+  std::vector<std::string> gzip_filters, x_gzip_filters;
+  gzip_filters.push_back("gzip");
+  x_gzip_filters.push_back("x-gzip");
+
+  filter.reset(Filter::Factory(gzip_filters, kApplicationXGzip, kBufferSize));
   EXPECT_FALSE(filter.get());
-  filter.reset(Filter::Factory("gzip", kApplicationGzip, kBufferSize));
+  filter.reset(Filter::Factory(gzip_filters, kApplicationGzip, kBufferSize));
   EXPECT_FALSE(filter.get());
-  filter.reset(Filter::Factory("gzip", kApplicationXGunzip, kBufferSize));
+  filter.reset(Filter::Factory(gzip_filters, kApplicationXGunzip, kBufferSize));
   EXPECT_FALSE(filter.get());
 
-  filter.reset(Filter::Factory("x-gzip", kApplicationXGzip, kBufferSize));
+  filter.reset(Filter::Factory(x_gzip_filters, kApplicationXGzip, kBufferSize));
   EXPECT_FALSE(filter.get());
-  filter.reset(Filter::Factory("x-gzip", kApplicationGzip, kBufferSize));
+  filter.reset(Filter::Factory(x_gzip_filters, kApplicationGzip, kBufferSize));
   EXPECT_FALSE(filter.get());
-  filter.reset(Filter::Factory("x-gzip", kApplicationXGunzip, kBufferSize));
+  filter.reset(Filter::Factory(x_gzip_filters, kApplicationXGunzip,
+                               kBufferSize));
   EXPECT_FALSE(filter.get());
 }
 

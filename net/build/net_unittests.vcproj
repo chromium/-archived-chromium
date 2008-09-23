@@ -343,6 +343,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\base\sdch_filter_unitest.cc"
+					>
+				</File>
+				<File
 					RelativePath="..\base\ssl_client_socket_unittest.cc"
 					>
 				</File>

@@ -317,5 +317,12 @@ const wchar_t kJavaScriptDebuggerPath[] = L"javascript-debugger-path";
 
 const wchar_t kEnableP13n[] = L"enable-p13n";
 
+// Enable support for SDCH filtering (dictionary based expansion of content).
+// Optional argument is *the* only domain name that will have SDCH suppport.
+// Default is  "-enable-sdch" to advertise SDCH on all domains.
+// Sample usage with argument: "-enable-sdch=.google.com"
+// SDCH is currently only supported server-side for searches on google.com.
+const wchar_t kSdchFilter[] = L"enable-sdch";
+
 }  // namespace switches
 

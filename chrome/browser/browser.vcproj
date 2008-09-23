@@ -1861,6 +1861,14 @@
 				RelativePath=".\net\dns_slave.h"
 				>
 			</File>
+			<File
+				RelativePath=".\net\sdch_dictionary_fetcher.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\net\sdch_dictionary_fetcher.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="RLZ"
