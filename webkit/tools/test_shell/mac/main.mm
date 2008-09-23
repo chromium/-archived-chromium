@@ -58,6 +58,7 @@ int main(const int argc, const char *argv[]) {
   // the windows version, so that we can run the same test scripts. stop
   // if we hit something that's not a switch (like, oh, a URL).
 
+  CommandLine::SetArgcArgv(argc, argv);
   CommandLine parsed_command_line(argc, argv);
 
   if (parsed_command_line.HasSwitch(test_shell::kStartupDialog)) {
