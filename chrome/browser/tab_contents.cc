@@ -446,7 +446,11 @@ void TabContents::RestoreFocus() {
   } else {
     ChromeViews::FocusManager* focus_manager =
         ChromeViews::FocusManager::GetFocusManager(GetContainerHWND());
-    if (focus_manager->ContainsView(last_focused_view)) {
+
+    // If you hit this DCHECK, please report it to Jay (jcampan).
+    DCHECK(focus_manager != NULL) << "No focus manager when restoring focus.";
+
+    if (focus_manager && focus_manager->ContainsView(last_focused_view)) {
       last_focused_view->RequestFocus();
     } else {
       // The focused view may not belong to the same window hierarchy (for
