@@ -130,6 +130,8 @@
 		82ECB3090E5B651D00A913E3 /* mime_sniffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32AD0E5A181C00A747DB /* mime_sniffer.cc */; };
 		B5F622260E805FC40076681A /* url_request_job_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33A30E5A198600A747DB /* url_request_job_manager.cc */; };
 		BAA46E3B0E5CE99A00E77460 /* net_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED329F0E5A181C00A747DB /* net_util_unittest.cc */; };
+		E47E933F0E8924DC00CA613E /* tcp_client_socket_libevent.cc in Sources */ = {isa = PBXBuildFile; fileRef = E47E933E0E8924DC00CA613E /* tcp_client_socket_libevent.cc */; };
+		E47E93430E8924EE00CA613E /* tcp_client_socket_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED328E0E5A181C00A747DB /* tcp_client_socket_unittest.cc */; };
 		E4AFA6430E5241B400201347 /* run_all_unittests.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4AFA6420E5241B400201347 /* run_all_unittests.cc */; };
 /* End PBXBuildFile section */
 
@@ -419,7 +421,6 @@
 		7BED328D0E5A181C00A747DB /* telnet_server.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = telnet_server.cc; sourceTree = "<group>"; };
 		7BED328E0E5A181C00A747DB /* tcp_client_socket_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tcp_client_socket_unittest.cc; sourceTree = "<group>"; };
 		7BED328F0E5A181C00A747DB /* tcp_client_socket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tcp_client_socket.h; sourceTree = "<group>"; };
-		7BED32900E5A181C00A747DB /* tcp_client_socket.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tcp_client_socket.cc; sourceTree = "<group>"; };
 		7BED32910E5A181C00A747DB /* ssl_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ssl_info.h; sourceTree = "<group>"; };
 		7BED32920E5A181C00A747DB /* ssl_config_service_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ssl_config_service_unittest.cc; sourceTree = "<group>"; };
 		7BED32930E5A181C00A747DB /* ssl_config_service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ssl_config_service.h; sourceTree = "<group>"; };
@@ -588,6 +589,7 @@
 		8200F2020E5F741E005A3C44 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
 		82113A1C0E8434EE00E3848F /* x509_certificate_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = x509_certificate_unittest.cc; sourceTree = "<group>"; };
 		82113A270E84360200E3848F /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
+		E47E933E0E8924DC00CA613E /* tcp_client_socket_libevent.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tcp_client_socket_libevent.cc; sourceTree = "<group>"; };
 		E4AFA6230E523E2900201347 /* net_unittests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = net_unittests; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4AFA62E0E5240A300201347 /* gtest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gtest.xcodeproj; path = testing/gtest.xcodeproj; sourceTree = "<group>"; };
 		E4AFA6420E5241B400201347 /* run_all_unittests.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = run_all_unittests.cc; sourceTree = "<group>"; };
@@ -856,8 +858,8 @@
 				7BED32930E5A181C00A747DB /* ssl_config_service.h */,
 				7BED32920E5A181C00A747DB /* ssl_config_service_unittest.cc */,
 				7BED32910E5A181C00A747DB /* ssl_info.h */,
-				7BED32900E5A181C00A747DB /* tcp_client_socket.cc */,
 				7BED328F0E5A181C00A747DB /* tcp_client_socket.h */,
+				E47E933E0E8924DC00CA613E /* tcp_client_socket_libevent.cc */,
 				7BED328E0E5A181C00A747DB /* tcp_client_socket_unittest.cc */,
 				7BED328D0E5A181C00A747DB /* telnet_server.cc */,
 				7BED328C0E5A181C00A747DB /* telnet_server.h */,
@@ -1316,6 +1318,7 @@
 				7B85043D0E5B2E6400730B43 /* rankings.cc in Sources */,
 				7B8B5B560E5CEADE002F9A97 /* registry_controlled_domain.cc in Sources */,
 				7B8504410E5B2E9600730B43 /* stats.cc in Sources */,
+				E47E933F0E8924DC00CA613E /* tcp_client_socket_libevent.cc in Sources */,
 				7B8504450E5B2E9600730B43 /* trace.cc in Sources */,
 				821F23670E5E0D2F003C7E38 /* upload_data.cc in Sources */,
 				821F23710E5E0F15003C7E38 /* url_request.cc in Sources */,
@@ -1361,6 +1364,7 @@
 				7B8B5B9E0E5D188E002F9A97 /* registry_controlled_domain_unittest.cc in Sources */,
 				E4AFA6430E5241B400201347 /* run_all_unittests.cc in Sources */,
 				7BD8F7110E65DCF500034DE9 /* storage_block_unittest.cc in Sources */,
+				E47E93430E8924EE00CA613E /* tcp_client_socket_unittest.cc in Sources */,
 				82113A1D0E8434EE00E3848F /* x509_certificate_unittest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

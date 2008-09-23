@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/platform_test.h"
 #include "net/base/address_list.h"
 #include "net/base/host_resolver.h"
 #include "net/base/net_errors.h"
@@ -9,16 +10,9 @@
 #include "net/base/test_completion_callback.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-//-----------------------------------------------------------------------------
-
-namespace {
-
-class TCPClientSocketTest : public testing::Test {
+class TCPClientSocketTest : public PlatformTest {
 };
 
-}  // namespace
-
-//-----------------------------------------------------------------------------
 
 TEST_F(TCPClientSocketTest, Connect) {
   net::AddressList addr;
@@ -168,4 +162,3 @@ TEST_F(TCPClientSocketTest, Read_Interrupted) {
 
   EXPECT_NE(rv, 0);
 }
-
