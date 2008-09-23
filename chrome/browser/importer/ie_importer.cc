@@ -451,12 +451,6 @@ bool IEImporter::GetFavoritesInfo(IEImporter::FavoritesInfo *info) {
     info->links_folder = L"Links";
   }
 
-  // Gets the creation time of the user's profile folder.
-  if (FAILED(SHGetFolderPath(NULL, CSIDL_PROFILE, NULL,
-                             SHGFP_TYPE_CURRENT, buffer)))
-    return false;
-  info->profile_creation_time = GetFileCreationTime(buffer);
-
   return true;
 }
 
@@ -481,15 +475,6 @@ void IEImporter::ParseFavoritesFolder(const FavoritesInfo& info,
     if (!LowerCaseEqualsASCII(extension, "url"))
       continue;
 
-    // We don't import default bookmarks from IE, e.g. "Customize links",
-    // "Free Hotmail". To detect these, we compare the creation time of the
-    // .url file with that of the profile folder. The file's creation time
-    // should be 2 minute later (to allow jitter).
-    Time creation = GetFileCreationTime(*it);
-    if (info.profile_creation_time != Time() &&
-        creation - info.profile_creation_time <= TimeDelta::FromMinutes(2))
-      continue;
-
     // Skip the bookmark with invalid URL.
     GURL url = GURL(ResolveInternetShortcut(*it));
     if (!url.is_valid())
@@ -503,7 +488,7 @@ void IEImporter::ParseFavoritesFolder(const FavoritesInfo& info,
     ProfileWriter::BookmarkEntry entry;
     entry.title = filename.substr(0, filename.size() - (extension.size() + 1));
     entry.url = url;
-    entry.creation_time = creation;
+    entry.creation_time = GetFileCreationTime(*it);
     if (!relative_path.empty())
       SplitString(relative_path, file_util::kPathSeparator, &entry.path);
 

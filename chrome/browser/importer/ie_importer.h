@@ -46,8 +46,6 @@ class IEImporter : public Importer {
   struct FavoritesInfo {
     std::wstring path;
     std::wstring links_folder;
-    // The creation time of the user's profile folder.
-    Time profile_creation_time;
   };
   typedef std::vector<ProfileWriter::BookmarkEntry> BookmarkVector;
 
