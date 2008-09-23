@@ -341,6 +341,22 @@ TEST(ProxyServiceTest, ProxyBypassList) {
   rv = service4.ResolveProxy(test_url4, &info4, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info4.is_direct());
+
+  resolver.config->proxy_bypass = "<local>;*.MSN.COM;";
+  net::ProxyService service5(&resolver);
+  GURL test_url5("http://www.msnbc.msn.com");
+  net::ProxyInfo info5;
+  rv = service5.ResolveProxy(test_url5, &info5, NULL, NULL);
+  EXPECT_EQ(rv, net::OK);
+  EXPECT_TRUE(info5.is_direct());
+
+  resolver.config->proxy_bypass = "<local>;*.msn.com;";
+  net::ProxyService service6(&resolver);
+  GURL test_url6("HTTP://WWW.MSNBC.MSN.COM");
+  net::ProxyInfo info6;
+  rv = service6.ResolveProxy(test_url6, &info6, NULL, NULL);
+  EXPECT_EQ(rv, net::OK);
+  EXPECT_TRUE(info6.is_direct());
 }
 
 TEST(ProxyServiceTest, PerProtocolProxyTests) {

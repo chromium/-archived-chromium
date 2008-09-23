@@ -450,7 +450,7 @@ bool ProxyService::ShouldBypassProxyForURL(const GURL& url) {
     url_domain += "://";
 
   url_domain += url.host();
-  StringToLowerASCII(url_domain);
+  StringToLowerASCII(&url_domain);
 
   StringTokenizer proxy_server_bypass_list(config_.proxy_bypass, ";");
   while (proxy_server_bypass_list.GetNext()) {
@@ -474,7 +474,7 @@ bool ProxyService::ShouldBypassProxyForURL(const GURL& url) {
       bypass_url_domain = bypass_url_domain_with_scheme;
     }
 
-    StringToLowerASCII(bypass_url_domain);
+    StringToLowerASCII(&bypass_url_domain);
 
     if (MatchPattern(url_domain, bypass_url_domain))
       return true;
