@@ -30,7 +30,7 @@
 
 
 //------------------------------------------------------------------------------
-// Create a public interface to help us load SDCH dictionaries.  
+// Create a public interface to help us load SDCH dictionaries.
 // The SdchManager class allows registration to support this interface.
 // A browser may register a fetcher that is used by the dictionary managers to
 // get data from a specified URL.  This allows us to use very high level browser
@@ -95,10 +95,6 @@ class SdchManager {
     // Compare domains to see if the "match" for dictionary use.
     static bool DomainMatch(const GURL& url, const std::string& restriction);
 
-    // Each dictionary payload consists of several headers, followed by the text
-    // of the dictionary.  The following are the known headers.
-    std::string domain_attribute_;
-    std::set<int> ports_;
 
     // The actual text of the dictionary.
     std::string text_;
@@ -112,10 +108,12 @@ class SdchManager {
     const GURL url_;
 
     // Metadate "headers" in before dictionary text contained the following:
+    // Each dictionary payload consists of several headers, followed by the text
+    // of the dictionary.  The following are the known headers.
     const std::string domain_;
     const std::string path_;
     const Time expiration_;  // Implied by max-age.
-    const std::set<int> ports;
+    const std::set<int> ports_;
 
     DISALLOW_COPY_AND_ASSIGN(Dictionary);
   };
@@ -137,7 +135,7 @@ class SdchManager {
     global_->supported_domain_ = domain;
     global_->sdch_enabled_ = true;
   }
-  
+
   const bool IsInSupportedDomain(const GURL& url) const;
 
   // Schedule the URL fetching to load a dictionary. This will generally return
@@ -160,7 +158,8 @@ class SdchManager {
   // Caller is responsible for AddRef()ing the dictionary, and Release()ing it
   // when done.
   // Return null in |dictionary| if there is no matching legal dictionary.
-  void GetVcdiffDictionary(const std::string& server_hash, const GURL& referring_url,
+  void GetVcdiffDictionary(const std::string& server_hash,
+                           const GURL& referring_url,
                            Dictionary** dictionary);
 
   // Get list of available (pre-cached) dictionaries that we have already loaded
