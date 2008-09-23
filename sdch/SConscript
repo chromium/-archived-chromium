@@ -1,0 +1,30 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone(OPEN_VCDIFF_DIR='open_vcdiff/depot/opensource/open-vcdiff')
+
+env.Prepend(
+  CPPPATH = [
+    '$OPEN_VCDIFF_DIR/src',
+    '$OPEN_VCDIFF_DIR/vsprojects',
+  ],
+)
+
+input_files = [
+    '$OPEN_VCDIFF_DIR/src/addrcache.cc',
+    '$OPEN_VCDIFF_DIR/src/adler32.c',
+    '$OPEN_VCDIFF_DIR/src/blockhash.cc',
+    '$OPEN_VCDIFF_DIR/src/codetable.cc',
+    '$OPEN_VCDIFF_DIR/src/decodetable.cc',
+    '$OPEN_VCDIFF_DIR/src/encodetable.cc',
+    '$OPEN_VCDIFF_DIR/src/headerparser.cc',
+    '$OPEN_VCDIFF_DIR/src/logging.cc',
+    '$OPEN_VCDIFF_DIR/src/varint_bigendian.cc',
+    '$OPEN_VCDIFF_DIR/src/vcdecoder.cc',
+    '$OPEN_VCDIFF_DIR/src/vcdiffengine.cc',
+]
+
+env.ChromeStaticLibrary('sdch', input_files)

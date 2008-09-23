@@ -13,6 +13,7 @@ env.Prepend(
         '$ZLIB_DIR',
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',
+        '$SDCH_DIR/open_vcdiff/depot/opensource/open-vcdiff/src',
         '..',
     ],
 )
@@ -85,6 +86,8 @@ if env['PLATFORM'] == 'win32':
       'base/directory_lister.cc',
       'base/dns_resolution_observer.cc',
       'base/listen_socket.cc',
+      'base/sdch_filter.cc',
+      'base/sdch_manager.cc',
       'base/ssl_client_socket.cc',
       'base/ssl_config_service.cc',
       'base/tcp_client_socket.cc',
@@ -109,11 +112,6 @@ if env['PLATFORM'] == 'win32':
   ])
 
 if env['PLATFORM'] == 'win32':
-  env.Append(
-      CCFLAGS = [
-          '/Wp64',
-      ],
-  )
   input_files.extend([
       'base/net_util_win.cc',
       'base/platform_mime_util_win.cc',
@@ -189,7 +187,6 @@ if env['PLATFORM'] == 'win32':
       CCFLAGS = [
           '/TP',
           '/WX',
-          '/Wp64',
       ],
       CPPDEFINES = [
           '_WIN32_WINNT=0x0600',
@@ -205,6 +202,9 @@ if env['PLATFORM'] == 'win32':
           '/dynamicbase',
           '/ignore:4199',
           '/nxcompat',
+      ],
+      LIBS =[
+        'sdch',
       ],
   )
 
@@ -250,6 +250,7 @@ unittest_files = [
 if env['PLATFORM'] == 'win32':
   unittest_files.extend([
       'base/directory_lister_unittest.cc',
+      'base/sdch_filter_unitest.cc',
       'base/ssl_config_service_unittest.cc',
       'base/ssl_client_socket_unittest.cc',
       'base/wininet_util_unittest.cc',

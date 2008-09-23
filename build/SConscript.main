@@ -51,6 +51,7 @@ env = Environment(
     NET_DIR               = '#/$BUILD_TYPE/net',
     RLZ_DIR               = '#/$BUILD_TYPE/rlz',
     SANDBOX_DIR           = '#/$BUILD_TYPE/sandbox',
+    SDCH_DIR              = '#/$BUILD_TYPE/sdch',
     SKIA_DIR              = '#/$BUILD_TYPE/skia',
     TESTING_DIR           = '#/$BUILD_TYPE/testing',
     THIRD_PARTY_DIR       = '#/$BUILD_TYPE/third_party',
@@ -477,6 +478,9 @@ if LoadComponent('rlz'):
 
 if LoadComponent('sandbox'):
   sconscripts.append('$SANDBOX_DIR/src/SConscript')
+
+if LoadComponent('sdch'):
+  sconscripts.append('$SDCH_DIR/SConscript')
 
 if LoadComponent('skia'):
   sconscripts.append('$SKIA_DIR/SConscript')
