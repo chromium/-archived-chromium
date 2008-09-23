@@ -12,7 +12,7 @@ namespace gfx {
 SkIRect CGRectToSkIRect(const CGRect& rect) {
   SkIRect sk_rect = {
     SkScalarRound(rect.origin.x),
-    SkScalarRound(rect.origin.x),
+    SkScalarRound(rect.origin.y),
     SkScalarRound(rect.origin.x + rect.size.width),
     SkScalarRound(rect.origin.y + rect.size.height)
   };
@@ -22,7 +22,7 @@ SkIRect CGRectToSkIRect(const CGRect& rect) {
 SkRect CGRectToSkRect(const CGRect& rect) {
   SkRect sk_rect = {
     rect.origin.x,
-    rect.origin.x,
+    rect.origin.y,
     rect.origin.x + rect.size.width,
     rect.origin.y + rect.size.height,
   };
