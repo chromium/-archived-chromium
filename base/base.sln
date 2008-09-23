@@ -21,7 +21,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "debug_message", "build\debu
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dependencies", "dependencies", "{F216062D-F9C4-4883-A52C-2BE9ECADEEA0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icuuc", "..\third_party\icu38\build\icuuc.vcproj", "{8C27D792-2648-4F5E-9ED0-374276327308}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icu", "..\third_party\icu38\build\icu.vcproj", "{8C27D792-2648-4F5E-9ED0-374276327308}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A0D94973-D355-47A5-A1E2-3456F321F010} = {A0D94973-D355-47A5-A1E2-3456F321F010}
 	EndProjectSection
