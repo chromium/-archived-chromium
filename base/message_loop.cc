@@ -384,9 +384,9 @@ bool MessageLoop::DoWork() {
       PendingTask pending_task = work_queue_.front();
       work_queue_.pop();
       if (!pending_task.delayed_run_time.is_null()) {
-        bool was_empty = delayed_work_queue_.empty();
         AddToDelayedWorkQueue(pending_task);
-        if (was_empty)  // We only schedule the next delayed work item.
+        // If we changed the topmost task, then it is time to re-schedule.
+        if (delayed_work_queue_.top().task == pending_task.task)
           pump_->ScheduleDelayedWork(pending_task.delayed_run_time);
       } else {
         if (DeferOrRunPendingTask(pending_task))

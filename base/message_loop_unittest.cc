@@ -290,6 +290,106 @@ void RunTest_PostDelayedTask_InPostOrder_3(MessageLoop::Type message_loop_type) 
   EXPECT_TRUE(run_time2 > run_time1);
 }
 
+void RunTest_PostDelayedTask_SharedTimer(MessageLoop::Type message_loop_type) {
+  MessageLoop loop(message_loop_type);
+
+  // Test that the interval of the timer, used to run the next delayed task, is
+  // set to a value corresponding to when the next delayed task should run.
+
+  // By setting num_tasks to 1, we ensure that the first task to run causes the
+  // run loop to exit.
+  int num_tasks = 1;
+  Time run_time1, run_time2;
+
+  loop.PostDelayedTask(
+      FROM_HERE, new RecordRunTimeTask(&run_time1, &num_tasks), 1000000);
+  loop.PostDelayedTask(
+      FROM_HERE, new RecordRunTimeTask(&run_time2, &num_tasks), 10);
+
+  Time start_time = Time::Now();
+
+  loop.Run();
+  EXPECT_EQ(0, num_tasks);
+
+  // Ensure that we ran in far less time than the slower timer.
+  TimeDelta run_time = Time::Now() - start_time;
+  EXPECT_GT(5000, run_time.InMilliseconds());
+  
+  // In case both timers somehow run at nearly the same time, sleep a little
+  // and then run all pending to force them both to have run.  This is just
+  // encouraging flakiness if there is any.
+  PlatformThread::Sleep(100);
+  loop.RunAllPending();
+
+  EXPECT_TRUE(run_time1.is_null());
+  EXPECT_FALSE(run_time2.is_null());
+}
+
+#if defined(OS_WIN)
+
+class SubPumpTask : public Task {
+ public:
+  virtual void Run() {
+    MessageLoop::current()->SetNestableTasksAllowed(true);
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0)) { 
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+    }
+    MessageLoop::current()->Quit();
+  }
+};
+
+class SubPumpQuitTask : public Task {
+ public:
+  SubPumpQuitTask() {
+  }
+  virtual void Run() {
+    PostQuitMessage(0);
+  }
+};
+
+void RunTest_PostDelayedTask_SharedTimer_SubPump() {
+  MessageLoop loop(MessageLoop::TYPE_UI);
+
+  // Test that the interval of the timer, used to run the next delayed task, is
+  // set to a value corresponding to when the next delayed task should run.
+
+  // By setting num_tasks to 1, we ensure that the first task to run causes the
+  // run loop to exit.
+  int num_tasks = 1;
+  Time run_time;
+
+  loop.PostTask(FROM_HERE, new SubPumpTask());
+
+  // This very delayed task should never run.
+  loop.PostDelayedTask(
+      FROM_HERE, new RecordRunTimeTask(&run_time, &num_tasks), 1000000);
+
+  // This slightly delayed task should run from within SubPumpTask::Run().
+  loop.PostDelayedTask(
+      FROM_HERE, new SubPumpQuitTask(), 10);
+
+  Time start_time = Time::Now();
+
+  loop.Run();
+  EXPECT_EQ(1, num_tasks);
+
+  // Ensure that we ran in far less time than the slower timer.
+  TimeDelta run_time = Time::Now() - start_time;
+  EXPECT_GT(5000, run_time.InMilliseconds());
+
+  // In case both timers somehow run at nearly the same time, sleep a little
+  // and then run all pending to force them both to have run.  This is just
+  // encouraging flakiness if there is any.
+  PlatformThread::Sleep(100);
+  loop.RunAllPending();
+
+  EXPECT_TRUE(run_time.is_null());
+}
+
+#endif  // defined(OS_WIN)
+
 class RecordDeletionTask : public Task {
  public:
   RecordDeletionTask(Task* post_on_delete, bool* was_deleted)
@@ -1094,6 +1194,18 @@ TEST(MessageLoopTest, PostDelayedTask_InPostOrder_3) {
   RunTest_PostDelayedTask_InPostOrder_3(MessageLoop::TYPE_UI);
   RunTest_PostDelayedTask_InPostOrder_3(MessageLoop::TYPE_IO);
 }
+
+TEST(MessageLoopTest, PostDelayedTask_SharedTimer) {
+  RunTest_PostDelayedTask_SharedTimer(MessageLoop::TYPE_DEFAULT);
+  RunTest_PostDelayedTask_SharedTimer(MessageLoop::TYPE_UI);
+  RunTest_PostDelayedTask_SharedTimer(MessageLoop::TYPE_IO);
+}
+
+#if defined(OS_WIN)
+TEST(MessageLoopTest, PostDelayedTask_SharedTimer_SubPump) {
+  RunTest_PostDelayedTask_SharedTimer_SubPump();
+}
+#endif
 
 // TODO(darin): re-enable these tests once MessageLoop supports them again.
 #if 0
