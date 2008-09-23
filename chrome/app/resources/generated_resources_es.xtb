@@ -166,7 +166,7 @@
 <translation id="3183922693828471536">Desplazarse hasta aquí</translation>
 <translation id="4610637590575890427">¿Tal vez quieres ir a <ph name="SITE"/>?</translation>
 <translation id="8182985032676093812">Fuente de <ph name="PAGE_URL"/></translation>
-<translation id="4880827082731008257">Buscar historial</translation>
+<translation id="4880827082731008257">Buscar en el historial</translation>
 <translation id="5650551054760837876">No se han encontrado resultados de búsqueda.</translation>
 <translation id="7596288230018319236">Las páginas que visites aparecerán aquí a menos que las abras en una ventana de navegación de incógnito. Con el botón &quot;Buscar&quot; puedes buscar en las páginas de tu historial.</translation>
 <translation id="7377249249140280793"><ph name="RELATIVE_DATE"/> - <ph name="FULL_DATE"/></translation>
@@ -507,7 +507,7 @@
 <translation id="3810973564298564668">Administrar</translation>
 <translation id="2559292239863842334">Aquí se mostrarán los cuadros de búsqueda que utilizas con mayor frecuencia en otros sitios.</translation>
 <translation id="8413126021676339697">Mostrar historial completo</translation>
-<translation id="3549657413697417275">Busca en tu historial</translation>
+<translation id="3549657413697417275">Buscar en el historial</translation>
 <translation id="495091556140548787">Pestañas cerradas recientemente</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
 <translation id="7227780179130368205">Detectado software malintencionado.</translation>

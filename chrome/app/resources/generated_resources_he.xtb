@@ -3,7 +3,7 @@
 <translationbundle lang="he">
 <translation id="8562413501751825163">סגור את Firefox לפני הייבוא.</translation>
 <translation id="4250680216510889253">לא</translation>
-<translation id="4047498523333824092">שחזר את הדפים שנפתחו אחרונים</translation>
+<translation id="4047498523333824092">שחזר את הדפים האחרונים שנפתחו</translation>
 <translation id="7378810950367401542">/</translation>
 <translation id="4195643157523330669">פתח בכרטיסייה חדשה</translation>
 <translation id="3786934874263773074">&amp;מצא בדף</translation>
@@ -355,7 +355,7 @@ Del</translation>
 <translation id="2649911884196340328">אישור האבטחה של השרת הכיל שגיאות!</translation>
 <translation id="4268574628540273656">כתובת אתר:</translation>
 <translation id="2766006623206032690">הדבק והמשך</translation>
-<translation id="7221869452894271364">טען שוב את הדף</translation>
+<translation id="7221869452894271364">טען שוב</translation>
 <translation id="430831869130657585">סיומות</translation>
 <translation id="1586296736502814947">(לא ניתן לבצע פעולה)</translation>
 <translation id="4197700912384709145"><ph name="NUMBER_ZERO"/> שניות</translation>
@@ -375,7 +375,7 @@ Del</translation>
 <translation id="5048179823246820836">נורדית</translation>
 <translation id="385051799172605136">חזור</translation>
 <translation id="7280343984261969618">מפעיל תוספים בארגז חול ללא זכויות יתר. חלק מהתוספים לא יפעלו כהלכה כתוצאה מכך.</translation>
-<translation id="8927064607636892008">משהו השתבש בעת הצגת הדף. להמשך, לחץ על 'טען שנית' או עבור לדף אחר.</translation>
+<translation id="8927064607636892008">משהו השתבש בעת הצגת הדף. להמשך, לחץ על 'טען שוב' או עבור לדף אחר.</translation>
 <translation id="3866249974567520381">תיאור</translation>
 <translation id="347250956943431997">אישור השרת נשלל</translation>
 <translation id="2214283295778284209"><ph name="SITE"/> אינו זמין</translation>
