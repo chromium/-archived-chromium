@@ -103,7 +103,7 @@ bool LoadRLZLibrary(int directory_key) {
         WireExport<ClearAllProductEventsFn>(rlz_dll, "ClearAllProductEvents");
     send_ping =
         WireExport<SendFinancialPingFn>(rlz_dll, "SendFinancialPing");
-    return true;
+    return (record_event && get_access_point && clear_all_events && send_ping);
   }
   return false;
 }
@@ -147,12 +147,18 @@ class DelayedInitTask : public Task {
   virtual ~DelayedInitTask() {
   }
   virtual void Run() {
-    if (!LoadRLZLibrary(directory_key_))
-      return;
-    // For non-interactive tests we don't do the rest of the initialization.
+    // For non-interactive tests we don't do the rest of the initialization
+    // because sometimes the very act of loading the dll causes QEMU to crash.
     if (::GetEnvironmentVariableW(env_vars::kHeadless, NULL, 0))
       return;
-    if (first_run_) {
+    if (!LoadRLZLibrary(directory_key_))
+      return;
+    // Do the initial event recording if is the first run or if we have an
+    // empty rlz which means we haven't got a chance to do it.
+    std::wstring omnibox_rlz;
+    RLZTracker::GetAccessPointRlz(RLZTracker::CHROME_OMNIBOX, &omnibox_rlz);
+
+    if (first_run_ || omnibox_rlz.empty()) {
       // Record the installation of chrome.
       RLZTracker::RecordProductEvent(RLZTracker::CHROME,
                                      RLZTracker::CHROME_OMNIBOX,
@@ -204,9 +210,9 @@ bool RLZTracker::InitRlz(int directory_key) {
 
 bool RLZTracker::InitRlzDelayed(int directory_key, bool first_run) {
   // Schedule the delayed init items.
-  const int kOneHundredSeconds = 100000;
+  const int kTwentySeconds = 20 * 1000;
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
-      new DelayedInitTask(directory_key, first_run), kOneHundredSeconds);
+      new DelayedInitTask(directory_key, first_run), kTwentySeconds);
   return true;
 }
 
