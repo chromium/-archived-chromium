@@ -28,7 +28,7 @@ namespace {
 
 // These response headers are not persisted in a cached representation of the
 // response headers.  (This list comes from Mozilla's nsHttpResponseHead.cpp)
-const char* kTransientHeaders[] = {
+const char* const kTransientHeaders[] = {
   "connection",
   "proxy-connection",
   "keep-alive",
@@ -43,7 +43,7 @@ const char* kTransientHeaders[] = {
 
 // These respones headers are not copied from a 304/206 response to the cached
 // response headers.  This list is based on Mozilla's nsHttpResponseHead.cpp.
-const char* kNonUpdatedHeaders[] = {
+const char* const kNonUpdatedHeaders[] = {
   "connection",
   "proxy-connection",
   "keep-alive",
@@ -453,8 +453,8 @@ void HttpResponseHeaders::ParseStatusLine(string::const_iterator line_begin,
     raw_headers_ = "HTTP/1.0";
   }
   if (parsed_http_version_ != http_version_) {
-    DLOG(INFO) << "assuming HTTP/" << http_version_.major() << "."
-               << http_version_.minor();
+    DLOG(INFO) << "assuming HTTP/" << http_version_.major_value() << "."
+               << http_version_.minor_value();
   }
 
   // TODO(eroman): this doesn't make sense if ParseVersion failed.

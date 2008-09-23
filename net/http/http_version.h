@@ -11,49 +11,48 @@ namespace net {
 
 // Wrapper for an HTTP (major,minor) version pair.
 class HttpVersion {
- private:
-  uint32 value; // Packed as <major>:<minor>
-
  public:
   // Default constructor (major=0, minor=0).
-  HttpVersion() : value(0) { }
+  HttpVersion() : value_(0) { }
 
   // Build from unsigned major/minor pair.
-  HttpVersion(uint16 major, uint16 minor) : value(major << 16 | minor) { }
+  HttpVersion(uint16 major, uint16 minor) : value_(major << 16 | minor) { }
 
   // Major version number.
-  uint16 major() const {
-    return value >> 16;
+  uint16 major_value() const {
+    return value_ >> 16;
   }
 
   // Minor version number.
-  uint16 minor() const {
-    return value & 0xffff;
+  uint16 minor_value() const {
+    return value_ & 0xffff;
   }
 
   // Overloaded operators:
   
   bool operator==(const HttpVersion& v) const {
-    return value == v.value;
+    return value_ == v.value_;
   }
   bool operator!=(const HttpVersion& v) const {
-    return value != v.value;
+    return value_ != v.value_;
   }
   bool operator>(const HttpVersion& v) const {
-    return value > v.value;
+    return value_ > v.value_;
   }
   bool operator>=(const HttpVersion& v) const {
-    return value >= v.value;
+    return value_ >= v.value_;
   }
   bool operator<(const HttpVersion& v) const {
-    return value < v.value;
+    return value_ < v.value_;
   }
   bool operator<=(const HttpVersion& v) const {
-    return value <= v.value;
+    return value_ <= v.value_;
   }
+
+ private:
+  uint32 value_; // Packed as <major>:<minor>
 };
 
 }  // namespace net
 
 #endif  // NET_HTTP_VERSION_H_
-
