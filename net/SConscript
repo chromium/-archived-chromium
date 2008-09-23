@@ -50,6 +50,7 @@ input_files = [
     'base/net_util.cc',
     'base/registry_controlled_domain.cc',
     'base/upload_data.cc',
+    'base/x509_certificate.cc',
     'disk_cache/backend_impl.cc',
     'disk_cache/block_files.cc',
     'disk_cache/entry_impl.cc',
