@@ -19,9 +19,18 @@ class RenderWidgetHelper::PaintMsgProxy : public Task {
         cancelled(false) {
   }
 
+  ~PaintMsgProxy() {
+    // If the paint message was never dispatched, then we need to let the
+    // helper know that we are going away.
+    if (!cancelled && helper)
+      helper->OnDiscardPaintMsg(this);
+  }
+
   virtual void Run() {
-    if (!cancelled)
+    if (!cancelled) {
       helper->OnDispatchPaintMsg(this);
+      helper = NULL;
+    }
   }
 
   scoped_refptr<RenderWidgetHelper> helper;
@@ -141,7 +150,7 @@ void RenderWidgetHelper::DidReceivePaintMsg(const IPC::Message& msg) {
   ui_loop_->PostTask(FROM_HERE, proxy);
 }
 
-void RenderWidgetHelper::OnDispatchPaintMsg(PaintMsgProxy* proxy) {
+void RenderWidgetHelper::OnDiscardPaintMsg(PaintMsgProxy* proxy) {
   const IPC::Message& msg = proxy->message;
 
   // Remove the proxy from the map now that we are going to handle it normally.
@@ -154,11 +163,15 @@ void RenderWidgetHelper::OnDispatchPaintMsg(PaintMsgProxy* proxy) {
 
     pending_paints_.erase(it);
   }
+}
+
+void RenderWidgetHelper::OnDispatchPaintMsg(PaintMsgProxy* proxy) {
+  OnDiscardPaintMsg(proxy);
 
   // It is reasonable for the host to no longer exist.
   RenderProcessHost* host = RenderProcessHost::FromID(render_process_id_);
   if (host)
-    host->OnMessageReceived(msg);
+    host->OnMessageReceived(proxy->message);
 }
 
 void RenderWidgetHelper::OnCancelResourceRequests(

@@ -121,6 +121,9 @@ class RenderWidgetHelper :
   // Map from render_widget_id to live PaintMsgProxy instance.
   typedef base::hash_map<int, PaintMsgProxy*> PaintMsgProxyMap;
 
+  // Called on the UI thread to discard a paint message.
+  void OnDiscardPaintMsg(PaintMsgProxy* proxy);
+
   // Called on the UI thread to dispatch a paint message if necessary.
   void OnDispatchPaintMsg(PaintMsgProxy* proxy);
 
