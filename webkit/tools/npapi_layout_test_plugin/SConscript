@@ -9,47 +9,55 @@ env_res = env_res.Clone()
 
 input_files = [
     'main.cpp',
-    env_res.RES('npapi_layout_test_plugin.rc'),
     'PluginObject.cpp',
-    'TestObject.cpp',
-    'npapi_layout_test_plugin.def',
+    'TestObject.cpp'
 ]
 
-env.Append(
-    CCFLAGS = [
-        '/TP',
-        '/WX',
-    ],
+if env['PLATFORM'] == 'win32':
+  input_files.extend([
+      env_res.RES('npapi_layout_test_plugin.rc'),
+      'npapi_layout_test_plugin.def'
+  ])
 
-    LIBS = [
-        'comctl32.lib',
-        'rpcrt4.lib',
-        'shlwapi.lib',
-        'winmm.lib',
-    ],
+  env.Append(
+      CCFLAGS = [
+          '/TP',
+          '/WX',
+      ],
 
-    LINKFLAGS = [
-        '/DELAYLOAD:"dwmapi.dll"',
-        '/DELAYLOAD:"uxtheme.dll"',
-        '/FIXED:No',
-        '/SUBSYSTEM:CONSOLE',
-        '/MACHINE:X86',
-        '/safeseh',
-        '/dynamicbase',
-        '/ignore:4199',
-        '/nxcompat',
-    ],
-)
+      LIBS = [
+          'comctl32.lib',
+          'rpcrt4.lib',
+          'shlwapi.lib',
+          'winmm.lib',
+      ],
 
-dll = env.ChromeSharedLibrary(['npapi_layout_test_plugin',
-                         'npapi_layout_test_plugin.lib',
-                         'npapi_layout_test_plugin.ilk',
-                         'npapi_layout_test_plugin.pdb'],
-                        input_files)
+      LINKFLAGS = [
+          '/DELAYLOAD:"dwmapi.dll"',
+          '/DELAYLOAD:"uxtheme.dll"',
+          '/FIXED:No',
+          '/SUBSYSTEM:CONSOLE',
+          '/MACHINE:X86',
+          '/safeseh',
+          '/dynamicbase',
+          '/ignore:4199',
+          '/nxcompat',
+      ],
+  )
 
-# TODO(sgk):  goes away when env.ChromeSharedLibrary() knows how
-# to do this for us.
-env.Install('$LIBS_DIR', dll[1])
+if env['PLATFORM'] == 'win32':
+  dll = env.ChromeSharedLibrary([
+      'npapi_layout_test_plugin',
+      'npapi_layout_test_plugin.lib',
+      'npapi_layout_test_plugin.ilk',
+      'npapi_layout_test_plugin.pdb'
+  ], input_files)
+
+  # TODO(sgk):  goes away when env.ChromeSharedLibrary() knows how
+  # to do this for us.
+  env.Install('$LIBS_DIR', dll[1])
+else:
+  dll = env.ChromeSharedLibrary(['npapi_layout_test_plugin'], input_files)
 
 i = env.Install('$TARGET_ROOT/plugins', dll)
 env.Alias('webkit', i)

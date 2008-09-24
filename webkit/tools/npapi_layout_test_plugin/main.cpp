@@ -31,11 +31,15 @@
  OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <wtf/Platform.h>
+#if PLATFORM(UNIX)
+#include <X11/Xlib.h>
+#endif
 #include "PluginObject.h"
 
 #ifdef WIN32
-#include <stdio.h>
-#include <stdlib.h>
 #define strcasecmp _stricmp
 #define NPAPI WINAPI
 #else
@@ -249,6 +253,46 @@ int16 NPP_HandleEvent(NPP instance, void *event)
             break;
         default:
             printf("PLUGIN: event %d\n", evt->event);        
+    }
+
+    fflush(stdout);
+
+#elif PLATFORM(UNIX)
+    XEvent* evt = static_cast<XEvent*>(event);
+    XButtonPressedEvent* bpress_evt = reinterpret_cast<XButtonPressedEvent*>(evt);
+    XButtonReleasedEvent* brelease_evt = reinterpret_cast<XButtonReleasedEvent*>(evt);
+    switch (evt->type) {
+        case ButtonPress:
+            printf("PLUGIN: mouseDown at (%d, %d)\n", bpress_evt->x, bpress_evt->y);
+            break;
+        case ButtonRelease:
+            printf("PLUGIN: mouseUp at (%d, %d)\n", brelease_evt->x, brelease_evt->y);
+            break;
+        case KeyPress:
+            // TODO: extract key code
+            printf("NOTIMPLEMENTED PLUGIN: keyDown '%c'\n", ' ');
+            break;
+        case KeyRelease:
+            // TODO: extract key code
+            printf("NOTIMPLEMENTED PLUGIN: keyUp '%c'\n", ' ');
+            break;
+        case GraphicsExpose:
+            printf("PLUGIN: updateEvt\n");
+            break;
+        // NPAPI events
+        case FocusIn:
+            printf("PLUGIN: getFocusEvent\n");
+            break;
+        case FocusOut:
+            printf("PLUGIN: loseFocusEvent\n");
+            break;
+        case EnterNotify:
+        case LeaveNotify:
+        case MotionNotify:
+            printf("PLUGIN: adjustCursorEvent\n");
+            break;
+        default:
+            printf("PLUGIN: event %d\n", evt->type);
     }
 
     fflush(stdout);

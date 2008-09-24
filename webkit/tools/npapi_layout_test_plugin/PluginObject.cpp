@@ -35,9 +35,9 @@
 
 #include "TestObject.h"
 #include <assert.h>
+#include <stdlib.h>
 #include <stdio.h>
 #ifdef WIN32
-#include <stdlib.h>
 #define snprintf sprintf_s
 #endif
 
