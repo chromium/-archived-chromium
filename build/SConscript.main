@@ -406,6 +406,8 @@ else:
 if ARGUMENTS.get('VERBOSE') in (None, '0'):
   env['CCCOMSTR'] = 'Compiling $TARGET ...'
   env['CXXCOMSTR'] = 'Compiling $TARGET ...'
+  env['SHCCCOMSTR'] = 'Compiling $TARGET ...'
+  env['SHCXXCOMSTR'] = 'Compiling $TARGET ...'
   env['ARCOMSTR'] = 'Archiving $TARGET ...'
   env['LINKCOMSTR'] = 'Linking $TARGET ...'
   env['BINDINGSCOMSTR'] = 'Building bindings in $TARGET ...'
