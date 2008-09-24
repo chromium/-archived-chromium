@@ -146,6 +146,9 @@ void GetCertGeneralNamesForOID(X509Certificate::OSCertHandle cert_handle,
         // |name_struct.nameType| and doing type-appropriate conversions. See
         // certextensions.h and the comment immediately preceding
         // CE_GeneralNameType for more information.
+        DCHECK(name_struct.nameType == GNT_RFC822Name ||
+               name_struct.nameType == GNT_DNSName ||
+               name_struct.nameType == GNT_URI);
         if (name_struct.nameType == name_type) {
           const CSSM_DATA& name_data = name_struct.name;
           std::string value =
@@ -161,6 +164,8 @@ void GetCertGeneralNamesForOID(X509Certificate::OSCertHandle cert_handle,
 
 void GetCertDateForOID(X509Certificate::OSCertHandle cert_handle,
                        CSSM_OID oid, Time* result) {
+  *result = Time::Time(); 
+  
   uint32 num_of_fields;
   CSSM_FIELD_PTR fields;
   OSStatus status = GetCertFieldsForOID(cert_handle, oid, &num_of_fields,
@@ -177,13 +182,20 @@ void GetCertDateForOID(X509Certificate::OSCertHandle cert_handle,
                       (x509_time->time.Data),
                       x509_time->time.Length);
       
+      DCHECK(x509_time->timeType == BER_TAG_UTC_TIME ||
+             x509_time->timeType == BER_TAG_GENERALIZED_TIME);
+      
       struct tm time;
       const char* parse_string;
       if (x509_time->timeType == BER_TAG_UTC_TIME)
         parse_string = "%y%m%d%H%M%SZ";
       else if (x509_time->timeType == BER_TAG_GENERALIZED_TIME)
         parse_string = "%y%m%d%H%M%SZ";
-      // else log?
+      else {
+        // Those are the only two BER tags for time; if neither are used then
+        // this is a rather broken cert.
+        return;
+      }
       
       strptime(time_string.c_str(), parse_string, &time);
       
@@ -198,6 +210,7 @@ void GetCertDateForOID(X509Certificate::OSCertHandle cert_handle,
       exploded.millisecond  = 0;
       
       *result = Time::FromUTCExploded(exploded);
+      break;
     }
   }
 }
