@@ -5,12 +5,21 @@
 #include "base/platform_test.h"
 #include "net/base/address_list.h"
 #include "net/base/host_resolver.h"
+#include "net/base/host_resolver_unittest.h"
 #include "net/base/net_errors.h"
 #include "net/base/tcp_client_socket.h"
 #include "net/base/test_completion_callback.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 class TCPClientSocketTest : public PlatformTest {
+ public:
+  TCPClientSocketTest() {
+    // TODO(darin): kill this exception once we have a way to test out the
+    // TCPClientSocket class using loopback connections.
+    host_mapper_.AddRule("www.google.com", "www.google.com");
+  }
+ private:
+  net::ScopedHostMapper host_mapper_;
 };
 
 

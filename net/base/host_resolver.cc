@@ -26,8 +26,15 @@ namespace net {
 
 //-----------------------------------------------------------------------------
 
-static int ResolveAddrInfo(const std::string& host, const std::string& port,
-                           struct addrinfo** results) {
+static HostMapper* host_mapper;
+
+HostMapper* SetHostMapper(HostMapper* value) {
+  std::swap(host_mapper, value);
+  return value;
+}
+
+static int HostResolverProc(
+    const std::string& host, const std::string& port, struct addrinfo** out) {
   struct addrinfo hints = {0};
   hints.ai_family = PF_UNSPEC;
   hints.ai_flags = AI_ADDRCONFIG;
@@ -35,8 +42,19 @@ static int ResolveAddrInfo(const std::string& host, const std::string& port,
   // Restrict result set to only this socket type to avoid duplicates.
   hints.ai_socktype = SOCK_STREAM;
 
-  int err = getaddrinfo(host.c_str(), port.c_str(), &hints, results);
+  int err = getaddrinfo(host.c_str(), port.c_str(), &hints, out);
   return err ? ERR_NAME_NOT_RESOLVED : OK;
+}
+
+static int ResolveAddrInfo(
+    const std::string& host, const std::string& port, struct addrinfo** out) {
+  int rv; 
+  if (host_mapper) {
+    rv = HostResolverProc(host_mapper->Map(host), port, out);
+  } else {
+    rv = HostResolverProc(host, port, out);
+  }
+  return rv;
 }
 
 //-----------------------------------------------------------------------------

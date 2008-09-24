@@ -55,6 +55,30 @@ class HostResolver {
   DISALLOW_COPY_AND_ASSIGN(HostResolver);
 };
 
+// A helper class used in unit tests to alter hostname mappings.  See
+// SetHostMapper for details.
+class HostMapper {
+ public:
+  virtual ~HostMapper() {}
+  virtual std::string Map(const std::string& host) = 0;
+};
+
+#ifdef UNIT_TEST
+// This function is designed to allow unit tests to override the behavior of
+// HostResolver.  For example, a HostMapper instance can force all hostnames
+// to map to a fixed IP address such as 127.0.0.1.
+//
+// The previously set HostMapper (or NULL if there was none) is returned.
+//
+// NOTE: This function is not thread-safe, so take care to only call this
+// function while there are no outstanding HostResolver instances.
+//
+// NOTE: In most cases, you should use ScopedHostMapper instead, which is
+// defined in host_resolver_unittest.h
+//
+HostMapper* SetHostMapper(HostMapper* host_mapper);
+#endif
+
 }  // namespace net
 
 #endif  // NET_BASE_HOST_RESOLVER_H_

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "net/base/host_resolver_unittest.h"
 #include "net/http/http_network_layer.h"
 #include "net/http/http_transaction_unittest.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -9,6 +10,14 @@
 namespace {
 
 class HttpNetworkLayerTest : public testing::Test {
+ public:
+  HttpNetworkLayerTest() {
+    // TODO(darin): kill this exception once we have a way to test out the
+    // HttpNetworkLayer class using loopback connections.
+    host_mapper_.AddRule("www.google.com", "www.google.com");
+  }
+ private:
+  net::ScopedHostMapper host_mapper_;
 };
 
 }  // namespace

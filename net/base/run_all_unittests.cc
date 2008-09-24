@@ -29,10 +29,15 @@
 
 #include "base/message_loop.h"
 #include "base/test_suite.h"
+#include "net/base/host_resolver_unittest.h"
 
 class NetTestSuite : public TestSuite {
  public:
   NetTestSuite(int argc, char** argv) : TestSuite(argc, argv) {
+    // In case any attempts are made to resolve host names, force them all to
+    // be mapped to localhost.  This prevents DNS queries from being sent in
+    // the process of running these unit tests.
+    host_mapper_.AddRule("*", "127.0.0.1");
   }
 
   virtual void Initialize() {
@@ -51,6 +56,7 @@ class NetTestSuite : public TestSuite {
 
  private:
   scoped_ptr<MessageLoop> message_loop_;
+  net::ScopedHostMapper host_mapper_;
 };
 
 int main(int argc, char** argv) {
