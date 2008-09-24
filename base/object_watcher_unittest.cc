@@ -10,8 +10,6 @@
 
 namespace {
 
-typedef testing::Test ObjectWatcherTest;
-
 class QuitDelegate : public base::ObjectWatcher::Delegate {
  public:
   virtual void OnObjectSignaled(HANDLE object) {
@@ -32,8 +30,8 @@ class DecrementCountDelegate : public base::ObjectWatcher::Delegate {
 
 }  // namespace
 
-TEST(ObjectWatcherTest, BasicSignal) {
-  MessageLoop message_loop;
+void RunTest_BasicSignal(MessageLoop::Type message_loop_type) {
+  MessageLoop message_loop(message_loop_type);
 
   base::ObjectWatcher watcher;
 
@@ -51,8 +49,8 @@ TEST(ObjectWatcherTest, BasicSignal) {
   CloseHandle(event);
 }
 
-TEST(ObjectWatcherTest, BasicCancel) {
-  MessageLoop message_loop;
+void RunTest_BasicCancel(MessageLoop::Type message_loop_type) {
+  MessageLoop message_loop(message_loop_type);
 
   base::ObjectWatcher watcher;
 
@@ -69,8 +67,8 @@ TEST(ObjectWatcherTest, BasicCancel) {
 }
 
 
-TEST(ObjectWatcherTest, CancelAfterSet) {
-  MessageLoop message_loop;
+void RunTest_CancelAfterSet(MessageLoop::Type message_loop_type) {
+  MessageLoop message_loop(message_loop_type);
 
   base::ObjectWatcher watcher;
 
@@ -98,7 +96,7 @@ TEST(ObjectWatcherTest, CancelAfterSet) {
   CloseHandle(event);
 }
 
-TEST(ObjectWatcherTest, OutlivesMessageLoop) {
+void RunTest_OutlivesMessageLoop(MessageLoop::Type message_loop_type) {
   // Simulate a MessageLoop that dies before an ObjectWatcher.  This ordinarily
   // doesn't happen when people use the Thread class, but it can happen when
   // people use the Singleton pattern or atexit.
@@ -106,11 +104,37 @@ TEST(ObjectWatcherTest, OutlivesMessageLoop) {
   {
     base::ObjectWatcher watcher;
     {
-      MessageLoop message_loop;
+      MessageLoop message_loop(message_loop_type);
 
       QuitDelegate delegate;
       watcher.StartWatching(event, &delegate);
     }
   }
   CloseHandle(event);
+}
+
+//-----------------------------------------------------------------------------
+
+TEST(ObjectWatcherTest, BasicSignal) {
+  RunTest_BasicSignal(MessageLoop::TYPE_DEFAULT);
+  RunTest_BasicSignal(MessageLoop::TYPE_IO);
+  RunTest_BasicSignal(MessageLoop::TYPE_UI);
+}
+
+TEST(ObjectWatcherTest, BasicCancel) {
+  RunTest_BasicCancel(MessageLoop::TYPE_DEFAULT);
+  RunTest_BasicCancel(MessageLoop::TYPE_IO);
+  RunTest_BasicCancel(MessageLoop::TYPE_UI);
+}
+
+TEST(ObjectWatcherTest, CancelAfterSet) {
+  RunTest_CancelAfterSet(MessageLoop::TYPE_DEFAULT);
+  RunTest_CancelAfterSet(MessageLoop::TYPE_IO);
+  RunTest_CancelAfterSet(MessageLoop::TYPE_UI);
+}
+
+TEST(ObjectWatcherTest, OutlivesMessageLoop) {
+  RunTest_OutlivesMessageLoop(MessageLoop::TYPE_DEFAULT);
+  RunTest_OutlivesMessageLoop(MessageLoop::TYPE_IO);
+  RunTest_OutlivesMessageLoop(MessageLoop::TYPE_UI);
 }
