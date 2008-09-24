@@ -1257,8 +1257,7 @@ void WebFrameLoaderClient::setTitle(const String& title, const KURL& url) {
 }
 
 String WebFrameLoaderClient::userAgent(const KURL& url) {
-  return webkit_glue::StdStringToString(
-      webframe_->webview_impl()->GetPreferences().user_agent);
+  return webkit_glue::StdStringToString(webkit_glue::GetUserAgent());
 }
 
 void WebFrameLoaderClient::savePlatformDataToCachedPage(WebCore::CachedPage*) {

@@ -39,6 +39,7 @@
 #include "chrome/common/win_util.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/net_util.h"
+#include "webkit/glue/webkit_glue.h"
 
 #include "chromium_strings.h"
 #include "generated_resources.h"
@@ -406,6 +407,11 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
 
   if (parsed_command_line.HasSwitch(switches::kEnableFileCookies))
     net::CookieMonster::EnableFileScheme();
+
+  if (parsed_command_line.HasSwitch(switches::kUserAgent)) {
+    webkit_glue::SetUserAgent(WideToUTF8(
+        parsed_command_line.GetSwitchValue(switches::kUserAgent)));
+  }
 
 #ifndef NDEBUG
   if (parsed_command_line.HasSwitch(switches::kApp)) {

@@ -3,10 +3,15 @@
 // found in the LICENSE file.
 
 #include <windows.h>
+
 #include "chrome/common/child_process.h"
 
 #include "base/atomic_ref_count.h"
 #include "base/basictypes.h"
+#include "base/command_line.h"
+#include "base/string_util.h"
+#include "chrome/common/chrome_switches.h"
+#include "webkit/glue/webkit_glue.h"
 
 ChildProcess* ChildProcess::child_process_;
 MessageLoop* ChildProcess::main_thread_loop_;
@@ -72,6 +77,13 @@ bool ChildProcess::GlobalInit(const std::wstring &channel_name,
   shutdown_event_ = CreateEvent(NULL, TRUE, FALSE, NULL);
 
   child_process_ = factory->Create(channel_name);
+
+  CommandLine command_line;
+  if (command_line.HasSwitch(switches::kUserAgent)) {
+    webkit_glue::SetUserAgent(WideToUTF8(
+        command_line.GetSwitchValue(switches::kUserAgent)));
+  }
+
   return true;
 }
 

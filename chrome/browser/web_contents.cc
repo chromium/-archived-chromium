@@ -1896,10 +1896,6 @@ WebPreferences WebContents::GetWebkitPrefs() {
   WebPreferences web_prefs;
   PrefService* prefs = profile()->GetPrefs();
 
-  // TODO(darin): Support overriding this value from prefs, which also
-  // involves modifying our URLRequestContext.
-  web_prefs.user_agent = webkit_glue::GetDefaultUserAgent();
-
   web_prefs.fixed_font_family =
       prefs->GetString(prefs::kWebKitFixedFontFamily);
   web_prefs.serif_font_family =

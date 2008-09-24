@@ -249,6 +249,7 @@ bool RenderProcessHost::Init() {
     switches::kTestSandbox,
     switches::kInProcessPlugins,
     switches::kDomAutomationController,
+    switches::kUserAgent,
     switches::kJavaScriptFlags,
     switches::kRecordMode,
     switches::kPlaybackMode,

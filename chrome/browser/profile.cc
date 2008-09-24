@@ -101,7 +101,7 @@ class ProfileImpl::RequestContext : public URLRequestContext,
     cookie_store_ = NULL;
 
     // setup user agent
-    user_agent_ = webkit_glue::GetDefaultUserAgent();
+    user_agent_ = webkit_glue::GetUserAgent();
     // set up Accept-Language and Accept-Charset header values
     // TODO(jungshik) : This may slow down http requests. Perhaps,
     // we have to come up with a better way to set up these values.

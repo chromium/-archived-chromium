@@ -339,74 +339,91 @@ std::string GetWebKitVersion() {
   return StringPrintf("%d.%d", WEBKIT_VERSION_MAJOR, WEBKIT_VERSION_MINOR);
 }
 
-const std::string& GetDefaultUserAgent() {
+namespace {
+
+std::string* user_agent = NULL;
+bool user_agent_requested = false;
+
+void SetUserAgentToDefault() {
+  static std::string default_user_agent;
 #if defined(OS_WIN) || defined(OS_MACOSX)
-  static std::string user_agent;
-  static bool generated_user_agent;
-  if (!generated_user_agent) {
-    int32 os_major_version = 0;
-    int32 os_minor_version = 0;
-    int32 os_bugfix_version = 0;
+  int32 os_major_version = 0;
+  int32 os_minor_version = 0;
+  int32 os_bugfix_version = 0;
 #if defined(OS_WIN)
-    OSVERSIONINFO info = {0};
-    info.dwOSVersionInfoSize = sizeof(info);
-    GetVersionEx(&info);
-    os_major_version = info.dwMajorVersion;
-    os_minor_version = info.dwMinorVersion;
+  OSVERSIONINFO info = {0};
+  info.dwOSVersionInfoSize = sizeof(info);
+  GetVersionEx(&info);
+  os_major_version = info.dwMajorVersion;
+  os_minor_version = info.dwMinorVersion;
 #elif defined(OS_MACOSX)
-    Gestalt(gestaltSystemVersionMajor, 
-        reinterpret_cast<SInt32*>(&os_major_version));
-    Gestalt(gestaltSystemVersionMinor, 
-        reinterpret_cast<SInt32*>(&os_minor_version));
-    Gestalt(gestaltSystemVersionBugFix, 
-        reinterpret_cast<SInt32*>(&os_bugfix_version));
+  Gestalt(gestaltSystemVersionMajor, 
+      reinterpret_cast<SInt32*>(&os_major_version));
+  Gestalt(gestaltSystemVersionMinor, 
+      reinterpret_cast<SInt32*>(&os_minor_version));
+  Gestalt(gestaltSystemVersionBugFix, 
+      reinterpret_cast<SInt32*>(&os_bugfix_version));
 #endif
 
-    // Get the product name and version, and replace Safari's Version/X string
-    // with it.  This is done to expose our product name in a manner that is
-    // maximally compatible with Safari, we hope!!
-    std::string product;
+  // Get the product name and version, and replace Safari's Version/X string
+  // with it.  This is done to expose our product name in a manner that is
+  // maximally compatible with Safari, we hope!!
+  std::string product;
 
-    FileVersionInfo* version_info =
-        FileVersionInfo::CreateFileVersionInfoForCurrentModule();
-    if (version_info)
-      product = "Chrome/" + WideToASCII(version_info->product_version());
+  FileVersionInfo* version_info =
+      FileVersionInfo::CreateFileVersionInfoForCurrentModule();
+  if (version_info)
+    product = "Chrome/" + WideToASCII(version_info->product_version());
 
-    if (product.empty())
-      product = "Version/3.1";
+  if (product.empty())
+    product = "Version/3.1";
 
-    // Derived from Safari's UA string.
-    StringAppendF(
-        &user_agent,
+  // Derived from Safari's UA string.
+  StringAppendF(
+      &default_user_agent,
 #if defined(OS_WIN)
-        "Mozilla/5.0 (Windows; U; Windows NT %d.%d; en-US) AppleWebKit/%d.%d"
+      "Mozilla/5.0 (Windows; U; Windows NT %d.%d; en-US) AppleWebKit/%d.%d"
 #elif defined(OS_MACOSX)
-        "Mozilla/5.0 (Macintosh; U; Intel Mac OS X %d_%d_%d; en-US) AppleWebKit/%d.%d"
+      "Mozilla/5.0 (Macintosh; U; Intel Mac OS X %d_%d_%d; en-US) "
+      "AppleWebKit/%d.%d"
 #endif
-        " (KHTML, like Gecko) %s Safari/%d.%d",
-        os_major_version,
-        os_minor_version,
+      " (KHTML, like Gecko) %s Safari/%d.%d",
+      os_major_version,
+      os_minor_version,
 #if defined(OS_MACOSX)
-        os_bugfix_version,
+      os_bugfix_version,
 #endif
-        WEBKIT_VERSION_MAJOR,
-        WEBKIT_VERSION_MINOR,
-        product.c_str(),
-        WEBKIT_VERSION_MAJOR,
-        WEBKIT_VERSION_MINOR
-        );
-
-    generated_user_agent = true;
-  }
-
-  return user_agent;
+      WEBKIT_VERSION_MAJOR,
+      WEBKIT_VERSION_MINOR,
+      product.c_str(),
+      WEBKIT_VERSION_MAJOR,
+      WEBKIT_VERSION_MINOR
+      );
 #else
   // TODO(port): we need something like FileVersionInfo for our UA string.
   NOTIMPLEMENTED();
-  return EmptyString();
 #endif
+  user_agent = &default_user_agent;
 }
 
+};
+
+void SetUserAgent(const std::string& new_user_agent) {
+  DCHECK(!user_agent_requested) << "Setting the user agent after someone has "
+      "already requested it can result in unexpected behavior.";
+  static std::string overridden_user_agent;
+  overridden_user_agent = new_user_agent;  // If you combine this with the
+                                           // previous line, the function only
+                                           // works the first time.
+  user_agent = &overridden_user_agent;
+}
+
+const std::string& GetUserAgent() {
+  if (!user_agent)
+    SetUserAgentToDefault();
+  user_agent_requested = true;
+  return *user_agent;
+}
 
 void NotifyJSOutOfMemory(WebCore::Frame* frame) {
   if (!frame)

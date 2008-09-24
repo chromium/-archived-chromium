@@ -44,8 +44,6 @@ struct WebPreferences {
   bool user_style_sheet_enabled;
   GURL user_style_sheet_location;
 
-  std::string user_agent;
-
   // We try to keep the default values the same as the default values in
   // chrome, except for the cases where it would require lots of extra work for
   // the embedder to use the same default value.

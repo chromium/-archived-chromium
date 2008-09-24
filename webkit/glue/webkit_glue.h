@@ -88,8 +88,14 @@ void ResetBeforeTestRun(WebView* view);
 // Returns the WebKit version (major.minor).
 std::string GetWebKitVersion();
 
-// Returns the user agent.
-const std::string& GetDefaultUserAgent();
+// Called to override the default user agent with a custom one.  Call this
+// before anyone actually asks for the user agent in order to prevent
+// inconsistent behavior.
+void SetUserAgent(const std::string& new_user_agent);
+
+// Returns the user agent, which is usually the default user agent but may be
+// overriden by a call to SetUserAgent() (which should be done at startup).
+const std::string& GetUserAgent();
 
 // Creates serialized state for the specified URL. This is a variant of
 // HistoryItemToString (in glue_serialize) that is used during session restore

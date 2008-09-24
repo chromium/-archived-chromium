@@ -128,6 +128,9 @@ const wchar_t kDomAutomationController[]       = L"dom-automation";
 // Tells the plugin process the path of the plugin to load
 const wchar_t kPluginPath[]                    = L"plugin-path";
 
+// A string used to override the default user agent with a custom one.
+const wchar_t kUserAgent[]                     = L"user-agent";
+
 // Specifies the flags passed to JS engine
 const wchar_t kJavaScriptFlags[]               = L"js-flags";
 

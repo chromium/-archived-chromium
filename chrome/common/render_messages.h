@@ -1443,35 +1443,33 @@ struct ParamTraits<WebPreferences> {
     WriteParam(m, p.java_enabled);
     WriteParam(m, p.user_style_sheet_enabled);
     WriteParam(m, p.user_style_sheet_location);
-    WriteParam(m, p.user_agent);
   }
   static bool Read(const Message* m, void** iter, param_type* p) {
     return
-      ReadParam(m, iter, &p->standard_font_family) &&
-      ReadParam(m, iter, &p->fixed_font_family) &&
-      ReadParam(m, iter, &p->serif_font_family) &&
-      ReadParam(m, iter, &p->sans_serif_font_family) &&
-      ReadParam(m, iter, &p->cursive_font_family) &&
-      ReadParam(m, iter, &p->fantasy_font_family) &&
-      ReadParam(m, iter, &p->default_font_size) &&
-      ReadParam(m, iter, &p->default_fixed_font_size) &&
-      ReadParam(m, iter, &p->minimum_font_size) &&
-      ReadParam(m, iter, &p->minimum_logical_font_size) &&
-      ReadParam(m, iter, &p->default_encoding) &&
-      ReadParam(m, iter, &p->javascript_enabled) &&
-      ReadParam(m, iter, &p->javascript_can_open_windows_automatically) &&
-      ReadParam(m, iter, &p->loads_images_automatically) &&
-      ReadParam(m, iter, &p->plugins_enabled) &&
-      ReadParam(m, iter, &p->dom_paste_enabled) &&
-      ReadParam(m, iter, &p->developer_extras_enabled) &&
-      ReadParam(m, iter, &p->shrinks_standalone_images_to_fit) &&
-      ReadParam(m, iter, &p->uses_universal_detector) &&
-      ReadParam(m, iter, &p->text_areas_are_resizable) &&
-      ReadParam(m, iter, &p->dashboard_compatibility_mode) &&
-      ReadParam(m, iter, &p->java_enabled) &&
-      ReadParam(m, iter, &p->user_style_sheet_enabled) &&
-      ReadParam(m, iter, &p->user_style_sheet_location) &&
-      ReadParam(m, iter, &p->user_agent);
+        ReadParam(m, iter, &p->standard_font_family) &&
+        ReadParam(m, iter, &p->fixed_font_family) &&
+        ReadParam(m, iter, &p->serif_font_family) &&
+        ReadParam(m, iter, &p->sans_serif_font_family) &&
+        ReadParam(m, iter, &p->cursive_font_family) &&
+        ReadParam(m, iter, &p->fantasy_font_family) &&
+        ReadParam(m, iter, &p->default_font_size) &&
+        ReadParam(m, iter, &p->default_fixed_font_size) &&
+        ReadParam(m, iter, &p->minimum_font_size) &&
+        ReadParam(m, iter, &p->minimum_logical_font_size) &&
+        ReadParam(m, iter, &p->default_encoding) &&
+        ReadParam(m, iter, &p->javascript_enabled) &&
+        ReadParam(m, iter, &p->javascript_can_open_windows_automatically) &&
+        ReadParam(m, iter, &p->loads_images_automatically) &&
+        ReadParam(m, iter, &p->plugins_enabled) &&
+        ReadParam(m, iter, &p->dom_paste_enabled) &&
+        ReadParam(m, iter, &p->developer_extras_enabled) &&
+        ReadParam(m, iter, &p->shrinks_standalone_images_to_fit) &&
+        ReadParam(m, iter, &p->uses_universal_detector) &&
+        ReadParam(m, iter, &p->text_areas_are_resizable) &&
+        ReadParam(m, iter, &p->dashboard_compatibility_mode) &&
+        ReadParam(m, iter, &p->java_enabled) &&
+        ReadParam(m, iter, &p->user_style_sheet_enabled) &&
+        ReadParam(m, iter, &p->user_style_sheet_location);
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"<WebPreferences>");

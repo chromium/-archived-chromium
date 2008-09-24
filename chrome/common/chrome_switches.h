@@ -43,6 +43,7 @@ extern const wchar_t kApp[];
 extern const wchar_t kAppUploadFile[];
 extern const wchar_t kDomAutomationController[];
 extern const wchar_t kPluginPath[];
+extern const wchar_t kUserAgent[];
 extern const wchar_t kJavaScriptFlags[];
 extern const wchar_t kGeoID[];
 extern const wchar_t kLang[];
