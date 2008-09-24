@@ -24,7 +24,6 @@ env.Append(
     ],
 )
 
-
 # These net files work on *all* platforms; files that don't work
 # cross-platform live below.
 input_files = [
@@ -132,12 +131,12 @@ if env['PLATFORM'] == 'posix':
   input_files.extend([
       # TODO(tc): gnome-vfs? xdgmime? /etc/mime.types?
       'base/platform_mime_util_linux.cc',
-      'base/tcp_client_socket_libevent.cc',
   ])
 
 if env['PLATFORM'] in ('darwin', 'posix'):
   input_files.extend([
       'base/net_util_posix.cc',
+      'base/tcp_client_socket_libevent.cc',
       'disk_cache/cache_util_posix.cc',
       'disk_cache/file_posix.cc',
       'disk_cache/mapped_file_posix.cc',
@@ -209,7 +208,7 @@ if env['PLATFORM'] == 'win32':
       ],
   )
 
-if env['PLATFORM'] == 'posix':
+if env['PLATFORM'] in ('posix', 'darwin'):
   env_tests.Append(
       LIBS = [
           'event',
@@ -223,7 +222,6 @@ unittest_files = [
     'base/bzip2_filter_unittest.cc',
     'base/client_socket_pool_unittest.cc',
     'base/cookie_monster_unittest.cc',
-    'base/cookie_policy_unittest.cc',
     'base/data_url_unittest.cc',
     'base/escape_unittest.cc',
     'base/gzip_filter_unittest.cc',
@@ -250,6 +248,7 @@ unittest_files = [
 
 if env['PLATFORM'] == 'win32':
   unittest_files.extend([
+      'base/cookie_policy_unittest.cc',
       'base/directory_lister_unittest.cc',
       'base/sdch_filter_unitest.cc',
       'base/ssl_config_service_unittest.cc',
@@ -263,6 +262,11 @@ if env['PLATFORM'] == 'win32':
       'http/http_util_unittest.cc',
       'http/winhttp_request_throttle_unittest.cc',
       'url_request/url_request_unittest.cc',
+  ])
+
+if env['PLATFORM'] == 'posix':
+  unittest_files.extend([
+      'base/cookie_policy_unittest.cc',
   ])
 
 if env['PLATFORM'] == 'darwin':
