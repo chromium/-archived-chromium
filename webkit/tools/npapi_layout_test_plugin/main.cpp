@@ -34,8 +34,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <wtf/Platform.h>
+// The buildbot doesn't have Xlib.  Rather than revert this, I've just
+// temporarily ifdef'd it out.
+#ifdef XLIB_TEMPORARILY_DISABLED
 #if PLATFORM(UNIX)
 #include <X11/Xlib.h>
+#endif
 #endif
 #include "PluginObject.h"
 
@@ -258,6 +262,7 @@ int16 NPP_HandleEvent(NPP instance, void *event)
     fflush(stdout);
 
 #elif PLATFORM(UNIX)
+#ifdef XLIB_TEMPORARILY_DISABLED
     XEvent* evt = static_cast<XEvent*>(event);
     XButtonPressedEvent* bpress_evt = reinterpret_cast<XButtonPressedEvent*>(evt);
     XButtonReleasedEvent* brelease_evt = reinterpret_cast<XButtonReleasedEvent*>(evt);
@@ -296,6 +301,7 @@ int16 NPP_HandleEvent(NPP instance, void *event)
     }
 
     fflush(stdout);
+#endif  // XLIB_TEMPORARILY_DISABLED
 
 #else
     EventRecord* evt = static_cast<EventRecord*>(event);
