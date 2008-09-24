@@ -237,7 +237,7 @@ WebCore::Widget* WebPluginImpl::Create(const GURL& url,
                                        WebFrameImpl *frame,
                                        WebPluginDelegate* delegate,
                                        bool load_manually) {
-  WebPluginImpl* webplugin = new WebPluginImpl(element, frame, delegate);
+  WebPluginImpl* webplugin = new WebPluginImpl(element, frame, delegate, url);
 
   if (!delegate->Initialize(url, argn, argv, argc, webplugin, load_manually)) {
     delegate->PluginDestroyed();
@@ -253,7 +253,8 @@ WebCore::Widget* WebPluginImpl::Create(const GURL& url,
 
 WebPluginImpl::WebPluginImpl(WebCore::Element* element,
                              WebFrameImpl* webframe,
-                             WebPluginDelegate* delegate)
+                             WebPluginDelegate* delegate,
+                             const GURL& plugin_url)
     : element_(element),
       webframe_(webframe),
       delegate_(delegate),
@@ -262,7 +263,8 @@ WebPluginImpl::WebPluginImpl(WebCore::Element* element,
       force_geometry_update_(false),
       visible_(false),
       widget_(NULL),
-      received_first_paint_notification_(false) {
+      received_first_paint_notification_(false),
+      plugin_url_(plugin_url) {
 }
 
 WebPluginImpl::~WebPluginImpl() {
@@ -1094,7 +1096,15 @@ bool WebPluginImpl::InitiateHTTPRequest(int resource_id,
   if (range_info)
     info.request.addHTTPHeaderField("Range", range_info);
 
-  const WebCore::String& referrer = frame()->loader()->outgoingReferrer();
+  WebCore::String referrer;
+  // If the plugin is instantiated without a SRC URL, then use the
+  // containing frame URL as the referrer.
+  if (plugin_url_.spec().empty()) {
+    referrer = frame()->loader()->outgoingReferrer();
+  } else {
+    referrer = webkit_glue::StdStringToString(plugin_url_.spec());
+  }
+
   if (!WebCore::FrameLoader::shouldHideReferrer(
           complete_url_string.spec().c_str(), referrer)) {
     info.request.setHTTPReferrer(referrer);

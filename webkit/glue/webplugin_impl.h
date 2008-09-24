@@ -117,7 +117,7 @@ class WebPluginImpl : public WebPlugin,
   friend class WebPluginContainer;
 
   WebPluginImpl(WebCore::Element *element, WebFrameImpl *frame,
-                WebPluginDelegate* delegate);
+                WebPluginDelegate* delegate, const GURL& plugin_url);
 
   // WebPlugin implementation:
   void SetWindow(HWND window, HANDLE pump_messages_event);
@@ -283,6 +283,9 @@ class WebPluginImpl : public WebPlugin,
   // Tracks HTTP multipart response handlers instantiated for
   // a WebPluginResourceClient instance.
   MultiPartResponseHandlerMap multi_part_response_map_;
+
+  // The plugin source URL.
+  GURL plugin_url_;
 
   DISALLOW_EVIL_CONSTRUCTORS(WebPluginImpl);
 };
