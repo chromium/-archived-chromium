@@ -586,6 +586,16 @@ NavigationController::NavClass NavigationController::ClassifyNavigation(
     // main frame.
     if (PageTransition::IsMainFrame(params.transition))
       return NAV_NEW_PAGE;
+
+    // When this is a new subframe navigation, we should have a committed page
+    // for which it's a suframe in. This may not be the case when an iframe is
+    // navigated on a popup navigated to about:blank (the iframe would be
+    // written into the popup by script on the main page). For these cases,
+    // there isn't any navigation stuff we can do, so just ignore it.
+    if (!GetLastCommittedEntry())
+      return NAV_IGNORE;
+
+    // Valid subframe navigation.
     return NAV_NEW_SUBFRAME;
   }
 
@@ -621,11 +631,16 @@ NavigationController::NavClass NavigationController::ClassifyNavigation(
   if (AreURLsInPageNavigation(existing_entry->url(), params.url))
     return NAV_IN_PAGE;
 
-  if (!PageTransition::IsMainFrame(params.transition))
-    return NAV_AUTO_SUBFRAME;  // All manual subframes would get new IDs and
-                               // were handled above.
+  if (!PageTransition::IsMainFrame(params.transition)) {
+    // All manual subframes would get new IDs and were handled above, so we
+    // know this is auto. Since the current page was found in the navigation
+    // entry list, we're guaranteed to have a last committed entry.
+    DCHECK(GetLastCommittedEntry());
+    return NAV_AUTO_SUBFRAME;
+  }
+
   // Since we weeded out "new" navigations above, we know this is an existing
-  // navigation.
+  // (back/forward) navigation.
   return NAV_EXISTING_PAGE;
 }
 
@@ -663,8 +678,8 @@ void NavigationController::RendererDidNavigateToExistingPage(
   DCHECK(PageTransition::IsMainFrame(params.transition));
 
   // This is a back/forward navigation. The existing page for the ID is
-  // guaranteed to exist, and we just need to update it with new information
-  // from the renderer.
+  // guaranteed to exist by ClassifyNavigation, and we just need to update it
+  // with new information from the renderer.
   int entry_index = GetEntryIndexWithPageID(
       active_contents_->type(),
       active_contents_->GetSiteInstance(),
@@ -698,7 +713,8 @@ void NavigationController::RendererDidNavigateToExistingPage(
 void NavigationController::RendererDidNavigateToSamePage(
     const ViewHostMsg_FrameNavigate_Params& params) {
   // This mode implies we have a pending entry that's the same as an existing
-  // entry for this page ID. All we need to do is update the existing entry.
+  // entry for this page ID. This entry is guaranteed to exist by
+  // ClassifyNavigation. All we need to do is update the existing entry.
   NavigationEntry* existing_entry = GetEntryWithPageID(
       active_contents_->type(),
       active_contents_->GetSiteInstance(),
@@ -737,7 +753,8 @@ void NavigationController::RendererDidNavigateNewSubframe(
   // can go back or forward to it. The actual subframe information will be
   // stored in the page state for each of those entries. This happens out of
   // band with the actual navigations.
-  DCHECK(GetLastCommittedEntry());
+  DCHECK(GetLastCommittedEntry()) << "ClassifyNavigation should guarantee "
+                                  << "that a last committed entry exists.";
   NavigationEntry* new_entry = new NavigationEntry(*GetLastCommittedEntry());
   new_entry->set_page_id(params.page_id);
   InsertEntry(new_entry);
