@@ -14,6 +14,7 @@
 #include <stdio.h>
 
 #include "base/icu_util.h"
+#include "base/process_util.h"
 #include "base/string_util.h"
 #include "chrome/third_party/hunspell/google/bdict_reader.h"
 #include "chrome/third_party/hunspell/google/bdict_writer.h"
@@ -69,6 +70,7 @@ int PrintHelp() {
 }  // namespace
 
 int main(int argc, char* argv[]) {
+  process_util::EnableTerminationOnHeapCorruption();
   if (argc != 2)
     return PrintHelp();
 

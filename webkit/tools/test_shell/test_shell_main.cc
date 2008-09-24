@@ -19,6 +19,7 @@
 #include "base/memory_debug.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
+#include "base/process_util.h"
 #include "base/resource_util.h"
 #include "base/stack_container.h"
 #include "base/stats_table.h"
@@ -111,245 +112,245 @@ bool MinidumpCallback(const wchar_t *dumpPath,
 }
 }  // namespace
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
+  process_util::EnableTerminationOnHeapCorruption();
 #ifdef _CRTDBG_MAP_ALLOC
-    _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
-    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+  _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
+  _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
 #endif
-    // Some tests may use base::Singleton<>, thus we need to instanciate
-    // the AtExitManager or else we will leak objects.
-    base::AtExitManager at_exit_manager;  
+  // Some tests may use base::Singleton<>, thus we need to instanciate
+  // the AtExitManager or else we will leak objects.
+  base::AtExitManager at_exit_manager;  
 
-    CommandLine parsed_command_line;
-    if (parsed_command_line.HasSwitch(test_shell::kStartupDialog))
-        MessageBox(NULL, L"attach to me?", L"test_shell", MB_OK);
-    //webkit_glue::SetLayoutTestMode(true);
+  CommandLine parsed_command_line;
+  if (parsed_command_line.HasSwitch(test_shell::kStartupDialog))
+      MessageBox(NULL, L"attach to me?", L"test_shell", MB_OK);
+  //webkit_glue::SetLayoutTestMode(true);
 
-    // Allocate a message loop for this thread.  Although it is not used
-    // directly, its constructor sets up some necessary state.
-    MessageLoopForUI main_message_loop;
+  // Allocate a message loop for this thread.  Although it is not used
+  // directly, its constructor sets up some necessary state.
+  MessageLoopForUI main_message_loop;
 
-    bool suppress_error_dialogs = 
-         (GetEnvironmentVariable(L"CHROME_HEADLESS", NULL, 0) ||
-         parsed_command_line.HasSwitch(test_shell::kNoErrorDialogs) ||
-         parsed_command_line.HasSwitch(test_shell::kLayoutTests));
-    TestShell::InitLogging(suppress_error_dialogs);
+  bool suppress_error_dialogs = 
+       (GetEnvironmentVariable(L"CHROME_HEADLESS", NULL, 0) ||
+       parsed_command_line.HasSwitch(test_shell::kNoErrorDialogs) ||
+       parsed_command_line.HasSwitch(test_shell::kLayoutTests));
+  TestShell::InitLogging(suppress_error_dialogs);
 
-    // Suppress abort message in v8 library in debugging mode.
-    // V8 calls abort() when it hits assertion errors.
-    if (suppress_error_dialogs) {
-        _set_abort_behavior(0, _WRITE_ABORT_MSG);
-    }
+  // Suppress abort message in v8 library in debugging mode.
+  // V8 calls abort() when it hits assertion errors.
+  if (suppress_error_dialogs) {
+    _set_abort_behavior(0, _WRITE_ABORT_MSG);
+  }
 
-    if (parsed_command_line.HasSwitch(test_shell::kEnableTracing))
-      base::TraceLog::StartTracing();
+  if (parsed_command_line.HasSwitch(test_shell::kEnableTracing))
+    base::TraceLog::StartTracing();
 
-    // Make the selection of network stacks early on before any consumers try to
-    // issue HTTP requests.
-    if (parsed_command_line.HasSwitch(test_shell::kUseNewHttp))
-      net::HttpNetworkLayer::UseWinHttp(false);
+  // Make the selection of network stacks early on before any consumers try to
+  // issue HTTP requests.
+  if (parsed_command_line.HasSwitch(test_shell::kUseNewHttp))
+    net::HttpNetworkLayer::UseWinHttp(false);
 
-    bool layout_test_mode =
-        parsed_command_line.HasSwitch(test_shell::kLayoutTests);
+  bool layout_test_mode =
+      parsed_command_line.HasSwitch(test_shell::kLayoutTests);
 
-    net::HttpCache::Mode cache_mode = net::HttpCache::NORMAL;
-    bool playback_mode = 
-      parsed_command_line.HasSwitch(test_shell::kPlaybackMode);
-    bool record_mode = 
-      parsed_command_line.HasSwitch(test_shell::kRecordMode);
+  net::HttpCache::Mode cache_mode = net::HttpCache::NORMAL;
+  bool playback_mode = 
+    parsed_command_line.HasSwitch(test_shell::kPlaybackMode);
+  bool record_mode = 
+    parsed_command_line.HasSwitch(test_shell::kRecordMode);
 
-    if (playback_mode)
-      cache_mode = net::HttpCache::PLAYBACK;
-    else if (record_mode)
-      cache_mode = net::HttpCache::RECORD;
+  if (playback_mode)
+    cache_mode = net::HttpCache::PLAYBACK;
+  else if (record_mode)
+    cache_mode = net::HttpCache::RECORD;
 
-    if (layout_test_mode ||
-        parsed_command_line.HasSwitch(test_shell::kEnableFileCookies))
-      net::CookieMonster::EnableFileScheme();
+  if (layout_test_mode ||
+      parsed_command_line.HasSwitch(test_shell::kEnableFileCookies))
+    net::CookieMonster::EnableFileScheme();
 
-    std::wstring cache_path =
-        parsed_command_line.GetSwitchValue(test_shell::kCacheDir);
-    if (cache_path.empty()) {
-      PathService::Get(base::DIR_EXE, &cache_path);
-      file_util::AppendToPath(&cache_path, L"cache");
-    }
+  std::wstring cache_path =
+      parsed_command_line.GetSwitchValue(test_shell::kCacheDir);
+  if (cache_path.empty()) {
+    PathService::Get(base::DIR_EXE, &cache_path);
+    file_util::AppendToPath(&cache_path, L"cache");
+  }
 
-    // Initializing with a default context, which means no on-disk cookie DB,
-    // and no support for directory listings.
-    SimpleResourceLoaderBridge::Init(
-        new TestShellRequestContext(cache_path, cache_mode));
+  // Initializing with a default context, which means no on-disk cookie DB,
+  // and no support for directory listings.
+  SimpleResourceLoaderBridge::Init(
+      new TestShellRequestContext(cache_path, cache_mode));
 
-    // Load ICU data tables
-    icu_util::Initialize();
+  // Load ICU data tables
+  icu_util::Initialize();
 
-    // Config the network module so it has access to a limited set of resources.
-    net::NetModule::SetResourceProvider(NetResourceProvider);
+  // Config the network module so it has access to a limited set of resources.
+  net::NetModule::SetResourceProvider(NetResourceProvider);
 
-    INITCOMMONCONTROLSEX InitCtrlEx;
+  INITCOMMONCONTROLSEX InitCtrlEx;
 
-    InitCtrlEx.dwSize = sizeof(INITCOMMONCONTROLSEX);
-    InitCtrlEx.dwICC  = ICC_STANDARD_CLASSES;
-    InitCommonControlsEx(&InitCtrlEx);
+  InitCtrlEx.dwSize = sizeof(INITCOMMONCONTROLSEX);
+  InitCtrlEx.dwICC  = ICC_STANDARD_CLASSES;
+  InitCommonControlsEx(&InitCtrlEx);
 
-    bool interactive = !layout_test_mode;
-    TestShell::InitializeTestShell(interactive);
+  bool interactive = !layout_test_mode;
+  TestShell::InitializeTestShell(interactive);
 
     if (parsed_command_line.HasSwitch(test_shell::kAllowScriptsToCloseWindows))
       TestShell::SetAllowScriptsToCloseWindows();
 
-    // Disable user themes for layout tests so pixel tests are consistent.
-    if (!interactive)
-      gfx::NativeTheme::instance()->DisableTheming();
+  // Disable user themes for layout tests so pixel tests are consistent.
+  if (!interactive)
+    gfx::NativeTheme::instance()->DisableTheming();
 
-    if (parsed_command_line.HasSwitch(test_shell::kTestShellTimeOut)) {
-      const std::wstring timeout_str = parsed_command_line.GetSwitchValue(
-          test_shell::kTestShellTimeOut);
-      int timeout_ms = static_cast<int>(StringToInt64(timeout_str.c_str()));
-      if (timeout_ms > 0)
-        TestShell::SetFileTestTimeout(timeout_ms);
+  if (parsed_command_line.HasSwitch(test_shell::kTestShellTimeOut)) {
+    const std::wstring timeout_str = parsed_command_line.GetSwitchValue(
+        test_shell::kTestShellTimeOut);
+    int timeout_ms = static_cast<int>(StringToInt64(timeout_str.c_str()));
+    if (timeout_ms > 0)
+      TestShell::SetFileTestTimeout(timeout_ms);
+  }
+
+  // Initialize global strings
+  TestShell::RegisterWindowClass();
+
+  // Treat the first loose value as the initial URL to open.
+  std::wstring uri;
+
+  // Default to a homepage if we're interactive.
+  if (interactive) {
+    PathService::Get(base::DIR_SOURCE_ROOT, &uri);
+    file_util::AppendToPath(&uri, L"webkit");
+    file_util::AppendToPath(&uri, L"data");
+    file_util::AppendToPath(&uri, L"test_shell");
+    file_util::AppendToPath(&uri, L"index.html");
+  }
+
+  if (parsed_command_line.GetLooseValueCount() > 0) {
+    CommandLine::LooseValueIterator iter(
+        parsed_command_line.GetLooseValuesBegin());
+    uri = *iter;
+  }
+
+  if (parsed_command_line.HasSwitch(test_shell::kCrashDumps)) {
+    std::wstring dir(
+        parsed_command_line.GetSwitchValue(test_shell::kCrashDumps));
+    new google_breakpad::ExceptionHandler(dir, 0, &MinidumpCallback, 0, true);
+  }
+
+  std::wstring js_flags = 
+    parsed_command_line.GetSwitchValue(test_shell::kJavaScriptFlags);
+  // Test shell always exposes the GC.
+  CommandLine::AppendSwitch(&js_flags, L"expose-gc");
+  webkit_glue::SetJavaScriptFlags(js_flags);
+
+  // load and initialize the stats table.
+  StatsTable *table = new StatsTable(kStatsFile, kStatsFileThreads, kStatsFileCounters);
+  StatsTable::set_current(table);
+
+  TestShell* shell;
+  if (TestShell::CreateNewWindow(uri, &shell)) {
+    if (record_mode || playback_mode) {
+      // Move the window to the upper left corner for consistent
+      // record/playback mode.  For automation, we want this to work
+      // on build systems where the script invoking us is a background
+      // process.  So for this case, make our window the topmost window
+      // as well.
+      ForegroundHelper::SetForeground(shell->mainWnd());
+      ::SetWindowPos(shell->mainWnd(), HWND_TOP, 0, 0, 600, 800, 0);
+      // Tell webkit as well.
+      webkit_glue::SetRecordPlaybackMode(true);
     }
 
-    // Initialize global strings
-    TestShell::RegisterWindowClass();
+    shell->Show(shell->webView(), NEW_WINDOW);
 
-    // Treat the first loose value as the initial URL to open.
-    std::wstring uri;
+    if (parsed_command_line.HasSwitch(test_shell::kDumpStatsTable))
+      shell->DumpStatsTableOnExit();
 
-    // Default to a homepage if we're interactive.
-    if (interactive) {
-        PathService::Get(base::DIR_SOURCE_ROOT, &uri);
-        file_util::AppendToPath(&uri, L"webkit");
-        file_util::AppendToPath(&uri, L"data");
-        file_util::AppendToPath(&uri, L"test_shell");
-        file_util::AppendToPath(&uri, L"index.html");
+    bool no_events = parsed_command_line.HasSwitch(test_shell::kNoEvents);
+    if ((record_mode || playback_mode) && !no_events) {
+      std::wstring script_path = cache_path;
+      // Create the cache directory in case it doesn't exist.
+      file_util::CreateDirectory(cache_path);
+      file_util::AppendToPath(&script_path, L"script.log");
+      if (record_mode)
+        base::EventRecorder::current()->StartRecording(script_path);
+      if (playback_mode)
+        base::EventRecorder::current()->StartPlayback(script_path);
     }
 
-    if (parsed_command_line.GetLooseValueCount() > 0) {
-        CommandLine::LooseValueIterator iter = parsed_command_line.GetLooseValuesBegin();
-        uri = *iter;
+    if (parsed_command_line.HasSwitch(test_shell::kDebugMemoryInUse)) {
+      base::MemoryDebug::SetMemoryInUseEnabled(true);
+      // Dump all in use memory at startup
+      base::MemoryDebug::DumpAllMemoryInUse();
     }
 
-    if (parsed_command_line.HasSwitch(test_shell::kCrashDumps)) {
-        std::wstring dir = parsed_command_line.GetSwitchValue(test_shell::kCrashDumps);
-        new google_breakpad::ExceptionHandler(dir, 0, &MinidumpCallback, 0, true);
-    }
+    // See if we need to run the tests.
+    if (layout_test_mode) {
+      webkit_glue::SetLayoutTestMode(true);
 
-    std::wstring js_flags = 
-      parsed_command_line.GetSwitchValue(test_shell::kJavaScriptFlags);
-    // Test shell always exposes the GC.
-    CommandLine::AppendSwitch(&js_flags, L"expose-gc");
-    webkit_glue::SetJavaScriptFlags(js_flags);
-
-    // load and initialize the stats table.
-    StatsTable *table = new StatsTable(kStatsFile, kStatsFileThreads, kStatsFileCounters);
-    StatsTable::set_current(table);
-
-    TestShell* shell;
-    if (TestShell::CreateNewWindow(uri, &shell)) {
-        if (record_mode || playback_mode) {
-          // Move the window to the upper left corner for consistent
-          // record/playback mode.  For automation, we want this to work
-          // on build systems where the script invoking us is a background
-          // process.  So for this case, make our window the topmost window
-          // as well.
-          ForegroundHelper::SetForeground(shell->mainWnd());
-          ::SetWindowPos(shell->mainWnd(), HWND_TOP, 0, 0, 600, 800, 0);
-          // Tell webkit as well.
-          webkit_glue::SetRecordPlaybackMode(true);
+      // Set up for the kind of test requested.
+      TestShell::TestParams params;
+      if (parsed_command_line.HasSwitch(test_shell::kDumpPixels)) {
+        // The pixel test flag also gives the image file name to use.
+        params.dump_pixels = true;
+        params.pixel_file_name = parsed_command_line.GetSwitchValue(
+            test_shell::kDumpPixels);
+        if (params.pixel_file_name.size() == 0) {
+          fprintf(stderr, "No file specified for pixel tests");
+          exit(1);
         }
+      }
+      if (parsed_command_line.HasSwitch(test_shell::kNoTree)) {
+          params.dump_tree = false;
+      }
 
-        shell->Show(shell->webView(), NEW_WINDOW);
+      if (uri.length() == 0) {
+        // Watch stdin for URLs.
+        char filenameBuffer[2048];
+        while (fgets(filenameBuffer, sizeof(filenameBuffer), stdin)) {
+          char *newLine = strchr(filenameBuffer, '\n');
+          if (newLine)
+            *newLine = '\0';
+          if (!*filenameBuffer)
+            continue;
 
-        if (parsed_command_line.HasSwitch(test_shell::kDumpStatsTable))
-          shell->DumpStatsTableOnExit();
+          SetCurrentTestName(filenameBuffer);
 
-        bool no_events = parsed_command_line.HasSwitch(test_shell::kNoEvents);
-        if ((record_mode || playback_mode) && !no_events) {
-          std::wstring script_path = cache_path;
-          // Create the cache directory in case it doesn't exist.
-          file_util::CreateDirectory(cache_path);
-          file_util::AppendToPath(&script_path, L"script.log");
-          if (record_mode)
-            base::EventRecorder::current()->StartRecording(script_path);
-          if (playback_mode)
-            base::EventRecorder::current()->StartPlayback(script_path);
+          if (!TestShell::RunFileTest(filenameBuffer, params))
+            break;
         }
+      } else {
+        TestShell::RunFileTest(WideToUTF8(uri).c_str(), params);
+      }
 
-        if (parsed_command_line.HasSwitch(test_shell::kDebugMemoryInUse)) {
-          base::MemoryDebug::SetMemoryInUseEnabled(true);
-          // Dump all in use memory at startup
-          base::MemoryDebug::DumpAllMemoryInUse();
-        }
-
-        // See if we need to run the tests.
-        if (layout_test_mode) {
-            webkit_glue::SetLayoutTestMode(true);
-
-            // Set up for the kind of test requested.
-            TestShell::TestParams params;
-            if (parsed_command_line.HasSwitch(test_shell::kDumpPixels)) {
-                // The pixel test flag also gives the image file name to use.
-                params.dump_pixels = true;
-                params.pixel_file_name = parsed_command_line.GetSwitchValue(
-                        test_shell::kDumpPixels);
-                if (params.pixel_file_name.size() == 0) {
-                    fprintf(stderr, "No file specified for pixel tests");
-                    exit(1);
-                }
-            }
-            if (parsed_command_line.HasSwitch(test_shell::kNoTree)) {
-                params.dump_tree = false;
-            }
-
-            if (uri.length() == 0) {
-                // Watch stdin for URLs.
-                char filenameBuffer[2048];
-                while (fgets(filenameBuffer, sizeof(filenameBuffer), stdin)) {
-                    char *newLine = strchr(filenameBuffer, '\n');
-                    if (newLine)
-                        *newLine = '\0';
-                    if (!*filenameBuffer)
-                        continue;
-
-                    SetCurrentTestName(filenameBuffer);
-
-                    if (!TestShell::RunFileTest(filenameBuffer, params))
-                        break;
-                }
-            } else {
-                TestShell::RunFileTest(WideToUTF8(uri).c_str(), params);
-            }
-
-            shell->CallJSGC();
-            shell->CallJSGC();
-            if (shell) delete shell;
-        } else {
-            MessageLoop::current()->Run();
-        }
-
-        // Flush any remaining messages.  This ensures that any accumulated
-        // Task objects get destroyed before we exit, which avoids noise in
-        // purify leak-test results.
-        MessageLoop::current()->RunAllPending();
-
-        if (record_mode)
-          base::EventRecorder::current()->StopRecording();
-        if (playback_mode)
-          base::EventRecorder::current()->StopPlayback();
+      shell->CallJSGC();
+      shell->CallJSGC();
+      if (shell) delete shell;
+    } else {
+      MessageLoop::current()->Run();
     }
 
-    TestShell::ShutdownTestShell();
-    TestShell::CleanupLogging();
+    // Flush any remaining messages.  This ensures that any accumulated
+    // Task objects get destroyed before we exit, which avoids noise in
+    // purify leak-test results.
+    MessageLoop::current()->RunAllPending();
 
-    // Tear down shared StatsTable; prevents unit_tests from leaking it.
-    StatsTable::set_current(NULL);
-    delete table;
+    if (record_mode)
+      base::EventRecorder::current()->StopRecording();
+    if (playback_mode)
+      base::EventRecorder::current()->StopPlayback();
+  }
+
+  TestShell::ShutdownTestShell();
+  TestShell::CleanupLogging();
+
+  // Tear down shared StatsTable; prevents unit_tests from leaking it.
+  StatsTable::set_current(NULL);
+  delete table;
 
 #ifdef _CRTDBG_MAP_ALLOC
-    _CrtDumpMemoryLeaks();
+  _CrtDumpMemoryLeaks();
 #endif
-    return 0;
+  return 0;
 }
-
-

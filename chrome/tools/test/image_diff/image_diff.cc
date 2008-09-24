@@ -15,6 +15,7 @@
 #include "base/command_line.h"
 #include "base/gfx/png_decoder.h"
 #include "base/logging.h"
+#include "base/process_util.h"
 #include "base/scoped_ptr.h"
 
 // Causes the app to remain open, waiting for pairs of filenames on stdin.
@@ -228,6 +229,7 @@ int CompareImages(const char* file1, const char* file2) {
 }
 
 int main(int argc, const char* argv[]) {
+  process_util::EnableTerminationOnHeapCorruption();
   CommandLine parsed_command_line;
   if (parsed_command_line.HasSwitch(kOptionPollStdin)) {
     // Watch stdin for filenames.

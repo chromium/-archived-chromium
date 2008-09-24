@@ -11,6 +11,7 @@
 #include "base/icu_util.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
+#include "base/process_util.h"
 #include "base/string_util.h"
 #include "base/time.h"
 #include "chrome/browser/history/history.h"
@@ -178,6 +179,7 @@ void InsertURLBatch(const std::wstring& profile_dir, int page_id,
 }
 
 int main(int argc, const char* argv[]) {
+  process_util::EnableTerminationOnHeapCorruption();
   base::AtExitManager exit_manager;
 
   int next_arg = 1;

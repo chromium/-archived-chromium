@@ -3,9 +3,11 @@
 // found in the LICENSE file.
 
 #include "base/at_exit.h"
+#include "base/process_util.h"
 #include "chrome/test/reliability/reliability_test_suite.h"
 
 int main(int argc, char **argv) {
+  process_util::EnableTerminationOnHeapCorruption();
   return ReliabilityTestSuite(argc, argv).Run();
 }
 

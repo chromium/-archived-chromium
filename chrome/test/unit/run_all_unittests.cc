@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "build/build_config.h"
+#include "base/process_util.h"
 
 #include "base/test_suite.h"
 
@@ -12,6 +13,7 @@
 #endif
 
 int main(int argc, char **argv) {
+  process_util::EnableTerminationOnHeapCorruption();
 #if defined(OS_WIN)
   // TODO(port): This is not Windows-specific, but needs to be ported.
   return ChromeTestSuite(argc, argv).Run();
@@ -19,4 +21,3 @@ int main(int argc, char **argv) {
   return TestSuite(argc, argv).Run();
 #endif
 }
-

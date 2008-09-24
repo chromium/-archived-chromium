@@ -9,6 +9,7 @@
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/debug_on_start.h"
+#include "base/process_util.h"
 #include "chrome/app/breakpad.h"
 #include "chrome/app/client_util.h"
 #include "chrome/app/google_update_client.h"
@@ -19,6 +20,8 @@
 
 int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
                       wchar_t* command_line, int show_command) {
+  process_util::EnableTerminationOnHeapCorruption();
+
   // The exit manager is in charge of calling the dtors of singletons.
   base::AtExitManager exit_manager;
 

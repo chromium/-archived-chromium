@@ -23,6 +23,10 @@ int GetProcId(ProcessHandle process) {
   return process;
 }
 
+void EnableTerminationOnHeapCorruption() {
+  // On POSIX, there nothing to do AFAIK.
+}
+
 void RaiseProcessToHighPriority() {
   // On POSIX, we don't actually do anything here.  We could try to nice() or
   // setpriority() or sched_getscheduler, but these all require extra rights.

@@ -25,6 +25,7 @@
 #include "base/icu_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "base/process_util.h"
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_parse.h"
@@ -205,6 +206,7 @@ NormalizeResult NormalizeFile(const std::wstring& in_filename,
 }
 
 int main(int argc, const char* argv[]) {
+  process_util::EnableTerminationOnHeapCorruption();
   if (argc != 3) {
     fprintf(stderr, "Normalizes and verifies UTF-8 TLD data files\n");
     fprintf(stderr, "Usage: %s <input> <output>\n", argv[0]);

@@ -258,6 +258,10 @@ class ProcessMetrics {
 // Note: Returns true on Windows 2000 without doing anything.
 bool EnableLowFragmentationHeap();
 
+// Enable 'terminate on heap corruption' flag. Helps protect against heap
+// overflow. Has no effect if the OS doesn't provide the necessary facility.
+void EnableTerminationOnHeapCorruption();
+
 // If supported on the platform, and the user has sufficent rights, increase
 // the current process's scheduling priority to a high priority.
 void RaiseProcessToHighPriority();

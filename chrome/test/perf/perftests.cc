@@ -4,12 +4,14 @@
 
 #include "base/message_loop.h"
 #include "base/perftimer.h"
+#include "base/process_util.h"
 #include "chrome/common/chrome_paths.cc"
 #include "testing/gtest/include/gtest/gtest.h"
 
 // TODO(darin): share code with base/run_all_perftests.cc
 
 int main(int argc, char **argv) {
+  process_util::EnableTerminationOnHeapCorruption();
   chrome::RegisterPathProvider();
   MessageLoop main_message_loop;
 

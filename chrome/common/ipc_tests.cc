@@ -378,6 +378,7 @@ HANDLE SpawnChild(ChildType child_type) {
 }
 
 int main(int argc, char** argv) {
+  process_util::EnableTerminationOnHeapCorruption();
   // Some tests may use base::Singleton<>, thus we need to instanciate
   // the AtExitManager or else we will leak objects.
   base::AtExitManager at_exit_manager;  

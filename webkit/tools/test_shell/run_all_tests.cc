@@ -11,6 +11,7 @@
 #include "base/at_exit.h"
 #include "base/icu_util.h"
 #include "base/message_loop.h"
+#include "base/process_util.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_shell.h"
 #include "webkit/tools/test_shell/test_shell_test.h"
@@ -26,6 +27,7 @@ const char* TestShellTest::kJavascriptDelayExitScript =
   "</script>";
 
 int main(int argc, char* argv[]) {
+  process_util::EnableTerminationOnHeapCorruption();
   // Some unittests may use base::Singleton<>, thus we need to instanciate
   // the AtExitManager or else we will leak objects.
   base::AtExitManager at_exit_manager;  

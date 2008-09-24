@@ -6,10 +6,12 @@
 // It's useful for testing Chrome with a cold database.
 
 #include "base/string_piece.h"
+#include "base/process_util.h"
 #include "base/sys_string_conversions.h"
 #include "chrome/test/test_file_util.h"
 
 int main(int argc, const char* argv[]) {
+  process_util::EnableTerminationOnHeapCorruption();
   if (argc <= 1) {
     fprintf(stderr, "flushes disk cache for files\n");
     fprintf(stderr, "usage: %s <filenames>\n", argv[0]);

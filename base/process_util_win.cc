@@ -598,6 +598,11 @@ bool EnableLowFragmentationHeap() {
   return true;
 }
 
+void EnableTerminationOnHeapCorruption() {
+  // Ignore the result code. Supported on XP SP3 and Vista.
+  HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, NULL, 0);
+}
+
 void RaiseProcessToHighPriority() {
   SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 }

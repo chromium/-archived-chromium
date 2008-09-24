@@ -4,10 +4,11 @@
 
 #include "base/at_exit.h"
 #include "base/platform_thread.h"
+#include "base/process_util.h"
 #include "chrome/test/ui/ui_test_suite.h"
 
 int main(int argc, char **argv) {
+  process_util::EnableTerminationOnHeapCorruption();
   PlatformThread::SetName("Tests_Main");
   return UITestSuite(argc, argv).Run();
 }
-
