@@ -48,7 +48,7 @@ static int HostResolverProc(
 
 static int ResolveAddrInfo(
     const std::string& host, const std::string& port, struct addrinfo** out) {
-  int rv; 
+  int rv;
   if (host_mapper) {
     rv = HostResolverProc(host_mapper->Map(host), port, out);
   } else {
