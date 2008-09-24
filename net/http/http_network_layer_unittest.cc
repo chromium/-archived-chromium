@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "net/base/host_resolver_unittest.h"
+#include "net/base/scoped_host_mapper.h"
 #include "net/http/http_network_layer.h"
 #include "net/http/http_transaction_unittest.h"
+#include "net/proxy/proxy_service.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -47,7 +48,9 @@ TEST_F(HttpNetworkLayerTest, Suspend) {
 }
 
 TEST_F(HttpNetworkLayerTest, GoogleGET) {
-  net::HttpNetworkLayer factory(NULL);
+  net::ProxyInfo no_proxy;  // Avoid using a proxy server.
+  net::HttpNetworkLayer factory(&no_proxy);
+
   TestCompletionCallback callback;
 
   net::HttpTransaction* trans = factory.CreateTransaction();

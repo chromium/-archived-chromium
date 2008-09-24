@@ -22,14 +22,17 @@
 //
 //   scoped_host_mapper.AddRule("*.com", "127.0.0.1");
 //
-// If there are multiple ScopedHostMappers on the stack, then the last one
+// If there are multiple ScopedHostMappers in existence, then the last one
 // allocated will be used.  However, if it does not provide a matching rule,
-// then it will delegate to the previously allocated ScopedHostMapper.
+// then it will delegate to the previously set HostMapper (see SetHostMapper).
 // Finally, if no HostMapper matches a given hostname, then the hostname will
 // be unmodified.
+//
+// IMPORTANT: ScopedHostMapper is only designed to be used on a single thread,
+// and it is a requirement that the lifetimes of multiple instances be nested.
 
-#ifndef NET_BASE_HOST_RESOLVER_UNITTEST_H_
-#define NET_BASE_HOST_RESOLVER_UNITTEST_H_
+#ifndef NET_BASE_SCOPED_HOST_MAPPER_H_
+#define NET_BASE_SCOPED_HOST_MAPPER_H_
 
 #ifdef UNIT_TEST
 
@@ -41,7 +44,7 @@
 
 namespace net {
 
-// This class sets the HostResolverProc for a particular scope.
+// This class sets the HostMapper for a particular scope.
 class ScopedHostMapper : public HostMapper {
  public:
   ScopedHostMapper() {
@@ -83,4 +86,4 @@ class ScopedHostMapper : public HostMapper {
 
 #endif  // UNIT_TEST
 
-#endif  // NET_BASE_HOST_RESOLVER_UNITTEST_H_
+#endif  // NET_BASE_SCOPED_HOST_MAPPER_H_

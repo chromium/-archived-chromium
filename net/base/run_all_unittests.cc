@@ -29,7 +29,7 @@
 
 #include "base/message_loop.h"
 #include "base/test_suite.h"
-#include "net/base/host_resolver_unittest.h"
+#include "net/base/scoped_host_mapper.h"
 
 class NetTestSuite : public TestSuite {
  public:
