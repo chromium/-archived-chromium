@@ -130,6 +130,8 @@ env.Append(
       ['WEBCORE_NAVIGATOR_PLATFORM', '"\\"Win32\\""'],
       'USE_GOOGLE_URL_LIBRARY',
       'BUILDING_CHROMIUM__',
+      'CHROMIUM_BUILD',
+      '_SECURE_ATL',
 
       'LIBXSLT_STATIC',
       'LIBXML_STATIC',
@@ -167,7 +169,6 @@ if env['PLATFORM'] == 'win32':
                                  # some changes to WebKit that we'll get
                                  # in the merge.
     'tools/test_shell/SConscript',
-    'tools/test_shell/resources/fonts/SConscript',
   ])
 
   env.Append(
