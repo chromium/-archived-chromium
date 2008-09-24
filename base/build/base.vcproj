@@ -242,6 +242,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\cpu.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\cpu.h"
+			>
+		</File>
+		<File
 			RelativePath="..\debug_on_start.cc"
 			>
 		</File>
