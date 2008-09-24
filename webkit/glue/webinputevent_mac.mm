@@ -90,7 +90,7 @@ WebMouseEvent::WebMouseEvent(NSEvent *event) {
 
   layout_test_click_count = 0;
   
-  mac_event.adoptNS(event);
+  mac_event = event;  // retains |event|
 }
 
 // WebMouseWheelEvent ---------------------------------------------------------
@@ -131,7 +131,7 @@ WebMouseWheelEvent::WebMouseWheelEvent(NSEvent *event) {
   if ([event modifierFlags] & NSAlternateKeyMask)
     modifiers |= ALT_KEY;
   
-  mac_event.adoptNS(event);
+  mac_event = event;  // retains |event|
 }
 
 // WebKeyboardEvent -----------------------------------------------------------
@@ -162,5 +162,5 @@ WebKeyboardEvent::WebKeyboardEvent(NSEvent *event) {
   key_code = [event keyCode];
   key_data = [[event characters] characterAtIndex:0];
   
-  mac_event.adoptNS(event);
+  mac_event = event;  // retains |event|
 }
