@@ -648,6 +648,7 @@ void MetricsService::StopRecording(MetricsLog** log) {
                          current_log_->num_events());
     current_log_->CloseLog();
     delete current_log_;
+    current_log_ = NULL;
     StartRecording();  // Start trivial log to hold our histograms.
   }
 
