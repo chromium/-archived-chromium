@@ -11,6 +11,11 @@ GENERATED_DIR="${CONFIGURATION_TEMP_DIR}/generated"
 # Generate config.h the same way that "sh configure" would
 mkdir -p "${GENERATED_DIR}"
 
+CONFIG_H_IN="$1"
+if test "X${CONFIG_H_IN}" = "X"; then
+  CONFIG_H_IN="config.h.in"
+fi
+
 CONFIG_H="${GENERATED_DIR}/config.h"
 sed -e s/'^#undef DNS_USE_GETTIMEOFDAY_FOR_ID$'/'#define DNS_USE_GETTIMEOFDAY_FOR_ID 1'/ \
     -e s/'^#undef HAVE_DLFCN_H$'/'#define HAVE_DLFCN_H 1'/ \
@@ -76,7 +81,7 @@ sed -e s/'^#undef DNS_USE_GETTIMEOFDAY_FOR_ID$'/'#define DNS_USE_GETTIMEOFDAY_FO
     -e s/'^#undef TIME_WITH_SYS_TIME$'/'#define TIME_WITH_SYS_TIME 1'/ \
     -e s/'^#undef VERSION$'/'#define VERSION "1.4.7-stable"'/ \
     -e s@'^\(#undef .*\)$'@'/* \1 */'@ \
-  < config.h.in \
+  < "${CONFIG_H_IN}" \
   > "${CONFIG_H}.new"
 
 if ! diff -q "${CONFIG_H}.new" "${CONFIG_H}" >& /dev/null ; then

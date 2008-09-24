@@ -368,6 +368,7 @@ elif env['PLATFORM'] == 'darwin':
       ],
       CXXFLAGS = [
           '-fvisibility-inlines-hidden',
+          '${str(SOURCE).endswith(".mm") and "-fobjc-gc" or ""}',
       ],
       CCFLAGS = [
           '-fmessage-length=0',
@@ -392,6 +393,7 @@ elif env['PLATFORM'] == 'darwin':
           '/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks',
       ],
       FRAMEWORKS = [
+          'AppKit',
           'ApplicationServices',
           'Foundation',
       ],
@@ -507,7 +509,7 @@ if LoadComponent('third_party'):
       '$LIBXML_DIR/SConscript',
       '$LIBXSLT_DIR/SConscript',
     ])
-  if env['PLATFORM'] == 'posix':
+  if env['PLATFORM'] in ('posix', 'darwin'):
     sconscripts.extend([
       '$LIBEVENT_DIR/SConscript',
     ])

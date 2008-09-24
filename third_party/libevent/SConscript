@@ -15,29 +15,41 @@ env.Append(
     ],
 )
 
+if env['PLATFORM'] == 'darwin':
+  env.Prepend(
+      CPPPATH = [
+          '$LIBEVENT_DIR/generated/',
+      ],
+  )
+  env['ENV']['CONFIGURATION_TEMP_DIR'] = env.Dir('$LIBEVENT_DIR').abspath
+  env.Command('$LIBEVENT_DIR/generated/config.h',
+              ['libevent.xcodeproj/libevent_prebuild.sh', 'config.h.in'],
+              'sh ${SOURCES[0]} ${SOURCES[1]}')
+    
+
+if env['PLATFORM'] == 'posix':
+  env.Prepend(
+      CPPPATH = [
+          '$LIBEVENT_DIR/linux/',
+      ],
+  )
+
 env.Prepend(
     CPPPATH = [
         '$LIBEVENT_DIR',
         '$LIBEVENT_DIR/compat/',
-        '$LIBEVENT_DIR/linux/',
     ],
 )
 
-
 input_files = [
     'buffer.c',
-    #'devpoll.c',
-    'epoll.c',
-    'epoll_sub.c',
     'evbuffer.c',
     'evdns.c',
     'event.c',
     'event_tagging.c',
-    #'evport.c',
     'evrpc.c',
     'evutil.c',
     'http.c',
-    #'kqueue.c',
     'log.c',
     'poll.c',
     'select.c',
@@ -45,5 +57,16 @@ input_files = [
     'strlcpy.c',
 ]
 
+if env['PLATFORM'] == 'posix':
+  input_files.extend([
+      'epoll.c',
+      'epoll_sub.c',
+  ])
 
-env.ChromeStaticLibrary('libevent', input_files)
+if env['PLATFORM'] == 'darwin':
+  input_files.extend([
+      'kqueue.c',
+  ])
+
+
+env.ChromeStaticLibrary('event', input_files)

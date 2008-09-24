@@ -131,6 +131,7 @@ if env['PLATFORM'] in ('darwin', 'posix'):
       'debug_util_posix.cc',
       'file_util_posix.cc',
       'lock_impl_posix.cc',
+      'message_pump_libevent.cc',
       'platform_thread_posix.cc',
       'process_util_posix.cc',
       'shared_memory_posix.cc',
@@ -149,6 +150,7 @@ if env['PLATFORM'] == 'darwin':
       'file_util_mac.mm',
       'file_version_info_mac.mm',
       'hmac_mac.cc',
+      'message_pump_mac.mm',
       'platform_thread_mac.mm',
       'sys_string_conversions_mac.cc',
       'worker_pool_mac.mm',
@@ -160,7 +162,6 @@ if env['PLATFORM'] == 'posix':
       'base_paths_linux.cc',
       'file_util_linux.cc',
       'hmac_nss.cc',
-      'message_pump_libevent.cc',
       'nss_init.cc',
       'sys_string_conversions_linux.cc',
       'worker_pool.cc',
@@ -231,7 +232,7 @@ if env['PLATFORM'] == 'win32':
       ],
   )
 
-if env['PLATFORM'] == 'posix':
+if env['PLATFORM'] in ('posix', 'darwin'):
   env_tests.Append(
       LIBS = [
           'event',
