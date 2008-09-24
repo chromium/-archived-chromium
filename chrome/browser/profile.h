@@ -174,7 +174,7 @@ class Profile {
   virtual BookmarkModel* GetBookmarkModel() = 0;
 
 #ifdef CHROME_PERSONALIZATION
-  virtual ProfilePersonalization GetProfilePersonalization() = 0;
+  virtual ProfilePersonalization* GetProfilePersonalization() = 0;
 #endif
 
   // Return whether 2 profiles are the same. 2 profiles are the same if they
@@ -253,7 +253,7 @@ class ProfileImpl : public Profile {
   virtual SpellChecker* GetSpellChecker();
   virtual void MarkAsCleanShutdown();
 #ifdef CHROME_PERSONALIZATION
-  virtual ProfilePersonalization GetProfilePersonalization();
+  virtual ProfilePersonalization* GetProfilePersonalization();
 #endif
 
  private:
@@ -261,7 +261,7 @@ class ProfileImpl : public Profile {
 
   friend class Profile;
 
-  ProfileImpl(const std::wstring& path);
+  explicit ProfileImpl(const std::wstring& path);
 
   void CreateWebDataService();
   std::wstring GetPrefFilePath();
@@ -281,7 +281,7 @@ class ProfileImpl : public Profile {
   scoped_ptr<BookmarkModel> bookmark_bar_model_;
 
 #ifdef CHROME_PERSONALIZATION
-  ProfilePersonalization personalization_;
+  scoped_ptr<ProfilePersonalization> personalization_;
 #endif
 
   RequestContext* request_context_;

@@ -460,7 +460,7 @@ class OffTheRecordProfileImpl : public Profile,
   }
 
 #ifdef CHROME_PERSONALIZATION
-  virtual ProfilePersonalization GetProfilePersonalization() {
+  virtual ProfilePersonalization* GetProfilePersonalization() {
     return profile_->GetProfilePersonalization();
   }
 #endif
@@ -560,8 +560,7 @@ ProfileImpl::~ProfileImpl() {
   download_manager_ = NULL;
 
 #ifdef CHROME_PERSONALIZATION
-  Personalization::CleanupProfilePersonalization(personalization_);
-  personalization_ = NULL;
+  personalization_.reset();
 #endif
 
   // Both HistoryService and WebDataService maintain threads for background
@@ -875,9 +874,10 @@ void ProfileImpl::StopCreateSessionServiceTimer() {
 }
 
 #ifdef CHROME_PERSONALIZATION
-ProfilePersonalization ProfileImpl::GetProfilePersonalization() {
-  if (!personalization_)
-    personalization_ = Personalization::CreateProfilePersonalization(this);
-  return personalization_;
+ProfilePersonalization* ProfileImpl::GetProfilePersonalization() {
+  if (!personalization_.get())
+    personalization_.reset(
+        Personalization::CreateProfilePersonalization(this));
+  return personalization_.get();
 }
 #endif
