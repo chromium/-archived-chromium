@@ -40,7 +40,8 @@ class SecurityFilterPeer : public webkit_glue::ResourceLoaderBridge::Peer {
   // ResourceLoaderBridge::Peer methods.
   virtual void OnReceivedRedirect(const GURL& new_url);
   virtual void OnReceivedResponse(
-      const webkit_glue::ResourceLoaderBridge::ResponseInfo& info);
+      const webkit_glue::ResourceLoaderBridge::ResponseInfo& info,
+      bool content_filtered);
   virtual void OnReceivedData(const char* data, int len);
   virtual void OnCompletedRequest(const URLRequestStatus& status);
   virtual std::string GetURLForDebugging();
@@ -67,7 +68,8 @@ class BufferedPeer : public SecurityFilterPeer {
 
   // ResourceLoaderBridge::Peer Implementation.
   virtual void OnReceivedResponse(
-      const webkit_glue::ResourceLoaderBridge::ResponseInfo& info);
+      const webkit_glue::ResourceLoaderBridge::ResponseInfo& info,
+      bool content_filtered);
   virtual void OnReceivedData(const char* data, int len);
   virtual void OnCompletedRequest(const URLRequestStatus& status);
 
@@ -104,7 +106,8 @@ class ReplaceContentPeer : public SecurityFilterPeer {
 
   // ResourceLoaderBridge::Peer Implementation.
   virtual void OnReceivedResponse(
-      const webkit_glue::ResourceLoaderBridge::ResponseInfo& info);
+      const webkit_glue::ResourceLoaderBridge::ResponseInfo& info,
+      bool content_filtered);
   void OnReceivedData(const char* data, int len);
   void OnCompletedRequest(const URLRequestStatus& status);
  private:

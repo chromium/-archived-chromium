@@ -18,6 +18,7 @@
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/views/link.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_errors.h"
 #include "net/base/ssl_info.h"
@@ -25,6 +26,7 @@
 #include "webkit/glue/console_message_level.h"
 #include "webkit/glue/resource_type.h"
 
+class AutomationProvider;
 class InfoBarItemView;
 class NavigationEntry;
 class LoadFromMemoryCacheDetails;
@@ -34,7 +36,6 @@ class PrefService;
 class ResourceRedirectDetails;
 class ResourceRequestDetails;
 class SSLErrorInfo;
-class SSLInfoBar;
 class TabContents;
 class Task;
 class URLRequest;
@@ -261,6 +262,32 @@ class SSLManager : public NotificationObserver {
     virtual SecurityStyle GetDefaultStyle(const GURL& url) = 0;
   };
 
+  // An info bar with a message and an optional link that runs a task when
+  // clicked.
+  class SSLInfoBar : public InfoBarItemView,
+                     public ChromeViews::LinkController {
+   public:
+    SSLInfoBar(SSLManager* manager,
+               const std::wstring& message,
+               const std::wstring& link_text,
+               Task* task);
+
+    virtual ~SSLInfoBar();
+
+    const std::wstring GetMessageText() const;
+
+    // ChromeViews::LinkController method.
+    virtual void LinkActivated(ChromeViews::Link* source, int event_flags);
+
+   private:
+    ChromeViews::Label* label_;
+    ChromeViews::Link* link_;
+    SSLManager* manager_;
+    scoped_ptr<Task> task_;
+
+    DISALLOW_COPY_AND_ASSIGN(SSLInfoBar);
+  };
+
   static void RegisterUserPrefs(PrefService* prefs);
 
   // Construct an SSLManager for the specified tab.
@@ -400,6 +427,9 @@ class SSLManager : public NotificationObserver {
                              std::wstring* ca_name);
 
  private:
+  // The AutomationProvider needs to access the InfoBars.
+  friend class AutomationProvider;
+
   // SSLMessageInfo contains the information necessary for displaying a message
   // in an info-bar.
   struct SSLMessageInfo {

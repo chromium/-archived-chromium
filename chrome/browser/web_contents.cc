@@ -1604,7 +1604,7 @@ void WebContents::DidStartProvisionalLoadForFrame(
       is_main_frame,
       render_manager_.IsRenderViewInterstitial(render_view_host),
       controller()->IsURLInPageNavigation(url),
-      url, std::string());
+      url, std::string(), false);
   NotificationService::current()->
       Notify(NOTIFY_FRAME_PROVISIONAL_LOAD_START,
              Source<NavigationController>(controller()),
@@ -1671,7 +1671,7 @@ void WebContents::DidFailProvisionalLoadWithError(
       is_main_frame,
       render_manager_.IsRenderViewInterstitial(render_view_host),
       controller()->IsURLInPageNavigation(url),
-      url, std::string());
+      url, std::string(), false);
   details.set_error_code(error_code);
 
   render_manager_.set_showing_repost_interstitial(showing_repost_interstitial);

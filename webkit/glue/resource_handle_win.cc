@@ -200,7 +200,8 @@ class ResourceHandleInternal : public ResourceLoaderBridge::Peer {
   // ResourceLoaderBridge::Peer implementation
   virtual void OnReceivedRedirect(const GURL& new_url);
   virtual void OnReceivedResponse(
-      const ResourceLoaderBridge::ResponseInfo& info);
+      const ResourceLoaderBridge::ResponseInfo& info,
+      bool content_filtered);
   virtual void OnReceivedData(const char* data, int len);
   virtual void OnCompletedRequest(const URLRequestStatus& status);
   virtual std::string GetURLForDebugging();
@@ -268,7 +269,7 @@ void ResourceHandleInternal::HandleDataUrl() {
 
   if (GetInfoFromDataUrl(webkit_glue::KURLToGURL(request_.url()), &info, &data,
                          &status)) {
-    OnReceivedResponse(info);
+    OnReceivedResponse(info, false);
 
     if (data.size())
       OnReceivedData(data.c_str(), data.size());
@@ -502,11 +503,13 @@ void ResourceHandleInternal::OnReceivedRedirect(const GURL& new_url) {
 }
 
 void ResourceHandleInternal::OnReceivedResponse(
-    const ResourceLoaderBridge::ResponseInfo& info) {
+    const ResourceLoaderBridge::ResponseInfo& info,
+    bool content_filtered) {
   DCHECK(pending_);
 
   // TODO(darin): need a way to properly initialize a ResourceResponse
   ResourceResponse response = MakeResourceResponse(request_.url(), info);
+  response.setIsContentFiltered(content_filtered);
 
   expected_content_length_ = response.expectedContentLength();
 

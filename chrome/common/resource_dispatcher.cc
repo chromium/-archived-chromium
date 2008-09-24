@@ -337,7 +337,7 @@ void ResourceDispatcher::OnReceivedResponse(
   }
 
   RESOURCE_LOG("Dispatching response for " << peer->GetURLForDebugging());
-  peer->OnReceivedResponse(response_head);
+  peer->OnReceivedResponse(response_head, false);
 }
 
 void ResourceDispatcher::OnReceivedData(int request_id,

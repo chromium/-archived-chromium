@@ -27,8 +27,8 @@
 //       The IPC message IDs are part of an enum and hence the value
 //       assumed to be constant across the builds may change.
 //       The messages AutomationMsg_WindowHWND* in particular should not change
-//       since the PageCyclerReferenceTest depend on the correctness of the
-//       the message IDs across the builds.
+//       since the PageCyclerReferenceTest depends on the correctness of the
+//       message IDs across the builds.
 
 // By using a start value of 0 for automation messages, we keep backward
 // compatability with old builds.
@@ -760,5 +760,46 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   IPC_MESSAGE_ROUTED2(AutomationMsg_BookmarkBarVisibilityResponse,
                       bool, /* is_visible */
                       bool  /* still_animating */)
+
+  // This message requests the number of SSL related info bars opened.  It
+  // returns -1 if an error occurred.
+  IPC_MESSAGE_ROUTED1(AutomationMsg_GetSSLInfoBarCountRequest,
+                      int /* tab_handle */)
+  IPC_MESSAGE_ROUTED1(AutomationMsg_GetSSLInfoBarCountResponse,
+                      int /* info bar count */)
+
+  // This message triggers the action associated with the link in the info-bar
+  // at the specified index.  If |wait for navigation| is true, it won't return
+  // until a navigation has occurred.
+  IPC_MESSAGE_ROUTED3(AutomationMsg_ClickSSLInfoBarLinkRequest,
+                      int /* tab_handle */,
+                      int /* info bar index */,
+                      bool /* wait for navigation */)
+  IPC_MESSAGE_ROUTED1(AutomationMsg_ClickSSLInfoBarLinkResponse,
+                       bool /* success flag */)
+
+  // This message retrieves the last time a navigation occurred in the specified
+  // tab.  The value is intended to be used with WaitForNavigation.
+  IPC_MESSAGE_ROUTED1(AutomationMsg_GetLastNavigationTimeRequest,
+                      int /* tab_handle */)
+  IPC_MESSAGE_ROUTED1(AutomationMsg_GetLastNavigationTimeResponse,
+                      int64 /* last navigation time */)
+
+  // This messages is used to block until a new navigation occurs (if there is
+  // none more recent then the time specified).
+  IPC_MESSAGE_ROUTED2(AutomationMsg_WaitForNavigationRequest,
+                      int /* tab_handle */,
+                      int64 /* last navigation time */)
+  IPC_MESSAGE_ROUTED1(AutomationMsg_WaitForNavigationResponse,
+                      bool /* success */)
+
+  // This messages sets an int-value preference.
+  IPC_MESSAGE_ROUTED3(AutomationMsg_SetIntPreferenceRequest,
+                      int /* browser handle */,                    
+                      std::wstring /* pref name */,
+                      int /* value */)
+  IPC_MESSAGE_ROUTED1(AutomationMsg_SetIntPreferenceResponse,
+                      bool /* success */)
+
 IPC_END_MESSAGES(Automation)
 

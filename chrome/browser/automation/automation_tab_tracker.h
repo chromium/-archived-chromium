@@ -28,6 +28,11 @@ public:
     NotificationService::current()->AddObserver(
         this, NOTIFY_EXTERNAL_TAB_CLOSED,
         Source<NavigationController>(resource));
+    // We also want to know about navigations so we can keep track of the last
+    // navigation time.
+    NotificationService::current()->AddObserver(
+        this, NOTIFY_NAV_ENTRY_COMMITTED,
+        Source<NavigationController>(resource));
   }
 
   virtual void RemoveObserver(NavigationController* resource) {
@@ -36,7 +41,49 @@ public:
     NotificationService::current()->RemoveObserver(
         this, NOTIFY_EXTERNAL_TAB_CLOSED,
         Source<NavigationController>(resource));
+    NotificationService::current()->RemoveObserver(
+        this, NOTIFY_NAV_ENTRY_COMMITTED,
+        Source<NavigationController>(resource));
   }
+
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details) {
+    switch (type) {
+      case NOTIFY_NAV_ENTRY_COMMITTED:
+        last_navigation_times_[Source<NavigationController>(source).ptr()] =
+            Time::Now();
+        return;
+      case NOTIFY_EXTERNAL_TAB_CLOSED:
+      case NOTIFY_TAB_CLOSING:
+        std::map<NavigationController*, Time>::iterator iter =
+            last_navigation_times_.find(
+            Source<NavigationController>(source).ptr());
+        if (iter != last_navigation_times_.end())
+          last_navigation_times_.erase(iter);
+        break;
+    }
+    AutomationResourceTracker::Observe(type, source, details);
+  }
+
+  Time GetLastNavigationTime(int handle) {
+    if (ContainsHandle(handle)) {
+      NavigationController* controller = GetResource(handle);
+      if (controller) {
+        std::map<NavigationController*, Time>::const_iterator iter =
+            last_navigation_times_.find(controller);
+        if (iter != last_navigation_times_.end())
+          return iter->second;
+      }
+    }
+    return Time();
+  }
+
+ private:
+  // Last time a navigation occurred.
+   std::map<NavigationController*, Time> last_navigation_times_;
+
+  DISALLOW_COPY_AND_ASSIGN(AutomationTabTracker);
 };
 
 #endif // CHROME_BROWSER_AUTOMATION_AUTOMATION_TAB_TRACKER_H__

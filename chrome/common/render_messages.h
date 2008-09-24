@@ -101,6 +101,10 @@ struct ViewHostMsg_FrameNavigate_Params {
 
   // True if this was a post request.
   bool is_post;
+
+  // Whether the content of the frame was replaced with some alternate content
+  // (this can happen if the resource was insecure).
+  bool is_content_filtered;
 };
 
 // Parameters structure for ViewHostMsg_ContextMenu, which has too many data

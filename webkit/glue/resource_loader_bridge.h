@@ -79,8 +79,11 @@ class ResourceLoaderBridge {
     virtual void OnReceivedRedirect(const GURL& new_url) = 0;
 
     // Called when response headers are available (after all redirects have
-    // been followed).
-    virtual void OnReceivedResponse(const ResponseInfo& info) = 0;
+    // been followed).  |content_filtered| is set to true if the contents is
+    // altered or replaced (usually for security reasons when the resource is
+    // deemed unsafe).
+    virtual void OnReceivedResponse(const ResponseInfo& info,
+                                    bool content_filtered) = 0;
 
     // Called when a chunk of response data is available.  This method may
     // be called multiple times or not at all if an error occurs.

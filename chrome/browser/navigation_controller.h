@@ -79,6 +79,10 @@ class NavigationController {
     // won't care about interstitial loads.
     bool is_interstitial;
 
+    // Whether the content of this frame has been altered/blocked because it was
+    // unsafe.
+    bool is_content_filtered;
+
     // When the committed load is a web page from the renderer, this string
     // specifies the security state if the page is secure.
     // See ViewHostMsg_FrameNavigate_Params.security_info, where it comes from.

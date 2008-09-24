@@ -318,7 +318,21 @@ class DefaultPolicy : public SSLPolicy {
     mixed_content_handler->StartRequest(filter_policy);
 
     NavigationEntry* entry = navigation_controller->GetActiveEntry();
-    entry->ssl().set_has_mixed_content();
+    // Even though we are loading the mixed-content resource, it will not be
+    // included in the page when we set the policy to FILTER_ALL or
+    // FILTER_ALL_EXCEPT_IMAGES (only images and they are stamped with warning
+    // icons), so we don't set the mixed-content mode in these cases.
+    if (filter_policy == FilterPolicy::DONT_FILTER)
+      entry->ssl().set_has_mixed_content();
+
+    // Print a message indicating the mixed-contents resource in the console.
+    const std::wstring& msg = l10n_util::GetStringF(
+        IDS_MIXED_CONTENT_LOG_MESSAGE,
+        UTF8ToWide(entry->url().spec()),
+        UTF8ToWide(mixed_content_handler->request_url().spec()));
+    mixed_content_handler->manager()->
+        AddMessageToConsole(msg, MESSAGE_LEVEL_WARNING);
+
     NotificationService::current()->Notify(
         NOTIFY_SSL_STATE_CHANGED,
         Source<NavigationController>(navigation_controller),
@@ -412,25 +426,6 @@ void SSLPolicy::OnRequestStarted(SSLManager* manager, const GURL& url,
         manager->SetMaxSecurityStyle(SECURITY_STYLE_AUTHENTICATION_BROKEN);
       }
     }
-  }
-
-  // Note that when navigating to an inner-frame, we get this notification
-  // before the new navigation entry is created.  For now we just copy the
-  // mixed/unsafe content state from the old entry to the new one.  It is OK
-  // to set the state on the wrong entry, as if we navigate back to it, its
-  // state will be reset.
-
-  // Now check for mixed content.
-  if (entry->url().SchemeIsSecure() && !url.SchemeIsSecure()) {
-    if (!ssl.has_mixed_content()) {
-      changed = true;
-      ssl.set_has_mixed_content();
-    }
-    const std::wstring& msg = l10n_util::GetStringF(
-        IDS_MIXED_CONTENT_LOG_MESSAGE,
-        UTF8ToWide(entry->url().spec()),
-        UTF8ToWide(url.spec()));
-    manager->AddMessageToConsole(msg, MESSAGE_LEVEL_WARNING);
   }
 
   if (changed) {

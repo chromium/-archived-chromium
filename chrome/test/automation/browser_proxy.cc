@@ -372,3 +372,23 @@ bool BrowserProxy::GetBookmarkBarVisibility(bool* is_visible,
   delete response;
   return true;
 }
+
+bool BrowserProxy::SetIntPreference(const std::wstring& name, int value) {
+  if (!is_valid())
+    return false;
+
+  IPC::Message* response = NULL;
+  bool success = sender_->SendAndWaitForResponse(
+    new AutomationMsg_SetIntPreferenceRequest(0, handle_, name , value),
+    &response, AutomationMsg_SetIntPreferenceResponse::ID);
+
+  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
+  if (!success)
+    return false;
+
+  if (AutomationMsg_SetIntPreferenceResponse::Read(response, &success))
+    return success;
+
+  // We failed to deserialize the returned value.
+  return false;
+}

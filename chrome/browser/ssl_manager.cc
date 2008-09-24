@@ -35,40 +35,10 @@
 #include "webkit/glue/resource_type.h"
 #include "generated_resources.h"
 
-////////////////////////////////////////////////////////////////////////////////
-// SSLInfoBar
-//
-// An info bar with a message and an optional link that runs a task when
-// clicked.
-
-class SSLInfoBar : public InfoBarItemView,
-                   public ChromeViews::LinkController {
- public:
-  SSLInfoBar::SSLInfoBar(SSLManager* manager,
-                         const std::wstring& message,
-                         const std::wstring& link_text,
-                         Task* task);
-
-  virtual SSLInfoBar::~SSLInfoBar();
-
-  const std::wstring GetMessageText() const;
-
-  // ChromeViews::LinkController method.
-  virtual void LinkActivated(ChromeViews::Link* source, int event_flags);
-
- private:
-  ChromeViews::Label* label_;
-  ChromeViews::Link* link_;
-  SSLManager* manager_;
-  scoped_ptr<Task> task_;
-
-  DISALLOW_COPY_AND_ASSIGN(SSLInfoBar);
-};
-
-SSLInfoBar::SSLInfoBar(SSLManager* manager,
-                       const std::wstring& message,
-                       const std::wstring& link_text,
-                       Task* task)
+SSLManager::SSLInfoBar::SSLInfoBar(SSLManager* manager,
+                                   const std::wstring& message,
+                                   const std::wstring& link_text,
+                                   Task* task)
     : label_(NULL),
       link_(NULL),
       manager_(manager),
@@ -94,19 +64,20 @@ SSLInfoBar::SSLInfoBar(SSLManager* manager,
   DCHECK(manager);
 }
 
-SSLInfoBar::~SSLInfoBar() {
+SSLManager::SSLInfoBar::~SSLInfoBar() {
   // Notify our manager that we no longer exist.
   manager_->OnInfoBarClose(this);
 }
 
-const std::wstring SSLInfoBar::GetMessageText() const {
+const std::wstring SSLManager::SSLInfoBar::GetMessageText() const {
   if (!label_)
     return std::wstring();
 
   return label_->GetText();
 }
 
-void SSLInfoBar::LinkActivated(ChromeViews::Link* source, int event_flags) {
+void SSLManager::SSLInfoBar::LinkActivated(ChromeViews::Link* source,
+                                           int event_flags) {
   if (task_.get()) {
     task_->Run();
     task_.reset();  // Ensures we won't run the task again.
@@ -643,10 +614,27 @@ void SSLManager::DidCommitProvisionalLoad(
   // An HTTPS response may not have a certificate for some reason.  When that
   // happens, use the unauthenticated (HTTP) rather than the authentication
   // broken security style so that we can detect this error condition.
-  if (net::IsCertStatusError(ssl_cert_status))
+  if (net::IsCertStatusError(ssl_cert_status)) {
     changed |= SetMaxSecurityStyle(SECURITY_STYLE_AUTHENTICATION_BROKEN);
-  else if (details->entry->url().SchemeIsSecure() && !ssl_cert_id)
-    changed |= SetMaxSecurityStyle(SECURITY_STYLE_UNAUTHENTICATED);
+    if (!details->is_main_frame &&
+        !details->entry->ssl().has_unsafe_content()) {
+      details->entry->ssl().set_has_unsafe_content();
+      changed = true;
+    }
+  } else if (details->entry->url().SchemeIsSecure() && !ssl_cert_id) {
+    if (details->is_main_frame) {
+      changed |= SetMaxSecurityStyle(SECURITY_STYLE_UNAUTHENTICATED);
+    } else {
+      // If the frame has been blocked we keep our security style as
+      // authenticated in that case as nothing insecure is actually showing or
+      // loaded.
+      if (!details->is_content_filtered && 
+          !details->entry->ssl().has_mixed_content()) {
+        details->entry->ssl().set_has_mixed_content();
+        changed = true;
+      }
+    }
+  }
 
   if (changed) {
     // Only send the notification when something actually changed.

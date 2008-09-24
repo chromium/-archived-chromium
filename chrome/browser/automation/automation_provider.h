@@ -294,7 +294,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
 
   // Retrieves if a query to an autocomplete provider is in progress.
   void AutocompleteEditIsQueryInProgress(const IPC::Message& message,
-                                       int autocomplete_edit_handle);
+                                         int autocomplete_edit_handle);
 
   // Retrieves the individual autocomplete matches displayed by the popup.
   void AutocompleteEditGetMatches(const IPC::Message& message,
@@ -303,6 +303,32 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   // Handler for a message sent by the automation client.
   void OnMessageFromExternalHost(int handle, const std::string& target,
                                  const std::string& message);
+
+  // Retrieves the number of SSL related info-bars currently showing in |count|.
+  void GetSSLInfoBarCount(const IPC::Message& message, int handle);
+
+  // Causes a click on the link of the info-bar at |info_bar_index|.  If
+  // |wait_for_navigation| is true, it sends the reply after a navigation has
+  // occurred.
+  void ClickSSLInfoBarLink(const IPC::Message& message,
+                           int handle,
+                           int info_bar_index,
+                           bool wait_for_navigation);
+
+  // Retrieves the last time a navigation occurred for the tab.
+  void GetLastNavigationTime(const IPC::Message& message, int handle);
+
+  // Waits for a new navigation in the tab if none has happened since
+  // |last_navigation_time|.
+  void WaitForNavigation(const IPC::Message& message,
+                         int handle,
+                         int64 last_navigation_time);
+
+  // Sets the int value for preference with name |name|.
+  void SetIntPreference(const IPC::Message& message,
+                        int handle,
+                        std::wstring name,
+                        int value);
 
   // Convert a tab handle into a WebContents. If |tab| is non-NULL a pointer
   // to the tab is also returned. Returns NULL in case of failure or if the tab

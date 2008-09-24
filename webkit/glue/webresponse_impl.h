@@ -38,6 +38,10 @@ class WebResponseImpl : public WebResponse {
     response_ = response;
   }
 
+ virtual bool IsContentFiltered() const {
+   return response_.isContentFiltered();
+ }
+
  private:
   WebCore::ResourceResponse response_;
 

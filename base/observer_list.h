@@ -86,6 +86,14 @@ class ObserverList {
     }
   }
 
+  size_t size() const {
+    return observers_.size();
+  }
+
+  ObserverType* GetElementAt(int index) const {
+    return observers_[index];
+  }
+
   // An iterator class that can be used to access the list of observers.  See
   // also the FOREACH_OBSERVER macro defined below.
   class Iterator {

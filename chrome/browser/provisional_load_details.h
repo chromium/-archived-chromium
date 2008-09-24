@@ -23,7 +23,8 @@ class ProvisionalLoadDetails {
                          bool interstitial_page,
                          bool in_page_navigation,
                          const GURL& url,
-                         const std::string& security_info);
+                         const std::string& security_info,
+                         bool is_filtered);
   virtual ~ProvisionalLoadDetails() { }
 
   void set_error_code(int error_code) { error_code_ = error_code; };
@@ -43,6 +44,8 @@ class ProvisionalLoadDetails {
 
   int ssl_security_bits() const { return ssl_security_bits_; }
 
+  bool is_content_filtered() const { return is_content_filtered_; }
+
  private:
   int error_code_;
   GURL url_;
@@ -52,6 +55,7 @@ class ProvisionalLoadDetails {
   int ssl_cert_id_;
   int ssl_cert_status_;
   int ssl_security_bits_;
+  bool is_content_filtered_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ProvisionalLoadDetails);
 };

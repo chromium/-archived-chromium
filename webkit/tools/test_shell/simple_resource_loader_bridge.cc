@@ -143,9 +143,10 @@ class RequestProxy : public URLRequest::Delegate,
       peer_->OnReceivedRedirect(new_url);
   }
 
-  void NotifyReceivedResponse(const ResourceLoaderBridge::ResponseInfo& info) {
+  void NotifyReceivedResponse(const ResourceLoaderBridge::ResponseInfo& info,
+                              bool content_filtered) {
     if (peer_)
-      peer_->OnReceivedResponse(info);
+      peer_->OnReceivedResponse(info, content_filtered);
   }
 
   void NotifyReceivedData(int bytes_read) {
@@ -231,9 +232,10 @@ class RequestProxy : public URLRequest::Delegate,
   }
 
   virtual void OnReceivedResponse(
-      const ResourceLoaderBridge::ResponseInfo& info) {
+      const ResourceLoaderBridge::ResponseInfo& info,
+      bool content_filtered) {
     owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &RequestProxy::NotifyReceivedResponse, info));
+        this, &RequestProxy::NotifyReceivedResponse, info, content_filtered));
   }
 
   virtual void OnReceivedData(int bytes_read) {
@@ -263,7 +265,7 @@ class RequestProxy : public URLRequest::Delegate,
       info.headers = request->response_headers();
       request->GetMimeType(&info.mime_type);
       request->GetCharset(&info.charset);
-      OnReceivedResponse(info);
+      OnReceivedResponse(info, false);
       AsyncReadData();  // start reading
     } else {
       Done();
@@ -324,7 +326,8 @@ class SyncRequestProxy : public RequestProxy {
   }
 
   virtual void OnReceivedResponse(
-      const ResourceLoaderBridge::ResponseInfo& info) {
+      const ResourceLoaderBridge::ResponseInfo& info,
+      bool content_filtered) {
     *static_cast<ResourceLoaderBridge::ResponseInfo*>(result_) = info;
   }
 

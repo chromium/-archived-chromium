@@ -33,7 +33,8 @@ class TestRequestCallback : public ResourceLoaderBridge::Peer {
   }
 
   virtual void OnReceivedResponse(
-      const ResourceLoaderBridge::ResponseInfo& info) {
+      const ResourceLoaderBridge::ResponseInfo& info,
+      bool content_filtered) {
   }
 
   virtual void OnReceivedData(const char* data, int len) {

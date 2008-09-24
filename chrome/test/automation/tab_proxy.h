@@ -44,10 +44,9 @@ class TabProxy : public AutomationResourceProxy {
   // failure.
   ConstrainedWindowProxy* GetConstrainedWindow(int window_index) const;
 
-  // Execute a javascript in a frame's context whose xpath
-  // is provided as the first parameter and extract
-  // the values from the resulting json string.
-  // Example:
+  // Executes a javascript in a frame's context whose xpath is provided as the
+  // first parameter and extract the values from the resulting json string.
+  // Examples:
   // jscript = "window.domAutomationController.send('string');"
   // will result in value = "string"
   // jscript = "window.domAutomationController.send(24);"
@@ -253,6 +252,28 @@ class TabProxy : public AutomationResourceProxy {
   void HandleMessageFromExternalHost(AutomationHandle handle,
                                      const std::string& target,
                                      const std::string& message);
+
+  // Retrieves the number of SSL related info-bars currently showing in |count|.
+  bool GetSSLInfoBarCount(int* count);
+
+  // Causes a click on the link of the info-bar at |info_bar_index|.  If
+  // |wait_for_navigation| is true, this call does not return until a navigation
+  // has occured.
+  bool ClickSSLInfoBarLink(int info_bar_index, bool wait_for_navigation);
+
+  // Retrieves the time at which the last navigation occured.  This is intended
+  // to be used with WaitForNavigation (see below).
+  bool GetLastNavigationTime(int64* last_navigation_time);
+
+  // Waits for a new navigation if none as occurred since |last_navigation_time|
+  // The purpose of this function is for operations that causes asynchronous
+  // navigation to happen.
+  // It is supposed to be used as follow:
+  // int64 last_nav_time;
+  // tab_proxy->GetLastNavigationTime(&last_nav_time);
+  // tab_proxy->SomeOperationThatTriggersAnAsynchronousNavigation();
+  // tab_proxy->WaitForNavigation(last_nav_time);
+  bool WaitForNavigation(int64 last_navigation_time);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(TabProxy);

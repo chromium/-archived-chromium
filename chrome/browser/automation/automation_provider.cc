@@ -21,11 +21,13 @@
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/printing/print_job.h"
 #include "chrome/browser/render_view_host.h"
+#include "chrome/browser/ssl_manager.h"
 #include "chrome/browser/ssl_blocking_page.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/pref_service.h"
 #include "chrome/test/automation/automation_messages.h"
 #include "net/base/cookie_monster.h"
 #include "net/url_request/url_request_filter.h"
@@ -182,7 +184,6 @@ class NavigationControllerRestoredObserver : public NotificationObserver {
   DISALLOW_COPY_AND_ASSIGN(NavigationControllerRestoredObserver);
 };
 
-
 class NavigationNotificationObserver : public NotificationObserver {
  public:
   NavigationNotificationObserver(NavigationController* controller,
@@ -195,6 +196,8 @@ class NavigationNotificationObserver : public NotificationObserver {
       controller_(controller),
       navigation_started_(false) {
     NotificationService* service = NotificationService::current();
+    service->AddObserver(this, NOTIFY_NAV_ENTRY_COMMITTED,
+                         Source<NavigationController>(controller_));
     service->AddObserver(this, NOTIFY_LOAD_START,
                          Source<NavigationController>(controller_));
     service->AddObserver(this, NOTIFY_LOAD_STOP,
@@ -222,6 +225,8 @@ class NavigationNotificationObserver : public NotificationObserver {
 
   void Unregister() {
     NotificationService* service = NotificationService::current();
+    service->RemoveObserver(this, NOTIFY_NAV_ENTRY_COMMITTED,
+                            Source<NavigationController>(controller_));
     service->RemoveObserver(this, NOTIFY_LOAD_START,
                             Source<NavigationController>(controller_));
     service->RemoveObserver(this, NOTIFY_LOAD_STOP,
@@ -235,7 +240,14 @@ class NavigationNotificationObserver : public NotificationObserver {
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
-    if (type == NOTIFY_LOAD_START) {
+    // We listen for 2 events to determine when the navigation started because:
+    // - when this is used by the WaitForNavigation method, we might be invoked
+    // afer the load has started (but not after the entry was committed, as
+    // WaitForNavigation compares times of the last navigation).
+    // - when this is used with a page requiring authentication, we will not get
+    // a NOTIFY_NAV_ENTRY_COMMITTED until after we authenticate, so we need the
+    // NOTIFY_LOAD_START.
+    if (type == NOTIFY_NAV_ENTRY_COMMITTED || type == NOTIFY_LOAD_START) {
       navigation_started_ = true;
     } else if (type == NOTIFY_LOAD_STOP) {
       if (navigation_started_) {
@@ -758,6 +770,16 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         HandleFindWindowLocationRequest)
     IPC_MESSAGE_HANDLER(AutomationMsg_BookmarkBarVisibilityRequest,
                         GetBookmarkBarVisitility)
+    IPC_MESSAGE_HANDLER(AutomationMsg_GetSSLInfoBarCountRequest,
+                        GetSSLInfoBarCount)
+    IPC_MESSAGE_HANDLER(AutomationMsg_ClickSSLInfoBarLinkRequest,
+                        ClickSSLInfoBarLink)
+    IPC_MESSAGE_HANDLER(AutomationMsg_GetLastNavigationTimeRequest,
+                        GetLastNavigationTime)
+    IPC_MESSAGE_HANDLER(AutomationMsg_WaitForNavigationRequest,
+                        WaitForNavigation)
+    IPC_MESSAGE_HANDLER(AutomationMsg_SetIntPreferenceRequest,
+                        SetIntPreference)
   IPC_END_MESSAGE_MAP()
 }
 
@@ -2293,4 +2315,91 @@ void TestingAutomationProvider::Observe(NotificationType type,
 
 void TestingAutomationProvider::OnRemoveProvider() {
   AutomationProviderList::GetInstance()->RemoveProvider(this);
+}
+
+void AutomationProvider::GetSSLInfoBarCount(const IPC::Message& message,
+                                            int handle) {
+  int count = -1;  // -1 means error.
+  if (tab_tracker_->ContainsHandle(handle)) {
+    NavigationController* nav_controller = tab_tracker_->GetResource(handle);
+    if (nav_controller) {
+      count = static_cast<int>(nav_controller->ssl_manager()->
+          visible_info_bars_.size());
+    }
+  }
+  Send(new AutomationMsg_GetSSLInfoBarCountResponse(message.routing_id(),
+                                                    count));
+}
+
+void AutomationProvider::ClickSSLInfoBarLink(const IPC::Message& message,
+                                             int handle,
+                                             int info_bar_index,
+                                             bool wait_for_navigation) {
+  bool success = false;
+  if (tab_tracker_->ContainsHandle(handle)) {
+    NavigationController* nav_controller = tab_tracker_->GetResource(handle);
+    if (nav_controller) {
+      int count = static_cast<int>(nav_controller->ssl_manager()->
+          visible_info_bars_.size());
+      if (info_bar_index >= 0 && info_bar_index < count) {
+        if (wait_for_navigation) {
+          AddNavigationStatusListener(nav_controller,
+              new AutomationMsg_ClickSSLInfoBarLinkResponse(
+                  message.routing_id(), true),
+              new AutomationMsg_ClickSSLInfoBarLinkResponse(
+                  message.routing_id(), true));
+        }
+        SSLManager::SSLInfoBar* info_bar = 
+          nav_controller->ssl_manager()->visible_info_bars_.
+          GetElementAt(info_bar_index);
+        info_bar->LinkActivated(NULL, 0);  // Parameters are not used.
+        success = true;
+      }
+    }
+   }
+  if (!wait_for_navigation || !success)
+    Send(new AutomationMsg_ClickSSLInfoBarLinkResponse(message.routing_id(),
+                                                       success));
+}
+
+void AutomationProvider::GetLastNavigationTime(const IPC::Message& message,
+                                               int handle) {
+  Time time = tab_tracker_->GetLastNavigationTime(handle);
+  Send(new AutomationMsg_GetLastNavigationTimeResponse(message.routing_id(),
+                                                       time.ToInternalValue()));
+}
+
+void AutomationProvider::WaitForNavigation(const IPC::Message& message,
+                                           int handle,
+                                           int64 last_navigation_time) {
+  NavigationController* controller = NULL;
+  if (tab_tracker_->ContainsHandle(handle))
+    controller = tab_tracker_->GetResource(handle);
+
+  Time time = tab_tracker_->GetLastNavigationTime(handle);
+  if (time.ToInternalValue() > last_navigation_time || !controller) {
+    Send(new AutomationMsg_WaitForNavigationResponse(message.routing_id(),
+                                                     controller != NULL));
+    return;                                                       
+  }
+
+  AddNavigationStatusListener(controller,
+      new AutomationMsg_WaitForNavigationResponse(message.routing_id(),
+                                                  true),
+      new AutomationMsg_WaitForNavigationResponse(message.routing_id(),
+                                                  true));
+}
+
+void AutomationProvider::SetIntPreference(const IPC::Message& message,
+                                          int handle,
+                                          std::wstring name,
+                                          int value) {
+  bool success = false;
+  if (browser_tracker_->ContainsHandle(handle)) {
+    Browser* browser = browser_tracker_->GetResource(handle);
+    browser->profile()->GetPrefs()->SetInteger(name.c_str(), value);
+    success = true;
+  }
+  Send(new AutomationMsg_SetIntPreferenceResponse(message.routing_id(),
+                                                  success));
 }

@@ -37,14 +37,16 @@ namespace WebCore {
 class ResourceResponse : public ResourceResponseBase {
 public:
     ResourceResponse()
-        : ResourceResponseBase()
+        : ResourceResponseBase(),
+          m_isContentFiltered(false)
     {
        // TODO(ericroman): move this into ResourceResponseBase
        m_lastModifiedDate = 0;
     }
 
     ResourceResponse(const KURL& url, const String& mimeType, long long expectedLength, const String& textEncodingName, const String& filename)
-        : ResourceResponseBase(url, mimeType, expectedLength, textEncodingName, filename)
+        : ResourceResponseBase(url, mimeType, expectedLength, textEncodingName, filename),
+          m_isContentFiltered(false)
     {
        // TODO(ericroman): move this into ResourceResponseBase
        m_lastModifiedDate = 0;
@@ -53,6 +55,11 @@ public:
     const CString& getSecurityInfo() const { return m_securityInfo; }
     void setSecurityInfo(CString securityInfo) {
         m_securityInfo = securityInfo;
+    }
+
+    bool isContentFiltered() const { return m_isContentFiltered; }
+    void setIsContentFiltered(bool isContentFiltered) {
+      m_isContentFiltered = isContentFiltered;
     }
 
 private:
@@ -68,6 +75,9 @@ private:
         notImplemented();
     }
 
+    // Whether the contents for this response has been altered/blocked (usually
+    // for security reasons.
+    bool m_isContentFiltered;
 };
 
 } // namespace WebCore

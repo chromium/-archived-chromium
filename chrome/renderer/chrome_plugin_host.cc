@@ -64,7 +64,8 @@ class PluginRequestHandlerProxy
   }
 
   virtual void OnReceivedResponse(
-      const ResourceLoaderBridge::ResponseInfo& info) {
+      const ResourceLoaderBridge::ResponseInfo& info,
+      bool content_filtered) {
     response_headers_ = info.headers;
     plugin_->functions().response_funcs->start_completed(
         cprequest_.get(), CPERR_SUCCESS);

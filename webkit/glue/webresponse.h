@@ -22,6 +22,10 @@ class WebResponse {
   // used.
   virtual std::string GetSecurityInfo() const = 0;
 
+  // Returns whether the content of this resource was filtered (usually for
+  // security reasons).
+  virtual bool IsContentFiltered() const = 0;
+
   WebResponse() { }
   virtual ~WebResponse() { }
 

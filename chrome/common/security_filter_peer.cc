@@ -104,7 +104,8 @@ void SecurityFilterPeer::OnReceivedRedirect(const GURL& new_url) {
 }
 
 void SecurityFilterPeer::OnReceivedResponse(
-    const webkit_glue::ResourceLoaderBridge::ResponseInfo& info) {
+    const webkit_glue::ResourceLoaderBridge::ResponseInfo& info,
+    bool content_filtered) {
   NOTREACHED();
 }
 
@@ -164,7 +165,8 @@ BufferedPeer::~BufferedPeer() {
 }
 
 void BufferedPeer::OnReceivedResponse(
-    const webkit_glue::ResourceLoaderBridge::ResponseInfo& info) {
+    const webkit_glue::ResourceLoaderBridge::ResponseInfo& info,
+    bool response_filtered) {
   ProcessResponseInfo(info, &response_info_, mime_type_);
 }
 
@@ -179,13 +181,13 @@ void BufferedPeer::OnCompletedRequest(const URLRequestStatus& status) {
   // Give sub-classes a chance at altering the data.
   if (status.status() != URLRequestStatus::SUCCESS || !DataReady()) {
     // Pretend we failed to load the resource.
-    original_peer_->OnReceivedResponse(response_info_);
+    original_peer_->OnReceivedResponse(response_info_, true);
     URLRequestStatus status(URLRequestStatus::CANCELED, 0);
     original_peer_->OnCompletedRequest(status);
     return;
   }
 
-  original_peer_->OnReceivedResponse(response_info_);
+  original_peer_->OnReceivedResponse(response_info_, true);
   if (!data_.empty())
     original_peer_->OnReceivedData(data_.data(),
                                    static_cast<int>(data_.size()));
@@ -209,7 +211,8 @@ ReplaceContentPeer::~ReplaceContentPeer() {
 }
 
 void ReplaceContentPeer::OnReceivedResponse(
-    const webkit_glue::ResourceLoaderBridge::ResponseInfo& info) {
+    const webkit_glue::ResourceLoaderBridge::ResponseInfo& info,
+    bool content_filtered) {
   // Ignore this, we'll serve some alternate content in OnCompletedRequest.
 }
 
@@ -221,7 +224,7 @@ void ReplaceContentPeer::OnCompletedRequest(const URLRequestStatus& status) {
   webkit_glue::ResourceLoaderBridge::ResponseInfo info;
   ProcessResponseInfo(info, &info, mime_type_);
   info.content_length = static_cast<int>(data_.size());
-  original_peer_->OnReceivedResponse(info);
+  original_peer_->OnReceivedResponse(info, true);
   if (!data_.empty())
     original_peer_->OnReceivedData(data_.data(),
                                    static_cast<int>(data_.size()));

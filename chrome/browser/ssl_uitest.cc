@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "chrome/common/pref_names.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/ui/ui_test.h"
@@ -206,6 +207,8 @@ TEST_F(SSLUITest, TestMixedContents) {
                                kDocRoot, GetOKCertPath());
   TestServer http_server(kDocRoot);
 
+  // Load a page with mixed-content, the default behavior is to show the mixed
+  // content.
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
       https_server.TestServerPageW(L"files/ssl/page_with_mixed_contents.html"));
@@ -222,10 +225,54 @@ TEST_F(SSLUITest, TestMixedContents) {
   EXPECT_EQ(0,
             cert_status & net::CERT_STATUS_ALL_ERRORS);  // No errors expected.
   EXPECT_EQ(NavigationEntry::SSLStatus::MIXED_CONTENT, mixed_content_state);
+
+  // Now select the block mixed-content pref and reload the page.
+  scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
+  EXPECT_TRUE(browser_proxy.get());
+  EXPECT_TRUE(browser_proxy->SetIntPreference(prefs::kMixedContentFiltering,
+                                              FilterPolicy::FILTER_ALL));
+  EXPECT_TRUE(tab->Reload());
+
+  // The image should be filtered.
+  int img_width;
+  EXPECT_TRUE(tab->ExecuteAndExtractInt(L"",
+      L"javascript:void(window.domAutomationController)"
+      L".send(ImageWidth());",
+      &img_width));
+  // In order to check that the image was not loaded, we check its width.
+  // The actual image (Google logo) is 114 pixels wide, we assume the broken
+  // image is less than 100.
+  EXPECT_GT(100, img_width);
+
+  // The state should be OK since we are not showing the resource.
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+
+  // There should be one info-bar to show the mixed-content.
+  int info_bar_count = 0;
+  EXPECT_TRUE(tab->GetSSLInfoBarCount(&info_bar_count));
+  EXPECT_EQ(1, info_bar_count);
+
+  // Activate the link on the info-bar to show the mixed-content.
+  EXPECT_TRUE(tab->ClickSSLInfoBarLink(0, true));
+
+  // The image should show now.
+  EXPECT_TRUE(tab->ExecuteAndExtractInt(L"",
+      L"javascript:void(window.domAutomationController)"
+      L".send(ImageWidth());",
+      &img_width));
+  EXPECT_LT(100, img_width);
+
+  // And our status should be mixed-content.
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::MIXED_CONTENT, mixed_content_state);
 }
-
-
-/* TODO(jcampan) bug 2004: fix this test.
 
 // Visits a page with unsafe content and make sure that:
 // - frames content is replaced with warning
@@ -248,10 +295,10 @@ TEST_F(SSLUITest, TestUnsafeContents) {
   int cert_status;
   int mixed_content_state;
   // When the bad content is filtered, the state is expected to be
-  // unauthenticated.
+  // authenticated.
   EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
                                     &mixed_content_state));
-  EXPECT_EQ(SECURITY_STYLE_UNAUTHENTICATED, security_style);
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
   EXPECT_EQ(0,
             cert_status & net::CERT_STATUS_ALL_ERRORS);  // No errors expected.
   EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
@@ -271,7 +318,7 @@ TEST_F(SSLUITest, TestUnsafeContents) {
       L".send(ImageWidth());",
       &img_width));
   // In order to check that the image was not loaded, we check its width.
-  // The actual image (Google logo is 114 pixels wide), we assume the broken
+  // The actual image (Google logo) is 114 pixels wide, we assume the broken
   // image is less than 100.
   EXPECT_GT(100, img_width);
 
@@ -282,7 +329,6 @@ TEST_F(SSLUITest, TestUnsafeContents) {
       &js_result));
   EXPECT_FALSE(js_result);
 }
-*/
 
 // Visits a page with mixed content loaded by JS (after the initial page load).
 TEST_F(SSLUITest, TestMixedContentsLoadedFromJS) {
@@ -502,20 +548,390 @@ TEST_F(SSLUITest, DISABLED_TestCloseTabWithUnsafePopup) {
   tab->Close();
 }
 
-// TODO (jcampan): more tests to do below.
-
 // Visit a page over bad https that is a redirect to a page with good https.
+TEST_F(SSLUITest, TestRedirectBadToGoodHTTPS) {
+  HTTPSTestServer good_https_server(kHostName, kOKHTTPSPort,
+                                    kDocRoot, GetOKCertPath());
+  HTTPSTestServer bad_https_server(kHostName, kBadHTTPSPort,
+                                   kDocRoot, GetExpiredCertPath());
+
+  scoped_ptr<TabProxy> tab(GetActiveTabProxy());
+  GURL url1 = bad_https_server.TestServerPageW(L"server-redirect?");
+  GURL url2 = good_https_server.TestServerPageW(L"files/ssl/google.html");
+  NavigateTab(tab.get(), GURL(url1.spec() + url2.spec()));
+
+  NavigationEntry::PageType page_type;
+  EXPECT_TRUE(tab->GetPageType(&page_type));
+  EXPECT_EQ(page_type, NavigationEntry::INTERSTITIAL_PAGE);
+
+  SecurityStyle security_style;
+  int cert_status;
+  int mixed_content_state;
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATION_BROKEN, security_style);
+  EXPECT_EQ(net::CERT_STATUS_DATE_INVALID, cert_status);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+
+  EXPECT_TRUE(tab->TakeActionOnSSLBlockingPage(true));
+  // We have been redirected to the good page.
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
+  EXPECT_EQ(0,
+            cert_status & net::CERT_STATUS_ALL_ERRORS);  // No errors expected.
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+}
 
 // Visit a page over good https that is a redirect to a page with bad https.
+TEST_F(SSLUITest, TestRedirectGoodToBadHTTPS) {
+  HTTPSTestServer good_https_server(kHostName, kOKHTTPSPort,
+                                    kDocRoot, GetOKCertPath());
+  HTTPSTestServer bad_https_server(kHostName, kBadHTTPSPort,
+                                   kDocRoot, GetExpiredCertPath());
+
+  scoped_ptr<TabProxy> tab(GetActiveTabProxy());
+  GURL url1 = good_https_server.TestServerPageW(L"server-redirect?");
+  GURL url2 = bad_https_server.TestServerPageW(L"files/ssl/google.html");
+  NavigateTab(tab.get(), GURL(url1.spec() + url2.spec()));
+
+  NavigationEntry::PageType page_type;
+  EXPECT_TRUE(tab->GetPageType(&page_type));
+  EXPECT_EQ(page_type, NavigationEntry::INTERSTITIAL_PAGE);
+
+  EXPECT_TRUE(tab->TakeActionOnSSLBlockingPage(true));
+
+  SecurityStyle security_style;
+  int cert_status;
+  int mixed_content_state;
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATION_BROKEN, security_style);
+  EXPECT_EQ(net::CERT_STATUS_DATE_INVALID,
+            cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+}
 
 // Visit a page over http that is a redirect to a page with https (good and
 // bad).
+TEST_F(SSLUITest, TestRedirectHTTPToHTTPS) {
+  TestServer http_server(kDocRoot);
+  HTTPSTestServer good_https_server(kHostName, kOKHTTPSPort,
+                                    kDocRoot, GetOKCertPath());
+  HTTPSTestServer bad_https_server(kHostName, kBadHTTPSPort,
+                                   kDocRoot, GetExpiredCertPath());
 
-// Visit a page over https that is a redirect to a page with http.
+  // HTTP redirects to good HTTPS.
+  scoped_ptr<TabProxy> tab(GetActiveTabProxy());
+  GURL http_url = http_server.TestServerPageW(L"server-redirect?");
+  GURL good_https_url =
+      good_https_server.TestServerPageW(L"files/ssl/google.html");
+  NavigateTab(tab.get(), GURL(http_url.spec() + good_https_url.spec()));
 
-// Visit a page over https that contains a frame with a redirect.
+  SecurityStyle security_style;
+  int cert_status;
+  int mixed_content_state;
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+
+  // HTTP redirects to bad HTTPS.
+  GURL bad_https_url =
+      bad_https_server.TestServerPageW(L"files/ssl/google.html");
+  NavigateTab(tab.get(), GURL(http_url.spec() + bad_https_url.spec()));
+
+  NavigationEntry::PageType page_type;
+  EXPECT_TRUE(tab->GetPageType(&page_type));
+  EXPECT_EQ(page_type, NavigationEntry::INTERSTITIAL_PAGE);
+
+  // Continue on the interstitial.
+  EXPECT_TRUE(tab->TakeActionOnSSLBlockingPage(true));
+
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATION_BROKEN, security_style);
+  EXPECT_EQ(net::CERT_STATUS_DATE_INVALID,
+            cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+}
+
+// Visit a page over https that is a redirect to a page with http (to make sure
+// we don't keep the secure state).
+TEST_F(SSLUITest, TestRedirectHTTPSToHTTP) {
+  TestServer http_server(kDocRoot);
+  HTTPSTestServer https_server(kHostName, kOKHTTPSPort,
+                               kDocRoot, GetOKCertPath());
+
+  scoped_ptr<TabProxy> tab(GetActiveTabProxy());
+  GURL https_url = https_server.TestServerPageW(L"server-redirect?");
+  GURL http_url = http_server.TestServerPageW(L"files/ssl/google.html");
+  NavigateTab(tab.get(), GURL(https_url.spec() + http_url.spec()));
+
+  SecurityStyle security_style;
+  int cert_status;
+  int mixed_content_state;
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_UNAUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+}
 
 // Visits a page to which we could not connect (bad port) over http and https
+// and make sure the security style is correct.
+TEST_F(SSLUITest, TestConnectToBadPort) {
+  scoped_ptr<TabProxy> tab(GetActiveTabProxy());
+
+  GURL http_url("http://localhost:17");
+  NavigateTab(tab.get(), http_url);
+
+  SecurityStyle security_style;
+  int cert_status;
+  int mixed_content_state;
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_UNAUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+
+  // Same thing over HTTPS.
+  GURL https_url("https://localhost:17");
+  NavigateTab(tab.get(), https_url);
+
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_UNAUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+}
+
+//
+// Frame navigation
+//
+
+// From a good HTTPS top frame:
+// - navigate to an OK HTTPS frame
+// - navigate to a bad HTTPS (expect unsafe content and filtered frame), then
+//   back 
+// - navigate to HTTP (expect mixed content), then back
+TEST_F(SSLUITest, TestGoodFrameNavigation) {
+  TestServer http_server(kDocRoot);
+  HTTPSTestServer good_https_server(kHostName, kOKHTTPSPort,
+                                    kDocRoot, GetOKCertPath());
+  HTTPSTestServer bad_https_server(kHostName, kBadHTTPSPort,
+                                   kDocRoot, GetExpiredCertPath());
+  
+  scoped_ptr<TabProxy> tab(GetActiveTabProxy());
+  NavigateTab(tab.get(),
+              good_https_server.TestServerPageW(L"files/ssl/top_frame.html"));
+
+  SecurityStyle security_style;
+  int cert_status;
+  int mixed_content_state;
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+
+  bool success = false;
+  // Now navigate inside the frame.
+  int64 last_nav_time = 0;
+  EXPECT_TRUE(tab->GetLastNavigationTime(&last_nav_time));
+  EXPECT_TRUE(tab->ExecuteAndExtractBool(L"",
+      L"javascript:void(window.domAutomationController)"
+      L".send(clickLink('goodHTTPSLink'));",
+      &success));
+  EXPECT_TRUE(success);
+  EXPECT_TRUE(tab->WaitForNavigation(last_nav_time));
+
+  // We should still be fine.
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+
+  // Now let's hit a bad page.
+  EXPECT_TRUE(tab->GetLastNavigationTime(&last_nav_time));
+  EXPECT_TRUE(tab->ExecuteAndExtractBool(L"",
+      L"javascript:void(window.domAutomationController)"
+      L".send(clickLink('badHTTPSLink'));",
+      &success));
+  EXPECT_TRUE(success);
+  EXPECT_TRUE(tab->WaitForNavigation(last_nav_time));
+
+  // The security style should still be secure.
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+
+  // And the frame should be blocked.
+  bool is_content_evil = true;
+  std::wstring content_frame_xpath(L"html/frameset/frame[2]");
+  std::wstring is_frame_evil_js(
+      L"javascript:void(window.domAutomationController)"
+      L".send(document.getElementById('evilDiv') != null);");
+  EXPECT_TRUE(tab->ExecuteAndExtractBool(content_frame_xpath,
+                                         is_frame_evil_js,
+                                         &is_content_evil));
+  EXPECT_FALSE(is_content_evil);
+
+  // Now go back, our state should return to OK.
+  EXPECT_TRUE(tab->GoBack());
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+
+  // Navigate to a page served over HTTP.
+  EXPECT_TRUE(tab->GetLastNavigationTime(&last_nav_time));
+  EXPECT_TRUE(tab->ExecuteAndExtractBool(L"",
+      L"javascript:void(window.domAutomationController)"
+      L".send(clickLink('HTTPLink'));",
+      &success));
+  EXPECT_TRUE(success);
+  EXPECT_TRUE(tab->WaitForNavigation(last_nav_time));
+
+  // Our state should be mixed-content.
+  // Status should be "contains bad contents".
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::MIXED_CONTENT, mixed_content_state);
+
+  // Go back, our state should be back to OK.
+  EXPECT_TRUE(tab->GoBack());
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+}
+
+// From a bad HTTPS top frame:
+// - navigate to an OK HTTPS frame (expected to be still authentication broken).
+TEST_F(SSLUITest, TestBadFrameNavigation) {
+  HTTPSTestServer good_https_server(kHostName, kOKHTTPSPort,
+                                    kDocRoot, GetOKCertPath());
+  HTTPSTestServer bad_https_server(kHostName, kBadHTTPSPort,
+                                   kDocRoot, GetExpiredCertPath());
+  
+  scoped_ptr<TabProxy> tab(GetActiveTabProxy());
+  NavigateTab(tab.get(),
+              bad_https_server.TestServerPageW(L"files/ssl/top_frame.html"));
+
+  SecurityStyle security_style;
+  int cert_status;
+  int mixed_content_state;
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATION_BROKEN, security_style);
+  EXPECT_EQ(net::CERT_STATUS_DATE_INVALID,
+            cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+
+  // Continue on the interstitial.
+  EXPECT_TRUE(tab->TakeActionOnSSLBlockingPage(true));
+
+  // Navigate to a good frame.
+   bool success = false;
+  int64 last_nav_time = 0;
+  EXPECT_TRUE(tab->GetLastNavigationTime(&last_nav_time));
+  EXPECT_TRUE(tab->ExecuteAndExtractBool(L"",
+      L"javascript:void(window.domAutomationController)"
+      L".send(clickLink('goodHTTPSLink'));",
+      &success));
+  EXPECT_TRUE(success);
+  EXPECT_TRUE(tab->WaitForNavigation(last_nav_time));
+
+  // We should still be authentication broken.
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATION_BROKEN, security_style);
+  EXPECT_EQ(net::CERT_STATUS_DATE_INVALID,
+            cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+}
+
+// From an HTTP top frame, navigate to good and bad HTTPS (security state should
+// stay unauthenticated).
+TEST_F(SSLUITest, TestUnauthenticatedFrameNavigation) {
+  TestServer http_server(kDocRoot);
+  HTTPSTestServer good_https_server(kHostName, kOKHTTPSPort,
+                                    kDocRoot, GetOKCertPath());
+  HTTPSTestServer bad_https_server(kHostName, kBadHTTPSPort,
+                                   kDocRoot, GetExpiredCertPath());
+  
+  scoped_ptr<TabProxy> tab(GetActiveTabProxy());
+  NavigateTab(tab.get(),
+              http_server.TestServerPageW(L"files/ssl/top_frame.html"));
+
+  SecurityStyle security_style;
+  int cert_status;
+  int mixed_content_state;
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_UNAUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+
+  // Now navigate inside the frame to a secure HTTPS frame.
+  bool success = false;
+  int64 last_nav_time = 0;
+  EXPECT_TRUE(tab->GetLastNavigationTime(&last_nav_time));
+  EXPECT_TRUE(tab->ExecuteAndExtractBool(L"",
+      L"javascript:void(window.domAutomationController)"
+      L".send(clickLink('goodHTTPSLink'));",
+      &success));
+  EXPECT_TRUE(success);
+  EXPECT_TRUE(tab->WaitForNavigation(last_nav_time));
+
+  // We should still be unauthenticated.
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_UNAUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+
+  // Now navigate to a bad HTTPS frame.
+  EXPECT_TRUE(tab->GetLastNavigationTime(&last_nav_time));
+  EXPECT_TRUE(tab->ExecuteAndExtractBool(L"",
+      L"javascript:void(window.domAutomationController)"
+      L".send(clickLink('badHTTPSLink'));",
+      &success));
+  EXPECT_TRUE(success);
+  EXPECT_TRUE(tab->WaitForNavigation(last_nav_time));
+
+  // State should not have changed.
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_UNAUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+
+  // And the frame should have been blocked (see bug #2316).
+  bool is_content_evil = true;
+  std::wstring content_frame_xpath(L"html/frameset/frame[2]");
+  std::wstring is_frame_evil_js(
+      L"javascript:void(window.domAutomationController)"
+      L".send(document.getElementById('evilDiv') != null);");
+  EXPECT_TRUE(tab->ExecuteAndExtractBool(content_frame_xpath,
+                                         is_frame_evil_js,
+                                         &is_content_evil));
+  EXPECT_FALSE(is_content_evil);
+}
+
+
+// TODO (jcampan): more tests to do below.
+
+// Visit a page over https that contains a frame with a redirect.
 
 // XMLHttpRequest mixed in synchronous mode.
 
@@ -524,10 +940,3 @@ TEST_F(SSLUITest, DISABLED_TestCloseTabWithUnsafePopup) {
 // XMLHttpRequest over bad ssl in synchronous mode.
 
 // XMLHttpRequest over OK ssl in synchronous mode.
-
-//
-// Frame navigation
-//
-
-// Navigate to broken frame and back.
-

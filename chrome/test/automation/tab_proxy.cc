@@ -966,3 +966,79 @@ void TabProxy::HandleMessageFromExternalHost(AutomationHandle handle,
   DCHECK(succeeded);
 }
 
+bool TabProxy::GetSSLInfoBarCount(int* count) {
+  if (!is_valid())
+    return false;
+
+  IPC::Message* response = NULL;
+  bool success = sender_->SendAndWaitForResponse(
+      new AutomationMsg_GetSSLInfoBarCountRequest(0, handle_),
+      &response,
+      AutomationMsg_GetSSLInfoBarCountResponse::ID);
+  scoped_ptr<IPC::Message> auto_deleter(response);
+  if (!success)
+    return false;
+
+  void* iter = NULL;
+  response->ReadInt(&iter, count);
+  return true;
+}
+
+bool TabProxy::ClickSSLInfoBarLink(int info_bar_index,
+                                   bool wait_for_navigation) {
+  if (!is_valid())
+    return false;
+
+  IPC::Message* response = NULL;
+  bool success = sender_->SendAndWaitForResponse(
+      new AutomationMsg_ClickSSLInfoBarLinkRequest(0, handle_,
+                                                   info_bar_index,
+                                                   wait_for_navigation),
+      &response,
+      AutomationMsg_ClickSSLInfoBarLinkResponse::ID);
+  scoped_ptr<IPC::Message> auto_deleter(response);
+  if (!success)
+    return false;
+
+  void* iter = NULL;
+  response->ReadBool(&iter, &success);
+  return success;
+}
+
+bool TabProxy::GetLastNavigationTime(int64* last_navigation_time) {
+  if (!is_valid())
+    return false;
+
+  IPC::Message* response = NULL;
+  bool success = sender_->SendAndWaitForResponse(
+      new AutomationMsg_GetLastNavigationTimeRequest(0, handle_),
+      &response,
+      AutomationMsg_GetLastNavigationTimeResponse::ID);
+  scoped_ptr<IPC::Message> auto_deleter(response);
+  if (!success)
+    return false;
+
+  void* iter = NULL;
+  response->ReadInt64(&iter, last_navigation_time);
+  return true;
+}
+
+bool TabProxy::WaitForNavigation(int64 last_navigation_time) {
+  if (!is_valid())
+    return false;
+
+  IPC::Message* response = NULL;
+  bool success = sender_->SendAndWaitForResponse(
+      new AutomationMsg_WaitForNavigationRequest(0,
+                                                 handle_,
+                                                 last_navigation_time),
+      &response,
+      AutomationMsg_WaitForNavigationResponse::ID);
+  scoped_ptr<IPC::Message> auto_deleter(response);
+  if (!success)
+    return false;
+
+  void* iter = NULL;
+  response->ReadBool(&iter, &success);
+  return success;
+}
