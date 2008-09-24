@@ -99,8 +99,8 @@ void Histogram::WriteAscii(bool graph_it, const std::string& newline,
 
   // Calculate space needed to print bucket range numbers.  Leave room to print
   // nearly the largest bucket range without sliding over the histogram.
-  size_t largest_non_empty_bucket = bucket_count_ - 1;
-  while (0 == sample_.counts(largest_non_empty_bucket)) {
+  size_t largest_non_empty_bucket = bucket_count() - 1;
+  while (0 == snapshot.counts(largest_non_empty_bucket)) {
     if (0 == largest_non_empty_bucket)
       break;  // All buckets are empty.
     largest_non_empty_bucket--;
@@ -108,7 +108,7 @@ void Histogram::WriteAscii(bool graph_it, const std::string& newline,
 
   // Calculate largest print width needed for any of our bucket range displays.
   size_t print_width = 1;
-  for (size_t i = 0; i < bucket_count_; ++i) {
+  for (size_t i = 0; i < bucket_count(); ++i) {
     if (snapshot.counts(i)) {
       size_t width = GetAsciiBucketRange(i).size() + 1;
       if (width > print_width)
@@ -119,14 +119,14 @@ void Histogram::WriteAscii(bool graph_it, const std::string& newline,
   int64 remaining = sample_count;
   int64 past = 0;
   // Output the actual histogram graph.
-  for (size_t i = 0; i < bucket_count_; i++) {
+  for (size_t i = 0; i < bucket_count(); i++) {
     Count current = snapshot.counts(i);
     if (!current && !PrintEmptyBucket(i))
       continue;
     remaining -= current;
     StringAppendF(output, "%#*s ", print_width, GetAsciiBucketRange(i).c_str());
-    if (0 == current && i < bucket_count_ - 1 && 0 == snapshot.counts(i + 1)) {
-      while (i < bucket_count_ - 1 && 0 == snapshot.counts(i + 1))
+    if (0 == current && i < bucket_count() - 1 && 0 == snapshot.counts(i + 1)) {
+      while (i < bucket_count() - 1 && 0 == snapshot.counts(i + 1))
         i++;
       output->append("... ");
       output->append(newline);
@@ -159,7 +159,7 @@ void Histogram::Initialize() {
   if (declared_max_ >= kSampleType_MAX)
     declared_max_ = kSampleType_MAX - 1;
   DCHECK(declared_min_ > 0);  // We provide underflow bucket.
-  DCHECK(declared_min_ < declared_max_);
+  DCHECK(declared_min_ <= declared_max_);
   DCHECK(1 < bucket_count_);
   size_t maximal_bucket_count = declared_max_ - declared_min_ + 2;
   DCHECK(bucket_count_ <= maximal_bucket_count);
@@ -275,7 +275,7 @@ void Histogram::SetBucketRange(size_t i, Sample value) {
 
 double Histogram::GetPeakBucketSize(const SampleSet& snapshot) const {
   double max = 0;
-  for (size_t i = 0; i < bucket_count_ ; i++) {
+  for (size_t i = 0; i < bucket_count() ; i++) {
     double current_size = GetBucketSize(snapshot.counts(i), i);
     if (current_size > max)
       max = current_size;
@@ -322,9 +322,9 @@ void Histogram::WriteAsciiBucketContext(const int64 past,
 const std::string Histogram::GetAsciiBucketRange(size_t i) const {
   std::string result;
   if (kHexRangePrintingFlag & flags_)
-    StringAppendF(&result, "%#x", ranges_[i]);
+    StringAppendF(&result, "%#x", ranges(i));
   else
-    StringAppendF(&result, "%d", ranges_[i]);
+    StringAppendF(&result, "%d", ranges(i));
   return result;
 }
 

@@ -676,6 +676,15 @@ void BackendImpl::OnStatsTimer() {
   current /= time;
   stats_.SetCounter(Stats::OPEN_ENTRIES, current);
   stats_.SetCounter(Stats::MAX_ENTRIES, max_refs_);
+
+  static bool first_time = true;
+  if (first_time) {
+    first_time = false;
+    UMA_HISTOGRAM_COUNTS(L"DiskCache.Entries", data_->header.num_entries);
+    UMA_HISTOGRAM_COUNTS(L"DiskCache.Size",
+                         data_->header.num_bytes / (1024 * 1024));
+    UMA_HISTOGRAM_COUNTS(L"DiskCache.MaxSize", max_size_ / (1024 * 1024));
+  }
 }
 
 void BackendImpl::IncrementIoCount() {

@@ -897,6 +897,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\disk_cache\stats_histogram.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\disk_cache\stats_histogram.h"
+				>
+			</File>
+			<File
 				RelativePath="..\disk_cache\storage_block-inl.h"
 				>
 			</File>

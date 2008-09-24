@@ -60,6 +60,7 @@ input_files = [
     'disk_cache/mem_rankings.cc',
     'disk_cache/rankings.cc',
     'disk_cache/stats.cc',
+    'disk_cache/stats_histogram.cc',
     'disk_cache/trace.cc',
     'http/cert_status_cache.cc',
     'http/http_cache.cc',

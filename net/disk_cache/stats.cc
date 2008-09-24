@@ -120,6 +120,8 @@ bool Stats::Init(BackendImpl* backend, uint32* storage_addr) {
 
   storage_addr_ = address.value();
   backend_ = backend;
+  size_histogram_.reset(new StatsHistogram(L"DiskCache.SizeStats"));
+  size_histogram_->Init(this);
 
   memcpy(data_sizes_, stats.data_sizes, sizeof(data_sizes_));
   memcpy(counters_, stats.counters, sizeof(counters_));
@@ -182,6 +184,37 @@ int Stats::GetStatsBucket(int32 size) {
     result = kDataSizesLength - 1;
 
   return result;
+}
+
+int Stats::GetBucketRange(size_t i) const {
+  if (i < 2)
+    return static_cast<int>(1024 * i);
+
+  if (i < 12)
+    return static_cast<int>(2048 * (i - 1));
+
+  if (i < 17)
+    return static_cast<int>(4096 * (i - 11)) + 20 * 1024;
+
+  int n = 64 * 1024;
+  if (i > static_cast<size_t>(kDataSizesLength)) {
+    NOTREACHED();
+    i = kDataSizesLength;
+  }
+
+  i -= 17;
+  n <<= i;
+  return n;
+}
+
+void Stats::Snapshot(StatsHistogram::StatsSamples* samples) const {
+  samples->GetCounts()->resize(kDataSizesLength);
+  for (int i = 0; i < kDataSizesLength; i++) {
+    int count = data_sizes_[i];
+    if (count < 0)
+      count = 0;
+    samples->GetCounts()->at(i) = count;
+  }
 }
 
 void Stats::ModifyStorageStats(int32 old_size, int32 new_size) {

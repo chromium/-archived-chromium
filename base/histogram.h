@@ -177,7 +177,7 @@ class Histogram : public StatsRate {
     void Add(const SampleSet& other);
     void Subtract(const SampleSet& other);
 
-   private:
+   protected:
     // Actual histogram data is stored in buckets, showing the count of values
     // that fit into each bucket.
     Counts counts_;
@@ -208,6 +208,7 @@ class Histogram : public StatsRate {
   // 0x1 Currently used to mark this histogram to be recorded by UMA..
   // 0x8000 means print ranges in hex.
   void SetFlags(int flags) { flags_ |= flags; }
+  void ClearFlags(int flags) { flags_ &= ~flags; }
   int flags() const { return flags_; }
 
   //----------------------------------------------------------------------------
@@ -216,8 +217,8 @@ class Histogram : public StatsRate {
   const std::string histogram_name() const { return histogram_name_; }
   Sample declared_min() const { return declared_min_; }
   Sample declared_max() const { return declared_max_; }
-  Sample ranges(size_t i) const { return ranges_[i];}
-  size_t bucket_count() const { return bucket_count_; }
+  virtual Sample ranges(size_t i) const { return ranges_[i];}
+  virtual size_t bucket_count() const { return bucket_count_; }
   // Snapshot the current complete set of sample data.
   // Override with atomic/locked snapshot if needed.
   virtual void SnapshotSample(SampleSet* sample) const;
