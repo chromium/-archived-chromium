@@ -1417,8 +1417,12 @@ const PrepopulatedEngine orange = {
   L"http://www.orange.fr/favicon.ico",
   L"http://rws.search.ke.voila.fr/RW/S/opensearch_orange?rdata={searchTerms}",
   "ISO-8859-1",
-  L"http://search.ke.voila.fr/fr/cmplopensearch/xml/fullxml?"
-      L"rdata={searchTerms}",
+  // Response is in ISO-8859-1 and is labelled as such in HTTP C-T header.
+  // L"http://search.ke.voila.fr/fr/cmplopensearch/xml/fullxml?"
+  // L"rdata={searchTerms}",
+  // Until http://b/1293145 is fixed or we figure out how to get responses
+  // in UTF-8, disable it. 
+  NULL,
   48,
 };
 
@@ -1741,9 +1745,13 @@ const PrepopulatedEngine voila = {
   L"voila.fr",
   L"http://search.ke.voila.fr/favicon.ico",
   L"http://rws.search.ke.voila.fr/RW/S/opensearch_voila?rdata={searchTerms}",
-  "UTF-8",
-  L"http://search.ke.voila.fr/fr/cmplopensearch/xml/fullxml?"
-      L"rdata={searchTerms}",
+  "ISO-8859-1",
+  // Response is in ISO-8859-1 and is labelled as such in HTTP C-T header.
+  // L"http://search.ke.voila.fr/fr/cmplopensearch/xml/fullxml?"
+  // L"rdata={searchTerms}",
+  // Until http://b/1293145 is fixed or we figure out how to get responses
+  // in UTF-8, disable it. 
+  NULL,
   47,
 };
 
@@ -3008,7 +3016,7 @@ void RegisterUserPrefs(PrefService* prefs) {
 }
 
 int GetDataVersion() {
-  return 13;  // Increment this if you change the above data in ways that mean
+  return 14;  // Increment this if you change the above data in ways that mean
              // users with existing data should get a new version.
 }
 
