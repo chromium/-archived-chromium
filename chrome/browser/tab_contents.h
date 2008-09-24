@@ -298,11 +298,6 @@ class TabContents : public PageNavigator,
   // change. See TabContentsDelegate.
   void NotifyNavigationStateChanged(unsigned changed_flags);
 
-  // Convenience method for notifying the delegate of a navigation.
-  // See TabContentsDelegate.
-  void NotifyDidNavigate(NavigationType nav_type,
-                         int relative_navigation_offset);
-
   // Invoked when the tab contents becomes selected. If you override, be sure
   // and invoke super's implementation.
   virtual void DidBecomeSelected();

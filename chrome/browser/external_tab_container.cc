@@ -81,6 +81,8 @@ bool ExternalTabContainer::Init(Profile* profile) {
 
   NavigationController* controller = tab_contents_->controller();
   DCHECK(controller);
+  registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED,
+                 Source<NavigationController>(controller));
   NotificationService::current()->
       Notify(NOTIFY_EXTERNAL_TAB_CREATED,
               Source<NavigationController>(controller),
@@ -208,15 +210,6 @@ void ExternalTabContainer::ToolbarSizeChanged(TabContents* source,
                                             bool finished) {
 }
 
-void ExternalTabContainer::DidNavigate(NavigationType nav_type,
-                                       int relative_navigation_offet) {
-  if (automation_) {
-    automation_->Send(
-        new AutomationMsg_DidNavigate(0, nav_type,
-                                      relative_navigation_offet));
-  }
-}
-
 void ExternalTabContainer::ForwardMessageToExternalHost(
     const std::string& receiver, const std::string& message) {
   if(automation_) {
@@ -228,6 +221,24 @@ void ExternalTabContainer::ForwardMessageToExternalHost(
 void ExternalTabContainer::Observe(NotificationType type,
                                    const NotificationSource& source,
                                    const NotificationDetails& details) {
+  switch (type) {
+    case NOTIFY_NAV_ENTRY_COMMITTED:
+      if (automation_) {
+        const NavigationController::LoadCommittedDetails* commit =
+            Details<NavigationController::LoadCommittedDetails>(details).ptr();
+
+        // When the previous entry index is invalid, it will be -1, which will
+        // still make the computation come out right (navigating to the 0th
+        // entry will be +1).
+        automation_->Send(new AutomationMsg_DidNavigate(
+            0, commit->type,
+            commit->previous_entry_index -
+                tab_contents_->controller()->GetLastCommittedEntryIndex()));
+      }
+      break;
+    default:
+      NOTREACHED();
+  }
 }
 
 void ExternalTabContainer::GetBounds(CRect *out, bool including_frame) const {

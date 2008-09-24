@@ -270,12 +270,6 @@ void TabContents::NotifyNavigationStateChanged(unsigned changed_flags) {
     delegate_->NavigationStateChanged(this, changed_flags);
 }
 
-void TabContents::NotifyDidNavigate(NavigationType nav_type,
-                                    int relative_navigation_offset) {
-  if (delegate_)
-    delegate_->DidNavigate(nav_type, relative_navigation_offset);
-}
-
 static BOOL CALLBACK InvalidateWindow(HWND hwnd, LPARAM lparam) {
   // Note: erase is required to properly paint some widgets borders. This can be
   // seen with textfields.

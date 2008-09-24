@@ -506,6 +506,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\navigation_types.h"
+			>
+		</File>
+		<File
 			RelativePath=".\notification_details.h"
 			>
 		</File>

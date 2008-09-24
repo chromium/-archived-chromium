@@ -123,16 +123,6 @@ class TabContentsDelegate : public PageNavigator {
   // a WebContents with a valid WebApp set.
   virtual void ConvertContentsToApplication(TabContents* source) { }
 
-  // Notifies the delegate that a navigation happened. nav_type indicates the
-  // type of navigation. If nav_type is NAVIGATION_BACK_FORWARD then the
-  // relative_navigation_offset indicates the relative offset of the navigation
-  // within the session history (a negative value indicates a backward
-  // navigation and a positive value indicates a forward navigation). If
-  // nav_type is any other value, the relative_navigation_offset parameter
-  // is not defined and should be ignored.
-  virtual void DidNavigate(NavigationType nav_type,
-                           int relative_navigation_offset) { return; }
-
   // Informs the TabContentsDelegate that some of our state has changed 
   // for this tab.
   virtual void ContentsStateChanged(TabContents* source) {}

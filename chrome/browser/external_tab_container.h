@@ -13,6 +13,7 @@
 #include "base/basictypes.h"
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/common/chrome_constants.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/root_view.h"
@@ -77,8 +78,6 @@ class ExternalTabContainer : public TabContentsDelegate,
   virtual void UpdateTargetURL(TabContents* source, const GURL& url);
   virtual void ContentsZoomChange(bool zoom_in);
   virtual void ToolbarSizeChanged(TabContents* source, bool is_animating);
-  virtual void DidNavigate(NavigationType nav_type,
-                           int relative_navigation_offet);
   virtual void ForwardMessageToExternalHost(const std::string& receiver,
                                             const std::string& message);
 
@@ -132,6 +131,9 @@ class ExternalTabContainer : public TabContentsDelegate,
  protected:
   TabContents *tab_contents_;
   AutomationProvider* automation_;
+
+  NotificationRegistrar registrar_;
+
   // Root view
   ChromeViews::RootView root_view_;
   // The accelerator table of the external host.
