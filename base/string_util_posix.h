@@ -14,6 +14,10 @@
 
 namespace base {
 
+inline int strcasecmp(const char* string1, const char* string2) {
+  return ::strcasecmp(string1, string2);
+}
+
 inline int strncasecmp(const char* string1, const char* string2, size_t count) {
   return ::strncasecmp(string1, string2, count);
 }

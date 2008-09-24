@@ -10,20 +10,23 @@ env_res = env_res.Clone()
 input_files = [
     'npapi_constants.cc',
     'npapi_test.cc',
-    env_res.RES('npapi_test.rc'),
-    'plugin_arguments_test.cc',
-    'plugin_client.cc',
     'plugin_delete_plugin_in_stream_test.cc',
-    'plugin_execute_script_delete_test.cc',
     'plugin_get_javascript_url_test.cc',
-    'plugin_geturl_test.cc',
     'plugin_new_fails_test.cc',
-    'plugin_npobject_lifetime_test.cc',
     'plugin_npobject_proxy_test.cc',
-    'plugin_test.cc',
-    'plugin_window_size_test.cc',
-    'npapi_test.def',
+    'plugin_test.cc'
 ]
+
+if env['PLATFORM'] == 'win32':
+  # TODO(port): Port these.
+  input_files.extend([
+      'plugin_arguments_test.cc',
+      'plugin_execute_script_delete_test.cc',
+      'plugin_geturl_test.cc',
+      'plugin_client.cc',                 # Includes not ported headers.
+      'plugin_npobject_lifetime_test.cc', # Has win32-isms (HWND, CALLBACK).
+      'plugin_window_size_test.cc'        # Has w32-isms including HWND.
+  ])
 
 env.Append(
     LIBS = [
@@ -31,41 +34,50 @@ env.Append(
     ],
 )
 
-env.Append(
-    CCFLAGS = [
-        '/TP',
-        '/wd4800',
-    ],
+if env['PLATFORM'] == 'win32':
+  input_files.extend([
+      env_res.RES('npapi_test.rc'),
+      'npapi_test.def'
+  ])
 
-    LIBS = [
-        'comctl32.lib',
-        'rpcrt4.lib',
-        'shlwapi.lib',
-        'winmm.lib',
-    ],
+  env.Append(
+      CCFLAGS = [
+          '/TP',
+          '/wd4800',
+      ],
 
-    LINKFLAGS = [
-        '/INCREMENTAL',
-        '/DELAYLOAD:"dwmapi.dll"',
-        '/DELAYLOAD:"uxtheme.dll"',
-        '/FIXED:No',
-        '/SUBSYSTEM:CONSOLE',
-        '/MACHINE:X86',
-        '/safeseh',
-        '/dynamicbase',
-        '/ignore:4199',
-        '/nxcompat',
-    ],
-)
+      LIBS = [
+          'comctl32.lib',
+          'rpcrt4.lib',
+          'shlwapi.lib',
+          'winmm.lib',
+      ],
 
-dll = env.ChromeSharedLibrary(['npapi_test_plugin',
-                         'npapi_test_plugin.lib',
-                         'npapi_test_plugin.ilk',
-                         'npapi_test_plugin.pdb'],
-                         input_files)
+      LINKFLAGS = [
+          '/INCREMENTAL',
+          '/DELAYLOAD:"dwmapi.dll"',
+          '/DELAYLOAD:"uxtheme.dll"',
+          '/FIXED:No',
+          '/SUBSYSTEM:CONSOLE',
+          '/MACHINE:X86',
+          '/safeseh',
+          '/dynamicbase',
+          '/ignore:4199',
+          '/nxcompat',
+      ],
+  )
 
-# TODO(sgk):  goes away once ChromeSharedLibrary does this for us.
-env.Install('$LIBS_DIR', dll[1])
+  dll = env.ChromeSharedLibrary([
+      'npapi_test_plugin',
+      'npapi_test_plugin.lib',
+      'npapi_test_plugin.ilk',
+      'npapi_test_plugin.pdb'
+      ], input_files)
+
+  # TODO(sgk):  goes away once ChromeSharedLibrary does this for us.
+  env.Install('$LIBS_DIR', dll[1])
+else:
+  dll = env.ChromeSharedLibrary(['npapi_test_plugin'], input_files)
 
 i = env.Install('$TARGET_ROOT', dll)
 env.Alias('webkit', i)

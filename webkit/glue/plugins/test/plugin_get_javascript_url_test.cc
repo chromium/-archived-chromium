@@ -4,6 +4,7 @@
 
 #include "webkit/glue/plugins/test/plugin_get_javascript_url_test.h"
 
+#include "base/basictypes.h"
 
 // url for "self".  
 #define SELF_URL "javascript:window.location+\"\""
@@ -38,7 +39,9 @@ NPError ExecuteGetJavascriptUrlTest::NewStream(NPMIMEType type, NPStream* stream
   if (stream == NULL)
     SetError("NewStream got null stream");
 
-  unsigned long stream_id = PtrToUlong(stream->notifyData);
+  COMPILE_ASSERT(sizeof(unsigned long) <= sizeof(stream->notifyData),
+                 cast_validity_check);
+  unsigned long stream_id = reinterpret_cast<unsigned long>(stream->notifyData);
   switch (stream_id) {
     case SELF_URL_STREAM_ID:
       break;
@@ -60,7 +63,9 @@ int32 ExecuteGetJavascriptUrlTest::Write(NPStream *stream, int32 offset, int32 l
   if (len < 0 || len > STREAM_CHUNK)
     SetError("Write got bogus stream chunk size");
 
-  unsigned long stream_id = PtrToUlong(stream->notifyData);
+  COMPILE_ASSERT(sizeof(unsigned long) <= sizeof(stream->notifyData),
+                 cast_validity_check);
+  unsigned long stream_id = reinterpret_cast<unsigned long>(stream->notifyData);
   switch (stream_id) {
     case SELF_URL_STREAM_ID:
       self_url_.append(static_cast<char*>(buffer), len);
@@ -78,7 +83,9 @@ NPError ExecuteGetJavascriptUrlTest::DestroyStream(NPStream *stream, NPError rea
   if (stream == NULL)
     SetError("NewStream got null stream");
 
-  unsigned long stream_id = PtrToUlong(stream->notifyData);
+  COMPILE_ASSERT(sizeof(unsigned long) <= sizeof(stream->notifyData),
+                 cast_validity_check);
+  unsigned long stream_id = reinterpret_cast<unsigned long>(stream->notifyData);
   switch (stream_id) {
     case SELF_URL_STREAM_ID:
       // don't care
@@ -91,7 +98,9 @@ NPError ExecuteGetJavascriptUrlTest::DestroyStream(NPStream *stream, NPError rea
 }
 
 void ExecuteGetJavascriptUrlTest::URLNotify(const char* url, NPReason reason, void* data) {
-  unsigned long stream_id = PtrToUlong(data);
+  COMPILE_ASSERT(sizeof(unsigned long) <= sizeof(data),
+                 cast_validity_check);
+  unsigned long stream_id = reinterpret_cast<unsigned long>(data);
   switch (stream_id) {
     case SELF_URL_STREAM_ID:
       if (strcmp(url, SELF_URL) != 0)

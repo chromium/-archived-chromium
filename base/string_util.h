@@ -23,6 +23,11 @@ namespace base {
 // are listed below.  These functions are then implemented as inline calls
 // to the platform-specific equivalents in the platform-specific headers.
 
+// Compare the two strings s1 and s2 without regard to case using
+// the current locale; returns 0 if they are equal, 1 if s1 > s2, and -1 if
+// s2 > s1 according to a lexicographic comparison.
+int strcasecmp(const char* s1, const char* s2);
+
 // Compare up to count characters of s1 and s2 without regard to case using
 // the current locale; returns 0 if they are equal, 1 if s1 > s2, and -1 if
 // s2 > s1 according to a lexicographic comparison.

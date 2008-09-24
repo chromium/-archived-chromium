@@ -3,6 +3,8 @@
 // found in the LICENSE file.
 
 #include "webkit/glue/plugins/test/plugin_test.h"
+
+#include "base/string_util.h"
 #include "webkit/glue/plugins/test/npapi_constants.h"
 
 namespace NPAPIClient {
@@ -32,8 +34,8 @@ NPError PluginTest::SetWindow(NPWindow* pNPWindow) {
 // end up using libicu, which is a string of dependencies we don't
 // want.
 
-inline BYTE toHex(const BYTE &x) {
-    return x > 9 ? x + 55: x + 48;
+inline unsigned char toHex(const unsigned char x) {
+  return x > 9 ? (x + 'A' - 10) : (x + '0');
 }
 
 std::string URLEncode(const std::string &sIn) {
@@ -88,7 +90,7 @@ void PluginTest::SignalTestCompleted() {
 const char *PluginTest::GetArgValue(const char *name, const int16 argc,
                                     const char *argn[], const char *argv[]) {
   for (int idx = 0; idx < argc; idx++)
-    if (_stricmp(argn[idx], name) == 0)
+    if (base::strcasecmp(argn[idx], name) == 0)
       return argv[idx];
   return NULL;
 }

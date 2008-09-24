@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/string_util.h"
 #include "webkit/glue/plugins/test/plugin_client.h"
 #include "webkit/glue/plugins/test/plugin_arguments_test.h"
 #include "webkit/glue/plugins/test/plugin_delete_plugin_in_stream_test.h"
@@ -40,7 +41,7 @@ NPError PluginClient::GetEntryPoints(NPPluginFuncs* pFuncs) {
   pFuncs->urlnotify     = NPP_URLNotify;
   pFuncs->getvalue      = NPP_GetValue;
   pFuncs->setvalue      = NPP_SetValue;
-  pFuncs->javaClass     = NPP_GetJavaClass;
+  pFuncs->javaClass     = static_cast<JRIGlobalRef>(NPP_GetJavaClass);
 
   return NPERR_NO_ERROR;
 }
@@ -50,7 +51,8 @@ NPError PluginClient::Initialize(NPNetscapeFuncs* pFuncs) {
     return NPERR_INVALID_FUNCTABLE_ERROR;
   }
 
-  if (HIBYTE(pFuncs->version) > NP_VERSION_MAJOR) {
+  if (static_cast<unsigned char>((pFuncs->version >> 8) & 0xff) >
+      NP_VERSION_MAJOR) {
     return NPERR_INCOMPATIBLE_VERSION_ERROR;
   }
 
@@ -77,7 +79,7 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
   // lookup the name parameter
   int name_index = 0;
   for (name_index = 0; name_index < argc; name_index++)
-    if (_stricmp(argn[name_index], "name") == 0)
+    if (base::strcasecmp(argn[name_index], "name") == 0)
       break;
 
   if (name_index >= argc)
@@ -87,40 +89,43 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
   bool windowless_plugin = false;
 
   NPAPIClient::PluginTest *new_test = NULL;
-  if (_stricmp(argv[name_index], "arguments") == 0) {
+  if (base::strcasecmp(argv[name_index], "arguments") == 0) {
     new_test = new NPAPIClient::PluginArgumentsTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
-  } else if (_stricmp(argv[name_index], "geturl") == 0) {
+  } else if (base::strcasecmp(argv[name_index], "geturl") == 0) {
     new_test = new NPAPIClient::PluginGetURLTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
-  } else if (_stricmp(argv[name_index], "npobject_proxy") == 0) {
+  } else if (base::strcasecmp(argv[name_index], "npobject_proxy") == 0) {
     new_test = new NPAPIClient::NPObjectProxyTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
-  } else if (_stricmp(argv[name_index], "execute_script_delete_in_paint") == 0) {
+  } else if (base::strcasecmp(argv[name_index],
+             "execute_script_delete_in_paint") == 0) {
     new_test = new NPAPIClient::ExecuteScriptDeleteTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
     windowless_plugin = true;
-  } else if (_stricmp(argv[name_index], "getjavascripturl") == 0) {
+  } else if (base::strcasecmp(argv[name_index], "getjavascripturl") == 0) {
     new_test = new NPAPIClient::ExecuteGetJavascriptUrlTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
-  } else if (_stricmp(argv[name_index], "checkwindowrect") == 0) {
+  } else if (base::strcasecmp(argv[name_index], "checkwindowrect") == 0) {
     new_test = new NPAPIClient::PluginWindowSizeTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
-  } else if (_stricmp(argv[name_index], "self_delete_plugin_stream") == 0) {
+  } else if (base::strcasecmp(argv[name_index],
+             "self_delete_plugin_stream") == 0) {
     new_test = new NPAPIClient::DeletePluginInStreamTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
-  } else if (_stricmp(argv[name_index], "npobject_lifetime_test") == 0) {
+  } else if (base::strcasecmp(argv[name_index],
+             "npobject_lifetime_test") == 0) {
     new_test = new NPAPIClient::NPObjectLifetimeTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
-  } else if (_stricmp(argv[name_index], 
-                      "npobject_lifetime_test_second_instance") == 0) {
+  } else if (base::strcasecmp(argv[name_index], 
+             "npobject_lifetime_test_second_instance") == 0) {
     new_test = new NPAPIClient::NPObjectLifetimeTestInstance2(instance,
       NPAPIClient::PluginClient::HostFunctions());
-  } else if (_stricmp(argv[name_index], "new_fails") == 0) {
+  } else if (base::strcasecmp(argv[name_index], "new_fails") == 0) {
     new_test = new NPAPIClient::NewFailsTest(instance,
         NPAPIClient::PluginClient::HostFunctions());
-  } else if (_stricmp(argv[name_index], 
-                      "npobject_delete_plugin_in_evaluate") == 0) {
+  } else if (base::strcasecmp(argv[name_index], 
+            "npobject_delete_plugin_in_evaluate") == 0) {
     new_test = new NPAPIClient::NPObjectDeletePluginInNPN_Evaluate(instance,
       NPAPIClient::PluginClient::HostFunctions());
   } else {
@@ -269,8 +274,4 @@ void* NPP_GetJavaClass(void) {
   return NULL;
 }
 } // extern "C"
-
-
-
-
 

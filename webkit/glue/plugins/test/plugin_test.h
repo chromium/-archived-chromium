@@ -77,13 +77,10 @@ class PluginTest {
   void ExpectIntegerEqual(int val1, int val2) {
     if (val1 != val2) {
       std::string err;
-      char buf[64];  // what's the right size?
       err = "Expected Equal for '";
-      sprintf_s(buf, "%d", val1);
-      err.append(buf);
+      err.append(IntToString(val1));
       err.append("' and '");
-      sprintf_s(buf, "%d", val2);
-      err.append(buf);
+      err.append(IntToString(val2));
       err.append("'");
       SetError(err);
     }

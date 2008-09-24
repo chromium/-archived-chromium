@@ -2,8 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/basictypes.h"
+
+#if defined(OS_WIN)
 #define STRSAFE_NO_DEPRECATE
 #include <strsafe.h>
+#endif
+
 #include "webkit/glue/plugins/test/plugin_arguments_test.h"
 
 namespace NPAPIClient {

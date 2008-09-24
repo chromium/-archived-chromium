@@ -41,23 +41,30 @@
 //
 //
 
+#include "base/basictypes.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
+#endif
+
 #include "webkit/glue/plugins/test/plugin_client.h"
 
-BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved) {
+#if defined(OS_WIN)
+BOOL API_CALL DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved) {
   return TRUE;
 }
+#endif
 
 extern "C" {
-NPError WINAPI NP_GetEntryPoints(NPPluginFuncs* pFuncs) {
+NPError API_CALL NP_GetEntryPoints(NPPluginFuncs* pFuncs) {
   return NPAPIClient::PluginClient::GetEntryPoints(pFuncs);
 }
 
-NPError WINAPI NP_Initialize(NPNetscapeFuncs* pFuncs) {
+NPError API_CALL NP_Initialize(NPNetscapeFuncs* pFuncs) {
   return NPAPIClient::PluginClient::Initialize(pFuncs);
 }
 
-NPError WINAPI NP_Shutdown() {
+NPError API_CALL NP_Shutdown() {
   return NPAPIClient::PluginClient::Shutdown();
 }
 } // extern "C"
