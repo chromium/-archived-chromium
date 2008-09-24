@@ -196,7 +196,8 @@ env.SConscript(sconscript_dirs, exports=['env', 'env_res'])
 # Instead we're going to let all the subsidiary SConscript files
 # add their own individual targets to the 'webkit' Alias.
 #env.Alias('webkit', ['.', '../icudt38.dll'])
-env.Alias('webkit', ['../icudt38.dll'])
+if env['PLATFORM'] == 'win32':
+  env.Alias('webkit', ['../icudt38.dll'])
 
 
 version = env.Command('$WEBKIT_DIR/build/WebCore/webkit_version.h',
