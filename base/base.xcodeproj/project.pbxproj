@@ -169,6 +169,7 @@
 		E49115EF0E47B461001EE8C3 /* at_exit.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49115EC0E47B461001EE8C3 /* at_exit.cc */; };
 		E49357220E422A36008F8B09 /* timer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403850D92D2CF0006B936 /* timer.cc */; };
 		E4A133440E37A3C400110AA2 /* string_escape.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A133420E37A3C400110AA2 /* string_escape.cc */; };
+		E4CE9D7A0E8C1FD400D5378C /* system_monitor.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4CE9D780E8C1FCA00D5378C /* system_monitor.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -644,6 +645,9 @@
 		E4AFA4C20E50DED500201347 /* string_piece_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_piece_unittest.cc; sourceTree = "<group>"; };
 		E4AFA4CE0E50E0C500201347 /* word_iterator_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = word_iterator_unittest.cc; sourceTree = "<group>"; };
 		E4AFA4EF0E50F7B000201347 /* time_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = time_unittest.cc; sourceTree = "<group>"; };
+		E4CE9D760E8C1FCA00D5378C /* system_monitor_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = system_monitor_unittest.cc; sourceTree = "<group>"; };
+		E4CE9D770E8C1FCA00D5378C /* system_monitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = system_monitor.h; sourceTree = "<group>"; };
+		E4CE9D780E8C1FCA00D5378C /* system_monitor.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = system_monitor.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -962,6 +966,9 @@
 				7B6AF6330E80211700F9F9CF /* sys_info_unittest.cc */,
 				7B4C5F470E4B6BF900679E8F /* sys_string_conversions.h */,
 				7B4C5F480E4B6BF900679E8F /* sys_string_conversions_mac.cc */,
+				E4CE9D760E8C1FCA00D5378C /* system_monitor_unittest.cc */,
+				E4CE9D770E8C1FCA00D5378C /* system_monitor.h */,
+				E4CE9D780E8C1FCA00D5378C /* system_monitor.cc */,
 				8254037E0D92D2CF0006B936 /* task.h */,
 				93E703230E5D64F00046259B /* thread.cc */,
 				825403800D92D2CF0006B936 /* thread.h */,
@@ -1348,6 +1355,7 @@
 				820EB4FA0E3A6178009668FC /* string_util_icu.cc in Sources */,
 				7B6AF6340E80211C00F9F9CF /* sys_info_posix.cc in Sources */,
 				7B4C5F4A0E4B6BF900679E8F /* sys_string_conversions_mac.cc in Sources */,
+				E4CE9D7A0E8C1FD400D5378C /* system_monitor.cc in Sources */,
 				93E703240E5D64F00046259B /* thread.cc in Sources */,
 				7BAE38AC0E6EFDBA00C3F750 /* thread_local_posix.cc in Sources */,
 				829E36730DC0FBAD00819EBF /* thread_local_storage_posix.cc in Sources */,
