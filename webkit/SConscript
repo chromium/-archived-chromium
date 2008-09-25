@@ -115,7 +115,7 @@ env.Append(
     SHARED_DIR = env.Dir("$WEBKIT_DIR/V8Bindings/SharedSources"),
 
     CPPDEFINES = [
-      'U_STATIC_IMPLEMENTATION'
+      'U_STATIC_IMPLEMENTATION',
       '_SCL_SECURE_NO_DEPRECATE',
       '_SCL_SECURE_NO_WARNINGS',
       ['ENABLE_CROSS_DOCUMENT_MESSAGING', '1'],
