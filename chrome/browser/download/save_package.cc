@@ -757,15 +757,16 @@ void SavePackage::GetSerializedHtmlDataForCurrentPageWithLocalLinks() {
 
   relative_dir_name = std::wstring(L"./") + relative_dir_name + L"/";
 
-  web_contents_->GetSerializedHtmlDataForCurrentPageWithLocalLinks(
-      saved_links, saved_file_paths, relative_dir_name);
+  web_contents_->render_view_host()->
+      GetSerializedHtmlDataForCurrentPageWithLocalLinks(
+          saved_links, saved_file_paths, relative_dir_name);
 }
 
 // Process the serialized HTML content data of a specified web page
 // retrieved from render process.
-void SavePackage::ProcessSerializedHtmlData(const GURL& frame_url,
-                                            const std::string& data,
-                                            int32 status) {
+void SavePackage::OnReceivedSerializedHtmlData(const GURL& frame_url,
+                                               const std::string& data,
+                                               int32 status) {
   webkit_glue::DomSerializerDelegate::PageSavingSerializationStatus flag =
       static_cast<webkit_glue::DomSerializerDelegate::PageSavingSerializationStatus>
           (status);
@@ -831,13 +832,14 @@ void SavePackage::GetAllSavableResourceLinksForCurrentPage() {
 
   wait_state_ = RESOURCES_LIST;
   GURL main_page_url(page_url_);
-  web_contents_->GetAllSavableResourceLinksForCurrentPage(main_page_url);
+  web_contents_->render_view_host()->
+      GetAllSavableResourceLinksForCurrentPage(main_page_url);
 }
 
 // Give backend the lists which contain all resource links that have local
 // storage, after which, render process will serialize DOM for generating
 // HTML data.
-void SavePackage::ProcessCurrentPageAllSavableResourceLinks(
+void SavePackage::OnReceivedSavableResourceLinksForCurrentPage(
     const std::vector<GURL>& resources_list,
     const std::vector<GURL>& referrers_list,
     const std::vector<GURL>& frames_list) {

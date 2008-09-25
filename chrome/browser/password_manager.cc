@@ -172,7 +172,7 @@ void PasswordManager::Autofill(const PasswordForm& form_for_autofill,
           PasswordFormDomManager::CreateFillData(form_for_autofill,
                                                  best_matches, preferred_match,
                                                  action_mismatch));
-      web_contents_->FillPasswordForm(*fill_data);
+      web_contents_->render_view_host()->FillPasswordForm(*fill_data);
       return;
     }
     default:

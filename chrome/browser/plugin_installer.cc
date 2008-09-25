@@ -59,7 +59,7 @@ void PluginInstaller::OnBarDestroy(InfoBarConfirmView* bar) {
 
 void PluginInstaller::OnOKButtonPressed() {
   current_bar_->BeginClose();
-  web_contents_->InstallMissingPlugin();
+  web_contents_->render_view_host()->InstallMissingPlugin();
 }
 
 PluginInstaller::PluginInstallerBar

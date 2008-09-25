@@ -196,7 +196,8 @@ void SSLManager::AddMessageToConsole(const std::wstring& msg,
   if (!web_contents)
     return;
 
-  web_contents->AddMessageToConsole(std::wstring(), msg, level);
+  web_contents->render_view_host()->AddMessageToConsole(
+      std::wstring(), msg, level);
 }
 
 // Delegate API method.

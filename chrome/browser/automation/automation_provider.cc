@@ -1591,8 +1591,10 @@ void AutomationProvider::ExecuteJavascript(const IPC::Message& message,
       L"javascript:void(window.domAutomationController.setAutomationId(%d));",
       message.routing_id());
 
-    web_contents->ExecuteJavascriptInWebFrame(frame_xpath, url);
-    web_contents->ExecuteJavascriptInWebFrame(frame_xpath, script);
+    web_contents->render_view_host()->ExecuteJavascriptInWebFrame(
+        frame_xpath, url);
+    web_contents->render_view_host()->ExecuteJavascriptInWebFrame(
+        frame_xpath, script);
     succeeded = true;
   }
 
@@ -1768,7 +1770,7 @@ void AutomationProvider::HandleInspectElementRequest(
     const IPC::Message& message, int handle, int x, int y) {
   WebContents* web_contents = GetWebContentsForHandle(handle, NULL);
   if (web_contents) {
-    web_contents->InspectElementAt(x, y);
+    web_contents->render_view_host()->InspectElementAt(x, y);
     inspect_element_routing_id_ = message.routing_id();
   } else {
     Send(new AutomationMsg_InspectElementResponse(message.routing_id(), -1));

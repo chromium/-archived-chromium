@@ -51,11 +51,11 @@ void RenderViewContextMenuController::OpenURL(
 }
 
 void RenderViewContextMenuController::CopyImageAt(int x, int y) {
-  source_web_contents_->CopyImageAt(x, y);
+  source_web_contents_->render_view_host()->CopyImageAt(x, y);
 }
 
 void RenderViewContextMenuController::Inspect(int x, int y) {
-  source_web_contents_->InspectElementAt(x, y);
+  source_web_contents_->render_view_host()->InspectElementAt(x, y);
 }
 
 void RenderViewContextMenuController::WriteTextToClipboard(
@@ -344,31 +344,31 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
     }
 
     case IDS_CONTENT_CONTEXT_UNDO:
-      source_web_contents_->Undo();
+      source_web_contents_->render_view_host()->Undo();
       break;
 
     case IDS_CONTENT_CONTEXT_REDO:
-      source_web_contents_->Redo();
+      source_web_contents_->render_view_host()->Redo();
       break;
 
     case IDS_CONTENT_CONTEXT_CUT:
-      source_web_contents_->Cut();
+      source_web_contents_->render_view_host()->Cut();
       break;
 
     case IDS_CONTENT_CONTEXT_COPY:
-      source_web_contents_->Copy();
+      source_web_contents_->render_view_host()->Copy();
       break;
 
     case IDS_CONTENT_CONTEXT_PASTE:
-      source_web_contents_->Paste();
+      source_web_contents_->render_view_host()->Paste();
       break;
 
     case IDS_CONTENT_CONTEXT_DELETE:
-      source_web_contents_->Delete();
+      source_web_contents_->render_view_host()->Delete();
       break;
 
     case IDS_CONTENT_CONTEXT_SELECTALL:
-      source_web_contents_->SelectAll();
+      source_web_contents_->render_view_host()->SelectAll();
       break;
 
     case IDS_CONTENT_CONTEXT_SEARCHWEBFOR: {
@@ -389,12 +389,13 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
     case IDC_USESPELLCHECKSUGGESTION_2:
     case IDC_USESPELLCHECKSUGGESTION_3:
     case IDC_USESPELLCHECKSUGGESTION_4:
-      source_web_contents_->Replace(params_.dictionary_suggestions[
-          id - IDC_USESPELLCHECKSUGGESTION_0]);
+      source_web_contents_->render_view_host()->Replace(
+          params_.dictionary_suggestions[id - IDC_USESPELLCHECKSUGGESTION_0]);
       break;
 
     case IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY:
-      source_web_contents_->AddToDictionary(params_.misspelled_word);
+      source_web_contents_->render_view_host()->AddToDictionary(
+          params_.misspelled_word);
       break;
 
     case IDS_CONTENT_CONTEXT_ADDSEARCHENGINE:  // Not implemented.

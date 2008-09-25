@@ -281,14 +281,6 @@ void WebContents::SizeContents(const gfx::Size& size) {
   RepositionSupressedPopupsToFit(size);
 }
 
-void WebContents::FirePageBeforeUnload() {
-  render_view_host()->FirePageBeforeUnload();
-}
-
-void WebContents::FirePageUnload() {
-  render_view_host()->FirePageUnload();
-}
-
 void WebContents::Destroy() {
   // Tell the notification service we no longer want notifications.
   NotificationService::current()->
@@ -684,8 +676,6 @@ void WebContents::StartFinding(int request_id,
                                bool forward,
                                bool match_case,
                                bool find_next) {
-  if (search_string.empty())
-    return;
   render_view_host()->StartFinding(request_id, search_string, forward,
                                    match_case, find_next);
 }
@@ -746,34 +736,6 @@ bool WebContents::GetFindInPageWindowLocation(int* x, int* y) {
 
   return false;
 }
-
-void WebContents::AlterTextSize(text_zoom::TextSize size) {
-  render_view_host()->AlterTextSize(size);
-  // TODO(creis): should this be propagated to other and future RVHs?
-}
-
-void WebContents::SetPageEncoding(const std::wstring& encoding_name) {
-  render_view_host()->SetPageEncoding(encoding_name);
-  // TODO(creis): should this be propagated to other and future RVHs?
-}
-
-void WebContents::CopyImageAt(int x, int y) {
-  render_view_host()->CopyImageAt(x, y);
-}
-
-void WebContents::InspectElementAt(int x, int y) {
-  render_view_host()->InspectElementAt(x, y);
-}
-
-void WebContents::ShowJavaScriptConsole() {
-  render_view_host()->ShowJavaScriptConsole();
-}
-
-void WebContents::AllowDomAutomationBindings() {
-  render_view_host()->AllowDomAutomationBindings();
-  // TODO(creis): should this be propagated to other and future RVHs?
-}
-
 void WebContents::OnJavaScriptMessageBoxClosed(IPC::Message* reply_msg,
                                                bool success,
                                                const std::wstring& prompt) {
@@ -847,11 +809,6 @@ void WebContents::NotifyDisconnected() {
       Notify(NOTIFY_WEB_CONTENTS_DISCONNECTED,
              Source<WebContents>(this),
              NotificationService::NoDetails());
-}
-
-void WebContents::SetSuppressJavascriptMessageBoxes(
-    bool suppress_javascript_messages) {
-  suppress_javascript_messages_ = suppress_javascript_messages;
 }
 
 void WebContents::UpdateHistoryForNavigation(const GURL& display_url,
@@ -938,49 +895,6 @@ InfoBarView* WebContents::GetInfoBarView() {
   return info_bar_view_.get();
 }
 
-void WebContents::ExecuteJavascriptInWebFrame(
-    const std::wstring& frame_xpath, const std::wstring& jscript) {
-  render_view_host()->ExecuteJavascriptInWebFrame(frame_xpath, jscript);
-}
-
-void WebContents::AddMessageToConsole(
-    const std::wstring& frame_xpath, const std::wstring& msg,
-    ConsoleMessageLevel level) {
-  render_view_host()->AddMessageToConsole(frame_xpath, msg, level);
-}
-
-void WebContents::Undo() {
-   render_view_host()->Undo();
-}
-
-void WebContents::Redo() {
-   render_view_host()->Redo();
-}
-
-void WebContents::Replace(const std::wstring& text) {
-   render_view_host()->Replace(text);
-}
-
-void WebContents::AddToDictionary(const std::wstring& word) {
-  render_view_host()->AddToDictionary(word);
-}
-
-void WebContents::Delete() {
-   render_view_host()->Delete();
-}
-
-void WebContents::SelectAll() {
-   render_view_host()->SelectAll();
-}
-
-void WebContents::StartFileUpload(const std::wstring& file_path,
-                                  const std::wstring& form,
-                                  const std::wstring& file,
-                                  const std::wstring& submit,
-                                  const std::wstring& other_values) {
-  render_view_host()->UploadFile(file_path, form, file, submit, other_values);
-}
-
 void WebContents::SetWebApp(WebApp* web_app) {
   if (web_app_.get()) {
     web_app_->RemoveObserver(this);
@@ -1022,34 +936,6 @@ void WebContents::CreateShortcut() {
   render_view_host()->GetApplicationInfo(pending_install_.page_id);
 }
 
-void WebContents::FillForm(const FormData& form) {
-  render_view_host()->FillForm(form);
-}
-
-void WebContents::FillPasswordForm(
-    const PasswordFormDomManager::FillData& form_data) {
-  render_view_host()->FillPasswordForm(form_data);
-}
-
-void WebContents::DragTargetDragEnter(const WebDropData& drop_data,
-    const gfx::Point& client_pt, const gfx::Point& screen_pt) {
-  render_view_host()->DragTargetDragEnter(drop_data, client_pt, screen_pt);
-}
-
-void WebContents::DragTargetDragOver(
-    const gfx::Point& client_pt, const gfx::Point& screen_pt) {
-  render_view_host()->DragTargetDragOver(client_pt, screen_pt);
-}
-
-void WebContents::DragTargetDragLeave() {
-  render_view_host()->DragTargetDragLeave();
-}
-
-void WebContents::DragTargetDrop(
-    const gfx::Point& client_pt, const gfx::Point& screen_pt) {
-  render_view_host()->DragTargetDrop(client_pt, screen_pt);
-}
-
 PasswordManager* WebContents::GetPasswordManager() {
   if (password_manager_.get() == NULL)
     password_manager_.reset(new PasswordManager(this));
@@ -1072,10 +958,14 @@ bool WebContents::IsActiveEntry(int32 page_id) {
 ///////////////////////////////////////////////////////////////////////////////
 // RenderViewHostDelegate implementation:
 
-RenderViewHostDelegate::FindInPage* WebContents::GetFindInPageDelegate() {
+RenderViewHostDelegate::FindInPage* WebContents::GetFindInPageDelegate() const {
   // The find in page controller implements this interface for us. Our return
   // value can be NULL, so it's fine if the find in controller doesn't exist.
   return find_in_page_controller_.get();
+}
+
+RenderViewHostDelegate::Save* WebContents::GetSaveDelegate() const {
+  return save_package_.get();  // May be NULL, but we can return NULL.
 }
 
 Profile* WebContents::GetProfile() const {
@@ -1788,7 +1678,6 @@ void WebContents::ProcessExternalHostMessage(const std::string& receiver,
 void WebContents::GoToEntryAtOffset(int offset) {
   if (!controller())
     return;
-
   controller()->GoToOffset(offset);
 }
 
@@ -2416,48 +2305,6 @@ std::wstring WebContents::GetStatusText() const {
   }
 
   return std::wstring();
-}
-
-// Called by PluginInstaller to start installation of missing plugin.
-void WebContents::InstallMissingPlugin() {
-  render_view_host()->InstallMissingPlugin();
-}
-
-void WebContents::GetAllSavableResourceLinksForCurrentPage(
-    const GURL& page_url) {
-  render_view_host()->GetAllSavableResourceLinksForCurrentPage(
-      page_url);
-}
-
-void WebContents::OnReceivedSavableResourceLinksForCurrentPage(
-    const std::vector<GURL>& resources_list,
-    const std::vector<GURL>& referrers_list,
-    const std::vector<GURL>& frames_list) {
-  SavePackage* save_package = get_save_package();
-  if (save_package) {
-    save_package->ProcessCurrentPageAllSavableResourceLinks(resources_list,
-                                                            referrers_list,
-                                                            frames_list);
-  }
-}
-
-void WebContents::GetSerializedHtmlDataForCurrentPageWithLocalLinks(
-    const std::vector<std::wstring>& links,
-    const std::vector<std::wstring>& local_paths,
-    const std::wstring& local_directory_name) {
-  render_view_host()->GetSerializedHtmlDataForCurrentPageWithLocalLinks(
-      links, local_paths, local_directory_name);
-}
-
-
-void WebContents::OnReceivedSerializedHtmlData(const GURL& frame_url,
-                                               const std::string& data,
-                                               int32 status) {
-  SavePackage* save_package = get_save_package();
-  if (save_package)
-    save_package->ProcessSerializedHtmlData(frame_url,
-                                            data,
-                                            status);
 }
 
 bool WebContents::CanBlur() const {

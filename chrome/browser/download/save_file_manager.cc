@@ -221,7 +221,7 @@ SavePackage* SaveFileManager::GetSavePackageFromRenderIds(
     // Convert const pointer of WebContents to pointer of WebContents.
     const WebContents* web_contents = contents->AsWebContents();
     if (web_contents)
-      return web_contents->get_save_package();
+      return web_contents->save_package();
   }
 
   return NULL;

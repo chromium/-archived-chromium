@@ -111,6 +111,7 @@ void DOMUIHost::ExecuteJavascript(const std::wstring& javascript) {
   // URL is interpreted, it will be unescaped.
   std::wstring escaped_js(javascript);
   ReplaceSubstringsAfterOffset(&escaped_js, 0, L"%", L"%25");
-  ExecuteJavascriptInWebFrame(L"", L"javascript:" + escaped_js);
+  render_view_host()->ExecuteJavascriptInWebFrame(std::wstring(),
+                                                  L"javascript:" + escaped_js);
 }
 

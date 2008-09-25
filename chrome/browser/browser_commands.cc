@@ -460,7 +460,7 @@ void Browser::ExecuteCommand(int id) {
       TabContents* current_tab = GetSelectedTabContents();
       if (current_tab && current_tab->AsWebContents()) {
         WebContents* wc = current_tab->AsWebContents();
-        wc->ShowJavaScriptConsole();
+        wc->render_view_host()->ShowJavaScriptConsole();
       }
       break;
     }

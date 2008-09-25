@@ -1104,7 +1104,7 @@ void Browser::ProcessPendingTabs() {
   // unload tabs.
   if (!tabs_needing_before_unload_fired_.empty()) {
     TabContents* tab = tabs_needing_before_unload_fired_.back();
-    tab->AsWebContents()->FirePageBeforeUnload();
+    tab->AsWebContents()->render_view_host()->FirePageBeforeUnload();
   } else if (!tabs_needing_unload_fired_.empty()) {
     // We've finished firing all beforeunload events and can proceed with unload
     // events.
@@ -1115,7 +1115,7 @@ void Browser::ProcessPendingTabs() {
     // get a perf benefit from that in the cases where the tab hangs in it's
     // unload handler or takes a long time to page in.
     TabContents* tab = tabs_needing_unload_fired_.back();
-    tab->AsWebContents()->FirePageUnload();
+    tab->AsWebContents()->render_view_host()->FirePageUnload();
   } else {
     NOTREACHED();
   }

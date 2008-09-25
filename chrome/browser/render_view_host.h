@@ -137,7 +137,7 @@ class RenderViewHost : public RenderWidgetHost {
   // ViewMsg_ShouldClose. This is where the page itself is closed. The
   // unload handler is triggered here, which can block with a dialog, but cannot
   // cancel the close of the page.
-  virtual void FirePageUnload();
+  void FirePageUnload();
 
   // Close the page ignoring whether it has unload events registers.
   // This is called after the beforeunload and unload events have fired
@@ -214,14 +214,6 @@ class RenderViewHost : public RenderWidgetHost {
   void DragTargetDragLeave();
   void DragTargetDrop(const gfx::Point& client_pt,
                       const gfx::Point& screen_pt);
-
-  // Uploads a file by automatically completing a form within the page and
-  // submitting it.
-  void UploadFile(const std::wstring& file_path,
-                  const std::wstring& form,
-                  const std::wstring& file,
-                  const std::wstring& submit,
-                  const std::wstring& other_values);
 
   // Tell the RenderView to reserve a range of page ids of the given size.
   void ReservePageIDRange(int size);
@@ -346,7 +338,7 @@ class RenderViewHost : public RenderWidgetHost {
   void UpdateWebPreferences(const WebPreferences& prefs);
 
   // Request the Renderer to ask the default plugin to start installation of
-  // missing plugin.
+  // missing plugin. Called by PluginInstaller.
   void InstallMissingPlugin();
 
   // Get all savable resource links from current webpage, include main

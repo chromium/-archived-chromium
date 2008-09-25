@@ -55,16 +55,6 @@ class WebContents : public TabContents,
   virtual void HideContents();
   virtual void SizeContents(const gfx::Size& size);
 
-  // Causes the renderer to invoke the onbeforeunload event handler.  The
-  // result will be returned via ViewMsg_ShouldClose.
-  virtual void FirePageBeforeUnload();
-
-  // Close the page after the page has responded that it can be closed via
-  // ViewMsg_ShouldClose. This is where the page itself is closed. The
-  // unload handler is triggered here, which can block with a dialog, but cannot
-  // cancel the close of the page.
-  virtual void FirePageUnload();
-
   // TabContents
   virtual WebContents* AsWebContents() { return this; }
   virtual SiteInstance* GetSiteInstance() const {
@@ -91,17 +81,14 @@ class WebContents : public TabContents,
   virtual bool IsFindWindowFullyVisible();
   virtual bool GetFindInPageWindowLocation(int* x, int* y);
 
-  // Text zoom
-  virtual void AlterTextSize(text_zoom::TextSize size);
-
-  // Change encoding of page.
-  virtual void SetPageEncoding(const std::wstring& encoding_name);
-
   bool is_starred() const { return is_starred_; }
 
   // Set whether the contents should block javascript message boxes or not.
   // Default is not to block any message boxes.
-  void SetSuppressJavascriptMessageBoxes(bool suppress_javascript_messages);
+  void set_suppress_javascript_messages(
+      bool suppress_javascript_messages) {
+    suppress_javascript_messages_ = suppress_javascript_messages;
+  }
 
   // Various other systems need to know about our interstitials.
   bool showing_interstitial_page() const {
@@ -115,8 +102,8 @@ class WebContents : public TabContents,
   // shown.
   void SetDownloadShelfVisible(bool visible);
 
-  // Returns the SavePackage which manages the page saving job.
-  SavePackage* get_save_package() const { return save_package_.get(); }
+  // Returns the SavePackage which manages the page saving job. May be NULL.
+  SavePackage* save_package() const { return save_package_.get(); }
 
   // Whether or not the info bar is visible. This delegates to
   // the ChromeFrame method InfoBarVisibilityChanged.
@@ -138,41 +125,6 @@ class WebContents : public TabContents,
   void SavePage(const std::wstring& main_file, const std::wstring& dir_path,
                 SavePackage::SavePackageType save_type);
 
-  // Get all savable resource links from current webpage, include main
-  // frame and sub-frame.
-  void GetAllSavableResourceLinksForCurrentPage(const GURL& page_url);
-
-  // Get html data by serializing all frames of current page with lists
-  // which contain all resource links that have local copy.
-  // The parameter links contain original URLs of all saved links.
-  // The parameter local_paths contain corresponding local file paths of
-  // all saved links, which matched with vector:links one by one.
-  // The parameter local_directory_name is relative path of directory which
-  // contain all saved auxiliary files included all sub frames and resouces.
-  void GetSerializedHtmlDataForCurrentPageWithLocalLinks(
-      const std::vector<std::wstring>& links,
-      const std::vector<std::wstring>& local_paths,
-      const std::wstring& local_directory_name);
-
-  // Locates a sub frame with given xpath and executes the given
-  // javascript in its context.
-  void ExecuteJavascriptInWebFrame(const std::wstring& frame_xpath,
-                                   const std::wstring& jscript);
-
-  // Locates a sub frame with given xpath and logs a message to its
-  // console.
-  void AddMessageToConsole(const std::wstring& frame_xpath,
-                           const std::wstring& message,
-                           ConsoleMessageLevel level);
-
-  // Request the corresponding render view to perform these operations
-  void Undo();
-  void Redo();
-  void Replace(const std::wstring& text);
-  void AddToDictionary(const std::wstring& word);
-  void Delete();
-  void SelectAll();
-
   // Sets the WebApp for this WebContents.
   void SetWebApp(WebApp* web_app);
   WebApp* web_app() { return web_app_.get(); }
@@ -183,50 +135,9 @@ class WebContents : public TabContents,
   // Tell Gears to create a shortcut for the current page.
   void CreateShortcut();
 
-  // Tell the render view to perform a file upload. |form| is the name or ID of
-  // the form that should be used to perform the upload. |file| is the name or
-  // ID of the file input that should be set to |file_path|. |submit| is the
-  // name or ID of the submit button. If non empty, the submit button will be
-  // pressed. If not, the form will be filled with the information but the user
-  // will perform the post operation.
-  //
-  // |other_values| contains a list of key value pairs separated by '\n'.
-  // Each key value pair is of the form key=value where key is a form name or
-  // ID and value is the desired value.
-  void StartFileUpload(const std::wstring& file_path,
-                       const std::wstring& form,
-                       const std::wstring& file,
-                       const std::wstring& submit,
-                       const std::wstring& other_values);
-
   // JavascriptMessageBoxHandler calls this when the dialog is closed.
   void OnJavaScriptMessageBoxClosed(IPC::Message* reply_msg, bool success,
     const std::wstring& prompt);
-
-  void CopyImageAt(int x, int y);
-  void InspectElementAt(int x, int y);
-  void ShowJavaScriptConsole();
-  void AllowDomAutomationBindings();
-
-  // Tell the render view to fill in a form and optionally submit it.
-  void FillForm(const FormData& form);
-
-  // Tell the render view to fill a password form and trigger autocomplete
-  // in the case of multiple matching logins.
-  void FillPasswordForm(const PasswordFormDomManager::FillData& form_data);
-
-  // D&d drop target messages that get forwarded on to the render view host.
-  void DragTargetDragEnter(const WebDropData& drop_data,
-                           const gfx::Point& client_pt,
-                           const gfx::Point& screen_pt);
-  void DragTargetDragOver(const gfx::Point& client_pt,
-                          const gfx::Point& screen_pt);
-  void DragTargetDragLeave();
-  void DragTargetDrop(const gfx::Point& client_pt,
-                      const gfx::Point& screen_pt);
-
-  // Called by PluginInstaller to start installation of missing plugin.
-  void InstallMissingPlugin();
 
   // Returns the PasswordManager, creating it if necessary.
   PasswordManager* GetPasswordManager();
@@ -330,7 +241,9 @@ class WebContents : public TabContents,
   virtual ~WebContents();
 
   // RenderViewHostDelegate
-  virtual RenderViewHostDelegate::FindInPage* GetFindInPageDelegate();
+  virtual RenderViewHostDelegate::FindInPage* GetFindInPageDelegate() const;
+  virtual RenderViewHostDelegate::Save* GetSaveDelegate() const;
+
   virtual Profile* GetProfile() const;
 
   virtual void CreateView(int route_id, HANDLE modal_dialog_event);
@@ -415,13 +328,6 @@ class WebContents : public TabContents,
   virtual void OnMissingPluginStatus(int status);
   virtual void OnCrashedPlugin(const std::wstring& plugin_path);
   virtual void OnJSOutOfMemory();
-  virtual void OnReceivedSavableResourceLinksForCurrentPage(
-      const std::vector<GURL>& resources_list,
-      const std::vector<GURL>& referrers_list,
-      const std::vector<GURL>& frames_list);
-  virtual void OnReceivedSerializedHtmlData(const GURL& frame_url,
-                                            const std::string& data,
-                                            int32 status);
   virtual void ShouldClosePage(bool proceed) {
     render_manager_.ShouldClosePage(proceed);
   }

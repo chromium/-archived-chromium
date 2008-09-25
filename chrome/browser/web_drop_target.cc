@@ -106,7 +106,7 @@ DWORD WebDropTarget::OnDragEnter(IDataObject* data_object,
 
   POINT client_pt = cursor_position;
   ScreenToClient(GetHWND(), &client_pt);
-  web_contents_->DragTargetDragEnter(drop_data,
+  web_contents_->render_view_host()->DragTargetDragEnter(drop_data,
       gfx::Point(client_pt.x, client_pt.y),
       gfx::Point(cursor_position.x, cursor_position.y));
 
@@ -124,7 +124,7 @@ DWORD WebDropTarget::OnDragOver(IDataObject* data_object,
 
   POINT client_pt = cursor_position;
   ScreenToClient(GetHWND(), &client_pt);
-  web_contents_->DragTargetDragOver(
+  web_contents_->render_view_host()->DragTargetDragOver(
       gfx::Point(client_pt.x, client_pt.y),
       gfx::Point(cursor_position.x, cursor_position.y));
 
@@ -138,7 +138,7 @@ void WebDropTarget::OnDragLeave(IDataObject* data_object) {
   if (web_contents_->showing_interstitial_page()) {
     interstitial_drop_target_->OnDragLeave(data_object);
   } else {
-    web_contents_->DragTargetDragLeave();
+    web_contents_->render_view_host()->DragTargetDragLeave();
   }
 }
 
@@ -152,7 +152,7 @@ DWORD WebDropTarget::OnDrop(IDataObject* data_object,
 
   POINT client_pt = cursor_position;
   ScreenToClient(GetHWND(), &client_pt);
-  web_contents_->DragTargetDrop(
+  web_contents_->render_view_host()->DragTargetDrop(
       gfx::Point(client_pt.x, client_pt.y),
       gfx::Point(cursor_position.x, cursor_position.y));
 

@@ -1,22 +1,9 @@
 // Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-//
-// The SavePackage object manages the process of saving a page as only-html or
-// complete-html and providing the information for displaying saving status.
-// Saving page as only-html means means that we save web page to a single HTML
-// file regardless internal sub resources and sub frames.
-// Saving page as complete-html page means we save not only the main html file
-// the user told it to save but also a directory for the auxiliary files such
-// as all sub-frame html files, image files, css files and js files.
-//
-// Each page saving job may include one or multiple files which need to be
-// saved. Each file is represented by a SaveItem, and all SaveItems are owned
-// by the SavePackage. SaveItems are created when a user initiates a page
-// saving job, and exist for the duration of one tab's life time.
 
-#ifndef CHROME_BROWSER_DOWNLOAD_SAVE_PACKAGE_H__
-#define CHROME_BROWSER_DOWNLOAD_SAVE_PACKAGE_H__
+#ifndef CHROME_BROWSER_DOWNLOAD_SAVE_PACKAGE_H_
+#define CHROME_BROWSER_DOWNLOAD_SAVE_PACKAGE_H_
 
 #include <string>
 #include <vector>
@@ -30,6 +17,7 @@
 #include "chrome/common/pref_member.h"
 #include "chrome/browser/download/save_item.h"
 #include "chrome/browser/download/save_types.h"
+#include "chrome/browser/render_view_host_delegate.h"
 
 class SaveFileManager;
 class SavePackage;
@@ -47,8 +35,20 @@ namespace base {
 class Thread;
 }
 
-// save package: manages all save item.
-class SavePackage : public base::RefCountedThreadSafe<SavePackage> {
+// The SavePackage object manages the process of saving a page as only-html or
+// complete-html and providing the information for displaying saving status.
+// Saving page as only-html means means that we save web page to a single HTML
+// file regardless internal sub resources and sub frames.
+// Saving page as complete-html page means we save not only the main html file
+// the user told it to save but also a directory for the auxiliary files such
+// as all sub-frame html files, image files, css files and js files.
+//
+// Each page saving job may include one or multiple files which need to be
+// saved. Each file is represented by a SaveItem, and all SaveItems are owned
+// by the SavePackage. SaveItems are created when a user initiates a page
+// saving job, and exist for the duration of one tab's life time.
+class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
+                    public RenderViewHostDelegate::Save {
  public:
   enum SavePackageType {
     // User chose to save only the HTML of the page.
@@ -98,20 +98,6 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage> {
   void SaveFailed(const std::wstring& save_url);
   void SaveCanceled(SaveItem* save_item);
 
-  // Process current page's all savable links of sub resources, resources'
-  // referrer and frames(include main frame and sub frames) gotten from
-  // render process.
-  void ProcessCurrentPageAllSavableResourceLinks(
-      const std::vector<GURL>& resources_list,
-      const std::vector<GURL>& referrers_list,
-      const std::vector<GURL>& frames_list);
-
-  // Process the serialized html content data of a specified web page
-  // gotten from render process.
-  void ProcessSerializedHtmlData(const GURL& frame_url,
-                                 const std::string& data,
-                                 int32 status);
-
   // Rough percent complete, -1 means we don't know (since we didn't receive a
   // total size).
   int PercentComplete();
@@ -128,6 +114,24 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage> {
   // Since for one tab, it can only have one SavePackage in same time.
   // Now we actually use render_process_id as tab's unique id.
   int tab_id() const { return tab_id_; }
+
+  // RenderViewHostDelegate::Save ----------------------------------------------
+
+  // Process all of the current page's savable links of subresources, resources
+  // referrers and frames (including the main frame and subframes) from the
+  // render view host.
+  virtual void OnReceivedSavableResourceLinksForCurrentPage(
+      const std::vector<GURL>& resources_list,
+      const std::vector<GURL>& referrers_list,
+      const std::vector<GURL>& frames_list);
+
+  // Process the serialized html content data of a specified web page
+  // gotten from render process.
+  virtual void OnReceivedSerializedHtmlData(const GURL& frame_url,
+                                            const std::string& data,
+                                            int32 status);
+
+  // Statics -------------------------------------------------------------------
 
   // Helper function for preparing suggested name for the SaveAs Dialog. The
   // suggested name is composed of the default save path and the web document's
@@ -306,7 +310,7 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage> {
   // Unique id for this SavePackage.
   const int tab_id_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(SavePackage);
+  DISALLOW_COPY_AND_ASSIGN(SavePackage);
 };
 
-#endif  // CHROME_BROWSER_DOWNLOAD_SAVE_PACKAGE_H__
+#endif  // CHROME_BROWSER_DOWNLOAD_SAVE_PACKAGE_H_
