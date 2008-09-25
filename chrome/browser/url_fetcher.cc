@@ -147,6 +147,11 @@ void URLFetcher::Core::CancelURLRequest() {
     delete request_;
     request_ = NULL;
   }
+  // Release the reference to the request context. There could be multiple
+  // references to URLFetcher::Core at this point so it may take a while to
+  // delete the object, but we cannot delay the destruction of the request
+  // context.
+  request_context_ = NULL;
 }
 
 void URLFetcher::Core::OnCompletedURLRequest(const URLRequestStatus& status) {
@@ -175,4 +180,3 @@ void URLFetcher::Core::OnCompletedURLRequest(const URLRequestStatus& status) {
                                     cookies_, data_);
   }
 }
-
