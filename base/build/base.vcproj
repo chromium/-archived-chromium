@@ -718,6 +718,18 @@
 			>
 		</File>
 		<File
+			RelativePath="..\system_monitor.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\system_monitor.h"
+			>
+		</File>
+		<File
+			RelativePath="..\system_monitor_win.cc"
+			>
+		</File>
+		<File
 			RelativePath="..\task.h"
 			>
 		</File>
