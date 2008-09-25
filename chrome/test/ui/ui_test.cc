@@ -41,6 +41,7 @@ bool UITest::enable_dcheck_ = false;
 bool UITest::silent_dump_on_dcheck_ = false;
 bool UITest::disable_breakpad_ = false;
 int UITest::timeout_ms_ = 20 * 60 * 1000;
+std::wstring UITest::js_flags_ = L"";
 
 // Uncomment this line to have the spawned process wait for the debugger to
 // attach.
@@ -197,6 +198,10 @@ void UITest::LaunchBrowser(const std::wstring& arguments, bool clear_profile) {
     CommandLine::AppendSwitchWithValue(&command_line,
                                        switches::kUserDataDir,
                                        user_data_dir_);
+  if (!js_flags_.empty())
+    CommandLine::AppendSwitchWithValue(&command_line,
+                                       switches::kJavaScriptFlags,
+                                       js_flags_);
 
   CommandLine::AppendSwitch(&command_line, switches::kDisableMetricsReporting);
 

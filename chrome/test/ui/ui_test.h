@@ -240,6 +240,11 @@ class UITest : public testing::Test {
     timeout_ms_ = value;
   }
 
+  static std::wstring js_flags() { return js_flags_; }
+  static void set_js_flags(const std::wstring& value) {
+    js_flags_ = value;
+  }
+
   // Called by some tests that wish to have a base profile to start from. This
   // "user data directory" (containing one or more profiles) will be recursively
   // copied into the user data directory for the test and the files will be
@@ -340,6 +345,7 @@ class UITest : public testing::Test {
   static bool disable_breakpad_;        // Disable breakpad on the browser.
   static int timeout_ms_;               // Timeout in milliseconds to wait
                                         // for an test to finish.
+  static std::wstring js_flags_;        // Flags passed to the JS engine.
   ::scoped_ptr<AutomationProxy> server_;
 
   MessageLoop message_loop_;            // Enables PostTask to main thread.

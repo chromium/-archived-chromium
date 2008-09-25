@@ -44,6 +44,11 @@ class UITestSuite : public ChromeTestSuite {
     if (!test_timeout.empty()) {
       UITest::set_test_timeout_ms(_wtoi(test_timeout.c_str()));
     }
+    std::wstring js_flags =
+      parsed_command_line.GetSwitchValue(switches::kJavaScriptFlags);
+    if (!js_flags.empty()) {
+      UITest::set_js_flags(js_flags);
+    }
   }
 
   virtual void SuppressErrorDialogs() {
