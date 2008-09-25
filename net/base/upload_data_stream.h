@@ -5,6 +5,7 @@
 #ifndef NET_BASE_UPLOAD_DATA_STREAM_H_
 #define NET_BASE_UPLOAD_DATA_STREAM_H_
 
+#include "build/build_config.h"
 #include "net/base/upload_data.h"
 
 namespace net {
@@ -50,9 +51,12 @@ class UploadDataStream {
   // a TYPE_BYTES element.
   size_t next_element_offset_;
 
+#if defined(OS_WIN)
   // A handle to the currently open file (or INVALID_HANDLE_VALUE) for
   // next_element_ if the next element is a TYPE_FILE element.
+  // TODO(pinkerton): when we get a cross-platform file class, replace this
   HANDLE next_element_handle_;
+#endif
 
   // The number of bytes remaining to be read from the currently open file
   // if the next element is of TYPE_FILE.

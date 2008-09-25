@@ -10,15 +10,19 @@ namespace net {
 
 UploadDataStream::UploadDataStream(const UploadData* data)
     : data_(data),
+#if defined(OS_WIN)
       next_element_handle_(INVALID_HANDLE_VALUE),
+#endif
       total_size_(data->GetContentLength()) {
   Reset();
   FillBuf();
 }
 
 UploadDataStream::~UploadDataStream() {
+#if defined(OS_WIN)
   if (next_element_handle_ != INVALID_HANDLE_VALUE)
     CloseHandle(next_element_handle_);
+#endif
 }
 
 void UploadDataStream::DidConsume(size_t num_bytes) {
@@ -34,10 +38,12 @@ void UploadDataStream::DidConsume(size_t num_bytes) {
 }
 
 void UploadDataStream::Reset() {
+#if defined(OS_WIN)
   if (next_element_handle_ != INVALID_HANDLE_VALUE) {
     CloseHandle(next_element_handle_);
     next_element_handle_ = INVALID_HANDLE_VALUE;
   }
+#endif
   buf_len_ = 0;
   next_element_ = data_->elements().begin();
   next_element_offset_ = 0;
@@ -70,6 +76,7 @@ void UploadDataStream::FillBuf() {
     } else {
       DCHECK((*next_element_).type() == UploadData::TYPE_FILE);
 
+#if defined(OS_WIN)
       if (next_element_handle_ == INVALID_HANDLE_VALUE) {
         next_element_handle_ = CreateFile((*next_element_).file_path().c_str(),
                                           GENERIC_READ,
@@ -112,15 +119,24 @@ void UploadDataStream::FillBuf() {
 
       if (!ok || bytes_read == 0)
         advance_to_next_element = true;
+#elif defined(OS_POSIX)
+      // TODO(pinkerton): unify the file upload handling for all platforms once
+      // we have a cross-platform file representation. There shouldn't be any
+      // difference among them.
+      NOTIMPLEMENTED();
+      advance_to_next_element = true;
+#endif
     }
 
     if (advance_to_next_element) {
       ++next_element_;
       next_element_offset_ = 0;
+#if defined(OS_WIN)
       if (next_element_handle_ != INVALID_HANDLE_VALUE) {
         CloseHandle(next_element_handle_);
         next_element_handle_ = INVALID_HANDLE_VALUE;
       }
+#endif
     }
   }
 }

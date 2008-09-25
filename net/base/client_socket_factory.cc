@@ -5,7 +5,10 @@
 #include "net/base/client_socket_factory.h"
 
 #include "base/singleton.h"
+#include "build/build_config.h"
+#if defined(OS_WIN)
 #include "net/base/ssl_client_socket.h"
+#endif
 #include "net/base/tcp_client_socket.h"
 
 namespace net {
@@ -20,7 +23,13 @@ class DefaultClientSocketFactory : public ClientSocketFactory {
   virtual ClientSocket* CreateSSLClientSocket(
       ClientSocket* transport_socket,
       const std::string& hostname) {
+#if defined(OS_WIN)
     return new SSLClientSocket(transport_socket, hostname);
+#else
+    // TODO(pinkerton): turn on when we port SSL socket from win32
+    NOTIMPLEMENTED();
+    return NULL;
+#endif
   }
 };
 

@@ -4,12 +4,16 @@
 
 #include "net/http/http_network_transaction.h"
 
+#include "base/compiler_specific.h"
 #include "base/string_util.h"
 #include "base/trace_event.h"
+#include "build/build_config.h"
 #include "net/base/client_socket_factory.h"
 #include "net/base/host_resolver.h"
 #include "net/base/load_flags.h"
+#if defined(OS_WIN)
 #include "net/base/ssl_client_socket.h"
+#endif
 #include "net/base/upload_data_stream.h"
 #include "net/http/http_chunked_decoder.h"
 #include "net/http/http_network_session.h"
@@ -27,8 +31,9 @@ namespace net {
 
 HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
                                                ClientSocketFactory* csf)
-#pragma warning(suppress: 4355)
-    : io_callback_(this, &HttpNetworkTransaction::OnIOComplete),
+MSVC_SUPPRESS_WARNING(4355)
+    : ALLOW_THIS_IN_INITIALIZER_LIST(
+          io_callback_(this, &HttpNetworkTransaction::OnIOComplete)),
       user_callback_(NULL),
       session_(session),
       request_(NULL),
@@ -786,11 +791,13 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
     }
   }
 
+#if defined(OS_WIN)
   if (using_ssl_ && !establishing_tunnel_) {
     SSLClientSocket* ssl_socket =
         reinterpret_cast<SSLClientSocket*>(connection_.socket());
     ssl_socket->GetSSLInfo(&response_.ssl_info);
   }
+#endif
 
   return OK;
 }
@@ -819,11 +826,13 @@ int HttpNetworkTransaction::HandleCertificateError(int error) {
     }
   }
 
+#if defined(OS_WIN)
   if (error != OK) {
     SSLClientSocket* ssl_socket =
         reinterpret_cast<SSLClientSocket*>(connection_.socket());
     ssl_socket->GetSSLInfo(&response_.ssl_info);
   }
+#endif
   return error;
 }
 

@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/compiler_specific.h"
+#include "base/platform_test.h"
 #include "net/base/client_socket_factory.h"
 #include "net/base/test_completion_callback.h"
 #include "net/base/upload_data.h"
@@ -12,7 +14,6 @@
 
 //-----------------------------------------------------------------------------
 
-namespace {
 
 struct MockConnect {
   bool async;
@@ -45,9 +46,8 @@ int mock_sockets_index;
 class MockTCPClientSocket : public net::ClientSocket {
  public:
   MockTCPClientSocket(const net::AddressList& addresses)
-#pragma warning(suppress:4355)
       : data_(mock_sockets[mock_sockets_index++]),
-        method_factory_(this),
+        ALLOW_THIS_IN_INITIALIZER_LIST(method_factory_(this)),
         callback_(NULL),
         read_index_(0),
         read_offset_(0),
@@ -217,8 +217,6 @@ SimpleGetHelperResult SimpleGetHelper(MockRead data_reads[]) {
 
   return out;
 }
-
-}  // namespace
 
 //-----------------------------------------------------------------------------
 
