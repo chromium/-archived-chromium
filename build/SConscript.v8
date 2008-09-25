@@ -38,7 +38,9 @@ v8 = env.Command(v8_scons_targets,
                  'cd ../v8 && $PYTHON $SCONS $SCONSFLAGS snapshot=on ' +
                  'sample=shell',
                  SCONS='../third_party/scons/scons.py',
-                 SCONSFLAGS='-Q --warn=no-deprecated' + cpu_flag)
+                 SCONSFLAGS=('-Q '
+                             '--warn=no-deprecated '
+                             '--warn=no-no-parallel-support' + cpu_flag))
 env.AlwaysBuild(v8)
 env.Install('$V8_DIR', v8)
 
