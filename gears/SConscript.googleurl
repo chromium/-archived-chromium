@@ -8,6 +8,7 @@ env = env.Clone()
 
 env.Replace(
     GURL_DIR = '$THIRD_PARTY_DIR/googleurl',
+    ICU38_DIR = '$THIRD_PARTY_DIR/icu38',
     CPPPATH = [
         '$GURL_DIR',
         '$GURL_DIR/..',
@@ -19,7 +20,7 @@ env.Replace(
 
 env.Append(
     CPPDEFINES = [
-        'U_STATIC_IMPLEMENTATION',
+#        'U_STATIC_IMPLEMENTATION',
     ],
 )
 
@@ -36,7 +37,7 @@ input_files = [
     '$GURL_DIR/src/url_canon_etc.cc',
     '$GURL_DIR/src/url_canon_fileurl.cc',
     '$GURL_DIR/src/url_canon_host.cc',
-    '$GURL_DIR/src/url_canon_icu.cc',
+#    '$GURL_DIR/src/url_canon_icu.cc',
     '$GURL_DIR/src/url_canon_internal.cc',
     '$GURL_DIR/src/url_canon_ip.cc',
 #    '$GURL_DIR/src/url_canon_mailtourl.cc',
@@ -48,6 +49,11 @@ input_files = [
     '$GURL_DIR/src/url_parse.cc',
     '$GURL_DIR/src/url_parse_file.cc',
     '$GURL_DIR/src/url_util.cc',
+]
+
+# ICU files needed for Gears.
+input_files += [
+    '$ICU38_DIR/source/common/utf_impl.cc',
 ]
 
 env.ChromeStaticLibrary('googleurl-gears', input_files)

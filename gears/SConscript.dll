@@ -7,42 +7,13 @@ import re
 
 Import('env')
 
-env = env.Clone()
-
-# Notes:
-# This assumes you have a working gears checkout from p4 in the current dir.
-# Steps for this:
-# > echo %USER%-chromegears > p4config
-# > g4 client -p //depot/googleclient/gears/p4_depot_paths
-# > g4 sync
-#
-# This is a work-in-progress conversion of the current Gears set of Makefiles.
-# A lot of the stuff doesn't translate to SCons-land well, and I'm not sure
-# how faithful we want to be to the original.
-#
-# Questions:
-# Should we flatten the output directory into
-# Hammer/gears/platform/browser/*.obj like Gears does now?  If so, how?
+env = env.Clone(
+    # The source directory relative to the build directory.
+    SRC_DIR = '../../../..',
+)
 
 # TODO: move all these builders out to site_scons or somesuch.
 # Building M4 files
-
-env.Tool('m4')
-
-# Add GNU tools to the PATH.
-# TODO: Figure out the right way to do this.  On first invocation, PATH
-# is relative to '.'.  On repeated invocations (when Hammer/gears exists),
-# PATH is relative to './Hammer/gears'.
-# TODO: Also it would be nice to use $THIRD_PARTY_DIR instead of hardcoding
-# it here.
-env.PrependENVPath('PATH', os.path.abspath(
-    'googleclient/third_party/gnu/files'))
-env.PrependENVPath('PATH', os.path.abspath(
-    '../../../../googleclient/third_party/gnu/files'))
-env.PrependENVPath('PATH', os.path.abspath(
-    'googleclient/third_party/python_24'))
-env.PrependENVPath('PATH', os.path.abspath(
-    '../../../../googleclient/third_party/python_24'))
 
 i18n_langs = [
     'en-US',
@@ -100,23 +71,22 @@ i18n_langs = [
     'mr',
 ]
 
-# TODO: DEBUG, OFFICIAL_BUILD, CCTESTS, I18N_LANGUAGES
-env.Prepend(
+env.Append(
+    M4ARCH = (env['ARCH'] == 'i386' and 'x86' or '$ARCH'),
     M4FLAGS = [
         '--prefix-builtins',
-        '-DDEBUG=1',
         '-DPRODUCT_VERSION=$VERSION',
         '-DPRODUCT_VERSION_MAJOR=$MAJOR',
         '-DPRODUCT_VERSION_MINOR=$MINOR',
         '-DPRODUCT_VERSION_BUILD=$BUILD',
         '-DPRODUCT_VERSION_PATCH=$PATCH',
         '-DPRODUCT_OS=$OS',
-        '-DPRODUCT_ARCH=$ARCH',
+        '-DPRODUCT_ARCH="$M4ARCH"',
         '-DPRODUCT_GCC_VERSION="gcc3"',
         '-DPRODUCT_MAINTAINER="google"',
         '-DPRODUCT_FRIENDLY_NAME_UQ="$FRIENDLY_NAME"',
         '-DPRODUCT_SHORT_NAME_UQ="$SHORT_NAME"',
-        '-DI18N_LANGUAGES=' + ','.join(i18n_langs),
+        '-DI18N_LANGUAGES="(' + ','.join(i18n_langs) + ')"',
     ],
     M4PATH = [
         '$OPEN_DIR',
@@ -125,13 +95,16 @@ env.Prepend(
 )
 
 # SCons magic to make M4PATH work.
-env['M4INCPREFIX'] = '-I'
-env['M4INCSUFFIX'] = ''
-env['_M4INCFLAGS'] = ('${_concat(M4INCPREFIX, M4PATH, M4INCSUFFIX, ' +
-                      '__env__, RDirs, TARGET, SOURCE)}')
-env['M4COM'] = '$M4 $M4FLAGS ${_M4INCFLAGS} $SOURCE > $TARGET'
+env.Replace(
+    M4INCPREFIX = '-I',
+    M4INCSUFFIX = '',
+    _M4INCFLAGS = ('${_concat(M4INCPREFIX, M4PATH, M4INCSUFFIX, '
+                 '__env__, RDirs, TARGET, SOURCE)}'),
+    M4COM = '$M4 $M4FLAGS ${_M4INCFLAGS} $SOURCE > $TARGET',
+)
 
-# TODO: Dependency scanner for m4 files - doesn't work.
+# TODO: Dependency scanner for m4 files - doesn't work.  It can't detect files
+# that don't exist!
 #m4_include_re = re.compile(r'm4_include\((.*)\)', re.M)
 #def m4_scan(node, env, path):
 #  contents = node.get_contents()
@@ -151,23 +124,27 @@ env['M4COM'] = '$M4 $M4FLAGS ${_M4INCFLAGS} $SOURCE > $TARGET'
 
 # Building .stab files, using M4FLAGS.
 
-# TODO: I want to just use $OPEN_DIR/tools/parse_stab.py.  I need a way to
-# convert from build dir to src dir.  ${OPEN_DIR.srcdir} doesn't work.
-env['STAB'] = 'python googleclient/gears/opensource/gears/tools/parse_stab.py'
-env['STRIPPED_GEARS_DIR'] = env.Dir('$GEARS_DIR')
-env['I18N_INPUTS_BASEDIR'] = '$STRIPPED_GEARS_DIR/ui/generated'
-env['STABCOM'] = \
-    '$STAB $M4FLAGS ${_M4INCFLAGS} $TARGET $SOURCE $I18N_INPUTS_BASEDIR'
+env.Replace(
+    STAB = 'python $OPEN_DIR/tools/parse_stab.py',
+    I18N_INPUTS_BASEDIR = '$OPEN_DIR/ui/generated',
+    STABCOM = \
+        '$STAB $M4FLAGS ${_M4INCFLAGS} $TARGET $SOURCE $I18N_INPUTS_BASEDIR',
+)
 stab_builder = Builder(action = '$STABCOM', src_suffix = '.stab')
 env.Append(BUILDERS = {'Stab': stab_builder})
 
+
 # Building .from_bin.cc files.
 
-# Must be run from within the gears dir.
-# TODO: ${SOURCE[36:]} - is this the best way to strip off the dir I cd'ed to?
-env['BIN2CPP'] = \
-    'cd googleclient/gears/opensource/gears && python tools/bin2cpp.py'
-env['BIN2CPPCOM'] = '$BIN2CPP ${str(SOURCE)[36:]} > ${TARGET.abspath}'
+# Must be run from within the gears dir.  More hoops to jump through to fix up
+# path names and arguments.
+env.Replace(
+# OPEN_DIR looks like "./foo/bar", but we want the length of "foo/bar/".
+# TODO: is there a better way to strip off $OPEN_DIR from $SOURCE?
+    LEN_OPEN_DIR = len(env.subst('$OPEN_DIR')) - 1,
+    BIN2CPP = 'cd $OPEN_DIR && python tools/bin2cpp.py',
+    BIN2CPPCOM = '$BIN2CPP ${str(SOURCE)[LEN_OPEN_DIR:]} > ${TARGET.abspath}',
+)
 bin2cpp_builder = Builder(action = '$BIN2CPPCOM')
 env.Append(BUILDERS = {'Bin2cpp': bin2cpp_builder})
 
@@ -179,66 +156,60 @@ env.Append(BUILDERS = {'Bin2cpp': bin2cpp_builder})
 # up our relative include paths and output files.
 
 if env['BROWSER'] == 'IE':
-  env['IDLOUTPUTDIR'] = env.Dir('$GENFILES_DIR')
-  env['IDLINCPREFIX'] = '/I../../../../'
-  env['IDLINCSUFFIX'] = ''
-  env['_IDLINCFLAGS'] = ('${_concat(IDLINCPREFIX, CPPPATH, IDLINCSUFFIX, ' +
-                        '__env__, RDirs, TARGET, SOURCE)}')
-  env['IDLDEFPREFIX'] = '/D'
-  env['IDLDEFSUFFIX'] = ''
-  env['_IDLDEFFLAGS'] = ('${_defines(IDLDEFPREFIX, CPPDEFINES, ' +
-                        'IDLDEFSUFFIX, __env__)}')
-  env['MIDLCOM'] = (
-      'cd googleclient/gears/opensource/gears && $MIDL ' +
-      '${_IDLDEFFLAGS} ${_IDLINCFLAGS} -env win32 -Oicf ' +
-      '/tlb ../../../../$IDLOUTPUTDIR/${TARGET.filebase}.tlb ' +
-      '/h ../../../../$IDLOUTPUTDIR/${TARGET.filebase}.h ' +
-      '/iid ../../../../$IDLOUTPUTDIR/${TARGET.filebase}_i.c ' +
-      '/proxy ../../../../$IDLOUTPUTDIR/${TARGET.filebase}_p.c ' +
-      '/dlldata ../../../../$IDLOUTPUTDIR/${TARGET.filebase}_data.c ' +
-      '../../../../$SOURCE'
+  env.Replace(
+      IDLINCPREFIX = '/I$SRC_DIR',
+      IDLINCSUFFIX = '',
+      _IDLINCFLAGS = ('${_concat(IDLINCPREFIX, CPPPATH, IDLINCSUFFIX, '
+                     '__env__, RDirs, TARGET, SOURCE)}'),
+      IDLDEFPREFIX = '/D',
+      IDLDEFSUFFIX = '',
+      _IDLDEFFLAGS = ('${_defines(IDLDEFPREFIX, CPPDEFINES, '
+                     'IDLDEFSUFFIX, __env__)}'),
+      MIDLCOM = (
+          'cd $OPEN_DIR && '
+          '$MIDL ${_IDLDEFFLAGS} ${_IDLINCFLAGS} -env win32 -Oicf '
+          '/tlb $SRC_DIR/${TARGET.base}.tlb '
+          '/h $SRC_DIR/${TARGET.base}.h '
+          '/iid $SRC_DIR/${TARGET.base}_i.c '
+          '/proxy $SRC_DIR/${TARGET.base}_p.c '
+          '/dlldata $SRC_DIR/${TARGET.base}_data.c '
+          '$SRC_DIR/$SOURCE'
+      ),
   )
 elif env['BROWSER'] in ['FF2', 'FF3']:
-  env['IDLOUTPUTDIR'] = env.Dir('$GENFILES_DIR')
+  env.Replace(
+      GECKO_SDK = '$GECKO_BASE/$OS',
+      GECKO_BIN = '$GECKO_SDK/gecko_sdk/bin',
+      GECKO_LIB = '$GECKO_SDK/gecko_sdk/lib',
+      MIDLCOM = (
+          'xpidl -I $GECKO_SDK/gecko_sdk/idl -I $GECKO_BASE '
+          '-m header -o ${TARGET.base} $SOURCE && '
+          'xpidl -I $GECKO_SDK/gecko_sdk/idl -I $GECKO_BASE '
+          '-m typelib -o ${TARGET.base} $SOURCE'
+      ),
+  )
   if env['BROWSER'] == 'FF2':
     env['GECKO_BASE'] = '$THIRD_PARTY_DIR/gecko_1.8'
   else:
     env['GECKO_BASE'] = '$THIRD_PARTY_DIR/gecko_1.9'
-  env['GECKO_SDK'] = '$GECKO_BASE/$OS'
-  env['GECKO_BIN'] = '$GECKO_SDK/gecko_sdk/bin'
-  env['GECKO_LIB'] = '$GECKO_SDK/gecko_sdk/lib'
 
-  env.PrependENVPath('PATH', os.path.abspath(
-      env.subst('../../../../$GECKO_BIN')))
-  env['MIDLCOM'] = (
-      'xpidl -I $GECKO_SDK/gecko_sdk/idl -I $GECKO_BASE ' +
-      '-m header -o $IDLOUTPUTDIR/${TARGET.filebase} $SOURCE && '
-      'xpidl -I $GECKO_SDK/gecko_sdk/idl -I $GECKO_BASE ' +
-      '-m typelib -o $IDLOUTPUTDIR/${TARGET.filebase} $SOURCE'
-  )
+  env.PrependENVPath('PATH', env.Dir('$SRC_DIR/$GECKO_BIN').abspath)
 
-# Here's a quick hack to remove the .tlb file from the list of targets.  Some
-# of our IDL compiles don't generate one, so we don't a false dependency.
-# TODO(sgk):  clean up this mess!
 import SCons.Builder
 def MyIdlEmitter(target, source, env):
+  """Produce the list of outputs generated by our IDL compiler.  Outputs
+  differ depending on whether we're using xpidl (Firefox) or midl (IE)."""
+  base = os.path.splitext(str(target[0]))[0]
   if 'xpidl' in env['MIDLCOM']:
     # Firefox's IDL compiler only generates .h and .xpt files. 
-    t = [target[1], os.path.splitext(str(target[1]))[0] + '.xpt']
+    target = [base + '.h', base + '.xpt']
   else:
-    # HACK to remove .tlb file unilaterally - note that some IDLs generate a
-    # .tlb file, but not all.
-    t = target[1:]
-  # Write the output to the right directory.  This is mostly because
-  # the generated html_dialog_host.h conflicts with the real
-  # html_dialog_host.h in the same directory (otherwise we could just use
-  # Install()).
-  t = [os.path.join(str(env.Dir('$IDLOUTPUTDIR')), os.path.basename(x))
-       for x in t]
-  return (t, source)
-b = env['BUILDERS']['TypeLibrary']
-emitter_list = [b.emitter, MyIdlEmitter]
-b.emitter = SCons.Builder.ListEmitter(emitter_list)
+    # MIDL generates the following.  Depending on the IDL, a .tlb is
+    # generated, but since we can't know, we'll just ignore that.
+    target = [base + '.h', base + '_i.c', base + '_p.c', base + '_data.c']
+  return (target, source)
+env['BUILDERS']['TypeLibrary'].emitter = MyIdlEmitter
+
 
 # C++ defines
 
@@ -250,11 +221,15 @@ env_browser = env.Clone()
 env_browser.Prepend(
     CPPDEFINES = [
         'BROWSER_${BROWSER}=1',
+# SpiderMonkey (the Firefox JS engine)'s JS_GET_CLASS macro in jsapi.h needs
+# this defined to work with the gecko SDK that we've built.
+# The definition of JS_THREADSAFE must be kept in sync with MOZJS_CPPFLAGS.
+# TODO(mpcomplete): we only need this for FF and SF, I think.
+        'JS_THREADSAFE',
     ],
 )
 
 if env['BROWSER'] in ['FF2', 'FF3']:
-  env_browser['CPPDEFINES'] += ['BROWSER_FF=1']
   env_browser.Prepend(
       CPPDEFINES = [
 # TODO(cprince): Update source files so we don't need this compatibility define?
@@ -271,6 +246,12 @@ if env['BROWSER'] in ['FF2', 'FF3']:
         '$GECKO_SDK/gecko_sdk/include',
       ],
   )
+elif env['BROWSER'] == 'NPAPI' and env['PLATFORM'] == 'win32':
+  env_browser.Prepend(
+      CPPDEFINES = [
+        'BROWSER_CHROME=1',
+      ],
+  )
 
 env_browser.Append(
     CPPPATH = [
@@ -280,10 +261,10 @@ env_browser.Append(
 #        '$SKIA_DIR/platform',
     ],
     LIBS = [
-        'base',
+#        'base',
         'gd',
         'googleurl-gears',
-        'icuuc',
+#        'icuuc',
         'jpeg',
         'modp_b64',
         'png',
@@ -326,29 +307,40 @@ elif env['BROWSER'] in ['FF2', 'FF3']:
           'user32.lib',
       ],
   )
+elif env['BROWSER'] == 'NPAPI':
+  env_browser.Append(
+      LIBS = [
+          'delayimp.lib',
+          'comdlg32.lib',
+      ],
+      LINKFLAGS = [
+          '/DELAYLOAD:"comdlg32.dll"',
+      ],
+  )
 
-env_browser.Append(
-)
 
 # Building resources.
 env_res = env_browser.Clone()
-env_res.Append(
+env_res.Replace(
     CPPDEFINES = [
-        'DEBUG=1',
         '_UNICODE',
         'UNICODE',
+        'BROWSER_${BROWSER}=1',
     ],
     CPPPATH = [
-        '$GENFILES_DIR',
+        '$GENFILES_DIR/..',
+        '$OPEN_DIR',
+        '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/include',
     ],
 )
 
+if env['MODE'] == 'dbg':
+  env_res.Append(CPPDEFINES = 'DEBUG=1')
+else:
+  env_res.Append(CPPDEFINES = 'NDEBUG=1')
+
 if env['PLATFORM'] == 'win32':
-  env.Append(
-      RCFLAGS = [
-          ['/l', '0x409'],
-      ],
-  )
+  env_res.Append(RCFLAGS = ['/l', '0x409'])
 
 if env['PLATFORM'] == 'win32':
   env_browser.Append(
@@ -613,7 +605,7 @@ if env['PLATFORM'] == 'win32':
   srcs['NPAPI'] += [
       '$OPEN_DIR/base/common/detect_version_collision_win32.cc',
       '$OPEN_DIR/base/common/file_win32.cc',
-      '$OPEN_DIR/base/common/message_queue_ie.cc',
+      '$OPEN_DIR/base/common/message_queue_cr.cc',
       '$OPEN_DIR/base/common/time_utils_win32.cc',
       '$OPEN_DIR/base/common/vista_utils.cc',
       '$OPEN_DIR/base/ie/ie_version.cc',
@@ -714,6 +706,7 @@ srcs['IE'] += [
 # localserver/common
 
 srcs['all'] += [
+    '$OPEN_DIR/localserver/common/async_task_test.cc',
     '$OPEN_DIR/localserver/common/blob_store.cc',
     '$OPEN_DIR/localserver/common/capture_task.cc',
     '$OPEN_DIR/localserver/common/file_store.cc',
@@ -742,7 +735,7 @@ srcs['FF3'] += [
 
 #-----------------------------------------------------------------------------
 # localserver/chrome + npapi
-# TODO: ie/ff/safari
+# TODO: safari
 
 srcs['NPAPI'] += [
     '$OPEN_DIR/localserver/chrome/gears_protocol_handler.cc',
@@ -842,7 +835,7 @@ stabsrcs['all'] = [
 
 #-----------------------------------------------------------------------------
 # ui/npapi
-# TODO: ie/ff/safari
+# TODO: safari
 
 m4srcs['all'] += [
     '$OPEN_DIR/ui/ie/ui_resources.rc.m4',
@@ -987,7 +980,7 @@ srcs['SF'] += [
 ]
 
 #-----------------------------------------------------------------------------
-# TODO: inspector
+# inspector
 
 if not env['OFFICIAL_BUILD']:
   srcs['all'] += [
@@ -1116,29 +1109,25 @@ dll_resources = [
 if module_res:
   dll_resources += [module_res]
 
-stabsrcs['all'] += [
-    '$OPEN_DIR/ui/common/permissions_dialog.js.stab',
-    '$OPEN_DIR/ui/common/settings_dialog.js.stab',
-    '$OPEN_DIR/ui/common/shortcuts_dialog.js.stab',
-]
-
 #-----------------------------------------------------------------------------
 # libs
 
 libs = [
-    '$THIRD_PARTY_DIR/v8/bin-dbg/libv8core.lib',
-    '$THIRD_PARTY_DIR/v8/bin-dbg/no_snapshotv8.lib',
-    '$THIRD_PARTY_DIR/v8/bin-dbg/libjscre.lib',
     '$THIRD_PARTY_DIR/skia/skia-dbg-win32-i386.lib',
 ]
 
 if env['BROWSER'] == 'NPAPI':
-  libs += ['$OPEN_DIR/base/chrome/module.def',]
+  libs += [
+      '$THIRD_PARTY_DIR/v8/bin-dbg/libv8core.lib',
+      '$THIRD_PARTY_DIR/v8/bin-dbg/no_snapshotv8.lib',
+      '$THIRD_PARTY_DIR/v8/bin-dbg/libjscre.lib',
+      '$OPEN_DIR/base/chrome/module.def'
+  ]
 elif env['BROWSER'] == 'IE':
-  libs += ['$OPEN_DIR/tools/mscom.def',]
+  libs += ['$OPEN_DIR/tools/mscom.def']
 
 # TODO: all the other ports, including third-party libs
-# - IE, FF[23], SAFARI, android, symbian
+# - SAFARI, android, symbian
 # - breakpad[_osx]
 # - glint
 # - growl
@@ -1170,48 +1159,51 @@ stabsrcs['all'] += stabsrcs[env['BROWSER']]
 idlsrcs['all'] += idlsrcs[env['BROWSER']]
 binsrcs['all'] += binsrcs[env['BROWSER']]
 
-# TODO: Is there a better way than this to do a make-style rule like
-#   genfiles/%.html: %.html_m4
+def PatternRule(target, source, env=env):
+  """Apply env substitution to a target with $SOURCE included.  Returns a list
+  containing the new target and source to pass to a builder."""
+  target_sub = env.subst(target, source=env.File(source))
+  return [target_sub, source]
+
+# genfiles/%: %.m4
 m4s = []
-m4s += [env_common.M4(src) for src in m4srcs['common']]
-m4s += [env_browser.M4(src) for src in m4srcs['all']]
-installed_m4s = env_browser.Install('$GENFILES_DIR', m4s)
+m4s = [env_common.M4(
+           *PatternRule('$GENFILES_DIR/${SOURCE.filebase}', src))
+       for src in m4srcs['common']]
+m4s += [env_browser.M4(
+            *PatternRule('$GENFILES_DIR/${SOURCE.filebase}', src))
+        for src in m4srcs['all']]
 
-html_m4s = [env_browser.M4(os.path.splitext(src)[0] + '.html', src)
+# genfiles/%.html: %.html_m4
+html_m4s = [env_browser.M4(
+                *PatternRule('$GENFILES_DIR/${SOURCE.filebase}.html', src))
             for src in html_m4srcs['all']]
-installed_html_m4s = env_browser.Install('$GENFILES_DIR', html_m4s)
 
-#  genfiles/%.js: %.js.stab
-stabs = [env_browser.Stab(src) for src in stabsrcs['all']]
-installed_stabs = env_browser.Install('$GENFILES_DIR', stabs)
+# genfiles/%.js: %.js.stab
+stabs = [env_browser.Stab(
+             *PatternRule('$GENFILES_DIR/${SOURCE.filebase}', src))
+         for src in stabsrcs['all']]
 
-# TODO: What's an elegant way to say "FOO.html_m4 depends on FOO.js" ?
-def IsSameBasename(a, b):
-  return (os.path.basename(os.path.splitext(a)[0]) ==
-       os.path.basename(os.path.splitext(b)[0]))
+# genfiles/%.html: %.js
+for stab in stabs:
+  env_browser.Depends(*PatternRule('${SOURCE.base}.html', stab))
 
-for html_m4 in html_m4s:
-  for stab in installed_stabs:
-    if IsSameBasename(str(stab), str(html_m4[0])):
-      env_browser.Depends(html_m4, stab)
-
-#  genfiles/%.from_bin.cc: %
-bins = [env_common.Bin2cpp(src + '.from_bin.cc', src)
+# genfiles/%.from_bin.cc: %
+bins = [env_common.Bin2cpp(
+            *PatternRule('$GENFILES_DIR/${SOURCE.file}.from_bin.cc', src))
         for src in binsrcs['common']]
-installed_bins = env_common.Install('$GENFILES_DIR', bins)
-srcs['all'] += installed_bins
+srcs['all'] += bins
 
-#  genfiles/%.h: %.idl
-# Note: the emitter fixes the targets to be put in genfiles.
+# genfiles/%.tlb: %.idl
 if idlsrcs['all']:
-  idls = [env_browser.TypeLibrary(src)
+  idls = [env_browser.TypeLibrary(
+              *PatternRule('$GENFILES_DIR/${SOURCE.filebase}.tlb', src))
           for src in idlsrcs['all']]
-  installed_idls = idls
-  srcs['all'] += [x for x in installed_idls[0] if str(x).endswith('_i.c')]
+  srcs['all'] += [x for x in idls[0] if str(x).endswith('_i.c')]
 
 # TODO: figure out why the .rc scanner doesn't notice these dependencies.
-env_browser.Depends(ui_res, installed_html_m4s)
-env_browser.Depends(module_res, installed_m4s)
+env_browser.Depends(ui_res, html_m4s)
+env_browser.Depends(module_res, m4s)
 
 lib = env_browser.ChromeSharedLibrary('gears',
     srcs['all'] + libs + dll_resources)

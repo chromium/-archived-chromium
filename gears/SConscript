@@ -2,6 +2,24 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+# Notes:
+# This assumes you have a working gears checkout from p4 in the current dir.
+# Steps for this:
+# > echo %USER%-chromegears > p4config
+# > set P4CONFIG=p4config
+# > g4 client -p //depot/googleclient/gears/p4_depot_paths
+# > g4 sync
+#
+# This is a work-in-progress conversion of the current Gears set of Makefiles.
+# A lot of the stuff doesn't translate to SCons-land well, and I'm not sure
+# how faithful we want to be to the original.
+#
+# Questions:
+# Should we flatten the output directory into
+# Hammer/gears/platform/browser/*.obj like Gears does now?  If so, how?
+
+import os
+
 Import('env')
 
 env = env.Clone(
@@ -34,11 +52,11 @@ env.Append(
 env.Append(
     MAJOR = '0',
     MINOR = '4',
-    BUILD = '17',
+    BUILD = '22',
     PATCH = '0',
     VERSION = '${MAJOR}.${MINOR}.${BUILD}.${PATCH}',
 
-    FRIENDLY_NAME = 'Gears',
+    FRIENDLY_NAME = 'Google Gears',
     SHORT_NAME = 'gears',
 )
 
@@ -48,11 +66,19 @@ env.Append(
     ARCH = 'i386',
 )
 
+# Add GNU tools to the PATH.  Note we have to strip off the build dir.
+env.PrependENVPath('PATH',
+    env.Dir('../../$PRIVATE_THIRD_PARTY_DIR/gnu/files').abspath)
+env.PrependENVPath('PATH',
+    env.Dir('../../$PRIVATE_THIRD_PARTY_DIR/python_24').abspath)
+
+env.Tool('m4')
+
 # C++ build flags.
 
-# TODO: fix Gears to not require this removal.
-env['CPPDEFINES'].remove('WIN32_LEAN_AND_MEAN')
-
+# Clear out the inherited defines from Chrome's build.  I want to match Gears'
+# current build as closely as possible until we switch everyone to SCons, then
+# gradually integrate.
 env.Replace(
     CPPPATH = [
         '$OPEN_DIR',
@@ -68,29 +94,68 @@ env.Replace(
         # TODO: switch over to Chrome's SDK.
         # Note: these must come last because we want our own npapi.h to take
         # precedence.
-        '$PRIVATE_THIRD_PARTY_DIR/platformsdk_vc80/files/include',
         '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/include',
+        '$PRIVATE_THIRD_PARTY_DIR/platformsdk_vc80/files/include',
+        '$PRIVATE_THIRD_PARTY_DIR/vc_80/files/include',
+    ],
+    LIBPATH = [
+        '$LIBS_DIR',
+        '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/lib',
+        '$PRIVATE_THIRD_PARTY_DIR/platformsdk_vc80/files/lib',
+        '$PRIVATE_THIRD_PARTY_DIR/vc_80/files/vc/lib',
     ],
     CCFLAGS = [],
+    CPPDEFINES = [],
+    LIBS = [],
+    LINKFLAGS = [],
 )
 
 if env['MODE'] == 'dbg':
-  env['CPPDEFINES'] += ['DEBUG=1']
-  env['CPPDEFINES'] += ['_DEBUG=1']
+  env.Append(
+      CPPDEFINES = 'DEBUG=1',
+      CPPDEFINES = '_DEBUG=1',
+      M4FLAGS = '-DDEBUG=1',
+  )
+else:
+  env.Append(
+      CPPDEFINES = 'NDEBUG=1',
+      M4FLAGS = '-DNDEBUG=1',
+  )
 if env['USING_CCTESTS']:
-  env['CPPDEFINES'] += ['USING_CCTESTS=1']
+  env.Append(
+      CPPDEFINES = 'USING_CCTESTS=1',
+      M4FLAGS = '-DUSING_CCTESTS=1',
+  )
 if env['OFFICIAL_BUILD']:
-  env['CPPDEFINES'] += ['OFFICIAL_BUILD=1']
+  env.Append(
+      CPPDEFINES = 'OFFICIAL_BUILD=1',
+      M4FLAGS = '-DOFFICIAL_BUILD=1',
+  )
 
 # TODO: if USING_PNG
+env.Append(CPPDEFINES = 'PNG_USER_CONFIG')
+# TODO: if USING_ZLIB
 env.Append(
     CPPDEFINES = [
-        'PNG_USER_CONFIG',
-    ],
+        'NO_GZIP',
+        'NO_GZCOMPRESS',
+    ]
 )
 
-# TODO: is this needed?
+# Platform-specific flags follow.
+
 if env['PLATFORM'] == 'win32':
+  env.Append(
+      CPPDEFINES = [
+          'STRICT',
+          '_UNICODE',
+          'UNICODE',
+          '_USRDLL',
+          'WIN32',
+          '_WINDLL',
+          '_CRT_SECURE_NO_DEPRECATE',
+          'NOMINMAX',
+
 # We require APPVER=5.0 for things like HWND_MESSAGE.
 # When APPVER=5.0, win32.mak in the Platform SDK sets:
 #   C defines:  WINVER=0x0500
@@ -101,17 +166,13 @@ if env['PLATFORM'] == 'win32':
 #   MIDL flags: /target NT50
 # Note: _WIN32_WINDOWS was replaced by _WIN32_WINNT for post-Win95 builds.
 # Note: XP_WIN is only used by Firefox headers
-  env.Append(
-      CPPDEFINES = [
-          'STRICT',
-          '_USRDLL',
-          '_WINDLL',
-#          'WINVER=0x0500',
-#          '_WIN32_WINNT=0x0500',
+          '_WINDOWS',
+          'WINVER=0x0500',
+          '_WIN32_WINNT=0x0500',
           '_WIN32_IE=0x0500',
           '_RICHEDIT_VER=0x0010',
           '_MERGE_PROXYSTUB',
-	  'BREAKPAD_AVOID_STREAMS',  # TODO: move to breakpad env
+	  'BREAKPAD_AVOID_STREAMS',
           'XP_WIN',
 
 # In VC8, the way to disable exceptions is to remove all /EH* flags, and to
@@ -120,23 +181,29 @@ if env['PLATFORM'] == 'win32':
           '_ATL_NO_EXCEPTIONS',
 # Do not export UTF functions.
           'U_STATIC_IMPLEMENTATION',
-
       ],
       LINKFLAGS = [
           '/NOLOGO',
           '/DEBUG',
           '/RELEASE',
+
+          # win32-specific
+          '/MACHINE:X86',
           '/NODEFAULTLIB:msvcrt',
+# Flags for security hardening (only available for win32, not wince).
+          '/DYNAMICBASE',
+          '/SAFESEH',
+# We only use /SUBSYSTEM on DLLs. For EXEs we omit the flag, and
+# the presence of main() or WinMain() determines the subsystem.
+          '/SUBSYSTEM:WINDOWS',
+
 # Set the preferred base address.  This value was chosen because (a) it's near
 # the top of the valid address range, and (b) it doesn't conflict with other
 # DLLs loaded by Chrome in either the browser or plugin process.
           '/BASE:0x65000000',
-# Flags for security hardening (only available for win32, not wince).
-          '/DYNAMICBASE',
-          '/SAFESEH',
       ],
       CPPFLAGS = [
-        '/MTd',  # TODO: release mode
+        '/nologo',
         '/Zi',  # TODO: Chrome defines /Z7, no idea what these are.
         '/Zc:wchar_t-',
         '/c',
@@ -149,6 +216,25 @@ if env['PLATFORM'] == 'win32':
         '/J',
       ],
   )
+  if env['MODE'] == 'dbg':
+    env.Append(
+        CPPFLAGS = [
+          '/MTd',
+        ],
+    )
+  else:  # MODE=opt
+    env.Append(
+        CPPFLAGS = [
+          '/MT',
+          '/O2',
+        ],
+        LINKFLAGS = [
+          '/INCREMENTAL:NO',
+          '/OPT:REF',
+          '/OPT:ICF',
+        ],
+    )
+
 
 # Load all the components
 
