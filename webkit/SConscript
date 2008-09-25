@@ -129,7 +129,10 @@ env.Append(
       ['ANDROID_CANVAS_IMPL', '1'],
       ['WEBCORE_NAVIGATOR_PLATFORM', '"\\"Win32\\""'],
       'USE_GOOGLE_URL_LIBRARY',
-      'BUILDING_CHROMIUM__',
+      # TODO:  Uncomment this when building the merged WebKit,
+      # so it uses the PLATFORM_SKIA definitions instead of
+      # the old cairo.h shim.
+      #'BUILDING_CHROMIUM__',
       'CHROMIUM_BUILD',
       '_SECURE_ATL',
 

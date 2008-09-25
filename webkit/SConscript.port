@@ -27,7 +27,7 @@ input_files = [
 if env['PLATFORM'] == 'win32':
   # TODO(erg): Temporarily disabling these until the big webkit merge is
   # complete; we're just out of date here.
-  input_files += [
+  input_files.extend([
     '$PORT_DIR/platform/graphics/AffineTransformSkia.cpp',
     '$PORT_DIR/platform/graphics/ImageSourceSkia.cpp',
     '$PORT_DIR/platform/graphics/NativeImageSkia.cpp',
@@ -49,12 +49,12 @@ if env['PLATFORM'] == 'win32':
     '$PORT_DIR/platform/image-decoders/jpeg/JPEGImageDecoder.cpp',
     '$PORT_DIR/platform/image-decoders/png/PNGImageDecoder.cpp',
     '$PORT_DIR/platform/image-decoders/xbm/XBMImageDecoder.cpp',
-  ]
+  ])
 
 if env['PLATFORM'] == 'win32':
   # These files aren't win32-specific, they're just files that haven't yet been
   # made portable.
-  input_files = [
+  input_files.extend([
     '$PORT_DIR/bridge/FrameWin.cpp',
     '$PORT_DIR/bridge/HistoryWin.cpp',
     '$PORT_DIR/bridge/PageWin.cpp',
@@ -103,6 +103,7 @@ if env['PLATFORM'] == 'win32':
     '$PORT_DIR/platform/graphics/FontPlatformDataWin.cpp',
     '$PORT_DIR/platform/graphics/FontWin.cpp',
     '$PORT_DIR/platform/graphics/GlyphPageTreeNodeWin.cpp',
+    '$PORT_DIR/platform/graphics/GraphicsContextPrivate.cpp',
     '$PORT_DIR/platform/graphics/GraphicsContextSkia.cpp',
     '$PORT_DIR/platform/graphics/IconWin.cpp',
     '$PORT_DIR/platform/graphics/ImageBufferSkia.cpp',
@@ -114,14 +115,14 @@ if env['PLATFORM'] == 'win32':
     '$PORT_DIR/platform/graphics/svg/SVGResourceMaskerSkia.cpp',
     '$PORT_DIR/platform/network/CookieJarWin.cpp',
     '$PORT_DIR/rendering/RenderThemeWin.cpp',
-  ]
+  ])
 
 if env['PLATFORM'] == 'win32':
   # These are extremely win32 specific and will never be ported.
-  input_files = [
+  input_files.extend([
     '$PORT_DIR/platform/graphics/IntPointWin.cpp',
     '$PORT_DIR/platform/graphics/IntRectWin.cpp',
     '$PORT_DIR/platform/graphics/IntSizeWin.cpp',
-  ]
+  ])
 
 env.ChromeStaticLibrary("port", input_files)

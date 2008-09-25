@@ -32,6 +32,7 @@ env.Append(
         'breakpad_sender',
         'googleurl',
         'net',
+        'sdch',
         'skia',
         'gtest',
         'bzip2',
@@ -55,11 +56,6 @@ env.Append(
 )
 
 env.Append(
-    CCFLAGS = [
-        '/TP',
-        '/WX',
-    ],
-
     LIBS = [
         'comctl32.lib',
         'rpcrt4.lib',
