@@ -26,8 +26,10 @@ namespace base {
 // effects.  This allows it to be used directly in cross-platform code without
 // ugly #ifdefs.
 class ScopedNSAutoreleasePool {
-#if defined(OS_MACOSX)
  public:
+#if !defined(OS_MACOSX)
+  ScopedNSAutoreleasePool() {}
+#else  // OS_MACOSX
   ScopedNSAutoreleasePool();
   ~ScopedNSAutoreleasePool();
 
