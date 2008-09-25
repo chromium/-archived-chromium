@@ -142,7 +142,7 @@ Filter::Filter()
       next_stream_data_(NULL),
       stream_data_len_(0),
       next_filter_(NULL),
-      last_status_(FILTER_OK) {
+      last_status_(FILTER_NEED_MORE_DATA) {
 }
 
 Filter::~Filter() {}

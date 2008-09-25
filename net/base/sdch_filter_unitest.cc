@@ -226,7 +226,7 @@ TEST_F(SdchFilterTest, BasicDictionary) {
   status = FilterTestData(compressed, feed_block_size, output_block_size,
                           filter.get(), &output);
   EXPECT_FALSE(status);  // Couldn't decode.
-  EXPECT_TRUE(output == "");  // No output written.
+  EXPECT_EQ(output.size(), 0u);  // No output written.
 
 
   // Now check that path restrictions on dictionary are being enforced.
@@ -269,7 +269,7 @@ TEST_F(SdchFilterTest, BasicDictionary) {
   status = FilterTestData(compressed_for_path, feed_block_size,
                           output_block_size, filter.get(), &output);
   EXPECT_FALSE(status);  // Couldn't decode.
-  EXPECT_TRUE(output == "");  // No output written.
+  EXPECT_EQ(output.size(), 0u);  // No output written.
 
 
   // Create a dictionary with a port restriction, by prefixing old dictionary.
@@ -324,7 +324,7 @@ TEST_F(SdchFilterTest, BasicDictionary) {
   status = FilterTestData(compressed_for_port, feed_block_size,
                           output_block_size, filter.get(), &output);
   EXPECT_FALSE(status);  // Couldn't decode.
-  EXPECT_TRUE(output == "");  // No output written.
+  EXPECT_EQ(output.size(), 0u);  // No output written.
 }
 
 
@@ -332,8 +332,9 @@ TEST_F(SdchFilterTest, BasicDictionary) {
 // is processed by the next one.  This is most critical for SDCH, which is
 // routinely followed by gzip (during encoding).  The filter we'll test for will
 // do the gzip decoding first, and then decode the SDCH content.
-// TODO(jar): Enable test which fails in net_unittests.exe
-TEST_F(SdchFilterTest, DISABLED_FilterChaining) {
+TEST_F(SdchFilterTest, FilterChaining) {
+  SdchManager::enable_sdch_support("");
+
   const std::string kSampleDomain = "sdchtest.com";
 
   // Construct a valid SDCH dictionary from a VCDIFF dictionary.
@@ -417,6 +418,12 @@ TEST_F(SdchFilterTest, DISABLED_FilterChaining) {
   scoped_ptr<Filter> filter(Filter::Factory(filters, "missing-mime",
                                             kInputBufferSize));
   filter->SetURL(url);
+
+  // Verify that chained filter is waiting for data.
+  char tiny_output_buffer[10];
+  int tiny_output_size = sizeof(tiny_output_buffer);
+  EXPECT_EQ(Filter::FILTER_NEED_MORE_DATA,
+            filter->ReadData(tiny_output_buffer, &tiny_output_size));
 
   size_t feed_block_size = 100;
   size_t output_block_size = 100;
