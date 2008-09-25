@@ -4,11 +4,12 @@
 
 #include "base/message_pump_libevent.h"
 
+#include <fcntl.h>
+
 #include "base/logging.h"
+#include "base/scoped_nsautorelease_pool.h"
 #include "base/time.h"
 #include "third_party/libevent/event.h"
-
-#include <fcntl.h>
 
 namespace base {
 
@@ -112,6 +113,8 @@ void MessagePumpLibevent::Run(Delegate* delegate) {
   in_run_ = true;
 
   for (;;) {
+    ScopedNSAutoreleasePool autorelease_pool;
+
     bool did_work = delegate->DoWork();
     if (!keep_running_)
       break;

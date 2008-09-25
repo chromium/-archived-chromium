@@ -8,6 +8,8 @@
 #import <Foundation/Foundation.h>
 #include <float.h>
 
+#include "base/scoped_nsautorelease_pool.h"
+
 namespace {
 
 void NoOp(void* info) {
@@ -216,7 +218,13 @@ void MessagePumpCFRunLoop::DoRun(Delegate* delegate) {
   int last_innermost_quittable = innermost_quittable_;
   innermost_quittable_ = nesting_level_ + 1;
 
-  CFRunLoopRun();
+  // This is completely identical to calling CFRunLoopRun(), except autorelease
+  // pool management is introduced.
+  int result;
+  do {
+    ScopedNSAutoreleasePool autorelease_pool;
+    result = CFRunLoopRunInMode(kCFRunLoopDefaultMode, DBL_MAX, false);
+  } while (result != kCFRunLoopRunStopped && result != kCFRunLoopRunFinished);
 
   // Restore the previous state of the object.
   innermost_quittable_ = last_innermost_quittable;
@@ -315,7 +323,7 @@ void MessagePumpNSApplication::DoRun(Delegate* delegate) {
   } else {
     running_own_loop_ = true;
     while (keep_running_) {
-      NSAutoreleasePool* autorelease_pool = [[NSAutoreleasePool alloc] init];
+      ScopedNSAutoreleasePool autorelease_pool;
       NSEvent* event = [NSApp nextEventMatchingMask:NSAnyEventMask
                                           untilDate:[NSDate distantFuture]
                                              inMode:NSDefaultRunLoopMode
@@ -323,7 +331,6 @@ void MessagePumpNSApplication::DoRun(Delegate* delegate) {
       if (event) {
         [NSApp sendEvent:event];
       }
-      [autorelease_pool drain];
     }
     keep_running_ = true;
   }

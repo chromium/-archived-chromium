@@ -162,9 +162,10 @@ net::HttpNetworkSession* CreateSession() {
   return new net::HttpNetworkSession(new NullProxyResolver());
 }
 
-class HttpNetworkTransactionTest : public testing::Test {
+class HttpNetworkTransactionTest : public PlatformTest {
  public:
   virtual void SetUp() {
+    PlatformTest::SetUp();
     mock_sockets[0] = NULL;
     mock_sockets_index = 0;
   }

@@ -82,6 +82,7 @@
 		7B85062F0E5B559A00730B43 /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B165D6E0E55081400185273 /* libzlib.a */; };
 		7BA355EB0E898C100023C8B9 /* message_pump_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7BA355EA0E898C100023C8B9 /* message_pump_mac.mm */; };
 		7BA3562C0E898F880023C8B9 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA3562B0E898F7B0023C8B9 /* AppKit.framework */; };
+		7BA35DD30E8C0D5F0023C8B9 /* scoped_nsautorelease_pool.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7BA35DD20E8C0D5F0023C8B9 /* scoped_nsautorelease_pool.mm */; };
 		7BAE30E50E6D939F00C3F750 /* atomicops_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BAE30E10E6D939800C3F750 /* atomicops_unittest.cc */; };
 		7BAE30E60E6D939F00C3F750 /* simple_thread_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BAE30E40E6D939800C3F750 /* simple_thread_unittest.cc */; };
 		7BAE30E70E6D93A300C3F750 /* simple_thread.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BAE30E20E6D939800C3F750 /* simple_thread.cc */; };
@@ -385,6 +386,8 @@
 		7BA355E90E898C100023C8B9 /* message_pump_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = message_pump_mac.h; sourceTree = "<group>"; };
 		7BA355EA0E898C100023C8B9 /* message_pump_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = message_pump_mac.mm; sourceTree = "<group>"; };
 		7BA3562B0E898F7B0023C8B9 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
+		7BA35DD10E8C0D5F0023C8B9 /* scoped_nsautorelease_pool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scoped_nsautorelease_pool.h; sourceTree = "<group>"; };
+		7BA35DD20E8C0D5F0023C8B9 /* scoped_nsautorelease_pool.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = scoped_nsautorelease_pool.mm; sourceTree = "<group>"; };
 		7BAE30E10E6D939800C3F750 /* atomicops_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = atomicops_unittest.cc; sourceTree = "<group>"; };
 		7BAE30E20E6D939800C3F750 /* simple_thread.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = simple_thread.cc; sourceTree = "<group>"; };
 		7BAE30E30E6D939800C3F750 /* simple_thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = simple_thread.h; sourceTree = "<group>"; };
@@ -922,6 +925,8 @@
 				8254035F0D92D27C0006B936 /* revocable_store.h */,
 				E49F1A5D0E4CD6E200386AEC /* run_all_unittests.cc */,
 				7B5AD60D0D9DD8050012BCF1 /* scoped_cftyperef.h */,
+				7BA35DD10E8C0D5F0023C8B9 /* scoped_nsautorelease_pool.h */,
+				7BA35DD20E8C0D5F0023C8B9 /* scoped_nsautorelease_pool.mm */,
 				825403610D92D27C0006B936 /* scoped_ptr.h */,
 				7BD8F4CF0E65B4A900034DE9 /* scoped_ptr_unittest.cc */,
 				825403620D92D27C0006B936 /* sha2.cc */,
@@ -1343,6 +1348,7 @@
 				824654DF0DC26521007C2BAA /* prtime.cc in Sources */,
 				7B836C050E55BBB800F6AD31 /* ref_counted.cc in Sources */,
 				8246548C0DC259DB007C2BAA /* revocable_store.cc in Sources */,
+				7BA35DD30E8C0D5F0023C8B9 /* scoped_nsautorelease_pool.mm in Sources */,
 				ABF4B9BC0DC2BD1000A6E319 /* sha2.cc in Sources */,
 				ABF4B9BE0DC2BD1500A6E319 /* sha512.cc in Sources */,
 				824653740DC12D0E007C2BAA /* shared_memory_posix.cc in Sources */,

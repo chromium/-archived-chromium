@@ -31,7 +31,6 @@ namespace net {
 
 HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
                                                ClientSocketFactory* csf)
-MSVC_SUPPRESS_WARNING(4355)
     : ALLOW_THIS_IN_INITIALIZER_LIST(
           io_callback_(this, &HttpNetworkTransaction::OnIOComplete)),
       user_callback_(NULL),

@@ -4,12 +4,12 @@
 
 #include "base/platform_test.h"
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 void PlatformTest::SetUp() {
   pool_ = [[NSAutoreleasePool alloc] init];
 }
 
 void PlatformTest::TearDown() {
-  [pool_ release];
+  [pool_ drain];
 }

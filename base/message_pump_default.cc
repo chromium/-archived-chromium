@@ -5,6 +5,7 @@
 #include "base/message_pump_default.h"
 
 #include "base/logging.h"
+#include "base/scoped_nsautorelease_pool.h"
 
 namespace base {
 
@@ -17,6 +18,8 @@ void MessagePumpDefault::Run(Delegate* delegate) {
   DCHECK(keep_running_) << "Quit must have been called outside of Run!";
 
   for (;;) {
+    ScopedNSAutoreleasePool autorelease_pool;
+
     bool did_work = delegate->DoWork();
     if (!keep_running_)
       break;
