@@ -13,6 +13,7 @@
 #include "chrome/browser/user_metrics.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/views/checkbox.h"
 #include "chrome/views/image_view.h"
 #include "chrome/views/label.h"
 #include "chrome/views/throbber.h"
@@ -54,6 +55,8 @@ FirstRunView::~FirstRunView() {
 void FirstRunView::SetupControls() {
   using ChromeViews::Label;
   using ChromeViews::Link;
+
+  default_browser_->SetIsSelected(true);
 
   welcome_label_ = new Label(l10n_util::GetString(IDS_FIRSTRUN_DLG_TEXT));
   welcome_label_->SetMultiLine(true);
@@ -147,19 +150,15 @@ void FirstRunView::Layout() {
                              pref_size.cx, pref_size.cy);
 }
 
-std::wstring FirstRunView::GetDialogButtonLabel(DialogButton button) const {
-  if (DIALOGBUTTON_OK == button)
-      return l10n_util::GetString(IDS_FIRSTRUN_DLG_OK);
-  // The other buttons get the default text.
-  return std::wstring();
-}
-
 void FirstRunView::OpenCustomizeDialog() {
   // The customize dialog now owns the importer host object.
   ChromeViews::Window::CreateChromeWindow(
       window()->GetHWND(),
       gfx::Rect(),
-      new FirstRunCustomizeView(profile_, importer_host_, this))->Show();
+      new FirstRunCustomizeView(profile_,
+                                importer_host_,
+                                this,
+                                default_browser_->IsSelected()))->Show();
 }
 
 void FirstRunView::LinkActivated(ChromeViews::Link* source, int event_flags) {
@@ -182,6 +181,8 @@ bool FirstRunView::Accept() {
   customize_link_->SetEnabled(false);
   CreateDesktopShortcut();
   CreateQuickLaunchShortcut();
+  if (default_browser_->IsSelected())
+    SetDefaultBrowser();
   // Index 0 is the default browser.
   FirstRun::ImportSettings(profile_, 0, GetDefaultImportItems(),
                            window()->GetHWND());

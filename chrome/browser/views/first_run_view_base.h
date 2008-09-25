@@ -2,20 +2,19 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_FIRST_RUN_VIEW_BASE_H__
-#define CHROME_BROWSER_VIEWS_FIRST_RUN_VIEW_BASE_H__
+#ifndef CHROME_BROWSER_VIEWS_FIRST_RUN_VIEW_BASE_H_
+#define CHROME_BROWSER_VIEWS_FIRST_RUN_VIEW_BASE_H_
 
 #include "chrome/browser/importer/importer.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/view.h"
 
 namespace ChromeViews {
-
+class CheckBox;
 class Window;
 class ImageView;
 class Separator;
 class Throbber;
-
 }
 
 class Profile;
@@ -39,6 +38,9 @@ class FirstRunViewBase : public ChromeViews::View,
   virtual bool IsAlwaysOnTop() const;
   virtual bool HasAlwaysOnTopMenu() const;
 
+  // Overridden from ChromeViews::DialogDelegate.
+  std::wstring GetDialogButtonLabel(DialogButton button) const;
+
  protected:
   // Returns the items that the first run process is required to import
   // from other browsers.
@@ -48,10 +50,13 @@ class FirstRunViewBase : public ChromeViews::View,
   bool CreateDesktopShortcut();
   bool CreateQuickLaunchShortcut();
 
+  // Set us as default browser if the user checked the box.
+  bool SetDefaultBrowser();
+
   // Modifies the chrome configuration so that the first-run dialogs are not
   // shown again.
   bool FirstRunComplete();
-  
+
   // Disables the standard buttons of the dialog. Useful when importing.
   void DisableButtons();
   // Computes a tight dialog width given a contained UI element.
@@ -72,6 +77,7 @@ class FirstRunViewBase : public ChromeViews::View,
 
   scoped_refptr<ImporterHost> importer_host_;
   Profile* profile_;
+  ChromeViews::CheckBox* default_browser_;
 
  private:
   // Initializes the controls on the dialog.
@@ -81,8 +87,8 @@ class FirstRunViewBase : public ChromeViews::View,
   ChromeViews::Separator* separator_2_;
   int preferred_width_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(FirstRunViewBase);
+  DISALLOW_COPY_AND_ASSIGN(FirstRunViewBase);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_FIRST_RUN_VIEW_BASE_H__
+#endif  // CHROME_BROWSER_VIEWS_FIRST_RUN_VIEW_BASE_H_
 

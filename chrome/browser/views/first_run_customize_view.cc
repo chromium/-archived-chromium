@@ -8,7 +8,6 @@
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/importer/importer.h"
 #include "chrome/browser/first_run.h"
-#include "chrome/browser/shell_integration.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
@@ -25,11 +24,11 @@
 
 FirstRunCustomizeView::FirstRunCustomizeView(Profile* profile,
                                              ImporterHost* importer_host,
-                                             CustomizeViewObserver* observer)
+                                             CustomizeViewObserver* observer,
+                                             bool default_browser_checked)
     : FirstRunViewBase(profile),
       main_label_(NULL),
       import_cbox_(NULL),
-      default_browser_cbox_(NULL),
       import_from_combo_(NULL),
       shortcuts_label_(NULL),
       desktop_shortcut_cbox_(NULL),
@@ -38,6 +37,12 @@ FirstRunCustomizeView::FirstRunCustomizeView(Profile* profile,
   importer_host_ = importer_host;
   DCHECK(importer_host_);
   SetupControls();
+
+  // The checkbox for Default Browser should be the same for FirstRun and
+  // the customize view, so that the user selection isn't lost when you uncheck
+  // and then open the Customize dialog. Therefore, we propagate the selection
+  // status of the default browser here.
+  default_browser_->SetIsSelected(default_browser_checked);
 }
 
 FirstRunCustomizeView::~FirstRunCustomizeView() {
@@ -64,8 +69,6 @@ void FirstRunCustomizeView::SetupControls() {
 
   import_from_combo_ = new ChromeViews::ComboBox(this);
   AddChildView(import_from_combo_);
-
-  default_browser_cbox_ = MakeCheckBox(IDS_FR_CUSTOMIZE_DEFAULT_BROWSER);
 
   shortcuts_label_ =
       new Label(l10n_util::GetString(IDS_FR_CUSTOMIZE_SHORTCUTS));
@@ -117,22 +120,17 @@ void FirstRunCustomizeView::Layout() {
                  import_cbox_->width();
 
   import_from_combo_->GetPreferredSize(&pref_size);
-  import_from_combo_->SetBounds(x_offset, next_v_space,
-                                pref_size.cx + kComboExtraPad, pref_size.cy);
+  import_from_combo_->SetBounds(x_offset,
+                                next_v_space +
+                                    (import_cbox_->height() -
+                                     pref_size.cy) / 2,
+                                pref_size.cx + kComboExtraPad,
+                                pref_size.cy);
 
   AdjustDialogWidth(import_from_combo_);
 
   next_v_space = import_cbox_->y() + import_cbox_->height() +
                  kUnrelatedControlVerticalSpacing;
-
-  default_browser_cbox_->GetPreferredSize(&pref_size);
-  default_browser_cbox_->SetBounds(kPanelHorizMargin, next_v_space,
-                                   pref_size.cx, pref_size.cy);
-
-  AdjustDialogWidth(default_browser_cbox_);
-
-  next_v_space += default_browser_cbox_->height() +
-                  kUnrelatedControlVerticalSpacing;
 
   shortcuts_label_->GetPreferredSize(&pref_size);
   shortcuts_label_->SetBounds(kPanelHorizMargin, next_v_space,
@@ -190,7 +188,6 @@ bool FirstRunCustomizeView::Accept() {
   DisableButtons();
   import_cbox_->SetEnabled(false);
   import_from_combo_->SetEnabled(false);
-  default_browser_cbox_->SetEnabled(false);
   desktop_shortcut_cbox_->SetEnabled(false);
   quick_shortcut_cbox_->SetEnabled(false);
 
@@ -209,10 +206,8 @@ bool FirstRunCustomizeView::Accept() {
     FirstRun::ImportSettings(profile_, browser_selected,
                              GetDefaultImportItems(), window()->GetHWND());
   }
-  if (default_browser_cbox_->IsSelected()) {
-    UserMetrics::RecordAction(L"FirstRunCustom_Do_DefBrowser", profile_);
-    ShellIntegration::SetAsDefaultBrowser();
-  }
+  if (default_browser_->IsSelected())
+    SetDefaultBrowser();
 
   if (customize_observer_)
     customize_observer_->CustomizeAccepted();

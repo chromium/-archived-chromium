@@ -12,6 +12,8 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/first_run.h"
+#include "chrome/browser/shell_integration.h"
+#include "chrome/browser/user_metrics.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/l10n_util.h"
@@ -19,6 +21,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
+#include "chrome/views/checkbox.h"
 #include "chrome/views/client_view.h"
 #include "chrome/views/image_view.h"
 #include "chrome/views/label.h"
@@ -26,12 +29,14 @@
 #include "chrome/views/separator.h"
 #include "chrome/views/window.h"
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 FirstRunViewBase::FirstRunViewBase(Profile* profile)
     : preferred_width_(0),
       background_image_(NULL),
       separator_1_(NULL),
+      default_browser_(NULL),
       separator_2_(NULL),
       importer_host_(NULL),
       profile_(profile) {
@@ -91,6 +96,12 @@ void FirstRunViewBase::SetupControls() {
   separator_1_ = new ChromeViews::Separator;
   AddChildView(separator_1_);
 
+  // The "make us default browser" check box.
+  default_browser_ = new ChromeViews::CheckBox(
+      l10n_util::GetString(IDS_FR_CUSTOMIZE_DEFAULT_BROWSER));
+  default_browser_->SetMultiLine(true);
+  AddChildView(default_browser_);
+
   // The second separator marks the start of buttons.
   separator_2_ = new ChromeViews::Separator;
   AddChildView(separator_2_);
@@ -124,10 +135,17 @@ void FirstRunViewBase::Layout() {
   separator_1_->GetPreferredSize(&pref_size);
   separator_1_->SetBounds(0 , next_v_space, canvas.cx + 1, pref_size.cy);
 
-  next_v_space = canvas.cy - kPanelSubVerticalSpacing;
+  next_v_space = canvas.cy - kPanelSubVerticalSpacing - 2 * kVertSpacing;
   separator_2_->GetPreferredSize(&pref_size);
   separator_2_->SetBounds(kPanelHorizMargin , next_v_space,
-                          canvas.cx - 2*kPanelHorizMargin, pref_size.cy);
+                          canvas.cx - 2 * kPanelHorizMargin, pref_size.cy);
+
+  next_v_space = separator_2_->y() + separator_2_->height() + kVertSpacing;
+
+  int width = canvas.cx - 2 * kPanelHorizMargin;
+  int height = default_browser_->GetHeightForWidth(width);
+  default_browser_->SetBounds(kPanelHorizMargin, next_v_space, width, height);
+  AdjustDialogWidth(default_browser_);
 }
 
 bool FirstRunViewBase::CanResize() const {
@@ -146,6 +164,13 @@ bool FirstRunViewBase::HasAlwaysOnTopMenu() const {
   return false;
 }
 
+std::wstring FirstRunViewBase::GetDialogButtonLabel(DialogButton button) const {
+  if (DIALOGBUTTON_OK == button)
+    return l10n_util::GetString(IDS_FIRSTRUN_DLG_OK);
+  // The other buttons get the default text.
+  return std::wstring();
+}
+
 int FirstRunViewBase::GetDefaultImportItems() const {
   // It is best to avoid importing cookies because there is a bug that make
   // the process take way too much time among other issues. So for the time
@@ -158,6 +183,7 @@ void FirstRunViewBase::DisableButtons() {
   ChromeViews::DialogClientView* dcv = GetDialogClientView();
   dcv->ok_button()->SetEnabled(false);
   dcv->cancel_button()->SetEnabled(false);
+  default_browser_->SetEnabled(false);
 }
 
 bool FirstRunViewBase::CreateDesktopShortcut() {
@@ -168,7 +194,11 @@ bool FirstRunViewBase::CreateQuickLaunchShortcut() {
   return FirstRun::CreateChromeQuickLaunchShortcut();
 }
 
+bool FirstRunViewBase::SetDefaultBrowser() {
+  UserMetrics::RecordAction(L"FirstRun_Do_DefBrowser", profile_);
+  return ShellIntegration::SetAsDefaultBrowser();
+}
+
 bool FirstRunViewBase::FirstRunComplete() {
   return FirstRun::CreateSentinel();
 }
-

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_FIRST_RUN_VIEW_H__
-#define CHROME_BROWSER_VIEWS_FIRST_RUN_VIEW_H__
+#ifndef CHROME_BROWSER_VIEWS_FIRST_RUN_VIEW_H_
+#define CHROME_BROWSER_VIEWS_FIRST_RUN_VIEW_H_
 
 #include "chrome/browser/views/first_run_view_base.h"
 #include "chrome/browser/views/first_run_customize_view.h"
@@ -12,10 +12,8 @@
 #include "chrome/views/view.h"
 
 namespace ChromeViews {
-
 class Label;
 class Window;
-
 }
 
 class Profile;
@@ -35,7 +33,6 @@ class FirstRunView : public FirstRunViewBase,
   virtual void Layout();
 
   // Overridden from ChromeViews::DialogDelegate:
-  virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
   virtual bool Accept();
   virtual bool Cancel();
 
@@ -64,8 +61,7 @@ class FirstRunView : public FirstRunViewBase,
   ChromeViews::Link* customize_link_;
   bool customize_selected_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(FirstRunView);
+  DISALLOW_COPY_AND_ASSIGN(FirstRunView);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_FIRST_RUN_VIEW_H__
-
+#endif  // CHROME_BROWSER_VIEWS_FIRST_RUN_VIEW_H_

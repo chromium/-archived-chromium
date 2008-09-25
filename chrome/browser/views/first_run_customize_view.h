@@ -12,14 +12,11 @@
 #include "chrome/views/view.h"
 
 namespace ChromeViews {
-
 class Label;
 class Window;
 class ImageView;
 class Separator;
-class CheckBox;
 class ComboBox;
-
 }
 
 class Profile;
@@ -40,7 +37,8 @@ class FirstRunCustomizeView : public FirstRunViewBase,
 
   FirstRunCustomizeView(Profile* profile,
                         ImporterHost* importer_host,
-                        CustomizeViewObserver* observer);
+                        CustomizeViewObserver* observer,
+                        bool default_browser_checked);
   virtual ~FirstRunCustomizeView();
 
   // Overridden from ChromeViews::View.
@@ -74,7 +72,6 @@ class FirstRunCustomizeView : public FirstRunViewBase,
 
   ChromeViews::Label* main_label_;
   ChromeViews::CheckBox* import_cbox_;
-  ChromeViews::CheckBox* default_browser_cbox_;
   ChromeViews::ComboBox* import_from_combo_;
   ChromeViews::Label* shortcuts_label_;
   ChromeViews::CheckBox* desktop_shortcut_cbox_;
@@ -82,7 +79,7 @@ class FirstRunCustomizeView : public FirstRunViewBase,
 
   CustomizeViewObserver* customize_observer_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(FirstRunCustomizeView);
+  DISALLOW_COPY_AND_ASSIGN(FirstRunCustomizeView);
 };
 
 #endif  // CHROME_BROWSER_VIEWS_FIRST_RUN_CUSTOMIZE_VIEW_H_
