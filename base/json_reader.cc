@@ -83,8 +83,11 @@ bool JSONReader::JsonToValue(const std::string& json,
                              Value** root,
                              bool check_root,
                              bool allow_trailing_comma) {
-  // Assume input is UTF8.  The conversion from UTF8 to wstring removes null
-  // bytes for us (a good thing).
+  // The input must be in UTF-8.
+  if (!IsStringUTF8(json.c_str()))
+    return false;
+  // The conversion from UTF8 to wstring removes null bytes for us
+  // (a good thing).
   std::wstring json_wide(UTF8ToWide(json));
   const wchar_t* json_cstr = json_wide.c_str();
 

@@ -44,7 +44,7 @@ bool FileURLToFilePath(const GURL& url, std::wstring* file_path) {
   path = UnescapeURLComponent(path,
       UnescapeRule::SPACES | UnescapeRule::URL_SPECIAL_CHARS);
 
-  if (!IsStringUTF8(path.c_str())) {
+  if (!IsStringUTF8(path)) {
     // Not UTF-8, assume encoding is native codepage and we're done. We know we
     // are giving the conversion function a nonempty string, and it may fail if
     // the given string is not in the current encoding and give us an empty
@@ -68,7 +68,7 @@ bool FileURLToFilePath(const GURL& url, std::wstring* file_path) {
     NOTREACHED() << "Should have filtered out non-8-bit strings above.";
     return false;
   }
-  if (IsStringUTF8(narrow.c_str())) {
+  if (IsStringUTF8(narrow)) {
     // Our string actually looks like it could be UTF-8, convert to 8-bit
     // UTF-8 and then to the corresponding wide string.
     *file_path = UTF8ToWide(narrow);

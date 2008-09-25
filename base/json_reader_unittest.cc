@@ -481,6 +481,13 @@ TEST(JSONReaderTest, Reading) {
   ASSERT_EQ(L"\x7f51\x9875", str_val);
   delete root;
 
+  // Test invalid utf8 encoded input
+  root = NULL;
+  ASSERT_FALSE(JSONReader::JsonToValue("\"345\xb0\xa1\xb0\xa2\"", &root,
+                                       false, false));
+  ASSERT_FALSE(JSONReader::JsonToValue("\"123\xc0\x81\"", &root,
+                                       false, false));
+
   // Test invalid root objects.
   root = NULL;
   ASSERT_FALSE(JSONReader::Read("null", &root, false));

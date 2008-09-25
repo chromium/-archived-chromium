@@ -517,7 +517,7 @@ static inline bool IsInUTF8Sequence(int c) {
 // originally been UTF-8, but has been converted to wide characters because
 // that's what we (and Windows) use internally.
 template<typename CHAR>
-static bool IsStringUTF8T(const CHAR* str) {
+static bool IsStringUTF8T(const CHAR* str, int length) {
   bool overlong = false;
   bool surrogate = false;
   bool nonchar = false;
@@ -532,7 +532,7 @@ static bool IsStringUTF8T(const CHAR* str) {
   // are left in the sequence
   int positions_left = 0;
 
-  for (int i = 0; str[i] != 0; i++) {
+  for (int i = 0; i < length; i++) {
     // This whole function assume an unsigned value so force its conversion to
     // an unsigned value.
     typename ToUnsigned<CHAR>::Unsigned c = str[i];
@@ -556,6 +556,7 @@ static bool IsStringUTF8T(const CHAR* str) {
         slower = 0xA0;
       } else if (c == 0xEF) {
         // EF BF [BE-BF] : non-character
+        // TODO(jungshik): EF B7 [90-AF] should be checked as well.
         nonchar = true;
       }
     } else if (c <= 0xF4) {
@@ -599,12 +600,12 @@ static bool IsStringUTF8T(const CHAR* str) {
   return true;
 }
 
-bool IsStringUTF8(const char* str) {
-  return IsStringUTF8T(str);
+bool IsStringUTF8(const std::string& str) {
+  return IsStringUTF8T(str.data(), str.length());
 }
 
-bool IsStringWideUTF8(const wchar_t* str) {
-  return IsStringUTF8T(str);
+bool IsStringWideUTF8(const std::wstring& str) {
+  return IsStringUTF8T(str.data(), str.length());
 }
 
 template<typename Iter>

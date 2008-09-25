@@ -227,8 +227,8 @@ bool WideToLatin1(const std::wstring& wide, std::string* latin1);
 // first case) or characters that use only 8-bits and whose 8-bit
 // representation looks like a UTF-8 string (the second case).
 bool IsString8Bit(const std::wstring& str);
-bool IsStringUTF8(const char* str);
-bool IsStringWideUTF8(const wchar_t* str);
+bool IsStringUTF8(const std::string& str);
+bool IsStringWideUTF8(const std::wstring& str);
 bool IsStringASCII(const std::wstring& str);
 bool IsStringASCII(const std::string& str);
 
