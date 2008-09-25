@@ -444,6 +444,8 @@ TEST_F(SdchFilterTest, FilterChaining) {
                           filter.get(), &output);
   EXPECT_TRUE(status);
   EXPECT_TRUE(output == expanded_);
+
+  MOZ_Z_deflateEnd(&zlib_stream);
 }
 
 };  // namespace anonymous
