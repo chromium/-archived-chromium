@@ -112,8 +112,10 @@ env.Replace(
 
 if env['MODE'] == 'dbg':
   env.Append(
-      CPPDEFINES = 'DEBUG=1',
-      CPPDEFINES = '_DEBUG=1',
+      CPPDEFINES = [
+          'DEBUG=1',
+          '_DEBUG=1',
+      ],
       M4FLAGS = '-DDEBUG=1',
   )
 else:
