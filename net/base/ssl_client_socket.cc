@@ -159,6 +159,12 @@ void SSLClientSocket::Disconnect() {
 }
 
 bool SSLClientSocket::IsConnected() const {
+  // Ideally, we should also check if we have received the close_notify alert
+  // message from the server, and return false in that case.  We're not doing
+  // that, so this function may return a false positive.  Since the upper
+  // layer (HttpNetworkTransaction) needs to handle a persistent connection
+  // closed by the server when we send a request anyway, a false positive in
+  // exchange for simpler code is a good trade-off.
   return completed_handshake_ && transport_->IsConnected();
 }
 

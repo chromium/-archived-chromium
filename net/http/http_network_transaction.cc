@@ -576,6 +576,9 @@ int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
   if (result < 0)
     return HandleIOError(result);
 
+  if (result == 0 && ShouldResendRequest())
+    return result;
+
   // Record our best estimate of the 'response time' as the time when we read
   // the first bytes of the response headers.
   if (header_buf_len_ == 0)
@@ -848,20 +851,29 @@ int HttpNetworkTransaction::HandleIOError(int error) {
     case ERR_CONNECTION_RESET:
     case ERR_CONNECTION_CLOSED:
     case ERR_CONNECTION_ABORTED:
-      if (!establishing_tunnel_ &&
-          reused_socket_ &&    // We reused a keep-alive connection.
-          !header_buf_len_) {  // We haven't received any response header yet.
-        connection_.set_socket(NULL);
-        connection_.Reset();
-        request_headers_bytes_sent_ = 0;
-        if (request_body_stream_.get())
-          request_body_stream_->Reset();
-        next_state_ = STATE_INIT_CONNECTION;  // Resend the request.
+      if (ShouldResendRequest())
         error = OK;
-      }
       break;
   }
   return error;
+}
+
+bool HttpNetworkTransaction::ShouldResendRequest() {
+  // NOTE: we resend a request only if we reused a keep-alive connection.
+  // This automatically prevents an infinite resend loop because we'll run
+  // out of the cached keep-alive connections eventually.
+  if (establishing_tunnel_ ||
+      !reused_socket_ ||  // We didn't reuse a keep-alive connection.
+      header_buf_len_) {  // We have received some response headers.
+    return false;
+  }
+  connection_.set_socket(NULL);
+  connection_.Reset();
+  request_headers_bytes_sent_ = 0;
+  if (request_body_stream_.get())
+    request_body_stream_->Reset();
+  next_state_ = STATE_INIT_CONNECTION;  // Resend the request.
+  return true;
 }
 
 }  // namespace net

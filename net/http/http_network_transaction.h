@@ -87,9 +87,14 @@ class HttpNetworkTransaction : public HttpTransaction {
   // is returned.
   int HandleIOError(int error);
 
+  // Called when we reached EOF or got an error.  If we should resend the
+  // request, sets next_state_ and returns true.  Otherwise, does nothing and
+  // returns false.
+  bool ShouldResendRequest();
+
   // Return true if based on the bytes read so far, the start of the
   // status line is known. This is used to distingish between HTTP/0.9
-  // responses (which have no status line).
+  // responses (which have no status line) and HTTP/1.x responses.
   bool has_found_status_line_start() const {
     return header_buf_http_offset_ != -1;
   }
