@@ -101,6 +101,11 @@
 		7BA016A30E5A1EE900044150 /* gzip_header.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32B70E5A181C00A747DB /* gzip_header.cc */; };
 		7BA0172F0E5A244D00044150 /* bzip2_filter.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32750E5A181C00A747DB /* bzip2_filter.cc */; };
 		7BA359120E89903B0023C8B9 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA357A60E8990260023C8B9 /* AppKit.framework */; };
+		7BA361090E8C33880023C8B9 /* url_request_test_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33AD0E5A198600A747DB /* url_request_test_job.cc */; };
+		7BA361450E8C341F0023C8B9 /* test_completion_callback_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BA361440E8C341F0023C8B9 /* test_completion_callback_unittest.cc */; };
+		7BA3614C0E8C34390023C8B9 /* backend_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33090E5A190600A747DB /* backend_unittest.cc */; };
+		7BA3614E0E8C347E0023C8B9 /* cookie_policy_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32620E5A181C00A747DB /* cookie_policy_unittest.cc */; };
+		7BA361ED0E8C38D30023C8B9 /* proxy_service_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BA361EC0E8C38D30023C8B9 /* proxy_service_unittest.cc */; };
 		7BD8F70C0E65DCD800034DE9 /* block_files_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32F90E5A190600A747DB /* block_files_unittest.cc */; };
 		7BD8F70D0E65DCE000034DE9 /* disk_cache_test_base.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32D50E5A190600A747DB /* disk_cache_test_base.cc */; };
 		7BD8F70E0E65DCE500034DE9 /* disk_cache_test_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32FA0E5A190600A747DB /* disk_cache_test_util.cc */; };
@@ -380,6 +385,13 @@
 		7BA016870E5A1E6E00044150 /* bzip2.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = bzip2.xcodeproj; path = third_party/bzip2/bzip2.xcodeproj; sourceTree = "<group>"; };
 		7BA016930E5A1E8700044150 /* zlib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = zlib.xcodeproj; path = third_party/zlib/zlib.xcodeproj; sourceTree = "<group>"; };
 		7BA357A60E8990260023C8B9 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
+		7BA361440E8C341F0023C8B9 /* test_completion_callback_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_completion_callback_unittest.cc; sourceTree = "<group>"; };
+		7BA3615D0E8C35A50023C8B9 /* scoped_host_mapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scoped_host_mapper.h; sourceTree = "<group>"; };
+		7BA3615E0E8C35A50023C8B9 /* sdch_filter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sdch_filter.cc; sourceTree = "<group>"; };
+		7BA3615F0E8C35A50023C8B9 /* sdch_filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sdch_filter.h; sourceTree = "<group>"; };
+		7BA361600E8C35A50023C8B9 /* sdch_filter_unitest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sdch_filter_unitest.cc; sourceTree = "<group>"; };
+		7BA361EB0E8C38C60023C8B9 /* http_version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_version.h; sourceTree = "<group>"; };
+		7BA361EC0E8C38D30023C8B9 /* proxy_service_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proxy_service_unittest.cc; path = proxy/proxy_service_unittest.cc; sourceTree = "<group>"; };
 		7BED316E0E5A145200A747DB /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
 		7BED316F0E5A145200A747DB /* debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = debug.xcconfig; sourceTree = "<group>"; };
 		7BED31700E5A145200A747DB /* executable.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = executable.xcconfig; sourceTree = "<group>"; };
@@ -876,6 +888,10 @@
 				7BED329A0E5A181C00A747DB /* registry_controlled_domain.h */,
 				7BED32990E5A181C00A747DB /* registry_controlled_domain_unittest.cc */,
 				E4AFA6420E5241B400201347 /* run_all_unittests.cc */,
+				7BA3615D0E8C35A50023C8B9 /* scoped_host_mapper.h */,
+				7BA3615E0E8C35A50023C8B9 /* sdch_filter.cc */,
+				7BA3615F0E8C35A50023C8B9 /* sdch_filter.h */,
+				7BA361600E8C35A50023C8B9 /* sdch_filter_unitest.cc */,
 				E49DD2E80E892F8C003C7A87 /* sdch_manager.cc */,
 				E49DD2E90E892F8C003C7A87 /* sdch_manager.h */,
 				7BED32980E5A181C00A747DB /* socket.h */,
@@ -893,6 +909,7 @@
 				7BED328C0E5A181C00A747DB /* telnet_server.h */,
 				7BED328B0E5A181C00A747DB /* telnet_server_unittest.cc */,
 				7BED328A0E5A181C00A747DB /* test_completion_callback.h */,
+				7BA361440E8C341F0023C8B9 /* test_completion_callback_unittest.cc */,
 				7BED32890E5A181C00A747DB /* upload_data.cc */,
 				7BED32880E5A181C00A747DB /* upload_data.h */,
 				7BED32870E5A181C00A747DB /* upload_data_stream.cc */,
@@ -997,6 +1014,7 @@
 				7BED33520E5A194700A747DB /* http_vary_data.cc */,
 				7BED33490E5A194700A747DB /* http_vary_data.h */,
 				7BED33470E5A194700A747DB /* http_vary_data_unittest.cc */,
+				7BA361EB0E8C38C60023C8B9 /* http_version.h */,
 			);
 			path = http;
 			sourceTree = "<group>";
@@ -1053,6 +1071,7 @@
 				E49DD33B0E8933C0003C7A87 /* proxy_resolver_fixed.cc */,
 				E49DD3350E8933A2003C7A87 /* proxy_service.h */,
 				E49DD3360E8933A2003C7A87 /* proxy_service.cc */,
+				7BA361EC0E8C38D30023C8B9 /* proxy_service_unittest.cc */,
 			);
 			name = proxy;
 			sourceTree = "<group>";
@@ -1324,8 +1343,8 @@
 				7BA0172F0E5A244D00044150 /* bzip2_filter.cc in Sources */,
 				7B8504050E5B2DBD00730B43 /* cache_util_posix.cc in Sources */,
 				821F207B0E5CD342003C7E38 /* cert_status_cache.cc in Sources */,
-				7B8504080E5B2DD800730B43 /* client_socket_handle.cc in Sources */,
 				E4CE9C0D0E8BFFFA00D5378C /* client_socket_factory.cc in Sources */,
+				7B8504080E5B2DD800730B43 /* client_socket_handle.cc in Sources */,
 				7B8504090E5B2DD800730B43 /* client_socket_pool.cc in Sources */,
 				7B8B5A430E5CD1FD002F9A97 /* cookie_monster.cc in Sources */,
 				7B85040C0E5B2DD800730B43 /* cookie_policy.cc in Sources */,
@@ -1360,8 +1379,8 @@
 				533102E70E5E3EBF00FF8E32 /* net_util_posix.cc in Sources */,
 				7B85043B0E5B2E6400730B43 /* os_file_posix.cc in Sources */,
 				7B85043C0E5B2E6400730B43 /* platform_mime_util_mac.mm in Sources */,
-				E49DD3370E8933A2003C7A87 /* proxy_service.cc in Sources */,
 				E49DD33C0E8933C0003C7A87 /* proxy_resolver_fixed.cc in Sources */,
+				E49DD3370E8933A2003C7A87 /* proxy_service.cc in Sources */,
 				7B85043D0E5B2E6400730B43 /* rankings.cc in Sources */,
 				7B8B5B560E5CEADE002F9A97 /* registry_controlled_domain.cc in Sources */,
 				E49DD2EA0E892F8C003C7A87 /* sdch_manager.cc in Sources */,
@@ -1380,6 +1399,7 @@
 				7B8504530E5B2E9600730B43 /* url_request_job_metrics.cc in Sources */,
 				7B8504540E5B2E9600730B43 /* url_request_job_tracker.cc in Sources */,
 				821F23CC0E5E106D003C7E38 /* url_request_simple_job.cc in Sources */,
+				7BA361090E8C33880023C8B9 /* url_request_test_job.cc in Sources */,
 				821F20A50E5CD414003C7E38 /* url_request_view_cache_job.cc in Sources */,
 				82113BBD0E892E5800E3848F /* x509_certificate.cc in Sources */,
 				827E139D0E81611D00183614 /* x509_certificate_mac.cc in Sources */,
@@ -1392,11 +1412,13 @@
 			files = (
 				7B4DF6BD0E5B98F7004D7619 /* addr_unittest.cc in Sources */,
 				7B8502050E5A377100730B43 /* auth_cache_unittest.cc in Sources */,
+				7BA3614C0E8C34390023C8B9 /* backend_unittest.cc in Sources */,
 				7B8502120E5A37A800730B43 /* base64_unittest.cc in Sources */,
 				7BD8F70C0E65DCD800034DE9 /* block_files_unittest.cc in Sources */,
 				7BA015210E5A1B9800044150 /* bzip2_filter_unittest.cc in Sources */,
 				7B4DF64A0E5B98DF004D7619 /* client_socket_pool_unittest.cc in Sources */,
 				7B8B5B530E5CEAC7002F9A97 /* cookie_monster_unittest.cc in Sources */,
+				7BA3614E0E8C347E0023C8B9 /* cookie_policy_unittest.cc in Sources */,
 				7B4DF6A90E5B98E7004D7619 /* data_url_unittest.cc in Sources */,
 				7BD8F70D0E65DCE000034DE9 /* disk_cache_test_base.cc in Sources */,
 				7BD8F70E0E65DCE500034DE9 /* disk_cache_test_util.cc in Sources */,
@@ -1415,10 +1437,12 @@
 				048268090E5B3B4800A30786 /* mime_util_unittest.cc in Sources */,
 				BAA46E3B0E5CE99A00E77460 /* net_util_unittest.cc in Sources */,
 				7B466C470E5E732900C91F63 /* platform_test_mac.mm in Sources */,
+				7BA361ED0E8C38D30023C8B9 /* proxy_service_unittest.cc in Sources */,
 				7B8B5B9E0E5D188E002F9A97 /* registry_controlled_domain_unittest.cc in Sources */,
 				E4AFA6430E5241B400201347 /* run_all_unittests.cc in Sources */,
 				7BD8F7110E65DCF500034DE9 /* storage_block_unittest.cc in Sources */,
 				E47E93430E8924EE00CA613E /* tcp_client_socket_unittest.cc in Sources */,
+				7BA361450E8C341F0023C8B9 /* test_completion_callback_unittest.cc in Sources */,
 				82113A1D0E8434EE00E3848F /* x509_certificate_unittest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

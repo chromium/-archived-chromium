@@ -58,8 +58,6 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
   if (!dest_buffer || available_space <= 0)
     return FILTER_ERROR;
 
-  char* dest_buffer_end = dest_buffer + available_space;
-
   if (WAITING_FOR_DICTIONARY_SELECTION == decoding_status_) {
     FilterStatus status = InitializeDictionary();
     if (DECODING_IN_PROGRESS != decoding_status_) {

@@ -223,6 +223,7 @@ unittest_files = [
     'base/bzip2_filter_unittest.cc',
     'base/client_socket_pool_unittest.cc',
     'base/cookie_monster_unittest.cc',
+    'base/cookie_policy_unittest.cc',
     'base/data_url_unittest.cc',
     'base/escape_unittest.cc',
     'base/gzip_filter_unittest.cc',
@@ -249,7 +250,6 @@ unittest_files = [
 
 if env['PLATFORM'] == 'win32':
   unittest_files.extend([
-      'base/cookie_policy_unittest.cc',
       'base/directory_lister_unittest.cc',
       'base/sdch_filter_unitest.cc',
       'base/ssl_config_service_unittest.cc',
@@ -263,11 +263,6 @@ if env['PLATFORM'] == 'win32':
       'http/http_util_unittest.cc',
       'http/winhttp_request_throttle_unittest.cc',
       'url_request/url_request_unittest.cc',
-  ])
-
-if env['PLATFORM'] == 'posix':
-  unittest_files.extend([
-      'base/cookie_policy_unittest.cc',
   ])
 
 if env['PLATFORM'] == 'darwin':

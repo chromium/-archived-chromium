@@ -6,8 +6,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "googleurl/src/gurl.h"
 
-namespace {
-
 class CookiePolicyTest : public testing::Test {
  public:
   CookiePolicyTest()
@@ -21,8 +19,6 @@ class CookiePolicyTest : public testing::Test {
   GURL url_google_mail_;
   GURL url_google_analytics_;
 };
-
-}  // namespace
 
 TEST_F(CookiePolicyTest, DefaultPolicyTest) {
   net::CookiePolicy cp;
