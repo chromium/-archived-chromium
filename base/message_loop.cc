@@ -78,12 +78,15 @@ MessageLoop::MessageLoop(Type type)
   DCHECK(!current()) << "should only have one message loop per thread";
   lazy_tls_ptr.Pointer()->Set(this);
 
-  // TODO(darin): Choose the pump based on the requested type.
 #if defined(OS_WIN)
+  // TODO(rvargas): Get rid of the OS guards.
   if (type_ == TYPE_DEFAULT) {
     pump_ = new base::MessagePumpDefault();
+  } else if (type_ == TYPE_IO) {
+    pump_ = new base::MessagePumpForIO();
   } else {
-    pump_ = new base::MessagePumpWin();
+    DCHECK(type_ == TYPE_UI);
+    pump_ = new base::MessagePumpForUI();
   }
 #elif defined(OS_POSIX)
 #if defined(OS_MACOSX)
@@ -576,7 +579,7 @@ void MessageLoopForUI::PumpOutPendingPaintMessages() {
 #if defined(OS_WIN)
 
 void MessageLoopForIO::WatchObject(HANDLE object, Watcher* watcher) {
-  pump_win()->WatchObject(object, watcher);
+  pump_io()->WatchObject(object, watcher);
 }
 
 #elif defined(OS_POSIX)

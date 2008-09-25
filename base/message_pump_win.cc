@@ -35,38 +35,6 @@ MessagePumpWin::~MessagePumpWin() {
   DestroyWindow(message_hwnd_);
 }
 
-void MessagePumpWin::WatchObject(HANDLE object, Watcher* watcher) {
-  DCHECK(object);
-  DCHECK_NE(object, INVALID_HANDLE_VALUE);
-
-  std::vector<HANDLE>::iterator it =
-      find(objects_.begin(), objects_.end(), object);
-  if (watcher) {
-    if (it == objects_.end()) {
-     static size_t warning_multiple = 1;
-     if (objects_.size() >= warning_multiple * MAXIMUM_WAIT_OBJECTS / 2) {
-       LOG(INFO) << "More than " << warning_multiple * MAXIMUM_WAIT_OBJECTS / 2
-           << " objects being watched";
-       // This DCHECK() is an artificial limitation, meant to warn us if we
-       // start creating too many objects.  It can safely be raised to a higher
-       // level, and the program is designed to handle much larger values.
-       // Before raising this limit, make sure that there is a very good reason
-       // (in your debug testing) to be watching this many objects.
-       DCHECK(2 <= warning_multiple);
-       ++warning_multiple;
-      }
-      objects_.push_back(object);
-      watchers_.push_back(watcher);
-    } else {
-      watchers_[it - objects_.begin()] = watcher;
-    }
-  } else if (it != objects_.end()) {
-    std::vector<HANDLE>::difference_type index = it - objects_.begin();
-    objects_.erase(it);
-    watchers_.erase(watchers_.begin() + index);
-  }
-}
-
 void MessagePumpWin::AddObserver(Observer* observer) {
   observers_.AddObserver(observer);
 }
@@ -176,7 +144,7 @@ void MessagePumpWin::ScheduleDelayedWork(const Time& delayed_work_time) {
 }
 
 //-----------------------------------------------------------------------------
-// MessagePumpWin private:
+// MessagePumpWin protected:
 
 // static
 LRESULT CALLBACK MessagePumpWin::WndProcThunk(
@@ -244,8 +212,199 @@ void MessagePumpWin::HandleTimerMessage() {
   }
 }
 
-void MessagePumpWin::DoRunLoop() {
-  // IF this was just a simple PeekMessage() loop (servicing all passible work
+bool MessagePumpWin::ProcessNextWindowsMessage() {
+  MSG msg;
+  if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+    return ProcessMessageHelper(msg);
+  return false;
+}
+
+bool MessagePumpWin::ProcessMessageHelper(const MSG& msg) {
+  if (WM_QUIT == msg.message) {
+    // Repost the QUIT message so that it will be retrieved by the primary
+    // GetMessage() loop.
+    state_->should_quit = true;
+    PostQuitMessage(static_cast<int>(msg.wParam));
+    return false;
+  }
+
+  // While running our main message pump, we discard kMsgHaveWork messages.
+  if (msg.message == kMsgHaveWork && msg.hwnd == message_hwnd_)
+    return ProcessPumpReplacementMessage();
+
+  WillProcessMessage(msg);
+
+  if (state_->dispatcher) {
+    if (!state_->dispatcher->Dispatch(msg))
+      state_->should_quit = true;
+  } else {
+    TranslateMessage(&msg);
+    DispatchMessage(&msg);
+  }
+
+  DidProcessMessage(msg);
+  return true;
+}
+
+bool MessagePumpWin::ProcessPumpReplacementMessage() {
+  // When we encounter a kMsgHaveWork message, this method is called to peek
+  // and process a replacement message, such as a WM_PAINT or WM_TIMER.  The
+  // goal is to make the kMsgHaveWork as non-intrusive as possible, even though
+  // a continuous stream of such messages are posted.  This method carefully
+  // peeks a message while there is no chance for a kMsgHaveWork to be pending,
+  // then resets the have_work_ flag (allowing a replacement kMsgHaveWork to
+  // possibly be posted), and finally dispatches that peeked replacement.  Note
+  // that the re-post of kMsgHaveWork may be asynchronous to this thread!!
+
+  MSG msg;
+  bool have_message = (0 != PeekMessage(&msg, NULL, 0, 0, PM_REMOVE));
+  DCHECK(!have_message || kMsgHaveWork != msg.message ||
+         msg.hwnd != message_hwnd_);
+  
+  // Since we discarded a kMsgHaveWork message, we must update the flag.
+  InterlockedExchange(&have_work_, 0);
+
+  // TODO(darin,jar): There is risk of being lost in a sub-pump within the call
+  // to ProcessMessageHelper, which could result in no longer getting a
+  // kMsgHaveWork message until the next out-of-band call to ScheduleWork.
+
+  return have_message && ProcessMessageHelper(msg);
+}
+
+int MessagePumpWin::GetCurrentDelay() const {
+  if (delayed_work_time_.is_null())
+    return -1;
+
+  // Be careful here.  TimeDelta has a precision of microseconds, but we want a
+  // value in milliseconds.  If there are 5.5ms left, should the delay be 5 or
+  // 6?  It should be 6 to avoid executing delayed work too early.
+  double timeout = ceil((delayed_work_time_ - Time::Now()).InMillisecondsF());
+
+  // If this value is negative, then we need to run delayed work soon.
+  int delay = static_cast<int>(timeout);
+  if (delay < 0)
+    delay = 0;
+
+  return delay;
+}
+
+//-----------------------------------------------------------------------------
+// MessagePumpForUI private:
+
+void MessagePumpForUI::DoRunLoop() {
+  // IF this was just a simple PeekMessage() loop (servicing all possible work
+  // queues), then Windows would try to achieve the following order according
+  // to MSDN documentation about PeekMessage with no filter):
+  //    * Sent messages
+  //    * Posted messages
+  //    * Sent messages (again)
+  //    * WM_PAINT messages
+  //    * WM_TIMER messages
+  //
+  // Summary: none of the above classes is starved, and sent messages has twice
+  // the chance of being processed (i.e., reduced service time).
+
+  for (;;) {
+    // If we do any work, we may create more messages etc., and more work may
+    // possibly be waiting in another task group.  When we (for example)
+    // ProcessNextWindowsMessage(), there is a good chance there are still more
+    // messages waiting.  On the other hand, when any of these methods return
+    // having done no work, then it is pretty unlikely that calling them again
+    // quickly will find any work to do.  Finally, if they all say they had no
+    // work, then it is a good time to consider sleeping (waiting) for more
+    // work.
+
+    bool more_work_is_plausible = ProcessNextWindowsMessage();
+    if (state_->should_quit)
+      break;
+
+    more_work_is_plausible |= state_->delegate->DoWork();
+    if (state_->should_quit)
+      break;
+
+    more_work_is_plausible |=
+        state_->delegate->DoDelayedWork(&delayed_work_time_);
+    // If we did not process any delayed work, then we can assume that our
+    // existing WM_TIMER if any will fire when delayed work should run.  We
+    // don't want to disturb that timer if it is already in flight.  However,
+    // if we did do all remaining delayed work, then lets kill the WM_TIMER.
+    if (more_work_is_plausible && delayed_work_time_.is_null())
+      KillTimer(message_hwnd_, reinterpret_cast<UINT_PTR>(this));
+    if (state_->should_quit)
+      break;
+
+    if (more_work_is_plausible)
+      continue;
+
+    more_work_is_plausible = state_->delegate->DoIdleWork();
+    if (state_->should_quit)
+      break;
+
+    if (more_work_is_plausible)
+      continue;
+
+    WaitForWork();  // Wait (sleep) until we have work to do again.
+  }
+}
+
+void MessagePumpForUI::WaitForWork() {
+  // Wait until a message is available, up to the time needed by the timer
+  // manager to fire the next set of timers.
+  int delay = GetCurrentDelay();
+  if (delay < 0)  // Negative value means no timers waiting.
+    delay = INFINITE;
+
+  DWORD result;
+  result = MsgWaitForMultipleObjectsEx(0, NULL, delay, QS_ALLINPUT,
+                                       MWMO_INPUTAVAILABLE);
+
+  if (WAIT_OBJECT_0 == result)
+    return;  // A WM_* message is available.
+
+  DCHECK_NE(WAIT_FAILED, result) << GetLastError();
+}
+
+//-----------------------------------------------------------------------------
+// MessagePumpForIO public:
+
+void MessagePumpForIO::WatchObject(HANDLE object, Watcher* watcher) {
+  DCHECK(object);
+  DCHECK_NE(object, INVALID_HANDLE_VALUE);
+
+  std::vector<HANDLE>::iterator it =
+      find(objects_.begin(), objects_.end(), object);
+  if (watcher) {
+    if (it == objects_.end()) {
+     static size_t warning_multiple = 1;
+     if (objects_.size() >= warning_multiple * MAXIMUM_WAIT_OBJECTS / 2) {
+       LOG(INFO) << "More than " << warning_multiple * MAXIMUM_WAIT_OBJECTS / 2
+           << " objects being watched";
+       // This DCHECK() is an artificial limitation, meant to warn us if we
+       // start creating too many objects.  It can safely be raised to a higher
+       // level, and the program is designed to handle much larger values.
+       // Before raising this limit, make sure that there is a very good reason
+       // (in your debug testing) to be watching this many objects.
+       DCHECK(2 <= warning_multiple);
+       ++warning_multiple;
+      }
+      objects_.push_back(object);
+      watchers_.push_back(watcher);
+    } else {
+      watchers_[it - objects_.begin()] = watcher;
+    }
+  } else if (it != objects_.end()) {
+    std::vector<HANDLE>::difference_type index = it - objects_.begin();
+    objects_.erase(it);
+    watchers_.erase(watchers_.begin() + index);
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+// MessagePumpForIO private:
+
+void MessagePumpForIO::DoRunLoop() {
+  // IF this was just a simple PeekMessage() loop (servicing all possible work
   // queues), then Windows would try to achieve the following order according
   // to MSDN documentation about PeekMessage with no filter):
   //    * Sent messages
@@ -316,7 +475,7 @@ void MessagePumpWin::DoRunLoop() {
 // open, etc.)
 static const int kMultipleWaitPollingInterval = 20;
 
-void MessagePumpWin::WaitForWork() {
+void MessagePumpForIO::WaitForWork() {
   // Wait until either an object is signaled or a message is available.  Handle
   // (without returning) any APCs (only the IO thread currently has APCs.)
 
@@ -386,68 +545,7 @@ void MessagePumpWin::WaitForWork() {
   }
 }
 
-bool MessagePumpWin::ProcessNextWindowsMessage() {
-  MSG msg;
-  if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-    return ProcessMessageHelper(msg);
-  return false;
-}
-
-bool MessagePumpWin::ProcessMessageHelper(const MSG& msg) {
-  if (WM_QUIT == msg.message) {
-    // Repost the QUIT message so that it will be retrieved by the primary
-    // GetMessage() loop.
-    state_->should_quit = true;
-    PostQuitMessage(static_cast<int>(msg.wParam));
-    return false;
-  }
-
-  // While running our main message pump, we discard kMsgHaveWork messages.
-  if (msg.message == kMsgHaveWork && msg.hwnd == message_hwnd_)
-    return ProcessPumpReplacementMessage();
-
-  WillProcessMessage(msg);
-
-  if (state_->dispatcher) {
-    if (!state_->dispatcher->Dispatch(msg))
-      state_->should_quit = true;
-  } else {
-    TranslateMessage(&msg);
-    DispatchMessage(&msg);
-  }
-
-  DidProcessMessage(msg);
-  return true;
-}
-
-bool MessagePumpWin::ProcessPumpReplacementMessage() {
-  // When we encounter a kMsgHaveWork message, this method is called to peek
-  // and process a replacement message, such as a WM_PAINT or WM_TIMER.  The
-  // goal is to make the kMsgHaveWork as non-intrusive as possible, even though
-  // a continuous stream of such messages are posted.  This method carefully
-  // peeks a message while there is no chance for a kMsgHaveWork to be pending,
-  // then resets the have_work_ flag (allowing a replacement kMsgHaveWork to
-  // possibly be posted), and finally dispatches that peeked replacement.  Note
-  // that the re-post of kMsgHaveWork may be asynchronous to this thread!!
-
-  MSG msg;
-  bool have_message = (0 != PeekMessage(&msg, NULL, 0, 0, PM_REMOVE));
-  DCHECK(!have_message || kMsgHaveWork != msg.message ||
-         msg.hwnd != message_hwnd_);
-  
-  // Since we discarded a kMsgHaveWork message, we must update the flag.
-  InterlockedExchange(&have_work_, 0);
-
-  // TODO(darin,jar): There is risk of being lost in a sub-pump within the call
-  // to ProcessMessageHelper, which could result in no longer getting a
-  // kMsgHaveWork message until the next out-of-band call to ScheduleWork.
-
-  return have_message && ProcessMessageHelper(msg);
-}
-
-// Note: MsgWaitMultipleObjects() can't take a nil list, and that is why I had
-// to use SleepEx() to handle APCs when there were no objects.
-bool MessagePumpWin::ProcessNextObject() {
+bool MessagePumpForIO::ProcessNextObject() {
   size_t total_objs = objects_.size();
   if (!total_objs) {
     return false;
@@ -481,7 +579,7 @@ bool MessagePumpWin::ProcessNextObject() {
   return false;  // We serviced nothing.
 }
 
-bool MessagePumpWin::SignalWatcher(size_t object_index) {
+bool MessagePumpForIO::SignalWatcher(size_t object_index) {
   // Signal the watcher corresponding to the given index.
 
   DCHECK(objects_.size() > object_index);
@@ -499,22 +597,4 @@ bool MessagePumpWin::SignalWatcher(size_t object_index) {
   return true;
 }
 
-int MessagePumpWin::GetCurrentDelay() const {
-  if (delayed_work_time_.is_null())
-    return -1;
-
-  // Be careful here.  TimeDelta has a precision of microseconds, but we want a
-  // value in milliseconds.  If there are 5.5ms left, should the delay be 5 or
-  // 6?  It should be 6 to avoid executing delayed work too early.
-  double timeout = ceil((delayed_work_time_ - Time::Now()).InMillisecondsF());
-
-  // If this value is negative, then we need to run delayed work soon.
-  int delay = static_cast<int>(timeout);
-  if (delay < 0)
-    delay = 0;
-
-  return delay;
-}
-
 }  // namespace base
-

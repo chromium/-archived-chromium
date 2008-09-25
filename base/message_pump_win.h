@@ -62,15 +62,6 @@ namespace base {
 //
 class MessagePumpWin : public MessagePump {
  public:
-  // Used with WatchObject to asynchronously monitor the signaled state of a
-  // HANDLE object.
-  class Watcher {
-   public:
-    virtual ~Watcher() {}
-    // Called from MessageLoop::Run when a signalled object is detected.
-    virtual void OnObjectSignaled(HANDLE object) = 0;
-  };
-
   // An Observer is an object that receives global notifications from the
   // MessageLoop.
   //
@@ -106,11 +97,7 @@ class MessagePumpWin : public MessagePump {
   };
 
   MessagePumpWin();
-  ~MessagePumpWin();
-
-  // Have the current thread's message loop watch for a signaled object.
-  // Pass a null watcher to stop watching the object.
-  void WatchObject(HANDLE, Watcher*);
+  virtual ~MessagePumpWin();
 
   // Add an Observer, which will start receiving notifications immediately.
   void AddObserver(Observer* observer);
@@ -138,7 +125,7 @@ class MessagePumpWin : public MessagePump {
   virtual void ScheduleWork();
   virtual void ScheduleDelayedWork(const Time& delayed_work_time);
 
- private:
+ protected:
   struct RunState {
     Delegate* delegate;
     Dispatcher* dispatcher;
@@ -152,25 +139,17 @@ class MessagePumpWin : public MessagePump {
 
   static LRESULT CALLBACK WndProcThunk(
       HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
+  virtual void DoRunLoop() = 0;
   void InitMessageWnd();
   void HandleWorkMessage();
   void HandleTimerMessage();
-  void DoRunLoop();
-  void WaitForWork();
   bool ProcessNextWindowsMessage();
   bool ProcessMessageHelper(const MSG& msg);
   bool ProcessPumpReplacementMessage();
-  bool ProcessNextObject();
-  bool SignalWatcher(size_t object_index);
   int GetCurrentDelay() const;
 
   // A hidden message-only window.
   HWND message_hwnd_;
-
-  // A vector of objects (and corresponding watchers) that are routinely
-  // serviced by this message pump.
-  std::vector<HANDLE> objects_;
-  std::vector<Watcher*> watchers_;
 
   ObserverList<Observer> observers_;
 
@@ -184,6 +163,53 @@ class MessagePumpWin : public MessagePump {
 
   // State for the current invocation of Run.
   RunState* state_;
+};
+
+//-----------------------------------------------------------------------------
+// MessagePumpForUI extends MessagePumpWin with methods that are particular to a
+// MessageLoop instantiated with TYPE_UI.
+//
+class MessagePumpForUI : public MessagePumpWin {
+ public:
+  MessagePumpForUI() {}
+  virtual ~MessagePumpForUI() {}
+ private:
+  virtual void DoRunLoop();
+  void WaitForWork();
+};
+
+//-----------------------------------------------------------------------------
+// MessagePumpForIO extends MessagePumpWin with methods that are particular to a
+// MessageLoop instantiated with TYPE_IO.
+//
+class MessagePumpForIO : public MessagePumpWin {
+ public:
+  // Used with WatchObject to asynchronously monitor the signaled state of a
+  // HANDLE object.
+  class Watcher {
+   public:
+    virtual ~Watcher() {}
+    // Called from MessageLoop::Run when a signalled object is detected.
+    virtual void OnObjectSignaled(HANDLE object) = 0;
+  };
+
+  MessagePumpForIO() {}
+  virtual ~MessagePumpForIO() {}
+
+  // Have the current thread's message loop watch for a signaled object.
+  // Pass a null watcher to stop watching the object.
+  void WatchObject(HANDLE, Watcher*);
+
+ private:
+  virtual void DoRunLoop();
+  void WaitForWork();
+  bool ProcessNextObject();
+  bool SignalWatcher(size_t object_index);
+
+  // A vector of objects (and corresponding watchers) that are routinely
+  // serviced by this message pump.
+  std::vector<HANDLE> objects_;
+  std::vector<Watcher*> watchers_;
 };
 
 }  // namespace base

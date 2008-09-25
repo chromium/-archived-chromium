@@ -423,6 +423,12 @@ class MessageLoopForUI : public MessageLoop {
   void WillProcessMessage(const MSG& message);
   void DidProcessMessage(const MSG& message);
   void PumpOutPendingPaintMessages();
+
+ protected:
+  // TODO(rvargas): Make this platform independent.
+  base::MessagePumpWin* pump_ui() {
+    return static_cast<base::MessagePumpForUI*>(pump_.get());
+  }
 #endif  // defined(OS_WIN)
 };
 
@@ -452,10 +458,16 @@ class MessageLoopForIO : public MessageLoop {
   }
 
 #if defined(OS_WIN)
-  typedef base::MessagePumpWin::Watcher Watcher;
+  typedef base::MessagePumpForIO::Watcher Watcher;
 
   // Please see MessagePumpWin for definitions of these methods.
   void WatchObject(HANDLE object, Watcher* watcher);
+
+ protected:
+  // TODO(rvargas): Make this platform independent.
+  base::MessagePumpForIO* pump_io() {
+    return static_cast<base::MessagePumpForIO*>(pump_.get());
+  }
 
 #elif defined(OS_POSIX)
   typedef base::MessagePumpLibevent::Watcher Watcher;
@@ -464,7 +476,7 @@ class MessageLoopForIO : public MessageLoop {
   void WatchSocket(int socket, short interest_mask, 
                    struct event* e, Watcher* watcher);
   void UnwatchSocket(struct event* e);
-#endif  // defined(OS_WIN)
+#endif  // defined(OS_POSIX)
 };
 
 // Do not add any member variables to MessageLoopForIO!  This is important b/c
