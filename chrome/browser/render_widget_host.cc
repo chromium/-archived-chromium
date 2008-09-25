@@ -273,7 +273,6 @@ RenderWidgetHost::RenderWidgetHost(RenderProcessHost* process, int routing_id)
       is_hidden_(false),
       suppress_view_updating_(false),
       needs_repainting_on_restore_(false),
-      hung_renderer_factory_(this),
       is_unresponsive_(false),
       view_being_painted_(false),
       repaint_ack_pending_(false) {
@@ -630,7 +629,7 @@ void RenderWidgetHost::ForwardInputEvent(const WebInputEvent& input_event,
   // any input event cancels a pending mouse move event
   next_mouse_move_.reset();
 
-  StartHangMonitorTimeout(kHungRendererDelayMs);
+  StartHangMonitorTimeout(TimeDelta::FromMilliseconds(kHungRendererDelayMs));
 }
 
 void RenderWidgetHost::Shutdown() {
@@ -673,7 +672,19 @@ void RenderWidgetHost::Destroy() {
   delete this;
 }
 
-void RenderWidgetHost::RendererIsUnresponsive() {
+void RenderWidgetHost::CheckRendererIsUnresponsive() {
+  // If we received a call to StopHangMonitorTimeout.
+  if (time_when_considered_hung_.is_null())
+    return;
+
+  // If we have not waited long enough, then wait some more.
+  Time now = Time::Now();
+  if (now < time_when_considered_hung_) {
+    StartHangMonitorTimeout(time_when_considered_hung_ - now);
+    return;
+  }
+
+  // OK, looks like we have a hung renderer!
   NotificationService::current()->Notify(NOTIFY_RENDERER_PROCESS_HANG,
                                          Source<RenderWidgetHost>(this),
                                          NotificationService::NoDetails());
@@ -788,19 +799,31 @@ void RenderWidgetHost::ScrollRect(HANDLE bitmap, const gfx::Rect& bitmap_rect,
 }
 
 void RenderWidgetHost::RestartHangMonitorTimeout() {
-  hung_renderer_factory_.RevokeAll();
-  StartHangMonitorTimeout(kHungRendererDelayMs);
+  StartHangMonitorTimeout(TimeDelta::FromMilliseconds(kHungRendererDelayMs));
 }
 
 void RenderWidgetHost::StopHangMonitorTimeout() {
-  hung_renderer_factory_.RevokeAll();
+  time_when_considered_hung_ = Time();
   RendererIsResponsive();
+
+  // We do not bother to stop the hung_renderer_timer_ here in case it will be
+  // started again shortly, which happens to be the common use case.
 }
 
-void RenderWidgetHost::StartHangMonitorTimeout(int delay) {
-  MessageLoop::current()->PostDelayedTask(FROM_HERE,
-        hung_renderer_factory_.NewRunnableMethod(
-            &RenderWidgetHost::RendererIsUnresponsive), delay);
+void RenderWidgetHost::StartHangMonitorTimeout(TimeDelta delay) {
+  time_when_considered_hung_ = Time::Now() + delay;
+
+  // If we already have a timer that will expire at or before the given delay,
+  // then we have nothing more to do now.
+  if (hung_renderer_timer_.IsRunning() &&
+      hung_renderer_timer_.GetCurrentDelay() <= delay)
+    return;
+
+  // Either the timer is not yet running, or we need to adjust the timer to
+  // fire sooner.
+  hung_renderer_timer_.Stop();
+  hung_renderer_timer_.Start(delay, this,
+      &RenderWidgetHost::CheckRendererIsUnresponsive);
 }
 
 void RenderWidgetHost::RendererExited() {

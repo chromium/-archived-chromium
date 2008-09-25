@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_H__
-#define CHROME_BROWSER_RENDER_WIDGET_HOST_H__
+#ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_H_
+#define CHROME_BROWSER_RENDER_WIDGET_HOST_H_
 
 #include <windows.h>
 
-#include "base/task.h"
 #include "base/gfx/size.h"
+#include "base/timer.h"
 #include "chrome/common/ipc_channel.h"
 
 namespace gfx {
@@ -180,11 +180,11 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // javascript call.
   virtual bool CanBlur() const { return true; }
 
-  // Restart the active hang monitor timeout. Clears all existing timeouts
-  // and starts with a new one.
-  // This can be because the renderer has become active, the tab is being
-  // hidden, or the user has chosen to wait some more to give the tab a chance
-  // to become active and we don't want to display a warning too soon.
+  // Restart the active hang monitor timeout. Clears all existing timeouts and
+  // starts with a new one.  This can be because the renderer has become
+  // active, the tab is being hidden, or the user has chosen to wait some more
+  // to give the tab a chance to become active and we don't want to display a
+  // warning too soon.
   void RestartHangMonitorTimeout();
   
   // Stops all existing hang monitor timeouts and assumes the renderer is
@@ -194,7 +194,7 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // Starts a hang monitor timeout. If there's already a hang monitor timeout
   // the new one will only fire if it has a shorter delay than the time
   // left on the existing timeouts.
-  void StartHangMonitorTimeout(int delay);
+  void StartHangMonitorTimeout(TimeDelta delay);
 
   // Called when we receive a notification indicating that the renderer
   // process has gone.
@@ -250,7 +250,7 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // Callbacks for notification when the renderer becomes unresponsive to user
   // input events, and subsequently responsive again. The delegate can use
   // these notifications to show a warning.
-  void RendererIsUnresponsive();
+  void CheckRendererIsUnresponsive();
   virtual void NotifyRendererUnresponsive() {}
   void RendererIsResponsive();
   virtual void NotifyRendererResponsive() {}
@@ -298,8 +298,12 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // itself, a paint message could already be in flight at that point.
   bool needs_repainting_on_restore_;
 
-  // The following factory is used to detect a hung renderer
-  ScopedRunnableMethodFactory<RenderWidgetHost> hung_renderer_factory_;
+  // The following value indicates a time in the future when we would consider
+  // the renderer hung if it does not generate an appropriate response message.
+  Time time_when_considered_hung_;
+
+  // This timer runs to check if time_when_considered_hung_ has past.
+  base::OneShotTimer<RenderWidgetHost> hung_renderer_timer_;
 
   // This is true if the renderer is currently unresponsive.
   bool is_unresponsive_;
@@ -359,5 +363,4 @@ class RenderWidgetHost::PaintObserver {
   virtual void RenderWidgetHostDidPaint(RenderWidgetHost* rwh) = 0;
 };
 
-#endif  // #ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_H__
-
+#endif  // #ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_H_

@@ -66,6 +66,13 @@ class BaseTimer_Helper {
     return delayed_task_ != NULL;
   }
 
+  // Returns the current delay for this timer.  May only call this method when
+  // the timer is running!
+  TimeDelta GetCurrentDelay() const {
+    DCHECK(IsRunning());
+    return delayed_task_->delay_;
+  }
+
  protected:
   BaseTimer_Helper() : delayed_task_(NULL) {}
 

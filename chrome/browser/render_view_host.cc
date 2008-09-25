@@ -233,7 +233,7 @@ void RenderViewHost::FirePageBeforeUnload() {
     // Start the hang monitor in case the renderer hangs in the beforeunload
     // handler.
     is_waiting_for_unload_ack_ = true;
-    StartHangMonitorTimeout(kUnloadTimeoutMS);
+    StartHangMonitorTimeout(TimeDelta::FromMilliseconds(kUnloadTimeoutMS));
     Send(new ViewMsg_ShouldClose(routing_id_));
   } else {
     // This RenderViewHost doesn't have a live renderer, so just skip running
@@ -245,7 +245,7 @@ void RenderViewHost::FirePageBeforeUnload() {
 void RenderViewHost::FirePageUnload() {
   // Start the hang monitor in case the renderer hangs in the unload handler.
   is_waiting_for_unload_ack_ = true;
-  StartHangMonitorTimeout(kUnloadTimeoutMS);
+  StartHangMonitorTimeout(TimeDelta::FromMilliseconds(kUnloadTimeoutMS));
   ClosePage(site_instance()->process_host_id(), 
             routing_id());
 }
@@ -487,7 +487,7 @@ void RenderViewHost::JavaScriptMessageBoxClosed(IPC::Message* reply_msg,
                                                 bool success,
                                                 const std::wstring& prompt) {
   if (is_waiting_for_unload_ack_)
-    StartHangMonitorTimeout(kUnloadTimeoutMS);
+    StartHangMonitorTimeout(TimeDelta::FromMilliseconds(kUnloadTimeoutMS));
 
   if (--modal_dialog_count_ == 0)
     ResetEvent(modal_dialog_event_.Get());
@@ -498,7 +498,7 @@ void RenderViewHost::JavaScriptMessageBoxClosed(IPC::Message* reply_msg,
 void RenderViewHost::ModalHTMLDialogClosed(IPC::Message* reply_msg,
                                            const std::string& json_retval) {
   if (is_waiting_for_unload_ack_)
-    StartHangMonitorTimeout(kUnloadTimeoutMS);
+    StartHangMonitorTimeout(TimeDelta::FromMilliseconds(kUnloadTimeoutMS));
 
   if (--modal_dialog_count_ == 0)
     ResetEvent(modal_dialog_event_.Get());
