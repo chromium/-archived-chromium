@@ -208,6 +208,10 @@ def MyIdlEmitter(target, source, env):
     # generated, but since we can't know, we'll just ignore that.
     target = [base + '.h', base + '_i.c', base + '_p.c', base + '_data.c']
   return (target, source)
+# Copy the builder object so we don't overwrite everyone's
+# emitter with ours.
+import copy
+env['BUILDERS']['TypeLibrary'] = copy.copy(env['BUILDERS']['TypeLibrary'])
 env['BUILDERS']['TypeLibrary'].emitter = MyIdlEmitter
 
 
