@@ -19,6 +19,8 @@
 
 #include "generated_resources.h"
 
+static size_t kMaxNumberOfConstrainedPopups = 20;
+
 namespace {
 
 BOOL CALLBACK InvalidateWindow(HWND hwnd, LPARAM lparam) {
@@ -277,6 +279,11 @@ void TabContents::AddNewContents(TabContents* new_contents,
 
 void TabContents::AddConstrainedPopup(TabContents* new_contents,
                                       const gfx::Rect& initial_pos) {
+  if (child_windows_.size() > kMaxNumberOfConstrainedPopups) {
+    new_contents->CloseContents();
+    return;
+  }
+
   ConstrainedWindow* window =
       ConstrainedWindow::CreateConstrainedPopup(
           this, initial_pos, new_contents);
