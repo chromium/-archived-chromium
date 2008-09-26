@@ -9,6 +9,7 @@
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/image_view.h"
 #include "chrome/views/label.h"
+#include "chrome/views/link.h"
 #include "chrome/views/view.h"
 
 namespace ChromeViews {
@@ -28,6 +29,7 @@ class Profile;
 ////////////////////////////////////////////////////////////////////////////////
 class AboutChromeView : public ChromeViews::View,
                         public ChromeViews::DialogDelegate,
+                        public ChromeViews::LinkController,
                         public GoogleUpdateStatusListener {
  public:
   explicit AboutChromeView(Profile* profile);
@@ -57,6 +59,9 @@ class AboutChromeView : public ChromeViews::View,
   virtual bool Accept();
   virtual ChromeViews::View* GetContentsView();
 
+  // Overridden from ChromeViews::LinkController:
+  virtual void LinkActivated(ChromeViews::Link* source, int event_flags);
+
   // Overridden from GoogleUpdateStatusListener:
   virtual void OnReportResults(GoogleUpdateUpgradeResult result,
                                GoogleUpdateErrorCode error_code,
@@ -80,7 +85,8 @@ class AboutChromeView : public ChromeViews::View,
   ChromeViews::ImageView* about_dlg_background_;
   ChromeViews::Label* about_title_label_;
   ChromeViews::TextField* version_label_;
-  ChromeViews::TextField* main_text_label_;
+  ChromeViews::Label* main_text_label_;
+  ChromeViews::Link* copyright_url_;
   // UI elements we add to the parent view.
   scoped_ptr<ChromeViews::Throbber> throbber_;
   ChromeViews::ImageView success_indicator_;

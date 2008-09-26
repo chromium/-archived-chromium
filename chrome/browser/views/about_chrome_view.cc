@@ -11,6 +11,7 @@
 #include "base/win_util.h"
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/app/theme/theme_resources.h"
+#include "chrome/browser/browser_list.h"
 #include "chrome/common/gfx/color_utils.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/browser/views/restart_message_box.h"
@@ -42,6 +43,7 @@ AboutChromeView::AboutChromeView(Profile* profile)
       about_title_label_(NULL),
       version_label_(NULL),
       main_text_label_(NULL),
+      copyright_url_(NULL),
       check_button_status_(CHECKBUTTON_HIDDEN) {
   DCHECK(profile);
   Init();
@@ -124,18 +126,18 @@ void AboutChromeView::Init() {
   std::wstring main_text =
       l10n_util::GetString(IDS_ABOUT_VERSION_COMPANY_NAME) + L"\n" +
       l10n_util::GetString(IDS_ABOUT_VERSION_COPYRIGHT) + L"\n" +
-      l10n_util::GetStringF(IDS_ABOUT_VERSION_LICENSE,
-          l10n_util::GetString(IDS_ABOUT_VERSION_LICENSE_URL));
+      l10n_util::GetString(IDS_ABOUT_VERSION_LICENSE);
 
-  main_text_label_ =
-      new ChromeViews::TextField(ChromeViews::TextField::STYLE_MULTILINE);
-  main_text_label_->SetText(main_text);
-  main_text_label_->SetReadOnly(true);
-  main_text_label_->RemoveBorder();
-  // Background color for the main label TextField.
-  SkColor main_label_background = color_utils::GetSysSkColor(COLOR_3DFACE);
-  main_text_label_->SetBackgroundColor(main_label_background);
+  main_text_label_ = new ChromeViews::Label(main_text);
+  main_text_label_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  main_text_label_->SetMultiLine(true);
   AddChildView(main_text_label_);
+
+  // The copyright URL portion of the main label.
+  copyright_url_ = new ChromeViews::Link(
+      l10n_util::GetString(IDS_ABOUT_VERSION_LICENSE_URL));
+  AddChildView(copyright_url_);
+  copyright_url_->SetController(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -185,12 +187,19 @@ void AboutChromeView::Layout() {
   // width and remaining height, minus a little margin on each side.
   int y_pos = background_image_height + kPanelVertMargin;
   sz.cx = panel_size.cx - 2 * kPanelHorizMargin;
-  sz.cy = panel_size.cy - y_pos;
+  sz.cy = main_text_label_->GetHeightForWidth(sz.cx);
   // Draw the text right below the background image.
   main_text_label_->SetBounds(kPanelHorizMargin,
                               y_pos,
                               sz.cx,
                               sz.cy);
+
+  // Position the URL right below the main label.
+  copyright_url_->GetPreferredSize(&sz);
+  copyright_url_->SetBounds(kPanelHorizMargin,
+                            main_text_label_->y() + main_text_label_->height(),
+                            sz.cx,
+                            sz.cy);
 
   // Get the y-coordinate of our parent so we can position the text left of the
   // buttons at the bottom.
@@ -350,6 +359,16 @@ bool AboutChromeView::Accept() {
 
 ChromeViews::View* AboutChromeView::GetContentsView() {
   return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// AboutChromeView, ChromeViews::LinkController implementation:
+
+void AboutChromeView::LinkActivated(ChromeViews::Link* source,
+                                    int event_flags) {
+  DCHECK(source == copyright_url_);
+  Browser* browser = BrowserList::GetLastActive();
+  browser->OpenURL(GURL(source->GetText()), NEW_WINDOW, PageTransition::LINK);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

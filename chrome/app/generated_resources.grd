@@ -1507,7 +1507,7 @@ each locale. -->
         Developer Build
       </message>
       <message name="IDS_ABOUT_VERSION_LICENSE" desc="The line that shows the license text (what appears in front of the URL)">
-        Portions of this software were licensed from third parties as described at: <ph name="URL">$1<ex>http://www.google.com/LICENSE</ex></ph>
+        Portions of this software were licensed from third parties as described at:
       </message>
 
       <!-- Javascript Dialog Box strings -->
