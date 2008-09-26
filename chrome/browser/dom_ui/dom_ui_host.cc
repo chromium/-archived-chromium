@@ -20,7 +20,7 @@ DOMUIHost::DOMUIHost(Profile* profile,
                   MSG_ROUTING_NONE,
                   NULL) {
   // Implementors of this class will have a specific tab contents type.
-  type_ = TAB_CONTENTS_UNKNOWN_TYPE;
+  set_type(TAB_CONTENTS_UNKNOWN_TYPE);
 }
 
 DOMUIHost::~DOMUIHost() {

@@ -270,7 +270,7 @@ void TabRenderer::UpdateData(TabContents* contents) {
   data_.off_the_record = contents->profile()->IsOffTheRecord();
   data_.show_icon = contents->ShouldDisplayFavIcon();
   data_.show_download_icon = contents->IsDownloadShelfVisible();
-  data_.crashed = contents->IsCrashed();
+  data_.crashed = contents->is_crashed();
 }
 
 void TabRenderer::UpdateFromModel() {

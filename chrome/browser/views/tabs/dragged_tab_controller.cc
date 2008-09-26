@@ -463,7 +463,7 @@ void DraggedTabController::Attach(TabStrip* attached_tabstrip,
     original_delegate_ = NULL;
 
     // Return the TabContents' to normalcy.
-    dragged_contents_->DidCaptureContents();
+    dragged_contents_->set_capturing_contents(false);
 
     // We need to ask the TabStrip we're attached to to ensure that the ideal
     // bounds for all its tabs are correctly generated, because the calculation
@@ -497,7 +497,7 @@ void DraggedTabController::Attach(TabStrip* attached_tabstrip,
 void DraggedTabController::Detach() {
   // Prevent the TabContents' HWND from being hidden by any of the model
   // operations performed during the drag.
-  dragged_contents_->WillCaptureContents();
+  dragged_contents_->set_capturing_contents(true);
 
   // Update the Model.
   TabStripModel* attached_model = attached_tabstrip_->model();

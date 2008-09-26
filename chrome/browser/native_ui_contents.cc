@@ -322,7 +322,7 @@ void NativeUIContents::SetInitialFocus() {
     if (browser)
       browser->FocusLocationBar();
     else
-      ::SetFocus(GetHWND());
+      TabContents::SetInitialFocus();  // Will set focus to our HWND.
   }
 }
 

@@ -13,7 +13,7 @@ HtmlDialogContents::HtmlDialogContents(Profile* profile,
                                        RenderViewHostFactory* rvf)
     : DOMUIHost(profile, instance, rvf),
       delegate_(NULL) {
-  type_ = TAB_CONTENTS_HTML_DIALOG;
+  set_type(TAB_CONTENTS_HTML_DIALOG);
 }
 
 HtmlDialogContents::~HtmlDialogContents() {

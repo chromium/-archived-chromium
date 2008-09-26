@@ -1277,7 +1277,7 @@ void TabStrip::LoadingAnimationCallback() {
       TabContents* contents = model_->GetTabContentsAt(index);
       if (!contents || !contents->is_loading()) {
         current_tab->ValidateLoadingAnimation(Tab::ANIMATION_NONE);
-      } else if (contents->response_started()) {
+      } else if (contents->waiting_for_response()) {
         current_tab->ValidateLoadingAnimation(Tab::ANIMATION_WAITING);
       } else {
         current_tab->ValidateLoadingAnimation(Tab::ANIMATION_LOADING);

@@ -235,12 +235,6 @@ class RenderViewHostDelegate {
   virtual void GetHistoryListCount(int* back_list_count,
                                    int* forward_list_count) { }
 
-  // The page wants to open a plugin to display the given URL, of a certain
-  // content type. |reply_msg| contains the name of the plugin.
-  virtual void OpenChannelToPlugin(const GURL& url,
-                                   const std::string& mime_type,
-                                   IPC::Message* reply_msg) { }
-
   // A file chooser should be shown.
   virtual void RunFileChooser(const std::wstring& default_file) { }
 

@@ -907,13 +907,13 @@ void NavigationController::DiscardPendingEntry() {
   NavigationEntry* last_entry = GetLastCommittedEntry();
   if (last_entry && last_entry->tab_type() != active_contents_->type()) {
     TabContents* from_contents = active_contents_;
-    from_contents->SetActive(false);
+    from_contents->set_is_active(false);
 
     // Switch back to the previous tab contents.
     active_contents_ = GetTabContents(last_entry->tab_type());
     DCHECK(active_contents_);
 
-    active_contents_->SetActive(true);
+    active_contents_->set_is_active(true);
 
     // If we are transitioning from two types of WebContents, we need to migrate
     // the download shelf if it is visible. The download shelf may have been
@@ -992,14 +992,14 @@ void NavigationController::NavigateToPendingEntry(bool reload) {
   pending_entry_->ssl() = NavigationEntry::SSLStatus();
 
   if (from_contents && from_contents->type() != pending_entry_->tab_type())
-    from_contents->SetActive(false);
+    from_contents->set_is_active(false);
 
   HWND parent =
       from_contents ? GetParent(from_contents->GetContainerHWND()) : 0;
   TabContents* contents =
       GetTabContentsCreateIfNecessary(parent, *pending_entry_);
 
-  contents->SetActive(true);
+  contents->set_is_active(true);
   active_contents_ = contents;
 
   if (from_contents && from_contents != contents) {

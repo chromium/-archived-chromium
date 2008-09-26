@@ -9,7 +9,7 @@
 
 ViewSourceContents::ViewSourceContents(Profile* profile, SiteInstance* instance)
     : WebContents(profile, instance, NULL, MSG_ROUTING_NONE, NULL) {
-  type_ = TAB_CONTENTS_VIEW_SOURCE;
+  set_type(TAB_CONTENTS_VIEW_SOURCE);
 }
 
 void ViewSourceContents::RendererCreated(RenderViewHost* host) {

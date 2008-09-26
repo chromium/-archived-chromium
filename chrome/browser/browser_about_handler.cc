@@ -198,7 +198,7 @@ BrowserAboutHandler::BrowserAboutHandler(Profile* profile,
                            SiteInstance* instance,
                            RenderViewHostFactory* render_view_factory) :
   WebContents(profile, instance, render_view_factory, MSG_ROUTING_NONE, NULL) {
-  type_ = TAB_CONTENTS_ABOUT_UI;
+  set_type(TAB_CONTENTS_ABOUT_UI);
 
   // We only need to register the AboutSource once and it is
   // kept globally.  There is currently no way to remove a data source.

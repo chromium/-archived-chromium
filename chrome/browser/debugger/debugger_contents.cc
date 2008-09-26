@@ -103,7 +103,7 @@ class DebuggerHandler : public DOMMessageHandler {
 
 DebuggerContents::DebuggerContents(Profile* profile, SiteInstance* instance)
     : DOMUIHost(profile, instance, NULL) {
-  type_ = TAB_CONTENTS_DEBUGGER;
+  set_type(TAB_CONTENTS_DEBUGGER);
 }
 
 void DebuggerContents::AttachMessageHandlers() {

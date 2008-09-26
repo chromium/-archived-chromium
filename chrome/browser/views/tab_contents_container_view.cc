@@ -170,7 +170,7 @@ bool TabContentsContainerView::GetAccessibleRole(VARIANT* role) {
 
 bool TabContentsContainerView::ShouldLookupAccelerators(
     const ChromeViews::KeyEvent& e) {
-  if (tab_contents_ && !tab_contents_->IsCrashed() &&
+  if (tab_contents_ && !tab_contents_->is_crashed() &&
       tab_contents_->AsWebContents())
     return false;
   return true;

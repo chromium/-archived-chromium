@@ -230,7 +230,7 @@ bool Browser::IsCommandEnabled(int id) const {
     }
     case IDC_STOP: {
       TabContents* current_tab = GetSelectedTabContents();
-      return (current_tab && current_tab->IsLoading());
+      return (current_tab && current_tab->is_loading());
     }
     case IDC_CLOSETAB: {
       return !IsApplication();
@@ -514,24 +514,30 @@ void Browser::ExecuteCommand(int id) {
     case IDC_ZOOM_PLUS: {
       UserMetrics::RecordAction(L"ZoomPlus", profile_);
       TabContents* current_tab = GetSelectedTabContents();
-      DCHECK(current_tab);
-      current_tab->AlterTextSize(text_zoom::TEXT_LARGER);
+      if (current_tab->AsWebContents()) {
+        current_tab->AsWebContents()->render_view_host()->AlterTextSize(
+          text_zoom::TEXT_LARGER);
+      }
       break;
     }
 
     case IDC_ZOOM_MINUS: {
       UserMetrics::RecordAction(L"ZoomMinus", profile_);
       TabContents* current_tab = GetSelectedTabContents();
-      DCHECK(current_tab);
-      current_tab->AlterTextSize(text_zoom::TEXT_SMALLER);
+      if (current_tab->AsWebContents()) {
+        current_tab->AsWebContents()->render_view_host()->AlterTextSize(
+          text_zoom::TEXT_SMALLER);
+      }
       break;
     }
 
     case IDC_ZOOM_NORMAL: {
       UserMetrics::RecordAction(L"ZoomNormal", profile_);
       TabContents* current_tab = GetSelectedTabContents();
-      DCHECK(current_tab);
-      current_tab->AlterTextSize(text_zoom::TEXT_STANDARD);
+      if (current_tab->AsWebContents()) {
+        current_tab->AsWebContents()->render_view_host()->AlterTextSize(
+          text_zoom::TEXT_STANDARD);
+      }
       break;
     }
 
@@ -629,7 +635,7 @@ void Browser::ExecuteCommand(int id) {
           CharacterEncoding::GetCanonicalEncodingNameByCommandId(id);
       TabContents* current_tab = GetSelectedTabContents();
       if (!cur_encoding_name.empty() && current_tab)
-        current_tab->SetPageEncoding(cur_encoding_name);
+        current_tab->set_encoding(cur_encoding_name);
       // Update user recently selected encoding list.
       std::wstring new_selected_encoding_list;
       if (CharacterEncoding::UpdateRecentlySelectdEncoding(

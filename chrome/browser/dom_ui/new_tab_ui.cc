@@ -743,7 +743,7 @@ NewTabUIContents::NewTabUIContents(Profile* profile,
     motd_message_id_(0),
     incognito_(false),
     most_visited_handler_(NULL) {
-  type_ = TAB_CONTENTS_NEW_TAB_UI;
+  set_type(TAB_CONTENTS_NEW_TAB_UI);
   set_forced_title(l10n_util::GetString(IDS_NEW_TAB_TITLE));
 
   if (profile->IsOffTheRecord())

@@ -169,7 +169,7 @@ class NavigationControllerRestoredObserver : public NotificationObserver {
 
   bool FinishedRestoring() {
     return (!controller_->needs_reload() && !controller_->GetPendingEntry() &&
-            !controller_->active_contents()->IsLoading());
+            !controller_->active_contents()->is_loading());
   }
 
   void SendDone() {
@@ -1637,8 +1637,8 @@ void AutomationProvider::GetConstrainedWindow(const IPC::Message& message,
     NavigationController* nav_controller =
         tab_tracker_->GetResource(handle);
     TabContents* tab = nav_controller->active_contents();
-    if (tab && index < static_cast<int>(tab->child_windows().size())) {
-      ConstrainedWindow* window = tab->child_windows()[index];
+    if (tab && index < static_cast<int>(tab->child_windows_.size())) {
+      ConstrainedWindow* window = tab->child_windows_[index];
       cwindow_handle = cwindow_tracker_->Add(window);
     }
   }

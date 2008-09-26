@@ -28,7 +28,7 @@ bool EncodingMenuControllerDelegate::IsItemChecked(int id) const {
   TabContents* current_tab = browser_->GetSelectedTabContents();
   if (!current_tab)
     return false;
-  std::wstring encoding_name = current_tab->GetEncoding();
+  std::wstring encoding_name = current_tab->encoding();
   if (encoding_name.empty())
     encoding_name = profile->GetPrefs()->GetString(prefs::kDefaultCharset);
   switch (id) {

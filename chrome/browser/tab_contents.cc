@@ -19,17 +19,29 @@
 
 #include "generated_resources.h"
 
+namespace {
+
+BOOL CALLBACK InvalidateWindow(HWND hwnd, LPARAM lparam) {
+  // Note: erase is required to properly paint some widgets borders. This can be
+  // seen with textfields.
+  InvalidateRect(hwnd, NULL, TRUE);
+  return TRUE;
+}
+
+}  // namespace
+
 TabContents::TabContents(TabContentsType type)
-    : is_loading_(false),
-      response_started_(false),
-      is_active_(true),
-      type_(type),
+    : type_(type),
       delegate_(NULL),
       controller_(NULL),
-      max_page_id_(-1),
-      saved_location_bar_state_(NULL),
+      is_loading_(false),
+      is_active_(true),
       is_crashed_(false),
-      shelf_visible_(false) {
+      waiting_for_response_(false),
+      saved_location_bar_state_(NULL),
+      shelf_visible_(false),
+      max_page_id_(-1),
+      capturing_contents_(false) {
   last_focused_view_storage_id_ =
       ChromeViews::ViewStorage::GetSharedInstance()->CreateStorageID();
 }
@@ -45,114 +57,11 @@ TabContents::~TabContents() {
     view_storage->RemoveView(last_focused_view_storage_id_);
 }
 
-void TabContents::HideContents() {
-  // Hide the contents before adjusting its parent to avoid a full desktop
-  // flicker.
-  ShowWindow(GetContainerHWND(), SW_HIDE);
-
-  // Reset the parent to NULL to ensure hidden tabs don't receive messages.
-  SetParent(GetContainerHWND(), NULL);
-
-  // Remove any focus manager related information.
-  ChromeViews::FocusManager::UninstallFocusSubclass(GetContainerHWND());
-
-  WasHidden();
+// static
+void TabContents::RegisterUserPrefs(PrefService* prefs) {
+  prefs->RegisterBooleanPref(prefs::kBlockPopups, false);
 }
 
-int32 TabContents::GetMaxPageID() {
-  if (GetSiteInstance())
-    return GetSiteInstance()->max_page_id();
-  else
-    return max_page_id_;
-}
-
-void TabContents::UpdateMaxPageID(int32 page_id) {
-  // Ensure both the SiteInstance and RenderProcessHost update their max page
-  // IDs in sync. Only WebContents will also have site instances, except during
-  // testing.
-  if (GetSiteInstance())
-    GetSiteInstance()->UpdateMaxPageID(page_id);
-
-  if (AsWebContents())
-    AsWebContents()->process()->UpdateMaxPageID(page_id);
-  else
-    max_page_id_ = std::max(max_page_id_, page_id);
-}
-
-const std::wstring TabContents::GetDefaultTitle() const {
-  return l10n_util::GetString(IDS_DEFAULT_TAB_TITLE);
-}
-
-void TabContents::SetupController(Profile* profile) {
-  DCHECK(!controller_);
-  controller_ = new NavigationController(this, profile);
-}
-
-const GURL& TabContents::GetURL() const {
-  DCHECK(controller_);
-
-  static const GURL kEmptyURL;
-
-  // We may not have a navigation entry yet
-  NavigationEntry* entry = controller_->GetActiveEntry();
-  return entry ? entry->display_url() : kEmptyURL;
-}
-
-const std::wstring& TabContents::GetTitle() const {
-  DCHECK(controller_);
-
-  // We always want to use the title for the last committed entry rather than
-  // a pending navigation entry. For example, when the user types in a URL, we
-  // want to keep the old page's title until the new load has committed and we
-  // get a new title.
-  NavigationEntry* entry = controller_->GetLastCommittedEntry();
-  if (entry)
-    return entry->title();
-  else if (controller_->LoadingURLLazily())
-    return controller_->GetLazyTitle();
-  return EmptyWString();
-}
-
-SkBitmap TabContents::GetFavIcon() const {
-  DCHECK(controller_);
-
-  // Like GetTitle(), we also want to use the favicon for the last committed
-  // entry rather than a pending navigation entry.
-  NavigationEntry* entry = controller_->GetLastCommittedEntry();
-  if (entry)
-    return entry->favicon().bitmap();
-  else if (controller_->LoadingURLLazily())
-    return controller_->GetLazyFavIcon();
-  return SkBitmap();
-}
-
-SecurityStyle TabContents::GetSecurityStyle() const {
-  // We may not have a navigation entry yet.
-  NavigationEntry* entry = controller_->GetActiveEntry();
-  return entry ? entry->ssl().security_style() : SECURITY_STYLE_UNKNOWN;
-}
-
-bool TabContents::GetSSLEVText(std::wstring* ev_text,
-                               std::wstring* ev_tooltip_text) const {
-  DCHECK(ev_text && ev_tooltip_text);
-  ev_text->clear();
-  ev_tooltip_text->clear();
-
-  NavigationEntry* entry = controller_->GetActiveEntry();
-  if (!entry ||
-      net::IsCertStatusError(entry->ssl().cert_status()) ||
-      ((entry->ssl().cert_status() & net::CERT_STATUS_IS_EV) == 0))
-    return false;
-
-  scoped_refptr<net::X509Certificate> cert;
-  CertStore::GetSharedInstance()->RetrieveCert(entry->ssl().cert_id(), &cert);
-  if (!cert.get()) {
-    NOTREACHED();
-    return false;
-  }
-
-  return SSLManager::GetEVCertNames(*cert, ev_text, ev_tooltip_text);
-}
 
 void TabContents::CloseContents() {
   // Destroy our NavigationController, which will Destroy all tabs it owns.
@@ -191,6 +100,149 @@ void TabContents::Destroy() {
   delete this;
 
   controller->TabContentsWasDestroyed(type);
+}
+
+void TabContents::SetupController(Profile* profile) {
+  DCHECK(!controller_);
+  controller_ = new NavigationController(this, profile);
+}
+
+bool TabContents::SupportsURL(GURL* url) {
+  GURL u(*url);
+  if (TabContents::TypeForURL(&u) == type()) {
+    *url = u;
+    return true;
+  }
+  return false;
+}
+
+const GURL& TabContents::GetURL() const {
+  // We may not have a navigation entry yet
+  NavigationEntry* entry = controller_->GetActiveEntry();
+  return entry ? entry->display_url() : GURL::EmptyGURL();
+}
+
+const std::wstring& TabContents::GetTitle() const {
+  // We always want to use the title for the last committed entry rather than
+  // a pending navigation entry. For example, when the user types in a URL, we
+  // want to keep the old page's title until the new load has committed and we
+  // get a new title.
+  NavigationEntry* entry = controller_->GetLastCommittedEntry();
+  if (entry)
+    return entry->title();
+  else if (controller_->LoadingURLLazily())
+    return controller_->GetLazyTitle();
+  return EmptyWString();
+}
+
+int32 TabContents::GetMaxPageID() {
+  if (GetSiteInstance())
+    return GetSiteInstance()->max_page_id();
+  else
+    return max_page_id_;
+}
+
+void TabContents::UpdateMaxPageID(int32 page_id) {
+  // Ensure both the SiteInstance and RenderProcessHost update their max page
+  // IDs in sync. Only WebContents will also have site instances, except during
+  // testing.
+  if (GetSiteInstance())
+    GetSiteInstance()->UpdateMaxPageID(page_id);
+
+  if (AsWebContents())
+    AsWebContents()->process()->UpdateMaxPageID(page_id);
+  else
+    max_page_id_ = std::max(max_page_id_, page_id);
+}
+
+const std::wstring TabContents::GetDefaultTitle() const {
+  return l10n_util::GetString(IDS_DEFAULT_TAB_TITLE);
+}
+
+SkBitmap TabContents::GetFavIcon() const {
+  // Like GetTitle(), we also want to use the favicon for the last committed
+  // entry rather than a pending navigation entry.
+  NavigationEntry* entry = controller_->GetLastCommittedEntry();
+  if (entry)
+    return entry->favicon().bitmap();
+  else if (controller_->LoadingURLLazily())
+    return controller_->GetLazyFavIcon();
+  return SkBitmap();
+}
+
+SecurityStyle TabContents::GetSecurityStyle() const {
+  // We may not have a navigation entry yet.
+  NavigationEntry* entry = controller_->GetActiveEntry();
+  return entry ? entry->ssl().security_style() : SECURITY_STYLE_UNKNOWN;
+}
+
+bool TabContents::GetSSLEVText(std::wstring* ev_text,
+                               std::wstring* ev_tooltip_text) const {
+  DCHECK(ev_text && ev_tooltip_text);
+  ev_text->clear();
+  ev_tooltip_text->clear();
+
+  NavigationEntry* entry = controller_->GetActiveEntry();
+  if (!entry ||
+      net::IsCertStatusError(entry->ssl().cert_status()) ||
+      ((entry->ssl().cert_status() & net::CERT_STATUS_IS_EV) == 0))
+    return false;
+
+  scoped_refptr<net::X509Certificate> cert;
+  CertStore::GetSharedInstance()->RetrieveCert(entry->ssl().cert_id(), &cert);
+  if (!cert.get()) {
+    NOTREACHED();
+    return false;
+  }
+
+  return SSLManager::GetEVCertNames(*cert, ev_text, ev_tooltip_text);
+}
+
+void TabContents::SetIsCrashed(bool state) {
+  if (state == is_crashed_)
+    return;
+
+  is_crashed_ = state;
+  if (delegate_)
+    delegate_->ContentsStateChanged(this);
+}
+
+void TabContents::NotifyNavigationStateChanged(unsigned changed_flags) {
+  if (delegate_)
+    delegate_->NavigationStateChanged(this, changed_flags);
+}
+
+void TabContents::DidBecomeSelected() {
+  if (controller_)
+    controller_->SetActive(true);
+
+  // Invalidate all descendants. (take care to exclude invalidating ourselves!)
+  EnumChildWindows(GetContainerHWND(), InvalidateWindow, 0);
+}
+
+void TabContents::WasHidden() {
+  NotificationService::current()->Notify(NOTIFY_TAB_CONTENTS_HIDDEN,
+                                         Source<TabContents>(this),
+                                         NotificationService::NoDetails());
+}
+
+void TabContents::Activate() {
+  if (delegate_)
+    delegate_->ActivateContents(this);
+}
+
+void TabContents::OpenURL(const GURL& url,
+                          WindowOpenDisposition disposition,
+                          PageTransition::Type transition) {
+  if (delegate_)
+    delegate_->OpenURLFromTab(this, url, disposition, transition);
+}
+
+bool TabContents::NavigateToPendingEntry(bool reload) {
+  // Our benavior is just to report that the entry was committed.
+  controller()->GetPendingEntry()->set_title(GetDefaultTitle());
+  controller()->CommitPendingEntry();
+  return true;
 }
 
 ConstrainedWindow* TabContents::CreateConstrainedDialog(
@@ -236,66 +288,6 @@ void TabContents::AddConstrainedPopup(TabContents* new_contents,
   RepositionSupressedPopupsToFit(new_size);
 }
 
-void TabContents::SetIsLoading(bool is_loading,
-                               LoadNotificationDetails* details) {
-  if (is_loading == is_loading_)
-    return;
-
-  is_loading_ = is_loading;
-  response_started_ = is_loading;
-
-  // Suppress notifications for this TabContents if we are not active.
-  if (!is_active_)
-    return;
-
-  if (delegate_)
-    delegate_->LoadingStateChanged(this);
-
-  NotificationService::current()->
-      Notify((is_loading ? NOTIFY_LOAD_START : NOTIFY_LOAD_STOP),
-              Source<NavigationController>(this->controller()),
-              details ? Details<LoadNotificationDetails>(details) :
-                        NotificationService::NoDetails());
-}
-
-bool TabContents::NavigateToPendingEntry(bool reload) {
-  // Our benavior is just to report that the entry was committed.
-  controller()->GetPendingEntry()->set_title(GetDefaultTitle());
-  controller()->CommitPendingEntry();
-  return true;
-}
-
-void TabContents::NotifyNavigationStateChanged(unsigned changed_flags) {
-  if (delegate_)
-    delegate_->NavigationStateChanged(this, changed_flags);
-}
-
-static BOOL CALLBACK InvalidateWindow(HWND hwnd, LPARAM lparam) {
-  // Note: erase is required to properly paint some widgets borders. This can be
-  // seen with textfields.
-  InvalidateRect(hwnd, NULL, TRUE);
-  return TRUE;
-}
-
-void TabContents::DidBecomeSelected() {
-  if (controller_)
-    controller_->SetActive(true);
-
-  // Invalidate all descendants. (take care to exclude invalidating ourselves!)
-  EnumChildWindows(GetContainerHWND(), InvalidateWindow, 0);
-}
-
-void TabContents::WasHidden() {
-  NotificationService::current()->Notify(NOTIFY_TAB_CONTENTS_HIDDEN,
-                                         Source<TabContents>(this),
-                                         NotificationService::NoDetails());
-}
-
-void TabContents::Activate() {
-  if (delegate_)
-    delegate_->ActivateContents(this);
-}
-
 void TabContents::CloseAllSuppressedPopups() {
   // Close all auto positioned child windows to "clean up" the workspace.
   int count = static_cast<int>(child_windows_.size());
@@ -306,87 +298,19 @@ void TabContents::CloseAllSuppressedPopups() {
   }
 }
 
-void TabContents::OnStartDownload(DownloadItem* download) {
-  DCHECK(download);
-  TabContents* tab_contents = this;
+void TabContents::HideContents() {
+  // Hide the contents before adjusting its parent to avoid a full desktop
+  // flicker.
+  ShowWindow(GetContainerHWND(), SW_HIDE);
 
-  // Download in a constrained popup is shown in the tab that opened it.
-  TabContents* constraining_tab = delegate()->GetConstrainingContents(this);
-  if (constraining_tab)
-    tab_contents = constraining_tab;
+  // Reset the parent to NULL to ensure hidden tabs don't receive messages.
+  SetParent(GetContainerHWND(), NULL);
 
-  // GetDownloadShelfView creates the download shelf if it was not yet created.
-  tab_contents->GetDownloadShelfView()->AddDownload(download);
-  tab_contents->SetDownloadShelfVisible(true);
+  // Remove any focus manager related information.
+  ChromeViews::FocusManager::UninstallFocusSubclass(GetContainerHWND());
 
-  // This animation will delete itself when it finishes, or if we become hidden
-  // or destroyed.
-  if (IsWindowVisible(GetContainerHWND())) {  // For minimized windows, unit
-                                              // tests, etc.
-    new DownloadStartedAnimation(tab_contents);
-  }
+  WasHidden();
 }
-
-
-///////////////////////////////////////////////////////////////////////////////
-// TabContents, ConstrainedTabContentsDelegate implementation:
-
-void TabContents::AddNewContents(ConstrainedWindow* window,
-                                 TabContents* new_contents,
-                                 WindowOpenDisposition disposition,
-                                 const gfx::Rect& initial_pos,
-                                 bool user_gesture) {
-  AddNewContents(new_contents, disposition, initial_pos, user_gesture);
-}
-
-void TabContents::OpenURL(ConstrainedWindow* window,
-                          const GURL& url,
-                          WindowOpenDisposition disposition,
-                          PageTransition::Type transition) {
-  OpenURL(url, disposition, transition);
-}
-
-void TabContents::WillClose(ConstrainedWindow* window) {
-  ConstrainedWindowList::iterator it =
-      find(child_windows_.begin(), child_windows_.end(), window);
-  if (it != child_windows_.end())
-    child_windows_.erase(it);
-
-  if (::IsWindow(GetContainerHWND())) {
-    CRect client_rect;
-    GetClientRect(GetContainerHWND(), &client_rect);
-    RepositionSupressedPopupsToFit(
-        gfx::Size(client_rect.Width(), client_rect.Height()));
-  }
-}
-
-void TabContents::DetachContents(ConstrainedWindow* window,
-                                 TabContents* contents,
-                                 const gfx::Rect& contents_bounds,
-                                 const gfx::Point& mouse_pt,
-                                 int frame_component) {
-  WillClose(window);
-  if (delegate_) {
-    delegate_->StartDraggingDetachedContents(
-        this, contents, contents_bounds, mouse_pt, frame_component);
-  }
-}
-
-void TabContents::DidMoveOrResize(ConstrainedWindow* window) {
-  UpdateWindow(GetContainerHWND());
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// PageNavigator methods
-
-void TabContents::OpenURL(const GURL& url,
-                          WindowOpenDisposition disposition,
-                          PageTransition::Type transition) {
-  if (delegate_)
-    delegate_->OpenURLFromTab(this, url, disposition, transition);
-}
-
-///////////////////////////////////////////////////////////////////////////////
 
 void TabContents::Focus() {
   ChromeViews::FocusManager* focus_manager =
@@ -456,21 +380,8 @@ void TabContents::RestoreFocus() {
   }
 }
 
-void TabContents::RepositionSupressedPopupsToFit(const gfx::Size& new_size) {
-  // TODO(erg): There's no way to detect whether scroll bars are
-  // visible, so for beta, we're just going to assume that the
-  // vertical scroll bar is visible, and not care about covering up
-  // the horizontal scroll bar. Fixing this is half of
-  // http://b/1118139.
-  gfx::Point anchor_position(
-      new_size.width() - ChromeViews::NativeScrollBar::GetVerticalScrollBarWidth(),
-      new_size.height());
-  int window_count = static_cast<int>(child_windows_.size());
-  for (int i = window_count - 1; i >= 0; --i) {
-    ConstrainedWindow* window = child_windows_.at(i);
-    if (window->IsSuppressedConstrainedWindow())
-      window->RepositionConstrainedWindowTo(anchor_position);
-  }
+void TabContents::SetInitialFocus() {
+  ::SetFocus(GetContainerHWND());
 }
 
 void TabContents::SetDownloadShelfVisible(bool visible) {
@@ -491,40 +402,31 @@ void TabContents::SetDownloadShelfVisible(bool visible) {
   ToolbarSizeChanged(false);
 }
 
-void TabContents::ReleaseDownloadShelfView() {
-  download_shelf_view_.release();
-}
-
-void TabContents::SetInitialFocus() {
-  ::SetFocus(GetContainerHWND());
-}
-
-void TabContents::SetIsCrashed(bool state) {
-  if (state == is_crashed_)
-    return;
-
-  is_crashed_ = state;
-  if (delegate_)
-    delegate_->ContentsStateChanged(this);
-}
-
-bool TabContents::IsCrashed() const {
-  return is_crashed_;
-}
-
-bool TabContents::SupportsURL(GURL* url) {
-  GURL u(*url);
-  if (TabContents::TypeForURL(&u) == type()) {
-    *url = u;
-    return true;
-  }
-  return false;
-}
-
 void TabContents::ToolbarSizeChanged(bool is_animating) {
   TabContentsDelegate* d = delegate();
   if (d)
     d->ToolbarSizeChanged(this, is_animating);
+}
+
+void TabContents::OnStartDownload(DownloadItem* download) {
+  DCHECK(download);
+  TabContents* tab_contents = this;
+
+  // Download in a constrained popup is shown in the tab that opened it.
+  TabContents* constraining_tab = delegate()->GetConstrainingContents(this);
+  if (constraining_tab)
+    tab_contents = constraining_tab;
+
+  // GetDownloadShelfView creates the download shelf if it was not yet created.
+  tab_contents->GetDownloadShelfView()->AddDownload(download);
+  tab_contents->SetDownloadShelfVisible(true);
+
+  // This animation will delete itself when it finishes, or if we become hidden
+  // or destroyed.
+  if (IsWindowVisible(GetContainerHWND())) {  // For minimized windows, unit
+                                              // tests, etc.
+    new DownloadStartedAnimation(tab_contents);
+  }
 }
 
 DownloadShelfView* TabContents::GetDownloadShelfView() {
@@ -542,6 +444,51 @@ void TabContents::MigrateShelfViewFrom(TabContents* tab_contents) {
   tab_contents->ReleaseDownloadShelfView();
 }
 
+void TabContents::AddNewContents(ConstrainedWindow* window,
+                                 TabContents* new_contents,
+                                 WindowOpenDisposition disposition,
+                                 const gfx::Rect& initial_pos,
+                                 bool user_gesture) {
+  AddNewContents(new_contents, disposition, initial_pos, user_gesture);
+}
+
+void TabContents::OpenURL(ConstrainedWindow* window,
+                          const GURL& url,
+                          WindowOpenDisposition disposition,
+                          PageTransition::Type transition) {
+  OpenURL(url, disposition, transition);
+}
+
+void TabContents::WillClose(ConstrainedWindow* window) {
+  ConstrainedWindowList::iterator it =
+      find(child_windows_.begin(), child_windows_.end(), window);
+  if (it != child_windows_.end())
+    child_windows_.erase(it);
+
+  if (::IsWindow(GetContainerHWND())) {
+    CRect client_rect;
+    GetClientRect(GetContainerHWND(), &client_rect);
+    RepositionSupressedPopupsToFit(
+        gfx::Size(client_rect.Width(), client_rect.Height()));
+  }
+}
+
+void TabContents::DetachContents(ConstrainedWindow* window,
+                                 TabContents* contents,
+                                 const gfx::Rect& contents_bounds,
+                                 const gfx::Point& mouse_pt,
+                                 int frame_component) {
+  WillClose(window);
+  if (delegate_) {
+    delegate_->StartDraggingDetachedContents(
+        this, contents, contents_bounds, mouse_pt, frame_component);
+  }
+}
+
+void TabContents::DidMoveOrResize(ConstrainedWindow* window) {
+  UpdateWindow(GetContainerHWND());
+}
+
 // static
 void TabContents::MigrateShelfView(TabContents* from, TabContents* to) {
   bool was_shelf_visible = from->IsDownloadShelfVisible();
@@ -550,8 +497,46 @@ void TabContents::MigrateShelfView(TabContents* from, TabContents* to) {
   to->SetDownloadShelfVisible(was_shelf_visible);
 }
 
-// static
-void TabContents::RegisterUserPrefs(PrefService* prefs) {
-  prefs->RegisterBooleanPref(prefs::kBlockPopups, false);
+void TabContents::SetIsLoading(bool is_loading,
+                               LoadNotificationDetails* details) {
+  if (is_loading == is_loading_)
+    return;
+
+  is_loading_ = is_loading;
+  waiting_for_response_ = is_loading;
+
+  // Suppress notifications for this TabContents if we are not active.
+  if (!is_active_)
+    return;
+
+  if (delegate_)
+    delegate_->LoadingStateChanged(this);
+
+  NotificationService::current()->
+      Notify((is_loading ? NOTIFY_LOAD_START : NOTIFY_LOAD_STOP),
+              Source<NavigationController>(this->controller()),
+              details ? Details<LoadNotificationDetails>(details) :
+                        NotificationService::NoDetails());
 }
 
+void TabContents::RepositionSupressedPopupsToFit(const gfx::Size& new_size) {
+  // TODO(erg): There's no way to detect whether scroll bars are
+  // visible, so for beta, we're just going to assume that the
+  // vertical scroll bar is visible, and not care about covering up
+  // the horizontal scroll bar. Fixing this is half of
+  // http://b/1118139.
+  gfx::Point anchor_position(
+      new_size.width() -
+          ChromeViews::NativeScrollBar::GetVerticalScrollBarWidth(),
+      new_size.height());
+  int window_count = static_cast<int>(child_windows_.size());
+  for (int i = window_count - 1; i >= 0; --i) {
+    ConstrainedWindow* window = child_windows_.at(i);
+    if (window->IsSuppressedConstrainedWindow())
+      window->RepositionConstrainedWindowTo(anchor_position);
+  }
+}
+
+void TabContents::ReleaseDownloadShelfView() {
+  download_shelf_view_.release();
+}
