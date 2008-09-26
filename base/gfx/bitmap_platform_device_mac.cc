@@ -67,17 +67,12 @@ class BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData
   void SetTransform(const SkMatrix& t);
   void SetClipRegion(const SkRegion& region);
 
-  // Loads the current transform (taking into account offset_*_) and clip
-  // into the DC. Can be called even when |bitmap_context_| is NULL (will be
-  // a NOP).
+  // Loads the current transform and clip into the DC. Can be called even when
+  // |bitmap_context_| is NULL (will be a NOP).
   void LoadConfig();
 
   // Lazily-created graphics context used to draw into the bitmap.
   CGContextRef bitmap_context_;
-
-  // Additional offset applied to the transform. See setDeviceOffset().
-  int offset_x_;
-  int offset_y_;
 
   // True when there is a transform or clip that has not been set to the
   // CGContext.  The CGContext is retrieved for every text operation, and the
@@ -106,8 +101,6 @@ BitmapPlatformDeviceMac::\
     BitmapPlatformDeviceMacData::BitmapPlatformDeviceMacData(
     CGContextRef bitmap)
     : bitmap_context_(bitmap),
-      offset_x_(0),
-      offset_y_(0),
       config_dirty_(true) {  // Want to load the config next time.
   DCHECK(bitmap_context_);
   // Initialize the clip region to the entire bitmap.  
@@ -140,12 +133,10 @@ void BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData::LoadConfig() {
 
   // Transform.
   SkMatrix t(transform_);
-  t.postTranslate(SkIntToScalar(-offset_x_), SkIntToScalar(-offset_y_));
   LoadTransformToCGContext(bitmap_context_, t);
 
   // TODO(brettw) we should support more than just rect clipping here.
   SkIRect rect = clip_region_.getBounds();
-  rect.offset(-offset_x_, -offset_y_);
 
   CGContextClipToRect(bitmap_context_, SkIRectToCGRect(rect));
 }
@@ -225,11 +216,6 @@ CGContextRef BitmapPlatformDeviceMac::GetBitmapContext() {
 
 void BitmapPlatformDeviceMac::SetTransform(const SkMatrix& matrix) {
   data_->SetTransform(matrix);
-}
-
-void BitmapPlatformDeviceMac::SetDeviceOffset(int x, int y) {
-  data_->offset_x_ = x;
-  data_->offset_y_ = y;
 }
 
 void BitmapPlatformDeviceMac::SetClipRegion(const SkRegion& region) {

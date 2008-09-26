@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_GFX_PLATFORM_CANVAS_WIN_H__
-#define BASE_GFX_PLATFORM_CANVAS_WIN_H__
+#ifndef BASE_GFX_PLATFORM_CANVAS_WIN_H_
+#define BASE_GFX_PLATFORM_CANVAS_WIN_H_
 
 #include "base/gfx/platform_device_win.h"
 #include "base/basictypes.h"
@@ -24,7 +24,8 @@ class PlatformCanvasWin : public SkCanvas {
   // If you use the version with no arguments, you MUST call initialize()
   PlatformCanvasWin();
   PlatformCanvasWin(int width, int height, bool is_opaque);
-  PlatformCanvasWin(int width, int height, bool is_opaque, HANDLE shared_section);
+  PlatformCanvasWin(int width, int height, bool is_opaque,
+                    HANDLE shared_section);
   virtual ~PlatformCanvasWin();
 
   // For two-part init, call if you use the no-argument constructor above
@@ -60,7 +61,7 @@ class PlatformCanvasWin : public SkCanvas {
                                  bool is_opaque, bool isForLayer);
 
   // Creates a device store for use by the canvas. By default, it creates a
-  // BitmapPlatformDeviceWin object. Can be overridden to change the object type.
+  // BitmapPlatformDeviceWin. Can be overridden to change the object type.
   virtual SkDevice* createPlatformDevice(int width, int height, bool is_opaque,
                                          HANDLE shared_section);
 
@@ -68,7 +69,7 @@ class PlatformCanvasWin : public SkCanvas {
   // Unimplemented.
   virtual SkDevice* setBitmapDevice(const SkBitmap& bitmap);
 
-  DISALLOW_EVIL_CONSTRUCTORS(PlatformCanvasWin);
+  DISALLOW_COPY_AND_ASSIGN(PlatformCanvasWin);
 };
 
 // A class designed to help with WM_PAINT operations on Windows. It will
@@ -160,8 +161,8 @@ class CanvasPaintT : public T {
   void init(bool opaque) {
     // FIXME(brettw) for ClearType, we probably want to expand the bounds of
     // painting by one pixel so that the boundaries will be correct (ClearType
-    // text can depend on the adjacent pixel). Then we would paint just the inset
-    // pixels to the screen.
+    // text can depend on the adjacent pixel). Then we would paint just the
+    // inset pixels to the screen.
     initialize(ps_.rcPaint.right - ps_.rcPaint.left,
                ps_.rcPaint.bottom - ps_.rcPaint.top, opaque, NULL);
 
@@ -174,12 +175,12 @@ class CanvasPaintT : public T {
   // If true, this canvas was created for a BeginPaint.
   const bool for_paint_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(CanvasPaintT);
+  DISALLOW_COPY_AND_ASSIGN(CanvasPaintT);
 };
 
 typedef CanvasPaintT<PlatformCanvasWin> PlatformCanvasWinPaint;
 
 }  // namespace gfx
 
-#endif  // BASE_GFX_PLATFORM_CANVAS_WIN_H__
+#endif  // BASE_GFX_PLATFORM_CANVAS_WIN_H_
 

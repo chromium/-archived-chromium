@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_GFX_VECTOR_DEVICE_H__
-#define BASE_GFX_VECTOR_DEVICE_H__
+#ifndef BASE_GFX_VECTOR_DEVICE_H_
+#define BASE_GFX_VECTOR_DEVICE_H_
 
 #include "base/basictypes.h"
 #include "base/gfx/platform_device_win.h"
@@ -29,8 +29,8 @@ class VectorDevice : public PlatformDeviceWin {
   }
 
   virtual void drawPaint(const SkDraw& draw, const SkPaint& paint);
-  virtual void drawPoints(const SkDraw& draw, SkCanvas::PointMode mode, size_t count,
-                          const SkPoint[], const SkPaint& paint);
+  virtual void drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
+                          size_t count, const SkPoint[], const SkPaint& paint);
   virtual void drawRect(const SkDraw& draw, const SkRect& r,
                         const SkPaint& paint);
   virtual void drawPath(const SkDraw& draw, const SkPath& path,
@@ -47,7 +47,8 @@ class VectorDevice : public PlatformDeviceWin {
   virtual void drawTextOnPath(const SkDraw& draw, const void* text, size_t len,
                               const SkPath& path, const SkMatrix* matrix,
                               const SkPaint& paint);
-  virtual void drawVertices(const SkDraw& draw, SkCanvas::VertexMode, int vertexCount,
+  virtual void drawVertices(const SkDraw& draw, SkCanvas::VertexMode,
+                            int vertexCount,
                             const SkPoint verts[], const SkPoint texs[],
                             const SkColor colors[], SkXfermode* xmode,
                             const uint16_t indices[], int indexCount,
@@ -57,7 +58,6 @@ class VectorDevice : public PlatformDeviceWin {
 
 
   virtual void setMatrixClip(const SkMatrix& transform, const SkRegion& region);
-  virtual void setDeviceOffset(int x, int y);
   virtual void drawToHDC(HDC dc, int x, int y, const RECT* src_rect);
   virtual bool IsVectorial() { return true; }
 
@@ -110,13 +110,10 @@ class VectorDevice : public PlatformDeviceWin {
   // Previously selected pen before the current drawing.
   HGDIOBJ previous_pen_;
 
-  int offset_x_;
-  int offset_y_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(VectorDevice);
+  DISALLOW_COPY_AND_ASSIGN(VectorDevice);
 };
 
 }  // namespace gfx
 
-#endif  // BASE_GFX_VECTOR_DEVICE_H__
+#endif  // BASE_GFX_VECTOR_DEVICE_H_
 

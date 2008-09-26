@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_GFX_VECTOR_CANVAS_H__
-#define BASE_GFX_VECTOR_CANVAS_H__
+#ifndef BASE_GFX_VECTOR_CANVAS_H_
+#define BASE_GFX_VECTOR_CANVAS_H_
 
 #include "base/gfx/platform_canvas_win.h"
 #include "base/gfx/vector_device.h"
@@ -37,10 +37,10 @@ class VectorCanvas : public PlatformCanvasWin {
   // Returns true if the top device is vector based and not bitmap based.
   bool IsTopDeviceVectorial() const;
 
-  DISALLOW_EVIL_CONSTRUCTORS(VectorCanvas);
+  DISALLOW_COPY_AND_ASSIGN(VectorCanvas);
 };
 
 }  // namespace gfx
 
-#endif  // BASE_GFX_VECTOR_CANVAS_H__
+#endif  // BASE_GFX_VECTOR_CANVAS_H_
 

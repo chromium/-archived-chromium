@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_GFX_BITMAP_PLATFORM_DEVICE_WIN_H__
-#define BASE_GFX_BITMAP_PLATFORM_DEVICE_WIN_H__
+#ifndef BASE_GFX_BITMAP_PLATFORM_DEVICE_WIN_H_
+#define BASE_GFX_BITMAP_PLATFORM_DEVICE_WIN_H_
 
 #include "base/gfx/platform_device_win.h"
 #include "base/ref_counted.h"
@@ -60,7 +60,6 @@ class BitmapPlatformDeviceWin : public PlatformDeviceWin {
   // bitmap DC is lazy created.
   virtual HDC getBitmapDC();
   virtual void setMatrixClip(const SkMatrix& transform, const SkRegion& region);
-  virtual void setDeviceOffset(int x, int y);
 
   virtual void drawToHDC(HDC dc, int x, int y, const RECT* src_rect);
   virtual void prepareForGDI(int x, int y, int width, int height);
@@ -90,7 +89,8 @@ class BitmapPlatformDeviceWin : public PlatformDeviceWin {
   class BitmapPlatformDeviceWinData;
 
   // Private constructor.
-  BitmapPlatformDeviceWin(BitmapPlatformDeviceWinData* data, const SkBitmap& bitmap);
+  BitmapPlatformDeviceWin(BitmapPlatformDeviceWinData* data,
+                          const SkBitmap& bitmap);
 
   // Loops through each of the pixels in the specified range, invoking
   // adjustor for the alpha value of each pixel. If |width| or |height| are -1,
@@ -107,5 +107,5 @@ class BitmapPlatformDeviceWin : public PlatformDeviceWin {
 
 }  // namespace gfx
 
-#endif  // BASE_GFX_BITMAP_PLATFORM_DEVICE_WIN_H__
+#endif  // BASE_GFX_BITMAP_PLATFORM_DEVICE_WIN_H_
 

@@ -50,9 +50,7 @@ VectorDevice::VectorDevice(HDC dc, const SkBitmap& bitmap)
     : PlatformDeviceWin(bitmap),
       hdc_(dc),
       previous_brush_(NULL),
-      previous_pen_(NULL),
-      offset_x_(0),
-      offset_y_(0) {
+      previous_pen_(NULL) {
   transform_.reset();
 }
 
@@ -342,21 +340,13 @@ void VectorDevice::setMatrixClip(const SkMatrix& transform,
     LoadClipRegion();
 }
 
-void VectorDevice::setDeviceOffset(int x, int y) {
-  offset_x_ = x;
-  offset_y_ = y;
-}
-
 void VectorDevice::drawToHDC(HDC dc, int x, int y, const RECT* src_rect) {
   NOTREACHED();
 }
 
 void VectorDevice::LoadClipRegion() {
-  // We don't use transform_ for the clipping region since the translation is
-  // already applied to offset_x_ and offset_y_.
   SkMatrix t;
   t.reset();
-  t.postTranslate(SkIntToScalar(-offset_x_), SkIntToScalar(-offset_y_));
   LoadClippingRegionToDC(hdc_, clip_region_, t);
 }
 
