@@ -38,7 +38,7 @@ void SdchDictionaryFetcher::OnURLFetchComplete(const URLFetcher* source,
                                                int response_code,
                                                const ResponseCookies& cookies,
                                                const std::string& data) {
-  if (200 == response_code)
+  if ((200 == response_code) && (status.status() == URLRequestStatus::SUCCESS))
     SdchManager::Global()->AddSdchDictionary(data, url);
   current_fetch_.reset(NULL);
   ScheduleDelayedRun();
