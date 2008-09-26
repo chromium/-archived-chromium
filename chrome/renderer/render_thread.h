@@ -19,6 +19,22 @@ struct WebPreferences;
 class RenderDnsMaster;
 class NotificationService;
 
+// The RenderThreadBase is the minimal interface that a RenderWidget expects
+// from a render thread. The interface basically abstracts a way to send and
+// receive messages. It is currently only used for testing.
+class RenderThreadBase : public IPC::Message::Sender {
+ public:
+  virtual ~RenderThreadBase() {}
+
+  // True if currently sending a message.
+  virtual bool InSend() const = 0;
+
+  // Called to add or remove a listener for a particular message routing ID.
+  // These methods normally get delegated to a MessageRouter.
+  virtual void AddRoute(int32 routing_id, IPC::Channel::Listener* listener) = 0;
+  virtual void RemoveRoute(int32 routing_id) = 0;
+};
+
 // The RenderThread class represents a background thread where RenderView
 // instances live.  The RenderThread supports an API that is used by its
 // consumer to talk indirectly to the RenderViews and supporting objects.
@@ -28,13 +44,12 @@ class NotificationService;
 // Most of the communication occurs in the form of IPC messages.  They are
 // routed to the RenderThread according to the routing IDs of the messages.
 // The routing IDs correspond to RenderView instances.
-
 class RenderThread : public IPC::Channel::Listener,
-                     public IPC::Message::Sender,
+                     public RenderThreadBase,
                      public base::Thread {
  public:
   RenderThread(const std::wstring& channel_name);
-  ~RenderThread();
+  virtual ~RenderThread();
 
   // IPC::Channel::Listener implementation:
   virtual void OnMessageReceived(const IPC::Message& msg);
@@ -55,8 +70,8 @@ class RenderThread : public IPC::Channel::Listener,
   void Resolve(const char* name, size_t length);
 
   // See documentation on MessageRouter for AddRoute and RemoveRoute
-  void AddRoute(int32 routing_id, IPC::Channel::Listener* listener);
-  void RemoveRoute(int32 routing_id);
+  virtual void AddRoute(int32 routing_id, IPC::Channel::Listener* listener);
+  virtual void RemoveRoute(int32 routing_id);
 
   // Invokes InformHostOfCacheStats after a short delay.  Used to move this
   // bookkeeping operation off the critical latency path.
@@ -65,7 +80,7 @@ class RenderThread : public IPC::Channel::Listener,
   MessageLoop* owner_loop() { return owner_loop_; }
 
   // Indicates if RenderThread::Send() is on the call stack.
-  bool in_send() const { return in_send_ != 0; }
+  virtual bool InSend() const { return in_send_ != 0; }
 
  protected:
   // Called by the thread base class

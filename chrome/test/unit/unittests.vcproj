@@ -762,11 +762,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\safe_browsing\safe_browsing_database_unittest.cc"
+				RelativePath="..\..\browser\safe_browsing\safe_browsing_database_impl_unittest.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\safe_browsing\safe_browsing_database_impl_unittest.cc"
+				RelativePath="..\..\browser\safe_browsing\safe_browsing_database_unittest.cc"
 				>
 			</File>
 			<File
@@ -951,6 +951,14 @@
 			</File>
 			<File
 				RelativePath="..\..\..\googleurl\src\url_util_unittest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="TestRenderWidget"
+			>
+			<File
+				RelativePath="..\..\renderer\render_widget_unittest.cc"
 				>
 			</File>
 		</Filter>

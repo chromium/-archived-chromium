@@ -13,10 +13,12 @@
 #include "base/ref_counted.h"
 #include "chrome/common/ipc_channel.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/renderer/render_process.h"
+
 #include "webkit/glue/webwidget_delegate.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webplugin.h"
+
+class RenderThreadBase;
 
 // RenderWidget provides a communication bridge between a WebWidget and
 // a RenderWidgetHost, the latter of which lives in a different process.
@@ -26,8 +28,9 @@ class RenderWidget : public IPC::Channel::Listener,
                      public base::RefCounted<RenderWidget> {
  public:
   // Creates a new RenderWidget.  The opener_id is the routing ID of the
-  // RenderView that this widget lives inside.
-  static RenderWidget* Create(int32 opener_id);
+  // RenderView that this widget lives inside. The render_thread is any
+  // RenderThreadBase implementation, mostly commonly RenderThread::current().
+  static RenderWidget* Create(int32 opener_id, RenderThreadBase* render_thread);
 
   // The routing ID assigned by the RenderProcess. Will be MSG_ROUTING_NONE if
   // not yet assigned a view ID, in which case, the process MUST NOT send
@@ -55,6 +58,9 @@ class RenderWidget : public IPC::Channel::Listener,
   // IPC::Message::Sender
   virtual bool Send(IPC::Message* msg);
 
+  // True if the underlying IPC is currently sending data.
+  bool InSend() const;
+
   // WebWidgetDelegate
   virtual HWND GetContainingWindow(WebWidget* webwidget);
   virtual void DidInvalidateRect(WebWidget* webwidget, const gfx::Rect& rect);
@@ -71,14 +77,16 @@ class RenderWidget : public IPC::Channel::Listener,
   virtual void DidMove(WebWidget* webwidget, const WebPluginGeometry& move);
   virtual void RunModal(WebWidget* webwidget) {}
 
-  // Do not delete directly.  This class is reference counted.
-  virtual ~RenderWidget();
-
   // Close the underlying WebWidget.
   void Close();
 
  protected:
-  RenderWidget();
+  // Friend RefCounted so that the dtor can be non-public. Using this class
+  // without ref-counting is an error.
+  friend class base::RefCounted<RenderWidget>;
+
+  RenderWidget(RenderThreadBase* render_thread);
+  virtual ~RenderWidget();
 
   // Initializes this view with the given opener.  CompleteInit must be called
   // later.
@@ -175,6 +183,9 @@ class RenderWidget : public IPC::Channel::Listener,
   // This ID may refer to an invalid view if that view is closed before this
   // view is.
   int32 opener_id_;
+
+  // The thread that does our IPC.
+  RenderThreadBase* render_thread_;
 
   // The position where this view should be initially shown.
   gfx::Rect initial_pos_;

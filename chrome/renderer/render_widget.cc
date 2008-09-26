@@ -12,6 +12,8 @@
 #include "base/message_loop.h"
 #include "base/gfx/platform_canvas_win.h"
 #include "base/scoped_ptr.h"
+#include "chrome/renderer/render_process.h"
+
 #include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webwidget.h"
 
@@ -33,7 +35,6 @@ class DeferredCloses : public Task {
 
   // Called to trigger any deferred closes to be run.
   static void Post() {
-    DCHECK(!RenderThread::current()->in_send());
     if (current_) {
       MessageLoop::current()->PostTask(FROM_HERE, current_);
       current_ = NULL;
@@ -46,7 +47,7 @@ class DeferredCloses : public Task {
     // that is true, then we need to re-queue the widgets to be closed and try
     // again later.
     while (!queue_.empty()) {
-      if (RenderThread::current()->in_send()) {
+      if (queue_.front()->InSend()) {
         Push(queue_.front());
       } else {
         queue_.front()->Close();
@@ -68,9 +69,10 @@ DeferredCloses* DeferredCloses::current_ = NULL;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-RenderWidget::RenderWidget()
+RenderWidget::RenderWidget(RenderThreadBase* render_thread)
     : routing_id_(MSG_ROUTING_NONE),
       opener_id_(MSG_ROUTING_NONE),
+      render_thread_(render_thread),
       host_window_(NULL),
       current_paint_buf_(NULL),
       current_scroll_buf_(NULL),
@@ -88,6 +90,7 @@ RenderWidget::RenderWidget()
       ime_control_new_state_(false),
       ime_control_updated_(false) {
   RenderProcess::AddRefProcess();
+  DCHECK(render_thread_);
 }
 
 RenderWidget::~RenderWidget() {
@@ -103,9 +106,10 @@ RenderWidget::~RenderWidget() {
 }
 
 /*static*/
-RenderWidget* RenderWidget::Create(int32 opener_id) {
+RenderWidget* RenderWidget::Create(int32 opener_id,
+                                   RenderThreadBase* render_thread) {
   DCHECK(opener_id != MSG_ROUTING_NONE);
-  scoped_refptr<RenderWidget> widget = new RenderWidget();
+  scoped_refptr<RenderWidget> widget = new RenderWidget(render_thread);
   widget->Init(opener_id);  // adds reference
   return widget;
 }
@@ -120,10 +124,10 @@ void RenderWidget::Init(int32 opener_id) {
   WebWidget* webwidget = WebWidget::Create(this);
   webwidget_.swap(&webwidget);
 
-  bool result = RenderThread::current()->Send(
+  bool result = render_thread_->Send(
       new ViewHostMsg_CreateWidget(opener_id, &routing_id_));
   if (result) {
-    RenderThread::current()->AddRoute(routing_id_, this);
+    render_thread_->AddRoute(routing_id_, this);
     // Take a reference on behalf of the RenderThread.  This will be balanced
     // when we receive ViewMsg_Close.
     AddRef();
@@ -172,15 +176,19 @@ bool RenderWidget::Send(IPC::Message* message) {
   if (message->routing_id() == MSG_ROUTING_NONE)
     message->set_routing_id(routing_id_);
 
-  bool rv = RenderThread::current()->Send(message);
+  bool rv = render_thread_->Send(message);
 
   // If there aren't any more RenderThread::Send calls on the stack, then we
   // can go ahead and schedule Close to be called on any RenderWidget objects
   // that received a ViewMsg_Close while we were inside Send.
-  if (!RenderThread::current()->in_send())
+  if (!render_thread_->InSend())
     DeferredCloses::Post();
 
   return rv;
+}
+
+bool RenderWidget::InSend() const {
+  return render_thread_->InSend();
 }
 
 // Got a response from the browser after the renderer decided to create a new
@@ -198,7 +206,7 @@ void RenderWidget::OnClose() {
 
   // Browser correspondence is no longer needed at this point.
   if (routing_id_ != MSG_ROUTING_NONE)
-    RenderThread::current()->RemoveRoute(routing_id_);
+    render_thread_->RemoveRoute(routing_id_);
 
   // Balances the AddRef taken when we called AddRoute.  This release happens
   // via the MessageLoop since it may cause our destruction.
@@ -206,7 +214,7 @@ void RenderWidget::OnClose() {
 
   // If there is a Send call on the stack, then it could be dangerous to close
   // now.  Instead, we wait until we get out of Send.
-  if (RenderThread::current()->in_send()) {
+  if (render_thread_->InSend()) {
     DeferredCloses::Push(this);
   } else {
     Close();
@@ -593,7 +601,7 @@ void RenderWidget::Show(WebWidget* webwidget,
     // NOTE: initial_pos_ may still have its default values at this point, but
     // that's okay.  It'll be ignored if as_popup is false, or the browser
     // process will impose a default position otherwise.
-    RenderThread::current()->Send(new ViewHostMsg_ShowWidget(
+    render_thread_->Send(new ViewHostMsg_ShowWidget(
         opener_id_, routing_id_, initial_pos_));
   }
 }

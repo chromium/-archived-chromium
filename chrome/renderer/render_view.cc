@@ -134,7 +134,7 @@ class RenderViewExtraRequestData : public WebRequest::ExtraData {
 ///////////////////////////////////////////////////////////////////////////////
 
 RenderView::RenderView()
-  : RenderWidget(),
+  : RenderWidget(RenderThread::current()),
     is_loading_(false),
     page_id_(-1),
     last_page_id_sent_to_browser_(-1),
@@ -1658,7 +1658,8 @@ WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
 }
 
 WebWidget* RenderView::CreatePopupWidget(WebView* webview) {
-  RenderWidget* widget = RenderWidget::Create(routing_id_);
+  RenderWidget* widget = RenderWidget::Create(routing_id_,
+                                              RenderThread::current());
   return widget->webwidget();
 }
 
