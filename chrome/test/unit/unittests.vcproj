@@ -407,6 +407,14 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="TestTableView"
+			>
+			<File
+				RelativePath="..\..\views\table_view_unittest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="TestAnimation"
 			>
 			<File

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <algorithm>
 #include <windowsx.h>
 
 #include "chrome/views/table_view.h"
@@ -11,12 +12,15 @@
 #include "base/gfx/skia_utils.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/favicon_size.h"
+#include "chrome/common/gfx/icon_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/hwnd_view.h"
 #include "chrome/views/view_container.h"
 #include "SkBitmap.h"
 #include "SkColorFilter.h"
+#include "unicode/coll.h"
+#include "unicode/uchar.h"
 
 namespace ChromeViews {
 
@@ -25,9 +29,48 @@ const int kListViewTextPadding = 15;
 // Additional column width necessary if column has icons.
 const int kListViewIconWidthAndPadding = 18;
 
+const int kImageSize = 18;
+
+// TableModel -----------------------------------------------------------------
+
+// Used for sorting.
+static Collator* collator = NULL;
+
 SkBitmap TableModel::GetIcon(int row) {
   return SkBitmap();
 }
+
+int TableModel::CompareValues(int row1, int row2, int column_id) {
+  DCHECK(row1 >= 0 && row1 < RowCount() &&
+         row2 >= 0 && row2 < RowCount());
+  std::wstring value1 = GetText(row1, column_id);
+  std::wstring value2 = GetText(row2, column_id);
+
+  if (!collator) {
+    UErrorCode create_status = U_ZERO_ERROR;
+    collator = Collator::createInstance(create_status);
+    if (!U_SUCCESS(create_status)) {
+      collator = NULL;
+      NOTREACHED();
+    }
+  }
+  
+  if (collator) {
+    UErrorCode compare_status = U_ZERO_ERROR;
+    UCollationResult compare_result = collator->compare(
+        static_cast<const UChar*>(value1.c_str()),
+        static_cast<int>(value1.length()),
+        static_cast<const UChar*>(value2.c_str()),
+        static_cast<int>(value2.length()),
+        compare_status);
+    DCHECK(U_SUCCESS(compare_status));
+    return compare_result;
+  }
+  NOTREACHED();
+  return 0;
+}
+
+// TableView ------------------------------------------------------------------
 
 TableView::TableView(TableModel* model,
                      const std::vector<TableColumn>& columns,
@@ -40,7 +83,6 @@ TableView::TableView(TableModel* model,
       visible_columns_(),
       all_columns_(),
       column_count_(static_cast<int>(columns.size())),
-      cache_data_(true),
       table_type_(table_type),
       single_selection_(single_selection),
       ignore_listview_change_(false),
@@ -77,6 +119,31 @@ void TableView::SetModel(TableModel* model) {
     OnModelChanged();
 }
 
+void TableView::SetSortDescriptors(const SortDescriptors& sort_descriptors) {
+  if (!sort_descriptors_.empty()) {
+    ResetColumnSortImage(sort_descriptors_[0].column_id,
+                         NO_SORT);
+  }
+  sort_descriptors_ = sort_descriptors;
+  if (!sort_descriptors_.empty()) {
+    ResetColumnSortImage(
+        sort_descriptors_[0].column_id,
+        sort_descriptors_[0].ascending ? ASCENDING_SORT : DESCENDING_SORT);
+  }
+  if (!list_view_)
+    return;
+
+  // For some reason we have to turn off/on redraw, otherwise the display
+  // isn't updated when done.
+  SendMessage(list_view_, WM_SETREDRAW, static_cast<WPARAM>(FALSE), 0);
+
+  UpdateItemsLParams(0, 0);
+
+  SortItemsAndUpdateMapping();
+
+  SendMessage(list_view_, WM_SETREDRAW, static_cast<WPARAM>(TRUE), 0);
+}
+
 void TableView::DidChangeBounds(const CRect& previous,
                                 const CRect& current) {
   if (!list_view_)
@@ -103,11 +170,11 @@ int TableView::SelectedRowCount() {
   return ListView_GetSelectedCount(list_view_);
 }
 
-void TableView::Select(int item) {
+void TableView::Select(int model_row) {
   if (!list_view_)
     return;
 
-  DCHECK(item >= 0 && item < RowCount());
+  DCHECK(model_row >= 0 && model_row < RowCount());
   SendMessage(list_view_, WM_SETREDRAW, static_cast<WPARAM>(FALSE), 0);
   ignore_listview_change_ = true;
 
@@ -115,41 +182,44 @@ void TableView::Select(int item) {
   ListView_SetItemState(list_view_, -1, 0, LVIS_SELECTED);
 
   // Select the specified item.
-  ListView_SetItemState(list_view_, item, LVIS_SELECTED | LVIS_FOCUSED,
+  int view_row = model_to_view(model_row);
+  ListView_SetItemState(list_view_, view_row, LVIS_SELECTED | LVIS_FOCUSED,
                         LVIS_SELECTED | LVIS_FOCUSED);
 
   // Make it visible.
-  ListView_EnsureVisible(list_view_, item, FALSE);
+  ListView_EnsureVisible(list_view_, view_row, FALSE);
   ignore_listview_change_ = false;
   SendMessage(list_view_, WM_SETREDRAW, static_cast<WPARAM>(TRUE), 0);
   if (table_view_observer_)
     table_view_observer_->OnSelectionChanged();
 }
 
-void TableView::SetSelectedState(int item, bool state) {
+void TableView::SetSelectedState(int model_row, bool state) {
   if (!list_view_)
     return;
 
-  DCHECK(item >= 0 && item < RowCount());
+  DCHECK(model_row >= 0 && model_row < RowCount());
 
   ignore_listview_change_ = true;
 
   // Select the specified item.
-  ListView_SetItemState(list_view_, item, LVIS_SELECTED, LVIS_SELECTED);
+  ListView_SetItemState(list_view_, model_to_view(model_row),
+                        state ? LVIS_SELECTED : 0,  LVIS_SELECTED);
 
   ignore_listview_change_ = false;
 }
 
-void TableView::SetFocusOnItem(int item) {
+void TableView::SetFocusOnItem(int model_row) {
   if (!list_view_)
     return;
 
-  DCHECK(item >= 0 && item < RowCount());
+  DCHECK(model_row >= 0 && model_row < RowCount());
 
   ignore_listview_change_ = true;
 
   // Set the focus to the given item.
-  ListView_SetItemState(list_view_, item, LVIS_FOCUSED, LVIS_FOCUSED);
+  ListView_SetItemState(list_view_, model_to_view(model_row), LVIS_FOCUSED,
+                        LVIS_FOCUSED);
 
   ignore_listview_change_ = false;
 }
@@ -158,30 +228,30 @@ int TableView::FirstSelectedRow() {
   if (!list_view_)
     return -1;
 
-  return ListView_GetNextItem(list_view_, -1, LVNI_ALL | LVIS_SELECTED);
+  int view_row = ListView_GetNextItem(list_view_, -1, LVNI_ALL | LVIS_SELECTED);
+  return view_row == -1 ? -1 : view_to_model(view_row);
 }
 
-
-bool TableView::IsItemSelected(int item) {
+bool TableView::IsItemSelected(int model_row) {
   if (!list_view_)
     return false;
 
-  DCHECK(item >= 0 && item < RowCount());
-  return (ListView_GetItemState(list_view_, item, LVIS_SELECTED) ==
-              LVIS_SELECTED);
+  DCHECK(model_row >= 0 && model_row < RowCount());
+  return (ListView_GetItemState(list_view_, model_to_view(model_row),
+                                LVIS_SELECTED) == LVIS_SELECTED);
 }
 
-bool TableView::ItemHasTheFocus(int item) {
+bool TableView::ItemHasTheFocus(int model_row) {
   if (!list_view_)
     return false;
 
-  DCHECK(item >= 0 && item < RowCount());
-  return (ListView_GetItemState(list_view_, item, LVIS_FOCUSED) ==
-              LVIS_FOCUSED);
+  DCHECK(model_row >= 0 && model_row < RowCount());
+  return (ListView_GetItemState(list_view_, model_to_view(model_row),
+                                LVIS_FOCUSED) == LVIS_FOCUSED);
 }
 
 TableView::iterator TableView::SelectionBegin() {
-  return TableView::iterator(this, LastSelectedIndex());
+  return TableView::iterator(this, LastSelectedViewIndex());
 }
 
 TableView::iterator TableView::SelectionEnd() {
@@ -194,11 +264,7 @@ void TableView::OnItemsChanged(int start, int length) {
 
   if (length == -1) {
     DCHECK(start >= 0);
-    if (cache_data_) {
-      length = model_->RowCount() - start;
-    } else {
-      length = RowCount() - start;
-    }
+    length = model_->RowCount() - start;
   }
   int row_count = RowCount();
   DCHECK(start >= 0 && length > 0 && start + length <= row_count);
@@ -214,7 +280,7 @@ void TableView::OnItemsChanged(int start, int length) {
     lv_item.mask = LVIF_IMAGE;
     for (int i = start; i < start + length; ++i) {
       // Retrieve the current icon index.
-      lv_item.iItem = i;
+      lv_item.iItem = model_to_view(i);
       BOOL r = ListView_GetItem(list_view_, &lv_item);
       DCHECK(r);
       // Set the current icon index to the other image.
@@ -224,14 +290,9 @@ void TableView::OnItemsChanged(int start, int length) {
       DCHECK(r);
     }
   }
-  if (!cache_data_) {
-    ListView_RedrawItems(list_view_, start, start + length);
-  } else {
-    UpdateListViewCache(start, length, false);
-  }
+  UpdateListViewCache(start, length, false);
   SendMessage(list_view_, WM_SETREDRAW, static_cast<WPARAM>(TRUE), 0);
 }
-
 
 void TableView::OnModelChanged() {
   if (!list_view_)
@@ -250,12 +311,7 @@ void TableView::OnItemsAdded(int start, int length) {
 
   DCHECK(start >= 0 && length > 0 && start <= RowCount());
   SendMessage(list_view_, WM_SETREDRAW, static_cast<WPARAM>(FALSE), 0);
-  if (!cache_data_) {
-    ListView_SetItemCount(list_view_, model_->RowCount());
-    ListView_RedrawItems(list_view_, start, start + length);
-  } else {
-    UpdateListViewCache(start, length, true);
-  }
+  UpdateListViewCache(start, length, true);
   SendMessage(list_view_, WM_SETREDRAW, static_cast<WPARAM>(TRUE), 0);
 }
 
@@ -263,23 +319,62 @@ void TableView::OnItemsRemoved(int start, int length) {
   if (!list_view_)
     return;
 
-  DCHECK(start >= 0 && length > 0 && start + length <= RowCount());
+  if (start < 0 || length < 0 || start + length > RowCount()) {
+    NOTREACHED();
+    return;
+  }
+
   SendMessage(list_view_, WM_SETREDRAW, static_cast<WPARAM>(FALSE), 0);
+
   bool had_selection = (SelectedRowCount() > 0);
-  if (!cache_data_) {
-    // TODO(sky): Make sure this triggers a repaint.
-    ListView_SetItemCount(list_view_, model_->RowCount());
+  int old_row_count = RowCount();
+  if (start == 0 && length == RowCount()) {
+    // Everything was removed.
+    ListView_DeleteAllItems(list_view_);
+    view_to_model_.reset(NULL);
+    model_to_view_.reset(NULL);
   } else {
-    // Update the cache.
-    if (start == 0 && length == RowCount()) {
-      ListView_DeleteAllItems(list_view_);
-    } else {
-      for (int i = 0; i < length; ++i) {
-        ListView_DeleteItem(list_view_, start);
+    // Only a portion of the data was removed.
+    if (is_sorted()) {
+      int new_row_count = model_->RowCount();
+      std::vector<int> view_items_to_remove;
+      view_items_to_remove.reserve(length);
+      // Iterate through the elements, updating the view_to_model_ mapping
+      // as well as collecting the rows that need to be deleted.
+      for (int i = 0, removed_count = 0; i < old_row_count; ++i) {
+        int model_index = view_to_model(i);
+        if (model_index >= start) {
+          if (model_index < start + length) {
+            // This item was removed.
+            view_items_to_remove.push_back(i);
+            model_index = -1;
+          } else {
+            model_index -= length;
+          }
+        }
+        if (model_index >= 0) {
+          view_to_model_[i - static_cast<int>(view_items_to_remove.size())] =
+              model_index;
+        }
       }
+
+      // Update the model_to_view mapping from the updated view_to_model
+      // mapping.
+      for (int i = 0; i < new_row_count; ++i)
+        model_to_view_[view_to_model_[i]] = i;
+
+      // And finally delete the items. We do this backwards as the items were
+      // added ordered smallest to largest.
+      for (int i = length - 1; i >= 0; --i)
+        ListView_DeleteItem(list_view_, view_items_to_remove[i]);
+    } else {
+      for (int i = 0; i < length; ++i)
+        ListView_DeleteItem(list_view_, start);
     }
   }
+
   SendMessage(list_view_, WM_SETREDRAW, static_cast<WPARAM>(TRUE), 0);
+
   // We don't seem to get notification in this case.
   if (table_view_observer_ && had_selection && RowCount() == 0)
     table_view_observer_->OnSelectionChanged();
@@ -296,6 +391,16 @@ void TableView::SetColumns(const std::vector<TableColumn>& columns) {
        i != columns.end(); ++i) {
     AddColumn(*i);
   }
+
+  // Remove any sort descriptors that are no longer valid.
+  SortDescriptors sort = sort_descriptors();
+  for (SortDescriptors::iterator i = sort.begin(); i != sort.end();) {
+    if (all_columns_.count(i->column_id) == 0)
+      i = sort.erase(i);
+    else
+      ++i;
+  }
+  sort_descriptors_ = sort;
 }
 
 void TableView::OnColumnsChanged() {
@@ -385,7 +490,7 @@ void TableView::SetCustomColorsEnabled(bool custom_colors_enabled) {
   custom_colors_enabled_ = custom_colors_enabled;
 }
 
-bool TableView::GetCellColors(int row,
+bool TableView::GetCellColors(int model_row,
                               int column,
                               ItemColor* foreground,
                               ItemColor* background,
@@ -444,8 +549,6 @@ HWND TableView::CreateNativeControl(HWND parent_container) {
   int style = WS_CHILD | LVS_REPORT | LVS_SHOWSELALWAYS;
   if (single_selection_)
     style |= LVS_SINGLESEL;
-  if (!cache_data_)
-    style |= LVS_OWNERDATA;
   // If there's only one column and the title string is empty, don't show a
   // header.
   if (all_columns_.size() == 1) {
@@ -497,28 +600,22 @@ HWND TableView::CreateNativeControl(HWND parent_container) {
   }
 
   // Set the # of rows.
-  if (cache_data_) {
-    UpdateListViewCache(0, model_->RowCount(), true);
-  } else if (table_type_ == CHECK_BOX_AND_TEXT) {
-    ListView_SetItemCount(list_view_, model_->RowCount());
-    ListView_SetCallbackMask(list_view_, LVIS_STATEIMAGEMASK);
-  }
+  UpdateListViewCache(0, model_->RowCount(), true);
 
-  // Load the default icon.
   if (table_type_ == ICON_AND_TEXT) {
-    HIMAGELIST image_list = ImageList_Create(18, 18, ILC_COLOR, 1, 1);
-    // TODO(jcampan): include a default icon image.
-    // This icon will not be found. The list view will still layout with the
-    // right space for the icon so we can paint our own icon.
-    HBITMAP image = LoadBitmap(NULL, L"IDR_WHATEVER");
-    ImageList_Add(image_list, image, NULL);
-    DeleteObject(image);
+    HIMAGELIST image_list =
+        ImageList_Create(kImageSize, kImageSize, ILC_COLOR32, 2, 2);
     // We create 2 phony images because we are going to switch images at every
     // refresh in order to force a refresh of the icon area (somehow the clip
     // rect does not include the icon).
-    image = LoadBitmap(NULL, L"IDR_WHATEVER_AGAIN");
-    ImageList_Add(image_list, image, NULL);
-    DeleteObject(image);
+    ChromeCanvas canvas(kImageSize, kImageSize, false);
+    // Make the background completely transparent.
+    canvas.drawColor(SK_ColorBLACK, SkPorterDuff::kClear_Mode);
+    HICON empty_icon =
+        IconUtil::CreateHICONFromSkBitmap(canvas.ExtractBitmap());
+    ImageList_AddIcon(image_list, empty_icon);
+    ImageList_AddIcon(image_list, empty_icon);
+    DeleteObject(empty_icon);
     ListView_SetImageList(list_view_, image_list, LVSIL_SMALL);
   }
 
@@ -546,6 +643,114 @@ HWND TableView::CreateNativeControl(HWND parent_container) {
   UpdateContentOffset();
 
   return list_view_;
+}
+
+void TableView::ToggleSortOrder(int column_id) {
+  SortDescriptors sort = sort_descriptors();
+  if (!sort.empty() && sort[0].column_id == column_id) {
+    sort[0].ascending = !sort[0].ascending;
+  } else {
+    SortDescriptor descriptor(column_id, true);
+    sort.insert(sort.begin(), descriptor);
+    if (sort.size() > 2) {
+      // Only persist two sort descriptors.
+      sort.resize(2);
+    }
+  }
+  SetSortDescriptors(sort);
+}
+
+void TableView::UpdateItemsLParams(int start, int length) {
+  LVITEM item;
+  memset(&item, 0, sizeof(LVITEM));
+  item.mask = LVIF_PARAM;
+  int row_count = RowCount();
+  for (int i = 0; i < row_count; ++i) {
+    item.iItem = i;
+    int model_index = view_to_model(i);
+    if (length > 0 && model_index >= start)
+      model_index += length;
+    item.lParam = static_cast<LPARAM>(model_index);
+    ListView_SetItem(list_view_, &item);
+  }
+}
+
+void TableView::SortItemsAndUpdateMapping() {
+  if (!is_sorted()) {
+    ListView_SortItems(list_view_, &TableView::NaturalSortFunc, this);
+    view_to_model_.reset(NULL);
+    model_to_view_.reset(NULL);
+    return;
+  }
+
+  PrepareForSort();
+
+  // Sort the items.
+  ListView_SortItems(list_view_, &TableView::SortFunc, this);
+
+  // Cleanup the collator.
+  if (collator) {
+    delete collator;
+    collator = NULL;
+  }
+
+  // Update internal mapping to match how items were actually sorted.
+  int row_count = RowCount();
+  model_to_view_.reset(new int[row_count]);
+  view_to_model_.reset(new int[row_count]);
+  LVITEM item;
+  memset(&item, 0, sizeof(LVITEM));
+  item.mask = LVIF_PARAM;
+  for (int i = 0; i < row_count; ++i) {
+    item.iItem = i;
+    ListView_GetItem(list_view_, &item);
+    int model_index = static_cast<int>(item.lParam);
+    view_to_model_[i] = model_index;
+    model_to_view_[model_index] = i;
+  }
+}
+
+// static
+int CALLBACK TableView::SortFunc(LPARAM model_index_1_p,
+                                 LPARAM model_index_2_p,
+                                 LPARAM table_view_param) {
+  int model_index_1 = static_cast<int>(model_index_1_p);
+  int model_index_2 = static_cast<int>(model_index_2_p);
+  TableView* table_view = reinterpret_cast<TableView*>(table_view_param);
+  return table_view->CompareRows(model_index_1, model_index_2);
+}
+
+// static
+int CALLBACK TableView::NaturalSortFunc(LPARAM model_index_1_p,
+                                        LPARAM model_index_2_p,
+                                        LPARAM table_view_param) {
+  return model_index_1_p - model_index_2_p;
+}
+
+void TableView::ResetColumnSortImage(int column_id, SortDirection direction) {
+  if (!list_view_ || column_id == -1)
+    return;
+
+  std::vector<int>::const_iterator i =
+      std::find(visible_columns_.begin(), visible_columns_.end(), column_id);
+  if (i == visible_columns_.end())
+    return;
+
+  HWND header = ListView_GetHeader(list_view_);
+  if (!header)
+    return;
+
+  int column_index = static_cast<int>(i - visible_columns_.begin());
+  HDITEM header_item;
+  memset(&header_item, 0, sizeof(header_item));
+  header_item.mask = HDI_FORMAT;
+  Header_GetItem(header, column_index, &header_item);
+  header_item.fmt &= ~(HDF_SORTUP | HDF_SORTDOWN);
+  if (direction == ASCENDING_SORT)
+    header_item.fmt |= HDF_SORTUP;
+  else if (direction == DESCENDING_SORT)
+    header_item.fmt |= HDF_SORTDOWN;
+  Header_SetItem(header, column_index, &header_item);
 }
 
 void TableView::InsertColumn(const TableColumn& tc, int index) {
@@ -577,6 +782,11 @@ void TableView::InsertColumn(const TableColumn& tc, int index) {
   column.iSubItem = index + 1;
   SendMessage(list_view_, LVM_INSERTCOLUMN, index,
               reinterpret_cast<LPARAM>(&column));
+  if (is_sorted() && sort_descriptors_[0].column_id == tc.id) {
+    ResetColumnSortImage(
+        tc.id,
+        sort_descriptors_[0].ascending ? ASCENDING_SORT : DESCENDING_SORT);
+  }
 }
 
 LRESULT TableView::OnNotify(int w_param, NMHDR* hdr) {
@@ -585,6 +795,7 @@ LRESULT TableView::OnNotify(int w_param, NMHDR* hdr) {
       // Draw notification. dwDragState indicates the current stage of drawing.
       return OnCustomDraw(reinterpret_cast<NMLVCUSTOMDRAW*>(hdr));
     }
+
     case LVN_ITEMCHANGED: {
       // Notification that the state of an item has changed. The state
       // includes such things as whether the item is selected or checked.
@@ -594,7 +805,8 @@ LRESULT TableView::OnNotify(int w_param, NMHDR* hdr) {
             (state_change->uNewState & LVIS_SELECTED)) {
           // Selected state of the item changed.
           bool is_selected = ((state_change->uNewState & LVIS_SELECTED) != 0);
-          OnSelectedStateChanged(state_change->iItem, is_selected);
+          OnSelectedStateChanged(view_to_model(state_change->iItem),
+                                 is_selected);
         }
         if ((state_change->uOldState & LVIS_STATEIMAGEMASK) !=
             (state_change->uNewState & LVIS_STATEIMAGEMASK)) {
@@ -602,17 +814,20 @@ LRESULT TableView::OnNotify(int w_param, NMHDR* hdr) {
           bool is_checked =
             ((state_change->uNewState & LVIS_STATEIMAGEMASK) ==
              INDEXTOSTATEIMAGEMASK(2));
-          OnCheckedStateChanged(state_change->iItem, is_checked);
+          OnCheckedStateChanged(view_to_model(state_change->iItem),
+                                is_checked);
         }
       }
       break;
     }
+
     case HDN_BEGINTRACKW:
     case HDN_BEGINTRACKA:
       // Prevent clicks so columns cannot be resized.
       if (!resizable_columns_)
         return TRUE;
       break;
+
     case NM_DBLCLK:
       OnDoubleClick();
       break;
@@ -626,6 +841,14 @@ LRESULT TableView::OnNotify(int w_param, NMHDR* hdr) {
       break;
     }
 
+    case LVN_COLUMNCLICK: {
+      const TableColumn& column = GetColumnAtPosition(
+          reinterpret_cast<NMLISTVIEW*>(hdr)->iSubItem);
+      if (column.sortable)
+        ToggleSortOrder(column.id);
+      break;
+    }
+
     default:
       break;
   }
@@ -635,11 +858,42 @@ LRESULT TableView::OnNotify(int w_param, NMHDR* hdr) {
 void TableView::OnDestroy() {
   if (table_type_ == ICON_AND_TEXT) {
     HIMAGELIST image_list =
-      ListView_GetImageList(GetNativeControlHWND(), LVSIL_SMALL);
+        ListView_GetImageList(GetNativeControlHWND(), LVSIL_SMALL);
     DCHECK(image_list);
     if (image_list)
       ImageList_Destroy(image_list);
   }
+}
+
+// Returns result, unless ascending is false in which case -result is returned.
+static int SwapCompareResult(int result, bool ascending) {
+  return ascending ? result : -result;
+}
+
+int TableView::CompareRows(int model_row1, int model_row2) {
+  if (model_->HasGroups()) {
+    // By default ListView sorts the elements regardless of groups. In such
+    // a situation the groups display only the items they contain. This results
+    // in the visual order differing from the item indices. I could not find
+    // a way to iterate over the visual order in this situation. As a workaround
+    // this forces the items to be sorted by groups as well, which means the
+    // visual order matches the item indices.
+    int g1 = model_->GetGroupID(model_row1);
+    int g2 = model_->GetGroupID(model_row2);
+    if (g1 != g2)
+      return g1 - g2;
+  }
+  int sort_result = model_->CompareValues(
+      model_row1, model_row2, sort_descriptors_[0].column_id);
+  if (sort_result == 0 && sort_descriptors_.size() > 1 &&
+      sort_descriptors_[1].column_id != -1) {
+    // Try the secondary sort.
+    return SwapCompareResult(
+        model_->CompareValues(model_row1, model_row2,
+                              sort_descriptors_[1].column_id),
+        sort_descriptors_[1].ascending);
+  }
+  return SwapCompareResult(sort_result, sort_descriptors_[0].ascending);
 }
 
 LRESULT TableView::OnCustomDraw(NMLVCUSTOMDRAW* draw_info) {
@@ -668,7 +922,8 @@ LRESULT TableView::OnCustomDraw(NMLVCUSTOMDRAW* draw_info) {
         LOGFONT logfont;
         GetObject(GetWindowFont(list_view_), sizeof(logfont), &logfont);
 
-        if (GetCellColors(static_cast<int>(draw_info->nmcd.dwItemSpec),
+        if (GetCellColors(view_to_model(
+                              static_cast<int>(draw_info->nmcd.dwItemSpec)),
                           draw_info->iSubItem,
                           &foreground,
                           &background,
@@ -693,19 +948,19 @@ LRESULT TableView::OnCustomDraw(NMLVCUSTOMDRAW* draw_info) {
     }
     case CDDS_ITEMPOSTPAINT: {
       DCHECK((table_type_ == ICON_AND_TEXT) || (ImplementPostPaint()));
-      int n_item = static_cast<int>(draw_info->nmcd.dwItemSpec);
+      int view_index = static_cast<int>(draw_info->nmcd.dwItemSpec);
       // We get notifications for empty items, just ignore them.
-      if (n_item >= model_->RowCount()) {
+      if (view_index >= model_->RowCount())
         return CDRF_DODEFAULT;
-      }
+      int model_index = view_to_model(view_index);
       LRESULT r = CDRF_DODEFAULT;
       // First let's take care of painting the right icon.
       if (table_type_ == ICON_AND_TEXT) {
-        SkBitmap image = model_->GetIcon(n_item);
+        SkBitmap image = model_->GetIcon(model_index);
         if (!image.isNull()) {
           // Get the rect that holds the icon.
           CRect icon_rect, client_rect;
-          if (ListView_GetItemRect(list_view_, n_item, &icon_rect,
+          if (ListView_GetItemRect(list_view_, view_index, &icon_rect,
                                    LVIR_ICON) &&
               GetClientRect(list_view_, &client_rect)) {
             CRect intersection;
@@ -718,7 +973,7 @@ LRESULT TableView::OnCustomDraw(NMLVCUSTOMDRAW* draw_info) {
 
               // It seems the state in nmcd.uItemState is not correct.
               // We'll retrieve it explicitly.
-              int selected = ListView_GetItemState(list_view_, n_item,
+              int selected = ListView_GetItemState(list_view_, view_index,
                                                    LVIS_SELECTED);
               int bg_color_index;
               if (!IsEnabled())
@@ -758,8 +1013,9 @@ LRESULT TableView::OnCustomDraw(NMLVCUSTOMDRAW* draw_info) {
       }
       if (ImplementPostPaint()) {
         CRect cell_rect;
-        if (ListView_GetItemRect(list_view_, n_item, &cell_rect, LVIR_BOUNDS)) {
-          PostPaint(n_item, 0, false, cell_rect, draw_info->nmcd.hdc);
+        if (ListView_GetItemRect(list_view_, view_index, &cell_rect,
+                                 LVIR_BOUNDS)) {
+          PostPaint(model_index, 0, false, cell_rect, draw_info->nmcd.hdc);
           r = CDRF_SKIPDEFAULT;
         }
       }
@@ -847,21 +1103,29 @@ void TableView::GetPreferredSize(CSize* out) {
   *out = preferred_size_;
 }
 
-
 void TableView::UpdateListViewCache0(int start, int length, bool add) {
+  if (is_sorted()) {
+    if (add)
+      UpdateItemsLParams(start, length);
+    else
+      UpdateItemsLParams(0, 0);
+  }
+
   LVITEM item = {0};
   int start_column = 0;
   int max_row = start + length;
   const bool has_groups =
       (win_util::GetWinVersion() > win_util::WINVERSION_2000 &&
        model_->HasGroups());
-  if (has_groups)
-    item.mask = LVIF_GROUPID;
   if (add) {
+    if (has_groups)
+      item.mask = LVIF_GROUPID;
+    item.mask |= LVIF_PARAM;
     for (int i = start; i < max_row; ++i) {
       item.iItem = i;
       if (has_groups)
         item.iGroupId = model_->GetGroupID(i);
+      item.lParam = i;
       ListView_InsertItem(list_view_, &item);
     }
   }
@@ -878,14 +1142,12 @@ void TableView::UpdateListViewCache0(int start, int length, bool add) {
     item.stateMask = LVIS_STATEIMAGEMASK;
     for (int i = start; i < max_row; ++i) {
       std::wstring text = model_->GetText(i, visible_columns_[0]);
-      item.iItem = i;
+      item.iItem = add ? i : model_to_view(i);
       item.pszText = const_cast<LPWSTR>(text.c_str());
       item.state = INDEXTOSTATEIMAGEMASK(model_->IsChecked(i) ? 2 : 1);
       ListView_SetItem(list_view_, &item);
     }
   }
-  if (start_column == column_count_)
-    return;
 
   item.stateMask = 0;
   item.mask = LVIF_TEXT;
@@ -896,7 +1158,7 @@ void TableView::UpdateListViewCache0(int start, int length, bool add) {
     TableColumn& col = all_columns_[visible_columns_[j]];
     int max_text_width = ListView_GetStringWidth(list_view_, col.title.c_str());
     for (int i = start; i < max_row; ++i) {
-      item.iItem = i;
+      item.iItem = add ? i : model_to_view(i);
       item.iSubItem = j;
       std::wstring text = model_->GetText(i, visible_columns_[j]);
       item.pszText = const_cast<LPWSTR>(text.c_str());
@@ -917,9 +1179,17 @@ void TableView::UpdateListViewCache0(int start, int length, bool add) {
 
     // Protect against partial update.
     if (max_text_width > col.min_visible_width ||
-      (start == 0 && length == model_->RowCount())) {
+        (start == 0 && length == model_->RowCount())) {
       col.min_visible_width = max_text_width;
     }
+  }
+
+  if (is_sorted()) {
+    // NOTE: As most of our tables are smallish I'm not going to optimize this.
+    // If our tables become large and frequently update, then it'll make sense
+    // to optimize this.
+
+    SortItemsAndUpdateMapping();
   }
 }
 
@@ -941,15 +1211,14 @@ void TableView::OnKeyDown(unsigned short virtual_keycode) {
   }
 }
 
-void TableView::OnCheckedStateChanged(int item, bool is_checked) {
-  if (!ignore_listview_change_) {
-    model_->SetChecked(item, is_checked);
-  }
+void TableView::OnCheckedStateChanged(int model_row, bool is_checked) {
+  if (!ignore_listview_change_)
+    model_->SetChecked(model_row, is_checked);
 }
 
-int TableView::PreviousSelectedIndex(int item) {
-  DCHECK(item >= 0);
-  if (!list_view_ || item <= 0)
+int TableView::PreviousSelectedViewIndex(int view_index) {
+  DCHECK(view_index >= 0);
+  if (!list_view_ || view_index <= 0)
     return -1;
 
   int row_count = RowCount();
@@ -959,13 +1228,13 @@ int TableView::PreviousSelectedIndex(int item) {
   // For some reason
   // ListView_GetNextItem(list_view_,item, LVNI_SELECTED | LVNI_ABOVE)
   // fails on Vista (always returns -1), so we iterate through the indices.
-  item = std::min(item, row_count);
-  while (--item >= 0 && !IsItemSelected(item));
-  return item;
+  view_index = std::min(view_index, row_count);
+  while (--view_index >= 0 && !IsItemSelected(view_to_model(view_index)));
+  return view_index;
 }
 
-int TableView::LastSelectedIndex() {
-  return PreviousSelectedIndex(RowCount());
+int TableView::LastSelectedViewIndex() {
+  return PreviousSelectedViewIndex(RowCount());
 }
 
 void TableView::UpdateContentOffset() {
@@ -991,31 +1260,42 @@ void TableView::UpdateContentOffset() {
 // TableSelectionIterator
 //
 TableSelectionIterator::TableSelectionIterator(TableView* view,
-                                               int index)
-    : table_view_(view), index_(index) {
+                                               int view_index)
+    : table_view_(view),
+      view_index_(view_index) {
+  UpdateModelIndexFromViewIndex();
 }
 
 TableSelectionIterator& TableSelectionIterator::operator=(
     const TableSelectionIterator& other) {
-  index_ = other.index_;
+  view_index_ = other.view_index_;
+  model_index_ = other.model_index_;
   return *this;
 }
 
 bool TableSelectionIterator::operator==(const TableSelectionIterator& other) {
-  return (other.index_ == index_);
+  return (other.view_index_ == view_index_);
 }
 
 bool TableSelectionIterator::operator!=(const TableSelectionIterator& other) {
-  return (other.index_ != index_);
+  return (other.view_index_ != view_index_);
 }
 
 TableSelectionIterator& TableSelectionIterator::operator++() {
-  index_ = table_view_->PreviousSelectedIndex(index_);
+  view_index_ = table_view_->PreviousSelectedViewIndex(view_index_);
+  UpdateModelIndexFromViewIndex();
   return *this;
 }
 
 int TableSelectionIterator::operator*() {
-  return index_;
+  return model_index_;
+}
+
+void TableSelectionIterator::UpdateModelIndexFromViewIndex() {
+  if (view_index_ == -1)
+    model_index_ = -1;
+  else
+    model_index_ = table_view_->view_to_model(view_index_);
 }
 
 }  // namespace

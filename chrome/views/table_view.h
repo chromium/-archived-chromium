@@ -22,8 +22,22 @@ class SkBitmap;
 // to display. TableModel also has an Observer which is used to notify
 // TableView of changes to the model so that the display may be updated
 // appropriately.
+//
 // TableView itself has an observer that is notified when the selection
 // changes.
+//
+// Tables may be sorted either by directly invoking SetSortDescriptors or by
+// marking the column as sortable and the user doing a gesture to sort the
+// contents. TableView itself maintains the sort so that the underlying model
+// isn't effected.
+//
+// When a table is sorted the model coordinates do not necessarily match the
+// view coordinates. All table methods are in terms of the model. If you need to
+// convert to view coordinates use model_to_view.
+//
+// Sorting is done by a locale sensitive string sort. You can customize the
+// sort by way of overriding CompareValues.
+//
 // TableView is a wrapper around the window type ListView in report mode.
 namespace ChromeViews {
 
@@ -125,6 +139,14 @@ class TableModel {
   // Sets the observer for the model. The TableView should NOT take ownership
   // of the observer.
   virtual void SetObserver(TableModelObserver* observer) = 0;
+
+  // Compares the values in the column with id |column_id| for the two rows.
+  // Returns a value < 0, == 0 or > 0 as to whether the first value is
+  // <, == or > the second value.
+  //
+  // This implementation does a case insensitive locale specific string
+  // comparison.
+  virtual int CompareValues(int row1, int row2, int column_id);
 };
 
 // TableColumn specifies the title, alignment and size of a particular column.
@@ -139,7 +161,8 @@ struct TableColumn {
         alignment(LEFT),
         width(-1),
         percent(),
-        min_visible_width(0) {
+        min_visible_width(0),
+        sortable(false) {
   }
   TableColumn(int id, const std::wstring title, Alignment alignment, int width)
       : id(id),
@@ -147,7 +170,8 @@ struct TableColumn {
         alignment(alignment),
         width(width),
         percent(0),
-        min_visible_width(0) {
+        min_visible_width(0),
+        sortable(false) {
   }
   TableColumn(int id, const std::wstring title, Alignment alignment, int width,
               float percent)
@@ -156,7 +180,8 @@ struct TableColumn {
         alignment(alignment),
         width(width),
         percent(percent),
-        min_visible_width(0) {
+        min_visible_width(0),
+        sortable(false) {
   }
   // It's common (but not required) to use the title's IDS_* tag as the column
   // id. In this case, the provided conveniences look up the title string on
@@ -166,7 +191,8 @@ struct TableColumn {
         alignment(alignment),
         width(width),
         percent(0),
-        min_visible_width(0) {
+        min_visible_width(0),
+        sortable(false) {
     title = l10n_util::GetString(id);
   }
   TableColumn(int id, Alignment alignment, int width, float percent)
@@ -174,7 +200,8 @@ struct TableColumn {
         alignment(alignment),
         width(width),
         percent(percent),
-        min_visible_width(0) {
+        min_visible_width(0),
+        sortable(false) {
     title = l10n_util::GetString(id);
   }
 
@@ -207,12 +234,15 @@ struct TableColumn {
   // (including the header)
   // to be visible.
   int min_visible_width;
+
+  // Is this column sortable? Default is false
+  bool sortable;
 };
 
 // Returned from SelectionBegin/SelectionEnd
 class TableSelectionIterator {
  public:
-  TableSelectionIterator(TableView* view, int index);
+  TableSelectionIterator(TableView* view, int view_index);
   TableSelectionIterator& operator=(const TableSelectionIterator& other);
   bool operator==(const TableSelectionIterator& other);
   bool operator!=(const TableSelectionIterator& other);
@@ -220,8 +250,14 @@ class TableSelectionIterator {
   int operator*();
 
  private:
+  void UpdateModelIndexFromViewIndex();
+
   TableView* table_view_;
-  int index_;
+  int view_index_;
+
+  // The index in terms of the model. This is returned from the * operator. This
+  // is cached to avoid dependencies on the view_to_model mapping.
+  int model_index_;
 };
 
 // TableViewObserver is notified about the TableView selection.
@@ -251,6 +287,22 @@ class TableView : public NativeControl,
     SkColor color;
   };
 
+  // Describes a sorted column.
+  struct SortDescriptor {
+    SortDescriptor() : column_id(-1), ascending(true) {}
+    SortDescriptor(int column_id, bool ascending)
+        : column_id(column_id),
+          ascending(ascending) { }
+
+    // ID of the sorted column.
+    int column_id;
+
+    // Is the sort ascending?
+    bool ascending;
+  };
+
+  typedef std::vector<SortDescriptor> SortDescriptors;
+
   // Creates a new table using the model and columns specified.
   // The table type applies to the content of the first column (text, icon and
   // text, checkbox and text).
@@ -276,6 +328,12 @@ class TableView : public NativeControl,
   // issues when the model needs to be deleted before the table.
   void SetModel(TableModel* model);
 
+  // Resorts the contents.
+  void SetSortDescriptors(const SortDescriptors& sort_descriptors);
+
+  // Current sort.
+  const SortDescriptors& sort_descriptors() const { return sort_descriptors_; }
+
   void DidChangeBounds(const CRect& previous, const CRect& current);
 
   // Returns the number of rows in the TableView.
@@ -285,28 +343,30 @@ class TableView : public NativeControl,
   int SelectedRowCount();
 
   // Selects the specified item, making sure it's visible.
-  void Select(int item);
+  void Select(int model_row);
 
   // Sets the selected state of an item (without sending any selection
   // notifications). Note that this routine does NOT set the focus to the
   // item at the given index.
-  void SetSelectedState(int item, bool state);
+  void SetSelectedState(int model_row, bool state);
 
   // Sets the focus to the item at the given index.
-  void SetFocusOnItem(int item);
+  void SetFocusOnItem(int model_row);
 
-  // Returns the first selected row.
+  // Returns the first selected row in terms of the model.
   int FirstSelectedRow();
 
   // Returns true if the item at the specified index is selected.
-  bool IsItemSelected(int item);
+  bool IsItemSelected(int model_row);
 
   // Returns true if the item at the specified index has the focus.
-  bool ItemHasTheFocus(int item);
+  bool ItemHasTheFocus(int model_row);
 
   // Returns an iterator over the selection. The iterator proceeds from the
-  // last index to the first. Do NOT use the iterator after you've mutated
-  // the model.
+  // last index to the first.
+  //
+  // NOTE: the iterator iterates over the visual order (but returns coordinates
+  // in terms of the model).
   iterator SelectionBegin();
   iterator SelectionEnd();
 
@@ -342,6 +402,19 @@ class TableView : public NativeControl,
   void SetPreferredSize(const CSize& preferred_size);
   virtual void GetPreferredSize(CSize* out);
 
+  // Is the table sorted?
+  bool is_sorted() const { return !sort_descriptors_.empty(); }
+
+  // Maps from the index in terms of the model to that of the view.
+  int model_to_view(int model_index) const {
+    return model_to_view_.get() ? model_to_view_[model_index] : model_index;
+  }
+
+  // Maps from the index in terms of the view to that of the model.
+  int view_to_model(int view_index) const {
+    return view_to_model_.get() ? view_to_model_[view_index] : view_index;
+  }
+
  protected:
   // Subclasses that want to customize the colors of a particular row/column,
   // must invoke this passing in true. The default value is false, such that
@@ -362,7 +435,7 @@ class TableView : public NativeControl,
   // Invoked to customize the colors or font at a particular cell. If you
   // change the colors or font, return true. This is only invoked if
   // SetCustomColorsEnabled(true) has been invoked.
-  virtual bool GetCellColors(int row,
+  virtual bool GetCellColors(int model_row,
                              int column,
                              ItemColor* foreground,
                              ItemColor* background,
@@ -373,7 +446,7 @@ class TableView : public NativeControl,
   // method.
   virtual bool ImplementPostPaint() { return false; }
   // Subclasses can implement in this method extra-painting for cells.
-  virtual void PostPaint(int row, int column, bool selected,
+  virtual void PostPaint(int model_row, int column, bool selected,
                          const CRect& bounds, HDC device_context) { }
 
   virtual HWND CreateNativeControl(HWND parent_container);
@@ -383,7 +456,23 @@ class TableView : public NativeControl,
   // Overriden to destroy the image list.
   virtual void OnDestroy();
 
+  // Used to sort the two rows. Returns a value < 0, == 0 or > 0 indicating
+  // whether the row2 comes before row1, row2 is the same as row1 or row1 comes
+  // after row2. This invokes CompareValues on the model with the sorted column.
+  virtual int CompareRows(int model_row1, int model_row2);
+
+  // Called before sorting. This does nothing and is intended for subclasses
+  // that need to cache state used during sorting.
+  virtual void PrepareForSort() {}
+
  private:
+  // Direction of a sort.
+  enum SortDirection {
+    ASCENDING_SORT,
+    DESCENDING_SORT,
+    NO_SORT
+  };
+
   // We need this wrapper to pass the table view to the windows proc handler
   // when subclassing the list view and list view header, as the reinterpret
   // cast from GetWindowLongPtr would break the pointer if it is pointing to a
@@ -397,6 +486,34 @@ class TableView : public NativeControl,
   friend class TableSelectionIterator;
 
   LRESULT OnCustomDraw(NMLVCUSTOMDRAW* draw_info);
+
+  // Invoked when the user clicks on a column to toggle the sort order. If
+  // column_id is the primary sorted column the direction of the sort is
+  // toggled, otherwise column_id is made the primary sorted column.
+  void ToggleSortOrder(int column_id);
+
+  // Updates the lparam of each of the list view items to be the model index.
+  // If length is > 0, all items with an index >= start get offset by length.
+  // This is used during sorting to determine how the items were sorted.
+  void UpdateItemsLParams(int start, int length);
+
+  // Does the actual sort and updates the mappings (view_to_model and
+  // model_to_view) appropriately.
+  void SortItemsAndUpdateMapping();
+
+  // Method invoked by ListView to compare the two values. Invokes CompareRows.
+  static int CALLBACK SortFunc(LPARAM model_index_1_p,
+                               LPARAM model_index_2_p,
+                               LPARAM table_view_param);
+
+  // Method invoked by ListView when sorting back to natural state. Returns
+  // model_index_1_p - model_index_2_p.
+  static int CALLBACK NaturalSortFunc(LPARAM model_index_1_p,
+                                      LPARAM model_index_2_p,
+                                      LPARAM table_view_param);
+
+  // Resets the sort image displayed for the specified column.
+  void ResetColumnSortImage(int column_id, SortDirection direction);
 
   // Adds a new column.
   void InsertColumn(const TableColumn& tc, int index);
@@ -418,15 +535,19 @@ class TableView : public NativeControl,
 
   // Notification from the ListView that the checked state of the item has
   // changed.
-  void OnCheckedStateChanged(int item, bool is_checked);
+  void OnCheckedStateChanged(int model_row, bool is_checked);
 
-  // Returns the index of the selected item before |item|, or -1 if |item| is
-  // the first selected item.
-  int PreviousSelectedIndex(int item);
+  // Returns the index of the selected item before |view_index|, or -1 if
+  // |view_index| is the first selected item.
+  //
+  // WARNING: this returns coordinates in terms of the view, NOT the model.
+  int PreviousSelectedViewIndex(int view_index);
 
-  // Returns the last selected index in the table view, or -1 if the table
+  // Returns the last selected view index in the table view, or -1 if the table
   // is empty, or nothing is selected.
-  int LastSelectedIndex();
+  //
+  // WARNING: this returns coordinates in terms of the view, NOT the model.
+  int LastSelectedViewIndex();
 
   // The TableColumn visible at position pos.
   const TableColumn& GetColumnAtPosition(int pos);
@@ -459,10 +580,6 @@ class TableView : public NativeControl,
 
   // Cached value of columns_.size()
   int column_count_;
-
-  // Whether or not the data should be cached in the TableView.
-  // This is currently always true.
-  bool cache_data_;
 
   // Selection mode.
   bool single_selection_;
@@ -509,8 +626,16 @@ class TableView : public NativeControl,
   // The offset from the top of the client area to the start of the content.
   int content_offset_;
 
+  // Current sort.
+  SortDescriptors sort_descriptors_;
+
+  // Mappings used when sorted.
+  scoped_array<int> view_to_model_;
+  scoped_array<int> model_to_view_;
+
   DISALLOW_COPY_AND_ASSIGN(TableView);
 };
-}
+
+}  // namespace
 
 #endif  // CHROME_VIEWS_TABLE_VIEW_H_

@@ -471,12 +471,20 @@ void KeywordEditorView::Init() {
   columns.push_back(
       TableColumn(IDS_SEARCH_ENGINES_EDITOR_DESCRIPTION_COLUMN,
                   TableColumn::LEFT, -1, .75));
+  columns.back().sortable = true;
   columns.push_back(
       TableColumn(IDS_SEARCH_ENGINES_EDITOR_KEYWORD_COLUMN,
                   TableColumn::LEFT, -1, .25));
+  columns.back().sortable = true;
   table_view_ = new ChromeViews::TableView(table_model_.get(), columns,
       ChromeViews::ICON_AND_TEXT, false, true, true);
   table_view_->SetObserver(this);
+  // Make the table initially sorted by name.
+  ChromeViews::TableView::SortDescriptors sort;
+  sort.push_back(
+      ChromeViews::TableView::SortDescriptor(
+          IDS_SEARCH_ENGINES_EDITOR_DESCRIPTION_COLUMN, true));
+  table_view_->SetSortDescriptors(sort);
 
   add_button_ = new ChromeViews::NativeButton(
       l10n_util::GetString(IDS_SEARCH_ENGINES_EDITOR_NEW_BUTTON));
@@ -586,20 +594,20 @@ void KeywordEditorView::ButtonPressed(ChromeViews::NativeButton* sender) {
     // Remove the observer while we modify the model, that way we don't need to
     // worry about the model calling us back when we mutate it.
     url_model_->RemoveObserver(this);
-    int last_row = -1;
+    int last_view_row = -1;
     for (ChromeViews::TableView::iterator i = table_view_->SelectionBegin();
          i != table_view_->SelectionEnd(); ++i) {
-      last_row = *i;
-      const TemplateURL* template_url = &table_model_->GetTemplateURL(last_row);
+      last_view_row = table_view_->model_to_view(*i);
+      const TemplateURL* template_url = &table_model_->GetTemplateURL(*i);
       // Make sure to remove from the table model first, otherwise the
       // TemplateURL would be freed.
-      table_model_->Remove(last_row);
+      table_model_->Remove(*i);
       url_model_->Remove(template_url);
     }
-    if (last_row >= table_model_->RowCount())
-      last_row = table_model_->RowCount() - 1;
-    if (last_row >= 0)
-      table_view_->Select(last_row);
+    if (last_view_row >= table_model_->RowCount())
+      last_view_row = table_model_->RowCount() - 1;
+    if (last_view_row >= 0)
+      table_view_->Select(table_view_->view_to_model(last_view_row));
     url_model_->AddObserver(this);
 
     // We may have removed the default provider.  Enable the Suggest checkbox
@@ -676,5 +684,5 @@ void KeywordEditorView::MakeDefaultSearchProvider(int index) {
   table_model_->MoveToMainGroup(index);
 
   // And select it.
-  table_view_->Select(new_index);
+  table_view_->Select(table_model_->IndexOfTemplateURL(keyword));
 }

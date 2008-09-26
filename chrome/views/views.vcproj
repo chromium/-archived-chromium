@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets=".\views.vsprops;$(SolutionDir)..\build\debug.vsprops;..\tools\build\win\precompiled_wtl.vsprops"
+			InheritedPropertySheets=".\views.vsprops;$(SolutionDir)..\build\debug.vsprops;..\tools\build\win\precompiled_wtl.vsprops;..\..\third_party\icu38\build\using_icu.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -69,7 +69,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets=".\views.vsprops;$(SolutionDir)..\build\release.vsprops"
+			InheritedPropertySheets=".\views.vsprops;$(SolutionDir)..\build\release.vsprops;..\..\third_party\icu38\build\using_icu.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"

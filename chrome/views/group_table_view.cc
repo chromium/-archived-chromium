@@ -124,7 +124,31 @@ void GroupTableView::OnKeyDown(unsigned short virtual_keycode) {
   }
 }
 
-void GroupTableView::OnSelectedStateChanged(int item, bool is_selected) {
+void GroupTableView::PrepareForSort() {
+  GroupRange range;
+  int row_count = RowCount();
+  model_index_to_range_start_map_.clear();
+  for (int model_row = 0; model_row < row_count;) {
+    model_->GetGroupRangeForItem(model_row, &range);
+    for (int range_counter = 0; range_counter < range.length; range_counter++)
+      model_index_to_range_start_map_[range_counter + model_row] = model_row;
+    model_row += range.length;
+  }
+}
+
+int GroupTableView::CompareRows(int model_row1, int model_row2) {
+  int range1 = model_index_to_range_start_map_[model_row1];
+  int range2 = model_index_to_range_start_map_[model_row2];
+  if (range1 == range2) {
+    // The two rows are in the same group, sort so that items in the same group
+    // always appear in the same order.
+    return model_row1 - model_row2;
+  }
+  // Sort by the first entry of each of the groups.
+  return TableView::CompareRows(range1, range2);
+}
+
+void GroupTableView::OnSelectedStateChanged(int model_row, bool is_selected) {
   // The goal is to make sure all items for a same group are in a consistent
   // state in term of selection. When a user clicks an item, several selection
   // messages are sent, possibly including unselecting all currently selected
@@ -136,14 +160,14 @@ void GroupTableView::OnSelectedStateChanged(int item, bool is_selected) {
         sync_selection_factory_.NewRunnableMethod(
             &GroupTableView::SyncSelection));
   }
-  TableView::OnSelectedStateChanged(item, is_selected);
+  TableView::OnSelectedStateChanged(model_row, is_selected);
 }
 
 // Draws the line separator betweens the groups.
-void GroupTableView::PostPaint(int row, int column, bool selected,
+void GroupTableView::PostPaint(int model_row, int column, bool selected,
                                const CRect& bounds, HDC hdc) {
   GroupRange group_range;
-  model_->GetGroupRangeForItem(row, &group_range);
+  model_->GetGroupRangeForItem(model_row, &group_range);
 
   // We always paint a vertical line at the end of the last cell.
   HPEN hPen = CreatePen(PS_SOLID, kSeparatorLineThickness, kSeparatorLineColor);
@@ -153,7 +177,7 @@ void GroupTableView::PostPaint(int row, int column, bool selected,
   LineTo(hdc, x, bounds.bottom);
 
   // We paint a separator line after the last item of a group.
-  if (row == (group_range.start + group_range.length - 1)) {
+  if (model_row == (group_range.start + group_range.length - 1)) {
     int y = static_cast<int>(bounds.bottom - kSeparatorLineThickness);
     MoveToEx(hdc, 0, y, NULL);
     LineTo(hdc, bounds.Width(), y);
@@ -165,5 +189,5 @@ void GroupTableView::PostPaint(int row, int column, bool selected,
 std::string GroupTableView::GetClassName() const {
   return kViewClassName;
 }
-}  // Namespace
 
+}  // Namespace
