@@ -39,14 +39,16 @@ void CPU::Initialize() {
   *(reinterpret_cast<int*>(cpu_string+8)) = cpu_info[2];
 
   // Interpret CPU feature information.
-  __cpuid(cpu_info, 1);
-  stepping_ = cpu_info[0] & 0xf;
-  model_ = (cpu_info[0] >> 4) & 0xf;
-  family_ = (cpu_info[0] >> 8) & 0xf;
-  type_ = (cpu_info[0] >> 12) & 0x3;
-  ext_model_ = (cpu_info[0] >> 16) & 0xf;
-  ext_family_ = (cpu_info[0] >> 20) & 0xff;
-  cpu_vendor_ = cpu_string;
+  if (num_ids > 0) {
+    __cpuid(cpu_info, 1);
+    stepping_ = cpu_info[0] & 0xf;
+    model_ = (cpu_info[0] >> 4) & 0xf;
+    family_ = (cpu_info[0] >> 8) & 0xf;
+    type_ = (cpu_info[0] >> 12) & 0x3;
+    ext_model_ = (cpu_info[0] >> 16) & 0xf;
+    ext_family_ = (cpu_info[0] >> 20) & 0xff;
+    cpu_vendor_ = cpu_string;
+  }
 }
 
 }  // namespace base
