@@ -52,7 +52,9 @@ class ScopedHostMapper : public HostMapper {
   }
 
   ~ScopedHostMapper() {
-    SetHostMapper(previous_host_mapper_);
+    HostMapper* old_mapper = SetHostMapper(previous_host_mapper_);
+    // The lifetimes of multiple instances must be nested.
+    CHECK(old_mapper == this);
   }
 
   // Any hostname matching the given pattern will be replaced with the given
