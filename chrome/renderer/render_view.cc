@@ -835,7 +835,7 @@ void RenderView::OnStopFinding(bool clear_selection) {
 
   WebFrame* frame = view->GetMainFrame();
   while (frame) {
-    frame->StopFinding();
+    frame->StopFinding(clear_selection);
     frame = view->GetNextFrameAfter(frame, false);
   }
 }

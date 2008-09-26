@@ -124,7 +124,7 @@ class WebFrameImpl : public WebFrame {
                     gfx::Rect* selection_rect);
   virtual bool FindNext(const FindInPageRequest& request,
                         bool wrap_within_frame);
-  virtual void StopFinding();
+  virtual void StopFinding(bool clear_selection);
   virtual void ScopeStringMatches(FindInPageRequest request, bool reset);
   virtual void CancelPendingScopingEffort();
   virtual void ResetMatchCount();
@@ -250,6 +250,14 @@ class WebFrameImpl : public WebFrame {
   size_t active_tickmark_index() const {
     return active_tickmark_;
   }
+
+  // When a Find operation ends, we want to set the selection to what was active
+  // and set focus to the first focusable node we find (starting with the first
+  // node in the matched range and going up the inheritance chain). If we find
+  // nothing to focus we focus the first focusable node in the range. This
+  // allows us to set focus to a link (when we find text inside a link), which
+  // allows us to navigate by pressing Enter after closing the Find box.
+  void SetFindEndstateFocusAndSelection();
 
   // Sets whether the WebFrameImpl allows its document to be scrolled.
   // If the parameter is true, allow the document to be scrolled.

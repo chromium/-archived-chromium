@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_GLUE_WEBFRAME_H__
-#define WEBKIT_GLUE_WEBFRAME_H__
+#ifndef WEBKIT_GLUE_WEBFRAME_H_
+#define WEBKIT_GLUE_WEBFRAME_H_
 
 #include <string>
 
@@ -203,8 +203,11 @@ class WebFrame : public base::RefCounted<WebFrame> {
   // Notifies the frame that we are no longer interested in searching. This will
   // abort any asynchronous scoping effort already under way (see the function
   // ScopeStringMatches for details) and erase all tick-marks and highlighting
-  // from the previous search.
-  virtual void StopFinding() = 0;
+  // from the previous search. If |clear_selection| is true, it will also make
+  // sure the end state for the Find operation does not leave a selection.
+  // This can occur when the user clears the search string but does not close
+  // the find box.
+  virtual void StopFinding(bool clear_selection) = 0;
 
   // Counts how many times a particular string occurs within the frame. It
   // also retrieves the location of the string and updates a vector in the frame
@@ -352,8 +355,7 @@ class WebFrame : public base::RefCounted<WebFrame> {
   virtual bool IsReloadAllowingStaleData() const = 0;
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(WebFrame);
+  DISALLOW_COPY_AND_ASSIGN(WebFrame);
 };
 
-#endif  // WEBKIT_GLUE_WEBFRAME_H__
-
+#endif  // WEBKIT_GLUE_WEBFRAME_H_
