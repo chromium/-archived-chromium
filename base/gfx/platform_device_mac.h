@@ -31,17 +31,6 @@ class PlatformDeviceMac : public SkDevice {
   // override any previous calls to this function.
   virtual void SetTransform(const SkMatrix& matrix) = 0;
 
-  // Devices may be in a layer and offset from the root device. In this case,
-  // the transform (set by setTransform) will corrspond to the root device, and
-  // this device will actually be offset from there.
-  //
-  // This is called after a layered device is created to tell us the location.
-  // This location will be factored into any transforms applied via
-  // setTransform.
-  //
-  // If this function is not called, the offset defaults to (0, 0);
-  virtual void SetDeviceOffset(int x, int y) = 0;
-
   // Sets the clipping region, overriding any previous calls.
   virtual void SetClipRegion(const SkRegion& region) = 0;
 

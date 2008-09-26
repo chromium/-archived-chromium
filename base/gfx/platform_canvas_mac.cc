@@ -102,7 +102,6 @@ int PlatformCanvasMac::saveLayer(const SkRect* bounds,
 
   // There man not actually be a new layer if the layer is empty.
   if (!iter.done()) {
-    new_device.SetDeviceOffset(iter.x(), iter.y());
     new_device.SetTransform(getTotalMatrix());
     new_device.SetClipRegion(getTotalClip());
   }

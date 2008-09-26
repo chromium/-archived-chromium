@@ -57,7 +57,6 @@ class BitmapPlatformDeviceMac : public PlatformDeviceMac {
 
   virtual CGContextRef GetBitmapContext();
   virtual void SetTransform(const SkMatrix& matrix);
-  virtual void SetDeviceOffset(int x, int y);
 
   // This currently only supports extremely simple clip rects.
   virtual void SetClipRegion(const SkRegion& region);
