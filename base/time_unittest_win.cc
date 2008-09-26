@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include <windows.h>
+#include <mmsystem.h>
 #include <process.h>
 
 #include "base/time.h"
@@ -44,7 +45,9 @@ unsigned __stdcall RolloverTestThreadMain(void* param) {
   for (int index = 0; index < counter; index++) {
     TimeTicks now = TimeTicks::Now();
     int64 milliseconds = (now - last).InMilliseconds();
-    EXPECT_GT(milliseconds, 0);
+    // This is a tight loop; we could have looped faster than our
+    // measurements, so the time might be 0 millis.
+    EXPECT_GE(milliseconds, 0);
     EXPECT_LT(milliseconds, 250);
     last = now;
   }
@@ -97,5 +100,92 @@ TEST(TimeTicks, WinRollover) {
 
     // Teardown
     MockTimeTicks::UninstallTicker();
+  }
+}
+
+TEST(TimeTicks, SubMillisecondTimers) {
+  // Loop for a bit getting timers quickly.  We want to
+  // see at least one case where we get a new sample in 
+  // less than one millisecond.
+  bool saw_submillisecond_timer = false;
+  int64 min_timer = 1000;
+  TimeTicks last_time = TimeTicks::HighResNow();
+  for (int index = 0; index < 1000; index++) {
+    TimeTicks now = TimeTicks::HighResNow();
+    TimeDelta delta = now - last_time;
+    if (delta.InMicroseconds() > 0 &&
+        delta.InMicroseconds() < 1000) {
+      if (min_timer > delta.InMicroseconds())
+        min_timer = delta.InMicroseconds();
+      saw_submillisecond_timer = true;
+    }
+    last_time = now;
+  }
+  EXPECT_TRUE(saw_submillisecond_timer);
+  printf("Min timer is: %dus\n", min_timer);
+}
+
+TEST(TimeTicks, TimeGetTimeCaps) {
+  // Test some basic assumptions that we expect about how timeGetDevCaps works.
+
+  TIMECAPS caps;
+  MMRESULT status = timeGetDevCaps(&caps, sizeof(caps));
+  EXPECT_EQ(TIMERR_NOERROR, status);
+  if (status != TIMERR_NOERROR) {
+    printf("Could not get timeGetDevCaps\n");
+    return;
+  }
+
+  EXPECT_GE(static_cast<int>(caps.wPeriodMin), 1);
+  EXPECT_GT(static_cast<int>(caps.wPeriodMax), 1);
+  EXPECT_GE(static_cast<int>(caps.wPeriodMin), 1);
+  EXPECT_GT(static_cast<int>(caps.wPeriodMax), 1);
+  printf("timeGetTime range is %d to %dms\n", caps.wPeriodMin,
+    caps.wPeriodMax);
+}
+
+TEST(TimeTicks, QueryPerformanceFrequency) {
+  // Test some basic assumptions that we expect about QPC.
+
+  LARGE_INTEGER frequency;
+  BOOL rv = QueryPerformanceFrequency(&frequency);
+  EXPECT_EQ(TRUE, rv);
+  EXPECT_GT(frequency.QuadPart, 1000000);  // Expect at least 1MHz
+  printf("QueryPerformanceFrequency is %5.2fMHz\n",
+    frequency.QuadPart / 1000000.0);
+}
+
+TEST(TimeTicks, TimerPerformance) {
+  // Verify that various timer mechanisms can always complete quickly.
+  // Note:  This is a somewhat arbitrary test.
+  const int kLoops = 10000;
+  const int kMaxTime = 10;  // Maximum acceptible milliseconds for test.
+
+  typedef TimeTicks (*TestFunc)();
+  struct TestCase {
+    TestFunc func;
+    char *description;
+  };
+  // Cheating a bit here:  assumes sizeof(TimeTicks) == sizeof(Time)
+  // in order to create a single test case list.
+  COMPILE_ASSERT(sizeof(TimeTicks) == sizeof(Time), 
+                 test_only_works_with_same_sizes);
+  TestCase cases[] = { 
+    { reinterpret_cast<TestFunc>(Time::Now), "Time::Now" },
+    { TimeTicks::Now, "TimeTicks::Now" },
+    { TimeTicks::HighResNow, "TimeTicks::HighResNow" },
+    { NULL, "" }
+  };
+
+  int test_case = 0;
+  while (cases[test_case].func) {
+    TimeTicks start = TimeTicks::HighResNow();
+    for (int index = 0; index < kLoops; index++)
+      cases[test_case].func();
+    TimeTicks stop = TimeTicks::HighResNow();
+    EXPECT_LT((stop - start).InMilliseconds(), kMaxTime);
+    printf("%s: %1.2fus per call\n", cases[test_case].description, 
+      (stop - start).InMillisecondsF() * 1000 / kLoops);
+    test_case++;
   }
 }

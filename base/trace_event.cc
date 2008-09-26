@@ -136,7 +136,7 @@ void TraceLog::Trace(const std::string& name,
     return;
 
 #ifdef USE_UNRELIABLE_NOW
-  TimeTicks tick = TimeTicks::UnreliableHighResNow();
+  TimeTicks tick = TimeTicks::HighResNow();
 #else
   TimeTicks tick = TimeTicks::Now();
 #endif

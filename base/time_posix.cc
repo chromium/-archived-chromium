@@ -137,6 +137,6 @@ TimeTicks TimeTicks::Now() {
 }
 
 // static
-TimeTicks TimeTicks::UnreliableHighResNow() {
+TimeTicks TimeTicks::HighResNow() {
   return Now();
 }

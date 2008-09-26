@@ -348,15 +348,15 @@ class TimeTicks {
   }
 
   // Platform-dependent tick count representing "right now."
-  // The resolution of this clock is ~1-5ms.  Resolution varies depending
+  // The resolution of this clock is ~1-15ms.  Resolution varies depending
   // on hardware/operating system configuration.
   static TimeTicks Now();
 
-  // Returns a platform-dependent high-resolution tick count. IT IS BROKEN ON
-  // SOME HARDWARE and is designed to be used for profiling and perf testing
-  // only (see the impl for more information).
-  static TimeTicks UnreliableHighResNow();
-
+  // Returns a platform-dependent high-resolution tick count. Implementation
+  // is hardware dependent and may or may not return sub-millisecond
+  // resolution.  THIS CALL IS GENERALLY MUCH MORE EXPENSIVE THAN Now() AND
+  // SHOULD ONLY BE USED WHEN IT IS REALLY NEEDED.
+  static TimeTicks HighResNow();
 
   // Returns true if this object has not been initialized.
   bool is_null() const {

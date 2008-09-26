@@ -2,6 +2,38 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+
+// Windows Timer Primer
+//
+// A good article:  http://www.ddj.com/windows/184416651
+// A good mozilla bug:  http://bugzilla.mozilla.org/show_bug.cgi?id=363258
+//
+// The default windows timer, GetSystemTimeAsFileTime is not very precise.
+// It is only good to ~15.5ms.
+//
+// QueryPerformanceCounter is the logical choice for a high-precision timer.
+// However, it is known to be buggy on some hardware.  Specifically, it can
+// sometimes "jump".  On laptops, QPC can also be very expensive to call.
+// It's 3-4x slower than timeGetTime() on desktops, but can be 10x slower
+// on laptops.  A unittest exists which will show the relative cost of various
+// timers on any system.
+//
+// The next logical choice is timeGetTime().  timeGetTime has a precision of
+// 1ms, but only if you call APIs (timeBeginPeriod()) which affect all other
+// applications on the system.  By default, precision is only 15.5ms.
+// Unfortunately, we don't want to call timeBeginPeriod because we don't
+// want to affect other applications.  Further, on mobile platforms, use of
+// faster multimedia timers can hurt battery life.  See the intel 
+// article about this here: 
+// http://softwarecommunity.intel.com/articles/eng/1086.htm
+//
+// To work around all this, we're going to generally use timeGetTime().  We
+// will only increase the system-wide timer if we're not running on battery
+// power.  Using timeBeginPeriod(1) is a requirement in order to make our
+// message loop waits have the same resolution that our time measurements
+// do.  Otherwise, WaitForSingleObject(..., 1) will no less than 15ms when
+// there is nothing else to waken the Wait.
+
 #include "base/time.h"
 
 #pragma comment(lib, "winmm.lib")
@@ -11,7 +43,9 @@
 #include "base/basictypes.h"
 #include "base/lock.h"
 #include "base/logging.h"
+#include "base/cpu.h"
 #include "base/singleton.h"
+#include "base/system_monitor.h"
 
 namespace {
 
@@ -174,6 +208,7 @@ DWORD timeGetTimeWrapper() {
   return timeGetTime();
 }
 
+
 DWORD (*tick_function)(void) = &timeGetTimeWrapper;
 
 // We use timeGetTime() to implement TimeTicks::Now().  This can be problematic
@@ -181,20 +216,20 @@ DWORD (*tick_function)(void) = &timeGetTimeWrapper;
 // which will roll over the 32-bit value every ~49 days.  We try to track
 // rollover ourselves, which works if TimeTicks::Now() is called at least every
 // 49 days.
-class NowSingleton {
+class NowSingleton : public base::SystemMonitor::PowerObserver {
  public:
   NowSingleton()
-      : rollover_(TimeDelta::FromMilliseconds(0)), last_seen_(0) {
-    // Request a resolution of 1ms from timeGetTime().  This can have some
-    // consequences on other applications (see MSDN), but we've found that it
-    // is very common in other applications (Flash, Media Player, etc), so it
-    // is not really a dangerous thing to do.  We need this because the default
-    // resolution of ~15ms is much too low for accurate timing and timers.
-    ::timeBeginPeriod(1);
+    : rollover_(TimeDelta::FromMilliseconds(0)),
+      last_seen_(0), 
+      hi_res_clock_enabled_(false) {
+    base::SystemMonitor* system = base::SystemMonitor::Get();
+    system->AddObserver(this);
+    UseHiResClock(!system->BatteryPower());
   }
 
   ~NowSingleton() {
-    ::timeEndPeriod(1);
+    UseHiResClock(false);
+    base::SystemMonitor::Get()->RemoveObserver(this);
   }
 
   TimeDelta Now() {
@@ -208,10 +243,30 @@ class NowSingleton {
     return TimeDelta::FromMilliseconds(now) + rollover_;
   }
 
+  // Interfaces for monitoring Power changes.
+  void OnPowerStateChange(base::SystemMonitor* system) {
+    UseHiResClock(!system->BatteryPower());
+  }
+
+  void OnSuspend(base::SystemMonitor* system) {}
+  void OnResume(base::SystemMonitor* system) {}
+
  private:
+  // Enable or disable the faster multimedia timer.
+  void UseHiResClock(bool enabled) {
+    if (enabled == hi_res_clock_enabled_)
+      return;
+    if (enabled)
+      timeBeginPeriod(1);
+    else
+      timeEndPeriod(1);
+    hi_res_clock_enabled_ = enabled;
+  }
+
   Lock lock_;  // To protected last_seen_ and rollover_.
   TimeDelta rollover_;  // Accumulation of time lost due to rollover.
   DWORD last_seen_;  // The last timeGetTime value we saw, to detect rollover.
+  bool hi_res_clock_enabled_;
 
   DISALLOW_COPY_AND_ASSIGN(NowSingleton);
 };
@@ -244,32 +299,75 @@ class NowSingleton {
 // (3) System time. The system time provides a low-resolution (typically 10ms
 // to 55 milliseconds) time stamp but is comparatively less expensive to
 // retrieve and more reliable.
-class UnreliableHighResNowSingleton {
+class HighResNowSingleton {
  public:
-  UnreliableHighResNowSingleton() : ticks_per_microsecond_(0) {
-    LARGE_INTEGER ticks_per_sec = {0};
-    if (!QueryPerformanceFrequency(&ticks_per_sec))
-      return;  // Broken, we don't guarantee this function works.
-    ticks_per_microsecond_ =
-        ticks_per_sec.QuadPart / Time::kMicrosecondsPerSecond;
+  HighResNowSingleton() 
+    : ticks_per_microsecond_(0.0),
+      skew_(0) {  
+    InitializeClock();
+
+    // On Athlon X2 CPUs (e.g. model 15) QueryPerformanceCounter is
+    // unreliable.  Fallback to low-res clock.
+    base::CPU cpu;
+    if (cpu.vendor_name() == "AuthenticAMD" && cpu.family() == 15)
+      DisableHighResClock();
   }
 
-  bool IsBroken() {
-    return ticks_per_microsecond_ == 0;
+  bool IsUsingHighResClock() {
+    return ticks_per_microsecond_ != 0.0;
+  }
+
+  void DisableHighResClock() {
+    ticks_per_microsecond_ = 0.0;
   }
 
   TimeDelta Now() {
-    LARGE_INTEGER now;
-    QueryPerformanceCounter(&now);
-    return TimeDelta::FromMicroseconds(now.QuadPart / ticks_per_microsecond_);
+    // Our maximum tolerance for QPC drifting.
+    const int kMaxTimeDrift = 50 * Time::kMicrosecondsPerMillisecond;
+
+    if (IsUsingHighResClock()) {
+      int64 now = UnreliableNow();
+
+      // Verify that QPC does not seem to drift.
+      DCHECK(now - ReliableNow() - skew_ < kMaxTimeDrift);
+
+      return TimeDelta::FromMicroseconds(now);
+    }
+
+    // Just fallback to the slower clock.
+    return Singleton<NowSingleton>::get()->Now();
   }
 
  private:
+  // Synchronize the QPC clock with GetSystemTimeAsFileTime.
+  void InitializeClock() {
+    LARGE_INTEGER ticks_per_sec = {0};
+    if (!QueryPerformanceFrequency(&ticks_per_sec))
+      return;  // Broken, we don't guarantee this function works.
+    ticks_per_microsecond_ = static_cast<float>(ticks_per_sec.QuadPart) /
+      static_cast<float>(Time::kMicrosecondsPerSecond);
+
+    skew_ = UnreliableNow() - ReliableNow();
+  }
+
+  // Get the number of microseconds since boot in a reliable fashion
+  int64 UnreliableNow() {
+    LARGE_INTEGER now;
+    QueryPerformanceCounter(&now);
+    return static_cast<int64>(now.QuadPart / ticks_per_microsecond_);
+  }
+
+  // Get the number of microseconds since boot in a reliable fashion
+  int64 ReliableNow() {
+    return Singleton<NowSingleton>::get()->Now().InMicroseconds();
+  }
+
   // Cached clock frequency -> microseconds. This assumes that the clock
   // frequency is faster than one microsecond (which is 1MHz, should be OK).
-  int64 ticks_per_microsecond_;  // 0 indicates QPF failed and we're broken.
+  float ticks_per_microsecond_;  // 0 indicates QPF failed and we're broken.
+  int64 skew_;  // Skew between lo-res and hi-res clocks (for debugging).
 
-  DISALLOW_COPY_AND_ASSIGN(UnreliableHighResNowSingleton);
+  DISALLOW_COPY_AND_ASSIGN(HighResNowSingleton);
 };
 
 }  // namespace
@@ -288,14 +386,6 @@ TimeTicks TimeTicks::Now() {
 }
 
 // static
-TimeTicks TimeTicks::UnreliableHighResNow() {
-  UnreliableHighResNowSingleton* now =
-      Singleton<UnreliableHighResNowSingleton>::get();
-
-  if (now->IsBroken()) {
-    NOTREACHED() << "QueryPerformanceCounter is broken.";
-    return TimeTicks(0);
-  }
-
-  return TimeTicks() + now->Now();
+TimeTicks TimeTicks::HighResNow() {
+  return TimeTicks() + Singleton<HighResNowSingleton>::get()->Now();
 }

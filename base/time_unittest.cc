@@ -86,21 +86,38 @@ TEST(Time, LocalMidnight) {
 }
 
 TEST(TimeTicks, Deltas) {
-  TimeTicks ticks_start = TimeTicks::Now();
-  PlatformThread::Sleep(10);
-  TimeTicks ticks_stop = TimeTicks::Now();
-  TimeDelta delta = ticks_stop - ticks_start;
-  EXPECT_GE(delta.InMilliseconds(), 10);
-  EXPECT_GE(delta.InMicroseconds(), 10000);
-  EXPECT_EQ(delta.InSeconds(), 0);
+  for (int index = 0; index < 500; index++) {
+    TimeTicks ticks_start = TimeTicks::Now();
+    PlatformThread::Sleep(10);
+    TimeTicks ticks_stop = TimeTicks::Now();
+    TimeDelta delta = ticks_stop - ticks_start;
+    // Note:  Although we asked for a 10ms sleep, if the
+    // time clock has a finer granularity than the Sleep()
+    // clock, it is quite possible to wakeup early.  Here
+    // is how that works:
+    //      Time(ms timer)      Time(us timer)
+    //          5                   5010
+    //          6                   6010
+    //          7                   7010
+    //          8                   8010
+    //          9                   9000
+    // Elapsed  4ms                 3990us
+    //
+    // Unfortunately, our InMilliseconds() function truncates
+    // rather than rounds.  We should consider fixing this
+    // so that our averages come out better.
+    EXPECT_GE(delta.InMilliseconds(), 9);
+    EXPECT_GE(delta.InMicroseconds(), 9000);
+    EXPECT_EQ(delta.InSeconds(), 0);
+  }
 }
 
-TEST(TimeTicks, UnreliableHighResNow) {
-  TimeTicks ticks_start = TimeTicks::UnreliableHighResNow();
+TEST(TimeTicks, HighResNow) {
+  TimeTicks ticks_start = TimeTicks::HighResNow();
   PlatformThread::Sleep(10);
-  TimeTicks ticks_stop = TimeTicks::UnreliableHighResNow();
+  TimeTicks ticks_stop = TimeTicks::HighResNow();
   TimeDelta delta = ticks_stop - ticks_start;
-  EXPECT_GE(delta.InMilliseconds(), 10);
+  EXPECT_GE(delta.InMicroseconds(), 9000);
 }
 
 TEST(TimeDelta, FromAndIn) {
