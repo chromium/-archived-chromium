@@ -105,6 +105,7 @@ if env['PLATFORM'] == 'win32':
       'logging_chrome.cc',
       'message_router.cc',
       'net/url_request_intercept_job.cc',
+      'notification_registrar.cc',
       'os_exchange_data.cc',
       'plugin_messages.cc',
       'pref_service.cc',

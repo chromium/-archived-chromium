@@ -52,8 +52,6 @@ input_files = [
     'event.cc',
     'external_focus_tracker.cc',
     'focus_manager.cc',
-    # This was in the Visual Studio build, but seems unnecessary.
-    #'focus_manager_unittest.cc',
     'grid_layout.cc',
     'group_table_view.cc',
     'hwnd_view.cc',

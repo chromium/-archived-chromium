@@ -102,6 +102,7 @@ env_dll.Append(
         'breakpad_handler',
         'googleurl',
         'net',
+        'sdch',
         'skia',
         'bzip2',
         env_dll['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
@@ -174,6 +175,7 @@ input_files = []
 if env_dll['PLATFORM'] == 'win32':
   input_files.extend([
       'app/chrome_dll_main.cc',
+      '$V8_DIR/snapshot-empty$OBJSUFFIX',
   ])
 
 libs = [
@@ -186,11 +188,11 @@ libs = [
     'plugin/plugin.lib',
     'renderer/renderer.lib',
     'third_party/hunspell/hunspell.lib',
-    'third_party/libevent/libevent.lib',
+    # TODO(sgk):  libevent isn't used on Windows, revisit when Linux gets here
+    #'third_party/libevent/libevent.lib',
     'third_party/sqlite/sqlite.lib',
     'views/views.lib',
     '$V8_DIR/v8.lib',
-    '$V8_DIR/snapshot-empty$OBJSUFFIX',
 ]
 
 
@@ -239,7 +241,8 @@ if env_dll['PLATFORM'] == 'win32':
 
   def chrome_version_emitter(target, source, env):
       source.append('$CHROME_SRC_DIR/VERSION')
-      source.append('$CHROME_SRC_DIR/BRANDING')
+      # TODO(sgk):  parameterize for chromium-vs.-google_chrome
+      source.append('$CHROME_SRC_DIR/app/theme/google_chrome/BRANDING')
       return target, source
 
   b = Builder(action = '$CHROME_VERSION_RC_COM',
