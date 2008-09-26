@@ -36,7 +36,7 @@ env.Append(
         'skia',
         'gtest',
         'bzip2',
-        'icuuc',
+        env['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'libjpeg',
         'libpng',
         'libxml',

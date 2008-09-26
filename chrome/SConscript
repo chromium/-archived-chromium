@@ -104,7 +104,7 @@ env_dll.Append(
         'net',
         'skia',
         'bzip2',
-        'icuuc',
+        env_dll['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'libjpeg',
         'libpng',
         'libxml',
@@ -288,7 +288,7 @@ env_exe.Prepend(
     LIBS = [
         'base',
         'breakpad_handler',
-        'icuuc',
+        'icu',
         'sandbox',
         'util',
     ],

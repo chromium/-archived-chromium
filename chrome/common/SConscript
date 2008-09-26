@@ -138,7 +138,7 @@ env_test.Append(
     LIBS = [
         'base',
         'gtest',
-        'icuuc',
+        env_test['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
     ],
 )
 

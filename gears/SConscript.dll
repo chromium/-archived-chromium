@@ -268,7 +268,7 @@ env_browser.Append(
 #        'base',
         'gd',
         'googleurl-gears',
-#        'icuuc',
+#        env_browser['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'jpeg',
         'modp_b64',
         'png',

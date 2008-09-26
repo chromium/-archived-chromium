@@ -29,7 +29,7 @@ env_test.Prepend(
         'common',
         'googleurl',
         'gtest',
-        'icuuc',
+        env_test['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'libpng',
         'net',
         'skia',

@@ -47,7 +47,7 @@ env_test.Prepend(
         'base_gfx',
         'googleurl',
         'gtest',
-        'icuuc',
+        env_test['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'libjpeg',
         'libpng',
         'libxml',

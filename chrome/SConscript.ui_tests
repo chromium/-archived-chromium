@@ -38,7 +38,7 @@ env_test.Prepend(
         'npapi_layout_test_plugin',
         'gtest',
         'base_gfx',
-        'icuuc',
+        env_test['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'zlib',
         'modp_b64',
         'net',

@@ -60,7 +60,7 @@ env_tests.Append(
     LIBS = [
         'googleurl',
         'base',
-        'icuuc',
+        env_tests['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'gtest',
     ]
 )

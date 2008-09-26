@@ -171,7 +171,7 @@ env_tests.Prepend(
         'base',
         'googleurl',
         'gtest',
-        'icuuc',
+        env_tests['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'modp_b64',
         'zlib',
     ]

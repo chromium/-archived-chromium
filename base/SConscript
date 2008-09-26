@@ -197,7 +197,7 @@ env_tests.Prepend(
         'base',
         'base_gfx',
         'gtest',
-        'icuuc',
+        env_tests['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'libpng',
         'skia',
         'zlib',

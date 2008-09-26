@@ -11,7 +11,7 @@ env_test.Prepend(
         '#/..',
     ],
     LIBS = [
-        'icuuc',
+        env_test['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'base',
     ],
 )

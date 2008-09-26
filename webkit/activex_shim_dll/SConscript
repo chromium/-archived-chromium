@@ -14,7 +14,7 @@ env.Prepend(
     LIBS = [
         'activex_shim',
         'googleurl',
-        'icuuc',
+        env['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'base',
     ],
 )

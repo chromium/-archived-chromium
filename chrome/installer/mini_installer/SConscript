@@ -113,7 +113,7 @@ env_test.Prepend(
     ],
     LIBS = [
         'gtest',
-        'icuuc',
+        env_test['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'common',
         'base',
     ],
