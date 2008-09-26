@@ -415,19 +415,20 @@ if ARGUMENTS.get('VERBOSE') in (None, '0'):
   env['BINDINGSCOMSTR'] = 'Building bindings in $TARGET ...'
 
 
-# Place the .sconsign.dblite in the build directory.
-target_dir = env.Dir('$TARGET_ROOT')
-if not os.path.exists(target_dir.abspath):
-  Execute(Mkdir(target_dir))
-SConsignFile(target_dir.File('.sconsign').abspath)
-
-
 # Add --clobber (for the buildbot).
 # NOTE: seems to be crucial to do this before any builders are invoked.
 AddOption('--clobber', action='store_true', dest='clobber', default=False,
           help='Delete build directory before building.')
 if GetOption('clobber'):
   shutil.rmtree(env.Dir('$TARGET_ROOT').abspath, True)
+
+
+# Place the .sconsign.dblite in the build directory.
+target_dir = env.Dir('$TARGET_ROOT')
+if not os.path.exists(target_dir.abspath):
+  Execute(Mkdir(target_dir))
+SConsignFile(target_dir.File('.sconsign').abspath)
+
 
 # Use timestamps change, followed by MD5 for speed
 env.Decider('MD5-timestamp')
