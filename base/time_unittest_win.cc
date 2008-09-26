@@ -159,7 +159,10 @@ TEST(TimeTicks, TimerPerformance) {
   // Verify that various timer mechanisms can always complete quickly.
   // Note:  This is a somewhat arbitrary test.
   const int kLoops = 10000;
-  const int kMaxTime = 10;  // Maximum acceptible milliseconds for test.
+  // Due to the fact that these run on bbots, which are horribly slow,
+  // we can't really make any guarantees about minimum runtime.
+  // Really, we want these to finish in ~10ms, and that is generous.
+  const int kMaxTime = 35;  // Maximum acceptible milliseconds for test.
 
   typedef TimeTicks (*TestFunc)();
   struct TestCase {
