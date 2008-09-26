@@ -27,14 +27,17 @@ namespace {
 // infobubble provides.
 static const int kBubblePadding = 4;
 
-// TODO(cpu): bug 1187517. It is possible that there is no default provider.
-// we should make sure there is none at first run.
 std::wstring GetDefaultSearchEngineName() {
   Browser* browser = BrowserList::GetLastActive();
   DCHECK(browser);
   const TemplateURL* const default_provider =
       browser->profile()->GetTemplateURLModel()->GetDefaultSearchProvider();
-  DCHECK(default_provider);
+  if (!default_provider) {
+    // TODO(cpu): bug 1187517. It is possible to have no default provider.
+    // returning an empty string is a stopgap measure for the crash
+    // http://code.google.com/p/chromium/issues/detail?id=2573
+    return std::wstring();
+  }
   return default_provider->short_name();
 }
 
