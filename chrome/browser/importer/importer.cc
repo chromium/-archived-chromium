@@ -139,16 +139,38 @@ void ProfileWriter::AddFavicons(
 
 typedef std::map<std::string, const TemplateURL*> HostPathMap;
 
+// Returns the key for the map built by BuildHostPathMap. If url_string is not
+// a valid URL, an empty string is returned, otherwise host+path is returned.
+static std::string HostPathKeyForURL(const std::wstring& url_string) {
+  GURL url(url_string);
+  return url.is_valid() ? url.host() + url.path() : std::string();
+}
+
 // Builds the key to use in HostPathMap for the specified TemplateURL. Returns
 // an empty string if a host+path can't be generated for the TemplateURL.
-// If an empty string is returned, it should not be added to HostPathMap.
-static std::string BuildHostPathKey(const TemplateURL* t_url) {
-  if (t_url->url() && t_url->url()->SupportsReplacement()) {
-    GURL search_url(t_url->url()->ReplaceSearchTerms(
-        *t_url, L"random string", TemplateURLRef::NO_SUGGESTIONS_AVAILABLE,
-        std::wstring()));
-    if (search_url.is_valid())
-      return search_url.host() + search_url.path();
+// If an empty string is returned, the TemplateURL should not be added to
+// HostPathMap.
+//
+// If |try_url_if_invalid| is true, and |t_url| isn't valid, a string is built
+// from the raw TemplateURL string. Use a value of true for |try_url_if_invalid|
+// when checking imported URLs as the imported URL may not be valid yet may
+// match the host+path of one of the default URLs. This is used to catch the
+// case of IE using an invalid OSDD URL for Live Search, yet the host+path
+// matches our prepopulate data. IE's URL for Live Search is something like
+// 'http://...{Language}...'. As {Language} is not a valid OSDD parameter value
+// the TemplateURL is invalid.
+static std::string BuildHostPathKey(const TemplateURL* t_url,
+                                    bool try_url_if_invalid) {
+  if (t_url->url()) {
+    if (try_url_if_invalid && !t_url->url()->IsValid())
+      return HostPathKeyForURL(t_url->url()->url());
+
+    if (t_url->url()->SupportsReplacement()) {
+      return HostPathKeyForURL(
+          t_url->url()->ReplaceSearchTerms(
+              *t_url, L"random string",
+              TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring()));
+    }
   }
   return std::string();
 }
@@ -159,7 +181,7 @@ static void BuildHostPathMap(const TemplateURLModel& model,
                              HostPathMap* host_path_map) {
   std::vector<const TemplateURL*> template_urls = model.GetTemplateURLs();
   for (size_t i = 0; i < template_urls.size(); ++i) {
-    const std::string host_path = BuildHostPathKey(template_urls[i]);
+    const std::string host_path = BuildHostPathKey(template_urls[i], false);
     if (!host_path.empty()) {
       const TemplateURL* existing_turl = (*host_path_map)[host_path];
       if (!existing_turl ||
@@ -208,10 +230,11 @@ void ProfileWriter::AddKeywords(const std::vector<TemplateURL*>& template_urls,
     // sure the search engines we provide aren't replaced by those from the
     // imported browser.
     if (unique_on_host_and_path &&
-        host_path_map.find(BuildHostPathKey(t_url)) != host_path_map.end()) {
+        host_path_map.find(
+            BuildHostPathKey(t_url, true)) != host_path_map.end()) {
       if (default_keyword) {
         const TemplateURL* turl_with_host_path =
-            host_path_map[BuildHostPathKey(t_url)];
+            host_path_map[BuildHostPathKey(t_url, true)];
         if (turl_with_host_path)
           model->SetDefaultSearchProvider(turl_with_host_path);
         else
@@ -220,9 +243,14 @@ void ProfileWriter::AddKeywords(const std::vector<TemplateURL*>& template_urls,
       delete t_url;
       continue;
     }
-    model->Add(t_url);
-    if (default_keyword)
-      model->SetDefaultSearchProvider(t_url);
+    if (t_url->url() && t_url->url()->IsValid()) {
+      model->Add(t_url);
+      if (default_keyword && t_url->url() && t_url->url()->SupportsReplacement())
+        model->SetDefaultSearchProvider(t_url);
+    } else {
+      // Don't add invalid TemplateURLs to the model.
+      delete t_url;
+    }
   }
 }
 

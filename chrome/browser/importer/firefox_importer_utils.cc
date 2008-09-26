@@ -328,6 +328,14 @@ int GetFirefoxDefaultSearchEngineIndex(
   std::wstring default_se_name = UTF8ToWide(
       ReadPrefsJsValue(profile_path, "browser.search.selectedEngine"));
 
+  if (default_se_name.empty()) {
+    // browser.search.selectedEngine does not exist if the user has not changed
+    // from the default (or has selected the default).
+    // TODO: should fallback to 'browser.search.defaultengine' if selectedEngine
+    // is empty.
+    return -1;
+  }
+
   int default_se_index = -1;
   for (std::vector<TemplateURL*>::const_iterator iter = search_engines.begin();
        iter != search_engines.end(); ++iter) {
