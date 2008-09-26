@@ -232,6 +232,20 @@ bool CreateDirectory(const std::wstring& full_path);
 // Returns the file size. Returns true on success.
 bool GetFileSize(const std::wstring& file_path, int64* file_size);
 
+// Used to hold information about a given file path.  See GetFileInfo below.
+struct FileInfo {
+  // The size of the file in bytes.  Undefined when is_directory is true.
+  int64 size;
+
+  // True if the file corresponds to a directory.
+  bool is_directory;
+
+  // Add additional fields here as needed.
+};
+
+// Returns information about the given file path.
+bool GetFileInfo(const std::wstring& file_path, FileInfo* info);
+
 // Reads the given number of bytes from the file into the buffer.  Returns
 // the number of read bytes, or -1 on error.
 int ReadFile(const std::wstring& filename, char* data, int size);

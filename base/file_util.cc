@@ -290,5 +290,13 @@ bool ReadFileToString(const std::wstring& path, std::string* contents) {
   return true;
 }
 
+bool GetFileSize(const std::wstring& file_path, int64* file_size) {
+  FileInfo info;
+  if (!GetFileInfo(file_path, &info))
+    return false;
+  *file_size = info.size;
+  return true;
+}
+
 }  // namespace
 

@@ -300,11 +300,12 @@ bool CreateDirectory(const std::wstring& full_path) {
   return true;
 }
 
-bool GetFileSize(const std::wstring& file_path, int64* file_size) {
+bool GetFileInfo(const std::wstring& file_path, FileInfo* results) {
   struct stat64 file_info;
   if (stat64(WideToUTF8(file_path).c_str(), &file_info) != 0)
     return false;
-  *file_size = file_info.st_size;
+  results->is_directory = S_ISDIR(file_info.st_mode);
+  results->size = file_info.st_size;
   return true;
 }
 

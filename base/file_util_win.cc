@@ -432,18 +432,18 @@ bool CreateDirectory(const std::wstring& full_path) {
   return err == ERROR_SUCCESS;
 }
 
-bool GetFileSize(const std::wstring& file_path, int64* file_size) {
-  ScopedHandle file_handle(
-      CreateFile(file_path.c_str(), GENERIC_READ,
-                 FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
-                 OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL));
-
-  LARGE_INTEGER win32_file_size = {0};
-  if (!GetFileSizeEx(file_handle, &win32_file_size)) {
+bool GetFileInfo(const std::wstring& file_path, FileInfo* results) {
+  WIN32_FILE_ATTRIBUTE_DATA attr;
+  if (!GetFileAttributesEx(file_path.c_str(), GetFileExInfoStandard, &attr))
     return false;
-  }
 
-  *file_size = win32_file_size.QuadPart;
+  ULARGE_INTEGER size;
+  size.HighPart = attr.nFileSizeHigh;
+  size.LowPart = attr.nFileSizeLow;
+  results->size = size.QuadPart;
+
+  results->is_directory =
+      (attr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
   return true;
 }
 
