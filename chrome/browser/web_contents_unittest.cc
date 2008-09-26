@@ -240,7 +240,7 @@ class TestWebContents : public WebContents {
     render_view_host->CreateRenderView();
     return true;
   }
-  void UpdateRenderViewSize() {}
+  void UpdateRenderViewSizeForRenderManager() {}
 
   // Set by individual tests.
   bool transition_cross_site;
