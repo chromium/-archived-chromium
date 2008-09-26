@@ -83,7 +83,7 @@ const std::wstring IPCStatusView::GetDefaultTitle() {
 }
 
 void IPCStatusView::SetActive(bool active) {
-  StatusView::SetActive(active);
+  StatusView::set_is_active(active);
 
   if (!disabled_messages_.empty() || !active)
     return;
