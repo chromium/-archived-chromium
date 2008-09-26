@@ -18,8 +18,8 @@
 // the SetString() method would create the missing elements and attach them
 // to root before attaching the homepage value.
 
-#ifndef CHROME_COMMON_VALUES_H__
-#define CHROME_COMMON_VALUES_H__
+#ifndef BASE_VALUES_H_
+#define BASE_VALUES_H_
 
 #include <iterator>
 #include <map>
@@ -356,5 +356,4 @@ class ValueSerializer {
   virtual bool Deserialize(Value** root) = 0;
 };
 
-#endif  // CHROME_COMMON_VALUES_H__
-
+#endif  // BASE_VALUES_H_

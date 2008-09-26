@@ -4,8 +4,8 @@
 
 // Defines all the "base" command-line switches.
 
-#ifndef BASE_SWITCHES_H__
-#define BASE_SWITCHES_H__
+#ifndef BASE_SWITCHES_H_
+#define BASE_SWITCHES_H_
 
 namespace switches {
 
@@ -19,5 +19,5 @@ extern const wchar_t kEnableDCHECK[];
 
 }  // namespace switches
 
-#endif  // CHROME_COMMON_CHROME_SWITCHES_H__
+#endif  // BASE_SWITCHES_H_
 

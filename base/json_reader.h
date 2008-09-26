@@ -27,8 +27,8 @@
 //   double quotes
 // TODO(tc): Add an option to disable comment stripping
 
-#ifndef CHROME_COMMON_JSON_READER_H__
-#define CHROME_COMMON_JSON_READER_H__
+#ifndef BASE_JSON_READER_H_
+#define BASE_JSON_READER_H_
 
 #include <string>
 
@@ -145,5 +145,4 @@ class JSONReader {
   bool allow_trailing_comma_;
 };
 
-#endif  // CHROME_COMMON_JSON_READER_H__
-
+#endif  // BASE_JSON_READER_H_
