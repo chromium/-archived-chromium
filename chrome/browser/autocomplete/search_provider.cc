@@ -110,7 +110,24 @@ void SearchProvider::OnURLFetchComplete(const URLFetcher* source,
   suggest_results_pending_ = false;
   suggest_results_.clear();
   navigation_results_.clear();
-  JSONStringValueSerializer deserializer(data);
+  const net::HttpResponseHeaders* const response_headers =
+      source->response_headers();
+  std::string json_data(data);
+  // JSON is supposed to be in UTF-8, but some suggest service
+  // providers send JSON files in non-UTF-8 encodings, but they're 
+  // usually correctly specified in Content-Type header field.
+  if (response_headers) {
+    std::string charset;
+    if (response_headers->GetCharset(&charset)) {
+      std::wstring wide_data;
+      // TODO(jungshik): Switch to CodePageToUTF8 after it's added.
+      if (CodepageToWide(data, charset.c_str(),
+                         OnStringUtilConversionError::FAIL, &wide_data))
+        json_data = WideToUTF8(wide_data); 
+    }
+  }
+
+  JSONStringValueSerializer deserializer(json_data);
   deserializer.set_allow_trailing_comma(true);
   Value* root_val = NULL;
   have_suggest_results_ = status.is_success() && (response_code == 200) &&

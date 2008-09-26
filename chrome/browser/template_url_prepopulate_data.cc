@@ -331,11 +331,7 @@ const PrepopulatedEngine daum = {
   L"http://search.daum.net/favicon.ico",
   L"http://search.daum.net/search?q={searchTerms}",
   "EUC-KR",
-  // Response is in EUC-KR and is labelled as such in HTTP C-T header.
-  // L"http://sug.search.daum.net/search_nsuggest?mod=fxjson&q={searchTerms}",
-  // Until http://b/1293145 is fixed or we figure out how to get responses
-  // in UTF-8, disable it. 
-  NULL,
+   L"http://sug.search.daum.net/search_nsuggest?mod=fxjson&q={searchTerms}",
   68,
 };
 
@@ -1417,12 +1413,8 @@ const PrepopulatedEngine orange = {
   L"http://www.orange.fr/favicon.ico",
   L"http://rws.search.ke.voila.fr/RW/S/opensearch_orange?rdata={searchTerms}",
   "ISO-8859-1",
-  // Response is in ISO-8859-1 and is labelled as such in HTTP C-T header.
-  // L"http://search.ke.voila.fr/fr/cmplopensearch/xml/fullxml?"
-  // L"rdata={searchTerms}",
-  // Until http://b/1293145 is fixed or we figure out how to get responses
-  // in UTF-8, disable it. 
-  NULL,
+  L"http://search.ke.voila.fr/fr/cmplopensearch/xml/fullxml?"
+  L"rdata={searchTerms}",
   48,
 };
 
@@ -1746,12 +1738,8 @@ const PrepopulatedEngine voila = {
   L"http://search.ke.voila.fr/favicon.ico",
   L"http://rws.search.ke.voila.fr/RW/S/opensearch_voila?rdata={searchTerms}",
   "ISO-8859-1",
-  // Response is in ISO-8859-1 and is labelled as such in HTTP C-T header.
-  // L"http://search.ke.voila.fr/fr/cmplopensearch/xml/fullxml?"
-  // L"rdata={searchTerms}",
-  // Until http://b/1293145 is fixed or we figure out how to get responses
-  // in UTF-8, disable it. 
-  NULL,
+  L"http://search.ke.voila.fr/fr/cmplopensearch/xml/fullxml?"
+  L"rdata={searchTerms}",
   47,
 };
 
@@ -3016,7 +3004,7 @@ void RegisterUserPrefs(PrefService* prefs) {
 }
 
 int GetDataVersion() {
-  return 14;  // Increment this if you change the above data in ways that mean
+  return 15;  // Increment this if you change the above data in ways that mean
              // users with existing data should get a new version.
 }
 
