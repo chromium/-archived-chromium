@@ -74,7 +74,7 @@ bool LoadStats(BackendImpl* backend, Addr address, OnDiskStats* stats) {
   if (stats->signature != kDiskSignature)
     return false;
 
-  // We don't want to discard the whole cache everytime we have one extra
+  // We don't want to discard the whole cache every time we have one extra
   // counter; just reset them to zero.
   if (stats->size != sizeof(*stats))
     memset(stats, 0, sizeof(*stats));
@@ -120,8 +120,12 @@ bool Stats::Init(BackendImpl* backend, uint32* storage_addr) {
 
   storage_addr_ = address.value();
   backend_ = backend;
-  size_histogram_.reset(new StatsHistogram(L"DiskCache.SizeStats"));
-  size_histogram_->Init(this);
+  if (!size_histogram_.get()) {
+    // Stats may be reused when the cache is re-created, but we want only one
+    // histogram at any given time.
+    size_histogram_.reset(new StatsHistogram(L"DiskCache.SizeStats"));
+    size_histogram_->Init(this);
+  }
 
   memcpy(data_sizes_, stats.data_sizes, sizeof(data_sizes_));
   memcpy(counters_, stats.counters, sizeof(counters_));
