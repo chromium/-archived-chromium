@@ -154,6 +154,7 @@ if env['PLATFORM'] == 'darwin':
       'hmac_mac.cc',
       'message_pump_mac.mm',
       'platform_thread_mac.mm',
+      'scoped_nsautorelease_pool.mm',
       'sys_string_conversions_mac.cc',
       'worker_pool_mac.mm',
   ])
