@@ -7,7 +7,10 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "net/base/completion_callback.h"
 #include "net/base/test_completion_callback.h"
+#include "base/platform_test.h"
 #include "base/worker_pool.h"
+
+typedef PlatformTest TestCompletionCallbackTest;
 
 using net::CompletionCallback;
 
@@ -105,7 +108,7 @@ bool ExampleEmployer::DoSomething(CompletionCallback* callback) {
   return true;
 }
 
-TEST(TestCompletionCallbackTest, Simple) {
+TEST_F(TestCompletionCallbackTest, Simple) {
   ExampleEmployer boss;
   TestCompletionCallback callback;
   bool queued = boss.DoSomething(&callback);

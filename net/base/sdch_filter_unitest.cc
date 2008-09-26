@@ -32,9 +32,9 @@ class SdchFilterTest : public testing::Test {
   SdchFilterTest()
     : test_vcdiff_dictionary_(kTtestVcdiffDictionary,
                               sizeof(kTtestVcdiffDictionary) - 1),
-      expanded_(kTestData, sizeof(kTestData) - 1),
       compressed_test_data_(kCompressedTestData,
                             sizeof(kCompressedTestData) - 1),
+      expanded_(kTestData, sizeof(kTestData) - 1),
       sdch_manager_(new SdchManager) {
   }
 
@@ -104,7 +104,6 @@ TEST_F(SdchFilterTest, BasicBadDicitonary) {
   filters.push_back("sdch");
   int kInputBufferSize(30);
   char output_buffer[20];
-  size_t kOutputBufferSize(20);
   scoped_ptr<Filter> filter(Filter::Factory(filters, "missing-mime",
                                             kInputBufferSize));
   filter->SetURL(GURL("http://ignore.com"));
