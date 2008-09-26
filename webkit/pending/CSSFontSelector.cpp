@@ -348,7 +348,12 @@ FontData* CSSFontSelector::getFontData(const FontDescription& fontDescription, c
     if (!face) {
         // If we were handed a generic family, but there was no match, go ahead and return the correct font based off our
         // settings.
-        const Settings* settings = m_document->frame()->settings();
+
+        const Frame* frame = m_document->frame();
+        if (!frame)
+            return 0;
+
+        const Settings* settings = frame->settings();
         AtomicString genericFamily;
         if (familyName == "-webkit-serif")
             genericFamily = settings->serifFontFamily();
