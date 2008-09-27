@@ -84,7 +84,7 @@ TEST_F(FindInPageControllerTest, FindUnSelectableText) {
 }
 
 // Try to reproduce the crash seen in issue 1341577.
-TEST_F(FindInPageControllerTest, DISABLED_FindCrash_Issue1341577) {
+TEST_F(FindInPageControllerTest, FindCrash_Issue1341577) {
   TestServer server(L"chrome/test/data");
 
   GURL url = server.TestServerPageW(kCrashPage);
@@ -96,7 +96,10 @@ TEST_F(FindInPageControllerTest, DISABLED_FindCrash_Issue1341577) {
   // against the frame, otherwise an active frame pointer is set and it wont
   // produce the crash.
   EXPECT_EQ(1, tab->FindInPage(L"\u0D4C", FWD, IGNORE_CASE, false));
-  EXPECT_EQ(1, tab->FindInPage(L"\u0D4C", FWD, IGNORE_CASE, true));  // FindNext
+  // FindNext returns -1 for match count because it doesn't bother with
+  // recounting the number of matches. We don't care about the match count
+  // anyway in this case, we just want to make sure it doesn't crash.
+  EXPECT_EQ(-1, tab->FindInPage(L"\u0D4C", FWD, IGNORE_CASE, true));
 
   // This should work fine.
   EXPECT_EQ(1, tab->FindInPage(L"\u0D24\u0D46", FWD, IGNORE_CASE, false));
