@@ -87,7 +87,7 @@ TEST(HttpAuthHandlerDigestTest, ParseChallenge) {
     }
   };
 
-  for (int i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     std::string challenge(tests[i].challenge);
 
     HttpAuthHandlerDigest auth;
@@ -193,7 +193,7 @@ TEST(HttpAuthHandlerDigestTest, AssembleCredentials) {
       "qop=auth, nc=00000001, cnonce=\"15c07961ed8575c4\""
     }
   };
-  for (int i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     HttpAuthHandlerDigest digest;
     std::string challenge = tests[i].challenge;
     EXPECT_TRUE(digest.InitFromChallenge(

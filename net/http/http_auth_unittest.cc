@@ -42,7 +42,7 @@ TEST(HttpAuthTest, ChooseBestChallenge) {
     }
   };
 
-  for (int i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     // Make a HttpResponseHeaders object.
     std::string headers_with_status_line("HTTP/1.1 401 OK\n");
     headers_with_status_line += tests[i].headers;
