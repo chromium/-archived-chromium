@@ -34,6 +34,10 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		0435A4660E8DD69C00E4DF08 /* http_auth.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0435A4650E8DD69C00E4DF08 /* http_auth.cc */; };
+		0435A47A0E8DD6F300E4DF08 /* http_auth_handler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0435A4790E8DD6F300E4DF08 /* http_auth_handler.cc */; };
+		0435A4800E8DD73600E4DF08 /* http_auth_handler_basic.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0435A47F0E8DD73600E4DF08 /* http_auth_handler_basic.cc */; };
+		0435A48F0E8DD74B00E4DF08 /* http_auth_handler_digest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0435A48E0E8DD74B00E4DF08 /* http_auth_handler_digest.cc */; };
 		048268070E5B3B1000A30786 /* mime_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32AA0E5A181C00A747DB /* mime_util.cc */; };
 		048268080E5B3B3200A30786 /* http_chunked_decoder_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33570E5A194700A747DB /* http_chunked_decoder_unittest.cc */; };
 		048268090E5B3B4800A30786 /* mime_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED325E0E5A181C00A747DB /* mime_util_unittest.cc */; };
@@ -391,6 +395,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0435A4650E8DD69C00E4DF08 /* http_auth.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_auth.cc; sourceTree = "<group>"; };
+		0435A4670E8DD6B300E4DF08 /* http_auth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_auth.h; sourceTree = "<group>"; };
+		0435A4790E8DD6F300E4DF08 /* http_auth_handler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_auth_handler.cc; sourceTree = "<group>"; };
+		0435A47B0E8DD6FA00E4DF08 /* http_auth_handler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_auth_handler.h; sourceTree = "<group>"; };
+		0435A47F0E8DD73600E4DF08 /* http_auth_handler_basic.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_auth_handler_basic.cc; sourceTree = "<group>"; };
+		0435A48D0E8DD74300E4DF08 /* http_auth_handler_basic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_auth_handler_basic.h; sourceTree = "<group>"; };
+		0435A48E0E8DD74B00E4DF08 /* http_auth_handler_digest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_auth_handler_digest.cc; sourceTree = "<group>"; };
+		0435A4900E8DD75200E4DF08 /* http_auth_handler_digest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_auth_handler_digest.h; sourceTree = "<group>"; };
 		533102E60E5E3EBF00FF8E32 /* net_util_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = net_util_posix.cc; sourceTree = "<group>"; };
 		7B2630600E82F282001CE27F /* libevent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libevent.xcodeproj; path = third_party/libevent/libevent.xcodeproj; sourceTree = "<group>"; };
 		7B466C460E5E732900C91F63 /* platform_test_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = platform_test_mac.mm; sourceTree = "<group>"; };
@@ -1013,6 +1025,14 @@
 				7BED33610E5A194700A747DB /* cert_status_cache.cc */,
 				7BED335A0E5A194700A747DB /* cert_status_cache.h */,
 				7BED33600E5A194700A747DB /* http_atom_list.h */,
+				0435A4650E8DD69C00E4DF08 /* http_auth.cc */,
+				0435A4670E8DD6B300E4DF08 /* http_auth.h */,
+				0435A4790E8DD6F300E4DF08 /* http_auth_handler.cc */,
+				0435A47B0E8DD6FA00E4DF08 /* http_auth_handler.h */,
+				0435A47F0E8DD73600E4DF08 /* http_auth_handler_basic.cc */,
+				0435A48D0E8DD74300E4DF08 /* http_auth_handler_basic.h */,
+				0435A48E0E8DD74B00E4DF08 /* http_auth_handler_digest.cc */,
+				0435A4900E8DD75200E4DF08 /* http_auth_handler_digest.h */,
 				7BED334C0E5A194700A747DB /* http_cache.cc */,
 				7BED33660E5A194700A747DB /* http_cache.h */,
 				7BED33550E5A194700A747DB /* http_cache_unittest.cc */,
@@ -1399,6 +1419,7 @@
 				7BA016A30E5A1EE900044150 /* gzip_header.cc in Sources */,
 				7B8504280E5B2E2A00730B43 /* hash.cc in Sources */,
 				7B82FF430E763602008F45CF /* host_resolver.cc in Sources */,
+				0435A4660E8DD69C00E4DF08 /* http_auth.cc in Sources */,
 				0482692A0E5B624D00A30786 /* http_cache.cc in Sources */,
 				7B85042B0E5B2E2A00730B43 /* http_chunked_decoder.cc in Sources */,
 				E49DD3290E893336003C7A87 /* http_network_layer.cc in Sources */,
@@ -1444,6 +1465,9 @@
 				821F20A50E5CD414003C7E38 /* url_request_view_cache_job.cc in Sources */,
 				82113BBD0E892E5800E3848F /* x509_certificate.cc in Sources */,
 				827E139D0E81611D00183614 /* x509_certificate_mac.cc in Sources */,
+				0435A47A0E8DD6F300E4DF08 /* http_auth_handler.cc in Sources */,
+				0435A4800E8DD73600E4DF08 /* http_auth_handler_basic.cc in Sources */,
+				0435A48F0E8DD74B00E4DF08 /* http_auth_handler_digest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

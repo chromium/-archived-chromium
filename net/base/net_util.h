@@ -131,6 +131,11 @@ bool IsPortAllowedByDefault(int port);
 // restricted.
 bool IsPortAllowedByFtp(int port);
 
+// Get the port number for the URL. If the URL does not have a port number,
+// then returns the default port for the scheme. If the scheme is unrecognized
+// returns empty string.
+std::string GetImplicitPort(const GURL& url);
+
 }  // namespace net
 
 #endif  // NET_BASE_NET_UTIL_H__

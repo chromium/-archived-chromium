@@ -745,6 +745,70 @@
 				>
 			</File>
 			<File
+				RelativePath="..\http\http_auth.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\http\http_auth.h"
+				>
+			</File>
+			<File
+				RelativePath="..\http\http_auth_handler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\http\http_auth_handler.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\http\http_auth_handler_basic.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\http\http_auth_handler_basic.h"
+				>
+			</File>
+			<File
+				RelativePath="..\http\http_auth_handler_digest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\http\http_auth_handler_digest.h"
+				>
+			</File>
+			<File
+				RelativePath="..\http\http_auth.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\http\http_auth.h"
+				>
+			</File>
+			<File
+				RelativePath="..\http\http_auth_handler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\http\http_auth_handler.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\http\http_auth_handler_basic.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\http\http_auth_handler_basic.h"
+				>
+			</File>
+			<File
+				RelativePath="..\http\http_auth_handler_digest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\http\http_auth_handler_digest.h"
+				>
+			</File>
+			<File
 				RelativePath="..\http\http_vary_data.cc"
 				>
 			</File>

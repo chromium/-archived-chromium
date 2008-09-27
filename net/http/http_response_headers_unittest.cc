@@ -436,6 +436,26 @@ TEST(HttpResponseHeadersTest, EnumerateHeader_Coalesced) {
   EXPECT_EQ("no-cache=\"set-cookie,server\"", value);
   EXPECT_TRUE(parsed->EnumerateHeader(&iter, "cache-control", &value));
   EXPECT_EQ("no-store", value);
+  EXPECT_FALSE(parsed->EnumerateHeader(&iter, "cache-control", &value));
+}
+
+TEST(HttpResponseHeadersTest, EnumerateHeader_Challenge) {
+  // Even though WWW-Authenticate has commas, it should not be treated as
+  // coalesced values.
+  std::string headers =
+    "HTTP/1.1 401 OK\n"
+    "WWW-Authenticate:Digest realm=foobar, nonce=x, domain=y\n"
+    "WWW-Authenticate:Basic realm=quatar\n";
+  HeadersToRaw(&headers);
+  scoped_refptr<HttpResponseHeaders> parsed = new HttpResponseHeaders(headers);
+
+  void* iter = NULL;
+  std::string value;
+  EXPECT_TRUE(parsed->EnumerateHeader(&iter, "WWW-Authenticate", &value));
+  EXPECT_EQ("Digest realm=foobar, nonce=x, domain=y", value);
+  EXPECT_TRUE(parsed->EnumerateHeader(&iter, "WWW-Authenticate", &value));
+  EXPECT_EQ("Basic realm=quatar", value);
+  EXPECT_FALSE(parsed->EnumerateHeader(&iter, "WWW-Authenticate", &value));
 }
 
 TEST(HttpResponseHeadersTest, EnumerateHeader_DateValued) {

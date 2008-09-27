@@ -913,4 +913,26 @@ bool IsPortAllowedByFtp(int port) {
   return IsPortAllowedByDefault(port);
 }
 
+std::string GetImplicitPort(const GURL& url) {
+  if (url.has_port())
+    return url.port();
+
+  // TODO(eroman): unify with DefaultPortForScheme()
+  // [url_canon_stdurl.cc]
+
+  static const struct {
+    const char* scheme;
+    const char* port;
+  } scheme_map[] = {
+    { "http", "80" },
+    { "https", "443" },
+    { "ftp", "21" }
+  };
+  for (int i = 0; i < static_cast<int>(ARRAYSIZE_UNSAFE(scheme_map)); ++i) {
+    if (url.SchemeIs(scheme_map[i].scheme))
+      return scheme_map[i].port;
+  }
+  return std::string("");
+}
+
 }  // namespace net

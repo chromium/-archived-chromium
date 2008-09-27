@@ -65,6 +65,23 @@ class HttpUtil {
   static void TrimLWS(std::string::const_iterator* begin,
                       std::string::const_iterator* end);
 
+  // Whether the character is the start of a quotation mark.
+  static bool IsQuote(char c);
+
+  // RFC 2616 Sec 2.2:
+  // quoted-string = ( <"> *(qdtext | quoted-pair ) <"> )
+  // Unquote() strips the surrounding quotemarks off a string, and unescapes
+  // any quoted-pair to obtain the value contained by the quoted-string.
+  // If the input is not quoted, then it works like the identity function.
+  static std::string Unquote(std::string::const_iterator begin,
+                             std::string::const_iterator end);
+
+  // Same as above.
+  static std::string Unquote(const std::string& str);
+
+  // The reverse of Unquote() -- escapes and surrounds with "
+  static std::string Quote(const std::string& str);
+
   // Returns the start of the status line, or -1 if no status line was found.
   // This allows for 4 bytes of junk to precede the status line (which is what
   // mozilla does too).

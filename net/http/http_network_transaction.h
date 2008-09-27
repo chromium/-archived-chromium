@@ -11,6 +11,8 @@
 #include "net/base/address_list.h"
 #include "net/base/client_socket_handle.h"
 #include "net/base/host_resolver.h"
+#include "net/http/http_auth.h"
+#include "net/http/http_auth_handler.h"
 #include "net/http/http_response_info.h"
 #include "net/http/http_transaction.h"
 #include "net/proxy/proxy_service.h"
@@ -98,6 +100,49 @@ class HttpNetworkTransaction : public HttpTransaction {
   bool has_found_status_line_start() const {
     return header_buf_http_offset_ != -1;
   }
+
+  // Resets the members of the transaction, to rewinding next_state_.
+  void ResetStateForRestart();
+
+  // Attach any credentials needed for the proxy server or origin server.
+  void ApplyAuth();
+
+  // Helper used by ApplyAuth(). Adds either the proxy auth header, or the
+  // origin server auth header, as specified by |target|
+  void AddAuthorizationHeader(HttpAuth::Target target);
+
+  // Handles HTTP status code 401 or 407. Populates response_.auth_challenge
+  // with the required information so that URLRequestHttpJob can prompt
+  // for a username/password.
+  int PopulateAuthChallenge();
+
+  bool NeedAuth(HttpAuth::Target target) const {
+    return auth_data_[target] &&
+        auth_data_[target]->state == AUTH_STATE_NEED_AUTH;
+  }
+
+  bool HaveAuth(HttpAuth::Target target) const {
+    return auth_data_[target] &&
+        auth_data_[target]->state == AUTH_STATE_HAVE_AUTH;
+  }
+
+  // The following three auth members are arrays of size two -- index 0 is
+  // for the proxy server, and index 1 is for the origin server.
+  // Use the enum HttpAuth::Target to index into them.
+
+  // auth_handler encapsulates the logic for the particular auth-scheme.
+  // This includes the challenge's parameters. If NULL, then there is no
+  // associated auth handler.
+  scoped_ptr<HttpAuthHandler> auth_handler_[2];
+
+  // auth_data tracks the identity (username/password) that is to be
+  // applied to the proxy/origin server. The identify may have come
+  // from a login prompt, or from the auth cache. It is fed to us
+  // by URLRequestHttpJob, via RestartWithAuth().
+  scoped_refptr<AuthData> auth_data_[2];
+
+  // The key in the auth cache, for auth_data_.
+  std::string auth_cache_key_[2];
 
   CompletionCallbackImpl<HttpNetworkTransaction> io_callback_;
   CompletionCallback* user_callback_;

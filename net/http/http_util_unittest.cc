@@ -95,6 +95,37 @@ TEST(HttpUtilTest, ValuesIterator_Blanks) {
   EXPECT_FALSE(it.GetNext());
 }
 
+TEST(HttpUtilTest, Unquote) {
+  // Replace <backslash> " with ".
+  EXPECT_STREQ("xyz\"abc", HttpUtil::Unquote("\"xyz\\\"abc\"").c_str());
+
+  // Replace <backslash> <backslash> with <backslash>
+  EXPECT_STREQ("xyz\\abc", HttpUtil::Unquote("\"xyz\\\\abc\"").c_str());
+  EXPECT_STREQ("xyz\\\\\\abc",
+               HttpUtil::Unquote("\"xyz\\\\\\\\\\\\abc\"").c_str());
+
+  // Replace <backslash> X with X
+  EXPECT_STREQ("xyzXabc", HttpUtil::Unquote("\"xyz\\Xabc\"").c_str());
+
+  // Act as identity function on unquoted inputs.
+  EXPECT_STREQ("X", HttpUtil::Unquote("X").c_str());
+  EXPECT_STREQ("\"", HttpUtil::Unquote("\"").c_str());
+
+  // Allow single quotes to act as quote marks.
+  // Not part of RFC 2616.
+  EXPECT_STREQ("x\"", HttpUtil::Unquote("'x\"'").c_str());
+}
+
+TEST(HttpUtilTest, Quote) {
+  EXPECT_STREQ("\"xyz\\\"abc\"", HttpUtil::Quote("xyz\"abc").c_str());
+
+  // Replace <backslash> <backslash> with <backslash>
+  EXPECT_STREQ("\"xyz\\\\abc\"", HttpUtil::Quote("xyz\\abc").c_str());
+
+  // Replace <backslash> X with X
+  EXPECT_STREQ("\"xyzXabc\"", HttpUtil::Quote("xyzXabc").c_str());
+}
+
 TEST(HttpUtilTest, LocateEndOfHeaders) {
   struct {
     const char* input;

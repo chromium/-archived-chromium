@@ -228,7 +228,11 @@ bool HttpUtil::IsNonCoalescingHeader(string::const_iterator name_begin,
     "last-modified",
     "location",  // See bug 1050541 for details
     "retry-after",
-    "set-cookie"
+    "set-cookie",
+    // The format of auth-challenges mixes both space separated tokens and
+    // comma separated properties, so coalescing on comma won't work.
+    "www-authenticate",
+    "proxy-authenticate"
   };
   for (size_t i = 0; i < arraysize(kNonCoalescingHeaders); ++i) {
     if (LowerCaseEqualsASCII(name_begin, name_end, kNonCoalescingHeaders[i]))
@@ -250,6 +254,73 @@ void HttpUtil::TrimLWS(string::const_iterator* begin,
   // trailing whitespace
   while (*begin < *end && IsLWS((*end)[-1]))
     --(*end);
+}
+
+// static
+bool HttpUtil::IsQuote(char c) {
+  // Single quote mark isn't actually part of quoted-text production,
+  // but apparently some servers rely on this.
+  return c == '"' || c == '\'';
+}
+
+// static
+std::string HttpUtil::Unquote(std::string::const_iterator begin,
+                              std::string::const_iterator end) {
+  // Empty string
+  if (begin == end)
+    return std::string();
+
+  // Nothing to unquote.
+  if (!IsQuote(*begin))
+    return std::string(begin, end);
+
+  // No terminal quote mark.
+  if (end - begin < 2 || *begin != *(end - 1))
+    return std::string(begin, end);
+
+  // Strip quotemarks
+  ++begin;
+  --end;
+
+  // Unescape quoted-pair (defined in RFC 2616 section 2.2)
+  std::string unescaped;
+  bool prev_escape = false;
+  for (; begin != end; ++begin) {
+    char c = *begin;
+    if (c == '\\' && !prev_escape) {
+      prev_escape = true;
+      continue;
+    }
+    prev_escape = false;
+    unescaped.push_back(c);
+  }
+  return unescaped;
+}
+
+// static
+std::string HttpUtil::Unquote(const std::string& str) {
+  return Unquote(str.begin(), str.end());
+}
+
+// static
+std::string HttpUtil::Quote(const std::string& str) {
+  std::string escaped;
+  escaped.reserve(2 + str.size());
+
+  std::string::const_iterator begin = str.begin();
+  std::string::const_iterator end = str.end();
+
+  // Esape any backslashes or quotemarks within the string, and
+  // then surround with quotes.
+  escaped.push_back('"');
+  for (; begin != end; ++begin) {
+    char c = *begin;
+    if (c == '"' || c == '\\')
+      escaped.push_back('\\');
+    escaped.push_back(c);
+  }
+  escaped.push_back('"');
+  return escaped;
 }
 
 // Find the "http" substring in a status line. This allows for
