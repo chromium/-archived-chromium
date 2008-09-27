@@ -53,7 +53,6 @@ env_test.Prepend(
         'libxml',
         'libxslt',
         'modp_b64',
-        'sdch',
         'skia',
         'v8',
         'zlib',
@@ -71,6 +70,9 @@ if env_test['PLATFORM'] == 'win32':
   # TODO(port): Port or mark as Windows-specific.
   env_test.Prepend(
       LIBS = [
+          # TODO(sgk):  to be ported to Mac and Linux
+          'sdch',
+
           'WebCore',
       ],
   )

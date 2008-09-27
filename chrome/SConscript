@@ -102,7 +102,6 @@ env_dll.Append(
         'breakpad_handler',
         'googleurl',
         'net',
-        'sdch',
         'skia',
         'bzip2',
         env_dll['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
@@ -127,6 +126,9 @@ env_dll.Append(
 if env_dll['PLATFORM'] == 'win32':
   env_dll.Append(
       LIBS = [
+          # TODO(sgk):  to be ported to Mac and Linux
+          'sdch',
+
           'comctl32.lib',
           'dwmapi.lib',
           'rpcrt4.lib',

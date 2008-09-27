@@ -37,7 +37,6 @@ env_test.Prepend(
         'libpng',
         'npapi_layout_test_plugin',
         'gtest',
-        'sdch',
         'base_gfx',
         env_test['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'zlib',
@@ -49,31 +48,35 @@ env_test.Prepend(
     ],
 )
 
-env_test.Prepend(
-    LINKFLAGS = [
-        '/INCREMENTAL',
+if env['PLATFORM'] == 'win32':
+  env_test.Prepend(
+      LINKFLAGS = [
+          '/INCREMENTAL',
 
-        '/safeseh',
-        '/dynamicbase',
-        '/ignore:4199',
-        '/nxcompat',
+          '/safeseh',
+          '/dynamicbase',
+          '/ignore:4199',
+          '/nxcompat',
 
-        '/MANIFEST',
-        '/DELAYLOAD:"ws2_32.dll"',
-        '/DELAYLOAD:"dwmapi.dll"',
-        '/DELAYLOAD:"uxtheme.dll"',
+          '/MANIFEST',
+          '/DELAYLOAD:"ws2_32.dll"',
+          '/DELAYLOAD:"dwmapi.dll"',
+          '/DELAYLOAD:"uxtheme.dll"',
 
-        '/DEBUG',
-        '/MACHINE:X86',
-        '/FIXED:No',
-    ],
-    LIBS = [
-        'comsupp.lib',
-        'oleacc.lib',
-        'rpcrt4.lib',
-        'winmm.lib',
-    ],
-)
+          '/DEBUG',
+          '/MACHINE:X86',
+          '/FIXED:No',
+      ],
+      LIBS = [
+          # TODO(sgk):  to be ported to Mac and Linux
+          'sdch',
+
+          'comsupp.lib',
+          'oleacc.lib',
+          'rpcrt4.lib',
+          'winmm.lib',
+      ],
+  )
 
 libs = [
     'test/security_tests/security_tests.lib',
