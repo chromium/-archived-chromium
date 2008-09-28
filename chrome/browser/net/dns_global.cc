@@ -346,25 +346,20 @@ void InitDnsPrefetch(PrefService* user_prefs) {
   const TimeDelta kAllowableShutdownTime(TimeDelta::FromSeconds(10));
   DCHECK(NULL == dns_master);
   if (!dns_master) {
-    DnsMaster* new_master = new DnsMaster(kAllowableShutdownTime);
-    if (InterlockedCompareExchangePointer(
-        reinterpret_cast<PVOID*>(&dns_master), new_master, NULL)) {
-      delete new_master;
-    } else {
-      // We did the initialization, so we should prime the pump, and set up
-      // the DNS resolution system to run.
-      off_the_record_observer.Register();
+    dns_master = new DnsMaster(kAllowableShutdownTime);
+    // We did the initialization, so we should prime the pump, and set up
+    // the DNS resolution system to run.
+    off_the_record_observer.Register();
 
-      if (user_prefs) {
-        bool enabled = user_prefs->GetBoolean(prefs::kDnsPrefetchingEnabled);
-        EnableDnsPrefetch(enabled);
-      }
-
-      DLOG(INFO) << "DNS Prefetch service started";
-
-      // Start observing real HTTP stack resolutions.
-      net::AddDnsResolutionObserver(&dns_resolution_observer);
+    if (user_prefs) {
+      bool enabled = user_prefs->GetBoolean(prefs::kDnsPrefetchingEnabled);
+      EnableDnsPrefetch(enabled);
     }
+
+    DLOG(INFO) << "DNS Prefetch service started";
+
+    // Start observing real HTTP stack resolutions.
+    net::AddDnsResolutionObserver(&dns_resolution_observer);
   }
 }
 

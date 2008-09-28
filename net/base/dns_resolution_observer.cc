@@ -20,10 +20,7 @@ void AddDnsResolutionObserver(DnsResolutionObserver* new_observer) {
   if (new_observer == dns_resolution_observer)
     return;  // Facilitate unit tests that init/teardown repeatedly.
   DCHECK(!dns_resolution_observer);
-  if (InterlockedCompareExchangePointer(
-          reinterpret_cast<PVOID*>(&dns_resolution_observer),
-          new_observer, NULL))
-    DCHECK(0) << "Second attempt to setup observer";
+  dns_resolution_observer = new_observer;
 }
 
 DnsResolutionObserver* RemoveDnsResolutionObserver() {
