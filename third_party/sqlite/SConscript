@@ -66,6 +66,7 @@ input_files = [
     'malloc.c',
     'opcodes.c',
     'os.c',
+    'os_unix.c',
     'os_win.c',
     'pager.c',
     'parse.c',
