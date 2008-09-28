@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef SANDBOX_SRC_RESTRICTED_TOKEN_H__
-#define SANDBOX_SRC_RESTRICTED_TOKEN_H__
+#ifndef SANDBOX_SRC_RESTRICTED_TOKEN_H_
+#define SANDBOX_SRC_RESTRICTED_TOKEN_H_
 
 #include <windows.h>
 #include <vector>
@@ -195,5 +195,5 @@ class RestrictedToken {
 
 }  // namespace sandbox
 
-#endif  // SANDBOX_SRC_RESTRICTED_TOKEN_H__
+#endif  // SANDBOX_SRC_RESTRICTED_TOKEN_H_
 
