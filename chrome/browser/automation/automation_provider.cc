@@ -219,11 +219,11 @@ class NavigationNotificationObserver : public NotificationObserver {
       automation_->Send(*response);
       *response = NULL;  // *response is deleted by Send.
     }
+    automation_->RemoveNavigationStatusListener(this);
     delete this;
   }
 
   void Unregister() {
-    automation_->RemoveNavigationStatusListener(this);
     NotificationService* service = NotificationService::current();
     service->RemoveObserver(this, NOTIFY_NAV_ENTRY_COMMITTED,
                             Source<NavigationController>(controller_));
