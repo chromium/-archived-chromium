@@ -29,16 +29,16 @@ struct MockRead {
       data_len(0) { }
 
   // Asynchronous read success (inferred data length).
-  MockRead(const char* data) : async(true), data(data), data_len(strlen(data)),
-      result(0) { }
+  MockRead(const char* data) : async(true),  result(0), data(data),
+      data_len(strlen(data)) { }
 
   // Read success (inferred data length).
-  MockRead(bool async, const char* data) : async(async), data(data),
-      data_len(strlen(data)), result(0) { }
+  MockRead(bool async, const char* data) : async(async), result(0), data(data),
+      data_len(strlen(data)) { }
 
   // Read success.
   MockRead(bool async, const char* data, int data_len) : async(async),
-      data(data), data_len(data_len), result(0) { }
+      result(0), data(data), data_len(data_len) { }
 
   bool async;
   int result;
