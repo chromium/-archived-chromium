@@ -931,6 +931,12 @@ int HttpNetworkTransaction::ReconsiderProxyAfterError(int error) {
 
   // A failure to resolve the hostname or any error related to establishing a
   // TCP connection could be grounds for trying a new proxy configuration.
+  //
+  // Why do this when a hostname cannot be resolved?  Some URLs only make sense
+  // to proxy servers.  The hostname in those URLs might fail to resolve if we
+  // are still using a non-proxy config.  We need to check if a proxy config
+  // now exists that corresponds to a proxy server that could load the URL.
+  //
   switch (error) {
     case ERR_NAME_NOT_RESOLVED:
     case ERR_INTERNET_DISCONNECTED:
