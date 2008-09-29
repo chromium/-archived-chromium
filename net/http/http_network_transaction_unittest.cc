@@ -18,18 +18,39 @@
 struct MockConnect {
   bool async;
   int result;
+
+  // Asynchronous connection success.
+  MockConnect() : async(true), result(net::OK) { }
 };
 
 struct MockRead {
+  // Read failure (no data).
+  MockRead(bool async, int result) : async(async) , result(result), data(NULL),
+      data_len(0) { }
+
+  // Asynchronous read success (inferred data length).
+  MockRead(const char* data) : async(true), data(data), data_len(strlen(data)),
+      result(0) { }
+
+  // Read success (inferred data length).
+  MockRead(bool async, const char* data) : async(async), data(data),
+      data_len(strlen(data)), result(0) { }
+
+  // Read success.
+  MockRead(bool async, const char* data, int data_len) : async(async),
+      data(data), data_len(data_len), result(0) { }
+
   bool async;
-  int result;  // Ignored if data is non-null.
+  int result;
   const char* data;
-  int data_len;  // -1 if strlen(data) should be used.
+  int data_len;
 };
 
 struct MockSocket {
+  MockSocket() : reads(NULL) { }
+
   MockConnect connect;
-  MockRead* reads;  // Terminated by a MockRead element with data == NULL.
+  MockRead* reads;
 };
 
 // Holds an array of MockSocket elements.  As MockTCPClientSocket objects get
@@ -83,8 +104,6 @@ class MockTCPClientSocket : public net::ClientSocket {
     MockRead& r = data_->reads[read_index_];
     int result;
     if (r.data) {
-      if (r.data_len == -1)
-        r.data_len = static_cast<int>(strlen(r.data));
       if (r.data_len - read_offset_ > 0) {
         result = std::min(buf_len, r.data_len - read_offset_);
         memcpy(buf, r.data + read_offset_, result);
@@ -191,8 +210,6 @@ SimpleGetHelperResult SimpleGetHelper(MockRead data_reads[]) {
   request.load_flags = 0;
 
   MockSocket data;
-  data.connect.async = true;
-  data.connect.result = net::OK;
   data.reads = data_reads;
   mock_sockets[0] = &data;
   mock_sockets[1] = NULL;
@@ -232,9 +249,9 @@ TEST_F(HttpNetworkTransactionTest, Basic) {
 
 TEST_F(HttpNetworkTransactionTest, SimpleGET) {
   MockRead data_reads[] = {
-    { true, 0, "HTTP/1.0 200 OK\r\n\r\n", -1 },
-    { true, 0, "hello world", -1 },
-    { false, net::OK, NULL, 0 },
+    MockRead("HTTP/1.0 200 OK\r\n\r\n"),
+    MockRead("hello world"),
+    MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
   EXPECT_EQ("HTTP/1.0 200 OK", out.status_line);
@@ -244,8 +261,8 @@ TEST_F(HttpNetworkTransactionTest, SimpleGET) {
 // Response with no status line.
 TEST_F(HttpNetworkTransactionTest, SimpleGETNoHeaders) {
   MockRead data_reads[] = {
-    { true, 0, "hello world", -1 },
-    { false, net::OK, NULL, 0 },
+    MockRead("hello world"),
+    MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
   EXPECT_EQ("HTTP/0.9 200 OK", out.status_line);
@@ -255,8 +272,8 @@ TEST_F(HttpNetworkTransactionTest, SimpleGETNoHeaders) {
 // Allow up to 4 bytes of junk to precede status line.
 TEST_F(HttpNetworkTransactionTest, StatusLineJunk2Bytes) {
   MockRead data_reads[] = {
-    { true, 0, "xxxHTTP/1.0 404 Not Found\nServer: blah\n\nDATA", -1 },
-    { false, net::OK, NULL, 0 },
+    MockRead("xxxHTTP/1.0 404 Not Found\nServer: blah\n\nDATA"),
+    MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
   EXPECT_EQ("HTTP/1.0 404 Not Found", out.status_line);
@@ -266,8 +283,8 @@ TEST_F(HttpNetworkTransactionTest, StatusLineJunk2Bytes) {
 // Allow up to 4 bytes of junk to precede status line.
 TEST_F(HttpNetworkTransactionTest, StatusLineJunk4Bytes) {
   MockRead data_reads[] = {
-    { true, 0, "\n\nQJHTTP/1.0 404 Not Found\nServer: blah\n\nDATA", -1 },
-    { false, net::OK, NULL, 0 },
+    MockRead("\n\nQJHTTP/1.0 404 Not Found\nServer: blah\n\nDATA"),
+    MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
   EXPECT_EQ("HTTP/1.0 404 Not Found", out.status_line);
@@ -277,8 +294,8 @@ TEST_F(HttpNetworkTransactionTest, StatusLineJunk4Bytes) {
 // Beyond 4 bytes of slop and it should fail to find a status line.
 TEST_F(HttpNetworkTransactionTest, StatusLineJunk5Bytes) {
   MockRead data_reads[] = {
-    { true, 0, "xxxxxHTTP/1.1 404 Not Found\nServer: blah", -1 },
-    { false, net::OK, NULL, 0 },
+    MockRead("xxxxxHTTP/1.1 404 Not Found\nServer: blah"),
+    MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
   EXPECT_EQ("HTTP/0.9 200 OK", out.status_line);
@@ -288,12 +305,12 @@ TEST_F(HttpNetworkTransactionTest, StatusLineJunk5Bytes) {
 // Same as StatusLineJunk4Bytes, except the read chunks are smaller.
 TEST_F(HttpNetworkTransactionTest, StatusLineJunk4Bytes_Slow) {
   MockRead data_reads[] = {
-    { true, 0, "\n", -1 },
-    { true, 0, "\n", -1 },
-    { true, 0, "Q", -1 },
-    { true, 0, "J", -1 },
-    { true, 0, "HTTP/1.0 404 Not Found\nServer: blah\n\nDATA", -1 },
-    { false, net::OK, NULL, 0 },
+    MockRead("\n"),
+    MockRead("\n"),
+    MockRead("Q"),
+    MockRead("J"),
+    MockRead("HTTP/1.0 404 Not Found\nServer: blah\n\nDATA"),
+    MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
   EXPECT_EQ("HTTP/1.0 404 Not Found", out.status_line);
@@ -303,8 +320,8 @@ TEST_F(HttpNetworkTransactionTest, StatusLineJunk4Bytes_Slow) {
 // Close the connection before enough bytes to have a status line.
 TEST_F(HttpNetworkTransactionTest, StatusLinePartial) {
   MockRead data_reads[] = {
-    { true, 0, "HTT", -1 },
-    { false, net::OK, NULL, 0 },
+    MockRead("HTT"),
+    MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
   EXPECT_EQ("HTTP/0.9 200 OK", out.status_line);
@@ -316,9 +333,9 @@ TEST_F(HttpNetworkTransactionTest, StatusLinePartial) {
 // cannot have a response body.
 TEST_F(HttpNetworkTransactionTest, StopsReading204) {
   MockRead data_reads[] = {
-    { true, 0, "HTTP/1.1 204 No Content\r\n\r\n", -1 },
-    { true, 0, "junk", -1 },  // Should not be read!!
-    { false, net::OK, NULL, 0 },
+    MockRead("HTTP/1.1 204 No Content\r\n\r\n"),
+    MockRead("junk"),  // Should not be read!!
+    MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
   EXPECT_EQ("HTTP/1.1 204 No Content", out.status_line);
@@ -329,15 +346,13 @@ TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
   scoped_refptr<net::HttpNetworkSession> session = CreateSession();
 
   MockRead data_reads[] = {
-    { true, 0, "HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\n", -1 },
-    { true, 0, "hello", -1 },
-    { true, 0, "HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\n", -1 },
-    { true, 0, "world", -1 },
-    { false, net::OK, NULL, 0 },
+    MockRead("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\n"),
+    MockRead("hello"),
+    MockRead("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\n"),
+    MockRead("world"),
+    MockRead(false, net::OK),
   };
   MockSocket data;
-  data.connect.async = true;
-  data.connect.result = net::OK;
   data.reads = data_reads;
   mock_sockets[0] = &data;
   mock_sockets[1] = NULL;
@@ -393,14 +408,12 @@ TEST_F(HttpNetworkTransactionTest, Ignores100) {
   request.load_flags = 0;
 
   MockRead data_reads[] = {
-    { true, 0, "HTTP/1.0 100 Continue\r\n\r\n", -1 },
-    { true, 0, "HTTP/1.0 200 OK\r\n\r\n", -1 },
-    { true, 0, "hello world", -1 },
-    { false, net::OK, NULL, 0 },
+    MockRead("HTTP/1.0 100 Continue\r\n\r\n"),
+    MockRead("HTTP/1.0 200 OK\r\n\r\n"),
+    MockRead("hello world"),
+    MockRead(false, net::OK),
   };
   MockSocket data;
-  data.connect.async = true;
-  data.connect.result = net::OK;
   data.reads = data_reads;
   mock_sockets[0] = &data;
   mock_sockets[1] = NULL;
@@ -442,24 +455,20 @@ void HttpNetworkTransactionTest::KeepAliveConnectionResendRequestTest(
   request.load_flags = 0;
 
   MockRead data1_reads[] = {
-    { true, 0, "HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\n", -1 },
-    { true, 0, "hello", -1 },
+    MockRead("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\n"),
+    MockRead("hello"),
     read_failure,  // Now, we reuse the connection and fail the first read.
   };
   MockSocket data1;
-  data1.connect.async = true;
-  data1.connect.result = net::OK;
   data1.reads = data1_reads;
   mock_sockets[0] = &data1;
 
   MockRead data2_reads[] = {
-    { true, 0, "HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\n", -1 },
-    { true, 0, "world", -1 },
-    { true, net::OK, NULL, 0 },
+    MockRead("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\n"),
+    MockRead("world"),
+    MockRead(true, net::OK),
   };
   MockSocket data2;
-  data2.connect.async = true;
-  data2.connect.result = net::OK;
   data2.reads = data2_reads;
   mock_sockets[1] = &data2;
 
@@ -498,12 +507,12 @@ void HttpNetworkTransactionTest::KeepAliveConnectionResendRequestTest(
 }
 
 TEST_F(HttpNetworkTransactionTest, KeepAliveConnectionReset) {
-  MockRead read_failure = { true, net::ERR_CONNECTION_RESET, NULL, 0 };
+  MockRead read_failure(true, net::ERR_CONNECTION_RESET);
   KeepAliveConnectionResendRequestTest(read_failure);
 }
 
 TEST_F(HttpNetworkTransactionTest, KeepAliveConnectionEOF) {
-  MockRead read_failure = { false, net::OK, NULL, 0 };  // EOF
+  MockRead read_failure(false, net::OK);  // EOF
   KeepAliveConnectionResendRequestTest(read_failure);
 }
 
@@ -517,14 +526,12 @@ TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionReset) {
   request.load_flags = 0;
 
   MockRead data_reads[] = {
-    { true, net::ERR_CONNECTION_RESET, NULL, 0 },
-    { true, 0, "HTTP/1.0 200 OK\r\n\r\n", -1 },  // Should not be used
-    { true, 0, "hello world", -1 },
-    { false, net::OK, NULL, 0 },
+    MockRead(true, net::ERR_CONNECTION_RESET),
+    MockRead("HTTP/1.0 200 OK\r\n\r\n"),  // Should not be used
+    MockRead("hello world"),
+    MockRead(false, net::OK),
   };
   MockSocket data;
-  data.connect.async = true;
-  data.connect.result = net::OK;
   data.reads = data_reads;
   mock_sockets[0] = &data;
   mock_sockets[1] = NULL;
@@ -557,10 +564,10 @@ TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionReset) {
 // Us: blank page
 TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionEOF) {
   MockRead data_reads[] = {
-    { false, net::OK, NULL, 0 },  // EOF
-    { true, 0, "HTTP/1.0 200 OK\r\n\r\n", -1 },  // Should not be used
-    { true, 0, "hello world", -1 },
-    { false, net::OK, NULL, 0 },
+    MockRead(false, net::OK),  // EOF
+    MockRead("HTTP/1.0 200 OK\r\n\r\n"),  // Should not be used
+    MockRead("hello world"),
+    MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
   EXPECT_EQ("HTTP/0.9 200 OK", out.status_line);
