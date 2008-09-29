@@ -4,6 +4,8 @@
 
 #include "net/url_request/url_request_job_manager.h"
 
+#include <algorithm>
+
 #include "build/build_config.h"
 #include "base/string_util.h"
 #include "net/base/load_flags.h"
