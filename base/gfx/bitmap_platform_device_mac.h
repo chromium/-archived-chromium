@@ -56,10 +56,7 @@ class BitmapPlatformDeviceMac : public PlatformDeviceMac {
   BitmapPlatformDeviceMac& operator=(const BitmapPlatformDeviceMac& other);
 
   virtual CGContextRef GetBitmapContext();
-  virtual void SetTransform(const SkMatrix& matrix);
-
-  // This currently only supports extremely simple clip rects.
-  virtual void SetClipRegion(const SkRegion& region);
+  virtual void setMatrixClip(const SkMatrix& transform, const SkRegion& region);
 
   virtual void DrawToContext(CGContextRef context, int x, int y,
                              const CGRect* src_rect);
@@ -68,7 +65,7 @@ class BitmapPlatformDeviceMac : public PlatformDeviceMac {
   
   // Returns the color value at the specified location. This does not
   // consider any transforms that may be set on the device.
-  SkColor GetColorAt(int x, int y);
+  SkColor getColorAt(int x, int y);
 
  protected:
   // Reference counted data that can be shared between multiple devices. This

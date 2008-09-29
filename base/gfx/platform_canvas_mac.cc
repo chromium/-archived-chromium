@@ -52,81 +52,10 @@ PlatformDeviceMac& PlatformCanvasMac::getTopPlatformDevice() const {
   return *static_cast<PlatformDeviceMac*>(iter.device());
 }
 
-// Clipping -------------------------------------------------------------------
-
-bool PlatformCanvasMac::clipRect(const SkRect& rect, SkRegion::Op op) {
-  bool ret = SkCanvas::clipRect(rect, op);
-  getTopPlatformDevice().SetClipRegion(getTotalClip());
-  return ret;
-}
-
-bool PlatformCanvasMac::clipPath(const SkPath& path, SkRegion::Op op) {
-  bool ret = SkCanvas::clipPath(path, op);
-  getTopPlatformDevice().SetClipRegion(getTotalClip());
-  return ret;
-}
-
-bool PlatformCanvasMac::clipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
-  bool ret = SkCanvas::clipRegion(deviceRgn, op);
-  getTopPlatformDevice().SetClipRegion(getTotalClip());
-  return ret;
-}
-
-// Transforming ---------------------------------------------------------------
-
-bool PlatformCanvasMac::translate(SkScalar dx, SkScalar dy) {
-  if (!SkCanvas::translate(dx, dy))
-    return false;
-  getTopPlatformDevice().SetTransform(getTotalMatrix());
-  return true;
-}
-
-bool PlatformCanvasMac::scale(SkScalar sx, SkScalar sy) {
-  if (!SkCanvas::scale(sx, sy))
-    return false;
-  getTopPlatformDevice().SetTransform(getTotalMatrix());
-  return true;
-}
-
-int PlatformCanvasMac::saveLayer(const SkRect* bounds,
-                              const SkPaint* paint,
-                              SaveFlags flags) {
-  int result = SkCanvas::saveLayer(bounds, paint, flags);
-
-  // saveLayer will have created a new device which, depending on the clip
-  // rect, may be smaller than the original layer. Therefore, it will have a
-  // transform applied, and we need to sync CG with that transform.
-  SkCanvas::LayerIter iter(this, false);
-  PlatformDeviceMac& new_device =
-      *static_cast<PlatformDeviceMac*>(iter.device());
-
-  // There man not actually be a new layer if the layer is empty.
-  if (!iter.done()) {
-    new_device.SetTransform(getTotalMatrix());
-    new_device.SetClipRegion(getTotalClip());
-  }
-  return result;
-}
-
-int PlatformCanvasMac::save(SkCanvas::SaveFlags flags) {
-  int ret = SkCanvas::save(flags);
-  PlatformDeviceMac& device = getTopPlatformDevice();
-  device.SetTransform(getTotalMatrix());
-  device.SetClipRegion(getTotalClip());
-  return ret;
-}
-
-void PlatformCanvasMac::restore() {
-  SkCanvas::restore();
-  PlatformDeviceMac& device = getTopPlatformDevice();
-  device.SetTransform(getTotalMatrix());
-  device.SetClipRegion(getTotalClip());
-}
-
 SkDevice* PlatformCanvasMac::createDevice(SkBitmap::Config config,
                                        int width,
                                        int height,
-                                       bool is_opaque) {
+                                       bool is_opaque, bool isForLayer) {
   DCHECK(config == SkBitmap::kARGB_8888_Config);
   return createPlatformDevice(width, height, is_opaque, NULL);
 }

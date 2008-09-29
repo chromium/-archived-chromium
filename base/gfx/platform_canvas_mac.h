@@ -30,15 +30,6 @@ class PlatformCanvasMac : public SkCanvas {
   // For two-part init, call if you use the no-argument constructor above
   void initialize(int width, int height, bool is_opaque, CGContextRef context);
 
-  // Keep the platform clipping in sync with the skia clipping. Note that
-  // platform clipping may only clip to the bounds of the clipping region, if
-  // it is complex.
-  virtual bool clipRect(const SkRect& rect,
-                        SkRegion::Op op = SkRegion::kIntersect_Op);
-  virtual bool clipPath(const SkPath& path,
-                        SkRegion::Op op = SkRegion::kIntersect_Op);
-  virtual bool clipRegion(const SkRegion& deviceRgn,
-                          SkRegion::Op op = SkRegion::kIntersect_Op);
 
   // These calls should surround calls to platform drawing routines. The CG
   // context returned by beginPlatformPaint is the one that can be used to
@@ -47,14 +38,6 @@ class PlatformCanvasMac : public SkCanvas {
   // again; this will synchronize the bitmap.
   virtual CGContextRef beginPlatformPaint();
   virtual void endPlatformPaint();
-
-  // overridden to keep the platform graphics context in sync with the canvas
-  virtual bool translate(SkScalar dx, SkScalar dy);
-  virtual bool scale(SkScalar sx, SkScalar sy);
-  virtual int saveLayer(const SkRect* bounds, const SkPaint* paint,
-                        SaveFlags flags = kARGB_ClipLayer_SaveFlag);
-  virtual int save(SkCanvas::SaveFlags flags = SkCanvas::kMatrixClip_SaveFlag);
-  virtual void restore();
 
   // Returns the platform device pointer of the topmost rect with a non-empty
   // clip. In practice, this is usually either the top layer or nothing, since
@@ -80,7 +63,7 @@ class PlatformCanvasMac : public SkCanvas {
   // the device is always our own so we know that we can use GDI operations
   // on it. Simply calls into createPlatformDevice().
   virtual SkDevice* createDevice(SkBitmap::Config, int width, int height,
-                                 bool is_opaque);
+                                 bool is_opaque, bool isForLayer);
 
   // Creates a device store for use by the canvas. By default, it creates a
   // BitmapPlatformDevice object. Can be overridden to change the object type.

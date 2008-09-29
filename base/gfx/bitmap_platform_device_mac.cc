@@ -52,6 +52,7 @@ class BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData
 
   // Create/destroy CoreGraphics context for our bitmap data.
   CGContextRef GetBitmapContext() {
+    LoadConfig();
     return bitmap_context_;
   }
 
@@ -64,8 +65,7 @@ class BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData
   // Sets the transform and clip operations. This will not update the CGContext,
   // but will mark the config as dirty. The next call of LoadConfig will
   // pick up these changes.
-  void SetTransform(const SkMatrix& t);
-  void SetClipRegion(const SkRegion& region);
+  void SetMatrixClip(const SkMatrix& transform, const SkRegion& region);
 
   // Loads the current transform and clip into the DC. Can be called even when
   // |bitmap_context_| is NULL (will be a NOP).
@@ -109,19 +109,15 @@ BitmapPlatformDeviceMac::\
   rect.set(0, 0,
            CGBitmapContextGetWidth(bitmap_context_),
            CGBitmapContextGetHeight(bitmap_context_));
-  SkRegion region(rect);
-  SetClipRegion(region);
+  clip_region_ = SkRegion(rect);
+  transform_.reset();
   CGContextRetain(bitmap_context_);
 }
 
-void BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData::SetTransform(
-    const SkMatrix& t) {
-  transform_ = t;
-  config_dirty_ = true;
-}
-
-void BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData::SetClipRegion(
+void BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData::SetMatrixClip(
+    const SkMatrix& transform,
     const SkRegion& region) {
+  transform_ = transform;
   clip_region_ = region;
   config_dirty_ = true;
 }
@@ -134,11 +130,10 @@ void BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData::LoadConfig() {
   // Transform.
   SkMatrix t(transform_);
   LoadTransformToCGContext(bitmap_context_, t);
-
-  // TODO(brettw) we should support more than just rect clipping here.
-  SkIRect rect = clip_region_.getBounds();
-
-  CGContextClipToRect(bitmap_context_, SkIRectToCGRect(rect));
+  
+  t.setTranslateX(-t.getTranslateX());
+  t.setTranslateY(-t.getTranslateY());
+  LoadClippingRegionToCGContext(bitmap_context_, clip_region_, t);
 }
 
 
@@ -150,6 +145,8 @@ BitmapPlatformDeviceMac* BitmapPlatformDeviceMac::Create(CGContextRef context,
                                                          int width,
                                                          int height,
                                                          bool is_opaque) {
+  // TODO(playmobil): remove debug code.
+  //printf("BitmapPlatformDeviceMac::Create(%d,%d)\n", width, height);
   // each pixel is 4 bytes (RGBA):
   void* data = malloc(height * width * 4);
   if (!data) return NULL;
@@ -214,12 +211,9 @@ CGContextRef BitmapPlatformDeviceMac::GetBitmapContext() {
   return data_->GetBitmapContext();
 }
 
-void BitmapPlatformDeviceMac::SetTransform(const SkMatrix& matrix) {
-  data_->SetTransform(matrix);
-}
-
-void BitmapPlatformDeviceMac::SetClipRegion(const SkRegion& region) {
-  data_->SetClipRegion(region);
+void BitmapPlatformDeviceMac::setMatrixClip(const SkMatrix& transform, 
+                                            const SkRegion& region) {
+  data_->SetMatrixClip(transform, region);
 }
 
 void BitmapPlatformDeviceMac::DrawToContext(CGContextRef context, int x, int y,
@@ -253,6 +247,18 @@ void BitmapPlatformDeviceMac::DrawToContext(CGContextRef context, int x, int y,
   if (created_dc)
     data_->ReleaseBitmapContext();
 }
+  
+// Returns the color value at the specified location.
+SkColor BitmapPlatformDeviceMac::getColorAt(int x, int y) {
+  const SkBitmap& bitmap = accessBitmap(true);
+  SkAutoLockPixels lock(bitmap);
+  uint32_t* data = bitmap.getAddr32(0, 0);
+  return static_cast<SkColor>(data[x + y * width()]);
+}
+
+void BitmapPlatformDeviceMac::onAccessBitmap(SkBitmap*) {
+  // Not needed in CoreGraphics
+}
 
 void BitmapPlatformDeviceMac::processPixels(int x, int y,
                                             int width, int height, 
@@ -274,18 +280,6 @@ void BitmapPlatformDeviceMac::processPixels(int x, int y,
       }
     }
   }
-}
-
-// Returns the color value at the specified location.
-SkColor BitmapPlatformDeviceMac::GetColorAt(int x, int y) {
-  const SkBitmap& bitmap = accessBitmap(true);
-  SkAutoLockPixels lock(bitmap);
-  uint32_t* data = bitmap.getAddr32(0, 0);
-  return static_cast<SkColor>(data[x + y * width()]);
-}
-
-void BitmapPlatformDeviceMac::onAccessBitmap(SkBitmap*) {
-  // Not needed in CoreGraphics
 }
 
 }  // namespace gfx

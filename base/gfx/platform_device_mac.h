@@ -27,13 +27,6 @@ class PlatformDeviceMac : public SkDevice {
   // should exist only during one pass of rendering.
   virtual CGContextRef GetBitmapContext() = 0;
 
-  // Translate the device's coordinate system by the given amount; this will
-  // override any previous calls to this function.
-  virtual void SetTransform(const SkMatrix& matrix) = 0;
-
-  // Sets the clipping region, overriding any previous calls.
-  virtual void SetClipRegion(const SkRegion& region) = 0;
-
   // Draws to the given graphics context. If the bitmap context doesn't exist,
   // this will temporarily create it. However, if you have created the bitmap
   // context, it will be more efficient if you don't free it until after this
@@ -61,6 +54,11 @@ class PlatformDeviceMac : public SkDevice {
   // clipping or as a stroke.
   static void LoadPathToCGContext(CGContextRef context, const SkPath& path);
 
+  // Loads a SkRegion into the CG context.
+  static void LoadClippingRegionToCGContext(CGContextRef context, 
+                                            const SkRegion& region,
+                                            const SkMatrix& transformation);  
+  
  protected:
   // Forwards |bitmap| to SkDevice's constructor.
   PlatformDeviceMac(const SkBitmap& bitmap);

@@ -97,10 +97,73 @@ void PlatformDeviceMac::LoadPathToCGContext(CGContextRef context,
 // static
 void PlatformDeviceMac::LoadTransformToCGContext(CGContextRef context,
                                                  const SkMatrix& matrix) {
-  // TOOD: CoreGraphics can concatenate transforms, but not reset the current
-  // ont.  Either find a workaround or remove this function if it turns out
+  // TODO: CoreGraphics can concatenate transforms, but not reset the current
+  // one.  Either find a workaround or remove this function if it turns out
   // to be unneeded on the Mac.
+  // For now, just load the translation.
+  
+  // First reset the Transforms.
+  // TODO(playmobil): no need to call CGContextTranslateCTM() twice
+  // just add up the numbers and call through.
+  CGAffineTransform orig_transform = CGContextGetCTM(context);
+  CGContextTranslateCTM(context,
+                        -orig_transform.tx,
+                        orig_transform.ty);  // y axis is flipped.
+
+  // TODO(playmobil): remove debug code.
+  // CGAffineTransform temp_transform = CGContextGetCTM(context);
+  
+  // Now set the new transform.
+  int tx = matrix.getTranslateX();
+  int ty = -matrix.getTranslateY();
+  int height = CGBitmapContextGetHeight(context);
+  CGContextTranslateCTM(context,
+                        tx,
+                        -(ty+height));
+  CGAffineTransform new_transform = CGContextGetCTM(context);
+// TODO(playmobil): remove debug code.
+//  printf("tx_matrix (%lf,%lf)->(%lf,%lf)->(%lf,%lf) (%d, %d) height=%d\n", orig_transform.tx,
+//                                       orig_transform.ty,
+//                                       foo_transform.tx,
+//                                       foo_transform.ty,
+//                                       new_transform.tx,
+//                                       new_transform.ty, tx, ty, height);
 }
 
+// static
+void PlatformDeviceMac::LoadClippingRegionToCGContext(
+         CGContextRef context,
+         const SkRegion& region,
+         const SkMatrix& transformation) {
+  if (region.isEmpty()) {
+    // region can be empty, in which case everything will be clipped.
+    SkRect rect;
+    rect.setEmpty();
+    CGContextClipToRect(context, SkRectToCGRect(rect));
+  } else if (region.isRect()) {
+    // Do the transformation.
+    SkRect rect;
+    rect.set(region.getBounds());
+    transformation.mapRect(&rect);
+    SkIRect irect;
+    rect.round(&irect);
+// TODO(playmobil): remove debug code.
+//    printf("Clipping to (%d,%d) (%d,%d)\n", irect.fLeft, irect.fTop, 
+//           irect.fRight, irect.fBottom);
+    CGContextClipToRect(context, SkIRectToCGRect(irect));
+  } else {
+    // It is complex.
+    SkPath path;
+    region.getBoundaryPath(&path);
+    // Clip. Note that windows clipping regions are not affected by the
+    // transform so apply it manually.
+    path.transform(transformation);
+    // TODO(playmobil): Implement.
+    NOTREACHED();
+    // LoadPathToDC(context, path);
+    // hrgn = PathToRegion(context);
+  }
+}
+  
 }  // namespace gfx
 
