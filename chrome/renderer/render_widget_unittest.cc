@@ -116,7 +116,7 @@ class MockRenderThread : public RenderThreadBase {
   IPC::MessageReplyDeserializer* reply_deserializer_;
 };
 
-TEST(RenderWidgetTest, CreateAndCloseWidget) {
+TEST(RenderWidgetTest, DISABLED_CreateAndCloseWidget) {
   MessageLoop msg_loop;
   MockRenderThread render_thread;
 
