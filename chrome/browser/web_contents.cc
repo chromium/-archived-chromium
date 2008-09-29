@@ -1585,6 +1585,8 @@ WebPreferences WebContents::GetWebkitPrefs() {
     web_prefs.loads_images_automatically =
         !command_line.HasSwitch(switches::kDisableImages) &&
         prefs->GetBoolean(prefs::kWebKitLoadsImagesAutomatically);
+    web_prefs.uses_page_cache =
+        command_line.HasSwitch(switches::kEnableFastback);
   }
 
   web_prefs.uses_universal_detector =

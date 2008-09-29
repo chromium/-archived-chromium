@@ -120,6 +120,8 @@ extern const wchar_t kGearsInRenderer[];
 
 extern const wchar_t kUseNewHttp[];
 
+extern const wchar_t kEnableFastback[];
+
 extern const wchar_t kJavaScriptDebuggerPath[];
 
 extern const wchar_t kEnableP13n[];

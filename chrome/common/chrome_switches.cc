@@ -315,6 +315,9 @@ const wchar_t kGearsInRenderer[] = L"gears-in-renderer";
 // Enable new HTTP stack.
 const wchar_t kUseNewHttp[] = L"new-http";
 
+// Enable the fastback page cache.
+const wchar_t kEnableFastback[] = L"enable-fastback";
+
 // Allow loading of the javascript debugger UI from the filesystem.
 const wchar_t kJavaScriptDebuggerPath[] = L"javascript-debugger-path";
 

@@ -1443,6 +1443,7 @@ struct ParamTraits<WebPreferences> {
     WriteParam(m, p.java_enabled);
     WriteParam(m, p.user_style_sheet_enabled);
     WriteParam(m, p.user_style_sheet_location);
+    WriteParam(m, p.uses_page_cache);
   }
   static bool Read(const Message* m, void** iter, param_type* p) {
     return
@@ -1469,7 +1470,8 @@ struct ParamTraits<WebPreferences> {
         ReadParam(m, iter, &p->dashboard_compatibility_mode) &&
         ReadParam(m, iter, &p->java_enabled) &&
         ReadParam(m, iter, &p->user_style_sheet_enabled) &&
-        ReadParam(m, iter, &p->user_style_sheet_location);
+        ReadParam(m, iter, &p->user_style_sheet_location) &&
+        ReadParam(m, iter, &p->uses_page_cache);
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"<WebPreferences>");
