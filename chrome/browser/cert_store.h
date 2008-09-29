@@ -52,7 +52,8 @@ class CertStore : public NotificationObserver {
   ~CertStore();
 
   // Remove the specified cert from id_to_cert_ and cert_to_id_.
-  void RemoveCert(int cert_id);
+  // NOTE: the caller (RemoveCertsForRenderProcesHost) must hold cert_lock_.
+  void RemoveCertInternal(int cert_id);
 
   // Removes all the certs associated with the specified process from the store.
   void RemoveCertsForRenderProcesHost(int render_process_host_id);

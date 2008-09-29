@@ -13,7 +13,7 @@
 
 template <typename T>
 struct MatchSecond {
-  MatchSecond(const T& t) : value(t) {}
+  explicit MatchSecond(const T& t) : value(t) {}
 
   template<typename Pair>
   bool operator()(const Pair& p) const {
@@ -40,9 +40,9 @@ CertStore* CertStore::GetSharedInstance() {
 CertStore::CertStore() : next_cert_id_(1) {
   // We watch for RenderProcess termination, as this is how we clear
   // certificates for now.
-  // TODO (jcampan): we should be listening to events such as resource cached/
-  //                 removed from cache, and remove the cert when we know it
-  //                 is not used anymore.
+  // TODO(jcampan): we should be listening to events such as resource cached/
+  //                removed from cache, and remove the cert when we know it
+  //                is not used anymore.
 
   // TODO(tc): This notification observer never gets removed because the
   // CertStore is never deleted.
@@ -93,18 +93,16 @@ int CertStore::StoreCert(net::X509Certificate* cert, int process_id) {
 
 bool CertStore::RetrieveCert(int cert_id,
                              scoped_refptr<net::X509Certificate>* cert) {
-   AutoLock autoLock(cert_lock_);
-
-   CertMap::iterator iter = id_to_cert_.find(cert_id);
-   if (iter == id_to_cert_.end())
-     return false;
-   *cert = iter->second;
-   return true;
-}
-
-void CertStore::RemoveCert(int cert_id) {
   AutoLock autoLock(cert_lock_);
 
+  CertMap::iterator iter = id_to_cert_.find(cert_id);
+  if (iter == id_to_cert_.end())
+    return false;
+  *cert = iter->second;
+  return true;
+}
+
+void CertStore::RemoveCertInternal(int cert_id) {
   CertMap::iterator cert_iter = id_to_cert_.find(cert_id);
   DCHECK(cert_iter != id_to_cert_.end());
 
@@ -135,7 +133,7 @@ void CertStore::RemoveCertsForRenderProcesHost(int process_id) {
     if (cert_id_to_process_id_.count(cert_id) == 0) {
       // This cert is not referenced by any process, remove it from id_to_cert_
       // and cert_to_id_.
-      RemoveCert(cert_id);
+      RemoveCertInternal(cert_id);
     }
 
     // Erase the current item but keep the iterator valid.
