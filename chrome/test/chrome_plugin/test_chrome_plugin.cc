@@ -23,7 +23,7 @@ static TestFuncParams::BrowserFuncs g_cptest_funcs;
 static base::AtExitManager global_at_exit_manager;
 
 const TestResponsePayload* FindPayload(const char* url) {
-  for (int i = 0; i < arraysize(kChromeTestPluginPayloads); ++i) {
+  for (size_t i = 0; i < arraysize(kChromeTestPluginPayloads); ++i) {
     if (strcmp(kChromeTestPluginPayloads[i].url, url) == 0)
       return &kChromeTestPluginPayloads[i];
   }
@@ -75,8 +75,8 @@ private:
 
 ResponseStream::ResponseStream(const TestResponsePayload* payload,
                                CPRequest* request)
-    : payload_(payload), offset_(0), request_(request),
-      ready_state_(READY_INVALID) {
+    : payload_(payload), offset_(0), ready_state_(READY_INVALID),
+    request_(request) {
 }
 
 void ResponseStream::Init() {
@@ -101,10 +101,8 @@ int ResponseStream::GetResponseInfo(CPResponseInfoType type, void* buf,
 
   switch (type) {
   case CPRESPONSEINFO_HTTP_STATUS:
-    if (buf) {
-      int status = payload_->status;
+    if (buf)
       memcpy(buf, &payload_->status, buf_size);
-    }
     break;
   case CPRESPONSEINFO_HTTP_RAW_HEADERS: {
     std::string headers = GetPayloadHeaders(payload_);
@@ -380,4 +378,3 @@ int STDCALL CP_Test(void* vparam) {
   g_cptest_funcs = param->bfuncs;
   return CPERR_SUCCESS;
 }
-
