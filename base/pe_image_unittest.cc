@@ -6,6 +6,7 @@
 
 #include "testing/gtest/include/gtest/gtest.h"
 #include "base/pe_image.h"
+#include "base/win_util.h"
 
 // Just counts the number of invocations.
 bool ExportsCallback(const PEImage &image,
@@ -137,6 +138,9 @@ int GetExpectedValue(Value value, DWORD os) {
 // Tests that we are able to enumerate stuff from a PE file, and that
 // the actual number of items found is within the expected range.
 TEST(PEImageTest, EnumeratesPE) {
+  // Windows Server 2003 is not supported as a test environment for this test.
+  if (win_util::GetWinVersion() == win_util::WINVERSION_SERVER_2003)
+    return;
   HMODULE module = LoadLibrary(L"advapi32.dll");
   ASSERT_TRUE(NULL != module);
 
