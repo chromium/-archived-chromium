@@ -1635,7 +1635,7 @@ void RenderView::DebuggerOutput(const std::wstring& out) {
 
 WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
   int32 routing_id = MSG_ROUTING_NONE;
-  HANDLE modal_dialog_event;
+  HANDLE modal_dialog_event = NULL;
   bool result = RenderThread::current()->Send(
       new ViewHostMsg_CreateView(routing_id_, user_gesture, &routing_id,
                                  &modal_dialog_event));
