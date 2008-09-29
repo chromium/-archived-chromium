@@ -858,16 +858,18 @@ void NavigationController::RemoveLastEntryForInterstitial() {
     if (last_committed_entry_index_ >= current_size - 1) {
       last_committed_entry_index_ = current_size - 2;
 
-      // Broadcast the notification of the navigation. This is kind of a hack,
-      // since the navigation wasn't actually committed. But this function is
-      // used for interstital pages, and the UI needs to get updated when the
-      // interstitial page
-      LoadCommittedDetails details;
-      details.entry = GetActiveEntry();
-      details.is_auto = false;
-      details.is_in_page = false;
-      details.is_main_frame = true;
-      NotifyNavigationEntryCommitted(&details);
+      if (last_committed_entry_index_ != -1) {
+        // Broadcast the notification of the navigation. This is kind of a hack,
+        // since the navigation wasn't actually committed. But this function is
+        // used for interstital pages, and the UI needs to get updated when the
+        // interstitial page
+        LoadCommittedDetails details;
+        details.entry = GetActiveEntry();
+        details.is_auto = false;
+        details.is_in_page = false;
+        details.is_main_frame = true;
+        NotifyNavigationEntryCommitted(&details);
+      }
     }
 
     NotifyPrunedEntries(this, false, 1);
