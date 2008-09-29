@@ -28,8 +28,6 @@
 //  - authentication
 //    + pre-emptive authorization
 //    + use the username/password encoded in the URL.
-//  - proxies (need to call ReconsiderProxyAfterError and handle SSL tunnel)
-//  - ssl
 
 namespace net {
 
@@ -467,8 +465,11 @@ int HttpNetworkTransaction::DoResolveHost() {
 }
 
 int HttpNetworkTransaction::DoResolveHostComplete(int result) {
-  if (result == OK)
+  if (result == OK) {
     next_state_ = STATE_CONNECT;
+  } else {
+    result = ReconsiderProxyAfterError(result);
+  }
   return result;
 }
 
@@ -495,6 +496,8 @@ int HttpNetworkTransaction::DoConnectComplete(int result) {
       establishing_tunnel_ = true;
   } else if (IsCertificateError(result)) {
     result = HandleCertificateError(result);
+  } else {
+    result = ReconsiderProxyAfterError(result);
   }
   return result;
 }
@@ -502,6 +505,7 @@ int HttpNetworkTransaction::DoConnectComplete(int result) {
 int HttpNetworkTransaction::DoSSLConnectOverTunnel() {
   next_state_ = STATE_SSL_CONNECT_OVER_TUNNEL_COMPLETE;
 
+  // Add a SSL socket on top of our existing transport socket.
   ClientSocket* s = connection_.release_socket();
   s = socket_factory_->CreateSSLClientSocket(s, request_->url.host());
   connection_.set_socket(s);
@@ -920,6 +924,40 @@ bool HttpNetworkTransaction::ShouldResendRequest() {
     request_body_stream_->Reset();
   next_state_ = STATE_INIT_CONNECTION;  // Resend the request.
   return true;
+}
+
+int HttpNetworkTransaction::ReconsiderProxyAfterError(int error) {
+  DCHECK(!pac_request_);
+
+  // A failure to resolve the hostname or any error related to establishing a
+  // TCP connection could be grounds for trying a new proxy configuration.
+  switch (error) {
+    case ERR_NAME_NOT_RESOLVED:
+    case ERR_INTERNET_DISCONNECTED:
+    case ERR_ADDRESS_UNREACHABLE:
+    case ERR_CONNECTION_CLOSED:
+    case ERR_CONNECTION_RESET:
+    case ERR_CONNECTION_REFUSED:
+    case ERR_CONNECTION_ABORTED:
+    case ERR_TIMED_OUT:
+    case ERR_TUNNEL_CONNECTION_FAILED:
+      break;
+    default:
+      return error;
+  }
+
+  int rv = session_->proxy_service()->ReconsiderProxyAfterError(
+      request_->url, &proxy_info_, &io_callback_, &pac_request_);
+  if (rv == OK || rv == ERR_IO_PENDING) {
+    connection_.set_socket(NULL);
+    connection_.Reset();
+    DCHECK(!request_headers_bytes_sent_);
+    next_state_ = STATE_RESOLVE_PROXY_COMPLETE;
+  } else {
+    rv = error;
+  }
+
+  return rv;
 }
 
 void HttpNetworkTransaction::AddAuthorizationHeader(HttpAuth::Target target) {

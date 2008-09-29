@@ -94,6 +94,14 @@ class HttpNetworkTransaction : public HttpTransaction {
   // returns false.
   bool ShouldResendRequest();
 
+  // Called when we encounter a network error that could be resolved by trying
+  // a new proxy configuration.  If there is another proxy configuration to try
+  // then this method sets next_state_ appropriately and returns either OK or
+  // ERR_IO_PENDING depending on whether or not the new proxy configuration is
+  // available synchronously or asynchronously.  Otherwise, the given error
+  // code is simply returned.
+  int ReconsiderProxyAfterError(int error);
+
   // Return true if based on the bytes read so far, the start of the
   // status line is known. This is used to distingish between HTTP/0.9
   // responses (which have no status line) and HTTP/1.x responses.
