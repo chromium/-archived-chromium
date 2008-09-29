@@ -72,8 +72,8 @@ struct WebPreferences {
         dashboard_compatibility_mode(false),
         java_enabled(true),
         allow_scripts_to_close_windows(false),
-        user_style_sheet_enabled(false),
-        uses_page_cache(false) {
+        uses_page_cache(false),
+        user_style_sheet_enabled(false) {
   }
 };
 
