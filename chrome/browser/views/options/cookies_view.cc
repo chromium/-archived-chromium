@@ -52,6 +52,7 @@ class CookiesTableModel : public ChromeViews::TableModel {
   virtual std::wstring GetText(int row, int column_id);
   virtual SkBitmap GetIcon(int row);
   virtual void SetObserver(ChromeViews::TableModelObserver* observer);
+  virtual int CompareValues(int row1, int row2, int column_id);
 
   // Filter the cookies to only display matched results.
   void UpdateSearchResults(const std::wstring& filter);
@@ -177,6 +178,26 @@ void CookiesTableModel::SetObserver(ChromeViews::TableModelObserver* observer) {
   observer_ = observer;
 }
 
+int CookiesTableModel::CompareValues(int row1, int row2, int column_id) {
+  if (column_id == IDS_COOKIES_DOMAIN_COLUMN_HEADER) {
+    // Sort ignore the '.' prefix for domain cookies.
+    net::CookieMonster::CookieListPair* cp1 = shown_cookies_[row1];
+    net::CookieMonster::CookieListPair* cp2 = shown_cookies_[row2];
+    bool is1domain = !cp1->first.empty() && cp1->first[0] == '.';
+    bool is2domain = !cp2->first.empty() && cp2->first[0] == '.';
+
+    // They are both either domain or host cookies, sort them normally.
+    if (is1domain == is2domain)
+      return cp1->first.compare(cp2->first);
+
+    // One (but only one) is a domain cookie, skip the beginning '.'.
+    return is1domain ?
+        cp1->first.compare(1, cp1->first.length() - 1, cp2->first) :
+        -cp2->first.compare(1, cp2->first.length() - 1, cp1->first);
+  }
+  return TableModel::CompareValues(row1, row2, column_id);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // CookiesTableModel, private:
 
@@ -192,30 +213,11 @@ static bool ContainsFilterText(
       cookie.Value().find(filter) != std::string::npos;
 }
 
-// Sort ignore the '.' prefix for domain cookies.
-static bool CookieSorter(const net::CookieMonster::CookieListPair& cp1,
-                         const net::CookieMonster::CookieListPair& cp2) {
-  bool is1domain = !cp1.first.empty() && cp1.first[0] == '.';
-  bool is2domain = !cp2.first.empty() && cp2.first[0] == '.';
-
-  // They are both either domain or host cookies, sort them normally.
-  if (is1domain == is2domain)
-    return cp1.first < cp2.first;
-
-  // One (but only one) is a domain cookie, skip the beginning '.'.
-  int comp = is1domain ?
-      cp1.first.compare(1, cp1.first.length() - 1, cp2.first) :
-      -cp2.first.compare(1, cp2.first.length() - 1, cp1.first);
-
-  return comp < 0;
-}
-
 void CookiesTableModel::LoadCookies() {
   // mmargh mmargh mmargh!
   net::CookieMonster* cookie_monster =
       profile_->GetRequestContext()->cookie_store();
   all_cookies_ = cookie_monster->GetAllCookies();
-  std::sort(all_cookies_.begin(), all_cookies_.end(), CookieSorter);
   DoFilter();
 }
 
@@ -288,12 +290,23 @@ void CookiesTableView::RemoveSelectedCookies() {
   if (SelectedRowCount() <= 0)
     return;
 
+  if (SelectedRowCount() == cookies_model_->RowCount()) {
+    cookies_model_->RemoveAllShownCookies();
+    return;
+  }
+
   // Remove the selected cookies.
-  int selected_row = FirstSelectedRow();
-  cookies_model_->RemoveCookies(selected_row, SelectedRowCount());
+  int first_selected_row = -1;
+  for (ChromeViews::TableView::iterator i = SelectionBegin();
+       i != SelectionEnd(); ++i) {
+    int selected_row = *i;
+    if (first_selected_row == -1)
+      first_selected_row = selected_row;
+    cookies_model_->RemoveCookies(selected_row, 1);
+  }
   // Keep an element selected
   if (RowCount() > 0)
-    Select(std::min(RowCount() - 1, selected_row));
+    Select(std::min(RowCount() - 1, first_selected_row));
 }
 
 void CookiesTableView::OnKeyDown(unsigned short virtual_keycode) {
@@ -701,11 +714,19 @@ void CookiesView::Init() {
   columns.push_back(ChromeViews::TableColumn(IDS_COOKIES_DOMAIN_COLUMN_HEADER,
                                              ChromeViews::TableColumn::LEFT,
                                              200, 0.5f));
+  columns.back().sortable = true;
   columns.push_back(ChromeViews::TableColumn(IDS_COOKIES_NAME_COLUMN_HEADER,
                                              ChromeViews::TableColumn::LEFT,
                                              150, 0.5f));
+  columns.back().sortable = true;
   cookies_table_ = new CookiesTableView(cookies_table_model_.get(), columns);
   cookies_table_->SetObserver(this);
+  // Make the table initially sorted by domain.
+  ChromeViews::TableView::SortDescriptors sort;
+  sort.push_back(
+      ChromeViews::TableView::SortDescriptor(
+          IDS_COOKIES_DOMAIN_COLUMN_HEADER, true));
+  cookies_table_->SetSortDescriptors(sort);
   remove_button_ = new ChromeViews::NativeButton(
       l10n_util::GetString(IDS_COOKIES_REMOVE_LABEL));
   remove_button_->SetListener(this);
@@ -771,4 +792,3 @@ void CookiesView::UpdateForEmptyState() {
   remove_button_->SetEnabled(false);
   remove_all_button_->SetEnabled(false);
 }
-
