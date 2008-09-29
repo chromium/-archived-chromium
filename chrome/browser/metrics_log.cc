@@ -12,7 +12,6 @@
 #include "base/sys_info.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/common/env_util.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -447,7 +446,7 @@ void MetricsLog::RecordEnvironment(
 
   {
     OPEN_ELEMENT_FOR_SCOPE("cpu");
-    WriteAttribute("arch", env_util::GetCPUArchitecture());
+    WriteAttribute("arch", base::SysInfo::CPUArchitecture());
   }
 
   {
@@ -469,19 +468,19 @@ void MetricsLog::RecordEnvironment(
   {
     OPEN_ELEMENT_FOR_SCOPE("os");
     WriteAttribute("name",
-                   env_util::GetOperatingSystemName());
+                   base::SysInfo::OperatingSystemName());
     WriteAttribute("version",
-                   env_util::GetOperatingSystemVersion());
+                   base::SysInfo::OperatingSystemVersion());
   }
 
   {
     OPEN_ELEMENT_FOR_SCOPE("display");
     int width = 0;
     int height = 0;
-    env_util::GetPrimaryDisplayDimensions(&width, &height);
+    base::SysInfo::GetPrimaryDisplayDimensions(&width, &height);
     WriteIntAttribute("xsize", width);
     WriteIntAttribute("ysize", height);
-    WriteIntAttribute("screens", env_util::GetDisplayCount());
+    WriteIntAttribute("screens", base::SysInfo::DisplayCount());
   }
 
   {

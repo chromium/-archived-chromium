@@ -14,9 +14,9 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/rand_util.h"
 #include "base/string_util.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/rand_util.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/ui/ui_test.h"
@@ -88,7 +88,7 @@ class SeleniumTest : public UITest {
       L"5.selectFrame,6.click,13.verifyLocation,13.verifyLocation,13.click,24.selectAndWait,24.verifyTitle",
       L"5.selectFrame,6.click,24.selectAndWait"
     };
-    *failed = kBogusFailures[rand_util::RandInt(0, 2)];
+    *failed = kBogusFailures[base::RandInt(0, 2)];
 #else
     std::wstring test_path;
     PathService::Get(chrome::DIR_TEST_DATA, &test_path);

@@ -28,6 +28,31 @@ class SysInfo {
   // or -1 on failure.
   static int64 AmountOfFreeDiskSpace(const std::wstring& path);
 
+  // Return true if the given environment variable is defined.
+  // TODO: find a better place for HasEnvVar.
+  static bool HasEnvVar(const wchar_t* var);
+
+  // Return the value of the given environment variable
+  // or an empty string if not defined.
+  // TODO: find a better place for GetEnvVar.
+  static std::wstring GetEnvVar(const wchar_t* var);
+
+  // Returns the name of the host operating system.
+  static std::string OperatingSystemName();
+
+  // Returns the version of the host operating system.
+  static std::string OperatingSystemVersion();
+
+  // Returns the CPU architecture of the system. Exact return value may differ
+  // across platforms.
+  static std::string CPUArchitecture();
+
+  // Returns the pixel dimensions of the primary display via the
+  // width and height parameters.
+  static void GetPrimaryDisplayDimensions(int* width, int* height);
+
+  // Return the number of displays.
+  static int DisplayCount();
 };
 
 }  // namespace base

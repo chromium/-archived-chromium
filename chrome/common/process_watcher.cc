@@ -6,8 +6,8 @@
 
 #include "base/message_loop.h"
 #include "base/object_watcher.h"
+#include "base/sys_info.h"
 #include "chrome/app/result_codes.h"
-#include "chrome/common/env_util.h"
 #include "chrome/common/env_vars.h"
 
 // Maximum amount of time (in milliseconds) to wait for the process to exit.
@@ -48,9 +48,9 @@ class TimerExpiredTask : public Task, public base::ObjectWatcher::Delegate {
 
  private:
   void KillProcess() {
-    if (env_util::HasEnvironmentVariable(env_vars::kHeadless)) {
-     // If running the distributed tests, give the renderer a little time to figure out
-     // that the channel is shutdown and unwind.
+    if (base::SysInfo::HasEnvVar(env_vars::kHeadless)) {
+     // If running the distributed tests, give the renderer a little time
+     // to figure out that the channel is shutdown and unwind.
      if (WaitForSingleObject(process_, kWaitInterval) == WAIT_OBJECT_0) {
        OnObjectSignaled(process_);
        return;

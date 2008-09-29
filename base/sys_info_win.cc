@@ -7,6 +7,8 @@
 #include <windows.h>
 
 #include "base/logging.h"
+#include "base/scoped_ptr.h"
+#include "base/string_util.h"
 
 namespace base {
 
@@ -42,6 +44,60 @@ int64 SysInfo::AmountOfFreeDiskSpace(const std::wstring& path) {
   if (rv < 0)
     rv = kint64max;
   return rv;
+}
+
+// static
+bool SysInfo::HasEnvVar(const wchar_t* var) {
+  return GetEnvironmentVariable(var, NULL, 0) != 0;
+}
+
+// static
+std::wstring SysInfo::GetEnvVar(const wchar_t* var) {
+  DWORD value_length = GetEnvironmentVariable(var, NULL, 0);
+  if (value_length == 0) {
+    return L"";
+  }
+  scoped_array<wchar_t> value(new wchar_t[value_length]);
+  GetEnvironmentVariable(var, value.get(), value_length);
+  return std::wstring(value.get());
+}
+
+// static
+std::string SysInfo::OperatingSystemName() {
+  return "Windows NT";
+}
+
+// static
+std::string SysInfo::OperatingSystemVersion() {
+  OSVERSIONINFO info = {0};
+  info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+  GetVersionEx(&info);
+
+  return StringPrintf("%lu.%lu", info.dwMajorVersion, info.dwMinorVersion);
+}
+
+// TODO: Implement OperatingSystemVersionComplete, which would include
+// patchlevel/service pack number. See chrome/browser/views/bug_report_view.cc,
+// BugReportView::SetOSVersion.
+
+// static
+std::string SysInfo::CPUArchitecture() {
+  // TODO: Make this vary when we support any other architectures.
+  return "x86";
+}
+
+// static
+void SysInfo::GetPrimaryDisplayDimensions(int* width, int* height) {
+  if (width)
+    *width = GetSystemMetrics(SM_CXSCREEN);
+
+  if (height)
+    *height = GetSystemMetrics(SM_CYSCREEN);
+}
+
+// static
+int SysInfo::DisplayCount() {
+  return GetSystemMetrics(SM_CMONITORS);
 }
 
 }  // namespace base

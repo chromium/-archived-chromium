@@ -256,6 +256,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\rand_util_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\ref_counted_unittest.cc"
 				>
 			</File>

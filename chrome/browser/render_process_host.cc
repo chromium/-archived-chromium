@@ -19,6 +19,7 @@
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
+#include "base/rand_util.h"
 #include "base/shared_event.h"
 #include "base/shared_memory.h"
 #include "base/string_util.h"
@@ -43,7 +44,6 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/debug_flags.h"
-#include "chrome/common/env_util.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/pref_names.h"
@@ -675,7 +675,7 @@ RenderProcessHost* RenderProcessHost::GetExistingProcessHost(Profile* profile) {
   // Now pick a random suitable renderer, if we have any
   if (!suitable_renderers.empty()) {
     int suitable_count = static_cast<int>(suitable_renderers.size());
-    int random_index = rand_util::RandInt(0, suitable_count - 1);
+    int random_index = base::RandInt(0, suitable_count - 1);
     return suitable_renderers[random_index];
   }
 

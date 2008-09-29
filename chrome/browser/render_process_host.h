@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_RENDER_PROCESS_HOST_H_
 #define CHROME_BROWSER_RENDER_PROCESS_HOST_H_
 
+#include <limits>
 #include <set>
 #include <vector>
 #include <windows.h>
@@ -12,12 +13,12 @@
 #include "base/id_map.h"
 #include "base/object_watcher.h"
 #include "base/process.h"
+#include "base/rand_util.h"
 #include "base/ref_counted.h"
 #include "base/scoped_handle.h"
 #include "base/scoped_ptr.h"
 #include "chrome/common/ipc_sync_channel.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/rand_util.h"
 #include "chrome/common/render_messages.h"
 
 class PrefService;
@@ -271,7 +272,7 @@ inline std::wstring GenerateRandomChannelID(void* instance) {
   // to fail.
   return StringPrintf(L"%d.%x.%d",
                       GetCurrentProcessId(), instance,
-                      rand_util::RandIntSecure(0, kint32max));
+                      base::RandInt(0, std::numeric_limits<int>::max()));
 }
 
 

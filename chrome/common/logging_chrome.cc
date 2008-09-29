@@ -14,9 +14,9 @@
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
+#include "base/sys_info.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/env_util.h"
 #include "chrome/common/env_vars.h"
 
 // When true, this means that error dialogs should not be shown.
@@ -96,7 +96,7 @@ void InitChromeLogging(const CommandLine& command_line,
   // headless mode to be configured either by the Environment
   // Variable or by the Command Line Switch.  This is for
   // automated test purposes.
-  if (env_util::HasEnvironmentVariable(env_vars::kHeadless) ||
+  if (base::SysInfo::HasEnvVar(env_vars::kHeadless) ||
       command_line.HasSwitch(switches::kNoErrorDialogs))
     SuppressDialogs();
 

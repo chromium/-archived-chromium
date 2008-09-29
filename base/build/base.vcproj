@@ -558,6 +558,18 @@
 			>
 		</File>
 		<File
+			RelativePath="..\rand_util.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\rand_util.h"
+			>
+		</File>
+		<File
+			RelativePath="..\rand_util_win.cc"
+			>
+		</File>
+		<File
 			RelativePath="..\ref_counted.cc"
 			>
 		</File>

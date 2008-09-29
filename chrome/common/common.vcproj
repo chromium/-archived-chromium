@@ -422,14 +422,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\env_util.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\env_util.h"
-			>
-		</File>
-		<File
 			RelativePath=".\env_vars.cc"
 			>
 		</File>
@@ -595,14 +587,6 @@
 		</File>
 		<File
 			RelativePath=".\process_watcher.h"
-			>
-		</File>
-		<File
-			RelativePath=".\rand_util.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\rand_util.h"
 			>
 		</File>
 		<File

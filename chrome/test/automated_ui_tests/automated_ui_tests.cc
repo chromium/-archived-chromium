@@ -7,13 +7,13 @@
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/rand_util.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/libxml_utils.h"
-#include "chrome/common/rand_util.h"
 #include "chrome/common/win_util.h"
 #include "chrome/test/automated_ui_tests/automated_ui_tests.h"
 #include "chrome/test/automation/browser_proxy.h"
@@ -421,9 +421,9 @@ bool AutomatedUITest::ChangeEncoding() {
 
   // The vector will contain mostly IDC values for encoding commands plus a few
   // menu separators (0 values). If we hit a separator we just retry.
-  int index = rand_util::RandInt(0, len);
+  int index = base::RandInt(0, len);
   while ((*encoding_ids)[index] == 0) {
-    index = rand_util::RandInt(0, len);
+    index = base::RandInt(0, len);
   }
 
   return RunCommand((*encoding_ids)[index]);
@@ -690,7 +690,7 @@ bool AutomatedUITest::TestViewPasswords() {
 }
 
 bool AutomatedUITest::ExerciseDialog() {
-  int index = rand_util::RandInt(0, arraysize(kDialogs) - 1);
+  int index = base::RandInt(0, arraysize(kDialogs) - 1);
   return DoAction(kDialogs[index]) && FuzzyTestDialog(kTestDialogActionsToRun);
 }
 
@@ -703,9 +703,9 @@ bool AutomatedUITest::FuzzyTestDialog(int num_actions) {
     // and Enter would close the dialog without performing more actions. We
     // rely on the fact that those two actions are first in the array and set
     // the lower bound to 2 if i == 0 to skip those two actions.
-    int action_index = rand_util::RandInt(i == 0 ? 2 : 0,
-                                          arraysize(kTestDialogPossibleActions)
-                                          - 1);
+    int action_index = base::RandInt(i == 0 ? 2 : 0,
+                                     arraysize(kTestDialogPossibleActions)
+                                         - 1);
     return_value = return_value &&
                    DoAction(kTestDialogPossibleActions[action_index]);
     if (DidCrash(false))

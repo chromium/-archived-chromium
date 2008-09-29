@@ -19,7 +19,6 @@
 #include "chrome/browser/importer/importer.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/env_util.h"
 #include "chrome/common/win_util.h"
 
 class ImporterTest : public testing::Test {
@@ -274,10 +273,6 @@ void WritePStore(IPStore* pstore, const GUID* type, const GUID* subtype) {
 }
 
 TEST_F(ImporterTest, IEImporter) {
-  // Skips in Win2000 for the running environment can not be set up.
-  if (env_util::GetOperatingSystemVersion() == "5.0")
-    return;
-
   // Sets up a favorites folder.
   win_util::ScopedCOMInitializer com_init;
   std::wstring path = test_path_;

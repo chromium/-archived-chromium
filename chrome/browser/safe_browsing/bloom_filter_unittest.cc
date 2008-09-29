@@ -5,18 +5,20 @@
 
 #include "chrome/browser/safe_browsing/bloom_filter.h"
 
+#include <limits.h>
+
 #include <set>
 
 #include "base/logging.h"
+#include "base/rand_util.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
-#include "chrome/common/rand_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
 
 uint32 GenHash() {
-  return static_cast<uint32>(rand_util::RandIntSecure(0, kint32max));
+  return static_cast<uint32>(base::RandInt(INT_MIN, INT_MAX));
 }
 
 }

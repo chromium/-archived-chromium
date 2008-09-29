@@ -35,6 +35,9 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		4D11B59A0E91730200EF7617 /* rand_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D11B5940E9172F800EF7617 /* rand_util.cc */; };
+		4D11B59B0E91730200EF7617 /* rand_util_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D11B5960E9172F800EF7617 /* rand_util_posix.cc */; };
+		4D11B59C0E91730500EF7617 /* rand_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D11B5970E9172F800EF7617 /* rand_util_unittest.cc */; };
 		7B26302F0E82F218001CE27F /* message_pump_libevent.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7B26302D0E82F218001CE27F /* message_pump_libevent.cc */; };
 		7B2630330E82F258001CE27F /* libevent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B2630240E82F1E6001CE27F /* libevent.a */; };
 		7B4C5F4A0E4B6BF900679E8F /* sys_string_conversions_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7B4C5F480E4B6BF900679E8F /* sys_string_conversions_mac.cc */; };
@@ -359,6 +362,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4D11B5940E9172F800EF7617 /* rand_util.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rand_util.cc; sourceTree = "<group>"; };
+		4D11B5950E9172F800EF7617 /* rand_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rand_util.h; sourceTree = "<group>"; };
+		4D11B5960E9172F800EF7617 /* rand_util_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rand_util_posix.cc; sourceTree = "<group>"; };
+		4D11B5970E9172F800EF7617 /* rand_util_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rand_util_unittest.cc; sourceTree = "<group>"; };
 		7B1435DE0E78416400901940 /* skia_utils_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = skia_utils_mac.h; sourceTree = "<group>"; };
 		7B1435DF0E78419700901940 /* native_widget_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = native_widget_types.h; sourceTree = "<group>"; };
 		7B26301F0E82F1E6001CE27F /* libevent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libevent.xcodeproj; path = third_party/libevent/libevent.xcodeproj; sourceTree = "<group>"; };
@@ -914,6 +921,10 @@
 				825403490D92D23C0006B936 /* prtypes.h */,
 				825403550D92D2580006B936 /* pure.h */,
 				825403570D92D25E0006B936 /* pure_api.c */,
+				4D11B5940E9172F800EF7617 /* rand_util.cc */,
+				4D11B5950E9172F800EF7617 /* rand_util.h */,
+				4D11B5960E9172F800EF7617 /* rand_util_posix.cc */,
+				4D11B5970E9172F800EF7617 /* rand_util_unittest.cc */,
 				7B836C040E55BBB800F6AD31 /* ref_counted.cc */,
 				825403590D92D27C0006B936 /* ref_counted.h */,
 				E4AFA4BA0E50DDDF00201347 /* ref_counted_unittest.cc */,
@@ -1346,6 +1357,8 @@
 				93E703170E5D63E00046259B /* platform_thread_posix.cc in Sources */,
 				7BD8F4A10E65AA4600034DE9 /* process_util_posix.cc in Sources */,
 				824654DF0DC26521007C2BAA /* prtime.cc in Sources */,
+				4D11B59A0E91730200EF7617 /* rand_util.cc in Sources */,
+				4D11B59B0E91730200EF7617 /* rand_util_posix.cc in Sources */,
 				7B836C050E55BBB800F6AD31 /* ref_counted.cc in Sources */,
 				8246548C0DC259DB007C2BAA /* revocable_store.cc in Sources */,
 				7BA35DD30E8C0D5F0023C8B9 /* scoped_nsautorelease_pool.mm in Sources */,
@@ -1422,6 +1435,7 @@
 				A5CB82980E5C74E300FD6825 /* platform_test_mac.mm in Sources */,
 				7B8505D50E5B441000730B43 /* png_codec_unittest.cc in Sources */,
 				7B78D3980E54FE0100609465 /* pr_time_unittest.cc in Sources */,
+				4D11B59C0E91730500EF7617 /* rand_util_unittest.cc in Sources */,
 				7B8505D30E5B43EE00730B43 /* rect_unittest.cc in Sources */,
 				7B78D3990E54FE0100609465 /* ref_counted_unittest.cc in Sources */,
 				7B78D39A0E54FE0100609465 /* run_all_unittests.cc in Sources */,

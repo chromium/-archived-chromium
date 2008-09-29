@@ -330,7 +330,7 @@ void BugReportView::SetUrl(const GURL& url) {
 //   win_util::GetWinVersion returns WinVersion, which is just
 //     an enum of 2000, XP, 2003, or VISTA. Not enough detail for
 //     bug reports
-//   env_util::GetOperatingSystemVersion returns an std::string
+//   base::SysInfo::OperatingSystemVersion returns an std::string
 //     but doesn't include the build or service pack. That function
 //     is probably the right one to extend, but will require changing
 //     all the call sites or making it a wrapper around another util.

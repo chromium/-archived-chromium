@@ -11,7 +11,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/render_process_host.h"
 #include "chrome/common/chrome_constants.h"
-#include "chrome/common/env_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/notification_service.h"

@@ -26,3 +26,13 @@ TEST_F(SysInfoTest, AmountOfFreeDiskSpace) {
   ASSERT_TRUE(file_util::GetTempDir(&tmp_path));
   EXPECT_GT(base::SysInfo::AmountOfFreeDiskSpace(tmp_path), 0) << tmp_path;
 }
+
+TEST_F(SysInfoTest, GetEnvVar) {
+  // Every setup should have non-empty PATH...
+  EXPECT_NE(base::SysInfo::GetEnvVar(L"PATH"), L"");
+}
+
+TEST_F(SysInfoTest, HasEnvVar) {
+  // Every setup should have PATH...
+  EXPECT_TRUE(base::SysInfo::HasEnvVar(L"PATH"));
+}
