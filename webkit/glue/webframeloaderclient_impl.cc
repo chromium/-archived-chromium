@@ -241,10 +241,10 @@ void WebFrameLoaderClient::dispatchDidReceiveResponse(DocumentLoader* loader,
                                                       unsigned long identifier,
                                                       const ResourceResponse& response) {
 
-  // True if the request was for the page's main frame, or a subframe.
-  bool is_frame = ResourceType::IsFrame(DetermineResourceTypeFromLoader(loader));
 
   /* TODO(evanm): reenable this once we properly sniff XHTML from text/xml documents.
+  // True if the request was for the page's main frame, or a subframe.
+  bool is_frame = ResourceType::IsFrame(DetermineResourceTypeFromLoader(loader));
   if (is_frame &&
       response.httpStatusCode() == 200 &&
       mime_util::IsViewSourceMimeType(
@@ -262,7 +262,8 @@ void WebFrameLoaderClient::dispatchDidReceiveResponse(DocumentLoader* loader,
   // If it's a 404 page, we wait until we get 512 bytes of data before trying
   // to load the document.  This allows us to put up an alternate 404 page if
   // there's short text.
-  postpone_loading_data_ = is_frame &&
+  postpone_loading_data_ =
+      ResourceType::MAIN_FRAME == DetermineResourceTypeFromLoader(loader) &&
       !is_substitute_data &&
       response.httpStatusCode() == 404 &&
       GetAlt404PageUrl(loader).is_valid();
