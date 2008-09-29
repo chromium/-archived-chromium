@@ -402,7 +402,7 @@ elif env['PLATFORM'] == 'darwin':
           'Foundation',
       ],
 
-      ICU_LIBS = ['icu'],
+      ICU_LIBS = ['icui18n', 'icuuc', 'icudata'],
   )
 
 else:
