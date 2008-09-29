@@ -35,6 +35,9 @@ NET_ERROR(FILE_TOO_BIG, -8)
 // invalid assumption.
 NET_ERROR(UNEXPECTED, -9)
 
+// Permission to access a resource was denied.
+NET_ERROR(ACCESS_DENIED, -10)
+
 // A connection was closed (corresponding to a TCP FIN).
 NET_ERROR(CONNECTION_CLOSED, -100)
 

@@ -5,24 +5,18 @@
 #include "net/base/upload_data_stream.h"
 
 #include "base/logging.h"
+#include "net/base/net_errors.h"
 
 namespace net {
 
 UploadDataStream::UploadDataStream(const UploadData* data)
     : data_(data),
-#if defined(OS_WIN)
-      next_element_handle_(INVALID_HANDLE_VALUE),
-#endif
       total_size_(data->GetContentLength()) {
   Reset();
   FillBuf();
 }
 
 UploadDataStream::~UploadDataStream() {
-#if defined(OS_WIN)
-  if (next_element_handle_ != INVALID_HANDLE_VALUE)
-    CloseHandle(next_element_handle_);
-#endif
 }
 
 void UploadDataStream::DidConsume(size_t num_bytes) {
@@ -38,12 +32,7 @@ void UploadDataStream::DidConsume(size_t num_bytes) {
 }
 
 void UploadDataStream::Reset() {
-#if defined(OS_WIN)
-  if (next_element_handle_ != INVALID_HANDLE_VALUE) {
-    CloseHandle(next_element_handle_);
-    next_element_handle_ = INVALID_HANDLE_VALUE;
-  }
-#endif
+  next_element_stream_.Close();
   buf_len_ = 0;
   next_element_ = data_->elements().begin();
   next_element_offset_ = 0;
@@ -58,9 +47,11 @@ void UploadDataStream::FillBuf() {
   while (buf_len_ < kBufSize && next_element_ != end) {
     bool advance_to_next_element = false;
 
+    const UploadData::Element& element = *next_element_;
+
     size_t size_remaining = kBufSize - buf_len_;
-    if ((*next_element_).type() == UploadData::TYPE_BYTES) {
-      const std::vector<char>& d = (*next_element_).bytes();
+    if (element.type() == UploadData::TYPE_BYTES) {
+      const std::vector<char>& d = element.bytes();
       size_t count = d.size() - next_element_offset_;
 
       size_t bytes_copied = std::min(count, size_remaining);
@@ -74,69 +65,43 @@ void UploadDataStream::FillBuf() {
         next_element_offset_ += bytes_copied;
       }
     } else {
-      DCHECK((*next_element_).type() == UploadData::TYPE_FILE);
+      DCHECK(element.type() == UploadData::TYPE_FILE);
 
-#if defined(OS_WIN)
-      if (next_element_handle_ == INVALID_HANDLE_VALUE) {
-        next_element_handle_ = CreateFile((*next_element_).file_path().c_str(),
-                                          GENERIC_READ,
-                                          FILE_SHARE_READ | FILE_SHARE_WRITE,
-                                          NULL, OPEN_EXISTING,
-                                          FILE_ATTRIBUTE_NORMAL, NULL);
+      if (!next_element_stream_.IsOpen()) {
+        int rv = next_element_stream_.Open(element.file_path(), false);
         // If the file does not exist, that's technically okay.. we'll just
         // upload an empty file.  This is for consistency with Mozilla.
-        DLOG_IF(WARNING, next_element_handle_ == INVALID_HANDLE_VALUE) <<
-            "Unable to open file \"" << (*next_element_).file_path() <<
-            "\" for reading: " << GetLastError();
+        DLOG_IF(WARNING, rv != OK) << "Failed to open \"" <<
+            element.file_path() << "\" for reading: " << rv;
 
-        next_element_remaining_ = (*next_element_).file_range_length();
-
-        if ((*next_element_).file_range_offset()) {
-          LARGE_INTEGER offset;
-          offset.QuadPart = (*next_element_).file_range_offset();
-          if (!SetFilePointerEx(next_element_handle_, offset,
-                                NULL, FILE_BEGIN)) {
-            DLOG(WARNING) <<
-                "Unable to set file position for file \"" <<
-                (*next_element_).file_path() << "\": " << GetLastError();
-            next_element_remaining_ = 0;
+        next_element_remaining_ = 0;  // Default to reading nothing.
+        if (rv == OK) {
+          uint64 offset = element.file_range_offset();
+          if (offset && next_element_stream_.Seek(FROM_BEGIN, offset) < 0) {
+            DLOG(WARNING) << "Failed to seek \"" << element.file_path() <<
+                "\" to offset: " << offset;
+          } else {
+            next_element_remaining_ = element.file_range_length();
           }
         }
       }
 
-      // ReadFile will happily fail if given an invalid handle.
-      BOOL ok = FALSE;
-      DWORD bytes_read = 0;
-      uint64 amount_to_read = std::min(static_cast<uint64>(size_remaining),
-                                       next_element_remaining_);
-      if ((amount_to_read > 0) &&
-          (ok = ReadFile(next_element_handle_, buf_ + buf_len_,
-                         static_cast<DWORD>(amount_to_read), &bytes_read,
-                         NULL))) {
-        buf_len_ += bytes_read;
-        next_element_remaining_ -= bytes_read;
-      }
-
-      if (!ok || bytes_read == 0)
+      int rv = 0;
+      int count = static_cast<int>(std::min(
+          static_cast<uint64>(size_remaining), next_element_remaining_));
+      if (count > 0 &&
+          (rv = next_element_stream_.Read(buf_ + buf_len_, count, NULL)) > 0) {
+        buf_len_ += rv;
+        next_element_remaining_ -= rv;
+      } else {
         advance_to_next_element = true;
-#elif defined(OS_POSIX)
-      // TODO(pinkerton): unify the file upload handling for all platforms once
-      // we have a cross-platform file representation. There shouldn't be any
-      // difference among them.
-      NOTIMPLEMENTED();
-      advance_to_next_element = true;
-#endif
+      }
     }
 
     if (advance_to_next_element) {
       ++next_element_;
       next_element_offset_ = 0;
-#if defined(OS_WIN)
-      if (next_element_handle_ != INVALID_HANDLE_VALUE) {
-        CloseHandle(next_element_handle_);
-        next_element_handle_ = INVALID_HANDLE_VALUE;
-      }
-#endif
+      next_element_stream_.Close();
     }
   }
 }

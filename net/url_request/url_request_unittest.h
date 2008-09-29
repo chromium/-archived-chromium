@@ -11,6 +11,7 @@
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
+#include "base/platform_thread.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
 #include "base/thread.h"
@@ -297,7 +298,7 @@ class TestServer : public process_util::ProcessFilter {
     bool success;
     while ((success = MakeGETRequest("hello.html")) == false && retries > 0) {
       retries--;
-      ::Sleep(500);
+      PlatformThread::Sleep(500);
     }
     ASSERT_TRUE(success) << "Webserver not starting properly.";
 

@@ -2,12 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "net/url_request/url_request_unittest.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
 #include <shlobj.h>
+#endif
+
 #include <algorithm>
 #include <string>
-
-#include "net/url_request/url_request_unittest.h"
 
 #include "base/message_loop.h"
 #include "base/path_service.h"
@@ -53,7 +56,7 @@ std::string TestNetResourceProvider(int key) {
   return "header";
 }
 
-}
+}  // namespace
 
 TEST(URLRequestTest, GetTest_NoCache) {
   TestServer server(L"");
@@ -308,7 +311,7 @@ TEST(URLRequestTest, PostFileTest) {
 
     std::wstring dir;
     PathService::Get(base::DIR_EXE, &dir);
-    _wchdir(dir.c_str());
+    file_util::SetCurrentDirectory(dir);
 
     std::wstring path;
     PathService::Get(base::DIR_SOURCE_ROOT, &path);
@@ -390,13 +393,13 @@ TEST(URLRequestTest, FileTest) {
 
     MessageLoop::current()->Run();
 
-    WIN32_FILE_ATTRIBUTE_DATA data;
-    GetFileAttributesEx(app_path.c_str(), GetFileExInfoStandard, &data);
+    int64 file_size;
+    file_util::GetFileSize(app_path, &file_size);
 
     EXPECT_TRUE(!r.is_pending());
     EXPECT_EQ(1, d.response_started_count());
     EXPECT_FALSE(d.received_data_before_response());
-    EXPECT_EQ(d.bytes_received(), data.nFileSizeLow);
+    EXPECT_EQ(d.bytes_received(), static_cast<int>(file_size));
   }
 #ifndef NDEBUG
   DCHECK_EQ(url_request_metrics.object_count,0);
@@ -510,6 +513,7 @@ TEST(URLRequestTest, BZip2ContentTest_IncrementalHeader) {
   EXPECT_EQ(got_content, got_bz2_content);
 }
 
+#if defined(OS_WIN)
 TEST(URLRequestTest, ResolveShortcutTest) {
   std::wstring app_path;
   PathService::Get(base::DIR_SOURCE_ROOT, &app_path);
@@ -580,6 +584,7 @@ TEST(URLRequestTest, ResolveShortcutTest) {
   DCHECK_EQ(url_request_metrics.object_count,0);
 #endif
 }
+#endif  // defined(OS_WIN)
 
 TEST(URLRequestTest, ContentTypeNormalizationTest) {
   TestServer server(L"net/data/url_request_unittest");

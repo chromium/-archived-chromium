@@ -323,6 +323,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\base\file_input_stream_unittest.cc"
+					>
+				</File>
+				<File
 					RelativePath="..\base\gzip_filter_unittest.cc"
 					>
 				</File>

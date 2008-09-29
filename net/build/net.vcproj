@@ -269,6 +269,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\file_input_stream.h"
+				>
+			</File>
+			<File
+				RelativePath="..\base\file_input_stream_win.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\base\filter.cc"
 				>
 			</File>
@@ -497,11 +505,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\base\x509_certificate_win.cc"
+				RelativePath="..\base\x509_certificate.h"
 				>
 			</File>
 			<File
-				RelativePath="..\base\x509_certificate.h"
+				RelativePath="..\base\x509_certificate_win.cc"
 				>
 			</File>
 		</Filter>

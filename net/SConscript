@@ -100,7 +100,6 @@ if env['PLATFORM'] == 'win32':
       'base/upload_data_stream.cc',
       'base/wininet_util.cc',
       'base/winsock_init.cc',
-      'base/x509_certificate_win.cc',
       'http/http_network_layer.cc',
       'http/http_network_transaction.cc',
       'http/http_transaction_winhttp.cc',
@@ -118,8 +117,10 @@ if env['PLATFORM'] == 'win32':
 
 if env['PLATFORM'] == 'win32':
   input_files.extend([
+      'base/file_input_stream_win.cc',
       'base/net_util_win.cc',
       'base/platform_mime_util_win.cc',
+      'base/x509_certificate_win.cc',
       'disk_cache/cache_util_win.cc',
       'disk_cache/file_win.cc',
       'disk_cache/mapped_file_win.cc',
@@ -140,6 +141,7 @@ if env['PLATFORM'] == 'posix':
 
 if env['PLATFORM'] in ('darwin', 'posix'):
   input_files.extend([
+      'base/file_input_stream_posix.cc',
       'base/net_util_posix.cc',
       'base/tcp_client_socket_libevent.cc',
       'disk_cache/cache_util_posix.cc',
@@ -258,6 +260,7 @@ unittest_files = [
 if env['PLATFORM'] == 'win32':
   unittest_files.extend([
       'base/directory_lister_unittest.cc',
+      'base/file_input_stream_unittest.cc',
       'base/sdch_filter_unitest.cc',
       'base/ssl_config_service_unittest.cc',
       'base/ssl_client_socket_unittest.cc',
