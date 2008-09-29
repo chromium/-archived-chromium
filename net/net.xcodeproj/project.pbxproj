@@ -1433,6 +1433,9 @@
 				7B8504280E5B2E2A00730B43 /* hash.cc in Sources */,
 				7B82FF430E763602008F45CF /* host_resolver.cc in Sources */,
 				0435A4660E8DD69C00E4DF08 /* http_auth.cc in Sources */,
+				0435A47A0E8DD6F300E4DF08 /* http_auth_handler.cc in Sources */,
+				0435A4800E8DD73600E4DF08 /* http_auth_handler_basic.cc in Sources */,
+				0435A48F0E8DD74B00E4DF08 /* http_auth_handler_digest.cc in Sources */,
 				0482692A0E5B624D00A30786 /* http_cache.cc in Sources */,
 				7B85042B0E5B2E2A00730B43 /* http_chunked_decoder.cc in Sources */,
 				E49DD3290E893336003C7A87 /* http_network_layer.cc in Sources */,
@@ -1478,9 +1481,6 @@
 				821F20A50E5CD414003C7E38 /* url_request_view_cache_job.cc in Sources */,
 				82113BBD0E892E5800E3848F /* x509_certificate.cc in Sources */,
 				827E139D0E81611D00183614 /* x509_certificate_mac.cc in Sources */,
-				0435A47A0E8DD6F300E4DF08 /* http_auth_handler.cc in Sources */,
-				0435A4800E8DD73600E4DF08 /* http_auth_handler_basic.cc in Sources */,
-				0435A48F0E8DD74B00E4DF08 /* http_auth_handler_digest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1504,6 +1504,9 @@
 				7B4DF6B10E5B98ED004D7619 /* escape_unittest.cc in Sources */,
 				7BA0151F0E5A1B9200044150 /* gzip_filter_unittest.cc in Sources */,
 				7B82FF460E763620008F45CF /* host_resolver_unittest.cc in Sources */,
+				04C626D80E8DE3AA0067E92A /* http_auth_handler_basic_unittest.cc in Sources */,
+				04C626D60E8DE39E0067E92A /* http_auth_handler_digest_unittest.cc in Sources */,
+				04C626DA0E8DE3BA0067E92A /* http_auth_unittest.cc in Sources */,
 				048268080E5B3B3200A30786 /* http_chunked_decoder_unittest.cc in Sources */,
 				E4CE9C260E8C027900D5378C /* http_network_layer_unittest.cc in Sources */,
 				E4CE9C380E8C035C00D5378C /* http_network_transaction_unittest.cc in Sources */,
@@ -1523,9 +1526,6 @@
 				E47E93430E8924EE00CA613E /* tcp_client_socket_unittest.cc in Sources */,
 				7BA361450E8C341F0023C8B9 /* test_completion_callback_unittest.cc in Sources */,
 				82113A1D0E8434EE00E3848F /* x509_certificate_unittest.cc in Sources */,
-				04C626D60E8DE39E0067E92A /* http_auth_handler_digest_unittest.cc in Sources */,
-				04C626D80E8DE3AA0067E92A /* http_auth_handler_basic_unittest.cc in Sources */,
-				04C626DA0E8DE3BA0067E92A /* http_auth_unittest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
