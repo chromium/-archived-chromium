@@ -4,7 +4,7 @@
 
 Import('env')
 
-env = env.Clone(OPEN_VCDIFF_DIR='open_vcdiff/depot/opensource/open-vcdiff')
+env = env.Clone(OPEN_VCDIFF_DIR='open-vcdiff')
 
 env.Prepend(
   CPPPATH = [

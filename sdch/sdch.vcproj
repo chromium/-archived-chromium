@@ -36,7 +36,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="./open_vcdiff/depot/opensource/open-vcdiff/vsprojects;"
+				AdditionalIncludeDirectories="./open-vcdiff/vsprojects;"
 				DefaultCharIsUnsigned="true"
 			/>
 			<Tool
@@ -89,7 +89,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="./open_vcdiff/depot/opensource/open-vcdiff/vsprojects;"
+				AdditionalIncludeDirectories="./open-vcdiff/vsprojects;"
 				DefaultCharIsUnsigned="true"
 			/>
 			<Tool
@@ -130,79 +130,79 @@
 			UniqueIdentifier="{5612E1F3-EC29-4848-8301-B23786CED3CA}"
 			>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\blockhash.h"
+				RelativePath=".\open-vcdiff\src\blockhash.h"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\checksum.h"
+				RelativePath=".\open-vcdiff\src\checksum.h"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\codetable.h"
+				RelativePath=".\open-vcdiff\src\codetable.h"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\compile_assert.h"
+				RelativePath=".\open-vcdiff\src\compile_assert.h"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\vsprojects\config.h"
+				RelativePath=".\open-vcdiff\vsprojects\config.h"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\decodetable.h"
+				RelativePath=".\open-vcdiff\src\decodetable.h"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\encodetable.h"
+				RelativePath=".\open-vcdiff\src\encodetable.h"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\headerparser.h"
+				RelativePath=".\open-vcdiff\src\headerparser.h"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\logging.h"
+				RelativePath=".\open-vcdiff\src\logging.h"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\google\output_string.h"
+				RelativePath=".\open-vcdiff\src\google\output_string.h"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\rolling_hash.h"
+				RelativePath=".\open-vcdiff\src\rolling_hash.h"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\vsprojects\stdint.h"
+				RelativePath=".\open-vcdiff\vsprojects\stdint.h"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\testing.h"
+				RelativePath=".\open-vcdiff\src\testing.h"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\varint_bigendian.h"
+				RelativePath=".\open-vcdiff\src\varint_bigendian.h"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\google\vcdecoder.h"
+				RelativePath=".\open-vcdiff\src\google\vcdecoder.h"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\vcdiff_defs.h"
+				RelativePath=".\open-vcdiff\src\vcdiff_defs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\vcdiffengine.h"
+				RelativePath=".\open-vcdiff\src\vcdiffengine.h"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\zconf.h"
+				RelativePath=".\open-vcdiff\src\zconf.h"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\zlib.h"
+				RelativePath=".\open-vcdiff\src\zlib.h"
 				>
 			</File>
 		</Filter>
@@ -212,47 +212,47 @@
 			UniqueIdentifier="{883D491D-EF73-4c2f-BB09-6F87DC95DC28}"
 			>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\addrcache.cc"
+				RelativePath=".\open-vcdiff\src\addrcache.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\adler32.c"
+				RelativePath=".\open-vcdiff\src\adler32.c"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\blockhash.cc"
+				RelativePath=".\open-vcdiff\src\blockhash.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\codetable.cc"
+				RelativePath=".\open-vcdiff\src\codetable.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\decodetable.cc"
+				RelativePath=".\open-vcdiff\src\decodetable.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\encodetable.cc"
+				RelativePath=".\open-vcdiff\src\encodetable.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\headerparser.cc"
+				RelativePath=".\open-vcdiff\src\headerparser.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\logging.cc"
+				RelativePath=".\open-vcdiff\src\logging.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\varint_bigendian.cc"
+				RelativePath=".\open-vcdiff\src\varint_bigendian.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\vcdecoder.cc"
+				RelativePath=".\open-vcdiff\src\vcdecoder.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\open_vcdiff\depot\opensource\open-vcdiff\src\vcdiffengine.cc"
+				RelativePath=".\open-vcdiff\src\vcdiffengine.cc"
 				>
 			</File>
 		</Filter>

@@ -10,7 +10,7 @@
 #include "net/base/sdch_filter.h"
 #include "net/base/sdch_manager.h"
 
-#include "sdch/open_vcdiff/depot/opensource/open-vcdiff/src/google/vcdecoder.h"
+#include "sdch/open-vcdiff/src/google/vcdecoder.h"
 
 SdchFilter::SdchFilter()
     : decoding_status_(DECODING_UNINITIALIZED),

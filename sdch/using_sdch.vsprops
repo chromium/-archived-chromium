@@ -6,6 +6,6 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="$(SolutionDir)..\sdch\open_vcdiff\depot\opensource\open-vcdiff\src;"
+		AdditionalIncludeDirectories="$(SolutionDir)..\sdch\open-vcdiff\src;"
 	/>
 </VisualStudioPropertySheet>
