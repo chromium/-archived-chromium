@@ -490,12 +490,13 @@ int HttpNetworkTransaction::DoConnect() {
 }
 
 int HttpNetworkTransaction::DoConnectComplete(int result) {
+  if (IsCertificateError(result))
+    result = HandleCertificateError(result);
+
   if (result == OK) {
     next_state_ = STATE_WRITE_HEADERS;
     if (using_tunnel_)
       establishing_tunnel_ = true;
-  } else if (IsCertificateError(result)) {
-    result = HandleCertificateError(result);
   } else {
     result = ReconsiderProxyAfterError(result);
   }
@@ -513,11 +514,11 @@ int HttpNetworkTransaction::DoSSLConnectOverTunnel() {
 }
 
 int HttpNetworkTransaction::DoSSLConnectOverTunnelComplete(int result) {
-  if (result == OK) {
-    next_state_ = STATE_WRITE_HEADERS;
-  } else if (IsCertificateError(result)) {
+  if (IsCertificateError(result))
     result = HandleCertificateError(result);
-  }
+
+  if (result == OK)
+    next_state_ = STATE_WRITE_HEADERS;
   return result;
 }
 
