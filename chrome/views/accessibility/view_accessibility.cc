@@ -109,6 +109,13 @@ STDMETHODIMP ViewAccessibility::get_accParent(IDispatch** disp_parent) {
   ChromeViews::View* parent = view_->GetParent();
 
   if (!parent) {
+    // This function can get called during teardown of HWNDViewContainer so
+    // we should bail out if we fail to get the HWND.
+    if (!view_->GetViewContainer() || !view_->GetViewContainer()->GetHWND()) {
+      *disp_parent = NULL;
+      return S_FALSE;
+    }
+
     // For a View that has no parent (e.g. root), point the accessible parent to
     // the default implementation, to interface with Windows' hierarchy and to
     // support calls from e.g. WindowFromAccessibleObject.
