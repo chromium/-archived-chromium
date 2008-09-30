@@ -62,6 +62,7 @@ BEGIN
     VK_F5,               IDC_RELOAD,         VIRTKEY, SHIFT
     VK_HOME,             IDC_HOME,           VIRTKEY, ALT
     "T",                 IDC_RESTORE_TAB,    VIRTKEY, CONTROL, SHIFT
+    "S",                 IDC_SAVEPAGE,       VIRTKEY, CONTROL
     "9",                 IDC_SELECT_LAST_TAB,VIRTKEY, CONTROL
     VK_NUMPAD9,          IDC_SELECT_LAST_TAB,VIRTKEY, CONTROL
     VK_TAB,              IDC_SELECT_NEXT_TAB,VIRTKEY, CONTROL
