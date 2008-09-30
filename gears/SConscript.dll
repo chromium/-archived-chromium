@@ -154,6 +154,7 @@ env.Append(BUILDERS = {'Bin2cpp': bin2cpp_builder})
 # stupid to apply its include paths to a relative path like "ui/ie/bla.idl"
 # (it only looks in the current dir).  So we have to jump through hoops to fix
 # up our relative include paths and output files.
+env.Tool('midl')
 
 if env['BROWSER'] == 'IE':
   env.Replace(
@@ -250,7 +251,7 @@ if env['BROWSER'] in ['FF2', 'FF3']:
         '$GECKO_SDK/gecko_sdk/include',
       ],
   )
-elif env['BROWSER'] == 'NPAPI' and env['PLATFORM'] == 'win32':
+elif env['BROWSER'] == 'NPAPI' and env['OS'] == 'win32':
   env_browser.Prepend(
       CPPDEFINES = [
         'BROWSER_CHROME=1',
@@ -269,9 +270,9 @@ env_browser.Append(
         'gd',
         'googleurl-gears',
 #        env_browser['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
-        'jpeg',
-        'modp_b64',
-        'png',
+        'jpeg-gears',
+#        'modp_b64',
+        'png-gears',
         'portaudio',
         'sqlite-gears',
 #        'skia',
@@ -297,20 +298,31 @@ if env['BROWSER'] == 'IE':
   )
 elif env['BROWSER'] in ['FF2', 'FF3']:
   env_browser.Append(
+      LIBPATH = '$GECKO_LIB',
       LIBS = [
-          '$GECKO_LIB/xpcom.lib',
-          '$GECKO_LIB/xpcomglue_s.lib',
-          '$GECKO_LIB/nspr4.lib',
-          '$GECKO_LIB/js3250.lib',
-          'ole32.lib',
-          'shell32.lib',
-          'shlwapi.lib',
-          'advapi32.lib',
-          'wininet.lib',
-          'comdlg32.lib',
-          'user32.lib',
+          'xpcom',
+          'xpcomglue_s',
       ],
   )
+  if env['OS'] == 'win32':
+    env_browser.Append(
+        LIBS = [
+            'nspr4.lib',
+            'js3250.lib',
+            'ole32.lib',
+            'shell32.lib',
+            'shlwapi.lib',
+            'advapi32.lib',
+            'wininet.lib',
+            'comdlg32.lib',
+            'user32.lib',
+        ],
+    )
+  elif env['OS'] == 'linux':
+    # Although the 1.9 SDK contains libnspr4, it is better to link against
+    # libxul, which in turn depends on libnspr4. In Ubuntu 8.04, libnspr4 was
+    # not listed in /usr/lib, only libxul was.
+    env_browser.Append(LIBS = (env['BROWSER'] == 'FF2' and 'nspr4' or 'xul'))
 elif env['BROWSER'] == 'NPAPI':
   env_browser.Append(
       LIBS = [
@@ -343,10 +355,10 @@ if env['MODE'] == 'dbg':
 else:
   env_res.Append(CPPDEFINES = 'NDEBUG=1')
 
-if env['PLATFORM'] == 'win32':
+if env['OS'] == 'win32':
   env_res.Append(RCFLAGS = ['/l', '0x409'])
 
-if env['PLATFORM'] == 'win32':
+if env['OS'] == 'win32':
   env_browser.Append(
       CPPFLAGS = [
         '/wd4018'  # TODO: move to breakpad
@@ -382,21 +394,22 @@ binsrcs = NewInputs()
 #-----------------------------------------------------------------------------
 # third_party/breakpad
 
-srcs['NPAPI'] += [
-    '$THIRD_PARTY_DIR/breakpad/src/client/exception_handler_stub.cc',
-]
+if env['OS'] == 'win32':
+  srcs['NPAPI'] += [
+      '$THIRD_PARTY_DIR/breakpad/src/client/exception_handler_stub.cc',
+  ]
 
-srcs['IE'] += [
-    '$THIRD_PARTY_DIR/breakpad/src/client/windows/handler/exception_handler.cc',
-    '$THIRD_PARTY_DIR/breakpad/src/common/windows/guid_string.cc',
-    '$OPEN_DIR/base/common/exception_handler_win32.cc',
-]
+  srcs['IE'] += [
+      '$THIRD_PARTY_DIR/breakpad/src/client/windows/handler/exception_handler.cc',
+      '$THIRD_PARTY_DIR/breakpad/src/common/windows/guid_string.cc',
+      '$OPEN_DIR/base/common/exception_handler_win32.cc',
+  ]
 
-srcs['FF3'] += [
-    '$THIRD_PARTY_DIR/breakpad/src/client/windows/handler/exception_handler.cc',
-    '$THIRD_PARTY_DIR/breakpad/src/common/windows/guid_string.cc',
-    '$OPEN_DIR/base/common/exception_handler_win32.cc',
-]
+  srcs['FF3'] += [
+      '$THIRD_PARTY_DIR/breakpad/src/client/windows/handler/exception_handler.cc',
+      '$THIRD_PARTY_DIR/breakpad/src/common/windows/guid_string.cc',
+      '$OPEN_DIR/base/common/exception_handler_win32.cc',
+  ]
 
 #-----------------------------------------------------------------------------
 # third_party/v8/bindings
@@ -428,9 +441,8 @@ srcs['all'] += [
 #-----------------------------------------------------------------------------
 # third_party/modp_b64
 
-# We're using Chrome's version.  Uncomment if that doesn't work.
 srcs['all'] += [
-#    '$THIRD_PARTY_DIR/modp_b64/modp_b64.cc',
+    '$THIRD_PARTY_DIR/modp_b64/modp_b64.cc',
 ]
 
 #-----------------------------------------------------------------------------
@@ -549,7 +561,7 @@ m4srcs['IE'] += [
 ]
 
 idlsrcs['IE'] += [
-    '$OPEN_DIR/base/ie/interfaces.idl',
+    '$GENFILES_DIR/interfaces.idl',
 ]
 
 srcs['IE'] += [
@@ -570,13 +582,13 @@ srcs['IE'] += [
     '$OPEN_DIR/base/common/vista_utils.cc',
 ]
 
-if env['PLATFORM'] == 'win32':
+if env['OS'] == 'win32':
   srcs['IE'] += [
       '$OPEN_DIR/base/common/file_win32.cc',
       '$OPEN_DIR/base/common/html_event_monitor_ie.cc',
       '$OPEN_DIR/base/ie/ie_version.cc',
   ]
-elif env['PLATFORM'] == 'wince':
+elif env['OS'] == 'wince':
   srcs['IE'] += [
       '$OPEN_DIR/base/common/common_ie.cc',
       '$OPEN_DIR/base/common/file_wince.cc',
@@ -605,7 +617,7 @@ srcs['NPAPI'] += [
     '$OPEN_DIR/base/npapi/plugin.cc',
 ]
 
-if env['PLATFORM'] == 'win32':
+if env['OS'] == 'win32':
   srcs['NPAPI'] += [
       '$OPEN_DIR/base/common/detect_version_collision_win32.cc',
       '$OPEN_DIR/base/common/file_win32.cc',
@@ -627,7 +639,7 @@ srcs['all'] += [
 # canvas
 
 # The Canvas API is not yet enabled in official builds.
-if not env['OFFICIAL_BUILD']  and env['PLATFORM'] in ['win32', 'osx']:
+if not env['OFFICIAL_BUILD']  and env['OS'] in ['win32', 'osx']:
   srcs['all'] += [
       '$OPEN_DIR/canvas/blob_backed_skia_input_stream.cc',
       '$OPEN_DIR/canvas/blob_backed_skia_output_stream.cc',
@@ -893,11 +905,11 @@ stabsrcs['IE'] += [
 ]
 
 # Additional files specific to Win32 or WinCE.
-if env['PLATFORM'] == 'win32':
+if env['OS'] == 'win32':
   srcs['IE'] += [
       '$OPEN_DIR/ui/ie/html_dialog_host.cc',
   ]
-elif env['PLATFORM'] == 'wince':
+elif env['OS'] == 'wince':
   m4srcs['IE'] += [
       '$OPEN_DIR/ui/ie/html_dialog_bridge_iemobile.rgs.m4',
   ]
@@ -1016,7 +1028,7 @@ if not env['OFFICIAL_BUILD']:
 # image
 
 # The Image API is not yet enabled in official builds.
-if not env['OFFICIAL_BUILD'] and env['PLATFORM'] != 'wince':
+if not env['OFFICIAL_BUILD'] and env['OS'] != 'wince':
   srcs['all'] += [
       '$OPEN_DIR/image/backing_image.cc',
       '$OPEN_DIR/image/image.cc',
@@ -1099,32 +1111,36 @@ if not env['OFFICIAL_BUILD']:
 #-----------------------------------------------------------------------------
 # resources
 
-ui_res =  env_res.RES('$GENFILES_DIR/ui_resources.rc'),
+dll_resources = []
 
-module_res = None
-if env['BROWSER'] == 'NPAPI':
-  module_res = env_res.RES('$OPEN_DIR/base/npapi/module.rc')
-elif env['BROWSER'] == 'IE':
-  module_res = env_res.RES('$OPEN_DIR/base/ie/module.rc')
+if env['OS'] == 'win32':
+  ui_res =  env_res.RES('$GENFILES_DIR/ui_resources.rc'),
 
-dll_resources = [
-    ui_res,
-]
-if module_res:
-  dll_resources += [module_res]
+  module_res = None
+  if env['BROWSER'] == 'NPAPI':
+    module_res = env_res.RES('$OPEN_DIR/base/npapi/module.rc')
+  elif env['BROWSER'] == 'IE':
+    module_res = env_res.RES('$OPEN_DIR/base/ie/module.rc')
+
+  dll_resources += [ui_res]
+  if module_res:
+    dll_resources += [module_res]
 
 #-----------------------------------------------------------------------------
 # libs
 
-libs = [
-    '$THIRD_PARTY_DIR/skia/skia-dbg-win32-i386.lib',
-]
+libs = []
+
+if env['OS'] == 'win32':
+  libs += [
+      '$THIRD_PARTY_DIR/skia/skia-${MODE}-${OS}-${ARCH}.lib',
+  ]
 
 if env['BROWSER'] == 'NPAPI':
   libs += [
-      '$THIRD_PARTY_DIR/v8/bin-dbg/libv8core.lib',
-      '$THIRD_PARTY_DIR/v8/bin-dbg/no_snapshotv8.lib',
-      '$THIRD_PARTY_DIR/v8/bin-dbg/libjscre.lib',
+      '$THIRD_PARTY_DIR/v8/bin-${MODE}/libv8core.lib',
+      '$THIRD_PARTY_DIR/v8/bin-${MODE}/no_snapshotv8.lib',
+      '$THIRD_PARTY_DIR/v8/bin-${MODE}/libjscre.lib',
       '$OPEN_DIR/base/chrome/module.def'
   ]
 elif env['BROWSER'] == 'IE':
@@ -1206,8 +1222,9 @@ if idlsrcs['all']:
   srcs['all'] += [x for x in idls[0] if str(x).endswith('_i.c')]
 
 # TODO: figure out why the .rc scanner doesn't notice these dependencies.
-env_browser.Depends(ui_res, html_m4s)
-env_browser.Depends(module_res, m4s)
+if env['OS'] == 'win32':
+  env_browser.Depends(ui_res, html_m4s)
+  env_browser.Depends(module_res, m4s)
 
 lib = env_browser.ChromeSharedLibrary('gears',
     srcs['all'] + libs + dll_resources)

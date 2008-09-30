@@ -12,7 +12,6 @@ env.Replace(
     CPPPATH = [
         '$PA_DIR/include',
         '$PA_DIR/src/common',
-	'$PA_DIR/src/os/win',
     ],
 )
 
@@ -23,11 +22,31 @@ env.Append(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env['OS'] == 'win32':
   env.Append(
+      CPPPATH = [
+          '$PA_DIR/src/os/win',
+      ],
       CPPFLAGS = [
           '/wd4133',
           '/wd4101',
+      ],
+  )
+elif env['OS'] == 'linux':
+  env.Append(
+      CPPPATH = [
+          '$PA_DIR/src/os/unix',
+      ],
+      CPPFLAGS = [
+# disable some warnings
+          '-Wno-unused-variable',
+# enable multithreading support with pthread library
+          '-pthread',
+      ],
+      CPPDEFINES = [
+# build only the OSS hostapi for linux
+          'PA_USE_OSS',
+          'HAVE_SYS_SOUNDCARD_H=1',
       ],
   )
  
@@ -42,10 +61,30 @@ input_files = [
     '$PA_DIR/src/common/pa_skeleton.c',
     '$PA_DIR/src/common/pa_stream.c',
     '$PA_DIR/src/common/pa_trace.c',
+]
+
+# Platform-specific inputs
+if env['OS'] == 'win32':
+  input_files += [
     '$PA_DIR/src/hostapi/wmme/pa_win_wmme.c',
     '$PA_DIR/src/os/win/pa_win_hostapis.c',
     '$PA_DIR/src/os/win/pa_win_util.c',
     '$PA_DIR/src/os/win/pa_win_waveformat.c',
-]
+  ]
+elif env['OS'] == 'linux':
+  input_files += [
+    '$PA_DIR/src/hostapi/oss/pa_unix_oss.c',
+    '$PA_DIR/src/os/unix/pa_unix_hostapis.c',
+    '$PA_DIR/src/os/unix/pa_unix_util.c',
+  ]
+elif env['OS'] == 'osx':
+  input_files += [
+    '$PA_DIR/src/common/pa_ringbuffer.c',
+    '$PA_DIR/src/hostapi/coreaudio/pa_mac_core.c',
+    '$PA_DIR/src/hostapi/coreaudio/pa_mac_core_blocking.c',
+    '$PA_DIR/src/hostapi/coreaudio/pa_mac_core_utilities.c',
+    '$PA_DIR/src/os/osx/pa_mac_hostapis.c',
+    '$PA_DIR/src/os/unix/pa_unix_util.c',
+  ]
 
 env.ChromeStaticLibrary('portaudio', input_files)

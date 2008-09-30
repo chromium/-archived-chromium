@@ -49,4 +49,4 @@ if not env['OFFICIAL_BUILD']:
       '$LIBPNG_DIR/pngwutil.c',
   ]
 
-env.ChromeStaticLibrary('png', input_files)
+env.ChromeStaticLibrary('png-gears', input_files)

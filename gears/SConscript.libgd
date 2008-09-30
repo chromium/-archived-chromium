@@ -27,7 +27,7 @@ env.Append(
 
 )
  
-if env['PLATFORM'] == 'win32':
+if env['OS'] == 'win32':
   env.Append(
       CPPFLAGS = [
 # Disable some warnings when building third-party code, so we can enable /WX.
@@ -44,7 +44,14 @@ if env['PLATFORM'] == 'win32':
           '/wd4102',
       ],
   )
-
+elif env['OS'] == 'linux':
+  env.Append(
+      CPPFLAGS = [
+          '-Wno-unused-variable',
+          '-Wno-unused-function',
+          '-Wno-unused-label',
+      ],
+  )
 
 input_files = [
         '$LIBGD_DIR/gd.c',

@@ -31,8 +31,19 @@ env = env.Clone(
 )
 
 # Argument switches
+
+# TODO: how do we detect linux vs osx?
+os_guess = env['PLATFORM']
+if os_guess == 'posix':
+  os_guess = 'linux'
+elif os_guess == 'darwin':
+  os_guess = 'osx'
+
 vars = Variables(None, ARGUMENTS)
 vars.AddVariables(
+  EnumVariable('OS',
+      'Which OS is the target',
+      os_guess, ['win32', 'wince', 'linux', 'osx', 'android']),
   EnumVariable('BROWSER',
       'Which browser we want to build the plugin for',
       'NPAPI', ['IE', 'FF2', 'FF3', 'SF', 'NPAPI']),
@@ -44,12 +55,12 @@ vars.AddVariables(
 )
 vars.Update(env)
 
-env.Append(
+env.Replace(
     USING_CCTESTS = (env['MODE'] == 'dbg' or not env['OFFICIAL_BUILD'])
 )
 
 # Version
-env.Append(
+env.Replace(
     MAJOR = '0',
     MINOR = '4',
     BUILD = '22',
@@ -61,10 +72,7 @@ env.Append(
 )
 
 # Platform
-env.Append(
-    OS = '$PLATFORM',
-    ARCH = 'i386',
-)
+env.Replace(ARCH = 'i386')
 
 # Add GNU tools to the PATH.  Note we have to strip off the build dir.
 env.PrependENVPath('PATH',
@@ -90,19 +98,9 @@ env.Replace(
         '$THIRD_PARTY_DIR/zlib',
         '$THIRD_PARTY_DIR/v8/bindings_local',
         '$GEARS_DIR',
-
-        # TODO: switch over to Chrome's SDK.
-        # Note: these must come last because we want our own npapi.h to take
-        # precedence.
-        '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/include',
-        '$PRIVATE_THIRD_PARTY_DIR/platformsdk_vc80/files/include',
-        '$PRIVATE_THIRD_PARTY_DIR/vc_80/files/include',
     ],
     LIBPATH = [
         '$LIBS_DIR',
-        '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/lib',
-        '$PRIVATE_THIRD_PARTY_DIR/platformsdk_vc80/files/lib',
-        '$PRIVATE_THIRD_PARTY_DIR/vc_80/files/vc/lib',
     ],
     CCFLAGS = [],
     CPPDEFINES = [],
@@ -146,7 +144,7 @@ env.Append(
 
 # Platform-specific flags follow.
 
-if env['PLATFORM'] == 'win32':
+if env['OS'] == 'win32':
   env.Append(
       CPPDEFINES = [
           'STRICT',
@@ -217,6 +215,19 @@ if env['PLATFORM'] == 'win32':
         '/TP',
         '/J',
       ],
+      CPPPATH = [
+# TODO: switch over to Chrome's SDK.
+# Note: these must come after $THIRD_PARTY_DIR/npapi because we want our own
+# npapi.h to take precedence.
+          '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/include',
+          '$PRIVATE_THIRD_PARTY_DIR/platformsdk_vc80/files/include',
+          '$PRIVATE_THIRD_PARTY_DIR/vc_80/files/include',
+      ],
+      LIBPATH = [
+          '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/lib',
+          '$PRIVATE_THIRD_PARTY_DIR/platformsdk_vc80/files/lib',
+          '$PRIVATE_THIRD_PARTY_DIR/vc_80/files/vc/lib',
+      ],
   )
   if env['MODE'] == 'dbg':
     env.Append(
@@ -235,6 +246,70 @@ if env['PLATFORM'] == 'win32':
           '/OPT:REF',
           '/OPT:ICF',
         ],
+    )
+elif env['OS'] == 'linux':
+  env.Append(
+      CPPDEFINES = [
+          'LINUX',
+      ],
+      CPPPATH = [
+          '$THIRD_PARTY_DIR/gtk/include/gtk-2.0',
+          '$THIRD_PARTY_DIR/gtk/include/atk-1.0',
+          '$THIRD_PARTY_DIR/gtk/include/glib-2.0',
+          '$THIRD_PARTY_DIR/gtk/include/pango-1.0',
+          '$THIRD_PARTY_DIR/gtk/include/cairo',
+          '$THIRD_PARTY_DIR/gtk/lib/gtk-2.0/include',
+          '$THIRD_PARTY_DIR/gtk/lib/glib-2.0/include',
+      ],
+      CCFLAGS = [
+          '-fPIC',
+          '-fmessage-length=0',
+          '-Wall',
+          '-Werror',
+# NS_LITERAL_STRING does not work properly without this compiler option
+          '-fshort-wchar',
+# Additions to compile on hardy
+          '-Wno-unused-variable',
+          '-Wno-missing-braces',
+          '-Wno-address',
+          '-m32',
+      ],
+      CXXFLAGS = [
+          '-fno-exceptions',
+          '-fno-rtti',
+          '-Wno-non-virtual-dtor',
+          '-Wno-ctor-dtor-privacy',
+          '-funsigned-char',
+          '-Wno-char-subscripts',
+      ],
+      LINKFLAGS = [
+          '-fPIC',
+          '-Bsymbolic',
+          '-pthread',
+
+# TODO: Following are DLLFLAGS.  Figure something out for non-lib targets.
+          '-shared',
+          '-Wl,--version-script',
+          '-Wl,$OPEN_DIR/tools/xpcom-ld-script',
+# for PortAudio: need pthread and math
+          '-lpthread',
+          '-lm',
+# Additions to compile on hardy
+          '-m32',
+      ],
+  )
+  if env['MODE'] == 'dbg':
+    env.Append(
+      CPPFLAGS = [
+          '-g',
+          '-O0',
+      ],
+    )
+  else:  # MODE=opt
+    env.Append(
+      CPPFLAGS = [
+          '-O2',
+      ],
     )
 
 

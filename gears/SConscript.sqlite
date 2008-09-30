@@ -48,7 +48,7 @@ env.Append(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env['OS'] == 'win32':
   env.Append(
       CPPFLAGS = [
           # from Chrome
@@ -59,6 +59,16 @@ if env['PLATFORM'] == 'win32':
           # from Gears
           '/wd4018',
           '/wd4146',
+      ],
+  )
+elif env['OS'] == 'linux':
+  env.Append(
+      CPPFLAGS = [
+          '-Wno-uninitialized',
+          '-Wno-unused-value',
+      ],
+      CPPDEFINES = [
+          'HAVE_USLEEP=1',
       ],
   )
 

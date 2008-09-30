@@ -24,13 +24,15 @@ env.Append(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
+if env['OS'] == 'win32':
   env.Append(
       CCFLAGS = [
 #          '/TP',
 #          '/J',
       ],
   )
+elif env['OS'] == 'linux':
+  env.Append(CCFLAGS = '-Wno-char-subscripts') 
 
 input_files = [
     '$GURL_DIR/src/gurl.cc',
