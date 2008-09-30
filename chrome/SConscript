@@ -359,30 +359,6 @@ if env['PLATFORM'] == 'win32':
   #                  '$PYTHON tools/build/win/dependencies.py $(TargetPath) chrome.exe.deps')
 
 
-  env_snapshot = env.Clone()
-
-  env_snapshot.Prepend(
-      CPPPATH = [
-          '$V8_DIR/src',
-          '$V8_DIR/src/pcre/jscre',
-          '..',
-      ],
-      CPPDEFINES = [
-          'ENABLE_DISASSEMBLER',
-      ],
-      CCFLAGS = [
-          '/wd4099',
-          '/wd4355',
-          '/wd4800',
-      ],
-  )
-
-  env_snapshot.ChromeStaticLibrary('snapshotv8', 'snapshot.cc')
-
-  env_snapshot.Command('snapshot.cc', '#/../v8/bin/debug/mksnapshot.exe',
-                       '$SOURCE $TARGET')
-
-
 
 env_flat = env.Clone(
     BROWSER_RESOURCES = Dir('browser_resources'),

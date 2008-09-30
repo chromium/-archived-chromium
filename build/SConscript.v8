@@ -4,28 +4,6 @@
 
 Import('env')
 
-env = env.Clone()
-
-# Rather than build v8 here, we just shell out to v8's own SCons-based
-# build, since their build system is complicated.
-# This SConscript just declares dependencies on the outputs of that build.
-
-mksnapshot_bin = env.File('#/../v8/obj/release/mksnapshot${PROGSUFFIX}')
-v8_bin = env.File('#/../v8/shell${PROGSUFFIX}')
-v8_lib = env.File('#/../v8/${LIBPREFIX}v8${LIBSUFFIX}'),
-
-v8_scons_targets = [
-  mksnapshot_bin,
-  v8_bin,
-  v8_lib,
-]
-
-if env['PLATFORM'] == 'win32':
-  v8_scons_targets.append([
-    env.File('#/../v8/obj/release/snapshot-empty.obj'),
-    env.File('#/../v8/vc80.pdb')
-  ])
-
 # Grab the -j flag from the outer environment, if available.
 try:
   cpus = env.GetOption('num_jobs')
@@ -33,19 +11,54 @@ try:
 except AttributeError:
   cpu_flag = ''
 
+env = env.Clone(
+    V8_MODE = 'release',
+    V8_SRC_DIR = '#/../v8',
+    V8_MODE_DIR = '$V8_SRC_DIR/obj/$V8_MODE',
+    SCONS='../third_party/scons/scons.py',
+    SCONSFLAGS = ('-Q '
+                  '--warn=no-deprecated '
+                  '--warn=no-no-parallel-support' + cpu_flag),
+)
+
+# Rather than build v8 with our own commands, we just shell out to v8's
+# own SCons-based build, since their build system is complicated.
+# This SConscript just declares dependencies on the outputs of that build.
+
+mksnapshot_exe = env.File('$V8_MODE_DIR/mksnapshot${PROGSUFFIX}')
+libraries_obj = env.File('$V8_MODE_DIR/libraries${OBJSUFFIX}')
+libraries_empty_obj = env.File('$V8_MODE_DIR/libraries-empty${OBJSUFFIX}')
+snapshot_obj = env.File('$V8_MODE_DIR/snapshot${OBJSUFFIX}')
+snapshot_empty_obj = env.File('$V8_MODE_DIR/snapshot-empty${OBJSUFFIX}')
+v8_bin = env.File('$V8_SRC_DIR/shell${PROGSUFFIX}')
+v8_lib = env.File('$V8_SRC_DIR/${LIBPREFIX}v8${LIBSUFFIX}'),
+
+v8_scons_targets = [
+    mksnapshot_exe,
+    libraries_obj,
+    libraries_empty_obj,
+    snapshot_obj,
+    snapshot_empty_obj,
+    v8_bin,
+    v8_lib,
+]
+
+if env['PLATFORM'] == 'win32':
+  v8_scons_targets.extend([
+      env.File('#/../v8/vc80.pdb')
+  ])
+
 v8 = env.Command(v8_scons_targets,
                  [],
-                 'cd ../v8 && $PYTHON $SCONS $SCONSFLAGS snapshot=on ' +
-                 'sample=shell',
-                 SCONS='../third_party/scons/scons.py',
-                 SCONSFLAGS=('-Q '
-                             '--warn=no-deprecated '
-                             '--warn=no-no-parallel-support' + cpu_flag))
+                 'cd ../v8 && $PYTHON $SCONS $SCONSFLAGS $V8FLAGS',
+                 V8FLAGS='mode=$V8_MODE snapshot=off sample=shell')
 env.AlwaysBuild(v8)
 env.Install('$V8_DIR', v8)
 
-i = env.Install('$TARGET_ROOT', mksnapshot_bin)
-env.Alias('webkit', i)
+# Tell our SCons invocation to *not* delete v8.lib and the other targets
+# before building them, so the subsidiary v8 SCons call doesn't always
+# rebuild them (thereby causing us to always rebuild their dependents).
+env.Precious(v8)
 
 i = env.Install('$LIBS_DIR', v8_lib)
 env.Alias('webkit', i)
@@ -59,7 +72,5 @@ if env['PLATFORM'] == 'win32':
   i = env.InstallAs('$TARGET_ROOT/v8_shell_sample${PROGSUFFIX}', v8_bin)
   env.Alias('chrome', i)
 
-# Tell our SCons invocation to *not* delete v8.lib and the other targets
-# before building them, so the subsidiary v8 SCons call doesn't always
-# rebuild them (thereby causing us to always rebuild their dependents).
-env.Precious(v8)
+env.ChromeStaticLibrary('v8_snapshot',
+                        [libraries_empty_obj, snapshot_obj])
