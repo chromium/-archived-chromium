@@ -1619,7 +1619,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
 					..,
-					"../sdch/open_vcdiff/depot/opensource/open-vcdiff/src",
+					"../sdch/open-vcdiff/src",
 					../third_party/icu38/public/common,
 					../third_party/icu38/public/i18n,
 				);
@@ -1634,7 +1634,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
 					..,
-					"../sdch/open_vcdiff/depot/opensource/open-vcdiff/src",
+					"../sdch/open-vcdiff/src",
 					../third_party/icu38/public/common,
 					../third_party/icu38/public/i18n,
 				);
@@ -1690,7 +1690,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
 					..,
-					"../sdch/open_vcdiff/depot/opensource/open-vcdiff/src",
+					"../sdch/open-vcdiff/src",
 					../testing/gtest/include,
 					../testing/gtest/include/gtest,
 				);
@@ -1709,7 +1709,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
 					..,
-					"../sdch/open_vcdiff/depot/opensource/open-vcdiff/src",
+					"../sdch/open-vcdiff/src",
 					../testing/gtest/include,
 					../testing/gtest/include/gtest,
 				);

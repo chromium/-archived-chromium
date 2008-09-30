@@ -97,7 +97,7 @@
 				7BA361B70E8C374E0023C8B9 /* vcdiffengine.cc */,
 			);
 			name = Source;
-			path = "open_vcdiff/depot/opensource/open-vcdiff/src";
+			path = "open-vcdiff/src";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -145,7 +145,7 @@
 			files = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/open_vcdiff/depot/opensource/open-vcdiff/src/config.h.in",
+				"$(SRCROOT)/open-vcdiff/src/config.h.in",
 			);
 			name = "Pre-Build";
 			outputPaths = (
@@ -203,7 +203,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
 					"$(CONFIGURATION_TEMP_DIR)/generated",
-					"open_vcdiff/depot/opensource/open-vcdiff/src",
+					"open-vcdiff/src",
 				);
 				PRODUCT_NAME = sdch;
 			};
@@ -216,7 +216,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
 					"$(CONFIGURATION_TEMP_DIR)/generated",
-					"open_vcdiff/depot/opensource/open-vcdiff/src",
+					"open-vcdiff/src",
 				);
 				PRODUCT_NAME = sdch;
 			};

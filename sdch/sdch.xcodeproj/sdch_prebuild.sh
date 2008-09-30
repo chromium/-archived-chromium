@@ -13,7 +13,7 @@ mkdir -p "${GENERATED_DIR}"
 
 CONFIG_H_IN="$1"
 if test "X${CONFIG_H_IN}" = "X"; then
-  CONFIG_H_IN="open_vcdiff/depot/opensource/open-vcdiff/src/config.h.in"
+  CONFIG_H_IN="open-vcdiff/src/config.h.in"
 fi
 
 CONFIG_H="${GENERATED_DIR}/config.h"
