@@ -18,32 +18,37 @@ env.Prepend(
     ],
 )
 
-env.Prepend(
-    LINKFLAGS = [
-        '/INCREMENTAL',
-
-        '/MANIFEST',
-        '/DELAYLOAD:"dwmapi.dll"',
-        '/DELAYLOAD:"uxtheme.dll"',
-        '/MACHINE:X86',
-        '/FIXED:No',
-
-        '/safeseh',
-        '/dynamicbase',
-        '/ignore:4199',
-        '/nxcompat',
-
-        '/DEBUG',
-    ],
-    LIBS = [
-        'winmm.lib',
-    ],
-)
-
 input_files = [
     'test_chrome_plugin.cc',
-    'test_chrome_plugin.def',
 ]
+
+
+if env['PLATFORM'] == 'win32':
+  env.Prepend(
+      LINKFLAGS = [
+          '/INCREMENTAL',
+
+          '/MANIFEST',
+          '/DELAYLOAD:"dwmapi.dll"',
+          '/DELAYLOAD:"uxtheme.dll"',
+          '/MACHINE:X86',
+          '/FIXED:No',
+
+          '/safeseh',
+          '/dynamicbase',
+          '/ignore:4199',
+          '/nxcompat',
+
+          '/DEBUG',
+      ],
+      LIBS = [
+          'winmm.lib',
+      ],
+  )
+
+  input_files.extend([
+      'test_chrome_plugin.def',
+  ])
 
 dll = env.ChromeSharedLibrary('test_chrome_plugin', input_files)
 

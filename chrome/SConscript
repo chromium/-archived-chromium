@@ -435,6 +435,7 @@ env.SConscript(test_sconscript_files, exports=['env_test'])
 sconscript_files = [
     'browser/SConscript',
     'common/SConscript',
+    'test/chrome_plugin/SConscript',
     'third_party/hunspell/SConscript',
     '$THIRD_PARTY_DIR/sqlite/SConscript',
 ]
@@ -452,7 +453,6 @@ if env['PLATFORM'] == 'win32':
       'renderer/SConscript',
       'test/activex_test_control/SConscript',
       'test/automation/SConscript',
-      'test/chrome_plugin/SConscript',
       'test/interactive_ui/SConscript',
       'test/memory_test/SConscript',
       'test/mini_installer_test/SConscript',
