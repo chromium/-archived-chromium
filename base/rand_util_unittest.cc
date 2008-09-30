@@ -20,3 +20,10 @@ TEST(RandUtilTest, SameMinAndMax) {
   EXPECT_EQ(base::RandInt(kIntMin, kIntMin), kIntMin);
   EXPECT_EQ(base::RandInt(kIntMax, kIntMax), kIntMax);
 }
+
+TEST(RandUtilTest, RandDouble) {
+ // Force 64-bit precision, making sure we're not in a 80-bit FPU register.
+ volatile double number = base::RandDouble();
+ EXPECT_GT(1.0, number);
+ EXPECT_LE(0.0, number);
+}

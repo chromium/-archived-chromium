@@ -6,17 +6,10 @@
 
 #include <math.h>
 
+#include <limits>
+
 #include "base/basictypes.h"
 #include "base/logging.h"
-
-namespace {
-
-union uint64_splitter {
-  uint64 normal;
-  uint16 split[4];
-};
-
-}  // namespace
 
 namespace base {
 
@@ -31,15 +24,15 @@ int RandInt(int min, int max) {
 }
 
 double RandDouble() {
-  uint64_splitter number;
-  number.normal = base::RandUInt64();
+  // We try to get maximum precision by masking out as many bits as will fit
+  // in the target type's mantissa, and raising it to an appropriate power to
+  // produce output in the range [0, 1).  For IEEE 754 doubles, the mantissa
+  // is expected to accommodate 53 bits.
 
-  // Standard code based on drand48 would give only 48 bits of precision.
-  // We try to get maximum precision for IEEE 754 double (52 bits).
-  double result = ldexp(static_cast<double>(number.split[0] & 0xf), -52) +
-                  ldexp(static_cast<double>(number.split[1]), -48) +
-                  ldexp(static_cast<double>(number.split[2]), -32) +
-                  ldexp(static_cast<double>(number.split[3]), -16);
+  COMPILE_ASSERT(std::numeric_limits<double>::radix == 2, otherwise_use_scalbn);
+  static const int kBits = std::numeric_limits<double>::digits;
+  uint64 random_bits = base::RandUInt64() & ((GG_UINT64_C(1) << kBits) - 1);
+  double result = ldexp(static_cast<double>(random_bits), -1 * kBits);
   DCHECK(result >= 0.0 && result < 1.0);
   return result;
 }
