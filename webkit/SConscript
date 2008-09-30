@@ -28,7 +28,7 @@ if env['PLATFORM'] == 'posix':
 env.Prepend(
     CPPPATH = [
         '$WEBKIT_DIR/build/localized_strings',
-        '$WEBKIT_DIR/build/JSConfig/obj/WebCore',
+        '$WEBKIT_DIR/build/JSConfig/WebCore',
         '$WEBKIT_DIR/build/WebCore',
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',

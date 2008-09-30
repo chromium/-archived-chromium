@@ -7,17 +7,17 @@ Import('env')
 env = env.Clone()
 
 
-if env['PLATFORM'] == 'posix':
-    # TODO(erg): adding to the badness.
-    env.Command("WebCore/v8/config.h",
-                ["create-config.sh", "../../config.h.in"],
-                "cd ${SOURCE.dir} && /bin/bash -x ${SOURCE.file} ${JSCONFIG_DIR.abspath} v8",
-                JSCONFIG_DIR = env.Dir('$WEBKIT_DIR/build/JSConfig'))               
-else:
-    # TODO(bradnelson): very bad, calls batch, calls sh, deps all wrong
-    env.Append(ENV = {"OS" : "Windows_NT"})
-    env.Command("obj/WebCore/config.h",
-                ["prebuild.bat", "../../config.h.in"],
-                "cd ${SOURCE.dir} && ${SOURCE.file} ${JSCONFIG_DIR.abspath} v8",
-                JSCONFIG_DIR = env.Dir('$WEBKIT_DIR/build/JSConfig'))
+def CopyConfigH(target, source, env):
+  contents = open(str(source[0]), 'r').read()
 
+  if env.get('KJS'):
+    contents += '#define WTF_USE_JAVASCRIPTCORE 1\n'
+  else:
+    contents += '#define WTF_USE_V8_BINDING 1\n'
+  contents += '#define WTF_USE_NPOBJECT 1\n'
+
+  open(str(target[0]), 'w').write(contents)
+
+env.Command('WebCore/config.h',
+            '../../config.h.in',
+            Action(CopyConfigH))
