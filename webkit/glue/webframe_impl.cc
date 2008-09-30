@@ -1466,12 +1466,16 @@ void WebFrameImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
   StatsScope<StatsRate> rendering_scope(rendering);
 
   if (!rect.IsEmpty()) {
+    IntRect dirty_rect(rect.x(), rect.y(), rect.width(), rect.height());
+#if defined(OS_MACOSX)
+    CGContextRef context = canvas->getTopPlatformDevice().GetBitmapContext();
+    GraphicsContext gc(context);
+#else
     PlatformContextSkia context(canvas);
 
     // PlatformGraphicsContext is actually a pointer to PlatformContextSkia
     GraphicsContext gc(reinterpret_cast<PlatformGraphicsContext*>(&context));
-    IntRect dirty_rect(rect.x(), rect.y(), rect.width(), rect.height());
-
+#endif
     if (frame_->document() && frameview()) {
       frameview()->paint(&gc, dirty_rect);
     } else {
