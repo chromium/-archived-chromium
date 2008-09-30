@@ -57,38 +57,6 @@ cpp = env.Command(['grammar.cpp', 'grammar.h'],
                   YACCFLAGS = '-d -p kjsyy')
 env.AddPostAction(cpp, Move('${TARGETS[1]}', '${TARGET.dir}/grammar.hpp'))
 
-copies = [
-    'API/APICast.h',
-    'API/JSBase.h',
-    'API/JSValueRef.h',
-    'API/JSObjectRef.h',
-    'API/JSRetainPtr.h',
-    'API/JSContextRef.h',
-    'API/JSStringRef.h',
-    'API/JSStringRefCF.h',
-    'API/JSStringRefBSTR.h',
-    'API/JavaScriptCore.h',
-    'bindings/npruntime.h',
-    'bindings/runtime.h',
-    'bindings/NP_jsobject.h',
-    'bindings/npruntime_internal.h',
-    'bindings/npruntime_impl.h',
-    'bindings/runtime_object.h',
-    'bindings/runtime_root.h',
-    'kjs/JSLock.h',
-    'kjs/interpreter.h',
-    'wtf/HashCountedSet.h',
-]
-
-JSCORE_OUT = '$WEBKIT_DIR/scons/WebCore/JavaScriptCore'
-
-for c in copies:
-  i = env.Install(JSCORE_OUT, '$JAVASCRIPTCORE_DIR/' + c)
-  env.Alias('webkit', i)
-
-i = env.Install(JSCORE_OUT, '../../pending/kjs/collector.h')
-env.Alias('webkit', i)
-
 
 # Stuff for WTF
 env = env.Clone(
