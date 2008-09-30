@@ -5,6 +5,7 @@
 #include "net/http/http_auth_handler_digest.h"
 
 #include "base/md5.h"
+#include "base/rand_util.h"
 #include "base/string_util.h"
 #include "net/base/net_util.h"
 #include "net/http/http_auth.h"
@@ -47,9 +48,8 @@ std::string HttpAuthHandlerDigest::GenerateNonce() {
   static const char domain[] = "0123456789abcdef";
   std::string cnonce;
   cnonce.reserve(16);
-  // TODO(eroman): use rand_util::RandIntSecure()
   for (int i = 0; i < 16; ++i)
-    cnonce.push_back(domain[rand() % 16]);
+    cnonce.push_back(domain[base::RandInt(0, 15)]);
   return cnonce;
 }
 
