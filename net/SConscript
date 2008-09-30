@@ -48,6 +48,8 @@ input_files = [
     'base/net_module.cc',
     'base/net_util.cc',
     'base/registry_controlled_domain.cc',
+    'base/sdch_filter.cc',
+    'base/sdch_manager.cc',
     'base/upload_data.cc',
     'base/x509_certificate.cc',
     'disk_cache/backend_impl.cc',
@@ -91,8 +93,6 @@ if env['PLATFORM'] == 'win32':
       'base/directory_lister.cc',
       'base/dns_resolution_observer.cc',
       'base/listen_socket.cc',
-      'base/sdch_filter.cc',
-      'base/sdch_manager.cc',
       'base/ssl_client_socket.cc',
       'base/ssl_config_service.cc',
       'base/tcp_client_socket.cc',
@@ -177,6 +177,7 @@ env_tests.Prepend(
         'base',
         'googleurl',
         'gtest',
+        'sdch',
         env_tests['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'modp_b64',
         'zlib',
@@ -209,9 +210,6 @@ if env['PLATFORM'] == 'win32':
           '/dynamicbase',
           '/ignore:4199',
           '/nxcompat',
-      ],
-      LIBS =[
-        'sdch',
       ],
   )
 

@@ -7,10 +7,7 @@
 #include "base/string_util.h"
 #include "net/base/gzip_filter.h"
 #include "net/base/bzip2_filter.h"
-#if defined(OS_WIN) || defined(OS_MACOSX)
-// TODO(port): remove #ifdef when sdch works on all platforms.
 #include "net/base/sdch_filter.h"
-#endif
 
 namespace {
 
@@ -85,11 +82,8 @@ Filter* Filter::SingleFilter(const std::string& filter_type,
   } else if (LowerCaseEqualsASCII(filter_type, kBZip2) ||
              LowerCaseEqualsASCII(filter_type, kXBZip2)) {
     type_id = FILTER_TYPE_BZIP2;
-#if defined(OS_WIN) || defined(OS_MACOSX)
-    // TODO(port): remove #ifdef when sdch works on all platforms.
   } else if (LowerCaseEqualsASCII(filter_type, kSdch)) {
     type_id = FILTER_TYPE_SDCH;
-#endif
   } else {
     // Note we also consider "identity" and "uncompressed" UNSUPPORTED as
     // filter should be disabled in such cases.
@@ -116,8 +110,6 @@ Filter* Filter::SingleFilter(const std::string& filter_type,
       }
       break;
     }
-#if defined(OS_WIN) || defined(OS_MACOSX)
-    // TODO(port): remove #ifdef when sdch works on all platforms.
     case FILTER_TYPE_SDCH: {
       scoped_ptr<SdchFilter> sdch_filter(new SdchFilter());
       if (sdch_filter->InitBuffer(buffer_size)) {
@@ -127,7 +119,6 @@ Filter* Filter::SingleFilter(const std::string& filter_type,
       }
       break;
     }
-#endif
     default: {
       break;
     }
