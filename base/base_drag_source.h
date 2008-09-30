@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_BASE_DRAG_SOURCE_H__
-#define BASE_BASE_DRAG_SOURCE_H__
+#ifndef BASE_BASE_DRAG_SOURCE_H_
+#define BASE_BASE_DRAG_SOURCE_H_
 
 #include <objidl.h>
 
@@ -43,5 +43,4 @@ class BaseDragSource : public IDropSource {
   DISALLOW_EVIL_CONSTRUCTORS(BaseDragSource);
 };
 
-#endif  // #ifndef BASE_DRAG_SOURCE_H__
-
+#endif  // #ifndef BASE_DRAG_SOURCE_H_

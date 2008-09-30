@@ -137,6 +137,7 @@ class TableViewTest : public testing::Test, ChromeViews::WindowDelegate {
 };
 
 void TableViewTest::SetUp() {
+  OleInitialize(NULL);
   model_.reset(CreateModel());
   std::vector<ChromeViews::TableColumn> columns;
   columns.resize(2);
@@ -154,6 +155,7 @@ void TableViewTest::TearDown() {
   window_->CloseNow();
   // Temporary workaround to avoid leak of RootView::pending_paint_task_.
   message_loop_.RunAllPending();
+  OleUninitialize();
 }
 
 void TableViewTest::VeriyViewOrder(int first, ...) {

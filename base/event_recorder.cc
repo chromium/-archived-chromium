@@ -40,7 +40,7 @@ EventRecorder::~EventRecorder() {
   DCHECK(!is_recording_ && !is_playing_);
 }
 
-bool EventRecorder::StartRecording(std::wstring& filename) {
+bool EventRecorder::StartRecording(const std::wstring& filename) {
   if (journal_hook_ != NULL)
     return false;
   if (is_recording_ || is_playing_)
@@ -90,7 +90,7 @@ void EventRecorder::StopRecording() {
   }
 }
 
-bool EventRecorder::StartPlayback(std::wstring& filename) {
+bool EventRecorder::StartPlayback(const std::wstring& filename) {
   if (journal_hook_ != NULL)
     return false;
   if (is_recording_ || is_playing_)
@@ -160,7 +160,7 @@ void EventRecorder::StopPlayback() {
 // Windows callback hook for the recorder.
 LRESULT EventRecorder::RecordWndProc(int nCode, WPARAM wParam, LPARAM lParam) {
   static bool recording_enabled = true;
-  EVENTMSG *msg_ptr = NULL;
+  EVENTMSG* msg_ptr = NULL;
 
   // The API says we have to do this.
   // See http://msdn2.microsoft.com/en-us/library/ms644983(VS.85).aspx
@@ -175,13 +175,12 @@ LRESULT EventRecorder::RecordWndProc(int nCode, WPARAM wParam, LPARAM lParam) {
 
   // The Journal Recorder must stop recording events when system modal
   // dialogs are present. (see msdn link above)
-  switch(nCode)
-  {
+  switch(nCode) {
     case HC_SYSMODALON:
-	    recording_enabled = false;
+      recording_enabled = false;
       break;
     case HC_SYSMODALOFF:
-	    recording_enabled = true;
+      recording_enabled = true;
       break;
   }
 
@@ -197,41 +196,41 @@ LRESULT EventRecorder::RecordWndProc(int nCode, WPARAM wParam, LPARAM lParam) {
 }
 
 // Windows callback for the playback mode.
-LRESULT EventRecorder::PlaybackWndProc(int nCode, WPARAM wParam, LPARAM lParam)
-{
+LRESULT EventRecorder::PlaybackWndProc(int nCode, WPARAM wParam,
+                                       LPARAM lParam) {
   static bool playback_enabled = true;
   int delay = 0;
 
-  switch(nCode)
-  {
+  switch(nCode) {
     // A system modal dialog box is being displayed.  Stop playing back
     // messages.
     case HC_SYSMODALON:
-	    playback_enabled = false;
-	    break;
+      playback_enabled = false;
+      break;
 
     // A system modal dialog box is destroyed.  We can start playing back
     // messages again.
     case HC_SYSMODALOFF:
-	    playback_enabled = true;
-	    break;
+      playback_enabled = true;
+      break;
 
     // Prepare to copy the next mouse or keyboard event to playback.
     case HC_SKIP:
-	    if (!playback_enabled)
-	      break;
+      if (!playback_enabled)
+        break;
 
       // Read the next event from the record.
       if (fread(&playback_msg_, sizeof(EVENTMSG), 1, file_) != 1)
         this->StopPlayback();
-	    break;
+      break;
 
     // Copy the mouse or keyboard event to the EVENTMSG structure in lParam.
     case HC_GETNEXT:
-	    if (!playback_enabled)
+      if (!playback_enabled)
         break;
 
-      memcpy(reinterpret_cast<void*>(lParam), &playback_msg_, sizeof(playback_msg_));
+      memcpy(reinterpret_cast<void*>(lParam), &playback_msg_,
+             sizeof(playback_msg_));
 
       // The return value is the amount of time (in milliseconds) to wait
       // before playing back the next message in the playback queue.  Each
@@ -254,4 +253,3 @@ LRESULT EventRecorder::PlaybackWndProc(int nCode, WPARAM wParam, LPARAM lParam)
 }
 
 }  // namespace base
-

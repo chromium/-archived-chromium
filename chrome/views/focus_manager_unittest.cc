@@ -514,6 +514,7 @@ TestViewWindow* FocusManagerTest::GetWindow() {
 }
 
 void FocusManagerTest::SetUp() {
+  OleInitialize(NULL);
   test_window_ = new TestViewWindow(this);
   test_window_->Init();
   ShowWindow(test_window_->GetHWND(), SW_SHOW);
@@ -524,6 +525,7 @@ void FocusManagerTest::TearDown() {
 
   // Flush the message loop to make Purify happy.
   message_loop_.RunAllPending();
+  OleUninitialize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -11,6 +11,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/scoped_ptr.h"
 
 namespace base {
 
@@ -34,7 +35,7 @@ class HMAC {
 
  private:
   HashAlgorithm hash_alg_;
-  HMACPlatformData* plat_;
+  scoped_ptr<HMACPlatformData> plat_;
 
   DISALLOW_COPY_AND_ASSIGN(HMAC);
 };

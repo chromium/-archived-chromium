@@ -2,10 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <windows.h>
-#include <shlobj.h>
-
 #include "base/base_drop_target.h"
+
+#include <shlobj.h>
 
 #include "base/logging.h"
 
@@ -14,11 +13,12 @@
 IDropTargetHelper* BaseDropTarget::cached_drop_target_helper_ = NULL;
 
 BaseDropTarget::BaseDropTarget(HWND hwnd)
-    : suspend_(false),
-      ref_count_(0),
-      hwnd_(hwnd) {
+    : hwnd_(hwnd),
+      suspend_(false),
+      ref_count_(0) {
   DCHECK(hwnd);
   HRESULT result = RegisterDragDrop(hwnd, this);
+  DCHECK(SUCCEEDED(result));
 }
 
 BaseDropTarget::~BaseDropTarget() {
@@ -125,14 +125,13 @@ HRESULT BaseDropTarget::QueryInterface(const IID& iid, void** object) {
 }
 
 ULONG BaseDropTarget::AddRef() {
-  return InterlockedIncrement(&ref_count_);
+  return ++ref_count_;
 }
 
 ULONG BaseDropTarget::Release() {
-  if (InterlockedDecrement(&ref_count_) == 0) {
-    ULONG copied_refcnt = ref_count_;
+  if (--ref_count_ == 0) {
     delete this;
-    return copied_refcnt;
+    return 0U;
   }
   return ref_count_;
 }

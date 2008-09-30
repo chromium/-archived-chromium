@@ -10,6 +10,7 @@
 
 #include <objidl.h>
 #include <shlobj.h>
+#include <shlwapi.h>
 
 #include "base/gfx/point.h"
 #include "base/message_loop.h"

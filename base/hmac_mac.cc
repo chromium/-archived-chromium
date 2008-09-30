@@ -24,8 +24,6 @@ HMAC::~HMAC() {
   plat_->key_.assign(plat_->key_.length(), std::string::value_type());
   plat_->key_.clear();
   plat_->key_.reserve(0);
-
-  delete plat_;
 }
 
 bool HMAC::Sign(const std::string& data,

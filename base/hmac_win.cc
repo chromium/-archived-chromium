@@ -67,8 +67,6 @@ HMAC::~HMAC() {
     CryptDestroyHash(plat_->hash_);
   if (plat_->provider_)
     CryptReleaseContext(plat_->provider_, 0);
-
-  delete plat_;
 }
 
 bool HMAC::Sign(const std::string& data,

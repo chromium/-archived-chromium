@@ -193,7 +193,7 @@ class Histogram : public StatsRate {
             Sample maximum, size_t bucket_count);
   Histogram(const wchar_t* name, TimeDelta minimum,
             TimeDelta maximum, size_t bucket_count);
-  ~Histogram();
+  virtual ~Histogram();
 
   // Hooks to override stats counter methods.  This ensures that we gather all
   // input the stats counter sees.

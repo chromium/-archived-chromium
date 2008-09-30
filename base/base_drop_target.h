@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_BASE_DROP_TARGET_H__
-#define BASE_BASE_DROP_TARGET_H__
+#ifndef BASE_BASE_DROP_TARGET_H_
+#define BASE_BASE_DROP_TARGET_H_
 
-#include <atlbase.h>
 #include <objidl.h>
-#include <shobjidl.h>
 
-#include "base/basictypes.h"
+#include "base/ref_counted.h"
+
+struct IDropTargetHelper;
 
 // A DropTarget implementation that takes care of the nitty gritty
 // of dnd. While this class is concrete, subclasses will most likely
@@ -18,6 +18,8 @@
 // Because BaseDropTarget is ref counted you shouldn't delete it directly,
 // rather wrap it in a scoped_refptr. Be sure and invoke RevokeDragDrop(m_hWnd)
 // before the HWND is deleted too.
+//
+// This class is meant to be used in a STA and is not multithread-safe.
 class BaseDropTarget : public IDropTarget {
  public:
   // Create a new BaseDropTarget associating it with the given HWND.
@@ -89,7 +91,7 @@ class BaseDropTarget : public IDropTarget {
   static IDropTargetHelper* DropHelper();
 
   // The data object currently being dragged over this drop target.
-  CComPtr<IDataObject> current_data_object_;
+  scoped_refptr<IDataObject> current_data_object_;
 
   // A helper object that is used to provide drag image support while the mouse
   // is dragging over the content area.
@@ -114,5 +116,4 @@ class BaseDropTarget : public IDropTarget {
   DISALLOW_EVIL_CONSTRUCTORS(BaseDropTarget);
 };
 
-#endif  // BASE_BASE_DROP_TARGET_H__
-
+#endif  // BASE_BASE_DROP_TARGET_H_

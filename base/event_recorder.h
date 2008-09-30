@@ -37,7 +37,7 @@ class EventRecorder {
   // Starts recording events.
   // Will clobber the file if it already exists.
   // Returns true on success, or false if an error occurred.
-  bool StartRecording(std::wstring &filename);
+  bool StartRecording(const std::wstring& filename);
 
   // Stops recording.
   void StopRecording();
@@ -47,7 +47,7 @@ class EventRecorder {
 
   // Plays events previously recorded.
   // Returns true on success, or false if an error occurred.
-  bool StartPlayback(std::wstring &filename);
+  bool StartPlayback(const std::wstring& filename);
 
   // Stops playback.
   void StopPlayback();
@@ -68,7 +68,9 @@ class EventRecorder {
       : is_recording_(false),
         is_playing_(false),
         journal_hook_(NULL),
-        file_(NULL) {
+        file_(NULL),
+        playback_first_msg_time_(0),
+        playback_start_time_(0) {
   }
   ~EventRecorder();
 
@@ -88,4 +90,3 @@ class EventRecorder {
 }  // namespace base
 
 #endif // BASE_EVENT_RECORDER_H_
-

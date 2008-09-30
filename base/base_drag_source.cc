@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <atlbase.h>
-
 #include "base/base_drag_source.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -50,15 +48,13 @@ HRESULT BaseDragSource::QueryInterface(const IID& iid, void** object) {
 }
 
 ULONG BaseDragSource::AddRef() {
-  return InterlockedIncrement(&ref_count_);
+  return ++ref_count_;
 }
 
 ULONG BaseDragSource::Release() {
-  if (InterlockedDecrement(&ref_count_) == 0) {
-    ULONG copied_refcnt = ref_count_;
+  if (--ref_count_ == 0) {
     delete this;
-    return copied_refcnt;
+    return 0U;
   }
   return ref_count_;
 }
-

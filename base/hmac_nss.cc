@@ -66,7 +66,6 @@ HMAC::HMAC(HashAlgorithm hash_alg, const unsigned char* key, int key_length)
 }
 
 HMAC::~HMAC() {
-  delete plat_;
 }
 
 bool HMAC::Sign(const std::string& data,
