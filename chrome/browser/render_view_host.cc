@@ -246,7 +246,7 @@ void RenderViewHost::FirePageUnload() {
   // Start the hang monitor in case the renderer hangs in the unload handler.
   is_waiting_for_unload_ack_ = true;
   StartHangMonitorTimeout(TimeDelta::FromMilliseconds(kUnloadTimeoutMS));
-  ClosePage(site_instance()->process_host_id(), 
+  ClosePage(site_instance()->process_host_id(),
             routing_id());
 }
 
@@ -638,7 +638,7 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
 #ifdef CHROME_PERSONALIZATION
     IPC_MESSAGE_HANDLER(ViewHostMsg_PersonalizationEvent,
                         OnPersonalizationEvent)
-#endif                       
+#endif
     IPC_MESSAGE_HANDLER(ViewHostMsg_GoToEntryAtOffset,
                         OnMsgGoToEntryAtOffset)
     IPC_MESSAGE_HANDLER(ViewHostMsg_SetTooltipText, OnMsgSetTooltipText)
@@ -1193,7 +1193,7 @@ void RenderViewHost::OnDebugDisconnect() {
 }
 
 #ifdef CHROME_PERSONALIZATION
-void RenderViewHost::RaisePersonalizationEvent(std::string event_name, 
+void RenderViewHost::RaisePersonalizationEvent(std::string event_name,
                                                std::string event_arg) {
   Send(new ViewMsg_PersonalizationEvent(routing_id_,
                                         event_name,

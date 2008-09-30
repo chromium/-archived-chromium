@@ -107,6 +107,7 @@ class RenderWidgetHostHWND :
     MESSAGE_HANDLER(WM_SYSCHAR, OnKeyEvent)
     MESSAGE_HANDLER(WM_IME_CHAR, OnKeyEvent)
     MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
+    MESSAGE_HANDLER(WM_GETOBJECT, OnGetObject)
   END_MSG_MAP()
 
   // Overridden from RenderWidgetHostView:
@@ -164,6 +165,9 @@ class RenderWidgetHostHWND :
   LRESULT OnWheelEvent(
       UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled);
   LRESULT OnMouseActivate(UINT, WPARAM, LPARAM, BOOL& handled);
+  // Handle MSAA requests for accessibility information.
+  LRESULT OnGetObject(UINT message, WPARAM wparam, LPARAM lparam,
+                      BOOL& handled);
   // Handle vertical scrolling
   LRESULT OnVScroll(int code, short position, HWND scrollbar_control);
   // Handle horizontal scrolling
@@ -245,6 +249,10 @@ class RenderWidgetHostHWND :
   // hidden to prevent getting messages (Paint, Resize...), and we reattach
   // when shown again.
   HWND parent_hwnd_;
+
+  // Instance of accessibility information for the root of the MSAA
+  // tree representation of the WebKit render tree.
+  CComPtr<IAccessible> browser_accessibility_root_;
 
   // The time at which this view started displaying white pixels as a result of
   // not having anything to paint (empty backing store from renderer). This

@@ -9,6 +9,8 @@
 #include "base/gfx/rect.h"
 #include "base/histogram.h"
 #include "base/win_util.h"
+#include "chrome/browser/browser_accessibility.h"
+#include "chrome/browser/browser_accessibility_manager.h"
 #include "chrome/browser/render_process_host.h"
 // TODO(beng): (Cleanup) we should not need to include this file... see comment
 //             in |DidBecomeSelected|.
@@ -745,6 +747,55 @@ LRESULT RenderWidgetHostHWND::OnMouseActivate(UINT, WPARAM, LPARAM,
     handled = FALSE;
     return MA_ACTIVATE;
   }
+}
+
+LRESULT RenderWidgetHostHWND::OnGetObject(UINT message, WPARAM wparam,
+                                          LPARAM lparam, BOOL& handled) {
+  LRESULT reference_result = static_cast<LRESULT>(0L);
+
+  // Accessibility readers will send an OBJID_CLIENT message.
+  if (OBJID_CLIENT == lparam) {
+    // If our MSAA DOM root is already created, reuse that pointer. Otherwise,
+    // create a new one.
+    if (!browser_accessibility_root_) {
+      CComObject<BrowserAccessibility>* accessibility = NULL;
+
+      if (!SUCCEEDED(CComObject<BrowserAccessibility>::CreateInstance(
+              &accessibility)) || !accessibility) {
+        // Return with failure.
+        return static_cast<LRESULT>(0L);
+      }
+
+      CComPtr<IAccessible> accessibility_comptr(accessibility);
+
+      // Root id is always 0, to distinguish this particular instance when
+      // mapping to the render-side IAccessible.
+      accessibility->set_iaccessible_id(0);
+
+      // Set the unique member variables of this particular process.
+      accessibility->set_instance_id(BrowserAccessibilityManager::Instance()->
+          SetMembers(accessibility, m_hWnd, render_widget_host_));
+
+      // All is well, assign the temp instance to the class smart pointer.
+      browser_accessibility_root_.Attach(accessibility_comptr.Detach());
+
+      if (!browser_accessibility_root_) {
+        // Paranoia check. Return with failure.
+        NOTREACHED();
+        return static_cast<LRESULT>(0L);
+      }
+
+      // Notify that an instance of IAccessible was allocated for m_hWnd.
+      ::NotifyWinEvent(EVENT_OBJECT_CREATE, m_hWnd, OBJID_CLIENT,
+                       CHILDID_SELF);
+    }
+
+    // Create a reference to ViewAccessibility that MSAA will marshall
+    // to the client.
+    reference_result = LresultFromObject(IID_IAccessible, wparam,
+        static_cast<IAccessible*>(browser_accessibility_root_));
+  }
+  return reference_result;
 }
 
 void RenderWidgetHostHWND::OnFinalMessage(HWND window) {

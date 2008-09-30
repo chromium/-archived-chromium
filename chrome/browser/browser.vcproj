@@ -1959,6 +1959,30 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="Accessibility"
+			>
+			<File
+				RelativePath=".\browser_accessibility.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\browser_accessibility.h"
+				>
+			</File>
+			<File
+				RelativePath=".\browser_accessibility_manager.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\browser_accessibility_manager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\iaccessible_function_ids.h"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="Download"
 			>
 			<File

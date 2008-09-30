@@ -372,6 +372,20 @@ IPC_BEGIN_MESSAGES(View, 1)
                       int /* back_list_count */,
                       int /* forward_list_count */)
 
+  // Retreive information from the MSAA DOM subtree, for accessibility purposes.
+  IPC_SYNC_MESSAGE_ROUTED1_1(ViewMsg_GetAccessibilityInfo,
+                             ViewMsg_Accessibility_In_Params
+                             /* input parameters */,
+                             ViewHostMsg_Accessibility_Out_Params
+                             /* output parameters */)
+
+  // Requests the renderer to clear cashed accessibility information. Takes an 
+  // id to clear a specific hashmap entry, and a bool; true clears all, false
+  // does not.
+  IPC_MESSAGE_ROUTED2(ViewMsg_ClearAccessibilityInfo,
+                      int  /* iaccessible_id */,
+                      bool /* clear_all */)
+
   // Get all savable resource links from current webpage, include main
   // frame and sub-frame.
   IPC_MESSAGE_ROUTED1(ViewMsg_GetAllSavableResourceLinksForCurrentPage,

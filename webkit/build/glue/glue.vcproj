@@ -369,6 +369,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\glue\glue_accessibility.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\glue_accessibility.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\glue\glue_serialize.cc"
 				>
 			</File>

@@ -375,6 +375,55 @@ struct ViewHostMsg_DidPrintPage_Params {
   double actual_shrink;
 };
 
+// Parameters structure to hold a union of the possible IAccessible function
+// INPUT variables, with the unused fields always set to default value. Used in
+// ViewMsg_GetAccessibilityInfo, as only parameter.
+struct ViewMsg_Accessibility_In_Params {
+  // Identifier to uniquely distinguish which instance of IAccessible is being
+  // called upon on the renderer side.
+  int iaccessible_id;
+
+  // Identifier to resolve which IAccessible interface function is being called.
+  int iaccessible_function_id;
+
+  // Function input parameters.
+  // Input VARIANT structure's LONG field to specify requested object.
+  long input_variant_lval;
+
+  // LONG input parameters, used differently depending on the function called.
+  long input_long1;
+  long input_long2;
+};
+
+// Parameters structure to hold a union of the possible IAccessible function
+// OUTPUT variables, with the unused fields always set to default value. Used in
+// ViewHostMsg_GetAccessibilityInfoResponse, as only parameter.
+struct ViewHostMsg_Accessibility_Out_Params {
+  // Identifier to uniquely distinguish which instance of IAccessible is being
+  // called upon on the renderer side.
+  int iaccessible_id;
+
+  // Function output parameters.
+  // Output VARIANT structure's LONG field to specify requested object.
+  long output_variant_lval;
+
+  // LONG output parameters, used differently depending on the function called.
+  // output_long1 can in some cases be set to -1 to indicate that the child
+  // object found by the called IAccessible function is not a simple object.
+  long output_long1;
+  long output_long2;
+  long output_long3;
+  long output_long4;
+
+  // String output parameter.
+  std::wstring output_string;
+
+  // Return code, either S_OK (true) or S_FALSE (false). WebKit MSAA error
+  // return codes (E_POINTER, E_INVALIDARG, E_FAIL, E_NOTIMPL) must be handled
+  // on the browser side by input validation.
+  bool return_code;
+};
+
 // The first parameter for the ViewHostMsg_ImeUpdateStatus message.
 enum ViewHostMsg_ImeControl {
   IME_DISABLE = 0,
@@ -576,6 +625,86 @@ struct ParamTraits<WebInputEvent::Type> {
     }
 
     LogParam(event, l);
+  }
+};
+
+// Traits for ViewMsg_Accessibility_In_Params structure to pack/unpack.
+template <>
+struct ParamTraits<ViewMsg_Accessibility_In_Params> {
+  typedef ViewMsg_Accessibility_In_Params param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.iaccessible_id);
+    WriteParam(m, p.iaccessible_function_id);
+    WriteParam(m, p.input_variant_lval);
+    WriteParam(m, p.input_long1);
+    WriteParam(m, p.input_long2);
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    return
+      ReadParam(m, iter, &p->iaccessible_id) &&
+      ReadParam(m, iter, &p->iaccessible_function_id) &&
+      ReadParam(m, iter, &p->input_variant_lval) &&
+      ReadParam(m, iter, &p->input_long1) &&
+      ReadParam(m, iter, &p->input_long2);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"(");
+    LogParam(p.iaccessible_id, l);
+    l->append(L", ");
+    LogParam(p.iaccessible_function_id, l);
+    l->append(L", ");
+    LogParam(p.input_variant_lval, l);
+    l->append(L", ");
+    LogParam(p.input_long1, l);
+    l->append(L", ");
+    LogParam(p.input_long2, l);
+    l->append(L")");
+  }
+};
+
+// Traits for ViewHostMsg_Accessibility_Out_Params structure to pack/unpack.
+template <>
+struct ParamTraits<ViewHostMsg_Accessibility_Out_Params> {
+  typedef ViewHostMsg_Accessibility_Out_Params param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.iaccessible_id);
+    WriteParam(m, p.output_variant_lval);
+    WriteParam(m, p.output_long1);
+    WriteParam(m, p.output_long2);
+    WriteParam(m, p.output_long3);
+    WriteParam(m, p.output_long4);
+    WriteParam(m, p.output_string);
+    WriteParam(m, p.return_code);
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    return
+      ReadParam(m, iter, &p->iaccessible_id) &&
+      ReadParam(m, iter, &p->output_variant_lval) &&
+      ReadParam(m, iter, &p->output_long1) &&
+      ReadParam(m, iter, &p->output_long2) &&
+      ReadParam(m, iter, &p->output_long3) &&
+      ReadParam(m, iter, &p->output_long4) &&
+      ReadParam(m, iter, &p->output_string) &&
+      ReadParam(m, iter, &p->return_code);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"(");
+    LogParam(p.iaccessible_id, l);
+    l->append(L", ");
+    LogParam(p.output_variant_lval, l);
+    l->append(L", ");
+    LogParam(p.output_long1, l);
+    l->append(L", ");
+    LogParam(p.output_long2, l);
+    l->append(L", ");
+    LogParam(p.output_long3, l);
+    l->append(L", ");
+    LogParam(p.output_long4, l);
+    l->append(L", ");
+    LogParam(p.output_string, l);
+    l->append(L", ");
+    LogParam(p.return_code, l);
+    l->append(L")");
   }
 };
 
