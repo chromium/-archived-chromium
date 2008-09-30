@@ -42,7 +42,7 @@
 <translation id="4881695831933465202">열기</translation>
 <translation id="1178581264944972037">일시중지</translation>
 <translation id="8200772114523450471">다시 시작</translation>
-<translation id="5170568018924773124">폴더로 표시</translation>
+<translation id="5170568018924773124">폴더 열기</translation>
 <translation id="2398703750948514961">취소</translation>
 <translation id="7607002721634913082">일시중지</translation>
 <translation id="2526590354069164005">데스크톱</translation>
@@ -552,7 +552,7 @@
 <translation id="5463275305984126951"><ph name="LOCATION"/>의 색인</translation>
 <translation id="8877448029301136595">[상위 디렉토리]</translation>
 <translation id="57646104491463491">수정된 날짜</translation>
-<translation id="5501358408399407103">웹페이지, HTML만\0*.htm\0웹페이지, 완료\0*.htm</translation>
+<translation id="5501358408399407103">웹페이지 - HTML만\0*.htm\0웹페이지 - 전체\0*.htm</translation>
 <translation id="561349411957324076">완료</translation>
 <translation id="6325525973963619867">실패</translation>
 <translation id="5958418293370246440"><ph name="SAVED_FILES"/>/<ph name="TOTAL_FILES"/> 파일</translation>
