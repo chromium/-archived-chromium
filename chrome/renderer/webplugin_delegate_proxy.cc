@@ -143,7 +143,9 @@ WebPluginDelegateProxy::WebPluginDelegateProxy(const std::string& mime_type,
       send_deferred_update_geometry_(false),
       visible_(false),
       sad_plugin_(NULL),
-      window_script_object_(NULL) {
+      window_script_object_(NULL),
+      transparent_(false),
+      invalidate_pending_(false) {
 }
 
 WebPluginDelegateProxy::~WebPluginDelegateProxy() {
@@ -222,6 +224,11 @@ bool WebPluginDelegateProxy::Initialize(const GURL& url, char** argn,
   for (int i = 0; i < argc; ++i) {
     params.arg_names.push_back(argn[i]);
     params.arg_values.push_back(argv[i]);
+
+    if (LowerCaseEqualsASCII(params.arg_names.back(), "wmode") &&
+        LowerCaseEqualsASCII(params.arg_values.back(), "transparent")) {
+      transparent_ = true;
+    }
   }
   params.load_manually = load_manually;
   params.modal_dialog_event = render_view_->modal_dialog_event();
@@ -299,7 +306,6 @@ void WebPluginDelegateProxy::OnMessageReceived(const IPC::Message& msg) {
   IPC_BEGIN_MESSAGE_MAP(WebPluginDelegateProxy, msg)
     IPC_MESSAGE_HANDLER(PluginHostMsg_SetWindow, OnSetWindow)
     IPC_MESSAGE_HANDLER(PluginHostMsg_CancelResource, OnCancelResource)
-    IPC_MESSAGE_HANDLER(PluginHostMsg_Invalidate, OnInvalidate)
     IPC_MESSAGE_HANDLER(PluginHostMsg_InvalidateRect, OnInvalidateRect)
     IPC_MESSAGE_HANDLER(PluginHostMsg_GetWindowScriptNPObject,
                         OnGetWindowScriptNPObject)
@@ -322,21 +328,14 @@ void WebPluginDelegateProxy::OnMessageReceived(const IPC::Message& msg) {
 }
 
 void WebPluginDelegateProxy::OnChannelError() {
-  OnInvalidate();
+  if (plugin_)
+    plugin_->Invalidate();
   render_view_->PluginCrashed(plugin_path_);
-}
-
-// Copied from render_widget.cc
-static size_t GetPaintBufSize(const gfx::Rect& rect) {
-  // TODO(darin): protect against overflow
-  return 4 * rect.width() * rect.height();
 }
 
 void WebPluginDelegateProxy::UpdateGeometry(const gfx::Rect& window_rect,
                                             const gfx::Rect& clip_rect,
                                             bool visible) {
-  bool moved = plugin_rect_.x() != window_rect.x() ||
-               plugin_rect_.y() != window_rect.y();
   plugin_rect_ = window_rect;
   if (!windowless_) {
     deferred_clip_rect_ = clip_rect;
@@ -345,41 +344,63 @@ void WebPluginDelegateProxy::UpdateGeometry(const gfx::Rect& window_rect,
     return;
   }
 
-  HANDLE windowless_buffer_handle = NULL;
-  if (!windowless_canvas_.get() ||
-      (window_rect.width() != windowless_canvas_->getDevice()->width() ||
-       window_rect.height() != windowless_canvas_->getDevice()->height())) {
-    // Create a shared memory section that the plugin paints asynchronously.
-    windowless_canvas_.reset();
-    if (!windowless_buffer_lock_)
-      windowless_buffer_lock_.Set(CreateMutex(NULL, FALSE, NULL));
-    windowless_buffer_.reset(new SharedMemory());
-    size_t size = GetPaintBufSize(plugin_rect_);
-    if (!windowless_buffer_->Create(L"", false, true, size)) {
-      DCHECK(false);
-      windowless_buffer_.reset();
-      return;
-    }
+  HANDLE transport_store_handle = NULL;
+  HANDLE background_store_handle = NULL;
+  if (!backing_store_canvas_.get() ||
+      (window_rect.width() != backing_store_canvas_->getDevice()->width() ||
+       window_rect.height() != backing_store_canvas_->getDevice()->height())) {
+    // Create a shared memory section that the plugin paints into
+    // asynchronously.
+    ResetWindowlessBitmaps();
+    if (!window_rect.IsEmpty()) {
+      if (!CreateBitmap(&backing_store_, &backing_store_canvas_) ||
+          !CreateBitmap(&transport_store_, &transport_store_canvas_) ||
+          (transparent_ &&
+           !CreateBitmap(&background_store_, &background_store_canvas_))) {
+        DCHECK(false);
+        ResetWindowlessBitmaps();
+        return;
+      }
 
-    windowless_canvas_.reset(new gfx::PlatformCanvasWin(
-        plugin_rect_.width(), plugin_rect_.height(), false,
-        windowless_buffer_->handle()));
-    windowless_canvas_->translate(static_cast<SkScalar>(-plugin_rect_.x()),
-                                  static_cast<SkScalar>(-plugin_rect_.y()));
-    windowless_canvas_->getTopPlatformDevice().accessBitmap(true).
-        eraseARGB(0, 0, 0, 0);
-    windowless_buffer_handle = windowless_buffer_->handle();
-  } else if (moved) {
-    windowless_canvas_->resetMatrix();
-    windowless_canvas_->translate(static_cast<SkScalar>(-plugin_rect_.x()),
-                                  static_cast<SkScalar>(-plugin_rect_.y()));
+      transport_store_handle = transport_store_->handle();
+      if (background_store_.get())
+        background_store_handle = background_store_->handle();
+    }
   }
 
   IPC::Message* msg = new PluginMsg_UpdateGeometry(
-      instance_id_, window_rect, clip_rect, visible, windowless_buffer_handle,
-      windowless_buffer_lock_);
+      instance_id_, window_rect, clip_rect, visible, transport_store_handle,
+      background_store_handle);
   msg->set_unblock(true);
   Send(msg);
+}
+
+// Copied from render_widget.cc
+static size_t GetPaintBufSize(const gfx::Rect& rect) {
+  // TODO(darin): protect against overflow
+  return 4 * rect.width() * rect.height();
+}
+
+void WebPluginDelegateProxy::ResetWindowlessBitmaps() {
+  backing_store_.reset();
+  transport_store_.reset();
+  backing_store_canvas_.reset();
+  transport_store_canvas_.reset();
+  background_store_.reset();
+  background_store_canvas_.release();
+}
+
+bool WebPluginDelegateProxy::CreateBitmap(
+    scoped_ptr<SharedMemory>* memory,
+    scoped_ptr<gfx::PlatformCanvasWin>* canvas) {
+  size_t size = GetPaintBufSize(plugin_rect_);
+  memory->reset(new SharedMemory());
+  if (!(*memory)->Create(L"", false, true, size))
+    return false;
+
+  canvas->reset(new gfx::PlatformCanvasWin(
+      plugin_rect_.width(), plugin_rect_.height(), true, (*memory)->handle()));
+  return true;
 }
 
 void WebPluginDelegateProxy::Paint(HDC hdc, const gfx::Rect& damaged_rect) {
@@ -398,32 +419,84 @@ void WebPluginDelegateProxy::Paint(HDC hdc, const gfx::Rect& damaged_rect) {
     // We shall use PrintWindow() to draw the window.
     return;
   }
-  first_paint_ = false;
 
   // We got a paint before the plugin's coordinates, so there's no buffer to
   // copy from.
-  if (!windowless_buffer_.get())
+  if (!backing_store_canvas_.get())
     return;
 
   // Limit the damaged rectangle to whatever is contained inside the plugin
   // rectangle, as that's the rectangle that we'll bitblt to the hdc.
   gfx::Rect rect = damaged_rect.Intersect(plugin_rect_);
 
-  DWORD wait_result = WaitForSingleObject(windowless_buffer_lock_, INFINITE);
-  DCHECK(wait_result == WAIT_OBJECT_0);
+  bool background_changed = false;
+  if (background_store_canvas_.get() && BackgroundChanged(hdc, rect)) {
+    background_changed = true;
+    HDC background_hdc =
+        background_store_canvas_->getTopPlatformDevice().getBitmapDC();
+    BitBlt(background_hdc, rect.x()-plugin_rect_.x(), rect.y()-plugin_rect_.y(),
+        rect.width(), rect.height(), hdc, rect.x(), rect.y(), SRCCOPY);
+  }
 
-  BLENDFUNCTION m_bf;
-  m_bf.BlendOp = AC_SRC_OVER;
-  m_bf.BlendFlags = 0;
-  m_bf.SourceConstantAlpha = 255;
-  m_bf.AlphaFormat = AC_SRC_ALPHA;
+  if (first_paint_ || background_changed) {
+    gfx::Rect offset_rect = rect;
+    offset_rect.Offset(-plugin_rect_.x(), -plugin_rect_.y());
+    Send(new PluginMsg_Paint(instance_id_, offset_rect));
+    CopyFromTransportToBacking(offset_rect);
+  }
 
-  HDC new_hdc = windowless_canvas_->getTopPlatformDevice().getBitmapDC();
-  AlphaBlend(hdc, rect.x(), rect.y(), rect.width(), rect.height(),
-      new_hdc, rect.x(), rect.y(), rect.width(), rect.height(), m_bf);
+  first_paint_ = false;
+  HDC backing_hdc = backing_store_canvas_->getTopPlatformDevice().getBitmapDC();
+  BitBlt(hdc, rect.x(), rect.y(), rect.width(), rect.height(), backing_hdc,
+      rect.x()-plugin_rect_.x(), rect.y()-plugin_rect_.y(), SRCCOPY);
 
-  BOOL result = ReleaseMutex(windowless_buffer_lock_);
-  DCHECK(result);
+  if (invalidate_pending_) {
+    // Only send the PaintAck message if this paint is in response to an 
+    // invalidate from the plugin, since this message acts as an access token
+    // to ensure only one process is using the transport dib at a time.
+    invalidate_pending_ = false;
+    Send(new PluginMsg_DidPaint(instance_id_));
+  }
+}
+
+bool WebPluginDelegateProxy::BackgroundChanged(
+    HDC hdc, 
+    const gfx::Rect& rect) {
+  HBITMAP hbitmap = static_cast<HBITMAP>(GetCurrentObject(hdc, OBJ_BITMAP));
+  if (hbitmap == NULL) {
+    NOTREACHED();
+    return true;
+  }
+
+  BITMAP bitmap = { 0 };
+  int result = GetObject(hbitmap, sizeof(bitmap), &bitmap);
+  if (!result) {
+    NOTREACHED();
+    return true;
+  }
+
+  XFORM xf;
+  if (!GetWorldTransform(hdc, &xf)) {
+    NOTREACHED();
+    return true;
+  }
+
+  int row_byte_size = rect.width() * (bitmap.bmBitsPixel / 8);
+  for (int y = rect.y(); y < rect.bottom(); y++) {
+    char* hdc_row_start = static_cast<char*>(bitmap.bmBits) +
+        (y + static_cast<int>(xf.eDy)) * bitmap.bmWidthBytes +
+        (rect.x() + static_cast<int>(xf.eDx)) * (bitmap.bmBitsPixel / 8);
+
+    // getAddr32 doesn't use the translation units, so we have to subtract
+    // the plugin origin from the coordinates.
+    uint32_t* canvas_row_start =
+        background_store_canvas_->getDevice()->accessBitmap(true).getAddr32(
+            rect.x() - plugin_rect_.x(), y - plugin_rect_.y());
+    if (memcmp(hdc_row_start, canvas_row_start, row_byte_size) != 0)
+      return true;
+  }
+
+  return false;
 }
 
 void WebPluginDelegateProxy::Print(HDC hdc) {
@@ -488,11 +561,6 @@ int WebPluginDelegateProxy::GetProcessId() {
   return channel_host_->peer_pid();
 }
 
-HWND WebPluginDelegateProxy::GetWindowHandle() {
-  NOTREACHED() << "GetWindowHandle can't be called on the proxy.";
-  return NULL;
-}
-
 void WebPluginDelegateProxy::OnSetWindow(
     HWND window, HANDLE modal_loop_pump_messages_event) {
   windowless_ = window == NULL;
@@ -508,14 +576,13 @@ void WebPluginDelegateProxy::OnCancelResource(int id) {
     plugin_->CancelResource(id);
 }
 
-void WebPluginDelegateProxy::OnInvalidate() {
-  if (plugin_)
-    plugin_->Invalidate();
-}
-
 void WebPluginDelegateProxy::OnInvalidateRect(const gfx::Rect& rect) {
-  if (plugin_)
-    plugin_->InvalidateRect(rect);
+  if (!plugin_)
+    return;
+
+  invalidate_pending_ = true;
+  CopyFromTransportToBacking(rect);
+  plugin_->InvalidateRect(rect);
 }
 
 void WebPluginDelegateProxy::OnGetWindowScriptNPObject(
@@ -614,6 +681,18 @@ void WebPluginDelegateProxy::PaintSadPlugin(HDC hdc, const gfx::Rect& rect) {
   canvas.getTopPlatformDevice().drawToHDC(
       hdc, plugin_rect_.x(), plugin_rect_.y(), NULL);
   return;
+}
+
+void WebPluginDelegateProxy::CopyFromTransportToBacking(const gfx::Rect& rect) {
+  if (!backing_store_canvas_.get())
+    return;
+
+  // Copy the damaged rect from the transport bitmap to the backing store.
+  HDC backing = backing_store_canvas_->getTopPlatformDevice().getBitmapDC();
+  HDC transport = transport_store_canvas_->getTopPlatformDevice().getBitmapDC();
+
+  BitBlt(backing, rect.x(), rect.y(), rect.width(), rect.height(),
+      transport, rect.x(), rect.y(), SRCCOPY);
 }
 
 void WebPluginDelegateProxy::OnHandleURLRequest(

@@ -144,7 +144,6 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
     // Flash only requests windowless plugins if we return a Mozilla user
     // agent.
     instance_->set_use_mozilla_user_agent();
-    instance_->set_throttle_invalidate(true);
     quirks_ |= PLUGIN_QUIRK_THROTTLE_WM_USER_PLUS_ONE;
   } else if (plugin_info.name.find(L"Windows Media Player") !=
              std::wstring::npos) {
@@ -302,10 +301,6 @@ void WebPluginDelegateImpl::DidFinishLoadWithReason(NPReason reason) {
 int WebPluginDelegateImpl::GetProcessId() {
   // We are in process, so the plugin pid is this current process pid.
   return ::GetCurrentProcessId();
-}
-
-HWND WebPluginDelegateImpl::GetWindowHandle() {
-  return instance()->window_handle();
 }
 
 void WebPluginDelegateImpl::SendJavaScriptStream(const std::string& url,

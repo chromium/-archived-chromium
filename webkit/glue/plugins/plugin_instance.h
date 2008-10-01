@@ -142,11 +142,6 @@ class PluginInstance : public base::RefCounted<PluginInstance> {
   bool use_mozilla_user_agent() { return use_mozilla_user_agent_; }
   void set_use_mozilla_user_agent() { use_mozilla_user_agent_ = true; }
 
-  bool throttle_invalidate() const { return throttle_invalidate_; }
-  void set_throttle_invalidate(bool throttle_invalidate) {
-    throttle_invalidate_ = throttle_invalidate;
-  }
-
   // Helper that implements NPN_PluginThreadAsyncCall semantics
   void PluginThreadAsyncCall(void (*func)(void *),
                              void *userData);
@@ -247,10 +242,6 @@ class PluginInstance : public base::RefCounted<PluginInstance> {
   // This flag if true indicates that the plugin data would be passed from
   // webkit. if false indicates that the plugin should download the data.
   bool                                     load_manually_;
-
-  // This flag indicates if the NPN_InvalidateRect calls made by the
-  // plugin need to be throttled.
-  bool                                     throttle_invalidate_;
 
   // Stack indicating if popups are to be enabled for the outgoing
   // NPN_GetURL/NPN_GetURLNotify calls.

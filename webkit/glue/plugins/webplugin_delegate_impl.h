@@ -51,7 +51,6 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   virtual NPObject* GetPluginScriptableObject();
   virtual void DidFinishLoadWithReason(NPReason reason);
   virtual int GetProcessId();
-  virtual HWND GetWindowHandle();
 
   virtual void FlushGeometryUpdates() {
   }

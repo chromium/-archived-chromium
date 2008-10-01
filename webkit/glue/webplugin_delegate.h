@@ -73,10 +73,6 @@ class WebPluginDelegate {
   // Returns the process id of the process that is running the plugin.
   virtual int GetProcessId() = 0;
 
-  // Returns the window handle for this plugin if it's a windowed plugin,
-  // or NULL otherwise.
-  virtual gfx::ViewHandle GetWindowHandle() = 0;
-
   virtual void FlushGeometryUpdates() = 0;
 
   // The result of the script execution is returned via this function.

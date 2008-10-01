@@ -62,6 +62,12 @@ class WebPluginProxy : public WebPlugin {
   // object with that id exists.
   WebPluginResourceClient* GetResourceClient(int id);
 
+  // For windowless plugins, paints the given rectangle into the local buffer.
+  void Paint(const gfx::Rect& rect);
+
+  // Callback from the renderer to let us know that a paint occurred.
+  void DidPaint();
+
   // Notification received on a plugin issued resource request
   // creation.
   void OnResourceCreated(int resource_id, HANDLE cookie);
@@ -77,7 +83,7 @@ class WebPluginProxy : public WebPlugin {
                       const gfx::Rect& clip_rect,
                       bool visible,
                       const SharedMemoryHandle& windowless_buffer,
-                      const SharedMemoryLock& lock);
+                      const SharedMemoryHandle& background_buffer);
 
   void CancelDocumentLoad();
 
@@ -90,12 +96,16 @@ class WebPluginProxy : public WebPlugin {
  private:
   bool Send(IPC::Message* msg);
 
-  // Called periodically so that we can paint windowless plugins.
-  void OnPaintTimerFired();
-
   // Updates the shared memory section where windowless plugins paint.
-  void SetWindowlessBuffer(const SharedMemoryHandle& handle,
-                           const SharedMemoryLock& lock);
+  void SetWindowlessBuffer(const SharedMemoryHandle& windowless_buffer,
+                           const SharedMemoryHandle& background_buffer);
+
+  // Converts a shared memory section handle from the renderer process into a
+  // bitmap and hdc that are mapped to this process.
+  void ConvertBuffer(const SharedMemoryHandle& buffer,
+                     ScopedHandle* shared_section,
+                     ScopedBitmap* bitmap,
+                     ScopedHDC* hdc);
 
   // Called when a plugin's origin moves, so that we can update the world
   // transform of the local HDC.
@@ -109,20 +119,23 @@ class WebPluginProxy : public WebPlugin {
   NPObject* window_npobject_;
   NPObject* plugin_element_;
   WebPluginDelegateImpl* delegate_;
+  gfx::Rect damaged_rect_;
+  bool waiting_for_paint_;
   uint32 cp_browsing_context_;
   ScopedHandle modal_dialog_event_;
 
-  // Used to desynchronize windowless painting.  We accumulate invalidates and
-  // paint into a shared buffer when our repeating timer fires.  After painting
-  // we tell the renderer asynchronously and it paints from the buffer.  This
-  // allows the renderer to paint without a blocking call, which improves
-  // performance, and lets us control the frame rate at which we paint.
-  gfx::Rect damaged_rect_;
-  base::RepeatingTimer<WebPluginProxy> paint_timer_;
+  // Variables used for desynchronized windowless plugin painting.  See note in
+  // webplugin_delegate_proxy.h for how this works.
+
+  // These hold the bitmap where the plugin draws.
   ScopedHandle windowless_shared_section_;
   ScopedBitmap windowless_bitmap_;
   ScopedHDC windowless_hdc_;
-  ScopedHandle windowless_buffer_lock_;
+
+  // These hold the bitmap of the background image.
+  ScopedHandle background_shared_section_;
+  ScopedBitmap background_bitmap_;
+  ScopedHDC background_hdc_;
 };
 
 #endif  // CHROME_PLUGIN_PLUGIN_WEBPLUGIN_PROXY_H__

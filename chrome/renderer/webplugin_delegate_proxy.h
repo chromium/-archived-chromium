@@ -60,7 +60,6 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   virtual void SetFocus();
   virtual bool HandleEvent(NPEvent* event, WebCursor* cursor);
   virtual int GetProcessId();
-  virtual HWND GetWindowHandle();
 
   // IPC::Channel::Listener implementation:
   virtual void OnMessageReceived(const IPC::Message& msg);
@@ -110,7 +109,6 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
                      bool* result);
   void OnHandleURLRequest(const PluginHostMsg_URLRequest_Params& params);
   void OnCancelResource(int id);
-  void OnInvalidate();
   void OnInvalidateRect(const gfx::Rect& rect);
   void OnGetWindowScriptNPObject(int route_id, bool* success, void** npobject_ptr);
   void OnGetPluginElement(int route_id, bool* success, void** npobject_ptr);
@@ -132,6 +130,20 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
 
   // Draw a graphic indicating a crashed plugin.
   void PaintSadPlugin(HDC hdc, const gfx::Rect& rect);
+
+  // Returns true if the given rectangle is different in the hdc and the
+  // current background bitmap.
+  bool BackgroundChanged(HDC hdc, const gfx::Rect& rect);
+
+  // Copies the given rectangle from the transport bitmap to the backing store.
+  void CopyFromTransportToBacking(const gfx::Rect& rect);
+
+  // Clears the shared memory section and canvases used for windowless plugins.
+  void ResetWindowlessBitmaps();
+
+  // Creates a shared memory section and canvas.
+  bool CreateBitmap(scoped_ptr<SharedMemory>* memory,
+                    scoped_ptr<gfx::PlatformCanvasWin>* canvas);
 
   RenderView* render_view_;
   WebPlugin* plugin_;
@@ -158,11 +170,21 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   // Bitmap for crashed plugin
   SkBitmap* sad_plugin_;
 
-  // Used for desynchronized windowless painting.  See the comment in
-  // webplugin_proxy.h for information about how this works.
-  scoped_ptr<SharedMemory> windowless_buffer_;
-  scoped_ptr<gfx::PlatformCanvasWin> windowless_canvas_;
-  ScopedHandle windowless_buffer_lock_;
+  // True if we got an invalidate from the plugin and are waiting for a paint.
+  bool invalidate_pending_;
+
+  // Used to desynchronize windowless painting.  When WebKit paints, we bitblt
+  // from our backing store of what the plugin rectangle looks like.  The
+  // plugin paints into the transport store, and we copy that to our backing
+  // store when we get an invalidate from it.  The background bitmap is used
+  // for transparent plugins, as they need the backgroud data during painting.
+  bool transparent_;
+  scoped_ptr<SharedMemory> backing_store_;
+  scoped_ptr<gfx::PlatformCanvasWin> backing_store_canvas_;
+  scoped_ptr<SharedMemory> transport_store_;
+  scoped_ptr<gfx::PlatformCanvasWin> transport_store_canvas_;
+  scoped_ptr<SharedMemory> background_store_;
+  scoped_ptr<gfx::PlatformCanvasWin> background_store_canvas_;
 
   DISALLOW_EVIL_CONSTRUCTORS(WebPluginDelegateProxy);
 };

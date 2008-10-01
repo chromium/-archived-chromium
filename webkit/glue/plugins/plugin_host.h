@@ -9,11 +9,8 @@
 
 #include <string>
 #include <vector>
-#include <map>
 
 #include "base/ref_counted.h"
-#include "base/gfx/rect.h"
-#include "base/task.h"
 #include "webkit/glue/plugins/nphostapi.h"
 #include "third_party/npapi/bindings/npapi.h"
 
@@ -50,31 +47,12 @@ class PluginHost : public base::RefCounted<PluginHost> {
 
   void PatchNPNetscapeFuncs(NPNetscapeFuncs* overrides);
 
-  // Handles invalidateRect requests for windowless plugins.
-  void InvalidateRect(NPP id, NPRect* invalidRect);
-
  private:
   PluginHost();
   void InitializeHostFuncs();
-  // For certain plugins like flash we need to throttle invalidateRect
-  // requests as they are made at a high frequency. 
-  void OnInvalidateRect(NPP id, PluginInstance* instance);
-
   static scoped_refptr<PluginHost> singleton_;
   NPNetscapeFuncs host_funcs_;
   DISALLOW_EVIL_CONSTRUCTORS(PluginHost);
-
-  // This structure keeps track of individual plugin instance invalidates.
-  struct ThrottledInvalidates {
-    std::vector<gfx::Rect> throttled_invalidates;
-  };
-
-  // We need to track throttled invalidate rects on a per plugin instance
-  // basis. 
-  typedef std::map<NPP, ThrottledInvalidates> InstanceThrottledInvalidatesMap;
-  InstanceThrottledInvalidatesMap instance_throttled_invalidates_;
-
-  ScopedRunnableMethodFactory<PluginHost> throttle_factory_;
 };
 
 } // namespace NPAPI

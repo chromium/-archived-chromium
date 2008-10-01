@@ -80,6 +80,8 @@ void WebPluginDelegateStub::OnMessageReceived(const IPC::Message& msg) {
                         OnDidFinishLoadWithReason)
     IPC_MESSAGE_HANDLER(PluginMsg_SetFocus, OnSetFocus)
     IPC_MESSAGE_HANDLER(PluginMsg_HandleEvent, OnHandleEvent)
+    IPC_MESSAGE_HANDLER(PluginMsg_Paint, OnPaint)    
+    IPC_MESSAGE_HANDLER(PluginMsg_DidPaint, OnDidPaint)    
     IPC_MESSAGE_HANDLER(PluginMsg_Print, OnPrint)
     IPC_MESSAGE_HANDLER(PluginMsg_GetPluginScriptableObject,
                         OnGetPluginScriptableObject)
@@ -199,6 +201,14 @@ void WebPluginDelegateStub::OnHandleEvent(const NPEvent& event,
   *handled = delegate_->HandleEvent(const_cast<NPEvent*>(&event), cursor);
 }
 
+void WebPluginDelegateStub::OnPaint(const gfx::Rect& damaged_rect) {
+  webplugin_->Paint(damaged_rect);
+}
+
+void WebPluginDelegateStub::OnDidPaint() {
+  webplugin_->DidPaint();
+}
+
 void WebPluginDelegateStub::OnPrint(PluginMsg_PrintResponse_Params* params) {
   gfx::Emf emf;
   if (!emf.CreateDc(NULL, NULL)) {
@@ -229,9 +239,9 @@ void WebPluginDelegateStub::OnUpdateGeometry(
     const gfx::Rect& clip_rect,
     bool visible,
     const SharedMemoryHandle& windowless_buffer,
-    const SharedMemoryLock& lock) {
+    const SharedMemoryHandle& background_buffer) {
   webplugin_->UpdateGeometry(
-      window_rect, clip_rect, visible, windowless_buffer, lock);
+      window_rect, clip_rect, visible, windowless_buffer, background_buffer);
 }
 
 void WebPluginDelegateStub::OnGetPluginScriptableObject(int* route_id,

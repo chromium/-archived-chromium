@@ -36,7 +36,6 @@ PluginInstance::PluginInstance(PluginLib *plugin, const std::string &mime_type)
       use_mozilla_user_agent_(false),
       message_loop_(MessageLoop::current()),
       load_manually_(false),
-      throttle_invalidate_(false),
       get_notify_data_(NULL),
       in_close_streams_(false) {
   npp_ = new NPP_t();

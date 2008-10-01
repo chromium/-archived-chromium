@@ -112,6 +112,10 @@ class ScopedHDC {
     Close();
   }
 
+  HDC Get() {
+    return hdc_;
+  }
+
   void Set(HDC h) {
     Close();
     hdc_ = h;
@@ -137,6 +141,10 @@ class ScopedBitmap {
 
   ~ScopedBitmap() {
     Close();
+  }
+
+  HBITMAP Get() {
+    return hbitmap_;
   }
 
   void Set(HBITMAP h) {

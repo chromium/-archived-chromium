@@ -57,11 +57,16 @@ class WebPluginDelegateStub : public IPC::Channel::Listener,
   void OnSetFocus();
   void OnHandleEvent(const NPEvent& event, bool* handled,
                      WebCursor* cursor);
+
+  void OnPaint(const gfx::Rect& damaged_rect);
+  void OnDidPaint();
+
   void OnPrint(PluginMsg_PrintResponse_Params* params);
+
   void OnUpdateGeometry(const gfx::Rect& window_rect,
                         const gfx::Rect& clip_rect, bool visible,
                         const SharedMemoryHandle& windowless_buffer,
-                        const SharedMemoryLock& lock);
+                        const SharedMemoryHandle& background_buffer);
   void OnGetPluginScriptableObject(int* route_id, void** npobject_ptr);
   void OnSendJavaScriptStream(const std::string& url,
                               const std::wstring& result,

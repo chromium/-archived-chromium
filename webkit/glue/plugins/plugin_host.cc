@@ -5,7 +5,6 @@
 #include "webkit/glue/plugins/plugin_host.h"
 
 #include "base/logging.h"
-#include "base/message_loop.h"
 #include "base/string_util.h"
 #include "webkit/default_plugin/default_plugin_shared.h"
 #include "webkit/glue/glue_util.h"
@@ -17,29 +16,12 @@
 #include "webkit/glue/plugins/plugin_stream_url.h"
 #include "third_party/npapi/bindings/npruntime.h"
 
-extern "C" {
-
-// FindInstance()
-// Finds a PluginInstance from an NPP.
-// The caller must take a reference if needed.
-NPAPI::PluginInstance* FindInstance(NPP id) {
-  if (id == NULL) {
-    NOTREACHED();
-    return NULL;
-  }
-
-  return (NPAPI::PluginInstance *)id->ndata;
-}
 
 namespace NPAPI
 {
 scoped_refptr<PluginHost> PluginHost::singleton_;
 
-static const int kFlashMessageThrottleDelayMs = 10;
-
-PluginHost::PluginHost()
-#pragma warning(suppress: 4355)  // can use this
-    : throttle_factory_(this) {
+PluginHost::PluginHost() {
   InitializeHostFuncs();
 }
 
@@ -151,78 +133,6 @@ void PluginHost::PatchNPNetscapeFuncs(NPNetscapeFuncs* overrides) {
     host_funcs_.enumerate = overrides->enumerate;
 }
 
-void PluginHost::InvalidateRect(NPP id, NPRect* invalidRect) {
-  if (!invalidRect) {
-    NOTREACHED();
-    return;
-  }
-
-  // Invalidates specified drawing area prior to repainting or refreshing a
-  // windowless plugin
-
-  // Before a windowless plugin can refresh part of its drawing area, it must
-  // first invalidate it.  This function causes the NPP_HandleEvent method to
-  // pass an update event or a paint message to the plug-in.  After calling
-  // this method, the plug-in recieves a paint message asynchronously.
-
-  // The browser redraws invalid areas of the document and any windowless 
-  // plug-ins at regularly timed intervals. To force a paint message, the 
-  // plug-in can call NPN_ForceRedraw after calling this method.
-
-  scoped_refptr<NPAPI::PluginInstance> plugin = FindInstance(id);
-  DCHECK(plugin.get() != NULL);
-
-  if (plugin.get() && plugin->webplugin()) {
-    if (!plugin->windowless()) {
-      RECT rect = {0};
-      rect.left = invalidRect->left;
-      rect.right = invalidRect->right;
-      rect.top = invalidRect->top;
-      rect.bottom = invalidRect->bottom;
-      ::InvalidateRect(plugin->window_handle(), &rect, FALSE);
-      return;
-    }
-
-    if (plugin->throttle_invalidate()) {
-      // We need to track plugin invalidates on a per instance basis.
-      ThrottledInvalidates plugin_instance_invalidates;
-      InstanceThrottledInvalidatesMap::iterator invalidate_index = 
-          instance_throttled_invalidates_.find(id);
-      if (invalidate_index != instance_throttled_invalidates_.end()) {
-        plugin_instance_invalidates = (*invalidate_index).second;
-      }
-
-      bool throttle_active = 
-          (plugin_instance_invalidates.throttled_invalidates.size() > 0);
-
-      gfx::Rect rect(invalidRect->left,
-                     invalidRect->top,
-                     invalidRect->right - invalidRect->left,
-                     invalidRect->bottom - invalidRect->top);
-
-      plugin_instance_invalidates.throttled_invalidates.push_back(rect);
-
-      if (!throttle_active) {
-        // We hold a reference to the plugin instance to avoid race conditions
-        // due to the instance being released before the OnInvalidateRect
-        // function is invoked.
-        plugin->AddRef();
-        MessageLoop::current()->PostDelayedTask(FROM_HERE,
-            throttle_factory_.NewRunnableMethod(&PluginHost::OnInvalidateRect, 
-                                                id, plugin.get()),
-            kFlashMessageThrottleDelayMs);
-      } 
-      instance_throttled_invalidates_[id] = plugin_instance_invalidates;
-    } else {
-      gfx::Rect rect(invalidRect->left,
-                     invalidRect->top,
-                     invalidRect->right - invalidRect->left,
-                     invalidRect->bottom - invalidRect->top);
-        plugin->webplugin()->InvalidateRect(rect);
-    }
-  }
-}
-
 bool PluginHost::SetPostData(const char *buf,
                              uint32 length,
                              std::vector<std::string>* names,
@@ -325,38 +235,21 @@ bool PluginHost::SetPostData(const char *buf,
   return !err;
 }
 
-void PluginHost::OnInvalidateRect(NPP id, PluginInstance* instance) {
-  if (!instance) {
-    NOTREACHED();
-    return;
-  }
-
-  InstanceThrottledInvalidatesMap::iterator invalidate_index = 
-      instance_throttled_invalidates_.find(id);
-  if (invalidate_index == instance_throttled_invalidates_.end()) {
-    NOTREACHED();
-    instance->Release();
-    return;
-  }
-
-  ThrottledInvalidates plugin_instance_invalidates = 
-      (*invalidate_index).second;
-
-  if (instance->webplugin()) {
-    for (unsigned int throttle_index = 0; 
-         throttle_index < 
-            plugin_instance_invalidates.throttled_invalidates.size();
-         throttle_index++) {
-      instance->webplugin()->InvalidateRect(
-          plugin_instance_invalidates.throttled_invalidates[throttle_index]);
-    }
-  }
-
-  instance->Release();
-  instance_throttled_invalidates_.erase(invalidate_index);
-}
-
 } // namespace NPAPI
+
+extern "C" {
+
+// FindInstance()
+// Finds a PluginInstance from an NPP.
+// The caller must take a reference if needed.
+NPAPI::PluginInstance* FindInstance(NPP id) {
+  if (id == NULL) {
+    NOTREACHED();
+    return NULL;
+  }
+
+  return (NPAPI::PluginInstance *)id->ndata;
+}
 
 // Allocates memory from the host's memory space.
 void* NPN_MemAlloc(uint32 size) {
@@ -646,9 +539,30 @@ void NPN_Status(NPP id, const char* message) {
 }
 
 void NPN_InvalidateRect(NPP id, NPRect *invalidRect) {
-  scoped_refptr<NPAPI::PluginHost> host = NPAPI::PluginHost::Singleton();
-  if (host != NULL) {
-    host->InvalidateRect(id, invalidRect);
+  // Invalidates specified drawing area prior to repainting or refreshing a
+  // windowless plugin
+
+  // Before a windowless plugin can refresh part of its drawing area, it must
+  // first invalidate it.  This function causes the NPP_HandleEvent method to
+  // pass an update event or a paint message to the plug-in.  After calling
+  // this method, the plug-in recieves a paint message asynchronously.
+
+  // The browser redraws invalid areas of the document and any windowless 
+  // plug-ins at regularly timed intervals. To force a paint message, the 
+  // plug-in can call NPN_ForceRedraw after calling this method.
+
+  scoped_refptr<NPAPI::PluginInstance> plugin = FindInstance(id);
+  DCHECK(plugin.get() != NULL);
+  if (plugin.get() && plugin->webplugin()) {
+    if (invalidRect) {
+      gfx::Rect rect(invalidRect->left,
+                     invalidRect->top,
+                     invalidRect->right - invalidRect->left,
+                     invalidRect->bottom - invalidRect->top);
+        plugin->webplugin()->InvalidateRect(rect);
+    } else {
+      plugin->webplugin()->Invalidate();
+    }
   }
 }
 

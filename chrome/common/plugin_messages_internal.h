@@ -102,6 +102,14 @@ IPC_BEGIN_MESSAGES(Plugin, 5)
                              PluginMsg_Init_Params,
                              bool /* result */)
 
+  // Used to synchronously request a paint for windowless plugins.
+  IPC_SYNC_MESSAGE_ROUTED1_0(PluginMsg_Paint,
+                             gfx::Rect /* damaged_rect */)
+
+  // Sent by the renderer after it paints from its backing store so that the
+  // plugin knows it can send more invalidates.
+  IPC_MESSAGE_ROUTED0(PluginMsg_DidPaint)
+
   IPC_SYNC_MESSAGE_ROUTED0_1(PluginMsg_Print,
                              PluginMsg_PrintResponse_Params /* params */)
 
@@ -112,12 +120,16 @@ IPC_BEGIN_MESSAGES(Plugin, 5)
   IPC_SYNC_MESSAGE_ROUTED1_0(PluginMsg_DidFinishLoadWithReason,
                              int /* reason */)
 
+  // Updates the plugin location.  For windowless plugins, windowless_buffer
+  // contains a buffer that the plugin draws into.  background_buffer is used
+  // for transparent windowless plugins, and holds the background of the plugin
+  // rectangle.
   IPC_MESSAGE_ROUTED5(PluginMsg_UpdateGeometry,
                       gfx::Rect /* window_rect */,
                       gfx::Rect /* clip_rect */,
                       bool /* visible */,
                       SharedMemoryHandle /* windowless_buffer */,
-                      SharedMemoryLock /* windowless_buffer_lock */)
+                      SharedMemoryHandle /* background_buffer */)
 
   IPC_SYNC_MESSAGE_ROUTED0_0(PluginMsg_SetFocus)
 
@@ -196,8 +208,6 @@ IPC_BEGIN_MESSAGES(PluginHost, 6)
 
   IPC_SYNC_MESSAGE_ROUTED1_0(PluginHostMsg_CancelResource,
                              int /* id */)
-
-  IPC_MESSAGE_ROUTED0(PluginHostMsg_Invalidate)
 
   IPC_MESSAGE_ROUTED1(PluginHostMsg_InvalidateRect,
                       gfx::Rect /* rect */)
