@@ -42,7 +42,7 @@ env = env.Clone(
     BINDINGS_SCRIPTS_DIR = '$WEBKIT_DIR/port/bindings/scripts',
     BINDINGS_SCRIPT = '$BINDINGS_SCRIPTS_DIR/generate-bindings.pl',
 
-    PERL_INCLUDE_PATH = ['$BINDINGS_SCRIPTS_DIR',
+    PERL_INCLUDE_PATH = ['$BINDINGS_SCRIPTS_DIR', 
                          '#/../third_party/WebKit/WebCore/bindings/scripts'],
 
     WEBKIT_PORT_DIR = '$WEBKIT_DIR/port',
@@ -477,15 +477,13 @@ i = env.Install('$SHARED_DIR',
                  '$WEBKIT_PORT_DIR/bindings/js/PausedTimeouts.cpp'])
 env.Alias('webkit', i)
 
-
-
 # HTML tag and attribute names
 env.Command(['$DERIVED_DIR/HTMLNames.cpp',
              '$DERIVED_DIR/HTMLNames.h'],
             ['$WEBKIT_PORT_DIR/dom/make_names.pl',
              '$WEBKIT_PORT_DIR/html/HTMLTagNames.in',
              '$WEBKIT_PORT_DIR/html/HTMLAttributeNames.in'],
-            '$PERL ${SOURCES[0].posix} ' + \
+            '$PERL $_PERL_INCLUDE_FLAGS ${SOURCES[0].posix} ' + \
             '--tags ${SOURCES[1].posix} ' + \
             '--attrs ${SOURCES[2].posix} ' + \
             '--namespace HTML --namespacePrefix xhtml ' + \
@@ -497,7 +495,7 @@ env.Command(['$DERIVED_DIR/XMLNames.cpp',
              '$DERIVED_DIR/XMLNames.h'],
             ['$WEBKIT_PORT_DIR/dom/make_names.pl',
              '$WEBKIT_PORT_DIR/xml/xmlattrs.in'],
-            '$PERL ${SOURCES[0].posix} ' + \
+            '$PERL $_PERL_INCLUDE_FLAGS ${SOURCES[0].posix} ' + \
             '--attrs ${SOURCES[1].posix} ' + \
             '--namespace XML --cppNamespace WebCore ' + \
             '--namespaceURI "http://www.w3.org/XML/1998/namespace" ' + \
@@ -510,7 +508,7 @@ env.Command(['$DERIVED_DIR/SVGElementFactory.cpp',
             ['$WEBKIT_PORT_DIR/dom/make_names.pl',
              '$WEBKIT_PORT_DIR/svg/svgtags.in',
              '$WEBKIT_PORT_DIR/svg/svgattrs.in'],
-            '$PERL ${SOURCES[0].posix} ' + \
+            '$PERL $_PERL_INCLUDE_FLAGS ${SOURCES[0].posix} ' + \
             '--tags ${SOURCES[1].posix} ' + \
             '--attrs ${SOURCES[2].posix} ' + \
             '--extraDefines "$SVG_FLAGS" ' +  \
@@ -522,7 +520,7 @@ env.Command(['$DERIVED_DIR/XLinkNames.cpp',
              '$DERIVED_DIR/XLinkNames.h'],
             ['$WEBKIT_PORT_DIR/dom/make_names.pl',
              '$WEBKIT_PORT_DIR/svg/xlinkattrs.in'],
-            '$PERL ${SOURCES[0].posix} ' + \
+            '$PERL $_PERL_INCLUDE_FLAGS ${SOURCES[0].posix} ' + \
             '--attrs ${SOURCES[1].posix} ' + \
             '--namespace XLink --cppNamespace WebCore ' + \
             '--namespaceURI "http://www.w3.org/1999/xlink" ' + \
@@ -611,7 +609,7 @@ env.Command(['$DERIVED_DIR/CSSValueKeywords.c',
              Move('${TARGETS[1]}', '${SOURCES[1].dir}/${TARGETS[1].file}'),
             ])
 
-env.Command(['$DERIVED_DIR/CSSPropertyNames.c',
+env.Command(['$DERIVED_DIR/CSSPropertyNames.cpp',
              '$DERIVED_DIR/CSSPropertyNames.h'],
             ['$WEBKIT_PORT_DIR/css/makeprop.pl',
              '$WEBKIT_PORT_DIR/css/CSSPropertyNames.in'],
@@ -649,4 +647,4 @@ env.Command('$DERIVED_DIR/HTMLEntityCodes.c',
 env.Command('$DERIVED_DIR/tokenizer.cpp',
             ['$WEBKIT_PORT_DIR/css/tokenizer.flex',
              '$WEBKIT_PORT_DIR/css/maketokenizer'],
-            'flex -t $SOURCE | perl ${SOURCES[1]} > $TARGET')
+            'flex --nowarn -t $SOURCE | perl ${SOURCES[1]} > $TARGET')

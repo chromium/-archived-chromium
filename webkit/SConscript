@@ -114,6 +114,15 @@ env.Append(
     DERIVED_DIR = env.Dir("$WEBKIT_DIR/V8Bindings/DerivedSources"),
     SHARED_DIR = env.Dir("$WEBKIT_DIR/V8Bindings/SharedSources"),
 
+    # This is a stop gap to get linux building in time for the webkit
+    # merge. The true fix is to move the above CPPPATH prepend under this
+    # Append block and remove all the old pending directories (and add the new
+    # upstream ones.)
+    CPPPATH = [
+        '$WEBCORE_DIR/rendering',
+        '$WEBCORE_DIR/rendering/style',
+    ],
+
     CPPDEFINES = [
       'U_STATIC_IMPLEMENTATION',
       '_SCL_SECURE_NO_DEPRECATE',
@@ -129,12 +138,11 @@ env.Append(
       ['ANDROID_CANVAS_IMPL', '1'],
       ['WEBCORE_NAVIGATOR_PLATFORM', '"\\"Win32\\""'],
       'USE_GOOGLE_URL_LIBRARY',
-      # TODO:  Uncomment this when building the merged WebKit,
-      # so it uses the PLATFORM_SKIA definitions instead of
-      # the old cairo.h shim.
-      #'BUILDING_CHROMIUM__',
+      'BUILDING_CHROMIUM__',
       'CHROMIUM_BUILD',
+      'WTF_USE_ICU_UNICODE',
       '_SECURE_ATL',
+      'QNAME_DEFAULT_CONSTRUCTOR',
 
       'LIBXSLT_STATIC',
       'LIBXML_STATIC',
@@ -143,7 +151,6 @@ env.Append(
       ['__PRETTY_FUNCTION__', '__FUNCTION__'],
       'DISABLE_ACTIVEX_TYPE_CONVERSION_MPLAYER2',
 
-      'HAVE_CONFIG_H',
       '__STD_C',
     ],
 )
@@ -191,6 +198,7 @@ if env['PLATFORM'] == 'win32':
     ])
 else:
   env.Prepend(CPPPATH = ['$WEBKIT_DIR/build/JSConfig/WebCore/v8'])
+
 env.SConscript(sconscript_dirs, exports=['env', 'env_res'])
 
 # Setup alias for all webkit related targets.
@@ -202,7 +210,6 @@ env.SConscript(sconscript_dirs, exports=['env', 'env_res'])
 #env.Alias('webkit', ['.', '../icudt38.dll'])
 if env['PLATFORM'] == 'win32':
   env.Alias('webkit', ['../icudt38.dll'])
-
 
 version = env.Command('$WEBKIT_DIR/build/WebCore/webkit_version.h',
                       ['$WEBCORE_DIR/Configurations/Version.xcconfig',

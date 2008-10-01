@@ -20,10 +20,16 @@ env.Replace(
     CREATE_HASH_TABLE_FLAGS     = '-i',
 )
 
+# TODO(erg): Temporarily disabling JSC building since it's changed heavily
+# during the merge; I am also not sure we want/need to build it when building
+# V8...
+#
+# We still need to build the pieces of pcre so we can't just drop this
+# SConscript file though... <http://crbug.com/3043>
+"""
 env['BUILDERS']['Lookup_Table_h'] = Builder(action = '$CREATE_HASH_TABLE_COM',
                                             suffix = '.lut.h',
                                             src_suffix = '.cpp')
-
 
 inputs = [
     'array_object',
@@ -39,6 +45,7 @@ for i in inputs:
 
 env.Lookup_Table_h('lexer', '$KJS_DIR/keywords.table',
                    CREATE_HASH_TABLE_FLAGS='')
+"""
 
 # TODO(bradnelson): sucks, needs relative path
 env.Command('$WEBKIT_DIR/port/JavaScriptCore/chartables.c',
@@ -68,13 +75,13 @@ copies = [
     'API/JSStringRefCF.h',
     'API/JSStringRefBSTR.h',
     'API/JavaScriptCore.h',
-    'bindings/npruntime.h',
-    'bindings/runtime.h',
-    'bindings/NP_jsobject.h',
-    'bindings/npruntime_internal.h',
-    'bindings/npruntime_impl.h',
-    'bindings/runtime_object.h',
-    'bindings/runtime_root.h',
+    '../WebCore/bridge/npruntime.h',
+    '../WebCore/bridge/runtime.h',
+    '../WebCore/bridge/NP_jsobject.h',
+    '../WebCore/bridge/npruntime_internal.h',
+    '../WebCore/bridge/npruntime_impl.h',
+    '../WebCore/bridge/runtime_object.h',
+    '../WebCore/bridge/runtime_root.h',
     'kjs/collector.h',
     'kjs/JSLock.h',
     'kjs/interpreter.h',

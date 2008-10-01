@@ -38,6 +38,9 @@
 namespace WebCore {
 
 class Node;
+#if USE(V8)
+class ExceptionCatcher;
+#endif
 
 // Provides context of an exception. This class is an abstraction of JSC's
 // ExecState. In V8, its purpose is to carry along the exceptions captured
