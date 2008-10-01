@@ -14,6 +14,7 @@ namespace string_escape {
 // returns true and appends the escape sequence to |dst|.
 template<typename CHAR>
 static bool JavascriptSingleEscapeChar(const CHAR c, std::string* dst) {
+  // WARNING: if you add a new case here, you need to update the reader as well.
   switch (c) {
     case '\b':
       dst->append("\\b");

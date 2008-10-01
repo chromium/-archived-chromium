@@ -214,13 +214,13 @@ TEST(JSONReaderTest, Reading) {
 
   // Test basic string escapes
   root = NULL;
-  ASSERT_TRUE(JSONReader::JsonToValue("\" \\\"\\\\\\/\\b\\f\\n\\r\\t\"", &root,
+  ASSERT_TRUE(JSONReader::JsonToValue("\" \\\"\\\\\\/\\b\\f\\n\\r\\t\\v\"", &root,
                                       false, false));
   ASSERT_TRUE(root);
   ASSERT_TRUE(root->IsType(Value::TYPE_STRING));
   str_val.clear();
   ASSERT_TRUE(root->GetAsString(&str_val));
-  ASSERT_EQ(L" \"\\/\b\f\n\r\t", str_val);
+  ASSERT_EQ(L" \"\\/\b\f\n\r\t\v", str_val);
   delete root;
 
   // Test hex and unicode escapes including the null character.

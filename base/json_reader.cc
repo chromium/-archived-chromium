@@ -361,6 +361,7 @@ JSONReader::Token JSONReader::ParseStringToken() {
         case 'n':
         case 'r':
         case 't':
+        case 'v':
         case '"':
           break;
         default:
@@ -405,6 +406,9 @@ bool JSONReader::DecodeString(const Token& token, Value** node) {
           break;
         case 't':
           decoded_str.push_back('\t');
+          break;
+        case 'v':
+          decoded_str.push_back('\v');
           break;
 
         case 'x':
