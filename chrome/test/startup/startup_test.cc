@@ -11,6 +11,18 @@
 
 namespace {
 
+// Wrapper around CopyFile to retry 10 times if there is an error. 
+// For some reasons on buildbot it happens quite often that
+// the test fails because the dll is still in use.
+bool CopyFileWrapper(const std::wstring &src, const std::wstring &dest) {
+  for (int i = 0; i < 10; ++i) {
+    if (file_util::CopyFile(src, dest))
+      return true;
+    Sleep(1000);
+  }
+  return false;
+}
+
 class StartupTest : public UITest {
  public:
   StartupTest() {
@@ -29,18 +41,18 @@ class StartupTest : public UITest {
     ASSERT_TRUE(PathService::Get(chrome::DIR_APP, &chrome_dll));
     file_util::AppendToPath(&chrome_dll, L"chrome.dll");
     chrome_dll_copy = chrome_dll + L".copy";
-    ASSERT_TRUE(file_util::CopyFile(chrome_dll, chrome_dll_copy));
+    ASSERT_TRUE(CopyFileWrapper(chrome_dll, chrome_dll_copy));
 
     std::wstring gears_dll, gears_dll_copy;
     ASSERT_TRUE(PathService::Get(chrome::FILE_GEARS_PLUGIN, &gears_dll));
     gears_dll_copy = gears_dll + L".copy";
-    ASSERT_TRUE(file_util::CopyFile(gears_dll, gears_dll_copy));
+    ASSERT_TRUE(CopyFileWrapper(gears_dll, gears_dll_copy));
 
     TimeDelta timings[kNumCycles];
     for (int i = 0; i < kNumCycles; ++i) {
       if (test_cold) {
-        ASSERT_TRUE(file_util::CopyFile(chrome_dll_copy, chrome_dll));
-        ASSERT_TRUE(file_util::CopyFile(gears_dll_copy, gears_dll));
+        ASSERT_TRUE(CopyFileWrapper(chrome_dll_copy, chrome_dll));
+        ASSERT_TRUE(CopyFileWrapper(gears_dll_copy, gears_dll));
       }
 
       UITest::SetUp();
