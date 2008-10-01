@@ -115,6 +115,8 @@ if env['PLATFORM'] == 'win32':
       'bookmarks/bookmark_storage.cc',
       'browser.cc',
       'browser_about_handler.cc',
+      'browser_accessibility.cc',
+      'browser_accessibility_manager.cc',
       'browser_commands.cc',
       'browser_init.cc',
       'browser_list.cc',
