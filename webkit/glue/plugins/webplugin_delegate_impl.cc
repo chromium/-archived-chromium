@@ -255,11 +255,7 @@ void WebPluginDelegateImpl::UpdateGeometry(const gfx::Rect& window_rect,
                                            const gfx::Rect& clip_rect,
                                            bool visible) {
   if (windowless_) {
-    window_.window =
-        reinterpret_cast<void *>(::GetDC(instance_->window_handle()));
     WindowlessUpdateGeometry(window_rect, clip_rect);
-    ::ReleaseDC(instance_->window_handle(),
-                reinterpret_cast<HDC>(window_.window));
   } else {
     WindowedUpdateGeometry(window_rect, clip_rect, visible);
   }
@@ -831,8 +827,12 @@ void WebPluginDelegateImpl::WindowlessPaint(HDC hdc,
   damage_rect_win.right  = damage_rect_win.left + damage_rect.width();
   damage_rect_win.bottom = damage_rect_win.top + damage_rect.height();
 
-  window_.window = (void*)hdc;
+  // We need to pass the HDC to the plugin via NPP_SetWindow in the
+  // first paint to ensure that it initiates rect invalidations.
+  if (window_.window == NULL)
+    windowless_needs_set_window_ = true;
 
+  window_.window = hdc;
   // TODO(darin): we should avoid calling NPP_SetWindow here since it may
   // cause page layout to be invalidated.
 
@@ -1067,4 +1067,3 @@ void WebPluginDelegateImpl::OnUserGestureEnd() {
   user_gesture_message_posted_ = false;
   instance()->PopPopupsEnabledState();
 }
-
