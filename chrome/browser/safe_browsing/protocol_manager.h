@@ -201,6 +201,9 @@ class SafeBrowsingProtocolManager : public URLFetcher::Delegate {
   // While in GetHash backoff, we can't make another GetHash until this time.
   Time next_gethash_time_;
 
+  // Current product version sent in each request.
+  std::string version_;
+
   DISALLOW_EVIL_CONSTRUCTORS(SafeBrowsingProtocolManager);
 };
 

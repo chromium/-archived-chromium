@@ -4,6 +4,7 @@
 
 #include "chrome/browser/safe_browsing/protocol_manager.h"
 
+#include "base/file_version_info.h"
 #include "base/histogram.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -26,23 +27,21 @@ static const int kSbTimerStartIntervalSec = 5 * 60;
 
 // Update URL for querying about the latest set of chunk updates.
 static const char* const kSbUpdateUrl =
-    "http://safebrowsing.clients.google.com/safebrowsing/downloads?client=%s&appver=%d.%d&pver=2.1";
+    "http://safebrowsing.clients.google.com/safebrowsing/downloads?client=%s&appver=%s&pver=2.1";
 
 // GetHash request URL for retrieving full hashes.
 static const char* const kSbGetHashUrl =
-    "http://safebrowsing.clients.google.com/safebrowsing/gethash?client=%s&appver=%d.%d&pver=2.1";
+    "http://safebrowsing.clients.google.com/safebrowsing/gethash?client=%s&appver=%s&pver=2.1";
 
 // New MAC client key requests URL.
 static const char* const kSbNewKeyUrl =
-    "https://sb-ssl.google.com/safebrowsing/newkey?client=%s&appver=%d.%d&pver=2.1";
+    "https://sb-ssl.google.com/safebrowsing/newkey?client=%s&appver=%s&pver=2.1";
 
 #if defined(GOOGLE_CHROME_BUILD)
 static const char* const kSbClientName = "googlechrome";
 #else
 static const char* const kSbClientName = "chromium";
 #endif
-static const int kSbClientMajorVersion = 1;
-static const int kSbClientMinorVersion = 0;
 
 // Maximum back off multiplier.
 static const int kSbMaxBackOff = 8;
@@ -73,6 +72,13 @@ SafeBrowsingProtocolManager::SafeBrowsingProtocolManager(
 
   // The first update must happen between 0-5 minutes of start up.
   next_update_sec_ = base::RandInt(60, kSbTimerStartIntervalSec);
+
+  scoped_ptr<FileVersionInfo> version_info(
+      FileVersionInfo::CreateFileVersionInfoForCurrentModule());
+  if (!version_info.get())
+    version_ = "0.1";
+  else
+    version_ = WideToASCII(version_info->product_version());
 }
 
 SafeBrowsingProtocolManager::~SafeBrowsingProtocolManager() {
@@ -101,8 +107,7 @@ void SafeBrowsingProtocolManager::GetFullHash(
 
   std::string url = StringPrintf(kSbGetHashUrl,
                                  kSbClientName,
-                                 kSbClientMajorVersion,
-                                 kSbClientMinorVersion);
+                                 version_.c_str());
   if (!client_key_.empty()) {
     url.append("&wrkey=");
     url.append(wrapped_key_);
@@ -458,8 +463,7 @@ void SafeBrowsingProtocolManager::IssueChunkRequest() {
 void SafeBrowsingProtocolManager::IssueKeyRequest() {
   GURL key_url(StringPrintf(kSbNewKeyUrl,
                             kSbClientName,
-                            kSbClientMajorVersion,
-                            kSbClientMinorVersion));
+                            version_.c_str()));
   request_type_ = GETKEY_REQUEST;
   request_.reset(new URLFetcher(key_url, URLFetcher::GET, this));
   request_->set_load_flags(net::LOAD_DISABLE_CACHE);
@@ -503,8 +507,7 @@ void SafeBrowsingProtocolManager::OnGetChunksComplete(
 
   std::string url = StringPrintf(kSbUpdateUrl,
                                  kSbClientName,
-                                 kSbClientMajorVersion,
-                                 kSbClientMinorVersion);
+                                 version_.c_str());
   if (use_mac) {
     url.append("&wrkey=");
     url.append(wrapped_key_);
