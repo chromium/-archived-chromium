@@ -15,6 +15,7 @@ dependents_google_chrome = [
   'ADVAPI32.dll',
   'SHELL32.dll',
   'VERSION.dll',
+  'winmm.dll',
 ]
 
 delay_loaded = [
