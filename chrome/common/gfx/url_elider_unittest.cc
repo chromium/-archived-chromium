@@ -172,7 +172,7 @@ TEST(URLEliderTest, SortedDisplayURL) {
 // Verifies DisplayURL::Compare works correctly.
 TEST(URLEliderTest, SortedDisplayURLCompare) {
   UErrorCode create_status = U_ZERO_ERROR;
-  Collator* collator = Collator::createInstance(create_status);
+  scoped_ptr<Collator> collator(Collator::createInstance(create_status));
   if (!U_SUCCESS(create_status))
     return;
 
@@ -206,7 +206,7 @@ TEST(URLEliderTest, SortedDisplayURLCompare) {
   for (size_t i = 0; i < arraysize(tests); ++i) {
     gfx::SortedDisplayURL url1(GURL(tests[i].a), std::wstring());
     gfx::SortedDisplayURL url2(GURL(tests[i].b), std::wstring());
-    EXPECT_EQ(tests[i].compare_result, url1.Compare(url2, collator));
-    EXPECT_EQ(-tests[i].compare_result, -url1.Compare(url2, collator));
+    EXPECT_EQ(tests[i].compare_result, url1.Compare(url2, collator.get()));
+    EXPECT_EQ(-tests[i].compare_result, -url1.Compare(url2, collator.get()));
   }
 }
