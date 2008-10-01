@@ -130,7 +130,6 @@ void BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData::LoadConfig() {
   // Transform.
   SkMatrix t(transform_);
   LoadTransformToCGContext(bitmap_context_, t);
-  
   t.setTranslateX(-t.getTranslateX());
   t.setTranslateY(-t.getTranslateY());
   LoadClippingRegionToCGContext(bitmap_context_, clip_region_, t);
@@ -145,15 +144,18 @@ BitmapPlatformDeviceMac* BitmapPlatformDeviceMac::Create(CGContextRef context,
                                                          int width,
                                                          int height,
                                                          bool is_opaque) {
-  // TODO(playmobil): remove debug code.
-  //printf("BitmapPlatformDeviceMac::Create(%d,%d)\n", width, height);
-  // each pixel is 4 bytes (RGBA):
   void* data = malloc(height * width * 4);
   if (!data) return NULL;
 
   SkBitmap bitmap;
   bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
   bitmap.setPixels(data);
+  
+  // Note: The Windows implementation clears the Bitmap later on.
+  // This bears mentioning since removal of this line makes the
+  // unit tests only fail periodically (or when MallocPreScribble is set).
+  bitmap.eraseARGB(0, 0, 0, 0);
+  
   bitmap.setIsOpaque(is_opaque);
 
   if (is_opaque) {
@@ -170,7 +172,8 @@ BitmapPlatformDeviceMac* BitmapPlatformDeviceMac::Create(CGContextRef context,
   CGContextRef bitmap_context =
     CGBitmapContextCreate(data, width, height, 8, width*4,
                           color_space, kCGImageAlphaPremultipliedLast);
-  // change the coordinate system to match WebCore's
+  
+  // Change the coordinate system to match WebCore's
   CGContextTranslateCTM(bitmap_context, 0, height);
   CGContextScaleCTM(bitmap_context, 1.0, -1.0);
   CGColorSpaceRelease(color_space);

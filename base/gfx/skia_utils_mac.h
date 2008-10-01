@@ -9,6 +9,7 @@
 #include "SkColor.h"
 #include <CoreGraphics/CGColor.h>
 
+struct SkMatrix;
 struct SkIRect;
 struct SkPoint;
 struct SkRect;
@@ -26,6 +27,9 @@ inline const CGPoint& SkPointToCGPoint(const SkPoint& point) {
 inline const SkPoint& CGPointToSkPoint(const CGPoint& point) {
   return reinterpret_cast<const SkPoint&>(point);
 }
+
+// Matrix converters.
+CGAffineTransform SkMatrixToCGAffineTransform(const SkMatrix& matrix);
   
 // Rectangle converters.
 SkRect CGRectToSkRect(const CGRect& rect);

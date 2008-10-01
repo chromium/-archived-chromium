@@ -78,8 +78,10 @@ void DrawNativeRect(PlatformCanvas& canvas, int x, int y, int w, int h) {
   CGContextRef context = canvas.beginPlatformPaint();
   
   CGRect inner_rc = CGRectMake(x, y, w, h);
-  CGFloat black[] = { 0.0, 0.0, 0.0, 1.0 };  // RGBA opaque black
-  CGContextSetFillColor(context, black);
+  // RGBA opaque black
+  CGColorRef black = CGColorCreateGenericRGB(0.0, 0.0, 0.0, 1.0);
+  CGContextSetFillColorWithColor(context, black);
+  CGColorRelease(black);
   CGContextFillRect(context, inner_rc);
   
   canvas.endPlatformPaint();

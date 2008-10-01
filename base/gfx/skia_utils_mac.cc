@@ -5,10 +5,26 @@
 #include "base/gfx/skia_utils_mac.h"
 
 #include "base/logging.h"
+#include "SkMatrix.h"
 #include "SkRect.h"
 
 namespace gfx {
 
+CGAffineTransform SkMatrixToCGAffineTransform(const SkMatrix& matrix) {
+  // CGAffineTransforms don't support perspective transforms, so make sure
+  // we don't get those.
+  DCHECK(matrix[SkMatrix::kMPersp0] == 0.0f);
+  DCHECK(matrix[SkMatrix::kMPersp1] == 0.0f);
+  DCHECK(matrix[SkMatrix::kMPersp2] == 1.0f);
+  
+  return CGAffineTransformMake(matrix[SkMatrix::kMScaleX],
+                               matrix[SkMatrix::kMSkewY],
+                               matrix[SkMatrix::kMSkewX],
+                               matrix[SkMatrix::kMScaleY],
+                               matrix[SkMatrix::kMTransX],
+                               matrix[SkMatrix::kMTransY]);
+}
+  
 SkIRect CGRectToSkIRect(const CGRect& rect) {
   SkIRect sk_rect = {
     SkScalarRound(rect.origin.x),

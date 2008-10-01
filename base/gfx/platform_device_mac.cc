@@ -97,37 +97,32 @@ void PlatformDeviceMac::LoadPathToCGContext(CGContextRef context,
 // static
 void PlatformDeviceMac::LoadTransformToCGContext(CGContextRef context,
                                                  const SkMatrix& matrix) {
-  // TODO: CoreGraphics can concatenate transforms, but not reset the current
-  // one.  Either find a workaround or remove this function if it turns out
-  // to be unneeded on the Mac.
-  // For now, just load the translation.
+  // CoreGraphics can concatenate transforms, but not reset the current one.
+  // So in order to get the required behavior here, we need to first make
+  // the current transformation matrix identity and only then load the new one.
   
-  // First reset the Transforms.
-  // TODO(playmobil): no need to call CGContextTranslateCTM() twice
-  // just add up the numbers and call through.
-  CGAffineTransform orig_transform = CGContextGetCTM(context);
-  CGContextTranslateCTM(context,
-                        -orig_transform.tx,
-                        orig_transform.ty);  // y axis is flipped.
-
-  // TODO(playmobil): remove debug code.
-  // CGAffineTransform temp_transform = CGContextGetCTM(context);
+  // Reset matrix to identity.
+  CGAffineTransform orig_cg_matrix = CGContextGetCTM(context);
+  CGAffineTransform orig_cg_matrix_inv = CGAffineTransformInvert(orig_cg_matrix);
+  CGContextConcatCTM(context, orig_cg_matrix_inv);
   
-  // Now set the new transform.
-  int tx = matrix.getTranslateX();
-  int ty = -matrix.getTranslateY();
-  int height = CGBitmapContextGetHeight(context);
-  CGContextTranslateCTM(context,
-                        tx,
-                        -(ty+height));
-  CGAffineTransform new_transform = CGContextGetCTM(context);
-// TODO(playmobil): remove debug code.
-//  printf("tx_matrix (%lf,%lf)->(%lf,%lf)->(%lf,%lf) (%d, %d) height=%d\n", orig_transform.tx,
-//                                       orig_transform.ty,
-//                                       foo_transform.tx,
-//                                       foo_transform.ty,
-//                                       new_transform.tx,
-//                                       new_transform.ty, tx, ty, height);
+  // assert that we have indeed returned to the identity Matrix.
+  DCHECK(CGAffineTransformIsIdentity(CGContextGetCTM(context)));
+  
+  // Convert xform to CG-land.
+  // Our coordinate system is flipped to match WebKit's so we need to modify
+  // the xform to match that.
+  SkMatrix transformed_matrix = matrix;
+  SkScalar sy = matrix.getScaleY() * (SkScalar)-1;
+  transformed_matrix.setScaleY(sy);
+  size_t height = CGBitmapContextGetHeight(context);
+  SkScalar ty = -matrix.getTranslateY(); // y axis is flipped.
+  transformed_matrix.setTranslateY(ty + (SkScalar)height);
+  
+  CGAffineTransform cg_matrix = SkMatrixToCGAffineTransform(transformed_matrix);
+  
+  // Load final transform into context.
+  CGContextConcatCTM(context, cg_matrix);
 }
 
 // static
@@ -147,9 +142,6 @@ void PlatformDeviceMac::LoadClippingRegionToCGContext(
     transformation.mapRect(&rect);
     SkIRect irect;
     rect.round(&irect);
-// TODO(playmobil): remove debug code.
-//    printf("Clipping to (%d,%d) (%d,%d)\n", irect.fLeft, irect.fTop, 
-//           irect.fRight, irect.fBottom);
     CGContextClipToRect(context, SkIRectToCGRect(irect));
   } else {
     // It is complex.
