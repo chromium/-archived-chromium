@@ -213,10 +213,20 @@ void MessagePumpWin::HandleTimerMessage() {
 }
 
 bool MessagePumpWin::ProcessNextWindowsMessage() {
+  // If there are sent messages in the queue then PeekMessage internally
+  // dispatches the message and returns false. We return true in this
+  // case to ensure that the message loop peeks again instead of calling
+  // MsgWaitForMultipleObjectsEx again.
+  bool sent_messages_in_queue = false;
+  DWORD queue_status = GetQueueStatus(QS_SENDMESSAGE);
+  if (HIWORD(queue_status) & QS_SENDMESSAGE)
+    sent_messages_in_queue = true;
+
   MSG msg;
   if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
     return ProcessMessageHelper(msg);
-  return false;
+
+  return sent_messages_in_queue;
 }
 
 bool MessagePumpWin::ProcessMessageHelper(const MSG& msg) {
@@ -358,8 +368,25 @@ void MessagePumpForUI::WaitForWork() {
   result = MsgWaitForMultipleObjectsEx(0, NULL, delay, QS_ALLINPUT,
                                        MWMO_INPUTAVAILABLE);
 
-  if (WAIT_OBJECT_0 == result)
-    return;  // A WM_* message is available.
+  if (WAIT_OBJECT_0 == result) {
+    // A WM_* message is available.
+    // If a parent child relationship exists between windows across threads
+    // then their thread inputs are implicitly attached.
+    // This causes the MsgWaitForMultipleObjectsEx API to return indicating
+    // that messages are ready for processing (specifically mouse messages
+    // intended for the child window. Occurs if the child window has capture)
+    // The subsequent PeekMessages call fails to return any messages thus
+    // causing us to enter a tight loop at times.
+    // The WaitMessage call below is a workaround to give the child window
+    // sometime to process its input messages.
+    MSG msg = {0};
+    DWORD queue_status = GetQueueStatus(QS_MOUSE);
+    if (HIWORD(queue_status) & QS_MOUSE && 
+       !PeekMessage(&msg, NULL, WM_MOUSEFIRST, WM_MOUSELAST, PM_NOREMOVE)) {
+      WaitMessage();
+    }
+    return;  
+  }
 
   DCHECK_NE(WAIT_FAILED, result) << GetLastError();
 }
