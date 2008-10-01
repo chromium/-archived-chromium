@@ -163,3 +163,50 @@ TEST(URLEliderTest, ElideTextLongStrings) {
   }
 }
 
+// Verifies display_url is set correctly.
+TEST(URLEliderTest, SortedDisplayURL) {
+  gfx::SortedDisplayURL d_url(GURL("http://www.google.com/"), std::wstring());
+  EXPECT_EQ(L"http://www.google.com/", d_url.display_url());
+}
+
+// Verifies DisplayURL::Compare works correctly.
+TEST(URLEliderTest, SortedDisplayURLCompare) {
+  UErrorCode create_status = U_ZERO_ERROR;
+  Collator* collator = Collator::createInstance(create_status);
+  if (!U_SUCCESS(create_status))
+    return;
+
+  struct TestData {
+    const std::string a;
+    const std::string b;
+    const int compare_result;
+  } tests[] = {
+    // IDN comparison. Hosts equal, so compares on path.
+    { "http://xn--1lq90i.cn/a", "http://xn--1lq90i.cn/b", -1},
+
+    // Because the host and after host match, this compares the full url.
+    { "http://www.x/b", "http://x/b", -1 },
+    
+    // Because the host and after host match, this compares the full url.
+    { "http://www.a:1/b", "http://a:1/b", 1 },
+
+    // The hosts match, so these end up comparing on the after host portion.
+    { "http://www.x:0/b", "http://x:1/b", -1 },
+    { "http://www.x/a", "http://x/b", -1 },
+    { "http://x/b", "http://www.x/a", 1 },
+
+    // Trivial Equality.
+    { "http://a/", "http://a/", 0 },
+
+    // Compares just hosts.
+    { "http://www.a/", "http://b/", -1 },
+  };
+
+
+  for (size_t i = 0; i < arraysize(tests); ++i) {
+    gfx::SortedDisplayURL url1(GURL(tests[i].a), std::wstring());
+    gfx::SortedDisplayURL url2(GURL(tests[i].b), std::wstring());
+    EXPECT_EQ(tests[i].compare_result, url1.Compare(url2, collator));
+    EXPECT_EQ(-tests[i].compare_result, -url1.Compare(url2, collator));
+  }
+}

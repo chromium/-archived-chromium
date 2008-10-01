@@ -20,7 +20,8 @@ namespace gfx {
 
 // Appends the given part of the original URL to the output string formatted for
 // the user. The given parsed structure will be updated. The host name formatter
-// also takes the same accept languages component as ElideURL.
+// also takes the same accept languages component as ElideURL. |new_parsed| may
+// be null.
 static void AppendFormattedHost(const GURL& url,
                                 const std::wstring& languages,
                                 std::wstring* output,
@@ -36,10 +37,12 @@ static void AppendFormattedComponent(const std::string& spec,
 
 // A helper function to get Clean Url String from a GURL. The parsing of the
 // URL may change because various parts of the string will change lengths. The
-// new parsing will be placed in the given out parameter.
+// new parsing will be placed in the given out parameter. |prefix_end| is set
+// to the end of the prefix (spec and separator characters before host).
 static std::wstring GetCleanStringFromUrl(const GURL& url,
                                           const std::wstring& languages,
-                                          url_parse::Parsed* new_parsed);
+                                          url_parse::Parsed* new_parsed,
+                                          size_t* prefix_end);
 
 // This function takes a GURL object and elides it. It returns a string
 // which composed of parts from subdomain, domain, path, filename and query.
@@ -57,7 +60,8 @@ std::wstring ElideUrl(const GURL& url,
                       const std::wstring& languages) {
   // Get a formatted string and corresponding parsing of the url.
   url_parse::Parsed parsed;
-  std::wstring url_string = GetCleanStringFromUrl(url, languages, &parsed);
+  std::wstring url_string = GetCleanStringFromUrl(url, languages, &parsed,
+                                                  NULL);
   if (available_pixel_width <= 0)
     return url_string;
 
@@ -325,7 +329,8 @@ void AppendFormattedHost(const GURL& url,
 
   if (host.is_nonempty()) {
     // Handle possible IDN in the host name.
-    new_parsed->host.begin = static_cast<int>(output->length());
+    if (new_parsed)
+      new_parsed->host.begin = static_cast<int>(output->length());
 
     const std::string& spec = url.possibly_invalid_spec();
     DCHECK(host.begin >= 0 &&
@@ -333,9 +338,11 @@ void AppendFormattedHost(const GURL& url,
             host.begin < static_cast<int>(spec.length())));
     net::IDNToUnicode(&spec[host.begin], host.len, languages, output);
 
-    new_parsed->host.len =
-        static_cast<int>(output->length()) - new_parsed->host.begin;
-  } else {
+    if (new_parsed) {
+      new_parsed->host.len =
+          static_cast<int>(output->length()) - new_parsed->host.begin;
+    }
+  } else if (new_parsed) {
     new_parsed->host.reset();
   }
 }
@@ -359,12 +366,16 @@ void AppendFormattedComponent(const std::string& spec,
 
 std::wstring GetCleanStringFromUrl(const GURL& url,
                                    const std::wstring& languages,
-                                   url_parse::Parsed* new_parsed) {
+                                   url_parse::Parsed* new_parsed,
+                                   size_t* prefix_end) {
   std::wstring url_string;
 
   // Check for empty URLs or 0 available text width.
-  if (url.is_empty())
+  if (url.is_empty()) {
+    if (prefix_end)
+      *prefix_end = 0;
     return url_string;
+  }
 
   // We handle both valid and invalid URLs (this will give us the spec
   // regardless of validity).
@@ -377,10 +388,12 @@ std::wstring GetCleanStringFromUrl(const GURL& url,
   //
   // Copy everything before the host name we want (the scheme and the
   // separators), minus the username start we computed above. These are ASCII.
-  int prefix_end = parsed.CountCharactersBefore(
+  int pre_end = parsed.CountCharactersBefore(
       url_parse::Parsed::USERNAME, true);
-  for (int i = 0; i < prefix_end; i++)
+  for (int i = 0; i < pre_end; i++)
     url_string.push_back(spec[i]);
+  if (prefix_end)
+    *prefix_end = static_cast<size_t>(pre_end);
   new_parsed->scheme = parsed.scheme;
   new_parsed->username.reset();
   new_parsed->password.reset();
@@ -411,5 +424,66 @@ std::wstring GetCleanStringFromUrl(const GURL& url,
   return url_string;
 }
 
-} // namespace gfx.
+SortedDisplayURL::SortedDisplayURL(const GURL& url,
+                                   const std::wstring& languages) {
+  AppendFormattedHost(url, languages, &sort_host_, NULL);
+  std::wstring host_minus_www = net::StripWWW(sort_host_);
+  url_parse::Parsed parsed;
+  display_url_ = GetCleanStringFromUrl(url, languages, &parsed, &prefix_end_);
+  if (sort_host_.length() > host_minus_www.length()) {
+    prefix_end_ += sort_host_.length() - host_minus_www.length();
+    sort_host_.swap(host_minus_www);
+  }
+}
 
+int SortedDisplayURL::Compare(const SortedDisplayURL& other,
+                              Collator* collator) const {
+  // Compare on hosts first. The host won't contain 'www.'.
+  UErrorCode compare_status = U_ZERO_ERROR;
+  UCollationResult host_compare_result = collator->compare(
+      static_cast<const UChar*>(sort_host_.c_str()),
+      static_cast<int>(sort_host_.length()),
+      static_cast<const UChar*>(other.sort_host_.c_str()),
+      static_cast<int>(other.sort_host_.length()),
+      compare_status);
+  DCHECK(U_SUCCESS(compare_status));
+  if (host_compare_result != 0)
+    return host_compare_result;
+
+  // Hosts match, compare on the portion of the url after the host.
+  std::wstring path = this->AfterHost();
+  std::wstring o_path = other.AfterHost();
+  compare_status = U_ZERO_ERROR;
+  UCollationResult path_compare_result = collator->compare(
+      static_cast<const UChar*>(path.c_str()),
+      static_cast<int>(path.length()),
+      static_cast<const UChar*>(o_path.c_str()),
+      static_cast<int>(o_path.length()),
+      compare_status);
+  DCHECK(U_SUCCESS(compare_status));
+  if (path_compare_result != 0)
+    return path_compare_result;
+
+  // Hosts and paths match, compare on the complete url. This'll push the www.
+  // ones to the end.
+  compare_status = U_ZERO_ERROR;
+  UCollationResult display_url_compare_result = collator->compare(
+      static_cast<const UChar*>(display_url_.c_str()),
+      static_cast<int>(display_url_.length()),
+      static_cast<const UChar*>(other.display_url_.c_str()),
+      static_cast<int>(other.display_url_.length()),
+      compare_status);
+  DCHECK(U_SUCCESS(compare_status));
+  return display_url_compare_result;
+}
+
+std::wstring SortedDisplayURL::AfterHost() const {
+  size_t slash_index = display_url_.find(sort_host_, prefix_end_);
+  if (slash_index == std::wstring::npos) {
+    NOTREACHED();
+    return std::wstring();
+  }
+  return display_url_.substr(slash_index + sort_host_.length());
+}
+
+} // namespace gfx.

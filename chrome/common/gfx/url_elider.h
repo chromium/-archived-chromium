@@ -2,9 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_GFX_URL_ELIDER_H__
-#define CHROME_COMMON_GFX_URL_ELIDER_H__
+#ifndef CHROME_COMMON_GFX_URL_ELIDER_H_
+#define CHROME_COMMON_GFX_URL_ELIDER_H_
 
+#include <unicode/coll.h>
+#include <unicode/uchar.h>
 #include <windows.h>
 
 #include "base/basictypes.h"
@@ -30,7 +32,38 @@ std::wstring ElideText(const std::wstring& text,
                        const ChromeFont& font,
                        int available_pixel_width);
 
+// SortedDisplayURL maintains a string from a URL suitable for display to the
+// use. SortedDisplayURL also provides a function used for comparing two
+// SortedDisplayURLs for use in visually ordering the SortedDisplayURLs.
+//
+// SortedDisplayURL is relatively cheap and supports value semantics.
+class SortedDisplayURL {
+ public:
+  SortedDisplayURL(const GURL& url, const std::wstring& languages);
+  SortedDisplayURL() {}
+
+  // Compares this SortedDisplayURL to |url| using |collator|. Returns a value
+  // < 0, = 1 or > 0 as to whether this url is less then, equal to or greater
+  // than the supplied url.
+  int Compare(const SortedDisplayURL& other, Collator* collator) const;
+
+  // Returns the display string for the URL.
+  const std::wstring& display_url() const { return display_url_; }
+
+ private:
+  // Returns everything after the host. This is used by Compare if the hosts
+  // match.
+  std::wstring AfterHost() const;
+
+  // Host name minus 'www.'. Used by Compare.
+  std::wstring sort_host_;
+
+  // End of the prefix (spec and separator) in display_url_.
+  size_t prefix_end_;
+
+  std::wstring display_url_;
+};
+
 } // namespace gfx.
 
-#endif  // #ifndef CHROME_COMMON_GFX_URL_ELIDER_H__
-
+#endif  // #ifndef CHROME_COMMON_GFX_URL_ELIDER_H_
