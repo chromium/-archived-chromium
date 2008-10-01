@@ -79,6 +79,14 @@ env = Environment(
     PYTHON=sys.executable,
 
     LIBPATH               = ['$LIBS_DIR'],
+
+    PERL                  = 'perl',
+    PERL_INCLUDE_FLAG     = '-I ',
+    PERL_INCLUDE_SUFFIX   = '',
+    _PERL_INCLUDE_FLAGS   = ('${_concat(PERL_INCLUDE_FLAG, '
+                             'PERL_INCLUDE_PATH, '
+                             'PERL_INCLUDE_SUFFIX,'
+                             '__env__, RDirs, TARGET, SOURCE)}'),
 )
 
 def AddPdbToTarget(args):
@@ -159,12 +167,6 @@ if env['PLATFORM'] == 'win32':
     CYGWIN_BIN_DIR = '$CYGWIN_DIR/bin',
 
     PERL = '$CYGWIN_BIN_DIR/perl.exe',
-    PERL_INCLUDE_FLAG = '-I ',
-    PERL_INCLUDE_SUFFIX = '',
-    _PERL_INCLUDE_FLAGS = ('${_concat(PERL_INCLUDE_FLAG, '
-                           'PERL_INCLUDE_PATH, '
-                           'PERL_INCLUDE_SUFFIX,'
-                           '__env__, RDirs, TARGET, SOURCE)}'),
 
     MSVS_ENV = msvs_env,
 
